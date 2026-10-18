@@ -384,7 +384,7 @@ describe('generation reports', () => {
     const { hooks, heard } = withHooks()
     const error = heard('kubb:error')
     const { agent } = await connectStudio({ hooks, permissions: { allowWrite: true } })
-    const output = { path: '../../../home/alice/.ssh/authorized_keys', mode: 'file', banner: 'ssh-ed25519 AAAA' }
+    const output = { path: '../../../home/alice/.ssh/authorized_keys' }
 
     await expect(agent.startGeneration({ jobId: 'job-1', config: { plugins: [{ name: '@kubb/plugin-ts', options: { output } }] } }).result()).rejects.toThrow(
       'Plugin "plugin-ts" would write to "/home/alice/.ssh/authorized_keys", outside the output folder',

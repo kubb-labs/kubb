@@ -387,7 +387,6 @@ export function assertOutputPaths({
   root: string
   outputPath: string
 }): void {
-  // A plugin's `output.path` resolves against the config's own `output.path`.
   const base = path.resolve(root, outputPath)
   const targetsOf = (plugin: Plugin): Array<string> => {
     const { output, override } = (plugin.options ?? {}) as { output?: { path?: unknown }; override?: Array<{ options?: { output?: { path?: unknown } } }> }
@@ -397,7 +396,7 @@ export function assertOutputPaths({
   const diskTargets = new Set(diskPlugins.flatMap(targetsOf))
 
   for (const plugin of plugins) {
-    const target = targetsOf(plugin).find((target) => !diskTargets.has(target) && !isPathInside(target, base))
+    const target = targetsOf(plugin).find((resolved) => !diskTargets.has(resolved) && !isPathInside(resolved, base))
     if (!target) continue
 
     throw new Diagnostics.Error({

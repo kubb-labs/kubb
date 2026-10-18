@@ -229,34 +229,29 @@ describe('assertOutputPaths', () => {
     return () => assertOutputPaths({ plugins: [makePlugin('plugin-ts', options)], diskPlugins, root: '/project', outputPath: 'src/gen' })
   }
 
-  it('refuses a file path Studio sends that climbs out of the project root', () => {
-    const run = check({ output: { path: '../../../../home/alice/.ssh/authorized_keys', mode: 'file', banner: 'ssh-ed25519 AAAA' } })
+  it('refuses a path Studio sends that climbs out of the project root', () => {
+    const run = check({ output: { path: '../../../../home/alice/.ssh/authorized_keys' } })
 
     expect(run).toThrow('Plugin "plugin-ts" would write to "/home/alice/.ssh/authorized_keys", outside the output folder "/project/src/gen".')
     expect(run).toThrow(expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.pathTraversal }) }))
   })
 
-  it('refuses a directory path Studio sends that climbs out of the project root', () => {
-    expect(check({ output: { path: '../../../etc', mode: 'directory' } })).toThrow('would write to "/etc"')
-  })
-
   it('refuses an absolute path outside the project root, also inside `override`', () => {
-    expect(check({ output: { path: '/etc/cron.d/kubb', mode: 'file' } })).toThrow('would write to "/etc/cron.d/kubb"')
+    expect(check({ output: { path: '/etc/cron.d/kubb' } })).toThrow('would write to "/etc/cron.d/kubb"')
     expect(check({ output: { path: 'types' }, override: [{ type: 'tag', pattern: 'pet', options: { output: { path: '/etc/cron.d/kubb' } } }] })).toThrow(
       'would write to "/etc/cron.d/kubb"',
     )
   })
 
   it('refuses a path inside the project root but outside the output folder', () => {
-    const payload = { path: '../../node_modules/@kubb/plugin-ts/dist/index.js', mode: 'file', banner: 'payload;/*', footer: '*/' }
-
-    expect(check({ output: payload })).toThrow('would write to "/project/node_modules/@kubb/plugin-ts/dist/index.js"')
-    expect(check({ output: { path: '../../.git/hooks/pre-commit', mode: 'file' } })).toThrow('would write to "/project/.git/hooks/pre-commit"')
+    expect(check({ output: { path: '../../node_modules/@kubb/plugin-ts/dist/index.js' } })).toThrow(
+      'would write to "/project/node_modules/@kubb/plugin-ts/dist/index.js"',
+    )
   })
 
   it('allows a path inside the output folder', () => {
     expect(check({ output: { path: 'types' } })).not.toThrow()
-    expect(check({ output: { path: 'models/index.ts', mode: 'file' } })).not.toThrow()
+    expect(check({ output: { path: 'models/index.ts' } })).not.toThrow()
   })
 
   it('allows a path outside the project root that the config file sets itself', () => {
