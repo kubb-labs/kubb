@@ -2,25 +2,53 @@ import { styleText } from 'node:util'
 import { formatMs } from '@internals/utils'
 
 /**
- * 256-color codes for the mascot pixels: the hooded figure from the logo, kept as simple as the Claude Code blob.
+ * 256-color codes for the mascot pixels, matched to the logo: a hooded figure holding a code block.
  */
 const palette: Record<string, number> = {
   /**
-   * Hood.
+   * Hood and hoodie.
    */
   O: 208,
   /**
-   * Face.
+   * Shadow, code block, and legs.
+   */
+  D: 166,
+  /**
+   * Face and hands.
    */
   S: 216,
   /**
-   * Eyes.
+   * Eye whites and the code block marks.
+   */
+  W: 230,
+  /**
+   * Pupils and smile.
    */
   K: 16,
+  /**
+   * Cheek blush.
+   */
+  B: 209,
 }
 
 // One character per pixel, two pixel rows per terminal line. `.` is transparent.
-const mascot = ['...OOOOO...', '.OOOOOOOOO.', 'OOOSSSSSOOO', 'OOSKSSSKSOO', 'OOSSSSSSSOO', '.OOOSSSOOO.']
+const mascot = [
+  '....OOOOOO....',
+  '..OOOOOOOOOO..',
+  '.OOSSSSSSSSOO.',
+  '.OSSSSSSSSSSO.',
+  'OOSWKSSSSWKSOO',
+  'OOSWWSSSSWWSOO',
+  'OOBSSKSSKSSBOO',
+  '.OOSSSKKSSSOO.',
+  '..OOOOOOOOOO..',
+  '.OOSDWDDWDSOO.',
+  '..OSDDWWDDSO..',
+  '...DDD..DDD...',
+]
+
+// Replaces the two eye rows of `mascot` with shut lids.
+const closedEyes = ['OOSSSSSSSSSSOO', 'OOSKKSSSSKKSOO']
 
 function pixel(fg: string | undefined, bg: string | undefined, char: string, colors: boolean): string {
   if (!colors) return char
@@ -33,8 +61,7 @@ function pixel(fg: string | undefined, bg: string | undefined, char: string, col
  * Draws the mascot with half blocks, so each terminal cell holds two vertical pixels.
  */
 function drawMascot(areEyesOpen: boolean, colors: boolean): Array<string> {
-  // Closed eyes drop the pupils, leaving the face blank for a blink.
-  const rows = areEyesOpen ? mascot : mascot.map((row) => row.replaceAll('K', 'S'))
+  const rows = areEyesOpen ? mascot : [...mascot.slice(0, 4), ...closedEyes, ...mascot.slice(6)]
   const lines: Array<string> = []
 
   for (let y = 0; y < rows.length; y += 2) {
@@ -88,7 +115,8 @@ export function getIntro({
   const lines = drawMascot(areEyesOpen, process.stdout.hasColors?.(256) ?? false)
   const text = [styleText('bold', 'Kubb') + styleText('gray', ` v${version}`), styleText('gray', title), `${styleText(['bold', 'yellow'], '➜')} ${description}`]
 
-  return lines.map((line, i) => `  ${line}   ${text[i]}`.trimEnd()).join('\n')
+  // The text sits on lines 2 to 4, level with the face.
+  return lines.map((line, i) => `  ${line}   ${text[i - 1] ?? ''}`.trimEnd()).join('\n')
 }
 
 /**

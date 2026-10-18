@@ -16,16 +16,16 @@ describe('formatMsWithColor', () => {
 describe('getIntro', () => {
   const options = { title: 'kubb.config.ts', description: 'Ready to start', version: '5.0.0' }
 
-  it('draws a three-line mascot next to the version, title, and description', () => {
+  it('draws a six-line mascot next to the version, title, and description', () => {
     const lines = getIntro({ ...options, areEyesOpen: true }).split('\n')
 
-    expect(lines).toHaveLength(3)
-    expect(lines[0]).toContain('v5.0.0')
-    expect(lines[1]).toContain('kubb.config.ts')
-    expect(lines[2]).toContain('Ready to start')
+    expect(lines).toHaveLength(6)
+    expect(lines[1]).toContain('v5.0.0')
+    expect(lines[2]).toContain('kubb.config.ts')
+    expect(lines[3]).toContain('Ready to start')
   })
 
-  it('closes the eyes by dropping the pupils', () => {
+  it('draws shut lids when the eyes are closed', () => {
     // Eyes differ only by color, and test stdout is not a color terminal.
     const hasColors = process.stdout.hasColors
     process.stdout.hasColors = () => true
