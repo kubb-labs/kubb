@@ -604,7 +604,11 @@ export class Resolver {
    * with empty `sources`, `imports`, and `exports`, which consumers populate separately.
    */
   #resolveFile(options: ResolveFileOptions): FileNode {
-    const { name, extname, tag, path: groupPath, root, output, group } = options
+    const { name, extname, tag, path: groupPath, output, group } = options
+    // A shared schema resolves under `output.shared.path` with the same layout, so its own file and
+    // every import of it land there. Operation files carry a `tag` or `path` and never move.
+    const shared = !tag && !groupPath && output.shared?.schemas.includes(name) ? output.shared : undefined
+    const root = shared ? path.resolve(options.root, shared.path) : options.root
     const baseName = this.#baseName({ name, extname })
     const filePath = this.#filePath
       ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root)

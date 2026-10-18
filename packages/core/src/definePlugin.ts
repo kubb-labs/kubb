@@ -31,6 +31,29 @@ export type ResolvePluginOptions<TName> = TName extends keyof Kubb.PluginRegistr
 export type OutputMode = 'directory' | 'file'
 
 /**
+ * Schemas that several configs share. Kubb writes each listed schema under `path` instead of the
+ * config's own output, with the same plugin layout, and every other file imports it from there.
+ *
+ * @example
+ * ```ts
+ * shared: { path: './src/gen/common', schemas: ['Name', 'Color'] }
+ * // ./src/gen/common/types/Name.ts, imported by ./src/gen/animals/types/Animal.ts
+ * ```
+ */
+export type SharedOutput = {
+  /**
+   * Directory for the shared schemas. On `defineConfig` it is resolved against `root`, on a plugin
+   * against the global `output.path`.
+   */
+  path: string
+  /**
+   * Schema names, as written in the spec, that go to `path`. List the schemas they reference as
+   * well, so a shared file never imports from one config's own output.
+   */
+  schemas: Array<string>
+}
+
+/**
  * Output configuration shared by every plugin. Each plugin extends this with
  * its own keys via the `Kubb.PluginOptionsRegistry.output` interface merge.
  */
@@ -67,6 +90,11 @@ export type Output = {
    * Pass a function to compute the footer from the file's `BannerMeta`.
    */
   footer?: string | ((meta: BannerMeta) => string)
+  /**
+   * Schemas written to a directory shared with other configs. Defaults to the global
+   * `output.shared` set on `defineConfig`.
+   */
+  shared?: SharedOutput
 } & ExtractRegistryKey<Kubb.PluginOptionsRegistry, 'output'>
 
 /**

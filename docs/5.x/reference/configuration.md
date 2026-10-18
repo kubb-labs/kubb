@@ -80,7 +80,7 @@ export default defineConfig([
 ])
 ```
 
-A config function can return an array to combine both forms.
+A config function can return an array to combine both forms. When the specs define the same schemas, set [`output.shared`](#outputshared) to generate those once.
 
 ## Defaults {#defaults}
 
@@ -230,6 +230,41 @@ Behavior of the root `index.ts` barrel file at `output.path`, and the default ev
 Default: `false`.
 
 `{ type: 'named' }` re-exports each symbol by name, `{ type: 'all' }` writes `export *`. See [`@kubb/plugin-barrel` options](/extensions/kubb-labs/plugin-barrel/options#outputbarrel) for the export styles and the plugin-level `nested` flag, and [Add barrel files](/docs/5.x/how-to/barrel-files) for the setup steps.
+:::
+
+#### `output.shared`
+
+:::field{type="{ path: string; schemas: Array<string> }"}
+Schemas that several specs define, written once to a shared directory. Every other generated file imports them from there.
+
+Kubb writes each listed schema under `path`, resolved against [`root`](#root), with the same plugin layout as `output.path`. Give every config in an [array](#multiple-configurations-array) the same value:
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from 'kubb/config'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+
+const shared = { path: './src/gen/common', schemas: ['Name', 'Color'] }
+
+export default defineConfig([
+  {
+    input: './animals.json',
+    output: { path: './src/gen/animals', shared },
+    plugins: [pluginTs(), pluginZod()],
+  },
+  {
+    input: './fruits.json',
+    output: { path: './src/gen/fruits', shared },
+    plugins: [pluginTs(), pluginZod()],
+  },
+])
+```
+
+This writes `src/gen/common/types/Name.ts` and `src/gen/common/zod/nameSchema.ts` once, and `src/gen/animals/types/Animal.ts` imports `Name` from `../../common/types/Name`.
+
+- List the schema names as the spec writes them, including every schema a listed schema references.
+- Each config writes the listed schemas, so they must be identical in every spec. The last config wins.
+- [`output.clean`](#outputclean) leaves the shared directory alone.
 :::
 
 #### `output.defaultBanner`

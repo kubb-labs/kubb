@@ -14,6 +14,7 @@ import type {
   Plugin,
   PluginName,
   ResolvePluginOptions,
+  SharedOutput,
 } from './definePlugin.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { HookResult } from './output/runHook.ts'
@@ -183,6 +184,19 @@ export type Config<TInput = Input> = {
      * ```
      */
     defaultBanner?: 'simple' | 'full' | false
+    /**
+     * Write the listed schemas once to a directory that other configs share, and import them from
+     * there. Give each config in a `defineConfig` array the same `shared` value, so schemas that
+     * every spec defines are generated once. Kubb writes the schemas as each config defines them,
+     * so a listed schema must be identical in every spec, and `clean` leaves the shared directory
+     * alone.
+     *
+     * @example
+     * ```ts
+     * shared: { path: './src/gen/common', schemas: ['Name', 'Color'] }
+     * ```
+     */
+    shared?: SharedOutput
   } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
   /**
    * Where generated files are persisted. Defaults to `fsStorage()` (disk). Pass `memoryStorage()`

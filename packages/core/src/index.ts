@@ -100,6 +100,7 @@ export type {
   PluginType,
   PluginName,
   ResolvePluginOptions,
+  SharedOutput,
 } from './definePlugin.ts'
 export type {
   BannerMeta,

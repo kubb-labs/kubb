@@ -368,10 +368,14 @@ export class KubbDriver {
           await this.setupHooks()
 
           // Normalize each plugin's options once setup hooks have run, so the generate loop always
-          // sees a filled-in bag whether or not the plugin called `setOptions`.
+          // sees a filled-in bag whether or not the plugin called `setOptions`. The global
+          // `output.shared` becomes each plugin's default, resolved against `root` here because the
+          // resolver only knows the output directory.
+          const shared = config.output.shared && { ...config.output.shared, path: resolve(config.root, config.output.shared.path) }
           for (const plugin of this.plugins.values()) {
             this.options.signal?.throwIfAborted()
             plugin.options = normalizePluginOptions(plugin.options, plugin.name)
+            if (shared) plugin.options.output.shared ??= shared
           }
 
           if (this.adapter && this.inputNode) {
