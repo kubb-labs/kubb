@@ -35,28 +35,10 @@ function formatTip(tip: string): string {
 }
 
 /**
- * A command worth running next, which takes the tip's place.
+ * Prints one random tip outside every group. Rich terminals get the styled variant;
+ * plain/CI output gets a stable text-only line so the tip is still visible as final output.
  */
-type NextStep = {
-  command: string
-  description: string
-}
-
-/**
- * Prints one tip outside every group: the `next` step when there is one, otherwise a random
- * sponsor tip. Rich terminals get the styled variant; plain/CI output gets a stable text-only line
- * so the tip is still visible as final output.
- */
-export function logTip(next?: NextStep): void {
-  if (next) {
-    console.log(
-      isRichOutput()
-        ? `  ${styleText('dim', 'Next')}  ${styleText('cyan', next.command)}  ${styleText('dim', next.description)}`
-        : `Next: ${next.command} (${next.description})`,
-    )
-    return
-  }
-
+export function logTip(): void {
   const tip = nextTip()
   if (!isRichOutput()) {
     console.log(`Tip: ${tip}`)
@@ -139,27 +121,41 @@ export function logSpacer(): void {
   console.log('')
 }
 
+function bannerIntro(version: string, expression: Expression): string {
+  return getIntro({ title: 'Turn your API spec into type-safe code', description: 'Ready to start', version, expression })
+}
+
+/** Whether the mascot can be drawn: a rich, 256-color terminal wide enough that no line wraps and throws off a redraw. */
+function canDrawMascot(version: string): boolean {
+  if (!isRichOutput() || !process.stdout.hasColors(256)) return false
+
+  return stripVTControlCharacters(bannerIntro(version, 'open'))
+    .split('\n')
+    .every((line) => line.length <= process.stdout.columns)
+}
+
 /**
- * Opens the command with the Kubb mascot and version, or a single version line where the terminal
- * cannot draw it. The mascot first plays its wake-up frames in place, which takes under a second.
+ * The still Kubb mascot with the version, or a single version line where the terminal cannot draw
+ * it. Commands print it as their header; it draws at once, with no wake-up frames.
+ */
+export function getBanner(version: string): string {
+  return canDrawMascot(version) ? `\n${bannerIntro(version, 'open')}` : `Kubb CLI v${version}`
+}
+
+/**
+ * Opens `kubb generate` with the mascot playing its wake-up frames in place, which takes under a
+ * second and overlaps the config load. Elsewhere the still {@link getBanner} is the header.
  */
 export async function logBanner(version: string): Promise<void> {
-  const intro = (expression: Expression) => getIntro({ title: 'Turn your API spec into type-safe code', description: 'Ready to start', version, expression })
-  // A line wider than the terminal wraps and throws off the redraw, so a narrow terminal gets the plain line too.
-  const fits = () =>
-    stripVTControlCharacters(intro('open'))
-      .split('\n')
-      .every((line) => line.length <= process.stdout.columns)
-
-  if (!isRichOutput() || !process.stdout.hasColors(256) || !fits()) {
-    console.log(`Kubb CLI v${version}`)
+  if (!canDrawMascot(version)) {
+    console.log(getBanner(version))
 
     return
   }
 
   console.log('')
   for (const [index, [expression, ms]] of wakeUp.entries()) {
-    const frame = intro(expression)
+    const frame = bannerIntro(version, expression)
     if (index > 0) process.stdout.moveCursor(0, -frame.split('\n').length)
     console.log(frame)
     await sleep(ms)

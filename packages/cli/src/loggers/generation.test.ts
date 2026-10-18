@@ -17,7 +17,6 @@ import {
 } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
-import { formatSummaryRows } from './createLogger.ts'
 import setupReporters from './reporters.ts'
 
 /**
@@ -209,9 +208,9 @@ describe('grouped generation output', () => {
       'spinner.message:Running tsc --noEmit',
       'spinner.stop:Post-generate hooks completed in ',
       'log.message:✓ tsc --noEmit in ',
-      'outro:✓ Generated petstore in ',
+      'outro:✓ Generation succeeded',
       // The summary block, which the reporter renders as one entry after the group closes.
-      `log.message.bare:1 written\nOutput  ${relative(process.cwd(), '/tmp/src/gen')}`,
+      'log.message.bare: Plugins  2 passed (2)\n   Files  1 generated\nDuration  \n  Output  /tmp/src/gen',
     ])
   })
 
@@ -359,7 +358,7 @@ describe('both loggers', () => {
             .replace(/^[◇✓✗]\s*/, '')
             .trim(),
         )
-        .filter((line) => line && !/^(Kubb succeeded|Generated petstore in|\d+ written|Output {2})/.test(line))
+        .filter((line) => line && !/^(Kubb succeeded|Generation succeeded|Plugins {2}|Files {2}|Duration|Output {2})/.test(line))
         .sort()
     // The per-node progress only redraws the rich spinner; plain output leaves it out on purpose.
     const richMessages = messages(rich).filter((line) => !/^(Generating {2}|│ {3})/.test(line))
@@ -421,75 +420,6 @@ describe('diagnostics per audience', () => {
       ].join('\n'),
     )
     expect(lines.at(-1)).toBe('Kubb failed: 1 error, 1 warning (plugin-ts). Exit code 1.\nRerun with --reporter json for machine-readable diagnostics.')
-  })
-})
-
-describe('human summary', () => {
-  const report = {
-    name: 'petstore',
-    status: 'success',
-    plugins: { passed: 3, failed: [], total: 3 },
-    counts: { errors: 0, warnings: 0, infos: 0 },
-    filesCreated: 140,
-    filesUnchanged: 18,
-    durationMs: 3420,
-    output: join(process.cwd(), 'src/gen'),
-    timings: [
-      { plugin: 'plugin-tanstack', durationMs: 1400, files: 19 },
-      { plugin: 'plugin-ts', durationMs: 900, files: 61 },
-      { plugin: 'plugin-barrel', durationMs: 0, files: 0 },
-    ],
-    diagnostics: [],
-  } satisfies Parameters<typeof formatSummaryRows>[0]
-
-  it('lists files and time per plugin, flags the slowest, and splits written from unchanged', () => {
-    // plugin-barrel adds its files after the walk, so its 0 is left out; the total still counts them.
-    expect(formatSummaryRows(report).map((line) => stripVTControlCharacters(line))).toStrictEqual([
-      'plugin-tanstack  19 files    1.40s  slowest',
-      'plugin-ts        61 files    900ms',
-      '─'.repeat(43),
-      '122 written  · 18 unchanged, skipped',
-      'Output  src/gen',
-    ])
-  })
-
-  it('flags no slowest when the plugins tie, as they do after one shared walk', () => {
-    const timings = [
-      { plugin: 'plugin-zod', durationMs: 82.4, files: 34 },
-      { plugin: 'plugin-ts', durationMs: 82.1, files: 34 },
-    ]
-
-    expect(formatSummaryRows({ ...report, timings }).some((line) => line.includes('slowest'))).toBe(false)
-  })
-
-  it('flags a failed plugin instead, and no slowest for a single plugin', () => {
-    const lines = formatSummaryRows({ ...report, plugins: { passed: 0, failed: ['plugin-ts'], total: 1 }, timings: [report.timings[1]!] })
-
-    expect(stripVTControlCharacters(lines[0]!)).toBe('plugin-ts  61 files    900ms  failed')
-  })
-
-  it('tells an agent how many files were written and how many were unchanged', async () => {
-    const lines = await render(
-      async (context) => {
-        const config = makeConfig('petstore')
-        const files = [makeFile('/tmp/src/gen/pet.ts'), makeFile('/tmp/src/gen/tag.ts')]
-        await context.callHook('kubb:generation:start', { config })
-        await context.callHook('kubb:files:processing:start', { files })
-        await context.callHook('kubb:files:processing:end', { files, unchanged: ['/tmp/src/gen/tag.ts'] })
-        await context.callHook('kubb:generation:end', {
-          config,
-          storage: {} as Storage,
-          diagnostics: [],
-          filesCreated: 2,
-          status: 'success',
-          hrStart: process.hrtime(),
-        })
-      },
-      { rich: false },
-    )
-
-    expect(lines.map(withoutDuration)).toContain('Wrote 1 file · 1 unchanged')
-    expect(withoutDuration(lines.at(-1)!)).toBe('Kubb succeeded: 2 files generated (1 written, 1 unchanged) in .')
   })
 })
 

@@ -1,8 +1,8 @@
 import { relative, resolve } from 'node:path'
 import process from 'node:process'
-import { stripVTControlCharacters, styleText } from 'node:util'
+import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
-import type { Config, Report } from '@kubb/core'
+import type { Config } from '@kubb/core'
 import { type Diagnostic, type DiagnosticFormatOptions, Diagnostics, getInputKind, logLevel as logLevelMap, type ProblemDiagnostic } from '@kubb/core'
 import type { StudioConnectedContext } from '@kubb/studio'
 import { formatMsWithColor } from './banner.ts'
@@ -108,51 +108,6 @@ function formatBar(ratio: number, size = 20): string {
 
 /** Milliseconds between redraws of the live generation block, about clack's spinner frame rate. */
 const WALK_REDRAW_MS = 80
-
-/** Whether `a` is slower than `b` as printed: plugins that end together differ by fractions of a millisecond. */
-function isVisiblySlower(a: number, b: number | undefined): boolean {
-  return b !== undefined && a > b && formatMs(a) !== formatMs(b)
-}
-
-/**
- * The human summary: one row per plugin with its files and time (slowest first, flagged when there
- * are two or more), the written and unchanged counts, and the output path.
- */
-export function formatSummaryRows(report: Report, { inMemory = false }: { inMemory?: boolean } = {}): Array<string> {
-  const { plugins, filesCreated, filesUnchanged, output } = report
-  // Files a plugin adds after the walk (plugin-barrel's) are not counted per plugin, so a row of 0 would mislead; the total still has them.
-  const timings = report.timings.filter((timing) => timing.files > 0 || plugins.failed.includes(timing.plugin))
-  const nameWidth = Math.max(0, ...timings.map((timing) => timing.plugin.length))
-  const filesWidth = Math.max(0, ...timings.map((timing) => pluralize(timing.files, 'file').length))
-  const rows = timings.map((timing, index) => {
-    const flag = plugins.failed.includes(timing.plugin)
-      ? styleText('red', 'failed')
-      : index === 0 && isVisiblySlower(timing.durationMs, timings[1]?.durationMs)
-        ? styleText('yellow', 'slowest')
-        : ''
-    return [
-      timing.plugin.padEnd(nameWidth),
-      styleText('dim', pluralize(timing.files, 'file').padStart(filesWidth)),
-      formatMs(timing.durationMs).padStart(7),
-      flag,
-    ]
-      .filter(Boolean)
-      .join('  ')
-  })
-
-  const written = filesCreated - filesUnchanged
-  const counts = inMemory
-    ? styleText('green', `${filesCreated} generated in memory`)
-    : `${styleText('green', `${written} written`)}${filesUnchanged ? styleText('dim', `  · ${filesUnchanged} unchanged, skipped`) : ''}`
-  const ruleWidth = Math.max(...[...rows, counts].map((row) => stripVTControlCharacters(row).length))
-
-  return [
-    ...rows,
-    ...(rows.length ? [styleText('dim', '─'.repeat(ruleWidth))] : []),
-    counts,
-    `${styleText('dim', 'Output')}  ${styleText('cyan', relative(process.cwd(), output) || '.')}`,
-  ]
-}
 
 /** A hook's display name: its `name`, or the command line it runs. */
 function formatHookLabel({ command, name, args }: { command: string; name?: string; args?: ReadonlyArray<string> }): string {
@@ -263,7 +218,6 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
        * The finished config's diagnostics and file count, for the closing summary.
        */
       outcome: null as { diagnostics: Array<Diagnostic>; filesCreated: number; hrStart: [number, number] } | null,
-      name: undefined as string | undefined,
       /**
        * Absolute path of a local-file input, which a located diagnostic points into.
        */
@@ -356,14 +310,6 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       return `✖ Failed  ${counts}${plugins.length ? `  in ${plugins.join(', ')}` : ''}`
     }
 
-    /** `✓ Generated petstore in 3.42s` once the build ended, `✓ Generation succeeded` otherwise. */
-    function successTitle(): string {
-      if (!human || !state.outcome) {
-        return '✓ Generation succeeded'
-      }
-      return `✓ Generated${state.name ? ` ${state.name}` : ''} in ${formatMs(getElapsedMs(state.outcome.hrStart))}`
-    }
-
     // A run that throws before `kubb:generation:end` never reaches the summary, so the lifecycle
     // end calls this too rather than leave a group without its closing line.
     function closeGroup(status: LogStatus) {
@@ -374,7 +320,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
 
       stopSpinner()
       stopProgress()
-      writer.groupEnd(status === 'failed' ? styleText('red', failedTitle()) : styleText('green', successTitle()))
+      writer.groupEnd(status === 'failed' ? styleText('red', failedTitle()) : styleText('green', '✓ Generation succeeded'))
     }
 
     function reset() {
@@ -389,7 +335,6 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       state.walk = createWalk()
       state.pluginStarted = false
       state.outcome = null
-      state.name = undefined
       state.specPath = undefined
       state.spec = null
       state.lastWalkDraw = 0
@@ -552,7 +497,6 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
 
       state.totalPlugins = config.plugins?.length ?? 0
       state.inMemory = config.storage?.name === 'memory'
-      state.name = config.name
       const input = getInputPath(config)
       state.specPath = input && getInputKind(input) === 'file' ? resolve(config.root, input) : undefined
 
@@ -806,16 +750,14 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
     }
 
     return {
-      renderSummary(_lines, { status, report }) {
+      renderSummary(lines, { status }) {
         if (silent || !state.groupOpen) {
           return
         }
 
         if (human) {
           closeGroup(status)
-          if (report.filesCreated > 0 || report.timings.length > 0) {
-            writer.diagnostic(formatSummaryRows(report, { inMemory: state.inMemory }))
-          }
+          writer.diagnostic([...lines])
           return
         }
 
@@ -835,10 +777,8 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
           return
         }
         const warnings = formatCounts(diagnostics)
-        const unchanged =
-          report.filesUnchanged && !state.inMemory ? ` (${filesCreated - report.filesUnchanged} written, ${report.filesUnchanged} unchanged)` : ''
         writer.diagnostic([
-          `Kubb succeeded: ${pluralize(filesCreated, 'file')} generated${unchanged} in ${formatMs(getElapsedMs(hrStart))}${warnings ? `, ${warnings}` : ''}.`,
+          `Kubb succeeded: ${pluralize(filesCreated, 'file')} generated in ${formatMs(getElapsedMs(hrStart))}${warnings ? `, ${warnings}` : ''}.`,
         ])
       },
     }

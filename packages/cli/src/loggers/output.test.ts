@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
-import { createSpinner, logIntro, logInfo, logTip, withSpinner } from './output.ts'
+import { createSpinner, getBanner, logIntro, logInfo, withSpinner } from './output.ts'
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
@@ -54,11 +54,13 @@ describe('plain output', () => {
 
     expect(lines).toEqual(['Linting', '✗ Linting failed'])
   })
+})
 
-  it('prints the next step in place of a sponsor tip', () => {
-    expect(capturePlain(() => logTip({ command: 'kubb generate --watch', description: 'rebuilds on every save' }))).toEqual([
-      'Next: kubb generate --watch (rebuilds on every save)',
-    ])
+describe('getBanner', () => {
+  it('falls back to one version line where the mascot cannot be drawn', () => {
+    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(false)
+
+    expect(getBanner('5.0.0')).toBe('Kubb CLI v5.0.0')
   })
 })
 

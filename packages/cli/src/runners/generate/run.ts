@@ -47,9 +47,6 @@ const UPDATE_CHECK_TIMEOUT_MS = 3_000
 /** Rebuilt files listed after a watch rebuild before the rest collapse into one line. */
 const WATCH_FILE_LIMIT = 10
 
-/** The hint shown after a one-off run whose input can be watched. */
-const WATCH_HINT = { command: 'kubb generate --watch', description: 'rebuilds on every save' } as const
-
 /** The formatter names from `Config['output'].format`, without `'auto'` (detection, not a tool) and `false` (skip). */
 type FormatterName = Exclude<NonNullable<Config['output']['format']>, 'auto' | false>
 type LinterName = Exclude<NonNullable<Config['output']['lint']>, 'auto' | false>
@@ -311,11 +308,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.
     if (!quiet && !watch && !anyFailed) {
-      const watchable = configs.some((config) => {
-        const configInput = input ?? config.input
-        return typeof configInput === 'string' && ['file', 'url'].includes(getInputKind(configInput))
-      })
-      logTip(watchable ? WATCH_HINT : undefined)
+      logTip()
     }
 
     if (anyFailed) {

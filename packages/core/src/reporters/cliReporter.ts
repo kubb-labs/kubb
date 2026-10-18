@@ -39,7 +39,7 @@ export function createCliReporter({ render = consoleRenderer }: { render?: Summa
 
       const report = buildReport(result)
 
-      render(formatSummary(report, { showTimings: logLevel >= logLevelMap.verbose }), { title: report.name, status: report.status, report })
+      render(formatSummary(report, { showTimings: logLevel >= logLevelMap.verbose }), { title: report.name, status: report.status })
     },
   })
 }

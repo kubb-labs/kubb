@@ -3,6 +3,7 @@ import dryrun from '@gunshi/plugin-dryrun'
 import { cli } from 'gunshi'
 import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
+import { getBanner } from './loggers/output.ts'
 import { command as generateCommand } from './commands/generate.ts'
 import { command as mcpCommand } from './commands/mcp.ts'
 import { command as studioCommand, routeStudioFlags } from './commands/studio/index.ts'
@@ -23,8 +24,9 @@ const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v', '--json'
 export async function run(argv: Array<string> = process.argv.slice(2)): Promise<void> {
   const args = routeStudioFlags(resolveDeprecatedFlags(argv))
   const isQuietFlag = args.some((arg) => QUIET_FLAGS.has(arg))
-  // `--reporter json` owns stdout, so gunshi's header line must not land there.
-  const isJsonReporter = args.some((arg, index) => /^--reporter=.*\bjson\b/.test(arg) || (arg === '--reporter' && /\bjson\b/.test(args[index + 1] ?? '')))
+  // `--reporter json` and `--json` own stdout, so the header must not land there.
+  const isJsonOutput =
+    args.includes('--json') || args.some((arg, index) => /^--reporter=.*\bjson\b/.test(arg) || (arg === '--reporter' && /\bjson\b/.test(args[index + 1] ?? '')))
 
   // stderr, so the notice never lands in a stream a client parses, such as `kubb mcp` stdio.
   if (!isTelemetryDisabled() && !isQuietFlag) {
@@ -51,7 +53,8 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
       list: listCommand,
     },
     fallbackToEntry: true,
-    ...(isJsonReporter ? { renderHeader: null } : {}),
+    // The mascot opens every command; `generate` turns this off and plays its animated banner instead.
+    renderHeader: isJsonOutput ? null : async () => getBanner(version),
     strict: true,
     plugins: [dryrun({ name: 'dry-run' })],
     onErrorCommand: async (_ctx, error) => {
