@@ -53,7 +53,7 @@ import {
   type SaveResult,
   type StudioApi,
 } from './protocol.ts'
-import { mergeAdapter, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
+import { assertOutputPaths, mergeAdapter, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -376,6 +376,7 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
+  /** Merges Studio's config over the disk config, refuses output paths outside the output folder, then generates in `root`. */
   async #generate({ input, root, signal }: { input: GenerateInput; root: string; signal: AbortSignal }): Promise<GenerateResult> {
     const { jobId, config: patch } = input
     // A sandbox has no spec on disk, so it only ever generates from the content Studio sends. A path
@@ -387,7 +388,10 @@ class Agent extends RpcTarget implements AgentApi {
 
     const [config, extensions] = await Promise.all([this.#options.loadConfig(), this.#installedExtensions()])
     const [plugins, adapter, parsers] = await Promise.all([
-      mergePlugins({ diskPlugins: config.plugins, studioPlugins: patch?.plugins, extensions }),
+      mergePlugins({ diskPlugins: config.plugins, studioPlugins: patch?.plugins, extensions }).then((merged) => {
+        assertOutputPaths({ plugins: merged ?? [], diskPlugins: config.plugins, root, outputPath: config.output.path })
+        return merged
+      }),
       mergeAdapter(config.adapter, patch?.adapter, extensions),
       mergeParsers({ diskParsers: config.parsers, studioParsers: patch?.parsers, extensions }),
     ]).catch(async (error: unknown) => {
