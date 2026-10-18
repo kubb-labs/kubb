@@ -47,7 +47,7 @@ kubb generate ./petStore.yaml
 | `--verbose`                                  | `false` | Force the log level to `verbose`. Shows slow plugins.                     |
 | `--reporter=<cli\|json\|file\|html>`        |         | Pick which reporters to trigger, comma-separated. Defaults to `cli`.      |
 | `--watch`, `-w`                              | `false` | Re-run the pipeline whenever the input spec changes.                      |
-| `--dry-run`                                  | `false` | Preview a run without writing files, formatting, linting, or running post-generate commands. Lists each file it would add (`A`), change (`M`, with line counts), or delete (`D`, with `output.clean`) compared with disk. |
+| `--dry-run`                                  | `false` | Preview a run without writing files, formatting, linting, or running post-generate commands. Shows a bar of how many files are new, changed, removed and unchanged, then lists each file it would add (`A`), change (`M`, with line counts), or delete (`D`, with `output.clean`) compared with disk. |
 
 `--reporter` takes no short flag. The camelCase spellings from v4 (`--logLevel`, `--dryRun`) still work and print a deprecation warning.
 

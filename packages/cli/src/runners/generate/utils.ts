@@ -429,3 +429,29 @@ export function listenForKeys({ rebuild, quit, input = process.stdin }: KeyOptio
 
   return arm
 }
+
+/**
+ * A stacked bar of how a dry run splits the output: new in green, changed in yellow, removed in
+ * red and untouched files dim. Every non-empty part keeps at least one cell, so one new file
+ * still shows next to hundreds of unchanged ones.
+ */
+export function formatPlanBar(
+  { added, changed, removed, unchanged }: { added: number; changed: number; removed: number; unchanged: number },
+  size = 30,
+): string {
+  const counts = [added, changed, removed, unchanged]
+  const total = counts.reduce((sum, count) => sum + count, 0)
+  if (!total) return styleText('dim', '░'.repeat(size))
+
+  const cells = counts.map((count) => (count ? Math.max(1, Math.round((count / total) * size)) : 0))
+  for (let excess = cells.reduce((sum, count) => sum + count, 0) - size; excess !== 0; excess -= Math.sign(excess)) {
+    cells[cells.indexOf(Math.max(...cells))]! -= Math.sign(excess)
+  }
+
+  return [
+    styleText('green', '█'.repeat(cells[0]!)),
+    styleText('yellow', '█'.repeat(cells[1]!)),
+    styleText('red', '█'.repeat(cells[2]!)),
+    styleText('dim', '░'.repeat(cells[3]!)),
+  ].join('')
+}

@@ -35,6 +35,7 @@ import {
   type FileChange,
   diffBuilds,
   fetchUrlBody,
+  formatPlanBar,
   listenForKeys,
   planDryRun,
   startUrlWatcher,
@@ -181,14 +182,15 @@ function logRebuild({ diff, durationMs }: { diff: BuildDiff; durationMs: number 
 /** Prints a dry run's plan: the counts, then each file it would add, change or delete. */
 function logDryRunPlan({ files, unchanged }: { files: ReadonlyArray<FileChange>; unchanged: number }): void {
   const count = (status: FileChange['status']) => files.filter((file) => file.status === status).length
-  logStep(
-    [
-      'Dry run: nothing was written',
-      styleText('green', `+${count('A')} new`),
-      styleText('yellow', `~${count('M')} changed`),
-      styleText('red', `-${count('D')} removed`),
+  const parts = { added: count('A'), changed: count('M'), removed: count('D'), unchanged }
+  logStep('Dry run: nothing was written')
+  logBlock(
+    `${formatPlanBar(parts)}  ${[
+      styleText('green', `+${parts.added} new`),
+      styleText('yellow', `~${parts.changed} changed`),
+      styleText('red', `-${parts.removed} removed`),
       styleText('dim', `${unchanged} unchanged`),
-    ].join(styleText('dim', ' · ')),
+    ].join(styleText('dim', ' · '))}`,
   )
   logFileChanges(files)
   logStep(files.length ? 'Run without --dry-run to write these files.' : 'The files on disk are up to date.')
