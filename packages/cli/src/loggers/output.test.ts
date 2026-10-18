@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
-import { createSpinner, logIntro, logInfo } from './output.ts'
+import { createSpinner, logIntro, logInfo, withSpinner } from './output.ts'
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
@@ -53,5 +53,23 @@ describe('plain output', () => {
     })
 
     expect(lines).toEqual(['Linting', '✗ Linting failed'])
+  })
+})
+
+describe('withSpinner', () => {
+  it('shows no spinner when the wait ends within 150 ms, and one after that', async () => {
+    vi.useFakeTimers()
+    const lines: Array<string> = []
+    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(false)
+    using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(String(line)))
+
+    const fast = withSpinner({ promise: Promise.resolve('fast'), message: 'Reading the registry' })
+    await vi.advanceTimersByTimeAsync(200)
+    const slow = withSpinner({ promise: new Promise((resolve) => setTimeout(() => resolve('slow'), 300)), message: 'Reading the registry' })
+    await vi.advanceTimersByTimeAsync(300)
+
+    expect([await fast, await slow]).toStrictEqual(['fast', 'slow'])
+    expect(lines).toStrictEqual(['Reading the registry'])
+    vi.useRealTimers()
   })
 })

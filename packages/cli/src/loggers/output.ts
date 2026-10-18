@@ -186,3 +186,23 @@ export function logStep(message: string): void {
 export function createSpinner(): WriterSpinner {
   return writer().spinner()
 }
+
+/** How long a wait may run before a spinner shows, so a fast answer draws nothing. */
+const SPINNER_DELAY_MS = 150
+
+/**
+ * Awaits `promise`, showing a spinner with `message` only when it takes longer than 150 ms.
+ */
+export async function withSpinner<T>({ promise, message }: { promise: Promise<T>; message: string }): Promise<T> {
+  let spinner: WriterSpinner | undefined
+  const timer = setTimeout(() => {
+    spinner = createSpinner()
+    spinner.start(message)
+  }, SPINNER_DELAY_MS)
+  try {
+    return await promise
+  } finally {
+    clearTimeout(timer)
+    spinner?.clear()
+  }
+}

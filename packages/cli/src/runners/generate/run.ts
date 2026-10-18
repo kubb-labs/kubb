@@ -53,7 +53,7 @@ type GenerateProps = {
   dryRun?: boolean
 }
 
-async function generate(options: GenerateProps): Promise<boolean> {
+export async function generate(options: GenerateProps): Promise<boolean> {
   const { input, hooks, dryRun = false } = options
 
   const report = trackRun({ command: 'generate', hrStart: process.hrtime() })

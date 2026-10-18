@@ -14,7 +14,7 @@ navigation:
 
 # kubb update
 
-Run `kubb update` to move installed extensions to the version the [Kubb registry](/docs/5.x/reference/registry) pins. It lists the updates with the kind and the version change of each extension, asks which ones to install, and installs them with your project's package manager. With `--yes`, it installs all of them. It does not change `kubb.config.ts`.
+Run `kubb update` to move installed extensions to the version the [Kubb registry](/docs/5.x/reference/registry) pins. It shows each installed extension's version change and bump, asks which updates to install, and installs them with your project's package manager. Then it generates from `kubb.config.ts` with the new versions and lists the files that changed. With `--yes`, it installs every update except majors. It does not change `kubb.config.ts`.
 
 ## Usage
 
@@ -25,22 +25,44 @@ kubb update
 ```
 
 ```text [Output]
-@kubb/plugin-ts  plugin  5.0.0 -> 5.2.0
-@kubb/plugin-zod  plugin  5.1.0 -> 5.2.0
+◇  Checked 3 extensions against the registry
+│  Extension         Current  Latest
+│  @kubb/plugin-ts   5.0.0    5.2.0       minor
+│  @kubb/plugin-zod  5.2.0    6.0.0       major · breaking
+│  @kubb/plugin-msw  5.4.2    up to date
 │
-◆  Select the updates to install:
-│  ◼ @kubb/plugin-ts (plugin  5.0.0 -> 5.2.0)
-│  ◼ @kubb/plugin-zod (plugin  5.1.0 -> 5.2.0)
+◆  Select the updates to install
+│  ◼ @kubb/plugin-ts 5.2.0 (Faster enum output)
+│  ◻ @kubb/plugin-zod 6.0.0 (Zod 4 only · guide https://kubb.dev/migrate/zod-6)
 │  ↑/↓ to navigate • Space: select • Enter: confirm
 ```
 
-Every update starts selected. Press Space to leave one out, and Enter to install the rest.
+Minor and patch updates start selected. A major starts unselected, since it can break the generated code. The hint is the headline change of the new version, from the registry's [`changes`](/docs/5.x/reference/registry#changes), and a migration guide for a major when the changelog links one. Without it, the hint is the version change.
+
+After the install, the CLI runs the same generation as `kubb generate` and lists the changed files as `M`, `A`, or `D`, at most 10:
+
+```text [Output]
+◇  Generated: 2 files changed
+│  M src/gen/zod/petSchema.ts
+│  A src/gen/zod/tagSchema.ts
+└  ✓ Updated 1 extension
+   Skipped  @kubb/plugin-zod 6.0.0  run kubb update plugin-zod later
+```
 
 List the updates without installing them:
 
 ```shell [Terminal]
 kubb update --check
 ```
+
+```text [Output]
+2 updates available (1 major)
+@kubb/plugin-ts   5.0.0 → 5.2.0
+@kubb/plugin-zod  5.2.0 → 6.0.0  major
+Run kubb update to install them.
+```
+
+It exits with code 1 when an update exists, so CI can fail on outdated extensions.
 
 Install the updates for two extensions without the prompt:
 
@@ -58,8 +80,8 @@ kubb update plugin-zod plugin-ts --yes
 
 | Option        | Default | Description |
 | ------------- | ------- | ----------- |
-| `--check`     | `false` | List the available updates without installing them. |
-| `--yes`, `-y` | `false` | Install every update without asking. |
+| `--check`     | `false` | List the available updates without installing them. Exits with code 1 when any exist. |
+| `--yes`, `-y` | `false` | Install every update except majors without asking. |
 
 ## Which extensions it updates
 
@@ -77,4 +99,4 @@ An id that matches no installed extension prints `<id> is not installed, or not 
 
 ## Exit codes
 
-`kubb update` exits with code 1 when an id is invalid, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update, with `--check`, and when you cancel at the prompt.
+`kubb update` exits with code 1 when an id is invalid, the registry index cannot be read or is invalid, the install fails, or `--check` finds an update. It exits with code 0 when there is nothing to update and when you cancel at the prompt. A failed generation after the install prints `Generation failed. Run kubb generate to see why.` and does not change the exit code.
