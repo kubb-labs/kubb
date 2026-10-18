@@ -1,5 +1,22 @@
 # Changelog
 
+## v5.11.1 — Oct 18, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Open `kubb generate` with the Kubb mascot, a kid in an orange hoodie drawn as pixel art, who blinks and looks around once, then rests while the config loads.
+  
+  - Draws the mascot in fixed 256-color codes, so terminal themes no longer recolor it.
+  - Keeps the plain `Kubb CLI vX` line in CI, for AI agents, and in terminals that are too narrow or lack 256 colors. ([#4350](https://github.com/kubb-labs/kubb/pull/4350), [`d51812f`](https://github.com/kubb-labs/kubb/commit/d51812f1d34c25838f8a2a4cab3b189fd32a6bfb))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.11.0 — Oct 16, 2026
 
 ### @kubb/core
