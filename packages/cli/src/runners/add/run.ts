@@ -277,8 +277,8 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       logOutro(
         [
           styleText('green', `✓ ${manifest.name} is ready`),
-          `Next     kubb generate${outputPath ? styleText('dim', `  creates ${outputPath}`) : ''}`,
-          `Options  kubb.dev/extensions/${entry.id}`,
+          `   ${styleText('dim', 'Next')}     kubb generate${outputPath ? styleText('dim', `  creates ${outputPath}`) : ''}`,
+          `   ${styleText('dim', 'Options')}  kubb.dev/extensions/${entry.id}`,
           ...(install ? [] : [styleText('dim', `Install ${specs.join(' ')} to use it.`)]),
         ].join('\n'),
       )

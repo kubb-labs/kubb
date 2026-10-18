@@ -166,7 +166,7 @@ export async function run({ ids, check, yes }: UpdateOptions): Promise<void> {
         message: 'Select the updates to install',
         options: proposals.map((entry) => ({
           value: entry.id,
-          label: `${entry.artifact.package} ${entry.artifact.version}`,
+          label: entry.artifact.package,
           hint: `${current(entry) ?? 'not installed'} → ${entry.artifact.version}`,
         })),
         initialValues: defaults.map((entry) => entry.id),
@@ -181,7 +181,10 @@ export async function run({ ids, check, yes }: UpdateOptions): Promise<void> {
 
     const skipped = proposals
       .filter((entry) => !selected.includes(entry))
-      .map((entry) => `Skipped  ${entry.artifact.package} ${entry.artifact.version}  ${styleText('dim', `run kubb update ${toShortId(entry.id)} later`)}`)
+      .map(
+        (entry) =>
+          `   ${styleText('dim', 'Skipped')}  ${entry.artifact.package} ${entry.artifact.version}  ${styleText('dim', `run kubb update ${toShortId(entry.id)} later`)}`,
+      )
     if (!selected.length) {
       logOutro(['No updates selected.', ...skipped].join('\n'))
       return

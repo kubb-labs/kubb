@@ -32,8 +32,8 @@ kubb update
 │  @kubb/plugin-msw  5.4.2    up to date
 │
 ◆  Select the updates to install
-│  ◼ @kubb/plugin-ts 5.2.0 (5.0.0 → 5.2.0)
-│  ◻ @kubb/plugin-zod 6.0.0 (5.2.0 → 6.0.0)
+│  ◼ @kubb/plugin-ts (5.0.0 → 5.2.0)
+│  ◻ @kubb/plugin-zod (5.2.0 → 6.0.0)
 │  ↑/↓ to navigate • Space: select • Enter: confirm
 ```
 

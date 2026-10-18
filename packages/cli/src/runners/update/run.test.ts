@@ -89,8 +89,8 @@ describe('kubb update', () => {
     expect(clack.multiselect).toHaveBeenCalledWith(
       expect.objectContaining({
         options: [
-          { value: 'acme/plugin-x', label: '@acme/kubb-plugin-x 1.1.0', hint: '1.0.0 → 1.1.0' },
-          { value: 'acme/plugin-z', label: '@acme/kubb-plugin-z 2.0.0', hint: '1.0.0 → 2.0.0' },
+          { value: 'acme/plugin-x', label: '@acme/kubb-plugin-x', hint: '1.0.0 → 1.1.0' },
+          { value: 'acme/plugin-z', label: '@acme/kubb-plugin-z', hint: '1.0.0 → 2.0.0' },
         ],
         initialValues: ['acme/plugin-x'],
       }),
