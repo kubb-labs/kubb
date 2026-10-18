@@ -9,7 +9,7 @@ import { findConfigFile } from '@internals/shared'
 import { formatMs, getElapsedMs, getErrorMessage } from '@internals/utils'
 import { Hookable, type KubbHooks, readInstalledPackages, type RegistryEntry } from '@kubb/core'
 import { dryRunId, type DryRunExtensions, yesArg } from '../../commands/shared.ts'
-import { createSpinner, logBlock, logError, logIntro, logOutro, logStep, logWarn, withSpinner } from '../../loggers/output.ts'
+import { createSpinner, isInteractiveRun, logBlock, logError, logIntro, logOutro, logStep, logWarn, withSpinner } from '../../loggers/output.ts'
 import { bumpOf, fetchRegistryIndex, incompatibility, installSpec, isOutdated, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
 import { detectPackageManager, installPackages } from '../init/utils.ts'
 
@@ -96,7 +96,7 @@ async function regenerate({ cwd, configPath }: { cwd: string; configPath: string
  */
 export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
   const cwd = process.cwd()
-  logIntro({})
+  logIntro({ title: isInteractiveRun({ yes, dryRun }) ? undefined : styleText('bgCyan', styleText('black', ' Kubb Update ')) })
 
   try {
     const wanted = new Set(ids.map(toRegistryId))

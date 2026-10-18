@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
-import { createSpinner, getBanner, logIntro, logInfo, withSpinner } from './output.ts'
+import { createSpinner, getBanner, logIntro, logInfo, wantsMascot, withSpinner } from './output.ts'
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
@@ -79,5 +79,56 @@ describe('withSpinner', () => {
     expect([await fast, await slow]).toStrictEqual(['fast', 'slow'])
     expect(lines).toStrictEqual(['Reading the registry'])
     vi.useRealTimers()
+  })
+})
+
+describe('wantsMascot', () => {
+  const ask = (commandPath: Array<string>, values: Record<string, unknown> = {}, tty = true) => {
+    const original = Object.getOwnPropertyDescriptor(process.stdin, 'isTTY')
+    Object.defineProperty(process.stdin, 'isTTY', { value: tty, configurable: true })
+    try {
+      return wantsMascot({ commandPath, values })
+    } finally {
+      if (original) Object.defineProperty(process.stdin, 'isTTY', original)
+      else Reflect.deleteProperty(process.stdin, 'isTTY')
+    }
+  }
+
+  it('opens generate and a Studio session or pairing with the mascot', () => {
+    expect(ask(['generate'])).toBe(true)
+    expect(ask([])).toBe(true)
+    expect(ask(['studio'])).toBe(true)
+    expect(ask(['studio', 'connect'])).toBe(true)
+    expect(ask(['studio', 'login'])).toBe(true)
+  })
+
+  it('opens add and update with the mascot only while they ask questions', () => {
+    expect(ask(['add'])).toBe(true)
+    expect(ask(['update'])).toBe(true)
+    expect(ask(['add'], { yes: true })).toBe(false)
+    expect(ask(['update'], { 'dry-run': true })).toBe(false)
+    expect(ask(['update'], { dryRun: true })).toBe(false)
+    expect(ask(['add'], {}, false)).toBe(false)
+  })
+
+  it('leaves help and version output without it', () => {
+    expect(ask(['generate'], { help: true })).toBe(false)
+    expect(ask(['add'], { version: true })).toBe(false)
+  })
+
+  it('leaves quick commands without it', () => {
+    for (const path of [
+      ['init'],
+      ['validate'],
+      ['list'],
+      ['mcp'],
+      ['studio', 'status'],
+      ['studio', 'stop'],
+      ['studio', 'start'],
+      ['studio', 'logout'],
+      ['studio', 'snapshot'],
+    ]) {
+      expect(ask(path)).toBe(false)
+    }
   })
 })

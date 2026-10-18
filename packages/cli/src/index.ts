@@ -3,7 +3,7 @@ import dryrun from '@gunshi/plugin-dryrun'
 import { cli } from 'gunshi'
 import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
-import { getBanner } from './loggers/output.ts'
+import { getBanner, wantsMascot } from './loggers/output.ts'
 import { command as generateCommand } from './commands/generate.ts'
 import { command as mcpCommand } from './commands/mcp.ts'
 import { command as studioCommand, routeStudioFlags } from './commands/studio/index.ts'
@@ -53,8 +53,10 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
       list: listCommand,
     },
     fallbackToEntry: true,
-    // The mascot opens every command; `generate` turns this off and plays its animated banner instead.
-    renderHeader: isJsonOutput ? null : async (ctx) => getBanner(version, ctx.commandPath.join(' ') || 'generate'),
+    // The mascot opens only the long-running commands; `generate` turns this off and plays its animated banner instead.
+    renderHeader: isJsonOutput
+      ? null
+      : async (ctx) => (wantsMascot({ commandPath: ctx.commandPath, values: ctx.values }) ? getBanner(version, ctx.commandPath.join(' ') || 'generate') : ''),
     strict: true,
     plugins: [dryrun({ name: 'dry-run' })],
     onErrorCommand: async (_ctx, error) => {

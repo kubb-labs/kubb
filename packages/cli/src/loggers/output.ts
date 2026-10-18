@@ -133,6 +133,25 @@ function canDrawMascot(version: string, command: string): boolean {
     .every((line) => line.length <= process.stdout.columns)
 }
 
+/** Whether a run stops to ask something: no `--yes`, no `--dry-run`, and a person at a terminal. */
+export function isInteractiveRun({ yes, dryRun }: { yes?: unknown; dryRun?: unknown }): boolean {
+  return !yes && !dryRun && process.stdin.isTTY === true
+}
+
+/**
+ * Whether a command opens with the mascot. Only the long-running ones do: `generate`, a Studio
+ * session or pairing, and `add` or `update` while they ask questions. Quick commands print only
+ * their result.
+ */
+export function wantsMascot({ commandPath, values }: { commandPath: ReadonlyArray<string>; values: Record<string, unknown> }): boolean {
+  const [command, subCommand] = commandPath
+  if (values.help || values.version) return false
+  if (command === 'studio') return subCommand === undefined || subCommand === 'connect' || subCommand === 'login'
+  if (command === 'add' || command === 'update') return isInteractiveRun({ yes: values.yes, dryRun: values.dryRun ?? values['dry-run'] })
+
+  return command === undefined || command === 'generate'
+}
+
 /**
  * The still Kubb mascot with the version and the running command, such as `studio connect`, or a
  * single version line where the terminal cannot draw it. Commands print it as their header; it

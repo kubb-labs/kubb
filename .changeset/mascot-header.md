@@ -2,4 +2,4 @@
 '@kubb/cli': patch
 ---
 
-Open every command with the Kubb mascot. `kubb generate` keeps its animated wake-up; the other commands draw the still mascot at once, and JSON output stays free of it. The banner names the running command, such as `kubb studio connect`.
+Open the long-running commands with the Kubb mascot: `kubb generate`, `kubb studio` (connect and login), and `kubb add` and `kubb update` while they ask questions. `kubb generate` keeps its animated wake-up; the others draw the still mascot at once. Quick commands, `--yes` and `--dry-run` runs, and JSON output print no mascot. The banner names the running command, such as `kubb studio connect`.

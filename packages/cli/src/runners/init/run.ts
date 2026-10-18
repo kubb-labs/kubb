@@ -133,7 +133,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
     }
   }
 
-  if (!yes) logIntro({})
+  if (!yes) logIntro({ title: 'Set up Kubb' })
 
   try {
     // Start the registry fetch now but await it only at the plugin step, so the first prompt never waits on the network
