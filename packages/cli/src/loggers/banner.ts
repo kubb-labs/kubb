@@ -130,7 +130,9 @@ export function getIntro({
    */
   expression: Expression
 }): string {
-  const text = [styleText(['bold', 'yellow'], `KUBB v${version}`), styleText('gray', title), `${styleText('yellow', '➜')} ${styleText('white', description)}`]
+  // The hoodie's fixed code, so the title is Kubb orange whatever the terminal theme does to `yellow`.
+  const brand = (value: string, bold = false) => `\x1b[${bold ? '1;' : ''}38;5;${colors.O}m${value}\x1b[0m`
+  const text = [brand(`KUBB v${version}`, true), styleText('gray', title), `${brand('➜')} ${styleText('white', description)}`]
 
   return drawHead(expression)
     .map((line, index) => `  ${line}  ${text[index]}`)

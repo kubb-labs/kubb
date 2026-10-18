@@ -9,6 +9,13 @@ describe('getIntro', () => {
     return stripVTControlCharacters(getIntro({ title: 'title', description: 'description', version: '5.0.0', expression })).split('\n')
   }
 
+  it('draws the title and arrow in the hoodie orange, not the theme yellow', () => {
+    const [title, , prompt] = getIntro({ title: 'title', description: 'description', version: '5.0.0', expression: 'open' }).split('\n')
+
+    expect(title).toContain('\x1b[1;38;5;208mKUBB v5.0.0')
+    expect(prompt).toContain('\x1b[38;5;208m➜')
+  })
+
   it('puts the text beside the 9-cell mascot, one line per row', () => {
     expect(draw('open').map((line) => line.length)).toEqual([13 + 'KUBB v5.0.0'.length, 13 + 'title'.length, 13 + '➜ description'.length])
   })
