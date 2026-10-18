@@ -131,4 +131,21 @@ describe('runOutputPasses', () => {
     expect(seen.successes[0]).toContain('Formatting')
     expect(fs.readFileSync(path.join(outputPath, 'pet.ts'), 'utf8')).toBe('export const pet = { id: 1 }\n')
   })
+
+  it('also formats output.shared.path when it sits outside the output directory', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-output-'))
+    roots.push(root)
+    for (const dir of ['animals', 'common']) {
+      fs.mkdirSync(path.join(root, 'gen', dir), { recursive: true })
+      fs.writeFileSync(path.join(root, 'gen', dir, 'name.ts'), 'export const name   =   1\n')
+    }
+    const config = { ...makeConfig({ format: 'oxfmt', path: './gen/animals', shared: { path: './gen/common' } }), root }
+
+    const diagnostics = await runOutputPasses({ config, outputPath: path.join(root, 'gen', 'animals'), hooks: new Hookable<KubbHooks>() })
+
+    const [animals, common] = ['animals', 'common'].map((dir) => fs.readFileSync(path.join(root, 'gen', dir, 'name.ts'), 'utf8'))
+    expect(diagnostics).toStrictEqual([])
+    expect(animals).not.toContain('   ')
+    expect(common).toBe(animals)
+  })
 })

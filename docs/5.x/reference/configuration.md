@@ -270,7 +270,7 @@ When both specs define `Name`, this writes `src/gen/common/types/Name.ts` and `s
 
 Only `kubb generate` compares the specs, so `output.shared` has no effect on a single `createKubb` run, the bundler plugins, or MCP.
 
-With [`output.barrel`](#outputbarrel) set, the shared directory gets the same barrels as `output.path`. When any config that uses the shared directory sets [`output.clean`](#outputclean), `kubb generate` also wipes it, once per run: the first config that uses it does so, right before it writes its files.
+With [`output.barrel`](#outputbarrel) set, the shared directory gets the same barrels as `output.path`, and [`output.format`](#outputformat) and [`output.lint`](#outputlint) run over it too. When any config that uses the shared directory sets [`output.clean`](#outputclean), `kubb generate` also wipes it, once per run: the first config that uses it does so, right before it writes its files.
 
 Give the configs that share a directory the same plugins, and keep `path` outside every config's `output.path`. Otherwise the shared root barrel lists only the last config's plugins, and a later config's `output.clean` can delete shared files that only an earlier config writes.
 :::
