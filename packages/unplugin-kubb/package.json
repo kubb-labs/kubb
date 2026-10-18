@@ -122,10 +122,10 @@
     "@kubb/ast": "workspace:*",
     "@nuxt/kit": "^4.6.1",
     "@nuxt/schema": "^4.6.1",
-    "@rspack/core": "^2.2.8",
+    "@rspack/core": "^2.2.9",
     "esbuild": "^0.28.2",
-    "rolldown": "^1.2.13",
-    "rollup": "^4.64.5",
+    "rolldown": "^1.2.14",
+    "rollup": "^4.64.7",
     "vite": "^8.3.4",
     "webpack": "^5.111.1"
   },
