@@ -152,7 +152,7 @@ function printSummary(result: SnapshotResult): void {
       ...(result.changes ? [row('Diff', formatChanges(result.changes))] : []),
       ...(result.branchChanges ? [row('Branch', formatBranchChanges(result.branchChanges))] : []),
       row('Use', `npm i ${result.url}`),
-      row('Expires', result.expiresAt),
+      row('Expires', result.expiresAt.slice(0, 10)),
     ].join('\n'),
   )
 }
@@ -170,7 +170,8 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
 
   const write = options.json ? (line: string) => console.error(line) : (line: string) => console.log(line)
   const hooks = new Hookable<KubbHooks>()
-  setupReporters(hooks, { logLevel, reporters: [cliReporter], logger: createPlainLogger(write) })
+  // The steps below are the CI log; the run's own per-file output only shows when asked for with --log-level verbose.
+  setupReporters(hooks, { logLevel: logLevel > logLevelMap.info ? logLevel : logLevelMap.silent, reporters: [cliReporter], logger: createPlainLogger(write) })
   const step = (message: string) => {
     if (logLevel > logLevelMap.silent) {
       write(message)

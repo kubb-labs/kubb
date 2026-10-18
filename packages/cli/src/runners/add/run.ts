@@ -101,7 +101,7 @@ async function selectExtension({
     .toSorted((a, b) => a.id.localeCompare(b.id))
     .map((entry) => {
       const installed = versions.has(entry.artifact.package)
-      return { value: entry.id, label: toShortId(entry.id), hint: installed ? 'installed' : entry.manifest.description, disabled: installed }
+      return { value: entry.id, label: toShortId(entry.id), hint: installed ? 'installed' : summarize(entry.manifest.description), disabled: installed }
     })
 
   const id = await clack.autocomplete({
@@ -145,6 +145,12 @@ async function confirmDependencies({
     initialValue: true,
   })
   return clack.isCancel(answer) ? undefined : answer
+}
+
+/** The first sentence of a registry description, cut to one terminal line. */
+export function summarize(description: string, max = 64): string {
+  const sentence = description.split(/\.\s/)[0]!.replace(/\.$/, '')
+  return sentence.length > max ? `${sentence.slice(0, max - 1).trimEnd()}…` : sentence
 }
 
 /**
@@ -229,7 +235,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       return targets.some((target) => target.manifest.name === name) ? `${name} ${styleText('cyan', '+ adding')}` : `${name} ${styleText('yellow', 'missing')}`
     }
     const preview = configFile && configSource !== undefined ? await previewConfig({ details: targets, source: configSource }) : undefined
-    logStep(`${styleText('cyan', manifest.name)} v${artifact.version} · ${manifest.description}`)
+    logStep(`${styleText('cyan', manifest.name)} v${artifact.version} · ${summarize(manifest.description)}`)
     logBlock([
       ...(dependencies.length ? [`Needs     ${dependencies.map(dependencyStatus).join('  ')}`] : []),
       install ? `Installs  ${specs.join('  ')}` : 'Installs  nothing (--no-install)',

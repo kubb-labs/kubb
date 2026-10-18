@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as clack from '@clack/prompts'
 import { registryEntry, stubRegistry } from '../../utils/registryFixture.ts'
 import { installPackages } from '../init/utils.ts'
-import { run } from './run.ts'
+import { run, summarize } from './run.ts'
 
 vi.mock('../init/utils.ts', () => ({
   detectPackageManager: vi.fn(() => ({ name: 'pnpm', lockFiles: [], initCommand: [], installCommand: ['add', '-D'] })),
@@ -77,7 +77,7 @@ describe('kubb add', () => {
     await run({ id: 'acme/plugin-x', yes: false, install: true })
 
     const printed = output.join('\n')
-    expect(printed).toContain('plugin-x v1.2.0 · An extension.')
+    expect(printed).toContain('plugin-x v1.2.0 · An extension')
     expect(printed).toContain('Installs  @acme/kubb-plugin-x@1.2.0')
     expect(printed).toContain('Config    kubb.config.ts')
     expect(printed).toContain(`  + import { pluginX } from '@acme/kubb-plugin-x'`)
@@ -100,7 +100,7 @@ describe('kubb add', () => {
     const prompt = vi.mocked(clack.autocomplete).mock.calls[0]![0]
     const adapter = { value: 'acme/adapter-x', label: 'acme/adapter-x', hint: 'installed', disabled: true }
     expect(prompt.message).toBe('Add an extension · 2 in the registry')
-    expect(prompt.options).toStrictEqual([adapter, { value: 'acme/plugin-x', label: 'acme/plugin-x', hint: 'An extension.', disabled: false }])
+    expect(prompt.options).toStrictEqual([adapter, { value: 'acme/plugin-x', label: 'acme/plugin-x', hint: 'An extension', disabled: false }])
     expect(prompt.filter!('x files', adapter)).toBe(true)
     expect(prompt.filter!('plugin-x', adapter)).toBe(false)
     expect(globalThis.fetch).toHaveBeenCalledTimes(1)
@@ -205,5 +205,12 @@ describe('kubb add', () => {
 
     expect(installPackages).not.toHaveBeenCalled()
     expect(output.join('\n')).toContain(message)
+  })
+})
+
+describe('summarize', () => {
+  it('keeps the first sentence and cuts it to one line', () => {
+    expect(summarize('Zod schemas from your spec. More detail follows.')).toBe('Zod schemas from your spec')
+    expect(summarize('Generates MSW request handlers from your OpenAPI spec so you can mock the API in tests.')).toHaveLength(64)
   })
 })
