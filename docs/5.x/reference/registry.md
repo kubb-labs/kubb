@@ -74,11 +74,11 @@ The fields come from the package's [`docs/` folder](/docs/5.x/reference/kit/exte
 - `options` is the Markdown of `docs/options.md`, or `null` when the package ships none.
 - `guides` holds one entry per `docs/guides/<id>.md`, in file name order. `id` is the file name without `.md`, `title` is the first `#` heading, `description` is the first paragraph after it, and `content` is the whole file.
 
-Read a missing `options` as `null` and a missing `guides` as `[]`. An unknown id answers 404, and `kubb add` reports `"<id>" is not in the registry at <registry>.`
+Read a missing `options` as `null` and a missing `guides` as `[]`. An unknown id answers 404. `kubb add` reads only `index.json`, and reports an id it does not list as `No extension named <id> in the registry`.
 
 ## `RegistryEntry` {#registry-entry}
 
-`@kubb/core` exports the `RegistryEntry`, `RegistryIndex`, `RegistryDetail`, and `RegistryGuide` types.
+`@kubb/core` exports the `RegistryEntry`, `RegistryIndex`, `RegistryDetail`, `RegistryGuide`, and `RegistryChanges` types.
 
 ::field-group
 
@@ -125,6 +125,12 @@ The [`kubb-extension.json`](/docs/5.x/reference/kit/manifest) of the pinned vers
 
 :::field{type="{ downloads?: number; weekly?: number; stars?: number }"}
 Download and star counts, when known.
+:::
+
+### `changes`
+
+:::field{type="{ summary: string; breaking?: boolean; guide?: string }"}
+The headline change of the pinned version, read from the `CHANGELOG.md` it ships. `summary` is the first entry of that version's section as plain text, `breaking` is `true` when the section lists major changes, and `guide` is a migration guide it links to. `kubb update` shows it next to each update. Registries built before it existed, and versions without a changelog entry, leave it out.
 :::
 
 ### `submittedAt`
