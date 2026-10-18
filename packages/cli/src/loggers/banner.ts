@@ -2,33 +2,55 @@ import { styleText } from 'node:util'
 import { formatMs } from '@internals/utils'
 
 /**
- * Colors for each part of the Kubb mascot illustration.
+ * 256-color codes for the mascot pixels: the hooded figure from the logo, kept as simple as the Claude Code blob.
  */
-const palette = {
+const palette: Record<string, number> = {
   /**
-   * Top cap of the skittle.
+   * Hood.
    */
-  lid: (text: string) => styleText('red', text),
+  O: 208,
   /**
-   * Wood body.
+   * Face.
    */
-  wood: (text: string) => styleText('yellow', text),
+  S: 216,
   /**
-   * Base wood body.
+   * Eyes.
    */
-  woodBase: (text: string) => styleText(['dim', 'yellow'], text),
-  /**
-   * Eye whites.
-   */
-  eye: (text: string) => styleText('white', text),
-  /**
-   * Highlight accent.
-   */
-  highlight: (text: string) => styleText('gray', text),
-  /**
-   * Cheek blush.
-   */
-  blush: (text: string) => styleText('magenta', text),
+  K: 16,
+}
+
+// One character per pixel, two pixel rows per terminal line. `.` is transparent.
+const mascot = ['...OOOOO...', '.OOOOOOOOO.', 'OOOSSSSSOOO', 'OOSKSSSKSOO', 'OOSSSSSSSOO', '.OOOSSSOOO.']
+
+function pixel(fg: string | undefined, bg: string | undefined, char: string, colors: boolean): string {
+  if (!colors) return char
+  const codes = [fg && `38;5;${palette[fg]}`, bg && `48;5;${palette[bg]}`].filter(Boolean).join(';')
+
+  return `\x1b[${codes}m${char}\x1b[0m`
+}
+
+/**
+ * Draws the mascot with half blocks, so each terminal cell holds two vertical pixels.
+ */
+function drawMascot(areEyesOpen: boolean, colors: boolean): Array<string> {
+  // Closed eyes drop the pupils, leaving the face blank for a blink.
+  const rows = areEyesOpen ? mascot : mascot.map((row) => row.replaceAll('K', 'S'))
+  const lines: Array<string> = []
+
+  for (let y = 0; y < rows.length; y += 2) {
+    let line = ''
+    for (let x = 0; x < rows[y]!.length; x++) {
+      const top = rows[y]![x] === '.' ? undefined : rows[y]![x]
+      const bottom = rows[y + 1]![x] === '.' ? undefined : rows[y + 1]![x]
+
+      if (top) line += pixel(top, bottom, '▀', colors)
+      else if (bottom) line += pixel(bottom, undefined, '▄', colors)
+      else line += ' '
+    }
+    lines.push(line)
+  }
+
+  return lines
 }
 
 /**
@@ -58,22 +80,15 @@ export function getIntro({
    */
   version: string
   /**
-   * When `false` the eyes are shown as closed dashes instead of open blocks.
+   * When `false` the eyes are drawn closed.
    */
   areEyesOpen: boolean
 }): string {
-  const kubbVersion = styleText(['bold', 'yellow'], `KUBB v${version}`)
+  // hasColors honors NO_COLOR and FORCE_COLOR, which raw escapes would otherwise skip.
+  const lines = drawMascot(areEyesOpen, process.stdout.hasColors?.(256) ?? false)
+  const text = [styleText('bold', 'Kubb') + styleText('gray', ` v${version}`), styleText('gray', title), `${styleText(['bold', 'yellow'], '➜')} ${description}`]
 
-  const eyeTop = areEyesOpen ? palette.eye('█▀█') : palette.eye('───')
-  const eyeBottom = areEyesOpen ? palette.eye('▀▀▀') : palette.eye('───')
-
-  return [
-    `   ${palette.lid('▄▄▄▄▄▄▄▄▄▄▄▄▄')}`,
-    `  ${palette.wood('█  ')}${palette.highlight('▄▄')}${palette.wood('     ')}${palette.highlight('▄▄')}${palette.wood('  █')} ${kubbVersion}`,
-    `  ${palette.wood('█ ')}${eyeTop}${palette.wood('     ')}${eyeTop}${palette.wood(' █')} ${styleText('gray', title)}`,
-    `  ${palette.wood('█ ')}${eyeBottom}${palette.wood('  ')}${palette.blush('◡')}${palette.wood('  ')}${eyeBottom}${palette.wood(' █')} ${styleText('yellow', '➜')} ${styleText('white', description)}`,
-    `   ${palette.woodBase('▀▀▀▀▀▀▀▀▀▀▀▀▀')}`,
-  ].join('\n')
+  return lines.map((line, i) => `  ${line}   ${text[i]}`.trimEnd()).join('\n')
 }
 
 /**
