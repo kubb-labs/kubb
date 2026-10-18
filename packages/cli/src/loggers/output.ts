@@ -1,7 +1,8 @@
-import { styleText } from 'node:util'
+import { setTimeout as sleep } from 'node:timers/promises'
+import { stripVTControlCharacters, styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
 import { isRichOutput } from '../utils/env.ts'
-import { getIntro } from './banner.ts'
+import { type Expression, getIntro, wakeUp } from './banner.ts'
 import { clackWriter } from './clackLogger.ts'
 import type { LoggerWriter, WriterSpinner } from './defineLogger.ts'
 import { plainWriter, SYMBOLS } from './plainLogger.ts'
@@ -122,16 +123,30 @@ export function logSpacer(): void {
 
 /**
  * Opens the command with the Kubb mascot and version, or a single version line where the terminal
- * cannot draw it.
+ * cannot draw it. The mascot first plays its wake-up frames in place, which takes under a second.
  */
-export function logBanner(version: string): void {
-  if (isRichOutput()) {
-    console.log(`\n${getIntro({ title: 'Turn your API spec into type-safe code', description: 'Ready to start', version, areEyesOpen: true })}\n`)
+export async function logBanner(version: string): Promise<void> {
+  const intro = (expression: Expression) => getIntro({ title: 'Turn your API spec into type-safe code', description: 'Ready to start', version, expression })
+  // A line wider than the terminal wraps and throws off the redraw, so a narrow terminal gets the plain line too.
+  const fits = () =>
+    stripVTControlCharacters(intro('open'))
+      .split('\n')
+      .every((line) => line.length <= process.stdout.columns)
+
+  if (!isRichOutput() || !process.stdout.hasColors(256) || !fits()) {
+    console.log(`Kubb CLI v${version}`)
 
     return
   }
 
-  console.log(`Kubb CLI v${version}`)
+  console.log('')
+  for (const [index, [expression, ms]] of wakeUp.entries()) {
+    const frame = intro(expression)
+    if (index > 0) process.stdout.moveCursor(0, -frame.split('\n').length)
+    console.log(frame)
+    await sleep(ms)
+  }
+  console.log('')
 }
 
 /** Prints lines as one block, without a symbol in front of them. Not the writer's block, which drops clack's spacing around it. */
