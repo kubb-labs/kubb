@@ -98,14 +98,20 @@ export async function initPackageJson(cwd: string, packageManager: PackageManage
   })
 }
 
+/** How many trailing lines of a failed install's output the error keeps. */
+const INSTALL_OUTPUT_LINES = 20
+
 /**
- * Installs the given packages at `cwd` using the detected package manager.
+ * Installs the given packages at `cwd` using the detected package manager. Its output is captured,
+ * since a spinner owns the line while it runs, and only a failed install shows it, in the error.
  */
 export async function installPackages(packages: Array<string>, packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
-  await x(packageManager.name, [...packageManager.installCommand, ...packages], {
-    nodeOptions: { cwd, stdio: 'inherit' },
-    throwOnError: true,
-  })
+  const args = [...packageManager.installCommand, ...packages]
+  const result = await x(packageManager.name, args, { nodeOptions: { cwd }, throwOnError: false })
+  if (result.exitCode === 0) return
+
+  const output = `${result.stdout}\n${result.stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
+  throw new Error(`\`${packageManager.name} ${args.join(' ')}\` failed with exit code ${result.exitCode}${output ? `:\n${output}` : ''}`)
 }
 
 /**
