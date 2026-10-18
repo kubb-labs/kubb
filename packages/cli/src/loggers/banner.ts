@@ -6,12 +6,8 @@ import { formatMs } from '@internals/utils'
  * terminal theme cannot repaint it.
  */
 const colors: Record<string, number> = {
-  /** Outline. */
-  X: 52,
   /** Hoodie. */
   O: 208,
-  /** Shine on the hood. */
-  H: 214,
   /** Shadow where the hood meets the face. */
   R: 166,
   /** Face. */
@@ -22,17 +18,15 @@ const colors: Record<string, number> = {
   B: 217,
   /** Mouth. */
   M: 131,
-  /** Drawstrings. */
-  S: 230,
 }
 
 /**
- * The two eye rows of the face, one string per pixel row, for each expression.
+ * The two pixel rows of the face around the eyes, for each expression.
  */
 const eyes = {
-  open: ['FFKFFFFKFF', 'FFKFFFFKFF'],
-  left: ['FKFFFFKFFF', 'FKFFFFKFFF'],
-  right: ['FFFKFFFFKF', 'FFFKFFFFKF'],
+  open: ['FFFFFFFFFF', 'FFKFFFFKFF'],
+  left: ['FFFFFFFFFF', 'FKFFFFKFFF'],
+  right: ['FFFFFFFFFF', 'FFFKFFFFKF'],
   blink: ['FFFFFFFFFF', 'FKKFFFFKKF'],
   happy: ['FFKFFFFKFF', 'FKFKFFKFKF'],
 } as const
@@ -54,30 +48,32 @@ export const wakeUp: ReadonlyArray<readonly [Expression, number]> = [
 ]
 
 /**
- * The kid in the orange hoodie from the Kubb logo, one letter per pixel and `.` for none.
+ * The kid in the orange hoodie from the Kubb logo, one letter per pixel and `.` for none. Each
+ * 2 × 2 block becomes one terminal cell, so a block holds at most two colors.
  */
-function pixels(expression: Expression): Array<string> {
+export function pixels(expression: Expression): Array<string> {
   const [top, bottom] = eyes[expression]
 
+  // prettier-ignore
   return [
-    '.....XXXXXX.....',
-    '...XXOOOOOOXX...',
-    '..XOHHOOOOOOOX..',
-    '.XOORRRRRRRROOX.',
-    '.XORFFFFFFFFROX.',
-    'XOOFFFFFFFFFFOOX',
-    `XOO${top}OOX`,
-    `XOO${bottom}OOX`,
-    'XOOFBBFFFFBBFOOX',
-    '.XOFFFFMMFFFFOX.',
-    '..XOOFFFFFFOOX..',
-    '..XOOOSOOSOOOX..',
+    '....OOOOOOOOOO....',
+    '..OORRRRRRRRRROO..',
+    `..OO${top}OO..`,
+    `OOFF${bottom}FFOO`,
+    'OOFFBBFFMMFFBBFFOO',
+    '..OOOOFFFFFFOOOO..',
   ]
 }
 
 /**
- * Draws two pixel rows per terminal line with half blocks: `▀` takes the top pixel as its foreground
- * and the bottom pixel as its background.
+ * Quadrant glyphs indexed by which quarters are filled: top left 1, top right 2, bottom left 4,
+ * bottom right 8.
+ */
+const quadrants = ' ▘▝▀▖▌▞▛▗▚▐▜▄▙▟█'
+
+/**
+ * Draws each 2 × 2 block of pixels as one quadrant glyph, the way Claude Code draws its mascot. The
+ * glyph's filled quarters take the first color in the block and the rest take the other.
  */
 function drawHead(expression: Expression): Array<string> {
   const rows = pixels(expression)
@@ -85,14 +81,16 @@ function drawHead(expression: Expression): Array<string> {
 
   for (let y = 0; y < rows.length; y += 2) {
     let line = ''
-    for (let x = 0; x < rows[y]!.length; x++) {
-      const top = colors[rows[y]![x]!]
-      const bottom = colors[rows[y + 1]![x]!]
-
-      if (top === undefined && bottom === undefined) line += ' '
-      else if (top === undefined) line += `\x1b[38;5;${bottom}m▄\x1b[0m`
-      else if (bottom === undefined) line += `\x1b[38;5;${top}m▀\x1b[0m`
-      else line += `\x1b[38;5;${top};48;5;${bottom}m▀\x1b[0m`
+    for (let x = 0; x < rows[y]!.length; x += 2) {
+      const block = [rows[y]![x]!, rows[y]![x + 1]!, rows[y + 1]![x]!, rows[y + 1]![x + 1]!]
+      const fg = block.find((pixel) => pixel in colors)
+      if (!fg) {
+        line += ' '
+        continue
+      }
+      const bg = colors[block.find((pixel) => pixel !== fg) ?? '.']
+      const mask = block.reduce((bits, pixel, index) => (pixel === fg ? bits | (1 << index) : bits), 0)
+      line += `\x1b[38;5;${colors[fg]}${bg === undefined ? '' : `;48;5;${bg}`}m${quadrants[mask]}\x1b[0m`
     }
     lines.push(line)
   }
@@ -132,17 +130,10 @@ export function getIntro({
    */
   expression: Expression
 }): string {
-  // Lines 3 to 5 of the six, so the text sits beside the face.
-  const text = [
-    '',
-    '',
-    styleText(['bold', 'yellow'], `KUBB v${version}`),
-    styleText('gray', title),
-    `${styleText('yellow', '➜')} ${styleText('white', description)}`,
-  ]
+  const text = [styleText(['bold', 'yellow'], `KUBB v${version}`), styleText('gray', title), `${styleText('yellow', '➜')} ${styleText('white', description)}`]
 
   return drawHead(expression)
-    .map((line, index) => (text[index] ? `  ${line}  ${text[index]}` : `  ${line}`))
+    .map((line, index) => `  ${line}  ${text[index]}`)
     .join('\n')
 }
 
