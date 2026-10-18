@@ -9,7 +9,16 @@ import { x } from 'tinyexec'
 import { getProjectKubbHome } from './credentials.ts'
 import { prepareConnection, type PreparedConnection, type StudioOptions, type WorkerState } from './run.ts'
 
-export type WorkerRecord = { id: string; pid: number; port: number; state: WorkerState }
+export type WorkerRecord = {
+  id: string
+  pid: number
+  port: number
+  state: WorkerState
+  /**
+   * When the worker started, in epoch milliseconds. Absent in a record from an older CLI.
+   */
+  startedAt?: number
+}
 const states: Array<WorkerState> = ['starting', 'connected', 'reconnecting', 'authentication required', 'stopped']
 export const getWorkerLogPath = () => path.join(getProjectKubbHome(), 'worker.log')
 const statePath = () => path.join(getProjectKubbHome(), 'worker.json')
@@ -68,12 +77,12 @@ function requestWorker(record: WorkerRecord, command: 'status' | 'stop'): Promis
   })
 }
 
-export async function getWorkerStatus(): Promise<{ running: boolean; state: WorkerState; pid?: number }> {
+export async function getWorkerStatus(): Promise<{ running: boolean; state: WorkerState; pid?: number; startedAt?: number }> {
   const record = await readWorker()
   if (!record) return { running: false, state: 'stopped' }
   try {
     const response = await requestWorker(record, 'status')
-    return { running: true, state: response.state, pid: response.pid }
+    return { running: true, state: response.state, pid: response.pid, startedAt: Number.isFinite(response.startedAt) ? response.startedAt : undefined }
   } catch {
     return { running: false, state: record.state === 'authentication required' ? record.state : 'stopped' }
   }
@@ -118,7 +127,7 @@ export async function stopWorker(): Promise<void> {
 
 /** The listening port is the project lock, so stale state never needs a PID-based takeover. */
 export async function serveWorker(shutdown: AbortController) {
-  const record: WorkerRecord = { id: randomBytes(16).toString('hex'), pid: process.pid, port: 0, state: 'starting' }
+  const record: WorkerRecord = { id: randomBytes(16).toString('hex'), pid: process.pid, port: 0, state: 'starting', startedAt: Date.now() }
   const server = createServer((socket) => {
     let input = ''
     socket.setTimeout(2_000, () => socket.destroy())

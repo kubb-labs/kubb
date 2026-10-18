@@ -118,6 +118,7 @@ describe('studio session events', () => {
   }
 
   it('reports the connection, a command, a retry, a refused permission, and a takeover, in order', async () => {
+    vi.useFakeTimers({ now: new Date(2026, 0, 1, 14, 5, 2) })
     const lines = await render(async (context) => {
       await context.callHook('studio:connected', {
         url: 'http://localhost:3000',
@@ -133,14 +134,45 @@ describe('studio session events', () => {
     })
 
     expect(lines).toStrictEqual([
-      '✓ Connected to http://localhost:3000 (v5.0.6, Studio v5.1.0)',
-      '✓ Ready to receive jobs',
-      '✓ Finished saveConfig (applied 2/3 edits to kubb.config.ts)',
-      '✓ Ready to receive jobs',
+      '✓ Connected to http://localhost:3000 · v5.0.6 · Studio v5.1.0',
+      'Ready for jobs',
+      '14:05:02  saveConfig ✓ (applied 2/3 edits to kubb.config.ts)',
+      'Ready for jobs',
       'Retrying connection to Kubb Studio in 30.00s',
       '⚠ Ignored save: editing kubb.config.ts was not granted; pass --allow-config-edit to allow it',
       '⚠ Another process connected to Kubb Studio as this agent, so this one stopped',
     ])
+    vi.useRealTimers()
+  })
+
+  it('logs a generate job with its file count and duration, and a failed one with its errors', async () => {
+    vi.useFakeTimers({ now: new Date(2026, 0, 1, 14, 9, 13) })
+    const lines = await render(async (context) => {
+      await context.callHook('studio:connected', {
+        url: 'http://localhost:3000',
+        versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' },
+        sandbox: false,
+        agentSlug: 'brave-otter',
+        studioVersion: '5.1.0',
+      })
+      const generation = {
+        config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
+        storage: {} as Storage,
+        hrStart: process.hrtime(),
+      }
+      await context.callHook('kubb:generation:end', { ...generation, diagnostics: [], filesCreated: 122, status: 'success' })
+      await context.callHook('studio:command', { command: 'generate', info: '3 plugins, in memory' })
+      await context.callHook('kubb:generation:end', {
+        ...generation,
+        diagnostics: [{ code: 'KUBB_UNKNOWN', severity: 'error', message: 'Broken spec' }],
+        filesCreated: 0,
+        status: 'failed',
+      })
+    })
+    vi.useRealTimers()
+
+    expect(lines).toContainEqual(expect.stringMatching(/^14:09:13 {2}generate {3}✓ 122 files in \S+ \(3 plugins, in memory\)$/))
+    expect(lines).toContain('14:09:13  generate   ✖ 1 error, see Studio')
   })
 
   it('drops everything but errors at silent', async () => {

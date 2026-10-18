@@ -663,7 +663,7 @@ export type SnapshotChanges = {
   /**
    * The snapshot these changes are measured against, `null` when there is none to compare with.
    */
-  base: { id: string; version: string | null; commit?: string; createdAt: string } | null
+  base: { id: string; version: string | null; commit?: string; createdAt: string; number?: number } | null
   added: Array<string>
   changed: Array<string>
   removed: Array<string>
@@ -689,6 +689,14 @@ export type PublishedSnapshot = {
    */
   url: string
   snapshotIdUrl: string
+  /**
+   * Studio page of this snapshot, such as `/kubb-labs/petstore/182`. Absent from a Studio that does not send it.
+   */
+  webUrl?: string
+  /**
+   * The snapshot's sequence number on its CI agent, shown as `#182`. Absent from a Studio that does not send it.
+   */
+  number?: number
   createdAt: string
   expiresAt: string
   /**

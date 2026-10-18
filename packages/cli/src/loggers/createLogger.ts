@@ -38,7 +38,14 @@ function formatMessage(message: string, logLevel: number): string {
  * Renders a `studio:connected` event's versions: the runtime only when it differs from the host.
  */
 function formatVersions({ studio, kubb, agent }: StudioConnectedContext['versions']): string {
-  return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, `Studio v${studio}`].filter(Boolean).join(', ')
+  return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, `Studio v${studio}`].filter(Boolean).join(' · ')
+}
+
+/** One line of a Studio session's job log: the time, the command, and how it ended. */
+export function formatJobLine(command: string, result: string, date = new Date()): string {
+  const time = date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+
+  return `${styleText('dim', time)}  ${command.padEnd(10)} ${result}`
 }
 
 type ProgressState = {
@@ -560,16 +567,32 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         writer.success(line)
       })
 
+      // The last generation's outcome, for the job line `studio:command` prints after it.
+      let job: { fileCount: number; ms: number } | null = null
+      let studio = false
+
       context.hook('studio:connected', ({ url, versions }) => {
+        studio = true
         stopSpinner()
-        writer.success(text(`✓ Connected to ${styleText('cyan', url)} ${styleText('dim', `(${formatVersions(versions)})`)}`))
-        startSpinner('✓ Ready to receive jobs')
+        writer.success(text(`✓ Connected to ${styleText('cyan', url)} ${styleText('dim', `· ${formatVersions(versions)}`)}`))
+        startSpinner('Ready for jobs')
+      })
+
+      context.hook('kubb:generation:end', ({ diagnostics = [], filesCreated = 0, status, hrStart = process.hrtime() }) => {
+        job = { fileCount: filesCreated, ms: getElapsedMs(hrStart) }
+        // A failed run never reaches `studio:command`, so a Studio session reports it here.
+        if (status !== 'failed' || !studio) return
+        const errors = Diagnostics.count(diagnostics).errors
+        writer.info(formatJobLine('generate', `${styleText('red', '✖')} ${errors ? pluralize(errors, 'error') : 'failed'}, see Studio`))
+        startSpinner('Ready for jobs')
       })
 
       context.hook('studio:command', ({ command, info }) => {
         stopSpinner()
-        writer.success(text(`✓ Finished ${command} ${styleText('dim', `(${info})`)}`))
-        startSpinner('✓ Ready to receive jobs')
+        const result = command === 'generate' && job ? `${pluralize(job.fileCount, 'file')} in ${formatMs(job.ms)} ` : ''
+        job = null
+        writer.info(formatJobLine(command, `${styleText('green', '✓')} ${result}${styleText('dim', `(${info})`)}`))
+        startSpinner('Ready for jobs')
       })
 
       context.hook('studio:reconnecting', ({ delayMs }) => {
