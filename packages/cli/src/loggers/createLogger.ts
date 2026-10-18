@@ -196,6 +196,8 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
     const state = {
       ...createProgressCounters(),
       spinner: null as WriterSpinner | null,
+      /** The message the running spinner started with, so a paused spinner can resume as it was. */
+      spinnerMessage: '',
       progress: null as WriterProgress | null,
       hooks: new Map<string, { hrStart: [number, number]; lines: Array<string> }>(),
       /**
@@ -239,6 +241,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       }
 
       state.spinner = writer.spinner()
+      state.spinnerMessage = message
       state.spinner.start(text(message))
     }
 
@@ -475,7 +478,11 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         return
       }
       const remedy = permission ? `; pass --${permission.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)} to allow it` : ''
+      // A warning drawn under a running spinner leaves a stale spinner frame above it, so it pauses the spinner like a job line does.
+      const paused = state.spinner ? state.spinnerMessage : undefined
+      stopSpinner()
       writer.warn(text(`⚠ ${message}${remedy}`))
+      if (paused !== undefined) startSpinner(paused)
     })
 
     // Unguarded, like `kubb:error`: a failure stays visible even at silent.

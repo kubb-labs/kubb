@@ -431,6 +431,8 @@ export async function connect(
         permissions = await resolvePermissions(options, credentials, configPath)
       }
     }
+    // Stops the "Ready for jobs" spinner, which would otherwise keep drawing under the closing line.
+    await hooks.callHook('kubb:lifecycle:end')
     unwatch?.()
     if (background) {
       const { startWorker } = await import('./background.ts')
@@ -459,6 +461,10 @@ export function watchKeys({ onBackground, onStop }: { onBackground: () => void; 
     if (key === 'b' || key === 'B') onBackground()
     if (key === '\u0003') onStop()
   }
+  // A clack spinner reads stdin too and exits the process on Ctrl+C, before the session can close
+  // its socket, so its Ctrl+C alias is lifted while these keys are read.
+  const cancelAlias = prompts.settings.aliases.get('\u0003')
+  prompts.settings.aliases.delete('\u0003')
   stdin.setRawMode(true)
   stdin.on('data', onData)
   stdin.resume()
@@ -467,6 +473,7 @@ export function watchKeys({ onBackground, onStop }: { onBackground: () => void; 
   return () => {
     if (restored) return
     restored = true
+    if (cancelAlias) prompts.settings.aliases.set('\u0003', cancelAlias)
     stdin.off('data', onData)
     stdin.setRawMode(false)
     stdin.pause()

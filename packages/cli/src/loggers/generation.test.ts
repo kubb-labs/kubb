@@ -322,6 +322,24 @@ describe('grouped generation output', () => {
   })
 })
 
+describe('studio warnings', () => {
+  it('pause the running spinner and resume it with its message, so no stale frame stays above the warning', async () => {
+    const output = await render(
+      async (context) => {
+        await context.callHook('kubb:generation:start', { config: makeConfig('petstore') })
+        await context.callHook('studio:warn', { message: 'Ignored save', permission: 'allowConfigEdit' })
+      },
+      { rich: true },
+    )
+
+    expect(output.slice(1)).toStrictEqual([
+      'spinner.start:Parsing spec',
+      'log.warn:⚠ Ignored save; pass --allow-config-edit to allow it',
+      'spinner.start:Parsing spec',
+    ])
+  })
+})
+
 describe('plain generation output', () => {
   it('says files were generated rather than written when the run keeps them in memory', async () => {
     const config = { ...makeConfig('petstore'), storage: { name: 'memory' } } as unknown as Config

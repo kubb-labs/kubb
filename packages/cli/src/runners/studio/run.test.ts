@@ -22,6 +22,7 @@ vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
   outro: vi.fn(),
   updateSettings: vi.fn(),
+  settings: { aliases: new Map([['\u0003', 'cancel']]) },
 }))
 vi.mock('@kubb/studio', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kubb/studio')>()),
@@ -263,6 +264,15 @@ describe('watchKeys', () => {
     expect(onBackground).toHaveBeenCalledOnce()
     expect(onStop).toHaveBeenCalledOnce()
     expect(tty.setRawMode.mock.calls).toStrictEqual([[true], [false]])
+  })
+
+  it("lifts clack's Ctrl+C alias while it reads keys, so a spinner cannot exit the process first", () => {
+    using _tty = fakeTty()
+
+    const restore = watchKeys({ onBackground: vi.fn(), onStop: vi.fn() })
+    expect(prompts.settings.aliases.has('\u0003')).toBe(false)
+    restore()
+    expect(prompts.settings.aliases.get('\u0003')).toBe('cancel')
   })
 })
 
