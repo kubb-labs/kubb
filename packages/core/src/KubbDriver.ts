@@ -375,7 +375,14 @@ export class KubbDriver {
           }
 
           if (this.adapter && this.inputNode) {
-            const buildStartContext = this.#withFiles({ config, adapter: this.adapter, meta: this.inputNode.meta, getPlugin: this.getPlugin.bind(this) })
+            const { meta, schemas, operations } = this.inputNode
+            const buildStartContext = this.#withFiles({
+              config,
+              adapter: this.adapter,
+              meta,
+              nodeCounts: { schemas: schemas.length, operations: operations.length },
+              getPlugin: this.getPlugin.bind(this),
+            })
             await hooks.callHook('kubb:build:start', buildStartContext)
           }
 

@@ -5,6 +5,7 @@ import {
   cliReporter,
   type Config,
   type GeneratorContext,
+  type KubbBuildStartContext,
   type KubbHooks,
   logLevel,
   type NormalizedPlugin,
@@ -130,7 +131,9 @@ function generation({ config, pluginFailed = false, formatFailed = false, hookLi
     const file = makeFile('/tmp/src/gen/pet.ts')
 
     await context.callHook('kubb:generation:start', { config })
+    await context.callHook('kubb:build:start', { nodeCounts: { schemas: 1, operations: 1 } } as KubbBuildStartContext)
     await context.callHook('kubb:plugin:start', { plugin: makePlugin('@kubb/plugin-ts') })
+    await context.callHook('kubb:plugin:start', { plugin: makePlugin('@kubb/plugin-zod') })
     await context.callHook('kubb:generate:schema', { name: 'Pet' } as SchemaNode, makeGeneratorContext('@kubb/plugin-ts'))
     await context.callHook('kubb:generate:schema', { name: 'Pet' } as SchemaNode, makeGeneratorContext('@kubb/plugin-zod'))
     await context.callHook('kubb:generate:operation', { operationId: 'getPet' } as OperationNode, makeGeneratorContext('@kubb/plugin-ts'))
@@ -180,12 +183,15 @@ describe('grouped generation output', () => {
 
     expect(output.map(withoutDuration)).toStrictEqual([
       'intro:petstore petstore.yaml',
+      'spinner.start:Parsing spec',
+      'spinner.stop:Parsed spec  1 schema · 1 operation · ',
       'spinner.start:Generating',
+      // Only the first plugin to start is named; every plugin starts before the shared walk.
       'spinner.message:Generating @kubb/plugin-ts',
-      // The node just generated, its plugin, and the distinct nodes so far.
-      'spinner.message:Generating Pet @kubb/plugin-ts · 1 schema',
-      'spinner.message:Generating Pet @kubb/plugin-zod · 1 schema',
-      'spinner.message:Generating getPet @kubb/plugin-ts · 1 schema, 1 operation',
+      // The walk's progress over the spec's nodes, then each plugin's count and the node it just generated.
+      'spinner.message:Generating  ██████████░░░░░░░░░░  1/2 nodes  \n│   @kubb/plugin-ts     1  Pet',
+      'spinner.message:Generating  ██████████░░░░░░░░░░  1/2 nodes  \n│   @kubb/plugin-ts      1  Pet\n│   @kubb/plugin-zod     1  Pet',
+      'spinner.message:Generating  ████████████████████  2/2 nodes  \n│   @kubb/plugin-ts      2  getPet\n│   @kubb/plugin-zod     1  Pet',
       'spinner.stop:Plugins 2/2 |  elapsed',
       'log.message:@kubb/plugin-ts completed in \n@kubb/plugin-zod completed in ',
       'spinner.start:Writing 1 file',
@@ -330,7 +336,7 @@ describe('both loggers', () => {
         .filter((line) => line && !/^(Kubb succeeded|Generation succeeded|Plugins {2}|Files {2}|Duration|Output {2})/.test(line))
         .sort()
     // The per-node progress only redraws the rich spinner; plain output leaves it out on purpose.
-    const richMessages = messages(rich).filter((line) => !line.includes(' · '))
+    const richMessages = messages(rich).filter((line) => !/^(Generating {2}|│ {3})/.test(line))
 
     expect(messages(plain)).toStrictEqual(richMessages)
   })

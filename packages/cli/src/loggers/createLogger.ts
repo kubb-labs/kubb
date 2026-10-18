@@ -87,6 +87,17 @@ function createProgressCounters(): ProgressState {
   }
 }
 
+/** The node walk's live state: the spec's node total, the distinct nodes generated, and each plugin's count and current node. */
+function createWalk() {
+  return { total: 0, visited: new Set<string>(), plugins: new Map<string, { count: number; current: string }>() }
+}
+
+/** A 20-cell bar filled to `ratio`, drawn like the write progress bar. */
+function formatBar(ratio: number, size = 20): string {
+  const filled = Math.round(Math.min(Math.max(ratio, 0), 1) * size)
+  return `${styleText('magenta', '█'.repeat(filled))}${styleText('dim', '░'.repeat(size - filled))}`
+}
+
 /** A hook's display name: its `name`, or the command line it runs. */
 function formatHookLabel({ command, name, args }: { command: string; name?: string; args?: ReadonlyArray<string> }): string {
   return name ?? (args?.length ? `${command} ${args.join(' ')}` : command)
@@ -190,8 +201,8 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
        * Problems held back so the human view can print them grouped by plugin once the build ends.
        */
       problems: [] as Array<ProblemDiagnostic>,
-      /** Schemas and operations generated so far, for the live count. */
-      nodes: { schema: new Set<string>(), operation: new Set<string>() },
+      walk: createWalk(),
+      pluginStarted: false,
       /**
        * The finished config's diagnostics and file count, for the closing summary.
        */
@@ -301,7 +312,8 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       state.phase = null
       state.groupOpen = false
       state.problems = []
-      state.nodes = { schema: new Set(), operation: new Set() }
+      state.walk = createWalk()
+      state.pluginStarted = false
       state.outcome = null
     }
 
@@ -452,7 +464,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       writer.group(text([styleText('bold', config.name ?? 'kubb'), inputPath ? styleText('dim', inputPath) : undefined].filter(Boolean).join(' ')))
       state.groupOpen = true
 
-      startSpinner('Generating')
+      startSpinner('Parsing spec')
     })
 
     context.hook('kubb:format:start', () => startPhase(PHASES.format))
@@ -565,21 +577,41 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         writer.info(text(styleText('dim', `Retrying connection to Kubb Studio in ${formatMs(delayMs)}`)))
       })
 
+      // Every plugin starts before the shared walk, so only the first is named; the per-node hooks take over from there.
       context.hook('kubb:plugin:start', ({ plugin }) => {
+        if (state.pluginStarted) return
+        state.pluginStarted = true
         state.spinner?.message(text(`Generating ${styleText('dim', plugin.name)}`))
+      })
+
+      context.hook('kubb:build:start', ({ nodeCounts: { schemas, operations } }) => {
+        state.walk.total = schemas + operations
+        const details = `${pluralize(schemas, 'schema')} · ${pluralize(operations, 'operation')} · ${formatMs(getElapsedMs(state.hrStart))}`
+        stopSpinner(`Parsed spec  ${styleText('dim', details)}`)
+        startSpinner('Generating')
       })
 
       // Plugins all end after one shared node walk, so per-node hooks keep the step live; plain output would get a line per node.
       if (human) {
-        const onNode = (kind: 'schema' | 'operation', name: string, plugin: string) => {
-          state.nodes[kind].add(name)
-          const { schema, operation } = state.nodes
-          const counts = [schema.size && pluralize(schema.size, 'schema'), operation.size && pluralize(operation.size, 'operation')].filter(Boolean).join(', ')
-          state.spinner?.message(text(`Generating ${name} ${styleText('dim', `${plugin} · ${counts}`)}`))
+        const onNode = (key: string, name: string, plugin: string) => {
+          const { total, visited, plugins } = state.walk
+          visited.add(key)
+          plugins.set(plugin, { count: (plugins.get(plugin)?.count ?? 0) + 1, current: name })
+
+          const elapsed = styleText('dim', formatMs(getElapsedMs(state.hrStart)))
+          const head = total
+            ? `Generating  ${formatBar(visited.size / total)}  ${visited.size}/${total} nodes  ${elapsed}`
+            : `Generating  ${pluralize(visited.size, 'node')}  ${elapsed}`
+          const width = Math.max(...[...plugins.keys()].map((pluginName) => pluginName.length))
+          const rows = [...plugins].map(
+            ([pluginName, row]) =>
+              `${styleText('dim', '│')}   ${pluginName.padEnd(width)}  ${styleText('dim', String(row.count).padStart(4))}  ${styleText('cyan', row.current)}`,
+          )
+          state.spinner?.message(text([head, ...rows].join('\n')))
         }
 
-        context.hook('kubb:generate:schema', (node, { plugin }) => onNode('schema', node.name ?? 'schema', plugin.name))
-        context.hook('kubb:generate:operation', (node, { plugin }) => onNode('operation', node.operationId, plugin.name))
+        context.hook('kubb:generate:schema', (node, { plugin }) => onNode(`schema:${node.name}`, node.name ?? 'schema', plugin.name))
+        context.hook('kubb:generate:operation', (node, { plugin }) => onNode(`operation:${node.operationId}`, node.operationId, plugin.name))
       }
 
       // Buffered, not printed: a step redraws over anything written while it runs.

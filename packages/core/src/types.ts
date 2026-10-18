@@ -452,6 +452,10 @@ export type KubbBuildStartContext = FilesContext & {
    */
   meta: InputMeta | undefined
   /**
+   * How many schemas and operations the parsed document holds, the totals for a progress display.
+   */
+  nodeCounts: { schemas: number; operations: number }
+  /**
    * Looks up a registered plugin by name, typed by the plugin registry.
    */
   getPlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>> | undefined
