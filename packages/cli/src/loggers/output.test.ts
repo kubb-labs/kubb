@@ -60,7 +60,7 @@ describe('getBanner', () => {
   it('falls back to one version line where the mascot cannot be drawn', () => {
     using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(false)
 
-    expect(getBanner('5.0.0')).toBe('Kubb CLI v5.0.0')
+    expect(getBanner('5.0.0', 'add')).toBe('Kubb CLI v5.0.0')
   })
 })
 

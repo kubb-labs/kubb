@@ -54,7 +54,7 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
     },
     fallbackToEntry: true,
     // The mascot opens every command; `generate` turns this off and plays its animated banner instead.
-    renderHeader: isJsonOutput ? null : async () => getBanner(version),
+    renderHeader: isJsonOutput ? null : async (ctx) => getBanner(version, ctx.commandPath.join(' ') || 'generate'),
     strict: true,
     plugins: [dryrun({ name: 'dry-run' })],
     onErrorCommand: async (_ctx, error) => {
