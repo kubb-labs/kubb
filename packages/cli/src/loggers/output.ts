@@ -1,7 +1,8 @@
+import { setTimeout as sleep } from 'node:timers/promises'
 import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
 import { isRichOutput } from '../utils/env.ts'
-import { getIntro } from './banner.ts'
+import { getIntro, wakeUp } from './banner.ts'
 import { clackWriter } from './clackLogger.ts'
 import type { LoggerWriter, WriterSpinner } from './defineLogger.ts'
 import { plainWriter, SYMBOLS } from './plainLogger.ts'
@@ -122,16 +123,23 @@ export function logSpacer(): void {
 
 /**
  * Opens the command with the Kubb mascot and version, or a single version line where the terminal
- * cannot draw it.
+ * cannot draw it. The mascot first plays its wake-up frames in place, which takes under a second.
  */
-export function logBanner(version: string): void {
-  if (isRichOutput()) {
-    console.log(`\n${getIntro({ title: 'Turn your API spec into type-safe code', description: 'Ready to start', version, areEyesOpen: true })}\n`)
+export async function logBanner(version: string): Promise<void> {
+  if (!isRichOutput() || !process.stdout.hasColors(256)) {
+    console.log(`Kubb CLI v${version}`)
 
     return
   }
 
-  console.log(`Kubb CLI v${version}`)
+  console.log('')
+  for (const [index, [expression, ms]] of wakeUp.entries()) {
+    const intro = getIntro({ title: 'Turn your API spec into type-safe code', description: 'Ready to start', version, expression })
+    if (index > 0) process.stdout.moveCursor(0, -intro.split('\n').length)
+    console.log(intro)
+    await sleep(ms)
+  }
+  console.log('')
 }
 
 /** Prints lines as one block, without a symbol in front of them. Not the writer's block, which drops clack's spacing around it. */

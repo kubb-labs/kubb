@@ -132,7 +132,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   if (json) setupReporters(errorHooks, { logLevel, reporters: [cliReporter], logger: createPlainLogger(console.error) })
 
   if (!quiet) {
-    logBanner(version)
+    await logBanner(version)
     logIntro({ title: 'Configuration' })
   }
 

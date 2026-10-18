@@ -1,6 +1,23 @@
-import { styleText } from 'node:util'
+import { stripVTControlCharacters, styleText } from 'node:util'
 import { describe, expect, it } from 'vitest'
-import { formatMsWithColor } from './banner.ts'
+import { type Expression, formatMsWithColor, getIntro, wakeUp } from './banner.ts'
+
+describe('getIntro', () => {
+  function draw(expression: Expression): Array<string> {
+    return stripVTControlCharacters(getIntro({ title: 'title', description: 'description', version: '5.0.0', expression })).split('\n')
+  }
+
+  it('puts the text beside the eyes, two cells right of the 18-cell head', () => {
+    expect(draw('open').map((line) => line.length)).toEqual([20, 20, 22 + 'KUBB v5.0.0'.length, 22 + 'title'.length, 22 + '➜ description'.length, 20, 20])
+  })
+
+  it.each([...new Set(wakeUp.map(([expression]) => expression))])(
+    'draws %s with the same line widths as open eyes, so each frame overwrites the last',
+    (expression) => {
+      expect(draw(expression).map((line) => line.length)).toEqual(draw('open').map((line) => line.length))
+    },
+  )
+})
 
 describe('formatMsWithColor', () => {
   it.each([
