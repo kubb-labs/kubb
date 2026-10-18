@@ -1,7 +1,7 @@
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { formatters, linters } from '@internals/utils'
+import { formatMs, formatters, getElapsedMs, linters } from '@internals/utils'
 import {
   Hookable,
   type CLIOptions,
@@ -23,16 +23,32 @@ import { trackRun } from '../../Telemetry.ts'
 import { pluralize } from '../../loggers/createLogger.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
-import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
+import { createSpinner, logBanner, logBlock, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
-import { fetchUrlBody, startUrlWatcher, startWatcher } from './utils.ts'
+import {
+  type BuildDiff,
+  type BuildSnapshot,
+  createSerialRunner,
+  diffBuilds,
+  fetchUrlBody,
+  listenForKeys,
+  startUrlWatcher,
+  startWatcher,
+  trackBuild,
+} from './utils.ts'
 
 /** NPM registry endpoint used to check for @kubb/cli updates. */
 const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
 
 /** Upper bound in milliseconds for the npm update check, so a slow registry never stalls a run. */
 const UPDATE_CHECK_TIMEOUT_MS = 3_000
+
+/** Rebuilt files listed after a watch rebuild before the rest collapse into one line. */
+const WATCH_FILE_LIMIT = 10
+
+/** The hint shown after a one-off run whose input can be watched. */
+const WATCH_HINT = { command: 'kubb generate --watch', description: 'rebuilds on every save' } as const
 
 /** The formatter names from `Config['output'].format`, without `'auto'` (detection, not a tool) and `false` (skip). */
 type FormatterName = Exclude<NonNullable<Config['output']['format']>, 'auto' | false>
@@ -97,16 +113,54 @@ type GenerateCommandOptions = {
   dryRun?: boolean
 }
 
-async function checkForUpdate(hooks: Hookable<KubbHooks>): Promise<void> {
+/** The latest published version, `undefined` when the registry does not answer in time. Never rejects. */
+async function fetchLatestVersion(): Promise<string | undefined> {
   try {
     const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS) })
     const data = (await res.json()) as { version: string }
-    if (data.version && isOutdated({ installed: version, latest: data.version })) {
-      await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion: data.version }))
-    }
+    return data.version
   } catch {
     // Ignore network errors
+    return undefined
   }
+}
+
+async function checkForUpdate({ hooks, latest }: { hooks: Hookable<KubbHooks>; latest: Promise<string | undefined> }): Promise<void> {
+  const latestVersion = await latest
+  if (latestVersion && isOutdated({ installed: version, latest: latestVersion })) {
+    await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion }))
+  }
+}
+
+/** `+1 schema -2 operations`, or an empty string when the spec kept the same names. */
+function formatSpecChange({ schemas, operations }: BuildDiff): string {
+  return [
+    schemas.added && styleText('green', `+${pluralize(schemas.added, 'schema')}`),
+    schemas.removed && styleText('red', `-${pluralize(schemas.removed, 'schema')}`),
+    operations.added && styleText('green', `+${pluralize(operations.added, 'operation')}`),
+    operations.removed && styleText('red', `-${pluralize(operations.removed, 'operation')}`),
+  ]
+    .filter(Boolean)
+    .join(' ')
+}
+
+const fileStatusStyle = { A: 'green', M: 'yellow', D: 'red' } as const
+
+/** Prints what a watch rebuild changed: the spec's names, then each added, modified or removed file. */
+function logRebuild({ diff, durationMs }: { diff: BuildDiff; durationMs: number }): void {
+  const specChange = formatSpecChange(diff)
+  logStep(
+    [`Rebuilt in ${formatMs(durationMs)}`, specChange, `${pluralize(diff.files.length, 'file')} changed`, `${diff.unchanged} unchanged`]
+      .filter(Boolean)
+      .join(styleText('dim', ' · ')),
+  )
+  if (!diff.files.length) return
+
+  const rows = diff.files
+    .slice(0, WATCH_FILE_LIMIT)
+    .map(({ status, path: filePath }) => `${styleText(fileStatusStyle[status], status)} ${styleText('cyan', path.relative(process.cwd(), filePath))}`)
+  const more = diff.files.length - rows.length
+  logBlock(more > 0 ? [...rows, styleText('dim', `… ${more} more`)] : rows)
 }
 
 /**
@@ -115,6 +169,8 @@ async function checkForUpdate(hooks: Hookable<KubbHooks>): Promise<void> {
  * checks for a newer version, and calls `generate` for each config entry.
  */
 export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters, dryRun }: GenerateCommandOptions): Promise<void> {
+  // Started first so the registry request overlaps the banner and the config load.
+  const latest = fetchLatestVersion()
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new Hookable<KubbHooks>()
 
@@ -131,8 +187,19 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   const errorHooks = json ? new Hookable<KubbHooks>() : hooks
   if (json) setupReporters(errorHooks, { logLevel, reporters: [cliReporter], logger: createPlainLogger(console.error) })
 
+  // The config loads while the banner plays; the output still prints in order once the banner is done.
+  const banner = quiet ? undefined : logBanner(version)
+  const loading = getConfigs({
+    configPath,
+    input,
+    watch,
+    logLevel: logLevelKey as CLIOptions['logLevel'],
+  })
+  // Handled below; this keeps a rejection during the banner from counting as unhandled.
+  loading.catch(() => undefined)
+  await banner
+
   if (!quiet) {
-    await logBanner(version)
     logIntro({ title: 'Configuration' })
   }
 
@@ -144,12 +211,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   try {
     if (!quiet) configSpinner.start('Loading config')
 
-    const loaded = await getConfigs({
-      configPath,
-      input,
-      watch,
-      logLevel: logLevelKey as CLIOptions['logLevel'],
-    })
+    const loaded = await loading
     configs = loaded.configs
     resolvedConfigPath = loaded.configPath
 
@@ -175,7 +237,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
   // Inside the bootstrap group, so an update notice reads as part of the setup rather than as part
   // of the first config's generation.
-  await checkForUpdate(hooks)
+  await checkForUpdate({ hooks, latest })
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
@@ -187,17 +249,37 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       const watchPath = inputKind === 'file' || inputKind === 'url' ? (effectiveInput as string) : undefined
       if (watchPath && watch) {
         const watchedPaths = [watchPath]
+        // shortcut: one tracker per watched config on the shared emitter, so watching several configs at once mixes their diffs.
+        const tracker = trackBuild(hooks)
+        let previous: BuildSnapshot | undefined
+        let armKeys: (() => void) | undefined
         // Don't removeAll() between builds, that would also drop logger and lifecycle
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async (paths: Array<string>) => {
+          const hrStart = process.hrtime()
           const succeeded = await generate({ input, config, hooks, dryRun })
-          logStep(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
+          const snapshot = tracker.take()
+          if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
+          previous = snapshot
+
+          const watching = styleText(
+            'yellow',
+            `Watching ${paths.map((watched) => (getInputKind(watched) === 'url' ? watched : path.relative(process.cwd(), watched))).join(' and ')}`,
+          )
+          logStep(armKeys ? `${watching}  ${styleText('dim', 'r rebuild · q quit')}` : watching)
+          armKeys?.()
           if (succeeded) {
             logSpacer()
             logTip()
           }
         }
+        // Watcher events and the `r` key share one queue, so builds never overlap on the emitter.
+        const rebuild = createSerialRunner({
+          run: () => build(watchedPaths),
+          onError: (buildError) => void Diagnostics.emit(errorHooks, buildError),
+        })
+        armKeys = quiet ? undefined : listenForKeys({ rebuild: () => void rebuild(), quit: (code) => process.exit(code) })
 
         // For a URL input, capture the document before the build: it becomes the watcher's
         // change-detection baseline, so an edit landing before the first poll still rebuilds.
@@ -206,16 +288,12 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         const initialBody = inputKind === 'url' ? await fetchUrlBody(watchPath) : undefined
 
         // The watchers ignore their startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
-        try {
-          await build(watchedPaths)
-        } catch (buildError) {
-          await Diagnostics.emit(errorHooks, buildError)
-        }
+        await rebuild()
 
         if (inputKind === 'url') {
-          startUrlWatcher(watchPath, build, { log: { info: logInfo, error: logError }, initialBody })
+          startUrlWatcher(watchPath, rebuild, { log: { info: logInfo, error: logError }, initialBody })
         } else {
-          await startWatcher(watchedPaths, build, { info: logInfo, error: logError })
+          await startWatcher(watchedPaths, rebuild, { info: logInfo, error: logError })
         }
       } else {
         try {
@@ -233,7 +311,11 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.
     if (!quiet && !watch && !anyFailed) {
-      logTip()
+      const watchable = configs.some((config) => {
+        const configInput = input ?? config.input
+        return typeof configInput === 'string' && ['file', 'url'].includes(getInputKind(configInput))
+      })
+      logTip(watchable ? WATCH_HINT : undefined)
     }
 
     if (anyFailed) {

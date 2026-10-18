@@ -1,8 +1,12 @@
 import { mkdtemp, rename, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { EventEmitter } from 'node:events'
+import { join, relative } from 'node:path'
+import { stripVTControlCharacters } from 'node:util'
+import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
+import { type GeneratorContext, Hookable, type KubbHooks } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, startUrlWatcher, startWatcher } from './utils.ts'
+import { createSerialRunner, diffBuilds, formatChange, listenForKeys, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
 
 describe('createSerialRunner', () => {
   it('collapses triggers that land during a run into one rerun, reports its error through onError, and keeps accepting triggers', async () => {
@@ -75,7 +79,7 @@ describe('startWatcher', () => {
 
     expect(builds).toStrictEqual([[file]])
     expect(messages.length).toBeGreaterThan(0)
-    expect(messages.every((message) => message.includes(`Change detected: change ${file}`))).toBe(true)
+    expect(messages.every((message) => stripVTControlCharacters(message).endsWith(`${relative(process.cwd(), file)} changed`))).toBe(true)
   })
 })
 
@@ -218,5 +222,93 @@ describe('startUrlWatcher', () => {
     const settled = fetchMock.mock.calls.length
     await new Promise((resolve) => setTimeout(resolve, 30))
     expect(fetchMock.mock.calls.length).toBe(settled)
+  })
+})
+
+describe('formatChange', () => {
+  it('prints the time and what changed', () => {
+    expect(stripVTControlCharacters(formatChange({ target: 'petStore.yaml', now: new Date(2026, 0, 1, 14, 2, 11) }))).toBe('14:02:11  petStore.yaml changed')
+    expect(stripVTControlCharacters(formatChange({ target: 'petStore.yaml', removed: true, now: new Date(2026, 0, 1, 14, 2, 11) }))).toBe(
+      '14:02:11  petStore.yaml removed',
+    )
+  })
+})
+
+describe('trackBuild and diffBuilds', () => {
+  const ctx = {} as GeneratorContext
+  const file = (path: string) => ({ path }) as FileNode
+
+  async function build(
+    hooks: Hookable<KubbHooks>,
+    { schemas, operations, files, unchanged }: Record<'schemas' | 'operations' | 'files' | 'unchanged', Array<string>>,
+  ) {
+    for (const name of schemas) await hooks.callHook('kubb:generate:schema', { name } as SchemaNode, ctx)
+    for (const operationId of operations) await hooks.callHook('kubb:generate:operation', { operationId } as OperationNode, ctx)
+    await hooks.callHook('kubb:files:processing:end', { files: files.map(file), unchanged })
+  }
+
+  it('reports added and removed names, and each file added, modified or removed since the last build', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const tracker = trackBuild(hooks)
+
+    await build(hooks, { schemas: ['Pet', 'Order'], operations: ['getPet'], files: ['/gen/Pet.ts', '/gen/Order.ts', '/gen/getPet.ts'], unchanged: [] })
+    const previous = tracker.take()
+    await build(hooks, {
+      schemas: ['Pet', 'Pet', 'Tag'],
+      operations: ['getPet', 'addPet', 'deletePet'],
+      files: ['/gen/Pet.ts', '/gen/Tag.ts', '/gen/getPet.ts'],
+      unchanged: ['/gen/getPet.ts'],
+    })
+
+    expect(diffBuilds(previous, tracker.take())).toStrictEqual({
+      schemas: { added: 1, removed: 1 },
+      operations: { added: 2, removed: 0 },
+      files: [
+        { status: 'M', path: '/gen/Pet.ts' },
+        { status: 'A', path: '/gen/Tag.ts' },
+        { status: 'D', path: '/gen/Order.ts' },
+      ],
+      unchanged: 1,
+    })
+  })
+})
+
+describe('listenForKeys', () => {
+  function createInput(isTTY: boolean) {
+    return Object.assign(new EventEmitter(), {
+      isTTY,
+      setRawMode: vi.fn(),
+      resume: vi.fn(),
+      pause: vi.fn(),
+      setEncoding: vi.fn(),
+    })
+  }
+
+  it('ignores a stdin that is not a TTY', () => {
+    const input = createInput(false)
+
+    expect(listenForKeys({ rebuild: vi.fn(), quit: vi.fn(), input: input as unknown as NodeJS.ReadStream })).toBeUndefined()
+    expect(input.setRawMode).not.toHaveBeenCalled()
+  })
+
+  it('rebuilds on r, quits on q or ctrl+c, and restores raw mode before quitting', () => {
+    const input = createInput(true)
+    const rebuild = vi.fn()
+    const quit = vi.fn()
+    using _once = vi.spyOn(process, 'once').mockReturnValue(process)
+
+    const arm = listenForKeys({ rebuild, quit, input: input as unknown as NodeJS.ReadStream })
+    expect(input.setRawMode).toHaveBeenLastCalledWith(true)
+
+    input.emit('data', 'r')
+    expect(rebuild).toHaveBeenCalledOnce()
+
+    input.emit('data', 'q')
+    expect(input.setRawMode).toHaveBeenLastCalledWith(false)
+    expect(quit).toHaveBeenLastCalledWith(0)
+
+    arm?.()
+    input.emit('data', '\u0003')
+    expect(quit).toHaveBeenLastCalledWith(130)
   })
 })

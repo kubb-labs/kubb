@@ -10,6 +10,10 @@ import type { SerializedDiagnostic } from '../formatDiagnostic.ts'
 type ReportTiming = {
   plugin: string
   durationMs: number
+  /**
+   * Files the plugin's generators added, `0` for a plugin without generators.
+   */
+  files: number
 }
 
 /**
@@ -38,6 +42,10 @@ export type Report = {
   }
   filesCreated: number
   /**
+   * Files skipped because the storage already held the same content.
+   */
+  filesUnchanged: number
+  /**
    * Wall-clock time spent generating this config, in milliseconds.
    */
   durationMs: number
@@ -61,7 +69,7 @@ export type Report = {
  * counts, so every reporter renders the same data.
  */
 export function buildReport(result: GenerationResult): Report {
-  const { config, diagnostics, filesCreated, status, hrStart } = result
+  const { config, diagnostics, filesCreated, filesUnchanged = 0, status, hrStart } = result
 
   const failed = Diagnostics.failedPlugins(diagnostics)
   const total = config.plugins?.length ?? 0
@@ -70,7 +78,7 @@ export function buildReport(result: GenerationResult): Report {
   const timings = diagnostics
     .filter(Diagnostics.isPerformance)
     .sort((a, b) => b.duration - a.duration)
-    .map((diagnostic) => ({ plugin: diagnostic.plugin, durationMs: diagnostic.duration }))
+    .map((diagnostic) => ({ plugin: diagnostic.plugin, durationMs: diagnostic.duration, files: diagnostic.files ?? 0 }))
 
   return {
     name: config.name ?? '',
@@ -79,6 +87,7 @@ export function buildReport(result: GenerationResult): Report {
     plugins: { passed: status === 'failed' && timings.length === 0 ? 0 : total - failed.length, failed, total },
     counts,
     filesCreated,
+    filesUnchanged,
     durationMs: getElapsedMs(hrStart),
     output: resolve(config.root, config.output.path),
     timings,

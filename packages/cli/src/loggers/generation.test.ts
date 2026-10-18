@@ -1,3 +1,6 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join, relative } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import {
@@ -12,8 +15,9 @@ import {
   type ProblemDiagnostic,
   type Storage,
 } from '@kubb/core'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
+import { formatSummaryRows } from './createLogger.ts'
 import setupReporters from './reporters.ts'
 
 /**
@@ -143,7 +147,7 @@ function generation({ config, pluginFailed = false, formatFailed = false, hookLi
 
     await context.callHook('kubb:files:processing:start', { files: [file] })
     await context.callHook('kubb:files:processing:update', { files: [{ processed: 1, total: 1, percentage: 100, file, config }] })
-    await context.callHook('kubb:files:processing:end', { files: [file] })
+    await context.callHook('kubb:files:processing:end', { files: [file], unchanged: [] })
 
     await context.callHook('kubb:format:start')
     await context.callHook('kubb:hook:start', { id: 'format', command: 'biome', args: ['format'] })
@@ -189,9 +193,8 @@ describe('grouped generation output', () => {
       // Only the first plugin to start is named; every plugin starts before the shared walk.
       'spinner.message:Generating @kubb/plugin-ts',
       // The walk's progress over the spec's nodes, then each plugin's count and the node it just generated.
+      // The next nodes land within one spinner frame, so they count without a redraw.
       'spinner.message:Generating  ██████████░░░░░░░░░░  1/2 nodes  \n│   @kubb/plugin-ts     1  Pet',
-      'spinner.message:Generating  ██████████░░░░░░░░░░  1/2 nodes  \n│   @kubb/plugin-ts      1  Pet\n│   @kubb/plugin-zod     1  Pet',
-      'spinner.message:Generating  ████████████████████  2/2 nodes  \n│   @kubb/plugin-ts      2  getPet\n│   @kubb/plugin-zod     1  Pet',
       'spinner.stop:Plugins 2/2 |  elapsed',
       'log.message:@kubb/plugin-ts completed in \n@kubb/plugin-zod completed in ',
       'spinner.start:Writing 1 file',
@@ -206,10 +209,33 @@ describe('grouped generation output', () => {
       'spinner.message:Running tsc --noEmit',
       'spinner.stop:Post-generate hooks completed in ',
       'log.message:✓ tsc --noEmit in ',
-      'outro:✓ Generation succeeded',
+      'outro:✓ Generated petstore in ',
       // The summary block, which the reporter renders as one entry after the group closes.
-      'log.message.bare: Plugins  2 passed (2)\n   Files  1 generated\nDuration  \n  Output  /tmp/src/gen',
+      `log.message.bare:1 written\nOutput  ${relative(process.cwd(), '/tmp/src/gen')}`,
     ])
+  })
+
+  it('redraws the live block once a spinner frame has passed', async () => {
+    vi.useFakeTimers()
+    try {
+      const output = await render(
+        async (context) => {
+          await context.callHook('kubb:generation:start', { config: makeConfig('petstore') })
+          await context.callHook('kubb:build:start', { nodeCounts: { schemas: 2, operations: 0 } } as KubbBuildStartContext)
+          await context.callHook('kubb:generate:schema', { name: 'Pet' } as SchemaNode, makeGeneratorContext('@kubb/plugin-ts'))
+          vi.advanceTimersByTime(100)
+          await context.callHook('kubb:generate:schema', { name: 'Tag' } as SchemaNode, makeGeneratorContext('@kubb/plugin-ts'))
+        },
+        { rich: true },
+      )
+
+      expect(output.filter((call) => call.startsWith('spinner.message:Generating  ')).map(withoutDuration)).toStrictEqual([
+        'spinner.message:Generating  ██████████░░░░░░░░░░  1/2 nodes  \n│   @kubb/plugin-ts     1  Pet',
+        'spinner.message:Generating  ████████████████████  2/2 nodes  \n│   @kubb/plugin-ts     2  Tag',
+      ])
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('leaves the per-node progress out of plain output, where each node would print its own line', async () => {
@@ -333,7 +359,7 @@ describe('both loggers', () => {
             .replace(/^[◇✓✗]\s*/, '')
             .trim(),
         )
-        .filter((line) => line && !/^(Kubb succeeded|Generation succeeded|Plugins {2}|Files {2}|Duration|Output {2})/.test(line))
+        .filter((line) => line && !/^(Kubb succeeded|Generated petstore in|\d+ written|Output {2})/.test(line))
         .sort()
     // The per-node progress only redraws the rich spinner; plain output leaves it out on purpose.
     const richMessages = messages(rich).filter((line) => !/^(Generating {2}|│ {3})/.test(line))
@@ -395,5 +421,125 @@ describe('diagnostics per audience', () => {
       ].join('\n'),
     )
     expect(lines.at(-1)).toBe('Kubb failed: 1 error, 1 warning (plugin-ts). Exit code 1.\nRerun with --reporter json for machine-readable diagnostics.')
+  })
+})
+
+describe('human summary', () => {
+  const report = {
+    name: 'petstore',
+    status: 'success',
+    plugins: { passed: 3, failed: [], total: 3 },
+    counts: { errors: 0, warnings: 0, infos: 0 },
+    filesCreated: 140,
+    filesUnchanged: 18,
+    durationMs: 3420,
+    output: join(process.cwd(), 'src/gen'),
+    timings: [
+      { plugin: 'plugin-tanstack', durationMs: 1400, files: 19 },
+      { plugin: 'plugin-ts', durationMs: 900, files: 61 },
+      { plugin: 'plugin-barrel', durationMs: 0, files: 0 },
+    ],
+    diagnostics: [],
+  } satisfies Parameters<typeof formatSummaryRows>[0]
+
+  it('lists files and time per plugin, flags the slowest, and splits written from unchanged', () => {
+    expect(formatSummaryRows(report).map((line) => stripVTControlCharacters(line))).toStrictEqual([
+      'plugin-tanstack  19 files    1.40s  slowest',
+      'plugin-ts        61 files    900ms',
+      'plugin-barrel     0 files      0ms',
+      '─'.repeat(43),
+      '122 written  · 18 unchanged, skipped',
+      'Output  src/gen',
+    ])
+  })
+
+  it('flags a failed plugin instead, and no slowest for a single plugin', () => {
+    const lines = formatSummaryRows({ ...report, plugins: { passed: 0, failed: ['plugin-ts'], total: 1 }, timings: [report.timings[1]!] })
+
+    expect(stripVTControlCharacters(lines[0]!)).toBe('plugin-ts  61 files    900ms  failed')
+  })
+
+  it('tells an agent how many files were written and how many were unchanged', async () => {
+    const lines = await render(
+      async (context) => {
+        const config = makeConfig('petstore')
+        const files = [makeFile('/tmp/src/gen/pet.ts'), makeFile('/tmp/src/gen/tag.ts')]
+        await context.callHook('kubb:generation:start', { config })
+        await context.callHook('kubb:files:processing:start', { files })
+        await context.callHook('kubb:files:processing:end', { files, unchanged: ['/tmp/src/gen/tag.ts'] })
+        await context.callHook('kubb:generation:end', {
+          config,
+          storage: {} as Storage,
+          diagnostics: [],
+          filesCreated: 2,
+          status: 'success',
+          hrStart: process.hrtime(),
+        })
+      },
+      { rich: false },
+    )
+
+    expect(lines.map(withoutDuration)).toContain('Wrote 1 file · 1 unchanged')
+    expect(withoutDuration(lines.at(-1)!)).toBe('Kubb succeeded: 2 files generated (1 written, 1 unchanged) in .')
+  })
+})
+
+describe('diagnostics located in the spec', () => {
+  let dir: string
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  function locatedRun(problem: ProblemDiagnostic): Emit {
+    return async (context) => {
+      dir = mkdtempSync(join(tmpdir(), 'kubb-frame-'))
+      writeFileSync(
+        join(dir, 'petstore.yaml'),
+        ['components:', '  schemas:', '    Pet:', '      properties:', '        owner:', "          $ref: '#/components/schemas/Owner'", ''].join('\n'),
+      )
+      const config = { ...makeConfig('petstore'), root: dir }
+      await context.callHook('kubb:generation:start', { config })
+      await context.callHook('kubb:diagnostic', { diagnostic: problem })
+      await context.callHook('kubb:generation:end', {
+        config,
+        storage: {} as Storage,
+        diagnostics: [problem],
+        filesCreated: 0,
+        status: 'failed',
+        hrStart: process.hrtime(),
+      })
+    }
+  }
+
+  const refNotFound: ProblemDiagnostic = {
+    code: 'KUBB_REF_NOT_FOUND',
+    severity: 'error',
+    message: 'Could not find #/components/schemas/Owner',
+    plugin: 'plugin-ts',
+    location: { kind: 'schema', pointer: '#/components/schemas/Owner', ref: '#/components/schemas/Owner' },
+  }
+
+  it('shows a human the line and column with a code frame under the $ref that uses the missing schema', async () => {
+    const calls = await render(locatedRun(refNotFound), { rich: true })
+    const block = stripVTControlCharacters(calls.find((call) => call.includes('plugin-ts')) ?? '')
+    const file = relative(process.cwd(), join(dir, 'petstore.yaml'))
+
+    expect(block.split('\n').slice(3, 7)).toStrictEqual([
+      `    at   ${file}:6:17`,
+      '      5 │         owner:',
+      "      6 │           $ref: '#/components/schemas/Owner'",
+      '        │                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^',
+    ])
+  })
+
+  it('gives an agent file:line:col next to the pointer, without the frame', async () => {
+    const lines = await render(locatedRun({ ...refNotFound, location: { kind: 'schema', pointer: '#/components/schemas/Pet/properties/owner' } }), {
+      rich: false,
+    })
+    const file = relative(process.cwd(), join(dir, 'petstore.yaml'))
+
+    expect(lines.join('\n')).toContain(`  at: ${file}:5:9 (#/components/schemas/Pet/properties/owner)`)
+    expect(lines.join('\n')).not.toContain('│')
   })
 })

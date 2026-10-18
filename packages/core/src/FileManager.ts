@@ -201,6 +201,13 @@ export class FileManager {
   }
 
   /**
+   * Number of stored files, without building the sorted view.
+   */
+  get size(): number {
+    return this.#cache.size
+  }
+
+  /**
    * Converts a file's AST sources (or its `copy` source) into the final on-disk string.
    */
   async parse(file: FileNode, { parsers }: ParseOptions = {}): Promise<string> {
@@ -225,7 +232,8 @@ export class FileManager {
    * run of finished files ahead of it as one `kubb:files:processing:update`, keeping rows in input order.
    *
    * A file the storage already holds is skipped, so a rebuild that generates identical output
-   * writes nothing and leaves every mtime where it was.
+   * writes nothing and leaves every mtime where it was. `kubb:files:processing:end` lists the
+   * skipped paths as `unchanged`.
    */
   async write(files: Array<FileNode>, { storage, parsers, manifest, signal, hooks, config }: WriteOptions): Promise<void> {
     if (files.length === 0) return
@@ -234,13 +242,15 @@ export class FileManager {
 
     const total = files.length
     const finished: Array<boolean> = []
+    const unchanged: Array<string> = []
     let flushed = 0
 
     await inParallel({
       items: files,
       limit: FILE_CONCURRENCY,
       run: async (file, index) => {
-        await this.#writeFile(file, { storage, parsers, manifest, signal })
+        const written = await this.#writeFile(file, { storage, parsers, manifest, signal })
+        if (written === false) unchanged.push(file.path)
         if (!config) return
 
         finished[index] = true
@@ -254,25 +264,30 @@ export class FileManager {
       },
     })
 
-    await hooks?.callHook('kubb:files:processing:end', { files })
+    await hooks?.callHook('kubb:files:processing:end', { files, unchanged })
   }
 
-  async #writeFile(file: FileNode, { storage, parsers, manifest, signal }: Pick<WriteOptions, 'storage' | 'parsers' | 'manifest' | 'signal'>): Promise<void> {
+  /** Writes one file. Resolves `false` when the storage already holds it, `undefined` for an empty source. */
+  async #writeFile(
+    file: FileNode,
+    { storage, parsers, manifest, signal }: Pick<WriteOptions, 'storage' | 'parsers' | 'manifest' | 'signal'>,
+  ): Promise<boolean | undefined> {
     signal?.throwIfAborted()
     const source = await this.parse(file, { parsers })
-    if (!source) return
+    if (!source) return undefined
 
     signal?.throwIfAborted()
 
     // Checking here rather than inside a driver gives a storage writing to S3 or a database
     // the same guarantee `fsStorage` has, that unchanged content is never rewritten.
     const stored = await storage.readItem(file.path)
-    if (isUnchanged({ stored, source, key: file.path, manifest })) return
+    if (isUnchanged({ stored, source, key: file.path, manifest })) return false
 
     signal?.throwIfAborted()
     await storage.writeItem(file.path, source, { stored })
 
     // Only a file that was written can have been changed by the output passes.
     manifest?.track({ key: file.path, source })
+    return true
   }
 }

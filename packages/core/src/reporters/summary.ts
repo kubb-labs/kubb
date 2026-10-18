@@ -7,7 +7,7 @@ import type { Report } from './report.ts'
  * so the caller decides where they land: plain `console.log` by default, or the active logger's own
  * output when a host installs one.
  */
-export type SummaryRenderer = (lines: ReadonlyArray<string>, meta: { title: string; status: 'success' | 'failed' }) => void
+export type SummaryRenderer = (lines: ReadonlyArray<string>, meta: { title: string; status: 'success' | 'failed'; report: Report }) => void
 
 /**
  * Formats the vitest/jest-style summary for one {@link Report}: right-aligned dim labels with
