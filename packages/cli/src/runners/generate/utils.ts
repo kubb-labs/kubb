@@ -1,6 +1,8 @@
+import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { toError } from '@internals/utils'
+import type { Hookable, KubbHooks } from '@kubb/core'
 
 /** Glob pattern for paths the file watcher ignores. */
 const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
@@ -65,6 +67,11 @@ export function createSerialRunner({ run, onError }: SerialRunnerOptions): () =>
   }
 }
 
+/** `14:02:11  petStore.yaml changed`, the line a watcher prints when its input changes. */
+export function formatChange({ target, removed = false, now = new Date() }: { target: string; removed?: boolean; now?: Date }): string {
+  return `${styleText('dim', now.toTimeString().slice(0, 8))}  ${styleText('bold', target)} ${removed ? 'removed' : 'changed'}`
+}
+
 type WatcherLog = {
   info: (message: string) => void
   error: (message: string) => void
@@ -102,7 +109,7 @@ export async function startWatcher(
   let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
   watcher.on('all', (type, file) => {
-    log.info(styleText('yellow', styleText('bold', `Change detected: ${type} ${file}`)))
+    log.info(formatChange({ target: relative(process.cwd(), file), removed: type === 'unlink' }))
     if (debounceTimer) clearTimeout(debounceTimer)
     debounceTimer = setTimeout(() => {
       debounceTimer = null
@@ -216,7 +223,7 @@ export function startUrlWatcher(url: string, cb: (path: Array<string>) => Promis
     }
     const changed = lastBody !== undefined && body !== lastBody
     if (changed) {
-      log.info(styleText('yellow', styleText('bold', `Change detected: ${url}`)))
+      log.info(formatChange({ target: url }))
     }
     if (changed || lastBody === undefined) {
       void runBuild()
@@ -228,4 +235,124 @@ export function startUrlWatcher(url: string, cb: (path: Array<string>) => Promis
   void poll()
 
   return stop
+}
+
+/**
+ * What one build produced: the schema and operation names the plugins generated, every output path,
+ * and the paths that were written rather than skipped as unchanged.
+ */
+export type BuildSnapshot = {
+  schemas: Set<string>
+  operations: Set<string>
+  files: Set<string>
+  written: Set<string>
+}
+
+function createSnapshot(): BuildSnapshot {
+  return { schemas: new Set(), operations: new Set(), files: new Set(), written: new Set() }
+}
+
+/**
+ * Collects a {@link BuildSnapshot} from the hooks while a build runs. `take` hands back the finished
+ * build's snapshot and starts the next one.
+ */
+export function trackBuild(hooks: Hookable<KubbHooks>): { take(): BuildSnapshot } {
+  let current = createSnapshot()
+
+  hooks.hook('kubb:generate:schema', (node) => {
+    if (node.name) current.schemas.add(node.name)
+  })
+  hooks.hook('kubb:generate:operation', (node) => {
+    current.operations.add(node.operationId)
+  })
+  hooks.hook('kubb:files:processing:end', ({ files, unchanged }) => {
+    const skipped = new Set(unchanged)
+    for (const { path } of files) {
+      current.files.add(path)
+      if (!skipped.has(path)) current.written.add(path)
+    }
+  })
+
+  return {
+    take() {
+      const snapshot = current
+      current = createSnapshot()
+      return snapshot
+    },
+  }
+}
+
+type NameChange = { added: number; removed: number }
+
+/**
+ * How a rebuild differs from the build before it: the spec's added and removed schemas and
+ * operations, and each output file added (`A`), modified (`M`) or removed (`D`).
+ */
+export type BuildDiff = {
+  schemas: NameChange
+  operations: NameChange
+  files: Array<{ status: 'A' | 'M' | 'D'; path: string }>
+  unchanged: number
+}
+
+function diffNames(previous: Set<string>, next: Set<string>): NameChange {
+  return { added: [...next].filter((name) => !previous.has(name)).length, removed: [...previous].filter((name) => !next.has(name)).length }
+}
+
+/**
+ * Compares two {@link BuildSnapshot}s by name and path only, so nothing is read back from disk.
+ */
+export function diffBuilds(previous: BuildSnapshot, next: BuildSnapshot): BuildDiff {
+  return {
+    schemas: diffNames(previous.schemas, next.schemas),
+    operations: diffNames(previous.operations, next.operations),
+    files: [
+      ...[...next.written].map((path) => ({ status: previous.files.has(path) ? ('M' as const) : ('A' as const), path })),
+      ...[...previous.files].filter((path) => !next.files.has(path)).map((path) => ({ status: 'D' as const, path })),
+    ],
+    unchanged: next.files.size - next.written.size,
+  }
+}
+
+type KeyInput = Pick<NodeJS.ReadStream, 'isTTY' | 'setRawMode' | 'resume' | 'pause' | 'setEncoding' | 'on'>
+
+type KeyOptions = {
+  rebuild: () => void
+  /**
+   * Ends the process with this exit code: `0` for `q`, `130` for ctrl+c, which raw mode turns into a key.
+   */
+  quit: (code: number) => void
+  input?: KeyInput
+}
+
+/**
+ * Reads `r` (rebuild) and `q` (quit) from an interactive stdin in raw mode, and keeps ctrl+c
+ * working. Returns `undefined` when stdin is not a TTY. Otherwise returns `arm`, which turns raw
+ * mode back on: a spinner restores the terminal when it stops, so call it after each build. Raw mode
+ * is restored on exit.
+ */
+export function listenForKeys({ rebuild, quit, input = process.stdin }: KeyOptions): (() => void) | undefined {
+  if (!input.isTTY) return undefined
+
+  const arm = () => {
+    input.setRawMode(true)
+    input.resume()
+  }
+  input.setEncoding('utf8')
+  input.on('data', (data: string) => {
+    const key = data.trim()
+    if (key === 'r') {
+      rebuild()
+      return
+    }
+    if (key === 'q' || data === '\u0003') {
+      input.setRawMode(false)
+      input.pause()
+      quit(key === 'q' ? 0 : 130)
+    }
+  })
+  process.once('exit', () => input.setRawMode(false))
+  arm()
+
+  return arm
 }
