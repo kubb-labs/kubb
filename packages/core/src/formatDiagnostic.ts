@@ -176,8 +176,12 @@ export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = f
   }
 
   const left = `${paint(severityStyle[severity], severityIcon[severity])} ${paint('bold', firstLine)}`
-  const gap = Math.max(2, width - stripVTControlCharacters(left).length - code.length)
-  const headline = `${left}${' '.repeat(gap)}${paint('dim', code)}`
+  const gap = width - stripVTControlCharacters(left).length - code.length
+  // A headline too long to share its row with the code would wrap mid-code, so the code drops to its own right-aligned row.
+  const headline =
+    width && gap < 2
+      ? [left, `${' '.repeat(Math.max(0, width - code.length))}${paint('dim', code)}`]
+      : [`${left}${' '.repeat(Math.max(2, gap))}${paint('dim', code)}`]
 
   const frame = rest.filter((line) => line.trim()).map((line) => `  ${paint('dim', line)}`)
   const label = (name: string) => paint('dim', name.length < 4 ? name.padEnd(4) : `${name} `)
@@ -187,7 +191,7 @@ export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = f
   ]
   if (severity !== 'error') {
     const first = rows.find(([, value]) => value)
-    return [headline, ...frame, ...(first ? [`  ${label(first[0])} ${first[1]}`] : [])]
+    return [...headline, ...frame, ...(first ? [`  ${label(first[0])} ${first[1]}`] : [])]
   }
   rows.push(['caused by', causes[0]], ['report', problem?.issues && paint('cyan', problem.issues)])
 
@@ -198,5 +202,5 @@ export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = f
     details.push(`  ${paint('dim', '↳ Learn more')}  ${paint('cyan', Diagnostics.docsUrl(code).replace(/^https:\/\//, ''))}`)
   }
 
-  return [headline, ...details]
+  return [...headline, ...details]
 }

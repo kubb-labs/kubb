@@ -16,7 +16,8 @@ exports[`Diagnostics.format > renders a coded problem with location and help for
 `;
 
 exports[`Diagnostics.format > renders a plugin crash with a cause chain for a human 1`] = `
-"✖ While generating operation "listPets" (GET /pets): Cannot read name  KUBB_PLUGIN_FAILED
+"✖ While generating operation "listPets" (GET /pets): Cannot read name
+                                                              KUBB_PLUGIN_FAILED
   at   #/paths/~1pets/get
   fix  Check the plugin options and the node at \`at:\`. If it is a bug, report it with the stack at \`report:\`.
   caused by  TypeError: node.schema is undefined

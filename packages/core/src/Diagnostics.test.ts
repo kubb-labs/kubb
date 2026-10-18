@@ -261,6 +261,15 @@ describe('Diagnostics.format', () => {
     expect(render(multiLine, { audience: 'human', width: 80 }).split('\n')[0]).toMatch(/^✖ Cannot parse at line 7, column 1: +KUBB_INVALID_DOCUMENT$/)
   })
 
+  it('puts the code on its own right-aligned row when the headline leaves no room for it', () => {
+    const long = { code: 'KUBB_UNSUPPORTED_FORMAT', severity: 'warning', message: 'x'.repeat(60) } as const
+
+    expect(render(long, { audience: 'human', width: 70 }).split('\n').slice(0, 2)).toStrictEqual([
+      `⚠ ${'x'.repeat(60)}`,
+      `${' '.repeat(47)}KUBB_UNSUPPORTED_FORMAT`,
+    ])
+  })
+
   it('replaces the pointer with the resolved file position, and draws the frame only for a human', () => {
     const [, coded] = cases[0]!
     const position = { file: 'petStore.yaml', line: 117, column: 15, frame: ['116 │   owner:', "117 │     $ref: '#/components/schemas/Owner'"] }

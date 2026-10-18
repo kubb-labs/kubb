@@ -230,8 +230,8 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
     const formatOptions: DiagnosticFormatOptions = {
       audience,
       verbose: logLevel >= logLevelMap.verbose,
-      // The code lines up at the right edge, inside the two-column group indent.
-      width: Math.min(process.stdout.columns || 80, 100) - 2,
+      // The code lines up at the right edge, inside the group indent and the human view's per-problem indent.
+      width: Math.min(process.stdout.columns || 80, 100) - (audience === 'human' ? 4 : 2),
     }
     const state = {
       ...createProgressCounters(),
