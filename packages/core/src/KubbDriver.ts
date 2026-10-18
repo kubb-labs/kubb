@@ -374,7 +374,7 @@ export class KubbDriver {
           for (const plugin of this.plugins.values()) {
             this.options.signal?.throwIfAborted()
             plugin.options = normalizePluginOptions(plugin.options, plugin.name)
-            if (shared) plugin.options.output.shared ??= shared
+            if (shared) plugin.options.output.shared = shared
           }
 
           if (this.adapter && this.inputNode) {

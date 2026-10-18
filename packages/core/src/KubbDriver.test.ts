@@ -474,11 +474,10 @@ describe('KubbDriver generator dispatch', () => {
     expect((normalized as Record<string, unknown>).enumType).toBe('asConst')
   })
 
-  it('defaults each plugin to the global output.shared resolved against root, and keeps a plugin-level one', async () => {
-    const own = { path: '../own', schemas: ['Store'] }
+  it('gives every plugin the global output.shared resolved against root, replacing a plugin-level one', async () => {
     const plugins = [
-      { name: 'global-shared', options: { output: { path: 'types' } }, hooks: {} },
-      { name: 'own-shared', options: { output: { path: 'zod', shared: own } }, hooks: {} },
+      { name: 'types', options: { output: { path: 'types' } }, hooks: {} },
+      { name: 'zod', options: { output: { path: 'zod', shared: { path: '../own', schemas: ['Store'] } } }, hooks: {} },
     ] as unknown as Array<Plugin>
     const sharedDriver = makeDriver(
       makeConfig({ root: '/project', adapter: inputAdapter(), plugins, output: { path: './gen/animals', shared: { path: './gen/common', schemas: ['Pet'] } } }),
@@ -486,8 +485,9 @@ describe('KubbDriver generator dispatch', () => {
     await sharedDriver.setup()
     await sharedDriver.run()
 
-    expect(sharedDriver.plugins.get('global-shared')!.options.output.shared).toStrictEqual({ path: '/project/gen/common', schemas: ['Pet'] })
-    expect(sharedDriver.plugins.get('own-shared')!.options.output.shared).toBe(own)
+    for (const name of ['types', 'zod']) {
+      expect(sharedDriver.plugins.get(name)!.options.output.shared).toStrictEqual({ path: '/project/gen/common', schemas: ['Pet'] })
+    }
   })
 
   it("skips a generator's schema and operation calls for a node its match predicate resolves false for, and still calls them when true", async () => {

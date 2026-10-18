@@ -234,7 +234,7 @@ Default: `false`.
 
 #### `output.shared`
 
-:::field{type="{ path: string; schemas?: Array<string> }"}
+:::field{type="{ path: string }"}
 Schemas that several specs define, written once to a shared directory. Every other generated file imports them from there.
 
 Kubb writes each shared schema under `path`, resolved against [`root`](#root), with the same plugin layout as `output.path`. Give every config in an [array](#multiple-configurations-array) the same value:
@@ -262,13 +262,13 @@ export default defineConfig([
 
 When both specs define `Name`, this writes `src/gen/common/types/Name.ts` and `src/gen/common/zod/nameSchema.ts` once, and `src/gen/animals/types/Animal.ts` imports `Name` from `../../common/types/Name`.
 
-Without `schemas`, `kubb generate` parses every spec first and picks the schemas to share:
+`kubb generate` parses every spec first and picks the schemas to share:
 
 - A schema is shared when every config with the same `path` defines it identically, and every schema it references is shared too.
 - A schema that every spec defines, but differently, stays in each config's own output, and the CLI prints a warning that names it.
 - A config alone in its `path` shares nothing.
 
-Set `schemas` to list the names yourself, as Kubb names the schemas. Kubb then skips the comparison, so each listed schema must be identical in every spec, and the last config wins. The list must include every schema a listed schema references. Programmatic `createKubb` runs only share a listed `schemas`.
+Only `kubb generate` compares the specs, so `output.shared` has no effect on a single `createKubb` run, the bundler plugins, or MCP.
 
 With [`output.barrel`](#outputbarrel) set, the shared directory gets the same barrels as `output.path`. [`output.clean`](#outputclean) leaves the shared directory alone.
 :::

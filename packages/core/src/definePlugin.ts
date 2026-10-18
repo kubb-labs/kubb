@@ -32,9 +32,9 @@ export type OutputMode = 'directory' | 'file'
 
 /** Schemas written once under `path`, with the plugin layout, and imported from there by every other file. */
 export type SharedOutput = {
-  /** Resolved against `root` on `defineConfig`, and against the global `output.path` on a plugin. */
+  /** Resolved against `root`. */
   path: string
-  /** Schema names, including every schema a listed one references. Leave it out to let `kubb generate` detect them. */
+  /** @internal Filled in by `kubb generate` with the schemas every spec defines identically. */
   schemas?: Array<string>
 }
 
@@ -75,7 +75,7 @@ export type Output = {
    * Pass a function to compute the footer from the file's `BannerMeta`.
    */
   footer?: string | ((meta: BannerMeta) => string)
-  /** Defaults to the global `output.shared`. */
+  /** @internal Set by Kubb from the global `output.shared`. */
   shared?: SharedOutput
 } & ExtractRegistryKey<Kubb.PluginOptionsRegistry, 'output'>
 

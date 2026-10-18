@@ -54,14 +54,23 @@ describe('detectSharedSchemas', () => {
     expect(conflicts).toStrictEqual(['Color'])
   })
 
-  it('leaves configs with a schemas list, without output.shared, or alone in their shared path untouched', async () => {
-    const listed = makeConfig([string()], { path: './gen/common', schemas: ['Name'] })
+  it('replaces a schemas list set by hand with the detected one', async () => {
+    const name = () => ast.factory.createSchema({ type: 'string', name: 'Name' })
+    const animals = makeConfig([name(), object('Animal', {})], { path: './gen/common', schemas: ['Animal'] })
+    const fruits = makeConfig([name(), object('Fruit', {})], { path: './gen/common', schemas: ['Fruit'] })
+
+    const { configs } = await detectSharedSchemas([animals, fruits])
+
+    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([['Name'], ['Name']])
+  })
+
+  it('leaves configs without output.shared, or alone in their shared path, untouched', async () => {
     const unshared = makeConfig([string()], undefined)
     const alone = makeConfig([string()], { path: './gen/other' })
 
-    const { configs } = await detectSharedSchemas([listed, unshared, alone])
+    const { configs } = await detectSharedSchemas([unshared, alone])
 
-    expect(configs).toStrictEqual([listed, unshared, alone])
+    expect(configs).toStrictEqual([unshared, alone])
     for (const config of configs) expect(config.adapter!.parse).not.toHaveBeenCalled()
   })
 })

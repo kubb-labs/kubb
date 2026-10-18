@@ -11,7 +11,7 @@ function toShape(node: SchemaNode): string {
 }
 
 /**
- * Fills `output.shared.schemas` on configs that leave it out. Configs with the same shared path share every schema
+ * Fills `output.shared.schemas` on every config that sets `output.shared`. Configs with the same shared path share every schema
  * they all define identically, as long as the schemas it references are shared too. `conflicts` lists the names
  * they all define, but differently, which stay in each config's own output.
  *
@@ -24,7 +24,7 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<{ con
   const groups = new Map<string, Array<Config>>()
   for (const config of configs) {
     const shared = config.output.shared
-    if (!shared || shared.schemas || !config.adapter) continue
+    if (!shared || !config.adapter) continue
 
     const key = resolve(config.root, shared.path)
     groups.set(key, [...(groups.get(key) ?? []), config])
