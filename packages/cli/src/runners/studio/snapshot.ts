@@ -1,11 +1,11 @@
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { read } from '@internals/utils'
+import { formatMs, getElapsedMs, read } from '@internals/utils'
 import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { createSnapshot } from '@kubb/studio'
 import type { BranchSnapshotChanges, PublishedSnapshot, SnapshotChanges } from '@kubb/studio/protocol'
-import { logBlock } from '../../loggers/output.ts'
+import { pluralize } from '../../loggers/createLogger.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/reporters.ts'
 import { type CiContext, detectCi } from './ci.ts'
@@ -79,11 +79,15 @@ function absoluteUrl(studioUrl: string, path: string): string {
 
 type SnapshotResult = {
   id: string
+  /** Sequence number on the CI agent, when Studio sends one. */
+  number?: number
   name: string | null
   version: string | null
   integrity: string | null
   url: string
   snapshotIdUrl: string
+  /** Studio page of the snapshot, when Studio sends one. */
+  webUrl?: string
   expiresAt: string
   agentUrl: string
   /** What changed since the previous snapshot of this package on this agent. */
@@ -95,11 +99,13 @@ type SnapshotResult = {
 function toResult({ studioUrl, snapshot, ci }: { studioUrl: string; snapshot: PublishedSnapshot; ci: CiContext }): SnapshotResult {
   return {
     id: snapshot.id,
+    number: snapshot.number,
     name: snapshot.name,
     version: snapshot.version,
     integrity: snapshot.integrity,
     url: absoluteUrl(studioUrl, snapshot.url),
     snapshotIdUrl: absoluteUrl(studioUrl, snapshot.snapshotIdUrl),
+    webUrl: snapshot.webUrl ? absoluteUrl(studioUrl, snapshot.webUrl) : undefined,
     expiresAt: snapshot.expiresAt,
     agentUrl: absoluteUrl(studioUrl, `/agents/${snapshot.agent.slug ?? snapshot.agent.id}`),
     changes: snapshot.changes,
@@ -110,10 +116,13 @@ function toResult({ studioUrl, snapshot, ci }: { studioUrl: string; snapshot: Pu
 /** How many files differ, `against` what. */
 function describeChanges(changes: SnapshotChanges, against: string): string {
   const { added, changed, removed } = changes
+  const parts = [
+    added.length && `+${pluralize(added.length, 'file')}`,
+    changed.length && `~${changed.length} changed`,
+    removed.length && `-${removed.length} removed`,
+  ].filter(Boolean)
 
-  return added.length + changed.length + removed.length
-    ? `${added.length} added, ${changed.length} changed, ${removed.length} removed ${against}`
-    : `No changes ${against}`
+  return parts.length ? `${parts.join('  ')}  ${against}` : `No changes ${against}`
 }
 
 /** One summary line: how many files changed, and since which run. */
@@ -121,26 +130,31 @@ export function formatChanges(changes: SnapshotChanges): string {
   if (!changes.base) {
     return 'First snapshot'
   }
+  const { number, commit, createdAt } = changes.base
 
-  return describeChanges(changes, `since ${changes.base.commit?.slice(0, 7) ?? changes.base.createdAt}`)
+  return describeChanges(changes, `vs ${number ? `#${number}` : (commit?.slice(0, 7) ?? createdAt)}`)
 }
 
 /** One summary line: how the snapshot differs from the base branch's latest one. */
 export function formatBranchChanges(changes: BranchSnapshotChanges & { branch: string }): string {
-  if (changes.base) return describeChanges(changes, `against ${changes.branch}`)
+  if (changes.base) return describeChanges(changes, `vs ${changes.branch}`)
 
   return changes.baseFound ? `No snapshot of ${changes.branch} for this package yet` : `No snapshot of ${changes.branch} to compare with`
 }
 
 function printSummary(result: SnapshotResult): void {
-  logBlock([
-    `${styleText('dim', 'Package'.padEnd(10))}  ${result.name ?? '(unnamed)'}@${result.version ?? '0.0.0'}`,
-    `${styleText('dim', 'Tarball'.padEnd(10))}  ${styleText('cyan', result.url)}`,
-    `${styleText('dim', 'Agent'.padEnd(10))}  ${result.agentUrl}`,
-    ...(result.branchChanges ? [`${styleText('dim', 'Branch'.padEnd(10))}  ${formatBranchChanges(result.branchChanges)}`] : []),
-    ...(result.changes ? [`${styleText('dim', 'Changes'.padEnd(10))}  ${formatChanges(result.changes)}`] : []),
-    `${styleText('dim', 'Expires'.padEnd(10))}  ${result.expiresAt}`,
-  ])
+  const row = (label: string, value: string) => `  ${styleText('dim', label.padEnd(7))} ${value}`
+
+  console.log(
+    [
+      '',
+      ...(result.webUrl ? [row('View', styleText('cyan', result.webUrl))] : []),
+      ...(result.changes ? [row('Diff', formatChanges(result.changes))] : []),
+      ...(result.branchChanges ? [row('Branch', formatBranchChanges(result.branchChanges))] : []),
+      row('Use', `npm i ${result.url}`),
+      row('Expires', result.expiresAt),
+    ].join('\n'),
+  )
 }
 
 /**
@@ -163,7 +177,9 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     }
   }
 
-  step('Generating the snapshot')
+  hooks.hook('kubb:generation:end', ({ filesCreated = 0, status, hrStart }) => {
+    if (status !== 'failed' && hrStart) step(`✓ Generated ${pluralize(filesCreated, 'file')} in ${formatMs(getElapsedMs(hrStart))}`)
+  })
 
   try {
     const published = await createSnapshot({
@@ -180,7 +196,8 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     })
     const result = toResult({ studioUrl: options.studioUrl, snapshot: published, ci })
 
-    step('Snapshot published')
+    step(`✓ Packed ${result.name ?? name}@${result.version ?? packageVersion}`)
+    step(`✓ Published snapshot ${result.number ? `#${result.number}` : result.id} for ${ci.name}${ci.commit ? `@${ci.commit.slice(0, 7)}` : ''}`)
 
     if (options.json) {
       console.log(JSON.stringify(result))
@@ -189,7 +206,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       printSummary(result)
     }
   } catch (error) {
-    step('Snapshot failed')
+    step('✖ Snapshot failed')
     throw error
   }
 }
