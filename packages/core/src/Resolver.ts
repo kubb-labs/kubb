@@ -585,7 +585,7 @@ export class Resolver {
    * and `group`. The path may not escape `root`, which keeps a `file.path` that interpolates
    * spec-derived values from writing outside the project.
    */
-  #resolveOverridePath(filePath: string, root: string, projectRoot = root): string {
+  #resolveOverridePath(filePath: string, root: string, projectRoot: string): string {
     const resolved = path.resolve(root, filePath)
     // A shared schema resolves against the shared root, but an absolute `file.path` may point back into the project.
     const parent = isPathInside(resolved, root) ? root : projectRoot

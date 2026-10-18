@@ -49,7 +49,8 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<{ con
       const others = rest.map((schemas) => schemas.get(name))
       if (others.some((other) => !other)) continue
 
-      if (others.every((other) => toShape(other!) === toShape(node))) names.add(name)
+      const shape = toShape(node)
+      if (others.every((other) => toShape(other!) === shape)) names.add(name)
       else conflicts.add(name)
     }
 
