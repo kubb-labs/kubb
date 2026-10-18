@@ -25,7 +25,7 @@ type WriteOptions = ParseOptions & {
    */
   manifest?: OutputManifest
   /**
-   * Receives `kubb:files:processing:start`, `:update` (one batch, in input order) and `:end` for the write. `config` fills the update rows.
+   * Receives `kubb:files:processing:start`, `:update` (in input order, as files finish) and `:end` for the write. `config` fills the update rows.
    */
   hooks?: Hookable<KubbHooks>
   config?: Config
@@ -221,8 +221,8 @@ export class FileManager {
    * Parses and writes every file through a bounded pool of workers. A small spec runs all its files
    * at once; a spec with thousands of files keeps at most {@link FILE_CONCURRENCY} parsed sources in
    * memory rather than holding every source, while still overlapping each file's write with the
-   * next file's parse. Files finish in whatever order they parse, so the update rows are sorted back
-   * into input order before `kubb:files:processing:update` fires once with the whole batch.
+   * next file's parse. Files finish in whatever order they parse, so each finished file flushes the
+   * run of finished files ahead of it as one `kubb:files:processing:update`, keeping rows in input order.
    *
    * A file the storage already holds is skipped, so a rebuild that generates identical output
    * writes nothing and leaves every mtime where it was.
@@ -233,35 +233,46 @@ export class FileManager {
     await hooks?.callHook('kubb:files:processing:start', { files })
 
     const total = files.length
-    // Rows leave `source` out: buffering it would hold every generated file in memory until the batch ends.
-    const updates: Array<KubbFileProcessingUpdate> = []
+    const finished: Array<boolean> = []
+    let flushed = 0
 
     await inParallel({
       items: files,
       limit: FILE_CONCURRENCY,
       run: async (file, index) => {
-        signal?.throwIfAborted()
-        const source = await this.parse(file, { parsers })
-        if (config) updates.push({ file, processed: index + 1, total, percentage: ((index + 1) / total) * 100, config })
-        if (!source) return
+        await this.#writeFile(file, { storage, parsers, manifest, signal })
+        if (!config) return
 
-        signal?.throwIfAborted()
-
-        // Checking here rather than inside a driver gives a storage writing to S3 or a database
-        // the same guarantee `fsStorage` has, that unchanged content is never rewritten.
-        const stored = await storage.readItem(file.path)
-        if (isUnchanged({ stored, source, key: file.path, manifest })) return
-
-        signal?.throwIfAborted()
-        await storage.writeItem(file.path, source, { stored })
-
-        // Only a file that was written can have been changed by the output passes.
-        manifest?.track({ key: file.path, source })
+        finished[index] = true
+        // Rows leave `source` out: buffering it would hold every generated file in memory.
+        const updates: Array<KubbFileProcessingUpdate> = []
+        while (finished[flushed]) {
+          flushed++
+          updates.push({ file: files[flushed - 1]!, processed: flushed, total, percentage: (flushed / total) * 100, config })
+        }
+        if (updates.length) await hooks?.callHook('kubb:files:processing:update', { files: updates })
       },
     })
 
-    updates.sort((a, b) => a.processed - b.processed)
-    await hooks?.callHook('kubb:files:processing:update', { files: updates })
     await hooks?.callHook('kubb:files:processing:end', { files })
+  }
+
+  async #writeFile(file: FileNode, { storage, parsers, manifest, signal }: Pick<WriteOptions, 'storage' | 'parsers' | 'manifest' | 'signal'>): Promise<void> {
+    signal?.throwIfAborted()
+    const source = await this.parse(file, { parsers })
+    if (!source) return
+
+    signal?.throwIfAborted()
+
+    // Checking here rather than inside a driver gives a storage writing to S3 or a database
+    // the same guarantee `fsStorage` has, that unchanged content is never rewritten.
+    const stored = await storage.readItem(file.path)
+    if (isUnchanged({ stored, source, key: file.path, manifest })) return
+
+    signal?.throwIfAborted()
+    await storage.writeItem(file.path, source, { stored })
+
+    // Only a file that was written can have been changed by the output passes.
+    manifest?.track({ key: file.path, source })
   }
 }

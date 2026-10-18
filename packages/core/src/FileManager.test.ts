@@ -333,6 +333,29 @@ describe('FileManager', () => {
       expect(hookCalls).toStrictEqual(['start:2', 'update:1:a.ts', 'update:2:b.ts', 'end:2'])
     })
 
+    it('reports a finished file while a slower one is still writing', async () => {
+      const hookCalls: Array<string> = []
+      const storage = memoryStorage()
+      const writeItem = storage.writeItem.bind(storage)
+      storage.writeItem = async (itemPath, value, options) => {
+        if (itemPath === 'b.ts') await delay(20)
+        await writeItem(itemPath, value, options)
+        hookCalls.push(`written:${itemPath}`)
+      }
+      const hooks = new Hookable<KubbHooks>()
+      hooks.hook('kubb:files:processing:update', ({ files }) => {
+        hookCalls.push(...files.map((item) => `update:${item.processed}:${item.file.path}`))
+      })
+
+      await new FileManager().write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], {
+        storage,
+        hooks,
+        config: {} as Config,
+      })
+
+      expect(hookCalls).toStrictEqual(['written:a.ts', 'update:1:a.ts', 'written:b.ts', 'update:2:b.ts'])
+    })
+
     it('bounds how many files are in flight for a large spec', async () => {
       // Blocks every write for the duration of the test so the in-flight count can be observed.
       const block = new Promise<void>(() => {})
