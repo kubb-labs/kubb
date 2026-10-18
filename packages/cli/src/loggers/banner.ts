@@ -30,11 +30,11 @@ const colors: Record<string, number> = {
  * The two eye rows of the face, one string per pixel row, for each expression.
  */
 const eyes = {
-  open: ['FFFKFFFFKFFF', 'FFFKFFFFKFFF'],
-  left: ['FFKFFFFKFFFF', 'FFKFFFFKFFFF'],
-  right: ['FFFFKFFFFKFF', 'FFFFKFFFFKFF'],
-  blink: ['FFFFFFFFFFFF', 'FFKKFFFFKKFF'],
-  happy: ['FFFKFFFFKFFF', 'FFKFKFFKFKFF'],
+  open: ['FFKFFFFKFF', 'FFKFFFFKFF'],
+  left: ['FKFFFFKFFF', 'FKFFFFKFFF'],
+  right: ['FFFKFFFFKF', 'FFFKFFFFKF'],
+  blink: ['FFFFFFFFFF', 'FKKFFFFKKF'],
+  happy: ['FFKFFFFKFF', 'FKFKFFKFKF'],
 } as const
 
 export type Expression = keyof typeof eyes
@@ -60,22 +60,18 @@ function pixels(expression: Expression): Array<string> {
   const [top, bottom] = eyes[expression]
 
   return [
-    '......XXXXXXXX......',
-    '....XXOOOOOOOOXX....',
-    '...XOHHOOOOOOOOOX...',
-    '..XOHOOOOOOOOOOOOX..',
-    '..XOORRRRRRRRRROOX..',
-    '.XOORFFFFFFFFFFROOX.',
-    '.XORFFFFFFFFFFFFROX.',
-    `XOOO${top}OOOX`,
-    `XOOO${bottom}OOOX`,
-    'XOOOFBBFFFFFFBBFOOOX',
-    '.XOOFFFFFMMFFFFFOOX.',
-    '.XOOOFFFFFFFFFFOOOX.',
-    '..XOOOOFFFFFFOOOOX..',
-    '...XOOOOSOOSOOOOX...',
-    '..XOOOOOSOOSOOOOOX..',
-    '..XOOOOOOOOOOOOOOX..',
+    '.....XXXXXX.....',
+    '...XXOOOOOOXX...',
+    '..XOHHOOOOOOOX..',
+    '.XOORRRRRRRROOX.',
+    '.XORFFFFFFFFROX.',
+    'XOOFFFFFFFFFFOOX',
+    `XOO${top}OOX`,
+    `XOO${bottom}OOX`,
+    'XOOFBBFFFFBBFOOX',
+    '.XOFFFFMMFFFFOX.',
+    '..XOOFFFFFFOOX..',
+    '..XOOOSOOSOOOX..',
   ]
 }
 
@@ -136,16 +132,13 @@ export function getIntro({
    */
   expression: Expression
 }): string {
-  // Lines 4 to 6 of the eight, so the text sits beside the face.
+  // Lines 3 to 5 of the six, so the text sits beside the face.
   const text = [
-    '',
     '',
     '',
     styleText(['bold', 'yellow'], `KUBB v${version}`),
     styleText('gray', title),
     `${styleText('yellow', '➜')} ${styleText('white', description)}`,
-    '',
-    '',
   ]
 
   return drawHead(expression)
