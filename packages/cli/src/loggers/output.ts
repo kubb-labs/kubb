@@ -35,10 +35,28 @@ function formatTip(tip: string): string {
 }
 
 /**
- * Prints one random tip outside every group. Rich terminals get the styled variant;
- * plain/CI output gets a stable text-only line so the tip is still visible as final output.
+ * A command worth running next, which takes the tip's place.
  */
-export function logTip(): void {
+type NextStep = {
+  command: string
+  description: string
+}
+
+/**
+ * Prints one tip outside every group: the `next` step when there is one, otherwise a random
+ * sponsor tip. Rich terminals get the styled variant; plain/CI output gets a stable text-only line
+ * so the tip is still visible as final output.
+ */
+export function logTip(next?: NextStep): void {
+  if (next) {
+    console.log(
+      isRichOutput()
+        ? `  ${styleText('dim', 'Next')}  ${styleText('cyan', next.command)}  ${styleText('dim', next.description)}`
+        : `Next: ${next.command} (${next.description})`,
+    )
+    return
+  }
+
   const tip = nextTip()
   if (!isRichOutput()) {
     console.log(`Tip: ${tip}`)

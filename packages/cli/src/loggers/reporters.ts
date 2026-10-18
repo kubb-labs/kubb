@@ -22,11 +22,20 @@ function installReporter(context: Hookable<KubbHooks>, reporter: Reporter, ctx: 
     })
   }
 
+  // Configs generate one at a time, so the last write before `kubb:generation:end` is this config's.
+  let filesUnchanged = 0
+  context.hook('kubb:generation:start', () => {
+    filesUnchanged = 0
+  })
+  context.hook('kubb:files:processing:end', ({ unchanged }) => {
+    filesUnchanged = unchanged.length
+  })
+
   context.hook('kubb:generation:end', async ({ config, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
     const files = pluginFiles?.get(config)
     const grouped: ReporterPluginFiles | undefined = files && [...files].map(([plugin, paths]) => ({ plugin, files: [...paths] }))
 
-    await reporter.report({ config, diagnostics, filesCreated, status, hrStart, pluginFiles: grouped }, ctx)
+    await reporter.report({ config, diagnostics, filesCreated, filesUnchanged, status, hrStart, pluginFiles: grouped }, ctx)
 
     pluginFiles?.delete(config)
   })
