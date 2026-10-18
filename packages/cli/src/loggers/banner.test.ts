@@ -7,8 +7,8 @@ describe('getIntro', () => {
     return stripVTControlCharacters(getIntro({ title: 'title', description: 'description', version: '5.0.0', expression })).split('\n')
   }
 
-  it('puts the text beside the eyes, two cells right of the 18-cell head', () => {
-    expect(draw('open').map((line) => line.length)).toEqual([20, 20, 22 + 'KUBB v5.0.0'.length, 22 + 'title'.length, 22 + '➜ description'.length, 20, 20])
+  it('puts the text beside the face, two cells right of the 20-cell mascot', () => {
+    expect(draw('open').map((line) => line.length)).toEqual([22, 22, 22, 24 + 'KUBB v5.0.0'.length, 24 + 'title'.length, 24 + '➜ description'.length, 22, 22])
   })
 
   it.each([...new Set(wakeUp.map(([expression]) => expression))])(

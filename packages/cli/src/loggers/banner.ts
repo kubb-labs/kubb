@@ -7,34 +7,34 @@ import { formatMs } from '@internals/utils'
  */
 const colors: Record<string, number> = {
   /** Outline. */
-  X: 16,
-  /** Hood. */
+  X: 52,
+  /** Hoodie. */
   O: 208,
   /** Shine on the hood. */
   H: 214,
   /** Shadow where the hood meets the face. */
   R: 166,
   /** Face. */
-  F: 222,
-  /** Cheeks. */
-  C: 209,
-  /** Mouth. */
-  M: 52,
+  F: 223,
   /** Eyes. */
   K: 16,
-  /** Shine in the eyes. */
-  L: 231,
+  /** Blush. */
+  B: 217,
+  /** Mouth. */
+  M: 131,
+  /** Drawstrings. */
+  S: 230,
 }
 
 /**
- * The three eye rows of the face, one string per pixel row, for each expression.
+ * The two eye rows of the face, one string per pixel row, for each expression.
  */
 const eyes = {
-  open: ['FFKLFFKLFF', 'FFKKFFKKFF', 'FFKKFFKKFF'],
-  left: ['FKLFFKLFFF', 'FKKFFKKFFF', 'FKKFFKKFFF'],
-  right: ['FFFKLFFKLF', 'FFFKKFFKKF', 'FFFKKFFKKF'],
-  blink: ['FFFFFFFFFF', 'FFFFFFFFFF', 'FKKKFFKKKF'],
-  happy: ['FFFFFFFFFF', 'FFKFFFFKFF', 'FKFKFFKFKF'],
+  open: ['FFFKFFFFKFFF', 'FFFKFFFFKFFF'],
+  left: ['FFKFFFFKFFFF', 'FFKFFFFKFFFF'],
+  right: ['FFFFKFFFFKFF', 'FFFFKFFFFKFF'],
+  blink: ['FFFFFFFFFFFF', 'FFKKFFFFKKFF'],
+  happy: ['FFFKFFFFKFFF', 'FFKFKFFKFKFF'],
 } as const
 
 export type Expression = keyof typeof eyes
@@ -54,26 +54,28 @@ export const wakeUp: ReadonlyArray<readonly [Expression, number]> = [
 ]
 
 /**
- * The hooded head from the Kubb logo, one letter per pixel and `.` for none.
+ * The kid in the orange hoodie from the Kubb logo, one letter per pixel and `.` for none.
  */
 function pixels(expression: Expression): Array<string> {
-  const [top, middle, bottom] = eyes[expression]
+  const [top, bottom] = eyes[expression]
 
   return [
-    '......XXXXXX......',
-    '....XXOOOOOOXX....',
-    '...XOOHHOOOOOOX...',
-    '..XOHOOOOOOOOOOX..',
-    '..XOORRRRRRRROOX..',
-    '.XOORFFFFFFFFROOX.',
-    '.XOOFFFFFFFFFFOOX.',
-    `.XOO${top}OOX.`,
-    `XOOO${middle}OOOX`,
+    '......XXXXXXXX......',
+    '....XXOOOOOOOOXX....',
+    '...XOHHOOOOOOOOOX...',
+    '..XOHOOOOOOOOOOOOX..',
+    '..XOORRRRRRRRRROOX..',
+    '.XOORFFFFFFFFFFROOX.',
+    '.XORFFFFFFFFFFFFROX.',
+    `XOOO${top}OOOX`,
     `XOOO${bottom}OOOX`,
-    'XOOOCFFFFFFFFCOOOX',
-    '.XOOCFFMFFMFFCOOX.',
-    '.XOOOFFFMMFFFOOOX.',
-    '..XXOOOOOOOOOOXX..',
+    'XOOOFBBFFFFFFBBFOOOX',
+    '.XOOFFFFFMMFFFFFOOX.',
+    '.XOOOFFFFFFFFFFOOOX.',
+    '..XOOOOFFFFFFOOOOX..',
+    '...XOOOOSOOSOOOOX...',
+    '..XOOOOOSOOSOOOOOX..',
+    '..XOOOOOOOOOOOOOOX..',
   ]
 }
 
@@ -134,8 +136,9 @@ export function getIntro({
    */
   expression: Expression
 }): string {
-  // The middle three of the seven lines, so the text sits beside the face.
+  // Lines 4 to 6 of the eight, so the text sits beside the face.
   const text = [
+    '',
     '',
     '',
     styleText(['bold', 'yellow'], `KUBB v${version}`),
