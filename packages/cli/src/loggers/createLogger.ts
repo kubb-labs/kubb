@@ -55,7 +55,9 @@ export function formatJobLine({
   date?: Date
 }): string {
   const time = date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
-  const by = requestedBy ? `${styleText('dim', `by ${requestedBy}`.padEnd(14))} ` : ''
+  // A long name is cut so the results stay in one column.
+  const name = requestedBy && requestedBy.length > 12 ? `${requestedBy.slice(0, 11).trimEnd()}…` : requestedBy
+  const by = name ? `${styleText('dim', `by ${name}`.padEnd(16))} ` : ''
 
   return `${styleText('dim', time)}  ${command.padEnd(10)} ${by}${result}`
 }

@@ -361,7 +361,7 @@ describe('studio session', () => {
       'log.success:✓ Connected to https://studio.kubb.dev · v5.0.6 · Studio v5.1.0',
       'spinner.start:Ready for jobs',
       'spinner.message:Generating',
-      expect.stringMatching(/^log\.info:\d\d:\d\d:\d\d {2}generate {3}by Stijn {7}✓ 1 file in  \(2 plugins, in memory\)$/),
+      expect.stringMatching(/^log\.info:\d\d:\d\d:\d\d {2}generate {3}by Stijn {9}✓ 1 file in  \(2 plugins, in memory\)$/),
       'spinner.start:Ready for jobs',
     ])
   })
