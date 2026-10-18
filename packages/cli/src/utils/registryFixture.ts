@@ -40,6 +40,14 @@ export function stubFetch({ status = 200, body }: { status?: number; body?: unkn
   vi.stubGlobal('fetch', fetch)
 }
 
+/** Answers `<registry>/index.json` with an index that lists `entries`, and any other URL with 404. */
+export function stubRegistry(entries: Array<object>): void {
+  const fetch = vi.fn(async (url: string) =>
+    url.endsWith('/index.json') ? new Response(JSON.stringify(registryIndex(entries))) : new Response(null, { status: 404 }),
+  )
+  vi.stubGlobal('fetch', fetch)
+}
+
 /** A project whose `devDependencies` are installed in `node_modules` at the given versions. */
 export async function createProject(packages: Record<string, { version: string; manifest?: object }>): Promise<string> {
   const cwd = await mkdtemp(path.join(tmpdir(), 'kubb-registry-'))

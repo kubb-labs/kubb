@@ -74,6 +74,7 @@ export type {
   ExtensionManifestOption,
   JSONValue,
   RegistryArtifact,
+  RegistryChanges,
   RegistryDetail,
   RegistryEntry,
   RegistryGuide,

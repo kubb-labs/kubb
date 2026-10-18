@@ -1,4 +1,5 @@
 import process from 'node:process'
+import { stripVTControlCharacters } from 'node:util'
 import { getErrorMessage, toError } from '@internals/utils'
 import {
   checkCompatibility,
@@ -6,10 +7,10 @@ import {
   type ExtensionManifest,
   isRegistryEntry,
   type RegistryArtifact,
-  type RegistryDetail,
+  type RegistryChanges,
   type RegistryEntry,
 } from '@kubb/core'
-import { isLessThan, isValid } from 'verkit'
+import { difference, isLessThan, isValid } from 'verkit'
 
 export const DEFAULT_REGISTRY = 'https://kubb.dev/registry'
 
@@ -44,6 +45,11 @@ export function toRegistryId(input: string): string {
   return input.includes('/') ? input : `kubb-labs/${input}`
 }
 
+/** The shortest id `kubb add` and `kubb update` accept: the slug for an official extension, else `owner/slug`. */
+export function toShortId(id: string): string {
+  return id.startsWith('kubb-labs/') ? id.slice('kubb-labs/'.length) : id
+}
+
 /**
  * GETs `url` as JSON. A non-2xx answer or a body that is not JSON returns no `body`.
  * A network error throws with the URL.
@@ -63,28 +69,6 @@ async function fetchJSON(url: string): Promise<{ status: number; body?: unknown 
   }
   if (!response.ok) return { status: response.status }
   return { status: response.status, body: await response.json().catch(() => undefined) }
-}
-
-/** Fetches one extension's detail document. */
-export async function fetchRegistryDetail({ id, registry }: { id: string; registry: string }): Promise<RegistryDetail> {
-  const { status, body } = await fetchJSON(`${registry}/${id}.json`)
-  if (status === 404)
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.pluginNotFound,
-      severity: 'error',
-      message: `"${id}" is not in the registry at ${registry}.`,
-      help: 'Check the id at https://kubb.dev/extensions.',
-    })
-  if (status !== 200 || !isRegistryEntry(body) || body.id !== id)
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.inputRequestFailed,
-      severity: 'error',
-      message: `The registry at ${registry} sent an invalid entry for "${id}" (HTTP ${status}).`,
-      help: 'Try again later, or check that `KUBB_REGISTRY` points at a Kubb registry.',
-    })
-
-  const { overview } = body as { overview?: unknown }
-  return { ...body, overview: typeof overview === 'string' ? overview : null }
 }
 
 /** Fetches the registry index, leaving out entries that fail validation. */
@@ -124,4 +108,70 @@ export function incompatibility(manifest: ExtensionManifest): string | undefined
 export function isOutdated({ installed, latest }: { installed: string | undefined; latest: string }): boolean {
   if (!isValid(latest)) return false
   return !installed || !isValid(installed) || isLessThan(installed, latest)
+}
+
+/** `major`, `minor`, or `patch` from `installed` to `latest`, or `undefined` when either is unknown or invalid. */
+export function bumpOf({ installed, latest }: { installed: string | undefined; latest: string }): 'major' | 'minor' | 'patch' | undefined {
+  if (!installed || !isValid(installed) || !isValid(latest)) return undefined
+  const kind = difference(installed, latest)
+  if (!kind) return undefined
+  if (kind.endsWith('major')) return 'major'
+  return kind.endsWith('minor') ? 'minor' : 'patch'
+}
+
+/**
+ * The entry's `changes`, checked and stripped of terminal control sequences, since the registry
+ * text comes from package authors. Registries built before the field existed leave it out.
+ */
+export function changesOf(entry: RegistryEntry): RegistryChanges | undefined {
+  const changes: unknown = entry.changes
+  if (typeof changes !== 'object' || changes === null || !('summary' in changes) || typeof changes.summary !== 'string') return undefined
+  const guide = 'guide' in changes && typeof changes.guide === 'string' ? stripVTControlCharacters(changes.guide) : undefined
+  return {
+    summary: stripVTControlCharacters(changes.summary),
+    breaking: 'breaking' in changes && changes.breaking === true,
+    guide: guide && /^https:\/\/\S+$/.test(guide) ? guide : undefined,
+  }
+}
+
+function editDistance(a: string, b: string): number {
+  const row = Array.from({ length: b.length + 1 }, (_, index) => index)
+  for (let i = 1; i <= a.length; i++) {
+    let previous = row[0]!
+    row[0] = i
+    for (let j = 1; j <= b.length; j++) {
+      const current = row[j]!
+      row[j] = Math.min(row[j]! + 1, row[j - 1]! + 1, previous + (a[i - 1] === b[j - 1] ? 0 : 1))
+      previous = current
+    }
+  }
+  return row[b.length]!
+}
+
+/** Words every extension shares, so they never make two ids look alike. */
+const COMMON_TOKENS = new Set(['kubb', 'plugin', 'adapter', 'parser'])
+
+/**
+ * The ids closest to a mistyped `input`, best first, at most three: those within a few edits of it,
+ * or sharing a word such as `zod` in any order. Compares slugs, so the owner may be left out.
+ */
+export function closestIds({ input, ids }: { input: string; ids: Array<string> }): Array<string> {
+  const slug = (id: string) => id.slice(id.indexOf('/') + 1)
+  const tokens = new Set(
+    slug(input)
+      .split('-')
+      .filter((token) => !COMMON_TOKENS.has(token)),
+  )
+  return ids
+    .map((id) => ({
+      id,
+      distance: editDistance(slug(input), slug(id)),
+      shared: slug(id)
+        .split('-')
+        .some((token) => tokens.has(token)),
+    }))
+    .filter(({ distance, shared }) => shared || distance <= Math.max(2, Math.floor(slug(input).length / 4)))
+    .sort((a, b) => Number(b.shared) - Number(a.shared) || a.distance - b.distance)
+    .slice(0, 3)
+    .map(({ id }) => id)
 }

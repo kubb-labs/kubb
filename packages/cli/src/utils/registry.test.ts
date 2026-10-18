@@ -1,6 +1,6 @@
 import { Diagnostics } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchRegistryIndex, isOutdated, registryUrl, toRegistryId } from './registry.ts'
+import { bumpOf, closestIds, fetchRegistryIndex, isOutdated, registryUrl, toRegistryId, toShortId } from './registry.ts'
 
 afterEach(() => {
   delete process.env.KUBB_REGISTRY
@@ -44,5 +44,35 @@ describe('fetchRegistryIndex', () => {
     const error = await fetchRegistryIndex({ registry: 'https://example.test' }).catch((caught: unknown) => caught)
 
     expect(Diagnostics.from(error)).toMatchObject({ code: Diagnostics.code.inputRequestFailed, message: expect.stringContaining('sent an invalid index') })
+  })
+})
+
+describe('bumpOf', () => {
+  it('names the semver part that changed, and nothing for an unknown version', () => {
+    expect([
+      bumpOf({ installed: '5.2.0', latest: '6.0.0' }),
+      bumpOf({ installed: '5.2.0', latest: '5.3.0' }),
+      bumpOf({ installed: '5.2.0', latest: '5.2.1' }),
+      bumpOf({ installed: undefined, latest: '5.2.1' }),
+    ]).toStrictEqual(['major', 'minor', 'patch', undefined])
+  })
+})
+
+describe('closestIds', () => {
+  const ids = ['kubb-labs/plugin-zod', 'kubb-labs/plugin-ts', 'kubb-labs/plugin-faker', 'acme/plugin-graphql']
+
+  it('finds ids with the same words in another order, and ids a few edits away', () => {
+    expect(closestIds({ input: 'kubb-labs/zod-plugin', ids })).toStrictEqual(['kubb-labs/plugin-zod'])
+    expect(closestIds({ input: 'kubb-labs/plugin-fakr', ids })).toStrictEqual(['kubb-labs/plugin-faker'])
+  })
+
+  it('suggests nothing for an id unlike any other', () => {
+    expect(closestIds({ input: 'kubb-labs/swagger-mock-server', ids })).toStrictEqual([])
+  })
+})
+
+describe('toShortId', () => {
+  it('drops the kubb-labs owner only', () => {
+    expect([toShortId('kubb-labs/plugin-zod'), toShortId('acme/plugin-x')]).toStrictEqual(['plugin-zod', 'acme/plugin-x'])
   })
 })
