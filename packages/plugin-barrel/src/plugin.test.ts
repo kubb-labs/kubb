@@ -64,10 +64,18 @@ function schemasPlugin(output: Record<string, unknown> = {}) {
   })
 }
 
-async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<Plugin>; barrel?: { type: 'named' } | false }) {
+async function build({
+  plugins,
+  barrel = { type: 'named' },
+  shared,
+}: {
+  plugins: Array<Plugin>
+  barrel?: { type: 'named' } | false
+  shared?: Config['output']['shared']
+}) {
   const config = {
     root: '/workspace',
-    output: { path: 'src/gen', barrel },
+    output: { path: 'src/gen', barrel, shared },
     parsers: [],
     reporters: [],
     plugins: [...plugins, pluginBarrel()] as unknown as Array<Plugin>,
@@ -97,21 +105,16 @@ describe('pluginBarrel', () => {
     expect(rootExportNames).toStrictEqual(expect.arrayContaining(['Pet', 'PetSchema']))
   })
 
-  it('writes a plugin barrel and a root barrel in the output.shared directory', async () => {
-    const shared = { path: '/workspace/src/common', schemas: ['Name'] }
-    const plugin = makePlugin({
-      name: 'plugin-types',
-      outputPath: 'types',
-      filePath: '/workspace/src/common/types/name.ts',
-      exportName: 'Name',
-      output: { mode: 'directory', shared },
-    })
+  it.each([
+    ['a plugin output directory', 'types', '/workspace/src/common/types/name.ts', ['/workspace/src/common/types/index.ts', '/workspace/src/common/index.ts']],
+    ['the output root', '.', '/workspace/src/common/name.ts', ['/workspace/src/common/index.ts']],
+  ])('writes the output.shared barrels for a plugin writing to %s', async (_, outputPath, filePath, barrels) => {
+    const plugin = makePlugin({ name: 'plugin-types', outputPath, filePath, exportName: 'Name', output: { mode: 'directory' } })
 
-    const { files } = await build({ plugins: [plugin] })
-    const exportNames = (filePath: string) => files.find((file) => file.path === filePath)?.exports.flatMap((item) => item.name ?? [])
+    const { files } = await build({ plugins: [plugin], shared: { path: 'src/common' } })
+    const exportNames = (barrelPath: string) => files.find((file) => file.path === barrelPath)?.exports.flatMap((item) => item.name ?? [])
 
-    expect(exportNames('/workspace/src/common/types/index.ts')).toStrictEqual(['Name'])
-    expect(exportNames('/workspace/src/common/index.ts')).toStrictEqual(['Name'])
+    for (const barrel of barrels) expect(exportNames(barrel)).toStrictEqual(['Name'])
     expect(exportNames('/workspace/src/gen/index.ts')).toBeUndefined()
   })
 

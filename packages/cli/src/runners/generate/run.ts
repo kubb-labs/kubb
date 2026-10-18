@@ -178,24 +178,28 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   // of the first config's generation.
   await checkForUpdate(hooks)
 
-  try {
-    const detected = await detectSharedSchemas(configs.map((config) => ({ ...config, input: input ?? config.input })))
-    configs = detected.configs
-    if (detected.conflicts.length > 0) {
-      await hooks.callHook('kubb:warn', {
-        message: `Not shared, since the specs define them differently: ${detected.conflicts.join(', ')}`,
-        info: 'Each config keeps its own copy of these schemas.',
-      })
+  const detectShared = async (list: Array<Config>): Promise<Array<Config>> => {
+    try {
+      const detected = await detectSharedSchemas(list.map((config) => ({ ...config, input: input ?? config.input })))
+      if (detected.conflicts.length > 0) {
+        await hooks.callHook('kubb:warn', {
+          message: `Not shared, since the specs define them differently: ${detected.conflicts.join(', ')}`,
+          info: 'Each config keeps its own copy of these schemas.',
+        })
+      }
+      return detected.configs
+    } catch {
+      // The build reports a spec that fails to parse, with its config.
+      return list
     }
-  } catch {
-    // The build reports a spec that fails to parse, with its config.
   }
+  configs = await detectShared(configs)
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
   try {
     let anyFailed = false
-    for (const config of configs) {
+    for (const [index, config] of configs.entries()) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
       const watchPath = inputKind === 'file' || inputKind === 'url' ? (effectiveInput as string) : undefined
@@ -204,8 +208,10 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // Don't removeAll() between builds, that would also drop logger and lifecycle
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
-        const build = async (paths: Array<string>) => {
-          const succeeded = await generate({ input, config, hooks, dryRun })
+        const build = async (paths: Array<string>, redetect = true) => {
+          // An edited spec can change which schemas every spec shares, so detect again before a rebuild.
+          const current = redetect && config.output.shared ? ((await detectShared(configs))[index] ?? config) : config
+          const succeeded = await generate({ input, config: current, hooks, dryRun })
           logStep(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
           if (succeeded) {
             logSpacer()
@@ -221,7 +227,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
         // The watchers ignore their startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
         try {
-          await build(watchedPaths)
+          await build(watchedPaths, false)
         } catch (buildError) {
           await Diagnostics.emit(errorHooks, buildError)
         }
