@@ -17,6 +17,9 @@ vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
 // Reconnects wait for nothing, so a test sees the next socket straight away.
 vi.mock('node:timers/promises', () => ({ setTimeout: vi.fn(async () => {}) }))
 
+// Studio may add a plugin of its own, which the agent imports by package name.
+vi.mock('@kubb/plugin-ts', () => ({ pluginTs: (options: unknown) => ({ name: 'plugin-ts', options }) }))
+
 // Recorded but real, so a sandbox run's job root can be checked without faking the filesystem.
 vi.mock('node:fs/promises', async (importOriginal) => {
   const actual = await importOriginal<typeof import('node:fs/promises')>()
@@ -375,6 +378,19 @@ describe('generation reports', () => {
       'is not an installed Kubb plugin',
     )
     expect(error).toHaveBeenCalledWith({ error: expect.objectContaining({ message: expect.stringContaining('is not an installed Kubb plugin') }) })
+  })
+
+  it('refuses an output path from Studio outside the project root before anything is written', async () => {
+    const { hooks, heard } = withHooks()
+    const error = heard('kubb:error')
+    const { agent } = await connectStudio({ hooks, permissions: { allowWrite: true } })
+    const output = { path: '../../../home/alice/.ssh/authorized_keys', mode: 'file', banner: 'ssh-ed25519 AAAA' }
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { plugins: [{ name: '@kubb/plugin-ts', options: { output } }] } }).result()).rejects.toThrow(
+      'Plugin "plugin-ts" would write to "/home/alice/.ssh/authorized_keys", outside the project root "/project".',
+    )
+    expect(error).toHaveBeenCalledOnce()
+    expect(disk.storage).toBeUndefined()
   })
 })
 
