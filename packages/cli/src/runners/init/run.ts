@@ -6,12 +6,28 @@ import * as clack from '@clack/prompts'
 import type { DryRunExtension } from '@gunshi/plugin-dryrun'
 import { defineWithTypes } from 'gunshi'
 import { generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME } from '@internals/shared'
-import { Diagnostics, type RegistryEntry } from '@kubb/core'
+import { formatMs, getElapsedMs } from '@internals/utils'
+import { createKubb, Diagnostics, type RegistryEntry } from '@kubb/core'
 import { dryRunId, type DryRunExtensions } from '../../commands/shared.ts'
-import { createSpinner, logError, logInfo, logIntro, logOutro } from '../../loggers/output.ts'
-import { addToConfig } from '../add/run.ts'
-import { fetchRegistryIndex, incompatibility, installSpec, registryUrl, toRegistryId } from '../../utils/registry.ts'
-import { detectPackageManager, initPackageJson, installPackages, missingPluginDependencies } from './utils.ts'
+import { getConfigs } from '../../config.ts'
+import { pluralize } from '../../loggers/createLogger.ts'
+import { createSpinner, logBlock, logError, logIntro, logOutro, logStep, logWarn } from '../../loggers/output.ts'
+import { fetchRegistryIndex, incompatibility, installSpec, registryUrl } from '../../utils/registry.ts'
+import {
+  addGenerateScript,
+  chooseUntilConfirmed,
+  detectPackageManager,
+  detectProject,
+  findSpecFiles,
+  generateScript,
+  initPackageJson,
+  installPackages,
+  missingPluginDependencies,
+  type PackageManagerInfo,
+  parsePluginsFlag,
+  readSpecInfo,
+  recommendPlugins,
+} from './utils.ts'
 import { version } from '../../../package.json'
 
 function cancelAndExit(message = 'Operation canceled.'): never {
@@ -19,9 +35,14 @@ function cancelAndExit(message = 'Operation canceled.'): never {
   process.exit(0)
 }
 
+function unwrap<T>(value: T): Exclude<T, symbol> {
+  if (clack.isCancel(value)) cancelAndExit()
+  return value as Exclude<T, symbol>
+}
+
 type InitOptions = {
   /**
-   * When `true`, skips all interactive prompts and uses default values.
+   * When `true`, skips all interactive prompts and uses the detected or default values.
    */
   yes: boolean
   /**
@@ -33,136 +54,253 @@ type InitOptions = {
    */
   output?: string
   /**
-   * Comma-separated plugin list from `--plugins`, e.g. `'plugin-ts,plugin-zod'`. When provided, skips the plugin selection prompt.
+   * Comma-separated plugin list from `--plugins`, e.g. `'plugin-ts,zod'`. When provided, skips the plugin selection prompt.
    */
   plugins?: string
   /**
-   * Dry-run extension from `@gunshi/plugin-dryrun`. When enabled, package installation and the
-   * config file write are skipped.
+   * Dry-run extension from `@gunshi/plugin-dryrun`. When enabled, package installation, file
+   * writes, and the first run are skipped.
    */
   dryRun: DryRunExtension
 }
 
+type Choices = {
+  inputPath: string
+  outputPath: string
+  plugins: Array<RegistryEntry>
+}
+
+/** The full `kubb.config.ts` for `choices`, with each plugin added the way `kubb add` adds it. */
+async function buildConfig({ inputPath, outputPath, plugins }: Choices): Promise<string> {
+  const { applyConfigEdits } = await import('@kubb/studio')
+  const { source, outcomes } = applyConfigEdits({
+    source: generateConfigFile({ inputPath, outputPath }),
+    edits: plugins.map((entry) => ({ operation: 'add-plugin', plugin: entry.artifact.package })),
+    extensions: new Map(plugins.map(({ artifact, manifest }) => [artifact.package, { package: artifact.package, version: artifact.version, manifest }])),
+  })
+  const failed = outcomes.find((outcome) => !outcome.applied)
+  if (failed && failed.edit.operation === 'add-plugin')
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: `Could not add ${failed.edit.plugin} to ${KUBB_CONFIG_FILENAME}: ${failed.reason}`,
+      help: `Run kubb init without that plugin, then add it with kubb add.`,
+    })
+  return source
+}
+
+/** Generates from the config at `configPath` without reporters, and returns how many files it wrote. */
+async function firstRun(configPath: string): Promise<number> {
+  const { configs } = await getConfigs({ configPath })
+  let files = 0
+  for (const config of configs) {
+    const result = await createKubb(config).generate()
+    if (!result.success) throw new Error(result.diagnostics.flatMap((diagnostic) => (diagnostic.severity === 'error' ? [diagnostic.message] : [])).join('\n'))
+    files += result.files.length
+  }
+  return files
+}
+
+/** The command that runs `kubb generate`: the `generate` script when it runs Kubb, otherwise `npx kubb generate`. */
+function generateCommand({ packageManager, script, watch }: { packageManager: PackageManagerInfo; script: string | undefined; watch: boolean }): string {
+  if (script !== 'kubb generate') return `npx kubb generate${watch ? ' --watch' : ''}`
+  const run = [packageManager.name, ...packageManager.runCommand, 'generate'].join(' ')
+  if (!watch) return run
+  return packageManager.name === 'npm' ? `${run} -- --watch` : `${run} --watch`
+}
+
 /**
- * Runs the interactive Kubb scaffolding wizard.
- * Detects the package manager, prompts for input/output paths and plugins, installs packages, and writes `kubb.config.ts`.
- * Pass `yes: true` to skip all prompts and use defaults.
+ * Runs the Kubb setup wizard: detects the project and its specs, asks for the spec, plugins, and
+ * output folder, shows the config for review, then installs, writes `kubb.config.ts`, adds a
+ * `generate` script, and runs the first generation.
+ * Pass `yes: true` to skip all prompts and print one line per step.
  */
 export async function run({ yes, input: inputFlag, output: outputFlag, plugins: pluginsFlag, dryRun }: InitOptions): Promise<void> {
   const cwd = process.cwd()
 
-  logIntro({ title: styleText('bgCyan', styleText('black', ' Kubb Init ')) })
-
-  /**
-   * Returns `flag` when provided, the `defaultValue` when `yes` is set,
-   * or calls `prompt()` for interactive input. Exits on cancellation.
-   */
-  async function resolveOrPrompt<T>(flag: T | undefined, defaultValue: T, logLabel: string, prompt: () => Promise<NoInfer<T> | symbol>): Promise<T> {
-    if (flag !== undefined) {
-      logInfo(`${logLabel}: ${styleText('cyan', String(flag))}`)
-      return flag
+  /** Runs `task` behind a spinner, or prints one line when it is done in `--yes` mode. */
+  async function step<T>({ start, task, done, failed }: { start: string; task: () => Promise<T>; done: (result: T) => string; failed: string }): Promise<T> {
+    const spinner = createSpinner()
+    if (!yes) spinner.start(start)
+    try {
+      const result = await task()
+      if (yes) console.log(`${styleText('green', '✓')} ${done(result)}`)
+      if (!yes) spinner.stop(done(result))
+      return result
+    } catch (error) {
+      if (!yes) spinner.error(failed)
+      throw error
     }
-    if (yes) {
-      logInfo(`${logLabel}: ${styleText('cyan', String(defaultValue))}`)
-      return defaultValue
-    }
-    const result = await prompt()
-    if (clack.isCancel(result)) cancelAndExit()
-    return result as T
   }
 
-  try {
-    // The plugins come from the Kubb registry, like `kubb add`, so read it before changing anything
-    const plugins = (await fetchRegistryIndex({ registry: registryUrl() })).filter((entry) => entry.kind === 'plugin' && !incompatibility(entry.manifest))
-    const byId = new Map(plugins.map((entry) => [entry.id, entry]))
+  if (!yes) logIntro({ title: 'Set up Kubb' })
 
-    // Check/create package.json, detect package manager once after the block
+  try {
+    // Start the registry fetch now but await it only at the plugin step, so the first prompt never waits on the network
+    const registry = fetchRegistryIndex({ registry: registryUrl() }).then((entries) =>
+      entries.filter((entry) => entry.kind === 'plugin' && !incompatibility(entry.manifest)),
+    )
+    registry.catch(() => {})
+    // Warm the module cache for buildConfig while the user answers, so the review shows up without waiting
+    if (!yes) import('@kubb/studio').catch(() => {})
+
     if (!fs.existsSync(path.join(cwd, 'package.json'))) {
       if (!yes) {
-        const shouldInit = await clack.confirm({
-          message: 'No package.json found. Would you like to create one?',
-          initialValue: true,
-        })
-
-        if (clack.isCancel(shouldInit) || !shouldInit) {
-          cancelAndExit()
-        }
+        const shouldInit = unwrap(await clack.confirm({ message: 'No package.json found. Would you like to create one?', initialValue: true }))
+        if (!shouldInit) cancelAndExit()
       }
 
       const packageManager = detectPackageManager(cwd)
-      const spinner = createSpinner()
-      spinner.start(`Initializing package.json with ${packageManager.name}`)
-      await initPackageJson(cwd, packageManager)
-      spinner.stop(`Created package.json with ${packageManager.name}`)
+      await step({
+        start: `Initializing package.json with ${packageManager.name}`,
+        task: () => initPackageJson(cwd, packageManager),
+        done: () => `Created package.json with ${packageManager.name}`,
+        failed: 'Could not create package.json',
+      })
     }
 
-    const packageManager = detectPackageManager(cwd)
-    logInfo(`Detected package manager: ${styleText('cyan', packageManager.name)}`)
+    const [packageManager, project, specs] = await Promise.all([detectPackageManager(cwd), detectProject(cwd), findSpecFiles(cwd)])
 
-    // Prompt for OpenAPI spec path
-    const inputPath = await resolveOrPrompt(inputFlag, initDefaults.inputPath, 'Using input path', () =>
-      clack.text({
-        message: 'Where is your OpenAPI specification located?',
-        placeholder: initDefaults.inputPath,
-        defaultValue: initDefaults.inputPath,
-        validate: (value) => {
-          if (!value) return 'Input path is required'
-        },
-      }),
-    )
-
-    // Prompt for output directory
-    const outputPath = await resolveOrPrompt(outputFlag, initDefaults.outputPath, 'Using output path', () =>
-      clack.text({
-        message: 'Where should the generated files be output?',
-        placeholder: initDefaults.outputPath,
-        defaultValue: initDefaults.outputPath,
-        validate: (value) => {
-          if (!value) return 'Output path is required'
-        },
-      }),
-    )
-
-    // Plugin selection
-    const defaultPlugins = initDefaults.plugins.flatMap((slug) => byId.get(toRegistryId(slug)) ?? [])
-    const pluginLabel = (entries: Array<RegistryEntry>) => styleText('cyan', entries.map((entry) => entry.manifest.displayName).join(', '))
-
-    const selectedPlugins: Array<RegistryEntry> = await (async () => {
-      if (pluginsFlag) {
-        const ids = pluginsFlag
-          .split(',')
-          .map((id) => id.trim())
-          .filter(Boolean)
-        const unknown = ids.filter((id) => !byId.has(toRegistryId(id)))
-        if (unknown.length)
-          throw new Diagnostics.Error({
-            code: Diagnostics.code.pluginNotFound,
-            severity: 'error',
-            message: `Not in the Kubb registry: ${unknown.join(', ')}. Browse the plugins at https://kubb.dev/extensions.`,
-            help: 'Use plugin ids from https://kubb.dev/extensions, such as plugin-ts.',
-          })
-        const entries = ids.map((id) => byId.get(toRegistryId(id))!)
-        logInfo(`Using plugins: ${pluginLabel(entries)}`)
-        return entries
+    if (!yes) {
+      logStep(`Detected  ${[packageManager.name, ...project.labels].join(' · ')}`)
+      if (specs[0]) {
+        const { version: specVersion, operations } = await readSpecInfo(path.join(cwd, specs[0]))
+        const details = [
+          specs[0].slice(2),
+          specVersion ? `${specVersion.startsWith('2') ? 'Swagger' : 'OpenAPI'} ${specVersion}` : undefined,
+          operations === undefined ? undefined : pluralize(operations, 'operation'),
+          specs.length > 1 ? `+${specs.length - 1} more` : undefined,
+        ]
+        logStep(`Found     ${details.filter(Boolean).join(' · ')}`)
       }
-      if (yes) {
-        logInfo(`Using plugins: ${pluginLabel(defaultPlugins)}`)
-        return defaultPlugins
+    }
+
+    // `--plugins` and `--yes` need the registry before any prompt; the interactive path reads it at the plugin step
+    const plugins = pluginsFlag || yes ? await registry : undefined
+    const recommendedFor = (entries: Array<RegistryEntry>) => recommendPlugins({ plugins: entries, dependencies: project.dependencies })
+    const recommendedIn = (entries: Array<RegistryEntry>) => {
+      const reasons = recommendedFor(entries)
+      return entries.filter((entry) => reasons.has(entry.manifest.name))
+    }
+
+    const flagPlugins = pluginsFlag && plugins ? parsePluginsFlag({ plugins, value: pluginsFlag }) : undefined
+
+    const defaults: Omit<Choices, 'plugins'> & { plugins?: Array<RegistryEntry> } = {
+      inputPath: inputFlag ?? specs[0] ?? initDefaults.inputPath,
+      outputPath: outputFlag ?? initDefaults.outputPath,
+      plugins: flagPlugins ?? (plugins ? recommendedIn(plugins) : undefined),
+    }
+
+    async function askInput(current: string): Promise<string> {
+      const choice = specs.length
+        ? unwrap(
+            await clack.select({
+              message: 'Which spec should Kubb read?',
+              options: [
+                ...specs.map((spec) => ({ value: spec, label: spec, hint: 'found in this repo' })),
+                { value: 'url', label: 'A URL' },
+                { value: 'file', label: 'Another file' },
+              ],
+              initialValue: specs.includes(current) ? current : /^https?:\/\//.test(current) ? 'url' : 'file',
+            }),
+          )
+        : /^https?:\/\//.test(current)
+          ? 'url'
+          : 'file'
+      if (specs.includes(choice)) return choice
+      const isUrl = choice === 'url'
+      const initial = isUrl === /^https?:\/\//.test(current) && !specs.includes(current) ? current : undefined
+      return unwrap(
+        await clack.text({
+          message: isUrl ? 'Spec URL' : 'Spec path',
+          placeholder: isUrl ? 'https://example.com/openapi.yaml' : initDefaults.inputPath,
+          initialValue: initial,
+          defaultValue: isUrl ? undefined : initDefaults.inputPath,
+          validate: (value) => {
+            if (isUrl && !/^https?:\/\//.test(value ?? '')) return 'Enter an http(s) URL'
+          },
+        }),
+      )
+    }
+
+    async function askPlugins(previous: Array<RegistryEntry> | undefined): Promise<Array<RegistryEntry>> {
+      const plugins = await registry
+      const recommended = recommendedFor(plugins)
+      const current = previous ?? recommendedIn(plugins)
+      // Recommended plugins first, in the order recommendPlugins gives them, so plugin-ts leads
+      const rank = (entry: RegistryEntry) => {
+        const index = [...recommended.keys()].indexOf(entry.manifest.name)
+        return index === -1 ? recommended.size : index
       }
-      const values = await clack.multiselect({
-        message: 'Select plugins to use:',
-        options: plugins.map(({ id, manifest }) => ({ value: id, label: manifest.displayName, hint: manifest.category })),
-        initialValues: defaultPlugins.map((entry) => entry.id),
-        required: true,
-      })
-      if (clack.isCancel(values)) cancelAndExit()
-      return plugins.filter((entry) => (values as Array<string>).includes(entry.id))
-    })()
+      const sorted = plugins.toSorted((a, b) => rank(a) - rank(b))
+      const width = Math.max(...plugins.map((entry) => entry.manifest.displayName.length))
+      const nameWidth = Math.max(...plugins.map((entry) => entry.manifest.name.length))
+      const values = unwrap(
+        await clack.multiselect({
+          message: 'What should Kubb generate?',
+          options: sorted.map(({ id, manifest }) => ({
+            value: id,
+            label:
+              `${manifest.displayName.padEnd(width)}  ${styleText('dim', manifest.name.padEnd(nameWidth))}  ${styleText('dim', recommended.get(manifest.name) ?? '')}`.trimEnd(),
+          })),
+          initialValues: current.map((entry) => entry.id),
+          required: true,
+        }),
+      )
+      return plugins.filter((entry) => values.includes(entry.id))
+    }
+
+    async function askOutput(current: string): Promise<string> {
+      return unwrap(
+        await clack.text({
+          message: 'Output folder',
+          placeholder: current,
+          defaultValue: current,
+        }),
+      )
+    }
+
+    // Flags for all three choices leave nothing to ask or review, as before the review step existed
+    const answered = yes || Boolean(inputFlag && outputFlag && pluginsFlag)
+    const choices: Choices = answered
+      ? { ...defaults, plugins: defaults.plugins ?? [] }
+      : await chooseUntilConfirmed<Choices>({
+          // The first pass skips the questions a flag answered; "Change a choice" asks them all again.
+          choose: async (previous) => ({
+            inputPath: !previous && inputFlag ? inputFlag : await askInput((previous ?? defaults).inputPath),
+            plugins: !previous && flagPlugins ? flagPlugins : await askPlugins(previous?.plugins ?? defaults.plugins),
+            outputPath: !previous && outputFlag ? outputFlag : await askOutput((previous ?? defaults).outputPath),
+          }),
+          confirm: async (choices) => {
+            const missing = missingPluginDependencies({
+              selected: choices.plugins.map((entry) => entry.manifest.name),
+              manifests: choices.plugins.map((entry) => entry.manifest),
+            })
+            if (missing.length) {
+              logWarn(`${missing.join('\n')}\nAdd the missing plugins.`)
+              return false
+            }
+            const config = await buildConfig(choices)
+            const packages = [KUBB_PACKAGE_NAME, ...choices.plugins.map((entry) => entry.artifact.package)]
+            logStep(`Review ${KUBB_CONFIG_FILENAME}`)
+            logBlock([...config.trimEnd().split('\n'), '', `${styleText('dim', 'Installs')}  ${packages.join(' ')} with ${packageManager.name}`])
+            const exists = fs.existsSync(path.join(cwd, KUBB_CONFIG_FILENAME))
+            return unwrap(
+              await clack.select({
+                message: exists ? `${KUBB_CONFIG_FILENAME} exists. Overwrite it?` : 'Create it?',
+                options: [
+                  { value: true, label: 'Yes' },
+                  { value: false, label: 'Change a choice' },
+                ],
+              }),
+            )
+          },
+        })
 
     // Check the selection against the plugins' manifests before installing anything
     const missing = missingPluginDependencies({
-      selected: selectedPlugins.map((entry) => entry.manifest.name),
-      manifests: selectedPlugins.map((entry) => entry.manifest),
+      selected: choices.plugins.map((entry) => entry.manifest.name),
+      manifests: choices.plugins.map((entry) => entry.manifest),
     })
     if (missing.length) {
       throw new Diagnostics.Error({
@@ -172,78 +310,69 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
       })
     }
 
-    // Install `kubb` at the running CLI's version and each plugin at the version the registry pins
-    const packagesToInstall = [`${KUBB_PACKAGE_NAME}@${version}`, ...selectedPlugins.map((entry) => installSpec(entry.artifact))]
-
-    const spinner = createSpinner()
-    spinner.start(`Installing ${packagesToInstall.length} packages with ${packageManager.name}`)
-
-    try {
-      await dryRun.run(() => installPackages(packagesToInstall, packageManager, cwd), {
-        message: `install ${packagesToInstall.length} packages with ${packageManager.name}`,
-      })
-      spinner.stop(`Installed ${packagesToInstall.length} packages`)
-    } catch (error) {
-      spinner.stop('Installation failed')
-      throw error
-    }
-
-    // Generate config file
-    const configSpinner = createSpinner()
-    configSpinner.start(`Creating ${KUBB_CONFIG_FILENAME}`)
-
-    const configContent = generateConfigFile({ inputPath, outputPath })
     const configPath = path.join(cwd, KUBB_CONFIG_FILENAME)
 
-    if (fs.existsSync(configPath)) {
-      configSpinner.stop(`${KUBB_CONFIG_FILENAME} already exists`)
+    // Install `kubb` at the running CLI's version and each plugin at the version the registry pins
+    const packagesToInstall = [`${KUBB_PACKAGE_NAME}@${version}`, ...choices.plugins.map((entry) => installSpec(entry.artifact))]
+    const packageNames = [KUBB_PACKAGE_NAME, ...choices.plugins.map((entry) => entry.artifact.package)]
+    const installStart = process.hrtime()
+    await step({
+      start: `Installing ${packagesToInstall.length} packages with ${packageManager.name}`,
+      task: async () =>
+        dryRun.run(() => installPackages(packagesToInstall, packageManager, cwd), {
+          message: `install ${packagesToInstall.length} packages with ${packageManager.name}`,
+        }),
+      done: () =>
+        yes
+          ? `Installed ${packageNames.join(' ')} with ${packageManager.name}`
+          : `Installed ${packagesToInstall.length} packages with ${packageManager.name} in ${formatMs(getElapsedMs(installStart))}`,
+      failed: 'Installation failed',
+    })
 
-      if (!yes) {
-        const shouldOverwrite = await clack.confirm({
-          message: `${KUBB_CONFIG_FILENAME} already exists. Overwrite?`,
-          initialValue: false,
-        })
+    await step({
+      start: `Writing ${KUBB_CONFIG_FILENAME}`,
+      task: async () =>
+        dryRun.run(async () => fs.promises.writeFile(configPath, await buildConfig(choices), 'utf-8'), { message: `write ${KUBB_CONFIG_FILENAME}` }),
+      done: () => `Wrote ${KUBB_CONFIG_FILENAME}`,
+      failed: `Could not write ${KUBB_CONFIG_FILENAME}`,
+    })
 
-        if (clack.isCancel(shouldOverwrite) || !shouldOverwrite) {
-          cancelAndExit('Keeping existing configuration. Packages have been installed.')
-        }
-      }
+    const scriptAdded = await dryRun.run(() => addGenerateScript(cwd), {
+      message: 'add a generate script to package.json',
+      resolve: async () => (await generateScript(cwd)) === undefined,
+    })
+    if (scriptAdded && !yes) logStep('Added "generate": "kubb generate" to package.json')
 
-      configSpinner.start(`Overwriting ${KUBB_CONFIG_FILENAME}`)
+    const script = scriptAdded ? 'kubb generate' : await generateScript(cwd)
+    const runStart = process.hrtime()
+    try {
+      await dryRun.run(
+        () =>
+          step({
+            start: 'Running the first generation',
+            task: () => firstRun(configPath),
+            done: (files) =>
+              yes
+                ? `Generated ${pluralize(files, 'file')} in ${choices.outputPath}`
+                : `First run  ${pluralize(files, 'file')} in ${choices.outputPath} · ${formatMs(getElapsedMs(runStart))}`,
+            failed: 'First run failed',
+          }),
+        { message: 'run the first generation', resolve: () => 0 },
+      )
+    } catch (error) {
+      logError(error instanceof Error ? error.message : String(error))
+      const message = `Kubb is set up, but the first run failed. Fix the error, then run ${generateCommand({ packageManager, script, watch: false })}.`
+      if (yes) console.log(message)
+      if (!yes) logOutro(styleText('yellow', message))
+      process.exitCode = 1
+      return
     }
 
-    await dryRun.run(() => fs.promises.writeFile(configPath, configContent, 'utf-8'), { message: `write ${KUBB_CONFIG_FILENAME}` })
-
-    // Add each plugin the way `kubb add` does
-    for (const entry of selectedPlugins) {
-      const reason = await dryRun.run(() => addToConfig({ detail: entry, configFile: configPath }), {
-        message: `add ${entry.manifest.export}() to ${KUBB_CONFIG_FILENAME}`,
-        resolve: () => undefined,
-      })
-      if (reason)
-        throw new Diagnostics.Error({
-          code: Diagnostics.code.unknown,
-          severity: 'error',
-          message: `Could not add ${entry.manifest.export}() to ${KUBB_CONFIG_FILENAME}: ${reason}`,
-          help: `Add ${entry.manifest.export}() to the plugins array in ${KUBB_CONFIG_FILENAME} by hand.`,
-        })
+    if (yes) {
+      console.log(`Kubb is set up. Run ${generateCommand({ packageManager, script, watch: false })} after changing the spec.`)
+      return
     }
-
-    configSpinner.stop(`Created ${KUBB_CONFIG_FILENAME}`)
-
-    logOutro(
-      styleText('green', '✓ All set!') +
-        '\n\n' +
-        styleText('dim', 'Next steps:') +
-        '\n' +
-        styleText('cyan', `  1. Make sure your OpenAPI spec is at: ${inputPath}`) +
-        '\n' +
-        styleText('cyan', '  2. Generate code with: npx kubb generate') +
-        '\n' +
-        styleText('cyan', `  3. Find generated files in: ${outputPath}`) +
-        '\n\n' +
-        styleText('dim', `Using ${packageManager.name} • Kubb v${version}`),
-    )
+    logOutro(`${styleText('green', '✓ Kubb is set up')}\n   ${styleText('dim', 'Next')}  ${generateCommand({ packageManager, script, watch: true })}`)
   } catch (error) {
     logError(styleText('red', 'An error occurred during initialization'))
     if (error instanceof Error) {
@@ -256,11 +385,12 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
 export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   name: 'init',
   description:
-    'Scaffold a kubb.config.ts and install plugins for code generation from an OpenAPI spec. Run without flags for interactive setup, or pass --input, --output, and --plugins to skip the prompts.',
+    'Scaffold a kubb.config.ts and install plugins for code generation from an OpenAPI spec. Detects the project and its OpenAPI specs, then runs the first generation. Run without flags for interactive setup, or pass --input, --output, and --plugins to skip the prompts.',
   examples: [
     'kubb init',
     'kubb init --yes',
     'kubb init --input ./openapi.yaml --output ./src/gen --plugins plugin-ts,plugin-zod',
+    'kubb init --yes --input ./openapi.yaml --plugins ts,zod --output src/api',
     'kubb init --plugins plugin-ts,plugin-axios,plugin-react-query',
     'kubb init --yes --dry-run',
   ].join('\n'),
@@ -268,7 +398,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   args: {
     yes: {
       type: 'boolean',
-      description: 'Skip prompts and use default options',
+      description: 'Skip prompts and use the detected spec, the recommended plugins, and the default output folder',
       short: 'y',
       default: false,
     },
@@ -286,7 +416,8 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     },
     plugins: {
       type: 'string',
-      description: 'Comma-separated Kubb registry ids of the plugins to add, the same ids `kubb add` takes (plugin-ts, plugin-zod, acme/plugin-x)',
+      description:
+        'Comma-separated Kubb registry ids of the plugins to add, the same ids `kubb add` takes (plugin-ts, plugin-zod, acme/plugin-x), or short names (ts, zod)',
       metavar: 'plugin-ts,plugin-zod,...',
     },
   },

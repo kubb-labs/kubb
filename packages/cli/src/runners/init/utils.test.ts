@@ -1,8 +1,20 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { detectPackageManager, missingPluginDependencies } from './utils.ts'
+import type { RegistryEntry } from '@kubb/core'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { registryEntry } from '../../utils/registryFixture.ts'
+import {
+  addGenerateScript,
+  chooseUntilConfirmed,
+  detectPackageManager,
+  detectProject,
+  findSpecFiles,
+  missingPluginDependencies,
+  parsePluginsFlag,
+  readSpecInfo,
+  recommendPlugins,
+} from './utils.ts'
 
 describe('detectPackageManager', () => {
   let cwd: string
@@ -51,5 +63,154 @@ describe('missingPluginDependencies', () => {
       'plugin-react-query needs plugin-ts.',
       'plugin-react-query needs a client plugin, such as plugin-axios or plugin-fetch.',
     ])
+  })
+})
+
+describe('project detection', () => {
+  let cwd: string
+
+  beforeEach(() => {
+    cwd = mkdtempSync(join(tmpdir(), 'kubb-init-'))
+  })
+
+  afterEach(() => {
+    rmSync(cwd, { recursive: true, force: true })
+  })
+
+  describe('detectProject', () => {
+    it('names TypeScript, the framework with its major version, and the data libraries', async () => {
+      writeFileSync(
+        join(cwd, 'package.json'),
+        JSON.stringify({ dependencies: { react: '^19.1.0', '@tanstack/react-query': '^5.0.0' }, devDependencies: { zod: '^4.0.0' } }),
+      )
+      writeFileSync(join(cwd, 'tsconfig.json'), '{}')
+
+      expect(await detectProject(cwd)).toStrictEqual({
+        typescript: true,
+        dependencies: { react: '^19.1.0', '@tanstack/react-query': '^5.0.0', zod: '^4.0.0' },
+        labels: ['TypeScript', 'React 19', 'TanStack Query', 'Zod'],
+      })
+    })
+
+    it('returns no labels for a folder without package.json or tsconfig.json', async () => {
+      expect(await detectProject(cwd)).toStrictEqual({ typescript: false, dependencies: {}, labels: [] })
+    })
+  })
+
+  describe('findSpecFiles', () => {
+    it('finds specs shallowest first and skips node_modules, dist, and folders past the depth', async () => {
+      for (const dir of ['api', 'node_modules/pkg', 'dist', 'a/b/c/d']) mkdirSync(join(cwd, dir), { recursive: true })
+      for (const file of [
+        'openapi.yaml',
+        'api/swagger.json',
+        'api/petstore.yaml',
+        'node_modules/pkg/openapi.yaml',
+        'dist/openapi.json',
+        'a/b/c/d/openapi.yml',
+      ]) {
+        writeFileSync(join(cwd, file), '')
+      }
+
+      expect(await findSpecFiles(cwd)).toStrictEqual(['./openapi.yaml', './api/swagger.json'])
+    })
+
+    it('stops at the limit', async () => {
+      for (const name of ['openapi.a.yaml', 'openapi.b.yaml', 'openapi.c.yaml']) writeFileSync(join(cwd, name), '')
+
+      expect(await findSpecFiles(cwd, { limit: 2 })).toStrictEqual(['./openapi.a.yaml', './openapi.b.yaml'])
+    })
+  })
+
+  describe('readSpecInfo', () => {
+    it('reads the version and counts the operations in a YAML spec', async () => {
+      writeFileSync(
+        join(cwd, 'openapi.yaml'),
+        "openapi: '3.1.0'\npaths:\n  /pets:\n    get:\n      summary: List\n    post:\n      summary: Add\n  /pets/{id}:\n    delete:\n      summary: Remove\n",
+      )
+
+      expect(await readSpecInfo(join(cwd, 'openapi.yaml'))).toStrictEqual({ version: '3.1.0', operations: 3 })
+    })
+
+    it('reads the version and counts the operations in a JSON spec', async () => {
+      const spec = { swagger: '2.0', paths: { '/pets': { get: {}, put: {} } } }
+      writeFileSync(join(cwd, 'swagger.json'), JSON.stringify(spec, null, 2))
+
+      expect(await readSpecInfo(join(cwd, 'swagger.json'))).toStrictEqual({ version: '2.0', operations: 2 })
+    })
+
+    it('leaves out the count when the spec is longer than the part it reads', async () => {
+      writeFileSync(join(cwd, 'openapi.yaml'), `openapi: 3.0.3\npaths:\n${'  /x:\n    get:\n      summary: x\n'.repeat(20_000)}`)
+
+      expect(await readSpecInfo(join(cwd, 'openapi.yaml'))).toStrictEqual({ version: '3.0.3', operations: undefined })
+    })
+  })
+
+  describe('addGenerateScript', () => {
+    it('adds the script and keeps the indentation', async () => {
+      writeFileSync(join(cwd, 'package.json'), JSON.stringify({ name: 'app', scripts: { build: 'tsc' } }, null, 4))
+
+      expect(await addGenerateScript(cwd)).toBe(true)
+      expect(readFileSync(join(cwd, 'package.json'), 'utf-8')).toBe(
+        `${JSON.stringify({ name: 'app', scripts: { build: 'tsc', generate: 'kubb generate' } }, null, 4)}\n`,
+      )
+    })
+
+    it('never overwrites an existing generate script', async () => {
+      const source = JSON.stringify({ scripts: { generate: 'orval' } })
+      writeFileSync(join(cwd, 'package.json'), source)
+
+      expect(await addGenerateScript(cwd)).toBe(false)
+      expect(readFileSync(join(cwd, 'package.json'), 'utf-8')).toBe(source)
+    })
+  })
+})
+
+const official = (name: string, manifest: object = {}) =>
+  ({ ...registryEntry({ name, version: '1.0.0', manifest }), id: `kubb-labs/${name}` }) as unknown as RegistryEntry
+const plugins = [
+  official('plugin-ts'),
+  official('plugin-zod'),
+  official('plugin-fetch', { role: 'client', dependencies: ['plugin-ts'] }),
+  official('plugin-react-query', { role: 'consumer', dependencies: ['plugin-ts'] }),
+]
+
+describe('recommendPlugins', () => {
+  it('recommends plugin-ts for any project', () => {
+    expect(recommendPlugins({ plugins, dependencies: {} })).toStrictEqual(new Map([['plugin-ts', 'always useful']]))
+  })
+
+  it('recommends plugins for the dependencies, with a client for a consumer', () => {
+    expect(recommendPlugins({ plugins, dependencies: { '@tanstack/react-query': '^5.0.0', zod: '^4.0.0', msw: '^2.0.0' } })).toStrictEqual(
+      new Map([
+        ['plugin-ts', 'always useful'],
+        ['plugin-react-query', 'uses @tanstack/react-query'],
+        ['plugin-zod', 'uses zod'],
+        ['plugin-fetch', 'client for plugin-react-query'],
+      ]),
+    )
+  })
+})
+
+describe('parsePluginsFlag', () => {
+  it('accepts short names, slugs, and registry ids', () => {
+    expect(parsePluginsFlag({ plugins, value: 'ts, plugin-zod,kubb-labs/plugin-fetch' }).map((entry) => entry.id)).toStrictEqual([
+      'kubb-labs/plugin-ts',
+      'kubb-labs/plugin-zod',
+      'kubb-labs/plugin-fetch',
+    ])
+  })
+
+  it('throws for a plugin that is not in the registry', () => {
+    expect(() => parsePluginsFlag({ plugins, value: 'ts,nope' })).toThrow('Not in the Kubb registry: nope.')
+  })
+})
+
+describe('chooseUntilConfirmed', () => {
+  it('asks again from the previous choice until it is confirmed', async () => {
+    const choose = vi.fn(async (previous?: number) => (previous ?? 0) + 1)
+    const confirm = vi.fn(async (choice: number) => choice === 3)
+
+    expect(await chooseUntilConfirmed({ choose, confirm })).toBe(3)
+    expect(choose.mock.calls).toStrictEqual([[], [1], [2]])
   })
 })
