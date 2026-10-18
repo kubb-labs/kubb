@@ -190,9 +190,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
        * Problems held back so the human view can print them grouped by plugin once the build ends.
        */
       problems: [] as Array<ProblemDiagnostic>,
-      /**
-       * Names of the schemas and operations generated so far, for the live count on the generation step.
-       */
+      /** Schemas and operations generated so far, for the live count. */
       nodes: { schema: new Set<string>(), operation: new Set<string>() },
       /**
        * The finished config's diagnostics and file count, for the closing summary.
@@ -571,9 +569,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         state.spinner?.message(text(`Generating ${styleText('dim', plugin.name)}`))
       })
 
-      // The walk visits each node once for every plugin, and every plugin ends together after it,
-      // so these per-node hooks are what keeps the step moving. Plain output skips them, since it
-      // would print one line per node and plugin.
+      // Plugins all end after one shared node walk, so per-node hooks keep the step live; plain output would get a line per node.
       if (human) {
         const onNode = (kind: 'schema' | 'operation', name: string, plugin: string) => {
           state.nodes[kind].add(name)
@@ -632,7 +628,6 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
           return
         }
         state.hooks.set(id, { hrStart: process.hrtime(), lines: [] })
-        // A phase can run several commands, so the step names the one running now.
         state.spinner?.message(text(`Running ${styleText('dim', formatHookLabel({ command, name, args }))}`))
       })
 
