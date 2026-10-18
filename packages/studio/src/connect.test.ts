@@ -380,14 +380,14 @@ describe('generation reports', () => {
     expect(error).toHaveBeenCalledWith({ error: expect.objectContaining({ message: expect.stringContaining('is not an installed Kubb plugin') }) })
   })
 
-  it('refuses an output path from Studio outside the project root before anything is written', async () => {
+  it('refuses an output path from Studio outside the output folder before anything is written', async () => {
     const { hooks, heard } = withHooks()
     const error = heard('kubb:error')
     const { agent } = await connectStudio({ hooks, permissions: { allowWrite: true } })
     const output = { path: '../../../home/alice/.ssh/authorized_keys', mode: 'file', banner: 'ssh-ed25519 AAAA' }
 
     await expect(agent.startGeneration({ jobId: 'job-1', config: { plugins: [{ name: '@kubb/plugin-ts', options: { output } }] } }).result()).rejects.toThrow(
-      'Plugin "plugin-ts" would write to "/home/alice/.ssh/authorized_keys", outside the project root "/project".',
+      'Plugin "plugin-ts" would write to "/home/alice/.ssh/authorized_keys", outside the output folder',
     )
     expect(error).toHaveBeenCalledOnce()
     expect(disk.storage).toBeUndefined()

@@ -232,7 +232,7 @@ describe('assertOutputPaths', () => {
   it('refuses a file path Studio sends that climbs out of the project root', () => {
     const run = check({ output: { path: '../../../../home/alice/.ssh/authorized_keys', mode: 'file', banner: 'ssh-ed25519 AAAA' } })
 
-    expect(run).toThrow('Plugin "plugin-ts" would write to "/home/alice/.ssh/authorized_keys", outside the project root "/project".')
+    expect(run).toThrow('Plugin "plugin-ts" would write to "/home/alice/.ssh/authorized_keys", outside the output folder "/project/src/gen".')
     expect(run).toThrow(expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.pathTraversal }) }))
   })
 
@@ -247,9 +247,16 @@ describe('assertOutputPaths', () => {
     )
   })
 
-  it('allows a path inside the project root', () => {
+  it('refuses a path inside the project root but outside the output folder', () => {
+    const payload = { path: '../../node_modules/@kubb/plugin-ts/dist/index.js', mode: 'file', banner: 'payload;/*', footer: '*/' }
+
+    expect(check({ output: payload })).toThrow('would write to "/project/node_modules/@kubb/plugin-ts/dist/index.js"')
+    expect(check({ output: { path: '../../.git/hooks/pre-commit', mode: 'file' } })).toThrow('would write to "/project/.git/hooks/pre-commit"')
+  })
+
+  it('allows a path inside the output folder', () => {
     expect(check({ output: { path: 'types' } })).not.toThrow()
-    expect(check({ output: { path: '../models.ts', mode: 'file' } })).not.toThrow()
+    expect(check({ output: { path: 'models/index.ts', mode: 'file' } })).not.toThrow()
   })
 
   it('allows a path outside the project root that the config file sets itself', () => {

@@ -370,10 +370,11 @@ export async function mergePlugins({
 }
 
 /**
- * Throws `KUBB_PATH_TRAVERSAL` when a plugin would write outside `root` to a path the disk config
- * does not set. Studio can change `output.path`, also inside `override`, and add plugins, so without
- * this check any member of the Studio organization could write any file the agent can reach. A path
- * from the config file stays allowed, since a monorepo may write outside its root.
+ * Throws `KUBB_PATH_TRAVERSAL` when a plugin would write outside the config's output folder to a path
+ * the disk config does not set. Studio can change `output.path`, also inside `override`, and add
+ * plugins, so without this check any member of the Studio organization could write any file the agent
+ * can reach, including `node_modules` code the next run imports. A path from the config file stays
+ * allowed, since a monorepo may write outside its root.
  */
 export function assertOutputPaths({
   plugins,
@@ -396,14 +397,14 @@ export function assertOutputPaths({
   const diskTargets = new Set(diskPlugins.flatMap(targetsOf))
 
   for (const plugin of plugins) {
-    const target = targetsOf(plugin).find((target) => !diskTargets.has(target) && !isPathInside(target, root))
+    const target = targetsOf(plugin).find((target) => !diskTargets.has(target) && !isPathInside(target, base))
     if (!target) continue
 
     throw new Diagnostics.Error({
       code: Diagnostics.code.pathTraversal,
       severity: 'error',
-      message: `Plugin "${plugin.name}" would write to "${target}", outside the project root "${root}". Studio can only set an output path inside the project.`,
-      help: 'Choose an output path inside the project root, or set this path in the config file.',
+      message: `Plugin "${plugin.name}" would write to "${target}", outside the output folder "${base}". Studio can only set an output path inside it.`,
+      help: 'Choose an output path inside the output folder, or set this path in the config file.',
       location: { kind: 'config' },
       plugin: plugin.name,
     })
