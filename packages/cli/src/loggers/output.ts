@@ -77,13 +77,12 @@ type IntroOptions = {
 }
 
 /**
- * Opens a command's output with its title.
+ * Opens a command's output. A command the banner already names passes no title.
  */
 export function logIntro({ title, warning, block = true }: IntroOptions): void {
   if (block && isRichOutput()) {
-    if (title) {
-      prompts.intro(title)
-    }
+    // Without a title the block still opens, so the gutter has a corner to match the closing `└`.
+    prompts.intro(title ?? '')
 
     if (warning) {
       prompts.log.warn(warning)

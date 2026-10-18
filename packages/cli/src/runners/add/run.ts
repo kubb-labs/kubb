@@ -161,7 +161,7 @@ export function summarize(description: string, max = 64): string {
  */
 export async function run({ id: input, configPath, yes, install }: AddOptions): Promise<void> {
   const cwd = process.cwd()
-  logIntro({ title: styleText('bgCyan', styleText('black', ' Kubb Add ')) })
+  logIntro({})
 
   try {
     const registry = registryUrl()

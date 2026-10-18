@@ -96,7 +96,7 @@ async function regenerate({ cwd, configPath }: { cwd: string; configPath: string
  */
 export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
   const cwd = process.cwd()
-  logIntro({ title: styleText('bgCyan', styleText('black', ' Kubb Update ')) })
+  logIntro({})
 
   try {
     const wanted = new Set(ids.map(toRegistryId))
