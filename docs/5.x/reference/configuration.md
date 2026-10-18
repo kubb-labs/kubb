@@ -175,7 +175,7 @@ This writes every type into `src/gen/types.ts` and one client file per operation
 #### `output.clean`
 
 :::field{type="boolean"}
-Wipe `output.path` before regenerating.
+Wipe `output.path` before regenerating, and the [`output.shared`](#outputshared) directory when one is set.
 
 Default: `false`.
 
@@ -270,7 +270,7 @@ When both specs define `Name`, this writes `src/gen/common/types/Name.ts` and `s
 
 Only `kubb generate` compares the specs, so `output.shared` has no effect on a single `createKubb` run, the bundler plugins, or MCP.
 
-With [`output.barrel`](#outputbarrel) set, the shared directory gets the same barrels as `output.path`. [`output.clean`](#outputclean) leaves the shared directory alone.
+With [`output.barrel`](#outputbarrel) set, the shared directory gets the same barrels as `output.path`. With [`output.clean`](#outputclean) set, `kubb generate` also wipes the shared directory, once per run: the first config that uses it does so, right before it writes its files.
 :::
 
 #### `output.defaultBanner`

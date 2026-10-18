@@ -52,10 +52,14 @@ type GenerateProps = {
    * and post-generate commands.
    */
   dryRun?: boolean
+  /**
+   * Lets `output.clean` also empty `output.shared.path`.
+   */
+  cleanShared?: boolean
 }
 
 async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, dryRun = false } = options
+  const { input, hooks, dryRun = false, cleanShared } = options
 
   const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
 
@@ -70,7 +74,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
 
   // Core formats, lints and runs `output.postGenerate` after an error-free build, and reports
   // their failures as coded diagnostics that reach the summary, the json report and the exit code.
-  const kubb = createKubb(config, { hooks })
+  const kubb = createKubb(config, { hooks, cleanShared })
   const result = await kubb.generate()
 
   if (dryRun) {
@@ -194,6 +198,14 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     }
   }
   configs = await detectShared(configs)
+  // Only the first config of each shared directory empties it, so a later one never deletes what an earlier one wrote.
+  const sharedOwners = new Map<string, Config>()
+  for (const config of configs) {
+    if (!config.output.shared) continue
+    const sharedPath = path.resolve(config.root, config.output.shared.path)
+    if (!sharedOwners.has(sharedPath)) sharedOwners.set(sharedPath, config)
+  }
+  const cleansShared = new Set(sharedOwners.values())
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
@@ -208,10 +220,10 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // Don't removeAll() between builds, that would also drop logger and lifecycle
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
-        const build = async (paths: Array<string>, redetect = true) => {
+        const build = async (paths: Array<string>, isRebuild = true) => {
           // An edited spec can change which schemas every spec shares, so detect again before a rebuild.
-          const current = redetect && config.output.shared ? ((await detectShared(configs))[index] ?? config) : config
-          const succeeded = await generate({ input, config: current, hooks, dryRun })
+          const current = isRebuild && config.output.shared ? ((await detectShared(configs))[index] ?? config) : config
+          const succeeded = await generate({ input, config: current, hooks, dryRun, cleanShared: !isRebuild && cleansShared.has(config) })
           logStep(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
           if (succeeded) {
             logSpacer()
@@ -239,7 +251,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         }
       } else {
         try {
-          const succeeded = await generate({ input, config, hooks, dryRun })
+          const succeeded = await generate({ input, config, hooks, dryRun, cleanShared: cleansShared.has(config) })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await Diagnostics.emit(errorHooks, configError)

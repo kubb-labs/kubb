@@ -31,6 +31,8 @@ type Options = {
    * run that fails earlier leaves the previous output in place.
    */
   cleanPath?: string
+  /** The `output.shared.path` directory `output.clean` empties, at the same moment as `cleanPath`. */
+  cleanSharedPath?: string
 }
 
 type RequirePluginContext = {
@@ -429,6 +431,7 @@ export class KubbDriver {
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
           if (this.options.cleanPath) await config.storage.empty(this.options.cleanPath)
+          if (this.options.cleanSharedPath) await config.storage.empty(this.options.cleanSharedPath)
 
           await fileManager.write(fileManager.files, {
             storage: config.storage,
