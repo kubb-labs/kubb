@@ -184,18 +184,7 @@ export type Config<TInput = Input> = {
      * ```
      */
     defaultBanner?: 'simple' | 'full' | false
-    /**
-     * Write the listed schemas once to a directory that other configs share, and import them from
-     * there. Give each config in a `defineConfig` array the same `shared` value, so schemas that
-     * every spec defines are generated once. Kubb writes the schemas as each config defines them,
-     * so a listed schema must be identical in every spec, and `clean` leaves the shared directory
-     * alone.
-     *
-     * @example
-     * ```ts
-     * shared: { path: './src/gen/common', schemas: ['Name', 'Color'] }
-     * ```
-     */
+    /** Give every config in an array the same value to generate the schemas their specs share once. */
     shared?: SharedOutput
   } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
   /**
