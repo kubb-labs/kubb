@@ -226,12 +226,12 @@ describe('createKubb', () => {
   it.each([
     [true, null],
     [false, 'export const stale = 1\n'],
-  ])('output.clean empties output.shared.path only when cleanShared is %s', async (cleanShared, expected) => {
+  ])('empties output.shared.path only when cleanShared is %s', async (cleanShared, expected) => {
     const storage = memoryStorage()
     const staleFile = path.resolve('.', 'gen', 'common', 'stale.ts')
     await storage.writeItem(staleFile, 'export const stale = 1\n')
 
-    await createKubb(makeConfig({ ...config, storage, output: { path: './gen/animals', clean: true, shared: { path: './gen/common' } } }), {
+    await createKubb(makeConfig({ ...config, storage, output: { path: './gen/animals', shared: { path: './gen/common' } } }), {
       hooks: new Hookable<KubbHooks>(),
       cleanShared,
     }).build()

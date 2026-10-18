@@ -54,8 +54,8 @@ export type CreateKubbOptions = {
    */
   signal?: AbortSignal
   /**
-   * Lets `output.clean` also empty `output.shared.path`. `kubb generate` sets it on the first config of each shared
-   * directory, so a later config never deletes what an earlier one wrote.
+   * Empties `output.shared.path` before writing. `kubb generate` sets it on the first config of each shared directory
+   * when any of them sets `output.clean`, so a later config never deletes what an earlier one wrote.
    */
   cleanShared?: boolean
 }
@@ -143,7 +143,7 @@ export class Kubb {
     const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
 
     const cleanPath = config.output.clean ? resolve(config.root, config.output.path) : undefined
-    const cleanSharedPath = this.#cleanShared && config.output.clean && config.output.shared ? resolve(config.root, config.output.shared.path) : undefined
+    const cleanSharedPath = this.#cleanShared && config.output.shared ? resolve(config.root, config.output.shared.path) : undefined
 
     // clean only removes generated code. Refuse when the output resolves to the project root or
     // an ancestor of it, otherwise the wipe would delete kubb.config and every source file.

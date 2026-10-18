@@ -53,7 +53,7 @@ type GenerateProps = {
    */
   dryRun?: boolean
   /**
-   * Lets `output.clean` also empty `output.shared.path`.
+   * Empties `output.shared.path` before writing.
    */
   cleanShared?: boolean
 }
@@ -198,14 +198,16 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     }
   }
   configs = await detectShared(configs)
-  // Only the first config of each shared directory empties it, so a later one never deletes what an earlier one wrote.
+  // The first config of each shared directory empties it when any of them sets `output.clean`, so a later one never deletes what an earlier one wrote.
   const sharedOwners = new Map<string, Config>()
+  const cleanedShared = new Set<string>()
   for (const config of configs) {
     if (!config.output.shared) continue
     const sharedPath = path.resolve(config.root, config.output.shared.path)
     if (!sharedOwners.has(sharedPath)) sharedOwners.set(sharedPath, config)
+    if (config.output.clean) cleanedShared.add(sharedPath)
   }
-  const cleansShared = new Set(sharedOwners.values())
+  const cleansShared = new Set([...sharedOwners].flatMap(([sharedPath, config]) => (cleanedShared.has(sharedPath) ? [config] : [])))
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 

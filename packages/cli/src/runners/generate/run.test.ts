@@ -142,7 +142,10 @@ describe('shared schemas', () => {
     expect(lines).toContain('⚠ Not shared, since the specs define them differently: Season Each config keeps its own copy of these schemas.')
   })
 
-  it('empties the shared directory once, before the first config that writes to it', async () => {
+  it.each([
+    [true, null],
+    [false, 'stale'],
+  ])('empties the shared directory once, before the first config that writes to it, when a later config sets output.clean: %s', async (clean, expected) => {
     const storage = memoryStorage()
     const shared = (file: string) => join(process.cwd(), 'gen', 'common', file)
     await storage.writeItem(shared('stale.ts'), 'stale')
@@ -161,7 +164,7 @@ describe('shared schemas', () => {
         ({
           root: process.cwd(),
           input: { openapi: '3.0.3', info: { title: name, version: '1' }, paths: {} },
-          output: { path: `./gen/${name}`, clean: true, shared: { path: './gen/common' }, format: false, lint: false },
+          output: { path: `./gen/${name}`, clean: clean && index === 1, shared: { path: './gen/common' }, format: false, lint: false },
           adapter: adapterOas(),
           plugins: index === 0 ? [writesShared] : [],
           storage,
@@ -170,7 +173,7 @@ describe('shared schemas', () => {
 
     await bootstrap({ configs })
 
-    expect(await storage.readItem(shared('stale.ts'))).toBeNull()
+    expect(await storage.readItem(shared('stale.ts'))).toBe(expected)
     expect(await storage.readItem(shared('animals.ts'))).toBe('animals')
   })
 })
