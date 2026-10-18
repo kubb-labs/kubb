@@ -102,9 +102,11 @@ describe('wantsMascot', () => {
     expect(ask(['studio', 'login'])).toBe(true)
   })
 
-  it('opens add and update with the mascot only while they ask questions', () => {
+  it('opens add, update and init with the mascot only while they ask questions', () => {
     expect(ask(['add'])).toBe(true)
     expect(ask(['update'])).toBe(true)
+    expect(ask(['init'])).toBe(true)
+    expect(ask(['init'], { yes: true })).toBe(false)
     expect(ask(['add'], { yes: true })).toBe(false)
     expect(ask(['update'], { 'dry-run': true })).toBe(false)
     expect(ask(['update'], { dryRun: true })).toBe(false)
@@ -118,7 +120,6 @@ describe('wantsMascot', () => {
 
   it('leaves quick commands without it', () => {
     for (const path of [
-      ['init'],
       ['validate'],
       ['list'],
       ['mcp'],

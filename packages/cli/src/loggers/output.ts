@@ -147,7 +147,7 @@ export function wantsMascot({ commandPath, values }: { commandPath: ReadonlyArra
   const [command, subCommand] = commandPath
   if (values.help || values.version) return false
   if (command === 'studio') return subCommand === undefined || subCommand === 'connect' || subCommand === 'login'
-  if (command === 'add' || command === 'update') return isInteractiveRun({ yes: values.yes, dryRun: values.dryRun ?? values['dry-run'] })
+  if (command === 'add' || command === 'update' || command === 'init') return isInteractiveRun({ yes: values.yes, dryRun: values.dryRun ?? values['dry-run'] })
 
   return command === undefined || command === 'generate'
 }
