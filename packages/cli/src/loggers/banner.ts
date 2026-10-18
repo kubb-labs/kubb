@@ -72,8 +72,8 @@ export function pixels(expression: Expression): Array<string> {
 const quadrants = ' ▘▝▀▖▌▞▛▗▚▐▜▄▙▟█'
 
 /**
- * Draws each 2 × 2 block of pixels as one quadrant glyph, the way Claude Code draws its mascot. The
- * glyph's filled quarters take the first color in the block and the rest take the other.
+ * Draws each 2 × 2 block of pixels as one quadrant glyph. The glyph's filled quarters take the first
+ * color in the block and the rest take the other.
  */
 function drawHead(expression: Expression): Array<string> {
   const rows = pixels(expression)

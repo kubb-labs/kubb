@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { type Expression, formatMsWithColor, getIntro, pixels, wakeUp } from './banner.ts'
 
 describe('getIntro', () => {
+  const expressions = [...new Set(wakeUp.map(([expression]) => expression))]
+
   function draw(expression: Expression): Array<string> {
     return stripVTControlCharacters(getIntro({ title: 'title', description: 'description', version: '5.0.0', expression })).split('\n')
   }
@@ -11,7 +13,7 @@ describe('getIntro', () => {
     expect(draw('open').map((line) => line.length)).toEqual([13 + 'KUBB v5.0.0'.length, 13 + 'title'.length, 13 + '➜ description'.length])
   })
 
-  it.each([...new Set(wakeUp.map(([expression]) => expression))])('keeps every 2 × 2 block of %s to the two colors a quadrant glyph can show', (expression) => {
+  it.each(expressions)('keeps every 2 × 2 block of %s to the two colors a quadrant glyph can show', (expression) => {
     const rows = pixels(expression)
     for (let y = 0; y < rows.length; y += 2) {
       for (let x = 0; x < rows[y]!.length; x += 2) {
@@ -20,12 +22,9 @@ describe('getIntro', () => {
     }
   })
 
-  it.each([...new Set(wakeUp.map(([expression]) => expression))])(
-    'draws %s with the same line widths as open eyes, so each frame overwrites the last',
-    (expression) => {
-      expect(draw(expression).map((line) => line.length)).toEqual(draw('open').map((line) => line.length))
-    },
-  )
+  it.each(expressions)('draws %s with the same line widths as open eyes, so each frame overwrites the last', (expression) => {
+    expect(draw(expression).map((line) => line.length)).toEqual(draw('open').map((line) => line.length))
+  })
 })
 
 describe('formatMsWithColor', () => {
