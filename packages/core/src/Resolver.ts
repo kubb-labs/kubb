@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { camelCase } from '@internals/utils'
+import { camelCase, isPathInside } from '@internals/utils'
 import { ast, collectImportedRefNames, type FileNode, type ImportNode, type InputMeta, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
 import { getInputKind } from './input.ts'
@@ -585,12 +585,14 @@ export class Resolver {
    * and `group`. The path may not escape `root`, which keeps a `file.path` that interpolates
    * spec-derived values from writing outside the project.
    */
-  #resolveOverridePath(filePath: string, root: string): string {
+  #resolveOverridePath(filePath: string, root: string, projectRoot = root): string {
     const resolved = path.resolve(root, filePath)
+    // A shared schema resolves against the shared root, but an absolute `file.path` may point back into the project.
+    const parent = isPathInside(resolved, root) ? root : projectRoot
     assertInside({
       target: resolved,
-      parent: root,
-      message: `Resolved path "${resolved}" is outside the project root "${root}".`,
+      parent,
+      message: `Resolved path "${resolved}" is outside the project root "${parent}".`,
       help: 'A resolver `file.path` must return a path inside the project root.',
     })
 
@@ -610,7 +612,7 @@ export class Resolver {
     const root = shared ? path.resolve(options.root, shared.path) : options.root
     const baseName = this.#baseName({ name, extname })
     const filePath = this.#filePath
-      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root)
+      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root, options.root)
       : this.#resolvePath({ baseName, tag, path: groupPath, root, output, group })
 
     return ast.factory.createFile({
