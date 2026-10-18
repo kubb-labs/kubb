@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
@@ -238,18 +239,17 @@ export function startUrlWatcher(url: string, cb: (path: Array<string>) => Promis
 }
 
 /**
- * What one build produced: the schema and operation names the plugins generated, every output path,
- * and the paths that were written rather than skipped as unchanged.
+ * What one build produced: the schema and operation names the plugins generated, and each output
+ * path with a fingerprint of its content.
  */
 export type BuildSnapshot = {
   schemas: Set<string>
   operations: Set<string>
-  files: Set<string>
-  written: Set<string>
+  files: Map<string, string>
 }
 
 function createSnapshot(): BuildSnapshot {
-  return { schemas: new Set(), operations: new Set(), files: new Set(), written: new Set() }
+  return { schemas: new Set(), operations: new Set(), files: new Map() }
 }
 
 /**
@@ -265,12 +265,9 @@ export function trackBuild(hooks: Hookable<KubbHooks>): { take(): BuildSnapshot 
   hooks.hook('kubb:generate:operation', (node) => {
     current.operations.add(node.operationId)
   })
-  hooks.hook('kubb:files:processing:end', ({ files, unchanged }) => {
-    const skipped = new Set(unchanged)
-    for (const { path } of files) {
-      current.files.add(path)
-      if (!skipped.has(path)) current.written.add(path)
-    }
+  // Fingerprints the generated file, not what reached disk: `output.clean` rewrites every file, so the write count cannot tell an edit from a rewrite.
+  hooks.hook('kubb:files:processing:end', ({ files }) => {
+    for (const file of files) current.files.set(file.path, createHash('sha1').update(JSON.stringify(file)).digest('base64url'))
   })
 
   return {
@@ -300,18 +297,21 @@ function diffNames(previous: Set<string>, next: Set<string>): NameChange {
 }
 
 /**
- * Compares two {@link BuildSnapshot}s by name and path only, so nothing is read back from disk.
+ * Compares two {@link BuildSnapshot}s by name, path and content fingerprint, so nothing is read back from disk.
  */
 export function diffBuilds(previous: BuildSnapshot, next: BuildSnapshot): BuildDiff {
-  return {
-    schemas: diffNames(previous.schemas, next.schemas),
-    operations: diffNames(previous.operations, next.operations),
-    files: [
-      ...[...next.written].map((path) => ({ status: previous.files.has(path) ? ('M' as const) : ('A' as const), path })),
-      ...[...previous.files].filter((path) => !next.files.has(path)).map((path) => ({ status: 'D' as const, path })),
-    ],
-    unchanged: next.files.size - next.written.size,
+  const files: BuildDiff['files'] = []
+  let unchanged = 0
+  for (const [path, fingerprint] of next.files) {
+    const before = previous.files.get(path)
+    if (before === fingerprint) unchanged++
+    else files.push({ status: before === undefined ? 'A' : 'M', path })
   }
+  for (const path of previous.files.keys()) {
+    if (!next.files.has(path)) files.push({ status: 'D', path })
+  }
+
+  return { schemas: diffNames(previous.schemas, next.schemas), operations: diffNames(previous.operations, next.operations), files, unchanged }
 }
 
 type KeyInput = Pick<NodeJS.ReadStream, 'isTTY' | 'setRawMode' | 'resume' | 'pause' | 'setEncoding' | 'on'>

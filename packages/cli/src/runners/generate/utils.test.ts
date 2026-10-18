@@ -236,28 +236,28 @@ describe('formatChange', () => {
 
 describe('trackBuild and diffBuilds', () => {
   const ctx = {} as GeneratorContext
-  const file = (path: string) => ({ path }) as FileNode
+  const file = (path: string, content = 'v1') => ({ path, sources: [content] }) as unknown as FileNode
 
   async function build(
     hooks: Hookable<KubbHooks>,
-    { schemas, operations, files, unchanged }: Record<'schemas' | 'operations' | 'files' | 'unchanged', Array<string>>,
+    { schemas, operations, files }: { schemas: Array<string>; operations: Array<string>; files: Array<FileNode> },
   ) {
     for (const name of schemas) await hooks.callHook('kubb:generate:schema', { name } as SchemaNode, ctx)
     for (const operationId of operations) await hooks.callHook('kubb:generate:operation', { operationId } as OperationNode, ctx)
-    await hooks.callHook('kubb:files:processing:end', { files: files.map(file), unchanged })
+    await hooks.callHook('kubb:files:processing:end', { files, unchanged: [] })
   }
 
   it('reports added and removed names, and each file added, modified or removed since the last build', async () => {
     const hooks = new Hookable<KubbHooks>()
     const tracker = trackBuild(hooks)
 
-    await build(hooks, { schemas: ['Pet', 'Order'], operations: ['getPet'], files: ['/gen/Pet.ts', '/gen/Order.ts', '/gen/getPet.ts'], unchanged: [] })
+    await build(hooks, { schemas: ['Pet', 'Order'], operations: ['getPet'], files: [file('/gen/Pet.ts'), file('/gen/Order.ts'), file('/gen/getPet.ts')] })
     const previous = tracker.take()
+    // getPet.ts is regenerated with the same content, as `output.clean` does to every file, so it counts as unchanged.
     await build(hooks, {
       schemas: ['Pet', 'Pet', 'Tag'],
       operations: ['getPet', 'addPet', 'deletePet'],
-      files: ['/gen/Pet.ts', '/gen/Tag.ts', '/gen/getPet.ts'],
-      unchanged: ['/gen/getPet.ts'],
+      files: [file('/gen/Pet.ts', 'v2'), file('/gen/Tag.ts'), file('/gen/getPet.ts')],
     })
 
     expect(diffBuilds(previous, tracker.take())).toStrictEqual({

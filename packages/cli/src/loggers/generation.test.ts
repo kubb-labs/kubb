@@ -455,8 +455,8 @@ describe('human summary', () => {
 
   it('flags no slowest when the plugins tie, as they do after one shared walk', () => {
     const timings = [
-      { plugin: 'plugin-zod', durationMs: 82, files: 34 },
-      { plugin: 'plugin-ts', durationMs: 82, files: 34 },
+      { plugin: 'plugin-zod', durationMs: 82.4, files: 34 },
+      { plugin: 'plugin-ts', durationMs: 82.1, files: 34 },
     ]
 
     expect(formatSummaryRows({ ...report, timings }).some((line) => line.includes('slowest'))).toBe(false)

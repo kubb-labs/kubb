@@ -109,6 +109,11 @@ function formatBar(ratio: number, size = 20): string {
 /** Milliseconds between redraws of the live generation block, about clack's spinner frame rate. */
 const WALK_REDRAW_MS = 80
 
+/** Whether `a` is slower than `b` as printed: plugins that end together differ by fractions of a millisecond. */
+function isVisiblySlower(a: number, b: number | undefined): boolean {
+  return b !== undefined && a > b && formatMs(a) !== formatMs(b)
+}
+
 /**
  * The human summary: one row per plugin with its files and time (slowest first, flagged when there
  * are two or more), the written and unchanged counts, and the output path.
@@ -122,7 +127,7 @@ export function formatSummaryRows(report: Report, { inMemory = false }: { inMemo
   const rows = timings.map((timing, index) => {
     const flag = plugins.failed.includes(timing.plugin)
       ? styleText('red', 'failed')
-      : index === 0 && timing.durationMs > (timings[1]?.durationMs ?? Infinity)
+      : index === 0 && isVisiblySlower(timing.durationMs, timings[1]?.durationMs)
         ? styleText('yellow', 'slowest')
         : ''
     return [
