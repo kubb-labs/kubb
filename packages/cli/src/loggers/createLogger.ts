@@ -114,11 +114,17 @@ const WALK_REDRAW_MS = 80
  * are two or more), the written and unchanged counts, and the output path.
  */
 export function formatSummaryRows(report: Report, { inMemory = false }: { inMemory?: boolean } = {}): Array<string> {
-  const { timings, plugins, filesCreated, filesUnchanged, output } = report
+  const { plugins, filesCreated, filesUnchanged, output } = report
+  // Files a plugin adds after the walk (plugin-barrel's) are not counted per plugin, so a row of 0 would mislead; the total still has them.
+  const timings = report.timings.filter((timing) => timing.files > 0 || plugins.failed.includes(timing.plugin))
   const nameWidth = Math.max(0, ...timings.map((timing) => timing.plugin.length))
   const filesWidth = Math.max(0, ...timings.map((timing) => pluralize(timing.files, 'file').length))
   const rows = timings.map((timing, index) => {
-    const flag = plugins.failed.includes(timing.plugin) ? styleText('red', 'failed') : index === 0 && timings.length > 1 ? styleText('yellow', 'slowest') : ''
+    const flag = plugins.failed.includes(timing.plugin)
+      ? styleText('red', 'failed')
+      : index === 0 && timing.durationMs > (timings[1]?.durationMs ?? Infinity)
+        ? styleText('yellow', 'slowest')
+        : ''
     return [
       timing.plugin.padEnd(nameWidth),
       styleText('dim', pluralize(timing.files, 'file').padStart(filesWidth)),

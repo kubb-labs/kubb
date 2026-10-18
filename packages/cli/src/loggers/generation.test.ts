@@ -443,14 +443,23 @@ describe('human summary', () => {
   } satisfies Parameters<typeof formatSummaryRows>[0]
 
   it('lists files and time per plugin, flags the slowest, and splits written from unchanged', () => {
+    // plugin-barrel adds its files after the walk, so its 0 is left out; the total still counts them.
     expect(formatSummaryRows(report).map((line) => stripVTControlCharacters(line))).toStrictEqual([
       'plugin-tanstack  19 files    1.40s  slowest',
       'plugin-ts        61 files    900ms',
-      'plugin-barrel     0 files      0ms',
       '─'.repeat(43),
       '122 written  · 18 unchanged, skipped',
       'Output  src/gen',
     ])
+  })
+
+  it('flags no slowest when the plugins tie, as they do after one shared walk', () => {
+    const timings = [
+      { plugin: 'plugin-zod', durationMs: 82, files: 34 },
+      { plugin: 'plugin-ts', durationMs: 82, files: 34 },
+    ]
+
+    expect(formatSummaryRows({ ...report, timings }).some((line) => line.includes('slowest'))).toBe(false)
   })
 
   it('flags a failed plugin instead, and no slowest for a single plugin', () => {
