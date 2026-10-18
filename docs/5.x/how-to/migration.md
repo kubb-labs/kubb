@@ -24,30 +24,31 @@ Use Node.js 22.12 or higher in development, CI, and Docker. Update `kubb` and th
 
 ## Defaults that changed
 
-| Behavior | v4 | v5 |
-| --- | --- | --- |
-| `output.format` | `'prettier'` | `false` |
-| `output.lint` | `'auto'` | `false` |
-| Root barrel | `'named'` | `false` |
-| Tag folder | `<tag>Controller` | `<tag>` |
-| React/Vue Query `hooks` | `true` | `false` |
-| Client error handling | Errors returned | `throwOnError: true` |
-| OpenAPI `int64` mapping | `number` | `bigint` |
-| SWR mutation arguments | Trigger shape opt-in | Passed through `trigger()` |
+| Behavior                | v4                   | v5                         |
+| ----------------------- | -------------------- | -------------------------- |
+| `output.format`         | `'prettier'`         | `false`                    |
+| `output.lint`           | `'auto'`             | `false`                    |
+| Root barrel             | `'named'`            | `false`                    |
+| Tag folder              | `<tag>Controller`    | `<tag>`                    |
+| React/Vue Query `hooks` | `true`               | `false`                    |
+| Client error handling   | Errors returned      | `throwOnError: true`       |
+| OpenAPI `int64` mapping | `number`             | `bigint`                   |
+| SWR mutation arguments  | Trigger shape opt-in | Passed through `trigger()` |
 
 Set these options explicitly where your application relies on the old behavior.
 
 ## Migrate the config {#migrate-the-config}
 
-| v4 | v5 |
-| --- | --- |
-| `defineConfig` from `@kubb/core` | Import from `kubb/config`. |
-| `input: { path }` or `input: { data }` | Set `input` directly to the path, URL, spec string, or parsed object. |
-| `output.storage` | Move to top-level `storage` and import helpers from `kubb/kit`. |
-| `hooks.done` | Use an `output.postGenerate` array of strings or `{ name, command }` objects. |
-| `output.override` | Remove it. Use a storage driver to control writes. |
-| `--debug` | `--reporter file`. |
-| `--log-level debug` | Use the supported log levels and reporters. |
+| v4                                     | v5                                                                                                                                                                                   |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `defineConfig` from `@kubb/core`       | Import from `kubb/config`.                                                                                                                                                           |
+| `input: { path }` or `input: { data }` | Set `input` directly to the path, URL, spec string, or parsed object.                                                                                                                |
+| `input` as an array of specs           | Pass `defineConfig` an array with one config per spec. Give each the same [`output.shared`](/docs/5.x/reference/configuration#outputshared) to generate the schemas they share once. |
+| `output.storage`                       | Move to top-level `storage` and import helpers from `kubb/kit`.                                                                                                                      |
+| `hooks.done`                           | Use an `output.postGenerate` array of strings or `{ name, command }` objects.                                                                                                        |
+| `output.override`                      | Remove it. Use a storage driver to control writes.                                                                                                                                   |
+| `--debug`                              | `--reporter file`.                                                                                                                                                                   |
+| `--log-level debug`                    | Use the supported log levels and reporters.                                                                                                                                          |
 
 The old input wrapper fails with `KUBB_LEGACY_INPUT`. The old hook failure code `KUBB_HOOK_FAILED` becomes `KUBB_POST_GENERATE_FAILED`. Remove `kubb:debug` hooks and `createDebugger`.
 
@@ -66,12 +67,12 @@ Move `dateType`, `integerType`, `unknownType`, `emptySchemaType`, `enumSuffix`, 
 
 Replace `output.barrelType` at the root and on plugins:
 
-| v4 | v5 |
-| --- | --- |
-| `'named'` | `{ type: 'named' }` |
-| `'all'` | `{ type: 'all' }` |
+| v4                          | v5                                |
+| --------------------------- | --------------------------------- |
+| `'named'`                   | `{ type: 'named' }`               |
+| `'all'`                     | `{ type: 'all' }`                 |
 | `'propagate'` (plugin only) | `{ type: 'named', nested: true }` |
-| `false` | `false` |
+| `false`                     | `false`                           |
 
 Barrels, formatting, and linting now default to off. Automatic formatter/linter selection prefers the oxc tools. See the [configuration reference](/docs/5.x/reference/configuration).
 
@@ -81,12 +82,12 @@ Tag folders no longer add `Controller` (or `Requests` for Cypress/MCP). To retai
 
 ## Shared plugin options {#shared-plugin-options}
 
-| Removed or renamed | Replacement |
-| --- | --- |
-| `transformers.name` | `resolver.name`. Call the exported preset to keep default casing. |
-| `transformers.schema` | `macros`. |
-| `mapper` | Schema macros or a `printer.nodes` override. |
-| `generators` | A custom plugin. |
+| Removed or renamed                             | Replacement                                                                    |
+| ---------------------------------------------- | ------------------------------------------------------------------------------ |
+| `transformers.name`                            | `resolver.name`. Call the exported preset to keep default casing.              |
+| `transformers.schema`                          | `macros`.                                                                      |
+| `mapper`                                       | Schema macros or a `printer.nodes` override.                                   |
+| `generators`                                   | A custom plugin.                                                               |
 | `paramsType`, `pathParamsType`, `paramsCasing` | One grouped `{ body, path, query, headers }` object, with names from the spec. |
 
 Required parameters make their group required. Unused groups are typed `never`. Update positional call sites:
