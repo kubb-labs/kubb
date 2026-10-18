@@ -1,6 +1,8 @@
+import path from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { stripVTControlCharacters, styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
+import type { FileChange } from '../runners/generate/utils.ts'
 import { isRichOutput } from '../utils/env.ts'
 import { type Expression, getIntro, wakeUp } from './banner.ts'
 import { clackWriter } from './clackLogger.ts'
@@ -180,6 +182,34 @@ export async function logBanner(version: string): Promise<void> {
     await sleep(ms)
   }
   console.log('')
+}
+
+/** Pads each column to its widest cell, one line per row. */
+export function formatTable(rows: ReadonlyArray<ReadonlyArray<string>>): Array<string> {
+  const widths = rows[0]!.map((_, index) => Math.max(...rows.map((row) => row[index]?.length ?? 0)))
+  return rows.map((row) =>
+    row
+      .map((cell, index) => cell.padEnd(widths[index]!))
+      .join('  ')
+      .trimEnd(),
+  )
+}
+
+const fileStatusStyle = { A: 'green', M: 'yellow', D: 'red' } as const
+
+/** Changed files listed before the rest collapse into one line. */
+const FILE_LIST_LIMIT = 10
+
+/** Lists added, modified or removed files, each `M` with its line counts when known, then counts the rest. */
+export function logFileChanges(files: ReadonlyArray<FileChange>): void {
+  if (!files.length) return
+
+  const rows = files.slice(0, FILE_LIST_LIMIT).map(({ status, path: filePath, added, removed }) => {
+    const lines = added || removed ? `  ${styleText('green', `+${added ?? 0}`)} ${styleText('red', `-${removed ?? 0}`)}` : ''
+    return `${styleText(fileStatusStyle[status], status)} ${styleText('cyan', path.relative(process.cwd(), filePath))}${lines}`
+  })
+  const more = files.length - rows.length
+  logBlock(more > 0 ? [...rows, styleText('dim', `… ${more} more`)] : rows)
 }
 
 /** Prints lines as one block, without a symbol in front of them. Not the writer's block, which drops clack's spacing around it. */

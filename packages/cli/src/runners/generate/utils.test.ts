@@ -6,7 +6,7 @@ import { stripVTControlCharacters } from 'node:util'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { type GeneratorContext, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, diffBuilds, formatChange, formatPlanBar, listenForKeys, planDryRun, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
+import { createSerialRunner, diffBuilds, formatChange, listenForKeys, planDryRun, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
 
 describe('createSerialRunner', () => {
   it('collapses triggers that land during a run into one rerun, reports its error through onError, and keeps accepting triggers', async () => {
@@ -339,19 +339,5 @@ describe('planDryRun', () => {
     } finally {
       await rm(dir, { recursive: true, force: true })
     }
-  })
-})
-
-describe('formatPlanBar', () => {
-  const plain = (counts: Parameters<typeof formatPlanBar>[0]) => stripVTControlCharacters(formatPlanBar(counts))
-
-  it('fills 30 cells and keeps one cell for each non-empty part', () => {
-    expect(plain({ added: 2, changed: 4, removed: 0, unchanged: 68 })).toBe(`███${'░'.repeat(27)}`)
-    expect(plain({ added: 1, changed: 0, removed: 0, unchanged: 500 })).toBe(`█${'░'.repeat(29)}`)
-    expect(plain({ added: 0, changed: 0, removed: 1, unchanged: 0 })).toBe('█'.repeat(30))
-  })
-
-  it('draws an empty bar when there is nothing to compare', () => {
-    expect(plain({ added: 0, changed: 0, removed: 0, unchanged: 0 })).toBe('░'.repeat(30))
   })
 })

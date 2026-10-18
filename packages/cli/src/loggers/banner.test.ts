@@ -1,6 +1,6 @@
 import { stripVTControlCharacters, styleText } from 'node:util'
 import { describe, expect, it } from 'vitest'
-import { type Expression, formatMsWithColor, getIntro, pixels, wakeUp } from './banner.ts'
+import { type Expression, formatBar, formatMsWithColor, getIntro, pixels, wakeUp } from './banner.ts'
 
 describe('getIntro', () => {
   const expressions = [...new Set(wakeUp.map(([expression]) => expression))]
@@ -42,5 +42,46 @@ describe('formatMsWithColor', () => {
     { ms: 1001, color: 'red', text: '1.00s' },
   ] as const)('returns $text in $color for $ms ms', ({ ms, color, text }) => {
     expect(formatMsWithColor(ms)).toBe(styleText(color, text))
+  })
+})
+
+describe('formatBar', () => {
+  const plain = (parts: Parameters<typeof formatBar>[0], size?: number) => stripVTControlCharacters(formatBar(parts, size))
+
+  it('fills the size and keeps one cell for each part that has a count', () => {
+    expect(
+      plain(
+        [
+          [2, 'green'],
+          [4, 'yellow'],
+          [0, 'red'],
+          [68, 'dim'],
+        ],
+        30,
+      ),
+    ).toBe(`███${'░'.repeat(27)}`)
+    expect(
+      plain(
+        [
+          [1, 'green'],
+          [500, 'dim'],
+        ],
+        30,
+      ),
+    ).toBe(`█${'░'.repeat(29)}`)
+    expect(plain([[1, 'red']], 30)).toBe('█'.repeat(30))
+  })
+
+  it('draws a progress bar from a done part and a remaining part', () => {
+    expect(
+      plain([
+        [27, 'magenta'],
+        [34, 'dim'],
+      ]),
+    ).toBe(`${'█'.repeat(9)}${'░'.repeat(11)}`)
+  })
+
+  it('draws an empty bar when there is nothing to count', () => {
+    expect(plain([], 30)).toBe('░'.repeat(30))
   })
 })

@@ -301,18 +301,27 @@ function diffNames(previous: Set<string>, next: Set<string>): NameChange {
  * Compares two {@link BuildSnapshot}s by name, path and content fingerprint, so nothing is read back from disk.
  */
 export function diffBuilds(previous: BuildSnapshot, next: BuildSnapshot): BuildDiff {
-  const files: BuildDiff['files'] = []
+  return {
+    schemas: diffNames(previous.schemas, next.schemas),
+    operations: diffNames(previous.operations, next.operations),
+    ...diffFiles(previous.files, next.files),
+  }
+}
+
+/** Compares two path → fingerprint maps: the files added, modified and removed, and how many stayed the same. */
+export function diffFiles(previous: ReadonlyMap<string, string>, next: ReadonlyMap<string, string>): { files: Array<FileChange>; unchanged: number } {
+  const files: Array<FileChange> = []
   let unchanged = 0
-  for (const [path, fingerprint] of next.files) {
-    const before = previous.files.get(path)
+  for (const [path, fingerprint] of next) {
+    const before = previous.get(path)
     if (before === fingerprint) unchanged++
     else files.push({ status: before === undefined ? 'A' : 'M', path })
   }
-  for (const path of previous.files.keys()) {
-    if (!next.files.has(path)) files.push({ status: 'D', path })
+  for (const path of previous.keys()) {
+    if (!next.has(path)) files.push({ status: 'D', path })
   }
 
-  return { schemas: diffNames(previous.schemas, next.schemas), operations: diffNames(previous.operations, next.operations), files, unchanged }
+  return { files, unchanged }
 }
 
 /** A changed file with how many lines it gains and loses, counted as a multiset, which is cheap and close enough for a plan. */
@@ -428,30 +437,4 @@ export function listenForKeys({ rebuild, quit, input = process.stdin }: KeyOptio
   arm()
 
   return arm
-}
-
-/**
- * A stacked bar of how a dry run splits the output: new in green, changed in yellow, removed in
- * red and untouched files dim. Every non-empty part keeps at least one cell, so one new file
- * still shows next to hundreds of unchanged ones.
- */
-export function formatPlanBar(
-  { added, changed, removed, unchanged }: { added: number; changed: number; removed: number; unchanged: number },
-  size = 30,
-): string {
-  const counts = [added, changed, removed, unchanged]
-  const total = counts.reduce((sum, count) => sum + count, 0)
-  if (!total) return styleText('dim', '░'.repeat(size))
-
-  const cells = counts.map((count) => (count ? Math.max(1, Math.round((count / total) * size)) : 0))
-  for (let excess = cells.reduce((sum, count) => sum + count, 0) - size; excess !== 0; excess -= Math.sign(excess)) {
-    cells[cells.indexOf(Math.max(...cells))]! -= Math.sign(excess)
-  }
-
-  return [
-    styleText('green', '█'.repeat(cells[0]!)),
-    styleText('yellow', '█'.repeat(cells[1]!)),
-    styleText('red', '█'.repeat(cells[2]!)),
-    styleText('dim', '░'.repeat(cells[3]!)),
-  ].join('')
 }

@@ -3,7 +3,7 @@ import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
 import { define } from 'gunshi'
 import { readInstalledPackages, type RegistryEntry } from '@kubb/core'
-import { logBlock, logError, logOutro, logWarn } from '../../loggers/output.ts'
+import { formatTable, logBlock, logError, logOutro, logWarn } from '../../loggers/output.ts'
 import { fetchRegistryIndex, isOutdated, registryUrl } from '../../utils/registry.ts'
 
 export type ListRow = {
@@ -47,14 +47,8 @@ export async function run(): Promise<void> {
 
     const header = ['ID', 'PACKAGE', 'INSTALLED', 'REGISTRY', 'UPDATE']
     const cells = rows.map((row) => [row.id ?? '-', row.package, row.installed ?? '-', row.registry ?? '-', row.update ? 'yes' : 'no'])
-    const widths = header.map((title, index) => Math.max(title.length, ...cells.map((cell) => cell[index]!.length)))
-    const line = (cell: Array<string>) =>
-      cell
-        .map((value, index) => value.padEnd(widths[index]!))
-        .join('  ')
-        .trimEnd()
-
-    logBlock([styleText('dim', line(header)), ...cells.map(line)])
+    const [head, ...body] = formatTable([header, ...cells])
+    logBlock([styleText('dim', head!), ...body])
   } catch (error) {
     logError(getErrorMessage(error))
     process.exitCode = 1

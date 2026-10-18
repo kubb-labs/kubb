@@ -25,7 +25,8 @@ import { trackRun } from '../../Telemetry.ts'
 import { pluralize } from '../../loggers/createLogger.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
-import { createSpinner, logBanner, logBlock, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
+import { createSpinner, logBanner, logBlock, logError, logFileChanges, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
+import { formatBar } from '../../loggers/banner.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
 import {
@@ -35,7 +36,6 @@ import {
   type FileChange,
   diffBuilds,
   fetchUrlBody,
-  formatPlanBar,
   listenForKeys,
   planDryRun,
   startUrlWatcher,
@@ -48,9 +48,6 @@ const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as co
 
 /** Upper bound in milliseconds for the npm update check, so a slow registry never stalls a run. */
 const UPDATE_CHECK_TIMEOUT_MS = 3_000
-
-/** Rebuilt files listed after a watch rebuild before the rest collapse into one line. */
-const WATCH_FILE_LIMIT = 10
 
 /** The formatter names from `Config['output'].format`, without `'auto'` (detection, not a tool) and `false` (skip). */
 type FormatterName = Exclude<NonNullable<Config['output']['format']>, 'auto' | false>
@@ -154,20 +151,6 @@ function formatSpecChange({ schemas, operations }: BuildDiff): string {
     .join(' ')
 }
 
-const fileStatusStyle = { A: 'green', M: 'yellow', D: 'red' } as const
-
-/** Lists added, modified or removed files, each `M` with its line counts when known, capped at {@link WATCH_FILE_LIMIT}. */
-function logFileChanges(files: ReadonlyArray<FileChange>): void {
-  if (!files.length) return
-
-  const rows = files.slice(0, WATCH_FILE_LIMIT).map(({ status, path: filePath, added, removed }) => {
-    const lines = added || removed ? `  ${styleText('green', `+${added ?? 0}`)} ${styleText('red', `-${removed ?? 0}`)}` : ''
-    return `${styleText(fileStatusStyle[status], status)} ${styleText('cyan', path.relative(process.cwd(), filePath))}${lines}`
-  })
-  const more = files.length - rows.length
-  logBlock(more > 0 ? [...rows, styleText('dim', `… ${more} more`)] : rows)
-}
-
 /** Prints what a watch rebuild changed: the spec's names, then each added, modified or removed file. */
 function logRebuild({ diff, durationMs }: { diff: BuildDiff; durationMs: number }): void {
   const specChange = formatSpecChange(diff)
@@ -182,16 +165,19 @@ function logRebuild({ diff, durationMs }: { diff: BuildDiff; durationMs: number 
 /** Prints a dry run's plan: the counts, then each file it would add, change or delete. */
 function logDryRunPlan({ files, unchanged }: { files: ReadonlyArray<FileChange>; unchanged: number }): void {
   const count = (status: FileChange['status']) => files.filter((file) => file.status === status).length
-  const parts = { added: count('A'), changed: count('M'), removed: count('D'), unchanged }
+  const stats = [
+    ['+', 'new', 'green', count('A')],
+    ['~', 'changed', 'yellow', count('M')],
+    ['-', 'removed', 'red', count('D')],
+    ['', 'unchanged', 'dim', unchanged],
+  ] as const
   logStep('Dry run: nothing was written')
   logBlock([
-    [
-      styleText('green', `+${parts.added} new`),
-      styleText('yellow', `~${parts.changed} changed`),
-      styleText('red', `-${parts.removed} removed`),
-      styleText('dim', `${unchanged} unchanged`),
-    ].join(styleText('dim', ' · ')),
-    formatPlanBar(parts),
+    stats.map(([sign, label, color, total]) => styleText(color, `${sign}${total} ${label}`)).join(styleText('dim', ' · ')),
+    formatBar(
+      stats.map(([, , color, total]) => [total, color] as const),
+      30,
+    ),
   ])
   logFileChanges(files)
   logStep(files.length ? 'Run without --dry-run to write these files.' : 'The files on disk are up to date.')

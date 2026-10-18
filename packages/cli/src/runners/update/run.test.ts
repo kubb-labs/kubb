@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createProject, registryEntry, stubRegistry } from '../../utils/registryFixture.ts'
 import { generate } from '../generate/run.ts'
 import { installPackages } from '../init/utils.ts'
-import { changedFiles, run } from './run.ts'
+import { run } from './run.ts'
 
 vi.mock('../init/utils.ts', () => ({
   detectPackageManager: vi.fn(() => ({ name: 'npm', lockFiles: [], initCommand: [], installCommand: ['install', '--save-dev'] })),
@@ -145,20 +145,5 @@ describe('kubb update', () => {
 
     expect(installPackages).not.toHaveBeenCalled()
     expect(output.join('\n')).toContain('No updates for acme/plugin-y.')
-  })
-})
-
-describe('changedFiles', () => {
-  it('marks added, modified, and deleted files relative to the project', () => {
-    const before = new Map([
-      ['/p/gen/a.ts', '1'],
-      ['/p/gen/b.ts', '1'],
-    ])
-    const after = new Map([
-      ['/p/gen/a.ts', '2'],
-      ['/p/gen/c.ts', '1'],
-    ])
-
-    expect(changedFiles({ before, after, cwd: '/p' })).toStrictEqual(['M gen/a.ts', 'D gen/b.ts', 'A gen/c.ts'])
   })
 })

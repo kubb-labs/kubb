@@ -157,3 +157,21 @@ export function formatMsWithColor(ms: number): string {
 
   return styleText('red', formatted)
 }
+
+type BarColor = 'green' | 'yellow' | 'red' | 'magenta' | 'dim'
+
+/**
+ * A `size`-cell bar of colored parts in order, each as wide as its share of the total. A part with
+ * a count keeps at least one cell. A `dim` part draws light cells for what is left or untouched.
+ */
+export function formatBar(parts: ReadonlyArray<readonly [count: number, color: BarColor]>, size = 20): string {
+  const total = parts.reduce((sum, [count]) => sum + count, 0)
+  if (!total) return styleText('dim', '░'.repeat(size))
+
+  const cells = parts.map(([count]) => (count ? Math.max(1, Math.round((count / total) * size)) : 0))
+  for (let excess = cells.reduce((sum, count) => sum + count, 0) - size; excess !== 0; excess -= Math.sign(excess)) {
+    cells[cells.indexOf(Math.max(...cells))]! -= Math.sign(excess)
+  }
+
+  return parts.map(([, color], index) => styleText(color, (color === 'dim' ? '░' : '█').repeat(cells[index]!))).join('')
+}

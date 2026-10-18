@@ -5,7 +5,7 @@ import { formatMs, getElapsedMs } from '@internals/utils'
 import type { Config, KubbHooks } from '@kubb/core'
 import { type Diagnostic, type DiagnosticFormatOptions, Diagnostics, getInputKind, logLevel as logLevelMap, type ProblemDiagnostic } from '@kubb/core'
 import type { StudioConnectedContext } from '@kubb/studio'
-import { formatMsWithColor } from './banner.ts'
+import { formatBar, formatMsWithColor } from './banner.ts'
 import type { Logger, LoggerWriter, LogStatus, WriterProgress, WriterSpinner } from './defineLogger.ts'
 import { loadSpecLocator, type SpecLocator } from './specFrame.ts'
 
@@ -111,12 +111,6 @@ function createProgressCounters(): ProgressState {
 /** The node walk's live state: the spec's node total, the distinct nodes generated, and each plugin's count and current node. */
 function createWalk() {
   return { total: 0, visited: new Set<string>(), plugins: new Map<string, { count: number; current: string }>() }
-}
-
-/** A 20-cell bar filled to `ratio`, drawn like the write progress bar. */
-function formatBar(ratio: number, size = 20): string {
-  const filled = Math.round(Math.min(Math.max(ratio, 0), 1) * size)
-  return `${styleText('magenta', '█'.repeat(filled))}${styleText('dim', '░'.repeat(size - filled))}`
 }
 
 /** Milliseconds between redraws of the live generation block, about clack's spinner frame rate. */
@@ -655,13 +649,11 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
 
       context.hook('studio:command', ({ command, info, requestedBy, failed }) => {
         stopSpinner()
-        if (failed) {
-          const errors = job?.errors
-          writer.info(formatJobLine({ command, requestedBy, result: `${styleText('red', '✖')} ${errors ? pluralize(errors, 'error') : 'failed'}, see Studio` }))
-        } else {
-          const result = command === 'generate' && job ? `${pluralize(job.fileCount, 'file')} in ${formatMs(job.ms)} ` : ''
-          writer.info(formatJobLine({ command, requestedBy, result: `${styleText('green', '✓')} ${result}${styleText('dim', `(${info})`)}` }))
-        }
+        const took = command === 'generate' && job ? `${pluralize(job.fileCount, 'file')} in ${formatMs(job.ms)} ` : ''
+        const result = failed
+          ? `${styleText('red', '✖')} ${job?.errors ? pluralize(job.errors, 'error') : 'failed'}, see Studio`
+          : `${styleText('green', '✓')} ${took}${styleText('dim', `(${info})`)}`
+        writer.info(formatJobLine({ command, requestedBy, result }))
         job = null
         startSpinner('Ready for jobs')
       })
@@ -699,7 +691,10 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
 
           const elapsed = styleText('dim', formatMs(getElapsedMs(state.hrStart)))
           const head = total
-            ? `Generating  ${formatBar(visited.size / total)}  ${visited.size}/${total} nodes  ${elapsed}`
+            ? `Generating  ${formatBar([
+                [visited.size, 'magenta'],
+                [total - visited.size, 'dim'],
+              ])}  ${visited.size}/${total} nodes  ${elapsed}`
             : `Generating  ${pluralize(visited.size, 'node')}  ${elapsed}`
           const width = Math.max(...[...plugins.keys()].map((pluginName) => pluginName.length))
           const rows = [...plugins].map(

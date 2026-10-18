@@ -9,9 +9,22 @@ import { findConfigFile } from '@internals/shared'
 import { formatMs, getElapsedMs, getErrorMessage } from '@internals/utils'
 import { Hookable, type KubbHooks, readInstalledPackages, type RegistryEntry } from '@kubb/core'
 import { dryRunId, type DryRunExtensions, yesArg } from '../../commands/shared.ts'
-import { createSpinner, isInteractiveRun, logBlock, logError, logIntro, logOutro, logStep, logWarn, withSpinner } from '../../loggers/output.ts'
+import {
+  createSpinner,
+  formatTable,
+  isInteractiveRun,
+  logBlock,
+  logFileChanges,
+  logError,
+  logIntro,
+  logOutro,
+  logStep,
+  logWarn,
+  withSpinner,
+} from '../../loggers/output.ts'
 import { bumpOf, fetchRegistryIndex, incompatibility, installSpec, isOutdated, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
 import { detectPackageManager, installPackages } from '../init/utils.ts'
+import { diffFiles, type FileChange } from '../generate/utils.ts'
 
 export type UpdateOptions = {
   /**
@@ -23,20 +36,6 @@ export type UpdateOptions = {
    */
   dryRun: boolean
   yes: boolean
-}
-
-/** How many changed files the summary lists before it counts the rest. */
-const MAX_CHANGED_FILES = 10
-
-/** Pads each column to its widest cell. */
-function toTable(rows: Array<Array<string>>): Array<string> {
-  const widths = rows[0]!.map((_, index) => Math.max(...rows.map((row) => row[index]?.length ?? 0)))
-  return rows.map((row) =>
-    row
-      .map((cell, index) => cell.padEnd(widths[index]!))
-      .join('  ')
-      .trimEnd(),
-  )
 }
 
 /** The hash of every file under `dirs`, by path. A missing folder holds nothing. */
@@ -57,22 +56,12 @@ async function snapshot(dirs: Array<string>): Promise<Map<string, string>> {
   return new Map(files.flat())
 }
 
-/** `M`, `A`, or `D` and the path relative to `cwd` of each file that differs between two snapshots, sorted by path. */
-export function changedFiles({ before, after, cwd }: { before: Map<string, string>; after: Map<string, string>; cwd: string }): Array<string> {
-  return [...new Set([...before.keys(), ...after.keys()])].toSorted().flatMap((file) => {
-    const name = path.relative(cwd, file)
-    if (!after.has(file)) return [`D ${name}`]
-    if (!before.has(file)) return [`A ${name}`]
-    return before.get(file) === after.get(file) ? [] : [`M ${name}`]
-  })
-}
-
 /**
  * Generates every config in this process, the way `kubb generate` does, and returns the output files
  * it changed. Runs after the install, so the config loads the new versions. `undefined` when the
  * config fails to load or a build fails.
  */
-async function regenerate({ cwd, configPath }: { cwd: string; configPath: string }): Promise<Array<string> | undefined> {
+async function regenerate({ cwd, configPath }: { cwd: string; configPath: string }): Promise<Array<FileChange> | undefined> {
   try {
     // Imported here, so the config loader and the generate path never slow down `kubb --help`.
     const [{ getConfigs }, { generate }] = await Promise.all([import('../../config.ts'), import('../generate/run.ts')])
@@ -83,7 +72,7 @@ async function regenerate({ cwd, configPath }: { cwd: string; configPath: string
     for (const config of configs) {
       if (!(await generate({ config, hooks }))) return undefined
     }
-    return changedFiles({ before, after: await snapshot(dirs), cwd })
+    return diffFiles(before, await snapshot(dirs)).files
   } catch {
     return undefined
   }
@@ -129,7 +118,7 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
       const plural = proposals.length === 1 ? '' : 's'
       logBlock([
         `${proposals.length} update${plural} available${majors ? ` (${majors} major)` : ''}`,
-        ...toTable(
+        ...formatTable(
           proposals.map((entry) => [entry.artifact.package, `${current(entry) ?? 'not installed'} → ${entry.artifact.version}`, isMajor(entry) ? 'major' : '']),
         ),
       ])
@@ -144,7 +133,7 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
         const bump = bumpOf({ installed: current(entry), latest: entry.artifact.version }) ?? ''
         return [entry.artifact.package, current(entry) ?? 'not installed', entry.artifact.version, bump === 'major' ? 'major · breaking' : bump]
       })
-      const lines = toTable([header, ...rows])
+      const lines = formatTable([header, ...rows])
       logStep(`Checked ${tracked.length} extension${tracked.length === 1 ? '' : 's'} against the registry`)
       logBlock([
         styleText('dim', lines[0]!),
@@ -217,11 +206,7 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
       if (!changed) generation.error('Generation failed. Run kubb generate to see why.')
       if (changed)
         generation.stop(changed.length ? `Generated: ${changed.length} file${changed.length === 1 ? '' : 's'} changed` : 'Generated: no files changed')
-      if (changed?.length)
-        logBlock([
-          ...changed.slice(0, MAX_CHANGED_FILES),
-          ...(changed.length > MAX_CHANGED_FILES ? [styleText('dim', `and ${changed.length - MAX_CHANGED_FILES} more`)] : []),
-        ])
+      if (changed) logFileChanges(changed)
     }
 
     logOutro([styleText('green', `✓ Updated ${selected.length} extension${selected.length === 1 ? '' : 's'}`), ...skipped].join('\n'))
