@@ -108,7 +108,20 @@ declare global {
       /**
        * A finished command and what it did, such as `applied 2/3 edits to kubb.config.ts`.
        */
-      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput' | 'readDiff'; info: string }]
+      'studio:command': [
+        ctx: {
+          command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput' | 'readDiff'
+          info: string
+          /**
+           * The Studio user who asked for the command, when Studio names one.
+           */
+          requestedBy?: string
+          /**
+           * Set when a generation failed. Its diagnostics went out through `kubb:generation:end`.
+           */
+          failed?: boolean
+        },
+      ]
       /**
        * A refused or ignored request, with the missing permission so the host can add a remedy.
        */
@@ -183,6 +196,14 @@ type Session = {
 // A throwing host listener must not break the connection.
 function emit<TName extends keyof KubbHooks & string>(hooks: Hookable<KubbHooks>, name: TName, ...args: KubbHooks[TName]): Promise<void> {
   return Promise.resolve(hooks.callHook(name, ...args)).catch(() => {})
+}
+
+/** Studio's display name for the requester, cut to one short terminal-safe line, or `undefined`. */
+function toRequester(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  // Drops control characters, so a name cannot move the cursor or recolor the terminal.
+  const name = [...value].filter((char) => char >= ' ' && (char < '\u007f' || char > '\u009f')).join('')
+  return name.trim().slice(0, 32) || undefined
 }
 
 function isValidPage({ cursor, limit }: Pick<ReadFilesInput, 'cursor' | 'limit'>): boolean {
@@ -268,8 +289,13 @@ class Agent extends RpcTarget implements AgentApi {
       throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Studio must call connect() before any other command' })
   }
 
-  #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string): Promise<void> {
-    return emit(this.#options.hooks, 'studio:command', { command, info })
+  #logCommand(
+    command: KubbHooks['studio:command'][0]['command'],
+    info: string,
+    { requestedBy, failed }: { requestedBy?: unknown; failed?: boolean } = {},
+  ): Promise<void> {
+    const name = toRequester(requestedBy)
+    return emit(this.#options.hooks, 'studio:command', { command, info, ...(name ? { requestedBy: name } : {}), ...(failed ? { failed } : {}) })
   }
 
   // Not cached: the user can edit the file between two Studio actions.
@@ -430,6 +456,7 @@ class Agent extends RpcTarget implements AgentApi {
       allowExec: this.#permissions.allowExec,
     }).catch(async (error: unknown) => {
       await this.#generations.drop(jobId)
+      await this.#logCommand('generate', getErrorMessage(error), { requestedBy: input.requestedBy, failed: true })
       throw error
     })
 
@@ -443,6 +470,7 @@ class Agent extends RpcTarget implements AgentApi {
     await this.#logCommand(
       'generate',
       `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'in memory'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
+      { requestedBy: input.requestedBy },
     )
 
     return {
@@ -477,7 +505,7 @@ class Agent extends RpcTarget implements AgentApi {
     try {
       const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
       const applied = outcomes.filter((outcome) => outcome.applied).length
-      await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`)
+      await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`, { requestedBy: input.requestedBy })
 
       return { outcomes, changed }
     } catch (error) {

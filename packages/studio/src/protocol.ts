@@ -293,7 +293,14 @@ export type GenerationEvent = {
  * Asks the agent to run one generation. `jobId` tags every event the run emits so a caller
  * watching several runs can tell them apart.
  */
-export type GenerateInput = { jobId: string; config: JSONKubbConfig }
+export type GenerateInput = {
+  jobId: string
+  config: JSONKubbConfig
+  /**
+   * Display name of the Studio user who asked for the run, shown in the agent's job log.
+   */
+  requestedBy?: string
+}
 
 /**
  * What a finished run produced.
@@ -318,7 +325,13 @@ export type GenerateResult = {
 /**
  * Asks the agent to apply a batch of edits to the config file on disk.
  */
-export type SaveConfigInput = { edits: Array<ConfigEdit> }
+export type SaveConfigInput = {
+  edits: Array<ConfigEdit>
+  /**
+   * Display name of the Studio user who asked for the save, shown in the agent's job log.
+   */
+  requestedBy?: string
+}
 
 /**
  * Per-edit outcomes. `changed` is false when every edit was a no-op, so a caller can skip reloading.

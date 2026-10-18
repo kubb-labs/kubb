@@ -145,7 +145,7 @@ describe('studio session events', () => {
     vi.useRealTimers()
   })
 
-  it('logs a generate job with its file count and duration, and a failed one with its errors', async () => {
+  it('logs a generate job with who asked, its file count and duration, and a failed one with its errors', async () => {
     vi.useFakeTimers({ now: new Date(2026, 0, 1, 14, 9, 13) })
     const lines = await render(async (context) => {
       await context.callHook('studio:connected', {
@@ -161,18 +161,19 @@ describe('studio session events', () => {
         hrStart: process.hrtime(),
       }
       await context.callHook('kubb:generation:end', { ...generation, diagnostics: [], filesCreated: 122, status: 'success' })
-      await context.callHook('studio:command', { command: 'generate', info: '3 plugins, in memory' })
+      await context.callHook('studio:command', { command: 'generate', info: '3 plugins, in memory', requestedBy: 'Stijn' })
       await context.callHook('kubb:generation:end', {
         ...generation,
         diagnostics: [{ code: 'KUBB_UNKNOWN', severity: 'error', message: 'Broken spec' }],
         filesCreated: 0,
         status: 'failed',
       })
+      await context.callHook('studio:command', { command: 'generate', info: 'Broken spec', requestedBy: 'Ana', failed: true })
     })
     vi.useRealTimers()
 
-    expect(lines).toContainEqual(expect.stringMatching(/^14:09:13 {2}generate {3}✓ 122 files in \S+ \(3 plugins, in memory\)$/))
-    expect(lines).toContain('14:09:13  generate   ✖ 1 error, see Studio')
+    expect(lines).toContainEqual(expect.stringMatching(/^14:09:13 {2}generate {3}by Stijn {7}✓ 122 files in \S+ \(3 plugins, in memory\)$/))
+    expect(lines).toContain('14:09:13  generate   by Ana         ✖ 1 error, see Studio')
   })
 
   it('drops everything but errors at silent', async () => {

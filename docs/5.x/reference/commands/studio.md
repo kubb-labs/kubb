@@ -20,7 +20,7 @@ Run `kubb studio` to connect a project to [Kubb Studio](https://kubb.studio). Th
 
 Connect the current project. On the first run, open the pairing page and approve the code the CLI shows before it expires. The CLI copies the code to the clipboard when `pbcopy`, `xclip`, or `clip.exe` is available. It then asks which permissions to grant for this project in one list, with the two read permissions checked.
 
-While connected, the CLI logs each job Studio runs with its time. Press `b` to move the session to the background worker, the same as `kubb studio start`.
+While connected, the CLI logs each job Studio runs on one line: the time, the command, who asked for it, and the result. The job's own steps and diagnostics stay in Studio. Press `b` to move the session to the background worker, the same as `kubb studio start`.
 
 ```shell [Terminal]
 kubb studio

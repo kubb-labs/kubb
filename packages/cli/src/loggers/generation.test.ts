@@ -340,6 +340,33 @@ describe('studio warnings', () => {
   })
 })
 
+describe('studio session', () => {
+  it('shows each Studio job as one line, with who asked, instead of the run', async () => {
+    const output = await render(
+      async (context) => {
+        await context.callHook('studio:connected', {
+          url: 'https://studio.kubb.dev',
+          versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' },
+          sandbox: false,
+          agentSlug: 'brave-otter',
+          studioVersion: '5.1.0',
+        })
+        await generation({ config: makeConfig('petstore') })(context)
+        await context.callHook('studio:command', { command: 'generate', info: '2 plugins, in memory', requestedBy: 'Stijn' })
+      },
+      { rich: true },
+    )
+
+    expect(output.map((call) => withoutDuration(stripVTControlCharacters(call)))).toStrictEqual([
+      'log.success:✓ Connected to https://studio.kubb.dev · v5.0.6 · Studio v5.1.0',
+      'spinner.start:Ready for jobs',
+      'spinner.message:Generating',
+      expect.stringMatching(/^log\.info:\d\d:\d\d:\d\d {2}generate {3}by Stijn {7}✓ 1 file in  \(2 plugins, in memory\)$/),
+      'spinner.start:Ready for jobs',
+    ])
+  })
+})
+
 describe('plain generation output', () => {
   it('says files were generated rather than written when the run keeps them in memory', async () => {
     const config = { ...makeConfig('petstore'), storage: { name: 'memory' } } as unknown as Config

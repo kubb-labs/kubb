@@ -2,7 +2,7 @@ import { relative, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
-import type { Config } from '@kubb/core'
+import type { Config, KubbHooks } from '@kubb/core'
 import { type Diagnostic, type DiagnosticFormatOptions, Diagnostics, getInputKind, logLevel as logLevelMap, type ProblemDiagnostic } from '@kubb/core'
 import type { StudioConnectedContext } from '@kubb/studio'
 import { formatMsWithColor } from './banner.ts'
@@ -42,11 +42,22 @@ function formatVersions({ studio, kubb, agent }: StudioConnectedContext['version
   return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, `Studio v${studio}`].filter(Boolean).join(' · ')
 }
 
-/** One line of a Studio session's job log: the time, the command, and how it ended. */
-export function formatJobLine(command: string, result: string, date = new Date()): string {
+/** One line of a Studio session's job log: the time, the command, who asked for it, and how it ended. */
+export function formatJobLine({
+  command,
+  result,
+  requestedBy,
+  date = new Date(),
+}: {
+  command: string
+  result: string
+  requestedBy?: string
+  date?: Date
+}): string {
   const time = date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  const by = requestedBy ? `${styleText('dim', `by ${requestedBy}`.padEnd(14))} ` : ''
 
-  return `${styleText('dim', time)}  ${command.padEnd(10)} ${result}`
+  return `${styleText('dim', time)}  ${command.padEnd(10)} ${by}${result}`
 }
 
 type ProgressState = {
@@ -229,11 +240,17 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
        */
       spec: null as Promise<SpecLocator | undefined> | null,
       lastWalkDraw: 0,
+      /** Set once a rich `kubb studio` session connects: each run then shows as one job line. */
+      session: false,
     }
 
     function text(message: string): string {
       return formatMessage(message, logLevel)
     }
+
+    // In a Studio session the job line stands for the whole run, so the per-run hooks stay quiet.
+    const onRun = ((name: string, fn: (...args: Array<unknown>) => unknown) =>
+      context.hook(name as keyof KubbHooks, (...args: Array<unknown>) => (state.session ? undefined : fn(...args)))) as typeof context.hook
 
     function startSpinner(message: string) {
       if (silent) {
@@ -437,6 +454,10 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       if (silent && diagnostic.severity !== 'error') {
         return
       }
+      // A Studio job's problems show in Studio; its job line counts the errors.
+      if (state.session && !Diagnostics.isUpdate(diagnostic)) {
+        return
+      }
 
       stopSpinner()
       stopProgress()
@@ -498,7 +519,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       reset()
     })
 
-    context.hook('kubb:generation:start', ({ config }) => {
+    onRun('kubb:generation:start', ({ config }) => {
       closeGroup('failed')
       reset()
 
@@ -519,14 +540,14 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       startSpinner('Parsing spec')
     })
 
-    context.hook('kubb:format:start', () => startPhase(PHASES.format))
-    context.hook('kubb:format:end', endPhase)
-    context.hook('kubb:lint:start', () => startPhase(PHASES.lint))
-    context.hook('kubb:lint:end', endPhase)
-    context.hook('kubb:hooks:start', () => startPhase(PHASES.hooks))
-    context.hook('kubb:hooks:end', endPhase)
+    onRun('kubb:format:start', () => startPhase(PHASES.format))
+    onRun('kubb:format:end', endPhase)
+    onRun('kubb:lint:start', () => startPhase(PHASES.lint))
+    onRun('kubb:lint:end', endPhase)
+    onRun('kubb:hooks:start', () => startPhase(PHASES.hooks))
+    onRun('kubb:hooks:end', endPhase)
 
-    context.hook('kubb:hook:end', (ctx) => {
+    onRun('kubb:hook:end', (ctx) => {
       const { id, command, name, args, success, error } = ctx
       if (!id) {
         return
@@ -571,7 +592,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       writeOutput(active.lines)
     })
 
-    context.hook('kubb:generation:end', async ({ diagnostics = [], filesCreated = 0, hrStart = process.hrtime() }) => {
+    onRun('kubb:generation:end', async ({ diagnostics = [], filesCreated = 0, hrStart = process.hrtime() }) => {
       stopSpinner()
       stopProgress()
       state.outcome = { diagnostics, filesCreated, hrStart }
@@ -586,7 +607,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
 
     // Not registered at silent: the missing `kubb:hook:line` listener is also what tells the runner not to stream.
     if (!silent) {
-      context.hook('kubb:info', ({ message, info }) => {
+      onRun('kubb:info', ({ message, info }) => {
         const line = formatLine(styleText('blue', 'ℹ'), message, info)
 
         // Info carries something new (the auto-detected tool), so inside a phase it waits for the phase to print.
@@ -601,7 +622,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         writer.info(line)
       })
 
-      context.hook('kubb:success', ({ message, info }) => {
+      onRun('kubb:success', ({ message, info }) => {
         const line = formatLine(styleText('green', '✓'), message, logLevel >= logLevelMap.info ? info : undefined)
 
         // The phase step's own result already reports these successes, so let the step carry them.
@@ -613,30 +634,33 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       })
 
       // The last generation's outcome, for the job line `studio:command` prints after it.
-      let job: { fileCount: number; ms: number } | null = null
-      let studio = false
+      let job: { fileCount: number; ms: number; errors: number } | null = null
 
       context.hook('studio:connected', ({ url, versions }) => {
-        studio = true
+        state.session = human
         stopSpinner()
         writer.success(text(`✓ Connected to ${styleText('cyan', url)} ${styleText('dim', `· ${formatVersions(versions)}`)}`))
         startSpinner('Ready for jobs')
       })
 
-      context.hook('kubb:generation:end', ({ diagnostics = [], filesCreated = 0, status, hrStart = process.hrtime() }) => {
-        job = { fileCount: filesCreated, ms: getElapsedMs(hrStart) }
-        // A failed run never reaches `studio:command`, so a Studio session reports it here.
-        if (status !== 'failed' || !studio) return
-        const errors = Diagnostics.count(diagnostics).errors
-        writer.info(formatJobLine('generate', `${styleText('red', '✖')} ${errors ? pluralize(errors, 'error') : 'failed'}, see Studio`))
-        startSpinner('Ready for jobs')
+      context.hook('kubb:generation:start', () => {
+        if (state.session) state.spinner?.message(text('Generating'))
       })
 
-      context.hook('studio:command', ({ command, info }) => {
+      context.hook('kubb:generation:end', ({ diagnostics = [], filesCreated = 0, status, hrStart = process.hrtime() }) => {
+        job = { fileCount: filesCreated, ms: getElapsedMs(hrStart), errors: status === 'failed' ? Diagnostics.count(diagnostics).errors : 0 }
+      })
+
+      context.hook('studio:command', ({ command, info, requestedBy, failed }) => {
         stopSpinner()
-        const result = command === 'generate' && job ? `${pluralize(job.fileCount, 'file')} in ${formatMs(job.ms)} ` : ''
+        if (failed) {
+          const errors = job?.errors
+          writer.info(formatJobLine({ command, requestedBy, result: `${styleText('red', '✖')} ${errors ? pluralize(errors, 'error') : 'failed'}, see Studio` }))
+        } else {
+          const result = command === 'generate' && job ? `${pluralize(job.fileCount, 'file')} in ${formatMs(job.ms)} ` : ''
+          writer.info(formatJobLine({ command, requestedBy, result: `${styleText('green', '✓')} ${result}${styleText('dim', `(${info})`)}` }))
+        }
         job = null
-        writer.info(formatJobLine(command, `${styleText('green', '✓')} ${result}${styleText('dim', `(${info})`)}`))
         startSpinner('Ready for jobs')
       })
 
@@ -646,13 +670,13 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       })
 
       // Every plugin starts before the shared walk, so only the first is named; the per-node hooks take over from there.
-      context.hook('kubb:plugin:start', ({ plugin }) => {
+      onRun('kubb:plugin:start', ({ plugin }) => {
         if (state.pluginStarted) return
         state.pluginStarted = true
         state.spinner?.message(text(`Generating ${styleText('dim', plugin.name)}`))
       })
 
-      context.hook('kubb:build:start', ({ nodeCounts: { schemas, operations } }) => {
+      onRun('kubb:build:start', ({ nodeCounts: { schemas, operations } }) => {
         state.walk.total = schemas + operations
         const details = `${pluralize(schemas, 'schema')} · ${pluralize(operations, 'operation')} · ${formatMs(getElapsedMs(state.hrStart))}`
         stopSpinner(`Parsed spec  ${styleText('dim', details)}`)
@@ -683,12 +707,12 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
           state.spinner?.message(text([head, ...rows].join('\n')))
         }
 
-        context.hook('kubb:generate:schema', (node, { plugin }) => onNode(`schema:${node.name}`, node.name ?? 'schema', plugin.name))
-        context.hook('kubb:generate:operation', (node, { plugin }) => onNode(`operation:${node.operationId}`, node.operationId, plugin.name))
+        onRun('kubb:generate:schema', (node, { plugin }) => onNode(`schema:${node.name}`, node.name ?? 'schema', plugin.name))
+        onRun('kubb:generate:operation', (node, { plugin }) => onNode(`operation:${node.operationId}`, node.operationId, plugin.name))
       }
 
       // Buffered, not printed: a step redraws over anything written while it runs.
-      context.hook('kubb:plugin:end', ({ plugin, duration, success }) => {
+      onRun('kubb:plugin:end', ({ plugin, duration, success }) => {
         if (success) {
           state.completedPlugins++
         }
@@ -698,7 +722,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         state.pluginLines.push(text(`${plugin.name} ${success ? 'completed' : 'failed'} in ${formatMsWithColor(duration)}`))
       })
 
-      context.hook('kubb:plugins:end', () => {
+      onRun('kubb:plugins:end', () => {
         const failed = state.failedPlugins > 0
         stopSpinner(buildProgressLine(state) ?? undefined, failed ? 'failed' : 'success')
 
@@ -708,7 +732,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         }
       })
 
-      context.hook('kubb:files:processing:start', ({ files }) => {
+      onRun('kubb:files:processing:start', ({ files }) => {
         stopSpinner()
         state.totalFiles = files.length
         state.processedFiles = 0
@@ -717,14 +741,14 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         state.progress.start(text(`${state.inMemory ? 'Generating' : 'Writing'} ${pluralize(files.length, 'file')}`))
       })
 
-      context.hook('kubb:files:processing:update', ({ files }) => {
+      onRun('kubb:files:processing:update', ({ files }) => {
         for (const { file, config } of files) {
           state.processedFiles++
           state.progress?.advance(`${state.inMemory ? 'Generating' : 'Writing'} ${relative(config.root, file.path)}`)
         }
       })
 
-      context.hook('kubb:files:processing:end', ({ files, unchanged }) => {
+      onRun('kubb:files:processing:end', ({ files, unchanged }) => {
         const skipped = unchanged.length ? styleText('dim', ` · ${unchanged.length} unchanged`) : ''
         stopProgress(
           state.inMemory
@@ -733,7 +757,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         )
       })
 
-      context.hook('kubb:hook:start', ({ id, command, name, args }) => {
+      onRun('kubb:hook:start', ({ id, command, name, args }) => {
         if (!id) {
           return
         }
@@ -741,7 +765,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         state.spinner?.message(text(`Running ${styleText('dim', formatHookLabel({ command, name, args }))}`))
       })
 
-      context.hook('kubb:hook:line', ({ id, line }) => {
+      onRun('kubb:hook:line', ({ id, line }) => {
         const active = state.hooks.get(id)
         if (!active) {
           return
