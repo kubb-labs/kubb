@@ -184,14 +184,15 @@ function logDryRunPlan({ files, unchanged }: { files: ReadonlyArray<FileChange>;
   const count = (status: FileChange['status']) => files.filter((file) => file.status === status).length
   const parts = { added: count('A'), changed: count('M'), removed: count('D'), unchanged }
   logStep('Dry run: nothing was written')
-  logBlock(
-    `${formatPlanBar(parts)}  ${[
+  logBlock([
+    [
       styleText('green', `+${parts.added} new`),
       styleText('yellow', `~${parts.changed} changed`),
       styleText('red', `-${parts.removed} removed`),
       styleText('dim', `${unchanged} unchanged`),
-    ].join(styleText('dim', ' · '))}`,
-  )
+    ].join(styleText('dim', ' · ')),
+    formatPlanBar(parts),
+  ])
   logFileChanges(files)
   logStep(files.length ? 'Run without --dry-run to write these files.' : 'The files on disk are up to date.')
 }
