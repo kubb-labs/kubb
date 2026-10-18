@@ -1,6 +1,7 @@
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { stripVTControlCharacters } from 'node:util'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as utils from '@internals/utils'
@@ -10,10 +11,12 @@ import * as env from '../../utils/env.ts'
 import * as config from '../../config.ts'
 import * as credentialsStore from './credentials.ts'
 import type { Credentials } from './credentials.ts'
-import { connect, login, resolvePermissions, type StudioOptions } from './run.ts'
+import * as background from './background.ts'
+import { connect, formatCountdown, formatPermissionRows, formatPermissionSummary, login, resolvePermissions, type StudioOptions, watchKeys } from './run.ts'
 
 vi.mock('@clack/prompts', () => ({
-  confirm: vi.fn(),
+  multiselect: vi.fn(),
+  isCancel: vi.fn(),
   spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
   log: { message: vi.fn() },
   intro: vi.fn(),
@@ -26,7 +29,7 @@ vi.mock('@kubb/studio', async (importOriginal) => ({
   pairAgent: vi.fn(),
 }))
 
-const confirm = vi.mocked(prompts.confirm)
+const multiselect = vi.mocked(prompts.multiselect)
 
 const options: StudioOptions = {
   version: '0.0.0',
@@ -61,12 +64,15 @@ function stubProject({ stored = null, ci = false, tty = true }: ProjectOptions =
   })
   const isCI = vi.spyOn(utils, 'isCIEnvironment').mockReturnValue(ci)
   const canUseTTY = vi.spyOn(env, 'canUseTTY').mockReturnValue(tty)
+  const copy = vi.spyOn(utils, 'copyToClipboard').mockResolvedValue(true)
+  multiselect.mockResolvedValue([])
 
   return {
     write,
     clear,
+    copy,
     [Symbol.dispose]() {
-      for (const spy of [read, write, clear, machineId, configs, isCI, canUseTTY]) {
+      for (const spy of [read, write, clear, machineId, configs, isCI, canUseTTY, copy]) {
         spy.mockRestore()
       }
     },
@@ -90,7 +96,7 @@ afterEach(async () => {
  * Mocks a browser pairing the user approves. `agentId` is what decides whether the reauthenticated
  * agent keeps the stored credential's identity, and so its saved project permissions.
  */
-function mockPairing(agentId: string = credentials.agentId) {
+function mockPairing(agentId: string = credentials.agentId, organizationSlug?: string) {
   vi.mocked(pairAgent).mockImplementation(async ({ onCode }) => {
     await onCode(
       {
@@ -104,7 +110,7 @@ function mockPairing(agentId: string = credentials.agentId) {
       1,
     )
 
-    return { token: 'new-token', agent: { id: agentId, slug: 'slug', name: 'demo' } }
+    return { token: 'new-token', agent: { id: agentId, slug: 'slug', name: 'demo', organizationSlug } }
   })
 }
 
@@ -120,28 +126,94 @@ describe('login', () => {
   })
 })
 
-describe('resolvePermissions', () => {
-  it('returns every answer and writes it to disk', async () => {
+describe('login', () => {
+  it('shows the code with its link, copies it in the background, and stores the organization', async () => {
     using project = stubProject()
-    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
+    const lines: Array<string> = []
+    using _log = vi.spyOn(console, 'log').mockImplementation((...args) => void lines.push(args.join(' ')))
+    mockPairing(credentials.agentId, 'kubb-labs')
+
+    await login(options)
+
+    const output = lines.join('\n')
+    expect(output).toContain('Pair this machine')
+    expect(output).toContain('https://studio/pair')
+    expect(output).toContain('ABCD-EFGH')
+    expect(output).toContain('expires in 1:00')
+    expect(output).toContain('Paired as demo · org kubb-labs')
+    expect(project.copy).toHaveBeenCalledWith('ABCD-EFGH')
+    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ organizationSlug: 'kubb-labs' }))
+  })
+})
+
+describe('formatCountdown', () => {
+  it.each([
+    [292_000, '4:52'],
+    [60_000, '1:00'],
+    [9_001, '0:10'],
+    [-5_000, '0:00'],
+  ])('formats %d ms as %s', (ms, expected) => {
+    expect(formatCountdown(ms)).toBe(expected)
+  })
+})
+
+describe('resolvePermissions', () => {
+  it('asks once in one list, with the reads checked, and writes every answer', async () => {
+    using project = stubProject()
+    multiselect.mockResolvedValueOnce(['allowReadAst', 'allowWrite', 'allowExec'])
 
     const answers = { allowRead: false, allowReadAst: true, allowWrite: true, allowConfigEdit: false, allowExec: true }
 
     await expect(resolvePermissions(options, credentials)).resolves.toEqual(answers)
-    expect(confirm).toHaveBeenCalledTimes(5)
+    expect(multiselect).toHaveBeenCalledOnce()
+    expect(multiselect.mock.calls[0]?.[0]).toMatchObject({ message: 'What may Kubb Studio do in this project?', initialValues: ['allowRead', 'allowReadAst'] })
     expect(project.write).toHaveBeenCalledTimes(1)
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ projects: { [process.cwd()]: answers } }))
   })
 
   it('names the config the project actually has, not the default', async () => {
     using _project = stubProject()
-    confirm.mockResolvedValue(false)
 
     await resolvePermissions(options, credentials, 'configs/kubb.config.mjs')
 
-    expect(confirm.mock.calls.map(([call]) => call?.message).find((message) => message?.includes('plugin options'))).toBe(
-      'Let Kubb Studio change plugin options in configs/kubb.config.mjs?',
+    expect(multiselect.mock.calls[0]?.[0].options.map(({ label }) => label)).toContain('Change configs/kubb.config.mjs')
+  })
+
+  it('lists only what flags and saved answers leave open, and keeps the saved ones', async () => {
+    using project = stubProject()
+    const stored: Credentials = { ...credentials, projects: { [process.cwd()]: { allowRead: false } } }
+    multiselect.mockResolvedValueOnce(['allowExec'])
+
+    await expect(resolvePermissions({ ...options, permission: { ...options.permission, allowWrite: true } }, stored)).resolves.toEqual({
+      allowRead: false,
+      allowReadAst: false,
+      allowWrite: true,
+      allowConfigEdit: false,
+      allowExec: true,
+    })
+    expect(multiselect.mock.calls[0]?.[0].options.map(({ value }) => value)).toStrictEqual(['allowReadAst', 'allowConfigEdit', 'allowExec'])
+    expect(project.write).toHaveBeenCalledWith(
+      expect.objectContaining({ projects: { [process.cwd()]: { allowRead: false, allowReadAst: false, allowConfigEdit: false, allowExec: true } } }),
     )
+  })
+
+  it('grants and saves nothing when the list is canceled', async () => {
+    using project = stubProject()
+    vi.mocked(prompts.isCancel).mockReturnValueOnce(true)
+
+    await expect(resolvePermissions(options, credentials)).resolves.toEqual(options.permission)
+    expect(project.write).not.toHaveBeenCalled()
+  })
+
+  it('asks nothing in CI and grants only the flags', async () => {
+    using project = stubProject({ ci: true })
+
+    await expect(resolvePermissions({ ...options, permission: { ...options.permission, allowRead: true } }, credentials)).resolves.toEqual({
+      ...options.permission,
+      allowRead: true,
+    })
+    expect(multiselect).not.toHaveBeenCalled()
+    expect(project.write).not.toHaveBeenCalled()
   })
 
   it('asks nothing again once the project answered, and never stores a flag-granted permission', async () => {
@@ -153,10 +225,67 @@ describe('resolvePermissions', () => {
       ...remembered,
       allowExec: true,
     })
-    expect(confirm).not.toHaveBeenCalled()
+    expect(multiselect).not.toHaveBeenCalled()
     expect(project.write).not.toHaveBeenCalled()
   })
 })
+
+describe('formatPermissionSummary', () => {
+  it('joins the granted permissions, or says none are', () => {
+    expect(formatPermissionSummary({ ...options.permission, allowRead: true, allowWrite: true })).toBe('read source · write files')
+    expect(formatPermissionSummary(options.permission)).toBe('no permissions')
+  })
+})
+
+describe('formatPermissionRows', () => {
+  it('puts two permissions per row and the flags for the missing ones after the last', () => {
+    const rows = formatPermissionRows({ ...options.permission, allowRead: true, allowReadAst: true, allowExec: true }).map((row) =>
+      stripVTControlCharacters(row).trimEnd(),
+    )
+
+    expect(rows).toStrictEqual(['✓ read source  ✓ read spec', '✖ write files  ✖ edit config', '✓ run tools     --allow-write --allow-config-edit'])
+  })
+})
+
+describe('watchKeys', () => {
+  it('maps b to the background and Ctrl+C to stop, and restores the terminal', () => {
+    using tty = fakeTty()
+    const onBackground = vi.fn()
+    const onStop = vi.fn()
+
+    const restore = watchKeys({ onBackground, onStop })
+    process.stdin.emit('data', Buffer.from('b'))
+    process.stdin.emit('data', Buffer.from('\u0003'))
+    restore()
+    restore()
+    process.stdin.emit('data', Buffer.from('b'))
+
+    expect(onBackground).toHaveBeenCalledOnce()
+    expect(onStop).toHaveBeenCalledOnce()
+    expect(tty.setRawMode.mock.calls).toStrictEqual([[true], [false]])
+  })
+})
+
+/** Makes stdin look like a terminal without touching the real one. */
+function fakeTty() {
+  const stdin = process.stdin as NodeJS.ReadStream & { setRawMode?: (mode: boolean) => NodeJS.ReadStream }
+  const original = { isTTY: stdin.isTTY, setRawMode: stdin.setRawMode }
+  const setRawMode = vi.fn(() => stdin)
+  const resume = vi.spyOn(stdin, 'resume').mockImplementation(() => stdin)
+  const pause = vi.spyOn(stdin, 'pause').mockImplementation(() => stdin)
+  Object.defineProperty(stdin, 'isTTY', { value: true, configurable: true })
+  stdin.setRawMode = setRawMode
+
+  return {
+    setRawMode,
+    [Symbol.dispose]() {
+      Object.defineProperty(stdin, 'isTTY', { value: original.isTTY, configurable: true })
+      stdin.setRawMode = original.setRawMode
+      resume.mockRestore()
+      pause.mockRestore()
+    },
+  }
+}
 
 describe('connect', () => {
   const connected = {
@@ -271,5 +400,34 @@ describe('connect', () => {
     expect(output).toContain('generate')
     expect(output).toContain('Ignored the spec from Studio')
     expect(output).toContain('1 plugin, in memory')
+  })
+
+  it('prints the project and its permissions once connected', async () => {
+    using _project = stubProject({ stored: { ...credentials, projects: { [process.cwd()]: { allowRead: true, allowReadAst: true } } } })
+    const lines: Array<string> = []
+    using _log = vi.spyOn(console, 'log').mockImplementation((...args) => void lines.push(args.join(' ')))
+    vi.mocked(connectAgent).mockImplementation(async ({ hooks }) => {
+      await hooks?.callHook('studio:connected', connected)
+    })
+
+    await connect(options)
+
+    expect(lines.map((line) => stripVTControlCharacters(line)).join('\n')).toContain(`Project  ${path.basename(process.cwd())}   read source · read spec`)
+  })
+
+  it('hands the session to the background worker when b is pressed', async () => {
+    using _project = stubProject({ stored: credentials })
+    using _tty = fakeTty()
+    using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    using startWorker = vi.spyOn(background, 'startWorker').mockResolvedValue(undefined)
+    vi.mocked(connectAgent).mockImplementation(async ({ hooks, signal }) => {
+      await hooks?.callHook('studio:connected', connected)
+      process.stdin.emit('data', Buffer.from('b'))
+      expect(signal?.aborted).toBe(true)
+    })
+
+    await connect(options)
+
+    expect(startWorker).toHaveBeenCalledWith(options)
   })
 })

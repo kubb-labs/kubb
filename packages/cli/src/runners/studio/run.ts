@@ -4,7 +4,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
 import { KUBB_CONFIG_FILENAME } from '@internals/shared'
-import { isCIEnvironment, openInBrowser, toError } from '@internals/utils'
+import { copyToClipboard, isCIEnvironment, openInBrowser, toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { connectAgent, defaultStudioUrl, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
@@ -12,8 +12,8 @@ import { AgentPermission } from '@kubb/studio/protocol'
 import { trackRun } from '../../Telemetry.ts'
 import { plainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/reporters.ts'
-import { createSpinner, logBlock, logIntro, logOutro, logTip } from '../../loggers/output.ts'
-import { canUseTTY } from '../../utils/env.ts'
+import { createSpinner, logBlock, logIntro, logOutro, logStep, logTip } from '../../loggers/output.ts'
+import { canUseTTY, isRichOutput } from '../../utils/env.ts'
 import { getConfigs } from '../../config.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, writeCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
@@ -105,6 +105,7 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
   const spinner = createSpinner()
   // The spinner only starts once a code is shown.
   let waiting = false
+  let countdown: NodeJS.Timeout | undefined
 
   try {
     const { token, agent } = await pairAgent({
@@ -115,18 +116,37 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
       machineId: await getMachineId(),
       signal,
       onCode: (session) => {
-        console.log(`\nOpen ${styleText('cyan', session.verification_uri)} and approve the code ${styleText('bold', session.user_code)}`)
+        logStep(
+          [
+            'Pair this machine',
+            `${styleText('dim', 'Open')}   ${styleText('cyan', session.verification_uri)}`,
+            `${styleText('dim', 'Code')}   ${styleText('bold', session.user_code)}`,
+          ].join('\n'),
+        )
 
         if (autoOpen) {
           openInBrowser(session.verification_uri_complete)
         }
 
-        spinner.start('Waiting for approval')
+        // Same fallback as the poll in `@kubb/studio`, so the countdown ends when polling does.
+        const deadline = Date.now() + (session.expires_in > 0 ? session.expires_in : 600) * 1000
+        let copied = false
+        const waitingText = () =>
+          `Waiting for approval  ${styleText('dim', `expires in ${formatCountdown(deadline - Date.now())}${copied ? ' · code copied' : ''} · ctrl+c to cancel`)}`
+        clearInterval(countdown)
+        spinner.start(waitingText())
         waiting = true
+        // Plain output prints every message, so only an animated spinner ticks.
+        if (isRichOutput()) countdown = setInterval(() => spinner.message(waitingText()), 1000)
+        // Not awaited: the code shows at once, and the spinner picks up the copy when it lands.
+        void copyToClipboard(session.user_code).then((done) => {
+          copied = done
+        })
       },
       onRetry: (error) => spinner.message(`Could not reach Kubb Studio, retrying: ${error.message}`),
     })
-    spinner.stop(`Paired as ${agent.name}`)
+    clearInterval(countdown)
+    spinner.stop(`Paired as ${agent.name}${agent.organizationSlug ? ` · org ${agent.organizationSlug}` : ''}`)
 
     const keepsIdentity = previousCredentials?.studioUrl === studioUrl && previousCredentials.agentId === agent.id
     const credentials: Credentials = {
@@ -134,6 +154,7 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
       token,
       agentId: agent.id,
       agentSlug: agent.slug,
+      ...(agent.organizationSlug ? { organizationSlug: agent.organizationSlug } : {}),
       ...(keepsIdentity && previousCredentials?.projects ? { projects: previousCredentials.projects } : {}),
     }
     await writeCredentials(credentials)
@@ -142,6 +163,7 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
 
     return credentials
   } catch (error) {
+    clearInterval(countdown)
     if (waiting) {
       spinner.stop(error instanceof PairingCanceledError ? 'Pairing canceled' : 'Pairing failed')
     }
@@ -149,8 +171,15 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
   }
 }
 
+/** Time left on a pairing code as `m:ss`, never below `0:00`. */
+export function formatCountdown(ms: number): string {
+  const seconds = Math.max(0, Math.ceil(ms / 1000))
+
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
+}
+
 /**
- * What each permission is asked as, in the order the questions appear.
+ * What each permission is asked as, in the order the list shows them.
  */
 const PERMISSIONS: ReadonlyArray<{
   key: AgentPermission
@@ -158,38 +187,49 @@ const PERMISSIONS: ReadonlyArray<{
    * Short label for status output and the connect summary.
    */
   label: string
-  question: (project: string, configPath: string) => string
+  title: (configPath: string) => string
+  hint: string
 }> = [
-  {
-    key: AgentPermission.READ,
-    label: 'read generated files',
-    question: () => 'Let Kubb Studio read the files a generation produced?',
-  },
-  { key: AgentPermission.READ_AST, label: 'read parsed spec', question: () => 'Let Kubb Studio read the parsed spec (the Kubb AST)?' },
-  { key: AgentPermission.WRITE, label: 'write generated files', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
-  {
-    key: AgentPermission.CONFIG_EDIT,
-    label: 'edit kubb.config.ts',
-    question: (_project, configPath) => `Let Kubb Studio change plugin options in ${configPath}?`,
-  },
-  {
-    key: AgentPermission.EXEC,
-    label: 'run formatter, linter, postGenerate',
-    question: () => 'Let Kubb Studio run the formatter, the linter, and output.postGenerate?',
-  },
+  { key: AgentPermission.READ, label: 'read source', title: () => 'Read generated files', hint: 'show code in the browser' },
+  { key: AgentPermission.READ_AST, label: 'read spec', title: () => 'Read the parsed spec', hint: 'browse schemas and operations' },
+  { key: AgentPermission.WRITE, label: 'write files', title: () => 'Write files to disk', hint: 'generate from the browser' },
+  { key: AgentPermission.CONFIG_EDIT, label: 'edit config', title: (configPath) => `Change ${configPath}`, hint: 'edit plugin options' },
+  { key: AgentPermission.EXEC, label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
 ]
 
+/** The flag that grants a permission, such as `--allow-read-ast`. */
+export function toPermissionFlag(key: AgentPermission): string {
+  return `--${key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)}`
+}
+
+/** The granted permissions as one line, such as `read source · read spec`. */
+export function formatPermissionSummary(granted: Record<AgentPermission, boolean>): string {
+  return (
+    PERMISSIONS.filter(({ key }) => granted[key])
+      .map(({ label }) => label)
+      .join(' · ') || 'no permissions'
+  )
+}
+
 /**
- * One row per permission, for the connect banner and `kubb studio status`. A list rather than a
- * joined line: four labels this long read as one run-on sentence side by side.
+ * Two permissions per row, each marked granted or not, with the flags that grant the missing ones
+ * after the last row. For `kubb studio status`.
  */
 export function formatPermissionRows(granted: Record<AgentPermission, boolean>): Array<string> {
-  return PERMISSIONS.map(({ key, label }) => `${granted[key] ? styleText('green', '✔') : styleText('red', '✘')} ${label}`)
+  const width = Math.max(...PERMISSIONS.map(({ label }) => label.length))
+  const cells = PERMISSIONS.map(({ key, label }) => `${granted[key] ? styleText('green', '✓') : styleText('red', '✖')} ${label.padEnd(width)}`)
+  const rows = Array.from({ length: Math.ceil(cells.length / 2) }, (_, index) => cells.slice(index * 2, index * 2 + 2).join('  '))
+  const flags = PERMISSIONS.filter(({ key }) => !granted[key])
+    .map(({ key }) => toPermissionFlag(key))
+    .join(' ')
+
+  return flags ? [...rows.slice(0, -1), `${rows.at(-1)}   ${styleText('dim', flags)}`] : rows
 }
 
 /**
  * Resolves Studio permissions for the current project.
- * Flags win, saved answers are reused, and new answers are stored in `~/.kubb/credentials.json`.
+ * Flags win, saved answers are reused, and the rest are asked in one list whose answers are stored
+ * in `~/.kubb/credentials.json`.
  */
 export async function resolvePermissions(
   options: StudioOptions,
@@ -198,32 +238,31 @@ export async function resolvePermissions(
 ): Promise<Record<AgentPermission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
-  const granted: Record<AgentPermission, boolean> = { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
-  const answers: Partial<Record<AgentPermission, boolean>> = {}
+  const granted = Object.fromEntries(PERMISSIONS.map(({ key }) => [key, options.permission[key] || remembered?.[key] === true])) as Record<
+    AgentPermission,
+    boolean
+  >
+  const pending = PERMISSIONS.filter(({ key }) => !options.permission[key] && typeof remembered?.[key] !== 'boolean')
+
+  if (!pending.length || isCIEnvironment() || !canUseTTY()) return granted
+
   prompts.updateSettings({ withGuide: true })
+  const selected = await prompts.multiselect({
+    message: 'What may Kubb Studio do in this project?',
+    options: pending.map(({ key, title, hint }) => ({ value: key, label: title(configPath), hint })),
+    initialValues: pending.filter(({ key }) => key === AgentPermission.READ || key === AgentPermission.READ_AST).map(({ key }) => key),
+    required: false,
+  })
+  // A canceled list grants nothing and saves nothing, so the next run asks again.
+  if (prompts.isCancel(selected)) return granted
 
-  for (const { key, question } of PERMISSIONS) {
-    if (options.permission[key] || typeof remembered?.[key] === 'boolean') {
-      granted[key] = options.permission[key] || remembered?.[key] === true
-      continue
-    }
+  const answers = Object.fromEntries(pending.map(({ key }) => [key, selected.includes(key)]))
+  await writeCredentials({
+    ...credentials,
+    projects: { ...credentials.projects, [project]: { ...remembered, ...answers } },
+  })
 
-    if (isCIEnvironment() || !canUseTTY()) {
-      granted[key] = false
-      continue
-    }
-
-    granted[key] = (await prompts.confirm({ message: question(project, configPath), initialValue: false })) === true
-    answers[key] = granted[key]
-  }
-  if (Object.keys(answers).length) {
-    await writeCredentials({
-      ...credentials,
-      projects: { ...credentials.projects, [project]: { ...remembered, ...answers } },
-    })
-  }
-
-  return granted
+  return { ...granted, ...answers }
 }
 
 /**
@@ -310,6 +349,7 @@ export async function connect(
     events.once('SIGINT', stop)
     events.once('SIGTERM', stop)
   }
+  let unwatch: (() => void) | undefined
   try {
     if (!context.prepared) {
       const { getWorkerStatus } = await import('./background.ts')
@@ -336,12 +376,27 @@ export async function connect(
       reporters: [cliReporter],
       ...(context.onState ? { logger: plainLogger } : {}),
     })
+    // `b` hands the session to the background worker; only a foreground run in a terminal listens.
+    const listens = !context.onState && process.stdin.isTTY === true && canUseTTY()
+    let background = false
     hooks.hook('studio:connected', async () => {
       pairedAgain = false
       await context.onState?.('connected')
+      if (listens && !unwatch) {
+        unwatch = watchKeys({
+          onBackground: () => {
+            background = true
+            stop()
+          },
+          onStop: stop,
+        })
+      }
       if (hinted || context.onState || options.logLevel === 'silent') return
       hinted = true
-      logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
+      logBlock([
+        `${styleText('dim', 'Project')}  ${path.basename(process.cwd())}   ${styleText('dim', formatPermissionSummary(permissions))}`,
+        styleText('dim', listens ? 'Press b to keep running in the background, Ctrl+C to disconnect' : 'Press Ctrl+C to disconnect'),
+      ])
       logTip()
     })
     hooks.hook('studio:reconnecting', () => context.onState?.('reconnecting'))
@@ -367,18 +422,54 @@ export async function connect(
         if (pairedAgain) throw explainRejectedToken(error, 'reauthExhausted')
         if (context.onState || isCIEnvironment() || !canUseTTY()) throw explainRejectedToken(error, 'nonInteractive')
 
+        // The pairing prompts need stdin back.
+        unwatch?.()
+        unwatch = undefined
         console.log(styleText('yellow', `${error.message} Pairing again...`))
         credentials = await login(options, { signal, previousCredentials: credentials })
         pairedAgain = true
         permissions = await resolvePermissions(options, credentials, configPath)
       }
     }
+    unwatch?.()
+    if (background) {
+      const { startWorker } = await import('./background.ts')
+      await startWorker(options)
+      if (options.logLevel !== 'silent') logOutro('Running in the background · kubb studio stop')
+      return
+    }
     if (!context.onState && signal.aborted && options.logLevel !== 'silent') logOutro('Disconnected')
   } catch (error) {
     if (!(error instanceof PairingCanceledError)) throw error
   } finally {
+    unwatch?.()
     events.off('SIGINT', stop)
     events.off('SIGTERM', stop)
+  }
+}
+
+/**
+ * Listens for single keys on a TTY stdin. Raw mode turns Ctrl+C into a key instead of SIGINT, so it
+ * is handled here too. Returns the function that restores the terminal, safe to call twice.
+ */
+export function watchKeys({ onBackground, onStop }: { onBackground: () => void; onStop: () => void }): () => void {
+  const stdin = process.stdin
+  const onData = (data: Buffer) => {
+    const key = data.toString()
+    if (key === 'b' || key === 'B') onBackground()
+    if (key === '\u0003') onStop()
+  }
+  stdin.setRawMode(true)
+  stdin.on('data', onData)
+  stdin.resume()
+  let restored = false
+
+  return () => {
+    if (restored) return
+    restored = true
+    stdin.off('data', onData)
+    stdin.setRawMode(false)
+    stdin.pause()
   }
 }
 
