@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto'
-import { relative } from 'node:path'
+import { readdir, readFile } from 'node:fs/promises'
+import { join, relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { toError } from '@internals/utils'
-import type { Hookable, KubbHooks } from '@kubb/core'
+import { matchesStored, toError } from '@internals/utils'
+import type { Hookable, KubbHooks, OutputManifest, Storage } from '@kubb/core'
 
 /** Glob pattern for paths the file watcher ignores. */
 const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
@@ -288,7 +289,7 @@ type NameChange = { added: number; removed: number }
 export type BuildDiff = {
   schemas: NameChange
   operations: NameChange
-  files: Array<{ status: 'A' | 'M' | 'D'; path: string }>
+  files: Array<FileChange>
   unchanged: number
 }
 
@@ -312,6 +313,78 @@ export function diffBuilds(previous: BuildSnapshot, next: BuildSnapshot): BuildD
   }
 
   return { schemas: diffNames(previous.schemas, next.schemas), operations: diffNames(previous.operations, next.operations), files, unchanged }
+}
+
+/** A changed file with how many lines it gains and loses, counted as a multiset, which is cheap and close enough for a plan. */
+export type FileChange = { status: 'A' | 'M' | 'D'; path: string; added?: number; removed?: number }
+
+function countLineChanges(before: string, after: string): { added: number; removed: number } {
+  const remaining = new Map<string, number>()
+  for (const line of before.split('\n')) remaining.set(line, (remaining.get(line) ?? 0) + 1)
+  let added = 0
+  for (const line of after.split('\n')) {
+    const count = remaining.get(line) ?? 0
+    if (count > 0) remaining.set(line, count - 1)
+    else added++
+  }
+  const removed = [...remaining.values()].reduce((sum, count) => sum + count, 0)
+  return { added, removed }
+}
+
+async function readOrNull(filePath: string): Promise<string | null> {
+  try {
+    return await readFile(filePath, 'utf8')
+  } catch {
+    return null
+  }
+}
+
+async function listFiles(dir: string): Promise<Array<string>> {
+  try {
+    const entries = await readdir(dir, { recursive: true, withFileTypes: true })
+    return entries.filter((entry) => entry.isFile()).map((entry) => join(entry.parentPath, entry.name))
+  } catch {
+    return []
+  }
+}
+
+/**
+ * What a dry run would change on disk: each generated file compared with the file at its path the
+ * way a real write compares them (trimmed, and through the output `manifest`, which knows the files
+ * the formatter rewrote), and with `clean`, the files in the output folder the run would delete.
+ * Reads only, writes nothing.
+ */
+export async function planDryRun({
+  storage,
+  paths,
+  outputPath,
+  clean,
+  manifest,
+}: {
+  storage: Storage
+  paths: ReadonlyArray<string>
+  outputPath: string
+  clean: boolean
+  manifest?: Pick<OutputManifest, 'isUpToDate'>
+}): Promise<{ files: Array<FileChange>; unchanged: number }> {
+  const generated = new Set(paths)
+  const [rows, existing] = await Promise.all([
+    Promise.all(paths.map(async (filePath) => ({ filePath, next: (await storage.readItem(filePath)) ?? '', previous: await readOrNull(filePath) }))),
+    clean ? listFiles(outputPath) : Promise.resolve([]),
+  ])
+
+  const files: Array<FileChange> = []
+  let unchanged = 0
+  for (const { filePath, next, previous } of rows) {
+    if (previous === null) files.push({ status: 'A', path: filePath })
+    else if (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: filePath, source: next, disk: previous })) unchanged++
+    else files.push({ status: 'M', path: filePath, ...countLineChanges(previous.trim(), next.trim()) })
+  }
+  for (const filePath of existing) {
+    if (!generated.has(filePath)) files.push({ status: 'D', path: filePath })
+  }
+
+  return { files, unchanged }
 }
 
 type KeyInput = Pick<NodeJS.ReadStream, 'isTTY' | 'setRawMode' | 'resume' | 'pause' | 'setEncoding' | 'on'>

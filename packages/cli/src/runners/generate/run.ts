@@ -7,7 +7,9 @@ import {
   type CLIOptions,
   cliReporter,
   type Config,
+  cacheStorage,
   createKubb,
+  createOutputManifest,
   Diagnostics,
   fileReporter,
   getInputKind,
@@ -30,9 +32,11 @@ import {
   type BuildDiff,
   type BuildSnapshot,
   createSerialRunner,
+  type FileChange,
   diffBuilds,
   fetchUrlBody,
   listenForKeys,
+  planDryRun,
   startUrlWatcher,
   startWatcher,
   trackBuild,
@@ -60,10 +64,14 @@ type GenerateProps = {
   config: Config
   hooks: Hookable<KubbHooks>
   /**
-   * When `true`, generates in memory instead of writing to disk, and skips formatting, linting,
-   * and post-generate commands.
+   * When `true`, generates in memory instead of writing to disk, skips formatting, linting, and
+   * post-generate commands, and prints what would change on disk.
    */
   dryRun?: boolean
+  /**
+   * Prints nothing of its own, for `--reporter json` and `silent`.
+   */
+  quiet?: boolean
 }
 
 export async function generate(options: GenerateProps): Promise<boolean> {
@@ -85,8 +93,12 @@ export async function generate(options: GenerateProps): Promise<boolean> {
   const kubb = createKubb(config, { hooks })
   const result = await kubb.generate()
 
-  if (dryRun) {
-    await hooks.callHook('kubb:info', { message: 'Dry run: no files were written', info: `${result.files.length} file(s) would be generated` })
+  if (dryRun && !options.quiet) {
+    const outputPath = path.resolve(config.root, config.output.path)
+    // Read only: the manifest is never committed, so a dry run leaves the cache as it found it.
+    const manifest = await createOutputManifest({ storage: options.config.storage, cache: cacheStorage({ root: config.root }) })
+    const paths = result.files.map((file) => file.path)
+    logDryRunPlan(await planDryRun({ storage: config.storage, paths, outputPath, clean: Boolean(config.output.clean), manifest }))
   }
 
   await report({
@@ -143,6 +155,18 @@ function formatSpecChange({ schemas, operations }: BuildDiff): string {
 
 const fileStatusStyle = { A: 'green', M: 'yellow', D: 'red' } as const
 
+/** Lists added, modified or removed files, each `M` with its line counts when known, capped at {@link WATCH_FILE_LIMIT}. */
+function logFileChanges(files: ReadonlyArray<FileChange>): void {
+  if (!files.length) return
+
+  const rows = files.slice(0, WATCH_FILE_LIMIT).map(({ status, path: filePath, added, removed }) => {
+    const lines = added || removed ? `  ${styleText('green', `+${added ?? 0}`)} ${styleText('red', `-${removed ?? 0}`)}` : ''
+    return `${styleText(fileStatusStyle[status], status)} ${styleText('cyan', path.relative(process.cwd(), filePath))}${lines}`
+  })
+  const more = files.length - rows.length
+  logBlock(more > 0 ? [...rows, styleText('dim', `… ${more} more`)] : rows)
+}
+
 /** Prints what a watch rebuild changed: the spec's names, then each added, modified or removed file. */
 function logRebuild({ diff, durationMs }: { diff: BuildDiff; durationMs: number }): void {
   const specChange = formatSpecChange(diff)
@@ -151,13 +175,23 @@ function logRebuild({ diff, durationMs }: { diff: BuildDiff; durationMs: number 
       .filter(Boolean)
       .join(styleText('dim', ' · ')),
   )
-  if (!diff.files.length) return
+  logFileChanges(diff.files)
+}
 
-  const rows = diff.files
-    .slice(0, WATCH_FILE_LIMIT)
-    .map(({ status, path: filePath }) => `${styleText(fileStatusStyle[status], status)} ${styleText('cyan', path.relative(process.cwd(), filePath))}`)
-  const more = diff.files.length - rows.length
-  logBlock(more > 0 ? [...rows, styleText('dim', `… ${more} more`)] : rows)
+/** Prints a dry run's plan: the counts, then each file it would add, change or delete. */
+function logDryRunPlan({ files, unchanged }: { files: ReadonlyArray<FileChange>; unchanged: number }): void {
+  const count = (status: FileChange['status']) => files.filter((file) => file.status === status).length
+  logStep(
+    [
+      'Dry run: nothing was written',
+      styleText('green', `+${count('A')} new`),
+      styleText('yellow', `~${count('M')} changed`),
+      styleText('red', `-${count('D')} removed`),
+      styleText('dim', `${unchanged} unchanged`),
+    ].join(styleText('dim', ' · ')),
+  )
+  logFileChanges(files)
+  logStep(files.length ? 'Run without --dry-run to write these files.' : 'The files on disk are up to date.')
 }
 
 /**
@@ -255,7 +289,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async (paths: Array<string>) => {
           const hrStart = process.hrtime()
-          const succeeded = await generate({ input, config, hooks, dryRun })
+          const succeeded = await generate({ input, config, hooks, dryRun, quiet })
           const snapshot = tracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
           previous = snapshot
@@ -294,7 +328,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         }
       } else {
         try {
-          const succeeded = await generate({ input, config, hooks, dryRun })
+          const succeeded = await generate({ input, config, hooks, dryRun, quiet })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await Diagnostics.emit(errorHooks, configError)

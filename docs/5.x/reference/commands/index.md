@@ -25,7 +25,7 @@ COMMANDS:
   list <OPTIONS> [<input>]            List the installed Kubb extensions: their registry id, package, installed version, the version the Kubb registry pins, and whether an update exists.
   mcp <OPTIONS> [<input>]             Start a Model Context Protocol (MCP) server that exposes Kubb code generation as tools for AI assistants. Once running, configure your AI client (Claude, Cursor, Windsurf, etc.) to connect to it — the assistant can then call kubb generate directly without leaving the chat.
   studio <OPTIONS> [<input>]          Connect this project to Kubb Studio, or manage its pairing and snapshots.
-  update <OPTIONS> [<input>]          Update installed extensions to the version the Kubb registry pins. Pass ids to update only those, or --check to list the updates without installing.
+  update <OPTIONS> [<input>]          Update installed extensions to the version the Kubb registry pins. Pass ids to update only those, or --dry-run to list the updates without installing.
   validate <OPTIONS> [<input>]        Parse and validate an OpenAPI/Swagger file for structural correctness. Reports schema errors, missing required fields, and malformed references. Use this before running generate to catch spec issues early.
 
 For more info, run any command with the `--help` flag:

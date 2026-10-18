@@ -2,7 +2,7 @@
 layout: doc
 title: kubb update
 description: The update command moves installed Kubb extensions to the version
-  the Kubb extension registry pins, or lists the available updates with --check.
+  the Kubb extension registry pins, or lists the available updates with --dry-run.
 outline:
   - 2
   - 3
@@ -52,14 +52,14 @@ After the install, the CLI runs the same generation as `kubb generate` and lists
 List the updates without installing them:
 
 ```shell [Terminal]
-kubb update --check
+kubb update --dry-run
 ```
 
 ```text [Output]
 2 updates available (1 major)
 @kubb/plugin-ts   5.0.0 → 5.2.0
 @kubb/plugin-zod  5.2.0 → 6.0.0  major
-Run kubb update to install them.
+Dry run: nothing was installed. Run kubb update to install them.
 ```
 
 It exits with code 1 when an update exists, so CI can fail on outdated extensions.
@@ -80,7 +80,7 @@ kubb update plugin-zod plugin-ts --yes
 
 | Option        | Default | Description |
 | ------------- | ------- | ----------- |
-| `--check`     | `false` | List the available updates without installing them. Exits with code 1 when any exist. |
+| `--dry-run`   | `false` | List the available updates without installing them. |
 | `--yes`, `-y` | `false` | Install every update except majors without asking. |
 
 ## Which extensions it updates
@@ -99,4 +99,4 @@ An id that matches no installed extension prints `<id> is not installed, or not 
 
 ## Exit codes
 
-`kubb update` exits with code 1 when an id is invalid, the registry index cannot be read or is invalid, the install fails, or `--check` finds an update. It exits with code 0 when there is nothing to update and when you cancel at the prompt. A failed generation after the install prints `Generation failed. Run kubb generate to see why.` and does not change the exit code.
+`kubb update` exits with code 1 when an id is invalid, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update and when you cancel at the prompt. A failed generation after the install prints `Generation failed. Run kubb generate to see why.` and does not change the exit code.

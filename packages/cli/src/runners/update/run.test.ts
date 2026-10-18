@@ -49,32 +49,32 @@ afterEach(async () => {
 })
 
 describe('kubb update', () => {
-  it('lists the updates with --check, counts the majors, and exits with code 1', async () => {
-    await run({ ids: [], check: true, yes: false })
+  it('lists the updates with --dry-run, counts the majors, and installs nothing', async () => {
+    await run({ ids: [], dryRun: true, yes: false })
 
     const printed = output.join('\n')
     expect(printed).toContain('2 updates available (1 major)')
     expect(printed).toContain('@acme/kubb-plugin-x  1.0.0 → 1.1.0')
     expect(printed).toMatch(/@acme\/kubb-plugin-z {2}1\.0\.0 → 2\.0\.0 {2}major/)
-    expect(printed).toContain('Run kubb update to install them.')
+    expect(printed).toContain('Dry run: nothing was installed. Run kubb update to install them.')
     expect(printed).not.toContain('@acme/kubb-plugin-y')
     expect(clack.multiselect).not.toHaveBeenCalled()
     expect(installPackages).not.toHaveBeenCalled()
     expect(globalThis.fetch).toHaveBeenCalledTimes(1)
-    expect(process.exitCode).toBe(1)
+    expect(process.exitCode).toBeUndefined()
   })
 
-  it('exits with code 0 from --check when everything is up to date', async () => {
+  it('says everything is up to date on a dry run with nothing to update', async () => {
     stubRegistry([pluginY])
 
-    await run({ ids: [], check: true, yes: false })
+    await run({ ids: [], dryRun: true, yes: false })
 
     expect(output.join('\n')).toContain('Every installed extension is up to date.')
     expect(process.exitCode).toBeUndefined()
   })
 
   it('shows every tracked extension with its bump, flagging a major as breaking', async () => {
-    await run({ ids: [], check: false, yes: false })
+    await run({ ids: [], dryRun: false, yes: false })
 
     const printed = output.join('\n')
     expect(printed).toContain('Checked 3 extensions against the registry')
@@ -84,7 +84,7 @@ describe('kubb update', () => {
   })
 
   it('pre-selects the minors and leaves a major unselected with its headline change and guide', async () => {
-    await run({ ids: [], check: false, yes: false })
+    await run({ ids: [], dryRun: false, yes: false })
 
     expect(clack.multiselect).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -100,7 +100,7 @@ describe('kubb update', () => {
   })
 
   it('installs only the non-major updates with --yes', async () => {
-    await run({ ids: [], check: false, yes: true })
+    await run({ ids: [], dryRun: false, yes: true })
 
     expect(clack.multiselect).not.toHaveBeenCalled()
     expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.1.0'], expect.anything(), cwd)
@@ -121,7 +121,7 @@ describe('kubb update', () => {
       return true
     })
 
-    await run({ ids: [], check: false, yes: true })
+    await run({ ids: [], dryRun: false, yes: true })
 
     expect(generate).toHaveBeenCalledTimes(1)
     const printed = output.join('\n')
@@ -135,13 +135,13 @@ describe('kubb update', () => {
     const artifact = { kind: 'github', owner: 'acme', repo: 'kubb-plugin-x', tag: 'v1.1.0', commit }
     stubRegistry([registryEntry({ name: 'plugin-x', version: '1.1.0', artifact })])
 
-    await run({ ids: [], check: false, yes: true })
+    await run({ ids: [], dryRun: false, yes: true })
 
     expect(installPackages).toHaveBeenCalledWith([`github:acme/kubb-plugin-x#${commit}`], expect.objectContaining({ name: 'npm' }), cwd)
   })
 
   it('only updates the ids it is given', async () => {
-    await run({ ids: ['acme/plugin-y'], check: false, yes: true })
+    await run({ ids: ['acme/plugin-y'], dryRun: false, yes: true })
 
     expect(installPackages).not.toHaveBeenCalled()
     expect(output.join('\n')).toContain('No updates for acme/plugin-y.')

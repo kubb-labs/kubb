@@ -4,11 +4,11 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { define } from 'gunshi'
+import { defineWithTypes } from 'gunshi'
 import { findConfigFile } from '@internals/shared'
 import { formatMs, getElapsedMs, getErrorMessage } from '@internals/utils'
 import { Hookable, type KubbHooks, readInstalledPackages, type RegistryEntry } from '@kubb/core'
-import { yesArg } from '../../commands/shared.ts'
+import { dryRunId, type DryRunExtensions, yesArg } from '../../commands/shared.ts'
 import { createSpinner, logBlock, logError, logIntro, logOutro, logStep, logWarn, withSpinner } from '../../loggers/output.ts'
 import { bumpOf, fetchRegistryIndex, incompatibility, installSpec, isOutdated, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
 import { detectPackageManager, installPackages } from '../init/utils.ts'
@@ -18,7 +18,10 @@ export type UpdateOptions = {
    * Registry ids to update. Empty updates every installed extension the registry lists.
    */
   ids: Array<string>
-  check: boolean
+  /**
+   * List the updates without installing anything.
+   */
+  dryRun: boolean
   yes: boolean
 }
 
@@ -89,9 +92,9 @@ async function regenerate({ cwd, configPath }: { cwd: string; configPath: string
 /**
  * Moves installed extensions to the version the registry pins. Shows each version change with its
  * bump, asks which to install with majors left out, installs them, and regenerates to show which
- * files changed. With `check`, only lists the updates and exits with code 1 when there are any.
+ * files changed. With `dryRun`, only lists the updates and installs nothing.
  */
-export async function run({ ids, check, yes }: UpdateOptions): Promise<void> {
+export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
   const cwd = process.cwd()
   logIntro({ title: styleText('bgCyan', styleText('black', ' Kubb Update ')) })
 
@@ -117,7 +120,7 @@ export async function run({ ids, check, yes }: UpdateOptions): Promise<void> {
       return !problem
     })
 
-    if (check) {
+    if (dryRun) {
       if (!proposals.length) {
         logOutro(ids.length ? `No updates for ${ids.join(', ')}.` : 'Every installed extension is up to date.')
         return
@@ -130,8 +133,7 @@ export async function run({ ids, check, yes }: UpdateOptions): Promise<void> {
           proposals.map((entry) => [entry.artifact.package, `${current(entry) ?? 'not installed'} → ${entry.artifact.version}`, isMajor(entry) ? 'major' : '']),
         ),
       ])
-      logOutro('Run kubb update to install them.')
-      process.exitCode = 1
+      logOutro(`Dry run: nothing was installed. Run kubb update to install ${proposals.length === 1 ? 'it' : 'them'}.`)
       return
     }
 
@@ -229,23 +231,18 @@ export async function run({ ids, check, yes }: UpdateOptions): Promise<void> {
   }
 }
 
-export const command = define({
+export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   name: 'update',
   description:
-    'Update installed extensions to the version the Kubb registry pins, then regenerate and list the changed files. Majors are left unselected. Pass ids to update only those, or --check to list the updates and exit with code 1 when there are any.',
-  examples: ['kubb update', 'kubb update --check', 'kubb update plugin-zod plugin-ts --yes'].join('\n'),
+    'Update installed extensions to the version the Kubb registry pins, then regenerate and list the changed files. Majors are left unselected. Pass ids to update only those, or --dry-run to list the updates without installing them.',
+  examples: ['kubb update', 'kubb update --dry-run', 'kubb update plugin-zod plugin-ts --yes'].join('\n'),
   args: {
     ids: {
       type: 'positional',
       description: 'Registry ids to update, all installed extensions when omitted',
       multiple: true,
     },
-    check: {
-      type: 'boolean',
-      description: 'List the available updates without installing them. Exits with code 1 when there are any',
-      default: false,
-    },
     ...yesArg,
   },
-  run: ({ values }) => run({ ids: values.ids ?? [], check: values.check, yes: values.yes }),
+  run: ({ values, extensions }) => run({ ids: values.ids ?? [], dryRun: extensions[dryRunId].enabled, yes: values.yes }),
 })

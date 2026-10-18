@@ -1,12 +1,12 @@
-import { mkdtemp, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { EventEmitter } from 'node:events'
 import { join, relative } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { type GeneratorContext, Hookable, type KubbHooks } from '@kubb/core'
+import { type GeneratorContext, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, diffBuilds, formatChange, listenForKeys, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
+import { createSerialRunner, diffBuilds, formatChange, listenForKeys, planDryRun, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
 
 describe('createSerialRunner', () => {
   it('collapses triggers that land during a run into one rerun, reports its error through onError, and keeps accepting triggers', async () => {
@@ -310,5 +310,34 @@ describe('listenForKeys', () => {
     arm?.()
     input.emit('data', '\u0003')
     expect(quit).toHaveBeenLastCalledWith(130)
+  })
+})
+
+describe('planDryRun', () => {
+  it('compares each generated file with disk, and lists the files `clean` would delete', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'kubb-dry-run-'))
+    try {
+      await mkdir(join(dir, 'gen'))
+      await writeFile(join(dir, 'gen/pet.ts'), 'a\nb\nc')
+      await writeFile(join(dir, 'gen/tag.ts'), 'same')
+      await writeFile(join(dir, 'gen/legacy.ts'), 'old')
+      const storage = memoryStorage()
+      await storage.writeItem(join(dir, 'gen/pet.ts'), 'a\nB\nc\nd')
+      await storage.writeItem(join(dir, 'gen/tag.ts'), 'same')
+      await storage.writeItem(join(dir, 'gen/toy.ts'), 'new')
+      const paths = ['pet.ts', 'tag.ts', 'toy.ts'].map((name) => join(dir, 'gen', name))
+
+      expect(await planDryRun({ storage, paths, outputPath: join(dir, 'gen'), clean: true })).toStrictEqual({
+        files: [
+          { status: 'M', path: join(dir, 'gen/pet.ts'), added: 2, removed: 1 },
+          { status: 'A', path: join(dir, 'gen/toy.ts') },
+          { status: 'D', path: join(dir, 'gen/legacy.ts') },
+        ],
+        unchanged: 1,
+      })
+      expect((await planDryRun({ storage, paths, outputPath: join(dir, 'gen'), clean: false })).files.map((file) => file.status)).toStrictEqual(['M', 'A'])
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 })
