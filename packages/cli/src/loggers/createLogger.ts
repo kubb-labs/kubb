@@ -87,6 +87,11 @@ function createProgressCounters(): ProgressState {
   }
 }
 
+/** A hook's display name: its `name`, or the command line it runs. */
+function formatHookLabel({ command, name, args }: { command: string; name?: string; args?: ReadonlyArray<string> }): string {
+  return name ?? (args?.length ? `${command} ${args.join(' ')}` : command)
+}
+
 /**
  * One output phase while its step owns the line. A phase buffers what it is told, because a spinner
  * redraws over anything written under it, and prints the lot once it knows its own result.
@@ -185,6 +190,10 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
        * Problems held back so the human view can print them grouped by plugin once the build ends.
        */
       problems: [] as Array<ProblemDiagnostic>,
+      /**
+       * Names of the schemas and operations generated so far, for the live count on the generation step.
+       */
+      nodes: { schema: new Set<string>(), operation: new Set<string>() },
       /**
        * The finished config's diagnostics and file count, for the closing summary.
        */
@@ -294,6 +303,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       state.phase = null
       state.groupOpen = false
       state.problems = []
+      state.nodes = { schema: new Set(), operation: new Set() }
       state.outcome = null
     }
 
@@ -479,7 +489,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       }
       state.hooks.delete(id)
 
-      const label = styleText('dim', name ?? (args?.length ? `${command} ${args.join(' ')}` : command))
+      const label = styleText('dim', formatHookLabel({ command, name, args }))
       const reason = error?.message ? ` (${error.message})` : ''
       const result = success
         ? `${styleText('green', '✓')} ${label} in ${formatMsWithColor(getElapsedMs(active.hrStart))}`
@@ -561,6 +571,21 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         state.spinner?.message(text(`Generating ${styleText('dim', plugin.name)}`))
       })
 
+      // The walk visits each node once for every plugin, and every plugin ends together after it,
+      // so these per-node hooks are what keeps the step moving. Plain output skips them, since it
+      // would print one line per node and plugin.
+      if (human) {
+        const onNode = (kind: 'schema' | 'operation', name: string, plugin: string) => {
+          state.nodes[kind].add(name)
+          const { schema, operation } = state.nodes
+          const counts = [schema.size && pluralize(schema.size, 'schema'), operation.size && pluralize(operation.size, 'operation')].filter(Boolean).join(', ')
+          state.spinner?.message(text(`Generating ${name} ${styleText('dim', `${plugin} · ${counts}`)}`))
+        }
+
+        context.hook('kubb:generate:schema', (node, { plugin }) => onNode('schema', node.name ?? 'schema', plugin.name))
+        context.hook('kubb:generate:operation', (node, { plugin }) => onNode('operation', node.operationId, plugin.name))
+      }
+
       // Buffered, not printed: a step redraws over anything written while it runs.
       context.hook('kubb:plugin:end', ({ plugin, duration, success }) => {
         if (success) {
@@ -602,11 +627,13 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         stopProgress(state.inMemory ? `Generated ${pluralize(state.processedFiles, 'file')} in memory` : `Wrote ${pluralize(state.processedFiles, 'file')}`)
       })
 
-      context.hook('kubb:hook:start', ({ id }) => {
+      context.hook('kubb:hook:start', ({ id, command, name, args }) => {
         if (!id) {
           return
         }
         state.hooks.set(id, { hrStart: process.hrtime(), lines: [] })
+        // A phase can run several commands, so the step names the one running now.
+        state.spinner?.message(text(`Running ${styleText('dim', formatHookLabel({ command, name, args }))}`))
       })
 
       context.hook('kubb:hook:line', ({ id, line }) => {

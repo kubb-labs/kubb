@@ -1,6 +1,16 @@
 import { stripVTControlCharacters } from 'node:util'
-import type { FileNode } from '@kubb/ast'
-import { Hookable, cliReporter, type Config, type KubbHooks, logLevel, type NormalizedPlugin, type ProblemDiagnostic, type Storage } from '@kubb/core'
+import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
+import {
+  Hookable,
+  cliReporter,
+  type Config,
+  type GeneratorContext,
+  type KubbHooks,
+  logLevel,
+  type NormalizedPlugin,
+  type ProblemDiagnostic,
+  type Storage,
+} from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
 import setupReporters from './reporters.ts'
@@ -88,6 +98,10 @@ function makePlugin(name: string): NormalizedPlugin {
   return { name } as NormalizedPlugin
 }
 
+function makeGeneratorContext(pluginName: string): GeneratorContext {
+  return { plugin: makePlugin(pluginName) } as unknown as GeneratorContext
+}
+
 function makeFile(path: string): FileNode {
   return { path } as FileNode
 }
@@ -117,6 +131,9 @@ function generation({ config, pluginFailed = false, formatFailed = false, hookLi
 
     await context.callHook('kubb:generation:start', { config })
     await context.callHook('kubb:plugin:start', { plugin: makePlugin('@kubb/plugin-ts') })
+    await context.callHook('kubb:generate:schema', { name: 'Pet' } as SchemaNode, makeGeneratorContext('@kubb/plugin-ts'))
+    await context.callHook('kubb:generate:schema', { name: 'Pet' } as SchemaNode, makeGeneratorContext('@kubb/plugin-zod'))
+    await context.callHook('kubb:generate:operation', { operationId: 'getPet' } as OperationNode, makeGeneratorContext('@kubb/plugin-ts'))
     await context.callHook('kubb:plugin:end', withFiles({ config, plugin: makePlugin('@kubb/plugin-ts'), duration: 12, success: true }))
     await context.callHook('kubb:plugin:end', withFiles({ config, plugin: makePlugin('@kubb/plugin-zod'), duration: 8, success: !pluginFailed }))
     await context.callHook('kubb:plugins:end', withFiles({ config }))
@@ -165,22 +182,34 @@ describe('grouped generation output', () => {
       'intro:petstore petstore.yaml',
       'spinner.start:Generating',
       'spinner.message:Generating @kubb/plugin-ts',
+      // The node just generated, its plugin, and the distinct nodes so far.
+      'spinner.message:Generating Pet @kubb/plugin-ts · 1 schema',
+      'spinner.message:Generating Pet @kubb/plugin-zod · 1 schema',
+      'spinner.message:Generating getPet @kubb/plugin-ts · 1 schema, 1 operation',
       'spinner.stop:Plugins 2/2 |  elapsed',
       'log.message:@kubb/plugin-ts completed in \n@kubb/plugin-zod completed in ',
       'spinner.start:Writing 1 file',
       'progress.advance:Writing src/gen/pet.ts',
       'spinner.stop:Wrote 1 file',
       'spinner.start:Formatting',
+      'spinner.message:Running biome format',
       'spinner.stop:Formatted in ',
       'spinner.start:Linting',
       'spinner.stop:Linted in ',
       'spinner.start:Running post-generate hooks',
+      'spinner.message:Running tsc --noEmit',
       'spinner.stop:Post-generate hooks completed in ',
       'log.message:✓ tsc --noEmit in ',
       'outro:✓ Generation succeeded',
       // The summary block, which the reporter renders as one entry after the group closes.
       'log.message.bare: Plugins  2 passed (2)\n   Files  1 generated\nDuration  \n  Output  /tmp/src/gen',
     ])
+  })
+
+  it('leaves the per-node progress out of plain output, where each node would print its own line', async () => {
+    const output = await render(generation({ config: makeConfig('petstore') }), { rich: false })
+
+    expect(output.filter((line) => line.includes('Pet'))).toStrictEqual([])
   })
 
   it.each([
@@ -300,8 +329,10 @@ describe('both loggers', () => {
         )
         .filter((line) => line && !/^(Kubb succeeded|Generation succeeded|Plugins {2}|Files {2}|Duration|Output {2})/.test(line))
         .sort()
+    // The per-node progress only redraws the rich spinner; plain output leaves it out on purpose.
+    const richMessages = messages(rich).filter((line) => !line.includes(' · '))
 
-    expect(messages(plain)).toStrictEqual(messages(rich))
+    expect(messages(plain)).toStrictEqual(richMessages)
   })
 })
 
