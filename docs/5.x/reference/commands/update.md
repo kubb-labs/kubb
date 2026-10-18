@@ -32,12 +32,12 @@ kubb update
 │  @kubb/plugin-msw  5.4.2    up to date
 │
 ◆  Select the updates to install
-│  ◼ @kubb/plugin-ts 5.2.0 (Faster enum output)
-│  ◻ @kubb/plugin-zod 6.0.0 (Zod 4 only · guide https://kubb.dev/migrate/zod-6)
+│  ◼ @kubb/plugin-ts 5.2.0 (5.0.0 → 5.2.0)
+│  ◻ @kubb/plugin-zod 6.0.0 (5.2.0 → 6.0.0)
 │  ↑/↓ to navigate • Space: select • Enter: confirm
 ```
 
-Minor and patch updates start selected. A major starts unselected, since it can break the generated code. The hint is the headline change of the new version, from the registry's [`changes`](/docs/5.x/reference/registry#changes), and a migration guide for a major when the changelog links one. Without it, the hint is the version change.
+Minor and patch updates start selected. A major starts unselected, since it can break the generated code. The hint is the version change.
 
 After the install, the CLI runs the same generation as `kubb generate` and lists the changed files as `M`, `A`, or `D`, at most 10:
 

@@ -1,15 +1,6 @@
 import process from 'node:process'
-import { stripVTControlCharacters } from 'node:util'
 import { getErrorMessage, toError } from '@internals/utils'
-import {
-  checkCompatibility,
-  Diagnostics,
-  type ExtensionManifest,
-  isRegistryEntry,
-  type RegistryArtifact,
-  type RegistryChanges,
-  type RegistryEntry,
-} from '@kubb/core'
+import { checkCompatibility, Diagnostics, type ExtensionManifest, isRegistryEntry, type RegistryArtifact, type RegistryEntry } from '@kubb/core'
 import { difference, isLessThan, isValid } from 'verkit'
 
 export const DEFAULT_REGISTRY = 'https://kubb.dev/registry'
@@ -117,21 +108,6 @@ export function bumpOf({ installed, latest }: { installed: string | undefined; l
   if (!kind) return undefined
   if (kind.endsWith('major')) return 'major'
   return kind.endsWith('minor') ? 'minor' : 'patch'
-}
-
-/**
- * The entry's `changes`, checked and stripped of terminal control sequences, since the registry
- * text comes from package authors. Registries built before the field existed leave it out.
- */
-export function changesOf(entry: RegistryEntry): RegistryChanges | undefined {
-  const changes: unknown = entry.changes
-  if (typeof changes !== 'object' || changes === null || !('summary' in changes) || typeof changes.summary !== 'string') return undefined
-  const guide = 'guide' in changes && typeof changes.guide === 'string' ? stripVTControlCharacters(changes.guide) : undefined
-  return {
-    summary: stripVTControlCharacters(changes.summary),
-    breaking: 'breaking' in changes && changes.breaking === true,
-    guide: guide && /^https:\/\/\S+$/.test(guide) ? guide : undefined,
-  }
 }
 
 function editDistance(a: string, b: string): number {

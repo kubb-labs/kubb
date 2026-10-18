@@ -10,7 +10,7 @@ import { formatMs, getElapsedMs, getErrorMessage } from '@internals/utils'
 import { Hookable, type KubbHooks, readInstalledPackages, type RegistryEntry } from '@kubb/core'
 import { yesArg } from '../../commands/shared.ts'
 import { createSpinner, logBlock, logError, logIntro, logOutro, logStep, logWarn, withSpinner } from '../../loggers/output.ts'
-import { bumpOf, changesOf, fetchRegistryIndex, incompatibility, installSpec, isOutdated, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
+import { bumpOf, fetchRegistryIndex, incompatibility, installSpec, isOutdated, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
 import { detectPackageManager, installPackages } from '../init/utils.ts'
 
 export type UpdateOptions = {
@@ -160,16 +160,15 @@ export async function run({ ids, check, yes }: UpdateOptions): Promise<void> {
 
     // A major can break the generated code, so it is never picked for you.
     const defaults = proposals.filter((entry) => !isMajor(entry))
-    const headline = (entry: RegistryEntry) => {
-      const changes = changesOf(entry)
-      const guide = changes?.guide && (isMajor(entry) || changes.breaking) ? `guide ${changes.guide}` : undefined
-      return [changes?.summary, guide].filter(Boolean).join(' · ') || `${current(entry) ?? 'not installed'} → ${entry.artifact.version}`
-    }
     const selected = await (async () => {
       if (yes) return defaults
       const chosen = await clack.multiselect({
         message: 'Select the updates to install',
-        options: proposals.map((entry) => ({ value: entry.id, label: `${entry.artifact.package} ${entry.artifact.version}`, hint: headline(entry) })),
+        options: proposals.map((entry) => ({
+          value: entry.id,
+          label: `${entry.artifact.package} ${entry.artifact.version}`,
+          hint: `${current(entry) ?? 'not installed'} → ${entry.artifact.version}`,
+        })),
         initialValues: defaults.map((entry) => entry.id),
         required: false,
       })

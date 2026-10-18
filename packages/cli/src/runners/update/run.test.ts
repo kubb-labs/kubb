@@ -19,10 +19,7 @@ vi.mock('@clack/prompts', async (importOriginal) => ({
 
 const pluginX = registryEntry({ name: 'plugin-x', version: '1.1.0' })
 const pluginY = registryEntry({ name: 'plugin-y', version: '2.0.0' })
-const pluginZ = {
-  ...registryEntry({ name: 'plugin-z', version: '2.0.0' }),
-  changes: { summary: 'Zod 4 only', breaking: true, guide: 'https://kubb.dev/migrate/zod-6' },
-}
+const pluginZ = registryEntry({ name: 'plugin-z', version: '2.0.0' })
 
 let cwd: string
 let output: Array<string>
@@ -93,25 +90,13 @@ describe('kubb update', () => {
       expect.objectContaining({
         options: [
           { value: 'acme/plugin-x', label: '@acme/kubb-plugin-x 1.1.0', hint: '1.0.0 → 1.1.0' },
-          { value: 'acme/plugin-z', label: '@acme/kubb-plugin-z 2.0.0', hint: 'Zod 4 only · guide https://kubb.dev/migrate/zod-6' },
+          { value: 'acme/plugin-z', label: '@acme/kubb-plugin-z 2.0.0', hint: '1.0.0 → 2.0.0' },
         ],
         initialValues: ['acme/plugin-x'],
       }),
     )
     expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.1.0'], expect.objectContaining({ name: 'npm' }), cwd)
     expect(output.join('\n')).toContain('Skipped  @acme/kubb-plugin-z 2.0.0  run kubb update acme/plugin-z later')
-  })
-
-  it('ignores a malformed change summary and strips terminal escapes from it', async () => {
-    stubRegistry([
-      { ...pluginX, changes: { summary: '\u001B[31mRed\u001B[0m', guide: 'javascript:alert(1)' } },
-      { ...pluginZ, changes: { summary: 42 } },
-    ])
-
-    await run({ ids: [], check: false, yes: false })
-
-    const { options } = vi.mocked(clack.multiselect).mock.calls[0]![0]
-    expect(options.map((option) => option.hint)).toStrictEqual(['Red', '1.0.0 → 2.0.0'])
   })
 
   it('installs only the non-major updates with --yes', async () => {

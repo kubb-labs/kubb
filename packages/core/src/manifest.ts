@@ -77,16 +77,6 @@ export type RegistryArtifact =
       commit: string
     }
 
-/** The headline change of a pinned version, read from the `CHANGELOG.md` it ships. */
-export type RegistryChanges = {
-  /** The first entry of the version's section, as plain text. */
-  summary: string
-  /** `true` when the section lists major changes. */
-  breaking?: boolean
-  /** A migration guide URL the section links to. */
-  guide?: string
-}
-
 /** One extension in a registry's `index.json`. */
 export type RegistryEntry = {
   /** `<owner>/<slug>`, such as `kubb-labs/plugin-zod`. */
@@ -97,8 +87,6 @@ export type RegistryEntry = {
   repository?: { url: string }
   manifest: ExtensionManifest
   stats?: { downloads?: number; weekly?: number; stars?: number }
-  /** Left out by registries built before it existed, and for versions without a changelog entry. */
-  changes?: RegistryChanges
   submittedAt: string
   publishedAt: string
   reviewedAt: string
