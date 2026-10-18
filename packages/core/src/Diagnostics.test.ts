@@ -261,6 +261,18 @@ describe('Diagnostics.format', () => {
     expect(render(multiLine, { audience: 'human', width: 80 }).split('\n')[0]).toMatch(/^✖ Cannot parse at line 7, column 1: +KUBB_INVALID_DOCUMENT$/)
   })
 
+  it('replaces the pointer with the resolved file position, and draws the frame only for a human', () => {
+    const [, coded] = cases[0]!
+    const position = { file: 'petStore.yaml', line: 117, column: 15, frame: ['116 │   owner:', "117 │     $ref: '#/components/schemas/Owner'"] }
+
+    expect(render(coded, { audience: 'agent', position }).split('\n')[1]).toBe('  at: petStore.yaml:117:15 (#/components/schemas/Pet/properties/owner)')
+    expect(render(coded, { audience: 'human', width: 80, position }).split('\n').slice(1, 4)).toStrictEqual([
+      '  at   petStore.yaml:117:15',
+      '    116 │   owner:',
+      "    117 │     $ref: '#/components/schemas/Owner'",
+    ])
+  })
+
   it('keeps an agent block free of escape codes even when color is on', () => {
     const [, coded] = cases[0]!
 

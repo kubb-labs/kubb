@@ -622,6 +622,10 @@ export type KubbFilesProcessingEndContext = {
    * All files that were serialized in this batch.
    */
   files: Array<FileNode>
+  /**
+   * Paths of the files the storage already held with the same content, so they were not written.
+   */
+  unchanged: Array<string>
 }
 
 export type KubbHookStartContext = {

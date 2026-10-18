@@ -333,6 +333,20 @@ describe('FileManager', () => {
       expect(hookCalls).toStrictEqual(['start:2', 'update:1:a.ts', 'update:2:b.ts', 'end:2'])
     })
 
+    it('lists the files the storage already held as unchanged on the end hook', async () => {
+      const storage = memoryStorage()
+      await storage.writeItem('a.ts', '/* a */')
+      const hooks = new Hookable<KubbHooks>()
+      const ends: Array<Array<string>> = []
+      hooks.hook('kubb:files:processing:end', ({ unchanged }) => {
+        ends.push(unchanged)
+      })
+
+      await new FileManager().write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], { storage, hooks })
+
+      expect(ends).toStrictEqual([['a.ts']])
+    })
+
     it('reports a finished file while a slower one is still writing', async () => {
       const hookCalls: Array<string> = []
       const storage = memoryStorage()

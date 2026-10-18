@@ -48,6 +48,10 @@ export type GenerationResult = {
    * Number of files written for this config.
    */
   filesCreated: number
+  /**
+   * Number of those files skipped because the storage already held the same content.
+   */
+  filesUnchanged?: number
   status: 'success' | 'failed'
   /**
    * `process.hrtime()` snapshot taken when this config started generating.
