@@ -8,6 +8,7 @@ import {
   cliReporter,
   type Config,
   createKubb,
+  detectSharedSchemas,
   Diagnostics,
   fileReporter,
   getInputKind,
@@ -176,6 +177,19 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   // Inside the bootstrap group, so an update notice reads as part of the setup rather than as part
   // of the first config's generation.
   await checkForUpdate(hooks)
+
+  try {
+    const detected = await detectSharedSchemas(configs.map((config) => ({ ...config, input: input ?? config.input })))
+    configs = detected.configs
+    if (detected.conflicts.length > 0) {
+      await hooks.callHook('kubb:warn', {
+        message: `Not shared, since the specs define them differently: ${detected.conflicts.join(', ')}`,
+        info: 'Each config keeps its own copy of these schemas.',
+      })
+    }
+  } catch {
+    // The build reports a spec that fails to parse, with its config.
+  }
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 

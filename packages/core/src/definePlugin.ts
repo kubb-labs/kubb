@@ -34,8 +34,8 @@ export type OutputMode = 'directory' | 'file'
 export type SharedOutput = {
   /** Resolved against `root` on `defineConfig`, and against the global `output.path` on a plugin. */
   path: string
-  /** Schema names as the spec writes them, including every schema a listed schema references. */
-  schemas: Array<string>
+  /** Schema names, including every schema a listed one references. Leave it out to let `kubb generate` detect them. */
+  schemas?: Array<string>
 }
 
 /**

@@ -97,6 +97,24 @@ describe('pluginBarrel', () => {
     expect(rootExportNames).toStrictEqual(expect.arrayContaining(['Pet', 'PetSchema']))
   })
 
+  it('writes a plugin barrel and a root barrel in the output.shared directory', async () => {
+    const shared = { path: '/workspace/src/common', schemas: ['Name'] }
+    const plugin = makePlugin({
+      name: 'plugin-types',
+      outputPath: 'types',
+      filePath: '/workspace/src/common/types/name.ts',
+      exportName: 'Name',
+      output: { mode: 'directory', shared },
+    })
+
+    const { files } = await build({ plugins: [plugin] })
+    const exportNames = (filePath: string) => files.find((file) => file.path === filePath)?.exports.flatMap((item) => item.name ?? [])
+
+    expect(exportNames('/workspace/src/common/types/index.ts')).toStrictEqual(['Name'])
+    expect(exportNames('/workspace/src/common/index.ts')).toStrictEqual(['Name'])
+    expect(exportNames('/workspace/src/gen/index.ts')).toBeUndefined()
+  })
+
   it.each([
     { scenario: 'no banner or footer is configured', output: {}, banner: undefined, footer: undefined },
     { scenario: 'a plugin banner and footer are configured', output: { banner: '// header', footer: '// footer' }, banner: '// header', footer: '// footer' },

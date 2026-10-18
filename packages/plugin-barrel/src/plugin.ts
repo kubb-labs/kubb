@@ -6,7 +6,7 @@ import type { ast, Config, NormalizedPlugin, Plugin } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
 import type { BarrelType, PluginBarrelConfig } from './types.ts'
-import { buildBarrelIndex, getBarrelFiles } from './utils.ts'
+import { type BarrelIndex, buildBarrelIndex, getBarrelFiles } from './utils.ts'
 
 /**
  * Applies a plugin's configured `output.banner`/`footer` to a barrel file, flagged as `isBarrel`.
@@ -41,6 +41,7 @@ type PendingBarrel = {
   target: string
   barrelType: BarrelType
   nested: boolean
+  sharedRoot?: string
 }
 
 type BarrelState = {
@@ -142,7 +143,14 @@ export const pluginBarrel = defineExtension({
       // Only the target directory and barrel strategy are recorded here. The actual file-set
       // scan and directory-tree build happen once, in `kubb:plugins:end`, and are shared by
       // every plugin barrel plus the root barrel instead of repeating per plugin.
-      pendingBarrels.push({ plugin, target, barrelType: barrelConfig.type, nested: barrelConfig.nested ?? false })
+      const shared = plugin.options.output.shared
+      pendingBarrels.push({
+        plugin,
+        target,
+        barrelType: barrelConfig.type,
+        nested: barrelConfig.nested ?? false,
+        sharedRoot: shared && path.resolve(base, shared.path),
+      })
     },
     'kubb:plugins:end'({ files, config, upsertFile }) {
       const { excludedPlugins, excludedTargets, pendingBarrels } = getState(config)
@@ -161,20 +169,33 @@ export const pluginBarrel = defineExtension({
       excludedTargets.length = 0
 
       const index = buildBarrelIndex(outputPath, relevantFiles)
+      // Shared schemas live outside `output.path`, so each shared directory gets its own index.
+      const sharedIndexes = new Map<string, BarrelIndex>()
       const reportedCollisions = new Set<string>()
 
-      pendingBarrels.forEach(({ plugin, target, barrelType, nested }) => {
-        getBarrelFiles({ index, targetPath: target, barrelType, nested, recursive: true, reportedCollisions }).forEach((file) => {
-          upsertFile(withBarrelBannerFooter({ file, plugin, config }))
-        })
+      pendingBarrels.forEach(({ plugin, target, barrelType, nested, sharedRoot }) => {
+        const emit = (barrelIndex: BarrelIndex, targetPath: string) => {
+          getBarrelFiles({ index: barrelIndex, targetPath, barrelType, nested, recursive: true, reportedCollisions }).forEach((file) => {
+            upsertFile(withBarrelBannerFooter({ file, plugin, config }))
+          })
+        }
+
+        emit(index, target)
+        if (!sharedRoot) return
+
+        const sharedIndex = sharedIndexes.get(sharedRoot) ?? buildBarrelIndex(sharedRoot, relevantFiles)
+        sharedIndexes.set(sharedRoot, sharedIndex)
+        emit(sharedIndex, path.resolve(sharedRoot, plugin.options.output.path))
       })
       pendingBarrels.length = 0
 
       if (rootBarrelConfig === false) return
 
-      getBarrelFiles({ index, barrelType: rootBarrelConfig.type, reportedCollisions }).forEach((file) => {
-        upsertFile(file)
-      })
+      for (const rootIndex of [index, ...sharedIndexes.values()]) {
+        getBarrelFiles({ index: rootIndex, barrelType: rootBarrelConfig.type, reportedCollisions }).forEach((file) => {
+          upsertFile(file)
+        })
+      }
     },
   },
 })

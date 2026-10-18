@@ -606,7 +606,7 @@ export class Resolver {
   #resolveFile(options: ResolveFileOptions): FileNode {
     const { name, extname, tag, path: groupPath, output, group } = options
     // A shared schema's file and every import of it move under `output.shared.path`; operation files carry a `tag` or `path`.
-    const shared = !tag && !groupPath && output.shared?.schemas.includes(name) ? output.shared : undefined
+    const shared = !tag && !groupPath && output.shared?.schemas?.includes(name) ? output.shared : undefined
     const root = shared ? path.resolve(options.root, shared.path) : options.root
     const baseName = this.#baseName({ name, extname })
     const filePath = this.#filePath
