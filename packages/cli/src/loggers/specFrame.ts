@@ -19,23 +19,27 @@ export type SpecLocator = (location: DiagnosticLocation) => SpecPosition | undef
 export function createSpecLocator({ locate, source }: { locate: SourceLocator; source: string }): SpecLocator {
   const lines = source.split(/\r?\n/)
   return (location) => {
-    const range = locate(location)
-    if (!range) return undefined
-    const before = source.slice(0, range.start).split('\n')
-    const line = before.length
-    const column = before.at(-1)!.length + 1
-    const text = lines[line - 1] ?? ''
-    const width = String(line).length
-    const gutter = (number?: number) => styleText('dim', `${number === undefined ? ''.padStart(width) : String(number).padStart(width)} │`)
-    const carets = '^'.repeat(Math.max(1, Math.min(range.end - range.start, text.length - column + 1)))
-    return {
-      line,
-      column,
-      frame: [
-        ...(line > 1 ? [`${gutter(line - 1)} ${lines[line - 2]}`] : []),
-        `${gutter(line)} ${text}`,
-        `${gutter()} ${' '.repeat(column - 1)}${styleText('red', carets)}`,
-      ],
+    try {
+      const range = locate(location)
+      if (!range) return undefined
+      const before = source.slice(0, range.start).split('\n')
+      const line = before.length
+      const column = before.at(-1)!.length + 1
+      const text = lines[line - 1] ?? ''
+      const width = String(line).length
+      const gutter = (number?: number) => styleText('dim', `${number === undefined ? ''.padStart(width) : String(number).padStart(width)} │`)
+      const carets = '^'.repeat(Math.max(1, Math.min(range.end - range.start, text.length - column + 1)))
+      return {
+        line,
+        column,
+        frame: [
+          ...(line > 1 ? [`${gutter(line - 1)} ${lines[line - 2]}`] : []),
+          `${gutter(line)} ${text}`,
+          `${gutter()} ${' '.repeat(column - 1)}${styleText('red', carets)}`,
+        ],
+      }
+    } catch {
+      return undefined
     }
   }
 }

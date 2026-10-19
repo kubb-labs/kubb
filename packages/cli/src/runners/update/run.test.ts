@@ -160,6 +160,25 @@ describe('kubb update', () => {
     expect(printed).not.toContain('File changes after regeneration')
   })
 
+  it('counts new output across configs when the output directories do not exist yet', async () => {
+    const configs = ['pets', 'orders'].map((name) => ({ name, root: cwd, input: './spec.yaml', output: { path: `./${name}` } }))
+    await writeFile(path.join(cwd, 'kubb.config.ts'), `export default ${JSON.stringify(configs)}\n`)
+    for (const name of ['pets', 'orders']) {
+      vi.mocked(generate).mockImplementationOnce(async () => {
+        await mkdir(path.join(cwd, name))
+        await writeFile(path.join(cwd, name, 'new.ts'), 'new')
+        return true
+      })
+    }
+
+    await run({ ids: [], dryRun: false, yes: true })
+
+    const printed = output.join('\n')
+    expect(printed).toContain('2 added · 0 modified · 0 deleted')
+    expect(printed).toContain('Output  pets, orders')
+    expect(printed).not.toContain('generation failed')
+  })
+
   it('keeps an empty selection neutral and installs nothing', async () => {
     vi.mocked(clack.multiselect).mockResolvedValueOnce([])
     await run({ ids: [], dryRun: false, yes: false })

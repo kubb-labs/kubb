@@ -12,7 +12,7 @@ export function createSourceLocator(source: string): SourceLocator {
       .replace(/^#/, '')
       .split('/')
       .slice(1)
-      .map((token) => decodeURIComponent(token).replaceAll('~1', '/').replaceAll('~0', '~'))
+      .map((token) => token.replaceAll('~1', '/').replaceAll('~0', '~'))
     let node: unknown = document.contents
     let range: ReturnType<SourceLocator>
     for (const token of tokens) {

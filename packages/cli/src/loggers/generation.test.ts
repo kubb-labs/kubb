@@ -260,7 +260,7 @@ describe('grouped generation output', () => {
     {
       rich: false,
       failed: '✗ Plugins 1/2 (1 failed) |  elapsed',
-      closed: 'Kubb failed: an error. Exit code 1.\nRerun with --reporter json for machine-readable diagnostics.',
+      closed: expect.stringContaining('✗ Generation failed'),
     },
   ])('keeps a failed plugin inside the group and closes it once, on the failure (rich: $rich)', async ({ rich, failed, closed }) => {
     const output = await render(generation({ config: makeConfig('petstore'), pluginFailed: true, status: 'failed' }), { rich })
@@ -268,8 +268,8 @@ describe('grouped generation output', () => {
     expect(output.map(withoutDuration)).toContain(failed)
     expect(output.some((call) => call.includes('@kubb/plugin-zod failed'))).toBe(true)
     // The group closes once, right before the summary.
-    expect(output.filter((call) => call.startsWith('outro:') || call.startsWith('Kubb failed'))).toStrictEqual([closed])
-    expect(output.at(rich ? -2 : -1)).toBe(closed)
+    expect(output.filter((call) => call.startsWith('outro:') || call.startsWith('✗ Generation failed'))).toStrictEqual([closed])
+    expect(output.at(rich ? -2 : -1)).toEqual(closed)
   })
 
   it("prints a hook's own output past clack, and trims the blank lines around it", async () => {
@@ -387,7 +387,6 @@ describe('plain generation output', () => {
  * drifting apart again.
  */
 describe('both loggers', () => {
-  // Only the closing summary differs: an agent gets one verdict line instead of the human table.
   it('report the same run, in the same order', async () => {
     const emit = () => generation({ config: makeConfig('petstore'), hookLines: ['tsc: no errors'] })
 
@@ -404,10 +403,7 @@ describe('both loggers', () => {
             .replace(/^[◇✓✗]\s*/, '')
             .trim(),
         )
-        .filter(
-          (line) =>
-            line && !/^(Kubb succeeded|Generation succeeded|Generation complete|\d+ files? generated|Plugins {2}|Files {2}|Duration|Output {2})/.test(line),
-        )
+        .filter((line) => line && !/^(Generation succeeded|Generation complete|\d+ files? generated|Plugins {2}|Files {2}|Duration|Output {2})/.test(line))
         .sort()
     // The per-node progress only redraws the rich spinner; plain output leaves it out on purpose.
     const richMessages = messages(rich).filter((line) => !/^(Generating {2}|│ {3})/.test(line))
@@ -468,7 +464,9 @@ describe('diagnostics per audience', () => {
         '  docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found',
       ].join('\n'),
     )
-    expect(lines.at(-1)).toBe('Kubb failed: 1 error, 1 warning (plugin-ts). Exit code 1.\nRerun with --reporter json for machine-readable diagnostics.')
+    expect(lines.at(-1)).toContain('✗ Generation failed')
+    expect(lines.at(-1)).toContain('Failed plugins  plugin-ts')
+    expect(lines.at(-1)).toContain('1 error · 1 warning')
   })
 })
 
@@ -484,7 +482,17 @@ describe('diagnostics located in the spec', () => {
       dir = mkdtempSync(join(tmpdir(), 'kubb-frame-'))
       writeFileSync(
         join(dir, 'petstore.yaml'),
-        ['components:', '  schemas:', '    Pet:', '      properties:', '        owner:', "          $ref: '#/components/schemas/Owner'", ''].join('\n'),
+        [
+          'components:',
+          '  schemas:',
+          '    Pet:',
+          '      properties:',
+          '        owner:',
+          "          $ref: '#/components/schemas/Owner'",
+          '        discount%:',
+          '          type: string',
+          '',
+        ].join('\n'),
       )
       const config = { ...makeConfig('petstore'), root: dir, adapter: adapterOas() }
       await context.callHook('kubb:generation:start', { config })
@@ -507,6 +515,21 @@ describe('diagnostics located in the spec', () => {
     plugin: 'plugin-ts',
     location: { kind: 'schema', pointer: '#/components/schemas/Owner', ref: '#/components/schemas/Owner' },
   }
+
+  it.each([false, true])('prints a warning for a percent property without interrupting generation (rich: %s)', async (rich) => {
+    const output = await render(
+      locatedRun({
+        code: 'KUBB_UNSUPPORTED_FORMAT',
+        severity: 'warning',
+        message: 'Unknown format on discount%',
+        location: { kind: 'schema', pointer: '#/components/schemas/Pet/properties/discount%' },
+      }),
+      { rich },
+    )
+
+    expect(output.join('\n')).toContain('Unknown format on discount%')
+    expect(output.join('\n')).toContain(`${relative(process.cwd(), join(dir, 'petstore.yaml'))}:7:9`)
+  })
 
   it('shows a human the line and column with a code frame under the $ref that uses the missing schema', async () => {
     const calls = await render(locatedRun(refNotFound), { rich: true })

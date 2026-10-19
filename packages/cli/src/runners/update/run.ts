@@ -1,5 +1,3 @@
-import { hash } from 'node:crypto'
-import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
@@ -23,7 +21,7 @@ import {
 } from '../../loggers/output.ts'
 import { bumpOf, fetchRegistryIndex, incompatibility, installSpec, isOutdated, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
 import { detectPackageManager, installPackages } from '../init/utils.ts'
-import { diffFiles, type FileChange } from '../generate/utils.ts'
+import { diffFiles, type FileChange, readOutputFiles } from '../generate/utils.ts'
 
 export type UpdateOptions = {
   /**
@@ -35,24 +33,6 @@ export type UpdateOptions = {
    */
   dryRun: boolean
   yes: boolean
-}
-
-/** The hash of every file under `dirs`, by path. A missing folder holds nothing. */
-async function snapshot(dirs: Array<string>): Promise<Map<string, string>> {
-  const files = await Promise.all(
-    dirs.map(async (dir) => {
-      const entries = await readdir(dir, { recursive: true, withFileTypes: true }).catch(() => [])
-      return Promise.all(
-        entries
-          .filter((entry) => entry.isFile())
-          .map(async (entry) => {
-            const file = path.join(entry.parentPath, entry.name)
-            return [file, hash('sha1', await readFile(file))] as const
-          }),
-      )
-    }),
-  )
-  return new Map(files.flat())
 }
 
 /**
@@ -67,18 +47,24 @@ async function regenerate({
   cwd: string
   configPath: string
 }): Promise<{ files: Array<FileChange>; unchanged: number; output: string } | undefined> {
+  const spinner = createSpinner()
+  spinner.start('Generating with the new versions')
   try {
     // Imported here, so the config loader and the generate path never slow down `kubb --help`.
     const [{ getConfigs }, { generate }] = await Promise.all([import('../../config.ts'), import('../generate/run.ts')])
     const { configs } = await getConfigs({ configPath })
     const dirs = configs.map((config) => path.resolve(config.root ?? cwd, config.output.path))
-    const before = await snapshot(dirs)
+    const before = new Map((await Promise.all(dirs.map(readOutputFiles))).flatMap((files) => [...files]))
     const hooks = new Hookable<KubbHooks>()
     for (const config of configs) {
-      if (!(await generate({ config, hooks }))) return undefined
+      if (!(await generate({ config, hooks }))) throw new Error('Generation failed')
     }
-    return { ...diffFiles(before, await snapshot(dirs)), output: dirs.map((dir) => path.relative(cwd, dir) || '.').join(', ') }
+    const after = new Map((await Promise.all(dirs.map(readOutputFiles))).flatMap((files) => [...files]))
+    const diff = diffFiles(before, after)
+    spinner.stop(diff.files.length ? `Generated: ${diff.files.length} file${diff.files.length === 1 ? '' : 's'} changed` : 'Generated: no files changed')
+    return { ...diff, output: dirs.map((dir) => path.relative(cwd, dir) || '.').join(', ') }
   } catch {
+    spinner.error('Generation failed. Run kubb generate to see why.')
     return undefined
   }
 }
@@ -230,18 +216,7 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
     spinner.stop(`Installed ${names} with ${packageManager.name} in ${formatMs(getElapsedMs(installStart))}`)
 
     const configPath = findConfigFile(cwd)
-    const changed = await (async () => {
-      if (!configPath) return undefined
-      const generation = createSpinner()
-      generation.start('Generating with the new versions')
-      const changed = await regenerate({ cwd, configPath })
-      if (!changed) generation.error('Generation failed. Run kubb generate to see why.')
-      if (changed)
-        generation.stop(
-          changed.files.length ? `Generated: ${changed.files.length} file${changed.files.length === 1 ? '' : 's'} changed` : 'Generated: no files changed',
-        )
-      return changed
-    })()
+    const changed = configPath ? await regenerate({ cwd, configPath }) : undefined
 
     const generationFailed = Boolean(configPath && !changed)
     const pluginsOnly = selected.every((entry) => entry.manifest.kind === 'plugin')

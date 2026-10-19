@@ -29,7 +29,7 @@ export async function run({ input, configPath }: ValidateOptions): Promise<void>
     const targets = await (async () => {
       if (configFile) {
         const { configs } = await getConfigs({ configPath: configFile, input })
-        return configs.map((config) => ({ adapter: config.adapter, input: URL.canParse(input) ? input : resolve(config.root, input) }))
+        return configs.map((config) => ({ adapter: config.adapter, input: URL.canParse(input) ? input : resolve(config.root || process.cwd(), input) }))
       }
       adapterName = '@kubb/adapter-oas'
       const { adapterOas } = await import('@kubb/adapter-oas')

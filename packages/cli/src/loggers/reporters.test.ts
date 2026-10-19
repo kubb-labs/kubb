@@ -3,15 +3,71 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { ast } from '@kubb/ast'
-import { Hookable, cliReporter, type Config, createKubb, fsStorage, jsonReporter, type KubbHooks, logLevel, memoryStorage, type Storage } from '@kubb/core'
+import {
+  Hookable,
+  cliReporter,
+  type Config,
+  createKubb,
+  createReporter,
+  fsStorage,
+  type GenerationResult,
+  jsonReporter,
+  type KubbHooks,
+  logLevel,
+  memoryStorage,
+  type Storage,
+} from '@kubb/core'
+import { createMockedPlugin } from '@kubb/core/mocks'
 import { getAgentProfile } from 'gunshi/agent'
 import { describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
 import setupReporters from './reporters.ts'
+import { createPlainLogger } from './plainLogger.ts'
 
 vi.mock('gunshi/agent', () => ({ getAgentProfile: vi.fn(() => ({ isAgent: false })) }))
 
 describe('setupReporters', () => {
+  it('attributes each file to its first plugin for every reporter and resets between configs', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const results: Array<{ name: string; files: GenerationResult['pluginFiles'] }> = []
+    const drained: Array<string> = []
+    const reporters = ['first', 'second', 'withoutFiles'].map((name) =>
+      createReporter({
+        name,
+        needsPluginFiles: name !== 'withoutFiles',
+        report(result) {
+          results.push({ name, files: result.pluginFiles })
+        },
+        drain() {
+          drained.push(name)
+        },
+      }),
+    )
+    setupReporters(hooks, { logLevel: logLevel.info, reporters })
+    const file = ast.factory.createFile({ path: '/gen/shared.ts', baseName: 'shared.ts' })
+    for (const name of ['one', 'two']) {
+      const kubb = createKubb({ name, root: '/tmp', input: './spec.yaml', output: { path: './gen' }, storage: memoryStorage() })
+      const config = kubb.config
+      const plugin = createMockedPlugin({ name: `plugin-${name}`, options: { output: { path: './gen' }, exclude: [], override: [] } })
+      const completion = { config, plugin, files: [file], upsertFile: vi.fn(), duration: 0, success: true }
+      await hooks.callHook('kubb:generation:start', { config })
+      await hooks.callHook('kubb:plugin:end', completion)
+      await hooks.callHook('kubb:plugin:end', { ...completion, plugin: { ...plugin, name: 'duplicate' } })
+      await hooks.callHook('kubb:generation:end', { config, storage: memoryStorage(), filesCreated: 1 })
+    }
+    await hooks.callHook('kubb:lifecycle:end')
+
+    expect(results).toStrictEqual([
+      { name: 'first', files: [{ plugin: 'plugin-one', files: ['/gen/shared.ts'] }] },
+      { name: 'second', files: [{ plugin: 'plugin-one', files: ['/gen/shared.ts'] }] },
+      { name: 'withoutFiles', files: undefined },
+      { name: 'first', files: [{ plugin: 'plugin-two', files: ['/gen/shared.ts'] }] },
+      { name: 'second', files: [{ plugin: 'plugin-two', files: ['/gen/shared.ts'] }] },
+      { name: 'withoutFiles', files: undefined },
+    ])
+    expect(drained).toStrictEqual(['first', 'second', 'withoutFiles'])
+  })
+
   it.each([false, true])('reports content changes across cleaning, including plugin output outside the main folder (dry run: %s)', async (dryRun) => {
     const root = await mkdtemp(join(tmpdir(), 'kubb-summary-report-'))
     try {
@@ -34,11 +90,12 @@ describe('setupReporters', () => {
       const config = createKubb({ root, input: './openapi.yaml', output: { path: output, clean: true }, storage }).config
       const hooks = new Hookable<KubbHooks>()
       const lines: Array<string> = []
+      const reports: Array<GenerationResult> = []
       setupReporters(hooks, {
         logLevel: logLevel.info,
-        reporters: [cliReporter],
+        reporters: [cliReporter, createReporter({ name: 'custom', report: (result) => void reports.push(result) })],
         dryRun,
-        logger: () => ({ renderSummary: (summary) => lines.push(...summary) }),
+        logger: createPlainLogger((line) => lines.push(line)),
       })
       await hooks.callHook('kubb:generation:start', { config })
       if (!dryRun) {
@@ -60,6 +117,9 @@ describe('setupReporters', () => {
       expect(text).toContain(`3 files ${dryRun ? 'planned' : 'generated'} · 1 unchanged`)
       expect(text).toContain('1 added · 2 modified · 1 deleted')
       expect(text).toContain('Lines  +3 −3')
+      expect(reports).toHaveLength(1)
+      expect(reports[0]).toMatchObject({ filesCreated: files.length, filesUnchanged: 0 })
+      expect(reports[0]?.fileChanges).toBeUndefined()
       if (dryRun) {
         expect(text).toContain('Nothing was written.')
         expect(await readFile(stale, 'utf8')).toBe('gone')

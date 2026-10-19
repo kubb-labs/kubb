@@ -147,6 +147,26 @@ describe('runValidate', () => {
     expect(summary).toContain('Adapters  first, second')
   })
 
+  it.each([undefined, ''])('defaults the input root to cwd when root is %s', async (root) => {
+    const marker = join(cwd, 'validated.txt')
+    await writeFile(
+      join(cwd, 'kubb.config.mjs'),
+      `
+      import { writeFileSync } from 'node:fs'
+      export default {
+        ${root === undefined ? '' : `root: ${JSON.stringify(root)},`}
+        adapter: { name: 'custom', async validate(input) { writeFileSync(${JSON.stringify(marker)}, input) } },
+      }
+    `,
+    )
+    using _log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    const { run } = await import('./run.ts')
+
+    await run({ input: './spec.custom' })
+
+    expect(await readFile(marker, 'utf8')).toBe(join(cwd, 'spec.custom'))
+  })
+
   it('reports configured adapter failures with their real name', async () => {
     await writeFile(
       join(cwd, 'kubb.config.mjs'),

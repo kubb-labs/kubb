@@ -23,6 +23,16 @@ describe('source frames', () => {
     expect(createSpecLocator({ source, locate: () => undefined })(location)).toBeUndefined()
   })
 
+  it('omits a frame when the adapter lookup throws', () => {
+    const locate = createSpecLocator({
+      source,
+      locate() {
+        throw new Error('Cannot locate this pointer')
+      },
+    })
+    expect(locate(location)).toBeUndefined()
+  })
+
   it('loads the locator supplied by a custom adapter', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'kubb-locator-'))
     const file = join(dir, 'schema.graphql')

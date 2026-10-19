@@ -224,9 +224,9 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       walk: createWalk(),
       pluginStarted: false,
       /**
-       * The finished config's diagnostics and file count, for the closing summary.
+       * The finished config's diagnostics, for the closing verdict.
        */
-      outcome: null as { diagnostics: Array<Diagnostic>; filesCreated: number; hrStart: [number, number] } | null,
+      diagnostics: [] as Array<Diagnostic>,
       /**
        * Absolute path of a local-file input, which a located diagnostic points into.
        */
@@ -319,7 +319,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
 
     /** `✖ Failed  1 error · 1 warning  in plugin-ts` once the build ended, or `✗ Generation failed` for a run that stopped early. */
     function failedTitle(): string {
-      const diagnostics = state.outcome?.diagnostics ?? []
+      const diagnostics = state.diagnostics
       const counts = formatCounts(diagnostics)
       if (!human || !counts) {
         return '✗ Generation failed'
@@ -352,7 +352,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       state.problems = []
       state.walk = createWalk()
       state.pluginStarted = false
-      state.outcome = null
+      state.diagnostics = []
       state.specPath = undefined
       state.adapter = undefined
       state.spec = null
@@ -592,10 +592,10 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       writeOutput(active.lines)
     })
 
-    onRun('kubb:generation:end', async ({ diagnostics = [], filesCreated = 0, hrStart = process.hrtime() }) => {
+    onRun('kubb:generation:end', async ({ diagnostics = [] }) => {
       stopSpinner()
       stopProgress()
-      state.outcome = { diagnostics, filesCreated, hrStart }
+      state.diagnostics = diagnostics
       await writeProblems(state.problems.splice(0))
     })
 
@@ -787,31 +787,11 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
           return
         }
 
-        if (human) {
-          closeGroup(status)
-          writer.diagnostic([...lines])
-          return
-        }
-
-        // The verdict below replaces the group's closing line.
         stopSpinner()
         stopProgress()
+        if (human) closeGroup(status)
         state.groupOpen = false
-
-        // An agent gets one verdict line instead of the aligned table, and on failure where to get more.
-        const { diagnostics = [], filesCreated = 0, hrStart = process.hrtime() } = state.outcome ?? {}
-        if (status === 'failed') {
-          const plugins = Diagnostics.failedPlugins(diagnostics)
-          writer.diagnostic([
-            `Kubb failed: ${formatCounts(diagnostics) || 'an error'}${plugins.length ? ` (${plugins.join(', ')})` : ''}. Exit code 1.`,
-            'Rerun with --reporter json for machine-readable diagnostics.',
-          ])
-          return
-        }
-        const warnings = formatCounts(diagnostics)
-        writer.diagnostic([
-          `Kubb succeeded: ${pluralize(filesCreated, 'file')} generated in ${formatMs(getElapsedMs(hrStart))}${warnings ? `, ${warnings}` : ''}.`,
-        ])
+        writer.diagnostic([...lines])
       },
     }
   }

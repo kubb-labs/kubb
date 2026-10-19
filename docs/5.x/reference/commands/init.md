@@ -53,7 +53,7 @@ Before it installs anything, Kubb checks the [manifest](/docs/5.x/reference/kit/
 | `--plugins`      |         | Comma-separated registry ids of the plugins to add, the same ids [`kubb add`](/docs/5.x/reference/commands/add) takes, such as `plugin-ts,plugin-zod`, or short names such as `ts,zod`. Bypasses the plugin selection prompt. An id that is not in the registry stops `kubb init`. |
 | `--dry-run`     | `false` | Preview the wizard without installing packages, writing files, or running the first generation.                                                                                                                                                                  |
 
-Each flag skips only its own prompt and combines with `--yes`. Pass all three value flags and the wizard runs without prompts or the review, no `--yes` needed.
+Each flag skips only its own prompt and combines with `--yes`. Pass all three value flags to skip the choice prompts and review. If `kubb.config.ts` already exists, Kubb still asks before overwriting it unless you pass `--yes`.
 
 ## Examples
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { escapePointerToken } from '@internals/utils'
 import { adapterOas } from './adapter.ts'
 
 const source = [
@@ -28,6 +29,22 @@ describe('OpenAPI source locations', () => {
     expect(source.slice(ref.start, ref.end)).toBe("'#/components/schemas/Owner'")
     expect(locate({ kind: 'schema', pointer: '#/components/schemas/Missing' })).toBeUndefined()
     expect(locate({ kind: 'config' })).toBeUndefined()
+  })
+
+  it.each(['discount%', 'discount%20', 'discount space', 'discount/a~b'])('locates the literal property name %s', async (name) => {
+    const json = JSON.stringify({ properties: { [name]: { type: 'string' } } })
+    const locate = await adapterOas().createSourceLocator!(json)
+    const token = escapePointerToken(name)
+    const range = locate({ kind: 'schema', pointer: `#/properties/${token}` })!
+    expect(json.slice(range.start, range.end)).toBe(JSON.stringify(name))
+  })
+
+  it('locates an encoded unresolved reference at its original usage', async () => {
+    const ref = '#/components/schemas/Price%20EUR'
+    const json = JSON.stringify({ properties: { price: { $ref: ref } } })
+    const locate = await adapterOas().createSourceLocator!(json)
+    const range = locate({ kind: 'schema', pointer: ref, ref })!
+    expect(json.slice(range.start, range.end)).toBe(JSON.stringify(ref))
   })
 
   it('locates JSON array elements', async () => {

@@ -6,7 +6,7 @@ import { stripVTControlCharacters } from 'node:util'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { type GeneratorContext, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, diffBuilds, formatChange, listenForKeys, planDryRun, readOutputFiles, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
+import { createSerialRunner, diffBuilds, diffOutput, formatChange, listenForKeys, readOutputFiles, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
 
 describe('createSerialRunner', () => {
   it('collapses triggers that land during a run into one rerun, reports its error through onError, and keeps accepting triggers', async () => {
@@ -313,7 +313,31 @@ describe('listenForKeys', () => {
   })
 })
 
-describe('planDryRun', () => {
+describe('diffOutput', () => {
+  it('compares a batch before reading the next and recognizes formatted output through the manifest', async () => {
+    const paths = Array.from({ length: 120 }, (_, index) => `/gen/${index}.ts`)
+    let pending = 0
+    const storage = {
+      ...memoryStorage(),
+      async readItem() {
+        if (++pending > 50) throw new Error('Too many sources waiting to be compared')
+        return 'generated'
+      },
+    }
+    const manifest = {
+      isUpToDate() {
+        pending--
+        return true
+      },
+    }
+
+    expect(await diffOutput({ storage, paths, previousFiles: new Map(paths.map((path) => [path, 'formatted'])), clean: false, manifest })).toStrictEqual({
+      files: [],
+      unchanged: paths.length,
+    })
+    expect(pending).toBe(0)
+  })
+
   it('keeps the pre-clean baseline and counts empty files without phantom lines', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'kubb-summary-'))
     try {
@@ -329,7 +353,7 @@ describe('planDryRun', () => {
       await storage.writeItem(pet, 'a\nB\n')
       await storage.writeItem(empty, '')
 
-      expect(await planDryRun({ storage, paths: [pet, empty], outputPath: dir, clean: true, previousFiles })).toStrictEqual({
+      expect(await diffOutput({ storage, paths: [pet, empty], clean: true, previousFiles })).toStrictEqual({
         files: [
           { status: 'M', path: pet, added: 1, removed: 1 },
           { status: 'A', path: empty, added: 0, removed: 0 },
@@ -337,9 +361,7 @@ describe('planDryRun', () => {
         ],
         unchanged: 0,
       })
-      expect((await planDryRun({ storage, paths: [pet, empty], outputPath: dir, clean: false, previousFiles })).files.some((file) => file.status === 'D')).toBe(
-        false,
-      )
+      expect((await diffOutput({ storage, paths: [pet, empty], clean: false, previousFiles })).files.some((file) => file.status === 'D')).toBe(false)
     } finally {
       await rm(dir, { recursive: true, force: true })
     }
@@ -358,7 +380,8 @@ describe('planDryRun', () => {
       await storage.writeItem(join(dir, 'gen/toy.ts'), 'new')
       const paths = ['pet.ts', 'tag.ts', 'toy.ts'].map((name) => join(dir, 'gen', name))
 
-      expect(await planDryRun({ storage, paths, outputPath: join(dir, 'gen'), clean: true })).toStrictEqual({
+      const previousFiles = await readOutputFiles(join(dir, 'gen'))
+      expect(await diffOutput({ storage, paths, clean: true, previousFiles })).toStrictEqual({
         files: [
           { status: 'M', path: join(dir, 'gen/pet.ts'), added: 2, removed: 1 },
           { status: 'A', path: join(dir, 'gen/toy.ts'), added: 1, removed: 0 },
@@ -366,7 +389,7 @@ describe('planDryRun', () => {
         ],
         unchanged: 1,
       })
-      expect((await planDryRun({ storage, paths, outputPath: join(dir, 'gen'), clean: false })).files.map((file) => file.status)).toStrictEqual(['M', 'A'])
+      expect((await diffOutput({ storage, paths, clean: false, previousFiles })).files.map((file) => file.status)).toStrictEqual(['M', 'A'])
     } finally {
       await rm(dir, { recursive: true, force: true })
     }

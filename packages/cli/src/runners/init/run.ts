@@ -299,6 +299,10 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
     }
 
     const configPath = path.join(cwd, KUBB_CONFIG_FILENAME)
+    if (answered && !yes && fs.existsSync(configPath)) {
+      const overwrite = unwrap(await clack.confirm({ message: `${KUBB_CONFIG_FILENAME} exists. Overwrite it?`, initialValue: false }))
+      if (!overwrite) cancelAndExit('Keeping existing configuration.')
+    }
 
     // Install `kubb` at the running CLI's version and each plugin at the version the registry pins
     const packagesToInstall = [`${KUBB_PACKAGE_NAME}@${version}`, ...choices.plugins.map((entry) => installSpec(entry.artifact))]

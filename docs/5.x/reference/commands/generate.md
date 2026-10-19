@@ -57,7 +57,7 @@ In `--watch` mode, each rebuild lists the schemas and operations the spec gained
 
 A reporter decides how a run is rendered. The config registers available reporters with [`reporters`](/docs/5.x/reference/configuration). `--reporter` picks which ones to trigger by name, comma-separated (`--reporter cli,file`). Four reporters are registered by default.
 
-The interactive CLI summary starts with the outcome and duration, then labels plugin results and the output path. Files with unchanged content are counted separately, including when `output.clean` rewrites the output directory.
+The CLI summary starts with the outcome and duration, then labels plugin results and the output path. Files with unchanged content are counted separately, including when `output.clean` rewrites the output directory.
 
 ```text [Summary]
 ✓ Generation complete  466ms
@@ -71,7 +71,7 @@ File changes
   Lines  +312 −47
 ```
 
-File changes compare filesystem output with its contents before the run. Custom storage drivers omit this section. Line totals compare counts of each line, so moving a line within a file does not count as a removal and addition. With `--dry-run`, the summary says “planned” and “Nothing was written.” AI agent sessions keep their compact verdict.
+File changes compare filesystem output with its contents before the run. Custom storage drivers omit this section. Line totals compare counts of each line, so moving a line within a file does not count as a removal and addition. With `--dry-run`, the summary says “planned” and “Nothing was written.” Plain terminals and AI agent sessions show the same summary.
 
 | Reporter | Output                                                                          |
 | -------- | ------------------------------------------------------------------------------- |

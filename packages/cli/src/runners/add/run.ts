@@ -43,17 +43,6 @@ function toConfigEdits(details: Array<ConfigTarget>) {
   }
 }
 
-/** Adds the plugin call and its import, preserving whether the AST editor changed the config. */
-export async function addToConfig({ detail, configFile }: { detail: ConfigTarget; configFile: string }): Promise<{ changed: boolean; reason?: string }> {
-  try {
-    const { writeConfigEdits } = await import('@kubb/studio')
-    const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, ...toConfigEdits([detail]) })
-    return { changed, reason: outcomes[0]?.applied ? undefined : (outcomes[0]?.reason ?? 'the config file was not changed') }
-  } catch (error) {
-    return { changed: false, reason: getErrorMessage(error) }
-  }
-}
-
 /** The lines adding `details` would put in the config `source`, trimmed, or why it could not add them. */
 async function previewConfig({ details, source }: { details: Array<ConfigTarget>; source: string }): Promise<{ lines: Array<string> } | { reason: string }> {
   try {
@@ -282,14 +271,16 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     const unconfigured: Array<RegistryEntry> = configFile ? [] : [entry]
     if (configFile) {
       for (const target of targets) {
-        const { reason, changed } = await addToConfig({ detail: target, configFile })
-        if (reason) {
-          logWarn(`Could not edit ${configName}: ${reason}`)
+        try {
+          const { writeConfigEdits } = await import('@kubb/studio')
+          const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, ...toConfigEdits([target]) })
+          if (!outcomes[0]?.applied) throw new Error(outcomes[0]?.reason ?? 'the config file was not changed')
+          if (changed) configured.push(target)
+          logStep(`${target.manifest.export}() configured in ${configName}`)
+        } catch (error) {
+          logWarn(`Could not edit ${configName}: ${getErrorMessage(error)}`)
           unconfigured.push(target)
-          continue
         }
-        if (changed) configured.push(target)
-        logStep(`${target.manifest.export}() configured in ${configName}`)
       }
     }
 

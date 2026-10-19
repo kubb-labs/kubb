@@ -308,7 +308,9 @@ export function diffBuilds(previous: BuildSnapshot, next: BuildSnapshot): BuildD
   }
 }
 
-/** Compares two path → fingerprint maps: the files added, modified and removed, and how many stayed the same. */
+/**
+ * Compares file contents or fingerprints by path.
+ */
 export function diffFiles(previous: ReadonlyMap<string, string>, next: ReadonlyMap<string, string>): { files: Array<FileChange>; unchanged: number } {
   const files: Array<FileChange> = []
   let unchanged = 0
@@ -375,55 +377,51 @@ export async function readOutputFiles(outputPath: string): Promise<Map<string, s
 }
 
 /**
- * Compares generated output with disk, or a snapshot captured before a real run. Each file is compared the
- * way a real write compares them (trimmed, and through the output `manifest`, which knows the files
- * the formatter rewrote), and with `clean`, the files in the output folder the run would delete.
- * Reads only, writes nothing.
+ * Compares generated output with the files captured before generation. The manifest recognizes
+ * output rewritten by a formatter, and `clean` includes files the run would delete.
  */
-export async function planDryRun({
+export async function diffOutput({
   storage,
   paths,
-  outputPath,
   clean,
   manifest,
   previousFiles,
 }: {
   storage: Storage
   paths: ReadonlyArray<string>
-  outputPath: string
   clean: boolean
   manifest?: Pick<OutputManifest, 'isUpToDate'>
   /**
    * The output captured before a real run, including files removed by cleaning.
    */
-  previousFiles?: ReadonlyMap<string, string>
+  previousFiles: ReadonlyMap<string, string>
 }): Promise<{ files: Array<FileChange>; unchanged: number }> {
   const generated = new Set(paths)
-  const rows: Array<{ filePath: string; next: string | null; previous: string | null }> = []
+  const changes: Array<FileChange | undefined> = []
+  let unchanged = 0
   await inParallel({
     items: paths,
     limit: 50,
     run: async (filePath, index) => {
-      rows[index] = {
-        filePath,
-        next: await storage.readItem(filePath),
-        previous: previousFiles ? (previousFiles.get(filePath) ?? null) : await readOrNull(filePath),
+      const next = await storage.readItem(filePath)
+      if (next === null) return
+      const previous = previousFiles.get(filePath) ?? null
+      if (previous !== null && (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: filePath, source: next, disk: previous }))) {
+        unchanged++
+        return
+      }
+      changes[index] = {
+        status: previous === null ? 'A' : 'M',
+        path: filePath,
+        ...countLineChanges(previous?.trim() ?? '', previous === null ? next.trimEnd() : next.trim()),
       }
     },
   })
-  const existing = clean && !previousFiles ? await listFiles(outputPath) : []
-
-  const files: Array<FileChange> = []
-  let unchanged = 0
-  for (const { filePath, next, previous } of rows) {
-    if (next === null) continue
-    if (previous === null) files.push({ status: 'A', path: filePath, ...countLineChanges('', next.trimEnd()) })
-    else if (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: filePath, source: next, disk: previous })) unchanged++
-    else files.push({ status: 'M', path: filePath, ...countLineChanges(previous.trim(), next.trim()) })
-  }
-  for (const filePath of clean && previousFiles ? previousFiles.keys() : existing) {
-    if (!generated.has(filePath))
-      files.push({ status: 'D', path: filePath, ...countLineChanges((previousFiles?.get(filePath) ?? (await readOrNull(filePath)) ?? '').trimEnd(), '') })
+  const files = changes.filter((file) => file !== undefined)
+  if (clean) {
+    for (const [filePath, source] of previousFiles) {
+      if (!generated.has(filePath)) files.push({ status: 'D', path: filePath, ...countLineChanges(source.trimEnd(), '') })
+    }
   }
 
   return { files, unchanged }
