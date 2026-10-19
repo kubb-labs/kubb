@@ -217,7 +217,9 @@ describe('the handshake', () => {
     const { sockets } = startAgent({ permissions: { allowRead: true } })
     await vi.waitFor(() => expect(sockets).toHaveLength(1))
 
-    await expect(sockets[0]!.agent.readFiles({ jobId: 'job-1', paths: [] })).rejects.toThrow('Studio must call connect() before any other command')
+    await expect(sockets[0]!.agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: [] })).rejects.toThrow(
+      'Studio must call connect() before any other command',
+    )
   })
 })
 
@@ -330,9 +332,7 @@ describe('a sandbox job', () => {
     const warn = heard('studio:warn')
     const { agent } = await connectStudio({ hooks, connectInfo: { sandbox: true, agentSlug: 'sandbox', studioVersion: '1.0.0' } })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(
-      'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
-    )
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(AgentMessage.SANDBOX_INPUT_ONLY)
     expect(warn).toHaveBeenCalledOnce()
     expect(vi.mocked(mkdtemp).mock.results).toHaveLength(1)
   })
@@ -400,7 +400,7 @@ describe('readFiles', () => {
     const warn = heard('studio:warn')
     const { agent } = await connectStudio({ hooks })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).rejects.toThrow(AgentMessage.READ_NOT_ALLOWED)
+    await expect(agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: ['src/gen/pet.ts'] })).rejects.toThrow(AgentMessage.READ_NOT_ALLOWED)
     expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowRead' })
   })
 
@@ -408,7 +408,7 @@ describe('readFiles', () => {
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
     await run({ agent, jobId: 'job-1' })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['../../etc/passwd', 'src/gen/pet.ts'], limit: 10 })).resolves.toStrictEqual({
+    await expect(agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: ['../../etc/passwd', 'src/gen/pet.ts'], limit: 10 })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 1' },
       pages: { 'src/gen/pet.ts': { nextCursor: null, totalLines: 1 } },
     })
@@ -421,7 +421,7 @@ describe('readFiles', () => {
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
     await run({ agent, jobId: 'job-1' })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow('The cursor must be')
+    await expect(agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow(AgentMessage.INVALID_PAGE)
   })
 })
 
@@ -483,7 +483,7 @@ describe('readDiff', () => {
     vi.stubEnv('KUBB_AGENT_MAX_GENERATIONS_MB', '0.000001')
     const agent = await twoRuns()
     vi.unstubAllEnvs()
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow('kept only the hashes')
+    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow(AgentMessage.HASHES_ONLY)
   })
 
   it('refuses a job the agent no longer keeps', async () => {
@@ -557,12 +557,16 @@ describe('generation history', () => {
 
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'export const pet = 1' } })
-    await expect(agent.readFiles({ jobId: 'job-2', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'export const pet = 2' } })
+    await expect(agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'export const pet = 1' },
+    })
+    await expect(agent.readFiles({ jobId: 'job-2', jobType: 'generation', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'export const pet = 2' },
+    })
   })
 })
 
-describe('disk snapshot', () => {
+describe('current disk output', () => {
   async function seedDisk(files: Record<string, string>) {
     const storage = fsStorage()
     for (const [path, value] of Object.entries(files)) await storage.writeItem(`${root}/${path}`, value)
@@ -576,24 +580,23 @@ describe('disk snapshot', () => {
     const { output } = await agent.connect(info)
 
     expect(output?.files.toSorted()).toStrictEqual(['src/gen/empty.ts', 'src/gen/pet.ts'])
-    expect(output?.hashes['src/gen/pet.ts']).toBe(createHash('sha1').update('on disk\n').digest('hex').slice(0, 16))
-    await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts', 'src/gen/empty.ts', 'src/other.ts'] })).resolves.toStrictEqual({
+    await expect(
+      agent.readFiles({ jobId: 'connection-1', jobType: 'currentDisk', paths: ['src/gen/pet.ts', 'src/gen/empty.ts', 'src/other.ts'] }),
+    ).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'on disk\n', 'src/gen/empty.ts': '' },
     })
     expect(generationStarted).not.toHaveBeenCalled()
     await expect(fsStorage().readItem(`${root}/src/gen/pet.ts`)).resolves.toBe('on disk\n')
   })
 
-  it('takes a fresh copy when the output changes between connections', async () => {
+  it('reads the current output when Studio requests it', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'first' })
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    const first = await agent.connect(info)
+    await agent.connect(info)
     await seedDisk({ 'src/gen/pet.ts': 'second' })
-    const second = await agent.connect(info)
-
-    expect(second.output?.jobId).not.toBe(first.output?.jobId)
-    await expect(agent.readFiles({ jobId: first.output!.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'first' } })
-    await expect(agent.readFiles({ jobId: second.output!.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'second' } })
+    await expect(agent.readFiles({ jobId: 'connection-1', jobType: 'currentDisk', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'second' },
+    })
   })
 
   it('returns an empty tree when the output directory has no files', async () => {
@@ -642,7 +645,7 @@ describe('disk snapshot', () => {
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
     await run({ agent, jobId: 'job-1' })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts', 'src/other.ts'], source: 'disk' })).resolves.toStrictEqual({
+    await expect(agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: ['src/gen/pet.ts', 'src/other.ts'], source: 'disk' })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'on disk' },
     })
   })

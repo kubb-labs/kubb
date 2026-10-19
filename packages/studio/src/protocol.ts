@@ -326,27 +326,26 @@ export type SaveConfigInput = { edits: Array<ConfigEdit> }
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean }
 
 /**
- * What a file read returns for a job: the files that job generated (`output`), or what the output
- * directory held on disk before that job ran (`disk`, only on an agent with a project on disk).
+ * What a file read returns for a generation: its generated files (`output`), or what the output
+ * directory held on disk before it ran (`disk`, only on an agent with a project on disk).
  */
 export const FileSource = { OUTPUT: 'output', DISK: 'disk' } as const
 export type FileSource = (typeof FileSource)[keyof typeof FileSource]
 
 /**
- * Asks the agent to read files of one generation job back.
+ * Asks the agent to read files of one generation job, or its current output directory.
  */
 export type ReadFilesInput = {
-  /**
-   * The job whose files to read, the only lookup key, so the caller decides whose jobs a reader may
-   * see. A job the agent no longer keeps fails with {@link AgentMessage.GENERATION_GONE}.
-   */
+  /** The generation job, or the live connection when `jobType` is `currentDisk`. */
   jobId: string
+  /** Selects a kept generation or the agent's current output directory. */
+  jobType: 'generation' | 'currentDisk'
   /**
-   * At most {@link MAX_FILES_PER_REQUEST} paths, each checked against what the job's set holds.
+   * At most {@link MAX_FILES_PER_REQUEST} paths, each checked against the job's files or current output directory.
    */
   paths: Array<string>
   /**
-   * Which of the job's sets to read, `output` when left out.
+   * Which of the generation's sets to read, `output` when left out.
    */
   source?: FileSource
   /**
@@ -417,6 +416,16 @@ export type ReadInputResult = { input: InputNode }
  * Why the agent refuses a request. Studio matches on these to answer with the right status.
  */
 export const AgentMessage = {
+  GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
+  SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
+  JOB_REQUIRED: 'The request must name a job',
+  FILE_REQUEST_INVALID: 'The request must name a job or current disk output and carry paths',
+  TOO_MANY_FILES: 'Too many paths were requested at once',
+  INVALID_PAGE: 'The requested file page is invalid',
+  SANDBOX_DISK_UNAVAILABLE: 'A sandbox agent has no files on disk',
+  NO_DISK_SNAPSHOT: 'This agent kept no snapshot of the files on disk for that job',
+  DIFF_REQUEST_INVALID: 'The request must name a job, a base, and a path',
+  HASHES_ONLY: 'This agent kept only the hashes of that job',
   /**
    * A read for a job whose files the agent no longer keeps.
    */
@@ -523,13 +532,11 @@ export const MAX_SNAPSHOT_BYTES = 50 * 1024 * 1024
  */
 export type ConnectMessagePayload = {
   /**
-   * A kept copy of the output directory, readable through `readFiles` without generating.
+   * The output directory's current file list, readable through `readFiles` without generating.
    * Absent for a sandbox or when the host has not granted `allowRead`.
    */
   output?: {
-    jobId: string
     files: Array<string>
-    hashes: Record<string, string>
   }
   /**
    * Always sent, so a mismatch is visible on both sides: Studio badges the connection with these
