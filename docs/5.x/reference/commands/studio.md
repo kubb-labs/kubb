@@ -72,6 +72,8 @@ The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, whic
 
 Without `--allow-read`, a session still generates and reports file paths, but Studio cannot display their contents. The CLI asks about permissions not supplied as flags and remembers answers per project directory. Without a TTY it skips the permission prompts, so pass the flags the run needs. In CI it also refuses to pair and needs stored credentials, so use `snapshot` there instead.
 
+With `--allow-read`, Studio loads the files already in `output.path` when it connects. You can browse them before generating. Select **Generate** when you want to regenerate the output.
+
 Each action exits with code 1 when it fails.
 
 ## Environment variables

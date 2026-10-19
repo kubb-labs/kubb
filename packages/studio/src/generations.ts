@@ -182,7 +182,19 @@ export function createGenerationStore({
   /**
    * Copies `files` into the store as one set of `jobId`. Above `maxSetMb` only the hashes are kept.
    */
-  async function keep({ jobId, source, files, maxSetMb }: { jobId: string; source: FileSource; files: SourceFiles; maxSetMb: number }): Promise<KeptSet> {
+  async function keep({
+    jobId,
+    source,
+    files,
+    maxSetMb,
+    normalize = source === FileSource.OUTPUT,
+  }: {
+    jobId: string
+    source: FileSource
+    files: SourceFiles
+    maxSetMb: number
+    normalize?: boolean
+  }): Promise<KeptSet> {
     const maxSetBytes = maxSetMb * MB
     const hashes: Record<string, string> = {}
     let bytes = 0
@@ -197,8 +209,8 @@ export function createGenerationStore({
         // Output is kept as writing it to disk would leave it (see `write`): skipped when empty once
         // trimmed, and hashed trimmed with one trailing newline. A run kept in memory then reports the
         // same files and hashes as one with `allowWrite`, the disk snapshot, and a CI upload.
-        if (source === FileSource.OUTPUT && !content.trim()) return
-        hashes[path] = hashOf(source === FileSource.OUTPUT ? `${content.trim()}\n` : content)
+        if (normalize && !content.trim()) return
+        hashes[path] = hashOf(normalize ? `${content.trim()}\n` : content)
         bytes += Buffer.byteLength(content)
         if (bytes <= maxSetBytes) await storage.writeItem(`${dirOf(jobId)}${source}/${path}`, content)
       },

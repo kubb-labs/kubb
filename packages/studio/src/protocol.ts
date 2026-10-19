@@ -523,6 +523,15 @@ export const MAX_SNAPSHOT_BYTES = 50 * 1024 * 1024
  */
 export type ConnectMessagePayload = {
   /**
+   * A kept copy of the output directory, readable through `readFiles` without generating.
+   * Absent for a sandbox or when the host has not granted `allowRead`.
+   */
+  output?: {
+    jobId: string
+    files: Array<string>
+    hashes: Record<string, string>
+  }
+  /**
    * Always sent, so a mismatch is visible on both sides: Studio badges the connection with these
    * and the host prints them.
    */
@@ -607,8 +616,8 @@ export type AgentPermissions = {
    */
   allowConfigEdit: boolean
   /**
-   * Whether the agent hands back file source in response to `readFiles`. Always true for a
-   * sandbox.
+   * Whether the agent shares existing output on connect and hands back file source through
+   * `readFiles`. A sandbox always permits reads of its generated files.
    */
   allowRead: boolean
   /**
