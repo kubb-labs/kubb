@@ -2,7 +2,7 @@ import { relative, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
-import type { Config, KubbHooks } from '@kubb/core'
+import type { Adapter, Config, KubbHooks } from '@kubb/core'
 import { type Diagnostic, type DiagnosticFormatOptions, Diagnostics, getInputKind, logLevel as logLevelMap, type ProblemDiagnostic } from '@kubb/core'
 import type { StudioConnectedContext } from '@kubb/studio'
 import { formatBar, formatMsWithColor } from './banner.ts'
@@ -231,6 +231,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
        * Absolute path of a local-file input, which a located diagnostic points into.
        */
       specPath: undefined as string | undefined,
+      adapter: undefined as Adapter | undefined,
       /**
        * The parsed input, read once on the first located diagnostic of a build.
        */
@@ -353,6 +354,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       state.pluginStarted = false
       state.outcome = null
       state.specPath = undefined
+      state.adapter = undefined
       state.spec = null
       state.lastWalkDraw = 0
     }
@@ -361,12 +363,12 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
     async function optionsFor(problem: ProblemDiagnostic): Promise<DiagnosticFormatOptions> {
       const location = problem.location
       const specPath = state.specPath
-      if (!location || !('pointer' in location) || !specPath) {
+      if (!location || !specPath) {
         return formatOptions
       }
 
-      state.spec ??= loadSpecLocator(specPath)
-      const position = (await state.spec)?.({ pointer: location.pointer, ref: 'ref' in location ? location.ref : undefined })
+      state.spec ??= loadSpecLocator({ adapter: state.adapter, path: specPath })
+      const position = (await state.spec)?.(location)
       if (!position) {
         return formatOptions
       }
@@ -524,6 +526,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       state.inMemory = config.storage?.name === 'memory'
       const input = getInputPath(config)
       state.specPath = input && getInputKind(input) === 'file' ? resolve(config.root, input) : undefined
+      state.adapter = config.adapter
 
       if (silent) {
         return

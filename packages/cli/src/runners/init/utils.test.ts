@@ -4,16 +4,7 @@ import { join } from 'node:path'
 import type { RegistryEntry } from '@kubb/core'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { registryEntry } from '../../utils/registryFixture.ts'
-import {
-  addGenerateScript,
-  detectPackageManager,
-  detectProject,
-  findSpecFiles,
-  missingPluginDependencies,
-  parsePluginsFlag,
-  readSpecInfo,
-  recommendPlugins,
-} from './utils.ts'
+import { addGenerateScript, detectPackageManager, findSpecFiles, missingPluginDependencies, parsePluginsFlag, readSpecInfo } from './utils.ts'
 
 describe('detectPackageManager', () => {
   let cwd: string
@@ -74,26 +65,6 @@ describe('project detection', () => {
 
   afterEach(() => {
     rmSync(cwd, { recursive: true, force: true })
-  })
-
-  describe('detectProject', () => {
-    it('names TypeScript, the framework with its major version, and the data libraries', async () => {
-      writeFileSync(
-        join(cwd, 'package.json'),
-        JSON.stringify({ dependencies: { react: '^19.1.0', '@tanstack/react-query': '^5.0.0' }, devDependencies: { zod: '^4.0.0' } }),
-      )
-      writeFileSync(join(cwd, 'tsconfig.json'), '{}')
-
-      expect(await detectProject(cwd)).toStrictEqual({
-        typescript: true,
-        dependencies: { react: '^19.1.0', '@tanstack/react-query': '^5.0.0', zod: '^4.0.0' },
-        labels: ['TypeScript', 'React 19', 'TanStack Query', 'Zod'],
-      })
-    })
-
-    it('returns no labels for a folder without package.json or tsconfig.json', async () => {
-      expect(await detectProject(cwd)).toStrictEqual({ typescript: false, dependencies: {}, labels: [] })
-    })
   })
 
   describe('findSpecFiles', () => {
@@ -172,23 +143,6 @@ const plugins = [
   official('plugin-fetch', { role: 'client', dependencies: ['plugin-ts'] }),
   official('plugin-react-query', { role: 'consumer', dependencies: ['plugin-ts'] }),
 ]
-
-describe('recommendPlugins', () => {
-  it('recommends plugin-ts for any project', () => {
-    expect(recommendPlugins({ plugins, dependencies: {} })).toStrictEqual(new Map([['plugin-ts', 'always useful']]))
-  })
-
-  it('recommends plugins for the dependencies, with a client for a consumer', () => {
-    expect(recommendPlugins({ plugins, dependencies: { '@tanstack/react-query': '^5.0.0', zod: '^4.0.0', msw: '^2.0.0' } })).toStrictEqual(
-      new Map([
-        ['plugin-ts', 'always useful'],
-        ['plugin-react-query', 'uses @tanstack/react-query'],
-        ['plugin-zod', 'uses zod'],
-        ['plugin-fetch', 'client for plugin-react-query'],
-      ]),
-    )
-  })
-})
 
 describe('parsePluginsFlag', () => {
   it('accepts short names, slugs, and registry ids', () => {

@@ -57,6 +57,15 @@ afterEach(async () => {
 })
 
 describe('kubb init', () => {
+  it('keeps the default plugin selection independent of project libraries', async () => {
+    await writeFile(path.join(cwd, 'package.json'), JSON.stringify({ dependencies: { react: '^19', zod: '^4', '@tanstack/react-query': '^5' } }))
+    await run({ yes: true, dryRun: on })
+    const printed = output.join('\n')
+    expect(printed).toContain('Installed kubb @acme/kubb-plugin-ts with npm')
+    expect(printed).not.toContain('@acme/kubb-plugin-zod')
+    expect(printed).not.toContain('React')
+    expect(printed).not.toContain('TanStack Query')
+  })
   it('asks nothing with --yes and flags, and keeps the setup when the first run fails', async () => {
     await run({ yes: true, input: './openapi.yaml', plugins: 'ts,zod', output: 'src/api', dryRun: off })
 

@@ -57,8 +57,6 @@ type PackageJson = {
   /** The `packageManager` field from `package.json` (e.g. `"pnpm@9.0.0"`). */
   packageManager?: string
   scripts?: Record<string, string>
-  dependencies?: Record<string, string>
-  devDependencies?: Record<string, string>
 }
 
 /** Detects the package manager for `cwd`: the `packageManager` field in `package.json`, then a lock file, then `npm`. */
@@ -135,55 +133,6 @@ async function readPackageJson(cwd: string): Promise<PackageJson> {
   }
 }
 
-/** Frameworks and data libraries named in the detection line, keyed by package name. */
-const libraries: Record<string, string> = {
-  react: 'React',
-  vue: 'Vue',
-  svelte: 'Svelte',
-  'solid-js': 'Solid',
-  '@tanstack/react-query': 'TanStack Query',
-  '@tanstack/vue-query': 'TanStack Query',
-  '@tanstack/svelte-query': 'TanStack Query',
-  '@tanstack/solid-query': 'TanStack Query',
-  swr: 'SWR',
-  axios: 'axios',
-  zod: 'Zod',
-  msw: 'MSW',
-  '@faker-js/faker': 'Faker',
-  cypress: 'Cypress',
-}
-
-const FRAMEWORKS = ['react', 'vue', 'svelte', 'solid-js']
-
-/** What `kubb init` found in the project at `cwd`. */
-export type ProjectInfo = {
-  typescript: boolean
-  /** Every `dependencies` and `devDependencies` entry with its version range. */
-  dependencies: Record<string, string>
-  /** Readable names for the detection line, such as `['React 19', 'TanStack Query']`. */
-  labels: Array<string>
-}
-
-/** Reads `package.json` and checks for `tsconfig.json` at `cwd`, in parallel, for TypeScript, the framework, and the data libraries. */
-export async function detectProject(cwd: string): Promise<ProjectInfo> {
-  const [packageJson, hasTsconfig] = await Promise.all([
-    readPackageJson(cwd),
-    fs.promises.access(path.join(cwd, 'tsconfig.json')).then(
-      () => true,
-      () => false,
-    ),
-  ])
-  const dependencies = { ...packageJson.devDependencies, ...packageJson.dependencies }
-  const typescript = hasTsconfig || 'typescript' in dependencies
-  const found = Object.entries(libraries).flatMap(([name, label]) => {
-    const range = dependencies[name]
-    if (range === undefined) return []
-    const major = FRAMEWORKS.includes(name) ? range.match(/\d+/)?.[0] : undefined
-    return [major ? `${label} ${major}` : label]
-  })
-  return { typescript, dependencies, labels: [...(typescript ? ['TypeScript'] : []), ...new Set(found)] }
-}
-
 const SPEC_FILE = /^(openapi|swagger)[\w.-]*\.(ya?ml|json)$/i
 const SKIPPED_DIRS = new Set(['node_modules', 'dist', 'build', 'coverage'])
 
@@ -233,39 +182,6 @@ export async function readSpecInfo(file: string): Promise<SpecInfo> {
   } finally {
     await handle.close()
   }
-}
-
-/** Plugins to pre-select when the project depends on a package, keyed by package name. */
-const pluginsByDependency: Record<string, string> = {
-  '@tanstack/react-query': 'plugin-react-query',
-  '@tanstack/vue-query': 'plugin-vue-query',
-  swr: 'plugin-swr',
-  zod: 'plugin-zod',
-  msw: 'plugin-msw',
-  axios: 'plugin-axios',
-  '@faker-js/faker': 'plugin-faker',
-  cypress: 'plugin-cypress',
-}
-
-/**
- * The plugins to pre-select for a project with `dependencies`, each with the reason: `plugin-ts`,
- * one per matching dependency, the plugins those need, and `plugin-fetch` for a consumer without a client.
- */
-export function recommendPlugins({ plugins, dependencies }: { plugins: Array<RegistryEntry>; dependencies: Record<string, string> }): Map<string, string> {
-  const byName = new Map(plugins.map((entry) => [entry.manifest.name, entry]))
-  const reasons = new Map<string, string>([['plugin-ts', 'always useful']])
-  for (const [dependency, name] of Object.entries(pluginsByDependency)) {
-    if (dependency in dependencies) reasons.set(name, `uses ${dependency}`)
-  }
-  for (const name of reasons.keys()) {
-    for (const needed of byName.get(name)?.manifest.dependencies ?? []) {
-      if (!reasons.has(needed)) reasons.set(needed, `needed by ${name}`)
-    }
-  }
-  const selected = [...reasons.keys()].flatMap((name) => byName.get(name) ?? [])
-  const consumer = selected.find((entry) => entry.manifest.role === 'consumer')
-  if (consumer && !selected.some((entry) => entry.manifest.role === 'client')) reasons.set('plugin-fetch', `client for ${consumer.manifest.name}`)
-  return new Map([...reasons].filter(([name]) => byName.has(name)))
 }
 
 /** Finds a plugin by registry id, slug, or short name, so `ts`, `plugin-ts`, and `kubb-labs/plugin-ts` all match. */

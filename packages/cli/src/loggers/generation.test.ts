@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os'
 import { join, relative } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
+import { adapterOas } from '@kubb/adapter-oas'
 import {
   Hookable,
   cliReporter,
@@ -485,7 +486,7 @@ describe('diagnostics located in the spec', () => {
         join(dir, 'petstore.yaml'),
         ['components:', '  schemas:', '    Pet:', '      properties:', '        owner:', "          $ref: '#/components/schemas/Owner'", ''].join('\n'),
       )
-      const config = { ...makeConfig('petstore'), root: dir }
+      const config = { ...makeConfig('petstore'), root: dir, adapter: adapterOas() }
       await context.callHook('kubb:generation:start', { config })
       await context.callHook('kubb:diagnostic', { diagnostic: problem })
       await context.callHook('kubb:generation:end', {

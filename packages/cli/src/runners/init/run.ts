@@ -16,7 +16,6 @@ import { fetchRegistryIndex, incompatibility, installSpec, registryUrl } from '.
 import {
   addGenerateScript,
   detectPackageManager,
-  detectProject,
   findSpecFiles,
   generateScript,
   initPackageJson,
@@ -25,7 +24,6 @@ import {
   type PackageManagerInfo,
   parsePluginsFlag,
   readSpecInfo,
-  recommendPlugins,
 } from './utils.ts'
 import { version } from '../../../package.json'
 
@@ -109,7 +107,7 @@ function generateCommand({ packageManager, script, watch }: { packageManager: Pa
 }
 
 /**
- * Runs the Kubb setup wizard: detects the project and its specs, asks for the spec, plugins, and
+ * Runs the Kubb setup wizard: detects the package manager and specs, asks for the spec, plugins, and
  * output folder, shows the config for review, then installs, writes `kubb.config.ts`, adds a
  * `generate` script, and runs the first generation.
  * Pass `yes: true` to skip all prompts and print one line per step.
@@ -158,10 +156,11 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
       })
     }
 
-    const [packageManager, project, specs] = await Promise.all([detectPackageManager(cwd), detectProject(cwd), findSpecFiles(cwd)])
+    const packageManager = detectPackageManager(cwd)
+    const specs = await findSpecFiles(cwd)
 
     if (!yes) {
-      logStep(`Detected  ${[packageManager.name, ...project.labels].join(' · ')}`)
+      logStep(`Package manager  ${packageManager.name}`)
       if (specs[0]) {
         const { version: specVersion, operations } = await readSpecInfo(path.join(cwd, specs[0]))
         const details = [
@@ -176,18 +175,14 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
 
     // `--plugins` and `--yes` need the registry before any prompt; the interactive path reads it at the plugin step
     const plugins = pluginsFlag || yes ? await registry : undefined
-    const recommendedFor = (entries: Array<RegistryEntry>) => recommendPlugins({ plugins: entries, dependencies: project.dependencies })
-    const recommendedIn = (entries: Array<RegistryEntry>) => {
-      const reasons = recommendedFor(entries)
-      return entries.filter((entry) => reasons.has(entry.manifest.name))
-    }
+    const defaultPlugins = (entries: Array<RegistryEntry>) => entries.filter((entry) => entry.id === 'kubb-labs/plugin-ts')
 
     const flagPlugins = pluginsFlag && plugins ? parsePluginsFlag({ plugins, value: pluginsFlag }) : undefined
 
     const defaults: Omit<Choices, 'plugins'> & { plugins?: Array<RegistryEntry> } = {
       inputPath: inputFlag ?? specs[0] ?? initDefaults.inputPath,
       outputPath: outputFlag ?? initDefaults.outputPath,
-      plugins: flagPlugins ?? (plugins ? recommendedIn(plugins) : undefined),
+      plugins: flagPlugins ?? (plugins ? defaultPlugins(plugins) : undefined),
     }
 
     async function askInput(current: string): Promise<string> {
@@ -224,23 +219,15 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
 
     async function askPlugins(previous: Array<RegistryEntry> | undefined): Promise<Array<RegistryEntry>> {
       const plugins = await registry
-      const recommended = recommendedFor(plugins)
-      const current = previous ?? recommendedIn(plugins)
-      // Recommended plugins first, in the order recommendPlugins gives them, so plugin-ts leads
-      const rank = (entry: RegistryEntry) => {
-        const index = [...recommended.keys()].indexOf(entry.manifest.name)
-        return index === -1 ? recommended.size : index
-      }
-      const sorted = plugins.toSorted((a, b) => rank(a) - rank(b))
+      const current = previous ?? defaultPlugins(plugins)
       const width = Math.max(...plugins.map((entry) => entry.manifest.displayName.length))
       const nameWidth = Math.max(...plugins.map((entry) => entry.manifest.name.length))
       const values = unwrap(
         await clack.multiselect({
           message: 'What should Kubb generate?',
-          options: sorted.map(({ id, manifest }) => ({
+          options: plugins.map(({ id, manifest }) => ({
             value: id,
-            label:
-              `${manifest.displayName.padEnd(width)}  ${styleText('dim', manifest.name.padEnd(nameWidth))}  ${styleText('dim', recommended.get(manifest.name) ?? '')}`.trimEnd(),
+            label: `${manifest.displayName.padEnd(width)}  ${styleText('dim', manifest.name.padEnd(nameWidth))}`.trimEnd(),
           })),
           initialValues: current.map((entry) => entry.id),
           required: true,
@@ -398,7 +385,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   args: {
     yes: {
       type: 'boolean',
-      description: 'Skip prompts and use the detected spec, the recommended plugins, and the default output folder',
+      description: 'Skip prompts and use the detected spec, the default plugin, and the default output folder',
       short: 'y',
       default: false,
     },

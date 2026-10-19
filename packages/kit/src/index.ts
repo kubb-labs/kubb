@@ -43,6 +43,7 @@ export type {
   AdapterFactory,
   AdapterFactoryOptions,
   AdapterSource,
+  SourceLocator,
   BannerMeta,
   Config,
   Diagnostic,

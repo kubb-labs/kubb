@@ -80,6 +80,11 @@ Every adapter the factory returns matches the `Adapter` interface from [`kubb/ki
 | `document` | `TDocument \| null`                                                      | Yes      | The raw parsed source document, for plugins that need direct access. `null` before `parse()`. |
 | `parse`    | `(source: AdapterSource) => InputNode \| Promise<InputNode>`             | Yes      | Convert the spec into the [universal AST](/docs/5.x/explanation/architecture#ast).            |
 | `validate` | `(input: string, options?: { throwOnError?: boolean }) => Promise<void>` | Yes      | Validate the document at a path or URL without running the full pipeline.                     |
+| `createSourceLocator` | `(source: string) => SourceLocator \| Promise<SourceLocator>` | No | Map diagnostic locations to source offsets for CLI code frames. |
+
+`createSourceLocator` receives the local input's source text when the CLI first needs a diagnostic frame. It returns a function that accepts a `DiagnosticLocation` and returns `{ start, end }`, or `undefined` when it cannot resolve that location. Offsets are zero-based UTF-16 string indices, with an exclusive `end`. Kubb formats the line, column, and frame from that range. The OpenAPI adapter resolves JSON pointers in YAML and JSON; other adapters can use their own source syntax. Adapters without this method still show diagnostic messages and locations without code frames.
+
+[`kubb validate`](/docs/5.x/reference/commands/validate) calls the configured adapter's `validate` method with `throwOnError: true`. Validation errors must throw to fail the command.
 
 Cross-references need no adapter hook: every plugin resolves `$ref` imports through [`resolver.imports`](/docs/5.x/reference/kit/resolvers#imports), which defaults each ref to its pointer's last segment. An adapter that renames a schema (for example to break a name collision) stamps `targetName` on every ref node pointing at it, so those imports pick up the emitted name. Refs that keep their segment name need no stamp.
 

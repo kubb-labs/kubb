@@ -26,13 +26,13 @@ npx kubb init
 
 Before the first question, Kubb detects:
 
-- The package manager (`bun`, `pnpm`, `npm`, or `yarn`), TypeScript, the framework (React, Vue, Svelte, or Solid), and data libraries such as TanStack Query, SWR, Zod, MSW, and axios.
+- The package manager (`bun`, `pnpm`, `npm`, or `yarn`).
 - OpenAPI and Swagger files in the repo, such as `openapi.yaml` or `api/swagger.json`, up to three folders deep. It skips `node_modules`, `dist`, `build`, and hidden folders, and shows the version and operation count of the first one.
 
 The wizard then asks for three things:
 
 - Which spec to read: a file it found, a URL, or another file.
-- Which [plugins](/extensions/kind/plugins) to add. The list comes from the [Kubb registry](/docs/5.x/reference/registry). `plugin-ts` and the plugins that match your dependencies are selected, each with the reason, such as `plugin-react-query` for `@tanstack/react-query`. A query plugin without a client gets `plugin-fetch`.
+- Which [plugins](/extensions/kind/plugins) to add. The list comes from the [Kubb registry](/docs/5.x/reference/registry), with `plugin-ts` selected by default. Choose the plugins you need; the CLI does not infer them from your framework or installed libraries. Plugin manifests declare which dependencies a selection requires.
 - The output folder, `./src/gen` by default.
 
 Kubb then shows the full `kubb.config.ts` and the packages it installs. Pick **Change a choice** to answer the questions again.
@@ -47,7 +47,7 @@ Before it installs anything, Kubb checks the [manifest](/docs/5.x/reference/kit/
 
 | Option           | Default | Description                                                                                                                                                                                                                                                         |
 | ---------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--yes`, `-y`    | `false` | Skip all prompts and the review. Uses the first spec found (or `./openapi.yaml`), the recommended plugins, and `./src/gen`, and prints one line per step.                                                                                                       |
+| `--yes`, `-y`    | `false` | Skip all prompts and the review. Uses the first spec found (or `./openapi.yaml`), `plugin-ts`, and `./src/gen`, and prints one line per step.                                                                                                       |
 | `--input`, `-i`  |         | Path to the OpenAPI specification (local file or URL). Bypasses the spec path prompt.                                                                                                                                                                               |
 | `--output`, `-o` |         | Output directory for generated files. Bypasses the output directory prompt.                                                                                                                                                                                         |
 | `--plugins`      |         | Comma-separated registry ids of the plugins to add, the same ids [`kubb add`](/docs/5.x/reference/commands/add) takes, such as `plugin-ts,plugin-zod`, or short names such as `ts,zod`. Bypasses the plugin selection prompt. An id that is not in the registry stops `kubb init`. |

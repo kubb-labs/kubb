@@ -2,6 +2,13 @@ import type { PossiblePromise } from '@internals/utils'
 import type { InputNode } from '@kubb/ast'
 import { defineExtension } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
+import type { DiagnosticLocation } from './Diagnostics.ts'
+
+/**
+ * Resolves a diagnostic location to zero-based UTF-16 offsets in the adapter's source text.
+ * `end` is exclusive. Return `undefined` for locations outside that source.
+ */
+export type SourceLocator = (location: DiagnosticLocation) => { start: number; end: number } | undefined
 
 /**
  * Source data handed to an adapter's `parse` function. Mirrors the config
@@ -80,6 +87,10 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * Validate the document at the given path or URL.
    */
   validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
+  /**
+   * Indexes source text for diagnostic code frames. Omit when the adapter cannot map locations to source offsets.
+   */
+  createSourceLocator?: (source: string) => PossiblePromise<SourceLocator>
 }
 
 /**
