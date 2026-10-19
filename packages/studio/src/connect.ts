@@ -524,14 +524,14 @@ class Agent extends RpcTarget implements AgentApi {
   async readFiles(input: ReadFilesInput): Promise<ReadFilesResult> {
     this.#assertConnected()
     if (!this.#permissions.allowRead) return this.#refuse({ message: AgentMessage.READ_NOT_ALLOWED, permission: AgentPermission.READ })
-    if (!Array.isArray(input.paths) || (input.currentDisk === true ? input.jobId !== undefined : typeof input.jobId !== 'string' || !input.jobId)) {
+    if (!Array.isArray(input.paths) || typeof input.jobId !== 'string' || !input.jobId || !['generation', 'currentDisk'].includes(input.jobType)) {
       return this.#refuse({ message: AgentMessage.FILE_REQUEST_INVALID })
     }
     const { paths } = input
     if (paths.length > MAX_FILES_PER_REQUEST) return this.#refuse({ message: AgentMessage.TOO_MANY_FILES })
     if (!isValidPage(input)) return this.#refuse({ message: AgentMessage.INVALID_PAGE })
 
-    if (input.currentDisk) {
+    if (input.jobType === 'currentDisk') {
       if (this.#sandbox) return this.#refuse({ message: AgentMessage.SANDBOX_DISK_UNAVAILABLE })
       const config = await this.#options.loadConfig()
       const disk = await listDisk({ root: this.#options.root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES })
@@ -540,7 +540,6 @@ class Agent extends RpcTarget implements AgentApi {
       await this.#logCommand('readFiles', `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`)
       return result
     }
-    if (!input.jobId) return this.#refuse({ message: AgentMessage.FILE_REQUEST_INVALID })
     const generation = await this.#generations.get(input.jobId)
     if (!generation) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
 

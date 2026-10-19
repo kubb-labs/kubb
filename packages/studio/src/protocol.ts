@@ -326,8 +326,8 @@ export type SaveConfigInput = { edits: Array<ConfigEdit> }
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean }
 
 /**
- * What a file read returns for a job: the files that job generated (`output`), or what the output
- * directory held on disk before that job ran (`disk`, only on an agent with a project on disk).
+ * What a file read returns for a generation: its generated files (`output`), or what the output
+ * directory held on disk before it ran (`disk`, only on an agent with a project on disk).
  */
 export const FileSource = { OUTPUT: 'output', DISK: 'disk' } as const
 export type FileSource = (typeof FileSource)[keyof typeof FileSource]
@@ -336,16 +336,16 @@ export type FileSource = (typeof FileSource)[keyof typeof FileSource]
  * Asks the agent to read files of one generation job, or its current output directory.
  */
 export type ReadFilesInput = {
-  /** The job whose files to read. Omit it with `currentDisk` to read the current output directory. */
-  jobId?: string
-  /** Reads the current output directory instead of a kept generation. */
-  currentDisk?: true
+  /** The generation job, or the live connection when `jobType` is `currentDisk`. */
+  jobId: string
+  /** Selects a kept generation or the agent's current output directory. */
+  jobType: 'generation' | 'currentDisk'
   /**
    * At most {@link MAX_FILES_PER_REQUEST} paths, each checked against the job's files or current output directory.
    */
   paths: Array<string>
   /**
-   * Which of the job's sets to read, `output` when left out.
+   * Which of the generation's sets to read, `output` when left out.
    */
   source?: FileSource
   /**
