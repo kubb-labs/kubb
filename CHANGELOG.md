@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.11.3 — Oct 19, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- List existing output files when connecting an agent with read permission, then use `jobId` and `jobType` to read generation or disk contents on demand. ([#4358](https://github.com/kubb-labs/kubb/pull/4358), [`8d7d096`](https://github.com/kubb-labs/kubb/commit/8d7d0965d152dbcbf3641cfe165ee3ece6276949))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.11.2 — Oct 19, 2026
 
 ### @kubb/studio
