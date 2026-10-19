@@ -371,7 +371,7 @@ class Agent extends RpcTarget implements AgentApi {
     this.#assertConnected()
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#session.closed) throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Connection is closed' })
-    if (this.#session.active) return this.#refuse({ message: 'A generation is already in progress, please wait for it to finish' })
+    if (this.#session.active) return this.#refuse({ message: AgentMessage.GENERATION_IN_PROGRESS })
     const settled = Promise.withResolvers<void>()
     this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
     let root = this.#options.root
@@ -396,7 +396,7 @@ class Agent extends RpcTarget implements AgentApi {
     // or URL would make it read host files or fetch internal addresses on behalf of any tenant.
     const studioInput = this.#sandbox ? patch?.input : undefined
     if (this.#sandbox && (typeof studioInput !== 'string' || !studioInput.trim() || getInputKind(studioInput) !== 'inline')) {
-      return this.#refuse({ message: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL' })
+      return this.#refuse({ message: AgentMessage.SANDBOX_INPUT_ONLY })
     }
 
     const [config, extensions] = await Promise.all([this.#options.loadConfig(), this.#installedExtensions()])
@@ -506,7 +506,7 @@ class Agent extends RpcTarget implements AgentApi {
   async readInput(input: ReadInputInput): Promise<ReadInputResult> {
     this.#assertConnected()
     if (!this.#permissions.allowReadAst) return this.#refuse({ message: AgentMessage.READ_AST_NOT_ALLOWED, permission: AgentPermission.READ_AST })
-    if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: 'The request must name a job' })
+    if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: AgentMessage.JOB_REQUIRED })
 
     const generation = await this.#generations.get(input.jobId)
     if (!generation) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
@@ -525,14 +525,14 @@ class Agent extends RpcTarget implements AgentApi {
     this.#assertConnected()
     if (!this.#permissions.allowRead) return this.#refuse({ message: AgentMessage.READ_NOT_ALLOWED, permission: AgentPermission.READ })
     if (!Array.isArray(input.paths) || (input.currentDisk === true ? input.jobId !== undefined : typeof input.jobId !== 'string' || !input.jobId)) {
-      return this.#refuse({ message: 'The request must name a job or current disk output and carry paths' })
+      return this.#refuse({ message: AgentMessage.FILE_REQUEST_INVALID })
     }
     const { paths } = input
-    if (paths.length > MAX_FILES_PER_REQUEST) return this.#refuse({ message: `At most ${MAX_FILES_PER_REQUEST} paths may be requested at once` })
-    if (!isValidPage(input)) return this.#refuse({ message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines` })
+    if (paths.length > MAX_FILES_PER_REQUEST) return this.#refuse({ message: AgentMessage.TOO_MANY_FILES })
+    if (!isValidPage(input)) return this.#refuse({ message: AgentMessage.INVALID_PAGE })
 
     if (input.currentDisk) {
-      if (this.#sandbox) return this.#refuse({ message: 'A sandbox agent has no files on disk' })
+      if (this.#sandbox) return this.#refuse({ message: AgentMessage.SANDBOX_DISK_UNAVAILABLE })
       const config = await this.#options.loadConfig()
       const disk = await listDisk({ root: this.#options.root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES })
       if (!disk) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
@@ -540,13 +540,12 @@ class Agent extends RpcTarget implements AgentApi {
       await this.#logCommand('readFiles', `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`)
       return result
     }
-    if (!input.jobId) return this.#refuse({ message: 'The request must name a job or current disk output' })
-
+    if (!input.jobId) return this.#refuse({ message: AgentMessage.FILE_REQUEST_INVALID })
     const generation = await this.#generations.get(input.jobId)
     if (!generation) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
 
     const source = input.source === FileSource.DISK ? FileSource.DISK : FileSource.OUTPUT
-    if (!generation[source]) return this.#refuse({ message: 'This agent kept no snapshot of the files on disk for that job' })
+    if (!generation[source]) return this.#refuse({ message: AgentMessage.NO_DISK_SNAPSHOT })
 
     // Only paths the set holds are read, never an arbitrary path.
     const result = await this.#generations.read({ generation, source, paths, cursor: input.cursor, limit: input.limit })
@@ -563,16 +562,16 @@ class Agent extends RpcTarget implements AgentApi {
     if (!this.#permissions.allowRead) return this.#refuse({ message: AgentMessage.READ_NOT_ALLOWED, permission: AgentPermission.READ })
     const { jobId, path, base, cursor = 0, limit } = input
     if (typeof jobId !== 'string' || !jobId || typeof path !== 'string' || !path || typeof base?.jobId !== 'string' || !base.jobId) {
-      return this.#refuse({ message: 'The request must name a job, a base, and a path' })
+      return this.#refuse({ message: AgentMessage.DIFF_REQUEST_INVALID })
     }
     if (!isValidPage({ cursor, limit })) {
-      return this.#refuse({ message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines` })
+      return this.#refuse({ message: AgentMessage.INVALID_PAGE })
     }
 
     const [generation, baseGeneration] = await Promise.all([this.#generations.get(jobId), this.#generations.get(base.jobId)])
     if (!generation || !baseGeneration) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
     const baseSource = base.source === FileSource.DISK ? FileSource.DISK : FileSource.OUTPUT
-    if (!baseGeneration[baseSource]) return this.#refuse({ message: 'This agent kept no snapshot of the files on disk for that job' })
+    if (!baseGeneration[baseSource]) return this.#refuse({ message: AgentMessage.NO_DISK_SNAPSHOT })
 
     // Only paths the sets hold are read, never an arbitrary path.
     const [after, before] = await Promise.all([
@@ -581,7 +580,7 @@ class Agent extends RpcTarget implements AgentApi {
     ])
     const afterContent = after.files[path]
     // Over the size cap only hashes are kept, which must not read as a deleted file.
-    if (afterContent === undefined && path in generation.output.hashes) return this.#refuse({ message: 'This agent kept only the hashes of that job' })
+    if (afterContent === undefined && path in generation.output.hashes) return this.#refuse({ message: AgentMessage.HASHES_ONLY })
     const beforeContent = before.files[path]
     if (beforeContent === undefined)
       return { hunks: [], nextCursor: null, hasBase: false, stats: { additions: 0, deletions: 0, hunks: 0, lines: 0, coarse: false } }

@@ -330,9 +330,7 @@ describe('a sandbox job', () => {
     const warn = heard('studio:warn')
     const { agent } = await connectStudio({ hooks, connectInfo: { sandbox: true, agentSlug: 'sandbox', studioVersion: '1.0.0' } })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(
-      'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
-    )
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(AgentMessage.SANDBOX_INPUT_ONLY)
     expect(warn).toHaveBeenCalledOnce()
     expect(vi.mocked(mkdtemp).mock.results).toHaveLength(1)
   })
@@ -421,7 +419,7 @@ describe('readFiles', () => {
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
     await run({ agent, jobId: 'job-1' })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow('The cursor must be')
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow(AgentMessage.INVALID_PAGE)
   })
 })
 
@@ -483,7 +481,7 @@ describe('readDiff', () => {
     vi.stubEnv('KUBB_AGENT_MAX_GENERATIONS_MB', '0.000001')
     const agent = await twoRuns()
     vi.unstubAllEnvs()
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow('kept only the hashes')
+    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow(AgentMessage.HASHES_ONLY)
   })
 
   it('refuses a job the agent no longer keeps', async () => {

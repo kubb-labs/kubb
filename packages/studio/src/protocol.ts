@@ -416,6 +416,16 @@ export type ReadInputResult = { input: InputNode }
  * Why the agent refuses a request. Studio matches on these to answer with the right status.
  */
 export const AgentMessage = {
+  GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
+  SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
+  JOB_REQUIRED: 'The request must name a job',
+  FILE_REQUEST_INVALID: 'The request must name a job or current disk output and carry paths',
+  TOO_MANY_FILES: 'Too many paths were requested at once',
+  INVALID_PAGE: 'The requested file page is invalid',
+  SANDBOX_DISK_UNAVAILABLE: 'A sandbox agent has no files on disk',
+  NO_DISK_SNAPSHOT: 'This agent kept no snapshot of the files on disk for that job',
+  DIFF_REQUEST_INVALID: 'The request must name a job, a base, and a path',
+  HASHES_ONLY: 'This agent kept only the hashes of that job',
   /**
    * A read for a job whose files the agent no longer keeps.
    */
