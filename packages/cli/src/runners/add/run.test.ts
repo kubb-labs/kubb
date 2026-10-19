@@ -1,6 +1,7 @@
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { stripVTControlCharacters } from 'node:util'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as clack from '@clack/prompts'
 import { registryEntry, stubRegistry } from '../../utils/registryFixture.ts'
@@ -30,7 +31,8 @@ beforeEach(async () => {
   await writeFile(path.join(cwd, 'kubb.config.ts'), configSource)
   vi.spyOn(process, 'cwd').mockReturnValue(cwd)
   output = []
-  for (const method of ['log', 'warn', 'error'] as const) vi.spyOn(console, method).mockImplementation((...args) => void output.push(args.join(' ')))
+  for (const method of ['log', 'warn', 'error'] as const)
+    vi.spyOn(console, method).mockImplementation((...args) => void output.push(stripVTControlCharacters(args.join(' '))))
   process.exitCode = undefined
 })
 
@@ -66,7 +68,13 @@ describe('kubb add', () => {
     const config = await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')
     expect(config).toContain(`import { pluginX } from '@acme/kubb-plugin-x'`)
     expect(config).toContain('plugins: [pluginX()]')
-    expect(output.join('\n')).toContain('✓ plugin-x is ready')
+    expect(output.join('\n')).toContain('✓ Plugin ready')
+    expect(output.join('\n')).toContain('1 plugin added to config')
+    expect(output.join('\n')).toContain('Plugin   plugin-x')
+    expect(output.join('\n')).toContain('Packages  1 installed with pnpm')
+    const summary = output.join('\n').split('✓ Plugin ready')[1]!
+    expect(summary).toContain('+ pluginX()')
+    expect(summary).not.toContain('export default')
     expect(output.join('\n')).toContain('Options  kubb.dev/extensions/acme/plugin-x')
     expect(process.exitCode).toBeUndefined()
   })
@@ -83,6 +91,66 @@ describe('kubb add', () => {
     expect(printed).toContain(`  + import { pluginX } from '@acme/kubb-plugin-x'`)
     expect(printed).toContain('  + plugins: [pluginX()],')
     expect(clack.confirm).toHaveBeenCalledWith(expect.objectContaining({ message: 'Add it?' }))
+  })
+
+  it('labels config-only changes without claiming a package install', async () => {
+    stubRegistry([pluginX])
+    await run({ id: 'acme/plugin-x', yes: true, install: false })
+    expect(installPackages).not.toHaveBeenCalled()
+    const printed = output.join('\n')
+    expect(printed).toContain('✓ Plugin configured')
+    expect(printed).toContain('installation skipped (--no-install)')
+    expect(printed).toContain('Install @acme/kubb-plugin-x@1.2.0 to use it.')
+    expect(printed).not.toContain('✓ Plugin ready')
+  })
+
+  it.each(['pluginX', 'customPlugin'])('reports an existing %s registration without counting it as a new plugin', async (localName) => {
+    stubRegistry([pluginX])
+    const registration = `import { pluginX${localName === 'pluginX' ? '' : ` as ${localName}`} } from '@acme/kubb-plugin-x'\n`
+    await writeFile(path.join(cwd, 'kubb.config.ts'), registration + configSource.replace('plugins: []', `plugins: [${localName}()]`))
+    await run({ id: 'acme/plugin-x', yes: true, install: false })
+    expect(output.join('\n')).toContain('Plugin already configured')
+    expect(output.join('\n')).toContain('0 plugins added to config')
+  })
+
+  it('counts a new registration when a comment already mentions the plugin factory', async () => {
+    stubRegistry([pluginX])
+    await writeFile(path.join(cwd, 'kubb.config.ts'), `// pluginX() is not registered yet\n${configSource}`)
+    await run({ id: 'acme/plugin-x', yes: true, install: false })
+    expect(output.join('\n')).toContain('1 plugin added to config')
+  })
+
+  it('ends cancellation with no config or install changes', async () => {
+    stubRegistry([pluginX])
+    vi.mocked(clack.confirm).mockResolvedValueOnce(false)
+    await run({ id: 'acme/plugin-x', yes: false, install: true })
+    expect(output.join('\n')).toContain('○ Add canceled')
+    expect(installPackages).not.toHaveBeenCalled()
+    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toBe(configSource)
+  })
+
+  it('does not report a plugin ready after package installation fails', async () => {
+    stubRegistry([pluginX])
+    vi.mocked(installPackages).mockRejectedValueOnce(new Error('Package manager failed'))
+    await run({ id: 'acme/plugin-x', yes: true, install: true })
+    const printed = output.join('\n')
+    expect(printed).toContain('✗ Add failed')
+    expect(printed).toContain('installation not completed')
+    expect(printed).not.toContain('✓ Plugin ready')
+    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toBe(configSource)
+    expect(process.exitCode).toBe(1)
+  })
+
+  it('separates a completed install from a config edit that requires manual work', async () => {
+    stubRegistry([pluginX])
+    await writeFile(path.join(cwd, 'kubb.config.ts'), 'export default makeConfig()\n')
+    await run({ id: 'acme/plugin-x', yes: true, install: true })
+    const printed = output.join('\n')
+    expect(installPackages).toHaveBeenCalledOnce()
+    expect(printed).toContain('! Plugin needs configuration')
+    expect(printed).toContain('Packages  1 installed with pnpm')
+    expect(printed).toContain('manual configuration')
+    expect(printed).not.toContain('✓ Plugin ready')
   })
 
   it('searches the registry in memory, marking installed extensions as not selectable', async () => {
@@ -143,6 +211,7 @@ describe('kubb add', () => {
     expect(vi.mocked(clack.select).mock.calls.length).toBe(yes ? 0 : 1)
     expect(installPackages).toHaveBeenCalledWith(installs, expect.anything(), cwd)
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain(plugins)
+    if (!answer) expect(output.join('\n')).toContain('Plugin configured; dependencies missing')
   })
 
   it('suggests the closest id for a typo and links the registry', async () => {
@@ -182,6 +251,7 @@ describe('kubb add', () => {
     expect(printed).not.toContain('export default defineConfig(')
     expect(printed).toContain('Install @acme/kubb-adapter-x@1.2.0 and add the snippet above.')
     expect(printed).not.toContain('Added @acme/kubb-adapter-x')
+    expect(printed).toContain('Adapter  adapter-x')
   })
 
   it('refuses an extension that needs another Kubb version', async () => {

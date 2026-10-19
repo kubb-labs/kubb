@@ -40,7 +40,7 @@ Each row is the id to pass to `kubb add`. The focused row also shows the descrip
 Before asking, the CLI shows what it will do:
 
 ```text [Output]
-◇  plugin-zod v5.2.0 · Zod schemas from your spec
+◇  Plugin plugin-zod v5.2.0 · Zod schemas from your spec
 │  Needs     plugin-ts ✓ installed
 │  Installs  @kubb/plugin-zod@5.2.0
 │  Config    kubb.config.ts
@@ -49,15 +49,25 @@ Before asking, the CLI shows what it will do:
 ◆  Add it?
 ```
 
-After the install, it names the next step and the page with the extension's options:
+After the install, the summary names the plugin, package, config changes, and next step:
 
 ```text [Output]
-◇  Installed @kubb/plugin-zod with pnpm in 4.20s
-◇  Added pluginZod() to kubb.config.ts
-└  ✓ plugin-zod is ready
-   Next     kubb generate  creates ./src/gen
-   Options  kubb.dev/extensions/kubb-labs/plugin-zod
+✓ Plugin ready  4.20s
+
+  1 plugin added to config
+  Plugin   plugin-zod
+  Package  @kubb/plugin-zod@5.2.0
+  Config   kubb.config.ts
+
+Changes
+  Packages  1 installed with pnpm
+  Config    1 plugin registration added
+
+Next     kubb generate  creates ./src/gen
+Options  kubb.dev/extensions/kubb-labs/plugin-zod
 ```
+
+With `--no-install`, the summary says `Plugin configured` and reports that installation was skipped. An existing registration counts as zero plugins added. When installation succeeds but the config needs manual changes, the summary reports both results and prints the snippet to add. Adapters and parsers use their own labels.
 
 Add an official plugin by its slug:
 

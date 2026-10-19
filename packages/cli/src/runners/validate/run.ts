@@ -2,6 +2,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { toError } from '@internals/utils'
 import { trackRun } from '../../Telemetry.ts'
+import { logCommandSummary } from '../../loggers/output.ts'
 
 type ValidateOptions = {
   /**
@@ -15,7 +16,8 @@ type ValidateOptions = {
  * Exits the process with code 1 on validation failure or missing dependency.
  */
 export async function run({ input }: ValidateOptions): Promise<void> {
-  const report = trackRun({ command: 'validate', hrStart: process.hrtime() })
+  const hrStart = process.hrtime()
+  const report = trackRun({ command: 'validate', hrStart })
 
   try {
     const { adapterOas } = await import('@kubb/adapter-oas')
@@ -23,20 +25,35 @@ export async function run({ input }: ValidateOptions): Promise<void> {
     await adapterOas().validate(input, { throwOnError: true })
     await report({ status: 'success' })
 
-    console.log('✅ Validation success')
+    logCommandSummary({
+      title: 'Validation passed',
+      status: 'success',
+      hrStart,
+      lines: [
+        `  ${styleText('bold', '1 specification validated')}`,
+        `  ${styleText('dim', 'Input')}    ${styleText('cyan', input)}`,
+        `  ${styleText('dim', 'Adapter')}  @kubb/adapter-oas`,
+      ],
+    })
   } catch (error) {
     await report({ status: 'failed' })
-    if (error instanceof Error && /@kubb\/adapter-oas/.test(error.message)) {
-      console.error(styleText('red', 'The @kubb/adapter-oas package is not installed.'))
-      console.error('')
-      console.error('Install it with:')
-      console.error(styleText('cyan', '  npm install @kubb/adapter-oas'))
-      console.error(styleText('cyan', '  # or'))
-      console.error(styleText('cyan', '  pnpm install @kubb/adapter-oas'))
-      console.error('')
-    }
-    console.error('❌ Validation failed')
-    console.error(toError(error).message)
+    const message = toError(error).message
+    const missingAdapter = /(?:Cannot find|Cannot resolve|not found)[\s\S]*@kubb\/adapter-oas/.test(message)
+    logCommandSummary({
+      title: missingAdapter ? 'Could not validate' : 'Validation failed',
+      status: 'failed',
+      hrStart,
+      lines: [
+        `  ${styleText('dim', 'Input')}    ${styleText('cyan', input)}`,
+        `  ${styleText('dim', 'Adapter')}  @kubb/adapter-oas${missingAdapter ? ' · not installed' : ''}`,
+        '',
+        styleText('bold', missingAdapter ? 'Required package' : 'Validation error'),
+        `  ${styleText('red', message)}`,
+        ...(missingAdapter
+          ? ['', 'Install it with:', styleText('cyan', '  npm install @kubb/adapter-oas'), styleText('cyan', '  pnpm add @kubb/adapter-oas')]
+          : []),
+      ],
+    })
 
     process.exit(1)
   }

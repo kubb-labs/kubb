@@ -14,7 +14,7 @@ navigation:
 
 # kubb update
 
-Run `kubb update` to move installed extensions to the version the [Kubb registry](/docs/5.x/reference/registry) pins. It shows each installed extension's version change and bump, asks which updates to install, and installs them with your project's package manager. Then it generates from `kubb.config.ts` with the new versions and lists the files that changed. With `--yes`, it installs every update except majors. It does not change `kubb.config.ts`.
+Run `kubb update` to move installed extensions to the version the [Kubb registry](/docs/5.x/reference/registry) pins. It shows each installed extension's version change and bump, asks which updates to install, and installs them with your project's package manager. Then it generates from `kubb.config.ts` with the new versions and summarizes the files that changed. With `--yes`, it installs every update except majors. It does not change `kubb.config.ts`.
 
 ## Usage
 
@@ -39,14 +39,24 @@ kubb update
 
 Minor and patch updates start selected. A major starts unselected, since it can break the generated code. The hint is the version change.
 
-After the install, the CLI runs the same generation as `kubb generate` and lists the changed files as `M`, `A`, or `D`, at most 10:
+After the install, the summary starts with the outcome and duration, then labels plugin versions, package installation, and regeneration separately:
 
 ```text [Output]
-◇  Generated: 2 files changed
-│  M src/gen/zod/petSchema.ts
-│  A src/gen/zod/tagSchema.ts
-└  ✓ Updated 1 extension
-   Skipped  @kubb/plugin-zod 6.0.0  run kubb update plugin-zod later
+✓ Update complete  2.16s
+
+  1 plugin updated
+  Plugins  1 updated · 1 skipped
+  Packages  1 installed with pnpm
+  Config    kubb.config.ts · unchanged
+
+Extension versions
+  Plugin  @kubb/plugin-ts  5.0.0 → 5.2.0
+  Skipped  Plugin @kubb/plugin-zod 6.0.0  run kubb update plugin-zod later
+
+File changes after regeneration
+  1 added · 1 modified · 0 deleted
+  12 unchanged
+  Output  src/gen
 ```
 
 List the updates without installing them:
@@ -56,13 +66,20 @@ kubb update --dry-run
 ```
 
 ```text [Output]
-2 updates available (1 major)
-@kubb/plugin-ts   5.0.0 → 5.2.0
-@kubb/plugin-zod  5.2.0 → 6.0.0  major
+◇ Updates available  138ms
+
+  2 updates available (1 major)
+  Packages  nothing installed
+  Config    unchanged · regeneration not run
+
+Available extension versions
+  Plugin  @kubb/plugin-ts  5.0.0 → 5.2.0
+  Plugin  @kubb/plugin-zod  5.2.0 → 6.0.0  major
+
 Dry run: nothing was installed. Run kubb update to install them.
 ```
 
-It exits with code 1 when an update exists, so CI can fail on outdated extensions.
+The preview exits with code 0 when the check succeeds, including when updates are available. It installs no packages and does not regenerate files.
 
 Install the updates for two extensions without the prompt:
 
@@ -89,7 +106,7 @@ kubb update plugin-zod plugin-ts --yes
 
 An update that does not support your Kubb or Node.js version is skipped with `Skipped <id>: <reason>`. An extension pinned to a GitHub release installs as `github:<owner>/<repo>#<commit>`.
 
-An id that matches no installed extension prints `<id> is not installed, or not in the registry.` and the other ids still update. When nothing is outdated, the CLI prints `Every installed extension is up to date.`
+An id that matches no installed extension prints `<id> is not installed, or not in the registry.` and the other ids still update. When nothing is outdated, the summary says `Already up to date`. An incompatible update is reported as skipped.
 
 ## Environment variables
 
@@ -99,4 +116,4 @@ An id that matches no installed extension prints `<id> is not installed, or not 
 
 ## Exit codes
 
-`kubb update` exits with code 1 when an id is invalid, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update and when you cancel at the prompt. A failed generation after the install prints `Generation failed. Run kubb generate to see why.` and does not change the exit code.
+`kubb update` exits with code 1 when an id is invalid, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update and when you cancel at the prompt. A failed generation after installation produces a warning summary that distinguishes installed extensions from failed regeneration and does not change the exit code.

@@ -1,5 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { stripVTControlCharacters } from 'node:util'
 import * as clack from '@clack/prompts'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createProject, registryEntry, stubRegistry } from '../../utils/registryFixture.ts'
@@ -33,7 +34,8 @@ beforeEach(async () => {
   })
   vi.spyOn(process, 'cwd').mockReturnValue(cwd)
   output = []
-  for (const method of ['log', 'warn', 'error'] as const) vi.spyOn(console, method).mockImplementation((...args) => void output.push(args.join(' ')))
+  for (const method of ['log', 'warn', 'error'] as const)
+    vi.spyOn(console, method).mockImplementation((...args) => void output.push(stripVTControlCharacters(args.join(' '))))
   stubRegistry([pluginX, pluginY, pluginZ])
   process.exitCode = undefined
 })
@@ -69,7 +71,7 @@ describe('kubb update', () => {
 
     await run({ ids: [], dryRun: true, yes: false })
 
-    expect(output.join('\n')).toContain('Every installed extension is up to date.')
+    expect(output.join('\n')).toContain('✓ Already up to date')
     expect(process.exitCode).toBeUndefined()
   })
 
@@ -96,7 +98,7 @@ describe('kubb update', () => {
       }),
     )
     expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.1.0'], expect.objectContaining({ name: 'npm' }), cwd)
-    expect(output.join('\n')).toContain('Skipped  @acme/kubb-plugin-z 2.0.0  run kubb update acme/plugin-z later')
+    expect(output.join('\n')).toContain('Skipped  Plugin @acme/kubb-plugin-z 2.0.0  run kubb update acme/plugin-z later')
   })
 
   it('installs only the non-major updates with --yes', async () => {
@@ -104,7 +106,9 @@ describe('kubb update', () => {
 
     expect(clack.multiselect).not.toHaveBeenCalled()
     expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.1.0'], expect.anything(), cwd)
-    expect(output.join('\n')).toContain('✓ Updated 1 extension')
+    expect(output.join('\n')).toContain('✓ Update complete')
+    expect(output.join('\n')).toContain('1 plugin updated')
+    expect(output.join('\n')).toContain('regeneration not run')
   })
 
   it('regenerates in this process after the install and lists the changed files', async () => {
@@ -126,7 +130,10 @@ describe('kubb update', () => {
     expect(generate).toHaveBeenCalledTimes(1)
     const printed = output.join('\n')
     expect(printed).toContain('Generated: 3 files changed')
-    expect(printed).toContain('A gen/added.ts\nM gen/changed.ts\nD gen/removed.ts')
+    expect(printed).toContain('File changes after regeneration')
+    expect(printed).toContain('1 added · 1 modified · 1 deleted')
+    expect(printed).toContain('1 unchanged')
+    expect(printed).not.toContain('A gen/added.ts')
     expect(await readFile(path.join(gen, 'kept.ts'), 'utf8')).toBe('same')
   })
 
@@ -138,6 +145,35 @@ describe('kubb update', () => {
     await run({ ids: [], dryRun: false, yes: true })
 
     expect(installPackages).toHaveBeenCalledWith([`github:acme/kubb-plugin-x#${commit}`], expect.objectContaining({ name: 'npm' }), cwd)
+  })
+
+  it('reports installed packages separately when generation fails', async () => {
+    await writeFile(path.join(cwd, 'kubb.config.ts'), `export default { root: ${JSON.stringify(cwd)}, input: './spec.yaml', output: { path: './gen' } }\n`)
+    vi.mocked(generate).mockResolvedValueOnce(false)
+    await run({ ids: [], dryRun: false, yes: true })
+    const printed = output.join('\n')
+    expect(installPackages).toHaveBeenCalledOnce()
+    expect(printed).toContain('! Plugins updated; generation failed')
+    expect(printed).toContain('Packages  1 installed with npm')
+    expect(printed).toContain('file changes are not confirmed')
+    expect(printed).not.toContain('✓ Update complete')
+    expect(printed).not.toContain('File changes after regeneration')
+  })
+
+  it('keeps an empty selection neutral and installs nothing', async () => {
+    vi.mocked(clack.multiselect).mockResolvedValueOnce([])
+    await run({ ids: [], dryRun: false, yes: false })
+    expect(output.join('\n')).toContain('○ No updates installed')
+    expect(installPackages).not.toHaveBeenCalled()
+  })
+
+  it('ends with a failed summary when the install fails, without regenerating', async () => {
+    vi.mocked(installPackages).mockRejectedValueOnce(new Error('Package manager failed'))
+    await run({ ids: [], dryRun: false, yes: true })
+    expect(output.join('\n')).toContain('✗ Update failed')
+    expect(output.join('\n')).not.toContain('✓ Update complete')
+    expect(generate).not.toHaveBeenCalled()
+    expect(process.exitCode).toBe(1)
   })
 
   it('only updates the ids it is given', async () => {
