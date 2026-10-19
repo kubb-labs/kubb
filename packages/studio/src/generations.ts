@@ -140,6 +140,38 @@ export async function listDisk({ root, outputPath, maxFiles }: { root: string; o
   return { storage, root, paths: new Set(paths) }
 }
 
+export async function readDiskFiles({
+  files: disk,
+  paths,
+  cursor = 0,
+  limit,
+}: {
+  files: SourceFiles
+  paths: Array<string>
+  cursor?: number
+  limit?: number
+}): Promise<ReadFilesResult> {
+  const files: Record<string, string> = {}
+  const pages: Record<string, FilePage> = {}
+  await inParallel({
+    items: paths.filter((path) => disk.paths.has(path)),
+    limit: READ_CONCURRENCY,
+    run: async (path) => {
+      const content = await disk.storage.readItem(resolve(disk.root, path))
+      if (content === null) return
+      if (limit === undefined) {
+        files[path] = content
+        return
+      }
+      const lines = content.split(/\r\n|\r|\n/)
+      const end = Math.min(cursor + limit, lines.length)
+      files[path] = lines.slice(cursor, end).join('\n')
+      pages[path] = { nextCursor: end < lines.length ? end : null, totalLines: lines.length }
+    },
+  })
+  return limit === undefined ? { files } : { files, pages }
+}
+
 /**
  * Keeps recent generations by job id in `storage`, with an index next to them so a store on disk
  * survives a restart. A generation is only ever looked up by its job id, so on a pooled sandbox one

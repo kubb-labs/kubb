@@ -23,7 +23,7 @@ import { version as kubbVersion } from '../package.json'
 import { readConfig, readImports, writeConfigEdits } from './configFile.ts'
 import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
-import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
+import { createGenerationStore, generate, type GenerationStore, listDisk, readDiskFiles, resolveGenerationLimits } from './generations.ts'
 import {
   AGENT_INSTANCE_HEADER,
   AGENT_SOCKET_PATH,
@@ -340,10 +340,7 @@ class Agent extends RpcTarget implements AgentApi {
     const files = await listDisk({ root: this.#options.root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES })
     if (!files) return undefined
 
-    const jobId = randomUUID()
-    const output = await this.#generations.keep({ jobId, source: FileSource.OUTPUT, files, maxSetMb: this.#limits.maxSnapshotMb, normalize: false })
-    await this.#generations.add({ jobId, output })
-    return { jobId, files: output.paths, hashes: output.hashes }
+    return { files: [...files.paths] }
   }
 
   startGeneration(input: GenerateInput): GenerationRun {
@@ -527,15 +524,26 @@ class Agent extends RpcTarget implements AgentApi {
   async readFiles(input: ReadFilesInput): Promise<ReadFilesResult> {
     this.#assertConnected()
     if (!this.#permissions.allowRead) return this.#refuse({ message: AgentMessage.READ_NOT_ALLOWED, permission: AgentPermission.READ })
-    if (!Array.isArray(input.paths) || typeof input.jobId !== 'string' || !input.jobId) {
-      return this.#refuse({ message: 'The request must name a job and carry paths' })
+    if (!Array.isArray(input.paths) || (input.currentDisk === true ? input.jobId !== undefined : typeof input.jobId !== 'string' || !input.jobId)) {
+      return this.#refuse({ message: 'The request must name a job or current disk output and carry paths' })
     }
     const { paths } = input
     if (paths.length > MAX_FILES_PER_REQUEST) return this.#refuse({ message: `At most ${MAX_FILES_PER_REQUEST} paths may be requested at once` })
+    if (!isValidPage(input)) return this.#refuse({ message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines` })
+
+    if (input.currentDisk) {
+      if (this.#sandbox) return this.#refuse({ message: 'A sandbox agent has no files on disk' })
+      const config = await this.#options.loadConfig()
+      const disk = await listDisk({ root: this.#options.root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES })
+      if (!disk) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
+      const result = await readDiskFiles({ files: disk, paths, cursor: input.cursor, limit: input.limit })
+      await this.#logCommand('readFiles', `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`)
+      return result
+    }
+    if (!input.jobId) return this.#refuse({ message: 'The request must name a job or current disk output' })
 
     const generation = await this.#generations.get(input.jobId)
     if (!generation) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
-    if (!isValidPage(input)) return this.#refuse({ message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines` })
 
     const source = input.source === FileSource.DISK ? FileSource.DISK : FileSource.OUTPUT
     if (!generation[source]) return this.#refuse({ message: 'This agent kept no snapshot of the files on disk for that job' })

@@ -333,16 +333,15 @@ export const FileSource = { OUTPUT: 'output', DISK: 'disk' } as const
 export type FileSource = (typeof FileSource)[keyof typeof FileSource]
 
 /**
- * Asks the agent to read files of one generation job back.
+ * Asks the agent to read files of one generation job, or its current output directory.
  */
 export type ReadFilesInput = {
+  /** The job whose files to read. Omit it with `currentDisk` to read the current output directory. */
+  jobId?: string
+  /** Reads the current output directory instead of a kept generation. */
+  currentDisk?: true
   /**
-   * The job whose files to read, the only lookup key, so the caller decides whose jobs a reader may
-   * see. A job the agent no longer keeps fails with {@link AgentMessage.GENERATION_GONE}.
-   */
-  jobId: string
-  /**
-   * At most {@link MAX_FILES_PER_REQUEST} paths, each checked against what the job's set holds.
+   * At most {@link MAX_FILES_PER_REQUEST} paths, each checked against the job's files or current output directory.
    */
   paths: Array<string>
   /**
@@ -523,13 +522,11 @@ export const MAX_SNAPSHOT_BYTES = 50 * 1024 * 1024
  */
 export type ConnectMessagePayload = {
   /**
-   * A kept copy of the output directory, readable through `readFiles` without generating.
+   * The output directory's current file list, readable through `readFiles` without generating.
    * Absent for a sandbox or when the host has not granted `allowRead`.
    */
   output?: {
-    jobId: string
     files: Array<string>
-    hashes: Record<string, string>
   }
   /**
    * Always sent, so a mismatch is visible on both sides: Studio badges the connection with these

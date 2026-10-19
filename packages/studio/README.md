@@ -85,9 +85,9 @@ running in a developer's project and a container running a fixed plugin set.
 the agent is a sandbox and carries its slug and Studio's version. From then on the agent pings every
 30 seconds, and Studio schedules one job at a time on the socket.
 
-With `allowRead`, the connect payload also includes a kept copy of the current `output.path` files.
-Studio can browse these files through `readFiles` before running a generation. Sandbox agents have
-no disk output, and output paths outside the project root are excluded.
+With `allowRead`, the connect payload includes the current `output.path` file list. Studio reads
+file contents from disk through `readFiles` when a user opens a file. Sandbox agents have no disk
+output, and output paths outside the project root are excluded.
 
 Studio ends a socket on purpose with one of these close codes:
 

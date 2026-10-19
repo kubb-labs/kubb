@@ -562,7 +562,7 @@ describe('generation history', () => {
   })
 })
 
-describe('disk snapshot', () => {
+describe('current disk output', () => {
   async function seedDisk(files: Record<string, string>) {
     const storage = fsStorage()
     for (const [path, value] of Object.entries(files)) await storage.writeItem(`${root}/${path}`, value)
@@ -576,24 +576,19 @@ describe('disk snapshot', () => {
     const { output } = await agent.connect(info)
 
     expect(output?.files.toSorted()).toStrictEqual(['src/gen/empty.ts', 'src/gen/pet.ts'])
-    expect(output?.hashes['src/gen/pet.ts']).toBe(createHash('sha1').update('on disk\n').digest('hex').slice(0, 16))
-    await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts', 'src/gen/empty.ts', 'src/other.ts'] })).resolves.toStrictEqual({
+    await expect(agent.readFiles({ currentDisk: true, paths: ['src/gen/pet.ts', 'src/gen/empty.ts', 'src/other.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'on disk\n', 'src/gen/empty.ts': '' },
     })
     expect(generationStarted).not.toHaveBeenCalled()
     await expect(fsStorage().readItem(`${root}/src/gen/pet.ts`)).resolves.toBe('on disk\n')
   })
 
-  it('takes a fresh copy when the output changes between connections', async () => {
+  it('reads the current output when Studio requests it', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'first' })
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    const first = await agent.connect(info)
+    await agent.connect(info)
     await seedDisk({ 'src/gen/pet.ts': 'second' })
-    const second = await agent.connect(info)
-
-    expect(second.output?.jobId).not.toBe(first.output?.jobId)
-    await expect(agent.readFiles({ jobId: first.output!.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'first' } })
-    await expect(agent.readFiles({ jobId: second.output!.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'second' } })
+    await expect(agent.readFiles({ currentDisk: true, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'second' } })
   })
 
   it('returns an empty tree when the output directory has no files', async () => {
