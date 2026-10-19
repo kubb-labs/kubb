@@ -7,9 +7,7 @@ import {
   type CLIOptions,
   cliReporter,
   type Config,
-  cacheStorage,
   createKubb,
-  createOutputManifest,
   Diagnostics,
   fileReporter,
   getInputKind,
@@ -25,19 +23,16 @@ import { trackRun } from '../../Telemetry.ts'
 import { pluralize } from '../../loggers/createLogger.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
-import { createSpinner, logBanner, logBlock, logError, logFileChanges, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
-import { formatBar } from '../../loggers/banner.ts'
+import { createSpinner, logBanner, logError, logFileChanges, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
 import {
   type BuildDiff,
   type BuildSnapshot,
   createSerialRunner,
-  type FileChange,
   diffBuilds,
   fetchUrlBody,
   listenForKeys,
-  planDryRun,
   startUrlWatcher,
   startWatcher,
   trackBuild,
@@ -66,10 +61,6 @@ type GenerateProps = {
    * post-generate commands, and prints what would change on disk.
    */
   dryRun?: boolean
-  /**
-   * Prints nothing of its own, for `--reporter json` and `silent`.
-   */
-  quiet?: boolean
 }
 
 export async function generate(options: GenerateProps): Promise<boolean> {
@@ -90,14 +81,6 @@ export async function generate(options: GenerateProps): Promise<boolean> {
   // their failures as coded diagnostics that reach the summary, the json report and the exit code.
   const kubb = createKubb(config, { hooks })
   const result = await kubb.generate()
-
-  if (dryRun && !options.quiet) {
-    const outputPath = path.resolve(config.root, config.output.path)
-    // Read only: the manifest is never committed, so a dry run leaves the cache as it found it.
-    const manifest = await createOutputManifest({ storage: options.config.storage, cache: cacheStorage({ root: config.root }) })
-    const paths = result.files.map((file) => file.path)
-    logDryRunPlan(await planDryRun({ storage: config.storage, paths, outputPath, clean: Boolean(config.output.clean), manifest }))
-  }
 
   await report({
     // A setup that threw leaves no driver, so read the configured plugins instead.
@@ -160,27 +143,6 @@ function logRebuild({ diff, durationMs }: { diff: BuildDiff; durationMs: number 
       .join(styleText('dim', ' · ')),
   )
   logFileChanges(diff.files)
-}
-
-/** Prints a dry run's plan: the counts, then each file it would add, change or delete. */
-function logDryRunPlan({ files, unchanged }: { files: ReadonlyArray<FileChange>; unchanged: number }): void {
-  const count = (status: FileChange['status']) => files.filter((file) => file.status === status).length
-  const stats = [
-    ['+', 'new', 'green', count('A')],
-    ['~', 'changed', 'yellow', count('M')],
-    ['-', 'removed', 'red', count('D')],
-    ['', 'unchanged', 'dim', unchanged],
-  ] as const
-  logStep('Dry run: nothing was written')
-  logBlock([
-    stats.map(([sign, label, color, total]) => styleText(color, `${sign}${total} ${label}`)).join(styleText('dim', ' · ')),
-    formatBar(
-      stats.map(([, , color, total]) => [total, color] as const),
-      30,
-    ),
-  ])
-  logFileChanges(files)
-  logStep(files.length ? 'Run without --dry-run to write these files.' : 'The files on disk are up to date.')
 }
 
 /**
@@ -251,7 +213,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   // `defineConfig` gets the same built-ins it would have registered.
   const available = configs[0]?.reporters?.length ? configs[0].reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter]
   const reporters = selectReporters(available, requestedNames)
-  setupReporters(hooks, { logLevel, reporters })
+  setupReporters(hooks, { logLevel, reporters, dryRun })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 
@@ -278,7 +240,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async (paths: Array<string>) => {
           const hrStart = process.hrtime()
-          const succeeded = await generate({ input, config, hooks, dryRun, quiet })
+          const succeeded = await generate({ input, config, hooks, dryRun })
           const snapshot = tracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
           previous = snapshot
@@ -317,7 +279,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         }
       } else {
         try {
-          const succeeded = await generate({ input, config, hooks, dryRun, quiet })
+          const succeeded = await generate({ input, config, hooks, dryRun })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await Diagnostics.emit(errorHooks, configError)

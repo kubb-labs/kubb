@@ -61,8 +61,8 @@ describe('unpluginFactory', () => {
     await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb]')
 
     const lines = log.mock.calls.map(([line]) => stripVTControlCharacters(String(line)).trim())
-    expect(lines).toContain('Plugins  0 passed | 0 failed | 1 not run (1)')
-    expect(lines).toContain('Issues  1 error')
+    expect(lines).toContain('Plugins  1 not run')
+    expect(lines).toContain('Issues   1 error')
   })
 
   test('fails the host build when the config is missing', async () => {

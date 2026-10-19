@@ -210,7 +210,7 @@ describe('grouped generation output', () => {
       'log.message:✓ tsc --noEmit in ',
       'outro:✓ Generation succeeded',
       // The summary block, which the reporter renders as one entry after the group closes.
-      'log.message.bare: Plugins  2 passed (2)\n   Files  1 generated\nDuration  \n  Output  /tmp/src/gen',
+      'log.message.bare:✓ Generation complete  \n\n  1 file generated\n  Plugins  2 passed\n  Output   /tmp/src/gen',
     ])
   })
 
@@ -267,7 +267,7 @@ describe('grouped generation output', () => {
     expect(output.map(withoutDuration)).toContain(failed)
     expect(output.some((call) => call.includes('@kubb/plugin-zod failed'))).toBe(true)
     // The group closes once, right before the summary.
-    expect(output.filter((call) => call.includes('Generation failed') || call.startsWith('Kubb failed'))).toStrictEqual([closed])
+    expect(output.filter((call) => call.startsWith('outro:') || call.startsWith('Kubb failed'))).toStrictEqual([closed])
     expect(output.at(rich ? -2 : -1)).toBe(closed)
   })
 
@@ -403,7 +403,10 @@ describe('both loggers', () => {
             .replace(/^[◇✓✗]\s*/, '')
             .trim(),
         )
-        .filter((line) => line && !/^(Kubb succeeded|Generation succeeded|Plugins {2}|Files {2}|Duration|Output {2})/.test(line))
+        .filter(
+          (line) =>
+            line && !/^(Kubb succeeded|Generation succeeded|Generation complete|\d+ files? generated|Plugins {2}|Files {2}|Duration|Output {2})/.test(line),
+        )
         .sort()
     // The per-node progress only redraws the rich spinner; plain output leaves it out on purpose.
     const richMessages = messages(rich).filter((line) => !/^(Generating {2}|│ {3})/.test(line))

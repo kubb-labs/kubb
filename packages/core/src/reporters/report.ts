@@ -42,9 +42,11 @@ export type Report = {
   }
   filesCreated: number
   /**
-   * Files skipped because the storage already held the same content.
+   * Generated files whose content matches the previous output.
    */
   filesUnchanged: number
+  fileChanges?: GenerationResult['fileChanges']
+  dryRun?: boolean
   /**
    * Wall-clock time spent generating this config, in milliseconds.
    */
@@ -88,6 +90,8 @@ export function buildReport(result: GenerationResult): Report {
     counts,
     filesCreated,
     filesUnchanged,
+    fileChanges: result.fileChanges,
+    dryRun: result.dryRun,
     durationMs: getElapsedMs(hrStart),
     output: resolve(config.root, config.output.path),
     timings,

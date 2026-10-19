@@ -1,5 +1,9 @@
 import { stripVTControlCharacters } from 'node:util'
-import { Hookable, cliReporter, type Config, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { ast } from '@kubb/ast'
+import { Hookable, cliReporter, type Config, createKubb, fsStorage, jsonReporter, type KubbHooks, logLevel, memoryStorage, type Storage } from '@kubb/core'
 import { getAgentProfile } from 'gunshi/agent'
 import { describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
@@ -8,6 +12,63 @@ import setupReporters from './reporters.ts'
 vi.mock('gunshi/agent', () => ({ getAgentProfile: vi.fn(() => ({ isAgent: false })) }))
 
 describe('setupReporters', () => {
+  it.each([false, true])('reports content changes across cleaning, including plugin output outside the main folder (dry run: %s)', async (dryRun) => {
+    const root = await mkdtemp(join(tmpdir(), 'kubb-summary-report-'))
+    try {
+      const output = join(root, 'gen')
+      await mkdir(output)
+      const pet = join(output, 'pet.ts'),
+        same = join(output, 'same.ts'),
+        stale = join(output, 'stale.ts'),
+        added = join(output, 'new.ts'),
+        outside = join(root, 'outside.ts')
+      await Promise.all(
+        [
+          [pet, 'old'],
+          [same, 'same'],
+          [stale, 'gone'],
+          [outside, 'before'],
+        ].map(([path, value]) => writeFile(path!, value!)),
+      )
+      const storage = dryRun ? memoryStorage() : fsStorage()
+      const config = createKubb({ root, input: './openapi.yaml', output: { path: output, clean: true }, storage }).config
+      const hooks = new Hookable<KubbHooks>()
+      const lines: Array<string> = []
+      setupReporters(hooks, {
+        logLevel: logLevel.info,
+        reporters: [cliReporter],
+        dryRun,
+        logger: () => ({ renderSummary: (summary) => lines.push(...summary) }),
+      })
+      await hooks.callHook('kubb:generation:start', { config })
+      if (!dryRun) {
+        await rm(output, { recursive: true })
+        await mkdir(output)
+      }
+      const files = [pet, same, added, outside].map((path) => ast.factory.createFile({ path, baseName: 'example.ts' }))
+      await hooks.callHook('kubb:files:processing:start', { files })
+      for (const [path, value] of [
+        [pet, 'new'],
+        [same, 'same'],
+        [added, 'fresh'],
+        [outside, 'after'],
+      ] as const)
+        await storage.writeItem(path, value)
+      await hooks.callHook('kubb:files:processing:end', { files, unchanged: [] })
+      await hooks.callHook('kubb:generation:end', { config, storage, filesCreated: files.length, status: 'success', hrStart: process.hrtime() })
+      const text = stripVTControlCharacters(lines.join('\n'))
+      expect(text).toContain(`3 files ${dryRun ? 'planned' : 'generated'} · 1 unchanged`)
+      expect(text).toContain('1 added · 2 modified · 1 deleted')
+      expect(text).toContain('Lines  +3 −3')
+      if (dryRun) {
+        expect(text).toContain('Nothing was written.')
+        expect(await readFile(stale, 'utf8')).toBe('gone')
+      }
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
   it('lets json own stdout without installing the live logger when json is selected', async () => {
     const context = new Hookable<KubbHooks>()
 

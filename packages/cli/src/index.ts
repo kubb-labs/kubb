@@ -56,7 +56,13 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
     // The mascot opens only the long-running commands; `generate` turns this off and plays its animated banner instead.
     renderHeader: isJsonOutput
       ? null
-      : async (ctx) => (wantsMascot({ commandPath: ctx.commandPath, values: ctx.values }) ? getBanner(version, ctx.commandPath.join(' ') || 'generate') : ''),
+      : async (ctx) => {
+          if (!wantsMascot({ commandPath: ctx.commandPath, values: ctx.values })) return ''
+
+          // Gunshi adds a blank line after returned headers; the first prompt already supplies its guide.
+          ctx.log(getBanner(version, ctx.commandPath.join(' ') || 'generate'))
+          return ''
+        },
     strict: true,
     plugins: [dryrun({ name: 'dry-run' })],
     onErrorCommand: async (_ctx, error) => {

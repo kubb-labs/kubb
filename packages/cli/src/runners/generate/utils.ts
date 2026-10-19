@@ -3,7 +3,7 @@ import { readdir, readFile } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { matchesStored, toError } from '@internals/utils'
+import { inParallel, matchesStored, toError } from '@internals/utils'
 import type { Hookable, KubbHooks, OutputManifest, Storage } from '@kubb/core'
 
 /** Glob pattern for paths the file watcher ignores. */
@@ -329,9 +329,9 @@ export type FileChange = { status: 'A' | 'M' | 'D'; path: string; added?: number
 
 function countLineChanges(before: string, after: string): { added: number; removed: number } {
   const remaining = new Map<string, number>()
-  for (const line of before.split('\n')) remaining.set(line, (remaining.get(line) ?? 0) + 1)
+  for (const line of before ? before.split('\n') : []) remaining.set(line, (remaining.get(line) ?? 0) + 1)
   let added = 0
-  for (const line of after.split('\n')) {
+  for (const line of after ? after.split('\n') : []) {
     const count = remaining.get(line) ?? 0
     if (count > 0) remaining.set(line, count - 1)
     else added++
@@ -358,7 +358,24 @@ async function listFiles(dir: string): Promise<Array<string>> {
 }
 
 /**
- * What a dry run would change on disk: each generated file compared with the file at its path the
+ * Reads the output before generation, so cleaning the directory cannot erase the diff baseline.
+ */
+export async function readOutputFiles(outputPath: string): Promise<Map<string, string>> {
+  const paths = await listFiles(outputPath)
+  const files = new Map<string, string>()
+  await inParallel({
+    items: paths,
+    limit: 50,
+    run: async (filePath) => {
+      const source = await readOrNull(filePath)
+      if (source !== null) files.set(filePath, source)
+    },
+  })
+  return files
+}
+
+/**
+ * Compares generated output with disk, or a snapshot captured before a real run. Each file is compared the
  * way a real write compares them (trimmed, and through the output `manifest`, which knows the files
  * the formatter rewrote), and with `clean`, the files in the output folder the run would delete.
  * Reads only, writes nothing.
@@ -369,28 +386,44 @@ export async function planDryRun({
   outputPath,
   clean,
   manifest,
+  previousFiles,
 }: {
   storage: Storage
   paths: ReadonlyArray<string>
   outputPath: string
   clean: boolean
   manifest?: Pick<OutputManifest, 'isUpToDate'>
+  /**
+   * The output captured before a real run, including files removed by cleaning.
+   */
+  previousFiles?: ReadonlyMap<string, string>
 }): Promise<{ files: Array<FileChange>; unchanged: number }> {
   const generated = new Set(paths)
-  const [rows, existing] = await Promise.all([
-    Promise.all(paths.map(async (filePath) => ({ filePath, next: (await storage.readItem(filePath)) ?? '', previous: await readOrNull(filePath) }))),
-    clean ? listFiles(outputPath) : Promise.resolve([]),
-  ])
+  const rows: Array<{ filePath: string; next: string | null; previous: string | null }> = []
+  await inParallel({
+    items: paths,
+    limit: 50,
+    run: async (filePath, index) => {
+      rows[index] = {
+        filePath,
+        next: await storage.readItem(filePath),
+        previous: previousFiles ? (previousFiles.get(filePath) ?? null) : await readOrNull(filePath),
+      }
+    },
+  })
+  const existing = clean && !previousFiles ? await listFiles(outputPath) : []
 
   const files: Array<FileChange> = []
   let unchanged = 0
   for (const { filePath, next, previous } of rows) {
-    if (previous === null) files.push({ status: 'A', path: filePath })
+    if (next === null) continue
+    if (previous === null) files.push({ status: 'A', path: filePath, ...countLineChanges('', next.trimEnd()) })
     else if (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: filePath, source: next, disk: previous })) unchanged++
     else files.push({ status: 'M', path: filePath, ...countLineChanges(previous.trim(), next.trim()) })
   }
-  for (const filePath of existing) {
-    if (!generated.has(filePath)) files.push({ status: 'D', path: filePath })
+  for (const filePath of clean && previousFiles ? previousFiles.keys() : existing) {
+    if (!generated.has(filePath))
+      files.push({ status: 'D', path: filePath, ...countLineChanges((previousFiles?.get(filePath) ?? (await readOrNull(filePath)) ?? '').trimEnd(), '') })
   }
 
   return { files, unchanged }

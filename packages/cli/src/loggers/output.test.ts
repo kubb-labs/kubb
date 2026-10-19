@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import * as prompts from '@clack/prompts'
 import * as env from '../utils/env.ts'
 import { createSpinner, getBanner, logIntro, logInfo, wantsMascot, withSpinner } from './output.ts'
 
@@ -53,6 +54,28 @@ describe('plain output', () => {
     })
 
     expect(lines).toEqual(['Linting', '✗ Linting failed'])
+  })
+})
+
+describe('rich intro', () => {
+  it.each([undefined, ''])('leaves the opening guide to the first prompt when the title is %s', (title) => {
+    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
+    vi.mocked(prompts.intro).mockClear()
+    vi.mocked(prompts.log.warn).mockClear()
+
+    logIntro({ title, warning: 'Use with caution' })
+
+    expect(prompts.intro).not.toHaveBeenCalled()
+    expect(prompts.log.warn).toHaveBeenCalledWith('Use with caution')
+  })
+
+  it('keeps a named section heading', () => {
+    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
+    vi.mocked(prompts.intro).mockClear()
+
+    logIntro({ title: 'Configuration' })
+
+    expect(prompts.intro).toHaveBeenCalledExactlyOnceWith('Configuration')
   })
 })
 

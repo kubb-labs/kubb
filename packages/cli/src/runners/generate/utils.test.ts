@@ -6,7 +6,7 @@ import { stripVTControlCharacters } from 'node:util'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { type GeneratorContext, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, diffBuilds, formatChange, listenForKeys, planDryRun, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
+import { createSerialRunner, diffBuilds, formatChange, listenForKeys, planDryRun, readOutputFiles, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
 
 describe('createSerialRunner', () => {
   it('collapses triggers that land during a run into one rerun, reports its error through onError, and keeps accepting triggers', async () => {
@@ -314,6 +314,37 @@ describe('listenForKeys', () => {
 })
 
 describe('planDryRun', () => {
+  it('keeps the pre-clean baseline and counts empty files without phantom lines', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'kubb-summary-'))
+    try {
+      const pet = join(dir, 'pet.ts'),
+        legacy = join(dir, 'legacy.ts'),
+        empty = join(dir, 'empty.ts')
+      await writeFile(pet, 'a\nb\n')
+      await writeFile(legacy, 'old\nfile\n')
+      const previousFiles = await readOutputFiles(dir)
+      await rm(legacy)
+      await writeFile(pet, 'a\nB\n')
+      const storage = memoryStorage()
+      await storage.writeItem(pet, 'a\nB\n')
+      await storage.writeItem(empty, '')
+
+      expect(await planDryRun({ storage, paths: [pet, empty], outputPath: dir, clean: true, previousFiles })).toStrictEqual({
+        files: [
+          { status: 'M', path: pet, added: 1, removed: 1 },
+          { status: 'A', path: empty, added: 0, removed: 0 },
+          { status: 'D', path: legacy, added: 0, removed: 2 },
+        ],
+        unchanged: 0,
+      })
+      expect((await planDryRun({ storage, paths: [pet, empty], outputPath: dir, clean: false, previousFiles })).files.some((file) => file.status === 'D')).toBe(
+        false,
+      )
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+  })
+
   it('compares each generated file with disk, and lists the files `clean` would delete', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'kubb-dry-run-'))
     try {
@@ -330,8 +361,8 @@ describe('planDryRun', () => {
       expect(await planDryRun({ storage, paths, outputPath: join(dir, 'gen'), clean: true })).toStrictEqual({
         files: [
           { status: 'M', path: join(dir, 'gen/pet.ts'), added: 2, removed: 1 },
-          { status: 'A', path: join(dir, 'gen/toy.ts') },
-          { status: 'D', path: join(dir, 'gen/legacy.ts') },
+          { status: 'A', path: join(dir, 'gen/toy.ts'), added: 1, removed: 0 },
+          { status: 'D', path: join(dir, 'gen/legacy.ts'), added: 0, removed: 1 },
         ],
         unchanged: 1,
       })

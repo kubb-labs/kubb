@@ -45,13 +45,28 @@ export type GenerationResult = {
    */
   diagnostics: Array<Diagnostic>
   /**
-   * Number of files written for this config.
+   * Number of generated files for this config, including unchanged files.
    */
   filesCreated: number
   /**
-   * Number of those files skipped because the storage already held the same content.
+   * Number of generated files whose content matches the previous output.
    */
   filesUnchanged?: number
+  /**
+   * Changes compared with the output before this run, when the host collected them.
+   * Line totals include added and deleted files.
+   */
+  fileChanges?: {
+    added: number
+    modified: number
+    deleted: number
+    linesAdded: number
+    linesRemoved: number
+  }
+  /**
+   * The result previews generation without writing output.
+   */
+  dryRun?: boolean
   status: 'success' | 'failed'
   /**
    * `process.hrtime()` snapshot taken when this config started generating.

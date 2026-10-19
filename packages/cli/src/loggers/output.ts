@@ -83,8 +83,7 @@ type IntroOptions = {
  */
 export function logIntro({ title, warning, block = true }: IntroOptions): void {
   if (block && isRichOutput()) {
-    // Without a title the block still opens, so the gutter has a corner to match the closing `└`.
-    prompts.intro(title ?? '')
+    if (title) prompts.intro(title)
 
     if (warning) {
       prompts.log.warn(warning)
@@ -181,7 +180,6 @@ export async function logBanner(version: string): Promise<void> {
     console.log(frame)
     await sleep(ms)
   }
-  console.log('')
 }
 
 /** Pads each column to its widest cell, one line per row. */
