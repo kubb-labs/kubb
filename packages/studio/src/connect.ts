@@ -302,9 +302,14 @@ class Agent extends RpcTarget implements AgentApi {
     const { configPath, root, version, loadConfig, configFile } = this.#options
     const source = read(configFile)
     const [config, file, extensions] = await Promise.all([loadConfig(), this.#readConfigFileView(source), this.#installedExtensions(source)])
+    const output = await this.#readDiskOutput(config).catch(async (error: unknown) => {
+      await this.#warn({ message: `Could not read the output directory: ${getErrorMessage(error)}` })
+      return undefined
+    })
     this.#session.connected.resolve(info)
 
     return {
+      output,
       versions: { kubb: kubbVersion, agent: version },
       root,
       // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
@@ -328,6 +333,17 @@ class Agent extends RpcTarget implements AgentApi {
       },
       permissions: this.#permissions,
     }
+  }
+
+  async #readDiskOutput(config: Config): Promise<ConnectMessagePayload['output']> {
+    if (this.#sandbox || !this.#permissions.allowRead || this.#session.active) return undefined
+    const files = await listDisk({ root: this.#options.root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES })
+    if (!files) return undefined
+
+    const jobId = randomUUID()
+    const output = await this.#generations.keep({ jobId, source: FileSource.OUTPUT, files, maxSetMb: this.#limits.maxSnapshotMb, normalize: false })
+    await this.#generations.add({ jobId, output })
+    return { jobId, files: output.paths, hashes: output.hashes }
   }
 
   startGeneration(input: GenerateInput): GenerationRun {

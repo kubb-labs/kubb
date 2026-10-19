@@ -568,6 +568,65 @@ describe('disk snapshot', () => {
     for (const [path, value] of Object.entries(files)) await storage.writeItem(`${root}/${path}`, value)
   }
 
+  it('opens the existing output without running the generator or changing the files', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'on disk\n', 'src/gen/empty.ts': '', 'src/other.ts': 'not output' })
+    const { hooks, heard } = withHooks()
+    const generationStarted = heard('kubb:build:start')
+    const { agent } = await connectStudio({ permissions: { allowRead: true }, hooks })
+    const { output } = await agent.connect(info)
+
+    expect(output?.files.toSorted()).toStrictEqual(['src/gen/empty.ts', 'src/gen/pet.ts'])
+    expect(output?.hashes['src/gen/pet.ts']).toBe(createHash('sha1').update('on disk\n').digest('hex').slice(0, 16))
+    await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts', 'src/gen/empty.ts', 'src/other.ts'] })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'on disk\n', 'src/gen/empty.ts': '' },
+    })
+    expect(generationStarted).not.toHaveBeenCalled()
+    await expect(fsStorage().readItem(`${root}/src/gen/pet.ts`)).resolves.toBe('on disk\n')
+  })
+
+  it('takes a fresh copy when the output changes between connections', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'first' })
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    const first = await agent.connect(info)
+    await seedDisk({ 'src/gen/pet.ts': 'second' })
+    const second = await agent.connect(info)
+
+    expect(second.output?.jobId).not.toBe(first.output?.jobId)
+    await expect(agent.readFiles({ jobId: first.output!.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'first' } })
+    await expect(agent.readFiles({ jobId: second.output!.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'second' } })
+  })
+
+  it('returns an empty tree when the output directory has no files', async () => {
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+
+    expect((await agent.connect(info)).output?.files).toStrictEqual([])
+  })
+
+  it('omits the disk output without read permission', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'private' })
+    const { agent } = await connectStudio()
+
+    expect((await agent.connect(info)).output).toBeUndefined()
+  })
+
+  it('omits the disk output for a sandbox even when it allows reads', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'private' })
+    const connectInfo = { ...info, sandbox: true }
+    const { agent } = await connectStudio({ connectInfo, permissions: { allowRead: true } })
+
+    expect((await agent.connect(connectInfo)).output).toBeUndefined()
+  })
+
+  it('does not list the project when the output path is the root', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'private' })
+    const { agent } = await connectStudio({
+      permissions: { allowRead: true },
+      loadConfig: async () => ({ ...projectConfig(), output: { path: '.' } }),
+    })
+
+    expect((await agent.connect(info)).output).toBeUndefined()
+  })
+
   it('fingerprints what the output directory held before the run', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'on disk', 'src/gen/old.ts': 'stale', 'src/other.ts': 'not output' })
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
