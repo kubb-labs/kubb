@@ -2,11 +2,10 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { RegistryEntry } from '@kubb/core'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { registryEntry } from '../../utils/registryFixture.ts'
 import {
   addGenerateScript,
-  chooseUntilConfirmed,
   detectPackageManager,
   detectProject,
   findSpecFiles,
@@ -202,15 +201,5 @@ describe('parsePluginsFlag', () => {
 
   it('throws for a plugin that is not in the registry', () => {
     expect(() => parsePluginsFlag({ plugins, value: 'ts,nope' })).toThrow('Not in the Kubb registry: nope.')
-  })
-})
-
-describe('chooseUntilConfirmed', () => {
-  it('asks again from the previous choice until it is confirmed', async () => {
-    const choose = vi.fn(async (previous?: number) => (previous ?? 0) + 1)
-    const confirm = vi.fn(async (choice: number) => choice === 3)
-
-    expect(await chooseUntilConfirmed({ choose, confirm })).toBe(3)
-    expect(choose.mock.calls).toStrictEqual([[], [1], [2]])
   })
 })

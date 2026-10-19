@@ -245,8 +245,9 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
     }
 
     // In a Studio session the job line stands for the whole run, so the per-run hooks stay quiet.
-    const onRun = ((name: string, fn: (...args: Array<unknown>) => unknown) =>
-      context.hook(name as keyof KubbHooks, (...args: Array<unknown>) => (state.session ? undefined : fn(...args)))) as typeof context.hook
+    function onRun<Name extends keyof KubbHooks & string>(name: Name, fn: (...args: KubbHooks[Name]) => unknown): () => void {
+      return context.hook(name, (...args) => (state.session ? undefined : fn(...args)))
+    }
 
     function startSpinner(message: string) {
       if (silent) {

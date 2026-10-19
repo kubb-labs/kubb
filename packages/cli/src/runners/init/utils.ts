@@ -311,19 +311,3 @@ export async function addGenerateScript(cwd: string): Promise<boolean> {
 export async function generateScript(cwd: string): Promise<string | undefined> {
   return (await readPackageJson(cwd)).scripts?.generate
 }
-
-/**
- * Asks with `choose` until `confirm` accepts the choice. Each new `choose` call gets the previous
- * choice, so the prompts can start from it.
- */
-export async function chooseUntilConfirmed<T>({
-  choose,
-  confirm,
-}: {
-  choose: (previous?: T) => Promise<T>
-  confirm: (choice: T) => Promise<boolean>
-}): Promise<T> {
-  let choice = await choose()
-  while (!(await confirm(choice))) choice = await choose(choice)
-  return choice
-}

@@ -15,7 +15,6 @@ import { createSpinner, isInteractiveRun, logBlock, logError, logIntro, logOutro
 import { fetchRegistryIndex, incompatibility, installSpec, registryUrl } from '../../utils/registry.ts'
 import {
   addGenerateScript,
-  chooseUntilConfirmed,
   detectPackageManager,
   detectProject,
   findSpecFiles,
@@ -262,40 +261,42 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
 
     // Flags for all three choices leave nothing to ask or review, as before the review step existed
     const answered = yes || Boolean(inputFlag && outputFlag && pluginsFlag)
-    const choices: Choices = answered
-      ? { ...defaults, plugins: defaults.plugins ?? [] }
-      : await chooseUntilConfirmed<Choices>({
-          // The first pass skips the questions a flag answered; "Change a choice" asks them all again.
-          choose: async (previous) => ({
-            inputPath: !previous && inputFlag ? inputFlag : await askInput((previous ?? defaults).inputPath),
-            plugins: !previous && flagPlugins ? flagPlugins : await askPlugins(previous?.plugins ?? defaults.plugins),
-            outputPath: !previous && outputFlag ? outputFlag : await askOutput((previous ?? defaults).outputPath),
-          }),
-          confirm: async (choices) => {
-            const missing = missingPluginDependencies({
-              selected: choices.plugins.map((entry) => entry.manifest.name),
-              manifests: choices.plugins.map((entry) => entry.manifest),
-            })
-            if (missing.length) {
-              logWarn(`${missing.join('\n')}\nAdd the missing plugins.`)
-              return false
-            }
-            const config = await buildConfig(choices)
-            const packages = [KUBB_PACKAGE_NAME, ...choices.plugins.map((entry) => entry.artifact.package)]
-            logStep(`Review ${KUBB_CONFIG_FILENAME}`)
-            logBlock([...config.trimEnd().split('\n'), '', `${styleText('dim', 'Installs')}  ${packages.join(' ')} with ${packageManager.name}`])
-            const exists = fs.existsSync(path.join(cwd, KUBB_CONFIG_FILENAME))
-            return unwrap(
-              await clack.select({
-                message: exists ? `${KUBB_CONFIG_FILENAME} exists. Overwrite it?` : 'Create it?',
-                options: [
-                  { value: true, label: 'Yes' },
-                  { value: false, label: 'Change a choice' },
-                ],
-              }),
-            )
-          },
+    let choices: Choices = { ...defaults, plugins: defaults.plugins ?? [] }
+    if (!answered) {
+      let firstPass = true
+      while (true) {
+        // The first pass skips the questions a flag answered; "Change a choice" asks them all again.
+        choices = {
+          inputPath: firstPass && inputFlag ? inputFlag : await askInput(choices.inputPath),
+          plugins: firstPass && flagPlugins ? flagPlugins : await askPlugins(firstPass ? defaults.plugins : choices.plugins),
+          outputPath: firstPass && outputFlag ? outputFlag : await askOutput(choices.outputPath),
+        }
+        firstPass = false
+        const missing = missingPluginDependencies({
+          selected: choices.plugins.map((entry) => entry.manifest.name),
+          manifests: choices.plugins.map((entry) => entry.manifest),
         })
+        if (missing.length) {
+          logWarn(`${missing.join('\n')}\nAdd the missing plugins.`)
+          continue
+        }
+        const config = await buildConfig(choices)
+        const packages = [KUBB_PACKAGE_NAME, ...choices.plugins.map((entry) => entry.artifact.package)]
+        logStep(`Review ${KUBB_CONFIG_FILENAME}`)
+        logBlock([...config.trimEnd().split('\n'), '', `${styleText('dim', 'Installs')}  ${packages.join(' ')} with ${packageManager.name}`])
+        const exists = fs.existsSync(path.join(cwd, KUBB_CONFIG_FILENAME))
+        const confirmed = unwrap(
+          await clack.select({
+            message: exists ? `${KUBB_CONFIG_FILENAME} exists. Overwrite it?` : 'Create it?',
+            options: [
+              { value: true, label: 'Yes' },
+              { value: false, label: 'Change a choice' },
+            ],
+          }),
+        )
+        if (confirmed) break
+      }
+    }
 
     // Check the selection against the plugins' manifests before installing anything
     const missing = missingPluginDependencies({

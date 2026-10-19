@@ -93,15 +93,16 @@ describe('kubb init', () => {
       .mockResolvedValueOnce(false)
       .mockResolvedValueOnce('./openapi.yaml')
       .mockResolvedValueOnce(true)
-    vi.mocked(clack.multiselect).mockResolvedValueOnce(['kubb-labs/plugin-ts']).mockResolvedValueOnce(['kubb-labs/plugin-ts', 'kubb-labs/plugin-zod'])
+    vi.mocked(clack.multiselect).mockResolvedValueOnce(['kubb-labs/plugin-zod']).mockResolvedValueOnce(['kubb-labs/plugin-ts', 'kubb-labs/plugin-zod'])
     vi.mocked(clack.text).mockResolvedValue('./src/gen')
 
     await run({ yes: false, dryRun: on })
 
     const reviews = output.filter((line) => line.includes('plugins: ['))
     expect(reviews).toHaveLength(2)
-    expect(reviews[0]).toContain('plugins: [pluginTs()]')
+    expect(reviews[0]).toContain('plugins: [pluginZod()]')
     expect(reviews[1]).toContain('plugins: [pluginTs(), pluginZod()]')
     expect(vi.mocked(clack.multiselect).mock.calls[0]![0].initialValues).toStrictEqual(['kubb-labs/plugin-ts'])
+    expect(vi.mocked(clack.multiselect).mock.calls[1]![0].initialValues).toStrictEqual(['kubb-labs/plugin-zod'])
   })
 })
