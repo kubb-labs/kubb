@@ -218,8 +218,7 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
 
 export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   name: 'update',
-  description:
-    'Update installed extensions to the version the Kubb registry pins, then regenerate and list the changed files. Majors are left unselected. Pass ids to update only those, or --dry-run to list the updates without installing them.',
+  description: 'Update installed extensions, regenerate, and list the changed files.',
   examples: ['kubb update', 'kubb update --dry-run', 'kubb update plugin-zod plugin-ts --yes'].join('\n'),
   args: {
     ids: {

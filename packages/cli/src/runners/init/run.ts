@@ -385,8 +385,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
 
 export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   name: 'init',
-  description:
-    'Scaffold a kubb.config.ts and install plugins for code generation from an OpenAPI spec. Detects the project and its OpenAPI specs, then runs the first generation. Run without flags for interactive setup, or pass --input, --output, and --plugins to skip the prompts.',
+  description: 'Set up a config, install plugins, and run the first generation.',
   examples: [
     'kubb init',
     'kubb init --yes',

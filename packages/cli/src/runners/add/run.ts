@@ -303,8 +303,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
 
 export const command = define({
   name: 'add',
-  description:
-    'Install a plugin, adapter, or parser from the Kubb registry at its reviewed version. Without an id, search the registry. Shows the packages and config lines before asking, and offers to add the plugins it needs. A plugin is added to kubb.config.ts, an adapter or parser prints the code to add. Reads KUBB_REGISTRY to use another registry.',
+  description: 'Find and install plugins, adapters, and parsers from the Kubb registry.',
   examples: [
     'kubb add',
     'kubb add plugin-zod',

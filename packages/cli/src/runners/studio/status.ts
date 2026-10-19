@@ -1,5 +1,6 @@
 import { homedir } from 'node:os'
 import path from 'node:path'
+import process from 'node:process'
 import { stripVTControlCharacters, styleText } from 'node:util'
 import type { Credentials } from './credentials.ts'
 import { formatPermissionRows, type WorkerState } from './run.ts'
@@ -62,9 +63,20 @@ export function formatStatus({ studioUrl, credentials, worker, project, logPath,
   ]
   const width = Math.max(...rows.filter((row) => row.command).map((row) => stripVTControlCharacters(row.value).length))
 
-  return rows.map(({ label, value, command }) => {
+  const columns = process.stdout.isTTY ? process.stdout.columns : undefined
+  return rows.flatMap(({ label, value, command }) => {
     const line = `  ${label.padEnd(11)}  ${value}`
-    if (!command) return line
-    return `${line}${' '.repeat(width - stripVTControlCharacters(value).length + 3)}${styleText('dim', command)}`
+    const full = command ? `${line}${' '.repeat(width - stripVTControlCharacters(value).length + 3)}${styleText('dim', command)}` : line
+    if (!columns || stripVTControlCharacters(full).length <= columns) return [full]
+
+    // Keep long values below their label so terminal wrapping cannot run into the next topic.
+    const content = Array.from(stripVTControlCharacters(value))
+    const lines = label ? [`  ${label}`] : []
+    const available = Math.max(1, columns - 4)
+    for (let offset = 0; offset < content.length; offset += available) {
+      lines.push(`    ${content.slice(offset, offset + available).join('')}`)
+    }
+    if (command) lines.push(`    ${styleText('dim', command)}`)
+    return lines
   })
 }

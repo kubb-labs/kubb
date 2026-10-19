@@ -40,8 +40,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   name: 'generate',
   // The runner plays the animated mascot itself, so the shared header would print it twice.
   rendering: { header: null },
-  description:
-    'Generate TypeScript types, API clients, React Query hooks, Zod schemas, and more from an OpenAPI specification. Reads kubb.config.ts by default. Pass an OpenAPI file path as the first argument to override the input without editing the config.',
+  description: 'Generate types, clients, hooks, and schemas from an OpenAPI specification.',
   examples: [
     'kubb generate                     # generate from kubb.config.ts',
     'kubb generate ./openapi.yaml      # generate from this spec instead of the config input',

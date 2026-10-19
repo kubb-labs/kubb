@@ -57,8 +57,7 @@ export async function run(): Promise<void> {
 
 export const command = define({
   name: 'list',
-  description:
-    'List the installed Kubb extensions: their registry id, package, installed version, the version the Kubb registry pins, and whether an update exists.',
+  description: 'List installed extensions, their versions, and available updates.',
   examples: 'kubb list',
   run: () => run(),
 })
