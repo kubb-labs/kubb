@@ -43,7 +43,7 @@ describe('cacheStorage', () => {
 
     await storage.writeItem('manifest.json', '{"a":1}')
 
-    expect(await storage.readItem('manifest.json')).toBe('{"a":1}\n')
+    expect(await storage.readItem('manifest.json')).toBe('{"a":1}')
 
     await storage.removeItem('manifest.json')
 

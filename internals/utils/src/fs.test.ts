@@ -1,8 +1,8 @@
-import { mkdir, rm, writeFile } from 'node:fs/promises'
+import { mkdir, rm, symlink, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
-import { exists, isPathInside, read, toPosixPath, trimExtName, write } from './fs.ts'
+import { exists, isPathInside, listFiles, read, toPosixPath, trimExtName, write, writeRaw } from './fs.ts'
 
 const existsTestDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const existsTestFile = path.join(existsTestDir, 'test.txt')
@@ -90,6 +90,22 @@ describe('read / write', () => {
     const text = `export const hallo = 'world with sanity'`
 
     expect(await write(rwFilePath, text, { sanity: true })).toBe(`${text}\n`)
+  })
+})
+
+describe('listFiles', () => {
+  const directory = path.join(os.tmpdir(), 'kubb-test-list-files')
+  afterAll(async () => {
+    await rm(directory, { recursive: true, force: true })
+  })
+
+  test('returns relative file paths and excludes directories, hidden files, and symlinks', async () => {
+    await writeRaw(path.join(directory, 'nested', 'output.ts'), '')
+    await writeRaw(path.join(directory, '.hidden'), 'hidden')
+    await mkdir(path.join(directory, 'empty'))
+    await symlink(path.join(directory, 'nested', 'output.ts'), path.join(directory, 'link.ts'))
+    const files = await Array.fromAsync(listFiles(directory))
+    expect(files.toSorted()).toStrictEqual(['nested/output.ts'])
   })
 })
 

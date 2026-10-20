@@ -85,6 +85,10 @@ running in a developer's project and a container running a fixed plugin set.
 the agent is a sandbox and carries its slug and Studio's version. From then on the agent pings every
 30 seconds, and Studio schedules one job at a time on the socket.
 
+With `allowRead`, the connect payload includes the current `output.path` file list. Studio reads
+file contents from disk through `readFiles` when a user opens a file. Sandbox agents have no disk
+output, and output paths outside the project root are excluded.
+
 Studio ends a socket on purpose with one of these close codes:
 
 | Code   | Meaning                                       | `connectAgent`                        |
@@ -108,7 +112,7 @@ Every permission is off by default, and each covers one trust boundary:
 | `allowWrite`      | Generated files are written to disk. Off means they exist only in memory and stream to Studio. |
 | `allowExec`       | The formatter, the linter, and `output.postGenerate` run as child processes.                   |
 | `allowConfigEdit` | Studio may change plugin options in `kubb.config.ts`.                                          |
-| `allowRead`       | Studio may read back the files a generation produced.                                          |
+| `allowRead`       | Studio may read existing output files and the files a generation produced.                     |
 | `allowReadAst`    | Studio may read back the parsed spec (the Kubb AST).                                           |
 
 A sandbox never writes or edits config, and always allows reads.

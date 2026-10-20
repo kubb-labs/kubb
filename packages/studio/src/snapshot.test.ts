@@ -1,13 +1,26 @@
+import { mkdtempSync } from 'node:fs'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { gunzipSync } from 'node:zlib'
 import { defineExtension, resolveCacheDir } from '@kubb/core'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { hashOf } from './generations.ts'
 import type { SnapshotUploadMetadata } from './protocol.ts'
 import { createSnapshot, createSnapshotPackage } from './snapshot.ts'
-import { projectConfig } from './testing.ts'
+import { projectConfig as makeConfig } from './testing.ts'
+
+const projectRoots: Array<string> = []
+function projectConfig(options: Parameters<typeof makeConfig>[0] = {}) {
+  if (options.projectRoot) return makeConfig(options)
+  const projectRoot = mkdtempSync(join(tmpdir(), 'kubb-snapshot-test-'))
+  projectRoots.push(projectRoot)
+  return makeConfig({ ...options, projectRoot })
+}
+afterEach(async () => {
+  for (const root of projectRoots.splice(0))
+    await Promise.all([rm(root, { recursive: true, force: true }), rm(resolveCacheDir(root), { recursive: true, force: true })])
+})
 
 /**
  * Reads back the path (USTAR `prefix` + `name`) and content of every entry in a tarball.
@@ -121,7 +134,7 @@ describe('createSnapshot', () => {
       packageName: '@acme/api',
       version: '1.0.0',
       commit: 'abc',
-      hashes: { 'src/gen/pet.ts': hashOf('export const pet = 1') },
+      hashes: { 'src/gen/pet.ts': hashOf('export const pet = 1\n') },
       peerDependencies: { '@kubb/plugin-barrel': expect.any(String) },
     })
     expect(readManifest(Buffer.from(await (body.get('tarball') as Blob).arrayBuffer()))).toMatchObject({ name: '@acme/api', version: '1.0.0' })

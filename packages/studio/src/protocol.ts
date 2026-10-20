@@ -291,7 +291,8 @@ export type GenerationEvent = {
 
 /**
  * Asks the agent to run one generation. `jobId` tags every event the run emits so a caller
- * watching several runs can tell them apart.
+ * watching several runs can tell them apart. `requestedBy` names the Studio user in the agent's
+ * command log, and Studio leaves it out for a shared agent.
  */
 export type GenerateInput = {
   jobId: string
@@ -316,14 +317,10 @@ export type GenerateResult = {
    * Content fingerprint per file in `files`, to tell changed files apart without reading them.
    */
   hashes: Record<string, string>
-  /**
-   * Fingerprints of the output directory on disk before the run, for an agent with a project on disk.
-   */
-  disk?: { hashes: Record<string, string> }
 }
 
 /**
- * Asks the agent to apply a batch of edits to the config file on disk.
+ * Asks the agent to apply a batch of edits to the config file on disk. `requestedBy` as for {@link GenerateInput}.
  */
 export type SaveConfigInput = {
   edits: Array<ConfigEdit>
@@ -339,36 +336,12 @@ export type SaveConfigInput = {
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean }
 
 /**
- * What a file read returns for a job: the files that job generated (`output`), or what the output
- * directory held on disk before that job ran (`disk`, only on an agent with a project on disk).
- */
-export const FileSource = { OUTPUT: 'output', DISK: 'disk' } as const
-export type FileSource = (typeof FileSource)[keyof typeof FileSource]
-
-/**
- * Asks the agent to read files of one generation job back.
+ * Reads an immutable output set kept on disk, from a generation or the initial connection.
  */
 export type ReadFilesInput = {
-  /**
-   * The job whose files to read, the only lookup key, so the caller decides whose jobs a reader may
-   * see. A job the agent no longer keeps fails with {@link AgentMessage.GENERATION_GONE}.
-   */
   jobId: string
-  /**
-   * At most {@link MAX_FILES_PER_REQUEST} paths, each checked against what the job's set holds.
-   */
   paths: Array<string>
-  /**
-   * Which of the job's sets to read, `output` when left out.
-   */
-  source?: FileSource
-  /**
-   * The line to start from (0-based), the `nextCursor` of the previous page. Defaults to 0.
-   */
   cursor?: number
-  /**
-   * Lines to read per file, at most {@link MAX_PAGE_LINES}. Left out, the whole file.
-   */
   limit?: number
 }
 
@@ -386,7 +359,7 @@ export type ReadFilesResult = { files: Record<string, string>; pages?: Record<st
  * Asks for one page of a file's line diff between two kept sets, so a large file never leaves the agent whole.
  * `jobId`'s `output` is the newer side, `base` the older one. `cursor` and `limit` page the patch lines.
  */
-export type ReadDiffInput = { jobId: string; path: string; base: { jobId: string; source: FileSource }; cursor?: number; limit: number }
+export type ReadDiffInput = { jobId: string; path: string; base: { jobId: string }; cursor?: number; limit: number }
 
 /**
  * One hunk of a diff page, with its `@@` header. Pages hold whole hunks, and only a hunk longer than a page is
@@ -430,6 +403,14 @@ export type ReadInputResult = { input: InputNode }
  * Why the agent refuses a request. Studio matches on these to answer with the right status.
  */
 export const AgentMessage = {
+  GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
+  SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
+  JOB_REQUIRED: 'The request must name a job',
+  FILE_REQUEST_INVALID: 'The request must name an output set and carry paths',
+  TOO_MANY_FILES: 'Too many paths were requested at once',
+  INVALID_PAGE: 'The requested file page is invalid',
+  DIFF_REQUEST_INVALID: 'The request must name a job, a base, and a path',
+  HASHES_ONLY: 'This agent kept only the hashes of that job',
   /**
    * A read for a job whose files the agent no longer keeps.
    */
@@ -459,8 +440,8 @@ export type GenerationRun = {
  */
 export type AgentConnectInfo = {
   /**
-   * A shared `sandbox` or `global` agent. It keeps generations in memory, runs each job in a
-   * temporary root, generates from the spec Studio sends, and never writes to disk or edits config.
+   * A shared `sandbox` or `global` agent. It keeps generations on temporary disk, runs each job in a
+   * temporary root, and generates from the spec Studio sends without editing a project or its config.
    */
   sandbox: boolean
   agentSlug: string
@@ -535,6 +516,15 @@ export const MAX_SNAPSHOT_BYTES = 50 * 1024 * 1024
  * everything about the config under one key.
  */
 export type ConnectMessagePayload = {
+  /**
+   * The output directory's current file list, readable through `readFiles` without generating.
+   * Absent for a sandbox or when the host has not granted `allowRead`.
+   */
+  output?: {
+    jobId: string
+    files: Array<string>
+    hashes: Record<string, string>
+  }
   /**
    * Always sent, so a mismatch is visible on both sides: Studio badges the connection with these
    * and the host prints them.
@@ -620,8 +610,8 @@ export type AgentPermissions = {
    */
   allowConfigEdit: boolean
   /**
-   * Whether the agent hands back file source in response to `readFiles`. Always true for a
-   * sandbox.
+   * Whether the agent shares existing output on connect and hands back file source through
+   * `readFiles`. A sandbox always permits reads of its generated files.
    */
   allowRead: boolean
   /**

@@ -1,5 +1,61 @@
 # Changelog
 
+## v5.11.4 — Oct 20, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Keep Studio output on disk and make existing output available for review before generating.
+  
+  - Return an immutable output ID and content hashes on connect.
+  - Stage generation on disk when project writes are disabled.
+  - Remove `ReadFilesInput.jobType`, `ReadFilesInput.source`, `ReadDiffInput.base.source`, `FileSource`, and the pre-run disk comparison.
+  - Preserve cached file bytes exactly, including whitespace and empty files.
+  - Reuse unchanged initial output across reconnects and keep its retention budget separate from generated runs.
+  
+  ```diff
+  - { jobId, jobType: 'generation', source: 'output', paths }
+  + { jobId, paths }
+  ```
+  
+  Upgrade Studio and its agents together. Read files with `{ jobId, paths }` and compare output sets with `{ jobId, path, base: { jobId }, limit }`. ([#4360](https://github.com/kubb-labs/kubb/pull/4360), [`c2c1edd`](https://github.com/kubb-labs/kubb/commit/c2c1edd53d44413ea4133f121f25f033bd44d144))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.11.3 — Oct 19, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- List existing output files when connecting an agent with read permission, then use `jobId` and `jobType` to read generation or disk contents on demand. ([#4358](https://github.com/kubb-labs/kubb/pull/4358), [`8d7d096`](https://github.com/kubb-labs/kubb/commit/8d7d0965d152dbcbf3641cfe165ee3ece6276949))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.11.2 — Oct 19, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Include existing output files when connecting an agent with read permission, so Studio can browse them before generating. ([#4356](https://github.com/kubb-labs/kubb/pull/4356), [`4da12e0`](https://github.com/kubb-labs/kubb/commit/4da12e0cbb20503eed3404f84919e1b88b3a86ea))
+- Refuse a Studio output path, also in `override`, that resolves outside the config's output folder, unless `kubb.config.ts` sets that path itself. The agent reports `KUBB_PATH_TRAVERSAL` and writes nothing. ([#4353](https://github.com/kubb-labs/kubb/pull/4353), [`04591b4`](https://github.com/kubb-labs/kubb/commit/04591b4b99b55d554348421c5ba411aa2dabe685))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.11.1 — Oct 18, 2026
 
 ### @kubb/cli

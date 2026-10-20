@@ -1,7 +1,7 @@
 import { ast } from '@kubb/ast'
 import { memoryStorage } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { createGenerationStore, type GenerationStore, type SourceFiles } from './generations.ts'
+import { createGenerationStore, hashOf, type GenerationStore, type SourceFiles } from './generations.ts'
 
 function sourceFiles(files: Record<string, string>): SourceFiles {
   const storage = memoryStorage()
@@ -10,7 +10,7 @@ function sourceFiles(files: Record<string, string>): SourceFiles {
 }
 
 async function addRun({ store, jobId, files }: { store: GenerationStore; jobId: string; files: Record<string, string> }) {
-  const output = await store.keep({ jobId, source: 'output', files: sourceFiles(files), maxSetMb: 1 })
+  const output = await store.keep({ jobId, files: sourceFiles(files), maxSetMb: 1 })
   await store.add({ jobId, output })
 }
 
@@ -35,7 +35,7 @@ describe('createGenerationStore', () => {
       jobId: 'job-1',
       input: ast.factory.createInput({ meta: { description: 'x'.repeat(200), circularNames: [], enumNames: [] } }),
     })
-    const output = await store.keep({ jobId: 'job-1', source: 'output', files: sourceFiles({ 'a.ts': 'one' }), maxSetMb: 1 })
+    const output = await store.keep({ jobId: 'job-1', files: sourceFiles({ 'a.ts': 'one' }), maxSetMb: 1 })
     await store.add({ jobId: 'job-1', output, inputBytes })
     await addRun({ store, jobId: 'job-2', files: { 'b.ts': 'two' } })
 
@@ -52,22 +52,23 @@ describe('createGenerationStore', () => {
 
     expect(await restarted.get('job-2')).toBeUndefined()
     expect(generation?.output.hashes['a.ts']).toMatch(/^[0-9a-f]{16}$/)
-    await expect(restarted.read({ generation: generation!, source: 'output', paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one' } })
+    await expect(restarted.read({ generation: generation!, paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one' } })
   })
 
-  it('hashes output the way writing it to disk would leave it, so in-memory and written runs agree', async () => {
+  it('hashes the exact stored bytes, including leading and trailing whitespace', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-    const output = await store.keep({ jobId: 'job-1', source: 'output', files: sourceFiles({ 'a.ts': '\nexport const a = 1' }), maxSetMb: 1 })
-    const disk = await store.keep({ jobId: 'job-2', source: 'disk', files: sourceFiles({ 'a.ts': 'export const a = 1\n' }), maxSetMb: 1 })
+    const output = await store.keep({ jobId: 'job-1', files: sourceFiles({ 'a.ts': '\nexport const a = 1' }), maxSetMb: 1 })
+    const disk = await store.keep({ jobId: 'job-2', files: sourceFiles({ 'a.ts': 'export const a = 1\n' }), maxSetMb: 1 })
 
-    expect(output.hashes['a.ts']).toBe(disk.hashes['a.ts'])
+    expect(output.hashes['a.ts']).toBe(hashOf('\nexport const a = 1'))
+    expect(output.hashes['a.ts']).not.toBe(disk.hashes['a.ts'])
   })
 
-  it('leaves out an output file that writing would skip because it is empty once trimmed', async () => {
+  it('keeps whitespace-only output files', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-    const output = await store.keep({ jobId: 'job-1', source: 'output', files: sourceFiles({ 'a.ts': 'export const a = 1', 'empty.ts': ' \n ' }), maxSetMb: 1 })
+    const output = await store.keep({ jobId: 'job-1', files: sourceFiles({ 'a.ts': 'export const a = 1', 'empty.ts': ' \n ' }), maxSetMb: 1 })
 
-    expect(output.paths).toStrictEqual(['a.ts'])
+    expect(output.paths).toStrictEqual(['a.ts', 'empty.ts'])
   })
 
   it('pages through a file split on any line ending until nextCursor is null', async () => {
@@ -75,15 +76,15 @@ describe('createGenerationStore', () => {
     await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'l0\r\nl1\rl2\nl3\nl4' } })
     const generation = (await store.get('job-1'))!
 
-    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], limit: 2 })).resolves.toStrictEqual({
+    await expect(store.read({ generation, paths: ['a.ts'], limit: 2 })).resolves.toStrictEqual({
       files: { 'a.ts': 'l0\nl1' },
       pages: { 'a.ts': { nextCursor: 2, totalLines: 5 } },
     })
-    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], cursor: 4, limit: 10 })).resolves.toStrictEqual({
+    await expect(store.read({ generation, paths: ['a.ts'], cursor: 4, limit: 10 })).resolves.toStrictEqual({
       files: { 'a.ts': 'l4' },
       pages: { 'a.ts': { nextCursor: null, totalLines: 5 } },
     })
-    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], cursor: 9, limit: 2 })).resolves.toStrictEqual({
+    await expect(store.read({ generation, paths: ['a.ts'], cursor: 9, limit: 2 })).resolves.toStrictEqual({
       files: { 'a.ts': '' },
       pages: { 'a.ts': { nextCursor: null, totalLines: 5 } },
     })
