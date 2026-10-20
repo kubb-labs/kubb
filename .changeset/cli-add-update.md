@@ -1,5 +1,5 @@
 ---
-'@kubb/cli': minor
+'@kubb/cli': patch
 ---
 
 Make `kubb add` and `kubb update` show what they will do before they do it.
