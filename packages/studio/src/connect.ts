@@ -36,6 +36,7 @@ import {
   type ConfigFileView,
   type ConfigRef,
   type ConnectMessagePayload,
+  type DiskOutput,
   type GenerateInput,
   type GenerateResult,
   type GenerationEvent,
@@ -340,29 +341,27 @@ class Agent extends RpcTarget implements AgentApi {
     const { configPath, root, version, loadConfigs, configFile } = this.#options
     const source = read(configFile)
     const [configs, file, extensions] = await Promise.all([loadConfigs(), this.#readConfigFileView(source), this.#installedExtensions(source)])
-    const output = await this.#readDiskOutput(configs[0]!).catch(async (error: unknown) => {
-      await this.#warn({ message: `Could not read the output directory: ${getErrorMessage(error)}` })
-      return undefined
-    })
+    // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
+    // Studio could call, running the user's config code in this process.
+    const entries: Array<ConfigEntryView> = []
+    for (const config of configs) {
+      const disk = await this.#readDiskOutput(config).catch(async (error: unknown) => {
+        await this.#warn({ message: `Could not read the output directory: ${getErrorMessage(error)}` })
+        return undefined
+      })
+      entries.push({ ...toEntryView(config, extensions), ...(disk && { disk }) })
+    }
     this.#session.connected.resolve(info)
 
     return {
-      output,
       versions: { kubb: kubbVersion, agent: version },
       root,
-      config: {
-        path: configPath,
-        file,
-        extensions: [...extensions.values()],
-        // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
-        // Studio could call, running the user's config code in this process.
-        configs: configs.map((config) => toEntryView(config, extensions)),
-      },
+      config: { path: configPath, file, extensions: [...extensions.values()], configs: entries },
       permissions: this.#permissions,
     }
   }
 
-  async #readDiskOutput(config: Config): Promise<ConnectMessagePayload['output']> {
+  async #readDiskOutput(config: Config): Promise<DiskOutput | undefined> {
     if (this.#sandbox || !this.#permissions.allowRead || this.#session.active) return undefined
     const files = await listDisk({ root: this.#options.root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES })
     if (!files) return undefined

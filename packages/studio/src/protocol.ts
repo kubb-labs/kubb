@@ -522,15 +522,6 @@ export const MAX_SNAPSHOT_BYTES = 50 * 1024 * 1024
  */
 export type ConnectMessagePayload = {
   /**
-   * The output directory's current file list, readable through `readFiles` without generating.
-   * Absent for a sandbox or when the host has not granted `allowRead`.
-   */
-  output?: {
-    jobId: string
-    files: Array<string>
-    hashes: Record<string, string>
-  }
-  /**
    * Always sent, so a mismatch is visible on both sides: Studio badges the connection with these
    * and the host prints them.
    */
@@ -570,6 +561,12 @@ export type ConnectMessagePayload = {
   permissions: AgentPermissions
 }
 
+export type DiskOutput = {
+  jobId: string
+  files: Array<string>
+  hashes: Record<string, string>
+}
+
 /**
  * One `defineConfig(...)` entry as the agent runs it. Every option is a JSON copy: anything JSON cannot
  * hold, such as a function, is left out. A plugin defined in the project keeps its own `name`.
@@ -580,6 +577,11 @@ export type ConfigEntryView = {
   input?: string
   /** The output directory as the entry gives it, relative to the project root unless absolute. */
   output: string
+  /**
+   * The output directory's current file list, readable through `readFiles` without generating.
+   * Absent for a sandbox or when the host has not granted `allowRead`.
+   */
+  disk?: DiskOutput
   plugins: Array<{
     name: string
     options?: object

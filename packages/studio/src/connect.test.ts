@@ -580,7 +580,7 @@ describe('current disk output', () => {
     const { hooks, heard } = withHooks()
     const generationStarted = heard('kubb:build:start')
     const { agent } = await connectStudio({ permissions: { allowRead: true }, hooks })
-    const { output } = await agent.connect(info)
+    const output = (await agent.connect(info)).config.configs[0]!.disk
 
     expect(output?.files.toSorted()).toStrictEqual(['src/gen/empty.ts', 'src/gen/pet.ts'])
     await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts', 'src/gen/empty.ts', 'src/other.ts'] })).resolves.toStrictEqual({
@@ -593,7 +593,7 @@ describe('current disk output', () => {
   it('keeps the initial output immutable after local edits', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'first' })
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    const { output } = await agent.connect(info)
+    const output = (await agent.connect(info)).config.configs[0]!.disk
     await seedDisk({ 'src/gen/pet.ts': 'second' })
     await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'first' },
@@ -604,7 +604,7 @@ describe('current disk output', () => {
     await seedDisk({ 'src/gen/pet.ts': 'private' })
     const { agent } = await connectStudio()
 
-    expect((await agent.connect(info)).output).toBeUndefined()
+    expect((await agent.connect(info)).config.configs[0]!.disk).toBeUndefined()
   })
 
   it('omits the disk output for a sandbox even when it allows reads', async () => {
@@ -612,7 +612,7 @@ describe('current disk output', () => {
     const connectInfo = { ...info, sandbox: true }
     const { agent } = await connectStudio({ connectInfo, permissions: { allowRead: true } })
 
-    expect((await agent.connect(connectInfo)).output).toBeUndefined()
+    expect((await agent.connect(connectInfo)).config.configs[0]!.disk).toBeUndefined()
   })
 
   it('does not list the project when the output path is the root', async () => {
@@ -622,13 +622,13 @@ describe('current disk output', () => {
       loadConfigs: async () => [{ ...projectConfig(), output: { path: '.' } }],
     })
 
-    expect((await agent.connect(info)).output).toBeUndefined()
+    expect((await agent.connect(info)).config.configs[0]!.disk).toBeUndefined()
   })
 
   it('compares a generated output with the initial disk snapshot', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'old disk content' })
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    const { output } = await agent.connect(info)
+    const output = (await agent.connect(info)).config.configs[0]!.disk
     await run({ agent, jobId: 'job-1' })
     const diff = await agent.readDiff({ jobId: 'job-1', path: 'src/gen/pet.ts', base: { jobId: output!.jobId }, limit: 100 })
     expect(diff.hunks.flatMap((hunk) => hunk.lines)).toContain('-old disk content')
