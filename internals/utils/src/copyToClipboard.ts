@@ -8,17 +8,13 @@ const COMMANDS: Partial<Record<NodeJS.Platform, [string, ...Array<string>]>> = {
   linux: ['xclip', '-selection', 'clipboard'],
 }
 
-/** Wayland sessions have no X selection for xclip to serve, so they use `wl-copy`. */
-function commandFor(platform: NodeJS.Platform): [string, ...Array<string>] | undefined {
-  return platform === 'linux' && process.env.WAYLAND_DISPLAY ? ['wl-copy'] : COMMANDS[platform]
-}
-
 /**
  * Copies text to the system clipboard with the platform's own tool. Resolves `false` in CI, on a
  * platform without a known tool, or when the tool is missing or fails.
  */
 export async function copyToClipboard(text: string): Promise<boolean> {
-  const command = commandFor(process.platform)
+  // Wayland sessions have no X selection for xclip to serve, so they use `wl-copy`.
+  const command = process.platform === 'linux' && process.env.WAYLAND_DISPLAY ? (['wl-copy'] as const) : COMMANDS[process.platform]
   if (!command || isCIEnvironment()) return false
 
   const [name, ...args] = command

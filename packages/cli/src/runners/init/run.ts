@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
@@ -142,7 +141,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
     // Warm the module cache for buildConfig while the user answers, so the review shows up without waiting
     if (!yes) import('@kubb/studio').catch(() => {})
 
-    if (!fs.existsSync(path.join(cwd, 'package.json'))) {
+    if (!(await exists(path.join(cwd, 'package.json')))) {
       if (!yes) {
         const shouldInit = unwrap(await clack.confirm({ message: 'No package.json found. Would you like to create one?', initialValue: true }))
         if (!shouldInit) cancelAndExit()

@@ -226,7 +226,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   try {
     let anyFailed = false
     // One tracker, one key listener and one build queue serve every watched config, so several configs never mix diffs or answer `r` twice.
-    const tracker = watch ? trackBuild(hooks) : undefined
+    let tracker: ReturnType<typeof trackBuild> | undefined
     const rebuilds: Array<() => void> = []
     let armKeys: (() => void) | undefined
     let keysListening = false
@@ -237,6 +237,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       const watchPath = inputKind === 'file' || inputKind === 'url' ? (effectiveInput as string) : undefined
       if (watchPath && watch) {
         const watchedPaths = [watchPath]
+        const buildTracker = (tracker ??= trackBuild(hooks))
         let previous: BuildSnapshot | undefined
         // Don't removeAll() between builds, that would also drop logger and lifecycle
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
@@ -244,7 +245,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         const build = async (paths: Array<string>) => {
           const hrStart = process.hrtime()
           const succeeded = await generate({ input, config, hooks, dryRun })
-          const snapshot = tracker!.take()
+          const snapshot = buildTracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
           previous = snapshot
 
