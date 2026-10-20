@@ -296,7 +296,7 @@ describe('studio session events', () => {
 
     expect(lines).toContainEqual(expect.stringMatching(/^14:09:13 {2}generate {3}by Stijn {9}✓ 122 files in \S+ \(3 plugins, in memory\)$/))
     expect(lines).toContain('14:09:13  generate   by Ana           ✖ 1 error, see Studio')
-    expect(lines).toContain('14:09:13  saveConfig by Stijn Van H…  ✓ (applied 1/1 edits to kubb.config.ts)')
+    expect(lines).toContain('14:09:13  saveConfig by Stijn Van Hulle-Peeters ✓ (applied 1/1 edits to kubb.config.ts)')
   })
 
   it('drops everything but errors at silent', async () => {
