@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.11.6 — Oct 20, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Report every entry of a `defineConfig([...])` array to Studio in the connect payload (`config.configs`), each with its own current disk output, and generate from the entry Studio names through `config.config`, by position or by `name`. The `loadConfig` option of `connectAgent` is now `loadConfigs` and returns every entry; `kubb studio` passes them all. ([#4368](https://github.com/kubb-labs/kubb/pull/4368), [`4ce590f`](https://github.com/kubb-labs/kubb/commit/4ce590fed37e2d5fef08c43778bc95eb81a0bd87))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.11.5 — Oct 20, 2026
 
 ### @kubb/cli
