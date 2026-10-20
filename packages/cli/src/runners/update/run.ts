@@ -63,8 +63,8 @@ async function regenerate({
     const diff = diffFiles(before, after)
     spinner.stop(diff.files.length ? `Generated: ${diff.files.length} file${diff.files.length === 1 ? '' : 's'} changed` : 'Generated: no files changed')
     return { ...diff, output: dirs.map((dir) => path.relative(cwd, dir) || '.').join(', ') }
-  } catch {
-    spinner.error('Generation failed. Run kubb generate to see why.')
+  } catch (error) {
+    spinner.error(`Generation failed: ${getErrorMessage(error)}`)
     return undefined
   }
 }
@@ -215,7 +215,11 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
     }
     spinner.stop(`Installed ${names} with ${packageManager.name} in ${formatMs(getElapsedMs(installStart))}`)
 
-    const configPath = findConfigFile(cwd)
+    // Regenerating rewrites output files, so it is asked for. `--yes` only accepts the install.
+    const foundConfig = findConfigFile(cwd)
+    const regenerateNow =
+      foundConfig && !yes && (await clack.confirm({ message: 'Regenerate now? This rewrites the generated files.', initialValue: true })) === true
+    const configPath = regenerateNow ? foundConfig : undefined
     const changed = configPath ? await regenerate({ cwd, configPath }) : undefined
 
     const generationFailed = Boolean(configPath && !changed)
@@ -232,7 +236,7 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
         `  ${styleText('bold', `${selected.length} ${pluginsOnly ? 'plugin' : 'extension'}${selected.length === 1 ? '' : 's'} updated`)}`,
         `  ${styleText('dim', pluginsOnly ? 'Plugins' : 'Extensions')}  ${selected.length} updated${skipped.length ? ` · ${skipped.length} skipped` : ''}`,
         `  ${styleText('dim', 'Packages')}  ${installedPackages.length} installed with ${packageManager.name}`,
-        `  ${styleText('dim', 'Config')}    ${configPath ? `${path.relative(cwd, configPath)} · unchanged` : 'not found · regeneration not run'}`,
+        `  ${styleText('dim', 'Config')}    ${foundConfig ? `${path.relative(cwd, foundConfig)} · unchanged${configPath ? '' : ' · regeneration not run'}` : 'not found · regeneration not run'}`,
         '',
         styleText('bold', 'Extension versions'),
         ...selected.map(

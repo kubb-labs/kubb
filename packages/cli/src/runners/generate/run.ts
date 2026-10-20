@@ -225,23 +225,26 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
   try {
     let anyFailed = false
+    // One tracker, one key listener and one build queue serve every watched config, so several configs never mix diffs or answer `r` twice.
+    const tracker = watch ? trackBuild(hooks) : undefined
+    const rebuilds: Array<() => void> = []
+    let armKeys: (() => void) | undefined
+    let keysListening = false
+    let queue = Promise.resolve()
     for (const config of configs) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
       const watchPath = inputKind === 'file' || inputKind === 'url' ? (effectiveInput as string) : undefined
       if (watchPath && watch) {
         const watchedPaths = [watchPath]
-        // shortcut: one tracker per watched config on the shared emitter, so watching several configs at once mixes their diffs.
-        const tracker = trackBuild(hooks)
         let previous: BuildSnapshot | undefined
-        let armKeys: (() => void) | undefined
         // Don't removeAll() between builds, that would also drop logger and lifecycle
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async (paths: Array<string>) => {
           const hrStart = process.hrtime()
           const succeeded = await generate({ input, config, hooks, dryRun })
-          const snapshot = tracker.take()
+          const snapshot = tracker!.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
           previous = snapshot
 
@@ -258,10 +261,22 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         }
         // Watcher events and the `r` key share one queue, so builds never overlap on the emitter.
         const rebuild = createSerialRunner({
-          run: () => build(watchedPaths),
+          run: () => {
+            // Configs share the emitter, so their builds also wait for each other.
+            const next = queue.then(() => build(watchedPaths))
+            queue = next.catch(() => undefined)
+            return next
+          },
           onError: (buildError) => void Diagnostics.emit(errorHooks, buildError),
         })
-        armKeys = quiet ? undefined : listenForKeys({ rebuild: () => void rebuild(), quit: (code) => process.exit(code) })
+        rebuilds.push(() => void rebuild())
+        if (!quiet && !keysListening) {
+          keysListening = true
+          armKeys = listenForKeys({
+            rebuild: () => rebuilds.forEach((trigger) => trigger()),
+            quit: (code) => void Promise.resolve(hooks.callHook('kubb:lifecycle:end')).finally(() => process.exit(code)),
+          })
+        }
 
         // For a URL input, capture the document before the build: it becomes the watcher's
         // change-detection baseline, so an edit landing before the first poll still rebuilds.

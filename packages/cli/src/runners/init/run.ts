@@ -16,6 +16,7 @@ import { fetchRegistryIndex, incompatibility, installSpec, registryUrl } from '.
 import {
   addGenerateScript,
   detectPackageManager,
+  findPlugin,
   findSpecFiles,
   generateScript,
   initPackageJson,
@@ -175,7 +176,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
 
     // `--plugins` and `--yes` need the registry before any prompt; the interactive path reads it at the plugin step
     const plugins = pluginsFlag || yes ? await registry : undefined
-    const defaultPlugins = (entries: Array<RegistryEntry>) => entries.filter((entry) => entry.id === 'kubb-labs/plugin-ts')
+    const defaultPlugins = (entries: Array<RegistryEntry>) => initDefaults.plugins.flatMap((id) => findPlugin({ plugins: entries, id }) ?? [])
 
     const flagPlugins = pluginsFlag && plugins ? parsePluginsFlag({ plugins, value: pluginsFlag }) : undefined
 
@@ -183,6 +184,9 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
       inputPath: inputFlag ?? specs[0] ?? initDefaults.inputPath,
       outputPath: outputFlag ?? initDefaults.outputPath,
       plugins: flagPlugins ?? (plugins ? defaultPlugins(plugins) : undefined),
+    }
+    if (yes && !defaults.plugins?.length) {
+      throw new Error('The registry has no default plugin. Pass --plugins to choose one.')
     }
 
     async function askInput(current: string): Promise<string> {

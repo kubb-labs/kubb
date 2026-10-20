@@ -16,6 +16,7 @@ vi.mock('../generate/run.ts', () => ({ generate: vi.fn(async () => true) }))
 vi.mock('@clack/prompts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@clack/prompts')>()),
   multiselect: vi.fn(async () => ['acme/plugin-x']),
+  confirm: vi.fn(async () => true),
 }))
 
 const pluginX = registryEntry({ name: 'plugin-x', version: '1.1.0' })
@@ -125,7 +126,7 @@ describe('kubb update', () => {
       return true
     })
 
-    await run({ ids: [], dryRun: false, yes: true })
+    await run({ ids: [], dryRun: false, yes: false })
 
     expect(generate).toHaveBeenCalledTimes(1)
     const printed = output.join('\n')
@@ -135,6 +136,16 @@ describe('kubb update', () => {
     expect(printed).toContain('1 unchanged')
     expect(printed).not.toContain('A gen/added.ts')
     expect(await readFile(path.join(gen, 'kept.ts'), 'utf8')).toBe('same')
+  })
+
+  it('leaves the generated files alone with --yes', async () => {
+    await writeFile(path.join(cwd, 'kubb.config.ts'), `export default { root: ${JSON.stringify(cwd)}, input: './spec.yaml', output: { path: './gen' } }\n`)
+
+    await run({ ids: [], dryRun: false, yes: true })
+
+    expect(generate).not.toHaveBeenCalled()
+    expect(clack.confirm).not.toHaveBeenCalled()
+    expect(output.join('\n')).toContain('unchanged · regeneration not run')
   })
 
   it('installs a newer GitHub release from its commit', async () => {
@@ -150,7 +161,7 @@ describe('kubb update', () => {
   it('reports installed packages separately when generation fails', async () => {
     await writeFile(path.join(cwd, 'kubb.config.ts'), `export default { root: ${JSON.stringify(cwd)}, input: './spec.yaml', output: { path: './gen' } }\n`)
     vi.mocked(generate).mockResolvedValueOnce(false)
-    await run({ ids: [], dryRun: false, yes: true })
+    await run({ ids: [], dryRun: false, yes: false })
     const printed = output.join('\n')
     expect(installPackages).toHaveBeenCalledOnce()
     expect(printed).toContain('! Plugins updated; generation failed')
@@ -171,7 +182,7 @@ describe('kubb update', () => {
       })
     }
 
-    await run({ ids: [], dryRun: false, yes: true })
+    await run({ ids: [], dryRun: false, yes: false })
 
     const printed = output.join('\n')
     expect(printed).toContain('2 added · 0 modified · 0 deleted')

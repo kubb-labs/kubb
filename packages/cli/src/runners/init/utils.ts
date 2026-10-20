@@ -99,6 +99,7 @@ export async function initPackageJson(cwd: string, packageManager: PackageManage
 
 /** How many trailing lines of a failed install's output the error keeps. */
 const INSTALL_OUTPUT_LINES = 20
+const INSTALL_TIMEOUT_MS = 5 * 60_000
 
 /**
  * Installs the given packages at `cwd` using the detected package manager. Its output is captured,
@@ -106,8 +107,14 @@ const INSTALL_OUTPUT_LINES = 20
  */
 export async function installPackages(packages: Array<string>, packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
   const args = [...packageManager.installCommand, ...packages]
-  const result = await x(packageManager.name, args, { nodeOptions: { cwd }, throwOnError: false })
+  // No stdin, so a package manager that wants input fails instead of waiting. The timeout ends a stalled install.
+  const result = await x(packageManager.name, args, {
+    nodeOptions: { cwd, stdio: ['ignore', 'pipe', 'pipe'] },
+    timeout: INSTALL_TIMEOUT_MS,
+    throwOnError: false,
+  })
   if (result.exitCode === 0) return
+  if (result.exitCode === undefined) throw new Error(`\`${packageManager.name} ${args.join(' ')}\` timed out after ${INSTALL_TIMEOUT_MS / 60_000} minutes`)
 
   const output = `${result.stdout}\n${result.stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
   throw new Error(`\`${packageManager.name} ${args.join(' ')}\` failed with exit code ${result.exitCode}${output ? `:\n${output}` : ''}`)

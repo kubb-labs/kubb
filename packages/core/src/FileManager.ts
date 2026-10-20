@@ -136,27 +136,26 @@ export class FileManager {
     return this.#store(files, true)
   }
 
-  /** Stores a generator result: a file array is upserted as is, an element renders through `renderer` first, falsy is a no-op. */
+  /** Stores a generator result: a file array is upserted as is, an element renders through `renderer` first, falsy is a no-op. Returns the paths it stored, including files merged into an existing path. */
   async dispatch<TElement = unknown>({
     result,
     renderer,
   }: {
     result: TElement | Array<FileNode> | undefined | null
     renderer?: RendererFactory<TElement> | null
-  }): Promise<void> {
-    if (!result) return
+  }): Promise<Array<string>> {
+    if (!result) return []
 
     if (Array.isArray(result)) {
-      this.upsert(...(result as Array<FileNode>))
-      return
+      return this.upsert(...(result as Array<FileNode>)).map((file) => file.path)
     }
 
-    if (!renderer) return
+    if (!renderer) return []
 
     using instance = renderer()
     await instance.render(result)
 
-    this.upsert(...instance.files)
+    return this.upsert(...instance.files).map((file) => file.path)
   }
 
   #store(files: ReadonlyArray<FileNode>, mergeExisting: boolean): Array<FileNode> {

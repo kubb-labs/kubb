@@ -103,6 +103,8 @@ type LoginOptions = {
  */
 export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, previousCredentials }: LoginOptions = {}): Promise<Credentials> {
   const spinner = createSpinner()
+  // A retry notice stays on screen a while before the countdown takes the line back.
+  let retryUntil = 0
   // The spinner only starts once a code is shown.
   let waiting = false
   let countdown: NodeJS.Timeout | undefined
@@ -137,13 +139,16 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
         spinner.start(waitingText())
         waiting = true
         // Plain output prints every message, so only an animated spinner ticks.
-        if (isRichOutput()) countdown = setInterval(() => spinner.message(waitingText()), 1000)
+        if (isRichOutput()) countdown = setInterval(() => Date.now() > retryUntil && spinner.message(waitingText()), 1000)
         // Not awaited: the code shows at once, and the spinner picks up the copy when it lands.
         void copyToClipboard(session.user_code).then((done) => {
           copied = done
         })
       },
-      onRetry: (error) => spinner.message(`Could not reach Kubb Studio, retrying: ${error.message}`),
+      onRetry: (error) => {
+        retryUntil = Date.now() + 5000
+        spinner.message(`Could not reach Kubb Studio, retrying: ${error.message}`)
+      },
     })
     clearInterval(countdown)
     spinner.stop(`Paired as ${agent.name}${agent.organizationSlug ? ` · org ${agent.organizationSlug}` : ''}`)
@@ -250,7 +255,6 @@ export async function resolvePermissions(
   const selected = await prompts.multiselect({
     message: 'What may Kubb Studio do in this project?',
     options: pending.map(({ key, title, hint }) => ({ value: key, label: title(configPath), hint })),
-    initialValues: pending.filter(({ key }) => key === AgentPermission.READ || key === AgentPermission.READ_AST).map(({ key }) => key),
     required: false,
   })
   // A canceled list grants nothing and saves nothing, so the next run asks again.

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { stripVTControlCharacters } from 'node:util'
 import * as prompts from '@clack/prompts'
 import * as env from '../utils/env.ts'
-import { createSpinner, getBanner, logCommandSummary, logIntro, logInfo, wantsMascot, withSpinner } from './output.ts'
+import { createSpinner, formatTable, getBanner, logCommandSummary, logIntro, logInfo, wantsMascot, withSpinner } from './output.ts'
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
@@ -174,5 +174,20 @@ describe('wantsMascot', () => {
     ]) {
       expect(ask(path)).toBe(false)
     }
+  })
+})
+
+describe('formatTable', () => {
+  it('pads each column to its widest cell', () => {
+    expect(
+      formatTable([
+        ['a', 'bb'],
+        ['ccc', 'd'],
+      ]),
+    ).toStrictEqual(['a    bb', 'ccc  d'])
+  })
+
+  it('returns no lines for no rows', () => {
+    expect(formatTable([])).toStrictEqual([])
   })
 })

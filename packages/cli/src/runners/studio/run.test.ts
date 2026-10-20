@@ -159,7 +159,7 @@ describe('formatCountdown', () => {
 })
 
 describe('resolvePermissions', () => {
-  it('asks once in one list, with the reads checked, and writes every answer', async () => {
+  it('asks once in one list, with nothing checked, and writes every answer', async () => {
     using project = stubProject()
     multiselect.mockResolvedValueOnce(['allowReadAst', 'allowWrite', 'allowExec'])
 
@@ -167,7 +167,8 @@ describe('resolvePermissions', () => {
 
     await expect(resolvePermissions(options, credentials)).resolves.toEqual(answers)
     expect(multiselect).toHaveBeenCalledOnce()
-    expect(multiselect.mock.calls[0]?.[0]).toMatchObject({ message: 'What may Kubb Studio do in this project?', initialValues: ['allowRead', 'allowReadAst'] })
+    expect(multiselect.mock.calls[0]?.[0]).toMatchObject({ message: 'What may Kubb Studio do in this project?' })
+    expect(multiselect.mock.calls[0]?.[0].initialValues).toBeUndefined()
     expect(project.write).toHaveBeenCalledTimes(1)
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ projects: { [process.cwd()]: answers } }))
   })

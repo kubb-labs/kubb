@@ -26,14 +26,28 @@ export async function run({ input, configPath }: ValidateOptions): Promise<void>
 
   try {
     const configFile = configPath ?? findConfigFile()
-    const targets = await (async () => {
-      if (configFile) {
-        const { configs } = await getConfigs({ configPath: configFile, input })
-        return configs.map((config) => ({ adapter: config.adapter, input: URL.canParse(input) ? input : resolve(config.root || process.cwd(), input) }))
-      }
+    const fallback = async () => {
       adapterName = '@kubb/adapter-oas'
       const { adapterOas } = await import('@kubb/adapter-oas')
       return [{ adapter: adapterOas(), input }]
+    }
+    const targets = await (async () => {
+      if (!configFile) return fallback()
+      try {
+        const { configs } = await getConfigs({ configPath: configFile, input })
+        // An array config often repeats one adapter, so each adapter and input pair is validated once.
+        const unique = new Map(
+          configs.map((config) => {
+            const resolved = URL.canParse(input) ? input : resolve(config.root || process.cwd(), input)
+            return [`${config.adapter?.name}\0${resolved}`, { adapter: config.adapter, input: resolved }] as const
+          }),
+        )
+        return [...unique.values()]
+      } catch (error) {
+        // A config found by search that does not load must not block validating a file; an explicit `--config` still fails.
+        if (configPath) throw error
+        return fallback()
+      }
     })()
     const adapters: Array<string> = []
     if (!targets.length) throw new Error('The Kubb config contains no configurations to validate.')

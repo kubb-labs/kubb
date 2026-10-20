@@ -544,8 +544,8 @@ export class KubbDriver {
         operationGenerators: generators.filter((generator) => generator.operation),
         operationsGenerators: generators.filter((generator) => generator.operations),
         pluginOperations: [] as Array<OperationNode>,
-        // Files this plugin's generators added, for the summary's per-plugin count.
-        files: 0,
+        // Paths this plugin's generators wrote or merged into, for the summary's per-plugin count.
+        touched: new Set<string>(),
         error: null as Error | null,
         // The node a generator crashed on, so the diagnostic can name it.
         crashSite: undefined as ReturnType<typeof getCrashSite> | undefined,
@@ -592,12 +592,14 @@ export class KubbDriver {
           if (state.allowedSchemaNames !== null && transformedNode.name && !state.allowedSchemaNames.has(transformedNode.name)) continue
 
           const ctx = { ...state.generatorContext, options, cache }
-          state.files += await this.#dispatchNode({
+          for (const filePath of await this.#dispatchNode({
             generators: state.schemaGenerators,
             node: transformedNode,
             ctx,
             generate: (generator) => generator.schema!(transformedNode, ctx),
-          })
+          })) {
+            state.touched.add(filePath)
+          }
           await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
         } catch (caughtError) {
           state.error = toError(caughtError)
@@ -622,12 +624,14 @@ export class KubbDriver {
           if (state.operationGenerators.length) {
             const { transformedNode } = resolved
             const ctx = { ...state.generatorContext, options: resolved.options, cache }
-            state.files += await this.#dispatchNode({
+            for (const filePath of await this.#dispatchNode({
               generators: state.operationGenerators,
               node: transformedNode,
               ctx,
               generate: (generator) => generator.operation!(transformedNode, ctx),
-            })
+            })) {
+              state.touched.add(filePath)
+            }
             await this.hooks.callHook('kubb:generate:operation', transformedNode, ctx)
           }
         } catch (caughtError) {
@@ -643,11 +647,10 @@ export class KubbDriver {
       if (state.error || !state.operationsGenerators.length) continue
       try {
         const ctx = { ...state.generatorContext, options: state.plugin.options, cache: createNodeCache() }
-        const before = this.fileManager.size
         for (const generator of state.operationsGenerators) {
-          await this.fileManager.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
+          const stored = await this.fileManager.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
+          for (const filePath of stored) state.touched.add(filePath)
         }
-        state.files += this.fileManager.size - before
         await this.hooks.callHook('kubb:generate:operations', state.pluginOperations, ctx)
       } catch (caughtError) {
         state.error = toError(caughtError)
@@ -670,7 +673,7 @@ export class KubbDriver {
             : diagnostic,
         )
       }
-      diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration, files: state.files }))
+      diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration, files: state.touched.size }))
     }
 
     return diagnostics
@@ -690,14 +693,14 @@ export class KubbDriver {
     node: SchemaNode | OperationNode
     ctx: GeneratorContext
     generate: (generator: Generator) => ReturnType<NonNullable<Generator['schema']>>
-  }): Promise<number> {
-    const before = this.fileManager.size
+  }): Promise<Array<string>> {
+    const stored: Array<string> = []
     for (const generator of generators) {
       const matches = generator.match ? await generator.match(node, ctx) : true
       if (!matches) continue
-      await this.fileManager.dispatch({ result: await generate(generator), renderer: generator.renderer })
+      stored.push(...(await this.fileManager.dispatch({ result: await generate(generator), renderer: generator.renderer })))
     }
-    return this.fileManager.size - before
+    return stored
   }
 
   /**
