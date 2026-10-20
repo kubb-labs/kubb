@@ -444,9 +444,7 @@ async function rebuildExtension<T extends Adapter | Parser>({
     })
   })
 
-  // An adapter's `options` holds resolved defaults, so the merge starts from what the config passed it.
-  const base = ('rawOptions' in disk ? disk.rawOptions : undefined) ?? disk.options
-  return factory(mergeOptions((base as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)) as T
+  return factory(mergeOptions((disk.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)) as T
 }
 
 /**

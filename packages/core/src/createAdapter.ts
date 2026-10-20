@@ -60,14 +60,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   name: TOptions['name']
   meta?: ExtensionMeta<TOptions['name']>
   /**
-   * Resolved adapter options after defaults have been applied.
+   * The options the adapter was created with, before `setup` applied defaults, as a plugin keeps its
+   * own. Kubb Studio merges its overrides onto these, so a default derived from another option, such
+   * as `emptySchemaType` from `unknownType`, follows a change to it.
    */
-  options: TOptions['resolvedOptions']
-  /**
-   * The options the adapter was created with, before defaults. Kubb Studio merges its overrides onto
-   * these, so a default derived from another option (such as `emptySchemaType` from `unknownType`) follows it.
-   */
-  rawOptions?: TOptions['options']
+  options: TOptions['options']
   /**
    * Parsed source document after the first `parse()` call. `null` before parsing.
    */
