@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.11.5 — Oct 20, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Accept `requestedBy` on `startGeneration` and `saveConfig`, matching what Kubb Studio sends, and name that Studio user in the agent's command log. ([#4362](https://github.com/kubb-labs/kubb/pull/4362), [`ddfa6de`](https://github.com/kubb-labs/kubb/commit/ddfa6de6e536d0aff2219aa7bcb3f34c773e67ba))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.11.4 — Oct 20, 2026
 
 ### @kubb/studio
