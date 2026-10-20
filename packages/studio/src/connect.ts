@@ -271,9 +271,6 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#store
   }
 
-  /**
-   * Deletes the sandbox connection's private cache after its running job has settled.
-   */
   async [Symbol.asyncDispose]() {
     if (this.#sandbox) await rm(resolveCacheDir(this.#sandboxCacheRoot), { recursive: true, force: true })
   }
@@ -322,9 +319,6 @@ class Agent extends RpcTarget implements AgentApi {
     )
   }
 
-  /**
-   * Refreshes project metadata and captures readable output without starting a generation.
-   */
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
     this.#session.info = info
     const { configPath, root, version, loadConfig, configFile } = this.#options
@@ -363,9 +357,6 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
-  /**
-   * Returns an immutable baseline from existing project output, separate from generated history.
-   */
   async #readDiskOutput(config: Config): Promise<ConnectMessagePayload['output']> {
     if (this.#sandbox || !this.#permissions.allowRead || this.#session.active) return undefined
     const files = await listDisk({ root: this.#options.root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES })
@@ -654,9 +645,6 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
   }
 }
 
-/**
- * Keeps one RPC connection alive and settles its running generation before disposing temporary output.
- */
 async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
   const { hooks, signal, heartbeatInterval, token, studioUrl, version } = options
   const session: Session = { connected: Promise.withResolvers(), closed: false }

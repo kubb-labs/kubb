@@ -36,9 +36,6 @@ type KeptSet = {
 
 type KeptGeneration = {
   jobId: string
-  /**
-   * Initial disk output has its own retention budget, separate from generated jobs.
-   */
   initial?: boolean
   /** When the store took it, in epoch milliseconds. Absent on an index written before it existed. */
   keptAt?: number
@@ -56,9 +53,6 @@ export const hashOf = (content: string) => createHash('sha1').update(content).di
  */
 const totalBytes = (entries: Array<KeptGeneration>) => entries.reduce((sum, { output, inputBytes }) => sum + output.bytes + (inputBytes ?? 0), 0)
 
-/**
- * Accepts positive finite environment limits and leaves invalid values for the caller's default.
- */
 function positiveNumber(value: string | undefined): number | undefined {
   const parsed = Number(value)
   return value && Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
@@ -172,9 +166,6 @@ export function createGenerationStore({
   // Hashed so a job id from the wire can never point outside the store.
   const dirOf = (jobId: string) => `studio/generations/${hashOf(jobId)}/`
 
-  /**
-   * Restores the persisted output index once per connection; an unreadable index starts empty.
-   */
   async function load(): Promise<Array<KeptGeneration>> {
     if (index) return index
     const stored = await storage.readItem(INDEX_KEY).catch(() => null)
@@ -213,16 +204,10 @@ export function createGenerationStore({
     return { paths: Object.keys(hashes), hashes, bytes }
   }
 
-  /**
-   * Removes a retained set and its parsed input without touching other output IDs.
-   */
   async function drop(jobId: string): Promise<void> {
     await storage.empty(dirOf(jobId))
   }
 
-  /**
-   * Applies expiry and evicts only entries sharing this set's initial-output or generation budget.
-   */
   async function add(generation: KeptGeneration): Promise<void> {
     const current = await load()
     for (const expired of current.filter((entry) => !isLive(entry))) await drop(expired.jobId)
