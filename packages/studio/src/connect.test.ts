@@ -9,7 +9,7 @@ import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, reso
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
-import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, AgentMessage, type AgentConnectInfo, MAX_PAGE_LINES } from './protocol.ts'
+import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, AgentMessage, type AgentConnectInfo, type ConfigRef, MAX_PAGE_LINES } from './protocol.ts'
 import { projectConfig, root } from './testing.ts'
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
@@ -196,6 +196,26 @@ describe('the handshake', () => {
 
     expect(config.adapter).toStrictEqual({ name: '@kubb/adapter-oas', options: {} })
     expect(config.parsers).toStrictEqual([{ name: '@kubb/parser-ts', options: { indent: 2 } }])
+  })
+
+  it('reports every entry of a config array, and the first one as the baseline', async () => {
+    const admin = { ...projectConfig(), name: 'admin', input: './admin.yaml', output: { path: 'src/admin' } }
+    const { agent } = await connectStudio({ loadConfig: async () => [projectConfig(), admin] })
+
+    const { config } = await agent.connect(info)
+
+    expect(config.configs).toStrictEqual([
+      { input: 'https://example.com/openapi.json', output: 'src/gen', plugins: config.plugins, adapter: config.adapter, parsers: [] },
+      { name: 'admin', input: './admin.yaml', output: 'src/admin', plugins: config.plugins, adapter: config.adapter, parsers: [] },
+    ])
+  })
+
+  it('leaves out an inline input, which is the document itself', async () => {
+    const { agent } = await connectStudio({ loadConfig: async () => ({ ...projectConfig(), input: 'openapi: 3.1.0' }) })
+
+    const { config } = await agent.connect(info)
+
+    expect(config.configs?.[0]).not.toHaveProperty('input')
   })
 
   it('announces the connection once per socket, with what Studio sent', async () => {
@@ -388,6 +408,29 @@ describe('generation reports', () => {
       'Plugin "plugin-ts" would write to "/home/alice/.ssh/authorized_keys", outside the output folder',
     )
     expect(error).toHaveBeenCalledOnce()
+    expect(disk.storage).toBeUndefined()
+  })
+})
+
+describe('a config array', () => {
+  const configs = () => [projectConfig(), { ...projectConfig({ content: 'export const admin = 1' }), name: 'admin' }]
+
+  it('generates from the entry Studio names, by position or by name, and the first one otherwise', async () => {
+    const { agent } = await connectStudio({ loadConfig: async () => configs(), permissions: { allowRead: true } })
+    const content = async (jobId: string, config?: ConfigRef) => {
+      await agent.startGeneration({ jobId, config: { config } }).result()
+      return (await agent.readFiles({ jobId, paths: ['src/gen/pet.ts'], limit: 10 })).files['src/gen/pet.ts']
+    }
+
+    await expect(content('job-1')).resolves.toBe('export const pet = 1')
+    await expect(content('job-2', 1)).resolves.toBe('export const admin = 1')
+    await expect(content('job-3', 'admin')).resolves.toBe('export const admin = 1')
+  })
+
+  it.each([2, -1, 0.5, 'billing'])('refuses the entry %j, which the file does not have', async (config) => {
+    const { agent } = await connectStudio({ loadConfig: async () => configs() })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { config } }).result()).rejects.toThrow(AgentMessage.CONFIG_ENTRY_NOT_FOUND)
     expect(disk.storage).toBeUndefined()
   })
 })

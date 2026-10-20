@@ -37,6 +37,11 @@ export type JSONKubbConfig = {
     name: string
     options?: object
   }>
+  /**
+   * Which `defineConfig(...)` entry to generate from, for a config file that exports an array. Omitted
+   * runs the first entry, and an entry the file does not have refuses the run.
+   */
+  config?: ConfigRef
 }
 
 /**
@@ -405,6 +410,7 @@ export type ReadInputResult = { input: InputNode }
 export const AgentMessage = {
   GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
   SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
+  CONFIG_ENTRY_NOT_FOUND: 'The config file has no entry at that position or with that name',
   JOB_REQUIRED: 'The request must name a job',
   FILE_REQUEST_INVALID: 'The request must name an output set and carry paths',
   TOO_MANY_FILES: 'Too many paths were requested at once',
@@ -580,8 +586,42 @@ export type ConnectMessagePayload = {
     }>
     /** Installed packages that ship a `kubb-extension.json`, including plugins the config does not use yet. */
     extensions?: Array<ExtensionEntry>
+    /**
+     * Every entry the config exports, in source order, each resolved the way `plugins`, `adapter` and
+     * `parsers` above are for the first one. One entry for a file that exports a single config.
+     * Omitted by an agent that predates it.
+     */
+    configs?: Array<ConfigEntryView>
   }
   permissions: AgentPermissions
+}
+
+/**
+ * One `defineConfig(...)` entry as the agent runs it, with a JSON copy of every option, so Studio can
+ * seed an editor per entry and label its entry picker.
+ */
+export type ConfigEntryView = {
+  name?: string
+  /**
+   * The input file path or URL. Omitted for inline content or a parsed document.
+   */
+  input?: string
+  /**
+   * The output directory as the entry gives it, relative to the project root unless absolute.
+   */
+  output: string
+  plugins: Array<{
+    name: string
+    options?: object
+  }>
+  adapter?: {
+    name: string
+    options?: object
+  }
+  parsers: Array<{
+    name: string
+    options?: object
+  }>
 }
 
 /** An installed extension package and the manifest it ships. */

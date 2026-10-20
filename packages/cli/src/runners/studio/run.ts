@@ -260,9 +260,11 @@ export async function resolvePermissions(
 
 /**
  * Loads the project's Kubb config the same way `kubb generate` does.
- * Returns the first config.
+ * Returns every entry, and the first one as `config`.
  */
-export async function loadConfigs(options: Pick<StudioOptions, 'configPath' | 'logLevel'>): Promise<{ configPath: string; config: Config }> {
+export async function loadConfigs(
+  options: Pick<StudioOptions, 'configPath' | 'logLevel'>,
+): Promise<{ configPath: string; config: Config; configs: Array<Config> }> {
   const { configPath, configs } = await getConfigs({ configPath: options.configPath, logLevel: options.logLevel })
   const [config] = configs
 
@@ -277,7 +279,7 @@ export async function loadConfigs(options: Pick<StudioOptions, 'configPath' | 'l
   // `getConfigs` resolves this to an absolute path. Relativized here, once, so the permission
   // prompt and the path Studio receives over the wire both show the project-relative form instead
   // of leaking the local filesystem layout.
-  return { configPath: path.relative(process.cwd(), configPath) || configPath, config }
+  return { configPath: path.relative(process.cwd(), configPath) || configPath, config, configs }
 }
 
 export type PreparedConnection = {
@@ -390,7 +392,7 @@ export async function connect(
           version: options.version,
           root: process.cwd(),
           permissions,
-          loadConfig: async () => (await loadConfigs(options)).config,
+          loadConfig: async () => (await loadConfigs(options)).configs,
           hooks,
           signal,
         })

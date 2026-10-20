@@ -32,7 +32,9 @@ import {
   AgentMessage,
   type AgentConnectInfo,
   type AgentPermissions,
+  type ConfigEntryView,
   type ConfigFileView,
+  type ConfigRef,
   type ConnectMessagePayload,
   type GenerateInput,
   type GenerateResult,
@@ -140,9 +142,10 @@ export type ConnectAgentOptions = {
    */
   configPath: string
   /**
-   * Called for every handshake and every generation, so edits on disk show up.
+   * Called for every handshake and every generation, so edits on disk show up. A file that exports
+   * an array returns every entry; Studio picks one per generation and reports on the first otherwise.
    */
-  loadConfig: () => Promise<Config>
+  loadConfig: () => Promise<Config | Array<Config>>
   /**
    * The host's own version, reported to Studio next to the runtime's.
    */
@@ -332,39 +335,44 @@ class Agent extends RpcTarget implements AgentApi {
     )
   }
 
+  /** Every entry the host's config exports, so a single object and an array read the same. */
+  async #loadConfigs(): Promise<Array<Config>> {
+    const loaded = await this.#options.loadConfig()
+    const configs = Array.isArray(loaded) ? loaded : [loaded]
+    if (!configs.length) {
+      throw new Diagnostics.Error({ code: Diagnostics.code.unknown, severity: 'error', message: 'The config file exports no config' })
+    }
+    return configs
+  }
+
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
     this.#session.info = info
-    const { configPath, root, version, loadConfig, configFile } = this.#options
+    const { configPath, root, version, configFile } = this.#options
     const source = read(configFile)
-    const [config, file, extensions] = await Promise.all([loadConfig(), this.#readConfigFileView(source), this.#installedExtensions(source)])
-    const output = await this.#readDiskOutput(config).catch(async (error: unknown) => {
+    const [configs, file, extensions] = await Promise.all([this.#loadConfigs(), this.#readConfigFileView(source), this.#installedExtensions(source)])
+    const output = await this.#readDiskOutput(configs[0]!).catch(async (error: unknown) => {
       await this.#warn({ message: `Could not read the output directory: ${getErrorMessage(error)}` })
       return undefined
     })
     this.#session.connected.resolve(info)
 
+    // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
+    // Studio could call, running the user's config code in this process.
+    const entries = configs.map((config) => toEntryView(config, extensions))
+    const { plugins, adapter, parsers } = entries[0]!
+
     return {
       output,
       versions: { kubb: kubbVersion, agent: version },
       root,
-      // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
-      // Studio could call, running the user's config code in this process.
       config: {
         path: configPath,
         file,
-        plugins: config.plugins.map((plugin) => ({
-          name: toStudioName({ name: resolveMeta(plugin).name, extensions }),
-          options: toJSONOptions(plugin.options),
-        })),
-        adapter: config.adapter && {
-          name: toStudioName({ name: resolveMeta(config.adapter).name, extensions, kind: 'adapter' }),
-          options: toJSONOptions(config.adapter.options),
-        },
-        parsers: config.parsers.map((parser) => ({
-          name: toStudioName({ name: resolveMeta(parser).name, extensions, kind: 'parser' }),
-          options: toJSONOptions(parser.options),
-        })),
+        plugins,
+        adapter,
+        parsers,
         extensions: [...extensions.values()],
+        configs: entries,
       },
       permissions: this.#permissions,
     }
@@ -452,7 +460,9 @@ class Agent extends RpcTarget implements AgentApi {
       return this.#refuse({ message: AgentMessage.SANDBOX_INPUT_ONLY })
     }
 
-    const [config, extensions] = await Promise.all([this.#options.loadConfig(), this.#installedExtensions()])
+    const [configs, extensions] = await Promise.all([this.#loadConfigs(), this.#installedExtensions()])
+    const config = pickConfig(configs, patch?.config)
+    if (!config) return this.#refuse({ message: AgentMessage.CONFIG_ENTRY_NOT_FOUND })
     const [plugins, adapter, parsers] = await Promise.all([
       mergePlugins({ diskPlugins: config.plugins, studioPlugins: patch?.plugins, extensions }).then((merged) => {
         assertOutputPaths({ plugins: merged ?? [], diskPlugins: config.plugins, root, outputPath: config.output.path })
@@ -713,6 +723,38 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
 /**
  * The connection loop with a swappable transport. {@link connectAgent} passes a real WebSocket.
  */
+/**
+ * The entry Studio named: by position, by `name`, or the first one. `undefined` for one the file does
+ * not have, and for a ref of the wrong type, since it crossed the wire.
+ */
+function pickConfig(configs: Array<Config>, ref: ConfigRef | undefined): Config | undefined {
+  if (typeof ref === 'string') return configs.find((config) => config.name === ref)
+  if (ref !== undefined && !Number.isSafeInteger(ref)) return undefined
+  return configs[ref ?? 0]
+}
+
+/** A JSON copy of one resolved entry, each extension named by the package its manifest is in. */
+function toEntryView(config: Config, extensions: InstalledExtensions): ConfigEntryView {
+  const input = typeof config.input === 'string' && getInputKind(config.input) !== 'inline' ? config.input : undefined
+  return {
+    ...(config.name !== undefined && { name: config.name }),
+    ...(input !== undefined && { input }),
+    output: config.output.path,
+    plugins: config.plugins.map((plugin) => ({
+      name: toStudioName({ name: resolveMeta(plugin).name, extensions }),
+      options: toJSONOptions(plugin.options),
+    })),
+    adapter: config.adapter && {
+      name: toStudioName({ name: resolveMeta(config.adapter).name, extensions, kind: 'adapter' }),
+      options: toJSONOptions(config.adapter.options),
+    },
+    parsers: config.parsers.map((parser) => ({
+      name: toStudioName({ name: resolveMeta(parser).name, extensions, kind: 'parser' }),
+      options: toJSONOptions(parser.options),
+    })),
+  }
+}
+
 export async function runAgent({ options, openRpc }: { options: ConnectAgentOptions; openRpc: OpenRpc }): Promise<void> {
   const root = options.root ?? process.cwd()
   const resolved: ResolvedOptions = {
