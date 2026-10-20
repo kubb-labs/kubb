@@ -143,7 +143,7 @@ export type ConnectAgentOptions = {
   configPath: string
   /**
    * Called for every handshake and every generation, so edits on disk show up. A file that exports
-   * an array returns every entry; Studio picks one per generation and reports on the first otherwise.
+   * an array returns every entry, and a generation names the one it runs.
    */
   loadConfig: () => Promise<Config | Array<Config>>
   /**
@@ -722,8 +722,10 @@ function pickConfig(configs: Array<Config>, ref: ConfigRef | undefined): Config 
 
 /** The input path or URL Studio may show: no inline document, and no credentials from a URL. */
 function reportedInput(input: Config['input']): string | undefined {
-  if (typeof input !== 'string' || getInputKind(input) === 'inline') return undefined
-  if (!URL.canParse(input)) return input
+  if (typeof input !== 'string') return undefined
+  const kind = getInputKind(input)
+  if (kind === 'inline') return undefined
+  if (kind !== 'url') return input
   const url = new URL(input)
   url.username = ''
   url.password = ''
