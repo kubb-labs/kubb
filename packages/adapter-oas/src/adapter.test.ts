@@ -295,21 +295,9 @@ describe('adapterOas options', () => {
 })
 
 describe('adapterOas options', () => {
-  it('applies the defaults and resolves emptySchemaType from unknownType', () => {
-    expect(adapterOas().options).toStrictEqual({
-      validate: true,
-      contentType: undefined,
-      server: undefined,
-      discriminator: 'preserve',
-      enums: 'inline',
-      dateType: 'string',
-      integerType: 'bigint',
-      unknownType: 'unknown',
-      emptySchemaType: 'unknown',
-      enumSuffix: 'enum',
-    })
-    expect(adapterOas({ unknownType: 'any' }).options).toMatchObject({ unknownType: 'any', emptySchemaType: 'any' })
-    expect(adapterOas({ unknownType: 'any', emptySchemaType: 'void' }).options).toMatchObject({ emptySchemaType: 'void' })
+  it('keeps the options it was created with, before defaults', () => {
+    expect(adapterOas().options).toStrictEqual({})
+    expect(adapterOas({ unknownType: 'any' }).options).toStrictEqual({ unknownType: 'any' })
   })
 })
 

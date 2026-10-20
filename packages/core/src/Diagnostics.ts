@@ -209,19 +209,25 @@ const failedCode = {
 
 const docsByCode = new Map<DiagnosticCode, DiagnosticDoc>(Object.values(diagnosticCatalog).map((doc) => [doc.code, doc]))
 
+const reporterKey = Symbol.for('kubb.diagnostics.reporter')
+
+type ReporterHost = typeof globalThis & { [reporterKey]?: AsyncLocalStorage<(diagnostic: Diagnostic) => void> }
+
 const countKey = { error: 'errors', warning: 'warnings', info: 'infos' } as const satisfies Record<DiagnosticSeverity, string>
 
 /**
  * Static helpers for working with {@link Diagnostic}s, plus the run-scoped sink
  * that lets deep code report a diagnostic without threading a callback.
  *
- * The sink lives in a single `AsyncLocalStorage` in the `@kubb/core` bundle.
+ * The sink lives in a single `AsyncLocalStorage` on `globalThis`, shared by every copy of `@kubb/core`.
  * `Diagnostics.scope` activates it for a run, so anything inside that run (the
  * adapter parse, a generator) reports through `Diagnostics.report` and lands
  * in the same run.
  */
 export class Diagnostics {
-  static #reporterStorage = new AsyncLocalStorage<(diagnostic: Diagnostic) => void>()
+  // A plugin that loads another copy of `@kubb/core` (the project's own, beside a host such as the
+  // Studio agent) still reports into the run, as `kubbContext` does.
+  static #reporterStorage: AsyncLocalStorage<(diagnostic: Diagnostic) => void> = ((globalThis as ReporterHost)[reporterKey] ??= new AsyncLocalStorage())
 
   /**
    * The diagnostic code catalog, exposed as `Diagnostics.code` (e.g. `Diagnostics.code.refNotFound`).

@@ -263,11 +263,13 @@ const adapterText = defineExtension<TextAdapter>({
 })
 
 describe('defineExtension adapter', () => {
-  it('resolves the options with setup and exposes the resolved options', () => {
+  it('builds from the options setup resolved, and keeps the raw options on the adapter', async () => {
     const adapter = adapterText({ strict: false })
 
-    expect(adapter).toMatchObject({ name: 'text', meta: { name: 'text' }, options: { strict: false, mode: 'loose' } })
-    expect(adapterText().options).toStrictEqual({ strict: true, mode: 'strict' })
+    expect(adapter).toMatchObject({ name: 'text', meta: { name: 'text' }, options: { strict: false } })
+    expect(adapterText().options).toStrictEqual({})
+    await adapter.parse({ type: 'data', data: '' })
+    expect(adapter.document).toBe('loose')
   })
 
   it('keeps getters on the built adapter live', async () => {
