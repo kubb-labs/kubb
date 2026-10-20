@@ -487,6 +487,29 @@ describe('applyConfigEdits', () => {
       `)
     })
 
+    it('puts each plugin of a one-line array on its own line to comment one out, and enabling it keeps them there', () => {
+      const oneLine = `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [pluginTs(), pluginZod({ inferred: true })],\n})\n`
+      const disabled = applyConfigEdits({ source: oneLine, edits: [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }] })
+
+      expect(disabled.outcomes).toStrictEqual([{ edit: { operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }, applied: true }])
+      expect(disabled.source).toBe(
+        `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [\n    pluginTs(),\n    // kubb:disabled @kubb/plugin-zod 1\n    // pluginZod({ inferred: true }),\n  ],\n})\n`,
+      )
+
+      const enabled = applyConfigEdits({ source: disabled.source, edits: [{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }] }).source
+      expect(enabled).toBe(
+        `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [\n    pluginTs(),\n    pluginZod({ inferred: true }),\n  ],\n})\n`,
+      )
+    })
+
+    it('still refuses to comment out a plugin when a comment sits between the items of a one-line array', () => {
+      const withNote = `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [pluginTs(), /* keep */ pluginZod()],\n})\n`
+      const result = applyConfigEdits({ source: withNote, edits: [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }] })
+
+      expect(result.changed).toBe(false)
+      expect(result.outcomes[0]).toMatchObject({ applied: false, reason: expect.stringContaining('shares a line') })
+    })
+
     it('enabling returns the source byte-for-byte', () => {
       const disabled = applyConfigEdits({ source, edits: [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }] }).source
       const enabled = applyConfigEdits({ source: disabled, edits: [{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }] }).source
