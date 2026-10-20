@@ -38,7 +38,7 @@ export type WriterProgress = {
 }
 
 /**
- * How one logger draws. {@link createLogger} decides what a run says and in what order; a writer
+ * How one logger draws. `installLogger` decides what a run says and in what order; a writer
  * decides only how each line looks, so every logger reports the same run the same way.
  */
 export type LoggerWriter = {

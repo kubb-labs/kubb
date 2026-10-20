@@ -2,14 +2,20 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
 import { Diagnostics, logLevel as logLevelMap } from '@kubb/core'
-import { formatJobLine, pluralize, toPermissionFlag } from '../createLogger.ts'
-import { useFeature, useLogger } from './context.ts'
+import { pluralize, toPermissionFlag } from '../../utils/text.ts'
+import { clock, useFeature, useLogger } from './context.ts'
 import { useSpinner } from './useSpinner.ts'
 
 /**
  * A `kubb studio` session. It emits these on the same emitter as its generations, so one logger
  * renders the whole command: the connection, then one job line per command.
  */
+/** One line of a Studio session's job log: the time, the command, who asked for it, and how it ended. */
+function formatJobLine({ command, result, requestedBy }: { command: string; result: string; requestedBy?: string }): string {
+  const by = requestedBy ? `${styleText('dim', `by ${requestedBy}`.padEnd(16))} ` : ''
+  return `${styleText('dim', clock())}  ${command.padEnd(10)} ${by}${result}`
+}
+
 export function useSession() {
   return useFeature('session', () => {
     const ctx = useLogger()

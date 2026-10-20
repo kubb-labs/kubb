@@ -1,5 +1,5 @@
 import { styleText } from 'node:util'
-import type { DiagnosticFormatOptions, Hookable, KubbHooks } from '@kubb/core'
+import { type Config, type DiagnosticFormatOptions, type Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import type { LoggerWriter } from '../defineLogger.ts'
 
 /**
@@ -59,25 +59,21 @@ export function createLoggerContext({
   hooks,
   writer,
   logLevel,
-  silent,
   audience,
-  text,
 }: {
   hooks: Hookable<KubbHooks>
   writer: LoggerWriter
   logLevel: number
-  silent: boolean
   audience: DiagnosticFormatOptions['audience']
-  text: (message: string) => string
 }): LoggerContext {
   const ctx: LoggerContext = {
     writer,
     logLevel,
-    silent,
+    silent: logLevel <= logLevelMap.silent,
     audience,
     human: audience === 'human',
     session: false,
-    text,
+    text: (message) => (logLevel >= logLevelMap.verbose ? `${styleText('dim', `[${clock()}]`)} ${message}` : message),
     hook(name, fn) {
       return hooks.hook(name, (...args) => provideLogger(ctx, () => fn(...args)))
     },
@@ -87,6 +83,18 @@ export function createLoggerContext({
     features: new Map(),
   }
   return ctx
+}
+
+/** `HH:MM:SS` in 24-hour time. */
+export function clock(date = new Date()): string {
+  return date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+}
+
+/** Display path for a config's input: the string form, or its `path` field when the input is an object. */
+export function getInputPath(config: Config): string | undefined {
+  const { input } = config
+  if (typeof input === 'string') return input
+  return typeof input?.path === 'string' ? input.path : undefined
 }
 
 /** `✓ message info`, with the info dimmed. */

@@ -1,5 +1,5 @@
 import { hostname } from 'node:os'
-import { toPermissionFlag } from '../../loggers/createLogger.ts'
+import { toPermissionFlag } from '../../utils/text.ts'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'

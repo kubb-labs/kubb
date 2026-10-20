@@ -9,7 +9,7 @@ import { exists, formatMs, getElapsedMs, write } from '@internals/utils'
 import { createKubb, Diagnostics, type RegistryEntry } from '@kubb/core'
 import { dryRunId, type DryRunExtensions } from '../../commands/shared.ts'
 import { getConfigs } from '../../config.ts'
-import { pluralize } from '../../loggers/createLogger.ts'
+import { pluralize } from '../../utils/text.ts'
 import { createSpinner, isInteractiveRun, logBlock, logError, logIntro, logOutro, logStep, logWarn } from '../../loggers/output.ts'
 import { fetchRegistryIndex, incompatibility, installSpec, registryUrl } from '../../utils/registry.ts'
 import {

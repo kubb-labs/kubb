@@ -20,7 +20,7 @@ import {
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { trackRun } from '../../Telemetry.ts'
-import { pluralize } from '../../loggers/createLogger.ts'
+import { pluralize } from '../../utils/text.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
 import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'

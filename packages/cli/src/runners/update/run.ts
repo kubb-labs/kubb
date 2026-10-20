@@ -6,7 +6,7 @@ import { defineWithTypes } from 'gunshi'
 import { findConfigFile } from '@internals/shared'
 import { getErrorMessage } from '@internals/utils'
 import { Hookable, type KubbHooks, readInstalledPackages, type RegistryEntry } from '@kubb/core'
-import { pluralize } from '../../loggers/createLogger.ts'
+import { pluralize } from '../../utils/text.ts'
 import { dryRunId, type DryRunExtensions, yesArg } from '../../commands/shared.ts'
 import {
   createSpinner,
