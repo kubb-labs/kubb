@@ -105,10 +105,10 @@ export type Reporter = {
    */
   report: (result: GenerationResult, context: ReporterContext) => void | Promise<void>
   /**
-   * Optional finalizer called once after the run's last config. The host wires it to
-   * `kubb:lifecycle:end`. {@link createReporter} closes it over the values that `report` returned.
+   * Runs once after the run's last config, on `kubb:lifecycle:end`. Only a reporter that collects
+   * its configs' reports into one document, such as `json`, has one.
    */
-  drain: (context: ReporterContext) => void | Promise<void>
+  drain?: (context: ReporterContext) => void | Promise<void>
   /**
    * Whether the host should collect files from `kubb:plugin:end` hooks.
    */
@@ -152,20 +152,26 @@ export type UserReporter<T = void> = {
  * ```
  */
 export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
-  const reports: Array<T> = []
+  const { name, needsPluginFiles, drain } = reporter
+  if (!drain) {
+    return {
+      name,
+      needsPluginFiles,
+      async report(result, context) {
+        await reporter.report(result, context)
+      },
+    }
+  }
 
+  const reports: Array<T> = []
   return {
-    name: reporter.name,
-    needsPluginFiles: reporter.needsPluginFiles,
+    name,
+    needsPluginFiles,
     async report(result, context) {
-      const report = await reporter.report(result, context)
-      if (reporter.drain) {
-        reports.push(report)
-      }
+      reports.push(await reporter.report(result, context))
     },
     async drain(context) {
-      await reporter.drain?.(context, [...reports])
-      reports.length = 0
+      await drain(context, reports.splice(0))
     },
   }
 }
