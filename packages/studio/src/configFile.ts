@@ -541,14 +541,18 @@ function applySet(source: string, call: CallNode, path: Array<string>, value: un
   return { source: splice(source, rangeOf(target.value).start, rangeOf(target.value).end, printValue(value, quote)) }
 }
 
-/** Deletes the option at `path`, falling the plugin back to its default for it. */
+/**
+ * Deletes the option at `path`, falling the plugin back to its default for it. An option the file
+ * does not set already has its default, so removing it changes nothing.
+ */
 function applyRemove(source: string, call: CallNode, path: Array<string>): EditResult {
   const options = call.arguments[0]
-  if (options?.type !== 'ObjectExpression') return { reason: 'the factory call has no options to remove' }
+  if (!options) return { source }
+  if (options.type !== 'ObjectExpression') return { reason: 'the factory was not called with an object literal' }
 
   const target = walk(options, path)
   if ('reason' in target) return target
-  if ('missing' in target) return { reason: `${path.join('.')} is not set` }
+  if ('missing' in target) return { source }
   return { source: removeMember(source, target.object, target.index) }
 }
 

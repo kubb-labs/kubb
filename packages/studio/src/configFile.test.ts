@@ -649,6 +649,15 @@ describe('applyConfigEdits', () => {
       expect(result.source).toBe(source.replace(`enum: { type: 'asConst' }`, `enum: {}`))
     })
 
+    it.each([
+      ['an option the file does not set', { operation: 'remove', plugin: '@kubb/plugin-ts', path: ['optionalType'] }],
+      ['an option of a plugin called without options', { operation: 'remove', plugin: '@kubb/plugin-zod', path: ['inferred'] }],
+    ] satisfies Array<[string, ConfigEdit]>)('applies removing %s without changing the file', (_, edit) => {
+      const result = applyConfigEdits({ source, edits: [edit] })
+      expect(result.source).toBe(source)
+      expect(result.outcomes).toStrictEqual([{ edit, applied: true }])
+    })
+
     it('gives a plugin called without options its first one', () => {
       const result = applyConfigEdits({ source, edits: [{ operation: 'set', plugin: '@kubb/plugin-zod', path: ['coercion', 'dates'], value: true }] })
       expect(result.source).toBe(source.replace(`pluginZod()`, `pluginZod({ coercion: { dates: true } })`))
