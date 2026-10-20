@@ -1,10 +1,9 @@
 import { randomUUID } from 'node:crypto'
-import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
-import { getErrorMessage, read, toError } from '@internals/utils'
+import { getErrorMessage, mkdtemp, read, rm, toError } from '@internals/utils'
 import {
   Diagnostics,
   cacheStorage,

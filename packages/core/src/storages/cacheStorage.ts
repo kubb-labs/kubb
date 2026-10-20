@@ -1,8 +1,7 @@
 import { hash } from 'node:crypto'
-import { existsSync } from 'node:fs'
-import { mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
+import { existsSync, writeRaw } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
 import { fsStorage } from './fsStorage.ts'
 
@@ -52,8 +51,7 @@ export const cacheStorage = createStorage(({ root = process.cwd() }: CacheStorag
     readItem: (key) => fs.readItem(toPath(key)),
     async writeItem(key, value) {
       const filePath = toPath(key)
-      await mkdir(dirname(filePath), { recursive: true })
-      await writeFile(filePath, value, 'utf8')
+      await writeRaw(filePath, value)
     },
     removeItem: (key) => fs.removeItem(toPath(key)),
     readKeys: (base) => fs.readKeys(base ? toPath(base) : dir),
