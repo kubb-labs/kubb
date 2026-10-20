@@ -1,11 +1,10 @@
-import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
 import { findConfigFile } from '@internals/shared'
-import { formatMs, getElapsedMs, getErrorMessage } from '@internals/utils'
+import { formatMs, getElapsedMs, getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, readInstalledPackages, type RegistryDetail, type RegistryEntry } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
 import { createSpinner, isInteractiveRun, logBlock, logCommandSummary, logError, logIntro, logStep, logWarn, withSpinner } from '../../loggers/output.ts'
@@ -172,7 +171,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       promise: Promise.all([
         fetchRegistryIndex({ registry }),
         readInstalledPackages({ root: cwd }),
-        foundConfig ? readFile(foundConfig, 'utf8').catch(() => undefined) : undefined,
+        foundConfig ? read(foundConfig).catch(() => undefined) : undefined,
       ]),
     })
     const versions = new Map(installed.map((item) => [item.package, item.version]))

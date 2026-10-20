@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { read, write } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, type RegistryEntry } from '@kubb/core'
 import { x } from 'tinyexec'
 
@@ -127,7 +128,7 @@ export function missingPluginDependencies({ selected, manifests }: { selected: A
 
 async function readPackageJson(cwd: string): Promise<PackageJson> {
   try {
-    return JSON.parse(await fs.promises.readFile(path.join(cwd, 'package.json'), 'utf-8')) as PackageJson
+    return JSON.parse(await read(path.join(cwd, 'package.json'))) as PackageJson
   } catch {
     return {}
   }
@@ -214,12 +215,12 @@ export function parsePluginsFlag({ plugins, value }: { plugins: Array<RegistryEn
 /** Adds `"generate": "kubb generate"` to the `package.json` scripts at `cwd`. Returns `false`, and changes nothing, when a `generate` script exists. */
 export async function addGenerateScript(cwd: string): Promise<boolean> {
   const file = path.join(cwd, 'package.json')
-  const source = await fs.promises.readFile(file, 'utf-8')
+  const source = await read(file)
   const packageJson = JSON.parse(source) as PackageJson
   if (packageJson.scripts?.generate !== undefined) return false
   const indent = source.match(/^[ \t]+/m)?.[0] ?? '  '
   const updated = { ...packageJson, scripts: { ...packageJson.scripts, generate: 'kubb generate' } }
-  await fs.promises.writeFile(file, `${JSON.stringify(updated, null, indent)}\n`, 'utf-8')
+  await write(file, JSON.stringify(updated, null, indent))
   return true
 }
 

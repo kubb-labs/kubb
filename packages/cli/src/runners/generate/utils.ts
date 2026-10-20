@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto'
-import { readdir, readFile } from 'node:fs/promises'
+import { readdir } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { inParallel, matchesStored, toError } from '@internals/utils'
+import { inParallel, matchesStored, read, toError } from '@internals/utils'
 import type { Hookable, KubbHooks, OutputManifest, Storage } from '@kubb/core'
 
 /** Glob pattern for paths the file watcher ignores. */
@@ -342,13 +342,7 @@ function countLineChanges(before: string, after: string): { added: number; remov
   return { added, removed }
 }
 
-async function readOrNull(filePath: string): Promise<string | null> {
-  try {
-    return await readFile(filePath, 'utf8')
-  } catch {
-    return null
-  }
-}
+const readOrNull = (filePath: string): Promise<string | null> => read(filePath).catch(() => null)
 
 async function listFiles(dir: string): Promise<Array<string>> {
   try {

@@ -6,7 +6,7 @@ import * as clack from '@clack/prompts'
 import type { DryRunExtension } from '@gunshi/plugin-dryrun'
 import { defineWithTypes } from 'gunshi'
 import { generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME } from '@internals/shared'
-import { formatMs, getElapsedMs } from '@internals/utils'
+import { exists, formatMs, getElapsedMs, write } from '@internals/utils'
 import { createKubb, Diagnostics, type RegistryEntry } from '@kubb/core'
 import { dryRunId, type DryRunExtensions } from '../../commands/shared.ts'
 import { getConfigs } from '../../config.ts'
@@ -271,10 +271,10 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
         const packages = [KUBB_PACKAGE_NAME, ...choices.plugins.map((entry) => entry.artifact.package)]
         logStep(`Review ${KUBB_CONFIG_FILENAME}`)
         logBlock([...config.trimEnd().split('\n'), '', `${styleText('dim', 'Installs')}  ${packages.join(' ')} with ${packageManager.name}`])
-        const exists = fs.existsSync(path.join(cwd, KUBB_CONFIG_FILENAME))
+        const configExists = await exists(path.join(cwd, KUBB_CONFIG_FILENAME))
         const confirmed = unwrap(
           await clack.select({
-            message: exists ? `${KUBB_CONFIG_FILENAME} exists. Overwrite it?` : 'Create it?',
+            message: configExists ? `${KUBB_CONFIG_FILENAME} exists. Overwrite it?` : 'Create it?',
             options: [
               { value: true, label: 'Yes' },
               { value: false, label: 'Change a choice' },
@@ -299,7 +299,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
     }
 
     const configPath = path.join(cwd, KUBB_CONFIG_FILENAME)
-    if (answered && !yes && fs.existsSync(configPath)) {
+    if (answered && !yes && (await exists(configPath))) {
       const overwrite = unwrap(await clack.confirm({ message: `${KUBB_CONFIG_FILENAME} exists. Overwrite it?`, initialValue: false }))
       if (!overwrite) cancelAndExit('Keeping existing configuration.')
     }
@@ -323,8 +323,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
 
     await step({
       start: `Writing ${KUBB_CONFIG_FILENAME}`,
-      task: async () =>
-        dryRun.run(async () => fs.promises.writeFile(configPath, await buildConfig(choices), 'utf-8'), { message: `write ${KUBB_CONFIG_FILENAME}` }),
+      task: async () => dryRun.run(async () => void (await write(configPath, await buildConfig(choices))), { message: `write ${KUBB_CONFIG_FILENAME}` }),
       done: () => `Wrote ${KUBB_CONFIG_FILENAME}`,
       failed: `Could not write ${KUBB_CONFIG_FILENAME}`,
     })

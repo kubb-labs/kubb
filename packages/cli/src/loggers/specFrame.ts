@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { read } from '@internals/utils'
 import { styleText } from 'node:util'
 import type { Adapter, DiagnosticLocation, SourceLocator } from '@kubb/core'
 
@@ -50,7 +50,7 @@ export function createSpecLocator({ locate, source }: { locate: SourceLocator; s
 export async function loadSpecLocator({ adapter, path }: { adapter: Adapter | undefined; path: string }): Promise<SpecLocator | undefined> {
   if (!adapter?.createSourceLocator) return undefined
   try {
-    const source = await readFile(path, 'utf8')
+    const source = await read(path)
     const locate = await adapter.createSourceLocator(source)
     return createSpecLocator({ locate, source })
   } catch {

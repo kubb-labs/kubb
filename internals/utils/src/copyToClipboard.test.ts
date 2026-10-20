@@ -1,19 +1,20 @@
-import { spawn } from 'node:child_process'
-import { EventEmitter } from 'node:events'
 import { PassThrough } from 'node:stream'
+import { x } from 'tinyexec'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { copyToClipboard } from './copyToClipboard.ts'
 import { isCIEnvironment } from './isCIEnvironment.ts'
 
-vi.mock('node:child_process', () => ({ spawn: vi.fn() }))
+vi.mock('tinyexec', () => ({ x: vi.fn() }))
 vi.mock('./isCIEnvironment.ts', () => ({ isCIEnvironment: vi.fn() }))
 
 function mockChild(outcome: { code?: number; error?: Error }) {
-  const child = Object.assign(new EventEmitter(), { stdin: new PassThrough() })
+  const stdin = new PassThrough()
   const received: Array<string> = []
-  child.stdin.on('data', (chunk: Buffer) => received.push(chunk.toString()))
-  child.stdin.on('finish', () => (outcome.error ? child.emit('error', outcome.error) : child.emit('close', outcome.code)))
-  vi.mocked(spawn).mockReturnValue(child as unknown as ReturnType<typeof spawn>)
+  stdin.on('data', (chunk: Buffer) => received.push(chunk.toString()))
+  const finished = new Promise<{ exitCode: number | undefined }>((resolve, reject) =>
+    stdin.on('finish', () => (outcome.error ? reject(outcome.error) : resolve({ exitCode: outcome.code }))),
+  )
+  vi.mocked(x).mockReturnValue(Object.assign(finished, { process: { stdin } }) as unknown as ReturnType<typeof x>)
   return received
 }
 
@@ -28,7 +29,7 @@ describe.skipIf(!['darwin', 'win32', 'linux'].includes(process.platform))('copyT
 
     await expect(copyToClipboard('KUBB-7Q4M')).resolves.toBe(true)
     expect(received.join('')).toBe('KUBB-7Q4M')
-    expect(vi.mocked(spawn).mock.calls[0]?.[1]).toBeInstanceOf(Array)
+    expect(vi.mocked(x).mock.calls[0]?.[1]).toBeInstanceOf(Array)
   })
 
   it('resolves false when the tool is missing', async () => {
@@ -49,6 +50,6 @@ describe.skipIf(!['darwin', 'win32', 'linux'].includes(process.platform))('copyT
     vi.mocked(isCIEnvironment).mockReturnValue(true)
 
     await expect(copyToClipboard('KUBB-7Q4M')).resolves.toBe(false)
-    expect(spawn).not.toHaveBeenCalled()
+    expect(x).not.toHaveBeenCalled()
   })
 })
