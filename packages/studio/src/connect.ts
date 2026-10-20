@@ -338,11 +338,7 @@ class Agent extends RpcTarget implements AgentApi {
   /** Every entry the host's config exports, so a single object and an array read the same. */
   async #loadConfigs(): Promise<Array<Config>> {
     const loaded = await this.#options.loadConfig()
-    const configs = Array.isArray(loaded) ? loaded : [loaded]
-    if (!configs.length) {
-      throw new Diagnostics.Error({ code: Diagnostics.code.unknown, severity: 'error', message: 'The config file exports no config' })
-    }
-    return configs
+    return Array.isArray(loaded) ? loaded : [loaded]
   }
 
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
@@ -356,11 +352,6 @@ class Agent extends RpcTarget implements AgentApi {
     })
     this.#session.connected.resolve(info)
 
-    // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
-    // Studio could call, running the user's config code in this process.
-    const entries = configs.map((config) => toEntryView(config, extensions))
-    const { plugins, adapter, parsers } = entries[0]!
-
     return {
       output,
       versions: { kubb: kubbVersion, agent: version },
@@ -368,11 +359,10 @@ class Agent extends RpcTarget implements AgentApi {
       config: {
         path: configPath,
         file,
-        plugins,
-        adapter,
-        parsers,
         extensions: [...extensions.values()],
-        configs: entries,
+        // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
+        // Studio could call, running the user's config code in this process.
+        configs: configs.map((config) => toEntryView(config, extensions)),
       },
       permissions: this.#permissions,
     }
@@ -723,19 +713,26 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
 /**
  * The connection loop with a swappable transport. {@link connectAgent} passes a real WebSocket.
  */
-/**
- * The entry Studio named: by position, by `name`, or the first one. `undefined` for one the file does
- * not have, and for a ref of the wrong type, since it crossed the wire.
- */
+/** The entry Studio named by position or `name`, else the first. `undefined` for one the file does not have. */
 function pickConfig(configs: Array<Config>, ref: ConfigRef | undefined): Config | undefined {
   if (typeof ref === 'string') return configs.find((config) => config.name === ref)
   if (ref !== undefined && !Number.isSafeInteger(ref)) return undefined
   return configs[ref ?? 0]
 }
 
+/** The input path or URL Studio may show: no inline document, and no credentials from a URL. */
+function reportedInput(input: Config['input']): string | undefined {
+  if (typeof input !== 'string' || getInputKind(input) === 'inline') return undefined
+  if (!URL.canParse(input)) return input
+  const url = new URL(input)
+  url.username = ''
+  url.password = ''
+  return url.href
+}
+
 /** A JSON copy of one resolved entry, each extension named by the package its manifest is in. */
 function toEntryView(config: Config, extensions: InstalledExtensions): ConfigEntryView {
-  const input = typeof config.input === 'string' && getInputKind(config.input) !== 'inline' ? config.input : undefined
+  const input = reportedInput(config.input)
   return {
     ...(config.name !== undefined && { name: config.name }),
     ...(input !== undefined && { input }),

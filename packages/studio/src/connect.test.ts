@@ -179,7 +179,7 @@ describe('the handshake', () => {
 
     const { config } = await agent.connect(info)
 
-    expect(config.plugins).toStrictEqual([{ name: '@acme/plugin-x', options: {} }])
+    expect(config.configs[0]!.plugins).toStrictEqual([{ name: '@acme/plugin-x', options: {} }])
     // `pnpm test` puts the workspace on NODE_PATH, so Kubb's own extensions may resolve here too.
     expect(config.extensions).toContainEqual({ package: '@acme/plugin-x', version: '1.2.3', manifest })
   })
@@ -194,28 +194,33 @@ describe('the handshake', () => {
 
     const { config } = await agent.connect(info)
 
-    expect(config.adapter).toStrictEqual({ name: '@kubb/adapter-oas', options: {} })
-    expect(config.parsers).toStrictEqual([{ name: '@kubb/parser-ts', options: { indent: 2 } }])
+    expect(config.configs[0]!.adapter).toStrictEqual({ name: '@kubb/adapter-oas', options: {} })
+    expect(config.configs[0]!.parsers).toStrictEqual([{ name: '@kubb/parser-ts', options: { indent: 2 } }])
   })
 
-  it('reports every entry of a config array, and the first one as the baseline', async () => {
+  it('reports every entry of a config array', async () => {
     const admin = { ...projectConfig(), name: 'admin', input: './admin.yaml', output: { path: 'src/admin' } }
     const { agent } = await connectStudio({ loadConfig: async () => [projectConfig(), admin] })
 
     const { config } = await agent.connect(info)
 
+    const plugins = [{ name: '@kubb/plugin-barrel', options: {} }]
+    const adapter = { name: '@kubb/adapter-oas', options: {} }
     expect(config.configs).toStrictEqual([
-      { input: 'https://example.com/openapi.json', output: 'src/gen', plugins: config.plugins, adapter: config.adapter, parsers: [] },
-      { name: 'admin', input: './admin.yaml', output: 'src/admin', plugins: config.plugins, adapter: config.adapter, parsers: [] },
+      { input: 'https://example.com/openapi.json', output: 'src/gen', plugins, adapter, parsers: [] },
+      { name: 'admin', input: './admin.yaml', output: 'src/admin', plugins, adapter, parsers: [] },
     ])
   })
 
-  it('leaves out an inline input, which is the document itself', async () => {
-    const { agent } = await connectStudio({ loadConfig: async () => ({ ...projectConfig(), input: 'openapi: 3.1.0' }) })
+  it.each([
+    ['an inline document', 'openapi: 3.1.0', undefined],
+    ['the credentials in a URL', 'https://alice:secret@example.com/openapi.json?v=2', 'https://example.com/openapi.json?v=2'],
+  ])('keeps %s out of the reported input', async (_, input, reported) => {
+    const { agent } = await connectStudio({ loadConfig: async () => ({ ...projectConfig(), input }) })
 
     const { config } = await agent.connect(info)
 
-    expect(config.configs?.[0]).not.toHaveProperty('input')
+    expect(config.configs[0]!.input).toBe(reported)
   })
 
   it('announces the connection once per socket, with what Studio sent', async () => {
@@ -250,7 +255,7 @@ describe('plugin options in the handshake', () => {
 
     const payload = await agent.connect(info)
 
-    expect(payload.config.plugins).toStrictEqual([{ name: '@kubb/plugin-barrel', options: { output: { path: 'types' }, group: { type: 'tag' } } }])
+    expect(payload.config.configs[0]!.plugins).toStrictEqual([{ name: '@kubb/plugin-barrel', options: { output: { path: 'types' }, group: { type: 'tag' } } }])
   })
 })
 

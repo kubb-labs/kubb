@@ -38,8 +38,7 @@ export type JSONKubbConfig = {
     options?: object
   }>
   /**
-   * Which `defineConfig(...)` entry to generate from, for a config file that exports an array. Omitted
-   * runs the first entry, and an entry the file does not have refuses the run.
+   * Which `defineConfig(...)` entry to generate from. Omitted runs the first one.
    */
   config?: ConfigRef
 }
@@ -563,52 +562,23 @@ export type ConnectMessagePayload = {
      * `allowConfigEdit`.
      */
     file?: ConfigFileView
-    /**
-     * Plugins the config registers, with a JSON copy of their options: anything JSON cannot hold,
-     * such as a function, is left out. A plugin defined in the project rather than installed as a
-     * `@kubb/plugin-*` package keeps its own `name`.
-     */
-    plugins?: Array<{
-      name: string
-      options?: object
-    }>
-    /**
-     * The adapter and the parsers the config registers, named like `plugins` and with the same JSON
-     * copy of their options, so Studio can render their manifest options.
-     */
-    adapter?: {
-      name: string
-      options?: object
-    }
-    parsers?: Array<{
-      name: string
-      options?: object
-    }>
     /** Installed packages that ship a `kubb-extension.json`, including plugins the config does not use yet. */
     extensions?: Array<ExtensionEntry>
-    /**
-     * Every entry the config exports, in source order, each resolved the way `plugins`, `adapter` and
-     * `parsers` above are for the first one. One entry for a file that exports a single config.
-     * Omitted by an agent that predates it.
-     */
-    configs?: Array<ConfigEntryView>
+    /** Every entry the config exports, in source order. */
+    configs: Array<ConfigEntryView>
   }
   permissions: AgentPermissions
 }
 
 /**
- * One `defineConfig(...)` entry as the agent runs it, with a JSON copy of every option, so Studio can
- * seed an editor per entry and label its entry picker.
+ * One `defineConfig(...)` entry as the agent runs it. Every option is a JSON copy: anything JSON cannot
+ * hold, such as a function, is left out. A plugin defined in the project keeps its own `name`.
  */
 export type ConfigEntryView = {
   name?: string
-  /**
-   * The input file path or URL. Omitted for inline content or a parsed document.
-   */
+  /** The input file path or URL, without credentials. Omitted for an inline or parsed document. */
   input?: string
-  /**
-   * The output directory as the entry gives it, relative to the project root unless absolute.
-   */
+  /** The output directory as the entry gives it, relative to the project root unless absolute. */
   output: string
   plugins: Array<{
     name: string
