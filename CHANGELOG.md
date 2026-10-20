@@ -1,5 +1,45 @@
 # Changelog
 
+## v5.11.5 — Oct 20, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Rework the terminal output of every command.
+  
+  - `kubb generate` opens with the mascot and shows live progress: spec counts, a bar per plugin, each file as it is written, and the hook commands. The summary leads with the outcome and counts added, modified, deleted and unchanged files. Spec diagnostics show `file:line:column` with a code frame.
+  - `--dry-run` lists what would change on disk. `--watch` says what each rebuild changed; `r` rebuilds, `q` quits.
+  - `kubb add` previews packages, required plugins and config lines before asking. `kubb update` shows each bump, leaves majors unselected, asks before regenerating; `--dry-run` replaces `--check`. `kubb init` finds specs, previews the config, adds a `generate` script and runs once; `--plugins` takes short names. Installs stream the package manager output under their step and clear it on success.
+  - `kubb studio` pairs with a code and countdown, asks permissions once, logs each job on one line with its requester, and `b` backgrounds the session. `status` and `snapshot` print one short table.
+  - Only long-running or interactive commands draw the mascot. ([#4355](https://github.com/kubb-labs/kubb/pull/4355), [`ab92f73`](https://github.com/kubb-labs/kubb/commit/ab92f731ae17f06cd08fc587948ef159780b4bca))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Make Kubb Studio generate the same code from editor drafts as from the saved `kubb.config.ts`.
+  
+  - Keep an adapter's raw options on `adapter.options`, so derived defaults like `emptySchemaType` follow a changed `unknownType`.
+  - Accept removing an option the config does not set.
+  - Report diagnostics from plugins that load their own `@kubb/core` copy.
+  - Fix the `reading 'split'` crash for an SDK class with `group: path`.
+  - Comment a plugin out of a one-line `plugins` array. ([#4364](https://github.com/kubb-labs/kubb/pull/4364), [`ea90ed4`](https://github.com/kubb-labs/kubb/commit/ea90ed412622feb138f174b359b203010bebed0d))
+- Report more per run: `kubb:build:start` carries `nodeCounts`, `kubb:files:processing:update` fires per written file, `kubb:files:processing:end` lists `unchanged` paths, and `Report` gains `filesUnchanged`. `Diagnostics.format` takes a `position`; adapters can implement `locate`, which the OpenAPI adapter does for YAML and JSON pointers. `kubb validate` uses the configured adapters. Diagnostic codes no longer wrap mid-word. ([#4355](https://github.com/kubb-labs/kubb/pull/4355), [`ab92f73`](https://github.com/kubb-labs/kubb/commit/ab92f731ae17f06cd08fc587948ef159780b4bca))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Accept `requestedBy` on `startGeneration` and `saveConfig`, matching what Kubb Studio sends, and name that Studio user in the agent's command log. ([#4362](https://github.com/kubb-labs/kubb/pull/4362), [`ddfa6de`](https://github.com/kubb-labs/kubb/commit/ddfa6de6e536d0aff2219aa7bcb3f34c773e67ba))
+- Export `applyConfigEdits`. `GenerateInput` and `SaveConfigInput` take `requestedBy`, carried by `studio:command` with `failed`. `PublishedSnapshot` gains `number` and `webUrl`. ([#4355](https://github.com/kubb-labs/kubb/pull/4355), [`ab92f73`](https://github.com/kubb-labs/kubb/commit/ab92f731ae17f06cd08fc587948ef159780b4bca))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.11.4 — Oct 20, 2026
 
 ### @kubb/studio
