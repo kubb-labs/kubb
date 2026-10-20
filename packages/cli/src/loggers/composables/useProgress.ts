@@ -1,6 +1,6 @@
 import { relative } from 'node:path'
 import { styleText } from 'node:util'
-import { pluralize } from '../../utils/text.ts'
+import { pluralize } from '../../ui/text.ts'
 import type { WriterProgress } from '../defineLogger.ts'
 import { useFeature, useLogger } from './context.ts'
 import { useSpinner } from './useSpinner.ts'

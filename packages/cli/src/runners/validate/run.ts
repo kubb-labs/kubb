@@ -6,8 +6,8 @@ import { toError } from '@internals/utils'
 import type { Config } from '@kubb/core'
 import { trackRun } from '../../Telemetry.ts'
 import { getConfigs } from '../../config.ts'
-import { pluralize } from '../../utils/text.ts'
-import { logCommandSummary } from '../../loggers/output.ts'
+import { pluralize } from '../../ui/text.ts'
+import { logCommandSummary } from '../../ui/summary.ts'
 
 type ValidateOptions = {
   /**

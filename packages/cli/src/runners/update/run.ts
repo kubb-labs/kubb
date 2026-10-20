@@ -6,20 +6,13 @@ import { defineWithTypes } from 'gunshi'
 import { findConfigFile } from '@internals/shared'
 import { getErrorMessage } from '@internals/utils'
 import { Hookable, type KubbHooks, readInstalledPackages, type RegistryEntry } from '@kubb/core'
-import { pluralize } from '../../utils/text.ts'
+import { pluralize } from '../../ui/text.ts'
 import { dryRunId, type DryRunExtensions, yesArg } from '../../commands/shared.ts'
-import {
-  createSpinner,
-  formatTable,
-  isInteractiveRun,
-  logBlock,
-  logCommandSummary,
-  logError,
-  logIntro,
-  logStep,
-  logWarn,
-  withSpinner,
-} from '../../loggers/output.ts'
+import { isInteractiveRun, logIntro } from '../../ui/intro.ts'
+import { logBlock, logError, logStep, logWarn } from '../../ui/log.ts'
+import { createSpinner, withSpinner } from '../../ui/spinner.ts'
+import { logCommandSummary } from '../../ui/summary.ts'
+import { formatTable } from '../../ui/table.ts'
 import { bumpOf, fetchRegistryIndex, incompatibility, installSpec, isOutdated, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
 import { detectPackageManager } from '../init/utils.ts'
 import { installWithSpinner } from '../installWithSpinner.ts'

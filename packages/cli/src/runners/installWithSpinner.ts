@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { formatMs, getElapsedMs } from '@internals/utils'
-import { createSpinner } from '../loggers/output.ts'
+import { createSpinner } from '../ui/spinner.ts'
 import { installPackages, type PackageManagerInfo } from './init/utils.ts'
 
 /**

@@ -3,7 +3,9 @@ import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
 import { define } from 'gunshi'
 import { readInstalledPackages, type RegistryEntry } from '@kubb/core'
-import { formatTable, logBlock, logError, logOutro, logWarn } from '../../loggers/output.ts'
+import { logOutro } from '../../ui/intro.ts'
+import { logBlock, logError, logWarn } from '../../ui/log.ts'
+import { formatTable } from '../../ui/table.ts'
 import { fetchRegistryIndex, isOutdated, registryUrl } from '../../utils/registry.ts'
 
 export type ListRow = {

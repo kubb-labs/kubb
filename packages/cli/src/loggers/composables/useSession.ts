@@ -2,7 +2,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
 import { Diagnostics, logLevel as logLevelMap } from '@kubb/core'
-import { pluralize, toPermissionFlag } from '../../utils/text.ts'
+import { pluralize, toPermissionFlag } from '../../ui/text.ts'
 import { clock, useFeature, useLogger } from './context.ts'
 import { useSpinner } from './useSpinner.ts'
 
