@@ -51,10 +51,7 @@ function runParser(parser: Parser, print: () => string): string {
  * Reads a `copy` file and prints it through the parser's `copy` hook, or verbatim with `banner`/`footer` when there is none.
  */
 async function parseCopy(file: FileNode, parser: Parser | undefined): Promise<string> {
-  let content: string
-  try {
-    content = await readFile(file.copy as string, 'utf8')
-  } catch (err) {
+  const content = await readFile(file.copy as string, 'utf8').catch((err) => {
     throw new Diagnostics.Error({
       code: Diagnostics.code.pluginFailed,
       severity: 'error',
@@ -62,7 +59,7 @@ async function parseCopy(file: FileNode, parser: Parser | undefined): Promise<st
       help: 'Check that the file a plugin copies into the output exists and is readable.',
       cause: toError(err),
     })
-  }
+  })
 
   if (parser?.copy) {
     return runParser(parser, () => parser.parse(ast.factory.createFile(parser.copy!(file, content))))
@@ -84,9 +81,9 @@ function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNod
     footer: b.footer,
     // A verbatim-copy file cannot be merged with rendered content; the incoming `copy` wins.
     copy: b.copy ?? a.copy,
-    sources: a.sources.length ? (b.sources.length ? [...a.sources, ...b.sources] : a.sources) : b.sources,
-    imports: a.imports.length ? (b.imports.length ? [...a.imports, ...b.imports] : a.imports) : b.imports,
-    exports: a.exports.length ? (b.exports.length ? [...a.exports, ...b.exports] : a.exports) : b.exports,
+    sources: [...a.sources, ...b.sources],
+    imports: [...a.imports, ...b.imports],
+    exports: [...a.exports, ...b.exports],
   }
 }
 
@@ -99,13 +96,42 @@ function compareFiles(a: FileNode, b: FileNode): number {
   return a.path.length - b.path.length || Number(isIndexPath(a.path)) - Number(isIndexPath(b.path))
 }
 
-// A file is unchanged either because the storage already holds this content, or because the
-// manifest knows the output passes turn this exact source into what the storage holds.
-function isUnchanged({ stored, source, key, manifest }: { stored: string | null; source: string; key: string; manifest?: OutputManifest }): boolean {
-  if (stored === null) return false
-  if (matchesStored({ stored, source })) return true
+/**
+ * Writes `source` to `file.path` unless the storage already holds it, either verbatim or, per the
+ * manifest, as what the output passes make of it. Checking here rather than in a driver gives a
+ * storage writing to S3 or a database the same guarantee `fsStorage` has. `false` when skipped.
+ */
+async function writeChanged({
+  storage,
+  manifest,
+  file,
+  source,
+  signal,
+}: Pick<WriteOptions, 'storage' | 'manifest' | 'signal'> & { file: FileNode; source: string }): Promise<boolean> {
+  signal?.throwIfAborted()
+  const stored = await storage.readItem(file.path)
+  if (stored !== null && (matchesStored({ stored, source }) || manifest?.isUpToDate({ key: file.path, source, disk: stored }))) return false
+  signal?.throwIfAborted()
+  await storage.writeItem(file.path, source, { stored })
+  // Only a file that was written can have been changed by the output passes.
+  manifest?.track({ key: file.path, source })
+  return true
+}
 
-  return manifest?.isUpToDate({ key, source, disk: stored }) ?? false
+/** Reports finished files in input order: each finished file flushes the run of finished files ahead of it as one update. */
+function createProgress(files: Array<FileNode>, config: Config, hooks: Hookable<KubbHooks>): (index: number) => Promise<void> {
+  const finished: Array<boolean> = []
+  let flushed = 0
+  return async (index) => {
+    finished[index] = true
+    // Rows leave `source` out: buffering it would hold every generated file in memory.
+    const updates: Array<KubbFileProcessingUpdate> = []
+    while (finished[flushed]) {
+      flushed++
+      updates.push({ file: files[flushed - 1]!, processed: flushed, total: files.length, percentage: (flushed / files.length) * 100, config })
+    }
+    if (updates.length) await hooks.callHook('kubb:files:processing:update', { files: updates })
+  }
 }
 
 /**
@@ -160,28 +186,17 @@ export class FileManager {
   }
 
   #store(files: ReadonlyArray<FileNode>, mergeExisting: boolean): Array<FileNode> {
-    const batch = files.length > 1 ? this.#dedupe(files) : files
-    const resolved: Array<FileNode> = []
-
-    for (const file of batch) {
+    // Same-path files in one batch always merge; an existing file only on upsert.
+    const batch = new Set<string>()
+    const resolved = files.map((file) => {
       const existing = this.#cache.get(file.path)
-      const merged = existing && mergeExisting ? ast.factory.createFile(mergeFile(existing, file)) : ast.factory.createFile(file)
+      const merged = ast.factory.createFile(existing && (mergeExisting || batch.has(file.path)) ? mergeFile(existing, file) : file)
       this.#cache.set(merged.path, merged)
-      resolved.push(merged)
-    }
-
+      batch.add(merged.path)
+      return merged
+    })
     if (resolved.length > 0) this.#sorted = null
     return resolved
-  }
-
-  // Merges same-path entries within a multi-file batch so the cache update loop stays uniform.
-  #dedupe(files: ReadonlyArray<FileNode>): Array<FileNode> {
-    const seen = new Map<string, FileNode>()
-    for (const file of files) {
-      const prev = seen.get(file.path)
-      seen.set(file.path, prev ? mergeFile(prev, file) : file)
-    }
-    return [...seen.values()]
   }
 
   /**
@@ -232,11 +247,8 @@ export class FileManager {
     if (files.length === 0) return
 
     await hooks?.callHook('kubb:files:processing:start', { files })
-
-    const total = files.length
-    const finished: Array<boolean> = []
     const unchanged: Array<string> = []
-    let flushed = 0
+    const progress = hooks && config ? createProgress(files, config, hooks) : undefined
 
     await inParallel({
       items: files,
@@ -244,30 +256,8 @@ export class FileManager {
       run: async (file, index) => {
         signal?.throwIfAborted()
         const source = await this.parse(file, { parsers })
-        if (source) {
-          signal?.throwIfAborted()
-          // Checking here rather than inside a driver gives a storage writing to S3 or a database
-          // the same guarantee `fsStorage` has, that unchanged content is never rewritten.
-          const stored = await storage.readItem(file.path)
-          if (isUnchanged({ stored, source, key: file.path, manifest })) {
-            unchanged.push(file.path)
-          } else {
-            signal?.throwIfAborted()
-            await storage.writeItem(file.path, source, { stored })
-            // Only a file that was written can have been changed by the output passes.
-            manifest?.track({ key: file.path, source })
-          }
-        }
-        if (!config) return
-
-        finished[index] = true
-        // Rows leave `source` out: buffering it would hold every generated file in memory.
-        const updates: Array<KubbFileProcessingUpdate> = []
-        while (finished[flushed]) {
-          flushed++
-          updates.push({ file: files[flushed - 1]!, processed: flushed, total, percentage: (flushed / total) * 100, config })
-        }
-        if (updates.length) await hooks?.callHook('kubb:files:processing:update', { files: updates })
+        if (source && !(await writeChanged({ storage, manifest, file, source, signal }))) unchanged.push(file.path)
+        await progress?.(index)
       },
     })
 
