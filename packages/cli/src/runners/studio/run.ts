@@ -11,7 +11,7 @@ import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLeve
 import { connectAgent, defaultStudioUrl, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
 import { AgentPermission } from '@kubb/studio/protocol'
 import { trackRun } from '../../Telemetry.ts'
-import { plainLogger } from '../../loggers/plainLogger.ts'
+import { plainWriter } from '../../loggers/plainWriter.ts'
 import setupReporters from '../../loggers/reporters.ts'
 import { logIntro, logOutro, logTip } from '../../ui/intro.ts'
 import { logBlock, logStep } from '../../ui/log.ts'
@@ -349,7 +349,7 @@ export async function connect(
     setupReporters(hooks, {
       logLevel: logLevelMap[options.logLevel ?? 'info'],
       reporters: [cliReporter],
-      ...(context.onState ? { logger: plainLogger } : {}),
+      ...(context.onState ? { writer: plainWriter } : {}),
     })
     // `b` hands the session to the background worker; only a foreground run in a terminal listens.
     const listens = !context.onState && process.stdin.isTTY === true && canUseTTY()

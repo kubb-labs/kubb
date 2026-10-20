@@ -22,7 +22,7 @@ import { version } from '../../../package.json'
 import { trackRun } from '../../Telemetry.ts'
 import { pluralize } from '../../ui/text.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
-import { createPlainLogger } from '../../loggers/plainLogger.ts'
+import { createPlainWriter } from '../../loggers/plainWriter.ts'
 import { logIntro, logOutro, logSpacer, logTip } from '../../ui/intro.ts'
 import { logError, logInfo, logStep } from '../../ui/log.ts'
 import { logBanner } from '../../ui/mascot.ts'
@@ -150,7 +150,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   // Errors raised outside a build have no report entry. In `json` mode they go to a stderr logger,
   // so they are never silent and stdout stays one JSON document.
   const errorHooks = json ? new Hookable<KubbHooks>() : hooks
-  if (json) setupReporters(errorHooks, { logLevel, reporters: [cliReporter], logger: createPlainLogger(console.error) })
+  if (json) setupReporters(errorHooks, { logLevel, reporters: [cliReporter], writer: createPlainWriter(console.error) })
 
   // The config loads while the banner plays; the output still prints in order once the banner is done.
   const banner = quiet ? undefined : logBanner(version)

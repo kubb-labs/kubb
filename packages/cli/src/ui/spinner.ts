@@ -1,4 +1,4 @@
-import type { WriterSpinner } from '../loggers/defineLogger.ts'
+import type { WriterSpinner } from '../loggers/types.ts'
 import { writer } from './log.ts'
 
 /**
