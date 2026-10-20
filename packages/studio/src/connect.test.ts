@@ -537,11 +537,11 @@ describe('generation history', () => {
     const command = heard('studio:command')
     const { agent } = await connectStudio({ hooks, permissions: { allowRead: true } })
 
-    const result = await run({ agent, jobId: 'job-1', requestedBy: 'Stijn\u001b[2J\n' })
+    const result = await run({ agent, jobId: 'job-1', requestedBy: 'Stijn' })
 
     expect(result.hashes).toStrictEqual({ 'src/gen/pet.ts': expect.stringMatching(/^[0-9a-f]{16}$/) })
     expect(vi.mocked(mkdtemp)).toHaveBeenCalledWith(expect.stringContaining('kubb-output-'))
-    expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk', requestedBy: 'Stijn[2J' })
+    expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk', requestedBy: 'Stijn' })
   })
 
   it('reads every earlier job after the agent restarts, from the project cache', async () => {

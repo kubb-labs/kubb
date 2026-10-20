@@ -196,14 +196,6 @@ function emit<TName extends keyof KubbHooks & string>(hooks: Hookable<KubbHooks>
   return Promise.resolve(hooks.callHook(name, ...args)).catch(() => {})
 }
 
-/** Studio's display name for the requester, cut to one short terminal-safe line, or `undefined`. */
-function toRequester(value: unknown): string | undefined {
-  if (typeof value !== 'string') return undefined
-  // Drops control characters, so a name cannot move the cursor or recolor the terminal.
-  const name = [...value].filter((char) => char >= ' ' && (char < '\u007f' || char > '\u009f')).join('')
-  return name.trim().slice(0, 32) || undefined
-}
-
 function isValidPage({ cursor, limit }: Pick<ReadFilesInput, 'cursor' | 'limit'>): boolean {
   if (limit === undefined) return cursor === undefined
   if (cursor !== undefined && (!Number.isSafeInteger(cursor) || cursor < 0)) return false
@@ -311,8 +303,8 @@ class Agent extends RpcTarget implements AgentApi {
       throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Studio must call connect() before any other command' })
   }
 
-  #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string, requestedBy?: unknown, failed?: boolean): Promise<void> {
-    return emit(this.#options.hooks, 'studio:command', { command, info, requestedBy: toRequester(requestedBy), failed })
+  #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string, requestedBy?: string, failed?: boolean): Promise<void> {
+    return emit(this.#options.hooks, 'studio:command', { command, info, requestedBy, failed })
   }
 
   // Not cached: the user can edit the file between two Studio actions.
