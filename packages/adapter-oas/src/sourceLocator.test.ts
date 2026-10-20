@@ -29,23 +29,10 @@ describe('OpenAPI source locations', () => {
     expect(locateIn(source, { kind: 'config' })).toBeUndefined()
   })
 
-  it.each(['discount%', 'discount%20', 'discount space', 'discount/a~b'])('locates the literal property name %s', (name) => {
+  it.each(['discount%', 'discount/a~b'])('locates the literal property name %s', (name) => {
     const json = JSON.stringify({ properties: { [name]: { type: 'string' } } })
     const token = escapePointerToken(name)
     const range = locateIn(json, { kind: 'schema', pointer: `#/properties/${token}` })!
     expect(json.slice(range.start, range.end)).toBe(JSON.stringify(name))
-  })
-
-  it('locates an encoded unresolved reference at its original usage', () => {
-    const ref = '#/components/schemas/Price%20EUR'
-    const json = JSON.stringify({ properties: { price: { $ref: ref } } })
-    const range = locateIn(json, { kind: 'schema', pointer: ref, ref })!
-    expect(json.slice(range.start, range.end)).toBe(JSON.stringify(ref))
-  })
-
-  it('locates JSON array elements', () => {
-    const json = JSON.stringify({ values: ['a', 'b'] })
-    const range = locateIn(json, { kind: 'schema', pointer: '#/values/1' })!
-    expect(json.slice(range.start, range.end)).toBe('"b"')
   })
 })

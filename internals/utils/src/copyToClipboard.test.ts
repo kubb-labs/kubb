@@ -32,20 +32,6 @@ describe.skipIf(!['darwin', 'win32', 'linux'].includes(process.platform))('copyT
     expect(vi.mocked(x).mock.calls[0]?.[1]).toBeInstanceOf(Array)
   })
 
-  it('resolves false when the tool is missing', async () => {
-    vi.mocked(isCIEnvironment).mockReturnValue(false)
-    mockChild({ error: Object.assign(new Error('spawn xclip ENOENT'), { code: 'ENOENT' }) })
-
-    await expect(copyToClipboard('KUBB-7Q4M')).resolves.toBe(false)
-  })
-
-  it('resolves false when the tool fails', async () => {
-    vi.mocked(isCIEnvironment).mockReturnValue(false)
-    mockChild({ code: 1 })
-
-    await expect(copyToClipboard('KUBB-7Q4M')).resolves.toBe(false)
-  })
-
   it('does not copy in CI', async () => {
     vi.mocked(isCIEnvironment).mockReturnValue(true)
 

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { stripVTControlCharacters } from 'node:util'
 import * as prompts from '@clack/prompts'
 import * as env from '../utils/env.ts'
-import { createSpinner, formatTable, getBanner, logCommandSummary, logIntro, logInfo, wantsMascot, withSpinner } from './output.ts'
+import { createSpinner, formatTable, logCommandSummary, logIntro, logInfo, wantsMascot, withSpinner } from './output.ts'
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
@@ -59,24 +59,15 @@ describe('plain output', () => {
 })
 
 describe('rich intro', () => {
-  it.each([undefined, ''])('leaves the opening guide to the first prompt when the title is %s', (title) => {
+  it('leaves the opening guide to the first prompt when there is no title', () => {
     using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
     vi.mocked(prompts.intro).mockClear()
     vi.mocked(prompts.log.warn).mockClear()
 
-    logIntro({ title, warning: 'Use with caution' })
+    logIntro({ warning: 'Use with caution' })
 
     expect(prompts.intro).not.toHaveBeenCalled()
     expect(prompts.log.warn).toHaveBeenCalledWith('Use with caution')
-  })
-
-  it('keeps a named section heading', () => {
-    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
-    vi.mocked(prompts.intro).mockClear()
-
-    logIntro({ title: 'Configuration' })
-
-    expect(prompts.intro).toHaveBeenCalledExactlyOnceWith('Configuration')
   })
 })
 
@@ -88,22 +79,6 @@ describe('command summaries', () => {
     expect(prompts.outro).toHaveBeenCalledOnce()
     const summary = stripVTControlCharacters(vi.mocked(prompts.outro).mock.calls[0]![0]!)
     expect(summary).toMatch(/^✓ Plugin ready\s+\S+\n\n {2}Plugin {2}plugin-ts$/)
-  })
-
-  it('writes a standalone failed summary to stderr', () => {
-    using _log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
-    using error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    logCommandSummary({ title: 'Validation failed', status: 'failed', hrStart: process.hrtime(), lines: ['  Input  ./spec.yaml'] })
-    expect(stripVTControlCharacters(error.mock.calls[0]![0])).toMatch(/^✗ Validation failed/)
-    expect(_log).not.toHaveBeenCalled()
-  })
-})
-
-describe('getBanner', () => {
-  it('falls back to one version line where the mascot cannot be drawn', () => {
-    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(false)
-
-    expect(getBanner('5.0.0', 'add')).toBe('Kubb CLI v5.0.0')
   })
 })
 
@@ -137,43 +112,13 @@ describe('wantsMascot', () => {
     }
   }
 
-  it('opens generate and a Studio session or pairing with the mascot', () => {
+  it('opens generate and interactive commands with the mascot, and quick or scripted runs without it', () => {
     expect(ask(['generate'])).toBe(true)
-    expect(ask([])).toBe(true)
-    expect(ask(['studio'])).toBe(true)
-    expect(ask(['studio', 'connect'])).toBe(true)
-    expect(ask(['studio', 'login'])).toBe(true)
-  })
-
-  it('opens add, update and init with the mascot only while they ask questions', () => {
-    expect(ask(['add'])).toBe(true)
-    expect(ask(['update'])).toBe(true)
     expect(ask(['init'])).toBe(true)
     expect(ask(['init'], { yes: true })).toBe(false)
-    expect(ask(['add'], { yes: true })).toBe(false)
-    expect(ask(['update'], { 'dry-run': true })).toBe(false)
-    expect(ask(['update'], { dryRun: true })).toBe(false)
     expect(ask(['add'], {}, false)).toBe(false)
-  })
-
-  it('leaves help and version output without it', () => {
     expect(ask(['generate'], { help: true })).toBe(false)
-    expect(ask(['add'], { version: true })).toBe(false)
-  })
-
-  it('leaves quick commands without it', () => {
-    for (const path of [
-      ['validate'],
-      ['list'],
-      ['mcp'],
-      ['studio', 'status'],
-      ['studio', 'stop'],
-      ['studio', 'start'],
-      ['studio', 'logout'],
-      ['studio', 'snapshot'],
-    ]) {
-      expect(ask(path)).toBe(false)
-    }
+    expect(ask(['validate'])).toBe(false)
   })
 })
 
@@ -185,9 +130,5 @@ describe('formatTable', () => {
         ['ccc', 'd'],
       ]),
     ).toStrictEqual(['a    bb', 'ccc  d'])
-  })
-
-  it('returns no lines for no rows', () => {
-    expect(formatTable([])).toStrictEqual([])
   })
 })

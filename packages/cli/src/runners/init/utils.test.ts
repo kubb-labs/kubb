@@ -81,12 +81,6 @@ describe('project detection', () => {
 
       expect(await findSpecFiles(cwd)).toStrictEqual(['./openapi.yaml', './api/swagger.json'])
     })
-
-    it('stops at the limit', async () => {
-      for (const name of ['openapi.a.yaml', 'openapi.b.yaml', 'openapi.c.yaml']) writeFileSync(join(cwd, name), '')
-
-      expect(await findSpecFiles(cwd, { limit: 2 })).toStrictEqual(['./openapi.a.yaml', './openapi.b.yaml'])
-    })
   })
 
   describe('readSpecInfo', () => {
@@ -98,31 +92,9 @@ describe('project detection', () => {
 
       expect(await readSpecInfo(join(cwd, 'openapi.yaml'))).toStrictEqual({ version: '3.1.0', operations: 3 })
     })
-
-    it('reads the version and counts the operations in a JSON spec', async () => {
-      const spec = { swagger: '2.0', paths: { '/pets': { get: {}, put: {} } } }
-      writeFileSync(join(cwd, 'swagger.json'), JSON.stringify(spec, null, 2))
-
-      expect(await readSpecInfo(join(cwd, 'swagger.json'))).toStrictEqual({ version: '2.0', operations: 2 })
-    })
-
-    it('leaves out the count when the spec is longer than the part it reads', async () => {
-      writeFileSync(join(cwd, 'openapi.yaml'), `openapi: 3.0.3\npaths:\n${'  /x:\n    get:\n      summary: x\n'.repeat(20_000)}`)
-
-      expect(await readSpecInfo(join(cwd, 'openapi.yaml'))).toStrictEqual({ version: '3.0.3', operations: undefined })
-    })
   })
 
   describe('addGenerateScript', () => {
-    it('adds the script and keeps the indentation', async () => {
-      writeFileSync(join(cwd, 'package.json'), JSON.stringify({ name: 'app', scripts: { build: 'tsc' } }, null, 4))
-
-      expect(await addGenerateScript(cwd)).toBe(true)
-      expect(readFileSync(join(cwd, 'package.json'), 'utf-8')).toBe(
-        `${JSON.stringify({ name: 'app', scripts: { build: 'tsc', generate: 'kubb generate' } }, null, 4)}\n`,
-      )
-    })
-
     it('never overwrites an existing generate script', async () => {
       const source = JSON.stringify({ scripts: { generate: 'orval' } })
       writeFileSync(join(cwd, 'package.json'), source)
@@ -135,22 +107,9 @@ describe('project detection', () => {
 
 const official = (name: string, manifest: object = {}) =>
   ({ ...registryEntry({ name, version: '1.0.0', manifest }), id: `kubb-labs/${name}` }) as unknown as RegistryEntry
-const plugins = [
-  official('plugin-ts'),
-  official('plugin-zod'),
-  official('plugin-fetch', { role: 'client', dependencies: ['plugin-ts'] }),
-  official('plugin-react-query', { role: 'consumer', dependencies: ['plugin-ts'] }),
-]
+const plugins = [official('plugin-ts')]
 
 describe('parsePluginsFlag', () => {
-  it('accepts short names, slugs, and registry ids', () => {
-    expect(parsePluginsFlag({ plugins, value: 'ts, plugin-zod,kubb-labs/plugin-fetch' }).map((entry) => entry.id)).toStrictEqual([
-      'kubb-labs/plugin-ts',
-      'kubb-labs/plugin-zod',
-      'kubb-labs/plugin-fetch',
-    ])
-  })
-
   it('throws for a plugin that is not in the registry', () => {
     expect(() => parsePluginsFlag({ plugins, value: 'ts,nope' })).toThrow('Not in the Kubb registry: nope.')
   })

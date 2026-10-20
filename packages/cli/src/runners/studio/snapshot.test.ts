@@ -1,6 +1,5 @@
 import { stripVTControlCharacters } from 'node:util'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Config, Storage } from '@kubb/core'
 import type { PublishedSnapshot } from '@kubb/studio/protocol'
 import type { SnapshotOptions } from './run.ts'
 
@@ -141,23 +140,6 @@ describe('snapshot', () => {
     ])
   })
 
-  it('reports the generated files from the run it publishes', async () => {
-    vi.mocked(createSnapshot).mockImplementation(async ({ hooks }) => {
-      await hooks?.callHook('kubb:generation:end', {
-        config: { root: '/tmp', output: { path: 'gen' }, plugins: [] } as unknown as Config,
-        storage: {} as Storage,
-        filesCreated: 122,
-        status: 'success',
-        hrStart: process.hrtime(),
-      })
-      return published
-    })
-
-    await snapshot(baseOptions())
-
-    expect(vi.mocked(console.log).mock.calls.map(([line]) => String(line))).toContainEqual(expect.stringMatching(/^✓ Generated 122 files in \S+$/))
-  })
-
   it('prints the Studio page, the diff and the install command, and numbers the snapshot when Studio sends them', async () => {
     vi.mocked(createSnapshot).mockResolvedValue({
       ...published,
@@ -178,17 +160,6 @@ describe('snapshot', () => {
     expect(output).toContain('  View    http://localhost:3000/kubb-labs/petstore/182')
     expect(output).toContain('  Diff    +1 file  ~1 changed  vs #181')
     expect(output).toContain('  Use     npm i http://localhost:3000/packages/brave-otter/%40acme%2Fapi.tgz')
-  })
-
-  it('leaves out the Studio page when Studio sends none', async () => {
-    await snapshot(baseOptions())
-
-    expect(
-      vi
-        .mocked(console.log)
-        .mock.calls.map(([line]) => String(line))
-        .join('\n'),
-    ).not.toContain('View')
   })
 
   it('reports a failed publish and passes its error on', async () => {

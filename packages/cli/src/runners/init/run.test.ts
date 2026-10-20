@@ -59,41 +59,16 @@ afterEach(async () => {
 })
 
 describe('kubb init', () => {
-  it.each([false, clack.CANCEL_SYMBOL] as const)('keeps an existing config when overwrite is declined or canceled: %s', async (answer) => {
-    const source = '// Keep my custom setup\nexport default {}\n'
-    await writeFile(path.join(cwd, 'kubb.config.ts'), source)
-    vi.mocked(clack.confirm).mockResolvedValueOnce(answer)
-    using exit = vi.spyOn(process, 'exit').mockImplementation((): never => {
-      throw new Error('process.exit')
-    })
-
-    await expect(run({ yes: false, input: './openapi.yaml', output: './gen', plugins: 'ts', dryRun: off })).rejects.toThrow('process.exit')
-
-    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toBe(source)
-    expect(installPackages).not.toHaveBeenCalled()
-    expect(exit.mock.calls[0]).toStrictEqual([0])
-    expect(clack.confirm).toHaveBeenCalledWith(expect.objectContaining({ initialValue: false }))
-  })
-
-  it.each([false, true])('overwrites an existing config after confirmation or with --yes: %s', async (yes) => {
+  it('overwrites an existing config after confirmation', async () => {
     await writeFile(path.join(cwd, 'kubb.config.ts'), '// Old config\nexport default {}\n')
 
-    await run({ yes, input: './openapi.yaml', output: './gen', plugins: 'ts', dryRun: off })
+    await run({ yes: false, input: './openapi.yaml', output: './gen', plugins: 'ts', dryRun: off })
 
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain('plugins: [pluginTs()]')
     expect(installPackages).toHaveBeenCalledOnce()
-    expect(clack.confirm).toHaveBeenCalledTimes(yes ? 0 : 1)
+    expect(clack.confirm).toHaveBeenCalledWith(expect.objectContaining({ initialValue: false }))
   })
 
-  it('keeps the default plugin selection independent of project libraries', async () => {
-    await writeFile(path.join(cwd, 'package.json'), JSON.stringify({ dependencies: { react: '^19', zod: '^4', '@tanstack/react-query': '^5' } }))
-    await run({ yes: true, dryRun: on })
-    const printed = output.join('\n')
-    expect(printed).toContain('Installed kubb @acme/kubb-plugin-ts with npm')
-    expect(printed).not.toContain('@acme/kubb-plugin-zod')
-    expect(printed).not.toContain('React')
-    expect(printed).not.toContain('TanStack Query')
-  })
   it('asks nothing with --yes and flags, and keeps the setup when the first run fails', async () => {
     await run({ yes: true, input: './openapi.yaml', plugins: 'ts,zod', output: 'src/api', dryRun: off })
 

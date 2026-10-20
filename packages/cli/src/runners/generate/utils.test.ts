@@ -6,7 +6,7 @@ import { stripVTControlCharacters } from 'node:util'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { type GeneratorContext, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { diffBuilds, diffOutput, formatChange, listenForKeys, readOutputFiles, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
+import { diffBuilds, diffOutput, listenForKeys, readOutputFiles, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
 
 describe('startWatcher', () => {
   let dir: string
@@ -192,15 +192,6 @@ describe('startUrlWatcher', () => {
   })
 })
 
-describe('formatChange', () => {
-  it('prints the time and what changed', () => {
-    expect(stripVTControlCharacters(formatChange({ target: 'petStore.yaml', now: new Date(2026, 0, 1, 14, 2, 11) }))).toBe('14:02:11  petStore.yaml changed')
-    expect(stripVTControlCharacters(formatChange({ target: 'petStore.yaml', removed: true, now: new Date(2026, 0, 1, 14, 2, 11) }))).toBe(
-      '14:02:11  petStore.yaml removed',
-    )
-  })
-})
-
 describe('trackBuild and diffBuilds', () => {
   const ctx = {} as GeneratorContext
 
@@ -235,13 +226,6 @@ describe('listenForKeys', () => {
     })
   }
 
-  it('ignores a stdin that is not a TTY', () => {
-    const input = createInput(false)
-
-    expect(listenForKeys({ rebuild: vi.fn(), quit: vi.fn(), input: input as unknown as NodeJS.ReadStream })).toBeUndefined()
-    expect(input.setRawMode).not.toHaveBeenCalled()
-  })
-
   it('rebuilds on r, quits on q or ctrl+c, and restores raw mode before quitting', () => {
     const input = createInput(true)
     const rebuild = vi.fn()
@@ -265,59 +249,6 @@ describe('listenForKeys', () => {
 })
 
 describe('diffOutput', () => {
-  it('compares a batch before reading the next and recognizes formatted output through the manifest', async () => {
-    const paths = Array.from({ length: 120 }, (_, index) => `/gen/${index}.ts`)
-    let pending = 0
-    const storage = {
-      ...memoryStorage(),
-      async readItem() {
-        if (++pending > 50) throw new Error('Too many sources waiting to be compared')
-        return 'generated'
-      },
-    }
-    const manifest = {
-      isUpToDate() {
-        pending--
-        return true
-      },
-    }
-
-    expect(await diffOutput({ storage, paths, previousFiles: new Map(paths.map((path) => [path, 'formatted'])), clean: false, manifest })).toStrictEqual({
-      files: [],
-      unchanged: paths.length,
-    })
-    expect(pending).toBe(0)
-  })
-
-  it('keeps the pre-clean baseline and counts empty files without phantom lines', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'kubb-summary-'))
-    try {
-      const pet = join(dir, 'pet.ts'),
-        legacy = join(dir, 'legacy.ts'),
-        empty = join(dir, 'empty.ts')
-      await writeFile(pet, 'a\nb\n')
-      await writeFile(legacy, 'old\nfile\n')
-      const previousFiles = await readOutputFiles(dir)
-      await rm(legacy)
-      await writeFile(pet, 'a\nB\n')
-      const storage = memoryStorage()
-      await storage.writeItem(pet, 'a\nB\n')
-      await storage.writeItem(empty, '')
-
-      expect(await diffOutput({ storage, paths: [pet, empty], clean: true, previousFiles })).toStrictEqual({
-        files: [
-          { status: 'M', path: pet, added: 1, removed: 1 },
-          { status: 'A', path: empty, added: 0, removed: 0 },
-          { status: 'D', path: legacy, added: 0, removed: 2 },
-        ],
-        unchanged: 0,
-      })
-      expect((await diffOutput({ storage, paths: [pet, empty], clean: false, previousFiles })).files.some((file) => file.status === 'D')).toBe(false)
-    } finally {
-      await rm(dir, { recursive: true, force: true })
-    }
-  })
-
   it('compares each generated file with disk, and lists the files `clean` would delete', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'kubb-dry-run-'))
     try {

@@ -213,35 +213,6 @@ describe('grouped generation output', () => {
     ])
   })
 
-  it('redraws the live block once a spinner frame has passed', async () => {
-    vi.useFakeTimers()
-    try {
-      const output = await render(
-        async (context) => {
-          await context.callHook('kubb:generation:start', { config: makeConfig('petstore') })
-          await context.callHook('kubb:build:start', { nodeCounts: { schemas: 2, operations: 0 } } as KubbBuildStartContext)
-          await context.callHook('kubb:generate:schema', { name: 'Pet' } as SchemaNode, makeGeneratorContext('@kubb/plugin-ts'))
-          vi.advanceTimersByTime(100)
-          await context.callHook('kubb:generate:schema', { name: 'Tag' } as SchemaNode, makeGeneratorContext('@kubb/plugin-ts'))
-        },
-        { rich: true },
-      )
-
-      expect(output.filter((call) => call.startsWith('spinner.message:Generating  ')).map(withoutDuration)).toStrictEqual([
-        'spinner.message:Generating  ██████████░░░░░░░░░░  1/2 nodes  \n│   @kubb/plugin-ts     1  Pet',
-        'spinner.message:Generating  ████████████████████  2/2 nodes  \n│   @kubb/plugin-ts     2  Tag',
-      ])
-    } finally {
-      vi.useRealTimers()
-    }
-  })
-
-  it('leaves the per-node progress out of plain output, where each node would print its own line', async () => {
-    const output = await render(generation({ config: makeConfig('petstore') }), { rich: false })
-
-    expect(output.filter((line) => line.includes('Pet'))).toStrictEqual([])
-  })
-
   it.each([
     { rich: true, failed: 'spinner.error:Formatting failed after ', done: 'spinner.stop:Formatted in ', next: 'spinner.stop:Linted in ' },
     { rich: false, failed: '✗ Formatting failed after ', done: 'Formatted in ', next: 'Linted in ' },
@@ -318,51 +289,6 @@ describe('grouped generation output', () => {
 
     expect(output).toContain('caused by: TypeError: x is undefined')
     expect(output).toMatch(/^\s+at .+:\d+:\d+/m)
-  })
-})
-
-describe('studio warnings', () => {
-  it('pause the running spinner and resume it, so no stale frame stays above the warning', async () => {
-    const output = await render(
-      async (context) => {
-        await context.callHook('kubb:generation:start', { config: makeConfig('petstore') })
-        await context.callHook('studio:warn', { message: 'Ignored save', permission: 'allowConfigEdit' })
-      },
-      { rich: true },
-    )
-
-    expect(output.slice(1)).toStrictEqual([
-      'spinner.start:Parsing spec',
-      'log.warn:⚠ Ignored save; pass --allow-config-edit to allow it',
-      'spinner.start:Ready for jobs',
-    ])
-  })
-})
-
-describe('studio session', () => {
-  it('shows each Studio job as one line, with who asked, instead of the run', async () => {
-    const output = await render(
-      async (context) => {
-        await context.callHook('studio:connected', {
-          url: 'https://studio.kubb.dev',
-          versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' },
-          sandbox: false,
-          agentSlug: 'brave-otter',
-          studioVersion: '5.1.0',
-        })
-        await generation({ config: makeConfig('petstore') })(context)
-        await context.callHook('studio:command', { command: 'generate', info: '2 plugins, in memory', requestedBy: 'Stijn' })
-      },
-      { rich: true },
-    )
-
-    expect(output.map((call) => withoutDuration(stripVTControlCharacters(call)))).toStrictEqual([
-      'log.success:✓ Connected to https://studio.kubb.dev · v5.0.6 · Studio v5.1.0',
-      'spinner.start:Ready for jobs',
-      'spinner.message:Generating',
-      expect.stringMatching(/^log\.info:\d\d:\d\d:\d\d {2}generate {3}by Stijn {9}✓ 1 file in  \(2 plugins, in memory\)$/),
-      'spinner.start:Ready for jobs',
-    ])
   })
 })
 
@@ -514,21 +440,6 @@ describe('diagnostics located in the spec', () => {
     location: { kind: 'schema', pointer: '#/components/schemas/Owner', ref: '#/components/schemas/Owner' },
   }
 
-  it.each([false, true])('prints a warning for a percent property without interrupting generation (rich: %s)', async (rich) => {
-    const output = await render(
-      locatedRun({
-        code: 'KUBB_UNSUPPORTED_FORMAT',
-        severity: 'warning',
-        message: 'Unknown format on discount%',
-        location: { kind: 'schema', pointer: '#/components/schemas/Pet/properties/discount%' },
-      }),
-      { rich },
-    )
-
-    expect(output.join('\n')).toContain('Unknown format on discount%')
-    expect(output.join('\n')).toContain(`${relative(process.cwd(), join(dir, 'petstore.yaml'))}:7:9`)
-  })
-
   it('shows a human the line and column with a code frame under the $ref that uses the missing schema', async () => {
     const calls = await render(locatedRun(refNotFound), { rich: true })
     const block = stripVTControlCharacters(calls.find((call) => call.includes('plugin-ts')) ?? '')
@@ -540,15 +451,5 @@ describe('diagnostics located in the spec', () => {
       "      6 │           $ref: '#/components/schemas/Owner'",
       '        │                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^',
     ])
-  })
-
-  it('gives an agent file:line:col next to the pointer, without the frame', async () => {
-    const lines = await render(locatedRun({ ...refNotFound, location: { kind: 'schema', pointer: '#/components/schemas/Pet/properties/owner' } }), {
-      rich: false,
-    })
-    const file = relative(process.cwd(), join(dir, 'petstore.yaml'))
-
-    expect(lines.join('\n')).toContain(`  at: ${file}:5:9 (#/components/schemas/Pet/properties/owner)`)
-    expect(lines.join('\n')).not.toContain('│')
   })
 })

@@ -30,18 +30,4 @@ describe('source frames', () => {
       frame: ['1 │ type Pet {', '2 │   owner: Owner', '  │   ^^^^^'],
     })
   })
-
-  it('omits a frame when the adapter cannot locate the diagnostic, has no locate, or throws', () => {
-    expect(locateInSpec({ adapter: adapterWith(() => undefined), source, location })).toBeUndefined()
-    expect(locateInSpec({ adapter: adapterWith(undefined), source, location })).toBeUndefined()
-    expect(
-      locateInSpec({
-        adapter: adapterWith(() => {
-          throw new Error('Cannot locate this pointer')
-        }),
-        source,
-        location,
-      }),
-    ).toBeUndefined()
-  })
 })

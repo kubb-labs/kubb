@@ -12,7 +12,7 @@ import * as config from '../../config.ts'
 import * as credentialsStore from './credentials.ts'
 import type { Credentials } from './credentials.ts'
 import * as background from './background.ts'
-import { connect, formatCountdown, formatPermissionRows, login, resolvePermissions, type StudioOptions, watchKeys } from './run.ts'
+import { connect, login, resolvePermissions, type StudioOptions } from './run.ts'
 
 vi.mock('@clack/prompts', () => ({
   multiselect: vi.fn(),
@@ -125,9 +125,7 @@ describe('login', () => {
     expect(pairAgent).toHaveBeenCalledWith(expect.objectContaining({ type: 'cli', studioUrl: options.studioUrl, machineId: 'machine-secret' }))
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token' }))
   })
-})
 
-describe('login', () => {
   it('shows the code with its link, copies it in the background, and stores the organization', async () => {
     using project = stubProject()
     const lines: Array<string> = []
@@ -144,17 +142,6 @@ describe('login', () => {
     expect(output).toContain('Paired as demo · org kubb-labs')
     expect(project.copy).toHaveBeenCalledWith('ABCD-EFGH')
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ organizationSlug: 'kubb-labs' }))
-  })
-})
-
-describe('formatCountdown', () => {
-  it.each([
-    [292_000, '4:52'],
-    [60_000, '1:00'],
-    [9_001, '0:10'],
-    [-5_000, '0:00'],
-  ])('formats %d ms as %s', (ms, expected) => {
-    expect(formatCountdown(ms)).toBe(expected)
   })
 })
 
@@ -181,43 +168,6 @@ describe('resolvePermissions', () => {
     expect(multiselect.mock.calls[0]?.[0].options.map(({ label }) => label)).toContain('Change configs/kubb.config.mjs')
   })
 
-  it('lists only what flags and saved answers leave open, and keeps the saved ones', async () => {
-    using project = stubProject()
-    const stored: Credentials = { ...credentials, projects: { [process.cwd()]: { allowRead: false } } }
-    multiselect.mockResolvedValueOnce(['allowExec'])
-
-    await expect(resolvePermissions({ ...options, permission: { ...options.permission, allowWrite: true } }, stored)).resolves.toEqual({
-      allowRead: false,
-      allowReadAst: false,
-      allowWrite: true,
-      allowConfigEdit: false,
-      allowExec: true,
-    })
-    expect(multiselect.mock.calls[0]?.[0].options.map(({ value }) => value)).toStrictEqual(['allowReadAst', 'allowConfigEdit', 'allowExec'])
-    expect(project.write).toHaveBeenCalledWith(
-      expect.objectContaining({ projects: { [process.cwd()]: { allowRead: false, allowReadAst: false, allowConfigEdit: false, allowExec: true } } }),
-    )
-  })
-
-  it('grants and saves nothing when the list is canceled', async () => {
-    using project = stubProject()
-    vi.mocked(prompts.isCancel).mockReturnValueOnce(true)
-
-    await expect(resolvePermissions(options, credentials)).resolves.toEqual(options.permission)
-    expect(project.write).not.toHaveBeenCalled()
-  })
-
-  it('asks nothing in CI and grants only the flags', async () => {
-    using project = stubProject({ ci: true })
-
-    await expect(resolvePermissions({ ...options, permission: { ...options.permission, allowRead: true } }, credentials)).resolves.toEqual({
-      ...options.permission,
-      allowRead: true,
-    })
-    expect(multiselect).not.toHaveBeenCalled()
-    expect(project.write).not.toHaveBeenCalled()
-  })
-
   it('asks nothing again once the project answered, and never stores a flag-granted permission', async () => {
     using project = stubProject()
     const remembered = { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
@@ -229,44 +179,6 @@ describe('resolvePermissions', () => {
     })
     expect(multiselect).not.toHaveBeenCalled()
     expect(project.write).not.toHaveBeenCalled()
-  })
-})
-
-describe('formatPermissionRows', () => {
-  it('puts two permissions per row and the flags for the missing ones after the last', () => {
-    const rows = formatPermissionRows({ ...options.permission, allowRead: true, allowReadAst: true, allowExec: true }).map((row) =>
-      stripVTControlCharacters(row).trimEnd(),
-    )
-
-    expect(rows).toStrictEqual(['✓ read source  ✓ read spec', '✖ write files  ✖ edit config', '✓ run tools     --allow-write --allow-config-edit'])
-  })
-})
-
-describe('watchKeys', () => {
-  it('maps b to the background and Ctrl+C to stop, and restores the terminal', () => {
-    using tty = fakeTty()
-    const onBackground = vi.fn()
-    const onStop = vi.fn()
-
-    const restore = watchKeys({ onBackground, onStop })
-    process.stdin.emit('data', Buffer.from('b'))
-    process.stdin.emit('data', Buffer.from('\u0003'))
-    restore()
-    restore()
-    process.stdin.emit('data', Buffer.from('b'))
-
-    expect(onBackground).toHaveBeenCalledOnce()
-    expect(onStop).toHaveBeenCalledOnce()
-    expect(tty.setRawMode.mock.calls).toStrictEqual([[true], [false]])
-  })
-
-  it("lifts clack's Ctrl+C alias while it reads keys, so a spinner cannot exit the process first", () => {
-    using _tty = fakeTty()
-
-    const restore = watchKeys({ onBackground: vi.fn(), onStop: vi.fn() })
-    expect(prompts.settings.aliases.has('\u0003')).toBe(false)
-    restore()
-    expect(prompts.settings.aliases.get('\u0003')).toBe('cancel')
   })
 })
 

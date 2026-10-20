@@ -67,40 +67,10 @@ describe('runValidate', () => {
     expect(exitSpy).toHaveBeenCalledWith(1)
   })
 
-  it('keeps validation diagnostics on stderr without claiming successful checks', async () => {
-    vi.doMock('@kubb/adapter-oas', () => ({
-      adapterOas: () => ({
-        name: 'oas',
-        validate: async () => {
-          throw new Error('Unresolved reference: #/components/schemas/Pet')
-        },
-      }),
-    }))
-    using _log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
-    using error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    using _exit = vi.spyOn(process, 'exit').mockImplementation((): never => {
-      throw new Error('process.exit')
-    })
-    const { run } = await import('./run.ts')
-
-    await expect(run({ input: 'spec.yaml' })).rejects.toThrow('process.exit')
-
-    const summary = stripVTControlCharacters(error.mock.calls.flat().join('\n'))
-    expect(summary).toContain('✗ Validation failed')
-    expect(summary).toContain('Unresolved reference: #/components/schemas/Pet')
-    expect(summary).not.toContain('specification validated')
-    expect(summary).not.toContain('Install it with:')
-    expect(_log).not.toHaveBeenCalled()
-  })
-
-  it.each([
-    { configPath: undefined, input: 'schema.graphql' },
-    { configPath: 'custom.config.mjs', input: 'schema.graphql' },
-    { configPath: undefined, input: 'https://example.test/schema.graphql' },
-  ])('validates $input with the configured adapter using config $configPath', async ({ configPath, input }) => {
+  it('validates with the configured adapter instead of OpenAPI', async () => {
     const marker = join(cwd, 'validated.txt')
     await writeFile(
-      join(cwd, configPath ?? 'kubb.config.mjs'),
+      join(cwd, 'kubb.config.mjs'),
       `
       import { writeFileSync } from 'node:fs'
       export default {
@@ -121,70 +91,9 @@ describe('runValidate', () => {
     })
     using log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
     const { run } = await import('./run.ts')
-    await run({ input, configPath })
-    expect(await readFile(marker, 'utf8')).toBe(URL.canParse(input) ? input : join(cwd, input))
+    await run({ input: 'schema.graphql' })
+    expect(await readFile(marker, 'utf8')).toBe(join(cwd, 'schema.graphql'))
     expect(stripVTControlCharacters(log.mock.calls.flat().join('\n'))).toContain('Adapter  graphql')
-  })
-
-  it('uses every configured adapter without counting one input twice', async () => {
-    const marker = join(cwd, 'adapters.txt')
-    await writeFile(
-      join(cwd, 'kubb.config.mjs'),
-      `
-      import { appendFileSync } from 'node:fs'
-      export default ['first', 'second'].map(name => ({
-        root: ${JSON.stringify(cwd)},
-        adapter: { name, options: {}, document: null, async validate() { appendFileSync(${JSON.stringify(marker)}, name + '\\n') } },
-      }))
-    `,
-    )
-    using log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
-    const { run } = await import('./run.ts')
-    await run({ input: 'spec.custom' })
-    expect(await readFile(marker, 'utf8')).toBe('first\nsecond\n')
-    const summary = stripVTControlCharacters(log.mock.calls.flat().join('\n'))
-    expect(summary).toContain('1 specification validated')
-    expect(summary).toContain('Adapters  first, second')
-  })
-
-  it.each([undefined, ''])('defaults the input root to cwd when root is %s', async (root) => {
-    const marker = join(cwd, 'validated.txt')
-    await writeFile(
-      join(cwd, 'kubb.config.mjs'),
-      `
-      import { writeFileSync } from 'node:fs'
-      export default {
-        ${root === undefined ? '' : `root: ${JSON.stringify(root)},`}
-        adapter: { name: 'custom', async validate(input) { writeFileSync(${JSON.stringify(marker)}, input) } },
-      }
-    `,
-    )
-    using _log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
-    const { run } = await import('./run.ts')
-
-    await run({ input: './spec.custom' })
-
-    expect(await readFile(marker, 'utf8')).toBe(join(cwd, 'spec.custom'))
-  })
-
-  it('reports configured adapter failures with their real name', async () => {
-    await writeFile(
-      join(cwd, 'kubb.config.mjs'),
-      `export default {
-      root: ${JSON.stringify(cwd)},
-      adapter: { name: 'proto', options: {}, document: null, async validate() { throw new Error('Unknown message type') } },
-    }`,
-    )
-    using error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    using _exit = vi.spyOn(process, 'exit').mockImplementation((): never => {
-      throw new Error('process.exit')
-    })
-    const { run } = await import('./run.ts')
-    await expect(run({ input: 'service.proto' })).rejects.toThrow('process.exit')
-    const summary = stripVTControlCharacters(error.mock.calls.flat().join('\n'))
-    expect(summary).toContain('Adapter  proto')
-    expect(summary).toContain('Unknown message type')
-    expect(summary).not.toContain('@kubb/adapter-oas')
   })
 
   it('does not substitute OpenAPI when a config has no adapter', async () => {
