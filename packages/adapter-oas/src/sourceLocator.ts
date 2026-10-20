@@ -1,20 +1,26 @@
-import type { SourceLocator } from '@kubb/core'
+import type { Adapter } from '@kubb/core'
 import * as yaml from 'yaml'
+
+type Range = ReturnType<NonNullable<Adapter['locate']>>
+
+// Diagnostics of one run share a source, so the parsed document is kept for the next call.
+let cached: { source: string; document: yaml.Document } | undefined
 
 /**
  * Maps OpenAPI JSON pointers and unresolved references to ranges in YAML or JSON source.
  */
-export function createSourceLocator(source: string): SourceLocator {
-  const document = yaml.parseDocument(source)
+export const locate: NonNullable<Adapter['locate']> = (source, location) => {
+  if (cached?.source !== source) cached = { source, document: yaml.parseDocument(source) }
+  const { document } = cached
 
-  function findPointer(pointer: string): ReturnType<SourceLocator> {
+  function findPointer(pointer: string): Range {
     const tokens = pointer
       .replace(/^#/, '')
       .split('/')
       .slice(1)
       .map((token) => token.replaceAll('~1', '/').replaceAll('~0', '~'))
     let node: unknown = document.contents
-    let range: ReturnType<SourceLocator>
+    let range: Range
     for (const token of tokens) {
       if (yaml.isMap(node)) {
         const pair = node.items.find((item) => yaml.isScalar(item.key) && String(item.key.value) === token)
@@ -35,8 +41,8 @@ export function createSourceLocator(source: string): SourceLocator {
     return range
   }
 
-  function findRefUsage(ref: string): ReturnType<SourceLocator> {
-    let range: ReturnType<SourceLocator>
+  function findRefUsage(ref: string): Range {
+    let range: Range
     yaml.visit(document, {
       Pair(_, pair) {
         if (!yaml.isScalar(pair.key) || pair.key.value !== '$ref' || !yaml.isScalar(pair.value) || pair.value.value !== ref || !pair.value.range) return
@@ -47,8 +53,6 @@ export function createSourceLocator(source: string): SourceLocator {
     return range
   }
 
-  return (location) => {
-    if (!('pointer' in location)) return undefined
-    return findPointer(location.pointer) ?? ('ref' in location && location.ref ? findRefUsage(location.ref) : undefined)
-  }
+  if (!('pointer' in location)) return undefined
+  return findPointer(location.pointer) ?? ('ref' in location && location.ref ? findRefUsage(location.ref) : undefined)
 }

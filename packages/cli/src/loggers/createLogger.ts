@@ -1,12 +1,12 @@
 import { relative, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { formatMs, getElapsedMs } from '@internals/utils'
-import type { Config, KubbHooks } from '@kubb/core'
+import { formatMs, getElapsedMs, read } from '@internals/utils'
+import type { Adapter, Config, KubbHooks } from '@kubb/core'
 import { type Diagnostic, type DiagnosticFormatOptions, Diagnostics, getInputKind, logLevel as logLevelMap, type ProblemDiagnostic } from '@kubb/core'
 import { formatBar, formatMsWithColor } from './banner.ts'
 import type { Logger, LoggerWriter, LogStatus, WriterProgress, WriterSpinner } from './defineLogger.ts'
-import { loadSpecLocator, type SpecLocator } from './specFrame.ts'
+import { locateInSpec } from './specFrame.ts'
 
 /** `HH:MM:SS` in 24-hour time. */
 function clock(date = new Date()): string {
@@ -104,7 +104,7 @@ function createRunState() {
     /** The node walk's live state: the spec's node total, the distinct nodes generated, and each plugin's count and current node. */
     walk: { total: 0, visited: new Set<string>(), plugins: new Map<string, { count: number; current: string }>() },
     /** A local-file input, which a located diagnostic points into; `load` parses it once, on the first such diagnostic. */
-    spec: undefined as { path: string; load: () => Promise<SpecLocator | undefined> } | undefined,
+    spec: undefined as { path: string; adapter: Adapter; source: Promise<string | undefined> } | undefined,
     lastWalkDraw: 0,
   }
 }
@@ -314,7 +314,8 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         return formatOptions
       }
 
-      const position = (await spec.load())?.(location)
+      const source = await spec.source
+      const position = source && locateInSpec({ adapter: spec.adapter, source, location })
       if (!position) {
         return formatOptions
       }
@@ -464,10 +465,17 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       state.totalPlugins = config.plugins?.length ?? 0
       state.inMemory = config.storage?.name === 'memory'
       const input = getInputPath(config)
-      if (input && getInputKind(input) === 'file') {
+      if (input && config.adapter?.locate && getInputKind(input) === 'file') {
         const path = resolve(config.root, input)
-        let locator: Promise<SpecLocator | undefined> | undefined
-        state.spec = { path, load: () => (locator ??= loadSpecLocator({ adapter: config.adapter, path })) }
+        // Read lazily, once, and only when a diagnostic needs a frame.
+        let source: Promise<string | undefined> | undefined
+        state.spec = {
+          path,
+          adapter: config.adapter,
+          get source() {
+            return (source ??= read(path).catch(() => undefined))
+          },
+        }
       }
 
       if (silent) {
