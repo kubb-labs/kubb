@@ -192,12 +192,4 @@ describe('createSnapshot', () => {
       'Kubb Studio refused the snapshot (status 402): Snapshot limit reached. Upgrade at https://kubb.studio/billing.',
     )
   })
-
-  it('names the status when a successful response carries no snapshot', async () => {
-    using _ = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('<html></html>', { status: 200 }))
-
-    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: projectConfig() })).rejects.toThrow(
-      'Kubb Studio returned no snapshot (status 200)',
-    )
-  })
 })

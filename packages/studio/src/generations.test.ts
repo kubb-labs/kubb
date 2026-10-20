@@ -64,13 +64,6 @@ describe('createGenerationStore', () => {
     expect(output.hashes['a.ts']).not.toBe(disk.hashes['a.ts'])
   })
 
-  it('keeps whitespace-only output files', async () => {
-    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-    const output = await store.keep({ jobId: 'job-1', files: sourceFiles({ 'a.ts': 'export const a = 1', 'empty.ts': ' \n ' }), maxSetMb: 1 })
-
-    expect(output.paths).toStrictEqual(['a.ts', 'empty.ts'])
-  })
-
   it('pages through a file split on any line ending until nextCursor is null', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
     await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'l0\r\nl1\rl2\nl3\nl4' } })

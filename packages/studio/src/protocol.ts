@@ -37,6 +37,10 @@ export type JSONKubbConfig = {
     name: string
     options?: object
   }>
+  /**
+   * Which `defineConfig(...)` entry to generate from. Omitted runs the first one.
+   */
+  config?: ConfigRef
 }
 
 /**
@@ -405,6 +409,7 @@ export type ReadInputResult = { input: InputNode }
 export const AgentMessage = {
   GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
   SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
+  CONFIG_ENTRY_NOT_FOUND: 'The config file has no entry at that position or with that name',
   JOB_REQUIRED: 'The request must name a job',
   FILE_REQUEST_INVALID: 'The request must name an output set and carry paths',
   TOO_MANY_FILES: 'Too many paths were requested at once',
@@ -517,15 +522,6 @@ export const MAX_SNAPSHOT_BYTES = 50 * 1024 * 1024
  */
 export type ConnectMessagePayload = {
   /**
-   * The output directory's current file list, readable through `readFiles` without generating.
-   * Absent for a sandbox or when the host has not granted `allowRead`.
-   */
-  output?: {
-    jobId: string
-    files: Array<string>
-    hashes: Record<string, string>
-  }
-  /**
    * Always sent, so a mismatch is visible on both sides: Studio badges the connection with these
    * and the host prints them.
    */
@@ -557,31 +553,47 @@ export type ConnectMessagePayload = {
      * `allowConfigEdit`.
      */
     file?: ConfigFileView
-    /**
-     * Plugins the config registers, with a JSON copy of their options: anything JSON cannot hold,
-     * such as a function, is left out. A plugin defined in the project rather than installed as a
-     * `@kubb/plugin-*` package keeps its own `name`.
-     */
-    plugins?: Array<{
-      name: string
-      options?: object
-    }>
-    /**
-     * The adapter and the parsers the config registers, named like `plugins` and with the same JSON
-     * copy of their options, so Studio can render their manifest options.
-     */
-    adapter?: {
-      name: string
-      options?: object
-    }
-    parsers?: Array<{
-      name: string
-      options?: object
-    }>
     /** Installed packages that ship a `kubb-extension.json`, including plugins the config does not use yet. */
     extensions?: Array<ExtensionEntry>
+    /** Every entry the config exports, in source order. */
+    configs: Array<ConfigEntryView>
   }
   permissions: AgentPermissions
+}
+
+export type DiskOutput = {
+  jobId: string
+  files: Array<string>
+  hashes: Record<string, string>
+}
+
+/**
+ * One `defineConfig(...)` entry as the agent runs it. Every option is a JSON copy: anything JSON cannot
+ * hold, such as a function, is left out. A plugin defined in the project keeps its own `name`.
+ */
+export type ConfigEntryView = {
+  name?: string
+  /** The input file path or URL, without credentials. Omitted for an inline or parsed document. */
+  input?: string
+  /** The output directory as the entry gives it, relative to the project root unless absolute. */
+  output: string
+  /**
+   * The output directory's current file list, readable through `readFiles` without generating.
+   * Absent for a sandbox or when the host has not granted `allowRead`.
+   */
+  disk?: DiskOutput
+  plugins: Array<{
+    name: string
+    options?: object
+  }>
+  adapter?: {
+    name: string
+    options?: object
+  }
+  parsers: Array<{
+    name: string
+    options?: object
+  }>
 }
 
 /** An installed extension package and the manifest it ships. */

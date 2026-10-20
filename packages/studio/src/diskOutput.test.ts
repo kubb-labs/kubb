@@ -23,7 +23,7 @@ function startAgent(root: string) {
       configPath: 'kubb.config.ts',
       version: 'test',
       permissions: { allowRead: true },
-      loadConfig: async () => projectConfig({ projectRoot: root }),
+      loadConfigs: async () => [projectConfig({ projectRoot: root })],
       signal: shutdown.signal,
     },
     openRpc,
@@ -49,7 +49,7 @@ it('reviews disk output, stages a run, and retains both across reconnects within
   const info = { sandbox: false, agentSlug: 'test', studioVersion: 'test' }
   try {
     const agent = await instances[0]!.agent
-    const output = (await agent.connect(info)).output!
+    const output = (await agent.connect(info)).config.configs[0]!.disk!
     await expect(agent.readFiles({ jobId: output.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': original } })
     await agent.startGeneration({ jobId: 'generated', config: {} }).result()
     expect(await readFile(join(root, 'src/gen/pet.ts'), 'utf8')).toBe(original)
@@ -58,7 +58,7 @@ it('reviews disk output, stages a run, and retains both across reconnects within
     const restart = startAgent(root)
     instances.push(restart)
     const reconnected = await restart.agent
-    expect((await reconnected.connect(info)).output?.jobId).toBe(output.jobId)
+    expect((await reconnected.connect(info)).config.configs[0]!.disk?.jobId).toBe(output.jobId)
     await expect(reconnected.readFiles({ jobId: 'generated', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 1\n' },
     })
@@ -66,7 +66,7 @@ it('reviews disk output, stages a run, and retains both across reconnects within
     expect(diff.hunks.flatMap((hunk) => hunk.lines)).toContain('-  // local note')
 
     await writeFile(join(root, 'src/gen/pet.ts'), 'changed local output\n')
-    const changed = (await reconnected.connect(info)).output!
+    const changed = (await reconnected.connect(info)).config.configs[0]!.disk!
     expect(changed.jobId).not.toBe(output.jobId)
     await expect(reconnected.readFiles({ jobId: output.jobId, paths: ['src/gen/pet.ts'] })).rejects.toThrow(AgentMessage.GENERATION_GONE)
     await expect(reconnected.readFiles({ jobId: 'generated', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
