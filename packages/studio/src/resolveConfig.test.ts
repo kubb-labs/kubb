@@ -177,6 +177,23 @@ describe('mergeAdapter', () => {
     expect(mockAdapterOas).toHaveBeenCalledWith({ validate: true, server: { index: 1 } })
     expect(result).toStrictEqual({ name: 'oas', options: { validate: true, server: { index: 1 } }, parse: expect.any(Function) })
   })
+
+  it('merges onto the options the adapter was created with, so a derived default follows its source', async () => {
+    const mockAdapterOas = vi.fn((options: unknown) => ({ name: 'oas', options, parse: vi.fn() }))
+    vi.doMock('@kubb/adapter-oas', () => ({ adapterOas: mockAdapterOas }))
+    const { mergeAdapter: merge } = await import('./resolveConfig.ts')
+
+    const diskAdapter = {
+      name: 'oas',
+      options: { unknownType: 'unknown', emptySchemaType: 'unknown' },
+      rawOptions: { unknownType: 'unknown' },
+      parse: vi.fn(),
+    } as unknown as Adapter
+
+    await merge(diskAdapter, { unknownType: 'any' })
+
+    expect(mockAdapterOas).toHaveBeenCalledWith({ unknownType: 'any' })
+  })
 })
 
 describe('mergeParsers', () => {

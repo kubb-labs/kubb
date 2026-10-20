@@ -64,6 +64,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    */
   options: TOptions['resolvedOptions']
   /**
+   * The options the adapter was created with, before defaults. Kubb Studio merges its overrides onto
+   * these, so a default derived from another option (such as `emptySchemaType` from `unknownType`) follows it.
+   */
+  rawOptions?: TOptions['options']
+  /**
    * Parsed source document after the first `parse()` call. `null` before parsing.
    */
   document: TOptions['document'] | null
