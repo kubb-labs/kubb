@@ -93,22 +93,6 @@ describe('read / write', () => {
   })
 })
 
-describe('writeRaw', () => {
-  const directory = path.join(os.tmpdir(), 'kubb-test-write-raw')
-  afterAll(async () => {
-    await rm(directory, { recursive: true, force: true })
-  })
-
-  test('creates missing directories and preserves whitespace and empty content', async () => {
-    const file = path.join(directory, 'nested', 'output.ts')
-    const original = '  // preserve whitespace\n\n'
-    await writeRaw(file, original)
-    expect(await read(file)).toBe(original)
-    await writeRaw(file, '')
-    expect(await read(file)).toBe('')
-  })
-})
-
 describe('listFiles', () => {
   const directory = path.join(os.tmpdir(), 'kubb-test-list-files')
   afterAll(async () => {

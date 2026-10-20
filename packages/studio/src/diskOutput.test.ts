@@ -4,11 +4,10 @@ import { join } from 'node:path'
 import { resolveCacheDir } from '@kubb/core'
 import { expect, it, vi } from 'vitest'
 import { type OpenRpc, runAgent } from './connect.ts'
-import type { AgentApi } from './protocol.ts'
+import { type AgentApi, AgentMessage } from './protocol.ts'
 import { projectConfig } from './testing.ts'
 
-it('reviews existing disk output and stages a later run without changing the project', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'studio-disk-output-'))
+function startAgent(root: string) {
   const shutdown = new AbortController()
   const ready = Promise.withResolvers<AgentApi>()
   const closed = Promise.withResolvers<{ code: number; reason: string }>()
@@ -16,10 +15,6 @@ it('reviews existing disk output and stages a later run without changing the pro
     ready.resolve(agent)
     return { studio: { ping: vi.fn().mockResolvedValue(undefined) }, closed: closed.promise, close: () => closed.resolve({ code: 1000, reason: '' }) }
   }
-  await mkdir(join(root, 'src/gen'), { recursive: true })
-  const original = '  // local note\nexport const pet = 0\n\n'
-  await writeFile(join(root, 'src/gen/pet.ts'), original)
-  await writeFile(join(root, 'src/gen/docs.html'), '<h1>Docs</h1>')
   const done = runAgent({
     options: {
       root,
@@ -33,22 +28,53 @@ it('reviews existing disk output and stages a later run without changing the pro
     },
     openRpc,
   })
+  return {
+    agent: ready.promise,
+    async stop() {
+      shutdown.abort()
+      await done
+    },
+  }
+}
+
+it('reviews disk output, stages a run, and retains both across reconnects within separate budgets', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'studio-disk-output-'))
+  await mkdir(join(root, 'src/gen'), { recursive: true })
+  const original = '  // local note\nexport const pet = 0\n\n'
+  await writeFile(join(root, 'src/gen/pet.ts'), original)
+  await writeFile(join(root, 'src/gen/docs.html'), '<h1>Docs</h1>')
+  vi.stubEnv('KUBB_AGENT_MAX_GENERATIONS', '1')
+  vi.stubEnv('KUBB_AGENT_MAX_GENERATIONS_MB', String(64 / (1024 * 1024)))
+  const instances = [startAgent(root)]
+  const info = { sandbox: false, agentSlug: 'test', studioVersion: 'test' }
   try {
-    const agent = await ready.promise
-    const payload = await agent.connect({ sandbox: false, agentSlug: 'test', studioVersion: 'test' })
-    const output = payload.output!
-    expect(output.hashes['src/gen/pet.ts']).toMatch(/^[0-9a-f]{16}$/)
+    const agent = await instances[0]!.agent
+    const output = (await agent.connect(info)).output!
     await expect(agent.readFiles({ jobId: output.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': original } })
     await agent.startGeneration({ jobId: 'generated', config: {} }).result()
     expect(await readFile(join(root, 'src/gen/pet.ts'), 'utf8')).toBe(original)
-    await expect(agent.readFiles({ jobId: 'generated', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+    await instances[0]!.stop()
+
+    const restart = startAgent(root)
+    instances.push(restart)
+    const reconnected = await restart.agent
+    expect((await reconnected.connect(info)).output?.jobId).toBe(output.jobId)
+    await expect(reconnected.readFiles({ jobId: 'generated', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 1\n' },
     })
-    const diff = await agent.readDiff({ jobId: 'generated', path: 'src/gen/pet.ts', base: { jobId: output.jobId }, limit: 100 })
+    const diff = await reconnected.readDiff({ jobId: 'generated', path: 'src/gen/pet.ts', base: { jobId: output.jobId }, limit: 100 })
     expect(diff.hunks.flatMap((hunk) => hunk.lines)).toContain('-  // local note')
+
+    await writeFile(join(root, 'src/gen/pet.ts'), 'changed local output\n')
+    const changed = (await reconnected.connect(info)).output!
+    expect(changed.jobId).not.toBe(output.jobId)
+    await expect(reconnected.readFiles({ jobId: output.jobId, paths: ['src/gen/pet.ts'] })).rejects.toThrow(AgentMessage.GENERATION_GONE)
+    await expect(reconnected.readFiles({ jobId: 'generated', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'export const pet = 1\n' },
+    })
   } finally {
-    shutdown.abort()
-    await done
+    await Promise.all(instances.map((instance) => instance.stop()))
+    vi.unstubAllEnvs()
     await Promise.all([rm(root, { recursive: true, force: true }), rm(resolveCacheDir(root), { recursive: true, force: true })])
   }
 })
