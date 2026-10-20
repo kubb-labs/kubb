@@ -309,10 +309,6 @@ export type GenerateResult = {
    * Content fingerprint per file in `files`, to tell changed files apart without reading them.
    */
   hashes: Record<string, string>
-  /**
-   * Fingerprints of the output directory on disk before the run, for an agent with a project on disk.
-   */
-  disk?: { hashes: Record<string, string> }
 }
 
 /**
@@ -326,35 +322,12 @@ export type SaveConfigInput = { edits: Array<ConfigEdit> }
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean }
 
 /**
- * What a file read returns for a generation: its generated files (`output`), or what the output
- * directory held on disk before it ran (`disk`, only on an agent with a project on disk).
- */
-export const FileSource = { OUTPUT: 'output', DISK: 'disk' } as const
-export type FileSource = (typeof FileSource)[keyof typeof FileSource]
-
-/**
- * Asks the agent to read files of one generation job, or its current output directory.
+ * Reads an immutable output set kept on disk, from a generation or the initial connection.
  */
 export type ReadFilesInput = {
-  /** The generation job, or the live connection when `jobType` is `currentDisk`. */
   jobId: string
-  /** Selects a kept generation or the agent's current output directory. */
-  jobType: 'generation' | 'currentDisk'
-  /**
-   * At most {@link MAX_FILES_PER_REQUEST} paths, each checked against the job's files or current output directory.
-   */
   paths: Array<string>
-  /**
-   * Which of the generation's sets to read, `output` when left out.
-   */
-  source?: FileSource
-  /**
-   * The line to start from (0-based), the `nextCursor` of the previous page. Defaults to 0.
-   */
   cursor?: number
-  /**
-   * Lines to read per file, at most {@link MAX_PAGE_LINES}. Left out, the whole file.
-   */
   limit?: number
 }
 
@@ -372,7 +345,7 @@ export type ReadFilesResult = { files: Record<string, string>; pages?: Record<st
  * Asks for one page of a file's line diff between two kept sets, so a large file never leaves the agent whole.
  * `jobId`'s `output` is the newer side, `base` the older one. `cursor` and `limit` page the patch lines.
  */
-export type ReadDiffInput = { jobId: string; path: string; base: { jobId: string; source: FileSource }; cursor?: number; limit: number }
+export type ReadDiffInput = { jobId: string; path: string; base: { jobId: string }; cursor?: number; limit: number }
 
 /**
  * One hunk of a diff page, with its `@@` header. Pages hold whole hunks, and only a hunk longer than a page is
@@ -419,11 +392,9 @@ export const AgentMessage = {
   GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
   SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
   JOB_REQUIRED: 'The request must name a job',
-  FILE_REQUEST_INVALID: 'The request must name a job or current disk output and carry paths',
+  FILE_REQUEST_INVALID: 'The request must name an output set and carry paths',
   TOO_MANY_FILES: 'Too many paths were requested at once',
   INVALID_PAGE: 'The requested file page is invalid',
-  SANDBOX_DISK_UNAVAILABLE: 'A sandbox agent has no files on disk',
-  NO_DISK_SNAPSHOT: 'This agent kept no snapshot of the files on disk for that job',
   DIFF_REQUEST_INVALID: 'The request must name a job, a base, and a path',
   HASHES_ONLY: 'This agent kept only the hashes of that job',
   /**
@@ -455,8 +426,8 @@ export type GenerationRun = {
  */
 export type AgentConnectInfo = {
   /**
-   * A shared `sandbox` or `global` agent. It keeps generations in memory, runs each job in a
-   * temporary root, generates from the spec Studio sends, and never writes to disk or edits config.
+   * A shared `sandbox` or `global` agent. It keeps generations on temporary disk, runs each job in a
+   * temporary root, and generates from the spec Studio sends without editing a project or its config.
    */
   sandbox: boolean
   agentSlug: string
@@ -536,7 +507,9 @@ export type ConnectMessagePayload = {
    * Absent for a sandbox or when the host has not granted `allowRead`.
    */
   output?: {
+    jobId: string
     files: Array<string>
+    hashes: Record<string, string>
   }
   /**
    * Always sent, so a mismatch is visible on both sides: Studio badges the connection with these

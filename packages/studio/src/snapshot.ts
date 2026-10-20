@@ -1,7 +1,7 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
+import { mkdir, mkdtemp, read, rm, writeRaw } from '@internals/utils'
 import { type Config, Diagnostics, fsStorage, type Hookable, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
 import { ofetch } from 'ofetch'
 import { generate, hashOf } from './generations.ts'
@@ -91,8 +91,7 @@ export async function createSnapshotPackage({ files, packageInfo }: { files: Sna
     await mkdir(dist)
     await Promise.all(
       [...sources].map(async ([path, { content }]) => {
-        await mkdir(dirname(join(root, path)), { recursive: true })
-        await writeFile(join(root, path), content)
+        await writeRaw(join(root, path), content)
       }),
     )
     const entry = [...sources.keys()].filter((path) => /\.(?:[cm]?[jt]sx?)$/.test(path)).map((path) => join(root, path))
@@ -128,7 +127,7 @@ export async function createSnapshotPackage({ files, packageInfo }: { files: Sna
     const entries = new Map<string, string>([
       ['package.json', JSON.stringify(manifest, null, 2)],
       ...[...sources].map(([path, { content }]) => [path, content] as const),
-      ...(await Promise.all(built.map(async (key) => [`dist/${key}`, await readFile(join(dist, key), 'utf8')] as const))),
+      ...(await Promise.all(built.map(async (key) => [`dist/${key}`, await read(join(dist, key))] as const))),
     ])
     const chunks = [...entries].flatMap(([path, content]) => {
       const bytes = Buffer.from(content)
@@ -171,7 +170,7 @@ export async function createSnapshot({
   ...metadata
 }: CreateSnapshotOptions): Promise<PublishedSnapshot> {
   const url = secureUrl({ studioUrl, path: '/api/snapshots' })
-  const generated = await generate({ config, hooks, signal, allowExec: true })
+  const generated = await generate({ config: { ...config, storage: fsStorage() }, hooks, signal, allowExec: true })
   const files = Object.fromEntries(
     await Promise.all(
       [...generated.paths].map(async (path) => {

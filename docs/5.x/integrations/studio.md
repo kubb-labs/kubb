@@ -95,3 +95,9 @@ See [Background connection](/docs/5.x/reference/commands/studio#background-conne
 
 > [!IMPORTANT]
 > Without a TTY the CLI skips the permission prompts, so pass the permission flags the run needs. In CI it does not pair either, so use `kubb studio snapshot` with a CI API key there.
+
+## Open existing output
+
+With `--allow-read`, Studio opens the output directory before you generate. The retained copy has content hashes, so line comments and HTML previews work immediately. Later generations compare against the previous output set. Reconnecting reuses unchanged initial output. Initial output and generated runs each have a separate retention budget, so reconnecting does not evict generated runs.
+
+Without `--allow-write`, generation stages files in a temporary disk directory and leaves the project output unchanged. Formatters, linters, and post-generation commands require both `--allow-write` and `--allow-exec`.
