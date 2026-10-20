@@ -22,7 +22,7 @@ import { getAgentProfile } from 'gunshi/agent'
 import { describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
 import setupReporters from './reporters.ts'
-import { createPlainLogger } from './plainLogger.ts'
+import { createPlainWriter } from './plainWriter.ts'
 
 vi.mock('gunshi/agent', () => ({ getAgentProfile: vi.fn(() => ({ isAgent: false })) }))
 
@@ -95,7 +95,7 @@ describe('setupReporters', () => {
         logLevel: logLevel.info,
         reporters: [cliReporter, createReporter({ name: 'custom', report: (result) => void reports.push(result) })],
         dryRun,
-        logger: createPlainLogger((line) => lines.push(line)),
+        writer: createPlainWriter((line) => lines.push(line)),
       })
       await hooks.callHook('kubb:generation:start', { config })
       if (!dryRun) {
@@ -223,7 +223,7 @@ describe('setupReporters', () => {
 describe('studio session events', () => {
   /**
    * A `kubb studio` connection emits `studio:*` on the same emitter as its generations, so the
-   * loggers `kubb generate` installs render the whole command. Non-TTY here, so `plainLogger`
+   * loggers `kubb generate` installs render the whole command. Non-TTY here, so `plainWriter`
    * answers and the output is plain text.
    */
   async function render(emit: (context: Hookable<KubbHooks>) => Promise<void> | void, level: number = logLevel.info) {

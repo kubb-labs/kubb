@@ -1,8 +1,8 @@
 import * as prompts from '@clack/prompts'
 import { isRichOutput } from '../utils/env.ts'
-import { clackWriter } from '../loggers/clackLogger.ts'
-import type { LoggerWriter } from '../loggers/defineLogger.ts'
-import { plainWriter, SYMBOLS } from '../loggers/plainLogger.ts'
+import { clackWriter } from '../loggers/clackWriter.ts'
+import { plainWriter, SYMBOLS } from '../loggers/plainWriter.ts'
+import type { LoggerWriter } from '../loggers/types.ts'
 
 /** The writer the loggers draw with on this terminal, so a command's own lines look like its run. */
 export function writer(): LoggerWriter {

@@ -4,10 +4,9 @@ import { readFile } from 'node:fs/promises'
 import { isPathInside } from '@internals/utils'
 import type { GenerationResult, Hookable, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
 import { cacheStorage, createCliReporter, createOutputManifest, logLevel as logLevelMap } from '@kubb/core'
-import { isRichOutput } from '../utils/env.ts'
-import type { Logger, LoggerOptions } from './defineLogger.ts'
-import { clackLogger } from './clackLogger.ts'
-import { plainLogger } from './plainLogger.ts'
+import { writer as defaultWriter } from '../ui/log.ts'
+import { installLogger } from './composables/index.ts'
+import type { LoggerWriter } from './types.ts'
 import { diffOutput, readOutputFiles } from '../runners/generate/utils.ts'
 
 /** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
@@ -16,12 +15,14 @@ function setupReporters(
   {
     logLevel,
     reporters,
-    logger: forcedLogger,
+    writer = defaultWriter(),
     dryRun = false,
-  }: LoggerOptions & {
+  }: {
+    /** Output verbosity. Use the `logLevel` constants exported from `@kubb/core`. */
+    logLevel: number
     reporters: ReadonlyArray<Reporter>
-    /** Overrides the terminal-based pick, e.g. the plain logger for `kubb studio snapshot`. */
-    logger?: Logger
+    /** Overrides the terminal-based pick, e.g. the plain writer for `kubb studio snapshot`. */
+    writer?: LoggerWriter
     /**
      * Labels the memory-backed generation as a preview rather than a completed write.
      */
@@ -32,8 +33,7 @@ function setupReporters(
   const selected = reporters.flatMap((reporter) => {
     if (reporter.name !== 'cli') return [reporter]
     if (hasJson) return []
-    const logger = forcedLogger ?? (isRichOutput() ? clackLogger : plainLogger)
-    return [createCliReporter({ render: logger(context, { logLevel }).renderSummary })]
+    return [createCliReporter({ render: installLogger({ hooks: context, writer, logLevel }).renderSummary })]
   })
   const ctx: ReporterContext = { logLevel }
   const pluginFiles = selected.some((reporter) => reporter.needsPluginFiles) ? new Map<string, Array<string>>() : undefined
