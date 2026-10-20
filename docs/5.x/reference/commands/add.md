@@ -49,21 +49,15 @@ Before asking, the CLI shows what it will do:
 ◆  Add it?
 ```
 
-After the install, the summary names the plugin, package, config changes, and next step:
+After the install, the summary lists the packages, the registrations it added, and the next step:
 
 ```text [Output]
 ✓ Plugin ready  4.20s
 
-  1 plugin added to config
-  Plugin   plugin-zod
-  Package  @kubb/plugin-zod@5.2.0
-  Config   kubb.config.ts
-
-Changes
   Packages  1 installed with pnpm
-  Config    1 plugin registration added
+  + pluginZod()
 
-Next     kubb generate  creates ./src/gen
+Next     kubb generate
 Options  kubb.dev/extensions/kubb-labs/plugin-zod
 ```
 

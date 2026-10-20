@@ -131,10 +131,6 @@ export type PerformanceDiagnostic = {
    * Elapsed milliseconds.
    */
   duration: number
-  /**
-   * Files the plugin's generators added, when the plugin has generators.
-   */
-  files?: number
 }
 
 /**
@@ -380,7 +376,7 @@ export class Diagnostics {
   /**
    * Builds a per-plugin performance record. Reporters sum these into the run total.
    */
-  static performance({ plugin, duration, files }: { plugin: string; duration: number; files?: number }): PerformanceDiagnostic {
+  static performance({ plugin, duration }: { plugin: string; duration: number }): PerformanceDiagnostic {
     return {
       kind: 'performance',
       code: diagnosticCode.performance,
@@ -388,7 +384,6 @@ export class Diagnostics {
       message: `${plugin} generated in ${Math.round(duration)}ms`,
       plugin,
       duration,
-      ...(files === undefined ? {} : { files }),
     }
   }
 

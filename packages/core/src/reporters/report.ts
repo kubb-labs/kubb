@@ -10,10 +10,6 @@ import type { SerializedDiagnostic } from '../formatDiagnostic.ts'
 type ReportTiming = {
   plugin: string
   durationMs: number
-  /**
-   * Files the plugin's generators added, `0` for a plugin without generators.
-   */
-  files: number
 }
 
 /**
@@ -80,7 +76,7 @@ export function buildReport(result: GenerationResult): Report {
   const timings = diagnostics
     .filter(Diagnostics.isPerformance)
     .sort((a, b) => b.duration - a.duration)
-    .map((diagnostic) => ({ plugin: diagnostic.plugin, durationMs: diagnostic.duration, files: diagnostic.files ?? 0 }))
+    .map((diagnostic) => ({ plugin: diagnostic.plugin, durationMs: diagnostic.duration }))
 
   return {
     name: config.name ?? '',

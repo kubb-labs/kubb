@@ -80,7 +80,8 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
   const cwd = process.cwd()
   const hrStart = process.hrtime()
   const installedPackages: Array<string> = []
-  const kindLabels = { plugin: 'Plugin', adapter: 'Adapter', parser: 'Parser' }
+  const summary = (title: string, status: Parameters<typeof logCommandSummary>[0]['status'], lines: ReadonlyArray<string>) =>
+    logCommandSummary({ title, status, hrStart, block: true, lines })
   logIntro({ title: isInteractiveRun({ yes, dryRun }) ? undefined : styleText('bgCyan', styleText('black', ' Kubb Update ')) })
 
   try {
@@ -107,45 +108,10 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
 
     if (!proposals.length) {
       const title = outdated.length ? 'No compatible updates available' : 'Already up to date'
-      const checkedKind = tracked.length && tracked.every((entry) => entry.manifest.kind === 'plugin') ? 'plugin' : 'extension'
-      logCommandSummary({
-        title: tracked.length ? title : 'No installed extensions to update',
-        status: outdated.length ? 'warning' : 'success',
-        hrStart,
-        block: true,
-        lines: [
-          `  ${styleText('bold', `${pluralize(tracked.length, checkedKind)} checked`)}`,
-          `  ${checkedKind === 'plugin' ? 'Plugins' : 'Extensions'}  ${tracked.length - outdated.length} up to date`,
-          `  Packages  nothing installed`,
-          ...(outdated.length ? [`  Skipped   ${pluralize(outdated.length, 'incompatible update')}`] : []),
-          ...(ids.length ? ['', `No updates for ${ids.join(', ')}.`] : []),
-        ],
-      })
-      return
-    }
-
-    if (dryRun) {
-      const majors = proposals.filter(isMajor).length
-      const plural = proposals.length === 1 ? '' : 's'
-      logCommandSummary({
-        title: 'Updates available',
-        status: 'planned',
-        hrStart,
-        block: true,
-        lines: [
-          `  ${styleText('bold', `${proposals.length} update${plural} available${majors ? ` (${majors} major)` : ''}`)}`,
-          '  Packages  nothing installed',
-          '  Config    unchanged · regeneration not run',
-          '',
-          styleText('bold', 'Available extension versions'),
-          ...proposals.map(
-            (entry) =>
-              `  ${kindLabels[entry.manifest.kind]}  ${entry.artifact.package}  ${current(entry) ?? 'not installed'} → ${entry.artifact.version}${isMajor(entry) ? styleText('yellow', '  major') : ''}`,
-          ),
-          '',
-          `Dry run: nothing was installed. Run kubb update to install ${proposals.length === 1 ? 'it' : 'them'}.`,
-        ],
-      })
+      summary(tracked.length ? title : 'No installed extensions to update', outdated.length ? 'warning' : 'success', [
+        `  ${tracked.length - outdated.length} of ${tracked.length} up to date`,
+        ...(ids.length ? ['', `No updates for ${ids.join(', ')}.`] : []),
+      ])
       return
     }
 
@@ -167,35 +133,39 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
       ])
     }
 
-    // A major can break the generated code, so it is never picked for you.
-    const defaults = proposals.filter((entry) => !isMajor(entry))
-    const selected = await (async () => {
-      if (yes) return defaults
-      const chosen = await clack.multiselect({
-        message: 'Select the updates to install',
-        options: proposals.map((entry) => ({
-          value: entry.id,
-          label: entry.artifact.package,
-          hint: `${current(entry) ?? 'not installed'} → ${entry.artifact.version}`,
-        })),
-        initialValues: defaults.map((entry) => entry.id),
-        required: false,
-      })
-      return clack.isCancel(chosen) ? undefined : proposals.filter((entry) => chosen.includes(entry.id))
-    })()
-    if (!selected) {
-      logCommandSummary({ title: 'Update canceled', status: 'canceled', hrStart, block: true, lines: ['  No changes made'] })
+    if (dryRun) {
+      summary('Updates available', 'planned', [`Dry run: nothing was installed. Run kubb update to install ${proposals.length === 1 ? 'it' : 'them'}.`])
       return
     }
 
+    // A major can break the generated code, so it is never picked for you.
+    const defaults = proposals.filter((entry) => !isMajor(entry))
+    const chosen = yes
+      ? defaults.map((entry) => entry.id)
+      : await clack.multiselect({
+          message: 'Select the updates to install',
+          options: proposals.map((entry) => ({
+            value: entry.id,
+            label: entry.artifact.package,
+            hint: `${current(entry) ?? 'not installed'} → ${entry.artifact.version}`,
+          })),
+          initialValues: defaults.map((entry) => entry.id),
+          required: false,
+        })
+    if (clack.isCancel(chosen)) {
+      summary('Update canceled', 'canceled', ['  No changes made'])
+      return
+    }
+    const selected = proposals.filter((entry) => chosen.includes(entry.id))
+
     const skipped = proposals
       .filter((entry) => !selected.includes(entry))
-      .map(
-        (entry) =>
-          `  ${styleText('dim', 'Skipped')}  ${kindLabels[entry.manifest.kind]} ${entry.artifact.package} ${entry.artifact.version}  ${styleText('dim', `run kubb update ${toShortId(entry.id)} later`)}`,
-      )
+      .map((entry) => {
+        const kind = entry.manifest.kind.charAt(0).toUpperCase() + entry.manifest.kind.slice(1)
+        return `  ${styleText('dim', 'Skipped')}  ${kind} ${entry.artifact.package} ${entry.artifact.version}  ${styleText('dim', `run kubb update ${toShortId(entry.id)} later`)}`
+      })
     if (!selected.length) {
-      logCommandSummary({ title: 'No updates installed', status: 'canceled', hrStart, block: true, lines: ['  No updates selected.', ...skipped] })
+      summary('No updates installed', 'canceled', ['  No updates selected.', ...skipped])
       return
     }
 
@@ -217,54 +187,18 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
     const changed = configPath ? await regenerate({ cwd, configPath }) : undefined
 
     const generationFailed = Boolean(configPath && !changed)
-    const pluginsOnly = selected.every((entry) => entry.manifest.kind === 'plugin')
-    const updatedKind = pluginsOnly ? 'Plugins' : 'Extensions'
     const fileCounts = { A: 0, M: 0, D: 0 }
     for (const file of changed?.files ?? []) fileCounts[file.status]++
-    logCommandSummary({
-      title: generationFailed ? `${updatedKind} updated; generation failed` : 'Update complete',
-      status: generationFailed ? 'warning' : 'success',
-      hrStart,
-      block: true,
-      lines: [
-        `  ${styleText('bold', `${pluralize(selected.length, pluginsOnly ? 'plugin' : 'extension')} updated`)}`,
-        `  ${styleText('dim', pluginsOnly ? 'Plugins' : 'Extensions')}  ${selected.length} updated${skipped.length ? ` · ${skipped.length} skipped` : ''}`,
-        `  ${styleText('dim', 'Packages')}  ${installedPackages.length} installed with ${packageManager.name}`,
-        `  ${styleText('dim', 'Config')}    ${foundConfig ? `${path.relative(cwd, foundConfig)} · unchanged${configPath ? '' : ' · regeneration not run'}` : 'not found · regeneration not run'}`,
-        '',
-        styleText('bold', 'Extension versions'),
-        ...selected.map(
-          (entry) => `  ${kindLabels[entry.manifest.kind]}  ${entry.artifact.package}  ${current(entry) ?? 'not installed'} → ${entry.artifact.version}`,
-        ),
-        ...skipped,
-        ...(changed
-          ? [
-              '',
-              styleText('bold', 'File changes after regeneration'),
-              `  ${styleText(fileCounts.A ? 'green' : 'dim', `${fileCounts.A} added`)} · ${styleText(fileCounts.M ? 'yellow' : 'dim', `${fileCounts.M} modified`)} · ${styleText(fileCounts.D ? 'red' : 'dim', `${fileCounts.D} deleted`)}`,
-              `  ${styleText('dim', `${changed.unchanged} unchanged`)}`,
-              `  ${styleText('dim', 'Output')}  ${styleText('cyan', changed.output)}`,
-            ]
-          : []),
-        ...(generationFailed
-          ? ['', styleText('yellow', 'Regeneration failed; file changes are not confirmed.'), 'Fix the generation error, then run kubb generate.']
-          : []),
-      ],
-    })
+    summary(generationFailed ? 'Extensions updated; generation failed' : 'Update complete', generationFailed ? 'warning' : 'success', [
+      `  Packages  ${selected.length} installed with ${packageManager.name}${skipped.length ? ` · ${skipped.length} skipped` : ''}`,
+      ...skipped,
+      ...(changed ? [`  Files     ${fileCounts.A} added · ${fileCounts.M} modified · ${fileCounts.D} deleted`] : []),
+      ...(!configPath ? ['  Regeneration not run'] : []),
+      ...(generationFailed ? ['', 'Fix the generation error, then run kubb generate.'] : []),
+    ])
   } catch (error) {
     logError(getErrorMessage(error))
-    logCommandSummary({
-      title: 'Update failed',
-      status: 'failed',
-      hrStart,
-      block: true,
-      lines: [
-        `  Packages      ${installedPackages.length ? `${installedPackages.length} installed` : 'installation not completed'}`,
-        '  Regeneration  not completed',
-        '',
-        'Resolve the error above, then retry.',
-      ],
-    })
+    summary('Update failed', 'failed', installedPackages.length ? [`  Packages  ${installedPackages.join(', ')} installed`] : ['  No changes made'])
     process.exitCode = 1
   }
 }

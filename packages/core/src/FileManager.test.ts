@@ -394,14 +394,6 @@ describe('FileManager', () => {
 })
 
 describe('FileManager#dispatch', () => {
-  it('returns the paths it stored, including files merged into an existing path', async () => {
-    const fileManager = new FileManager()
-    await fileManager.dispatch({ result: [makeFile('a.ts', 'one')] })
-
-    await expect(fileManager.dispatch({ result: [makeFile('a.ts', 'two'), makeFile('b.ts')] })).resolves.toStrictEqual(['a.ts', 'b.ts'])
-    expect(fileManager.files).toHaveLength(2)
-  })
-
   it.each([
     ['null', null],
     ['undefined', undefined],

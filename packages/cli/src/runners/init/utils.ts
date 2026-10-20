@@ -121,11 +121,12 @@ export async function installPackages(packages: Array<string>, packageManager: P
 }
 
 /**
- * What the installed manifests of the `selected` plugins say is missing from the selection: a
- * `dependencies` entry, or a `client` plugin next to a `consumer`. Empty when nothing is missing.
+ * What the selected plugins' `manifests` say is missing from the selection: a `dependencies`
+ * entry, or a `client` plugin next to a `consumer`. Empty when nothing is missing.
  * `optionalDependencies` are skipped, since `kubb init` writes the default options.
  */
-export function missingPluginDependencies({ selected, manifests }: { selected: Array<string>; manifests: Array<ExtensionManifest> }): Array<string> {
+export function missingPluginDependencies(manifests: Array<ExtensionManifest>): Array<string> {
+  const selected = manifests.map((manifest) => manifest.name)
   const hasClient = manifests.some((manifest) => manifest.role === 'client')
   return manifests.flatMap((manifest) => [
     ...(manifest.dependencies ?? []).filter((name) => !selected.includes(name)).map((name) => `${manifest.name} needs ${name}.`),

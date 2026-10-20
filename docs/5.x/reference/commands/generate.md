@@ -51,7 +51,7 @@ kubb generate ./petStore.yaml
 
 `--reporter` takes no short flag. The camelCase spellings from v4 (`--logLevel`, `--dryRun`) still work and print a deprecation warning.
 
-In `--watch` mode, each rebuild lists the schemas and operations the spec gained or lost, and the generated files it added (`A`), modified (`M`), or removed (`D`). In an interactive terminal, press `r` to rebuild and `q` to quit.
+In `--watch` mode, each rebuild line shows the duration and the schemas and operations the spec gained or lost; the summary below it lists the files it added, modified, or removed. In an interactive terminal, press `r` to rebuild and `q` to quit.
 
 ## Reporters
 

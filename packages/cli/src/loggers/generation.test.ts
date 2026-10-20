@@ -190,8 +190,6 @@ describe('grouped generation output', () => {
       'spinner.start:Parsing spec',
       'spinner.stop:Parsed spec  1 schema · 1 operation · ',
       'spinner.start:Generating',
-      // Only the first plugin to start is named; every plugin starts before the shared walk.
-      'spinner.message:Generating @kubb/plugin-ts',
       // The walk's progress over the spec's nodes, then each plugin's count and the node it just generated.
       // The next nodes land within one spinner frame, so they count without a redraw.
       'spinner.message:Generating  ██████████░░░░░░░░░░  1/2 nodes  \n│   @kubb/plugin-ts     1  Pet',
@@ -324,7 +322,7 @@ describe('grouped generation output', () => {
 })
 
 describe('studio warnings', () => {
-  it('pause the running spinner and resume it with its message, so no stale frame stays above the warning', async () => {
+  it('pause the running spinner and resume it, so no stale frame stays above the warning', async () => {
     const output = await render(
       async (context) => {
         await context.callHook('kubb:generation:start', { config: makeConfig('petstore') })
@@ -336,7 +334,7 @@ describe('studio warnings', () => {
     expect(output.slice(1)).toStrictEqual([
       'spinner.start:Parsing spec',
       'log.warn:⚠ Ignored save; pass --allow-config-edit to allow it',
-      'spinner.start:Parsing spec',
+      'spinner.start:Ready for jobs',
     ])
   })
 })

@@ -3,7 +3,7 @@ import path from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import * as clack from '@clack/prompts'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createProject, registryEntry, stubRegistry } from '../../utils/registryFixture.ts'
+import { createProject, registryEntry, registryIndex, stubFetch } from '../../utils/registryFixture.ts'
 import { generate } from '../generate/run.ts'
 import { installPackages } from '../init/utils.ts'
 import { run } from './run.ts'
@@ -37,7 +37,7 @@ beforeEach(async () => {
   output = []
   for (const method of ['log', 'warn', 'error'] as const)
     vi.spyOn(console, method).mockImplementation((...args) => void output.push(stripVTControlCharacters(args.join(' '))))
-  stubRegistry([pluginX, pluginY, pluginZ])
+  stubFetch({ body: registryIndex([pluginX, pluginY, pluginZ]) })
   process.exitCode = undefined
 })
 
@@ -56,11 +56,10 @@ describe('kubb update', () => {
     await run({ ids: [], dryRun: true, yes: false })
 
     const printed = output.join('\n')
-    expect(printed).toContain('2 updates available (1 major)')
-    expect(printed).toContain('@acme/kubb-plugin-x  1.0.0 → 1.1.0')
-    expect(printed).toMatch(/@acme\/kubb-plugin-z {2}1\.0\.0 → 2\.0\.0 {2}major/)
+    expect(printed).toContain('◇ Updates available')
+    expect(printed).toMatch(/@acme\/kubb-plugin-x +1\.0\.0 +1\.1\.0 +minor/)
+    expect(printed).toMatch(/@acme\/kubb-plugin-z +1\.0\.0 +2\.0\.0 +major · breaking/)
     expect(printed).toContain('Dry run: nothing was installed. Run kubb update to install them.')
-    expect(printed).not.toContain('@acme/kubb-plugin-y')
     expect(clack.multiselect).not.toHaveBeenCalled()
     expect(installPackages).not.toHaveBeenCalled()
     expect(globalThis.fetch).toHaveBeenCalledTimes(1)
@@ -68,7 +67,7 @@ describe('kubb update', () => {
   })
 
   it('says everything is up to date on a dry run with nothing to update', async () => {
-    stubRegistry([pluginY])
+    stubFetch({ body: registryIndex([pluginY]) })
 
     await run({ ids: [], dryRun: true, yes: false })
 
@@ -108,8 +107,8 @@ describe('kubb update', () => {
     expect(clack.multiselect).not.toHaveBeenCalled()
     expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.1.0'], expect.anything(), cwd)
     expect(output.join('\n')).toContain('✓ Update complete')
-    expect(output.join('\n')).toContain('1 plugin updated')
-    expect(output.join('\n')).toContain('regeneration not run')
+    expect(output.join('\n')).toContain('Packages  1 installed with npm')
+    expect(output.join('\n')).toContain('Regeneration not run')
   })
 
   it('regenerates in this process after the install and lists the changed files', async () => {
@@ -131,9 +130,8 @@ describe('kubb update', () => {
     expect(generate).toHaveBeenCalledTimes(1)
     const printed = output.join('\n')
     expect(printed).toContain('Generated: 3 files changed')
-    expect(printed).toContain('File changes after regeneration')
-    expect(printed).toContain('1 added · 1 modified · 1 deleted')
-    expect(printed).toContain('1 unchanged')
+    expect(printed).toContain('Files     1 added · 1 modified · 1 deleted')
+    expect(printed).not.toContain('Regeneration not run')
     expect(printed).not.toContain('A gen/added.ts')
     expect(await readFile(path.join(gen, 'kept.ts'), 'utf8')).toBe('same')
   })
@@ -145,13 +143,13 @@ describe('kubb update', () => {
 
     expect(generate).not.toHaveBeenCalled()
     expect(clack.confirm).not.toHaveBeenCalled()
-    expect(output.join('\n')).toContain('unchanged · regeneration not run')
+    expect(output.join('\n')).toContain('Regeneration not run')
   })
 
   it('installs a newer GitHub release from its commit', async () => {
     const commit = '0123456789abcdef0123456789abcdef01234567'
     const artifact = { kind: 'github', owner: 'acme', repo: 'kubb-plugin-x', tag: 'v1.1.0', commit }
-    stubRegistry([registryEntry({ name: 'plugin-x', version: '1.1.0', artifact })])
+    stubFetch({ body: registryIndex([registryEntry({ name: 'plugin-x', version: '1.1.0', artifact })]) })
 
     await run({ ids: [], dryRun: false, yes: true })
 
@@ -164,11 +162,11 @@ describe('kubb update', () => {
     await run({ ids: [], dryRun: false, yes: false })
     const printed = output.join('\n')
     expect(installPackages).toHaveBeenCalledOnce()
-    expect(printed).toContain('! Plugins updated; generation failed')
+    expect(printed).toContain('! Extensions updated; generation failed')
     expect(printed).toContain('Packages  1 installed with npm')
-    expect(printed).toContain('file changes are not confirmed')
+    expect(printed).toContain('Fix the generation error, then run kubb generate.')
     expect(printed).not.toContain('✓ Update complete')
-    expect(printed).not.toContain('File changes after regeneration')
+    expect(printed).not.toContain('Files     ')
   })
 
   it('counts new output across configs when the output directories do not exist yet', async () => {
@@ -185,8 +183,7 @@ describe('kubb update', () => {
     await run({ ids: [], dryRun: false, yes: false })
 
     const printed = output.join('\n')
-    expect(printed).toContain('2 added · 0 modified · 0 deleted')
-    expect(printed).toContain('Output  pets, orders')
+    expect(printed).toContain('Files     2 added · 0 modified · 0 deleted')
     expect(printed).not.toContain('generation failed')
   })
 
@@ -201,6 +198,7 @@ describe('kubb update', () => {
     vi.mocked(installPackages).mockRejectedValueOnce(new Error('Package manager failed'))
     await run({ ids: [], dryRun: false, yes: true })
     expect(output.join('\n')).toContain('✗ Update failed')
+    expect(output.join('\n')).toContain('No changes made')
     expect(output.join('\n')).not.toContain('✓ Update complete')
     expect(generate).not.toHaveBeenCalled()
     expect(process.exitCode).toBe(1)
@@ -210,6 +208,7 @@ describe('kubb update', () => {
     await run({ ids: ['acme/plugin-y'], dryRun: false, yes: true })
 
     expect(installPackages).not.toHaveBeenCalled()
+    expect(output.join('\n')).toContain('1 of 1 up to date')
     expect(output.join('\n')).toContain('No updates for acme/plugin-y.')
   })
 })

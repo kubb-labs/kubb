@@ -2,12 +2,16 @@ import { relative, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
-import type { Adapter, Config, KubbHooks } from '@kubb/core'
+import type { Config, KubbHooks } from '@kubb/core'
 import { type Diagnostic, type DiagnosticFormatOptions, Diagnostics, getInputKind, logLevel as logLevelMap, type ProblemDiagnostic } from '@kubb/core'
-import type { StudioConnectedContext } from '@kubb/studio'
 import { formatBar, formatMsWithColor } from './banner.ts'
 import type { Logger, LoggerWriter, LogStatus, WriterProgress, WriterSpinner } from './defineLogger.ts'
 import { loadSpecLocator, type SpecLocator } from './specFrame.ts'
+
+/** `HH:MM:SS` in 24-hour time. */
+function clock(date = new Date()): string {
+  return date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+}
 
 /** Display path for a config's input: the string form, or its `path` field when the input is an object. */
 function getInputPath(config: Config): string | undefined {
@@ -29,22 +33,9 @@ export function toPermissionFlag(key: string): string {
 /** Prefixes a `[HH:MM:SS]` timestamp at verbose and above. */
 function formatMessage(message: string, logLevel: number): string {
   if (logLevel >= logLevelMap.verbose) {
-    const timestamp = new Date().toLocaleTimeString('en-US', {
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    })
-    return `${styleText('dim', `[${timestamp}]`)} ${message}`
+    return `${styleText('dim', `[${clock()}]`)} ${message}`
   }
   return message
-}
-
-/**
- * Renders a `studio:connected` event's versions: the runtime only when it differs from the host.
- */
-function formatVersions({ studio, kubb, agent }: StudioConnectedContext['versions']): string {
-  return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, `Studio v${studio}`].filter(Boolean).join(' · ')
 }
 
 /** One line of a Studio session's job log: the time, the command, who asked for it, and how it ended. */
@@ -59,7 +50,7 @@ export function formatJobLine({
   requestedBy?: string
   date?: Date
 }): string {
-  const time = date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  const time = clock(date)
   // A long name is cut so the results stay in one column.
   const name = requestedBy && requestedBy.length > 12 ? `${requestedBy.slice(0, 11).trimEnd()}…` : requestedBy
   const by = name ? `${styleText('dim', `by ${name}`.padEnd(16))} ` : ''
@@ -67,27 +58,14 @@ export function formatJobLine({
   return `${styleText('dim', time)}  ${command.padEnd(10)} ${by}${result}`
 }
 
-type ProgressState = {
-  totalPlugins: number
-  completedPlugins: number
-  failedPlugins: number
-  totalFiles: number
-  processedFiles: number
-  /** `process.hrtime()` snapshot taken at the start of generation, for the elapsed time. */
-  hrStart: [number, number]
-}
-
 /** The progress summary line the clack logger shows, `null` when there is nothing to display. */
-function buildProgressLine(state: ProgressState): string | null {
+function buildProgressLine(state: ReturnType<typeof createRunState>): string | null {
   const parts: Array<string> = []
   const duration = formatMs(getElapsedMs(state.hrStart))
 
   if (state.totalPlugins > 0) {
-    const pluginStr =
-      state.failedPlugins > 0
-        ? `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins} ${styleText('red', `(${state.failedPlugins} failed)`)}`
-        : `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins}`
-    parts.push(pluginStr)
+    const failed = state.failedPlugins > 0 ? ` ${styleText('red', `(${state.failedPlugins} failed)`)}` : ''
+    parts.push(`Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins}${failed}`)
   }
 
   if (state.totalFiles > 0) {
@@ -102,20 +80,33 @@ function buildProgressLine(state: ProgressState): string | null {
   return parts.join(styleText('dim', ' | '))
 }
 
-function createProgressCounters(): ProgressState {
+/** Everything one config's run tracks, fresh at each `kubb:generation:start`. */
+function createRunState() {
   return {
     totalPlugins: 0,
     completedPlugins: 0,
     failedPlugins: 0,
     totalFiles: 0,
     processedFiles: 0,
+    /** `process.hrtime()` snapshot taken at the start of generation, for the elapsed time. */
     hrStart: process.hrtime(),
+    hooks: new Map<string, { hrStart: [number, number]; lines: Array<string> }>(),
+    /** Plugin results held back while the generation step owns the line. */
+    pluginLines: [] as Array<string>,
+    phase: null as Phase | null,
+    groupOpen: false,
+    /** Whether this run keeps its files in memory, as a `kubb studio` run without `--allow-write` does. */
+    inMemory: false,
+    /** Problems held back so the human view can print them grouped by plugin once the build ends. */
+    problems: [] as Array<ProblemDiagnostic>,
+    /** The finished config's diagnostics, for the closing verdict. */
+    diagnostics: [] as Array<Diagnostic>,
+    /** The node walk's live state: the spec's node total, the distinct nodes generated, and each plugin's count and current node. */
+    walk: { total: 0, visited: new Set<string>(), plugins: new Map<string, { count: number; current: string }>() },
+    /** A local-file input, which a located diagnostic points into; `load` parses it once, on the first such diagnostic. */
+    spec: undefined as { path: string; load: () => Promise<SpecLocator | undefined> } | undefined,
+    lastWalkDraw: 0,
   }
-}
-
-/** The node walk's live state: the spec's node total, the distinct nodes generated, and each plugin's count and current node. */
-function createWalk() {
-  return { total: 0, visited: new Set<string>(), plugins: new Map<string, { count: number; current: string }>() }
 }
 
 /** Milliseconds between redraws of the live generation block, about clack's spinner frame rate. */
@@ -130,14 +121,7 @@ function formatHookLabel({ command, name, args }: { command: string; name?: stri
  * One output phase while its step owns the line. A phase buffers what it is told, because a spinner
  * redraws over anything written under it, and prints the lot once it knows its own result.
  */
-type Phase = {
-  successLabel: string
-  failureLabel: string
-  /**
-   * Whether each hook's own result is worth a line. Format and lint run one command, so the phase
-   * result already says everything; the post-generate phase runs several.
-   */
-  showHookResults: boolean
+type Phase = StartPhaseOptions & {
   failed: boolean
   hrStart: [number, number]
   lines: Array<string>
@@ -154,6 +138,10 @@ type StartPhaseOptions = {
   running: string
   success: string
   failure: string
+  /**
+   * Whether each hook's own result is worth a line. Format and lint run one command, so the phase
+   * result already says everything; the post-generate phase runs several.
+   */
   showHookResults?: boolean
 }
 
@@ -206,42 +194,9 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       width: Math.min(process.stdout.columns || 80, 100) - (audience === 'human' ? 4 : 2),
     }
     const state = {
-      ...createProgressCounters(),
+      ...createRunState(),
       spinner: null as WriterSpinner | null,
-      /** The message the running spinner started with, so a paused spinner can resume as it was. */
-      spinnerMessage: '',
       progress: null as WriterProgress | null,
-      hooks: new Map<string, { hrStart: [number, number]; lines: Array<string> }>(),
-      /**
-       * Plugin results held back while the generation step owns the line.
-       */
-      pluginLines: [] as Array<string>,
-      phase: null as Phase | null,
-      groupOpen: false,
-      /**
-       * Whether this run keeps its files in memory, as a `kubb studio` run without `--allow-write` does.
-       */
-      inMemory: false,
-      /**
-       * Problems held back so the human view can print them grouped by plugin once the build ends.
-       */
-      problems: [] as Array<ProblemDiagnostic>,
-      walk: createWalk(),
-      pluginStarted: false,
-      /**
-       * The finished config's diagnostics, for the closing verdict.
-       */
-      diagnostics: [] as Array<Diagnostic>,
-      /**
-       * Absolute path of a local-file input, which a located diagnostic points into.
-       */
-      specPath: undefined as string | undefined,
-      adapter: undefined as Adapter | undefined,
-      /**
-       * The parsed input, read once on the first located diagnostic of a build.
-       */
-      spec: null as Promise<SpecLocator | undefined> | null,
-      lastWalkDraw: 0,
       /** Set once a rich `kubb studio` session connects: each run then shows as one job line. */
       session: false,
     }
@@ -261,7 +216,6 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       }
 
       state.spinner = writer.spinner()
-      state.spinnerMessage = message
       state.spinner.start(text(message))
     }
 
@@ -292,9 +246,9 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       progress.stop(message === undefined ? '' : text(message))
     }
 
-    function startPhase({ running, success, failure, showHookResults = false }: StartPhaseOptions) {
-      state.phase = { successLabel: success, failureLabel: failure, showHookResults, failed: false, hrStart: process.hrtime(), lines: [], output: [] }
-      startSpinner(running)
+    function startPhase(options: StartPhaseOptions) {
+      state.phase = { ...options, failed: false, hrStart: process.hrtime(), lines: [], output: [] }
+      startSpinner(options.running)
     }
 
     function endPhase() {
@@ -307,7 +261,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
 
       const duration = formatMsWithColor(getElapsedMs(phase.hrStart))
 
-      stopSpinner(phase.failed ? `${phase.failureLabel} after ${duration}` : `${phase.successLabel} in ${duration}`, phase.failed ? 'failed' : 'success')
+      stopSpinner(phase.failed ? `${phase.failure} after ${duration}` : `${phase.success} in ${duration}`, phase.failed ? 'failed' : 'success')
 
       if (phase.lines.length) {
         writer.block(phase.lines)
@@ -324,12 +278,12 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
 
     /** `✖ Failed  1 error · 1 warning  in plugin-ts` once the build ended, or `✗ Generation failed` for a run that stopped early. */
     function failedTitle(): string {
-      const diagnostics = state.diagnostics
-      const counts = formatCounts(diagnostics)
+      const { errors, warnings } = Diagnostics.count(state.diagnostics)
+      const counts = [errors && pluralize(errors, 'error'), warnings && pluralize(warnings, 'warning')].filter(Boolean).join(' · ')
       if (!human || !counts) {
         return '✗ Generation failed'
       }
-      const plugins = Diagnostics.failedPlugins(diagnostics)
+      const plugins = Diagnostics.failedPlugins(state.diagnostics)
       return `✖ Failed  ${counts}${plugins.length ? `  in ${plugins.join(', ')}` : ''}`
     }
 
@@ -349,35 +303,22 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
     function reset() {
       stopSpinner()
       stopProgress()
-      Object.assign(state, createProgressCounters())
-      state.hooks.clear()
-      state.pluginLines = []
-      state.phase = null
-      state.groupOpen = false
-      state.problems = []
-      state.walk = createWalk()
-      state.pluginStarted = false
-      state.diagnostics = []
-      state.specPath = undefined
-      state.adapter = undefined
-      state.spec = null
-      state.lastWalkDraw = 0
+      Object.assign(state, createRunState())
     }
 
     /** Format options for one problem, with its line and column in a local spec when its pointer resolves there. */
     async function optionsFor(problem: ProblemDiagnostic): Promise<DiagnosticFormatOptions> {
-      const location = problem.location
-      const specPath = state.specPath
-      if (!location || !specPath) {
+      const { location } = problem
+      const { spec } = state
+      if (!location || !spec) {
         return formatOptions
       }
 
-      state.spec ??= loadSpecLocator({ adapter: state.adapter, path: specPath })
-      const position = (await state.spec)?.(location)
+      const position = (await spec.load())?.(location)
       if (!position) {
         return formatOptions
       }
-      return { ...formatOptions, position: { file: relative(process.cwd(), specPath), ...position } }
+      return { ...formatOptions, position: { file: relative(process.cwd(), spec.path), ...position } }
     }
 
     /**
@@ -402,13 +343,6 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         ...group.flatMap((entry) => [...entry.lines.map((line) => `  ${line}`), '']),
       ])
       writer.diagnostic(lines.slice(0, -1))
-    }
-
-    /** The run's verdict: `1 error · 1 warning` for a human, `1 error, 1 warning` for an agent. */
-    function formatCounts(diagnostics: ReadonlyArray<Diagnostic>): string {
-      const { errors, warnings } = Diagnostics.count(diagnostics)
-      const parts = [errors && pluralize(errors, 'error'), warnings && pluralize(warnings, 'warning')].filter(Boolean)
-      return parts.join(human ? ' · ' : ', ')
     }
 
     function formatLine(symbol: string, message: string, info?: string): string {
@@ -504,10 +438,10 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       }
       const remedy = permission ? `; pass ${toPermissionFlag(permission)} to allow it` : ''
       // A warning drawn under a running spinner leaves a stale spinner frame above it, so it pauses the spinner like a job line does.
-      const paused = state.spinner ? state.spinnerMessage : undefined
+      const paused = Boolean(state.spinner)
       stopSpinner()
       writer.warn(text(`⚠ ${message}${remedy}`))
-      if (paused !== undefined) startSpinner(paused)
+      if (paused) startSpinner('Ready for jobs')
     })
 
     // Unguarded, like `kubb:error`: a failure stays visible even at silent.
@@ -530,16 +464,17 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       state.totalPlugins = config.plugins?.length ?? 0
       state.inMemory = config.storage?.name === 'memory'
       const input = getInputPath(config)
-      state.specPath = input && getInputKind(input) === 'file' ? resolve(config.root, input) : undefined
-      state.adapter = config.adapter
+      if (input && getInputKind(input) === 'file') {
+        const path = resolve(config.root, input)
+        let locator: Promise<SpecLocator | undefined> | undefined
+        state.spec = { path, load: () => (locator ??= loadSpecLocator({ adapter: config.adapter, path })) }
+      }
 
       if (silent) {
         return
       }
 
-      const inputPath = getInputPath(config)
-
-      writer.group(text([styleText('bold', config.name ?? 'kubb'), inputPath ? styleText('dim', inputPath) : undefined].filter(Boolean).join(' ')))
+      writer.group(text([styleText('bold', config.name ?? 'kubb'), input ? styleText('dim', input) : undefined].filter(Boolean).join(' ')))
       state.groupOpen = true
 
       startSpinner('Parsing spec')
@@ -563,7 +498,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       }
 
       if (silent) {
-        // Even when silent, surface a failed hook's captured output.
+        // Even when silent, surface a failed hook's captured output. `stdout` and `stderr` only exist on a failed result.
         if (!ctx.success) {
           if (ctx.stdout) console.log(ctx.stdout)
           if (ctx.stderr) console.error(ctx.stderr)
@@ -641,10 +576,12 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       // The last generation's outcome, for the job line `studio:command` prints after it.
       let job: { fileCount: number; ms: number; errors: number } | null = null
 
-      context.hook('studio:connected', ({ url, versions }) => {
+      context.hook('studio:connected', ({ url, versions: { studio, kubb, agent } }) => {
         state.session = human
         stopSpinner()
-        writer.success(text(`✓ Connected to ${styleText('cyan', url)} ${styleText('dim', `· ${formatVersions(versions)}`)}`))
+        // The runtime version shows only when it differs from the host's.
+        const versions = [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, `Studio v${studio}`].filter(Boolean).join(' · ')
+        writer.success(text(`✓ Connected to ${styleText('cyan', url)} ${styleText('dim', `· ${versions}`)}`))
         startSpinner('Ready for jobs')
       })
 
@@ -672,13 +609,6 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         writer.info(text(styleText('dim', `Retrying connection to Kubb Studio in ${formatMs(delayMs)}`)))
       })
 
-      // Every plugin starts before the shared walk, so only the first is named; the per-node hooks take over from there.
-      onRun('kubb:plugin:start', ({ plugin }) => {
-        if (state.pluginStarted) return
-        state.pluginStarted = true
-        state.spinner?.message(text(`Generating ${styleText('dim', plugin.name)}`))
-      })
-
       onRun('kubb:build:start', ({ nodeCounts: { schemas, operations } }) => {
         state.walk.total = schemas + operations
         const details = `${pluralize(schemas, 'schema')} · ${pluralize(operations, 'operation')} · ${formatMs(getElapsedMs(state.hrStart))}`
@@ -700,10 +630,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
 
           const elapsed = styleText('dim', formatMs(getElapsedMs(state.hrStart)))
           const head = total
-            ? `Generating  ${formatBar([
-                [visited.size, 'magenta'],
-                [total - visited.size, 'dim'],
-              ])}  ${visited.size}/${total} nodes  ${elapsed}`
+            ? `Generating  ${formatBar(visited.size, total)}  ${visited.size}/${total} nodes  ${elapsed}`
             : `Generating  ${pluralize(visited.size, 'node')}  ${elapsed}`
           const width = Math.max(...[...plugins.keys()].map((pluginName) => pluginName.length))
           const rows = [...plugins].map(
@@ -719,12 +646,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
 
       // Buffered, not printed: a step redraws over anything written while it runs.
       onRun('kubb:plugin:end', ({ plugin, duration, success }) => {
-        if (success) {
-          state.completedPlugins++
-        }
-        if (!success) {
-          state.failedPlugins++
-        }
+        state[success ? 'completedPlugins' : 'failedPlugins']++
         state.pluginLines.push(text(`${plugin.name} ${success ? 'completed' : 'failed'} in ${formatMsWithColor(duration)}`))
       })
 

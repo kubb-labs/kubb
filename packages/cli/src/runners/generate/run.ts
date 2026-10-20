@@ -23,20 +23,10 @@ import { trackRun } from '../../Telemetry.ts'
 import { pluralize } from '../../loggers/createLogger.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
-import { createSpinner, logBanner, logError, logFileChanges, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
+import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
-import {
-  type BuildDiff,
-  type BuildSnapshot,
-  createSerialRunner,
-  diffBuilds,
-  fetchUrlBody,
-  listenForKeys,
-  startUrlWatcher,
-  startWatcher,
-  trackBuild,
-} from './utils.ts'
+import { type BuildDiff, type BuildSnapshot, diffBuilds, fetchUrlBody, listenForKeys, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
 
 /** NPM registry endpoint used to check for @kubb/cli updates. */
 const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
@@ -122,9 +112,9 @@ async function checkForUpdate({ hooks, latest }: { hooks: Hookable<KubbHooks>; l
   }
 }
 
-/** `+1 schema -2 operations`, or an empty string when the spec kept the same names. */
-function formatSpecChange({ schemas, operations }: BuildDiff): string {
-  return [
+/** Prints `Rebuilt in 1.2s · +1 schema -2 operations`, without the names part when the spec kept the same names. */
+function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: BuildDiff; durationMs: number }): void {
+  const specChange = [
     schemas.added && styleText('green', `+${pluralize(schemas.added, 'schema')}`),
     schemas.removed && styleText('red', `-${pluralize(schemas.removed, 'schema')}`),
     operations.added && styleText('green', `+${pluralize(operations.added, 'operation')}`),
@@ -132,17 +122,7 @@ function formatSpecChange({ schemas, operations }: BuildDiff): string {
   ]
     .filter(Boolean)
     .join(' ')
-}
-
-/** Prints what a watch rebuild changed: the spec's names, then each added, modified or removed file. */
-function logRebuild({ diff, durationMs }: { diff: BuildDiff; durationMs: number }): void {
-  const specChange = formatSpecChange(diff)
-  logStep(
-    [`Rebuilt in ${formatMs(durationMs)}`, specChange, `${pluralize(diff.files.length, 'file')} changed`, `${diff.unchanged} unchanged`]
-      .filter(Boolean)
-      .join(styleText('dim', ' · ')),
-  )
-  logFileChanges(diff.files)
+  logStep([`Rebuilt in ${formatMs(durationMs)}`, specChange].filter(Boolean).join(styleText('dim', ' · ')))
 }
 
 /**
@@ -226,55 +206,52 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   try {
     let anyFailed = false
     // One tracker, one key listener and one build queue serve every watched config, so several configs never mix diffs or answer `r` twice.
-    let tracker: ReturnType<typeof trackBuild> | undefined
-    const rebuilds: Array<() => void> = []
+    const tracker = watch ? trackBuild(hooks) : undefined
+    const rebuilds: Array<() => Promise<void>> = []
     let armKeys: (() => void) | undefined
-    let keysListening = false
+    // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
     let queue = Promise.resolve()
     for (const config of configs) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
       const watchPath = inputKind === 'file' || inputKind === 'url' ? (effectiveInput as string) : undefined
-      if (watchPath && watch) {
-        const watchedPaths = [watchPath]
-        const buildTracker = (tracker ??= trackBuild(hooks))
+      if (watchPath && tracker) {
+        const label = styleText('yellow', `Watching ${inputKind === 'url' ? watchPath : path.relative(process.cwd(), watchPath)}`)
         let previous: BuildSnapshot | undefined
         // Don't removeAll() between builds, that would also drop logger and lifecycle
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
-        const build = async (paths: Array<string>) => {
+        const build = async () => {
           const hrStart = process.hrtime()
           const succeeded = await generate({ input, config, hooks, dryRun })
-          const snapshot = buildTracker.take()
+          const snapshot = tracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
           previous = snapshot
 
-          const watching = styleText(
-            'yellow',
-            `Watching ${paths.map((watched) => (getInputKind(watched) === 'url' ? watched : path.relative(process.cwd(), watched))).join(' and ')}`,
-          )
-          logStep(armKeys ? `${watching}  ${styleText('dim', 'r rebuild · q quit')}` : watching)
+          logStep(armKeys ? `${label}  ${styleText('dim', 'r rebuild · q quit')}` : label)
           armKeys?.()
           if (succeeded) {
             logSpacer()
             logTip()
           }
         }
-        // Watcher events and the `r` key share one queue, so builds never overlap on the emitter.
-        const rebuild = createSerialRunner({
-          run: () => {
-            // Configs share the emitter, so their builds also wait for each other.
-            const next = queue.then(() => build(watchedPaths))
-            queue = next.catch(() => undefined)
-            return next
-          },
-          onError: (buildError) => void Diagnostics.emit(errorHooks, buildError),
-        })
-        rebuilds.push(() => void rebuild())
-        if (!quiet && !keysListening) {
-          keysListening = true
-          armKeys = listenForKeys({
-            rebuild: () => rebuilds.forEach((trigger) => trigger()),
+        // A trigger that lands while this config's build is queued joins it; one that lands during the build queues one more. Never rejects.
+        let pending = false
+        const rebuild = (): Promise<void> => {
+          if (pending) return queue
+          pending = true
+          queue = queue
+            .then(() => {
+              pending = false
+              return build()
+            })
+            .catch((error) => void Diagnostics.emit(errorHooks, error))
+          return queue
+        }
+        rebuilds.push(rebuild)
+        if (!quiet) {
+          armKeys ??= listenForKeys({
+            rebuild: () => rebuilds.forEach((trigger) => void trigger()),
             quit: (code) => void Promise.resolve(hooks.callHook('kubb:lifecycle:end')).finally(() => process.exit(code)),
           })
         }
@@ -291,7 +268,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         if (inputKind === 'url') {
           startUrlWatcher(watchPath, rebuild, { log: { info: logInfo, error: logError }, initialBody })
         } else {
-          await startWatcher(watchedPaths, rebuild, { info: logInfo, error: logError })
+          await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
         }
       } else {
         try {

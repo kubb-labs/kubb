@@ -33,8 +33,7 @@ function setupReporters(
     if (reporter.name !== 'cli') return [reporter]
     if (hasJson) return []
     const logger = forcedLogger ?? (isRichOutput() ? clackLogger : plainLogger)
-    const handle = logger(context, { logLevel })
-    return [createCliReporter({ render: handle?.renderSummary })]
+    return [createCliReporter({ render: logger(context, { logLevel }).renderSummary })]
   })
   const ctx: ReporterContext = { logLevel }
   const pluginFiles = selected.some((reporter) => reporter.needsPluginFiles) ? new Map<string, Array<string>>() : undefined
@@ -106,8 +105,6 @@ function setupReporters(
       const grouped = reporter.needsPluginFiles && pluginFiles?.size ? [...pluginFiles].map(([plugin, files]) => ({ plugin, files: [...files] })) : undefined
       await reporter.report({ ...(reporter.name === 'cli' ? cliResult : result), pluginFiles: grouped }, ctx)
     }
-    pluginFiles?.clear()
-    seen.clear()
   })
 
   context.hook('kubb:lifecycle:end', async () => {

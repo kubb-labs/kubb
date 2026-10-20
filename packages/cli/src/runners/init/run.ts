@@ -122,7 +122,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
     try {
       const result = await task()
       if (yes) console.log(`${styleText('green', '✓')} ${done(result)}`)
-      if (!yes) spinner.stop(done(result))
+      else spinner.stop(done(result))
       return result
     } catch (error) {
       if (!yes) spinner.error(failed)
@@ -179,12 +179,12 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
 
     const flagPlugins = pluginsFlag && plugins ? parsePluginsFlag({ plugins, value: pluginsFlag }) : undefined
 
-    const defaults: Omit<Choices, 'plugins'> & { plugins?: Array<RegistryEntry> } = {
+    let choices: Choices = {
       inputPath: inputFlag ?? specs[0] ?? initDefaults.inputPath,
       outputPath: outputFlag ?? initDefaults.outputPath,
-      plugins: flagPlugins ?? (plugins ? defaultPlugins(plugins) : undefined),
+      plugins: flagPlugins ?? (plugins ? defaultPlugins(plugins) : []),
     }
-    if (yes && !defaults.plugins?.length) {
+    if (yes && !choices.plugins.length) {
       throw new Error('The registry has no default plugin. Pass --plugins to choose one.')
     }
 
@@ -220,9 +220,9 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
       )
     }
 
-    async function askPlugins(previous: Array<RegistryEntry> | undefined): Promise<Array<RegistryEntry>> {
+    async function askPlugins(previous: Array<RegistryEntry>): Promise<Array<RegistryEntry>> {
       const plugins = await registry
-      const current = previous ?? defaultPlugins(plugins)
+      const current = previous.length ? previous : defaultPlugins(plugins)
       const width = Math.max(...plugins.map((entry) => entry.manifest.displayName.length))
       const nameWidth = Math.max(...plugins.map((entry) => entry.manifest.name.length))
       const values = unwrap(
@@ -239,33 +239,22 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
       return plugins.filter((entry) => values.includes(entry.id))
     }
 
-    async function askOutput(current: string): Promise<string> {
-      return unwrap(
-        await clack.text({
-          message: 'Output folder',
-          placeholder: current,
-          defaultValue: current,
-        }),
-      )
-    }
-
     // Flags for all three choices leave nothing to ask or review, as before the review step existed
     const answered = yes || Boolean(inputFlag && outputFlag && pluginsFlag)
-    let choices: Choices = { ...defaults, plugins: defaults.plugins ?? [] }
     if (!answered) {
       let firstPass = true
       while (true) {
         // The first pass skips the questions a flag answered; "Change a choice" asks them all again.
         choices = {
           inputPath: firstPass && inputFlag ? inputFlag : await askInput(choices.inputPath),
-          plugins: firstPass && flagPlugins ? flagPlugins : await askPlugins(firstPass ? defaults.plugins : choices.plugins),
-          outputPath: firstPass && outputFlag ? outputFlag : await askOutput(choices.outputPath),
+          plugins: firstPass && flagPlugins ? flagPlugins : await askPlugins(choices.plugins),
+          outputPath:
+            firstPass && outputFlag
+              ? outputFlag
+              : unwrap(await clack.text({ message: 'Output folder', placeholder: choices.outputPath, defaultValue: choices.outputPath })),
         }
         firstPass = false
-        const missing = missingPluginDependencies({
-          selected: choices.plugins.map((entry) => entry.manifest.name),
-          manifests: choices.plugins.map((entry) => entry.manifest),
-        })
+        const missing = missingPluginDependencies(choices.plugins.map((entry) => entry.manifest))
         if (missing.length) {
           logWarn(`${missing.join('\n')}\nAdd the missing plugins.`)
           continue
@@ -289,10 +278,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
     }
 
     // Check the selection against the plugins' manifests before installing anything
-    const missing = missingPluginDependencies({
-      selected: choices.plugins.map((entry) => entry.manifest.name),
-      manifests: choices.plugins.map((entry) => entry.manifest),
-    })
+    const missing = missingPluginDependencies(choices.plugins.map((entry) => entry.manifest))
     if (missing.length) {
       throw new Diagnostics.Error({
         code: Diagnostics.code.missingDependency,
@@ -357,7 +343,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
       logError(error instanceof Error ? error.message : String(error))
       const message = `Kubb is set up, but the first run failed. Fix the error, then run ${generateCommand({ packageManager, script, watch: false })}.`
       if (yes) console.log(message)
-      if (!yes) logOutro(styleText('yellow', message))
+      else logOutro(styleText('yellow', message))
       process.exitCode = 1
       return
     }

@@ -12,7 +12,7 @@ import * as config from '../../config.ts'
 import * as credentialsStore from './credentials.ts'
 import type { Credentials } from './credentials.ts'
 import * as background from './background.ts'
-import { connect, formatCountdown, formatPermissionRows, formatPermissionSummary, login, resolvePermissions, type StudioOptions, watchKeys } from './run.ts'
+import { connect, formatCountdown, formatPermissionRows, login, resolvePermissions, type StudioOptions, watchKeys } from './run.ts'
 
 vi.mock('@clack/prompts', () => ({
   multiselect: vi.fn(),
@@ -229,13 +229,6 @@ describe('resolvePermissions', () => {
     })
     expect(multiselect).not.toHaveBeenCalled()
     expect(project.write).not.toHaveBeenCalled()
-  })
-})
-
-describe('formatPermissionSummary', () => {
-  it('joins the granted permissions, or says none are', () => {
-    expect(formatPermissionSummary({ ...options.permission, allowRead: true, allowWrite: true })).toBe('read source · write files')
-    expect(formatPermissionSummary(options.permission)).toBe('no permissions')
   })
 })
 

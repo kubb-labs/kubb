@@ -4,7 +4,7 @@ import path from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as clack from '@clack/prompts'
-import { registryEntry, stubRegistry } from '../../utils/registryFixture.ts'
+import { registryEntry, registryIndex, stubFetch } from '../../utils/registryFixture.ts'
 import { installPackages } from '../init/utils.ts'
 import { run, summarize } from './run.ts'
 
@@ -59,7 +59,7 @@ const pluginZod = {
 
 describe('kubb add', () => {
   it('installs the pinned version and adds the plugin to the config, reading the index once', async () => {
-    stubRegistry([pluginX])
+    stubFetch({ body: registryIndex([pluginX]) })
 
     await run({ id: 'acme/plugin-x', yes: true, install: true })
 
@@ -69,9 +69,8 @@ describe('kubb add', () => {
     expect(config).toContain(`import { pluginX } from '@acme/kubb-plugin-x'`)
     expect(config).toContain('plugins: [pluginX()]')
     expect(output.join('\n')).toContain('✓ Plugin ready')
-    expect(output.join('\n')).toContain('1 plugin added to config')
-    expect(output.join('\n')).toContain('Plugin   plugin-x')
     expect(output.join('\n')).toContain('Packages  1 installed with pnpm')
+    expect(output.join('\n')).toContain('Next     kubb generate')
     const summary = output.join('\n').split('✓ Plugin ready')[1]!
     expect(summary).toContain('+ pluginX()')
     expect(summary).not.toContain('export default')
@@ -80,7 +79,7 @@ describe('kubb add', () => {
   })
 
   it('previews the packages and the exact config lines before asking', async () => {
-    stubRegistry([pluginX])
+    stubFetch({ body: registryIndex([pluginX]) })
 
     await run({ id: 'acme/plugin-x', yes: false, install: true })
 
@@ -94,7 +93,7 @@ describe('kubb add', () => {
   })
 
   it('labels config-only changes without claiming a package install', async () => {
-    stubRegistry([pluginX])
+    stubFetch({ body: registryIndex([pluginX]) })
     await run({ id: 'acme/plugin-x', yes: true, install: false })
     expect(installPackages).not.toHaveBeenCalled()
     const printed = output.join('\n')
@@ -105,23 +104,24 @@ describe('kubb add', () => {
   })
 
   it.each(['pluginX', 'customPlugin'])('reports an existing %s registration without counting it as a new plugin', async (localName) => {
-    stubRegistry([pluginX])
+    stubFetch({ body: registryIndex([pluginX]) })
     const registration = `import { pluginX${localName === 'pluginX' ? '' : ` as ${localName}`} } from '@acme/kubb-plugin-x'\n`
     await writeFile(path.join(cwd, 'kubb.config.ts'), registration + configSource.replace('plugins: []', `plugins: [${localName}()]`))
     await run({ id: 'acme/plugin-x', yes: true, install: false })
     expect(output.join('\n')).toContain('Plugin already configured')
-    expect(output.join('\n')).toContain('0 plugins added to config')
+    expect(output.join('\n')).not.toContain('+ pluginX()')
   })
 
   it('counts a new registration when a comment already mentions the plugin factory', async () => {
-    stubRegistry([pluginX])
+    stubFetch({ body: registryIndex([pluginX]) })
     await writeFile(path.join(cwd, 'kubb.config.ts'), `// pluginX() is not registered yet\n${configSource}`)
     await run({ id: 'acme/plugin-x', yes: true, install: false })
-    expect(output.join('\n')).toContain('1 plugin added to config')
+    expect(output.join('\n')).toContain('✓ Plugin configured')
+    expect(output.join('\n')).toContain('+ pluginX()')
   })
 
   it('ends cancellation with no config or install changes', async () => {
-    stubRegistry([pluginX])
+    stubFetch({ body: registryIndex([pluginX]) })
     vi.mocked(clack.confirm).mockResolvedValueOnce(false)
     await run({ id: 'acme/plugin-x', yes: false, install: true })
     expect(output.join('\n')).toContain('○ Add canceled')
@@ -130,26 +130,26 @@ describe('kubb add', () => {
   })
 
   it('does not report a plugin ready after package installation fails', async () => {
-    stubRegistry([pluginX])
+    stubFetch({ body: registryIndex([pluginX]) })
     vi.mocked(installPackages).mockRejectedValueOnce(new Error('Package manager failed'))
     await run({ id: 'acme/plugin-x', yes: true, install: true })
     const printed = output.join('\n')
     expect(printed).toContain('✗ Add failed')
-    expect(printed).toContain('installation not completed')
+    expect(printed).toContain('No changes made')
     expect(printed).not.toContain('✓ Plugin ready')
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toBe(configSource)
     expect(process.exitCode).toBe(1)
   })
 
   it('separates a completed install from a config edit that requires manual work', async () => {
-    stubRegistry([pluginX])
+    stubFetch({ body: registryIndex([pluginX]) })
     await writeFile(path.join(cwd, 'kubb.config.ts'), 'export default makeConfig()\n')
     await run({ id: 'acme/plugin-x', yes: true, install: true })
     const printed = output.join('\n')
     expect(installPackages).toHaveBeenCalledOnce()
     expect(printed).toContain('! Plugin needs configuration')
     expect(printed).toContain('Packages  1 installed with pnpm')
-    expect(printed).toContain('manual configuration')
+    expect(printed).toContain('Add the snippet above, then run kubb generate.')
     expect(printed).not.toContain('✓ Plugin ready')
   })
 
@@ -160,7 +160,7 @@ describe('kubb add', () => {
       kind: 'adapter',
       manifest: { displayName: 'Adapter X', description: 'Reads X files.' },
     })
-    stubRegistry([adapterX, pluginX])
+    stubFetch({ body: registryIndex([adapterX, pluginX]) })
     await writeFile(path.join(cwd, 'package.json'), JSON.stringify({ devDependencies: { '@acme/kubb-adapter-x': '^2.0.0' } }))
 
     await run({ yes: false, install: false })
@@ -176,7 +176,7 @@ describe('kubb add', () => {
   })
 
   it('shows a required plugin already in the config as installed', async () => {
-    stubRegistry([pluginTs, pluginZod])
+    stubFetch({ body: registryIndex([pluginTs, pluginZod]) })
     await writeFile(path.join(cwd, 'kubb.config.ts'), configSource.replace('plugins: []', 'plugins: [pluginTs()]'))
 
     await run({ id: 'plugin-zod', yes: true, install: true })
@@ -203,7 +203,7 @@ describe('kubb add', () => {
     },
     { label: 'adds only the extension when told to', yes: false, answer: false, installs: ['@acme/kubb-plugin-zod@5.2.0'], plugins: 'plugins: [pluginZod()]' },
   ])('$label when a required plugin is missing from the config', async ({ yes, answer, installs, plugins }) => {
-    stubRegistry([pluginTs, pluginZod])
+    stubFetch({ body: registryIndex([pluginTs, pluginZod]) })
     if (!yes) vi.mocked(clack.select).mockResolvedValueOnce(answer)
 
     await run({ id: 'plugin-zod', yes, install: true })
@@ -215,13 +215,12 @@ describe('kubb add', () => {
   })
 
   it('suggests the closest id for a typo and links the registry', async () => {
-    stubRegistry([pluginTs, pluginZod, pluginX])
+    stubFetch({ body: registryIndex([pluginTs, pluginZod, pluginX]) })
 
     await run({ id: 'zod-plugin', yes: true, install: true })
 
     const printed = output.join('\n')
-    expect(printed).toContain('No extension named zod-plugin in the registry')
-    expect(printed).toContain('Did you mean plugin-zod?')
+    expect(printed).toContain('✗ No extension named zod-plugin')
     expect(printed).toContain('  kubb add plugin-zod')
     expect(printed).toContain('Browse all  kubb.dev/extensions')
     expect(installPackages).not.toHaveBeenCalled()
@@ -230,7 +229,9 @@ describe('kubb add', () => {
 
   it('installs a GitHub release from its commit and imports it by package name', async () => {
     const commit = '0123456789abcdef0123456789abcdef01234567'
-    stubRegistry([{ ...pluginX, artifact: { ...pluginX.artifact, kind: 'github', owner: 'acme', repo: 'kubb-plugin-x', tag: 'v1.2.0', commit } }])
+    stubFetch({
+      body: registryIndex([{ ...pluginX, artifact: { ...pluginX.artifact, kind: 'github', owner: 'acme', repo: 'kubb-plugin-x', tag: 'v1.2.0', commit } }]),
+    })
 
     await run({ id: 'acme/plugin-x', yes: true, install: true })
 
@@ -240,7 +241,7 @@ describe('kubb add', () => {
   })
 
   it('prints the snippet for an adapter instead of editing the config', async () => {
-    stubRegistry([registryEntry({ name: 'adapter-x', version: '1.2.0', kind: 'adapter', manifest: { export: 'adapterX' } })])
+    stubFetch({ body: registryIndex([registryEntry({ name: 'adapter-x', version: '1.2.0', kind: 'adapter', manifest: { export: 'adapterX' } })]) })
 
     await run({ id: 'acme/adapter-x', yes: true, install: false })
 
@@ -249,13 +250,13 @@ describe('kubb add', () => {
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toBe(configSource)
     expect(printed).toContain(`import { adapterX } from '@acme/kubb-adapter-x'\n\nadapter: adapterX(),`)
     expect(printed).not.toContain('export default defineConfig(')
-    expect(printed).toContain('Install @acme/kubb-adapter-x@1.2.0 and add the snippet above.')
-    expect(printed).not.toContain('Added @acme/kubb-adapter-x')
-    expect(printed).toContain('Adapter  adapter-x')
+    expect(printed).toContain('! Adapter needs configuration')
+    expect(printed).toContain('Install @acme/kubb-adapter-x@1.2.0 to use it.')
+    expect(printed).toContain('Add the snippet above, then run kubb generate.')
   })
 
   it('refuses an extension that needs another Kubb version', async () => {
-    stubRegistry([{ ...pluginX, manifest: { ...pluginX.manifest, compatibility: { kubb: '>=99.0.0' } } }])
+    stubFetch({ body: registryIndex([{ ...pluginX, manifest: { ...pluginX.manifest, compatibility: { kubb: '>=99.0.0' } } }]) })
 
     await run({ id: 'acme/plugin-x', yes: true, install: true })
 
@@ -266,10 +267,10 @@ describe('kubb add', () => {
 
   it.each([
     ['an id with another shape', '../etc/passwd', 'is not a registry id'],
-    ['a package name that is not one', 'acme/plugin-x', 'No extension named acme/plugin-x in the registry'],
+    ['a package name that is not one', 'acme/plugin-x', 'No extension named acme/plugin-x'],
     ['no id with --yes', undefined, 'Pass a registry id, such as plugin-zod, when using --yes.'],
   ])('refuses %s before installing', async (_label, id, message) => {
-    stubRegistry([{ ...pluginX, artifact: { kind: 'npm', package: '--registry=https://evil.test', version: '1.2.0' } }])
+    stubFetch({ body: registryIndex([{ ...pluginX, artifact: { kind: 'npm', package: '--registry=https://evil.test', version: '1.2.0' } }]) })
 
     await run({ id, yes: true, install: true })
 

@@ -43,13 +43,11 @@ describe('missingPluginDependencies', () => {
   const msw = manifest('plugin-msw', { dependencies: ['plugin-ts'], optionalDependencies: ['plugin-faker'] })
 
   it('passes a complete selection', () => {
-    expect(
-      missingPluginDependencies({ selected: ['plugin-ts', 'plugin-axios', 'plugin-react-query', 'plugin-msw'], manifests: [ts, axios, reactQuery, msw] }),
-    ).toEqual([])
+    expect(missingPluginDependencies([ts, axios, reactQuery, msw])).toEqual([])
   })
 
   it('reports a missing dependency and a consumer without a client', () => {
-    expect(missingPluginDependencies({ selected: ['plugin-react-query'], manifests: [reactQuery] })).toEqual([
+    expect(missingPluginDependencies([reactQuery])).toEqual([
       'plugin-react-query needs plugin-ts.',
       'plugin-react-query needs a client plugin, such as plugin-axios or plugin-fetch.',
     ])

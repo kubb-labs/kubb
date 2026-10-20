@@ -32,28 +32,6 @@ async function findPackageJson(directory: string): Promise<{ name: string; versi
   return findPackageJson(parent)
 }
 
-/** Reads package.json only for whichever of name/version --name and --version did not supply. */
-async function resolvePackageMetadata(options: SnapshotOptions): Promise<{ name: string; version: string }> {
-  if (options.name && options.packageVersion) return { name: options.name, version: options.packageVersion }
-
-  const found = await findPackageJson(process.cwd())
-  return { name: options.name ?? found.name, version: options.packageVersion ?? found.version }
-}
-
-function resolveToken(options: SnapshotOptions): string {
-  const token = options.token ?? process.env.KUBB_TOKEN
-
-  if (!token) {
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.unknown,
-      severity: 'error',
-      message: 'An organization CI API key is required. Pass --token or set KUBB_TOKEN.',
-    })
-  }
-
-  return token
-}
-
 function resolveCiIdentity(options: SnapshotOptions): CiContext {
   const detected = detectCi()
   // A custom --id drops the detected base, since runs on that branch may use a custom id too.
@@ -162,10 +140,21 @@ function printSummary(result: SnapshotResult): void {
  * agent the run's identity names.
  */
 export async function snapshot(options: SnapshotOptions): Promise<void> {
-  const token = resolveToken(options)
+  const token = options.token ?? process.env.KUBB_TOKEN
+  if (!token) {
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: 'An organization CI API key is required. Pass --token or set KUBB_TOKEN.',
+    })
+  }
   const { config } = await loadConfigs(options)
   const ci = resolveCiIdentity(options)
-  const { name, version: packageVersion } = await resolvePackageMetadata(options)
+  // package.json is read only for whichever of name/version --name and --version did not supply.
+  const { name, version: packageVersion } =
+    options.name && options.packageVersion
+      ? { name: options.name, version: options.packageVersion }
+      : await findPackageJson(process.cwd()).then((found) => ({ name: options.name ?? found.name, version: options.packageVersion ?? found.version }))
   const logLevel = logLevelMap[options.logLevel ?? 'info']
 
   const write = options.json ? (line: string) => console.error(line) : (line: string) => console.log(line)
@@ -200,12 +189,8 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     step(`✓ Packed ${result.name ?? name}@${result.version ?? packageVersion}`)
     step(`✓ Published snapshot ${result.number ? `#${result.number}` : result.id} for ${ci.name}${ci.commit ? `@${ci.commit.slice(0, 7)}` : ''}`)
 
-    if (options.json) {
-      console.log(JSON.stringify(result))
-    }
-    if (!options.json) {
-      printSummary(result)
-    }
+    if (options.json) console.log(JSON.stringify(result))
+    else printSummary(result)
   } catch (error) {
     step('✖ Snapshot failed')
     throw error

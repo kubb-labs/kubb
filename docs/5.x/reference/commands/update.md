@@ -39,24 +39,14 @@ kubb update
 
 Minor and patch updates start selected. A major starts unselected, since it can break the generated code. The hint is the version change.
 
-After the install, the summary starts with the outcome and duration, then labels plugin versions, package installation, and regeneration separately:
+After the install, `kubb update` asks whether to regenerate now, since that rewrites the generated files. `--yes` installs only. The summary starts with the outcome and duration, then lists the packages, the skipped updates, and the file changes:
 
 ```text [Output]
 ✓ Update complete  2.16s
 
-  1 plugin updated
-  Plugins  1 updated · 1 skipped
-  Packages  1 installed with pnpm
-  Config    kubb.config.ts · unchanged
-
-Extension versions
-  Plugin  @kubb/plugin-ts  5.0.0 → 5.2.0
-  Skipped  Plugin @kubb/plugin-zod 6.0.0  run kubb update plugin-zod later
-
-File changes after regeneration
-  1 added · 1 modified · 0 deleted
-  12 unchanged
-  Output  src/gen
+  Packages  1 installed with pnpm · 1 skipped
+  Skipped   Plugin @kubb/plugin-zod 6.0.0  run kubb update plugin-zod later
+  Files     1 added · 1 modified · 0 deleted
 ```
 
 List the updates without installing them:
@@ -66,15 +56,12 @@ kubb update --dry-run
 ```
 
 ```text [Output]
+◇ Checked 2 extensions against the registry
+│  Extension         Current  Latest  
+│  @kubb/plugin-ts   5.0.0    5.2.0   minor
+│  @kubb/plugin-zod  5.2.0    6.0.0   major · breaking
+│
 ◇ Updates available  138ms
-
-  2 updates available (1 major)
-  Packages  nothing installed
-  Config    unchanged · regeneration not run
-
-Available extension versions
-  Plugin  @kubb/plugin-ts  5.0.0 → 5.2.0
-  Plugin  @kubb/plugin-zod  5.2.0 → 6.0.0  major
 
 Dry run: nothing was installed. Run kubb update to install them.
 ```

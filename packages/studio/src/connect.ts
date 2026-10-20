@@ -311,13 +311,8 @@ class Agent extends RpcTarget implements AgentApi {
       throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Studio must call connect() before any other command' })
   }
 
-  #logCommand(
-    command: KubbHooks['studio:command'][0]['command'],
-    info: string,
-    { requestedBy, failed }: { requestedBy?: unknown; failed?: boolean } = {},
-  ): Promise<void> {
-    const name = toRequester(requestedBy)
-    return emit(this.#options.hooks, 'studio:command', { command, info, ...(name ? { requestedBy: name } : {}), ...(failed ? { failed } : {}) })
+  #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string, requestedBy?: unknown, failed?: boolean): Promise<void> {
+    return emit(this.#options.hooks, 'studio:command', { command, info, requestedBy: toRequester(requestedBy), failed })
   }
 
   // Not cached: the user can edit the file between two Studio actions.
@@ -503,7 +498,7 @@ class Agent extends RpcTarget implements AgentApi {
       allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
     }).catch(async (error: unknown) => {
       await this.#generations.drop(jobId)
-      await this.#logCommand('generate', getErrorMessage(error), { requestedBy: input.requestedBy, failed: true })
+      await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
       throw error
     })
 
@@ -517,7 +512,7 @@ class Agent extends RpcTarget implements AgentApi {
     await this.#logCommand(
       'generate',
       `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'staged on disk'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
-      { requestedBy: input.requestedBy },
+      input.requestedBy,
     )
 
     return {
@@ -551,7 +546,7 @@ class Agent extends RpcTarget implements AgentApi {
     try {
       const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
       const applied = outcomes.filter((outcome) => outcome.applied).length
-      await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`, { requestedBy: input.requestedBy })
+      await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`, input.requestedBy)
 
       return { outcomes, changed }
     } catch (error) {

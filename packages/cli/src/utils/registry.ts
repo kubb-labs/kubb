@@ -3,7 +3,7 @@ import { getErrorMessage, toError } from '@internals/utils'
 import { checkCompatibility, Diagnostics, type ExtensionManifest, isRegistryEntry, type RegistryArtifact, type RegistryEntry } from '@kubb/core'
 import { difference, isLessThan, isValid } from 'verkit'
 
-export const DEFAULT_REGISTRY = 'https://kubb.dev/registry'
+const DEFAULT_REGISTRY = 'https://kubb.dev/registry'
 
 const SLUG = '[a-z0-9]+(?:-[a-z0-9]+)*'
 const ID = new RegExp(`^${SLUG}(\\/${SLUG})?$`)

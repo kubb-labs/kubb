@@ -203,20 +203,11 @@ const PERMISSIONS: ReadonlyArray<{
   { key: AgentPermission.EXEC, label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
 ]
 
-/** The granted permissions as one line, such as `read source · read spec`. */
-export function formatPermissionSummary(granted: Record<AgentPermission, boolean>): string {
-  return (
-    PERMISSIONS.filter(({ key }) => granted[key])
-      .map(({ label }) => label)
-      .join(' · ') || 'no permissions'
-  )
-}
-
 /**
  * Two permissions per row, each marked granted or not, with the flags that grant the missing ones
  * after the last row. For `kubb studio status`.
  */
-export function formatPermissionRows(granted: Record<AgentPermission, boolean>): Array<string> {
+export function formatPermissionRows(granted: Partial<Record<AgentPermission, boolean>>): Array<string> {
   const width = Math.max(...PERMISSIONS.map(({ label }) => label.length))
   const cells = PERMISSIONS.map(({ key, label }) => `${granted[key] ? styleText('green', '✓') : styleText('red', '✖')} ${label.padEnd(width)}`)
   const rows = Array.from({ length: Math.ceil(cells.length / 2) }, (_, index) => cells.slice(index * 2, index * 2 + 2).join('  '))
@@ -285,24 +276,6 @@ export async function loadConfigs(options: Pick<StudioOptions, 'configPath' | 'l
   // prompt and the path Studio receives over the wire both show the project-relative form instead
   // of leaking the local filesystem layout.
   return { configPath: path.relative(process.cwd(), configPath) || configPath, config }
-}
-
-/**
- * Why a rejected token could not be recovered automatically: no browser is available to re-pair
- * with, or the token this run already re-paired for was rejected again.
- */
-type RejectedTokenReason = 'nonInteractive' | 'reauthExhausted'
-
-/**
- * Explains a rejected token to the operator. Builds the error and nothing else, so each caller
- * decides what happens to the credentials.
- */
-function explainRejectedToken(error: InvalidAgentTokenError, reason: RejectedTokenReason): Error {
-  if (reason === 'reauthExhausted') {
-    return new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
-  }
-
-  return new Error(`${error.message} Run \`kubb studio login\` to pair again.`)
 }
 
 export type PreparedConnection = {
@@ -394,7 +367,12 @@ export async function connect(
       if (hinted || context.onState || options.logLevel === 'silent') return
       hinted = true
       logBlock([
-        `${styleText('dim', 'Project')}  ${path.basename(process.cwd())}   ${styleText('dim', formatPermissionSummary(permissions))}`,
+        `${styleText('dim', 'Project')}  ${path.basename(process.cwd())}   ${styleText(
+          'dim',
+          PERMISSIONS.filter(({ key }) => permissions[key])
+            .map(({ label }) => label)
+            .join(' · ') || 'no permissions',
+        )}`,
         styleText('dim', listens ? 'Press b to keep running in the background, Ctrl+C to disconnect' : 'Press Ctrl+C to disconnect'),
       ])
       logTip()
@@ -419,8 +397,8 @@ export async function connect(
         if (!(error instanceof InvalidAgentTokenError)) throw error
         await context.onState?.('authentication required')
         await clearCredentials()
-        if (pairedAgain) throw explainRejectedToken(error, 'reauthExhausted')
-        if (context.onState || isCIEnvironment() || !canUseTTY()) throw explainRejectedToken(error, 'nonInteractive')
+        if (pairedAgain) throw new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
+        if (context.onState || isCIEnvironment() || !canUseTTY()) throw new Error(`${error.message} Run \`kubb studio login\` to pair again.`)
 
         // The pairing prompts need stdin back.
         unwatch?.()
@@ -493,13 +471,7 @@ export async function runStudio(
     version,
     configPath: values.config,
     studioUrl: values.url ?? defaultStudioUrl,
-    permission: {
-      allowRead: values.allowRead ?? false,
-      allowReadAst: values.allowReadAst ?? false,
-      allowWrite: values.allowWrite ?? false,
-      allowConfigEdit: values.allowConfigEdit ?? false,
-      allowExec: values.allowExec ?? false,
-    },
+    permission: Object.fromEntries(Object.values(AgentPermission).map((key) => [key, values[key] ?? false])) as Record<AgentPermission, boolean>,
     autoOpen: values.open ?? true,
     logLevel: values.logLevel,
   }

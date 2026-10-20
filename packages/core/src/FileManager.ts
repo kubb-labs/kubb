@@ -136,26 +136,27 @@ export class FileManager {
     return this.#store(files, true)
   }
 
-  /** Stores a generator result: a file array is upserted as is, an element renders through `renderer` first, falsy is a no-op. Returns the paths it stored, including files merged into an existing path. */
+  /** Stores a generator result: a file array is upserted as is, an element renders through `renderer` first, falsy is a no-op. */
   async dispatch<TElement = unknown>({
     result,
     renderer,
   }: {
     result: TElement | Array<FileNode> | undefined | null
     renderer?: RendererFactory<TElement> | null
-  }): Promise<Array<string>> {
-    if (!result) return []
+  }): Promise<void> {
+    if (!result) return
 
     if (Array.isArray(result)) {
-      return this.upsert(...(result as Array<FileNode>)).map((file) => file.path)
+      this.upsert(...(result as Array<FileNode>))
+      return
     }
 
-    if (!renderer) return []
+    if (!renderer) return
 
     using instance = renderer()
     await instance.render(result)
 
-    return this.upsert(...instance.files).map((file) => file.path)
+    this.upsert(...instance.files)
   }
 
   #store(files: ReadonlyArray<FileNode>, mergeExisting: boolean): Array<FileNode> {
@@ -241,8 +242,22 @@ export class FileManager {
       items: files,
       limit: FILE_CONCURRENCY,
       run: async (file, index) => {
-        const written = await this.#writeFile(file, { storage, parsers, manifest, signal })
-        if (written === false) unchanged.push(file.path)
+        signal?.throwIfAborted()
+        const source = await this.parse(file, { parsers })
+        if (source) {
+          signal?.throwIfAborted()
+          // Checking here rather than inside a driver gives a storage writing to S3 or a database
+          // the same guarantee `fsStorage` has, that unchanged content is never rewritten.
+          const stored = await storage.readItem(file.path)
+          if (isUnchanged({ stored, source, key: file.path, manifest })) {
+            unchanged.push(file.path)
+          } else {
+            signal?.throwIfAborted()
+            await storage.writeItem(file.path, source, { stored })
+            // Only a file that was written can have been changed by the output passes.
+            manifest?.track({ key: file.path, source })
+          }
+        }
         if (!config) return
 
         finished[index] = true
@@ -257,29 +272,5 @@ export class FileManager {
     })
 
     await hooks?.callHook('kubb:files:processing:end', { files, unchanged })
-  }
-
-  /** Writes one file. Resolves `false` when the storage already holds it, `undefined` for an empty source. */
-  async #writeFile(
-    file: FileNode,
-    { storage, parsers, manifest, signal }: Pick<WriteOptions, 'storage' | 'parsers' | 'manifest' | 'signal'>,
-  ): Promise<boolean | undefined> {
-    signal?.throwIfAborted()
-    const source = await this.parse(file, { parsers })
-    if (!source) return undefined
-
-    signal?.throwIfAborted()
-
-    // Checking here rather than inside a driver gives a storage writing to S3 or a database
-    // the same guarantee `fsStorage` has, that unchanged content is never rewritten.
-    const stored = await storage.readItem(file.path)
-    if (isUnchanged({ stored, source, key: file.path, manifest })) return false
-
-    signal?.throwIfAborted()
-    await storage.writeItem(file.path, source, { stored })
-
-    // Only a file that was written can have been changed by the output passes.
-    manifest?.track({ key: file.path, source })
-    return true
   }
 }

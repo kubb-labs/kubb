@@ -150,6 +150,7 @@ export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = f
   const [firstLine = '', ...rest] = message.split('\n')
   const pointer = problem?.location && 'pointer' in problem.location ? problem.location.pointer : undefined
   const at = position ? `${position.file}:${position.line}:${position.column}` : undefined
+  const where = at ?? pointer
   const help = problem ? getHelp(problem) : undefined
   const causes = problem ? getCauses(problem) : []
   const crash = problem ? crashCodes.has(problem.code) : false
@@ -186,7 +187,7 @@ export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = f
   const frame = rest.filter((line) => line.trim()).map((line) => `  ${paint('dim', line)}`)
   const label = (name: string) => paint('dim', name.length < 4 ? name.padEnd(4) : `${name} `)
   const rows: Array<[label: string, value: string | undefined]> = [
-    ['at', (at ?? pointer) && paint('cyan', at ?? pointer ?? '')],
+    ['at', where && paint('cyan', where)],
     ['fix', help],
   ]
   if (severity !== 'error') {

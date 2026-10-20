@@ -46,42 +46,19 @@ describe('formatMsWithColor', () => {
 })
 
 describe('formatBar', () => {
-  const plain = (parts: Parameters<typeof formatBar>[0], size?: number) => stripVTControlCharacters(formatBar(parts, size))
+  const plain = (done: number, total: number, size?: number) => stripVTControlCharacters(formatBar(done, total, size))
 
-  it('fills the size and keeps one cell for each part that has a count', () => {
-    expect(
-      plain(
-        [
-          [2, 'green'],
-          [4, 'yellow'],
-          [0, 'red'],
-          [68, 'dim'],
-        ],
-        30,
-      ),
-    ).toBe(`███${'░'.repeat(27)}`)
-    expect(
-      plain(
-        [
-          [1, 'green'],
-          [500, 'dim'],
-        ],
-        30,
-      ),
-    ).toBe(`█${'░'.repeat(29)}`)
-    expect(plain([[1, 'red']], 30)).toBe('█'.repeat(30))
+  it('fills cells in proportion to the progress', () => {
+    expect(plain(27, 61)).toBe(`${'█'.repeat(9)}${'░'.repeat(11)}`)
   })
 
-  it('draws a progress bar from a done part and a remaining part', () => {
-    expect(
-      plain([
-        [27, 'magenta'],
-        [34, 'dim'],
-      ]),
-    ).toBe(`${'█'.repeat(9)}${'░'.repeat(11)}`)
+  it('keeps one cell for any progress and the last cell for the end', () => {
+    expect(plain(1, 500, 30)).toBe(`█${'░'.repeat(29)}`)
+    expect(plain(499, 500, 30)).toBe(`${'█'.repeat(29)}░`)
+    expect(plain(500, 500, 30)).toBe('█'.repeat(30))
   })
 
-  it('draws an empty bar when there is nothing to count', () => {
-    expect(plain([], 30)).toBe('░'.repeat(30))
+  it('draws an empty bar when nothing is done', () => {
+    expect(plain(0, 0, 30)).toBe('░'.repeat(30))
   })
 })

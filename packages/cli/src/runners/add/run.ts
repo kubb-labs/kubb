@@ -7,7 +7,6 @@ import { findConfigFile } from '@internals/shared'
 import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, readInstalledPackages, type RegistryDetail, type RegistryEntry } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
-import { pluralize } from '../../loggers/createLogger.ts'
 import { isInteractiveRun, logBlock, logCommandSummary, logError, logIntro, logStep, logWarn, withSpinner } from '../../loggers/output.ts'
 import { closestIds, fetchRegistryIndex, incompatibility, installSpec, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
 import { detectPackageManager } from '../init/utils.ts'
@@ -26,7 +25,7 @@ export type AddOptions = {
 type ConfigTarget = Pick<RegistryDetail, 'artifact' | 'manifest'>
 
 /** The import and the `defineConfig` property to merge into `kubb.config.ts` by hand. */
-export function toSnippet({ artifact, manifest }: ConfigTarget): string {
+function toSnippet({ artifact, manifest }: ConfigTarget): string {
   const call = `${manifest.export}()`
   const property: Record<ExtensionManifest['kind'], string> = {
     plugin: `plugins: [..., ${call}],`,
@@ -63,11 +62,6 @@ async function previewConfig({ details, source }: { details: Array<ConfigTarget>
   }
 }
 
-// shortcut: reads the first `output: { path }` in the source, so a config that builds it in code shows no path; load the config when that matters.
-function outputPathOf(source: string | undefined): string | undefined {
-  return source?.match(/output:\s*\{[^}]*?path:\s*['"]([^'"]+)['"]/)?.[1]
-}
-
 async function selectExtension({
   entries,
   versions,
@@ -101,17 +95,6 @@ async function selectExtension({
     filter: (search, option) => searchText.get(option.value)?.includes(search.toLowerCase()) ?? false,
   })
   return clack.isCancel(id) ? undefined : id
-}
-
-/** Reports an id the registry does not list, with the closest ids to try instead. */
-function logUnknown({ input, id, entries }: { input: string; id: string; entries: Array<RegistryEntry> }): void {
-  const suggestions = closestIds({ input: id, ids: entries.map((entry) => entry.id) }).map(toShortId)
-  logError(`No extension named ${input} in the registry`)
-  logBlock([
-    ...(suggestions.length ? [`Did you mean ${styleText('cyan', suggestions[0]!)}?`, ...suggestions.map((suggestion) => `  kubb add ${suggestion}`), ''] : []),
-    `Browse all  ${styleText('cyan', 'kubb.dev/extensions')}`,
-  ])
-  process.exitCode = 1
 }
 
 /** Asks whether to also add the required plugins the config lacks. `--yes` adds them. */
@@ -152,9 +135,8 @@ export function summarize(description: string, max = 64): string {
 export async function run({ id: input, configPath, yes, install }: AddOptions): Promise<void> {
   const cwd = process.cwd()
   const hrStart = process.hrtime()
-  const canceled = (lines: Array<string> = []) =>
-    logCommandSummary({ title: 'Add canceled', status: 'canceled', hrStart, block: true, lines: [...lines, '  No changes made'] })
-  let chosen: RegistryEntry | undefined
+  const summary = (title: string, status: Parameters<typeof logCommandSummary>[0]['status'], lines: ReadonlyArray<string>) =>
+    logCommandSummary({ title, status, hrStart, block: true, lines })
   const installedPackages: Array<string> = []
   const configured: Array<RegistryEntry> = []
   logIntro({ title: isInteractiveRun({ yes }) ? undefined : styleText('bgCyan', styleText('black', ' Kubb Add ')) })
@@ -182,22 +164,19 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
 
     const id = inputId ?? (await selectExtension({ entries, versions, registry }))
     if (!id) {
-      canceled()
+      summary('Add canceled', 'canceled', ['  No changes made'])
       return
     }
     const entry = entries.find((candidate) => candidate.id === id)
     if (!entry) {
-      logUnknown({ input: input ?? id, id, entries })
-      logCommandSummary({
-        title: 'Extension not found',
-        status: 'failed',
-        hrStart,
-        block: true,
-        lines: [`  Extension  ${input ?? id}`, '  No packages installed or config changes made'],
-      })
+      const suggestions = closestIds({ input: id, ids: entries.map((entry) => entry.id) }).map(toShortId)
+      summary(`No extension named ${input ?? id}`, 'failed', [
+        ...suggestions.map((suggestion) => `  kubb add ${suggestion}`),
+        '  Browse all  kubb.dev/extensions',
+      ])
+      process.exitCode = 1
       return
     }
-    chosen = entry
     const { artifact, manifest } = entry
     const kind = manifest.kind.charAt(0).toUpperCase() + manifest.kind.slice(1)
 
@@ -229,7 +208,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     const missing = configFile ? dependencies.filter((name) => !inConfig(name)).flatMap((name) => byName.get(name) ?? []) : []
     const withDependencies = await confirmDependencies({ entry, missing, yes })
     if (withDependencies === undefined) {
-      canceled([`  ${kind}  ${manifest.name}`])
+      summary('Add canceled', 'canceled', [`  ${kind}  ${manifest.name}`, '  No changes made'])
       return
     }
     const targets = [...(withDependencies ? missing : []), entry]
@@ -251,7 +230,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
 
     const confirmed = yes || (await clack.confirm({ message: 'Add it?', initialValue: true }))
     if (clack.isCancel(confirmed) || !confirmed) {
-      canceled([`  ${kind}  ${manifest.name}`])
+      summary('Add canceled', 'canceled', [`  ${kind}  ${manifest.name}`, '  No changes made'])
       return
     }
 
@@ -279,65 +258,35 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       }
     }
 
-    if (!unconfigured.length) {
-      const outputPath = outputPathOf(configSource)
-      const title = install ? 'Plugin ready' : 'Plugin configured'
-      const dependenciesMissing = !withDependencies && missing.length > 0
-      const completedTitle = !install && !configured.length ? 'Plugin already configured' : title
-      logCommandSummary({
-        title: dependenciesMissing ? 'Plugin configured; dependencies missing' : completedTitle,
-        status: dependenciesMissing ? 'warning' : 'success',
-        hrStart,
-        block: true,
-        lines: [
-          `  ${styleText(configured.length ? 'bold' : 'dim', `${pluralize(configured.length, 'plugin')} added to config`)}`,
-          `  ${styleText('dim', 'Plugin')}   ${styleText('cyan', manifest.name)}`,
-          `  ${styleText('dim', 'Package')}  ${artifact.package}@${artifact.version}`,
-          ...(configName ? [`  ${styleText('dim', 'Config')}   ${styleText('cyan', configName)}`] : []),
-          '',
-          styleText('bold', 'Changes'),
-          `  Packages  ${packages()}`,
-          `  Config    ${pluralize(configured.length, 'plugin registration')} added`,
-          ...configured.map((target) => styleText('green', `    + ${target.manifest.export}()`)),
-          '',
-          ...(!install ? [`Install ${specs.join(' ')} to use it.`] : []),
-          ...(dependenciesMissing ? [`Missing plugins  ${missing.map((target) => target.manifest.name).join(', ')}`] : []),
-          `Next     kubb generate${outputPath ? `  creates ${outputPath}` : ''}`,
-          `Options  kubb.dev/extensions/${entry.id}`,
-        ],
-      })
-      return
-    }
-
-    logBlock(['Add the import to your Kubb config and merge the property into its defineConfig call:', '', ...unconfigured.map((target) => toSnippet(target))])
-    logCommandSummary({
-      title: `${kind} needs configuration`,
-      status: 'warning',
-      hrStart,
-      block: true,
-      lines: [
-        `  ${styleText('dim', kind)}  ${styleText('cyan', manifest.name)}`,
-        `  Packages  ${packages()}`,
-        `  Config    ${configured.length ? `${configured.length} plugin registrations added · ` : ''}${unconfigured.length} extension${unconfigured.length === 1 ? ' requires' : 's require'} manual configuration`,
+    const manual = unconfigured.length > 0
+    if (manual)
+      logBlock([
+        'Add the import to your Kubb config and merge the property into its defineConfig call:',
         '',
-        install ? 'Add it with the snippet above, then run kubb generate.' : `Install ${specs.join(' ')} and add the snippet above.`,
-      ],
-    })
+        ...unconfigured.map((target) => toSnippet(target)),
+      ])
+    const dependenciesMissing = !withDependencies && missing.length > 0
+    const title = manual
+      ? `${kind} needs configuration`
+      : dependenciesMissing
+        ? 'Plugin configured; dependencies missing'
+        : configured.length
+          ? install
+            ? 'Plugin ready'
+            : 'Plugin configured'
+          : 'Plugin already configured'
+    summary(title, manual || dependenciesMissing ? 'warning' : 'success', [
+      `  Packages  ${packages()}`,
+      ...configured.map((target) => styleText('green', `  + ${target.manifest.export}()`)),
+      '',
+      ...(!install ? [`Install ${specs.join(' ')} to use it.`] : []),
+      ...(dependenciesMissing ? [`Missing plugins  ${missing.map((target) => target.manifest.name).join(', ')}`] : []),
+      manual ? 'Add the snippet above, then run kubb generate.' : 'Next     kubb generate',
+      `Options  kubb.dev/extensions/${entry.id}`,
+    ])
   } catch (error) {
     logError(getErrorMessage(error))
-    logCommandSummary({
-      title: 'Add failed',
-      status: 'failed',
-      hrStart,
-      block: true,
-      lines: [
-        `  Extension  ${chosen?.manifest.name ?? input ?? 'not selected'}`,
-        `  Packages   ${installedPackages.length ? `${installedPackages.length} installed` : 'installation not completed'}`,
-        `  Config     ${configured.length} plugin registrations added`,
-        '',
-        'Resolve the error above, then retry.',
-      ],
-    })
+    summary('Add failed', 'failed', installedPackages.length ? [`  Packages  ${installedPackages.join(', ')} installed`] : ['  No changes made'])
     process.exitCode = 1
   }
 }

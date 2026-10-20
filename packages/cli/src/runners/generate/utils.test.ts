@@ -3,43 +3,10 @@ import { tmpdir } from 'node:os'
 import { EventEmitter } from 'node:events'
 import { join, relative } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
-import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { type GeneratorContext, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, diffBuilds, diffOutput, formatChange, listenForKeys, readOutputFiles, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
-
-describe('createSerialRunner', () => {
-  it('collapses triggers that land during a run into one rerun, reports its error through onError, and keeps accepting triggers', async () => {
-    let calls = 0
-    const errors: Array<string> = []
-    const gates: Array<() => void> = []
-    const runner = createSerialRunner({
-      run: () =>
-        new Promise<void>((resolve, reject) => {
-          calls += 1
-          gates.push(calls === 2 ? () => reject(new Error('run exploded')) : resolve)
-        }),
-      onError: (error) => errors.push(error.message),
-    })
-
-    const first = runner()
-    void runner()
-    void runner()
-    expect(calls).toBe(1)
-
-    gates[0]?.()
-    await vi.waitFor(() => expect(calls).toBe(2))
-
-    gates[1]?.()
-    await first
-    expect(errors).toStrictEqual(['run exploded'])
-
-    const third = runner()
-    expect(calls).toBe(3)
-    gates[2]?.()
-    await third
-  })
-})
+import { diffBuilds, diffOutput, formatChange, listenForKeys, readOutputFiles, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
 
 describe('startWatcher', () => {
   let dir: string
@@ -236,39 +203,23 @@ describe('formatChange', () => {
 
 describe('trackBuild and diffBuilds', () => {
   const ctx = {} as GeneratorContext
-  const file = (path: string, content = 'v1') => ({ path, sources: [content] }) as unknown as FileNode
 
-  async function build(
-    hooks: Hookable<KubbHooks>,
-    { schemas, operations, files }: { schemas: Array<string>; operations: Array<string>; files: Array<FileNode> },
-  ) {
+  async function build(hooks: Hookable<KubbHooks>, { schemas, operations }: { schemas: Array<string>; operations: Array<string> }) {
     for (const name of schemas) await hooks.callHook('kubb:generate:schema', { name } as SchemaNode, ctx)
     for (const operationId of operations) await hooks.callHook('kubb:generate:operation', { operationId } as OperationNode, ctx)
-    await hooks.callHook('kubb:files:processing:end', { files, unchanged: [] })
   }
 
-  it('reports added and removed names, and each file added, modified or removed since the last build', async () => {
+  it('reports the schema and operation names added and removed since the last build', async () => {
     const hooks = new Hookable<KubbHooks>()
     const tracker = trackBuild(hooks)
 
-    await build(hooks, { schemas: ['Pet', 'Order'], operations: ['getPet'], files: [file('/gen/Pet.ts'), file('/gen/Order.ts'), file('/gen/getPet.ts')] })
+    await build(hooks, { schemas: ['Pet', 'Order'], operations: ['getPet'] })
     const previous = tracker.take()
-    // getPet.ts is regenerated with the same content, as `output.clean` does to every file, so it counts as unchanged.
-    await build(hooks, {
-      schemas: ['Pet', 'Pet', 'Tag'],
-      operations: ['getPet', 'addPet', 'deletePet'],
-      files: [file('/gen/Pet.ts', 'v2'), file('/gen/Tag.ts'), file('/gen/getPet.ts')],
-    })
+    await build(hooks, { schemas: ['Pet', 'Pet', 'Tag'], operations: ['getPet', 'addPet', 'deletePet'] })
 
     expect(diffBuilds(previous, tracker.take())).toStrictEqual({
       schemas: { added: 1, removed: 1 },
       operations: { added: 2, removed: 0 },
-      files: [
-        { status: 'M', path: '/gen/Pet.ts' },
-        { status: 'A', path: '/gen/Tag.ts' },
-        { status: 'D', path: '/gen/Order.ts' },
-      ],
-      unchanged: 1,
     })
   })
 })

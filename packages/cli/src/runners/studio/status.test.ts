@@ -21,32 +21,6 @@ function render(input: Partial<Parameters<typeof formatStatus>[0]>): Array<strin
 }
 
 describe('formatStatus', () => {
-  it('keeps long values and commands under their labels in a narrow terminal', () => {
-    const tty = Object.getOwnPropertyDescriptor(process.stdout, 'isTTY')
-    const columns = Object.getOwnPropertyDescriptor(process.stdout, 'columns')
-    Object.defineProperties(process.stdout, {
-      isTTY: { value: true, configurable: true },
-      columns: { value: 60, configurable: true },
-    })
-    try {
-      const lines = render({
-        credentials: null,
-        project: `${project}/${'nested/'.repeat(10)}app`,
-        logPath: path.join(homedir(), '.kubb', 'projects', 'a'.repeat(64), 'worker.log'),
-      })
-
-      expect(lines).toContain('  Project')
-      expect(lines).toContain('  Logs')
-      expect(lines.every((line) => line.length <= 60)).toBe(true)
-      expect(lines.join('\n')).toContain('worker.log')
-    } finally {
-      if (tty) Object.defineProperty(process.stdout, 'isTTY', tty)
-      if (!tty) Reflect.deleteProperty(process.stdout, 'isTTY')
-      if (columns) Object.defineProperty(process.stdout, 'columns', columns)
-      if (!columns) Reflect.deleteProperty(process.stdout, 'columns')
-    }
-  })
-
   it('ends each row with the command that changes it', () => {
     const now = Date.now()
 

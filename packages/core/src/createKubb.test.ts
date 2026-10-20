@@ -339,21 +339,6 @@ describe('createKubb', () => {
     expect(hooks.listenerCount('kubb:generate:operations')).toBe(0)
   })
 
-  it('records how many files each plugin generated on its performance diagnostic', async () => {
-    const { diagnostics } = await createKubb(
-      makeConfig({
-        adapter: makeAdapter({ schemas: makeSchemas(3) }),
-        plugins: [makeSchemaPlugin('plugin-a'), makeSchemaPlugin('plugin-b')],
-      }),
-      { hooks: new Hookable<KubbHooks>() },
-    ).safeBuild()
-
-    expect(diagnostics.filter(Diagnostics.isPerformance).map(({ plugin, files }) => ({ plugin, files }))).toStrictEqual([
-      { plugin: 'plugin-a', files: 3 },
-      { plugin: 'plugin-b', files: 3 },
-    ])
-  })
-
   describe('per-node options and transform reuse', () => {
     it('resolves per-node options when an override matches', async () => {
       const seen: Array<{ name: string | null | undefined; options: { marker?: string } }> = []

@@ -544,8 +544,6 @@ export class KubbDriver {
         operationGenerators: generators.filter((generator) => generator.operation),
         operationsGenerators: generators.filter((generator) => generator.operations),
         pluginOperations: [] as Array<OperationNode>,
-        // Paths this plugin's generators wrote or merged into, for the summary's per-plugin count.
-        touched: new Set<string>(),
         error: null as Error | null,
         // The node a generator crashed on, so the diagnostic can name it.
         crashSite: undefined as ReturnType<typeof getCrashSite> | undefined,
@@ -592,14 +590,12 @@ export class KubbDriver {
           if (state.allowedSchemaNames !== null && transformedNode.name && !state.allowedSchemaNames.has(transformedNode.name)) continue
 
           const ctx = { ...state.generatorContext, options, cache }
-          for (const filePath of await this.#dispatchNode({
+          await this.#dispatchNode({
             generators: state.schemaGenerators,
             node: transformedNode,
             ctx,
             generate: (generator) => generator.schema!(transformedNode, ctx),
-          })) {
-            state.touched.add(filePath)
-          }
+          })
           await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
         } catch (caughtError) {
           state.error = toError(caughtError)
@@ -624,14 +620,12 @@ export class KubbDriver {
           if (state.operationGenerators.length) {
             const { transformedNode } = resolved
             const ctx = { ...state.generatorContext, options: resolved.options, cache }
-            for (const filePath of await this.#dispatchNode({
+            await this.#dispatchNode({
               generators: state.operationGenerators,
               node: transformedNode,
               ctx,
               generate: (generator) => generator.operation!(transformedNode, ctx),
-            })) {
-              state.touched.add(filePath)
-            }
+            })
             await this.hooks.callHook('kubb:generate:operation', transformedNode, ctx)
           }
         } catch (caughtError) {
@@ -648,8 +642,7 @@ export class KubbDriver {
       try {
         const ctx = { ...state.generatorContext, options: state.plugin.options, cache: createNodeCache() }
         for (const generator of state.operationsGenerators) {
-          const stored = await this.fileManager.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
-          for (const filePath of stored) state.touched.add(filePath)
+          await this.fileManager.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
         }
         await this.hooks.callHook('kubb:generate:operations', state.pluginOperations, ctx)
       } catch (caughtError) {
@@ -673,7 +666,7 @@ export class KubbDriver {
             : diagnostic,
         )
       }
-      diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration, files: state.touched.size }))
+      diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration }))
     }
 
     return diagnostics
@@ -681,7 +674,7 @@ export class KubbDriver {
 
   /**
    * Runs `node` through the generators whose `match` accepts it; `generate` picks the method for the
-   * node kind. Resolves to the number of files this added.
+   * node kind.
    */
   async #dispatchNode({
     generators,
@@ -693,14 +686,12 @@ export class KubbDriver {
     node: SchemaNode | OperationNode
     ctx: GeneratorContext
     generate: (generator: Generator) => ReturnType<NonNullable<Generator['schema']>>
-  }): Promise<Array<string>> {
-    const stored: Array<string> = []
+  }): Promise<void> {
     for (const generator of generators) {
       const matches = generator.match ? await generator.match(node, ctx) : true
       if (!matches) continue
-      stored.push(...(await this.fileManager.dispatch({ result: await generate(generator), renderer: generator.renderer })))
+      await this.fileManager.dispatch({ result: await generate(generator), renderer: generator.renderer })
     }
-    return stored
   }
 
   /**
