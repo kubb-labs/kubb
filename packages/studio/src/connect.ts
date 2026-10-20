@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
+import { stripVTControlCharacters } from 'node:util'
 import { getErrorMessage, mkdtemp, read, rm, toError } from '@internals/utils'
 import {
   Diagnostics,
@@ -290,8 +291,15 @@ class Agent extends RpcTarget implements AgentApi {
       throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Studio must call connect() before any other command' })
   }
 
-  #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string): Promise<void> {
-    return emit(this.#options.hooks, 'studio:command', { command, info })
+  #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string, requestedBy?: string): Promise<void> {
+    // Studio sends the user name, so it must not write terminal escapes or extra lines into the host log.
+    const by =
+      typeof requestedBy === 'string'
+        ? stripVTControlCharacters(requestedBy)
+            .replace(/[\r\n]+/g, ' ')
+            .trim()
+        : ''
+    return emit(this.#options.hooks, 'studio:command', { command, info: by ? `${info}, requested by ${by}` : info })
   }
 
   // Not cached: the user can edit the file between two Studio actions.
@@ -490,6 +498,7 @@ class Agent extends RpcTarget implements AgentApi {
     await this.#logCommand(
       'generate',
       `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'staged on disk'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
+      input.requestedBy,
     )
 
     return {
@@ -523,7 +532,7 @@ class Agent extends RpcTarget implements AgentApi {
     try {
       const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
       const applied = outcomes.filter((outcome) => outcome.applied).length
-      await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`)
+      await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`, input.requestedBy)
 
       return { outcomes, changed }
     } catch (error) {
