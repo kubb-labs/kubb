@@ -1,4 +1,5 @@
 import { hostname } from 'node:os'
+import { toPermissionFlag } from '../../loggers/createLogger.ts'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
@@ -201,11 +202,6 @@ const PERMISSIONS: ReadonlyArray<{
   { key: AgentPermission.CONFIG_EDIT, label: 'edit config', title: (configPath) => `Change ${configPath}`, hint: 'edit plugin options' },
   { key: AgentPermission.EXEC, label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
 ]
-
-/** The flag that grants a permission, such as `--allow-read-ast`. */
-export function toPermissionFlag(key: AgentPermission): string {
-  return `--${key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)}`
-}
 
 /** The granted permissions as one line, such as `read source · read spec`. */
 export function formatPermissionSummary(granted: Record<AgentPermission, boolean>): string {

@@ -2,6 +2,7 @@ import { homedir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { stripVTControlCharacters, styleText } from 'node:util'
+import { isPathInside } from '@internals/utils'
 import type { Credentials } from './credentials.ts'
 import { formatPermissionRows, type WorkerState } from './run.ts'
 
@@ -23,7 +24,7 @@ export function formatUptime(ms: number): string {
   return `${Math.floor(minutes / 60)}h ${minutes % 60}m`
 }
 
-const tilde = (file: string) => (file.startsWith(homedir()) ? `~${file.slice(homedir().length)}` : file)
+const tilde = (file: string) => (isPathInside(file, homedir()) ? `~${file.slice(homedir().length)}` : file)
 
 /**
  * The `kubb studio status` table: one row per topic, each ending with the command that changes it.

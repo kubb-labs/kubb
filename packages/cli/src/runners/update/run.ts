@@ -4,8 +4,9 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { defineWithTypes } from 'gunshi'
 import { findConfigFile } from '@internals/shared'
-import { formatMs, getElapsedMs, getErrorMessage } from '@internals/utils'
+import { getErrorMessage } from '@internals/utils'
 import { Hookable, type KubbHooks, readInstalledPackages, type RegistryEntry } from '@kubb/core'
+import { pluralize } from '../../loggers/createLogger.ts'
 import { dryRunId, type DryRunExtensions, yesArg } from '../../commands/shared.ts'
 import {
   createSpinner,
@@ -20,7 +21,8 @@ import {
   withSpinner,
 } from '../../loggers/output.ts'
 import { bumpOf, fetchRegistryIndex, incompatibility, installSpec, isOutdated, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
-import { detectPackageManager, installPackages } from '../init/utils.ts'
+import { detectPackageManager } from '../init/utils.ts'
+import { installWithSpinner } from '../installWithSpinner.ts'
 import { diffFiles, type FileChange, readOutputFiles } from '../generate/utils.ts'
 
 export type UpdateOptions = {
@@ -61,7 +63,7 @@ async function regenerate({
     }
     const after = new Map((await Promise.all(dirs.map(readOutputFiles))).flatMap((files) => [...files]))
     const diff = diffFiles(before, after)
-    spinner.stop(diff.files.length ? `Generated: ${diff.files.length} file${diff.files.length === 1 ? '' : 's'} changed` : 'Generated: no files changed')
+    spinner.stop(diff.files.length ? `Generated: ${pluralize(diff.files.length, 'file')} changed` : 'Generated: no files changed')
     return { ...diff, output: dirs.map((dir) => path.relative(cwd, dir) || '.').join(', ') }
   } catch (error) {
     spinner.error(`Generation failed: ${getErrorMessage(error)}`)
@@ -112,10 +114,10 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
         hrStart,
         block: true,
         lines: [
-          `  ${styleText('bold', `${tracked.length} ${checkedKind}${tracked.length === 1 ? '' : 's'} checked`)}`,
+          `  ${styleText('bold', `${pluralize(tracked.length, checkedKind)} checked`)}`,
           `  ${checkedKind === 'plugin' ? 'Plugins' : 'Extensions'}  ${tracked.length - outdated.length} up to date`,
           `  Packages  nothing installed`,
-          ...(outdated.length ? [`  Skipped   ${outdated.length} incompatible update${outdated.length === 1 ? '' : 's'}`] : []),
+          ...(outdated.length ? [`  Skipped   ${pluralize(outdated.length, 'incompatible update')}`] : []),
           ...(ids.length ? ['', `No updates for ${ids.join(', ')}.`] : []),
         ],
       })
@@ -155,7 +157,7 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
         return [entry.artifact.package, current(entry) ?? 'not installed', entry.artifact.version, bump === 'major' ? 'major · breaking' : bump]
       })
       const lines = formatTable([header, ...rows])
-      logStep(`Checked ${tracked.length} extension${tracked.length === 1 ? '' : 's'} against the registry`)
+      logStep(`Checked ${pluralize(tracked.length, 'extension')} against the registry`)
       logBlock([
         styleText('dim', lines[0]!),
         ...lines.slice(1).map((line, index) => {
@@ -199,21 +201,13 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
 
     const packageManager = detectPackageManager(cwd)
     const names = selected.map(({ artifact }) => artifact.package).join(', ')
-    const spinner = createSpinner()
-    const installStart = process.hrtime()
-    spinner.start(`Installing ${names} with ${packageManager.name}`)
-    try {
-      await installPackages(
-        selected.map(({ artifact }) => installSpec(artifact)),
-        packageManager,
-        cwd,
-      )
-      installedPackages.push(...selected.map((entry) => entry.artifact.package))
-    } catch (error) {
-      spinner.error('Install failed')
-      throw error
-    }
-    spinner.stop(`Installed ${names} with ${packageManager.name} in ${formatMs(getElapsedMs(installStart))}`)
+    await installWithSpinner({
+      packages: selected.map(({ artifact }) => installSpec(artifact)),
+      names,
+      packageManager,
+      cwd,
+    })
+    installedPackages.push(...selected.map((entry) => entry.artifact.package))
 
     // Regenerating rewrites output files, so it is asked for. `--yes` only accepts the install.
     const foundConfig = findConfigFile(cwd)
@@ -233,7 +227,7 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
       hrStart,
       block: true,
       lines: [
-        `  ${styleText('bold', `${selected.length} ${pluginsOnly ? 'plugin' : 'extension'}${selected.length === 1 ? '' : 's'} updated`)}`,
+        `  ${styleText('bold', `${pluralize(selected.length, pluginsOnly ? 'plugin' : 'extension')} updated`)}`,
         `  ${styleText('dim', pluginsOnly ? 'Plugins' : 'Extensions')}  ${selected.length} updated${skipped.length ? ` · ${skipped.length} skipped` : ''}`,
         `  ${styleText('dim', 'Packages')}  ${installedPackages.length} installed with ${packageManager.name}`,
         `  ${styleText('dim', 'Config')}    ${foundConfig ? `${path.relative(cwd, foundConfig)} · unchanged${configPath ? '' : ' · regeneration not run'}` : 'not found · regeneration not run'}`,

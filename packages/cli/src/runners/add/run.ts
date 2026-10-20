@@ -4,12 +4,14 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
 import { findConfigFile } from '@internals/shared'
-import { formatMs, getElapsedMs, getErrorMessage, read } from '@internals/utils'
+import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, readInstalledPackages, type RegistryDetail, type RegistryEntry } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
-import { createSpinner, isInteractiveRun, logBlock, logCommandSummary, logError, logIntro, logStep, logWarn, withSpinner } from '../../loggers/output.ts'
+import { pluralize } from '../../loggers/createLogger.ts'
+import { isInteractiveRun, logBlock, logCommandSummary, logError, logIntro, logStep, logWarn, withSpinner } from '../../loggers/output.ts'
 import { closestIds, fetchRegistryIndex, incompatibility, installSpec, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
-import { detectPackageManager, installPackages } from '../init/utils.ts'
+import { detectPackageManager } from '../init/utils.ts'
+import { installWithSpinner } from '../installWithSpinner.ts'
 
 export type AddOptions = {
   /**
@@ -150,6 +152,8 @@ export function summarize(description: string, max = 64): string {
 export async function run({ id: input, configPath, yes, install }: AddOptions): Promise<void> {
   const cwd = process.cwd()
   const hrStart = process.hrtime()
+  const canceled = (lines: Array<string> = []) =>
+    logCommandSummary({ title: 'Add canceled', status: 'canceled', hrStart, block: true, lines: [...lines, '  No changes made'] })
   let chosen: RegistryEntry | undefined
   const installedPackages: Array<string> = []
   const configured: Array<RegistryEntry> = []
@@ -178,7 +182,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
 
     const id = inputId ?? (await selectExtension({ entries, versions, registry }))
     if (!id) {
-      logCommandSummary({ title: 'Add canceled', status: 'canceled', hrStart, block: true, lines: ['  No changes made'] })
+      canceled()
       return
     }
     const entry = entries.find((candidate) => candidate.id === id)
@@ -225,7 +229,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     const missing = configFile ? dependencies.filter((name) => !inConfig(name)).flatMap((name) => byName.get(name) ?? []) : []
     const withDependencies = await confirmDependencies({ entry, missing, yes })
     if (withDependencies === undefined) {
-      logCommandSummary({ title: 'Add canceled', status: 'canceled', hrStart, block: true, lines: [`  ${kind}  ${manifest.name}`, '  No changes made'] })
+      canceled([`  ${kind}  ${manifest.name}`])
       return
     }
     const targets = [...(withDependencies ? missing : []), entry]
@@ -247,24 +251,16 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
 
     const confirmed = yes || (await clack.confirm({ message: 'Add it?', initialValue: true }))
     if (clack.isCancel(confirmed) || !confirmed) {
-      logCommandSummary({ title: 'Add canceled', status: 'canceled', hrStart, block: true, lines: [`  ${kind}  ${manifest.name}`, '  No changes made'] })
+      canceled([`  ${kind}  ${manifest.name}`])
       return
     }
 
     const packageManager = detectPackageManager(cwd)
+    const packages = () => (install ? `${installedPackages.length} installed with ${packageManager.name}` : 'installation skipped (--no-install)')
     if (install) {
       const names = targets.filter((target) => specs.includes(installSpec(target.artifact))).map((target) => target.artifact.package)
-      const spinner = createSpinner()
-      const installStart = process.hrtime()
-      spinner.start(`Installing ${names.join(', ')} with ${packageManager.name}`)
-      try {
-        await installPackages(specs, packageManager, cwd)
-        installedPackages.push(...names)
-      } catch (error) {
-        spinner.error('Install failed')
-        throw error
-      }
-      spinner.stop(`Installed ${names.join(', ')} with ${packageManager.name} in ${formatMs(getElapsedMs(installStart))}`)
+      await installWithSpinner({ packages: specs, names: names.join(', '), packageManager, cwd })
+      installedPackages.push(...names)
     }
 
     const unconfigured: Array<RegistryEntry> = configFile ? [] : [entry]
@@ -294,14 +290,14 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
         hrStart,
         block: true,
         lines: [
-          `  ${styleText(configured.length ? 'bold' : 'dim', `${configured.length} plugin${configured.length === 1 ? '' : 's'} added to config`)}`,
+          `  ${styleText(configured.length ? 'bold' : 'dim', `${pluralize(configured.length, 'plugin')} added to config`)}`,
           `  ${styleText('dim', 'Plugin')}   ${styleText('cyan', manifest.name)}`,
           `  ${styleText('dim', 'Package')}  ${artifact.package}@${artifact.version}`,
           ...(configName ? [`  ${styleText('dim', 'Config')}   ${styleText('cyan', configName)}`] : []),
           '',
           styleText('bold', 'Changes'),
-          `  Packages  ${install ? `${installedPackages.length} installed with ${packageManager.name}` : 'installation skipped (--no-install)'}`,
-          `  Config    ${configured.length} plugin registration${configured.length === 1 ? '' : 's'} added`,
+          `  Packages  ${packages()}`,
+          `  Config    ${pluralize(configured.length, 'plugin registration')} added`,
           ...configured.map((target) => styleText('green', `    + ${target.manifest.export}()`)),
           '',
           ...(!install ? [`Install ${specs.join(' ')} to use it.`] : []),
@@ -321,7 +317,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       block: true,
       lines: [
         `  ${styleText('dim', kind)}  ${styleText('cyan', manifest.name)}`,
-        `  Packages  ${install ? `${installedPackages.length} installed with ${packageManager.name}` : 'installation skipped (--no-install)'}`,
+        `  Packages  ${packages()}`,
         `  Config    ${configured.length ? `${configured.length} plugin registrations added · ` : ''}${unconfigured.length} extension${unconfigured.length === 1 ? ' requires' : 's require'} manual configuration`,
         '',
         install ? 'Add it with the snippet above, then run kubb generate.' : `Install ${specs.join(' ')} and add the snippet above.`,

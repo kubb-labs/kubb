@@ -200,13 +200,6 @@ export class FileManager {
   }
 
   /**
-   * Number of stored files, without building the sorted view.
-   */
-  get size(): number {
-    return this.#cache.size
-  }
-
-  /**
    * Converts a file's AST sources (or its `copy` source) into the final on-disk string.
    */
   async parse(file: FileNode, { parsers }: ParseOptions = {}): Promise<string> {

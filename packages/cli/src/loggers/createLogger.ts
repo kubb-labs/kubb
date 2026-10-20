@@ -21,6 +21,11 @@ export function pluralize(count: number, noun: string): string {
   return `${count} ${count === 1 ? noun : `${noun}s`}`
 }
 
+/** The flag that grants a permission, such as `--allow-read-ast`. */
+export function toPermissionFlag(key: string): string {
+  return `--${key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)}`
+}
+
 /** Prefixes a `[HH:MM:SS]` timestamp at verbose and above. */
 function formatMessage(message: string, logLevel: number): string {
   if (logLevel >= logLevelMap.verbose) {
@@ -497,7 +502,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       if (logLevel < logLevelMap.warn) {
         return
       }
-      const remedy = permission ? `; pass --${permission.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)} to allow it` : ''
+      const remedy = permission ? `; pass ${toPermissionFlag(permission)} to allow it` : ''
       // A warning drawn under a running spinner leaves a stale spinner frame above it, so it pauses the spinner like a job line does.
       const paused = state.spinner ? state.spinnerMessage : undefined
       stopSpinner()

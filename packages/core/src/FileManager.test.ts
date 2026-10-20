@@ -399,7 +399,7 @@ describe('FileManager#dispatch', () => {
     await fileManager.dispatch({ result: [makeFile('a.ts', 'one')] })
 
     await expect(fileManager.dispatch({ result: [makeFile('a.ts', 'two'), makeFile('b.ts')] })).resolves.toStrictEqual(['a.ts', 'b.ts'])
-    expect(fileManager.size).toBe(2)
+    expect(fileManager.files).toHaveLength(2)
   })
 
   it.each([
