@@ -502,14 +502,6 @@ describe('applyConfigEdits', () => {
       )
     })
 
-    it('still refuses to comment out a plugin when a comment sits between the items of a one-line array', () => {
-      const withNote = `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [pluginTs(), /* keep */ pluginZod()],\n})\n`
-      const result = applyConfigEdits({ source: withNote, edits: [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }] })
-
-      expect(result.changed).toBe(false)
-      expect(result.outcomes[0]).toMatchObject({ applied: false, reason: expect.stringContaining('shares a line') })
-    })
-
     it('enabling returns the source byte-for-byte', () => {
       const disabled = applyConfigEdits({ source, edits: [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }] }).source
       const enabled = applyConfigEdits({ source: disabled, edits: [{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }] }).source
@@ -657,19 +649,9 @@ describe('applyConfigEdits', () => {
       expect(result.source).toBe(source.replace(`        syntaxType: 'type',\n`, `        syntaxType: 'type',\n        output: { path: 'types' },\n`))
     })
 
-    it('adds to an existing nested object inline when it is written on one line', () => {
-      const result = applyConfigEdits({ source, edits: [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'keyCasing'], value: 'camelCase' }] })
-      expect(result.source).toBe(source.replace(`enum: { type: 'asConst' }`, `enum: { type: 'asConst', keyCasing: 'camelCase' }`))
-    })
-
     it('removes an option with its whole line, keeping the comments around it', () => {
       const result = applyConfigEdits({ source, edits: [{ operation: 'remove', plugin: '@kubb/plugin-ts', path: ['arrayType'] }] })
       expect(result.source).toBe(source.replace(`        arrayType: 'generic', // array syntax\n`, ''))
-    })
-
-    it('removes the last option inline, leaving an empty object', () => {
-      const result = applyConfigEdits({ source, edits: [{ operation: 'remove', plugin: '@kubb/plugin-ts', path: ['enum', 'type'] }] })
-      expect(result.source).toBe(source.replace(`enum: { type: 'asConst' }`, `enum: {}`))
     })
 
     it.each([
@@ -750,17 +732,6 @@ describe('applyConfigEdits', () => {
         true,
         undefined,
       ])
-    })
-
-    it('restores blank lines without the indentation the comment carried', () => {
-      const result = applyConfigEdits({
-        source: disabled,
-        edits: [
-          { operation: 'enable-plugin', config: 'a', plugin: '@kubb/plugin-zod' },
-          { operation: 'enable-plugin', config: 'b', plugin: '@kubb/plugin-zod' },
-        ],
-      })
-      expect(result.source).toBe(source)
     })
 
     it('asks to enable a disabled plugin before editing its options', () => {

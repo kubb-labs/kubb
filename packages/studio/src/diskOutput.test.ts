@@ -23,7 +23,7 @@ function startAgent(root: string) {
       configPath: 'kubb.config.ts',
       version: 'test',
       permissions: { allowRead: true },
-      loadConfig: async () => projectConfig({ projectRoot: root }),
+      loadConfigs: async () => [projectConfig({ projectRoot: root })],
       signal: shutdown.signal,
     },
     openRpc,

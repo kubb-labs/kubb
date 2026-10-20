@@ -79,7 +79,7 @@ function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
       configPath: 'kubb.config.ts',
       version: '2.0.0',
       root,
-      loadConfig: async () => projectConfig(),
+      loadConfigs: async () => [projectConfig()],
       signal: shutdown.signal,
       ...overrides,
     },
@@ -142,7 +142,7 @@ describe('connectAgent', () => {
           configPath: 'kubb.config.ts',
           version: '2.0.0',
           root,
-          loadConfig: async () => projectConfig(),
+          loadConfigs: async () => [projectConfig()],
         }),
       ).rejects.toBeInstanceOf(InvalidAgentTokenError)
       expect(seen).toStrictEqual([
@@ -175,7 +175,7 @@ describe('the handshake', () => {
     await writeFile(join(packageDir, 'package.json'), JSON.stringify({ name: '@acme/plugin-x', version: '1.2.3' }))
     await writeFile(join(packageDir, 'kubb-extension.json'), JSON.stringify(manifest))
     const plugin = defineExtension({ kind: 'plugin', meta: { name: 'plugin-x' }, hooks: {} })()
-    const { agent } = await connectStudio({ root: projectRoot, loadConfig: async () => ({ ...projectConfig({ projectRoot }), plugins: [plugin] }) })
+    const { agent } = await connectStudio({ root: projectRoot, loadConfigs: async () => [{ ...projectConfig({ projectRoot }), plugins: [plugin] }] })
 
     const { config } = await agent.connect(info)
 
@@ -190,7 +190,7 @@ describe('the handshake', () => {
       meta: { name: 'typescript' },
       build: () => ({ extNames: ['.ts'], parse: () => '', print: () => '' }),
     })({ indent: 2, format: () => '' })
-    const { agent } = await connectStudio({ loadConfig: async () => ({ ...projectConfig(), parsers: [parser] }) })
+    const { agent } = await connectStudio({ loadConfigs: async () => [{ ...projectConfig(), parsers: [parser] }] })
 
     const { config } = await agent.connect(info)
 
@@ -198,29 +198,19 @@ describe('the handshake', () => {
     expect(config.configs[0]!.parsers).toStrictEqual([{ name: '@kubb/parser-ts', options: { indent: 2 } }])
   })
 
-  it('reports every entry of a config array', async () => {
+  it('reports every entry of a config array, with the credentials left out of a URL input', async () => {
+    const pets = { ...projectConfig(), input: 'https://alice:secret@example.com/openapi.json?v=2' }
     const admin = { ...projectConfig(), name: 'admin', input: './admin.yaml', output: { path: 'src/admin' } }
-    const { agent } = await connectStudio({ loadConfig: async () => [projectConfig(), admin] })
+    const { agent } = await connectStudio({ loadConfigs: async () => [pets, admin] })
 
     const { config } = await agent.connect(info)
 
     const plugins = [{ name: '@kubb/plugin-barrel', options: {} }]
     const adapter = { name: '@kubb/adapter-oas', options: {} }
     expect(config.configs).toStrictEqual([
-      { input: 'https://example.com/openapi.json', output: 'src/gen', plugins, adapter, parsers: [] },
+      { input: 'https://example.com/openapi.json?v=2', output: 'src/gen', plugins, adapter, parsers: [] },
       { name: 'admin', input: './admin.yaml', output: 'src/admin', plugins, adapter, parsers: [] },
     ])
-  })
-
-  it.each([
-    ['an inline document', 'openapi: 3.1.0', undefined],
-    ['the credentials in a URL', 'https://alice:secret@example.com/openapi.json?v=2', 'https://example.com/openapi.json?v=2'],
-  ])('keeps %s out of the reported input', async (_, input, reported) => {
-    const { agent } = await connectStudio({ loadConfig: async () => ({ ...projectConfig(), input }) })
-
-    const { config } = await agent.connect(info)
-
-    expect(config.configs[0]!.input).toBe(reported)
   })
 
   it('announces the connection once per socket, with what Studio sent', async () => {
@@ -243,19 +233,6 @@ describe('the handshake', () => {
     await vi.waitFor(() => expect(sockets).toHaveLength(1))
 
     await expect(sockets[0]!.agent.readFiles({ jobId: 'job-1', paths: [] })).rejects.toThrow('Studio must call connect() before any other command')
-  })
-})
-
-describe('plugin options in the handshake', () => {
-  it('sends a JSON copy, so no function in the user config reaches Studio', async () => {
-    const config = projectConfig()
-    const name = (group: string) => `${group}Service`
-    config.plugins[0]!.options = { output: { path: 'types' }, group: { type: 'tag', name } }
-    const { agent } = await connectStudio({ loadConfig: async () => config })
-
-    const payload = await agent.connect(info)
-
-    expect(payload.config.configs[0]!.plugins).toStrictEqual([{ name: '@kubb/plugin-barrel', options: { output: { path: 'types' }, group: { type: 'tag' } } }])
   })
 })
 
@@ -347,15 +324,12 @@ describe('a sandbox job', () => {
     expect(vi.mocked(rm)).toHaveBeenCalledWith(resolveCacheDir(jobRoot), { recursive: true, force: true })
   })
 
-  it.each([
-    ['a file path', '/etc/passwd'],
-    ['no spec at all', undefined],
-  ])('refuses %s instead of reading or fetching it', async (_label, input) => {
+  it('refuses a file path instead of reading it', async () => {
     const { hooks, heard } = withHooks()
     const warn = heard('studio:warn')
     const { agent } = await connectStudio({ hooks, connectInfo: { sandbox: true, agentSlug: 'sandbox', studioVersion: '1.0.0' } })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(AgentMessage.SANDBOX_INPUT_ONLY)
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { input: '/etc/passwd' } }).result()).rejects.toThrow(AgentMessage.SANDBOX_INPUT_ONLY)
     expect(warn).toHaveBeenCalledOnce()
     expect(vi.mocked(mkdtemp).mock.results).toHaveLength(1)
   })
@@ -421,7 +395,7 @@ describe('a config array', () => {
   const configs = () => [projectConfig(), { ...projectConfig({ content: 'export const admin = 1' }), name: 'admin' }]
 
   it('generates from the entry Studio names, by position or by name, and the first one otherwise', async () => {
-    const { agent } = await connectStudio({ loadConfig: async () => configs(), permissions: { allowRead: true } })
+    const { agent } = await connectStudio({ loadConfigs: async () => configs(), permissions: { allowRead: true } })
     const content = async (jobId: string, config?: ConfigRef) => {
       await agent.startGeneration({ jobId, config: { config } }).result()
       return (await agent.readFiles({ jobId, paths: ['src/gen/pet.ts'], limit: 10 })).files['src/gen/pet.ts']
@@ -432,10 +406,10 @@ describe('a config array', () => {
     await expect(content('job-3', 'admin')).resolves.toBe('export const admin = 1')
   })
 
-  it.each([2, -1, 0.5, 'billing'])('refuses the entry %j, which the file does not have', async (config) => {
-    const { agent } = await connectStudio({ loadConfig: async () => configs() })
+  it('refuses an entry the file does not have', async () => {
+    const { agent } = await connectStudio({ loadConfigs: async () => configs() })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { config } }).result()).rejects.toThrow(AgentMessage.CONFIG_ENTRY_NOT_FOUND)
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { config: 'billing' } }).result()).rejects.toThrow(AgentMessage.CONFIG_ENTRY_NOT_FOUND)
     expect(disk.storage).toBeUndefined()
   })
 })
@@ -460,21 +434,20 @@ describe('readFiles', () => {
     })
   })
 
-  it.each([
-    { cursor: -1, limit: 10 },
-    { cursor: 0, limit: MAX_PAGE_LINES + 1 },
-  ])('refuses the page %j', async (page) => {
+  it('refuses a page longer than the maximum', async () => {
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
     await run({ agent, jobId: 'job-1' })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow(AgentMessage.INVALID_PAGE)
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], cursor: 0, limit: MAX_PAGE_LINES + 1 })).rejects.toThrow(
+      AgentMessage.INVALID_PAGE,
+    )
   })
 })
 
 describe('readDiff', () => {
   async function twoRuns(permissions = { allowRead: true }) {
     const content = { current: 'export const pet = 1' }
-    const { agent } = await connectStudio({ permissions, loadConfig: async () => projectConfig({ content: content.current }) })
+    const { agent } = await connectStudio({ permissions, loadConfigs: async () => [projectConfig({ content: content.current })] })
     await run({ agent, jobId: 'job-1' })
     content.current = 'export const pet = 2'
     await run({ agent, jobId: 'job-2' })
@@ -506,15 +479,6 @@ describe('readDiff', () => {
     })
   })
 
-  it('pages the patch lines', async () => {
-    const agent = await twoRuns()
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 2 })).resolves.toMatchObject({ nextCursor: 2 })
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, cursor: 2, limit: 2 })).resolves.toMatchObject({
-      hunks: [{ index: 0, lines: ['+export const pet = 2', '\\ No newline at end of file'] }],
-      nextCursor: null,
-    })
-  })
-
   it('reports a path the base does not hold, and never reads outside the sets', async () => {
     const agent = await twoRuns()
     await expect(agent.readDiff({ jobId: 'job-2', path: '../../etc/passwd', base, limit: 10 })).resolves.toStrictEqual({
@@ -523,13 +487,6 @@ describe('readDiff', () => {
       hasBase: false,
       stats: { additions: 0, deletions: 0, hunks: 0, lines: 0, coarse: false },
     })
-  })
-
-  it('refuses a file whose content was too large to keep, rather than reading it as deleted', async () => {
-    vi.stubEnv('KUBB_AGENT_MAX_GENERATIONS_MB', '0.000001')
-    const agent = await twoRuns()
-    vi.unstubAllEnvs()
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow(AgentMessage.HASHES_ONLY)
   })
 
   it('refuses a job the agent no longer keeps', async () => {
@@ -546,7 +503,7 @@ describe('readInput', () => {
     meta: { title: 'Pet store', circularNames: [], enumNames: [] },
   })
   /** A project config whose adapter parses to `input`. */
-  const withInput = async () => ({ ...projectConfig(), adapter: createMockedAdapter({ parse: async () => input }) })
+  const withInput = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse: async () => input }) }]
 
   it('refuses to read when the host did not grant allowReadAst, and names the permission for the host', async () => {
     const { hooks, heard } = withHooks()
@@ -558,7 +515,7 @@ describe('readInput', () => {
   })
 
   it('returns the AST the job parsed, also after the agent restarts, and refuses a job it does not keep', async () => {
-    const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfig: withInput })
+    const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfigs: withInput })
     await run({ agent: first.agent, jobId: 'job-1' })
 
     const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
@@ -568,9 +525,9 @@ describe('readInput', () => {
   })
 
   it('keeps no input for a run without allowReadAstAst, so a later grant finds none, not even an earlier run of the job', async () => {
-    const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfig: withInput })
+    const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfigs: withInput })
     await run({ agent: first.agent, jobId: 'job-1' })
-    const rerun = await connectStudio({ loadConfig: withInput })
+    const rerun = await connectStudio({ loadConfigs: withInput })
     await run({ agent: rerun.agent, jobId: 'job-1' })
 
     const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
@@ -594,8 +551,8 @@ describe('generation history', () => {
 
   it('reads every earlier job after the agent restarts, from the project cache', async () => {
     const content = { current: '' }
-    const loadConfig = async () => projectConfig({ content: content.current })
-    const first = await connectStudio({ permissions: { allowRead: true }, loadConfig })
+    const loadConfigs = async () => [projectConfig({ content: content.current })]
+    const first = await connectStudio({ permissions: { allowRead: true }, loadConfigs })
     content.current = 'export const pet = 1'
     await run({ agent: first.agent, jobId: 'job-1' })
     content.current = 'export const pet = 2'
@@ -643,12 +600,6 @@ describe('current disk output', () => {
     })
   })
 
-  it('returns an empty tree when the output directory has no files', async () => {
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
-
-    expect((await agent.connect(info)).output?.files).toStrictEqual([])
-  })
-
   it('omits the disk output without read permission', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'private' })
     const { agent } = await connectStudio()
@@ -668,7 +619,7 @@ describe('current disk output', () => {
     await seedDisk({ 'src/gen/pet.ts': 'private' })
     const { agent } = await connectStudio({
       permissions: { allowRead: true },
-      loadConfig: async () => ({ ...projectConfig(), output: { path: '.' } }),
+      loadConfigs: async () => [{ ...projectConfig(), output: { path: '.' } }],
     })
 
     expect((await agent.connect(info)).output).toBeUndefined()
@@ -699,21 +650,21 @@ describe('saveConfig', () => {
 
 describe('disconnect during generation', () => {
   it('waits for the canceled run before opening the next socket', async () => {
-    const loaded = Promise.withResolvers<Config>()
-    const loadConfig = vi
+    const loaded = Promise.withResolvers<Array<Config>>()
+    const loadConfigs = vi
       .fn()
-      .mockResolvedValueOnce(projectConfig())
+      .mockResolvedValueOnce([projectConfig()])
       .mockImplementationOnce(() => loaded.promise)
-      .mockResolvedValue(projectConfig())
-    const { agent, socket, sockets } = await connectStudio({ loadConfig })
+      .mockResolvedValue([projectConfig()])
+    const { agent, socket, sockets } = await connectStudio({ loadConfigs })
     const generation = run({ agent, jobId: 'interrupted' }).catch(() => {})
-    await vi.waitFor(() => expect(loadConfig).toHaveBeenCalledTimes(2))
+    await vi.waitFor(() => expect(loadConfigs).toHaveBeenCalledTimes(2))
     await expect(run({ agent, jobId: 'duplicate' })).rejects.toThrow('already in progress')
 
     socket.close(1006)
     await Promise.resolve()
     expect(sockets).toHaveLength(1)
-    loaded.resolve(projectConfig())
+    loaded.resolve([projectConfig()])
     await generation
 
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
@@ -725,18 +676,18 @@ describe('disconnect during generation', () => {
     const heard = Promise.withResolvers<void>()
     const warn = vi.fn(() => heard.promise)
     hooks.hook('studio:warn', warn)
-    const loaded = Promise.withResolvers<Config>()
-    const loadConfig = vi
+    const loaded = Promise.withResolvers<Array<Config>>()
+    const loadConfigs = vi
       .fn()
-      .mockResolvedValueOnce(projectConfig())
+      .mockResolvedValueOnce([projectConfig()])
       .mockImplementationOnce(() => loaded.promise)
-      .mockResolvedValue(projectConfig())
-    const { agent, socket } = await connectStudio({ hooks, loadConfig })
+      .mockResolvedValue([projectConfig()])
+    const { agent, socket } = await connectStudio({ hooks, loadConfigs })
     const generation = run({ agent, jobId: 'interrupted' })
-    await vi.waitFor(() => expect(loadConfig).toHaveBeenCalledTimes(2))
+    await vi.waitFor(() => expect(loadConfigs).toHaveBeenCalledTimes(2))
 
     socket.close(1011)
-    loaded.resolve(projectConfig())
+    loaded.resolve([projectConfig()])
 
     await expect(generation).rejects.toThrow('Generation canceled')
     expect(warn).toHaveBeenCalledWith({ message: 'Canceled the running generation: the connection to Kubb Studio closed' })

@@ -142,10 +142,10 @@ export type ConnectAgentOptions = {
    */
   configPath: string
   /**
-   * Called for every handshake and every generation, so edits on disk show up. A file that exports
-   * an array returns every entry, and a generation names the one it runs.
+   * Called for every handshake and every generation, so edits on disk show up. One entry per
+   * `defineConfig(...)` entry, and a generation names the one it runs.
    */
-  loadConfig: () => Promise<Config | Array<Config>>
+  loadConfigs: () => Promise<Array<Config>>
   /**
    * The host's own version, reported to Studio next to the runtime's.
    */
@@ -335,17 +335,11 @@ class Agent extends RpcTarget implements AgentApi {
     )
   }
 
-  /** Every entry the host's config exports, so a single object and an array read the same. */
-  async #loadConfigs(): Promise<Array<Config>> {
-    const loaded = await this.#options.loadConfig()
-    return Array.isArray(loaded) ? loaded : [loaded]
-  }
-
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
     this.#session.info = info
-    const { configPath, root, version, configFile } = this.#options
+    const { configPath, root, version, loadConfigs, configFile } = this.#options
     const source = read(configFile)
-    const [configs, file, extensions] = await Promise.all([this.#loadConfigs(), this.#readConfigFileView(source), this.#installedExtensions(source)])
+    const [configs, file, extensions] = await Promise.all([loadConfigs(), this.#readConfigFileView(source), this.#installedExtensions(source)])
     const output = await this.#readDiskOutput(configs[0]!).catch(async (error: unknown) => {
       await this.#warn({ message: `Could not read the output directory: ${getErrorMessage(error)}` })
       return undefined
@@ -450,7 +444,7 @@ class Agent extends RpcTarget implements AgentApi {
       return this.#refuse({ message: AgentMessage.SANDBOX_INPUT_ONLY })
     }
 
-    const [configs, extensions] = await Promise.all([this.#loadConfigs(), this.#installedExtensions()])
+    const [configs, extensions] = await Promise.all([this.#options.loadConfigs(), this.#installedExtensions()])
     const config = pickConfig(configs, patch?.config)
     if (!config) return this.#refuse({ message: AgentMessage.CONFIG_ENTRY_NOT_FOUND })
     const [plugins, adapter, parsers] = await Promise.all([
@@ -799,7 +793,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
  * const hooks = new Hookable<KubbHooks>()
  * hooks.hook('studio:connected', ({ agentSlug }) => console.log(`Connected as ${agentSlug}`))
  *
- * await connectAgent({ token, configPath: 'kubb.config.ts', loadConfig, version: '1.0.0', hooks, signal })
+ * await connectAgent({ token, configPath: 'kubb.config.ts', loadConfigs, version: '1.0.0', hooks, signal })
  * ```
  */
 export function connectAgent(options: ConnectAgentOptions): Promise<void> {
