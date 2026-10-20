@@ -1,7 +1,8 @@
 import { hash } from 'node:crypto'
 import { existsSync } from 'node:fs'
+import { mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { createStorage } from '../createStorage.ts'
 import { fsStorage } from './fsStorage.ts'
 
@@ -49,7 +50,11 @@ export const cacheStorage = createStorage(({ root = process.cwd() }: CacheStorag
   return {
     name: 'cache',
     readItem: (key) => fs.readItem(toPath(key)),
-    writeItem: (key, value) => fs.writeItem(toPath(key), value),
+    async writeItem(key, value) {
+      const filePath = toPath(key)
+      await mkdir(dirname(filePath), { recursive: true })
+      await writeFile(filePath, value, 'utf8')
+    },
     removeItem: (key) => fs.removeItem(toPath(key)),
     readKeys: (base) => fs.readKeys(base ? toPath(base) : dir),
     // Same rule as `fsStorage`: a bare `empty()` deletes nothing, so storage-generic code cannot wipe the cache directory by accident.

@@ -4,7 +4,7 @@ import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
 import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
-import { type FilePage, FileSource, type ReadFilesResult } from './protocol.ts'
+import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
 const MB = 1024 * 1024
@@ -39,7 +39,6 @@ type KeptGeneration = {
   /** When the store took it, in epoch milliseconds. Absent on an index written before it existed. */
   keptAt?: number
   output: KeptSet
-  disk?: KeptSet
   inputBytes?: number
 }
 
@@ -51,8 +50,7 @@ export const hashOf = (content: string) => createHash('sha1').update(content).di
 /**
  * The bytes `entries` keep on disk: output, written files, and kept input.
  */
-const totalBytes = (entries: Array<KeptGeneration>) =>
-  entries.reduce((sum, { output, disk, inputBytes }) => sum + output.bytes + (disk?.bytes ?? 0) + (inputBytes ?? 0), 0)
+const totalBytes = (entries: Array<KeptGeneration>) => entries.reduce((sum, { output, inputBytes }) => sum + output.bytes + (inputBytes ?? 0), 0)
 
 function positiveNumber(value: string | undefined): number | undefined {
   const parsed = Number(value)
@@ -61,14 +59,13 @@ function positiveNumber(value: string | undefined): number | undefined {
 
 /**
  * How many generations an agent keeps and how large they may get, read from
- * `KUBB_AGENT_MAX_GENERATIONS`, `KUBB_AGENT_MAX_GENERATIONS_MB` and `KUBB_AGENT_MAX_SNAPSHOT_MB`.
+ * `KUBB_AGENT_MAX_GENERATIONS` and `KUBB_AGENT_MAX_GENERATIONS_MB`.
  * An unset or invalid value keeps the default.
  */
-export function resolveGenerationLimits(): { maxCount: number; maxMb: number; maxSnapshotMb: number } {
+export function resolveGenerationLimits(): { maxCount: number; maxMb: number } {
   return {
     maxCount: Math.max(1, Math.floor(positiveNumber(process.env.KUBB_AGENT_MAX_GENERATIONS) ?? 8)),
     maxMb: positiveNumber(process.env.KUBB_AGENT_MAX_GENERATIONS_MB) ?? 100,
-    maxSnapshotMb: positiveNumber(process.env.KUBB_AGENT_MAX_SNAPSHOT_MB) ?? 50,
   }
 }
 
@@ -122,7 +119,7 @@ export async function generate({
 }
 
 /**
- * What the output directory holds on disk before a run. `undefined` when `outputPath` is not a real
+ * What the output directory holds when the editor connects. `undefined` when `outputPath` is not a real
  * subdirectory of `root` (listing the root would take in every source file) or holds more than `maxFiles`.
  */
 export async function listDisk({ root, outputPath, maxFiles }: { root: string; outputPath: string; maxFiles: number }): Promise<SourceFiles | undefined> {
@@ -138,38 +135,6 @@ export async function listDisk({ root, outputPath, maxFiles }: { root: string; o
     .filter((key) => !key.split('/').includes('node_modules'))
     .map((key) => relative(resolve(root), resolve(outputDir, key)).replaceAll('\\', '/'))
   return { storage, root, paths: new Set(paths) }
-}
-
-export async function readDiskFiles({
-  files: disk,
-  paths,
-  cursor = 0,
-  limit,
-}: {
-  files: SourceFiles
-  paths: Array<string>
-  cursor?: number
-  limit?: number
-}): Promise<ReadFilesResult> {
-  const files: Record<string, string> = {}
-  const pages: Record<string, FilePage> = {}
-  await inParallel({
-    items: paths.filter((path) => disk.paths.has(path)),
-    limit: READ_CONCURRENCY,
-    run: async (path) => {
-      const content = await disk.storage.readItem(resolve(disk.root, path))
-      if (content === null) return
-      if (limit === undefined) {
-        files[path] = content
-        return
-      }
-      const lines = content.split(/\r\n|\r|\n/)
-      const end = Math.min(cursor + limit, lines.length)
-      files[path] = lines.slice(cursor, end).join('\n')
-      pages[path] = { nextCursor: end < lines.length ? end : null, totalLines: lines.length }
-    },
-  })
-  return limit === undefined ? { files } : { files, pages }
 }
 
 /**
@@ -214,19 +179,7 @@ export function createGenerationStore({
   /**
    * Copies `files` into the store as one set of `jobId`. Above `maxSetMb` only the hashes are kept.
    */
-  async function keep({
-    jobId,
-    source,
-    files,
-    maxSetMb,
-    normalize = source === FileSource.OUTPUT,
-  }: {
-    jobId: string
-    source: FileSource
-    files: SourceFiles
-    maxSetMb: number
-    normalize?: boolean
-  }): Promise<KeptSet> {
+  async function keep({ jobId, files, maxSetMb }: { jobId: string; files: SourceFiles; maxSetMb: number }): Promise<KeptSet> {
     const maxSetBytes = maxSetMb * MB
     const hashes: Record<string, string> = {}
     let bytes = 0
@@ -238,17 +191,13 @@ export function createGenerationStore({
         if (path.split('/').includes('..')) return
         const content = await files.storage.readItem(resolve(files.root, path))
         if (content === null) return
-        // Output is kept as writing it to disk would leave it (see `write`): skipped when empty once
-        // trimmed, and hashed trimmed with one trailing newline. A run kept in memory then reports the
-        // same files and hashes as one with `allowWrite`, the disk snapshot, and a CI upload.
-        if (normalize && !content.trim()) return
-        hashes[path] = hashOf(normalize ? `${content.trim()}\n` : content)
+        hashes[path] = hashOf(content)
         bytes += Buffer.byteLength(content)
-        if (bytes <= maxSetBytes) await storage.writeItem(`${dirOf(jobId)}${source}/${path}`, content)
+        if (bytes <= maxSetBytes) await storage.writeItem(`${dirOf(jobId)}output/${path}`, content)
       },
     })
     if (bytes > maxSetBytes) {
-      await storage.empty(`${dirOf(jobId)}${source}/`)
+      await storage.empty(`${dirOf(jobId)}output/`)
       return { paths: [], hashes, bytes: 0 }
     }
     return { paths: Object.keys(hashes), hashes, bytes }
@@ -303,25 +252,23 @@ export function createGenerationStore({
      */
     async read({
       generation,
-      source,
       paths,
       cursor = 0,
       limit,
     }: {
       generation: KeptGeneration
-      source: FileSource
       paths: Array<string>
       cursor?: number
       limit?: number
     }): Promise<ReadFilesResult> {
-      const kept = new Set(generation[source]?.paths)
+      const kept = new Set(generation.output.paths)
       const files: Record<string, string> = {}
       const pages: Record<string, FilePage> = {}
       await inParallel({
         items: paths.filter((path) => kept.has(path)),
         limit: READ_CONCURRENCY,
         run: async (path) => {
-          const content = await storage.readItem(`${dirOf(generation.jobId)}${source}/${path}`)
+          const content = await storage.readItem(`${dirOf(generation.jobId)}output/${path}`)
           if (content === null) return
           if (limit === undefined) {
             files[path] = content

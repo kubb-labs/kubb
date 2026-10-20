@@ -43,10 +43,17 @@ describe('cacheStorage', () => {
 
     await storage.writeItem('manifest.json', '{"a":1}')
 
-    expect(await storage.readItem('manifest.json')).toBe('{"a":1}\n')
+    expect(await storage.readItem('manifest.json')).toBe('{"a":1}')
 
     await storage.removeItem('manifest.json')
 
     expect(await storage.readItem('manifest.json')).toBeNull()
+  })
+  it('preserves whitespace and empty file contents exactly', async () => {
+    const storage = cacheStorage({ root: makeDir() })
+    await storage.writeItem('file.ts', '  // note\n\nexport {}\n\n')
+    await storage.writeItem('empty.ts', '')
+    expect(await storage.readItem('file.ts')).toBe('  // note\n\nexport {}\n\n')
+    expect(await storage.readItem('empty.ts')).toBe('')
   })
 })

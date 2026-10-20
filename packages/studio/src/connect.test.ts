@@ -217,9 +217,7 @@ describe('the handshake', () => {
     const { sockets } = startAgent({ permissions: { allowRead: true } })
     await vi.waitFor(() => expect(sockets).toHaveLength(1))
 
-    await expect(sockets[0]!.agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: [] })).rejects.toThrow(
-      'Studio must call connect() before any other command',
-    )
+    await expect(sockets[0]!.agent.readFiles({ jobId: 'job-1', paths: [] })).rejects.toThrow('Studio must call connect() before any other command')
   })
 })
 
@@ -400,7 +398,7 @@ describe('readFiles', () => {
     const warn = heard('studio:warn')
     const { agent } = await connectStudio({ hooks })
 
-    await expect(agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: ['src/gen/pet.ts'] })).rejects.toThrow(AgentMessage.READ_NOT_ALLOWED)
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).rejects.toThrow(AgentMessage.READ_NOT_ALLOWED)
     expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowRead' })
   })
 
@@ -408,7 +406,7 @@ describe('readFiles', () => {
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
     await run({ agent, jobId: 'job-1' })
 
-    await expect(agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: ['../../etc/passwd', 'src/gen/pet.ts'], limit: 10 })).resolves.toStrictEqual({
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['../../etc/passwd', 'src/gen/pet.ts'], limit: 10 })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 1' },
       pages: { 'src/gen/pet.ts': { nextCursor: null, totalLines: 1 } },
     })
@@ -421,7 +419,7 @@ describe('readFiles', () => {
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
     await run({ agent, jobId: 'job-1' })
 
-    await expect(agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow(AgentMessage.INVALID_PAGE)
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow(AgentMessage.INVALID_PAGE)
   })
 })
 
@@ -434,7 +432,7 @@ describe('readDiff', () => {
     await run({ agent, jobId: 'job-2' })
     return agent
   }
-  const base = { jobId: 'job-1', source: 'output' } as const
+  const base = { jobId: 'job-1' } as const
 
   it('refuses without allowRead', async () => {
     const agent = await twoRuns({ allowRead: false })
@@ -488,7 +486,7 @@ describe('readDiff', () => {
 
   it('refuses a job the agent no longer keeps', async () => {
     const agent = await twoRuns()
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base: { jobId: 'job-gone', source: 'output' }, limit: 10 })).rejects.toThrow(
+    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base: { jobId: 'job-gone' }, limit: 10 })).rejects.toThrow(
       AgentMessage.GENERATION_GONE,
     )
   })
@@ -542,8 +540,8 @@ describe('generation history', () => {
     const result = await run({ agent, jobId: 'job-1' })
 
     expect(result.hashes).toStrictEqual({ 'src/gen/pet.ts': expect.stringMatching(/^[0-9a-f]{16}$/) })
-    expect(vi.mocked(mkdtemp)).not.toHaveBeenCalled()
-    expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, in memory' })
+    expect(vi.mocked(mkdtemp)).toHaveBeenCalledWith(expect.stringContaining('kubb-output-'))
+    expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk' })
   })
 
   it('reads every earlier job after the agent restarts, from the project cache', async () => {
@@ -557,10 +555,10 @@ describe('generation history', () => {
 
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
 
-    await expect(agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 1' },
     })
-    await expect(agent.readFiles({ jobId: 'job-2', jobType: 'generation', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+    await expect(agent.readFiles({ jobId: 'job-2', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 2' },
     })
   })
@@ -580,22 +578,20 @@ describe('current disk output', () => {
     const { output } = await agent.connect(info)
 
     expect(output?.files.toSorted()).toStrictEqual(['src/gen/empty.ts', 'src/gen/pet.ts'])
-    await expect(
-      agent.readFiles({ jobId: 'connection-1', jobType: 'currentDisk', paths: ['src/gen/pet.ts', 'src/gen/empty.ts', 'src/other.ts'] }),
-    ).resolves.toStrictEqual({
+    await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts', 'src/gen/empty.ts', 'src/other.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'on disk\n', 'src/gen/empty.ts': '' },
     })
     expect(generationStarted).not.toHaveBeenCalled()
     await expect(fsStorage().readItem(`${root}/src/gen/pet.ts`)).resolves.toBe('on disk\n')
   })
 
-  it('reads the current output when Studio requests it', async () => {
+  it('keeps the initial output immutable after local edits', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'first' })
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    await agent.connect(info)
+    const { output } = await agent.connect(info)
     await seedDisk({ 'src/gen/pet.ts': 'second' })
-    await expect(agent.readFiles({ jobId: 'connection-1', jobType: 'currentDisk', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
-      files: { 'src/gen/pet.ts': 'second' },
+    await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'first' },
     })
   })
 
@@ -630,24 +626,14 @@ describe('current disk output', () => {
     expect((await agent.connect(info)).output).toBeUndefined()
   })
 
-  it('fingerprints what the output directory held before the run', async () => {
-    await seedDisk({ 'src/gen/pet.ts': 'on disk', 'src/gen/old.ts': 'stale', 'src/other.ts': 'not output' })
+  it('compares a generated output with the initial disk snapshot', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'old disk content' })
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
-
-    const result = await run({ agent, jobId: 'job-1' })
-
-    expect(Object.keys(result.disk?.hashes ?? {}).toSorted()).toStrictEqual(['src/gen/old.ts', 'src/gen/pet.ts'])
-    expect(result.disk?.hashes['src/gen/pet.ts']).not.toBe(result.hashes['src/gen/pet.ts'])
-  })
-
-  it('reads a job against the disk it ran over', async () => {
-    await seedDisk({ 'src/gen/pet.ts': 'on disk' })
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    const { output } = await agent.connect(info)
     await run({ agent, jobId: 'job-1' })
-
-    await expect(agent.readFiles({ jobId: 'job-1', jobType: 'generation', paths: ['src/gen/pet.ts', 'src/other.ts'], source: 'disk' })).resolves.toStrictEqual({
-      files: { 'src/gen/pet.ts': 'on disk' },
-    })
+    const diff = await agent.readDiff({ jobId: 'job-1', path: 'src/gen/pet.ts', base: { jobId: output!.jobId }, limit: 100 })
+    expect(diff.hunks.flatMap((hunk) => hunk.lines)).toContain('-old disk content')
+    expect(output?.hashes['src/gen/pet.ts']).toMatch(/^[0-9a-f]{16}$/)
   })
 })
 

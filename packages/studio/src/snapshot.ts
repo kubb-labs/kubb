@@ -171,7 +171,7 @@ export async function createSnapshot({
   ...metadata
 }: CreateSnapshotOptions): Promise<PublishedSnapshot> {
   const url = secureUrl({ studioUrl, path: '/api/snapshots' })
-  const generated = await generate({ config, hooks, signal, allowExec: true })
+  const generated = await generate({ config: { ...config, storage: fsStorage() }, hooks, signal, allowExec: true })
   const files = Object.fromEntries(
     await Promise.all(
       [...generated.paths].map(async (path) => {

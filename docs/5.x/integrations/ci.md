@@ -17,12 +17,12 @@ navigation:
 
 ## Supported providers
 
-| Provider | Agent identity | Guide |
-| --- | --- | --- |
-| GitHub Actions | Detected | [Publish snapshots with GitHub Actions](/docs/5.x/integrations/github-actions) |
-| GitLab CI | Detected | [Publish snapshots with GitLab CI](/docs/5.x/integrations/gitlab) |
-| Bitbucket Pipelines, CircleCI | Detected. Pass `--base-id` to compare with a branch | Run `kubb studio snapshot` with `KUBB_TOKEN` set |
-| Other | Pass `--id` and `--base-id` | See below |
+| Provider                      | Agent identity                                      | Guide                                                                          |
+| ----------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------ |
+| GitHub Actions                | Detected                                            | [Publish snapshots with GitHub Actions](/docs/5.x/integrations/github-actions) |
+| GitLab CI                     | Detected                                            | [Publish snapshots with GitLab CI](/docs/5.x/integrations/gitlab)              |
+| Bitbucket Pipelines, CircleCI | Detected. Pass `--base-id` to compare with a branch | Run `kubb studio snapshot` with `KUBB_TOKEN` set                               |
+| Other                         | Pass `--id` and `--base-id`                         | See below                                                                      |
 
 Every provider needs an organization CI API key stored as `KUBB_TOKEN`. Snapshot installation uses a separate `registry` API key. Create both in Studio under Settings › Developers › Tokens.
 
@@ -39,6 +39,10 @@ kubb studio snapshot --id jenkins:api:pr-12 --base-id jenkins:api:main  # on a p
 ```
 
 Use `kubb studio snapshot --json | jq -r '.url'` to pass the tarball URL to another step. See [CI agent identity](/docs/5.x/reference/commands/studio#ci-agent-identity) and [Snapshot output](/docs/5.x/reference/commands/studio#snapshot-output) for the result fields.
+
+## Open the snapshot in Studio
+
+Open the CI agent’s editor to read its latest unexpired package, comment on source lines, or preview generated HTML. Studio reads the stored tarball after the runner exits. Run the pipeline again to publish updated output.
 
 ## Install the snapshot
 
