@@ -102,21 +102,32 @@ const INSTALL_OUTPUT_LINES = 20
 const INSTALL_TIMEOUT_MS = 5 * 60_000
 
 /**
- * Installs the given packages at `cwd` using the detected package manager. Its output is captured,
- * since a spinner owns the line while it runs, and only a failed install shows it, in the error.
+ * Installs the given packages at `cwd` using the detected package manager. Each output line goes
+ * to `onLine`, so the caller can show it while the install runs; a failed install also keeps the
+ * end of the output in the error.
  */
-export async function installPackages(packages: Array<string>, packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
+export async function installPackages(
+  packages: Array<string>,
+  packageManager: PackageManagerInfo,
+  cwd: string = process.cwd(),
+  onLine?: (line: string) => void,
+): Promise<void> {
   const args = [...packageManager.installCommand, ...packages]
   // No stdin, so a package manager that wants input fails instead of waiting. The timeout ends a stalled install.
-  const result = await x(packageManager.name, args, {
+  const result = x(packageManager.name, args, {
     nodeOptions: { cwd, stdio: ['ignore', 'pipe', 'pipe'] },
     timeout: INSTALL_TIMEOUT_MS,
     throwOnError: false,
   })
+  const lines: Array<string> = []
+  for await (const line of result) {
+    lines.push(line)
+    onLine?.(line)
+  }
   if (result.exitCode === 0) return
   if (result.exitCode === undefined) throw new Error(`\`${packageManager.name} ${args.join(' ')}\` timed out after ${INSTALL_TIMEOUT_MS / 60_000} minutes`)
 
-  const output = `${result.stdout}\n${result.stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
+  const output = lines.slice(-INSTALL_OUTPUT_LINES).join('\n')
   throw new Error(`\`${packageManager.name} ${args.join(' ')}\` failed with exit code ${result.exitCode}${output ? `:\n${output}` : ''}`)
 }
 

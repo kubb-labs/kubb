@@ -78,7 +78,7 @@ describe('kubb update', () => {
         initialValues: ['acme/plugin-x'],
       }),
     )
-    expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.1.0'], expect.objectContaining({ name: 'npm' }), cwd)
+    expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.1.0'], expect.objectContaining({ name: 'npm' }), cwd, expect.any(Function))
     expect(output.join('\n')).toContain('Skipped  Plugin @acme/kubb-plugin-z 2.0.0  run kubb update acme/plugin-z later')
   })
 
@@ -88,7 +88,7 @@ describe('kubb update', () => {
     expect(clack.multiselect).not.toHaveBeenCalled()
     expect(clack.confirm).not.toHaveBeenCalled()
     expect(generate).not.toHaveBeenCalled()
-    expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.1.0'], expect.anything(), cwd)
+    expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.1.0'], expect.anything(), cwd, expect.any(Function))
     expect(output.join('\n')).toContain('✓ Update complete')
     expect(output.join('\n')).toContain('Packages  1 installed with npm')
     expect(output.join('\n')).toContain('Regeneration not run')
@@ -126,7 +126,7 @@ describe('kubb update', () => {
 
     await run({ ids: [], dryRun: false, yes: true })
 
-    expect(installPackages).toHaveBeenCalledWith([`github:acme/kubb-plugin-x#${commit}`], expect.objectContaining({ name: 'npm' }), cwd)
+    expect(installPackages).toHaveBeenCalledWith([`github:acme/kubb-plugin-x#${commit}`], expect.objectContaining({ name: 'npm' }), cwd, expect.any(Function))
   })
 
   it('only updates the ids it is given', async () => {

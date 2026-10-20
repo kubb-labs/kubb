@@ -64,7 +64,7 @@ describe('kubb add', () => {
     await run({ id: 'acme/plugin-x', yes: true, install: true })
 
     expect(vi.mocked(globalThis.fetch).mock.calls.map(([url]) => url)).toStrictEqual(['https://kubb.dev/registry/index.json'])
-    expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.2.0'], expect.objectContaining({ name: 'pnpm' }), cwd)
+    expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.2.0'], expect.objectContaining({ name: 'pnpm' }), cwd, expect.any(Function))
     const config = await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')
     expect(config).toContain(`import { pluginX } from '@acme/kubb-plugin-x'`)
     expect(config).toContain('plugins: [pluginX()]')
@@ -130,7 +130,7 @@ describe('kubb add', () => {
     await run({ id: 'plugin-zod', yes, install: true })
 
     expect(vi.mocked(clack.select).mock.calls.length).toBe(yes ? 0 : 1)
-    expect(installPackages).toHaveBeenCalledWith(installs, expect.anything(), cwd)
+    expect(installPackages).toHaveBeenCalledWith(installs, expect.anything(), cwd, expect.any(Function))
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain(plugins)
     if (!answer) expect(output.join('\n')).toContain('Plugin configured; dependencies missing')
   })
@@ -156,7 +156,7 @@ describe('kubb add', () => {
 
     await run({ id: 'acme/plugin-x', yes: true, install: true })
 
-    expect(installPackages).toHaveBeenCalledWith([`github:acme/kubb-plugin-x#${commit}`], expect.objectContaining({ name: 'pnpm' }), cwd)
+    expect(installPackages).toHaveBeenCalledWith([`github:acme/kubb-plugin-x#${commit}`], expect.objectContaining({ name: 'pnpm' }), cwd, expect.any(Function))
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain(`import { pluginX } from '@acme/kubb-plugin-x'`)
     expect(process.exitCode).toBeUndefined()
   })

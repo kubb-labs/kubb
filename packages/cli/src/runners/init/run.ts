@@ -14,6 +14,7 @@ import { isInteractiveRun, logIntro, logOutro } from '../../ui/intro.ts'
 import { logBlock, logError, logStep, logWarn } from '../../ui/log.ts'
 import { createSpinner } from '../../ui/spinner.ts'
 import { fetchRegistryIndex, incompatibility, installSpec, registryUrl } from '../../utils/registry.ts'
+import { installWithSpinner } from '../installWithSpinner.ts'
 import {
   addGenerateScript,
   detectPackageManager,
@@ -298,19 +299,23 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
     // Install `kubb` at the running CLI's version and each plugin at the version the registry pins
     const packagesToInstall = [`${KUBB_PACKAGE_NAME}@${version}`, ...choices.plugins.map((entry) => installSpec(entry.artifact))]
     const packageNames = [KUBB_PACKAGE_NAME, ...choices.plugins.map((entry) => entry.artifact.package)]
-    const installStart = process.hrtime()
-    await step({
-      start: `Installing ${packagesToInstall.length} packages with ${packageManager.name}`,
-      task: async () =>
-        dryRun.run(() => installPackages(packagesToInstall, packageManager, cwd), {
-          message: `install ${packagesToInstall.length} packages with ${packageManager.name}`,
-        }),
-      done: () =>
-        yes
-          ? `Installed ${packageNames.join(' ')} with ${packageManager.name}`
-          : `Installed ${packagesToInstall.length} packages with ${packageManager.name} in ${formatMs(getElapsedMs(installStart))}`,
-      failed: 'Installation failed',
-    })
+    const dry = { message: `install ${packagesToInstall.length} packages with ${packageManager.name}` }
+    if (yes) {
+      await step({
+        start: '',
+        task: async () => void (await dryRun.run(() => installPackages(packagesToInstall, packageManager, cwd), dry)),
+        done: () => `Installed ${packageNames.join(' ')} with ${packageManager.name}`,
+        failed: 'Installation failed',
+      })
+    } else {
+      await installWithSpinner({
+        packages: packagesToInstall,
+        names: `${packagesToInstall.length} packages`,
+        packageManager,
+        cwd,
+        install: async (packages, packageManager, cwd, onLine) => void (await dryRun.run(() => installPackages(packages, packageManager, cwd, onLine), dry)),
+      })
+    }
 
     await step({
       start: `Writing ${KUBB_CONFIG_FILENAME}`,
