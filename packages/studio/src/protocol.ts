@@ -294,7 +294,14 @@ export type GenerationEvent = {
  * watching several runs can tell them apart. `requestedBy` names the Studio user in the agent's
  * command log, and Studio leaves it out for a shared agent.
  */
-export type GenerateInput = { jobId: string; config: JSONKubbConfig; requestedBy?: string }
+export type GenerateInput = {
+  jobId: string
+  config: JSONKubbConfig
+  /**
+   * Display name of the Studio user who asked for the run, shown in the agent's job log.
+   */
+  requestedBy?: string
+}
 
 /**
  * What a finished run produced.
@@ -315,7 +322,13 @@ export type GenerateResult = {
 /**
  * Asks the agent to apply a batch of edits to the config file on disk. `requestedBy` as for {@link GenerateInput}.
  */
-export type SaveConfigInput = { edits: Array<ConfigEdit>; requestedBy?: string }
+export type SaveConfigInput = {
+  edits: Array<ConfigEdit>
+  /**
+   * Display name of the Studio user who asked for the save, shown in the agent's job log.
+   */
+  requestedBy?: string
+}
 
 /**
  * Per-edit outcomes. `changed` is false when every edit was a no-op, so a caller can skip reloading.
@@ -653,7 +666,7 @@ export type SnapshotChanges = {
   /**
    * The snapshot these changes are measured against, `null` when there is none to compare with.
    */
-  base: { id: string; version: string | null; commit?: string; createdAt: string } | null
+  base: { id: string; version: string | null; commit?: string; createdAt: string; number?: number } | null
   added: Array<string>
   changed: Array<string>
   removed: Array<string>
@@ -679,6 +692,14 @@ export type PublishedSnapshot = {
    */
   url: string
   snapshotIdUrl: string
+  /**
+   * Studio page of this snapshot, such as `/kubb-labs/petstore/182`. Absent from a Studio that does not send it.
+   */
+  webUrl?: string
+  /**
+   * The snapshot's sequence number on its CI agent, shown as `#182`. Absent from a Studio that does not send it.
+   */
+  number?: number
   createdAt: string
   expiresAt: string
   /**

@@ -1,3 +1,4 @@
+import { stripVTControlCharacters } from 'node:util'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PublishedSnapshot } from '@kubb/studio/protocol'
 import type { SnapshotOptions } from './run.ts'
@@ -133,14 +134,39 @@ describe('snapshot', () => {
   it('logs the run to stderr in JSON mode', async () => {
     await snapshot(baseOptions({ json: true }))
 
-    expect(vi.mocked(console.error).mock.calls.map(([line]) => String(line))).toStrictEqual(['Generating the snapshot', 'Snapshot published'])
+    expect(vi.mocked(console.error).mock.calls.map(([line]) => String(line))).toStrictEqual([
+      '✓ Packed @acme/api@1.0.0',
+      '✓ Published snapshot snap-1 for acme/api#42@c4d7e10',
+    ])
+  })
+
+  it('prints the Studio page, the diff and the install command, and numbers the snapshot when Studio sends them', async () => {
+    vi.mocked(createSnapshot).mockResolvedValue({
+      ...published,
+      number: 182,
+      webUrl: '/kubb-labs/petstore/182',
+      changes: { ...published.changes!, base: { ...published.changes!.base!, number: 181 } },
+    })
+
+    await snapshot(baseOptions())
+
+    const output = stripVTControlCharacters(
+      vi
+        .mocked(console.log)
+        .mock.calls.map(([line]) => String(line))
+        .join('\n'),
+    )
+    expect(output).toContain('✓ Published snapshot #182 for acme/api#42@c4d7e10')
+    expect(output).toContain('  View    http://localhost:3000/kubb-labs/petstore/182')
+    expect(output).toContain('  Diff    +1 file  ~1 changed  vs #181')
+    expect(output).toContain('  Use     npm i http://localhost:3000/packages/brave-otter/%40acme%2Fapi.tgz')
   })
 
   it('reports a failed publish and passes its error on', async () => {
     vi.mocked(createSnapshot).mockRejectedValue(new Error('Kubb Studio refused the snapshot (status 402): Snapshot limit reached.'))
 
     await expect(snapshot(baseOptions())).rejects.toThrow('Snapshot limit reached')
-    expect(vi.mocked(console.log)).toHaveBeenCalledWith('Snapshot failed')
+    expect(vi.mocked(console.log)).toHaveBeenCalledWith('✖ Snapshot failed')
   })
 
   it('rejects before generating when no token comes from --token or KUBB_TOKEN', async () => {
@@ -159,12 +185,12 @@ describe('formatChanges', () => {
   it.each([
     {
       changes: { base, added: ['a.ts', 'b.ts'], changed: ['c.ts'], removed: ['d.ts'] },
-      expected: '2 added, 1 changed, 1 removed since 9f3e2a1',
+      expected: '+2 files  ~1 changed  -1 removed  vs 9f3e2a1',
       label: 'counts each kind since the short commit of the previous snapshot',
     },
     {
       changes: { base: { ...base, commit: undefined }, added: [], changed: ['c.ts'], removed: [] },
-      expected: '0 added, 1 changed, 0 removed since 2026-01-01T00:00:00.000Z',
+      expected: '~1 changed  vs 2026-01-01T00:00:00.000Z',
       label: 'falls back to the date when the previous snapshot has no commit',
     },
     { changes: { base: null, added: ['a.ts'], changed: [], removed: [] }, expected: 'First snapshot', label: 'names a first snapshot' },
@@ -179,7 +205,7 @@ describe('formatBranchChanges', () => {
   it.each([
     {
       changes: { branch: 'main', base, added: ['a.ts'], changed: [], removed: ['b.ts'], baseFound: true },
-      expected: '1 added, 0 changed, 1 removed against main',
+      expected: '+1 file  -1 removed  vs main',
       label: 'counts each kind against the branch',
     },
     {

@@ -23,8 +23,8 @@ describe('cliReporter', () => {
 
     const output = logs.join('\n')
     expect(output).toContain('petstore')
-    expect(output).toContain('2 passed (2)')
-    expect(output).toContain('12 generated')
+    expect(output).toContain('2 passed')
+    expect(output).toContain('12 files generated')
   })
 
   it('renders nothing at silent', async () => {

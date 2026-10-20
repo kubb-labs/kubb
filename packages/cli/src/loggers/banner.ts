@@ -130,7 +130,9 @@ export function getIntro({
    */
   expression: Expression
 }): string {
-  const text = [styleText(['bold', 'yellow'], `KUBB v${version}`), styleText('gray', title), `${styleText('yellow', '➜')} ${styleText('white', description)}`]
+  // The hoodie's fixed code, so the title is Kubb orange whatever the terminal theme does to `yellow`.
+  const brand = (value: string, bold = false) => `\x1b[${bold ? '1;' : ''}38;5;${colors.O}m${value}\x1b[0m`
+  const text = [brand(`KUBB v${version}`, true), styleText('gray', title), `${brand('➜')} ${styleText('white', description)}`]
 
   return drawHead(expression)
     .map((line, index) => `  ${line}  ${text[index]}`)
@@ -154,4 +156,13 @@ export function formatMsWithColor(ms: number): string {
   if (ms <= 1000) return styleText('yellow', formatted)
 
   return styleText('red', formatted)
+}
+
+/**
+ * A `size`-cell progress bar: `done` of `total` as filled cells, the rest light. Any progress shows
+ * at least one cell, and only a finished bar fills the last one.
+ */
+export function formatBar(done: number, total: number, size = 20): string {
+  const filled = !done ? 0 : done >= total ? size : Math.min(size - 1, Math.max(1, Math.round((done / total) * size)))
+  return styleText('magenta', '█'.repeat(filled)) + styleText('dim', '░'.repeat(size - filled))
 }

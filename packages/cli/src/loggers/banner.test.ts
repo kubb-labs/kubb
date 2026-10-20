@@ -1,6 +1,6 @@
 import { stripVTControlCharacters, styleText } from 'node:util'
 import { describe, expect, it } from 'vitest'
-import { type Expression, formatMsWithColor, getIntro, pixels, wakeUp } from './banner.ts'
+import { type Expression, formatBar, formatMsWithColor, getIntro, pixels, wakeUp } from './banner.ts'
 
 describe('getIntro', () => {
   const expressions = [...new Set(wakeUp.map(([expression]) => expression))]
@@ -35,5 +35,13 @@ describe('formatMsWithColor', () => {
     { ms: 1001, color: 'red', text: '1.00s' },
   ] as const)('returns $text in $color for $ms ms', ({ ms, color, text }) => {
     expect(formatMsWithColor(ms)).toBe(styleText(color, text))
+  })
+})
+
+describe('formatBar', () => {
+  const plain = (done: number, total: number, size?: number) => stripVTControlCharacters(formatBar(done, total, size))
+
+  it('fills cells in proportion to the progress', () => {
+    expect(plain(27, 61)).toBe(`${'█'.repeat(9)}${'░'.repeat(11)}`)
   })
 })

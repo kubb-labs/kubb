@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
-import { createSpinner, logIntro, logInfo } from './output.ts'
+import { createSpinner, withSpinner } from './spinner.ts'
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
@@ -24,17 +24,6 @@ function capturePlain(run: () => void): Array<string> {
 }
 
 describe('plain output', () => {
-  it('prefixes a message with the same symbol the plain logger uses', () => {
-    expect(capturePlain(() => logInfo('Detected pnpm'))).toEqual(['ℹ Detected pnpm'])
-  })
-
-  it.each([
-    { title: 'Kubb Studio', expected: ['Kubb Studio', 'Use with caution', ''], label: 'the title and its warning' },
-    { title: undefined, expected: ['Use with caution', ''], label: 'a warning without a duplicate title' },
-  ])('prints $label instead of opening a block', ({ title, expected }) => {
-    expect(capturePlain(() => logIntro({ title, warning: 'Use with caution' }))).toEqual(expected)
-  })
-
   it('prints every step the spinner was given, so nothing is lost without an animation', () => {
     const lines = capturePlain(() => {
       const spinner = createSpinner()
@@ -53,5 +42,23 @@ describe('plain output', () => {
     })
 
     expect(lines).toEqual(['Linting', '✗ Linting failed'])
+  })
+})
+
+describe('withSpinner', () => {
+  it('shows no spinner when the wait ends within 150 ms, and one after that', async () => {
+    vi.useFakeTimers()
+    const lines: Array<string> = []
+    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(false)
+    using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(String(line)))
+
+    const fast = withSpinner({ promise: Promise.resolve('fast'), message: 'Reading the registry' })
+    await vi.advanceTimersByTimeAsync(200)
+    const slow = withSpinner({ promise: new Promise((resolve) => setTimeout(() => resolve('slow'), 300)), message: 'Reading the registry' })
+    await vi.advanceTimersByTimeAsync(300)
+
+    expect([await fast, await slow]).toStrictEqual(['fast', 'slow'])
+    expect(lines).toStrictEqual(['Reading the registry'])
+    vi.useRealTimers()
   })
 })

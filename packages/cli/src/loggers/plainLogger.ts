@@ -1,4 +1,4 @@
-import { createLogger } from './createLogger.ts'
+import { installLogger } from './composables/index.ts'
 import type { Logger, LoggerWriter } from './defineLogger.ts'
 
 /**
@@ -37,7 +37,8 @@ function createWriter(write: (line: string) => void): LoggerWriter {
 
 /** The plain logger writing through `write`, e.g. `console.error` so stdout carries only JSON. */
 export function createPlainLogger(write: (line: string) => void): Logger {
-  return createLogger(createWriter(write), { audience: 'agent' })
+  const writer = createWriter(write)
+  return (hooks, { logLevel }) => installLogger({ hooks, writer, logLevel, audience: 'agent' })
 }
 
 /** Draws on the console, for non-TTY environments and for an AI coding agent reading the output. */
@@ -47,4 +48,4 @@ export const plainWriter = createWriter((line) => console.log(line))
  * Console adapter for non-TTY environments, and for an AI coding agent reading the output. Reports
  * the same run in the same order as `clackLogger`, without the animation.
  */
-export const plainLogger = createLogger(plainWriter, { audience: 'agent' })
+export const plainLogger: Logger = (hooks, { logLevel }) => installLogger({ hooks, writer: plainWriter, logLevel, audience: 'agent' })

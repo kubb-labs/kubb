@@ -38,6 +38,12 @@ export type Report = {
   }
   filesCreated: number
   /**
+   * Generated files whose content matches the previous output.
+   */
+  filesUnchanged: number
+  fileChanges?: GenerationResult['fileChanges']
+  dryRun?: boolean
+  /**
    * Wall-clock time spent generating this config, in milliseconds.
    */
   durationMs: number
@@ -61,7 +67,7 @@ export type Report = {
  * counts, so every reporter renders the same data.
  */
 export function buildReport(result: GenerationResult): Report {
-  const { config, diagnostics, filesCreated, status, hrStart } = result
+  const { config, diagnostics, filesCreated, filesUnchanged = 0, status, hrStart } = result
 
   const failed = Diagnostics.failedPlugins(diagnostics)
   const total = config.plugins?.length ?? 0
@@ -79,6 +85,9 @@ export function buildReport(result: GenerationResult): Report {
     plugins: { passed: status === 'failed' && timings.length === 0 ? 0 : total - failed.length, failed, total },
     counts,
     filesCreated,
+    filesUnchanged,
+    fileChanges: result.fileChanges,
+    dryRun: result.dryRun,
     durationMs: getElapsedMs(hrStart),
     output: resolve(config.root, config.output.path),
     timings,

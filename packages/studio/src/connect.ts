@@ -3,7 +3,6 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
-import { stripVTControlCharacters } from 'node:util'
 import { getErrorMessage, mkdtemp, read, rm, toError } from '@internals/utils'
 import {
   Diagnostics,
@@ -107,7 +106,20 @@ declare global {
       /**
        * A finished command and what it did, such as `applied 2/3 edits to kubb.config.ts`.
        */
-      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput' | 'readDiff'; info: string }]
+      'studio:command': [
+        ctx: {
+          command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput' | 'readDiff'
+          info: string
+          /**
+           * The Studio user who asked for the command, when Studio names one.
+           */
+          requestedBy?: string
+          /**
+           * Set when a generation failed. Its diagnostics went out through `kubb:generation:end`.
+           */
+          failed?: boolean
+        },
+      ]
       /**
        * A refused or ignored request, with the missing permission so the host can add a remedy.
        */
@@ -291,15 +303,8 @@ class Agent extends RpcTarget implements AgentApi {
       throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Studio must call connect() before any other command' })
   }
 
-  #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string, requestedBy?: string): Promise<void> {
-    // Studio sends the user name, so it must not write terminal escapes or extra lines into the host log.
-    const by =
-      typeof requestedBy === 'string'
-        ? stripVTControlCharacters(requestedBy)
-            .replace(/[\r\n]+/g, ' ')
-            .trim()
-        : ''
-    return emit(this.#options.hooks, 'studio:command', { command, info: by ? `${info}, requested by ${by}` : info })
+  #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string, requestedBy?: string, failed?: boolean): Promise<void> {
+    return emit(this.#options.hooks, 'studio:command', { command, info, requestedBy, failed })
   }
 
   // Not cached: the user can edit the file between two Studio actions.
@@ -485,6 +490,7 @@ class Agent extends RpcTarget implements AgentApi {
       allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
     }).catch(async (error: unknown) => {
       await this.#generations.drop(jobId)
+      await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
       throw error
     })
 

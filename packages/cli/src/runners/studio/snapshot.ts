@@ -1,11 +1,11 @@
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { read } from '@internals/utils'
+import { formatMs, getElapsedMs, read } from '@internals/utils'
 import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { createSnapshot } from '@kubb/studio'
 import type { BranchSnapshotChanges, PublishedSnapshot, SnapshotChanges } from '@kubb/studio/protocol'
-import { logBlock } from '../../loggers/output.ts'
+import { pluralize } from '../../ui/text.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/reporters.ts'
 import { type CiContext, detectCi } from './ci.ts'
@@ -30,28 +30,6 @@ async function findPackageJson(directory: string): Promise<{ name: string; versi
     })
 
   return findPackageJson(parent)
-}
-
-/** Reads package.json only for whichever of name/version --name and --version did not supply. */
-async function resolvePackageMetadata(options: SnapshotOptions): Promise<{ name: string; version: string }> {
-  if (options.name && options.packageVersion) return { name: options.name, version: options.packageVersion }
-
-  const found = await findPackageJson(process.cwd())
-  return { name: options.name ?? found.name, version: options.packageVersion ?? found.version }
-}
-
-function resolveToken(options: SnapshotOptions): string {
-  const token = options.token ?? process.env.KUBB_TOKEN
-
-  if (!token) {
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.unknown,
-      severity: 'error',
-      message: 'An organization CI API key is required. Pass --token or set KUBB_TOKEN.',
-    })
-  }
-
-  return token
 }
 
 function resolveCiIdentity(options: SnapshotOptions): CiContext {
@@ -79,11 +57,15 @@ function absoluteUrl(studioUrl: string, path: string): string {
 
 type SnapshotResult = {
   id: string
+  /** Sequence number on the CI agent, when Studio sends one. */
+  number?: number
   name: string | null
   version: string | null
   integrity: string | null
   url: string
   snapshotIdUrl: string
+  /** Studio page of the snapshot, when Studio sends one. */
+  webUrl?: string
   expiresAt: string
   agentUrl: string
   /** What changed since the previous snapshot of this package on this agent. */
@@ -95,11 +77,13 @@ type SnapshotResult = {
 function toResult({ studioUrl, snapshot, ci }: { studioUrl: string; snapshot: PublishedSnapshot; ci: CiContext }): SnapshotResult {
   return {
     id: snapshot.id,
+    number: snapshot.number,
     name: snapshot.name,
     version: snapshot.version,
     integrity: snapshot.integrity,
     url: absoluteUrl(studioUrl, snapshot.url),
     snapshotIdUrl: absoluteUrl(studioUrl, snapshot.snapshotIdUrl),
+    webUrl: snapshot.webUrl ? absoluteUrl(studioUrl, snapshot.webUrl) : undefined,
     expiresAt: snapshot.expiresAt,
     agentUrl: absoluteUrl(studioUrl, `/agents/${snapshot.agent.slug ?? snapshot.agent.id}`),
     changes: snapshot.changes,
@@ -110,10 +94,13 @@ function toResult({ studioUrl, snapshot, ci }: { studioUrl: string; snapshot: Pu
 /** How many files differ, `against` what. */
 function describeChanges(changes: SnapshotChanges, against: string): string {
   const { added, changed, removed } = changes
+  const parts = [
+    added.length && `+${pluralize(added.length, 'file')}`,
+    changed.length && `~${changed.length} changed`,
+    removed.length && `-${removed.length} removed`,
+  ].filter(Boolean)
 
-  return added.length + changed.length + removed.length
-    ? `${added.length} added, ${changed.length} changed, ${removed.length} removed ${against}`
-    : `No changes ${against}`
+  return parts.length ? `${parts.join('  ')}  ${against}` : `No changes ${against}`
 }
 
 /** One summary line: how many files changed, and since which run. */
@@ -121,26 +108,31 @@ export function formatChanges(changes: SnapshotChanges): string {
   if (!changes.base) {
     return 'First snapshot'
   }
+  const { number, commit, createdAt } = changes.base
 
-  return describeChanges(changes, `since ${changes.base.commit?.slice(0, 7) ?? changes.base.createdAt}`)
+  return describeChanges(changes, `vs ${number ? `#${number}` : (commit?.slice(0, 7) ?? createdAt)}`)
 }
 
 /** One summary line: how the snapshot differs from the base branch's latest one. */
 export function formatBranchChanges(changes: BranchSnapshotChanges & { branch: string }): string {
-  if (changes.base) return describeChanges(changes, `against ${changes.branch}`)
+  if (changes.base) return describeChanges(changes, `vs ${changes.branch}`)
 
   return changes.baseFound ? `No snapshot of ${changes.branch} for this package yet` : `No snapshot of ${changes.branch} to compare with`
 }
 
 function printSummary(result: SnapshotResult): void {
-  logBlock([
-    `${styleText('dim', 'Package'.padEnd(10))}  ${result.name ?? '(unnamed)'}@${result.version ?? '0.0.0'}`,
-    `${styleText('dim', 'Tarball'.padEnd(10))}  ${styleText('cyan', result.url)}`,
-    `${styleText('dim', 'Agent'.padEnd(10))}  ${result.agentUrl}`,
-    ...(result.branchChanges ? [`${styleText('dim', 'Branch'.padEnd(10))}  ${formatBranchChanges(result.branchChanges)}`] : []),
-    ...(result.changes ? [`${styleText('dim', 'Changes'.padEnd(10))}  ${formatChanges(result.changes)}`] : []),
-    `${styleText('dim', 'Expires'.padEnd(10))}  ${result.expiresAt}`,
-  ])
+  const row = (label: string, value: string) => `  ${styleText('dim', label.padEnd(7))} ${value}`
+
+  console.log(
+    [
+      '',
+      ...(result.webUrl ? [row('View', styleText('cyan', result.webUrl))] : []),
+      ...(result.changes ? [row('Diff', formatChanges(result.changes))] : []),
+      ...(result.branchChanges ? [row('Branch', formatBranchChanges(result.branchChanges))] : []),
+      row('Use', `npm i ${result.url}`),
+      row('Expires', result.expiresAt.slice(0, 10)),
+    ].join('\n'),
+  )
 }
 
 /**
@@ -148,22 +140,36 @@ function printSummary(result: SnapshotResult): void {
  * agent the run's identity names.
  */
 export async function snapshot(options: SnapshotOptions): Promise<void> {
-  const token = resolveToken(options)
+  const token = options.token ?? process.env.KUBB_TOKEN
+  if (!token) {
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: 'An organization CI API key is required. Pass --token or set KUBB_TOKEN.',
+    })
+  }
   const { config } = await loadConfigs(options)
   const ci = resolveCiIdentity(options)
-  const { name, version: packageVersion } = await resolvePackageMetadata(options)
+  // package.json is read only for whichever of name/version --name and --version did not supply.
+  const { name, version: packageVersion } =
+    options.name && options.packageVersion
+      ? { name: options.name, version: options.packageVersion }
+      : await findPackageJson(process.cwd()).then((found) => ({ name: options.name ?? found.name, version: options.packageVersion ?? found.version }))
   const logLevel = logLevelMap[options.logLevel ?? 'info']
 
   const write = options.json ? (line: string) => console.error(line) : (line: string) => console.log(line)
   const hooks = new Hookable<KubbHooks>()
-  setupReporters(hooks, { logLevel, reporters: [cliReporter], logger: createPlainLogger(write) })
+  // The steps below are the CI log; the run's own per-file output only shows when asked for with --log-level verbose.
+  setupReporters(hooks, { logLevel: logLevel > logLevelMap.info ? logLevel : logLevelMap.silent, reporters: [cliReporter], logger: createPlainLogger(write) })
   const step = (message: string) => {
     if (logLevel > logLevelMap.silent) {
       write(message)
     }
   }
 
-  step('Generating the snapshot')
+  hooks.hook('kubb:generation:end', ({ filesCreated = 0, status, hrStart }) => {
+    if (status !== 'failed' && hrStart) step(`✓ Generated ${pluralize(filesCreated, 'file')} in ${formatMs(getElapsedMs(hrStart))}`)
+  })
 
   try {
     const published = await createSnapshot({
@@ -180,16 +186,13 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     })
     const result = toResult({ studioUrl: options.studioUrl, snapshot: published, ci })
 
-    step('Snapshot published')
+    step(`✓ Packed ${result.name ?? name}@${result.version ?? packageVersion}`)
+    step(`✓ Published snapshot ${result.number ? `#${result.number}` : result.id} for ${ci.name}${ci.commit ? `@${ci.commit.slice(0, 7)}` : ''}`)
 
-    if (options.json) {
-      console.log(JSON.stringify(result))
-    }
-    if (!options.json) {
-      printSummary(result)
-    }
+    if (options.json) console.log(JSON.stringify(result))
+    else printSummary(result)
   } catch (error) {
-    step('Snapshot failed')
+    step('✖ Snapshot failed')
     throw error
   }
 }

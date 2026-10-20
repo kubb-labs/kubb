@@ -18,7 +18,9 @@ Run `kubb studio` to connect a project to [Kubb Studio](https://kubb.studio). Th
 
 ## Usage
 
-Connect the current project. On the first run, approve the pairing code in Studio. The CLI then asks which permissions to grant for this project.
+Connect the current project. On the first run, open the pairing page and approve the code the CLI shows before it expires. The CLI copies the code to the clipboard when `pbcopy`, `xclip`, or `clip.exe` is available. It then asks which permissions to grant for this project in one list, with the two read permissions checked.
+
+While connected, the CLI logs each job Studio runs on one line: the time, the command, who asked for it, and the result. The job's own steps and diagnostics stay in Studio. Press `b` to move the session to the background worker, the same as `kubb studio start`.
 
 ```shell [Terminal]
 kubb studio
@@ -35,7 +37,7 @@ The positional argument selects the action. It defaults to `connect`.
 | `stop`     | Stop the background worker and keep its pairing.                                                                                               |
 | `login`    | Pair this machine again without opening a generation session. Saved permissions reset.                                                         |
 | `logout`   | Stop the background worker and forget this project's stored token.                                                                             |
-| `status`   | Show worker state, log path, pairing, and saved permissions.                                                                                   |
+| `status`   | Show pairing, worker state and uptime, saved permissions, and the log path, each with the command that changes it.                          |
 | `snapshot` | Generate and pack a snapshot on this machine, upload it in one request, then exit. See [Publish snapshots from CI](/docs/5.x/integrations/ci). |
 
 ## Background connection
@@ -89,7 +91,7 @@ Initial disk output has a separate retention budget with the same count and size
 
 ## Snapshot output
 
-`--json` prints one JSON object with `id`, `name`, `version`, `integrity`, `url`, `snapshotIdUrl`, `expiresAt`, and `agentUrl`. It also includes `changes` and `branchChanges` when comparisons are available. Installing a snapshot requires a separate `registry` API key.
+`--json` prints one JSON object with `id`, `name`, `version`, `integrity`, `url`, `snapshotIdUrl`, `expiresAt`, and `agentUrl`. It also includes `number` and `webUrl` when Studio sends them, and the summary then shows the snapshot number and a `View` link. It also includes `changes` and `branchChanges` when comparisons are available. Installing a snapshot requires a separate `registry` API key.
 
 | JSON field      | Compared with                                                                                                                                                                                                                                                                                               |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { createLogger } from './createLogger.ts'
+import { installLogger } from './composables/index.ts'
 import type { Logger, LoggerWriter } from './defineLogger.ts'
 
 /**
@@ -45,4 +45,4 @@ export const clackWriter: LoggerWriter = {
 /**
  * TTY logger for local development, with animated steps and progress bars.
  */
-export const clackLogger: Logger = createLogger(clackWriter, { audience: 'human' })
+export const clackLogger: Logger = (hooks, { logLevel }) => installLogger({ hooks, writer: clackWriter, logLevel, audience: 'human' })

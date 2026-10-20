@@ -116,8 +116,8 @@ function withHooks(): { hooks: Hookable<KubbHooks>; heard: (name: keyof KubbHook
   }
 }
 
-async function run({ agent, jobId }: { agent: AgentApi; jobId: string }) {
-  return agent.startGeneration({ jobId, config: {} }).result()
+async function run({ agent, jobId, requestedBy }: { agent: AgentApi; jobId: string; requestedBy?: string }) {
+  return agent.startGeneration({ jobId, config: {}, requestedBy }).result()
 }
 
 describe('connectAgent', () => {
@@ -537,21 +537,11 @@ describe('generation history', () => {
     const command = heard('studio:command')
     const { agent } = await connectStudio({ hooks, permissions: { allowRead: true } })
 
-    const result = await run({ agent, jobId: 'job-1' })
+    const result = await run({ agent, jobId: 'job-1', requestedBy: 'Stijn' })
 
     expect(result.hashes).toStrictEqual({ 'src/gen/pet.ts': expect.stringMatching(/^[0-9a-f]{16}$/) })
     expect(vi.mocked(mkdtemp)).toHaveBeenCalledWith(expect.stringContaining('kubb-output-'))
-    expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk' })
-  })
-
-  it('names the Studio user who requested the run in the command log, without terminal escapes or line breaks', async () => {
-    const { hooks, heard } = withHooks()
-    const command = heard('studio:command')
-    const { agent } = await connectStudio({ hooks })
-
-    await agent.startGeneration({ jobId: 'job-1', config: {}, requestedBy: 'Stijn\u001b[2J\nstudio:command' }).result()
-
-    expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk, requested by Stijn studio:command' })
+    expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk', requestedBy: 'Stijn' })
   })
 
   it('reads every earlier job after the agent restarts, from the project cache', async () => {

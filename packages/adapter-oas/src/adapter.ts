@@ -15,6 +15,7 @@ import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { createRefs } from './refs.ts'
 import { scanSchema } from './schemaDiagnostics.ts'
+import { locate } from './sourceLocator.ts'
 import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
 /**
@@ -179,6 +180,7 @@ export const adapterOas = defineExtension<AdapterOas>({
       get document() {
         return parsedDocument
       },
+      locate,
       async validate(input, options) {
         const document = await parseFromConfig({ type: 'path', path: input })
         assertDocument(document)

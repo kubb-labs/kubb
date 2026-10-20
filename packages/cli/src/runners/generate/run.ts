@@ -1,7 +1,7 @@
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { formatters, linters } from '@internals/utils'
+import { formatMs, formatters, getElapsedMs, linters } from '@internals/utils'
 import {
   Hookable,
   type CLIOptions,
@@ -20,13 +20,16 @@ import {
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { trackRun } from '../../Telemetry.ts'
-import { pluralize } from '../../loggers/createLogger.ts'
+import { pluralize } from '../../ui/text.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
-import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
+import { logIntro, logOutro, logSpacer, logTip } from '../../ui/intro.ts'
+import { logError, logInfo, logStep } from '../../ui/log.ts'
+import { logBanner } from '../../ui/mascot.ts'
+import { createSpinner } from '../../ui/spinner.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
-import { fetchUrlBody, startUrlWatcher, startWatcher } from './utils.ts'
+import { type BuildDiff, type BuildSnapshot, diffBuilds, fetchUrlBody, listenForKeys, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
 
 /** NPM registry endpoint used to check for @kubb/cli updates. */
 const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
@@ -47,13 +50,13 @@ type GenerateProps = {
   config: Config
   hooks: Hookable<KubbHooks>
   /**
-   * When `true`, generates in memory instead of writing to disk, and skips formatting, linting,
-   * and post-generate commands.
+   * When `true`, generates in memory instead of writing to disk, skips formatting, linting, and
+   * post-generate commands, and prints what would change on disk.
    */
   dryRun?: boolean
 }
 
-async function generate(options: GenerateProps): Promise<boolean> {
+export async function generate(options: GenerateProps): Promise<boolean> {
   const { input, hooks, dryRun = false } = options
 
   const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
@@ -71,10 +74,6 @@ async function generate(options: GenerateProps): Promise<boolean> {
   // their failures as coded diagnostics that reach the summary, the json report and the exit code.
   const kubb = createKubb(config, { hooks })
   const result = await kubb.generate()
-
-  if (dryRun) {
-    await hooks.callHook('kubb:info', { message: 'Dry run: no files were written', info: `${result.files.length} file(s) would be generated` })
-  }
 
   await report({
     // A setup that threw leaves no driver, so read the configured plugins instead.
@@ -97,16 +96,36 @@ type GenerateCommandOptions = {
   dryRun?: boolean
 }
 
-async function checkForUpdate(hooks: Hookable<KubbHooks>): Promise<void> {
+/** The latest published version, `undefined` when the registry does not answer in time. Never rejects. */
+async function fetchLatestVersion(): Promise<string | undefined> {
   try {
     const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS) })
     const data = (await res.json()) as { version: string }
-    if (data.version && isOutdated({ installed: version, latest: data.version })) {
-      await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion: data.version }))
-    }
+    return data.version
   } catch {
     // Ignore network errors
+    return undefined
   }
+}
+
+async function checkForUpdate({ hooks, latest }: { hooks: Hookable<KubbHooks>; latest: Promise<string | undefined> }): Promise<void> {
+  const latestVersion = await latest
+  if (latestVersion && isOutdated({ installed: version, latest: latestVersion })) {
+    await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion }))
+  }
+}
+
+/** Prints `Rebuilt in 1.2s · +1 schema -2 operations`, without the names part when the spec kept the same names. */
+function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: BuildDiff; durationMs: number }): void {
+  const specChange = [
+    schemas.added && styleText('green', `+${pluralize(schemas.added, 'schema')}`),
+    schemas.removed && styleText('red', `-${pluralize(schemas.removed, 'schema')}`),
+    operations.added && styleText('green', `+${pluralize(operations.added, 'operation')}`),
+    operations.removed && styleText('red', `-${pluralize(operations.removed, 'operation')}`),
+  ]
+    .filter(Boolean)
+    .join(' ')
+  logStep([`Rebuilt in ${formatMs(durationMs)}`, specChange].filter(Boolean).join(styleText('dim', ' · ')))
 }
 
 /**
@@ -115,6 +134,8 @@ async function checkForUpdate(hooks: Hookable<KubbHooks>): Promise<void> {
  * checks for a newer version, and calls `generate` for each config entry.
  */
 export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters, dryRun }: GenerateCommandOptions): Promise<void> {
+  // Started first so the registry request overlaps the banner and the config load.
+  const latest = fetchLatestVersion()
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new Hookable<KubbHooks>()
 
@@ -131,8 +152,19 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   const errorHooks = json ? new Hookable<KubbHooks>() : hooks
   if (json) setupReporters(errorHooks, { logLevel, reporters: [cliReporter], logger: createPlainLogger(console.error) })
 
+  // The config loads while the banner plays; the output still prints in order once the banner is done.
+  const banner = quiet ? undefined : logBanner(version)
+  const loading = getConfigs({
+    configPath,
+    input,
+    watch,
+    logLevel: logLevelKey as CLIOptions['logLevel'],
+  })
+  // Handled below; this keeps a rejection during the banner from counting as unhandled.
+  loading.catch(() => undefined)
+  await banner
+
   if (!quiet) {
-    await logBanner(version)
     logIntro({ title: 'Configuration' })
   }
 
@@ -144,12 +176,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   try {
     if (!quiet) configSpinner.start('Loading config')
 
-    const loaded = await getConfigs({
-      configPath,
-      input,
-      watch,
-      logLevel: logLevelKey as CLIOptions['logLevel'],
-    })
+    const loaded = await loading
     configs = loaded.configs
     resolvedConfigPath = loaded.configPath
 
@@ -169,34 +196,67 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   // `defineConfig` gets the same built-ins it would have registered.
   const available = configs[0]?.reporters?.length ? configs[0].reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter]
   const reporters = selectReporters(available, requestedNames)
-  setupReporters(hooks, { logLevel, reporters })
+  setupReporters(hooks, { logLevel, reporters, dryRun })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 
   // Inside the bootstrap group, so an update notice reads as part of the setup rather than as part
   // of the first config's generation.
-  await checkForUpdate(hooks)
+  await checkForUpdate({ hooks, latest })
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
   try {
     let anyFailed = false
+    // One tracker, one key listener and one build queue serve every watched config, so several configs never mix diffs or answer `r` twice.
+    const tracker = watch ? trackBuild(hooks) : undefined
+    const rebuilds: Array<() => Promise<void>> = []
+    let armKeys: (() => void) | undefined
+    // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
+    let queue = Promise.resolve()
     for (const config of configs) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
       const watchPath = inputKind === 'file' || inputKind === 'url' ? (effectiveInput as string) : undefined
-      if (watchPath && watch) {
-        const watchedPaths = [watchPath]
+      if (watchPath && tracker) {
+        const label = styleText('yellow', `Watching ${inputKind === 'url' ? watchPath : path.relative(process.cwd(), watchPath)}`)
+        let previous: BuildSnapshot | undefined
         // Don't removeAll() between builds, that would also drop logger and lifecycle
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
-        const build = async (paths: Array<string>) => {
+        const build = async () => {
+          const hrStart = process.hrtime()
           const succeeded = await generate({ input, config, hooks, dryRun })
-          logStep(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
+          const snapshot = tracker.take()
+          if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
+          previous = snapshot
+
+          logStep(armKeys ? `${label}  ${styleText('dim', 'r rebuild · q quit')}` : label)
+          armKeys?.()
           if (succeeded) {
             logSpacer()
             logTip()
           }
+        }
+        // A trigger that lands while this config's build is queued joins it; one that lands during the build queues one more. Never rejects.
+        let pending = false
+        const rebuild = (): Promise<void> => {
+          if (pending) return queue
+          pending = true
+          queue = queue
+            .then(() => {
+              pending = false
+              return build()
+            })
+            .catch((error) => void Diagnostics.emit(errorHooks, error))
+          return queue
+        }
+        rebuilds.push(rebuild)
+        if (!quiet) {
+          armKeys ??= listenForKeys({
+            rebuild: () => rebuilds.forEach((trigger) => void trigger()),
+            quit: (code) => void Promise.resolve(hooks.callHook('kubb:lifecycle:end')).finally(() => process.exit(code)),
+          })
         }
 
         // For a URL input, capture the document before the build: it becomes the watcher's
@@ -206,16 +266,12 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         const initialBody = inputKind === 'url' ? await fetchUrlBody(watchPath) : undefined
 
         // The watchers ignore their startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
-        try {
-          await build(watchedPaths)
-        } catch (buildError) {
-          await Diagnostics.emit(errorHooks, buildError)
-        }
+        await rebuild()
 
         if (inputKind === 'url') {
-          startUrlWatcher(watchPath, build, { log: { info: logInfo, error: logError }, initialBody })
+          startUrlWatcher(watchPath, rebuild, { log: { info: logInfo, error: logError }, initialBody })
         } else {
-          await startWatcher(watchedPaths, build, { info: logInfo, error: logError })
+          await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
         }
       } else {
         try {

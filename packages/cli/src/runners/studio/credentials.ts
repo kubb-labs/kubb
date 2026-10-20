@@ -38,6 +38,10 @@ export type Credentials = {
   agentId: string
   agentSlug: string
   /**
+   * The organization that approved the pairing, absent when Studio sends none.
+   */
+  organizationSlug?: string
+  /**
    * Permissions the user has already granted, keyed by absolute project path, so the CLI asks
    * once per project instead of on every run.
    */

@@ -80,6 +80,11 @@ Every adapter the factory returns matches the `Adapter` interface from [`kubb/ki
 | `document` | `TDocument \| null`                                                      | Yes      | The raw parsed source document, for plugins that need direct access. `null` before `parse()`. |
 | `parse`    | `(source: AdapterSource) => InputNode \| Promise<InputNode>`             | Yes      | Convert the spec into the [universal AST](/docs/5.x/explanation/architecture#ast).            |
 | `validate` | `(input: string, options?: { throwOnError?: boolean }) => Promise<void>` | Yes      | Validate the document at a path or URL without running the full pipeline.                     |
+| `locate` | `(source: string, location: DiagnosticLocation) => { start: number; end: number } \| undefined` | No | Where a diagnostic sits in the source text, for CLI code frames. |
+
+`locate` receives the local input's source text and a `DiagnosticLocation`, and returns zero-based UTF-16 offsets with an exclusive `end`, or `undefined` when it cannot place that location. Kubb formats the line, column, and frame from that range. The OpenAPI adapter resolves JSON pointers in YAML and JSON. Adapters without `locate` still show diagnostic messages and locations without code frames.
+
+[`kubb validate`](/docs/5.x/reference/commands/validate) calls the configured adapter's `validate` method with `throwOnError: true`. Validation errors must throw to fail the command.
 
 Cross-references need no adapter hook: every plugin resolves `$ref` imports through [`resolver.imports`](/docs/5.x/reference/kit/resolvers#imports), which defaults each ref to its pointer's last segment. An adapter that renames a schema (for example to break a name collision) stamps `targetName` on every ref node pointing at it, so those imports pick up the emitted name. Refs that keep their segment name need no stamp.
 

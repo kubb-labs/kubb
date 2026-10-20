@@ -38,7 +38,7 @@ export type WriterProgress = {
 }
 
 /**
- * How one logger draws. {@link createLogger} decides what a run says and in what order; a writer
+ * How one logger draws. `installLogger` decides what a run says and in what order; a writer
  * decides only how each line looks, so every logger reports the same run the same way.
  */
 export type LoggerWriter = {
@@ -73,16 +73,9 @@ export type LoggerWriter = {
 }
 
 /**
- * What `Logger.install` hands back to its host. A logger that groups its output returns a
- * `renderSummary` so the `cli` reporter's summary lands inside that group instead of after it.
+ * Logger contract: called once per build with the shared hook emitter, it subscribes to the lifecycle
+ * hooks it forwards to its destination. It hands back `renderSummary`, which writes the `cli`
+ * reporter's summary through the logger's own output so it lands inside the group opened for that
+ * config, and closes that group.
  */
-export type LoggerHandle = {
-  /**
-   * Writes the `cli` reporter's summary lines through this logger's own output, and closes the
-   * group the logger opened for that config.
-   */
-  renderSummary?: SummaryRenderer
-}
-
-/** Logger contract: called once per build with the shared hook emitter, it subscribes to the lifecycle hooks it forwards to its destination. */
-export type Logger = (context: Hookable<KubbHooks>, options: LoggerOptions) => LoggerHandle
+export type Logger = (context: Hookable<KubbHooks>, options: LoggerOptions) => { renderSummary: SummaryRenderer }

@@ -34,7 +34,7 @@ describe('jsonReporter', () => {
     )
     expect(writes).toStrictEqual([])
 
-    await jsonReporter.drain(context)
+    await jsonReporter.drain!(context)
 
     expect(writes).toHaveLength(1)
     const reports = JSON.parse(writes[0]!)
