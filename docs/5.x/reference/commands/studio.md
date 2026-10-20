@@ -85,6 +85,8 @@ Each action exits with code 1 when it fails.
 | `KUBB_AGENT_MAX_GENERATIONS`    | How many recent generations the agent keeps for Studio to read. Defaults to `8`. |
 | `KUBB_AGENT_MAX_GENERATIONS_MB` | Size cap in MB for the kept generations. Defaults to `100`.                      |
 
+Initial disk output has a separate retention budget with the same count and size caps as generated runs. Unchanged output reuses its retained ID across reconnects.
+
 ## Snapshot output
 
 `--json` prints one JSON object with `id`, `name`, `version`, `integrity`, `url`, `snapshotIdUrl`, `expiresAt`, and `agentUrl`. It also includes `changes` and `branchChanges` when comparisons are available. Installing a snapshot requires a separate `registry` API key.

@@ -98,6 +98,6 @@ See [Background connection](/docs/5.x/reference/commands/studio#background-conne
 
 ## Open existing output
 
-With `--allow-read`, Studio opens the output directory before you generate. The retained copy has content hashes, so line comments and HTML previews work immediately. Later generations compare against the previous output set.
+With `--allow-read`, Studio opens the output directory before you generate. The retained copy has content hashes, so line comments and HTML previews work immediately. Later generations compare against the previous output set. Reconnecting reuses unchanged initial output. Initial output and generated runs each have a separate retention budget, so reconnecting does not evict generated runs.
 
 Without `--allow-write`, generation stages files in a temporary disk directory and leaves the project output unchanged. Formatters, linters, and post-generation commands require both `--allow-write` and `--allow-exec`.

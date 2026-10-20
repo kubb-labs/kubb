@@ -189,6 +189,9 @@ function isValidPage({ cursor, limit }: Pick<ReadFilesInput, 'cursor' | 'limit'>
   return Number.isSafeInteger(limit) && limit >= 1 && limit <= MAX_PAGE_LINES
 }
 
+/**
+ * Maps generated paths into a temporary directory while keeping the project root for input resolution.
+ */
 function stagingStorage({ root, directory }: { root: string; directory: string }): Storage {
   const storage = fsStorage()
   const target = (key: string) => {
@@ -268,6 +271,9 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#store
   }
 
+  /**
+   * Deletes the sandbox connection's private cache after its running job has settled.
+   */
   async [Symbol.asyncDispose]() {
     if (this.#sandbox) await rm(resolveCacheDir(this.#sandboxCacheRoot), { recursive: true, force: true })
   }
@@ -316,6 +322,9 @@ class Agent extends RpcTarget implements AgentApi {
     )
   }
 
+  /**
+   * Refreshes project metadata and captures readable output without starting a generation.
+   */
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
     this.#session.info = info
     const { configPath, root, version, loadConfig, configFile } = this.#options
@@ -354,14 +363,15 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
+  /**
+   * Returns an immutable baseline from existing project output, separate from generated history.
+   */
   async #readDiskOutput(config: Config): Promise<ConnectMessagePayload['output']> {
     if (this.#sandbox || !this.#permissions.allowRead || this.#session.active) return undefined
     const files = await listDisk({ root: this.#options.root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES })
     if (!files) return undefined
 
-    const jobId = randomUUID()
-    const output = await this.#generations.keep({ jobId, files, maxSetMb: this.#limits.maxMb })
-    await this.#generations.add({ jobId, output })
+    const { jobId, output } = await this.#generations.keepInitial(files)
     return { jobId, files: output.paths, hashes: output.hashes }
   }
 
@@ -388,7 +398,9 @@ class Agent extends RpcTarget implements AgentApi {
     })
   }
 
-  /** Runs one job and keeps its output, and its input with `allowRead`, for later reads. */
+  /**
+   * Keeps a job's output and permitted parsed input, then cleans up its temporary generation directories.
+   */
   async #runGeneration(input: GenerateInput, controller: AbortController): Promise<GenerateResult> {
     this.#assertConnected()
     // Checked before the first `await`, so two calls in the same tick can't both pass.
@@ -414,7 +426,9 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
-  /** Merges Studio's config over the disk config, refuses output paths outside the output folder, then generates in `root`. */
+  /**
+   * Merges Studio's config over the project config and confines generation to the configured output folder.
+   */
   async #generate({
     input,
     root,
@@ -640,6 +654,9 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
   }
 }
 
+/**
+ * Keeps one RPC connection alive and settles its running generation before disposing temporary output.
+ */
 async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
   const { hooks, signal, heartbeatInterval, token, studioUrl, version } = options
   const session: Session = { connected: Promise.withResolvers(), closed: false }

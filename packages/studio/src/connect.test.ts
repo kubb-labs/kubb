@@ -595,6 +595,28 @@ describe('current disk output', () => {
     })
   })
 
+  it('reuses unchanged output across reconnects without evicting the last generated run', async () => {
+    vi.stubEnv('KUBB_AGENT_MAX_GENERATIONS', '1')
+    try {
+      await seedDisk({ 'src/gen/pet.ts': 'original output' })
+      const first = await connectStudio({ permissions: { allowRead: true } })
+      const initial = (await first.agent.connect(info)).output!
+      await run({ agent: first.agent, jobId: 'job-1' })
+
+      for (let reconnect = 0; reconnect < 3; reconnect++) {
+        const { agent } = await connectStudio({ permissions: { allowRead: true } })
+        expect((await agent.connect(info)).output?.jobId).toBe(initial.jobId)
+        await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+          files: { 'src/gen/pet.ts': 'export const pet = 1' },
+        })
+        const diff = await agent.readDiff({ jobId: 'job-1', path: 'src/gen/pet.ts', base: { jobId: initial.jobId }, limit: 100 })
+        expect(diff.hunks.flatMap((hunk) => hunk.lines)).toContain('-original output')
+      }
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
   it('returns an empty tree when the output directory has no files', async () => {
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
 

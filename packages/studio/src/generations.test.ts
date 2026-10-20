@@ -55,6 +55,53 @@ describe('createGenerationStore', () => {
     await expect(restarted.read({ generation: generation!, paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one' } })
   })
 
+  it('reuses initial output after a restart even when paths arrive in a different order', async () => {
+    const storage = memoryStorage()
+    const limits = { storage, maxCount: 1, maxMb: 1 }
+    const initial = await createGenerationStore(limits).keepInitial(sourceFiles({ 'a.ts': 'one', 'b.ts': 'two' }))
+    const restarted = createGenerationStore(limits)
+    const reused = await restarted.keepInitial(sourceFiles({ 'b.ts': 'two', 'a.ts': 'one' }))
+
+    expect(reused.jobId).toBe(initial.jobId)
+    await expect(restarted.read({ generation: reused, paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one', 'b.ts': 'two' } })
+  })
+
+  it('keeps a large initial baseline readable when the first generation uses its own byte budget', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 8, maxMb: 120 / (1024 * 1024) })
+    const baseline = await store.keepInitial(sourceFiles({ 'a.ts': 'x'.repeat(100) }))
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'y'.repeat(100) } })
+
+    const initial = (await store.get(baseline.jobId))!
+    const generated = (await store.get('job-1'))!
+    await expect(store.read({ generation: initial, paths: ['a.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'x'.repeat(100) } })
+    await expect(store.read({ generation: generated, paths: ['a.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'y'.repeat(100) } })
+  })
+
+  it('bounds changed initial output independently from the generated history count', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 1, maxMb: 1 })
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'generated one' } })
+    const original = await store.keepInitial(sourceFiles({ 'a.ts': 'original' }))
+    const changed = await store.keepInitial(sourceFiles({ 'a.ts': 'changed' }))
+
+    expect(changed.jobId).not.toBe(original.jobId)
+    expect(await store.get(original.jobId)).toBeUndefined()
+    expect(await store.get('job-1')).toBeDefined()
+    await addRun({ store, jobId: 'job-2', files: { 'a.ts': 'generated two' } })
+    expect(await store.get('job-1')).toBeUndefined()
+    expect(await store.get(changed.jobId)).toBeDefined()
+  })
+
+  it('bounds the initial output byte budget without removing generated output', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 8, maxMb: 120 / (1024 * 1024) })
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'generated' } })
+    const original = await store.keepInitial(sourceFiles({ 'a.ts': 'x'.repeat(100) }))
+    const changed = await store.keepInitial(sourceFiles({ 'a.ts': 'y'.repeat(100) }))
+
+    expect(await store.get(original.jobId)).toBeUndefined()
+    expect(await store.get(changed.jobId)).toBeDefined()
+    expect(await store.get('job-1')).toBeDefined()
+  })
+
   it('hashes the exact stored bytes, including leading and trailing whitespace', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
     const output = await store.keep({ jobId: 'job-1', files: sourceFiles({ 'a.ts': '\nexport const a = 1' }), maxSetMb: 1 })

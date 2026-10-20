@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
@@ -36,6 +36,10 @@ type KeptSet = {
 
 type KeptGeneration = {
   jobId: string
+  /**
+   * Initial disk output has its own retention budget, separate from generated jobs.
+   */
+  initial?: boolean
   /** When the store took it, in epoch milliseconds. Absent on an index written before it existed. */
   keptAt?: number
   output: KeptSet
@@ -52,6 +56,9 @@ export const hashOf = (content: string) => createHash('sha1').update(content).di
  */
 const totalBytes = (entries: Array<KeptGeneration>) => entries.reduce((sum, { output, inputBytes }) => sum + output.bytes + (inputBytes ?? 0), 0)
 
+/**
+ * Accepts positive finite environment limits and leaves invalid values for the caller's default.
+ */
 function positiveNumber(value: string | undefined): number | undefined {
   const parsed = Number(value)
   return value && Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
@@ -140,8 +147,8 @@ export async function listDisk({ root, outputPath, maxFiles }: { root: string; o
 /**
  * Keeps recent generations by job id in `storage`, with an index next to them so a store on disk
  * survives a restart. A generation is only ever looked up by its job id, so on a pooled sandbox one
- * tenant never reaches another's output. The oldest go past `maxCount` or `maxMb`, but the newest
- * always stays.
+ * tenant never reaches another's output. Initial disk output and generated jobs each get their
+ * own `maxCount` and `maxMb` budget. Each budget always keeps its newest entry.
  */
 export function createGenerationStore({
   storage,
@@ -165,6 +172,9 @@ export function createGenerationStore({
   // Hashed so a job id from the wire can never point outside the store.
   const dirOf = (jobId: string) => `studio/generations/${hashOf(jobId)}/`
 
+  /**
+   * Restores the persisted output index once per connection; an unreadable index starts empty.
+   */
   async function load(): Promise<Array<KeptGeneration>> {
     if (index) return index
     const stored = await storage.readItem(INDEX_KEY).catch(() => null)
@@ -203,13 +213,58 @@ export function createGenerationStore({
     return { paths: Object.keys(hashes), hashes, bytes }
   }
 
+  /**
+   * Removes a retained set and its parsed input without touching other output IDs.
+   */
   async function drop(jobId: string): Promise<void> {
     await storage.empty(dirOf(jobId))
+  }
+
+  /**
+   * Applies expiry and evicts only entries sharing this set's initial-output or generation budget.
+   */
+  async function add(generation: KeptGeneration): Promise<void> {
+    const current = await load()
+    for (const expired of current.filter((entry) => !isLive(entry))) await drop(expired.jobId)
+    const live = current.filter((entry) => entry.jobId !== generation.jobId && isLive(entry))
+    const sharesBudget = (entry: KeptGeneration) => Boolean(entry.initial) === Boolean(generation.initial)
+    const entries = live.filter(sharesBudget)
+    entries.push({ ...generation, keptAt: now() })
+    while (entries.length > 1 && (entries.length > maxCount || totalBytes(entries) > maxMb * MB)) {
+      await drop(entries.shift()!.jobId)
+    }
+    index = [...live.filter((entry) => !sharesBudget(entry)), ...entries]
+    await storage.writeItem(INDEX_KEY, JSON.stringify(index))
   }
 
   return {
     keep,
     drop,
+    /**
+     * Captures initial disk output, reusing a retained ID when its hashes and readable paths match.
+     * A temporary candidate is discarded on reuse, so reconnects do not consume retention slots.
+     */
+    async keepInitial(files: SourceFiles): Promise<KeptGeneration> {
+      const jobId = randomUUID()
+      const output = await keep({ jobId, files, maxSetMb: maxMb })
+      const hashes = Object.entries(output.hashes)
+      const previous = (await load()).findLast(
+        (entry) =>
+          entry.initial &&
+          isLive(entry) &&
+          entry.output.paths.length === output.paths.length &&
+          Object.keys(entry.output.hashes).length === hashes.length &&
+          hashes.every(([path, hash]) => entry.output.hashes[path] === hash),
+      )
+      if (previous) {
+        await drop(jobId)
+        await add(previous)
+        return previous
+      }
+      const generation = { jobId, output, initial: true }
+      await add(generation)
+      return generation
+    },
     /**
      * Keeps the `InputNode` of `jobId` and returns its size in bytes, or 0 when it keeps none. A ref schema loses
      * the copy of its target, which `input.schemas` holds: with it, a large spec outgrows what `JSON.stringify` can return.
@@ -236,17 +291,7 @@ export function createGenerationStore({
       return stored === null ? undefined : (JSON.parse(stored) as InputNode)
     },
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
-    async add(generation: KeptGeneration): Promise<void> {
-      const current = await load()
-      for (const expired of current.filter((entry) => !isLive(entry))) await drop(expired.jobId)
-      const entries = current.filter((entry) => entry.jobId !== generation.jobId && isLive(entry))
-      entries.push({ ...generation, keptAt: now() })
-      while (entries.length > 1 && (entries.length > maxCount || totalBytes(entries) > maxMb * MB)) {
-        await drop(entries.shift()!.jobId)
-      }
-      index = entries
-      await storage.writeItem(INDEX_KEY, JSON.stringify(entries))
-    },
+    add,
     /**
      * Reads the requested paths the set holds, skipping any it does not, one page of lines when `limit` is given.
      */
