@@ -292,8 +292,8 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string, requestedBy?: string): Promise<void> {
-    // Studio sends the user name, so it must not write terminal escapes into the host log.
-    const by = typeof requestedBy === 'string' ? stripVTControlCharacters(requestedBy).trim() : ''
+    // Studio sends the user name, so it must not write terminal escapes or extra lines into the host log.
+    const by = typeof requestedBy === 'string' ? stripVTControlCharacters(requestedBy).replace(/[\r\n]+/g, ' ').trim() : ''
     return emit(this.#options.hooks, 'studio:command', { command, info: by ? `${info}, requested by ${by}` : info })
   }
 

@@ -544,14 +544,14 @@ describe('generation history', () => {
     expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk' })
   })
 
-  it('names the Studio user who requested the run in the command log, without terminal escapes', async () => {
+  it('names the Studio user who requested the run in the command log, without terminal escapes or line breaks', async () => {
     const { hooks, heard } = withHooks()
     const command = heard('studio:command')
     const { agent } = await connectStudio({ hooks })
 
-    await agent.startGeneration({ jobId: 'job-1', config: {}, requestedBy: 'Stijn\u001b[2J' }).result()
+    await agent.startGeneration({ jobId: 'job-1', config: {}, requestedBy: 'Stijn\u001b[2J\nstudio:command' }).result()
 
-    expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk, requested by Stijn' })
+    expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk, requested by Stijn studio:command' })
   })
 
   it('reads every earlier job after the agent restarts, from the project cache', async () => {
