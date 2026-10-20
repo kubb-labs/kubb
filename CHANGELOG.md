@@ -1,5 +1,32 @@
 # Changelog
 
+## v5.11.4 — Oct 20, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Keep Studio output on disk and make existing output available for review before generating.
+  
+  - Return an immutable output ID and content hashes on connect.
+  - Stage generation on disk when project writes are disabled.
+  - Remove `ReadFilesInput.jobType`, `ReadFilesInput.source`, `ReadDiffInput.base.source`, `FileSource`, and the pre-run disk comparison.
+  - Preserve cached file bytes exactly, including whitespace and empty files.
+  - Reuse unchanged initial output across reconnects and keep its retention budget separate from generated runs.
+  
+  ```diff
+  - { jobId, jobType: 'generation', source: 'output', paths }
+  + { jobId, paths }
+  ```
+  
+  Upgrade Studio and its agents together. Read files with `{ jobId, paths }` and compare output sets with `{ jobId, path, base: { jobId }, limit }`. ([#4360](https://github.com/kubb-labs/kubb/pull/4360), [`c2c1edd`](https://github.com/kubb-labs/kubb/commit/c2c1edd53d44413ea4133f121f25f033bd44d144))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.11.3 — Oct 19, 2026
 
 ### @kubb/studio
