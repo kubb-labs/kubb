@@ -284,7 +284,7 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#store
   }
 
-  async [Symbol.asyncDispose]() {
+  async clear() {
     if (this.#sandbox) await rm(resolveCacheDir(this.#sandboxCacheRoot), { recursive: true, force: true })
   }
 
@@ -705,7 +705,7 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
     await emit(hooks, 'studio:warn', { message: 'Canceled the running generation: the connection to Kubb Studio closed' })
   }
   await active?.settled
-  await agent[Symbol.asyncDispose]()
+  await agent.clear()
 
   return { ...close, connected: session.info !== undefined }
 }
