@@ -1,5 +1,5 @@
 import { styleText } from 'node:util'
-import { type Config, type DiagnosticFormatOptions, type Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { type Config, type Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import type { LoggerWriter } from '../types.ts'
 
 /**
@@ -11,7 +11,6 @@ export type LoggerContext = {
   writer: LoggerWriter
   logLevel: number
   silent: boolean
-  audience: DiagnosticFormatOptions['audience']
   human: boolean
   /** Set once a rich `kubb studio` session connects: each run then shows as one job line. */
   session: boolean
@@ -32,7 +31,6 @@ export function createLoggerContext({ hooks, writer, logLevel }: { hooks: Hookab
     writer,
     logLevel,
     silent: logLevel <= logLevelMap.silent,
-    audience: writer.audience,
     human: writer.audience === 'human',
     session: false,
     groupOpen: false,

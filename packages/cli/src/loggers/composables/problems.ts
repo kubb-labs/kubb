@@ -15,7 +15,8 @@ export type Problems = ReturnType<typeof createProblems>
 
 /** Warnings, errors and diagnostics: printed as they come, or held back and grouped by plugin once a human's build ends. */
 export function createProblems(ctx: LoggerContext, spinner: Spinner, progress: Progress, phases: Phases) {
-  const { writer, silent, human, audience, logLevel, text, line, hooks } = ctx
+  const { writer, silent, human, logLevel, text, line, hooks } = ctx
+  const { audience } = writer
   const formatOptions: DiagnosticFormatOptions = {
     audience,
     verbose: logLevel >= logLevelMap.verbose,
