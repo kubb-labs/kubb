@@ -34,21 +34,19 @@ export async function run({ input, configPath }: ValidateOptions): Promise<void>
           if (configPath) throw error
         })
       : undefined
-    let targets: Array<{ adapter: Config['adapter']; input: string }>
-    if (loaded) {
-      // An array config often repeats one adapter, so each adapter and input pair is validated once.
-      const unique = new Map(
-        loaded.configs.map((config) => {
-          const resolved = URL.canParse(input) ? input : resolve(config.root || process.cwd(), input)
-          return [`${config.adapter?.name}\0${resolved}`, { adapter: config.adapter, input: resolved }] as const
-        }),
-      )
-      targets = [...unique.values()]
-    } else {
+    const fallback = async () => {
       adapterName = '@kubb/adapter-oas'
       const { adapterOas } = await import('@kubb/adapter-oas')
-      targets = [{ adapter: adapterOas(), input }]
+      return [{ adapter: adapterOas(), input }]
     }
+    // An array config often repeats one adapter, so each adapter and input pair is validated once.
+    const unique = new Map(
+      (loaded?.configs ?? []).map((config) => {
+        const resolved = URL.canParse(input) ? input : resolve(config.root || process.cwd(), input)
+        return [`${config.adapter?.name}\0${resolved}`, { adapter: config.adapter, input: resolved }] as const
+      }),
+    )
+    const targets: Array<{ adapter: Config['adapter']; input: string }> = loaded ? [...unique.values()] : await fallback()
     if (!targets.length) throw new Error('The Kubb config contains no configurations to validate.')
     for (const target of targets) {
       adapterName = target.adapter?.name
