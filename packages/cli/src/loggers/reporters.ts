@@ -5,7 +5,7 @@ import { isPathInside } from '@internals/utils'
 import type { GenerationResult, Hookable, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
 import { cacheStorage, createCliReporter, createOutputManifest, logLevel as logLevelMap } from '@kubb/core'
 import { writer as defaultWriter } from '../ui/log.ts'
-import { installLogger } from './composables/index.ts'
+import { installLogger } from './features/index.ts'
 import type { LoggerWriter } from './types.ts'
 import { diffOutput, readOutputFiles } from '../runners/generate/utils.ts'
 
