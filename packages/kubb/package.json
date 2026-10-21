@@ -192,7 +192,7 @@
     "@nuxt/schema": "^4.6.2",
     "esbuild": "^0.28.2",
     "rolldown": "^1.2.14",
-    "rollup": "^4.64.7",
+    "rollup": "^4.64.10",
     "typescript": "catalog:",
     "vite": "^8.3.4",
     "webpack": "^5.112.0"
