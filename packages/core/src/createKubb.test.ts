@@ -239,6 +239,14 @@ describe('createKubb', () => {
     expect(await storage.readItem(staleFile)).toBe(expected)
   })
 
+  it('uses the given inputNode instead of parsing the spec', async () => {
+    const adapter = createMockedAdapter({ parse: vi.fn(async () => ast.factory.createInput()) })
+
+    await createKubb(makeConfig({ adapter }), { hooks: new Hookable<KubbHooks>(), inputNode: ast.factory.createInput() }).build()
+
+    expect(adapter.parse).not.toHaveBeenCalled()
+  })
+
   it('output.clean raises a KUBB_CLEAN_ROOT diagnostic when output.shared.path is the project root', async () => {
     const root = path.join(os.tmpdir(), 'kubb-clean-guard')
     const kubb = createKubb(makeConfig({ ...config, root, output: { path: './gen', clean: true, shared: { path: '.' } } }), {

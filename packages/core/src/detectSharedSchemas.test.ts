@@ -34,13 +34,14 @@ describe('detectSharedSchemas', () => {
     const animals = makeConfig([name(), color(), object('Animal', { name: ref('Name') })])
     const fruits = makeConfig([object('Fruit', { color: ref('Color') }), color(), name()])
 
-    const { configs, conflicts } = await detectSharedSchemas([animals, fruits])
+    const { configs, conflicts, inputs } = await detectSharedSchemas([animals, fruits])
 
     expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([
       ['Name', 'Color'],
       ['Name', 'Color'],
     ])
     expect(conflicts).toStrictEqual([])
+    expect(configs.map((config) => inputs.get(config)?.schemas.length)).toStrictEqual([3, 3])
   })
 
   it('keeps a schema defined differently, and every shared candidate that references it, in each output', async () => {

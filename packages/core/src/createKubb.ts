@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { isPathInside } from '@internals/utils'
-import type { FileNode } from '@kubb/ast'
+import type { FileNode, InputNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -58,6 +58,10 @@ export type CreateKubbOptions = {
    * when any of them sets `output.clean`, so a later config never deletes what an earlier one wrote.
    */
   cleanShared?: boolean
+  /**
+   * The spec already parsed, so the build does not parse it again. `kubb generate` passes the node it parsed to detect shared schemas.
+   */
+  inputNode?: InputNode
 }
 
 /**
@@ -115,12 +119,14 @@ export class Kubb {
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
   readonly #cleanShared: boolean
+  readonly #inputNode: InputNode | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
     this.#cleanShared = options.cleanShared ?? false
+    this.#inputNode = options.inputNode
   }
 
   get storage(): Storage {
@@ -163,7 +169,7 @@ export class Kubb {
 
     // The driver empties `cleanPath` right before it writes the new files, so a run that fails
     // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath, cleanSharedPath })
+    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath, cleanSharedPath, inputNode: this.#inputNode })
     await driver.setup()
 
     this.#driver = driver

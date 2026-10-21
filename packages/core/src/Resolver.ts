@@ -70,7 +70,8 @@ export type ResolvePathOptions = ResolverPathParams & {
 
 /**
  * The file request for `resolver.file` and `resolver.default.file`: the `name` and `extname` plus
- * the optional `tag`/`path` that grouping keys off.
+ * the optional `tag`/`path` that grouping keys off. An operation file always passes `tag` or `path`,
+ * since a file without either whose name matches a shared schema moves to `output.shared.path`.
  */
 export type ResolverFileParams = {
   name: string

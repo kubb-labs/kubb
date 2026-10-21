@@ -148,4 +148,20 @@ describe('runOutputPasses', () => {
     expect(animals).not.toContain('   ')
     expect(common).toBe(animals)
   })
+
+  it('formats output.shared.path once when it contains the output directory', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-output-'))
+    roots.push(root)
+    fs.mkdirSync(path.join(root, 'gen', 'animals'), { recursive: true })
+    fs.writeFileSync(path.join(root, 'gen', 'animals', 'name.ts'), 'export const name   =   1\n')
+    const config = { ...makeConfig({ format: 'oxfmt', path: './gen/animals', shared: { path: './gen' } }), root }
+    const hooks = new Hookable<KubbHooks>()
+    const seen = record(hooks)
+
+    const diagnostics = await runOutputPasses({ config, outputPath: path.join(root, 'gen', 'animals'), hooks })
+
+    expect(diagnostics).toStrictEqual([])
+    expect(seen.successes).toHaveLength(1)
+    expect(seen.successes[0]).not.toContain('animals')
+  })
 })

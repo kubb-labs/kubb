@@ -139,7 +139,7 @@ describe('shared schemas', () => {
 
     const lines = await bootstrap({ configs: [withSeason('winter'), withSeason('summer')] })
 
-    expect(lines).toContain('⚠ Not shared, since the specs define them differently: Season Each config keeps its own copy of these schemas.')
+    expect(lines).toContain('⚠ Not shared, since the specs define them differently: Season. Each config keeps its own copy of these schemas.')
   })
 
   it.each([

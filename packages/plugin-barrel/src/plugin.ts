@@ -6,7 +6,7 @@ import type { ast, Config, NormalizedPlugin, Plugin } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
 import type { BarrelType, PluginBarrelConfig } from './types.ts'
-import { type BarrelIndex, buildBarrelIndex, getBarrelFiles } from './utils.ts'
+import { buildBarrelIndex, getBarrelFiles } from './utils.ts'
 
 /**
  * Applies a plugin's configured `output.banner`/`footer` to a barrel file, flagged as `isBarrel`.
@@ -163,24 +163,25 @@ export const pluginBarrel = defineExtension({
       const index = buildBarrelIndex(outputPath, relevantFiles)
       // Shared schemas live outside `output.path`, so the shared directory gets its own index.
       const sharedRoot = config.output.shared && path.resolve(config.root, config.output.shared.path)
-      const sharedIndex = sharedRoot ? buildBarrelIndex(sharedRoot, relevantFiles) : undefined
+      const shared = sharedRoot ? { root: sharedRoot, index: buildBarrelIndex(sharedRoot, relevantFiles) } : undefined
       const reportedCollisions = new Set<string>()
 
       pendingBarrels.forEach(({ plugin, target, barrelType, nested }) => {
-        const emit = (barrelIndex: BarrelIndex, targetPath: string) => {
-          getBarrelFiles({ index: barrelIndex, targetPath, barrelType, nested, recursive: true, reportedCollisions }).forEach((file) => {
+        const targets = [
+          { index, targetPath: target },
+          ...(shared ? [{ index: shared.index, targetPath: path.resolve(shared.root, plugin.options.output.path) }] : []),
+        ]
+        for (const barrel of targets) {
+          getBarrelFiles({ ...barrel, barrelType, nested, recursive: true, reportedCollisions }).forEach((file) => {
             upsertFile(withBarrelBannerFooter({ file, plugin, config }))
           })
         }
-
-        emit(index, target)
-        if (sharedRoot && sharedIndex) emit(sharedIndex, path.resolve(sharedRoot, plugin.options.output.path))
       })
       pendingBarrels.length = 0
 
       if (rootBarrelConfig === false) return
 
-      for (const rootIndex of sharedIndex ? [index, sharedIndex] : [index]) {
+      for (const rootIndex of shared ? [index, shared.index] : [index]) {
         getBarrelFiles({ index: rootIndex, barrelType: rootBarrelConfig.type, reportedCollisions }).forEach((file) => {
           upsertFile(file)
         })

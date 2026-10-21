@@ -92,7 +92,9 @@ export async function runOutputPasses({ config, outputPath, hooks, signal }: Run
   }
 
   const sharedPath = config.output.shared && resolve(config.root, config.output.shared.path)
-  const targets = sharedPath && !isPathInside(sharedPath, outputPath) ? [outputPath, sharedPath] : [outputPath]
+  const roots = [...new Set(sharedPath ? [outputPath, sharedPath] : [outputPath])]
+  // A directory inside another target is covered by it, so each tool runs over it once.
+  const targets = roots.filter((target) => !roots.some((other) => other !== target && isPathInside(target, other)))
 
   for (const pass of TOOL_PASSES) {
     const setting = config.output[pass.kind]

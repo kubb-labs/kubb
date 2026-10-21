@@ -31,8 +31,14 @@ type Options = {
    * run that fails earlier leaves the previous output in place.
    */
   cleanPath?: string
-  /** The `output.shared.path` directory `output.clean` empties, at the same moment as `cleanPath`. */
+  /**
+   * The `output.shared.path` directory `output.clean` empties, at the same moment as `cleanPath`.
+   */
   cleanSharedPath?: string
+  /**
+   * The spec already parsed, so `run` skips `adapter.parse`.
+   */
+  inputNode?: InputNode
 }
 
 type RequirePluginContext = {
@@ -144,6 +150,7 @@ export class KubbDriver {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null
+    this.inputNode = options.inputNode ?? null
   }
 
   /**

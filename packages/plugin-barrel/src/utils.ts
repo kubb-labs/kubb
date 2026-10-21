@@ -136,7 +136,7 @@ function walkNested(node: DirectoryNode, ctx: WalkContext): Array<ast.FileNode> 
  * Build it once with {@link buildBarrelIndex} and derive every barrel (per-plugin and root) from
  * it via {@link getBarrelFiles}, instead of re-scanning the full file set once per barrel.
  */
-export type BarrelIndex = {
+type BarrelIndex = {
   tree: DirectoryNode
   sourceFiles: ReadonlyMap<string, ast.FileNode>
 }

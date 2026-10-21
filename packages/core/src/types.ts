@@ -184,7 +184,9 @@ export type Config<TInput = Input> = {
      * ```
      */
     defaultBanner?: 'simple' | 'full' | false
-    /** Give every config in an array the same value to generate the schemas their specs share once. */
+    /**
+     * Directory where schemas that several specs define are written once. Give every config in an array the same value.
+     */
     shared?: SharedOutput
   } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
   /**

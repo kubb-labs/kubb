@@ -30,11 +30,19 @@ export type ResolvePluginOptions<TName> = TName extends keyof Kubb.PluginRegistr
  */
 export type OutputMode = 'directory' | 'file'
 
-/** Schemas written once under `path`, with the plugin layout, and imported from there by every other file. */
+/**
+ * Schemas written once under `path`, with the plugin layout, and imported from there by every other file.
+ */
 export type SharedOutput = {
-  /** Resolved against `root`. */
+  /**
+   * Directory the shared schemas are written to, resolved against `root`.
+   */
   path: string
-  /** @internal Filled in by `kubb generate` with the schemas every spec defines identically. */
+  /**
+   * The schemas every spec defines identically, filled in by `kubb generate`.
+   *
+   * @internal
+   */
   schemas?: Array<string>
 }
 
@@ -75,7 +83,11 @@ export type Output = {
    * Pass a function to compute the footer from the file's `BannerMeta`.
    */
   footer?: string | ((meta: BannerMeta) => string)
-  /** @internal Set by Kubb from the global `output.shared`. */
+  /**
+   * The global `output.shared`, set by Kubb.
+   *
+   * @internal
+   */
   shared?: SharedOutput
 } & ExtractRegistryKey<Kubb.PluginOptionsRegistry, 'output'>
 
