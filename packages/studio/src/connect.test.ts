@@ -334,6 +334,21 @@ describe('a sandbox job', () => {
     expect(vi.mocked(mkdtemp).mock.results).toHaveLength(1)
   })
 
+  it('refuses a file path from Studio on a managed agent, which has no business reading its disk', async () => {
+    const { agent } = await connectStudio({ connectInfo: { ...info, managed: true } })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { input: '/etc/passwd' } }).result()).rejects.toThrow(AgentMessage.MANAGED_INPUT_KIND)
+  })
+
+  it('generates a managed agent from the spec Studio sends instead of warning that it is ignored', async () => {
+    const { hooks, heard } = withHooks()
+    const warn = heard('kubb:warn')
+    const { agent } = await connectStudio({ hooks, connectInfo: { ...info, managed: true } })
+
+    await agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
+    expect(warn).not.toHaveBeenCalled()
+  })
+
   it('reports writes and config edits off and reads on, whatever the host granted', async () => {
     const { agent } = await connectStudio({ permissions: { allowWrite: true, allowConfigEdit: true }, connectInfo: { ...info, sandbox: true } })
 

@@ -10,6 +10,7 @@ import {
   type Config,
   fsStorage,
   getInputKind,
+  type InputKind,
   Hookable,
   type KubbHooks,
   type Storage,
@@ -66,6 +67,8 @@ const MAX_RETRY_DELAY_MS = 30_000
 const DISK_SNAPSHOT_MAX_FILES = 10_000
 // Sandboxes keep temporary output sets with a short lifetime.
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
+// What Studio may send a managed agent as its spec. Not `file` or `object`: a path would read the container's disk.
+const MANAGED_INPUT_KINDS = new Set<InputKind>(['inline', 'url', 'git'])
 /** Extensions `kubb` ships with, so they count as installed without being a direct dependency. */
 const BUILT_IN_PACKAGES = ['@kubb/adapter-oas', '@kubb/parser-ts', '@kubb/parser-md', '@kubb/plugin-barrel']
 
@@ -271,6 +274,10 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#session.info?.sandbox === true
   }
 
+  get #managed(): boolean {
+    return this.#session.info?.managed === true
+  }
+
   // A sandbox has no project to write to or edit, and Studio may always read what it generated there.
   get #permissions(): AgentPermissions {
     const { permissions } = this.#options
@@ -438,9 +445,13 @@ class Agent extends RpcTarget implements AgentApi {
     const { jobId, config: patch } = input
     // A sandbox has no spec on disk, so it only ever generates from the content Studio sends. A path
     // or URL would make it read host files or fetch internal addresses on behalf of any tenant.
-    const studioInput = this.#sandbox ? patch?.input : undefined
+    const studioInput = this.#sandbox || this.#managed ? patch?.input : undefined
     if (this.#sandbox && (typeof studioInput !== 'string' || !studioInput.trim() || getInputKind(studioInput) !== 'inline')) {
       return this.#refuse({ message: AgentMessage.SANDBOX_INPUT_ONLY })
+    }
+    // A managed agent has no project spec to fall back on, so Studio may point it at a URL or a git file. A file path would read the container's disk.
+    if (this.#managed && studioInput !== undefined && !MANAGED_INPUT_KINDS.has(getInputKind(studioInput))) {
+      return this.#refuse({ message: AgentMessage.MANAGED_INPUT_KIND })
     }
 
     const [configs, extensions] = await Promise.all([this.#options.loadConfigs(), this.#installedExtensions()])
@@ -461,7 +472,7 @@ class Agent extends RpcTarget implements AgentApi {
 
     const activePlugins = plugins ?? config.plugins
 
-    if (patch?.input && !this.#sandbox) {
+    if (patch?.input && !this.#sandbox && !this.#managed) {
       // A `kubb:warn` rather than `studio:warn`, so the generation's event stream carries it to Studio too.
       await emit(this.#options.hooks, 'kubb:warn', {
         message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent',

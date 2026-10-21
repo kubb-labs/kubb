@@ -18,9 +18,10 @@ export type JSONKubbConfig = {
     disabled?: boolean
   }>
   /**
-   * Raw OpenAPI / Swagger spec content (YAML or JSON string), never a file path or URL.
+   * Raw OpenAPI / Swagger spec content (YAML or JSON string), never a file path.
    * Required by a 'sandbox' agent, which has no disk config of its own and refuses anything else.
-   * A non-sandbox agent always reads its spec from disk, so this is ignored with a `kubb:warn`.
+   * A 'managed' agent also takes a URL or a `git+<repo>#<ref>:<path>` input, and falls back to its disk config without one.
+   * Any other agent always reads its spec from disk, so this is ignored with a `kubb:warn`.
    */
   input?: string
   /**
@@ -409,6 +410,7 @@ export type ReadInputResult = { input: InputNode }
 export const AgentMessage = {
   GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
   SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
+  MANAGED_INPUT_KIND: 'A managed agent generates from the OpenAPI document content, a URL, or a git file that Studio sends, not from a file path',
   CONFIG_ENTRY_NOT_FOUND: 'The config file has no entry at that position or with that name',
   JOB_REQUIRED: 'The request must name a job',
   FILE_REQUEST_INVALID: 'The request must name an output set and carry paths',
@@ -449,6 +451,11 @@ export type AgentConnectInfo = {
    * temporary root, and generates from the spec Studio sends without editing a project or its config.
    */
   sandbox: boolean
+  /**
+   * A `managed` agent Studio hosts for the organization. It has no project spec on disk, so it
+   * may generate from a spec Studio sends: the content, a URL, or a git file.
+   */
+  managed?: boolean
   agentSlug: string
   /**
    * Absent for a sandbox or global agent, which belongs to no organization.
