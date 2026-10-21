@@ -1,7 +1,9 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": [
-    "tsconfig.json"
+    "tsconfig.json",
+    "tsconfig.dts.json",
+    "reset.d.ts"
   ],
   "globalEnv": [
     "NODE_ENV"

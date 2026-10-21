@@ -1,6 +1,6 @@
 import { ast } from '@kubb/ast'
 import { defineExtension } from '@kubb/core'
-import type * as ts from 'typescript'
+import type * as ts from '@typescript/typescript6'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
 import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath, splitModuleDeclarations } from './utils.ts'

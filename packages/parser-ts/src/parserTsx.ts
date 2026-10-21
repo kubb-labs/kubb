@@ -1,5 +1,5 @@
 import { defineExtension } from '@kubb/core'
-import type * as ts from 'typescript'
+import type * as ts from '@typescript/typescript6'
 import { parserTs, type ParserTsOptions } from './parserTs.ts'
 
 /**
