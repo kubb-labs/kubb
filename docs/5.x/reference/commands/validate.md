@@ -28,11 +28,11 @@ output:
 ---
 ::
 
-The input can also be a URL, such as `https://petstore3.swagger.io/api/v3/openapi.json`.
+The input can also be a URL, such as `https://petstore3.swagger.io/api/v3/openapi.json`, or a file in a git repository, such as `git+https://github.com/org/api.git#main:specs/openapi.yaml`. Kubb fetches a git input into a temporary folder with `git`, validates it, and deletes the folder. See [`input`](/docs/5.x/reference/configuration#input) for the format.
 
 The summary shows the result and elapsed time before the input and the adapter's name. Validation runs no generator plugins and writes no generated files. A failure includes the validation error. When the default OpenAPI adapter is missing, the error includes its installation command.
 
-The command discovers the project's config or accepts `--config <path>` (`-c`). Each config's adapter validates the supplied input, with local paths resolved from that config's `root`, or the current directory when `root` is omitted. A URL is passed unchanged. A config without an adapter fails instead of substituting the OpenAPI adapter.
+The command discovers the project's config or accepts `--config <path>` (`-c`). Each config's adapter validates the supplied input, with local paths resolved from that config's `root`, or the current directory when `root` is omitted. A URL or git input is passed unchanged. A config without an adapter fails instead of substituting the OpenAPI adapter.
 
 ```shell [Terminal]
 kubb validate ./schema.graphql --config ./kubb.config.ts
@@ -40,9 +40,9 @@ kubb validate ./schema.graphql --config ./kubb.config.ts
 
 ## Arguments
 
-| Argument  | Required | Description                                              |
-| --------- | -------- | -------------------------------------------------------- |
-| `<input>` | `true`   | Path or URL to the specification to validate. |
+| Argument  | Required | Description                                                                           |
+| --------- | -------- | ------------------------------------------------------------------------------------- |
+| `<input>` | `true`   | Path, URL, or git input (`git+<repo>#<ref>:<path>`) of the specification to validate. |
 
 > [!TIP]
 > `kubb validate` exits with a non-zero status code when the spec is invalid. Use it as a pre-commit hook or CI step to fail the build.

@@ -16,6 +16,7 @@ navigation:
 
 Run `kubb generate` to read your [`kubb.config.ts`](/docs/5.x/reference/configuration) and run the code-generation pipeline. It's the default command, so running `kubb` with no arguments does the same.
 
+
 ## Usage
 
 Generate from the input set in your config:
@@ -34,19 +35,19 @@ kubb generate ./petStore.yaml
 
 | Argument  | Description                                                                                  |
 | --------- | -------------------------------------------------------------------------------------------- |
-| `[input]` | Optional path or URL to a Swagger/OpenAPI document. Overrides the `input` set in the config. |
+| `[input]` | Optional path, URL, or git input (`git+<repo>#<ref>:<path>`) of a Swagger/OpenAPI document. Overrides the `input` set in the config. |
 
 ## Options
 
-| Option                                      | Default | Description                                                                                                                                             |
-| ------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--config=<path>`, `-c <path>`              |         | Path to a config file, such as `./kubb.staging.ts`.                                                                                                     |
-| `--log-level=<silent\|info\|verbose>`, `-l` | `info`  | Set the verbosity. Use `verbose` to see plugin timings.                                                                                                 |
-| `--silent`, `-s`                            | `false` | Force the log level to `silent`. Suppresses output.                                                                                                     |
-| `--verbose`                                 | `false` | Force the log level to `verbose`. Shows slow plugins.                                                                                                   |
-| `--reporter=<cli\|json\|file\|html>`        |         | Pick which reporters to trigger, comma-separated. Defaults to `cli`.                                                                                    |
-| `--watch`, `-w`                             | `false` | Re-run the pipeline whenever the local input file changes.                                                                                              |
-| `--dry-run`                                 | `false` | Preview a run without writing files, formatting, linting, or running post-generate commands. The summary shows planned file changes compared with disk. |
+| Option                                       | Default | Description                                                                |
+| -------------------------------------------- | ------- | ------------------------------------------------------------------------- |
+| `--config=<path>`, `-c <path>`               |         | Path to a config file, such as `./kubb.staging.ts`.                       |
+| `--log-level=<silent\|info\|verbose>`, `-l`  | `info`  | Set the verbosity. Use `verbose` to see plugin timings.                   |
+| `--silent`, `-s`                             | `false` | Force the log level to `silent`. Suppresses output.                       |
+| `--verbose`                                  | `false` | Force the log level to `verbose`. Shows slow plugins.                     |
+| `--reporter=<cli\|json\|file\|html>`        |         | Pick which reporters to trigger, comma-separated. Defaults to `cli`.      |
+| `--watch`, `-w`                              | `false` | Re-run the pipeline whenever the local input file changes.                |
+| `--dry-run`                                  | `false` | Preview a run without writing files, formatting, linting, or running post-generate commands. The summary shows planned file changes compared with disk. |
 
 `--reporter` takes no short flag. The camelCase spellings from v4 (`--logLevel`, `--dryRun`) still work and print a deprecation warning.
 
@@ -74,12 +75,12 @@ File changes
 
 File changes compare filesystem output with its contents before the run. Custom storage drivers omit this section. Line totals compare counts of each line, so moving a line within a file does not count as a removal and addition. With `--dry-run`, the summary says “planned” and “Nothing was written.” Plain terminals and AI agent sessions show the same summary.
 
-| Reporter | Output                                                                                                                                                                            |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cli`    | The end-of-run summary in the terminal. Default. Uses plain text in non-interactive terminals and AI agent sessions.                                                              |
-| `json`   | A machine-readable report on stdout for CI. See [Diagnostics](/docs/5.x/reference/diagnostics#machine-readable-output) for the full JSON shape.                                   |
+| Reporter | Output                                                                          |
+| -------- | ------------------------------------------------------------------------------- |
+| `cli`    | The end-of-run summary in the terminal. Default. Uses plain text in non-interactive terminals and AI agent sessions. |
+| `json`   | A machine-readable report on stdout for CI. See [Diagnostics](/docs/5.x/reference/diagnostics#machine-readable-output) for the full JSON shape. |
 | `file`   | The run's diagnostics, written to `.kubb/kubb[-<name>]-<timestamp>.log`. The `<name>` segment is dropped when the config has no `name`. A run without diagnostics writes no file. |
-| `html`   | A browsable report directory with generated files and diagnostics, written to `.kubb/kubb[-<name>]-<timestamp>/index.html`.                                                       |
+| `html`   | A browsable report directory with generated files and diagnostics, written to `.kubb/kubb[-<name>]-<timestamp>/index.html`. |
 
 Write a log file:
 
