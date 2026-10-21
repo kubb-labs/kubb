@@ -63,7 +63,7 @@ To render compiler AST nodes to source text from inside a plugin, call `print` o
 
 ```typescript
 import { parserTs } from '@kubb/parser-ts'
-import ts from 'typescript'
+import ts from '@typescript/typescript6'
 
 const source = parserTs().print(
   ts.factory.createVariableStatement(

@@ -30,6 +30,6 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     ...shared,
     outputOptions: (options, format, { cjsDts }) => ({ ...options, keepNames: format === 'cjs' && !cjsDts }),
-    dts: { emitDtsOnly: true, compilerOptions: { baseUrl: '../..' } },
+    dts: { emitDtsOnly: true, tsconfig: '../../tsconfig.dts.json' },
   },
 ])

@@ -18,7 +18,7 @@ export default defineConfig([
   {
     entry: { index: 'src/index.ts' },
     format: 'esm',
-    dts: true,
+    dts: { tsconfig: '../../tsconfig.dts.json' },
     ...shared,
   },
   {

@@ -71,7 +71,7 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "typescript": "catalog:"
+    "@typescript/typescript6": "catalog:"
   },
   "engines": {
     "node": ">=22.12"

@@ -22,8 +22,10 @@ Write handlers as regular methods, not arrow functions, when they use `this.base
 
 `@kubb/plugin-ts` builds TypeScript AST nodes, so a handler returns a `ts.TypeNode` created with the compiler's factory. This override prints `date` schemas as the JavaScript `Date` object instead of `string`.
 
+Install `@typescript/typescript6` first, because `typescript` 7 no longer exports the compiler API.
+
 ```typescript [date.ts]
-import ts from 'typescript'
+import ts from '@typescript/typescript6'
 import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({

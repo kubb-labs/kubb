@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module'
 import { dirname, extname as getExtname, relative, resolve } from 'node:path'
 import { ast } from '@kubb/ast'
-import type * as ts from 'typescript'
+import type * as ts from '@typescript/typescript6'
 
 type Compiler = {
   typescript: typeof ts
@@ -20,7 +20,7 @@ let compiler: Compiler | undefined
 function loadCompiler(): Compiler {
   if (compiler) return compiler
 
-  const typescript: typeof ts = createRequire(import.meta.url)('typescript')
+  const typescript: typeof ts = createRequire(import.meta.url)('@typescript/typescript6')
 
   compiler = {
     typescript,
