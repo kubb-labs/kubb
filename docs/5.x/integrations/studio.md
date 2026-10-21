@@ -96,6 +96,15 @@ See [Background connection](/docs/5.x/reference/commands/studio#background-conne
 > [!IMPORTANT]
 > Without a TTY the CLI skips the permission prompts, so pass the permission flags the run needs. In CI it does not pair either, so use `kubb studio snapshot` with a CI API key there.
 
+## Run generation on a managed agent
+
+On the Pro plan, Kubb can host the agent for you. Open **Agents** in Studio and choose **New managed agent**: give it a name and pick the permissions it may use (write generated files, run the formatter and hooks, let Studio read the output). Studio starts a `kubblabs/kubb-agent` container on its own infrastructure, and the agent appears in the list as *Provisioning* until it connects, usually within a minute.
+
+A managed agent works like a Docker agent you run yourself, with two differences: there is nothing to install or pair, and nothing is kept between jobs. Each job starts from a fresh checkout. Leaving the Pro plan pauses the container; it is deleted after 14 days unless the organization returns to Pro.
+
+> [!NOTE]
+> Your `kubb.config.ts` and its hooks run inside that container, so only the plugins pre-installed in the `kubblabs/kubb-agent` image are available. A config that imports another package fails with `Cannot find module`.
+
 ## Open existing output
 
 With `--allow-read`, Studio opens the output directory before you generate. The retained copy has content hashes, so line comments and HTML previews work immediately. Later generations compare against the previous output set. Reconnecting reuses unchanged initial output. Initial output and generated runs each have a separate retention budget, so reconnecting does not evict generated runs.
