@@ -13,6 +13,7 @@ import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
+import { checkoutGitInput, gitInputRegExp } from './gitInput.ts'
 import { inputToAdapterSource } from './input.ts'
 
 import type { Config, KubbHooks } from './types.ts'
@@ -261,10 +262,14 @@ export class KubbDriver {
     if (this.inputNode || !this.adapter || !this.#adapterSource) return
 
     this.options.signal?.throwIfAborted()
+    const source = this.#adapterSource
+    const checkout = source.type === 'path' && gitInputRegExp.test(source.path) ? await checkoutGitInput(source.path, this.options.signal) : undefined
     try {
-      this.inputNode = await this.adapter.parse(this.#adapterSource, { signal: this.options.signal })
+      this.inputNode = await this.adapter.parse(checkout ? { type: 'path', path: checkout.path } : source, { signal: this.options.signal })
     } catch (caughtError) {
       throw new Diagnostics.Error(Diagnostics.fromExtension(caughtError, { kind: 'adapter', extension: this.adapter }))
+    } finally {
+      await checkout?.dispose()
     }
   }
 

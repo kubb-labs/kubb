@@ -89,6 +89,12 @@ A plugin sets `meta.compatibility.kubb` or `meta.compatibility.node` to a range 
 
 Upgrade Kubb or Node.js to a version in the range, or install a version of the plugin that supports your current Kubb and Node.js.
 
+### KUBB_GIT_INPUT_FAILED: Git input failed {#kubb-git-input-failed}
+
+A git `input` (`git+<repo>#<ref>:<path>`) is malformed, or `git` could not fetch it: git is not installed, the repository or ref does not exist, or the credentials were refused.
+
+Write the input as `git+<repo>#<ref>:<path>`. Run `git fetch --depth 1 <repo> <ref>` yourself to see the git error, and set up a credential helper or SSH key for a private repository.
+
 ### KUBB_INPUT_NOT_FOUND: Input not found {#kubb-input-not-found}
 
 The file set as `input` (or passed as `kubb generate PATH`) could not be read. The OpenAPI adapter checks the path before parsing, so the run stops here instead of failing later with a vague read error.
