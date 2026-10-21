@@ -243,7 +243,7 @@ export function defineExtension(
         build: (raw: object): Adapter => {
           const options = setup ? setup(raw) : raw
           // Assigned onto the built object instead of spread, so getters such as `document` stay live.
-          return Object.assign(build(options), { name: meta.name, meta, options })
+          return Object.assign(build(options), { name: meta.name, meta, options: raw })
         },
       })
     }

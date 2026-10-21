@@ -37,6 +37,10 @@ export type JSONKubbConfig = {
     name: string
     options?: object
   }>
+  /**
+   * Which `defineConfig(...)` entry to generate from. Omitted runs the first one.
+   */
+  config?: ConfigRef
 }
 
 /**
@@ -291,9 +295,17 @@ export type GenerationEvent = {
 
 /**
  * Asks the agent to run one generation. `jobId` tags every event the run emits so a caller
- * watching several runs can tell them apart.
+ * watching several runs can tell them apart. `requestedBy` names the Studio user in the agent's
+ * command log, and Studio leaves it out for a shared agent.
  */
-export type GenerateInput = { jobId: string; config: JSONKubbConfig }
+export type GenerateInput = {
+  jobId: string
+  config: JSONKubbConfig
+  /**
+   * Display name of the Studio user who asked for the run, shown in the agent's job log.
+   */
+  requestedBy?: string
+}
 
 /**
  * What a finished run produced.
@@ -309,16 +321,18 @@ export type GenerateResult = {
    * Content fingerprint per file in `files`, to tell changed files apart without reading them.
    */
   hashes: Record<string, string>
-  /**
-   * Fingerprints of the output directory on disk before the run, for an agent with a project on disk.
-   */
-  disk?: { hashes: Record<string, string> }
 }
 
 /**
- * Asks the agent to apply a batch of edits to the config file on disk.
+ * Asks the agent to apply a batch of edits to the config file on disk. `requestedBy` as for {@link GenerateInput}.
  */
-export type SaveConfigInput = { edits: Array<ConfigEdit> }
+export type SaveConfigInput = {
+  edits: Array<ConfigEdit>
+  /**
+   * Display name of the Studio user who asked for the save, shown in the agent's job log.
+   */
+  requestedBy?: string
+}
 
 /**
  * Per-edit outcomes. `changed` is false when every edit was a no-op, so a caller can skip reloading.
@@ -326,36 +340,12 @@ export type SaveConfigInput = { edits: Array<ConfigEdit> }
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean }
 
 /**
- * What a file read returns for a job: the files that job generated (`output`), or what the output
- * directory held on disk before that job ran (`disk`, only on an agent with a project on disk).
- */
-export const FileSource = { OUTPUT: 'output', DISK: 'disk' } as const
-export type FileSource = (typeof FileSource)[keyof typeof FileSource]
-
-/**
- * Asks the agent to read files of one generation job back.
+ * Reads an immutable output set kept on disk, from a generation or the initial connection.
  */
 export type ReadFilesInput = {
-  /**
-   * The job whose files to read, the only lookup key, so the caller decides whose jobs a reader may
-   * see. A job the agent no longer keeps fails with {@link AgentMessage.GENERATION_GONE}.
-   */
   jobId: string
-  /**
-   * At most {@link MAX_FILES_PER_REQUEST} paths, each checked against what the job's set holds.
-   */
   paths: Array<string>
-  /**
-   * Which of the job's sets to read, `output` when left out.
-   */
-  source?: FileSource
-  /**
-   * The line to start from (0-based), the `nextCursor` of the previous page. Defaults to 0.
-   */
   cursor?: number
-  /**
-   * Lines to read per file, at most {@link MAX_PAGE_LINES}. Left out, the whole file.
-   */
   limit?: number
 }
 
@@ -373,7 +363,7 @@ export type ReadFilesResult = { files: Record<string, string>; pages?: Record<st
  * Asks for one page of a file's line diff between two kept sets, so a large file never leaves the agent whole.
  * `jobId`'s `output` is the newer side, `base` the older one. `cursor` and `limit` page the patch lines.
  */
-export type ReadDiffInput = { jobId: string; path: string; base: { jobId: string; source: FileSource }; cursor?: number; limit: number }
+export type ReadDiffInput = { jobId: string; path: string; base: { jobId: string }; cursor?: number; limit: number }
 
 /**
  * One hunk of a diff page, with its `@@` header. Pages hold whole hunks, and only a hunk longer than a page is
@@ -417,6 +407,15 @@ export type ReadInputResult = { input: InputNode }
  * Why the agent refuses a request. Studio matches on these to answer with the right status.
  */
 export const AgentMessage = {
+  GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
+  SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
+  CONFIG_ENTRY_NOT_FOUND: 'The config file has no entry at that position or with that name',
+  JOB_REQUIRED: 'The request must name a job',
+  FILE_REQUEST_INVALID: 'The request must name an output set and carry paths',
+  TOO_MANY_FILES: 'Too many paths were requested at once',
+  INVALID_PAGE: 'The requested file page is invalid',
+  DIFF_REQUEST_INVALID: 'The request must name a job, a base, and a path',
+  HASHES_ONLY: 'This agent kept only the hashes of that job',
   /**
    * A read for a job whose files the agent no longer keeps.
    */
@@ -446,8 +445,8 @@ export type GenerationRun = {
  */
 export type AgentConnectInfo = {
   /**
-   * A shared `sandbox` or `global` agent. It keeps generations in memory, runs each job in a
-   * temporary root, generates from the spec Studio sends, and never writes to disk or edits config.
+   * A shared `sandbox` or `global` agent. It keeps generations on temporary disk, runs each job in a
+   * temporary root, and generates from the spec Studio sends without editing a project or its config.
    */
   sandbox: boolean
   agentSlug: string
@@ -554,31 +553,47 @@ export type ConnectMessagePayload = {
      * `allowConfigEdit`.
      */
     file?: ConfigFileView
-    /**
-     * Plugins the config registers, with a JSON copy of their options: anything JSON cannot hold,
-     * such as a function, is left out. A plugin defined in the project rather than installed as a
-     * `@kubb/plugin-*` package keeps its own `name`.
-     */
-    plugins?: Array<{
-      name: string
-      options?: object
-    }>
-    /**
-     * The adapter and the parsers the config registers, named like `plugins` and with the same JSON
-     * copy of their options, so Studio can render their manifest options.
-     */
-    adapter?: {
-      name: string
-      options?: object
-    }
-    parsers?: Array<{
-      name: string
-      options?: object
-    }>
     /** Installed packages that ship a `kubb-extension.json`, including plugins the config does not use yet. */
     extensions?: Array<ExtensionEntry>
+    /** Every entry the config exports, in source order. */
+    configs: Array<ConfigEntryView>
   }
   permissions: AgentPermissions
+}
+
+export type DiskOutput = {
+  jobId: string
+  files: Array<string>
+  hashes: Record<string, string>
+}
+
+/**
+ * One `defineConfig(...)` entry as the agent runs it. Every option is a JSON copy: anything JSON cannot
+ * hold, such as a function, is left out. A plugin defined in the project keeps its own `name`.
+ */
+export type ConfigEntryView = {
+  name?: string
+  /** The input file path or URL, without credentials. Omitted for an inline or parsed document. */
+  input?: string
+  /** The output directory as the entry gives it, relative to the project root unless absolute. */
+  output: string
+  /**
+   * The output directory's current file list, readable through `readFiles` without generating.
+   * Absent for a sandbox or when the host has not granted `allowRead`.
+   */
+  disk?: DiskOutput
+  plugins: Array<{
+    name: string
+    options?: object
+  }>
+  adapter?: {
+    name: string
+    options?: object
+  }
+  parsers: Array<{
+    name: string
+    options?: object
+  }>
 }
 
 /** An installed extension package and the manifest it ships. */
@@ -607,8 +622,8 @@ export type AgentPermissions = {
    */
   allowConfigEdit: boolean
   /**
-   * Whether the agent hands back file source in response to `readFiles`. Always true for a
-   * sandbox.
+   * Whether the agent shares existing output on connect and hands back file source through
+   * `readFiles`. A sandbox always permits reads of its generated files.
    */
   allowRead: boolean
   /**
@@ -663,7 +678,7 @@ export type SnapshotChanges = {
   /**
    * The snapshot these changes are measured against, `null` when there is none to compare with.
    */
-  base: { id: string; version: string | null; commit?: string; createdAt: string } | null
+  base: { id: string; version: string | null; commit?: string; createdAt: string; number?: number } | null
   added: Array<string>
   changed: Array<string>
   removed: Array<string>
@@ -689,6 +704,14 @@ export type PublishedSnapshot = {
    */
   url: string
   snapshotIdUrl: string
+  /**
+   * Studio page of this snapshot, such as `/kubb-labs/petstore/182`. Absent from a Studio that does not send it.
+   */
+  webUrl?: string
+  /**
+   * The snapshot's sequence number on its CI agent, shown as `#182`. Absent from a Studio that does not send it.
+   */
+  number?: number
   createdAt: string
   expiresAt: string
   /**

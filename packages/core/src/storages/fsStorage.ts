@@ -1,6 +1,5 @@
-import { glob, readFile, rm } from 'node:fs/promises'
-import { join, relative, resolve } from 'node:path'
-import { toPosixPath, write } from '@internals/utils'
+import { resolve } from 'node:path'
+import { listFiles, read, rm, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
 
 /**
@@ -33,7 +32,7 @@ export const fsStorage = createStorage(() => ({
   name: 'fs',
   async readItem(key: string) {
     try {
-      return await readFile(resolve(key), 'utf8')
+      return await read(resolve(key))
     } catch (_error) {
       return null
     }
@@ -49,11 +48,7 @@ export const fsStorage = createStorage(() => ({
     const keys: Array<string> = []
 
     try {
-      for await (const entry of glob('**/*', { cwd: resolvedBase, withFileTypes: true })) {
-        if (entry.isFile()) {
-          keys.push(toPosixPath(relative(resolvedBase, join(entry.parentPath, entry.name))))
-        }
-      }
+      for await (const path of listFiles(resolvedBase)) keys.push(path)
     } catch (_error) {
       // base directory does not exist yet
     }

@@ -1,7 +1,7 @@
 import { type Adapter, Diagnostics, type ExtensionManifest, type Parser, type Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionEntry, JSONKubbConfig } from './protocol.ts'
-import { mergeOptions, mergeParsers, mergePlugins, resolvePlugins, toJSONOptions } from './resolveConfig.ts'
+import { assertOutputPaths, mergeOptions, mergeParsers, mergePlugins, resolvePlugins, toJSONOptions } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -221,5 +221,26 @@ describe('toJSONOptions', () => {
     const options = { output: { path: 'types' }, group: { type: 'tag', name: (group: string) => group }, pattern: /x/, big: 1n, macros: [() => 1] }
 
     expect(toJSONOptions(options)).toStrictEqual({ output: { path: 'types' }, group: { type: 'tag' }, pattern: {}, macros: [null] })
+  })
+})
+
+describe('assertOutputPaths', () => {
+  function check(options: Record<string, unknown>, diskPlugins: Array<Plugin> = []) {
+    return () => assertOutputPaths({ plugins: [makePlugin('plugin-ts', options)], diskPlugins, root: '/project', outputPath: 'src/gen' })
+  }
+
+  it('refuses a path Studio sends outside the output folder, also inside `override`', () => {
+    const run = check({ output: { path: '../../../../home/alice/.ssh/authorized_keys' } })
+
+    expect(run).toThrow('Plugin "plugin-ts" would write to "/home/alice/.ssh/authorized_keys", outside the output folder "/project/src/gen".')
+    expect(run).toThrow(expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.pathTraversal }) }))
+    expect(check({ output: { path: 'types' }, override: [{ type: 'tag', pattern: 'pet', options: { output: { path: '/etc/cron.d/kubb' } } }] })).toThrow(
+      'would write to "/etc/cron.d/kubb"',
+    )
+    expect(check({ output: { path: 'types' } })).not.toThrow()
+  })
+
+  it('allows a path outside the project root that the config file sets itself', () => {
+    expect(check({ output: { path: '../../../shared/types' } }, [makePlugin('plugin-ts', { output: { path: '../../../shared/types' } })])).not.toThrow()
   })
 })

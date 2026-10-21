@@ -21,6 +21,7 @@ describe('buildReport', () => {
       Diagnostics.performance({ plugin: '@kubb/plugin-zod', duration: 88 }),
     ],
     filesCreated: 3,
+    filesUnchanged: 1,
     status: 'failed',
     hrStart: process.hrtime(),
   }
@@ -33,6 +34,7 @@ describe('buildReport', () => {
     expect(report.plugins).toStrictEqual({ passed: 1, failed: ['@kubb/plugin-zod'], total: 2 })
     expect(report.counts).toStrictEqual({ errors: 1, warnings: 1, infos: 0 })
     expect(report.filesCreated).toBe(3)
+    expect(report.filesUnchanged).toBe(1)
     expect(report.output).toMatch(/src\/gen$/)
     expect(typeof report.durationMs).toBe('number')
     expect(report.timings).toStrictEqual([

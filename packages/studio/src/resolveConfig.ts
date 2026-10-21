@@ -1,8 +1,9 @@
 import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { type Adapter, Diagnostics, type ExtensionKind, isPackageName, type Parser, type Plugin, resolveMeta } from '@kubb/core'
-import { camelCase, toError } from '@internals/utils'
+import { camelCase, isPathInside, toError } from '@internals/utils'
 import type { InstalledExtensions, JSONKubbConfig, OptionValue } from './protocol.ts'
 
 /**
@@ -366,6 +367,47 @@ export async function mergePlugins({
   const studioOnly = activeStudioPlugins.filter((entry) => !diskNames.has(pluginNameOf(entry.name)))
 
   return [...merged, ...(await resolvePlugins({ plugins: studioOnly, extensions }))]
+}
+
+/**
+ * Throws `KUBB_PATH_TRAVERSAL` when a plugin would write outside the config's output folder to a path
+ * the disk config does not set. Studio can change `output.path`, also inside `override`, and add
+ * plugins, so without this check any member of the Studio organization could write any file the agent
+ * can reach, including `node_modules` code the next run imports. A path from the config file stays
+ * allowed, since a monorepo may write outside its root.
+ */
+export function assertOutputPaths({
+  plugins,
+  diskPlugins,
+  root,
+  outputPath,
+}: {
+  plugins: Array<Plugin>
+  diskPlugins: Array<Plugin>
+  root: string
+  outputPath: string
+}): void {
+  const base = path.resolve(root, outputPath)
+  const targetsOf = (plugin: Plugin): Array<string> => {
+    const { output, override } = (plugin.options ?? {}) as { output?: { path?: unknown }; override?: Array<{ options?: { output?: { path?: unknown } } }> }
+    const outputs = [output, ...(Array.isArray(override) ? override.map((entry) => entry?.options?.output) : [])]
+    return outputs.flatMap((entry) => (typeof entry?.path === 'string' ? [path.resolve(base, entry.path)] : []))
+  }
+  const diskTargets = new Set(diskPlugins.flatMap(targetsOf))
+
+  for (const plugin of plugins) {
+    const target = targetsOf(plugin).find((resolved) => !diskTargets.has(resolved) && !isPathInside(resolved, base))
+    if (!target) continue
+
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.pathTraversal,
+      severity: 'error',
+      message: `Plugin "${plugin.name}" would write to "${target}", outside the output folder "${base}". Studio can only set an output path inside it.`,
+      help: 'Choose an output path inside the output folder, or set this path in the config file.',
+      location: { kind: 'config' },
+      plugin: plugin.name,
+    })
+  }
 }
 
 /**

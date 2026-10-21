@@ -455,6 +455,10 @@ export type KubbBuildStartContext = FilesContext & {
    */
   meta: InputMeta | undefined
   /**
+   * How many schemas and operations the parsed document holds, the totals for a progress display.
+   */
+  nodeCounts: { schemas: number; operations: number }
+  /**
    * Looks up a registered plugin by name, typed by the plugin registry.
    */
   getPlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>> | undefined
@@ -621,6 +625,10 @@ export type KubbFilesProcessingEndContext = {
    * All files that were serialized in this batch.
    */
   files: Array<FileNode>
+  /**
+   * Paths of the files the storage already held with the same content, so they were not written.
+   */
+  unchanged: Array<string>
 }
 
 export type KubbHookStartContext = {

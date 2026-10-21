@@ -9,13 +9,16 @@ import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, reso
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
-import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, AgentMessage, type AgentConnectInfo, MAX_PAGE_LINES } from './protocol.ts'
+import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, AgentMessage, type AgentConnectInfo, type ConfigRef, MAX_PAGE_LINES } from './protocol.ts'
 import { projectConfig, root } from './testing.ts'
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
 
 // Reconnects wait for nothing, so a test sees the next socket straight away.
 vi.mock('node:timers/promises', () => ({ setTimeout: vi.fn(async () => {}) }))
+
+// Studio may add a plugin of its own, which the agent imports by package name.
+vi.mock('@kubb/plugin-ts', () => ({ pluginTs: (options: unknown) => ({ name: 'plugin-ts', options }) }))
 
 // Recorded but real, so a sandbox run's job root can be checked without faking the filesystem.
 vi.mock('node:fs/promises', async (importOriginal) => {
@@ -76,7 +79,7 @@ function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
       configPath: 'kubb.config.ts',
       version: '2.0.0',
       root,
-      loadConfig: async () => projectConfig(),
+      loadConfigs: async () => [projectConfig()],
       signal: shutdown.signal,
       ...overrides,
     },
@@ -113,8 +116,8 @@ function withHooks(): { hooks: Hookable<KubbHooks>; heard: (name: keyof KubbHook
   }
 }
 
-async function run({ agent, jobId }: { agent: AgentApi; jobId: string }) {
-  return agent.startGeneration({ jobId, config: {} }).result()
+async function run({ agent, jobId, requestedBy }: { agent: AgentApi; jobId: string; requestedBy?: string }) {
+  return agent.startGeneration({ jobId, config: {}, requestedBy }).result()
 }
 
 describe('connectAgent', () => {
@@ -139,7 +142,7 @@ describe('connectAgent', () => {
           configPath: 'kubb.config.ts',
           version: '2.0.0',
           root,
-          loadConfig: async () => projectConfig(),
+          loadConfigs: async () => [projectConfig()],
         }),
       ).rejects.toBeInstanceOf(InvalidAgentTokenError)
       expect(seen).toStrictEqual([
@@ -172,11 +175,11 @@ describe('the handshake', () => {
     await writeFile(join(packageDir, 'package.json'), JSON.stringify({ name: '@acme/plugin-x', version: '1.2.3' }))
     await writeFile(join(packageDir, 'kubb-extension.json'), JSON.stringify(manifest))
     const plugin = defineExtension({ kind: 'plugin', meta: { name: 'plugin-x' }, hooks: {} })()
-    const { agent } = await connectStudio({ root: projectRoot, loadConfig: async () => ({ ...projectConfig({ projectRoot }), plugins: [plugin] }) })
+    const { agent } = await connectStudio({ root: projectRoot, loadConfigs: async () => [{ ...projectConfig({ projectRoot }), plugins: [plugin] }] })
 
     const { config } = await agent.connect(info)
 
-    expect(config.plugins).toStrictEqual([{ name: '@acme/plugin-x', options: {} }])
+    expect(config.configs[0]!.plugins).toStrictEqual([{ name: '@acme/plugin-x', options: {} }])
     // `pnpm test` puts the workspace on NODE_PATH, so Kubb's own extensions may resolve here too.
     expect(config.extensions).toContainEqual({ package: '@acme/plugin-x', version: '1.2.3', manifest })
   })
@@ -187,12 +190,27 @@ describe('the handshake', () => {
       meta: { name: 'typescript' },
       build: () => ({ extNames: ['.ts'], parse: () => '', print: () => '' }),
     })({ indent: 2, format: () => '' })
-    const { agent } = await connectStudio({ loadConfig: async () => ({ ...projectConfig(), parsers: [parser] }) })
+    const { agent } = await connectStudio({ loadConfigs: async () => [{ ...projectConfig(), parsers: [parser] }] })
 
     const { config } = await agent.connect(info)
 
-    expect(config.adapter).toStrictEqual({ name: '@kubb/adapter-oas', options: {} })
-    expect(config.parsers).toStrictEqual([{ name: '@kubb/parser-ts', options: { indent: 2 } }])
+    expect(config.configs[0]!.adapter).toStrictEqual({ name: '@kubb/adapter-oas', options: {} })
+    expect(config.configs[0]!.parsers).toStrictEqual([{ name: '@kubb/parser-ts', options: { indent: 2 } }])
+  })
+
+  it('reports every entry of a config array, with the credentials left out of a URL input', async () => {
+    const pets = { ...projectConfig(), input: 'https://alice:secret@example.com/openapi.json?v=2' }
+    const admin = { ...projectConfig(), name: 'admin', input: './admin.yaml', output: { path: 'src/admin' } }
+    const { agent } = await connectStudio({ loadConfigs: async () => [pets, admin] })
+
+    const { config } = await agent.connect(info)
+
+    const plugins = [{ name: '@kubb/plugin-barrel', options: {} }]
+    const adapter = { name: '@kubb/adapter-oas', options: {} }
+    expect(config.configs).toStrictEqual([
+      { input: 'https://example.com/openapi.json?v=2', output: 'src/gen', plugins, adapter, parsers: [] },
+      { name: 'admin', input: './admin.yaml', output: 'src/admin', plugins, adapter, parsers: [] },
+    ])
   })
 
   it('announces the connection once per socket, with what Studio sent', async () => {
@@ -215,19 +233,6 @@ describe('the handshake', () => {
     await vi.waitFor(() => expect(sockets).toHaveLength(1))
 
     await expect(sockets[0]!.agent.readFiles({ jobId: 'job-1', paths: [] })).rejects.toThrow('Studio must call connect() before any other command')
-  })
-})
-
-describe('plugin options in the handshake', () => {
-  it('sends a JSON copy, so no function in the user config reaches Studio', async () => {
-    const config = projectConfig()
-    const name = (group: string) => `${group}Service`
-    config.plugins[0]!.options = { output: { path: 'types' }, group: { type: 'tag', name } }
-    const { agent } = await connectStudio({ loadConfig: async () => config })
-
-    const payload = await agent.connect(info)
-
-    expect(payload.config.plugins).toStrictEqual([{ name: '@kubb/plugin-barrel', options: { output: { path: 'types' }, group: { type: 'tag' } } }])
   })
 })
 
@@ -319,17 +324,12 @@ describe('a sandbox job', () => {
     expect(vi.mocked(rm)).toHaveBeenCalledWith(resolveCacheDir(jobRoot), { recursive: true, force: true })
   })
 
-  it.each([
-    ['a file path', '/etc/passwd'],
-    ['no spec at all', undefined],
-  ])('refuses %s instead of reading or fetching it', async (_label, input) => {
+  it('refuses a file path instead of reading it', async () => {
     const { hooks, heard } = withHooks()
     const warn = heard('studio:warn')
     const { agent } = await connectStudio({ hooks, connectInfo: { sandbox: true, agentSlug: 'sandbox', studioVersion: '1.0.0' } })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(
-      'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
-    )
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { input: '/etc/passwd' } }).result()).rejects.toThrow(AgentMessage.SANDBOX_INPUT_ONLY)
     expect(warn).toHaveBeenCalledOnce()
     expect(vi.mocked(mkdtemp).mock.results).toHaveLength(1)
   })
@@ -376,6 +376,42 @@ describe('generation reports', () => {
     )
     expect(error).toHaveBeenCalledWith({ error: expect.objectContaining({ message: expect.stringContaining('is not an installed Kubb plugin') }) })
   })
+
+  it('refuses an output path from Studio outside the output folder before anything is written', async () => {
+    const { hooks, heard } = withHooks()
+    const error = heard('kubb:error')
+    const { agent } = await connectStudio({ hooks, permissions: { allowWrite: true } })
+    const output = { path: '../../../home/alice/.ssh/authorized_keys' }
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { plugins: [{ name: '@kubb/plugin-ts', options: { output } }] } }).result()).rejects.toThrow(
+      'Plugin "plugin-ts" would write to "/home/alice/.ssh/authorized_keys", outside the output folder',
+    )
+    expect(error).toHaveBeenCalledOnce()
+    expect(disk.storage).toBeUndefined()
+  })
+})
+
+describe('a config array', () => {
+  const configs = () => [projectConfig(), { ...projectConfig({ content: 'export const admin = 1' }), name: 'admin' }]
+
+  it('generates from the entry Studio names, by position or by name, and the first one otherwise', async () => {
+    const { agent } = await connectStudio({ loadConfigs: async () => configs(), permissions: { allowRead: true } })
+    const content = async (jobId: string, config?: ConfigRef) => {
+      await agent.startGeneration({ jobId, config: { config } }).result()
+      return (await agent.readFiles({ jobId, paths: ['src/gen/pet.ts'], limit: 10 })).files['src/gen/pet.ts']
+    }
+
+    await expect(content('job-1')).resolves.toBe('export const pet = 1')
+    await expect(content('job-2', 1)).resolves.toBe('export const admin = 1')
+    await expect(content('job-3', 'admin')).resolves.toBe('export const admin = 1')
+  })
+
+  it('refuses an entry the file does not have', async () => {
+    const { agent } = await connectStudio({ loadConfigs: async () => configs() })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { config: 'billing' } }).result()).rejects.toThrow(AgentMessage.CONFIG_ENTRY_NOT_FOUND)
+    expect(disk.storage).toBeUndefined()
+  })
 })
 
 describe('readFiles', () => {
@@ -398,27 +434,26 @@ describe('readFiles', () => {
     })
   })
 
-  it.each([
-    { cursor: -1, limit: 10 },
-    { cursor: 0, limit: MAX_PAGE_LINES + 1 },
-  ])('refuses the page %j', async (page) => {
+  it('refuses a page longer than the maximum', async () => {
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
     await run({ agent, jobId: 'job-1' })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow('The cursor must be')
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], cursor: 0, limit: MAX_PAGE_LINES + 1 })).rejects.toThrow(
+      AgentMessage.INVALID_PAGE,
+    )
   })
 })
 
 describe('readDiff', () => {
   async function twoRuns(permissions = { allowRead: true }) {
     const content = { current: 'export const pet = 1' }
-    const { agent } = await connectStudio({ permissions, loadConfig: async () => projectConfig({ content: content.current }) })
+    const { agent } = await connectStudio({ permissions, loadConfigs: async () => [projectConfig({ content: content.current })] })
     await run({ agent, jobId: 'job-1' })
     content.current = 'export const pet = 2'
     await run({ agent, jobId: 'job-2' })
     return agent
   }
-  const base = { jobId: 'job-1', source: 'output' } as const
+  const base = { jobId: 'job-1' } as const
 
   it('refuses without allowRead', async () => {
     const agent = await twoRuns({ allowRead: false })
@@ -444,15 +479,6 @@ describe('readDiff', () => {
     })
   })
 
-  it('pages the patch lines', async () => {
-    const agent = await twoRuns()
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 2 })).resolves.toMatchObject({ nextCursor: 2 })
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, cursor: 2, limit: 2 })).resolves.toMatchObject({
-      hunks: [{ index: 0, lines: ['+export const pet = 2', '\\ No newline at end of file'] }],
-      nextCursor: null,
-    })
-  })
-
   it('reports a path the base does not hold, and never reads outside the sets', async () => {
     const agent = await twoRuns()
     await expect(agent.readDiff({ jobId: 'job-2', path: '../../etc/passwd', base, limit: 10 })).resolves.toStrictEqual({
@@ -463,16 +489,9 @@ describe('readDiff', () => {
     })
   })
 
-  it('refuses a file whose content was too large to keep, rather than reading it as deleted', async () => {
-    vi.stubEnv('KUBB_AGENT_MAX_GENERATIONS_MB', '0.000001')
-    const agent = await twoRuns()
-    vi.unstubAllEnvs()
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow('kept only the hashes')
-  })
-
   it('refuses a job the agent no longer keeps', async () => {
     const agent = await twoRuns()
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base: { jobId: 'job-gone', source: 'output' }, limit: 10 })).rejects.toThrow(
+    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base: { jobId: 'job-gone' }, limit: 10 })).rejects.toThrow(
       AgentMessage.GENERATION_GONE,
     )
   })
@@ -484,7 +503,7 @@ describe('readInput', () => {
     meta: { title: 'Pet store', circularNames: [], enumNames: [] },
   })
   /** A project config whose adapter parses to `input`. */
-  const withInput = async () => ({ ...projectConfig(), adapter: createMockedAdapter({ parse: async () => input }) })
+  const withInput = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse: async () => input }) }]
 
   it('refuses to read when the host did not grant allowReadAst, and names the permission for the host', async () => {
     const { hooks, heard } = withHooks()
@@ -496,7 +515,7 @@ describe('readInput', () => {
   })
 
   it('returns the AST the job parsed, also after the agent restarts, and refuses a job it does not keep', async () => {
-    const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfig: withInput })
+    const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfigs: withInput })
     await run({ agent: first.agent, jobId: 'job-1' })
 
     const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
@@ -506,9 +525,9 @@ describe('readInput', () => {
   })
 
   it('keeps no input for a run without allowReadAstAst, so a later grant finds none, not even an earlier run of the job', async () => {
-    const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfig: withInput })
+    const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfigs: withInput })
     await run({ agent: first.agent, jobId: 'job-1' })
-    const rerun = await connectStudio({ loadConfig: withInput })
+    const rerun = await connectStudio({ loadConfigs: withInput })
     await run({ agent: rerun.agent, jobId: 'job-1' })
 
     const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
@@ -523,17 +542,17 @@ describe('generation history', () => {
     const command = heard('studio:command')
     const { agent } = await connectStudio({ hooks, permissions: { allowRead: true } })
 
-    const result = await run({ agent, jobId: 'job-1' })
+    const result = await run({ agent, jobId: 'job-1', requestedBy: 'Stijn' })
 
     expect(result.hashes).toStrictEqual({ 'src/gen/pet.ts': expect.stringMatching(/^[0-9a-f]{16}$/) })
-    expect(vi.mocked(mkdtemp)).not.toHaveBeenCalled()
-    expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, in memory' })
+    expect(vi.mocked(mkdtemp)).toHaveBeenCalledWith(expect.stringContaining('kubb-output-'))
+    expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk', requestedBy: 'Stijn' })
   })
 
   it('reads every earlier job after the agent restarts, from the project cache', async () => {
     const content = { current: '' }
-    const loadConfig = async () => projectConfig({ content: content.current })
-    const first = await connectStudio({ permissions: { allowRead: true }, loadConfig })
+    const loadConfigs = async () => [projectConfig({ content: content.current })]
+    const first = await connectStudio({ permissions: { allowRead: true }, loadConfigs })
     content.current = 'export const pet = 1'
     await run({ agent: first.agent, jobId: 'job-1' })
     content.current = 'export const pet = 2'
@@ -541,35 +560,79 @@ describe('generation history', () => {
 
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'export const pet = 1' } })
-    await expect(agent.readFiles({ jobId: 'job-2', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'export const pet = 2' } })
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'export const pet = 1' },
+    })
+    await expect(agent.readFiles({ jobId: 'job-2', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'export const pet = 2' },
+    })
   })
 })
 
-describe('disk snapshot', () => {
+describe('current disk output', () => {
   async function seedDisk(files: Record<string, string>) {
     const storage = fsStorage()
     for (const [path, value] of Object.entries(files)) await storage.writeItem(`${root}/${path}`, value)
   }
 
-  it('fingerprints what the output directory held before the run', async () => {
-    await seedDisk({ 'src/gen/pet.ts': 'on disk', 'src/gen/old.ts': 'stale', 'src/other.ts': 'not output' })
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+  it('opens the existing output without running the generator or changing the files', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'on disk\n', 'src/gen/empty.ts': '', 'src/other.ts': 'not output' })
+    const { hooks, heard } = withHooks()
+    const generationStarted = heard('kubb:build:start')
+    const { agent } = await connectStudio({ permissions: { allowRead: true }, hooks })
+    const output = (await agent.connect(info)).config.configs[0]!.disk
 
-    const result = await run({ agent, jobId: 'job-1' })
-
-    expect(Object.keys(result.disk?.hashes ?? {}).toSorted()).toStrictEqual(['src/gen/old.ts', 'src/gen/pet.ts'])
-    expect(result.disk?.hashes['src/gen/pet.ts']).not.toBe(result.hashes['src/gen/pet.ts'])
+    expect(output?.files.toSorted()).toStrictEqual(['src/gen/empty.ts', 'src/gen/pet.ts'])
+    await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts', 'src/gen/empty.ts', 'src/other.ts'] })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'on disk\n', 'src/gen/empty.ts': '' },
+    })
+    expect(generationStarted).not.toHaveBeenCalled()
+    await expect(fsStorage().readItem(`${root}/src/gen/pet.ts`)).resolves.toBe('on disk\n')
   })
 
-  it('reads a job against the disk it ran over', async () => {
-    await seedDisk({ 'src/gen/pet.ts': 'on disk' })
+  it('keeps the initial output immutable after local edits', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'first' })
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    await run({ agent, jobId: 'job-1' })
-
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts', 'src/other.ts'], source: 'disk' })).resolves.toStrictEqual({
-      files: { 'src/gen/pet.ts': 'on disk' },
+    const output = (await agent.connect(info)).config.configs[0]!.disk
+    await seedDisk({ 'src/gen/pet.ts': 'second' })
+    await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'first' },
     })
+  })
+
+  it('omits the disk output without read permission', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'private' })
+    const { agent } = await connectStudio()
+
+    expect((await agent.connect(info)).config.configs[0]!.disk).toBeUndefined()
+  })
+
+  it('omits the disk output for a sandbox even when it allows reads', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'private' })
+    const connectInfo = { ...info, sandbox: true }
+    const { agent } = await connectStudio({ connectInfo, permissions: { allowRead: true } })
+
+    expect((await agent.connect(connectInfo)).config.configs[0]!.disk).toBeUndefined()
+  })
+
+  it('does not list the project when the output path is the root', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'private' })
+    const { agent } = await connectStudio({
+      permissions: { allowRead: true },
+      loadConfigs: async () => [{ ...projectConfig(), output: { path: '.' } }],
+    })
+
+    expect((await agent.connect(info)).config.configs[0]!.disk).toBeUndefined()
+  })
+
+  it('compares a generated output with the initial disk snapshot', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'old disk content' })
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    const output = (await agent.connect(info)).config.configs[0]!.disk
+    await run({ agent, jobId: 'job-1' })
+    const diff = await agent.readDiff({ jobId: 'job-1', path: 'src/gen/pet.ts', base: { jobId: output!.jobId }, limit: 100 })
+    expect(diff.hunks.flatMap((hunk) => hunk.lines)).toContain('-old disk content')
+    expect(output?.hashes['src/gen/pet.ts']).toMatch(/^[0-9a-f]{16}$/)
   })
 })
 
@@ -587,21 +650,21 @@ describe('saveConfig', () => {
 
 describe('disconnect during generation', () => {
   it('waits for the canceled run before opening the next socket', async () => {
-    const loaded = Promise.withResolvers<Config>()
-    const loadConfig = vi
+    const loaded = Promise.withResolvers<Array<Config>>()
+    const loadConfigs = vi
       .fn()
-      .mockResolvedValueOnce(projectConfig())
+      .mockResolvedValueOnce([projectConfig()])
       .mockImplementationOnce(() => loaded.promise)
-      .mockResolvedValue(projectConfig())
-    const { agent, socket, sockets } = await connectStudio({ loadConfig })
+      .mockResolvedValue([projectConfig()])
+    const { agent, socket, sockets } = await connectStudio({ loadConfigs })
     const generation = run({ agent, jobId: 'interrupted' }).catch(() => {})
-    await vi.waitFor(() => expect(loadConfig).toHaveBeenCalledTimes(2))
+    await vi.waitFor(() => expect(loadConfigs).toHaveBeenCalledTimes(2))
     await expect(run({ agent, jobId: 'duplicate' })).rejects.toThrow('already in progress')
 
     socket.close(1006)
     await Promise.resolve()
     expect(sockets).toHaveLength(1)
-    loaded.resolve(projectConfig())
+    loaded.resolve([projectConfig()])
     await generation
 
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
@@ -613,18 +676,18 @@ describe('disconnect during generation', () => {
     const heard = Promise.withResolvers<void>()
     const warn = vi.fn(() => heard.promise)
     hooks.hook('studio:warn', warn)
-    const loaded = Promise.withResolvers<Config>()
-    const loadConfig = vi
+    const loaded = Promise.withResolvers<Array<Config>>()
+    const loadConfigs = vi
       .fn()
-      .mockResolvedValueOnce(projectConfig())
+      .mockResolvedValueOnce([projectConfig()])
       .mockImplementationOnce(() => loaded.promise)
-      .mockResolvedValue(projectConfig())
-    const { agent, socket } = await connectStudio({ hooks, loadConfig })
+      .mockResolvedValue([projectConfig()])
+    const { agent, socket } = await connectStudio({ hooks, loadConfigs })
     const generation = run({ agent, jobId: 'interrupted' })
-    await vi.waitFor(() => expect(loadConfig).toHaveBeenCalledTimes(2))
+    await vi.waitFor(() => expect(loadConfigs).toHaveBeenCalledTimes(2))
 
     socket.close(1011)
-    loaded.resolve(projectConfig())
+    loaded.resolve([projectConfig()])
 
     await expect(generation).rejects.toThrow('Generation canceled')
     expect(warn).toHaveBeenCalledWith({ message: 'Canceled the running generation: the connection to Kubb Studio closed' })

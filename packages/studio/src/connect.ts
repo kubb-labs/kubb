@@ -1,10 +1,9 @@
 import { randomUUID } from 'node:crypto'
-import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
-import { getErrorMessage, read, toError } from '@internals/utils'
+import { getErrorMessage, mkdtemp, read, rm, toError } from '@internals/utils'
 import {
   Diagnostics,
   cacheStorage,
@@ -13,7 +12,7 @@ import {
   getInputKind,
   Hookable,
   type KubbHooks,
-  memoryStorage,
+  type Storage,
   readInstalledPackages,
   resolveCacheDir,
   resolveMeta,
@@ -33,9 +32,11 @@ import {
   AgentMessage,
   type AgentConnectInfo,
   type AgentPermissions,
+  type ConfigEntryView,
   type ConfigFileView,
+  type ConfigRef,
   type ConnectMessagePayload,
-  FileSource,
+  type DiskOutput,
   type GenerateInput,
   type GenerateResult,
   type GenerationEvent,
@@ -53,7 +54,7 @@ import {
   type SaveResult,
   type StudioApi,
 } from './protocol.ts'
-import { mergeAdapter, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
+import { assertOutputPaths, mergeAdapter, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -63,7 +64,7 @@ const PING_TIMEOUT_MS = 10_000
 const OPEN_TIMEOUT_MS = 5_000
 const MAX_RETRY_DELAY_MS = 30_000
 const DISK_SNAPSHOT_MAX_FILES = 10_000
-// A sandbox shares one in-memory store across tenants, so old generations expire.
+// Sandboxes keep temporary output sets with a short lifetime.
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
 /** Extensions `kubb` ships with, so they count as installed without being a direct dependency. */
 const BUILT_IN_PACKAGES = ['@kubb/adapter-oas', '@kubb/parser-ts', '@kubb/parser-md', '@kubb/plugin-barrel']
@@ -108,7 +109,20 @@ declare global {
       /**
        * A finished command and what it did, such as `applied 2/3 edits to kubb.config.ts`.
        */
-      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput' | 'readDiff'; info: string }]
+      'studio:command': [
+        ctx: {
+          command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput' | 'readDiff'
+          info: string
+          /**
+           * The Studio user who asked for the command, when Studio names one.
+           */
+          requestedBy?: string
+          /**
+           * Set when a generation failed. Its diagnostics went out through `kubb:generation:end`.
+           */
+          failed?: boolean
+        },
+      ]
       /**
        * A refused or ignored request, with the missing permission so the host can add a remedy.
        */
@@ -129,9 +143,10 @@ export type ConnectAgentOptions = {
    */
   configPath: string
   /**
-   * Called for every handshake and every generation, so edits on disk show up.
+   * Called for every handshake and every generation, so edits on disk show up. One entry per
+   * `defineConfig(...)` entry, and a generation names the one it runs.
    */
-  loadConfig: () => Promise<Config>
+  loadConfigs: () => Promise<Array<Config>>
   /**
    * The host's own version, reported to Studio next to the runtime's.
    */
@@ -191,6 +206,26 @@ function isValidPage({ cursor, limit }: Pick<ReadFilesInput, 'cursor' | 'limit'>
   return Number.isSafeInteger(limit) && limit >= 1 && limit <= MAX_PAGE_LINES
 }
 
+/**
+ * Maps generated paths into a temporary directory while keeping the project root for input resolution.
+ */
+function stagingStorage({ root, directory }: { root: string; directory: string }): Storage {
+  const storage = fsStorage()
+  const target = (key: string) => {
+    const relative = path.relative(root, path.resolve(root, key))
+    if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) throw new Error('Output path escapes the project root')
+    return path.join(directory, relative)
+  }
+  return {
+    name: 'fs',
+    readItem: (key) => storage.readItem(target(key)),
+    writeItem: (key, value) => storage.writeItem(target(key), value),
+    removeItem: (key) => storage.removeItem(target(key)),
+    readKeys: (base) => storage.readKeys(base ? target(base) : directory),
+    empty: (base) => (base ? storage.empty(target(base)) : Promise.resolve()),
+  }
+}
+
 type RunHandle = { stream: ReadableStream<GenerationEvent>; result: Promise<GenerateResult>; stop: () => void }
 
 class GenerationRunTarget extends RpcTarget implements GenerationRun {
@@ -222,6 +257,7 @@ class Agent extends RpcTarget implements AgentApi {
   readonly #session: Session
   readonly #limits = resolveGenerationLimits()
   #store: GenerationStore | undefined
+  readonly #sandboxCacheRoot = path.join(tmpdir(), `kubb-studio-${randomUUID()}`)
   // Kept sets never change, so a diff is computed once and its pages are cut from it.
   readonly #diffs = new Map<string, ReturnType<typeof diffHunks>>()
 
@@ -241,16 +277,19 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#sandbox ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowRead: true, allowReadAst: true } : permissions
   }
 
-  // Kept in the project's cache directory so it survives a restart. A sandbox keeps them in memory,
-  // because its pool runs every tenant's jobs.
+  // Owned agents retain output in the project cache. Each sandbox connection has a temporary cache.
   get #generations(): GenerationStore {
     this.#store ??= createGenerationStore({
-      storage: this.#sandbox ? memoryStorage() : cacheStorage({ root: this.#options.root }),
+      storage: cacheStorage({ root: this.#sandbox ? this.#sandboxCacheRoot : this.#options.root }),
       maxCount: this.#limits.maxCount,
       maxMb: this.#limits.maxMb,
       ttlMs: this.#sandbox ? SANDBOX_GENERATION_TTL_MS : undefined,
     })
     return this.#store
+  }
+
+  async clear() {
+    if (this.#sandbox) await rm(resolveCacheDir(this.#sandboxCacheRoot), { recursive: true, force: true })
   }
 
   #warn({ message, permission }: { message: string; permission?: AgentPermission }): Promise<void> {
@@ -268,8 +307,8 @@ class Agent extends RpcTarget implements AgentApi {
       throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Studio must call connect() before any other command' })
   }
 
-  #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string): Promise<void> {
-    return emit(this.#options.hooks, 'studio:command', { command, info })
+  #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string, requestedBy?: string, failed?: boolean): Promise<void> {
+    return emit(this.#options.hooks, 'studio:command', { command, info, requestedBy, failed })
   }
 
   // Not cached: the user can edit the file between two Studio actions.
@@ -299,35 +338,36 @@ class Agent extends RpcTarget implements AgentApi {
 
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
     this.#session.info = info
-    const { configPath, root, version, loadConfig, configFile } = this.#options
+    const { configPath, root, version, loadConfigs, configFile } = this.#options
     const source = read(configFile)
-    const [config, file, extensions] = await Promise.all([loadConfig(), this.#readConfigFileView(source), this.#installedExtensions(source)])
+    const [configs, file, extensions] = await Promise.all([loadConfigs(), this.#readConfigFileView(source), this.#installedExtensions(source)])
+    // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
+    // Studio could call, running the user's config code in this process.
+    const entries: Array<ConfigEntryView> = []
+    for (const config of configs) {
+      const disk = await this.#readDiskOutput(config).catch(async (error: unknown) => {
+        await this.#warn({ message: `Could not read the output directory: ${getErrorMessage(error)}` })
+        return undefined
+      })
+      entries.push({ ...toEntryView(config, extensions), ...(disk && { disk }) })
+    }
     this.#session.connected.resolve(info)
 
     return {
       versions: { kubb: kubbVersion, agent: version },
       root,
-      // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
-      // Studio could call, running the user's config code in this process.
-      config: {
-        path: configPath,
-        file,
-        plugins: config.plugins.map((plugin) => ({
-          name: toStudioName({ name: resolveMeta(plugin).name, extensions }),
-          options: toJSONOptions(plugin.options),
-        })),
-        adapter: config.adapter && {
-          name: toStudioName({ name: resolveMeta(config.adapter).name, extensions, kind: 'adapter' }),
-          options: toJSONOptions(config.adapter.options),
-        },
-        parsers: config.parsers.map((parser) => ({
-          name: toStudioName({ name: resolveMeta(parser).name, extensions, kind: 'parser' }),
-          options: toJSONOptions(parser.options),
-        })),
-        extensions: [...extensions.values()],
-      },
+      config: { path: configPath, file, extensions: [...extensions.values()], configs: entries },
       permissions: this.#permissions,
     }
+  }
+
+  async #readDiskOutput(config: Config): Promise<DiskOutput | undefined> {
+    if (this.#sandbox || !this.#permissions.allowRead || this.#session.active) return undefined
+    const files = await listDisk({ root: this.#options.root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES })
+    if (!files) return undefined
+
+    const { jobId, output } = await this.#generations.keepInitial(files)
+    return { jobId, files: output.paths, hashes: output.hashes }
   }
 
   startGeneration(input: GenerateInput): GenerationRun {
@@ -353,41 +393,64 @@ class Agent extends RpcTarget implements AgentApi {
     })
   }
 
-  /** Runs one job and keeps its output, and its input with `allowRead`, for later reads. */
+  /**
+   * Keeps a job's output and permitted parsed input, then cleans up its temporary generation directories.
+   */
   async #runGeneration(input: GenerateInput, controller: AbortController): Promise<GenerateResult> {
     this.#assertConnected()
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#session.closed) throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Connection is closed' })
-    if (this.#session.active) return this.#refuse({ message: 'A generation is already in progress, please wait for it to finish' })
+    if (this.#session.active) return this.#refuse({ message: AgentMessage.GENERATION_IN_PROGRESS })
     const settled = Promise.withResolvers<void>()
     this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
     let root = this.#options.root
+    let outputRoot: string | undefined
 
     try {
       // Kubb keys its manifest cache by root, so sandbox tenants sharing one root would read each other's.
       if (this.#sandbox) root = await mkdtemp(path.join(tmpdir(), 'kubb-job-'))
-      return await this.#generate({ input, root, signal: controller.signal })
+      if (!this.#sandbox && !this.#permissions.allowWrite) outputRoot = await mkdtemp(path.join(tmpdir(), 'kubb-output-'))
+      return await this.#generate({ input, root, outputRoot, signal: controller.signal })
     } finally {
       if (root !== this.#options.root) {
         await Promise.all([rm(root, { recursive: true, force: true }), rm(resolveCacheDir(root), { recursive: true, force: true })]).catch(() => {})
       }
+      if (outputRoot) await rm(outputRoot, { recursive: true, force: true })
       this.#session.active = undefined
       settled.resolve()
     }
   }
 
-  async #generate({ input, root, signal }: { input: GenerateInput; root: string; signal: AbortSignal }): Promise<GenerateResult> {
+  /**
+   * Merges Studio's config over the project config and confines generation to the configured output folder.
+   */
+  async #generate({
+    input,
+    root,
+    outputRoot,
+    signal,
+  }: {
+    input: GenerateInput
+    root: string
+    outputRoot?: string
+    signal: AbortSignal
+  }): Promise<GenerateResult> {
     const { jobId, config: patch } = input
     // A sandbox has no spec on disk, so it only ever generates from the content Studio sends. A path
     // or URL would make it read host files or fetch internal addresses on behalf of any tenant.
     const studioInput = this.#sandbox ? patch?.input : undefined
     if (this.#sandbox && (typeof studioInput !== 'string' || !studioInput.trim() || getInputKind(studioInput) !== 'inline')) {
-      return this.#refuse({ message: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL' })
+      return this.#refuse({ message: AgentMessage.SANDBOX_INPUT_ONLY })
     }
 
-    const [config, extensions] = await Promise.all([this.#options.loadConfig(), this.#installedExtensions()])
+    const [configs, extensions] = await Promise.all([this.#options.loadConfigs(), this.#installedExtensions()])
+    const config = pickConfig(configs, patch?.config)
+    if (!config) return this.#refuse({ message: AgentMessage.CONFIG_ENTRY_NOT_FOUND })
     const [plugins, adapter, parsers] = await Promise.all([
-      mergePlugins({ diskPlugins: config.plugins, studioPlugins: patch?.plugins, extensions }),
+      mergePlugins({ diskPlugins: config.plugins, studioPlugins: patch?.plugins, extensions }).then((merged) => {
+        assertOutputPaths({ plugins: merged ?? [], diskPlugins: config.plugins, root, outputPath: config.output.path })
+        return merged
+      }),
       mergeAdapter(config.adapter, patch?.adapter, extensions),
       mergeParsers({ diskParsers: config.parsers, studioParsers: patch?.parsers, extensions }),
     ]).catch(async (error: unknown) => {
@@ -405,40 +468,36 @@ class Agent extends RpcTarget implements AgentApi {
       })
     }
 
-    const hasProjectOnDisk = !this.#sandbox && this.#permissions.allowRead
-    const diskFiles = hasProjectOnDisk ? await listDisk({ root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES }) : undefined
-    const disk = diskFiles
-      ? await this.#generations.keep({ jobId, source: FileSource.DISK, files: diskFiles, maxSetMb: this.#limits.maxSnapshotMb })
-      : undefined
-
     const files = await generate({
       config: {
         ...config,
         root,
         input: studioInput ?? config.input,
-        storage: this.#permissions.allowWrite ? fsStorage() : memoryStorage(),
+        storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
         plugins: activePlugins,
         adapter,
         parsers,
       },
       hooks: this.#options.hooks,
       signal,
-      allowExec: this.#permissions.allowExec,
+      allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
     }).catch(async (error: unknown) => {
       await this.#generations.drop(jobId)
+      await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
       throw error
     })
 
-    const output = await this.#generations.keep({ jobId, source: FileSource.OUTPUT, files, maxSetMb: this.#limits.maxMb })
+    const output = await this.#generations.keep({ jobId, files, maxSetMb: this.#limits.maxMb })
     // Only `readInput` reads it, which needs `allowReadAst`.
     const inputBytes = await this.#generations.keepInput({ jobId, input: this.#permissions.allowReadAst ? files.input : null, maxSetMb: this.#limits.maxMb })
     if (!output.paths.length && Object.keys(output.hashes).length) {
       await this.#warn({ message: 'Kept only the hashes of this generation: its output is too large to keep' })
     }
-    await this.#generations.add({ jobId, output, disk, inputBytes })
+    await this.#generations.add({ jobId, output, inputBytes })
     await this.#logCommand(
       'generate',
-      `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'in memory'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
+      `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'staged on disk'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
+      input.requestedBy,
     )
 
     return {
@@ -446,7 +505,6 @@ class Agent extends RpcTarget implements AgentApi {
       files: [...files.paths],
       fileCount: files.paths.size,
       hashes: output.hashes,
-      disk: disk ? { hashes: disk.hashes } : undefined,
     }
   }
 
@@ -473,7 +531,7 @@ class Agent extends RpcTarget implements AgentApi {
     try {
       const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
       const applied = outcomes.filter((outcome) => outcome.applied).length
-      await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`)
+      await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`, input.requestedBy)
 
       return { outcomes, changed }
     } catch (error) {
@@ -489,7 +547,7 @@ class Agent extends RpcTarget implements AgentApi {
   async readInput(input: ReadInputInput): Promise<ReadInputResult> {
     this.#assertConnected()
     if (!this.#permissions.allowReadAst) return this.#refuse({ message: AgentMessage.READ_AST_NOT_ALLOWED, permission: AgentPermission.READ_AST })
-    if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: 'The request must name a job' })
+    if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: AgentMessage.JOB_REQUIRED })
 
     const generation = await this.#generations.get(input.jobId)
     if (!generation) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
@@ -508,20 +566,17 @@ class Agent extends RpcTarget implements AgentApi {
     this.#assertConnected()
     if (!this.#permissions.allowRead) return this.#refuse({ message: AgentMessage.READ_NOT_ALLOWED, permission: AgentPermission.READ })
     if (!Array.isArray(input.paths) || typeof input.jobId !== 'string' || !input.jobId) {
-      return this.#refuse({ message: 'The request must name a job and carry paths' })
+      return this.#refuse({ message: AgentMessage.FILE_REQUEST_INVALID })
     }
     const { paths } = input
-    if (paths.length > MAX_FILES_PER_REQUEST) return this.#refuse({ message: `At most ${MAX_FILES_PER_REQUEST} paths may be requested at once` })
+    if (paths.length > MAX_FILES_PER_REQUEST) return this.#refuse({ message: AgentMessage.TOO_MANY_FILES })
+    if (!isValidPage(input)) return this.#refuse({ message: AgentMessage.INVALID_PAGE })
 
     const generation = await this.#generations.get(input.jobId)
     if (!generation) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
-    if (!isValidPage(input)) return this.#refuse({ message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines` })
-
-    const source = input.source === FileSource.DISK ? FileSource.DISK : FileSource.OUTPUT
-    if (!generation[source]) return this.#refuse({ message: 'This agent kept no snapshot of the files on disk for that job' })
 
     // Only paths the set holds are read, never an arbitrary path.
-    const result = await this.#generations.read({ generation, source, paths, cursor: input.cursor, limit: input.limit })
+    const result = await this.#generations.read({ generation, paths, cursor: input.cursor, limit: input.limit })
     await this.#logCommand('readFiles', `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`)
 
     return result
@@ -535,30 +590,28 @@ class Agent extends RpcTarget implements AgentApi {
     if (!this.#permissions.allowRead) return this.#refuse({ message: AgentMessage.READ_NOT_ALLOWED, permission: AgentPermission.READ })
     const { jobId, path, base, cursor = 0, limit } = input
     if (typeof jobId !== 'string' || !jobId || typeof path !== 'string' || !path || typeof base?.jobId !== 'string' || !base.jobId) {
-      return this.#refuse({ message: 'The request must name a job, a base, and a path' })
+      return this.#refuse({ message: AgentMessage.DIFF_REQUEST_INVALID })
     }
     if (!isValidPage({ cursor, limit })) {
-      return this.#refuse({ message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines` })
+      return this.#refuse({ message: AgentMessage.INVALID_PAGE })
     }
 
     const [generation, baseGeneration] = await Promise.all([this.#generations.get(jobId), this.#generations.get(base.jobId)])
     if (!generation || !baseGeneration) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
-    const baseSource = base.source === FileSource.DISK ? FileSource.DISK : FileSource.OUTPUT
-    if (!baseGeneration[baseSource]) return this.#refuse({ message: 'This agent kept no snapshot of the files on disk for that job' })
 
     // Only paths the sets hold are read, never an arbitrary path.
     const [after, before] = await Promise.all([
-      this.#generations.read({ generation, source: FileSource.OUTPUT, paths: [path] }),
-      this.#generations.read({ generation: baseGeneration, source: baseSource, paths: [path] }),
+      this.#generations.read({ generation, paths: [path] }),
+      this.#generations.read({ generation: baseGeneration, paths: [path] }),
     ])
     const afterContent = after.files[path]
     // Over the size cap only hashes are kept, which must not read as a deleted file.
-    if (afterContent === undefined && path in generation.output.hashes) return this.#refuse({ message: 'This agent kept only the hashes of that job' })
+    if (afterContent === undefined && path in generation.output.hashes) return this.#refuse({ message: AgentMessage.HASHES_ONLY })
     const beforeContent = before.files[path]
     if (beforeContent === undefined)
       return { hunks: [], nextCursor: null, hasBase: false, stats: { additions: 0, deletions: 0, hunks: 0, lines: 0, coarse: false } }
 
-    const key = JSON.stringify([jobId, base.jobId, baseSource, path])
+    const key = JSON.stringify([jobId, base.jobId, path])
     let diff = this.#diffs.get(key)
     if (!diff) {
       diff = diffHunks(beforeContent, afterContent ?? '')
@@ -603,7 +656,8 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
 async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
   const { hooks, signal, heartbeatInterval, token, studioUrl, version } = options
   const session: Session = { connected: Promise.withResolvers(), closed: false }
-  const rpc = openRpc({ url, token, instanceId, agent: new Agent({ options, session }) })
+  const agent = new Agent({ options, session })
+  const rpc = openRpc({ url, token, instanceId, agent })
   signal?.addEventListener('abort', rpc.close, { once: true })
   let timer: ReturnType<typeof setTimeout> | undefined
 
@@ -644,6 +698,7 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
     await emit(hooks, 'studio:warn', { message: 'Canceled the running generation: the connection to Kubb Studio closed' })
   }
   await active?.settled
+  await agent.clear()
 
   return { ...close, connected: session.info !== undefined }
 }
@@ -651,6 +706,47 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
 /**
  * The connection loop with a swappable transport. {@link connectAgent} passes a real WebSocket.
  */
+/** The entry Studio named by position or `name`, else the first. `undefined` for one the file does not have. */
+function pickConfig(configs: Array<Config>, ref: ConfigRef | undefined): Config | undefined {
+  if (typeof ref === 'string') return configs.find((config) => config.name === ref)
+  if (ref !== undefined && !Number.isSafeInteger(ref)) return undefined
+  return configs[ref ?? 0]
+}
+
+/** The input path or URL Studio may show: no inline document, and no credentials from a URL. */
+function reportedInput(input: Config['input']): string | undefined {
+  if (typeof input !== 'string') return undefined
+  const kind = getInputKind(input)
+  if (kind === 'inline') return undefined
+  if (kind !== 'url') return input
+  const url = new URL(input)
+  url.username = ''
+  url.password = ''
+  return url.href
+}
+
+/** A JSON copy of one resolved entry, each extension named by the package its manifest is in. */
+function toEntryView(config: Config, extensions: InstalledExtensions): ConfigEntryView {
+  const input = reportedInput(config.input)
+  return {
+    ...(config.name !== undefined && { name: config.name }),
+    ...(input !== undefined && { input }),
+    output: config.output.path,
+    plugins: config.plugins.map((plugin) => ({
+      name: toStudioName({ name: resolveMeta(plugin).name, extensions }),
+      options: toJSONOptions(plugin.options),
+    })),
+    adapter: config.adapter && {
+      name: toStudioName({ name: resolveMeta(config.adapter).name, extensions, kind: 'adapter' }),
+      options: toJSONOptions(config.adapter.options),
+    },
+    parsers: config.parsers.map((parser) => ({
+      name: toStudioName({ name: resolveMeta(parser).name, extensions, kind: 'parser' }),
+      options: toJSONOptions(parser.options),
+    })),
+  }
+}
+
 export async function runAgent({ options, openRpc }: { options: ConnectAgentOptions; openRpc: OpenRpc }): Promise<void> {
   const root = options.root ?? process.cwd()
   const resolved: ResolvedOptions = {
@@ -696,7 +792,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
  * const hooks = new Hookable<KubbHooks>()
  * hooks.hook('studio:connected', ({ agentSlug }) => console.log(`Connected as ${agentSlug}`))
  *
- * await connectAgent({ token, configPath: 'kubb.config.ts', loadConfig, version: '1.0.0', hooks, signal })
+ * await connectAgent({ token, configPath: 'kubb.config.ts', loadConfigs, version: '1.0.0', hooks, signal })
  * ```
  */
 export function connectAgent(options: ConnectAgentOptions): Promise<void> {

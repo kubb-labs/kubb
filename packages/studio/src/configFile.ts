@@ -541,14 +541,18 @@ function applySet(source: string, call: CallNode, path: Array<string>, value: un
   return { source: splice(source, rangeOf(target.value).start, rangeOf(target.value).end, printValue(value, quote)) }
 }
 
-/** Deletes the option at `path`, falling the plugin back to its default for it. */
+/**
+ * Deletes the option at `path`, falling the plugin back to its default for it. An option the file
+ * does not set already has its default, so removing it changes nothing.
+ */
 function applyRemove(source: string, call: CallNode, path: Array<string>): EditResult {
   const options = call.arguments[0]
-  if (options?.type !== 'ObjectExpression') return { reason: 'the factory call has no options to remove' }
+  if (!options) return { source }
+  if (options.type !== 'ObjectExpression') return { reason: 'the factory was not called with an object literal' }
 
   const target = walk(options, path)
   if ('reason' in target) return target
-  if ('missing' in target) return { reason: `${path.join('.')} is not set` }
+  if ('missing' in target) return { source }
   return { source: removeMember(source, target.object, target.index) }
 }
 
@@ -621,6 +625,30 @@ function applyAddPlugin({
   return { source: taken ? next : insertImport(next, parsed, importName, edit.plugin) }
 }
 
+/**
+ * Rewrites the config's `plugins` array with one item per line, so a call can be commented out without
+ * taking its neighbors with it. Not done when a comment sits between the items, which would have to move.
+ */
+function expandPluginsArray(source: string, config: ObjectNode): string | undefined {
+  const array = property(config, 'plugins')
+  if (array?.type !== 'ArrayExpression') return undefined
+
+  const items = array.elements.flatMap((element) => (element ? [element] : []))
+  const { start, end } = rangeOf(array)
+  const ranges = items.map(rangeOf)
+  const gaps = [
+    source.slice(start + 1, ranges[0]?.start ?? end - 1),
+    ...ranges.map((range, index) => source.slice(range.end, ranges[index + 1]?.start ?? end - 1)),
+  ]
+  if (!items.length || gaps.some((gap) => !/^[\s,]*$/.test(gap))) return undefined
+
+  const lineStart = source.lastIndexOf('\n', start - 1) + 1
+  const indent = source.slice(lineStart).match(/^[ \t]*/)?.[0] ?? ''
+  const lines = ranges.map((range) => `${indent}  ${source.slice(range.start, range.end)},`)
+
+  return splice(source, start, end, `[\n${lines.join('\n')}\n${indent}]`)
+}
+
 /** Comments out a plugin call in place, keeping its options on disk so `enable-plugin` can restore them exactly. */
 function disablePlugin(source: string, mod: ProxifiedModule, config: ObjectNode, plugin: string): EditResult {
   const loc = factoryCalls(mod, config).find((entry) => entry.packageName === plugin)?.call.loc
@@ -660,10 +688,23 @@ function applyEdit({ source, edit, quote, extensions }: { source: string; edit: 
   if ('reason' in parsed) return parsed
 
   const ref = edit.config
-  const config = typeof ref === 'string' ? parsed.configs.find((entry) => configName(entry) === ref) : parsed.configs[ref ?? 0]
+  const findConfig = (entries: ParsedConfig) =>
+    typeof ref === 'string' ? entries.configs.find((entry) => configName(entry) === ref) : entries.configs[ref ?? 0]
+  const config = findConfig(parsed)
   if (!config) return { reason: `no config entry found for ${JSON.stringify(ref)}` }
 
-  if (edit.operation === 'disable-plugin') return disablePlugin(source, parsed.mod, config, edit.plugin)
+  if (edit.operation === 'disable-plugin') {
+    const result = disablePlugin(source, parsed.mod, config, edit.plugin)
+    if (!('reason' in result) || !result.reason.includes('shares a line')) return result
+
+    // A one-line `plugins: [a(), b()]`, which is also what `add-plugin` writes, gets one item per line first.
+    const expanded = expandPluginsArray(source, config)
+    const reparsed = expanded === undefined ? undefined : parseConfigs(expanded)
+    const reparsedConfig = reparsed && !('reason' in reparsed) ? findConfig(reparsed) : undefined
+    return expanded !== undefined && reparsed && !('reason' in reparsed) && reparsedConfig
+      ? disablePlugin(expanded, reparsed.mod, reparsedConfig, edit.plugin)
+      : result
+  }
   if (edit.operation === 'enable-plugin') return enablePlugin(source, config, edit.plugin)
   if (edit.operation === 'add-plugin') return applyAddPlugin({ source, parsed, config, edit, quote, extensions })
 

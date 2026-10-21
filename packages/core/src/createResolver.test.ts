@@ -308,6 +308,7 @@ describe('default.path', () => {
       { path: '/pets/list', group: { type: 'path', name: ({ group }) => `${camelCase(group)}Controller` } },
       '/root/types/petsListController/petTypes.ts',
     ],
+    ['the output directory for a path group with only a tag, such as an SDK class', { tag: 'pet', group: { type: 'path' } }, '/root/types/petTypes.ts'],
   ] satisfies Array<[string, Partial<Parameters<typeof baseResolver.default.path>[0]>, string]>)('returns %s', (_name, params, expected) => {
     expect(
       baseResolver.default.path({ baseName: 'petTypes.ts', root: '/root', output: { path: 'types', mode: 'directory' }, group: undefined, ...params }),

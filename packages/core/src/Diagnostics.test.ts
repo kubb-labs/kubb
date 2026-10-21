@@ -1,3 +1,4 @@
+import type { AsyncLocalStorage } from 'node:async_hooks'
 import { stripVTControlCharacters } from 'node:util'
 import { describe, expect, it } from 'vitest'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
@@ -261,6 +262,18 @@ describe('Diagnostics.format', () => {
     expect(render(multiLine, { audience: 'human', width: 80 }).split('\n')[0]).toMatch(/^✖ Cannot parse at line 7, column 1: +KUBB_INVALID_DOCUMENT$/)
   })
 
+  it('replaces the pointer with the resolved file position, and draws the frame only for a human', () => {
+    const [, coded] = cases[0]!
+    const position = { file: 'petStore.yaml', line: 117, column: 15, frame: ['116 │   owner:', "117 │     $ref: '#/components/schemas/Owner'"] }
+
+    expect(render(coded, { audience: 'agent', position }).split('\n')[1]).toBe('  at: petStore.yaml:117:15 (#/components/schemas/Pet/properties/owner)')
+    expect(render(coded, { audience: 'human', width: 80, position }).split('\n').slice(1, 4)).toStrictEqual([
+      '  at   petStore.yaml:117:15',
+      '    116 │   owner:',
+      "    117 │     $ref: '#/components/schemas/Owner'",
+    ])
+  })
+
   it('keeps an agent block free of escape codes even when color is on', () => {
     const [, coded] = cases[0]!
 
@@ -293,6 +306,18 @@ describe('Diagnostics.scope / Diagnostics.report', () => {
     )
 
     expect(reported).toBe(true)
+    expect(collected).toHaveLength(1)
+  })
+
+  it('shares the sink with another copy of @kubb/core through globalThis', () => {
+    const sink = (globalThis as Record<symbol, AsyncLocalStorage<(diagnostic: Diagnostic) => void>>)[Symbol.for('kubb.diagnostics.reporter')]
+    const collected: Array<Diagnostic> = []
+
+    sink!.run(
+      (diagnostic) => collected.push(diagnostic),
+      () => Diagnostics.report(problem()),
+    )
+
     expect(collected).toHaveLength(1)
   })
 

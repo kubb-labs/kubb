@@ -2,6 +2,7 @@ import type { PossiblePromise } from '@internals/utils'
 import type { InputNode } from '@kubb/ast'
 import { defineExtension } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
+import type { DiagnosticLocation } from './Diagnostics.ts'
 
 /**
  * Source data handed to an adapter's `parse` function. Mirrors the config
@@ -60,9 +61,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   name: TOptions['name']
   meta?: ExtensionMeta<TOptions['name']>
   /**
-   * Resolved adapter options after defaults have been applied.
+   * The options the adapter was created with, before `setup` applied defaults, as a plugin keeps its
+   * own. Kubb Studio merges its overrides onto these, so a default derived from another option, such
+   * as `emptySchemaType` from `unknownType`, follows a change to it.
    */
-  options: TOptions['resolvedOptions']
+  options: TOptions['options']
   /**
    * Parsed source document after the first `parse()` call. `null` before parsing.
    */
@@ -80,6 +83,10 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * Validate the document at the given path or URL.
    */
   validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
+  /**
+   * Zero-based UTF-16 offsets of a diagnostic in `source` for a code frame, `end` exclusive; `undefined` when it cannot be found.
+   */
+  locate?: (source: string, location: DiagnosticLocation) => { start: number; end: number } | undefined
 }
 
 /**

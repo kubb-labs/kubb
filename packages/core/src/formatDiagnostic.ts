@@ -52,6 +52,11 @@ export type DiagnosticFormatOptions = {
    * @default 0
    */
   width?: number
+  /**
+   * Where the diagnostic's pointer sits in the input file, when the host resolved it. Replaces the
+   * pointer on the `at` row, and an error's `human` layout draws `frame` under it.
+   */
+  position?: { file: string; line: number; column: number; frame?: Array<string> }
 }
 
 /**
@@ -136,7 +141,7 @@ export function serialize(diagnostic: Diagnostic): SerializedDiagnostic {
  * with `at`, `fix`, the first cause, and `Learn more` for an error, and one row for a warning.
  * `verbose` adds the full stack.
  */
-export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = false, width = 0 }: DiagnosticFormatOptions = {}): Array<string> {
+export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = false, width = 0, position }: DiagnosticFormatOptions = {}): Array<string> {
   const { code, severity, message } = diagnostic
   const problem = Diagnostics.isProblem(diagnostic) ? diagnostic : undefined
   const human = audience === 'human'
@@ -144,6 +149,8 @@ export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = f
 
   const [firstLine = '', ...rest] = message.split('\n')
   const pointer = problem?.location && 'pointer' in problem.location ? problem.location.pointer : undefined
+  const at = position ? `${position.file}:${position.line}:${position.column}` : undefined
+  const where = at ?? pointer
   const help = problem ? getHelp(problem) : undefined
   const causes = problem ? getCauses(problem) : []
   const crash = problem ? crashCodes.has(problem.code) : false
@@ -158,7 +165,7 @@ export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = f
     const row = (label: string, value: string | undefined) => {
       if (value) details.push(`  ${label}: ${value}`)
     }
-    row('at', pointer)
+    row('at', at && pointer ? `${at} (${pointer})` : pointer)
     if (problem && severity !== 'info') row('why', Diagnostics.explain(problem.code).cause)
     row('fix', help)
     for (const cause of causes) row('caused by', cause)
@@ -170,26 +177,31 @@ export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = f
   }
 
   const left = `${paint(severityStyle[severity], severityIcon[severity])} ${paint('bold', firstLine)}`
-  const gap = Math.max(2, width - stripVTControlCharacters(left).length - code.length)
-  const headline = `${left}${' '.repeat(gap)}${paint('dim', code)}`
+  const gap = width - stripVTControlCharacters(left).length - code.length
+  // A headline too long to share its row with the code would wrap mid-code, so the code drops to its own right-aligned row.
+  const headline =
+    width && gap < 2
+      ? [left, `${' '.repeat(Math.max(0, width - code.length))}${paint('dim', code)}`]
+      : [`${left}${' '.repeat(Math.max(2, gap))}${paint('dim', code)}`]
 
   const frame = rest.filter((line) => line.trim()).map((line) => `  ${paint('dim', line)}`)
   const label = (name: string) => paint('dim', name.length < 4 ? name.padEnd(4) : `${name} `)
   const rows: Array<[label: string, value: string | undefined]> = [
-    ['at', pointer && paint('cyan', pointer)],
+    ['at', where && paint('cyan', where)],
     ['fix', help],
   ]
   if (severity !== 'error') {
     const first = rows.find(([, value]) => value)
-    return [headline, ...frame, ...(first ? [`  ${label(first[0])} ${first[1]}`] : [])]
+    return [...headline, ...frame, ...(first ? [`  ${label(first[0])} ${first[1]}`] : [])]
   }
   rows.push(['caused by', causes[0]], ['report', problem?.issues && paint('cyan', problem.issues)])
 
-  const details = [...frame, ...rows.flatMap(([name, value]) => (value ? [`  ${label(name)} ${value}`] : []))]
+  const codeFrame = (position?.frame ?? []).map((line) => `    ${line}`)
+  const details = [...frame, ...rows.flatMap(([name, value]) => (value ? [`  ${label(name)} ${value}`, ...(name === 'at' ? codeFrame : [])] : []))]
   if (frames?.length) details.push(`  ${paint('dim', 'stack')}`, ...frames)
   if (code !== diagnosticCode.unknown) {
     details.push(`  ${paint('dim', '↳ Learn more')}  ${paint('cyan', Diagnostics.docsUrl(code).replace(/^https:\/\//, ''))}`)
   }
 
-  return [headline, ...details]
+  return [...headline, ...details]
 }

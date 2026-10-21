@@ -565,10 +565,9 @@ export class Resolver {
     }
 
     const outputDir = path.resolve(root, output.path)
-    const result =
-      group && (groupPath || tag)
-        ? path.resolve(outputDir, Resolver.#resolveGroupDir(group, group.type === 'path' ? groupPath! : tag!), baseName)
-        : path.resolve(outputDir, baseName)
+    // A file without the value its group needs (an SDK class per tag, grouped by path) is not grouped.
+    const groupValue = group?.type === 'path' ? groupPath : tag
+    const result = group && groupValue ? path.resolve(outputDir, Resolver.#resolveGroupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)
 
     assertInside({
       target: result,

@@ -1,6 +1,10 @@
-import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, isAbsolute, relative, resolve } from 'node:path'
+import { access, glob as globNode, mkdir, readFile, writeFile } from 'node:fs/promises'
+
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
 import { runtime } from './runtime.ts'
+
+export { existsSync } from 'node:fs'
+export { mkdir, mkdtemp, rm } from 'node:fs/promises'
 
 /**
  * Resolves to `true` when the file or directory at `path` exists.
@@ -103,25 +107,10 @@ export async function write(path: string, data: string, options: WriteOptions = 
   }
   if (matchesStored({ stored: stored ?? '', source: trimmed })) return null
 
-  if (runtime.isBun) {
-    await Bun.write(resolved, content)
-    return content
-  }
-
-  // Creating the directory up front costs a syscall per file, and every file after the first in a
-  // directory pays it for nothing. Write first and only fall back when the directory is missing,
-  // which also stays correct when something removed it mid-run.
-  try {
-    await writeFile(resolved, content, { encoding: 'utf-8' })
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
-
-    await mkdir(dirname(resolved), { recursive: true })
-    await writeFile(resolved, content, { encoding: 'utf-8' })
-  }
+  await writeRaw(resolved, content)
 
   if (options.sanity) {
-    const savedData = await readFile(resolved, { encoding: 'utf-8' })
+    const savedData = await read(resolved)
     if (savedData !== content) {
       throw new Error(`Sanity check failed for ${path}\n\nData[${data.length}]:\n${data}\n\nSaved[${savedData.length}]:\n${savedData}\n`)
     }
@@ -129,6 +118,46 @@ export async function write(path: string, data: string, options: WriteOptions = 
   }
 
   return content
+}
+
+/**
+ * Writes UTF-8 content verbatim, including empty files and surrounding whitespace.
+ * Uses Bun.write under Bun and creates missing parent directories under either runtime.
+ *
+ * @example
+ * await writeRaw('./cache/output.ts', '  // keep these bytes\n\n')
+ */
+export async function writeRaw(path: string, content: string): Promise<void> {
+  const resolved = resolve(path)
+  if (runtime.isBun) {
+    await Bun.write(resolved, content)
+    return
+  }
+  try {
+    await writeFile(resolved, content, { encoding: 'utf-8' })
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    await mkdir(dirname(resolved), { recursive: true })
+    await writeFile(resolved, content, { encoding: 'utf-8' })
+  }
+}
+
+/**
+ * Lists non-hidden regular files below `directory` as relative POSIX paths, excluding directories and symlinks.
+ * Uses Bun.Glob under Bun because its Node glob compatibility API lacks directory-entry support.
+ *
+ * @example
+ * for await (const path of listFiles('./src')) console.log(path)
+ */
+export async function* listFiles(directory: string): AsyncGenerator<string> {
+  const cwd = resolve(directory)
+  if (runtime.isBun) {
+    yield* new Bun.Glob('**/*').scan({ cwd, dot: false, onlyFiles: true, followSymlinks: false })
+    return
+  }
+  for await (const entry of globNode('**/*', { cwd, withFileTypes: true })) {
+    if (entry.isFile()) yield toPosixPath(relative(cwd, join(entry.parentPath, entry.name)))
+  }
 }
 
 /**

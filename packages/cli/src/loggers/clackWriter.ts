@@ -1,12 +1,13 @@
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { createLogger } from './createLogger.ts'
-import type { Logger, LoggerWriter } from './defineLogger.ts'
+import type { LoggerWriter } from './types.ts'
 
 /**
- * Draws with clack: a gutter bar per group, animated steps, and a progress bar for the writes.
+ * Draws with clack for local development: a gutter bar per group, animated steps, and a progress
+ * bar for the writes.
  */
 export const clackWriter: LoggerWriter = {
+  audience: 'human',
   group: (title) => clack.intro(title),
   groupEnd: (text) => clack.outro(text),
   step: (text) => clack.log.step(text, { spacing: 0 }),
@@ -41,8 +42,3 @@ export const clackWriter: LoggerWriter = {
     }
   },
 }
-
-/**
- * TTY logger for local development, with animated steps and progress bars.
- */
-export const clackLogger: Logger = createLogger(clackWriter, { audience: 'human' })

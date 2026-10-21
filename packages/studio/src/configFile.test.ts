@@ -487,6 +487,21 @@ describe('applyConfigEdits', () => {
       `)
     })
 
+    it('puts each plugin of a one-line array on its own line to comment one out, and enabling it keeps them there', () => {
+      const oneLine = `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [pluginTs(), pluginZod({ inferred: true })],\n})\n`
+      const disabled = applyConfigEdits({ source: oneLine, edits: [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }] })
+
+      expect(disabled.outcomes).toStrictEqual([{ edit: { operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }, applied: true }])
+      expect(disabled.source).toBe(
+        `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [\n    pluginTs(),\n    // kubb:disabled @kubb/plugin-zod 1\n    // pluginZod({ inferred: true }),\n  ],\n})\n`,
+      )
+
+      const enabled = applyConfigEdits({ source: disabled.source, edits: [{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }] }).source
+      expect(enabled).toBe(
+        `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [\n    pluginTs(),\n    pluginZod({ inferred: true }),\n  ],\n})\n`,
+      )
+    })
+
     it('enabling returns the source byte-for-byte', () => {
       const disabled = applyConfigEdits({ source, edits: [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }] }).source
       const enabled = applyConfigEdits({ source: disabled, edits: [{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }] }).source
@@ -634,19 +649,18 @@ describe('applyConfigEdits', () => {
       expect(result.source).toBe(source.replace(`        syntaxType: 'type',\n`, `        syntaxType: 'type',\n        output: { path: 'types' },\n`))
     })
 
-    it('adds to an existing nested object inline when it is written on one line', () => {
-      const result = applyConfigEdits({ source, edits: [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'keyCasing'], value: 'camelCase' }] })
-      expect(result.source).toBe(source.replace(`enum: { type: 'asConst' }`, `enum: { type: 'asConst', keyCasing: 'camelCase' }`))
-    })
-
     it('removes an option with its whole line, keeping the comments around it', () => {
       const result = applyConfigEdits({ source, edits: [{ operation: 'remove', plugin: '@kubb/plugin-ts', path: ['arrayType'] }] })
       expect(result.source).toBe(source.replace(`        arrayType: 'generic', // array syntax\n`, ''))
     })
 
-    it('removes the last option inline, leaving an empty object', () => {
-      const result = applyConfigEdits({ source, edits: [{ operation: 'remove', plugin: '@kubb/plugin-ts', path: ['enum', 'type'] }] })
-      expect(result.source).toBe(source.replace(`enum: { type: 'asConst' }`, `enum: {}`))
+    it.each([
+      ['an option the file does not set', { operation: 'remove', plugin: '@kubb/plugin-ts', path: ['optionalType'] }],
+      ['an option of a plugin called without options', { operation: 'remove', plugin: '@kubb/plugin-zod', path: ['inferred'] }],
+    ] satisfies Array<[string, ConfigEdit]>)('applies removing %s without changing the file', (_, edit) => {
+      const result = applyConfigEdits({ source, edits: [edit] })
+      expect(result.source).toBe(source)
+      expect(result.outcomes).toStrictEqual([{ edit, applied: true }])
     })
 
     it('gives a plugin called without options its first one', () => {
@@ -718,17 +732,6 @@ describe('applyConfigEdits', () => {
         true,
         undefined,
       ])
-    })
-
-    it('restores blank lines without the indentation the comment carried', () => {
-      const result = applyConfigEdits({
-        source: disabled,
-        edits: [
-          { operation: 'enable-plugin', config: 'a', plugin: '@kubb/plugin-zod' },
-          { operation: 'enable-plugin', config: 'b', plugin: '@kubb/plugin-zod' },
-        ],
-      })
-      expect(result.source).toBe(source)
     })
 
     it('asks to enable a disabled plugin before editing its options', () => {

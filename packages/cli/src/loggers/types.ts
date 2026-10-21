@@ -1,15 +1,4 @@
-import type { KubbHooks, Hookable, SummaryRenderer } from '@kubb/core'
-
-/**
- * Options accepted by a logger's `install` callback.
- */
-export type LoggerOptions = {
-  /**
-   * Output verbosity. Use the `logLevel` constants exported from `@kubb/core`
-   * (`silent`, `error`, `warn`, `info`, `verbose`).
-   */
-  logLevel: number
-}
+import type { DiagnosticFormatOptions } from '@kubb/core'
 
 /**
  * How a run ended, which decides the symbol a group closes on.
@@ -38,10 +27,12 @@ export type WriterProgress = {
 }
 
 /**
- * How one logger draws. {@link createLogger} decides what a run says and in what order; a writer
+ * How one logger draws. `installLogger` decides what a run says and in what order; a writer
  * decides only how each line looks, so every logger reports the same run the same way.
  */
 export type LoggerWriter = {
+  /** Who reads this output, which picks the diagnostic format and whether problems wait to be grouped. */
+  audience: DiagnosticFormatOptions['audience']
   /**
    * Opens a group. Every `group` is closed by a {@link LoggerWriter.groupEnd}.
    */
@@ -71,18 +62,3 @@ export type LoggerWriter = {
   spinner: () => WriterSpinner
   progress: (max: number) => WriterProgress
 }
-
-/**
- * What `Logger.install` hands back to its host. A logger that groups its output returns a
- * `renderSummary` so the `cli` reporter's summary lands inside that group instead of after it.
- */
-export type LoggerHandle = {
-  /**
-   * Writes the `cli` reporter's summary lines through this logger's own output, and closes the
-   * group the logger opened for that config.
-   */
-  renderSummary?: SummaryRenderer
-}
-
-/** Logger contract: called once per build with the shared hook emitter, it subscribes to the lifecycle hooks it forwards to its destination. */
-export type Logger = (context: Hookable<KubbHooks>, options: LoggerOptions) => LoggerHandle

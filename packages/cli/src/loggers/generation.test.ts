@@ -1,7 +1,22 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join, relative } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
-import type { FileNode } from '@kubb/ast'
-import { Hookable, cliReporter, type Config, type KubbHooks, logLevel, type NormalizedPlugin, type ProblemDiagnostic, type Storage } from '@kubb/core'
-import { describe, expect, it, vi } from 'vitest'
+import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
+import { adapterOas } from '@kubb/adapter-oas'
+import {
+  Hookable,
+  cliReporter,
+  type Config,
+  type GeneratorContext,
+  type KubbBuildStartContext,
+  type KubbHooks,
+  logLevel,
+  type NormalizedPlugin,
+  type ProblemDiagnostic,
+  type Storage,
+} from '@kubb/core'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
 import setupReporters from './reporters.ts'
 
@@ -88,6 +103,10 @@ function makePlugin(name: string): NormalizedPlugin {
   return { name } as NormalizedPlugin
 }
 
+function makeGeneratorContext(pluginName: string): GeneratorContext {
+  return { plugin: makePlugin(pluginName) } as unknown as GeneratorContext
+}
+
 function makeFile(path: string): FileNode {
   return { path } as FileNode
 }
@@ -116,14 +135,19 @@ function generation({ config, pluginFailed = false, formatFailed = false, hookLi
     const file = makeFile('/tmp/src/gen/pet.ts')
 
     await context.callHook('kubb:generation:start', { config })
+    await context.callHook('kubb:build:start', { nodeCounts: { schemas: 1, operations: 1 } } as KubbBuildStartContext)
     await context.callHook('kubb:plugin:start', { plugin: makePlugin('@kubb/plugin-ts') })
+    await context.callHook('kubb:plugin:start', { plugin: makePlugin('@kubb/plugin-zod') })
+    await context.callHook('kubb:generate:schema', { name: 'Pet' } as SchemaNode, makeGeneratorContext('@kubb/plugin-ts'))
+    await context.callHook('kubb:generate:schema', { name: 'Pet' } as SchemaNode, makeGeneratorContext('@kubb/plugin-zod'))
+    await context.callHook('kubb:generate:operation', { operationId: 'getPet' } as OperationNode, makeGeneratorContext('@kubb/plugin-ts'))
     await context.callHook('kubb:plugin:end', withFiles({ config, plugin: makePlugin('@kubb/plugin-ts'), duration: 12, success: true }))
     await context.callHook('kubb:plugin:end', withFiles({ config, plugin: makePlugin('@kubb/plugin-zod'), duration: 8, success: !pluginFailed }))
     await context.callHook('kubb:plugins:end', withFiles({ config }))
 
     await context.callHook('kubb:files:processing:start', { files: [file] })
     await context.callHook('kubb:files:processing:update', { files: [{ processed: 1, total: 1, percentage: 100, file, config }] })
-    await context.callHook('kubb:files:processing:end', { files: [file] })
+    await context.callHook('kubb:files:processing:end', { files: [file], unchanged: [] })
 
     await context.callHook('kubb:format:start')
     await context.callHook('kubb:hook:start', { id: 'format', command: 'biome', args: ['format'] })
@@ -163,23 +187,29 @@ describe('grouped generation output', () => {
 
     expect(output.map(withoutDuration)).toStrictEqual([
       'intro:petstore petstore.yaml',
+      'spinner.start:Parsing spec',
+      'spinner.stop:Parsed spec  1 schema · 1 operation · ',
       'spinner.start:Generating',
-      'spinner.message:Generating @kubb/plugin-ts',
+      // The walk's progress over the spec's nodes, then each plugin's count and the node it just generated.
+      // The next nodes land within one spinner frame, so they count without a redraw.
+      'spinner.message:Generating  ██████████░░░░░░░░░░  1/2 nodes  \n│   @kubb/plugin-ts     1  Pet',
       'spinner.stop:Plugins 2/2 |  elapsed',
       'log.message:@kubb/plugin-ts completed in \n@kubb/plugin-zod completed in ',
       'spinner.start:Writing 1 file',
       'progress.advance:Writing src/gen/pet.ts',
       'spinner.stop:Wrote 1 file',
       'spinner.start:Formatting',
+      'spinner.message:Running biome format',
       'spinner.stop:Formatted in ',
       'spinner.start:Linting',
       'spinner.stop:Linted in ',
       'spinner.start:Running post-generate hooks',
+      'spinner.message:Running tsc --noEmit',
       'spinner.stop:Post-generate hooks completed in ',
       'log.message:✓ tsc --noEmit in ',
       'outro:✓ Generation succeeded',
       // The summary block, which the reporter renders as one entry after the group closes.
-      'log.message.bare: Plugins  2 passed (2)\n   Files  1 generated\nDuration  \n  Output  /tmp/src/gen',
+      'log.message.bare:✓ Generation complete  \n\n  1 file generated\n  Plugins  2 passed\n  Output   /tmp/src/gen',
     ])
   })
 
@@ -199,7 +229,7 @@ describe('grouped generation output', () => {
     {
       rich: false,
       failed: '✗ Plugins 1/2 (1 failed) |  elapsed',
-      closed: 'Kubb failed: an error. Exit code 1.\nRerun with --reporter json for machine-readable diagnostics.',
+      closed: expect.stringContaining('✗ Generation failed'),
     },
   ])('keeps a failed plugin inside the group and closes it once, on the failure (rich: $rich)', async ({ rich, failed, closed }) => {
     const output = await render(generation({ config: makeConfig('petstore'), pluginFailed: true, status: 'failed' }), { rich })
@@ -207,8 +237,8 @@ describe('grouped generation output', () => {
     expect(output.map(withoutDuration)).toContain(failed)
     expect(output.some((call) => call.includes('@kubb/plugin-zod failed'))).toBe(true)
     // The group closes once, right before the summary.
-    expect(output.filter((call) => call.includes('Generation failed') || call.startsWith('Kubb failed'))).toStrictEqual([closed])
-    expect(output.at(rich ? -2 : -1)).toBe(closed)
+    expect(output.filter((call) => call.startsWith('outro:') || call.startsWith('✗ Generation failed'))).toStrictEqual([closed])
+    expect(output.at(rich ? -2 : -1)).toEqual(closed)
   })
 
   it("prints a hook's own output past clack, and trims the blank lines around it", async () => {
@@ -281,7 +311,6 @@ describe('plain generation output', () => {
  * drifting apart again.
  */
 describe('both loggers', () => {
-  // Only the closing summary differs: an agent gets one verdict line instead of the human table.
   it('report the same run, in the same order', async () => {
     const emit = () => generation({ config: makeConfig('petstore'), hookLines: ['tsc: no errors'] })
 
@@ -298,10 +327,12 @@ describe('both loggers', () => {
             .replace(/^[◇✓✗]\s*/, '')
             .trim(),
         )
-        .filter((line) => line && !/^(Kubb succeeded|Generation succeeded|Plugins {2}|Files {2}|Duration|Output {2})/.test(line))
+        .filter((line) => line && !/^(Generation succeeded|Generation complete|\d+ files? generated|Plugins {2}|Files {2}|Duration|Output {2})/.test(line))
         .sort()
+    // The per-node progress only redraws the rich spinner; plain output leaves it out on purpose.
+    const richMessages = messages(rich).filter((line) => !/^(Generating {2}|│ {3})/.test(line))
 
-    expect(messages(plain)).toStrictEqual(messages(rich))
+    expect(messages(plain)).toStrictEqual(richMessages)
   })
 })
 
@@ -357,6 +388,68 @@ describe('diagnostics per audience', () => {
         '  docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found',
       ].join('\n'),
     )
-    expect(lines.at(-1)).toBe('Kubb failed: 1 error, 1 warning (plugin-ts). Exit code 1.\nRerun with --reporter json for machine-readable diagnostics.')
+    expect(lines.at(-1)).toContain('✗ Generation failed')
+    expect(lines.at(-1)).toContain('Failed plugins  plugin-ts')
+    expect(lines.at(-1)).toContain('1 error · 1 warning')
+  })
+})
+
+describe('diagnostics located in the spec', () => {
+  let dir: string
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  function locatedRun(problem: ProblemDiagnostic): Emit {
+    return async (context) => {
+      dir = mkdtempSync(join(tmpdir(), 'kubb-frame-'))
+      writeFileSync(
+        join(dir, 'petstore.yaml'),
+        [
+          'components:',
+          '  schemas:',
+          '    Pet:',
+          '      properties:',
+          '        owner:',
+          "          $ref: '#/components/schemas/Owner'",
+          '        discount%:',
+          '          type: string',
+          '',
+        ].join('\n'),
+      )
+      const config = { ...makeConfig('petstore'), root: dir, adapter: adapterOas() }
+      await context.callHook('kubb:generation:start', { config })
+      await context.callHook('kubb:diagnostic', { diagnostic: problem })
+      await context.callHook('kubb:generation:end', {
+        config,
+        storage: {} as Storage,
+        diagnostics: [problem],
+        filesCreated: 0,
+        status: 'failed',
+        hrStart: process.hrtime(),
+      })
+    }
+  }
+
+  const refNotFound: ProblemDiagnostic = {
+    code: 'KUBB_REF_NOT_FOUND',
+    severity: 'error',
+    message: 'Could not find #/components/schemas/Owner',
+    plugin: 'plugin-ts',
+    location: { kind: 'schema', pointer: '#/components/schemas/Owner', ref: '#/components/schemas/Owner' },
+  }
+
+  it('shows a human the line and column with a code frame under the $ref that uses the missing schema', async () => {
+    const calls = await render(locatedRun(refNotFound), { rich: true })
+    const block = stripVTControlCharacters(calls.find((call) => call.includes('plugin-ts')) ?? '')
+    const file = relative(process.cwd(), join(dir, 'petstore.yaml'))
+
+    expect(block.split('\n').slice(3, 7)).toStrictEqual([
+      `    at   ${file}:6:17`,
+      '      5 │         owner:',
+      "      6 │           $ref: '#/components/schemas/Owner'",
+      '        │                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^',
+    ])
   })
 })

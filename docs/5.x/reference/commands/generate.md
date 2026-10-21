@@ -47,13 +47,31 @@ kubb generate ./petStore.yaml
 | `--verbose`                                  | `false` | Force the log level to `verbose`. Shows slow plugins.                     |
 | `--reporter=<cli\|json\|file\|html>`        |         | Pick which reporters to trigger, comma-separated. Defaults to `cli`.      |
 | `--watch`, `-w`                              | `false` | Re-run the pipeline whenever the input spec changes.                      |
-| `--dry-run`                                  | `false` | Preview a run without writing files, formatting, linting, or running post-generate commands. |
+| `--dry-run`                                  | `false` | Preview a run without writing files, formatting, linting, or running post-generate commands. The summary shows planned file changes compared with disk. |
 
 `--reporter` takes no short flag. The camelCase spellings from v4 (`--logLevel`, `--dryRun`) still work and print a deprecation warning.
+
+In `--watch` mode, each rebuild line shows the duration and the schemas and operations the spec gained or lost; the summary below it lists the files it added, modified, or removed. In an interactive terminal, press `r` to rebuild and `q` to quit.
 
 ## Reporters
 
 A reporter decides how a run is rendered. The config registers available reporters with [`reporters`](/docs/5.x/reference/configuration). `--reporter` picks which ones to trigger by name, comma-separated (`--reporter cli,file`). Four reporters are registered by default.
+
+The CLI summary starts with the outcome and duration, then labels plugin results and the output path. Files with unchanged content are counted separately, including when `output.clean` rewrites the output directory.
+
+```text [Summary]
+✓ Generation complete  466ms
+
+  17 files generated · 54 unchanged
+  Plugins  4 passed
+  Output   ./src/gen
+
+File changes
+  14 added · 3 modified · 1 deleted
+  Lines  +312 −47
+```
+
+File changes compare filesystem output with its contents before the run. Custom storage drivers omit this section. Line totals compare counts of each line, so moving a line within a file does not count as a removal and addition. With `--dry-run`, the summary says “planned” and “Nothing was written.” Plain terminals and AI agent sessions show the same summary.
 
 | Reporter | Output                                                                          |
 | -------- | ------------------------------------------------------------------------------- |

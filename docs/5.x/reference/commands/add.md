@@ -14,7 +14,7 @@ navigation:
 
 # kubb add
 
-Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it asks which extension to add. It checks that the extension supports your Kubb and Node.js versions, asks for confirmation, and installs the package as a dev dependency. For a plugin, it also adds the plugin to `kubb.config.ts`. For an adapter or parser, it prints the code to add.
+Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it lets you search the registry. It checks that the extension supports your Kubb and Node.js versions, shows the packages it installs and the lines it adds to the config, asks for confirmation, and installs the package as a dev dependency. For a plugin, it also adds the plugin to `kubb.config.ts`. For an adapter or parser, it prints the code to add.
 
 Kubb detects the package manager (`npm`, `pnpm`, `yarn`, or `bun`) from your project.
 
@@ -27,17 +27,41 @@ kubb add
 ```
 
 ```text [Output]
-◆  Select an extension to add:
-│  Search: _
-│  ● OpenAPI (kubb-labs/adapter-oas · adapter 5.2.0 · Reads OpenAPI and Swagger documents.)
-│  ○ TypeScript parser
-│  ○ React Query
-│  ○ TypeScript
-│  ○ Zod
+◆  Add an extension · 38 in the registry
+│  Search: mo_
+│  ● plugin-msw (MSW handlers backed by mock data)
+│  ○ plugin-faker
+│  ○ plugin-ts (installed)
 │  ↑/↓ to select • Enter: confirm • Type: to search
 ```
 
-Each row is the extension's display name. The focused row also shows its id, kind, pinned version, and description. Typing filters the rows on all of those, so `zod` keeps the Zod plugin and `adapter` keeps the adapters. Press Enter to continue with the usual confirmation.
+Each row is the id to pass to `kubb add`. The focused row also shows the description. Typing filters the rows on the id, display name, and description, without a request per key. An installed extension shows `installed` and cannot be picked.
+
+Before asking, the CLI shows what it will do:
+
+```text [Output]
+◇  Plugin plugin-zod v5.2.0 · Zod schemas from your spec
+│  Needs     plugin-ts ✓ installed
+│  Installs  @kubb/plugin-zod@5.2.0
+│  Config    kubb.config.ts
+│    + import { pluginZod } from '@kubb/plugin-zod'
+│    + plugins: [pluginTs(), pluginZod()],
+◆  Add it?
+```
+
+After the install, the summary lists the packages, the registrations it added, and the next step:
+
+```text [Output]
+✓ Plugin ready  4.20s
+
+  Packages  1 installed with pnpm
+  + pluginZod()
+
+Next     kubb generate
+Options  kubb.dev/extensions/kubb-labs/plugin-zod
+```
+
+With `--no-install`, the summary says `Plugin configured` and reports that installation was skipped. An existing registration counts as zero plugins added. When installation succeeds but the config needs manual changes, the summary reports both results and prints the snippet to add. Adapters and parsers use their own labels.
 
 Add an official plugin by its slug:
 
@@ -92,6 +116,14 @@ npx kubb add acme/kubb-plugin-example
 > [!TIP]
 > Pass `--yes` in scripts and CI, where no one can answer the prompt.
 
+## Required plugins
+
+When the manifest lists `dependencies` that are not in `kubb.config.ts`, the CLI asks whether to add them as well. `Yes, add both` installs and adds them next to the extension. `Only <id>` adds the extension alone, and `kubb generate` fails until you add the rest. With `--yes`, it adds them.
+
+## Unknown ids
+
+An id the registry does not list prints `No extension named <id> in the registry`, the closest ids as `kubb add <id>` commands, and a link to [kubb.dev/extensions](https://kubb.dev/extensions).
+
 ## Config changes
 
 For a plugin, `kubb add` adds its import and a call at the end of the `plugins` array. A plugin already in the array is left alone.
@@ -106,4 +138,4 @@ When the config cannot be edited, the CLI prints `Could not edit <file>: <reason
 
 ## Exit codes
 
-`kubb add` exits with code 1 when the id is invalid or missing with `--yes`, the registry cannot be read or sends an invalid entry, the extension is incompatible, no config is found for a plugin, or the install fails. It exits with code 0 when you cancel at the prompt, and when it prints the snippet because the config could not be edited.
+`kubb add` exits with code 1 when the id is invalid, unknown, or missing with `--yes`, the registry cannot be read or sends an invalid index, the extension is incompatible, no config is found for a plugin, or the install fails. It exits with code 0 when you cancel at the prompt, and when it prints the snippet because the config could not be edited.

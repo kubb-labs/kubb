@@ -13,6 +13,11 @@ const DEPRECATED_FLAGS: Record<string, string> = {
   packageVersion: 'package-version',
 }
 
+/** Flags a single command renamed, rewritten only for that command, since the old name is a common word. */
+const DEPRECATED_COMMAND_FLAGS: Record<string, Record<string, string>> = {
+  update: { check: 'dry-run' },
+}
+
 const FLAG_PATTERN = /^--([a-zA-Z][\w-]*)(=.*)?$/
 
 /**
@@ -21,10 +26,12 @@ const FLAG_PATTERN = /^--([a-zA-Z][\w-]*)(=.*)?$/
  * of failing with an unknown-option error.
  */
 export function resolveDeprecatedFlags(args: Array<string>): Array<string> {
+  const commandFlags = DEPRECATED_COMMAND_FLAGS[args[0] ?? ''] ?? {}
+
   return args.map((arg) => {
     const match = FLAG_PATTERN.exec(arg)
     const name = match?.[1]
-    const replacement = name ? DEPRECATED_FLAGS[name] : undefined
+    const replacement = name ? (DEPRECATED_FLAGS[name] ?? commandFlags[name]) : undefined
 
     if (!name || !replacement) {
       return arg

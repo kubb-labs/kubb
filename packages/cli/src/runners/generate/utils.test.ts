@@ -1,41 +1,12 @@
-import { mkdtemp, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rename, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { EventEmitter } from 'node:events'
+import { join, relative } from 'node:path'
+import { stripVTControlCharacters } from 'node:util'
+import type { OperationNode, SchemaNode } from '@kubb/ast'
+import { type GeneratorContext, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, startUrlWatcher, startWatcher } from './utils.ts'
-
-describe('createSerialRunner', () => {
-  it('collapses triggers that land during a run into one rerun, reports its error through onError, and keeps accepting triggers', async () => {
-    let calls = 0
-    const errors: Array<string> = []
-    const gates: Array<() => void> = []
-    const runner = createSerialRunner({
-      run: () =>
-        new Promise<void>((resolve, reject) => {
-          calls += 1
-          gates.push(calls === 2 ? () => reject(new Error('run exploded')) : resolve)
-        }),
-      onError: (error) => errors.push(error.message),
-    })
-
-    const first = runner()
-    void runner()
-    void runner()
-    expect(calls).toBe(1)
-
-    gates[0]?.()
-    await vi.waitFor(() => expect(calls).toBe(2))
-
-    gates[1]?.()
-    await first
-    expect(errors).toStrictEqual(['run exploded'])
-
-    const third = runner()
-    expect(calls).toBe(3)
-    gates[2]?.()
-    await third
-  })
-})
+import { diffBuilds, diffOutput, listenForKeys, readOutputFiles, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
 
 describe('startWatcher', () => {
   let dir: string
@@ -75,7 +46,7 @@ describe('startWatcher', () => {
 
     expect(builds).toStrictEqual([[file]])
     expect(messages.length).toBeGreaterThan(0)
-    expect(messages.every((message) => message.includes(`Change detected: change ${file}`))).toBe(true)
+    expect(messages.every((message) => stripVTControlCharacters(message).endsWith(`${relative(process.cwd(), file)} changed`))).toBe(true)
   })
 })
 
@@ -218,5 +189,91 @@ describe('startUrlWatcher', () => {
     const settled = fetchMock.mock.calls.length
     await new Promise((resolve) => setTimeout(resolve, 30))
     expect(fetchMock.mock.calls.length).toBe(settled)
+  })
+})
+
+describe('trackBuild and diffBuilds', () => {
+  const ctx = {} as GeneratorContext
+
+  async function build(hooks: Hookable<KubbHooks>, { schemas, operations }: { schemas: Array<string>; operations: Array<string> }) {
+    for (const name of schemas) await hooks.callHook('kubb:generate:schema', { name } as SchemaNode, ctx)
+    for (const operationId of operations) await hooks.callHook('kubb:generate:operation', { operationId } as OperationNode, ctx)
+  }
+
+  it('reports the schema and operation names added and removed since the last build', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const tracker = trackBuild(hooks)
+
+    await build(hooks, { schemas: ['Pet', 'Order'], operations: ['getPet'] })
+    const previous = tracker.take()
+    await build(hooks, { schemas: ['Pet', 'Pet', 'Tag'], operations: ['getPet', 'addPet', 'deletePet'] })
+
+    expect(diffBuilds(previous, tracker.take())).toStrictEqual({
+      schemas: { added: 1, removed: 1 },
+      operations: { added: 2, removed: 0 },
+    })
+  })
+})
+
+describe('listenForKeys', () => {
+  function createInput(isTTY: boolean) {
+    return Object.assign(new EventEmitter(), {
+      isTTY,
+      setRawMode: vi.fn(),
+      resume: vi.fn(),
+      pause: vi.fn(),
+      setEncoding: vi.fn(),
+    })
+  }
+
+  it('rebuilds on r, quits on q or ctrl+c, and restores raw mode before quitting', () => {
+    const input = createInput(true)
+    const rebuild = vi.fn()
+    const quit = vi.fn()
+    using _once = vi.spyOn(process, 'once').mockReturnValue(process)
+
+    const arm = listenForKeys({ rebuild, quit, input: input as unknown as NodeJS.ReadStream })
+    expect(input.setRawMode).toHaveBeenLastCalledWith(true)
+
+    input.emit('data', 'r')
+    expect(rebuild).toHaveBeenCalledOnce()
+
+    input.emit('data', 'q')
+    expect(input.setRawMode).toHaveBeenLastCalledWith(false)
+    expect(quit).toHaveBeenLastCalledWith(0)
+
+    arm?.()
+    input.emit('data', '\u0003')
+    expect(quit).toHaveBeenLastCalledWith(130)
+  })
+})
+
+describe('diffOutput', () => {
+  it('compares each generated file with disk, and lists the files `clean` would delete', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'kubb-dry-run-'))
+    try {
+      await mkdir(join(dir, 'gen'))
+      await writeFile(join(dir, 'gen/pet.ts'), 'a\nb\nc')
+      await writeFile(join(dir, 'gen/tag.ts'), 'same')
+      await writeFile(join(dir, 'gen/legacy.ts'), 'old')
+      const storage = memoryStorage()
+      await storage.writeItem(join(dir, 'gen/pet.ts'), 'a\nB\nc\nd')
+      await storage.writeItem(join(dir, 'gen/tag.ts'), 'same')
+      await storage.writeItem(join(dir, 'gen/toy.ts'), 'new')
+      const paths = ['pet.ts', 'tag.ts', 'toy.ts'].map((name) => join(dir, 'gen', name))
+
+      const previousFiles = await readOutputFiles(join(dir, 'gen'))
+      expect(await diffOutput({ storage, paths, clean: true, previousFiles })).toStrictEqual({
+        files: [
+          { status: 'M', path: join(dir, 'gen/pet.ts'), added: 2, removed: 1 },
+          { status: 'A', path: join(dir, 'gen/toy.ts'), added: 1, removed: 0 },
+          { status: 'D', path: join(dir, 'gen/legacy.ts'), added: 0, removed: 1 },
+        ],
+        unchanged: 1,
+      })
+      expect((await diffOutput({ storage, paths, clean: false, previousFiles })).files.map((file) => file.status)).toStrictEqual(['M', 'A'])
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 })
