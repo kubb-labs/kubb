@@ -24,12 +24,12 @@ import { pluralize } from '../../ui/text.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainWriter } from '../../loggers/plainWriter.ts'
 import { logIntro, logOutro, logSpacer, logTip } from '../../ui/intro.ts'
-import { logError, logInfo, logStep } from '../../ui/log.ts'
+import { logError, logInfo, logStep, logWarn } from '../../ui/log.ts'
 import { logBanner } from '../../ui/mascot.ts'
 import { createSpinner } from '../../ui/spinner.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
-import { type BuildDiff, type BuildSnapshot, diffBuilds, fetchUrlBody, listenForKeys, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
+import { type BuildDiff, type BuildSnapshot, diffBuilds, listenForKeys, startWatcher, trackBuild } from './utils.ts'
 
 /** NPM registry endpoint used to check for @kubb/cli updates. */
 const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
@@ -217,9 +217,9 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     for (const config of configs) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
-      const watchPath = inputKind === 'file' || inputKind === 'url' ? (effectiveInput as string) : undefined
+      const watchPath = inputKind === 'file' ? (effectiveInput as string) : undefined
       if (watchPath && tracker) {
-        const label = styleText('yellow', `Watching ${inputKind === 'url' ? watchPath : path.relative(process.cwd(), watchPath)}`)
+        const label = styleText('yellow', `Watching ${path.relative(process.cwd(), watchPath)}`)
         let previous: BuildSnapshot | undefined
         // Don't removeAll() between builds, that would also drop logger and lifecycle
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
@@ -259,21 +259,12 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           })
         }
 
-        // For a URL input, capture the document before the build: it becomes the watcher's
-        // change-detection baseline, so an edit landing before the first poll still rebuilds.
-        // When the server is down the baseline stays undefined and the watcher rebuilds on its
-        // first successful poll, so recovery with an unchanged document still generates output.
-        const initialBody = inputKind === 'url' ? await fetchUrlBody(watchPath) : undefined
-
-        // The watchers ignore their startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
+        // The watcher ignores its startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
         await rebuild()
 
-        if (inputKind === 'url') {
-          startUrlWatcher(watchPath, rebuild, { log: { info: logInfo, error: logError }, initialBody })
-        } else {
-          await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
-        }
+        await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
       } else {
+        if (tracker && !quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
         try {
           const succeeded = await generate({ input, config, hooks, dryRun })
           if (!succeeded) anyFailed = true
