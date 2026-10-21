@@ -113,6 +113,7 @@ export const pluginBarrel = defineExtension({
         // The output root holds every plugin's files, so there only the owner match applies.
         if (target !== base && isPathInside(target, base)) {
           excludedTargets.push(target)
+          if (config.output.shared) excludedTargets.push(path.resolve(config.root, config.output.shared.path, plugin.options.output.path))
         }
         return
       }

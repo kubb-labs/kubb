@@ -4,7 +4,7 @@ import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMet
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginType } from './definePlugin.ts'
+import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, Output, PluginType } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
@@ -383,7 +383,13 @@ export class KubbDriver {
           for (const plugin of this.plugins.values()) {
             this.options.signal?.throwIfAborted()
             plugin.options = normalizePluginOptions(plugin.options, plugin.name)
-            if (shared) plugin.options.output.shared = shared
+            if (!shared) continue
+            plugin.options.output.shared = shared
+            // An `override` with its own `output` replaces the whole object, so it carries the shared list too.
+            plugin.options.override = plugin.options.override.map((entry) => {
+              const { output } = entry.options as { output?: Output }
+              return output ? { ...entry, options: { ...entry.options, output: { ...output, shared } } } : entry
+            })
           }
 
           if (this.adapter && this.inputNode) {
