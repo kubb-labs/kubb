@@ -2,17 +2,10 @@ import type { PossiblePromise } from '@internals/utils'
 import type { CLIOptions, UserConfig } from '@kubb/core'
 import { applyDefaults } from 'unplugin-kubb'
 
-type AnyConfigResult = UserConfig<unknown> | Array<UserConfig<unknown>>
-type ConfigInput = AnyConfigResult | Promise<AnyConfigResult> | ((cli: CLIOptions) => PossiblePromise<AnyConfigResult>)
-type NormalizeConfig<TConfig> =
-  TConfig extends Array<UserConfig<infer TInput>> ? Array<UserConfig<TInput>> : TConfig extends UserConfig<infer TInput> ? UserConfig<TInput> : never
-type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptions) => PossiblePromise<infer TResult>
-  ? (cli: CLIOptions) => Promise<NormalizeConfig<TResult>>
-  : TConfig extends Promise<infer TResult>
-    ? Promise<NormalizeConfig<TResult>>
-    : NormalizeConfig<TConfig>
+type ConfigResult<TInput> = UserConfig<TInput> | Array<UserConfig<TInput>>
+type ConfigFunction<TInput, TResult extends ConfigResult<TInput>> = (cli: CLIOptions) => PossiblePromise<TResult>
 
-function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<TInput>>): UserConfig<TInput> | Array<UserConfig<TInput>> {
+function normalizeConfig<TInput>(config: ConfigResult<TInput>): ConfigResult<TInput> {
   if (Array.isArray(config)) {
     return config.map(applyDefaults)
   }
@@ -34,6 +27,12 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * Accepts a config object, an array of configs, a Promise resolving to one,
  * or a function that receives the parsed CLI options and returns any of the
  * above. The return type is preserved so async/array variants stay typed.
+ *
+ * Each shape has its own overload so TypeScript checks the config against
+ * `UserConfig` directly and reports unknown keys such as a misspelled `output.clean`.
+ * The function overloads come first: TypeScript caches the callback's return type after
+ * the first overload it tries, so an object overload before them would widen literals
+ * such as `barrel: { type: 'named' }` to `string`.
  *
  * @example
  * ```ts
@@ -58,16 +57,22 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * }))
  * ```
  */
-export function defineConfig<TConfig extends ConfigInput>(config: TConfig): DefinedConfig<TConfig> {
+export function defineConfig<TInput>(config: ConfigFunction<TInput, UserConfig<TInput>>): (cli: CLIOptions) => Promise<UserConfig<TInput>>
+export function defineConfig<TInput>(config: ConfigFunction<TInput, Array<UserConfig<TInput>>>): (cli: CLIOptions) => Promise<Array<UserConfig<TInput>>>
+export function defineConfig<TInput>(config: Promise<UserConfig<TInput>>): Promise<UserConfig<TInput>>
+export function defineConfig<TInput>(config: Promise<Array<UserConfig<TInput>>>): Promise<Array<UserConfig<TInput>>>
+export function defineConfig<TInput>(config: Array<UserConfig<TInput>>): Array<UserConfig<TInput>>
+export function defineConfig<TInput>(config: UserConfig<TInput>): UserConfig<TInput>
+export function defineConfig<TInput>(
+  config: ConfigResult<TInput> | Promise<ConfigResult<TInput>> | ConfigFunction<TInput, ConfigResult<TInput>>,
+): ConfigResult<TInput> | Promise<ConfigResult<TInput>> | ((cli: CLIOptions) => Promise<ConfigResult<TInput>>) {
   if (typeof config === 'function') {
-    return (async (cli: CLIOptions) => {
-      return normalizeConfig(await config(cli))
-    }) as DefinedConfig<TConfig>
+    return async (cli: CLIOptions) => normalizeConfig(await config(cli))
   }
 
   if (config instanceof Promise) {
-    return config.then(normalizeConfig) as DefinedConfig<TConfig>
+    return config.then(normalizeConfig)
   }
 
-  return normalizeConfig(config) as DefinedConfig<TConfig>
+  return normalizeConfig(config)
 }
