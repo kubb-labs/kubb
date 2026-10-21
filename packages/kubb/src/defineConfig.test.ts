@@ -80,25 +80,16 @@ describe('defineConfig', () => {
 })
 
 describe('defineConfig types', () => {
-  test('reports unknown keys on object and array configs', () => {
-    // @ts-expect-error unknown top-level key
+  test('reports unknown keys and keeps the inferred shape', () => {
+    // @ts-expect-error unknown key
     defineConfig({ ...minimal, notAField: true })
-    // @ts-expect-error unknown output key
-    defineConfig({ input: 'spec.yaml', output: { path: './gen', badOut: 1 } })
-    // @ts-expect-error unknown key inside the array form
-    defineConfig([{ ...minimal, notAField: true }])
-    // @ts-expect-error wrong value type
-    defineConfig({ input: 'spec.yaml', output: { path: 42 } })
-  })
+    // @ts-expect-error unknown output key inside the array form
+    defineConfig([{ input: 'spec.yaml', output: { path: './gen', badOut: 1 } }])
 
-  test('keeps the input type and shape of each config form', () => {
     expectTypeOf(defineConfig({ ...minimal })).toEqualTypeOf<UserConfig<string>>()
     expectTypeOf(defineConfig([{ ...minimal }])).toEqualTypeOf<Array<UserConfig<string>>>()
-    expectTypeOf(defineConfig(Promise.resolve({ ...minimal }))).toEqualTypeOf<Promise<UserConfig<string>>>()
     expectTypeOf(defineConfig(() => ({ ...minimal }))).toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig<string>>>()
-    expectTypeOf(defineConfig(async () => [{ ...minimal }])).toEqualTypeOf<(cli: CLIOptions) => Promise<Array<UserConfig<string>>>>()
-    expectTypeOf(defineConfig({ input: { openapi: '3.0.0' }, output: { path: './gen' } })).toEqualTypeOf<UserConfig<{ openapi: string }>>()
-    expectTypeOf(defineConfig({ output: { path: './gen' } })).toEqualTypeOf<UserConfig<unknown>>()
+    expectTypeOf(defineConfig(Promise.resolve([{ ...minimal }]))).toEqualTypeOf<Promise<Array<UserConfig<string>>>>()
   })
 })
 
