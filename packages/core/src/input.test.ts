@@ -22,6 +22,7 @@ describe('getInputKind', () => {
     ['a relative path', './petStore.yaml', 'file'],
     ['an absolute path', '/specs/openapi.json', 'file'],
     ['an http(s) address', 'https://example.com/openapi.json', 'url'],
+    ['a git repository', 'git+https://github.com/org/api.git#main:openapi.yaml', 'git'],
     ['inline JSON content', '{ "openapi": "3.1.0" }', 'inline'],
     ['multi-line YAML content', 'openapi: 3.1.0\ninfo:\n  title: Pets', 'inline'],
     ['a single-line YAML document marker', 'swagger: "2.0"', 'inline'],

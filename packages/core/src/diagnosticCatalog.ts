@@ -30,6 +30,13 @@ export const diagnosticCatalog = {
       'A URL set as `input` (or reached through a `$ref`) never answered, so the request failed before a status came back. A refused connection, an unknown host, an expired certificate, and a timeout all land here.',
     fix: 'Check that the host is running and reachable from this machine. For a local server, start it and confirm the port matches the one in `input`.',
   },
+  gitInputFailed: {
+    code: 'KUBB_GIT_INPUT_FAILED',
+    title: 'Git input failed',
+    cause:
+      'A git `input` (`git+<repo>#<ref>:<path>`) is malformed, or `git` could not fetch it: git is not installed, the repository or ref does not exist, or the credentials were refused.',
+    fix: 'Write the input as `git+<repo>#<ref>:<path>`. Run `git fetch --depth 1 <repo> <ref>` yourself to see the git error, and set up a credential helper or SSH key for a private repository.',
+  },
   inputRequired: {
     code: 'KUBB_INPUT_REQUIRED',
     title: 'Input required',

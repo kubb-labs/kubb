@@ -718,7 +718,8 @@ function reportedInput(input: Config['input']): string | undefined {
   if (typeof input !== 'string') return undefined
   const kind = getInputKind(input)
   if (kind === 'inline') return undefined
-  if (kind !== 'url') return input
+  // The scp-style git form (`git+git@host:org/repo.git`) is no URL and carries no password.
+  if ((kind !== 'url' && kind !== 'git') || !URL.canParse(input)) return input
   const url = new URL(input)
   url.username = ''
   url.password = ''

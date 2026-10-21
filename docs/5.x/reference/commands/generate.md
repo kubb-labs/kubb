@@ -35,7 +35,7 @@ kubb generate ./petStore.yaml
 
 | Argument  | Description                                                                                  |
 | --------- | -------------------------------------------------------------------------------------------- |
-| `[input]` | Optional path or URL to a Swagger/OpenAPI document. Overrides the `input` set in the config. |
+| `[input]` | Optional path, URL, or git input (`git+<repo>#<ref>:<path>`) of a Swagger/OpenAPI document. Overrides the `input` set in the config. |
 
 ## Options
 
@@ -46,10 +46,12 @@ kubb generate ./petStore.yaml
 | `--silent`, `-s`                             | `false` | Force the log level to `silent`. Suppresses output.                       |
 | `--verbose`                                  | `false` | Force the log level to `verbose`. Shows slow plugins.                     |
 | `--reporter=<cli\|json\|file\|html>`        |         | Pick which reporters to trigger, comma-separated. Defaults to `cli`.      |
-| `--watch`, `-w`                              | `false` | Re-run the pipeline whenever the input spec changes.                      |
+| `--watch`, `-w`                              | `false` | Re-run the pipeline whenever the local input file changes.                |
 | `--dry-run`                                  | `false` | Preview a run without writing files, formatting, linting, or running post-generate commands. The summary shows planned file changes compared with disk. |
 
 `--reporter` takes no short flag. The camelCase spellings from v4 (`--logLevel`, `--dryRun`) still work and print a deprecation warning.
+
+`--watch` follows a local `input` file only. A URL or git input is generated once, so rerun Kubb after the remote spec changes.
 
 In `--watch` mode, each rebuild line shows the duration and the schemas and operations the spec gained or lost; the summary below it lists the files it added, modified, or removed. In an interactive terminal, press `r` to rebuild and `q` to quit.
 

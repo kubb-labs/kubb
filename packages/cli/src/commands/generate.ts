@@ -63,7 +63,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     ...logLevelArg,
     watch: {
       type: 'boolean',
-      description: 'Watch mode: watches an input file for changes, or polls an input URL',
+      description: 'Watch mode: rebuilds when the local input file changes',
       short: 'w',
       default: false,
     },

@@ -120,9 +120,24 @@ export default defineConfig({
 })
 ```
 
+## Read the spec from a git repository
+
+Point `input` at a file in a git repository when the spec lives in another repo, such as the API's own. Write it as `git+<repo>#<ref>:<path>`, and pin `<ref>` to a tag or commit so every run generates from the same spec:
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from 'kubb/config'
+
+export default defineConfig({
+  input: 'git+https://github.com/org/api.git#v2.1.0:specs/openapi.yaml',
+  output: { path: './src/gen' },
+})
+```
+
+Kubb needs `git` on the `PATH` and uses your own git credentials, so a private repository works with the credential helper or SSH key you already use. In CI, give the job read access to that repository. See [`input`](/docs/5.x/reference/configuration#input) for the full format.
+
 ## Watch mode, several specifications, and scripts
 
-- Run `kubb generate --watch` to regenerate on spec changes. Pass a function to `defineConfig` to read `watch` and keep `clean` off during incremental runs. See [Config formats](/docs/5.x/reference/configuration#config-formats).
+- Run `kubb generate --watch` to regenerate when the local spec file changes. A URL or git input is generated once, so rerun Kubb after the remote spec changes. Pass a function to `defineConfig` to read `watch` and keep `clean` off during incremental runs. See [Config formats](/docs/5.x/reference/configuration#config-formats).
 - Pass an array to `defineConfig` to generate from several specifications in one run, each with its own plugins and output directory. Set a `name` per entry so the CLI output tells them apart.
 - Drive Kubb from a script with [`createKubb`](/docs/5.x/reference/kit/engine#createkubb) when you orchestrate builds or inspect diagnostics.
 - Run [`kubb validate`](/docs/5.x/reference/commands/validate) before generation in CI to fail on an invalid specification.
