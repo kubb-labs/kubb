@@ -59,7 +59,7 @@ export default defineConfig({
 })
 ```
 
-To render compiler AST nodes to source text from inside a plugin, call `print` on a parser instance:
+To render compiler AST nodes to source text from inside a plugin, call `print` on a parser instance. Install `@typescript/typescript6` first, because `typescript` 7 no longer exports the compiler API:
 
 ```typescript
 import { parserTs } from '@kubb/parser-ts'
