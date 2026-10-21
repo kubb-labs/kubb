@@ -1,5 +1,50 @@
 # Changelog
 
+## v5.12.0 — Oct 21, 2026
+
+### @kubb/cli
+
+#### Features
+
+- `kubb generate --watch` follows a local `input` file only and no longer polls a URL `input`. A URL or git input is generated once, with a warning, so rerun Kubb after the remote spec changes. ([#4375](https://github.com/kubb-labs/kubb/pull/4375), [`39f6950`](https://github.com/kubb-labs/kubb/commit/39f695096ee5a0f952cf12a31242886f0cbee236))
+
+### @kubb/core
+
+#### Features
+
+- `input` reads a spec from a git repository. Write it as `git+<repo>#<ref>:<path>`, where `<ref>` is an optional branch, tag, or full commit SHA. Kubb runs a shallow `git fetch` into a temporary folder, so any host works, a private repository uses your git credentials, and relative `$ref` files resolve. `kubb validate` accepts the same form.
+  
+  ```ts
+  export default defineConfig({
+    input: 'git+https://github.com/org/api.git#v2:specs/openapi.yaml',
+  })
+  ```
+  
+  A failed fetch reports `KUBB_GIT_INPUT_FAILED`. ([#4375](https://github.com/kubb-labs/kubb/pull/4375), [`39f6950`](https://github.com/kubb-labs/kubb/commit/39f695096ee5a0f952cf12a31242886f0cbee236))
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- Load the compiler API from `@typescript/typescript6`, so `print` keeps working next to TypeScript 7, which no longer exports it. Custom printers that build compiler nodes import `ts` from `@typescript/typescript6`.
+  
+  ```diff
+  - import ts from 'typescript'
+  + import ts from '@typescript/typescript6'
+  ``` ([#4370](https://github.com/kubb-labs/kubb/pull/4370), [`b3bc95a`](https://github.com/kubb-labs/kubb/commit/b3bc95a4af3b94cfa2aa2ea282572663904eeebf))
+
+### kubb
+
+#### Bug Fixes
+
+- `defineConfig` now reports unknown config keys, such as a misspelled `output.clean`. Values returned from a callback or a Promise are not checked by TypeScript; add `satisfies UserConfig` there. ([#4376](https://github.com/kubb-labs/kubb/pull/4376), [`14cf395`](https://github.com/kubb-labs/kubb/commit/14cf39552290c6de296d2e9f6e3ab2d38d54a143))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.11.6 — Oct 20, 2026
 
 ### @kubb/studio
