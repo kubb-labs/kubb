@@ -449,7 +449,7 @@ class Agent extends RpcTarget implements AgentApi {
     if (this.#sandbox && (typeof studioInput !== 'string' || !studioInput.trim() || getInputKind(studioInput) !== 'inline')) {
       return this.#refuse({ message: AgentMessage.SANDBOX_INPUT_ONLY })
     }
-    // A managed agent has no project spec to fall back on, so Studio may point it at a URL or a git file. A file path would read the container's disk.
+    // Studio may point a managed agent at a URL or a git file, and it falls back to its config's input without one. A file path would read the container's disk.
     if (this.#managed && studioInput !== undefined && !MANAGED_INPUT_KINDS.has(getInputKind(studioInput))) {
       return this.#refuse({ message: AgentMessage.MANAGED_INPUT_KIND })
     }
@@ -475,7 +475,7 @@ class Agent extends RpcTarget implements AgentApi {
     if (patch?.input && !this.#sandbox && !this.#managed) {
       // A `kubb:warn` rather than `studio:warn`, so the generation's event stream carries it to Studio too.
       await emit(this.#options.hooks, 'kubb:warn', {
-        message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent',
+        message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox or managed agent',
       })
     }
 

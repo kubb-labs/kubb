@@ -377,7 +377,7 @@ describe('generation reports', () => {
 
     expect(seen).toContainEqual({
       type: 'kubb:warn',
-      data: [{ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent', info: undefined }],
+      data: [{ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox or managed agent', info: undefined }],
     })
   })
 
