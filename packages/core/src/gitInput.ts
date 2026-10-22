@@ -100,12 +100,25 @@ async function resolvePublicFetchConfig(repo: string, signal?: AbortSignal): Pro
 const gitConfigEnvKey = /^GIT_CONFIG_(COUNT|KEY_\d+|VALUE_\d+|GLOBAL|NOSYSTEM)$/
 
 /**
- * The entries of `env` git reads as configuration: `GIT_CONFIG_COUNT` with its `KEY_n` and
- * `VALUE_n` pairs, and the two that keep global and system config out. Anything else is dropped,
- * so a caller handing in credentials for one fetch cannot reach `PATH` or `NODE_OPTIONS`.
+ * The `GIT_CONFIG_*` entries of `env`, so a caller handing in credentials for one fetch cannot reach
+ * `PATH` or `NODE_OPTIONS`. With `repo`, only an `Authorization` header scoped to that repository's
+ * origin survives: a `credential.helper` or `url.*.insteadOf` could run a program or send the fetch elsewhere.
  */
-export function gitConfigEnv(env: Record<string, string>): Record<string, string> {
-  return Object.fromEntries(Object.entries(env).filter(([key]) => gitConfigEnvKey.test(key)))
+export function gitConfigEnv(env: Record<string, string>, { repo }: { repo?: string } = {}): Record<string, string> {
+  const kept = Object.fromEntries(Object.entries(env).filter(([key]) => gitConfigEnvKey.test(key)))
+  if (!repo || !URL.canParse(repo)) return kept
+
+  const header = `http.${new URL(repo).origin}/.extraheader`
+  const pairs = Array.from({ length: Number(kept.GIT_CONFIG_COUNT) || 0 }, (_, index) => [kept[`GIT_CONFIG_KEY_${index}`], kept[`GIT_CONFIG_VALUE_${index}`]])
+  const allowed = pairs.filter(([key, value]) => key === header && /^authorization:/i.test(value ?? ''))
+  const scoped: Record<string, string> = { GIT_CONFIG_COUNT: String(allowed.length) }
+  allowed.forEach(([key, value], index) => {
+    scoped[`GIT_CONFIG_KEY_${index}`] = key!
+    scoped[`GIT_CONFIG_VALUE_${index}`] = value!
+  })
+  for (const key of ['GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM']) if (kept[key] !== undefined) scoped[key] = kept[key]
+
+  return scoped
 }
 
 /**
@@ -115,8 +128,7 @@ export function gitConfigEnv(env: Record<string, string>): Record<string, string
  *
  * With `publicOnly`, the repository must be an https URL on public addresses, the fetch connects to
  * the addresses checked, and it does not follow a redirect. `env` adds git configuration for this
- * fetch only, filtered by {@link gitConfigEnv}: Studio sends an `Authorization` header this way for
- * a private repository.
+ * fetch only, through {@link gitConfigEnv}, scoped to the repository when `publicOnly` is set.
  */
 export async function checkoutGitInput(
   input: string,
@@ -137,7 +149,7 @@ export async function checkoutGitInput(
 
   const label = `${redact(repo)}${ref ? ` at ${ref}` : ''}`
   // A prompt would hang the run, so git fails instead; credential helpers and SSH keys still work.
-  const env = { ...process.env, ...(configEnv && gitConfigEnv(configEnv)), GIT_TERMINAL_PROMPT: '0' }
+  const env = { ...process.env, ...(configEnv && gitConfigEnv(configEnv, publicOnly ? { repo } : {})), GIT_TERMINAL_PROMPT: '0' }
   // `--end-of-options` keeps a repo or ref that starts with `-` from being read as a git flag.
   const steps = [
     ['init', '--quiet'],

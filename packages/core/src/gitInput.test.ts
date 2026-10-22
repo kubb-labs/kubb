@@ -102,6 +102,35 @@ describe('checkoutGitInput', () => {
 })
 
 describe('gitConfigEnv', () => {
+  it('keeps only the Authorization header for the repository when scoped to one', () => {
+    const env = {
+      GIT_CONFIG_COUNT: '4',
+      GIT_CONFIG_KEY_0: 'credential.helper',
+      GIT_CONFIG_VALUE_0: '!evil',
+      GIT_CONFIG_KEY_1: 'url.https://evil.example/.insteadOf',
+      GIT_CONFIG_VALUE_1: 'https://github.com/',
+      GIT_CONFIG_KEY_2: 'http.https://github.com/.extraheader',
+      GIT_CONFIG_VALUE_2: 'Authorization: Basic abc',
+      GIT_CONFIG_KEY_3: 'http.https://github.com/.extraheader',
+      GIT_CONFIG_VALUE_3: 'X-Other: no',
+      GIT_CONFIG_GLOBAL: '/dev/null',
+      GIT_CONFIG_NOSYSTEM: '1',
+    }
+
+    expect(gitConfigEnv(env, { repo: 'https://github.com/org/api.git' })).toStrictEqual({
+      GIT_CONFIG_COUNT: '1',
+      GIT_CONFIG_KEY_0: 'http.https://github.com/.extraheader',
+      GIT_CONFIG_VALUE_0: 'Authorization: Basic abc',
+      GIT_CONFIG_GLOBAL: '/dev/null',
+      GIT_CONFIG_NOSYSTEM: '1',
+    })
+    expect(gitConfigEnv(env, { repo: 'https://gitlab.com/org/api.git' })).toStrictEqual({
+      GIT_CONFIG_COUNT: '0',
+      GIT_CONFIG_GLOBAL: '/dev/null',
+      GIT_CONFIG_NOSYSTEM: '1',
+    })
+  })
+
   it('keeps the GIT_CONFIG_* entries and drops everything else', () => {
     expect(
       gitConfigEnv({
@@ -145,6 +174,16 @@ describe('publicFetchConfig', () => {
 })
 
 describe('checkoutGitInput with publicOnly', () => {
+  it('drops a URL rewrite from `env`, so the public-address check cannot be bypassed', async () => {
+    const env = { GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'url.https://10.0.0.5/.insteadOf', GIT_CONFIG_VALUE_0: 'https://93.184.216.34/' }
+
+    await expect(
+      checkoutGitInput('git+https://93.184.216.34/api.git#main:openapi.yaml', AbortSignal.timeout(5_000), { publicOnly: true, env }),
+    ).rejects.toMatchObject({
+      diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' },
+    })
+  })
+
   it.each([
     ['plain http', 'git+http://93.184.216.34/api.git#main:openapi.yaml'],
     ['an scp style address', 'git+git@github.com:org/api.git#main:openapi.yaml'],

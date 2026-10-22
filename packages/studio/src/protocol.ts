@@ -307,10 +307,8 @@ export type GenerateInput = {
    */
   requestedBy?: string
   /**
-   * Git configuration for the fetch of a `git+` input, as `GIT_CONFIG_*` variables for the git
-   * child process only. Studio sends a short-lived `Authorization` header for a private
-   * repository this way. Keys outside `GIT_CONFIG_*` are dropped; an agent that predates the
-   * field ignores it.
+   * `GIT_CONFIG_*` variables for the git child that fetches a `git+` input: a short-lived
+   * `Authorization` header for the input's origin. A managed agent keeps nothing else, and an agent that predates the field ignores it.
    */
   gitAuth?: { env: Record<string, string> }
 }
