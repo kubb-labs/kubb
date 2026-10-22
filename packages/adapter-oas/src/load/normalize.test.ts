@@ -50,15 +50,25 @@ components:
     expect(doc.components?.schemas?.['Pet']).toBeDefined()
   })
 
-  it('parses an inline JSON string without the YAML parser, which allocates far more', async () => {
+  it('parses inline JSON and YAML without the slower `yaml` parser', async () => {
     const parse = vi.mocked(yaml.parse)
     parse.mockClear()
 
     await parseFromConfig({ type: 'data', data: JSON.stringify(petSchema) })
-    expect(parse).not.toHaveBeenCalled()
+    const doc = await parseFromConfig({ type: 'data', data: 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths: {}\n' })
 
-    await parseFromConfig({ type: 'data', data: 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths: {}\n' })
-    expect(parse).toHaveBeenCalledOnce()
+    expect(doc.info.title).toBe('Pets API')
+    expect(parse).not.toHaveBeenCalled()
+  })
+
+  it('keeps timestamps as strings and `<<` as a plain key, like YAML 1.2', async () => {
+    const doc = await parseFromConfig({
+      type: 'data',
+      data: 'openapi: 3.0.3\ninfo: { title: Pets API, version: 2024-01-01 }\npaths: {}\nx-merge:\n  <<: { a: 1 }\n',
+    })
+
+    expect(doc.info.version).toBe('2024-01-01')
+    expect((doc as Record<string, unknown>)['x-merge']).toStrictEqual({ '<<': { a: 1 } })
   })
 
   it('up-converts a Swagger 2.0 document to OpenAPI 3', async () => {

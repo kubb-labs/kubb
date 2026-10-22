@@ -1,5 +1,6 @@
 import { exists, getErrorMessage, read, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
+import { CORE_SCHEMA, load } from 'js-yaml'
 import { parse } from 'yaml'
 
 export const urlRegExp = /^https?:\/+/i
@@ -105,6 +106,14 @@ export function parseYaml(data: string, { origin, help }: { origin: string; help
     return JSON.parse(data) as object
   } catch {
     // Not JSON, so parse it as YAML below.
+  }
+  try {
+    // `js-yaml` parses about ten times faster than `yaml`. Its core schema keeps timestamps as
+    // strings and `<<` as a plain key, matching `yaml`'s YAML 1.2 defaults.
+    const document = load(data, { schema: CORE_SCHEMA })
+    if (document !== undefined) return document as object
+  } catch {
+    // `yaml` parses it again below to report the error with its line and column.
   }
   try {
     return parse(data) as object
