@@ -660,14 +660,14 @@ class Agent extends RpcTarget implements AgentApi {
     if (!kubbBin) return refuse('kubb is not installed in the project')
 
     const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['update', ...ids, '--yes'] })
-    await this.#logCommand('updateExtensions', `${failed ? 'failed to update' : 'updated'} ${ids.join(', ') || 'all extensions'}`, input.requestedBy, failed)
+    await this.#logCommand('updateExtensions', `${failed ? 'failed to update' : 'updated'} ${ids.join(', ') || 'all extensions'}`, input?.requestedBy, failed)
     return failed ? { updated: false, reason: output } : { updated: true }
   }
 
   /** Why a command that touches the project cannot start right now. */
   #busy(): string | undefined {
     if (this.#session.active) return 'a generation is in progress'
-    if (this.#session.install) return 'an install is in progress'
+    if (this.#session.install) return 'an install or update is in progress'
     if (this.#session.saving) return 'a save is in progress'
     return undefined
   }

@@ -435,9 +435,9 @@ describe('installExtension', () => {
     const signal = await started.promise
 
     const edit: ConfigEdit = { operation: 'disable-plugin', config: 0, plugin: '@kubb/plugin-ts' }
-    await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({ outcomes: [{ applied: false, reason: 'an install is in progress' }] })
-    await expect(agent.installExtension({ id: 'plugin-msw' })).resolves.toMatchObject({ installed: false, reason: 'an install is in progress' })
-    await expect(agent.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'an install is in progress' })
+    await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({ outcomes: [{ applied: false, reason: 'an install or update is in progress' }] })
+    await expect(agent.installExtension({ id: 'plugin-msw' })).resolves.toMatchObject({ installed: false, reason: 'an install or update is in progress' })
+    await expect(agent.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'an install or update is in progress' })
     await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow(AgentMessage.INSTALL_IN_PROGRESS)
 
     socket.close(1006)
@@ -476,6 +476,9 @@ describe('installExtension', () => {
     const { agent: updateOnly } = await connectStudio({ permissions: { allowUpdate: true }, kubbBin: '/bin/kubb.js' })
     exec(0, 'Update complete')
     await expect(updateOnly.updateExtensions({})).resolves.toStrictEqual({ updated: true })
+    // A message without a body updates everything, like an empty one, instead of throwing.
+    exec(0, 'Update complete')
+    await expect(updateOnly.updateExtensions(null as never)).resolves.toStrictEqual({ updated: true })
     x.mockClear()
 
     const { agent: allowed } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
