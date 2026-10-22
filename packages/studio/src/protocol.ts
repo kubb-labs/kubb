@@ -325,6 +325,8 @@ export type GenerateInput = {
    * Display name of the Studio user who asked for the run, shown in the agent's job log.
    */
   requestedBy?: string
+  /** A short-lived `Authorization` header value that a managed agent sends with the git fetch of a `git+` input, to its origin only. */
+  gitAuth?: { authorization: string }
 }
 
 /**

@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { Diagnostics } from './Diagnostics.ts'
-import { checkoutGitInput, parseGitInput, publicFetchConfig } from './gitInput.ts'
+import { checkoutGitInput, gitAuthEnv, parseGitInput, publicFetchConfig } from './gitInput.ts'
 
 describe('parseGitInput', () => {
   it.each([
@@ -86,6 +86,34 @@ describe('checkoutGitInput', () => {
 
   it('rejects a path that leaves the repository', async () => {
     await expect(checkoutGitInput(`git+${repo}#v1:../outside.yaml`)).rejects.toMatchObject({ diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' } })
+  })
+
+  it('refuses an authorization with a line break before it fetches', async () => {
+    await expect(checkoutGitInput(`git+${repo}#v1:specs/openapi.yaml`, undefined, { authorization: 'Basic abc\r\nX-Other: 1' })).rejects.toMatchObject({
+      diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' },
+    })
+  })
+})
+
+describe('gitAuthEnv', () => {
+  it("adds the Authorization header for the repository's origin after the host's own pairs", () => {
+    const options = { repo: 'https://github.com/org/api.git', authorization: 'Basic abc' }
+
+    expect(gitAuthEnv({}, options)).toStrictEqual({
+      GIT_CONFIG_COUNT: '1',
+      GIT_CONFIG_KEY_0: 'http.https://github.com/.extraheader',
+      GIT_CONFIG_VALUE_0: 'Authorization: Basic abc',
+    })
+    expect(gitAuthEnv({ GIT_CONFIG_COUNT: '2', GIT_CONFIG_GLOBAL: '/etc/agent.gitconfig' }, options)).toStrictEqual({
+      GIT_CONFIG_COUNT: '3',
+      GIT_CONFIG_KEY_2: 'http.https://github.com/.extraheader',
+      GIT_CONFIG_VALUE_2: 'Authorization: Basic abc',
+    })
+    expect(gitAuthEnv({ GIT_CONFIG_COUNT: '-5' }, options).GIT_CONFIG_COUNT).toBe('1')
+  })
+
+  it.each(['Basic abc\nX-Other: 1', 'Basic abc\r'])('throws for an authorization with a line break: %j', (authorization) => {
+    expect(() => gitAuthEnv({}, { repo: 'https://github.com/org/api.git', authorization })).toThrow(Diagnostics.Error)
   })
 })
 

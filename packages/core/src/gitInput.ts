@@ -97,20 +97,34 @@ async function resolvePublicFetchConfig(repo: string, signal?: AbortSignal): Pro
   return publicFetchConfig({ host, port: url.port || '443', addresses })
 }
 
+/** Adds an `Authorization` header for `repo`'s origin as the `GIT_CONFIG_*` pair after those in `env`, keeping the token out of the arguments; throws on a line break. */
+export function gitAuthEnv(env: NodeJS.ProcessEnv, { repo, authorization }: { repo: string; authorization: string }): Record<string, string> {
+  if (/[\r\n]/.test(authorization) || !URL.canParse(repo)) throw gitError('The authorization for a git `input` must be one line, for an https repository.')
+  const index = Math.max(0, Number.parseInt(env.GIT_CONFIG_COUNT ?? '', 10) || 0)
+
+  return {
+    GIT_CONFIG_COUNT: String(index + 1),
+    [`GIT_CONFIG_KEY_${index}`]: `http.${new URL(repo).origin}/.extraheader`,
+    [`GIT_CONFIG_VALUE_${index}`]: `Authorization: ${authorization}`,
+  }
+}
+
 /**
  * Fetches one commit of a git repository into a temporary directory with a shallow `git fetch`,
  * so any host and the user's own git credentials work, and relative `$ref` files resolve.
  * Resolves to the spec path on disk and a `dispose` that deletes the checkout.
  *
  * With `publicOnly`, the repository must be an https URL on public addresses, the fetch connects to
- * the addresses checked, and it does not follow a redirect.
+ * the addresses checked, and it does not follow a redirect. `authorization` adds that header to this
+ * fetch only, through {@link gitAuthEnv}.
  */
 export async function checkoutGitInput(
   input: string,
   signal?: AbortSignal,
-  { publicOnly = false }: { publicOnly?: boolean } = {},
+  { publicOnly = false, authorization }: { publicOnly?: boolean; authorization?: string } = {},
 ): Promise<{ path: string; dispose: () => Promise<void> }> {
   const { repo, ref, path } = parseGitInput(input)
+  const authEnv = authorization ? gitAuthEnv(process.env, { repo, authorization }) : {}
   const fetchConfig = publicOnly ? await resolvePublicFetchConfig(repo, signal) : []
   const dir = await mkdtemp(join(tmpdir(), 'kubb-git-'))
   const dispose = () => rm(dir, { recursive: true, force: true })
@@ -124,7 +138,7 @@ export async function checkoutGitInput(
 
   const label = `${redact(repo)}${ref ? ` at ${ref}` : ''}`
   // A prompt would hang the run, so git fails instead; credential helpers and SSH keys still work.
-  const env = { ...process.env, GIT_TERMINAL_PROMPT: '0' }
+  const env = { ...process.env, ...authEnv, GIT_TERMINAL_PROMPT: '0' }
   // `--end-of-options` keeps a repo or ref that starts with `-` from being read as a git flag.
   const steps = [
     ['init', '--quiet'],
