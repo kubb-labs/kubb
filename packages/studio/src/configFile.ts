@@ -10,6 +10,7 @@ import {
   type ConfigFileView,
   type ConfigView,
   type InstalledExtensions,
+  type OptionsView,
   type OptionValue,
   type PluginView,
 } from './protocol.ts'
@@ -52,15 +53,18 @@ function invalidEdit(edit: ConfigEdit): string | undefined {
   if (typeof operation !== 'string' || !OPERATIONS.has(operation)) return `unknown operation ${JSON.stringify(operation)}`
   if (config !== undefined && typeof config !== 'string' && !Number.isSafeInteger(config)) return 'config must name an entry or give its index'
   if (operation === ConfigEditOperation.SET_INPUT) return typeof input === 'string' && input.trim() ? undefined : 'the edit names no input'
-  if (typeof plugin !== 'string' || !plugin) return 'the edit names no plugin'
+  const isOutput = operation === ConfigEditOperation.SET_OUTPUT || operation === ConfigEditOperation.REMOVE_OUTPUT
+  if (!isOutput && (typeof plugin !== 'string' || !plugin)) return 'the edit names no plugin'
   if (kind !== undefined && (typeof kind !== 'string' || !KINDS.has(kind))) return `unknown kind ${JSON.stringify(kind)}`
   if (kind !== undefined && operation !== ConfigEditOperation.SET && operation !== ConfigEditOperation.REMOVE)
     return `${operation} edits the plugins array, so it takes no kind`
-  if (operation === ConfigEditOperation.SET || operation === ConfigEditOperation.REMOVE) {
+  if (isOutput || operation === ConfigEditOperation.SET || operation === ConfigEditOperation.REMOVE) {
     if (!Array.isArray(path) || !path.every((key) => typeof key === 'string' && key)) return 'path must be a list of option names'
     if (!path.length) return 'no option path given'
     const unsafe = path.find((key: string) => !isSafeKey(key))
     if (unsafe !== undefined) return `${unsafe} cannot be used as an option name`
+    // The output folder decides where generation may write, so only the file sets it.
+    if (isOutput && path[0] === 'path') return 'output.path can only be changed in the config file'
   }
   return undefined
 }
@@ -414,11 +418,14 @@ function readPartial(node: ObjectNode, prefix: Array<string> = []): { value: Rec
 }
 
 /** The top-level options of a plugin call, each flagged with whether Studio may write it. */
-function readOptions(call: CallNode): PluginView['options'] {
-  const entries: PluginView['options'] = {}
+function readOptions(call: CallNode): OptionsView {
   const options = call.arguments[0]
-  if (options?.type !== 'ObjectExpression') return entries
+  return options?.type === 'ObjectExpression' ? readObject(options) : {}
+}
 
+/** The members of an object literal, each flagged with whether Studio may write it. */
+function readObject(options: ObjectNode): OptionsView {
+  const entries: OptionsView = {}
   for (const [index, entry] of options.properties.entries()) {
     const key = memberKey(entry)
     if (key === undefined || !isSafeKey(key)) continue
@@ -432,7 +439,7 @@ function readOptions(call: CallNode): PluginView['options'] {
 }
 
 /** The options a commented-out plugin call holds, so Studio can show them while it is disabled. */
-function readDisabledOptions(code: Array<string>): PluginView['options'] {
+function readDisabledOptions(code: Array<string>): OptionsView {
   try {
     const call = (parseExpression(code.join('\n').trim().replace(/,$/, '')) as { $ast: ASTNode }).$ast
     return call.type === 'CallExpression' ? readOptions(call) : {}
@@ -485,7 +492,14 @@ export function readConfig(source: string): ConfigFileView {
       })
       const [adapter] = factoryCalls(mod, config, 'adapter').map(toView)
       const parsers = factoryCalls(mod, config, 'parser').map(toView)
-      return { name: configName(config), plugins, ...(adapter && { adapter }), ...(parsers.length ? { parsers } : {}) }
+      const output = outputObject(config)
+      return {
+        name: configName(config),
+        plugins,
+        ...(adapter && { adapter }),
+        ...(parsers.length ? { parsers } : {}),
+        ...(!('reason' in output) && { output: readObject(output.object) }),
+      }
     }),
   }
 }
@@ -542,7 +556,11 @@ function applySet(source: string, call: CallNode, path: Array<string>, value: un
     return { source: splice(source, closing, closing, printValue(nest(path, value), quote)) }
   }
   if (options.type !== 'ObjectExpression') return { reason: 'the factory was not called with an object literal' }
+  return setIn(source, options, path, value, quote)
+}
 
+/** Writes the literal `value` at `path` inside `options`, adding any intermediate object it needs. */
+function setIn(source: string, options: ObjectNode, path: Array<string>, value: OptionValue, quote: Quote): EditResult {
   const target = walk(options, path)
   if ('reason' in target) return target
   if ('missing' in target) {
@@ -562,6 +580,24 @@ function applySetInput(source: string, config: ObjectNode, input: string, quote:
   return { source: splice(source, rangeOf(found.member.value).start, rangeOf(found.member.value).end, value) }
 }
 
+/** The config's root `output` object literal, or why Studio cannot edit inside it. */
+function outputObject(config: ObjectNode): { object: ObjectNode } | { reason: string } {
+  const found = findMember(config, 'output')
+  if (found?.member.type !== 'ObjectProperty' || found.member.value.type !== 'ObjectExpression') return { reason: 'output is not an object literal' }
+  if (isShadowed(config, found.index)) return { reason: 'a spread after output could override it' }
+  return { object: found.member.value }
+}
+
+/** Writes or drops a member of the config's root `output` object. */
+function applyOutputEdit(source: string, config: ObjectNode, edit: ConfigEdit, quote: Quote): EditResult {
+  const output = outputObject(config)
+  if ('reason' in output) return output
+  if (edit.operation === ConfigEditOperation.REMOVE_OUTPUT) return removeIn(source, output.object, edit.path)
+  if (edit.operation !== ConfigEditOperation.SET_OUTPUT) return { reason: `${edit.operation} is not an output edit` }
+  if (!isOptionValue(edit.value)) return { reason: 'the value is not a literal that can be written to a config file' }
+  return setIn(source, output.object, edit.path, edit.value, quote)
+}
+
 /**
  * Deletes the option at `path`, falling the plugin back to its default for it. An option the file
  * does not set already has its default, so removing it changes nothing.
@@ -570,7 +606,11 @@ function applyRemove(source: string, call: CallNode, path: Array<string>): EditR
   const options = call.arguments[0]
   if (!options) return { source }
   if (options.type !== 'ObjectExpression') return { reason: 'the factory was not called with an object literal' }
+  return removeIn(source, options, path)
+}
 
+/** Deletes the member at `path` inside `options`. A path that is not there already holds its default. */
+function removeIn(source: string, options: ObjectNode, path: Array<string>): EditResult {
   const target = walk(options, path)
   if ('reason' in target) return target
   if ('missing' in target) return { source }
@@ -715,6 +755,8 @@ function applyEdit({ source, edit, quote, extensions }: { source: string; edit: 
   if (!config) return { reason: `no config entry found for ${JSON.stringify(ref)}` }
 
   if (edit.operation === ConfigEditOperation.SET_INPUT) return applySetInput(source, config, edit.input, quote)
+  if (edit.operation === ConfigEditOperation.SET_OUTPUT || edit.operation === ConfigEditOperation.REMOVE_OUTPUT)
+    return applyOutputEdit(source, config, edit, quote)
   if (edit.operation === ConfigEditOperation.DISABLE_PLUGIN) {
     const result = disablePlugin(source, parsed.mod, config, edit.plugin)
     if (!('reason' in result) || !result.reason.includes('shares a line')) return result

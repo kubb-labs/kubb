@@ -222,8 +222,8 @@ describe('the handshake', () => {
     const plugins = [{ name: '@kubb/plugin-barrel', options: {} }]
     const adapter = { name: '@kubb/adapter-oas', options: {} }
     expect(config.configs).toStrictEqual([
-      { input: 'https://example.com/openapi.json?v=2', output: 'src/gen', plugins, adapter, parsers: [] },
-      { name: 'admin', input: './admin.yaml', output: 'src/admin', plugins, adapter, parsers: [] },
+      { input: 'https://example.com/openapi.json?v=2', output: 'src/gen', outputOptions: { clean: false }, plugins, adapter, parsers: [] },
+      { name: 'admin', input: './admin.yaml', output: 'src/admin', outputOptions: {}, plugins, adapter, parsers: [] },
     ])
   })
 
@@ -931,6 +931,23 @@ describe('saveConfig', () => {
       changed: false,
     })
     await expect(read(join(project, 'openapi.yaml'))).rejects.toThrow()
+  })
+
+  it('refuses a postGenerate edit without allowExec', async () => {
+    const project = await mkdtemp(join(tmpdir(), 'kubb-save-output-'))
+    cleanups.push(() => rm(project, { recursive: true, force: true }))
+    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig({ output: { path: './gen' }, plugins: [] })\n`)
+    const { agent } = await connectStudio({ root: project, permissions: { allowConfigEdit: true } })
+    const edits: Array<ConfigEdit> = [
+      { operation: 'set-output', path: ['postGenerate'], value: ['echo hi'] },
+      { operation: 'set-output', path: ['lint'], value: 'auto' },
+    ]
+
+    await expect(agent.saveConfig({ edits })).resolves.toMatchObject({
+      outcomes: [{ applied: false, reason: AgentMessage.POST_GENERATE_EXEC }, { applied: true }],
+      changed: true,
+    })
+    expect(await read(join(project, 'kubb.config.ts'))).toBe(`export default defineConfig({ output: { path: './gen', lint: 'auto' }, plugins: [] })\n`)
   })
 
   it('refuses to keep a spec without allowSaveInput', async () => {

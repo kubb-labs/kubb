@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { type Adapter, Diagnostics, type ExtensionKind, isPackageName, type Parser, type Plugin, resolveMeta } from '@kubb/core'
+import { type Adapter, type Config, Diagnostics, type ExtensionKind, isPackageName, type Parser, type Plugin, resolveMeta } from '@kubb/core'
 import { camelCase, isPathInside, toError } from '@internals/utils'
 import type { InstalledExtensions, JSONKubbConfig, OptionValue } from './protocol.ts'
 
@@ -445,6 +445,23 @@ async function rebuildExtension<T extends Adapter | Parser>({
   })
 
   return factory(mergeOptions((disk.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)) as T
+}
+
+/**
+ * Merges Studio's root `output` overrides into the entry's `output`. Studio never moves the output
+ * folder, and its `postGenerate` commands apply only when the agent may run them.
+ *
+ * @example
+ * ```ts
+ * mergeOutput({ output: { path: './gen' }, studio: { path: '/etc', format: 'biome' }, allowExec: false })
+ * // { path: './gen', format: 'biome' }
+ * ```
+ */
+export function mergeOutput({ output, studio, allowExec }: { output: Config['output']; studio: unknown; allowExec: boolean }): Config['output'] {
+  if (!isPlainObject(studio)) return output
+  const { path: _path, ...overrides } = studio
+  if (!allowExec) delete overrides.postGenerate
+  return { ...(mergeOptions(output, overrides) as Config['output']), path: output.path }
 }
 
 /**

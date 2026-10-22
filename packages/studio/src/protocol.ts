@@ -39,6 +39,12 @@ export type JSONKubbConfig = {
     options?: object
   }>
   /**
+   * Root `output` option overrides from Studio, merged over the entry's `output` like a plugin's
+   * options. `path` is always ignored, and `postGenerate` is ignored unless the agent was granted
+   * `allowExec`.
+   */
+  output?: object
+  /**
    * Which `defineConfig(...)` entry to generate from. Omitted runs the first one.
    */
   config?: ConfigRef
@@ -67,6 +73,8 @@ export const ConfigEditOperation = {
   DISABLE_PLUGIN: 'disable-plugin',
   ENABLE_PLUGIN: 'enable-plugin',
   SET_INPUT: 'set-input',
+  SET_OUTPUT: 'set-output',
+  REMOVE_OUTPUT: 'remove-output',
 } as const
 export type ConfigEditOperation = (typeof ConfigEditOperation)[keyof typeof ConfigEditOperation]
 
@@ -108,6 +116,21 @@ export type ConfigEdit =
    * Refused without `allowSaveInput`, and a managed agent takes only a document, a URL, or a `git+` file.
    */
   | { operation: typeof ConfigEditOperation.SET_INPUT; config?: ConfigRef; input: string }
+  /**
+   * Write a literal inside the config's root `output` object, such as `['barrel', 'type']` or
+   * `['format']`. `output.path` is refused, and `postGenerate` needs `allowExec` as well.
+   */
+  | { operation: typeof ConfigEditOperation.SET_OUTPUT; config?: ConfigRef; path: Array<string>; value: unknown }
+  /**
+   * Drop a member of the config's root `output` object so its default applies. The same paths are refused as for `set-output`.
+   */
+  | { operation: typeof ConfigEditOperation.REMOVE_OUTPUT; config?: ConfigRef; path: Array<string> }
+
+/**
+ * Top-level option keys of an object in the config file, each flagged with whether the agent may
+ * write it. See {@link PluginView.options}.
+ */
+export type OptionsView = Record<string, { literal: boolean; value?: OptionValue; locked?: Array<Array<string>> }>
 
 /**
  * A factory call the agent found in a `defineConfig(...)`: a plugin in `plugins`, the `adapter`, or
@@ -135,7 +158,7 @@ export type PluginView = {
    * (`[['banner']]`). A `set` at any deeper path outside `locked` succeeds, so Studio can edit
    * `output.path` there.
    */
-  options: Record<string, { literal: boolean; value?: OptionValue; locked?: Array<Array<string>> }>
+  options: OptionsView
   /**
    * Set when the plugin call is commented out in the file. Its options stay on disk but are not
    * readable, so `options` is empty until it is enabled again.
@@ -163,6 +186,11 @@ export type ConfigView = {
    * The parser calls in `parsers`, when the entry lists any through imported factories.
    */
   parsers?: Array<PluginView>
+  /**
+   * The members of the root `output` object, read like a plugin's options. Absent when `output` is
+   * not an object literal, so Studio cannot edit it.
+   */
+  output?: OptionsView
 }
 
 /**
@@ -448,6 +476,7 @@ export const AgentMessage = {
   SAVE_IN_PROGRESS: 'The config is being saved, please wait for it to finish',
   SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
   MANAGED_INPUT_KIND: 'A managed agent generates from the OpenAPI document content, a URL, or a git file that Studio sends, not from a file path',
+  POST_GENERATE_EXEC: 'Changing output.postGenerate needs allowExec, since the agent runs those commands',
   CONFIG_ENTRY_NOT_FOUND: 'The config file has no entry at that position or with that name',
   JOB_REQUIRED: 'The request must name a job',
   FILE_REQUEST_INVALID: 'The request must name an output set and carry paths',
@@ -625,6 +654,8 @@ export type ConfigEntryView = {
   input?: string
   /** The output directory as the entry gives it, relative to the project root unless absolute. */
   output: string
+  /** The rest of the entry's root `output` options as a JSON copy, such as `barrel`, `format`, `lint`, and `postGenerate`. */
+  outputOptions?: object
   /**
    * The output directory's current file list, readable through `readFiles` without generating.
    * Absent for a sandbox or when the host has not granted `allowRead`.

@@ -68,7 +68,7 @@ import {
   type UpdateExtensionsResult,
 } from './protocol.ts'
 import { withPublicFetch } from './publicFetch.ts'
-import { assertOutputPaths, mergeAdapter, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
+import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -559,12 +559,14 @@ class Agent extends RpcTarget implements AgentApi {
             this.#refuse({ message: getErrorMessage(error), code: Diagnostics.code.gitInputFailed }),
           )
         : undefined
+    const allowExec = this.#permissions.allowWrite && this.#permissions.allowExec
     const run = () =>
       generate({
         config: {
           ...config,
           root,
           input: checkout?.path ?? studioInput ?? config.input,
+          output: mergeOutput({ output: config.output, studio: patch?.output, allowExec }),
           storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
           plugins: activePlugins,
           adapter,
@@ -572,7 +574,7 @@ class Agent extends RpcTarget implements AgentApi {
         },
         hooks: this.#options.hooks,
         signal,
-        allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
+        allowExec,
       })
     // The adapter fetches the URL and every `$ref` in it, so a managed agent limits the fetch itself to public addresses.
     const files = await (this.#managed ? withPublicFetch(run) : run())
@@ -629,7 +631,7 @@ class Agent extends RpcTarget implements AgentApi {
     this.#session.saving = true
     try {
       const kept: Array<KeptEdit> = []
-      for (const edit of edits) kept.push(await this.#keepInput(edit))
+      for (const edit of edits) kept.push(this.#isExecEdit(edit) ? { reason: AgentMessage.POST_GENERATE_EXEC } : await this.#keepInput(edit))
       const written = await writeConfigEdits({
         filePath: configFile,
         edits: kept.flatMap((edit) => ('reason' in edit ? [] : [edit])),
@@ -659,6 +661,12 @@ class Agent extends RpcTarget implements AgentApi {
     } finally {
       this.#session.saving = false
     }
+  }
+
+  /** Whether `edit` writes `output.postGenerate`, shell commands the agent may only add with `allowExec`. */
+  #isExecEdit(edit: ConfigEdit): boolean {
+    const isOutput = edit?.operation === ConfigEditOperation.SET_OUTPUT || edit?.operation === ConfigEditOperation.REMOVE_OUTPUT
+    return isOutput && Array.isArray(edit.path) && edit.path[0] === 'postGenerate' && !this.#permissions.allowExec
   }
 
   /**
@@ -955,6 +963,7 @@ function toEntryView(config: Config, extensions: InstalledExtensions): ConfigEnt
     ...(config.name !== undefined && { name: config.name }),
     ...(input !== undefined && { input }),
     output: config.output.path,
+    outputOptions: toJSONOptions({ ...config.output, path: undefined }),
     plugins: config.plugins.map((plugin) => ({
       name: toStudioName({ name: resolveMeta(plugin).name, extensions }),
       options: toJSONOptions(plugin.options),

@@ -494,6 +494,39 @@ describe('applyConfigEdits', () => {
     })
   })
 
+  describe('set-output and remove-output', () => {
+    const source = `export default defineConfig({\n  output: { path: './gen', format: 'auto' },\n  plugins: [],\n})\n`
+
+    it('reads the output members and writes inside the output object', () => {
+      expect(readConfig(source)).toMatchObject({ configs: [{ output: { path: { literal: true, value: './gen' }, format: { literal: true, value: 'auto' } } }] })
+
+      const result = applyConfigEdits({
+        source,
+        edits: [
+          { operation: 'set-output', path: ['barrel', 'type'], value: 'named' },
+          { operation: 'remove-output', path: ['format'] },
+        ],
+      })
+
+      expect(result.outcomes).toMatchObject([{ applied: true }, { applied: true }])
+      expect(result.source).toBe(`export default defineConfig({\n  output: { path: './gen', barrel: { type: 'named' } },\n  plugins: [],\n})\n`)
+    })
+
+    it('refuses to move the output folder', () => {
+      const result = applyConfigEdits({ source, edits: [{ operation: 'set-output', path: ['path'], value: '/etc' }] })
+
+      expect(result).toMatchObject({ source, outcomes: [{ applied: false, reason: 'output.path can only be changed in the config file' }], changed: false })
+    })
+
+    it('refuses an output that is not an object literal', () => {
+      const shared = `export default defineConfig({ output, plugins: [] })\n`
+      const result = applyConfigEdits({ source: shared, edits: [{ operation: 'set-output', path: ['lint'], value: 'auto' }] })
+
+      expect(readConfig(shared)).toStrictEqual({ managed: true, configs: [{ name: undefined, plugins: [] }] })
+      expect(result.outcomes).toMatchObject([{ applied: false, reason: 'output is not an object literal' }])
+    })
+  })
+
   describe('disable-plugin and enable-plugin', () => {
     const source = `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [\n    pluginTs({ arrayType: 'generic' }),\n    pluginZod({\n      // keep me\n      inferred: true,\n    }),\n  ],\n})\n`
 
