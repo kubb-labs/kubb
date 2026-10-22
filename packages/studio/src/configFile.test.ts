@@ -480,6 +480,13 @@ describe('applyConfigEdits', () => {
       expect(result.source).toBe(`export default defineConfig({ name: 'api', plugins: [], input: './openapi.yaml' })\n`)
     })
 
+    it('refuses an input a later spread could override', () => {
+      const source = `export default defineConfig({ input: './a.yaml', ...overrides, plugins: [] })\n`
+      const result = applyConfigEdits({ source, edits: [{ operation: 'set-input', input: './openapi.yaml' }] })
+
+      expect(result).toMatchObject({ source, outcomes: [{ applied: false, reason: 'a spread after input could override it' }], changed: false })
+    })
+
     it('refuses an empty input', () => {
       const result = applyConfigEdits({ source: `export default defineConfig({ plugins: [] })\n`, edits: [{ operation: 'set-input', input: ' ' }] })
 

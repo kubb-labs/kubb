@@ -545,10 +545,11 @@ function applySet(source: string, call: CallNode, path: Array<string>, value: un
 /** Writes the config's top-level `input` as a string literal, replacing what it held. */
 function applySetInput(source: string, config: ObjectNode, input: string, quote: Quote): EditResult {
   const value = printValue(input, quote)
-  const member = findMember(config, 'input')?.member
-  if (!member) return { source: insertItem(source, config, `input: ${value}`) }
-  if (member.type !== 'ObjectProperty') return { reason: 'input is not a plain property' }
-  return { source: splice(source, rangeOf(member.value).start, rangeOf(member.value).end, value) }
+  const found = findMember(config, 'input')
+  if (!found) return { source: insertItem(source, config, `input: ${value}`) }
+  if (found.member.type !== 'ObjectProperty') return { reason: 'input is not a plain property' }
+  if (isShadowed(config, found.index)) return { reason: 'a spread after input could override it' }
+  return { source: splice(source, rangeOf(found.member.value).start, rangeOf(found.member.value).end, value) }
 }
 
 /**
