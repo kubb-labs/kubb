@@ -950,6 +950,18 @@ describe('saveConfig', () => {
     expect(await read(join(project, 'kubb.config.ts'))).toBe(`export default defineConfig({ output: { path: './gen', lint: 'auto' }, plugins: [] })\n`)
   })
 
+  it('applies a postGenerate edit with allowExec', async () => {
+    const project = await mkdtemp(join(tmpdir(), 'kubb-save-output-'))
+    cleanups.push(() => rm(project, { recursive: true, force: true }))
+    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig({ output: { path: './gen' }, plugins: [] })\n`)
+    const { agent } = await connectStudio({ root: project, permissions: { allowConfigEdit: true, allowExec: true } })
+
+    await expect(agent.saveConfig({ edits: [{ operation: 'set-output', path: ['postGenerate'], value: ['echo hi'] }] })).resolves.toMatchObject({
+      outcomes: [{ applied: true }],
+    })
+    expect(await read(join(project, 'kubb.config.ts'))).toContain(`postGenerate: ['echo hi']`)
+  })
+
   it('refuses to keep a spec without allowSaveInput', async () => {
     const project = await projectWithConfig()
     const { agent } = await connectStudio({ root: project, permissions: { allowConfigEdit: true }, connectInfo: { ...info, managed: true } })

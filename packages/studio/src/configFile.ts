@@ -589,11 +589,15 @@ function outputObject(config: ObjectNode): { object: ObjectNode } | { reason: st
 }
 
 /** Writes or drops a member of the config's root `output` object. */
-function applyOutputEdit(source: string, config: ObjectNode, edit: ConfigEdit, quote: Quote): EditResult {
+function applyOutputEdit(
+  source: string,
+  config: ObjectNode,
+  edit: Extract<ConfigEdit, { operation: typeof ConfigEditOperation.SET_OUTPUT | typeof ConfigEditOperation.REMOVE_OUTPUT }>,
+  quote: Quote,
+): EditResult {
   const output = outputObject(config)
   if ('reason' in output) return output
   if (edit.operation === ConfigEditOperation.REMOVE_OUTPUT) return removeIn(source, output.object, edit.path)
-  if (edit.operation !== ConfigEditOperation.SET_OUTPUT) return { reason: `${edit.operation} is not an output edit` }
   if (!isOptionValue(edit.value)) return { reason: 'the value is not a literal that can be written to a config file' }
   return setIn(source, output.object, edit.path, edit.value, quote)
 }

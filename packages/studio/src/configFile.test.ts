@@ -512,10 +512,48 @@ describe('applyConfigEdits', () => {
       expect(result.source).toBe(`export default defineConfig({\n  output: { path: './gen', barrel: { type: 'named' } },\n  plugins: [],\n})\n`)
     })
 
-    it('refuses to move the output folder', () => {
-      const result = applyConfigEdits({ source, edits: [{ operation: 'set-output', path: ['path'], value: '/etc' }] })
+    it('refuses to move or drop the output folder', () => {
+      const reason = 'output.path can only be changed in the config file'
+      const result = applyConfigEdits({
+        source,
+        edits: [
+          { operation: 'set-output', path: ['path'], value: '/etc' },
+          { operation: 'remove-output', path: ['path'] },
+        ],
+      })
 
-      expect(result).toMatchObject({ source, outcomes: [{ applied: false, reason: 'output.path can only be changed in the config file' }], changed: false })
+      expect(result).toMatchObject({
+        source,
+        outcomes: [
+          { applied: false, reason },
+          { applied: false, reason },
+        ],
+        changed: false,
+      })
+    })
+
+    it('turns a barrel off and on again', () => {
+      const off = applyConfigEdits({
+        source: `export default defineConfig({ output: { path: './gen', barrel: false } })\n`,
+        edits: [{ operation: 'set-output', path: ['barrel'], value: { type: 'named' } }],
+      })
+      const on = applyConfigEdits({ source: off.source, edits: [{ operation: 'set-output', path: ['barrel', 'type'], value: 'all' }] })
+      const back = applyConfigEdits({ source: on.source, edits: [{ operation: 'set-output', path: ['barrel'], value: false }] })
+
+      expect([off.source, on.source, back.source]).toStrictEqual([
+        `export default defineConfig({ output: { path: './gen', barrel: { type: 'named' } } })\n`,
+        `export default defineConfig({ output: { path: './gen', barrel: { type: 'all' } } })\n`,
+        `export default defineConfig({ output: { path: './gen', barrel: false } })\n`,
+      ])
+    })
+
+    it('refuses an output a later spread could override', () => {
+      const result = applyConfigEdits({
+        source: `export default defineConfig({ output: { path: './gen' }, ...base })\n`,
+        edits: [{ operation: 'set-output', path: ['lint'], value: 'auto' }],
+      })
+
+      expect(result.outcomes).toMatchObject([{ applied: false, reason: 'a spread after output could override it' }])
     })
 
     it('refuses an output that is not an object literal', () => {

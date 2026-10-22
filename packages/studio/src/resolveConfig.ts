@@ -450,7 +450,7 @@ async function rebuildExtension<T extends Adapter | Parser>({
 /** Merges Studio's `output` overrides, keeping `path` and dropping `postGenerate` without `allowExec`. */
 export function mergeOutput({ output, studio, allowExec }: { output: Config['output']; studio: unknown; allowExec: boolean }): Config['output'] {
   if (!isPlainObject(studio)) return output
-  const { path: _path, ...overrides } = studio
+  const overrides = { ...studio }
   if (!allowExec) delete overrides.postGenerate
   return { ...(mergeOptions(output, overrides) as Config['output']), path: output.path }
 }
