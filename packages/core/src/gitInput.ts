@@ -97,7 +97,11 @@ async function resolvePublicFetchConfig(repo: string, signal?: AbortSignal): Pro
   return publicFetchConfig({ host, port: url.port || '443', addresses })
 }
 
-/** Adds an `Authorization` header for `repo`'s origin as the `GIT_CONFIG_*` pair after those in `env`, keeping the token out of the arguments; throws on a line break. */
+/**
+ * The `GIT_CONFIG_*` pair that sends an `Authorization` header to `repo`'s origin, numbered after
+ * the pairs already in `env`, so the token stays out of the process arguments. Throws
+ * `KUBB_GIT_INPUT_FAILED` for a value with a line break, which would add another header.
+ */
 export function gitAuthEnv(env: NodeJS.ProcessEnv, { repo, authorization }: { repo: string; authorization: string }): Record<string, string> {
   if (/[\r\n]/.test(authorization) || !URL.canParse(repo)) throw gitError('The authorization for a git `input` must be one line, for an https repository.')
   const index = Math.max(0, Number.parseInt(env.GIT_CONFIG_COUNT ?? '', 10) || 0)
