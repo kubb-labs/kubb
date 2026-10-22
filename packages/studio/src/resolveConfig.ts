@@ -462,7 +462,7 @@ export function isOutputKey(key: string): boolean {
 }
 
 /** Whether Studio may set the root `output` member `key` to `value`. */
-export function isOutputValue(key: string, value: unknown): boolean {
+export function isOutputValue({ key, value }: { key: string; value: unknown }): boolean {
   return isOutputKey(key) && OUTPUT_VALUES[key]!(value)
 }
 
@@ -472,9 +472,9 @@ export function pickOutput<T>(output: Record<string, T>): Record<string, T> {
 }
 
 /** Merges Studio's valid `output` overrides, with `null` unsetting a member. */
-export function mergeOutput(output: Config['output'], studio: unknown): Config['output'] {
+export function mergeOutput({ output, studio }: { output: Config['output']; studio: unknown }): Config['output'] {
   if (!isPlainObject(studio)) return output
-  const overrides = Object.fromEntries(Object.entries(studio).filter(([key, value]) => (value === null ? isOutputKey(key) : isOutputValue(key, value))))
+  const overrides = Object.fromEntries(Object.entries(studio).filter(([key, value]) => (value === null ? isOutputKey(key) : isOutputValue({ key, value }))))
   return mergeOptions(output, overrides) as Config['output']
 }
 

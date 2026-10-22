@@ -565,7 +565,7 @@ class Agent extends RpcTarget implements AgentApi {
           ...config,
           root,
           input: checkout?.path ?? studioInput ?? config.input,
-          output: mergeOutput(config.output, patch?.output),
+          output: mergeOutput({ output: config.output, studio: patch?.output }),
           storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
           plugins: activePlugins,
           adapter,

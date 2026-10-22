@@ -555,11 +555,23 @@ function applySet(source: string, call: CallNode, path: Array<string>, value: un
     return { source: splice(source, closing, closing, printValue(nest(path, value), quote)) }
   }
   if (options.type !== 'ObjectExpression') return { reason: 'the factory was not called with an object literal' }
-  return setIn(source, options, path, value, quote)
+  return setIn({ source, options, path, value, quote })
 }
 
 /** Writes the literal `value` at `path` inside `options`, adding any intermediate object it needs. */
-function setIn(source: string, options: ObjectNode, path: Array<string>, value: OptionValue, quote: Quote): EditResult {
+function setIn({
+  source,
+  options,
+  path,
+  value,
+  quote,
+}: {
+  source: string
+  options: ObjectNode
+  path: Array<string>
+  value: OptionValue
+  quote: Quote
+}): EditResult {
   const target = walk(options, path)
   if ('reason' in target) return target
   if ('missing' in target) {
@@ -588,18 +600,23 @@ function outputObject(config: ObjectNode): { object: ObjectNode } | { reason: st
 }
 
 /** Writes or drops a member of the config's root `output` object. */
-function applyOutputEdit(
-  source: string,
-  config: ObjectNode,
-  edit: Extract<ConfigEdit, { operation: typeof ConfigEditOperation.SET_OUTPUT | typeof ConfigEditOperation.REMOVE_OUTPUT }>,
-  quote: Quote,
-): EditResult {
+function applyOutputEdit({
+  source,
+  config,
+  edit,
+  quote,
+}: {
+  source: string
+  config: ObjectNode
+  edit: Extract<ConfigEdit, { operation: typeof ConfigEditOperation.SET_OUTPUT | typeof ConfigEditOperation.REMOVE_OUTPUT }>
+  quote: Quote
+}): EditResult {
   const output = outputObject(config)
   if ('reason' in output) return output
-  if (edit.operation === ConfigEditOperation.REMOVE_OUTPUT) return removeIn(source, output.object, edit.path)
-  if (!isOptionValue(edit.value) || !isOutputValue(edit.path[0]!, nest(edit.path.slice(1), edit.value)))
+  if (edit.operation === ConfigEditOperation.REMOVE_OUTPUT) return removeIn({ source, options: output.object, path: edit.path })
+  if (!isOptionValue(edit.value) || !isOutputValue({ key: edit.path[0]!, value: nest(edit.path.slice(1), edit.value) }))
     return { reason: `the value is not one output.${edit.path[0]} takes` }
-  return setIn(source, output.object, edit.path, edit.value, quote)
+  return setIn({ source, options: output.object, path: edit.path, value: edit.value, quote })
 }
 
 /**
@@ -610,11 +627,11 @@ function applyRemove(source: string, call: CallNode, path: Array<string>): EditR
   const options = call.arguments[0]
   if (!options) return { source }
   if (options.type !== 'ObjectExpression') return { reason: 'the factory was not called with an object literal' }
-  return removeIn(source, options, path)
+  return removeIn({ source, options, path })
 }
 
 /** Deletes the member at `path` inside `options`. A path that is not there already holds its default. */
-function removeIn(source: string, options: ObjectNode, path: Array<string>): EditResult {
+function removeIn({ source, options, path }: { source: string; options: ObjectNode; path: Array<string> }): EditResult {
   const target = walk(options, path)
   if ('reason' in target) return target
   if ('missing' in target) return { source }
@@ -760,7 +777,7 @@ function applyEdit({ source, edit, quote, extensions }: { source: string; edit: 
 
   if (edit.operation === ConfigEditOperation.SET_INPUT) return applySetInput(source, config, edit.input, quote)
   if (edit.operation === ConfigEditOperation.SET_OUTPUT || edit.operation === ConfigEditOperation.REMOVE_OUTPUT)
-    return applyOutputEdit(source, config, edit, quote)
+    return applyOutputEdit({ source, config, edit, quote })
   if (edit.operation === ConfigEditOperation.DISABLE_PLUGIN) {
     const result = disablePlugin(source, parsed.mod, config, edit.plugin)
     if (!('reason' in result) || !result.reason.includes('shares a line')) return result

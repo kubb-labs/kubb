@@ -220,13 +220,16 @@ describe('mergeOutput', () => {
   const output = { path: './gen', postGenerate: ['npm run typecheck'] }
 
   it('merges Studio overrides but keeps the output folder and commands', () => {
-    expect(mergeOutput(output, { path: '/etc', format: 'biome', postGenerate: ['rm -rf /'] })).toStrictEqual({ ...output, format: 'biome' })
-    expect(mergeOutput(output, { postGenerate: null, lint: false })).toStrictEqual({ ...output, lint: false })
+    expect(mergeOutput({ output, studio: { path: '/etc', format: 'biome', postGenerate: ['rm -rf /'] } })).toStrictEqual({ ...output, format: 'biome' })
+    expect(mergeOutput({ output, studio: { postGenerate: null, lint: false } })).toStrictEqual({ ...output, lint: false })
   })
 
   it('drops values an option does not take', () => {
-    expect(mergeOutput(output, { clean: 'false', format: 'gofmt', barrel: { type: 'named', nested: true }, plugins: [] })).toStrictEqual(output)
-    expect(mergeOutput({ ...output, clean: true }, { clean: null, barrel: { type: 'all' } })).toStrictEqual({ ...output, barrel: { type: 'all' } })
+    expect(mergeOutput({ output, studio: { clean: 'false', format: 'gofmt', barrel: { type: 'named', nested: true }, plugins: [] } })).toStrictEqual(output)
+    expect(mergeOutput({ output: { ...output, clean: true }, studio: { clean: null, barrel: { type: 'all' } } })).toStrictEqual({
+      ...output,
+      barrel: { type: 'all' },
+    })
   })
 })
 
