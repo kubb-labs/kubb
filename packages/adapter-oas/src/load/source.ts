@@ -77,11 +77,6 @@ async function readSource(sourcePath: string): Promise<string> {
 /**
  * Reads and parses one source file or URL referenced during bundling: YAML/JSON is parsed into an
  * object, Markdown is returned as-is (bundled inline rather than dereferenced).
- *
- * JSON is valid YAML, so `yaml`'s `parse` handles both, but its general-purpose parser (comments,
- * anchors, block scalars, multi-document streams) does much more work than `JSON.parse` needs to.
- * `JSON.parse` runs first and fails fast on the first non-JSON character, so a real YAML document
- * falls through to `parse` at negligible cost.
  */
 export async function resolveSource(sourcePath: string): Promise<object | string> {
   const data = await readSource(sourcePath)
@@ -90,21 +85,27 @@ export async function resolveSource(sourcePath: string): Promise<object | string
     return data
   }
 
-  try {
-    return JSON.parse(data) as object
-  } catch {
-    return parseYaml(data, {
-      origin: sourcePath,
-      help: 'Fix the syntax at the reported line, or check that `input` points at the spec and not an HTML page.',
-    })
-  }
+  return parseYaml(data, {
+    origin: sourcePath,
+    help: 'Fix the syntax at the reported line, or check that `input` points at the spec and not an HTML page.',
+  })
 }
 
 /**
  * Parses a YAML (or JSON) spec. A syntax error throws `KUBB_INVALID_DOCUMENT` naming `origin`,
  * with the parser message, which keeps the line and column.
+ *
+ * JSON is valid YAML, so `yaml`'s `parse` handles both, but its general-purpose parser (comments,
+ * anchors, block scalars, multi-document streams) does much more work than `JSON.parse` needs to.
+ * `JSON.parse` runs first and fails fast on the first non-JSON character, so a real YAML document
+ * falls through to `parse` at negligible cost.
  */
 export function parseYaml(data: string, { origin, help }: { origin: string; help: string }): object {
+  try {
+    return JSON.parse(data) as object
+  } catch {
+    // Not JSON, so parse it as YAML below.
+  }
   try {
     return parse(data) as object
   } catch (error) {

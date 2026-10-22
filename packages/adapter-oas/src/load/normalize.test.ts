@@ -3,11 +3,17 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
+import * as yaml from 'yaml'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import { assertDocument, bundleDocument, hasExternalRef, parseFromConfig, validateDocument } from './normalize.ts'
 import type { Document } from '../types.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+vi.mock('yaml', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('yaml')>()
+  return { ...actual, parse: vi.fn(actual.parse) }
+})
 
 const petSchema: Document = {
   openapi: '3.0.3',
@@ -42,6 +48,17 @@ components:
     const doc = await parseFromConfig({ type: 'data', data })
 
     expect(doc.components?.schemas?.['Pet']).toBeDefined()
+  })
+
+  it('parses an inline JSON string without the YAML parser, which allocates far more', async () => {
+    const parse = vi.mocked(yaml.parse)
+    parse.mockClear()
+
+    await parseFromConfig({ type: 'data', data: JSON.stringify(petSchema) })
+    expect(parse).not.toHaveBeenCalled()
+
+    await parseFromConfig({ type: 'data', data: 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths: {}\n' })
+    expect(parse).toHaveBeenCalledOnce()
   })
 
   it('up-converts a Swagger 2.0 document to OpenAPI 3', async () => {
