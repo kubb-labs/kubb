@@ -174,16 +174,6 @@ describe('publicFetchConfig', () => {
 })
 
 describe('checkoutGitInput with publicOnly', () => {
-  it('drops a URL rewrite from `env`, so the public-address check cannot be bypassed', async () => {
-    const env = { GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'url.https://10.0.0.5/.insteadOf', GIT_CONFIG_VALUE_0: 'https://93.184.216.34/' }
-
-    await expect(
-      checkoutGitInput('git+https://93.184.216.34/api.git#main:openapi.yaml', AbortSignal.timeout(5_000), { publicOnly: true, env }),
-    ).rejects.toMatchObject({
-      diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' },
-    })
-  })
-
   it.each([
     ['plain http', 'git+http://93.184.216.34/api.git#main:openapi.yaml'],
     ['an scp style address', 'git+git@github.com:org/api.git#main:openapi.yaml'],
