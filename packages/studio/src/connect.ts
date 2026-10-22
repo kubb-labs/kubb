@@ -956,7 +956,7 @@ function toEntryView(config: Config, extensions: InstalledExtensions): ConfigEnt
     ...(config.name !== undefined && { name: config.name }),
     ...(input !== undefined && { input }),
     output: config.output.path,
-    outputOptions: pickOutput(toJSONOptions(config.output)),
+    outputOptions: toJSONOptions(pickOutput(config.output)),
     plugins: config.plugins.map((plugin) => ({
       name: toStudioName({ name: resolveMeta(plugin).name, extensions }),
       options: toJSONOptions(plugin.options),
