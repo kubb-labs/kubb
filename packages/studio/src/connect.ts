@@ -16,6 +16,7 @@ import {
   type InputKind,
   Hookable,
   type KubbHooks,
+  type ProblemCode,
   type Storage,
   readInstalledPackages,
   resolveCacheDir,
@@ -351,9 +352,17 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   // Studio shows the thrown message, and the host logs the same text.
-  async #refuse({ message, permission }: { message: string; permission?: AgentPermission }): Promise<never> {
+  async #refuse({
+    message,
+    permission,
+    code = Diagnostics.code.unknown,
+  }: {
+    message: string
+    permission?: AgentPermission
+    code?: ProblemCode
+  }): Promise<never> {
     await this.#warn({ message, permission })
-    throw new Diagnostics.Error({ code: Diagnostics.code.unknown, severity: 'error', message })
+    throw new Diagnostics.Error({ code, severity: 'error', message })
   }
 
   #assertConnected(): void {
@@ -531,8 +540,8 @@ class Agent extends RpcTarget implements AgentApi {
     // A managed agent checks a git input out itself, so the fetch stays on public addresses and follows no redirect.
     const checkout =
       this.#managed && studioInput !== undefined && getInputKind(studioInput) === 'git'
-        ? await checkoutGitInput(studioInput, signal, { publicOnly: true, env: input.gitAuth?.env }).catch((error: unknown) =>
-            this.#refuse({ message: getErrorMessage(error) }),
+        ? await checkoutGitInput(studioInput, signal, { publicOnly: true, authorization: input.gitAuth?.authorization }).catch((error: unknown) =>
+            this.#refuse({ message: getErrorMessage(error), code: Diagnostics.code.gitInputFailed }),
           )
         : undefined
     const run = () =>

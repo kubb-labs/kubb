@@ -97,29 +97,16 @@ async function resolvePublicFetchConfig(repo: string, signal?: AbortSignal): Pro
   return publicFetchConfig({ host, port: url.port || '443', addresses })
 }
 
-const gitConfigEnvKey = /^GIT_CONFIG_(COUNT|KEY_\d+|VALUE_\d+|GLOBAL|NOSYSTEM)$/
+/** Adds an `Authorization` header for `repo`'s origin as the `GIT_CONFIG_*` pair after those in `env`, keeping the token out of the arguments; throws on a line break. */
+export function gitAuthEnv(env: NodeJS.ProcessEnv, { repo, authorization }: { repo: string; authorization: string }): Record<string, string> {
+  if (/[\r\n]/.test(authorization) || !URL.canParse(repo)) throw gitError('The authorization for a git `input` must be one line, for an https repository.')
+  const index = Math.max(0, Number.parseInt(env.GIT_CONFIG_COUNT ?? '', 10) || 0)
 
-/**
- * The `GIT_CONFIG_*` entries of `env`, so a caller handing in credentials for one fetch cannot reach
- * `PATH` or `NODE_OPTIONS`. With `repo`, only an `Authorization` header scoped to that repository's
- * origin survives, and global and system config are turned off: a `credential.helper` or
- * `url.*.insteadOf`, inline or in a file the caller names, could run a program or send the fetch elsewhere.
- */
-export function gitConfigEnv(env: Record<string, string>, { repo }: { repo?: string } = {}): Record<string, string> {
-  const kept = Object.fromEntries(Object.entries(env).filter(([key]) => gitConfigEnvKey.test(key)))
-  if (!repo || !URL.canParse(repo)) return kept
-
-  const header = `http.${new URL(repo).origin}/.extraheader`
-  const pairs = Array.from({ length: Number(kept.GIT_CONFIG_COUNT) || 0 }, (_, index) => [kept[`GIT_CONFIG_KEY_${index}`], kept[`GIT_CONFIG_VALUE_${index}`]])
-  const allowed = pairs.filter(([key, value]) => key === header && /^authorization:/i.test(value ?? ''))
-  // No global or system config either: a file named by the caller could carry the same settings.
-  const scoped: Record<string, string> = { GIT_CONFIG_COUNT: String(allowed.length), GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' }
-  allowed.forEach(([key, value], index) => {
-    scoped[`GIT_CONFIG_KEY_${index}`] = key!
-    scoped[`GIT_CONFIG_VALUE_${index}`] = value!
-  })
-
-  return scoped
+  return {
+    GIT_CONFIG_COUNT: String(index + 1),
+    [`GIT_CONFIG_KEY_${index}`]: `http.${new URL(repo).origin}/.extraheader`,
+    [`GIT_CONFIG_VALUE_${index}`]: `Authorization: ${authorization}`,
+  }
 }
 
 /**
@@ -128,15 +115,16 @@ export function gitConfigEnv(env: Record<string, string>, { repo }: { repo?: str
  * Resolves to the spec path on disk and a `dispose` that deletes the checkout.
  *
  * With `publicOnly`, the repository must be an https URL on public addresses, the fetch connects to
- * the addresses checked, and it does not follow a redirect. `env` adds git configuration for this
- * fetch only, through {@link gitConfigEnv}, scoped to the repository when `publicOnly` is set.
+ * the addresses checked, and it does not follow a redirect. `authorization` adds that header to this
+ * fetch only, through {@link gitAuthEnv}.
  */
 export async function checkoutGitInput(
   input: string,
   signal?: AbortSignal,
-  { publicOnly = false, env: configEnv }: { publicOnly?: boolean; env?: Record<string, string> } = {},
+  { publicOnly = false, authorization }: { publicOnly?: boolean; authorization?: string } = {},
 ): Promise<{ path: string; dispose: () => Promise<void> }> {
   const { repo, ref, path } = parseGitInput(input)
+  const authEnv = authorization ? gitAuthEnv(process.env, { repo, authorization }) : {}
   const fetchConfig = publicOnly ? await resolvePublicFetchConfig(repo, signal) : []
   const dir = await mkdtemp(join(tmpdir(), 'kubb-git-'))
   const dispose = () => rm(dir, { recursive: true, force: true })
@@ -150,7 +138,7 @@ export async function checkoutGitInput(
 
   const label = `${redact(repo)}${ref ? ` at ${ref}` : ''}`
   // A prompt would hang the run, so git fails instead; credential helpers and SSH keys still work.
-  const env = { ...process.env, ...(configEnv && gitConfigEnv(configEnv, publicOnly ? { repo } : {})), GIT_TERMINAL_PROMPT: '0' }
+  const env = { ...process.env, ...authEnv, GIT_TERMINAL_PROMPT: '0' }
   // `--end-of-options` keeps a repo or ref that starts with `-` from being read as a git flag.
   const steps = [
     ['init', '--quiet'],
