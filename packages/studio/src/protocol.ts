@@ -421,7 +421,7 @@ export type ReadInputResult = { input: InputNode }
  */
 export const AgentMessage = {
   GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
-  INSTALL_IN_PROGRESS: 'Extensions are being installed or updated, please wait for it to finish',
+  INSTALL_IN_PROGRESS: 'An extension install or update is running, please wait for it to finish',
   SAVE_IN_PROGRESS: 'The config is being saved, please wait for it to finish',
   SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
   MANAGED_INPUT_KIND: 'A managed agent generates from the OpenAPI document content, a URL, or a git file that Studio sends, not from a file path',
