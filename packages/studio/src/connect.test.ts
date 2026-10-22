@@ -883,6 +883,40 @@ describe('saveConfig', () => {
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.json',`)
   })
 
+  it('keeps the spec of a second config entry in its own file', async () => {
+    const project = await mkdtemp(join(tmpdir(), 'kubb-save-input-'))
+    cleanups.push(() => rm(project, { recursive: true, force: true }))
+    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig([{ input: './a.yaml', plugins: [] }, { input: './b.yaml', plugins: [] }])\n`)
+    const { agent } = await connectStudio({
+      root: project,
+      permissions: { allowConfigEdit: true, allowSaveInput: true },
+      connectInfo: { ...info, managed: true },
+    })
+
+    await agent.saveConfig({ edits: [{ operation: 'set-input', config: 1, input: 'openapi: 3.1.0\n' }] })
+
+    expect(await read(join(project, 'openapi-1.yaml'))).toBe('openapi: 3.1.0\n')
+    expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi-1.yaml'`)
+  })
+
+  it('leaves the saved spec alone when the config edit is refused', async () => {
+    const project = await mkdtemp(join(tmpdir(), 'kubb-save-input-'))
+    cleanups.push(() => rm(project, { recursive: true, force: true }))
+    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig({ input: './openapi.yaml', ...overrides, plugins: [] })\n`)
+    await writeFile(join(project, 'openapi.yaml'), 'openapi: 3.0.0\n')
+    const { agent } = await connectStudio({
+      root: project,
+      permissions: { allowConfigEdit: true, allowSaveInput: true },
+      connectInfo: { ...info, managed: true },
+    })
+
+    await expect(agent.saveConfig({ edits: [{ operation: 'set-input', input: 'openapi: 3.1.0\n' }] })).resolves.toMatchObject({
+      outcomes: [{ applied: false }],
+      changed: false,
+    })
+    expect(await read(join(project, 'openapi.yaml'))).toBe('openapi: 3.0.0\n')
+  })
+
   it('refuses a blank spec without writing a file', async () => {
     const project = await projectWithConfig()
     const { agent } = await connectStudio({

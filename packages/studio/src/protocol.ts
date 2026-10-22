@@ -91,8 +91,8 @@ export type ConfigEdit =
   | { operation: 'enable-plugin'; config?: ConfigRef; plugin: string }
   /**
    * Point the config's `input` at a spec. The agent writes a document to `openapi.yaml` (or
-   * `openapi.json`) in its project and points `input` there. Refused without `allowSaveInput`, and a
-   * managed agent takes only a document, a URL, or a `git+` file.
+   * `openapi.json`, and `openapi-<entry>` for a later entry) in its project and points `input` there.
+   * Refused without `allowSaveInput`, and a managed agent takes only a document, a URL, or a `git+` file.
    */
   | { operation: 'set-input'; config?: ConfigRef; input: string }
 

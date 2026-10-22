@@ -301,6 +301,9 @@ class GenerationRunTarget extends RpcTarget implements GenerationRun {
   }
 }
 
+/** A save's edit once a `set-input` document is named, or why it was refused. */
+type KeptEdit = (ConfigEdit & { document?: { fileName: string; text: string } }) | { reason: string }
+
 // Cap'n Web exposes only prototype methods, so the public methods are exactly `AgentApi`.
 class Agent extends RpcTarget implements AgentApi {
   readonly #options: ResolvedOptions
@@ -613,7 +616,8 @@ class Agent extends RpcTarget implements AgentApi {
     // Keeps `kubb add` from rewriting the config while this save is still writing it.
     this.#session.saving = true
     try {
-      const kept = await Promise.all(edits.map((edit) => this.#keepInput(edit)))
+      const kept: Array<KeptEdit> = []
+      for (const edit of edits) kept.push(await this.#keepInput(edit))
       const written = await writeConfigEdits({
         filePath: configFile,
         edits: kept.flatMap((edit) => ('reason' in edit ? [] : [edit])),
@@ -624,7 +628,14 @@ class Agent extends RpcTarget implements AgentApi {
       const outcomes = kept.map((edit, index) =>
         'reason' in edit ? { edit: edits[index]!, applied: false, reason: edit.reason } : { ...written.outcomes[next++]!, edit: edits[index]! },
       )
-      const changed = written.changed || kept.some((edit) => 'wroteDocument' in edit)
+      // A document is written only once its config edit applied, in edit order, so the last edit for a file wins.
+      let wroteDocument = false
+      for (const [index, edit] of kept.entries()) {
+        if (!('document' in edit) || !edit.document || !outcomes[index]!.applied) continue
+        await writeFile(path.join(this.#options.root, edit.document.fileName), edit.document.text, 'utf-8')
+        wroteDocument = true
+      }
+      const changed = written.changed || wroteDocument
       const applied = outcomes.filter((outcome) => outcome.applied).length
       await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`, input.requestedBy)
 
@@ -639,10 +650,11 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   /**
-   * Readies a `set-input` edit for the config file: a document goes to `openapi.yaml` (`openapi.json`
-   * for JSON) in the project and `input` points there. A managed agent refuses a file path, as in a generation.
+   * Readies a `set-input` edit for the config file: a document is pointed at `openapi.yaml` (`openapi.json`
+   * for JSON) in the project, one file per config entry, for `saveConfig` to write once the edit applies.
+   * A managed agent refuses a file path, as in a generation.
    */
-  async #keepInput(edit: ConfigEdit): Promise<(ConfigEdit & { wroteDocument?: true }) | { reason: string }> {
+  async #keepInput(edit: ConfigEdit): Promise<KeptEdit> {
     // A blank input goes on unchanged, so the config writer refuses it before any file is written.
     if (edit?.operation !== 'set-input' || typeof edit.input !== 'string' || !edit.input.trim()) return edit
     if (!this.#permissions.allowSaveInput) {
@@ -653,10 +665,9 @@ class Agent extends RpcTarget implements AgentApi {
     if (this.#managed && !MANAGED_INPUT_KINDS.has(kind)) return { reason: AgentMessage.MANAGED_INPUT_KIND }
     if (kind !== 'inline') return edit
 
-    // shortcut: every config entry shares this one file, split it per entry once a managed agent has several.
-    const fileName = isJson(edit.input) ? 'openapi.json' : 'openapi.yaml'
-    await writeFile(path.join(this.#options.root, fileName), edit.input, 'utf-8')
-    return { ...edit, input: `./${fileName}`, wroteDocument: true }
+    const entry = edit.config === undefined || edit.config === 0 ? '' : `-${String(edit.config).replace(/[^\w.-]/g, '-')}`
+    const fileName = `openapi${entry}.${isJson(edit.input) ? 'json' : 'yaml'}`
+    return { ...edit, input: `./${fileName}`, document: { fileName, text: edit.input } }
   }
 
   /**
