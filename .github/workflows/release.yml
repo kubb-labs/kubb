@@ -84,6 +84,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # gh release create
+      issues: write # release comments on issues
+      pull-requests: write # release comments on PRs
     outputs:
       approved: ${{ steps.promote.outputs.approved }}
     steps:
