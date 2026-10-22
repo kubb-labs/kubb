@@ -593,6 +593,7 @@ class Agent extends RpcTarget implements AgentApi {
     // A running generation reloads the config, so it would see half the change.
     if (this.#session.active) return refuse('a generation is in progress')
     if (this.#session.install) return refuse('an install is in progress')
+    if (this.#session.saving) return refuse('a save is in progress')
 
     // Keeps `kubb add` from rewriting the config while this save is still writing it.
     this.#session.saving = true

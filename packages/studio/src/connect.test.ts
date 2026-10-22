@@ -452,12 +452,13 @@ describe('installExtension', () => {
     await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'kubb add did not run: spawn ENOENT' })
   })
 
-  it('holds off an install while a save is still writing the config', async () => {
+  it('holds off an install and a second save while a save is still writing the config', async () => {
     const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     const edit: ConfigEdit = { operation: 'disable-plugin', config: 0, plugin: '@kubb/plugin-ts' }
     const save = agent.saveConfig({ edits: [edit] })
 
     await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'a save is in progress' })
+    await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({ outcomes: [{ applied: false, reason: 'a save is in progress' }] })
     await expect(save).resolves.toMatchObject({ outcomes: [{ edit }] })
     expect(x).not.toHaveBeenCalled()
   })
