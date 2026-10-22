@@ -407,4 +407,40 @@ describe('FileManager#dispatch', () => {
     expect(renderer.render).toHaveBeenCalledOnce()
     expect(fileManager.files.map((f) => f.name)).toStrictEqual(['async-1'])
   })
+
+  it('normalizes fragments of one file once, when the files are read', () => {
+    const fileManager = new FileManager()
+    const fragments = ['a', 'b', 'c'].map((value) => makeFile('index.ts', value))
+    const createFile = vi.spyOn(ast.factory, 'createFile')
+
+    for (const fragment of fragments) fileManager.dispatch({ result: [fragment] })
+    expect(createFile).not.toHaveBeenCalled()
+
+    const [file] = fileManager.files
+    expect(createFile).toHaveBeenCalledOnce()
+    expect(file?.sources.map((source) => source.nodes?.map((node) => ('value' in node ? node.value : '')).join(''))).toStrictEqual(['a', 'b', 'c'])
+    createFile.mockRestore()
+  })
+
+  it('merges dispatched fragments the same way upsert does', () => {
+    const fragments = ['a', 'b', 'a'].map((value) => makeFile('index.ts', value))
+    const dispatched = new FileManager()
+    const upserted = new FileManager()
+
+    for (const fragment of fragments) {
+      dispatched.dispatch({ result: [fragment] })
+      upserted.upsert(fragment)
+    }
+
+    expect(dispatched.files).toStrictEqual(upserted.files)
+  })
+
+  it('merges pending fragments before a later upsert of the same file', () => {
+    const fileManager = new FileManager()
+
+    fileManager.dispatch({ result: [makeFile('index.ts', 'a')] })
+    const [merged] = fileManager.upsert(makeFile('index.ts', 'b'))
+
+    expect(merged?.sources).toHaveLength(2)
+  })
 })
