@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.12.3 — Oct 22, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- `checkoutGitInput` takes an `authorization` option, a one-line header value that git sends to the input's origin for that fetch only, through `GIT_CONFIG_*` variables added after the host's own. `GenerateInput` gains an optional `gitAuth: { authorization }` field that carries it. Studio uses it to send a short-lived header for a private repository to a managed agent, so no credential sits in the input URL or the container. A failed git checkout on a managed agent now keeps the `KUBB_GIT_INPUT_FAILED` code, so Studio can tell it apart from a failed generation, and an agent that predates the field ignores it. ([#4384](https://github.com/kubb-labs/kubb/pull/4384), [`3d852a9`](https://github.com/kubb-labs/kubb/commit/3d852a9dda33c34cbc6720a749eddeab4c8aadbf))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Studio can save the spec it sends as the agent's input, behind the new `--allow-save-input` permission, which is off by default. A pasted document goes to `openapi.yaml` (or `openapi.json`) in the project, and `input` in `kubb.config.ts` points to it, a URL, or a git file. It needs `--allow-config-edit` too. `@kubb/studio/protocol` now exports `ConfigEditOperation`, which names each config edit operation. ([#4385](https://github.com/kubb-labs/kubb/pull/4385), [`9ad2ef6`](https://github.com/kubb-labs/kubb/commit/9ad2ef6b725a7995e0dda3cb4d5e501f84b60ef4))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.12.2 — Oct 22, 2026
 
 ### @kubb/studio
