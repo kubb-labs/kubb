@@ -170,10 +170,7 @@ export type ConnectAgentOptions = {
    * What Studio may do in this project. Every permission is off unless granted.
    */
   permissions?: Partial<AgentPermissions>
-  /**
-   * The `kubb` CLI entry `installExtension` runs `kubb add` with. Found through the project's
-   * `kubb` dependency when omitted.
-   */
+  /** The CLI entry `installExtension` runs `kubb add` with. Found through the project's `kubb` or `@kubb/cli` dependency when omitted. */
   kubbBin?: string
   /**
    * Receives the `studio:*` hooks and the `kubb:*` hooks of every generation.
@@ -209,6 +206,7 @@ type Session = {
   connected: PromiseWithResolvers<AgentConnectInfo>
   closed: boolean
   active?: { jobId: string; abort: () => void; settled: Promise<void> }
+  install?: { abort: () => void; settled: Promise<void> }
 }
 
 const INSTALL_TIMEOUT_MS = 5 * 60_000
@@ -217,19 +215,31 @@ const INSTALL_OUTPUT_LINES = 20
 /** `owner/slug` or `slug`, as `kubb add` takes it. Checked before it becomes an argument. */
 const REGISTRY_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/
 
-/** The `kubb` CLI the project depends on, so `kubb add` installs next to what the config imports. */
+/** The CLI the project depends on, so `kubb add` installs next to what the config imports. */
 function findKubbBin(root: string): string | undefined {
   const require = createRequire(path.resolve(root, 'package.json'))
-  return (require.resolve.paths('kubb') ?? []).map((dir) => path.join(dir, 'kubb', 'bin', 'kubb.js')).find((bin) => existsSync(bin))
+  return ['kubb', '@kubb/cli']
+    .flatMap((name) => (require.resolve.paths(name) ?? []).map((dir) => path.join(dir, name, 'bin', 'kubb.js')))
+    .find((bin) => existsSync(bin))
 }
 
 /** Runs `kubb add` without a shell, and keeps the end of its output for the failure reason. */
-function runKubbAdd({ bin, args, cwd }: { bin: string; args: Array<string>; cwd: string }): Promise<{ failed: boolean; output: string }> {
+function runKubbAdd({
+  bin,
+  args,
+  cwd,
+  signal,
+}: {
+  bin: string
+  args: Array<string>
+  cwd: string
+  signal: AbortSignal
+}): Promise<{ failed: boolean; output: string }> {
   return new Promise((resolve) => {
     execFile(
       process.execPath,
       [bin, 'add', ...args],
-      { cwd, timeout: INSTALL_TIMEOUT_MS, env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' } },
+      { cwd, signal, timeout: INSTALL_TIMEOUT_MS, env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' } },
       (error, stdout, stderr) => {
         const output = `${stdout}\n${stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
         resolve({ failed: error !== null, output: error && !output ? error.message : output })
@@ -448,6 +458,7 @@ class Agent extends RpcTarget implements AgentApi {
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#session.closed) throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Connection is closed' })
     if (this.#session.active) return this.#refuse({ message: AgentMessage.GENERATION_IN_PROGRESS })
+    if (this.#session.install) return this.#refuse({ message: AgentMessage.INSTALL_IN_PROGRESS })
     const settled = Promise.withResolvers<void>()
     this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
     let root = this.#options.root
@@ -588,6 +599,7 @@ class Agent extends RpcTarget implements AgentApi {
 
     // A running generation reloads the config, so it would see half the change.
     if (this.#session.active) return refuse('a generation is in progress')
+    if (this.#session.install) return refuse('an install is in progress')
 
     try {
       const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
@@ -618,11 +630,21 @@ class Agent extends RpcTarget implements AgentApi {
     if (!this.#permissions.allowInstall) return refuse('installing extensions was not granted', AgentPermission.INSTALL)
     if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
     if (this.#session.active) return refuse('a generation is in progress')
+    if (this.#session.install) return refuse('an install is in progress')
     if (!kubbBin) return refuse('kubb is not installed in the project')
 
-    const { failed, output } = await runKubbAdd({ bin: kubbBin, args: [input.id, '--yes', '--config', configFile], cwd: root })
-    await this.#logCommand('installExtension', `${failed ? 'failed to install' : 'installed'} ${input.id}`, input.requestedBy, failed)
-    return failed ? { installed: false, reason: output } : { installed: true }
+    // Holds off saves and generations until the child exits, and ends it when the socket closes.
+    const controller = new AbortController()
+    const settled = Promise.withResolvers<void>()
+    this.#session.install = { abort: () => controller.abort(), settled: settled.promise }
+    try {
+      const { failed, output } = await runKubbAdd({ bin: kubbBin, args: [input.id, '--yes', '--config', configFile], cwd: root, signal: controller.signal })
+      await this.#logCommand('installExtension', `${failed ? 'failed to install' : 'installed'} ${input.id}`, input.requestedBy, failed)
+      return failed ? { installed: false, reason: output } : { installed: true }
+    } finally {
+      this.#session.install = undefined
+      settled.resolve()
+    }
   }
 
   /**
@@ -782,6 +804,8 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
     await emit(hooks, 'studio:warn', { message: 'Canceled the running generation: the connection to Kubb Studio closed' })
   }
   await active?.settled
+  session.install?.abort()
+  await session.install?.settled
   await agent.clear()
 
   return { ...close, connected: session.info !== undefined }

@@ -9,7 +9,16 @@ import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, reso
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
-import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, AgentMessage, type AgentConnectInfo, type ConfigRef, MAX_PAGE_LINES } from './protocol.ts'
+import {
+  AGENT_INSTANCE_HEADER,
+  type AgentApi,
+  AgentCloseCode,
+  AgentMessage,
+  type AgentConnectInfo,
+  type ConfigEdit,
+  type ConfigRef,
+  MAX_PAGE_LINES,
+} from './protocol.ts'
 import { projectConfig, root } from './testing.ts'
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
@@ -415,6 +424,25 @@ describe('installExtension', () => {
       installed: false,
       reason: 'Reading the registry\nNo extension named plugin-nope',
     })
+  })
+
+  it('holds off a save and a second install while kubb add runs, and ends the child when the socket closes', async () => {
+    const { agent, socket } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    const child = Promise.withResolvers<{ signal: AbortSignal; callback: ExecCallback }>()
+    execFile.mockImplementationOnce((_file: string, _args: Array<string>, options: { signal: AbortSignal }, callback: ExecCallback) =>
+      child.resolve({ signal: options.signal, callback }),
+    )
+    const install = agent.installExtension({ id: 'plugin-zod' })
+    const { signal, callback } = await child.promise
+
+    const edit: ConfigEdit = { operation: 'disable-plugin', config: 0, plugin: '@kubb/plugin-ts' }
+    await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({ outcomes: [{ applied: false, reason: 'an install is in progress' }] })
+    await expect(agent.installExtension({ id: 'plugin-msw' })).resolves.toMatchObject({ installed: false, reason: 'an install is in progress' })
+
+    socket.close(1006)
+    await vi.waitFor(() => expect(signal.aborted).toBe(true))
+    callback(new Error('aborted'), '', '')
+    await expect(install).resolves.toMatchObject({ installed: false })
   })
 
   it('refuses without allowInstall, naming the permission, and runs nothing', async () => {

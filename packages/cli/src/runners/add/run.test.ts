@@ -161,6 +161,16 @@ describe('kubb add', () => {
     expect(process.exitCode).toBeUndefined()
   })
 
+  it('exits with code 1 when a plugin was installed but could not be written into the config', async () => {
+    await writeFile(path.join(cwd, 'kubb.config.ts'), configSource.replace('plugins: []', 'plugins: getPlugins()'))
+    stubFetch({ body: registryIndex([pluginX]) })
+
+    await run({ id: 'acme/plugin-x', yes: true, install: true })
+
+    expect(output.join('\n')).toContain('! Plugin needs configuration')
+    expect(process.exitCode).toBe(1)
+  })
+
   it('prints the snippet for an adapter instead of editing the config', async () => {
     stubFetch({ body: registryIndex([registryEntry({ name: 'adapter-x', version: '1.2.0', kind: 'adapter', manifest: { export: 'adapterX' } })]) })
 

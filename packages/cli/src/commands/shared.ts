@@ -74,7 +74,7 @@ export const studioPermissionArgs = {
   },
   allowInstall: {
     type: 'boolean',
-    description: 'Let Studio install extensions from the registry with kubb add. Asked for once per project when omitted',
+    description: 'Let Studio install extensions from the registry with kubb add; needs --allow-config-edit too. Asked for once per project when omitted',
     default: false,
     toKebab: true,
   },
