@@ -917,6 +917,33 @@ describe('saveConfig', () => {
     expect(await read(join(project, 'openapi.yaml'))).toBe('openapi: 3.0.0\n')
   })
 
+  it('sends the saved spec back on the next connect', async () => {
+    const project = await projectWithConfig()
+    const loadConfigs = async () => [{ ...projectConfig(), input: './openapi.yaml' }]
+    const { agent } = await connectStudio({
+      root: project,
+      loadConfigs,
+      permissions: { allowConfigEdit: true, allowSaveInput: true },
+      connectInfo: { ...info, managed: true },
+    })
+    await agent.saveConfig({ edits: [{ operation: 'set-input', input: 'openapi: 3.1.0\n' }] })
+
+    const { config } = await agent.connect({ ...info, managed: true })
+
+    expect(config.configs[0]).toMatchObject({ input: './openapi.yaml', document: 'openapi: 3.1.0\n' })
+  })
+
+  it('sends no other project file as the saved spec', async () => {
+    const project = await projectWithConfig()
+    await writeFile(join(project, 'sample.yaml'), 'openapi: 3.1.0\n')
+    const loadConfigs = async () => [{ ...projectConfig(), input: './sample.yaml' }]
+    const { agent } = await connectStudio({ root: project, loadConfigs, permissions: { allowConfigEdit: true, allowSaveInput: true } })
+
+    const { config } = await agent.connect(info)
+
+    expect(config.configs[0]).not.toHaveProperty('document')
+  })
+
   it('refuses a blank spec without writing a file', async () => {
     const project = await projectWithConfig()
     const { agent } = await connectStudio({

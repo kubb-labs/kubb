@@ -623,6 +623,8 @@ export type ConfigEntryView = {
   name?: string
   /** The input file path or URL, without credentials. Omitted for an inline or parsed document. */
   input?: string
+  /** The spec this entry reads from a file the agent saved with `set-input`, so Studio can show it again. Needs `allowSaveInput`. */
+  document?: string
   /** The output directory as the entry gives it, relative to the project root unless absolute. */
   output: string
   /**

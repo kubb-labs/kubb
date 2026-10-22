@@ -82,6 +82,8 @@ const DISK_SNAPSHOT_MAX_FILES = 10_000
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
 // What Studio may send a managed agent as its spec. Not `file` or `object`: a path would read the container's disk.
 const MANAGED_INPUT_KINDS = new Set<InputKind>(['inline', 'url', 'git'])
+// The file names `#keepInput` gives a saved document.
+const SAVED_DOCUMENT = /^\.\/openapi(?:-[\w.-]+)?\.(?:yaml|json)$/
 /** Extensions `kubb` ships with, so they count as installed without being a direct dependency. */
 const BUILT_IN_PACKAGES = ['@kubb/adapter-oas', '@kubb/parser-ts', '@kubb/parser-md', '@kubb/plugin-barrel']
 
@@ -427,7 +429,9 @@ class Agent extends RpcTarget implements AgentApi {
         await this.#warn({ message: `Could not read the output directory: ${getErrorMessage(error)}` })
         return undefined
       })
-      entries.push({ ...toEntryView(config, extensions), ...(disk && { disk }) })
+      const view = toEntryView(config, extensions)
+      const document = await this.#readSavedDocument(view.input)
+      entries.push({ ...view, ...(document !== undefined && { document }), ...(disk && { disk }) })
     }
     this.#session.connected.resolve(info)
 
@@ -437,6 +441,12 @@ class Agent extends RpcTarget implements AgentApi {
       config: { path: configPath, file, extensions: [...extensions.values()], configs: entries },
       permissions: this.#permissions,
     }
+  }
+
+  // Only the files `set-input` writes, so no other project file reaches Studio this way.
+  async #readSavedDocument(input: string | undefined): Promise<string | undefined> {
+    if (this.#sandbox || !this.#permissions.allowSaveInput || !input || !SAVED_DOCUMENT.test(input)) return undefined
+    return read(path.join(this.#options.root, input)).catch(() => undefined)
   }
 
   async #readDiskOutput(config: Config): Promise<DiskOutput | undefined> {
