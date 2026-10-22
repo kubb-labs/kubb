@@ -89,6 +89,12 @@ export type ConfigEdit =
    * Uncomment a plugin call a previous `disable-plugin` commented out.
    */
   | { operation: 'enable-plugin'; config?: ConfigRef; plugin: string }
+  /**
+   * Point the config's `input` at a spec. The agent writes a document to `openapi.yaml` (or
+   * `openapi.json`) in its project and points `input` there. Refused without `allowSaveInput`, and a
+   * managed agent takes only a document, a URL, or a `git+` file.
+   */
+  | { operation: 'set-input'; config?: ConfigRef; input: string }
 
 /**
  * A factory call the agent found in a `defineConfig(...)`: a plugin in `plugins`, the `adapter`, or
@@ -650,6 +656,8 @@ export type AgentPermissions = {
   allowInstall: boolean
   /** Whether the agent may run `kubb update` in the project, which installs newer extension versions and leaves `kubb.config.ts` alone. */
   allowUpdate: boolean
+  /** Whether the agent may keep the spec Studio sends: a document in `openapi.yaml` and `input` in `kubb.config.ts`. Needs `allowConfigEdit` as well. */
+  allowSaveInput: boolean
   /**
    * Whether the agent shares existing output on connect and hands back file source through
    * `readFiles`. A sandbox always permits reads of its generated files.
@@ -672,6 +680,7 @@ export const AgentPermission = {
   CONFIG_EDIT: 'allowConfigEdit',
   INSTALL: 'allowInstall',
   UPDATE: 'allowUpdate',
+  SAVE_INPUT: 'allowSaveInput',
   EXEC: 'allowExec',
 } as const satisfies Record<string, keyof AgentPermissions>
 export type AgentPermission = (typeof AgentPermission)[keyof typeof AgentPermission]

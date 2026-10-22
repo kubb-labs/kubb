@@ -176,6 +176,7 @@ skips the question for that one permission.
 | `--allow-config-edit` |       | boolean | `false`               | Edit plugin options in `kubb.config.ts`. Asked for once per project when omitted              |
 | `--allow-install`     |       | boolean | `false`               | Let Studio install extensions with `kubb add`; needs `--allow-config-edit` too. Asked once    |
 | `--allow-update`      |       | boolean | `false`               | Let Studio update installed extensions with `kubb update`. Asked once                         |
+| `--allow-save-input`  |       | boolean | `false`               | Let Studio save the spec it sends as `input`; needs `--allow-config-edit` too. Asked once     |
 | `--allow-exec`        |       | boolean | `false`               | Run the formatter, the linter, and `output.postGenerate`. Asked once per project when omitted |
 | `--no-open`           |       | boolean |                       | Do not open the approval page in a browser while pairing                                      |
 | `--log-level <level>` | `-l`  | string  | `info`                | Log level: `silent`, `info`, or `verbose`                                                     |

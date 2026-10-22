@@ -464,6 +464,29 @@ describe('applyConfigEdits', () => {
     })
   })
 
+  describe('set-input', () => {
+    it('replaces the input the config holds', () => {
+      const source = `export default defineConfig({\n  input: './sample.yaml',\n  plugins: [],\n})\n`
+      const result = applyConfigEdits({ source, edits: [{ operation: 'set-input', input: 'https://example.com/openapi.yaml' }] })
+
+      expect(result).toMatchObject({ outcomes: [{ applied: true }], changed: true })
+      expect(result.source).toBe(`export default defineConfig({\n  input: 'https://example.com/openapi.yaml',\n  plugins: [],\n})\n`)
+    })
+
+    it('adds an input to a config without one', () => {
+      const source = `export default defineConfig({ name: 'api', plugins: [] })\n`
+      const result = applyConfigEdits({ source, edits: [{ operation: 'set-input', input: './openapi.yaml' }] })
+
+      expect(result.source).toBe(`export default defineConfig({ name: 'api', plugins: [], input: './openapi.yaml' })\n`)
+    })
+
+    it('refuses an empty input', () => {
+      const result = applyConfigEdits({ source: `export default defineConfig({ plugins: [] })\n`, edits: [{ operation: 'set-input', input: ' ' }] })
+
+      expect(result.outcomes).toMatchObject([{ applied: false, reason: 'the edit names no input' }])
+    })
+  })
+
   describe('disable-plugin and enable-plugin', () => {
     const source = `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [\n    pluginTs({ arrayType: 'generic' }),\n    pluginZod({\n      // keep me\n      inferred: true,\n    }),\n  ],\n})\n`
 

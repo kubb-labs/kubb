@@ -18,7 +18,7 @@ const IDENTIFIER = /^[A-Za-z_$][\w$]*$/
  */
 const DISABLED_MARKER = /^\/\/ kubb:disabled (.+)\s+(\d+)$/
 
-const OPERATIONS = new Set<string>(['set', 'remove', 'add-plugin', 'disable-plugin', 'enable-plugin'])
+const OPERATIONS = new Set<string>(['set', 'remove', 'add-plugin', 'disable-plugin', 'enable-plugin', 'set-input'])
 const KINDS = new Set<string>(['plugin', 'adapter', 'parser'])
 
 type ObjectNode = Extract<ASTNode, { type: 'ObjectExpression' }>
@@ -38,13 +38,14 @@ type ParsedConfig = { mod: ProxifiedModule; configs: Array<ObjectNode>; kind: Mo
  * The edit crossed the wire, so its declared type is a promise the sender may not have kept.
  */
 function invalidEdit(edit: ConfigEdit): string | undefined {
-  const { operation, plugin, config, path, kind } = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
+  const { operation, plugin, config, path, kind, input } = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
 
   if (typeof operation !== 'string' || !OPERATIONS.has(operation)) return `unknown operation ${JSON.stringify(operation)}`
+  if (config !== undefined && typeof config !== 'string' && !Number.isSafeInteger(config)) return 'config must name an entry or give its index'
+  if (operation === 'set-input') return typeof input === 'string' && input.trim() ? undefined : 'the edit names no input'
   if (typeof plugin !== 'string' || !plugin) return 'the edit names no plugin'
   if (kind !== undefined && (typeof kind !== 'string' || !KINDS.has(kind))) return `unknown kind ${JSON.stringify(kind)}`
   if (kind !== undefined && operation !== 'set' && operation !== 'remove') return `${operation} edits the plugins array, so it takes no kind`
-  if (config !== undefined && typeof config !== 'string' && !Number.isSafeInteger(config)) return 'config must name an entry or give its index'
   if (operation === 'set' || operation === 'remove') {
     if (!Array.isArray(path) || !path.every((key) => typeof key === 'string' && key)) return 'path must be a list of option names'
     if (!path.length) return 'no option path given'
@@ -541,6 +542,15 @@ function applySet(source: string, call: CallNode, path: Array<string>, value: un
   return { source: splice(source, rangeOf(target.value).start, rangeOf(target.value).end, printValue(value, quote)) }
 }
 
+/** Writes the config's top-level `input` as a string literal, replacing what it held. */
+function applySetInput(source: string, config: ObjectNode, input: string, quote: Quote): EditResult {
+  const value = printValue(input, quote)
+  const member = findMember(config, 'input')?.member
+  if (!member) return { source: insertItem(source, config, `input: ${value}`) }
+  if (member.type !== 'ObjectProperty') return { reason: 'input is not a plain property' }
+  return { source: splice(source, rangeOf(member.value).start, rangeOf(member.value).end, value) }
+}
+
 /**
  * Deletes the option at `path`, falling the plugin back to its default for it. An option the file
  * does not set already has its default, so removing it changes nothing.
@@ -693,6 +703,7 @@ function applyEdit({ source, edit, quote, extensions }: { source: string; edit: 
   const config = findConfig(parsed)
   if (!config) return { reason: `no config entry found for ${JSON.stringify(ref)}` }
 
+  if (edit.operation === 'set-input') return applySetInput(source, config, edit.input, quote)
   if (edit.operation === 'disable-plugin') {
     const result = disablePlugin(source, parsed.mod, config, edit.plugin)
     if (!('reason' in result) || !result.reason.includes('shares a line')) return result

@@ -13,7 +13,16 @@ const credentials: Credentials = {
   agentSlug: 'stijn-macbook',
   organizationSlug: 'kubb-labs',
   projects: {
-    [project]: { allowRead: true, allowReadAst: true, allowWrite: false, allowConfigEdit: false, allowInstall: false, allowUpdate: false, allowExec: false },
+    [project]: {
+      allowRead: true,
+      allowReadAst: true,
+      allowWrite: false,
+      allowConfigEdit: false,
+      allowInstall: false,
+      allowUpdate: false,
+      allowSaveInput: false,
+      allowExec: false,
+    },
   },
 }
 const base = { studioUrl: 'https://studio.kubb.dev', project, logPath: path.join(homedir(), '.kubb', 'worker.log') }
@@ -33,7 +42,7 @@ describe('formatStatus', () => {
       '  Permissions  ✓ read source     ✓ read spec',
       '               ✖ write files     ✖ edit config',
       '               ✖ add plugins     ✖ update plugins',
-      '               ✖ run tools        --allow-write --allow-config-edit --allow-install --allow-update --allow-exec',
+      '               ✖ save input      ✖ run tools        --allow-write --allow-config-edit --allow-install --allow-update --allow-save-input --allow-exec',
       '  Logs         ~/.kubb/worker.log',
     ])
   })
