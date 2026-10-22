@@ -61,6 +61,15 @@ components:
     expect(parse).not.toHaveBeenCalled()
   })
 
+  it.each([
+    ['inline JSON', '{"openapi":"3.0.3","info":{"title":"Pets API","version":"1"},"paths":{"/pets":{},"/pets":{}}}'],
+    ['inline YAML', 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths:\n  /pets: {}\n  /pets: {}\n'],
+  ])('rejects duplicate keys in %s instead of keeping the last one', async (_kind, data) => {
+    const error = await parseFromConfig({ type: 'data', data }).catch((caught: unknown) => caught)
+
+    expect(Diagnostics.from(error).code).toBe(Diagnostics.code.invalidDocument)
+  })
+
   it('keeps timestamps as strings and `<<` as a plain key, like YAML 1.2', async () => {
     const doc = await parseFromConfig({
       type: 'data',
