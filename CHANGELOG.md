@@ -1,5 +1,33 @@
 # Changelog
 
+## v5.12.5 — Oct 22, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Parse JSON and YAML specs with `js-yaml` before falling back to `yaml`, for inline and file inputs alike. Loading a 1.4 MB YAML spec drops from about 470 ms to 105 ms, and an inline 1.9 MB JSON spec from about 700 ms to 50 ms. `js-yaml` runs with its core schema, so timestamps stay strings and `<<` stays a plain key, as with `yaml`'s YAML 1.2 defaults. A spec that fails to parse still reports the `yaml` error with its line and column.
+  
+  JSON specs no longer go through `JSON.parse`, which kept the last of two duplicate keys. A JSON spec with a duplicate key, for example the same path twice, now fails with `KUBB_INVALID_DOCUMENT`, as a YAML spec does. ([#4398](https://github.com/kubb-labs/kubb/pull/4398), [`71f48a4`](https://github.com/kubb-labs/kubb/commit/71f48a4448ba3b71f692b5db5d0b06f9d7e3eda4))
+- Speed up `locate` when a caller passes the same spec content as a new string. Diagnostics and editor tools that map many JSON pointers for one spec now compare the spec text once instead of on every call. On a 1.9 MB spec, 6,676 lookups drop from 4.6 s to 0.5 s. ([#4394](https://github.com/kubb-labs/kubb/pull/4394), [`5f712fb`](https://github.com/kubb-labs/kubb/commit/5f712fbddcb9c66a61e2e0f27b54465e8122c65c))
+- Cache the results of `camelCase` and `pascalCase`. A build resolves the same names many times, about 47,000 calls for a spec with 1,000 schemas, and each call ran four regular expressions. The cache holds up to 10,000 entries and then starts over. ([#4399](https://github.com/kubb-labs/kubb/pull/4399), [`d2d20fc`](https://github.com/kubb-labs/kubb/commit/d2d20fc97deeb1c586c46107b8d5a48b9cbaf7aa))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Speed up builds that write many schemas into one file (`output.mode: 'file'`). Generator results for a file are now merged once when the files are read, not re-normalized on every schema. On a 1.9 MB spec with `@kubb/plugin-ts` writing a single file, the build drops from 3.3 s to 2.3 s and allocates about 600 MB less.
+  
+  Named imports in such a file can come out in a different order, sorted by the fragments' names instead of following generation order. The imported names stay the same.
+  
+  `createFile` now checks which imports are used against the sources it keeps, so an import used only by a duplicate source it drops is left out. ([#4396](https://github.com/kubb-labs/kubb/pull/4396), [`df9f3ab`](https://github.com/kubb-labs/kubb/commit/df9f3ab84dedd9ab976942ee95d2969ac0b669dd))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.12.4 — Oct 22, 2026
 
 ### @kubb/studio
