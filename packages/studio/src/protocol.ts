@@ -38,7 +38,7 @@ export type JSONKubbConfig = {
     name: string
     options?: object
   }>
-  /** Root `output` overrides. `path` is ignored, and `postGenerate` too without `allowExec`. */
+  /** Root `output` overrides. `path` and `postGenerate` are ignored. */
   output?: object
   /**
    * Which `defineConfig(...)` entry to generate from. Omitted runs the first one.
@@ -112,7 +112,7 @@ export type ConfigEdit =
    * Refused without `allowSaveInput`, and a managed agent takes only a document, a URL, or a `git+` file.
    */
   | { operation: typeof ConfigEditOperation.SET_INPUT; config?: ConfigRef; input: string }
-  /** Write a literal inside the root `output` object. Refuses `path`; `postGenerate` needs `allowExec`. */
+  /** Write a literal inside the root `output` object. Refuses `path` and `postGenerate`. */
   | { operation: typeof ConfigEditOperation.SET_OUTPUT; config?: ConfigRef; path: Array<string>; value: unknown }
   /** Drop a member of the root `output` object, refused for the same paths as `set-output`. */
   | { operation: typeof ConfigEditOperation.REMOVE_OUTPUT; config?: ConfigRef; path: Array<string> }
@@ -461,7 +461,6 @@ export const AgentMessage = {
   SAVE_IN_PROGRESS: 'The config is being saved, please wait for it to finish',
   SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
   MANAGED_INPUT_KIND: 'A managed agent generates from the OpenAPI document content, a URL, or a git file that Studio sends, not from a file path',
-  POST_GENERATE_EXEC: 'Changing output.postGenerate needs allowExec, since the agent runs those commands',
   CONFIG_ENTRY_NOT_FOUND: 'The config file has no entry at that position or with that name',
   JOB_REQUIRED: 'The request must name a job',
   FILE_REQUEST_INVALID: 'The request must name an output set and carry paths',
@@ -639,7 +638,7 @@ export type ConfigEntryView = {
   input?: string
   /** The output directory as the entry gives it, relative to the project root unless absolute. */
   output: string
-  /** The other root `output` options as a JSON copy. */
+  /** The other root `output` options as a JSON copy, without the `postGenerate` commands. */
   outputOptions?: object
   /**
    * The output directory's current file list, readable through `readFiles` without generating.

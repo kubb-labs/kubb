@@ -63,8 +63,8 @@ function invalidEdit(edit: ConfigEdit): string | undefined {
     if (!path.length) return 'no option path given'
     const unsafe = path.find((key: string) => !isSafeKey(key))
     if (unsafe !== undefined) return `${unsafe} cannot be used as an option name`
-    // The output folder decides where generation may write, so only the file sets it.
-    if (isOutput && path[0] === 'path') return 'output.path can only be changed in the config file'
+    // The folder bounds where generation writes, and the commands run on the host, so only the file sets them.
+    if (isOutput && (path[0] === 'path' || path[0] === 'postGenerate')) return `output.${path[0]} can only be changed in the config file`
   }
   return undefined
 }

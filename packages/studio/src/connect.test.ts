@@ -933,35 +933,6 @@ describe('saveConfig', () => {
     await expect(read(join(project, 'openapi.yaml'))).rejects.toThrow()
   })
 
-  it('refuses a postGenerate edit without allowExec', async () => {
-    const project = await mkdtemp(join(tmpdir(), 'kubb-save-output-'))
-    cleanups.push(() => rm(project, { recursive: true, force: true }))
-    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig({ output: { path: './gen' }, plugins: [] })\n`)
-    const { agent } = await connectStudio({ root: project, permissions: { allowConfigEdit: true } })
-    const edits: Array<ConfigEdit> = [
-      { operation: 'set-output', path: ['postGenerate'], value: ['echo hi'] },
-      { operation: 'set-output', path: ['lint'], value: 'auto' },
-    ]
-
-    await expect(agent.saveConfig({ edits })).resolves.toMatchObject({
-      outcomes: [{ applied: false, reason: AgentMessage.POST_GENERATE_EXEC }, { applied: true }],
-      changed: true,
-    })
-    expect(await read(join(project, 'kubb.config.ts'))).toBe(`export default defineConfig({ output: { path: './gen', lint: 'auto' }, plugins: [] })\n`)
-  })
-
-  it('applies a postGenerate edit with allowExec', async () => {
-    const project = await mkdtemp(join(tmpdir(), 'kubb-save-output-'))
-    cleanups.push(() => rm(project, { recursive: true, force: true }))
-    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig({ output: { path: './gen' }, plugins: [] })\n`)
-    const { agent } = await connectStudio({ root: project, permissions: { allowConfigEdit: true, allowExec: true } })
-
-    await expect(agent.saveConfig({ edits: [{ operation: 'set-output', path: ['postGenerate'], value: ['echo hi'] }] })).resolves.toMatchObject({
-      outcomes: [{ applied: true }],
-    })
-    expect(await read(join(project, 'kubb.config.ts'))).toContain(`postGenerate: ['echo hi']`)
-  })
-
   it('refuses to keep a spec without allowSaveInput', async () => {
     const project = await projectWithConfig()
     const { agent } = await connectStudio({ root: project, permissions: { allowConfigEdit: true }, connectInfo: { ...info, managed: true } })

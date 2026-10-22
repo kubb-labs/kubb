@@ -447,12 +447,10 @@ async function rebuildExtension<T extends Adapter | Parser>({
   return factory(mergeOptions((disk.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)) as T
 }
 
-/** Merges Studio's `output` overrides, keeping `path` and dropping `postGenerate` without `allowExec`. */
-export function mergeOutput({ output, studio, allowExec }: { output: Config['output']; studio: unknown; allowExec: boolean }): Config['output'] {
+/** Merges Studio's `output` overrides, keeping the file's `path` and `postGenerate`. */
+export function mergeOutput(output: Config['output'], studio: unknown): Config['output'] {
   if (!isPlainObject(studio)) return output
-  const overrides = { ...studio }
-  if (!allowExec) delete overrides.postGenerate
-  return { ...(mergeOptions(output, overrides) as Config['output']), path: output.path }
+  return { ...(mergeOptions(output, studio) as Config['output']), path: output.path, postGenerate: output.postGenerate }
 }
 
 /**

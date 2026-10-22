@@ -219,16 +219,9 @@ describe('mergeParsers', () => {
 describe('mergeOutput', () => {
   const output = { path: './gen', postGenerate: ['npm run typecheck'] }
 
-  it('merges Studio overrides but keeps the output folder', () => {
-    expect(mergeOutput({ output, studio: { path: '/etc', format: 'biome', postGenerate: ['rm -rf /'] }, allowExec: true })).toStrictEqual({
-      path: './gen',
-      format: 'biome',
-      postGenerate: ['rm -rf /'],
-    })
-  })
-
-  it('ignores postGenerate from Studio without allowExec', () => {
-    expect(mergeOutput({ output, studio: { postGenerate: null, lint: false }, allowExec: false })).toStrictEqual({ ...output, lint: false })
+  it('merges Studio overrides but keeps the output folder and commands', () => {
+    expect(mergeOutput(output, { path: '/etc', format: 'biome', postGenerate: ['rm -rf /'] })).toStrictEqual({ ...output, format: 'biome' })
+    expect(mergeOutput(output, { postGenerate: null, lint: false })).toStrictEqual({ ...output, lint: false })
   })
 })
 

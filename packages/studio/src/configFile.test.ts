@@ -512,21 +512,22 @@ describe('applyConfigEdits', () => {
       expect(result.source).toBe(`export default defineConfig({\n  output: { path: './gen', barrel: { type: 'named' } },\n  plugins: [],\n})\n`)
     })
 
-    it('refuses to move or drop the output folder', () => {
-      const reason = 'output.path can only be changed in the config file'
+    it('refuses to change the output folder or the post-generate commands', () => {
       const result = applyConfigEdits({
         source,
         edits: [
           { operation: 'set-output', path: ['path'], value: '/etc' },
           { operation: 'remove-output', path: ['path'] },
+          { operation: 'set-output', path: ['postGenerate'], value: ['echo hi'] },
         ],
       })
 
       expect(result).toMatchObject({
         source,
         outcomes: [
-          { applied: false, reason },
-          { applied: false, reason },
+          { applied: false, reason: 'output.path can only be changed in the config file' },
+          { applied: false, reason: 'output.path can only be changed in the config file' },
+          { applied: false, reason: 'output.postGenerate can only be changed in the config file' },
         ],
         changed: false,
       })
