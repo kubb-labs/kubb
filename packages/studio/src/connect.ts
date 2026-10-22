@@ -221,9 +221,7 @@ function findKubbBin(root: string): string | undefined {
   const require = createRequire(path.resolve(root, 'package.json'))
   const names = ['kubb', '@kubb/cli']
   // Nearest directory first, so a nested project does not pick up an ancestor's CLI.
-  return (require.resolve.paths('kubb') ?? [])
-    .flatMap((dir) => names.map((name) => path.join(dir, name, 'bin', 'kubb.js')))
-    .find((bin) => existsSync(bin))
+  return (require.resolve.paths('kubb') ?? []).flatMap((dir) => names.map((name) => path.join(dir, name, 'bin', 'kubb.js'))).find((bin) => existsSync(bin))
 }
 
 /** Runs `kubb add` without a shell, and keeps the end of its output for the failure reason. */
