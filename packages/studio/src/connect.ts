@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { existsSync } from 'node:fs'
+import { writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -37,6 +38,8 @@ import {
   AgentMessage,
   type AgentConnectInfo,
   type AgentPermissions,
+  type ConfigEdit,
+  ConfigEditOperation,
   type ConfigEntryView,
   type ConfigFileView,
   type ConfigRef,
@@ -299,6 +302,9 @@ class GenerationRunTarget extends RpcTarget implements GenerationRun {
   }
 }
 
+/** A save's edit once a `set-input` document is named, or why it was refused. */
+type KeptEdit = (ConfigEdit & { document?: { fileName: string; text: string } }) | { reason: string }
+
 // Cap'n Web exposes only prototype methods, so the public methods are exactly `AgentApi`.
 class Agent extends RpcTarget implements AgentApi {
   readonly #options: ResolvedOptions
@@ -327,7 +333,16 @@ class Agent extends RpcTarget implements AgentApi {
   get #permissions(): AgentPermissions {
     const { permissions } = this.#options
     return this.#sandbox
-      ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowInstall: false, allowUpdate: false, allowRead: true, allowReadAst: true }
+      ? {
+          ...permissions,
+          allowWrite: false,
+          allowConfigEdit: false,
+          allowInstall: false,
+          allowUpdate: false,
+          allowSaveInput: false,
+          allowRead: true,
+          allowReadAst: true,
+        }
       : permissions
   }
 
@@ -602,7 +617,26 @@ class Agent extends RpcTarget implements AgentApi {
     // Keeps `kubb add` from rewriting the config while this save is still writing it.
     this.#session.saving = true
     try {
-      const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
+      const kept: Array<KeptEdit> = []
+      for (const edit of edits) kept.push(await this.#keepInput(edit))
+      const written = await writeConfigEdits({
+        filePath: configFile,
+        edits: kept.flatMap((edit) => ('reason' in edit ? [] : [edit])),
+        extensions: await this.#installedExtensions(),
+      })
+      let next = 0
+      // Back in the order Studio sent them, each naming the edit as sent rather than the document's file.
+      const outcomes = kept.map((edit, index) =>
+        'reason' in edit ? { edit: edits[index]!, applied: false, reason: edit.reason } : { ...written.outcomes[next++]!, edit: edits[index]! },
+      )
+      // A document is written only once its config edit applied, in edit order, so the last edit for a file wins.
+      let wroteDocument = false
+      for (const [index, edit] of kept.entries()) {
+        if (!('document' in edit) || !edit.document || !outcomes[index]!.applied) continue
+        await writeFile(path.join(this.#options.root, edit.document.fileName), edit.document.text, 'utf-8')
+        wroteDocument = true
+      }
+      const changed = written.changed || wroteDocument
       const applied = outcomes.filter((outcome) => outcome.applied).length
       await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`, input.requestedBy)
 
@@ -614,6 +648,27 @@ class Agent extends RpcTarget implements AgentApi {
     } finally {
       this.#session.saving = false
     }
+  }
+
+  /**
+   * Readies a `set-input` edit for the config file: a document is pointed at `openapi.yaml` (`openapi.json`
+   * for JSON) in the project, one file per config entry, for `saveConfig` to write once the edit applies.
+   * A managed agent refuses a file path, as in a generation.
+   */
+  async #keepInput(edit: ConfigEdit): Promise<KeptEdit> {
+    // A blank input goes on unchanged, so the config writer refuses it before any file is written.
+    if (edit?.operation !== ConfigEditOperation.SET_INPUT || typeof edit.input !== 'string' || !edit.input.trim()) return edit
+    if (!this.#permissions.allowSaveInput) {
+      await this.#warn({ message: 'Ignored the spec to save: saving the input was not granted', permission: AgentPermission.SAVE_INPUT })
+      return { reason: 'the agent was not granted permission to save the input' }
+    }
+    const kind = getInputKind(edit.input)
+    if (this.#managed && !MANAGED_INPUT_KINDS.has(kind)) return { reason: AgentMessage.MANAGED_INPUT_KIND }
+    if (kind !== 'inline') return edit
+
+    const entry = edit.config === undefined || edit.config === 0 ? '' : `-${String(edit.config).replace(/[^\w.-]/g, '-')}`
+    const fileName = `openapi${entry}.${isJson(edit.input) ? 'json' : 'yaml'}`
+    return { ...edit, input: `./${fileName}`, document: { fileName, text: edit.input } }
   }
 
   /**
@@ -859,6 +914,16 @@ function pickConfig(configs: Array<Config>, ref: ConfigRef | undefined): Config 
   return configs[ref ?? 0]
 }
 
+/** Whether `text` parses as JSON, so a pasted document is saved under the matching extension. */
+function isJson(text: string): boolean {
+  try {
+    JSON.parse(text)
+    return true
+  } catch {
+    return false
+  }
+}
+
 /** The input path or URL Studio may show: no inline document, and no credentials from a URL. */
 function reportedInput(input: Config['input']): string | undefined {
   if (typeof input !== 'string') return undefined
@@ -906,6 +971,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
       allowConfigEdit: false,
       allowInstall: false,
       allowUpdate: false,
+      allowSaveInput: false,
       allowExec: false,
       allowRead: false,
       allowReadAst: false,

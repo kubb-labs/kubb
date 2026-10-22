@@ -79,6 +79,7 @@ export type StudioValues = {
   allowConfigEdit?: boolean
   allowInstall?: boolean
   allowUpdate?: boolean
+  allowSaveInput?: boolean
   allowExec?: boolean
   open?: boolean
   logLevel?: CLIOptions['logLevel']
@@ -206,6 +207,12 @@ const PERMISSIONS: ReadonlyArray<{
   { key: AgentPermission.CONFIG_EDIT, label: 'edit config', title: (configPath) => `Change ${configPath}`, hint: 'edit plugin options' },
   { key: AgentPermission.INSTALL, label: 'add plugins', title: () => 'Install extensions from the registry', hint: 'kubb add from the browser' },
   { key: AgentPermission.UPDATE, label: 'update plugins', title: () => 'Update installed extensions', hint: 'kubb update from the browser' },
+  {
+    key: AgentPermission.SAVE_INPUT,
+    label: 'save input',
+    title: (configPath) => `Save the spec from Studio as the input in ${configPath}`,
+    hint: 'keep a pasted spec, URL, or git file',
+  },
   { key: AgentPermission.EXEC, label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
 ]
 

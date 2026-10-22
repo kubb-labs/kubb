@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import { ast } from '@kubb/ast'
 import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
+import { read } from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
 import {
@@ -845,6 +846,103 @@ describe('saveConfig', () => {
       outcomes: [{ edit: edits[0], applied: false, reason: 'the agent was not granted permission to edit kubb.config.ts' }],
       changed: false,
     })
+  })
+
+  async function projectWithConfig() {
+    const project = await mkdtemp(join(tmpdir(), 'kubb-save-input-'))
+    cleanups.push(() => rm(project, { recursive: true, force: true }))
+    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig({\n  input: './sample.yaml',\n  plugins: [],\n})\n`)
+    return project
+  }
+
+  it('keeps a pasted spec in openapi.yaml and points input there', async () => {
+    const project = await projectWithConfig()
+    const { agent } = await connectStudio({
+      root: project,
+      permissions: { allowConfigEdit: true, allowSaveInput: true },
+      connectInfo: { ...info, managed: true },
+    })
+    const edit: ConfigEdit = { operation: 'set-input', input: 'openapi: 3.1.0\n' }
+
+    await expect(agent.saveConfig({ edits: [edit] })).resolves.toStrictEqual({ outcomes: [{ edit, applied: true }], changed: true })
+    expect(await read(join(project, 'openapi.yaml'))).toBe('openapi: 3.1.0\n')
+    expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.yaml',`)
+  })
+
+  it('keeps a pasted JSON spec in openapi.json', async () => {
+    const project = await projectWithConfig()
+    const { agent } = await connectStudio({
+      root: project,
+      permissions: { allowConfigEdit: true, allowSaveInput: true },
+      connectInfo: { ...info, managed: true },
+    })
+
+    await agent.saveConfig({ edits: [{ operation: 'set-input', input: '{"openapi":"3.1.0"}' }] })
+
+    expect(await read(join(project, 'openapi.json'))).toBe('{"openapi":"3.1.0"}')
+    expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.json',`)
+  })
+
+  it('keeps the spec of a second config entry in its own file', async () => {
+    const project = await mkdtemp(join(tmpdir(), 'kubb-save-input-'))
+    cleanups.push(() => rm(project, { recursive: true, force: true }))
+    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig([{ input: './a.yaml', plugins: [] }, { input: './b.yaml', plugins: [] }])\n`)
+    const { agent } = await connectStudio({
+      root: project,
+      permissions: { allowConfigEdit: true, allowSaveInput: true },
+      connectInfo: { ...info, managed: true },
+    })
+
+    await agent.saveConfig({ edits: [{ operation: 'set-input', config: 1, input: 'openapi: 3.1.0\n' }] })
+
+    expect(await read(join(project, 'openapi-1.yaml'))).toBe('openapi: 3.1.0\n')
+    expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi-1.yaml'`)
+  })
+
+  it('leaves the saved spec alone when the config edit is refused', async () => {
+    const project = await mkdtemp(join(tmpdir(), 'kubb-save-input-'))
+    cleanups.push(() => rm(project, { recursive: true, force: true }))
+    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig({ input: './openapi.yaml', ...overrides, plugins: [] })\n`)
+    await writeFile(join(project, 'openapi.yaml'), 'openapi: 3.0.0\n')
+    const { agent } = await connectStudio({
+      root: project,
+      permissions: { allowConfigEdit: true, allowSaveInput: true },
+      connectInfo: { ...info, managed: true },
+    })
+
+    await expect(agent.saveConfig({ edits: [{ operation: 'set-input', input: 'openapi: 3.1.0\n' }] })).resolves.toMatchObject({
+      outcomes: [{ applied: false }],
+      changed: false,
+    })
+    expect(await read(join(project, 'openapi.yaml'))).toBe('openapi: 3.0.0\n')
+  })
+
+  it('refuses a blank spec without writing a file', async () => {
+    const project = await projectWithConfig()
+    const { agent } = await connectStudio({
+      root: project,
+      permissions: { allowConfigEdit: true, allowSaveInput: true },
+      connectInfo: { ...info, managed: true },
+    })
+    const edit: ConfigEdit = { operation: 'set-input', input: '  ' }
+
+    await expect(agent.saveConfig({ edits: [edit] })).resolves.toStrictEqual({
+      outcomes: [{ edit, applied: false, reason: 'the edit names no input' }],
+      changed: false,
+    })
+    await expect(read(join(project, 'openapi.yaml'))).rejects.toThrow()
+  })
+
+  it('refuses to keep a spec without allowSaveInput', async () => {
+    const project = await projectWithConfig()
+    const { agent } = await connectStudio({ root: project, permissions: { allowConfigEdit: true }, connectInfo: { ...info, managed: true } })
+    const edit: ConfigEdit = { operation: 'set-input', input: 'https://example.com/openapi.yaml' }
+
+    await expect(agent.saveConfig({ edits: [edit] })).resolves.toStrictEqual({
+      outcomes: [{ edit, applied: false, reason: 'the agent was not granted permission to save the input' }],
+      changed: false,
+    })
+    expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './sample.yaml',`)
   })
 })
 

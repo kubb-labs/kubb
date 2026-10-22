@@ -54,6 +54,7 @@ export type Credentials = {
       allowConfigEdit?: boolean
       allowInstall?: boolean
       allowUpdate?: boolean
+      allowSaveInput?: boolean
       allowExec?: boolean
     }
   >

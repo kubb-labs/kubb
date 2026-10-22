@@ -84,6 +84,12 @@ export const studioPermissionArgs = {
     default: false,
     toKebab: true,
   },
+  allowSaveInput: {
+    type: 'boolean',
+    description: 'Let Studio save the spec it sends as the input in kubb.config.ts; needs --allow-config-edit too. Asked for once per project when omitted',
+    default: false,
+    toKebab: true,
+  },
   allowExec: {
     type: 'boolean',
     description: 'Run the formatter, the linter, and output.postGenerate after a generation',

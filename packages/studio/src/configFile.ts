@@ -3,7 +3,16 @@ import { Diagnostics, type ExtensionKind } from '@kubb/core'
 import { getErrorMessage, read } from '@internals/utils'
 import { detectCodeFormat, parseExpression, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
-import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigView, InstalledExtensions, OptionValue, PluginView } from './protocol.ts'
+import {
+  type ConfigEdit,
+  ConfigEditOperation,
+  type ConfigEditOutcome,
+  type ConfigFileView,
+  type ConfigView,
+  type InstalledExtensions,
+  type OptionValue,
+  type PluginView,
+} from './protocol.ts'
 import { isAllowedPlugin, isOptionValue, isSafeKey, toExportName } from './resolveConfig.ts'
 
 /**
@@ -18,7 +27,7 @@ const IDENTIFIER = /^[A-Za-z_$][\w$]*$/
  */
 const DISABLED_MARKER = /^\/\/ kubb:disabled (.+)\s+(\d+)$/
 
-const OPERATIONS = new Set<string>(['set', 'remove', 'add-plugin', 'disable-plugin', 'enable-plugin'])
+const OPERATIONS = new Set<string>(Object.values(ConfigEditOperation))
 const KINDS = new Set<string>(['plugin', 'adapter', 'parser'])
 
 type ObjectNode = Extract<ASTNode, { type: 'ObjectExpression' }>
@@ -38,14 +47,16 @@ type ParsedConfig = { mod: ProxifiedModule; configs: Array<ObjectNode>; kind: Mo
  * The edit crossed the wire, so its declared type is a promise the sender may not have kept.
  */
 function invalidEdit(edit: ConfigEdit): string | undefined {
-  const { operation, plugin, config, path, kind } = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
+  const { operation, plugin, config, path, kind, input } = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
 
   if (typeof operation !== 'string' || !OPERATIONS.has(operation)) return `unknown operation ${JSON.stringify(operation)}`
+  if (config !== undefined && typeof config !== 'string' && !Number.isSafeInteger(config)) return 'config must name an entry or give its index'
+  if (operation === ConfigEditOperation.SET_INPUT) return typeof input === 'string' && input.trim() ? undefined : 'the edit names no input'
   if (typeof plugin !== 'string' || !plugin) return 'the edit names no plugin'
   if (kind !== undefined && (typeof kind !== 'string' || !KINDS.has(kind))) return `unknown kind ${JSON.stringify(kind)}`
-  if (kind !== undefined && operation !== 'set' && operation !== 'remove') return `${operation} edits the plugins array, so it takes no kind`
-  if (config !== undefined && typeof config !== 'string' && !Number.isSafeInteger(config)) return 'config must name an entry or give its index'
-  if (operation === 'set' || operation === 'remove') {
+  if (kind !== undefined && operation !== ConfigEditOperation.SET && operation !== ConfigEditOperation.REMOVE)
+    return `${operation} edits the plugins array, so it takes no kind`
+  if (operation === ConfigEditOperation.SET || operation === ConfigEditOperation.REMOVE) {
     if (!Array.isArray(path) || !path.every((key) => typeof key === 'string' && key)) return 'path must be a list of option names'
     if (!path.length) return 'no option path given'
     const unsafe = path.find((key: string) => !isSafeKey(key))
@@ -541,6 +552,16 @@ function applySet(source: string, call: CallNode, path: Array<string>, value: un
   return { source: splice(source, rangeOf(target.value).start, rangeOf(target.value).end, printValue(value, quote)) }
 }
 
+/** Writes the config's top-level `input` as a string literal, replacing what it held. */
+function applySetInput(source: string, config: ObjectNode, input: string, quote: Quote): EditResult {
+  const value = printValue(input, quote)
+  const found = findMember(config, 'input')
+  if (!found) return { source: insertItem(source, config, `input: ${value}`) }
+  if (found.member.type !== 'ObjectProperty') return { reason: 'input is not a plain property' }
+  if (isShadowed(config, found.index)) return { reason: 'a spread after input could override it' }
+  return { source: splice(source, rangeOf(found.member.value).start, rangeOf(found.member.value).end, value) }
+}
+
 /**
  * Deletes the option at `path`, falling the plugin back to its default for it. An option the file
  * does not set already has its default, so removing it changes nothing.
@@ -599,7 +620,7 @@ function applyAddPlugin({
   source: string
   parsed: ParsedConfig
   config: ObjectNode
-  edit: Extract<ConfigEdit, { operation: 'add-plugin' }>
+  edit: Extract<ConfigEdit, { operation: typeof ConfigEditOperation.ADD_PLUGIN }>
   quote: Quote
   extensions: InstalledExtensions
 }): EditResult {
@@ -693,7 +714,8 @@ function applyEdit({ source, edit, quote, extensions }: { source: string; edit: 
   const config = findConfig(parsed)
   if (!config) return { reason: `no config entry found for ${JSON.stringify(ref)}` }
 
-  if (edit.operation === 'disable-plugin') {
+  if (edit.operation === ConfigEditOperation.SET_INPUT) return applySetInput(source, config, edit.input, quote)
+  if (edit.operation === ConfigEditOperation.DISABLE_PLUGIN) {
     const result = disablePlugin(source, parsed.mod, config, edit.plugin)
     if (!('reason' in result) || !result.reason.includes('shares a line')) return result
 
@@ -705,8 +727,8 @@ function applyEdit({ source, edit, quote, extensions }: { source: string; edit: 
       ? disablePlugin(expanded, reparsed.mod, reparsedConfig, edit.plugin)
       : result
   }
-  if (edit.operation === 'enable-plugin') return enablePlugin(source, config, edit.plugin)
-  if (edit.operation === 'add-plugin') return applyAddPlugin({ source, parsed, config, edit, quote, extensions })
+  if (edit.operation === ConfigEditOperation.ENABLE_PLUGIN) return enablePlugin(source, config, edit.plugin)
+  if (edit.operation === ConfigEditOperation.ADD_PLUGIN) return applyAddPlugin({ source, parsed, config, edit, quote, extensions })
 
   const kind = edit.kind ?? 'plugin'
   // A package can ship several factories (`parserTs` and `parserTsx`), so among its calls prefer the
@@ -719,7 +741,7 @@ function applyEdit({ source, edit, quote, extensions }: { source: string; edit: 
     const disabled = kind === 'plugin' && disabledBlocks(source, config).some((block) => block.packageName === edit.plugin)
     return { reason: disabled ? `${edit.plugin} is disabled, enable it first` : `${edit.plugin} is not in the ${kind}s array` }
   }
-  return edit.operation === 'set' ? applySet(source, call, edit.path, edit.value, quote) : applyRemove(source, call, edit.path)
+  return edit.operation === ConfigEditOperation.SET ? applySet(source, call, edit.path, edit.value, quote) : applyRemove(source, call, edit.path)
 }
 
 /**

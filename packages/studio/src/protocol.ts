@@ -58,6 +58,19 @@ export type ConfigRef = string | number
 export type OptionValue = string | number | boolean | null | Array<OptionValue> | { [key: string]: OptionValue }
 
 /**
+ * The kinds of {@link ConfigEdit}, one per `operation`.
+ */
+export const ConfigEditOperation = {
+  SET: 'set',
+  REMOVE: 'remove',
+  ADD_PLUGIN: 'add-plugin',
+  DISABLE_PLUGIN: 'disable-plugin',
+  ENABLE_PLUGIN: 'enable-plugin',
+  SET_INPUT: 'set-input',
+} as const
+export type ConfigEditOperation = (typeof ConfigEditOperation)[keyof typeof ConfigEditOperation]
+
+/**
  * One change to a plugin's options in the user's `kubb.config.ts`.
  *
  * `plugin` is the package name (`@kubb/plugin-ts`), the same identity used in {@link JSONKubbConfig}.
@@ -72,23 +85,29 @@ export type ConfigEdit =
    * `pluginTs({ enum: { type } })`. `kind` names which factory call `plugin` is: one in `plugins`
    * when left out, the config's `adapter`, or one in `parsers`.
    */
-  | { operation: 'set'; config?: ConfigRef; kind?: ExtensionKind; plugin: string; path: Array<string>; value: unknown }
+  | { operation: typeof ConfigEditOperation.SET; config?: ConfigRef; kind?: ExtensionKind; plugin: string; path: Array<string>; value: unknown }
   /**
    * Drop an option so the extension falls back to its default. `kind` as for `set`.
    */
-  | { operation: 'remove'; config?: ConfigRef; kind?: ExtensionKind; plugin: string; path: Array<string> }
+  | { operation: typeof ConfigEditOperation.REMOVE; config?: ConfigRef; kind?: ExtensionKind; plugin: string; path: Array<string> }
   /**
    * Add a plugin factory call and its import to the `plugins` array.
    */
-  | { operation: 'add-plugin'; config?: ConfigRef; plugin: string; options?: Record<string, unknown> }
+  | { operation: typeof ConfigEditOperation.ADD_PLUGIN; config?: ConfigRef; plugin: string; options?: Record<string, unknown> }
   /**
    * Comment the plugin call out, keeping its options in the file so enabling it again restores them.
    */
-  | { operation: 'disable-plugin'; config?: ConfigRef; plugin: string }
+  | { operation: typeof ConfigEditOperation.DISABLE_PLUGIN; config?: ConfigRef; plugin: string }
   /**
    * Uncomment a plugin call a previous `disable-plugin` commented out.
    */
-  | { operation: 'enable-plugin'; config?: ConfigRef; plugin: string }
+  | { operation: typeof ConfigEditOperation.ENABLE_PLUGIN; config?: ConfigRef; plugin: string }
+  /**
+   * Point the config's `input` at a spec. The agent writes a document to `openapi.yaml` (or
+   * `openapi.json`, and `openapi-<entry>` for a later entry) in its project and points `input` there.
+   * Refused without `allowSaveInput`, and a managed agent takes only a document, a URL, or a `git+` file.
+   */
+  | { operation: typeof ConfigEditOperation.SET_INPUT; config?: ConfigRef; input: string }
 
 /**
  * A factory call the agent found in a `defineConfig(...)`: a plugin in `plugins`, the `adapter`, or
@@ -650,6 +669,8 @@ export type AgentPermissions = {
   allowInstall: boolean
   /** Whether the agent may run `kubb update` in the project, which installs newer extension versions and leaves `kubb.config.ts` alone. */
   allowUpdate: boolean
+  /** Whether the agent may keep the spec Studio sends: a document in `openapi.yaml` and `input` in `kubb.config.ts`. Needs `allowConfigEdit` as well. */
+  allowSaveInput: boolean
   /**
    * Whether the agent shares existing output on connect and hands back file source through
    * `readFiles`. A sandbox always permits reads of its generated files.
@@ -672,6 +693,7 @@ export const AgentPermission = {
   CONFIG_EDIT: 'allowConfigEdit',
   INSTALL: 'allowInstall',
   UPDATE: 'allowUpdate',
+  SAVE_INPUT: 'allowSaveInput',
   EXEC: 'allowExec',
 } as const satisfies Record<string, keyof AgentPermissions>
 export type AgentPermission = (typeof AgentPermission)[keyof typeof AgentPermission]
