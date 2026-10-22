@@ -38,7 +38,7 @@ export type JSONKubbConfig = {
     name: string
     options?: object
   }>
-  /** Root `output` overrides. `path` and `postGenerate` are ignored. */
+  /** Root `output` overrides for `barrel`, `format`, `lint`, `clean`, and `defaultBanner`. Other members are ignored. */
   output?: object
   /**
    * Which `defineConfig(...)` entry to generate from. Omitted runs the first one.
@@ -112,9 +112,9 @@ export type ConfigEdit =
    * Refused without `allowSaveInput`, and a managed agent takes only a document, a URL, or a `git+` file.
    */
   | { operation: typeof ConfigEditOperation.SET_INPUT; config?: ConfigRef; input: string }
-  /** Write a literal inside the root `output` object. Refuses `path` and `postGenerate`. */
+  /** Write a literal inside the root `output` object, for the members `JSONKubbConfig.output` takes. */
   | { operation: typeof ConfigEditOperation.SET_OUTPUT; config?: ConfigRef; path: Array<string>; value: unknown }
-  /** Drop a member of the root `output` object, refused for the same paths as `set-output`. */
+  /** Drop a member of the root `output` object that `set-output` may write. */
   | { operation: typeof ConfigEditOperation.REMOVE_OUTPUT; config?: ConfigRef; path: Array<string> }
 
 /** The top-level keys of an object in the config file, as {@link PluginView.options} describes. */
@@ -638,7 +638,7 @@ export type ConfigEntryView = {
   input?: string
   /** The output directory as the entry gives it, relative to the project root unless absolute. */
   output: string
-  /** The other root `output` options as a JSON copy, without the `postGenerate` commands. */
+  /** The root `output` members Studio may set, as a JSON copy. */
   outputOptions?: object
   /**
    * The output directory's current file list, readable through `readFiles` without generating.

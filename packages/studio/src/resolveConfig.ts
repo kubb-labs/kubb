@@ -456,20 +456,25 @@ const OUTPUT_VALUES: Record<string, (value: unknown) => boolean> = {
   defaultBanner: (value) => value === false || value === 'simple' || value === 'full',
 }
 
-/** Whether Studio may set the root `output` member `key`, and to `value` when given. */
-export function isOutputValue(key: string, ...value: [unknown?]): boolean {
-  return Object.hasOwn(OUTPUT_VALUES, key) && (value.length === 0 || OUTPUT_VALUES[key]!(value[0]))
+/** Whether Studio may set the root `output` member `key`. */
+export function isOutputKey(key: string): boolean {
+  return Object.hasOwn(OUTPUT_VALUES, key)
+}
+
+/** Whether Studio may set the root `output` member `key` to `value`. */
+export function isOutputValue(key: string, value: unknown): boolean {
+  return isOutputKey(key) && OUTPUT_VALUES[key]!(value)
 }
 
 /** The members of `output` Studio may see and set. */
 export function pickOutput<T>(output: Record<string, T>): Record<string, T> {
-  return Object.fromEntries(Object.entries(output).filter(([key]) => isOutputValue(key)))
+  return Object.fromEntries(Object.entries(output).filter(([key]) => isOutputKey(key)))
 }
 
 /** Merges Studio's valid `output` overrides, with `null` unsetting a member. */
 export function mergeOutput(output: Config['output'], studio: unknown): Config['output'] {
   if (!isPlainObject(studio)) return output
-  const overrides = Object.fromEntries(Object.entries(studio).filter(([key, value]) => (value === null ? isOutputValue(key) : isOutputValue(key, value))))
+  const overrides = Object.fromEntries(Object.entries(studio).filter(([key, value]) => (value === null ? isOutputKey(key) : isOutputValue(key, value))))
   return mergeOptions(output, overrides) as Config['output']
 }
 

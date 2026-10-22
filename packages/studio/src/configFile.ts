@@ -14,7 +14,7 @@ import {
   type OptionValue,
   type PluginView,
 } from './protocol.ts'
-import { isAllowedPlugin, isOptionValue, isOutputValue, isSafeKey, pickOutput, toExportName } from './resolveConfig.ts'
+import { isAllowedPlugin, isOptionValue, isOutputKey, isOutputValue, isSafeKey, pickOutput, toExportName } from './resolveConfig.ts'
 
 /**
  * A valid JavaScript identifier, so an import name can only ever print as `import { name } from`,
@@ -63,7 +63,7 @@ function invalidEdit(edit: ConfigEdit): string | undefined {
     if (!path.length) return 'no option path given'
     const unsafe = path.find((key: string) => !isSafeKey(key))
     if (unsafe !== undefined) return `${unsafe} cannot be used as an option name`
-    if (isOutput && !isOutputValue(path[0])) return `output.${path[0]} can only be changed in the config file`
+    if (isOutput && !isOutputKey(path[0])) return `output.${path[0]} can only be changed in the config file`
   }
   return undefined
 }
