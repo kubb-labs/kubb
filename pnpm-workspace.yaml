@@ -13,6 +13,7 @@ catalog:
   "@typescript/typescript6": ^6.0.2
   "@vitest/coverage-v8": ^5.0.5
   "@vitest/ui": ^5.0.5
+  js-yaml: ^5.4.3
   oxfmt: ^0.72.0
   oxlint: ^1.88.0
   "tinyexec": ^1.3.1

@@ -3,11 +3,17 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
+import * as yaml from 'yaml'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import { assertDocument, bundleDocument, hasExternalRef, parseFromConfig, validateDocument } from './normalize.ts'
 import type { Document } from '../types.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+vi.mock('yaml', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('yaml')>()
+  return { ...actual, parse: vi.fn(actual.parse) }
+})
 
 const petSchema: Document = {
   openapi: '3.0.3',
@@ -42,6 +48,36 @@ components:
     const doc = await parseFromConfig({ type: 'data', data })
 
     expect(doc.components?.schemas?.['Pet']).toBeDefined()
+  })
+
+  it('parses inline JSON and YAML without the slower `yaml` parser', async () => {
+    const parse = vi.mocked(yaml.parse)
+    parse.mockClear()
+
+    await parseFromConfig({ type: 'data', data: JSON.stringify(petSchema) })
+    const doc = await parseFromConfig({ type: 'data', data: 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths: {}\n' })
+
+    expect(doc.info.title).toBe('Pets API')
+    expect(parse).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['inline JSON', '{"openapi":"3.0.3","info":{"title":"Pets API","version":"1"},"paths":{"/pets":{},"/pets":{}}}'],
+    ['inline YAML', 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths:\n  /pets: {}\n  /pets: {}\n'],
+  ])('rejects duplicate keys in %s instead of keeping the last one', async (_kind, data) => {
+    const error = await parseFromConfig({ type: 'data', data }).catch((caught: unknown) => caught)
+
+    expect(Diagnostics.from(error).code).toBe(Diagnostics.code.invalidDocument)
+  })
+
+  it('keeps timestamps as strings and `<<` as a plain key, like YAML 1.2', async () => {
+    const doc = await parseFromConfig({
+      type: 'data',
+      data: 'openapi: 3.0.3\ninfo: { title: Pets API, version: 2024-01-01 }\npaths: {}\nx-merge:\n  <<: { a: 1 }\n',
+    })
+
+    expect(doc.info.version).toBe('2024-01-01')
+    expect((doc as Record<string, unknown>)['x-merge']).toStrictEqual({ '<<': { a: 1 } })
   })
 
   it('up-converts a Swagger 2.0 document to OpenAPI 3', async () => {

@@ -176,6 +176,9 @@ catalogs:
     '@vitest/ui':
       specifier: ^5.0.5
       version: 5.0.5
+    js-yaml:
+      specifier: ^5.4.3
+      version: 5.4.3
     oxfmt:
       specifier: ^0.72.0
       version: 0.72.0
@@ -277,6 +280,9 @@ importers:
       api-ref-bundler:
         specifier: 0.5.1
         version: 0.5.1
+      js-yaml:
+        specifier: 'catalog:'
+        version: 5.4.3
       yaml:
         specifier: 'catalog:'
         version: 2.9.1
