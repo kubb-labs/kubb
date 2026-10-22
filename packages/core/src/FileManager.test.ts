@@ -435,6 +435,33 @@ describe('FileManager#dispatch', () => {
     expect(dispatched.files).toStrictEqual(upserted.files)
   })
 
+  it('drops an import used only by a duplicate source the file does not keep', () => {
+    const fragment = (name: string, value: string, imports: Array<{ name: Array<string>; path: string }>) =>
+      ast.factory.createFile({
+        path: 'index.ts',
+        baseName: 'index.ts',
+        sources: [ast.factory.createSource({ name, nodes: [ast.factory.createText(value)] })],
+        imports: imports.map((item) => ast.factory.createImport(item)),
+        exports: [],
+      })
+    const fragments = [
+      fragment('Pet', 'type Pet = A', [{ name: ['A'], path: './a.ts' }]),
+      fragment('Pet', 'type Pet = B', [{ name: ['B'], path: './b.ts' }]),
+      fragment('Order', 'type Order = string', []),
+    ]
+    const dispatched = new FileManager()
+    const upserted = new FileManager()
+
+    for (const item of fragments) {
+      dispatched.dispatch({ result: [item] })
+      upserted.upsert(item)
+    }
+
+    for (const manager of [dispatched, upserted]) {
+      expect(manager.files[0]?.imports.map((item) => item.path)).toStrictEqual(['./a.ts'])
+    }
+  })
+
   it('merges pending fragments before a later upsert of the same file', () => {
     const fileManager = new FileManager()
 
