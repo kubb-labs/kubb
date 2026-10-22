@@ -1,5 +1,5 @@
 ---
-'@kubb/studio': minor
+'@kubb/studio': patch
 ---
 
 Studio can read and edit the root `output` options of a config entry: `barrel`, `format`, `lint`, `clean`, and `defaultBanner`. The agent checks each value against the type the option takes.
