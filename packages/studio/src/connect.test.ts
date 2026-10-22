@@ -346,7 +346,7 @@ describe('a sandbox job', () => {
   ])('refuses %s before it fetches anything', async (_label, input) => {
     const { agent } = await connectStudio({ connectInfo: { ...info, managed: true } })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(/https only|not a public address/)
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(/https repository URL|not a public address/)
   })
 
   it('limits the fetch of a managed agent to public addresses, and only while it generates', async () => {

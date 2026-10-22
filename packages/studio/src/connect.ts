@@ -7,6 +7,7 @@ import { getErrorMessage, mkdtemp, read, rm, toError } from '@internals/utils'
 import {
   Diagnostics,
   cacheStorage,
+  checkoutGitInput,
   type Config,
   fsStorage,
   getInputKind,
@@ -55,7 +56,7 @@ import {
   type SaveResult,
   type StudioApi,
 } from './protocol.ts'
-import { assertPublicGitInput, withPublicFetch } from './publicFetch.ts'
+import { withPublicFetch } from './publicFetch.ts'
 import { assertOutputPaths, mergeAdapter, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
@@ -454,9 +455,6 @@ class Agent extends RpcTarget implements AgentApi {
     if (this.#managed && studioInput !== undefined && !MANAGED_INPUT_KINDS.has(getInputKind(studioInput))) {
       return this.#refuse({ message: AgentMessage.MANAGED_INPUT_KIND })
     }
-    if (this.#managed && studioInput !== undefined && getInputKind(studioInput) === 'git') {
-      await assertPublicGitInput(studioInput).catch((error: unknown) => this.#refuse({ message: getErrorMessage(error) }))
-    }
 
     const [configs, extensions] = await Promise.all([this.#options.loadConfigs(), this.#installedExtensions()])
     const config = pickConfig(configs, patch?.config)
@@ -483,12 +481,17 @@ class Agent extends RpcTarget implements AgentApi {
       })
     }
 
+    // A managed agent checks a git input out itself, so the fetch stays on public addresses and follows no redirect.
+    const checkout =
+      this.#managed && studioInput !== undefined && getInputKind(studioInput) === 'git'
+        ? await checkoutGitInput(studioInput, signal, { publicOnly: true }).catch((error: unknown) => this.#refuse({ message: getErrorMessage(error) }))
+        : undefined
     const run = () =>
       generate({
         config: {
           ...config,
           root,
-          input: studioInput ?? config.input,
+          input: checkout?.path ?? studioInput ?? config.input,
           storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
           plugins: activePlugins,
           adapter,
@@ -499,11 +502,13 @@ class Agent extends RpcTarget implements AgentApi {
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
       })
     // The adapter fetches the URL and every `$ref` in it, so a managed agent limits the fetch itself to public addresses.
-    const files = await (this.#managed ? withPublicFetch(run) : run()).catch(async (error: unknown) => {
-      await this.#generations.drop(jobId)
-      await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
-      throw error
-    })
+    const files = await (this.#managed ? withPublicFetch(run) : run())
+      .catch(async (error: unknown) => {
+        await this.#generations.drop(jobId)
+        await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
+        throw error
+      })
+      .finally(() => checkout?.dispose())
 
     const output = await this.#generations.keep({ jobId, files, maxSetMb: this.#limits.maxMb })
     // Only `readInput` reads it, which needs `allowReadAst`.
