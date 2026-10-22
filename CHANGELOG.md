@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.12.1 — Oct 22, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- `checkoutGitInput` takes a `publicOnly` option. It accepts an https repository on public addresses only, connects to the addresses it checked, and refuses a redirect. Core also exports `isPublicAddress`. ([#4381](https://github.com/kubb-labs/kubb/pull/4381), [`4e0311b`](https://github.com/kubb-labs/kubb/commit/4e0311bec1b2c379f43a6a6280498741d0dc46dc))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- A managed agent now generates from a spec that Studio sends: the document itself, a URL, or a `git+<repo>#<ref>:<path>` file. It fetches a URL and a git repository from public addresses only, and it refuses a file path. A sandbox still takes the document only. ([#4379](https://github.com/kubb-labs/kubb/pull/4379), [`fdb25b8`](https://github.com/kubb-labs/kubb/commit/fdb25b831fbf307adb67ab7ef4080e049677c0d4))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.12.0 — Oct 21, 2026
 
 ### @kubb/cli
