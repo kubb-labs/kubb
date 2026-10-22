@@ -39,6 +39,7 @@ import {
   type AgentConnectInfo,
   type AgentPermissions,
   type ConfigEdit,
+  ConfigEditOperation,
   type ConfigEntryView,
   type ConfigFileView,
   type ConfigRef,
@@ -656,7 +657,7 @@ class Agent extends RpcTarget implements AgentApi {
    */
   async #keepInput(edit: ConfigEdit): Promise<KeptEdit> {
     // A blank input goes on unchanged, so the config writer refuses it before any file is written.
-    if (edit?.operation !== 'set-input' || typeof edit.input !== 'string' || !edit.input.trim()) return edit
+    if (edit?.operation !== ConfigEditOperation.SET_INPUT || typeof edit.input !== 'string' || !edit.input.trim()) return edit
     if (!this.#permissions.allowSaveInput) {
       await this.#warn({ message: 'Ignored the spec to save: saving the input was not granted', permission: AgentPermission.SAVE_INPUT })
       return { reason: 'the agent was not granted permission to save the input' }
