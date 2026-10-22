@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { Diagnostics } from './Diagnostics.ts'
-import { checkoutGitInput, parseGitInput } from './gitInput.ts'
+import { checkoutGitInput, parseGitInput, publicFetchConfig } from './gitInput.ts'
 
 describe('parseGitInput', () => {
   it.each([
@@ -86,5 +86,37 @@ describe('checkoutGitInput', () => {
 
   it('rejects a path that leaves the repository', async () => {
     await expect(checkoutGitInput(`git+${repo}#v1:../outside.yaml`)).rejects.toMatchObject({ diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' } })
+  })
+})
+
+describe('publicFetchConfig', () => {
+  it('pins a host name to the addresses that were checked, and refuses redirects and other transports', () => {
+    expect(publicFetchConfig({ host: 'git.example.com', port: '443', addresses: ['93.184.216.34', '2606:4700:4700::1111'] })).toStrictEqual([
+      '-c',
+      'http.followRedirects=false',
+      '-c',
+      'protocol.allow=never',
+      '-c',
+      'protocol.https.allow=always',
+      '-c',
+      'http.curloptResolve=git.example.com:443:93.184.216.34,[2606:4700:4700::1111]',
+    ])
+  })
+
+  it('leaves an IP literal unpinned, since git does not look it up', () => {
+    expect(publicFetchConfig({ host: '93.184.216.34', port: '8443', addresses: ['93.184.216.34'] }).join(' ')).not.toContain('curloptResolve')
+  })
+})
+
+describe('checkoutGitInput with publicOnly', () => {
+  it.each([
+    ['plain http', 'git+http://93.184.216.34/api.git#main:openapi.yaml'],
+    ['an scp style address', 'git+git@github.com:org/api.git#main:openapi.yaml'],
+    ['a local path', 'git+file:///srv/api.git#main:openapi.yaml'],
+    ['a private address', 'git+https://10.0.0.5/api.git#main:openapi.yaml'],
+    ['the metadata address', 'git+https://169.254.169.254/api.git#main:openapi.yaml'],
+    ['a name that resolves to loopback', 'git+https://localhost/api.git#main:openapi.yaml'],
+  ])('refuses %s before it fetches anything', async (_label, input) => {
+    await expect(checkoutGitInput(input, undefined, { publicOnly: true })).rejects.toMatchObject({ diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' } })
   })
 })

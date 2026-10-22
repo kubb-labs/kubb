@@ -1,10 +1,13 @@
+import dns from 'node:dns'
 import { mkdtemp, rm } from 'node:fs/promises'
+import net from 'node:net'
 import { tmpdir } from 'node:os'
 import { isAbsolute, join, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { getErrorMessage, toError } from '@internals/utils'
 import { x } from 'tinyexec'
 import { Diagnostics } from './Diagnostics.ts'
+import { isPublicAddress } from './publicAddress.ts'
 
 /**
  * A git `input` split into its parts: `git+<repo>#<ref>:<path>`, where `<ref>:` is optional.
@@ -61,12 +64,53 @@ export function parseGitInput(input: string): GitInput {
 }
 
 /**
+ * The `git -c` settings that confine a fetch to https and to `addresses`: the connection goes to
+ * the addresses already checked, whatever the host answers to a second lookup, and a redirect to
+ * another host is an error. Needs git 2.37 for the pinning.
+ *
+ * @internal
+ */
+export function publicFetchConfig({ host, port, addresses }: { host: string; port: string; addresses: Array<string> }): Array<string> {
+  const pinned = addresses.map((address) => (net.isIPv6(address) ? `[${address}]` : address)).join(',')
+  const config = ['http.followRedirects=false', 'protocol.allow=never', 'protocol.https.allow=always']
+  // An IP literal needs no pinning, since git does not look it up.
+  if (!net.isIP(host)) config.push(`http.curloptResolve=${host}:${port}:${pinned}`)
+  return config.flatMap((setting) => ['-c', setting])
+}
+
+async function resolvePublicFetchConfig(repo: string, signal?: AbortSignal): Promise<Array<string>> {
+  if (!URL.canParse(repo) || new URL(repo).protocol !== 'https:') {
+    throw gitError('A public git `input` must be an https repository URL, not an ssh, git, or file address.')
+  }
+  const url = new URL(repo)
+  const host = url.hostname.replace(/^\[|\]$/g, '')
+  const addresses = net.isIP(host) ? [host] : (await dns.promises.lookup(host, { all: true })).map(({ address }) => address)
+  if (!addresses.length || addresses.some((address) => !isPublicAddress(address))) {
+    throw gitError(`${host} is not a public address, so this git \`input\` is not fetched.`)
+  }
+  if (!net.isIP(host)) {
+    const { stdout } = await x('git', ['--version'], { nodeOptions: { signal }, throwOnError: true })
+    const [, major = 0, minor = 0] = /(\d+)\.(\d+)/.exec(stdout)?.map(Number) ?? []
+    if (major < 2 || (major === 2 && minor < 37)) throw gitError(`Fetching a public git \`input\` needs git 2.37 or newer, found ${stdout.trim()}.`)
+  }
+  return publicFetchConfig({ host, port: url.port || '443', addresses })
+}
+
+/**
  * Fetches one commit of a git repository into a temporary directory with a shallow `git fetch`,
  * so any host and the user's own git credentials work, and relative `$ref` files resolve.
  * Resolves to the spec path on disk and a `dispose` that deletes the checkout.
+ *
+ * With `publicOnly`, the repository must be an https URL on public addresses, the fetch connects to
+ * the addresses checked, and it does not follow a redirect.
  */
-export async function checkoutGitInput(input: string, signal?: AbortSignal): Promise<{ path: string; dispose: () => Promise<void> }> {
+export async function checkoutGitInput(
+  input: string,
+  signal?: AbortSignal,
+  { publicOnly = false }: { publicOnly?: boolean } = {},
+): Promise<{ path: string; dispose: () => Promise<void> }> {
   const { repo, ref, path } = parseGitInput(input)
+  const fetchConfig = publicOnly ? await resolvePublicFetchConfig(repo, signal) : []
   const dir = await mkdtemp(join(tmpdir(), 'kubb-git-'))
   const dispose = () => rm(dir, { recursive: true, force: true })
   const specPath = resolve(dir, path)
@@ -85,7 +129,7 @@ export async function checkoutGitInput(input: string, signal?: AbortSignal): Pro
     ['init', '--quiet'],
     // Symlinks become plain files, so a link in the repo cannot point the adapter at a file outside it.
     ['config', 'core.symlinks', 'false'],
-    ['fetch', '--quiet', '--depth', '1', '--end-of-options', repo, ref ?? 'HEAD'],
+    [...fetchConfig, 'fetch', '--quiet', '--depth', '1', '--end-of-options', repo, ref ?? 'HEAD'],
     ['checkout', '--quiet', 'FETCH_HEAD'],
   ]
 
