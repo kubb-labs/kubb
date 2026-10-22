@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.12.2 — Oct 22, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Studio can install and update registry extensions through the agent, behind the new `--allow-install` and `--allow-update` permissions. `kubb add` exits with code 1 when it cannot write the plugin into `kubb.config.ts`, and `kubb update --yes` installs a major when you name it. ([#4382](https://github.com/kubb-labs/kubb/pull/4382), [`2dc1d18`](https://github.com/kubb-labs/kubb/commit/2dc1d18d2c4efab16e6a53fedd15e085046abc39))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.12.1 — Oct 22, 2026
 
 ### @kubb/core
