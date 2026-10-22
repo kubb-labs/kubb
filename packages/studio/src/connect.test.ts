@@ -438,11 +438,21 @@ describe('installExtension', () => {
     const edit: ConfigEdit = { operation: 'disable-plugin', config: 0, plugin: '@kubb/plugin-ts' }
     await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({ outcomes: [{ applied: false, reason: 'an install is in progress' }] })
     await expect(agent.installExtension({ id: 'plugin-msw' })).resolves.toMatchObject({ installed: false, reason: 'an install is in progress' })
+    await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow(AgentMessage.INSTALL_IN_PROGRESS)
 
     socket.close(1006)
     await vi.waitFor(() => expect(signal.aborted).toBe(true))
     callback(new Error('aborted'), '', '')
     await expect(install).resolves.toMatchObject({ installed: false })
+  })
+
+  it('lets the next command through once a failed install has settled', async () => {
+    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    exec(new Error('exit 1'), 'npm ERR! network')
+    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ installed: false, reason: 'npm ERR! network' })
+
+    exec(null, 'added 1 package')
+    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: true })
   })
 
   it('refuses without allowInstall, naming the permission, and runs nothing', async () => {
