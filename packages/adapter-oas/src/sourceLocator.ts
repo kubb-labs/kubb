@@ -4,7 +4,7 @@ import * as yaml from 'yaml'
 type Range = ReturnType<NonNullable<Adapter['locate']>>
 
 // Diagnostics of one run share a source, so the parsed document is kept for the next call.
-const cache = new Map<string, yaml.Document>()
+let cached: { source: string; document: yaml.Document } | undefined
 
 const toRange = ([start, end]: yaml.Range): Range => ({ start, end })
 
@@ -47,10 +47,13 @@ function findRefUsage(document: yaml.Document, ref: string): Range {
  */
 export const locate: NonNullable<Adapter['locate']> = (source, location) => {
   if (!('pointer' in location)) return undefined
-  if (!cache.has(source)) {
-    cache.clear()
-    cache.set(source, yaml.parseDocument(source))
+  if (cached?.source === source) {
+    // An equal but distinct string costs a full comparison on every check. Keeping the caller's
+    // string turns the next checks into identity hits.
+    cached.source = source
+  } else {
+    cached = { source, document: yaml.parseDocument(source) }
   }
-  const document = cache.get(source)!
+  const { document } = cached
   return findPointer(document, location.pointer) ?? ('ref' in location && location.ref ? findRefUsage(document, location.ref) : undefined)
 }
