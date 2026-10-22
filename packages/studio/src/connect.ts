@@ -654,7 +654,7 @@ class Agent extends RpcTarget implements AgentApi {
     if (kind !== 'inline') return edit
 
     // shortcut: every config entry shares this one file, split it per entry once a managed agent has several.
-    const fileName = edit.input.trimStart().startsWith('{') ? 'openapi.json' : 'openapi.yaml'
+    const fileName = isJson(edit.input) ? 'openapi.json' : 'openapi.yaml'
     await writeFile(path.join(this.#options.root, fileName), edit.input, 'utf-8')
     return { ...edit, input: `./${fileName}`, wroteDocument: true }
   }
@@ -900,6 +900,16 @@ function pickConfig(configs: Array<Config>, ref: ConfigRef | undefined): Config 
   if (typeof ref === 'string') return configs.find((config) => config.name === ref)
   if (ref !== undefined && !Number.isSafeInteger(ref)) return undefined
   return configs[ref ?? 0]
+}
+
+/** Whether `text` parses as JSON, so a pasted document is saved under the matching extension. */
+function isJson(text: string): boolean {
+  try {
+    JSON.parse(text)
+    return true
+  } catch {
+    return false
+  }
 }
 
 /** The input path or URL Studio may show: no inline document, and no credentials from a URL. */

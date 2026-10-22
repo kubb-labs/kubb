@@ -869,6 +869,20 @@ describe('saveConfig', () => {
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.yaml',`)
   })
 
+  it('keeps a pasted JSON spec in openapi.json', async () => {
+    const project = await projectWithConfig()
+    const { agent } = await connectStudio({
+      root: project,
+      permissions: { allowConfigEdit: true, allowSaveInput: true },
+      connectInfo: { ...info, managed: true },
+    })
+
+    await agent.saveConfig({ edits: [{ operation: 'set-input', input: '{"openapi":"3.1.0"}' }] })
+
+    expect(await read(join(project, 'openapi.json'))).toBe('{"openapi":"3.1.0"}')
+    expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.json',`)
+  })
+
   it('refuses a blank spec without writing a file', async () => {
     const project = await projectWithConfig()
     const { agent } = await connectStudio({
