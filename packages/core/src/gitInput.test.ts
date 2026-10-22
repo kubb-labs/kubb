@@ -113,8 +113,9 @@ describe('gitConfigEnv', () => {
       GIT_CONFIG_VALUE_2: 'Authorization: Basic abc',
       GIT_CONFIG_KEY_3: 'http.https://github.com/.extraheader',
       GIT_CONFIG_VALUE_3: 'X-Other: no',
-      GIT_CONFIG_GLOBAL: '/dev/null',
-      GIT_CONFIG_NOSYSTEM: '1',
+      // A file git would read: it could carry the same helper or rewrite.
+      GIT_CONFIG_GLOBAL: '/tmp/evil-gitconfig',
+      GIT_CONFIG_NOSYSTEM: '0',
     }
 
     expect(gitConfigEnv(env, { repo: 'https://github.com/org/api.git' })).toStrictEqual({
