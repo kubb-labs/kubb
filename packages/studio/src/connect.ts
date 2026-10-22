@@ -207,6 +207,7 @@ type Session = {
   closed: boolean
   active?: { jobId: string; abort: () => void; settled: Promise<void> }
   install?: { abort: () => void; settled: Promise<void> }
+  saving?: boolean
 }
 
 const INSTALL_TIMEOUT_MS = 5 * 60_000
@@ -225,14 +226,19 @@ function findKubbBin(root: string): string | undefined {
 
 /** Runs `kubb add` without a shell, and keeps the end of its output for the failure reason. */
 async function runKubbAdd({ bin, args, cwd, signal }: { bin: string; args: Array<string>; cwd: string; signal: AbortSignal }) {
-  const { stdout, stderr, exitCode } = await x(process.execPath, [bin, 'add', ...args], {
-    signal,
-    timeout: INSTALL_TIMEOUT_MS,
-    throwOnError: false,
-    nodeOptions: { cwd, env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' } },
-  })
-  const output = `${stdout}\n${stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
-  return { failed: exitCode !== 0, output: output || `kubb add exited with ${exitCode ?? 'a signal'}` }
+  try {
+    const { stdout, stderr, exitCode } = await x(process.execPath, [bin, 'add', ...args], {
+      signal,
+      timeout: INSTALL_TIMEOUT_MS,
+      throwOnError: false,
+      nodeOptions: { cwd, env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' } },
+    })
+    const output = `${stdout}\n${stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
+    return { failed: exitCode !== 0, output: output || `kubb add exited with ${exitCode ?? 'a signal'}` }
+  } catch (error) {
+    // tinyexec still throws when the timeout hits or the process cannot start.
+    return { failed: true, output: `kubb add did not run: ${getErrorMessage(error)}` }
+  }
 }
 
 // A throwing host listener must not break the connection.
@@ -588,6 +594,8 @@ class Agent extends RpcTarget implements AgentApi {
     if (this.#session.active) return refuse('a generation is in progress')
     if (this.#session.install) return refuse('an install is in progress')
 
+    // Keeps `kubb add` from rewriting the config while this save is still writing it.
+    this.#session.saving = true
     try {
       const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
       const applied = outcomes.filter((outcome) => outcome.applied).length
@@ -598,6 +606,8 @@ class Agent extends RpcTarget implements AgentApi {
       // Refuse every edit so Studio hears back instead of waiting.
       await emit(this.#options.hooks, 'studio:error', { error: toError(error) })
       return refuse(getErrorMessage(error))
+    } finally {
+      this.#session.saving = false
     }
   }
 
@@ -618,6 +628,7 @@ class Agent extends RpcTarget implements AgentApi {
     if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
     if (this.#session.active) return refuse('a generation is in progress')
     if (this.#session.install) return refuse('an install is in progress')
+    if (this.#session.saving) return refuse('a save is in progress')
     if (!kubbBin) return refuse('kubb is not installed in the project')
 
     // Holds off saves and generations until the child exits, and ends it when the socket closes.

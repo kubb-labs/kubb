@@ -445,6 +445,23 @@ describe('installExtension', () => {
     await expect(install).resolves.toStrictEqual({ installed: false, reason: 'kubb add exited with a signal' })
   })
 
+  it('reports a kubb add that could not run instead of throwing', async () => {
+    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    x.mockRejectedValueOnce(new Error('spawn ENOENT'))
+
+    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'kubb add did not run: spawn ENOENT' })
+  })
+
+  it('holds off an install while a save is still writing the config', async () => {
+    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    const edit: ConfigEdit = { operation: 'disable-plugin', config: 0, plugin: '@kubb/plugin-ts' }
+    const save = agent.saveConfig({ edits: [edit] })
+
+    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'a save is in progress' })
+    await expect(save).resolves.toMatchObject({ outcomes: [{ edit }] })
+    expect(x).not.toHaveBeenCalled()
+  })
+
   it('lets the next command through once a failed install has settled', async () => {
     const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     exec(1, 'npm ERR! network')
