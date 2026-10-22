@@ -60,6 +60,8 @@ import {
   type SaveConfigInput,
   type SaveResult,
   type StudioApi,
+  type UpdateExtensionsInput,
+  type UpdateExtensionsResult,
 } from './protocol.ts'
 import { withPublicFetch } from './publicFetch.ts'
 import { assertOutputPaths, mergeAdapter, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
@@ -121,7 +123,7 @@ declare global {
        */
       'studio:command': [
         ctx: {
-          command: 'generate' | 'saveConfig' | 'installExtension' | 'readFiles' | 'readInput' | 'readDiff'
+          command: 'generate' | 'saveConfig' | 'installExtension' | 'updateExtensions' | 'readFiles' | 'readInput' | 'readDiff'
           info: string
           /**
            * The Studio user who asked for the command, when Studio names one.
@@ -224,20 +226,20 @@ function findKubbBin(root: string): string | undefined {
   return (require.resolve.paths('kubb') ?? []).flatMap((dir) => names.map((name) => path.join(dir, name, 'bin', 'kubb.js'))).find((bin) => existsSync(bin))
 }
 
-/** Runs `kubb add` without a shell, and keeps the end of its output for the failure reason. */
-async function runKubbAdd({ bin, args, cwd, signal }: { bin: string; args: Array<string>; cwd: string; signal: AbortSignal }) {
+/** Runs a `kubb` command without a shell, and keeps the end of its output for the failure reason. */
+async function runKubb({ bin, args, cwd, signal }: { bin: string; args: Array<string>; cwd: string; signal: AbortSignal }) {
   try {
-    const { stdout, stderr, exitCode } = await x(process.execPath, [bin, 'add', ...args], {
+    const { stdout, stderr, exitCode } = await x(process.execPath, [bin, ...args], {
       signal,
       timeout: INSTALL_TIMEOUT_MS,
       throwOnError: false,
       nodeOptions: { cwd, env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' } },
     })
     const output = `${stdout}\n${stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
-    return { failed: exitCode !== 0, output: output || `kubb add exited with ${exitCode ?? 'a signal'}` }
+    return { failed: exitCode !== 0, output: output || `kubb ${args[0]} exited with ${exitCode ?? 'a signal'}` }
   } catch (error) {
     // tinyexec still throws when the timeout hits or the process cannot start.
-    return { failed: true, output: `kubb add did not run: ${getErrorMessage(error)}` }
+    return { failed: true, output: `kubb ${args[0]} did not run: ${getErrorMessage(error)}` }
   }
 }
 
@@ -592,9 +594,8 @@ class Agent extends RpcTarget implements AgentApi {
     }
 
     // A running generation reloads the config, so it would see half the change.
-    if (this.#session.active) return refuse('a generation is in progress')
-    if (this.#session.install) return refuse('an install is in progress')
-    if (this.#session.saving) return refuse('a save is in progress')
+    const busy = this.#busy()
+    if (busy) return refuse(busy)
 
     // Keeps `kubb add` from rewriting the config while this save is still writing it.
     this.#session.saving = true
@@ -628,19 +629,54 @@ class Agent extends RpcTarget implements AgentApi {
     if (typeof input?.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
     if (!this.#permissions.allowInstall) return refuse('installing extensions was not granted', AgentPermission.INSTALL)
     if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
-    if (this.#session.active) return refuse('a generation is in progress')
-    if (this.#session.install) return refuse('an install is in progress')
-    if (this.#session.saving) return refuse('a save is in progress')
+    const busy = this.#busy()
+    if (busy) return refuse(busy)
     if (!kubbBin) return refuse('kubb is not installed in the project')
 
-    // Holds off saves and generations until the child exits, and ends it when the socket closes.
+    const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['add', input.id, '--yes', '--config', configFile] })
+    await this.#logCommand('installExtension', `${failed ? 'failed to install' : 'installed'} ${input.id}`, input.requestedBy, failed)
+    return failed ? { installed: false, reason: output } : { installed: true }
+  }
+
+  /**
+   * Moves installed extensions to the registry's version with `kubb update [ids] --yes`, which
+   * installs packages and leaves `kubb.config.ts` alone. Studio calls `connect()` again afterwards.
+   */
+  async updateExtensions(input: UpdateExtensionsInput): Promise<UpdateExtensionsResult> {
+    this.#assertConnected()
+    const { root, kubbBin = findKubbBin(root) } = this.#options
+    const refuse = async (reason: string, permission?: AgentPermission): Promise<UpdateExtensionsResult> => {
+      await this.#warn({ message: `Ignored update: ${reason}`, permission })
+      return { updated: false, reason }
+    }
+
+    const ids = input?.ids ?? []
+    if (!Array.isArray(ids) || !ids.every((id) => typeof id === 'string' && REGISTRY_ID.test(id))) return refuse('the message carried an invalid registry id')
+    if (!this.#permissions.allowInstall) return refuse('installing extensions was not granted', AgentPermission.INSTALL)
+    const busy = this.#busy()
+    if (busy) return refuse(busy)
+    if (!kubbBin) return refuse('kubb is not installed in the project')
+
+    const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['update', ...ids, '--yes'] })
+    await this.#logCommand('updateExtensions', `${failed ? 'failed to update' : 'updated'} ${ids.join(', ') || 'all extensions'}`, input.requestedBy, failed)
+    return failed ? { updated: false, reason: output } : { updated: true }
+  }
+
+  /** Why a command that touches the project cannot start right now. */
+  #busy(): string | undefined {
+    if (this.#session.active) return 'a generation is in progress'
+    if (this.#session.install) return 'an install is in progress'
+    if (this.#session.saving) return 'a save is in progress'
+    return undefined
+  }
+
+  /** Runs `kubb` in the project while holding off saves and generations, and ends it when the socket closes. */
+  async #runKubb({ bin, args }: { bin: string; args: Array<string> }) {
     const controller = new AbortController()
     const settled = Promise.withResolvers<void>()
     this.#session.install = { abort: () => controller.abort(), settled: settled.promise }
     try {
-      const { failed, output } = await runKubbAdd({ bin: kubbBin, args: [input.id, '--yes', '--config', configFile], cwd: root, signal: controller.signal })
-      await this.#logCommand('installExtension', `${failed ? 'failed to install' : 'installed'} ${input.id}`, input.requestedBy, failed)
-      return failed ? { installed: false, reason: output } : { installed: true }
+      return await runKubb({ bin, args, cwd: this.#options.root, signal: controller.signal })
     } finally {
       this.#session.install = undefined
       settled.resolve()

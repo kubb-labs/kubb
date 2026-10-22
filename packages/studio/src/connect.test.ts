@@ -437,12 +437,48 @@ describe('installExtension', () => {
     const edit: ConfigEdit = { operation: 'disable-plugin', config: 0, plugin: '@kubb/plugin-ts' }
     await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({ outcomes: [{ applied: false, reason: 'an install is in progress' }] })
     await expect(agent.installExtension({ id: 'plugin-msw' })).resolves.toMatchObject({ installed: false, reason: 'an install is in progress' })
+    await expect(agent.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'an install is in progress' })
     await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow(AgentMessage.INSTALL_IN_PROGRESS)
 
     socket.close(1006)
     await vi.waitFor(() => expect(signal.aborted).toBe(true))
     child.resolve({ stdout: '', stderr: '', exitCode: undefined })
     await expect(install).resolves.toStrictEqual({ installed: false, reason: 'kubb add exited with a signal' })
+  })
+
+  it('runs kubb update with the ids and --yes, and reports the command', async () => {
+    const { hooks, heard } = withHooks()
+    const command = heard('studio:command')
+    const { agent } = await connectStudio({ hooks, permissions: granted, kubbBin: '/bin/kubb.js' })
+    exec(0, 'Update complete')
+
+    await expect(agent.updateExtensions({ ids: ['plugin-zod'], requestedBy: 'Ada' })).resolves.toStrictEqual({ updated: true })
+    expect(x).toHaveBeenCalledWith(
+      process.execPath,
+      ['/bin/kubb.js', 'update', 'plugin-zod', '--yes'],
+      expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: root }) }),
+    )
+    expect(command).toHaveBeenCalledWith(expect.objectContaining({ command: 'updateExtensions', info: 'updated plugin-zod', requestedBy: 'Ada' }))
+  })
+
+  it('updates every extension without ids, and hands back the output when kubb update fails', async () => {
+    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    exec(1, 'npm ERR! network')
+
+    await expect(agent.updateExtensions({})).resolves.toStrictEqual({ updated: false, reason: 'npm ERR! network' })
+    expect(x).toHaveBeenCalledWith(process.execPath, ['/bin/kubb.js', 'update', '--yes'], expect.anything())
+  })
+
+  it('refuses an update without allowInstall or with an id that is not a registry id', async () => {
+    const { agent } = await connectStudio({ permissions: { ...granted, allowInstall: false }, kubbBin: '/bin/kubb.js' })
+    await expect(agent.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'installing extensions was not granted' })
+
+    const { agent: allowed } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    await expect(allowed.updateExtensions({ ids: ['--dry-run'] })).resolves.toMatchObject({
+      updated: false,
+      reason: 'the message carried an invalid registry id',
+    })
+    expect(x).not.toHaveBeenCalled()
   })
 
   it('reports a kubb add that could not run instead of throwing', async () => {

@@ -129,6 +129,12 @@ describe('kubb update', () => {
     expect(installPackages).toHaveBeenCalledWith([`github:acme/kubb-plugin-x#${commit}`], expect.objectContaining({ name: 'npm' }), cwd, expect.any(Function))
   })
 
+  it('installs a major with --yes when its id is named', async () => {
+    await run({ ids: ['acme/plugin-z'], dryRun: false, yes: true })
+
+    expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-z@2.0.0'], expect.anything(), cwd, expect.any(Function))
+  })
+
   it('only updates the ids it is given', async () => {
     await run({ ids: ['acme/plugin-y'], dryRun: false, yes: true })
 

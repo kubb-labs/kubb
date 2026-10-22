@@ -131,8 +131,8 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
       return
     }
 
-    // A major can break the generated code, so it is never picked for you.
-    const defaults = proposals.filter((entry) => !isMajor(entry))
+    // A major can break the generated code, so it is only picked for you when you named it.
+    const defaults = proposals.filter((entry) => wanted.has(entry.id) || !isMajor(entry))
     const chosen = yes
       ? defaults.map((entry) => entry.id)
       : await clack.multiselect({

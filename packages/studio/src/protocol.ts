@@ -346,6 +346,12 @@ export type InstallExtensionInput = { id: string; requestedBy?: string }
 /** `installed` is false when the agent refused or `kubb add` failed, with `reason` saying why. */
 export type InstallExtensionResult = { installed: boolean; reason?: string }
 
+/** Asks the agent to run `kubb update [ids] --yes`. Empty `ids` updates every installed extension the registry lists. */
+export type UpdateExtensionsInput = { ids?: Array<string>; requestedBy?: string }
+
+/** `updated` is false when the agent refused or `kubb update` failed, with `reason` saying why. */
+export type UpdateExtensionsResult = { updated: boolean; reason?: string }
+
 /**
  * Reads an immutable output set kept on disk, from a generation or the initial connection.
  */
@@ -484,6 +490,8 @@ export type AgentApi = {
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
   /** Refused without `allowInstall` and `allowConfigEdit`. An agent from before `installExtension` rejects the call. */
   installExtension: (input: InstallExtensionInput) => Promise<InstallExtensionResult>
+  /** Refused without `allowInstall`. Installs packages only, so `kubb.config.ts` stays as it is. */
+  updateExtensions: (input: UpdateExtensionsInput) => Promise<UpdateExtensionsResult>
   readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
   /**
    * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
