@@ -38,11 +38,7 @@ export type JSONKubbConfig = {
     name: string
     options?: object
   }>
-  /**
-   * Root `output` option overrides from Studio, merged over the entry's `output` like a plugin's
-   * options. `path` is always ignored, and `postGenerate` is ignored unless the agent was granted
-   * `allowExec`.
-   */
+  /** Root `output` overrides. `path` is ignored, and `postGenerate` too without `allowExec`. */
   output?: object
   /**
    * Which `defineConfig(...)` entry to generate from. Omitted runs the first one.
@@ -116,20 +112,12 @@ export type ConfigEdit =
    * Refused without `allowSaveInput`, and a managed agent takes only a document, a URL, or a `git+` file.
    */
   | { operation: typeof ConfigEditOperation.SET_INPUT; config?: ConfigRef; input: string }
-  /**
-   * Write a literal inside the config's root `output` object, such as `['barrel', 'type']` or
-   * `['format']`. `output.path` is refused, and `postGenerate` needs `allowExec` as well.
-   */
+  /** Write a literal inside the root `output` object. Refuses `path`; `postGenerate` needs `allowExec`. */
   | { operation: typeof ConfigEditOperation.SET_OUTPUT; config?: ConfigRef; path: Array<string>; value: unknown }
-  /**
-   * Drop a member of the config's root `output` object so its default applies. The same paths are refused as for `set-output`.
-   */
+  /** Drop a member of the root `output` object, refused for the same paths as `set-output`. */
   | { operation: typeof ConfigEditOperation.REMOVE_OUTPUT; config?: ConfigRef; path: Array<string> }
 
-/**
- * Top-level option keys of an object in the config file, each flagged with whether the agent may
- * write it. See {@link PluginView.options}.
- */
+/** The top-level keys of an object in the config file, as {@link PluginView.options} describes. */
 export type OptionsView = Record<string, { literal: boolean; value?: OptionValue; locked?: Array<Array<string>> }>
 
 /**
@@ -186,10 +174,7 @@ export type ConfigView = {
    * The parser calls in `parsers`, when the entry lists any through imported factories.
    */
   parsers?: Array<PluginView>
-  /**
-   * The members of the root `output` object, read like a plugin's options. Absent when `output` is
-   * not an object literal, so Studio cannot edit it.
-   */
+  /** The root `output` members. Absent when `output` is not an object literal. */
   output?: OptionsView
 }
 
@@ -654,7 +639,7 @@ export type ConfigEntryView = {
   input?: string
   /** The output directory as the entry gives it, relative to the project root unless absolute. */
   output: string
-  /** The rest of the entry's root `output` options as a JSON copy, such as `barrel`, `format`, `lint`, and `postGenerate`. */
+  /** The other root `output` options as a JSON copy. */
   outputOptions?: object
   /**
    * The output directory's current file list, readable through `readFiles` without generating.

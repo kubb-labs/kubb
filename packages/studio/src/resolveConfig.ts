@@ -447,16 +447,7 @@ async function rebuildExtension<T extends Adapter | Parser>({
   return factory(mergeOptions((disk.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)) as T
 }
 
-/**
- * Merges Studio's root `output` overrides into the entry's `output`. Studio never moves the output
- * folder, and its `postGenerate` commands apply only when the agent may run them.
- *
- * @example
- * ```ts
- * mergeOutput({ output: { path: './gen' }, studio: { path: '/etc', format: 'biome' }, allowExec: false })
- * // { path: './gen', format: 'biome' }
- * ```
- */
+/** Merges Studio's `output` overrides, keeping `path` and dropping `postGenerate` without `allowExec`. */
 export function mergeOutput({ output, studio, allowExec }: { output: Config['output']; studio: unknown; allowExec: boolean }): Config['output'] {
   if (!isPlainObject(studio)) return output
   const { path: _path, ...overrides } = studio
