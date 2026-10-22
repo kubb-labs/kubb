@@ -150,6 +150,10 @@ function createProgress(files: Array<FileNode>, config: Config, hooks: Hookable<
  */
 export class FileManager {
   readonly #cache = new Map<string, FileNode>()
+  // Paths whose cached entry is a raw merge that `createFile` has not normalized yet. Generator
+  // results land here so a plugin writing every schema into one file (`output.mode: 'file'`)
+  // normalizes that file once, not once per schema over everything merged so far.
+  readonly #pending = new Set<string>()
   // Cached sorted view, rebuilt lazily on the next `files` read. Nulled (not mutated) on every
   // write so callers holding a prior reference keep their snapshot, `dispose()` included.
   #sorted: Array<FileNode> | null = null
@@ -173,7 +177,7 @@ export class FileManager {
     if (!result) return
 
     if (Array.isArray(result)) {
-      this.upsert(...(result as Array<FileNode>))
+      this.#defer(result as Array<FileNode>)
       return
     }
 
@@ -182,10 +186,29 @@ export class FileManager {
     using instance = renderer()
     await instance.render(result)
 
-    this.upsert(...instance.files)
+    this.#defer(instance.files)
+  }
+
+  /** Upserts without normalizing: the raw merge waits in `#pending` until the file is read. */
+  #defer(files: ReadonlyArray<FileNode>): void {
+    for (const file of files) {
+      const existing = this.#cache.get(file.path)
+      this.#cache.set(file.path, existing ? mergeFile(existing, file) : file)
+      this.#pending.add(file.path)
+    }
+    if (files.length > 0) this.#sorted = null
+  }
+
+  /** Normalizes the pending raw merges, so every entry in `#cache` is a `createFile` result. */
+  #flush(): void {
+    for (const path of this.#pending) {
+      this.#cache.set(path, ast.factory.createFile(this.#cache.get(path)!))
+    }
+    this.#pending.clear()
   }
 
   #store(files: ReadonlyArray<FileNode>, mergeExisting: boolean): Array<FileNode> {
+    this.#flush()
     // Same-path files in one batch always merge; an existing file only on upsert.
     const batch = new Set<string>()
     const resolved = files.map((file) => {
@@ -204,6 +227,7 @@ export class FileManager {
    */
   dispose(): void {
     this.#cache.clear()
+    this.#pending.clear()
     this.#sorted = null
   }
 
@@ -212,6 +236,7 @@ export class FileManager {
    * last within a length bucket). Returns a cached view, do not mutate.
    */
   get files(): Array<FileNode> {
+    this.#flush()
     return (this.#sorted ??= [...this.#cache.values()].sort(compareFiles))
   }
 
