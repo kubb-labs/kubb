@@ -624,7 +624,7 @@ class Agent extends RpcTarget implements AgentApi {
       const outcomes = kept.map((edit, index) =>
         'reason' in edit ? { edit: edits[index]!, applied: false, reason: edit.reason } : { ...written.outcomes[next++]!, edit: edits[index]! },
       )
-      const changed = written.changed || kept.some((edit) => 'document' in edit)
+      const changed = written.changed || kept.some((edit) => 'wroteDocument' in edit)
       const applied = outcomes.filter((outcome) => outcome.applied).length
       await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`, input.requestedBy)
 
@@ -642,8 +642,9 @@ class Agent extends RpcTarget implements AgentApi {
    * Readies a `set-input` edit for the config file: a document goes to `openapi.yaml` (`openapi.json`
    * for JSON) in the project and `input` points there. A managed agent refuses a file path, as in a generation.
    */
-  async #keepInput(edit: ConfigEdit): Promise<(ConfigEdit & { document?: string }) | { reason: string }> {
-    if (edit?.operation !== 'set-input' || typeof edit.input !== 'string') return edit
+  async #keepInput(edit: ConfigEdit): Promise<(ConfigEdit & { wroteDocument?: true }) | { reason: string }> {
+    // A blank input goes on unchanged, so the config writer refuses it before any file is written.
+    if (edit?.operation !== 'set-input' || typeof edit.input !== 'string' || !edit.input.trim()) return edit
     if (!this.#permissions.allowSaveInput) {
       await this.#warn({ message: 'Ignored the spec to save: saving the input was not granted', permission: AgentPermission.SAVE_INPUT })
       return { reason: 'the agent was not granted permission to save the input' }
@@ -655,7 +656,7 @@ class Agent extends RpcTarget implements AgentApi {
     // shortcut: every config entry shares this one file, split it per entry once a managed agent has several.
     const fileName = edit.input.trimStart().startsWith('{') ? 'openapi.json' : 'openapi.yaml'
     await writeFile(path.join(this.#options.root, fileName), edit.input, 'utf-8')
-    return { ...edit, input: `./${fileName}`, document: fileName }
+    return { ...edit, input: `./${fileName}`, wroteDocument: true }
   }
 
   /**
