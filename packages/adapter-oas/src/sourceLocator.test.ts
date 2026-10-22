@@ -1,6 +1,12 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import * as yaml from 'yaml'
 import { escapePointerToken } from '@internals/utils'
 import { locate as locateIn } from './sourceLocator.ts'
+
+vi.mock('yaml', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('yaml')>()
+  return { ...actual, parseDocument: vi.fn(actual.parseDocument) }
+})
 
 const source = [
   'components:',
@@ -34,5 +40,21 @@ describe('OpenAPI source locations', () => {
     const token = escapePointerToken(name)
     const range = locateIn(json, { kind: 'schema', pointer: `#/properties/${token}` })!
     expect(json.slice(range.start, range.end)).toBe(JSON.stringify(name))
+  })
+
+  it('parses a source once, also when the next call passes an equal but distinct string', () => {
+    const parseDocument = vi.mocked(yaml.parseDocument)
+    const pointer = '#/components/schemas/Pet/properties/owner'
+    // A source no earlier test parsed, and a copy that is equal but not the same string.
+    const fresh = `${source}\n`
+    const copy = [...fresh].join('')
+    parseDocument.mockClear()
+
+    const first = locateIn(fresh, { kind: 'schema', pointer })
+    expect(locateIn(copy, { kind: 'schema', pointer })).toStrictEqual(first)
+    expect(parseDocument).toHaveBeenCalledTimes(1)
+
+    locateIn(`${fresh}x: 1\n`, { kind: 'schema', pointer })
+    expect(parseDocument).toHaveBeenCalledTimes(2)
   })
 })
