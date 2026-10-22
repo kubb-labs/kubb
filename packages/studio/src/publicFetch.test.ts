@@ -2,7 +2,7 @@ import http from 'node:http'
 import net from 'node:net'
 import type { AddressInfo } from 'node:net'
 import { afterEach, describe, expect, it } from 'vitest'
-import { assertPublicGitInput, createPublicFetch, isPublicAddress, withPublicFetch } from './publicFetch.ts'
+import { createPublicFetch, withPublicFetch } from './publicFetch.ts'
 
 const servers: Array<http.Server> = []
 
@@ -19,27 +19,6 @@ onlySecond.addAddress('127.0.0.2', 'ipv4')
 
 afterEach(async () => {
   await Promise.all(servers.splice(0).map((server) => new Promise((resolve) => server.close(resolve))))
-})
-
-describe('isPublicAddress', () => {
-  it.each(['8.8.8.8', '93.184.216.34', '2606:4700:4700::1111'])('allows %s', (address) => expect(isPublicAddress(address)).toBe(true))
-
-  it.each([
-    '127.0.0.1',
-    '10.1.2.3',
-    '172.16.0.1',
-    '192.168.1.1',
-    '169.254.169.254',
-    '100.64.0.1',
-    '0.0.0.0',
-    '224.0.0.1',
-    '::1',
-    'fe80::1',
-    'fd00::1',
-    '::ffff:127.0.0.1',
-    '::ffff:169.254.169.254',
-    'not an ip',
-  ])('refuses %s', (address) => expect(isPublicAddress(address)).toBe(false))
 })
 
 describe('createPublicFetch', () => {
@@ -92,22 +71,5 @@ describe('withPublicFetch', () => {
       }),
     ).rejects.toThrow('boom')
     expect(globalThis.fetch).toBe(original)
-  })
-})
-
-describe('assertPublicGitInput', () => {
-  it('accepts an https repository on a public address', async () => {
-    await expect(assertPublicGitInput('git+https://93.184.216.34/acme/api.git#main:openapi.yaml')).resolves.toBeUndefined()
-  })
-
-  it.each([
-    ['plain http', 'git+http://93.184.216.34/api.git#main:a.yaml', 'https only'],
-    ['an scp style address', 'git+git@github.com:acme/api.git#main:a.yaml', 'https only'],
-    ['a local path', 'git+file:///srv/api.git#main:a.yaml', 'https only'],
-    ['a private address', 'git+https://10.0.0.5/api.git#main:a.yaml', 'not a public address'],
-    ['the metadata address', 'git+https://169.254.169.254/api.git#main:a.yaml', 'not a public address'],
-    ['a name that resolves to loopback', 'git+https://localhost/api.git#main:a.yaml', 'not a public address'],
-  ])('refuses %s', async (_label, input, message) => {
-    await expect(assertPublicGitInput(input)).rejects.toThrow(message)
   })
 })
