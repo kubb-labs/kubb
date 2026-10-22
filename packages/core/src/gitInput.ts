@@ -102,7 +102,8 @@ const gitConfigEnvKey = /^GIT_CONFIG_(COUNT|KEY_\d+|VALUE_\d+|GLOBAL|NOSYSTEM)$/
 /**
  * The `GIT_CONFIG_*` entries of `env`, so a caller handing in credentials for one fetch cannot reach
  * `PATH` or `NODE_OPTIONS`. With `repo`, only an `Authorization` header scoped to that repository's
- * origin survives: a `credential.helper` or `url.*.insteadOf` could run a program or send the fetch elsewhere.
+ * origin survives, and global and system config are turned off: a `credential.helper` or
+ * `url.*.insteadOf`, inline or in a file the caller names, could run a program or send the fetch elsewhere.
  */
 export function gitConfigEnv(env: Record<string, string>, { repo }: { repo?: string } = {}): Record<string, string> {
   const kept = Object.fromEntries(Object.entries(env).filter(([key]) => gitConfigEnvKey.test(key)))
@@ -111,12 +112,12 @@ export function gitConfigEnv(env: Record<string, string>, { repo }: { repo?: str
   const header = `http.${new URL(repo).origin}/.extraheader`
   const pairs = Array.from({ length: Number(kept.GIT_CONFIG_COUNT) || 0 }, (_, index) => [kept[`GIT_CONFIG_KEY_${index}`], kept[`GIT_CONFIG_VALUE_${index}`]])
   const allowed = pairs.filter(([key, value]) => key === header && /^authorization:/i.test(value ?? ''))
-  const scoped: Record<string, string> = { GIT_CONFIG_COUNT: String(allowed.length) }
+  // No global or system config either: a file named by the caller could carry the same settings.
+  const scoped: Record<string, string> = { GIT_CONFIG_COUNT: String(allowed.length), GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' }
   allowed.forEach(([key, value], index) => {
     scoped[`GIT_CONFIG_KEY_${index}`] = key!
     scoped[`GIT_CONFIG_VALUE_${index}`] = value!
   })
-  for (const key of ['GIT_CONFIG_GLOBAL', 'GIT_CONFIG_NOSYSTEM']) if (kept[key] !== undefined) scoped[key] = kept[key]
 
   return scoped
 }
