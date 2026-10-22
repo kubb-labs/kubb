@@ -1,4 +1,3 @@
-import { execFile } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -23,6 +22,7 @@ import {
   resolveMeta,
 } from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
+import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
 import { readConfig, readImports, writeConfigEdits } from './configFile.ts'
 import { diffHunks, pageHunks } from './diff.ts'
@@ -224,28 +224,15 @@ function findKubbBin(root: string): string | undefined {
 }
 
 /** Runs `kubb add` without a shell, and keeps the end of its output for the failure reason. */
-function runKubbAdd({
-  bin,
-  args,
-  cwd,
-  signal,
-}: {
-  bin: string
-  args: Array<string>
-  cwd: string
-  signal: AbortSignal
-}): Promise<{ failed: boolean; output: string }> {
-  return new Promise((resolve) => {
-    execFile(
-      process.execPath,
-      [bin, 'add', ...args],
-      { cwd, signal, timeout: INSTALL_TIMEOUT_MS, env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' } },
-      (error, stdout, stderr) => {
-        const output = `${stdout}\n${stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
-        resolve({ failed: error !== null, output: error && !output ? error.message : output })
-      },
-    )
+async function runKubbAdd({ bin, args, cwd, signal }: { bin: string; args: Array<string>; cwd: string; signal: AbortSignal }) {
+  const { stdout, stderr, exitCode } = await x(process.execPath, [bin, 'add', ...args], {
+    signal,
+    timeout: INSTALL_TIMEOUT_MS,
+    throwOnError: false,
+    nodeOptions: { cwd, env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' } },
   })
+  const output = `${stdout}\n${stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
+  return { failed: exitCode !== 0, output: output || `kubb add exited with ${exitCode ?? 'a signal'}` }
 }
 
 // A throwing host listener must not break the connection.

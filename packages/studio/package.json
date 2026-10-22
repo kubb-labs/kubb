@@ -90,6 +90,7 @@
     "diff": "^9.0.0",
     "magicast": "^0.5.5",
     "ofetch": "^1.5.1",
+    "tinyexec": "catalog:",
     "tsdown": "catalog:"
   },
   "devDependencies": {

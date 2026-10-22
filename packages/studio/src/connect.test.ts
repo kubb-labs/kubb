@@ -27,8 +27,8 @@ vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
 vi.mock('node:timers/promises', () => ({ setTimeout: vi.fn(async () => {}) }))
 
 // `kubb add` is the CLI's own command; the test checks what the agent runs it with.
-const execFile = vi.hoisted(() => vi.fn())
-vi.mock('node:child_process', () => ({ execFile }))
+const x = vi.hoisted(() => vi.fn())
+vi.mock('tinyexec', () => ({ x }))
 
 // Studio may add a plugin of its own, which the agent imports by package name.
 vi.mock('@kubb/plugin-ts', () => ({ pluginTs: (options: unknown) => ({ name: 'plugin-ts', options }) }))
@@ -396,29 +396,26 @@ describe('a sandbox job', () => {
 
 describe('installExtension', () => {
   const granted = { allowInstall: true, allowConfigEdit: true }
-  type ExecCallback = (error: Error | null, stdout: string, stderr: string) => void
-  const exec = (error: Error | null, stdout = '', stderr = '') =>
-    execFile.mockImplementationOnce((_file: string, _args: Array<string>, _options: object, callback: ExecCallback) => callback(error, stdout, stderr))
+  const exec = (exitCode: number | undefined, stdout = '', stderr = '') => x.mockResolvedValueOnce({ stdout, stderr, exitCode })
 
   it('runs kubb add with the id and the config path, without a shell, and reports the command', async () => {
     const { hooks, heard } = withHooks()
     const command = heard('studio:command')
     const { agent } = await connectStudio({ hooks, permissions: granted, kubbBin: '/bin/kubb.js' })
-    exec(null, 'added 1 package')
+    exec(0, 'added 1 package')
 
     await expect(agent.installExtension({ id: 'plugin-zod', requestedBy: 'Ada' })).resolves.toStrictEqual({ installed: true })
-    expect(execFile).toHaveBeenCalledWith(
+    expect(x).toHaveBeenCalledWith(
       process.execPath,
       ['/bin/kubb.js', 'add', 'plugin-zod', '--yes', '--config', join(root, 'kubb.config.ts')],
-      expect.objectContaining({ cwd: root }),
-      expect.any(Function),
+      expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: root }) }),
     )
     expect(command).toHaveBeenCalledWith(expect.objectContaining({ command: 'installExtension', info: 'installed plugin-zod', requestedBy: 'Ada' }))
   })
 
   it('hands back the end of the output when kubb add fails', async () => {
     const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
-    exec(new Error('exit 1'), 'Reading the registry\nNo extension named plugin-nope')
+    exec(1, 'Reading the registry\nNo extension named plugin-nope')
 
     await expect(agent.installExtension({ id: 'plugin-nope' })).resolves.toStrictEqual({
       installed: false,
@@ -428,12 +425,14 @@ describe('installExtension', () => {
 
   it('holds off a save and a second install while kubb add runs, and ends the child when the socket closes', async () => {
     const { agent, socket } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
-    const child = Promise.withResolvers<{ signal: AbortSignal; callback: ExecCallback }>()
-    execFile.mockImplementationOnce((_file: string, _args: Array<string>, options: { signal: AbortSignal }, callback: ExecCallback) =>
-      child.resolve({ signal: options.signal, callback }),
-    )
+    const started = Promise.withResolvers<AbortSignal>()
+    const child = Promise.withResolvers<{ stdout: string; stderr: string; exitCode: number | undefined }>()
+    x.mockImplementationOnce((_file: string, _args: Array<string>, options: { signal: AbortSignal }) => {
+      started.resolve(options.signal)
+      return child.promise
+    })
     const install = agent.installExtension({ id: 'plugin-zod' })
-    const { signal, callback } = await child.promise
+    const signal = await started.promise
 
     const edit: ConfigEdit = { operation: 'disable-plugin', config: 0, plugin: '@kubb/plugin-ts' }
     await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({ outcomes: [{ applied: false, reason: 'an install is in progress' }] })
@@ -442,16 +441,16 @@ describe('installExtension', () => {
 
     socket.close(1006)
     await vi.waitFor(() => expect(signal.aborted).toBe(true))
-    callback(new Error('aborted'), '', '')
-    await expect(install).resolves.toMatchObject({ installed: false })
+    child.resolve({ stdout: '', stderr: '', exitCode: undefined })
+    await expect(install).resolves.toStrictEqual({ installed: false, reason: 'kubb add exited with a signal' })
   })
 
   it('lets the next command through once a failed install has settled', async () => {
     const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
-    exec(new Error('exit 1'), 'npm ERR! network')
+    exec(1, 'npm ERR! network')
     await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ installed: false, reason: 'npm ERR! network' })
 
-    exec(null, 'added 1 package')
+    exec(0, 'added 1 package')
     await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: true })
   })
 
@@ -462,21 +461,21 @@ describe('installExtension', () => {
 
     await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'installing extensions was not granted' })
     expect(warn).toHaveBeenCalledWith(expect.objectContaining({ permission: 'allowInstall' }))
-    expect(execFile).not.toHaveBeenCalled()
+    expect(x).not.toHaveBeenCalled()
   })
 
   it('refuses without allowConfigEdit, since kubb add edits the config', async () => {
     const { agent } = await connectStudio({ permissions: { allowInstall: true }, kubbBin: '/bin/kubb.js' })
 
     await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ reason: 'editing kubb.config.ts was not granted' })
-    expect(execFile).not.toHaveBeenCalled()
+    expect(x).not.toHaveBeenCalled()
   })
 
   it('refuses an id that is not a registry id before it can become an argument', async () => {
     const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
 
     await expect(agent.installExtension({ id: '--allow-exec' })).resolves.toMatchObject({ reason: 'the message carried no registry id' })
-    expect(execFile).not.toHaveBeenCalled()
+    expect(x).not.toHaveBeenCalled()
   })
 })
 
