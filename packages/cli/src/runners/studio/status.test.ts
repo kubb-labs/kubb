@@ -12,7 +12,7 @@ const credentials: Credentials = {
   agentId: 'id',
   agentSlug: 'stijn-macbook',
   organizationSlug: 'kubb-labs',
-  projects: { [project]: { allowRead: true, allowReadAst: true, allowWrite: false, allowConfigEdit: false, allowExec: false } },
+  projects: { [project]: { allowRead: true, allowReadAst: true, allowWrite: false, allowConfigEdit: false, allowInstall: false, allowExec: false } },
 }
 const base = { studioUrl: 'https://studio.kubb.dev', project, logPath: path.join(homedir(), '.kubb', 'worker.log') }
 
@@ -30,7 +30,7 @@ describe('formatStatus', () => {
       '  Project      petstore · ~/code/petstore',
       '  Permissions  ✓ read source  ✓ read spec',
       '               ✖ write files  ✖ edit config',
-      '               ✖ run tools     --allow-write --allow-config-edit --allow-exec',
+      '               ✖ add plugins  ✖ run tools     --allow-write --allow-config-edit --allow-install --allow-exec',
       '  Logs         ~/.kubb/worker.log',
     ])
   })

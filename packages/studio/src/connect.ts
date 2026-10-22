@@ -1,4 +1,7 @@
+import { execFile } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
+import { existsSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -52,6 +55,8 @@ import {
   type ReadFilesResult,
   type ReadInputInput,
   type ReadInputResult,
+  type InstallExtensionInput,
+  type InstallExtensionResult,
   type SaveConfigInput,
   type SaveResult,
   type StudioApi,
@@ -116,7 +121,7 @@ declare global {
        */
       'studio:command': [
         ctx: {
-          command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput' | 'readDiff'
+          command: 'generate' | 'saveConfig' | 'installExtension' | 'readFiles' | 'readInput' | 'readDiff'
           info: string
           /**
            * The Studio user who asked for the command, when Studio names one.
@@ -166,6 +171,11 @@ export type ConnectAgentOptions = {
    */
   permissions?: Partial<AgentPermissions>
   /**
+   * The `kubb` CLI entry `installExtension` runs `kubb add` with. Found through the project's
+   * `kubb` dependency when omitted.
+   */
+  kubbBin?: string
+  /**
    * Receives the `studio:*` hooks and the `kubb:*` hooks of every generation.
    */
   hooks?: Hookable<KubbHooks>
@@ -182,8 +192,9 @@ export type ConnectAgentOptions = {
   heartbeatInterval?: number
 }
 
-type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal'>> & {
+type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin'>> & {
   signal?: AbortSignal
+  kubbBin?: string
   permissions: AgentPermissions
   configFile: string
 }
@@ -198,6 +209,33 @@ type Session = {
   connected: PromiseWithResolvers<AgentConnectInfo>
   closed: boolean
   active?: { jobId: string; abort: () => void; settled: Promise<void> }
+}
+
+const INSTALL_TIMEOUT_MS = 5 * 60_000
+/** How many trailing lines of a failed `kubb add` the reason keeps. */
+const INSTALL_OUTPUT_LINES = 20
+/** `owner/slug` or `slug`, as `kubb add` takes it. Checked before it becomes an argument. */
+const REGISTRY_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/
+
+/** The `kubb` CLI the project depends on, so `kubb add` installs next to what the config imports. */
+function findKubbBin(root: string): string | undefined {
+  const require = createRequire(path.resolve(root, 'package.json'))
+  return (require.resolve.paths('kubb') ?? []).map((dir) => path.join(dir, 'kubb', 'bin', 'kubb.js')).find((bin) => existsSync(bin))
+}
+
+/** Runs `kubb add` without a shell, and keeps the end of its output for the failure reason. */
+function runKubbAdd({ bin, args, cwd }: { bin: string; args: Array<string>; cwd: string }): Promise<{ failed: boolean; output: string }> {
+  return new Promise((resolve) => {
+    execFile(
+      process.execPath,
+      [bin, 'add', ...args],
+      { cwd, timeout: INSTALL_TIMEOUT_MS, env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' } },
+      (error, stdout, stderr) => {
+        const output = `${stdout}\n${stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
+        resolve({ failed: error !== null, output: error && !output ? error.message : output })
+      },
+    )
+  })
 }
 
 // A throwing host listener must not break the connection.
@@ -283,7 +321,7 @@ class Agent extends RpcTarget implements AgentApi {
   // A sandbox has no project to write to or edit, and Studio may always read what it generated there.
   get #permissions(): AgentPermissions {
     const { permissions } = this.#options
-    return this.#sandbox ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowRead: true, allowReadAst: true } : permissions
+    return this.#sandbox ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowInstall: false, allowRead: true, allowReadAst: true } : permissions
   }
 
   // Owned agents retain output in the project cache. Each sandbox connection has a temporary cache.
@@ -565,6 +603,29 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   /**
+   * Installs a registry extension into the project with `kubb add <id> --yes`, which also adds a
+   * plugin to `kubb.config.ts`. Studio calls `connect()` again afterwards to see the result.
+   */
+  async installExtension(input: InstallExtensionInput): Promise<InstallExtensionResult> {
+    this.#assertConnected()
+    const { root, configFile, kubbBin = findKubbBin(root) } = this.#options
+    const refuse = async (reason: string, permission?: AgentPermission): Promise<InstallExtensionResult> => {
+      await this.#warn({ message: `Ignored install: ${reason}`, permission })
+      return { installed: false, reason }
+    }
+
+    if (typeof input.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
+    if (!this.#permissions.allowInstall) return refuse('installing extensions was not granted', AgentPermission.INSTALL)
+    if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
+    if (this.#session.active) return refuse('a generation is in progress')
+    if (!kubbBin) return refuse('kubb is not installed in the project')
+
+    const { failed, output } = await runKubbAdd({ bin: kubbBin, args: [input.id, '--yes', '--config', configFile], cwd: root })
+    await this.#logCommand('installExtension', `${failed ? 'failed to install' : 'installed'} ${input.id}`, input.requestedBy, failed)
+    return failed ? { installed: false, reason: output } : { installed: true }
+  }
+
+  /**
    * Returns the Kubb AST a kept job parsed its spec into. Refused without `allowReadAst`.
    */
   async readInput(input: ReadInputInput): Promise<ReadInputResult> {
@@ -778,7 +839,15 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
     studioUrl: options.studioUrl ?? defaultStudioUrl,
     root,
     configFile: path.resolve(root, options.configPath),
-    permissions: { allowWrite: false, allowConfigEdit: false, allowExec: false, allowRead: false, allowReadAst: false, ...options.permissions },
+    permissions: {
+      allowWrite: false,
+      allowConfigEdit: false,
+      allowInstall: false,
+      allowExec: false,
+      allowRead: false,
+      allowReadAst: false,
+      ...options.permissions,
+    },
     hooks: options.hooks ?? new Hookable<KubbHooks>(),
     maxRetryDelay: options.maxRetryDelay ?? MAX_RETRY_DELAY_MS,
     heartbeatInterval: Math.min(options.heartbeatInterval ?? HEARTBEAT_INTERVAL_MS, MAX_HEARTBEAT_INTERVAL_MS),

@@ -341,6 +341,22 @@ export type SaveConfigInput = {
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean }
 
 /**
+ * Asks the agent to install an extension from the registry with `kubb add`. `requestedBy` as for {@link GenerateInput}.
+ */
+export type InstallExtensionInput = {
+  /**
+   * The registry id: `owner/slug`, or a bare `slug` for an official extension.
+   */
+  id: string
+  requestedBy?: string
+}
+
+/**
+ * `installed` is false when the agent refused or `kubb add` failed, with `reason` saying why.
+ */
+export type InstallExtensionResult = { installed: boolean; reason?: string }
+
+/**
  * Reads an immutable output set kept on disk, from a generation or the initial connection.
  */
 export type ReadFilesInput = {
@@ -474,6 +490,11 @@ export type AgentApi = {
   connect: (info: AgentConnectInfo) => Promise<ConnectMessagePayload>
   startGeneration: (input: GenerateInput) => GenerationRun
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
+  /**
+   * Refused unless the agent was granted `allowInstall` and `allowConfigEdit`. An agent from before
+   * `installExtension` rejects the call.
+   */
+  installExtension: (input: InstallExtensionInput) => Promise<InstallExtensionResult>
   readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
   /**
    * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
@@ -629,6 +650,11 @@ export type AgentPermissions = {
    */
   allowConfigEdit: boolean
   /**
+   * Whether the agent may install an extension from the registry into the project with `kubb add`,
+   * which also adds a plugin to `kubb.config.ts`. Needs `allowConfigEdit` as well.
+   */
+  allowInstall: boolean
+  /**
    * Whether the agent shares existing output on connect and hands back file source through
    * `readFiles`. A sandbox always permits reads of its generated files.
    */
@@ -648,6 +674,7 @@ export const AgentPermission = {
   READ_AST: 'allowReadAst',
   WRITE: 'allowWrite',
   CONFIG_EDIT: 'allowConfigEdit',
+  INSTALL: 'allowInstall',
   EXEC: 'allowExec',
 } as const satisfies Record<string, keyof AgentPermissions>
 export type AgentPermission = (typeof AgentPermission)[keyof typeof AgentPermission]

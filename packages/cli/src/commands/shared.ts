@@ -72,6 +72,12 @@ export const studioPermissionArgs = {
     default: false,
     toKebab: true,
   },
+  allowInstall: {
+    type: 'boolean',
+    description: 'Let Studio install extensions from the registry with kubb add. Asked for once per project when omitted',
+    default: false,
+    toKebab: true,
+  },
   allowExec: {
     type: 'boolean',
     description: 'Run the formatter, the linter, and output.postGenerate after a generation',

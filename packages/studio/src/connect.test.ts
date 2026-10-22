@@ -17,6 +17,10 @@ vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
 // Reconnects wait for nothing, so a test sees the next socket straight away.
 vi.mock('node:timers/promises', () => ({ setTimeout: vi.fn(async () => {}) }))
 
+// `kubb add` is the CLI's own command; the test checks what the agent runs it with.
+const execFile = vi.hoisted(() => vi.fn())
+vi.mock('node:child_process', () => ({ execFile }))
+
 // Studio may add a plugin of its own, which the agent imports by package name.
 vi.mock('@kubb/plugin-ts', () => ({ pluginTs: (options: unknown) => ({ name: 'plugin-ts', options }) }))
 
@@ -161,7 +165,7 @@ describe('the handshake', () => {
     await expect(agent.connect(info)).resolves.toMatchObject({
       root,
       versions: { kubb: '5.0.0-test', agent: '2.0.0' },
-      permissions: { allowWrite: false, allowExec: false, allowConfigEdit: false, allowRead: false },
+      permissions: { allowWrite: false, allowExec: false, allowConfigEdit: false, allowInstall: false, allowRead: false },
     })
   })
 
@@ -376,8 +380,65 @@ describe('a sandbox job', () => {
     const { agent } = await connectStudio({ permissions: { allowWrite: true, allowConfigEdit: true }, connectInfo: { ...info, sandbox: true } })
 
     await expect(agent.connect({ ...info, sandbox: true })).resolves.toMatchObject({
-      permissions: { allowWrite: false, allowConfigEdit: false, allowRead: true },
+      permissions: { allowWrite: false, allowConfigEdit: false, allowInstall: false, allowRead: true },
     })
+  })
+})
+
+describe('installExtension', () => {
+  const granted = { allowInstall: true, allowConfigEdit: true }
+  type ExecCallback = (error: Error | null, stdout: string, stderr: string) => void
+  const exec = (error: Error | null, stdout = '', stderr = '') =>
+    execFile.mockImplementationOnce((_file: string, _args: Array<string>, _options: object, callback: ExecCallback) => callback(error, stdout, stderr))
+
+  it('runs kubb add with the id and the config path, without a shell, and reports the command', async () => {
+    const { hooks, heard } = withHooks()
+    const command = heard('studio:command')
+    const { agent } = await connectStudio({ hooks, permissions: granted, kubbBin: '/bin/kubb.js' })
+    exec(null, 'added 1 package')
+
+    await expect(agent.installExtension({ id: 'plugin-zod', requestedBy: 'Ada' })).resolves.toStrictEqual({ installed: true })
+    expect(execFile).toHaveBeenCalledWith(
+      process.execPath,
+      ['/bin/kubb.js', 'add', 'plugin-zod', '--yes', '--config', join(root, 'kubb.config.ts')],
+      expect.objectContaining({ cwd: root }),
+      expect.any(Function),
+    )
+    expect(command).toHaveBeenCalledWith(expect.objectContaining({ command: 'installExtension', info: 'installed plugin-zod', requestedBy: 'Ada' }))
+  })
+
+  it('hands back the end of the output when kubb add fails', async () => {
+    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    exec(new Error('exit 1'), 'Reading the registry\nNo extension named plugin-nope')
+
+    await expect(agent.installExtension({ id: 'plugin-nope' })).resolves.toStrictEqual({
+      installed: false,
+      reason: 'Reading the registry\nNo extension named plugin-nope',
+    })
+  })
+
+  it('refuses without allowInstall, naming the permission, and runs nothing', async () => {
+    const { hooks, heard } = withHooks()
+    const warn = heard('studio:warn')
+    const { agent } = await connectStudio({ hooks, permissions: { allowConfigEdit: true }, kubbBin: '/bin/kubb.js' })
+
+    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'installing extensions was not granted' })
+    expect(warn).toHaveBeenCalledWith(expect.objectContaining({ permission: 'allowInstall' }))
+    expect(execFile).not.toHaveBeenCalled()
+  })
+
+  it('refuses without allowConfigEdit, since kubb add edits the config', async () => {
+    const { agent } = await connectStudio({ permissions: { allowInstall: true }, kubbBin: '/bin/kubb.js' })
+
+    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ reason: 'editing kubb.config.ts was not granted' })
+    expect(execFile).not.toHaveBeenCalled()
+  })
+
+  it('refuses an id that is not a registry id before it can become an argument', async () => {
+    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+
+    await expect(agent.installExtension({ id: '--allow-exec' })).resolves.toMatchObject({ reason: 'the message carried no registry id' })
+    expect(execFile).not.toHaveBeenCalled()
   })
 })
 
