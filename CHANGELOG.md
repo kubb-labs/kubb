@@ -1,5 +1,24 @@
 # Changelog
 
+## v5.12.4 — Oct 22, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Studio can read and edit the root `output` options of a config entry: `barrel`, `format`, `lint`, `clean`, and `defaultBanner`. The agent checks each value against the type the option takes.
+  
+  - The connect payload reports them as `outputOptions` on each entry, and the config file view as `output`.
+  - A generation takes `output` overrides.
+  - Two new config edits, `set-output` and `remove-output`, write inside `output` in `kubb.config.ts`.
+  - Every other `output` member, `path` and `postGenerate` among them, stays with the config file. The agent never sends it to Studio, ignores it in overrides, and refuses edits to it. ([#4390](https://github.com/kubb-labs/kubb/pull/4390), [`baea3fe`](https://github.com/kubb-labs/kubb/commit/baea3fefca95028794ed85b310c9aca7cf81b2ee))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.12.3 — Oct 22, 2026
 
 ### @kubb/core
