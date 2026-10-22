@@ -1,5 +1,6 @@
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { adapterOas } from '@kubb/adapter-oas'
 import { afterAll, describe, expect, it } from 'vitest'
 import { generateTool } from './generate.ts'
 
@@ -16,25 +17,20 @@ async function run(args: GenerateInput) {
   return { isError: Boolean(result.isError), text: result.content.map((part) => part.text ?? '').join('\n') }
 }
 
+// jiti resolves a fixture's `@kubb/adapter-oas` import to the package `dist`, which exists only after a build.
+// The fixtures read this config from `globalThis` instead, so the adapter comes from source.
+const missingInput = { root: '.', input: './does-not-exist.yaml', output: { path: './gen' }, adapter: adapterOas({ validate: false }), plugins: [] }
+Object.assign(globalThis, { __kubbMcpTestConfig: missingInput })
+
 afterAll(async () => {
+  delete (globalThis as { __kubbMcpTestConfig?: unknown }).__kubbMcpTestConfig
   await rm(dir, { recursive: true, force: true })
 })
 
 describe('generate tool', () => {
   it('returns a coded, structured diagnostic when the input file is missing', async () => {
     const configPath = join(dir, 'kubb.config.ts')
-    await writeFile(
-      configPath,
-      `import { adapterOas } from '@kubb/adapter-oas'
-export default {
-  root: '.',
-  input: './does-not-exist.yaml',
-  output: { path: './gen' },
-  adapter: adapterOas({ validate: false }),
-  plugins: [],
-}
-`,
-    )
+    await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
 
     const { isError, text } = await run({ config: configPath })
 
@@ -51,18 +47,7 @@ export default {
 
   it('generates the first entry of an array config', async () => {
     const configPath = join(dir, 'kubb.array.config.ts')
-    await writeFile(
-      configPath,
-      `import { adapterOas } from '@kubb/adapter-oas'
-export default [{
-  root: '.',
-  input: './does-not-exist.yaml',
-  output: { path: './gen' },
-  adapter: adapterOas({ validate: false }),
-  plugins: [],
-}]
-`,
-    )
+    await writeFile(configPath, `export default [globalThis.__kubbMcpTestConfig]\n`)
 
     const { isError, text } = await run({ config: configPath })
 
