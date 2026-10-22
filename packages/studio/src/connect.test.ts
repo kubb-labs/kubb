@@ -452,13 +452,14 @@ describe('installExtension', () => {
     await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'kubb add did not run: spawn ENOENT' })
   })
 
-  it('holds off an install and a second save while a save is still writing the config', async () => {
+  it('holds off an install, a second save and a generation while a save is still writing the config', async () => {
     const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     const edit: ConfigEdit = { operation: 'disable-plugin', config: 0, plugin: '@kubb/plugin-ts' }
     const save = agent.saveConfig({ edits: [edit] })
 
     await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'a save is in progress' })
     await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({ outcomes: [{ applied: false, reason: 'a save is in progress' }] })
+    await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow(AgentMessage.SAVE_IN_PROGRESS)
     await expect(save).resolves.toMatchObject({ outcomes: [{ edit }] })
     expect(x).not.toHaveBeenCalled()
   })
@@ -493,6 +494,7 @@ describe('installExtension', () => {
     const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
 
     await expect(agent.installExtension({ id: '--allow-exec' })).resolves.toMatchObject({ reason: 'the message carried no registry id' })
+    await expect(agent.installExtension(null as never)).resolves.toMatchObject({ reason: 'the message carried no registry id' })
     expect(x).not.toHaveBeenCalled()
   })
 })

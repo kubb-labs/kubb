@@ -219,8 +219,10 @@ const REGISTRY_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/
 /** The CLI the project depends on, so `kubb add` installs next to what the config imports. */
 function findKubbBin(root: string): string | undefined {
   const require = createRequire(path.resolve(root, 'package.json'))
-  return ['kubb', '@kubb/cli']
-    .flatMap((name) => (require.resolve.paths(name) ?? []).map((dir) => path.join(dir, name, 'bin', 'kubb.js')))
+  const names = ['kubb', '@kubb/cli']
+  // Nearest directory first, so a nested project does not pick up an ancestor's CLI.
+  return (require.resolve.paths('kubb') ?? [])
+    .flatMap((dir) => names.map((name) => path.join(dir, name, 'bin', 'kubb.js')))
     .find((bin) => existsSync(bin))
 }
 
@@ -452,6 +454,7 @@ class Agent extends RpcTarget implements AgentApi {
     if (this.#session.closed) throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Connection is closed' })
     if (this.#session.active) return this.#refuse({ message: AgentMessage.GENERATION_IN_PROGRESS })
     if (this.#session.install) return this.#refuse({ message: AgentMessage.INSTALL_IN_PROGRESS })
+    if (this.#session.saving) return this.#refuse({ message: AgentMessage.SAVE_IN_PROGRESS })
     const settled = Promise.withResolvers<void>()
     this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
     let root = this.#options.root
@@ -624,7 +627,7 @@ class Agent extends RpcTarget implements AgentApi {
       return { installed: false, reason }
     }
 
-    if (typeof input.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
+    if (typeof input?.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
     if (!this.#permissions.allowInstall) return refuse('installing extensions was not granted', AgentPermission.INSTALL)
     if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
     if (this.#session.active) return refuse('a generation is in progress')
