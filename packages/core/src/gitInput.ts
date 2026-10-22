@@ -84,11 +84,12 @@ async function resolvePublicFetchConfig(repo: string, signal?: AbortSignal): Pro
   }
   const url = new URL(repo)
   const host = url.hostname.replace(/^\[|\]$/g, '')
-  const addresses = net.isIP(host) ? [host] : (await dns.promises.lookup(host, { all: true })).map(({ address }) => address)
+  const isLiteral = net.isIP(host) !== 0
+  const addresses = isLiteral ? [host] : (await dns.promises.lookup(host, { all: true })).map(({ address }) => address)
   if (!addresses.length || addresses.some((address) => !isPublicAddress(address))) {
     throw gitError(`${host} is not a public address, so this git \`input\` is not fetched.`)
   }
-  if (!net.isIP(host)) {
+  if (!isLiteral) {
     const { stdout } = await x('git', ['--version'], { nodeOptions: { signal }, throwOnError: true })
     const [, major = 0, minor = 0] = /(\d+)\.(\d+)/.exec(stdout)?.map(Number) ?? []
     if (major < 2 || (major === 2 && minor < 37)) throw gitError(`Fetching a public git \`input\` needs git 2.37 or newer, found ${stdout.trim()}.`)
