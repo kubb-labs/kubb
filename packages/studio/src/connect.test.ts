@@ -395,7 +395,7 @@ describe('a sandbox job', () => {
 })
 
 describe('installExtension', () => {
-  const granted = { allowInstall: true, allowConfigEdit: true }
+  const granted = { allowInstall: true, allowUpdate: true, allowConfigEdit: true }
   const exec = (exitCode: number | undefined, stdout = '', stderr = '') => x.mockResolvedValueOnce({ stdout, stderr, exitCode })
 
   it('runs kubb add with the id and the config path, without a shell, and reports the command', async () => {
@@ -469,9 +469,14 @@ describe('installExtension', () => {
     expect(x).toHaveBeenCalledWith(process.execPath, ['/bin/kubb.js', 'update', '--yes'], expect.anything())
   })
 
-  it('refuses an update without allowInstall or with an id that is not a registry id', async () => {
-    const { agent } = await connectStudio({ permissions: { ...granted, allowInstall: false }, kubbBin: '/bin/kubb.js' })
-    await expect(agent.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'installing extensions was not granted' })
+  it('refuses an update without allowUpdate or with an id that is not a registry id, and needs no other permission', async () => {
+    const { agent } = await connectStudio({ permissions: { ...granted, allowUpdate: false }, kubbBin: '/bin/kubb.js' })
+    await expect(agent.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'updating extensions was not granted' })
+
+    const { agent: updateOnly } = await connectStudio({ permissions: { allowUpdate: true }, kubbBin: '/bin/kubb.js' })
+    exec(0, 'Update complete')
+    await expect(updateOnly.updateExtensions({})).resolves.toStrictEqual({ updated: true })
+    x.mockClear()
 
     const { agent: allowed } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     await expect(allowed.updateExtensions({ ids: ['--dry-run'] })).resolves.toMatchObject({

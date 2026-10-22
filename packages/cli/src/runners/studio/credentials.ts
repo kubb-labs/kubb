@@ -47,7 +47,15 @@ export type Credentials = {
    */
   projects?: Record<
     string,
-    { allowRead?: boolean; allowReadAst?: boolean; allowWrite?: boolean; allowConfigEdit?: boolean; allowInstall?: boolean; allowExec?: boolean }
+    {
+      allowRead?: boolean
+      allowReadAst?: boolean
+      allowWrite?: boolean
+      allowConfigEdit?: boolean
+      allowInstall?: boolean
+      allowUpdate?: boolean
+      allowExec?: boolean
+    }
   >
 }
 

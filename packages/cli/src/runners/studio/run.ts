@@ -78,6 +78,7 @@ export type StudioValues = {
   allowWrite?: boolean
   allowConfigEdit?: boolean
   allowInstall?: boolean
+  allowUpdate?: boolean
   allowExec?: boolean
   open?: boolean
   logLevel?: CLIOptions['logLevel']
@@ -203,12 +204,8 @@ const PERMISSIONS: ReadonlyArray<{
   { key: AgentPermission.READ_AST, label: 'read spec', title: () => 'Read the parsed spec', hint: 'browse schemas and operations' },
   { key: AgentPermission.WRITE, label: 'write files', title: () => 'Write files to disk', hint: 'generate from the browser' },
   { key: AgentPermission.CONFIG_EDIT, label: 'edit config', title: (configPath) => `Change ${configPath}`, hint: 'edit plugin options' },
-  {
-    key: AgentPermission.INSTALL,
-    label: 'add plugins',
-    title: () => 'Install and update extensions from the registry',
-    hint: 'kubb add and kubb update from the browser',
-  },
+  { key: AgentPermission.INSTALL, label: 'add plugins', title: () => 'Install extensions from the registry', hint: 'kubb add from the browser' },
+  { key: AgentPermission.UPDATE, label: 'update plugins', title: () => 'Update installed extensions', hint: 'kubb update from the browser' },
   { key: AgentPermission.EXEC, label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
 ]
 

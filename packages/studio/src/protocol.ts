@@ -490,7 +490,7 @@ export type AgentApi = {
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
   /** Refused without `allowInstall` and `allowConfigEdit`. An agent from before `installExtension` rejects the call. */
   installExtension: (input: InstallExtensionInput) => Promise<InstallExtensionResult>
-  /** Refused without `allowInstall`. Installs packages only, so `kubb.config.ts` stays as it is. */
+  /** Refused without `allowUpdate`. Installs packages only, so `kubb.config.ts` stays as it is. */
   updateExtensions: (input: UpdateExtensionsInput) => Promise<UpdateExtensionsResult>
   readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
   /**
@@ -648,6 +648,8 @@ export type AgentPermissions = {
   allowConfigEdit: boolean
   /** Whether the agent may run `kubb add` in the project, which also edits `kubb.config.ts`. Needs `allowConfigEdit` as well. */
   allowInstall: boolean
+  /** Whether the agent may run `kubb update` in the project, which installs newer extension versions and leaves `kubb.config.ts` alone. */
+  allowUpdate: boolean
   /**
    * Whether the agent shares existing output on connect and hands back file source through
    * `readFiles`. A sandbox always permits reads of its generated files.
@@ -669,6 +671,7 @@ export const AgentPermission = {
   WRITE: 'allowWrite',
   CONFIG_EDIT: 'allowConfigEdit',
   INSTALL: 'allowInstall',
+  UPDATE: 'allowUpdate',
   EXEC: 'allowExec',
 } as const satisfies Record<string, keyof AgentPermissions>
 export type AgentPermission = (typeof AgentPermission)[keyof typeof AgentPermission]

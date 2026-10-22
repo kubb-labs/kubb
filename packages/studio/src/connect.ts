@@ -326,7 +326,9 @@ class Agent extends RpcTarget implements AgentApi {
   // A sandbox has no project to write to or edit, and Studio may always read what it generated there.
   get #permissions(): AgentPermissions {
     const { permissions } = this.#options
-    return this.#sandbox ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowInstall: false, allowRead: true, allowReadAst: true } : permissions
+    return this.#sandbox
+      ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowInstall: false, allowUpdate: false, allowRead: true, allowReadAst: true }
+      : permissions
   }
 
   // Owned agents retain output in the project cache. Each sandbox connection has a temporary cache.
@@ -652,7 +654,7 @@ class Agent extends RpcTarget implements AgentApi {
 
     const ids = input?.ids ?? []
     if (!Array.isArray(ids) || !ids.every((id) => typeof id === 'string' && REGISTRY_ID.test(id))) return refuse('the message carried an invalid registry id')
-    if (!this.#permissions.allowInstall) return refuse('installing extensions was not granted', AgentPermission.INSTALL)
+    if (!this.#permissions.allowUpdate) return refuse('updating extensions was not granted', AgentPermission.UPDATE)
     const busy = this.#busy()
     if (busy) return refuse(busy)
     if (!kubbBin) return refuse('kubb is not installed in the project')
@@ -903,6 +905,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
       allowWrite: false,
       allowConfigEdit: false,
       allowInstall: false,
+      allowUpdate: false,
       allowExec: false,
       allowRead: false,
       allowReadAst: false,
