@@ -222,8 +222,8 @@ describe('the handshake', () => {
     const plugins = [{ name: '@kubb/plugin-barrel', options: {} }]
     const adapter = { name: '@kubb/adapter-oas', options: {} }
     expect(config.configs).toStrictEqual([
-      { input: 'https://example.com/openapi.json?v=2', output: 'src/gen', plugins, adapter, parsers: [] },
-      { name: 'admin', input: './admin.yaml', output: 'src/admin', plugins, adapter, parsers: [] },
+      { input: 'https://example.com/openapi.json?v=2', output: 'src/gen', outputOptions: { clean: false }, plugins, adapter, parsers: [] },
+      { name: 'admin', input: './admin.yaml', output: 'src/admin', outputOptions: {}, plugins, adapter, parsers: [] },
     ])
   })
 

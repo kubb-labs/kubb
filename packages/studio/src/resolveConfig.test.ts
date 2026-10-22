@@ -1,7 +1,7 @@
 import { type Adapter, Diagnostics, type ExtensionManifest, type Parser, type Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionEntry, JSONKubbConfig } from './protocol.ts'
-import { assertOutputPaths, mergeOptions, mergeParsers, mergePlugins, resolvePlugins, toJSONOptions } from './resolveConfig.ts'
+import { assertOutputPaths, mergeOptions, mergeOutput, mergeParsers, mergePlugins, resolvePlugins, toJSONOptions } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -213,6 +213,23 @@ describe('mergeParsers', () => {
     expect(error).toHaveProperty('message', expect.stringContaining('The parser "tsx" is not an installed Kubb extension'))
     // A parser is not a plugin, so the error does not claim KUBB_PLUGIN_NOT_FOUND.
     expect(Diagnostics.from(error).code).toBe(Diagnostics.code.unknown)
+  })
+})
+
+describe('mergeOutput', () => {
+  const output = { path: './gen', postGenerate: ['npm run typecheck'] }
+
+  it('merges Studio overrides but keeps the output folder and commands', () => {
+    expect(mergeOutput({ output, studio: { path: '/etc', format: 'biome', postGenerate: ['rm -rf /'] } })).toStrictEqual({ ...output, format: 'biome' })
+    expect(mergeOutput({ output, studio: { postGenerate: null, lint: false } })).toStrictEqual({ ...output, lint: false })
+  })
+
+  it('drops values an option does not take', () => {
+    expect(mergeOutput({ output, studio: { clean: 'false', format: 'gofmt', barrel: { type: 'named', nested: true }, plugins: [] } })).toStrictEqual(output)
+    expect(mergeOutput({ output: { ...output, clean: true }, studio: { clean: null, barrel: { type: 'all' } } })).toStrictEqual({
+      ...output,
+      barrel: { type: 'all' },
+    })
   })
 })
 

@@ -38,6 +38,8 @@ export type JSONKubbConfig = {
     name: string
     options?: object
   }>
+  /** Root `output` overrides for `barrel`, `format`, `lint`, `clean`, and `defaultBanner`. Other members are ignored. */
+  output?: object
   /**
    * Which `defineConfig(...)` entry to generate from. Omitted runs the first one.
    */
@@ -67,6 +69,8 @@ export const ConfigEditOperation = {
   DISABLE_PLUGIN: 'disable-plugin',
   ENABLE_PLUGIN: 'enable-plugin',
   SET_INPUT: 'set-input',
+  SET_OUTPUT: 'set-output',
+  REMOVE_OUTPUT: 'remove-output',
 } as const
 export type ConfigEditOperation = (typeof ConfigEditOperation)[keyof typeof ConfigEditOperation]
 
@@ -108,6 +112,13 @@ export type ConfigEdit =
    * Refused without `allowSaveInput`, and a managed agent takes only a document, a URL, or a `git+` file.
    */
   | { operation: typeof ConfigEditOperation.SET_INPUT; config?: ConfigRef; input: string }
+  /** Write a literal inside the root `output` object, for the members `JSONKubbConfig.output` takes. */
+  | { operation: typeof ConfigEditOperation.SET_OUTPUT; config?: ConfigRef; path: Array<string>; value: unknown }
+  /** Drop a member of the root `output` object that `set-output` may write. */
+  | { operation: typeof ConfigEditOperation.REMOVE_OUTPUT; config?: ConfigRef; path: Array<string> }
+
+/** The top-level keys of an object in the config file, as {@link PluginView.options} describes. */
+export type OptionsView = Record<string, { literal: boolean; value?: OptionValue; locked?: Array<Array<string>> }>
 
 /**
  * A factory call the agent found in a `defineConfig(...)`: a plugin in `plugins`, the `adapter`, or
@@ -135,7 +146,7 @@ export type PluginView = {
    * (`[['banner']]`). A `set` at any deeper path outside `locked` succeeds, so Studio can edit
    * `output.path` there.
    */
-  options: Record<string, { literal: boolean; value?: OptionValue; locked?: Array<Array<string>> }>
+  options: OptionsView
   /**
    * Set when the plugin call is commented out in the file. Its options stay on disk but are not
    * readable, so `options` is empty until it is enabled again.
@@ -163,6 +174,8 @@ export type ConfigView = {
    * The parser calls in `parsers`, when the entry lists any through imported factories.
    */
   parsers?: Array<PluginView>
+  /** The root `output` members Studio may set. Absent when `output` is not an object literal. */
+  output?: OptionsView
 }
 
 /**
@@ -625,6 +638,8 @@ export type ConfigEntryView = {
   input?: string
   /** The output directory as the entry gives it, relative to the project root unless absolute. */
   output: string
+  /** The root `output` members Studio may set, as a JSON copy. */
+  outputOptions?: object
   /**
    * The output directory's current file list, readable through `readFiles` without generating.
    * Absent for a sandbox or when the host has not granted `allowRead`.
