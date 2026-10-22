@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto'
+import { existsSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -20,6 +22,7 @@ import {
   resolveMeta,
 } from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
+import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
 import { readConfig, readImports, writeConfigEdits } from './configFile.ts'
 import { diffHunks, pageHunks } from './diff.ts'
@@ -52,9 +55,13 @@ import {
   type ReadFilesResult,
   type ReadInputInput,
   type ReadInputResult,
+  type InstallExtensionInput,
+  type InstallExtensionResult,
   type SaveConfigInput,
   type SaveResult,
   type StudioApi,
+  type UpdateExtensionsInput,
+  type UpdateExtensionsResult,
 } from './protocol.ts'
 import { withPublicFetch } from './publicFetch.ts'
 import { assertOutputPaths, mergeAdapter, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
@@ -116,7 +123,7 @@ declare global {
        */
       'studio:command': [
         ctx: {
-          command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput' | 'readDiff'
+          command: 'generate' | 'saveConfig' | 'installExtension' | 'updateExtensions' | 'readFiles' | 'readInput' | 'readDiff'
           info: string
           /**
            * The Studio user who asked for the command, when Studio names one.
@@ -165,6 +172,8 @@ export type ConnectAgentOptions = {
    * What Studio may do in this project. Every permission is off unless granted.
    */
   permissions?: Partial<AgentPermissions>
+  /** The CLI entry `installExtension` runs `kubb add` with. Found through the project's `kubb` or `@kubb/cli` dependency when omitted. */
+  kubbBin?: string
   /**
    * Receives the `studio:*` hooks and the `kubb:*` hooks of every generation.
    */
@@ -182,8 +191,9 @@ export type ConnectAgentOptions = {
   heartbeatInterval?: number
 }
 
-type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal'>> & {
+type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin'>> & {
   signal?: AbortSignal
+  kubbBin?: string
   permissions: AgentPermissions
   configFile: string
 }
@@ -198,6 +208,39 @@ type Session = {
   connected: PromiseWithResolvers<AgentConnectInfo>
   closed: boolean
   active?: { jobId: string; abort: () => void; settled: Promise<void> }
+  install?: { abort: () => void; settled: Promise<void> }
+  saving?: boolean
+}
+
+const INSTALL_TIMEOUT_MS = 5 * 60_000
+/** How many trailing lines of a failed `kubb add` the reason keeps. */
+const INSTALL_OUTPUT_LINES = 20
+/** `owner/slug` or `slug`, as `kubb add` takes it. Checked before it becomes an argument. */
+const REGISTRY_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/
+
+/** The CLI the project depends on, so `kubb add` installs next to what the config imports. */
+function findKubbBin(root: string): string | undefined {
+  const require = createRequire(path.resolve(root, 'package.json'))
+  const names = ['kubb', '@kubb/cli']
+  // Nearest directory first, so a nested project does not pick up an ancestor's CLI.
+  return (require.resolve.paths('kubb') ?? []).flatMap((dir) => names.map((name) => path.join(dir, name, 'bin', 'kubb.js'))).find((bin) => existsSync(bin))
+}
+
+/** Runs a `kubb` command without a shell, and keeps the end of its output for the failure reason. */
+async function runKubb({ bin, args, cwd, signal }: { bin: string; args: Array<string>; cwd: string; signal: AbortSignal }) {
+  try {
+    const { stdout, stderr, exitCode } = await x(process.execPath, [bin, ...args], {
+      signal,
+      timeout: INSTALL_TIMEOUT_MS,
+      throwOnError: false,
+      nodeOptions: { cwd, env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' } },
+    })
+    const output = `${stdout}\n${stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
+    return { failed: exitCode !== 0, output: output || `kubb ${args[0]} exited with ${exitCode ?? 'a signal'}` }
+  } catch (error) {
+    // tinyexec still throws when the timeout hits or the process cannot start.
+    return { failed: true, output: `kubb ${args[0]} did not run: ${getErrorMessage(error)}` }
+  }
 }
 
 // A throwing host listener must not break the connection.
@@ -283,7 +326,9 @@ class Agent extends RpcTarget implements AgentApi {
   // A sandbox has no project to write to or edit, and Studio may always read what it generated there.
   get #permissions(): AgentPermissions {
     const { permissions } = this.#options
-    return this.#sandbox ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowRead: true, allowReadAst: true } : permissions
+    return this.#sandbox
+      ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowInstall: false, allowUpdate: false, allowRead: true, allowReadAst: true }
+      : permissions
   }
 
   // Owned agents retain output in the project cache. Each sandbox connection has a temporary cache.
@@ -410,6 +455,8 @@ class Agent extends RpcTarget implements AgentApi {
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#session.closed) throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Connection is closed' })
     if (this.#session.active) return this.#refuse({ message: AgentMessage.GENERATION_IN_PROGRESS })
+    if (this.#session.install) return this.#refuse({ message: AgentMessage.INSTALL_IN_PROGRESS })
+    if (this.#session.saving) return this.#refuse({ message: AgentMessage.SAVE_IN_PROGRESS })
     const settled = Promise.withResolvers<void>()
     this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
     let root = this.#options.root
@@ -549,8 +596,11 @@ class Agent extends RpcTarget implements AgentApi {
     }
 
     // A running generation reloads the config, so it would see half the change.
-    if (this.#session.active) return refuse('a generation is in progress')
+    const busy = this.#busy()
+    if (busy) return refuse(busy)
 
+    // Keeps `kubb add` from rewriting the config while this save is still writing it.
+    this.#session.saving = true
     try {
       const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
       const applied = outcomes.filter((outcome) => outcome.applied).length
@@ -561,6 +611,77 @@ class Agent extends RpcTarget implements AgentApi {
       // Refuse every edit so Studio hears back instead of waiting.
       await emit(this.#options.hooks, 'studio:error', { error: toError(error) })
       return refuse(getErrorMessage(error))
+    } finally {
+      this.#session.saving = false
+    }
+  }
+
+  /**
+   * Installs a registry extension into the project with `kubb add <id> --yes`, which also adds a
+   * plugin to `kubb.config.ts`. Studio calls `connect()` again afterwards to see the result.
+   */
+  async installExtension(input: InstallExtensionInput): Promise<InstallExtensionResult> {
+    this.#assertConnected()
+    const { root, configFile, kubbBin = findKubbBin(root) } = this.#options
+    const refuse = async (reason: string, permission?: AgentPermission): Promise<InstallExtensionResult> => {
+      await this.#warn({ message: `Ignored install: ${reason}`, permission })
+      return { installed: false, reason }
+    }
+
+    if (typeof input?.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
+    if (!this.#permissions.allowInstall) return refuse('installing extensions was not granted', AgentPermission.INSTALL)
+    if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
+    const busy = this.#busy()
+    if (busy) return refuse(busy)
+    if (!kubbBin) return refuse('kubb is not installed in the project')
+
+    const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['add', input.id, '--yes', '--config', configFile] })
+    await this.#logCommand('installExtension', `${failed ? 'failed to install' : 'installed'} ${input.id}`, input.requestedBy, failed)
+    return failed ? { installed: false, reason: output } : { installed: true }
+  }
+
+  /**
+   * Moves installed extensions to the registry's version with `kubb update [ids] --yes`, which
+   * installs packages and leaves `kubb.config.ts` alone. Studio calls `connect()` again afterwards.
+   */
+  async updateExtensions(input: UpdateExtensionsInput): Promise<UpdateExtensionsResult> {
+    this.#assertConnected()
+    const { root, kubbBin = findKubbBin(root) } = this.#options
+    const refuse = async (reason: string, permission?: AgentPermission): Promise<UpdateExtensionsResult> => {
+      await this.#warn({ message: `Ignored update: ${reason}`, permission })
+      return { updated: false, reason }
+    }
+
+    const ids = input?.ids ?? []
+    if (!Array.isArray(ids) || !ids.every((id) => typeof id === 'string' && REGISTRY_ID.test(id))) return refuse('the message carried an invalid registry id')
+    if (!this.#permissions.allowUpdate) return refuse('updating extensions was not granted', AgentPermission.UPDATE)
+    const busy = this.#busy()
+    if (busy) return refuse(busy)
+    if (!kubbBin) return refuse('kubb is not installed in the project')
+
+    const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['update', ...ids, '--yes'] })
+    await this.#logCommand('updateExtensions', `${failed ? 'failed to update' : 'updated'} ${ids.join(', ') || 'all extensions'}`, input?.requestedBy, failed)
+    return failed ? { updated: false, reason: output } : { updated: true }
+  }
+
+  /** Why a command that touches the project cannot start right now. */
+  #busy(): string | undefined {
+    if (this.#session.active) return 'a generation is in progress'
+    if (this.#session.install) return 'an install or update is in progress'
+    if (this.#session.saving) return 'a save is in progress'
+    return undefined
+  }
+
+  /** Runs `kubb` in the project while holding off saves and generations, and ends it when the socket closes. */
+  async #runKubb({ bin, args }: { bin: string; args: Array<string> }) {
+    const controller = new AbortController()
+    const settled = Promise.withResolvers<void>()
+    this.#session.install = { abort: () => controller.abort(), settled: settled.promise }
+    try {
+      return await runKubb({ bin, args, cwd: this.#options.root, signal: controller.signal })
+    } finally {
+      this.#session.install = undefined
+      settled.resolve()
     }
   }
 
@@ -721,6 +842,8 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
     await emit(hooks, 'studio:warn', { message: 'Canceled the running generation: the connection to Kubb Studio closed' })
   }
   await active?.settled
+  session.install?.abort()
+  await session.install?.settled
   await agent.clear()
 
   return { ...close, connected: session.info !== undefined }
@@ -778,7 +901,16 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
     studioUrl: options.studioUrl ?? defaultStudioUrl,
     root,
     configFile: path.resolve(root, options.configPath),
-    permissions: { allowWrite: false, allowConfigEdit: false, allowExec: false, allowRead: false, allowReadAst: false, ...options.permissions },
+    permissions: {
+      allowWrite: false,
+      allowConfigEdit: false,
+      allowInstall: false,
+      allowUpdate: false,
+      allowExec: false,
+      allowRead: false,
+      allowReadAst: false,
+      ...options.permissions,
+    },
     hooks: options.hooks ?? new Hookable<KubbHooks>(),
     maxRetryDelay: options.maxRetryDelay ?? MAX_RETRY_DELAY_MS,
     heartbeatInterval: Math.min(options.heartbeatInterval ?? HEARTBEAT_INTERVAL_MS, MAX_HEARTBEAT_INTERVAL_MS),

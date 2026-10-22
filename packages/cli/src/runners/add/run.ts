@@ -262,6 +262,8 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     }
 
     const manual = unconfigured.length > 0
+    // A plugin the command could not write into the config is a failure a caller can act on; an adapter or parser never gets written.
+    if (manual && manifest.kind === 'plugin') process.exitCode = 1
     if (manual)
       logBlock([
         'Add the import to your Kubb config and merge the property into its defineConfig call:',

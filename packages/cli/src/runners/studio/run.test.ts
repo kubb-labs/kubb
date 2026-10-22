@@ -35,7 +35,7 @@ const multiselect = vi.mocked(prompts.multiselect)
 const options: StudioOptions = {
   version: '0.0.0',
   studioUrl: 'http://localhost:3000',
-  permission: { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false },
+  permission: { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowInstall: false, allowUpdate: false, allowExec: false },
   autoOpen: false,
 }
 
@@ -150,7 +150,7 @@ describe('resolvePermissions', () => {
     using project = stubProject()
     multiselect.mockResolvedValueOnce(['allowReadAst', 'allowWrite', 'allowExec'])
 
-    const answers = { allowRead: false, allowReadAst: true, allowWrite: true, allowConfigEdit: false, allowExec: true }
+    const answers = { allowRead: false, allowReadAst: true, allowWrite: true, allowConfigEdit: false, allowInstall: false, allowUpdate: false, allowExec: true }
 
     await expect(resolvePermissions(options, credentials)).resolves.toEqual(answers)
     expect(multiselect).toHaveBeenCalledOnce()
@@ -170,7 +170,15 @@ describe('resolvePermissions', () => {
 
   it('asks nothing again once the project answered, and never stores a flag-granted permission', async () => {
     using project = stubProject()
-    const remembered = { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
+    const remembered = {
+      allowRead: false,
+      allowReadAst: false,
+      allowWrite: false,
+      allowConfigEdit: false,
+      allowInstall: false,
+      allowUpdate: false,
+      allowExec: false,
+    }
     const stored: Credentials = { ...credentials, projects: { [process.cwd()]: remembered } }
 
     await expect(resolvePermissions({ ...options, permission: { ...options.permission, allowExec: true } }, stored)).resolves.toEqual({

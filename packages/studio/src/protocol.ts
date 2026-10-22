@@ -340,6 +340,18 @@ export type SaveConfigInput = {
  */
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean }
 
+/** Asks the agent to run `kubb add <id>`: `owner/slug`, or a bare `slug` for an official extension. `requestedBy` as for {@link GenerateInput}. */
+export type InstallExtensionInput = { id: string; requestedBy?: string }
+
+/** `installed` is false when the agent refused or `kubb add` failed, with `reason` saying why. */
+export type InstallExtensionResult = { installed: boolean; reason?: string }
+
+/** Asks the agent to run `kubb update [ids] --yes`. Empty `ids` updates every installed extension the registry lists. */
+export type UpdateExtensionsInput = { ids?: Array<string>; requestedBy?: string }
+
+/** `updated` is false when the agent refused or `kubb update` failed, with `reason` saying why. */
+export type UpdateExtensionsResult = { updated: boolean; reason?: string }
+
 /**
  * Reads an immutable output set kept on disk, from a generation or the initial connection.
  */
@@ -409,6 +421,8 @@ export type ReadInputResult = { input: InputNode }
  */
 export const AgentMessage = {
   GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
+  INSTALL_IN_PROGRESS: 'An extension install or update is running, please wait for it to finish',
+  SAVE_IN_PROGRESS: 'The config is being saved, please wait for it to finish',
   SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
   MANAGED_INPUT_KIND: 'A managed agent generates from the OpenAPI document content, a URL, or a git file that Studio sends, not from a file path',
   CONFIG_ENTRY_NOT_FOUND: 'The config file has no entry at that position or with that name',
@@ -474,6 +488,10 @@ export type AgentApi = {
   connect: (info: AgentConnectInfo) => Promise<ConnectMessagePayload>
   startGeneration: (input: GenerateInput) => GenerationRun
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
+  /** Refused without `allowInstall` and `allowConfigEdit`. An agent from before `installExtension` rejects the call. */
+  installExtension: (input: InstallExtensionInput) => Promise<InstallExtensionResult>
+  /** Refused without `allowUpdate`. Installs packages only, so `kubb.config.ts` stays as it is. */
+  updateExtensions: (input: UpdateExtensionsInput) => Promise<UpdateExtensionsResult>
   readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
   /**
    * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
@@ -628,6 +646,10 @@ export type AgentPermissions = {
    * `allowWrite`, which covers generated output: this one edits a hand-authored source file.
    */
   allowConfigEdit: boolean
+  /** Whether the agent may run `kubb add` in the project, which also edits `kubb.config.ts`. Needs `allowConfigEdit` as well. */
+  allowInstall: boolean
+  /** Whether the agent may run `kubb update` in the project, which installs newer extension versions and leaves `kubb.config.ts` alone. */
+  allowUpdate: boolean
   /**
    * Whether the agent shares existing output on connect and hands back file source through
    * `readFiles`. A sandbox always permits reads of its generated files.
@@ -648,6 +670,8 @@ export const AgentPermission = {
   READ_AST: 'allowReadAst',
   WRITE: 'allowWrite',
   CONFIG_EDIT: 'allowConfigEdit',
+  INSTALL: 'allowInstall',
+  UPDATE: 'allowUpdate',
   EXEC: 'allowExec',
 } as const satisfies Record<string, keyof AgentPermissions>
 export type AgentPermission = (typeof AgentPermission)[keyof typeof AgentPermission]
