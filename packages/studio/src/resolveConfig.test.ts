@@ -223,6 +223,11 @@ describe('mergeOutput', () => {
     expect(mergeOutput(output, { path: '/etc', format: 'biome', postGenerate: ['rm -rf /'] })).toStrictEqual({ ...output, format: 'biome' })
     expect(mergeOutput(output, { postGenerate: null, lint: false })).toStrictEqual({ ...output, lint: false })
   })
+
+  it('drops values an option does not take', () => {
+    expect(mergeOutput(output, { clean: 'false', format: 'gofmt', barrel: { type: 'named', nested: true }, plugins: [] })).toStrictEqual(output)
+    expect(mergeOutput({ ...output, clean: true }, { clean: null, barrel: { type: 'all' } })).toStrictEqual({ ...output, barrel: { type: 'all' } })
+  })
 })
 
 describe('toJSONOptions', () => {

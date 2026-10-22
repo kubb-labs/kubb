@@ -174,7 +174,7 @@ export type ConfigView = {
    * The parser calls in `parsers`, when the entry lists any through imported factories.
    */
   parsers?: Array<PluginView>
-  /** The root `output` members. Absent when `output` is not an object literal. */
+  /** The root `output` members Studio may set. Absent when `output` is not an object literal. */
   output?: OptionsView
 }
 

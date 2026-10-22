@@ -447,10 +447,30 @@ async function rebuildExtension<T extends Adapter | Parser>({
   return factory(mergeOptions((disk.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)) as T
 }
 
-/** Merges Studio's `output` overrides, keeping the file's `path` and `postGenerate`. */
+/** The root `output` members Studio may set, with the values each takes. The rest, `path` and `postGenerate` among them, stay with the config file. */
+const OUTPUT_VALUES: Record<string, (value: unknown) => boolean> = {
+  barrel: (value) => value === false || (isPlainObject(value) && Object.keys(value).length === 1 && (value.type === 'named' || value.type === 'all')),
+  format: (value) => value === false || ['auto', 'prettier', 'biome', 'oxfmt'].includes(value as string),
+  lint: (value) => value === false || ['auto', 'eslint', 'biome', 'oxlint'].includes(value as string),
+  clean: (value) => typeof value === 'boolean',
+  defaultBanner: (value) => value === false || value === 'simple' || value === 'full',
+}
+
+/** Whether Studio may set the root `output` member `key`, and to `value` when given. */
+export function isOutputValue(key: string, ...value: [unknown?]): boolean {
+  return Object.hasOwn(OUTPUT_VALUES, key) && (value.length === 0 || OUTPUT_VALUES[key]!(value[0]))
+}
+
+/** The members of `output` Studio may see and set. */
+export function pickOutput<T>(output: Record<string, T>): Record<string, T> {
+  return Object.fromEntries(Object.entries(output).filter(([key]) => isOutputValue(key)))
+}
+
+/** Merges Studio's valid `output` overrides, with `null` unsetting a member. */
 export function mergeOutput(output: Config['output'], studio: unknown): Config['output'] {
   if (!isPlainObject(studio)) return output
-  return { ...(mergeOptions(output, studio) as Config['output']), path: output.path, postGenerate: output.postGenerate }
+  const overrides = Object.fromEntries(Object.entries(studio).filter(([key, value]) => (value === null ? isOutputValue(key) : isOutputValue(key, value))))
+  return mergeOptions(output, overrides) as Config['output']
 }
 
 /**

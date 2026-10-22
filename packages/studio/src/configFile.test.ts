@@ -497,8 +497,11 @@ describe('applyConfigEdits', () => {
   describe('set-output and remove-output', () => {
     const source = `export default defineConfig({\n  output: { path: './gen', format: 'auto' },\n  plugins: [],\n})\n`
 
-    it('reads the output members and writes inside the output object', () => {
-      expect(readConfig(source)).toMatchObject({ configs: [{ output: { path: { literal: true, value: './gen' }, format: { literal: true, value: 'auto' } } }] })
+    it('reads the output members Studio may set and writes inside the output object', () => {
+      expect(readConfig(source)).toStrictEqual({
+        managed: true,
+        configs: [{ name: undefined, plugins: [], output: { format: { literal: true, value: 'auto' } } }],
+      })
 
       const result = applyConfigEdits({
         source,
@@ -531,6 +534,21 @@ describe('applyConfigEdits', () => {
         ],
         changed: false,
       })
+    })
+
+    it('refuses a value the option does not take', () => {
+      const result = applyConfigEdits({
+        source,
+        edits: [
+          { operation: 'set-output', path: ['clean'], value: 'false' },
+          { operation: 'set-output', path: ['barrel', 'type'], value: 'deep' },
+        ],
+      })
+
+      expect(result.outcomes).toMatchObject([
+        { applied: false, reason: 'the value is not one output.clean takes' },
+        { applied: false, reason: 'the value is not one output.barrel takes' },
+      ])
     })
 
     it('turns a barrel off and on again', () => {

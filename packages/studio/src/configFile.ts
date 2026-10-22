@@ -14,7 +14,7 @@ import {
   type OptionValue,
   type PluginView,
 } from './protocol.ts'
-import { isAllowedPlugin, isOptionValue, isSafeKey, toExportName } from './resolveConfig.ts'
+import { isAllowedPlugin, isOptionValue, isOutputValue, isSafeKey, pickOutput, toExportName } from './resolveConfig.ts'
 
 /**
  * A valid JavaScript identifier, so an import name can only ever print as `import { name } from`,
@@ -63,8 +63,7 @@ function invalidEdit(edit: ConfigEdit): string | undefined {
     if (!path.length) return 'no option path given'
     const unsafe = path.find((key: string) => !isSafeKey(key))
     if (unsafe !== undefined) return `${unsafe} cannot be used as an option name`
-    // The folder bounds where generation writes, and the commands run on the host, so only the file sets them.
-    if (isOutput && (path[0] === 'path' || path[0] === 'postGenerate')) return `output.${path[0]} can only be changed in the config file`
+    if (isOutput && !isOutputValue(path[0])) return `output.${path[0]} can only be changed in the config file`
   }
   return undefined
 }
@@ -498,7 +497,7 @@ export function readConfig(source: string): ConfigFileView {
         plugins,
         ...(adapter && { adapter }),
         ...(parsers.length ? { parsers } : {}),
-        ...(!('reason' in output) && { output: readObject(output.object) }),
+        ...(!('reason' in output) && { output: pickOutput(readObject(output.object)) }),
       }
     }),
   }
@@ -598,7 +597,8 @@ function applyOutputEdit(
   const output = outputObject(config)
   if ('reason' in output) return output
   if (edit.operation === ConfigEditOperation.REMOVE_OUTPUT) return removeIn(source, output.object, edit.path)
-  if (!isOptionValue(edit.value)) return { reason: 'the value is not a literal that can be written to a config file' }
+  if (!isOptionValue(edit.value) || !isOutputValue(edit.path[0]!, nest(edit.path.slice(1), edit.value)))
+    return { reason: `the value is not one output.${edit.path[0]} takes` }
   return setIn(source, output.object, edit.path, edit.value, quote)
 }
 

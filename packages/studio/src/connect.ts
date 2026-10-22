@@ -68,7 +68,7 @@ import {
   type UpdateExtensionsResult,
 } from './protocol.ts'
 import { withPublicFetch } from './publicFetch.ts'
-import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
+import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, pickOutput, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -956,7 +956,7 @@ function toEntryView(config: Config, extensions: InstalledExtensions): ConfigEnt
     ...(config.name !== undefined && { name: config.name }),
     ...(input !== undefined && { input }),
     output: config.output.path,
-    outputOptions: toJSONOptions({ ...config.output, path: undefined, postGenerate: undefined }),
+    outputOptions: pickOutput(toJSONOptions(config.output)),
     plugins: config.plugins.map((plugin) => ({
       name: toStudioName({ name: resolveMeta(plugin).name, extensions }),
       options: toJSONOptions(plugin.options),
