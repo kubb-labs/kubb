@@ -531,7 +531,9 @@ class Agent extends RpcTarget implements AgentApi {
     // A managed agent checks a git input out itself, so the fetch stays on public addresses and follows no redirect.
     const checkout =
       this.#managed && studioInput !== undefined && getInputKind(studioInput) === 'git'
-        ? await checkoutGitInput(studioInput, signal, { publicOnly: true }).catch((error: unknown) => this.#refuse({ message: getErrorMessage(error) }))
+        ? await checkoutGitInput(studioInput, signal, { publicOnly: true, env: input.gitAuth?.env }).catch((error: unknown) =>
+            this.#refuse({ message: getErrorMessage(error) }),
+          )
         : undefined
     const run = () =>
       generate({

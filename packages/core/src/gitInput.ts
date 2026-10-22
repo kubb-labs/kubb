@@ -97,18 +97,31 @@ async function resolvePublicFetchConfig(repo: string, signal?: AbortSignal): Pro
   return publicFetchConfig({ host, port: url.port || '443', addresses })
 }
 
+const gitConfigEnvKey = /^GIT_CONFIG_(COUNT|KEY_\d+|VALUE_\d+|GLOBAL|NOSYSTEM)$/
+
+/**
+ * The entries of `env` git reads as configuration: `GIT_CONFIG_COUNT` with its `KEY_n` and
+ * `VALUE_n` pairs, and the two that keep global and system config out. Anything else is dropped,
+ * so a caller handing in credentials for one fetch cannot reach `PATH` or `NODE_OPTIONS`.
+ */
+export function gitConfigEnv(env: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(Object.entries(env).filter(([key]) => gitConfigEnvKey.test(key)))
+}
+
 /**
  * Fetches one commit of a git repository into a temporary directory with a shallow `git fetch`,
  * so any host and the user's own git credentials work, and relative `$ref` files resolve.
  * Resolves to the spec path on disk and a `dispose` that deletes the checkout.
  *
  * With `publicOnly`, the repository must be an https URL on public addresses, the fetch connects to
- * the addresses checked, and it does not follow a redirect.
+ * the addresses checked, and it does not follow a redirect. `env` adds git configuration for this
+ * fetch only, filtered by {@link gitConfigEnv}: Studio sends an `Authorization` header this way for
+ * a private repository.
  */
 export async function checkoutGitInput(
   input: string,
   signal?: AbortSignal,
-  { publicOnly = false }: { publicOnly?: boolean } = {},
+  { publicOnly = false, env: configEnv }: { publicOnly?: boolean; env?: Record<string, string> } = {},
 ): Promise<{ path: string; dispose: () => Promise<void> }> {
   const { repo, ref, path } = parseGitInput(input)
   const fetchConfig = publicOnly ? await resolvePublicFetchConfig(repo, signal) : []
@@ -124,7 +137,7 @@ export async function checkoutGitInput(
 
   const label = `${redact(repo)}${ref ? ` at ${ref}` : ''}`
   // A prompt would hang the run, so git fails instead; credential helpers and SSH keys still work.
-  const env = { ...process.env, GIT_TERMINAL_PROMPT: '0' }
+  const env = { ...process.env, ...(configEnv && gitConfigEnv(configEnv)), GIT_TERMINAL_PROMPT: '0' }
   // `--end-of-options` keeps a repo or ref that starts with `-` from being read as a git flag.
   const steps = [
     ['init', '--quiet'],

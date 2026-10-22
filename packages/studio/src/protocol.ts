@@ -306,6 +306,13 @@ export type GenerateInput = {
    * Display name of the Studio user who asked for the run, shown in the agent's job log.
    */
   requestedBy?: string
+  /**
+   * Git configuration for the fetch of a `git+` input, as `GIT_CONFIG_*` variables for the git
+   * child process only. Studio sends a short-lived `Authorization` header for a private
+   * repository this way. Keys outside `GIT_CONFIG_*` are dropped; an agent that predates the
+   * field ignores it.
+   */
+  gitAuth?: { env: Record<string, string> }
 }
 
 /**

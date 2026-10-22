@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { Diagnostics } from './Diagnostics.ts'
-import { checkoutGitInput, parseGitInput, publicFetchConfig } from './gitInput.ts'
+import { checkoutGitInput, gitConfigEnv, parseGitInput, publicFetchConfig } from './gitInput.ts'
 
 describe('parseGitInput', () => {
   it.each([
@@ -86,6 +86,42 @@ describe('checkoutGitInput', () => {
 
   it('rejects a path that leaves the repository', async () => {
     await expect(checkoutGitInput(`git+${repo}#v1:../outside.yaml`)).rejects.toMatchObject({ diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' } })
+  })
+
+  it('passes `env` to git as configuration for the fetch', async () => {
+    const input = 'git+https://git.invalid/org/api.git#v1:specs/openapi.yaml'
+    // The rewrite to the local repository exists only in the env, so the fetch succeeds only when git read it.
+    const env = { GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: `url.${repo}.insteadOf`, GIT_CONFIG_VALUE_0: 'https://git.invalid/org/api.git' }
+
+    await expect(checkoutGitInput(input)).rejects.toMatchObject({ diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' } })
+
+    const withEnv = await checkoutGitInput(input, undefined, { env })
+    expect(await readFile(withEnv.path, 'utf8')).toBe('openapi: 3.1.0\n')
+    await withEnv.dispose()
+  })
+})
+
+describe('gitConfigEnv', () => {
+  it('keeps the GIT_CONFIG_* entries and drops everything else', () => {
+    expect(
+      gitConfigEnv({
+        GIT_CONFIG_COUNT: '1',
+        GIT_CONFIG_KEY_0: 'http.https://github.com/.extraheader',
+        GIT_CONFIG_VALUE_0: 'Authorization: Basic abc',
+        GIT_CONFIG_GLOBAL: '/dev/null',
+        GIT_CONFIG_NOSYSTEM: '1',
+        GIT_CONFIG_KEY_x: 'nope',
+        GIT_TERMINAL_PROMPT: '1',
+        NODE_OPTIONS: '--require evil',
+        PATH: '/tmp',
+      }),
+    ).toStrictEqual({
+      GIT_CONFIG_COUNT: '1',
+      GIT_CONFIG_KEY_0: 'http.https://github.com/.extraheader',
+      GIT_CONFIG_VALUE_0: 'Authorization: Basic abc',
+      GIT_CONFIG_GLOBAL: '/dev/null',
+      GIT_CONFIG_NOSYSTEM: '1',
+    })
   })
 })
 
