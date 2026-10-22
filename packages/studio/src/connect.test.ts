@@ -340,6 +340,29 @@ describe('a sandbox job', () => {
     await expect(agent.startGeneration({ jobId: 'job-1', config: { input: '/etc/passwd' } }).result()).rejects.toThrow(AgentMessage.MANAGED_INPUT_KIND)
   })
 
+  it.each([
+    ['a git repository over plain http', 'git+http://93.184.216.34/api.git#main:openapi.yaml'],
+    ['a git repository on a private address', 'git+https://10.0.0.5/api.git#main:openapi.yaml'],
+  ])('refuses %s before it fetches anything', async (_label, input) => {
+    const { agent } = await connectStudio({ connectInfo: { ...info, managed: true } })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(/https only|not a public address/)
+  })
+
+  it('limits the fetch of a managed agent to public addresses, and only while it generates', async () => {
+    const original = globalThis.fetch
+    const parse = async () => {
+      // What the adapter does for a URL input, or for a `$ref` inside the document.
+      await fetch('http://169.254.169.254/latest/meta-data')
+      return ast.factory.createInput({ operations: [], meta: { title: 'Pets', circularNames: [], enumNames: [] } })
+    }
+    const loadConfigs = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
+    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow('not a public address')
+    expect(globalThis.fetch).toBe(original)
+  })
+
   it('generates a managed agent from the spec Studio sends instead of warning that it is ignored', async () => {
     const { hooks, heard } = withHooks()
     const warn = heard('kubb:warn')

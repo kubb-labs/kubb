@@ -55,6 +55,7 @@ import {
   type SaveResult,
   type StudioApi,
 } from './protocol.ts'
+import { assertPublicGitInput, withPublicFetch } from './publicFetch.ts'
 import { assertOutputPaths, mergeAdapter, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
@@ -453,6 +454,9 @@ class Agent extends RpcTarget implements AgentApi {
     if (this.#managed && studioInput !== undefined && !MANAGED_INPUT_KINDS.has(getInputKind(studioInput))) {
       return this.#refuse({ message: AgentMessage.MANAGED_INPUT_KIND })
     }
+    if (this.#managed && studioInput !== undefined && getInputKind(studioInput) === 'git') {
+      await assertPublicGitInput(studioInput).catch((error: unknown) => this.#refuse({ message: getErrorMessage(error) }))
+    }
 
     const [configs, extensions] = await Promise.all([this.#options.loadConfigs(), this.#installedExtensions()])
     const config = pickConfig(configs, patch?.config)
@@ -479,20 +483,23 @@ class Agent extends RpcTarget implements AgentApi {
       })
     }
 
-    const files = await generate({
-      config: {
-        ...config,
-        root,
-        input: studioInput ?? config.input,
-        storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
-        plugins: activePlugins,
-        adapter,
-        parsers,
-      },
-      hooks: this.#options.hooks,
-      signal,
-      allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
-    }).catch(async (error: unknown) => {
+    const run = () =>
+      generate({
+        config: {
+          ...config,
+          root,
+          input: studioInput ?? config.input,
+          storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
+          plugins: activePlugins,
+          adapter,
+          parsers,
+        },
+        hooks: this.#options.hooks,
+        signal,
+        allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
+      })
+    // The adapter fetches the URL and every `$ref` in it, so a managed agent limits the fetch itself to public addresses.
+    const files = await (this.#managed ? withPublicFetch(run) : run()).catch(async (error: unknown) => {
       await this.#generations.drop(jobId)
       await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
       throw error
