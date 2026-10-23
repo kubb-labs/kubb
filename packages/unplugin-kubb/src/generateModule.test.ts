@@ -55,7 +55,7 @@ describe('generateModule', () => {
       config: { output: { path: './gen' }, adapter, plugins: [createSchemaPlugin('a')] },
     })
 
-    expect(text).toBeNull()
+    expect(text).toBe('')
     expect(errors.map((error) => error.message).join('\n')).toContain('Cannot read the spec')
   })
 })

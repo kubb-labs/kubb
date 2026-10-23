@@ -136,7 +136,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
       async load(id) {
         const { configs, baseDir } = await loadConfigs()
         const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config: selectConfig(configs, id, baseDir)! })
-        if (text === null) throw fail(errors[0], `${id}: ${errors[0]?.message ?? 'Build failed'}`)
+        if (errors.length) throw fail(errors[0], `${id}: ${errors[0]!.message}`)
 
         // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
         return ts.transpileModule(text, { fileName: `${id}.ts`, compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext } }).outputText
