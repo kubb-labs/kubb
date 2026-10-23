@@ -104,6 +104,19 @@ describe('unpluginFactory', () => {
     await fs.rm(root, { recursive: true, force: true })
   })
 
+  test('loads openapi.yaml and *.openapi.yaml imports, not other YAML files', () => {
+    const options = unpluginFactory(undefined, viteMeta)
+    const importPlugin = Array.isArray(options) ? options[1] : undefined
+    const loads = (id: string) => importPlugin?.loadInclude?.(id)
+
+    expect(loads('/app/openapi.yaml')).toBe(true)
+    expect(loads('/app/openapi.yml')).toBe(true)
+    expect(loads('C:\\app\\openapi.yaml')).toBe(true)
+    expect(loads('/app/pet.openapi.yaml')).toBe(true)
+    expect(loads('/app/myopenapi.yaml')).toBe(false)
+    expect(loads('/app/docker-compose.yaml')).toBe(false)
+  })
+
   test('skips the build for a config without input, used only for spec imports', async () => {
     const setup = vi.fn()
     const { input: _input, ...config } = createConfig(setup)
