@@ -26,16 +26,16 @@ It is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/p
 
 ## Install openapi-import
 
-Install it with Kubb, the TypeScript beta, and the plugins your output needs:
+Install it with Kubb and the TypeScript beta. `openapi-import` ships `@kubb/plugin-ts`, so the types work without other packages:
 
 :::code-group{sync="package-manager"}
 
 ```shell [pnpm]
-pnpm add -D kubb openapi-import typescript@beta @kubb/plugin-ts
+pnpm add -D kubb openapi-import typescript@beta
 ```
 
 ```shell [npm]
-npm install -D kubb openapi-import typescript@beta @kubb/plugin-ts
+npm install -D kubb openapi-import typescript@beta
 ```
 
 :::
@@ -55,25 +55,9 @@ Add the content mapper to `tsconfig.json`. Register `.openapi.yaml` rather than 
     "noEmit": true
   },
   "contentMappers": [{ "package": "openapi-import", "extensions": [".openapi.yaml", ".openapi.yml"] }],
-  "include": ["./src/**/*", "./kubb.config.ts"]
+  "include": ["./src/**/*"]
 }
 ```
-
-## Choose the plugins
-
-Every `*.openapi.yaml` import gets the output of the plugins in `kubb.config.ts`. Without a config, only `@kubb/plugin-ts` runs:
-
-```ts [kubb.config.ts]
-import { pluginTs } from '@kubb/plugin-ts'
-import { defineConfig } from 'kubb/config'
-
-export default defineConfig({
-  output: { path: './src/gen' },
-  plugins: [pluginTs()],
-})
-```
-
-The mapper finds the config like the CLI does and reloads it when it changes. With several configs, a spec uses the one whose `input` matches it.
 
 ## Run the type check
 
@@ -85,9 +69,29 @@ VS Code only passes `--runExternalCode` in trusted workspaces.
 
 ::
 
+## Choose the plugins
+
+Without a `kubb.config.ts`, every `*.openapi.yaml` import gets the output of `@kubb/plugin-ts` with its default options. Add a config to set plugin options or to run other plugins. The config imports each plugin itself, so install them, `@kubb/plugin-ts` included:
+
+```shell [Terminal]
+pnpm add -D @kubb/plugin-ts
+```
+
+```ts [kubb.config.ts]
+import { pluginTs } from '@kubb/plugin-ts'
+import { defineConfig } from 'kubb/config'
+
+export default defineConfig({
+  output: { path: './src/gen' },
+  plugins: [pluginTs()],
+})
+```
+
+Add `./kubb.config.ts` to `include` in `tsconfig.json`. The mapper finds the config like the CLI does and reloads it when it changes. With several configs, a spec uses the one whose `input` matches it.
+
 ## Load the spec at run time
 
-TypeScript does not emit the spec to JavaScript, so values such as `petStatusEnum` need a bundler. Add `kubb()` from any [build tool integration](/docs/5.x/integrations/overview#build-tools) without a `config` option, so it reads the same `kubb.config.ts` as `tsc`:
+TypeScript does not emit the spec to JavaScript, so values such as `petStatusEnum` need a bundler. Add `kubb()` from any [build tool integration](/docs/5.x/integrations/overview#build-tools) without a `config` option, so it reads the same `kubb.config.ts` as `tsc`. The bundler needs that config, because it does not ship `@kubb/plugin-ts`:
 
 ```ts [vite.config.ts]
 import kubb from 'kubb/vite'
