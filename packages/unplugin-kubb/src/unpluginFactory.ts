@@ -12,6 +12,7 @@ import {
   jsonReporter,
   type KubbHooks,
   logLevel,
+  type ProblemDiagnostic,
   type UserConfig,
 } from '@kubb/core'
 import { parserMd } from '@kubb/parser-md'
@@ -76,52 +77,39 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
     reporter.report({ config, diagnostics, filesCreated, status, hrStart }, { logLevel: logLevel.info }),
   )
 
-  // Loaded once per instance, like the generation below: restart the build after editing the config file.
-  let loaded: Promise<{ configs: Array<UserConfig>; baseDir: string }> | undefined
+  // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`. Keep the problem's code,
+  // help and location, so the bundler shows the same diagnostic.
+  const fail = (problem: ProblemDiagnostic | undefined, message: string) =>
+    new Diagnostics.Error({ ...(problem ?? { code: Diagnostics.code.unknown, severity: 'error' }), message: `[${name}] ${message}` })
 
-  // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`.
-  function loadConfigs(): Promise<{ configs: Array<UserConfig>; baseDir: string }> {
-    if (options?.config) return Promise.resolve({ configs: [options.config], baseDir: process.cwd() })
+  async function readConfigs(): Promise<{ configs: Array<UserConfig>; baseDir: string }> {
+    if (options?.config) return { configs: [options.config], baseDir: process.cwd() }
 
-    loaded ??= (async () => {
-      const file = findConfigFile()
-      if (!file) {
-        throw new Diagnostics.Error({
-          code: Diagnostics.code.inputRequired,
-          severity: 'error',
-          message: `[${name}] Config is not set`,
-          help: 'Pass your Kubb config as the `config` option of the plugin, or add a `kubb.config.ts`.',
-          location: { kind: 'config' },
-        })
-      }
-      return { configs: await loadConfigFile<UserConfig>(file, {}), baseDir: path.dirname(file) }
-    })().catch((error: unknown) => {
-      loaded = undefined
-      throw error
-    })
-    return loaded
+    const file = findConfigFile()
+    if (!file) {
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.inputRequired,
+        severity: 'error',
+        message: `[${name}] Config is not set`,
+        help: 'Pass your Kubb config as the `config` option of the plugin, or add a `kubb.config.ts`.',
+        location: { kind: 'config' },
+      })
+    }
+    return { configs: await loadConfigFile<UserConfig>(file, {}), baseDir: path.dirname(file) }
   }
+
+  // Loaded once per instance, like the generation below: restart the build after editing the config file.
+  let loaded: ReturnType<typeof readConfigs> | undefined
+  const loadConfigs = () => (loaded ??= readConfigs())
 
   async function runBuild() {
-    for (const config of (await loadConfigs()).configs) {
-      if (config.input) await generate(config)
-    }
-  }
+    for (const config of (await loadConfigs()).configs.filter((config) => config.input)) {
+      const result = await createKubb(applyDefaults(config) as Config, { hooks }).generate()
+      if (result.success) continue
 
-  async function generate(config: UserConfig) {
-    const kubb = createKubb(applyDefaults(config) as Config, { hooks })
-    const result = await kubb.generate()
-
-    if (!result.success) {
       const failedCount = Diagnostics.failedPlugins(result.diagnostics).length
       const firstError = result.diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
-      const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
-
-      // Keep the first error's code, help, and location, so the bundler shows the same diagnostic.
-      throw new Diagnostics.Error({
-        ...(firstError ?? { code: Diagnostics.code.unknown, severity: 'error' }),
-        message: `[${name}] ${message}`,
-      })
+      throw fail(firstError, failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed'))
     }
   }
 
@@ -148,13 +136,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
       async load(id) {
         const { configs, baseDir } = await loadConfigs()
         const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config: selectConfig(configs, id, baseDir)! })
-        if (text === null) {
-          const [error] = errors
-          throw new Diagnostics.Error({
-            ...(error ?? { code: Diagnostics.code.unknown, severity: 'error' }),
-            message: `[${name}] ${id}: ${error?.message ?? 'Build failed'}`,
-          })
-        }
+        if (text === null) throw fail(errors[0], `${id}: ${errors[0]?.message ?? 'Build failed'}`)
 
         // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
         return ts.transpileModule(text, { fileName: `${id}.ts`, compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext } }).outputText
