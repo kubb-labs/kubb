@@ -60,20 +60,21 @@ export const numericFormats: ReadonlySet<string> = new Set(['int32', 'int64', 'u
  *
  * Only formats whose AST type differs from the OAS `type` field appear here.
  * Formats that depend on runtime options (`int64`, `date-time`, `date`, `time`) are handled
- * separately in the parser. `ipv4` and `ipv6` map to their own dedicated schema types. `hostname`
- * and `idn-hostname` map to `'url'` as the closest generic string-format type.
+ * separately in the parser. `ipv4` and `ipv6` map to their own dedicated schema types.
+ * `uri-reference`, `hostname` and `idn-hostname` map to `'string'`: a relative reference or a bare
+ * host name is not a URL, so a `'url'` validator would reject valid values.
  */
 export const formatMap = {
   uuid: 'uuid',
   email: 'email',
   'idn-email': 'email',
   uri: 'url',
-  'uri-reference': 'url',
+  'uri-reference': 'string',
   url: 'url',
   ipv4: 'ipv4',
   ipv6: 'ipv6',
-  hostname: 'url',
-  'idn-hostname': 'url',
+  hostname: 'string',
+  'idn-hostname': 'string',
   binary: 'blob',
   byte: 'blob',
   // Numeric formats override the OAS `type` because format is more specific.
