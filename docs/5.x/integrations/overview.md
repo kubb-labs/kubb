@@ -43,7 +43,7 @@ Publish snapshots from GitLab CI and review generated-file changes.
 
 ## Build tools
 
-Kubb runs generation during your build through `unplugin-kubb`, included with `kubb`. Each integration takes your `kubb.config.ts` as a single `config` object and generates when the tool builds. Leave `config` out, as in `kubb()`, and the integration loads `kubb.config.ts` itself, the way the CLI finds it.
+Kubb runs generation during your build through `unplugin-kubb`, included with `kubb`. Each integration takes your `kubb.config.ts` as a single `config` object and generates when the tool builds. Without `config`, it loads `kubb.config.ts` like the CLI does.
 
 ::card-group
 
@@ -92,14 +92,10 @@ Vite, Nuxt, and Astro generate during builds only. Run `kubb generate` before st
 
 ### Import a spec
 
-With a build tool integration, you can also import a spec named `*.openapi.yaml` or `*.openapi.yml`. The import holds the output of every plugin in `config`, as one module, with no files written:
+Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module, without generated files. A config without `input` only serves these imports.
 
 ```ts
 import { getPetById, petSchema } from './petStore.openapi.yaml'
 ```
 
-The integration applies `config`'s adapter and plugins to the imported spec, and ignores its `input` and `output`. A `config` without `input` skips the build-time generation and only serves these imports. Spec imports also work in the Vite development server.
-
-The module only holds the file each plugin writes its code to. Code a plugin writes to another file, such as a bundled client runtime, is left out, so point imports like the client's `importPath` at a package or a path relative to the spec.
-
-For types in your editor and in `tsc`, add the [`openapi-import`](https://github.com/kubb-labs/plugins/tree/main/packages/openapi-import) TypeScript content mapper. It reads the same `kubb.config.ts` and gives the import the same exports.
+Code a plugin writes to a separate file, such as a bundled client runtime, is not included. For types in `tsc` and your editor, add [`openapi-import`](https://github.com/kubb-labs/openapi-import).
