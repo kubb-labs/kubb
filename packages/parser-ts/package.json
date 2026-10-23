@@ -75,14 +75,6 @@
   "devDependencies": {
     "@typescript/typescript6": "catalog:"
   },
-  "peerDependencies": {
-    "@typescript/typescript6": "^6.0.2"
-  },
-  "peerDependenciesMeta": {
-    "@typescript/typescript6": {
-      "optional": true
-    }
-  },
   "engines": {
     "node": ">=22.12"
   }

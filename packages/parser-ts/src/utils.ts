@@ -1,9 +1,10 @@
 import { createRequire } from 'node:module'
 import { dirname, extname as getExtname, relative, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { ast } from '@kubb/ast'
 
 /**
- * A TypeScript compiler node, typed structurally so `@typescript/typescript6` stays an optional peer.
+ * A TypeScript compiler node, typed structurally so `@kubb/parser-ts` does not depend on `@typescript/typescript6`.
  *
  * @deprecated Pass printed strings to `print` instead. Support for compiler nodes is removed in the next major.
  */
@@ -26,7 +27,9 @@ function loadCompiler(): Compiler {
 
   let typescript: typeof import('@typescript/typescript6')
   try {
-    typescript = createRequire(import.meta.url)('@typescript/typescript6')
+    const require = createRequire(import.meta.url)
+    // Look in the user's project first: a strict package manager such as pnpm does not link it next to this package
+    typescript = require(require.resolve('@typescript/typescript6', { paths: [process.cwd(), dirname(fileURLToPath(import.meta.url))] }))
   } catch (cause) {
     throw new Error('`print` received a TypeScript compiler node, which needs `@typescript/typescript6` installed. Pass a printed string instead.', {
       cause,
