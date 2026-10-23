@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Import an OpenAPI spec in TypeScript with openapi-import
-description: Import an openapi.yaml spec in TypeScript with openapi-import and get the types and enums your kubb.config.ts generates, without generated files.
+description: Import a .openapi.yaml spec in TypeScript with openapi-import and get the types and enums your kubb.config.ts generates, without generated files.
 outline: [2, 3]
 order: 15
 navigation:
@@ -14,7 +14,7 @@ navigation:
 [`openapi-import`](https://github.com/kubb-labs/openapi-import) lets you import a spec like a TypeScript module and get the output of every plugin in your `kubb.config.ts`, without generated files:
 
 ```ts
-import { type Pet, petStatusEnum } from './openapi.yaml'
+import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
 ```
 
 It is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/pull/4712), so `tsc` and your editor type-check the plugin output in place of the spec. Go to definition, hover, and rename jump between the generated types and the keys in the spec.
@@ -42,7 +42,7 @@ npm install -D kubb openapi-import typescript@beta
 
 ## Register the extension
 
-Add the content mapper to `tsconfig.json`, and name the spec `openapi.yaml` or `<name>.openapi.yaml`:
+Add the content mapper to `tsconfig.json`, and name the spec `<name>.openapi.yaml`:
 
 ```json [tsconfig.json]
 {
@@ -52,7 +52,7 @@ Add the content mapper to `tsconfig.json`, and name the spec `openapi.yaml` or `
     "strict": true,
     "noEmit": true
   },
-  "contentMappers": [{ "package": "openapi-import", "extensions": [".yaml", ".yml"] }],
+  "contentMappers": [{ "package": "openapi-import", "extensions": [".openapi.yaml", ".openapi.yml"] }],
   "include": ["./src/**/*"]
 }
 ```
@@ -113,7 +113,7 @@ export default defineConfig({
 The types and the values then come from the same import:
 
 ```ts [src/pets.ts]
-import { type GetPetByIdPath, type GetPetByIdResponse, petStatusEnum } from '../openapi.yaml'
+import { type GetPetByIdPath, type GetPetByIdResponse, petStatusEnum } from '../petStore.openapi.yaml'
 
 export async function getAvailablePet({ petId }: GetPetByIdPath): Promise<GetPetByIdResponse | undefined> {
   const response = await fetch(`https://petstore3.swagger.io/api/v3/pet/${petId}`)

@@ -117,10 +117,10 @@ export default defineConfig({
 
 ## Import a spec
 
-Import an `openapi.yaml` or `*.openapi.yaml` file, also as `.yml`, to get the output of every plugin in your config as one module. This also works in the Vite dev server.
+Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module. This also works in the Vite dev server.
 
 ```ts
-import { getPetById, petSchema } from './openapi.yaml'
+import { getPetById, petSchema } from './petStore.openapi.yaml'
 ```
 
 For types in `tsc` and your editor, add [`openapi-import`](https://github.com/kubb-labs/openapi-import).
