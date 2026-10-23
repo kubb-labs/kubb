@@ -129,11 +129,11 @@ import { getPetById, petSchema } from './petStore.openapi.yaml'
 
 ### config
 
-Define the options for Kubb.
+Define the options for Kubb. When you leave it out, the plugin loads `kubb.config.ts` (or another `kubb.config.*` or `.kubbrc.*`) the way the Kubb CLI finds it, from the current working directory up, so `kubb()` needs no arguments.
 
 ```typescript [Options]
 type Options = {
-  config: UserConfig
+  config?: UserConfig
 }
 ```
 

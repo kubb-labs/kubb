@@ -43,7 +43,7 @@ Publish snapshots from GitLab CI and review generated-file changes.
 
 ## Build tools
 
-Kubb runs generation during your build through `unplugin-kubb`, included with `kubb`. Each integration takes your `kubb.config.ts` as a single `config` object and generates when the tool builds.
+Kubb runs generation during your build through `unplugin-kubb`, included with `kubb`. Each integration takes your `kubb.config.ts` as a single `config` object and generates when the tool builds. Leave `config` out, as in `kubb()`, and the integration loads `kubb.config.ts` itself, the way the CLI finds it.
 
 ::card-group
 

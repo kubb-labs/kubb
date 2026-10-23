@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { defineExtension, memoryStorage, type UserConfig } from '@kubb/core'
@@ -65,10 +68,26 @@ describe('unpluginFactory', () => {
     expect(lines).toContain('Issues   1 error')
   })
 
-  test('fails the host build when the config is missing', async () => {
+  test('fails the host build when the config is missing and no kubb.config.ts exists', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'unplugin-kubb-'))
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(root)
     const pluginOptions = getPluginOptions(unpluginFactory(undefined, viteMeta))
 
     await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb] Config is not set')
+    await fs.rm(root, { recursive: true, force: true })
+  })
+
+  test('loads kubb.config.ts when the config option is not set', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'unplugin-kubb-'))
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(root)
+    // A config without `input` skips generation, so a load error is the only way this fails.
+    await fs.writeFile(path.join(root, 'kubb.config.ts'), "globalThis.__kubbConfigLoaded = true\nexport default { output: { path: './gen' } }\n")
+    const pluginOptions = getPluginOptions(unpluginFactory(undefined, viteMeta))
+
+    await pluginOptions.buildStart?.call(createBuildContext())
+
+    expect((globalThis as { __kubbConfigLoaded?: boolean }).__kubbConfigLoaded).toBe(true)
+    await fs.rm(root, { recursive: true, force: true })
   })
 
   test('skips the build for a config without input, used only for spec imports', async () => {

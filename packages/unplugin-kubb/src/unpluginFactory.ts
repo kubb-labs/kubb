@@ -17,13 +17,15 @@ import {
 import { parserMd } from '@kubb/parser-md'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
+import { findConfigFile, loadConfigFile } from '@internals/shared'
 import ts from '@typescript/typescript6'
 import type { UnpluginFactory } from 'unplugin'
 import { generateModule } from './generateModule.ts'
 
 export type Options = {
   /**
-   * Kubb config passed to the unplugin entry point.
+   * Kubb config passed to the unplugin entry point. When not set, the plugin loads
+   * `kubb.config.*` the way the Kubb CLI finds it, from the current working directory up.
    */
   config?: UserConfig
 }
@@ -64,12 +66,13 @@ export const specFilePattern = /\.openapi\.ya?ml$/
  *
  * Returns two plugins:
  * - `unplugin-kubb` runs the Kubb build during the first `buildStart` with {@link applyDefaults}
- *   applied to the config and prints the same summary `kubb generate` does. Under Vite it only
+ *   applied to each config and prints the same summary `kubb generate` does. Under Vite it only
  *   applies during `build`. A config without `input` skips this build.
  * - `unplugin-kubb:import` loads an imported {@link specFilePattern} file as one JavaScript module
  *   holding the output of every plugin in the config, also in the Vite dev server.
  *
- * A missing config or a failed generation fails the host build.
+ * Without a `config` option, the configs come from `kubb.config.*`. A missing config or a failed
+ * generation fails the host build.
  */
 export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (options, meta) => {
   const name = 'unplugin-kubb' as const
@@ -80,24 +83,47 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
     reporter.report({ config, diagnostics, filesCreated, status, hrStart }, { logLevel: logLevel.info }),
   )
 
+  // Loaded once per instance, like the generation below: restart the build after editing the config file.
+  let configs: Promise<Array<UserConfig>> | undefined
+
   // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`.
-  function requireConfig(): UserConfig {
-    if (!options?.config) {
-      throw new Diagnostics.Error({
-        code: Diagnostics.code.inputRequired,
-        severity: 'error',
-        message: `[${name}] Config is not set`,
-        help: 'Pass your Kubb config as the `config` option of the plugin.',
-        location: { kind: 'config' },
-      })
-    }
-    return options.config
+  function loadConfigs(): Promise<Array<UserConfig>> {
+    if (options?.config) return Promise.resolve([options.config])
+
+    configs ??= (async () => {
+      const file = findConfigFile()
+      if (!file) {
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.inputRequired,
+          severity: 'error',
+          message: `[${name}] Config is not set`,
+          help: 'Pass your Kubb config as the `config` option of the plugin, or add a `kubb.config.ts`.',
+          location: { kind: 'config' },
+        })
+      }
+      return loadConfigFile<UserConfig>(file, {})
+    })().catch((error: unknown) => {
+      configs = undefined
+      throw error
+    })
+    return configs
+  }
+
+  /** The config whose `input` is the spec, else the first one. */
+  async function configFor(id: string): Promise<UserConfig> {
+    const all = await loadConfigs()
+    const matches = (config: UserConfig) => typeof config.input === 'string' && path.resolve(config.root || process.cwd(), config.input) === id
+
+    return all.find(matches) ?? all[0]!
   }
 
   async function runBuild() {
-    const config = requireConfig()
-    if (!config.input) return
+    for (const config of await loadConfigs()) {
+      if (config.input) await generate(config)
+    }
+  }
 
+  async function generate(config: UserConfig) {
     const kubb = createKubb(applyDefaults(config) as Config, { hooks })
     const result = await kubb.generate()
 
@@ -135,7 +161,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
       enforce: 'pre',
       loadInclude: (id) => specFilePattern.test(id),
       async load(id) {
-        const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config: requireConfig() })
+        const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config: await configFor(id) })
         if (text === null) {
           const [error] = errors
           throw new Diagnostics.Error({
