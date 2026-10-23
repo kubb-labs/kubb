@@ -26,7 +26,7 @@ It is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/p
 
 ## Install openapi-import
 
-Install it with Kubb and the TypeScript beta. `openapi-import` ships `@kubb/plugin-ts`, so the types work without other packages:
+Install it with Kubb and the TypeScript beta:
 
 :::code-group{sync="package-manager"}
 
@@ -71,7 +71,7 @@ node node_modules/typescript/bin/tsc --noEmit --runExternalCode
 
 :::
 
-With npm, `tsc` runs TypeScript 6, because `@typescript/typescript6` links its `tsc` over the one from `typescript`, so call the TypeScript 7 binary directly.
+With npm, a bare `tsc` runs TypeScript 6, so call the binary from `typescript`.
 
 VS Code only passes `--runExternalCode` in trusted workspaces.
 
@@ -79,7 +79,7 @@ VS Code only passes `--runExternalCode` in trusted workspaces.
 
 ## Choose the plugins
 
-Without a `kubb.config.ts`, every `*.openapi.yaml` import gets the output of `@kubb/plugin-ts` with its default options. Add a config to set plugin options or to run other plugins. The config imports each plugin itself, so install them, `@kubb/plugin-ts` included:
+Add a `kubb.config.ts` to set plugin options or to run other plugins, and install each plugin it imports:
 
 ```shell [Terminal]
 pnpm add -D @kubb/plugin-ts
@@ -99,7 +99,7 @@ Add `./kubb.config.ts` to `include` in `tsconfig.json`. The mapper finds the con
 
 ## Load the spec at run time
 
-TypeScript does not emit the spec to JavaScript, so values such as `petStatusEnum` need a bundler. Add `kubb()` from any [build tool integration](/docs/5.x/integrations/overview#build-tools) without a `config` option, so it reads the same `kubb.config.ts` as `tsc`. The bundler needs that config, because it does not ship `@kubb/plugin-ts`:
+TypeScript does not emit the spec to JavaScript, so values such as `petStatusEnum` need a bundler. Add `kubb()` from any [build tool integration](/docs/5.x/integrations/overview#build-tools) without a `config` option, so it reads the same `kubb.config.ts` as `tsc`:
 
 ```ts [vite.config.ts]
 import kubb from 'kubb/vite'
