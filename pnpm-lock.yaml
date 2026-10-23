@@ -560,9 +560,6 @@ importers:
       tinyexec:
         specifier: 'catalog:'
         version: 1.3.1
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.23.1(typescript@7.0.2)
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
@@ -570,6 +567,9 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.23.1(typescript@7.0.2)
 
   packages/unplugin-kubb:
     dependencies:
