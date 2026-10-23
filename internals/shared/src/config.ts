@@ -33,7 +33,7 @@ export function findConfigFile(cwd: string = process.cwd()): string | undefined 
  * `.config/` and `configs/`. A missing `root` becomes that folder, so the CLI, the bundler, and
  * an editor read the same paths wherever they run.
  */
-export async function loadConfigFile<T extends { root?: string }>(file: string, cli: unknown): Promise<Array<T>> {
+export async function loadConfigFile<T extends { root?: string }>({ file, cli }: { file: string; cli: unknown }): Promise<Array<T>> {
   const loaded = await loadModule<unknown>(file, { default: true })
   const resolved = (await (typeof loaded === 'function' ? loaded(cli) : loaded)) as T | Array<T>
   const dir = CONFIG_FOLDERS.includes(basename(dirname(file))) ? dirname(dirname(file)) : dirname(file)

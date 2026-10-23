@@ -66,14 +66,14 @@ describe('selectConfig', () => {
     const stores = { root: 'specs', input: './store.openapi.yaml', output: { path: './gen' } }
     const importOnly = { output: { path: './gen' } }
 
-    expect(selectConfig([pets, stores, importOnly], '/app/specs/store.openapi.yaml', '/app')).toBe(stores)
-    expect(selectConfig([pets, stores, importOnly], '/app/other.openapi.yaml', '/app')).toBe(importOnly)
-    expect(selectConfig([], '/app/specs/pet.openapi.yaml', '/app')).toBeUndefined()
+    expect(selectConfig({ configs: [pets, stores, importOnly], fileName: '/app/specs/store.openapi.yaml', cwd: '/app' })).toBe(stores)
+    expect(selectConfig({ configs: [pets, stores, importOnly], fileName: '/app/other.openapi.yaml', cwd: '/app' })).toBe(importOnly)
+    expect(selectConfig({ configs: [], fileName: '/app/specs/pet.openapi.yaml', cwd: '/app' })).toBeUndefined()
   })
 
   test('skips a config for another spec', () => {
     const pets = { input: './specs/pet.openapi.yaml', output: { path: './gen' } }
 
-    expect(selectConfig([pets], '/app/other.openapi.yaml', '/app')).toBeUndefined()
+    expect(selectConfig({ configs: [pets], fileName: '/app/other.openapi.yaml', cwd: '/app' })).toBeUndefined()
   })
 })

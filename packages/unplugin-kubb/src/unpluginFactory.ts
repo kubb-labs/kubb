@@ -89,7 +89,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
         location: { kind: 'config' },
       })
     }
-    return loadConfigFile<UserConfig>(file, {})
+    return loadConfigFile<UserConfig>({ file, cli: {} })
   }
 
   // Loaded once per instance, like the generation below: restart the build after editing the config file.
@@ -129,7 +129,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
       loadInclude: (id) => specFilePattern.test(id),
       async load(id) {
         try {
-          const config = selectConfig(await loadConfigs(), id, process.cwd())
+          const config = selectConfig({ configs: await loadConfigs(), fileName: id, cwd: process.cwd() })
           if (!config) {
             throw new Diagnostics.Error({
               code: Diagnostics.code.unknown,

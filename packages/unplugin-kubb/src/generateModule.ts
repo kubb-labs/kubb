@@ -32,7 +32,7 @@ const toModulePlugin = (plugin: Plugin): Plugin => ({
  * another spec does not apply, so it returns `undefined` when no config fits. A relative `root`
  * resolves from `cwd`, and `input` from `root`.
  */
-export function selectConfig(configs: Array<UserConfig>, fileName: string, cwd: string): UserConfig | undefined {
+export function selectConfig({ configs, fileName, cwd }: { configs: Array<UserConfig>; fileName: string; cwd: string }): UserConfig | undefined {
   const matches = (config: UserConfig) => typeof config.input === 'string' && path.resolve(cwd, config.root || '.', config.input) === path.resolve(fileName)
 
   return configs.find(matches) ?? configs.find((config) => config.input === undefined)

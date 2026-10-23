@@ -78,7 +78,7 @@ export const generateTool = defineTool(
 
       let userConfig: Config
       try {
-        const [first] = await loadConfigFile<Config>(file, { logLevel, config: configPath })
+        const [first] = await loadConfigFile<Config>({ file, cli: { logLevel, config: configPath } })
         if (!first)
           throw new Diagnostics.Error({
             code: Diagnostics.code.unknown,
