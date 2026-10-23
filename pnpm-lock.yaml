@@ -588,6 +588,12 @@ importers:
       '@kubb/plugin-barrel':
         specifier: workspace:*
         version: link:../plugin-barrel
+      '@typescript/typescript6':
+        specifier: 'catalog:'
+        version: 6.0.2
+      jiti:
+        specifier: ^2.7.0
+        version: 2.7.0
       unplugin:
         specifier: ^3.4.0
         version: 3.4.0(@farmfe/core@1.7.11(@types/node@22.20.2)(supports-color@8.1.1))(@rspack/core@2.2.9(@swc/helpers@0.5.23))(esbuild@0.28.2)(rolldown@1.2.14)(rollup@4.64.10)(vite@8.3.4(@types/node@22.20.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.29))
@@ -595,6 +601,9 @@ importers:
       '@farmfe/core':
         specifier: ^1.7.11
         version: 1.7.11(@types/node@22.20.2)(supports-color@8.1.1)
+      '@internals/shared':
+        specifier: workspace:*
+        version: link:../../internals/shared
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast

@@ -115,6 +115,16 @@ export default defineConfig({
 })
 ```
 
+## Import a spec
+
+Import a spec named `*.openapi.yaml` or `*.openapi.yml` to get the output of every plugin in `config` as one module, with no files written:
+
+```ts
+import { getPetById, petSchema } from './petStore.openapi.yaml'
+```
+
+`config`'s adapter and plugins run on the imported spec. Its `input` and `output` are not used, and a `config` without `input` only serves these imports. Spec imports also work in the Vite development server. For types in `tsc` and your editor, add the [`openapi-import`](https://github.com/kubb-labs/plugins/tree/main/packages/openapi-import) TypeScript content mapper.
+
 ## Options
 
 ### config

@@ -7,12 +7,12 @@ import { unpluginFactory } from './unpluginFactory.ts'
 
 type KubbUnpluginOptions = ReturnType<typeof unpluginFactory>
 
+/** The plugin that runs the Kubb build, the first of the two the factory returns. */
 function getPluginOptions(options: KubbUnpluginOptions) {
-  if (Array.isArray(options)) {
-    throw new Error('Expected a single unplugin option')
-  }
+  const [plugin] = Array.isArray(options) ? options : [options]
+  if (!plugin) throw new Error('Expected an unplugin option')
 
-  return options
+  return plugin
 }
 
 // unplugin@3's UnpluginContextMeta requires a `versions` map alongside `framework`.
@@ -69,6 +69,16 @@ describe('unpluginFactory', () => {
     const pluginOptions = getPluginOptions(unpluginFactory(undefined, viteMeta))
 
     await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb] Config is not set')
+  })
+
+  test('skips the build for a config without input, used only for spec imports', async () => {
+    const setup = vi.fn()
+    const { input: _input, ...config } = createConfig(setup)
+    const pluginOptions = getPluginOptions(unpluginFactory({ config }, viteMeta))
+
+    await pluginOptions.buildStart?.call(createBuildContext())
+
+    expect(setup).not.toHaveBeenCalled()
   })
 
   test('generates once when the host starts several builds with one instance', async () => {

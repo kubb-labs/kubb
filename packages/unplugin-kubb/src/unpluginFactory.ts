@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { adapterOas } from '@kubb/adapter-oas'
 import {
   cliReporter,
@@ -16,7 +17,9 @@ import {
 import { parserMd } from '@kubb/parser-md'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
+import ts from '@typescript/typescript6'
 import type { UnpluginFactory } from 'unplugin'
+import { generateModule } from './generateModule.ts'
 
 export type Options = {
   /**
@@ -51,13 +54,24 @@ export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TI
 }
 
 /**
+ * Spec files an `import` loads as a module of the generated code, such as `petStore.openapi.yaml`.
+ * The same extensions the `openapi-import` TypeScript content mapper registers.
+ */
+export const specFilePattern = /\.openapi\.ya?ml$/
+
+/**
  * Builds the Kubb unplugin for any unplugin-supported bundler (Vite, Rollup, Webpack, esbuild).
  *
- * Runs the Kubb build during the first `buildStart` with {@link applyDefaults} applied to the
- * config and prints the same summary `kubb generate` does. Under Vite it only applies during
- * `build`. A missing config or a failed generation fails the host build.
+ * Returns two plugins:
+ * - `unplugin-kubb` runs the Kubb build during the first `buildStart` with {@link applyDefaults}
+ *   applied to the config and prints the same summary `kubb generate` does. Under Vite it only
+ *   applies during `build`. A config without `input` skips this build.
+ * - `unplugin-kubb:import` loads an imported {@link specFilePattern} file as one JavaScript module
+ *   holding the output of every plugin in the config, also in the Vite dev server.
+ *
+ * A missing config or a failed generation fails the host build.
  */
-export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, meta) => {
+export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (options, meta) => {
   const name = 'unplugin-kubb' as const
   const hooks = new Hookable<KubbHooks>()
   const reporter = createCliReporter()
@@ -67,7 +81,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
   )
 
   // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`.
-  async function runBuild() {
+  function requireConfig(): UserConfig {
     if (!options?.config) {
       throw new Diagnostics.Error({
         code: Diagnostics.code.inputRequired,
@@ -77,8 +91,14 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
         location: { kind: 'config' },
       })
     }
+    return options.config
+  }
 
-    const kubb = createKubb(applyDefaults(options.config) as Config, { hooks })
+  async function runBuild() {
+    const config = requireConfig()
+    if (!config.input) return
+
+    const kubb = createKubb(applyDefaults(config) as Config, { hooks })
     const result = await kubb.generate()
 
     if (!result.success) {
@@ -97,16 +117,36 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
   // A rerun with `output.clean` loops webpack and Rspack watchers, so generate once per instance.
   let generation: Promise<void> | undefined
 
-  return {
-    name,
-    enforce: 'pre',
-    apply: meta.framework === 'vite' ? 'build' : undefined,
-    async buildStart() {
-      generation ??= runBuild().catch((error: unknown) => {
-        generation = undefined
-        throw error
-      })
-      await generation
+  return [
+    {
+      name,
+      enforce: 'pre',
+      apply: meta.framework === 'vite' ? 'build' : undefined,
+      async buildStart() {
+        generation ??= runBuild().catch((error: unknown) => {
+          generation = undefined
+          throw error
+        })
+        await generation
+      },
     },
-  }
+    {
+      name: `${name}:import`,
+      enforce: 'pre',
+      loadInclude: (id) => specFilePattern.test(id),
+      async load(id) {
+        const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config: requireConfig() })
+        if (text === null) {
+          const [error] = errors
+          throw new Diagnostics.Error({
+            ...(error ?? { code: Diagnostics.code.unknown, severity: 'error' }),
+            message: `[${name}] ${id}: ${error?.message ?? 'Build failed'}`,
+          })
+        }
+
+        // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
+        return ts.transpileModule(text, { fileName: `${id}.ts`, compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext } }).outputText
+      },
+    },
+  ]
 }

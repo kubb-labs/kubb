@@ -115,10 +115,13 @@
     "@kubb/parser-md": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-barrel": "workspace:*",
+    "@typescript/typescript6": "catalog:",
+    "jiti": "^2.7.0",
     "unplugin": "^3.4.0"
   },
   "devDependencies": {
     "@farmfe/core": "^1.7.11",
+    "@internals/shared": "workspace:*",
     "@kubb/ast": "workspace:*",
     "@nuxt/kit": "^4.6.2",
     "@nuxt/schema": "^4.6.2",

@@ -17,6 +17,7 @@ import farmPlugin from './farm.ts'
 import rolldownPlugin from './rolldown.ts'
 import rollupPlugin from './rollup.ts'
 import rspackPlugin from './rspack.ts'
+import { createSchemaPlugin, schemaAdapter } from './__mocks__/schemaPlugin.ts'
 import type { Options } from './unpluginFactory.ts'
 import vitePlugin from './vite.ts'
 import webpackPlugin from './webpack.ts'
@@ -173,6 +174,16 @@ describe.each(bundlers)('$name', ({ build }) => {
     const keys = await storage.readKeys()
     expect(keys).toHaveLength(1)
     expect(await storage.readItem(keys[0] ?? '')).toContain('export type Pet')
+  })
+
+  test('loads an imported spec as a module of every plugin output', async () => {
+    // Parsed as JavaScript, this YAML is a syntax error, so the build only passes when the loader ran.
+    await fs.writeFile(path.join(root, 'pet.openapi.yaml'), 'openapi: 3.0.0\n')
+    const importEntry = path.join(root, 'import.js')
+    await fs.writeFile(importEntry, "import { b_Pet } from './pet.openapi.yaml'\nexport const pet = b_Pet\n")
+    const config: UserConfig = { output: { path: './gen' }, adapter: schemaAdapter, plugins: [createSchemaPlugin('a'), createSchemaPlugin('b', 'a')] }
+
+    await expect(build({ options: { config }, root, entry: importEntry })).resolves.toBeUndefined()
   })
 
   test('fails the build when generation fails', async () => {

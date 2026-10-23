@@ -89,3 +89,17 @@ Vite, Nuxt, and Astro generate during builds only. Run `kubb generate` before st
 
 > [!NOTE]
 > Bundler integrations apply fewer defaults than the CLI: no Markdown parser, no reporters, and no `output.postGenerate` commands. See [Defaults](/docs/5.x/reference/configuration#defaults).
+
+### Import a spec
+
+With a build tool integration, you can also import a spec named `*.openapi.yaml` or `*.openapi.yml`. The import holds the output of every plugin in `config`, as one module, with no files written:
+
+```ts
+import { getPetById, petSchema } from './petStore.openapi.yaml'
+```
+
+The integration applies `config`'s adapter and plugins to the imported spec, and ignores its `input` and `output`. A `config` without `input` skips the build-time generation and only serves these imports. Spec imports also work in the Vite development server.
+
+The module only holds the file each plugin writes its code to. Code a plugin writes to another file, such as a bundled client runtime, is left out, so point imports like the client's `importPath` at a package or a path relative to the spec.
+
+For types in your editor and in `tsc`, add the [`openapi-import`](https://github.com/kubb-labs/plugins/tree/main/packages/openapi-import) TypeScript content mapper. It reads the same `kubb.config.ts` and gives the import the same exports.
