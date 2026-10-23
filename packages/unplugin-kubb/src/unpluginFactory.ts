@@ -107,24 +107,6 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
     }
   }
 
-  async function loadSpec(id: string): Promise<string> {
-    const config = selectConfig(await loadConfigs(), id, process.cwd())
-    if (!config) {
-      throw new Diagnostics.Error({
-        code: Diagnostics.code.unknown,
-        severity: 'error',
-        message: `[${name}] No Kubb config applies to ${id}`,
-        help: 'Set `input` of a config to this spec, or add a config without `input` to serve every imported spec.',
-        location: { kind: 'config' },
-      })
-    }
-    const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config })
-    if (errors.length) throw fail(errors[0], `${id}: ${errors[0]!.message}`)
-
-    // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
-    return ts.transpileModule(text, { fileName: `${id}.ts`, compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext } }).outputText
-  }
-
   // A rerun with `output.clean` loops webpack and Rspack watchers, so generate once per instance.
   let generation: Promise<void> | undefined
 
@@ -147,7 +129,22 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
       loadInclude: (id) => specFilePattern.test(id),
       async load(id) {
         try {
-          return await loadSpec(id)
+          const config = selectConfig(await loadConfigs(), id, process.cwd())
+          if (!config) {
+            throw new Diagnostics.Error({
+              code: Diagnostics.code.unknown,
+              severity: 'error',
+              message: `[${name}] No Kubb config applies to ${id}`,
+              help: 'Set `input` of a config to this spec, or add a config without `input` to serve every imported spec.',
+              location: { kind: 'config' },
+            })
+          }
+          const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config })
+          if (errors.length) throw fail(errors[0], `${id}: ${errors[0]!.message}`)
+
+          // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
+          return ts.transpileModule(text, { fileName: `${id}.ts`, compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext } })
+            .outputText
         } catch (error) {
           // unplugin's webpack and Rspack loader never settles when `load` throws, so report the error instead.
           if (meta.framework !== 'webpack' && meta.framework !== 'rspack') throw error

@@ -4,7 +4,9 @@ import process from 'node:process'
 import { CONFIG_EXTENSIONS } from './constants.ts'
 import { loadModule } from './loader.ts'
 
-const SEARCH_FILES = ['', '.config/', 'configs/'].flatMap((prefix) => [`${prefix}.kubbrc`, `${prefix}kubb.config`])
+// A config in one of these folders belongs to the folder above it.
+const CONFIG_FOLDERS = ['.config', 'configs']
+const SEARCH_FILES = ['', ...CONFIG_FOLDERS.map((folder) => `${folder}/`)].flatMap((prefix) => [`${prefix}.kubbrc`, `${prefix}kubb.config`])
 
 /**
  * Every config file path the Kubb CLI checks in `dir`, in the order it checks them.
@@ -34,6 +36,6 @@ export function findConfigFile(cwd: string = process.cwd()): string | undefined 
 export async function loadConfigFile<T extends { root?: string }>(file: string, cli: unknown): Promise<Array<T>> {
   const loaded = await loadModule<unknown>(file, { default: true })
   const resolved = (await (typeof loaded === 'function' ? loaded(cli) : loaded)) as T | Array<T>
-  const dir = ['.config', 'configs'].includes(basename(dirname(file))) ? dirname(dirname(file)) : dirname(file)
+  const dir = CONFIG_FOLDERS.includes(basename(dirname(file))) ? dirname(dirname(file)) : dirname(file)
   return (Array.isArray(resolved) ? resolved : [resolved]).map((config) => ({ ...config, root: resolve(dir, config.root ?? '.') }))
 }

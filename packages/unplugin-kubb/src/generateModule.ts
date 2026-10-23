@@ -29,8 +29,8 @@ const toModulePlugin = (plugin: Plugin): Plugin => ({
 
 /**
  * The config whose `input` is `fileName`, else the first one without an `input`. A config for
- * another spec does not apply, so it returns `undefined` when no config fits. Like Kubb, `root`
- * resolves from `cwd` and `input` from `root`.
+ * another spec does not apply, so it returns `undefined` when no config fits. A relative `root`
+ * resolves from `cwd`, and `input` from `root`.
  */
 export function selectConfig(configs: Array<UserConfig>, fileName: string, cwd: string): UserConfig | undefined {
   const matches = (config: UserConfig) => typeof config.input === 'string' && path.resolve(cwd, config.root || '.', config.input) === path.resolve(fileName)
