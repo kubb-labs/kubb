@@ -20,7 +20,7 @@ import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { findConfigFile, loadConfigFile } from '@internals/shared'
 import ts from '@typescript/typescript6'
 import type { UnpluginFactory } from 'unplugin'
-import { generateModule } from './generateModule.ts'
+import { generateModule, selectConfig } from './generateModule.ts'
 
 export type Options = {
   /**
@@ -56,7 +56,7 @@ export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TI
 }
 
 /** Spec files an import loads as a module, the extensions `openapi-import` registers too. */
-export const specFilePattern = /\.openapi\.ya?ml$/
+const specFilePattern = /\.openapi\.ya?ml$/
 
 /**
  * Builds the Kubb unplugin for any unplugin-supported bundler (Vite, Rollup, Webpack, esbuild).
@@ -77,13 +77,13 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
   )
 
   // Loaded once per instance, like the generation below: restart the build after editing the config file.
-  let configs: Promise<Array<UserConfig>> | undefined
+  let loaded: Promise<{ configs: Array<UserConfig>; baseDir: string }> | undefined
 
   // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`.
-  function loadConfigs(): Promise<Array<UserConfig>> {
-    if (options?.config) return Promise.resolve([options.config])
+  function loadConfigs(): Promise<{ configs: Array<UserConfig>; baseDir: string }> {
+    if (options?.config) return Promise.resolve({ configs: [options.config], baseDir: process.cwd() })
 
-    configs ??= (async () => {
+    loaded ??= (async () => {
       const file = findConfigFile()
       if (!file) {
         throw new Diagnostics.Error({
@@ -94,24 +94,16 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
           location: { kind: 'config' },
         })
       }
-      return loadConfigFile<UserConfig>(file, {})
+      return { configs: await loadConfigFile<UserConfig>(file, {}), baseDir: path.dirname(file) }
     })().catch((error: unknown) => {
-      configs = undefined
+      loaded = undefined
       throw error
     })
-    return configs
-  }
-
-  /** The config whose `input` is the spec, else the first one. */
-  async function configFor(id: string): Promise<UserConfig> {
-    const all = await loadConfigs()
-    const matches = (config: UserConfig) => typeof config.input === 'string' && path.resolve(config.root || process.cwd(), config.input) === id
-
-    return all.find(matches) ?? all[0]!
+    return loaded
   }
 
   async function runBuild() {
-    for (const config of await loadConfigs()) {
+    for (const config of (await loadConfigs()).configs) {
       if (config.input) await generate(config)
     }
   }
@@ -154,7 +146,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
       enforce: 'pre',
       loadInclude: (id) => specFilePattern.test(id),
       async load(id) {
-        const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config: await configFor(id) })
+        const { configs, baseDir } = await loadConfigs()
+        const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config: selectConfig(configs, id, baseDir)! })
         if (text === null) {
           const [error] = errors
           throw new Diagnostics.Error({

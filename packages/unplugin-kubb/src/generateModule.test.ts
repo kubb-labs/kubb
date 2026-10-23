@@ -3,7 +3,7 @@ import type { UserConfig } from '@kubb/core'
 import { pluginBarrel } from '@kubb/plugin-barrel'
 import { describe, expect, test } from 'vitest'
 import { createSchemaPlugin, schemaAdapter } from './__mocks__/schemaPlugin.ts'
-import { generateModule } from './generateModule.ts'
+import { generateModule, selectConfig } from './generateModule.ts'
 
 describe('generateModule', () => {
   test('merges the output of every plugin into one module without imports between them', async () => {
@@ -57,5 +57,16 @@ describe('generateModule', () => {
 
     expect(text).toBeNull()
     expect(errors.map((error) => error.message).join('\n')).toContain('Cannot read the spec')
+  })
+})
+
+describe('selectConfig', () => {
+  test('picks the config whose input is the spec, resolved from the config folder, else the first', () => {
+    const pets = { input: './specs/pet.openapi.yaml', output: { path: './gen' } }
+    const stores = { root: 'specs', input: './store.openapi.yaml', output: { path: './gen' } }
+
+    expect(selectConfig([pets, stores], '/app/specs/store.openapi.yaml', '/app')).toBe(stores)
+    expect(selectConfig([pets, stores], '/app/other.openapi.yaml', '/app')).toBe(pets)
+    expect(selectConfig([], '/app/specs/pet.openapi.yaml', '/app')).toBeUndefined()
   })
 })

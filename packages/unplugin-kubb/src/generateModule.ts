@@ -44,6 +44,16 @@ const toModulePlugin = (plugin: Plugin): Plugin => ({
 })
 
 /**
+ * The config whose `input` is `fileName`, else the first one. `root` and `input` resolve from
+ * `baseDir`, the folder of the config file, as the Kubb CLI resolves them.
+ */
+export function selectConfig(configs: Array<UserConfig>, fileName: string, baseDir: string): UserConfig | undefined {
+  const matches = (config: UserConfig) => typeof config.input === 'string' && path.resolve(baseDir, config.root ?? '.', config.input) === path.resolve(fileName)
+
+  return configs.find(matches) ?? configs[0]
+}
+
+/**
  * Generates the output of every plugin in `config` for one spec as a single TypeScript module,
  * without writing files or running the barrel plugin. Shared by the `*.openapi.yaml` loader and
  * the `openapi-import` content mapper, so both see the same exports.

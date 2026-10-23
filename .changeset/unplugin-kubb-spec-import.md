@@ -12,4 +12,4 @@ Leave out the `config` option, as in `kubb()`, and the plugin loads `kubb.config
 
 A `config` without `input` now skips the build-time generation, so it can serve these imports only.
 
-`generateModule`, `findConfigFile` and `loadConfigFile` are exported for the `openapi-import` TypeScript content mapper, so `tsc` and the editor see the same exports as the bundler.
+`generateModule`, `selectConfig`, `findConfigFile` and `loadConfigFile` are exported for the `openapi-import` TypeScript content mapper, so `tsc` and the editor see the same exports as the bundler.
