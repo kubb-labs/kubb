@@ -55,24 +55,17 @@ export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TI
   }
 }
 
-/**
- * Spec files an `import` loads as a module of the generated code, such as `petStore.openapi.yaml`.
- * The same extensions the `openapi-import` TypeScript content mapper registers.
- */
+/** Spec files an import loads as a module, the extensions `openapi-import` registers too. */
 export const specFilePattern = /\.openapi\.ya?ml$/
 
 /**
  * Builds the Kubb unplugin for any unplugin-supported bundler (Vite, Rollup, Webpack, esbuild).
  *
- * Returns two plugins:
- * - `unplugin-kubb` runs the Kubb build during the first `buildStart` with {@link applyDefaults}
- *   applied to each config and prints the same summary `kubb generate` does. Under Vite it only
- *   applies during `build`. A config without `input` skips this build.
- * - `unplugin-kubb:import` loads an imported {@link specFilePattern} file as one JavaScript module
- *   holding the output of every plugin in the config, also in the Vite dev server.
- *
- * Without a `config` option, the configs come from `kubb.config.*`. A missing config or a failed
- * generation fails the host build.
+ * Returns two plugins. `unplugin-kubb` runs the Kubb build once, at the first `buildStart`, for
+ * each config with an `input` (only during `build` under Vite). `unplugin-kubb:import` loads an
+ * imported {@link specFilePattern} file as one module, also in the Vite dev server. Without a
+ * `config` option the configs come from `kubb.config.*`. A missing config or a failed generation
+ * fails the host build.
  */
 export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (options, meta) => {
   const name = 'unplugin-kubb' as const

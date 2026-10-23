@@ -21,6 +21,17 @@ describe('generateModule', () => {
     expect(text).not.toMatch(/^import /m)
   })
 
+  test('merges a plugin configured with an explicit directory output too', async () => {
+    const plugin = { ...createSchemaPlugin('a'), options: { output: { path: 'a', mode: 'directory' } } }
+    const { text } = await generateModule({
+      root: '/app/src',
+      input: '/app/src/pet.openapi.yaml',
+      config: { output: { path: './gen' }, adapter: schemaAdapter, plugins: [plugin] },
+    })
+
+    expect(text).toContain('export type a_Pet = { id: number }')
+  })
+
   test('returns no module and the errors of a failed build', async () => {
     const adapter = createMockedAdapter({
       async parse() {

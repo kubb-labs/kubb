@@ -15,50 +15,38 @@ import { parserTs } from '@kubb/parser-ts'
 import { pluginBarrelName } from '@kubb/plugin-barrel'
 
 export type GenerateModuleOptions = {
-  /**
-   * Folder of the spec. Relative imports in the module resolve from here, as if the module sat
-   * next to the spec.
-   */
+  /** Folder of the spec; relative imports in the module resolve from here. */
   root: string
-  /**
-   * The spec: a path, its text, or the parsed document.
-   */
+  /** The spec: a path, its text, or the parsed document. */
   input: UserConfig['input']
-  /**
-   * Kubb config whose adapter and plugins run. Its `input`, `output`, hooks and reporters are not used.
-   */
+  /** Config whose adapter and plugins run. Its `input`, `output`, hooks and reporters are not used. */
   config: UserConfig
-  /**
-   * Hooks the build emits on, such as `kubb:generate:schema`.
-   */
   hooks?: Hookable<KubbHooks>
 }
 
 export type GenerateModuleResult = {
-  /**
-   * The module as TypeScript, or `null` when the build failed.
-   */
+  /** The module as TypeScript, or `null` when the build failed. */
   text: string | null
-  /**
-   * Error-level problems of the build.
-   */
   errors: Array<ProblemDiagnostic>
 }
 
 // Every plugin writes to this one file, so Kubb merges their output and drops the imports between them.
 const moduleFile = 'index.ts'
 
-/** Points a plugin at {@link moduleFile}. A single file has nothing to group. */
 const toModulePlugin = (plugin: Plugin): Plugin => ({
   ...plugin,
-  options: { ...plugin.options, output: { ...(plugin.options as { output?: Output } | undefined)?.output, path: moduleFile }, group: undefined },
+  options: {
+    ...plugin.options,
+    // An explicit `mode: 'directory'` would otherwise survive and write under `index.ts/`.
+    output: { ...(plugin.options as { output?: Output } | undefined)?.output, path: moduleFile, mode: 'file' },
+    group: undefined,
+  },
 })
 
 /**
  * Generates the output of every plugin in `config` for one spec as a single TypeScript module,
- * without writing files. The barrel plugin is left out, since there is only one file. Used by
- * the `*.openapi.yaml` import loader and by the `openapi-import` TypeScript content mapper, so
- * a spec import has the same exports at build time and in the type checker.
+ * without writing files or running the barrel plugin. Shared by the `*.openapi.yaml` loader and
+ * the `openapi-import` content mapper, so both see the same exports.
  *
  * @example
  * ```ts
