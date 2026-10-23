@@ -194,22 +194,24 @@ export class FileManager {
   /** Upserts without normalizing: the raw merge waits in `#pending` until the file is read. */
   #defer(files: ReadonlyArray<FileNode>): void {
     for (const file of files) {
+      this.#pending.add(file.path)
       const existing = this.#cache.get(file.path)
-      if (existing && this.#merges.has(existing)) {
-        existing.banner = file.banner
-        existing.footer = file.footer
-        existing.copy = file.copy ?? existing.copy
-        existing.sources.push(...file.sources)
-        existing.imports.push(...file.imports)
-        existing.exports.push(...file.exports)
-      } else if (existing) {
+      if (!existing) {
+        this.#cache.set(file.path, file)
+        continue
+      }
+      if (!this.#merges.has(existing)) {
         const merged = mergeFile(existing, file)
         this.#merges.add(merged)
         this.#cache.set(file.path, merged)
-      } else {
-        this.#cache.set(file.path, file)
+        continue
       }
-      this.#pending.add(file.path)
+      existing.banner = file.banner
+      existing.footer = file.footer
+      existing.copy = file.copy ?? existing.copy
+      existing.sources.push(...file.sources)
+      existing.imports.push(...file.imports)
+      existing.exports.push(...file.exports)
     }
     if (files.length > 0) this.#sorted = null
   }
