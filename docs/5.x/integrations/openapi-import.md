@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Import an OpenAPI spec in TypeScript with openapi-import
-description: Import a .openapi.yaml spec in TypeScript with openapi-import and get the types, Zod schemas, and clients your kubb.config.ts generates, without generated files.
+description: Import a .openapi.yaml spec in TypeScript with openapi-import and get the types and enums your kubb.config.ts generates, without generated files.
 outline: [2, 3]
 order: 15
 navigation:
@@ -14,7 +14,7 @@ navigation:
 [`openapi-import`](https://github.com/kubb-labs/openapi-import) lets you import a spec like a TypeScript module and get the output of every plugin in your `kubb.config.ts`, without generated files:
 
 ```ts
-import { type Pet, petSchema } from './petStore.openapi.yaml'
+import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
 ```
 
 It is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/pull/4712), so `tsc` and your editor type-check the plugin output in place of the spec. Go to definition, hover, and rename jump between the generated types and the keys in the spec.
@@ -31,13 +31,11 @@ Install it with Kubb, the TypeScript beta, and the plugins your output needs:
 :::code-group{sync="package-manager"}
 
 ```shell [pnpm]
-pnpm add -D kubb openapi-import typescript@beta @kubb/plugin-ts @kubb/plugin-zod
-pnpm add zod
+pnpm add -D kubb openapi-import typescript@beta @kubb/plugin-ts
 ```
 
 ```shell [npm]
-npm install -D kubb openapi-import typescript@beta @kubb/plugin-ts @kubb/plugin-zod
-npm install zod
+npm install -D kubb openapi-import typescript@beta @kubb/plugin-ts
 ```
 
 :::
@@ -67,12 +65,11 @@ Every `*.openapi.yaml` import gets the output of the plugins in `kubb.config.ts`
 
 ```ts [kubb.config.ts]
 import { pluginTs } from '@kubb/plugin-ts'
-import { pluginZod } from '@kubb/plugin-zod'
 import { defineConfig } from 'kubb/config'
 
 export default defineConfig({
   output: { path: './src/gen' },
-  plugins: [pluginTs(), pluginZod()],
+  plugins: [pluginTs()],
 })
 ```
 
@@ -90,7 +87,7 @@ VS Code only passes `--runExternalCode` in trusted workspaces.
 
 ## Load the spec at run time
 
-TypeScript does not emit the spec to JavaScript, so values such as `petSchema` need a bundler. Add `kubb()` from any [build tool integration](/docs/5.x/integrations/overview#build-tools) without a `config` option, so it reads the same `kubb.config.ts` as `tsc`:
+TypeScript does not emit the spec to JavaScript, so values such as `petStatusEnum` need a bundler. Add `kubb()` from any [build tool integration](/docs/5.x/integrations/overview#build-tools) without a `config` option, so it reads the same `kubb.config.ts` as `tsc`:
 
 ```ts [vite.config.ts]
 import kubb from 'kubb/vite'
@@ -104,12 +101,13 @@ export default defineConfig({
 The types and the values then come from the same import:
 
 ```ts [src/pets.ts]
-import { type GetPetByIdPath, type GetPetByIdResponse, petSchema } from '../petStore.openapi.yaml'
+import { type GetPetByIdPath, type GetPetByIdResponse, petStatusEnum } from '../petStore.openapi.yaml'
 
-export async function getPetById({ petId }: GetPetByIdPath): Promise<GetPetByIdResponse> {
+export async function getAvailablePet({ petId }: GetPetByIdPath): Promise<GetPetByIdResponse | undefined> {
   const response = await fetch(`https://petstore3.swagger.io/api/v3/pet/${petId}`)
+  const pet: GetPetByIdResponse = await response.json()
 
-  return petSchema.parse(await response.json())
+  return pet.status === petStatusEnum.available ? pet : undefined
 }
 ```
 
