@@ -153,6 +153,10 @@
       "types": "./dist/rspack.d.ts",
       "default": "./dist/rspack.js"
     },
+    "./unplugin": {
+      "types": "./dist/unplugin.d.ts",
+      "default": "./dist/unplugin.js"
+    },
     "./vite": {
       "types": "./dist/vite.d.ts",
       "default": "./dist/vite.js"

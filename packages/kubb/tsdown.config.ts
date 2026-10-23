@@ -15,6 +15,7 @@ const entry = {
   rolldown: 'src/rolldown.ts',
   rollup: 'src/rollup.ts',
   rspack: 'src/rspack.ts',
+  unplugin: 'src/unplugin.ts',
   vite: 'src/vite.ts',
   webpack: 'src/webpack.ts',
 }
