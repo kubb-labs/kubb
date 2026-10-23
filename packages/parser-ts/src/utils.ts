@@ -1,18 +1,22 @@
 import { createRequire } from 'node:module'
 import { dirname, extname as getExtname, relative, resolve } from 'node:path'
 import { ast } from '@kubb/ast'
-import type * as ts from '@typescript/typescript6'
+
+/**
+ * A TypeScript compiler node, typed structurally so `@typescript/typescript6` stays an optional peer.
+ *
+ * @deprecated Pass printed strings to `print` instead. Support for compiler nodes is removed in the next major.
+ */
+export type TsNode = { readonly kind: number }
 
 type Compiler = {
-  typescript: typeof ts
-  printer: ts.Printer
-  sourceFile: ts.SourceFile
+  printNodes: (nodes: Array<TsNode>) => string
 }
 
 let compiler: Compiler | undefined
 
 /**
- * Loads TypeScript on the first `print` or `copy`; `parse` is string templating and never needs it.
+ * Loads TypeScript the first time `print` gets a compiler node. Strings never need it, so bundles for edge runtimes such as Cloudflare Workers leave it out.
  *
  * Loaded with `require`, not `import`: when ESM imports a CommonJS package, Node keeps a second copy of its source
  * to detect named exports, and for TypeScript that copy is about 9 MB.
@@ -20,18 +24,31 @@ let compiler: Compiler | undefined
 function loadCompiler(): Compiler {
   if (compiler) return compiler
 
-  const typescript: typeof ts = createRequire(import.meta.url)('@typescript/typescript6')
+  let typescript: typeof import('@typescript/typescript6')
+  try {
+    typescript = createRequire(import.meta.url)('@typescript/typescript6')
+  } catch (cause) {
+    throw new Error('`print` received a TypeScript compiler node, which needs `@typescript/typescript6` installed. Pass a printed string instead.', {
+      cause,
+    })
+  }
+
+  // One printer serves every call; printing does not mutate the source file, which only lends its compiler options
+  const printer = typescript.createPrinter({
+    omitTrailingSemicolon: true,
+    newLine: typescript.NewLineKind.LineFeed,
+    removeComments: false,
+    noEmitHelpers: true,
+  })
+  const sourceFile = typescript.createSourceFile('print.tsx', '', typescript.ScriptTarget.ES2022, true, typescript.ScriptKind.TSX)
 
   compiler = {
-    typescript,
-    // One printer serves every call; printing does not mutate the source file, which only lends its compiler options
-    printer: typescript.createPrinter({
-      omitTrailingSemicolon: true,
-      newLine: typescript.NewLineKind.LineFeed,
-      removeComments: false,
-      noEmitHelpers: true,
-    }),
-    sourceFile: typescript.createSourceFile('print.tsx', '', typescript.ScriptTarget.ES2022, true, typescript.ScriptKind.TSX),
+    printNodes: (nodes) =>
+      printer.printList(
+        typescript.ListFormat.MultiLine,
+        typescript.factory.createNodeArray(nodes as Array<import('@typescript/typescript6').Node>),
+        sourceFile,
+      ),
   }
 
   return compiler
@@ -54,98 +71,236 @@ export function resolveOutputPath(path: string, extname: string | undefined, roo
   return current ? `${path.slice(0, -current.length)}${extname ?? ''}` : path
 }
 
+type Token = { kind: 'word' | 'string' | 'punct'; text: string; value: string }
+
+/**
+ * Reads the tokens of `import` and `export … from` declarations: words, quoted strings and punctuation, skipping whitespace and comments.
+ */
+function createTokenizer(source: string) {
+  const trivia = /(?:\s+|\/\/[^\n]*|\/\*[\s\S]*?\*\/)*/y
+  const token = /([A-Za-z_$][\w$]*)|('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")|([{},;*])/y
+  let pos = 0
+
+  function skipTrivia(): number {
+    trivia.lastIndex = pos
+    trivia.exec(source)
+    pos = trivia.lastIndex
+    return pos
+  }
+
+  function peek(): Token | undefined {
+    const start = skipTrivia()
+    token.lastIndex = start
+    const match = token.exec(source)
+    if (!match) return undefined
+    if (match[1]) return { kind: 'word', text: match[1], value: match[1] }
+    if (match[2]) return { kind: 'string', text: match[2], value: match[2].slice(1, -1).replace(/\\(.)/g, '$1') }
+    return { kind: 'punct', text: match[3]!, value: match[3]! }
+  }
+
+  function next(): Token | undefined {
+    const current = peek()
+    if (current) pos += current.text.length
+    return current
+  }
+
+  /** Consumes the next token when it is `text`. */
+  function eat(text: string): boolean {
+    if (peek()?.text !== text) return false
+    pos += text.length
+    return true
+  }
+
+  return {
+    peek,
+    next,
+    eat,
+    skipTrivia,
+    get pos() {
+      return pos
+    },
+    set pos(value: number) {
+      pos = value
+    },
+  }
+}
+
+type Specifier = { name: Token; propertyName?: Token; isTypeOnly: boolean }
+
+/**
+ * Reads `{ a, type b, c as d, 'e-f' as g }` after the opening brace.
+ */
+function readSpecifiers(tokens: ReturnType<typeof createTokenizer>): Array<Specifier> | undefined {
+  const specifiers: Array<Specifier> = []
+
+  while (!tokens.eat('}')) {
+    let first = tokens.next()
+    let isTypeOnly = false
+    const following = tokens.peek()
+    if (first?.text === 'type' && following && following.text !== 'as' && following.text !== ',' && following.text !== '}') {
+      isTypeOnly = true
+      first = tokens.next()
+    }
+    if (!first || first.kind === 'punct') return undefined
+
+    if (tokens.eat('as')) {
+      const name = tokens.next()
+      if (!name || name.kind === 'punct') return undefined
+      specifiers.push({ name, propertyName: first, isTypeOnly })
+    } else {
+      specifiers.push({ name: first, isTypeOnly })
+    }
+
+    if (!tokens.eat(',') && tokens.peek()?.text !== '}') return undefined
+  }
+
+  return specifiers
+}
+
+/**
+ * Reads `from '<path>'` and an optional `;`. Returns `undefined` for import attributes, which stay as written.
+ */
+function readFrom(tokens: ReturnType<typeof createTokenizer>): string | undefined {
+  if (!tokens.eat('from')) return undefined
+  const path = tokens.next()
+  if (path?.kind !== 'string') return undefined
+  const after = tokens.peek()?.text
+  if (after === 'with' || after === 'assert') return undefined
+  tokens.eat(';')
+  return path.value
+}
+
 /**
  * Converts an import specifier into an `ImportNode` name, keeping the quotes of a string-literal name (`{ 'a-b' as ab }`).
  */
-function toImportName(element: ts.ImportSpecifier): string | { propertyName: string; name: string } {
-  if (!element.propertyName) return element.name.text
+function toImportName({ name, propertyName }: Specifier): string | { propertyName: string; name: string } {
+  if (!propertyName) return name.value
 
-  const { typescript } = loadCompiler()
-  const { propertyName } = element
-  return { propertyName: typescript.isStringLiteral(propertyName) ? quoteModulePath(propertyName.text) : propertyName.text, name: element.name.text }
+  return { propertyName: propertyName.kind === 'string' ? quoteModulePath(propertyName.value) : propertyName.value, name: name.value }
 }
 
 /**
- * Converts an `import` declaration into `ImportNode`s. Side-effect imports and imports with attributes stay as written.
+ * Reads an `import` declaration after the `import` keyword. Side-effect imports and imports with attributes return `undefined` and stay as written.
  */
-function toImportNodes(statement: ts.Statement, filePath: string): Array<ast.ImportNode> {
-  const { typescript } = loadCompiler()
-  if (!typescript.isImportDeclaration(statement) || !statement.importClause || !typescript.isStringLiteral(statement.moduleSpecifier) || statement.attributes)
-    return []
+function readImport(tokens: ReturnType<typeof createTokenizer>, filePath: string): Array<ast.ImportNode> | undefined {
+  let isTypeOnly = false
+  let defaultName: string | undefined
+  let namespace: string | undefined
+  let specifiers: Array<Specifier> = []
 
-  const { name, namedBindings, phaseModifier } = statement.importClause
-  const specifier = statement.moduleSpecifier.text
-  const target = specifier.startsWith('.') ? { path: resolve(dirname(filePath), specifier), root: filePath } : { path: specifier }
-  const isTypeOnly = phaseModifier === typescript.SyntaxKind.TypeKeyword
-  const nodes: Array<ast.ImportNode> = []
-
-  if (name) nodes.push(ast.factory.createImport({ name: name.text, ...target, isTypeOnly }))
-  if (namedBindings && typescript.isNamespaceImport(namedBindings)) {
-    nodes.push(ast.factory.createImport({ name: namedBindings.name.text, ...target, isTypeOnly, isNameSpace: true }))
+  if (tokens.peek()?.text === 'type') {
+    const save = tokens.pos
+    tokens.next()
+    const following = tokens.peek()?.text
+    // `import type from './x'` imports a default named `type`
+    if (following === 'from' || following === ',') tokens.pos = save
+    else isTypeOnly = true
   }
-  if (namedBindings && typescript.isNamedImports(namedBindings)) {
-    const values = namedBindings.elements.filter((element) => !element.isTypeOnly)
-    const types = namedBindings.elements.filter((element) => element.isTypeOnly)
+
+  const first = tokens.peek()
+  if (first?.kind === 'word') {
+    defaultName = tokens.next()!.value
+    if (!tokens.eat(',')) return finish()
+  }
+  if (tokens.eat('*')) {
+    if (!tokens.eat('as')) return undefined
+    const name = tokens.next()
+    if (name?.kind !== 'word') return undefined
+    namespace = name.value
+  } else if (tokens.eat('{')) {
+    const read = readSpecifiers(tokens)
+    if (!read) return undefined
+    specifiers = read
+  } else {
+    return undefined
+  }
+
+  return finish()
+
+  function finish(): Array<ast.ImportNode> | undefined {
+    const specifier = readFrom(tokens)
+    if (specifier === undefined) return undefined
+
+    const target = specifier.startsWith('.') ? { path: resolve(dirname(filePath), specifier), root: filePath } : { path: specifier }
+    const nodes: Array<ast.ImportNode> = []
+
+    if (defaultName) nodes.push(ast.factory.createImport({ name: defaultName, ...target, isTypeOnly }))
+    if (namespace) nodes.push(ast.factory.createImport({ name: namespace, ...target, isTypeOnly, isNameSpace: true }))
+    const values = specifiers.filter((element) => !element.isTypeOnly)
+    const types = specifiers.filter((element) => element.isTypeOnly)
     if (values.length) nodes.push(ast.factory.createImport({ name: values.map(toImportName), ...target, isTypeOnly }))
     if (types.length) nodes.push(ast.factory.createImport({ name: types.map(toImportName), ...target, isTypeOnly: true }))
-  }
 
-  return nodes
+    return nodes
+  }
 }
 
 /**
- * Converts an `export … from` declaration into `ExportNode`s. Forms `printExport` cannot print stay as written.
+ * Reads an `export … from` declaration after the `export` keyword. Other exports and forms `printExport` cannot print return `undefined`.
  */
-function toExportNodes(statement: ts.Statement): Array<ast.ExportNode> {
-  const { typescript } = loadCompiler()
-  if (
-    !typescript.isExportDeclaration(statement) ||
-    !statement.moduleSpecifier ||
-    !typescript.isStringLiteral(statement.moduleSpecifier) ||
-    statement.attributes
-  )
-    return []
+function readExport(tokens: ReturnType<typeof createTokenizer>): Array<ast.ExportNode> | undefined {
+  const isTypeOnly = tokens.eat('type')
 
-  const { exportClause, isTypeOnly } = statement
-  const path = statement.moduleSpecifier.text
+  if (tokens.eat('*')) {
+    let name: string | undefined
+    if (tokens.eat('as')) {
+      const alias = tokens.next()
+      if (alias?.kind !== 'word') return undefined
+      name = alias.value
+    }
+    const path = readFrom(tokens)
+    if (path === undefined) return undefined
+    return [name ? ast.factory.createExport({ name, path, isTypeOnly, asAlias: true }) : ast.factory.createExport({ path, isTypeOnly })]
+  }
 
-  if (!exportClause) return [ast.factory.createExport({ path, isTypeOnly })]
-  if (typescript.isNamespaceExport(exportClause)) return [ast.factory.createExport({ name: exportClause.name.text, path, isTypeOnly, asAlias: true })]
-  if (exportClause.elements.some((element) => element.propertyName || element.isTypeOnly || typescript.isStringLiteral(element.name))) return []
+  if (!tokens.eat('{')) return undefined
+  const specifiers = readSpecifiers(tokens)
+  const path = readFrom(tokens)
+  if (!specifiers || path === undefined) return undefined
+  if (specifiers.some((element) => element.propertyName || element.isTypeOnly || element.name.kind === 'string')) return undefined
 
-  return [ast.factory.createExport({ name: exportClause.elements.map((element) => element.name.text), path, isTypeOnly })]
+  return [ast.factory.createExport({ name: specifiers.map((element) => element.name.value), path, isTypeOnly })]
 }
 
 /**
  * Splits `source` into its lifted `import`/`export … from` nodes, the `header` above the first one (shebang, directives, comments) and the rest as `body`.
+ *
+ * shortcut: only the leading block of declarations is lifted, so an import below the first other statement stays in the body; parse the whole module if a template ever needs that.
  */
 export function splitModuleDeclarations(
   source: string,
   filePath: string,
 ): { header: string; imports: Array<ast.ImportNode>; exports: Array<ast.ExportNode>; body: string } {
-  const { typescript } = loadCompiler()
-  const sourceFile = typescript.createSourceFile(filePath, source, typescript.ScriptTarget.Latest)
+  const tokens = createTokenizer(source)
   const imports: Array<ast.ImportNode> = []
   const exports: Array<ast.ExportNode> = []
   let header = ''
   let body = ''
   let cursor = 0
 
-  for (const statement of sourceFile.statements) {
-    const importNodes = toImportNodes(statement, filePath)
-    const exportNodes = toExportNodes(statement)
-    if (!importNodes.length && !exportNodes.length) {
-      // Lifted declarations print above the body, so stop at the first one that stays in place to keep the evaluation order.
-      if (typescript.isImportDeclaration(statement) || (typescript.isExportDeclaration(statement) && statement.moduleSpecifier)) break
+  if (source.startsWith('#!')) tokens.pos = source.indexOf('\n') === -1 ? source.length : source.indexOf('\n')
+
+  while (true) {
+    const start = tokens.skipTrivia()
+    const keyword = tokens.next()
+
+    // Directives such as `'use client'` belong to the header
+    if (keyword?.kind === 'string' && !imports.length && !exports.length) {
+      tokens.eat(';')
       continue
     }
 
-    const text = source.slice(cursor, statement.getStart(sourceFile))
+    const nodes = keyword?.text === 'import' ? readImport(tokens, filePath) : keyword?.text === 'export' ? readExport(tokens) : undefined
+    if (!nodes) break
+
+    const text = source.slice(cursor, start)
     if (imports.length || exports.length) body += text
     else header = text
-    imports.push(...importNodes)
-    exports.push(...exportNodes)
-    cursor = statement.getEnd()
+    for (const node of nodes) {
+      if (node.kind === 'Import') imports.push(node)
+      else exports.push(node)
+    }
+    cursor = tokens.pos
   }
 
   return { header: header.trim(), imports, exports, body: `${body}${source.slice(cursor)}`.trim() }
@@ -229,14 +384,20 @@ function withJSDoc({ jsDoc, declaration }: { jsDoc?: ast.JSDocNode | null; decla
 }
 
 /**
- * Converts TypeScript/TSX AST nodes to a string using the TypeScript printer.
+ * Joins printed code fragments with a newline.
+ *
+ * Passing TypeScript compiler nodes still works but needs `@typescript/typescript6` installed.
+ *
+ * @deprecated Compiler nodes are deprecated; pass strings. Support for compiler nodes is removed in the next major.
  */
-export function print(...elements: Array<ts.Node>): string {
+export function print(...elements: Array<string | TsNode>): string {
   const filtered = elements.filter(Boolean)
   if (filtered.length === 0) return ''
+  if (filtered.every((element) => typeof element === 'string')) return filtered.join('\n')
+  // Printing compiler nodes as one list keeps the output byte-for-byte the same as before strings were accepted
+  if (filtered.every((element) => typeof element !== 'string')) return loadCompiler().printNodes(filtered)
 
-  const { typescript, printer, sourceFile } = loadCompiler()
-  return printer.printList(typescript.ListFormat.MultiLine, typescript.factory.createNodeArray(filtered), sourceFile)
+  return filtered.map((element) => (typeof element === 'string' ? element : loadCompiler().printNodes([element]).trimEnd())).join('\n')
 }
 
 /**

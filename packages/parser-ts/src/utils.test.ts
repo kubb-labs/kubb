@@ -1,6 +1,7 @@
 import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { getRelativePath, printExport, printImport, printSource } from './utils.ts'
+import ts from '@typescript/typescript6'
+import { getRelativePath, print as printFragments, printExport, printImport, printSource } from './utils.ts'
 
 function print(...nodes: Array<ast.CodeNode>): string {
   return printSource(ast.factory.createSource({ nodes }))
@@ -174,5 +175,18 @@ describe('printExport', () => {
     { when: 'name is a string', node: { name: 'Pet', path: './Pet.ts' }, expected: "export { Pet } from './Pet.ts'" },
   ])('returns $expected when $when', ({ node, expected }) => {
     expect(printExport(node)).toBe(expected)
+  })
+})
+
+describe('print', () => {
+  it('joins string fragments with a newline', () => {
+    expect(printFragments('type A = string', 'type B = number')).toBe('type A = string\ntype B = number')
+  })
+
+  it('prints TypeScript compiler nodes through the deprecated path', () => {
+    const node = ts.factory.createTypeAliasDeclaration(undefined, 'A', undefined, ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword))
+
+    expect(printFragments(node, node)).toBe('type A = string;\ntype A = string;\n')
+    expect(printFragments(node, 'type B = number')).toBe('type A = string;\ntype B = number')
   })
 })

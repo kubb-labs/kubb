@@ -511,6 +511,7 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+    devDependencies:
       '@typescript/typescript6':
         specifier: 'catalog:'
         version: 6.0.2

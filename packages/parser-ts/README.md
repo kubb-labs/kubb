@@ -24,7 +24,7 @@
 
 ### TypeScript source file parser for Kubb
 
-Prints Kubb AST nodes as TypeScript source strings, and renders TypeScript compiler nodes through the `print` helper. Handles both `.ts` and `.tsx` output.
+Prints Kubb AST nodes as TypeScript source strings. Handles both `.ts` and `.tsx` output. It does not load the TypeScript compiler, so it also runs in edge runtimes such as Cloudflare Workers.
 
 ## Installation
 
@@ -59,23 +59,7 @@ export default defineConfig({
 })
 ```
 
-To render compiler AST nodes to source text from inside a plugin, call `print` on a parser instance. Install `@typescript/typescript6` first, because `typescript` 7 no longer exports the compiler API:
-
-```typescript
-import { parserTs } from '@kubb/parser-ts'
-import ts from '@typescript/typescript6'
-
-const source = parserTs().print(
-  ts.factory.createVariableStatement(
-    [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-    ts.factory.createVariableDeclarationList(
-      [ts.factory.createVariableDeclaration('hello', undefined, undefined, ts.factory.createStringLiteral('world'))],
-      ts.NodeFlags.Const,
-    ),
-  ),
-)
-// → export const hello = 'world'
-```
+`print(...fragments)` joins printed code strings with a newline. It still accepts TypeScript compiler nodes, but that form is deprecated and needs `@typescript/typescript6` installed. It is removed in the next major.
 
 ## API
 
@@ -83,7 +67,7 @@ const source = parserTs().print(
 
 Factory returning a parser instance for `.ts` and `.js` files. Pass to `defineConfig({ parsers: [...] })` to emit TypeScript source files. The optional `extension` map rewrites the extensions written in `import`/`export` statements and defaults to `{ '.ts': '' }`.
 
-The returned instance exposes `parse(file)` to serialize a `FileNode` to TypeScript source and `print(...nodes)` to convert TypeScript compiler `Node` instances to a formatted source string.
+The returned instance exposes `parse(file)` to serialize a `FileNode` to TypeScript source and `print(...fragments)` to join printed code strings.
 
 ### `parserTsx(options?)`
 
