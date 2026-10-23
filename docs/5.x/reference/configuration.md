@@ -384,7 +384,7 @@ export default defineConfig({
 :::field{type="string"}
 Project root, absolute or relative to the config file location.
 
-Default: the config file location.
+Default: `process.cwd()`.
 :::
 
 ### `reporters`
