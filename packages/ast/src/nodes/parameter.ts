@@ -56,6 +56,11 @@ export type ParameterNode = BaseNode & {
    * percent-encoded. Only applies to query parameters. Absent when the source omits it.
    */
   allowReserved?: boolean
+  /**
+   * Media type of a parameter described with `content` instead of `schema`, for example
+   * `application/json` when the value is sent as a JSON-encoded string. Absent for `schema` parameters.
+   */
+  contentType?: string
 }
 
 type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>

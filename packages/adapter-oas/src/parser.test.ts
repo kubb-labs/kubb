@@ -300,6 +300,35 @@ describe('buildAst', () => {
       expect(sort).not.toHaveProperty('allowReserved')
     })
 
+    it('reads the schema and media type of a parameter described with content', async () => {
+      const oas = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/orders': {
+            get: {
+              operationId: 'listOrders',
+              parameters: [
+                {
+                  name: 'filter',
+                  in: 'query',
+                  content: { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string' } } } } },
+                },
+                { name: 'sort', in: 'query', schema: { type: 'string' } },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+      const root = await parseOas(oas)
+      const op = findOperation(root, 'listOrders')
+
+      const filter = op?.parameters.find((p) => p.name === 'filter')
+      expect(filter).toMatchObject({ contentType: 'application/json', schema: { type: 'object' } })
+      expect(op?.parameters.find((p) => p.name === 'sort')).not.toHaveProperty('contentType')
+    })
+
     it('converts requestBody with description, required and a single content entry', async () => {
       const root = await parseOas(await buildMinimalOas())
       const createPet = findOperation(root, 'createPet')
