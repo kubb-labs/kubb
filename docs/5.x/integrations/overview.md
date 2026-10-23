@@ -92,10 +92,20 @@ Vite, Nuxt, and Astro generate during builds only. Run `kubb generate` before st
 
 ### Import a spec
 
-Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module, without generated files. A config without `input` only serves these imports.
+Import an `openapi.yaml` or `*.openapi.yaml` file to get the output of every plugin in your config as one module, without generated files. A config without `input` only serves these imports.
 
 ```ts
-import { getPetById, petSchema } from './petStore.openapi.yaml'
+import { type Pet, petStatusEnum } from './openapi.yaml'
 ```
 
-Code a plugin writes to a separate file, such as a bundled client runtime, is not included. For types in `tsc` and your editor, add [`openapi-import`](https://github.com/kubb-labs/openapi-import).
+Code a plugin writes to a separate file, such as a bundled client runtime, is not included. For types in `tsc` and your editor, add [`openapi-import`](/docs/5.x/integrations/openapi-import).
+
+## TypeScript
+
+::card-group
+
+:::card{title="openapi-import" icon="i-simple-icons-typescript" to="/docs/5.x/integrations/openapi-import"}
+Import an `openapi.yaml` spec in TypeScript and type-check the output of your plugins.
+:::
+
+::

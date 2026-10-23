@@ -56,8 +56,8 @@ export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TI
   }
 }
 
-/** Spec files an import loads as a module, the extensions `openapi-import` registers too. */
-const specFilePattern = /\.openapi\.ya?ml$/
+/** Spec files an import loads as a module: `openapi.yaml` and `*.openapi.yaml`, the ones `openapi-import` maps too. */
+const specFilePattern = /(?:^|[\\/.])openapi\.ya?ml$/
 
 /**
  * Builds the Kubb unplugin for every unplugin bundler. `unplugin-kubb` runs the Kubb build once for
