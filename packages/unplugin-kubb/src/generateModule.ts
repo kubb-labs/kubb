@@ -70,8 +70,8 @@ export async function generateModule({ root, input, config, hooks }: GenerateMod
 
   const { diagnostics } = await kubb.safeBuild()
   const errors = diagnostics.filter(Diagnostics.isProblem).filter((diagnostic) => diagnostic.severity === 'error')
-  // Files a plugin writes elsewhere, such as a bundled client runtime, are not part of the module.
-  const text = errors.length ? null : await storage.readItem(path.resolve(root, moduleFile))
+  // Files written elsewhere (a bundled client runtime) are left out; no output is an empty module.
+  const text = errors.length ? null : ((await storage.readItem(path.resolve(root, moduleFile))) ?? '')
 
   return { text, errors }
 }

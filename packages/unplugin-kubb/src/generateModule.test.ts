@@ -32,6 +32,17 @@ describe('generateModule', () => {
     expect(text).toContain('export type a_Pet = { id: number }')
   })
 
+  test('returns an empty module when no plugin writes code', async () => {
+    const { text, errors } = await generateModule({
+      root: '/app/src',
+      input: '/app/src/pet.openapi.yaml',
+      config: { output: { path: './gen' }, adapter: schemaAdapter, plugins: [] },
+    })
+
+    expect(errors).toStrictEqual([])
+    expect(text).toBe('')
+  })
+
   test('returns no module and the errors of a failed build', async () => {
     const adapter = createMockedAdapter({
       async parse() {
