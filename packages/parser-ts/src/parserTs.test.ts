@@ -184,12 +184,12 @@ describe('parserTs', () => {
       ['a namespace import', ["import * as a from './a.ts'", 'a()'], ["import * as a from './a'", '', 'a()']],
       ['a default import named type', ["import type from './a.ts'", 'type()'], ["import type from './a'", '', 'type()']],
       ['an export star with an alias', ["export * as a from './a.ts'", 'b()'], ["export * as a from './a'", '', 'b()']],
+      ['an import below other code, as TypeScript hoists it', ['a()', "import { b } from './b.ts'"], ['a()', '', "import { b } from './b'"]],
     ])('lifts %s', (_, lines, expected) => {
       expect(copy(parserTs(), lines.join('\n'))).toBe(expected.join('\n'))
     })
 
     it.each([
-      ['an import below other code', ['a()', "import { b } from './b.ts'"]],
       ['an empty named import, which still runs the module', ["'use client'", "import {} from './setup.ts'", "import { b } from './b.ts'", 'b()']],
       ['an aliased re-export', ["export { a as b } from './a.ts'", 'c()']],
       ['a template literal that looks like an import', ["const a = `import b from 'c'`"]],

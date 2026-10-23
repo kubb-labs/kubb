@@ -2,4 +2,4 @@
 'unplugin-kubb': minor
 ---
 
-Strip types from imported specs with Node's built-in `module.stripTypeScriptTypes` instead of the TypeScript compiler, so `unplugin-kubb` no longer depends on `@typescript/typescript6`. Enums still compile to runtime values. This needs Node 22.13 or later, and Node prints a one-time `ExperimentalWarning` for the API.
+Strip types from imported specs with [`yuku-parser`](https://www.npmjs.com/package/yuku-parser) and [`yuku-codegen`](https://www.npmjs.com/package/yuku-codegen) instead of the TypeScript compiler, so `unplugin-kubb` no longer depends on `@typescript/typescript6`. Enums compile to the same objects `tsc` emits, including reverse mapping for numeric members.
