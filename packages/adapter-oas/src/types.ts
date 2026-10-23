@@ -29,6 +29,10 @@ export type SchemaObject = {
   externalDocs?: unknown
   xml?: unknown
   $schema?: string
+  /** JSON Schema definitions that may be referenced from other schema locations. */
+  $defs?: Record<string, SchemaObject>
+  /** Legacy JSON Schema definitions, retained for compatibility with existing specifications. */
+  definitions?: Record<string, SchemaObject>
   deprecated?: boolean
   example?: unknown
   examples?: Array<unknown>

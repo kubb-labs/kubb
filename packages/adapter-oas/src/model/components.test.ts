@@ -174,6 +174,46 @@ describe('getSchemas', () => {
     expect(Object.keys(getSchemas(document, {}, createRefs(document)).schemas).sort()).toStrictEqual(['A', 'B'])
   })
 
+  it('collects nested $defs and maps their references to unique emitted schema names', () => {
+    const document: Document = {
+      ...base,
+      openapi: '3.1.0',
+      components: {
+        schemas: {
+          Box: {
+            type: 'object',
+            properties: { card: { $ref: '#/components/schemas/Box/$defs/Card' } },
+            $defs: {
+              Card: {
+                type: 'object',
+                properties: {
+                  rank: { type: 'string' },
+                  next: { $ref: '#/components/schemas/Box/$defs/Card' },
+                },
+              },
+            },
+          },
+          Shelf: {
+            type: 'object',
+            properties: { card: { $ref: '#/components/schemas/Shelf/$defs/Card' } },
+            $defs: {
+              Card: { type: 'object', properties: { label: { type: 'string' } } },
+            },
+          },
+        },
+      },
+    } as unknown as Document
+
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
+
+    expect(schemas).toMatchObject({
+      Box_Card: { type: 'object', properties: { rank: { type: 'string' }, next: { $ref: '#/components/schemas/Box/$defs/Card' } } },
+      Shelf_Card: { type: 'object', properties: { label: { type: 'string' } } },
+    })
+    expect(renames.get('#/components/schemas/Box/$defs/Card')).toBe('Box_Card')
+    expect(renames.get('#/components/schemas/Shelf/$defs/Card')).toBe('Shelf_Card')
+  })
+
   it('respects contentType when extracting response schemas', () => {
     const document: Document = {
       ...base,
