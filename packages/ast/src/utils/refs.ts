@@ -47,7 +47,7 @@ export function mergeRefWithSchema(node: RefSchemaNode): SchemaNode {
   if (!node.schema) return node
 
   const merged: Record<string, unknown> = { ...node.schema }
-  for (const key in node) {
+  for (const key of Object.keys(node)) {
     const value = (node as Record<string, unknown>)[key]
     if (value !== undefined && !REF_OWN_KEYS.has(key)) merged[key] = value
   }
