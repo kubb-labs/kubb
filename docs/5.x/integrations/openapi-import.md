@@ -40,8 +40,6 @@ npm install -D kubb openapi-import typescript@beta
 
 :::
 
-With npm, `tsc` runs TypeScript 6, because `@typescript/typescript6` links its `tsc` over the one from `typescript`. Run `node node_modules/typescript/bin/tsc` instead.
-
 ## Register the extension
 
 Add the content mapper to `tsconfig.json`. Register `.openapi.yaml` rather than `.yaml`, so files such as `docker-compose.yaml` stay out of the mapper:
@@ -61,9 +59,19 @@ Add the content mapper to `tsconfig.json`. Register `.openapi.yaml` rather than 
 
 ## Run the type check
 
-```shell [Terminal]
-tsc --noEmit --runExternalCode
+:::code-group{sync="package-manager"}
+
+```shell [pnpm]
+pnpm tsc --noEmit --runExternalCode
 ```
+
+```shell [npm]
+node node_modules/typescript/bin/tsc --noEmit --runExternalCode
+```
+
+:::
+
+With npm, `tsc` runs TypeScript 6, because `@typescript/typescript6` links its `tsc` over the one from `typescript`, so call the TypeScript 7 binary directly.
 
 VS Code only passes `--runExternalCode` in trusted workspaces.
 
@@ -115,7 +123,7 @@ export async function getAvailablePet({ petId }: GetPetByIdPath): Promise<GetPet
 }
 ```
 
-A config with an `input` also writes the generated files at build time. Leave `input` out to import specs only.
+A config with an `input` also writes the generated files at build time. Leave `input` out to import specs only. The bundler reads `kubb.config.ts` once, so restart it after you change the config.
 
 ## Limits
 
