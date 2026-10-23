@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.12.6 — Oct 23, 2026
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- Import a `*.openapi.yaml` spec to get the output of every plugin in your config as one module. `kubb()` without a `config` option loads `kubb.config.ts`. ([#4402](https://github.com/kubb-labs/kubb/pull/4402), [`01cf778`](https://github.com/kubb-labs/kubb/commit/01cf778e28806e7b9f80b4c436d866c766ea7103))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.12.5 — Oct 22, 2026
 
 ### @kubb/adapter-oas
