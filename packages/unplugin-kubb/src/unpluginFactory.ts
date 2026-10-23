@@ -34,7 +34,6 @@ export type Options = {
 /**
  * Applies the defaults `defineConfig` and the unplugin share to a single user config when not set.
  *
- * - `root` defaults to `process.cwd()`
  * - `adapter` defaults to `adapterOas()`
  * - `parsers` defaults to `[parserTs(), parserTsx(), parserMd()]`
  * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter, htmlReporter]`
@@ -47,7 +46,6 @@ export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TI
 
   return {
     ...config,
-    root: config.root || process.cwd(),
     adapter: config.adapter ?? adapterOas(),
     parsers: config.parsers?.length ? config.parsers : [parserTs(), parserTsx(), parserMd()],
     reporters: config.reporters?.length ? config.reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter],
@@ -91,9 +89,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
         location: { kind: 'config' },
       })
     }
-    // `UserConfig.root` is relative to the config file, which may sit in a parent of the bundler's cwd.
-    const configs = await loadConfigFile<UserConfig>(file, {})
-    return configs.map((config) => (config.root ? { ...config, root: path.resolve(path.dirname(file), config.root) } : config))
+    return loadConfigFile<UserConfig>({ file, cli: {} })
   }
 
   // Loaded once per instance, like the generation below: restart the build after editing the config file.
@@ -132,12 +128,29 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
       enforce: 'pre',
       loadInclude: (id) => specFilePattern.test(id),
       async load(id) {
-        const config = selectConfig(await loadConfigs(), id, process.cwd())!
-        const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config })
-        if (errors.length) throw fail(errors[0], `${id}: ${errors[0]!.message}`)
+        try {
+          const config = selectConfig({ configs: await loadConfigs(), fileName: id, cwd: process.cwd() })
+          if (!config) {
+            throw new Diagnostics.Error({
+              code: Diagnostics.code.unknown,
+              severity: 'error',
+              message: `[${name}] No Kubb config applies to ${id}`,
+              help: 'Set `input` of a config to this spec, or add a config without `input` to serve every imported spec.',
+              location: { kind: 'config' },
+            })
+          }
+          const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config })
+          if (errors.length) throw fail(errors[0], `${id}: ${errors[0]!.message}`)
 
-        // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
-        return ts.transpileModule(text, { fileName: `${id}.ts`, compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext } }).outputText
+          // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
+          return ts.transpileModule(text, { fileName: `${id}.ts`, compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext } })
+            .outputText
+        } catch (error) {
+          // unplugin's webpack and Rspack loader never settles when `load` throws, so report the error instead.
+          if (meta.framework !== 'webpack' && meta.framework !== 'rspack') throw error
+          this.error(error as Error)
+          return 'export {}'
+        }
       },
     },
   ]

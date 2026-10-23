@@ -78,7 +78,7 @@ export const generateTool = defineTool(
 
       let userConfig: Config
       try {
-        const [first] = await loadConfigFile<Config>(file, { logLevel, config: configPath })
+        const [first] = await loadConfigFile<Config>({ file, cli: { logLevel, config: configPath } })
         if (!first)
           throw new Diagnostics.Error({
             code: Diagnostics.code.unknown,
@@ -90,10 +90,8 @@ export const generateTool = defineTool(
         return failure(`Failed to load config ${file}`, [Diagnostics.from(error)])
       }
 
-      const cwd = path.dirname(file)
       const config: Config = {
         ...userConfig,
-        root: path.resolve(cwd, userConfig.root ?? '.'),
         input: input ?? userConfig.input,
         output: output
           ? {
