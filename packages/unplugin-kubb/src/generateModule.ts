@@ -28,11 +28,11 @@ const toModulePlugin = (plugin: Plugin): Plugin => ({
 })
 
 /**
- * The config whose `input` is `fileName`, else the first one. `root` and `input` resolve from
- * `baseDir`, the folder of the config file, as the Kubb CLI resolves them.
+ * The config whose `input` is `fileName`, else the first one. Like Kubb, `root` resolves from
+ * `cwd` and `input` from `root`.
  */
-export function selectConfig(configs: Array<UserConfig>, fileName: string, baseDir: string): UserConfig | undefined {
-  const matches = (config: UserConfig) => typeof config.input === 'string' && path.resolve(baseDir, config.root ?? '.', config.input) === path.resolve(fileName)
+export function selectConfig(configs: Array<UserConfig>, fileName: string, cwd: string): UserConfig | undefined {
+  const matches = (config: UserConfig) => typeof config?.input === 'string' && path.resolve(cwd, config.root || '.', config.input) === path.resolve(fileName)
 
   return configs.find(matches) ?? configs[0]
 }

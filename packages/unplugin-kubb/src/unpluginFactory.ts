@@ -82,8 +82,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
   const fail = (problem: ProblemDiagnostic | undefined, message: string) =>
     new Diagnostics.Error({ ...(problem ?? { code: Diagnostics.code.unknown, severity: 'error' }), message: `[${name}] ${message}` })
 
-  async function readConfigs(): Promise<{ configs: Array<UserConfig>; baseDir: string }> {
-    if (options?.config) return { configs: [options.config], baseDir: process.cwd() }
+  async function readConfigs(): Promise<Array<UserConfig>> {
+    if (options?.config) return [options.config]
 
     const file = findConfigFile()
     if (!file) {
@@ -95,7 +95,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
         location: { kind: 'config' },
       })
     }
-    return { configs: await loadConfigFile<UserConfig>(file, {}), baseDir: path.dirname(file) }
+    return loadConfigFile<UserConfig>(file, {})
   }
 
   // Loaded once per instance, like the generation below: restart the build after editing the config file.
@@ -103,7 +103,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
   const loadConfigs = () => (loaded ??= readConfigs())
 
   async function runBuild() {
-    for (const config of (await loadConfigs()).configs.filter((config) => config.input)) {
+    for (const config of (await loadConfigs()).filter((config) => config.input)) {
       const result = await createKubb(applyDefaults(config) as Config, { hooks }).generate()
       if (result.success) continue
 
@@ -134,8 +134,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
       enforce: 'pre',
       loadInclude: (id) => specFilePattern.test(id),
       async load(id) {
-        const { configs, baseDir } = await loadConfigs()
-        const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config: selectConfig(configs, id, baseDir)! })
+        const config = selectConfig(await loadConfigs(), id, process.cwd())!
+        const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config })
         if (errors.length) throw fail(errors[0], `${id}: ${errors[0]!.message}`)
 
         // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.

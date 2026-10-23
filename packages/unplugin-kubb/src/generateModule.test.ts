@@ -61,7 +61,7 @@ describe('generateModule', () => {
 })
 
 describe('selectConfig', () => {
-  test('picks the config whose input is the spec, resolved from the config folder, else the first', () => {
+  test('picks the config whose input is the spec, resolved like Kubb from cwd and root, else the first', () => {
     const pets = { input: './specs/pet.openapi.yaml', output: { path: './gen' } }
     const stores = { root: 'specs', input: './store.openapi.yaml', output: { path: './gen' } }
 
