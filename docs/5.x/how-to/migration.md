@@ -43,6 +43,7 @@ Set these options explicitly where your application relies on the old behavior.
 | --- | --- |
 | `defineConfig` from `@kubb/core` | Import from `kubb/config`. |
 | `input: { path }` or `input: { data }` | Set `input` directly to the path, URL, spec string, or parsed object. |
+| `input` as an array of specs | Pass `defineConfig` an array with one config per spec. Give each the same [`output.shared`](/docs/5.x/reference/configuration#outputshared) to generate the schemas they share once. |
 | `output.storage` | Move to top-level `storage` and import helpers from `kubb/kit`. |
 | `hooks.done` | Use an `output.postGenerate` array of strings or `{ name, command }` objects. |
 | `output.override` | Remove it. Use a storage driver to control writes. |

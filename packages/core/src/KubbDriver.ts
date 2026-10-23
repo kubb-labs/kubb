@@ -4,7 +4,7 @@ import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMet
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginType } from './definePlugin.ts'
+import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, Output, PluginType } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
@@ -32,6 +32,14 @@ type Options = {
    * run that fails earlier leaves the previous output in place.
    */
   cleanPath?: string
+  /**
+   * The `output.shared.path` directory `output.clean` empties, at the same moment as `cleanPath`.
+   */
+  cleanSharedPath?: string
+  /**
+   * The spec already parsed, so `run` skips `adapter.parse`.
+   */
+  inputNode?: InputNode
 }
 
 type RequirePluginContext = {
@@ -143,6 +151,7 @@ export class KubbDriver {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null
+    this.inputNode = options.inputNode ?? null
   }
 
   /**
@@ -374,9 +383,18 @@ export class KubbDriver {
 
           // Normalize each plugin's options once setup hooks have run, so the generate loop always
           // sees a filled-in bag whether or not the plugin called `setOptions`.
+          // The global `output.shared` path is resolved here, since a resolver only sees the output directory.
+          const shared = config.output.shared && { ...config.output.shared, path: resolve(config.root, config.output.shared.path) }
           for (const plugin of this.plugins.values()) {
             this.options.signal?.throwIfAborted()
             plugin.options = normalizePluginOptions(plugin.options, plugin.name)
+            if (!shared) continue
+            plugin.options.output.shared = shared
+            // An `override` with its own `output` replaces the whole object, so it carries the shared list too.
+            plugin.options.override = plugin.options.override.map((entry) => {
+              const { output } = entry.options as { output?: Output }
+              return output ? { ...entry, options: { ...entry.options, output: { ...output, shared } } } : entry
+            })
           }
 
           if (this.adapter && this.inputNode) {
@@ -438,6 +456,7 @@ export class KubbDriver {
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
           if (this.options.cleanPath) await config.storage.empty(this.options.cleanPath)
+          if (this.options.cleanSharedPath) await config.storage.empty(this.options.cleanSharedPath)
 
           await fileManager.write(fileManager.files, {
             storage: config.storage,

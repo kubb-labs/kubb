@@ -80,7 +80,7 @@ export default defineConfig([
 ])
 ```
 
-A config function can return an array to combine both forms.
+A config function can return an array to combine both forms. When the specs define the same schemas, set [`output.shared`](#outputshared) to generate those once.
 
 ## Defaults {#defaults}
 
@@ -185,7 +185,7 @@ This writes every type into `src/gen/types.ts` and one client file per operation
 #### `output.clean`
 
 :::field{type="boolean"}
-Wipe `output.path` before regenerating.
+Wipe `output.path` before regenerating, and the [`output.shared`](#outputshared) directory when one is set.
 
 Default: `false`.
 
@@ -240,6 +240,49 @@ Behavior of the root `index.ts` barrel file at `output.path`, and the default ev
 Default: `false`.
 
 `{ type: 'named' }` re-exports each symbol by name, `{ type: 'all' }` writes `export *`. See [`@kubb/plugin-barrel` options](/extensions/kubb-labs/plugin-barrel/options#outputbarrel) for the export styles and the plugin-level `nested` flag, and [Add barrel files](/docs/5.x/how-to/barrel-files) for the setup steps.
+:::
+
+#### `output.shared`
+
+:::field{type="{ path: string }"}
+Schemas that several specs define, written once to a shared directory. Every other generated file imports them from there.
+
+Kubb writes each shared schema under `path`, resolved against [`root`](#root), with the same plugin layout as `output.path`. Give every config in an [array](#multiple-configurations-array) the same value:
+
+```typescript twoslash [kubb.config.ts]
+import { defineConfig } from 'kubb/config'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+
+const shared = { path: './src/gen/common' }
+
+export default defineConfig([
+  {
+    input: './animals.json',
+    output: { path: './src/gen/animals', shared },
+    plugins: [pluginTs(), pluginZod()],
+  },
+  {
+    input: './fruits.json',
+    output: { path: './src/gen/fruits', shared },
+    plugins: [pluginTs(), pluginZod()],
+  },
+])
+```
+
+When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/common/types/Name.ts` and `src/gen/common/zod/nameSchema.ts` once, and `src/gen/animals/types/Animal.ts` imports `Name` from `../../common/types/Name`.
+
+`kubb generate` parses every spec first and picks the schemas to share:
+
+- A schema is shared when every config with the same `path` defines it identically, and every schema it references is shared too.
+- A schema that every spec defines, but differently, stays in each config's own output, and the CLI prints a warning that names it.
+- A config alone in its `path` shares nothing.
+
+Only `kubb generate` compares the specs, so a single `createKubb` run, the bundler plugins, and MCP share nothing.
+
+With [`output.barrel`](#outputbarrel) set, the shared directory gets the same barrels as `output.path`, and [`output.format`](#outputformat) and [`output.lint`](#outputlint) run over it too. When any config that uses the shared directory sets [`output.clean`](#outputclean), `kubb generate` also wipes it once per run. The first config that uses it does so, right before it writes its files. A config's own barrels leave the shared schemas out, so import those from the shared directory's barrel.
+
+Give the configs that share a directory the same plugins. Otherwise the shared root barrel lists only the last config's plugins. Keep `path` outside every config's `output.path`. Otherwise a later config's `output.clean` deletes shared files that only an earlier config writes.
 :::
 
 #### `output.defaultBanner`

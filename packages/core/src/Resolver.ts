@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { camelCase } from '@internals/utils'
+import { camelCase, isPathInside } from '@internals/utils'
 import { ast, collectImportedRefNames, type FileNode, type ImportNode, type InputMeta, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
 import { getInputKind } from './input.ts'
@@ -70,7 +70,8 @@ export type ResolvePathOptions = ResolverPathParams & {
 
 /**
  * The file request for `resolver.file` and `resolver.default.file`: the `name` and `extname` plus
- * the optional `tag`/`path` that grouping keys off.
+ * the optional `tag`/`path` that grouping keys off. An operation file always passes `tag` or `path`,
+ * since a file without either whose name matches a shared schema moves to `output.shared.path`.
  */
 export type ResolverFileParams = {
   name: string
@@ -584,12 +585,14 @@ export class Resolver {
    * and `group`. The path may not escape `root`, which keeps a `file.path` that interpolates
    * spec-derived values from writing outside the project.
    */
-  #resolveOverridePath(filePath: string, root: string): string {
+  #resolveOverridePath(filePath: string, root: string, projectRoot: string): string {
     const resolved = path.resolve(root, filePath)
+    // A shared schema resolves against the shared root, but an absolute `file.path` may point back into the project.
+    const parent = isPathInside(resolved, root) ? root : projectRoot
     assertInside({
       target: resolved,
-      parent: root,
-      message: `Resolved path "${resolved}" is outside the project root "${root}".`,
+      parent,
+      message: `Resolved path "${resolved}" is outside the project root "${parent}".`,
       help: 'A resolver `file.path` must return a path inside the project root.',
     })
 
@@ -603,10 +606,13 @@ export class Resolver {
    * with empty `sources`, `imports`, and `exports`, which consumers populate separately.
    */
   #resolveFile(options: ResolveFileOptions): FileNode {
-    const { name, extname, tag, path: groupPath, root, output, group } = options
+    const { name, extname, tag, path: groupPath, output, group } = options
+    // A shared schema's file and every import of it move under `output.shared.path`; operation files carry a `tag` or `path`.
+    const shared = !tag && !groupPath && output.shared?.schemas?.includes(name) ? output.shared : undefined
+    const root = shared ? path.resolve(options.root, shared.path) : options.root
     const baseName = this.#baseName({ name, extname })
     const filePath = this.#filePath
-      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root)
+      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root, options.root)
       : this.#resolvePath({ baseName, tag, path: groupPath, root, output, group })
 
     return ast.factory.createFile({

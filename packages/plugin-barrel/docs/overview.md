@@ -14,7 +14,7 @@ Kubb adds the plugin to `plugins` for you, so no setup is needed. Generator plug
 - `nested: true`, on a plugin only, makes each barrel re-export just its own folder and the barrels below it. The root barrel is always flat.
 - `false` on a plugin turns its barrel off and leaves its files out of the root barrel.
 
-A plugin with `output.mode: 'file'` gets no barrel of its own, and the root barrel re-exports that file directly. Passing your own `output` object to a plugin replaces its default `barrel: { type: 'named' }`, so that plugin falls back to the root setting. When two files export the same name, Kubb reports an error, and a `named` barrel keeps only the first one.
+A plugin that writes schemas to an [`output.shared`](https://kubb.dev/docs/5.x/reference/configuration#outputshared) directory gets the same barrels there, plus a root barrel when `output.barrel` is set on `defineConfig`. Its own barrels leave the shared schemas out, so import those from the shared directory's barrel. A plugin with `output.mode: 'file'` gets no barrel of its own, and the root barrel re-exports that file directly. Passing your own `output` object to a plugin replaces its default `barrel: { type: 'named' }`, so that plugin falls back to the root setting. When two files export the same name, Kubb reports an error, and a `named` barrel keeps only the first one.
 
 See [Options](https://kubb.dev/extensions/kubb-labs/plugin-barrel/options) for every option and its default.
 

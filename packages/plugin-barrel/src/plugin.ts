@@ -113,6 +113,7 @@ export const pluginBarrel = defineExtension({
         // The output root holds every plugin's files, so there only the owner match applies.
         if (target !== base && isPathInside(target, base)) {
           excludedTargets.push(target)
+          if (config.output.shared) excludedTargets.push(path.resolve(config.root, config.output.shared.path, plugin.options.output.path))
         }
         return
       }
@@ -161,20 +162,31 @@ export const pluginBarrel = defineExtension({
       excludedTargets.length = 0
 
       const index = buildBarrelIndex(outputPath, relevantFiles)
+      // Shared schemas live outside `output.path`, so the shared directory gets its own index.
+      const sharedRoot = config.output.shared && path.resolve(config.root, config.output.shared.path)
+      const shared = sharedRoot ? { root: sharedRoot, index: buildBarrelIndex(sharedRoot, relevantFiles) } : undefined
       const reportedCollisions = new Set<string>()
 
       pendingBarrels.forEach(({ plugin, target, barrelType, nested }) => {
-        getBarrelFiles({ index, targetPath: target, barrelType, nested, recursive: true, reportedCollisions }).forEach((file) => {
-          upsertFile(withBarrelBannerFooter({ file, plugin, config }))
-        })
+        const targets = [
+          { index, targetPath: target },
+          ...(shared ? [{ index: shared.index, targetPath: path.resolve(shared.root, plugin.options.output.path) }] : []),
+        ]
+        for (const barrel of targets) {
+          getBarrelFiles({ ...barrel, barrelType, nested, recursive: true, reportedCollisions }).forEach((file) => {
+            upsertFile(withBarrelBannerFooter({ file, plugin, config }))
+          })
+        }
       })
       pendingBarrels.length = 0
 
       if (rootBarrelConfig === false) return
 
-      getBarrelFiles({ index, barrelType: rootBarrelConfig.type, reportedCollisions }).forEach((file) => {
-        upsertFile(file)
-      })
+      for (const rootIndex of shared ? [index, shared.index] : [index]) {
+        getBarrelFiles({ index: rootIndex, barrelType: rootBarrelConfig.type, reportedCollisions }).forEach((file) => {
+          upsertFile(file)
+        })
+      }
     },
   },
 })

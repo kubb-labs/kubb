@@ -223,6 +223,40 @@ describe('createKubb', () => {
     ])
   })
 
+  it.each([
+    [true, null],
+    [false, 'export const stale = 1\n'],
+  ])('empties output.shared.path only when cleanShared is %s', async (cleanShared, expected) => {
+    const storage = memoryStorage()
+    const staleFile = path.resolve('.', 'gen', 'common', 'stale.ts')
+    await storage.writeItem(staleFile, 'export const stale = 1\n')
+
+    await createKubb(makeConfig({ ...config, storage, output: { path: './gen/animals', shared: { path: './gen/common' } } }), {
+      hooks: new Hookable<KubbHooks>(),
+      cleanShared,
+    }).build()
+
+    expect(await storage.readItem(staleFile)).toBe(expected)
+  })
+
+  it('uses the given inputNode instead of parsing the spec', async () => {
+    const adapter = createMockedAdapter({ parse: vi.fn(async () => ast.factory.createInput()) })
+
+    await createKubb(makeConfig({ adapter }), { hooks: new Hookable<KubbHooks>(), inputNode: ast.factory.createInput() }).build()
+
+    expect(adapter.parse).not.toHaveBeenCalled()
+  })
+
+  it('output.clean raises a KUBB_CLEAN_ROOT diagnostic when output.shared.path is the project root', async () => {
+    const root = path.join(os.tmpdir(), 'kubb-clean-guard')
+    const kubb = createKubb(makeConfig({ ...config, root, output: { path: './gen', clean: true, shared: { path: '.' } } }), {
+      hooks: new Hookable<KubbHooks>(),
+      cleanShared: true,
+    })
+
+    await expect(kubb.setup()).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.cleanRoot, help: expect.stringContaining('output.shared.path') } })
+  })
+
   it('keeps the previous output when output.clean is set and the run fails before writing', async () => {
     const storage = memoryStorage()
     const outputFile = path.resolve('.', 'gen', 'previous.ts')

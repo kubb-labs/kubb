@@ -427,6 +427,40 @@ describe('resolver.imports', () => {
   })
 })
 
+describe('output.shared', () => {
+  const sharedContext = { ...context, output: { ...context.output, shared: { path: '../common', schemas: ['Name'] } } }
+
+  it('places a listed schema under the shared path with the plugin layout', () => {
+    expect(baseResolver.file({ name: 'Name', extname: '.ts', ...sharedContext }).path).toBe('/common/types/name.ts')
+    expect(baseResolver.file({ name: 'Pet', extname: '.ts', ...sharedContext }).path).toBe('/root/types/pet.ts')
+  })
+
+  it.each([
+    ['a relative file.path under the shared root', 'mocks/name.ts', '/common/mocks/name.ts'],
+    ['an absolute file.path inside the project root', '/root/mocks/name.ts', '/root/mocks/name.ts'],
+  ])('resolves %s for a shared schema', (_, customPath, expected) => {
+    const resolver = createResolver<TestPluginFactory>({ pluginName: 'test', file: { path: () => customPath }, greet: () => '', farewell: () => '' })
+
+    expect(resolver.file({ name: 'Name', extname: '.ts', ...sharedContext }).path).toBe(expected)
+  })
+
+  it('keeps an operation file in its own output when its name matches a shared schema', () => {
+    expect(baseResolver.file({ name: 'Name', extname: '.ts', tag: 'pets', ...sharedContext }).path).toBe('/root/types/name.ts')
+  })
+
+  it('imports a shared schema from the shared path', () => {
+    const node = ast.factory.createSchema({
+      type: 'object',
+      properties: [
+        ast.factory.createProperty({ name: 'name', schema: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Name', name: 'Name' }) }),
+        ast.factory.createProperty({ name: 'pet', schema: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' }) }),
+      ],
+    })
+
+    expect(baseResolver.imports({ node, ...sharedContext }).map((imp) => imp.path)).toStrictEqual(['/common/types/name.ts', '/root/types/pet.ts'])
+  })
+})
+
 const mockConfig = {
   input: 'petStore.yaml',
   output: { path: 'src/generated', defaultBanner: true },

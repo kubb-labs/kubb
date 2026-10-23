@@ -14,6 +14,7 @@ import type {
   Plugin,
   PluginName,
   ResolvePluginOptions,
+  SharedOutput,
 } from './definePlugin.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { HookResult } from './output/runHook.ts'
@@ -183,6 +184,10 @@ export type Config<TInput = Input> = {
      * ```
      */
     defaultBanner?: 'simple' | 'full' | false
+    /**
+     * Directory where schemas that several specs define are written once. Give every config in an array the same value.
+     */
+    shared?: SharedOutput
   } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
   /**
    * Where generated files are persisted. Defaults to `fsStorage()` (disk). Pass `memoryStorage()`

@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { isPathInside } from '@internals/utils'
-import type { FileNode } from '@kubb/ast'
+import type { FileNode, InputNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -53,6 +53,15 @@ export type CreateKubbOptions = {
    * Stops the build at the next safe checkpoint.
    */
   signal?: AbortSignal
+  /**
+   * Empties `output.shared.path` before writing. `kubb generate` sets it on the first config of each shared directory
+   * when any of them sets `output.clean`, so a later config never deletes what an earlier one wrote.
+   */
+  cleanShared?: boolean
+  /**
+   * The spec already parsed, so the build does not parse it again. `kubb generate` passes the node it parsed to detect shared schemas.
+   */
+  inputNode?: InputNode
 }
 
 /**
@@ -109,11 +118,15 @@ export class Kubb {
   #driver: KubbDriver | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
+  readonly #cleanShared: boolean
+  readonly #inputNode: InputNode | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
+    this.#cleanShared = options.cleanShared ?? false
+    this.#inputNode = options.inputNode
   }
 
   get storage(): Storage {
@@ -136,22 +149,27 @@ export class Kubb {
     const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
 
     const cleanPath = config.output.clean ? resolve(config.root, config.output.path) : undefined
+    const cleanSharedPath = this.#cleanShared && config.output.shared ? resolve(config.root, config.output.shared.path) : undefined
 
     // clean only removes generated code. Refuse when the output resolves to the project root or
     // an ancestor of it, otherwise the wipe would delete kubb.config and every source file.
-    if (cleanPath && isPathInside(config.root, cleanPath)) {
+    for (const [option, target] of [
+      ['output.path', cleanPath],
+      ['output.shared.path', cleanSharedPath],
+    ] as const) {
+      if (!target || !isPathInside(config.root, target)) continue
       throw new Diagnostics.Error({
         code: Diagnostics.code.cleanRoot,
         severity: 'error',
-        message: `output.clean cannot delete "${cleanPath}" because it is the project root or a parent of it.`,
-        help: 'Point `output.path` at a subdirectory such as `./src/gen` so clean only removes generated code.',
+        message: `output.clean cannot delete "${target}" because it is the project root or a parent of it.`,
+        help: `Point \`${option}\` at a subdirectory such as \`./src/gen\` so clean only removes generated code.`,
         location: { kind: 'config' },
       })
     }
 
     // The driver empties `cleanPath` right before it writes the new files, so a run that fails
     // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath })
+    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath, cleanSharedPath, inputNode: this.#inputNode })
     await driver.setup()
 
     this.#driver = driver

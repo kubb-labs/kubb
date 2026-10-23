@@ -474,6 +474,40 @@ describe('KubbDriver generator dispatch', () => {
     expect((normalized as Record<string, unknown>).enumType).toBe('asConst')
   })
 
+  it('gives every plugin the global output.shared resolved against root, replacing a plugin-level one', async () => {
+    const plugins = [
+      { name: 'types', options: { output: { path: 'types' } }, hooks: {} },
+      { name: 'zod', options: { output: { path: 'zod', shared: { path: '../own', schemas: ['Store'] } } }, hooks: {} },
+    ] as unknown as Array<Plugin>
+    const sharedDriver = makeDriver(
+      makeConfig({ root: '/project', adapter: inputAdapter(), plugins, output: { path: './gen/animals', shared: { path: './gen/common', schemas: ['Pet'] } } }),
+    )
+    await sharedDriver.setup()
+    await sharedDriver.run()
+
+    for (const name of ['types', 'zod']) {
+      expect(sharedDriver.plugins.get(name)!.options.output.shared).toStrictEqual({ path: '/project/gen/common', schemas: ['Pet'] })
+    }
+  })
+
+  it('keeps the global output.shared on an override that brings its own output', async () => {
+    const override = [
+      { type: 'schemaName', pattern: 'Pet', options: { output: { path: 'pets' } } },
+      { type: 'schemaName', pattern: 'Store', options: { enumType: 'asConst' } },
+    ]
+    const plugins = [{ name: 'types', options: { output: { path: 'types' }, override }, hooks: {} }] as unknown as Array<Plugin>
+    const sharedDriver = makeDriver(
+      makeConfig({ root: '/project', adapter: inputAdapter(), plugins, output: { path: './gen/animals', shared: { path: './gen/common', schemas: ['Pet'] } } }),
+    )
+    await sharedDriver.setup()
+    await sharedDriver.run()
+
+    expect(sharedDriver.plugins.get('types')!.options.override.map((entry) => entry.options)).toStrictEqual([
+      { output: { path: 'pets', shared: { path: '/project/gen/common', schemas: ['Pet'] } } },
+      { enumType: 'asConst' },
+    ])
+  })
+
   it("skips a generator's schema and operation calls for a node its match predicate resolves false for, and still calls them when true", async () => {
     rec = { schema: [], operation: [], operations: [], pairs: [] }
     const petOnly: Generator = {
