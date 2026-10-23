@@ -7,7 +7,7 @@ import { defineExtension, resolveCacheDir } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { hashOf } from './generations.ts'
 import type { SnapshotUploadMetadata } from './protocol.ts'
-import { createSnapshot, createSnapshotPackage } from './snapshot.ts'
+import { createSnapshot, createSnapshotPackage, loadTsdown } from './snapshot.ts'
 import { projectConfig as makeConfig } from './testing.ts'
 
 const projectRoots: Array<string> = []
@@ -111,6 +111,22 @@ describe('createSnapshotPackage', () => {
     const paths = readTarEntries(gunzipSync(bytes)).map((entry) => entry.path)
     expect(paths).toContain('package/dist/nested/helper.mjs')
     expect(paths).toContain('package/dist/nested/helper.cjs')
+  })
+
+  it('asks to install tsdown when it is missing', async () => {
+    const missing = Object.assign(new Error("Cannot find package 'tsdown' imported from /project"), { code: 'ERR_MODULE_NOT_FOUND' })
+
+    await expect(loadTsdown(() => Promise.reject(missing))).rejects.toMatchObject({
+      diagnostic: { help: 'Run `npm i -D tsdown` in the project, then try again.' },
+    })
+  })
+
+  it('keeps other load errors, such as a dependency tsdown itself misses', async () => {
+    const missing = Object.assign(new Error("Cannot find package 'rolldown' imported from /node_modules/tsdown/dist/index.mjs"), {
+      code: 'ERR_MODULE_NOT_FOUND',
+    })
+
+    await expect(loadTsdown(() => Promise.reject(missing))).rejects.toBe(missing)
   })
 })
 

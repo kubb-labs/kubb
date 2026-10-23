@@ -90,12 +90,20 @@
     "diff": "^9.0.0",
     "magicast": "^0.5.5",
     "ofetch": "^1.5.1",
-    "tinyexec": "catalog:",
-    "tsdown": "catalog:"
+    "tinyexec": "catalog:"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "@kubb/adapter-oas": "workspace:*"
+    "@kubb/adapter-oas": "workspace:*",
+    "tsdown": "catalog:"
+  },
+  "peerDependencies": {
+    "tsdown": "^0.23.1"
+  },
+  "peerDependenciesMeta": {
+    "tsdown": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=22.12"

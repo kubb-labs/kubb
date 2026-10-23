@@ -73,7 +73,7 @@ The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, whic
 | `--package-version=<version>`               |                       | `snapshot` only: package version for the tarball. Defaults to the version in the nearest `package.json` that has a name and a version.                                                                                                                                              |
 | `--json`                                    | `false`               | `snapshot` only: print the result as one JSON object instead of a summary.                                                                                                                                                                                                          |
 
-`snapshot` takes no `--allow-*` flag. It generates like `kubb generate`: it writes to `output.path`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB.
+`snapshot` takes no `--allow-*` flag. It generates like `kubb generate`: it writes to `output.path`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB. It needs `tsdown` installed in the project to build the package's `dist` files: run `npm i -D tsdown`.
 
 Without `--allow-read`, a session still generates and reports file paths, but Studio cannot display their contents. The CLI asks about permissions not supplied as flags and remembers answers per project directory. Without a TTY it skips the permission prompts, so pass the flags the run needs. In CI it also refuses to pair and needs stored credentials, so use `snapshot` there instead.
 
