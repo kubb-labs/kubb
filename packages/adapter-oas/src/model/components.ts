@@ -24,10 +24,9 @@ type SchemaWithMetadata = {
 type GetSchemasResult = {
   schemas: Record<string, SchemaObject>
   /**
-   * Maps a renamed component pointer (`#/components/<source>/<name>`) to the
-   * collision-resolved unique name used as the key in `schemas`. Components that keep
-   * their original name are not recorded, so the map stays empty for documents
-   * without collisions.
+   * Maps nested schema pointers and collision-renamed component pointers to the unique
+   * names used as keys in `schemas`. Components with their original names and no nested
+   * definitions are not recorded.
    */
   renames: Map<string, string>
 }
@@ -218,7 +217,7 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
       const resolvedSchema = resolveSchemaRef(schema)
       return [
         { schema: resolvedSchema, source: 'schemas' as const, originalName: name, pointer },
-        ...[...collectNestedDefinitions(resolvedSchema, pointer, [name])].map((nested) => ({
+        ...[...collectNestedDefinitions(schema, pointer, [name])].map((nested) => ({
           ...nested,
           source: 'schemas' as const,
           nested: true,

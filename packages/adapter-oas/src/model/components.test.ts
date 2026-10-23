@@ -200,6 +200,11 @@ describe('getSchemas', () => {
               Card: { type: 'object', properties: { label: { type: 'string' } } },
             },
           },
+          Actual: {
+            type: 'object',
+            $defs: { Internal: { type: 'string' } },
+          },
+          Alias: { $ref: '#/components/schemas/Actual' },
         },
       },
     } as unknown as Document
@@ -212,6 +217,8 @@ describe('getSchemas', () => {
     })
     expect(renames.get('#/components/schemas/Box/$defs/Card')).toBe('Box_Card')
     expect(renames.get('#/components/schemas/Shelf/$defs/Card')).toBe('Shelf_Card')
+    expect(schemas.Actual_Internal).toBeDefined()
+    expect(schemas.Alias_Internal).toBeUndefined()
   })
 
   it('respects contentType when extracting response schemas', () => {
