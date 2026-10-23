@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { adapterOas } from '@kubb/adapter-oas'
 import {
   cliReporter,
@@ -11,16 +12,21 @@ import {
   jsonReporter,
   type KubbHooks,
   logLevel,
+  type ProblemDiagnostic,
   type UserConfig,
 } from '@kubb/core'
 import { parserMd } from '@kubb/parser-md'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
+import { findConfigFile, loadConfigFile } from '@internals/shared'
+import ts from '@typescript/typescript6'
 import type { UnpluginFactory } from 'unplugin'
+import { generateModule, selectConfig } from './generateModule.ts'
 
 export type Options = {
   /**
-   * Kubb config passed to the unplugin entry point.
+   * Kubb config passed to the unplugin entry point. When not set, the plugin loads
+   * `kubb.config.*` the way the Kubb CLI finds it, from the current working directory up.
    */
   config?: UserConfig
 }
@@ -50,14 +56,15 @@ export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TI
   }
 }
 
+/** Spec files an import loads as a module, the extensions `openapi-import` registers too. */
+const specFilePattern = /\.openapi\.ya?ml$/
+
 /**
- * Builds the Kubb unplugin for any unplugin-supported bundler (Vite, Rollup, Webpack, esbuild).
- *
- * Runs the Kubb build during the first `buildStart` with {@link applyDefaults} applied to the
- * config and prints the same summary `kubb generate` does. Under Vite it only applies during
- * `build`. A missing config or a failed generation fails the host build.
+ * Builds the Kubb unplugin for every unplugin bundler. `unplugin-kubb` runs the Kubb build once for
+ * each config with an `input` (only during `build` under Vite), and `unplugin-kubb:import` loads an
+ * imported {@link specFilePattern} file as one module. Without `config`, it loads `kubb.config.*`.
  */
-export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, meta) => {
+export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (options, meta) => {
   const name = 'unplugin-kubb' as const
   const hooks = new Hookable<KubbHooks>()
   const reporter = createCliReporter()
@@ -66,47 +73,72 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     reporter.report({ config, diagnostics, filesCreated, status, hrStart }, { logLevel: logLevel.info }),
   )
 
-  // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`.
-  async function runBuild() {
-    if (!options?.config) {
+  // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`. Keep the problem's code,
+  // help and location, so the bundler shows the same diagnostic.
+  const fail = (problem: ProblemDiagnostic | undefined, message: string) =>
+    new Diagnostics.Error({ ...(problem ?? { code: Diagnostics.code.unknown, severity: 'error' }), message: `[${name}] ${message}` })
+
+  async function readConfigs(): Promise<Array<UserConfig>> {
+    if (options?.config) return [options.config]
+
+    const file = findConfigFile()
+    if (!file) {
       throw new Diagnostics.Error({
         code: Diagnostics.code.inputRequired,
         severity: 'error',
         message: `[${name}] Config is not set`,
-        help: 'Pass your Kubb config as the `config` option of the plugin.',
+        help: 'Pass your Kubb config as the `config` option of the plugin, or add a `kubb.config.ts`.',
         location: { kind: 'config' },
       })
     }
+    // `UserConfig.root` is relative to the config file, which may sit in a parent of the bundler's cwd.
+    const configs = await loadConfigFile<UserConfig>(file, {})
+    return configs.map((config) => (config.root ? { ...config, root: path.resolve(path.dirname(file), config.root) } : config))
+  }
 
-    const kubb = createKubb(applyDefaults(options.config) as Config, { hooks })
-    const result = await kubb.generate()
+  // Loaded once per instance, like the generation below: restart the build after editing the config file.
+  let loaded: ReturnType<typeof readConfigs> | undefined
+  const loadConfigs = () => (loaded ??= readConfigs())
 
-    if (!result.success) {
+  async function runBuild() {
+    for (const config of (await loadConfigs()).filter((config) => config.input)) {
+      const result = await createKubb(applyDefaults(config) as Config, { hooks }).generate()
+      if (result.success) continue
+
       const failedCount = Diagnostics.failedPlugins(result.diagnostics).length
       const firstError = result.diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
-      const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
-
-      // Keep the first error's code, help, and location, so the bundler shows the same diagnostic.
-      throw new Diagnostics.Error({
-        ...(firstError ?? { code: Diagnostics.code.unknown, severity: 'error' }),
-        message: `[${name}] ${message}`,
-      })
+      throw fail(firstError, failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed'))
     }
   }
 
   // A rerun with `output.clean` loops webpack and Rspack watchers, so generate once per instance.
   let generation: Promise<void> | undefined
 
-  return {
-    name,
-    enforce: 'pre',
-    apply: meta.framework === 'vite' ? 'build' : undefined,
-    async buildStart() {
-      generation ??= runBuild().catch((error: unknown) => {
-        generation = undefined
-        throw error
-      })
-      await generation
+  return [
+    {
+      name,
+      enforce: 'pre',
+      apply: meta.framework === 'vite' ? 'build' : undefined,
+      async buildStart() {
+        generation ??= runBuild().catch((error: unknown) => {
+          generation = undefined
+          throw error
+        })
+        await generation
+      },
     },
-  }
+    {
+      name: `${name}:import`,
+      enforce: 'pre',
+      loadInclude: (id) => specFilePattern.test(id),
+      async load(id) {
+        const config = selectConfig(await loadConfigs(), id, process.cwd())!
+        const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config })
+        if (errors.length) throw fail(errors[0], `${id}: ${errors[0]!.message}`)
+
+        // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
+        return ts.transpileModule(text, { fileName: `${id}.ts`, compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext } }).outputText
+      },
+    },
+  ]
 }

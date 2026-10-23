@@ -7,12 +7,19 @@ import { loadModule } from './loader.ts'
 const SEARCH_FILES = ['', '.config/', 'configs/'].flatMap((prefix) => [`${prefix}.kubbrc`, `${prefix}kubb.config`])
 
 /**
+ * Every config file path the Kubb CLI checks in `dir`, in the order it checks them.
+ */
+export function configFileCandidates(dir: string): Array<string> {
+  return SEARCH_FILES.flatMap((file) => CONFIG_EXTENSIONS.map((extension) => join(dir, `${file}${extension}`)))
+}
+
+/**
  * The first Kubb config file in `cwd` or the nearest parent folder that has one: `.kubbrc` before
  * `kubb.config`, the folder itself before its `.config/` and `configs/`, and {@link CONFIG_EXTENSIONS} in order.
  */
 export function findConfigFile(cwd: string = process.cwd()): string | undefined {
   for (let dir = resolve(cwd); ; dir = dirname(dir)) {
-    const found = SEARCH_FILES.flatMap((file) => CONFIG_EXTENSIONS.map((extension) => join(dir, `${file}${extension}`))).find((file) => existsSync(file))
+    const found = configFileCandidates(dir).find((file) => existsSync(file))
     if (found || dirname(dir) === dir) return found
   }
 }

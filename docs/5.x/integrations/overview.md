@@ -43,7 +43,7 @@ Publish snapshots from GitLab CI and review generated-file changes.
 
 ## Build tools
 
-Kubb runs generation during your build through `unplugin-kubb`, included with `kubb`. Each integration takes your `kubb.config.ts` as a single `config` object and generates when the tool builds.
+Kubb runs generation during your build through `unplugin-kubb`, included with `kubb`. Each integration takes your `kubb.config.ts` as a single `config` object and generates when the tool builds. Without `config`, it loads `kubb.config.ts` like the CLI does.
 
 ::card-group
 
@@ -89,3 +89,13 @@ Vite, Nuxt, and Astro generate during builds only. Run `kubb generate` before st
 
 > [!NOTE]
 > Bundler integrations apply fewer defaults than the CLI: no Markdown parser, no reporters, and no `output.postGenerate` commands. See [Defaults](/docs/5.x/reference/configuration#defaults).
+
+### Import a spec
+
+Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module, without generated files. A config without `input` only serves these imports.
+
+```ts
+import { getPetById, petSchema } from './petStore.openapi.yaml'
+```
+
+Code a plugin writes to a separate file, such as a bundled client runtime, is not included. For types in `tsc` and your editor, add [`openapi-import`](https://github.com/kubb-labs/openapi-import).
