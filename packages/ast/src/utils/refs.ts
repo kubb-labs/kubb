@@ -26,6 +26,9 @@ export function resolveRefName(node: SchemaNode | null | undefined): string | nu
   return node.name ?? node.schema?.name ?? null
 }
 
+/** Fields of a ref node that describe the ref itself, so they never override the resolved schema. */
+const REF_OWN_KEYS: ReadonlySet<string> = new Set(['kind', 'type', 'name', 'ref', 'schema'])
+
 /**
  * Merges a ref node with its resolved schema, giving the fields set at the usage site precedence.
  *
@@ -43,10 +46,15 @@ export function resolveRefName(node: SchemaNode | null | undefined): string | nu
 export function mergeRefWithSchema(node: RefSchemaNode): SchemaNode {
   if (!node.schema) return node
 
-  const { kind: _kind, type: _type, name: _name, ref: _ref, schema: _schema, ...overrides } = node
-  const definedOverrides = Object.fromEntries(Object.entries(overrides).filter(([, value]) => value !== undefined))
+  const merged: Record<string, unknown> = { ...node.schema }
+  // A key loop instead of rest-destructure plus `Object.entries`/`fromEntries`: this runs for every
+  // ref a printer visits.
+  for (const key in node) {
+    const value = (node as Record<string, unknown>)[key]
+    if (value !== undefined && !REF_OWN_KEYS.has(key)) merged[key] = value
+  }
 
-  return { ...node.schema, ...definedOverrides }
+  return merged as SchemaNode
 }
 
 /**

@@ -408,7 +408,8 @@ export class Resolver {
     return collectImportedRefNames(node).map((schemaName) =>
       ast.factory.createImport({
         name: [resolveName(schemaName)],
-        path: this.file({ name: schemaName, extname, root, output, group }).path,
+        // Only the path is needed, so skip building (and hashing) a full `FileNode` per ref.
+        path: this.#resolveFilePath({ name: schemaName, extname, root, output, group }),
       }),
     )
   }
@@ -596,6 +597,14 @@ export class Resolver {
     return resolved
   }
 
+  /** The absolute path `#resolveFile` places a file at. */
+  #resolveFilePath({ name, extname, tag, path: groupPath, root, output, group }: ResolveFileOptions): string {
+    const baseName = this.#baseName({ name, extname })
+    return this.#filePath
+      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root)
+      : this.#resolvePath({ baseName, tag, path: groupPath, root, output, group })
+  }
+
   /**
    * Builds a `FileNode`. When `#filePath` (the resolver's `file.path`) is set it owns the whole
    * path; otherwise the base name (from `#baseName`, the resolver's `file.baseName` or the
@@ -603,11 +612,7 @@ export class Resolver {
    * with empty `sources`, `imports`, and `exports`, which consumers populate separately.
    */
   #resolveFile(options: ResolveFileOptions): FileNode {
-    const { name, extname, tag, path: groupPath, root, output, group } = options
-    const baseName = this.#baseName({ name, extname })
-    const filePath = this.#filePath
-      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root)
-      : this.#resolvePath({ baseName, tag, path: groupPath, root, output, group })
+    const filePath = this.#resolveFilePath(options)
 
     return ast.factory.createFile({
       path: filePath,
