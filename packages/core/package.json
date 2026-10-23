@@ -84,7 +84,6 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "tinyexec": "catalog:",
-    "unstorage": "^1.17.6",
     "verkit": "^0.5.0"
   },
   "devDependencies": {

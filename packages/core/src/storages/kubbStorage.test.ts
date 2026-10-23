@@ -55,4 +55,27 @@ describe('kubbStorage', () => {
     expect(readFileSync(join(home, 'cache', 'reports', 'data.js'), 'utf8')).toBe('data')
     expect(await storage.getItem('machine-secret')).toBe('secret')
   })
+
+  it('reads and writes files in the format unstorage used', async () => {
+    const storage = kubbStorage({ base: 'project' })
+    writeFileSync(join(home, 'project', 'credentials.json'), '{"studioUrl":"https://studio.kubb.dev","token":"t"}')
+    writeFileSync(join(home, 'project', 'machine-secret'), 'abc123')
+
+    expect(await storage.getItem('credentials.json')).toEqual({ studioUrl: 'https://studio.kubb.dev', token: 't' })
+    expect(await storage.getItem('machine-secret')).toBe('abc123')
+
+    await storage.setItem('credentials.json', { studioUrl: 'https://studio.kubb.dev', token: 't' })
+    expect(readFileSync(join(home, 'project', 'credentials.json'), 'utf8')).toBe('{"studioUrl":"https://studio.kubb.dev","token":"t"}')
+  })
+
+  it('returns null for a missing key and removes keys', async () => {
+    const storage = kubbStorage({ base: 'cache' })
+
+    expect(await storage.getItem('missing')).toBeNull()
+    await storage.setItem('machine-secret', 'secret')
+    await storage.removeItem('machine-secret')
+    await storage.removeItem('machine-secret')
+
+    expect(await storage.getItem('machine-secret')).toBeNull()
+  })
 })
