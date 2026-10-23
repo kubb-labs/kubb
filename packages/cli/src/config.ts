@@ -37,7 +37,7 @@ export async function getConfigs({ configPath, input, watch, logLevel }: GetConf
 
   let configs: Array<Config>
   try {
-    configs = await loadConfigFile<Config>(file, { config: configPath, input, watch, logLevel } satisfies CLIOptions)
+    configs = await loadConfigFile<Config>({ file, cli: { config: configPath, input, watch, logLevel } satisfies CLIOptions })
   } catch (error) {
     throw new Diagnostics.Error({
       code: Diagnostics.code.unknown,

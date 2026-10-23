@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "5.12.4",
+  "version": "5.12.6",
   "description": "Turn your API spec into type-safe code. Generate TypeScript types, API clients, hooks, validators and mocks from a spec such as OpenAPI.",
   "keywords": [
     "api-client",
@@ -192,7 +192,7 @@
     "@nuxt/schema": "^4.6.2",
     "esbuild": "^0.28.2",
     "rolldown": "^1.2.14",
-    "rollup": "^4.64.10",
+    "rollup": "^4.64.12",
     "typescript": "catalog:",
     "vite": "^8.3.4",
     "webpack": "^5.112.0"
