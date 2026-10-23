@@ -20,7 +20,7 @@ export function createSchemaPlugin(prefix: string, importFrom?: string): Plugin 
             const file = resolver.file({ name: node.name ?? 'unknown', extname: '.ts', root, output: (options as { output: Output }).output })
             const source = importFrom
               ? `export const ${prefix}_${node.name}: ${importFrom}_${node.name} = { id: 1 }`
-              : `export type ${prefix}_${node.name} = { id: number }\nexport const ${prefix}_${node.name}Value = { id: 1 }`
+              : `export type ${prefix}_${node.name} = { id: number }\nexport const ${prefix}_${node.name}Value = { id: 1 }\nexport enum ${prefix}_${node.name}Kind { A = 'a' }`
             const imported = importFrom && driver.plugins.get(`plugin-${importFrom}`)
 
             return [

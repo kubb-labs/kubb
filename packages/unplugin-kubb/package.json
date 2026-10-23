@@ -115,7 +115,6 @@
     "@kubb/parser-md": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-barrel": "workspace:*",
-    "@typescript/typescript6": "catalog:",
     "jiti": "^2.7.0",
     "unplugin": "^3.4.0"
   },
@@ -169,6 +168,6 @@
     }
   },
   "engines": {
-    "node": ">=22.12"
+    "node": ">=22.13"
   }
 }

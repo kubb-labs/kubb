@@ -589,9 +589,6 @@ importers:
       '@kubb/plugin-barrel':
         specifier: workspace:*
         version: link:../plugin-barrel
-      '@typescript/typescript6':
-        specifier: 'catalog:'
-        version: 6.0.2
       jiti:
         specifier: ^2.7.0
         version: 2.7.0

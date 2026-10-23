@@ -1,3 +1,4 @@
+import { stripTypeScriptTypes } from 'node:module'
 import path from 'node:path'
 import { adapterOas } from '@kubb/adapter-oas'
 import {
@@ -19,7 +20,6 @@ import { parserMd } from '@kubb/parser-md'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { findConfigFile, loadConfigFile } from '@internals/shared'
-import ts from '@typescript/typescript6'
 import type { UnpluginFactory } from 'unplugin'
 import { generateModule, selectConfig } from './generateModule.ts'
 
@@ -142,9 +142,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
           const { text, errors } = await generateModule({ root: path.dirname(id), input: id, config })
           if (errors.length) throw fail(errors[0], `${id}: ${errors[0]!.message}`)
 
-          // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
-          return ts.transpileModule(text, { fileName: `${id}.ts`, compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext } })
-            .outputText
+          // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript. `transform` also compiles enums.
+          return stripTypeScriptTypes(text, { mode: 'transform' })
         } catch (error) {
           // unplugin's webpack and Rspack loader never settles when `load` throws, so report the error instead.
           if (meta.framework !== 'webpack' && meta.framework !== 'rspack') throw error

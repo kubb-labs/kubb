@@ -180,8 +180,8 @@ describe.each(bundlers)('$name', ({ build }) => {
     // Parsed as JavaScript, this YAML is a syntax error, so the build only passes when the loader ran.
     await fs.writeFile(path.join(root, 'pet.openapi.yaml'), 'openapi: 3.0.0\n')
     const importEntry = path.join(root, 'import.js')
-    // Plugin a's type is erased, so import a value from each plugin to prove both reached the module.
-    await fs.writeFile(importEntry, "import { a_PetValue, b_Pet } from './pet.openapi.yaml'\nexport const pets = [a_PetValue, b_Pet]\n")
+    // Plugin a's type is erased, so import a value from each plugin to prove both reached the module, and an enum to prove it compiles to a value.
+    await fs.writeFile(importEntry, "import { a_PetKind, a_PetValue, b_Pet } from './pet.openapi.yaml'\nexport const pets = [a_PetValue, b_Pet, a_PetKind.A]\n")
     const config: UserConfig = { output: { path: './gen' }, adapter: schemaAdapter, plugins: [createSchemaPlugin('a'), createSchemaPlugin('b', 'a')] }
 
     await expect(build({ options: { config }, root, entry: importEntry })).resolves.toBeUndefined()
