@@ -90,10 +90,8 @@ export const generateTool = defineTool(
         return failure(`Failed to load config ${file}`, [Diagnostics.from(error)])
       }
 
-      const cwd = path.dirname(file)
       const config: Config = {
         ...userConfig,
-        root: path.resolve(cwd, userConfig.root ?? '.'),
         input: input ?? userConfig.input,
         output: output
           ? {

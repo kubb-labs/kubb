@@ -187,6 +187,15 @@ describe.each(bundlers)('$name', ({ build }) => {
     await expect(build({ options: { config }, root, entry: importEntry })).resolves.toBeUndefined()
   })
 
+  test('fails an import of a spec that no config applies to', async () => {
+    await fs.writeFile(path.join(root, 'pet.openapi.yaml'), 'openapi: 3.0.0\n')
+    const importEntry = path.join(root, 'import-other.js')
+    await fs.writeFile(importEntry, "export { a_PetValue } from './pet.openapi.yaml'\n")
+    const config: UserConfig = { ...createConfig({ root, storage: memoryStorage() }), input: './other.openapi.yaml' }
+
+    await expect(build({ options: { config }, root, entry: importEntry })).rejects.toThrow('No Kubb config applies')
+  })
+
   test('fails the build when generation fails', async () => {
     const options = { config: createConfig({ root, storage: memoryStorage(), fail: true }) }
 

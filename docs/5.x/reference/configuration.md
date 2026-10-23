@@ -88,7 +88,7 @@ A config function can return an array to combine both forms.
 
 | Field            | Default |
 | ---------------- | ------- |
-| `root`           | `process.cwd()` |
+| `root`           | the folder of the config file, or the folder above `.config/` and `configs/` |
 | `adapter`        | `adapterOas()` from the bundled [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) |
 | `parsers`        | `[parserTs(), parserTsx(), parserMd()]` |
 | `reporters`      | `[cli, json, file, html]` |
@@ -384,7 +384,7 @@ export default defineConfig({
 :::field{type="string"}
 Project root, absolute or relative to the config file location.
 
-Default: `process.cwd()`.
+Default: the folder of the config file, or the folder above it for a config in `.config/` or `configs/`. Paths resolve the same wherever the CLI, a bundler, or an editor runs.
 :::
 
 ### `reporters`

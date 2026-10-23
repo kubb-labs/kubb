@@ -71,7 +71,8 @@ describe('defineConfig', () => {
 
     expect(configs).toHaveLength(count)
     for (const resolved of configs) {
-      expect(resolved.root).toBe(process.cwd())
+      // The config loader resolves `root` from the config's folder, so `defineConfig` leaves it unset.
+      expect(resolved.root).toBeUndefined()
       expect(resolved.adapter?.name).toBe('oas')
       expect(resolved.plugins?.map((plugin) => plugin.name)).toStrictEqual([pluginBarrelName])
       expect(resolved.output).toStrictEqual({ path: './gen', barrel: false, format: false, lint: false })

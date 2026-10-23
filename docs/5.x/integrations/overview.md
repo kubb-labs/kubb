@@ -92,7 +92,7 @@ Vite, Nuxt, and Astro generate during builds only. Run `kubb generate` before st
 
 ### Import a spec
 
-Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module, without generated files. A config without `input` only serves these imports.
+Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module, without generated files. The import uses the config whose `input` is that spec, or else a config without `input`, which only serves these imports. The build fails when no config fits, so a config written for another spec never applies.
 
 ```ts
 import { type Pet, petStatusEnum } from './petStore.openapi.yaml'

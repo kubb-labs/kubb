@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import process from 'node:process'
 import { CONFIG_EXTENSIONS } from './constants.ts'
 import { loadModule } from './loader.ts'
@@ -26,10 +26,14 @@ export function findConfigFile(cwd: string = process.cwd()): string | undefined 
 
 /**
  * Loads a Kubb config module, calls it with `cli` when it exports a function, and returns its
- * configs as a list, so a single config and a `defineConfig([...])` array read the same.
+ * configs as a list, so a single config and a `defineConfig([...])` array read the same. Each
+ * `root` resolves from the folder the config belongs to: the file's folder, or the folder above
+ * `.config/` and `configs/`. A missing `root` becomes that folder, so the CLI, the bundler, and
+ * an editor read the same paths wherever they run.
  */
-export async function loadConfigFile<T>(file: string, cli: unknown): Promise<Array<T>> {
+export async function loadConfigFile<T extends { root?: string }>(file: string, cli: unknown): Promise<Array<T>> {
   const loaded = await loadModule<unknown>(file, { default: true })
   const resolved = (await (typeof loaded === 'function' ? loaded(cli) : loaded)) as T | Array<T>
-  return Array.isArray(resolved) ? resolved : [resolved]
+  const dir = ['.config', 'configs'].includes(basename(dirname(file))) ? dirname(dirname(file)) : dirname(file)
+  return (Array.isArray(resolved) ? resolved : [resolved]).map((config) => ({ ...config, root: resolve(dir, config.root ?? '.') }))
 }

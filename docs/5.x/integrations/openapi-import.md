@@ -95,7 +95,7 @@ export default defineConfig({
 })
 ```
 
-Add `./kubb.config.ts` to `include` in `tsconfig.json`. The mapper finds the config like the CLI does and reloads it when it changes. With several configs, a spec uses the one whose `input` matches it.
+Add `./kubb.config.ts` to `include` in `tsconfig.json`. The mapper finds the config like the CLI does and reloads it when it changes. A spec uses the config whose `input` matches it, or else one without `input`. A config for another spec, such as one in a parent folder, does not apply, so the spec gets plain `pluginTs()` types.
 
 ## Load the spec at run time
 

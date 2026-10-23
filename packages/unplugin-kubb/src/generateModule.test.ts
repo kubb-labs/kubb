@@ -61,12 +61,19 @@ describe('generateModule', () => {
 })
 
 describe('selectConfig', () => {
-  test('picks the config whose input is the spec, resolved like Kubb from cwd and root, else the first', () => {
+  test('picks the config whose input is the spec, resolved like Kubb from cwd and root, else one without input', () => {
     const pets = { input: './specs/pet.openapi.yaml', output: { path: './gen' } }
     const stores = { root: 'specs', input: './store.openapi.yaml', output: { path: './gen' } }
+    const importOnly = { output: { path: './gen' } }
 
-    expect(selectConfig([pets, stores], '/app/specs/store.openapi.yaml', '/app')).toBe(stores)
-    expect(selectConfig([pets, stores], '/app/other.openapi.yaml', '/app')).toBe(pets)
+    expect(selectConfig([pets, stores, importOnly], '/app/specs/store.openapi.yaml', '/app')).toBe(stores)
+    expect(selectConfig([pets, stores, importOnly], '/app/other.openapi.yaml', '/app')).toBe(importOnly)
     expect(selectConfig([], '/app/specs/pet.openapi.yaml', '/app')).toBeUndefined()
+  })
+
+  test('skips a config for another spec', () => {
+    const pets = { input: './specs/pet.openapi.yaml', output: { path: './gen' } }
+
+    expect(selectConfig([pets], '/app/other.openapi.yaml', '/app')).toBeUndefined()
   })
 })
