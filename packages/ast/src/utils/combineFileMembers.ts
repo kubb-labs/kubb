@@ -52,8 +52,7 @@ function sortMembers<TNode extends FileMember>(nodes: Array<TNode>): Array<TNode
  * seen folds its names into that entry, otherwise it joins `result` as a new entry.
  */
 function mergeByPath<TNode extends FileMember>(result: Array<TNode>): (member: { node: TNode; names: Array<unknown> }) => void {
-  // Each entry keeps the set of names it holds, so folding in more names appends the new ones
-  // instead of rebuilding the list, which went quadratic when thousands of imports share a path.
+  // Append new names instead of rebuilding the list, which went quadratic on a shared path.
   const byPath = new Map<string, { names: Array<unknown>; seen: Set<unknown> }>()
 
   return ({ node, names }) => {

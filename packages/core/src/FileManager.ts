@@ -196,8 +196,6 @@ export class FileManager {
     for (const file of files) {
       const existing = this.#cache.get(file.path)
       if (existing && this.#merges.has(existing)) {
-        // A merge `#defer` made is never handed out before `#flush` replaces it, so it can grow in
-        // place instead of copying every fragment merged so far.
         existing.banner = file.banner
         existing.footer = file.footer
         existing.copy = file.copy ?? existing.copy

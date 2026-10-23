@@ -410,8 +410,7 @@ function* collectNode<T>(node: Node, visitor: VisitorOf<T>, recurse: boolean, pa
 export function collectSync<T>(node: Node, options: CollectOptions<T>): Array<T> {
   const { depth, parent, ...visitor } = options
   const result: Array<T> = []
-  // Plain recursion instead of draining `collect`: nested generators cost a `yield*` hop per level
-  // for every value, which dominated the walk on large specs.
+  // Plain recursion: draining nested generators costs a `yield*` hop per level for every value.
   collectInto<T>(node, visitor, (depth ?? 'deep') === 'deep', parent, result)
   return result
 }

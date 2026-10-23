@@ -408,7 +408,6 @@ export class Resolver {
     return collectImportedRefNames(node).map((schemaName) =>
       ast.factory.createImport({
         name: [resolveName(schemaName)],
-        // Only the path is needed, so skip building (and hashing) a full `FileNode` per ref.
         path: this.#resolveFilePath({ name: schemaName, extname, root, output, group }),
       }),
     )

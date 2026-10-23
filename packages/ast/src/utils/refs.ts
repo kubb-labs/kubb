@@ -47,8 +47,6 @@ export function mergeRefWithSchema(node: RefSchemaNode): SchemaNode {
   if (!node.schema) return node
 
   const merged: Record<string, unknown> = { ...node.schema }
-  // A key loop instead of rest-destructure plus `Object.entries`/`fromEntries`: this runs for every
-  // ref a printer visits.
   for (const key in node) {
     const value = (node as Record<string, unknown>)[key]
     if (value !== undefined && !REF_OWN_KEYS.has(key)) merged[key] = value

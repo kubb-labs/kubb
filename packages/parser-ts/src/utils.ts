@@ -193,7 +193,7 @@ function indentLines(text: string): string {
  */
 function dedent(text: string): string {
   if (!text) return ''
-  // Most text nodes are one line: the common indent is that line's own.
+  // Most text nodes are one line, so the common indent is its leading whitespace.
   if (!text.includes('\n')) return text.trim() ? text.trimStart() : ''
 
   const lines = text.split('\n')
