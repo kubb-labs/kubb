@@ -2,7 +2,7 @@ import { createRequire } from 'node:module'
 import { dirname, extname as getExtname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ast } from '@kubb/ast'
-import { parse } from 'yuku-parser'
+import { type ImportSpecifier, type ModuleExportName, parse, type ProgramStatement } from 'yuku-parser'
 
 /**
  * A TypeScript compiler node, typed structurally so `@kubb/parser-ts` does not depend on `@typescript/typescript6`.
@@ -75,50 +75,35 @@ export function resolveOutputPath(path: string, extname: string | undefined, roo
   return current ? `${path.slice(0, -current.length)}${extname ?? ''}` : path
 }
 
-type Name = { type: string; name?: string; value?: unknown }
-type Specifier = { type: string; local: Name; imported?: Name; exported?: Name; importKind?: string; exportKind?: string }
-type Declaration = {
-  type: string
-  start: number
-  end: number
-  specifiers?: Array<Specifier>
-  source?: { value: string } | null
-  attributes?: Array<unknown>
-  phase?: string | null
-  importKind?: string
-  exportKind?: string
-  exported?: Name | null
-}
-
-function nameOf(node: Name): string {
-  return node.type === 'Literal' ? String(node.value) : node.name!
+function nameOf(node: ModuleExportName): string {
+  return node.type === 'Literal' ? node.value : node.name
 }
 
 /**
  * Converts an import specifier into an `ImportNode` name, keeping the quotes of a string-literal name (`{ 'a-b' as ab }`).
  */
-function toImportName({ imported, local }: Specifier): string | { propertyName: string; name: string } {
-  if (!imported || (imported.type === 'Identifier' && imported.name === local.name)) return local.name!
+function toImportName({ imported, local }: ImportSpecifier): string | { propertyName: string; name: string } {
+  if (imported.type === 'Identifier' && imported.name === local.name) return local.name
 
-  return { propertyName: imported.type === 'Literal' ? quoteModulePath(nameOf(imported)) : nameOf(imported), name: local.name! }
+  return { propertyName: imported.type === 'Literal' ? quoteModulePath(imported.value) : imported.name, name: local.name }
 }
 
 /**
  * Converts an `import` declaration into `ImportNode`s. Side-effect imports and imports with attributes or a phase stay as written.
  */
-function toImportNodes(statement: Declaration, filePath: string): Array<ast.ImportNode> {
-  if (statement.type !== 'ImportDeclaration' || !statement.specifiers?.length || statement.attributes?.length || statement.phase) return []
+function toImportNodes(statement: ProgramStatement, filePath: string): Array<ast.ImportNode> {
+  if (statement.type !== 'ImportDeclaration' || !statement.specifiers.length || statement.attributes.length || statement.phase) return []
 
-  const specifier = statement.source!.value
+  const specifier = statement.source.value
   const target = specifier.startsWith('.') ? { path: resolve(dirname(filePath), specifier), root: filePath } : { path: specifier }
   const isTypeOnly = statement.importKind === 'type'
   const nodes: Array<ast.ImportNode> = []
   const named = statement.specifiers.filter((element) => element.type === 'ImportSpecifier')
 
   for (const element of statement.specifiers) {
-    if (element.type === 'ImportDefaultSpecifier') nodes.push(ast.factory.createImport({ name: element.local.name!, ...target, isTypeOnly }))
+    if (element.type === 'ImportDefaultSpecifier') nodes.push(ast.factory.createImport({ name: element.local.name, ...target, isTypeOnly }))
     if (element.type === 'ImportNamespaceSpecifier')
-      nodes.push(ast.factory.createImport({ name: element.local.name!, ...target, isTypeOnly, isNameSpace: true }))
+      nodes.push(ast.factory.createImport({ name: element.local.name, ...target, isTypeOnly, isNameSpace: true }))
   }
   const values = named.filter((element) => element.importKind !== 'type')
   const types = named.filter((element) => element.importKind === 'type')
@@ -131,11 +116,11 @@ function toImportNodes(statement: Declaration, filePath: string): Array<ast.Impo
 /**
  * Converts an `export … from` declaration into `ExportNode`s. Forms `printExport` cannot print stay as written.
  */
-function toExportNodes(statement: Declaration): Array<ast.ExportNode> {
-  const isExportFrom = statement.type === 'ExportAllDeclaration' || (statement.type === 'ExportNamedDeclaration' && statement.source)
-  if (!isExportFrom || statement.attributes?.length) return []
+function toExportNodes(statement: ProgramStatement): Array<ast.ExportNode> {
+  if (statement.type !== 'ExportAllDeclaration' && statement.type !== 'ExportNamedDeclaration') return []
+  if (!statement.source || statement.attributes.length) return []
 
-  const path = statement.source!.value
+  const path = statement.source.value
   const isTypeOnly = statement.exportKind === 'type'
 
   if (statement.type === 'ExportAllDeclaration') {
@@ -145,13 +130,14 @@ function toExportNodes(statement: Declaration): Array<ast.ExportNode> {
         : ast.factory.createExport({ path, isTypeOnly }),
     ]
   }
-  const specifiers = statement.specifiers ?? []
   if (
-    specifiers.some((element) => element.exportKind === 'type' || element.exported!.type === 'Literal' || nameOf(element.exported!) !== nameOf(element.local))
+    statement.specifiers.some(
+      (element) => element.exportKind === 'type' || element.exported.type === 'Literal' || nameOf(element.exported) !== nameOf(element.local),
+    )
   )
     return []
 
-  return [ast.factory.createExport({ name: specifiers.map((element) => nameOf(element.local)), path, isTypeOnly })]
+  return [ast.factory.createExport({ name: statement.specifiers.map((element) => nameOf(element.local)), path, isTypeOnly })]
 }
 
 /**
@@ -168,12 +154,16 @@ export function splitModuleDeclarations(
   let body = ''
   let cursor = 0
 
-  for (const statement of program.body as Array<Declaration>) {
+  for (const statement of program.body) {
     const importNodes = toImportNodes(statement, filePath)
     const exportNodes = toExportNodes(statement)
     if (!importNodes.length && !exportNodes.length) {
       // Lifted declarations print above the body, so stop at the first one that stays in place to keep the evaluation order.
-      if (statement.type === 'ImportDeclaration' || (statement.type !== 'ExportDefaultDeclaration' && statement.source)) break
+      if (
+        statement.type === 'ImportDeclaration' ||
+        ((statement.type === 'ExportNamedDeclaration' || statement.type === 'ExportAllDeclaration') && statement.source)
+      )
+        break
       continue
     }
 
@@ -268,9 +258,8 @@ function withJSDoc({ jsDoc, declaration }: { jsDoc?: ast.JSDocNode | null; decla
 /**
  * Joins printed code fragments with a newline.
  *
- * Passing TypeScript compiler nodes still works but needs `@typescript/typescript6` installed.
- *
- * @deprecated Compiler nodes are deprecated; pass strings. Support for compiler nodes is removed in the next major.
+ * Passing TypeScript compiler nodes still works but is deprecated and needs `@typescript/typescript6` installed.
+ * Support for compiler nodes is removed in the next major.
  */
 export function print(...elements: Array<string | TsNode>): string {
   const filtered = elements.filter(Boolean)
