@@ -190,6 +190,7 @@ describe('parserTs', () => {
 
     it.each([
       ['an import below other code', ['a()', "import { b } from './b.ts'"]],
+      ['an empty named import, which still runs the module', ["'use client'", "import {} from './setup.ts'", "import { b } from './b.ts'", 'b()']],
       ['an aliased re-export', ["export { a as b } from './a.ts'", 'c()']],
       ['a template literal that looks like an import', ["const a = `import b from 'c'`"]],
     ])('keeps the source as written for %s', (_, lines) => {

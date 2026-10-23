@@ -231,7 +231,7 @@ function readImport(tokens: ReturnType<typeof createTokenizer>, filePath: string
     if (values.length) nodes.push(ast.factory.createImport({ name: values.map(toImportName), ...target, isTypeOnly }))
     if (types.length) nodes.push(ast.factory.createImport({ name: types.map(toImportName), ...target, isTypeOnly: true }))
 
-    return nodes
+    return nodes.length ? nodes : undefined
   }
 }
 
