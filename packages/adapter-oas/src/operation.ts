@@ -197,8 +197,11 @@ function parseParameter({
   parseSchema,
 }: Pick<OperationParseContext, 'options' | 'parseSchema'> & { param: ParameterObject; parentName?: string }): ast.ParameterNode {
   const schemaName = parentName && param.name ? pascalCase(`${parentName} ${param.name}`) : undefined
-  const schema: ast.SchemaNode = param.schema
-    ? parseSchema({ schema: param.schema as SchemaObject, name: schemaName })
+  // A parameter defines either `schema` or `content`, and `content` holds exactly one media type.
+  const contentType = param.schema ? undefined : Object.keys(param.content ?? {})[0]
+  const rawSchema = param.schema ?? (contentType ? param.content?.[contentType]?.schema : undefined)
+  const schema: ast.SchemaNode = rawSchema
+    ? parseSchema({ schema: rawSchema as SchemaObject, name: schemaName })
     : ast.factory.createSchema({ type: options.unknownType })
   const style = param.style as ast.ParameterStyle | undefined
   const explode = param.explode
@@ -215,6 +218,7 @@ function parseParameter({
     ...(style !== undefined ? { style } : {}),
     ...(explode !== undefined ? { explode } : {}),
     ...(allowReserved !== undefined ? { allowReserved } : {}),
+    ...(contentType !== undefined ? { contentType } : {}),
   })
 }
 
