@@ -1,4 +1,4 @@
-import { pascalCase } from '@internals/utils'
+import { escapePointerToken, pascalCase } from '@internals/utils'
 import { SCHEMA_REF_PREFIX } from '../constants.ts'
 import { isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
@@ -97,15 +97,11 @@ const schemaChildKeywords = [
   'then',
 ] as const
 
-function escapePointerSegment(segment: string): string {
-  return segment.replace(/~/g, '~0').replace(/\//g, '~1')
-}
-
 /** Collects definitions only from schema locations, never from examples/defaults or arbitrary data. */
 function* collectNestedDefinitions(
   schema: unknown,
   pointer: string,
-  nameParts: Array<string>,
+  name: string,
 ): Generator<{ schema: SchemaObject; pointer: string; originalName: string }, void, undefined> {
   if (!schema || typeof schema !== 'object' || Array.isArray(schema)) return
   const value = schema as Record<string, unknown>
@@ -113,29 +109,27 @@ function* collectNestedDefinitions(
   for (const keyword of ['$defs', 'definitions'] as const) {
     const definitions = value[keyword]
     if (!definitions || typeof definitions !== 'object' || Array.isArray(definitions)) continue
-    for (const [name, definition] of Object.entries(definitions)) {
+    for (const [key, definition] of Object.entries(definitions)) {
       if (!definition || typeof definition !== 'object' || Array.isArray(definition)) continue
-      const definitionPointer = `${pointer}/${keyword}/${escapePointerSegment(name)}`
-      const nestedName = [...nameParts, name].join('_')
+      const definitionPointer = `${pointer}/${keyword}/${escapePointerToken(key)}`
+      const nestedName = `${name}_${key}`
       yield { schema: definition as SchemaObject, pointer: definitionPointer, originalName: nestedName }
-      yield* collectNestedDefinitions(definition, definitionPointer, [...nameParts, name])
+      yield* collectNestedDefinitions(definition, definitionPointer, nestedName)
     }
   }
 
   for (const keyword of schemaChildKeywords) {
     const child = value[keyword]
+    if (!child || typeof child !== 'object') continue
     if (Array.isArray(child)) {
-      for (let index = 0; index < child.length; index++) {
-        yield* collectNestedDefinitions(child[index], `${pointer}/${keyword}/${index}`, nameParts)
-      }
-    } else if (child && typeof child === 'object') {
-      const entries: Array<[string, unknown]> = ['properties', 'patternProperties'].includes(keyword)
-        ? Object.entries(child as Record<string, unknown>)
-        : [['', child]]
-      for (const [key, item] of entries) {
-        yield* collectNestedDefinitions(item, `${pointer}/${keyword}${key ? `/${escapePointerSegment(key)}` : ''}`, nameParts)
-      }
+      for (const [index, item] of child.entries()) yield* collectNestedDefinitions(item, `${pointer}/${keyword}/${index}`, name)
+      continue
     }
+    if (keyword === 'properties' || keyword === 'patternProperties') {
+      for (const [key, item] of Object.entries(child)) yield* collectNestedDefinitions(item, `${pointer}/${keyword}/${escapePointerToken(key)}`, name)
+      continue
+    }
+    yield* collectNestedDefinitions(child, `${pointer}/${keyword}`, name)
   }
 }
 
@@ -213,11 +207,10 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
 
   const candidates: Array<SchemaWithMetadata> = [
     ...Object.entries((components?.schemas as Record<string, SchemaObject>) ?? {}).flatMap(([name, schema]) => {
-      const pointer = `#/components/schemas/${escapePointerSegment(name)}`
-      const resolvedSchema = resolveSchemaRef(schema)
+      const pointer = `#/components/schemas/${escapePointerToken(name)}`
       return [
-        { schema: resolvedSchema, source: 'schemas' as const, originalName: name, pointer },
-        ...[...collectNestedDefinitions(schema, pointer, [name])].map((nested) => ({
+        { schema: resolveSchemaRef(schema), source: 'schemas' as const, originalName: name, pointer },
+        ...[...collectNestedDefinitions(schema, pointer, name)].map((nested) => ({
           ...nested,
           source: 'schemas' as const,
           nested: true,
@@ -233,7 +226,7 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
                 schema: resolveSchemaRef(schema),
                 source,
                 originalName: name,
-                pointer: `#/components/${source}/${escapePointerSegment(name)}`,
+                pointer: `#/components/${source}/${escapePointerToken(name)}`,
               },
             ]
           : []

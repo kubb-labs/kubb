@@ -31,7 +31,7 @@ export type SchemaObject = {
   $schema?: string
   /** JSON Schema definitions that may be referenced from other schema locations. */
   $defs?: Record<string, SchemaObject>
-  /** Legacy JSON Schema definitions, retained for compatibility with existing specifications. */
+  /** Legacy draft-07 name for `$defs`. */
   definitions?: Record<string, SchemaObject>
   deprecated?: boolean
   example?: unknown
