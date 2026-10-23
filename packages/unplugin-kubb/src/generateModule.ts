@@ -32,21 +32,15 @@ const toModulePlugin = (plugin: Plugin): Plugin => ({
  * `cwd` and `input` from `root`.
  */
 export function selectConfig(configs: Array<UserConfig>, fileName: string, cwd: string): UserConfig | undefined {
-  const matches = (config: UserConfig) => typeof config?.input === 'string' && path.resolve(cwd, config.root || '.', config.input) === path.resolve(fileName)
+  const matches = (config: UserConfig) => typeof config.input === 'string' && path.resolve(cwd, config.root || '.', config.input) === path.resolve(fileName)
 
   return configs.find(matches) ?? configs[0]
 }
 
 /**
- * Generates the output of every plugin in `config` for one spec as a single TypeScript module,
- * without writing files or running the barrel plugin. `text` is empty when `errors` is not.
- * Shared by the `*.openapi.yaml` loader and the `openapi-import` content mapper, so both see the
- * same exports.
- *
- * @example
- * ```ts
- * const { text } = await generateModule({ root: '/app/src', input: '/app/src/petStore.openapi.yaml', config })
- * ```
+ * Generates the output of every plugin in `config` for one spec as one TypeScript module, without
+ * writing files. Only `config`'s adapter and plugins are used. `text` is empty when `errors` is not.
+ * The `*.openapi.yaml` loader and the `openapi-import` content mapper share it.
  */
 export async function generateModule({
   root,
@@ -56,9 +50,7 @@ export async function generateModule({
 }: {
   /** Folder of the spec; relative imports in the module resolve from here. */
   root: string
-  /** The spec: a path, its text, or the parsed document. */
   input: UserConfig['input']
-  /** Config whose adapter and plugins run. Its `input`, `output`, hooks and reporters are not used. */
   config: UserConfig
   hooks?: Hookable<KubbHooks>
 }): Promise<{ text: string; errors: Array<ProblemDiagnostic> }> {
