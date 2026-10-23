@@ -62,8 +62,10 @@ export const numericFormats: ReadonlySet<string> = new Set(['int32', 'int64', 'u
  * `KUBB_UNSUPPORTED_FORMAT` should not flag.
  * Formats that depend on runtime options (`int64`, `date-time`, `date`, `time`) are handled
  * separately in the parser. `ipv4` and `ipv6` map to their own dedicated schema types.
- * `uri-reference`, `hostname` and `idn-hostname` map to `'string'`: a relative reference or a bare
- * host name is not a URL, so a `'url'` validator would reject valid values.
+ * `uri-reference`, `iri`, `iri-reference`, `hostname` and `idn-hostname` map to `'string'`: a relative
+ * reference, a Unicode IRI or a bare host name is not a URL, so a `'url'` validator would reject valid
+ * values. `base64url`, `jwt`, `ulid`, `iban` and `duration` map to `'string'` because plugins check
+ * them by `format`.
  */
 export const formatMap = {
   uuid: 'uuid',
@@ -71,6 +73,8 @@ export const formatMap = {
   'idn-email': 'email',
   uri: 'url',
   'uri-reference': 'string',
+  iri: 'string',
+  'iri-reference': 'string',
   url: 'url',
   ipv4: 'ipv4',
   ipv6: 'ipv6',
@@ -78,6 +82,11 @@ export const formatMap = {
   'idn-hostname': 'string',
   binary: 'blob',
   byte: 'blob',
+  base64url: 'string',
+  jwt: 'string',
+  ulid: 'string',
+  iban: 'string',
+  duration: 'string',
   // Numeric formats override the OAS `type` because format is more specific.
   // See https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
   int32: 'integer',

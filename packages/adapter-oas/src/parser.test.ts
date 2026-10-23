@@ -466,6 +466,7 @@ describe('parseSchema format', () => {
     { title: 'string uri-reference', schema: { type: 'string', format: 'uri-reference' }, expected: { type: 'string', format: 'uri-reference' } },
     { title: 'string hostname', schema: { type: 'string', format: 'hostname' }, expected: { type: 'string', format: 'hostname' } },
     { title: 'string idn-hostname', schema: { type: 'string', format: 'idn-hostname' }, expected: { type: 'string', format: 'idn-hostname' } },
+    { title: 'integer duration', schema: { type: 'integer', format: 'duration' }, expected: { type: 'integer', format: 'duration' } },
     {
       title: 'string uri-reference with length and pattern',
       schema: { type: 'string', format: 'uri-reference', pattern: '^/', minLength: 2, maxLength: 10 },
