@@ -1,5 +1,31 @@
 # Changelog
 
+## v5.12.7 — Oct 23, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Emit schemas declared in nested `$defs` and `definitions` blocks, and resolve references to their generated schema names. ([#4401](https://github.com/kubb-labs/kubb/pull/4401), [`c30d952`](https://github.com/kubb-labs/kubb/commit/c30d952a231196e841add0db49cd3bd4777b9277))
+- Map `iri`, `iri-reference`, `base64url`, `jwt`, `ulid`, `iban` and `duration` to a `string` node, so they no longer raise `KUBB_UNSUPPORTED_FORMAT`. Their generated output is unchanged. A numeric schema with one of these formats, such as `type: integer, format: duration`, keeps its declared type. ([#4412](https://github.com/kubb-labs/kubb/pull/4412), [`9e12356`](https://github.com/kubb-labs/kubb/commit/9e12356afcc19c2e0ffcdb5de9edeb9ac222cad8))
+- Map `format: uri-reference`, `hostname` and `idn-hostname` to a `string` node instead of `url`. `plugin-zod` now prints `z.string()` for them, so relative references such as `/media/picture.jpg` and bare host names such as `example.com` pass validation. The node keeps its `format`, `minLength`, `maxLength` and `pattern`. ([#4410](https://github.com/kubb-labs/kubb/pull/4410), [`d5b2a1b`](https://github.com/kubb-labs/kubb/commit/d5b2a1b0876f8ded76d322798e57486828bf605a))
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- Resolve a config's `root` from the folder of `kubb.config.ts`, so the CLI, the bundler, the MCP server and `openapi-import` read the same paths wherever they run.
+  
+  - Default `root` to the config's folder, or the folder above `.config/` and `configs/`, instead of `process.cwd()`. `defineConfig` no longer fills it in.
+  - Pick a config for a `*.openapi.yaml` import only when its `input` is that spec, or when it has no `input`. A config written for another spec, such as one in a parent folder, no longer applies.
+  - Fail an import that no config fits with `No Kubb config applies to <spec>`, including under webpack and Rspack, which hung on import errors before. ([#4409](https://github.com/kubb-labs/kubb/pull/4409), [`c2139bc`](https://github.com/kubb-labs/kubb/commit/c2139bcca57c451d07bcf112c6fce6b736f8d339))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@jay23606](https://github.com/jay23606), [@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.12.6 — Oct 23, 2026
 
 ### unplugin-kubb
