@@ -58,7 +58,8 @@ export const numericFormats: ReadonlySet<string> = new Set(['int32', 'int64', 'u
 /**
  * Static map from OAS `format` strings to Kubb `SchemaType` values.
  *
- * Only formats whose AST type differs from the OAS `type` field appear here.
+ * Lists formats whose AST type differs from the OAS `type` field, plus string formats that
+ * `KUBB_UNSUPPORTED_FORMAT` should not flag.
  * Formats that depend on runtime options (`int64`, `date-time`, `date`, `time`) are handled
  * separately in the parser. `ipv4` and `ipv6` map to their own dedicated schema types.
  * `uri-reference`, `hostname` and `idn-hostname` map to `'string'`: a relative reference or a bare
