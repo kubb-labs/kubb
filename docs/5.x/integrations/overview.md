@@ -98,4 +98,14 @@ Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plu
 import { getPetById, petSchema } from './petStore.openapi.yaml'
 ```
 
-Code a plugin writes to a separate file, such as a bundled client runtime, is not included. For types in `tsc` and your editor, add [`openapi-import`](https://github.com/kubb-labs/openapi-import).
+Code a plugin writes to a separate file, such as a bundled client runtime, is not included. For types in `tsc` and your editor, add [`openapi-import`](/docs/5.x/integrations/openapi-import).
+
+## TypeScript
+
+::card-group
+
+:::card{title="openapi-import" icon="i-simple-icons-typescript" to="/docs/5.x/integrations/openapi-import"}
+Import a `*.openapi.yaml` spec in TypeScript and type-check the output of your plugins.
+:::
+
+::
