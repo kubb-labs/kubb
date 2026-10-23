@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.12.8 — Oct 23, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Support parameters described with `content` instead of `schema`. The parameter type now comes from the schema of its media type instead of `unknown`, and the new `ParameterNode.contentType` field holds that media type, such as `application/json`, so clients can JSON-encode the value. ([#4413](https://github.com/kubb-labs/kubb/pull/4413), [`1b0c70e`](https://github.com/kubb-labs/kubb/commit/1b0c70e16edf0cdac822403391501830eaae878a))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.12.7 — Oct 23, 2026
 
 ### @kubb/adapter-oas
