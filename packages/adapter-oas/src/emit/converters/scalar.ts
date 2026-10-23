@@ -117,6 +117,8 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
   }
 
   const specialType = formatMap[schema.format as keyof typeof formatMap]
+  // Keeps `format` on the node, plus `minLength`, `maxLength` and `pattern`.
+  if (specialType === 'string') return convertString(context)
 
   const isNumeric = specialType === 'number' || specialType === 'integer'
   const specialPrimitive: ast.PrimitiveSchemaType = isNumeric ? specialType : 'string'
