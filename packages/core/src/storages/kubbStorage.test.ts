@@ -78,4 +78,13 @@ describe('kubbStorage', () => {
 
     expect(await storage.getItem('machine-secret')).toBeNull()
   })
+
+  it('maps `:` to folders and rejects keys outside the folder', async () => {
+    const storage = kubbStorage({ base: 'cache' })
+
+    await storage.setItem('reports:a.js', 'a')
+    expect(readFileSync(join(home, 'cache', 'reports', 'a.js'), 'utf8')).toBe('a')
+    await expect(storage.setItem('../escape', 'x')).rejects.toThrow('Invalid key')
+    await expect(storage.getItem('reports/../../escape')).rejects.toThrow('Invalid key')
+  })
 })

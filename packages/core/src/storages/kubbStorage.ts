@@ -2,7 +2,7 @@ import { hash } from 'node:crypto'
 import { chmodSync, mkdirSync } from 'node:fs'
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { homedir, tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join, resolve, sep } from 'node:path'
 import process from 'node:process'
 
 type KubbStorageOptions = {
@@ -47,12 +47,18 @@ export function resolveKubbDir(base = ''): string {
  */
 export function kubbStorage({ base }: KubbStorageOptions = {}) {
   const dir = resolveKubbDir(base)
+  // Same keys as unstorage: `:` separates folders, and a key may not leave `dir`
+  const pathOf = (key: string) => {
+    const path = resolve(dir, key.replaceAll(':', '/'))
+    if (!path.startsWith(`${dir}${sep}`)) throw new Error(`Invalid key: ${JSON.stringify(key)}. It should not leave the storage folder`)
+    return path
+  }
 
   return {
     async getItem<T = unknown>(key: string): Promise<T | null> {
       let raw: string
       try {
-        raw = await readFile(join(dir, key), 'utf8')
+        raw = await readFile(pathOf(key), 'utf8')
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
         throw error
@@ -64,12 +70,12 @@ export function kubbStorage({ base }: KubbStorageOptions = {}) {
       }
     },
     async setItem(key: string, value: unknown): Promise<void> {
-      const path = join(dir, key)
+      const path = pathOf(key)
       await mkdir(dirname(path), { recursive: true })
       await writeFile(path, typeof value === 'string' ? value : JSON.stringify(value))
     },
     async removeItem(key: string): Promise<void> {
-      await rm(join(dir, key), { force: true })
+      await rm(pathOf(key), { force: true })
     },
   }
 }
