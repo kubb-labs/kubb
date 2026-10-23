@@ -29,6 +29,38 @@ const minimalSpec = {
 } as const
 
 describe('adapterOas.parse', () => {
+  it('emits nested OpenAPI 3.1 definitions and resolves their references', async () => {
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'Nested definitions', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            Box: {
+              type: 'object',
+              properties: { card: { $ref: '#/components/schemas/Box/$defs/Card' } },
+              $defs: {
+                Card: {
+                  type: 'object',
+                  properties: { next: { $ref: '#/components/schemas/Box/$defs/Card' } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['Box_Card', 'Box'])
+    const box = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Box')!,
+      'object',
+    )
+    expect(ast.narrowSchema(box!.properties[0]!.schema, 'ref')).toMatchObject({ targetName: 'Box_Card' })
+  })
+
   it('parses each schema and operation', async () => {
     const adapter = adapterOas({ validate: false })
 

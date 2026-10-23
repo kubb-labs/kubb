@@ -1,4 +1,4 @@
-import { pascalCase } from '@internals/utils'
+import { escapePointerToken, pascalCase } from '@internals/utils'
 import { SCHEMA_REF_PREFIX } from '../constants.ts'
 import { isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
@@ -17,15 +17,16 @@ type SchemaWithMetadata = {
   schema: SchemaObject
   source: SchemaSourceMode
   originalName: string
+  pointer: string
+  nested?: boolean
 }
 
 type GetSchemasResult = {
   schemas: Record<string, SchemaObject>
   /**
-   * Maps a renamed component pointer (`#/components/<source>/<name>`) to the
-   * collision-resolved unique name used as the key in `schemas`. Components that keep
-   * their original name are not recorded, so the map stays empty for documents
-   * without collisions.
+   * Maps nested schema pointers and collision-renamed component pointers to the unique
+   * names used as keys in `schemas`. Components with their original names and no nested
+   * definitions are not recorded.
    */
   renames: Map<string, string>
 }
@@ -57,9 +58,9 @@ function extractSchemaFromContent(content: Record<string, unknown> | undefined, 
 /**
  * Walks a schema tree and collects the names of all `#/components/schemas/<name>` `$ref`s.
  */
-function* collectRefs(schema: unknown): Generator<string, void, undefined> {
+function* collectRefs(schema: unknown, renames: Map<string, string>): Generator<string, void, undefined> {
   if (Array.isArray(schema)) {
-    for (const item of schema) yield* collectRefs(item)
+    for (const item of schema) yield* collectRefs(item, renames)
     return
   }
 
@@ -67,14 +68,68 @@ function* collectRefs(schema: unknown): Generator<string, void, undefined> {
     for (const key in schema) {
       const value = (schema as Record<string, unknown>)[key]
       if (!(key === '$ref' && typeof value === 'string')) {
-        yield* collectRefs(value)
+        yield* collectRefs(value, renames)
         continue
       }
       if (value.startsWith(SCHEMA_REF_PREFIX)) {
-        const name = value.slice(SCHEMA_REF_PREFIX.length)
+        const name = renames.get(value) ?? value.slice(SCHEMA_REF_PREFIX.length)
         if (name) yield name
       }
     }
+  }
+}
+
+const schemaChildKeywords = [
+  'additionalProperties',
+  'allOf',
+  'anyOf',
+  'contains',
+  'contentSchema',
+  'else',
+  'if',
+  'items',
+  'not',
+  'oneOf',
+  'patternProperties',
+  'prefixItems',
+  'properties',
+  'propertyNames',
+  'then',
+] as const
+
+/** Collects definitions only from schema locations, never from examples/defaults or arbitrary data. */
+function* collectNestedDefinitions(
+  schema: unknown,
+  pointer: string,
+  name: string,
+): Generator<{ schema: SchemaObject; pointer: string; originalName: string }, void, undefined> {
+  if (!schema || typeof schema !== 'object' || Array.isArray(schema)) return
+  const value = schema as Record<string, unknown>
+
+  for (const keyword of ['$defs', 'definitions'] as const) {
+    const definitions = value[keyword]
+    if (!definitions || typeof definitions !== 'object' || Array.isArray(definitions)) continue
+    for (const [key, definition] of Object.entries(definitions)) {
+      if (!definition || typeof definition !== 'object' || Array.isArray(definition)) continue
+      const definitionPointer = `${pointer}/${keyword}/${escapePointerToken(key)}`
+      const nestedName = `${name}_${key}`
+      yield { schema: definition as SchemaObject, pointer: definitionPointer, originalName: nestedName }
+      yield* collectNestedDefinitions(definition, definitionPointer, nestedName)
+    }
+  }
+
+  for (const keyword of schemaChildKeywords) {
+    const child = value[keyword]
+    if (!child || typeof child !== 'object') continue
+    if (Array.isArray(child)) {
+      for (const [index, item] of child.entries()) yield* collectNestedDefinitions(item, `${pointer}/${keyword}/${index}`, name)
+      continue
+    }
+    if (keyword === 'properties' || keyword === 'patternProperties') {
+      for (const [key, item] of Object.entries(child)) yield* collectNestedDefinitions(item, `${pointer}/${keyword}/${escapePointerToken(key)}`, name)
+      continue
+    }
+    yield* collectNestedDefinitions(child, `${pointer}/${keyword}`, name)
   }
 }
 
@@ -90,11 +145,11 @@ function* collectRefs(schema: unknown): Generator<string, void, undefined> {
  * // Pet appears before Order when Order.$ref points at Pet
  * ```
  */
-function sortSchemas(schemas: Record<string, SchemaObject>): Record<string, SchemaObject> {
+function sortSchemas(schemas: Record<string, SchemaObject>, renames: Map<string, string>): Record<string, SchemaObject> {
   const deps = new Map<string, Array<string>>()
 
   for (const [name, schema] of Object.entries(schemas)) {
-    deps.set(name, [...new Set(collectRefs(schema))])
+    deps.set(name, [...new Set(collectRefs(schema, renames))])
   }
 
   const sorted: Array<string> = []
@@ -151,11 +206,17 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
   }
 
   const candidates: Array<SchemaWithMetadata> = [
-    ...Object.entries((components?.schemas as Record<string, SchemaObject>) ?? {}).map(([name, schema]) => ({
-      schema: resolveSchemaRef(schema),
-      source: 'schemas' as const,
-      originalName: name,
-    })),
+    ...Object.entries((components?.schemas as Record<string, SchemaObject>) ?? {}).flatMap(([name, schema]) => {
+      const pointer = `#/components/schemas/${escapePointerToken(name)}`
+      return [
+        { schema: resolveSchemaRef(schema), source: 'schemas' as const, originalName: name, pointer },
+        ...[...collectNestedDefinitions(schema, pointer, name)].map((nested) => ({
+          ...nested,
+          source: 'schemas' as const,
+          nested: true,
+        })),
+      ]
+    }),
     ...(['responses', 'requestBodies'] as const).flatMap((source) =>
       Object.entries(components?.[source] ?? {}).flatMap(([name, item]) => {
         const schema = extractSchemaFromContent((item as { content?: Record<string, unknown> }).content, contentType)
@@ -165,6 +226,7 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
                 schema: resolveSchemaRef(schema),
                 source,
                 originalName: name,
+                pointer: `#/components/${source}/${escapePointerToken(name)}`,
               },
             ]
           : []
@@ -192,9 +254,9 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
       const suffix = isSingle ? '' : hasMultipleSources ? semanticSuffixes[item.source] : index ? String(index + 1) : ''
       const uniqueName = item.originalName + suffix
       schemas[uniqueName] = item.schema
-      if (suffix) renames.set(`#/components/${item.source}/${item.originalName}`, uniqueName)
+      if (suffix || item.nested) renames.set(item.pointer, uniqueName)
     })
   }
 
-  return { schemas: sortSchemas(schemas), renames }
+  return { schemas: sortSchemas(schemas, renames), renames }
 }
