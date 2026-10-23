@@ -90,6 +90,20 @@ describe('unpluginFactory', () => {
     await fs.rm(root, { recursive: true, force: true })
   })
 
+  test('resolves a relative root from the folder of the kubb.config.ts it finds', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'unplugin-kubb-'))
+    await fs.mkdir(path.join(root, 'specs'))
+    await fs.mkdir(path.join(root, 'web'))
+    await fs.writeFile(path.join(root, 'specs', 'pet.openapi.yaml'), 'openapi: 3.0.0\ninfo: { title: Pets, version: 1.0.0 }\npaths: {}\n')
+    await fs.writeFile(path.join(root, 'kubb.config.ts'), "export default { root: './specs', input: './pet.openapi.yaml', output: { path: './gen' } }\n")
+    // The bundler runs in a subfolder, so a root resolved from cwd would miss the spec.
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(path.join(root, 'web'))
+    const pluginOptions = getPluginOptions(unpluginFactory(undefined, viteMeta))
+
+    await expect(pluginOptions.buildStart?.call(createBuildContext())).resolves.toBeUndefined()
+    await fs.rm(root, { recursive: true, force: true })
+  })
+
   test('skips the build for a config without input, used only for spec imports', async () => {
     const setup = vi.fn()
     const { input: _input, ...config } = createConfig(setup)

@@ -91,7 +91,9 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
         location: { kind: 'config' },
       })
     }
-    return loadConfigFile<UserConfig>(file, {})
+    // `UserConfig.root` is relative to the config file, which may sit in a parent of the bundler's cwd.
+    const configs = await loadConfigFile<UserConfig>(file, {})
+    return configs.map((config) => (config.root ? { ...config, root: path.resolve(path.dirname(file), config.root) } : config))
   }
 
   // Loaded once per instance, like the generation below: restart the build after editing the config file.
