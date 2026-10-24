@@ -157,6 +157,8 @@ export class FileManager {
   // Cached sorted view, rebuilt lazily on the next `files` read. Nulled (not mutated) on every
   // write so callers holding a prior reference keep their snapshot, `dispose()` included.
   #sorted: Array<FileNode> | null = null
+  // Files `#defer` built with `mergeFile`, which only `#cache` references, so they are safe to extend.
+  readonly #merges = new WeakSet<FileNode>()
 
   add(...files: Array<FileNode>): Array<FileNode> {
     return this.#store(files, false)
@@ -192,9 +194,24 @@ export class FileManager {
   /** Upserts without normalizing: the raw merge waits in `#pending` until the file is read. */
   #defer(files: ReadonlyArray<FileNode>): void {
     for (const file of files) {
-      const existing = this.#cache.get(file.path)
-      this.#cache.set(file.path, existing ? mergeFile(existing, file) : file)
       this.#pending.add(file.path)
+      const existing = this.#cache.get(file.path)
+      if (!existing) {
+        this.#cache.set(file.path, file)
+        continue
+      }
+      if (!this.#merges.has(existing)) {
+        const merged = mergeFile(existing, file)
+        this.#merges.add(merged)
+        this.#cache.set(file.path, merged)
+        continue
+      }
+      existing.banner = file.banner
+      existing.footer = file.footer
+      existing.copy = file.copy ?? existing.copy
+      existing.sources.push(...file.sources)
+      existing.imports.push(...file.imports)
+      existing.exports.push(...file.exports)
     }
     if (files.length > 0) this.#sorted = null
   }

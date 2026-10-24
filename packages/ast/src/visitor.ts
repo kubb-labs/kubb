@@ -223,26 +223,28 @@ function isNodeRecord(value: unknown): value is Record<string, unknown> {
  * // returns parameters, the request body, and responses
  * ```
  */
-function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undefined> {
+function getChildren(node: Node, recurse: boolean): Array<Node> {
+  const children: Array<Node> = []
   // `Schema` children are only walked when `recurse` is `true`.
   const keys = node.kind === 'Schema' && !recurse ? undefined : VISITOR_KEYS[node.kind]
-  if (!keys) return
+  if (!keys) return children
 
   const record = node as unknown as Record<string, unknown>
   for (const key of keys) {
     const value = record[key]
     if (Array.isArray(value)) {
-      for (const item of value) if (isNode(item)) yield item
+      for (const item of value) if (isNode(item)) children.push(item)
       continue
     }
     if (isNode(value)) {
-      yield value
+      children.push(value)
       continue
     }
     if (isNodeRecord(value)) {
-      for (const item of Object.values(value)) if (isNode(item)) yield item
+      for (const item of Object.values(value)) if (isNode(item)) children.push(item)
     }
   }
+  return children
 }
 
 /**
@@ -406,5 +408,18 @@ function* collectNode<T>(node: Node, visitor: VisitorOf<T>, recurse: boolean, pa
  * ```
  */
 export function collectSync<T>(node: Node, options: CollectOptions<T>): Array<T> {
-  return Array.from(collect(node, options))
+  const { depth, parent, ...visitor } = options
+  const result: Array<T> = []
+  // Plain recursion: draining nested generators costs a `yield*` hop per level for every value.
+  collectInto<T>(node, visitor, (depth ?? 'deep') === 'deep', parent, result)
+  return result
+}
+
+function collectInto<T>(node: Node, visitor: VisitorOf<T>, recurse: boolean, parent: Node | undefined, result: Array<T>): void {
+  const v = applyVisitor<T>(node, visitor, parent)
+  if (v != null) result.push(v)
+
+  for (const child of getChildren(node, recurse)) {
+    collectInto<T>(child, visitor, recurse, node, result)
+  }
 }

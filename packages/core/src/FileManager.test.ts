@@ -422,6 +422,16 @@ describe('FileManager#dispatch', () => {
     createFile.mockRestore()
   })
 
+  it('leaves dispatched fragments unchanged while merging them', () => {
+    const fileManager = new FileManager()
+    const fragments = ['a', 'b', 'c'].map((value) => makeFile('index.ts', value))
+
+    for (const fragment of fragments) fileManager.dispatch({ result: [fragment] })
+
+    expect(fileManager.files[0]?.sources).toHaveLength(3)
+    expect(fragments.map((fragment) => fragment.sources.length)).toStrictEqual([1, 1, 1])
+  })
+
   it('merges dispatched fragments the same way upsert does', () => {
     const fragments = ['a', 'b', 'a'].map((value) => makeFile('index.ts', value))
     const dispatched = new FileManager()

@@ -193,6 +193,8 @@ function indentLines(text: string): string {
  */
 function dedent(text: string): string {
   if (!text) return ''
+  // Most text nodes are one line, so the common indent is its leading whitespace.
+  if (!text.includes('\n')) return text.trim() ? text.trimStart() : ''
 
   const lines = text.split('\n')
   const isBlank = (line: string) => line.trim() === ''
@@ -202,8 +204,11 @@ function dedent(text: string): string {
   const end = lines.findLastIndex((line) => !isBlank(line))
 
   const trimmed = lines.slice(start, end + 1)
-  const indents = trimmed.filter((line) => !isBlank(line)).map((line) => line.match(/^\s*/)?.[0].length ?? 0)
-  const min = indents.length ? Math.min(...indents) : 0
+  // A loop, not `Math.min(...indents)`, which overflows the stack on very long text.
+  let min = Infinity
+  for (const line of trimmed) {
+    if (!isBlank(line)) min = Math.min(min, line.length - line.trimStart().length)
+  }
 
   return trimmed.map((line) => (isBlank(line) ? '' : line.slice(min))).join('\n')
 }
