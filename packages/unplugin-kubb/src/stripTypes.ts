@@ -2,7 +2,7 @@ import { generate } from 'yuku-codegen'
 import { type Expression, type ObjectProperty, type TSEnumDeclaration, type VariableDeclaration, parse } from 'yuku-parser'
 
 /**
- * Node types this module reads from yuku's AST.
+ * Node types this module reads from the yuku AST.
  */
 const nodeTypes = {
   literal: 'Literal',

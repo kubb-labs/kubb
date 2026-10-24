@@ -76,7 +76,7 @@ export function resolveOutputPath(path: string, extname: string | undefined, roo
 }
 
 /**
- * Node types this module reads from yuku's AST.
+ * Node types this module reads from the yuku AST.
  */
 const nodeTypes = {
   identifier: 'Identifier',
