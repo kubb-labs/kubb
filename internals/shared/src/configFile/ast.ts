@@ -16,7 +16,7 @@ export type {
 } from 'yuku-parser'
 
 /** A parsed file: its statements and every comment in it, or why it could not be parsed. */
-export type ParsedSource = { program: Program; comments: Array<Comment> } | { reason: string }
+type ParsedSource = { program: Program; comments: Array<Comment> } | { reason: string }
 
 /**
  * Parses `source` as a TypeScript module. Never throws: a syntax error, or a native parser that

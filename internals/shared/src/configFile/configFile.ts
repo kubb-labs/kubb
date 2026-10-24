@@ -38,8 +38,6 @@ const DISABLED_MARKER_PATTERN = /^kubb:disabled (.+)\s+(\d+)$/
 const OPERATIONS = new Set<string>(Object.values(ConfigEditOperation))
 const KINDS = new Set<string>(['plugin', 'adapter', 'parser'])
 
-/** A member of an object literal: `key: value`, a method or accessor, or a `...spread`. */
-type ObjectEntry = ObjectPropertyKind
 /** How the file exports its config, which decides how an import for a new plugin is written. */
 type ModuleKind = 'esm' | 'cjs'
 /** What one edit did: the rewritten source, or why it was refused. */
@@ -139,14 +137,14 @@ function findConfigs(source: string): ParsedConfig | { reason: string } {
 }
 
 /** The name of a `key` or `'key'` property, `undefined` for a spread or a computed key. */
-function getKey(entry: ObjectEntry | BindingProperty | RestElement): string | undefined {
+function getKey(entry: ObjectPropertyKind | BindingProperty | RestElement): string | undefined {
   if (entry.type !== 'Property' || entry.computed) return undefined
   if (entry.key.type === 'Identifier') return entry.key.name
   return entry.key.type === 'Literal' && typeof entry.key.value === 'string' ? entry.key.value : undefined
 }
 
 /** The property named `key`. The last one wins when the key repeats, as it does when the object is evaluated. */
-function findProperty(node: ObjectExpression, key: string): { member: ObjectEntry; index: number } | undefined {
+function findProperty(node: ObjectExpression, key: string): { member: ObjectPropertyKind; index: number } | undefined {
   const index = node.properties.findLastIndex((entry) => getKey(entry) === key)
   return index === -1 ? undefined : { member: node.properties[index]!, index }
 }
@@ -239,15 +237,6 @@ function getImports(program: Program): Map<string, Import> {
     }
   }
   return imports
-}
-
-/** The statements that import a module: `import ... from` in an ES module, `const ... = require(...)` in CommonJS. */
-function findImportStatements(program: Program, kind: ModuleKind): Array<Program['body'][number]> {
-  return program.body.filter((node) =>
-    kind === 'esm'
-      ? node.type === 'ImportDeclaration'
-      : node.type === 'VariableDeclaration' && node.declarations.some((declarator) => getRequirePath(declarator.init) !== undefined),
-  )
 }
 
 /** The quote style of the file's first string literal, usually its first import, so new code matches it. */
@@ -583,7 +572,11 @@ function addImport({
   moduleSpecifier: string
   quote: Quote
 }): string {
-  const lastImport = findImportStatements(parsed.program, parsed.kind).at(-1)
+  const lastImport = parsed.program.body.findLast((node) =>
+    parsed.kind === 'esm'
+      ? node.type === 'ImportDeclaration'
+      : node.type === 'VariableDeclaration' && node.declarations.some((declarator) => getRequirePath(declarator.init) !== undefined),
+  )
   const afterLine = lastImport ? getPosition(source, lastImport.end).line : 0
   const lines = source.split('\n')
 
