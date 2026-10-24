@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
-import { findConfigFile } from '@internals/shared'
+import { ConfigEditOperation, editConfig, editConfigFile, findConfigFile } from '@internals/shared'
 import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, readInstalledPackages, type RegistryDetail, type RegistryEntry } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
@@ -41,28 +41,23 @@ function toSnippet({ artifact, manifest }: ConfigTarget): string {
 /** The `add-plugin` edits for `details`, and the manifests the edits read their export names from. */
 function toConfigEdits(details: Array<ConfigTarget>) {
   return {
-    edits: details.map(({ artifact }) => ({ operation: 'add-plugin' as const, plugin: artifact.package })),
+    edits: details.map(({ artifact }) => ({ operation: ConfigEditOperation.ADD_PLUGIN, plugin: artifact.package })),
     extensions: new Map(details.map(({ artifact, manifest }) => [artifact.package, { package: artifact.package, version: artifact.version, manifest }])),
   }
 }
 
 /** The lines adding `details` would put in the config `source`, trimmed, or why it could not add them. */
-async function previewConfig({ details, source }: { details: Array<ConfigTarget>; source: string }): Promise<{ lines: Array<string> } | { reason: string }> {
-  try {
-    const { applyConfigEdits } = await import('@kubb/studio')
-    const result = applyConfigEdits({ source, ...toConfigEdits(details) })
-    const failed = result.outcomes.find((outcome) => !outcome.applied)
-    if (failed) return { reason: failed.reason ?? 'the config file was not changed' }
-    const remaining = source.split('\n')
-    const lines = result.source.split('\n').filter((line) => {
-      const index = remaining.indexOf(line)
-      if (index !== -1) remaining.splice(index, 1)
-      return index === -1
-    })
-    return { lines: lines.map((line) => line.trim()) }
-  } catch (error) {
-    return { reason: getErrorMessage(error) }
-  }
+function previewConfig({ details, source }: { details: Array<ConfigTarget>; source: string }): { lines: Array<string> } | { reason: string } {
+  const result = editConfig({ source, ...toConfigEdits(details) })
+  const failed = result.outcomes.find((outcome) => !outcome.applied)
+  if (failed) return { reason: failed.reason ?? 'the config file was not changed' }
+  const remaining = source.split('\n')
+  const lines = result.source.split('\n').filter((line) => {
+    const index = remaining.indexOf(line)
+    if (index !== -1) remaining.splice(index, 1)
+    return index === -1
+  })
+  return { lines: lines.map((line) => line.trim()) }
 }
 
 async function selectExtension({
@@ -221,7 +216,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       if (inConfig(name)) return `${name} ${styleText('green', '✓ installed')}`
       return targets.some((target) => target.manifest.name === name) ? `${name} ${styleText('cyan', '+ adding')}` : `${name} ${styleText('yellow', 'missing')}`
     }
-    const preview = configFile && configSource !== undefined ? await previewConfig({ details: targets, source: configSource }) : undefined
+    const preview = configFile && configSource !== undefined ? previewConfig({ details: targets, source: configSource }) : undefined
     logStep(`${kind} ${styleText('cyan', manifest.name)} v${artifact.version} · ${summarize(manifest.description)}`)
     logBlock([
       ...(dependencies.length ? [`Needs     ${dependencies.map(dependencyStatus).join('  ')}`] : []),
@@ -249,8 +244,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     if (configFile) {
       for (const target of targets) {
         try {
-          const { writeConfigEdits } = await import('@kubb/studio')
-          const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, ...toConfigEdits([target]) })
+          const { outcomes, changed } = await editConfigFile({ filePath: configFile, ...toConfigEdits([target]) })
           if (!outcomes[0]?.applied) throw new Error(outcomes[0]?.reason ?? 'the config file was not changed')
           if (changed) configured.push(target)
           logStep(`${target.manifest.export}() configured in ${configName}`)
