@@ -84,13 +84,9 @@ function validateEdit(edit: ConfigEdit): string | undefined {
 
   if (kind !== undefined) {
     if (typeof kind !== 'string' || !KINDS.has(kind)) return `unknown kind ${JSON.stringify(kind)}`
-    if (operation === ConfigEditOperation.ADD_PLUGIN && kind === extensionKinds.adapter) return 'add-plugin adds a plugin or a parser'
-    if (operation === ConfigEditOperation.REMOVE_EXTENSION && kind === extensionKinds.adapter) {
-      return 'remove-extension removes a plugin or a parser, since the config needs its adapter'
-    }
-    if (!isOption && operation !== ConfigEditOperation.ADD_PLUGIN && operation !== ConfigEditOperation.REMOVE_EXTENSION) {
-      return `${operation} edits the plugins array, so it takes no kind`
-    }
+    const takesKind = operation === ConfigEditOperation.ADD_PLUGIN || operation === ConfigEditOperation.REMOVE_EXTENSION
+    if (takesKind && kind === extensionKinds.adapter) return `${operation} takes a plugin or a parser, since a config has one adapter`
+    if (!isOption && !takesKind) return `${operation} edits the plugins array, so it takes no kind`
   }
 
   if (!isOption && !isOutput) return undefined
@@ -597,14 +593,13 @@ function editOutput({ source, config, edit, quote }: { source: string; config: O
 function addImport({
   source,
   parsed,
-  importName,
+  importNames,
   moduleSpecifier,
   quote,
 }: {
   source: string
   parsed: ParsedConfig
-  /** One name, or several joined by `, ` for one import of a package. */
-  importName: string
+  importNames: Array<string>
   moduleSpecifier: string
   quote: Quote
 }): string {
@@ -614,7 +609,8 @@ function addImport({
 
   const semicolon = afterLine > 0 && lines[afterLine - 1]?.trimEnd().endsWith(';') ? ';' : ''
   const specifier = `${quote}${moduleSpecifier}${quote}`
-  const statement = parsed.kind === moduleKinds.esm ? `import { ${importName} } from ${specifier}` : `const { ${importName} } = require(${specifier})`
+  const statement =
+    parsed.kind === moduleKinds.esm ? `import { ${importNames.join(', ')} } from ${specifier}` : `const { ${importNames.join(', ')} } = require(${specifier})`
 
   lines.splice(afterLine, 0, `${statement}${semicolon}`)
   if (afterLine === 0) lines.splice(1, 0, '')
@@ -693,7 +689,7 @@ function addPlugin({
 
   return {
     source: [...missing].reduceRight(
-      (current, [moduleSpecifier, names]) => addImport({ source: current, parsed, importName: names.join(', '), moduleSpecifier, quote }),
+      (current, [moduleSpecifier, importNames]) => addImport({ source: current, parsed, importNames, moduleSpecifier, quote }),
       next,
     ),
   }
@@ -826,13 +822,15 @@ function removeExtension(source: string, edit: RemoveExtensionEdit): EditResult 
       const elements = array.elements.filter((element) => element !== null)
       if (kind === extensionKinds.parser && elements.length === calls.length) return { reason: `${edit.plugin} is the last parser in the parsers array` }
       current = removeItem(current, array, elements.indexOf(calls[0].call))
-    } else if (block && kind === extensionKinds.plugin) {
+      continue
+    }
+    if (block && kind === extensionKinds.plugin) {
       const lines = current.split('\n')
       lines.splice(block.line - 1, block.end - block.line + 1)
       current = lines.join('\n')
-    } else {
-      return { source: current === source ? source : removeUnusedImports(current, edit.plugin) }
+      continue
     }
+    return { source: current === source ? source : removeUnusedImports(current, edit.plugin) }
   }
 }
 

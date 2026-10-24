@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
-import { BUNDLED_PACKAGES, ConfigEditOperation, extensionKinds, editConfig, editConfigFile, findConfigFile } from '@internals/shared'
+import { BUNDLED_PACKAGES, ConfigEditOperation, extensionKinds, editConfig, editConfigFile, findConfigFile, readImports } from '@internals/shared'
 import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, readInstalledPackages, type RegistryDetail, type RegistryEntry } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
@@ -51,7 +51,7 @@ function toConfigEdits(details: Array<ConfigTarget>) {
 }
 
 /** The lines adding `details` would put in the config `source`, trimmed, or why it could not add them. */
-function previewConfig({ details, source }: { details: Array<ConfigTarget>; source: string }): { lines: Array<string> } | { reason: string } {
+function previewConfig({ details, source }: { details: Array<ConfigTarget>; source: string }): { lines: Array<string>; source: string } | { reason: string } {
   const result = editConfig({ source, ...toConfigEdits(details) })
   const failed = result.outcomes.find((outcome) => !outcome.applied)
   if (failed) return { reason: failed.reason ?? 'the config file was not changed' }
@@ -61,7 +61,7 @@ function previewConfig({ details, source }: { details: Array<ConfigTarget>; sour
     if (index !== -1) remaining.splice(index, 1)
     return index === -1
   })
-  return { lines: lines.map((line) => line.trim()) }
+  return { lines: lines.map((line) => line.trim()), source: result.source }
 }
 
 async function selectExtension({
@@ -192,7 +192,6 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
         help: 'Upgrade Kubb or Node.js to a version the extension supports.',
       })
 
-    // The config has one adapter, so `kubb add` never replaces it and prints the snippet instead.
     const configFile = manifest.kind === extensionKinds.adapter ? undefined : foundConfig
     if (manifest.kind === extensionKinds.plugin && !configFile)
       throw new Diagnostics.Error({
@@ -224,15 +223,11 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     const preview = configFile && configSource !== undefined ? previewConfig({ details: targets, source: configSource }) : undefined
     // The default parsers written next to a new parser come with `kubb`. A strict node_modules layout
     // only lets the config import direct dependencies, so they are installed at the project's `kubb` version.
-    const bundled =
-      preview && 'lines' in preview
-        ? BUNDLED_PACKAGES.filter(
-            (name) =>
-              !versions.has(name) &&
-              !targets.some((target) => target.artifact.package === name) &&
-              preview.lines.some((line) => line.includes(`from '${name}'`) || line.includes(`from "${name}"`)),
-          )
-        : []
+    const before = readImports(configSource ?? '')
+    const added = preview && 'lines' in preview ? readImports(preview.source).filter((name) => !before.includes(name)) : []
+    const bundled = BUNDLED_PACKAGES.filter(
+      (name) => added.includes(name) && !versions.has(name) && !targets.some((target) => target.artifact.package === name),
+    )
     const kubbVersion = versions.get('kubb')
     const specs = [
       ...targets.filter((target) => target === entry || !versions.has(target.artifact.package)).map((target) => installSpec(target.artifact)),

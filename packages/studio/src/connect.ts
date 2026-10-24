@@ -1,4 +1,3 @@
-import { BUNDLED_PACKAGES } from '@internals/shared'
 import { randomUUID } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
@@ -27,7 +26,7 @@ import {
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
-import { editConfigFile, pickOutput, readConfig, readImports } from '@internals/shared'
+import { BUNDLED_PACKAGES, editConfigFile, pickOutput, readConfig, readImports } from '@internals/shared'
 import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
@@ -62,12 +61,12 @@ import {
   type ReadInputResult,
   type InstallExtensionInput,
   type InstallExtensionResult,
+  type RemoveExtensionInput,
+  type RemoveExtensionResult,
   type SaveConfigInput,
   type SaveResult,
   type StudioApi,
   type UpdateExtensionsInput,
-  type RemoveExtensionInput,
-  type RemoveExtensionResult,
   type UpdateExtensionsResult,
 } from './protocol.ts'
 import { withPublicFetch } from './publicFetch.ts'

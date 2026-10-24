@@ -803,12 +803,12 @@ describe('editConfig', () => {
       [
         'an adapter kind on add-plugin',
         { operation: ConfigEditOperation.ADD_PLUGIN, kind: extensionKinds.adapter, plugin: '@kubb/adapter-oas' },
-        'add-plugin adds a plugin or a parser',
+        'add-plugin takes a plugin or a parser, since a config has one adapter',
       ],
       [
         'an adapter kind on remove-extension',
         { operation: ConfigEditOperation.REMOVE_EXTENSION, kind: extensionKinds.adapter, plugin: '@kubb/adapter-oas' },
-        'remove-extension removes a plugin or a parser, since the config needs its adapter',
+        'remove-extension takes a plugin or a parser, since a config has one adapter',
       ],
       [
         'a kind on a plugin-only operation',
