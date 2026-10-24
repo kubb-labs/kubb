@@ -111,6 +111,30 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           release-mode: combined
 
+  # Managed agents bake kubb into their image, so platform bumps it and rebuilds the image.
+  dispatch-platform:
+    name: Dispatch kubb-released to platform
+    needs: [release, promote]
+    if: ${{ needs.promote.outputs.approved == 'true' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Read the kubb version
+        id: version
+        run: echo "version=$(node -p "require('./packages/kubb/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
+        with:
+          token: ${{ secrets.PLATFORM_DISPATCH_TOKEN }}
+          repository: kubb-labs/platform
+          event-type: kubb-released
+          client-payload: '{"version": "${{ steps.version.outputs.version }}"}'
+
   notify:
     name: Send Discord Notification
     needs: [release, promote]
