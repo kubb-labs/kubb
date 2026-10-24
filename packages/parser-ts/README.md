@@ -59,7 +59,7 @@ export default defineConfig({
 })
 ```
 
-`print(...fragments)` joins printed code strings with a newline. It still accepts TypeScript compiler nodes, but that form is deprecated and needs `@typescript/typescript6` installed. It is removed in the next major.
+`print(...fragments)` joins printed code strings with a newline. It still accepts TypeScript compiler nodes, but that form is deprecated and needs `typescript` 5 or 6, or `@typescript/typescript6`, installed. It is removed in the next major.
 
 ## API
 

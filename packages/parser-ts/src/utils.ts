@@ -39,15 +39,24 @@ type TypeScript = {
 function loadCompiler(): Compiler {
   if (compiler) return compiler
 
-  let typescript: TypeScript
-  try {
-    const require = createRequire(import.meta.url)
-    // Look in the user's project first: a strict package manager such as pnpm does not link it next to this package
-    typescript = require(require.resolve('@typescript/typescript6', { paths: [process.cwd(), dirname(fileURLToPath(import.meta.url))] }))
-  } catch (cause) {
-    throw new Error('`print` received a TypeScript compiler node, which needs `@typescript/typescript6` installed. Pass a printed string instead.', {
-      cause,
-    })
+  const require = createRequire(import.meta.url)
+  // Look in the user's project first: a strict package manager such as pnpm does not link it next to this package
+  const paths = [process.cwd(), dirname(fileURLToPath(import.meta.url))]
+  let typescript: TypeScript | undefined
+  // `typescript` 5 and 6 ship the compiler API; next to TypeScript 7 it comes from `@typescript/typescript6`
+  for (const name of ['typescript', '@typescript/typescript6']) {
+    try {
+      const candidate = require(require.resolve(name, { paths }))
+      if (typeof candidate.createPrinter === 'function') {
+        typescript = candidate as TypeScript
+        break
+      }
+    } catch {}
+  }
+  if (!typescript) {
+    throw new Error(
+      '`print` received a TypeScript compiler node, which needs `typescript` 5 or 6, or `@typescript/typescript6`, installed. Pass a printed string instead.',
+    )
   }
 
   // One printer serves every call; printing does not mutate the source file, which only lends its compiler options
@@ -280,7 +289,7 @@ function withJSDoc({ jsDoc, declaration }: { jsDoc?: ast.JSDocNode | null; decla
 /**
  * Joins printed code fragments with a newline.
  *
- * Passing TypeScript compiler nodes still works but is deprecated and needs `@typescript/typescript6` installed.
+ * Passing TypeScript compiler nodes still works but is deprecated and needs `typescript` 5 or 6, or `@typescript/typescript6`, installed.
  * Support for compiler nodes is removed in the next major.
  */
 export function print(...elements: Array<string | TsNode>): string {
