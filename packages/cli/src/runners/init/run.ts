@@ -4,7 +4,7 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { DryRunExtension } from '@gunshi/plugin-dryrun'
 import { defineWithTypes } from 'gunshi'
-import { editConfig, generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME } from '@internals/shared'
+import { ConfigEditOperation, editConfig, generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME } from '@internals/shared'
 import { exists, formatMs, getElapsedMs, write } from '@internals/utils'
 import { createKubb, Diagnostics, type RegistryEntry } from '@kubb/core'
 import { dryRunId, type DryRunExtensions } from '../../commands/shared.ts'
@@ -74,11 +74,11 @@ type Choices = {
 function buildConfig({ inputPath, outputPath, plugins }: Choices): string {
   const { source, outcomes } = editConfig({
     source: generateConfigFile({ inputPath, outputPath }),
-    edits: plugins.map((entry) => ({ operation: 'add-plugin', plugin: entry.artifact.package })),
+    edits: plugins.map((entry) => ({ operation: ConfigEditOperation.ADD_PLUGIN, plugin: entry.artifact.package })),
     extensions: new Map(plugins.map(({ artifact, manifest }) => [artifact.package, { package: artifact.package, version: artifact.version, manifest }])),
   })
   const failed = outcomes.find((outcome) => !outcome.applied)
-  if (failed && failed.edit.operation === 'add-plugin')
+  if (failed && failed.edit.operation === ConfigEditOperation.ADD_PLUGIN)
     throw new Diagnostics.Error({
       code: Diagnostics.code.unknown,
       severity: 'error',

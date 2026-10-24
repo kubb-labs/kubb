@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
-import { editConfig, editConfigFile, findConfigFile } from '@internals/shared'
+import { ConfigEditOperation, editConfig, editConfigFile, findConfigFile } from '@internals/shared'
 import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, readInstalledPackages, type RegistryDetail, type RegistryEntry } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
@@ -41,7 +41,7 @@ function toSnippet({ artifact, manifest }: ConfigTarget): string {
 /** The `add-plugin` edits for `details`, and the manifests the edits read their export names from. */
 function toConfigEdits(details: Array<ConfigTarget>) {
   return {
-    edits: details.map(({ artifact }) => ({ operation: 'add-plugin' as const, plugin: artifact.package })),
+    edits: details.map(({ artifact }) => ({ operation: ConfigEditOperation.ADD_PLUGIN, plugin: artifact.package })),
     extensions: new Map(details.map(({ artifact, manifest }) => [artifact.package, { package: artifact.package, version: artifact.version, manifest }])),
   }
 }
