@@ -90,7 +90,7 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
       return fail(`${names} ${dependents.length === 1 ? 'needs' : 'need'} ${manifest.name}`, [`  Remove ${names} first.`])
     }
 
-    const { applyConfigEdits, writeConfigEdits } = await import('@kubb/studio')
+    const { applyConfigEdits, readImports, writeConfigEdits } = await import('@kubb/studio')
     const edits = [{ operation: 'remove-extension' as const, ...(manifest.kind === 'parser' ? { kind: 'parser' as const } : {}), plugin: artifact.package }]
     const preview = applyConfigEdits({ source, edits })
     const outcome = preview.outcomes[0]
@@ -98,7 +98,9 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
 
     // Bundled extensions leave the config but stay installed.
     const bundled = BUNDLED_PACKAGES.includes(artifact.package)
-    const uninstalls = uninstall && !bundled && versions.has(artifact.package)
+    // Another `defineConfig` entry can still import it, and uninstalling it then breaks the config.
+    const stillImported = readImports(preview.source).includes(artifact.package)
+    const uninstalls = uninstall && !bundled && !stillImported && versions.has(artifact.package)
     if (!preview.changed && !uninstalls) {
       summary(`${manifest.name} is not in the project`, 'success', ['  No changes made'])
       return
@@ -107,6 +109,7 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
     const packageLine = (() => {
       if (uninstalls) return `Uninstalls ${artifact.package}`
       if (bundled) return `Keeps     ${artifact.package}, which ships with kubb`
+      if (stillImported) return `Keeps     ${artifact.package}, which another config entry still imports`
       return 'Uninstalls nothing'
     })()
     logStep(`${kind} ${styleText('cyan', manifest.name)} v${versions.get(artifact.package) ?? artifact.version}`)

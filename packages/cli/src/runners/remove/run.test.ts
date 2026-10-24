@@ -91,6 +91,19 @@ describe('kubb remove', () => {
     expect(process.exitCode).toBe(1)
   })
 
+  it('keeps the package when another config entry still imports it', async () => {
+    await writeFile(
+      path.join(cwd, 'kubb.config.ts'),
+      `import { defineConfig } from 'kubb/config'\nimport { pluginX } from '@acme/kubb-plugin-x'\n\nexport default defineConfig([\n  { plugins: [pluginX()] },\n  { plugins: [pluginX()] },\n])\n`,
+    )
+
+    await run({ id: 'acme/plugin-x', yes: true, uninstall: true })
+
+    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain('{ plugins: [] },\n  { plugins: [pluginX()] },')
+    expect(output.join('\n')).toContain('which another config entry still imports')
+    expect(uninstallPackages).not.toHaveBeenCalled()
+  })
+
   it('refuses the adapter', async () => {
     await run({ id: 'acme/adapter-x', yes: true, uninstall: true })
 

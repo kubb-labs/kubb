@@ -232,7 +232,10 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     const bundled =
       preview && 'lines' in preview
         ? BUNDLED_PACKAGES.filter(
-            (name) => !versions.has(name) && preview.lines.some((line) => line.includes(`from '${name}'`) || line.includes(`from "${name}"`)),
+            (name) =>
+              !versions.has(name) &&
+              !targets.some((target) => target.artifact.package === name) &&
+              preview.lines.some((line) => line.includes(`from '${name}'`) || line.includes(`from "${name}"`)),
           )
         : []
     const kubbVersion = versions.get('kubb')
