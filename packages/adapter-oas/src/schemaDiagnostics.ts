@@ -4,19 +4,18 @@ import { Diagnostics } from '@kubb/kit'
 import { isHandledFormat } from './emit/schemaShape.ts'
 
 /**
- * Reports the advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`) for one freshly
- * converted top-level schema.
- *
- * Walks the node the parser produced, threading the RFC 6901 pointer as it descends so a nested
- * field reports against its full path (`#/components/schemas/Pet/properties/owner/properties/name`).
- * Refs are not followed, so the resolved schema is reported under its own walk.
+ * Links one freshly converted schema and its nested schemas to their RFC 6901 pointers
+ * (`#/components/schemas/Pet/properties/owner/properties/name`), and reports the advisory
+ * diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`) against them.
+ * Refs are not followed, so the resolved schema is handled under its own walk.
  * Reports land in the active build run, are a no-op outside one, and repeats are deduped by the build.
  */
-export function scanSchema(node: ast.SchemaNode): void {
-  if (node.pointer) visit(node, node.pointer)
+export function scanSchema(node: ast.SchemaNode, pointer = node.pointer): void {
+  if (pointer) visit(node, pointer)
 }
 
 function visit(node: ast.SchemaNode, pointer: string): void {
+  node.pointer ??= pointer
   if (node.deprecated) {
     Diagnostics.report({
       code: Diagnostics.code.deprecated,
@@ -62,9 +61,16 @@ function visit(node: ast.SchemaNode, pointer: string): void {
     return
   }
 
-  if (node.type === 'union' || node.type === 'intersection' || node.type === 'not') {
+  if (node.type === 'not') {
+    for (const member of node.members ?? []) visit(member, `${pointer}/not`)
+    return
+  }
+
+  // shortcut: a member the parser adds, such as the wrapper around `not` with sibling keys, gets an index past the spec's own entries; set pointers in the converters if editors need those exact.
+  if (node.type === 'union' || node.type === 'intersection') {
+    const keyword = node.type === 'intersection' ? 'allOf' : node.strategy === 'any' ? 'anyOf' : 'oneOf'
     for (const [index, member] of (node.members ?? []).entries()) {
-      visit(member, `${pointer}/members/${index}`)
+      visit(member, `${pointer}/${keyword}/${index}`)
     }
   }
 }

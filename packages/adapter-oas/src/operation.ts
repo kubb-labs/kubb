@@ -3,6 +3,7 @@ import { ast } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
 import { getBinaryFallbackSchema, isJsonMimeType, isReference, pickExtensions } from './oas.ts'
+import { scanSchema } from './schemaDiagnostics.ts'
 import type { Refs } from './refs.ts'
 import type {
   ContentType,
@@ -211,6 +212,7 @@ function parseParameter({
   const schema: ast.SchemaNode = rawSchema
     ? parseSchema({ schema: rawSchema as SchemaObject, name: schemaName })
     : ast.factory.createSchema({ type: options.unknownType })
+  if (rawSchema) scanSchema(schema, contentType ? `${pointer}/content/${escapePointerToken(contentType)}/schema` : `${pointer}/schema`)
   const style = param.style as ast.ParameterStyle | undefined
   const explode = param.explode
   const allowReserved = param.allowReserved
@@ -250,10 +252,12 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const content = requestContentTypes.flatMap((ct) => {
     const schema = getBodySchema({ content: body?.content, contentType: ct, refs })
     if (!schema) return []
+    const node = parseSchema({ schema, name: requestBodyName })
+    scanSchema(node, `${pointer}/requestBody/content/${escapePointerToken(ct)}/schema`)
     return [
       ast.factory.createContent({
         contentType: ct,
-        schema: ast.optionality(parseSchema({ schema, name: requestBodyName }), bodyRequired),
+        schema: ast.optionality(node, bodyRequired),
         keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
       }),
     ]
@@ -278,6 +282,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
       const raw = getBodySchema({ content: response?.content, contentType: ct, refs })
       const node =
         raw && Object.keys(raw).length > 0 ? parseSchema({ schema: raw, name: responseName }) : ast.factory.createSchema({ type: options.emptySchemaType })
+      if (raw && ct) scanSchema(node, `${pointer}/responses/${statusCode}/content/${escapePointerToken(ct)}/schema`)
       return { schema: node, keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly') }
     }
 
