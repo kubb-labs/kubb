@@ -22,7 +22,7 @@ Kubb generates faster and uses less memory than HeyAPI and orval at every spec s
 ::tool-benchmark
 ::
 
-Each value is the median of five runs on Node 22 on Linux x64, measured in October 2026 with `@hey-api/openapi-ts` 0.99.0, orval 8.44.0, and openapi-typescript 7.13.0. Install size is the `node_modules` disk usage after a clean `npm install` with the same features.
+Each value is the median of five runs on Node 22 on Linux x64, measured in October 2026. Kubb ran from the `main` branches of kubb-labs/kubb and kubb-labs/plugins on October 24, the first versions after kubb 5.12.8 without the TypeScript compiler, against `@hey-api/openapi-ts` 0.99.0, orval 8.44.0, and openapi-typescript 7.13.0. Install size is the `node_modules` disk usage after a clean `npm install` with the same features.
 
 ## Plugin and feature coverage
 
