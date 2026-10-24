@@ -168,9 +168,6 @@ export type ObjectSchemaNode = SchemaNodeBase & {
    * Pattern-based property schemas.
    */
   patternProperties?: Record<string, SchemaNode>
-  /**
-   * Schema that validates object property names.
-   */
   propertyNames?: SchemaNode
   /**
    * Minimum number of properties allowed.
