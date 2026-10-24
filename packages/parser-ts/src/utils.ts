@@ -170,7 +170,8 @@ function toExportNodes(statement: ProgramStatement): Array<ast.ExportNode> {
   }
   if (
     statement.specifiers.some(
-      (element) => element.exportKind === declarationKinds.type || element.exported.type === nodeTypes.literal || nameOf(element.exported) !== nameOf(element.local),
+      (element) =>
+        element.exportKind === declarationKinds.type || element.exported.type === nodeTypes.literal || nameOf(element.exported) !== nameOf(element.local),
     )
   )
     return []
