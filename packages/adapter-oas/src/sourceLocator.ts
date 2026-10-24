@@ -137,13 +137,9 @@ function parse(source: string): NonNullable<typeof cached> {
  */
 export const locate: NonNullable<Adapter['locate']> = (source, location) => {
   if (!('pointer' in location)) return undefined
-  if (cached?.source === source) {
-    // An equal but distinct string costs a full comparison on every check. Keeping the caller's
-    // string turns the next checks into identity hits.
-    cached.source = source
-  } else {
-    cached = parse(source)
-  }
+  // An equal but distinct string costs a full comparison on every check. Keeping the caller's
+  // string turns the next checks into identity hits.
+  cached = cached?.source === source ? { ...cached, source } : parse(source)
   const ref = 'ref' in location ? location.ref : undefined
   if ('json' in cached) {
     const { pointers, refs } = cached.json
