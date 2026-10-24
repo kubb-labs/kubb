@@ -1,6 +1,6 @@
 import { isPackageName } from '@kubb/core'
 import { camelCase } from '@internals/utils'
-import type { InstalledExtensions, OptionValue } from './types.ts'
+import { extensionKinds, type InstalledExtensions, type OptionValue } from './types.ts'
 
 /** `@kubb/plugin-ts` becomes `plugin-ts`, the `name` Kubb plugin factories use. */
 export function toPluginName(packageName: string): string {
@@ -17,7 +17,7 @@ const KUBB_PLUGIN_SPECIFIER = /^@kubb\/plugin-[\w.-]+$/
 /** Only a `@kubb/plugin-*` package or an installed plugin extension may be imported, never a path or URL. */
 export function isAllowedPlugin({ packageName, extensions }: { packageName: string; extensions: InstalledExtensions }): boolean {
   if (!isPackageName(packageName)) return false
-  return KUBB_PLUGIN_SPECIFIER.test(packageName) || extensions.get(packageName)?.manifest.kind === 'plugin'
+  return KUBB_PLUGIN_SPECIFIER.test(packageName) || extensions.get(packageName)?.manifest.kind === extensionKinds.plugin
 }
 
 const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])

@@ -7,7 +7,8 @@ import type { OptionValue } from './types.ts'
  */
 export const IDENTIFIER_PATTERN = /^[A-Za-z_$][\w$]*$/
 
-export type Quote = `'` | `"`
+export const quotes = { single: `'`, double: `"` } as const
+export type Quote = (typeof quotes)[keyof typeof quotes]
 
 /** `source` with the text between `start` and `end` replaced by `text`. */
 export function replaceText(source: string, start: number, end: number, text = ''): string {
@@ -24,7 +25,7 @@ export function printValue(value: OptionValue, quote: Quote): string {
   if (typeof value === 'string') {
     // JSON's escaping covers every character that could end the literal or the line.
     const escaped = JSON.stringify(value).slice(1, -1)
-    return quote === `"` ? `"${escaped}"` : `'${escaped.replaceAll(`\\"`, `"`).replaceAll(`'`, `\\'`)}'`
+    return quote === quotes.double ? `"${escaped}"` : `'${escaped.replaceAll(`\\"`, `"`).replaceAll(`'`, `\\'`)}'`
   }
   if (value === null || typeof value !== 'object') return String(value)
   if (Array.isArray(value)) return `[${value.map((item) => printValue(item, quote)).join(', ')}]`

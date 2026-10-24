@@ -28,7 +28,6 @@ export const nodeTypes = {
   identifier: 'Identifier',
   importDeclaration: 'ImportDeclaration',
   importSpecifier: 'ImportSpecifier',
-  lineComment: 'Line',
   literal: 'Literal',
   memberExpression: 'MemberExpression',
   objectExpression: 'ObjectExpression',
@@ -43,6 +42,11 @@ export const nodeTypes = {
   variableDeclaration: 'VariableDeclaration',
 } as const
 
+export const commentTypes = { line: 'Line' } as const
+export const propertyKinds = { init: 'init' } as const
+export const unaryOperators = { minus: '-', plus: '+' } as const
+const diagnosticSeverities = { error: 'error' } as const
+
 /** A parsed file: its statements and every comment in it, or why it could not be parsed. */
 type ParsedSource = { program: Program; comments: Array<Comment> } | { reason: string }
 
@@ -54,7 +58,7 @@ export function parseSource(source: string): ParsedSource {
   try {
     // Parentheses are dropped, so `export default (defineConfig({}))` reads as the call itself.
     const { program, comments, diagnostics } = parse(source, { lang: 'ts', sourceType: 'module', preserveParens: false })
-    if (diagnostics.some((diagnostic) => diagnostic.severity === 'error')) return { reason: 'the config file could not be parsed' }
+    if (diagnostics.some((diagnostic) => diagnostic.severity === diagnosticSeverities.error)) return { reason: 'the config file could not be parsed' }
     return { program, comments }
   } catch (error) {
     return { reason: `the config file could not be parsed: ${getErrorMessage(error)}` }

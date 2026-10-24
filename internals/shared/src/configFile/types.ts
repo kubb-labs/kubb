@@ -6,6 +6,8 @@ export type ConfigRef = string | number
 /** A literal option value that survives a JSON round trip. */
 export type OptionValue = string | number | boolean | null | Array<OptionValue> | { [key: string]: OptionValue }
 
+export const extensionKinds = { plugin: 'plugin', adapter: 'adapter', parser: 'parser' } as const satisfies Record<string, ExtensionKind>
+
 export const ConfigEditOperation = {
   SET_OPTION: 'set-option',
   REMOVE_OPTION: 'remove-option',

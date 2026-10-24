@@ -11,16 +11,20 @@ import {
   type Program,
   type RestElement,
   type SpreadElement,
+  commentTypes,
   nodeTypes,
   parseExpression,
+  propertyKinds,
+  unaryOperators,
   parseSource,
 } from './ast.ts'
 import { isAllowedPlugin, isOptionValue, isOutputKey, isOutputValue, isSafeKey, pickOutput, toExportName } from './rules.ts'
-import { appendItem, getPosition, IDENTIFIER_PATTERN, printKey, printValue, type Quote, removeProperty, replaceText, wrapPath } from './text.ts'
+import { appendItem, getPosition, IDENTIFIER_PATTERN, printKey, printValue, quotes, type Quote, removeProperty, replaceText, wrapPath } from './text.ts'
 import {
   type ConfigEdit,
   ConfigEditOperation,
   type ConfigEditOutcome,
+  extensionKinds,
   type ConfigFileView,
   type ConfigView,
   type InstalledExtensions,
@@ -33,7 +37,9 @@ import {
 const DISABLED_MARKER_PATTERN = /^kubb:disabled (.+)\s+(\d+)$/
 
 const OPERATIONS = new Set<string>(Object.values(ConfigEditOperation))
-const KINDS = new Set<string>(['plugin', 'adapter', 'parser'])
+const KINDS = new Set<string>(Object.values(extensionKinds))
+/** Identifiers the editor matches by name. */
+const identifiers = { defineConfig: 'defineConfig', require: 'require', module: 'module', exports: 'exports' } as const
 
 const moduleKinds = { esm: 'esm', cjs: 'cjs' } as const
 type ModuleKind = (typeof moduleKinds)[keyof typeof moduleKinds]
@@ -79,9 +85,9 @@ function isModuleExports(node: AssignmentExpression['left']): boolean {
     node.type === nodeTypes.memberExpression &&
     !node.computed &&
     node.object.type === nodeTypes.identifier &&
-    node.object.name === 'module' &&
+    node.object.name === identifiers.module &&
     node.property.type === nodeTypes.identifier &&
-    node.property.name === 'exports'
+    node.property.name === identifiers.exports
   )
 }
 
@@ -107,7 +113,7 @@ function findConfigs(source: string): ParsedConfig | { reason: string } {
 
   const value = unwrapValue(exported)
   if (!value) return { reason: 'no `export default` or `module.exports` found' }
-  if (value.type !== nodeTypes.callExpression || value.callee.type !== nodeTypes.identifier || value.callee.name !== 'defineConfig') {
+  if (value.type !== nodeTypes.callExpression || value.callee.type !== nodeTypes.identifier || value.callee.name !== identifiers.defineConfig) {
     return { reason: 'the exported config is not a defineConfig(...) call' }
   }
 
@@ -158,7 +164,7 @@ function readLiteral(node: ValueNode): OptionValue | undefined {
     case nodeTypes.unaryExpression: {
       const value = readLiteral(node.argument)
       if (typeof value !== 'number') return undefined
-      return node.operator === '-' ? -value : node.operator === '+' ? value : undefined
+      return node.operator === unaryOperators.minus ? -value : node.operator === unaryOperators.plus ? value : undefined
     }
     case nodeTypes.arrayExpression: {
       const values = node.elements.map((element) => readLiteral(element))
@@ -181,7 +187,7 @@ function readLiteral(node: ValueNode): OptionValue | undefined {
 }
 
 function getRequirePath(node: ValueNode): string | undefined {
-  if (node?.type !== nodeTypes.callExpression || node.callee.type !== nodeTypes.identifier || node.callee.name !== 'require') return undefined
+  if (node?.type !== nodeTypes.callExpression || node.callee.type !== nodeTypes.identifier || node.callee.name !== identifiers.require) return undefined
   const [argument] = node.arguments
   return argument?.type === nodeTypes.literal && typeof argument.value === 'string' ? argument.value : undefined
 }
@@ -217,7 +223,7 @@ function getImports(program: Program): Map<string, Import> {
 function detectQuote(node: unknown): Quote | undefined {
   if (!node || typeof node !== 'object') return undefined
   const { type, raw } = node as { type?: string; raw?: unknown }
-  if (type === nodeTypes.literal && typeof raw === 'string' && (raw[0] === `'` || raw[0] === `"`)) return raw[0]
+  if (type === nodeTypes.literal && typeof raw === 'string' && (raw[0] === quotes.single || raw[0] === quotes.double)) return raw[0]
   for (const child of Object.values(node)) {
     const quote = detectQuote(child)
     if (quote) return quote
@@ -228,10 +234,10 @@ function detectQuote(node: unknown): Quote | undefined {
 function findCalls(
   program: Program,
   config: ObjectExpression,
-  kind: ExtensionKind = 'plugin',
+  kind: ExtensionKind = extensionKinds.plugin,
 ): Array<{ importName: string; exportName: string; packageName: string; call: CallExpression }> {
-  const node = getValue(config, kind === 'adapter' ? 'adapter' : `${kind}s`)
-  const elements = kind === 'adapter' ? [node] : node?.type === nodeTypes.arrayExpression ? node.elements : []
+  const node = getValue(config, kind === extensionKinds.adapter ? extensionKinds.adapter : `${kind}s`)
+  const elements = kind === extensionKinds.adapter ? [node] : node?.type === nodeTypes.arrayExpression ? node.elements : []
 
   const imports = getImports(program)
   return elements.flatMap((element) => {
@@ -250,7 +256,7 @@ function findDisabled(
   const lines = source.split('\n')
 
   return comments.flatMap((comment) => {
-    const match = comment.type === nodeTypes.lineComment ? comment.value.trim().match(DISABLED_MARKER_PATTERN) : null
+    const match = comment.type === commentTypes.line ? comment.value.trim().match(DISABLED_MARKER_PATTERN) : null
     // Only markers inside this entry, so an array config never touches another entry's plugin.
     if (!match || comment.start < config.start || comment.end > config.end) return []
     // A marker shares its line with nothing, so a trailing `// kubb:disabled ...` after code is not one.
@@ -352,8 +358,8 @@ export function readConfig(source: string): ConfigFileView {
         packageName,
         options: readCallOptions(call),
       })
-      const [adapter] = findCalls(program, config, 'adapter').map(toView)
-      const parsers = findCalls(program, config, 'parser').map(toView)
+      const [adapter] = findCalls(program, config, extensionKinds.adapter).map(toView)
+      const parsers = findCalls(program, config, extensionKinds.parser).map(toView)
       const output = getOutput(config)
       return {
         name: getConfigName(config),
@@ -439,7 +445,7 @@ function setInput(source: string, config: ObjectExpression, input: string, quote
   const value = printValue(input, quote)
   const found = findProperty(config, 'input')
   if (!found) return { source: appendItem(source, config, `input: ${value}`) }
-  if (found.member.type !== nodeTypes.property || found.member.method || found.member.shorthand || found.member.kind !== 'init')
+  if (found.member.type !== nodeTypes.property || found.member.method || found.member.shorthand || found.member.kind !== propertyKinds.init)
     return { reason: 'input is not a plain property' }
   if (isOverridden(config, found.index)) return { reason: 'a spread after input could override it' }
   return { source: replaceText(source, found.member.value.start, found.member.value.end, value) }
@@ -617,7 +623,7 @@ function applyEdit({ source, edit, extensions }: { source: string; edit: ConfigE
     typeof ref === 'string' ? entries.configs.find((entry) => getConfigName(entry) === ref) : entries.configs[ref ?? 0]
   const config = findConfig(parsed)
   if (!config) return { reason: `no config entry found for ${JSON.stringify(ref)}` }
-  const quote = detectQuote(parsed.program) ?? `'`
+  const quote = detectQuote(parsed.program) ?? quotes.single
 
   if (edit.operation === ConfigEditOperation.SET_INPUT) return setInput(source, config, edit.input, quote)
   if (edit.operation === ConfigEditOperation.SET_OUTPUT || edit.operation === ConfigEditOperation.REMOVE_OUTPUT)
@@ -637,14 +643,14 @@ function applyEdit({ source, edit, extensions }: { source: string; edit: ConfigE
   if (edit.operation === ConfigEditOperation.ENABLE_PLUGIN) return enablePlugin(source, parsed.comments, config, edit.plugin)
   if (edit.operation === ConfigEditOperation.ADD_PLUGIN) return addPlugin({ source, parsed, config, edit, quote, extensions })
 
-  const kind = edit.kind ?? 'plugin'
+  const kind = edit.kind ?? extensionKinds.plugin
   // A package can ship several factories (`parserTs`, `parserTsx`), so prefer the export its manifest names.
   const calls = findCalls(parsed.program, config, kind).filter((entry) => entry.packageName === edit.plugin)
   const exportName = extensions.get(edit.plugin)?.manifest.export ?? toExportName(edit.plugin)
   const call = (calls.find((entry) => entry.exportName === exportName) ?? calls[0])?.call
   if (!call) {
-    if (kind === 'adapter') return { reason: `${edit.plugin} is not the config's adapter` }
-    const disabled = kind === 'plugin' && findDisabled(source, parsed.comments, config).some((block) => block.packageName === edit.plugin)
+    if (kind === extensionKinds.adapter) return { reason: `${edit.plugin} is not the config's adapter` }
+    const disabled = kind === extensionKinds.plugin && findDisabled(source, parsed.comments, config).some((block) => block.packageName === edit.plugin)
     return { reason: disabled ? `${edit.plugin} is disabled, enable it first` : `${edit.plugin} is not in the ${kind}s array` }
   }
   return edit.operation === ConfigEditOperation.SET_OPTION ? setOption(source, call, edit.path, edit.value, quote) : removeOption(source, call, edit.path)
