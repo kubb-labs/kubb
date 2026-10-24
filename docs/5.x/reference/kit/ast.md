@@ -20,7 +20,7 @@ navigation:
 
 `ast` is `kubb/kit`'s namespace for the entire AST surface, the same way TypeScript groups its node constructors under `ts.factory`. It carries the `factory` node builders, the `transform` and `collect` visitors, the guards, the ref and string helpers, and the macro engine.
 
-```typescript twoslash [ast-namespace.ts]
+```typescript [ast-namespace.ts]
 import { ast } from 'kubb/kit'
 
 const root = ast.factory.createInput({
@@ -96,7 +96,7 @@ Two visitor functions cover the common traversal patterns: `transform` rewrites 
 
 ### `transform`: synchronous, returns a new tree
 
-```typescript twoslash [transform.ts]
+```typescript [transform.ts]
 import { ast } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
@@ -120,7 +120,7 @@ Use `transform` to change AST structure, normalize inconsistencies, or annotate 
 
 `collect` is a generator function, so it yields matches lazily and you consume it with `for...of` or spread it into an array. When you want the array up front, call `collectSync`, which is the eager counterpart and returns `Array<T>`.
 
-```typescript twoslash [collect.ts]
+```typescript [collect.ts]
 import { ast } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
@@ -147,7 +147,7 @@ Use `collect` to stream matches as you find them, and `collectSync` to find spec
 
 Kubb exports type guards and a `narrowSchema` helper for safe discrimination:
 
-```typescript twoslash [guards.ts]
+```typescript [guards.ts]
 import { ast } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
@@ -182,7 +182,7 @@ The helpers split across two surfaces. `resolveRefName` ships on the `ast` names
 | `enumPropName`   | Convert an enum value into a valid property name.                   |
 | `syncSchemaRef`  | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override. |
 
-```typescript twoslash [refs.ts]
+```typescript [refs.ts]
 import { extractRefName } from 'kubb/kit'
 
 const name = extractRefName('#/components/schemas/Pet')

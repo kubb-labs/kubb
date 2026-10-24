@@ -21,7 +21,7 @@ navigation:
 
 Provide `pluginName`. Methods use `this` to reach the merged resolver, so namespaced methods call `this.name(...)` for active casing.
 
-```typescript twoslash [resolver.ts]
+```typescript [resolver.ts]
 import { createResolver } from 'kubb/kit'
 import type { PluginType, Resolver } from 'kubb/kit'
 
@@ -66,28 +66,14 @@ export const resolver = createResolver<MyPlugin>({
 
 The resulting names and paths go through the resolver's own `name` and `file` conventions. `extname` defaults to `.ts`.
 
-```typescript twoslash [imports.ts]
-import { ast } from 'kubb/kit'
-import type { GeneratorContext, PluginType } from 'kubb/kit'
-
-declare const ctx: GeneratorContext<PluginType>
-const { resolver, root, output } = { ...ctx, output: { path: 'types' } }
-const node = ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet' })
-// ---cut---
+```typescript [imports.ts]
 const imports = resolver.imports({ node, root, output })
 // → [{ kind: 'Import', name: ['pet'], path: '/src/types/pet.ts' }]
 ```
 
 Pass `name` to override how a referenced schema name becomes the imported identifier, for example to point enum refs at a suffixed type name:
 
-```typescript twoslash [importsName.ts]
-import { ast } from 'kubb/kit'
-import type { GeneratorContext, PluginType } from 'kubb/kit'
-
-declare const ctx: GeneratorContext<PluginType>
-const { resolver, root, output } = { ...ctx, output: { path: 'types' } }
-const node = ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet' })
-// ---cut---
+```typescript [importsName.ts]
 const imports = resolver.imports({
   node,
   root,
@@ -105,12 +91,7 @@ Use it to compose resolvers or apply partial overrides.
 > [!TIP]
 > Type a patch with `ResolverPatch<T>` to keep `this` and namespace shapes checked against the target resolver.
 
-```typescript twoslash [merge.ts]
-import { createResolver, Resolver } from 'kubb/kit'
-import type { PluginType } from 'kubb/kit'
-
-const resolver = createResolver<PluginType>({ pluginName: 'plugin-example' })
-// ---cut---
+```typescript [merge.ts]
 const patched = Resolver.merge(resolver, {
   name(name) {
     return `Custom${this.default.name(name)}`

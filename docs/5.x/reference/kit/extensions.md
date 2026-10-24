@@ -28,7 +28,7 @@ Plugins, adapters, and parsers are all extensions. `defineExtension` takes a def
 | `'adapter'` | An adapter that reads the input into the AST.   | `setup`, `build`                              | [Adapters](./adapters)   |
 | `'parser'`  | A parser that prints files to source text.      | `build`                                       | [Parsers](./parsers)     |
 
-```typescript twoslash [plugin-example.ts]
+```typescript [plugin-example.ts]
 import { defineExtension } from 'kubb/kit'
 
 export const pluginExample = defineExtension({
@@ -44,7 +44,7 @@ export const pluginExample = defineExtension({
 
 `meta` holds the extension's identity and the Kubb and Node.js versions it supports. Kubb reads `name` and `compatibility` at runtime. Studio, the kubb.dev registry, and the docs read the rest.
 
-```typescript twoslash [plugin-example.ts]
+```typescript [plugin-example.ts]
 import { defineExtension } from 'kubb/kit'
 
 export const pluginExample = defineExtension({
@@ -89,7 +89,7 @@ Before any plugin runs, Kubb checks each plugin's and parser's `meta.compatibili
 
 A plugin's `dependencies` lists the plugins it builds on, keyed by name. They run first when the config has them. Each entry decides what happens when a plugin is missing or has the wrong version:
 
-```typescript twoslash [plugin-example.ts]
+```typescript [plugin-example.ts]
 import { defineExtension } from 'kubb/kit'
 
 export const pluginExample = defineExtension({
@@ -114,7 +114,7 @@ Kubb checks the record before any plugin runs:
 
 When a dependency depends on the user's options, pass a function. It receives the options and returns the record:
 
-```typescript twoslash [plugin-example.ts]
+```typescript [plugin-example.ts]
 import { defineExtension, type PluginType } from 'kubb/kit'
 
 type PluginExample = PluginType<'plugin-example', { parser?: 'data' | 'faker' }>

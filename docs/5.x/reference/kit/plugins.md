@@ -22,7 +22,7 @@ Plugins are the main extension point in Kubb. A plugin owns its file naming, its
 
 `defineExtension` with `kind: 'plugin'` takes a definition object and returns a factory. Call it with the user's options to get a `Plugin`. Kubb runs `setup` before the plugin's generators, and the value `setup` returns becomes the plugin's resolved options.
 
-```typescript twoslash [plugin-example.ts]
+```typescript [plugin-example.ts]
 import { defineExtension, type PluginType } from 'kubb/kit'
 
 type PluginExample = PluginType<'plugin-example', { prefix?: string }, { prefix: string }>
@@ -86,7 +86,7 @@ Named imports from JSON need a bundler that inlines them. See [Extension manifes
 
 ::::code-group
 
-```typescript twoslash [kubb argument]
+```typescript [kubb argument]
 import { createResolver, defineExtension, defineGenerator } from 'kubb/kit'
 
 const resolver = createResolver({ pluginName: 'plugin-example' })
@@ -104,7 +104,7 @@ export const pluginExample = defineExtension({
 })
 ```
 
-```typescript twoslash [Composables]
+```typescript [Composables]
 import { addGenerator, createResolver, defineExtension, defineGenerator, requirePlugin, setResolver } from 'kubb/kit'
 
 const resolver = createResolver({ pluginName: 'plugin-example' })
