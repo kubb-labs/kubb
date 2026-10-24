@@ -657,18 +657,6 @@ describe('editConfig', () => {
     })
   })
 
-  it('still accepts the set and remove operation names from before the rename', () => {
-    const source = `import { pluginTs } from '@kubb/plugin-ts'\nexport default defineConfig({ plugins: [pluginTs({ a: 1, b: 2 })] })\n`
-    const edits = [
-      { operation: 'set', plugin: '@kubb/plugin-ts', path: ['a'], value: 3 },
-      { operation: 'remove', plugin: '@kubb/plugin-ts', path: ['b'] },
-    ] as unknown as Array<ConfigEdit>
-    const result = editConfig({ source, edits })
-
-    expect(result.outcomes.map((outcome) => outcome.applied)).toStrictEqual([true, true])
-    expect(result.source).toBe(source.replace('a: 1, b: 2', 'a: 3'))
-  })
-
   describe('edits Studio sends malformed', () => {
     const source = `import { pluginTs } from '@kubb/plugin-ts'\n\nexport default defineConfig({\n  plugins: [pluginTs({ arrayType: 'generic' })],\n})\n`
     const good: ConfigEdit = { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 'array' }

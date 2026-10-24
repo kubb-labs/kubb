@@ -43,8 +43,6 @@ const OPERATIONS = new Set<string>(Object.values(ConfigEditOperation))
 const OPTION_OPERATIONS = new Set<string>([ConfigEditOperation.SET_OPTION, ConfigEditOperation.REMOVE_OPTION])
 const OUTPUT_OPERATIONS = new Set<string>([ConfigEditOperation.SET_OUTPUT, ConfigEditOperation.REMOVE_OUTPUT])
 const KINDS = new Set<string>(Object.values(extensionKinds))
-// shortcut: accepts the operation names from before the rename for one release, drop once every Studio sends the new names.
-const LEGACY_OPERATIONS: Record<string, ConfigEditOperation> = { set: ConfigEditOperation.SET_OPTION, remove: ConfigEditOperation.REMOVE_OPTION }
 
 /** Identifiers the editor matches by name. */
 const identifiers = { defineConfig: 'defineConfig', require: 'require', module: 'module', exports: 'exports' } as const
@@ -768,13 +766,11 @@ export function editConfig({ source, edits, extensions = new Map() }: { source: 
   let current = source
 
   const outcomes = edits.map((edit): ConfigEditOutcome => {
-    const legacy = typeof edit === 'object' && edit !== null ? LEGACY_OPERATIONS[edit.operation] : undefined
-    const normalized = legacy ? ({ ...edit, operation: legacy } as ConfigEdit) : edit
-    const invalid = validateEdit(normalized)
+    const invalid = validateEdit(edit)
     if (invalid) return { edit, applied: false, reason: invalid }
 
     try {
-      const result = applyEdit({ source: current, edit: normalized, extensions })
+      const result = applyEdit({ source: current, edit, extensions })
       if ('reason' in result) return { edit, applied: false, reason: result.reason }
       current = result.source
       return { edit, applied: true }
