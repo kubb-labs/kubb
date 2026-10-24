@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises'
-import { Diagnostics, type ExtensionKind } from '@kubb/core'
+import { Diagnostics, type ExtensionKind, isPackageName } from '@kubb/core'
 import { getErrorMessage, read } from '@internals/utils'
 import { detectCodeFormat, parseExpression, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
@@ -56,7 +56,17 @@ function invalidEdit(edit: ConfigEdit): string | undefined {
   const isOutput = operation === ConfigEditOperation.SET_OUTPUT || operation === ConfigEditOperation.REMOVE_OUTPUT
   if (!isOutput && (typeof plugin !== 'string' || !plugin)) return 'the edit names no plugin'
   if (kind !== undefined && (typeof kind !== 'string' || !KINDS.has(kind))) return `unknown kind ${JSON.stringify(kind)}`
-  if (kind !== undefined && operation !== ConfigEditOperation.SET && operation !== ConfigEditOperation.REMOVE)
+  if (operation === ConfigEditOperation.ADD_PLUGIN && kind !== undefined && kind !== 'plugin' && kind !== 'parser')
+    return 'add-plugin adds a plugin or a parser'
+  if (operation === ConfigEditOperation.REMOVE_EXTENSION && kind !== undefined && kind !== 'plugin' && kind !== 'parser')
+    return 'remove-extension removes a plugin or a parser, since the config needs its adapter'
+  if (
+    kind !== undefined &&
+    operation !== ConfigEditOperation.SET &&
+    operation !== ConfigEditOperation.REMOVE &&
+    operation !== ConfigEditOperation.ADD_PLUGIN &&
+    operation !== ConfigEditOperation.REMOVE_EXTENSION
+  )
     return `${operation} edits the plugins array, so it takes no kind`
   if (isOutput || operation === ConfigEditOperation.SET || operation === ConfigEditOperation.REMOVE) {
     if (!Array.isArray(path) || !path.every((key) => typeof key === 'string' && key)) return 'path must be a list of option names'
@@ -282,11 +292,12 @@ function insertItem(source: string, container: ObjectNode | ArrayNode, text: str
   return `${source.slice(0, lastRange.end)}${comma ? '' : ','}${source.slice(lastRange.end, lineEnd)}\n${indent}${text}${comma ? ',' : ''}${source.slice(lineEnd)}`
 }
 
-/** Drops the member at `index` from an object literal, with its own lines when it sits on them alone. */
-function removeMember(source: string, node: ObjectNode, index: number): string {
-  if (node.properties.length === 1) return splice(source, rangeOf(node).start, rangeOf(node).end, '{}')
+/** Drops the item at `index` from an object or array literal, with its own lines when it sits on them alone. */
+function removeMember(source: string, node: ObjectNode | ArrayNode, index: number): string {
+  const items: Array<ASTNode> = node.type === 'ObjectExpression' ? node.properties : node.elements.filter((element) => element !== null)
+  if (items.length === 1) return splice(source, rangeOf(node).start, rangeOf(node).end, node.type === 'ObjectExpression' ? '{}' : '[]')
 
-  const { start, end } = rangeOf(node.properties[index]!)
+  const { start, end } = rangeOf(items[index]!)
   const lineStart = source.lastIndexOf('\n', start - 1) + 1
   const nextNewline = source.indexOf('\n', end)
   const lineEnd = nextNewline === -1 ? source.length : nextNewline
@@ -294,8 +305,8 @@ function removeMember(source: string, node: ObjectNode, index: number): string {
     return splice(source, lineStart, Math.min(lineEnd + 1, source.length))
   }
 
-  const next = node.properties[index + 1]
-  return next ? splice(source, start, rangeOf(next).start) : splice(source, rangeOf(node.properties[index - 1]!).end, end)
+  const next = items[index + 1]
+  return next ? splice(source, start, rangeOf(next).start) : splice(source, rangeOf(items[index - 1]!).end, end)
 }
 
 /** The module a `require('...')` call loads, when `node` is one. */
@@ -667,8 +678,19 @@ function insertImport(source: string, { mod, kind }: ParsedConfig, importName: s
 }
 
 /**
- * Adds a `pluginX(...)` call to a config's plugins array, and its import. Replaying the same add is
- * a no-op, while an import name collision with an unrelated package remains an error.
+ * The parsers `defineConfig` applies when a config sets no `parsers`, by import name. Adding a parser
+ * to such a config writes these too, or the new array would replace them.
+ */
+const DEFAULT_PARSERS = [
+  { importName: 'parserTs', packageName: '@kubb/parser-ts' },
+  { importName: 'parserTsx', packageName: '@kubb/parser-ts' },
+  { importName: 'parserMd', packageName: '@kubb/parser-md' },
+] as const
+
+/**
+ * Adds a `pluginX(...)` call to a config's `plugins` array, or a `parserX(...)` call to its `parsers`
+ * array, and its import. Replaying the same add is a no-op, while an import name collision with an
+ * unrelated package remains an error.
  */
 function applyAddPlugin({
   source,
@@ -685,26 +707,54 @@ function applyAddPlugin({
   quote: Quote
   extensions: InstalledExtensions
 }): EditResult {
-  if (!isAllowedPlugin({ packageName: edit.plugin, extensions })) {
-    return { reason: `"${edit.plugin}" is not a @kubb/plugin-* package or an installed Kubb plugin` }
+  const kind = edit.kind ?? 'plugin'
+  const allowed =
+    kind === 'parser'
+      ? isPackageName(edit.plugin) && extensions.get(edit.plugin)?.manifest.kind === 'parser'
+      : isAllowedPlugin({ packageName: edit.plugin, extensions })
+  if (!allowed) {
+    return {
+      reason:
+        kind === 'parser' ? `"${edit.plugin}" is not an installed Kubb parser` : `"${edit.plugin}" is not a @kubb/plugin-* package or an installed Kubb plugin`,
+    }
   }
 
   const importName = extensions.get(edit.plugin)?.manifest.export ?? toExportName(edit.plugin)
   if (!IDENTIFIER.test(importName)) return { reason: `"${importName}" is not a valid import name` }
-  if (factoryCalls(parsed.mod, config).some((plugin) => plugin.packageName === edit.plugin)) return { source }
+  // A package can ship several parsers (`parserTs` and `parserTsx`), so a parser is matched by its export too.
+  if (factoryCalls(parsed.mod, config, kind).some((entry) => entry.packageName === edit.plugin && (kind === 'plugin' || entry.exportName === importName)))
+    return { source }
 
-  const taken = importedFrom(parsed.mod).get(importName)?.from
+  const imports = importedFrom(parsed.mod)
+  const taken = imports.get(importName)?.from
   if (taken && taken !== edit.plugin) return { reason: `${importName} is already imported from ${taken}` }
 
   const options = edit.options ?? {}
   if (!isOptionValue(options)) return { reason: 'the options are not literals that can be written to a config file' }
+  const call = `${importName}(${Object.keys(options).length ? printValue(options, quote) : ''})`
 
-  const plugins = property(config, 'plugins')
-  if (plugins?.type !== 'ArrayExpression') return { reason: 'plugins is not an array literal' }
+  const key = kind === 'parser' ? 'parsers' : 'plugins'
+  const array = property(config, key)
+  // A config without `parsers` runs the defaults, so the new array lists them before the added parser.
+  const defaults = kind === 'parser' && !array ? DEFAULT_PARSERS.filter((parser) => parser.importName !== importName) : []
+  if (array && array.type !== 'ArrayExpression') return { reason: `${key} is not an array literal` }
+  if (!array && kind === 'plugin') return { reason: 'plugins is not an array literal' }
+  for (const parser of defaults) {
+    const from = imports.get(parser.importName)?.from
+    if (from && from !== parser.packageName) return { reason: `${parser.importName} is already imported from ${from}` }
+  }
 
   // The array sits below the imports, so adding to it first leaves the import lines where they are.
-  const next = insertItem(source, plugins, `${importName}(${Object.keys(options).length ? printValue(options, quote) : ''})`)
-  return { source: taken ? next : insertImport(next, parsed, importName, edit.plugin) }
+  const next = array
+    ? insertItem(source, array, call)
+    : insertItem(source, config, `parsers: [${[...defaults.map((parser) => `${parser.importName}()`), call].join(', ')}]`)
+  const missing = [...defaults.filter((parser) => !imports.has(parser.importName)), ...(taken ? [] : [{ importName, packageName: edit.plugin }])]
+  // One import per package, so `parserTs` and `parserTsx` share a line.
+  const byPackage = new Map<string, Array<string>>()
+  for (const item of missing) byPackage.set(item.packageName, [...(byPackage.get(item.packageName) ?? []), item.importName])
+  return {
+    source: [...byPackage].reduceRight((current, [packageName, names]) => insertImport(current, parsed, names.join(', '), packageName), next),
+  }
 }
 
 /**
@@ -764,6 +814,94 @@ function enablePlugin(source: string, config: ObjectNode, plugin: string): EditR
   return { source: lines.join('\n') }
 }
 
+/**
+ * Drops the imports of `names` that nothing else in the file mentions: the whole statement when none
+ * of its names is left, otherwise only those specifiers of an `import { ... }`.
+ */
+function removeUnusedImports(source: string, names: Set<string>): string {
+  const parsed = parseConfigs(source)
+  if ('reason' in parsed) return source
+  const localNames = (statement: ASTNode): Array<string> => {
+    if (statement.type === 'ImportDeclaration') return statement.specifiers.map((specifier) => specifier.local.name)
+    if (statement.type !== 'VariableDeclaration' || statement.declarations.length !== 1) return []
+    const [declarator] = statement.declarations
+    if (requiredModule(declarator!.init) === undefined || declarator!.id.type !== 'ObjectPattern') return []
+    return declarator!.id.properties.flatMap((entry) => (entry.type === 'ObjectProperty' && entry.value.type === 'Identifier' ? [entry.value.name] : []))
+  }
+
+  // From the last statement up, so the ranges of the earlier ones stay valid.
+  return bodyOf(parsed.mod).reduceRight((current, statement) => {
+    const local = localNames(statement)
+    const { start, end } = rangeOf(statement)
+    const rest = current.slice(0, start) + current.slice(end)
+    const unused = local.filter((name) => names.has(name) && !new RegExp(`(?<![\\w$])${name.replaceAll('$', '\\$')}(?![\\w$])`).test(rest))
+    if (!unused.length) return current
+
+    if (unused.length === local.length) {
+      const lineStart = current.lastIndexOf('\n', start - 1) + 1
+      const lineEnd = current.indexOf('\n', end)
+      // At the top of the file, the blank line after the import goes too, so the file does not start with one.
+      const after = lineEnd === -1 ? current.length : lineEnd + 1
+      return splice(current, lineStart, lineStart === 0 && current[after] === '\n' ? after + 1 : after)
+    }
+    if (statement.type !== 'ImportDeclaration') return current
+    const kept = statement.specifiers
+      .filter((specifier) => !unused.includes(specifier.local.name))
+      .map((specifier) => current.slice(rangeOf(specifier).start, rangeOf(specifier).end))
+    const braces = current.slice(start, end).match(/\{[^}]*\}/)
+    if (braces?.index === undefined) return current
+    return splice(current, start + braces.index, start + braces.index + braces[0].length, `{ ${kept.join(', ')} }`)
+  }, source)
+}
+
+/**
+ * Removes every call of a plugin or parser package from a config, and the block `disable-plugin`
+ * commented out, then the imports nothing uses anymore. Removing what the config does not hold is a
+ * no-op. Refuses to empty `parsers`, since a config with no parser cannot print files.
+ */
+function applyRemoveExtension({
+  source,
+  edit,
+  locate,
+}: {
+  source: string
+  edit: Extract<ConfigEdit, { operation: typeof ConfigEditOperation.REMOVE_EXTENSION }>
+  locate: (source: string) => { mod: ProxifiedModule; config: ObjectNode } | undefined
+}): EditResult {
+  const kind = edit.kind ?? 'plugin'
+  const key = kind === 'parser' ? 'parsers' : 'plugins'
+  const names = new Set<string>()
+  let current = source
+
+  // One call at a time, re-parsing in between, since each removal moves the ones after it.
+  for (;;) {
+    const located = locate(current)
+    if (!located) return { reason: 'the config file could not be parsed' }
+    const array = property(located.config, key)
+    const calls = factoryCalls(located.mod, located.config, kind).filter((entry) => entry.packageName === edit.plugin)
+    const [first] = calls
+    if (!first || array?.type !== 'ArrayExpression') break
+    const elements = array.elements.filter((element) => element !== null)
+    if (kind === 'parser' && elements.length === calls.length) return { reason: `${edit.plugin} is the last parser in the parsers array` }
+    names.add(first.importName)
+    current = removeMember(current, array, elements.indexOf(first.call))
+  }
+
+  const located = kind === 'plugin' ? locate(current) : undefined
+  const block = located && disabledBlocks(current, located.config).find((entry) => entry.packageName === edit.plugin)
+  if (block) {
+    for (const line of block.code) {
+      const callee = line.trim().match(/^([A-Za-z_$][\w$]*)\(/)?.[1]
+      if (callee) names.add(callee)
+    }
+    const lines = current.split('\n')
+    lines.splice(block.line - 1, block.end - block.line + 1)
+    current = lines.join('\n')
+  }
+
+  return { source: names.size ? removeUnusedImports(current, names) : current }
+}
+
 /** Applies one edit to `source`. Every edit re-parses the file, since the previous one rewrote it. */
 function applyEdit({ source, edit, quote, extensions }: { source: string; edit: ConfigEdit; quote: Quote; extensions: InstalledExtensions }): EditResult {
   const parsed = parseConfigs(source)
@@ -792,6 +930,15 @@ function applyEdit({ source, edit, quote, extensions }: { source: string; edit: 
   }
   if (edit.operation === ConfigEditOperation.ENABLE_PLUGIN) return enablePlugin(source, config, edit.plugin)
   if (edit.operation === ConfigEditOperation.ADD_PLUGIN) return applyAddPlugin({ source, parsed, config, edit, quote, extensions })
+  if (edit.operation === ConfigEditOperation.REMOVE_EXTENSION) {
+    const locate = (next: string) => {
+      const reparsed = parseConfigs(next)
+      if ('reason' in reparsed) return undefined
+      const found = findConfig(reparsed)
+      return found ? { mod: reparsed.mod, config: found } : undefined
+    }
+    return applyRemoveExtension({ source, edit, locate })
+  }
 
   const kind = edit.kind ?? 'plugin'
   // A package can ship several factories (`parserTs` and `parserTsx`), so among its calls prefer the

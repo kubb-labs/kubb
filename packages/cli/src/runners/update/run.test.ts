@@ -142,4 +142,12 @@ describe('kubb update', () => {
     expect(output.join('\n')).toContain('1 of 1 up to date')
     expect(output.join('\n')).toContain('No updates for acme/plugin-y.')
   })
+
+  it('exits with code 1 when a named extension is not installed', async () => {
+    await run({ ids: ['acme/plugin-missing'], dryRun: false, yes: true })
+
+    expect(output.join('\n')).toContain('acme/plugin-missing is not installed, or not in the registry.')
+    expect(installPackages).not.toHaveBeenCalled()
+    expect(process.exitCode).toBe(1)
+  })
 })

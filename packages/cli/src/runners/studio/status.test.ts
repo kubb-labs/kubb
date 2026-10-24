@@ -20,6 +20,7 @@ const credentials: Credentials = {
       allowConfigEdit: false,
       allowInstall: false,
       allowUpdate: false,
+      allowRemove: false,
       allowSaveInput: false,
       allowExec: false,
     },
@@ -42,7 +43,8 @@ describe('formatStatus', () => {
       '  Permissions  ✓ read source     ✓ read spec',
       '               ✖ write files     ✖ edit config',
       '               ✖ add plugins     ✖ update plugins',
-      '               ✖ save input      ✖ run tools        --allow-write --allow-config-edit --allow-install --allow-update --allow-save-input --allow-exec',
+      '               ✖ remove plugins  ✖ save input',
+      '               ✖ run tools        --allow-write --allow-config-edit --allow-install --allow-update --allow-remove --allow-save-input --allow-exec',
       '  Logs         ~/.kubb/worker.log',
     ])
   })
