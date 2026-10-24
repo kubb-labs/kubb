@@ -63,7 +63,7 @@ export function parseSource(source: string): ParsedSource {
     if (diagnostics.some((diagnostic) => diagnostic.severity === diagnosticSeverities.error)) return { reason: 'the config file could not be parsed' }
     return { program, comments }
   } catch (error) {
-    return { reason: `the config file could not be parsed: ${getErrorMessage(error)}` }
+    return { reason: `the config parser could not load on this platform: ${getErrorMessage(error)}` }
   }
 }
 
