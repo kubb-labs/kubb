@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { escapePointerToken, getElapsedMs, toError } from '@internals/utils'
+import { getElapsedMs, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
@@ -94,20 +94,16 @@ function assertPluginEntry(entry: unknown, index: number): asserts entry is Plug
 }
 
 /**
- * Where a generator crashed: a label naming the node and, when the node has one, a JSON pointer
- * to it. Built from the node fields so core stays adapter-agnostic.
+ * Where a generator crashed: a label naming the node and, when the adapter set one, the node's
+ * pointer into the input.
  */
 function getCrashSite(node: SchemaNode | OperationNode): { label: string; location?: DiagnosticLocation } {
   if (node.kind === 'Schema') {
-    return node.name
-      ? { label: `schema "${node.name}"`, location: { kind: 'schema', pointer: `#/components/schemas/${escapePointerToken(node.name)}` } }
-      : { label: 'an inline schema' }
+    const label = node.name ? `schema "${node.name}"` : 'an inline schema'
+    return { label, location: node.pointer ? { kind: 'schema', pointer: node.pointer } : undefined }
   }
-  if (!node.method || !node.path) return { label: `operation "${node.operationId}"` }
-  return {
-    label: `operation "${node.operationId}" (${node.method.toUpperCase()} ${node.path})`,
-    location: { kind: 'operation', pointer: `#/paths/${escapePointerToken(node.path)}/${node.method.toLowerCase()}` },
-  }
+  const label = node.method && node.path ? `operation "${node.operationId}" (${node.method.toUpperCase()} ${node.path})` : `operation "${node.operationId}"`
+  return { label, location: node.pointer ? { kind: 'operation', pointer: node.pointer } : undefined }
 }
 
 export class KubbDriver {

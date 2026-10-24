@@ -24,6 +24,10 @@ type SchemaWithMetadata = {
 type GetSchemasResult = {
   schemas: Record<string, SchemaObject>
   /**
+   * The JSON pointer each key in `schemas` was read from.
+   */
+  pointers: Map<string, string>
+  /**
    * Maps nested schema pointers and collision-renamed component pointers to the unique
    * names used as keys in `schemas`. Components with their original names and no nested
    * definitions are not recorded.
@@ -244,6 +248,7 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
 
   const schemas: Record<string, SchemaObject> = {}
   const renames = new Map<string, string>()
+  const pointers = new Map<string, string>()
 
   for (const [, items] of normalizedNames) {
     const isSingle = items.length === 1
@@ -254,9 +259,10 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
       const suffix = isSingle ? '' : hasMultipleSources ? semanticSuffixes[item.source] : index ? String(index + 1) : ''
       const uniqueName = item.originalName + suffix
       schemas[uniqueName] = item.schema
+      pointers.set(uniqueName, item.pointer)
       if (suffix || item.nested) renames.set(item.pointer, uniqueName)
     })
   }
 
-  return { schemas: sortSchemas(schemas, renames), renames }
+  return { schemas: sortSchemas(schemas, renames), renames, pointers }
 }

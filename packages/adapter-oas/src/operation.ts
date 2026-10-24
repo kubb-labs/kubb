@@ -1,4 +1,4 @@
-import { pascalCase } from '@internals/utils'
+import { escapePointerToken, pascalCase } from '@internals/utils'
 import { ast } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
@@ -229,6 +229,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const { refs, contentType, options, parseSchema } = ctx
   const operationId = getOperationId(operation)
   const operationName = operationId ? pascalCase(operationId) : undefined
+  const pointer = `#/paths/${escapePointerToken(operation.path)}/${operation.method.toLowerCase()}`
   const parameters = getParameters({ operation, refs }).map((param) => parseParameter({ options, parseSchema, param, parentName: operationName }))
 
   // A configured contentType restricts the body to that one media type; otherwise every declared one is kept.
@@ -284,6 +285,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     }
 
     return ast.factory.createResponse({
+      pointer: `${pointer}/responses/${statusCode}`,
       statusCode: statusCode as ast.StatusCode,
       description: response?.description,
       content: responseContent,
@@ -298,6 +300,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   }
 
   return ast.factory.createOperation({
+    pointer,
     operationId,
     protocol: 'http',
     method: operation.method.toUpperCase() as ast.HttpMethod,

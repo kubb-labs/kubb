@@ -12,8 +12,8 @@ import { isHandledFormat } from './emit/schemaShape.ts'
  * Refs are not followed, so the resolved schema is reported under its own walk.
  * Reports land in the active build run, are a no-op outside one, and repeats are deduped by the build.
  */
-export function scanSchema({ node, name }: { node: ast.SchemaNode; name: string }): void {
-  visit(node, `#/components/schemas/${escapePointerToken(name)}`)
+export function scanSchema(node: ast.SchemaNode): void {
+  if (node.pointer) visit(node, node.pointer)
 }
 
 function visit(node: ast.SchemaNode, pointer: string): void {

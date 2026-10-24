@@ -82,11 +82,13 @@ export const adapterOas = defineExtension<AdapterOas>({
       document,
       refs,
       schemas,
+      pointers,
       parseSchema,
     }: {
       document: Document
       refs: ReturnType<typeof createRefs>
       schemas: Record<string, SchemaObject>
+      pointers: Map<string, string>
       parseSchema: ReturnType<typeof createSchemaParser>
     }): ast.InputNode {
       const parsedByName = new Map<string, ast.SchemaNode>()
@@ -95,9 +97,9 @@ export const adapterOas = defineExtension<AdapterOas>({
       const discriminatorParentNodes: Array<ast.SchemaNode> = []
 
       for (const [name, schema] of Object.entries(schemas)) {
-        const node = parseSchema({ schema, name })
+        const node = { ...parseSchema({ schema, name }), pointer: pointers.get(name) }
         parsedByName.set(name, node)
-        scanSchema({ node, name })
+        scanSchema(node)
         if (node.type === 'ref' && node.name && node.name !== name) {
           refAliasMap.set(name, node)
         }
@@ -129,7 +131,7 @@ export const adapterOas = defineExtension<AdapterOas>({
         const parsed = parsedByName.get(name)!
         const child = discriminatorChildMap?.get(name)
         const base = child ? patchDiscriminatorNode(parsed, child) : parsed
-        const node = aliased ? { ...aliased, name } : base
+        const node = aliased ? { ...aliased, name, pointer: parsed.pointer } : base
 
         schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)
       }
@@ -203,10 +205,10 @@ export const adapterOas = defineExtension<AdapterOas>({
           parsedDocument = document
 
           const refs = createRefs(document)
-          const { schemas, renames } = getSchemas(document, { contentType }, refs)
+          const { schemas, renames, pointers } = getSchemas(document, { contentType }, refs)
           const parseSchema = createSchemaParser({ document, refs, renames, options: parserOptions })
 
-          return parseInput({ document, refs, schemas, parseSchema })
+          return parseInput({ document, refs, schemas, pointers, parseSchema })
         })()
         inputCache.set(source, promise)
         return promise.catch((error: unknown) => {

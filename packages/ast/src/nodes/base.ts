@@ -40,6 +40,12 @@ export type BaseNode = {
    * Node discriminator.
    */
   kind: NodeKind
+  /**
+   * Where the node comes from in the input, in the form the adapter's `locate` reads. Document
+   * adapters such as OpenAPI and AsyncAPI use an RFC 6901 JSON pointer, for example
+   * `#/components/schemas/Pet`. Plugins can copy it to the code nodes they emit.
+   */
+  pointer?: string
 }
 
 /** `Omit` applied to each member of a union, so the union survives. */
