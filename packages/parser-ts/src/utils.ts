@@ -106,6 +106,13 @@ const nodeTypes = {
   exportNamedDeclaration: 'ExportNamedDeclaration',
 } as const
 
+/**
+ * `importKind` and `exportKind` values this module reads from the yuku AST.
+ */
+const declarationKinds = {
+  type: 'type',
+} as const
+
 function nameOf(node: ModuleExportName): string {
   return node.type === nodeTypes.literal ? node.value : node.name
 }
@@ -127,7 +134,7 @@ function toImportNodes(statement: ProgramStatement, filePath: string): Array<ast
 
   const specifier = statement.source.value
   const target = specifier.startsWith('.') ? { path: resolve(dirname(filePath), specifier), root: filePath } : { path: specifier }
-  const isTypeOnly = statement.importKind === 'type'
+  const isTypeOnly = statement.importKind === declarationKinds.type
   const nodes: Array<ast.ImportNode> = []
   const named = statement.specifiers.filter((element) => element.type === nodeTypes.importSpecifier)
 
@@ -136,8 +143,8 @@ function toImportNodes(statement: ProgramStatement, filePath: string): Array<ast
     if (element.type === nodeTypes.importNamespaceSpecifier)
       nodes.push(ast.factory.createImport({ name: element.local.name, ...target, isTypeOnly, isNameSpace: true }))
   }
-  const values = named.filter((element) => element.importKind !== 'type')
-  const types = named.filter((element) => element.importKind === 'type')
+  const values = named.filter((element) => element.importKind !== declarationKinds.type)
+  const types = named.filter((element) => element.importKind === declarationKinds.type)
   if (values.length) nodes.push(ast.factory.createImport({ name: values.map(toImportName), ...target, isTypeOnly }))
   if (types.length) nodes.push(ast.factory.createImport({ name: types.map(toImportName), ...target, isTypeOnly: true }))
 
@@ -152,7 +159,7 @@ function toExportNodes(statement: ProgramStatement): Array<ast.ExportNode> {
   if (!statement.source || statement.attributes.length) return []
 
   const path = statement.source.value
-  const isTypeOnly = statement.exportKind === 'type'
+  const isTypeOnly = statement.exportKind === declarationKinds.type
 
   if (statement.type === nodeTypes.exportAllDeclaration) {
     return [
@@ -163,7 +170,7 @@ function toExportNodes(statement: ProgramStatement): Array<ast.ExportNode> {
   }
   if (
     statement.specifiers.some(
-      (element) => element.exportKind === 'type' || element.exported.type === nodeTypes.literal || nameOf(element.exported) !== nameOf(element.local),
+      (element) => element.exportKind === declarationKinds.type || element.exported.type === nodeTypes.literal || nameOf(element.exported) !== nameOf(element.local),
     )
   )
     return []
