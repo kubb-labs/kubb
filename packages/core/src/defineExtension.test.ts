@@ -70,6 +70,15 @@ describe('checkCompatibility', () => {
     )
   })
 
+  it('skips the Kubb range on a canary build', async () => {
+    vi.resetModules()
+    vi.doMock('../package.json', () => ({ version: '0.0.0-canary-20261024172631' }))
+    const { checkCompatibility: checkCanary } = await import('./defineExtension.ts')
+
+    expect(() => checkCanary({ name: 'plugin-a', compatibility: { kubb: '>=5.8.3' } })).not.toThrow()
+    vi.doUnmock('../package.json')
+  })
+
   it('throws KUBB_INCOMPATIBLE_EXTENSION for a Node.js range the running process does not satisfy', () => {
     expect(() => checkCompatibility({ name: 'plugin-a', compatibility: { node: '<1' } })).toThrow(
       expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.incompatibleExtension }) }),
