@@ -187,6 +187,18 @@ describe('kubb add', () => {
     expect(printed).toContain('Add the snippet above, then run kubb generate.')
   })
 
+  it('refuses a parser before installing it when there is no config', async () => {
+    await rm(path.join(cwd, 'kubb.config.ts'))
+    stubFetch({
+      body: registryIndex([registryEntry({ name: 'parser-yaml', version: '1.2.0', kind: extensionKinds.parser, manifest: { export: 'parserYaml' } })]),
+    })
+
+    await run({ id: 'acme/parser-yaml', yes: true, install: true })
+
+    expect(installPackages).not.toHaveBeenCalled()
+    expect(process.exitCode).toBe(1)
+  })
+
   it('writes a parser into the config with the default parsers, and installs those at the project kubb version', async () => {
     await mkdir(path.join(cwd, 'node_modules', 'kubb'), { recursive: true })
     await writeFile(path.join(cwd, 'node_modules', 'kubb', 'package.json'), JSON.stringify({ name: 'kubb', version: '5.13.0' }))

@@ -193,7 +193,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       })
 
     const configFile = manifest.kind === extensionKinds.adapter ? undefined : foundConfig
-    if (manifest.kind === extensionKinds.plugin && !configFile)
+    if (manifest.kind !== extensionKinds.adapter && !configFile)
       throw new Diagnostics.Error({
         code: Diagnostics.code.unknown,
         severity: 'error',
