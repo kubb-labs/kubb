@@ -1,6 +1,6 @@
 import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { getRelativePath, printExport, printImport, printSource } from './utils.ts'
+import { getRelativePath, print as printFragments, printExport, printImport, printSource } from './utils.ts'
 
 function print(...nodes: Array<ast.CodeNode>): string {
   return printSource(ast.factory.createSource({ nodes }))
@@ -174,5 +174,15 @@ describe('printExport', () => {
     { when: 'name is a string', node: { name: 'Pet', path: './Pet.ts' }, expected: "export { Pet } from './Pet.ts'" },
   ])('returns $expected when $when', ({ node, expected }) => {
     expect(printExport(node)).toBe(expected)
+  })
+})
+
+describe('print', () => {
+  it('joins string fragments with a newline', () => {
+    expect(printFragments('type A = string', 'type B = number')).toBe('type A = string\ntype B = number')
+  })
+
+  it('asks for a TypeScript with the compiler API when it gets a compiler node and none is installed', () => {
+    expect(() => printFragments({ kind: 1 })).toThrow('needs `typescript` 5 or 6')
   })
 })

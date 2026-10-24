@@ -170,6 +170,35 @@ describe('parserTs', () => {
       expect(copy(parserTs(), source)).toBe(source)
     })
 
+    it.each([
+      [
+        'comments and semicolons',
+        ["import a from 'a'; // a", '/* b */', 'import { b } from "b";', 'a(b)'],
+        ["import a from 'a'", "import { b } from 'b'", '', '// a', '/* b */', '', 'a(b)'],
+      ],
+      [
+        'a multi-line named import',
+        ['import {', '  a,', '  type B,', "} from './a.ts'", 'a<B>()'],
+        ["import type { B } from './a'", "import { a } from './a'", '', 'a<B>()'],
+      ],
+      ['a namespace import', ["import * as a from './a.ts'", 'a()'], ["import * as a from './a'", '', 'a()']],
+      ['a default import named type', ["import type from './a.ts'", 'type()'], ["import type from './a'", '', 'type()']],
+      ['an export star with an alias', ["export * as a from './a.ts'", 'b()'], ["export * as a from './a'", '', 'b()']],
+      ['an import below other code, as TypeScript hoists it', ['a()', "import { b } from './b.ts'"], ['a()', '', "import { b } from './b'"]],
+    ])('lifts %s', (_, lines, expected) => {
+      expect(copy(parserTs(), lines.join('\n'))).toBe(expected.join('\n'))
+    })
+
+    it.each([
+      ['an empty named import, which still runs the module', ["'use client'", "import {} from './setup.ts'", "import { b } from './b.ts'", 'b()']],
+      ['an aliased re-export', ["export { a as b } from './a.ts'", 'c()']],
+      ['a template literal that looks like an import', ["const a = `import b from 'c'`"]],
+    ])('keeps the source as written for %s', (_, lines) => {
+      const source = lines.join('\n')
+
+      expect(copy(parserTs(), source)).toBe(source)
+    })
+
     it.each(['#!/usr/bin/env node', "'use client'"])('keeps %s above the lifted imports', (header) => {
       const source = [header, "import { api } from './api.ts'", 'api()'].join('\n')
 

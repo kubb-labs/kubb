@@ -1,11 +1,10 @@
 import { defineExtension } from '@kubb/core'
-import type * as ts from '@typescript/typescript6'
 import { parserTs, type ParserTsOptions } from './parserTs.ts'
+import type { TsNode } from './utils.ts'
 
 /**
- * Kubb parser for `.tsx` and `.jsx` files. Delegates to `parserTs` because the
- * TypeScript compiler handles JSX natively via `ScriptKind.TSX`, so it shares the
- * same `extension` option.
+ * Kubb parser for `.tsx` and `.jsx` files. Delegates to `parserTs`, since JSX
+ * prints as text the same way, so it shares the same `extension` option.
  *
  * Add to the `parsers` array on `defineConfig` when generating components for
  * React (or any framework that emits JSX).
@@ -25,7 +24,7 @@ import { parserTs, type ParserTsOptions } from './parserTs.ts'
  * })
  * ```
  */
-export const parserTsx = defineExtension<ParserTsOptions, object, ts.Node>({
+export const parserTsx = defineExtension<ParserTsOptions, object, string | TsNode>({
   kind: 'parser',
   meta: { name: 'tsx', issues: 'https://github.com/kubb-labs/kubb/issues' },
   build: (options) => ({ ...parserTs(options), extNames: ['.tsx', '.jsx'] }),

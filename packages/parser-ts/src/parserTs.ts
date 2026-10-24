@@ -1,9 +1,8 @@
 import { ast } from '@kubb/ast'
 import { defineExtension } from '@kubb/core'
-import type * as ts from '@typescript/typescript6'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
-import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath, splitModuleDeclarations } from './utils.ts'
+import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath, splitModuleDeclarations, type TsNode } from './utils.ts'
 
 const DEFAULT_EXTENSION: Record<ast.FileNode['extname'], ast.FileNode['extname'] | ''> = { '.ts': '' }
 
@@ -33,8 +32,7 @@ export type ParserTsOptions = {
 /**
  * Default Kubb parser for `.ts` and `.js` files. Takes the universal AST
  * produced by an adapter and prints it as TypeScript source. Imports and exports
- * are rewritten based on each file's metadata and the `extension` option. The
- * `print` helper renders TypeScript compiler nodes with the TypeScript printer.
+ * are rewritten based on each file's metadata and the `extension` option.
  *
  * Used automatically when no `parsers` option is set on `defineConfig`. Use
  * `parserTsx` instead for React projects that emit JSX.
@@ -54,7 +52,7 @@ export type ParserTsOptions = {
  * })
  * ```
  */
-export const parserTs = defineExtension<ParserTsOptions, object, ts.Node>({
+export const parserTs = defineExtension<ParserTsOptions, object, string | TsNode>({
   kind: 'parser',
   meta: { name: 'typescript', version, compatibility, issues: 'https://github.com/kubb-labs/kubb/issues' },
   build({ extension = DEFAULT_EXTENSION }) {

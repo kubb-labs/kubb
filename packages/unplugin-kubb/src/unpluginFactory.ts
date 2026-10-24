@@ -19,9 +19,9 @@ import { parserMd } from '@kubb/parser-md'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { findConfigFile, loadConfigFile } from '@internals/shared'
-import ts from '@typescript/typescript6'
 import type { UnpluginFactory } from 'unplugin'
 import { generateModule, selectConfig } from './generateModule.ts'
+import { stripTypes } from './stripTypes.ts'
 
 export type Options = {
   /**
@@ -143,8 +143,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
           if (errors.length) throw fail(errors[0], `${id}: ${errors[0]!.message}`)
 
           // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
-          return ts.transpileModule(text, { fileName: `${id}.ts`, compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext } })
-            .outputText
+          return stripTypes(text, `${id}.ts`)
         } catch (error) {
           // unplugin's webpack and Rspack loader never settles when `load` throws, so report the error instead.
           if (meta.framework !== 'webpack' && meta.framework !== 'rspack') throw error

@@ -1,7 +1,7 @@
 {
   "name": "@kubb/parser-ts",
   "version": "5.12.8",
-  "description": "TypeScript and TSX source file parser for Kubb. Converts AST nodes into formatted source strings using the TypeScript compiler API.",
+  "description": "TypeScript and TSX parser for Kubb. Prints AST nodes as TypeScript and TSX source, with imports, exports and JSDoc.",
   "keywords": [
     "codegen",
     "kubb",
@@ -71,7 +71,7 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@typescript/typescript6": "catalog:"
+    "yuku-parser": "^0.19.0"
   },
   "engines": {
     "node": ">=22.12"

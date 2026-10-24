@@ -115,9 +115,10 @@
     "@kubb/parser-md": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-barrel": "workspace:*",
-    "@typescript/typescript6": "catalog:",
     "jiti": "^2.7.0",
-    "unplugin": "^3.4.0"
+    "unplugin": "^3.4.0",
+    "yuku-codegen": "^0.19.0",
+    "yuku-parser": "^0.19.0"
   },
   "devDependencies": {
     "@farmfe/core": "^1.7.11",
