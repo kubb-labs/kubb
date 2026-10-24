@@ -29,27 +29,18 @@ import {
   type PluginView,
 } from './types.ts'
 
-/**
- * The comment a `disable-plugin` writes above the block it comments out. It carries the block's
- * line count, so `enable-plugin` restores exactly those lines and not whatever comments follow.
- */
+/** The marker `disable-plugin` writes, with the block's line count so `enable-plugin` restores exactly those lines. */
 const DISABLED_MARKER_PATTERN = /^kubb:disabled (.+)\s+(\d+)$/
 
 const OPERATIONS = new Set<string>(Object.values(ConfigEditOperation))
 const KINDS = new Set<string>(['plugin', 'adapter', 'parser'])
 
-/** How the file exports its config, which decides how an import for a new plugin is written. */
 type ModuleKind = 'esm' | 'cjs'
-/** What one edit did: the rewritten source, or why it was refused. */
 type EditResult = { source: string } | { reason: string }
 type ParsedConfig = { program: Program; comments: Array<Comment>; configs: Array<ObjectExpression>; kind: ModuleKind }
-/** Any node a config value can be: an expression, a `...spread`, or a hole in an array. */
 type ValueNode = Expression | SpreadElement | null | undefined
 
-/**
- * Why an edit from Studio cannot be applied as sent, checked before anything reads its fields.
- * The edit crossed the wire, so its declared type is a promise the sender may not have kept.
- */
+/** Edits cross the wire, so their shape is checked before anything reads them. */
 function validateEdit(edit: ConfigEdit): string | undefined {
   const { operation, plugin, config, path, kind, input } = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
 
@@ -71,10 +62,7 @@ function validateEdit(edit: ConfigEdit): string | undefined {
   return undefined
 }
 
-/**
- * Steps through a config's wrappers to the object literal underneath: a `satisfies`/`as`
- * assertion, a `() => ...` factory, or a factory whose block body returns the config.
- */
+/** Steps through `as`/`satisfies` and `() => ...` wrappers to the config object. */
 function unwrapValue(node: ValueNode): ValueNode {
   if (!node) return undefined
   if (node.type === 'TSAsExpression' || node.type === 'TSSatisfiesExpression') return unwrapValue(node.expression)
@@ -96,11 +84,7 @@ function isModuleExports(node: AssignmentExpression['left']): boolean {
   )
 }
 
-/**
- * Parses `source` and finds every config object in `export default defineConfig(...)` or
- * `module.exports = defineConfig(...)`, or why the file is unmanaged. An array export gets one entry
- * per element, matching a numeric `config` index.
- */
+/** Every config object in `export default` or `module.exports = defineConfig(...)`, or why the file is unmanaged. */
 function findConfigs(source: string): ParsedConfig | { reason: string } {
   const parsed = parseSource(source)
   if ('reason' in parsed) return parsed
@@ -136,20 +120,18 @@ function findConfigs(source: string): ParsedConfig | { reason: string } {
   return { ...parsed, configs, kind }
 }
 
-/** The name of a `key` or `'key'` property, `undefined` for a spread or a computed key. */
 function getKey(entry: ObjectPropertyKind | BindingProperty | RestElement): string | undefined {
   if (entry.type !== 'Property' || entry.computed) return undefined
   if (entry.key.type === 'Identifier') return entry.key.name
   return entry.key.type === 'Literal' && typeof entry.key.value === 'string' ? entry.key.value : undefined
 }
 
-/** The property named `key`. The last one wins when the key repeats, as it does when the object is evaluated. */
+/** The last one wins when the key repeats, as at runtime. */
 function findProperty(node: ObjectExpression, key: string): { member: ObjectPropertyKind; index: number } | undefined {
   const index = node.properties.findLastIndex((entry) => getKey(entry) === key)
   return index === -1 ? undefined : { member: node.properties[index]!, index }
 }
 
-/** The value of a property. A method or accessor's value is a function: it is code, never a literal. */
 function getValue(node: ObjectExpression, key: string): ValueNode {
   const member = findProperty(node, key)?.member
   return member?.type === 'Property' ? member.value : member
@@ -160,16 +142,11 @@ function getConfigName(config: ObjectExpression): string | undefined {
   return name?.type === 'Literal' && typeof name.value === 'string' ? name.value : undefined
 }
 
-/** Whether a `...spread` after the property at `index` could override it. */
 function isOverridden(node: ObjectExpression, index: number): boolean {
   return node.properties.slice(index + 1).some((entry) => entry.type === 'SpreadElement')
 }
 
-/**
- * Reads a literal node's value: a primitive, or an object/array built only from primitives.
- * `undefined` for anything else, so a caller can use this both to read a value and to check
- * whether a node is a literal at all.
- */
+/** A literal's value, `undefined` for code. */
 function readLiteral(node: ValueNode): OptionValue | undefined {
   switch (node?.type) {
     case 'Literal':
@@ -202,17 +179,14 @@ function readLiteral(node: ValueNode): OptionValue | undefined {
   return undefined
 }
 
-/** The module a `require('...')` call loads, when `node` is one. */
 function getRequirePath(node: ValueNode): string | undefined {
   if (node?.type !== 'CallExpression' || node.callee.type !== 'Identifier' || node.callee.name !== 'require') return undefined
   const [argument] = node.arguments
   return argument?.type === 'Literal' && typeof argument.value === 'string' ? argument.value : undefined
 }
 
-/** Where an identifier the file imports comes from: its module and the name it is exported under. */
 type Import = { from: string; exported: string }
 
-/** Maps each identifier the file imports, through `import { x } from` or `const { x } = require(...)`, to its module. */
 function getImports(program: Program): Map<string, Import> {
   const imports = new Map<string, Import>()
 
@@ -239,7 +213,6 @@ function getImports(program: Program): Map<string, Import> {
   return imports
 }
 
-/** The quote style of the file's first string literal, usually its first import, so new code matches it. */
 function detectQuote(node: unknown): Quote | undefined {
   if (!node || typeof node !== 'object') return undefined
   const { type, raw } = node as { type?: string; raw?: unknown }
@@ -251,10 +224,6 @@ function detectQuote(node: unknown): Quote | undefined {
   return undefined
 }
 
-/**
- * Every factory call of one kind that resolves to an import: the `pluginX(...)` elements of the
- * `plugins` array, the `adapter` value, or the elements of the `parsers` array.
- */
 function findCalls(
   program: Program,
   config: ObjectExpression,
@@ -271,10 +240,7 @@ function findCalls(
   })
 }
 
-/**
- * The blocks a previous `disable-plugin` commented out of this config, found through their marker
- * comments since a commented-out call is no longer a node. `code` holds the block's lines as they were.
- */
+/** The `disable-plugin` blocks in this config, read from marker comments since the call is no longer a node. */
 function findDisabled(
   source: string,
   comments: Array<Comment>,
@@ -291,17 +257,12 @@ function findDisabled(
 
     const line = getPosition(source, comment.start).line
     const end = line + Number(match[2])
-    // A blank line comes back empty, not as the indentation the comment carried.
     const code = lines.slice(line, end).map((text) => text.replace(/^(\s*)\/\/ ?/, '$1').replace(/^\s+$/, ''))
     return [{ packageName: match[1]!, line, end, code }]
   })
 }
 
-/**
- * Reads an object option that holds some code: its literal members as `value`, and the paths of
- * the members that are code as `locked`. `set-option` can write any path outside `locked`, so Studio
- * edits those fields. `undefined` for a computed key, since it could set any path.
- */
+/** Literal members as `value` and code paths as `locked`, `undefined` for a computed key. */
 function readEditable(node: ObjectExpression, prefix: Array<string> = []): { value: Record<string, OptionValue>; locked: Array<Array<string>> } | undefined {
   const value: Record<string, OptionValue> = {}
   const locked: Array<Array<string>> = []
@@ -310,7 +271,6 @@ function readEditable(node: ObjectExpression, prefix: Array<string> = []): { val
     if (entry.type === 'SpreadElement') continue
     const key = getKey(entry)
     if (key === undefined) return undefined
-    // The last member wins when a key repeats.
     if (findProperty(node, key)?.index !== index) continue
 
     const path = [...prefix, key]
@@ -337,19 +297,16 @@ function readEditable(node: ObjectExpression, prefix: Array<string> = []): { val
   return { value, locked }
 }
 
-/** The top-level options of a plugin call, each flagged with whether Studio may write it. */
 function readCallOptions(call: CallExpression): OptionsView {
   const options = call.arguments[0]
   return options?.type === 'ObjectExpression' ? readObjectOptions(options) : {}
 }
 
-/** The members of an object literal, each flagged with whether Studio may write it. */
 function readObjectOptions(options: ObjectExpression): OptionsView {
   const entries: OptionsView = {}
   for (const [index, entry] of options.properties.entries()) {
     const key = getKey(entry)
     if (key === undefined || !isSafeKey(key)) continue
-    // A spread after the option can override it, so `set-option` refuses it like code.
     const member = entry.type === 'Property' && !isOverridden(options, index) ? entry.value : undefined
     const value = readLiteral(member)
     const partial = value === undefined && member?.type === 'ObjectExpression' ? readEditable(member) : undefined
@@ -358,23 +315,12 @@ function readObjectOptions(options: ObjectExpression): OptionsView {
   return entries
 }
 
-/** The options a commented-out plugin call holds, so Studio can show them while it is disabled. */
 function readDisabledOptions(code: Array<string>): OptionsView {
   const call = parseExpression(code.join('\n').trim().replace(/,$/, ''))
   return call?.type === 'CallExpression' ? readCallOptions(call) : {}
 }
 
-/**
- * Reads which plugins the file declares and which of their options Studio may write.
- *
- * @example
- * ```ts
- * const view = readConfig(await readFile('kubb.config.ts', 'utf8'))
- * if (view.managed) {
- *   view.configs.forEach((config) => console.log(config.name, config.plugins.length))
- * }
- * ```
- */
+/** Which plugins the file declares and which options Studio may write. */
 export function readConfig(source: string): ConfigFileView {
   const parsed = findConfigs(source)
   if ('reason' in parsed) return { managed: false, reason: parsed.reason }
@@ -399,7 +345,6 @@ export function readConfig(source: string): ConfigFileView {
         },
       }))
 
-      // In source order, so a disabled plugin keeps its place in the list.
       const plugins = [...active, ...disabled].sort((a, b) => a.line - b.line).map(({ plugin }) => plugin)
       const toView = ({ importName, packageName, call }: ReturnType<typeof findCalls>[number]): PluginView => ({
         importName,
@@ -420,19 +365,14 @@ export function readConfig(source: string): ConfigFileView {
   }
 }
 
-/** The modules the config file imports, in source order. Empty when the file cannot be parsed. */
+/** The modules the file imports, empty when it cannot be parsed. */
 export function readImports(source: string): Array<string> {
   const parsed = parseSource(source)
   if ('reason' in parsed) return []
   return [...new Set([...getImports(parsed.program).values()].map(({ from }) => from))]
 }
 
-/**
- * Follows `path` through a plugin's options to the literal at its last key. Returns `missing` with
- * the index of the first key that is not there yet, so `set-option` can write the rest of the path as one
- * nested literal and `remove-option` can report it as unset. Refuses a value customized in code, so it is
- * never overwritten.
- */
+/** Follows `path` to its literal, or to the first missing key. Refuses a value set in code. */
 function findPath(
   options: ObjectExpression,
   path: Array<string>,
@@ -459,7 +399,6 @@ function findPath(
   return { reason: 'no option path given' }
 }
 
-/** Writes `value` at `path` inside a plugin call's options, adding the options object and any intermediate object it needs. */
 function setOption(source: string, call: CallExpression, path: Array<string>, value: unknown, quote: Quote): EditResult {
   if (!isOptionValue(value)) return { reason: 'the value is not a literal that can be written to a config file' }
 
@@ -473,7 +412,6 @@ function setOption(source: string, call: CallExpression, path: Array<string>, va
   return setAtPath({ source, options, path, value, quote })
 }
 
-/** Writes the literal `value` at `path` inside `options`, adding any intermediate object it needs. */
 function setAtPath({
   source,
   options,
@@ -496,7 +434,6 @@ function setAtPath({
   return { source: replaceText(source, target.value.start, target.value.end, printValue(value, quote)) }
 }
 
-/** Writes the config's top-level `input` as a string literal, replacing what it held. */
 function setInput(source: string, config: ObjectExpression, input: string, quote: Quote): EditResult {
   const value = printValue(input, quote)
   const found = findProperty(config, 'input')
@@ -507,7 +444,6 @@ function setInput(source: string, config: ObjectExpression, input: string, quote
   return { source: replaceText(source, found.member.value.start, found.member.value.end, value) }
 }
 
-/** The config's root `output` object literal, or why Studio cannot edit inside it. */
 function getOutput(config: ObjectExpression): { object: ObjectExpression } | { reason: string } {
   const found = findProperty(config, 'output')
   if (found?.member.type !== 'Property' || found.member.value.type !== 'ObjectExpression') return { reason: 'output is not an object literal' }
@@ -515,7 +451,6 @@ function getOutput(config: ObjectExpression): { object: ObjectExpression } | { r
   return { object: found.member.value }
 }
 
-/** Writes or drops a member of the config's root `output` object. */
 function editOutput({
   source,
   config,
@@ -535,10 +470,6 @@ function editOutput({
   return setAtPath({ source, options: output.object, path: edit.path, value: edit.value, quote })
 }
 
-/**
- * Deletes the option at `path`, falling the plugin back to its default for it. An option the file
- * does not set already has its default, so removing it changes nothing.
- */
 function removeOption(source: string, call: CallExpression, path: Array<string>): EditResult {
   const options = call.arguments[0]
   if (!options) return { source }
@@ -546,7 +477,6 @@ function removeOption(source: string, call: CallExpression, path: Array<string>)
   return removeAtPath({ source, options, path })
 }
 
-/** Deletes the member at `path` inside `options`. A path that is not there already holds its default. */
 function removeAtPath({ source, options, path }: { source: string; options: ObjectExpression; path: Array<string> }): EditResult {
   const target = findPath(options, path)
   if ('reason' in target) return target
@@ -554,11 +484,7 @@ function removeAtPath({ source, options, path }: { source: string; options: Obje
   return { source: removeProperty(source, target.object, target.index) }
 }
 
-/**
- * Writes an import after the last one already in the file, matching whether it ends in a semicolon:
- * `import { x } from '...'`, or `const { x } = require('...')` in a CommonJS file.
- * The last import is read off the AST, so a multi-line `import {\n  x,\n} from '...'` counts to its closing line.
- */
+/** Adds the import after the last one, matching its semicolon style. */
 function addImport({
   source,
   parsed,
@@ -592,10 +518,7 @@ function addImport({
   return lines.join('\n')
 }
 
-/**
- * Adds a `pluginX(...)` call to a config's plugins array, and its import. Replaying the same add is
- * a no-op, while an import name collision with an unrelated package remains an error.
- */
+/** Replaying the same add is a no-op, while an import name taken by another package is an error. */
 function addPlugin({
   source,
   parsed,
@@ -633,10 +556,7 @@ function addPlugin({
   return { source: taken ? next : addImport({ source: next, parsed, importName, moduleSpecifier: edit.plugin, quote }) }
 }
 
-/**
- * Rewrites the config's `plugins` array with one item per line, so a call can be commented out without
- * taking its neighbors with it. Not done when a comment sits between the items, which would have to move.
- */
+/** One item per line, so a call can be commented out alone. Skipped when comments sit between items. */
 function splitPlugins(source: string, config: ObjectExpression): string | undefined {
   const array = getValue(config, 'plugins')
   if (array?.type !== 'ArrayExpression') return undefined
@@ -653,7 +573,6 @@ function splitPlugins(source: string, config: ObjectExpression): string | undefi
   return replaceText(source, start, end, `[\n${lines.join('\n')}\n${indent}]`)
 }
 
-/** Comments out a plugin call in place, keeping its options on disk so `enable-plugin` can restore them exactly. */
 function disablePlugin(source: string, program: Program, config: ObjectExpression, plugin: string): EditResult {
   const call = findCalls(program, config).find((entry) => entry.packageName === plugin)?.call
   if (!call) return { reason: `${plugin} is not in the plugins array` }
@@ -678,7 +597,6 @@ function disablePlugin(source: string, program: Program, config: ObjectExpressio
   return { source: lines.join('\n') }
 }
 
-/** Uncomments the block a previous `disable-plugin` left behind for `plugin` in this config. */
 function enablePlugin(source: string, comments: Array<Comment>, config: ObjectExpression, plugin: string): EditResult {
   const block = findDisabled(source, comments, config).find((entry) => entry.packageName === plugin)
   if (!block) return { reason: `${plugin} is not disabled` }
@@ -688,7 +606,7 @@ function enablePlugin(source: string, comments: Array<Comment>, config: ObjectEx
   return { source: lines.join('\n') }
 }
 
-/** Applies one edit to `source`. Every edit re-parses the file, since the previous one rewrote it. */
+/** Every edit re-parses the file, since the previous one rewrote it. */
 function applyEdit({ source, edit, extensions }: { source: string; edit: ConfigEdit; extensions: InstalledExtensions }): EditResult {
   const parsed = findConfigs(source)
   if ('reason' in parsed) return parsed
@@ -719,8 +637,7 @@ function applyEdit({ source, edit, extensions }: { source: string; edit: ConfigE
   if (edit.operation === ConfigEditOperation.ADD_PLUGIN) return addPlugin({ source, parsed, config, edit, quote, extensions })
 
   const kind = edit.kind ?? 'plugin'
-  // A package can ship several factories (`parserTs` and `parserTsx`), so among its calls prefer the
-  // export its manifest names: that is the one Studio knows the package by, whatever the file calls it.
+  // A package can ship several factories (`parserTs`, `parserTsx`), so prefer the export its manifest names.
   const calls = findCalls(parsed.program, config, kind).filter((entry) => entry.packageName === edit.plugin)
   const exportName = extensions.get(edit.plugin)?.manifest.export ?? toExportName(edit.plugin)
   const call = (calls.find((entry) => entry.exportName === exportName) ?? calls[0])?.call
@@ -732,20 +649,7 @@ function applyEdit({ source, edit, extensions }: { source: string; edit: ConfigE
   return edit.operation === ConfigEditOperation.SET_OPTION ? setOption(source, call, edit.path, edit.value, quote) : removeOption(source, call, edit.path)
 }
 
-/**
- * Applies edits to a `kubb.config.ts` in place. Each edit rewrites only the text it targets, so
- * comments, formatting, and hand-written code around the config survive.
- *
- * Edits are independent: one that cannot be applied is reported in `outcomes` and the rest still run.
- *
- * @example
- * ```ts
- * const { source, outcomes } = editConfig({
- *   source: current,
- *   edits: [{ operation: 'set-option', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }],
- * })
- * ```
- */
+/** Applies edits in place, touching only the text each targets. A refused edit is reported and the rest still run. */
 export function editConfig({ source, edits, extensions = new Map() }: { source: string; edits: Array<ConfigEdit>; extensions?: InstalledExtensions }): {
   source: string
   outcomes: Array<ConfigEditOutcome>
@@ -770,10 +674,7 @@ export function editConfig({ source, edits, extensions = new Map() }: { source: 
   return { source: current, outcomes, changed: current !== source }
 }
 
-/**
- * Applies `edits` to the config file at `filePath`, writing it only when something changed.
- * `add-plugin` accepts `@kubb/plugin-*` packages and the plugins in `extensions`.
- */
+/** Applies `edits` to `filePath`, writing only when something changed. */
 export async function editConfigFile({ filePath, edits, extensions }: { filePath: string; edits: Array<ConfigEdit>; extensions?: InstalledExtensions }) {
   const current = await read(filePath)
   const result = editConfig({ source: current, edits, extensions })
