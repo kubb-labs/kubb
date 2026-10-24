@@ -69,6 +69,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
   const patternProperties = rawPatternProperties
     ? Object.fromEntries(Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [pattern, resolveMapSchema(patternSchema, { options, parse })]))
     : undefined
+  const propertyNames = 'propertyNames' in schema && schema.propertyNames ? parse({ schema: schema.propertyNames as SchemaObject }) : undefined
 
   const objectNode: ast.SchemaNode = createNode(
     { schema, name, nullable, defaultValue },
@@ -78,6 +79,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       properties,
       additionalProperties: additionalPropertiesNode,
       patternProperties,
+      propertyNames,
       minProperties: schema.minProperties,
       maxProperties: schema.maxProperties,
     },

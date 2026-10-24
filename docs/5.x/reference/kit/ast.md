@@ -2,8 +2,8 @@
 layout: doc
 title: AST and node builders
 description: The ast namespace groups the factory node builders, the transform
-  and collect visitors, the guards, the ref and naming helpers, the macro
-  engine, and the printer helper behind one import.
+  and collect visitors, direct schema traversal helpers, the guards, the ref
+  and naming helpers, the macro engine, and the printer helper behind one import.
 outline:
   - 2
   - 3
@@ -11,7 +11,6 @@ order: 8
 navigation:
   title: AST & node builders
   icon: i-iconoir-code-brackets
-
 ---
 
 # AST and node builders
@@ -63,6 +62,8 @@ A `SchemaNode` is discriminated by its `type`. The values fall into three famili
 | `void`    | No value       | `void`     |
 | `never`   | Never produced | `never`    |
 
+Object schemas can also include `propertyNames`, a schema that validates each key name. The OpenAPI adapter maps this field from the input schema.
+
 ### Special types
 
 | Type       | Description                 | Example                                |
@@ -80,15 +81,15 @@ A `SchemaNode` is discriminated by its `type`. The values fall into three famili
 
 Factories return defaulted, fully typed nodes for adapters and generator handlers. Never build AST literals by hand. Besides `createInput`, `createSchema`, and `createOperation`, the namespace provides constructors for source files and the TypeScript-level artifacts generators emit:
 
-| Factory                                                             | Purpose                                                  |
-| ------------------------------------------------------------------- | -------------------------------------------------------- |
-| `createFile`, `createSource`, `createText`                          | Build `FileNode`s emitted by generators.                 |
-| `createImport`, `createExport`                                      | Emit `import` / `export` statements.                     |
-| `createConst`, `createFunction`, `createArrowFunction`, `createJsx` | Emit TypeScript declarations and JSX.                    |
-| `createParameter`                                                   | Describe operation parameters.                           |
-| `createProperty`, `createType`                                      | Compose object properties and TypeScript types.          |
-| `createResponse`, `createRequestBody`, `createContent`              | Model responses, request bodies, and content entries.    |
-| `createBreak`                                                       | Emit line breaks between nodes.                          |
+| Factory                                                             | Purpose                                               |
+| ------------------------------------------------------------------- | ----------------------------------------------------- |
+| `createFile`, `createSource`, `createText`                          | Build `FileNode`s emitted by generators.              |
+| `createImport`, `createExport`                                      | Emit `import` / `export` statements.                  |
+| `createConst`, `createFunction`, `createArrowFunction`, `createJsx` | Emit TypeScript declarations and JSX.                 |
+| `createParameter`                                                   | Describe operation parameters.                        |
+| `createProperty`, `createType`                                      | Compose object properties and TypeScript types.       |
+| `createResponse`, `createRequestBody`, `createContent`              | Model responses, request bodies, and content entries. |
+| `createBreak`                                                       | Emit line breaks between nodes.                       |
 
 ## Visitors {#visitors}
 
@@ -143,6 +144,24 @@ console.log(`Deprecated schemas: ${deprecated.length}`)
 
 Use `collect` to stream matches as you find them, and `collectSync` to find specific nodes, filter by a criterion, or build a list for later processing.
 
+### Direct traversal
+
+`forEachChild` visits the immediate children of a node. `forEachSchema` visits schema nodes in a node's child tree, including the starting node when it is a schema. Neither helper follows refs.
+
+`findSchema` stops at the first schema that matches a predicate. Set `followRefs: true` to inspect resolved ref targets; traversal stops when it reaches an unresolved or cyclic ref.
+
+```typescript twoslash [find-schema.ts]
+import { ast } from 'kubb/kit'
+
+const root = ast.factory.createInput({ schemas: [], operations: [] })
+
+const dateSchema = ast.findSchema({
+  node: root,
+  followRefs: true,
+  predicate: (schema) => schema.type === 'date',
+})
+```
+
 ## Guards and narrowing {#guards-and-narrowing}
 
 Kubb exports type guards and a `narrowSchema` helper for safe discrimination:
@@ -172,14 +191,15 @@ for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => n
 
 ## Refs and naming helpers
 
-The helpers split across two surfaces. `resolveRefName` ships on the `ast` namespace, like the guards and node types. `extractRefName`, `childName`, `enumPropName`, and `syncSchemaRef` are named exports of `kubb/kit` itself. The same split applies to `containsCircularRef` and the built-in macros below.
+The helpers split across two surfaces. `resolveRef`, `resolveRefName`, and `refName` ship on the `ast` namespace, like the guards and node types. `extractRefName`, `childName`, `enumPropName`, and `syncSchemaRef` are named exports of `kubb/kit` itself. The same split applies to `containsCircularRef` and the built-in macros below.
 
-| Helper           | Purpose                                                             |
-| ---------------- | ------------------------------------------------------------------- |
-| `extractRefName` | Turn `'#/components/schemas/Pet'` into `'Pet'`.                     |
-| `resolveRefName` | Resolve the name a ref node emits, preferring its `targetName`.     |
-| `childName`      | Derive a child property name from context.                          |
-| `enumPropName`   | Convert an enum value into a valid property name.                   |
+| Helper           | Purpose                                                                                                    |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| `resolveRef`     | Follow resolved ref nodes to their target schema.                                                          |
+| `extractRefName` | Turn `'#/components/schemas/Pet'` into `'Pet'`.                                                            |
+| `resolveRefName` | Resolve the name a ref node emits, preferring its `targetName`.                                            |
+| `childName`      | Derive a child property name from context.                                                                 |
+| `enumPropName`   | Convert an enum value into a valid property name.                                                          |
 | `syncSchemaRef`  | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override. |
 
 ```typescript [refs.ts]
@@ -193,17 +213,17 @@ const name = extractRefName('#/components/schemas/Pet')
 
 Analyze how schemas reference each other, to prune unused schemas or wrap circular ones in a lazy construct. `collectUsedSchemaNames` and `findCircularSchemas` ship on the `ast` namespace.
 
-| Helper                   | Purpose                                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------------------------- |
+| Helper                   | Purpose                                                                                                                                                         |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `collectUsedSchemaNames` | Collect the names of every top-level schema transitively used by a set of operations. Pair it with `include` filters to leave unreferenced schemas ungenerated. |
-| `findCircularSchemas`    | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`. |
-| `containsCircularRef`    | Report whether a schema, or anything nested inside it, references a circular schema. |
+| `findCircularSchemas`    | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`.                      |
+| `containsCircularRef`    | Report whether a schema, or anything nested inside it, references a circular schema.                                                                            |
 
 ## Constants
 
-| Export        | Purpose                                    |
-| ------------- | ------------------------------------------ |
-| `schemaTypes` | Map of every schema `type` discriminant.   |
+| Export        | Purpose                                  |
+| ------------- | ---------------------------------------- |
+| `schemaTypes` | Map of every schema `type` discriminant. |
 
 ## Macros
 
@@ -217,11 +237,11 @@ A macro is a named, composable transform built on `transform` that rewrites node
 
 Kubb also ships built-in macros for common schema normalizations that any adapter can compose with its own. `macroDiscriminatorEnum`, `macroEnumName`, and `macroRenameSchema` read options, so call them to build the macro. Plugins that import another plugin's output compute names from the nodes they see, so register a rename on every plugin that touches the schema, for example by passing one shared `macros` array to each plugin.
 
-| Macro                    | Purpose                                                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------- |
-| `macroSimplifyUnion`     | Drop union members a broader scalar primitive already covers, such as a multi-value string enum next to `string`. |
-| `macroDiscriminatorEnum` | Replace a discriminator property's schema with a string enum of its allowed values.         |
-| `macroEnumName`          | Name an inline enum schema from its parent and property name.                               |
+| Macro                    | Purpose                                                                                                                                |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `macroSimplifyUnion`     | Drop union members a broader scalar primitive already covers, such as a multi-value string enum next to `string`.                      |
+| `macroDiscriminatorEnum` | Replace a discriminator property's schema with a string enum of its allowed values.                                                    |
+| `macroEnumName`          | Name an inline enum schema from its parent and property name.                                                                          |
 | `macroRenameSchema`      | Rename a schema's declaration and stamp `targetName` on every ref pointing at it, so `resolver.imports` emits the new name everywhere. |
 
 ### Macro options and callbacks
