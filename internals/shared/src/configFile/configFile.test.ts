@@ -477,6 +477,13 @@ describe('editConfig', () => {
       expect(result.source).toBe(`export default defineConfig({\n  input: 'https://example.com/openapi.yaml',\n  plugins: [],\n})\n`)
     })
 
+    it('refuses a shorthand input, which names a variable rather than holding the value', () => {
+      const source = `const input = './a.yaml'\nexport default defineConfig({ input, plugins: [] })\n`
+      const result = editConfig({ source, edits: [{ operation: 'set-input', input: './b.yaml' }] })
+
+      expect(result).toMatchObject({ outcomes: [{ applied: false, reason: 'input is not a plain property' }], changed: false })
+    })
+
     it('adds an input to a config without one', () => {
       const source = `export default defineConfig({ name: 'api', plugins: [] })\n`
       const result = editConfig({ source, edits: [{ operation: 'set-input', input: './openapi.yaml' }] })

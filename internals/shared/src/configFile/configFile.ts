@@ -512,7 +512,8 @@ function setInput(source: string, config: ObjectExpression, input: string, quote
   const value = printValue(input, quote)
   const found = findProperty(config, 'input')
   if (!found) return { source: appendItem(source, config, `input: ${value}`) }
-  if (found.member.type !== 'Property' || found.member.method || found.member.kind !== 'init') return { reason: 'input is not a plain property' }
+  if (found.member.type !== 'Property' || found.member.method || found.member.shorthand || found.member.kind !== 'init')
+    return { reason: 'input is not a plain property' }
   if (isOverridden(config, found.index)) return { reason: 'a spread after input could override it' }
   return { source: replaceText(source, found.member.value.start, found.member.value.end, value) }
 }
