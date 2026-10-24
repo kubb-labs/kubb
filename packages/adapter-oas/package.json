@@ -1,6 +1,6 @@
 {
   "name": "@kubb/adapter-oas",
-  "version": "5.12.8",
+  "version": "5.13.0",
   "description": "OpenAPI and Swagger adapter for Kubb. Parses and validates OAS 2.0/3.x specifications into a @kubb/ast RootNode for downstream code generation plugins.",
   "keywords": [
     "adapter",
@@ -73,7 +73,7 @@
   "dependencies": {
     "@kubb/core": "workspace:*",
     "@kubb/kit": "workspace:*",
-    "@readme/openapi-parser": "^9.1.0",
+    "@readme/openapi-parser": "^10.0.0",
     "@scalar/openapi-upgrader": "^0.4.5",
     "api-ref-bundler": "0.5.1",
     "js-yaml": "catalog:",
@@ -85,7 +85,7 @@
     "openapi-types": "^12.1.3"
   },
   "engines": {
-    "node": ">=22.12"
+    "node": ">=22.22"
   },
   "inlinedDependencies": {
     "@types/json-schema": "7.0.15",

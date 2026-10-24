@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "5.12.8",
+  "version": "5.13.0",
   "description": "Turn your API spec into type-safe code. Generate TypeScript types, API clients, hooks, validators and mocks from a spec such as OpenAPI.",
   "keywords": [
     "api-client",
@@ -194,7 +194,7 @@
     "rolldown": "^1.2.14",
     "rollup": "^4.64.12",
     "typescript": "catalog:",
-    "vite": "^8.3.4",
+    "vite": "^8.3.5",
     "webpack": "^5.112.0"
   },
   "peerDependencies": {
@@ -207,6 +207,6 @@
   },
   "preferGlobal": true,
   "engines": {
-    "node": ">=22.12"
+    "node": ">=22.22"
   }
 }

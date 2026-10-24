@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "5.12.8",
+  "version": "5.13.0",
   "description": "Core engine for Kubb. Provides the plugin driver, file manager and build orchestration used by every Kubb plugin.",
   "keywords": [
     "code-generator",
@@ -99,6 +99,6 @@
     }
   },
   "engines": {
-    "node": ">=22.12"
+    "node": ">=22.22"
   }
 }

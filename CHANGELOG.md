@@ -1,5 +1,55 @@
 # Changelog
 
+## v5.13.0 — Oct 24, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Require Node.js 22.22+ (chokidar 6) and reject malformed `servers[].url` values (`@readme/openapi-parser` 10). ([#4426](https://github.com/kubb-labs/kubb/pull/4426), [`071c883`](https://github.com/kubb-labs/kubb/commit/071c883d9be752f277788069a4645ba7a3f58dfa))
+
+#### Bug Fixes
+
+- Locate warning code frames in JSON specs without re-parsing. ([#4423](https://github.com/kubb-labs/kubb/pull/4423), [`6287bcd`](https://github.com/kubb-labs/kubb/commit/6287bcd140409af7df2195fc2ea036fa58f3989f))
+- Validate the spec in a worker thread during generation. ([#4421](https://github.com/kubb-labs/kubb/pull/4421), [`c1f4d81`](https://github.com/kubb-labs/kubb/commit/c1f4d81ca27fed6e4b814f548baadba1616babda))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- AST nodes and diagnostics point at the spec key they came from, with a new `pointer` prop on `File.Source`. ([#4424](https://github.com/kubb-labs/kubb/pull/4424), [`a0a7cad`](https://github.com/kubb-labs/kubb/commit/a0a7cad1c85aab84a3f59cfe46e142cff3676d07))
+- Speed up generation by 8 to 20% on large specs, with the same output. ([#4415](https://github.com/kubb-labs/kubb/pull/4415), [`6d826d1`](https://github.com/kubb-labs/kubb/commit/6d826d17293a3824b333e6482c7ec6edc59146de))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Drop `unstorage` and `lru-cache`; `kubbStorage` now only has `getItem`, `setItem` and `removeItem`. ([#4418](https://github.com/kubb-labs/kubb/pull/4418), [`78bada1`](https://github.com/kubb-labs/kubb/commit/78bada1b0fbfc615032d6e45655e64fe687dd93d))
+
+### @kubb/mcp
+
+#### Bug Fixes
+
+- Validate tool input with `valibot` instead of `zod`. ([#4417](https://github.com/kubb-labs/kubb/pull/4417), [`2d0fc76`](https://github.com/kubb-labs/kubb/commit/2d0fc764902117179cf3347c608b53cb8b20fc19))
+
+### @kubb/parser-ts
+
+#### Features
+
+- Drop the TypeScript compiler dependency; printing compiler nodes is deprecated and needs `typescript` installed. ([#4416](https://github.com/kubb-labs/kubb/pull/4416), [`df8fc0b`](https://github.com/kubb-labs/kubb/commit/df8fc0b54d680860230c084dddd9e67ce6e890e3))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Make `tsdown` an optional peer; `kubb studio snapshot` needs it installed. ([#4419](https://github.com/kubb-labs/kubb/pull/4419), [`9cbfdfd`](https://github.com/kubb-labs/kubb/commit/9cbfdfd82147bb6dd2e688d4fc66789b8d40f4e5))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.12.8 — Oct 23, 2026
 
 ### @kubb/ast
