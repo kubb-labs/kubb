@@ -840,7 +840,7 @@ describe('current disk output', () => {
 describe('saveConfig', () => {
   it('refuses every edit when the host did not grant allowConfigEdit', async () => {
     const { agent } = await connectStudio()
-    const edits = [{ operation: 'remove', plugin: '@kubb/plugin-ts', path: ['enumType'] }] satisfies Parameters<AgentApi['saveConfig']>[0]['edits']
+    const edits = [{ operation: 'remove-option', plugin: '@kubb/plugin-ts', path: ['enumType'] }] satisfies Parameters<AgentApi['saveConfig']>[0]['edits']
 
     await expect(agent.saveConfig({ edits })).resolves.toStrictEqual({
       outcomes: [{ edit: edits[0], applied: false, reason: 'the agent was not granted permission to edit kubb.config.ts' }],

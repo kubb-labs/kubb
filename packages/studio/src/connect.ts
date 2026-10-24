@@ -26,7 +26,7 @@ import {
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
-import { readConfig, readImports, writeConfigEdits } from './configFile.ts'
+import { editConfigFile, pickOutput, readConfig, readImports } from '@internals/shared'
 import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
@@ -68,7 +68,7 @@ import {
   type UpdateExtensionsResult,
 } from './protocol.ts'
 import { withPublicFetch } from './publicFetch.ts'
-import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, pickOutput, toJSONOptions, toStudioName } from './resolveConfig.ts'
+import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -631,7 +631,7 @@ class Agent extends RpcTarget implements AgentApi {
     try {
       const kept: Array<KeptEdit> = []
       for (const edit of edits) kept.push(await this.#keepInput(edit))
-      const written = await writeConfigEdits({
+      const written = await editConfigFile({
         filePath: configFile,
         edits: kept.flatMap((edit) => ('reason' in edit ? [] : [edit])),
         extensions: await this.#installedExtensions(),

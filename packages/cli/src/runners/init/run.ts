@@ -4,7 +4,7 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { DryRunExtension } from '@gunshi/plugin-dryrun'
 import { defineWithTypes } from 'gunshi'
-import { generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME } from '@internals/shared'
+import { editConfig, generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME } from '@internals/shared'
 import { exists, formatMs, getElapsedMs, write } from '@internals/utils'
 import { createKubb, Diagnostics, type RegistryEntry } from '@kubb/core'
 import { dryRunId, type DryRunExtensions } from '../../commands/shared.ts'
@@ -71,9 +71,8 @@ type Choices = {
 }
 
 /** The full `kubb.config.ts` for `choices`, with each plugin added the way `kubb add` adds it. */
-async function buildConfig({ inputPath, outputPath, plugins }: Choices): Promise<string> {
-  const { applyConfigEdits } = await import('@kubb/studio')
-  const { source, outcomes } = applyConfigEdits({
+function buildConfig({ inputPath, outputPath, plugins }: Choices): string {
+  const { source, outcomes } = editConfig({
     source: generateConfigFile({ inputPath, outputPath }),
     edits: plugins.map((entry) => ({ operation: 'add-plugin', plugin: entry.artifact.package })),
     extensions: new Map(plugins.map(({ artifact, manifest }) => [artifact.package, { package: artifact.package, version: artifact.version, manifest }])),
@@ -141,8 +140,6 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
       entries.filter((entry) => entry.kind === 'plugin' && !incompatibility(entry.manifest)),
     )
     registry.catch(() => {})
-    // Warm the module cache for buildConfig while the user answers, so the review shows up without waiting
-    if (!yes) import('@kubb/studio').catch(() => {})
 
     if (!(await exists(path.join(cwd, 'package.json')))) {
       if (!yes) {
@@ -262,7 +259,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
           logWarn(`${missing.join('\n')}\nAdd the missing plugins.`)
           continue
         }
-        const config = await buildConfig(choices)
+        const config = buildConfig(choices)
         const packages = [KUBB_PACKAGE_NAME, ...choices.plugins.map((entry) => entry.artifact.package)]
         logStep(`Review ${KUBB_CONFIG_FILENAME}`)
         logBlock([...config.trimEnd().split('\n'), '', `${styleText('dim', 'Installs')}  ${packages.join(' ')} with ${packageManager.name}`])
@@ -319,7 +316,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
 
     await step({
       start: `Writing ${KUBB_CONFIG_FILENAME}`,
-      task: async () => dryRun.run(async () => void (await write(configPath, await buildConfig(choices))), { message: `write ${KUBB_CONFIG_FILENAME}` }),
+      task: async () => dryRun.run(async () => void (await write(configPath, buildConfig(choices))), { message: `write ${KUBB_CONFIG_FILENAME}` }),
       done: () => `Wrote ${KUBB_CONFIG_FILENAME}`,
       failed: `Could not write ${KUBB_CONFIG_FILENAME}`,
     })
