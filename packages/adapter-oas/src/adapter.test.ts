@@ -95,7 +95,7 @@ describe('adapterOas.parse', () => {
 
     expect(node.schemas.map(({ name, pointer }) => ({ name, pointer }))).toStrictEqual([
       { name: 'PetSchema', pointer: '#/components/schemas/Pet' },
-      { name: 'PetResponse', pointer: '#/components/responses/Pet' },
+      { name: 'PetResponse', pointer: '#/components/responses/Pet/content/application~1json/schema' },
     ])
     const [operation] = node.operations
     expect(operation?.pointer).toBe('#/paths/~1pets~1{id}/get')
@@ -126,6 +126,9 @@ describe('adapterOas.parse', () => {
           Pet: { type: 'object', properties: { tags: { type: 'array', items: { type: 'string' } } } },
           Shape: { oneOf: [{ type: 'string' }, { type: 'number' }] },
         },
+        responses: {
+          Error: { description: 'error', content: { 'application/json': { schema: { type: 'object', properties: { code: { type: 'string' } } } } } },
+        },
       },
     }
     const text = JSON.stringify(spec, null, 2)
@@ -137,6 +140,10 @@ describe('adapterOas.parse', () => {
       'object',
     )!
     const tags = ast.narrowSchema(pet.properties[0]!.schema, 'array')!
+    const error = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Error')!,
+      'object',
+    )!
     const shape = ast.narrowSchema(
       node.schemas.find((schema) => schema.name === 'Shape')!,
       'union',
@@ -151,6 +158,7 @@ describe('adapterOas.parse', () => {
       body.pointer,
       body.properties[0]!.schema.pointer,
       operation!.responses[0]!.content![0]!.schema!.pointer,
+      error.properties[0]!.schema.pointer,
     ]
 
     expect(pointers).toStrictEqual([
@@ -161,6 +169,7 @@ describe('adapterOas.parse', () => {
       '#/paths/~1pets/post/requestBody/content/application~1json/schema',
       '#/paths/~1pets/post/requestBody/content/application~1json/schema/properties/name',
       '#/paths/~1pets/post/responses/200/content/application~1json/schema',
+      '#/components/responses/Error/content/application~1json/schema/properties/code',
     ])
     for (const pointer of pointers) expect(adapter.locate!(text, { kind: 'schema', pointer: pointer! }), pointer).toBeDefined()
   })

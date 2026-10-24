@@ -18,6 +18,10 @@ type SchemaWithMetadata = {
   source: SchemaSourceMode
   originalName: string
   pointer: string
+  /**
+   * Where the schema itself sits, when that differs from `pointer`, as for a response's `content` schema.
+   */
+  schemaPointer?: string
   nested?: boolean
 }
 
@@ -36,7 +40,7 @@ type GetSchemasResult = {
 }
 
 /**
- * Extracts the inline schema from a media-type `content` map.
+ * Extracts the inline schema from a media-type `content` map, with the media type it sits under.
  *
  * Prefers `preferredContentType` when given, otherwise uses the first key in the map.
  * Returns `null` when `content` is absent, the schema is missing, or the schema is a `$ref`.
@@ -44,10 +48,13 @@ type GetSchemasResult = {
  * @example
  * ```ts
  * extractSchemaFromContent(operation.content, 'application/json')
- * // SchemaObject | null
+ * // { schema: SchemaObject, contentType: 'application/json' } | null
  * ```
  */
-function extractSchemaFromContent(content: Record<string, unknown> | undefined, preferredContentType?: ContentType): SchemaObject | null {
+function extractSchemaFromContent(
+  content: Record<string, unknown> | undefined,
+  preferredContentType?: ContentType,
+): { schema: SchemaObject; contentType: string } | null {
   if (!content) return null
 
   const firstContentType = Object.keys(content)[0] ?? 'application/json'
@@ -55,8 +62,8 @@ function extractSchemaFromContent(content: Record<string, unknown> | undefined, 
   const contentSchema = content[targetContentType] as { schema?: SchemaObject } | undefined
   const schema = contentSchema?.schema
 
-  if (isReference(schema)) return null
-  return schema ?? null
+  if (!schema || isReference(schema)) return null
+  return { schema, contentType: targetContentType }
 }
 
 /**
@@ -223,17 +230,18 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
     }),
     ...(['responses', 'requestBodies'] as const).flatMap((source) =>
       Object.entries(components?.[source] ?? {}).flatMap(([name, item]) => {
-        const schema = extractSchemaFromContent((item as { content?: Record<string, unknown> }).content, contentType)
-        return schema
-          ? [
-              {
-                schema: resolveSchemaRef(schema),
-                source,
-                originalName: name,
-                pointer: `#/components/${source}/${escapePointerToken(name)}`,
-              },
-            ]
-          : []
+        const extracted = extractSchemaFromContent((item as { content?: Record<string, unknown> }).content, contentType)
+        if (!extracted) return []
+        const pointer = `#/components/${source}/${escapePointerToken(name)}`
+        return [
+          {
+            schema: resolveSchemaRef(extracted.schema),
+            source,
+            originalName: name,
+            pointer,
+            schemaPointer: `${pointer}/content/${escapePointerToken(extracted.contentType)}/schema`,
+          },
+        ]
       }),
     ),
   ]
@@ -259,7 +267,7 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
       const suffix = isSingle ? '' : hasMultipleSources ? semanticSuffixes[item.source] : index ? String(index + 1) : ''
       const uniqueName = item.originalName + suffix
       schemas[uniqueName] = item.schema
-      pointers.set(uniqueName, item.pointer)
+      pointers.set(uniqueName, item.schemaPointer ?? item.pointer)
       if (suffix || item.nested) renames.set(item.pointer, uniqueName)
     })
   }
