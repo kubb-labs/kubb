@@ -299,21 +299,21 @@ export function forEachSchema(node: Node, visit: (schema: SchemaNode) => void): 
  *
  * @example
  * ```ts
- * const firstString = findSchema({
- *   node: operationNode,
+ * const firstString = findSchema(operationNode, {
  *   predicate: (schema) => schema.type === 'string',
  * })
  * ```
  */
-export function findSchema({
-  node,
-  predicate,
-  followRefs = false,
-}: {
-  node: Node
-  predicate: (schema: SchemaNode) => boolean
-  followRefs?: boolean
-}): SchemaNode | undefined {
+export function findSchema(
+  node: Node,
+  {
+    predicate,
+    followRefs = false,
+  }: {
+    predicate: (schema: SchemaNode) => boolean
+    followRefs?: boolean
+  },
+): SchemaNode | undefined {
   const seen = followRefs ? new WeakSet<SchemaNode>() : undefined
   const walk = (current: Node): SchemaNode | undefined => {
     if (current.kind === 'Schema') {

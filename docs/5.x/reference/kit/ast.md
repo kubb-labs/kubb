@@ -156,8 +156,7 @@ import { ast } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
 
-const dateSchema = ast.findSchema({
-  node: root,
+const dateSchema = ast.findSchema(root, {
   followRefs: true,
   predicate: (schema) => schema.type === 'date',
 })
