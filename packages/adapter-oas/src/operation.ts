@@ -103,17 +103,24 @@ export function getRequestContentType({ operation, refs }: OperationContext): st
 }
 
 /** Merges path-level and operation-level parameters; operation-level wins per `in:name`. */
-export function getParameters({ operation, refs }: OperationContext): Array<ParameterObject> {
-  const resolveParams = (params: Array<unknown>): Array<ParameterObject> =>
-    params.map((p) => refs.derefKeepingRef(p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
+export function getParameters({ operation, refs }: OperationContext): Array<{ param: ParameterObject; pointer: string }> {
+  // Each parameter keeps the pointer of the entry that declares it, on the path item or the operation.
+  const resolveParams = (params: Array<unknown>, pointer: string) =>
+    params.flatMap((entry, index) => {
+      const param = refs.derefKeepingRef(entry)
+      return param && typeof param === 'object' && 'in' in param && 'name' in param
+        ? [{ param: param as ParameterObject, pointer: `${pointer}/parameters/${index}` }]
+        : []
+    })
 
-  const operationParams = resolveParams(operation.schema?.parameters || [])
-  const pathLevelParams = resolveParams((operation.pathItem as { parameters?: Array<unknown> }).parameters ?? [])
+  const pathPointer = `#/paths/${escapePointerToken(operation.path)}`
+  const operationParams = resolveParams(operation.schema?.parameters || [], `${pathPointer}/${operation.method.toLowerCase()}`)
+  const pathLevelParams = resolveParams((operation.pathItem as { parameters?: Array<unknown> }).parameters ?? [], pathPointer)
 
-  const paramMap = new Map<string, ParameterObject>()
-  for (const p of [...pathLevelParams, ...operationParams]) {
-    if (p.name && p.in) {
-      paramMap.set(`${p.in}:${p.name}`, p)
+  const paramMap = new Map<string, { param: ParameterObject; pointer: string }>()
+  for (const entry of [...pathLevelParams, ...operationParams]) {
+    if (entry.param.name && entry.param.in) {
+      paramMap.set(`${entry.param.in}:${entry.param.name}`, entry)
     }
   }
 
@@ -192,10 +199,11 @@ function collectPropertyKeysByFlag(schema: SchemaObject | null, flag: 'readOnly'
 
 function parseParameter({
   param,
+  pointer,
   parentName,
   options,
   parseSchema,
-}: Pick<OperationParseContext, 'options' | 'parseSchema'> & { param: ParameterObject; parentName?: string }): ast.ParameterNode {
+}: Pick<OperationParseContext, 'options' | 'parseSchema'> & { param: ParameterObject; pointer: string; parentName?: string }): ast.ParameterNode {
   const schemaName = parentName && param.name ? pascalCase(`${parentName} ${param.name}`) : undefined
   // A parameter defines either `schema` or `content`, and `content` holds exactly one media type.
   const contentType = param.schema ? undefined : Object.keys(param.content ?? {})[0]
@@ -208,6 +216,7 @@ function parseParameter({
   const allowReserved = param.allowReserved
 
   return ast.factory.createParameter({
+    pointer,
     name: param.name,
     in: param.in,
     schema: {
@@ -230,7 +239,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const operationId = getOperationId(operation)
   const operationName = operationId ? pascalCase(operationId) : undefined
   const pointer = `#/paths/${escapePointerToken(operation.path)}/${operation.method.toLowerCase()}`
-  const parameters = getParameters({ operation, refs }).map((param) => parseParameter({ options, parseSchema, param, parentName: operationName }))
+  const parameters = getParameters({ operation, refs }).map((entry) => parseParameter({ options, parseSchema, ...entry, parentName: operationName }))
 
   // A configured contentType restricts the body to that one media type; otherwise every declared one is kept.
   const body = getRequestBody({ operation, refs })
@@ -253,6 +262,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const requestBody =
     content.length > 0 || body?.description
       ? {
+          pointer: `${pointer}/requestBody`,
           description: body?.description,
           required: bodyRequired || undefined,
           content: content.length > 0 ? content : undefined,

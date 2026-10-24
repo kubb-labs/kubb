@@ -70,12 +70,20 @@ describe('adapterOas.parse', () => {
     expect(node.operations.map((operation) => operation.operationId)).toStrictEqual(['listPets'])
   })
 
-  it('links each schema, operation and response to its JSON pointer, also for a renamed schema', async () => {
+  it('links each schema, operation, parameter, request body and response to its JSON pointer, also for a renamed schema', async () => {
     const spec = {
       openapi: '3.0.3',
       info: { title: 'Links', version: '1.0.0' },
       paths: {
-        '/pets/{id}': { get: { operationId: 'getPet', responses: { '200': { description: 'ok', content: { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } } } } } },
+        '/pets/{id}': {
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          get: {
+            operationId: 'getPet',
+            parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
+            requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
+            responses: { '200': { description: 'ok', content: { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } } } },
+          },
+        },
       },
       components: {
         schemas: { Pet: { type: 'object' } },
@@ -92,6 +100,11 @@ describe('adapterOas.parse', () => {
     const [operation] = node.operations
     expect(operation?.pointer).toBe('#/paths/~1pets~1{id}/get')
     expect(operation?.responses.map((response) => response.pointer)).toStrictEqual(['#/paths/~1pets~1{id}/get/responses/200'])
+    expect(operation?.parameters.map(({ name, pointer }) => ({ name, pointer }))).toStrictEqual([
+      { name: 'id', pointer: '#/paths/~1pets~1{id}/parameters/0' },
+      { name: 'limit', pointer: '#/paths/~1pets~1{id}/get/parameters/0' },
+    ])
+    expect(operation?.requestBody?.pointer).toBe('#/paths/~1pets~1{id}/get/requestBody')
   })
 
   it('parses OpenAPI 3.2 query operations as QUERY', async () => {
