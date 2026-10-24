@@ -234,7 +234,14 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
 }
 
 /**
- * Visits the direct child nodes in the AST's traversal order.
+ * Visits each direct child node in the AST's traversal order.
+ *
+ * @example
+ * ```ts
+ * forEachChild(operationNode, (child) => {
+ *   console.log(child.kind)
+ * })
+ * ```
  */
 export function forEachChild(node: Node, visit: (child: Node) => void): void {
   visitChildNodes(node, (child) => {
@@ -270,7 +277,14 @@ function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
 }
 
 /**
- * Visits each schema in a node and its child tree, including the starting node when it is a schema.
+ * Visits each schema in a node's child tree in depth-first order. Includes `node` when it is a schema.
+ *
+ * @example
+ * ```ts
+ * forEachSchema(operationNode, (schema) => {
+ *   console.log(schema.type)
+ * })
+ * ```
  */
 export function forEachSchema(node: Node, visit: (schema: SchemaNode) => void): void {
   const walk = (current: Node): void => {
@@ -281,7 +295,15 @@ export function forEachSchema(node: Node, visit: (schema: SchemaNode) => void): 
 }
 
 /**
- * Finds the first schema that matches `predicate`. Set `followRefs` to inspect resolved ref targets.
+ * Finds the first schema that matches `predicate` in depth-first order. Set `followRefs` to include resolved ref targets.
+ *
+ * @example
+ * ```ts
+ * const firstString = findSchema({
+ *   node: operationNode,
+ *   predicate: (schema) => schema.type === 'string',
+ * })
+ * ```
  */
 export function findSchema({
   node,

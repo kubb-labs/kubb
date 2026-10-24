@@ -27,7 +27,12 @@ export function resolveRefName(node: SchemaNode | null | undefined): string | nu
 }
 
 /**
- * Follows resolved ref nodes to the schema they point to. Returns an unresolved or cyclic ref as is.
+ * Follows a resolved ref chain to its target schema. Returns an unresolved or cyclic ref as is.
+ *
+ * @example
+ * ```ts
+ * const target = resolveRef(refSchema)
+ * ```
  */
 export function resolveRef(node: SchemaNode): SchemaNode {
   if (node.type !== 'ref' || !node.schema) return node
