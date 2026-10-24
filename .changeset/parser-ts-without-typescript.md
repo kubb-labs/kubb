@@ -1,5 +1,6 @@
 ---
 '@kubb/parser-ts': minor
+'unplugin-kubb': minor
 ---
 
-Drop the TypeScript compiler dependency. Printing TypeScript compiler nodes is deprecated and needs `typescript` 5 or 6, or `@typescript/typescript6`, installed.
+Drop the TypeScript compiler dependency; printing compiler nodes is deprecated and needs `typescript` installed.
