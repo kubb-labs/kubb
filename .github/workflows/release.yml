@@ -133,7 +133,7 @@ jobs:
           token: ${{ secrets.PLATFORM_DISPATCH_TOKEN }}
           repository: kubb-labs/platform
           event-type: kubb-released
-          client-payload: '{"version": "${{ steps.version.outputs.version }}"}'
+          client-payload: '{"source": "kubb", "ref": "${{ github.ref_name }}", "version": "${{ steps.version.outputs.version }}"}'
 
   notify:
     name: Send Discord Notification
