@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
-import { BUNDLED_PACKAGES, ConfigEditOperation, extensionKinds, editConfig, editConfigFile, findConfigFile, readImports } from '@internals/shared'
+import { BUNDLED_PACKAGES, ConfigEditOperation, extensionKinds, editConfig, editConfigFile, findConfigFile, readConfig, readImports } from '@internals/shared'
 import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, readInstalledPackages } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
@@ -83,8 +83,15 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
     if (manifest.kind === extensionKinds.adapter)
       return fail('The adapter cannot be removed', [`  A config needs one adapter. Change it in ${configName} by hand.`])
 
+    // Only calls that run count: a plugin Studio switched off is a comment, as in Studio's own check.
+    const view = readConfig(source)
+    const running = new Set(
+      view.managed
+        ? view.configs.flatMap((config) => [...config.plugins, ...(config.parsers ?? [])].filter((call) => !call.disabled).map((call) => call.packageName))
+        : [],
+    )
     const dependents = entries.filter(
-      (other) => other.id !== entry.id && other.manifest.dependencies?.includes(manifest.name) && source.includes(`${other.manifest.export}(`),
+      (other) => other.id !== entry.id && other.manifest.dependencies?.includes(manifest.name) && running.has(other.artifact.package),
     )
     if (dependents.length) {
       const names = dependents.map((other) => other.manifest.name).join(', ')

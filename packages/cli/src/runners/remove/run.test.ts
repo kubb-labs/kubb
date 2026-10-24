@@ -95,6 +95,32 @@ describe('kubb remove', () => {
     expect(process.exitCode).toBe(1)
   })
 
+  it('removes a plugin that only a switched-off plugin needs', async () => {
+    await writeFile(
+      path.join(cwd, 'kubb.config.ts'),
+      [
+        `import { defineConfig } from 'kubb/config'`,
+        `import { pluginX } from '@acme/kubb-plugin-x'`,
+        `import { pluginY } from '@acme/kubb-plugin-y'`,
+        '',
+        'export default defineConfig({',
+        `  input: './petStore.yaml',`,
+        '  plugins: [',
+        '    pluginX(),',
+        '    // kubb:disabled @acme/kubb-plugin-y 1',
+        '    // pluginY(),',
+        '  ],',
+        '})',
+        '',
+      ].join('\n'),
+    )
+
+    await run({ id: 'acme/plugin-x', yes: true, uninstall: true })
+
+    expect(output.join('\n')).not.toContain('plugin-y needs plugin-x')
+    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).not.toContain('pluginX')
+  })
+
   it('keeps the package when another config entry still imports it', async () => {
     await writeFile(
       path.join(cwd, 'kubb.config.ts'),
