@@ -79,7 +79,13 @@ export type ConfigEditOutcome = {
   reason?: string
 }
 
-export type ExtensionEntry = { package: string; version: string; manifest: ExtensionManifest }
+export type ExtensionEntry = {
+  package: string
+  version: string
+  manifest: ExtensionManifest
+  /** Ships with `kubb` at its version, so updating `kubb` updates it and `kubb update` cannot. */
+  bundled?: true
+}
 
 /** Installed extensions by package name, the only ones Studio may import besides `@kubb/plugin-*`. */
 export type InstalledExtensions = ReadonlyMap<string, ExtensionEntry>

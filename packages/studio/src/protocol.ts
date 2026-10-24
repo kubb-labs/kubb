@@ -3,7 +3,6 @@ import type { KubbHooks } from '@kubb/core'
 import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ExtensionEntry } from '@internals/shared'
 
 export {
-  BUNDLED_PACKAGES,
   ConfigEditOperation,
   type ConfigEdit,
   type ConfigEditOutcome,

@@ -410,7 +410,9 @@ class Agent extends RpcTarget implements AgentApi {
 
     return new Map(
       installed.flatMap(({ package: name, version, manifest }) =>
-        version !== undefined && manifest ? [[name, { package: name, version, manifest }] as const] : [],
+        version !== undefined && manifest
+          ? [[name, { package: name, version, manifest, ...(BUNDLED_PACKAGES.includes(name) ? { bundled: true as const } : {}) }] as const]
+          : [],
       ),
     )
   }

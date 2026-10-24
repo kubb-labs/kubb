@@ -2,4 +2,4 @@
 '@kubb/studio': patch
 ---
 
-Export `BUNDLED_PACKAGES` from `@kubb/studio/protocol`: the extensions that ship with `kubb`.
+The agent marks each installed extension that ships with `kubb` as `bundled`.
