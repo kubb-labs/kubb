@@ -79,6 +79,7 @@ export type StudioValues = {
   allowConfigEdit?: boolean
   allowInstall?: boolean
   allowUpdate?: boolean
+  allowRemove?: boolean
   allowSaveInput?: boolean
   allowExec?: boolean
   open?: boolean
@@ -207,6 +208,7 @@ const PERMISSIONS: ReadonlyArray<{
   { key: AgentPermission.CONFIG_EDIT, label: 'edit config', title: (configPath) => `Change ${configPath}`, hint: 'edit plugin options' },
   { key: AgentPermission.INSTALL, label: 'add plugins', title: () => 'Install extensions from the registry', hint: 'kubb add from the browser' },
   { key: AgentPermission.UPDATE, label: 'update plugins', title: () => 'Update installed extensions', hint: 'kubb update from the browser' },
+  { key: AgentPermission.REMOVE, label: 'remove plugins', title: () => 'Remove extensions', hint: 'kubb remove from the browser' },
   {
     key: AgentPermission.SAVE_INPUT,
     label: 'save input',
