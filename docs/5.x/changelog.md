@@ -9,6 +9,56 @@ outline: 2
 
 # Changelog
 
+## v5.13.0 — Oct 24, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Require Node.js 22.22+ (chokidar 6) and reject malformed `servers[].url` values (`@readme/openapi-parser` 10). ([#4426](https://github.com/kubb-labs/kubb/pull/4426))
+
+#### Bug Fixes
+
+- Locate warning code frames in JSON specs without re-parsing. ([#4423](https://github.com/kubb-labs/kubb/pull/4423))
+- Validate the spec in a worker thread during generation. ([#4421](https://github.com/kubb-labs/kubb/pull/4421))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- AST nodes and diagnostics point at the spec key they came from, with a new `pointer` prop on `File.Source`. ([#4424](https://github.com/kubb-labs/kubb/pull/4424))
+- Speed up generation by 8 to 20% on large specs, with the same output. ([#4415](https://github.com/kubb-labs/kubb/pull/4415))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Drop `unstorage` and `lru-cache`; `kubbStorage` now only has `getItem`, `setItem` and `removeItem`. ([#4418](https://github.com/kubb-labs/kubb/pull/4418))
+
+### @kubb/mcp
+
+#### Bug Fixes
+
+- Validate tool input with `valibot` instead of `zod`. ([#4417](https://github.com/kubb-labs/kubb/pull/4417))
+
+### @kubb/parser-ts
+
+#### Features
+
+- Drop the TypeScript compiler dependency; printing compiler nodes is deprecated and needs `typescript` installed. ([#4416](https://github.com/kubb-labs/kubb/pull/4416))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Make `tsdown` an optional peer; `kubb studio snapshot` needs it installed. ([#4419](https://github.com/kubb-labs/kubb/pull/4419))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.12.8 — Oct 23, 2026
 
 ### @kubb/ast
