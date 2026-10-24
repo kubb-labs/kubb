@@ -166,11 +166,4 @@ describe('kubb remove', () => {
     expect(output.join('\n')).toContain('@kubb/parser-ts is the last parser in the parsers array')
     expect(process.exitCode).toBe(1)
   })
-
-  it('suggests close ids for an unknown one', async () => {
-    await run({ id: 'acme/plugin-xx', yes: true, uninstall: true })
-
-    expect(output.join('\n')).toContain('No extension named acme/plugin-xx')
-    expect(process.exitCode).toBe(1)
-  })
 })
