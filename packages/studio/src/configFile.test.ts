@@ -433,6 +433,63 @@ describe('applyConfigEdits', () => {
     })
   })
 
+  describe('add-plugin for a parser', () => {
+    const manifest = { kind: 'parser', name: 'parser-yaml', export: 'parserYaml', displayName: 'YAML', description: 'Prints YAML.' } as const
+    const extensions = new Map([['@acme/kubb-parser-yaml', { package: '@acme/kubb-parser-yaml', version: '1.0.0', manifest }]])
+    const edit: ConfigEdit = { operation: 'add-plugin', kind: 'parser', plugin: '@acme/kubb-parser-yaml' }
+
+    it('appends the parser to an existing parsers array', () => {
+      const source = `import { defineConfig } from 'kubb/config'\nimport { parserTs } from '@kubb/parser-ts'\n\nexport default defineConfig({\n  parsers: [parserTs()],\n  plugins: [],\n})\n`
+      const result = applyConfigEdits({ source, edits: [edit], extensions })
+      expect(result.source).toBe(
+        `import { defineConfig } from 'kubb/config'\nimport { parserTs } from '@kubb/parser-ts'\nimport { parserYaml } from '@acme/kubb-parser-yaml'\n\nexport default defineConfig({\n  parsers: [parserTs(), parserYaml()],\n  plugins: [],\n})\n`,
+      )
+    })
+
+    it('writes the default parsers next to it when the config has no parsers', () => {
+      const source = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  plugins: [],\n})\n`
+      const result = applyConfigEdits({ source, edits: [edit], extensions })
+      expect(result.source).toBe(
+        [
+          `import { defineConfig } from 'kubb/config'`,
+          `import { parserTs, parserTsx } from '@kubb/parser-ts'`,
+          `import { parserMd } from '@kubb/parser-md'`,
+          `import { parserYaml } from '@acme/kubb-parser-yaml'`,
+          ``,
+          `export default defineConfig({`,
+          `  plugins: [],`,
+          `  parsers: [parserTs(), parserTsx(), parserMd(), parserYaml()],`,
+          `})`,
+          ``,
+        ].join('\n'),
+      )
+    })
+
+    it('adds a default parser once when the config has no parsers', () => {
+      const parserMd = { kind: 'parser', name: 'parser-md', export: 'parserMd', displayName: 'Markdown', description: 'Prints Markdown.' } as const
+      const source = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  plugins: [],\n})\n`
+      const result = applyConfigEdits({
+        source,
+        edits: [{ operation: 'add-plugin', kind: 'parser', plugin: '@kubb/parser-md' }],
+        extensions: new Map([['@kubb/parser-md', { package: '@kubb/parser-md', version: '5.0.0', manifest: parserMd }]]),
+      })
+      expect(result.source).toContain('parsers: [parserTs(), parserTsx(), parserMd()],')
+      expect(result.source.match(/parserMd/g)).toHaveLength(2)
+    })
+
+    it('treats adding a parser the config lists as a no-op', () => {
+      const source = `import { parserYaml } from '@acme/kubb-parser-yaml'\n\nexport default defineConfig({\n  parsers: [parserYaml()],\n})\n`
+      const result = applyConfigEdits({ source, edits: [edit], extensions })
+      expect({ changed: result.changed, applied: result.outcomes[0]?.applied }).toStrictEqual({ changed: false, applied: true })
+    })
+
+    it('refuses a package that is not an installed parser', () => {
+      const source = `export default defineConfig({\n  parsers: [],\n})\n`
+      const result = applyConfigEdits({ source, edits: [edit] })
+      expect(result.outcomes[0]).toMatchObject({ applied: false, reason: '"@acme/kubb-parser-yaml" is not an installed Kubb parser' })
+    })
+  })
+
   describe('array configs', () => {
     const arraySource = [
       `import { pluginTs } from '@kubb/plugin-ts'`,
@@ -639,10 +696,11 @@ describe('applyConfigEdits', () => {
       ['an empty path', { operation: 'set', plugin: '@kubb/plugin-ts', path: [], value: 1 }, 'no option path given'],
       ['a missing plugin', { operation: 'disable-plugin' }, 'the edit names no plugin'],
       ['an unknown kind', { operation: 'set', kind: 'macro', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 1 }, 'unknown kind "macro"'],
+      ['an adapter kind on add-plugin', { operation: 'add-plugin', kind: 'adapter', plugin: '@kubb/adapter-oas' }, 'add-plugin adds a plugin or a parser'],
       [
         'a kind on a plugin-only operation',
-        { operation: 'add-plugin', kind: 'adapter', plugin: '@kubb/plugin-ts' },
-        'add-plugin edits the plugins array, so it takes no kind',
+        { operation: 'disable-plugin', kind: 'parser', plugin: '@kubb/plugin-ts' },
+        'disable-plugin edits the plugins array, so it takes no kind',
       ],
       [
         'a config ref that is not a name or index',

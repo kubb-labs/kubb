@@ -20,7 +20,7 @@ USAGE:
 
 COMMANDS:
   [generate] <OPTIONS> [<input>]      Generate TypeScript types, API clients, React Query hooks, Zod schemas, and more from an OpenAPI specification. Reads kubb.config.ts by default. Pass an OpenAPI file path as the first argument to override the input without editing the config.
-  add <OPTIONS> [<input>]             Install a plugin, adapter, or parser from the Kubb registry at its reviewed version. A plugin is added to kubb.config.ts, an adapter or parser prints the code to add. Reads KUBB_REGISTRY to use another registry.
+  add <OPTIONS> [<input>]             Install a plugin, adapter, or parser from the Kubb registry at its reviewed version. A plugin or parser is added to kubb.config.ts, an adapter prints the code to add. Reads KUBB_REGISTRY to use another registry.
   init <OPTIONS> [<input>]            Scaffold a kubb.config.ts and install plugins for code generation from an OpenAPI spec. Run without flags for interactive setup, or pass --input, --output, and --plugins to skip the prompts.
   list <OPTIONS> [<input>]            List the installed Kubb extensions: their registry id, package, installed version, the version the Kubb registry pins, and whether an update exists.
   mcp <OPTIONS> [<input>]             Start a Model Context Protocol (MCP) server that exposes Kubb code generation as tools for AI assistants. Once running, configure your AI client (Claude, Cursor, Windsurf, etc.) to connect to it — the assistant can then call kubb generate directly without leaving the chat.
@@ -50,7 +50,7 @@ Run `kubb` with no command and it runs `kubb generate`. After the commands, `kub
 | [`kubb validate`](/docs/5.x/reference/commands/validate) | Validate a Swagger/OpenAPI document without running the pipeline. |
 | [`kubb mcp`](/docs/5.x/reference/commands/mcp) | Start a Model Context Protocol server for AI clients. |
 | [`kubb studio`](/docs/5.x/reference/commands/studio) | Connect the project to Kubb Studio, or manage its pairing and snapshots. |
-| [`kubb add`](/docs/5.x/reference/commands/add) | Install a plugin, adapter, or parser from the Kubb registry and add a plugin to the config. |
+| [`kubb add`](/docs/5.x/reference/commands/add) | Install a plugin, adapter, or parser from the Kubb registry and add a plugin or parser to the config. |
 | [`kubb update`](/docs/5.x/reference/commands/update) | Move installed extensions to the version the Kubb registry pins. |
 | [`kubb list`](/docs/5.x/reference/commands/list) | List the installed extensions, their versions, and available updates. |
 

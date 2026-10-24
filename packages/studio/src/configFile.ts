@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises'
-import { Diagnostics, type ExtensionKind } from '@kubb/core'
+import { Diagnostics, type ExtensionKind, isPackageName } from '@kubb/core'
 import { getErrorMessage, read } from '@internals/utils'
 import { detectCodeFormat, parseExpression, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
@@ -56,7 +56,9 @@ function invalidEdit(edit: ConfigEdit): string | undefined {
   const isOutput = operation === ConfigEditOperation.SET_OUTPUT || operation === ConfigEditOperation.REMOVE_OUTPUT
   if (!isOutput && (typeof plugin !== 'string' || !plugin)) return 'the edit names no plugin'
   if (kind !== undefined && (typeof kind !== 'string' || !KINDS.has(kind))) return `unknown kind ${JSON.stringify(kind)}`
-  if (kind !== undefined && operation !== ConfigEditOperation.SET && operation !== ConfigEditOperation.REMOVE)
+  if (operation === ConfigEditOperation.ADD_PLUGIN && kind !== undefined && kind !== 'plugin' && kind !== 'parser')
+    return 'add-plugin adds a plugin or a parser'
+  if (kind !== undefined && operation !== ConfigEditOperation.SET && operation !== ConfigEditOperation.REMOVE && operation !== ConfigEditOperation.ADD_PLUGIN)
     return `${operation} edits the plugins array, so it takes no kind`
   if (isOutput || operation === ConfigEditOperation.SET || operation === ConfigEditOperation.REMOVE) {
     if (!Array.isArray(path) || !path.every((key) => typeof key === 'string' && key)) return 'path must be a list of option names'
@@ -667,8 +669,19 @@ function insertImport(source: string, { mod, kind }: ParsedConfig, importName: s
 }
 
 /**
- * Adds a `pluginX(...)` call to a config's plugins array, and its import. Replaying the same add is
- * a no-op, while an import name collision with an unrelated package remains an error.
+ * The parsers `defineConfig` applies when a config sets no `parsers`, by import name. Adding a parser
+ * to such a config writes these too, or the new array would replace them.
+ */
+const DEFAULT_PARSERS = [
+  { importName: 'parserTs', packageName: '@kubb/parser-ts' },
+  { importName: 'parserTsx', packageName: '@kubb/parser-ts' },
+  { importName: 'parserMd', packageName: '@kubb/parser-md' },
+] as const
+
+/**
+ * Adds a `pluginX(...)` call to a config's `plugins` array, or a `parserX(...)` call to its `parsers`
+ * array, and its import. Replaying the same add is a no-op, while an import name collision with an
+ * unrelated package remains an error.
  */
 function applyAddPlugin({
   source,
@@ -685,26 +698,54 @@ function applyAddPlugin({
   quote: Quote
   extensions: InstalledExtensions
 }): EditResult {
-  if (!isAllowedPlugin({ packageName: edit.plugin, extensions })) {
-    return { reason: `"${edit.plugin}" is not a @kubb/plugin-* package or an installed Kubb plugin` }
+  const kind = edit.kind ?? 'plugin'
+  const allowed =
+    kind === 'parser'
+      ? isPackageName(edit.plugin) && extensions.get(edit.plugin)?.manifest.kind === 'parser'
+      : isAllowedPlugin({ packageName: edit.plugin, extensions })
+  if (!allowed) {
+    return {
+      reason:
+        kind === 'parser' ? `"${edit.plugin}" is not an installed Kubb parser` : `"${edit.plugin}" is not a @kubb/plugin-* package or an installed Kubb plugin`,
+    }
   }
 
   const importName = extensions.get(edit.plugin)?.manifest.export ?? toExportName(edit.plugin)
   if (!IDENTIFIER.test(importName)) return { reason: `"${importName}" is not a valid import name` }
-  if (factoryCalls(parsed.mod, config).some((plugin) => plugin.packageName === edit.plugin)) return { source }
+  // A package can ship several parsers (`parserTs` and `parserTsx`), so a parser is matched by its export too.
+  if (factoryCalls(parsed.mod, config, kind).some((entry) => entry.packageName === edit.plugin && (kind === 'plugin' || entry.exportName === importName)))
+    return { source }
 
-  const taken = importedFrom(parsed.mod).get(importName)?.from
+  const imports = importedFrom(parsed.mod)
+  const taken = imports.get(importName)?.from
   if (taken && taken !== edit.plugin) return { reason: `${importName} is already imported from ${taken}` }
 
   const options = edit.options ?? {}
   if (!isOptionValue(options)) return { reason: 'the options are not literals that can be written to a config file' }
+  const call = `${importName}(${Object.keys(options).length ? printValue(options, quote) : ''})`
 
-  const plugins = property(config, 'plugins')
-  if (plugins?.type !== 'ArrayExpression') return { reason: 'plugins is not an array literal' }
+  const key = kind === 'parser' ? 'parsers' : 'plugins'
+  const array = property(config, key)
+  // A config without `parsers` runs the defaults, so the new array lists them before the added parser.
+  const defaults = kind === 'parser' && !array ? DEFAULT_PARSERS.filter((parser) => parser.importName !== importName) : []
+  if (array && array.type !== 'ArrayExpression') return { reason: `${key} is not an array literal` }
+  if (!array && kind === 'plugin') return { reason: 'plugins is not an array literal' }
+  for (const parser of defaults) {
+    const from = imports.get(parser.importName)?.from
+    if (from && from !== parser.packageName) return { reason: `${parser.importName} is already imported from ${from}` }
+  }
 
   // The array sits below the imports, so adding to it first leaves the import lines where they are.
-  const next = insertItem(source, plugins, `${importName}(${Object.keys(options).length ? printValue(options, quote) : ''})`)
-  return { source: taken ? next : insertImport(next, parsed, importName, edit.plugin) }
+  const next = array
+    ? insertItem(source, array, call)
+    : insertItem(source, config, `parsers: [${[...defaults.map((parser) => `${parser.importName}()`), call].join(', ')}]`)
+  const missing = [...defaults.filter((parser) => !imports.has(parser.importName)), ...(taken ? [] : [{ importName, packageName: edit.plugin }])]
+  // One import per package, so `parserTs` and `parserTsx` share a line.
+  const byPackage = new Map<string, Array<string>>()
+  for (const item of missing) byPackage.set(item.packageName, [...(byPackage.get(item.packageName) ?? []), item.importName])
+  return {
+    source: [...byPackage].reduceRight((current, [packageName, names]) => insertImport(current, parsed, names.join(', '), packageName), next),
+  }
 }
 
 /**

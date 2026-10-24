@@ -87,7 +87,10 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
 
     const tracked = entries.filter((entry) => versions.has(entry.artifact.package) && (!wanted.size || wanted.has(entry.id)))
     for (const id of wanted) {
-      if (!tracked.some((entry) => entry.id === id)) logWarn(`${id} is not installed, or not in the registry.`)
+      if (tracked.some((entry) => entry.id === id)) continue
+      logWarn(`${id} is not installed, or not in the registry.`)
+      // A caller that named it, such as Studio, must not read the run as a successful update.
+      process.exitCode = 1
     }
 
     const current = ({ artifact }: RegistryEntry) => versions.get(artifact.package)

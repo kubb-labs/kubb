@@ -95,9 +95,11 @@ export type ConfigEdit =
    */
   | { operation: typeof ConfigEditOperation.REMOVE; config?: ConfigRef; kind?: ExtensionKind; plugin: string; path: Array<string> }
   /**
-   * Add a plugin factory call and its import to the `plugins` array.
+   * Add a factory call and its import: a plugin to the `plugins` array, or with `kind: 'parser'` a
+   * parser to `parsers`. A config without `parsers` gets the default parsers written next to it, so
+   * they keep running.
    */
-  | { operation: typeof ConfigEditOperation.ADD_PLUGIN; config?: ConfigRef; plugin: string; options?: Record<string, unknown> }
+  | { operation: typeof ConfigEditOperation.ADD_PLUGIN; config?: ConfigRef; kind?: 'plugin' | 'parser'; plugin: string; options?: Record<string, unknown> }
   /**
    * Comment the plugin call out, keeping its options in the file so enabling it again restores them.
    */
