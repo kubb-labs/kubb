@@ -1,6 +1,5 @@
 import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import ts from '@typescript/typescript6'
 import { getRelativePath, print as printFragments, printExport, printImport, printSource } from './utils.ts'
 
 function print(...nodes: Array<ast.CodeNode>): string {
@@ -183,7 +182,8 @@ describe('print', () => {
     expect(printFragments('type A = string', 'type B = number')).toBe('type A = string\ntype B = number')
   })
 
-  it('prints TypeScript compiler nodes through the deprecated path', () => {
+  it('prints TypeScript compiler nodes through the deprecated path', async () => {
+    const { default: ts } = await import('@typescript/typescript6')
     const node = ts.factory.createTypeAliasDeclaration(undefined, 'A', undefined, ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword))
 
     expect(printFragments(node, node)).toBe('type A = string;\ntype A = string;\n')

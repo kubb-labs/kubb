@@ -1,7 +1,7 @@
 {
   "name": "@kubb/parser-ts",
   "version": "5.12.8",
-  "description": "TypeScript and TSX source file parser for Kubb. Converts AST nodes into formatted source strings without the TypeScript compiler, so it runs in Node.js and edge runtimes.",
+  "description": "TypeScript and TSX parser for Kubb. Prints AST nodes as source strings and reads template imports with yuku-parser, so it runs in Node.js and edge runtimes.",
   "keywords": [
     "codegen",
     "kubb",
