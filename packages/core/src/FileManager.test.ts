@@ -393,6 +393,26 @@ describe('FileManager#dispatch', () => {
     expect(fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
   })
 
+  it('links each source without a pointer to the node it was generated from', () => {
+    const fileManager = new FileManager()
+    const file = ast.factory.createFile({
+      baseName: 'pet.ts',
+      path: '/out/pet.ts',
+      sources: [
+        ast.factory.createSource({ name: 'Pet', nodes: [] }),
+        ast.factory.createSource({ name: 'PetStatus', pointer: '#/components/schemas/Pet/properties/status', nodes: [] }),
+      ],
+    })
+
+    fileManager.dispatch({ result: [file], pointer: '#/components/schemas/Pet' })
+
+    expect(fileManager.files[0]?.sources.map((source) => source.pointer)).toStrictEqual([
+      '#/components/schemas/Pet',
+      '#/components/schemas/Pet/properties/status',
+    ])
+    expect(file.sources[0]?.pointer).toBeUndefined()
+  })
+
   it('routes element results through the renderer, upserting its files', async () => {
     const fileManager = new FileManager()
     const renderer = {

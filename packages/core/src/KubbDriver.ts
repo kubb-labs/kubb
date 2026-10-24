@@ -693,7 +693,7 @@ export class KubbDriver {
     for (const generator of generators) {
       const matches = generator.match ? await generator.match(node, ctx) : true
       if (!matches) continue
-      await this.fileManager.dispatch({ result: await generate(generator), renderer: generator.renderer })
+      await this.fileManager.dispatch({ result: await generate(generator), renderer: generator.renderer, pointer: node.pointer })
     }
   }
 
