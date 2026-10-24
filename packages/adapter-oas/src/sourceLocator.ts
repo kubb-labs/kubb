@@ -1,3 +1,4 @@
+import { escapePointerToken } from '@internals/utils'
 import type { Adapter } from '@kubb/core'
 import * as yaml from 'yaml'
 
@@ -8,7 +9,6 @@ let cached: { source: string; document: yaml.Document } | { source: string; json
 
 const toRange = ([start, end]: yaml.Range): Range => ({ start, end })
 
-const escapeToken = (token: string) => token.replaceAll('~', '~0').replaceAll('/', '~1')
 const unescapeToken = (token: string) => token.replaceAll('~1', '/').replaceAll('~0', '~')
 
 /** Walks a JSON pointer through maps and sequences; the range is the last key or item it reached. */
@@ -102,7 +102,7 @@ function indexJson(source: string) {
         continue
       }
       const key = readString()
-      const next = `${pointer}/${escapeToken(key.text)}`
+      const next = `${pointer}/${escapePointerToken(key.text)}`
       // A duplicate key keeps its first range, like `findPointer`.
       if (!pointers.has(next)) pointers.set(next, { start: key.start, end: key.end })
       expect(':')
@@ -120,7 +120,7 @@ function indexJson(source: string) {
   return { pointers, refs }
 }
 
-/** Indexes JSON text, or parses it with YAML when it is not plain JSON, and YAML text always. */
+/** Indexes plain JSON text; anything else goes to the YAML parser. */
 function parse(source: string): NonNullable<typeof cached> {
   if (/^[ \t\n\r]*\{/.test(source)) {
     try {
@@ -147,12 +147,7 @@ export const locate: NonNullable<Adapter['locate']> = (source, location) => {
   const ref = 'ref' in location ? location.ref : undefined
   if ('json' in cached) {
     const { pointers, refs } = cached.json
-    const pointer = location.pointer
-      .replace(/^#/, '')
-      .split('/')
-      .slice(1)
-      .map((token) => `/${escapeToken(unescapeToken(token))}`)
-    return pointers.get(`#${pointer.join('')}`) ?? (ref ? refs.get(ref) : undefined)
+    return pointers.get(location.pointer) ?? (ref ? refs.get(ref) : undefined)
   }
   const { document } = cached
   return findPointer(document, location.pointer) ?? (ref ? findRefUsage(document, ref) : undefined)
