@@ -16,6 +16,7 @@ export {
 } from './configFile/rules.ts'
 export {
   ConfigEditOperation,
+  extensionKinds,
   type ConfigEdit,
   type ConfigEditOutcome,
   type ConfigFileView,

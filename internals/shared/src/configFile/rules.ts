@@ -1,4 +1,4 @@
-import { isPackageName } from '@kubb/core'
+import { type ExtensionKind, isPackageName } from '@kubb/core'
 import { camelCase } from '@internals/utils'
 import { extensionKinds, type InstalledExtensions, type OptionValue } from './types.ts'
 
@@ -14,10 +14,18 @@ export function toExportName(packageName: string): string {
 
 const KUBB_PLUGIN_SPECIFIER = /^@kubb\/plugin-[\w.-]+$/
 
-/** Only a `@kubb/plugin-*` package or an installed plugin extension may be imported, never a path or URL. */
-export function isAllowedPlugin({ packageName, extensions }: { packageName: string; extensions: InstalledExtensions }): boolean {
+/** Only a `@kubb/plugin-*` package or an installed extension of `kind` may be imported, never a path or URL. */
+export function isAllowedPlugin({
+  packageName,
+  extensions,
+  kind = extensionKinds.plugin,
+}: {
+  packageName: string
+  extensions: InstalledExtensions
+  kind?: ExtensionKind
+}): boolean {
   if (!isPackageName(packageName)) return false
-  return KUBB_PLUGIN_SPECIFIER.test(packageName) || extensions.get(packageName)?.manifest.kind === extensionKinds.plugin
+  return (kind === extensionKinds.plugin && KUBB_PLUGIN_SPECIFIER.test(packageName)) || extensions.get(packageName)?.manifest.kind === kind
 }
 
 const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])

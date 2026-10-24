@@ -1,4 +1,4 @@
-import { type ExtensionKind, isPackageName } from '@kubb/core'
+import type { ExtensionKind } from '@kubb/core'
 import { getErrorMessage, read, writeRaw } from '@internals/utils'
 import {
   type AssignmentExpression,
@@ -653,10 +653,7 @@ function addPlugin({
 }): EditResult {
   const kind = edit.kind ?? extensionKinds.plugin
   const isParser = kind === extensionKinds.parser
-  const allowed = isParser
-    ? isPackageName(edit.plugin) && extensions.get(edit.plugin)?.manifest.kind === extensionKinds.parser
-    : isAllowedPlugin({ packageName: edit.plugin, extensions })
-  if (!allowed) {
+  if (!isAllowedPlugin({ packageName: edit.plugin, extensions, kind })) {
     return {
       reason: isParser ? `"${edit.plugin}" is not an installed Kubb parser` : `"${edit.plugin}" is not a @kubb/plugin-* package or an installed Kubb plugin`,
     }
@@ -669,10 +666,6 @@ function addPlugin({
     return { source }
   }
 
-  const imports = getImports(parsed.program)
-  const taken = imports.get(importName)?.from
-  if (taken && taken !== edit.plugin) return { reason: `${importName} is already imported from ${taken}` }
-
   const options = edit.options ?? {}
   if (!isOptionValue(options)) return { reason: 'the options are not literals that can be written to a config file' }
 
@@ -681,9 +674,14 @@ function addPlugin({
   if (array ? array.type !== nodeTypes.arrayExpression : !isParser) return { reason: `${key} is not an array literal` }
   // A config without `parsers` runs the defaults, so the new array lists them before the added parser.
   const defaults = isParser && !array ? DEFAULT_PARSERS.filter((parser) => parser.importName !== importName) : []
-  for (const parser of defaults) {
-    const from = imports.get(parser.importName)?.from
-    if (from && from !== parser.packageName) return { reason: `${parser.importName} is already imported from ${from}` }
+
+  // The missing imports by package, so `parserTs` and `parserTsx` share one line.
+  const imports = getImports(parsed.program)
+  const missing = new Map<string, Array<string>>()
+  for (const item of [...defaults, { importName, packageName: edit.plugin }]) {
+    const from = imports.get(item.importName)?.from
+    if (from && from !== item.packageName) return { reason: `${item.importName} is already imported from ${from}` }
+    if (!from) missing.set(item.packageName, [...(missing.get(item.packageName) ?? []), item.importName])
   }
 
   // The array sits below the imports, so adding to it first leaves the import lines where they are.
@@ -692,13 +690,6 @@ function addPlugin({
     array?.type === nodeTypes.arrayExpression
       ? appendItem(source, array, call)
       : appendItem(source, config, `parsers: [${[...defaults.map((parser) => `${parser.importName}()`), call].join(', ')}]`)
-
-  // One import per package, so `parserTs` and `parserTsx` share a line.
-  const missing = new Map<string, Array<string>>()
-  for (const parser of defaults) {
-    if (!imports.has(parser.importName)) missing.set(parser.packageName, [...(missing.get(parser.packageName) ?? []), parser.importName])
-  }
-  if (!taken) missing.set(edit.plugin, [...(missing.get(edit.plugin) ?? []), importName])
 
   return {
     source: [...missing].reduceRight(
@@ -785,55 +776,39 @@ function enablePlugin(source: string, comments: Array<Comment>, config: ObjectEx
 
 // Removing extensions
 
-/** The local names a statement imports, through `import` or a destructured `require`. */
-function importedNames(statement: Program['body'][number]): Array<string> {
-  if (statement.type === nodeTypes.importDeclaration) return importBindings(statement).map(([local]) => local)
-  if (statement.type === nodeTypes.variableDeclaration && statement.declarations.length === 1) return requireBindings(statement).map(([local]) => local)
-  return []
-}
-
-/**
- * Drops the imports of `names` that nothing else in the file mentions: the whole statement when none
- * of its names is left, otherwise those specifiers of an `import { ... }`.
- */
-function removeUnusedImports(source: string, names: Set<string>): string {
+/** Drops the import statements of `packageName` once nothing else in the file uses their names. */
+function removeUnusedImports(source: string, packageName: string): string {
   const parsed = parseSource(source)
   if ('reason' in parsed) return source
 
   // From the last statement up, so the offsets of the earlier ones stay valid.
   return parsed.program.body.reduceRight((current, statement) => {
-    const local = importedNames(statement)
-    const { start, end } = statement
-    const rest = replaceText(current, start, end)
-    const unused = local.filter((name) => names.has(name) && !new RegExp(`(?<![\\w$])${name.replaceAll('$', '\\$')}(?![\\w$])`).test(rest))
-    if (!unused.length) return current
+    const bindings =
+      statement.type === nodeTypes.importDeclaration
+        ? importBindings(statement)
+        : statement.type === nodeTypes.variableDeclaration
+          ? requireBindings(statement)
+          : []
+    if (!bindings.length || bindings.some(([, { from }]) => from !== packageName)) return current
 
-    if (unused.length === local.length) {
-      const lineStart = current.lastIndexOf('\n', start - 1) + 1
-      const lineEnd = current.indexOf('\n', end)
-      const after = lineEnd === -1 ? current.length : lineEnd + 1
-      // At the top of the file, the blank line after the import goes too, so the file does not start with one.
-      return replaceText(current, lineStart, lineStart === 0 && current[after] === '\n' ? after + 1 : after)
-    }
-    if (statement.type !== nodeTypes.importDeclaration) return current
+    const rest = replaceText(current, statement.start, statement.end)
+    if (bindings.some(([local]) => new RegExp(`(?<![\\w$])${local.replaceAll('$', '\\$')}(?![\\w$])`).test(rest))) return current
 
-    const kept = statement.specifiers
-      .filter((specifier) => !unused.includes(specifier.local.name))
-      .map((specifier) => current.slice(specifier.start, specifier.end))
-    const braces = current.slice(start, end).match(/\{[^}]*\}/)
-    if (braces?.index === undefined) return current
-    return replaceText(current, start + braces.index, start + braces.index + braces[0].length, `{ ${kept.join(', ')} }`)
+    const lineStart = current.lastIndexOf('\n', statement.start - 1) + 1
+    const lineEnd = current.indexOf('\n', statement.end)
+    const after = lineEnd === -1 ? current.length : lineEnd + 1
+    // At the top of the file, the blank line after the import goes too, so the file does not start with one.
+    return replaceText(current, lineStart, lineStart === 0 && current[after] === '\n' ? after + 1 : after)
   }, source)
 }
 
 /**
  * Removes every call of a plugin or parser package, and the block `disable-plugin` commented out,
- * then the imports nothing uses anymore. Removing what the config does not hold is a no-op. Refuses
- * to empty `parsers`, since a config with no parser cannot print files.
+ * then its unused imports. Removing what the config does not hold is a no-op. Refuses to empty
+ * `parsers`, since a config with no parser cannot print files.
  */
 function removeExtension(source: string, edit: RemoveExtensionEdit): EditResult {
   const kind = edit.kind ?? extensionKinds.plugin
-  const names = new Set<string>()
   let current = source
 
   // One call at a time, re-parsing in between, since each removal moves the ones after it.
@@ -845,29 +820,20 @@ function removeExtension(source: string, edit: RemoveExtensionEdit): EditResult 
 
     const array = getValue(config, `${kind}s`)
     const calls = findCalls(parsed.program, config, kind).filter((entry) => entry.packageName === edit.plugin)
-    const [first] = calls
-    if (!first || array?.type !== nodeTypes.arrayExpression) {
-      const block =
-        kind === extensionKinds.plugin ? findDisabled(current, parsed.comments, config).find((entry) => entry.packageName === edit.plugin) : undefined
-      if (block) {
-        for (const line of block.code) {
-          const callee = line.trim().match(/^([A-Za-z_$][\w$]*)\(/)?.[1]
-          if (callee) names.add(callee)
-        }
-        const lines = current.split('\n')
-        lines.splice(block.line - 1, block.end - block.line + 1)
-        current = lines.join('\n')
-      }
-      break
+    const block = findDisabled(current, parsed.comments, config).find((entry) => entry.packageName === edit.plugin)
+
+    if (calls[0] && array?.type === nodeTypes.arrayExpression) {
+      const elements = array.elements.filter((element) => element !== null)
+      if (kind === extensionKinds.parser && elements.length === calls.length) return { reason: `${edit.plugin} is the last parser in the parsers array` }
+      current = removeItem(current, array, elements.indexOf(calls[0].call))
+    } else if (block && kind === extensionKinds.plugin) {
+      const lines = current.split('\n')
+      lines.splice(block.line - 1, block.end - block.line + 1)
+      current = lines.join('\n')
+    } else {
+      return { source: current === source ? source : removeUnusedImports(current, edit.plugin) }
     }
-
-    const elements = array.elements.filter((element) => element !== null)
-    if (kind === extensionKinds.parser && elements.length === calls.length) return { reason: `${edit.plugin} is the last parser in the parsers array` }
-    names.add(first.importName)
-    current = removeItem(current, array, elements.indexOf(first.call))
   }
-
-  return { source: names.size ? removeUnusedImports(current, names) : current }
 }
 
 // Applying edits

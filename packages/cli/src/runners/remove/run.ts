@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
-import { BUNDLED_PACKAGES, ConfigEditOperation, editConfig, editConfigFile, findConfigFile, readImports } from '@internals/shared'
+import { BUNDLED_PACKAGES, ConfigEditOperation, extensionKinds, editConfig, editConfigFile, findConfigFile, readImports } from '@internals/shared'
 import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, readInstalledPackages } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
@@ -80,7 +80,8 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
     }
     const { artifact, manifest } = entry
     const kind = manifest.kind.charAt(0).toUpperCase() + manifest.kind.slice(1)
-    if (manifest.kind === 'adapter') return fail('The adapter cannot be removed', [`  A config needs one adapter. Change it in ${configName} by hand.`])
+    if (manifest.kind === extensionKinds.adapter)
+      return fail('The adapter cannot be removed', [`  A config needs one adapter. Change it in ${configName} by hand.`])
 
     const dependents = entries.filter(
       (other) => other.id !== entry.id && other.manifest.dependencies?.includes(manifest.name) && source.includes(`${other.manifest.export}(`),
@@ -91,7 +92,11 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
     }
 
     const edits = [
-      { operation: ConfigEditOperation.REMOVE_EXTENSION, ...(manifest.kind === 'parser' ? { kind: 'parser' as const } : {}), plugin: artifact.package },
+      {
+        operation: ConfigEditOperation.REMOVE_EXTENSION,
+        ...(manifest.kind === extensionKinds.parser ? { kind: extensionKinds.parser } : {}),
+        plugin: artifact.package,
+      },
     ]
     const preview = editConfig({ source, edits })
     const outcome = preview.outcomes[0]

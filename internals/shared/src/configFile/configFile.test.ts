@@ -2,7 +2,7 @@ import { join } from 'node:path'
 import { read } from '@internals/utils'
 import { describe, expect, it } from 'vitest'
 import { editConfig, readConfig } from './configFile.ts'
-import { type ConfigEdit, ConfigEditOperation, type ConfigFileView, type PluginView } from './types.ts'
+import { type ConfigEdit, ConfigEditOperation, type ConfigFileView, extensionKinds, type PluginView } from './types.ts'
 
 const advanced = await read(join(import.meta.dirname, 'advanced.config.txt'))
 
@@ -314,7 +314,7 @@ describe('editConfig', () => {
     it('sets a nested adapter option without touching its siblings', () => {
       const result = editConfig({
         source,
-        edits: [{ operation: ConfigEditOperation.SET_OPTION, kind: 'adapter', plugin: '@kubb/adapter-oas', path: ['server', 'index'], value: 1 }],
+        edits: [{ operation: ConfigEditOperation.SET_OPTION, kind: extensionKinds.adapter, plugin: '@kubb/adapter-oas', path: ['server', 'index'], value: 1 }],
       })
       expect(result.source).toBe(source.replace('index: 0', 'index: 1'))
     })
@@ -322,7 +322,7 @@ describe('editConfig', () => {
     it('sets and removes a parser option', () => {
       const set = editConfig({
         source,
-        edits: [{ operation: ConfigEditOperation.SET_OPTION, kind: 'parser', plugin: '@kubb/parser-ts', path: ['extension'], value: '.js' }],
+        edits: [{ operation: ConfigEditOperation.SET_OPTION, kind: extensionKinds.parser, plugin: '@kubb/parser-ts', path: ['extension'], value: '.js' }],
       })
       expect(set.source).toBe(source.replace('parserTs()', `parserTs({ extension: '.js' })`))
       const view = readConfig(set.source)
@@ -332,14 +332,14 @@ describe('editConfig', () => {
 
       const removed = editConfig({
         source: set.source,
-        edits: [{ operation: ConfigEditOperation.REMOVE_OPTION, kind: 'parser', plugin: '@kubb/parser-ts', path: ['extension'] }],
+        edits: [{ operation: ConfigEditOperation.REMOVE_OPTION, kind: extensionKinds.parser, plugin: '@kubb/parser-ts', path: ['extension'] }],
       })
       expect(removed.source).toBe(source.replace('parserTs()', 'parserTs({})'))
     })
 
     it('edits the factory the package is known by when it ships several, under any local name', () => {
       const edits: Array<ConfigEdit> = [
-        { operation: ConfigEditOperation.SET_OPTION, kind: 'parser', plugin: '@kubb/parser-ts', path: ['extension'], value: '.js' },
+        { operation: ConfigEditOperation.SET_OPTION, kind: extensionKinds.parser, plugin: '@kubb/parser-ts', path: ['extension'], value: '.js' },
       ]
       const two = source.replace('parsers: [parserTs()]', 'parsers: [parserTsx(), parserTs()]').replace(`import { parserTs }`, `import { parserTs, parserTsx }`)
       expect(editConfig({ source: two, edits }).source).toBe(two.replace('parserTs()', `parserTs({ extension: '.js' })`))
@@ -354,8 +354,8 @@ describe('editConfig', () => {
       const { outcomes } = editConfig({
         source,
         edits: [
-          { operation: ConfigEditOperation.SET_OPTION, kind: 'adapter', plugin: '@kubb/adapter-other', path: ['validate'], value: true },
-          { operation: ConfigEditOperation.SET_OPTION, kind: 'parser', plugin: '@kubb/parser-md', path: ['extension'], value: '.md' },
+          { operation: ConfigEditOperation.SET_OPTION, kind: extensionKinds.adapter, plugin: '@kubb/adapter-other', path: ['validate'], value: true },
+          { operation: ConfigEditOperation.SET_OPTION, kind: extensionKinds.parser, plugin: '@kubb/parser-md', path: ['extension'], value: '.md' },
           { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/adapter-oas', path: ['validate'], value: true },
         ],
       })
@@ -435,7 +435,7 @@ describe('editConfig', () => {
 
     describe('a third-party plugin', () => {
       const source = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  plugins: [],\n})\n`
-      const manifest = { kind: 'plugin', name: 'plugin-x', export: 'pluginX', displayName: 'X', description: 'X.' } as const
+      const manifest = { kind: extensionKinds.plugin, name: 'plugin-x', export: 'pluginX', displayName: 'X', description: 'X.' } as const
       const extensions = new Map([['@acme/kubb-plugin-x', { package: '@acme/kubb-plugin-x', version: '1.0.0', manifest }]])
 
       it('adds an installed extension with the import name its manifest names', () => {
@@ -455,9 +455,9 @@ describe('editConfig', () => {
   })
 
   describe('add-plugin for a parser', () => {
-    const manifest = { kind: 'parser', name: 'parser-yaml', export: 'parserYaml', displayName: 'YAML', description: 'Prints YAML.' } as const
+    const manifest = { kind: extensionKinds.parser, name: 'parser-yaml', export: 'parserYaml', displayName: 'YAML', description: 'Prints YAML.' } as const
     const extensions = new Map([['@acme/kubb-parser-yaml', { package: '@acme/kubb-parser-yaml', version: '1.0.0', manifest }]])
-    const edit: ConfigEdit = { operation: ConfigEditOperation.ADD_PLUGIN, kind: 'parser', plugin: '@acme/kubb-parser-yaml' }
+    const edit: ConfigEdit = { operation: ConfigEditOperation.ADD_PLUGIN, kind: extensionKinds.parser, plugin: '@acme/kubb-parser-yaml' }
 
     it('appends the parser to an existing parsers array', () => {
       const source = `import { defineConfig } from 'kubb/config'\nimport { parserTs } from '@kubb/parser-ts'\n\nexport default defineConfig({\n  parsers: [parserTs()],\n  plugins: [],\n})\n`
@@ -487,11 +487,11 @@ describe('editConfig', () => {
     })
 
     it('adds a default parser once when the config has no parsers', () => {
-      const parserMd = { kind: 'parser', name: 'parser-md', export: 'parserMd', displayName: 'Markdown', description: 'Prints Markdown.' } as const
+      const parserMd = { kind: extensionKinds.parser, name: 'parser-md', export: 'parserMd', displayName: 'Markdown', description: 'Prints Markdown.' } as const
       const source = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  plugins: [],\n})\n`
       const result = editConfig({
         source,
-        edits: [{ operation: ConfigEditOperation.ADD_PLUGIN, kind: 'parser', plugin: '@kubb/parser-md' }],
+        edits: [{ operation: ConfigEditOperation.ADD_PLUGIN, kind: extensionKinds.parser, plugin: '@kubb/parser-md' }],
         extensions: new Map([['@kubb/parser-md', { package: '@kubb/parser-md', version: '5.0.0', manifest: parserMd }]]),
       })
       expect(result.source).toContain('parsers: [parserTs(), parserTsx(), parserMd()],')
@@ -546,16 +546,19 @@ describe('editConfig', () => {
 
     it('removes every parser call of the package and only those import names', () => {
       const source = `import { parserTs, parserTsx } from '@kubb/parser-ts'\nimport { parserMd } from '@kubb/parser-md'\n\nexport default defineConfig({\n  parsers: [parserTs(), parserTsx(), parserMd()],\n})\n`
-      const result = editConfig({ source, edits: [{ operation: ConfigEditOperation.REMOVE_EXTENSION, kind: 'parser', plugin: '@kubb/parser-md' }] })
+      const result = editConfig({
+        source,
+        edits: [{ operation: ConfigEditOperation.REMOVE_EXTENSION, kind: extensionKinds.parser, plugin: '@kubb/parser-md' }],
+      })
       expect(result.source).toBe(
         `import { parserTs, parserTsx } from '@kubb/parser-ts'\n\nexport default defineConfig({\n  parsers: [parserTs(), parserTsx()],\n})\n`,
       )
     })
 
-    it('keeps the other names of an import it shortens', () => {
+    it('keeps an import that still holds a used name', () => {
       const source = `import { defineConfig, pluginZod } from 'acme-kubb'\n\nexport default defineConfig({\n  plugins: [pluginZod()],\n})\n`
       const result = editConfig({ source, edits: [{ operation: ConfigEditOperation.REMOVE_EXTENSION, plugin: 'acme-kubb' }] })
-      expect(result.source).toBe(`import { defineConfig } from 'acme-kubb'\n\nexport default defineConfig({\n  plugins: [],\n})\n`)
+      expect(result.source).toBe(`import { defineConfig, pluginZod } from 'acme-kubb'\n\nexport default defineConfig({\n  plugins: [],\n})\n`)
     })
 
     it('removes an import whose name holds a dollar sign', () => {
@@ -566,7 +569,10 @@ describe('editConfig', () => {
 
     it('refuses to remove the last parser', () => {
       const source = `import { parserTs } from '@kubb/parser-ts'\n\nexport default defineConfig({\n  parsers: [parserTs()],\n})\n`
-      const result = editConfig({ source, edits: [{ operation: ConfigEditOperation.REMOVE_EXTENSION, kind: 'parser', plugin: '@kubb/parser-ts' }] })
+      const result = editConfig({
+        source,
+        edits: [{ operation: ConfigEditOperation.REMOVE_EXTENSION, kind: extensionKinds.parser, plugin: '@kubb/parser-ts' }],
+      })
       expect(result.outcomes[0]).toMatchObject({ applied: false, reason: '@kubb/parser-ts is the last parser in the parsers array' })
     })
 
@@ -796,17 +802,17 @@ describe('editConfig', () => {
       ],
       [
         'an adapter kind on add-plugin',
-        { operation: ConfigEditOperation.ADD_PLUGIN, kind: 'adapter', plugin: '@kubb/adapter-oas' },
+        { operation: ConfigEditOperation.ADD_PLUGIN, kind: extensionKinds.adapter, plugin: '@kubb/adapter-oas' },
         'add-plugin adds a plugin or a parser',
       ],
       [
         'an adapter kind on remove-extension',
-        { operation: ConfigEditOperation.REMOVE_EXTENSION, kind: 'adapter', plugin: '@kubb/adapter-oas' },
+        { operation: ConfigEditOperation.REMOVE_EXTENSION, kind: extensionKinds.adapter, plugin: '@kubb/adapter-oas' },
         'remove-extension removes a plugin or a parser, since the config needs its adapter',
       ],
       [
         'a kind on a plugin-only operation',
-        { operation: ConfigEditOperation.DISABLE_PLUGIN, kind: 'parser', plugin: '@kubb/plugin-ts' },
+        { operation: ConfigEditOperation.DISABLE_PLUGIN, kind: extensionKinds.parser, plugin: '@kubb/plugin-ts' },
         'disable-plugin edits the plugins array, so it takes no kind',
       ],
       [

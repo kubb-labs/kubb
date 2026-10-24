@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createProject, registryEntry, registryIndex, stubFetch } from '../../utils/registryFixture.ts'
 import { uninstallPackages } from '../init/utils.ts'
 import { run } from './run.ts'
+import { extensionKinds } from '@internals/shared'
 
 vi.mock('../init/utils.ts', () => ({
   detectPackageManager: vi.fn(() => ({ name: 'pnpm', lockFiles: [], initCommand: [], installCommand: ['add', '-D'], removeCommand: ['remove'] })),
@@ -18,9 +19,12 @@ vi.mock('@clack/prompts', async (importOriginal) => ({
 
 const pluginX = registryEntry({ name: 'plugin-x', version: '1.2.0', manifest: { export: 'pluginX' } })
 const pluginY = registryEntry({ name: 'plugin-y', version: '1.0.0', manifest: { export: 'pluginY', dependencies: ['plugin-x'] } })
-const parserTs = { ...registryEntry({ name: 'parser-ts', version: '5.0.0', kind: 'parser', manifest: { export: 'parserTs' } }), id: 'kubb-labs/parser-ts' }
+const parserTs = {
+  ...registryEntry({ name: 'parser-ts', version: '5.0.0', kind: extensionKinds.parser, manifest: { export: 'parserTs' } }),
+  id: 'kubb-labs/parser-ts',
+}
 const parserTsArtifact = { ...parserTs, artifact: { ...parserTs.artifact, package: '@kubb/parser-ts' } }
-const adapterX = registryEntry({ name: 'adapter-x', version: '1.0.0', kind: 'adapter', manifest: { export: 'adapterX' } })
+const adapterX = registryEntry({ name: 'adapter-x', version: '1.0.0', kind: extensionKinds.adapter, manifest: { export: 'adapterX' } })
 
 const config = (plugins: string, imports = `import { pluginX } from '@acme/kubb-plugin-x'\n`) =>
   `import { defineConfig } from 'kubb/config'\n${imports}\nexport default defineConfig({\n  input: './petStore.yaml',\n  plugins: [${plugins}],\n})\n`

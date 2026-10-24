@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
-import { BUNDLED_PACKAGES, ConfigEditOperation, editConfig, editConfigFile, findConfigFile } from '@internals/shared'
+import { BUNDLED_PACKAGES, ConfigEditOperation, extensionKinds, editConfig, editConfigFile, findConfigFile } from '@internals/shared'
 import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, readInstalledPackages, type RegistryDetail, type RegistryEntry } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
@@ -43,7 +43,7 @@ function toConfigEdits(details: Array<ConfigTarget>) {
   return {
     edits: details.map(({ artifact, manifest }) => ({
       operation: ConfigEditOperation.ADD_PLUGIN,
-      ...(manifest.kind === 'parser' ? { kind: 'parser' as const } : {}),
+      ...(manifest.kind === extensionKinds.parser ? { kind: extensionKinds.parser } : {}),
       plugin: artifact.package,
     })),
     extensions: new Map(details.map(({ artifact, manifest }) => [artifact.package, { package: artifact.package, version: artifact.version, manifest }])),
@@ -193,8 +193,8 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       })
 
     // The config has one adapter, so `kubb add` never replaces it and prints the snippet instead.
-    const configFile = manifest.kind === 'adapter' ? undefined : foundConfig
-    if (manifest.kind === 'plugin' && !configFile)
+    const configFile = manifest.kind === extensionKinds.adapter ? undefined : foundConfig
+    if (manifest.kind === extensionKinds.plugin && !configFile)
       throw new Diagnostics.Error({
         code: Diagnostics.code.unknown,
         severity: 'error',
@@ -278,7 +278,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
 
     const manual = unconfigured.length > 0
     // A plugin or parser the command could not write into the config is a failure a caller can act on; an adapter never gets written.
-    if (manual && manifest.kind !== 'adapter') process.exitCode = 1
+    if (manual && manifest.kind !== extensionKinds.adapter) process.exitCode = 1
     if (manual)
       logBlock([
         'Add the import to your Kubb config and merge the property into its defineConfig call:',
