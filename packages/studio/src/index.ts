@@ -2,4 +2,4 @@ export { connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type Conn
 export { pairAgent, PairingCanceledError, PairingDeniedError, PairingExpiredError } from './pair.ts'
 export { createSnapshot } from './snapshot.ts'
 export { defaultStudioUrl } from './url.ts'
-export { applyConfigEdits, writeConfigEdits } from './configFile.ts'
+export { editConfig, editConfigFile } from '@internals/shared'
