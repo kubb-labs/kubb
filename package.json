@@ -42,13 +42,13 @@
     "oxlint": "catalog:",
     "taze": "^21.3.0",
     "tsdown": "catalog:",
-    "turbo": "^2.11.9",
+    "turbo": "^2.11.10",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
   "packageManager": "pnpm@12.11.2",
   "engines": {
-    "node": ">=22.12",
+    "node": ">=22.22",
     "pnpm": ">=11.0.0"
   },
   "namespace": "@kubb"

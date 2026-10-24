@@ -13,7 +13,7 @@ navigation:
 
 # Your first TypeScript client from an API spec
 
-Generate TypeScript types and an Axios client for one Petstore operation. You need Node.js 22.12 or higher and npm. You'll inspect the generated operation and its types.
+Generate TypeScript types and an Axios client for one Petstore operation. You need Node.js 22.22 or higher and npm. You'll inspect the generated operation and its types.
 
 ::steps{level="2"}
 

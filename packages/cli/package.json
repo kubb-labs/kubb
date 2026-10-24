@@ -74,7 +74,7 @@
     "@clack/prompts": "^1.8.1",
     "@gunshi/plugin-dryrun": "^0.37.3",
     "@kubb/core": "workspace:*",
-    "chokidar": "^5.0.0",
+    "chokidar": "^6.0.0",
     "gunshi": "^0.37.3",
     "jiti": "^2.7.0",
     "tinyexec": "catalog:",
@@ -104,6 +104,6 @@
   },
   "preferGlobal": true,
   "engines": {
-    "node": ">=22.12"
+    "node": ">=22.22"
   }
 }
