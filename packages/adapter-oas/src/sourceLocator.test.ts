@@ -58,3 +58,40 @@ describe('OpenAPI source locations', () => {
     expect(parseDocument).toHaveBeenCalledTimes(2)
   })
 })
+
+describe('JSON source locations', () => {
+  const json = JSON.stringify(
+    {
+      paths: { '/pets': { get: { parameters: [{ name: 'limit' }, { $ref: '#/components/parameters/Offset' }] } } },
+      components: { schemas: { 'a/b': { type: 'string' }, Pet: { $ref: '#/components/schemas/Owner' } } },
+    },
+    null,
+    2,
+  )
+
+  it('locates keys and array items without parsing a YAML document', () => {
+    const parseDocument = vi.mocked(yaml.parseDocument)
+    parseDocument.mockClear()
+
+    const item = locateIn(json, { kind: 'operation', pointer: '#/paths/~1pets/get/parameters/1' })!
+    const key = locateIn(json, { kind: 'schema', pointer: '#/components/schemas/a~1b' })!
+
+    expect(JSON.parse(json.slice(item.start, item.end))).toStrictEqual({ $ref: '#/components/parameters/Offset' })
+    expect(json.slice(key.start, key.end)).toBe('"a/b"')
+    expect(locateIn(json, { kind: 'schema', pointer: '#/paths/~1pets/get/parameters/2' })).toBeUndefined()
+    expect(parseDocument).not.toHaveBeenCalled()
+  })
+
+  it('locates a missing reference at its first usage', () => {
+    const ref = locateIn(json, { kind: 'schema', pointer: '#/components/schemas/Owner', ref: '#/components/schemas/Owner' })!
+
+    expect(json.slice(ref.start, ref.end)).toBe('"#/components/schemas/Owner"')
+  })
+
+  it('falls back to the YAML parser for flow-style YAML that is not plain JSON', () => {
+    const flow = '{"components": {"schemas": {"Pet": {"type": object}}}} # flow-style YAML\n'
+    const pet = locateIn(flow, { kind: 'schema', pointer: '#/components/schemas/Pet' })!
+
+    expect(flow.slice(pet.start, pet.end)).toBe('"Pet"')
+  })
+})
