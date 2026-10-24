@@ -8,11 +8,13 @@ export type {
   CallExpression,
   Comment,
   Expression,
+  ImportDeclaration,
   ObjectExpression,
   ObjectPropertyKind,
   Program,
   RestElement,
   SpreadElement,
+  VariableDeclaration,
 } from 'yuku-parser'
 
 /** Node types the config editor reads from the yuku AST. */
