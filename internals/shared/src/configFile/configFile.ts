@@ -11,6 +11,7 @@ import {
   type Program,
   type RestElement,
   type SpreadElement,
+  nodeTypes,
   parseExpression,
   parseSource,
 } from './ast.ts'
@@ -34,7 +35,8 @@ const DISABLED_MARKER_PATTERN = /^kubb:disabled (.+)\s+(\d+)$/
 const OPERATIONS = new Set<string>(Object.values(ConfigEditOperation))
 const KINDS = new Set<string>(['plugin', 'adapter', 'parser'])
 
-type ModuleKind = 'esm' | 'cjs'
+const moduleKinds = { esm: 'esm', cjs: 'cjs' } as const
+type ModuleKind = (typeof moduleKinds)[keyof typeof moduleKinds]
 type EditResult = { source: string } | { reason: string }
 type ParsedConfig = { program: Program; comments: Array<Comment>; configs: Array<ObjectExpression>; kind: ModuleKind }
 type ValueNode = Expression | SpreadElement | null | undefined
@@ -64,21 +66,21 @@ function validateEdit(edit: ConfigEdit): string | undefined {
 /** Steps through `as`/`satisfies` and `() => ...` wrappers to the config object. */
 function unwrapValue(node: ValueNode): ValueNode {
   if (!node) return undefined
-  if (node.type === 'TSAsExpression' || node.type === 'TSSatisfiesExpression') return unwrapValue(node.expression)
-  if (node.type !== 'ArrowFunctionExpression' && node.type !== 'FunctionExpression') return node
-  if (node.body?.type !== 'BlockStatement') return unwrapValue(node.body as Expression | null)
+  if (node.type === nodeTypes.tSAsExpression || node.type === nodeTypes.tSSatisfiesExpression) return unwrapValue(node.expression)
+  if (node.type !== nodeTypes.arrowFunctionExpression && node.type !== nodeTypes.functionExpression) return node
+  if (node.body?.type !== nodeTypes.blockStatement) return unwrapValue(node.body as Expression | null)
 
-  const returned = node.body.body.find((statement) => statement.type === 'ReturnStatement')
-  return unwrapValue(returned?.type === 'ReturnStatement' ? returned.argument : undefined)
+  const returned = node.body.body.find((statement) => statement.type === nodeTypes.returnStatement)
+  return unwrapValue(returned?.type === nodeTypes.returnStatement ? returned.argument : undefined)
 }
 
 function isModuleExports(node: AssignmentExpression['left']): boolean {
   return (
-    node.type === 'MemberExpression' &&
+    node.type === nodeTypes.memberExpression &&
     !node.computed &&
-    node.object.type === 'Identifier' &&
+    node.object.type === nodeTypes.identifier &&
     node.object.name === 'module' &&
-    node.property.type === 'Identifier' &&
+    node.property.type === nodeTypes.identifier &&
     node.property.name === 'exports'
   )
 }
@@ -89,40 +91,40 @@ function findConfigs(source: string): ParsedConfig | { reason: string } {
   if ('reason' in parsed) return parsed
 
   let exported: ValueNode
-  let kind: ModuleKind = 'esm'
+  let kind: ModuleKind = moduleKinds.esm
   for (const node of parsed.program.body) {
-    if (node.type === 'ExportDefaultDeclaration') {
+    if (node.type === nodeTypes.exportDefaultDeclaration) {
       // A `function` or `class` declaration is never a `defineConfig(...)` call, so the check below refuses it.
       exported = node.declaration as Expression
       break
     }
-    if (node.type === 'ExpressionStatement' && node.expression.type === 'AssignmentExpression' && isModuleExports(node.expression.left)) {
+    if (node.type === nodeTypes.expressionStatement && node.expression.type === nodeTypes.assignmentExpression && isModuleExports(node.expression.left)) {
       exported = node.expression.right
-      kind = 'cjs'
+      kind = moduleKinds.cjs
       break
     }
   }
 
   const value = unwrapValue(exported)
   if (!value) return { reason: 'no `export default` or `module.exports` found' }
-  if (value.type !== 'CallExpression' || value.callee.type !== 'Identifier' || value.callee.name !== 'defineConfig') {
+  if (value.type !== nodeTypes.callExpression || value.callee.type !== nodeTypes.identifier || value.callee.name !== 'defineConfig') {
     return { reason: 'the exported config is not a defineConfig(...) call' }
   }
 
   const argument = unwrapValue(value.arguments[0])
   if (!argument) return { reason: 'defineConfig(...) was called without a config' }
 
-  const entries = argument.type === 'ArrayExpression' ? argument.elements.map((element) => unwrapValue(element)) : [argument]
-  const configs = entries.filter((entry): entry is ObjectExpression => entry?.type === 'ObjectExpression')
+  const entries = argument.type === nodeTypes.arrayExpression ? argument.elements.map((element) => unwrapValue(element)) : [argument]
+  const configs = entries.filter((entry): entry is ObjectExpression => entry?.type === nodeTypes.objectExpression)
   if (configs.length !== entries.length) return { reason: 'config is not an object literal' }
 
   return { ...parsed, configs, kind }
 }
 
 function getKey(entry: ObjectPropertyKind | BindingProperty | RestElement): string | undefined {
-  if (entry.type !== 'Property' || entry.computed) return undefined
-  if (entry.key.type === 'Identifier') return entry.key.name
-  return entry.key.type === 'Literal' && typeof entry.key.value === 'string' ? entry.key.value : undefined
+  if (entry.type !== nodeTypes.property || entry.computed) return undefined
+  if (entry.key.type === nodeTypes.identifier) return entry.key.name
+  return entry.key.type === nodeTypes.literal && typeof entry.key.value === 'string' ? entry.key.value : undefined
 }
 
 /** The last one wins when the key repeats, as at runtime. */
@@ -133,39 +135,39 @@ function findProperty(node: ObjectExpression, key: string): { member: ObjectProp
 
 function getValue(node: ObjectExpression, key: string): ValueNode {
   const member = findProperty(node, key)?.member
-  return member?.type === 'Property' ? member.value : member
+  return member?.type === nodeTypes.property ? member.value : member
 }
 
 function getConfigName(config: ObjectExpression): string | undefined {
   const name = getValue(config, 'name')
-  return name?.type === 'Literal' && typeof name.value === 'string' ? name.value : undefined
+  return name?.type === nodeTypes.literal && typeof name.value === 'string' ? name.value : undefined
 }
 
 function isOverridden(node: ObjectExpression, index: number): boolean {
-  return node.properties.slice(index + 1).some((entry) => entry.type === 'SpreadElement')
+  return node.properties.slice(index + 1).some((entry) => entry.type === nodeTypes.spreadElement)
 }
 
 /** A literal's value, `undefined` for code. */
 function readLiteral(node: ValueNode): OptionValue | undefined {
   switch (node?.type) {
-    case 'Literal':
+    case nodeTypes.literal:
       // A bigint or a regex is code, not a value JSON can carry. A regex Node cannot compile also has a `null` value.
       return 'regex' in node || 'bigint' in node ? undefined : (node.value as OptionValue)
-    case 'TemplateLiteral':
+    case nodeTypes.templateLiteral:
       return node.expressions.length ? undefined : (node.quasis[0]?.value.cooked ?? '')
-    case 'UnaryExpression': {
+    case nodeTypes.unaryExpression: {
       const value = readLiteral(node.argument)
       if (typeof value !== 'number') return undefined
       return node.operator === '-' ? -value : node.operator === '+' ? value : undefined
     }
-    case 'ArrayExpression': {
+    case nodeTypes.arrayExpression: {
       const values = node.elements.map((element) => readLiteral(element))
       return values.every((value) => value !== undefined) ? values : undefined
     }
-    case 'ObjectExpression': {
+    case nodeTypes.objectExpression: {
       const entries: Record<string, OptionValue> = {}
       for (const entry of node.properties) {
-        if (entry.type !== 'Property') return undefined
+        if (entry.type !== nodeTypes.property) return undefined
         const key = getKey(entry)
         const value = readLiteral(entry.value)
         // A `__proto__` key would replace the object's prototype instead of adding an entry.
@@ -179,9 +181,9 @@ function readLiteral(node: ValueNode): OptionValue | undefined {
 }
 
 function getRequirePath(node: ValueNode): string | undefined {
-  if (node?.type !== 'CallExpression' || node.callee.type !== 'Identifier' || node.callee.name !== 'require') return undefined
+  if (node?.type !== nodeTypes.callExpression || node.callee.type !== nodeTypes.identifier || node.callee.name !== 'require') return undefined
   const [argument] = node.arguments
-  return argument?.type === 'Literal' && typeof argument.value === 'string' ? argument.value : undefined
+  return argument?.type === nodeTypes.literal && typeof argument.value === 'string' ? argument.value : undefined
 }
 
 type Import = { from: string; exported: string }
@@ -190,20 +192,20 @@ function getImports(program: Program): Map<string, Import> {
   const imports = new Map<string, Import>()
 
   for (const statement of program.body) {
-    if (statement.type === 'ImportDeclaration') {
+    if (statement.type === nodeTypes.importDeclaration) {
       for (const specifier of statement.specifiers) {
         // A default or namespace import has no exported name of its own, so its local name stands in.
-        const imported = specifier.type === 'ImportSpecifier' ? specifier.imported : specifier.local
-        imports.set(specifier.local.name, { from: statement.source.value, exported: imported.type === 'Identifier' ? imported.name : imported.value })
+        const imported = specifier.type === nodeTypes.importSpecifier ? specifier.imported : specifier.local
+        imports.set(specifier.local.name, { from: statement.source.value, exported: imported.type === nodeTypes.identifier ? imported.name : imported.value })
       }
       continue
     }
-    if (statement.type !== 'VariableDeclaration') continue
+    if (statement.type !== nodeTypes.variableDeclaration) continue
     for (const declarator of statement.declarations) {
       const from = getRequirePath(declarator.init)
-      if (from === undefined || declarator.id.type !== 'ObjectPattern') continue
+      if (from === undefined || declarator.id.type !== nodeTypes.objectPattern) continue
       for (const entry of declarator.id.properties) {
-        if (entry.type === 'Property' && entry.value.type === 'Identifier') {
+        if (entry.type === nodeTypes.property && entry.value.type === nodeTypes.identifier) {
           imports.set(entry.value.name, { from, exported: getKey(entry) ?? entry.value.name })
         }
       }
@@ -215,7 +217,7 @@ function getImports(program: Program): Map<string, Import> {
 function detectQuote(node: unknown): Quote | undefined {
   if (!node || typeof node !== 'object') return undefined
   const { type, raw } = node as { type?: string; raw?: unknown }
-  if (type === 'Literal' && typeof raw === 'string' && (raw[0] === `'` || raw[0] === `"`)) return raw[0]
+  if (type === nodeTypes.literal && typeof raw === 'string' && (raw[0] === `'` || raw[0] === `"`)) return raw[0]
   for (const child of Object.values(node)) {
     const quote = detectQuote(child)
     if (quote) return quote
@@ -229,11 +231,11 @@ function findCalls(
   kind: ExtensionKind = 'plugin',
 ): Array<{ importName: string; exportName: string; packageName: string; call: CallExpression }> {
   const node = getValue(config, kind === 'adapter' ? 'adapter' : `${kind}s`)
-  const elements = kind === 'adapter' ? [node] : node?.type === 'ArrayExpression' ? node.elements : []
+  const elements = kind === 'adapter' ? [node] : node?.type === nodeTypes.arrayExpression ? node.elements : []
 
   const imports = getImports(program)
   return elements.flatMap((element) => {
-    if (element?.type !== 'CallExpression' || element.callee.type !== 'Identifier') return []
+    if (element?.type !== nodeTypes.callExpression || element.callee.type !== nodeTypes.identifier) return []
     const imported = imports.get(element.callee.name)
     return imported ? [{ importName: element.callee.name, exportName: imported.exported, packageName: imported.from, call: element }] : []
   })
@@ -248,7 +250,7 @@ function findDisabled(
   const lines = source.split('\n')
 
   return comments.flatMap((comment) => {
-    const match = comment.type === 'Line' ? comment.value.trim().match(DISABLED_MARKER_PATTERN) : null
+    const match = comment.type === nodeTypes.lineComment ? comment.value.trim().match(DISABLED_MARKER_PATTERN) : null
     // Only markers inside this entry, so an array config never touches another entry's plugin.
     if (!match || comment.start < config.start || comment.end > config.end) return []
     // A marker shares its line with nothing, so a trailing `// kubb:disabled ...` after code is not one.
@@ -267,7 +269,7 @@ function readEditable(node: ObjectExpression, prefix: Array<string> = []): { val
   const locked: Array<Array<string>> = []
 
   for (const [index, entry] of node.properties.entries()) {
-    if (entry.type === 'SpreadElement') continue
+    if (entry.type === nodeTypes.spreadElement) continue
     const key = getKey(entry)
     if (key === undefined) return undefined
     if (findProperty(node, key)?.index !== index) continue
@@ -284,7 +286,7 @@ function readEditable(node: ObjectExpression, prefix: Array<string> = []): { val
       value[key] = literal
       continue
     }
-    if (member?.type !== 'ObjectExpression') {
+    if (member?.type !== nodeTypes.objectExpression) {
       locked.push(path)
       continue
     }
@@ -298,7 +300,7 @@ function readEditable(node: ObjectExpression, prefix: Array<string> = []): { val
 
 function readCallOptions(call: CallExpression): OptionsView {
   const options = call.arguments[0]
-  return options?.type === 'ObjectExpression' ? readObjectOptions(options) : {}
+  return options?.type === nodeTypes.objectExpression ? readObjectOptions(options) : {}
 }
 
 function readObjectOptions(options: ObjectExpression): OptionsView {
@@ -306,9 +308,9 @@ function readObjectOptions(options: ObjectExpression): OptionsView {
   for (const [index, entry] of options.properties.entries()) {
     const key = getKey(entry)
     if (key === undefined || !isSafeKey(key)) continue
-    const member = entry.type === 'Property' && !isOverridden(options, index) ? entry.value : undefined
+    const member = entry.type === nodeTypes.property && !isOverridden(options, index) ? entry.value : undefined
     const value = readLiteral(member)
-    const partial = value === undefined && member?.type === 'ObjectExpression' ? readEditable(member) : undefined
+    const partial = value === undefined && member?.type === nodeTypes.objectExpression ? readEditable(member) : undefined
     entries[key] = value !== undefined ? { literal: true, value } : { literal: false, ...partial }
   }
   return entries
@@ -316,7 +318,7 @@ function readObjectOptions(options: ObjectExpression): OptionsView {
 
 function readDisabledOptions(code: Array<string>): OptionsView {
   const call = parseExpression(code.join('\n').trim().replace(/,$/, ''))
-  return call?.type === 'CallExpression' ? readCallOptions(call) : {}
+  return call?.type === nodeTypes.callExpression ? readCallOptions(call) : {}
 }
 
 /** Which plugins the file declares and which options Studio may write. */
@@ -387,11 +389,11 @@ function findPath(
 
     const { member, index } = found
     if (depth === path.length - 1) {
-      return member.type === 'Property' && readLiteral(member.value) !== undefined
+      return member.type === nodeTypes.property && readLiteral(member.value) !== undefined
         ? { object, index, value: member.value }
         : { reason: `${path.join('.')} is customized in code` }
     }
-    if (member.type !== 'Property' || member.value.type !== 'ObjectExpression')
+    if (member.type !== nodeTypes.property || member.value.type !== nodeTypes.objectExpression)
       return { reason: `${key} is not an object, so ${path.join('.')} cannot be reached` }
     object = member.value
   }
@@ -407,7 +409,7 @@ function setOption(source: string, call: CallExpression, path: Array<string>, va
     if (source[closing] !== ')') return { reason: 'the factory call could not be located in the file' }
     return { source: replaceText(source, closing, closing, printValue(wrapPath(path, value), quote)) }
   }
-  if (options.type !== 'ObjectExpression') return { reason: 'the factory was not called with an object literal' }
+  if (options.type !== nodeTypes.objectExpression) return { reason: 'the factory was not called with an object literal' }
   return setAtPath({ source, options, path, value, quote })
 }
 
@@ -437,7 +439,7 @@ function setInput(source: string, config: ObjectExpression, input: string, quote
   const value = printValue(input, quote)
   const found = findProperty(config, 'input')
   if (!found) return { source: appendItem(source, config, `input: ${value}`) }
-  if (found.member.type !== 'Property' || found.member.method || found.member.shorthand || found.member.kind !== 'init')
+  if (found.member.type !== nodeTypes.property || found.member.method || found.member.shorthand || found.member.kind !== 'init')
     return { reason: 'input is not a plain property' }
   if (isOverridden(config, found.index)) return { reason: 'a spread after input could override it' }
   return { source: replaceText(source, found.member.value.start, found.member.value.end, value) }
@@ -445,7 +447,7 @@ function setInput(source: string, config: ObjectExpression, input: string, quote
 
 function getOutput(config: ObjectExpression): { object: ObjectExpression } | { reason: string } {
   const found = findProperty(config, 'output')
-  if (found?.member.type !== 'Property' || found.member.value.type !== 'ObjectExpression') return { reason: 'output is not an object literal' }
+  if (found?.member.type !== nodeTypes.property || found.member.value.type !== nodeTypes.objectExpression) return { reason: 'output is not an object literal' }
   if (isOverridden(config, found.index)) return { reason: 'a spread after output could override it' }
   return { object: found.member.value }
 }
@@ -472,7 +474,7 @@ function editOutput({
 function removeOption(source: string, call: CallExpression, path: Array<string>): EditResult {
   const options = call.arguments[0]
   if (!options) return { source }
-  if (options.type !== 'ObjectExpression') return { reason: 'the factory was not called with an object literal' }
+  if (options.type !== nodeTypes.objectExpression) return { reason: 'the factory was not called with an object literal' }
   return removeAtPath({ source, options, path })
 }
 
@@ -498,9 +500,9 @@ function addImport({
   quote: Quote
 }): string {
   const lastImport = parsed.program.body.findLast((node) =>
-    parsed.kind === 'esm'
-      ? node.type === 'ImportDeclaration'
-      : node.type === 'VariableDeclaration' && node.declarations.some((declarator) => getRequirePath(declarator.init) !== undefined),
+    parsed.kind === moduleKinds.esm
+      ? node.type === nodeTypes.importDeclaration
+      : node.type === nodeTypes.variableDeclaration && node.declarations.some((declarator) => getRequirePath(declarator.init) !== undefined),
   )
   const afterLine = lastImport ? getPosition(source, lastImport.end).line : 0
   const lines = source.split('\n')
@@ -510,7 +512,7 @@ function addImport({
   lines.splice(
     afterLine,
     0,
-    parsed.kind === 'esm' ? `import { ${importName} } from ${specifier}${semicolon}` : `const { ${importName} } = require(${specifier})${semicolon}`,
+    parsed.kind === moduleKinds.esm ? `import { ${importName} } from ${specifier}${semicolon}` : `const { ${importName} } = require(${specifier})${semicolon}`,
   )
   if (afterLine === 0) lines.splice(1, 0, '')
 
@@ -548,7 +550,7 @@ function addPlugin({
   if (!isOptionValue(options)) return { reason: 'the options are not literals that can be written to a config file' }
 
   const plugins = getValue(config, 'plugins')
-  if (plugins?.type !== 'ArrayExpression') return { reason: 'plugins is not an array literal' }
+  if (plugins?.type !== nodeTypes.arrayExpression) return { reason: 'plugins is not an array literal' }
 
   // The array sits below the imports, so adding to it first leaves the import lines where they are.
   const next = appendItem(source, plugins, `${importName}(${Object.keys(options).length ? printValue(options, quote) : ''})`)
@@ -558,7 +560,7 @@ function addPlugin({
 /** One item per line, so a call can be commented out alone. Skipped when comments sit between items. */
 function splitPlugins(source: string, config: ObjectExpression): string | undefined {
   const array = getValue(config, 'plugins')
-  if (array?.type !== 'ArrayExpression') return undefined
+  if (array?.type !== nodeTypes.arrayExpression) return undefined
 
   const items = array.elements.flatMap((element) => (element ? [element] : []))
   const { start, end } = array
