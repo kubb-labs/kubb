@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
-import { findConfigFile } from '@internals/shared'
+import { BUNDLED_PACKAGES, findConfigFile } from '@internals/shared'
 import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, readInstalledPackages, type RegistryDetail, type RegistryEntry } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
@@ -26,9 +26,6 @@ export type AddOptions = {
 }
 
 type ConfigTarget = Pick<RegistryDetail, 'artifact' | 'manifest'>
-
-/** The packages of the default parsers, which ship with `kubb`. */
-const BUNDLED_PARSERS = ['@kubb/parser-ts', '@kubb/parser-md']
 
 /** The import and the `defineConfig` property to merge into `kubb.config.ts` by hand. */
 function toSnippet({ artifact, manifest }: ConfigTarget): string {
@@ -234,7 +231,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     // only lets the config import direct dependencies, so they are installed at the project's `kubb` version.
     const bundled =
       preview && 'lines' in preview
-        ? BUNDLED_PARSERS.filter((name) => !versions.has(name) && preview.lines.some((line) => line.endsWith(`'${name}'`) || line.endsWith(`"${name}"`)))
+        ? BUNDLED_PACKAGES.filter((name) => !versions.has(name) && preview.lines.some((line) => line.endsWith(`'${name}'`) || line.endsWith(`"${name}"`)))
         : []
     const kubbVersion = versions.get('kubb')
     const specs = [

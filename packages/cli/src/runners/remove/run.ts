@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
-import { findConfigFile } from '@internals/shared'
+import { BUNDLED_PACKAGES, findConfigFile } from '@internals/shared'
 import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, readInstalledPackages } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
@@ -23,9 +23,6 @@ export type RemoveOptions = {
   yes: boolean
   uninstall: boolean
 }
-
-/** Extensions `kubb` ships at its own version, so they leave the config but stay installed. */
-const BUNDLED_PACKAGES = new Set(['@kubb/adapter-oas', '@kubb/parser-ts', '@kubb/parser-md', '@kubb/plugin-barrel'])
 
 /** The lines of `before` that `after` no longer has, trimmed. */
 function removedLines({ before, after }: { before: string; after: string }): Array<string> {
@@ -99,18 +96,24 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
     const outcome = preview.outcomes[0]
     if (!outcome?.applied) return fail(`Could not edit ${configName}`, [`  ${outcome?.reason ?? 'the config file was not changed'}`])
 
-    const bundled = BUNDLED_PACKAGES.has(artifact.package)
+    // Bundled extensions leave the config but stay installed.
+    const bundled = BUNDLED_PACKAGES.includes(artifact.package)
     const uninstalls = uninstall && !bundled && versions.has(artifact.package)
     if (!preview.changed && !uninstalls) {
       summary(`${manifest.name} is not in the project`, 'success', ['  No changes made'])
       return
     }
 
+    const packageLine = (() => {
+      if (uninstalls) return `Uninstalls ${artifact.package}`
+      if (bundled) return `Keeps     ${artifact.package}, which ships with kubb`
+      return 'Uninstalls nothing'
+    })()
     logStep(`${kind} ${styleText('cyan', manifest.name)} v${versions.get(artifact.package) ?? artifact.version}`)
     logBlock([
       `Config    ${configName}`,
       ...removedLines({ before: source, after: preview.source }).map((line) => styleText('red', `  - ${line}`)),
-      uninstalls ? `Uninstalls ${artifact.package}` : bundled ? `Keeps     ${artifact.package}, which ships with kubb` : 'Uninstalls nothing',
+      packageLine,
     ])
 
     const confirmed = yes || (await clack.confirm({ message: 'Remove it?', initialValue: true }))

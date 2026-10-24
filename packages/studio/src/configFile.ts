@@ -834,7 +834,7 @@ function removeUnusedImports(source: string, names: Set<string>): string {
     const local = localNames(statement)
     const { start, end } = rangeOf(statement)
     const rest = current.slice(0, start) + current.slice(end)
-    const unused = local.filter((name) => names.has(name) && !new RegExp(`\\b${name}\\b`).test(rest))
+    const unused = local.filter((name) => names.has(name) && !new RegExp(`(?<![\\w$])${name.replaceAll('$', '\\$')}(?![\\w$])`).test(rest))
     if (!unused.length) return current
 
     if (unused.length === local.length) {

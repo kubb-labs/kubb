@@ -1,3 +1,4 @@
+import { BUNDLED_PACKAGES } from '@internals/shared'
 import { randomUUID } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
@@ -84,8 +85,6 @@ const DISK_SNAPSHOT_MAX_FILES = 10_000
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
 // What Studio may send a managed agent as its spec. Not `file` or `object`: a path would read the container's disk.
 const MANAGED_INPUT_KINDS = new Set<InputKind>(['inline', 'url', 'git'])
-/** Extensions `kubb` ships with, so they count as installed without being a direct dependency. */
-const BUILT_IN_PACKAGES = ['@kubb/adapter-oas', '@kubb/parser-ts', '@kubb/parser-md', '@kubb/plugin-barrel']
 
 /**
  * Studio closed with {@link AgentCloseCode.UNAUTHORIZED}. Hosts forget the token and pair again.
@@ -408,7 +407,7 @@ class Agent extends RpcTarget implements AgentApi {
   // dependency, config import and built-in that resolves and ships a valid `kubb-extension.json`.
   async #installedExtensions(source = read(this.#options.configFile)): Promise<InstalledExtensions> {
     const imports = await source.then(readImports, () => [])
-    const installed = await readInstalledPackages({ root: this.#options.root, packages: [...imports, ...BUILT_IN_PACKAGES], resolveFrom: ['kubb'] })
+    const installed = await readInstalledPackages({ root: this.#options.root, packages: [...imports, ...BUNDLED_PACKAGES], resolveFrom: ['kubb'] })
 
     return new Map(
       installed.flatMap(({ package: name, version, manifest }) =>
