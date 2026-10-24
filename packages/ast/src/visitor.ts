@@ -226,7 +226,10 @@ function isNodeRecord(value: unknown): value is Record<string, unknown> {
 function getChildren(node: Node, recurse: boolean): Array<Node> {
   if (node.kind === 'Schema' && !recurse) return []
   const children: Array<Node> = []
-  forEachChild(node, (child) => children.push(child))
+  visitChildNodes(node, (child) => {
+    children.push(child)
+    return false
+  })
   return children
 }
 
