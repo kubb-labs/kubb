@@ -6,7 +6,7 @@ import { version } from '../package.json'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
-import { assertDocument, parseFromConfig, validateDocument } from './load/normalize.ts'
+import { assertDocument, parseFromConfig, validateDocument, validateDocumentInWorker } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
 import { resolveBaseUrl, resolveServerUrl } from './model/server.ts'
 import { pickExtensions } from './oas.ts'
@@ -67,6 +67,7 @@ export const adapterOas = defineExtension<AdapterOas>({
   }) => ({ validate, contentType, server, discriminator, enums, dateType, integerType, unknownType, emptySchemaType, enumSuffix }),
   build({ validate, contentType, server, discriminator, enums, ...parserOptions }) {
     let parsedDocument: Document | null = null
+    const pendingValidations: Array<Promise<void>> = []
 
     // One cache per source: reusing one adapter instance across a `defineConfig` array must parse
     // each config's spec instead of replaying the first one, and a repeat `.parse()` call for the
@@ -186,6 +187,9 @@ export const adapterOas = defineExtension<AdapterOas>({
         assertDocument(document)
         await validateDocument(document, options)
       },
+      async settle() {
+        await Promise.all(pendingValidations.splice(0))
+      },
       async parse(source, { signal } = {}) {
         signal?.throwIfAborted()
         const cached = inputCache.get(source)
@@ -195,7 +199,7 @@ export const adapterOas = defineExtension<AdapterOas>({
           const document = await parseFromConfig(source)
           signal?.throwIfAborted()
           assertDocument(document)
-          if (validate) await validateDocument(document)
+          if (validate) pendingValidations.push(validateDocumentInWorker(document))
           parsedDocument = document
 
           const refs = createRefs(document)

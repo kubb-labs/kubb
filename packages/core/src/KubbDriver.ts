@@ -448,10 +448,12 @@ export class KubbDriver {
             config,
           })
 
+          await this.adapter?.settle?.()
           await hooks.callHook('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
 
           return { diagnostics: Diagnostics.dedupe(diagnostics) }
         } catch (caughtError) {
+          await this.adapter?.settle?.()
           diagnostics.push(Diagnostics.from(caughtError))
           return { diagnostics: Diagnostics.dedupe(diagnostics) }
         }

@@ -4,6 +4,7 @@ import type { AdapterSource } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
 import type { Document } from '../types.ts'
+import type { ValidationErrors, WorkerResult } from './validateWorker.ts'
 import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
 /**
@@ -187,11 +188,42 @@ export async function validateDocument(document: Document, { throwOnError = fals
       help: 'Fix each problem listed in the spec, then validate again.',
     })
 
-  for (const { message } of result.errors) {
+  reportValidationErrors(result)
+}
+
+function reportValidationErrors({ errors, additionalErrors }: ValidationErrors): void {
+  for (const { message } of errors) {
     // The code frame after the first line numbers a JSON copy of the spec, not the user's file.
     reportInvalidSpec(message.replace(/\n.*/s, ''))
   }
-  if (result.additionalErrors > 0) {
-    reportInvalidSpec(`${result.additionalErrors} more validation errors are not listed.`)
+  if (additionalErrors > 0) {
+    reportInvalidSpec(`${additionalErrors} more validation errors are not listed.`)
   }
+}
+
+/**
+ * Validates like {@link validateDocument} without `throwOnError`, but in a worker thread, so the
+ * build keeps generating while `@readme/openapi-parser` dereferences and checks the spec. Await the
+ * returned promise inside the build's diagnostics scope to report its warnings there. Falls back to
+ * validating in place where worker threads are missing, as in edge runtimes.
+ */
+export async function validateDocumentInWorker(document: Document): Promise<void> {
+  let message: WorkerResult
+  try {
+    const { Worker } = await import('node:worker_threads')
+    // Tests run the `.ts` source; the build emits `validateWorker.js` next to the bundle.
+    const workerFile = import.meta.url.endsWith('.ts') ? './validateWorker.ts' : './validateWorker.js'
+    // `workerData` is a structured clone, so the worker can dereference it without touching the cached document.
+    const worker = new Worker(new URL(workerFile, import.meta.url), { workerData: document })
+    message = await new Promise<WorkerResult>((resolve, reject) => {
+      worker.once('message', resolve)
+      worker.once('error', reject)
+      worker.once('exit', (code) => reject(new Error(`Validation worker exited with code ${code}`)))
+    }).finally(() => worker.terminate())
+  } catch {
+    return validateDocument(document)
+  }
+
+  if ('thrown' in message) return reportInvalidSpec(message.thrown)
+  if (!message.valid) reportValidationErrors(message)
 }

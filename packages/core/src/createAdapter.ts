@@ -84,6 +84,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    */
   validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
   /**
+   * Waits for work `parse` left running alongside generation, such as spec validation in a worker thread.
+   * Kubb awaits it before `kubb:build:end`, inside the build's diagnostics scope. Must not reject.
+   */
+  settle?: () => Promise<void>
+  /**
    * Zero-based UTF-16 offsets of a diagnostic in `source` for a code frame, `end` exclusive; `undefined` when it cannot be found.
    */
   locate?: (source: string, location: DiagnosticLocation) => { start: number; end: number } | undefined
