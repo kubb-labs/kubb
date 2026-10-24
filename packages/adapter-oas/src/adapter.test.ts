@@ -132,9 +132,15 @@ describe('adapterOas.parse', () => {
     const adapter = adapterOas({ validate: false })
     const node = await adapter.parse({ type: 'data', data: spec })
 
-    const pet = ast.narrowSchema(node.schemas.find((schema) => schema.name === 'Pet')!, 'object')!
+    const pet = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Pet')!,
+      'object',
+    )!
     const tags = ast.narrowSchema(pet.properties[0]!.schema, 'array')!
-    const shape = ast.narrowSchema(node.schemas.find((schema) => schema.name === 'Shape')!, 'union')!
+    const shape = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Shape')!,
+      'union',
+    )!
     const [operation] = node.operations
     const body = ast.narrowSchema(operation!.requestBody!.content![0]!.schema!, 'object')!
     const pointers = [
