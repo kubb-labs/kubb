@@ -206,6 +206,16 @@ describe('kubb add', () => {
     expect(process.exitCode).toBeUndefined()
   })
 
+  it('installs the default parser packages for a config that ends its imports with semicolons', async () => {
+    await writeFile(path.join(cwd, 'kubb.config.ts'), configSource.replace("from 'kubb/config'", "from 'kubb/config';"))
+    stubFetch({ body: registryIndex([registryEntry({ name: 'parser-yaml', version: '1.2.0', kind: 'parser', manifest: { export: 'parserYaml' } })]) })
+
+    await run({ id: 'acme/parser-yaml', yes: true, install: true })
+
+    expect(vi.mocked(installPackages).mock.calls[0]?.[0]).toStrictEqual(['@acme/kubb-parser-yaml@1.2.0', '@kubb/parser-ts', '@kubb/parser-md'])
+    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain(`import { parserTs, parserTsx } from '@kubb/parser-ts';`)
+  })
+
   it('appends a parser to the parsers the config lists, without installing the defaults', async () => {
     await writeFile(
       path.join(cwd, 'kubb.config.ts'),

@@ -540,7 +540,7 @@ describe('applyConfigEdits', () => {
     it('removes an import whose name holds a dollar sign', () => {
       const source = `import { $zod } from '@acme/zod'\n\nexport default defineConfig({\n  plugins: [$zod()],\n})\n`
       const result = applyConfigEdits({ source, edits: [{ operation: 'remove-extension', plugin: '@acme/zod' }] })
-      expect(result.source).toBe(`\nexport default defineConfig({\n  plugins: [],\n})\n`)
+      expect(result.source).toBe(`export default defineConfig({\n  plugins: [],\n})\n`)
     })
 
     it('refuses to remove the last parser', () => {

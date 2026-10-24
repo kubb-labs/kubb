@@ -231,7 +231,9 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     // only lets the config import direct dependencies, so they are installed at the project's `kubb` version.
     const bundled =
       preview && 'lines' in preview
-        ? BUNDLED_PACKAGES.filter((name) => !versions.has(name) && preview.lines.some((line) => line.endsWith(`'${name}'`) || line.endsWith(`"${name}"`)))
+        ? BUNDLED_PACKAGES.filter(
+            (name) => !versions.has(name) && preview.lines.some((line) => line.includes(`from '${name}'`) || line.includes(`from "${name}"`)),
+          )
         : []
     const kubbVersion = versions.get('kubb')
     const specs = [

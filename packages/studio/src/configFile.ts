@@ -840,7 +840,9 @@ function removeUnusedImports(source: string, names: Set<string>): string {
     if (unused.length === local.length) {
       const lineStart = current.lastIndexOf('\n', start - 1) + 1
       const lineEnd = current.indexOf('\n', end)
-      return splice(current, lineStart, lineEnd === -1 ? current.length : lineEnd + 1)
+      // At the top of the file, the blank line after the import goes too, so the file does not start with one.
+      const after = lineEnd === -1 ? current.length : lineEnd + 1
+      return splice(current, lineStart, lineStart === 0 && current[after] === '\n' ? after + 1 : after)
     }
     if (statement.type !== 'ImportDeclaration') return current
     const kept = statement.specifiers
