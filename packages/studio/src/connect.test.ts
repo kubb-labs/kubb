@@ -189,6 +189,11 @@ describe('the handshake', () => {
     await writeFile(join(projectRoot, 'package.json'), JSON.stringify({ devDependencies: { '@acme/plugin-x': '^1.0.0' } }))
     await writeFile(join(packageDir, 'package.json'), JSON.stringify({ name: '@acme/plugin-x', version: '1.2.3' }))
     await writeFile(join(packageDir, 'kubb-extension.json'), JSON.stringify(manifest))
+    const parserManifest = { kind: 'parser', name: 'parser-md', export: 'parserMd', displayName: 'Markdown', description: 'Prints Markdown.' }
+    const parserDir = join(projectRoot, 'node_modules/@kubb/parser-md')
+    await mkdir(parserDir, { recursive: true })
+    await writeFile(join(parserDir, 'package.json'), JSON.stringify({ name: '@kubb/parser-md', version: '9.9.9' }))
+    await writeFile(join(parserDir, 'kubb-extension.json'), JSON.stringify(parserManifest))
     const plugin = defineExtension({ kind: 'plugin', meta: { name: 'plugin-x' }, hooks: {} })()
     const { agent } = await connectStudio({ root: projectRoot, loadConfigs: async () => [{ ...projectConfig({ projectRoot }), plugins: [plugin] }] })
 
@@ -197,6 +202,8 @@ describe('the handshake', () => {
     expect(config.configs[0]!.plugins).toStrictEqual([{ name: '@acme/plugin-x', options: {} }])
     // `pnpm test` puts the workspace on NODE_PATH, so Kubb's own extensions may resolve here too.
     expect(config.extensions).toContainEqual({ package: '@acme/plugin-x', version: '1.2.3', manifest })
+    // A package that ships with kubb is marked, so Studio offers no `kubb update` for it.
+    expect(config.extensions).toContainEqual({ package: '@kubb/parser-md', version: '9.9.9', manifest: parserManifest, bundled: true })
   })
 
   it('reports the adapter and the parsers by the package their manifest is in, with a JSON copy of their options', async () => {

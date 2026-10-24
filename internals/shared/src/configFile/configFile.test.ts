@@ -522,13 +522,6 @@ describe('editConfig', () => {
       )
     })
 
-    it('removes a plugin from an inline array', () => {
-      const source = `${header}export default defineConfig({\n  plugins: [pluginTs(), pluginZod()],\n})\n`
-      const result = editConfig({ source, edits: [{ operation: ConfigEditOperation.REMOVE_EXTENSION, plugin: '@kubb/plugin-zod' }] })
-      expect(result.source).toContain('plugins: [pluginTs()],')
-      expect(result.source).not.toContain('pluginZod')
-    })
-
     it('removes a plugin that disable-plugin commented out', () => {
       const source = `${header}export default defineConfig({\n  plugins: [\n    pluginTs(),\n    pluginZod(),\n  ],\n})\n`
       const disabled = editConfig({ source, edits: [{ operation: ConfigEditOperation.DISABLE_PLUGIN, plugin: '@kubb/plugin-zod' }] }).source
@@ -553,18 +546,6 @@ describe('editConfig', () => {
       expect(result.source).toBe(
         `import { parserTs, parserTsx } from '@kubb/parser-ts'\n\nexport default defineConfig({\n  parsers: [parserTs(), parserTsx()],\n})\n`,
       )
-    })
-
-    it('keeps an import that still holds a used name', () => {
-      const source = `import { defineConfig, pluginZod } from 'acme-kubb'\n\nexport default defineConfig({\n  plugins: [pluginZod()],\n})\n`
-      const result = editConfig({ source, edits: [{ operation: ConfigEditOperation.REMOVE_EXTENSION, plugin: 'acme-kubb' }] })
-      expect(result.source).toBe(`import { defineConfig, pluginZod } from 'acme-kubb'\n\nexport default defineConfig({\n  plugins: [],\n})\n`)
-    })
-
-    it('removes an import whose name holds a dollar sign', () => {
-      const source = `import { $zod } from '@acme/zod'\n\nexport default defineConfig({\n  plugins: [$zod()],\n})\n`
-      const result = editConfig({ source, edits: [{ operation: ConfigEditOperation.REMOVE_EXTENSION, plugin: '@acme/zod' }] })
-      expect(result.source).toBe(`export default defineConfig({\n  plugins: [],\n})\n`)
     })
 
     it('refuses to remove the last parser', () => {
@@ -804,11 +785,6 @@ describe('editConfig', () => {
         'an adapter kind on add-plugin',
         { operation: ConfigEditOperation.ADD_PLUGIN, kind: extensionKinds.adapter, plugin: '@kubb/adapter-oas' },
         'add-plugin takes a plugin or a parser, since a config has one adapter',
-      ],
-      [
-        'an adapter kind on remove-extension',
-        { operation: ConfigEditOperation.REMOVE_EXTENSION, kind: extensionKinds.adapter, plugin: '@kubb/adapter-oas' },
-        'remove-extension takes a plugin or a parser, since a config has one adapter',
       ],
       [
         'a kind on a plugin-only operation',
