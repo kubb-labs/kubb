@@ -93,7 +93,7 @@ kubb update plugin-zod plugin-ts --yes
 
 An update that does not support your Kubb or Node.js version is skipped with `Skipped <id>: <reason>`. An extension pinned to a GitHub release installs as `github:<owner>/<repo>#<commit>`.
 
-An id that matches no installed extension prints `<id> is not installed, or not in the registry.`, the other ids still update, and the command exits with code 1. When nothing is outdated, the summary says `Already up to date`. An incompatible update is reported as skipped.
+An id that matches no installed extension prints `<id> is not installed, or not in the registry.` and exits with code 1. The other ids still update. When nothing is outdated, the summary says `Already up to date`. An incompatible update is reported as skipped.
 
 ## Environment variables
 
@@ -103,4 +103,4 @@ An id that matches no installed extension prints `<id> is not installed, or not 
 
 ## Exit codes
 
-`kubb update` exits with code 1 when an id is invalid or matches no installed extension, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update and when you cancel at the prompt. A failed generation after installation produces a warning summary that distinguishes installed extensions from failed regeneration and does not change the exit code.
+`kubb update` exits with code 1 when an id is invalid or not installed, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update and when you cancel at the prompt. A failed generation after installation produces a warning summary that distinguishes installed extensions from failed regeneration and does not change the exit code.

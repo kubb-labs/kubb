@@ -14,7 +14,7 @@ navigation:
 
 # kubb remove
 
-Run `kubb remove` to delete a plugin or parser from `kubb.config.ts` and uninstall its package. It looks the extension up in the [Kubb registry](/docs/5.x/reference/registry), shows the lines it removes from the config, asks for confirmation, and uninstalls the package with your project's package manager.
+Run `kubb remove` to delete a plugin or parser from `kubb.config.ts` and uninstall its package. It shows the lines it removes and asks before it changes anything.
 
 ## Usage
 
@@ -45,7 +45,7 @@ Next     kubb generate
 
 Files the plugin generated stay on disk until the next `kubb generate`.
 
-Remove a plugin from the config and keep its package:
+Keep the package installed:
 
 ```shell [Terminal]
 kubb remove plugin-zod --no-uninstall
@@ -67,15 +67,15 @@ kubb remove plugin-zod --no-uninstall
 
 ## What it removes
 
-`kubb remove` deletes every call of the package from the `plugins` or `parsers` array, including a plugin Kubb Studio switched off, and the imports nothing else in the file uses. In a config file that exports several entries, it edits the first entry.
+`kubb remove` deletes the plugin or parser from the config, also when Kubb Studio switched it off, and drops its unused import. With several config entries, it edits the first one.
 
-It refuses to remove:
+It does not remove:
 
-- the adapter, since a config needs one;
-- the last parser in `parsers`, since a config without a parser cannot print files;
-- an extension another extension in the config lists in its `dependencies`. Remove that one first.
+- the adapter. A config needs one.
+- the last parser. A config needs at least one.
+- an extension another one depends on. Remove that one first.
 
-`@kubb/adapter-oas`, `@kubb/parser-ts`, `@kubb/parser-md`, and `@kubb/plugin-barrel` ship with `kubb`, so they leave the config but stay installed.
+`@kubb/adapter-oas`, `@kubb/parser-ts`, `@kubb/parser-md`, and `@kubb/plugin-barrel` ship with `kubb`. They leave the config but stay installed.
 
 ## Environment variables
 
@@ -85,4 +85,4 @@ It refuses to remove:
 
 ## Exit codes
 
-`kubb remove` exits with code 1 when the id is invalid or not in the registry, the extension is an adapter or another one depends on it, the config cannot be edited, or the uninstall fails. It exits with code 0 when the extension is removed, when it was not in the project, and when you cancel at the prompt.
+`kubb remove` exits with code 1 when it cannot remove the extension or the uninstall fails. It exits with code 0 when the extension is removed, was not in the project, or you cancel.

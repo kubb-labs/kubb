@@ -14,7 +14,9 @@ navigation:
 
 # kubb add
 
-Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it lets you search the registry. It checks that the extension supports your Kubb and Node.js versions, shows the packages it installs and the lines it adds to the config, asks for confirmation, and installs the package as a dev dependency. For a plugin or a parser, it also adds it to `kubb.config.ts`. A config without `parsers` runs the default parsers, so adding a parser writes them too (`parserTs()`, `parserTsx()`, and `parserMd()`) and installs `@kubb/parser-ts` and `@kubb/parser-md` at your `kubb` version. For an adapter, it prints the code to add, since a config has one adapter.
+Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it lets you search the registry. It checks that the extension supports your Kubb and Node.js versions, shows the packages it installs and the lines it adds to the config, asks for confirmation, and installs the package as a dev dependency. It adds a plugin or parser to `kubb.config.ts`. For an adapter, it prints the code to add.
+
+When the config has no `parsers`, adding a parser also writes the defaults: `parserTs()`, `parserTsx()`, and `parserMd()`.
 
 Kubb detects the package manager (`npm`, `pnpm`, `yarn`, or `bun`) from your project.
 
