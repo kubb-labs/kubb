@@ -12,6 +12,7 @@ export const ConfigEditOperation = {
   SET_OPTION: 'set-option',
   REMOVE_OPTION: 'remove-option',
   ADD_PLUGIN: 'add-plugin',
+  REMOVE_EXTENSION: 'remove-extension',
   DISABLE_PLUGIN: 'disable-plugin',
   ENABLE_PLUGIN: 'enable-plugin',
   SET_INPUT: 'set-input',
@@ -27,7 +28,21 @@ export type ConfigEditOperation = (typeof ConfigEditOperation)[keyof typeof Conf
 export type ConfigEdit =
   | { operation: typeof ConfigEditOperation.SET_OPTION; config?: ConfigRef; kind?: ExtensionKind; plugin: string; path: Array<string>; value: unknown }
   | { operation: typeof ConfigEditOperation.REMOVE_OPTION; config?: ConfigRef; kind?: ExtensionKind; plugin: string; path: Array<string> }
-  | { operation: typeof ConfigEditOperation.ADD_PLUGIN; config?: ConfigRef; plugin: string; options?: Record<string, unknown> }
+  /** With `kind: 'parser'`, adds to `parsers`. A config without `parsers` gets the defaults written next to it, so they keep running. */
+  | {
+      operation: typeof ConfigEditOperation.ADD_PLUGIN
+      config?: ConfigRef
+      kind?: typeof extensionKinds.plugin | typeof extensionKinds.parser
+      plugin: string
+      options?: Record<string, unknown>
+    }
+  /** Deletes every call of a plugin, or a parser with `kind: 'parser'`, a disabled block included, and the imports nothing else uses. */
+  | {
+      operation: typeof ConfigEditOperation.REMOVE_EXTENSION
+      config?: ConfigRef
+      kind?: typeof extensionKinds.plugin | typeof extensionKinds.parser
+      plugin: string
+    }
   | { operation: typeof ConfigEditOperation.DISABLE_PLUGIN; config?: ConfigRef; plugin: string }
   | { operation: typeof ConfigEditOperation.ENABLE_PLUGIN; config?: ConfigRef; plugin: string }
   | { operation: typeof ConfigEditOperation.SET_INPUT; config?: ConfigRef; input: string }

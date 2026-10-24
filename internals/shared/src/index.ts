@@ -1,5 +1,5 @@
 export { configFileCandidates, findConfigFile, loadConfigFile } from './config.ts'
-export { CONFIG_EXTENSIONS, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME, initDefaults } from './constants.ts'
+export { BUNDLED_PACKAGES, CONFIG_EXTENSIONS, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME, initDefaults } from './constants.ts'
 export { generateConfigFile } from './init.ts'
 export { loadModule } from './loader.ts'
 export { editConfig, editConfigFile, readConfig, readImports } from './configFile/configFile.ts'
@@ -16,6 +16,7 @@ export {
 } from './configFile/rules.ts'
 export {
   ConfigEditOperation,
+  extensionKinds,
   type ConfigEdit,
   type ConfigEditOutcome,
   type ConfigFileView,

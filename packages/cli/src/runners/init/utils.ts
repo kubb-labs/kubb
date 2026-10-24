@@ -17,6 +17,8 @@ export type PackageManagerInfo = {
   initCommand: ReadonlyArray<string>
   /** Subcommands passed to the package manager binary to install a dev dependency. */
   installCommand: ReadonlyArray<string>
+  /** Subcommands passed to the package manager binary to uninstall a dependency. */
+  removeCommand: ReadonlyArray<string>
   /** Subcommands passed to the package manager binary before a `package.json` script name. */
   runCommand: ReadonlyArray<string>
 }
@@ -28,6 +30,7 @@ export const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
     lockFiles: ['pnpm-lock.yaml'],
     initCommand: ['init'],
     installCommand: ['add', '-D'],
+    removeCommand: ['remove'],
     runCommand: [],
   },
   yarn: {
@@ -35,6 +38,7 @@ export const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
     lockFiles: ['yarn.lock'],
     initCommand: ['init', '-y'],
     installCommand: ['add', '-D'],
+    removeCommand: ['remove'],
     runCommand: [],
   },
   bun: {
@@ -42,6 +46,7 @@ export const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
     lockFiles: ['bun.lock', 'bun.lockb'],
     initCommand: ['init', '-y'],
     installCommand: ['add', '-d'],
+    removeCommand: ['remove'],
     runCommand: ['run'],
   },
   npm: {
@@ -49,6 +54,7 @@ export const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
     lockFiles: ['package-lock.json'],
     initCommand: ['init', '-y'],
     installCommand: ['install', '--save-dev'],
+    removeCommand: ['uninstall'],
     runCommand: ['run'],
   },
 }
@@ -111,8 +117,9 @@ export async function installPackages(
   packageManager: PackageManagerInfo,
   cwd: string = process.cwd(),
   onLine?: (line: string) => void,
+  command: ReadonlyArray<string> = packageManager.installCommand,
 ): Promise<void> {
-  const args = [...packageManager.installCommand, ...packages]
+  const args = [...command, ...packages]
   // No stdin, so a package manager that wants input fails instead of waiting. The timeout ends a stalled install.
   const result = x(packageManager.name, args, {
     nodeOptions: { cwd, stdio: ['ignore', 'pipe', 'pipe'] },
@@ -129,6 +136,13 @@ export async function installPackages(
 
   const output = lines.slice(-INSTALL_OUTPUT_LINES).join('\n')
   throw new Error(`\`${packageManager.name} ${args.join(' ')}\` failed with exit code ${result.exitCode}${output ? `:\n${output}` : ''}`)
+}
+
+/**
+ * Uninstalls the given packages at `cwd` with the package manager's remove command, like {@link installPackages}.
+ */
+export function uninstallPackages(packages: Array<string>, packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
+  return installPackages(packages, packageManager, cwd, undefined, packageManager.removeCommand)
 }
 
 /**

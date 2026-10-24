@@ -26,7 +26,7 @@ import {
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
-import { editConfigFile, pickOutput, readConfig, readImports } from '@internals/shared'
+import { BUNDLED_PACKAGES, editConfigFile, pickOutput, readConfig, readImports } from '@internals/shared'
 import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
@@ -61,6 +61,8 @@ import {
   type ReadInputResult,
   type InstallExtensionInput,
   type InstallExtensionResult,
+  type RemoveExtensionInput,
+  type RemoveExtensionResult,
   type SaveConfigInput,
   type SaveResult,
   type StudioApi,
@@ -82,8 +84,6 @@ const DISK_SNAPSHOT_MAX_FILES = 10_000
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
 // What Studio may send a managed agent as its spec. Not `file` or `object`: a path would read the container's disk.
 const MANAGED_INPUT_KINDS = new Set<InputKind>(['inline', 'url', 'git'])
-/** Extensions `kubb` ships with, so they count as installed without being a direct dependency. */
-const BUILT_IN_PACKAGES = ['@kubb/adapter-oas', '@kubb/parser-ts', '@kubb/parser-md', '@kubb/plugin-barrel']
 
 /**
  * Studio closed with {@link AgentCloseCode.UNAUTHORIZED}. Hosts forget the token and pair again.
@@ -127,7 +127,7 @@ declare global {
        */
       'studio:command': [
         ctx: {
-          command: 'generate' | 'saveConfig' | 'installExtension' | 'updateExtensions' | 'readFiles' | 'readInput' | 'readDiff'
+          command: 'generate' | 'saveConfig' | 'installExtension' | 'updateExtensions' | 'removeExtension' | 'readFiles' | 'readInput' | 'readDiff'
           info: string
           /**
            * The Studio user who asked for the command, when Studio names one.
@@ -340,6 +340,7 @@ class Agent extends RpcTarget implements AgentApi {
           allowConfigEdit: false,
           allowInstall: false,
           allowUpdate: false,
+          allowRemove: false,
           allowSaveInput: false,
           allowRead: true,
           allowReadAst: true,
@@ -405,7 +406,7 @@ class Agent extends RpcTarget implements AgentApi {
   // dependency, config import and built-in that resolves and ships a valid `kubb-extension.json`.
   async #installedExtensions(source = read(this.#options.configFile)): Promise<InstalledExtensions> {
     const imports = await source.then(readImports, () => [])
-    const installed = await readInstalledPackages({ root: this.#options.root, packages: [...imports, ...BUILT_IN_PACKAGES], resolveFrom: ['kubb'] })
+    const installed = await readInstalledPackages({ root: this.#options.root, packages: [...imports, ...BUNDLED_PACKAGES], resolveFrom: ['kubb'] })
 
     return new Map(
       installed.flatMap(({ package: name, version, manifest }) =>
@@ -731,10 +732,34 @@ class Agent extends RpcTarget implements AgentApi {
     return failed ? { updated: false, reason: output } : { updated: true }
   }
 
+  /**
+   * Removes an extension with `kubb remove <id> --yes`, which deletes it from `kubb.config.ts` and
+   * uninstalls its package. Studio calls `connect()` again afterwards.
+   */
+  async removeExtension(input: RemoveExtensionInput): Promise<RemoveExtensionResult> {
+    this.#assertConnected()
+    const { root, configFile, kubbBin = findKubbBin(root) } = this.#options
+    const refuse = async (reason: string, permission?: AgentPermission): Promise<RemoveExtensionResult> => {
+      await this.#warn({ message: `Ignored remove: ${reason}`, permission })
+      return { removed: false, reason }
+    }
+
+    if (typeof input?.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
+    if (!this.#permissions.allowRemove) return refuse('removing extensions was not granted', AgentPermission.REMOVE)
+    if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
+    const busy = this.#busy()
+    if (busy) return refuse(busy)
+    if (!kubbBin) return refuse('kubb is not installed in the project')
+
+    const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['remove', input.id, '--yes', '--config', configFile] })
+    await this.#logCommand('removeExtension', `${failed ? 'failed to remove' : 'removed'} ${input.id}`, input.requestedBy, failed)
+    return failed ? { removed: false, reason: output } : { removed: true }
+  }
+
   /** Why a command that touches the project cannot start right now. */
   #busy(): string | undefined {
     if (this.#session.active) return 'a generation is in progress'
-    if (this.#session.install) return 'an install or update is in progress'
+    if (this.#session.install) return 'an install, update, or remove is in progress'
     if (this.#session.saving) return 'a save is in progress'
     return undefined
   }
@@ -984,6 +1009,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
       allowConfigEdit: false,
       allowInstall: false,
       allowUpdate: false,
+      allowRemove: false,
       allowSaveInput: false,
       allowExec: false,
       allowRead: false,

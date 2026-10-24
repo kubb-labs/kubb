@@ -437,9 +437,14 @@ describe('installExtension', () => {
     const signal = await started.promise
 
     const edit: ConfigEdit = { operation: ConfigEditOperation.DISABLE_PLUGIN, config: 0, plugin: '@kubb/plugin-ts' }
-    await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({ outcomes: [{ applied: false, reason: 'an install or update is in progress' }] })
-    await expect(agent.installExtension({ id: 'plugin-msw' })).resolves.toMatchObject({ installed: false, reason: 'an install or update is in progress' })
-    await expect(agent.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'an install or update is in progress' })
+    await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({
+      outcomes: [{ applied: false, reason: 'an install, update, or remove is in progress' }],
+    })
+    await expect(agent.installExtension({ id: 'plugin-msw' })).resolves.toMatchObject({
+      installed: false,
+      reason: 'an install, update, or remove is in progress',
+    })
+    await expect(agent.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'an install, update, or remove is in progress' })
     await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow(AgentMessage.INSTALL_IN_PROGRESS)
 
     socket.close(1006)
@@ -488,6 +493,33 @@ describe('installExtension', () => {
       updated: false,
       reason: 'the message carried an invalid registry id',
     })
+    expect(x).not.toHaveBeenCalled()
+  })
+
+  it('runs kubb remove with the id and the config path, and reports the command', async () => {
+    const { hooks, heard } = withHooks()
+    const command = heard('studio:command')
+    const { agent } = await connectStudio({ hooks, permissions: { allowRemove: true, allowConfigEdit: true }, kubbBin: '/bin/kubb.js' })
+    exec(0, 'Removed plugin-zod')
+
+    await expect(agent.removeExtension({ id: 'plugin-zod', requestedBy: 'Ada' })).resolves.toStrictEqual({ removed: true })
+    expect(x).toHaveBeenCalledWith(
+      process.execPath,
+      ['/bin/kubb.js', 'remove', 'plugin-zod', '--yes', '--config', join(root, 'kubb.config.ts')],
+      expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: root }) }),
+    )
+    expect(command).toHaveBeenCalledWith(expect.objectContaining({ command: 'removeExtension', info: 'removed plugin-zod', requestedBy: 'Ada' }))
+  })
+
+  it('refuses a remove without allowRemove, without allowConfigEdit, or with an id that is not a registry id', async () => {
+    const { agent: noRemove } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    await expect(noRemove.removeExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ removed: false, reason: 'removing extensions was not granted' })
+
+    const { agent: noEdit } = await connectStudio({ permissions: { allowRemove: true }, kubbBin: '/bin/kubb.js' })
+    await expect(noEdit.removeExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ removed: false, reason: 'editing kubb.config.ts was not granted' })
+
+    const { agent: allowed } = await connectStudio({ permissions: { allowRemove: true, allowConfigEdit: true }, kubbBin: '/bin/kubb.js' })
+    await expect(allowed.removeExtension({ id: '--yes' })).resolves.toMatchObject({ removed: false, reason: 'the message carried no registry id' })
     expect(x).not.toHaveBeenCalled()
   })
 

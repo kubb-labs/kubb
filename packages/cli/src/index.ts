@@ -12,6 +12,7 @@ import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
 import { command as addCommand } from './runners/add/run.ts'
 import { command as initCommand } from './runners/init/run.ts'
 import { command as listCommand } from './runners/list/run.ts'
+import { command as removeCommand } from './runners/remove/run.ts'
 import { command as updateCommand } from './runners/update/run.ts'
 
 /** Flags that short-circuit execution (help and version). The telemetry notice is suppressed for these. */
@@ -50,6 +51,7 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
       studio: studioCommand,
       add: addCommand,
       update: updateCommand,
+      remove: removeCommand,
       list: listCommand,
     },
     fallbackToEntry: true,

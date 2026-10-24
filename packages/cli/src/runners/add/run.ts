@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
-import { ConfigEditOperation, editConfig, editConfigFile, findConfigFile } from '@internals/shared'
+import { BUNDLED_PACKAGES, ConfigEditOperation, extensionKinds, editConfig, editConfigFile, findConfigFile, readImports } from '@internals/shared'
 import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, readInstalledPackages, type RegistryDetail, type RegistryEntry } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
@@ -41,13 +41,17 @@ function toSnippet({ artifact, manifest }: ConfigTarget): string {
 /** The `add-plugin` edits for `details`, and the manifests the edits read their export names from. */
 function toConfigEdits(details: Array<ConfigTarget>) {
   return {
-    edits: details.map(({ artifact }) => ({ operation: ConfigEditOperation.ADD_PLUGIN, plugin: artifact.package })),
+    edits: details.map(({ artifact, manifest }) => ({
+      operation: ConfigEditOperation.ADD_PLUGIN,
+      ...(manifest.kind === extensionKinds.parser ? { kind: extensionKinds.parser } : {}),
+      plugin: artifact.package,
+    })),
     extensions: new Map(details.map(({ artifact, manifest }) => [artifact.package, { package: artifact.package, version: artifact.version, manifest }])),
   }
 }
 
 /** The lines adding `details` would put in the config `source`, trimmed, or why it could not add them. */
-function previewConfig({ details, source }: { details: Array<ConfigTarget>; source: string }): { lines: Array<string> } | { reason: string } {
+function previewConfig({ details, source }: { details: Array<ConfigTarget>; source: string }): { lines: Array<string>; source: string } | { reason: string } {
   const result = editConfig({ source, ...toConfigEdits(details) })
   const failed = result.outcomes.find((outcome) => !outcome.applied)
   if (failed) return { reason: failed.reason ?? 'the config file was not changed' }
@@ -57,7 +61,7 @@ function previewConfig({ details, source }: { details: Array<ConfigTarget>; sour
     if (index !== -1) remaining.splice(index, 1)
     return index === -1
   })
-  return { lines: lines.map((line) => line.trim()) }
+  return { lines: lines.map((line) => line.trim()), source: result.source }
 }
 
 async function selectExtension({
@@ -125,8 +129,9 @@ export function summarize(description: string, max = 64): string {
 }
 
 /**
- * Installs an extension from the Kubb registry at its reviewed version and, for a plugin, adds it to
- * `kubb.config.ts`, offering to add the plugins it needs as well. Without an id, asks which one.
+ * Installs an extension from the Kubb registry at its reviewed version and, for a plugin or a parser,
+ * adds it to `kubb.config.ts`, offering to add the plugins it needs as well. An adapter is never
+ * written: the command prints the snippet to swap it in by hand. Without an id, asks which one.
  * Previews the packages and config lines before asking. Refuses when the running Kubb or Node.js
  * version is outside its compatibility.
  */
@@ -187,8 +192,8 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
         help: 'Upgrade Kubb or Node.js to a version the extension supports.',
       })
 
-    const configFile = manifest.kind === 'plugin' ? foundConfig : undefined
-    if (manifest.kind === 'plugin' && !configFile)
+    const configFile = manifest.kind === extensionKinds.adapter ? undefined : foundConfig
+    if (manifest.kind === extensionKinds.plugin && !configFile)
       throw new Diagnostics.Error({
         code: Diagnostics.code.unknown,
         severity: 'error',
@@ -210,13 +215,24 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       return
     }
     const targets = [...(withDependencies ? missing : []), entry]
-    const specs = targets.filter((target) => target === entry || !versions.has(target.artifact.package)).map((target) => installSpec(target.artifact))
 
     const dependencyStatus = (name: string) => {
       if (inConfig(name)) return `${name} ${styleText('green', '✓ installed')}`
       return targets.some((target) => target.manifest.name === name) ? `${name} ${styleText('cyan', '+ adding')}` : `${name} ${styleText('yellow', 'missing')}`
     }
     const preview = configFile && configSource !== undefined ? previewConfig({ details: targets, source: configSource }) : undefined
+    // The default parsers written next to a new parser come with `kubb`. A strict node_modules layout
+    // only lets the config import direct dependencies, so they are installed at the project's `kubb` version.
+    const before = readImports(configSource ?? '')
+    const added = preview && 'lines' in preview ? readImports(preview.source).filter((name) => !before.includes(name)) : []
+    const bundled = BUNDLED_PACKAGES.filter(
+      (name) => added.includes(name) && !versions.has(name) && !targets.some((target) => target.artifact.package === name),
+    )
+    const kubbVersion = versions.get('kubb')
+    const specs = [
+      ...targets.filter((target) => target === entry || !versions.has(target.artifact.package)).map((target) => installSpec(target.artifact)),
+      ...bundled.map((name) => (kubbVersion ? `${name}@${kubbVersion}` : name)),
+    ]
     logStep(`${kind} ${styleText('cyan', manifest.name)} v${artifact.version} · ${summarize(manifest.description)}`)
     logBlock([
       ...(dependencies.length ? [`Needs     ${dependencies.map(dependencyStatus).join('  ')}`] : []),
@@ -235,7 +251,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     const packageManager = detectPackageManager(cwd)
     const packages = () => (install ? `${installedPackages.length} installed with ${packageManager.name}` : 'installation skipped (--no-install)')
     if (install) {
-      const names = targets.filter((target) => specs.includes(installSpec(target.artifact))).map((target) => target.artifact.package)
+      const names = [...targets.filter((target) => specs.includes(installSpec(target.artifact))).map((target) => target.artifact.package), ...bundled]
       await installWithSpinner({ packages: specs, names: names.join(', '), packageManager, cwd })
       installedPackages.push(...names)
     }
@@ -256,8 +272,8 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     }
 
     const manual = unconfigured.length > 0
-    // A plugin the command could not write into the config is a failure a caller can act on; an adapter or parser never gets written.
-    if (manual && manifest.kind === 'plugin') process.exitCode = 1
+    // A plugin or parser the command could not write into the config is a failure a caller can act on; an adapter never gets written.
+    if (manual && manifest.kind !== extensionKinds.adapter) process.exitCode = 1
     if (manual)
       logBlock([
         'Add the import to your Kubb config and merge the property into its defineConfig call:',
@@ -271,9 +287,9 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
         ? 'Plugin configured; dependencies missing'
         : configured.length
           ? install
-            ? 'Plugin ready'
-            : 'Plugin configured'
-          : 'Plugin already configured'
+            ? `${kind} ready`
+            : `${kind} configured`
+          : `${kind} already configured`
     summary(title, manual || dependenciesMissing ? 'warning' : 'success', [
       `  Packages  ${packages()}`,
       ...configured.map((target) => styleText('green', `  + ${target.manifest.export}()`)),

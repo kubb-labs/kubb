@@ -237,6 +237,12 @@ export type UpdateExtensionsInput = { ids?: Array<string>; requestedBy?: string 
 /** `updated` is false when the agent refused or `kubb update` failed, with `reason` saying why. */
 export type UpdateExtensionsResult = { updated: boolean; reason?: string }
 
+/** Asks the agent to run `kubb remove <id> --yes`. `requestedBy` as for {@link GenerateInput}. */
+export type RemoveExtensionInput = { id: string; requestedBy?: string }
+
+/** `removed` is false when the agent refused or `kubb remove` failed, with `reason` saying why. */
+export type RemoveExtensionResult = { removed: boolean; reason?: string }
+
 /**
  * Reads an immutable output set kept on disk, from a generation or the initial connection.
  */
@@ -377,6 +383,8 @@ export type AgentApi = {
   installExtension: (input: InstallExtensionInput) => Promise<InstallExtensionResult>
   /** Refused without `allowUpdate`. Installs packages only, so `kubb.config.ts` stays as it is. */
   updateExtensions: (input: UpdateExtensionsInput) => Promise<UpdateExtensionsResult>
+  /** Refused without `allowRemove` and `allowConfigEdit`. An agent from before `removeExtension` rejects the call. */
+  removeExtension: (input: RemoveExtensionInput) => Promise<RemoveExtensionResult>
   readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
   /**
    * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
@@ -531,6 +539,8 @@ export type AgentPermissions = {
   allowInstall: boolean
   /** Whether the agent may run `kubb update` in the project, which installs newer extension versions and leaves `kubb.config.ts` alone. */
   allowUpdate: boolean
+  /** Whether the agent may run `kubb remove` in the project, which edits `kubb.config.ts` and uninstalls packages. Needs `allowConfigEdit` as well. */
+  allowRemove: boolean
   /** Whether the agent may keep the spec Studio sends: a document in `openapi.yaml` and `input` in `kubb.config.ts`. Needs `allowConfigEdit` as well. */
   allowSaveInput: boolean
   /**
@@ -555,6 +565,7 @@ export const AgentPermission = {
   CONFIG_EDIT: 'allowConfigEdit',
   INSTALL: 'allowInstall',
   UPDATE: 'allowUpdate',
+  REMOVE: 'allowRemove',
   SAVE_INPUT: 'allowSaveInput',
   EXEC: 'allowExec',
 } as const satisfies Record<string, keyof AgentPermissions>

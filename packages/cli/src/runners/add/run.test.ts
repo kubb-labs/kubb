@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
@@ -7,6 +7,7 @@ import * as clack from '@clack/prompts'
 import { registryEntry, registryIndex, stubFetch } from '../../utils/registryFixture.ts'
 import { installPackages } from '../init/utils.ts'
 import { run } from './run.ts'
+import { extensionKinds } from '@internals/shared'
 
 vi.mock('../init/utils.ts', () => ({
   detectPackageManager: vi.fn(() => ({ name: 'pnpm', lockFiles: [], initCommand: [], installCommand: ['add', '-D'] })),
@@ -96,7 +97,7 @@ describe('kubb add', () => {
     const adapterX = registryEntry({
       name: 'adapter-x',
       version: '2.0.0',
-      kind: 'adapter',
+      kind: extensionKinds.adapter,
       manifest: { displayName: 'Adapter X', description: 'Reads X files.' },
     })
     stubFetch({ body: registryIndex([adapterX, pluginX]) })
@@ -172,7 +173,7 @@ describe('kubb add', () => {
   })
 
   it('prints the snippet for an adapter instead of editing the config', async () => {
-    stubFetch({ body: registryIndex([registryEntry({ name: 'adapter-x', version: '1.2.0', kind: 'adapter', manifest: { export: 'adapterX' } })]) })
+    stubFetch({ body: registryIndex([registryEntry({ name: 'adapter-x', version: '1.2.0', kind: extensionKinds.adapter, manifest: { export: 'adapterX' } })]) })
 
     await run({ id: 'acme/adapter-x', yes: true, install: false })
 
@@ -184,6 +185,73 @@ describe('kubb add', () => {
     expect(printed).toContain('! Adapter needs configuration')
     expect(printed).toContain('Install @acme/kubb-adapter-x@1.2.0 to use it.')
     expect(printed).toContain('Add the snippet above, then run kubb generate.')
+  })
+
+  it('writes a parser into the config with the default parsers, and installs those at the project kubb version', async () => {
+    await mkdir(path.join(cwd, 'node_modules', 'kubb'), { recursive: true })
+    await writeFile(path.join(cwd, 'node_modules', 'kubb', 'package.json'), JSON.stringify({ name: 'kubb', version: '5.13.0' }))
+    await writeFile(path.join(cwd, 'package.json'), JSON.stringify({ devDependencies: { kubb: '^5.13.0' } }))
+    stubFetch({
+      body: registryIndex([registryEntry({ name: 'parser-yaml', version: '1.2.0', kind: extensionKinds.parser, manifest: { export: 'parserYaml' } })]),
+    })
+
+    await run({ id: 'acme/parser-yaml', yes: true, install: true })
+
+    expect(installPackages).toHaveBeenCalledWith(
+      ['@acme/kubb-parser-yaml@1.2.0', '@kubb/parser-ts@5.13.0', '@kubb/parser-md@5.13.0'],
+      expect.objectContaining({ name: 'pnpm' }),
+      cwd,
+      expect.any(Function),
+    )
+    const config = await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')
+    expect(config).toContain(`import { parserTs, parserTsx } from '@kubb/parser-ts'`)
+    expect(config).toContain('parsers: [parserTs(), parserTsx(), parserMd(), parserYaml()],')
+    expect(process.exitCode).toBeUndefined()
+  })
+
+  it('installs the default parser packages for a config that ends its imports with semicolons', async () => {
+    await writeFile(path.join(cwd, 'kubb.config.ts'), configSource.replace("from 'kubb/config'", "from 'kubb/config';"))
+    stubFetch({
+      body: registryIndex([registryEntry({ name: 'parser-yaml', version: '1.2.0', kind: extensionKinds.parser, manifest: { export: 'parserYaml' } })]),
+    })
+
+    await run({ id: 'acme/parser-yaml', yes: true, install: true })
+
+    expect(vi.mocked(installPackages).mock.calls[0]?.[0]).toStrictEqual(['@acme/kubb-parser-yaml@1.2.0', '@kubb/parser-ts', '@kubb/parser-md'])
+    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain(`import { parserTs, parserTsx } from '@kubb/parser-ts';`)
+  })
+
+  it('installs a default parser once when it is the one being added', async () => {
+    await mkdir(path.join(cwd, 'node_modules', 'kubb'), { recursive: true })
+    await writeFile(path.join(cwd, 'node_modules', 'kubb', 'package.json'), JSON.stringify({ name: 'kubb', version: '5.13.0' }))
+    await writeFile(path.join(cwd, 'package.json'), JSON.stringify({ devDependencies: { kubb: '^5.13.0' } }))
+    const parserMd = registryEntry({
+      name: 'parser-md',
+      version: '5.13.0',
+      kind: extensionKinds.parser,
+      manifest: { export: 'parserMd' },
+      artifact: { package: '@kubb/parser-md' },
+    })
+    stubFetch({ body: registryIndex([parserMd]) })
+
+    await run({ id: 'acme/parser-md', yes: true, install: true })
+
+    expect(vi.mocked(installPackages).mock.calls[0]?.[0]).toStrictEqual(['@kubb/parser-md@5.13.0', '@kubb/parser-ts@5.13.0'])
+  })
+
+  it('appends a parser to the parsers the config lists, without installing the defaults', async () => {
+    await writeFile(
+      path.join(cwd, 'kubb.config.ts'),
+      `import { parserTs } from '@kubb/parser-ts'\n${configSource.replace('plugins: []', 'parsers: [parserTs()],\n  plugins: []')}`,
+    )
+    stubFetch({
+      body: registryIndex([registryEntry({ name: 'parser-yaml', version: '1.2.0', kind: extensionKinds.parser, manifest: { export: 'parserYaml' } })]),
+    })
+
+    await run({ id: 'acme/parser-yaml', yes: true, install: true })
+
+    expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-parser-yaml@1.2.0'], expect.objectContaining({ name: 'pnpm' }), cwd, expect.any(Function))
+    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain('parsers: [parserTs(), parserYaml()],')
   })
 
   it('refuses an extension that needs another Kubb version', async () => {

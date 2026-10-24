@@ -74,11 +74,13 @@ export function appendItem(source: string, container: ObjectExpression | ArrayEx
   return `${source.slice(0, last.end)}${comma ? '' : ','}${source.slice(last.end, lineEnd)}\n${indent}${text}${comma ? ',' : ''}${source.slice(lineEnd)}`
 }
 
-/** Drops the property at `index` from an object literal, with its own lines when it sits on them alone. */
-export function removeProperty(source: string, node: ObjectExpression, index: number): string {
-  if (node.properties.length === 1) return replaceText(source, node.start, node.end, '{}')
+/** Drops the item at `index` from an object or array literal, with its own lines when it sits on them alone. */
+export function removeItem(source: string, node: ObjectExpression | ArrayExpression, index: number): string {
+  const items: Array<{ start: number; end: number }> =
+    node.type === nodeTypes.objectExpression ? node.properties : node.elements.filter((element) => element !== null)
+  if (items.length === 1) return replaceText(source, node.start, node.end, node.type === nodeTypes.objectExpression ? '{}' : '[]')
 
-  const { start, end } = node.properties[index]!
+  const { start, end } = items[index]!
   const lineStart = source.lastIndexOf('\n', start - 1) + 1
   const nextNewline = source.indexOf('\n', end)
   const lineEnd = nextNewline === -1 ? source.length : nextNewline
@@ -86,6 +88,6 @@ export function removeProperty(source: string, node: ObjectExpression, index: nu
     return replaceText(source, lineStart, Math.min(lineEnd + 1, source.length))
   }
 
-  const next = node.properties[index + 1]
-  return next ? replaceText(source, start, next.start) : replaceText(source, node.properties[index - 1]!.end, end)
+  const next = items[index + 1]
+  return next ? replaceText(source, start, next.start) : replaceText(source, items[index - 1]!.end, end)
 }

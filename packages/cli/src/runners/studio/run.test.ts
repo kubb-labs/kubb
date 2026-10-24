@@ -42,6 +42,7 @@ const options: StudioOptions = {
     allowConfigEdit: false,
     allowInstall: false,
     allowUpdate: false,
+    allowRemove: false,
     allowSaveInput: false,
     allowExec: false,
   },
@@ -166,6 +167,7 @@ describe('resolvePermissions', () => {
       allowConfigEdit: false,
       allowInstall: false,
       allowUpdate: false,
+      allowRemove: false,
       allowSaveInput: false,
       allowExec: true,
     }
@@ -195,6 +197,7 @@ describe('resolvePermissions', () => {
       allowConfigEdit: false,
       allowInstall: false,
       allowUpdate: false,
+      allowRemove: false,
       allowSaveInput: false,
       allowExec: false,
     }
