@@ -8,6 +8,21 @@ import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import { assertDocument, bundleDocument, hasExternalRef, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
 import type { Document } from '../types.ts'
 
+// Records each result a validation worker posts, so a test can tell the worker from the in-place fallback.
+const workerSpy = vi.hoisted(() => vi.fn())
+
+vi.mock('node:worker_threads', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:worker_threads')>()
+  return {
+    ...actual,
+    Worker: function (...args: ConstructorParameters<typeof actual.Worker>) {
+      const worker = new actual.Worker(...args)
+      worker.once('message', workerSpy)
+      return worker
+    },
+  }
+})
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 vi.mock('yaml', async (importOriginal) => {
@@ -176,6 +191,7 @@ describe('validateDocumentInWorker', () => {
       () => validateDocumentInWorker(invalidSchema),
     )
 
+    expect(workerSpy).toHaveBeenCalled()
     expect(inWorker.length).toBeGreaterThan(0)
     expect(inWorker).toStrictEqual(inPlace)
   })
