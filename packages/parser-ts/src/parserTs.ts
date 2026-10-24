@@ -32,9 +32,7 @@ export type ParserTsOptions = {
 /**
  * Default Kubb parser for `.ts` and `.js` files. Takes the universal AST
  * produced by an adapter and prints it as TypeScript source. Imports and exports
- * are rewritten based on each file's metadata and the `extension` option. It
- * has no dependency on the TypeScript compiler, so it also runs in edge runtimes
- * such as Cloudflare Workers.
+ * are rewritten based on each file's metadata and the `extension` option.
  *
  * Used automatically when no `parsers` option is set on `defineConfig`. Use
  * `parserTsx` instead for React projects that emit JSX.

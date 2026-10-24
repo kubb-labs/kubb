@@ -1,6 +1,6 @@
 # TypeScript
 
-The TypeScript parser writes `.ts` and `.js` files. It turns each file's AST into source text with imports, exports, declarations, and JSDoc, and resolves relative import paths. It does not load the TypeScript compiler, so it also runs in edge runtimes such as Cloudflare Workers.
+The TypeScript parser writes `.ts` and `.js` files. It turns each file's AST into source text with imports, exports, declarations, and JSDoc, and resolves relative import paths.
 
 The package also exports `parserTsx`, which writes `.tsx` and `.jsx` files with the same options.
 

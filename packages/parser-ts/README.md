@@ -24,7 +24,7 @@
 
 ### TypeScript source file parser for Kubb
 
-Prints Kubb AST nodes as TypeScript source strings. Handles both `.ts` and `.tsx` output. It does not load the TypeScript compiler, so it also runs in edge runtimes such as Cloudflare Workers.
+Prints Kubb AST nodes as TypeScript source strings. Handles both `.ts` and `.tsx` output.
 
 ## Installation
 
