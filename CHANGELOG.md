@@ -1,5 +1,45 @@
 # Changelog
 
+## v5.13.1 — Oct 24, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Add direct child and schema traversal helpers, early schema lookup, and ref resolution to the AST package.
+  
+  - Expose `forEachChild`, `forEachSchema`, `findSchema`, and `resolveRef`.
+  - Keep OpenAPI `propertyNames` schemas on typed object nodes. ([#4437](https://github.com/kubb-labs/kubb/pull/4437), [`60b7227`](https://github.com/kubb-labs/kubb/commit/60b7227708943526c0eab6315fc88031d3783495))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb add` writes parsers into `kubb.config.ts`, and `kubb update <id>` exits with code 1 when the id is not installed. ([#4431](https://github.com/kubb-labs/kubb/pull/4431), [`368c76c`](https://github.com/kubb-labs/kubb/commit/368c76c40726c25b496fd6812916607bafce2540))
+- `kubb add` and `kubb init` edit `kubb.config.ts` without `@kubb/studio`. The config editor uses `yuku-parser` instead of `magicast`.
+  
+  Breaking: `applyConfigEdits` and `writeConfigEdits` are now `editConfig` and `editConfigFile`, and the `set` and `remove` operations are now `set-option` and `remove-option`. ([#4433](https://github.com/kubb-labs/kubb/pull/4433), [`8fdd6a5`](https://github.com/kubb-labs/kubb/commit/8fdd6a5e78ca66a285a068fdaa69f740a98d4fb8))
+- `kubb remove` ignores plugins Studio switched off, and `kubb add` stops before installing a parser when there is no config. ([#4435](https://github.com/kubb-labs/kubb/pull/4435), [`8f9cc98`](https://github.com/kubb-labs/kubb/commit/8f9cc98c015184a80d148664d806bac4ca12ce40))
+- Add `kubb remove <id>` and the `--allow-remove` permission for Studio. ([#4431](https://github.com/kubb-labs/kubb/pull/4431), [`368c76c`](https://github.com/kubb-labs/kubb/commit/368c76c40726c25b496fd6812916607bafce2540))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Skip the Kubb version check for extensions on a canary build. ([#4436](https://github.com/kubb-labs/kubb/pull/4436), [`1f14f43`](https://github.com/kubb-labs/kubb/commit/1f14f43847e0a8d8317e60f3f50dcc0ce286bd63))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- The agent marks each installed extension that ships with `kubb` as `bundled`. ([#4435](https://github.com/kubb-labs/kubb/pull/4435), [`8f9cc98`](https://github.com/kubb-labs/kubb/commit/8f9cc98c015184a80d148664d806bac4ca12ce40))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.13.0 — Oct 24, 2026
 
 ### @kubb/adapter-oas
