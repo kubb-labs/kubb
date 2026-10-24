@@ -85,7 +85,8 @@ export const schemaRules: Array<SchemaRule> = [
   },
   { match: ({ schema }) => !!schema.enum?.length, convert: convertEnum },
   {
-    match: ({ schema, type }) => type === 'object' || !!schema.properties || !!schema.additionalProperties || 'patternProperties' in schema,
+    match: ({ schema, type }) =>
+      type === 'object' || !!schema.properties || !!schema.additionalProperties || 'patternProperties' in schema || 'propertyNames' in schema,
     convert: convertObject,
   },
   { match: ({ schema }) => 'prefixItems' in schema, convert: convertTuple },
