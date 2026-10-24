@@ -13,120 +13,95 @@ navigation:
 
 # Kubb vs orval, HeyAPI, and openapi-typescript
 
-Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. The tables compare generated outputs, response handling, runtime behavior, and what [Kubb Studio](#kubb-studio) adds around the generator. Each cell was checked against the project's own docs in October 2026.
+Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. We checked each cell against the project's own docs in October 2026.
+
+Kubb differs from the others in five ways:
+
+- It generates faster and uses less memory than HeyAPI and orval at every [spec size we measured](#speed-memory-and-install-size).
+- One config generates types, clients, query hooks, Zod, MSW, Faker, Cypress tests, an MCP server, and Redoc docs. See [plugin coverage](#plugin-and-feature-coverage).
+- Its clients return a result you narrow by status code, and you choose per call whether errors throw. See [type safety](#type-safety-and-response-handling).
+- Its runtime follows the spec's parameter styles, encodes bodies per media type, and reads server-sent events. See [client runtime](#client-runtime).
+- [Kubb Studio](#kubb-studio) adds file review, pull request snapshots, and API skills for AI tools.
 
 ## Speed, memory, and install size
 
-Kubb generates faster and uses less memory than HeyAPI and orval at every spec size we measured, from an 11 KB spec to Cloudflare's 27.6 MB API. Switch between a full build (types, Zod schemas, and a fetch client) and types only, where openapi-typescript joins. In types only, openapi-typescript is the one tool ahead of Kubb on time, on the largest spec, while it uses more memory.
+Switch between a full build (types, Zod schemas, and a fetch client) and types only, where openapi-typescript joins. In types only, openapi-typescript is faster than Kubb on the largest spec, but uses more memory.
 
 ::tool-benchmark
 ::
 
-Each value is the median of five runs on Node 22 on Linux x64, measured in October 2026. Kubb ran from the `main` branches of kubb-labs/kubb and kubb-labs/plugins on October 24, the first versions after kubb 5.12.8 without the TypeScript compiler, against `@hey-api/openapi-ts` 0.99.0, orval 8.44.0, and openapi-typescript 7.13.0. Install size is the `node_modules` disk usage after a clean `npm install` with the same features.
+Median of five runs on Node 22, Linux x64, October 2026. Kubb ran from the `main` branches of kubb-labs/kubb and kubb-labs/plugins on October 24 (the first build after kubb 5.12.8 without the TypeScript compiler). Compared with `@hey-api/openapi-ts` 0.99.0, orval 8.44.0, and openapi-typescript 7.13.0. Install size is `node_modules` after a clean `npm install` with the same features.
 
 ## Plugin and feature coverage
 
-Legend:
+✅ built in · 🟡 community or separate package · 🔶 needs extra user code · 🛑 not supported
 
-- ✅ Built in, no extra config.
-- 🟡 Through a third-party or community plugin.
-- 🔶 Supported, but needs extra user code.
-- 🛑 Not officially supported.
+| Feature                                                          | Kubb | orval |     HeyAPI     |   openapi-ts   |
+| ---------------------------------------------------------------- | :--: | :---: | :------------: | :------------: |
+| [OpenAPI 2.0, 3.0, 3.1 input](/extensions/kubb-labs/adapter-oas) |  ✅  |  ✅   |       ✅       | 🔶<sup>1</sup> |
+| [TypeScript types](/extensions/kubb-labs/plugin-ts)              |  ✅  |  ✅   |       ✅       |       ✅       |
+| [HTTP client (Axios, Fetch)](/extensions/kubb-labs/plugin-axios) |  ✅  |  ✅   |       ✅       | 🔶<sup>2</sup> |
+| [React Query hooks](/extensions/kubb-labs/plugin-react-query)    |  ✅  |  ✅   |       ✅       | 🟡<sup>2</sup> |
+| [Vue Query composables](/extensions/kubb-labs/plugin-vue-query)  |  ✅  |  ✅   |       ✅       |       🛑       |
+| [SWR hooks](/extensions/kubb-labs/plugin-swr)                    |  ✅  |  ✅   | 🛑<sup>3</sup> |       🟡       |
+| [Zod validation schemas](/extensions/kubb-labs/plugin-zod)       |  ✅  |  ✅   |       ✅       |       🛑       |
+| [MSW request handlers](/extensions/kubb-labs/plugin-msw)         |  ✅  |  ✅   | 🛑<sup>3</sup> |       🛑       |
+| [Faker.js mock data](/extensions/kubb-labs/plugin-faker)         |  ✅  |  ✅   | 🛑<sup>3</sup> |       🛑       |
+| [Cypress E2E tests](/extensions/kubb-labs/plugin-cypress)        |  ✅  |  🛑   |       🛑       |       🛑       |
+| [MCP server](/extensions/kubb-labs/plugin-mcp)                   |  ✅  |  ✅   |       🛑       |       🛑       |
+| [Redoc API documentation](/extensions/kubb-labs/plugin-redoc)    |  ✅  |  🛑   |       🛑       |       🛑       |
+| [Barrel index files](/extensions/kubb-labs/plugin-barrel)        |  ✅  |  ✅   |       ✅       |       🛑       |
 
-| Feature                                                          | Kubb | orval | HeyAPI         |   openapi-ts   |
-| ---------------------------------------------------------------- | :--: | :---: | :------------- | :------------: |
-| [OpenAPI 2.0, 3.0, 3.1 input](/extensions/kubb-labs/adapter-oas) |  ✅  |  ✅   | ✅             | 🔶<sup>1</sup> |
-| [TypeScript types](/extensions/kubb-labs/plugin-ts)              |  ✅  |  ✅   | ✅             |       ✅       |
-| [HTTP client (Axios, Fetch)](/extensions/kubb-labs/plugin-axios) |  ✅  |  ✅   | ✅             | 🔶<sup>2</sup> |
-| [React Query hooks](/extensions/kubb-labs/plugin-react-query)    |  ✅  |  ✅   | ✅             | 🟡<sup>3</sup> |
-| [Vue Query composables](/extensions/kubb-labs/plugin-vue-query)  |  ✅  |  ✅   | ✅             |       🛑       |
-| [SWR hooks](/extensions/kubb-labs/plugin-swr)                    |  ✅  |  ✅   | 🛑<sup>6</sup> | 🟡<sup>4</sup> |
-| [Zod validation schemas](/extensions/kubb-labs/plugin-zod)       |  ✅  |  ✅   | ✅<sup>5</sup> |       🛑       |
-| [MSW request handlers](/extensions/kubb-labs/plugin-msw)         |  ✅  |  ✅   | ✅<sup>7</sup> |       🛑       |
-| [Faker.js mock data](/extensions/kubb-labs/plugin-faker)         |  ✅  |  ✅   | ✅<sup>7</sup> |       🛑       |
-| [Cypress E2E tests](/extensions/kubb-labs/plugin-cypress)        |  ✅  |  🛑   | 🛑             |       🛑       |
-| [MCP server](/extensions/kubb-labs/plugin-mcp)                   |  ✅  |  ✅   | 🛑             |       🛑       |
-| [Redoc API documentation](/extensions/kubb-labs/plugin-redoc)    |  ✅  |  🛑   | 🛑             |       🛑       |
-| [Barrel index files](/extensions/kubb-labs/plugin-barrel)        |  ✅  |  ✅   | ✅             |       🛑       |
-
-Notes:
-
-1. openapi-typescript reads OpenAPI 3.0 and 3.1 only, so a Swagger 2.0 document has to be up-converted first. Kubb, orval, and HeyAPI accept 2.0 and up-convert it for you.
-2. openapi-typescript generates types only. The typed client comes from its `openapi-fetch` runtime, not per-operation code, and `openapi-fetch` is now in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559).
-3. openapi-typescript generates no hooks. React Query support comes from the first-party [`openapi-react-query`](https://www.npmjs.com/package/openapi-react-query) runtime, also in maintenance mode.
-4. openapi-typescript relies on the community [`swr-openapi`](https://github.com/htunnicliff/swr-openapi) package.
-5. HeyAPI also generates Valibot schemas alongside Zod.
-6. HeyAPI lists its SWR plugin as planned.
-7. HeyAPI marks its MSW and Faker plugins as in progress.
+1. openapi-typescript reads 3.0 and 3.1 only. Convert Swagger 2.0 first.
+2. openapi-typescript generates types only. Clients and hooks come from the `openapi-fetch` and `openapi-react-query` runtimes, both in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559).
+3. HeyAPI lists SWR as planned and MSW and Faker as in progress.
 
 ## Type safety and response handling
 
-Kubb exposes a status-discriminated result that narrows response bodies at runtime. The table compares operation typing and error handling.
+openapi-typescript ships no generated client, so it is left out of this table and the next one.
 
-| Feature                                                                                          | Kubb  |     orval      | HeyAPI         |
-| ------------------------------------------------------------------------------------------------ | :---: | :------------: | :------------- |
-| [Status-discriminated response result](/extensions/kubb-labs/plugin-fetch/guides/error-handling) |  ✅   | 🔶<sup>1</sup> | 🔶<sup>2</sup> |
-| Multiple success (2xx) responses                                                                 |  ✅   |       ✅       | ✅             |
-| Multiple content types per response                                                              |  ✅   |       ✅       | 🛑<sup>3</sup> |
-| `default` and wildcard (`4XX`, `5XX`) responses                                                  |  ✅   | ✅<sup>4</sup> | ✅             |
-| [Typed error responses](/extensions/kubb-labs/plugin-fetch/guides/error-handling)                |  ✅   | 🔶<sup>5</sup> | ✅             |
-| [Throw or return the error per call](/extensions/kubb-labs/plugin-fetch/guides/error-handling)   |  ✅   |       🛑       | ✅             |
-| [Zod v4 schemas tied to the types](/extensions/kubb-labs/plugin-zod)                             |  ✅   |       ✅       | ✅             |
-| Recursive schemas                                                                                |  ✅   |       ✅       | ✅             |
-| Server-side schema validation                                                                    |  ✅   |       ✅       | ✅             |
+| Feature                                                                                          | Kubb |     orval      |     HeyAPI     |
+| ------------------------------------------------------------------------------------------------ | :--: | :------------: | :------------: |
+| [Status-discriminated response result](/extensions/kubb-labs/plugin-fetch/guides/error-handling) |  ✅  | 🔶<sup>1</sup> | 🔶<sup>2</sup> |
+| Multiple success (2xx) responses                                                                 |  ✅  |       ✅       |       ✅       |
+| Multiple content types per response                                                              |  ✅  |       ✅       | 🛑<sup>3</sup> |
+| `default` and wildcard (`4XX`, `5XX`) responses                                                  |  ✅  |       ✅       |       ✅       |
+| [Typed error responses](/extensions/kubb-labs/plugin-fetch/guides/error-handling)                |  ✅  | 🔶<sup>1</sup> |       ✅       |
+| [Throw or return the error per call](/extensions/kubb-labs/plugin-fetch/guides/error-handling)   |  ✅  |       🛑       |       ✅       |
+| [Zod v4 schemas tied to the types](/extensions/kubb-labs/plugin-zod)                             |  ✅  |       ✅       |       ✅       |
 
-Notes:
-
-1. Only orval's `fetch` client emits a status-narrowable union. Its axios and query clients return the success type and take the error type on the side.
-2. HeyAPI builds a status-keyed type map you index (`Responses[200]`), but the SDK returns a flat `{ data, error }` pair with no `status` to switch on.
-3. On `@hey-api/openapi-ts` v0.99.0, a response with both `application/json` and `application/xml` keeps only the JSON shape. Kubb and orval emit a variant per content type.
-4. orval expands `4XX` and `5XX` into unions of concrete codes. Kubb and HeyAPI keep the range key.
-5. orval types the error body in its `fetch` client, or once you wire `ErrorType` or `override.swr.generateErrorTypes`. Otherwise it stays `Error`.
-
-openapi-typescript is omitted here. It ships no generated client, so the runtime rows do not apply.
+1. Only orval's `fetch` client returns a status union and a typed error body. Its axios and query clients return the success type.
+2. HeyAPI returns `{ data, error }` with no `status` to switch on.
+3. HeyAPI 0.99.0 keeps only the JSON shape when a response also offers XML.
 
 ## Client runtime
 
-Kubb serializes OpenAPI parameter styles and supports codecs per media type. See [serialization](/extensions/kubb-labs/plugin-fetch/guides/serialization) for the runtime contract.
+See [serialization](/extensions/kubb-labs/plugin-fetch/guides/serialization) for Kubb's runtime contract.
 
-| Feature                                                                                                                      | Kubb  | orval          | HeyAPI         |
-| ---------------------------------------------------------------------------------------------------------------------------- | :---: | :------------- | :------------- |
-| [Parameter styles from the spec](/docs/5.x/reference/serialization#parameter-styles)                                         |  ✅   | 🔶<sup>1</sup> | 🔶<sup>2</sup> |
-| Request body serializers (JSON, form-data, urlencoded)                                                                       | ✅<sup>3</sup> | ✅    | ✅             |
-| [Pluggable codecs per media type](/extensions/kubb-labs/plugin-fetch/guides/serialization#encode-request-bodies) (XML, YAML) |  ✅   | 🛑<sup>4</sup> | 🛑<sup>4</sup> |
-| [Runtime body validation](/extensions/kubb-labs/plugin-fetch/guides/error-handling#validation-failures)                      | ✅<sup>5</sup> | 🔶<sup>5</sup> | ✅<sup>5</sup> |
-| [Server-sent events and streaming](/extensions/kubb-labs/plugin-fetch/guides/server-sent-events)                             |  ✅   | 🔶<sup>6</sup> | ✅             |
+| Feature                                                                                                                      | Kubb |     orval      |     HeyAPI     |
+| ---------------------------------------------------------------------------------------------------------------------------- | :--: | :------------: | :------------: |
+| [Parameter styles from the spec](/docs/5.x/reference/serialization#parameter-styles)                                         |  ✅  | 🔶<sup>1</sup> | 🔶<sup>2</sup> |
+| OpenAPI `encoding` object for form bodies                                                                                    |  ✅  |       🛑       |       🛑       |
+| [Pluggable codecs per media type](/extensions/kubb-labs/plugin-fetch/guides/serialization#encode-request-bodies) (XML, YAML) |  ✅  |       🛑       |       🛑       |
+| [Runtime request and response validation](/extensions/kubb-labs/plugin-fetch/guides/error-handling#validation-failures)      |  ✅  | 🔶<sup>3</sup> |       ✅       |
+| [Server-sent events](/extensions/kubb-labs/plugin-fetch/guides/server-sent-events)                                           |  ✅  |       🛑       |       ✅       |
 
-Notes:
-
-1. Only orval's `fetch` client reads `style` and `explode` from the spec. Its axios and query clients interpolate path parameters directly and leave query encoding to axios or a `qs` config.
-2. HeyAPI serializes path parameters per parameter but runs one global query serializer, and does not style header or cookie parameters.
-3. All three encode JSON, `multipart/form-data`, and `application/x-www-form-urlencoded`. Kubb also honors the OpenAPI `encoding` object, so a form part can set its own content type and style.
-4. orval and HeyAPI expose a single body serializer and one response transformer, so a new media type means replacing them, not registering one.
-5. Off by default. Kubb validates request and response bodies through any Standard Schema validator (Zod, valibot, arktype). HeyAPI validates both with Zod or Valibot. orval validates responses only, with Zod.
-6. orval streams NDJSON on its `fetch` client but has no server-sent events (`text/event-stream`) support. Kubb and HeyAPI consume SSE.
+1. Only orval's `fetch` client reads `style` and `explode`.
+2. HeyAPI uses one global query serializer and does not style header or cookie parameters.
+3. orval validates responses only, with Zod. Kubb accepts any Standard Schema validator (Zod, Valibot, ArkType).
 
 ## Kubb Studio
 
-[Kubb Studio](https://kubb.studio) is the web IDE for Kubb. It runs the same generator through an agent on your machine. The table lists what Studio adds on top of it.
+[Kubb Studio](https://kubb.studio) is the web IDE for Kubb. It runs the generator through an agent on your machine, and the agent never uploads your spec file. orval, HeyAPI, and openapi-typescript have no equivalent for the features below.
 
-| Feature                                                                                                    |  Kubb Studio   |     orval      |     HeyAPI     | openapi-ts |
-| ---------------------------------------------------------------------------------------------------------- | :------------: | :------------: | :------------: | :--------: |
-| Generation on your own machine                                                                             | ✅<sup>1</sup> |       ✅       |       ✅       |     ✅     |
-| [API skills for Claude Code, Cursor, and Codex](/docs/5.x/integrations/studio#give-your-ai-tools-your-api) | ✅<sup>2</sup> |       🛑       |       🛑       |     🛑     |
-| One AI plugin marketplace for your team                                                                    | ✅<sup>2</sup> |       🛑       |       🛑       |     🛑     |
-| [Review added, changed, and removed files](/docs/5.x/integrations/studio#review-and-save-generated-files)  |       ✅       |       🛑       |       🛑       |     🛑     |
-| Edit `kubb.config.ts` from the browser                                                                     |       ✅       |       🛑       |       🛑       |     🛑     |
-| [Installable snapshot for every pull request](/docs/5.x/integrations/github-actions)                       |       ✅       |       🛑       |       🛑       |     🛑     |
-| Shared agents for the whole team                                                                           |       ✅       |       🛑       |       🛑       |     🛑     |
-| Try without installing anything                                                                            |       ✅       | ✅<sup>3</sup> | 🟡<sup>4</sup> |     🛑     |
+- [API skills for Claude Code, Cursor, and Codex](/docs/5.x/integrations/studio#give-your-ai-tools-your-api), built from your spec, so AI tools call your generated clients instead of guessing endpoints (Pro plan).
+- One AI plugin marketplace and shared agents for the whole team.
+- [Review added, changed, and removed files](/docs/5.x/integrations/studio#review-and-save-generated-files) before you save them.
+- Edit `kubb.config.ts` from the browser.
+- [An installable snapshot for every pull request](/docs/5.x/integrations/github-actions).
+- Try it in the browser without installing anything.
 
-Notes:
-
-1. Pair the `kubb studio` CLI or the `kubblabs/kubb-agent` Docker image. The agent never uploads your local spec file. Every permission is off by default. With `--allow-read`, Studio can read the generated files, and with `--allow-read-ast`, the spec as Kubb parsed it.
-2. On the Pro plan, with an agent started with `--allow-read-ast`. Studio renders the skills from the Kubb AST, so they use the names Kubb generates, and the code your AI tools write calls your generated clients instead of guessing endpoints. A published plugin keeps the servers, operations, and schemas its skills describe.
-3. The [orval playground](https://orval.dev/playground) generates code from a spec and config you edit in the browser.
-4. HeyAPI links a demo project on StackBlitz. Its hosted [Hey API Platform](https://heyapi.dev/openapi-ts/configuration/input) also stores spec versions as a registry. Studio has no spec registry and keeps no copy of your spec file.
+To try the others without installing them, orval has a [playground](https://orval.dev/playground) and HeyAPI has a StackBlitz demo.
 
 ## When not to use Kubb
 
