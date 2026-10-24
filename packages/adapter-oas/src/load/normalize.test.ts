@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
 import * as yaml from 'yaml'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
-import { assertDocument, bundleDocument, hasExternalRef, parseFromConfig, validateDocument } from './normalize.ts'
+import { assertDocument, bundleDocument, hasExternalRef, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
 import type { Document } from '../types.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -150,6 +150,43 @@ describe('validateDocument', () => {
     await Diagnostics.scope(
       (diagnostic) => diagnostics.push(diagnostic),
       () => validateDocument(validSchema),
+    )
+
+    expect(diagnostics).toStrictEqual([])
+  })
+})
+
+describe('validateDocumentInWorker', () => {
+  const invalidSchema = {
+    openapi: '3.0.3',
+    info: { title: 'Invalid API', version: '1.0.0' },
+    paths: { '/pets': { get: { responses: { '200': {} } } } },
+  } as unknown as Document
+
+  it('reports the same warnings as validateDocument', async () => {
+    const inPlace: Array<Diagnostic> = []
+    const inWorker: Array<Diagnostic> = []
+
+    await Diagnostics.scope(
+      (diagnostic) => inPlace.push(diagnostic),
+      () => validateDocument(invalidSchema),
+    )
+    await Diagnostics.scope(
+      (diagnostic) => inWorker.push(diagnostic),
+      () => validateDocumentInWorker(invalidSchema),
+    )
+
+    expect(inWorker.length).toBeGreaterThan(0)
+    expect(inWorker).toStrictEqual(inPlace)
+  })
+
+  it('reports nothing for a valid document', async () => {
+    const diagnostics: Array<Diagnostic> = []
+    const validSchema = { openapi: '3.0.3', info: { title: 'Valid API', version: '1.0.0' }, paths: {} } as unknown as Document
+
+    await Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => validateDocumentInWorker(validSchema),
     )
 
     expect(diagnostics).toStrictEqual([])

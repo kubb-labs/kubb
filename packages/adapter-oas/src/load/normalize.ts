@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module'
 import { getErrorMessage, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
@@ -187,11 +188,53 @@ export async function validateDocument(document: Document, { throwOnError = fals
       help: 'Fix each problem listed in the spec, then validate again.',
     })
 
-  for (const { message } of result.errors) {
+  reportValidationErrors(result)
+}
+
+function reportValidationErrors({ errors, additionalErrors }: { errors: Array<{ message: string }>; additionalErrors: number }): void {
+  for (const { message } of errors) {
     // The code frame after the first line numbers a JSON copy of the spec, not the user's file.
     reportInvalidSpec(message.replace(/\n.*/s, ''))
   }
-  if (result.additionalErrors > 0) {
-    reportInvalidSpec(`${result.additionalErrors} more validation errors are not listed.`)
+  if (additionalErrors > 0) {
+    reportInvalidSpec(`${additionalErrors} more validation errors are not listed.`)
   }
+}
+
+// Runs as CommonJS inside the worker, so it loads the parser with `require`.
+const validateWorkerSource = `
+const { parentPort, workerData } = require('node:worker_threads')
+const { validate } = require(workerData.parserPath)
+validate(workerData.document, { validate: { errors: { colorize: false } } }).then(
+  (result) => parentPort.postMessage(result.valid ? { valid: true } : { valid: false, errors: result.errors.map(({ message }) => ({ message })), additionalErrors: result.additionalErrors }),
+  (error) => parentPort.postMessage({ thrown: error instanceof Error ? error.message : String(error) }),
+)
+`
+
+type WorkerResult = { valid: true } | { valid: false; errors: Array<{ message: string }>; additionalErrors: number } | { thrown: string }
+
+/**
+ * Validates like {@link validateDocument} without `throwOnError`, but in a worker thread, so the
+ * build keeps generating while `@readme/openapi-parser` dereferences and checks the spec. Await the
+ * returned promise inside the build's diagnostics scope to report its warnings there. Falls back to
+ * validating in place where worker threads are missing, as in edge runtimes.
+ */
+export async function validateDocumentInWorker(document: Document): Promise<void> {
+  let message: WorkerResult
+  try {
+    const { Worker } = await import('node:worker_threads')
+    const parserPath = createRequire(import.meta.url).resolve('@readme/openapi-parser')
+    // `workerData` is a structured clone, so the worker can dereference it without touching the cached document.
+    const worker = new Worker(validateWorkerSource, { eval: true, workerData: { document, parserPath } })
+    message = await new Promise<WorkerResult>((resolve, reject) => {
+      worker.once('message', resolve)
+      worker.once('error', reject)
+      worker.once('exit', (code) => reject(new Error(`Validation worker exited with code ${code}`)))
+    }).finally(() => worker.terminate())
+  } catch {
+    return validateDocument(document)
+  }
+
+  if ('thrown' in message) return reportInvalidSpec(message.thrown)
+  if (!message.valid) reportValidationErrors(message)
 }
