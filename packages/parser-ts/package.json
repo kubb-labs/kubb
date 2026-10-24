@@ -73,9 +73,6 @@
     "@kubb/core": "workspace:*",
     "yuku-parser": "^0.19.0"
   },
-  "devDependencies": {
-    "@typescript/typescript6": "catalog:"
-  },
   "engines": {
     "node": ">=22.12"
   }

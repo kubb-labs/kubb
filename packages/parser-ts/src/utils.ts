@@ -17,6 +17,19 @@ type Compiler = {
 
 let compiler: Compiler | undefined
 
+// The parts of the TypeScript 6 API that printing compiler nodes uses, typed here so no package depends on it
+type TypeScript = {
+  createPrinter(options: { omitTrailingSemicolon: boolean; newLine: number; removeComments: boolean; noEmitHelpers: boolean }): {
+    printList(format: number, list: unknown, sourceFile: unknown): string
+  }
+  createSourceFile(fileName: string, text: string, target: number, setParentNodes: boolean, kind: number): unknown
+  factory: { createNodeArray(nodes: Array<TsNode>): unknown }
+  NewLineKind: { LineFeed: number }
+  ScriptTarget: { ES2022: number }
+  ScriptKind: { TSX: number }
+  ListFormat: { MultiLine: number }
+}
+
 /**
  * Loads TypeScript the first time `print` gets a compiler node. Strings never need it, so bundles for edge runtimes such as Cloudflare Workers leave it out.
  *
@@ -26,7 +39,7 @@ let compiler: Compiler | undefined
 function loadCompiler(): Compiler {
   if (compiler) return compiler
 
-  let typescript: typeof import('@typescript/typescript6')
+  let typescript: TypeScript
   try {
     const require = createRequire(import.meta.url)
     // Look in the user's project first: a strict package manager such as pnpm does not link it next to this package
@@ -47,12 +60,7 @@ function loadCompiler(): Compiler {
   const sourceFile = typescript.createSourceFile('print.tsx', '', typescript.ScriptTarget.ES2022, true, typescript.ScriptKind.TSX)
 
   compiler = {
-    printNodes: (nodes) =>
-      printer.printList(
-        typescript.ListFormat.MultiLine,
-        typescript.factory.createNodeArray(nodes as Array<import('@typescript/typescript6').Node>),
-        sourceFile,
-      ),
+    printNodes: (nodes) => printer.printList(typescript.ListFormat.MultiLine, typescript.factory.createNodeArray(nodes), sourceFile),
   }
 
   return compiler

@@ -181,12 +181,4 @@ describe('print', () => {
   it('joins string fragments with a newline', () => {
     expect(printFragments('type A = string', 'type B = number')).toBe('type A = string\ntype B = number')
   })
-
-  it('prints TypeScript compiler nodes through the deprecated path', async () => {
-    const { default: ts } = await import('@typescript/typescript6')
-    const node = ts.factory.createTypeAliasDeclaration(undefined, 'A', undefined, ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword))
-
-    expect(printFragments(node, node)).toBe('type A = string;\ntype A = string;\n')
-    expect(printFragments(node, 'type B = number')).toBe('type A = string;\ntype B = number')
-  })
 })
