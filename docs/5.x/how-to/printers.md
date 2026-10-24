@@ -42,7 +42,7 @@ Inside a handler, `this.transform(node)` returns the printed type of a nested sc
 
 `@kubb/plugin-zod` prints expression strings, so a handler returns the Zod code as a string. With `mini: true` the same overrides target the Zod Mini printer instead.
 
-```typescript twoslash [date.ts]
+```typescript [date.ts]
 import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
@@ -58,7 +58,7 @@ pluginZod({
 
 Use `this.base` to keep the default output and decorate it. This override appends `.openapi(...)` to every object schema, and nested nodes still print through the regular handlers.
 
-```typescript twoslash [openapi.ts]
+```typescript [openapi.ts]
 import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
@@ -78,7 +78,7 @@ A Zod handler can also read `this.options.direction`, which is `'decode'` while 
 
 `@kubb/plugin-faker` also prints strings, one Faker expression per schema node. This override generates floats where the spec declares integers.
 
-```typescript twoslash [integer.ts]
+```typescript [integer.ts]
 import { pluginFaker } from '@kubb/plugin-faker'
 
 pluginFaker({

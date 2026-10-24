@@ -74,7 +74,7 @@ The `getPetById` operation accepts a pet ID and returns a pet with an ID and nam
 
 Create `kubb.config.ts` beside the specification:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginAxios } from '@kubb/plugin-axios'

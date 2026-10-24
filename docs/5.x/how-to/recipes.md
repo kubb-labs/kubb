@@ -31,7 +31,7 @@ npm install -D kubb typescript @kubb/plugin-ts @kubb/plugin-axios @kubb/plugin-r
 npm install axios react @tanstack/react-query
 ```
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginAxios } from '@kubb/plugin-axios'
@@ -55,7 +55,7 @@ npm install -D kubb typescript @kubb/plugin-ts @kubb/plugin-axios @kubb/plugin-v
 npm install axios vue @tanstack/vue-query
 ```
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginAxios } from '@kubb/plugin-axios'
@@ -79,7 +79,7 @@ npm install -D kubb typescript @kubb/plugin-ts @kubb/plugin-zod @kubb/plugin-fak
 npm install zod msw @faker-js/faker
 ```
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'
@@ -103,7 +103,7 @@ To call the API with the global `fetch` instead of Axios, replace `pluginAxios` 
 
 Set `format` and `lint` to a tool name, or to `'auto'` to pick whichever tool is installed. [`output.postGenerate`](/docs/5.x/reference/configuration#outputpostgenerate) runs shell commands once the files are formatted and linted. Install the tools first, for example `npm install -D @biomejs/biome oxlint`.
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { pluginTs } from '@kubb/plugin-ts'
 
@@ -124,7 +124,7 @@ export default defineConfig({
 
 Point `input` at a file in a git repository when the spec lives in another repo, such as the API's own. Write it as `git+<repo>#<ref>:<path>`, and pin `<ref>` to a tag or commit so every run generates from the same spec:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 
 export default defineConfig({

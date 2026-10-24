@@ -25,7 +25,7 @@ A parser turns a `FileNode` into source code.
 
 `defineExtension` with `kind: 'parser'` takes a definition object and returns a factory. `build` receives the caller's options, or an empty object when omitted, and returns the parser methods. Declare extensions with `extNames`:
 
-```typescript twoslash [parserText.ts]
+```typescript [parserText.ts]
 import { defineExtension } from 'kubb/kit'
 
 export const parserText = defineExtension({

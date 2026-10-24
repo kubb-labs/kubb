@@ -13,7 +13,7 @@ navigation:
 
 `kubb/kit/testing` is a separate subpath for the Vitest-backed helpers used to test plugins, generators, and adapters. It stays separate from `kubb/kit` so importing the authoring toolkit never pulls Vitest into a plugin's runtime dependencies.
 
-```typescript twoslash [plugin.test.ts]
+```typescript [plugin.test.ts]
 import { createMockedPlugin, renderGeneratorOperation, matchFiles } from 'kubb/kit/testing'
 ```
 
@@ -34,7 +34,7 @@ The subpath exports mocking builders, generator runners, and a snapshot matcher:
 
 Pass a mocked setup context to the plugin's `kubb:plugin:setup` handler, then assert on its spies. When setup uses [composables](/docs/5.x/reference/kit/plugins#setup-context), run it inside `kubbContext.run(ctx, …)`. Without it, the composables throw `KUBB_NO_CONTEXT`.
 
-```typescript twoslash [plugin.test.ts]
+```typescript [plugin.test.ts]
 import { addGenerator, defineExtension, kubbContext } from 'kubb/kit'
 import { createMockedSetupContext } from 'kubb/kit/testing'
 import { expect, test } from 'vitest'

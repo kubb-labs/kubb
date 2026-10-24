@@ -21,7 +21,7 @@ Storage backends persist generated files in the filesystem, memory, or a custom 
 
 `createStorage` takes a builder function `(options: TOptions) => Storage` and returns a factory `(options?: TOptions) => Storage`. Call the returned factory to create a backend.
 
-```typescript twoslash [memory-storage.ts]
+```typescript [memory-storage.ts]
 import { createStorage } from 'kubb/kit'
 
 export const memoryStorage = createStorage(() => {

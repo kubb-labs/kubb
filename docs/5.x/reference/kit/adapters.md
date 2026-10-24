@@ -26,7 +26,7 @@ An adapter converts an input specification into the shared AST.
 
 A minimal adapter declares a name and returns an empty [`InputNode`](/docs/5.x/explanation/architecture#ast). An empty AST emits nothing, so fill `schemas` and `operations` from your spec next.
 
-```typescript twoslash [adapterCustom.ts]
+```typescript [adapterCustom.ts]
 import { ast, defineExtension } from 'kubb/kit'
 import type { AdapterFactoryOptions } from 'kubb/kit'
 

@@ -52,7 +52,7 @@ paths:
 
 `defineExtension` with `kind: 'plugin'` takes the plugin's `meta` and a `setup` function. Register a generator and resolver in `setup` with the `setResolver` and `addGenerator` [composables](/docs/5.x/reference/kit/plugins#setup-context), then return the plugin's options:
 
-```typescript twoslash [src/plugin.ts]
+```typescript [src/plugin.ts]
 import { addGenerator, ast, createResolver, defineExtension, defineGenerator, setResolver } from 'kubb/kit'
 
 const resolver = createResolver({ pluginName: 'plugin-example' })
