@@ -4,6 +4,7 @@ import type { AdapterSource } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
 import type { Document } from '../types.ts'
+import type { ValidationErrors, WorkerResult } from './validateWorker.ts'
 import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
 /**
@@ -190,8 +191,6 @@ export async function validateDocument(document: Document, { throwOnError = fals
   reportValidationErrors(result)
 }
 
-type ValidationErrors = { errors: Array<{ message: string }>; additionalErrors: number }
-
 function reportValidationErrors({ errors, additionalErrors }: ValidationErrors): void {
   for (const { message } of errors) {
     // The code frame after the first line numbers a JSON copy of the spec, not the user's file.
@@ -201,18 +200,6 @@ function reportValidationErrors({ errors, additionalErrors }: ValidationErrors):
     reportInvalidSpec(`${additionalErrors} more validation errors are not listed.`)
   }
 }
-
-// Runs as CommonJS inside the worker, so it loads the parser with `require`.
-const validateWorkerSource = `
-const { parentPort, workerData } = require('node:worker_threads')
-const { validate } = require(workerData.parserPath)
-validate(workerData.document, { validate: { errors: { colorize: false } } }).then(
-  (result) => parentPort.postMessage(result.valid ? { valid: true } : { valid: false, errors: result.errors.map(({ message }) => ({ message })), additionalErrors: result.additionalErrors }),
-  (error) => parentPort.postMessage({ thrown: error instanceof Error ? error.message : String(error) }),
-)
-`
-
-type WorkerResult = { valid: true } | ({ valid: false } & ValidationErrors) | { thrown: string }
 
 /**
  * Validates like {@link validateDocument} without `throwOnError`, but in a worker thread, so the
@@ -224,10 +211,10 @@ export async function validateDocumentInWorker(document: Document): Promise<void
   let message: WorkerResult
   try {
     const { Worker } = await import('node:worker_threads')
-    const { createRequire } = await import('node:module')
-    const parserPath = createRequire(import.meta.url).resolve('@readme/openapi-parser')
+    // Tests run the `.ts` source; the build emits `validateWorker.js` next to the bundle.
+    const workerFile = import.meta.url.endsWith('.ts') ? './validateWorker.ts' : './validateWorker.js'
     // `workerData` is a structured clone, so the worker can dereference it without touching the cached document.
-    const worker = new Worker(validateWorkerSource, { eval: true, workerData: { document, parserPath } })
+    const worker = new Worker(new URL(workerFile, import.meta.url), { workerData: document })
     message = await new Promise<WorkerResult>((resolve, reject) => {
       worker.once('message', resolve)
       worker.once('error', reject)
