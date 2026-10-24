@@ -24,8 +24,7 @@ Import `createKubb` from the `kubb` package to run a build from your own code. F
 
 Reach for `createKubb` when you orchestrate several builds, inspect diagnostics, or feed Kubb output into a larger toolchain. It applies the same defaults as `defineConfig`, so a shared config generates the same files from the CLI and from a script. Import it from `@kubb/core` for a bare engine without package defaults.
 
-```typescript twoslash [build.ts]
-// @module: esnext
+```typescript [build.ts]
 import { createKubb } from 'kubb'
 import { Diagnostics } from 'kubb/kit'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -100,7 +99,7 @@ Each problem diagnostic carries a `code`, a `severity` (`error`, `warning`, or `
 | `Diagnostics.count`         | Totals errors, warnings, and infos |
 | `Diagnostics.explain`       | Returns the catalog entry (title, fix, docs URL) for a code |
 
-```typescript twoslash [adapter.ts]
+```typescript [adapter.ts]
 import { Diagnostics } from 'kubb/kit'
 
 throw new Diagnostics.Error({

@@ -17,6 +17,7 @@ import {
   AgentMessage,
   type AgentConnectInfo,
   type ConfigEdit,
+  ConfigEditOperation,
   type ConfigRef,
   MAX_PAGE_LINES,
 } from './protocol.ts'
@@ -435,7 +436,7 @@ describe('installExtension', () => {
     const install = agent.installExtension({ id: 'plugin-zod' })
     const signal = await started.promise
 
-    const edit: ConfigEdit = { operation: 'disable-plugin', config: 0, plugin: '@kubb/plugin-ts' }
+    const edit: ConfigEdit = { operation: ConfigEditOperation.DISABLE_PLUGIN, config: 0, plugin: '@kubb/plugin-ts' }
     await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({
       outcomes: [{ applied: false, reason: 'an install, update, or remove is in progress' }],
     })
@@ -531,7 +532,7 @@ describe('installExtension', () => {
 
   it('holds off an install, a second save and a generation while a save is still writing the config', async () => {
     const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
-    const edit: ConfigEdit = { operation: 'disable-plugin', config: 0, plugin: '@kubb/plugin-ts' }
+    const edit: ConfigEdit = { operation: ConfigEditOperation.DISABLE_PLUGIN, config: 0, plugin: '@kubb/plugin-ts' }
     const save = agent.saveConfig({ edits: [edit] })
 
     await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'a save is in progress' })
@@ -872,7 +873,9 @@ describe('current disk output', () => {
 describe('saveConfig', () => {
   it('refuses every edit when the host did not grant allowConfigEdit', async () => {
     const { agent } = await connectStudio()
-    const edits = [{ operation: 'remove', plugin: '@kubb/plugin-ts', path: ['enumType'] }] satisfies Parameters<AgentApi['saveConfig']>[0]['edits']
+    const edits = [{ operation: ConfigEditOperation.REMOVE_OPTION, plugin: '@kubb/plugin-ts', path: ['enumType'] }] satisfies Parameters<
+      AgentApi['saveConfig']
+    >[0]['edits']
 
     await expect(agent.saveConfig({ edits })).resolves.toStrictEqual({
       outcomes: [{ edit: edits[0], applied: false, reason: 'the agent was not granted permission to edit kubb.config.ts' }],
@@ -894,7 +897,7 @@ describe('saveConfig', () => {
       permissions: { allowConfigEdit: true, allowSaveInput: true },
       connectInfo: { ...info, managed: true },
     })
-    const edit: ConfigEdit = { operation: 'set-input', input: 'openapi: 3.1.0\n' }
+    const edit: ConfigEdit = { operation: ConfigEditOperation.SET_INPUT, input: 'openapi: 3.1.0\n' }
 
     await expect(agent.saveConfig({ edits: [edit] })).resolves.toStrictEqual({ outcomes: [{ edit, applied: true }], changed: true })
     expect(await read(join(project, 'openapi.yaml'))).toBe('openapi: 3.1.0\n')
@@ -909,7 +912,7 @@ describe('saveConfig', () => {
       connectInfo: { ...info, managed: true },
     })
 
-    await agent.saveConfig({ edits: [{ operation: 'set-input', input: '{"openapi":"3.1.0"}' }] })
+    await agent.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, input: '{"openapi":"3.1.0"}' }] })
 
     expect(await read(join(project, 'openapi.json'))).toBe('{"openapi":"3.1.0"}')
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.json',`)
@@ -925,7 +928,7 @@ describe('saveConfig', () => {
       connectInfo: { ...info, managed: true },
     })
 
-    await agent.saveConfig({ edits: [{ operation: 'set-input', config: 1, input: 'openapi: 3.1.0\n' }] })
+    await agent.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, config: 1, input: 'openapi: 3.1.0\n' }] })
 
     expect(await read(join(project, 'openapi-1.yaml'))).toBe('openapi: 3.1.0\n')
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi-1.yaml'`)
@@ -942,7 +945,7 @@ describe('saveConfig', () => {
       connectInfo: { ...info, managed: true },
     })
 
-    await expect(agent.saveConfig({ edits: [{ operation: 'set-input', input: 'openapi: 3.1.0\n' }] })).resolves.toMatchObject({
+    await expect(agent.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, input: 'openapi: 3.1.0\n' }] })).resolves.toMatchObject({
       outcomes: [{ applied: false }],
       changed: false,
     })
@@ -956,7 +959,7 @@ describe('saveConfig', () => {
       permissions: { allowConfigEdit: true, allowSaveInput: true },
       connectInfo: { ...info, managed: true },
     })
-    const edit: ConfigEdit = { operation: 'set-input', input: '  ' }
+    const edit: ConfigEdit = { operation: ConfigEditOperation.SET_INPUT, input: '  ' }
 
     await expect(agent.saveConfig({ edits: [edit] })).resolves.toStrictEqual({
       outcomes: [{ edit, applied: false, reason: 'the edit names no input' }],
@@ -968,7 +971,7 @@ describe('saveConfig', () => {
   it('refuses to keep a spec without allowSaveInput', async () => {
     const project = await projectWithConfig()
     const { agent } = await connectStudio({ root: project, permissions: { allowConfigEdit: true }, connectInfo: { ...info, managed: true } })
-    const edit: ConfigEdit = { operation: 'set-input', input: 'https://example.com/openapi.yaml' }
+    const edit: ConfigEdit = { operation: ConfigEditOperation.SET_INPUT, input: 'https://example.com/openapi.yaml' }
 
     await expect(agent.saveConfig({ edits: [edit] })).resolves.toStrictEqual({
       outcomes: [{ edit, applied: false, reason: 'the agent was not granted permission to save the input' }],

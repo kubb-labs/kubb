@@ -21,7 +21,7 @@ Write overrides as regular methods, not arrow functions, when they use `this`. S
 
 Prefix TypeScript names while preserving the plugin's PascalCase preset:
 
-```typescript twoslash [prefix.ts]
+```typescript [prefix.ts]
 import { pluginTs, resolverTs } from '@kubb/plugin-ts'
 
 pluginTs({
@@ -37,7 +37,7 @@ pluginTs({
 
 `file.baseName` builds a file's name, extension included. Here it renames every Faker file to `<name>.mock.ts` instead of the plugin default.
 
-```typescript twoslash [file-name.ts]
+```typescript [file-name.ts]
 import { pluginFaker } from '@kubb/plugin-faker'
 
 pluginFaker({
@@ -53,7 +53,7 @@ pluginFaker({
 
 `file.path` returns the file's full path and bypasses the `output.path` and `group` layout, so the resolver owns where the file lands. This override moves every Faker file into a `mocks/` folder. The returned path may not escape the project root.
 
-```typescript twoslash [file-path.ts]
+```typescript [file-path.ts]
 import { pluginFaker } from '@kubb/plugin-faker'
 
 pluginFaker({
@@ -71,7 +71,7 @@ pluginFaker({
 
 Override `query.keyName` to rename React Query keys. Use `this.name` to retain the active naming rule:
 
-```typescript twoslash [query-key.ts]
+```typescript [query-key.ts]
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 
 pluginReactQuery({
@@ -87,7 +87,7 @@ pluginReactQuery({
 
 `@kubb/plugin-ts` names each response type through `response.status`. This override rewrites the template so a `200` response reads `GetPetById200Response` instead of the default `GetPetByIdStatus200`.
 
-```typescript twoslash [response.ts]
+```typescript [response.ts]
 import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({

@@ -43,7 +43,7 @@ With that in place, `.tsx` files in the plugin resolve `jsx-runtime` and `jsx-de
 
 `jsxRenderer` creates a renderer instance with two members, `render` and `files`. Call `render` with a JSX element, then read the generated files back off `files`.
 
-```tsx twoslash [render.tsx]
+```tsx [render.tsx]
 import { jsxRenderer } from 'kubb/jsx'
 import { File, Function, Type } from 'kubb/jsx'
 
@@ -251,7 +251,7 @@ Generates a TypeScript type alias. The children are the type expression. `name` 
 
 The markdown components each emit their own source block, so they go directly inside a `File` rather than a `File.Source`. Render the file with `parserMd` so it is written as markdown.
 
-```tsx twoslash [docs.tsx]
+```tsx [docs.tsx]
 import { jsxRenderer } from 'kubb/jsx'
 import { File, Frontmatter, Heading, Paragraph, List, Callout } from 'kubb/jsx'
 

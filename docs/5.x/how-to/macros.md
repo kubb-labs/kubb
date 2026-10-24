@@ -21,7 +21,7 @@ Import the macro engine through `ast` from `kubb/kit`. For callback signatures a
 
 Define the node transformation:
 
-```typescript twoslash [macro.ts]
+```typescript [macro.ts]
 import { ast } from 'kubb/kit'
 
 const macroIntegerToString = ast.defineMacro({
@@ -34,7 +34,7 @@ const macroIntegerToString = ast.defineMacro({
 
 The `match` predicate skips a macro for nodes it does not care about, and `enforce` places a macro before or after the unmarked ones.
 
-```typescript twoslash [enforce.ts]
+```typescript [enforce.ts]
 import { ast } from 'kubb/kit'
 
 const macroUntagged = ast.defineMacro({
@@ -51,7 +51,7 @@ const macroUntagged = ast.defineMacro({
 
 Pass macros through a plugin's `macros` option, or register them from `setup` with `addMacro` and `setMacros`. Macros run per plugin, so one plugin's macros never change the nodes another plugin sees.
 
-```typescript twoslash [plugin.ts]
+```typescript [plugin.ts]
 import { ast, defineExtension } from 'kubb/kit'
 
 const macroDropDescriptions = ast.defineMacro({
@@ -88,7 +88,7 @@ Macros run before the resolver names anything, so a renamed `operationId` or `Sc
 
 `kubb/kit` exports presets for common normalizations. Compose them with your own through a plugin's `macros` option. See the [built-in macros table](/docs/5.x/reference/kit/ast#macros) for what each one does.
 
-```typescript twoslash [presets.ts]
+```typescript [presets.ts]
 import { ast, macroSimplifyUnion, macroDiscriminatorEnum, macroRenameSchema } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })

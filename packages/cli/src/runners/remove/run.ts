@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
-import { BUNDLED_PACKAGES, findConfigFile } from '@internals/shared'
+import { BUNDLED_PACKAGES, ConfigEditOperation, editConfig, editConfigFile, findConfigFile, readImports } from '@internals/shared'
 import { getErrorMessage, read } from '@internals/utils'
 import { Diagnostics, readInstalledPackages } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
@@ -90,9 +90,10 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
       return fail(`${names} ${dependents.length === 1 ? 'needs' : 'need'} ${manifest.name}`, [`  Remove ${names} first.`])
     }
 
-    const { applyConfigEdits, readImports, writeConfigEdits } = await import('@kubb/studio')
-    const edits = [{ operation: 'remove-extension' as const, ...(manifest.kind === 'parser' ? { kind: 'parser' as const } : {}), plugin: artifact.package }]
-    const preview = applyConfigEdits({ source, edits })
+    const edits = [
+      { operation: ConfigEditOperation.REMOVE_EXTENSION, ...(manifest.kind === 'parser' ? { kind: 'parser' as const } : {}), plugin: artifact.package },
+    ]
+    const preview = editConfig({ source, edits })
     const outcome = preview.outcomes[0]
     if (!outcome?.applied) return fail(`Could not edit ${configName}`, [`  ${outcome?.reason ?? 'the config file was not changed'}`])
 
@@ -126,7 +127,7 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
     }
 
     if (preview.changed) {
-      const written = await writeConfigEdits({ filePath: configFile, edits })
+      const written = await editConfigFile({ filePath: configFile, edits })
       if (!written.outcomes[0]?.applied) return fail(`Could not edit ${configName}`, [`  ${written.outcomes[0]?.reason ?? 'the config file was not changed'}`])
       logStep(`${manifest.export}() removed from ${configName}`)
     }

@@ -16,7 +16,7 @@ navigation:
 
 `kubb.config.ts` drives a Kubb run. The file default-exports a `defineConfig` call. Pass it an object, a function that returns one, or an array of configs.
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 
 export default defineConfig({
@@ -36,7 +36,7 @@ Export an object as in the example above. `defineConfig` also accepts a Promise 
 
 Pass a function when the config depends on the run context, such as `watch` or `logLevel`:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 
 export default defineConfig(({ watch, logLevel }) => ({
@@ -60,7 +60,7 @@ The function receives this context:
 
 Pass an array to generate from several specs in one command:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { pluginTs } from '@kubb/plugin-ts'
 
@@ -120,7 +120,7 @@ A string that starts with `{` or `[`, spans multiple lines, or opens with a YAML
 
 Write a git input as `git+<repo>#<ref>:<path>`. `<ref>` is a branch, a tag, or a full commit SHA when the host allows fetching by SHA (GitHub and GitLab do); leave out `<ref>:` to use the default branch. Kubb runs a shallow `git fetch` into a temporary folder, so it needs `git` on the `PATH`, works with any host, and uses your own git credentials (credential helper or SSH key) for a private repository. Relative `$ref` files in the repository resolve as usual.
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 
 export default defineConfig({
@@ -129,7 +129,7 @@ export default defineConfig({
 })
 ```
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 
 export default defineConfig({
@@ -161,7 +161,7 @@ Default: follows the shape of `output.path`.
 
 You rarely need to set this. Leave it out and Kubb reads `output.path`: a path with an extension means one file, a path without one means a directory. Every plugin ships an extensionless default such as `'types'` or `'clients'`, so `pluginTs()` writes a directory without any configuration.
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginAxios } from '@kubb/plugin-axios'
@@ -219,7 +219,7 @@ Default: `false`.
 Shell commands to run after the generated files are formatted and linted, such as a type check or a custom script. Commands run from the `root` directory, in sequence. Pass a command string, or `{ name, command }` to label a step in the CLI output.
 
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 
 export default defineConfig({
@@ -322,7 +322,7 @@ Default: `adapterOas()` (included with `kubb`).
 
 Pass options to customize the adapter:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { adapterOas } from '@kubb/adapter-oas'
 
@@ -345,7 +345,7 @@ Default: `[parserTs(), parserTsx(), parserMd()]` (included with `kubb`).
 
 Import parsers explicitly to override the default set:
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 
@@ -367,7 +367,7 @@ See the [Storage concept](/docs/5.x/explanation/architecture#storage) for the bu
 Default: `fsStorage()`.
 
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { memoryStorage } from 'kubb/kit'
 

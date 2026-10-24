@@ -21,7 +21,7 @@ navigation:
 
 Each generator method returns `TElement | Array<FileNode> | void`. Returning a renderer element (for example JSX from [`kubb/jsx`](/docs/5.x/reference/jsx)) requires a `renderer` factory on the generator.
 
-```typescript twoslash [my-generator.ts]
+```typescript [my-generator.ts]
 import { ast, defineGenerator } from 'kubb/kit'
 
 const myGenerator = defineGenerator({
@@ -54,7 +54,7 @@ const myGenerator = defineGenerator({
 
 Add a `match(node, ctx)` predicate to skip `schema` or `operation` for nodes a generator does not apply to. A `false` result skips that node. Omitting `match` runs the generator for every node. `match` does not filter `operations()`.
 
-```typescript twoslash [scoped-generator.ts]
+```typescript [scoped-generator.ts]
 import { ast, defineGenerator } from 'kubb/kit'
 
 const getOnlyGenerator = defineGenerator({
