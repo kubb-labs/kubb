@@ -134,6 +134,12 @@ function createProgress(files: Array<FileNode>, config: Config, hooks: Hookable<
   }
 }
 
+/** Links each source without a pointer to the node its file was generated from. */
+function withPointer(files: ReadonlyArray<FileNode>, pointer: string | undefined): ReadonlyArray<FileNode> {
+  if (!pointer) return files
+  return files.map((file) => ({ ...file, sources: file.sources.map((source) => (source.pointer ? source : { ...source, pointer })) }))
+}
+
 /**
  * In-memory file store for generated files, and the writer that turns them into source
  * strings on `storage`. Files sharing a `path` are merged (sources/imports/exports
@@ -172,14 +178,19 @@ export class FileManager {
   async dispatch<TElement = unknown>({
     result,
     renderer,
+    pointer,
   }: {
     result: TElement | Array<FileNode> | undefined | null
     renderer?: RendererFactory<TElement> | null
+    /**
+     * Pointer of the node the result was generated from, set on each source that carries none.
+     */
+    pointer?: string
   }): Promise<void> {
     if (!result) return
 
     if (Array.isArray(result)) {
-      this.#defer(result as Array<FileNode>)
+      this.#defer(withPointer(result as Array<FileNode>, pointer))
       return
     }
 
@@ -188,7 +199,7 @@ export class FileManager {
     using instance = renderer()
     await instance.render(result)
 
-    this.#defer(instance.files)
+    this.#defer(withPointer(instance.files, pointer))
   }
 
   /** Upserts without normalizing: the raw merge waits in `#pending` until the file is read. */

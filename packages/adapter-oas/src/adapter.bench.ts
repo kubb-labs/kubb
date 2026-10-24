@@ -24,13 +24,13 @@ async function getPetStoreDocument(): Promise<Document> {
 // Mirrors the adapter's convert pass: parse each schema, report its diagnostics, then detect cycles.
 function parseOas(document: Document): void {
   const refs = createRefs(document)
-  const { schemas: schemaObjects } = getSchemas(document, {}, refs)
+  const { schemas: schemaObjects, pointers } = getSchemas(document, {}, refs)
   const parseSchema = createSchemaParser({ document, refs, options: DEFAULT_PARSER_OPTIONS })
 
   const nodes: Array<ast.SchemaNode> = []
   for (const [name, schema] of Object.entries(schemaObjects)) {
-    const node = parseSchema({ schema, name })
-    scanSchema({ node, name })
+    const node = { ...parseSchema({ schema, name }), pointer: pointers.get(name) }
+    scanSchema(node)
     nodes.push(node)
   }
   ast.findCircularSchemas(nodes)

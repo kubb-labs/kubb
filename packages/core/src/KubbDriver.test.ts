@@ -213,12 +213,12 @@ function fileNode(path: string): FileNode {
 
 function inputAdapter() {
   const schemas: Array<SchemaNode> = [
-    ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] }),
-    ast.factory.createSchema({ type: 'object', name: 'Store', properties: [] }),
+    ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [], pointer: '#/components/schemas/Pet' }),
+    ast.factory.createSchema({ type: 'object', name: 'Store', properties: [], pointer: '#/components/schemas/Store' }),
   ]
   const operations: Array<OperationNode> = [
-    ast.factory.createOperation({ operationId: 'getPet', method: 'GET', path: '/pet' }),
-    ast.factory.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' }),
+    ast.factory.createOperation({ operationId: 'getPet', method: 'GET', path: '/pet', pointer: '#/paths/~1pet/get' }),
+    ast.factory.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets', pointer: '#/paths/~1pets/get' }),
   ]
   return createMockedAdapter({ parse: async () => ast.factory.createInput({ schemas, operations }) })
 }
@@ -398,7 +398,7 @@ describe('KubbDriver generator dispatch', () => {
     })
   })
 
-  it('names the operation a generator crashed on, with an escaped pointer', async () => {
+  it('names the operation a generator crashed on, with the pointer the adapter set', async () => {
     const boomPlugin: Plugin = {
       name: 'boom',
       hooks: {

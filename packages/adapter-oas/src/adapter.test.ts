@@ -70,6 +70,110 @@ describe('adapterOas.parse', () => {
     expect(node.operations.map((operation) => operation.operationId)).toStrictEqual(['listPets'])
   })
 
+  it('links each schema, operation, parameter, request body and response to its JSON pointer, also for a renamed schema', async () => {
+    const spec = {
+      openapi: '3.0.3',
+      info: { title: 'Links', version: '1.0.0' },
+      paths: {
+        '/pets/{id}': {
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          get: {
+            operationId: 'getPet',
+            parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' } }],
+            requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
+            responses: { '200': { description: 'ok', content: { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } } } },
+          },
+        },
+      },
+      components: {
+        schemas: { Pet: { type: 'object' } },
+        responses: { Pet: { description: 'ok', content: { 'application/json': { schema: { type: 'string' } } } } },
+      },
+    }
+
+    const node = await adapterOas({ validate: false }).parse({ type: 'data', data: spec })
+
+    expect(node.schemas.map(({ name, pointer }) => ({ name, pointer }))).toStrictEqual([
+      { name: 'PetSchema', pointer: '#/components/schemas/Pet' },
+      { name: 'PetResponse', pointer: '#/components/responses/Pet/content/application~1json/schema' },
+    ])
+    const [operation] = node.operations
+    expect(operation?.pointer).toBe('#/paths/~1pets~1{id}/get')
+    expect(operation?.responses.map((response) => response.pointer)).toStrictEqual(['#/paths/~1pets~1{id}/get/responses/200'])
+    expect(operation?.parameters.map(({ name, pointer }) => ({ name, pointer }))).toStrictEqual([
+      { name: 'id', pointer: '#/paths/~1pets~1{id}/parameters/0' },
+      { name: 'limit', pointer: '#/paths/~1pets~1{id}/get/parameters/0' },
+    ])
+    expect(operation?.requestBody?.pointer).toBe('#/paths/~1pets~1{id}/get/requestBody')
+  })
+
+  it('sets pointers on nested and operation schemas that locate resolves in the spec text', async () => {
+    const spec = {
+      openapi: '3.0.3',
+      info: { title: 'Nested', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          post: {
+            operationId: 'addPet',
+            parameters: [{ name: 'tag', in: 'query', schema: { type: 'string' } }],
+            requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } } } } } },
+            responses: { '200': { description: 'ok', content: { 'application/json': { schema: { type: 'array', items: { type: 'string' } } } } } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Pet: { type: 'object', properties: { tags: { type: 'array', items: { type: 'string' } } } },
+          Shape: { oneOf: [{ type: 'string' }, { type: 'number' }] },
+        },
+        responses: {
+          Error: { description: 'error', content: { 'application/json': { schema: { type: 'object', properties: { code: { type: 'string' } } } } } },
+        },
+      },
+    }
+    const text = JSON.stringify(spec, null, 2)
+    const adapter = adapterOas({ validate: false })
+    const node = await adapter.parse({ type: 'data', data: spec })
+
+    const pet = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Pet')!,
+      'object',
+    )!
+    const tags = ast.narrowSchema(pet.properties[0]!.schema, 'array')!
+    const error = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Error')!,
+      'object',
+    )!
+    const shape = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Shape')!,
+      'union',
+    )!
+    const [operation] = node.operations
+    const body = ast.narrowSchema(operation!.requestBody!.content![0]!.schema!, 'object')!
+    const pointers = [
+      tags.pointer,
+      tags.items![0]!.pointer,
+      shape.members![1]!.pointer,
+      operation!.parameters[0]!.schema.pointer,
+      body.pointer,
+      body.properties[0]!.schema.pointer,
+      operation!.responses[0]!.content![0]!.schema!.pointer,
+      error.properties[0]!.schema.pointer,
+    ]
+
+    expect(pointers).toStrictEqual([
+      '#/components/schemas/Pet/properties/tags',
+      '#/components/schemas/Pet/properties/tags/items',
+      '#/components/schemas/Shape/oneOf/1',
+      '#/paths/~1pets/post/parameters/0/schema',
+      '#/paths/~1pets/post/requestBody/content/application~1json/schema',
+      '#/paths/~1pets/post/requestBody/content/application~1json/schema/properties/name',
+      '#/paths/~1pets/post/responses/200/content/application~1json/schema',
+      '#/components/responses/Error/content/application~1json/schema/properties/code',
+    ])
+    for (const pointer of pointers) expect(adapter.locate!(text, { kind: 'schema', pointer: pointer! }), pointer).toBeDefined()
+  })
+
   it('parses OpenAPI 3.2 query operations as QUERY', async () => {
     const spec = {
       openapi: '3.2.0',

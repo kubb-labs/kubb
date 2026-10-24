@@ -56,7 +56,7 @@ describe('schema diagnostics during parse', () => {
     const diagnostics = await collect(data)
 
     expect(diagnostics).toContainEqual(
-      expect.objectContaining({ code: 'KUBB_DEPRECATED', location: { kind: 'schema', pointer: '#/components/schemas/Name/members/1/members/0' } }),
+      expect.objectContaining({ code: 'KUBB_DEPRECATED', location: { kind: 'schema', pointer: '#/components/schemas/Name/allOf/1/not' } }),
     )
   })
 
@@ -110,7 +110,7 @@ describe('schema diagnostics during parse', () => {
       .filter((diagnostic) => diagnostic.code === 'KUBB_UNSUPPORTED_FORMAT')
       .map((diagnostic) => (diagnostic.location && 'pointer' in diagnostic.location ? diagnostic.location.pointer : undefined))
 
-    expect(pointers).toStrictEqual(['#/components/schemas/Pet/members/0', '#/components/schemas/Pet/members/1'])
+    expect(pointers).toStrictEqual(['#/components/schemas/Pet/oneOf/0', '#/components/schemas/Pet/oneOf/1'])
   })
 
   it('does not warn on any format the parser handles', async () => {
