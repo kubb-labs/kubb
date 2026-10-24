@@ -9,6 +9,196 @@ outline: 2
 
 # Changelog
 
+## v5.13.0 — Oct 24, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Require Node.js 22.22+ (chokidar 6) and reject malformed `servers[].url` values (`@readme/openapi-parser` 10). ([#4426](https://github.com/kubb-labs/kubb/pull/4426))
+
+#### Bug Fixes
+
+- Locate warning code frames in JSON specs without re-parsing. ([#4423](https://github.com/kubb-labs/kubb/pull/4423))
+- Validate the spec in a worker thread during generation. ([#4421](https://github.com/kubb-labs/kubb/pull/4421))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- AST nodes and diagnostics point at the spec key they came from, with a new `pointer` prop on `File.Source`. ([#4424](https://github.com/kubb-labs/kubb/pull/4424))
+- Speed up generation by 8 to 20% on large specs, with the same output. ([#4415](https://github.com/kubb-labs/kubb/pull/4415))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Drop `unstorage` and `lru-cache`; `kubbStorage` now only has `getItem`, `setItem` and `removeItem`. ([#4418](https://github.com/kubb-labs/kubb/pull/4418))
+
+### @kubb/mcp
+
+#### Bug Fixes
+
+- Validate tool input with `valibot` instead of `zod`. ([#4417](https://github.com/kubb-labs/kubb/pull/4417))
+
+### @kubb/parser-ts
+
+#### Features
+
+- Drop the TypeScript compiler dependency; printing compiler nodes is deprecated and needs `typescript` installed. ([#4416](https://github.com/kubb-labs/kubb/pull/4416))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Make `tsdown` an optional peer; `kubb studio snapshot` needs it installed. ([#4419](https://github.com/kubb-labs/kubb/pull/4419))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.8 — Oct 23, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Parameters described with `content` instead of `schema` get their type from the media type's schema instead of `unknown`. `ParameterNode.contentType` holds that media type, so clients can JSON-encode the value. ([#4413](https://github.com/kubb-labs/kubb/pull/4413))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.7 — Oct 23, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Emit schemas declared in nested `$defs` and `definitions` blocks and resolve references to them. ([#4401](https://github.com/kubb-labs/kubb/pull/4401))
+- `iri`, `iri-reference`, `base64url`, `jwt`, `ulid`, `iban` and `duration` no longer raise `KUBB_UNSUPPORTED_FORMAT`. Generated output is unchanged. ([#4412](https://github.com/kubb-labs/kubb/pull/4412))
+- `uri-reference`, `hostname` and `idn-hostname` map to a string instead of a URL, so `plugin-zod` prints `z.string()` and relative references pass validation. ([#4410](https://github.com/kubb-labs/kubb/pull/4410))
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- `root` defaults to the folder of `kubb.config.ts` instead of `process.cwd()`. A `*.openapi.yaml` import only uses a config whose `input` is that spec, and fails with `No Kubb config applies to <spec>` when none fits. ([#4409](https://github.com/kubb-labs/kubb/pull/4409))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@jay23606](https://github.com/jay23606), [@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.6 — Oct 23, 2026
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- Import a `*.openapi.yaml` spec to get the output of every plugin in your config as one module. `kubb()` without a `config` option loads `kubb.config.ts`. ([#4402](https://github.com/kubb-labs/kubb/pull/4402))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.5 — Oct 22, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Parse specs with `js-yaml` first, which loads a 1.4 MB YAML spec in about 105 ms instead of 470 ms. A JSON spec with a duplicate key now fails with `KUBB_INVALID_DOCUMENT`. ([#4398](https://github.com/kubb-labs/kubb/pull/4398))
+- `locate` compares the spec text once instead of on every call, so many pointer lookups on one spec run about 9× faster. ([#4394](https://github.com/kubb-labs/kubb/pull/4394))
+- Cache the results of `camelCase` and `pascalCase`. ([#4399](https://github.com/kubb-labs/kubb/pull/4399))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Builds with `output.mode: 'file'` merge generator results once, which cuts a 1.9 MB spec from 3.3 s to 2.3 s. Named imports can come out in a different order. ([#4396](https://github.com/kubb-labs/kubb/pull/4396))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.4 — Oct 22, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Studio can read and edit the root `output` options `barrel`, `format`, `lint`, `clean` and `defaultBanner` through the new `set-output` and `remove-output` config edits. ([#4390](https://github.com/kubb-labs/kubb/pull/4390))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.3 — Oct 22, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- `checkoutGitInput` takes an `authorization` option and `GenerateInput` gains `gitAuth`, so Studio can fetch a private repository without a credential in the input URL. ([#4384](https://github.com/kubb-labs/kubb/pull/4384))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Studio can save the spec it sends as the agent's input, behind the new `--allow-save-input` permission. ([#4385](https://github.com/kubb-labs/kubb/pull/4385))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.2 — Oct 22, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Studio can install and update registry extensions, behind the new `--allow-install` and `--allow-update` permissions. `kubb add` exits with code 1 when it cannot write the plugin into `kubb.config.ts`. ([#4382](https://github.com/kubb-labs/kubb/pull/4382))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.1 — Oct 22, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- `checkoutGitInput` takes a `publicOnly` option that accepts https repositories on public addresses only. Core also exports `isPublicAddress`. ([#4381](https://github.com/kubb-labs/kubb/pull/4381))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- A managed agent generates from a spec Studio sends: the document, a URL, or a `git+<repo>#<ref>:<path>` file. ([#4379](https://github.com/kubb-labs/kubb/pull/4379))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.12.0 — Oct 21, 2026
 
 ### @kubb/core
