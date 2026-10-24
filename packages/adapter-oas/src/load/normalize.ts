@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module'
 import { getErrorMessage, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
@@ -191,7 +190,9 @@ export async function validateDocument(document: Document, { throwOnError = fals
   reportValidationErrors(result)
 }
 
-function reportValidationErrors({ errors, additionalErrors }: { errors: Array<{ message: string }>; additionalErrors: number }): void {
+type ValidationErrors = { errors: Array<{ message: string }>; additionalErrors: number }
+
+function reportValidationErrors({ errors, additionalErrors }: ValidationErrors): void {
   for (const { message } of errors) {
     // The code frame after the first line numbers a JSON copy of the spec, not the user's file.
     reportInvalidSpec(message.replace(/\n.*/s, ''))
@@ -211,7 +212,7 @@ validate(workerData.document, { validate: { errors: { colorize: false } } }).the
 )
 `
 
-type WorkerResult = { valid: true } | { valid: false; errors: Array<{ message: string }>; additionalErrors: number } | { thrown: string }
+type WorkerResult = { valid: true } | ({ valid: false } & ValidationErrors) | { thrown: string }
 
 /**
  * Validates like {@link validateDocument} without `throwOnError`, but in a worker thread, so the
@@ -223,6 +224,7 @@ export async function validateDocumentInWorker(document: Document): Promise<void
   let message: WorkerResult
   try {
     const { Worker } = await import('node:worker_threads')
+    const { createRequire } = await import('node:module')
     const parserPath = createRequire(import.meta.url).resolve('@readme/openapi-parser')
     // `workerData` is a structured clone, so the worker can dereference it without touching the cached document.
     const worker = new Worker(validateWorkerSource, { eval: true, workerData: { document, parserPath } })
