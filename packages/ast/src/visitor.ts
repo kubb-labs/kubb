@@ -19,7 +19,7 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   RequestBody: ['content'],
   Content: ['schema'],
   Response: ['content'],
-  Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'rest'],
+  Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'propertyNames', 'rest'],
   Property: ['schema'],
   Parameter: ['schema'],
 }
@@ -224,27 +224,119 @@ function isNodeRecord(value: unknown): value is Record<string, unknown> {
  * ```
  */
 function getChildren(node: Node, recurse: boolean): Array<Node> {
+  if (node.kind === 'Schema' && !recurse) return []
   const children: Array<Node> = []
-  // `Schema` children are only walked when `recurse` is `true`.
-  const keys = node.kind === 'Schema' && !recurse ? undefined : VISITOR_KEYS[node.kind]
-  if (!keys) return children
+  visitChildNodes(node, (child) => {
+    children.push(child)
+    return false
+  })
+  return children
+}
+
+/**
+ * Visits each direct child node in the AST's traversal order.
+ *
+ * @example
+ * ```ts
+ * forEachChild(operationNode, (child) => {
+ *   console.log(child.kind)
+ * })
+ * ```
+ */
+export function forEachChild(node: Node, visit: (child: Node) => void): void {
+  visitChildNodes(node, (child) => {
+    visit(child)
+    return false
+  })
+}
+
+function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
+  const keys = VISITOR_KEYS[node.kind]
+  if (!keys) return false
 
   const record = node as unknown as Record<string, unknown>
   for (const key of keys) {
     const value = record[key]
     if (Array.isArray(value)) {
-      for (const item of value) if (isNode(item)) children.push(item)
+      for (const item of value) if (isNode(item) && visit(item)) return true
       continue
     }
     if (isNode(value)) {
-      children.push(value)
+      if (visit(value)) return true
       continue
     }
     if (isNodeRecord(value)) {
-      for (const item of Object.values(value)) if (isNode(item)) children.push(item)
+      for (const name in value) {
+        if (!Object.hasOwn(value, name)) continue
+        const item = value[name]
+        if (isNode(item) && visit(item)) return true
+      }
     }
   }
-  return children
+  return false
+}
+
+/**
+ * Visits each schema in a node's child tree in depth-first order. Includes `node` when it is a schema.
+ *
+ * @example
+ * ```ts
+ * forEachSchema(operationNode, (schema) => {
+ *   console.log(schema.type)
+ * })
+ * ```
+ */
+export function forEachSchema(node: Node, visit: (schema: SchemaNode) => void): void {
+  const walk = (current: Node): void => {
+    if (current.kind === 'Schema') visit(current)
+    forEachChild(current, walk)
+  }
+  walk(node)
+}
+
+/**
+ * Finds the first schema that matches `predicate` in depth-first order. Set `followRefs` to include resolved ref targets.
+ *
+ * @example
+ * ```ts
+ * const firstString = findSchema(operationNode, {
+ *   predicate: (schema) => schema.type === 'string',
+ * })
+ * ```
+ */
+export function findSchema(
+  node: Node,
+  {
+    predicate,
+    followRefs = false,
+  }: {
+    predicate: (schema: SchemaNode) => boolean
+    followRefs?: boolean
+  },
+): SchemaNode | undefined {
+  const seen = followRefs ? new WeakSet<SchemaNode>() : undefined
+  const walk = (current: Node): SchemaNode | undefined => {
+    if (current.kind === 'Schema') {
+      if (predicate(current)) return current
+      if (seen) {
+        if (seen.has(current)) return undefined
+        seen.add(current)
+        if (current.type === 'ref' && current.schema) {
+          const found = walk(current.schema)
+          if (found) return found
+        }
+      }
+    }
+
+    let found: SchemaNode | undefined
+    visitChildNodes(current, (child) => {
+      found = walk(child)
+      return found !== undefined
+    })
+    if (found) return found
+    return undefined
+  }
+  return walk(node)
 }
 
 /**

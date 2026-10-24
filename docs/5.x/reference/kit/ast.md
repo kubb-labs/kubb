@@ -2,8 +2,8 @@
 layout: doc
 title: AST and node builders
 description: The ast namespace groups the factory node builders, the transform
-  and collect visitors, the guards, the ref and naming helpers, the macro
-  engine, and the printer helper behind one import.
+  and collect visitors, direct schema traversal helpers, the guards, the ref
+  and naming helpers, the macro engine, and the printer helper behind one import.
 outline:
   - 2
   - 3
@@ -62,6 +62,8 @@ A `SchemaNode` is discriminated by its `type`. The values fall into three famili
 | `unknown` | Unknown value  | `unknown`  |
 | `void`    | No value       | `void`     |
 | `never`   | Never produced | `never`    |
+
+Object schemas can also include `propertyNames`, a schema that validates each key name. The OpenAPI adapter maps this field from the input schema.
 
 ### Special types
 
@@ -143,6 +145,23 @@ console.log(`Deprecated schemas: ${deprecated.length}`)
 
 Use `collect` to stream matches as you find them, and `collectSync` to find specific nodes, filter by a criterion, or build a list for later processing.
 
+### Direct traversal
+
+`forEachChild` visits the immediate children of a node. `forEachSchema` visits schema nodes in a node's child tree, including the starting node when it is a schema. Neither helper follows refs.
+
+`findSchema` stops at the first schema that matches a predicate. Set `followRefs: true` to inspect resolved ref targets; traversal stops when it reaches an unresolved or cyclic ref.
+
+```typescript twoslash [find-schema.ts]
+import { ast } from 'kubb/kit'
+
+const root = ast.factory.createInput({ schemas: [], operations: [] })
+
+const dateSchema = ast.findSchema(root, {
+  followRefs: true,
+  predicate: (schema) => schema.type === 'date',
+})
+```
+
 ## Guards and narrowing {#guards-and-narrowing}
 
 Kubb exports type guards and a `narrowSchema` helper for safe discrimination:
@@ -172,10 +191,11 @@ for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => n
 
 ## Refs and naming helpers
 
-The helpers split across two surfaces. `resolveRefName` ships on the `ast` namespace, like the guards and node types. `extractRefName`, `childName`, `enumPropName`, and `syncSchemaRef` are named exports of `kubb/kit` itself. The same split applies to `containsCircularRef` and the built-in macros below.
+The helpers split across two surfaces. `resolveRef`, `resolveRefName`, and `refName` ship on the `ast` namespace, like the guards and node types. `extractRefName`, `childName`, `enumPropName`, and `syncSchemaRef` are named exports of `kubb/kit` itself. The same split applies to `containsCircularRef` and the built-in macros below.
 
 | Helper           | Purpose                                                             |
 | ---------------- | ------------------------------------------------------------------- |
+| `resolveRef`     | Follow resolved ref nodes to their target schema.                   |
 | `extractRefName` | Turn `'#/components/schemas/Pet'` into `'Pet'`.                     |
 | `resolveRefName` | Resolve the name a ref node emits, preferring its `targetName`.     |
 | `childName`      | Derive a child property name from context.                          |

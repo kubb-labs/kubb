@@ -9,6 +9,7 @@ import type { ConvertContext } from '../parseSchema.ts'
  * `options.unknownType`, otherwise parses it as a regular schema.
  */
 function resolveMapSchema(mapSchema: unknown, { options, parse }: Pick<ConvertContext, 'options' | 'parse'>): ast.SchemaNode {
+  if (mapSchema === false) return ast.factory.createSchema({ type: 'never' })
   if (mapSchema === true || (typeof mapSchema === 'object' && Object.keys(mapSchema as object).length === 0)) {
     return ast.factory.createSchema({ type: options.unknownType })
   }
@@ -69,6 +70,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
   const patternProperties = rawPatternProperties
     ? Object.fromEntries(Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [pattern, resolveMapSchema(patternSchema, { options, parse })]))
     : undefined
+  const propertyNames = 'propertyNames' in schema && schema.propertyNames !== undefined ? resolveMapSchema(schema.propertyNames, { options, parse }) : undefined
 
   const objectNode: ast.SchemaNode = createNode(
     { schema, name, nullable, defaultValue },
@@ -78,6 +80,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       properties,
       additionalProperties: additionalPropertiesNode,
       patternProperties,
+      propertyNames,
       minProperties: schema.minProperties,
       maxProperties: schema.maxProperties,
     },

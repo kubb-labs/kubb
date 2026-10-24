@@ -26,6 +26,27 @@ export function resolveRefName(node: SchemaNode | null | undefined): string | nu
   return node.name ?? node.schema?.name ?? null
 }
 
+/**
+ * Follows a resolved ref chain to its target schema. Returns an unresolved or cyclic ref as is.
+ *
+ * @example
+ * ```ts
+ * const target = resolveRef(refSchema)
+ * ```
+ */
+export function resolveRef(node: SchemaNode): SchemaNode {
+  if (node.type !== 'ref' || !node.schema) return node
+
+  const seen = new WeakSet<SchemaNode>()
+  let current: SchemaNode = node
+  while (current.type === 'ref' && current.schema) {
+    if (seen.has(current)) return current
+    seen.add(current)
+    current = current.schema
+  }
+  return current
+}
+
 /** Fields of a ref node that describe the ref itself, so they never override the resolved schema. */
 const REF_OWN_KEYS: ReadonlySet<string> = new Set(['kind', 'type', 'name', 'ref', 'schema'])
 

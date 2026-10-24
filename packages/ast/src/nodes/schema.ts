@@ -169,6 +169,21 @@ export type ObjectSchemaNode = SchemaNodeBase & {
    */
   patternProperties?: Record<string, SchemaNode>
   /**
+   * Schema that each property name must match.
+   *
+   * @example
+   * ```ts
+   * const objectSchema: ObjectSchemaNode = {
+   *   kind: 'Schema',
+   *   type: 'object',
+   *   primitive: 'object',
+   *   properties: [],
+   *   propertyNames: { kind: 'Schema', type: 'string', primitive: 'string', pattern: '^[a-z]+$' },
+   * }
+   * ```
+   */
+  propertyNames?: SchemaNode
+  /**
    * Minimum number of properties allowed.
    */
   minProperties?: number
