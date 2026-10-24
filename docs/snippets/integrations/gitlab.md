@@ -12,7 +12,7 @@ snapshot:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 ```
 
-`kubb` ships the Studio runtime, so `npm ci` is the only setup. The `rules` run the job on merge request pipelines and on the default branch, so a merge request has a snapshot of its target branch to compare with.
+With `kubb` and `tsdown` in the development dependencies, `npm ci` is the only setup. The `rules` run the job on merge request pipelines and on the default branch, so a merge request has a snapshot of its target branch to compare with.
 
 ### Post the result as a note
 

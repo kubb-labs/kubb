@@ -5,23 +5,22 @@ import { isPathInside } from '@internals/utils'
 import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
-import * as z from 'zod/mini'
+import * as v from 'valibot'
 import { formatDiagnostics } from '../utils.ts'
 
-const generateSchema = z.object({
-  config: z.optional(
-    z
-      .string()
-      .check(
-        z.minLength(1),
-        z.describe(
-          `Path to kubb.config file (supports ${CONFIG_EXTENSIONS.join(', ')}). If not provided, will look for kubb.config.* or .kubbrc.* in the current directory, its .config/ and configs/ folders, then each parent directory`,
-        ),
+const generateSchema = v.object({
+  config: v.optional(
+    v.pipe(
+      v.string(),
+      v.minLength(1),
+      v.description(
+        `Path to kubb.config file (supports ${CONFIG_EXTENSIONS.join(', ')}). If not provided, will look for kubb.config.* or .kubbrc.* in the current directory, its .config/ and configs/ folders, then each parent directory`,
       ),
+    ),
   ),
-  input: z.optional(z.string().check(z.minLength(1), z.describe('Path to OpenAPI/Swagger spec file (overrides config)'))),
-  output: z.optional(z.string().check(z.minLength(1), z.describe('Output directory path (overrides config)'))),
-  logLevel: z._default(z.enum(['silent', 'info', 'verbose']).check(z.describe('Log level for build output')), 'info'),
+  input: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Path to OpenAPI/Swagger spec file (overrides config)'))),
+  output: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Output directory path (overrides config)'))),
+  logLevel: v.optional(v.pipe(v.picklist(['silent', 'info', 'verbose']), v.description('Log level for build output')), 'info'),
 })
 
 export const generateTool = defineTool(
@@ -30,7 +29,7 @@ export const generateTool = defineTool(
     description: 'Generate OpenAPI spec helpers using Kubb configuration',
     schema: generateSchema,
   },
-  async function generate(schema: z.input<typeof generateSchema>) {
+  async function generate(schema: v.InferInput<typeof generateSchema>) {
     const { config: configPath, input, output, logLevel } = schema
     const messages: Array<string> = []
 
