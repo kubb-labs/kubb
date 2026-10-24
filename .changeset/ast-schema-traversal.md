@@ -1,5 +1,5 @@
 ---
-'@kubb/ast': minor
+'@kubb/ast': patch
 '@kubb/adapter-oas': patch
 ---
 
