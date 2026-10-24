@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Kubb vs orval, HeyAPI, and openapi-typescript
-description: Compare Kubb with orval, HeyAPI, and openapi-typescript on generated outputs, type safety, client runtime, and Kubb Studio, checked against each project's docs.
+description: Compare Kubb with orval, HeyAPI, and openapi-typescript on speed, memory, install size, generated outputs, type safety, client runtime, and Kubb Studio.
 outline:
   - 2
   - 3
@@ -14,6 +14,15 @@ navigation:
 # Kubb vs orval, HeyAPI, and openapi-typescript
 
 Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. The tables compare generated outputs, response handling, runtime behavior, and what [Kubb Studio](#kubb-studio) adds around the generator. Each cell was checked against the project's own docs in October 2026.
+
+## Speed, memory, and install size
+
+Kubb generates faster and uses less memory than HeyAPI and orval at every spec size we measured, from an 11 KB spec to Cloudflare's 27.6 MB API. Switch between a full build (types, Zod schemas, and a fetch client) and types only, where openapi-typescript joins. In types only, openapi-typescript is the one tool ahead of Kubb on time, on the largest spec, while it uses more memory.
+
+::tool-benchmark
+::
+
+Each value is the median of five runs on Node 22 on Linux x64, measured in October 2026. Kubb ran from the `main` branches of kubb-labs/kubb and kubb-labs/plugins on October 24, the first versions after kubb 5.12.8 without the TypeScript compiler, against `@hey-api/openapi-ts` 0.99.0, orval 8.44.0, and openapi-typescript 7.13.0. Install size is the `node_modules` disk usage after a clean `npm install` with the same features.
 
 ## Plugin and feature coverage
 
