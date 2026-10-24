@@ -1,10 +1,10 @@
-import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { read } from '@internals/utils'
 import { describe, expect, it } from 'vitest'
 import { editConfig, readConfig } from './configFile.ts'
 import { type ConfigEdit, ConfigEditOperation, type ConfigFileView, type PluginView } from './types.ts'
 
-const advanced = readFileSync(join(import.meta.dirname, 'advanced.config.txt'), 'utf8')
+const advanced = await read(join(import.meta.dirname, 'advanced.config.txt'))
 
 /**
  * `view` with one plugin's option replaced, or dropped when `option` is `undefined`. Diffing a

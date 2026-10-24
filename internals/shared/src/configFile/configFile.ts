@@ -1,6 +1,5 @@
-import { writeFile } from 'node:fs/promises'
 import type { ExtensionKind } from '@kubb/core'
-import { getErrorMessage, read } from '@internals/utils'
+import { getErrorMessage, read, writeRaw } from '@internals/utils'
 import {
   type AssignmentExpression,
   type BindingProperty,
@@ -678,6 +677,6 @@ export function editConfig({ source, edits, extensions = new Map() }: { source: 
 export async function editConfigFile({ filePath, edits, extensions }: { filePath: string; edits: Array<ConfigEdit>; extensions?: InstalledExtensions }) {
   const current = await read(filePath)
   const result = editConfig({ source: current, edits, extensions })
-  if (result.changed) await writeFile(filePath, result.source, 'utf-8')
+  if (result.changed) await writeRaw(filePath, result.source)
   return result
 }
