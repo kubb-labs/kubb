@@ -3,11 +3,12 @@ import * as yaml from 'yaml'
 
 type Range = ReturnType<NonNullable<Adapter['locate']>>
 
-// Diagnostics of one run share a source, so its parsed document, or its JSON scanner, is kept for the next call.
-let cached: { source: string; document: yaml.Document } | { source: string; json: ReturnType<typeof scanJson> } | undefined
+// Diagnostics of one run share a source, so its parsed document, or its JSON index, is kept for the next call.
+let cached: { source: string; document: yaml.Document } | { source: string; json: ReturnType<typeof indexJson> } | undefined
 
 const toRange = ([start, end]: yaml.Range): Range => ({ start, end })
 
+const escapeToken = (token: string) => token.replaceAll('~', '~0').replaceAll('/', '~1')
 const unescapeToken = (token: string) => token.replaceAll('~1', '/').replaceAll('~0', '~')
 
 /** Walks a JSON pointer through maps and sequences; the range is the last key or item it reached. */
@@ -42,19 +43,16 @@ function findRefUsage(document: yaml.Document, ref: string): Range {
   return found[0]
 }
 
-type JsonEntry = { start: number; end: number; value: number }
-
 /**
- * Finds ranges in JSON text without building a document, so a located diagnostic in a large JSON
- * spec skips `yaml.parseDocument`. Each object and array is scanned once and kept, so many lookups
- * cost at most one pass. The ranges match what `findPointer` and `findRefUsage` return for the same
- * text. Throws on text that is not plain JSON, such as YAML flow style with comments.
+ * One pass over JSON text, so a located diagnostic in a large JSON spec skips `yaml.parseDocument`.
+ * Holds the range of every key and array item by pointer, and the first usage of every `$ref`, as
+ * `findPointer` and `findRefUsage` return them. Throws where the text breaks JSON syntax, such as a
+ * comment, an unquoted key, or an unquoted `$ref` value. Other bare values, such as `object`, pass.
  */
-function scanJson(source: string) {
-  let at = 0
-  const objects = new Map<number, Map<string, JsonEntry>>()
-  const arrays = new Map<number, Array<{ start: number; end: number }>>()
-  let refs: Map<string, { start: number; end: number }> | undefined
+function indexJson(source: string) {
+  const pointers = new Map<string, NonNullable<Range>>()
+  const refs = new Map<string, NonNullable<Range>>()
+  let at = source.indexOf('{')
 
   const fail = (): never => {
     throw new SyntaxError(`Unexpected character at ${at}`)
@@ -62,153 +60,77 @@ function scanJson(source: string) {
   const skipSpace = () => {
     for (let code = source.charCodeAt(at); code === 32 || code === 9 || code === 10 || code === 13; code = source.charCodeAt(++at));
   }
-  const skipString = () => {
-    for (at++; at < source.length; at++) {
-      const code = source.charCodeAt(at)
-      if (code === 92) at++
-      else if (code === 34) return ++at
-    }
-    return fail()
-  }
   const readString = () => {
-    if (source.charCodeAt(at) !== 34) fail()
+    if (source[at] !== '"') fail()
     const start = at
-    const end = skipString()
-    const raw = source.slice(start + 1, end - 1)
-    return { text: raw.includes('\\') ? (JSON.parse(source.slice(start, end)) as string) : raw, start, end }
-  }
-  const skipValue = (): number => {
-    const code = source.charCodeAt(at)
-    if (code === 34) return skipString()
-    if (code === 123 || code === 91) {
-      let depth = 0
-      for (; at < source.length; at++) {
-        const inner = source.charCodeAt(at)
-        if (inner === 34) {
-          skipString()
-          at--
-        } else if (inner === 123 || inner === 91) depth++
-        else if ((inner === 125 || inner === 93) && --depth === 0) return ++at
-      }
-      return fail()
+    for (at++; source.charCodeAt(at) !== 34; at++) {
+      if (at >= source.length) fail()
+      if (source.charCodeAt(at) === 92) at++
     }
-    const start = at
-    while (at < source.length && !/[\s,\]}]/.test(source[at]!)) at++
-    return at > start ? at : fail()
+    const raw = source.slice(start + 1, at++)
+    return { text: raw.includes('\\') ? (JSON.parse(source.slice(start, at)) as string) : raw, start, end: at }
   }
-  // Moves past `,` to the next entry; false at the closing `close` character.
-  const next = (close: number) => {
+  const expect = (char: string) => {
     skipSpace()
-    if (source.charCodeAt(at) === 44) {
-      at++
-      skipSpace()
-      return true
-    }
-    if (source.charCodeAt(at) !== close) fail()
-    at++
-    return false
-  }
-  // The entries of the object or array that opens at `open`, with `at` past its first space.
-  const enter = (open: number) => {
-    at = open + 1
+    if (source[at++] !== char) fail()
     skipSpace()
-    if (source.charCodeAt(at) !== (source.charCodeAt(open) === 123 ? 125 : 93)) return true
-    at++
-    return false
   }
-  const entriesAt = (open: number) => {
-    let entries = objects.get(open)
-    if (entries) return entries
-    entries = new Map()
-    for (let more = enter(open); more; more = next(125)) {
-      const { text, start, end } = readString()
-      skipSpace()
-      if (source.charCodeAt(at++) !== 58) fail()
-      skipSpace()
-      const value = at
-      skipValue()
-      // A duplicate key keeps its first range, like `findPointer`.
-      if (!entries.has(text)) entries.set(text, { start, end, value })
-    }
-    objects.set(open, entries)
-    return entries
-  }
-  const itemsAt = (open: number) => {
-    let items = arrays.get(open)
-    if (items) return items
-    items = []
-    for (let more = enter(open); more; more = next(93)) {
-      const start = at
-      items.push({ start, end: skipValue() })
-    }
-    arrays.set(open, items)
-    return items
-  }
-  // Every `$ref` string value by its first usage, depth first in document order like `yaml.visit`.
-  const collectRefs = (found: Map<string, { start: number; end: number }>) => {
-    skipSpace()
-    const open = at
-    const code = source.charCodeAt(open)
-    if (code !== 123 && code !== 91) {
-      skipValue()
+  // Walks the value at `at`; `pointer` is where it sits.
+  const walk = (pointer: string): void => {
+    const open = source[at]
+    if (open === '"') {
+      readString()
       return
     }
-    for (let more = enter(open); more; more = next(code === 123 ? 125 : 93)) {
-      if (code === 91) {
-        collectRefs(found)
-        continue
-      }
-      const { text } = readString()
-      skipSpace()
-      if (source.charCodeAt(at++) !== 58) fail()
-      skipSpace()
-      if (text !== '$ref' || source.charCodeAt(at) !== 34) {
-        collectRefs(found)
-        continue
-      }
-      const value = readString()
-      if (!found.has(value.text)) found.set(value.text, { start: value.start, end: value.end })
+    if (open !== '{' && open !== '[') {
+      const start = at
+      while (at < source.length && !/[\s,\]}]/.test(source[at]!)) at++
+      if (at === start) fail()
+      return
     }
-  }
-
-  return {
-    pointer(tokens: Array<string>): Range {
-      at = 0
+    const close = open === '{' ? '}' : ']'
+    at++
+    for (let index = 0; ; index++) {
       skipSpace()
-      let position = at
-      let range: Range
-      for (const token of tokens) {
-        const code = source.charCodeAt(position)
-        if (code === 123) {
-          const entry = entriesAt(position).get(token)
-          if (!entry) return undefined
-          range = { start: entry.start, end: entry.end }
-          position = entry.value
-        } else if (code === 91) {
-          const item = itemsAt(position)[Number(token)]
-          if (!item) return undefined
-          range = { start: item.start, end: item.end }
-          position = item.start
-        } else {
-          return undefined
-        }
+      if (source[at] === close) break
+      if (index > 0) expect(',')
+      if (open === '[') {
+        const start = at
+        const next = `${pointer}/${index}`
+        walk(next)
+        if (!pointers.has(next)) pointers.set(next, { start, end: at })
+        continue
       }
-      return range
-    },
-    ref(ref: string): Range {
-      if (!refs) {
-        const found = new Map<string, { start: number; end: number }>()
-        at = 0
-        collectRefs(found)
-        refs = found
+      const key = readString()
+      const next = `${pointer}/${escapeToken(key.text)}`
+      // A duplicate key keeps its first range, like `findPointer`.
+      if (!pointers.has(next)) pointers.set(next, { start: key.start, end: key.end })
+      expect(':')
+      if (key.text !== '$ref' || source[at] === '{' || source[at] === '[') {
+        walk(next)
+        continue
       }
-      const range = refs.get(ref)
-      return range && { ...range }
-    },
+      // YAML reads an unquoted `$ref` value as a string, so only the YAML parser finds that usage.
+      const value = readString()
+      if (!refs.has(value.text)) refs.set(value.text, { start: value.start, end: value.end })
+    }
+    at++
   }
+  walk('#')
+  return { pointers, refs }
 }
 
-const isJson = (source: string) => /^[ \t\n\r]*\{/.test(source)
+/** Indexes JSON text, or parses it with YAML when it is not plain JSON, and YAML text always. */
+function parse(source: string): NonNullable<typeof cached> {
+  if (/^[ \t\n\r]*\{/.test(source)) {
+    try {
+      return { source, json: indexJson(source) }
+    } catch {
+      // Not plain JSON, such as YAML flow style with comments.
+    }
+  }
+  return { source, document: yaml.parseDocument(source) }
+}
 
 /**
  * Maps OpenAPI JSON pointers and unresolved references to ranges in YAML or JSON source.
@@ -220,17 +142,17 @@ export const locate: NonNullable<Adapter['locate']> = (source, location) => {
     // string turns the next checks into identity hits.
     cached.source = source
   } else {
-    cached = isJson(source) ? { source, json: scanJson(source) } : { source, document: yaml.parseDocument(source) }
+    cached = parse(source)
   }
   const ref = 'ref' in location ? location.ref : undefined
   if ('json' in cached) {
-    try {
-      const tokens = location.pointer.replace(/^#/, '').split('/').slice(1).map(unescapeToken)
-      return cached.json.pointer(tokens) ?? (ref ? cached.json.ref(ref) : undefined)
-    } catch {
-      // Not plain JSON after all, so the YAML parser handles this source from now on.
-      cached = { source, document: yaml.parseDocument(source) }
-    }
+    const { pointers, refs } = cached.json
+    const pointer = location.pointer
+      .replace(/^#/, '')
+      .split('/')
+      .slice(1)
+      .map((token) => `/${escapeToken(unescapeToken(token))}`)
+    return pointers.get(`#${pointer.join('')}`) ?? (ref ? refs.get(ref) : undefined)
   }
   const { document } = cached
   return findPointer(document, location.pointer) ?? (ref ? findRefUsage(document, ref) : undefined)

@@ -89,9 +89,22 @@ describe('JSON source locations', () => {
   })
 
   it('falls back to the YAML parser for flow-style YAML that is not plain JSON', () => {
-    const flow = '{"components": {"schemas": {"Pet": {"type": object}}}} # flow-style YAML\n'
+    const parseDocument = vi.mocked(yaml.parseDocument)
+    parseDocument.mockClear()
+    const flow = '{"components": {"schemas": {"Pet": {"type": "object"}}}, # flow-style YAML\n "extra": {}}\n'
     const pet = locateIn(flow, { kind: 'schema', pointer: '#/components/schemas/Pet' })!
 
     expect(flow.slice(pet.start, pet.end)).toBe('"Pet"')
+    expect(parseDocument).toHaveBeenCalledTimes(1)
+  })
+
+  it('falls back to the YAML parser for an unquoted $ref value', () => {
+    const parseDocument = vi.mocked(yaml.parseDocument)
+    parseDocument.mockClear()
+    const flow = '{"paths": {"/pets": {"$ref": other.yaml#/Pets}}}\n'
+    const ref = locateIn(flow, { kind: 'schema', pointer: '#/missing', ref: 'other.yaml#/Pets' })!
+
+    expect(flow.slice(ref.start, ref.end)).toBe('other.yaml#/Pets')
+    expect(parseDocument).toHaveBeenCalledTimes(1)
   })
 })
