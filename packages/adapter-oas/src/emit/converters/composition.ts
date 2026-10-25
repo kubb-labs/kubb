@@ -6,7 +6,7 @@ import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import {
   createDiscriminantNode,
-  dropInheritedDiscriminator,
+  removeInheritedDiscriminator,
   extractDiscriminatedAllOfMembers,
   narrowUnionMembers,
   propertyTypeOf,
@@ -223,7 +223,7 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
   }
 
   const { members: discriminatedAllOf, discriminantValues } = extractDiscriminatedAllOfMembers({
-    allOfMembers: dropInheritedDiscriminator(schema.allOf as Array<SchemaObject | ReferenceObject>, refs),
+    allOfMembers: removeInheritedDiscriminator(schema.allOf as Array<SchemaObject | ReferenceObject>, refs),
     name,
     refs,
   })

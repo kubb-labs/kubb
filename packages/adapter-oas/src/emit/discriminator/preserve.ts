@@ -94,7 +94,7 @@ export function findDiscriminators(mapping: Record<string, string> | undefined, 
 /**
  * Finds the discriminator a schema declares itself or through an inline `allOf` member.
  */
-function ownDiscriminator(schema: SchemaObject): DiscriminatorObject | undefined {
+function getDiscriminator(schema: SchemaObject): DiscriminatorObject | undefined {
   return (isDiscriminator(schema) ? schema : (schema.allOf as Array<SchemaObject> | undefined)?.find(isDiscriminator))?.discriminator
 }
 
@@ -102,15 +102,15 @@ function ownDiscriminator(schema: SchemaObject): DiscriminatorObject | undefined
  * Lists the mapping keys of a discriminator plus the keys of the nested discriminators its mapped
  * schemas declare on the same property, so a root `$type` accepts values from every level.
  */
-export function mappingKeys({ propertyName, mapping }: DiscriminatorObject, refs: Refs, seen = new Set<string>()): Array<string> {
+export function getMappingKeys({ propertyName, mapping }: DiscriminatorObject, refs: Refs, seen = new Set<string>()): Array<string> {
   return Object.entries(mapping ?? {}).flatMap(([key, target]) => {
     if (seen.has(target)) return [key]
     seen.add(target)
 
     const resolved = refs.resolve<SchemaObject>(target, { report: false })
-    const nested = resolved && ownDiscriminator(resolved)
+    const nested = resolved && getDiscriminator(resolved)
 
-    return nested?.propertyName === propertyName ? [key, ...mappingKeys(nested, refs, seen)] : [key]
+    return nested?.propertyName === propertyName ? [key, ...getMappingKeys(nested, refs, seen)] : [key]
   })
 }
 
@@ -119,11 +119,11 @@ export function mappingKeys({ propertyName, mapping }: DiscriminatorObject, refs
  * the same property. That mapping names the schema's own children, and keeping it pins the property
  * to those keys next to the parent's, which leaves `never`.
  */
-export function dropInheritedDiscriminator(members: Array<SchemaObject | ReferenceObject>, refs: Refs): Array<SchemaObject | ReferenceObject> {
+export function removeInheritedDiscriminator(members: Array<SchemaObject | ReferenceObject>, refs: Refs): Array<SchemaObject | ReferenceObject> {
   const inherited = new Set(
     members.flatMap((member) => {
       const parent = isReference(member) ? refs.resolve<SchemaObject>(member.$ref, { report: false }) : null
-      return (parent && ownDiscriminator(parent)?.propertyName) || []
+      return (parent && getDiscriminator(parent)?.propertyName) || []
     }),
   )
 
@@ -266,7 +266,7 @@ export function extractDiscriminatedAllOfMembers({
   const members = allOfMembers.filter((item) => {
     if (!isReference(item) || !name) return true
     const deref = refs.resolve<SchemaObject>(item.$ref)
-    const discriminator = deref && ownDiscriminator(deref)
+    const discriminator = deref && getDiscriminator(deref)
     const parentUnion = deref?.oneOf ?? deref?.anyOf
     if (!deref || !discriminator || (isDiscriminator(deref) && !parentUnion)) return true
 
