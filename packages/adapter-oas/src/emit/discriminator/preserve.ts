@@ -153,9 +153,10 @@ export function narrowUnionMembers({
     const ref = isReference(s) ? s.$ref : undefined
     const mappedValues = findDiscriminators(discriminator?.mapping, ref)
     const implicitValue = mappedValues.length ? null : implicitDiscriminantValue(s)
-    const sharedType = sharedPropertiesNode
-      ? ast.narrowSchema(sharedPropertiesNode, 'object')?.properties.find((p) => p.name === discriminator?.propertyName)?.schema.type
+    const sharedSchema = sharedPropertiesNode
+      ? ast.narrowSchema(sharedPropertiesNode, 'object')?.properties.find((p) => p.name === discriminator?.propertyName)?.schema
       : undefined
+    const sharedType = (sharedSchema && ast.narrowSchema(sharedSchema, 'ref')?.schema?.type) ?? sharedSchema?.type
     const propertyType = discriminatorPropertyType(s as SchemaObject, discriminator?.propertyName ?? '', refs) ?? sharedType
     const discriminatorValues = coerceDiscriminatorValues(mappedValues.length ? mappedValues : implicitValue ? [implicitValue] : [], propertyType)
     const memberNode = parse({ schema: s as SchemaObject, name })
