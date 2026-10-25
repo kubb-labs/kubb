@@ -92,7 +92,7 @@ export const adapterOas = defineExtension<AdapterOas>({
       parseSchema: ReturnType<typeof createSchemaParser>
     }): ast.InputNode {
       const parsedByName = new Map<string, ast.SchemaNode>()
-      const refAliasMap = new Map<string, ast.SchemaNode>()
+      const refAliasMap = new Map<string, ast.RefSchemaNode>()
       const enumNames: Array<string> = []
       const discriminatorParentNodes: Array<ast.SchemaNode> = []
 
@@ -124,10 +124,16 @@ export const adapterOas = defineExtension<AdapterOas>({
         for (const name of promotedEnums.keys()) enumNames.push(name)
       }
 
+      // A collapsed single-member `allOf` is named after the wrapper, so the target comes from `ref`.
+      const aliasTargetOf = (name: string) => {
+        const node = refAliasMap.get(name)
+        return node?.ref ? ast.refName(node.ref) : node?.name
+      }
+
       // A chain of pure aliases that leads back to `name` has no target to print, so it becomes `unknown`.
       function isAliasCycle(name: string): boolean {
         const seen = new Set([name])
-        for (let next = refAliasMap.get(name)?.name; next; next = refAliasMap.get(next)?.name) {
+        for (let next = aliasTargetOf(name); next; next = aliasTargetOf(next)) {
           if (next === name) return true
           if (seen.has(next)) return false
           seen.add(next)

@@ -665,6 +665,25 @@ describe('adapterOas options', () => {
     })
   })
 
+  it('keeps a single-member allOf around a union ref as a ref instead of treating it as a cycle', async () => {
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.0.3',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Pet: { oneOf: [{ type: 'string' }, { type: 'number' }] },
+            Wrapped: { allOf: [{ $ref: '#/components/schemas/Pet' }] },
+          },
+        },
+      },
+    })
+
+    expect(node.schemas.find((schema) => schema.name === 'Wrapped')?.type).toBe('ref')
+  })
+
   it('lifts inline enums to named root schemas and refs them for enums: root', async () => {
     const spec = {
       openapi: '3.0.0',
