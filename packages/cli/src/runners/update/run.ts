@@ -98,7 +98,11 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
     const outdated = tracked.filter((entry) => isOutdated({ installed: current(entry), latest: entry.artifact.version }))
     const proposals = outdated.filter((entry) => {
       const problem = incompatibility(entry.manifest)
-      if (problem) logWarn(`Skipped ${entry.id}: ${problem}`)
+      if (problem) {
+        logWarn(`Skipped ${entry.id}: ${problem}`)
+        // Same as a missing id: Studio would report an update that installed nothing.
+        if (wanted.has(entry.id)) process.exitCode = 1
+      }
       return !problem
     })
 
