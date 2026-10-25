@@ -1,3 +1,4 @@
+import { nodeKinds } from '../constants.ts'
 import type { CodeNode } from '../nodes/code.ts'
 import { createFile } from '../nodes/file.ts'
 import type { FileNode, ImportNode } from '../nodes/file.ts'
@@ -130,18 +131,29 @@ function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode
 
 // Rewrites the string fields `extractStringsFromNodes` reads; JSDoc stays as written.
 function rewriteNodes(nodes: Array<CodeNode> | undefined, rewrite: (text: string) => string): Array<CodeNode> | undefined {
-  return nodes?.map((node) => {
+  return nodes?.map((node): CodeNode => {
     // Backward-compat: compiled plugins may still pass bare strings at runtime
     if (typeof node === 'string') return rewrite(node) as unknown as CodeNode
-    if (node.kind === 'Break') return node
-    if (node.kind === 'Text' || node.kind === 'Jsx') return { ...node, value: rewrite(node.value) }
-
-    const next = { ...node, nodes: rewriteNodes(node.nodes, rewrite) }
-    if ('params' in next && next.params) next.params = rewrite(next.params)
-    if ('returnType' in next && next.returnType) next.returnType = rewrite(next.returnType)
-    if ('generics' in next && next.generics) next.generics = Array.isArray(next.generics) ? next.generics.map(rewrite) : rewrite(next.generics)
-    if ('type' in next && typeof next.type === 'string') next.type = rewrite(next.type)
-    return next
+    switch (node.kind) {
+      case nodeKinds.break:
+        return node
+      case nodeKinds.text:
+      case nodeKinds.jsx:
+        return { ...node, value: rewrite(node.value) }
+      case nodeKinds.function:
+      case nodeKinds.arrowFunction:
+        return {
+          ...node,
+          params: node.params && rewrite(node.params),
+          generics: Array.isArray(node.generics) ? node.generics.map(rewrite) : node.generics && rewrite(node.generics),
+          returnType: node.returnType && rewrite(node.returnType),
+          nodes: rewriteNodes(node.nodes, rewrite),
+        }
+      case nodeKinds.const:
+        return { ...node, type: node.type && rewrite(node.type), nodes: rewriteNodes(node.nodes, rewrite) }
+      default:
+        return { ...node, nodes: rewriteNodes(node.nodes, rewrite) }
+    }
   })
 }
 

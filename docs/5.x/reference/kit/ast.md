@@ -224,6 +224,7 @@ Analyze how schemas reference each other, to prune unused schemas or wrap circul
 | Export        | Purpose                                    |
 | ------------- | ------------------------------------------ |
 | `schemaTypes` | Map of every schema `type` discriminant.   |
+| `nodeKinds`   | Map of every node `kind` discriminant.     |
 
 ## Macros
 

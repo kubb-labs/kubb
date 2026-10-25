@@ -1,4 +1,30 @@
+import type { NodeKind } from './nodes/base.ts'
 import type { SchemaType } from './nodes/schema.ts'
+
+/**
+ * Node kind discriminators used by every AST node (for example `node.kind === nodeKinds.text`).
+ */
+export const nodeKinds = {
+  input: 'Input',
+  operation: 'Operation',
+  schema: 'Schema',
+  property: 'Property',
+  parameter: 'Parameter',
+  response: 'Response',
+  requestBody: 'RequestBody',
+  content: 'Content',
+  type: 'Type',
+  file: 'File',
+  import: 'Import',
+  export: 'Export',
+  source: 'Source',
+  const: 'Const',
+  function: 'Function',
+  arrowFunction: 'ArrowFunction',
+  text: 'Text',
+  break: 'Break',
+  jsx: 'Jsx',
+} as const satisfies Record<string, NodeKind>
 
 /**
  * Traversal depth for AST visitor utilities.

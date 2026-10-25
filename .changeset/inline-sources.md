@@ -12,4 +12,4 @@ Add inline sources. A source marked `inline: { expression }` (`<File.Source inli
 </File.Source>
 ```
 
-A name that cannot be inlined reports `KUBB_INLINE_FAILED`. `@kubb/ast` exports the pass as `inlineFiles` and `isVirtualFile`, and `FileManager` gains `delete`.
+A name that cannot be inlined reports `KUBB_INLINE_FAILED`. `@kubb/ast` exports the pass as `inlineFiles` and `isVirtualFile`, and the node kind discriminants as `nodeKinds`. `FileManager` gains `delete`.

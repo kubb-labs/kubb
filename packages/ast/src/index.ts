@@ -1,4 +1,4 @@
-export { schemaTypes } from './constants.ts'
+export { nodeKinds, schemaTypes } from './constants.ts'
 export { isHttpOperationNode, narrowSchema } from './guards.ts'
 export { applyMacros, composeMacros, defineMacro } from './defineMacro.ts'
 export { optionality } from './optionality.ts'
