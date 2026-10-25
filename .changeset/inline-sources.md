@@ -1,7 +1,7 @@
 ---
-'@kubb/ast': minor
-'@kubb/core': minor
-'@kubb/renderer-jsx': minor
+'@kubb/ast': patch
+'@kubb/core': patch
+'@kubb/renderer-jsx': patch
 ---
 
 Add inline sources. A source marked `inline: { expression }` (`<File.Source inline={{ expression: 'Pet' }}>`) is absorbed by the files that import it instead of being imported. A file whose sources are all inline is not written: before barrels are built, Kubb replaces each name another file imports from it with the expression, in parentheses unless it is a plain name such as `Pet`, and moves over the imports that expression needs.
