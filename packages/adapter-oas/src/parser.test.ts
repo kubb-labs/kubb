@@ -744,6 +744,43 @@ describe('parseSchema allOf', () => {
     expect(parseSchema(emptyCtx, { schema }).type).toBe('intersection')
   })
 
+  it('inlines a $ref to a path inside an operation instead of naming it after its last segment', async () => {
+    const root = await parseOas({
+      openapi: '3.1.1',
+      info: { title: 't', version: '1' },
+      paths: {
+        '/foo': {
+          get: {
+            operationId: 'getFoo',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: { 'application/json': { schema: { type: 'array', items: { type: 'object', properties: { foo: { type: 'integer' } } } } } },
+              },
+            },
+          },
+          post: {
+            operationId: 'postFoo',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: { type: 'object', properties: { foo: { $ref: '#/paths/~1foo/get/responses/200/content/application~1json/schema/items' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    const schema = findOperation(root, 'postFoo')?.responses[0]?.content?.[0]?.schema
+    const foo = ast.narrowSchema(schema, 'object')?.properties?.find((p) => p.name === 'foo')?.schema
+
+    expect(foo?.type).toBe('object')
+  })
+
   it('keeps requiredness from a required-only allOf member next to a $ref', () => {
     const doc = {
       openapi: '3.0.0',
