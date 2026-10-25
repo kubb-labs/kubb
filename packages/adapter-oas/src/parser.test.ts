@@ -763,7 +763,7 @@ describe('parseSchema allOf', () => {
     ])
   })
 
-  it('drops an if/then allOf member and hoists annotation-only members onto the parent', () => {
+  it('drops an if/then allOf member and merges annotation-only members into the parent', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
         allOf: [

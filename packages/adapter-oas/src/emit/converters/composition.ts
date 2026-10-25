@@ -156,7 +156,7 @@ const annotationKeys = new Set(['description', 'title', 'example', 'examples', '
  * Moves `allOf` members that hold only annotations or `if`/`then`/`else` onto the parent, so they do
  * not become `unknown`. The parent's own values win, and the conditional keywords are not enforced.
  */
-function hoistAnnotations(schema: SchemaObject): SchemaObject {
+function mergeAnnotations(schema: SchemaObject): SchemaObject {
   const members = schema.allOf as Array<SchemaObject | ReferenceObject>
   const isAnnotation = (member: SchemaObject | ReferenceObject) => !isReference(member) && Object.keys(member).every((key) => annotationKeys.has(key))
   const annotations = members.filter(isAnnotation)
@@ -169,7 +169,7 @@ function hoistAnnotations(schema: SchemaObject): SchemaObject {
  * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
  */
 export function convertAllOf({ schema: original, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
-  const schema = hoistAnnotations(original)
+  const schema = mergeAnnotations(original)
 
   if (
     schema.allOf!.length === 1 &&
