@@ -230,7 +230,7 @@ function parseParameter({
     ? parseSchema({ schema: rawSchema as SchemaObject, name: schemaName })
     : ast.factory.createSchema({ type: options.unknownType })
   if (rawSchema) scanSchema(schema, contentType ? `${pointer}/content/${escapePointerToken(contentType)}/schema` : `${pointer}/schema`)
-  const style = param.style as ast.ParameterStyle | undefined
+  const style = param.style !== undefined && PARAMETER_STYLES.has(param.style) ? (param.style as ast.ParameterStyle) : undefined
   const explode = param.explode
   const allowReserved = param.allowReserved
 
