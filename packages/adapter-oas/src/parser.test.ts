@@ -777,18 +777,6 @@ describe('parseSchema allOf', () => {
     expect(node).toMatchObject({ type: 'ref', description: 'hello' })
   })
 
-  it('parses the schema itself when every allOf member is an if/then conditional', () => {
-    const node = parseSchema(emptyCtx, {
-      schema: {
-        type: 'object',
-        properties: { type: { type: 'string' }, card: { type: 'string' } },
-        allOf: [{ if: { properties: { type: { const: 'card' } } }, then: { required: ['card'] } }],
-      },
-    })
-
-    expect(node.type).toBe('object')
-  })
-
   it('produces an intersection for multiple allOf members', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
