@@ -223,14 +223,12 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
   }
 
   const { members: discriminatedAllOf, discriminantValues } = extractDiscriminatedAllOfMembers({
-    allOfMembers: schema.allOf as Array<SchemaObject | ReferenceObject>,
+    allOfMembers: dropInheritedDiscriminator(schema.allOf as Array<SchemaObject | ReferenceObject>, refs),
     name,
     refs,
   })
   const siblingProperties = collectSiblingProperties(schema.allOf as Array<SchemaObject | ReferenceObject>, refs, schema.properties)
-  const resolvedAllOf = dropInheritedDiscriminator(discriminatedAllOf, refs).map((s) =>
-    isReference(s) ? s : resolveUnionSchema(s as SchemaObject, siblingProperties),
-  )
+  const resolvedAllOf = discriminatedAllOf.map((s) => (isReference(s) ? s : resolveUnionSchema(s as SchemaObject, siblingProperties)))
   const allOfMembers: Array<ast.SchemaNode> = resolvedAllOf.map((s) => parse({ schema: s as SchemaObject, name }))
 
   const syntheticStart = allOfMembers.length
