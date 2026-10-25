@@ -1,3 +1,4 @@
+import { nodeKinds } from '../constants.ts'
 import type { BaseNode } from './base.ts'
 import type { ParameterNode } from './parameter.ts'
 import { createRequestBody, type RequestBodyNode } from './requestBody.ts'
@@ -145,7 +146,7 @@ export function createOperation(props: OperationInput): OperationNode {
     parameters: [],
     responses: [],
     ...rest,
-    kind: 'Operation' as const,
+    kind: nodeKinds.operation,
     ...(isHttp ? { protocol: 'http' as const } : {}),
     requestBody: requestBody ? createRequestBody(requestBody) : undefined,
   }

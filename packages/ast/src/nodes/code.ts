@@ -1,3 +1,4 @@
+import { nodeKinds } from '../constants.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
 
 /**
@@ -248,7 +249,7 @@ export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode |
  * // export const pets: Pet[] = ... as const
  * ```
  */
-export const createConst = nodeFactory<ConstNode>('Const')
+export const createConst = nodeFactory<ConstNode>(nodeKinds.const)
 
 /**
  * Creates a `TypeNode` representing a TypeScript `type` alias declaration.
@@ -259,7 +260,7 @@ export const createConst = nodeFactory<ConstNode>('Const')
  * // export type Pet = ...
  * ```
  */
-export const createType = nodeFactory<TypeNode>('Type')
+export const createType = nodeFactory<TypeNode>(nodeKinds.type)
 
 /**
  * Creates a `FunctionNode` representing a TypeScript `function` declaration.
@@ -270,7 +271,7 @@ export const createType = nodeFactory<TypeNode>('Type')
  * // export async function fetchPet(): Promise<Pet> { ... }
  * ```
  */
-export const createFunction = nodeFactory<FunctionNode>('Function')
+export const createFunction = nodeFactory<FunctionNode>(nodeKinds.function)
 
 /**
  * Creates an `ArrowFunctionNode` representing a TypeScript arrow function.
@@ -281,7 +282,7 @@ export const createFunction = nodeFactory<FunctionNode>('Function')
  * // export const double = (n: number) => ...
  * ```
  */
-export const createArrowFunction = nodeFactory<ArrowFunctionNode>('ArrowFunction')
+export const createArrowFunction = nodeFactory<ArrowFunctionNode>(nodeKinds.arrowFunction)
 
 /**
  * Creates a {@link TextNode} representing a raw string fragment in the source output.
@@ -293,7 +294,7 @@ export const createArrowFunction = nodeFactory<ArrowFunctionNode>('ArrowFunction
  * ```
  */
 export function createText(value: string): TextNode {
-  return { kind: 'Text', value }
+  return { kind: nodeKinds.text, value }
 }
 
 /**
@@ -306,7 +307,7 @@ export function createText(value: string): TextNode {
  * ```
  */
 export function createBreak(): BreakNode {
-  return { kind: 'Break' }
+  return { kind: nodeKinds.break }
 }
 
 /**
@@ -319,5 +320,5 @@ export function createBreak(): BreakNode {
  * ```
  */
 export function createJsx(value: string): JsxNode {
-  return { kind: 'Jsx', value }
+  return { kind: nodeKinds.jsx, value }
 }

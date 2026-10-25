@@ -1,3 +1,4 @@
+import { nodeKinds } from '../constants.ts'
 import type { BaseNode } from './base.ts'
 import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
@@ -146,5 +147,5 @@ export type InputNode = BaseNode & {
  * ```
  */
 export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
-  return { schemas: [], operations: [], meta: { circularNames: [], enumNames: [] }, ...overrides, kind: 'Input' }
+  return { schemas: [], operations: [], meta: { circularNames: [], enumNames: [] }, ...overrides, kind: nodeKinds.input }
 }

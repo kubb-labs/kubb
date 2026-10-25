@@ -1,3 +1,4 @@
+import { nodeKinds } from '../constants.ts'
 import type { CodeNode } from '../nodes/code.ts'
 
 /**
@@ -20,11 +21,11 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
       if (node) collected.push(node as string)
       continue
     }
-    if (node.kind === 'Text' || node.kind === 'Jsx') {
+    if (node.kind === nodeKinds.text || node.kind === nodeKinds.jsx) {
       if (node.value) collected.push(node.value)
       continue
     }
-    if (node.kind === 'Break') continue
+    if (node.kind === nodeKinds.break) continue
 
     const parts: Array<string> = []
     if ('params' in node && node.params) parts.push(node.params)

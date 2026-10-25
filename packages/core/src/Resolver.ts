@@ -496,14 +496,14 @@ export class Resolver {
   }
 
   static #computeOptions<TOptions>(node: Node, { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>): TOptions | null {
-    if (node.kind === 'Operation') {
+    if (node.kind === ast.nodeKinds.operation) {
       if (exclude.some((filter) => Resolver.#matchesOperation(node, filter))) return null
       if (include && !include.some((filter) => Resolver.#matchesOperation(node, filter))) return null
 
       return { ...options, ...override.find((filter) => Resolver.#matchesOperation(node, filter))?.options }
     }
 
-    if (node.kind === 'Schema') {
+    if (node.kind === ast.nodeKinds.schema) {
       if (exclude.some((filter) => Resolver.#matchesSchema(node, filter) === true)) return null
       if (include) {
         const applicable = include.map((filter) => Resolver.#matchesSchema(node, filter)).filter((result) => result !== null)

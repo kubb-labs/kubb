@@ -98,7 +98,7 @@ function assertPluginEntry(entry: unknown, index: number): asserts entry is Plug
  * pointer into the input.
  */
 function getCrashSite(node: SchemaNode | OperationNode): { label: string; location?: DiagnosticLocation } {
-  if (node.kind === 'Schema') {
+  if (node.kind === ast.nodeKinds.schema) {
     const label = node.name ? `schema "${node.name}"` : 'an inline schema'
     return { label, location: node.pointer ? { kind: 'schema', pointer: node.pointer } : undefined }
   }
