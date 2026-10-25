@@ -160,6 +160,12 @@ export type SourceNode = BaseNode & {
    */
   isIndexable?: boolean | null
   /**
+   * Marks the source as a definition that importing files absorb instead of import. `expression` is
+   * the declaration's right-hand side, such as `{ body: Pet }` for `type AddPetOptions = { body: Pet }`.
+   * A file whose sources are all inline is never written, see `inlineFiles`.
+   */
+  inline?: { expression: string } | null
+  /**
    * Child nodes that make up this source fragment, in DOM order.
    * Use a {@link TextNode} for raw string content.
    */

@@ -427,6 +427,7 @@ export class KubbDriver {
 
           // Run every node through each plugin's macros and generators.
           diagnostics.push(...(await this.#runGenerators(generatorPlugins)))
+          this.#inlineFiles()
 
           await hooks.callHook('kubb:plugins:end', this.#withFiles({ config }))
 
@@ -455,6 +456,26 @@ export class KubbDriver {
         }
       },
     )
+  }
+
+  /**
+   * Moves inline sources into the files that import them and drops the virtual files, before barrels
+   * (`kubb:plugins:end`) and the write see them.
+   */
+  #inlineFiles(): void {
+    const { files, virtualPaths, problems } = ast.inlineFiles(this.fileManager.files)
+    if (virtualPaths.length === 0) return
+
+    this.fileManager.add(...files)
+    this.fileManager.delete(...virtualPaths)
+    for (const { path, message } of problems) {
+      Diagnostics.report({
+        code: Diagnostics.code.inlineFailed,
+        severity: 'error',
+        message: `${path}: ${message}`,
+        help: 'Give every name the file imports an inline definition, or stop marking the source as inline.',
+      })
+    }
   }
 
   /**

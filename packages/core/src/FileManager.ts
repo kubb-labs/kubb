@@ -251,6 +251,17 @@ export class FileManager {
   }
 
   /**
+   * Removes the files at `paths`, so they are neither listed nor written.
+   */
+  delete(...paths: Array<string>): void {
+    for (const path of paths) {
+      this.#cache.delete(path)
+      this.#pending.delete(path)
+    }
+    if (paths.length > 0) this.#sorted = null
+  }
+
+  /**
    * Releases all stored files. Called by the core after `kubb:build:end`.
    */
   dispose(): void {

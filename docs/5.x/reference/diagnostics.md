@@ -95,6 +95,12 @@ A git `input` (`git+<repo>#<ref>:<path>`) is malformed, or `git` could not fetch
 
 Write the input as `git+<repo>#<ref>:<path>`. Run `git fetch --depth 1 <repo> <ref>` yourself to see the git error, and set up a credential helper or SSH key for a private repository.
 
+### KUBB_INLINE_FAILED: Inline definition failed {#kubb-inline-failed}
+
+A file imports a name from a file whose sources are all inline, and Kubb could not replace that name. The name has no inline definition, its definition refers back to itself, an import it brings in clashes with a name the file already has, or the file re-exports the inline file. The inline file is not written, so the run is marked failed.
+
+Give every name the file imports an inline definition, or stop marking the source as inline.
+
 ### KUBB_INPUT_NOT_FOUND: Input not found {#kubb-input-not-found}
 
 The file set as `input` (or passed as `kubb generate PATH`) could not be read. The OpenAPI adapter checks the path before parsing, so the run stops here instead of failing later with a vague read error.
