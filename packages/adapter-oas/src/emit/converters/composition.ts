@@ -148,7 +148,20 @@ export function convertNot({ schema, name, nullable, defaultValue, parse }: Conv
 }
 
 /** Keywords that describe a schema or conditionally constrain it, but add no structure to the intersection. */
-const annotationKeys = new Set(['description', 'title', 'example', 'examples', 'deprecated', 'readOnly', 'writeOnly', '$comment', 'externalDocs', 'if', 'then', 'else'])
+const annotationKeys = new Set([
+  'description',
+  'title',
+  'example',
+  'examples',
+  'deprecated',
+  'readOnly',
+  'writeOnly',
+  '$comment',
+  'externalDocs',
+  'if',
+  'then',
+  'else',
+])
 
 /**
  * Removes `allOf` members that only hold annotations or `if`/`then`/`else`, which would otherwise
