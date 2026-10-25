@@ -8,7 +8,8 @@ type Props = {
 
 /**
  * Builds a macro that replaces a discriminator property's schema with an enum of the given
- * values, typed as string, number or boolean after the first value. Object schemas that lack the property are returned unchanged.
+ * values. The enum is a string, number or boolean enum, following the first value. Object schemas
+ * that lack the property are returned unchanged.
  *
  * @example
  * ```ts
