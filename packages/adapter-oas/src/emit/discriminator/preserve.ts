@@ -104,9 +104,11 @@ function ownDiscriminator(schema: SchemaObject): DiscriminatorObject | undefined
  */
 export function mappingKeys({ propertyName, mapping }: DiscriminatorObject, refs: Refs, seen = new Set<string>()): Array<string> {
   return Object.entries(mapping ?? {}).flatMap(([key, target]) => {
-    const resolved = seen.has(target) ? null : refs.resolve<SchemaObject>(target, { report: false })
-    const nested = resolved && ownDiscriminator(resolved)
+    if (seen.has(target)) return [key]
     seen.add(target)
+
+    const resolved = refs.resolve<SchemaObject>(target, { report: false })
+    const nested = resolved && ownDiscriminator(resolved)
 
     return nested?.propertyName === propertyName ? [key, ...mappingKeys(nested, refs, seen)] : [key]
   })
@@ -126,7 +128,8 @@ export function dropInheritedDiscriminator(members: Array<SchemaObject | Referen
   )
 
   return members.map((member) => {
-    if (isReference(member) || !isDiscriminator(member) || member.oneOf || member.anyOf || !inherited.has(member.discriminator.propertyName)) return member
+    if (isReference(member) || !isDiscriminator(member) || member.oneOf || member.anyOf) return member
+    if (!inherited.has(member.discriminator.propertyName)) return member
     const { discriminator: _discriminator, ...rest } = member
 
     return rest
@@ -263,11 +266,11 @@ export function extractDiscriminatedAllOfMembers({
   const members = allOfMembers.filter((item) => {
     if (!isReference(item) || !name) return true
     const deref = refs.resolve<SchemaObject>(item.$ref)
-    const nested = deref && !isDiscriminator(deref) ? ownDiscriminator(deref) : undefined
-    if (nested) {
-      const values = findDiscriminators(nested.mapping, `${SCHEMA_REF_PREFIX}${name}`)
-      if (values.length)
-        discriminantValues.push({ propertyName: nested.propertyName, values: typedKeys(values, propertyTypeOf(deref!, nested.propertyName, refs)) })
+    if (deref && !isDiscriminator(deref)) {
+      const nested = ownDiscriminator(deref)
+      const values = findDiscriminators(nested?.mapping, `${SCHEMA_REF_PREFIX}${name}`)
+      if (nested && values.length)
+        discriminantValues.push({ propertyName: nested.propertyName, values: typedKeys(values, propertyTypeOf(deref, nested.propertyName, refs)) })
       return true
     }
     if (!deref || !isDiscriminator(deref)) return true
