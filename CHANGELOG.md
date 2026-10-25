@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.14.0 — Oct 25, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Add inline sources. Files that import a source marked `inline: { expression }` get the expression in place of the name, and a file whose sources are all inline is not written. The parser for the file's extension supplies the language rules through the new `inline` member, which `parserTs` implements.
+  
+  ```tsx
+  <File.Source name="AddPetStatus200" isTypeOnly isExportable inline={{ expression: 'Pet' }}>
+    {`export type AddPetStatus200 = Pet`}
+  </File.Source>
+  ``` ([#4438](https://github.com/kubb-labs/kubb/pull/4438), [`065536e`](https://github.com/kubb-labs/kubb/commit/065536e7ffab544375efe7b96623e739b64d215c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.13.1 — Oct 24, 2026
 
 ### @kubb/ast
