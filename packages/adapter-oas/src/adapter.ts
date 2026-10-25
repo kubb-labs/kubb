@@ -142,11 +142,8 @@ export const adapterOas = defineExtension<AdapterOas>({
         const parsed = parsedByName.get(name)!
         const child = discriminatorChildMap?.get(name)
         const base = child ? patchDiscriminatorNode(parsed, child) : parsed
-        const node = isAliasCycle(name)
-          ? ast.factory.createSchema({ type: 'unknown', name, pointer: parsed.pointer })
-          : aliased
-            ? { ...aliased, name, pointer: parsed.pointer }
-            : base
+        const resolved = aliased ? { ...aliased, name, pointer: parsed.pointer } : base
+        const node = isAliasCycle(name) ? ast.factory.createSchema({ type: 'unknown', name, pointer: parsed.pointer }) : resolved
 
         schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)
       }
