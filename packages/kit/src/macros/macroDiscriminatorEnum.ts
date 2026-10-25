@@ -9,7 +9,7 @@ type Props = {
 /**
  * Picks the enum primitive from the type of the first value.
  */
-export function discriminatorPrimitive(values: Props['values']): 'string' | 'number' | 'boolean' {
+export function enumPrimitive(values: Props['values']): 'string' | 'number' | 'boolean' {
   return typeof values[0] === 'number' ? 'number' : typeof values[0] === 'boolean' ? 'boolean' : 'string'
 }
 
@@ -41,7 +41,7 @@ export function macroDiscriminatorEnum({ propertyName, values, enumName }: Props
             ...prop,
             schema: ast.factory.createSchema({
               type: 'enum',
-              primitive: discriminatorPrimitive(values),
+              primitive: enumPrimitive(values),
               enumValues: values,
               name: enumName,
               readOnly: prop.schema.readOnly,

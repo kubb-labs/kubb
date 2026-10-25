@@ -3,7 +3,7 @@ import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
-import { createDiscriminantNode, extractDiscriminatedAllOfMembers, narrowUnionMembers } from '../discriminator/preserve.ts'
+import { createDiscriminantNode, extractDiscriminatedAllOfMembers, narrowUnionMembers, propertyTypeOf } from '../discriminator/preserve.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 import { extractExamples } from '../schemaShape.ts'
 import { convertAnnotatedEnum } from './annotatedEnum.ts'
@@ -252,7 +252,15 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
   const sharedPropertiesNode = schema.properties ? parse({ schema: memberBaseSchema as SchemaObject, name }) : undefined
 
   if (sharedPropertiesNode || discriminator) {
-    const members = narrowUnionMembers({ unionMembers, discriminator, sharedPropertiesNode, parse, name, refs })
+    const members = narrowUnionMembers({
+      unionMembers,
+      discriminator,
+      sharedPropertiesNode,
+      parentType: discriminator && propertyTypeOf(schema, discriminator.propertyName, refs),
+      parse,
+      name,
+      refs,
+    })
     const unionNode = createNode(ctx, {
       type: 'union',
       strategy,
