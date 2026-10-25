@@ -1,5 +1,46 @@
 # Changelog
 
+## v5.14.1 — Oct 25, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- An `allOf` member that only holds annotations (`description`, `title`, `example`) or `if`/`then`/`else` no longer becomes `unknown`. The annotations move onto the parent schema. The conditional keywords are dropped, not enforced. ([#4456](https://github.com/kubb-labs/kubb/pull/4456), [`8afa63a`](https://github.com/kubb-labs/kubb/commit/8afa63a7e317847adad2f379580455bb25b48264))
+- An `allOf` member that only lists `required` next to a `$ref` or properties no longer becomes `unknown`. The listed properties now keep their schema and stay required in the generated types, Zod schemas and fakers. ([#4454](https://github.com/kubb-labs/kubb/pull/4454), [`2ad4d2e`](https://github.com/kubb-labs/kubb/commit/2ad4d2ef8b4caa2078957ba67c5f46420bf2dbc7))
+- Discriminator mapping keys now take the type of the discriminator property. An `integer`, `number` or `boolean` discriminator produces `type_id: 1` or `z.literal(1)` instead of the string `'1'`, so the union members no longer collapse to `never` and valid payloads pass validation. ([#4458](https://github.com/kubb-labs/kubb/pull/4458), [`3b0dd7f`](https://github.com/kubb-labs/kubb/commit/3b0dd7fb34d027674662999df4a5087cddeda655))
+- A `$ref` to a path outside `components.schemas`, such as `#/paths/~1foo/get/responses/200/content/application~1json/schema/items`, is now inlined. Before, it was named after its last segment and imported from a file that was never generated, so the output failed to compile. ([#4459](https://github.com/kubb-labs/kubb/pull/4459), [`7c4a046`](https://github.com/kubb-labs/kubb/commit/7c4a046eb323f07f709792b8a2c542a2f2890ca5))
+- A child schema that extends a discriminated parent through `allOf` and declares its own discriminator for grandchildren no longer collapses to `never`. The parent's discriminator property now accepts the keys of every level, the child keeps the parent's type, and a grandchild narrows to its own mapping key. ([#4460](https://github.com/kubb-labs/kubb/pull/4460), [`d3a7f26`](https://github.com/kubb-labs/kubb/commit/d3a7f26c7e6ea3299af57521c33efc64cd357898))
+- A `const` next to a `$ref` (OpenAPI 3.1) is no longer dropped. The property narrows to the literal, so a `z.discriminatedUnion` over members that pin the discriminator to different values no longer throws `Duplicate discriminator value`. ([#4455](https://github.com/kubb-labs/kubb/pull/4455), [`92f04a2`](https://github.com/kubb-labs/kubb/commit/92f04a27f0241bf34c0b50aa5a4810dedef6f741))
+- A Swagger 2.0 spec that uses the same external `$ref` twice inside a response schema no longer fails with `KUBB_REF_NOT_FOUND`. The bundler's second reference pointed at the old `responses/200/schema` location, which the upgrade to 3.x moves, so such references are now inlined before the upgrade. ([#4457](https://github.com/kubb-labs/kubb/pull/4457), [`399c6cd`](https://github.com/kubb-labs/kubb/commit/399c6cd9708540baabc40c2fa6ce9fd4aea81528))
+- Two schemas that only `$ref` each other no longer print a self-referencing type such as `export type Baz = Baz`. A chain of pure aliases that leads back to itself now resolves to `unknown`. ([#4461](https://github.com/kubb-labs/kubb/pull/4461), [`c643855`](https://github.com/kubb-labs/kubb/commit/c643855cb48b6fb391b252095c299f2586d9f9fe))
+- An unquoted `swagger: 2.0` (parsed by YAML as the number `2`) is now upgraded like `swagger: '2.0'`, so its `definitions` are no longer dropped. ([#4456](https://github.com/kubb-labs/kubb/pull/4456), [`8afa63a`](https://github.com/kubb-labs/kubb/commit/8afa63a7e317847adad2f379580455bb25b48264))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Each request body content entry now carries an `encoding` record with the `contentType`, `style`, `explode` and `allowReserved` of every property that sets one in the spec. ([#4463](https://github.com/kubb-labs/kubb/pull/4463), [`1449d70`](https://github.com/kubb-labs/kubb/commit/1449d701f5a0eb897e4118297cbe8f3272e2073b))
+- A `$ref` to a component whose name contains `/` or `~` now resolves to the same name as the component. The last segment of the pointer is decoded the way the resolver does it: percent-escapes first, then `~1` and `~0` (RFC 6901). Before, `#/components/schemas/a~1b~0c` imported `A1B0C` from a file that was never emitted, because the component itself is `a/b~c` and is emitted as `ABc`. ([#4462](https://github.com/kubb-labs/kubb/pull/4462), [`1decec7`](https://github.com/kubb-labs/kubb/commit/1decec7d7503cd18cfd04cfccf3c82d66758777b))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb update <id>` now exits with code 1 when it skips a named extension because it needs a newer Kubb or Node.js. Kubb Studio no longer reports such an update as a success. ([#4440](https://github.com/kubb-labs/kubb/pull/4440), [`004e504`](https://github.com/kubb-labs/kubb/commit/004e5042a9e994064a1cb84ab58c677641375060))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- A loop of schemas that only `$ref` each other now reports a `KUBB_ALIAS_CYCLE` warning, in addition to resolving to `unknown`. ([#4461](https://github.com/kubb-labs/kubb/pull/4461), [`c643855`](https://github.com/kubb-labs/kubb/commit/c643855cb48b6fb391b252095c299f2586d9f9fe))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.14.0 — Oct 25, 2026
 
 ### @kubb/ast
