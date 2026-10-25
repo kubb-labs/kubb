@@ -141,6 +141,12 @@ export const diagnosticCatalog = {
     cause: 'A schema uses a `format` Kubb does not map to a specific type, so it falls back to the base type.',
     fix: 'Use a format Kubb supports, or handle the custom format with a parser or plugin.',
   },
+  aliasCycle: {
+    code: 'KUBB_ALIAS_CYCLE',
+    title: 'Alias cycle',
+    cause: 'Schemas that only `$ref` each other form a loop, so none of them has a shape to generate. Kubb resolves them to `unknown`.',
+    fix: 'Break the loop by giving one of the schemas a real definition, or remove the `$ref` that closes it.',
+  },
   deprecated: {
     code: 'KUBB_DEPRECATED',
     title: 'Deprecated',
