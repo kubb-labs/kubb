@@ -395,6 +395,46 @@ describe('buildAst', () => {
       ])
     })
 
+    it('carries the encoding of a form body onto its content entry', async () => {
+      const root = await parseOas({
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/u': {
+            post: {
+              operationId: 'urlenc',
+              requestBody: {
+                content: {
+                  'application/x-www-form-urlencoded': {
+                    schema: {
+                      type: 'object',
+                      properties: { tags: { type: 'array', items: { type: 'string' } }, filter: { type: 'object' }, plain: { type: 'string' } },
+                    },
+                    encoding: {
+                      filter: { style: 'deepObject', explode: true },
+                      tags: { explode: false },
+                      plain: {},
+                    },
+                  },
+                  'multipart/form-data': {
+                    schema: { type: 'object', properties: { meta: { type: 'object' } } },
+                    encoding: { meta: { contentType: 'application/json', allowReserved: true } },
+                  },
+                },
+              },
+              responses: { '204': { description: 'ok' } },
+            },
+          },
+        },
+      })
+      const content = findOperation(root, 'urlenc')?.requestBody?.content
+
+      expect(content?.map((entry) => [entry.contentType, entry.encoding])).toStrictEqual([
+        ['application/x-www-form-urlencoded', { filter: { style: 'deepObject', explode: true }, tags: { explode: false } }],
+        ['multipart/form-data', { meta: { contentType: 'application/json', allowReserved: true } }],
+      ])
+    })
+
     it('keeps only the configured contentType in requestBody.content', async () => {
       const root = await parseOas(multipartUploadDocument, { contentType: 'multipart/form-data' })
       const upload = findOperation(root, 'upload')

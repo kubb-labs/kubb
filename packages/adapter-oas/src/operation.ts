@@ -128,6 +128,21 @@ export function getParameters({ operation, refs }: OperationContext): Array<{ pa
   return Array.from(paramMap.values())
 }
 
+/** The `encoding` of a media type, reduced to the entries that set a field Kubb carries. */
+function getEncoding(encoding: MediaTypeObject['encoding']): Record<string, ast.EncodingNode> | undefined {
+  const entries = Object.entries(encoding ?? {}).flatMap(([property, { contentType, style, explode, allowReserved }]) => {
+    const node: ast.EncodingNode = {
+      ...(contentType !== undefined ? { contentType } : {}),
+      ...(style !== undefined ? { style: style as ast.ParameterStyle } : {}),
+      ...(explode !== undefined ? { explode } : {}),
+      ...(allowReserved !== undefined ? { allowReserved } : {}),
+    }
+    return Object.keys(node).length ? [[property, node] as const] : []
+  })
+
+  return entries.length ? Object.fromEntries(entries) : undefined
+}
+
 /** Schema for one media type of a `content` map, with the binary fallback for an emptied non-JSON entry. */
 export function getBodySchema({
   content,
@@ -259,6 +274,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
         contentType: ct,
         schema: ast.optionality(node, bodyRequired),
         keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
+        encoding: getEncoding(body?.content?.[ct]?.encoding),
       }),
     ]
   })
