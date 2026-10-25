@@ -97,9 +97,9 @@ Write the input as `git+<repo>#<ref>:<path>`. Run `git fetch --depth 1 <repo> <r
 
 ### KUBB_INLINE_FAILED: Inline definition failed {#kubb-inline-failed}
 
-A file imports a name from a file whose sources are all inline, and Kubb could not replace that name. The name has no inline definition, or its definition refers back to itself. One diagnostic lists every such name. The inline file is not written, so the run is marked failed.
+A file imports a name from a file whose sources are all inline, and Kubb could not replace that name. The name has no inline definition, its definition refers back to itself, or no parser for the file's extension supports inline sources. One diagnostic lists every such problem. The inline file is not written, so the run is marked failed.
 
-Give every name the file imports an inline definition, or stop marking the source as inline.
+Give every name the file imports an inline definition, register a parser with inline support for its extension, or stop marking the source as inline.
 
 ### KUBB_INPUT_NOT_FOUND: Input not found {#kubb-input-not-found}
 

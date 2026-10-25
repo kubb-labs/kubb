@@ -3,8 +3,6 @@ import type { CodeNode } from '../nodes/code.ts'
 import { createFile } from '../nodes/file.ts'
 import type { FileNode, ImportNode } from '../nodes/file.ts'
 
-const IDENTIFIER = /[A-Za-z_$][\w$]*/y
-
 /**
  * Whether every source of `file` is inline. Other files absorb such a file, so it is never written.
  */
@@ -33,6 +31,29 @@ type InlineFilesResult = {
 type Definition = { expression: string; imports: Array<ImportNode> }
 
 /**
+ * The language-specific half of {@link inlineFiles}, supplied by the parser that prints the file.
+ * Each language decides what counts as a reference to a name and how a definition replaces it.
+ */
+export type InlineLanguage = {
+  /**
+   * Calls `replace` for every identifier in `text` that references something, and swaps in what it returns.
+   * Skips what never references a name in the language, such as strings and comments.
+   */
+  replaceIdentifiers(text: string, replace: (name: string) => string | undefined): string
+  /**
+   * Makes `expression` safe to put where a name was, such as `(A | B)` in TypeScript.
+   */
+  wrap(expression: string): string
+}
+
+type InlineFilesOptions = {
+  /**
+   * The inline support for a file's language, or `undefined` when its language has none.
+   */
+  language: (file: FileNode) => InlineLanguage | undefined
+}
+
+/**
  * Replaces every name a file imports from a virtual file (see {@link isVirtualFile}) with that name's
  * `inline.expression`, until no inline names are left. The definitions' own imports move to the
  * importing file, limited to the names the definitions use.
@@ -45,7 +66,7 @@ type Definition = { expression: string; imports: Array<ImportNode> }
  * // clients/addPet.ts: import type { Pet } from '../models/Pet', with `({ body: Pet })` where `AddPetOptions` was
  * ```
  */
-export function inlineFiles(files: ReadonlyArray<FileNode>): InlineFilesResult {
+export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: InlineFilesOptions): InlineFilesResult {
   const virtualFiles = new Map(files.filter(isVirtualFile).map((file) => [file.path, file]))
   const result: InlineFilesResult = { files: [], virtualPaths: [...virtualFiles.keys()], problems: [] }
   if (virtualFiles.size === 0) return result
@@ -66,19 +87,27 @@ export function inlineFiles(files: ReadonlyArray<FileNode>): InlineFilesResult {
       result.problems.push({ path: from, message: `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.` })
       return undefined
     }
+    const lang = languageOf(file)
+    if (!lang) return undefined
     definitions.set(key, null)
-    const { text, imports, used } = substitute(inline.expression, file)
+    const { text, imports, used } = substitute(inline.expression, file, lang)
     const own = file.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used)))
     const definition = { expression: text, imports: [...imports, ...own] }
     definitions.set(key, definition)
     return definition
   }
 
+  function languageOf(file: FileNode): InlineLanguage | undefined {
+    const lang = language(file)
+    if (!lang) result.problems.push({ path: file.path, message: `No parser for "${file.extname}" files supports inline sources.` })
+    return lang
+  }
+
   // Replaces the inline names `file` can see: its own inline sources and what it imports from virtual files.
-  function substitute(input: string, file: FileNode) {
+  function substitute(input: string, file: FileNode, lang: InlineLanguage) {
     const imports: Array<ImportNode> = []
     const used = new Set<string>()
-    const text = replaceIdentifiers(input, (local) => {
+    const text = lang.replaceIdentifiers(input, (local) => {
       const target = findTarget(file, local)
       const definition = target && define(target.path, target.name, file.path)
       if (!definition) {
@@ -86,7 +115,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>): InlineFilesResult {
         return undefined
       }
       imports.push(...definition.imports)
-      return /^[\w$.]+$/.test(definition.expression) ? definition.expression : `(${definition.expression})`
+      return lang.wrap(definition.expression)
     })
     return { text, imports, used }
   }
@@ -105,9 +134,11 @@ export function inlineFiles(files: ReadonlyArray<FileNode>): InlineFilesResult {
 
   for (const file of files) {
     if (virtualFiles.has(file.path) || !file.imports.some((imp) => virtualFiles.has(imp.path))) continue
+    const lang = languageOf(file)
+    if (!lang) continue
     const carried: Array<ImportNode> = []
     const rewrite = (input: string) => {
-      const { text, imports } = substitute(input, file)
+      const { text, imports } = substitute(input, file, lang)
       carried.push(...imports)
       return text
     }
@@ -155,86 +186,4 @@ function rewriteNodes(nodes: Array<CodeNode> | undefined, rewrite: (text: string
         return { ...node, nodes: rewriteNodes(node.nodes, rewrite) }
     }
   })
-}
-
-/**
- * Calls `replace` for every identifier that references something, and swaps in what it returns.
- * Strings, comments, member access (`x.Name`) and object keys (`{ Name: 1 }`) are left alone.
- *
- * shortcut: a regex literal is scanned as code, so a quote inside one can hide the identifiers after it; parse with TypeScript if generated code starts mixing regex literals with inline names.
- */
-export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined): string {
-  let out = ''
-  let i = 0
-  // `true` for a `${` inside a template literal, `false` for a plain `{`, so each `}` knows whether the template resumes.
-  const braces: Array<boolean> = []
-  const copy = (end: number) => {
-    out += text.slice(i, end)
-    i = end
-  }
-  const template = () => {
-    while (i < text.length) {
-      if (text[i] === '\\') copy(i + 2)
-      else if (text[i] === '`') return copy(i + 1)
-      else if (text[i] === '$' && text[i + 1] === '{') {
-        braces.push(true)
-        return copy(i + 2)
-      } else copy(i + 1)
-    }
-  }
-
-  while (i < text.length) {
-    const char = text[i]!
-    const next = text[i + 1]
-    if (char === '/' && next === '/') {
-      const end = text.indexOf('\n', i)
-      copy(end === -1 ? text.length : end)
-    } else if (char === '/' && next === '*') {
-      const end = text.indexOf('*/', i + 2)
-      copy(end === -1 ? text.length : end + 2)
-    } else if (char === '"' || char === "'") {
-      let end = i + 1
-      while (end < text.length && text[end] !== char) end += text[end] === '\\' ? 2 : 1
-      copy(end + 1)
-    } else if (char === '`') {
-      copy(i + 1)
-      template()
-    } else if (char === '{') {
-      braces.push(false)
-      copy(i + 1)
-    } else if (char === '}') {
-      copy(i + 1)
-      if (braces.pop()) template()
-    } else if (char >= '0' && char <= '9') {
-      // A number such as `1e5` or `0x1F`: its letters are not identifiers.
-      let end = i + 1
-      while (end < text.length && /[\w$.]/.test(text[end]!)) end++
-      copy(end)
-    } else {
-      IDENTIFIER.lastIndex = i
-      const name = IDENTIFIER.exec(text)?.[0]
-      if (!name) {
-        copy(i + 1)
-        continue
-      }
-      const end = i + name.length
-      out += (isReference(text, i, end) ? replace(name) : undefined) ?? name
-      i = end
-    }
-  }
-  return out
-}
-
-function isReference(text: string, start: number, end: number): boolean {
-  let before = start - 1
-  while (before >= 0 && (text[before] === ' ' || text[before] === '\t')) before--
-  const previous = before < 0 ? '\n' : text[before]!
-  // Member access `x.Name` or `x?.Name`, but not a spread `...Name`.
-  if (previous === '.' && text[before - 1] !== '.') return false
-
-  let after = end
-  while (after < text.length && (text[after] === ' ' || text[after] === '\t')) after++
-  const isKey = text[after] === ':' || (text[after] === '?' && text[after + 1] === ':')
-  // A key or parameter name (`{ Name: x }`, `(Name: x)`); `? Name :` in a conditional type is a reference.
-  return !(isKey && '{,;(\n\r'.includes(previous))
 }

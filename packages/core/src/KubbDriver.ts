@@ -427,7 +427,7 @@ export class KubbDriver {
 
           // Run every node through each plugin's macros and generators.
           diagnostics.push(...(await this.#runGenerators(generatorPlugins)))
-          this.#inlineFiles()
+          this.#inlineFiles(parsersMap)
 
           await hooks.callHook('kubb:plugins:end', this.#withFiles({ config }))
 
@@ -462,8 +462,8 @@ export class KubbDriver {
    * Moves inline sources into the files that import them and drops the virtual files, before barrels
    * (`kubb:plugins:end`) and the write see them.
    */
-  #inlineFiles(): void {
-    const { files, virtualPaths, problems } = ast.inlineFiles(this.fileManager.files)
+  #inlineFiles(parsers: ReadonlyMap<FileNode['extname'], Parser>): void {
+    const { files, virtualPaths, problems } = ast.inlineFiles(this.fileManager.files, { language: (file) => parsers.get(file.extname)?.inline })
     if (virtualPaths.length === 0) return
 
     this.fileManager.add(...files)
@@ -474,7 +474,7 @@ export class KubbDriver {
         code: Diagnostics.code.inlineFailed,
         severity: 'error',
         message: problems.map(({ path, message }) => `${path}: ${message}`).join('\n'),
-        help: 'Give every name the file imports an inline definition, or stop marking the source as inline.',
+        help: 'Give every name the file imports an inline definition, register a parser with inline support for its extension, or stop marking the source as inline.',
       })
     }
   }

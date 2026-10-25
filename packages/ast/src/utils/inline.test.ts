@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { createFunction, createText } from '../nodes/code.ts'
 import { createFile, createImport, createSource } from '../nodes/file.ts'
 import type { FileNode } from '../nodes/file.ts'
-import { inlineFiles, isVirtualFile, replaceIdentifiers } from './inline.ts'
+import { type InlineLanguage, inlineFiles as inlineFilesWith, isVirtualFile } from './inline.ts'
+
+// A stand-in language with no TypeScript rules: every word is a reference, and anything but a word goes in parentheses.
+const words: InlineLanguage = {
+  replaceIdentifiers: (text, replace) => text.replace(/[A-Za-z_$][\w$]*/g, (name) => replace(name) ?? name),
+  wrap: (expression) => (/^\w+$/.test(expression) ? expression : `(${expression})`),
+}
+const inlineFiles = (files: Array<FileNode>) => inlineFilesWith(files, { language: () => words })
 
 const operationFile = createFile({
   baseName: 'AddPet.ts',
@@ -128,23 +135,12 @@ describe('inlineFiles', () => {
       },
     ])
   })
-})
 
-describe('replaceIdentifiers', () => {
-  const swap = (text: string) => replaceIdentifiers(text, (name) => (name === 'Name' ? 'Pet' : undefined))
+  it('reports a file whose language has no inline support and leaves it as it is', () => {
+    const file = clientFile('const options: AddPetOptions = client()')
+    const { files, problems } = inlineFilesWith([operationFile, file], { language: (item) => (item.path === file.path ? undefined : words) })
 
-  it('replaces references', () => {
-    expect(swap('Array<Name> | Name[]')).toBe('Array<Pet> | Pet[]')
-    expect(swap('T extends string ? Name : never')).toBe('T extends string ? Pet : never')
-    expect(swap('{ body: Name; tags?: [...Name] }')).toBe('{ body: Pet; tags?: [...Pet] }')
-    expect(swap('`${Name}`')).toBe('`${Pet}`')
-  })
-
-  it('leaves strings, comments, member access, keys and longer names alone', () => {
-    expect(swap(`'Name' "Name" \`Name\``)).toBe(`'Name' "Name" \`Name\``)
-    expect(swap('// Name\n/* Name */')).toBe('// Name\n/* Name */')
-    expect(swap('x.Name x?.Name')).toBe('x.Name x?.Name')
-    expect(swap('{ Name: 1, Name?: 2 }\n(Name: string) => void')).toBe('{ Name: 1, Name?: 2 }\n(Name: string) => void')
-    expect(swap('NameKey PetName 0xName')).toBe('NameKey PetName 0xName')
+    expect(files).toEqual([])
+    expect(problems).toEqual([{ path: '/gen/clients/addPet.ts', message: 'No parser for ".ts" files supports inline sources.' }])
   })
 })

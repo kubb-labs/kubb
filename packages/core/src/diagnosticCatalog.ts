@@ -200,7 +200,7 @@ export const diagnosticCatalog = {
     code: 'KUBB_INLINE_FAILED',
     title: 'Inline definition failed',
     cause: 'A file imports a name from a file whose sources are all inline, and that name could not be inlined.',
-    fix: 'Give every name the file imports an inline definition, or stop marking the source as inline.',
+    fix: 'Give every name the file imports an inline definition, register a parser with inline support for its extension, or stop marking the source as inline.',
   },
   internalError: {
     code: 'KUBB_INTERNAL_ERROR',

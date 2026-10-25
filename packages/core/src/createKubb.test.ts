@@ -148,7 +148,22 @@ describe('createKubb', () => {
       },
     })()
 
-    const { files, diagnostics } = await createKubb(makeConfig({ plugins: [injector] as unknown as Array<Plugin> }), {
+    // A parser whose language treats every word as a reference.
+    const words = defineExtension({
+      kind: 'parser',
+      meta: { name: 'words' },
+      build: () => ({
+        extNames: ['.ts'],
+        parse: () => '',
+        print: () => '',
+        inline: {
+          replaceIdentifiers: (text, replace) => text.replace(/[A-Za-z_$][\w$]*/g, (name) => replace(name) ?? name),
+          wrap: (expression) => `(${expression})`,
+        },
+      }),
+    })()
+
+    const { files, diagnostics } = await createKubb(makeConfig({ plugins: [injector] as unknown as Array<Plugin>, parsers: [words] }), {
       hooks: new Hookable<KubbHooks>(),
     }).safeBuild()
 
