@@ -4,7 +4,13 @@ import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
-import { createDiscriminantNode, extractDiscriminatedAllOfMembers, narrowUnionMembers, propertyTypeOf } from '../discriminator/preserve.ts'
+import {
+  createDiscriminantNode,
+  removeInheritedDiscriminator,
+  extractDiscriminatedAllOfMembers,
+  narrowUnionMembers,
+  propertyTypeOf,
+} from '../discriminator/preserve.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 import { extractExamples } from '../schemaShape.ts'
 import { convertAnnotatedEnum } from './annotatedEnum.ts'
@@ -217,7 +223,7 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
   }
 
   const { members: discriminatedAllOf, discriminantValues } = extractDiscriminatedAllOfMembers({
-    allOfMembers: schema.allOf as Array<SchemaObject | ReferenceObject>,
+    allOfMembers: removeInheritedDiscriminator({ members: schema.allOf as Array<SchemaObject | ReferenceObject>, refs }),
     name,
     refs,
   })
@@ -293,7 +299,7 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
       unionMembers,
       discriminator,
       sharedPropertiesNode,
-      parentType: discriminator && propertyTypeOf(schema, discriminator.propertyName, refs),
+      parentType: discriminator && propertyTypeOf({ schema, propertyName: discriminator.propertyName, refs }),
       parse,
       name,
       refs,

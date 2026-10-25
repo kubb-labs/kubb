@@ -514,6 +514,103 @@ describe('adapterOas options', () => {
     expect(values).toStrictEqual([[1], [2]])
   })
 
+  it('keeps a nested discriminator in an allOf child from collapsing to never', async () => {
+    const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` })
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Foo: {
+              type: 'object',
+              required: ['$type'],
+              properties: { $type: { type: 'string' } },
+              discriminator: { propertyName: '$type', mapping: { FooBar: '#/components/schemas/Bar', FooBaz: '#/components/schemas/Baz' } },
+            },
+            Bar: {
+              allOf: [
+                ref('Foo'),
+                {
+                  type: 'object',
+                  required: ['$type'],
+                  properties: { $type: { type: 'string' }, bar: { type: 'string' } },
+                  discriminator: { propertyName: '$type', mapping: { BarQux: '#/components/schemas/Qux' } },
+                },
+              ],
+            },
+            Baz: { allOf: [ref('Foo'), { type: 'object', properties: { baz: { type: 'string' } } }] },
+            Qux: { allOf: [ref('Bar'), { type: 'object', properties: { qux: { type: 'string' } } }] },
+          },
+        },
+      },
+    })
+
+    const typeValues = (name: string) =>
+      ast
+        .narrowSchema(
+          node.schemas.find((schema) => schema.name === name)!,
+          'intersection',
+        )
+        ?.members?.flatMap((member) => ast.narrowSchema(member, 'object')?.properties ?? [])
+        .filter((property) => property.name === '$type')
+        .map((property) => ast.narrowSchema(property.schema, 'enum')?.enumValues ?? property.schema.type)
+
+    const foo = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Foo')!,
+      'object',
+    )
+    const fooValues = ast.narrowSchema(foo!.properties[0]!.schema, 'enum')?.enumValues
+
+    expect(fooValues).toStrictEqual(['FooBar', 'BarQux', 'FooBaz'])
+    expect(typeValues('Bar')).toStrictEqual(['string'])
+    expect(typeValues('Qux')).toStrictEqual([['BarQux']])
+  })
+
+  it('keeps a nested discriminator in a child of a oneOf parent from collapsing to never', async () => {
+    const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` })
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Foo: {
+              oneOf: [ref('Bar'), ref('Baz')],
+              discriminator: { propertyName: '$type', mapping: { FooBar: '#/components/schemas/Bar', FooBaz: '#/components/schemas/Baz' } },
+            },
+            Bar: {
+              allOf: [
+                ref('Foo'),
+                {
+                  type: 'object',
+                  properties: { $type: { type: 'string' } },
+                  discriminator: { propertyName: '$type', mapping: { BarQux: '#/components/schemas/Qux' } },
+                },
+              ],
+            },
+            Baz: { allOf: [ref('Foo'), { type: 'object', properties: { baz: { type: 'string' } } }] },
+            Qux: { type: 'object', properties: { qux: { type: 'string' } } },
+          },
+        },
+      },
+    })
+
+    const members = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Bar')!,
+      'intersection',
+    )?.members
+    const values = members
+      ?.flatMap((member) => ast.narrowSchema(member, 'object')?.properties ?? [])
+      .map((property) => ast.narrowSchema(property.schema, 'enum')?.enumValues ?? property.schema.type)
+
+    expect(values).toStrictEqual(['string', ['FooBar']])
+  })
+
   it('lifts inline enums to named root schemas and refs them for enums: root', async () => {
     const spec = {
       openapi: '3.0.0',
