@@ -1,4 +1,5 @@
 import { ast, extractRefName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
+import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
@@ -125,6 +126,22 @@ export function convertRef({ schema, name, nullable, defaultValue, document, par
   // A circular ref still resolves, so only a `$ref` to a component the spec never declares is missing.
   if (refPath && document.components && !refs.resolve(refPath, { report: false })) {
     return createNode(ctx, { type: 'unknown' })
+  }
+
+  // A target outside `components.schemas` is never emitted as its own file, so inline it. A circular
+  // ref leaves `resolvedSchema` null and still becomes a ref node.
+  if (refPath && !refPath.startsWith(SCHEMA_REF_PREFIX) && resolvedSchema) {
+    return ast.factory.createSchema({
+      ...resolvedSchema,
+      title: schema.title ?? resolvedSchema.title,
+      description: schema.description ?? resolvedSchema.description,
+      deprecated: schema.deprecated ?? resolvedSchema.deprecated,
+      readOnly: schema.readOnly ?? resolvedSchema.readOnly,
+      writeOnly: schema.writeOnly ?? resolvedSchema.writeOnly,
+      default: defaultValue ?? resolvedSchema.default,
+      name: name ?? resolvedSchema.name,
+      nullable: nullable ?? resolvedSchema.nullable,
+    })
   }
 
   const targetName = renames?.get(schema.$ref!)

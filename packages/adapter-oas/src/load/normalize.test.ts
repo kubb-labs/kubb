@@ -329,6 +329,16 @@ describe('bundleDocument', () => {
     expect(doc.components?.schemas?.['Dog']).toBeUndefined()
   })
 
+  it('hoists a ref into a property of an external schema into components.schemas', async () => {
+    const doc = await bundleDocument(path.resolve(__dirname, '../../mocks/withDeepExternalRef.yaml'))
+
+    expect(doc.components?.schemas?.['Household']).toStrictEqual({
+      type: 'object',
+      properties: { catName: { $ref: '#/components/schemas/name' } },
+    })
+    expect(doc.components?.schemas?.['name']).toStrictEqual({ type: 'string' })
+  })
+
   it('resolves https refs found in a local document', async () => {
     using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(mockFetch)
 

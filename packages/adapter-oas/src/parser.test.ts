@@ -173,17 +173,41 @@ describe('buildAst', () => {
     const document = {
       openapi: '3.0.0',
       info: { title: '', version: '' },
-      paths: {},
+      paths: {
+        '/foo': {
+          get: {
+            responses: {
+              '200': { description: 'OK', content: { 'application/json': { schema: { type: 'object' } } } },
+              '404': { description: 'Missing', content: { 'application/json': { schema: { type: 'object', nullable: true } } } },
+            },
+          },
+        },
+      },
       components: { schemas: { Pet: { type: 'object', properties: { id: { type: 'integer' } } } } },
     } as Document
 
     it.each([
       { title: 'a ref node for a defined component', $ref: '#/components/schemas/Pet', type: 'ref' },
       { title: 'unknown for a component the document never defines', $ref: '#/components/schemas/Missing', type: 'unknown' },
+      { title: 'the target inline for a path outside components', $ref: '#/paths/~1foo/get/responses/200/content/application~1json/schema', type: 'object' },
     ])('returns $title', ({ $ref, type }) => {
       const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref } })
 
       expect(node.type).toBe(type)
+    })
+
+    it('keeps the nullability of an inlined path ref used as a property', () => {
+      const $ref = '#/paths/~1foo/get/responses/404/content/application~1json/schema'
+      const node = parseSchema({ document, refs: createRefs(document) }, { schema: { type: 'object', properties: { a: { $ref } } } })
+
+      expect(ast.narrowSchema(node, 'object')?.properties?.[0]?.schema.nullable).toBe(true)
+    })
+
+    it('keeps the usage-site description and default on an inlined path ref', () => {
+      const $ref = '#/paths/~1foo/get/responses/200/content/application~1json/schema'
+      const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref, description: 'used here', default: {} } })
+
+      expect([node.type, node.description, ast.narrowSchema(node, 'object')?.default]).toStrictEqual(['object', 'used here', {}])
     })
   })
 

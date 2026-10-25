@@ -52,7 +52,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
           name: propName,
           schema: {
             ...schemaNode,
-            nullable: schemaNode.type === 'null' ? undefined : propNullable || undefined,
+            nullable: schemaNode.type === 'null' ? undefined : propNullable || schemaNode.nullable || undefined,
           },
           required,
         })
