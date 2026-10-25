@@ -130,16 +130,6 @@ describe('inlineFiles', () => {
       },
     ])
   })
-
-  it('reports a carried import that clashes with a local name', () => {
-    const file = clientFile('type Pet = string\nconst options: AddPetOptions = client()', {
-      sources: [createSource({ name: 'Pet', nodes: [createText('type Pet = string\nconst options: AddPetOptions = client()')] })],
-    })
-
-    expect(inlineFiles([operationFile, file]).problems).toEqual([
-      { path: '/gen/clients/addPet.ts', message: '"Pet" from "/gen/models/Pet.ts" clashes with "Pet" from "/gen/clients/addPet.ts".' },
-    ])
-  })
 })
 
 describe('replaceIdentifiers', () => {

@@ -14,7 +14,7 @@ export function isVirtualFile(file: FileNode): boolean {
 /**
  * The result of {@link inlineFiles}.
  */
-export type InlineFilesResult = {
+type InlineFilesResult = {
   /**
    * Files that imported an inline name, rewritten to hold its definition and the imports that definition needs.
    */
@@ -117,28 +117,12 @@ export function inlineFiles(files: ReadonlyArray<FileNode>): InlineFilesResult {
     const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, rewrite) }))
 
     const kept = file.imports.filter((imp) => !virtualFiles.has(imp.path))
-    const owners = new Map<string, string>([
-      ...file.sources.flatMap((source) => (source.name ? [[source.name, file.path] as const] : [])),
-      ...kept.flatMap((imp) => importedNames(imp).map((name) => [name, imp.path] as const)),
-    ])
-    for (const imp of carried) {
-      for (const name of importedNames(imp)) {
-        const owner = owners.get(name)
-        if (owner && owner !== imp.path)
-          result.problems.push({ path: file.path, message: `"${name}" from "${imp.path}" clashes with "${name}" from "${owner}".` })
-      }
-    }
-
     // A carried import keeps its target; `root` moves to the importing file so the relative path is computed from there.
     const imports = [...kept, ...carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))]
     result.files.push(createFile({ ...file, sources, imports }))
   }
 
   return result
-}
-
-function importedNames(imp: ImportNode): Array<string> {
-  return [imp.name].flat().map((item) => (typeof item === 'string' ? item : (item.name ?? item.propertyName)))
 }
 
 // The part of `imp` whose local names are in `used`, or nothing when none are.
