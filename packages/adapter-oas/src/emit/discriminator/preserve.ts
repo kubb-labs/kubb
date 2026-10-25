@@ -28,7 +28,7 @@ export function coerceDiscriminatorValues(keys: Array<string>, propertyType: unk
 /**
  * Reads the declared `type` of `propertyName` on a schema, following a `$ref` on the schema or the property.
  */
-export function discriminatorPropertyType(schema: SchemaObject | ReferenceObject | undefined, propertyName: string, refs: Refs): unknown {
+function discriminatorPropertyType(schema: SchemaObject | ReferenceObject | undefined, propertyName: string, refs: Refs): unknown {
   const resolved = schema && isReference(schema) ? refs.resolve<SchemaObject>(schema.$ref, { report: false }) : (schema as SchemaObject | undefined)
   const prop = resolved?.properties?.[propertyName]
   const propSchema = prop && isReference(prop) ? refs.resolve<SchemaObject>(prop.$ref, { report: false }) : (prop as SchemaObject | undefined)
