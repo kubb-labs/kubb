@@ -435,6 +435,31 @@ describe('buildAst', () => {
       ])
     })
 
+    it('drops a parameter style outside the OpenAPI set', async () => {
+      const root = await parseOas({
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/u': {
+            get: {
+              operationId: 'badParamStyle',
+              parameters: [
+                { name: 'a', in: 'query', schema: { type: 'array', items: { type: 'string' } }, style: "x'; throw 1; '", explode: true },
+                { name: 'b', in: 'query', schema: { type: 'object' }, style: 'deepObject' },
+              ],
+              responses: { '204': { description: 'ok' } },
+            },
+          },
+        },
+      })
+      const parameters = findOperation(root, 'badParamStyle')?.parameters
+
+      expect(parameters?.map((parameter) => [parameter.name, parameter.style])).toStrictEqual([
+        ['a', undefined],
+        ['b', 'deepObject'],
+      ])
+    })
+
     it('drops an encoding style outside the OpenAPI set', async () => {
       const root = await parseOas({
         openapi: '3.0.3',
