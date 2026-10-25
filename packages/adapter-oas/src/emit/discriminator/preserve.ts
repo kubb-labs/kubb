@@ -92,6 +92,48 @@ export function findDiscriminators(mapping: Record<string, string> | undefined, 
 }
 
 /**
+ * Finds the discriminator a schema declares itself or through an inline `allOf` member.
+ */
+function ownDiscriminator(schema: SchemaObject): DiscriminatorObject | undefined {
+  return (isDiscriminator(schema) ? schema : (schema.allOf as Array<SchemaObject> | undefined)?.find(isDiscriminator))?.discriminator
+}
+
+/**
+ * Lists the mapping keys of a discriminator plus the keys of the nested discriminators its mapped
+ * schemas declare on the same property, so a root `$type` accepts values from every level.
+ */
+export function mappingKeys({ propertyName, mapping }: DiscriminatorObject, refs: Refs, seen = new Set<string>()): Array<string> {
+  return Object.entries(mapping ?? {}).flatMap(([key, target]) => {
+    const resolved = seen.has(target) ? null : refs.resolve<SchemaObject>(target, { report: false })
+    const nested = resolved && ownDiscriminator(resolved)
+    seen.add(target)
+
+    return nested?.propertyName === propertyName ? [key, ...mappingKeys(nested, refs, seen)] : [key]
+  })
+}
+
+/**
+ * Drops the discriminator from an inline `allOf` member when a `$ref` sibling already declares one on
+ * the same property. That mapping names the schema's own children, and keeping it pins the property
+ * to those keys next to the parent's, which leaves `never`.
+ */
+export function dropInheritedDiscriminator(members: Array<SchemaObject | ReferenceObject>, refs: Refs): Array<SchemaObject | ReferenceObject> {
+  const inherited = new Set(
+    members.flatMap((member) => {
+      const parent = isReference(member) ? refs.resolve<SchemaObject>(member.$ref, { report: false }) : null
+      return (parent && ownDiscriminator(parent)?.propertyName) || []
+    }),
+  )
+
+  return members.map((member) => {
+    if (isReference(member) || !isDiscriminator(member) || member.oneOf || member.anyOf || !inherited.has(member.discriminator.propertyName)) return member
+    const { discriminator: _discriminator, ...rest } = member
+
+    return rest
+  })
+}
+
+/**
  * Narrows each `oneOf`/`anyOf` member with its discriminant value, intersecting the member's own
  * node with either the shared-properties slice carrying that value, or a synthetic discriminant
  * literal. The referenced child schema's own definition is left untouched — narrowing happens only
@@ -221,6 +263,13 @@ export function extractDiscriminatedAllOfMembers({
   const members = allOfMembers.filter((item) => {
     if (!isReference(item) || !name) return true
     const deref = refs.resolve<SchemaObject>(item.$ref)
+    const nested = deref && !isDiscriminator(deref) ? ownDiscriminator(deref) : undefined
+    if (nested) {
+      const values = findDiscriminators(nested.mapping, `${SCHEMA_REF_PREFIX}${name}`)
+      if (values.length)
+        discriminantValues.push({ propertyName: nested.propertyName, values: typedKeys(values, propertyTypeOf(deref!, nested.propertyName, refs)) })
+      return true
+    }
     if (!deref || !isDiscriminator(deref)) return true
     const parentUnion = deref.oneOf ?? deref.anyOf
     if (!parentUnion) return true

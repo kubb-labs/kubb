@@ -1,6 +1,6 @@
 import { ast, childName, enumPropName, macroDiscriminatorEnum, macroEnumName } from '@kubb/kit'
 import { isDiscriminator, isNullable } from '../../oas.ts'
-import { typedKeys, propertyTypeOf } from '../discriminator/preserve.ts'
+import { mappingKeys, propertyTypeOf, typedKeys } from '../discriminator/preserve.ts'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
@@ -89,7 +89,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
 
   if (isDiscriminator(schema) && schema.discriminator.mapping) {
     const discPropName = schema.discriminator.propertyName
-    const values = typedKeys(Object.keys(schema.discriminator.mapping), propertyTypeOf(schema, discPropName, refs))
+    const values = typedKeys(mappingKeys(schema.discriminator, refs), propertyTypeOf(schema, discPropName, refs))
     const enumName = name ? enumPropName(name, discPropName, options.enumSuffix) : undefined
     return ast.applyMacros(objectNode, [macroDiscriminatorEnum({ propertyName: discPropName, values, enumName })], { depth: 'shallow' })
   }

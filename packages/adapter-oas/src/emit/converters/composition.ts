@@ -4,7 +4,13 @@ import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
-import { createDiscriminantNode, extractDiscriminatedAllOfMembers, narrowUnionMembers, propertyTypeOf } from '../discriminator/preserve.ts'
+import {
+  createDiscriminantNode,
+  dropInheritedDiscriminator,
+  extractDiscriminatedAllOfMembers,
+  narrowUnionMembers,
+  propertyTypeOf,
+} from '../discriminator/preserve.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 import { extractExamples } from '../schemaShape.ts'
 import { convertAnnotatedEnum } from './annotatedEnum.ts'
@@ -222,7 +228,9 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
     refs,
   })
   const siblingProperties = collectSiblingProperties(schema.allOf as Array<SchemaObject | ReferenceObject>, refs, schema.properties)
-  const resolvedAllOf = discriminatedAllOf.map((s) => (isReference(s) ? s : resolveUnionSchema(s as SchemaObject, siblingProperties)))
+  const resolvedAllOf = dropInheritedDiscriminator(discriminatedAllOf, refs).map((s) =>
+    isReference(s) ? s : resolveUnionSchema(s as SchemaObject, siblingProperties),
+  )
   const allOfMembers: Array<ast.SchemaNode> = resolvedAllOf.map((s) => parse({ schema: s as SchemaObject, name }))
 
   const syntheticStart = allOfMembers.length
