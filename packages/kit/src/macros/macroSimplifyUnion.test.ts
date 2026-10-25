@@ -21,4 +21,11 @@ describe('macroSimplifyUnion', () => {
 
     expect(simplify(members)).toStrictEqual(members)
   })
+
+  it('drops repeated members, ignoring the source pointer', () => {
+    const string = ast.factory.createSchema({ type: 'string', pointer: '#/a' })
+    const number = ast.factory.createSchema({ type: 'number' })
+
+    expect(simplify([string, ast.factory.createSchema({ type: 'string', pointer: '#/b' }), number])).toStrictEqual([string, number])
+  })
 })
