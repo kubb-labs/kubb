@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.14.2 — Oct 25, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- A schema that is a single-member `allOf` around a `$ref` is no longer resolved to `unknown` as an alias cycle with itself. ([#4464](https://github.com/kubb-labs/kubb/pull/4464), [`a6b88a1`](https://github.com/kubb-labs/kubb/commit/a6b88a1c4daf7d1a5eceff26cc49fa16879db14d))
+- An `encoding` style outside the OpenAPI set is no longer carried onto the request body content. ([#4465](https://github.com/kubb-labs/kubb/pull/4465), [`33511d0`](https://github.com/kubb-labs/kubb/commit/33511d0e677a39cfc1d6ca3b63a742a4d61c9210))
+- A parameter `style` outside the OpenAPI set is no longer carried onto the parameter. ([#4466](https://github.com/kubb-labs/kubb/pull/4466), [`ed7acf0`](https://github.com/kubb-labs/kubb/commit/ed7acf0a52ae7a6a43f5e3e5c636bb618413db26))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.14.1 — Oct 25, 2026
 
 ### @kubb/adapter-oas
