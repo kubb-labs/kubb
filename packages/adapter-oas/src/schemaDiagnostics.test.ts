@@ -31,7 +31,23 @@ async function collect(data: unknown = spec): Promise<Array<Diagnostic>> {
   return reported
 }
 
+const aliasCycleSpec = {
+  openapi: '3.1.0',
+  info: { title: 'r', version: '1' },
+  paths: {},
+  components: { schemas: { Baz: { $ref: '#/components/schemas/Qux' }, Qux: { $ref: '#/components/schemas/Baz' } } },
+}
+
 describe('schema diagnostics during parse', () => {
+  it('warns once per schema in a pure $ref alias cycle', async () => {
+    const diagnostics = (await collect(aliasCycleSpec)).filter((diagnostic) => diagnostic.code === 'KUBB_ALIAS_CYCLE')
+
+    expect(diagnostics).toHaveLength(2)
+    for (const pointer of ['#/components/schemas/Baz', '#/components/schemas/Qux']) {
+      expect(diagnostics).toContainEqual(expect.objectContaining({ severity: 'warning', location: { kind: 'schema', pointer } }))
+    }
+  })
+
   it('reports the deprecated schema at its component pointer', async () => {
     const diagnostics = await collect()
 

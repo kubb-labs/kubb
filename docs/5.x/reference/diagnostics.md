@@ -237,6 +237,12 @@ A schema's `format` is not one Kubb maps to a specific type, so it falls back to
 
 Use a supported format, omit it if the base type is sufficient, or map it through a custom parser or plugin.
 
+### KUBB_ALIAS_CYCLE: Alias cycle {#kubb-alias-cycle}
+
+Schemas that only `$ref` each other form a loop, so none of them has a shape to generate. Kubb resolves them to `unknown`.
+
+Break the loop by giving one of the schemas a real definition, or remove the `$ref` that closes it.
+
 ## Info
 
 An info diagnostic is advisory and never fails the run.

@@ -1,5 +1,5 @@
 import { defineExtension } from '@kubb/core'
-import { ast } from '@kubb/kit'
+import { ast, Diagnostics } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
@@ -135,6 +135,18 @@ export const adapterOas = defineExtension<AdapterOas>({
         return false
       }
 
+      function createCycleNode(name: string, pointer: string | undefined): ast.SchemaNode {
+        Diagnostics.report({
+          code: Diagnostics.code.aliasCycle,
+          severity: 'warning',
+          message: `${name} only refers to other schemas that lead back to it, so it is resolved to unknown.`,
+          help: 'Give one of the schemas in the loop a real definition, or remove the `$ref` that closes it.',
+          location: { kind: 'schema', pointer: pointer ?? `#/components/schemas/${name}` },
+        })
+
+        return ast.factory.createSchema({ type: 'unknown', name, pointer })
+      }
+
       const schemaNodes: Array<ast.SchemaNode> = promotedEnums ? [...promotedEnums.values()] : []
       for (const name of Object.keys(schemas)) {
         const aliasTarget = refAliasMap.get(name)?.name
@@ -143,7 +155,7 @@ export const adapterOas = defineExtension<AdapterOas>({
         const child = discriminatorChildMap?.get(name)
         const base = child ? patchDiscriminatorNode(parsed, child) : parsed
         const resolved = aliased ? { ...aliased, name, pointer: parsed.pointer } : base
-        const node = isAliasCycle(name) ? ast.factory.createSchema({ type: 'unknown', name, pointer: parsed.pointer }) : resolved
+        const node = isAliasCycle(name) ? createCycleNode(name, parsed.pointer) : resolved
 
         schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)
       }
