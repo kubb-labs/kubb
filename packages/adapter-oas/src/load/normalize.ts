@@ -3,6 +3,7 @@ import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
+import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
 import type { ValidationErrors, WorkerResult } from './validateWorker.ts'
 import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
@@ -25,6 +26,29 @@ export function hasExternalRef(node: unknown): boolean {
   }
 
   return Object.values(node).some(hasExternalRef)
+}
+
+/**
+ * Replaces each `$ref` into `#/paths/...` with a copy of its target, in place.
+ *
+ * The Swagger 2.0 upgrade moves `responses/200/schema` under `content`, so a ref to the old location
+ * would no longer resolve. A ref that points back into itself is kept, since inlining it never ends.
+ */
+function inlinePathRefs(node: unknown, resolve: (ref: string) => unknown, visiting: Array<string> = []): unknown {
+  if (!node || typeof node !== 'object') {
+    return node
+  }
+
+  const ref = (node as { $ref?: unknown }).$ref
+  if (typeof ref === 'string' && ref.startsWith('#/paths/') && !visiting.includes(ref)) {
+    const target = resolve(ref)
+    return target && typeof target === 'object' ? inlinePathRefs(structuredClone(target), resolve, [...visiting, ref]) : node
+  }
+
+  for (const [key, value] of Object.entries(node)) {
+    ;(node as Record<string, unknown>)[key] = inlinePathRefs(value, resolve, visiting)
+  }
+  return node
 }
 
 /**
@@ -114,6 +138,11 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
         document[key] = Number.isInteger(version) ? version.toFixed(1) : String(version)
       }
     }
+  }
+
+  if (raw && typeof raw === 'object' && 'swagger' in raw) {
+    const refs = createRefs(raw)
+    inlinePathRefs(raw, (ref) => refs.resolve(ref, { report: false }))
   }
 
   // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.

@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest'
 import * as yaml from 'yaml'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import { assertDocument, bundleDocument, hasExternalRef, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
-import type { Document } from '../types.ts'
+import type { Document, SchemaObject } from '../types.ts'
 
 // Records each result a validation worker posts, so a test can tell the worker from the in-place fallback.
 const workerSpy = vi.hoisted(() => vi.fn())
@@ -50,6 +50,30 @@ describe('parseFromConfig', () => {
 
     expect(doc.openapi).toMatch(/^3\.1/)
     expect(doc.components?.schemas).toHaveProperty('Pet')
+  })
+
+  it('resolves a Swagger 2.0 ref into a response schema after the upgrade', async () => {
+    const doc = await parseFromConfig({
+      type: 'data',
+      data: [
+        "swagger: '2.0'",
+        'info: { title: t, version: 1.0.0 }',
+        'paths:',
+        '  /x:',
+        '    get:',
+        '      responses:',
+        "        '200':",
+        '          description: ok',
+        '          schema:',
+        '            type: object',
+        '            properties:',
+        '              first: { type: string }',
+        "              second: { $ref: '#/paths/~1x/get/responses/200/schema/properties/first' }",
+      ].join('\n'),
+    })
+    const response = doc.paths?.['/x']?.get?.responses?.['200'] as { content: Record<string, { schema: SchemaObject }> }
+
+    expect(response.content['application/json']!.schema.properties?.second).toStrictEqual({ type: 'string' })
   })
 
   it.each([
