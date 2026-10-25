@@ -89,7 +89,10 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
 
   if (isDiscriminator(schema) && schema.discriminator.mapping) {
     const discPropName = schema.discriminator.propertyName
-    const values = typedKeys(getMappingKeys(schema.discriminator, refs), propertyTypeOf(schema, discPropName, refs))
+    const values = typedKeys({
+      keys: getMappingKeys({ discriminator: schema.discriminator, refs }),
+      propertyType: propertyTypeOf({ schema, propertyName: discPropName, refs }),
+    })
     const enumName = name ? enumPropName(name, discPropName, options.enumSuffix) : undefined
     return ast.applyMacros(objectNode, [macroDiscriminatorEnum({ propertyName: discPropName, values, enumName })], { depth: 'shallow' })
   }

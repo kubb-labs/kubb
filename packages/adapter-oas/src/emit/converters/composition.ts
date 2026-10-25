@@ -223,7 +223,7 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
   }
 
   const { members: discriminatedAllOf, discriminantValues } = extractDiscriminatedAllOfMembers({
-    allOfMembers: removeInheritedDiscriminator(schema.allOf as Array<SchemaObject | ReferenceObject>, refs),
+    allOfMembers: removeInheritedDiscriminator({ members: schema.allOf as Array<SchemaObject | ReferenceObject>, refs }),
     name,
     refs,
   })
@@ -299,7 +299,7 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
       unionMembers,
       discriminator,
       sharedPropertiesNode,
-      parentType: discriminator && propertyTypeOf(schema, discriminator.propertyName, refs),
+      parentType: discriminator && propertyTypeOf({ schema, propertyName: discriminator.propertyName, refs }),
       parse,
       name,
       refs,
