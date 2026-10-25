@@ -11,10 +11,13 @@ const keyStarts = new Set<number>([TokenKind.LeftBrace, TokenKind.Comma, TokenKi
 export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined, lang: 'ts' | 'tsx' = 'ts'): string {
   // Generated fragments such as `options: Options<Pet>` are not whole programs; yuku still tokenizes them.
   const tokens = parse(text, { lang, sourceType: 'module', tokens: true }).tokens!
+
   // `TokenList` is indexed, not iterable; a plain array also makes the neighbours of a token `undefined` at the ends.
   const kinds = Array.from({ length: tokens.length }, (_, i) => tokens.kind(i))
+
   let out = ''
   let last = 0
+
   for (const [i, kind] of kinds.entries()) {
     if (kind !== TokenKind.Identifier || kinds[i - 1] === TokenKind.Dot || kinds[i - 1] === TokenKind.OptionalChaining) continue
     const isKey = kinds[i + 1] === TokenKind.Colon || (kinds[i + 1] === TokenKind.Question && kinds[i + 2] === TokenKind.Colon)
@@ -26,6 +29,7 @@ export function replaceIdentifiers(text: string, replace: (name: string) => stri
     out += text.slice(last, tokens.start(i)) + replacement
     last = tokens.end(i)
   }
+
   return out + text.slice(last)
 }
 
