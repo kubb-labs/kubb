@@ -11,21 +11,12 @@ export function isVirtualFile(file: FileNode): boolean {
   return file.sources.length > 0 && file.sources.every((source) => source.inline)
 }
 
-/**
- * The result of {@link inlineFiles}.
- */
 type InlineFilesResult = {
-  /**
-   * Files that imported an inline name, rewritten to hold its definition and the imports that definition needs.
-   */
+  /** Files that imported an inline name, rewritten to hold its definition. */
   files: Array<FileNode>
-  /**
-   * Paths of the virtual files. They are not written.
-   */
+  /** Paths of the virtual files, which are not written. */
   virtualPaths: Array<string>
-  /**
-   * One message per name that could not be inlined.
-   */
+  /** One message per name that could not be inlined. */
   problems: Array<{ path: string; message: string }>
 }
 
@@ -33,39 +24,22 @@ type Definition = { expression: string; imports: Array<ImportNode> }
 
 /**
  * The language-specific half of {@link inlineFiles}, supplied by the parser that prints the file.
- * Each language decides what counts as a reference to a name and how a definition replaces it.
  */
 export type InlineLanguage = {
-  /**
-   * Calls `replace` for every identifier in `text` that references something, and swaps in what it returns.
-   * Skips what never references a name in the language, such as strings and comments.
-   */
+  /** Swaps in what `replace` returns for every identifier in `text` that references a name, skipping strings and comments. */
   replaceIdentifiers(text: string, replace: (name: string) => string | undefined): string
-  /**
-   * Makes `expression` safe to put where a name was, such as `(A | B)` in TypeScript.
-   */
+  /** Makes `expression` safe to put where a name was, such as `(A | B)` in TypeScript. */
   wrap(expression: string): string
 }
 
 type InlineFilesOptions = {
-  /**
-   * The inline support for a file's language, or `undefined` when its language has none.
-   */
+  /** The inline support for a file's language, or `undefined` when it has none. */
   language: (file: FileNode) => InlineLanguage | undefined
 }
 
 /**
  * Replaces every name a file imports from a virtual file (see {@link isVirtualFile}) with that name's
- * `inline.expression`, until no inline names are left. The definitions' own imports move to the
- * importing file, limited to the names the definitions use.
- *
- * @example
- * ```ts
- * // models/pet/AddPet.ts (virtual): type AddPetOptions = { body: Pet }, importing Pet from models/Pet.ts
- * // clients/addPet.ts: import type { AddPetOptions } from '../models/pet/AddPet'
- * inlineFiles(files).files
- * // clients/addPet.ts: import type { Pet } from '../models/Pet', with `({ body: Pet })` where `AddPetOptions` was
- * ```
+ * `inline.expression`, until no inline names are left. The definitions' own imports move to the importing file.
  */
 export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: InlineFilesOptions): InlineFilesResult {
   const virtualFiles = new Map(files.filter(isVirtualFile).map((file) => [file.path, file]))
@@ -75,7 +49,6 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
   // `null` marks a definition that is being resolved, so a name that reaches itself is a cycle.
   const definitions = new Map<string, Definition | null>()
 
-  // A definition is resolved in the importing file's language, so it is memoized once per name.
   function define(path: string, name: string, from: string, lang: InlineLanguage): Definition | undefined {
     const key = `${path}\0${name}`
     if (definitions.has(key)) {
@@ -98,8 +71,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     return definition
   }
 
-  // Replaces the inline names `file` can see, its own inline sources and what it imports from virtual files,
-  // and pushes the imports their definitions need onto `imports`. `used` holds the names left as they are.
+  // Pushes the imports the replaced definitions need onto `imports`; `used` holds the names left as they are.
   function substitute(input: string, file: FileNode, lang: InlineLanguage, imports: Array<ImportNode>) {
     const used = new Set<string>()
     const text = lang.replaceIdentifiers(input, (local) => {
@@ -142,7 +114,6 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
   return result
 }
 
-// The part of `imp` whose local names are in `used`, or nothing when none are.
 function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode> {
   if (!Array.isArray(imp.name)) return used.has(imp.name) ? [imp] : []
   const name = imp.name.filter((item) => used.has(importLocalName(item)))

@@ -111,13 +111,6 @@ type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value'> & {
  *   {`export type PetId = string`}
  * </File.Source>
  * ```
- *
- * @example Inline source block, absorbed by the files that import it
- * ```tsx
- * <File.Source name="AddPetStatus200" isTypeOnly isExportable inline={{ expression: 'Pet' }}>
- *   {`export type AddPetStatus200 = Pet`}
- * </File.Source>
- * ```
  */
 function FileSource({ children, ...props }: FileSourceProps): KubbReactElement {
   return <kubb-source {...props}>{children}</kubb-source>

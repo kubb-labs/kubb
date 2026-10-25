@@ -35,10 +35,7 @@ export type Parser<TMeta extends object = object, TNode = unknown, TOptions exte
    * back to the parser as `FileNode.sources`.
    */
   print(...nodes: Array<TNode>): string
-  /**
-   * How this parser's language finds and replaces names, so files of its extensions can absorb inline
-   * sources (`SourceNode.inline`). Omit it when the language has no inline support.
-   */
+  /** How this language finds and replaces names so its files can absorb inline sources. Omit it when there is no support. */
   inline?: InlineLanguage
 }
 

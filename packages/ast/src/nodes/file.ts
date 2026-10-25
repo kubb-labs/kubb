@@ -162,8 +162,7 @@ export type SourceNode = BaseNode & {
   isIndexable?: boolean | null
   /**
    * Marks the source as a definition that importing files absorb instead of import. `expression` is
-   * the declaration's right-hand side, such as `{ body: Pet }` for `type AddPetOptions = { body: Pet }`.
-   * A file whose sources are all inline is never written, see `inlineFiles`.
+   * the declaration's right-hand side, such as `{ body: Pet }`.
    */
   inline?: { expression: string } | null
   /**

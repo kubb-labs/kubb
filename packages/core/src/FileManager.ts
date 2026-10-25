@@ -250,9 +250,7 @@ export class FileManager {
     return resolved
   }
 
-  /**
-   * Removes the files at `paths`, so they are neither listed nor written.
-   */
+  /** Removes the files at `paths`, so they are neither listed nor written. */
   delete(...paths: Array<string>): void {
     for (const path of paths) {
       this.#cache.delete(path)
