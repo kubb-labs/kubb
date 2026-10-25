@@ -147,7 +147,9 @@ export function convertNot({ schema, name, nullable, defaultValue, parse }: Conv
   return createNode({ schema, name, nullable, defaultValue }, { type: 'intersection', members: [parse({ schema: rest, name }), notNode] })
 }
 
-/** Keywords that describe a schema or conditionally constrain it, but add no structure to the intersection. */
+/**
+ * Keywords that describe a schema or conditionally constrain it, but add no structure to the intersection.
+ */
 const annotationKeys = new Set([
   'description',
   'title',
