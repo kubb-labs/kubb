@@ -754,6 +754,25 @@ describe('parseSchema allOf', () => {
     expect(JSON.stringify(members)).toContain('"required":true')
   })
 
+  it('keeps requiredness from a required-only allOf member next to a $ref', () => {
+    const doc = {
+      openapi: '3.0.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Base: { type: 'object', properties: { id: { type: 'string' }, name: { type: 'string' } } } } },
+    } as Document
+    const node = parseSchema(
+      { document: doc, refs: createRefs(doc) },
+      { schema: { allOf: [{ $ref: '#/components/schemas/Base' }, { required: ['id', 'name'] }] } },
+    )
+    const [, object] = ast.narrowSchema(node, 'intersection')?.members ?? []
+
+    expect(ast.narrowSchema(object!, 'object')?.properties?.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([
+      ['id', true, 'string'],
+      ['name', true, 'string'],
+    ])
+  })
+
   it('produces an intersection for multiple allOf members', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
