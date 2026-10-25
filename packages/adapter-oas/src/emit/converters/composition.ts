@@ -176,10 +176,12 @@ function hoistAnnotationOnlyMembers(schema: SchemaObject): SchemaObject {
   const members = schema.allOf as Array<SchemaObject | ReferenceObject>
   const kept = members.filter((member) => !isAnnotationOnly(member))
 
-  if (kept.length === members.length || kept.length === 0) return schema
+  if (kept.length === members.length) return schema
 
   const { if: _if, then: _then, else: _else, $comment: _comment, ...annotations } = Object.assign({}, ...members.filter(isAnnotationOnly))
-  return { ...annotations, ...schema, allOf: kept }
+  const { allOf: _allOf, ...rest } = schema
+  // With nothing left to intersect, `allOf` goes away and the schema parses as its own properties.
+  return { ...annotations, ...rest, ...(kept.length ? { allOf: kept } : {}) }
 }
 
 /**
@@ -187,6 +189,7 @@ function hoistAnnotationOnlyMembers(schema: SchemaObject): SchemaObject {
  */
 export function convertAllOf({ schema: original, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
   const schema = hoistAnnotationOnlyMembers(original)
+  if (!schema.allOf) return parse({ schema, name })
 
   if (
     schema.allOf!.length === 1 &&
