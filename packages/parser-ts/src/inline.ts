@@ -1,5 +1,5 @@
 import type { ast } from '@kubb/ast'
-import { parse, type TokenList, TokenKind } from 'yuku-parser'
+import { parse, TokenKind } from 'yuku-parser'
 
 // A name followed by `:` or `?:` right after one of these is a key or parameter name (`{ Name: x }`, `(Name: x)`).
 const keyStarts = new Set<number>([TokenKind.LeftBrace, TokenKind.Comma, TokenKind.Semicolon, TokenKind.LeftParen])
@@ -11,25 +11,22 @@ const keyStarts = new Set<number>([TokenKind.LeftBrace, TokenKind.Comma, TokenKi
 export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined, lang: 'ts' | 'tsx' = 'ts'): string {
   // Generated fragments such as `options: Options<Pet>` are not whole programs; yuku still tokenizes them.
   const tokens = parse(text, { lang, sourceType: 'module', tokens: true }).tokens!
+  // `TokenList` is indexed, not iterable; a plain array also makes the neighbours of a token `undefined` at the ends.
+  const kinds = Array.from({ length: tokens.length }, (_, i) => tokens.kind(i))
   let out = ''
   let last = 0
-  // `TokenList` is indexed, not iterable.
-  for (const i of Array.from({ length: tokens.length }).keys()) {
-    const replacement = tokens.kind(i) === TokenKind.Identifier && isReference(tokens, i) ? replace(tokens.text(i)) : undefined
+  for (const [i, kind] of kinds.entries()) {
+    if (kind !== TokenKind.Identifier || kinds[i - 1] === TokenKind.Dot || kinds[i - 1] === TokenKind.OptionalChaining) continue
+    const isKey = kinds[i + 1] === TokenKind.Colon || (kinds[i + 1] === TokenKind.Question && kinds[i + 2] === TokenKind.Colon)
+    // `? Name :` in a conditional type is a reference.
+    if (isKey && (i === 0 || tokens.newlineBefore(i) || keyStarts.has(kinds[i - 1]!))) continue
+
+    const replacement = replace(tokens.text(i))
     if (replacement === undefined) continue
     out += text.slice(last, tokens.start(i)) + replacement
     last = tokens.end(i)
   }
   return out + text.slice(last)
-}
-
-function isReference(tokens: TokenList, i: number): boolean {
-  const kind = (index: number): number | undefined => (index >= 0 && index < tokens.length ? tokens.kind(index) : undefined)
-  const previous = kind(i - 1)
-  if (previous === TokenKind.Dot || previous === TokenKind.OptionalChaining) return false
-  const isKey = kind(i + 1) === TokenKind.Colon || (kind(i + 1) === TokenKind.Question && kind(i + 2) === TokenKind.Colon)
-  // `? Name :` in a conditional type is a reference.
-  return !(isKey && (previous === undefined || tokens.newlineBefore(i) || keyStarts.has(previous)))
 }
 
 function createInline(lang: 'ts' | 'tsx'): ast.InlineLanguage {
