@@ -1339,6 +1339,12 @@ describe('parseSchema const (OAS 3.1)', () => {
     expect(node).toMatchObject({ type: 'enum', enumValues: [value] })
   })
 
+  it('narrows a $ref with a sibling const to the literal', () => {
+    const node = parseSchema(emptyCtx, { schema: { $ref: '#/components/schemas/KindEnum', const: 'circle' } })
+
+    expect(node).toMatchObject({ type: 'enum', enumValues: ['circle'] })
+  })
+
   it('boolean const inside an object property has no name (inline literal)', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
