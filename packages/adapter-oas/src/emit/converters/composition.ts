@@ -187,7 +187,10 @@ export function convertAllOf({ schema, name, nullable, defaultValue, parse, refs
     refs,
   })
   const siblingProperties = collectSiblingProperties(schema.allOf as Array<SchemaObject | ReferenceObject>, refs, schema.properties)
-  const resolvedAllOf = discriminatedAllOf.map((s) => (isReference(s) ? s : resolveUnionSchema(s as SchemaObject, siblingProperties)))
+  // A required-only member (`- required: [id]`) borrows its property schemas from the siblings so the requiredness survives.
+  const resolvedAllOf = discriminatedAllOf.map((s) =>
+    isReference(s) ? s : resolveUnionSchema(resolveUnionMembers([s], siblingProperties)[0] as SchemaObject, siblingProperties),
+  )
   const allOfMembers: Array<ast.SchemaNode> = resolvedAllOf.map((s) => parse({ schema: s as SchemaObject, name }))
 
   const syntheticStart = allOfMembers.length
