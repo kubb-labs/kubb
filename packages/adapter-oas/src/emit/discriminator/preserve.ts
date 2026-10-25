@@ -28,7 +28,7 @@ export function coerceDiscriminatorValues(keys: Array<string>, propertyType: unk
 /**
  * Reads the declared `type` of `propertyName` on a schema, following a `$ref` on the schema or the property.
  */
-function discriminatorPropertyType(schema: SchemaObject | ReferenceObject | undefined, propertyName: string, refs: Refs): unknown {
+export function discriminatorPropertyType(schema: SchemaObject | ReferenceObject | undefined, propertyName: string, refs: Refs): unknown {
   const resolved = schema && isReference(schema) ? refs.resolve<SchemaObject>(schema.$ref, { report: false }) : (schema as SchemaObject | undefined)
   const prop = resolved?.properties?.[propertyName]
   const propSchema = prop && isReference(prop) ? refs.resolve<SchemaObject>(prop.$ref, { report: false }) : (prop as SchemaObject | undefined)
@@ -156,7 +156,7 @@ export function narrowUnionMembers({
     const sharedType = sharedPropertiesNode
       ? ast.narrowSchema(sharedPropertiesNode, 'object')?.properties.find((p) => p.name === discriminator?.propertyName)?.schema.type
       : undefined
-    const propertyType = sharedType ?? discriminatorPropertyType(s as SchemaObject, discriminator?.propertyName ?? '', refs)
+    const propertyType = discriminatorPropertyType(s as SchemaObject, discriminator?.propertyName ?? '', refs) ?? sharedType
     const discriminatorValues = coerceDiscriminatorValues(mappedValues.length ? mappedValues : implicitValue ? [implicitValue] : [], propertyType)
     const memberNode = parse({ schema: s as SchemaObject, name })
 

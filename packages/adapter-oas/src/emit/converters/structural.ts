@@ -1,6 +1,6 @@
 import { ast, childName, enumPropName, macroDiscriminatorEnum, macroEnumName } from '@kubb/kit'
 import { isDiscriminator, isNullable } from '../../oas.ts'
-import { coerceDiscriminatorValues } from '../discriminator/preserve.ts'
+import { coerceDiscriminatorValues, discriminatorPropertyType } from '../discriminator/preserve.ts'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
@@ -37,7 +37,7 @@ function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | 
 /**
  * Converts an object-like schema into an `ObjectSchemaNode`.
  */
-export function convertObject({ schema, name, nullable, defaultValue, options, parse }: ConvertContext): ast.SchemaNode {
+export function convertObject({ schema, name, nullable, defaultValue, options, parse, refs }: ConvertContext): ast.SchemaNode {
   const properties: Array<ast.PropertyNode> = schema.properties
     ? Object.entries(schema.properties).map(([propName, propSchema]) => {
         const required = Array.isArray(schema.required) ? schema.required.includes(propName) : !!schema.required
@@ -89,7 +89,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
 
   if (isDiscriminator(schema) && schema.discriminator.mapping) {
     const discPropName = schema.discriminator.propertyName
-    const values = coerceDiscriminatorValues(Object.keys(schema.discriminator.mapping), (schema.properties?.[discPropName] as SchemaObject | undefined)?.type)
+    const values = coerceDiscriminatorValues(Object.keys(schema.discriminator.mapping), discriminatorPropertyType(schema, discPropName, refs))
     const enumName = name ? enumPropName(name, discPropName, options.enumSuffix) : undefined
     return ast.applyMacros(objectNode, [macroDiscriminatorEnum({ propertyName: discPropName, values, enumName })], { depth: 'shallow' })
   }
