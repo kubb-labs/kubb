@@ -128,12 +128,14 @@ export function getParameters({ operation, refs }: OperationContext): Array<{ pa
   return Array.from(paramMap.values())
 }
 
-/** The `encoding` of a media type, reduced to the entries that set a field Kubb carries. */
+const PARAMETER_STYLES = new Set(['matrix', 'label', 'form', 'simple', 'spaceDelimited', 'pipeDelimited', 'deepObject'])
+
+/** The `encoding` of a media type, reduced to the entries that set a field Kubb carries. A `style` outside the OpenAPI set is dropped. */
 function getEncoding(encoding: MediaTypeObject['encoding']): Record<string, ast.EncodingNode> | undefined {
   const entries = Object.entries(encoding ?? {}).flatMap(([property, { contentType, style, explode, allowReserved }]) => {
     const node: ast.EncodingNode = {
       ...(contentType !== undefined ? { contentType } : {}),
-      ...(style !== undefined ? { style: style as ast.ParameterStyle } : {}),
+      ...(style !== undefined && PARAMETER_STYLES.has(style) ? { style: style as ast.ParameterStyle } : {}),
       ...(explode !== undefined ? { explode } : {}),
       ...(allowReserved !== undefined ? { allowReserved } : {}),
     }

@@ -435,6 +435,31 @@ describe('buildAst', () => {
       ])
     })
 
+    it('drops an encoding style outside the OpenAPI set', async () => {
+      const root = await parseOas({
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/u': {
+            post: {
+              operationId: 'badStyle',
+              requestBody: {
+                content: {
+                  'application/x-www-form-urlencoded': {
+                    schema: { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
+                    encoding: { a: { style: "x'; throw 1; '", explode: true }, b: { style: 'bogus' } },
+                  },
+                },
+              },
+              responses: { '204': { description: 'ok' } },
+            },
+          },
+        },
+      })
+
+      expect(findOperation(root, 'badStyle')?.requestBody?.content?.[0]?.encoding).toStrictEqual({ a: { explode: true } })
+    })
+
     it('leaves the encoding key off a body without encoding', async () => {
       const root = await parseOas(multipartUploadDocument)
       const content = findOperation(root, 'upload')?.requestBody?.content
