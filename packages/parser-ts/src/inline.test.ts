@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { inlineTs, replaceIdentifiers } from './inline.ts'
+import { inlineTs, inlineTsx, replaceIdentifiers } from './inline.ts'
 
 describe('replaceIdentifiers', () => {
   const swap = (text: string) => replaceIdentifiers(text, (name) => (name === 'Name' ? 'Pet' : undefined))
@@ -17,6 +17,15 @@ describe('replaceIdentifiers', () => {
     expect(swap('x.Name x?.Name')).toBe('x.Name x?.Name')
     expect(swap('{ Name: 1, Name?: 2 }\n(Name: string) => void')).toBe('{ Name: 1, Name?: 2 }\n(Name: string) => void')
     expect(swap('NameKey PetName 0xName')).toBe('NameKey PetName 0xName')
+  })
+
+  it('reads past a quote inside a regex literal', () => {
+    expect(swap("const r = /'/; let p: Name")).toBe("const r = /'/; let p: Pet")
+  })
+
+  it('leaves JSX text and attribute names alone in tsx', () => {
+    const text = '<Name Name="x">Name {Name}</Name>'
+    expect(inlineTsx.replaceIdentifiers(text, (name) => (name === 'Name' ? 'Pet' : undefined))).toBe('<Name Name="x">Name {Pet}</Name>')
   })
 })
 

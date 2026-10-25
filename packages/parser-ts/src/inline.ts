@@ -1,94 +1,50 @@
 import type { ast } from '@kubb/ast'
+import { parse, type TokenList, TokenKind } from 'yuku-parser'
 
-const IDENTIFIER = /[A-Za-z_$][\w$]*/y
+// A name followed by `:` or `?:` right after one of these is a key or parameter name (`{ Name: x }`, `(Name: x)`).
+const keyStarts = new Set<number>([TokenKind.LeftBrace, TokenKind.Comma, TokenKind.Semicolon, TokenKind.LeftParen])
 
 /**
  * Calls `replace` for every identifier that references something, and swaps in what it returns.
- * Strings, comments, member access (`x.Name`) and object keys (`{ Name: 1 }`) are left alone.
- *
- * shortcut: a regex literal is scanned as code, so a quote inside one can hide the identifiers after it; parse with TypeScript if generated code starts mixing regex literals with inline names.
+ * yuku's tokens leave out strings, comments and template text; member access (`x.Name`) and keys are skipped here.
  */
-export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined): string {
+export function replaceIdentifiers(text: string, replace: (name: string) => string | undefined, lang: 'ts' | 'tsx' = 'ts'): string {
+  // Generated fragments such as `options: Options<Pet>` are not whole programs; yuku still tokenizes them.
+  const tokens = parse(text, { lang, sourceType: 'module', tokens: true }).tokens!
   let out = ''
-  let i = 0
-  // `true` for a `${` inside a template literal, `false` for a plain `{`, so each `}` knows whether the template resumes.
-  const braces: Array<boolean> = []
-  const copy = (end: number) => {
-    out += text.slice(i, end)
-    i = end
+  let last = 0
+  for (let i = 0; i < tokens.length; i++) {
+    const replacement = tokens.kind(i) === TokenKind.Identifier && isReference(tokens, i) ? replace(tokens.text(i)) : undefined
+    if (replacement === undefined) continue
+    out += text.slice(last, tokens.start(i)) + replacement
+    last = tokens.end(i)
   }
-  const template = () => {
-    while (i < text.length) {
-      if (text[i] === '\\') copy(i + 2)
-      else if (text[i] === '`') return copy(i + 1)
-      else if (text[i] === '$' && text[i + 1] === '{') {
-        braces.push(true)
-        return copy(i + 2)
-      } else copy(i + 1)
-    }
-  }
-
-  while (i < text.length) {
-    const char = text[i]!
-    const next = text[i + 1]
-    if (char === '/' && next === '/') {
-      const end = text.indexOf('\n', i)
-      copy(end === -1 ? text.length : end)
-    } else if (char === '/' && next === '*') {
-      const end = text.indexOf('*/', i + 2)
-      copy(end === -1 ? text.length : end + 2)
-    } else if (char === '"' || char === "'") {
-      let end = i + 1
-      while (end < text.length && text[end] !== char) end += text[end] === '\\' ? 2 : 1
-      copy(end + 1)
-    } else if (char === '`') {
-      copy(i + 1)
-      template()
-    } else if (char === '{') {
-      braces.push(false)
-      copy(i + 1)
-    } else if (char === '}') {
-      copy(i + 1)
-      if (braces.pop()) template()
-    } else if (char >= '0' && char <= '9') {
-      // A number such as `1e5` or `0x1F`: its letters are not identifiers.
-      let end = i + 1
-      while (end < text.length && /[\w$.]/.test(text[end]!)) end++
-      copy(end)
-    } else {
-      IDENTIFIER.lastIndex = i
-      const name = IDENTIFIER.exec(text)?.[0]
-      if (!name) {
-        copy(i + 1)
-        continue
-      }
-      const end = i + name.length
-      out += (isReference(text, i, end) ? replace(name) : undefined) ?? name
-      i = end
-    }
-  }
-  return out
+  return out + text.slice(last)
 }
 
-function isReference(text: string, start: number, end: number): boolean {
-  let before = start - 1
-  while (before >= 0 && (text[before] === ' ' || text[before] === '\t')) before--
-  const previous = before < 0 ? '\n' : text[before]!
-  // Member access `x.Name` or `x?.Name`, but not a spread `...Name`.
-  if (previous === '.' && text[before - 1] !== '.') return false
+function isReference(tokens: TokenList, i: number): boolean {
+  const kind = (index: number): number | undefined => (index >= 0 && index < tokens.length ? tokens.kind(index) : undefined)
+  const previous = kind(i - 1)
+  if (previous === TokenKind.Dot || previous === TokenKind.OptionalChaining) return false
+  const isKey = kind(i + 1) === TokenKind.Colon || (kind(i + 1) === TokenKind.Question && kind(i + 2) === TokenKind.Colon)
+  // `? Name :` in a conditional type is a reference.
+  return !(isKey && (previous === undefined || tokens.newlineBefore(i) || keyStarts.has(previous)))
+}
 
-  let after = end
-  while (after < text.length && (text[after] === ' ' || text[after] === '\t')) after++
-  const isKey = text[after] === ':' || (text[after] === '?' && text[after + 1] === ':')
-  // A key or parameter name (`{ Name: x }`, `(Name: x)`); `? Name :` in a conditional type is a reference.
-  return !(isKey && '{,;(\n\r'.includes(previous))
+function createInline(lang: 'ts' | 'tsx'): ast.InlineLanguage {
+  return {
+    replaceIdentifiers: (text, replace) => replaceIdentifiers(text, replace, lang),
+    wrap: (expression) => (/^[\w$.]+$/.test(expression) ? expression : `(${expression})`),
+  }
 }
 
 /**
  * Inline support for TypeScript and JavaScript files: identifiers are found with {@link replaceIdentifiers},
  * and a definition that is more than a name or a dotted path goes in parentheses.
  */
-export const inlineTs: ast.InlineLanguage = {
-  replaceIdentifiers,
-  wrap: (expression) => (/^[\w$.]+$/.test(expression) ? expression : `(${expression})`),
-}
+export const inlineTs = createInline('ts')
+
+/**
+ * {@link inlineTs} for `.tsx` and `.jsx` files, where JSX text and attribute names are not identifiers.
+ */
+export const inlineTsx = createInline('tsx')
