@@ -207,7 +207,7 @@ describe('buildAst', () => {
       const $ref = '#/paths/~1foo/get/responses/200/content/application~1json/schema'
       const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref, description: 'used here', default: {} } })
 
-      expect([node.type, node.description, (node as { default?: unknown }).default]).toStrictEqual(['object', 'used here', {}])
+      expect([node.type, node.description, ast.narrowSchema(node, 'object')?.default]).toStrictEqual(['object', 'used here', {}])
     })
   })
 

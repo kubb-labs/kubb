@@ -131,12 +131,14 @@ export function convertRef({ schema, name, nullable, defaultValue, document, par
   // A target outside `components.schemas` is never emitted as its own file, so inline it. A circular
   // ref leaves `resolvedSchema` null and still becomes a ref node.
   if (refPath && !refPath.startsWith(SCHEMA_REF_PREFIX) && resolvedSchema) {
-    const { title, description, deprecated, readOnly, writeOnly } = schema
-    const site = Object.entries({ title, description, deprecated, readOnly, writeOnly, default: defaultValue }).filter(([, value]) => value !== undefined)
-
     return ast.factory.createSchema({
       ...resolvedSchema,
-      ...Object.fromEntries(site),
+      title: schema.title ?? resolvedSchema.title,
+      description: schema.description ?? resolvedSchema.description,
+      deprecated: schema.deprecated ?? resolvedSchema.deprecated,
+      readOnly: schema.readOnly ?? resolvedSchema.readOnly,
+      writeOnly: schema.writeOnly ?? resolvedSchema.writeOnly,
+      default: defaultValue ?? resolvedSchema.default,
       name: name ?? resolvedSchema.name,
       nullable: nullable ?? resolvedSchema.nullable,
     })
