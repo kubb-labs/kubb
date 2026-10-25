@@ -1,4 +1,4 @@
-import { ast, extractRefName, macroDiscriminatorEnum } from '@kubb/kit'
+import { ast, discriminatorPrimitive, extractRefName, macroDiscriminatorEnum } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
@@ -8,8 +8,7 @@ import type { ParseFn } from '../parseSchema.ts'
 type DiscriminatorValue = string | number | boolean
 
 /**
- * Mapping keys are always strings. Turns them into the discriminator property's type when they
- * parse cleanly, so `'1'` on an integer property becomes `1` instead of a clashing string literal.
+ * Turns string mapping keys into the discriminator property's type when they parse cleanly.
  */
 export function coerceDiscriminatorValues(keys: Array<string>, propertyType: unknown): Array<DiscriminatorValue> {
   return keys.map((key) => {
@@ -35,14 +34,17 @@ export function discriminatorPropertyType(
   refs: Refs,
   seen = new Set<string>(),
 ): unknown {
-  if (schema && isReference(schema) && seen.has(schema.$ref)) return undefined
-  if (schema && isReference(schema)) seen.add(schema.$ref)
+  const deref = (value: SchemaObject | ReferenceObject | undefined) =>
+    value && isReference(value) ? refs.resolve<SchemaObject>(value.$ref, { report: false }) : value
 
-  const resolved = schema && isReference(schema) ? refs.resolve<SchemaObject>(schema.$ref, { report: false }) : (schema as SchemaObject | undefined)
-  const prop = resolved?.properties?.[propertyName]
-  const propSchema = prop && isReference(prop) ? refs.resolve<SchemaObject>(prop.$ref, { report: false }) : (prop as SchemaObject | undefined)
+  if (schema && isReference(schema)) {
+    if (seen.has(schema.$ref)) return undefined
+    seen.add(schema.$ref)
+  }
+
+  const resolved = deref(schema) as SchemaObject | undefined
   const type =
-    propSchema?.type ??
+    (deref(resolved?.properties?.[propertyName] as SchemaObject | ReferenceObject | undefined) as SchemaObject | undefined)?.type ??
     resolved?.allOf?.map((member) => discriminatorPropertyType(member as SchemaObject | ReferenceObject, propertyName, refs, seen)).find(Boolean)
   const nonNull = Array.isArray(type) ? type.filter((t) => t !== 'null') : []
 
@@ -67,7 +69,7 @@ export function createDiscriminantNode({ propertyName, values }: { propertyName:
         name: propertyName,
         schema: ast.factory.createSchema({
           type: 'enum',
-          primitive: typeof values[0] === 'number' ? 'number' : typeof values[0] === 'boolean' ? 'boolean' : 'string',
+          primitive: discriminatorPrimitive(values),
           enumValues: values,
         }),
         required: true,

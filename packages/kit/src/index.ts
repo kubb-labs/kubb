@@ -1,6 +1,6 @@
 export { ast } from '@kubb/ast'
 export { Url } from './Url.ts'
-export { macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
+export { discriminatorPrimitive, macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
 export { macroEnumName } from './macros/macroEnumName.ts'
 export { macroRenameSchema } from './macros/macroRenameSchema.ts'
 export { macroSimplifyUnion } from './macros/macroSimplifyUnion.ts'
