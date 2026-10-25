@@ -116,14 +116,12 @@ describe('inlineFiles', () => {
     expect(code(files[0])).toEqual(['let tree: ({ children: Array<TreeNode> })'])
   })
 
-  it('reports a name the virtual file does not define, and a re-export of it', () => {
+  it('reports a name the virtual file does not define', () => {
     const file = clientFile('const status: AddPetStatus404 = client()', {
       imports: [createImport({ name: ['AddPetStatus404'], path: '/gen/models/pet/AddPet.ts', root: '/gen/clients/addPet.ts' })],
-      exports: [{ kind: 'Export', path: '/gen/models/pet/AddPet.ts' }],
     })
 
     expect(inlineFiles([operationFile, file]).problems).toEqual([
-      { path: '/gen/clients/addPet.ts', message: 'Re-exports "/gen/models/pet/AddPet.ts", which is never written.' },
       {
         path: '/gen/clients/addPet.ts',
         message: '"AddPetStatus404" is imported from "/gen/models/pet/AddPet.ts", which never writes it and has no inline definition for it.',

@@ -129,7 +129,7 @@ Marks a block of source text that belongs to the enclosing `File`. The children 
 </File.Source>
 ```
 
-`inline.expression` is the right-hand side of the declaration. When every source in a file is inline, Kubb does not write that file. Before barrels are built, it replaces each name another file imports from it with `(expression)`, and moves over the imports the expression needs.
+`inline.expression` is the right-hand side of the declaration. When every source in a file is inline, Kubb does not write that file. Before barrels are built, it replaces each name another file imports from it with the expression, in parentheses unless it is a plain name such as `Pet`, and moves over the imports the expression needs.
 
 ```tsx
 <File.Source name="AddPetStatus200" isTypeOnly isExportable inline={{ expression: 'Pet' }}>

@@ -104,10 +104,6 @@ export function inlineFiles(files: ReadonlyArray<FileNode>): InlineFilesResult {
 
   for (const file of files) {
     if (virtualFiles.has(file.path) || !file.imports.some((imp) => virtualFiles.has(imp.path))) continue
-    for (const exp of file.exports) {
-      if (virtualFiles.has(exp.path)) result.problems.push({ path: file.path, message: `Re-exports "${exp.path}", which is never written.` })
-    }
-
     const carried: Array<ImportNode> = []
     const rewrite = (input: string) => {
       const { text, imports } = substitute(input, file)

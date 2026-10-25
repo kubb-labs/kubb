@@ -468,11 +468,12 @@ export class KubbDriver {
 
     this.fileManager.add(...files)
     this.fileManager.delete(...virtualPaths)
-    for (const { path, message } of problems) {
+    // One diagnostic for all problems: `Diagnostics.dedupe` keeps one per code when there is no location.
+    if (problems.length > 0) {
       Diagnostics.report({
         code: Diagnostics.code.inlineFailed,
         severity: 'error',
-        message: `${path}: ${message}`,
+        message: problems.map(({ path, message }) => `${path}: ${message}`).join('\n'),
         help: 'Give every name the file imports an inline definition, or stop marking the source as inline.',
       })
     }

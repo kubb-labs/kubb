@@ -128,8 +128,14 @@ describe('createKubb', () => {
     const client = ast.factory.createFile({
       path: '/gen/clients/addPet.ts',
       baseName: 'addPet.ts',
-      imports: [ast.factory.createImport({ name: ['AddPetBody', 'AddPetStatus404'], path: '/gen/types/AddPet.ts', root: '/gen/clients/addPet.ts' })],
-      sources: [ast.factory.createSource({ nodes: [ast.factory.createText('export function addPet(body: AddPetBody, status: AddPetStatus404) {}')] })],
+      imports: [
+        ast.factory.createImport({ name: ['AddPetBody', 'AddPetStatus404', 'AddPetStatus500'], path: '/gen/types/AddPet.ts', root: '/gen/clients/addPet.ts' }),
+      ],
+      sources: [
+        ast.factory.createSource({
+          nodes: [ast.factory.createText('export function addPet(body: AddPetBody, status: AddPetStatus404 | AddPetStatus500) {}')],
+        }),
+      ],
     })
     const injector = defineExtension({
       kind: 'plugin',
@@ -150,10 +156,12 @@ describe('createKubb', () => {
       {
         path: '/gen/clients/addPet.ts',
         imports: [],
-        code: [{ kind: 'Text', value: 'export function addPet(body: ({ name: string }), status: AddPetStatus404) {}' }],
+        code: [{ kind: 'Text', value: 'export function addPet(body: ({ name: string }), status: AddPetStatus404 | AddPetStatus500) {}' }],
       },
     ])
-    expect(diagnostics).toEqual(expect.arrayContaining([expect.objectContaining({ code: Diagnostics.code.inlineFailed, severity: 'error' })]))
+    // Both missing names survive `Diagnostics.dedupe`, in one diagnostic.
+    const inlineFailed = diagnostics.filter((diagnostic) => 'code' in diagnostic && diagnostic.code === Diagnostics.code.inlineFailed)
+    expect(inlineFailed).toEqual([expect.objectContaining({ severity: 'error', message: expect.stringMatching(/AddPetStatus404[\s\S]*AddPetStatus500/) })])
   })
 
   test('stops before setup when its signal is aborted', async () => {
