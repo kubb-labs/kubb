@@ -5,6 +5,36 @@ import type { Refs } from '../../refs.ts'
 import type { DiscriminatorObject, ReferenceObject, SchemaObject } from '../../types.ts'
 import type { ParseFn } from '../parseSchema.ts'
 
+type DiscriminatorValue = string | number | boolean
+
+/**
+ * Mapping keys are always strings. Turns them into the discriminator property's type when they
+ * parse cleanly, so `'1'` on an integer property becomes `1` instead of a clashing string literal.
+ */
+export function coerceDiscriminatorValues(keys: Array<string>, propertyType: unknown): Array<DiscriminatorValue> {
+  return keys.map((key) => {
+    if (propertyType === 'integer' || propertyType === 'number') {
+      const value = Number(key)
+      return key.trim() !== '' && Number.isFinite(value) ? value : key
+    }
+    if (propertyType === 'boolean') {
+      const lower = key.toLowerCase()
+      return lower === 'true' ? true : lower === 'false' ? false : key
+    }
+    return key
+  })
+}
+
+/**
+ * Reads the declared `type` of `propertyName` on a schema, following a `$ref` on the schema or the property.
+ */
+export function discriminatorPropertyType(schema: SchemaObject | ReferenceObject | undefined, propertyName: string, refs: Refs): unknown {
+  const resolved = schema && isReference(schema) ? refs.resolve<SchemaObject>(schema.$ref, { report: false }) : (schema as SchemaObject | undefined)
+  const prop = resolved?.properties?.[propertyName]
+  const propSchema = prop && isReference(prop) ? refs.resolve<SchemaObject>(prop.$ref, { report: false }) : (prop as SchemaObject | undefined)
+  return propSchema?.type
+}
+
 /**
  * Creates a single-property object schema used as a discriminator literal.
  *
@@ -14,7 +44,7 @@ import type { ParseFn } from '../parseSchema.ts'
  * // -> { type: 'object', properties: [{ name: 'type', required: true, schema: enum('dog') }] }
  * ```
  */
-export function createDiscriminantNode({ propertyName, values }: { propertyName: string; values: Array<string> }): ast.SchemaNode {
+export function createDiscriminantNode({ propertyName, values }: { propertyName: string; values: Array<DiscriminatorValue> }): ast.SchemaNode {
   return ast.factory.createSchema({
     type: 'object',
     primitive: 'object',
@@ -23,7 +53,7 @@ export function createDiscriminantNode({ propertyName, values }: { propertyName:
         name: propertyName,
         schema: ast.factory.createSchema({
           type: 'enum',
-          primitive: 'string',
+          primitive: typeof values[0] === 'number' ? 'number' : typeof values[0] === 'boolean' ? 'boolean' : 'string',
           enumValues: values,
         }),
         required: true,
@@ -123,7 +153,11 @@ export function narrowUnionMembers({
     const ref = isReference(s) ? s.$ref : undefined
     const mappedValues = findDiscriminators(discriminator?.mapping, ref)
     const implicitValue = mappedValues.length ? null : implicitDiscriminantValue(s)
-    const discriminatorValues = mappedValues.length ? mappedValues : implicitValue ? [implicitValue] : []
+    const sharedType = sharedPropertiesNode
+      ? ast.narrowSchema(sharedPropertiesNode, 'object')?.properties.find((p) => p.name === discriminator?.propertyName)?.schema.type
+      : undefined
+    const propertyType = sharedType ?? discriminatorPropertyType(s as SchemaObject, discriminator?.propertyName ?? '', refs)
+    const discriminatorValues = coerceDiscriminatorValues(mappedValues.length ? mappedValues : implicitValue ? [implicitValue] : [], propertyType)
     const memberNode = parse({ schema: s as SchemaObject, name })
 
     if (!discriminatorValues.length || !discriminator) {
@@ -170,9 +204,9 @@ export function extractDiscriminatedAllOfMembers({
   refs: Refs
 }): {
   members: Array<SchemaObject | ReferenceObject>
-  discriminantValues: Array<{ propertyName: string; values: Array<string> }>
+  discriminantValues: Array<{ propertyName: string; values: Array<DiscriminatorValue> }>
 } {
-  const discriminantValues: Array<{ propertyName: string; values: Array<string> }> = []
+  const discriminantValues: Array<{ propertyName: string; values: Array<DiscriminatorValue> }> = []
 
   const members = allOfMembers.filter((item) => {
     if (!isReference(item) || !name) return true
@@ -186,10 +220,9 @@ export function extractDiscriminatedAllOfMembers({
     if (inOneOf || inMapping) {
       const values = findDiscriminators(deref.discriminator.mapping, childRef)
       if (values.length) {
-        discriminantValues.push({
-          propertyName: deref.discriminator.propertyName,
-          values,
-        })
+        const { propertyName } = deref.discriminator
+        const propertyType = discriminatorPropertyType(deref, propertyName, refs) ?? discriminatorPropertyType({ $ref: childRef }, propertyName, refs)
+        discriminantValues.push({ propertyName, values: coerceDiscriminatorValues(values, propertyType) })
       }
       return false
     }

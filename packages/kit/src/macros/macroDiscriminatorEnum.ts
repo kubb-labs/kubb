@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 
 type Props = {
   propertyName: string
-  values: Array<string>
+  values: Array<string | number | boolean>
   enumName?: string
 }
 
@@ -33,7 +33,7 @@ export function macroDiscriminatorEnum({ propertyName, values, enumName }: Props
             ...prop,
             schema: ast.factory.createSchema({
               type: 'enum',
-              primitive: 'string',
+              primitive: typeof values[0] === 'number' ? 'number' : typeof values[0] === 'boolean' ? 'boolean' : 'string',
               enumValues: values,
               name: enumName,
               readOnly: prop.schema.readOnly,

@@ -373,6 +373,45 @@ describe('adapterOas options', () => {
     expect(dog?.properties[1]).toMatchObject({ name: 'petType', required: true, schema: { type: 'enum', enumValues: ['dog'] } })
   })
 
+  it.each([
+    { type: 'integer', keys: ['1', '2'], expected: [[1], [2]] },
+    { type: 'number', keys: ['1.5', '2'], expected: [[1.5], [2]] },
+    { type: 'boolean', keys: ['True', 'false'], expected: [[true], [false]] },
+    { type: 'string', keys: ['1', '2'], expected: [['1'], ['2']] },
+    { type: 'integer', keys: ['one', '2'], expected: [['one'], [2]] },
+  ])('coerces mapping keys to the discriminator property type $type $keys', async ({ type, keys, expected }) => {
+    const child = () => ({ type: 'object', required: ['kind'], properties: { kind: { type } } })
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Parent: {
+              oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+              discriminator: { propertyName: 'kind', mapping: { [keys[0]!]: '#/components/schemas/A', [keys[1]!]: '#/components/schemas/B' } },
+            },
+            A: child(),
+            B: child(),
+          },
+        },
+      },
+    })
+
+    const union = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Parent')!,
+      'union',
+    )
+    const values = union?.members?.map((member) => {
+      const discriminant = ast.narrowSchema(ast.narrowSchema(member, 'intersection')!.members![1]!, 'object')
+      return ast.narrowSchema(discriminant!.properties[0]!.schema, 'enum')?.enumValues
+    })
+
+    expect(values).toStrictEqual(expected)
+  })
+
   it('lifts inline enums to named root schemas and refs them for enums: root', async () => {
     const spec = {
       openapi: '3.0.0',
