@@ -4,6 +4,22 @@ import type { SchemaNode } from '@kubb/ast'
 const SCALAR_PRIMITIVE_TYPES = new Set<string>(['string', 'number', 'integer', 'bigint', 'boolean'])
 
 /**
+ * Drops members that repeat an earlier one, ignoring the source `pointer` so equal schemas from
+ * different places in the spec still match.
+ */
+function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
+  const seen = new Set<string>()
+
+  return members.filter((member) => {
+    const key = JSON.stringify(member, (name, value) => (name === 'pointer' ? undefined : value))
+    if (seen.has(key)) return false
+    seen.add(key)
+
+    return true
+  })
+}
+
+/**
  * Filters union members, dropping enum members that a broader scalar primitive already covers.
  */
 function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
@@ -28,8 +44,8 @@ function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
 }
 
 /**
- * Removes union members a broader scalar primitive already covers, such as a multi-value string enum
- * sitting next to a plain `string`. Single-value enums are kept.
+ * Removes union members that repeat an earlier one, and members a broader scalar primitive already
+ * covers, such as a multi-value string enum sitting next to a plain `string`. Single-value enums are kept.
  *
  * @example
  * ```ts
@@ -42,7 +58,7 @@ export const macroSimplifyUnion = ast.defineMacro({
     const unionNode = ast.narrowSchema(node, 'union')
     if (!unionNode?.members?.length) return undefined
 
-    const simplified = simplifyUnionMembers(unionNode.members)
+    const simplified = simplifyUnionMembers(dedupeMembers(unionNode.members))
     if (simplified.length === unionNode.members.length) return undefined
 
     return { ...unionNode, members: simplified }
