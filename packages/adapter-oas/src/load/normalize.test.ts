@@ -45,7 +45,7 @@ describe('parseFromConfig', () => {
   it('upgrades an unquoted `swagger: 2.0` instead of dropping its definitions', async () => {
     const doc = await parseFromConfig({
       type: 'data',
-      data: 'swagger: 2.0\ninfo: { title: t, version: 1 }\npaths: {}\ndefinitions:\n  Pet:\n    properties:\n      name: { type: string }\n',
+      data: 'swagger: 2.0\ninfo: { title: t, version: 1.0.0 }\npaths: {}\ndefinitions:\n  Pet:\n    properties:\n      name: { type: string }\n',
     })
 
     expect(doc.openapi).toMatch(/^3\.1/)

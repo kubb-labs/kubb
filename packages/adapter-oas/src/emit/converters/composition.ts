@@ -153,6 +153,7 @@ const annotationKeys = new Set([
   'title',
   'example',
   'examples',
+  'default',
   'deprecated',
   'readOnly',
   'writeOnly',
