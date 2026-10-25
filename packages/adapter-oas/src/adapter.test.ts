@@ -477,6 +477,43 @@ describe('adapterOas options', () => {
     expect(values).toStrictEqual([[1], [2]])
   })
 
+  it.each([
+    { title: 'a nullable type array', member: { type: 'object', properties: { kind: { type: ['integer', 'null'] } } } },
+    { title: 'an allOf member', member: { allOf: [{ type: 'object', properties: { kind: { type: 'integer' } } }] } },
+    { title: 'a $ref inside allOf', member: { allOf: [{ $ref: '#/components/schemas/Base' }] } },
+  ])('coerces mapping keys when the member declares the discriminator through $title', async ({ member }) => {
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Base: { type: 'object', properties: { kind: { type: 'integer' } } },
+            Parent: {
+              oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
+              discriminator: { propertyName: 'kind', mapping: { '1': '#/components/schemas/A', '2': '#/components/schemas/B' } },
+            },
+            A: member,
+            B: member,
+          },
+        },
+      },
+    })
+
+    const union = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Parent')!,
+      'union',
+    )
+    const values = union?.members?.map((member) => {
+      const discriminant = ast.narrowSchema(ast.narrowSchema(member, 'intersection')!.members!.at(-1)!, 'object')
+      return ast.narrowSchema(discriminant!.properties[0]!.schema, 'enum')?.enumValues
+    })
+
+    expect(values).toStrictEqual([[1], [2]])
+  })
+
   it('lifts inline enums to named root schemas and refs them for enums: root', async () => {
     const spec = {
       openapi: '3.0.0',

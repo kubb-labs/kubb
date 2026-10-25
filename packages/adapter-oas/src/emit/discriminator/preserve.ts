@@ -26,13 +26,27 @@ export function coerceDiscriminatorValues(keys: Array<string>, propertyType: unk
 }
 
 /**
- * Reads the declared `type` of `propertyName` on a schema, following a `$ref` on the schema or the property.
+ * Reads the declared `type` of `propertyName` on a schema, following `$ref`s and `allOf` members.
+ * A nullable array such as `['integer', 'null']` reads as its one non-null type.
  */
-export function discriminatorPropertyType(schema: SchemaObject | ReferenceObject | undefined, propertyName: string, refs: Refs): unknown {
+export function discriminatorPropertyType(
+  schema: SchemaObject | ReferenceObject | undefined,
+  propertyName: string,
+  refs: Refs,
+  seen = new Set<string>(),
+): unknown {
+  if (schema && isReference(schema) && seen.has(schema.$ref)) return undefined
+  if (schema && isReference(schema)) seen.add(schema.$ref)
+
   const resolved = schema && isReference(schema) ? refs.resolve<SchemaObject>(schema.$ref, { report: false }) : (schema as SchemaObject | undefined)
   const prop = resolved?.properties?.[propertyName]
   const propSchema = prop && isReference(prop) ? refs.resolve<SchemaObject>(prop.$ref, { report: false }) : (prop as SchemaObject | undefined)
-  return propSchema?.type
+  const type =
+    propSchema?.type ??
+    resolved?.allOf?.map((member) => discriminatorPropertyType(member as SchemaObject | ReferenceObject, propertyName, refs, seen)).find(Boolean)
+  const nonNull = Array.isArray(type) ? type.filter((t) => t !== 'null') : []
+
+  return nonNull.length === 1 ? nonNull[0] : type
 }
 
 /**
