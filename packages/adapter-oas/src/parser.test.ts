@@ -173,7 +173,16 @@ describe('buildAst', () => {
     const document = {
       openapi: '3.0.0',
       info: { title: '', version: '' },
-      paths: { '/foo': { get: { responses: { '200': { description: 'OK', content: { 'application/json': { schema: { type: 'object' } } } } } } } },
+      paths: {
+        '/foo': {
+          get: {
+            responses: {
+              '200': { description: 'OK', content: { 'application/json': { schema: { type: 'object' } } } },
+              '404': { description: 'Missing', content: { 'application/json': { schema: { type: 'object', nullable: true } } } },
+            },
+          },
+        },
+      },
       components: { schemas: { Pet: { type: 'object', properties: { id: { type: 'integer' } } } } },
     } as Document
 
@@ -185,6 +194,13 @@ describe('buildAst', () => {
       const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref } })
 
       expect(node.type).toBe(type)
+    })
+
+    it('keeps the nullability of an inlined path ref used as a property', () => {
+      const $ref = '#/paths/~1foo/get/responses/404/content/application~1json/schema'
+      const node = parseSchema({ document, refs: createRefs(document) }, { schema: { type: 'object', properties: { a: { $ref } } } })
+
+      expect(ast.narrowSchema(node, 'object')?.properties?.[0]?.schema.nullable).toBe(true)
     })
 
     it('keeps the usage-site description and default on an inlined path ref', () => {
