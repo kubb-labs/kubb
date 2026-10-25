@@ -611,6 +611,32 @@ describe('adapterOas options', () => {
     expect(values).toStrictEqual(['string', ['FooBar']])
   })
 
+  it('resolves a $ref cycle between two aliases to unknown instead of a self-referencing type', async () => {
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Baz: { $ref: '#/components/schemas/Qux' },
+            Qux: { description: 'circular', $ref: '#/components/schemas/Baz' },
+            Pet: { type: 'object', properties: { id: { type: 'string' } } },
+            Dog: { $ref: '#/components/schemas/Pet' },
+          },
+        },
+      },
+    })
+
+    expect(Object.fromEntries(node.schemas.map((schema) => [schema.name, schema.type]))).toStrictEqual({
+      Baz: 'unknown',
+      Qux: 'unknown',
+      Pet: 'object',
+      Dog: 'object',
+    })
+  })
+
   it('lifts inline enums to named root schemas and refs them for enums: root', async () => {
     const spec = {
       openapi: '3.0.0',

@@ -124,6 +124,17 @@ export const adapterOas = defineExtension<AdapterOas>({
         for (const name of promotedEnums.keys()) enumNames.push(name)
       }
 
+      // A chain of pure aliases that leads back to `name` has no target to print, so it becomes `unknown`.
+      function isAliasCycle(name: string): boolean {
+        const seen = new Set([name])
+        for (let next = refAliasMap.get(name)?.name; next; next = refAliasMap.get(next)?.name) {
+          if (next === name) return true
+          if (seen.has(next)) return false
+          seen.add(next)
+        }
+        return false
+      }
+
       const schemaNodes: Array<ast.SchemaNode> = promotedEnums ? [...promotedEnums.values()] : []
       for (const name of Object.keys(schemas)) {
         const aliasTarget = refAliasMap.get(name)?.name
@@ -131,7 +142,11 @@ export const adapterOas = defineExtension<AdapterOas>({
         const parsed = parsedByName.get(name)!
         const child = discriminatorChildMap?.get(name)
         const base = child ? patchDiscriminatorNode(parsed, child) : parsed
-        const node = aliased ? { ...aliased, name, pointer: parsed.pointer } : base
+        const node = isAliasCycle(name)
+          ? ast.factory.createSchema({ type: 'unknown', name, pointer: parsed.pointer })
+          : aliased
+            ? { ...aliased, name, pointer: parsed.pointer }
+            : base
 
         schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)
       }
