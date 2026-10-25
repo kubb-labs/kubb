@@ -31,12 +31,8 @@ export function hasExternalRef(node: unknown): boolean {
 /**
  * Replaces each `$ref` into `#/paths/...` with a copy of its target, in place.
  *
- * Swagger 2.0 keeps a response schema at `responses/200/schema`, and the upgrade to 3.x moves it under
- * `content`. A bundled external `$ref` that was already used once points at that old location, so it
- * would not resolve after the upgrade. Refs into `definitions`, `parameters` and `responses` are
- * rewritten by the upgrade itself and are left alone.
- *
- * A ref that points back into itself is kept as is, because inlining it would never end.
+ * The Swagger 2.0 upgrade moves `responses/200/schema` under `content`, so a ref to the old location
+ * would no longer resolve. A ref that points back into itself is kept, since inlining it never ends.
  */
 function inlinePathRefs(node: unknown, resolve: (ref: string) => unknown, visiting: Array<string> = []): unknown {
   if (!node || typeof node !== 'object') {
