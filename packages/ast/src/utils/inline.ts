@@ -12,11 +12,17 @@ export function isVirtualFile(file: FileNode): boolean {
 }
 
 type InlineFilesResult = {
-  /** Files that imported an inline name, rewritten to hold its definition. */
+  /**
+   * Files that imported an inline name, rewritten to hold its definition.
+   */
   files: Array<FileNode>
-  /** Paths of the virtual files, which are not written. */
+  /**
+   * Paths of the virtual files, which are not written.
+   */
   virtualPaths: Array<string>
-  /** One message per name that could not be inlined. */
+  /**
+   * One message per name that could not be inlined.
+   */
   problems: Array<{ path: string; message: string }>
 }
 
@@ -26,14 +32,20 @@ type Definition = { expression: string; imports: Array<ImportNode> }
  * The language-specific half of {@link inlineFiles}, supplied by the parser that prints the file.
  */
 export type InlineLanguage = {
-  /** Swaps in what `replace` returns for every identifier in `text` that references a name, skipping strings and comments. */
+  /**
+   * Swaps in what `replace` returns for every identifier in `text` that references a name, skipping strings and comments.
+   */
   replaceIdentifiers(text: string, replace: (name: string) => string | undefined): string
-  /** Makes `expression` safe to put where a name was, such as `(A | B)` in TypeScript. */
+  /**
+   * Makes `expression` safe to put where a name was, such as `(A | B)` in TypeScript.
+   */
   wrap(expression: string): string
 }
 
 type InlineFilesOptions = {
-  /** The inline support for a file's language, or `undefined` when it has none. */
+  /**
+   * The inline support for a file's language, or `undefined` when it has none.
+   */
   language: (file: FileNode) => InlineLanguage | undefined
 }
 
