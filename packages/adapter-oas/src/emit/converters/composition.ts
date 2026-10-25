@@ -90,11 +90,9 @@ function resolveUnionMembers(members: Array<unknown>, siblingProperties: Record<
 }
 
 /**
- * Enriches any `oneOf` or `anyOf` branches on a schema object with properties from sibling schemas.
+ * Enriches a schema object, and any `oneOf` or `anyOf` branches on it, with properties from sibling schemas.
  */
 function resolveUnionSchema(schema: SchemaObject, siblingProperties: Record<string, unknown>): SchemaObject {
-  if (!schema.oneOf && !schema.anyOf) return schema
-
   const resolvedSchema = (resolveUnionMembers([schema], siblingProperties)[0] as SchemaObject) ?? schema
   const next: SchemaObject = { ...resolvedSchema }
   if (schema.oneOf) {
