@@ -148,48 +148,28 @@ export function convertNot({ schema, name, nullable, defaultValue, parse }: Conv
 }
 
 /**
- * Keywords that describe a schema or conditionally constrain it, but add no structure to the intersection.
+ * Keywords that describe a schema or conditionally constrain it, but add no structure.
  */
-const annotationKeys = new Set([
-  'description',
-  'title',
-  'example',
-  'examples',
-  'default',
-  'deprecated',
-  'readOnly',
-  'writeOnly',
-  '$comment',
-  'externalDocs',
-  'if',
-  'then',
-  'else',
-])
+const annotationKeys = new Set(['description', 'title', 'example', 'examples', 'default', 'deprecated', 'readOnly', 'writeOnly', 'if', 'then', 'else'])
 
 /**
- * Removes `allOf` members that only hold annotations or `if`/`then`/`else`, which would otherwise
- * become `unknown`, and copies their annotations onto the parent (the parent's own values win).
- * The conditional keywords are dropped, not enforced.
+ * Moves `allOf` members that hold only annotations or `if`/`then`/`else` onto the parent, so they do
+ * not become `unknown`. The parent's own values win, and the conditional keywords are not enforced.
  */
-function hoistAnnotationOnlyMembers(schema: SchemaObject): SchemaObject {
-  const isAnnotationOnly = (member: SchemaObject | ReferenceObject) => {
-    const keys = Object.keys(member)
-    return !isReference(member) && keys.length > 0 && keys.every((key) => annotationKeys.has(key))
-  }
+function hoistAnnotations(schema: SchemaObject): SchemaObject {
   const members = schema.allOf as Array<SchemaObject | ReferenceObject>
-  const kept = members.filter((member) => !isAnnotationOnly(member))
+  const isAnnotation = (member: SchemaObject | ReferenceObject) => !isReference(member) && Object.keys(member).every((key) => annotationKeys.has(key))
+  const annotations = members.filter(isAnnotation)
+  const rest = members.filter((member) => !isAnnotation(member))
 
-  if (kept.length === members.length || kept.length === 0) return schema
-
-  const { if: _if, then: _then, else: _else, $comment: _comment, ...annotations } = Object.assign({}, ...members.filter(isAnnotationOnly))
-  return { ...annotations, ...schema, allOf: kept }
+  return annotations.length && rest.length ? { ...Object.assign({}, ...annotations), ...schema, allOf: rest } : schema
 }
 
 /**
  * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
  */
 export function convertAllOf({ schema: original, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
-  const schema = hoistAnnotationOnlyMembers(original)
+  const schema = hoistAnnotations(original)
 
   if (
     schema.allOf!.length === 1 &&
