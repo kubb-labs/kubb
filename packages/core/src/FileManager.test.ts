@@ -370,6 +370,18 @@ describe('FileManager', () => {
   })
 })
 
+describe('FileManager#delete', () => {
+  it('removes stored and pending files from the listing', () => {
+    const manager = new FileManager()
+    manager.add(makeFile('/gen/a.ts', 'const a = 1'), makeFile('/gen/b.ts', 'const b = 1'))
+    void manager.dispatch({ result: [makeFile('/gen/c.ts', 'const c = 1')] })
+
+    manager.delete('/gen/a.ts', '/gen/c.ts')
+
+    expect(manager.files.map((file) => file.path)).toEqual(['/gen/b.ts'])
+  })
+})
+
 describe('FileManager#dispatch', () => {
   it.each([
     ['null', null],

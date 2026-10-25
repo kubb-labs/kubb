@@ -1,4 +1,4 @@
-import type { FileNode, UserFileNode } from '@kubb/ast'
+import type { FileNode, InlineLanguage, UserFileNode } from '@kubb/ast'
 import { defineExtension } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
 
@@ -35,6 +35,10 @@ export type Parser<TMeta extends object = object, TNode = unknown, TOptions exte
    * back to the parser as `FileNode.sources`.
    */
   print(...nodes: Array<TNode>): string
+  /**
+   * How this language finds and replaces names so its files can absorb inline sources. Omit it when there is no support.
+   */
+  inline?: InlineLanguage
 }
 
 /**

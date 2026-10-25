@@ -196,6 +196,12 @@ export const diagnosticCatalog = {
     cause: 'Two generated modules export the same name, so the barrel cannot re-export both.',
     fix: 'Rename one of the colliding declarations, or configure the plugin resolver to produce distinct names.',
   },
+  inlineFailed: {
+    code: 'KUBB_INLINE_FAILED',
+    title: 'Inline definition failed',
+    cause: 'A file imports a name from a file whose sources are all inline, and that name could not be inlined.',
+    fix: 'Give every name the file imports an inline definition, register a parser with inline support for its extension, or stop marking the source as inline.',
+  },
   internalError: {
     code: 'KUBB_INTERNAL_ERROR',
     title: 'Internal error',

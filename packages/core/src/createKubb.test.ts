@@ -119,6 +119,66 @@ describe('createKubb', () => {
     expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
   })
 
+  test('moves inline sources into the files that import them and does not write the virtual file', async () => {
+    const types = ast.factory.createFile({
+      path: '/gen/types/AddPet.ts',
+      baseName: 'AddPet.ts',
+      sources: [ast.factory.createSource({ name: 'AddPetBody', inline: { expression: '{ name: string }' }, nodes: [ast.factory.createText('')] })],
+    })
+    const client = ast.factory.createFile({
+      path: '/gen/clients/addPet.ts',
+      baseName: 'addPet.ts',
+      imports: [
+        ast.factory.createImport({ name: ['AddPetBody', 'AddPetStatus404', 'AddPetStatus500'], path: '/gen/types/AddPet.ts', root: '/gen/clients/addPet.ts' }),
+      ],
+      sources: [
+        ast.factory.createSource({
+          nodes: [ast.factory.createText('export function addPet(body: AddPetBody, status: AddPetStatus404 | AddPetStatus500) {}')],
+        }),
+      ],
+    })
+    const injector = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'injector' },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.injectFile(types)
+          ctx.injectFile(client)
+        },
+      },
+    })()
+
+    // A parser whose language treats every word as a reference.
+    const words = defineExtension({
+      kind: 'parser',
+      meta: { name: 'words' },
+      build: () => ({
+        extNames: ['.ts'],
+        parse: () => '',
+        print: () => '',
+        inline: {
+          replaceIdentifiers: (text, replace) => text.replace(/[A-Za-z_$][\w$]*/g, (name) => replace(name) ?? name),
+          wrap: (expression) => `(${expression})`,
+        },
+      }),
+    })()
+
+    const { files, diagnostics } = await createKubb(makeConfig({ plugins: [injector] as unknown as Array<Plugin>, parsers: [words] }), {
+      hooks: new Hookable<KubbHooks>(),
+    }).safeBuild()
+
+    expect(files.map(({ path, imports, sources }) => ({ path, imports, code: sources[0]?.nodes })).filter(({ path }) => path.startsWith('/gen/'))).toEqual([
+      {
+        path: '/gen/clients/addPet.ts',
+        imports: [],
+        code: [{ kind: 'Text', value: 'export function addPet(body: ({ name: string }), status: AddPetStatus404 | AddPetStatus500) {}' }],
+      },
+    ])
+    // Both missing names survive `Diagnostics.dedupe`, in one diagnostic.
+    const inlineFailed = diagnostics.filter((diagnostic) => 'code' in diagnostic && diagnostic.code === Diagnostics.code.inlineFailed)
+    expect(inlineFailed).toEqual([expect.objectContaining({ severity: 'error', message: expect.stringMatching(/AddPetStatus404[\s\S]*AddPetStatus500/) })])
+  })
+
   test('stops before setup when its signal is aborted', async () => {
     const controller = new AbortController()
     controller.abort(new Error('Canceled'))

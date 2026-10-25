@@ -1,3 +1,4 @@
+import { nodeKinds } from '../constants.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
 import type { ContentNode } from './content.ts'
 
@@ -41,4 +42,4 @@ export type RequestBodyNode = BaseNode & {
 /**
  * Creates a `RequestBodyNode`.
  */
-export const createRequestBody = nodeFactory<RequestBodyNode>('RequestBody')
+export const createRequestBody = nodeFactory<RequestBodyNode>(nodeKinds.requestBody)

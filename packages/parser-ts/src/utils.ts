@@ -227,7 +227,7 @@ function printNodes({ nodes, separator }: { nodes: Array<ast.CodeNode> | undefin
   let pendingBreak = false
 
   for (const node of nodes ?? []) {
-    if (node.kind === 'Break') {
+    if (node.kind === ast.nodeKinds.break) {
       pendingBreak = result !== ''
       continue
     }
@@ -386,18 +386,18 @@ function printArrowFunction(node: ast.ArrowFunctionNode): string {
  */
 function printCodeNode(node: ast.CodeNode): string {
   switch (node.kind) {
-    case 'Break':
+    case ast.nodeKinds.break:
       return ''
-    case 'Text':
-    case 'Jsx':
+    case ast.nodeKinds.text:
+    case ast.nodeKinds.jsx:
       return dedent(node.value)
-    case 'Const':
+    case ast.nodeKinds.const:
       return printConst(node)
-    case 'Type':
+    case ast.nodeKinds.type:
       return printType(node)
-    case 'Function':
+    case ast.nodeKinds.function:
       return printFunction(node)
-    case 'ArrowFunction':
+    case ast.nodeKinds.arrowFunction:
       return printArrowFunction(node)
   }
 }

@@ -1,3 +1,4 @@
+import { nodeKinds } from '../constants.ts'
 import type { BaseNode } from './base.ts'
 import { type ContentNode, createContent } from './content.ts'
 import type { SchemaNode } from './schema.ts'
@@ -88,5 +89,5 @@ export function createResponse(props: ResponseInput): ResponseNode {
   const { schema, mediaType, keysToOmit, content, ...rest } = props
   const entries = content ?? (schema ? [createContent({ contentType: mediaType ?? 'application/json', schema, keysToOmit: keysToOmit ?? null })] : undefined)
 
-  return { ...rest, content: entries, kind: 'Response' }
+  return { ...rest, content: entries, kind: nodeKinds.response }
 }

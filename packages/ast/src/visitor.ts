@@ -1,4 +1,4 @@
-import type { VisitorDepth } from './constants.ts'
+import { nodeKinds, type VisitorDepth } from './constants.ts'
 import type { Node } from './nodes/index.ts'
 import type { ContentNode } from './nodes/content.ts'
 import type { InputNode } from './nodes/input.ts'
@@ -224,7 +224,7 @@ function isNodeRecord(value: unknown): value is Record<string, unknown> {
  * ```
  */
 function getChildren(node: Node, recurse: boolean): Array<Node> {
-  if (node.kind === 'Schema' && !recurse) return []
+  if (node.kind === nodeKinds.schema && !recurse) return []
   const children: Array<Node> = []
   visitChildNodes(node, (child) => {
     children.push(child)
@@ -288,7 +288,7 @@ function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
  */
 export function forEachSchema(node: Node, visit: (schema: SchemaNode) => void): void {
   const walk = (current: Node): void => {
-    if (current.kind === 'Schema') visit(current)
+    if (current.kind === nodeKinds.schema) visit(current)
     forEachChild(current, walk)
   }
   walk(node)
@@ -316,7 +316,7 @@ export function findSchema(
 ): SchemaNode | undefined {
   const seen = followRefs ? new WeakSet<SchemaNode>() : undefined
   const walk = (current: Node): SchemaNode | undefined => {
-    if (current.kind === 'Schema') {
+    if (current.kind === nodeKinds.schema) {
       if (predicate(current)) return current
       if (seen) {
         if (seen.has(current)) return undefined
@@ -407,7 +407,7 @@ function transformNode(node: Node, visitor: Visitor, recurse: boolean, parent: N
  * (e.g. `additionalProperties: true`) intact.
  */
 function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node {
-  const keys = node.kind === 'Schema' && !recurse ? undefined : VISITOR_KEYS[node.kind]
+  const keys = node.kind === nodeKinds.schema && !recurse ? undefined : VISITOR_KEYS[node.kind]
   if (!keys) return node
 
   const record = node as unknown as Record<string, unknown>

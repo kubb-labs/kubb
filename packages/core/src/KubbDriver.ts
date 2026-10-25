@@ -98,7 +98,7 @@ function assertPluginEntry(entry: unknown, index: number): asserts entry is Plug
  * pointer into the input.
  */
 function getCrashSite(node: SchemaNode | OperationNode): { label: string; location?: DiagnosticLocation } {
-  if (node.kind === 'Schema') {
+  if (node.kind === ast.nodeKinds.schema) {
     const label = node.name ? `schema "${node.name}"` : 'an inline schema'
     return { label, location: node.pointer ? { kind: 'schema', pointer: node.pointer } : undefined }
   }
@@ -427,6 +427,7 @@ export class KubbDriver {
 
           // Run every node through each plugin's macros and generators.
           diagnostics.push(...(await this.#runGenerators(generatorPlugins)))
+          this.#inlineFiles(parsersMap)
 
           await hooks.callHook('kubb:plugins:end', this.#withFiles({ config }))
 
@@ -455,6 +456,27 @@ export class KubbDriver {
         }
       },
     )
+  }
+
+  /**
+   * Moves inline sources into the files that import them and drops the virtual files, before barrels
+   * (`kubb:plugins:end`) and the write see them.
+   */
+  #inlineFiles(parsers: ReadonlyMap<FileNode['extname'], Parser>): void {
+    const { files, virtualPaths, problems } = ast.inlineFiles(this.fileManager.files, { language: (file) => parsers.get(file.extname)?.inline })
+    if (virtualPaths.length === 0) return
+
+    this.fileManager.add(...files)
+    this.fileManager.delete(...virtualPaths)
+    // One diagnostic for all problems: `Diagnostics.dedupe` keeps one per code when there is no location.
+    if (problems.length > 0) {
+      Diagnostics.report({
+        code: Diagnostics.code.inlineFailed,
+        severity: 'error',
+        message: problems.map(({ path, message }) => `${path}: ${message}`).join('\n'),
+        help: 'Give every name the file imports an inline definition, register a parser with inline support for its extension, or stop marking the source as inline.',
+      })
+    }
   }
 
   /**

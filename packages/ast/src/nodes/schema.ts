@@ -1,3 +1,4 @@
+import { nodeKinds } from '../constants.ts'
 import type { BaseNode, DistributiveOmit } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
@@ -684,8 +685,8 @@ export function createSchema<T extends CreateSchemaInput>(props: T): CreateSchem
 export function createSchema(props: CreateSchemaInput): SchemaNode
 export function createSchema(props: CreateSchemaInput): SchemaNode {
   if (props.type === 'object') {
-    return { properties: [], primitive: 'object', ...props, kind: 'Schema' }
+    return { properties: [], primitive: 'object', ...props, kind: nodeKinds.schema }
   }
 
-  return { primitive: TYPE_TO_PRIMITIVE[props.type], ...props, kind: 'Schema' }
+  return { primitive: TYPE_TO_PRIMITIVE[props.type], ...props, kind: nodeKinds.schema }
 }

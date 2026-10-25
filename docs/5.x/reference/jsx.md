@@ -120,11 +120,20 @@ Marks a block of source text that belongs to the enclosing `File`. The children 
 | `isExportable?` | `boolean \| null` | Prepend the `export` keyword. |
 | `isIndexable?` | `boolean \| null` | Include the source in barrel and index generation. |
 | `isTypeOnly?` | `boolean \| null` | Mark the source as a type-only export. |
+| `inline?` | `{ expression: string } \| null` | Let importing files absorb the source instead of importing it. |
 | `children?` | `KubbReactNode` | Source text of the block. |
 
 ```tsx
 <File.Source name="PetId" isTypeOnly isExportable>
   {`export type PetId = string`}
+</File.Source>
+```
+
+`inline.expression` is the right-hand side of the declaration. A file whose sources are all inline is not written: importing files get the expression in place of the name, plus the imports it needs. The parser decides how, through its [`inline`](/docs/5.x/reference/kit/parsers) member.
+
+```tsx
+<File.Source name="AddPetStatus200" isTypeOnly isExportable inline={{ expression: 'Pet' }}>
+  {`export type AddPetStatus200 = Pet`}
 </File.Source>
 ```
 
