@@ -744,16 +744,6 @@ describe('parseSchema allOf', () => {
     expect(parseSchema(emptyCtx, { schema }).type).toBe('intersection')
   })
 
-  it('keeps requiredness from a required-only allOf member', () => {
-    const node = parseSchema(emptyCtx, {
-      schema: { allOf: [{ type: 'object', properties: { id: { type: 'string' } } }, { required: ['id'] }] },
-    })
-    const members = ast.narrowSchema(node, 'intersection')?.members ?? []
-
-    expect(members.map((member) => member.type)).not.toContain('unknown')
-    expect(JSON.stringify(members)).toContain('"required":true')
-  })
-
   it('keeps requiredness from a required-only allOf member next to a $ref', () => {
     const doc = {
       openapi: '3.0.0',

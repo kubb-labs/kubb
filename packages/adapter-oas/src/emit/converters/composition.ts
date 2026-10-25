@@ -90,11 +90,9 @@ function resolveUnionMembers(members: Array<unknown>, siblingProperties: Record<
 }
 
 /**
- * Enriches any `oneOf` or `anyOf` branches on a schema object with properties from sibling schemas.
+ * Enriches a schema object, and any `oneOf` or `anyOf` branches on it, with properties from sibling schemas.
  */
 function resolveUnionSchema(schema: SchemaObject, siblingProperties: Record<string, unknown>): SchemaObject {
-  if (!schema.oneOf && !schema.anyOf) return schema
-
   const resolvedSchema = (resolveUnionMembers([schema], siblingProperties)[0] as SchemaObject) ?? schema
   const next: SchemaObject = { ...resolvedSchema }
   if (schema.oneOf) {
@@ -187,10 +185,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, parse, refs
     refs,
   })
   const siblingProperties = collectSiblingProperties(schema.allOf as Array<SchemaObject | ReferenceObject>, refs, schema.properties)
-  // A required-only member (`- required: [id]`) borrows its property schemas from the siblings so the requiredness survives.
-  const resolvedAllOf = discriminatedAllOf.map((s) =>
-    isReference(s) ? s : resolveUnionSchema(resolveUnionMembers([s], siblingProperties)[0] as SchemaObject, siblingProperties),
-  )
+  const resolvedAllOf = discriminatedAllOf.map((s) => (isReference(s) ? s : resolveUnionSchema(s as SchemaObject, siblingProperties)))
   const allOfMembers: Array<ast.SchemaNode> = resolvedAllOf.map((s) => parse({ schema: s as SchemaObject, name }))
 
   const syntheticStart = allOfMembers.length
