@@ -78,7 +78,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
 
     definitions.set(key, null)
     const imports: Array<ImportNode> = []
-    const { text, used } = substitute(inline.expression, file, lang, imports)
+    const { text, used } = replaceNames(inline.expression, file, lang, imports)
     imports.push(...file.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used))))
 
     const definition = { expression: text, imports }
@@ -87,7 +87,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
   }
 
   // Pushes the imports the replaced definitions need onto `imports`; `used` holds the names left as they are.
-  function substitute(input: string, file: FileNode, lang: InlineLanguage, imports: Array<ImportNode>) {
+  function replaceNames(input: string, file: FileNode, lang: InlineLanguage, imports: Array<ImportNode>) {
     const used = new Set<string>()
     const text = lang.replaceIdentifiers(input, (local) => {
       const target = findTarget(file, local)
@@ -125,7 +125,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     }
 
     const carried: Array<ImportNode> = []
-    const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, (text) => substitute(text, file, lang, carried).text) }))
+    const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, (text) => replaceNames(text, file, lang, carried).text) }))
 
     // A carried import keeps its target; `root` moves to the importing file so the relative path is computed from there.
     const imports = [...file.imports.filter((imp) => !virtualFiles.has(imp.path)), ...carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))]
