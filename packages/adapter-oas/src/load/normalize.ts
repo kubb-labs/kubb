@@ -3,6 +3,7 @@ import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
+import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
 import type { ValidationErrors, WorkerResult } from './validateWorker.ts'
 import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
@@ -25,6 +26,33 @@ export function hasExternalRef(node: unknown): boolean {
   }
 
   return Object.values(node).some(hasExternalRef)
+}
+
+/**
+ * Replaces each `$ref` into `#/paths/...` with a copy of its target, in place.
+ *
+ * Swagger 2.0 keeps a response schema at `responses/200/schema`, and the upgrade to 3.x moves it under
+ * `content`. A bundled external `$ref` that was already used once points at that old location, so it
+ * would not resolve after the upgrade. Refs into `definitions`, `parameters` and `responses` are
+ * rewritten by the upgrade itself and are left alone.
+ *
+ * A ref that points back into itself is kept as is, because inlining it would never end.
+ */
+function inlinePathRefs(node: unknown, resolve: (ref: string) => unknown, visiting: Array<string> = []): unknown {
+  if (!node || typeof node !== 'object') {
+    return node
+  }
+
+  const ref = (node as { $ref?: unknown }).$ref
+  if (typeof ref === 'string' && ref.startsWith('#/paths/') && !visiting.includes(ref)) {
+    const target = resolve(ref)
+    return target && typeof target === 'object' ? inlinePathRefs(structuredClone(target), resolve, [...visiting, ref]) : node
+  }
+
+  for (const [key, value] of Object.entries(node)) {
+    ;(node as Record<string, unknown>)[key] = inlinePathRefs(value, resolve, visiting)
+  }
+  return node
 }
 
 /**
@@ -104,6 +132,11 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
     await assertInputExists(source.path)
     return bundleDocument(source.path)
   })()
+
+  if (raw && typeof raw === 'object' && 'swagger' in raw) {
+    const refs = createRefs(raw)
+    inlinePathRefs(raw, (ref) => refs.resolve(ref, { report: false }))
+  }
 
   // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.
   try {
