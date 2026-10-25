@@ -266,29 +266,22 @@ export function extractDiscriminatedAllOfMembers({
   const members = allOfMembers.filter((item) => {
     if (!isReference(item) || !name) return true
     const deref = refs.resolve<SchemaObject>(item.$ref)
-    if (deref && !isDiscriminator(deref)) {
-      const nested = ownDiscriminator(deref)
-      const values = findDiscriminators(nested?.mapping, `${SCHEMA_REF_PREFIX}${name}`)
-      if (nested && values.length)
-        discriminantValues.push({ propertyName: nested.propertyName, values: typedKeys(values, propertyTypeOf(deref, nested.propertyName, refs)) })
-      return true
-    }
-    if (!deref || !isDiscriminator(deref)) return true
-    const parentUnion = deref.oneOf ?? deref.anyOf
-    if (!parentUnion) return true
+    const discriminator = deref && ownDiscriminator(deref)
+    const parentUnion = deref?.oneOf ?? deref?.anyOf
+    if (!deref || !discriminator || (isDiscriminator(deref) && !parentUnion)) return true
+
     const childRef = `${SCHEMA_REF_PREFIX}${name}`
-    const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && oneOfItem.$ref === childRef)
-    const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
-    if (inOneOf || inMapping) {
-      const values = findDiscriminators(deref.discriminator.mapping, childRef)
-      if (values.length) {
-        const { propertyName } = deref.discriminator
-        const propertyType = propertyTypeOf(deref, propertyName, refs) ?? propertyTypeOf({ $ref: childRef }, propertyName, refs)
-        discriminantValues.push({ propertyName, values: typedKeys(values, propertyType) })
-      }
-      return false
+    const values = findDiscriminators(discriminator.mapping, childRef)
+    if (values.length) {
+      const { propertyName } = discriminator
+      const propertyType = propertyTypeOf(deref, propertyName, refs) ?? propertyTypeOf({ $ref: childRef }, propertyName, refs)
+      discriminantValues.push({ propertyName, values: typedKeys(values, propertyType) })
     }
-    return true
+
+    // Only a `oneOf`/`anyOf` parent is replaced by its discriminant; any other parent stays in the intersection.
+    const replaced = parentUnion && (values.length > 0 || parentUnion.some((member) => isReference(member) && member.$ref === childRef))
+
+    return !replaced
   })
 
   return { members, discriminantValues }
