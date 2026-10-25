@@ -60,7 +60,8 @@ type SchemaRule = {
  */
 export const schemaRules: Array<SchemaRule> = [
   { match: ({ schema }) => typeof schema.not === 'object' && schema.not !== null, convert: convertNot },
-  { match: ({ schema }) => isReference(schema), convert: convertRef },
+  // OAS 3.1 allows `const` next to `$ref`; the literal narrows the referenced type, so it wins over the ref.
+  { match: ({ schema }) => isReference(schema) && schema.const === undefined, convert: convertRef },
   { match: ({ schema }) => !!schema.allOf?.length, convert: convertAllOf },
   { match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },
   { match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
