@@ -7,13 +7,15 @@ import type { RefSchemaNode, SchemaNode } from '../nodes/schema.ts'
  */
 export function refName(ref: string): string {
   const segment = ref.split('/').at(-1) ?? ref
+  let decoded = segment
 
   try {
-    return decodeURIComponent(segment).replaceAll('~1', '/').replaceAll('~0', '~')
+    decoded = decodeURIComponent(segment)
   } catch {
     // A stray `%` is not a valid escape, so the segment is already the literal name.
-    return segment.replaceAll('~1', '/').replaceAll('~0', '~')
   }
+
+  return decoded.replaceAll('~1', '/').replaceAll('~0', '~')
 }
 
 /**
