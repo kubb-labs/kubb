@@ -68,16 +68,19 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
       if (definition === null) result.problems.push({ path: from, message: `"${name}" from "${path}" is defined in terms of itself.` })
       return definition ?? undefined
     }
+
     const file = virtualFiles.get(path)!
     const inline = file.sources.find((source) => source.name === name)?.inline
     if (!inline) {
       result.problems.push({ path: from, message: `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.` })
       return undefined
     }
+
     definitions.set(key, null)
     const imports: Array<ImportNode> = []
     const { text, used } = substitute(inline.expression, file, lang, imports)
     imports.push(...file.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used))))
+
     const definition = { expression: text, imports }
     definitions.set(key, definition)
     return definition
@@ -93,33 +96,40 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
         used.add(local)
         return undefined
       }
+
       imports.push(...definition.imports)
       return lang.wrap(definition.expression)
     })
+
     return { text, used }
   }
 
   function findTarget(file: FileNode, local: string): { path: string; name: string } | undefined {
     if (virtualFiles.has(file.path) && file.sources.some((source) => source.name === local)) return { path: file.path, name: local }
+
     for (const imp of file.imports) {
       const item = virtualFiles.has(imp.path) && [imp.name].flat().find((item) => importLocalName(item) === local)
       if (item) return { path: imp.path, name: typeof item === 'string' ? item : item.propertyName }
     }
+
     return undefined
   }
 
   for (const file of files) {
     if (virtualFiles.has(file.path) || !file.imports.some((imp) => virtualFiles.has(imp.path))) continue
+
     const lang = language(file)
     if (!lang) {
       result.problems.push({ path: file.path, message: `No parser for "${file.extname}" files supports inline sources.` })
       continue
     }
+
     const carried: Array<ImportNode> = []
     const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, (text) => substitute(text, file, lang, carried).text) }))
 
     // A carried import keeps its target; `root` moves to the importing file so the relative path is computed from there.
     const imports = [...file.imports.filter((imp) => !virtualFiles.has(imp.path)), ...carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))]
+
     result.files.push(createFile({ ...file, sources, imports }))
   }
 
