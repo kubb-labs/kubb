@@ -2,6 +2,7 @@ import { nodeKinds } from '../constants.ts'
 import type { CodeNode } from '../nodes/code.ts'
 import { createFile } from '../nodes/file.ts'
 import type { FileNode, ImportNode } from '../nodes/file.ts'
+import { importLocalName } from './combineFileMembers.ts'
 
 /**
  * Whether every source of `file` is inline. Other files absorb such a file, so it is never written.
@@ -74,7 +75,8 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
   // `null` marks a definition that is being resolved, so a name that reaches itself is a cycle.
   const definitions = new Map<string, Definition | null>()
 
-  function define(path: string, name: string, from: string): Definition | undefined {
+  // A definition is resolved in the importing file's language, so it is memoized once per name.
+  function define(path: string, name: string, from: string, lang: InlineLanguage): Definition | undefined {
     const key = `${path}\0${name}`
     if (definitions.has(key)) {
       const definition = definitions.get(key)
@@ -87,29 +89,22 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
       result.problems.push({ path: from, message: `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.` })
       return undefined
     }
-    const lang = languageOf(file)
-    if (!lang) return undefined
     definitions.set(key, null)
-    const { text, imports, used } = substitute(inline.expression, file, lang)
-    const own = file.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used)))
-    const definition = { expression: text, imports: [...imports, ...own] }
+    const imports: Array<ImportNode> = []
+    const { text, used } = substitute(inline.expression, file, lang, imports)
+    imports.push(...file.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used))))
+    const definition = { expression: text, imports }
     definitions.set(key, definition)
     return definition
   }
 
-  function languageOf(file: FileNode): InlineLanguage | undefined {
-    const lang = language(file)
-    if (!lang) result.problems.push({ path: file.path, message: `No parser for "${file.extname}" files supports inline sources.` })
-    return lang
-  }
-
-  // Replaces the inline names `file` can see: its own inline sources and what it imports from virtual files.
-  function substitute(input: string, file: FileNode, lang: InlineLanguage) {
-    const imports: Array<ImportNode> = []
+  // Replaces the inline names `file` can see, its own inline sources and what it imports from virtual files,
+  // and pushes the imports their definitions need onto `imports`. `used` holds the names left as they are.
+  function substitute(input: string, file: FileNode, lang: InlineLanguage, imports: Array<ImportNode>) {
     const used = new Set<string>()
     const text = lang.replaceIdentifiers(input, (local) => {
       const target = findTarget(file, local)
-      const definition = target && define(target.path, target.name, file.path)
+      const definition = target && define(target.path, target.name, file.path, lang)
       if (!definition) {
         used.add(local)
         return undefined
@@ -117,36 +112,30 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
       imports.push(...definition.imports)
       return lang.wrap(definition.expression)
     })
-    return { text, imports, used }
+    return { text, used }
   }
 
   function findTarget(file: FileNode, local: string): { path: string; name: string } | undefined {
     if (virtualFiles.has(file.path) && file.sources.some((source) => source.name === local)) return { path: file.path, name: local }
     for (const imp of file.imports) {
-      if (!virtualFiles.has(imp.path)) continue
-      for (const item of [imp.name].flat()) {
-        if (item === local) return { path: imp.path, name: local }
-        if (typeof item === 'object' && (item.name ?? item.propertyName) === local) return { path: imp.path, name: item.propertyName }
-      }
+      const item = virtualFiles.has(imp.path) && [imp.name].flat().find((item) => importLocalName(item) === local)
+      if (item) return { path: imp.path, name: typeof item === 'string' ? item : item.propertyName }
     }
     return undefined
   }
 
   for (const file of files) {
     if (virtualFiles.has(file.path) || !file.imports.some((imp) => virtualFiles.has(imp.path))) continue
-    const lang = languageOf(file)
-    if (!lang) continue
-    const carried: Array<ImportNode> = []
-    const rewrite = (input: string) => {
-      const { text, imports } = substitute(input, file, lang)
-      carried.push(...imports)
-      return text
+    const lang = language(file)
+    if (!lang) {
+      result.problems.push({ path: file.path, message: `No parser for "${file.extname}" files supports inline sources.` })
+      continue
     }
-    const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, rewrite) }))
+    const carried: Array<ImportNode> = []
+    const sources = file.sources.map((source) => ({ ...source, nodes: rewriteNodes(source.nodes, (text) => substitute(text, file, lang, carried).text) }))
 
-    const kept = file.imports.filter((imp) => !virtualFiles.has(imp.path))
     // A carried import keeps its target; `root` moves to the importing file so the relative path is computed from there.
-    const imports = [...kept, ...carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))]
+    const imports = [...file.imports.filter((imp) => !virtualFiles.has(imp.path)), ...carried.map((imp) => (imp.root ? { ...imp, root: file.path } : imp))]
     result.files.push(createFile({ ...file, sources, imports }))
   }
 
@@ -156,7 +145,7 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
 // The part of `imp` whose local names are in `used`, or nothing when none are.
 function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode> {
   if (!Array.isArray(imp.name)) return used.has(imp.name) ? [imp] : []
-  const name = imp.name.filter((item) => used.has(typeof item === 'string' ? item : (item.name ?? item.propertyName)))
+  const name = imp.name.filter((item) => used.has(importLocalName(item)))
   return name.length > 0 ? [{ ...imp, name }] : []
 }
 
