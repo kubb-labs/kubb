@@ -100,7 +100,7 @@ export const adapterOas = defineExtension<AdapterOas>({
         const node = { ...parseSchema({ schema, name }), pointer: pointers.get(name) }
         parsedByName.set(name, node)
         scanSchema(node)
-        if (node.type === 'ref' && node.name && node.name !== name) {
+        if (node.type === 'ref' && node.name) {
           refAliasMap.set(name, node)
         }
         if (ast.narrowSchema(node, 'enum') && node.name) {
