@@ -13,7 +13,8 @@ export function replaceIdentifiers(text: string, replace: (name: string) => stri
   const tokens = parse(text, { lang, sourceType: 'module', tokens: true }).tokens!
   let out = ''
   let last = 0
-  for (let i = 0; i < tokens.length; i++) {
+  // `TokenList` is indexed, not iterable.
+  for (const i of Array.from({ length: tokens.length }).keys()) {
     const replacement = tokens.kind(i) === TokenKind.Identifier && isReference(tokens, i) ? replace(tokens.text(i)) : undefined
     if (replacement === undefined) continue
     out += text.slice(last, tokens.start(i)) + replacement
