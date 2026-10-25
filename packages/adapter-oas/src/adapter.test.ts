@@ -611,6 +611,32 @@ describe('adapterOas options', () => {
     expect(values).toStrictEqual(['string', ['FooBar']])
   })
 
+  it('names a ref to a component whose key holds ~ and / after the component itself', async () => {
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Tilde: { type: 'object', properties: { t: { $ref: '#/components/schemas/a~1b~0c' } } },
+            'a/b~c': { type: 'string' },
+          },
+        },
+      },
+    })
+
+    const tilde = ast.narrowSchema(
+      node.schemas.find((schema) => schema.name === 'Tilde')!,
+      'object',
+    )
+    const ref = ast.narrowSchema(tilde!.properties[0]!.schema, 'ref')
+
+    expect([ref?.name, ref?.schema?.type]).toStrictEqual(['a/b~c', 'string'])
+    expect(node.schemas.map((schema) => schema.name)).toContain('a/b~c')
+  })
+
   it('resolves a $ref cycle between aliases, or an alias to itself, to unknown instead of a self-referencing type', async () => {
     const node = await adapterOas({ validate: false }).parse({
       type: 'data',

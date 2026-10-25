@@ -1,8 +1,21 @@
 import type { RefSchemaNode, SchemaNode } from '../nodes/schema.ts'
 
-/** Returns the last segment of a `$ref` pointer, for example `'Pet'` for `#/components/schemas/Pet`. */
+/**
+ * Returns the last segment of a `$ref` pointer, for example `'Pet'` for `#/components/schemas/Pet`.
+ * The segment is decoded like the pointer resolver does: percent-escapes first, then `~1` and `~0`
+ * (RFC 6901), so `a~1b~0c` names the component `a/b~c`.
+ */
 export function refName(ref: string): string {
-  return ref.split('/').at(-1) ?? ref
+  const segment = ref.split('/').at(-1) ?? ref
+  let decoded = segment
+
+  try {
+    decoded = decodeURIComponent(segment)
+  } catch {
+    // A stray `%` is not a valid escape, so the segment is already the literal name.
+  }
+
+  return decoded.replaceAll('~1', '/').replaceAll('~0', '~')
 }
 
 /**
