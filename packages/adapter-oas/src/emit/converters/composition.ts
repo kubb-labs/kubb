@@ -147,10 +147,34 @@ export function convertNot({ schema, name, nullable, defaultValue, parse }: Conv
   return createNode({ schema, name, nullable, defaultValue }, { type: 'intersection', members: [parse({ schema: rest, name }), notNode] })
 }
 
+/** Keywords that describe a schema or conditionally constrain it, but add no structure to the intersection. */
+const annotationKeys = new Set(['description', 'title', 'example', 'examples', 'deprecated', 'readOnly', 'writeOnly', '$comment', 'externalDocs', 'if', 'then', 'else'])
+
+/**
+ * Removes `allOf` members that only hold annotations or `if`/`then`/`else`, which would otherwise
+ * become `unknown`, and copies their annotations onto the parent (the parent's own values win).
+ * The conditional keywords are dropped, not enforced.
+ */
+function hoistAnnotationOnlyMembers(schema: SchemaObject): SchemaObject {
+  const isAnnotationOnly = (member: SchemaObject | ReferenceObject) => {
+    const keys = Object.keys(member)
+    return !isReference(member) && keys.length > 0 && keys.every((key) => annotationKeys.has(key))
+  }
+  const members = schema.allOf as Array<SchemaObject | ReferenceObject>
+  const kept = members.filter((member) => !isAnnotationOnly(member))
+
+  if (kept.length === members.length || kept.length === 0) return schema
+
+  const { if: _if, then: _then, else: _else, $comment: _comment, ...annotations } = Object.assign({}, ...members.filter(isAnnotationOnly))
+  return { ...annotations, ...schema, allOf: kept }
+}
+
 /**
  * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
  */
-export function convertAllOf({ schema, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
+export function convertAllOf({ schema: original, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
+  const schema = hoistAnnotationOnlyMembers(original)
+
   if (
     schema.allOf!.length === 1 &&
     !schema.properties &&

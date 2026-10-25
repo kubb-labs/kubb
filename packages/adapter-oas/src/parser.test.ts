@@ -763,6 +763,20 @@ describe('parseSchema allOf', () => {
     ])
   })
 
+  it('drops an if/then allOf member and hoists annotation-only members onto the parent', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        allOf: [
+          { $ref: '#/components/schemas/Base' },
+          { if: { properties: { type: { const: 'card' } } }, then: { required: ['card'] } },
+          { description: 'hello' },
+        ],
+      },
+    })
+
+    expect(node).toMatchObject({ type: 'ref', description: 'hello' })
+  })
+
   it('produces an intersection for multiple allOf members', () => {
     const node = parseSchema(emptyCtx, {
       schema: {

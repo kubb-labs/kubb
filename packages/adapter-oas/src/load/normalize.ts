@@ -105,6 +105,13 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
     return bundleDocument(source.path)
   })()
 
+  // Unquoted `swagger: 2.0` parses as the number 2, which `upgrade` does not recognise as a version.
+  for (const key of ['swagger', 'openapi'] as const) {
+    if (raw && typeof raw === 'object' && typeof (raw as Record<string, unknown>)[key] === 'number') {
+      ;(raw as Record<string, unknown>)[key] = ((raw as Record<string, unknown>)[key] as number).toFixed(1)
+    }
+  }
+
   // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.
   try {
     return upgrade(raw, '3.1') as Document
