@@ -435,6 +435,13 @@ describe('buildAst', () => {
       ])
     })
 
+    it('leaves the encoding key off a body without encoding', async () => {
+      const root = await parseOas(multipartUploadDocument)
+      const content = findOperation(root, 'upload')?.requestBody?.content
+
+      expect(content?.every((entry) => !('encoding' in entry))).toBe(true)
+    })
+
     it('keeps only the configured contentType in requestBody.content', async () => {
       const root = await parseOas(multipartUploadDocument, { contentType: 'multipart/form-data' })
       const upload = findOperation(root, 'upload')

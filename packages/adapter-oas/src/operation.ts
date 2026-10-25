@@ -269,12 +269,13 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     if (!schema) return []
     const node = parseSchema({ schema, name: requestBodyName })
     scanSchema(node, `${pointer}/requestBody/content/${escapePointerToken(ct)}/schema`)
+    const encoding = getEncoding(body?.content?.[ct]?.encoding)
     return [
       ast.factory.createContent({
         contentType: ct,
         schema: ast.optionality(node, bodyRequired),
         keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
-        encoding: getEncoding(body?.content?.[ct]?.encoding),
+        ...(encoding && { encoding }),
       }),
     ]
   })
