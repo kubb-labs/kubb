@@ -150,4 +150,14 @@ describe('kubb update', () => {
     expect(installPackages).not.toHaveBeenCalled()
     expect(process.exitCode).toBe(1)
   })
+
+  it('exits with code 1 when a named update needs a newer Kubb', async () => {
+    stubFetch({ body: registryIndex([registryEntry({ name: 'plugin-x', version: '1.1.0', manifest: { compatibility: { kubb: '>=999.0.0' } } })]) })
+
+    await run({ ids: ['acme/plugin-x'], dryRun: false, yes: true })
+
+    expect(output.join('\n')).toContain('Skipped acme/plugin-x: "plugin-x" requires Kubb >=999.0.0')
+    expect(installPackages).not.toHaveBeenCalled()
+    expect(process.exitCode).toBe(1)
+  })
 })
