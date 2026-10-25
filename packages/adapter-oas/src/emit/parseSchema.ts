@@ -50,8 +50,8 @@ type SchemaRule = {
 /**
  * Ordered schema rule table. Order is significant: composition keywords (`not`, `$ref`, `allOf`,
  * `oneOf`/`anyOf`) take precedence over `const` (except a `$ref` with a sibling `const`, where the
- * `const` wins), which takes precedence over a genuine OAS 3.1
- * multi-type array (more than one non-`null` type), which takes precedence over `format`/`type`.
+ * `const` wins), which takes precedence over a genuine OAS 3.1 multi-type array (more than one
+ * non-`null` type), which takes precedence over `format`/`type`.
  * A multi-type array must split into its per-type members before `format` runs, otherwise
  * `format` collapses the whole schema to one type (e.g. `type: ['null', 'integer', 'string'],
  * format: 'int32'` would drop `string` and emit just `integer`); each split-off member still
@@ -61,7 +61,6 @@ type SchemaRule = {
  */
 export const schemaRules: Array<SchemaRule> = [
   { match: ({ schema }) => typeof schema.not === 'object' && schema.not !== null, convert: convertNot },
-  // OAS 3.1 allows `const` next to `$ref`; the literal narrows the referenced type, so it wins over the ref.
   { match: ({ schema }) => isReference(schema) && !('const' in schema && schema.const !== undefined), convert: convertRef },
   { match: ({ schema }) => !!schema.allOf?.length, convert: convertAllOf },
   { match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },
