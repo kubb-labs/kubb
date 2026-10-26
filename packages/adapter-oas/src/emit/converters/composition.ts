@@ -312,11 +312,9 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
       discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.inferDiscriminatorPropertyName(members),
     })
 
-    const requiredProperties = missingRequired.map((propertyName) => {
-      const schemas = members.flatMap((node) => ast.resolveSchemaProperties({ node, propertyName })).map((property) => ast.optionality(property.schema, true))
-      const propertySchema = schemas.length > 1 ? ast.factory.createSchema({ type: ast.schemaTypes.union, strategy: 'any', members: schemas }) : schemas[0]
-      return ast.factory.createProperty({ name: propertyName, required: true, schema: propertySchema ?? parse({ schema: {} }) })
-    })
+    const requiredProperties = missingRequired.map((name) =>
+      ast.factory.createProperty({ name, required: true, schema: ast.factory.createSchema({ type: ast.schemaTypes.unknown }) }),
+    )
     const siblings = sharedPropertiesNode ? [sharedPropertiesNode] : []
     if (requiredProperties.length) {
       siblings.push(ast.factory.createSchema({ type: ast.schemaTypes.object, properties: requiredProperties }))
