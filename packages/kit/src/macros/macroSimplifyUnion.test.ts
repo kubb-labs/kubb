@@ -66,4 +66,12 @@ describe('macroSimplifyUnion', () => {
 
     expect(simplify([object, array])).toStrictEqual([object, array])
   })
+
+  it('keeps distinct Date defaults and deduplicates their serialized equivalents', () => {
+    const first = ast.factory.createSchema({ type: ast.schemaTypes.string, default: new Date('2026-01-01T00:00:00.000Z') })
+    const second = { ...first, default: new Date('2026-01-02T00:00:00.000Z') }
+    const serialized = { ...first, default: '2026-01-01T00:00:00.000Z' }
+
+    expect(simplify([first, second, serialized])).toStrictEqual([first, second])
+  })
 })

@@ -20,6 +20,7 @@ function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
 
   function key(value: unknown): string {
     if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'undefined'
+    if (value instanceof Date) return key(value.toJSON())
     const cached = keys.get(value)
     if (cached) return cached
 
