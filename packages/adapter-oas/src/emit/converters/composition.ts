@@ -293,8 +293,9 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
   const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
   const { oneOf: _o, anyOf: _a, discriminator: _d, ...memberBaseSchema } = schema
   const sharedPropertiesNode = schema.properties ? parse({ schema: memberBaseSchema as SchemaObject, name }) : undefined
+  const missingRequired = (Array.isArray(schema.required) ? schema.required : []).filter((key) => !Object.hasOwn(schema.properties ?? {}, key))
 
-  if (sharedPropertiesNode || discriminator) {
+  if (sharedPropertiesNode || discriminator || missingRequired.length) {
     const members = narrowUnionMembers({
       unionMembers,
       discriminator,
@@ -311,11 +312,21 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
       discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.inferDiscriminatorPropertyName(members),
     })
 
-    if (!sharedPropertiesNode) {
+    const requiredProperties = missingRequired.map((propertyName) => {
+      const schemas = members.flatMap((node) => ast.resolveSchemaProperties({ node, propertyName })).map((property) => ast.optionality(property.schema, true))
+      const propertySchema = schemas.length > 1 ? ast.factory.createSchema({ type: ast.schemaTypes.union, strategy: 'any', members: schemas }) : schemas[0]
+      return ast.factory.createProperty({ name: propertyName, required: true, schema: propertySchema ?? parse({ schema: {} }) })
+    })
+    const siblings = sharedPropertiesNode ? [sharedPropertiesNode] : []
+    if (requiredProperties.length) {
+      siblings.push(ast.factory.createSchema({ type: ast.schemaTypes.object, properties: requiredProperties }))
+    }
+
+    if (!siblings.length) {
       return unionNode
     }
 
-    return createNode(ctx, { type: 'intersection', members: [unionNode, sharedPropertiesNode] })
+    return createNode(ctx, { type: ast.schemaTypes.intersection, members: [unionNode, ...siblings] })
   }
 
   const members = unionMembers.map((s) => parse({ schema: s as SchemaObject, name }))
