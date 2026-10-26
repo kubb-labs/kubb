@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-ts",
-  "version": "5.14.2",
+  "version": "5.14.3",
   "description": "TypeScript and TSX parser for Kubb. Prints AST nodes as TypeScript and TSX source, with imports, exports and JSDoc.",
   "keywords": [
     "codegen",
