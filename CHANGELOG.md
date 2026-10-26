@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.14.3 — Oct 26, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Preserve parent `required` fields declared in `oneOf` and `anyOf` members without changing the referenced component schemas. ([#4471](https://github.com/kubb-labs/kubb/pull/4471), [`78416ca`](https://github.com/kubb-labs/kubb/commit/78416ca94c1e79ab1b8eac5dbb4cb4763c409cde))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Drop repeated members from unions, so `oneOf: [string, string, number]` becomes `string | number` for every plugin. ([#4468](https://github.com/kubb-labs/kubb/pull/4468), [`5283f77`](https://github.com/kubb-labs/kubb/commit/5283f774f1d521e6663ff4effd11bec852bc6335))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.14.2 — Oct 25, 2026
 
 ### @kubb/adapter-oas
