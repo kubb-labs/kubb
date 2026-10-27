@@ -251,8 +251,10 @@ export type ResolveNameOptions = {
   name: string
   /**
    * Compares emitted identifiers while returning raw names. Keep numeric suffixes distinct.
+   * Return several names when one declaration emits more than one identifier, such as an enum's
+   * value and its type alias: the raw name is only taken when all of them are free.
    */
-  normalize?: (name: string) => string
+  normalize?: (name: string) => string | ReadonlyArray<string>
 }
 
 /**
@@ -412,14 +414,23 @@ export class Resolver {
    * resolver.resolveName({ key: ['operation', 'POST', '/containers', 'body'], name: 'CreateContainerBody' })
    * // 'CreateContainerBody2'
    * ```
+   *
+   * @example Resolve a name that has to be free as both an enum value and a type alias
+   * ```ts
+   * resolver.resolveName({ key: ['enum', 'Pet', 'status'], name: 'Status', normalize: (name) => [camelCase(name), `${name}Key`] })
+   * ```
    */
   resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
     const cacheKey = JSON.stringify(key)
     const previous = this.#resolvedNames.get(cacheKey)
     if (previous !== undefined) return previous
+    const emitted = (value: string): ReadonlyArray<string> => {
+      const names = normalize(value)
+      return typeof names === 'string' ? [names] : names
+    }
     let result = name
-    for (let suffix = 2; this.#usedNames.has(normalize(result)); suffix++) result = `${name}${suffix}`
-    this.#usedNames.add(normalize(result))
+    for (let suffix = 2; emitted(result).some((emittedName) => this.#usedNames.has(emittedName)); suffix++) result = `${name}${suffix}`
+    this.reserveNames(emitted(result))
     this.#resolvedNames.set(cacheKey, result)
     return result
   }

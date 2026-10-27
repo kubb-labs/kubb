@@ -43,6 +43,16 @@ describe('resolver name reservations', () => {
     expect(resolver.resolveName({ key: 'first:enum', name: 'Status', normalize })).toBe('Status3')
   })
 
+  test('takes a name only when every identifier it emits is free', () => {
+    const resolver = new Resolver({ pluginName: 'types' })
+    const normalize = (name: string) => [name.toLowerCase(), `${name}Key`]
+    resolver.reserveNames(['status', 'Status2Key'])
+
+    expect(resolver.resolveName({ key: 'first:enum', name: 'Status', normalize })).toBe('Status3')
+    expect(resolver.resolveName({ key: 'second:enum', name: 'Status', normalize })).toBe('Status4')
+    expect(resolver.resolveName({ key: 'later', name: 'status3' })).toBe('status32')
+  })
+
   test('keeps allocations isolated between resolvers and merges', () => {
     const base = new Resolver({ pluginName: 'types' })
     base.reserveNames(['Pet'])
