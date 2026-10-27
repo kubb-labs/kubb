@@ -1,2 +1,17 @@
 # Auto detect text files and perform LF normalization
 * text=auto eol=lf
+
+# Collapse in GitHub diffs and skip in language stats
+pnpm-lock.yaml linguist-generated
+CHANGELOG.md linguist-generated
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+
+# Keep docs out of language stats
+docs/** linguist-documentation
