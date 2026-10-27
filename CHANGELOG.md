@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.14.6 — Oct 27, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Report a `$ref` that Kubb cannot read inside an `x-` vendor extension as a `KUBB_REF_NOT_FOUND` warning instead of an error. Kubb never reads extensions, so such a ref cannot change the output, and a spec like Spotify's no longer fails generation over it. ([#4479](https://github.com/kubb-labs/kubb/pull/4479), [`33338d0`](https://github.com/kubb-labs/kubb/commit/33338d01e0eb8b08b1ae0b59ac1e661abf48b031))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.14.5 — Oct 27, 2026
 
 ### @kubb/core
