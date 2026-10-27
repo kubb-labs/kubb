@@ -84,14 +84,14 @@ const imports = resolver.imports({
 
 ### Name reservations
 
-Use `resolver.resolveName({ key, name })` when a declaration can collide with another export. It keeps the preferred name when available and adds `2`, `3`, and so on when occupied. Reuse the same key for the declaration and every reference to it. Include the declaration's owner and role in the key, rather than only its preferred name.
+Use `resolver.resolveName({ key, name })` when a declaration can collide with another export. It keeps the preferred name when available and adds `2`, `3`, and so on when occupied. Reuse the same key for the declaration and every reference to it. Use an array of strings to separate the declaration's owner and role; core compares arrays by value, preserving segment boundaries and order. Optional segments may be `undefined`. String keys are also supported and remain distinct from array keys.
 
 Before schema generators run, the driver applies each plugin's macros and filters once, then reserves the remaining component names through that plugin's `name` method. It reuses the prepared schemas during generation. `resolver.name` still only applies casing; it does not allocate a declaration. Use `resolver.reserveNames` for additional emitted identifiers such as enum type aliases, before allocating names that could collide with them.
 
 ```typescript [reserve-names.ts]
 resolver.reserveNames(['CreateContainerBody', 'CreateContainerBody2'])
 const name = resolver.resolveName({
-  key: 'POST /containers:body',
+  key: ['operation', 'POST', '/containers', 'body'],
   name: 'CreateContainerBody',
 })
 // 'CreateContainerBody3'
@@ -101,7 +101,7 @@ For AST nodes whose names are cased later, pass `normalize` to compare their emi
 
 ```typescript [reserve-enums.ts]
 const name = resolver.resolveName({
-  key: `${owner}:enum:${node.pointer}`,
+  key: ['enum', owner, node.pointer],
   name: node.name,
   normalize: (candidate) => resolver.name(candidate),
 })

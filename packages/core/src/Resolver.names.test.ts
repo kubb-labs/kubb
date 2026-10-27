@@ -2,6 +2,27 @@ import { describe, expect, test } from 'vitest'
 import { Resolver } from './Resolver.ts'
 
 describe('resolver name reservations', () => {
+  test('reuses an allocation for equivalent readonly array keys', () => {
+    const resolver = new Resolver({ pluginName: 'types' })
+    const key = ['operation', 'POST', '/containers', 'body'] as const
+    resolver.reserveNames(['CreateContainerBody'])
+
+    expect(resolver.resolveName({ key, name: 'CreateContainerBody' })).toBe('CreateContainerBody2')
+    expect(resolver.resolveName({ key: [...key], name: 'CreateContainerBody' })).toBe('CreateContainerBody2')
+  })
+
+  test.each([
+    { label: 'segment boundaries', first: ['operation', 'a:b', 'c'], second: ['operation', 'a', 'b:c'] },
+    { label: 'segment order', first: ['operation', 'a', 'b'], second: ['operation', 'b', 'a'] },
+    { label: 'optional segments', first: ['operation', undefined], second: ['operation', 'undefined'] },
+    { label: 'string versus array', first: '["operation"]', second: ['operation'] },
+  ])('distinguishes keys by $label', ({ first, second }) => {
+    const resolver = new Resolver({ pluginName: 'types' })
+    expect(resolver.resolveName({ key: first, name: 'Pet' })).toBe('Pet')
+    expect(resolver.resolveName({ key: second, name: 'Pet' })).toBe('Pet2')
+    expect(resolver.resolveName({ key: first, name: 'Pet' })).toBe('Pet')
+  })
+
   test('skips occupied suffixes and returns the same name for repeated references', () => {
     const resolver = new Resolver({ pluginName: 'types' })
     resolver.reserveNames(['CreateContainerBody', 'CreateContainerBody2'])
