@@ -276,6 +276,17 @@ components:
         pet:
           $ref: './schemas/Pet.yaml'
 `,
+  'https://specs.example.com/broken.yaml': `
+openapi: '3.0.3'
+info:
+  title: Remote API
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Pet:
+      $ref: './schemas/Gone.yaml'
+`,
   'https://specs.example.com/schemas/Pet.yaml': `
 type: object
 properties:
@@ -424,6 +435,20 @@ describe('bundleDocument', () => {
       await rm(dir, { recursive: true, force: true })
     }
     expect(sources).toStrictEqual([path.join(dir, 'missing.yaml')])
+  })
+
+  it('reports an unreadable external ref of a URL input at the key that holds it', async () => {
+    using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(mockFetch)
+
+    try {
+      await bundleDocument('https://specs.example.com/broken.yaml')
+      expect.unreachable('expected bundleDocument to throw')
+    } catch (error) {
+      expect(Diagnostics.isError(error) && error.diagnostic).toMatchObject({
+        code: Diagnostics.code.refNotFound,
+        location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+      })
+    }
   })
 
   it('throws when the input file does not exist', async () => {

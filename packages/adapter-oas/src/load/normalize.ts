@@ -77,14 +77,15 @@ function inlinePathRefs(node: unknown, resolve: (ref: string) => unknown, visiti
  */
 export async function bundleDocument(pathOrUrl: string, { document, sources = [] }: { document?: Document; sources?: Array<string> } = {}): Promise<Document> {
   const cache = new Map<string, Promise<object | string>>()
+  // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
+  // `https:/`, so key on the canonical href to fetch each source once and to match the input.
+  const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
 
   const resolver = (sourcePath: string) => {
     if (document && sourcePath === pathOrUrl) {
       return Promise.resolve(document)
     }
-    // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
-    // `https:/`, so cache on the canonical href to fetch each source once.
-    const key = urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath
+    const key = toKey(sourcePath)
     const cached = cache.get(key)
     if (cached) {
       return cached
@@ -108,7 +109,7 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
     hooks: {
       onError: (message, { path, state }) => {
         // Only a `$ref` in the input itself has a key in the document to point at.
-        const pointer = state.baseFile === pathOrUrl ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
+        const pointer = toKey(state.baseFile) === toKey(pathOrUrl) ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
         const diagnostic: Diagnostic = {
           code: Diagnostics.code.refNotFound,
           severity: 'error',
