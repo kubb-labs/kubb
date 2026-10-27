@@ -1,4 +1,4 @@
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
 import { escapePointerToken, getErrorMessage, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource, Diagnostic } from '@kubb/kit'
@@ -114,7 +114,7 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
           severity: 'error',
           message: `Could not bundle an external \`$ref\`. ${message}.`,
           help: 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
-          location: pointer ? { kind: 'schema', pointer } : { kind: 'config' },
+          ...(pointer && { location: { kind: 'schema', pointer } }),
         }
         if (!Diagnostics.report(diagnostic)) {
           throw new Diagnostics.Error(diagnostic)
@@ -155,7 +155,7 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
               help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
             }) as Document)
           : structuredClone(source.data as Document)
-      return source.root && hasExternalRef(data) ? bundleDocument(join(resolve(source.root), inlineInputName), { document: data, sources }) : data
+      return source.root && hasExternalRef(data) ? bundleDocument(join(source.root, inlineInputName), { document: data, sources }) : data
     }
     await assertInputExists(source.path)
     return bundleDocument(source.path, { sources })
