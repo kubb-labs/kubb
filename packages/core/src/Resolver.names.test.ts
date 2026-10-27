@@ -53,6 +53,24 @@ describe('resolver name reservations', () => {
     expect(resolver.resolveName({ key: 'later', name: 'status3' })).toBe('status32')
   })
 
+  test('keys an operation declaration the same way whether the node or the key is given', () => {
+    const resolver = new Resolver({ pluginName: 'types' })
+    const node = { method: 'get', path: '/pets' }
+
+    expect(resolver.resolveName({ node, scope: ['response', 'status', 404], name: 'ListPetsStatus404' })).toBe('ListPetsStatus404')
+    expect(resolver.resolveName({ key: ['operation', 'get', '/pets', 'response', 'status', '404', 'ListPetsStatus404'], name: 'ListPetsStatus404' })).toBe(
+      'ListPetsStatus404',
+    )
+  })
+
+  test('separates an operation declaration from one with another scope', () => {
+    const resolver = new Resolver({ pluginName: 'types' })
+    const node = { method: 'get', path: '/pets' }
+
+    expect(resolver.resolveName({ node, scope: ['response', 'body'], name: 'ListPets' })).toBe('ListPets')
+    expect(resolver.resolveName({ node, scope: ['param', 'path'], name: 'ListPets' })).toBe('ListPets2')
+  })
+
   test('keeps allocations isolated between resolvers and merges', () => {
     const base = new Resolver({ pluginName: 'types' })
     base.reserveNames(['Pet'])
