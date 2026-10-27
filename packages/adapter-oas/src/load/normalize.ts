@@ -134,9 +134,7 @@ const inlineInputName = '<inline input>'
  *   `api-ref-bundler`, hoisting external file schemas into named `components.schemas` entries so
  *   generators can emit named types and imports.
  * - `{ type: 'data' }` parses an inline string (YAML/JSON) or raw object, then bundles its
- *   external `$ref`s from `root` when it has any.
- *
- * Each file or URL read besides inline data is added to `sources`.
+ *   external `$ref`s from `root` when it has any. Each file or URL read lands in `sources`.
  *
  * Swagger 2.0 and OpenAPI 3.0 documents are up-converted to OpenAPI 3.1 via `@scalar/openapi-upgrader`.
  *

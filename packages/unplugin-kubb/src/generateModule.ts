@@ -41,8 +41,7 @@ export function selectConfig({ configs, fileName, cwd }: { configs: Array<UserCo
 /**
  * Generates the output of every plugin in `config` for one spec as one TypeScript module, without
  * writing files. Only `config`'s adapter and plugins are used. `text` is empty when `errors` is not.
- * `sources` lists the files and URLs the adapter read, such as the ones external `$ref`s point at,
- * so a watcher can rebuild when one changes.
+ * `sources` is the adapter's `sources`.
  * The `*.openapi.yaml` loader and the `openapi-import` content mapper share it.
  */
 export async function generateModule({
