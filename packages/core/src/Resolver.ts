@@ -253,6 +253,19 @@ export type ResolverBuildOptions = {
 }
 
 /**
+ * A declaration identity and its preferred name. Keep the key stable across declarations and imports.
+ */
+export type ResolveNameOptions = {
+  key: string
+  name: string
+  /**
+   * Maps a candidate to its emitted identifier while keeping the returned name in its original form.
+   * The mapping must preserve numeric suffixes so distinct candidates can produce distinct identifiers.
+   */
+  normalize?: (name: string) => string
+}
+
+/**
  * Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Parameterize with a
  * concrete resolver type (e.g. `ResolverPatch<ResolverTs>`) to type-check overrides and bind
  * `this` to the full resolver. Namespaces are partial, so a patch may override a single method
@@ -354,6 +367,8 @@ export class Resolver {
   /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
   #options: ResolverBuildOptions
+  #usedNames = new Set<string>()
+  #resolvedNames = new Map<string, string>()
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
   // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
   #baseName: (params: Pick<ResolverFileParams, 'name' | 'extname'>) => FileNode['baseName']
@@ -384,6 +399,43 @@ export class Resolver {
 
   name(name: string): string {
     return this.default.name(name)
+  }
+
+  /**
+   * Marks emitted identifiers as unavailable to `resolveName`. Call before allocating declarations.
+   * The driver reserves component names through `name` before generators run; plugins can reserve
+   * additional declarations such as enum type aliases themselves.
+   *
+   * @example Reserve an enum's type and value names
+   * ```ts
+   * resolver.reserveNames(['petStatusEnum', 'PetStatusEnumKey'])
+   * ```
+   */
+  reserveNames(names: Iterable<string>): void {
+    for (const name of names) this.#usedNames.add(name)
+  }
+
+  /**
+   * Allocates a name once per declaration key, adding `2`, `3`, and so on on collisions.
+   * Pass an already-cased name, or use `normalize` to compare emitted identifiers while returning
+   * the raw name. Repeated calls with the same key return the first allocation.
+   * Each resolver owns its allocations; `Resolver.merge` starts with an empty registry.
+   *
+   * @example Resolve a request body that collides with a component
+   * ```ts
+   * resolver.reserveNames(['CreateContainerBody'])
+   * resolver.resolveName({ key: 'POST /containers:body', name: 'CreateContainerBody' })
+   * // 'CreateContainerBody2'
+   * ```
+   */
+  resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
+    const previous = this.#resolvedNames.get(key)
+    if (previous !== undefined) return previous
+    let result = name
+    for (let suffix = 2; this.#usedNames.has(normalize(result)); suffix++) result = `${name}${suffix}`
+    this.#usedNames.add(normalize(result))
+    this.#resolvedNames.set(key, result)
+    return result
   }
 
   file(options: ResolveFileOptions): FileNode {

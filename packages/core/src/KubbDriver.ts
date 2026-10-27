@@ -398,6 +398,10 @@ export class KubbDriver {
             const hrStart = process.hrtime()
 
             try {
+              if (plugin.generators?.some((generator) => generator.schema)) {
+                const resolver = this.getResolver(plugin.name)
+                resolver.reserveNames((this.inputNode?.schemas ?? []).flatMap((schema) => (schema.name ? [resolver.name(schema.name)] : [])))
+              }
               await hooks.callHook('kubb:plugin:start', { plugin })
             } catch (caughtError) {
               const error = toError(caughtError)

@@ -8,6 +8,7 @@ import type { KubbPluginSetupContext, Plugin } from './definePlugin.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
+import { Resolver } from './Resolver.ts'
 
 function makeConfig(overrides: Partial<Config> = {}): Config {
   return {
@@ -222,6 +223,44 @@ function inputAdapter() {
   ]
   return createMockedAdapter({ parse: async () => ast.factory.createInput({ schemas, operations }) })
 }
+
+test.each([true, false])('reserves component names only for schema-generating plugins (%s)', async (generatesSchemas) => {
+  const names: Array<string> = []
+  const base = new Resolver({ pluginName: 'names', name: (name) => `Api${name}` })
+  const plugin: Plugin = {
+    name: 'names',
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.setResolver(base)
+        ctx.addGenerator({
+          name: 'names',
+          ...(generatesSchemas
+            ? {
+                schema(_node: SchemaNode, { resolver }: GeneratorContext) {
+                  names.push(resolver.resolveName({ key: 'inline', name: 'ApiStore' }))
+                },
+              }
+            : {}),
+          operation(_node, { resolver }) {
+            names.push(resolver.resolveName({ key: 'inline', name: 'ApiStore' }))
+          },
+        })
+      },
+    },
+  }
+
+  for (let run = 0; run < 2; run++) {
+    const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+    try {
+      await driver.setup()
+      const { diagnostics } = await driver.run()
+      expect(diagnostics.filter(Diagnostics.isError)).toEqual([])
+    } finally {
+      driver.dispose()
+    }
+  }
+  expect(names).toEqual(Array.from({ length: generatesSchemas ? 8 : 4 }, () => (generatesSchemas ? 'ApiStore2' : 'ApiStore')))
+})
 
 type Recorder = {
   schema: Array<{ plugin: string; name: string | null | undefined }>

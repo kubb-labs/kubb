@@ -110,6 +110,7 @@ export type {
   ResolveBannerFile,
   ResolveFileOptions,
   ResolveImportsOptions,
+  ResolveNameOptions,
   ResolveOptionsContext,
   ResolvePathOptions,
   ResolverDefault,

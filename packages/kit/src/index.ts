@@ -79,6 +79,7 @@ export type {
   RendererFactory,
   ResolveFileOptions,
   ResolveImportsOptions,
+  ResolveNameOptions,
   ResolvePathOptions,
   ResolverFile,
   ResolverFileParams,
