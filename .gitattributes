@@ -3,6 +3,7 @@
 
 # Collapse in GitHub diffs and skip in language stats
 pnpm-lock.yaml linguist-generated
+CHANGELOG.md linguist-generated
 
 # Images
 *.png binary
@@ -11,4 +12,6 @@ pnpm-lock.yaml linguist-generated
 *.gif binary
 *.webp binary
 *.ico binary
-*.svg -diff linguist-generated
+
+# Keep docs out of language stats
+docs/** linguist-documentation
