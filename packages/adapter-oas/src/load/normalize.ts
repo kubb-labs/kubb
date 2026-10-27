@@ -52,6 +52,33 @@ function inlinePathRefs(node: unknown, resolve: (ref: string) => unknown, visiti
   return node
 }
 
+// Keys that hold user-named entries. An `x-` name here is a real schema, header or parameter, not an extension.
+const namedEntryKeys = new Set([
+  'properties',
+  'patternProperties',
+  'headers',
+  'schemas',
+  'responses',
+  'parameters',
+  'requestBodies',
+  'examples',
+  'links',
+  'callbacks',
+  'securitySchemes',
+  'securityDefinitions',
+  'pathItems',
+  'definitions',
+  '$defs',
+])
+
+/**
+ * True when `path` runs through an `x-` vendor extension. Kubb never reads an extension, so a `$ref`
+ * Kubb cannot read inside one cannot change the output.
+ */
+function isExtensionPath(path: ReadonlyArray<string | number>): boolean {
+  return path.some((token, index) => String(token).startsWith('x-') && !namedEntryKeys.has(String(path[index - 1])))
+}
+
 /**
  * Bundles a multi-file OpenAPI document into a single document via `api-ref-bundler`.
  *
@@ -67,7 +94,7 @@ function inlinePathRefs(node: unknown, resolve: (ref: string) => unknown, visiti
  *
  * `document` stands in for the file at `pathOrUrl`, such as inline input. Every other file or URL
  * read, including one that fails, lands in `sources`. A `$ref` that cannot be read reports
- * `KUBB_REF_NOT_FOUND` at the key that holds it.
+ * `KUBB_REF_NOT_FOUND` at the key that holds it, as a warning when it sits inside an `x-` extension.
  *
  * @example Local file
  * `const document = await bundleDocument('./openapi.yaml')`
@@ -112,12 +139,12 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
         const pointer = toKey(state.baseFile) === toKey(pathOrUrl) ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
         const diagnostic: Diagnostic = {
           code: Diagnostics.code.refNotFound,
-          severity: 'error',
+          severity: isExtensionPath(path) ? 'warning' : 'error',
           message: `Could not bundle an external \`$ref\`. ${message}.`,
           help: 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
         }
-        if (!Diagnostics.report(diagnostic)) {
+        if (!Diagnostics.report(diagnostic) && diagnostic.severity === 'error') {
           throw new Diagnostics.Error(diagnostic)
         }
       },
