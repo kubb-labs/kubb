@@ -53,7 +53,7 @@ describe('inputToAdapterSource', () => {
     ['a parsed object', { openapi: '3.1.0' }],
     ['a parsed spec that happens to carry a path property', { openapi: '3.1.0', path: './petStore.yaml' }],
   ])('passes %s as data', (_name, data) => {
-    expect(inputToAdapterSource(createConfig(data))).toStrictEqual({ type: 'data', data })
+    expect(inputToAdapterSource(createConfig(data))).toStrictEqual({ type: 'data', data, root: '/project' })
   })
 
   it.each([

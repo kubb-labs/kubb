@@ -116,7 +116,7 @@ A name for this config. The CLI prints it as `Generating <name>...`.
 :::field{type="string | Record<string, unknown>"}
 Where Kubb reads your spec: a local file path, a URL, a file in a git repository, inline OpenAPI content as a JSON or YAML string, or an already-parsed object. Kubb detects which one you gave it. Required when an adapter is configured. Omit it in plugin-only mode, when there is no `adapter`.
 
-A string that starts with `{` or `[`, spans multiple lines, or opens with a YAML `openapi:` or `swagger:` key is read as inline content. A string that starts with `git+` is a git input. Anything else is a file path or a URL, and a relative path resolves against the config file.
+A string that starts with `{` or `[`, spans multiple lines, or opens with a YAML `openapi:` or `swagger:` key is read as inline content. A string that starts with `git+` is a git input. Anything else is a file path or a URL, and a relative path resolves against the config file. Relative `$ref` files in inline content or a parsed object resolve against `root`.
 
 Write a git input as `git+<repo>#<ref>:<path>`. `<ref>` is a branch, a tag, or a full commit SHA when the host allows fetching by SHA (GitHub and GitLab do); leave out `<ref>:` to use the default branch. Kubb runs a shallow `git fetch` into a temporary folder, so it needs `git` on the `PATH`, works with any host, and uses your own git credentials (credential helper or SSH key) for a private repository. Relative `$ref` files in the repository resolve as usual.
 

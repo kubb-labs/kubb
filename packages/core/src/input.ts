@@ -63,7 +63,8 @@ function isLegacyInput(input: unknown): boolean {
 /**
  * Normalizes `config.input` into an `AdapterSource` the adapter can parse.
  *
- * A parsed object and inline content become `{ type: 'data' }`; a URL or git input is kept
+ * A parsed object and inline content become `{ type: 'data' }` with `config.root` as the folder
+ * their relative `$ref`s resolve from; a URL or git input is kept
  * verbatim and a local path is resolved against `config.root`, all as `{ type: 'path' }`. The
  * driver checks out a git input before the adapter parses it.
  */
@@ -91,11 +92,11 @@ export function inputToAdapterSource(config: Config): AdapterSource {
   }
 
   if (typeof input !== 'string') {
-    return { type: 'data', data: input }
+    return { type: 'data', data: input, root: resolve(config.root) }
   }
 
   const kind = getInputKind(input)
-  if (kind === 'inline') return { type: 'data', data: input }
+  if (kind === 'inline') return { type: 'data', data: input, root: resolve(config.root) }
   if (kind === 'url' || kind === 'git') return { type: 'path', path: input }
 
   return { type: 'path', path: resolve(config.root, input) }

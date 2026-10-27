@@ -41,6 +41,8 @@ export function selectConfig({ configs, fileName, cwd }: { configs: Array<UserCo
 /**
  * Generates the output of every plugin in `config` for one spec as one TypeScript module, without
  * writing files. Only `config`'s adapter and plugins are used. `text` is empty when `errors` is not.
+ * `sources` lists the files and URLs the adapter read, such as the ones external `$ref`s point at,
+ * so a watcher can rebuild when one changes.
  * The `*.openapi.yaml` loader and the `openapi-import` content mapper share it.
  */
 export async function generateModule({
@@ -54,14 +56,15 @@ export async function generateModule({
   input: UserConfig['input']
   config: UserConfig
   hooks?: Hookable<KubbHooks>
-}): Promise<{ text: string; errors: Array<ProblemDiagnostic> }> {
+}): Promise<{ text: string; errors: Array<ProblemDiagnostic>; sources: Array<string> }> {
   const storage = memoryStorage()
+  const adapter = config.adapter ?? adapterOas()
   const { diagnostics } = await createKubb(
     {
       root,
       input,
       output: { path: '.', barrel: false, format: false, lint: false },
-      adapter: config.adapter ?? adapterOas(),
+      adapter,
       parsers: [parserTs()],
       plugins: (config.plugins ?? []).filter((plugin) => plugin.name !== pluginBarrelName).map(toModulePlugin),
       storage,
@@ -72,5 +75,5 @@ export async function generateModule({
   // Files written elsewhere (a bundled client runtime) are left out; no output is an empty module.
   const text = errors.length ? '' : ((await storage.readItem(path.resolve(root, moduleFile))) ?? '')
 
-  return { text, errors }
+  return { text, errors, sources: adapter.sources ?? [] }
 }

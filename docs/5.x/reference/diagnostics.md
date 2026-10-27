@@ -205,9 +205,9 @@ Run the command manually from the project root. Check the binary, spelling, and 
 
 ### KUBB_REF_NOT_FOUND: Reference not found {#kubb-ref-not-found}
 
-A `$ref` points at a definition that does not exist in the document.
+A `$ref` points at a definition that does not exist in the document, or at a file or URL Kubb cannot read.
 
-Add the missing definition or correct the `$ref`. Run `kubb validate` before generation. Bundle documents with external references when needed.
+Add the missing definition, create the missing file, or correct the `$ref`. Run `kubb validate` before generation.
 
 ### KUBB_UNKNOWN: Unknown error {#kubb-unknown}
 

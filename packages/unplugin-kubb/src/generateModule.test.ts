@@ -1,3 +1,5 @@
+import path from 'node:path'
+import { adapterOas } from '@kubb/adapter-oas'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import type { UserConfig } from '@kubb/core'
 import { pluginBarrel } from '@kubb/plugin-barrel'
@@ -41,6 +43,37 @@ describe('generateModule', () => {
 
     expect(errors).toStrictEqual([])
     expect(text).toBe('')
+  })
+
+  test('bundles the external refs of an inline spec from root and returns the files read', async () => {
+    const root = path.resolve(import.meta.dirname, '../../adapter-oas/mocks')
+    const input = {
+      openapi: '3.0.3',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Pet: { $ref: './external/pet.yaml' } } },
+    }
+    const { errors, sources } = await generateModule({
+      root,
+      input,
+      config: { output: { path: './gen' }, adapter: adapterOas({ validate: false }), plugins: [createSchemaPlugin('a')] },
+    })
+
+    expect(errors).toStrictEqual([])
+    expect(sources).toStrictEqual([path.join(root, 'external/pet.yaml')])
+  })
+
+  test('reports a missing external ref file at its key and still returns it', async () => {
+    const root = path.resolve(import.meta.dirname, '../../adapter-oas/mocks')
+    const input = { openapi: '3.0.3', info: { title: 'Pets', version: '1.0.0' }, paths: {}, components: { schemas: { Pet: { $ref: './missing.yaml' } } } }
+    const { errors, sources } = await generateModule({
+      root,
+      input,
+      config: { output: { path: './gen' }, adapter: adapterOas({ validate: false }), plugins: [createSchemaPlugin('a')] },
+    })
+
+    expect(errors).toMatchObject([{ code: 'KUBB_REF_NOT_FOUND', location: { kind: 'schema', pointer: '#/components/schemas/Pet' } }])
+    expect(sources).toStrictEqual([path.join(root, 'missing.yaml')])
   })
 
   test('returns no module and the errors of a failed build', async () => {

@@ -67,6 +67,7 @@ export const adapterOas = defineExtension<AdapterOas>({
   }) => ({ validate, contentType, server, discriminator, enums, dateType, integerType, unknownType, emptySchemaType, enumSuffix }),
   build({ validate, contentType, server, discriminator, enums, ...parserOptions }) {
     let parsedDocument: Document | null = null
+    let sources: Array<string> = []
     const pendingValidations: Array<Promise<void>> = []
 
     // One cache per source: reusing one adapter instance across a `defineConfig` array must parse
@@ -213,6 +214,9 @@ export const adapterOas = defineExtension<AdapterOas>({
       get document() {
         return parsedDocument
       },
+      get sources() {
+        return sources
+      },
       locate,
       async validate(input, options) {
         const document = await parseFromConfig({ type: 'path', path: input })
@@ -228,7 +232,8 @@ export const adapterOas = defineExtension<AdapterOas>({
         if (cached) return cached
 
         const promise = (async () => {
-          const document = await parseFromConfig(source)
+          sources = []
+          const document = await parseFromConfig(source, sources)
           signal?.throwIfAborted()
           assertDocument(document)
           if (validate) pendingValidations.push(validateDocumentInWorker(document))

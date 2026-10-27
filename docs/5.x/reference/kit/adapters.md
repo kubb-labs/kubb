@@ -81,6 +81,7 @@ Every adapter the factory returns matches the `Adapter` interface from [`kubb/ki
 | `parse`    | `(source: AdapterSource) => InputNode \| Promise<InputNode>`             | Yes      | Convert the spec into the [universal AST](/docs/5.x/explanation/architecture#ast).            |
 | `validate` | `(input: string, options?: { throwOnError?: boolean }) => Promise<void>` | Yes      | Validate the document at a path or URL without running the full pipeline.                     |
 | `locate` | `(source: string, location: DiagnosticLocation) => { start: number; end: number } \| undefined` | No | Where a diagnostic sits in the source text, for CLI code frames. |
+| `sources` | `Array<string>` | No | The files and URLs the last `parse()` read, such as the files external `$ref`s point at, including any that could not be read. A watcher rebuilds when one of them changes. |
 
 `locate` receives the local input's source text and a `DiagnosticLocation`, and returns zero-based UTF-16 offsets with an exclusive `end`, or `undefined` when it cannot place that location. Kubb formats the line, column, and frame from that range. The OpenAPI adapter resolves JSON pointers in YAML and JSON. Adapters without `locate` still show diagnostic messages and locations without code frames.
 

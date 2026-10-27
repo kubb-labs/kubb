@@ -9,9 +9,10 @@ import type { DiagnosticLocation } from './Diagnostics.ts'
  * input shape with paths resolved to absolute.
  *
  * - `{ type: 'path' }`: single file on disk.
- * - `{ type: 'data' }`: raw string or parsed object provided inline.
+ * - `{ type: 'data' }`: raw string or parsed object provided inline. `root` is the folder that
+ *   relative external `$ref`s in it resolve from.
  */
-export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown }
+export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown; root?: string }
 
 /**
  * Generic parameters used by `defineExtension` with `kind: 'adapter'` and the resulting `Adapter` type.
@@ -70,6 +71,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * Parsed source document after the first `parse()` call. `null` before parsing.
    */
   document: TOptions['document'] | null
+  /**
+   * The files and URLs the last `parse()` read, such as the ones external `$ref`s point at, including
+   * any that could not be read. Inline data is not listed. A watcher rebuilds when one of them changes.
+   */
+  sources?: Array<string>
   /**
    * Parse the source into a universal `InputNode`.
    *
