@@ -84,9 +84,11 @@ const imports = resolver.imports({
 
 ### Name reservations
 
-Use `resolver.resolveName({ key, name })` when a declaration can collide with another export. It keeps the preferred name when available and adds `2`, `3`, and so on when occupied. Reuse the same key for the declaration and every reference to it. Use an array of strings to separate the declaration's owner and role; core compares arrays by value, preserving segment boundaries and order. Optional segments may be `undefined`. String keys are also supported and remain distinct from array keys.
+`resolver.resolveName({ key, name })` keeps the preferred name when available and adds `2`, `3`, and so on when it is taken. Use the same key for a declaration and its references.
 
-Before schema generators run, the driver applies each plugin's macros and filters once, then reserves the remaining component names through that plugin's `name` method. It reuses the prepared schemas during generation. `resolver.name` still only applies casing; it does not allocate a declaration. Use `resolver.reserveNames` for additional emitted identifiers such as enum type aliases, before allocating names that could collide with them.
+Use an array to separate the declaration's owner and role. Core compares array values in order and keeps segment boundaries distinct. Segments can be strings or `undefined`. String keys also work and are distinct from array keys.
+
+The driver reserves component names after applying each plugin's macros and filters. `resolver.name` only applies casing. Reserve extra identifiers, such as enum type aliases, with `resolver.reserveNames` before allocating names that could collide with them.
 
 ```typescript [reserve-names.ts]
 resolver.reserveNames(['CreateContainerBody', 'CreateContainerBody2'])
@@ -97,7 +99,7 @@ const name = resolver.resolveName({
 // 'CreateContainerBody3'
 ```
 
-For AST nodes whose names are cased later, pass `normalize` to compare their emitted identifiers while returning the raw name. The callback must preserve numeric suffixes so allocation can find an unused identifier.
+Pass `normalize` when a node's raw name differs from its emitted identifier. The returned name stays in its raw form. The callback must keep numeric suffixes distinct so allocation can find an unused identifier.
 
 ```typescript [reserve-enums.ts]
 const name = resolver.resolveName({
@@ -107,7 +109,7 @@ const name = resolver.resolveName({
 })
 ```
 
-Only allocate names for declarations the generator emits. Allocations belong to one resolver; `Resolver.merge` creates a fresh registry, so one build cannot consume names in another.
+Allocate names only for declarations the generator emits. `Resolver.merge` creates a resolver with no reservations.
 
 ### `Resolver.merge`
 
