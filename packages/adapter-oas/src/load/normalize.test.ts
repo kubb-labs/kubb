@@ -459,23 +459,26 @@ describe('bundleDocument', () => {
     expect(reported).toMatchObject([{ code: Diagnostics.code.refNotFound, severity: 'warning', location: { pointer: '#/components/x-policies' } }])
   })
 
-  it('still fails for an unreadable external ref on a property named like an extension', async () => {
-    const dir = await mkdtemp(path.join(tmpdir(), 'kubb-bundle-'))
-    const document = {
-      openapi: '3.0.3',
-      info: { title: 'Pets API', version: '1.0.0' },
-      paths: {},
-      components: { schemas: { Pet: { type: 'object', properties: { 'x-trace': { $ref: './missing.yaml' } } } } },
-    } as Document
+  it.each(['properties', 'headers', 'schemas', 'securitySchemes', 'securityDefinitions', 'definitions', '$defs'])(
+    'still fails for an unreadable external ref on an x- name under %s',
+    async (mapKey) => {
+      const dir = await mkdtemp(path.join(tmpdir(), 'kubb-bundle-'))
+      const document = {
+        openapi: '3.0.3',
+        info: { title: 'Pets API', version: '1.0.0' },
+        paths: {},
+        components: { [mapKey]: { 'x-Pet': { $ref: './missing.yaml' } } },
+      } as unknown as Document
 
-    try {
-      await expect(bundleDocument(path.join(dir, 'main.yaml'), { document })).rejects.toMatchObject({
-        diagnostic: { code: Diagnostics.code.refNotFound, severity: 'error' },
-      })
-    } finally {
-      await rm(dir, { recursive: true, force: true })
-    }
-  })
+      try {
+        await expect(bundleDocument(path.join(dir, 'main.yaml'), { document })).rejects.toMatchObject({
+          diagnostic: { code: Diagnostics.code.refNotFound, severity: 'error' },
+        })
+      } finally {
+        await rm(dir, { recursive: true, force: true })
+      }
+    },
+  )
 
   it('reports an unreadable external ref of a URL input at the key that holds it', async () => {
     using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(mockFetch)

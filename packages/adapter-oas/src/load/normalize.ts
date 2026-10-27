@@ -65,7 +65,10 @@ const namedEntryKeys = new Set([
   'links',
   'callbacks',
   'securitySchemes',
+  'securityDefinitions',
   'pathItems',
+  'definitions',
+  '$defs',
 ])
 
 /**
