@@ -67,13 +67,14 @@ export const adapterOas = defineExtension<AdapterOas>({
   }) => ({ validate, contentType, server, discriminator, enums, dateType, integerType, unknownType, emptySchemaType, enumSuffix }),
   build({ validate, contentType, server, discriminator, enums, ...parserOptions }) {
     let parsedDocument: Document | null = null
+    let sources: Array<string> = []
     const pendingValidations: Array<Promise<void>> = []
 
     // One cache per source: reusing one adapter instance across a `defineConfig` array must parse
     // each config's spec instead of replaying the first one, and a repeat `.parse()` call for the
     // same source must not redo the work. The `$ref` memo lives inside the `Refs` instance created
     // fresh for each document, scoped to this one pass.
-    const inputCache = new WeakMap<AdapterSource, Promise<ast.InputNode>>()
+    const inputCache = new WeakMap<AdapterSource, { promise: Promise<ast.InputNode>; sources: Array<string> }>()
 
     /**
      * Parses every schema and operation once, resolving ref aliases and discriminator children from that same pass.
@@ -213,6 +214,9 @@ export const adapterOas = defineExtension<AdapterOas>({
       get document() {
         return parsedDocument
       },
+      get sources() {
+        return sources
+      },
       locate,
       async validate(input, options) {
         const document = await parseFromConfig({ type: 'path', path: input })
@@ -225,10 +229,15 @@ export const adapterOas = defineExtension<AdapterOas>({
       async parse(source, { signal } = {}) {
         signal?.throwIfAborted()
         const cached = inputCache.get(source)
-        if (cached) return cached
+        if (cached) {
+          sources = cached.sources
+          return cached.promise
+        }
 
+        const read: Array<string> = []
+        sources = read
         const promise = (async () => {
-          const document = await parseFromConfig(source)
+          const document = await parseFromConfig(source, read)
           signal?.throwIfAborted()
           assertDocument(document)
           if (validate) pendingValidations.push(validateDocumentInWorker(document))
@@ -240,7 +249,7 @@ export const adapterOas = defineExtension<AdapterOas>({
 
           return parseInput({ document, refs, schemas, pointers, parseSchema })
         })()
-        inputCache.set(source, promise)
+        inputCache.set(source, { promise, sources: read })
         return promise.catch((error: unknown) => {
           // A canceled parse must not poison the cache: the next call with the same source needs a fresh attempt.
           if (signal?.aborted) inputCache.delete(source)

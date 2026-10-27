@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -42,6 +42,24 @@ const petSchema: Document = {
 } as Document
 
 describe('parseFromConfig', () => {
+  it('bundles the external refs of inline data from root and lists the files it read', async () => {
+    const mocks = path.resolve(__dirname, '../../mocks')
+    const data = yaml.parse(await readFile(path.join(mocks, 'withExternalFileRef.yaml'), 'utf8'))
+    const sources: Array<string> = []
+    const doc = await parseFromConfig({ type: 'data', data, root: mocks }, sources)
+
+    expect(doc.components?.schemas?.['Pet']).toMatchObject({ type: 'object', properties: { name: { type: 'string' } } })
+    expect(sources).toStrictEqual([path.join(mocks, 'external/pet.yaml')])
+  })
+
+  it('lists the input file and the files its external refs read', async () => {
+    const mocks = path.resolve(__dirname, '../../mocks')
+    const sources: Array<string> = []
+    await parseFromConfig({ type: 'path', path: path.join(mocks, 'withExternalFileRef.yaml') }, sources)
+
+    expect(sources).toStrictEqual([path.join(mocks, 'withExternalFileRef.yaml'), path.join(mocks, 'external/pet.yaml')])
+  })
+
   it('upgrades an unquoted `swagger: 2.0` instead of dropping its definitions', async () => {
     const doc = await parseFromConfig({
       type: 'data',
@@ -258,6 +276,17 @@ components:
         pet:
           $ref: './schemas/Pet.yaml'
 `,
+  'https://specs.example.com/broken.yaml': `
+openapi: '3.0.3'
+info:
+  title: Remote API
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Pet:
+      $ref: './schemas/Gone.yaml'
+`,
   'https://specs.example.com/schemas/Pet.yaml': `
 type: object
 properties:
@@ -381,6 +410,44 @@ describe('bundleDocument', () => {
     } catch (error) {
       expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.inputRequestFailed)
       expect(Diagnostics.isError(error) && error.diagnostic.message).toContain('HTTP 404')
+    }
+  })
+
+  it('reports an unreadable external ref at the key that holds it and still lists the file', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'kubb-bundle-'))
+    const sources: Array<string> = []
+    const document = {
+      openapi: '3.0.3',
+      info: { title: 'Pets API', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Pet: { $ref: './missing.yaml' } } },
+    } as Document
+
+    try {
+      await bundleDocument(path.join(dir, 'main.yaml'), { document, sources })
+      expect.unreachable('expected bundleDocument to throw')
+    } catch (error) {
+      expect(Diagnostics.isError(error) && error.diagnostic).toMatchObject({
+        code: Diagnostics.code.refNotFound,
+        location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+      })
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+    expect(sources).toStrictEqual([path.join(dir, 'missing.yaml')])
+  })
+
+  it('reports an unreadable external ref of a URL input at the key that holds it', async () => {
+    using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(mockFetch)
+
+    try {
+      await bundleDocument('https://specs.example.com/broken.yaml')
+      expect.unreachable('expected bundleDocument to throw')
+    } catch (error) {
+      expect(Diagnostics.isError(error) && error.diagnostic).toMatchObject({
+        code: Diagnostics.code.refNotFound,
+        location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+      })
     }
   })
 

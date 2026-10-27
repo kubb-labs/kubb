@@ -54,14 +54,15 @@ export async function generateModule({
   input: UserConfig['input']
   config: UserConfig
   hooks?: Hookable<KubbHooks>
-}): Promise<{ text: string; errors: Array<ProblemDiagnostic> }> {
+}): Promise<{ text: string; errors: Array<ProblemDiagnostic>; sources: Array<string> }> {
   const storage = memoryStorage()
+  const adapter = config.adapter ?? adapterOas()
   const { diagnostics } = await createKubb(
     {
       root,
       input,
       output: { path: '.', barrel: false, format: false, lint: false },
-      adapter: config.adapter ?? adapterOas(),
+      adapter,
       parsers: [parserTs()],
       plugins: (config.plugins ?? []).filter((plugin) => plugin.name !== pluginBarrelName).map(toModulePlugin),
       storage,
@@ -72,5 +73,5 @@ export async function generateModule({
   // Files written elsewhere (a bundled client runtime) are left out; no output is an empty module.
   const text = errors.length ? '' : ((await storage.readItem(path.resolve(root, moduleFile))) ?? '')
 
-  return { text, errors }
+  return { text, errors, sources: adapter.sources ?? [] }
 }

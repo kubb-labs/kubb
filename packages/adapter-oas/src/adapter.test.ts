@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
@@ -29,6 +30,19 @@ const minimalSpec = {
 } as const
 
 describe('adapterOas.parse', () => {
+  it('restores the sources of a cached parse', async () => {
+    const mocks = path.resolve(import.meta.dirname, '../mocks')
+    const withRef = { type: 'path', path: path.join(mocks, 'withExternalFileRef.yaml') } as const
+    const petStore = { type: 'path', path: path.join(mocks, 'petStore.yaml') } as const
+    const adapter = adapterOas({ validate: false })
+
+    await adapter.parse(withRef)
+    await adapter.parse(petStore)
+    await adapter.parse(withRef)
+
+    expect(adapter.sources).toStrictEqual([withRef.path, path.join(mocks, 'external/pet.yaml')])
+  })
+
   it('emits nested OpenAPI 3.1 definitions and resolves their references', async () => {
     const node = await adapterOas({ validate: false }).parse({
       type: 'data',

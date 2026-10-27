@@ -1,6 +1,7 @@
-import { getErrorMessage, toError } from '@internals/utils'
+import { join } from 'node:path'
+import { escapePointerToken, getErrorMessage, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
-import type { AdapterSource } from '@kubb/kit'
+import type { AdapterSource, Diagnostic } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
 import { createRefs } from '../refs.ts'
@@ -64,24 +65,33 @@ function inlinePathRefs(node: unknown, resolve: (ref: string) => unknown, visiti
  * all-internal document it is a no-op that still walks the whole tree to confirm that, which
  * costs real time on a large spec.
  *
+ * `document` stands in for the file at `pathOrUrl`, such as inline input. Every other file or URL
+ * read, including one that fails, lands in `sources`. A `$ref` that cannot be read reports
+ * `KUBB_REF_NOT_FOUND` at the key that holds it.
+ *
  * @example Local file
  * `const document = await bundleDocument('./openapi.yaml')`
  *
  * @example Remote URL
  * `const document = await bundleDocument('https://example.com/openapi.yaml')`
  */
-export async function bundleDocument(pathOrUrl: string): Promise<Document> {
+export async function bundleDocument(pathOrUrl: string, { document, sources = [] }: { document?: Document; sources?: Array<string> } = {}): Promise<Document> {
   const cache = new Map<string, Promise<object | string>>()
+  // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
+  // `https:/`, so key on the canonical href to fetch each source once and to match the input.
+  const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
 
   const resolver = (sourcePath: string) => {
-    // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
-    // `https:/`, so cache on the canonical href to fetch each source once.
-    const key = urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath
+    if (document && sourcePath === pathOrUrl) {
+      return Promise.resolve(document)
+    }
+    const key = toKey(sourcePath)
     const cached = cache.get(key)
     if (cached) {
       return cached
     }
 
+    sources.push(key)
     const result = resolveSource(sourcePath)
     cache.set(key, result)
     return result
@@ -95,8 +105,28 @@ export async function bundleDocument(pathOrUrl: string): Promise<Document> {
     return root as Document
   }
 
-  return (await bundle(pathOrUrl, resolver)) as Document
+  return (await bundle(pathOrUrl, resolver, {
+    hooks: {
+      onError: (message, { path, state }) => {
+        // Only a `$ref` in the input itself has a key in the document to point at.
+        const pointer = toKey(state.baseFile) === toKey(pathOrUrl) ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
+        const diagnostic: Diagnostic = {
+          code: Diagnostics.code.refNotFound,
+          severity: 'error',
+          message: `Could not bundle an external \`$ref\`. ${message}.`,
+          help: 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
+          ...(pointer && { location: { kind: 'schema', pointer } }),
+        }
+        if (!Diagnostics.report(diagnostic)) {
+          throw new Diagnostics.Error(diagnostic)
+        }
+      },
+    },
+  })) as Document
 }
+
+// Inline input has no file of its own, so its relative `$ref`s resolve from a stand-in name in `root`.
+const inlineInputName = '<inline input>'
 
 /**
  * Creates a `Document` from an `AdapterSource`.
@@ -104,7 +134,8 @@ export async function bundleDocument(pathOrUrl: string): Promise<Document> {
  * - `{ type: 'path' }` bundles an absolute file path (core resolves `input`) or remote URL via
  *   `api-ref-bundler`, hoisting external file schemas into named `components.schemas` entries so
  *   generators can emit named types and imports.
- * - `{ type: 'data' }` parses an inline string (YAML/JSON) or raw object.
+ * - `{ type: 'data' }` parses an inline string (YAML/JSON) or raw object, then bundles its
+ *   external `$ref`s from `root` when it has any. Each file or URL read lands in `sources`.
  *
  * Swagger 2.0 and OpenAPI 3.0 documents are up-converted to OpenAPI 3.1 via `@scalar/openapi-upgrader`.
  *
@@ -114,19 +145,21 @@ export async function bundleDocument(pathOrUrl: string): Promise<Document> {
  * const document = await parseFromConfig({ type: 'data', data: '{"openapi":"3.0.0",...}' })
  * ```
  */
-export async function parseFromConfig(source: AdapterSource): Promise<Document> {
+export async function parseFromConfig(source: AdapterSource, sources: Array<string> = []): Promise<Document> {
   const raw = await (async (): Promise<Document> => {
     // YAML parsing also handles JSON.
     if (source.type === 'data') {
-      return typeof source.data === 'string'
-        ? (parseYaml(source.data, {
-            origin: 'the inline `input` string',
-            help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
-          }) as Document)
-        : structuredClone(source.data as Document)
+      const data =
+        typeof source.data === 'string'
+          ? (parseYaml(source.data, {
+              origin: 'the inline `input` string',
+              help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
+            }) as Document)
+          : structuredClone(source.data as Document)
+      return source.root && hasExternalRef(data) ? bundleDocument(join(source.root, inlineInputName), { document: data, sources }) : data
     }
     await assertInputExists(source.path)
-    return bundleDocument(source.path)
+    return bundleDocument(source.path, { sources })
   })()
 
   // Unquoted `swagger: 2.0` parses as the number 2, which `upgrade` does not recognise as a version.
