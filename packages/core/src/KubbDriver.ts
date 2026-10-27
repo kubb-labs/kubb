@@ -42,6 +42,11 @@ type RequirePluginContext = {
   requiredBy?: string
 }
 
+type ResolvedNode<TNode extends SchemaNode | OperationNode> = {
+  transformedNode: TNode
+  options: NormalizedPlugin['options']
+}
+
 const ENFORCE_ORDER = { pre: -1, post: 1 } satisfies Record<Enforce, number>
 
 /** `include` filter types that select operations, and so prune the schemas they do not reach. */
@@ -566,6 +571,7 @@ export class KubbDriver {
         optionsAreStatic: !exclude?.length && !include?.length && !override?.length,
         allowedSchemaNames: allowedSchemaNamesByPlugin.get(plugin.name) ?? null,
         schemaGenerators: generators.filter((generator) => generator.schema),
+        schemas: new Map<SchemaNode, ResolvedNode<SchemaNode> | Error>(),
         operationGenerators: generators.filter((generator) => generator.operation),
         operationsGenerators: generators.filter((generator) => generator.operations),
         pluginOperations: [] as Array<OperationNode>,
@@ -581,10 +587,7 @@ export class KubbDriver {
     // optionsAreStatic). Returns null when include/exclude/override rules out the node. The
     // per-node dispatch and the collected-operations batch both go through this so they agree on
     // what the plugin sees.
-    const resolveForPlugin = <TNode extends SchemaNode | OperationNode>(
-      state: PluginState,
-      node: TNode,
-    ): { transformedNode: TNode; options: NormalizedPlugin['options'] } | null => {
+    const resolveForPlugin = <TNode extends SchemaNode | OperationNode>(state: PluginState, node: TNode): ResolvedNode<TNode> | null => {
       const transformedNode = ast.applyMacros(node, state.plugin.macros ?? [])
       if (state.optionsAreStatic) return { transformedNode, options: state.plugin.options }
 
@@ -599,6 +602,25 @@ export class KubbDriver {
       return { transformedNode, options }
     }
 
+    // Prepare schemas once so reservations use the same names and filters as generation.
+    for (const state of states) {
+      if (!state.schemaGenerators.length) continue
+      for (const node of schemas) {
+        try {
+          const resolved = resolveForPlugin(state, node)
+          if (!resolved) continue
+          const name = resolved.transformedNode.name
+          if (state.allowedSchemaNames !== null && name && !state.allowedSchemaNames.has(name)) continue
+          state.schemas.set(node, resolved)
+          if (name) state.generatorContext.resolver.reserveNames([state.generatorContext.resolver.name(name)])
+        } catch (caughtError) {
+          // Report the failure at this node's turn, preserving output from earlier schemas.
+          state.schemas.set(node, toError(caughtError))
+          break
+        }
+      }
+    }
+
     // Schemas before operations, in adapter order, so file output stays deterministic. For each
     // node the plugins fan out in dependency order and share one cache. A caught error drops that
     // plugin from the rest of the walk but not the others, so its remaining nodes are skipped
@@ -608,11 +630,11 @@ export class KubbDriver {
       for (const state of states) {
         if (state.error || !state.schemaGenerators.length) continue
         try {
-          const resolved = resolveForPlugin(state, node)
+          const resolved = state.schemas.get(node)
+          if (resolved instanceof Error) throw resolved
           if (!resolved) continue
 
           const { transformedNode, options } = resolved
-          if (state.allowedSchemaNames !== null && transformedNode.name && !state.allowedSchemaNames.has(transformedNode.name)) continue
 
           const ctx = { ...state.generatorContext, options, cache }
           await this.#dispatchNode({

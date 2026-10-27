@@ -1,22 +1,13 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import { ast, collectImportedRefNames, type FileNode, type ImportNode, type InputMeta, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
+import { ast, collectImportedRefNames, type FileNode, type ImportNode, type InputMeta, type Node, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
 import { getInputKind } from './input.ts'
-import type { Filter, Override, Group, Output } from './definePlugin.ts'
+import type { Group, Output } from './definePlugin.ts'
 import type { Config } from './types.ts'
+import { resolveOptions, type ResolveOptionsContext } from './resolveOptions.ts'
 
-/**
- * Context for resolving filtered options for a given operation or schema node.
- *
- * @internal
- */
-export type ResolveOptionsContext<TOptions> = {
-  options: TOptions
-  exclude?: Array<Filter>
-  include?: Array<Filter>
-  override?: Array<Override<TOptions>>
-}
+export type { ResolveOptionsContext } from './resolveOptions.ts'
 
 /**
  * The built-in resolution machinery exposed on every resolver as `resolver.default`.
@@ -253,6 +244,18 @@ export type ResolverBuildOptions = {
 }
 
 /**
+ * Reuse the declaration's key when resolving its references.
+ */
+export type ResolveNameOptions = {
+  key: string | ReadonlyArray<string | undefined>
+  name: string
+  /**
+   * Compares emitted identifiers while returning raw names. Keep numeric suffixes distinct.
+   */
+  normalize?: (name: string) => string
+}
+
+/**
  * Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Parameterize with a
  * concrete resolver type (e.g. `ResolverPatch<ResolverTs>`) to type-check overrides and bind
  * `this` to the full resolver. Namespaces are partial, so a patch may override a single method
@@ -346,14 +349,12 @@ function toBaseName({ name, extname }: Pick<ResolverFileParams, 'name' | 'extnam
  * ```
  */
 export class Resolver {
-  // String patterns are compiled lazily and cached, so the same filter is reused for every node.
-  static #patternCache = new Map<string, RegExp>()
-  static #optionsCache = new WeakMap<object, WeakMap<Node, { value: unknown }>>()
-
   readonly pluginName: string
   /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
   #options: ResolverBuildOptions
+  #usedNames = new Set<string>()
+  #resolvedNames = new Map<string, string>()
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
   // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
   #baseName: (params: Pick<ResolverFileParams, 'name' | 'extname'>) => FileNode['baseName']
@@ -368,7 +369,7 @@ export class Resolver {
     this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
     this.default = {
       name: camelCase,
-      options: this.#resolveOptions.bind(this),
+      options: resolveOptions,
       path: this.#resolvePath.bind(this),
       file: this.#resolveFile.bind(this),
       banner: this.#resolveBanner.bind(this),
@@ -384,6 +385,43 @@ export class Resolver {
 
   name(name: string): string {
     return this.default.name(name)
+  }
+
+  /**
+   * Reserves emitted identifiers before allocating other declarations. The driver reserves component
+   * names. Reserve extra identifiers, such as enum type aliases, before calling `resolveName`.
+   *
+   * @example Reserve an enum's type and value names
+   * ```ts
+   * resolver.reserveNames(['petStatusEnum', 'PetStatusEnumKey'])
+   * ```
+   */
+  reserveNames(names: Iterable<string>): void {
+    for (const name of names) this.#usedNames.add(name)
+  }
+
+  /**
+   * Returns the same name for repeated declaration keys. Adds numeric suffixes starting at `2`
+   * when the preferred name is taken. Array segment order and boundaries matter. String and array
+   * keys are distinct. Pass an already-cased name or use `normalize` to compare emitted identifiers
+   * while returning raw names. `Resolver.merge` creates a resolver with no reservations.
+   *
+   * @example Resolve a request body that collides with a component
+   * ```ts
+   * resolver.reserveNames(['CreateContainerBody'])
+   * resolver.resolveName({ key: ['operation', 'POST', '/containers', 'body'], name: 'CreateContainerBody' })
+   * // 'CreateContainerBody2'
+   * ```
+   */
+  resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
+    const cacheKey = JSON.stringify(key)
+    const previous = this.#resolvedNames.get(cacheKey)
+    if (previous !== undefined) return previous
+    let result = name
+    for (let suffix = 2; this.#usedNames.has(normalize(result)); suffix++) result = `${name}${suffix}`
+    this.#usedNames.add(normalize(result))
+    this.#resolvedNames.set(cacheKey, result)
+    return result
   }
 
   file(options: ResolveFileOptions): FileNode {
@@ -458,88 +496,6 @@ export class Resolver {
       if (key === 'pluginName' || key === 'default' || key === 'file' || value === undefined) continue
       root[key] = isNamespace(value) ? Object.fromEntries(Object.entries(value).map(([method, member]) => [method, bind(member)])) : bind(value)
     }
-  }
-
-  static #testPattern(value: string, pattern: string | RegExp): boolean {
-    if (typeof pattern === 'string') {
-      let regex = Resolver.#patternCache.get(pattern)
-      regex ??= new RegExp(pattern)
-      Resolver.#patternCache.set(pattern, regex)
-      return regex.test(value)
-    }
-    // Use .match() for user-supplied RegExp to preserve semantics regardless of `g`/`y` flags.
-    return value.match(pattern) !== null
-  }
-
-  static #matchesOperation(node: OperationNode, filter: Filter): boolean {
-    if (filter.type === 'extension') {
-      const { extensions } = node
-      return extensions !== undefined && Object.hasOwn(extensions, filter.key) && (filter.value === undefined || extensions[filter.key] === filter.value)
-    }
-
-    const { type, pattern } = filter
-    if (type === 'tag') return node.tags.some((tag) => Resolver.#testPattern(tag, pattern))
-    if (type === 'operationId') return Resolver.#testPattern(node.operationId, pattern)
-    if (type === 'path') return node.path !== undefined && Resolver.#testPattern(node.path, pattern)
-    if (type === 'method') return node.method !== undefined && Resolver.#testPattern(node.method.toLowerCase(), pattern)
-    if (type === 'contentType') return node.requestBody?.content?.some((c) => Resolver.#testPattern(c.contentType, pattern)) ?? false
-    return false
-  }
-
-  /**
-   * Returns `null` when the filter type doesn't apply to schemas, so include rules built
-   * from operation filters (e.g. `tag`) don't exclude every schema.
-   */
-  static #matchesSchema(node: SchemaNode, filter: Filter): boolean | null {
-    if (filter.type === 'schemaName') return node.name ? Resolver.#testPattern(node.name, filter.pattern) : false
-    return null
-  }
-
-  static #computeOptions<TOptions>(node: Node, { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>): TOptions | null {
-    if (node.kind === ast.nodeKinds.operation) {
-      if (exclude.some((filter) => Resolver.#matchesOperation(node, filter))) return null
-      if (include && !include.some((filter) => Resolver.#matchesOperation(node, filter))) return null
-
-      return { ...options, ...override.find((filter) => Resolver.#matchesOperation(node, filter))?.options }
-    }
-
-    if (node.kind === ast.nodeKinds.schema) {
-      if (exclude.some((filter) => Resolver.#matchesSchema(node, filter) === true)) return null
-      if (include) {
-        const applicable = include.map((filter) => Resolver.#matchesSchema(node, filter)).filter((result) => result !== null)
-        if (applicable.length > 0 && !applicable.includes(true)) return null
-      }
-
-      return { ...options, ...override.find((filter) => Resolver.#matchesSchema(node, filter) === true)?.options }
-    }
-
-    return options
-  }
-
-  /**
-   * Applies include/exclude filters and merges matching override options, caching the result
-   * per `(options, node)` pair. Returns `null` when the node is filtered out.
-   */
-  #resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null {
-    // A re-instantiated plugin can hand back a non-object `options`, which WeakMap rejects
-    // as a key. Compute directly in that case instead of throwing.
-    const { options } = context
-    if (typeof options !== 'object' || options === null) {
-      return Resolver.#computeOptions(node, context)
-    }
-
-    let byOptions = Resolver.#optionsCache.get(options)
-    if (!byOptions) {
-      byOptions = new WeakMap()
-      Resolver.#optionsCache.set(options, byOptions)
-    }
-
-    const cached = byOptions.get(node)
-    if (cached) return cached.value as TOptions | null
-
-    const result = Resolver.#computeOptions(node, context)
-    byOptions.set(node, { value: result })
-    return result
   }
 
   /**

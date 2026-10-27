@@ -82,6 +82,35 @@ const imports = resolver.imports({
 })
 ```
 
+### Name reservations
+
+`resolver.resolveName({ key, name })` keeps the preferred name when available and adds `2`, `3`, and so on when it is taken. Use the same key for a declaration and its references.
+
+Use an array to separate the declaration's owner and role. Core compares array values in order and keeps segment boundaries distinct. Segments can be strings or `undefined`. String keys also work and are distinct from array keys.
+
+The driver reserves component names after applying each plugin's macros and filters. `resolver.name` only applies casing. Reserve extra identifiers, such as enum type aliases, with `resolver.reserveNames` before allocating names that could collide with them.
+
+```typescript [reserve-names.ts]
+resolver.reserveNames(['CreateContainerBody', 'CreateContainerBody2'])
+const name = resolver.resolveName({
+  key: ['operation', 'POST', '/containers', 'body'],
+  name: 'CreateContainerBody',
+})
+// 'CreateContainerBody3'
+```
+
+Pass `normalize` when a node's raw name differs from its emitted identifier. The returned name stays in its raw form. The callback must keep numeric suffixes distinct so allocation can find an unused identifier.
+
+```typescript [reserve-enums.ts]
+const name = resolver.resolveName({
+  key: ['enum', owner, node.pointer],
+  name: node.name,
+  normalize: (candidate) => resolver.name(candidate),
+})
+```
+
+Allocate names only for declarations the generator emits. `Resolver.merge` creates a resolver with no reservations.
+
 ### `Resolver.merge`
 
 `Resolver.merge(base, patch)` returns a new resolver with `patch`'s fields layered over `base`'s and every helper re-bound. A top-level `name` replaces, while `file` and each namespace merge per member, so overriding `query.name` keeps the base `query.keyName`. 
