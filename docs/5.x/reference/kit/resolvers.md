@@ -86,7 +86,7 @@ const imports = resolver.imports({
 
 Use `resolver.resolveName({ key, name })` when a declaration can collide with another export. It keeps the preferred name when available and adds `2`, `3`, and so on when occupied. Reuse the same key for the declaration and every reference to it. Include the declaration's owner and role in the key, rather than only its preferred name.
 
-Before plugin start hooks and generators run, the driver reserves component names through that plugin's `name` method for plugins with schema generators. `resolver.name` still only applies casing; it does not allocate a declaration. Use `resolver.reserveNames` for additional emitted identifiers such as enum type aliases, before allocating names that could collide with them.
+Before schema generators run, the driver applies each plugin's macros and filters once, then reserves the remaining component names through that plugin's `name` method. It reuses the prepared schemas during generation. `resolver.name` still only applies casing; it does not allocate a declaration. Use `resolver.reserveNames` for additional emitted identifiers such as enum type aliases, before allocating names that could collide with them.
 
 ```typescript [reserve-names.ts]
 resolver.reserveNames(['CreateContainerBody', 'CreateContainerBody2'])

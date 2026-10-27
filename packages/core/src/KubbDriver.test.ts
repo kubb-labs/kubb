@@ -254,7 +254,7 @@ test.each([true, false])('reserves component names only for schema-generating pl
     try {
       await driver.setup()
       const { diagnostics } = await driver.run()
-      expect(diagnostics.filter(Diagnostics.isError)).toEqual([])
+      expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toEqual([])
     } finally {
       driver.dispose()
     }
@@ -268,6 +268,97 @@ type Recorder = {
   operations: Array<{ plugin: string; ids: Array<string> }>
   pairs: Array<{ generator: string; ctx: string }>
 }
+
+test.each([
+  { label: 'renamed', rename: 'StoreRenamed', options: {}, preferred: 'ApiStoreRenamed', expected: 'ApiStoreRenamed2', schemas: ['ApiPet', 'ApiStoreRenamed'] },
+  {
+    label: 'excluded',
+    rename: null,
+    options: { exclude: [{ type: 'schemaName' as const, pattern: '^Store$' }] },
+    preferred: 'ApiStore',
+    expected: 'ApiStore',
+    schemas: ['ApiPet'],
+  },
+  {
+    label: 'not included',
+    rename: null,
+    options: { include: [{ type: 'schemaName' as const, pattern: '^Pet$' }] },
+    preferred: 'ApiStore',
+    expected: 'ApiStore',
+    schemas: ['ApiPet'],
+  },
+  {
+    label: 'unreachable from included operations',
+    rename: null,
+    options: { include: [{ type: 'operationId' as const, pattern: '^getPet$' }] },
+    preferred: 'ApiStore',
+    expected: 'ApiStore',
+    schemas: [],
+  },
+])('reserves prepared schema names when a component is $label', async ({ rename, options, preferred, expected, schemas }) => {
+  const emittedSchemas: Array<string> = []
+  const inlineNames: Array<string> = []
+  const schemaMacro = vi.fn((node: SchemaNode) => (node.name === 'Store' && rename ? { ...node, name: rename } : undefined))
+  const plugin: Plugin = {
+    name: 'names',
+    options,
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.setResolver(new Resolver({ pluginName: 'names', name: (name) => `Api${name}` }))
+        ctx.addMacro({ name: 'rename', schema: schemaMacro })
+        ctx.addGenerator({
+          name: 'names',
+          schema(node, { resolver }) {
+            inlineNames.push(resolver.resolveName({ key: 'inline', name: preferred }))
+            emittedSchemas.push(resolver.name(node.name!))
+          },
+          operation(_node, { resolver }) {
+            inlineNames.push(resolver.resolveName({ key: 'inline', name: preferred }))
+          },
+        })
+      },
+    },
+  }
+  const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+  try {
+    await driver.setup()
+    const { diagnostics } = await driver.run()
+    expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toEqual([])
+    expect(emittedSchemas).toEqual(schemas)
+    expect(new Set(inlineNames)).toEqual(new Set([expected]))
+    expect(schemaMacro.mock.calls.map(([node]) => node.name)).toEqual(['Pet', 'Store'])
+  } finally {
+    driver.dispose()
+  }
+})
+
+test('preserves earlier schema output when preparation of a later schema fails', async () => {
+  const plugin: Plugin = {
+    name: 'names',
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.addMacro({
+          name: 'fail-store',
+          schema(node) {
+            if (node.name === 'Store') throw new Error('Cannot prepare Store')
+          },
+        })
+        ctx.addGenerator({ name: 'schemas', schema: (node) => [fileNode(`${node.name}.ts`)] })
+      },
+    },
+  }
+  const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+  try {
+    await driver.setup()
+    const { diagnostics } = await driver.run()
+    expect(driver.fileManager.files.map((file) => file.baseName)).toEqual(['Pet.ts'])
+    expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toMatchObject([
+      { message: 'While generating schema "Store": Cannot prepare Store' },
+    ])
+  } finally {
+    driver.dispose()
+  }
+})
 
 // A generator that records every call and emits one file per node, prefixed by plugin name so the
 // produced file set proves which plugin's generator ran for which node.
