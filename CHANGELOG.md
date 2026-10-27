@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.14.4 — Oct 27, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add `Resolver.reserveNames` and `Resolver.resolveName` to prevent duplicate exports. Keys can be strings or arrays. The driver reserves component names after applying macros and filters. ([#4474](https://github.com/kubb-labs/kubb/pull/4474), [`1d4b33e`](https://github.com/kubb-labs/kubb/commit/1d4b33ef610283e85589b7bb451613c8e341e654))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Prevent union simplification from crashing on large schemas with shared references, including Stripe's OpenAPI specification. ([#4472](https://github.com/kubb-labs/kubb/pull/4472), [`7eec525`](https://github.com/kubb-labs/kubb/commit/7eec5257fc76c77dba12e7ba69eda3e6b234ffaf))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.14.3 — Oct 26, 2026
 
 ### @kubb/adapter-oas
