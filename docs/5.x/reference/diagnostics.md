@@ -209,6 +209,8 @@ A `$ref` points at a definition that does not exist in the document, or at a fil
 
 Add the missing definition, create the missing file, or correct the `$ref`. Run `kubb validate` before generation.
 
+A `$ref` that Kubb cannot read inside an `x-` vendor extension is a warning, because Kubb never reads extensions and the output does not change.
+
 ### KUBB_UNKNOWN: Unknown error {#kubb-unknown}
 
 A fallback for an error that does not yet carry a specific diagnostic code.
