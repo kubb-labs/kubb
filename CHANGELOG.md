@@ -1,5 +1,20 @@
 # Changelog
 
+## v5.14.5 — Oct 27, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Resolve relative `$ref` files in inline input and parsed objects against `root`, the way a file input already does. A `$ref` to a file or URL Kubb cannot read now reports `KUBB_REF_NOT_FOUND` at the key that holds it, instead of leaving the type as `unknown`. The new `adapter.sources` lists the files and URLs the last parse read, and `generateModule` returns them, so a watcher can rebuild when a `$ref` file changes. ([#4478](https://github.com/kubb-labs/kubb/pull/4478), [`55c67b7`](https://github.com/kubb-labs/kubb/commit/55c67b794f9df920fee95c34174546ba2352d294))
+- Let `resolveName`'s `normalize` return several names, so a declaration that emits more than one identifier takes a name only when all of them are free. A plugin naming an enum no longer has to allocate its value and its type alias in two passes. ([#4475](https://github.com/kubb-labs/kubb/pull/4475), [`17fd32e`](https://github.com/kubb-labs/kubb/commit/17fd32e5d646886a1c782a4d9c77b3ce3b1279eb))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.14.4 — Oct 27, 2026
 
 ### @kubb/core
