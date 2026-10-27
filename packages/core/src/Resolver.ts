@@ -247,21 +247,7 @@ export type ResolverBuildOptions = {
  * Reuse the declaration's key when resolving its references.
  */
 export type ResolveNameOptions = {
-  /**
-   * Identifies the declaration. Pass `node` instead to key an operation's declarations by the
-   * operation they belong to.
-   */
-  key?: string | ReadonlyArray<string | undefined>
-  /**
-   * The operation a declaration belongs to, keyed by its method and path. `scope` separates the
-   * declarations of one operation from each other.
-   */
-  node?: { method?: string; path?: string }
-  /**
-   * Separates declarations that share an operation, for example `['response', 'status', 404]`.
-   * Only read alongside `node`.
-   */
-  scope?: ReadonlyArray<string | number | undefined>
+  key: string | ReadonlyArray<string | undefined>
   name: string
   /**
    * Compares emitted identifiers while returning raw names. Keep numeric suffixes distinct.
@@ -433,16 +419,9 @@ export class Resolver {
    * ```ts
    * resolver.resolveName({ key: ['enum', 'Pet', 'status'], name: 'Status', normalize: (name) => [camelCase(name), `${name}Key`] })
    * ```
-   *
-   * @example Key an operation's declarations by the operation itself
-   * ```ts
-   * resolver.resolveName({ node, scope: ['response', 'status', 404], name: 'ListPetsStatus404' })
-   * ```
    */
-  resolveName({ key, node, scope, name, normalize = (name: string) => name }: ResolveNameOptions): string {
-    const cacheKey = JSON.stringify(
-      key ?? ['operation', node?.method, node?.path, ...(scope ?? []).map((part) => (part === undefined ? undefined : String(part))), name],
-    )
+  resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
+    const cacheKey = JSON.stringify(key)
     const previous = this.#resolvedNames.get(cacheKey)
     if (previous !== undefined) return previous
     const emitted = (value: string): ReadonlyArray<string> => {
