@@ -16,7 +16,7 @@ import {
 import { getInputPath } from '../../loggers/features/context.ts'
 import type { LoggerWriter } from '../../loggers/types.ts'
 
-/** The writer calls a worker relays as-is. Its spinner and progress collapse into `step` and `error` lines. */
+/** Writer methods a worker forwards unchanged; its spinner and progress collapse into `step` and `error` lines. */
 export type WriterMethod = Exclude<keyof LoggerWriter, 'audience' | 'spinner' | 'progress'>
 
 /** What a worker needs to load the config file and report like the main process would. */
