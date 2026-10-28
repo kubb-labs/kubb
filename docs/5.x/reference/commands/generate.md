@@ -53,6 +53,8 @@ kubb generate ./petStore.yaml
 
 `--watch` follows a local `input` file only. A URL or git input is generated once, so rerun Kubb after the remote spec changes.
 
+A config file that exports several entries generates them in parallel, on one worker process per CPU core, the largest local input first. Each entry's output prints in config order once it is done. `--watch` generates the entries one after another. Entries that write to the same output folder should not count on running in order.
+
 In `--watch` mode, each rebuild line shows the duration and the schemas and operations the spec gained or lost; the summary below it lists the files it added, modified, or removed. In an interactive terminal, press `r` to rebuild and `q` to quit.
 
 ## Reporters

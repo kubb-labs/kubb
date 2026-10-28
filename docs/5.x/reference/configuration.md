@@ -82,6 +82,8 @@ export default defineConfig([
 
 A config function can return an array to combine both forms.
 
+`kubb generate` runs the entries in parallel, one worker process per CPU core, except with `--watch`. Give each entry its own `output.path`: entries that share one write over each other in no fixed order.
+
 ## Defaults {#defaults}
 
 `defineConfig` from `kubb/config` and `createKubb` from `kubb` fill in these fields when you omit them. The bare `@kubb/core` engine applies none of them.

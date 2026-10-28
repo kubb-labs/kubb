@@ -1,3 +1,4 @@
+import { availableParallelism } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
@@ -24,10 +25,11 @@ import { pluralize } from '../../ui/text.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainWriter } from '../../loggers/plainWriter.ts'
 import { logIntro, logOutro, logSpacer, logTip } from '../../ui/intro.ts'
-import { logError, logInfo, logStep, logWarn } from '../../ui/log.ts'
+import { logError, logInfo, logStep, logWarn, writer } from '../../ui/log.ts'
 import { logBanner } from '../../ui/mascot.ts'
 import { createSpinner } from '../../ui/spinner.ts'
 import { getConfigs } from '../../config.ts'
+import { generateInWorkers } from './pool.ts'
 import { isOutdated } from '../../utils/registry.ts'
 import { type BuildDiff, type BuildSnapshot, diffBuilds, listenForKeys, startWatcher, trackBuild } from './utils.ts'
 
@@ -214,63 +216,86 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     let armKeys: (() => void) | undefined
     // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
     let queue = Promise.resolve()
-    for (const config of configs) {
-      const effectiveInput = input ?? config.input
-      const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
-      const watchPath = inputKind === 'file' ? (effectiveInput as string) : undefined
-      if (watchPath && tracker) {
-        const label = styleText('yellow', `Watching ${path.relative(process.cwd(), watchPath)}`)
-        let previous: BuildSnapshot | undefined
-        // Don't removeAll() between builds, that would also drop logger and lifecycle
-        // listeners. Plugin listeners are already disposed by safeBuild's dispose()
-        // in its finally block, so re-running generate() on the same hooks emitter is safe.
-        const build = async () => {
-          const hrStart = process.hrtime()
-          const succeeded = await generate({ input, config, hooks, dryRun })
-          const snapshot = tracker.take()
-          if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
-          previous = snapshot
+    // Watch mode serializes its rebuilds on this one hooks emitter; a plain run spreads the entries over the cores.
+    const workers = watch ? 1 : Math.min(availableParallelism(), configs.length)
+    if (workers > 1) {
+      if (!quiet) logStep(`Generating ${pluralize(configs.length, 'config')} on ${pluralize(workers, 'worker')}`)
+      const draw = writer()
+      anyFailed = await generateInWorkers({
+        configs,
+        workers,
+        writer: draw,
+        reporters,
+        logLevel,
+        errorHooks,
+        launch: {
+          configPath: resolvedConfigPath,
+          input,
+          logLevel: logLevelKey as CLIOptions['logLevel'],
+          dryRun,
+          audience: draw.audience,
+          reporters: reporters.map(({ name, needsPluginFiles }) => ({ name, needsPluginFiles })),
+        },
+      })
+    } else {
+      for (const config of configs) {
+        const effectiveInput = input ?? config.input
+        const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
+        const watchPath = inputKind === 'file' ? (effectiveInput as string) : undefined
+        if (watchPath && tracker) {
+          const label = styleText('yellow', `Watching ${path.relative(process.cwd(), watchPath)}`)
+          let previous: BuildSnapshot | undefined
+          // Don't removeAll() between builds, that would also drop logger and lifecycle
+          // listeners. Plugin listeners are already disposed by safeBuild's dispose()
+          // in its finally block, so re-running generate() on the same hooks emitter is safe.
+          const build = async () => {
+            const hrStart = process.hrtime()
+            const succeeded = await generate({ input, config, hooks, dryRun })
+            const snapshot = tracker.take()
+            if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
+            previous = snapshot
 
-          logStep(armKeys ? `${label}  ${styleText('dim', 'r rebuild · q quit')}` : label)
-          armKeys?.()
-          if (succeeded) {
-            logSpacer()
-            logTip()
+            logStep(armKeys ? `${label}  ${styleText('dim', 'r rebuild · q quit')}` : label)
+            armKeys?.()
+            if (succeeded) {
+              logSpacer()
+              logTip()
+            }
           }
-        }
-        // A trigger that lands while this config's build is queued joins it; one that lands during the build queues one more. Never rejects.
-        let pending = false
-        const rebuild = (): Promise<void> => {
-          if (pending) return queue
-          pending = true
-          queue = queue
-            .then(() => {
-              pending = false
-              return build()
+          // A trigger that lands while this config's build is queued joins it; one that lands during the build queues one more. Never rejects.
+          let pending = false
+          const rebuild = (): Promise<void> => {
+            if (pending) return queue
+            pending = true
+            queue = queue
+              .then(() => {
+                pending = false
+                return build()
+              })
+              .catch((error) => void Diagnostics.emit(errorHooks, error))
+            return queue
+          }
+          rebuilds.push(rebuild)
+          if (!quiet) {
+            armKeys ??= listenForKeys({
+              rebuild: () => rebuilds.forEach((trigger) => void trigger()),
+              quit: (code) => void Promise.resolve(hooks.callHook('kubb:lifecycle:end')).finally(() => process.exit(code)),
             })
-            .catch((error) => void Diagnostics.emit(errorHooks, error))
-          return queue
-        }
-        rebuilds.push(rebuild)
-        if (!quiet) {
-          armKeys ??= listenForKeys({
-            rebuild: () => rebuilds.forEach((trigger) => void trigger()),
-            quit: (code) => void Promise.resolve(hooks.callHook('kubb:lifecycle:end')).finally(() => process.exit(code)),
-          })
-        }
+          }
 
-        // The watcher ignores its startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
-        await rebuild()
+          // The watcher ignores its startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
+          await rebuild()
 
-        await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
-      } else {
-        if (tracker && !quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
-        try {
-          const succeeded = await generate({ input, config, hooks, dryRun })
-          if (!succeeded) anyFailed = true
-        } catch (configError) {
-          await Diagnostics.emit(errorHooks, configError)
-          anyFailed = true
+          await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
+        } else {
+          if (tracker && !quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
+          try {
+            const succeeded = await generate({ input, config, hooks, dryRun })
+            if (!succeeded) anyFailed = true
+          } catch (configError) {
+            await Diagnostics.emit(errorHooks, configError)
+            anyFailed = true
+          }
         }
       }
     }

@@ -94,7 +94,8 @@ export async function createOutputManifest({ storage, cache }: { storage: Storag
     },
     async commit() {
       try {
-        const next = { ...entries }
+        // Re-read rather than reuse the entries loaded at start: another entry of the same config file may have committed since, in parallel or in a run of its own.
+        const next = await loadEntries({ cache })
 
         // Reads the tree back through the same pool that wrote it, rather than one file at a time.
         await inParallel({
