@@ -2,9 +2,7 @@ import { workerData } from 'node:worker_threads'
 import { runGenerateWorker } from '@kubb/core'
 import { getConfigs } from '../../config.ts'
 
-/**
- * What `kubb generate` hands a worker thread: how it loaded the config and which entry it runs.
- */
+/** What `kubb generate` hands a worker thread: how it loaded the config and which entry it runs. */
 export type GenerateWorkerData = {
   configPath?: string
   input?: string

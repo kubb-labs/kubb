@@ -34,18 +34,11 @@ type Options = {
    * run that fails earlier leaves the previous output in place.
    */
   cleanPath?: string
-  /**
-   * Runs the generators over worker threads, each taking a range of the schemas and operations.
-   * `spawn` starts one thread running `runGenerateWorker` with the same config. The main thread
-   * still parses the input, resolves the names the ranges took, runs the `operations` generators
-   * and writes the files.
-   */
+  /** Splits the per-node walk over worker threads, each started by `spawn` and running `runGenerateWorker` on the same config. */
   workers?: GenerateWorkers
 }
 
-/**
- * How `KubbDriver` splits a walk over worker threads: how many, and how to start one.
- */
+/** How many worker threads `KubbDriver` splits a walk over, and how to start one. */
 export type GenerateWorkers = {
   count: number
   spawn: () => Worker
@@ -214,11 +207,7 @@ function getCrashSite(node: SchemaNode | OperationNode): { label: string; locati
   return { label, location: node.pointer ? { kind: 'operation', pointer: node.pointer } : undefined }
 }
 
-/**
- * Applies the plugin's macros, then resolves options (skipping the resolver when `optionsAreStatic`).
- * Returns `null` when include/exclude/override rules out the node. The per-node dispatch and the
- * collected-operations batch both go through this so they agree on what the plugin sees.
- */
+/** Applies the plugin's macros, then its include/exclude/override rules; `null` when they rule the node out. */
 function resolveForPlugin<TNode extends SchemaNode | OperationNode>(state: PluginState, node: TNode): ResolvedNode<TNode> | null {
   const transformedNode = ast.applyMacros(node, state.plugin.macros ?? [])
   if (state.optionsAreStatic) return { transformedNode, options: state.plugin.options }
@@ -587,11 +576,7 @@ export class KubbDriver {
     )
   }
 
-  /**
-   * Emits `kubb:plugin:setup` so plugins can register generators, resolvers and macros, then
-   * normalizes each plugin's options, so the generate loop always sees a filled-in bag whether or
-   * not the plugin called `setOptions`.
-   */
+  /** Emits `kubb:plugin:setup`, then normalizes each plugin's options so the walk always sees a filled-in bag. */
   async #setupPlugins(): Promise<void> {
     await this.setupHooks()
     for (const plugin of this.plugins.values()) {
@@ -649,8 +634,7 @@ export class KubbDriver {
    * stays deterministic across runs. A generator with a `match` predicate that resolves `false`
    * for a node is skipped for that node, without calling `schema`/`operation`.
    *
-   * With `options.workers`, the per-node walk is split over the worker threads by node range
-   * (see `#splitWalk`); the `operations` batch and the write stay on this thread.
+   * With `options.workers`, `#splitWalk` runs the per-node walk over the worker threads.
    *
    * A failing plugin is dropped from the remaining walk, contributes an error diagnostic, and no
    * longer aborts the other plugins. `kubb:plugin:end` and each plugin's `timing` diagnostic fire
@@ -686,11 +670,7 @@ export class KubbDriver {
     return this.#closePlugins(states)
   }
 
-  /**
-   * Freezes each plugin's per-run state once so the node-outer walk stays cheap, and prepares the
-   * schemas so reservations use the same names and filters as generation. A plugin's `error`
-   * later drops it from every remaining node without touching the others.
-   */
+  /** Freezes each plugin's per-run state and prepares the schemas, so reservations use the same names and filters as generation. */
   #prepareStates(entries: Array<GeneratorEntry>): Array<PluginState> {
     const { schemas, operations } = this.inputNode!
 
@@ -755,12 +735,7 @@ export class KubbDriver {
     return states
   }
 
-  /**
-   * Schemas before operations, in adapter order, so file output stays deterministic. For each
-   * node the plugins fan out in dependency order and share one cache. A caught error drops that
-   * plugin from the rest of the walk but not the others, so its remaining nodes are skipped
-   * rather than retried. Generators run directly; `kubb:generate:*` still fires for observers.
-   */
+  /** Walks the schema range in adapter order; the plugins fan out per node in dependency order and share one cache. A caught error drops that plugin from the rest of the walk. */
   async #walkSchemas(states: Array<PluginState>, [start, end]: Range, { dispatch, hooks }: WalkOptions): Promise<void> {
     const { schemas } = this.inputNode!
     for (let index = start; index < end; index++) {
@@ -793,11 +768,7 @@ export class KubbDriver {
     }
   }
 
-  /**
-   * One pass over operations feeds both the per-operation generators and the batch each plugin's
-   * `operations` receives, so every node is transformed and filtered exactly once. A plugin with
-   * only an `operations` generator still collects its filtered nodes here.
-   */
+  /** Walks the operation range; one pass feeds the per-operation generators and collects each plugin's `operations` batch. */
   async #walkOperations(states: Array<PluginState>, [start, end]: Range, { dispatch, hooks }: WalkOptions): Promise<void> {
     const { operations } = this.inputNode!
     for (let index = start; index < end; index++) {
@@ -832,10 +803,7 @@ export class KubbDriver {
     }
   }
 
-  /**
-   * The `operations` batch fires once per plugin after the single operation walk, in dependency
-   * order, with a fresh cache since it spans every node rather than one.
-   */
+  /** Fires each plugin's `operations` batch once, in dependency order, with a fresh cache since it spans every node. */
   async #runOperationsBatch(states: Array<PluginState>): Promise<void> {
     for (const state of states) {
       if (state.error || !state.operationsGenerators.length) continue
@@ -851,10 +819,7 @@ export class KubbDriver {
     }
   }
 
-  /**
-   * Closes out every plugin in dependency order, so `kubb:plugin:end` and the timing diagnostics
-   * still count up in plugin order for the CLI's `Plugins N/M` line.
-   */
+  /** Closes out every plugin in dependency order, so `kubb:plugin:end` and the timings count up in plugin order. */
   async #closePlugins(states: Array<PluginState>): Promise<Array<Diagnostic>> {
     const diagnostics: Array<Diagnostic> = []
     for (const state of states) {
@@ -877,16 +842,10 @@ export class KubbDriver {
   }
 
   /**
-   * Runs the per-node walk over the worker threads, each taking a contiguous range of the schemas
-   * and of the operations. Every thread reloads the config, receives the parsed input once through
-   * shared memory, and records the names its resolvers took. Those records are replayed here in
-   * node order, which gives the names one unbroken walk resolves: a thread whose range already got
-   * them hands over its files, any other adopts the replayed names and generates its range again.
-   * The files merge per phase in range order, so same-path sources keep their order. The
-   * `kubb:generate:*` hooks fire here afterwards, in walk order, for observers.
-   *
-   * `false` when the split cannot stand in for one walk: fewer than two ranges, or a replay that
-   * ran out of recorded name candidates. The caller then walks in-process.
+   * Runs the per-node walk over the worker threads, each on a contiguous range of the schemas and of
+   * the operations. The names every range took are replayed here in node order; a range that got
+   * other names adopts the replayed ones and generates again, so the files match one unbroken walk.
+   * `false` when the split cannot stand in for one walk, and the caller walks in-process.
    */
   async #splitWalk(states: Array<PluginState>): Promise<boolean> {
     const { schemas, operations } = this.inputNode!
@@ -935,12 +894,7 @@ export class KubbDriver {
     return true
   }
 
-  /**
-   * Worker side of `#splitWalk`: takes the parsed input, prepares the plugins the way the main
-   * thread did, generates the range and returns the names its resolvers took.
-   *
-   * @internal
-   */
+  /** @internal Worker side of `#splitWalk`: generates the range and returns the names its resolvers took. */
   async generateRange({ input, schemas, operations }: GenerateRequest): Promise<GeneratedResponse> {
     this.inputNode = deserialize(new Uint8Array(input)) as InputNode
     await this.#setupPlugins()
@@ -951,12 +905,7 @@ export class KubbDriver {
     return { type: 'generated', names: await this.#walkRange() }
   }
 
-  /**
-   * Worker side of `#splitWalk`: hands over the files of the last walk, after generating the
-   * range again from `names` when the main thread resolved them differently.
-   *
-   * @internal
-   */
+  /** @internal Worker side of `#splitWalk`: hands over the files, after generating again from `names` when given. */
   async emitRange({ names }: EmitRequest): Promise<EmittedResponse> {
     if (names) {
       for (const plugin of this.plugins.values()) {

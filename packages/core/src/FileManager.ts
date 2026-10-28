@@ -276,10 +276,7 @@ export class FileManager {
     this.#sorted = null
   }
 
-  /**
-   * All stored files in the order they were first added, so a worker thread hands its output to
-   * the main thread in the order one unbroken walk would have added it.
-   */
+  /** All stored files in first-added order, so a worker thread hands them over in the order one unbroken walk adds them. */
   get unsorted(): Array<FileNode> {
     this.#flush()
     return [...this.#cache.values()]

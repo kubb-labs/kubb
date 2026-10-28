@@ -53,10 +53,7 @@ export type CreateKubbOptions = {
    * Stops the build at the next safe checkpoint.
    */
   signal?: AbortSignal
-  /**
-   * Runs the generators of a large spec over worker threads, each on a range of the schemas and
-   * operations. `spawn` starts one thread running `runGenerateWorker` with this same config.
-   */
+  /** Runs the generators over worker threads, each started by `spawn` and running `runGenerateWorker` on this same config. */
   workers?: GenerateWorkers
 }
 

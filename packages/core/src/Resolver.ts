@@ -258,27 +258,22 @@ export type ResolveNameOptions = {
 }
 
 /**
- * One `reserveNames` or `resolveName` call, recorded while a resolver runs part of a split walk so
- * the main thread can replay every part in node order. `candidates[i]` holds the identifiers the
- * `i`th candidate (`name`, `name2`, ...) would emit, a few past `result` for a replay that meets
- * more collisions than the part did.
+ * One `reserveNames` or `resolveName` call of a split walk, replayed by the main thread in node order.
+ * `candidates[i]` holds what the `i`th candidate (`name`, `name2`, ...) would emit, a few past `result`.
  */
 export type NameEvent =
   | { type: 'reserve'; names: Array<string> }
   | { type: 'resolve'; key: string; name: string; result: string; candidates: Array<ReadonlyArray<string>> }
 
-/**
- * The names a resolver has handed out: every taken identifier and what `resolveName` returned per key.
- */
+/** The names a resolver has handed out: every taken identifier and what `resolveName` returned per key. */
 export type NameState = { used: Array<string>; resolved: Array<[string, string]> }
 
 /** Candidates recorded past the one a part took, so a replay seldom runs out. */
 const EXTRA_CANDIDATES = 4
 
 /**
- * Replays the name events of a walk split over several ranges, in the order given, on top of
- * `start`. Returns the state one unbroken walk reaches and, per range, whether the range already
- * got the same names, or `null` when a call ran out of recorded candidates.
+ * Replays the name events of the ranges of a split walk, in order, on top of `start`. Returns the state one
+ * unbroken walk reaches and, per range, whether it already got the same names; `null` when a call ran out of candidates.
  */
 export function replayNames(start: NameState, ranges: ReadonlyArray<ReadonlyArray<NameEvent>>): { state: NameState; identical: Array<boolean> } | null {
   const used = new Set(start.used)

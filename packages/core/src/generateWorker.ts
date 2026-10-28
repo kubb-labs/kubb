@@ -6,17 +6,8 @@ import { KubbDriver, type WorkerRequest, type WorkerResponse } from './KubbDrive
 import type { KubbHooks, UserConfig } from './types.ts'
 
 /**
- * Serves one generate worker thread: sets up a driver on `userConfig`, the same config the main
- * thread runs, and answers its requests on `port` until the main thread terminates the thread.
- * The entry the main thread's `workers.spawn` starts calls this with the config it loaded.
- *
- * @example
- * ```ts
- * import { workerData } from 'node:worker_threads'
- * import { runGenerateWorker } from '@kubb/core'
- *
- * await runGenerateWorker(await loadConfig(workerData.configPath))
- * ```
+ * Serves one generate worker thread: sets up a driver on `userConfig`, the config the main thread runs,
+ * and answers its requests on `port` until the main thread terminates the thread.
  */
 export async function runGenerateWorker(userConfig: UserConfig, port: MessagePort | null = parentPort): Promise<void> {
   if (!port) throw new Error('runGenerateWorker must run inside a worker thread.')

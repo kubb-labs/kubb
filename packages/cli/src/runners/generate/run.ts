@@ -59,17 +59,11 @@ type GenerateProps = {
    * post-generate commands, and prints what would change on disk.
    */
   dryRun?: boolean
-  /**
-   * Worker threads to split the generators over, from `KUBB_WORKERS`.
-   */
+  /** Worker threads to split the generators over, from `KUBB_WORKERS`. */
   workers?: GenerateWorkers
 }
 
-/**
- * The worker threads `KUBB_WORKERS` asks for, capped at the cores available, or `undefined` when
- * it is unset, below 2, or the run writes nothing to disk. Each thread loads the config entry
- * itself, the way this process did.
- */
+/** The worker threads `KUBB_WORKERS` asks for, capped at the cores available; `undefined` when unset, below 2, or on a dry run. */
 function resolveWorkers({ dryRun, ...data }: GenerateWorkerData & { dryRun?: boolean }): GenerateWorkers | undefined {
   const requested = Number(process.env.KUBB_WORKERS)
   if (dryRun || !Number.isInteger(requested) || requested < 2) return undefined
