@@ -1,8 +1,8 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
-import { stat, writeFile } from 'node:fs/promises'
+import { readdir, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fsStorage } from './fsStorage.ts'
 
 describe('fsStorage', () => {
@@ -50,5 +50,15 @@ describe('fsStorage', () => {
     await fsStorage().empty(undefined)
 
     expect(await fsStorage().readItem(key)).toBe('const s = 1')
+  })
+
+  it('moves the base aside on empty and deletes it in the background', async () => {
+    const storage = fsStorage()
+    await storage.writeItem(join(dir, 'gen', 'a.ts'), 'const a = 1')
+
+    await storage.empty(join(dir, 'gen'))
+
+    expect(await storage.readItem(join(dir, 'gen', 'a.ts'))).toBeNull()
+    await vi.waitFor(async () => expect(await readdir(dir)).toStrictEqual([]))
   })
 })
