@@ -55,8 +55,8 @@ const CHUNK_SIZE = 32
 /** What a worker thread needs from the main thread's parse: the input and the adapter's source document, which generators read through `ctx.adapter`. */
 type ParsedState = { input: InputNode; document: Adapter['document'] }
 
-/** Asks a worker thread to generate chunks from the `v8`-serialized {@link ParsedState} it shares, pulling chunk numbers from the `next` counter. */
-export type GenerateRequest = { type: 'generate'; state: SharedArrayBuffer; next: SharedArrayBuffer }
+/** Asks a worker thread to run the generators of `plugins` over chunks it pulls from the `next` counter, from the `v8`-serialized {@link ParsedState} it shares. */
+export type GenerateRequest = { type: 'generate'; state: SharedArrayBuffer; next: SharedArrayBuffer; plugins: Array<string> }
 
 /** Asks for the files. With `names`, the thread first adopts the names the whole walk resolved and generates its chunks again. */
 export type EmitRequest = { type: 'emit'; names?: Record<string, NameState> }
@@ -866,7 +866,9 @@ export class KubbDriver {
     const threads = this.#threads.slice(0, count)
     const state = shareState({ input: this.inputNode!, document: this.adapter?.document ?? null })
     const next = new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT)
-    const generated = await Promise.all(threads.map((thread) => request<GeneratedResponse>(thread, { type: 'generate', state, next })))
+    // Only the plugins whose `kubb:plugin:start` passed here generate there.
+    const plugins = states.map((state) => state.plugin.name)
+    const generated = await Promise.all(threads.map((thread) => request<GeneratedResponse>(thread, { type: 'generate', state, next, plugins })))
     const ordered = generated.flatMap((response, thread) => response.names.map((chunk) => ({ ...chunk, thread }))).sort((a, b) => a.index - b.index)
 
     // Every plugin's resolver, not only the generating ones: a plugin can resolve names through another plugin's resolver.
@@ -894,13 +896,14 @@ export class KubbDriver {
     }
     const chunks = emitted.flatMap((response) => response.chunks).sort((a, b) => a.index - b.index)
     for (const chunk of chunks) await this.fileManager.dispatch({ result: chunk.files })
+
+    await this.#walkSchemas(states, [0, schemas.length], { dispatch: false, hooks: true })
+    await this.#walkOperations(states, [0, operations.length], { dispatch: false, hooks: true })
+    // After the hooks, so observers still see the nodes a plugin generated before it failed in a thread.
     for (const state of states) {
       const failed = emitted.map((response) => response.errors[state.plugin.name]).find(Boolean)
       if (failed) state.error = new Diagnostics.Error(failed)
     }
-
-    await this.#walkSchemas(states, [0, schemas.length], { dispatch: false, hooks: true })
-    await this.#walkOperations(states, [0, operations.length], { dispatch: false, hooks: true })
     return true
   }
 
@@ -920,13 +923,13 @@ export class KubbDriver {
   }
 
   /** @internal Worker side of `#splitWalk`: generates the chunks it pulls from `next` and returns the names its resolvers took. */
-  async generateRange({ state, next }: GenerateRequest): Promise<GeneratedResponse> {
+  async generateRange({ state, next, plugins }: GenerateRequest): Promise<GeneratedResponse> {
     const { input, document } = deserialize(new Uint8Array(state)) as ParsedState
     this.inputNode = input
     if (this.adapter) this.adapter.document = document
     await this.#setupPlugins()
-    const entries = [...this.plugins.values()]
-      .filter((plugin) => plugin.generators?.length)
+    const entries = plugins
+      .map((name) => this.plugins.get(name)!)
       .map((plugin): GeneratorEntry => ({ plugin, context: this.getContext(plugin), hrStart: process.hrtime() }))
     this.#taken = { states: this.#prepareStates(entries), indices: [], chunks: [], diagnostics: [], errors: {} }
 
