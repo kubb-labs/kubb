@@ -33,10 +33,8 @@ function convert(text: string, pascal: boolean): string {
     .replace(/[^a-zA-Z0-9]/g, '')
 }
 
-// Plugins resolve the same names over and over (about 47,000 calls for a 1,000 schema spec), so
-// results are kept for the whole build: the driver clears the memo per build. The limit only bounds
-// a host that calls these helpers outside a build; the old limit of 10,000 wiped the memo mid-build
-// on large specs, and this one sits above the distinct names such a spec produces.
+// Plugins resolve the same names over and over, so results are kept for the whole build and the driver
+// clears the memo per build. The limit only bounds a host that calls these helpers outside a build.
 const cache = new Map<string, string>()
 const cacheLimit = 250_000
 

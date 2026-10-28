@@ -24,8 +24,7 @@ export function refName(ref: string): string {
   return name
 }
 
-// Every plugin resolves the same refs on every visit, so the decoded names are kept per ref string.
-// The limit bounds what a long-running host keeps across specs; one spec stays well under it.
+// Every plugin resolves the same refs on every visit; the limit only bounds a long-running host.
 const refNames = new Map<string, string>()
 const memoLimit = 100_000
 
