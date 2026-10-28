@@ -242,6 +242,7 @@ export async function resolvePermissions(
   options: StudioOptions,
   credentials: Credentials,
   configPath: string = KUBB_CONFIG_FILENAME,
+  { edit = false }: { edit?: boolean } = {},
 ): Promise<Record<AgentPermission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
@@ -249,7 +250,8 @@ export async function resolvePermissions(
     AgentPermission,
     boolean
   >
-  const pending = PERMISSIONS.filter(({ key }) => !options.permission[key] && typeof remembered?.[key] !== 'boolean')
+  // `edit` asks again for every permission no flag grants, with the saved ones checked.
+  const pending = PERMISSIONS.filter(({ key }) => !options.permission[key] && (edit || typeof remembered?.[key] !== 'boolean'))
 
   if (!pending.length || isCIEnvironment() || !canUseTTY()) return granted
 
@@ -257,10 +259,14 @@ export async function resolvePermissions(
   const selected = await prompts.multiselect({
     message: 'What may Kubb Studio do in this project?',
     options: pending.map(({ key, title, hint }) => ({ value: key, label: title(configPath), hint })),
+    ...(edit ? { initialValues: pending.filter(({ key }) => remembered?.[key] === true).map(({ key }) => key) } : {}),
     required: false,
   })
   // A canceled list grants nothing and saves nothing, so the next run asks again.
-  if (prompts.isCancel(selected)) return granted
+  if (prompts.isCancel(selected)) {
+    if (edit) throw new Error('Canceled. Permissions are unchanged.')
+    return granted
+  }
 
   const answers = Object.fromEntries(pending.map(({ key }) => [key, selected.includes(key)]))
   await writeCredentials({
