@@ -1,4 +1,6 @@
 import { resolve } from 'node:path'
+import { deserialize, serialize } from 'node:v8'
+import type { Worker } from 'node:worker_threads'
 import { getElapsedMs, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
@@ -9,7 +11,7 @@ import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
 import { createResolver } from './createResolver.ts'
-import { Resolver } from './Resolver.ts'
+import { type NameEvent, type NameState, replayNames, Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
@@ -32,7 +34,108 @@ type Options = {
    * run that fails earlier leaves the previous output in place.
    */
   cleanPath?: string
+  /**
+   * Runs the generators over worker threads, each taking a range of the schemas and operations.
+   * `spawn` starts one thread running `runGenerateWorker` with the same config. The main thread
+   * still parses the input, resolves the names the ranges took, runs the `operations` generators
+   * and writes the files.
+   */
+  workers?: GenerateWorkers
 }
+
+/**
+ * How `KubbDriver` splits a walk over worker threads: how many, and how to start one.
+ */
+export type GenerateWorkers = {
+  count: number
+  spawn: () => Worker
+}
+
+type Range = [start: number, end: number]
+
+/** Asks a worker thread to generate one range of nodes from the `v8`-serialized input it shares. */
+export type GenerateRequest = { type: 'generate'; input: SharedArrayBuffer; schemas: Range; operations: Range }
+
+/** Asks for the files. With `names`, the thread first adopts the names the whole walk resolved and generates its range again. */
+export type EmitRequest = { type: 'emit'; names?: Record<string, NameState> }
+
+export type WorkerRequest = GenerateRequest | EmitRequest
+
+/** The name events of one range, per plugin and per phase, in the order the thread made them. */
+export type GeneratedResponse = { type: 'generated'; names: Record<string, { schemas: Array<NameEvent>; operations: Array<NameEvent> }> }
+
+/** The files of one range per phase, in first-added order, with the diagnostics the walk reported and the plugins that failed. */
+export type EmittedResponse = {
+  type: 'emitted'
+  files: { schemas: Array<FileNode>; operations: Array<FileNode> }
+  diagnostics: Array<Diagnostic>
+  errors: Record<string, ProblemDiagnostic>
+}
+
+export type WorkerResponse = GeneratedResponse | EmittedResponse | { type: 'error'; error: ProblemDiagnostic }
+
+type Thread = {
+  worker: Worker
+  /** Rejects when the thread dies, so a request to a dead thread does not wait forever. */
+  failed: Promise<never>
+}
+
+function spawnThread(spawn: () => Worker): Thread {
+  const worker = spawn()
+  const failed = new Promise<never>((_, reject) => {
+    worker.once('error', reject)
+    worker.once('exit', (code) => reject(new Error(`A generate worker thread exited with code ${code}.`)))
+  })
+  // Observed through `request`; a thread terminated at the end of the run must not surface as unhandled.
+  failed.catch(() => undefined)
+  return { worker, failed }
+}
+
+function request<T extends Exclude<WorkerResponse, { type: 'error' }>>(thread: Thread, message: WorkerRequest): Promise<T> {
+  return Promise.race([
+    thread.failed,
+    new Promise<T>((resolve, reject) => {
+      thread.worker.once('message', (response: WorkerResponse) => {
+        if (response.type === 'error') reject(new Diagnostics.Error(response.error))
+        else resolve(response as T)
+      })
+      thread.worker.postMessage(message)
+    }),
+  ])
+}
+
+/** Serializes the input once into shared memory, so posting it to every thread copies nothing. */
+function shareInput(input: InputNode): SharedArrayBuffer {
+  const bytes = serialize(input)
+  const shared = new SharedArrayBuffer(bytes.byteLength)
+  new Uint8Array(shared).set(bytes)
+  return shared
+}
+
+type GeneratorEntry = { plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options' | 'cache'>; hrStart: ReturnType<typeof process.hrtime> }
+
+/** A plugin's frozen per-run state for the node walk. */
+type PluginState = {
+  plugin: NormalizedPlugin
+  hrStart: ReturnType<typeof process.hrtime>
+  generatorContext: Omit<GeneratorContext, 'options' | 'cache'>
+  exclude: NormalizedPlugin['options']['exclude']
+  include: NormalizedPlugin['options']['include']
+  override: NormalizedPlugin['options']['override']
+  optionsAreStatic: boolean
+  allowedSchemaNames: Set<string> | null
+  schemaGenerators: Array<Generator>
+  schemas: Map<SchemaNode, ResolvedNode<SchemaNode> | Error>
+  operationGenerators: Array<Generator>
+  operationsGenerators: Array<Generator>
+  pluginOperations: Array<OperationNode>
+  error: Error | null
+  /** The node a generator crashed on, so the diagnostic can name it. */
+  crashSite: ReturnType<typeof getCrashSite> | undefined
+}
+
+/** What a walk does per node: run the generators, fire `kubb:generate:*`, or both. */
+type WalkOptions = { dispatch: boolean; hooks: boolean }
 
 type RequirePluginContext = {
   /**
@@ -111,6 +214,26 @@ function getCrashSite(node: SchemaNode | OperationNode): { label: string; locati
   return { label, location: node.pointer ? { kind: 'operation', pointer: node.pointer } : undefined }
 }
 
+/**
+ * Applies the plugin's macros, then resolves options (skipping the resolver when `optionsAreStatic`).
+ * Returns `null` when include/exclude/override rules out the node. The per-node dispatch and the
+ * collected-operations batch both go through this so they agree on what the plugin sees.
+ */
+function resolveForPlugin<TNode extends SchemaNode | OperationNode>(state: PluginState, node: TNode): ResolvedNode<TNode> | null {
+  const transformedNode = ast.applyMacros(node, state.plugin.macros ?? [])
+  if (state.optionsAreStatic) return { transformedNode, options: state.plugin.options }
+
+  const options = state.generatorContext.resolver.default.options<NormalizedPlugin['options']>(transformedNode, {
+    options: state.plugin.options,
+    exclude: state.exclude,
+    include: state.include,
+    override: state.override,
+  })
+  if (options === null) return null
+
+  return { transformedNode, options }
+}
+
 export class KubbDriver {
   readonly config: Config
   readonly options: Options
@@ -139,6 +262,11 @@ export class KubbDriver {
    * them in one pass. External `hooks.hook(...)` listeners are not tracked.
    */
   readonly #unhooks: Array<() => void> = []
+
+  /** The worker threads of this run, started before the input is parsed so their boot overlaps it. */
+  #threads: Array<Thread> = []
+  /** Worker side: the range this thread generates, and what its last walk produced. */
+  #range: ({ states: Array<PluginState>; schemas: Range; operations: Range } & Omit<EmittedResponse, 'type'>) | null = null
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -368,17 +496,12 @@ export class KubbDriver {
           this.options.signal?.throwIfAborted()
           const outputRoot = resolve(config.root, config.output.path)
 
+          const { workers } = this.options
+          if (workers && workers.count >= 2 && this.adapter) this.#threads = Array.from({ length: workers.count }, () => spawnThread(workers.spawn))
+
           // Parse the adapter source into `this.inputNode`.
           await this.#parseInput()
-          // Emit `kubb:plugin:setup` so plugins can register macros via `addMacro`/`setMacros`.
-          await this.setupHooks()
-
-          // Normalize each plugin's options once setup hooks have run, so the generate loop always
-          // sees a filled-in bag whether or not the plugin called `setOptions`.
-          for (const plugin of this.plugins.values()) {
-            this.options.signal?.throwIfAborted()
-            plugin.options = normalizePluginOptions(plugin.options, plugin.name)
-          }
+          await this.#setupPlugins()
 
           if (this.adapter && this.inputNode) {
             const { meta, schemas, operations } = this.inputNode
@@ -392,11 +515,7 @@ export class KubbDriver {
             await hooks.callHook('kubb:build:start', buildStartContext)
           }
 
-          const generatorPlugins: Array<{
-            plugin: NormalizedPlugin
-            context: Omit<GeneratorContext, 'options' | 'cache'>
-            hrStart: ReturnType<typeof process.hrtime>
-          }> = []
+          const generatorPlugins: Array<GeneratorEntry> = []
 
           for (const plugin of this.plugins.values()) {
             const context = this.getContext(plugin)
@@ -459,9 +578,26 @@ export class KubbDriver {
           await this.adapter?.settle?.()
           diagnostics.push(Diagnostics.from(caughtError))
           return { diagnostics: Diagnostics.dedupe(diagnostics) }
+        } finally {
+          const threads = this.#threads
+          this.#threads = []
+          await Promise.all(threads.map(({ worker }) => worker.terminate()))
         }
       },
     )
+  }
+
+  /**
+   * Emits `kubb:plugin:setup` so plugins can register generators, resolvers and macros, then
+   * normalizes each plugin's options, so the generate loop always sees a filled-in bag whether or
+   * not the plugin called `setOptions`.
+   */
+  async #setupPlugins(): Promise<void> {
+    await this.setupHooks()
+    for (const plugin of this.plugins.values()) {
+      this.options.signal?.throwIfAborted()
+      plugin.options = normalizePluginOptions(plugin.options, plugin.name)
+    }
   }
 
   /**
@@ -513,6 +649,9 @@ export class KubbDriver {
    * stays deterministic across runs. A generator with a `match` predicate that resolves `false`
    * for a node is skipped for that node, without calling `schema`/`operation`.
    *
+   * With `options.workers`, the per-node walk is split over the worker threads by node range
+   * (see `#splitWalk`); the `operations` batch and the write stay on this thread.
+   *
    * A failing plugin is dropped from the remaining walk, contributes an error diagnostic, and no
    * longer aborts the other plugins. `kubb:plugin:end` and each plugin's `timing` diagnostic fire
    * in dependency order once the walk finishes, driving the CLI's `Plugins N/M` counter. The
@@ -521,14 +660,11 @@ export class KubbDriver {
    * When `this.inputNode` is `null`, every entry still gets a `kubb:plugin:end` so
    * post-plugin listeners (the barrel writer and friends) complete.
    */
-  async #runGenerators(
-    entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options' | 'cache'>; hrStart: ReturnType<typeof process.hrtime> }>,
-  ): Promise<Array<Diagnostic>> {
-    const diagnostics: Array<Diagnostic> = []
-
-    if (entries.length === 0) return diagnostics
+  async #runGenerators(entries: Array<GeneratorEntry>): Promise<Array<Diagnostic>> {
+    if (entries.length === 0) return []
 
     if (!this.inputNode) {
+      const diagnostics: Array<Diagnostic> = []
       for (const { plugin, hrStart } of entries) {
         const duration = getElapsedMs(hrStart)
         diagnostics.push(Diagnostics.performance({ plugin: plugin.name, duration }))
@@ -538,6 +674,25 @@ export class KubbDriver {
     }
 
     const { schemas, operations } = this.inputNode
+    const states = this.#prepareStates(entries)
+
+    if (!(this.#threads.length && (await this.#splitWalk(states)))) {
+      await this.#walkSchemas(states, [0, schemas.length], { dispatch: true, hooks: true })
+      await this.#walkOperations(states, [0, operations.length], { dispatch: true, hooks: true })
+    }
+
+    await this.#runOperationsBatch(states)
+
+    return this.#closePlugins(states)
+  }
+
+  /**
+   * Freezes each plugin's per-run state once so the node-outer walk stays cheap, and prepares the
+   * schemas so reservations use the same names and filters as generation. A plugin's `error`
+   * later drops it from every remaining node without touching the others.
+   */
+  #prepareStates(entries: Array<GeneratorEntry>): Array<PluginState> {
+    const { schemas, operations } = this.inputNode!
 
     // Pre-scan: plugins with operation-based includes (but no schemaName include) need
     // the reachable schema set, keyed by plugin name. This requires the full schema graph
@@ -556,9 +711,7 @@ export class KubbDriver {
       allowedSchemaNamesByPlugin.set(plugin.name, collectUsedSchemaNames(includedOps, schemas))
     }
 
-    // Freeze each plugin's per-run state once so the node-outer walk stays cheap. A plugin's
-    // `error` drops it from every remaining node without touching the others.
-    const states = entries.map(({ plugin, context, hrStart }) => {
+    const states = entries.map(({ plugin, context, hrStart }): PluginState => {
       const generatorContext = { ...context, resolver: this.getResolver(plugin.name) }
       const { exclude, include, override } = plugin.options
       const generators = plugin.generators ?? []
@@ -572,38 +725,15 @@ export class KubbDriver {
         optionsAreStatic: !exclude?.length && !include?.length && !override?.length,
         allowedSchemaNames: allowedSchemaNamesByPlugin.get(plugin.name) ?? null,
         schemaGenerators: generators.filter((generator) => generator.schema),
-        schemas: new Map<SchemaNode, ResolvedNode<SchemaNode> | Error>(),
+        schemas: new Map(),
         operationGenerators: generators.filter((generator) => generator.operation),
         operationsGenerators: generators.filter((generator) => generator.operations),
-        pluginOperations: [] as Array<OperationNode>,
-        error: null as Error | null,
-        // The node a generator crashed on, so the diagnostic can name it.
-        crashSite: undefined as ReturnType<typeof getCrashSite> | undefined,
+        pluginOperations: [],
+        error: null,
+        crashSite: undefined,
       }
     })
 
-    type PluginState = (typeof states)[number]
-
-    // Applies the plugin's macros, then resolves options (skipping the resolver when
-    // optionsAreStatic). Returns null when include/exclude/override rules out the node. The
-    // per-node dispatch and the collected-operations batch both go through this so they agree on
-    // what the plugin sees.
-    const resolveForPlugin = <TNode extends SchemaNode | OperationNode>(state: PluginState, node: TNode): ResolvedNode<TNode> | null => {
-      const transformedNode = ast.applyMacros(node, state.plugin.macros ?? [])
-      if (state.optionsAreStatic) return { transformedNode, options: state.plugin.options }
-
-      const options = state.generatorContext.resolver.default.options<NormalizedPlugin['options']>(transformedNode, {
-        options: state.plugin.options,
-        exclude: state.exclude,
-        include: state.include,
-        override: state.override,
-      })
-      if (options === null) return null
-
-      return { transformedNode, options }
-    }
-
-    // Prepare schemas once so reservations use the same names and filters as generation.
     for (const state of states) {
       if (!state.schemaGenerators.length) continue
       for (const node of schemas) {
@@ -622,11 +752,19 @@ export class KubbDriver {
       }
     }
 
-    // Schemas before operations, in adapter order, so file output stays deterministic. For each
-    // node the plugins fan out in dependency order and share one cache. A caught error drops that
-    // plugin from the rest of the walk but not the others, so its remaining nodes are skipped
-    // rather than retried. Generators run directly; `kubb:generate:*` still fires for observers.
-    for (const node of schemas) {
+    return states
+  }
+
+  /**
+   * Schemas before operations, in adapter order, so file output stays deterministic. For each
+   * node the plugins fan out in dependency order and share one cache. A caught error drops that
+   * plugin from the rest of the walk but not the others, so its remaining nodes are skipped
+   * rather than retried. Generators run directly; `kubb:generate:*` still fires for observers.
+   */
+  async #walkSchemas(states: Array<PluginState>, [start, end]: Range, { dispatch, hooks }: WalkOptions): Promise<void> {
+    const { schemas } = this.inputNode!
+    for (let index = start; index < end; index++) {
+      const node = schemas[index]!
       const cache = createNodeCache()
       for (const state of states) {
         if (state.error || !state.schemaGenerators.length) continue
@@ -638,24 +776,32 @@ export class KubbDriver {
           const { transformedNode, options } = resolved
 
           const ctx = { ...state.generatorContext, options, cache }
-          await this.#dispatchNode({
-            generators: state.schemaGenerators,
-            node: transformedNode,
-            ctx,
-            generate: (generator) => generator.schema!(transformedNode, ctx),
-          })
-          await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
+          if (dispatch) {
+            await this.#dispatchNode({
+              generators: state.schemaGenerators,
+              node: transformedNode,
+              ctx,
+              generate: (generator) => generator.schema!(transformedNode, ctx),
+            })
+          }
+          if (hooks) await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
         } catch (caughtError) {
           state.error = toError(caughtError)
           state.crashSite = getCrashSite(node)
         }
       }
     }
+  }
 
-    // One pass over operations feeds both the per-operation generators and the batch each plugin's
-    // `operations` receives, so every node is transformed and filtered exactly once. A plugin with
-    // only an `operations` generator still collects its filtered nodes here.
-    for (const node of operations) {
+  /**
+   * One pass over operations feeds both the per-operation generators and the batch each plugin's
+   * `operations` receives, so every node is transformed and filtered exactly once. A plugin with
+   * only an `operations` generator still collects its filtered nodes here.
+   */
+  async #walkOperations(states: Array<PluginState>, [start, end]: Range, { dispatch, hooks }: WalkOptions): Promise<void> {
+    const { operations } = this.inputNode!
+    for (let index = start; index < end; index++) {
+      const node = operations[index]!
       const cache = createNodeCache()
       for (const state of states) {
         if (state.error || (!state.operationGenerators.length && !state.operationsGenerators.length)) continue
@@ -668,13 +814,15 @@ export class KubbDriver {
           if (state.operationGenerators.length) {
             const { transformedNode } = resolved
             const ctx = { ...state.generatorContext, options: resolved.options, cache }
-            await this.#dispatchNode({
-              generators: state.operationGenerators,
-              node: transformedNode,
-              ctx,
-              generate: (generator) => generator.operation!(transformedNode, ctx),
-            })
-            await this.hooks.callHook('kubb:generate:operation', transformedNode, ctx)
+            if (dispatch) {
+              await this.#dispatchNode({
+                generators: state.operationGenerators,
+                node: transformedNode,
+                ctx,
+                generate: (generator) => generator.operation!(transformedNode, ctx),
+              })
+            }
+            if (hooks) await this.hooks.callHook('kubb:generate:operation', transformedNode, ctx)
           }
         } catch (caughtError) {
           state.error = toError(caughtError)
@@ -682,9 +830,13 @@ export class KubbDriver {
         }
       }
     }
+  }
 
-    // The `operations` batch fires once per plugin after the single operation walk, in dependency
-    // order, with a fresh cache since it spans every node rather than one.
+  /**
+   * The `operations` batch fires once per plugin after the single operation walk, in dependency
+   * order, with a fresh cache since it spans every node rather than one.
+   */
+  async #runOperationsBatch(states: Array<PluginState>): Promise<void> {
     for (const state of states) {
       if (state.error || !state.operationsGenerators.length) continue
       try {
@@ -697,27 +849,162 @@ export class KubbDriver {
         state.error = toError(caughtError)
       }
     }
+  }
 
-    // Close out every plugin in dependency order, so `kubb:plugin:end` and the timing diagnostics
-    // still count up in plugin order for the CLI's `Plugins N/M` line.
+  /**
+   * Closes out every plugin in dependency order, so `kubb:plugin:end` and the timing diagnostics
+   * still count up in plugin order for the CLI's `Plugins N/M` line.
+   */
+  async #closePlugins(states: Array<PluginState>): Promise<Array<Diagnostic>> {
+    const diagnostics: Array<Diagnostic> = []
     for (const state of states) {
       const duration = getElapsedMs(state.hrStart)
       await this.#emitPluginEnd({ plugin: state.plugin, duration, success: !state.error, error: state.error ?? undefined })
 
-      if (state.error) {
-        const diagnostic = Diagnostics.fromExtension(state.error, { kind: 'plugin', extension: state.plugin })
-        // Only a crash gains the node it failed on. A coded error already says where it is.
-        const site = diagnostic.code === Diagnostics.code.pluginFailed && !diagnostic.location ? state.crashSite : undefined
-        diagnostics.push(
-          site
-            ? { ...diagnostic, message: `While generating ${site.label}: ${diagnostic.message}`, ...(site.location ? { location: site.location } : {}) }
-            : diagnostic,
-        )
-      }
+      if (state.error) diagnostics.push(this.#pluginDiagnostic(state))
       diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration }))
     }
-
     return diagnostics
+  }
+
+  /** The diagnostic for a plugin's `error`. Only a crash gains the node it failed on: a coded error already says where it is. */
+  #pluginDiagnostic(state: PluginState): ProblemDiagnostic {
+    const diagnostic = Diagnostics.fromExtension(state.error, { kind: 'plugin', extension: state.plugin })
+    const site = diagnostic.code === Diagnostics.code.pluginFailed && !diagnostic.location ? state.crashSite : undefined
+    return site
+      ? { ...diagnostic, message: `While generating ${site.label}: ${diagnostic.message}`, ...(site.location ? { location: site.location } : {}) }
+      : diagnostic
+  }
+
+  /**
+   * Runs the per-node walk over the worker threads, each taking a contiguous range of the schemas
+   * and of the operations. Every thread reloads the config, receives the parsed input once through
+   * shared memory, and records the names its resolvers took. Those records are replayed here in
+   * node order, which gives the names one unbroken walk resolves: a thread whose range already got
+   * them hands over its files, any other adopts the replayed names and generates its range again.
+   * The files merge per phase in range order, so same-path sources keep their order. The
+   * `kubb:generate:*` hooks fire here afterwards, in walk order, for observers.
+   *
+   * `false` when the split cannot stand in for one walk: fewer than two ranges, or a replay that
+   * ran out of recorded name candidates. The caller then walks in-process.
+   */
+  async #splitWalk(states: Array<PluginState>): Promise<boolean> {
+    const { schemas, operations } = this.inputNode!
+    const count = Math.min(this.#threads.length, schemas.length + operations.length)
+    if (count < 2) return false
+
+    const threads = this.#threads.slice(0, count)
+    const input = shareInput(this.inputNode!)
+    const rangeOf = (length: number, index: number): Range => [Math.floor((length * index) / count), Math.floor((length * (index + 1)) / count)]
+    const generated = await Promise.all(
+      threads.map((thread, index) =>
+        request<GeneratedResponse>(thread, { type: 'generate', input, schemas: rangeOf(schemas.length, index), operations: rangeOf(operations.length, index) }),
+      ),
+    )
+
+    // Every plugin's resolver, not only the generating ones: a plugin can resolve names through another plugin's resolver.
+    const names: Record<string, NameState> = {}
+    const identical = threads.map(() => true)
+    for (const plugin of this.plugins.values()) {
+      const events = (phase: 'schemas' | 'operations') => generated.map((response) => response.names[plugin.name]?.[phase] ?? [])
+      const replayed = replayNames(plugin.resolver.names, [...events('schemas'), ...events('operations')])
+      if (!replayed) return false
+      names[plugin.name] = replayed.state
+      replayed.identical.forEach((same, index) => {
+        if (!same) identical[index % count] = false
+      })
+    }
+    for (const plugin of this.plugins.values()) plugin.resolver.names = names[plugin.name]!
+
+    const emitted = await Promise.all(
+      threads.map((thread, index) => request<EmittedResponse>(thread, { type: 'emit', names: identical[index] ? undefined : names })),
+    )
+
+    for (const response of emitted) {
+      for (const diagnostic of response.diagnostics) Diagnostics.report(diagnostic)
+    }
+    for (const response of emitted) await this.fileManager.dispatch({ result: response.files.schemas })
+    for (const response of emitted) await this.fileManager.dispatch({ result: response.files.operations })
+    for (const state of states) {
+      const failed = emitted.map((response) => response.errors[state.plugin.name]).find(Boolean)
+      if (failed) state.error = new Diagnostics.Error(failed)
+    }
+
+    await this.#walkSchemas(states, [0, schemas.length], { dispatch: false, hooks: true })
+    await this.#walkOperations(states, [0, operations.length], { dispatch: false, hooks: true })
+    return true
+  }
+
+  /**
+   * Worker side of `#splitWalk`: takes the parsed input, prepares the plugins the way the main
+   * thread did, generates the range and returns the names its resolvers took.
+   *
+   * @internal
+   */
+  async generateRange({ input, schemas, operations }: GenerateRequest): Promise<GeneratedResponse> {
+    this.inputNode = deserialize(new Uint8Array(input)) as InputNode
+    await this.#setupPlugins()
+    const entries = [...this.plugins.values()]
+      .filter((plugin) => plugin.generators?.length)
+      .map((plugin): GeneratorEntry => ({ plugin, context: this.getContext(plugin), hrStart: process.hrtime() }))
+    this.#range = { states: this.#prepareStates(entries), schemas, operations, files: { schemas: [], operations: [] }, diagnostics: [], errors: {} }
+    return { type: 'generated', names: await this.#walkRange() }
+  }
+
+  /**
+   * Worker side of `#splitWalk`: hands over the files of the last walk, after generating the
+   * range again from `names` when the main thread resolved them differently.
+   *
+   * @internal
+   */
+  async emitRange({ names }: EmitRequest): Promise<EmittedResponse> {
+    if (names) {
+      for (const plugin of this.plugins.values()) {
+        const state = names[plugin.name]
+        if (state) plugin.resolver.names = state
+      }
+      await this.#walkRange()
+    }
+    const { files, diagnostics, errors } = this.#range!
+    return { type: 'emitted', files, diagnostics, errors }
+  }
+
+  /** Generates `#range` from a clean slate, keeping the files per phase in first-added order and the name events per plugin. */
+  async #walkRange(): Promise<GeneratedResponse['names']> {
+    const range = this.#range!
+    const plugins = [...this.plugins.values()]
+    const names: GeneratedResponse['names'] = {}
+    range.diagnostics = []
+    range.errors = {}
+    for (const state of range.states) {
+      state.error = null
+      state.crashSite = undefined
+      state.pluginOperations = []
+    }
+    // Only generator output goes back: the main thread already holds the files setup injected.
+    this.fileManager.dispose()
+
+    await Diagnostics.scope(
+      (diagnostic) => range.diagnostics.push(diagnostic),
+      async () => {
+        for (const plugin of plugins) plugin.resolver.record()
+        await this.#walkSchemas(range.states, range.schemas, { dispatch: true, hooks: false })
+        for (const plugin of plugins) names[plugin.name] = { schemas: plugin.resolver.takeEvents(), operations: [] }
+        range.files.schemas = this.fileManager.unsorted
+        this.fileManager.dispose()
+
+        for (const plugin of plugins) plugin.resolver.record()
+        await this.#walkOperations(range.states, range.operations, { dispatch: true, hooks: false })
+        for (const plugin of plugins) names[plugin.name]!.operations = plugin.resolver.takeEvents()
+        range.files.operations = this.fileManager.unsorted
+        this.fileManager.dispose()
+      },
+    )
+
+    for (const state of range.states) {
+      if (state.error) range.errors[state.plugin.name] = this.#pluginDiagnostic(state)
+    }
+    return names
   }
 
   /**

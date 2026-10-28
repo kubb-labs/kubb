@@ -1,6 +1,9 @@
+import { createRequire } from 'node:module'
+import { availableParallelism } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
+import { Worker } from 'node:worker_threads'
 import { formatMs, formatters, getElapsedMs, linters } from '@internals/utils'
 import {
   Hookable,
@@ -10,6 +13,7 @@ import {
   createKubb,
   Diagnostics,
   fileReporter,
+  type GenerateWorkers,
   getInputKind,
   htmlReporter,
   jsonReporter,
@@ -30,6 +34,7 @@ import { createSpinner } from '../../ui/spinner.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
 import { type BuildDiff, type BuildSnapshot, diffBuilds, listenForKeys, startWatcher, trackBuild } from './utils.ts'
+import type { GenerateWorkerData } from './worker.ts'
 
 /** NPM registry endpoint used to check for @kubb/cli updates. */
 const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
@@ -54,10 +59,27 @@ type GenerateProps = {
    * post-generate commands, and prints what would change on disk.
    */
   dryRun?: boolean
+  /**
+   * Worker threads to split the generators over, from `KUBB_WORKERS`.
+   */
+  workers?: GenerateWorkers
+}
+
+/**
+ * The worker threads `KUBB_WORKERS` asks for, capped at the cores available, or `undefined` when
+ * it is unset, below 2, or the run writes nothing to disk. Each thread loads the config entry
+ * itself, the way this process did.
+ */
+export function resolveWorkers({ dryRun, ...data }: GenerateWorkerData & { dryRun?: boolean }): GenerateWorkers | undefined {
+  const requested = Number(process.env.KUBB_WORKERS)
+  if (dryRun || !Number.isInteger(requested) || requested < 2) return undefined
+
+  const entry = path.join(path.dirname(createRequire(import.meta.url).resolve('@kubb/cli/package.json')), 'dist', 'generateWorker.js')
+  return { count: Math.min(requested, availableParallelism()), spawn: () => new Worker(entry, { workerData: data }) }
 }
 
 export async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, dryRun = false } = options
+  const { input, hooks, dryRun = false, workers } = options
 
   const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
 
@@ -72,7 +94,7 @@ export async function generate(options: GenerateProps): Promise<boolean> {
 
   // Core formats, lints and runs `output.postGenerate` after an error-free build, and reports
   // their failures as coded diagnostics that reach the summary, the json report and the exit code.
-  const kubb = createKubb(config, { hooks })
+  const kubb = createKubb(config, { hooks, workers })
   const result = await kubb.generate()
 
   // Not awaited: the request finishes in the background, capped by its timeout, so it never delays the summary.
@@ -214,7 +236,8 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     let armKeys: (() => void) | undefined
     // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
     let queue = Promise.resolve()
-    for (const config of configs) {
+    for (const [index, config] of configs.entries()) {
+      const workers = resolveWorkers({ configPath, input, watch, logLevel: logLevelKey as CLIOptions['logLevel'], index, dryRun })
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
       const watchPath = inputKind === 'file' ? (effectiveInput as string) : undefined
@@ -226,7 +249,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async () => {
           const hrStart = process.hrtime()
-          const succeeded = await generate({ input, config, hooks, dryRun })
+          const succeeded = await generate({ input, config, hooks, dryRun, workers })
           const snapshot = tracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
           previous = snapshot
@@ -266,7 +289,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       } else {
         if (tracker && !quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
         try {
-          const succeeded = await generate({ input, config, hooks, dryRun })
+          const succeeded = await generate({ input, config, hooks, dryRun, workers })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await Diagnostics.emit(errorHooks, configError)

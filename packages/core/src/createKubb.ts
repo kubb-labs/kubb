@@ -3,7 +3,7 @@ import { isPathInside } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
-import { KubbDriver } from './KubbDriver.ts'
+import { type GenerateWorkers, KubbDriver } from './KubbDriver.ts'
 import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
 import { cacheStorage } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -53,6 +53,11 @@ export type CreateKubbOptions = {
    * Stops the build at the next safe checkpoint.
    */
   signal?: AbortSignal
+  /**
+   * Runs the generators of a large spec over worker threads, each on a range of the schemas and
+   * operations. `spawn` starts one thread running `runGenerateWorker` with this same config.
+   */
+  workers?: GenerateWorkers
 }
 
 /**
@@ -109,11 +114,13 @@ export class Kubb {
   #driver: KubbDriver | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
+  readonly #workers: GenerateWorkers | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
+    this.#workers = options.workers
   }
 
   get storage(): Storage {
@@ -151,7 +158,7 @@ export class Kubb {
 
     // The driver empties `cleanPath` right before it writes the new files, so a run that fails
     // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath })
+    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath, workers: this.#workers })
     await driver.setup()
 
     this.#driver = driver

@@ -67,5 +67,6 @@ The CLI reads these shared environment variables.
 | `DO_NOT_TRACK`           | `boolean` | all      | Standard opt-out convention. Set it to `1` or `true`.                           |
 | `KUBB_DEBUG`             | `boolean` | all      | Turn on source maps, so stack traces point at the original source. Set it to `1` or `true`. Off by default because it slows startup. |
 | `KUBB_HOME`              | `string`  | `studio` | Directory the CLI keeps its Studio state in. Defaults to `~/.kubb`.             |
+| `KUBB_WORKERS`           | `number`  | `generate` | Experimental. Run the generators in this many worker threads, each on a range of the schemas and operations. The output stays the same. Each thread costs about 0.6 s to start, so it pays off on a spec with more than about 1,000 schemas and operations. Off by default. |
 | `KUBB_TOKEN`             | `string`  | `studio snapshot` | Organization CI API key. Same as `--token`.                            |
 | `KUBB_REGISTRY`          | `string`  | `add`, `update`, `list`, `remove` | Base URL of the extension registry. Defaults to `https://kubb.dev/registry`. |

@@ -258,6 +258,55 @@ export type ResolveNameOptions = {
 }
 
 /**
+ * One `reserveNames` or `resolveName` call, recorded while a resolver runs part of a split walk so
+ * the main thread can replay every part in node order. `candidates[i]` holds the identifiers the
+ * `i`th candidate (`name`, `name2`, ...) would emit, a few past `result` for a replay that meets
+ * more collisions than the part did.
+ */
+export type NameEvent =
+  | { type: 'reserve'; names: Array<string> }
+  | { type: 'resolve'; key: string; name: string; result: string; candidates: Array<ReadonlyArray<string>> }
+
+/**
+ * The names a resolver has handed out: every taken identifier and what `resolveName` returned per key.
+ */
+export type NameState = { used: Array<string>; resolved: Array<[string, string]> }
+
+/** Candidates recorded past the one a part took, so a replay seldom runs out. */
+const EXTRA_CANDIDATES = 4
+
+/**
+ * Replays the name events of a walk split over several ranges, in the order given, on top of
+ * `start`. Returns the state one unbroken walk reaches and, per range, whether the range already
+ * got the same names, or `null` when a call ran out of recorded candidates.
+ */
+export function replayNames(start: NameState, ranges: ReadonlyArray<ReadonlyArray<NameEvent>>): { state: NameState; identical: Array<boolean> } | null {
+  const used = new Set(start.used)
+  const resolved = new Map(start.resolved)
+  const identical: Array<boolean> = []
+  for (const events of ranges) {
+    let same = true
+    for (const event of events) {
+      if (event.type === 'reserve') {
+        for (const name of event.names) used.add(name)
+        continue
+      }
+      let result = resolved.get(event.key)
+      if (result === undefined) {
+        const index = event.candidates.findIndex((names) => !names.some((name) => used.has(name)))
+        if (index === -1) return null
+        result = index === 0 ? event.name : `${event.name}${index + 1}`
+        for (const name of event.candidates[index]!) used.add(name)
+        resolved.set(event.key, result)
+      }
+      if (result !== event.result) same = false
+    }
+    identical.push(same)
+  }
+  return { state: { used: [...used], resolved: [...resolved] }, identical }
+}
+
+/**
  * Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Parameterize with a
  * concrete resolver type (e.g. `ResolverPatch<ResolverTs>`) to type-check overrides and bind
  * `this` to the full resolver. Namespaces are partial, so a patch may override a single method
@@ -357,6 +406,8 @@ export class Resolver {
   #options: ResolverBuildOptions
   #usedNames = new Set<string>()
   #resolvedNames = new Map<string, string>()
+  // Events since `record()`, `null` when not recording.
+  #events: Array<NameEvent> | null = null
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
   // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
   #baseName: (params: Pick<ResolverFileParams, 'name' | 'extname'>) => FileNode['baseName']
@@ -399,7 +450,31 @@ export class Resolver {
    * ```
    */
   reserveNames(names: Iterable<string>): void {
-    for (const name of names) this.#usedNames.add(name)
+    const list = [...names]
+    for (const name of list) this.#usedNames.add(name)
+    this.#events?.push({ type: 'reserve', names: list })
+  }
+
+  /** Starts recording `reserveNames` and `resolveName` calls; `takeEvents` ends it. */
+  record(): void {
+    this.#events = []
+  }
+
+  /** The calls made since `record()`, in order, and stops recording. */
+  takeEvents(): Array<NameEvent> {
+    const events = this.#events ?? []
+    this.#events = null
+    return events
+  }
+
+  /** The names handed out so far. Assign the state `replayNames` built to continue from it. */
+  get names(): NameState {
+    return { used: [...this.#usedNames], resolved: [...this.#resolvedNames] }
+  }
+
+  set names(state: NameState) {
+    this.#usedNames = new Set(state.used)
+    this.#resolvedNames = new Map(state.resolved)
   }
 
   /**
@@ -428,9 +503,20 @@ export class Resolver {
       const names = normalize(value)
       return typeof names === 'string' ? [names] : names
     }
-    let result = name
-    for (let suffix = 2; emitted(result).some((emittedName) => this.#usedNames.has(emittedName)); suffix++) result = `${name}${suffix}`
-    this.reserveNames(emitted(result))
+    const candidate = (index: number) => (index === 0 ? name : `${name}${index + 1}`)
+    const candidates: Array<ReadonlyArray<string>> = []
+    let index = 0
+    for (;;) {
+      candidates.push(emitted(candidate(index)))
+      if (!candidates[index]!.some((emittedName) => this.#usedNames.has(emittedName))) break
+      index++
+    }
+    const result = candidate(index)
+    for (const emittedName of candidates[index]!) this.#usedNames.add(emittedName)
+    if (this.#events) {
+      for (let extra = 1; extra <= EXTRA_CANDIDATES; extra++) candidates.push(emitted(candidate(index + extra)))
+      this.#events.push({ type: 'resolve', key: cacheKey, name, result, candidates })
+    }
     this.#resolvedNames.set(cacheKey, result)
     return result
   }

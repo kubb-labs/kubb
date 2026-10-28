@@ -277,6 +277,15 @@ export class FileManager {
   }
 
   /**
+   * All stored files in the order they were first added, so a worker thread hands its output to
+   * the main thread in the order one unbroken walk would have added it.
+   */
+  get unsorted(): Array<FileNode> {
+    this.#flush()
+    return [...this.#cache.values()]
+  }
+
+  /**
    * All stored files in stable sort order (shortest path first, barrel files
    * last within a length bucket). Returns a cached view, do not mutate.
    */
