@@ -49,7 +49,7 @@ export function formatStatus({ studioUrl, credentials, worker, project, logPath,
     ...permissions.map((value, index) => ({
       label: index === 0 ? 'Permissions' : '',
       value,
-      command: !remembered && index === 0 ? 'kubb studio connect' : undefined,
+      command: index === 0 ? (remembered ? 'kubb studio permissions' : 'kubb studio connect') : undefined,
     })),
     { label: 'Logs', value: tilde(logPath) },
   ]

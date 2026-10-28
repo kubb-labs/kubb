@@ -210,6 +210,27 @@ describe('resolvePermissions', () => {
     expect(multiselect).not.toHaveBeenCalled()
     expect(project.write).not.toHaveBeenCalled()
   })
+
+  it('asks every permission again on edit, with the saved ones checked, and replaces them', async () => {
+    using project = stubProject()
+    const stored: Credentials = { ...credentials, projects: { [process.cwd()]: { ...options.permission, allowRead: true, allowWrite: true } } }
+    multiselect.mockResolvedValueOnce(['allowRead', 'allowExec'])
+
+    await expect(resolvePermissions(options, stored, undefined, { edit: true })).resolves.toEqual({ ...options.permission, allowRead: true, allowExec: true })
+    expect(multiselect.mock.calls[0]?.[0].options).toHaveLength(Object.keys(options.permission).length)
+    expect(multiselect.mock.calls[0]?.[0].initialValues).toEqual(['allowRead', 'allowWrite'])
+    expect(project.write).toHaveBeenCalledWith(
+      expect.objectContaining({ projects: { [process.cwd()]: { ...options.permission, allowRead: true, allowExec: true } } }),
+    )
+  })
+
+  it('saves nothing when the edit list is canceled', async () => {
+    using project = stubProject()
+    vi.mocked(prompts.isCancel).mockReturnValueOnce(true)
+
+    await expect(resolvePermissions(options, credentials, undefined, { edit: true })).rejects.toThrow('Permissions are unchanged')
+    expect(project.write).not.toHaveBeenCalled()
+  })
 })
 
 /** Makes stdin look like a terminal without touching the real one. */

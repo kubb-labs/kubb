@@ -30,15 +30,16 @@ kubb studio
 
 The positional argument selects the action. It defaults to `connect`.
 
-| Action     | Description                                                                                                                                    |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `connect`  | Hold a foreground session open and generate on request.                                                                                        |
-| `start`    | Resolve pairing and permissions, then connect this project in the background.                                                                  |
-| `stop`     | Stop the background worker and keep its pairing.                                                                                               |
-| `login`    | Pair this machine again without opening a generation session. Saved permissions reset.                                                         |
-| `logout`   | Stop the background worker and forget this project's stored token.                                                                             |
-| `status`   | Show pairing, worker state and uptime, saved permissions, and the log path, each with the command that changes it.                             |
-| `snapshot` | Generate and pack a snapshot on this machine, upload it in one request, then exit. See [Publish snapshots from CI](/docs/5.x/integrations/ci). |
+| Action        | Description                                                                                                                                    |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `connect`     | Hold a foreground session open and generate on request.                                                                                        |
+| `start`       | Resolve pairing and permissions, then connect this project in the background.                                                                  |
+| `stop`        | Stop the background worker and keep its pairing.                                                                                               |
+| `login`       | Pair this machine again without opening a generation session. Saved permissions reset.                                                         |
+| `logout`      | Stop the background worker and forget this project's stored token.                                                                             |
+| `status`      | Show pairing, worker state and uptime, saved permissions, and the log path, each with the command that changes it.                             |
+| `permissions` | Change this project's saved permissions in the same list `connect` shows, without pairing again.                                               |
+| `snapshot`    | Generate and pack a snapshot on this machine, upload it in one request, then exit. See [Publish snapshots from CI](/docs/5.x/integrations/ci). |
 
 ## Background connection
 
@@ -46,7 +47,11 @@ Run `start`, `status`, and `stop` from the same project directory. `start` resol
 
 `status` reports `starting`, `connected`, `reconnecting`, `authentication required`, or `stopped`. Only one worker can own a project. Stop it before using foreground `connect`.
 
-The worker survives terminal closure and retries temporary connection failures. Restart it after a crash or reboot. If its token is rejected, run `kubb studio login`, then `kubb studio start`. To change its URL or config, stop it and start it with the new flags. Flags can only add permissions. `login` resets the saved ones.
+The worker survives terminal closure and retries temporary connection failures. Restart it after a crash or reboot. If its token is rejected, run `kubb studio login`, then `kubb studio start`.
+
+To change its URL or config, stop it and start it with the new flags. Flags can only add permissions, and `login` resets the saved ones.
+
+To change the saved permissions, run `kubb studio permissions`. A running connection keeps the old ones until you restart it. Keep `--url` and `--config`, and leave out the `--allow-*` flag of any permission you turned off, since a flag grants it anyway.
 
 The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, which defaults to `~/.kubb`. `status` prints the log path. `stop` waits for a running generation to clean up, and `logout` stops the worker before it removes credentials. An interrupted job does not run again.
 
