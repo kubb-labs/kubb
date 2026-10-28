@@ -3,6 +3,7 @@ import type { Macro, UserFileNode } from '@kubb/ast'
 import type { Generator } from './defineGenerator.ts'
 import type { KubbPluginSetupContext, NormalizedPlugin, PluginType, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
+import type { Memo } from './memo.ts'
 import type { Resolver, ResolverPatch } from './Resolver.ts'
 import type { Config } from './types.ts'
 
@@ -84,6 +85,11 @@ export function setMacros(macros: ReadonlyArray<Macro>): void {
 export function injectFile(file: UserFileNode): void {
   requireContext('injectFile').injectFile(file)
 }
+
+/**
+ * Returns a value computed once per build and shared by every plugin, like `ctx.memo`.
+ */
+export const memo: Memo = (key, compute) => requireContext('memo').memo(key, compute)
 
 /**
  * Returns the options the user passed to the plugin being set up, like `ctx.options`.

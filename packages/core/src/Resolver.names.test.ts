@@ -15,6 +15,10 @@ describe('resolver name reservations', () => {
     { label: 'segment boundaries', first: ['operation', 'a:b', 'c'], second: ['operation', 'a', 'b:c'] },
     { label: 'segment order', first: ['operation', 'a', 'b'], second: ['operation', 'b', 'a'] },
     { label: 'optional segments', first: ['operation', undefined], second: ['operation', 'undefined'] },
+    { label: 'missing versus empty segments', first: ['operation', undefined], second: ['operation', ''] },
+    { label: 'empty arrays versus empty segments', first: [], second: [''] },
+    { label: 'segments that contain a control character', first: ['a\u0001', 'b'], second: ['a', '\u0001b'] },
+    { label: 'a control character versus a missing segment', first: ['\u0002'], second: [undefined] },
     { label: 'string versus array', first: '["operation"]', second: ['operation'] },
   ])('distinguishes keys by $label', ({ first, second }) => {
     const resolver = new Resolver({ pluginName: 'types' })
@@ -41,6 +45,19 @@ describe('resolver name reservations', () => {
     expect(resolver.resolveName({ key: 'first:enum', name: 'Status', normalize })).toBe('Status3')
     expect(resolver.resolveName({ key: 'second:enum', name: 'STATUS', normalize })).toBe('STATUS4')
     expect(resolver.resolveName({ key: 'first:enum', name: 'Status', normalize })).toBe('Status3')
+  })
+
+  test('normalizes each candidate once', () => {
+    const resolver = new Resolver({ pluginName: 'types' })
+    const seen: Array<string> = []
+    const normalize = (name: string) => {
+      seen.push(name)
+      return name.toLowerCase()
+    }
+    resolver.reserveNames(['status'])
+
+    expect(resolver.resolveName({ key: 'enum', name: 'Status', normalize })).toBe('Status2')
+    expect(seen).toEqual(['Status', 'Status2'])
   })
 
   test('takes a name only when every identifier it emits is free', () => {

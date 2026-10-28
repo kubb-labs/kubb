@@ -355,6 +355,15 @@ declare global {
     interface PluginOptionsRegistry {}
 
     /**
+     * Registry of memo key prefixes to the value stored under them, so `memo(`prefix:rest`, compute)`
+     * returns that type. Augment it the way `PluginRegistry` is augmented.
+     */
+    interface MemoRegistry {
+      name: string
+      resolveName: string
+    }
+
+    /**
      * Registry of hook names to their listener argument tuples.
      * Augment this interface to add hook events without touching core types.
      *

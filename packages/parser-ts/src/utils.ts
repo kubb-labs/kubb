@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module'
-import { dirname, extname as getExtname, relative, resolve } from 'node:path'
+import { dirname, extname as getExtname, isAbsolute, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ast } from '@kubb/ast'
 import { type ImportSpecifier, type ModuleExportName, parse, type ProgramStatement } from 'yuku-parser'
@@ -79,9 +79,21 @@ function loadCompiler(): Compiler {
  * Module specifier that imports `filePath` from the file at `root`: POSIX, relative to that file's directory, `./`-prefixed unless it climbs with `../`.
  */
 export function getRelativePath(root: string, filePath: string): string {
+  // A relative input resolves against the working directory, so that directory is part of its key.
+  const key = isAbsolute(root) && isAbsolute(filePath) ? `${root}\u0000${filePath}` : `${process.cwd()}\u0000${root}\u0000${filePath}`
+  const cached = relativePaths.get(key)
+  if (cached !== undefined) return cached
+
   const slashed = relative(dirname(root), filePath).replaceAll('\\', '/')
-  return slashed.startsWith('../') ? slashed : `./${slashed}`
+  const result = slashed.startsWith('../') ? slashed : `./${slashed}`
+  if (relativePaths.size >= memoLimit) relativePaths.clear()
+  relativePaths.set(key, result)
+  return result
 }
+
+// The limit bounds what a long-running host keeps across builds into fresh roots; one build stays well under it.
+const relativePaths = new Map<string, string>()
+const memoLimit = 100_000
 
 /**
  * Swaps the extension of a relative import/export path for `extname`. Package specifiers and extension-less paths stay as-is.
@@ -263,20 +275,20 @@ function dedent(text: string): string {
   if (!text.includes('\n')) return text.trim() ? text.trimStart() : ''
 
   const lines = text.split('\n')
-  const isBlank = (line: string) => line.trim() === ''
-
-  const start = lines.findIndex((line) => !isBlank(line))
+  const indents = lines.map((line) => {
+    const indent = line.length - line.trimStart().length
+    return indent === line.length ? -1 : indent
+  })
+  const start = indents.findIndex((indent) => indent !== -1)
   if (start === -1) return ''
-  const end = lines.findLastIndex((line) => !isBlank(line))
+  const end = indents.findLastIndex((indent) => indent !== -1)
+  // `-1` marks a blank line. `reduce`, not `Math.min(...indents)`, which overflows the stack on very long text.
+  const min = indents.reduce((lowest, indent) => (indent !== -1 && indent < lowest ? indent : lowest), Infinity)
 
-  const trimmed = lines.slice(start, end + 1)
-  // A loop, not `Math.min(...indents)`, which overflows the stack on very long text.
-  let min = Infinity
-  for (const line of trimmed) {
-    if (!isBlank(line)) min = Math.min(min, line.length - line.trimStart().length)
-  }
-
-  return trimmed.map((line) => (isBlank(line) ? '' : line.slice(min))).join('\n')
+  return lines
+    .slice(start, end + 1)
+    .map((line, i) => (indents[start + i] === -1 ? '' : line.slice(min)))
+    .join('\n')
 }
 
 /**

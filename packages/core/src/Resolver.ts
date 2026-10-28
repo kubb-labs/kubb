@@ -2,6 +2,7 @@ import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { ast, collectImportedRefNames, type FileNode, type ImportNode, type InputMeta, type Node, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
+import { type MemoKey, type MemoValue, memoize } from './memo.ts'
 import { getInputKind } from './input.ts'
 import type { Group, Output } from './definePlugin.ts'
 import type { Config } from './types.ts'
@@ -153,13 +154,13 @@ export type ResolverFile = {
    * `extname`. Defaults to `toFilePath(name)` with `extname` appended. Reaches sibling resolver
    * helpers through `this`.
    */
-  baseName?(params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
+  baseName?(this: Resolver, params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
   /**
    * Returns the file's complete path, resolved against the project `root`. Bypasses `output.path`
    * and `group`, so the resolver owns the layout. The returned path may not escape `root`. Reaches
    * sibling resolver helpers through `this`.
    */
-  path?(params: ResolverFilePathParams): string
+  path?(this: Resolver, params: ResolverFilePathParams): string
 }
 
 /**
@@ -355,8 +356,8 @@ export class Resolver {
   /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
   #options: ResolverBuildOptions
+  #memo = new Map<string, unknown>()
   #usedNames = new Set<string>()
-  #resolvedNames = new Map<string, string>()
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
   // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
   #baseName: (params: Pick<ResolverFileParams, 'name' | 'extname'>) => FileNode['baseName']
@@ -387,6 +388,13 @@ export class Resolver {
 
   name(name: string): string {
     return this.default.name(name)
+  }
+
+  /**
+   * Returns what `compute` produced the first time this build asked for `key`. A resolver lives for one build.
+   */
+  memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {
+    return memoize(this.#memo, key, compute)
   }
 
   /**
@@ -421,18 +429,17 @@ export class Resolver {
    * ```
    */
   resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
-    const cacheKey = JSON.stringify(key)
-    const previous = this.#resolvedNames.get(cacheKey)
-    if (previous !== undefined) return previous
-    const emitted = (value: string): ReadonlyArray<string> => {
-      const names = normalize(value)
-      return typeof names === 'string' ? [names] : names
+    // Length-prefixed segments cannot collide whatever they contain, and this stays cheaper than `JSON.stringify`.
+    const cacheKey = typeof key === 'string' ? `s:${key}` : `a:${key.map((segment) => (segment === undefined ? 'u' : `${segment.length}:${segment}`)).join('')}`
+    const allocate = (suffix: number): string => {
+      const candidate = suffix === 1 ? name : `${name}${suffix}`
+      const normalized = normalize(candidate)
+      const names = typeof normalized === 'string' ? [normalized] : normalized
+      if (names.some((emittedName) => this.#usedNames.has(emittedName))) return allocate(suffix + 1)
+      this.reserveNames(names)
+      return candidate
     }
-    let result = name
-    for (let suffix = 2; emitted(result).some((emittedName) => this.#usedNames.has(emittedName)); suffix++) result = `${name}${suffix}`
-    this.reserveNames(emitted(result))
-    this.#resolvedNames.set(cacheKey, result)
-    return result
+    return this.memo(`resolveName:${cacheKey}`, () => allocate(1))
   }
 
   file(options: ResolveFileOptions): FileNode {

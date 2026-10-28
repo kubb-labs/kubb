@@ -11,6 +11,7 @@ import { kubbContext } from './composables.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
+import { type MemoKey, type MemoValue, memoize } from './memo.ts'
 import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { checkoutGitInput, gitInputRegExp } from './gitInput.ts'
@@ -133,6 +134,7 @@ export class KubbDriver {
    */
   readonly fileManager = new FileManager()
   readonly plugins = new Map<string, NormalizedPlugin>()
+  readonly #memo = new Map<string, unknown>()
 
   /**
    * Removers for every listener the driver added (plugin, generator) so `dispose()` can detach
@@ -325,6 +327,7 @@ export class KubbDriver {
           this.fileManager.add(ast.factory.createFile(userFileNode))
         },
         requirePlugin: ((name: string) => this.requirePlugin(name, { requiredBy: plugin.name })) as KubbPluginSetupContext['requirePlugin'],
+        memo: this.memo.bind(this),
       }
 
       try {
@@ -757,6 +760,7 @@ export class KubbDriver {
     this.fileManager.dispose()
     this.inputNode = null
     this.#adapterSource = null
+    this.#memo.clear()
   }
 
   [Symbol.dispose](): void {
@@ -767,6 +771,10 @@ export class KubbDriver {
   getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
   getResolver(pluginName: string): Resolver {
     return this.plugins.get(pluginName)?.resolver ?? createResolver<PluginType>({ pluginName })
+  }
+
+  memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {
+    return memoize(this.#memo, key, compute)
   }
 
   getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options' | 'cache'> {
@@ -791,6 +799,7 @@ export class KubbDriver {
       // Close over the owning plugin so a missing dependency error names who required it.
       requirePlugin: ((name: string) => driver.requirePlugin(name, { requiredBy: plugin.name })) as GeneratorContext<TOptions>['requirePlugin'],
       getResolver: driver.getResolver.bind(driver),
+      memo: driver.memo.bind(driver),
       driver,
       addFile: async (...files: Array<FileNode>) => {
         driver.fileManager.add(...files)

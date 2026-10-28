@@ -4,6 +4,7 @@ export {
   addMacro,
   injectFile,
   kubbContext,
+  memo,
   requirePlugin,
   setMacros,
   setOptions,
@@ -15,6 +16,7 @@ export {
 } from './composables.ts'
 export { Diagnostics } from './Diagnostics.ts'
 export type { DiagnosticFormatOptions, SerializedDiagnostic } from './formatDiagnostic.ts'
+export { camelCase, pascalCase } from '@internals/utils'
 export { createKubb } from './createKubb.ts'
 export { createReporter, logLevel, type ReporterPluginFiles } from './createReporter.ts'
 export { cliReporter, createCliReporter } from './reporters/cliReporter.ts'
@@ -82,6 +84,7 @@ export type {
   RegistryGuide,
   RegistryIndex,
 } from './manifest.ts'
+export type { Memo } from './memo.ts'
 export type { NodeCache } from './nodeCache.ts'
 export type { Parser, ParserDefinition, ParserFactory } from './defineParser.ts'
 export type {

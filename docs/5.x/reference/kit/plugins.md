@@ -133,6 +133,7 @@ export const pluginExample = defineExtension({
 | `setOptions`    | `setOptions()`    | `(options: ResolvedOptions) => void`                      | Set the resolved options used by generators. In `setup`, return them instead. |
 | `injectFile`    | `injectFile()`    | `(file: UserFileNode) => void`                            | Inject a raw file into the build output, bypassing generation                 |
 | `requirePlugin` | `requirePlugin()` | `(name: string) => Plugin`                                | Return another plugin, or fail the run with `KUBB_PLUGIN_NOT_FOUND`           |
+| `memo`          | `memo()`          | `(key: string, compute: () => T) => T`                    | Return a value computed once per build and shared by every plugin             |
 | `config`        | `useConfig()`     | `Config`                                                  | The resolved build configuration at setup time                                |
 | `options`       | `useOptions()`    | `TOptions`                                                | The plugin's own options as passed by the user                                |
 

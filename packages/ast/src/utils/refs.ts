@@ -6,6 +6,9 @@ import type { RefSchemaNode, SchemaNode } from '../nodes/schema.ts'
  * (RFC 6901), so `a~1b~0c` names the component `a/b~c`.
  */
 export function refName(ref: string): string {
+  const cached = refNames.get(ref)
+  if (cached !== undefined) return cached
+
   const segment = ref.split('/').at(-1) ?? ref
   let decoded = segment
 
@@ -15,8 +18,15 @@ export function refName(ref: string): string {
     // A stray `%` is not a valid escape, so the segment is already the literal name.
   }
 
-  return decoded.replaceAll('~1', '/').replaceAll('~0', '~')
+  const name = decoded.replaceAll('~1', '/').replaceAll('~0', '~')
+  if (refNames.size >= memoLimit) refNames.clear()
+  refNames.set(ref, name)
+  return name
 }
+
+// Every plugin resolves the same refs on every visit; the limit only bounds a long-running host.
+const refNames = new Map<string, string>()
+const memoLimit = 100_000
 
 /**
  * Resolves the emitted name of the schema a ref node points at. Prefers `targetName` (set when

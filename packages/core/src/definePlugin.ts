@@ -6,6 +6,7 @@ import { defineExtension } from './defineExtension.ts'
 import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
 import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
+import type { Memo } from './memo.ts'
 import type { Config, FilesContext, KubbHooks } from './types.ts'
 
 /** Reads key `K` from a registry interface, or `{}` when no package has augmented it. @internal */
@@ -382,6 +383,10 @@ export type KubbPluginSetupContext<TFactory extends PluginType = PluginType> = {
   injectFile(userFileNode: UserFileNode): void
   /** Returns a plugin this one needs, or fails the run with `KUBB_PLUGIN_NOT_FOUND` when the config lacks it. */
   requirePlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>>
+  /**
+   * Returns a value computed once per build and shared by every plugin, like `ctx.memo` in a generator.
+   */
+  memo: Memo
   /**
    * The resolved build configuration at setup time.
    */

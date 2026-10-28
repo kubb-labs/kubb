@@ -33,10 +33,9 @@ function convert(text: string, pascal: boolean): string {
     .replace(/[^a-zA-Z0-9]/g, '')
 }
 
-// Plugins resolve the same names over and over (about 47,000 calls for a 1,000 schema spec), so
-// results are kept. Clearing at the limit bounds the memory a long-running process spends on it.
+// Plugins case the same names on every visit. Clearing at the limit bounds a long-running host.
 const cache = new Map<string, string>()
-const cacheLimit = 10_000
+const cacheLimit = 100_000
 
 function toCamelOrPascal(text: string, pascal: boolean): string {
   const key = `${pascal ? 'P' : 'c'}${text}`
