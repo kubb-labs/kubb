@@ -1,4 +1,5 @@
-import { resolve } from 'node:path'
+import { readdir, rename } from 'node:fs/promises'
+import { basename, dirname, join, resolve } from 'node:path'
 import { listFiles, read, rm, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
 
@@ -15,6 +16,7 @@ import { createStorage } from '../createStorage.ts'
  *   a formatter left behind
  * - missing parent directories are created automatically
  * - `FileManager.write` bounds in-flight writes, so this driver does not pace itself
+ * - `empty` moves the directory aside and deletes it in the background
  *
  * @example
  * ```ts
@@ -60,6 +62,21 @@ export const fsStorage = createStorage(() => ({
       return
     }
 
-    await rm(resolve(base), { recursive: true, force: true })
+    const dir = resolve(base)
+    // Renaming is near instant, so the slow recursive delete of a large previous output runs
+    // alongside the next write instead of before it. Falls back to deleting in place when the
+    // rename fails (missing directory, Windows file locks).
+    const parent = dirname(dir)
+    const prefix = `.${basename(dir)}.kubb-old-`
+    try {
+      await rename(dir, join(parent, `${prefix}${process.pid}-${Date.now()}`))
+    } catch (_error) {
+      await rm(dir, { recursive: true, force: true })
+      return
+    }
+    // Deletes this run's trash plus any a killed or failed earlier run left behind, so a failed
+    // delete is retried next run instead of lingering.
+    const trash = (await readdir(parent)).filter((name) => name.startsWith(prefix))
+    void Promise.all(trash.map((name) => rm(join(parent, name), { recursive: true, force: true }))).catch(() => {})
   },
 }))

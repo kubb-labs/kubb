@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import { inParallel, matchesStored, toError } from '@internals/utils'
+import { inParallel, isPathInside, matchesStored, toError } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -24,6 +24,11 @@ type WriteOptions = ParseOptions & {
    * unchanged. Omitted when no formatter, linter, or `postGenerate` step is configured.
    */
   manifest?: OutputManifest
+  /**
+   * Directory the storage emptied right before this write. Files under it cannot exist yet, so they
+   * are written without reading the previous value back.
+   */
+  cleaned?: string
   /**
    * Receives `kubb:files:processing:start`, `:update` (in input order, as files finish) and `:end` for the write. `config` fills the update rows.
    */
@@ -107,9 +112,10 @@ async function writeChanged({
   file,
   source,
   signal,
-}: Pick<WriteOptions, 'storage' | 'manifest' | 'signal'> & { file: FileNode; source: string }): Promise<boolean> {
+  cleaned,
+}: Pick<WriteOptions, 'storage' | 'manifest' | 'signal' | 'cleaned'> & { file: FileNode; source: string }): Promise<boolean> {
   signal?.throwIfAborted()
-  const stored = await storage.readItem(file.path)
+  const stored = cleaned && isPathInside(file.path, cleaned) ? null : await storage.readItem(file.path)
   if (stored !== null && (matchesStored({ stored, source }) || manifest?.isUpToDate({ key: file.path, source, disk: stored }))) return false
   signal?.throwIfAborted()
   await storage.writeItem(file.path, source, { stored })
@@ -307,7 +313,7 @@ export class FileManager {
    * writes nothing and leaves every mtime where it was. `kubb:files:processing:end` lists the
    * skipped paths as `unchanged`.
    */
-  async write(files: Array<FileNode>, { storage, parsers, manifest, signal, hooks, config }: WriteOptions): Promise<void> {
+  async write(files: Array<FileNode>, { storage, parsers, manifest, signal, hooks, config, cleaned }: WriteOptions): Promise<void> {
     if (files.length === 0) return
 
     await hooks?.callHook('kubb:files:processing:start', { files })
@@ -320,7 +326,7 @@ export class FileManager {
       run: async (file, index) => {
         signal?.throwIfAborted()
         const source = await this.parse(file, { parsers })
-        if (source && !(await writeChanged({ storage, manifest, file, source, signal }))) unchanged.push(file.path)
+        if (source && !(await writeChanged({ storage, manifest, file, source, signal, cleaned }))) unchanged.push(file.path)
         await progress?.(index)
       },
     })
