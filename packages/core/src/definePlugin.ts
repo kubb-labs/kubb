@@ -383,7 +383,9 @@ export type KubbPluginSetupContext<TFactory extends PluginType = PluginType> = {
   injectFile(userFileNode: UserFileNode): void
   /** Returns a plugin this one needs, or fails the run with `KUBB_PLUGIN_NOT_FOUND` when the config lacks it. */
   requirePlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>>
-  /** Returns a value computed once per build and shared by every plugin, like `ctx.memo` in a generator. */
+  /**
+   * Returns a value computed once per build and shared by every plugin, like `ctx.memo` in a generator.
+   */
   memo: Memo
   /**
    * The resolved build configuration at setup time.

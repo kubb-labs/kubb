@@ -275,23 +275,15 @@ function dedent(text: string): string {
   if (!text.includes('\n')) return text.trim() ? text.trimStart() : ''
 
   const lines = text.split('\n')
-  // -1 marks a blank line. A loop, not `Math.min(...indents)`, which overflows the stack on very long text.
-  const indents: Array<number> = []
-  let start = -1
-  let end = -1
-  let min = Infinity
-  for (const [i, line] of lines.entries()) {
+  const indents = lines.map((line) => {
     const indent = line.length - line.trimStart().length
-    if (indent === line.length) {
-      indents.push(-1)
-      continue
-    }
-    indents.push(indent)
-    if (start === -1) start = i
-    end = i
-    if (indent < min) min = indent
-  }
+    return indent === line.length ? -1 : indent
+  })
+  const start = indents.findIndex((indent) => indent !== -1)
   if (start === -1) return ''
+  const end = indents.findLastIndex((indent) => indent !== -1)
+  // `-1` marks a blank line. `reduce`, not `Math.min(...indents)`, which overflows the stack on very long text.
+  const min = indents.reduce((lowest, indent) => (indent !== -1 && indent < lowest ? indent : lowest), Infinity)
 
   return lines
     .slice(start, end + 1)

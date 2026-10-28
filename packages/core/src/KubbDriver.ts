@@ -134,7 +134,6 @@ export class KubbDriver {
    */
   readonly fileManager = new FileManager()
   readonly plugins = new Map<string, NormalizedPlugin>()
-  /** Values plugins share for one build through `ctx.memo`, cleared by `dispose()`. */
   readonly #memo = new Map<string, unknown>()
 
   /**
@@ -774,7 +773,9 @@ export class KubbDriver {
     return this.plugins.get(pluginName)?.resolver ?? createResolver<PluginType>({ pluginName })
   }
 
-  /** Shared by every plugin, so prefix a key with the plugin name unless all of them want the same value. */
+  /**
+   * Returns what `compute` produced the first time this build asked for `key`, from one store every plugin shares.
+   */
   memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {
     return memoize(this.#memo, key, compute)
   }

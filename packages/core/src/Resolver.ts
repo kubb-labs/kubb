@@ -390,7 +390,9 @@ export class Resolver {
     return this.default.name(name)
   }
 
-  /** Returns what `compute` produced the first time this build asked for `key`; a resolver lives for one build. */
+  /**
+   * Returns what `compute` produced the first time this build asked for `key`. A resolver lives for one build.
+   */
   memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {
     return memoize(this.#memo, key, compute)
   }
@@ -429,20 +431,15 @@ export class Resolver {
   resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
     // Length-prefixed segments cannot collide whatever they contain, and this stays cheaper than `JSON.stringify`.
     const cacheKey = typeof key === 'string' ? `s:${key}` : `a:${key.map((segment) => (segment === undefined ? 'u' : `${segment.length}:${segment}`)).join('')}`
-    return this.memo(`resolveName:${cacheKey}`, () => {
-      const emitted = (value: string): ReadonlyArray<string> => {
-        const names = normalize(value)
-        return typeof names === 'string' ? [names] : names
-      }
-      let result = name
-      let names = emitted(result)
-      for (let suffix = 2; names.some((emittedName) => this.#usedNames.has(emittedName)); suffix++) {
-        result = `${name}${suffix}`
-        names = emitted(result)
-      }
+    const allocate = (suffix: number): string => {
+      const candidate = suffix === 1 ? name : `${name}${suffix}`
+      const normalized = normalize(candidate)
+      const names = typeof normalized === 'string' ? [normalized] : normalized
+      if (names.some((emittedName) => this.#usedNames.has(emittedName))) return allocate(suffix + 1)
       this.reserveNames(names)
-      return result
-    })
+      return candidate
+    }
+    return this.memo(`resolveName:${cacheKey}`, () => allocate(1))
   }
 
   file(options: ResolveFileOptions): FileNode {
