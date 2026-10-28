@@ -17,6 +17,8 @@ describe('resolver name reservations', () => {
     { label: 'optional segments', first: ['operation', undefined], second: ['operation', 'undefined'] },
     { label: 'missing versus empty segments', first: ['operation', undefined], second: ['operation', ''] },
     { label: 'empty arrays versus empty segments', first: [], second: [''] },
+    { label: 'segments that contain a control character', first: ['a\u0001', 'b'], second: ['a', '\u0001b'] },
+    { label: 'a control character versus a missing segment', first: ['\u0002'], second: [undefined] },
     { label: 'string versus array', first: '["operation"]', second: ['operation'] },
   ])('distinguishes keys by $label', ({ first, second }) => {
     const resolver = new Resolver({ pluginName: 'types' })

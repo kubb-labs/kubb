@@ -421,9 +421,8 @@ export class Resolver {
    * ```
    */
   resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
-    // Cheaper than `JSON.stringify` on this hot path. Every segment ends in the separator and a missing
-    // segment gets a marker, so `[]`, `['']`, `['a']`, `['a', undefined]` and the string `'a'` all differ.
-    const cacheKey = typeof key === 'string' ? key : `\u0001${key.map((segment) => `${segment ?? '\u0002'}\u0001`).join('')}`
+    // Length-prefixed segments cannot collide whatever they contain, and this stays cheaper than `JSON.stringify`.
+    const cacheKey = typeof key === 'string' ? `s:${key}` : `a:${key.map((segment) => (segment === undefined ? 'u' : `${segment.length}:${segment}`)).join('')}`
     const previous = this.#resolvedNames.get(cacheKey)
     if (previous !== undefined) return previous
     const emitted = (value: string): ReadonlyArray<string> => {
