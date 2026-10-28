@@ -35,6 +35,7 @@ export type PluginBarrelConfig = {
    * Add a named namespace export for each immediate subdirectory, alongside its standalone exports.
    * Enables nested barrels. Names use the PascalCase directory name, prefixed with `_`
    * when empty or starting with a digit. Use `group.name` to name services such as `PetService`.
+   * Needs its own `output.path`: a plugin writing to the output root gets a warning and no namespaces.
    *
    * @example
    * ```ts

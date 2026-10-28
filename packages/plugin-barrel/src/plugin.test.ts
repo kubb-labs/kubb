@@ -74,11 +74,11 @@ async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<P
     storage: memoryStorage(),
   } satisfies Config
 
-  const { files } = await createKubb(config).build()
+  const { files, diagnostics } = await createKubb(config).build()
 
   const rootExportNames = files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.flatMap((item) => item.name ?? [])
 
-  return { files, paths: files.map((file) => file.path), rootExportNames }
+  return { files, diagnostics, paths: files.map((file) => file.path), rootExportNames }
 }
 
 describe('pluginBarrel', () => {
@@ -128,6 +128,23 @@ describe('pluginBarrel', () => {
 
     const root = files.find((file) => file.path === '/workspace/src/gen/index.ts')
     expect(root?.exports.filter((item) => item.asAlias)).toMatchObject([{ name: 'PetService', path: './client/PetService/index.ts' }])
+  })
+
+  it('warns that a namespace plugin at the output root gets no namespaces', async () => {
+    const { files, diagnostics } = await build({
+      plugins: [
+        makePlugin({
+          name: 'plugin-fetch',
+          outputPath: '.',
+          filePath: '/workspace/src/gen/PetService/getPet.ts',
+          exportName: 'getPet',
+          output: { barrel: { type: 'named', namespace: true } },
+        }),
+      ],
+    })
+
+    expect(diagnostics.filter(Diagnostics.isProblem)).toMatchObject([{ code: Diagnostics.code.pluginWarning, severity: 'warning' }])
+    expect(files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.some((item) => item.asAlias)).toBe(false)
   })
 
   it('generates a barrel per directory-mode plugin and a root barrel re-exporting them', async () => {

@@ -121,6 +121,14 @@ export const pluginBarrel = defineExtension({
       // A plugin at the output root (no own `output.path`) gets no per-plugin barrel, which would
       // claim every other plugin's directory. The root barrel picks up its files.
       if (target === base) {
+        if (barrelConfig.namespace) {
+          Diagnostics.report({
+            code: Diagnostics.code.pluginWarning,
+            severity: 'warning',
+            message: `Plugin "${plugin.name}" sets \`output.barrel.namespace\` but writes to the output root, so no namespaces are generated.`,
+            help: 'Give the plugin its own `output.path`, such as `client`.',
+          })
+        }
         return
       }
 
