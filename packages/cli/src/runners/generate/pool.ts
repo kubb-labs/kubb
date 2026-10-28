@@ -175,7 +175,9 @@ export async function generateInWorkers({
     next()
   }
 
-  for (let i = 0; i < Math.min(workers, queue.length); i++) launchWorker()
+  // Counted once: each launch shifts the queue, so a bound read per iteration would stop short.
+  const count = Math.min(workers, queue.length)
+  for (let i = 0; i < count; i++) launchWorker()
 
   await finished
   await output

@@ -72,7 +72,7 @@ describe('generateInWorkers', () => {
     const failed = await generateInWorkers({
       configs,
       launch,
-      workers: 2,
+      workers: 3,
       writer: createPlainWriter((line) => lines.push(line)),
       reporters: [reporter],
       logLevel: logLevel.info,
@@ -83,7 +83,7 @@ describe('generateInWorkers', () => {
     expect(failed).toBe(false)
     expect(lines).toStrictEqual(['start 0', 'end 0', 'start 1', 'end 1', 'start 2', 'end 2'])
     expect(reported).toStrictEqual(['a', 'b', 'c'])
-    expect(spawned).toHaveLength(2)
+    expect(spawned).toHaveLength(3)
     expect(spawned.every((worker) => worker.disconnected)).toBe(true)
   })
 
