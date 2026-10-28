@@ -64,7 +64,7 @@ function schemasPlugin(output: Record<string, unknown> = {}) {
   })
 }
 
-async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<Plugin>; barrel?: { type: 'named' } | false }) {
+async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<Plugin>; barrel?: { type: 'all' | 'named' } | false }) {
   const config = {
     root: '/workspace',
     output: { path: 'src/gen', barrel },
@@ -74,14 +74,80 @@ async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<P
     storage: memoryStorage(),
   } satisfies Config
 
-  const { files } = await createKubb(config).build()
+  const { files, diagnostics } = await createKubb(config).build()
 
   const rootExportNames = files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.flatMap((item) => item.name ?? [])
 
-  return { files, paths: files.map((file) => file.path), rootExportNames }
+  return { files, diagnostics, paths: files.map((file) => file.path), rootExportNames }
 }
 
 describe('pluginBarrel', () => {
+  const servicePlugins = () => [
+    makePlugin({
+      name: 'plugin-fetch',
+      outputPath: 'client',
+      filePath: '/workspace/src/gen/client/PetService/getPet.ts',
+      exportName: 'getPet',
+      output: { barrel: { type: 'named', namespace: true } },
+    }),
+    makePlugin({
+      name: 'plugin-react-query',
+      outputPath: 'hooks',
+      filePath: '/workspace/src/gen/hooks/useGetPet.ts',
+      exportName: 'useGetPet',
+      output: { barrel: { type: 'named' } },
+    }),
+  ]
+
+  it.each(['all', 'named'] as const)('forwards service namespaces to a %s root barrel', async (rootType) => {
+    const { files } = await build({ barrel: { type: rootType }, plugins: servicePlugins() })
+
+    const client = files.find((file) => file.path === '/workspace/src/gen/client/index.ts')
+    expect(client?.exports).toMatchObject([{ path: './PetService/index.ts' }, { name: 'PetService', path: './PetService/index.ts', asAlias: true }])
+    const root = files.find((file) => file.path === '/workspace/src/gen/index.ts')
+    expect(root?.exports.find((item) => item.asAlias)).toMatchObject({ name: 'PetService', path: './client/PetService/index.ts', asAlias: true })
+  })
+
+  it('keeps service namespaces in the plugin barrel when the root barrel is off', async () => {
+    const { files, paths } = await build({ barrel: false, plugins: servicePlugins() })
+
+    const client = files.find((file) => file.path === '/workspace/src/gen/client/index.ts')
+    expect(client?.exports.find((item) => item.asAlias)).toMatchObject({ name: 'PetService', path: './PetService/index.ts' })
+    expect(paths).not.toContain('/workspace/src/gen/index.ts')
+  })
+
+  it('forwards a service namespace once when plugins share an output path', async () => {
+    const service = (name: string, exportName: string) =>
+      makePlugin({
+        name,
+        outputPath: 'client',
+        filePath: `/workspace/src/gen/client/PetService/${exportName}.ts`,
+        exportName,
+        output: { barrel: { type: 'named', namespace: true } },
+      })
+    const { files } = await build({ plugins: [service('plugin-fetch', 'getPet'), service('plugin-axios', 'addPet')] })
+
+    const root = files.find((file) => file.path === '/workspace/src/gen/index.ts')
+    expect(root?.exports.filter((item) => item.asAlias)).toMatchObject([{ name: 'PetService', path: './client/PetService/index.ts' }])
+  })
+
+  it('warns that a namespace plugin at the output root gets no namespaces', async () => {
+    const { files, diagnostics } = await build({
+      plugins: [
+        makePlugin({
+          name: 'plugin-fetch',
+          outputPath: '.',
+          filePath: '/workspace/src/gen/PetService/getPet.ts',
+          exportName: 'getPet',
+          output: { barrel: { type: 'named', namespace: true } },
+        }),
+      ],
+    })
+
+    expect(diagnostics.filter(Diagnostics.isProblem)).toMatchObject([{ code: Diagnostics.code.pluginWarning, severity: 'warning' }])
+    expect(files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.some((item) => item.asAlias)).toBe(false)
+  })
+
   it('generates a barrel per directory-mode plugin and a root barrel re-exporting them', async () => {
     const { paths, rootExportNames } = await build({ plugins: [typesPlugin(), schemasPlugin()] })
 
