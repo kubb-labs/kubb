@@ -355,21 +355,8 @@ declare global {
     interface PluginOptionsRegistry {}
 
     /**
-     * Registry of memo key prefixes to the value stored under them. `resolver.memo`, `ctx.memo`, and the
-     * `memo()` composable take a `prefix:rest` key and return the registered type. Augment this
-     * interface so a prefix autocompletes and two packages never store different types under one.
-     *
-     * @example
-     * ```ts
-     * // packages/plugin-zod/src/types.ts
-     * declare global {
-     *   namespace Kubb {
-     *     interface MemoRegistry {
-     *       typeName: string
-     *     }
-     *   }
-     * }
-     * ```
+     * Registry of memo key prefixes to the value stored under them, so `memo(`prefix:rest`, compute)`
+     * returns that type. Augment it the way `PluginRegistry` is augmented.
      */
     interface MemoRegistry {
       name: string

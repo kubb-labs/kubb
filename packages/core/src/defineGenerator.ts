@@ -120,9 +120,8 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
    */
   cache: NodeCache
   /**
-   * Cache that lives for the whole build and is shared by every plugin, where `cache` is one node and
-   * `resolver.memo` is one plugin. Prefix a key with the plugin name unless every plugin wants the
-   * same value.
+   * Cache for the whole build, shared by every plugin, where `cache` is one node and `resolver.memo` is one
+   * plugin. Prefix a key with the plugin name unless every plugin wants the same value.
    */
   memo: Memo
 }

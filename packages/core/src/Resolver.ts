@@ -390,13 +390,7 @@ export class Resolver {
     return this.default.name(name)
   }
 
-  /**
-   * Returns what `compute` produced the first time this build asked for `key`. A resolver lives for one
-   * build, so wrap naming work a generator repeats per node, such as casing, and compute it once.
-   *
-   * @example
-   * `name(name) { return this.memo(`name:${name}`, () => pascalCase(name)) }`
-   */
+  /** Returns what `compute` produced the first time this build asked for `key`; a resolver lives for one build. */
   memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {
     return memoize(this.#memo, key, compute)
   }

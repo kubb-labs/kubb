@@ -86,12 +86,7 @@ export function injectFile(file: UserFileNode): void {
   requireContext('injectFile').injectFile(file)
 }
 
-/**
- * Returns a value computed once per build and shared by every plugin, like `ctx.memo`.
- *
- * @example
- * `const names = memo('my-plugin:names', () => collectNames())`
- */
+/** Returns a value computed once per build and shared by every plugin, like `ctx.memo`. */
 export const memo: Memo = (key, compute) => requireContext('memo').memo(key, compute)
 
 /**

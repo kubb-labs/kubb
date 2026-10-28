@@ -6,7 +6,7 @@ import { expect, vi } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
 import { Hookable } from './Hookable.ts'
-import type { Memo } from './memo.ts'
+import { type Memo, memoize } from './memo.ts'
 import { createNodeCache } from './nodeCache.ts'
 import { type KubbDriver, pluginNotFoundError } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
@@ -41,6 +41,7 @@ export function createMockedSetupContext<TFactory extends PluginType = PluginTyp
   options = {} as TFactory['options'],
 }: { plugins?: Array<string>; options?: TFactory['options'] } = {}): KubbPluginSetupContext<TFactory> {
   const registered = plugins.map((name) => ({ name }) as unknown as Plugin)
+  const memo = new Map<string, unknown>()
 
   return {
     config: { plugins: registered } as unknown as Config,
@@ -56,7 +57,7 @@ export function createMockedSetupContext<TFactory extends PluginType = PluginTyp
       if (!plugin) throw pluginNotFoundError({ pluginName })
       return plugin
     }) as KubbPluginSetupContext<TFactory>['requirePlugin'],
-    memo: ((_key: string, compute: () => unknown) => compute()) as Memo,
+    memo: ((key: string, compute: () => unknown) => memoize(memo, key, compute)) as Memo,
   }
 }
 
@@ -115,6 +116,7 @@ type RenderGeneratorOptions<TOptions extends PluginType> = {
 }
 
 function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGeneratorOptions<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
+  const memo = new Map<string, unknown>()
   const root = resolve(opts.config.root, opts.config.output.path)
 
   return {
@@ -132,7 +134,7 @@ function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGene
     },
     meta: opts.meta ?? { circularNames: [], enumNames: [] },
     cache: createNodeCache(),
-    memo: ((_key: string, compute: () => unknown) => compute()) as Memo,
+    memo: ((key: string, compute: () => unknown) => memoize(memo, key, compute)) as Memo,
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
     hooks: opts.driver.hooks ?? new Hookable<KubbHooks>(),
