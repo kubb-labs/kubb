@@ -70,7 +70,7 @@ type GenerateProps = {
  * it is unset, below 2, or the run writes nothing to disk. Each thread loads the config entry
  * itself, the way this process did.
  */
-export function resolveWorkers({ dryRun, ...data }: GenerateWorkerData & { dryRun?: boolean }): GenerateWorkers | undefined {
+function resolveWorkers({ dryRun, ...data }: GenerateWorkerData & { dryRun?: boolean }): GenerateWorkers | undefined {
   const requested = Number(process.env.KUBB_WORKERS)
   if (dryRun || !Number.isInteger(requested) || requested < 2) return undefined
 
