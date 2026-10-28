@@ -6,6 +6,9 @@ import type { RefSchemaNode, SchemaNode } from '../nodes/schema.ts'
  * (RFC 6901), so `a~1b~0c` names the component `a/b~c`.
  */
 export function refName(ref: string): string {
+  const cached = refNames.get(ref)
+  if (cached !== undefined) return cached
+
   const segment = ref.split('/').at(-1) ?? ref
   let decoded = segment
 
@@ -15,8 +18,13 @@ export function refName(ref: string): string {
     // A stray `%` is not a valid escape, so the segment is already the literal name.
   }
 
-  return decoded.replaceAll('~1', '/').replaceAll('~0', '~')
+  const name = decoded.replaceAll('~1', '/').replaceAll('~0', '~')
+  refNames.set(ref, name)
+  return name
 }
+
+// Every plugin resolves the same refs on every visit, so the decoded names are kept per ref string.
+const refNames = new Map<string, string>()
 
 /**
  * Resolves the emitted name of the schema a ref node points at. Prefers `targetName` (set when
@@ -80,14 +88,21 @@ const REF_OWN_KEYS: ReadonlySet<string> = new Set(['kind', 'type', 'name', 'ref'
 export function mergeRefWithSchema(node: RefSchemaNode): SchemaNode {
   if (!node.schema) return node
 
+  const cached = mergedRefs.get(node)
+  if (cached?.schema === node.schema) return cached.merged
+
   const merged: Record<string, unknown> = { ...node.schema }
   for (const key of Object.keys(node)) {
     const value = (node as Record<string, unknown>)[key]
     if (value !== undefined && !REF_OWN_KEYS.has(key)) merged[key] = value
   }
 
+  mergedRefs.set(node, { schema: node.schema, merged: merged as SchemaNode })
   return merged as SchemaNode
 }
+
+// Nodes are treated as immutable, so the merge is kept per ref node for as long as it points at the same resolved schema.
+const mergedRefs = new WeakMap<RefSchemaNode, { schema: SchemaNode; merged: SchemaNode }>()
 
 /**
  * Returns `true` when a schema is a bare ref without modifiers, metadata, or omit keys.

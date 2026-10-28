@@ -1,6 +1,6 @@
 import { ast } from '@kubb/ast'
 import type { SchemaNode, SchemaType } from '@kubb/ast'
-import { pascalCase } from '@internals/utils'
+import { pascalCase } from '@kubb/core'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 

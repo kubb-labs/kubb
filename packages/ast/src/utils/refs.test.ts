@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createSchema } from '../nodes/schema.ts'
-import { isBareRef, refName, resolveRefName } from './refs.ts'
+import { isBareRef, mergeRefWithSchema, refName, resolveRefName } from './refs.ts'
 
 describe('refName', () => {
   it.each([
@@ -35,6 +35,22 @@ describe('resolveRefName', () => {
   it('returns null for non-ref nodes', () => {
     expect(resolveRefName(createSchema({ type: 'string' }))).toBeNull()
     expect(resolveRefName(undefined)).toBeNull()
+  })
+})
+
+describe('mergeRefWithSchema', () => {
+  it('reuses the merge while the ref points at the same schema', () => {
+    const pet = createSchema({ type: 'string', description: 'A pet' })
+    const ref = createSchema({ type: 'ref', ref: '#/components/schemas/Pet', nullable: true, schema: pet })
+
+    const merged = mergeRefWithSchema(ref)
+    expect(merged).toEqual({ ...pet, nullable: true })
+    expect(mergeRefWithSchema(ref)).toBe(merged)
+
+    const resolved = { ...ref, schema: createSchema({ type: 'number' }) }
+    expect(mergeRefWithSchema({ ...ref, schema: resolved.schema })).not.toBe(merged)
+    ref.schema = resolved.schema
+    expect(mergeRefWithSchema(ref)).toMatchObject({ type: 'number', nullable: true })
   })
 })
 

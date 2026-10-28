@@ -1,3 +1,4 @@
+export { camelCase, pascalCase } from '@internals/utils'
 export { createAdapter } from './createAdapter.ts'
 export {
   addGenerator,

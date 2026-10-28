@@ -34,9 +34,16 @@ function convert(text: string, pascal: boolean): string {
 }
 
 // Plugins resolve the same names over and over (about 47,000 calls for a 1,000 schema spec), so
-// results are kept. Clearing at the limit bounds the memory a long-running process spends on it.
+// results are kept for the whole build. A size cap wiped the memo mid-build on large specs, so the
+// driver clears it per build instead, which bounds what a long-running process keeps.
 const cache = new Map<string, string>()
-const cacheLimit = 10_000
+
+/**
+ * Drops every memoized casing result. The driver calls it when a build starts.
+ */
+export function clearCasingCache(): void {
+  cache.clear()
+}
 
 function toCamelOrPascal(text: string, pascal: boolean): string {
   const key = `${pascal ? 'P' : 'c'}${text}`
@@ -44,7 +51,6 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
   if (cached !== undefined) return cached
 
   const result = convert(text, pascal)
-  if (cache.size >= cacheLimit) cache.clear()
   cache.set(key, result)
   return result
 }

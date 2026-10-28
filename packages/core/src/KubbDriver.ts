@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { getElapsedMs, toError } from '@internals/utils'
+import { clearCasingCache, getElapsedMs, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
@@ -349,6 +349,7 @@ export class KubbDriver {
    * contributes a `timing` diagnostic for the run summary.
    */
   async run(): Promise<{ diagnostics: Array<Diagnostic> }> {
+    clearCasingCache()
     const { hooks, config, fileManager } = this
     const diagnostics: Array<Diagnostic> = []
     const parsersMap = new Map<FileNode['extname'], Parser>()

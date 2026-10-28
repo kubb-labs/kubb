@@ -43,6 +43,19 @@ describe('resolver name reservations', () => {
     expect(resolver.resolveName({ key: 'first:enum', name: 'Status', normalize })).toBe('Status3')
   })
 
+  test('normalizes each candidate once', () => {
+    const resolver = new Resolver({ pluginName: 'types' })
+    const seen: Array<string> = []
+    const normalize = (name: string) => {
+      seen.push(name)
+      return name.toLowerCase()
+    }
+    resolver.reserveNames(['status'])
+
+    expect(resolver.resolveName({ key: 'enum', name: 'Status', normalize })).toBe('Status2')
+    expect(seen).toEqual(['Status', 'Status2'])
+  })
+
   test('takes a name only when every identifier it emits is free', () => {
     const resolver = new Resolver({ pluginName: 'types' })
     const normalize = (name: string) => [name.toLowerCase(), `${name}Key`]

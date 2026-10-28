@@ -79,9 +79,18 @@ function loadCompiler(): Compiler {
  * Module specifier that imports `filePath` from the file at `root`: POSIX, relative to that file's directory, `./`-prefixed unless it climbs with `../`.
  */
 export function getRelativePath(root: string, filePath: string): string {
+  const key = `${root}\u0000${filePath}`
+  const cached = relativePaths.get(key)
+  if (cached !== undefined) return cached
+
   const slashed = relative(dirname(root), filePath).replaceAll('\\', '/')
-  return slashed.startsWith('../') ? slashed : `./${slashed}`
+  const result = slashed.startsWith('../') ? slashed : `./${slashed}`
+  relativePaths.set(key, result)
+  return result
 }
+
+// Every import line of every file resolves the same (importer, target) pairs, so `path.relative` runs once per pair.
+const relativePaths = new Map<string, string>()
 
 /**
  * Swaps the extension of a relative import/export path for `extname`. Package specifiers and extension-less paths stay as-is.
@@ -263,20 +272,29 @@ function dedent(text: string): string {
   if (!text.includes('\n')) return text.trim() ? text.trimStart() : ''
 
   const lines = text.split('\n')
-  const isBlank = (line: string) => line.trim() === ''
-
-  const start = lines.findIndex((line) => !isBlank(line))
-  if (start === -1) return ''
-  const end = lines.findLastIndex((line) => !isBlank(line))
-
-  const trimmed = lines.slice(start, end + 1)
-  // A loop, not `Math.min(...indents)`, which overflows the stack on very long text.
+  // One pass records each line's indent (-1 when blank), the first and last non-blank line, and the
+  // common indent. A loop, not `Math.min(...indents)`, which overflows the stack on very long text.
+  const indents: Array<number> = []
+  let start = -1
+  let end = -1
   let min = Infinity
-  for (const line of trimmed) {
-    if (!isBlank(line)) min = Math.min(min, line.length - line.trimStart().length)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]!
+    const indent = line.length - line.trimStart().length
+    if (indent === line.length) {
+      indents.push(-1)
+      continue
+    }
+    indents.push(indent)
+    if (start === -1) start = i
+    end = i
+    if (indent < min) min = indent
   }
+  if (start === -1) return ''
 
-  return trimmed.map((line) => (isBlank(line) ? '' : line.slice(min))).join('\n')
+  const out: Array<string> = []
+  for (let i = start; i <= end; i++) out.push(indents[i] === -1 ? '' : lines[i]!.slice(min))
+  return out.join('\n')
 }
 
 /**
