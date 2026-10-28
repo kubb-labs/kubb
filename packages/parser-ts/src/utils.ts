@@ -272,7 +272,7 @@ function dedent(text: string): string {
   if (!text.includes('\n')) return text.trim() ? text.trimStart() : ''
 
   const lines = text.split('\n')
-  // One pass records each line's indent (-1 when blank), the first and last non-blank line, and the
+  // One pass records the indent of each line (-1 when blank), the first and last non-blank line, and the
   // common indent. A loop, not `Math.min(...indents)`, which overflows the stack on very long text.
   const indents: Array<number> = []
   let start = -1
