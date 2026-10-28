@@ -4,6 +4,7 @@
 # Collapse in GitHub diffs and skip in language stats
 pnpm-lock.yaml linguist-generated
 CHANGELOG.md linguist-generated
+**/__snapshots__/** linguist-generated
 
 # Images
 *.png binary
