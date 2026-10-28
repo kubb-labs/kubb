@@ -33,8 +33,7 @@ function convert(text: string, pascal: boolean): string {
     .replace(/[^a-zA-Z0-9]/g, '')
 }
 
-// Plugins resolve the same names over and over, so results are kept for the whole build and the driver
-// clears the memo per build. The limit only bounds a host that calls these helpers outside a build.
+// The driver clears this per build; the limit only bounds a host that calls these helpers outside a build.
 const cache = new Map<string, string>()
 const cacheLimit = 250_000
 

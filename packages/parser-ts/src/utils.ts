@@ -91,7 +91,6 @@ export function getRelativePath(root: string, filePath: string): string {
   return result
 }
 
-// Every import line of every file resolves the same (importer, target) pairs, so `path.relative` runs once per pair.
 // The limit bounds what a long-running host keeps across builds into fresh roots; one build stays well under it.
 const relativePaths = new Map<string, string>()
 const memoLimit = 100_000
@@ -276,8 +275,7 @@ function dedent(text: string): string {
   if (!text.includes('\n')) return text.trim() ? text.trimStart() : ''
 
   const lines = text.split('\n')
-  // One pass records the indent of each line (-1 when blank), the first and last non-blank line, and the
-  // common indent. A loop, not `Math.min(...indents)`, which overflows the stack on very long text.
+  // -1 marks a blank line. A loop, not `Math.min(...indents)`, which overflows the stack on very long text.
   const indents: Array<number> = []
   let start = -1
   let end = -1
