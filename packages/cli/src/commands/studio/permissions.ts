@@ -1,5 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
+import { findConfigFile } from '@internals/shared'
 import { studioCommand } from './studioCommand.ts'
 
 export const command = studioCommand({
@@ -11,7 +12,6 @@ export const command = studioCommand({
     const { readCredentials } = await import('../../runners/studio/credentials.ts')
     const { resolvePermissions } = await import('../../runners/studio/run.ts')
     const { canUseTTY } = await import('../../utils/env.ts')
-    const { findConfigFile } = await import('@internals/shared')
 
     const credentials = await readCredentials()
     if (!credentials) throw new Error('This project is not paired with Kubb Studio. Run `kubb studio` first.')
