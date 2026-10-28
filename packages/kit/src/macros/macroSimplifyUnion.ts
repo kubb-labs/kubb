@@ -24,11 +24,14 @@ function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
     const cached = keys.get(value)
     if (cached) return cached
 
+    // A ref's `ref` pointer already identifies its target, so hashing its resolved `schema` as
+    // well only walks the same component graph again for every union that references it.
+    const skipsSchema = (value as Partial<SchemaNode>).type === ast.schemaTypes.ref && typeof (value as { ref?: unknown }).ref === 'string'
     // Hash each shared subtree once instead of expanding resolved refs into a giant string.
     const entries = Array.isArray(value)
       ? value.map(key)
       : Object.entries(value)
-          .filter(([name, child]) => name !== 'pointer' && child !== undefined)
+          .filter(([name, child]) => name !== 'pointer' && child !== undefined && !(skipsSchema && name === 'schema'))
           .map(([name, child]) => [name, key(child)])
     const result = hash('sha256', JSON.stringify([Array.isArray(value), entries]))
     keys.set(value, result)

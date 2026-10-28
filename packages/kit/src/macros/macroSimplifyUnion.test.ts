@@ -60,6 +60,16 @@ describe('macroSimplifyUnion', () => {
     expect(simplify([string, number, nullable, { ...string }])).toStrictEqual([string, number, nullable])
   })
 
+  it('does not hash the resolved schema of a ref that carries a pointer', () => {
+    const resolved = ast.factory.createSchema({ type: ast.schemaTypes.string })
+    const first = ast.factory.createSchema({ type: ast.schemaTypes.ref, name: 'Value', ref: '#/components/schemas/Value', schema: resolved })
+    const other = ast.factory.createSchema({ type: ast.schemaTypes.ref, name: 'Other', ref: '#/components/schemas/Other', schema: resolved })
+    // Same pointer, so the same target: the differing `schema` object must not keep both.
+    const repeat = { ...first, schema: ast.factory.createSchema({ type: ast.schemaTypes.string }) }
+
+    expect(simplify([first, other, repeat])).toStrictEqual([first, other])
+  })
+
   it('keeps object and array defaults distinct', () => {
     const object = ast.factory.createSchema({ type: ast.schemaTypes.unknown, default: {} })
     const array = { ...object, default: [] }
