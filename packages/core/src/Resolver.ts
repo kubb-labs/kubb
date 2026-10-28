@@ -357,7 +357,6 @@ export class Resolver {
   #options: ResolverBuildOptions
   #memo = new Map<string, unknown>()
   #usedNames = new Set<string>()
-  #resolvedNames = new Map<string, string>()
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
   // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
   #baseName: (params: Pick<ResolverFileParams, 'name' | 'extname'>) => FileNode['baseName']
@@ -438,21 +437,20 @@ export class Resolver {
   resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
     // Length-prefixed segments cannot collide whatever they contain, and this stays cheaper than `JSON.stringify`.
     const cacheKey = typeof key === 'string' ? `s:${key}` : `a:${key.map((segment) => (segment === undefined ? 'u' : `${segment.length}:${segment}`)).join('')}`
-    const previous = this.#resolvedNames.get(cacheKey)
-    if (previous !== undefined) return previous
-    const emitted = (value: string): ReadonlyArray<string> => {
-      const names = normalize(value)
-      return typeof names === 'string' ? [names] : names
-    }
-    let result = name
-    let names = emitted(result)
-    for (let suffix = 2; names.some((emittedName) => this.#usedNames.has(emittedName)); suffix++) {
-      result = `${name}${suffix}`
-      names = emitted(result)
-    }
-    this.reserveNames(names)
-    this.#resolvedNames.set(cacheKey, result)
-    return result
+    return this.memo(`resolveName:${cacheKey}`, () => {
+      const emitted = (value: string): ReadonlyArray<string> => {
+        const names = normalize(value)
+        return typeof names === 'string' ? [names] : names
+      }
+      let result = name
+      let names = emitted(result)
+      for (let suffix = 2; names.some((emittedName) => this.#usedNames.has(emittedName)); suffix++) {
+        result = `${name}${suffix}`
+        names = emitted(result)
+      }
+      this.reserveNames(names)
+      return result
+    })
   }
 
   file(options: ResolveFileOptions): FileNode {
