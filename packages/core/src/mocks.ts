@@ -19,6 +19,7 @@ import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginType } fro
  */
 export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): KubbDriver {
   const fileManager = new FileManager()
+  const memo = new Map<string, unknown>()
 
   return {
     config: options?.config ?? {
@@ -31,6 +32,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
       return options?.plugin
     },
     getResolver: (_pluginName: string) => options?.plugin?.resolver,
+    memo: ((key: string, compute: () => unknown) => memoize(memo, key, compute)) as Memo,
     fileManager,
   } as unknown as KubbDriver
 }
@@ -116,7 +118,6 @@ type RenderGeneratorOptions<TOptions extends PluginType> = {
 }
 
 function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGeneratorOptions<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
-  const memo = new Map<string, unknown>()
   const root = resolve(opts.config.root, opts.config.output.path)
 
   return {
@@ -134,7 +135,7 @@ function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGene
     },
     meta: opts.meta ?? { circularNames: [], enumNames: [] },
     cache: createNodeCache(),
-    memo: ((key: string, compute: () => unknown) => memoize(memo, key, compute)) as Memo,
+    memo: opts.driver.memo.bind(opts.driver),
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
     hooks: opts.driver.hooks ?? new Hookable<KubbHooks>(),
