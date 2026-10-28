@@ -280,8 +280,7 @@ function dedent(text: string): string {
   let start = -1
   let end = -1
   let min = Infinity
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]!
+  for (const [i, line] of lines.entries()) {
     const indent = line.length - line.trimStart().length
     if (indent === line.length) {
       indents.push(-1)
@@ -294,9 +293,10 @@ function dedent(text: string): string {
   }
   if (start === -1) return ''
 
-  const out: Array<string> = []
-  for (let i = start; i <= end; i++) out.push(indents[i] === -1 ? '' : lines[i]!.slice(min))
-  return out.join('\n')
+  return lines
+    .slice(start, end + 1)
+    .map((line, i) => (indents[start + i] === -1 ? '' : line.slice(min)))
+    .join('\n')
 }
 
 /**
