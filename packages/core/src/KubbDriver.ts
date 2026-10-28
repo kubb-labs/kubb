@@ -495,7 +495,9 @@ export class KubbDriver {
           const outputRoot = resolve(config.root, config.output.path)
 
           const { workers } = this.options
-          if (workers && workers.count >= 2 && this.adapter) this.#threads = Array.from({ length: workers.count }, () => spawnThread(workers.spawn))
+          // A plugin's own `kubb:generate:*` hook runs at the node with its context, so it may add files or names the split cannot reorder.
+          const hooked = [...this.plugins.values()].some((plugin) => plugin.hooks?.['kubb:generate:schema'] || plugin.hooks?.['kubb:generate:operation'])
+          if (workers && workers.count >= 2 && this.adapter && !hooked) this.#threads = Array.from({ length: workers.count }, () => spawnThread(workers.spawn))
 
           // Parse the adapter source into `this.inputNode`.
           await this.#parseInput()
