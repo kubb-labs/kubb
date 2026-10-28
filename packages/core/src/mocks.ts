@@ -6,6 +6,7 @@ import { expect, vi } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
 import { Hookable } from './Hookable.ts'
+import type { Memo } from './memo.ts'
 import { createNodeCache } from './nodeCache.ts'
 import { type KubbDriver, pluginNotFoundError } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
@@ -55,6 +56,7 @@ export function createMockedSetupContext<TFactory extends PluginType = PluginTyp
       if (!plugin) throw pluginNotFoundError({ pluginName })
       return plugin
     }) as KubbPluginSetupContext<TFactory>['requirePlugin'],
+    memo: ((_key: string, compute: () => unknown) => compute()) as Memo,
   }
 }
 
@@ -130,6 +132,7 @@ function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGene
     },
     meta: opts.meta ?? { circularNames: [], enumNames: [] },
     cache: createNodeCache(),
+    memo: ((_key: string, compute: () => unknown) => compute()) as Memo,
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
     hooks: opts.driver.hooks ?? new Hookable<KubbHooks>(),

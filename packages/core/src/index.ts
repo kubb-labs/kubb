@@ -4,6 +4,7 @@ export {
   addMacro,
   injectFile,
   kubbContext,
+  memo,
   requirePlugin,
   setMacros,
   setOptions,
@@ -83,6 +84,7 @@ export type {
   RegistryGuide,
   RegistryIndex,
 } from './manifest.ts'
+export type { Memo, MemoKey, MemoValue } from './memo.ts'
 export type { NodeCache } from './nodeCache.ts'
 export type { Parser, ParserDefinition, ParserFactory } from './defineParser.ts'
 export type {

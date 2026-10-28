@@ -145,6 +145,6 @@ type ResolverPatch = {
 }
 ```
 
-Methods run with a `this` context bound to the full, merged resolver, so write them as regular functions rather than arrow functions. `this.default.name(name)` always applies Kubb's core `camelCase` default. The plugin preset's `name` method remains separate. `this.memo(key, compute)` returns the same value for a key for the rest of the build, so a resolver computes each name once. `camelCase` and `pascalCase` are exported from `kubb/kit`.
+Methods run with a `this` context bound to the full, merged resolver, so write them as regular functions rather than arrow functions. `this.default.name(name)` always applies Kubb's core `camelCase` default. The plugin preset's `name` method remains separate. `this.memo(key, compute)` returns the same value for a key for the rest of the build, so a resolver computes each name once. A key is `prefix:rest`. Register the prefix and its value type in `Kubb.MemoRegistry`, next to `Kubb.PluginRegistry`, and the value is typed. `camelCase` and `pascalCase` are exported from `kubb/kit`.
 
 From a namespaced method, `this.name(name)` calls the active top-level `name` method and follows any user override. Calling `this.name` from the top-level `name` method itself recurses, so call an exported preset resolver such as `resolverTs.name` when you want to wrap its casing.

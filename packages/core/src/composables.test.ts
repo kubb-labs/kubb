@@ -7,6 +7,7 @@ import {
   addMacro,
   injectFile,
   kubbContext,
+  memo,
   setMacros,
   setOptions,
   setResolver,
@@ -87,6 +88,7 @@ describe('composables', () => {
       injectFile(file)
       setOptions({ label: 'resolved' })
 
+      expect(memo('test:value', () => 'value')).toBe('value')
       expect(useOptions()).toBe(ctx.options)
       expect(useConfig()).toBe(ctx.config)
       expect(requirePlugin('plugin-ts').name).toBe('plugin-ts')
@@ -129,6 +131,27 @@ describe('KubbDriver#setupHooks with composables', () => {
     expect(driver.plugins.get('first')?.generators?.map((gen) => gen.name)).toStrictEqual(['first-gen'])
     expect(driver.plugins.get('second')?.generators?.map((gen) => gen.name)).toStrictEqual(['second-gen'])
     expect(tryUseKubb()).toBeUndefined()
+  })
+
+  it('shares memo() between plugins for one build and forgets it on dispose', async () => {
+    const compute = vi.fn(() => 'shared')
+    const makePlugin = (name: string): Plugin => ({
+      name,
+      hooks: {
+        'kubb:plugin:setup'() {
+          expect(memo('test:names', compute)).toBe('shared')
+        },
+      },
+    })
+
+    const driver = new KubbDriver(makeConfig({ plugins: [makePlugin('first'), makePlugin('second')] }), { hooks: new Hookable<KubbHooks>() })
+    await driver.setup()
+    await driver.setupHooks()
+    expect(compute).toHaveBeenCalledTimes(1)
+
+    driver.dispose()
+    driver.memo('test:names', compute)
+    expect(compute).toHaveBeenCalledTimes(2)
   })
 
   it('generates the files of a generator added after an await in setup', async () => {

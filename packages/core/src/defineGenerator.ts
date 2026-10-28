@@ -7,6 +7,7 @@ import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { ExtensionMeta } from './defineExtension.ts'
 import type { Plugin, PluginType, PluginName, ResolvePluginOptions } from './definePlugin.ts'
+import type { Memo } from './memo.ts'
 import type { NodeCache } from './nodeCache.ts'
 import type { Config } from './types.ts'
 import type { Hookable } from './Hookable.ts'
@@ -118,6 +119,12 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
    * there is no single node, the cache is a fresh scratch scope for that call.
    */
   cache: NodeCache
+  /**
+   * Cache that lives for the whole build and is shared by every plugin, where `cache` is one node and
+   * `resolver.memo` is one plugin. Prefix a key with the plugin name unless every plugin wants the
+   * same value.
+   */
+  memo: Memo
 }
 
 /**
