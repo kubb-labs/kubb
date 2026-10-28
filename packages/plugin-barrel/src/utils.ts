@@ -225,13 +225,9 @@ type GetBarrelFilesParams = {
   barrelType: BarrelType
   /** One `index.ts` per sub-directory, each re-exporting only what is directly inside it. */
   nested?: boolean
-  /**
-   * Add PascalCase namespace exports for immediate subdirectories and enable nested barrels.
-   */
+  /** Add PascalCase namespace exports for immediate subdirectories and enable nested barrels. */
   namespace?: boolean
-  /**
-   * Extra exports to forward from plugin barrels into the root barrel.
-   */
+  /** Extra exports to forward from plugin barrels into the root barrel. */
   additionalExports?: ReadonlyArray<ast.ExportNode>
   /** Also generate a barrel for each sub-directory when `nested` is false. */
   recursive?: boolean

@@ -40,7 +40,7 @@ export type PluginBarrelConfig = {
    * @example
    * ```ts
    * barrel: { type: 'named', namespace: true }
-   * // export * as PetService from './PetService/index.ts'
+   * // export * as PetService from './petService/index.ts'
    * ```
    */
   namespace?: boolean
