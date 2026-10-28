@@ -85,12 +85,15 @@ export function getRelativePath(root: string, filePath: string): string {
 
   const slashed = relative(dirname(root), filePath).replaceAll('\\', '/')
   const result = slashed.startsWith('../') ? slashed : `./${slashed}`
+  if (relativePaths.size >= memoLimit) relativePaths.clear()
   relativePaths.set(key, result)
   return result
 }
 
 // Every import line of every file resolves the same (importer, target) pairs, so `path.relative` runs once per pair.
+// The limit bounds what a long-running host keeps across builds into fresh roots; one build stays well under it.
 const relativePaths = new Map<string, string>()
+const memoLimit = 100_000
 
 /**
  * Swaps the extension of a relative import/export path for `extname`. Package specifiers and extension-less paths stay as-is.

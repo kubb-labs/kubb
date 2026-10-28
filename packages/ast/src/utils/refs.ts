@@ -19,12 +19,15 @@ export function refName(ref: string): string {
   }
 
   const name = decoded.replaceAll('~1', '/').replaceAll('~0', '~')
+  if (refNames.size >= memoLimit) refNames.clear()
   refNames.set(ref, name)
   return name
 }
 
 // Every plugin resolves the same refs on every visit, so the decoded names are kept per ref string.
+// The limit bounds what a long-running host keeps across specs; one spec stays well under it.
 const refNames = new Map<string, string>()
+const memoLimit = 100_000
 
 /**
  * Resolves the emitted name of the schema a ref node points at. Prefers `targetName` (set when
