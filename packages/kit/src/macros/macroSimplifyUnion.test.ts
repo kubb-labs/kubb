@@ -60,6 +60,23 @@ describe('macroSimplifyUnion', () => {
     expect(simplify([string, number, nullable, { ...string }])).toStrictEqual([string, number, nullable])
   })
 
+  it('does not hash the resolved schema of a ref that carries a pointer', () => {
+    const resolved = ast.factory.createSchema({ type: ast.schemaTypes.string })
+    const first = ast.factory.createSchema({ type: ast.schemaTypes.ref, name: 'Value', ref: '#/components/schemas/Value', schema: resolved })
+    const other = ast.factory.createSchema({ type: ast.schemaTypes.ref, name: 'Other', ref: '#/components/schemas/Other', schema: resolved })
+    // Same pointer, so the same target: a structurally different `schema` must not keep both.
+    const repeat = { ...first, schema: ast.factory.createSchema({ type: ast.schemaTypes.number }) }
+
+    expect(simplify([first, other, repeat])).toStrictEqual([first, other])
+  })
+
+  it('hashes ref-shaped data under default in full', () => {
+    const first = ast.factory.createSchema({ type: ast.schemaTypes.unknown, default: { type: 'ref', ref: '#/x', schema: 1 } })
+    const second = { ...first, default: { type: 'ref', ref: '#/x', schema: 2 } }
+
+    expect(simplify([first, second])).toStrictEqual([first, second])
+  })
+
   it('keeps object and array defaults distinct', () => {
     const object = ast.factory.createSchema({ type: ast.schemaTypes.unknown, default: {} })
     const array = { ...object, default: [] }
