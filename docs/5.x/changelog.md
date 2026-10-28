@@ -9,6 +9,59 @@ outline: 2
 
 # Changelog
 
+## v5.15.0 — Oct 28, 2026
+
+### @kubb/cli
+
+#### Features
+
+- Add `kubb studio permissions` to change the permissions saved for a project. It shows the same list as `kubb studio`, with the saved answers checked, and keeps the pairing. Before, the only way to undo an answer was to edit `credentials.json` or pair again with `kubb studio login`. ([#4489](https://github.com/kubb-labs/kubb/pull/4489))
+
+#### Bug Fixes
+
+- Make `kubb generate` about 0.25 s faster on every run. The update check no longer delays the build: the notice prints at the end only when the registry answered in time. The telemetry request runs in the background with a 1 s cap. `kubb generate` no longer loads the code of the other commands, and source maps load only when `KUBB_DEBUG` is set. ([#4500](https://github.com/kubb-labs/kubb/pull/4500))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Speed up `output.clean`. Files written into the cleaned output are no longer read back first, and `fsStorage` moves the previous output aside and deletes it in the background while the new files are written. ([#4499](https://github.com/kubb-labs/kubb/pull/4499))
+
+### @kubb/kit
+
+#### Features
+
+- Add `this.memo(key, compute)` to every resolver, one cache per plugin per build, and `ctx.memo` plus the `memo()` composable, one cache per build shared by every plugin. Register a key prefix and its value type in `Kubb.MemoRegistry` to type the value. Export `camelCase` and `pascalCase` from `@kubb/kit` and `@kubb/core`, so a plugin computes each name once per build. Cache `Resolver.resolveName` allocations, `ast.refName`, and the TypeScript parser's relative import paths, and dedent text nodes in one pass. Generated output is unchanged. A large spec generates about 10% faster. ([#4501](https://github.com/kubb-labs/kubb/pull/4501))
+
+#### Bug Fixes
+
+- Speed up `macroSimplifyUnion` on specs whose unions reference large components, with the same output. A union member that is a `$ref` is now compared by its pointer instead of by its whole resolved schema, so a spec such as Stripe's generates in about half the time. ([#4491](https://github.com/kubb-labs/kubb/pull/4491))
+
+### @kubb/plugin-barrel
+
+#### Features
+
+- Add named service namespace exports alongside standalone operation functions with `output.barrel.namespace`.
+
+  - Enable nested barrels and export each immediate subdirectory under its PascalCase name.
+  - Forward service namespaces through an enabled root barrel.
+  - Keep standalone fetch functions available for React Query hooks and options.
+
+  ```ts
+  pluginFetch({
+    output: { path: 'client', barrel: { type: 'named', namespace: true } },
+    group: { type: 'tag', name: ({ group }) => `${group}Service` },
+  })
+  ```
+
+  Import the generated service with `import { PetService } from './gen/client'` and call `PetService.getPet(...)`. ([#4487](https://github.com/kubb-labs/kubb/pull/4487))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.14.6 — Oct 27, 2026
 
 ### @kubb/adapter-oas
