@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { camelCase } from '@internals/utils'
+import { camelCase, type Casing, pascalCase } from '@internals/utils'
 import { ast, collectImportedRefNames, type FileNode, type ImportNode, type InputMeta, type Node, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
 import { getInputKind } from './input.ts'
@@ -153,13 +153,13 @@ export type ResolverFile = {
    * `extname`. Defaults to `toFilePath(name)` with `extname` appended. Reaches sibling resolver
    * helpers through `this`.
    */
-  baseName?(params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
+  baseName?(this: Resolver, params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
   /**
    * Returns the file's complete path, resolved against the project `root`. Bypasses `output.path`
    * and `group`, so the resolver owns the layout. The returned path may not escape `root`. Reaches
    * sibling resolver helpers through `this`.
    */
-  path?(params: ResolverFilePathParams): string
+  path?(this: Resolver, params: ResolverFilePathParams): string
 }
 
 /**
@@ -241,6 +241,9 @@ export type ResolverBuildOptions = {
   pluginName: string
   name?: (name: string) => string
   file?: ResolverFile
+  /** The build's memoized casing. The driver sets both; a resolver built elsewhere uses the plain helpers. */
+  camelCase?: Casing['camelCase']
+  pascalCase?: Casing['pascalCase']
 }
 
 /**
@@ -297,10 +300,10 @@ const resolverOptions: unique symbol = Symbol.for('@kubb/core/resolver/options')
  * @example Nested path from a dotted name
  * `toFilePath('pet.petId') // 'pet/petId'`
  */
-export function toFilePath(name: string): string {
+export function toFilePath(name: string, casing: (part: string) => string = camelCase): string {
   return name
     .split(/\.(?=[a-zA-Z])/)
-    .map((part) => camelCase(part))
+    .map((part) => casing(part))
     .filter(Boolean)
     .join('/')
 }
@@ -317,13 +320,6 @@ function assertInside({ target, parent, message, help }: { target: string; paren
     help,
     location: { kind: 'config' },
   })
-}
-
-/**
- * Built-in `file.baseName`: casts the identifier with `toFilePath` and appends the extension.
- */
-function toBaseName({ name, extname }: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName'] {
-  return `${toFilePath(name)}${extname}` as FileNode['baseName']
 }
 
 /**
@@ -354,11 +350,14 @@ export class Resolver {
   readonly pluginName: string
   /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
+  /** The build's casing helpers, shared by every resolver of one `createKubb`. Plain helpers outside a build. */
+  camelCase: Casing['camelCase'] = camelCase
+  pascalCase: Casing['pascalCase'] = pascalCase
   #options: ResolverBuildOptions
   #usedNames = new Set<string>()
   #resolvedNames = new Map<string, string>()
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
-  // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
+  // Defaults to `toFilePath` plus the extension when a resolver sets no `file.baseName`.
   #baseName: (params: Pick<ResolverFileParams, 'name' | 'extname'>) => FileNode['baseName']
   // Full-path override from `options.file.path`, bound to the resolver. Absent by default, in which
   // case the built-in `output.path`/`group` layout is used.
@@ -367,10 +366,12 @@ export class Resolver {
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
     this.#options = options
-    this.#baseName = options.file?.baseName ? options.file.baseName.bind(this) : toBaseName
+    this.#baseName = options.file?.baseName
+      ? options.file.baseName.bind(this)
+      : ({ name, extname }) => `${toFilePath(name, this.camelCase)}${extname}` as FileNode['baseName']
     this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
     this.default = {
-      name: camelCase,
+      name: (name) => this.camelCase(name),
       options: resolveOptions,
       path: this.#resolvePath.bind(this),
       file: this.#resolveFile.bind(this),
@@ -519,11 +520,11 @@ export class Resolver {
    * groups use the first non-traversal segment (`''` when none remain, placing the file in
    * the output root, kept safe by the caller's boundary check).
    */
-  static #resolveGroupDir(group: Group, groupValue: string): string {
+  #resolveGroupDir(group: Group, groupValue: string): string {
     if (group.name) return group.name({ group: groupValue })
-    if (group.type === 'tag') return camelCase(groupValue)
+    if (group.type === 'tag') return this.camelCase(groupValue)
     const segment = groupValue.split('/').filter((part) => part !== '' && part !== '.' && part !== '..')[0]
-    return segment ? camelCase(segment) : ''
+    return segment ? this.camelCase(segment) : ''
   }
 
   /**
@@ -539,7 +540,7 @@ export class Resolver {
     const outputDir = path.resolve(root, output.path)
     // A file without the value its group needs (an SDK class per tag, grouped by path) is not grouped.
     const groupValue = group?.type === 'path' ? groupPath : tag
-    const result = group && groupValue ? path.resolve(outputDir, Resolver.#resolveGroupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)
+    const result = group && groupValue ? path.resolve(outputDir, this.#resolveGroupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)
 
     assertInside({
       target: result,

@@ -54,6 +54,8 @@ export const resolver = createResolver<MyPlugin>({
 | `name`           | Active top-level identifier casing. Delegates to `default.name` when omitted |
 | `file`           | Top-level `FileNode` builder, delegates to `default.file`              |
 | `default.name`   | The core `camelCase` generated-identifier casing                       |
+| `camelCase`      | The build's memoized camelCase helper, shared by every plugin          |
+| `pascalCase`     | The build's memoized PascalCase helper, shared by every plugin         |
 | `default.options`| Applies `exclude`, `include`, and `override` filters                   |
 | `default.path`   | Resolves to `output.path`, with optional tag/path-based subdirectories |
 | `default.file`   | Constructs a full `FileNode` using the resolver's `file.baseName` casing (camelCase by default, with `pet.petId` becoming `pet/petId`) |
@@ -144,6 +146,6 @@ type ResolverPatch = {
 }
 ```
 
-Methods run with a `this` context bound to the full, merged resolver, so write them as regular functions rather than arrow functions. `this.default.name(name)` always applies Kubb's core `camelCase` default. The plugin preset's `name` method remains separate. `camelCase` and `pascalCase` are exported from `kubb/kit`.
+Methods run with a `this` context bound to the full, merged resolver, so write them as regular functions rather than arrow functions. `this.default.name(name)` always applies Kubb's core `camelCase` default. The plugin preset's `name` method remains separate. Case names with `this.camelCase` and `this.pascalCase`: every plugin of a build shares their memo. The `camelCase` and `pascalCase` exports of `kubb/kit` are the plain helpers for config files.
 
 From a namespaced method, `this.name(name)` calls the active top-level `name` method and follows any user override. Calling `this.name` from the top-level `name` method itself recurses, so call an exported preset resolver such as `resolverTs.name` when you want to wrap its casing.

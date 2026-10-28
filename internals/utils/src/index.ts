@@ -1,4 +1,4 @@
-export { camelCase, clearCasingCache, pascalCase } from './casing.ts'
+export { camelCase, type Casing, createCasing, pascalCase } from './casing.ts'
 export { getErrorChain, getErrorMessage, toError } from './errors.ts'
 export { isCIEnvironment } from './isCIEnvironment.ts'
 export { escapePointerToken } from './jsonPointer.ts'

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { camelCase, pascalCase } from './casing.ts'
+import { camelCase, createCasing, pascalCase } from './casing.ts'
 
 describe('casing', () => {
   test.each([
@@ -46,10 +46,17 @@ describe('casing', () => {
   })
 })
 
-describe('casing cache', () => {
+describe('createCasing', () => {
+  test('returns the same results as the plain helpers', () => {
+    const casing = createCasing()
+    expect(casing.camelCase('pet-store', { prefix: 'create' })).toBe(camelCase('pet-store', { prefix: 'create' }))
+    expect(casing.pascalCase('pet-store', { suffix: 'schema' })).toBe(pascalCase('pet-store', { suffix: 'schema' }))
+  })
+
   test('keeps camelCase and PascalCase results for the same text apart', () => {
-    expect(camelCase('pet-store')).toBe('petStore')
-    expect(pascalCase('pet-store')).toBe('PetStore')
-    expect(camelCase('pet-store')).toBe('petStore')
+    const casing = createCasing()
+    expect(casing.camelCase('pet-store')).toBe('petStore')
+    expect(casing.pascalCase('pet-store')).toBe('PetStore')
+    expect(casing.camelCase('pet-store')).toBe('petStore')
   })
 })

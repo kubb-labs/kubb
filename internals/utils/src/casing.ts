@@ -33,26 +33,32 @@ function convert(text: string, pascal: boolean): string {
     .replace(/[^a-zA-Z0-9]/g, '')
 }
 
-// The driver clears this per build; the limit only bounds a host that calls these helpers outside a build.
-const cache = new Map<string, string>()
-const cacheLimit = 250_000
-
 /**
- * Drops every memoized casing result. The driver calls it when a build starts.
+ * The casing helpers one build shares. The driver creates a pair per `createKubb` and sets it on
+ * every resolver as `this.camelCase` and `this.pascalCase`, so every plugin that cases the same
+ * name hits one memo that is released with the build.
  */
-export function clearCasingCache(): void {
-  cache.clear()
+export type Casing = {
+  camelCase: typeof camelCase
+  pascalCase: typeof pascalCase
 }
 
-function toCamelOrPascal(text: string, pascal: boolean): string {
-  const key = `${pascal ? 'P' : 'c'}${text}`
-  const cached = cache.get(key)
-  if (cached !== undefined) return cached
+export function createCasing(): Casing {
+  const cache = new Map<string, string>()
+  const memo = (text: string, pascal: boolean): string => {
+    const key = `${pascal ? 'P' : 'c'}${text}`
+    let result = cache.get(key)
+    if (result === undefined) {
+      result = convert(text, pascal)
+      cache.set(key, result)
+    }
+    return result
+  }
 
-  const result = convert(text, pascal)
-  if (cache.size >= cacheLimit) cache.clear()
-  cache.set(key, result)
-  return result
+  return {
+    camelCase: (text, { prefix = '', suffix = '' } = {}) => memo(`${prefix} ${text} ${suffix}`, false),
+    pascalCase: (text, { prefix = '', suffix = '' } = {}) => memo(`${prefix} ${text} ${suffix}`, true),
+  }
 }
 
 /**
@@ -65,7 +71,7 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
  * `camelCase('tag', { prefix: 'create' }) // 'createTag'`
  */
 export function camelCase(text: string, { prefix = '', suffix = '' }: Options = {}): string {
-  return toCamelOrPascal(`${prefix} ${text} ${suffix}`, false)
+  return convert(`${prefix} ${text} ${suffix}`, false)
 }
 
 /**
@@ -78,5 +84,5 @@ export function camelCase(text: string, { prefix = '', suffix = '' }: Options = 
  * `pascalCase('tag', { suffix: 'schema' }) // 'TagSchema'`
  */
 export function pascalCase(text: string, { prefix = '', suffix = '' }: Options = {}): string {
-  return toCamelOrPascal(`${prefix} ${text} ${suffix}`, true)
+  return convert(`${prefix} ${text} ${suffix}`, true)
 }
