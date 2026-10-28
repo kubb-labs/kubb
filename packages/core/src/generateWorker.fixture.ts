@@ -22,7 +22,11 @@ export function createFixtureConfig(): Config {
     name: 'oas',
     options: {},
     document: null,
-    parse: async () => ast.factory.createInput({ schemas, operations }),
+    parse: async () => {
+      // Generators read the source document through `ctx.adapter`, so a thread has to receive it with the input.
+      adapter.document = { title: 'fixture' }
+      return ast.factory.createInput({ schemas, operations })
+    },
     validate: async () => {},
   }
   const plugin: Plugin = {
@@ -31,14 +35,17 @@ export function createFixtureConfig(): Config {
       'kubb:plugin:setup'(ctx) {
         ctx.addGenerator({
           name: 'fixture',
-          schema(node, { resolver, root, warn }) {
+          schema(node, { resolver, root, warn, adapter }) {
             const name = resolver.resolveName({ key: ['shared', node.name!], name: 'shared' })
             if (node.name === 'Model4') warn(`Model4 took ${name}`)
+            const { title } = adapter.document as { title: string }
             const file = resolver.file({ name: node.name!, extname: '.ts', root, output: OUTPUT })
             return [
               {
                 ...file,
-                sources: [ast.factory.createSource({ name, isExportable: true, nodes: [ast.factory.createText(`export const ${name} = '${node.name}'`)] })],
+                sources: [
+                  ast.factory.createSource({ name, isExportable: true, nodes: [ast.factory.createText(`export const ${name} = '${node.name} of ${title}'`)] }),
+                ],
               },
             ]
           },

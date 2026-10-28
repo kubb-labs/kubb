@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module'
 import { availableParallelism } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -34,7 +33,7 @@ import { createSpinner } from '../../ui/spinner.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
 import { type BuildDiff, type BuildSnapshot, diffBuilds, listenForKeys, startWatcher, trackBuild } from './utils.ts'
-import type { GenerateWorkerData } from './worker.ts'
+import type { GenerateWorkerData } from './generateWorker.ts'
 
 /** NPM registry endpoint used to check for @kubb/cli updates. */
 const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
@@ -68,7 +67,8 @@ function resolveWorkers({ dryRun, ...data }: GenerateWorkerData & { dryRun?: boo
   const requested = Number(process.env.KUBB_WORKERS)
   if (dryRun || !Number.isInteger(requested) || requested < 2) return undefined
 
-  const entry = path.join(path.dirname(createRequire(import.meta.url).resolve('@kubb/cli/package.json')), 'dist', 'generateWorker.js')
+  // Tests run the `.ts` source; the build emits `generateWorker.js` next to the bundle.
+  const entry = new URL(import.meta.url.endsWith('.ts') ? './generateWorker.ts' : './generateWorker.js', import.meta.url)
   return { count: Math.min(requested, availableParallelism()), spawn: () => new Worker(entry, { workerData: data }) }
 }
 

@@ -46,8 +46,11 @@ export type GenerateWorkers = {
 
 type Range = [start: number, end: number]
 
-/** Asks a worker thread to generate one range of nodes from the `v8`-serialized input it shares. */
-export type GenerateRequest = { type: 'generate'; input: SharedArrayBuffer; schemas: Range; operations: Range }
+/** What a worker thread needs from the main thread's parse: the input and the adapter's source document, which generators read through `ctx.adapter`. */
+type ParsedState = { input: InputNode; document: Adapter['document'] }
+
+/** Asks a worker thread to generate one range of nodes from the `v8`-serialized {@link ParsedState} it shares. */
+export type GenerateRequest = { type: 'generate'; state: SharedArrayBuffer; schemas: Range; operations: Range }
 
 /** Asks for the files. With `names`, the thread first adopts the names the whole walk resolved and generates its range again. */
 export type EmitRequest = { type: 'emit'; names?: Record<string, NameState> }
@@ -97,9 +100,9 @@ function request<T extends Exclude<WorkerResponse, { type: 'error' }>>(thread: T
   ])
 }
 
-/** Serializes the input once into shared memory, so posting it to every thread copies nothing. */
-function shareInput(input: InputNode): SharedArrayBuffer {
-  const bytes = serialize(input)
+/** Serializes the parsed state once into shared memory, so posting it to every thread copies nothing. */
+function shareState(state: ParsedState): SharedArrayBuffer {
+  const bytes = serialize(state)
   const shared = new SharedArrayBuffer(bytes.byteLength)
   new Uint8Array(shared).set(bytes)
   return shared
@@ -853,11 +856,11 @@ export class KubbDriver {
     if (count < 2) return false
 
     const threads = this.#threads.slice(0, count)
-    const input = shareInput(this.inputNode!)
+    const state = shareState({ input: this.inputNode!, document: this.adapter?.document ?? null })
     const rangeOf = (length: number, index: number): Range => [Math.floor((length * index) / count), Math.floor((length * (index + 1)) / count)]
     const generated = await Promise.all(
       threads.map((thread, index) =>
-        request<GeneratedResponse>(thread, { type: 'generate', input, schemas: rangeOf(schemas.length, index), operations: rangeOf(operations.length, index) }),
+        request<GeneratedResponse>(thread, { type: 'generate', state, schemas: rangeOf(schemas.length, index), operations: rangeOf(operations.length, index) }),
       ),
     )
 
@@ -895,8 +898,10 @@ export class KubbDriver {
   }
 
   /** @internal Worker side of `#splitWalk`: generates the range and returns the names its resolvers took. */
-  async generateRange({ input, schemas, operations }: GenerateRequest): Promise<GeneratedResponse> {
-    this.inputNode = deserialize(new Uint8Array(input)) as InputNode
+  async generateRange({ state, schemas, operations }: GenerateRequest): Promise<GeneratedResponse> {
+    const { input, document } = deserialize(new Uint8Array(state)) as ParsedState
+    this.inputNode = input
+    if (this.adapter) this.adapter.document = document
     await this.#setupPlugins()
     const entries = [...this.plugins.values()]
       .filter((plugin) => plugin.generators?.length)

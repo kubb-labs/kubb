@@ -214,6 +214,10 @@ export const adapterOas = defineExtension<AdapterOas>({
       get document() {
         return parsedDocument
       },
+      // A worker thread adopts the document the main thread parsed, since it generates without parsing.
+      set document(value) {
+        parsedDocument = value
+      },
       get sources() {
         return sources
       },

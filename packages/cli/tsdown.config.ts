@@ -1,6 +1,6 @@
 import { defineConfig, type UserConfig } from 'tsdown'
 
-const entry = { index: 'src/index.ts', studioWorker: 'src/runners/studio/worker.ts', generateWorker: 'src/runners/generate/worker.ts' }
+const entry = { index: 'src/index.ts', studioWorker: 'src/runners/studio/worker.ts', generateWorker: 'src/runners/generate/generateWorker.ts' }
 
 const shared: Partial<UserConfig> = {
   platform: 'node',
