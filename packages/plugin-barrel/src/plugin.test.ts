@@ -115,6 +115,21 @@ describe('pluginBarrel', () => {
     expect(root?.exports.find((item) => item.asAlias)).toMatchObject({ name: 'PetService', path: './client/PetService/index.ts', asAlias: true })
   })
 
+  it('forwards a service namespace once when plugins share an output path', async () => {
+    const service = (name: string, exportName: string) =>
+      makePlugin({
+        name,
+        outputPath: 'client',
+        filePath: `/workspace/src/gen/client/PetService/${exportName}.ts`,
+        exportName,
+        output: { barrel: { type: 'named', namespace: true } },
+      })
+    const { files } = await build({ plugins: [service('plugin-fetch', 'getPet'), service('plugin-axios', 'addPet')] })
+
+    const root = files.find((file) => file.path === '/workspace/src/gen/index.ts')
+    expect(root?.exports.filter((item) => item.asAlias)).toMatchObject([{ name: 'PetService', path: './client/PetService/index.ts' }])
+  })
+
   it('generates a barrel per directory-mode plugin and a root barrel re-exporting them', async () => {
     const { paths, rootExportNames } = await build({ plugins: [typesPlugin(), schemasPlugin()] })
 

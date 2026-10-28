@@ -163,24 +163,26 @@ export const pluginBarrel = defineExtension({
 
       const index = buildBarrelIndex(outputPath, relevantFiles)
       const reportedCollisions = new Set<string>()
-      const namespaceExports: Array<ast.ExportNode> = []
+      // Keyed by path and name: plugins sharing an `output.path` produce the same aliases.
+      const namespaceExports = new Map<string, ast.ExportNode>()
 
       pendingBarrels.forEach(({ plugin, target, barrelType, nested, namespace }) => {
         getBarrelFiles({ index, targetPath: target, barrelType, nested, namespace, recursive: true, reportedCollisions }).forEach((file) => {
           upsertFile(withBarrelBannerFooter({ file, plugin, config }))
           if (file.path !== `${toPosixPath(target)}/index.ts`) return
-          namespaceExports.push(
-            ...file.exports
-              .filter((item) => item.asAlias)
-              .map((item) => ast.factory.createExport({ ...item, path: `./${toPosixPath(path.relative(outputPath, path.resolve(target, item.path)))}` })),
-          )
+          file.exports
+            .filter((item) => item.asAlias)
+            .forEach((item) => {
+              const itemPath = `./${toPosixPath(path.relative(outputPath, path.resolve(target, item.path)))}`
+              namespaceExports.set(`${itemPath}\0${item.name}`, ast.factory.createExport({ ...item, path: itemPath }))
+            })
         })
       })
       pendingBarrels.length = 0
 
       if (rootBarrelConfig === false) return
 
-      getBarrelFiles({ index, barrelType: rootBarrelConfig.type, additionalExports: namespaceExports, reportedCollisions }).forEach((file) => {
+      getBarrelFiles({ index, barrelType: rootBarrelConfig.type, additionalExports: [...namespaceExports.values()], reportedCollisions }).forEach((file) => {
         upsertFile(file)
       })
     },

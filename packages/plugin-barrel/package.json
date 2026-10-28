@@ -75,10 +75,7 @@
     "@kubb/kit": "workspace:*"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*",
-    "@kubb/parser-ts": "workspace:*",
-    "@tanstack/react-query": "^5.104.0",
-    "@typescript/typescript6": "^6.0.2"
+    "@internals/utils": "workspace:*"
   },
   "engines": {
     "node": ">=22.22"

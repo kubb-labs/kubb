@@ -151,11 +151,11 @@ export default defineConfig({
 })
 ```
 
-For a `Pet` tag, `src/gen/client/index.ts` exports both the operations and their namespace:
+For a `pet` tag, the operations land in `src/gen/client/petService/`. `src/gen/client/index.ts` exports both the operations and their PascalCase namespace:
 
 ```typescript [src/gen/client/index.ts]
-export * from './PetService/index'
-export * as PetService from './PetService/index'
+export * from './petService/index'
+export * as PetService from './petService/index'
 ```
 
 Both calling styles remain available alongside the generated hooks and query options:
