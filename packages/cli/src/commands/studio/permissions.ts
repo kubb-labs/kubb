@@ -19,6 +19,8 @@ export const command = studioCommand({
 
     const configFile = findConfigFile()
     await resolvePermissions(options, credentials, configFile && path.relative(process.cwd(), configFile), { edit: true })
-    console.log('Permissions saved. A running connection keeps the old ones until you restart it with `kubb studio stop` and `kubb studio start`.')
+    console.log(
+      'Permissions saved. A running connection keeps the old ones until you restart it with the same flags: press Ctrl+C and run `kubb studio` again, or run `kubb studio stop`, then `kubb studio start`.',
+    )
   },
 })

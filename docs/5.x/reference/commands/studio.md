@@ -47,7 +47,11 @@ Run `start`, `status`, and `stop` from the same project directory. `start` resol
 
 `status` reports `starting`, `connected`, `reconnecting`, `authentication required`, or `stopped`. Only one worker can own a project. Stop it before using foreground `connect`.
 
-The worker survives terminal closure and retries temporary connection failures. Restart it after a crash or reboot. If its token is rejected, run `kubb studio login`, then `kubb studio start`. To change its URL or config, stop it and start it with the new flags. Flags can only add permissions. To change the saved ones, run `kubb studio permissions`, then restart the worker. `login` resets them.
+The worker survives terminal closure and retries temporary connection failures. Restart it after a crash or reboot. If its token is rejected, run `kubb studio login`, then `kubb studio start`.
+
+To change its URL or config, stop it and start it with the new flags. Flags can only add permissions, and `login` resets the saved ones.
+
+To change the saved permissions, run `kubb studio permissions`. A running connection keeps the old ones until you restart it with the same flags.
 
 The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, which defaults to `~/.kubb`. `status` prints the log path. `stop` waits for a running generation to clean up, and `logout` stops the worker before it removes credentials. An interrupted job does not run again.
 

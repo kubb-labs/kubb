@@ -223,6 +223,14 @@ describe('resolvePermissions', () => {
       expect.objectContaining({ projects: { [process.cwd()]: { ...options.permission, allowRead: true, allowExec: true } } }),
     )
   })
+
+  it('saves nothing when the edit list is canceled', async () => {
+    using project = stubProject()
+    vi.mocked(prompts.isCancel).mockReturnValueOnce(true)
+
+    await expect(resolvePermissions(options, credentials, undefined, { edit: true })).rejects.toThrow('Permissions are unchanged')
+    expect(project.write).not.toHaveBeenCalled()
+  })
 })
 
 /** Makes stdin look like a terminal without touching the real one. */
