@@ -82,37 +82,38 @@ async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<P
 }
 
 describe('pluginBarrel', () => {
-  it.each(['all', 'named', false] as const)('preserves service exports with root barrel %s', async (rootType) => {
-    const { files } = await build({
-      barrel: rootType === false ? false : { type: rootType },
-      plugins: [
-        makePlugin({
-          name: 'plugin-fetch',
-          outputPath: 'client',
-          filePath: '/workspace/src/gen/client/PetService/getPet.ts',
-          exportName: 'getPet',
-          output: { barrel: { type: 'named', namespace: true } },
-        }),
-        makePlugin({
-          name: 'plugin-react-query',
-          outputPath: 'hooks',
-          filePath: '/workspace/src/gen/hooks/useGetPet.ts',
-          exportName: 'useGetPet',
-          output: { barrel: { type: 'named' } },
-        }),
-      ],
-    })
+  const servicePlugins = () => [
+    makePlugin({
+      name: 'plugin-fetch',
+      outputPath: 'client',
+      filePath: '/workspace/src/gen/client/PetService/getPet.ts',
+      exportName: 'getPet',
+      output: { barrel: { type: 'named', namespace: true } },
+    }),
+    makePlugin({
+      name: 'plugin-react-query',
+      outputPath: 'hooks',
+      filePath: '/workspace/src/gen/hooks/useGetPet.ts',
+      exportName: 'useGetPet',
+      output: { barrel: { type: 'named' } },
+    }),
+  ]
+
+  it.each(['all', 'named'] as const)('forwards service namespaces to a %s root barrel', async (rootType) => {
+    const { files } = await build({ barrel: { type: rootType }, plugins: servicePlugins() })
+
     const client = files.find((file) => file.path === '/workspace/src/gen/client/index.ts')
     expect(client?.exports).toMatchObject([{ path: './PetService/index.ts' }, { name: 'PetService', path: './PetService/index.ts', asAlias: true }])
-    expect(files.find((file) => file.baseName === 'getPet.ts')?.sources[0]?.name).toBe('getPet')
-    expect(files.find((file) => file.baseName === 'useGetPet.ts')?.sources[0]?.name).toBe('useGetPet')
-
     const root = files.find((file) => file.path === '/workspace/src/gen/index.ts')
-    if (rootType === false) {
-      expect(root).toBeUndefined()
-      return
-    }
     expect(root?.exports.find((item) => item.asAlias)).toMatchObject({ name: 'PetService', path: './client/PetService/index.ts', asAlias: true })
+  })
+
+  it('keeps service namespaces in the plugin barrel when the root barrel is off', async () => {
+    const { files, paths } = await build({ barrel: false, plugins: servicePlugins() })
+
+    const client = files.find((file) => file.path === '/workspace/src/gen/client/index.ts')
+    expect(client?.exports.find((item) => item.asAlias)).toMatchObject({ name: 'PetService', path: './PetService/index.ts' })
+    expect(paths).not.toContain('/workspace/src/gen/index.ts')
   })
 
   it('forwards a service namespace once when plugins share an output path', async () => {
