@@ -418,7 +418,7 @@ export class Resolver {
    *
    * @example Resolve a name that has to be free as both an enum value and a type alias
    * ```ts
-   * resolver.resolveName({ key: ['enum', 'Pet', 'status'], name: 'Status', normalize: (name) => [camelCase(name), `${name}Key`] })
+   * resolver.resolveName({ key: ['enum', 'Pet', 'status'], name: 'Status', normalize: (name) => [resolver.camelCase(name), `${name}Key`] })
    * ```
    */
   resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
