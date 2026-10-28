@@ -752,6 +752,7 @@ export class KubbDriver {
   dispose(): void {
     for (const unhook of this.#unhooks) unhook()
     this.#unhooks.length = 0
+    this.#casing.clear()
     // Release the FileNode cache and parsed adapter graph so memory is reclaimed
     // between builds. The returned `BuildOutput.files` array still references any
     // FileNodes the caller needs to inspect.

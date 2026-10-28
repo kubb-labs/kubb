@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { describe, expect, test } from 'vitest'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
@@ -15,7 +16,7 @@ describe('Resolver casing', () => {
     const resolver = new Resolver({ pluginName: 'plugin-test', camelCase: upper })
     expect(resolver.name('pet')).toBe('PET')
     expect(resolver.file({ name: 'pet.petId', extname: '.ts', root: '/root', output: { path: 'types', mode: 'directory' } }).path).toBe(
-      '/root/types/PET/PETID.ts',
+      path.resolve('/root', 'types', 'PET', 'PETID.ts'),
     )
   })
 

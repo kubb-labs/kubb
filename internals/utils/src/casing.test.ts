@@ -53,6 +53,13 @@ describe('createCasing', () => {
     expect(casing.pascalCase('pet-store', { suffix: 'schema' })).toBe(pascalCase('pet-store', { suffix: 'schema' }))
   })
 
+  test('clear empties the memo and the next call recomputes the same result', () => {
+    const casing = createCasing()
+    expect(casing.camelCase('pet-store')).toBe('petStore')
+    casing.clear()
+    expect(casing.camelCase('pet-store')).toBe('petStore')
+  })
+
   test('keeps camelCase and PascalCase results for the same text apart', () => {
     const casing = createCasing()
     expect(casing.camelCase('pet-store')).toBe('petStore')

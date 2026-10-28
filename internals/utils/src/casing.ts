@@ -41,6 +41,8 @@ function convert(text: string, pascal: boolean): string {
 export type Casing = {
   camelCase: typeof camelCase
   pascalCase: typeof pascalCase
+  /** Empties the memo. The driver calls it on dispose, so a reused `Kubb` instance starts each build cold. */
+  clear(): void
 }
 
 export function createCasing(): Casing {
@@ -58,6 +60,7 @@ export function createCasing(): Casing {
   return {
     camelCase: (text, { prefix = '', suffix = '' } = {}) => memo(`${prefix} ${text} ${suffix}`, false),
     pascalCase: (text, { prefix = '', suffix = '' } = {}) => memo(`${prefix} ${text} ${suffix}`, true),
+    clear: () => cache.clear(),
   }
 }
 
