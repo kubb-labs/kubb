@@ -64,7 +64,7 @@ function schemasPlugin(output: Record<string, unknown> = {}) {
   })
 }
 
-async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<Plugin>; barrel?: { type: 'named' } | false }) {
+async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<Plugin>; barrel?: { type: 'all' | 'named' } | false }) {
   const config = {
     root: '/workspace',
     output: { path: 'src/gen', barrel },
@@ -82,6 +82,39 @@ async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<P
 }
 
 describe('pluginBarrel', () => {
+  it.each(['all', 'named', false] as const)('preserves service exports with root barrel %s', async (rootType) => {
+    const { files } = await build({
+      barrel: rootType === false ? false : { type: rootType },
+      plugins: [
+        makePlugin({
+          name: 'plugin-fetch',
+          outputPath: 'client',
+          filePath: '/workspace/src/gen/client/PetService/getPet.ts',
+          exportName: 'getPet',
+          output: { barrel: { type: 'named', namespace: true } },
+        }),
+        makePlugin({
+          name: 'plugin-react-query',
+          outputPath: 'hooks',
+          filePath: '/workspace/src/gen/hooks/useGetPet.ts',
+          exportName: 'useGetPet',
+          output: { barrel: { type: 'named' } },
+        }),
+      ],
+    })
+    const client = files.find((file) => file.path === '/workspace/src/gen/client/index.ts')
+    expect(client?.exports).toMatchObject([{ path: './PetService/index.ts' }, { name: 'PetService', path: './PetService/index.ts', asAlias: true }])
+    expect(files.find((file) => file.baseName === 'getPet.ts')?.sources[0]?.name).toBe('getPet')
+    expect(files.find((file) => file.baseName === 'useGetPet.ts')?.sources[0]?.name).toBe('useGetPet')
+
+    const root = files.find((file) => file.path === '/workspace/src/gen/index.ts')
+    if (rootType === false) {
+      expect(root).toBeUndefined()
+      return
+    }
+    expect(root?.exports.find((item) => item.asAlias)).toMatchObject({ name: 'PetService', path: './client/PetService/index.ts', asAlias: true })
+  })
+
   it('generates a barrel per directory-mode plugin and a root barrel re-exporting them', async () => {
     const { paths, rootExportNames } = await build({ plugins: [typesPlugin(), schemasPlugin()] })
 
