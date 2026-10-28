@@ -1,3 +1,5 @@
+import path from 'node:path'
+import process from 'node:process'
 import { studioCommand } from './studioCommand.ts'
 
 export const command = studioCommand({
@@ -9,14 +11,14 @@ export const command = studioCommand({
     const { readCredentials } = await import('../../runners/studio/credentials.ts')
     const { resolvePermissions } = await import('../../runners/studio/run.ts')
     const { canUseTTY } = await import('../../utils/env.ts')
+    const { findConfigFile } = await import('@internals/shared')
 
     const credentials = await readCredentials()
     if (!credentials) throw new Error('This project is not paired with Kubb Studio. Run `kubb studio` first.')
     if (!canUseTTY()) throw new Error('Changing permissions needs an interactive terminal.')
 
-    await resolvePermissions(options, credentials, undefined, {
-      edit: true,
-    })
+    const configFile = findConfigFile()
+    await resolvePermissions(options, credentials, configFile && path.relative(process.cwd(), configFile), { edit: true })
     console.log('Permissions saved. A running connection keeps the old ones until you restart it with `kubb studio stop` and `kubb studio start`.')
   },
 })
