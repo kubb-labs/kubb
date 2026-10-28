@@ -46,24 +46,30 @@ export type GenerateWorkers = {
 
 type Range = [start: number, end: number]
 
+/**
+ * Nodes per chunk a thread takes at a time. Chunks are numbered schemas first, then operations, and
+ * threads pull them from a shared counter, so an expensive stretch of the spec spreads over the threads.
+ */
+const CHUNK_SIZE = 32
+
 /** What a worker thread needs from the main thread's parse: the input and the adapter's source document, which generators read through `ctx.adapter`. */
 type ParsedState = { input: InputNode; document: Adapter['document'] }
 
-/** Asks a worker thread to generate one range of nodes from the `v8`-serialized {@link ParsedState} it shares. */
-export type GenerateRequest = { type: 'generate'; state: SharedArrayBuffer; schemas: Range; operations: Range }
+/** Asks a worker thread to generate chunks from the `v8`-serialized {@link ParsedState} it shares, pulling chunk numbers from the `next` counter. */
+export type GenerateRequest = { type: 'generate'; state: SharedArrayBuffer; next: SharedArrayBuffer }
 
-/** Asks for the files. With `names`, the thread first adopts the names the whole walk resolved and generates its range again. */
+/** Asks for the files. With `names`, the thread first adopts the names the whole walk resolved and generates its chunks again. */
 export type EmitRequest = { type: 'emit'; names?: Record<string, NameState> }
 
 export type WorkerRequest = GenerateRequest | EmitRequest
 
-/** The name events of one range, per plugin and per phase, in the order the thread made them. */
-export type GeneratedResponse = { type: 'generated'; names: Record<string, { schemas: Array<NameEvent>; operations: Array<NameEvent> }> }
+/** The name events of each chunk the thread took, per plugin, in the order it made them. */
+export type GeneratedResponse = { type: 'generated'; names: Array<{ index: number; names: Record<string, Array<NameEvent>> }> }
 
-/** The files of one range per phase, in first-added order, with the diagnostics the walk reported and the plugins that failed. */
+/** The files of each chunk in first-added order, with the diagnostics the walk reported and the plugins that failed. */
 export type EmittedResponse = {
   type: 'emitted'
-  files: { schemas: Array<FileNode>; operations: Array<FileNode> }
+  chunks: Array<{ index: number; files: Array<FileNode> }>
   diagnostics: Array<Diagnostic>
   errors: Record<string, ProblemDiagnostic>
 }
@@ -257,8 +263,8 @@ export class KubbDriver {
 
   /** The worker threads of this run, started before the input is parsed so their boot overlaps it. */
   #threads: Array<Thread> = []
-  /** Worker side: the range this thread generates, and what its last walk produced. */
-  #range: ({ states: Array<PluginState>; schemas: Range; operations: Range } & Omit<EmittedResponse, 'type'>) | null = null
+  /** Worker side: the chunks this thread took, and what its last walk produced. */
+  #taken: ({ states: Array<PluginState>; indices: Array<number> } & Omit<EmittedResponse, 'type'>) | null = null
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -852,28 +858,27 @@ export class KubbDriver {
    */
   async #splitWalk(states: Array<PluginState>): Promise<boolean> {
     const { schemas, operations } = this.inputNode!
-    const count = Math.min(this.#threads.length, schemas.length + operations.length)
+    const count = Math.min(this.#threads.length, this.#chunkCount())
     if (count < 2) return false
 
     const threads = this.#threads.slice(0, count)
     const state = shareState({ input: this.inputNode!, document: this.adapter?.document ?? null })
-    const rangeOf = (length: number, index: number): Range => [Math.floor((length * index) / count), Math.floor((length * (index + 1)) / count)]
-    const generated = await Promise.all(
-      threads.map((thread, index) =>
-        request<GeneratedResponse>(thread, { type: 'generate', state, schemas: rangeOf(schemas.length, index), operations: rangeOf(operations.length, index) }),
-      ),
-    )
+    const next = new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT)
+    const generated = await Promise.all(threads.map((thread) => request<GeneratedResponse>(thread, { type: 'generate', state, next })))
+    const ordered = generated.flatMap((response, thread) => response.names.map((chunk) => ({ ...chunk, thread }))).sort((a, b) => a.index - b.index)
 
     // Every plugin's resolver, not only the generating ones: a plugin can resolve names through another plugin's resolver.
     const names: Record<string, NameState> = {}
     const identical = threads.map(() => true)
     for (const plugin of this.plugins.values()) {
-      const events = (phase: 'schemas' | 'operations') => generated.map((response) => response.names[plugin.name]?.[phase] ?? [])
-      const replayed = replayNames(plugin.resolver.names, [...events('schemas'), ...events('operations')])
+      const replayed = replayNames(
+        plugin.resolver.names,
+        ordered.map((chunk) => chunk.names[plugin.name] ?? []),
+      )
       if (!replayed) return false
       names[plugin.name] = replayed.state
       replayed.identical.forEach((same, index) => {
-        if (!same) identical[index % count] = false
+        if (!same) identical[ordered[index]!.thread] = false
       })
     }
     for (const plugin of this.plugins.values()) plugin.resolver.names = names[plugin.name]!
@@ -885,8 +890,8 @@ export class KubbDriver {
     for (const response of emitted) {
       for (const diagnostic of response.diagnostics) Diagnostics.report(diagnostic)
     }
-    for (const response of emitted) await this.fileManager.dispatch({ result: response.files.schemas })
-    for (const response of emitted) await this.fileManager.dispatch({ result: response.files.operations })
+    const chunks = emitted.flatMap((response) => response.chunks).sort((a, b) => a.index - b.index)
+    for (const chunk of chunks) await this.fileManager.dispatch({ result: chunk.files })
     for (const state of states) {
       const failed = emitted.map((response) => response.errors[state.plugin.name]).find(Boolean)
       if (failed) state.error = new Diagnostics.Error(failed)
@@ -897,8 +902,23 @@ export class KubbDriver {
     return true
   }
 
-  /** @internal Worker side of `#splitWalk`: generates the range and returns the names its resolvers took. */
-  async generateRange({ state, schemas, operations }: GenerateRequest): Promise<GeneratedResponse> {
+  /** How many chunks of {@link CHUNK_SIZE} the schemas and operations make. */
+  #chunkCount(): number {
+    const { schemas, operations } = this.inputNode!
+    return Math.ceil(schemas.length / CHUNK_SIZE) + Math.ceil(operations.length / CHUNK_SIZE)
+  }
+
+  /** The nodes chunk `index` covers: a schema range, or an operation range once the schema chunks are used up. */
+  #chunk(index: number): { phase: 'schemas' | 'operations'; range: Range } {
+    const { schemas, operations } = this.inputNode!
+    const schemaChunks = Math.ceil(schemas.length / CHUNK_SIZE)
+    const [phase, start, length] =
+      index < schemaChunks ? (['schemas', index, schemas.length] as const) : (['operations', index - schemaChunks, operations.length] as const)
+    return { phase, range: [start * CHUNK_SIZE, Math.min(length, (start + 1) * CHUNK_SIZE)] }
+  }
+
+  /** @internal Worker side of `#splitWalk`: generates the chunks it pulls from `next` and returns the names its resolvers took. */
+  async generateRange({ state, next }: GenerateRequest): Promise<GeneratedResponse> {
     const { input, document } = deserialize(new Uint8Array(state)) as ParsedState
     this.inputNode = input
     if (this.adapter) this.adapter.document = document
@@ -906,31 +926,39 @@ export class KubbDriver {
     const entries = [...this.plugins.values()]
       .filter((plugin) => plugin.generators?.length)
       .map((plugin): GeneratorEntry => ({ plugin, context: this.getContext(plugin), hrStart: process.hrtime() }))
-    this.#range = { states: this.#prepareStates(entries), schemas, operations, files: { schemas: [], operations: [] }, diagnostics: [], errors: {} }
-    return { type: 'generated', names: await this.#walkRange() }
+    this.#taken = { states: this.#prepareStates(entries), indices: [], chunks: [], diagnostics: [], errors: {} }
+
+    const counter = new Int32Array(next)
+    const total = this.#chunkCount()
+    const indices = function* () {
+      for (let index = Atomics.add(counter, 0, 1); index < total; index = Atomics.add(counter, 0, 1)) yield index
+    }
+    return { type: 'generated', names: await this.#walkChunks(indices()) }
   }
 
-  /** @internal Worker side of `#splitWalk`: hands over the files, after generating again from `names` when given. */
+  /** @internal Worker side of `#splitWalk`: hands over the files, after generating its chunks again from `names` when given. */
   async emitRange({ names }: EmitRequest): Promise<EmittedResponse> {
     if (names) {
       for (const plugin of this.plugins.values()) {
         const state = names[plugin.name]
         if (state) plugin.resolver.names = state
       }
-      await this.#walkRange()
+      await this.#walkChunks(this.#taken!.indices)
     }
-    const { files, diagnostics, errors } = this.#range!
-    return { type: 'emitted', files, diagnostics, errors }
+    const { chunks, diagnostics, errors } = this.#taken!
+    return { type: 'emitted', chunks, diagnostics, errors }
   }
 
-  /** Generates `#range` from a clean slate, keeping the files per phase in first-added order and the name events per plugin. */
-  async #walkRange(): Promise<GeneratedResponse['names']> {
-    const range = this.#range!
+  /** Generates `indices` from a clean slate, keeping each chunk's files in first-added order and its name events per plugin. */
+  async #walkChunks(indices: Iterable<number>): Promise<GeneratedResponse['names']> {
+    const taken = this.#taken!
     const plugins = [...this.plugins.values()]
-    const names: GeneratedResponse['names'] = {}
-    range.diagnostics = []
-    range.errors = {}
-    for (const state of range.states) {
+    const names: GeneratedResponse['names'] = []
+    taken.indices = []
+    taken.chunks = []
+    taken.diagnostics = []
+    taken.errors = {}
+    for (const state of taken.states) {
       state.error = null
       state.crashSite = undefined
       state.pluginOperations = []
@@ -939,24 +967,24 @@ export class KubbDriver {
     this.fileManager.dispose()
 
     await Diagnostics.scope(
-      (diagnostic) => range.diagnostics.push(diagnostic),
+      (diagnostic) => taken.diagnostics.push(diagnostic),
       async () => {
-        for (const plugin of plugins) plugin.resolver.record()
-        await this.#walkSchemas(range.states, range.schemas, { dispatch: true, hooks: false })
-        for (const plugin of plugins) names[plugin.name] = { schemas: plugin.resolver.takeEvents(), operations: [] }
-        range.files.schemas = this.fileManager.unsorted
-        this.fileManager.dispose()
-
-        for (const plugin of plugins) plugin.resolver.record()
-        await this.#walkOperations(range.states, range.operations, { dispatch: true, hooks: false })
-        for (const plugin of plugins) names[plugin.name]!.operations = plugin.resolver.takeEvents()
-        range.files.operations = this.fileManager.unsorted
-        this.fileManager.dispose()
+        // Pulled one at a time, so a slow chunk on one thread leaves the rest to the others.
+        for (const index of indices) {
+          taken.indices.push(index)
+          const { phase, range } = this.#chunk(index)
+          for (const plugin of plugins) plugin.resolver.record()
+          const walk = phase === 'schemas' ? this.#walkSchemas : this.#walkOperations
+          await walk.call(this, taken.states, range, { dispatch: true, hooks: false })
+          names.push({ index, names: Object.fromEntries(plugins.map((plugin) => [plugin.name, plugin.resolver.takeEvents()])) })
+          taken.chunks.push({ index, files: this.fileManager.unsorted })
+          this.fileManager.dispose()
+        }
       },
     )
 
-    for (const state of range.states) {
-      if (state.error) range.errors[state.plugin.name] = this.#pluginDiagnostic(state)
+    for (const state of taken.states) {
+      if (state.error) taken.errors[state.plugin.name] = this.#pluginDiagnostic(state)
     }
     return names
   }
