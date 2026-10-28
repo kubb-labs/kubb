@@ -773,9 +773,6 @@ export class KubbDriver {
     return this.plugins.get(pluginName)?.resolver ?? createResolver<PluginType>({ pluginName })
   }
 
-  /**
-   * Returns what `compute` produced the first time this build asked for `key`, from one store every plugin shares.
-   */
   memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {
     return memoize(this.#memo, key, compute)
   }
