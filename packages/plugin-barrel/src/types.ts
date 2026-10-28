@@ -15,6 +15,7 @@ export type BarrelType = 'all' | 'named'
  * barrel: { type: 'named' }  // single barrel with named exports
  * barrel: { type: 'all', nested: true }  // hierarchical barrels with wildcard exports
  * barrel: { type: 'named', nested: true }  // hierarchical barrels with named exports
+ * barrel: { type: 'named', namespace: true }  // also export subdirectories as named namespaces
  * barrel: false  // no barrel generated (default)
  * ```
  */
@@ -30,6 +31,19 @@ export type PluginBarrelConfig = {
    * Creates a hierarchical barrel structure instead of flat exports from the root.
    */
   nested?: boolean
+  /**
+   * Add a named namespace export for each immediate subdirectory, alongside its standalone exports.
+   * Enables nested barrels. Names use the PascalCase directory name, prefixed with `_`
+   * when empty or starting with a digit. Use `group.name` to name services such as `PetService`.
+   * Needs its own `output.path`: a plugin writing to the output root gets a warning and no namespaces.
+   *
+   * @example
+   * ```ts
+   * barrel: { type: 'named', namespace: true }
+   * // export * as PetService from './petService/index.ts'
+   * ```
+   */
+  namespace?: boolean
 }
 
 /**

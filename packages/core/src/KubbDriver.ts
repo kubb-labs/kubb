@@ -447,6 +447,7 @@ export class KubbDriver {
             parsers: parsersMap,
             manifest: this.options.manifest,
             signal: this.options.signal,
+            cleaned: this.options.cleanPath,
             hooks,
             config,
           })

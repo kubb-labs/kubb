@@ -75,7 +75,8 @@ export async function generate(options: GenerateProps): Promise<boolean> {
   const kubb = createKubb(config, { hooks })
   const result = await kubb.generate()
 
-  await report({
+  // Not awaited: the request finishes in the background, capped by its timeout, so it never delays the summary.
+  void report({
     // A setup that threw leaves no driver, so read the configured plugins instead.
     plugins: kubb.config.plugins.flatMap((p) =>
       p && typeof p === 'object' ? [{ name: p.meta?.name ?? p.name ?? '', options: (p.options ?? {}) as Record<string, unknown> }] : [],
@@ -96,10 +97,10 @@ type GenerateCommandOptions = {
   dryRun?: boolean
 }
 
-/** The latest published version, `undefined` when the registry does not answer in time. Never rejects. */
-async function fetchLatestVersion(): Promise<string | undefined> {
+/** The latest published version, `undefined` when the registry does not answer in time or `signal` aborts. Never rejects. */
+async function fetchLatestVersion(signal: AbortSignal): Promise<string | undefined> {
   try {
-    const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS) })
+    const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.any([signal, AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS)]) })
     const data = (await res.json()) as { version: string }
     return data.version
   } catch {
@@ -108,8 +109,7 @@ async function fetchLatestVersion(): Promise<string | undefined> {
   }
 }
 
-async function checkForUpdate({ hooks, latest }: { hooks: Hookable<KubbHooks>; latest: Promise<string | undefined> }): Promise<void> {
-  const latestVersion = await latest
+async function checkForUpdate({ hooks, latestVersion }: { hooks: Hookable<KubbHooks>; latestVersion: string | undefined }): Promise<void> {
   if (latestVersion && isOutdated({ installed: version, latest: latestVersion })) {
     await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion }))
   }
@@ -131,11 +131,15 @@ function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: Build
 /**
  * Runs the full Kubb generation lifecycle for the given CLI options.
  * Loads configs, sets up the reporters (CLI `--reporter` picks which of `config.reporters` to trigger),
- * checks for a newer version, and calls `generate` for each config entry.
+ * calls `generate` for each config entry, and prints an update notice when the registry answered in time.
  */
 export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters, dryRun }: GenerateCommandOptions): Promise<void> {
-  // Started first so the registry request overlaps the banner and the config load.
-  const latest = fetchLatestVersion()
+  // Started first and never awaited: the notice prints at the end only when the registry has answered by then.
+  const updateCheck = new AbortController()
+  let latestVersion: string | undefined
+  void fetchLatestVersion(updateCheck.signal).then((value) => {
+    latestVersion = value
+  })
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new Hookable<KubbHooks>()
 
@@ -199,10 +203,6 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   setupReporters(hooks, { logLevel, reporters, dryRun })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
-
-  // Inside the bootstrap group, so an update notice reads as part of the setup rather than as part
-  // of the first config's generation.
-  await checkForUpdate({ hooks, latest })
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
@@ -275,6 +275,10 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       }
     }
 
+    // A request still in flight would keep the process alive until its timeout.
+    updateCheck.abort()
+    await checkForUpdate({ hooks, latestVersion })
+
     await hooks.callHook('kubb:lifecycle:end')
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
@@ -283,8 +287,9 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       logTip()
     }
 
+    // `exitCode`, not `exit()`, so a telemetry request still in flight can finish within its timeout.
     if (anyFailed) {
-      process.exit(1)
+      process.exitCode = 1
     }
   } catch (error) {
     await Diagnostics.emit(errorHooks, error)

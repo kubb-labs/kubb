@@ -230,6 +230,17 @@ describe('FileManager', () => {
       expect(writeItem).not.toHaveBeenCalled()
     })
 
+    it('writes files under the cleaned directory without reading them back', async () => {
+      const storage = memoryStorage()
+      const readItem = vi.spyOn(storage, 'readItem')
+      const manager = new FileManager()
+
+      await manager.write([makeFileWithSources('/gen/a.ts', ['/* a.ts */']), makeFileWithSources('/other/b.ts', ['/* b.ts */'])], { storage, cleaned: '/gen' })
+
+      expect(readItem.mock.calls).toStrictEqual([['/other/b.ts']])
+      expect(await storage.readItem('/gen/a.ts')).toContain('/* a.ts */')
+    })
+
     it('writes a file whose content changed since the last run', async () => {
       const storage = memoryStorage()
       const manager = new FileManager()

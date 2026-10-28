@@ -117,6 +117,68 @@ describe('getBarrelFiles', () => {
     expect(tagsBarrel.exports.map((e) => e.path)).toStrictEqual(['./getTag.ts'])
   })
 
+  it.each(['all', 'named'] as const)('adds service namespaces and retains standalone exports with %s barrels', (barrelType) => {
+    const files = [makeFile(`${ROOT}/PetService/getPet.ts`, ['getPet'])]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType, namespace: true })]
+
+    expect(barrels.map((file) => file.path)).toStrictEqual([`${ROOT}/PetService/index.ts`, `${ROOT}/index.ts`])
+    expect(barrels[1]?.exports).toMatchObject([{ path: './PetService/index.ts' }, { path: './PetService/index.ts', name: 'PetService', asAlias: true }])
+    expect(barrels[0]?.exports[0]?.path).toBe('./getPet.ts')
+  })
+
+  it.each([
+    ['pet-service', 'PetService'],
+    ['123-pets', '_123Pets'],
+    ['default', 'Default'],
+    ['---', '_'],
+  ])('creates the valid namespace %s as %s', (directory, name) => {
+    const files = [makeFile(`${ROOT}/${directory}/getPet.ts`, ['getPet'])]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named', namespace: true })]
+
+    expect(barrels.at(-1)?.exports.find((item) => item.asAlias)?.name).toBe(name)
+  })
+
+  it('reports namespaces whose normalized directory names collide', () => {
+    const diagnostics: Array<Diagnostic> = []
+    const files = [makeFile(`${ROOT}/pet-service/getPet.ts`, ['getPet']), makeFile(`${ROOT}/pet_service/addPet.ts`, ['addPet'])]
+    const barrels = Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named', namespace: true })],
+    )
+
+    expect(
+      barrels
+        .at(-1)
+        ?.exports.filter((item) => item.asAlias)
+        .map((item) => item.name),
+    ).toStrictEqual(['PetService'])
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.barrelDuplicateExport, severity: 'error' }])
+  })
+
+  it('reports a namespace that collides with a standalone export in a child barrel', () => {
+    const diagnostics: Array<Diagnostic> = []
+    const files = [makeFile(`${ROOT}/PetService/getPet.ts`, ['PetService'])]
+    const barrels = Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named', namespace: true })],
+    )
+
+    expect(barrels.at(-1)?.exports.some((item) => item.asAlias)).toBe(false)
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.barrelDuplicateExport, severity: 'error' }])
+  })
+
+  it('namespaces only immediate groups and skips directories with no indexable exports', () => {
+    const hidden = makeFile(`${ROOT}/hidden/internal.ts`, ['internal'])
+    hidden.sources[0]!.isIndexable = false
+    const files = [hidden, makeFile(`${ROOT}/PetService/admin/getPet.ts`, ['getPet'])]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named', namespace: true })]
+
+    expect(barrels.map((file) => file.path)).not.toContain(`${ROOT}/hidden/index.ts`)
+    expect(barrels.find((file) => file.path === `${ROOT}/PetService/index.ts`)?.exports).toMatchObject([{ path: './admin/index.ts' }])
+    expect(barrels.find((file) => file.path === `${ROOT}/PetService/index.ts`)?.exports.some((item) => item.asAlias)).toBe(false)
+    expect(barrels.at(-1)?.exports.find((item) => item.asAlias)?.name).toBe('PetService')
+  })
+
   it('derives a subtree barrel from a shared index via targetPath', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`, ['listPets']), makeFile(`${ROOT}/users/getUser.ts`, ['getUser'])]
     const index = buildBarrelIndex(ROOT, files)
