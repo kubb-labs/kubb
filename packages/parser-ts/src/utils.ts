@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module'
-import { dirname, extname as getExtname, relative, resolve } from 'node:path'
+import { dirname, extname as getExtname, isAbsolute, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ast } from '@kubb/ast'
 import { type ImportSpecifier, type ModuleExportName, parse, type ProgramStatement } from 'yuku-parser'
@@ -79,7 +79,8 @@ function loadCompiler(): Compiler {
  * Module specifier that imports `filePath` from the file at `root`: POSIX, relative to that file's directory, `./`-prefixed unless it climbs with `../`.
  */
 export function getRelativePath(root: string, filePath: string): string {
-  const key = `${root}\u0000${filePath}`
+  // A relative input resolves against the working directory, so that directory is part of its key.
+  const key = isAbsolute(root) && isAbsolute(filePath) ? `${root}\u0000${filePath}` : `${process.cwd()}\u0000${root}\u0000${filePath}`
   const cached = relativePaths.get(key)
   if (cached !== undefined) return cached
 
