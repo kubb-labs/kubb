@@ -84,7 +84,7 @@ export type {
   RegistryGuide,
   RegistryIndex,
 } from './manifest.ts'
-export type { Memo, MemoKey, MemoValue } from './memo.ts'
+export type { Memo } from './memo.ts'
 export type { NodeCache } from './nodeCache.ts'
 export type { Parser, ParserDefinition, ParserFactory } from './defineParser.ts'
 export type {

@@ -67,8 +67,6 @@ export type {
   KubbPluginSetupContext,
   KubbPluginStartContext,
   Memo,
-  MemoKey,
-  MemoValue,
   NodeCache,
   NormalizedPlugin,
   Output,
