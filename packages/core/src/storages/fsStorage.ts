@@ -1,4 +1,4 @@
-import { rename } from 'node:fs/promises'
+import { readdir, rename } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
 import { listFiles, read, rm, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
@@ -66,14 +66,17 @@ export const fsStorage = createStorage(() => ({
     // Renaming is near instant, so the slow recursive delete of a large previous output runs
     // alongside the next write instead of before it. Falls back to deleting in place when the
     // rename fails (missing directory, Windows file locks).
-    const trash = join(dirname(dir), `.${basename(dir)}.kubb-old-${process.pid}-${Date.now()}`)
+    const parent = dirname(dir)
+    const prefix = `.${basename(dir)}.kubb-old-`
     try {
-      await rename(dir, trash)
+      await rename(dir, join(parent, `${prefix}${process.pid}-${Date.now()}`))
     } catch (_error) {
       await rm(dir, { recursive: true, force: true })
       return
     }
-    // shortcut: a process killed mid-delete leaves the hidden trash directory behind, track it if that shows up in practice.
-    void rm(trash, { recursive: true, force: true }).catch(() => {})
+    // Deletes this run's trash plus any a killed or failed earlier run left behind, so a failed
+    // delete is retried next run instead of lingering.
+    const trash = (await readdir(parent)).filter((name) => name.startsWith(prefix))
+    void Promise.all(trash.map((name) => rm(join(parent, name), { recursive: true, force: true }))).catch(() => {})
   },
 }))

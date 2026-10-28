@@ -61,4 +61,14 @@ describe('fsStorage', () => {
     expect(await storage.readItem(join(dir, 'gen', 'a.ts'))).toBeNull()
     await vi.waitFor(async () => expect(await readdir(dir)).toStrictEqual([]))
   })
+
+  it('removes trash a previous run left behind on empty', async () => {
+    const storage = fsStorage()
+    await storage.writeItem(join(dir, '.gen.kubb-old-1-1', 'stale.ts'), 'const s = 1')
+    await storage.writeItem(join(dir, 'gen', 'a.ts'), 'const a = 1')
+
+    await storage.empty(join(dir, 'gen'))
+
+    await vi.waitFor(async () => expect(await readdir(dir)).toStrictEqual([]))
+  })
 })
