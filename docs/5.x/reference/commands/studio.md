@@ -51,7 +51,7 @@ The worker survives terminal closure and retries temporary connection failures. 
 
 To change its URL or config, stop it and start it with the new flags. Flags can only add permissions, and `login` resets the saved ones.
 
-To change the saved permissions, run `kubb studio permissions`. A running connection keeps the old ones until you restart it with the same flags.
+To change the saved permissions, run `kubb studio permissions`. A running connection keeps the old ones until you restart it. Keep `--url` and `--config`, and leave out the `--allow-*` flag of any permission you turned off, since a flag grants it anyway.
 
 The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, which defaults to `~/.kubb`. `status` prints the log path. `stop` waits for a running generation to clean up, and `logout` stops the worker before it removes credentials. An interrupted job does not run again.
 

@@ -20,7 +20,7 @@ export const command = studioCommand({
     const configFile = findConfigFile()
     await resolvePermissions(options, credentials, configFile && path.relative(process.cwd(), configFile), { edit: true })
     console.log(
-      'Permissions saved. A running connection keeps the old ones until you restart it with the same flags: press Ctrl+C and run `kubb studio` again, or run `kubb studio stop`, then `kubb studio start`.',
+      'Permissions saved. A running connection keeps the old ones until you restart it: press Ctrl+C and run `kubb studio` again, or run `kubb studio stop`, then `kubb studio start`. Keep `--url` and `--config`, and leave out the `--allow-*` flag of any permission you turned off, since a flag grants it anyway.',
     )
   },
 })
