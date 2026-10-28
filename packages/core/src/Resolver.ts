@@ -422,8 +422,8 @@ export class Resolver {
    */
   resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
     // Joining is cheaper than `JSON.stringify` on this hot path. The separator never occurs in a
-    // segment and the prefix keeps `['a']` apart from `'a'`; an empty and a missing segment read the same.
-    const cacheKey = typeof key === 'string' ? key : `\u0001${key.join('\u0001')}`
+    // segment, the prefix keeps `['a']` apart from `'a'`, and the marker keeps a missing segment apart from an empty one.
+    const cacheKey = typeof key === 'string' ? key : `\u0001${key.map((segment) => segment ?? '\u0002').join('\u0001')}`
     const previous = this.#resolvedNames.get(cacheKey)
     if (previous !== undefined) return previous
     const emitted = (value: string): ReadonlyArray<string> => {

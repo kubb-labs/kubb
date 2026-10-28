@@ -15,6 +15,7 @@ describe('resolver name reservations', () => {
     { label: 'segment boundaries', first: ['operation', 'a:b', 'c'], second: ['operation', 'a', 'b:c'] },
     { label: 'segment order', first: ['operation', 'a', 'b'], second: ['operation', 'b', 'a'] },
     { label: 'optional segments', first: ['operation', undefined], second: ['operation', 'undefined'] },
+    { label: 'missing versus empty segments', first: ['operation', undefined], second: ['operation', ''] },
     { label: 'string versus array', first: '["operation"]', second: ['operation'] },
   ])('distinguishes keys by $label', ({ first, second }) => {
     const resolver = new Resolver({ pluginName: 'types' })
