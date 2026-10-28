@@ -33,7 +33,8 @@ const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v', '--json'
  */
 export async function run(argv: Array<string> = process.argv.slice(2)): Promise<void> {
   const resolvedArgs = resolveDeprecatedFlags(argv)
-  const name = resolvedArgs[0] ?? ''
+  // gunshi reads the command from the first argument that is not a flag, so `kubb -s list` runs `list`.
+  const name = resolvedArgs.find((arg) => !arg.startsWith('-')) ?? ''
   // The named subcommand alone; every one for the root help; none otherwise, since an unknown first argument falls back to `generate`.
   let names: Array<CommandName> = []
   if (Object.hasOwn(commandLoaders, name)) names = [name as CommandName]
