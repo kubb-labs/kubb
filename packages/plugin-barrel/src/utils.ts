@@ -139,17 +139,12 @@ function walkNested(node: DirectoryNode, ctx: WalkContext): Array<ast.FileNode> 
 
     // A sub-directory has barrels only when it has its own `index.ts`.
     const barrels = walkNested(child, { ...ctx, namespace: false })
-    const exports = barrels.length > 0 ? [ast.factory.createExport({ path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`) })] : []
-    if (ctx.namespace && barrels.length > 0) {
-      const name = pascalCase(posix.basename(child.path))
-      exports.push(
-        ast.factory.createExport({
-          path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`),
-          name: /^[A-Za-z]/.test(name) ? name : `_${name}`,
-          asAlias: true,
-        }),
-      )
-    }
+    if (barrels.length === 0) return { barrels, exports: [] }
+
+    const modulePath = toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`)
+    const exports = [ast.factory.createExport({ path: modulePath })]
+    const name = pascalCase(posix.basename(child.path))
+    if (ctx.namespace) exports.push(ast.factory.createExport({ path: modulePath, name: /^[A-Za-z]/.test(name) ? name : `_${name}`, asAlias: true }))
     return { barrels, exports }
   })
   const barrels = results.flatMap((result) => result.barrels)
