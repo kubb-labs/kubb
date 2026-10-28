@@ -34,37 +34,6 @@ function convert(text: string, pascal: boolean): string {
 }
 
 /**
- * The casing helpers one build shares. The driver creates a pair per `createKubb` and sets it on
- * every resolver as `this.camelCase` and `this.pascalCase`, so every plugin that cases the same
- * name hits one memo that is released with the build.
- */
-export type Casing = {
-  camelCase: typeof camelCase
-  pascalCase: typeof pascalCase
-  /** Empties the memo. The driver calls it on dispose, so a reused `Kubb` instance starts each build cold. */
-  clear(): void
-}
-
-export function createCasing(): Casing {
-  const cache = new Map<string, string>()
-  const memo = (text: string, pascal: boolean): string => {
-    const key = `${pascal ? 'P' : 'c'}${text}`
-    let result = cache.get(key)
-    if (result === undefined) {
-      result = convert(text, pascal)
-      cache.set(key, result)
-    }
-    return result
-  }
-
-  return {
-    camelCase: (text, { prefix = '', suffix = '' } = {}) => memo(`${prefix} ${text} ${suffix}`, false),
-    pascalCase: (text, { prefix = '', suffix = '' } = {}) => memo(`${prefix} ${text} ${suffix}`, true),
-    clear: () => cache.clear(),
-  }
-}
-
-/**
  * Converts `text` to camelCase.
  *
  * @example Word boundaries

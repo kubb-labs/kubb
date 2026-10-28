@@ -24,7 +24,7 @@ type ResolverOptions<T extends PluginType> = Omit<T['resolver'], keyof Resolver>
  * export const resolverTs = createResolver<PluginTs>({
  *   pluginName: 'plugin-ts',
  *   name(name) {
- *     return ensureValidVarName(this.pascalCase(name))
+ *     return this.memo(`name:${name}`, () => ensureValidVarName(pascalCase(name)))
  *   },
  * })
  * ```
@@ -34,11 +34,11 @@ type ResolverOptions<T extends PluginType> = Omit<T['resolver'], keyof Resolver>
  * export const resolverFaker = createResolver<PluginFaker>({
  *   pluginName: 'plugin-faker',
  *   name(name) {
- *     return this.camelCase(name, { prefix: 'create' })
+ *     return camelCase(name, { prefix: 'create' })
  *   },
  *   file: {
  *     baseName({ name, extname }) {
- *       return `${this.camelCase(name, { prefix: 'create' })}${extname}`
+ *       return `${camelCase(name, { prefix: 'create' })}${extname}`
  *     },
  *   },
  * })

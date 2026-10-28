@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { createCasing, getElapsedMs, toError } from '@internals/utils'
+import { getElapsedMs, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
@@ -8,6 +8,7 @@ import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, 
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
+import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { createNodeCache } from './nodeCache.ts'
@@ -132,8 +133,6 @@ export class KubbDriver {
    */
   readonly fileManager = new FileManager()
   readonly plugins = new Map<string, NormalizedPlugin>()
-  // One casing memo per driver, shared by every resolver it builds and released with it.
-  readonly #casing = createCasing()
 
   /**
    * Removers for every listener the driver added (plugin, generator) so `dispose()` can detach
@@ -188,7 +187,7 @@ export class KubbDriver {
           // `rawPlugin.options` is the user-supplied shape. The normalized `output`/`exclude`/`override`
           // bag is filled in by the post-setup `normalizePluginOptions` pass, after `setOptions` runs.
           options: (rawPlugin.options ?? defaultPluginOptions()) as NormalizedPlugin['options'],
-          resolver: new Resolver({ pluginName: meta.name, ...this.#casing }),
+          resolver: createResolver<PluginType>({ pluginName: meta.name }),
         }
         return normalizedPlugin
       }),
@@ -311,7 +310,7 @@ export class KubbDriver {
           plugin.generators = [...(plugin.generators ?? []), ...generators]
         },
         setResolver: (resolver) => {
-          plugin.resolver = Resolver.merge(new Resolver({ pluginName: plugin.name, ...this.#casing }), resolver)
+          plugin.resolver = Resolver.merge(createResolver<PluginType>({ pluginName: plugin.name }), resolver)
         },
         addMacro: (macro) => {
           plugin.macros = [...(plugin.macros ?? []), macro]
@@ -752,7 +751,6 @@ export class KubbDriver {
   dispose(): void {
     for (const unhook of this.#unhooks) unhook()
     this.#unhooks.length = 0
-    this.#casing.clear()
     // Release the FileNode cache and parsed adapter graph so memory is reclaimed
     // between builds. The returned `BuildOutput.files` array still references any
     // FileNodes the caller needs to inspect.
@@ -768,7 +766,7 @@ export class KubbDriver {
   /** Reads `plugin.resolver`, falling back to a fresh default for a name that is not a registered plugin. */
   getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
   getResolver(pluginName: string): Resolver {
-    return this.plugins.get(pluginName)?.resolver ?? new Resolver({ pluginName, ...this.#casing })
+    return this.plugins.get(pluginName)?.resolver ?? createResolver<PluginType>({ pluginName })
   }
 
   getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options' | 'cache'> {

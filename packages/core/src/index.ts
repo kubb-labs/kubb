@@ -15,6 +15,7 @@ export {
 } from './composables.ts'
 export { Diagnostics } from './Diagnostics.ts'
 export type { DiagnosticFormatOptions, SerializedDiagnostic } from './formatDiagnostic.ts'
+export { camelCase, pascalCase } from '@internals/utils'
 export { createKubb } from './createKubb.ts'
 export { createReporter, logLevel, type ReporterPluginFiles } from './createReporter.ts'
 export { cliReporter, createCliReporter } from './reporters/cliReporter.ts'

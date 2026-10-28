@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { camelCase, type Casing, pascalCase } from '@internals/utils'
+import { camelCase } from '@internals/utils'
 import { ast, collectImportedRefNames, type FileNode, type ImportNode, type InputMeta, type Node, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
 import { getInputKind } from './input.ts'
@@ -241,9 +241,6 @@ export type ResolverBuildOptions = {
   pluginName: string
   name?: (name: string) => string
   file?: ResolverFile
-  /** The build's memoized casing. The driver sets both; a resolver built elsewhere uses the plain helpers. */
-  camelCase?: Casing['camelCase']
-  pascalCase?: Casing['pascalCase']
 }
 
 /**
@@ -300,10 +297,10 @@ const resolverOptions: unique symbol = Symbol.for('@kubb/core/resolver/options')
  * @example Nested path from a dotted name
  * `toFilePath('pet.petId') // 'pet/petId'`
  */
-export function toFilePath(name: string, casing: (part: string) => string = camelCase): string {
+export function toFilePath(name: string): string {
   return name
     .split(/\.(?=[a-zA-Z])/)
-    .map((part) => casing(part))
+    .map((part) => camelCase(part))
     .filter(Boolean)
     .join('/')
 }
@@ -320,6 +317,13 @@ function assertInside({ target, parent, message, help }: { target: string; paren
     help,
     location: { kind: 'config' },
   })
+}
+
+/**
+ * Built-in `file.baseName`: casts the identifier with `toFilePath` and appends the extension.
+ */
+function toBaseName({ name, extname }: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName'] {
+  return `${toFilePath(name)}${extname}` as FileNode['baseName']
 }
 
 /**
@@ -350,14 +354,12 @@ export class Resolver {
   readonly pluginName: string
   /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
-  /** The build's casing helpers, shared by every resolver of one `createKubb`. Plain helpers outside a build. */
-  camelCase: Casing['camelCase'] = camelCase
-  pascalCase: Casing['pascalCase'] = pascalCase
   #options: ResolverBuildOptions
+  #memo = new Map<string, unknown>()
   #usedNames = new Set<string>()
   #resolvedNames = new Map<string, string>()
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
-  // Defaults to `toFilePath` plus the extension when a resolver sets no `file.baseName`.
+  // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
   #baseName: (params: Pick<ResolverFileParams, 'name' | 'extname'>) => FileNode['baseName']
   // Full-path override from `options.file.path`, bound to the resolver. Absent by default, in which
   // case the built-in `output.path`/`group` layout is used.
@@ -366,12 +368,10 @@ export class Resolver {
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
     this.#options = options
-    this.#baseName = options.file?.baseName
-      ? options.file.baseName.bind(this)
-      : ({ name, extname }) => `${toFilePath(name, this.camelCase)}${extname}` as FileNode['baseName']
+    this.#baseName = options.file?.baseName ? options.file.baseName.bind(this) : toBaseName
     this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
     this.default = {
-      name: (name) => this.camelCase(name),
+      name: camelCase,
       options: resolveOptions,
       path: this.#resolvePath.bind(this),
       file: this.#resolveFile.bind(this),
@@ -388,6 +388,20 @@ export class Resolver {
 
   name(name: string): string {
     return this.default.name(name)
+  }
+
+  /**
+   * Returns what `compute` produced the first time this build asked for `key`. A resolver lives for one
+   * build, so wrap naming work a generator repeats per node, such as casing, and compute it once.
+   *
+   * @example
+   * `name(name) { return this.memo(`name:${name}`, () => pascalCase(name)) }`
+   */
+  memo<T>(key: string, compute: () => T): T {
+    if (this.#memo.has(key)) return this.#memo.get(key) as T
+    const value = compute()
+    this.#memo.set(key, value)
+    return value
   }
 
   /**
@@ -418,7 +432,7 @@ export class Resolver {
    *
    * @example Resolve a name that has to be free as both an enum value and a type alias
    * ```ts
-   * resolver.resolveName({ key: ['enum', 'Pet', 'status'], name: 'Status', normalize: (name) => [resolver.camelCase(name), `${name}Key`] })
+   * resolver.resolveName({ key: ['enum', 'Pet', 'status'], name: 'Status', normalize: (name) => [camelCase(name), `${name}Key`] })
    * ```
    */
   resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
@@ -520,11 +534,11 @@ export class Resolver {
    * groups use the first non-traversal segment (`''` when none remain, placing the file in
    * the output root, kept safe by the caller's boundary check).
    */
-  #resolveGroupDir(group: Group, groupValue: string): string {
+  static #resolveGroupDir(group: Group, groupValue: string): string {
     if (group.name) return group.name({ group: groupValue })
-    if (group.type === 'tag') return this.camelCase(groupValue)
+    if (group.type === 'tag') return camelCase(groupValue)
     const segment = groupValue.split('/').filter((part) => part !== '' && part !== '.' && part !== '..')[0]
-    return segment ? this.camelCase(segment) : ''
+    return segment ? camelCase(segment) : ''
   }
 
   /**
@@ -540,7 +554,7 @@ export class Resolver {
     const outputDir = path.resolve(root, output.path)
     // A file without the value its group needs (an SDK class per tag, grouped by path) is not grouped.
     const groupValue = group?.type === 'path' ? groupPath : tag
-    const result = group && groupValue ? path.resolve(outputDir, this.#resolveGroupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)
+    const result = group && groupValue ? path.resolve(outputDir, Resolver.#resolveGroupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)
 
     assertInside({
       target: result,
