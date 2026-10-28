@@ -5,15 +5,24 @@ import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
 import { getBanner, wantsMascot } from './ui/mascot.ts'
 import { command as generateCommand } from './commands/generate.ts'
-import { command as mcpCommand } from './commands/mcp.ts'
-import { command as studioCommand, routeStudioFlags } from './commands/studio/index.ts'
-import { command as validateCommand } from './commands/validate.ts'
 import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
-import { command as addCommand } from './runners/add/run.ts'
-import { command as initCommand } from './runners/init/run.ts'
-import { command as listCommand } from './runners/list/run.ts'
-import { command as removeCommand } from './runners/remove/run.ts'
-import { command as updateCommand } from './runners/update/run.ts'
+
+/** The subcommands besides `generate`, imported only when the run needs them, so `kubb generate` never loads their code. */
+const commandLoaders = {
+  init: () => import('./runners/init/run.ts'),
+  validate: () => import('./commands/validate.ts'),
+  mcp: () => import('./commands/mcp.ts'),
+  studio: () => import('./commands/studio/index.ts'),
+  add: () => import('./runners/add/run.ts'),
+  update: () => import('./runners/update/run.ts'),
+  remove: () => import('./runners/remove/run.ts'),
+  list: () => import('./runners/list/run.ts'),
+} as const
+
+type CommandName = keyof typeof commandLoaders
+
+/** Flags that print the root help, which lists every subcommand. */
+const HELP_FLAGS = new Set<string>(['--help', '-h'])
 
 /** Flags that short-circuit execution (help and version). The telemetry notice is suppressed for these. */
 const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v', '--json'])
@@ -23,7 +32,17 @@ const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v', '--json'
  * quiet flag is passed, then runs the given command, or `generate` when none is given.
  */
 export async function run(argv: Array<string> = process.argv.slice(2)): Promise<void> {
-  const args = routeStudioFlags(resolveDeprecatedFlags(argv))
+  const resolvedArgs = resolveDeprecatedFlags(argv)
+  const name = resolvedArgs[0] ?? ''
+  // The named subcommand alone; every one for the root help; none otherwise, since an unknown first argument falls back to `generate`.
+  const names: Array<CommandName> = Object.hasOwn(commandLoaders, name)
+    ? [name as CommandName]
+    : resolvedArgs.some((arg) => HELP_FLAGS.has(arg))
+      ? (Object.keys(commandLoaders) as Array<CommandName>)
+      : []
+  const modules = Object.fromEntries(await Promise.all(names.map(async (key) => [key, await commandLoaders[key]()] as const)))
+  const studio = modules.studio as Awaited<ReturnType<(typeof commandLoaders)['studio']>> | undefined
+  const args = studio ? studio.routeStudioFlags(resolvedArgs) : resolvedArgs
   const isQuietFlag = args.some((arg) => QUIET_FLAGS.has(arg))
   // `--reporter json` and `--json` own stdout, so the header must not land there.
   const isJsonOutput =
@@ -36,7 +55,7 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
     )
   }
 
-  // validate, mcp and studio import their runner when they run, so an optional peer (@kubb/adapter-oas, @kubb/mcp, @kubb/studio) loads only then.
+  // validate, mcp and studio also import their runner when they run, so an optional peer (@kubb/adapter-oas, @kubb/mcp, @kubb/studio) loads only then.
   await cli(args, generateCommand, {
     name: 'kubb',
     version,
@@ -45,14 +64,7 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
     description: 'Generate code from an OpenAPI specification, manage Kubb extensions, or connect the project to Kubb Studio.',
     subCommands: {
       generate: generateCommand,
-      init: initCommand,
-      validate: validateCommand,
-      mcp: mcpCommand,
-      studio: studioCommand,
-      add: addCommand,
-      update: updateCommand,
-      remove: removeCommand,
-      list: listCommand,
+      ...Object.fromEntries(Object.entries(modules).map(([key, module]) => [key, module.command])),
     },
     fallbackToEntry: true,
     // The mascot opens only the long-running commands; `generate` turns this off and plays its animated banner instead.
