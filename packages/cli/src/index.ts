@@ -35,14 +35,12 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
   const resolvedArgs = resolveDeprecatedFlags(argv)
   const name = resolvedArgs[0] ?? ''
   // The named subcommand alone; every one for the root help; none otherwise, since an unknown first argument falls back to `generate`.
-  const names: Array<CommandName> = Object.hasOwn(commandLoaders, name)
-    ? [name as CommandName]
-    : resolvedArgs.some((arg) => HELP_FLAGS.has(arg))
-      ? (Object.keys(commandLoaders) as Array<CommandName>)
-      : []
+  let names: Array<CommandName> = []
+  if (Object.hasOwn(commandLoaders, name)) names = [name as CommandName]
+  if (!names.length && resolvedArgs.some((arg) => HELP_FLAGS.has(arg))) names = Object.keys(commandLoaders) as Array<CommandName>
   const modules = Object.fromEntries(await Promise.all(names.map(async (key) => [key, await commandLoaders[key]()] as const)))
-  const studio = modules.studio as Awaited<ReturnType<(typeof commandLoaders)['studio']>> | undefined
-  const args = studio ? studio.routeStudioFlags(resolvedArgs) : resolvedArgs
+  // Already loaded above, so this import only reads the module cache.
+  const args = name === 'studio' ? (await import('./commands/studio/index.ts')).routeStudioFlags(resolvedArgs) : resolvedArgs
   const isQuietFlag = args.some((arg) => QUIET_FLAGS.has(arg))
   // `--reporter json` and `--json` own stdout, so the header must not land there.
   const isJsonOutput =
