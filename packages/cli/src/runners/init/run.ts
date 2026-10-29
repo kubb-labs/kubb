@@ -4,15 +4,16 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { DryRunExtension } from '@gunshi/plugin-dryrun'
 import { defineWithTypes } from 'gunshi'
+import { resolveCommand } from 'package-manager-detector'
 import { ConfigEditOperation, editConfig, generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME } from '@internals/shared'
 import { exists, formatMs, getElapsedMs, write } from '@internals/utils'
 import { createKubb, Diagnostics, type RegistryEntry } from '@kubb/core'
 import { dryRunId, type DryRunExtensions } from '../../commands/shared.ts'
 import { getConfigs } from '../../config.ts'
-import { pluralize } from '../../ui/text.ts'
+import { isHttpUrl, pluralize } from '../../ui/text.ts'
 import { isInteractiveRun, logIntro, logOutro } from '../../ui/intro.ts'
 import { logBlock, logError, logStep, logWarn } from '../../ui/log.ts'
-import { createSpinner } from '../../ui/spinner.ts'
+import { withSpinner } from '../../ui/spinner.ts'
 import { fetchRegistryIndex, incompatibility, installSpec, registryUrl } from '../../utils/registry.ts'
 import { installWithSpinner } from '../installWithSpinner.ts'
 import {
@@ -103,9 +104,8 @@ async function firstRun(configPath: string): Promise<number> {
 /** The command that runs `kubb generate`: the `generate` script when it runs Kubb, otherwise `npx kubb generate`. */
 function generateCommand({ packageManager, script, watch }: { packageManager: PackageManagerInfo; script: string | undefined; watch: boolean }): string {
   if (script !== 'kubb generate') return `npx kubb generate${watch ? ' --watch' : ''}`
-  const run = [packageManager.name, ...packageManager.runCommand, 'generate'].join(' ')
-  if (!watch) return run
-  return packageManager.name === 'npm' ? `${run} -- --watch` : `${run} --watch`
+  const { command, args } = resolveCommand(packageManager.agent, 'run', watch ? ['generate', '--watch'] : ['generate'])!
+  return [command, ...args].join(' ')
 }
 
 /**
@@ -116,21 +116,6 @@ function generateCommand({ packageManager, script, watch }: { packageManager: Pa
  */
 export async function run({ yes, input: inputFlag, output: outputFlag, plugins: pluginsFlag, dryRun }: InitOptions): Promise<void> {
   const cwd = process.cwd()
-
-  /** Runs `task` behind a spinner, or prints one line when it is done in `--yes` mode. */
-  async function step<T>({ start, task, done, failed }: { start: string; task: () => Promise<T>; done: (result: T) => string; failed: string }): Promise<T> {
-    const spinner = createSpinner()
-    if (!yes) spinner.start(start)
-    try {
-      const result = await task()
-      if (yes) console.log(`${styleText('green', '✓')} ${done(result)}`)
-      else spinner.stop(done(result))
-      return result
-    } catch (error) {
-      if (!yes) spinner.error(failed)
-      throw error
-    }
-  }
 
   if (!yes) logIntro({ title: isInteractiveRun({ yes, dryRun: dryRun.enabled }) ? undefined : 'Set up Kubb' })
 
@@ -147,16 +132,17 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
         if (!shouldInit) cancelAndExit()
       }
 
-      const packageManager = detectPackageManager(cwd)
-      await step({
-        start: `Initializing package.json with ${packageManager.name}`,
-        task: () => initPackageJson(cwd, packageManager),
+      const packageManager = await detectPackageManager(cwd)
+      await withSpinner({
+        message: `Initializing package.json with ${packageManager.name}`,
+        promise: initPackageJson(cwd, packageManager),
         done: () => `Created package.json with ${packageManager.name}`,
         failed: 'Could not create package.json',
+        plain: yes,
       })
     }
 
-    const packageManager = detectPackageManager(cwd)
+    const packageManager = await detectPackageManager(cwd)
     const specs = await findSpecFiles(cwd)
 
     if (!yes) {
@@ -198,15 +184,15 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
                 { value: 'url', label: 'A URL' },
                 { value: 'file', label: 'Another file' },
               ],
-              initialValue: specs.includes(current) ? current : /^https?:\/\//.test(current) ? 'url' : 'file',
+              initialValue: specs.includes(current) ? current : isHttpUrl(current) ? 'url' : 'file',
             }),
           )
-        : /^https?:\/\//.test(current)
+        : isHttpUrl(current)
           ? 'url'
           : 'file'
       if (specs.includes(choice)) return choice
       const isUrl = choice === 'url'
-      const initial = isUrl === /^https?:\/\//.test(current) && !specs.includes(current) ? current : undefined
+      const initial = isUrl === isHttpUrl(current) && !specs.includes(current) ? current : undefined
       return unwrap(
         await clack.text({
           message: isUrl ? 'Spec URL' : 'Spec path',
@@ -214,7 +200,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
           initialValue: initial,
           defaultValue: isUrl ? undefined : initDefaults.inputPath,
           validate: (value) => {
-            if (isUrl && !/^https?:\/\//.test(value ?? '')) return 'Enter an http(s) URL'
+            if (isUrl && !isHttpUrl(value ?? '')) return 'Enter an http(s) URL'
           },
         }),
       )
@@ -298,11 +284,11 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
     const packageNames = [KUBB_PACKAGE_NAME, ...choices.plugins.map((entry) => entry.artifact.package)]
     const dry = { message: `install ${packagesToInstall.length} packages with ${packageManager.name}` }
     if (yes) {
-      await step({
-        start: '',
-        task: async () => void (await dryRun.run(() => installPackages(packagesToInstall, packageManager, cwd), dry)),
+      await withSpinner({
+        message: '',
+        promise: dryRun.run(() => installPackages(packagesToInstall, packageManager, cwd), dry),
         done: () => `Installed ${packageNames.join(' ')} with ${packageManager.name}`,
-        failed: 'Installation failed',
+        plain: true,
       })
     } else {
       await installWithSpinner({
@@ -314,11 +300,12 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
       })
     }
 
-    await step({
-      start: `Writing ${KUBB_CONFIG_FILENAME}`,
-      task: async () => dryRun.run(async () => void (await write(configPath, buildConfig(choices))), { message: `write ${KUBB_CONFIG_FILENAME}` }),
+    await withSpinner({
+      message: `Writing ${KUBB_CONFIG_FILENAME}`,
+      promise: dryRun.run(async () => void (await write(configPath, buildConfig(choices))), { message: `write ${KUBB_CONFIG_FILENAME}` }),
       done: () => `Wrote ${KUBB_CONFIG_FILENAME}`,
       failed: `Could not write ${KUBB_CONFIG_FILENAME}`,
+      plain: yes,
     })
 
     const scriptAdded = await dryRun.run(() => addGenerateScript(cwd), {
@@ -332,14 +319,15 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
     try {
       await dryRun.run(
         () =>
-          step({
-            start: 'Running the first generation',
-            task: () => firstRun(configPath),
+          withSpinner({
+            message: 'Running the first generation',
+            promise: firstRun(configPath),
             done: (files) =>
               yes
                 ? `Generated ${pluralize(files, 'file')} in ${choices.outputPath}`
                 : `First run  ${pluralize(files, 'file')} in ${choices.outputPath} · ${formatMs(getElapsedMs(runStart))}`,
             failed: 'First run failed',
+            plain: yes,
           }),
         { message: 'run the first generation', resolve: () => 0 },
       )

@@ -2,6 +2,7 @@ import process from 'node:process'
 import { getErrorMessage, toError } from '@internals/utils'
 import { checkCompatibility, Diagnostics, type ExtensionManifest, isRegistryEntry, type RegistryArtifact, type RegistryEntry } from '@kubb/core'
 import { difference, isLessThan, isValid } from 'verkit'
+import { isHttpUrl } from '../ui/text.ts'
 
 const DEFAULT_REGISTRY = 'https://kubb.dev/registry'
 
@@ -11,7 +12,7 @@ const ID = new RegExp(`^${SLUG}(\\/${SLUG})?$`)
 /** The registry base URL: `KUBB_REGISTRY`, or kubb.dev. */
 export function registryUrl(): string {
   const url = process.env.KUBB_REGISTRY || DEFAULT_REGISTRY
-  if (!/^https?:\/\//.test(url))
+  if (!isHttpUrl(url))
     throw new Diagnostics.Error({
       code: Diagnostics.code.unknown,
       severity: 'error',

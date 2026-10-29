@@ -2,6 +2,8 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import * as clack from '@clack/prompts'
+import type { FileNode } from '@kubb/ast'
+import { fsStorage } from '@kubb/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createProject, registryEntry, registryIndex, stubFetch } from '../../utils/registryFixture.ts'
 import { generate } from '../generate/run.ts'
@@ -9,7 +11,7 @@ import { installPackages } from '../init/utils.ts'
 import { run } from './run.ts'
 
 vi.mock('../init/utils.ts', () => ({
-  detectPackageManager: vi.fn(() => ({ name: 'npm', lockFiles: [], initCommand: [], installCommand: ['install', '--save-dev'] })),
+  detectPackageManager: vi.fn(async () => ({ name: 'npm', agent: 'npm' })),
   installPackages: vi.fn(async () => {}),
 }))
 vi.mock('../generate/run.ts', () => ({ generate: vi.fn(async () => true) }))
@@ -100,11 +102,20 @@ describe('kubb update', () => {
     await writeFile(path.join(gen, 'kept.ts'), 'same')
     await writeFile(path.join(gen, 'changed.ts'), 'old')
     await writeFile(path.join(gen, 'removed.ts'), 'old')
-    await writeFile(path.join(cwd, 'kubb.config.ts'), `export default { root: ${JSON.stringify(cwd)}, input: './spec.yaml', output: { path: './gen' } }\n`)
-    vi.mocked(generate).mockImplementationOnce(async () => {
+    await writeFile(
+      path.join(cwd, 'kubb.config.ts'),
+      `export default { root: ${JSON.stringify(cwd)}, input: './spec.yaml', output: { path: './gen', clean: true } }\n`,
+    )
+    // Writes the way core does, with the hooks the reporters read the changes from.
+    vi.mocked(generate).mockImplementationOnce(async ({ config: loaded, hooks }) => {
+      const config = { ...loaded, storage: fsStorage() }
+      await hooks.callHook('kubb:generation:start', { config })
       await writeFile(path.join(gen, 'changed.ts'), 'new')
       await writeFile(path.join(gen, 'added.ts'), 'new')
       await rm(path.join(gen, 'removed.ts'))
+      const files = ['kept.ts', 'changed.ts', 'added.ts'].map((name) => ({ path: path.join(gen, name) }) as FileNode)
+      await hooks.callHook('kubb:files:processing:end', { files, unchanged: [] })
+      await hooks.callHook('kubb:generation:end', { config, storage: config.storage, status: 'success' })
       return true
     })
 

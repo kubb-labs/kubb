@@ -4,19 +4,18 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { defineWithTypes } from 'gunshi'
 import { findConfigFile } from '@internals/shared'
-import { getErrorMessage } from '@internals/utils'
-import { Hookable, type KubbHooks, readInstalledPackages, type RegistryEntry } from '@kubb/core'
+import { getErrorMessage, pascalCase } from '@internals/utils'
+import { type GenerationResult, Hookable, type KubbHooks, logLevel as logLevelMap, readInstalledPackages, type RegistryEntry, type Reporter } from '@kubb/core'
 import { pluralize } from '../../ui/text.ts'
 import { dryRunId, type DryRunExtensions, yesArg } from '../../commands/shared.ts'
 import { isInteractiveRun, logIntro } from '../../ui/intro.ts'
 import { logBlock, logError, logStep, logWarn } from '../../ui/log.ts'
 import { createSpinner, withSpinner } from '../../ui/spinner.ts'
-import { logCommandSummary } from '../../ui/summary.ts'
+import { createSummary } from '../../ui/summary.ts'
 import { formatTable } from '../../ui/table.ts'
 import { bumpOf, fetchRegistryIndex, incompatibility, installSpec, isOutdated, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
 import { detectPackageManager } from '../init/utils.ts'
 import { installWithSpinner } from '../installWithSpinner.ts'
-import { diffFiles, type FileChange, readOutputFiles } from '../generate/utils.ts'
 
 export type UpdateOptions = {
   /**
@@ -30,34 +29,39 @@ export type UpdateOptions = {
   yes: boolean
 }
 
+type FileChanges = NonNullable<GenerationResult['fileChanges']>
+
 /**
- * Generates every config in this process, the way `kubb generate` does, and returns the output files
- * it changed. Runs after the install, so the config loads the new versions. `undefined` when the
- * config fails to load or a build fails.
+ * Generates every config in this process, the way `kubb generate` does, and returns the counts of
+ * output files it changed. Runs after the install, so the config loads the new versions.
+ * `undefined` when the config fails to load or a build fails.
  */
-async function regenerate({
-  cwd,
-  configPath,
-}: {
-  cwd: string
-  configPath: string
-}): Promise<{ files: Array<FileChange>; unchanged: number; output: string } | undefined> {
+async function regenerate({ cwd, configPath }: { cwd: string; configPath: string }): Promise<{ changes: FileChanges; output: string } | undefined> {
   const spinner = createSpinner()
   spinner.start('Generating with the new versions')
   try {
     // Imported here, so the config loader and the generate path never slow down `kubb --help`.
-    const [{ getConfigs }, { generate }] = await Promise.all([import('../../config.ts'), import('../generate/run.ts')])
+    const [{ getConfigs }, { generate }, { default: setupReporters }] = await Promise.all([
+      import('../../config.ts'),
+      import('../generate/run.ts'),
+      import('../../loggers/reporters.ts'),
+    ])
     const { configs } = await getConfigs({ configPath })
-    const dirs = configs.map((config) => path.resolve(config.root ?? cwd, config.output.path))
-    const before = new Map((await Promise.all(dirs.map(readOutputFiles))).flatMap((files) => [...files]))
     const hooks = new Hookable<KubbHooks>()
+    const changes: FileChanges = { added: 0, modified: 0, deleted: 0, linesAdded: 0, linesRemoved: 0 }
+    const collect: Reporter = {
+      name: 'update',
+      report: ({ fileChanges }) => {
+        for (const key of Object.keys(changes) as Array<keyof FileChanges>) changes[key] += fileChanges?.[key] ?? 0
+      },
+    }
+    setupReporters(hooks, { logLevel: logLevelMap.info, reporters: [collect], fileChanges: true })
     for (const config of configs) {
       if (!(await generate({ config, hooks }))) throw new Error('Generation failed')
     }
-    const after = new Map((await Promise.all(dirs.map(readOutputFiles))).flatMap((files) => [...files]))
-    const diff = diffFiles(before, after)
-    spinner.stop(diff.files.length ? `Generated: ${pluralize(diff.files.length, 'file')} changed` : 'Generated: no files changed')
-    return { ...diff, output: dirs.map((dir) => path.relative(cwd, dir) || '.').join(', ') }
+    const changed = changes.added + changes.modified + changes.deleted
+    spinner.stop(changed ? `Generated: ${pluralize(changed, 'file')} changed` : 'Generated: no files changed')
+    return { changes, output: configs.map((config) => path.relative(cwd, path.resolve(config.root ?? cwd, config.output.path)) || '.').join(', ') }
   } catch (error) {
     spinner.error(`Generation failed: ${getErrorMessage(error)}`)
     return undefined
@@ -73,8 +77,7 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
   const cwd = process.cwd()
   const hrStart = process.hrtime()
   const installedPackages: Array<string> = []
-  const summary = (title: string, status: Parameters<typeof logCommandSummary>[0]['status'], lines: ReadonlyArray<string>) =>
-    logCommandSummary({ title, status, hrStart, block: true, lines })
+  const summary = createSummary(hrStart)
   logIntro({ title: isInteractiveRun({ yes, dryRun }) ? undefined : styleText('bgCyan', styleText('black', ' Kubb Update ')) })
 
   try {
@@ -161,7 +164,7 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
     const skipped = proposals
       .filter((entry) => !selected.includes(entry))
       .map((entry) => {
-        const kind = entry.manifest.kind.charAt(0).toUpperCase() + entry.manifest.kind.slice(1)
+        const kind = pascalCase(entry.manifest.kind)
         return `  ${styleText('dim', 'Skipped')}  ${kind} ${entry.artifact.package} ${entry.artifact.version}  ${styleText('dim', `run kubb update ${toShortId(entry.id)} later`)}`
       })
     if (!selected.length) {
@@ -169,7 +172,7 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
       return
     }
 
-    const packageManager = detectPackageManager(cwd)
+    const packageManager = await detectPackageManager(cwd)
     const names = selected.map(({ artifact }) => artifact.package).join(', ')
     await installWithSpinner({
       packages: selected.map(({ artifact }) => installSpec(artifact)),
@@ -187,12 +190,10 @@ export async function run({ ids, dryRun, yes }: UpdateOptions): Promise<void> {
     const changed = configPath ? await regenerate({ cwd, configPath }) : undefined
 
     const generationFailed = Boolean(configPath && !changed)
-    const fileCounts = { A: 0, M: 0, D: 0 }
-    for (const file of changed?.files ?? []) fileCounts[file.status]++
     summary(generationFailed ? 'Extensions updated; generation failed' : 'Update complete', generationFailed ? 'warning' : 'success', [
       `  Packages  ${selected.length} installed with ${packageManager.name}${skipped.length ? ` · ${skipped.length} skipped` : ''}`,
       ...skipped,
-      ...(changed ? [`  Files     ${fileCounts.A} added · ${fileCounts.M} modified · ${fileCounts.D} deleted`] : []),
+      ...(changed ? [`  Files     ${changed.changes.added} added · ${changed.changes.modified} modified · ${changed.changes.deleted} deleted`] : []),
       ...(!configPath ? ['  Regeneration not run'] : []),
       ...(generationFailed ? ['', 'Fix the generation error, then run kubb generate.'] : []),
     ])

@@ -120,24 +120,6 @@ export function diffBuilds(previous: BuildSnapshot, next: BuildSnapshot): BuildD
   }
 }
 
-/**
- * Compares file contents or fingerprints by path.
- */
-export function diffFiles(previous: ReadonlyMap<string, string>, next: ReadonlyMap<string, string>): { files: Array<FileChange>; unchanged: number } {
-  const files: Array<FileChange> = []
-  let unchanged = 0
-  for (const [path, fingerprint] of next) {
-    const before = previous.get(path)
-    if (before === fingerprint) unchanged++
-    else files.push({ status: before === undefined ? 'A' : 'M', path })
-  }
-  for (const path of previous.keys()) {
-    if (!next.has(path)) files.push({ status: 'D', path })
-  }
-
-  return { files, unchanged }
-}
-
 /** A changed file with how many lines it gains and loses, counted as a multiset, which is cheap and close enough for a plan. */
 export type FileChange = { status: 'A' | 'M' | 'D'; path: string; added?: number; removed?: number }
 
