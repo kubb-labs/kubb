@@ -133,7 +133,7 @@ function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGene
       if (!plugin) throw pluginNotFoundError({ pluginName, requiredBy: opts.plugin.name })
       return plugin
     },
-    meta: opts.meta ?? { circularNames: [], enumNames: [] },
+    meta: opts.meta ?? { circularNames: new Set(), enumNames: new Set() },
     cache: createNodeCache(),
     memo: opts.driver.memo.bind(opts.driver),
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),

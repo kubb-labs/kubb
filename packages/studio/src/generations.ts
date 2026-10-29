@@ -4,7 +4,7 @@ import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
 import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
-import { type FilePage, type ReadFilesResult } from './protocol.ts'
+import { type FilePage, type InputNodeJson, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
 const MB = 1024 * 1024
@@ -258,7 +258,11 @@ export function createGenerationStore({
       if (!input) return 0
       let json: string
       try {
-        json = JSON.stringify(ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }))
+        json = JSON.stringify(
+          ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }),
+          // The `meta` name sets would serialize as `{}`.
+          (_key, value: unknown) => (value instanceof Set ? [...value] : value),
+        )
       } catch {
         // An adapter can return what JSON cannot hold, which must not fail a finished generation.
         return 0
@@ -271,9 +275,9 @@ export function createGenerationStore({
     /**
      * The input `keepInput` kept for `jobId`, or `undefined` when there is none.
      */
-    async readInput(jobId: string): Promise<InputNode | undefined> {
+    async readInput(jobId: string): Promise<InputNodeJson | undefined> {
       const stored = await storage.readItem(`${dirOf(jobId)}input.json`)
-      return stored === null ? undefined : (JSON.parse(stored) as InputNode)
+      return stored === null ? undefined : (JSON.parse(stored) as InputNodeJson)
     },
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
     add,

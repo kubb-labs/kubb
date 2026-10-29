@@ -41,13 +41,13 @@ export type InputSecurityScheme = {
 /**
  * Metadata for an API document, populated by the adapter and available to every generator.
  *
- * All fields are plain JSON-serializable values, no `Set`, no `Map`, no class instances.
- * Computed fields (`circularNames`, `enumNames`) are pre-calculated once during the adapter
- * pre-scan so generators never need to iterate the full schema list themselves.
+ * Computed fields (`circularNames`, `enumNames`) are sets, pre-calculated once during the adapter
+ * pre-scan so generators never need to iterate the full schema list themselves. Every other field
+ * is a plain JSON value.
  *
  * @example
  * ```ts
- * const meta: InputMeta = { title: 'Pet Store', version: '1.0.0', baseURL: 'https://api.example.com/v2', circularNames: [], enumNames: [] }
+ * const meta: InputMeta = { title: 'Pet Store', version: '1.0.0', baseURL: 'https://api.example.com/v2', circularNames: new Set(), enumNames: new Set() }
  * ```
  */
 export type InputMeta = {
@@ -78,29 +78,23 @@ export type InputMeta = {
    * Computed once during the adapter pre-scan, so a generator never has to
    * call `findCircularSchemas` itself.
    *
-   * Convert to a `Set` once at the start of a generator, not per-schema,
-   * so lookups stay O(1) without repeated allocations.
-   *
    * @example Wrap a circular schema in z.lazy()
    * ```ts
-   * const circular = new Set(meta.circularNames)
-   * if (circular.has(schema.name)) { ... }
+   * if (meta.circularNames.has(schema.name)) { ... }
    * ```
    */
-  circularNames: ReadonlyArray<string>
+  circularNames: ReadonlySet<string>
   /**
    * Names of schemas whose type is `enum`.
    * Computed once during the adapter pre-scan, so a generator never has to
    * filter the schema list itself.
    *
-   * Convert to a `Set` once at the start of a generator when you need repeated
-   * membership checks, so each check stays O(1) instead of an array scan.
-   *
    * @example Check if a referenced schema is an enum
-   * `const enums = new Set(meta.enumNames)`
-   * `const isEnum = enums.has(schemaName)`
+   * ```ts
+   * const isEnum = meta.enumNames.has(schemaName)
+   * ```
    */
-  enumNames: ReadonlyArray<string>
+  enumNames: ReadonlySet<string>
 }
 
 /**
@@ -113,7 +107,7 @@ export type InputMeta = {
  *   kind: 'Input',
  *   schemas: [],
  *   operations: [],
- *   meta: { circularNames: [], enumNames: [] },
+ *   meta: { circularNames: new Set(), enumNames: new Set() },
  * }
  * ```
  */
@@ -147,5 +141,5 @@ export type InputNode = BaseNode & {
  * ```
  */
 export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
-  return { schemas: [], operations: [], meta: { circularNames: [], enumNames: [] }, ...overrides, kind: nodeKinds.input }
+  return { schemas: [], operations: [], meta: { circularNames: new Set(), enumNames: new Set() }, ...overrides, kind: nodeKinds.input }
 }

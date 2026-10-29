@@ -244,8 +244,8 @@ describe('adapterOas.parse', () => {
 
     expect(node.meta).toMatchObject({
       baseURL: null,
-      circularNames: [],
-      enumNames: [],
+      circularNames: new Set<string>(),
+      enumNames: new Set<string>(),
       title: 'Test API',
       version: '1.0.0',
       servers: [],
@@ -722,7 +722,7 @@ describe('adapterOas options', () => {
 
     expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['PetStatusEnum', 'ListPetsStatus', 'Pet'])
     expect(node.schemas[0]).toMatchObject({ type: 'enum', name: 'PetStatusEnum', enumValues: ['available', 'sold'] })
-    expect(node.meta?.enumNames).toStrictEqual(['PetStatusEnum', 'ListPetsStatus'])
+    expect(node.meta?.enumNames).toStrictEqual(new Set(['PetStatusEnum', 'ListPetsStatus']))
 
     const pet = ast.narrowSchema(
       node.schemas.find((schema) => schema.name === 'Pet')!,
@@ -749,7 +749,7 @@ describe('adapterOas options', () => {
     const node = await adapterOas({ validate: false }).parse({ type: 'data', data: spec })
 
     expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['Pet'])
-    expect(node.meta?.enumNames).toStrictEqual([])
+    expect(node.meta?.enumNames).toStrictEqual(new Set())
     const pet = ast.narrowSchema(node.schemas[0]!, 'object')
     expect(pet?.properties[0]?.schema).toMatchObject({ type: 'enum', name: 'PetStatusEnum', enumValues: ['available', 'sold'] })
   })
