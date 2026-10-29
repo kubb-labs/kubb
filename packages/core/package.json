@@ -47,13 +47,6 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "mocks": [
-        "./dist/mocks.d.ts"
-      ]
-    }
-  },
   "exports": {
     ".": {
       "import": {
