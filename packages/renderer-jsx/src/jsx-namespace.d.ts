@@ -25,7 +25,7 @@ export namespace JSX {
     ['kubb-jsx']: {
       children?: string
     }
-    ['kubb-file']: Omit<ast.UserFileNode, 'sources' | 'imports' | 'exports' | 'meta'> & {
+    ['kubb-file']: Omit<ast.UserFileNode, 'sources' | 'imports' | 'exports' | 'meta' | 'pointer'> & {
       meta?: ast.FileNode['meta'] | null
       id?: string | null
       children?: KubbReactNode

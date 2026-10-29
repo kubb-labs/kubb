@@ -67,7 +67,7 @@ function setupReporters(
     filesUnchanged = 0
     paths = []
     outputPath = resolve(config.root, config.output.path)
-    previous = trackChanges && (dryRun || fileChanges || config.storage?.name === 'fs') ? await readOutputFiles(outputPath) : undefined
+    previous = trackChanges && (dryRun || config.storage?.name === 'fs') ? await readOutputFiles(outputPath) : undefined
   })
   context.hook('kubb:files:processing:start', async ({ files }) => {
     if (!previous) return
