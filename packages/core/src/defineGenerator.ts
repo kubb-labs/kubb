@@ -114,7 +114,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
   /**
    * Cache for the whole build, shared by every plugin, where `resolver.memo` is one plugin. Prefix a
    * key with the plugin name unless every plugin wants the same value, and name the node for
-   * node-derived work, such as `plugin-ts:imports:GET /pets`.
+   * node-derived work, such as `plugin-ts:imports:${node.operationId}`.
    */
   memo: Memo
 }
