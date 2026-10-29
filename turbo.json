@@ -3,7 +3,7 @@
   "globalDependencies": [
     "tsconfig.json",
     "tsconfig.dts.json",
-    "reset.d.ts"
+    "globals.d.ts"
   ],
   "globalEnv": [
     "NODE_ENV"

@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["bun-types", "./reset.d.ts"]
+    "types": ["bun-types", "./globals.d.ts"]
   },
   "include": ["packages/*/src/**/*", "internals/*/src/**/*"],
   "exclude": ["node_modules", "dist", "tmp", "coverage", "**/__snapshots__/**", "**/*.test.*"]
