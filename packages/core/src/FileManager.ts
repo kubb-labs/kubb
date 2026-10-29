@@ -308,8 +308,7 @@ export class FileManager {
    * memory rather than holding every source, while still overlapping each file's write with the
    * next file's parse. Files finish in whatever order they parse, so each finished file flushes the
    * run of finished files ahead of it as one `kubb:files:processing:update`, keeping rows in input order.
-   * Each parsed source goes out once on `kubb:file:processed`, so a listener can read it without the
-   * pool holding it.
+   * Each parsed source goes out once on `kubb:file:processed`, so listeners read it without the pool holding it.
    *
    * A file the storage already holds is skipped, so a rebuild that generates identical output
    * writes nothing and leaves every mtime where it was. `kubb:files:processing:end` lists the

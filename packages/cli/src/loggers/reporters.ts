@@ -73,8 +73,7 @@ function setupReporters(
     previous = undefined
     // Read while the plugins generate; `kubb:plugins:end` waits for it, before cleaning can erase the baseline.
     reading = trackChanges && (dryRun || config.storage?.name === 'fs') ? readOutputFiles(outputPath) : undefined
-    // An output pass rewrites the stored files after they are written, and a dry run's manifest compares
-    // what a formatter made of them, so both still read the output back.
+    // Output passes rewrite stored files and a dry run compares through the manifest, so both read the output back.
     const outputPasses = Boolean(config.output.format || config.output.lint || config.output.postGenerate?.length)
     counted = reading && !dryRun && !outputPasses ? new Map() : undefined
   })

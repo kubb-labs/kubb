@@ -622,13 +622,9 @@ export type KubbFilesProcessingUpdateContext = {
 }
 
 export type KubbFileProcessedContext = {
-  /**
-   * The file that was just parsed and handed to the storage.
-   */
+  /** The file that was just parsed and handed to the storage. */
   file: FileNode
-  /**
-   * The parsed content handed to the storage, before it trims the content or an output pass such as a formatter rewrites it.
-   */
+  /** The parsed content handed to the storage, before it trims the content or an output pass such as a formatter rewrites it. */
   source: string
 }
 
