@@ -132,6 +132,28 @@ describe('setupReporters', () => {
     }
   })
 
+  it.each([
+    [logLevel.info, false],
+    [logLevel.verbose, true],
+  ])('names each written file in plain output only at the verbose level (log level %s)', async (level, named) => {
+    const hooks = new Hookable<KubbHooks>()
+    const lines: Array<string> = []
+    setupReporters(hooks, { logLevel: level, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
+    const config = createKubb({ root: '/tmp', input: './spec.yaml', output: { path: './gen' }, storage: memoryStorage() }).config
+    const files = (['a.ts', 'b.ts'] as const).map((name) => ast.factory.createFile({ path: `/tmp/gen/${name}`, baseName: name }))
+    await hooks.callHook('kubb:generation:start', { config })
+    await hooks.callHook('kubb:files:processing:start', { files })
+    await hooks.callHook('kubb:files:processing:update', {
+      files: files.map((file, index) => ({ file, config, processed: index + 1, total: 2, percentage: 50 * (index + 1) })),
+    })
+    await hooks.callHook('kubb:files:processing:end', { files, unchanged: [] })
+
+    const text = stripVTControlCharacters(lines.join('\n'))
+    expect(text).toContain('Generating 2 files')
+    expect(text).toContain('Generated 2 files in memory')
+    expect(text.includes('Generating gen/a.ts')).toBe(named)
+  })
+
   it('lets json own stdout without installing the live logger when json is selected', async () => {
     const context = new Hookable<KubbHooks>()
 
