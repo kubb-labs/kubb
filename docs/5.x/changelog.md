@@ -9,6 +9,56 @@ outline: 2
 
 # Changelog
 
+## v5.15.2 — Oct 29, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Publish dependencies on `@kubb/core` and `@kubb/ast` as caret ranges instead of exact versions. A plugin that pulls in a newer `@kubb/parser-ts`, `@kubb/kit`, or `@kubb/renderer-jsx` can now share the project's `@kubb/core` and `@kubb/ast` when the project's version is the same or newer, instead of installing a second copy. ([#4513](https://github.com/kubb-labs/kubb/pull/4513))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Remove `InputMeta.circularNames` and `InputMeta.enumNames`, so `InputMeta` only holds plain document metadata. A generator that needs either set builds it once per build with `ctx.memo`:
+
+  ```ts
+  const schemas = ctx.driver.inputNode?.schemas ?? []
+  const circularNames = ctx.memo('circularNames:set', () => ast.findCircularSchemas(schemas))
+  const enumNames = ctx.memo('enumNames:set', () => new Set(schemas.flatMap((schema) => (schema.type === 'enum' && schema.name ? [schema.name] : []))))
+  ```
+
+  `BannerMeta` loses both fields too. Kubb Studio now stores and sends `meta` as it is. ([#4508](https://github.com/kubb-labs/kubb/pull/4508))
+- Remove exports that nothing in Kubb or the official plugins used, and trim the code behind the rest. Generated output does not change.
+
+  - Remove `ast.forEachChild`, `ast.forEachSchema`, `ast.composeMacros`, `ast.isVirtualFile`, `ast.findCircularSchemasFromGraph`, and the `ParentOf` type. `VisitorContext` is now `{ parent?: Node }`. Use `ast.collect` to walk nodes and `ast.applyMacros` to run macros.
+  - Remove `macroRenameSchema` from `kubb/kit`. The macros guide shows its source to copy into your project.
+  - Warn with a `DeprecationWarning` when a printer handler returns a TypeScript compiler node to `print` from `@kubb/parser-ts`. Compiler nodes still print, and support for them is removed in the next major; return a string.
+  - Remove `Hookable.setMaxListeners` and the `KubbInfoContext`, `KubbSuccessContext`, and `KubbWarnContext` aliases of `KubbMessageContext`.
+  - Remove `ctx.cache` and the `NodeCache` type, so `ctx.memo` and `resolver.memo` are the one way to cache. Replace `ctx.cache.ensureItem(key, compute)` with `ctx.memo(key, compute)` and put the node in the key, such as `plugin-ts:imports:${node.operationId}`.
+  - Remove the Vitest-backed test helpers: `@kubb/core/mocks`, `@kubb/kit/testing`, and `kubb/kit/testing` are gone, and no package lists Vitest as a peer dependency. Copy the helpers you use from [kubb-labs/plugins](https://github.com/kubb-labs/plugins/blob/main/configs/mocks.ts) into your own test setup. ([#4510](https://github.com/kubb-labs/kubb/pull/4510))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.15.1 — Oct 29, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- `InputMeta.circularNames` and `InputMeta.enumNames` are now `ReadonlySet<string>` instead of arrays, so a generator calls `ctx.meta.enumNames.has(name)` without building its own set. Code that reads them as arrays needs `.has` instead of `.includes`, `.size` instead of `.length`, and `[...meta.enumNames]` for array methods. `new Set(meta.enumNames)` keeps working. This includes `banner` and `footer` functions, whose `BannerMeta` extends `InputMeta`. Kubb Studio still stores and sends both fields as arrays. ([#4506](https://github.com/kubb-labs/kubb/pull/4506))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.15.0 — Oct 28, 2026
 
 ### @kubb/cli
