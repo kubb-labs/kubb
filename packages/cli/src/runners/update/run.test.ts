@@ -110,10 +110,15 @@ describe('kubb update', () => {
     vi.mocked(generate).mockImplementationOnce(async ({ config: loaded, hooks }) => {
       const config = { ...loaded, storage: fsStorage() }
       await hooks.callHook('kubb:generation:start', { config })
+      await hooks.callHook('kubb:plugins:end', { config, files: [], upsertFile: () => {} })
       await writeFile(path.join(gen, 'changed.ts'), 'new')
       await writeFile(path.join(gen, 'added.ts'), 'new')
       await rm(path.join(gen, 'removed.ts'))
-      const files = ['kept.ts', 'changed.ts', 'added.ts'].map((name) => ({ path: path.join(gen, name) }) as FileNode)
+      const sources = { 'kept.ts': 'same', 'changed.ts': 'new', 'added.ts': 'new' }
+      const files = Object.keys(sources).map((name) => ({ path: path.join(gen, name) }) as FileNode)
+      for (const [name, source] of Object.entries(sources)) {
+        await hooks.callHook('kubb:file:processed', { file: { path: path.join(gen, name) } as FileNode, source })
+      }
       await hooks.callHook('kubb:files:processing:end', { files, unchanged: [] })
       await hooks.callHook('kubb:generation:end', { config, storage: config.storage, status: 'success' })
       return true

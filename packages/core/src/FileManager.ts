@@ -308,6 +308,7 @@ export class FileManager {
    * memory rather than holding every source, while still overlapping each file's write with the
    * next file's parse. Files finish in whatever order they parse, so each finished file flushes the
    * run of finished files ahead of it as one `kubb:files:processing:update`, keeping rows in input order.
+   * Each parsed source goes out once on `kubb:file:processed`, so listeners read it without the pool holding it.
    *
    * A file the storage already holds is skipped, so a rebuild that generates identical output
    * writes nothing and leaves every mtime where it was. `kubb:files:processing:end` lists the
@@ -326,7 +327,10 @@ export class FileManager {
       run: async (file, index) => {
         signal?.throwIfAborted()
         const source = await this.parse(file, { parsers })
-        if (source && !(await writeChanged({ storage, manifest, file, source, signal, cleaned }))) unchanged.push(file.path)
+        if (source) {
+          if (!(await writeChanged({ storage, manifest, file, source, signal, cleaned }))) unchanged.push(file.path)
+          await hooks?.callHook('kubb:file:processed', { file, source })
+        }
         await progress?.(index)
       },
     })

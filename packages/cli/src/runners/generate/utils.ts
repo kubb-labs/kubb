@@ -155,8 +155,35 @@ export async function readOutputFiles(outputPath: string): Promise<Map<string, s
 }
 
 /**
+ * How one generated file differs from its copy before generation: `undefined` when both hold the
+ * same output, otherwise the change with its line counts. The manifest recognizes output a
+ * formatter rewrote.
+ */
+export function diffFile({
+  path,
+  next,
+  previous,
+  manifest,
+}: {
+  path: string
+  next: string
+  previous: string | null
+  manifest?: Pick<OutputManifest, 'isUpToDate'>
+}): FileChange | undefined {
+  if (previous !== null && (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: path, source: next, disk: previous }))) {
+    return undefined
+  }
+  return {
+    status: previous === null ? 'A' : 'M',
+    path,
+    ...countLineChanges(previous?.trim() ?? '', previous === null ? next.trimEnd() : next.trim()),
+  }
+}
+
+/**
  * Compares generated output with the files captured before generation. The manifest recognizes
- * output rewritten by a formatter, and `clean` includes files the run would delete.
+ * output rewritten by a formatter, and `clean` includes files the run would delete. `counted` holds
+ * changes already worked out while the files were written; any other path is read back.
  */
 export async function diffOutput({
   storage,
@@ -164,6 +191,7 @@ export async function diffOutput({
   clean,
   manifest,
   previousFiles,
+  counted,
 }: {
   storage: Storage
   paths: ReadonlyArray<string>
@@ -173,6 +201,10 @@ export async function diffOutput({
    * The output captured before a real run, including files removed by cleaning.
    */
   previousFiles: ReadonlyMap<string, string>
+  /**
+   * Each written file's change from {@link diffFile}, `undefined` when unchanged. A path missing here, such as a blank file the storage skipped, is read back.
+   */
+  counted?: ReadonlyMap<string, FileChange | undefined>
 }): Promise<{ files: Array<FileChange>; unchanged: number }> {
   const generated = new Set(paths)
   const changes: Array<FileChange | undefined> = []
@@ -181,18 +213,16 @@ export async function diffOutput({
     items: paths,
     limit: 50,
     run: async (filePath, index) => {
-      const next = await storage.readItem(filePath)
-      if (next === null) return
-      const previous = previousFiles.get(filePath) ?? null
-      if (previous !== null && (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: filePath, source: next, disk: previous }))) {
-        unchanged++
-        return
+      let change: FileChange | undefined
+      if (counted?.has(filePath)) {
+        change = counted.get(filePath)
+      } else {
+        const next = await storage.readItem(filePath)
+        if (next === null) return
+        change = diffFile({ path: filePath, next, previous: previousFiles.get(filePath) ?? null, manifest })
       }
-      changes[index] = {
-        status: previous === null ? 'A' : 'M',
-        path: filePath,
-        ...countLineChanges(previous?.trim() ?? '', previous === null ? next.trimEnd() : next.trim()),
-      }
+      if (change) changes[index] = change
+      else unchanged++
     },
   })
   const files = changes.filter((file) => file !== undefined)

@@ -403,6 +403,7 @@ declare global {
       'kubb:diagnostic': [ctx: KubbDiagnosticContext]
       'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
       'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
+      'kubb:file:processed': [ctx: KubbFileProcessedContext]
       'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
       'kubb:plugin:start': [ctx: KubbPluginStartContext]
       'kubb:plugin:end': [ctx: KubbPluginEndContext]
@@ -618,6 +619,13 @@ export type KubbFilesProcessingUpdateContext = {
    * All files processed in this flush chunk.
    */
   files: Array<KubbFileProcessingUpdate>
+}
+
+export type KubbFileProcessedContext = {
+  /** The file that was just parsed and handed to the storage. */
+  file: FileNode
+  /** The parsed content handed to the storage, before it trims the content or an output pass such as a formatter rewrites it. */
+  source: string
 }
 
 export type KubbFilesProcessingEndContext = {
