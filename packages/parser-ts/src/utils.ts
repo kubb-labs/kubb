@@ -31,38 +31,59 @@ export function resolveOutputPath(path: string, extname: string | undefined, roo
   return current ? `${path.slice(0, -current.length)}${extname ?? ''}` : path
 }
 
+/**
+ * Node types this module reads from the yuku AST.
+ */
+const nodeTypes = {
+  identifier: 'Identifier',
+  literal: 'Literal',
+  importDeclaration: 'ImportDeclaration',
+  importSpecifier: 'ImportSpecifier',
+  importDefaultSpecifier: 'ImportDefaultSpecifier',
+  importNamespaceSpecifier: 'ImportNamespaceSpecifier',
+  exportAllDeclaration: 'ExportAllDeclaration',
+  exportNamedDeclaration: 'ExportNamedDeclaration',
+} as const
+
+/**
+ * `importKind` and `exportKind` values this module reads from the yuku AST.
+ */
+const declarationKinds = {
+  type: 'type',
+} as const
+
 function nameOf(node: ModuleExportName): string {
-  return node.type === 'Literal' ? node.value : node.name
+  return node.type === nodeTypes.literal ? node.value : node.name
 }
 
 /**
  * Converts an import specifier into an `ImportNode` name, keeping the quotes of a string-literal name (`{ 'a-b' as ab }`).
  */
 function toImportName({ imported, local }: ImportSpecifier): string | { propertyName: string; name: string } {
-  if (imported.type === 'Identifier' && imported.name === local.name) return local.name
+  if (imported.type === nodeTypes.identifier && imported.name === local.name) return local.name
 
-  return { propertyName: imported.type === 'Literal' ? quoteModulePath(imported.value) : imported.name, name: local.name }
+  return { propertyName: imported.type === nodeTypes.literal ? quoteModulePath(imported.value) : imported.name, name: local.name }
 }
 
 /**
  * Converts an `import` declaration into `ImportNode`s. Side-effect imports and imports with attributes or a phase stay as written.
  */
 function toImportNodes(statement: ProgramStatement, filePath: string): Array<ast.ImportNode> {
-  if (statement.type !== 'ImportDeclaration' || !statement.specifiers.length || statement.attributes.length || statement.phase) return []
+  if (statement.type !== nodeTypes.importDeclaration || !statement.specifiers.length || statement.attributes.length || statement.phase) return []
 
   const specifier = statement.source.value
   const target = specifier.startsWith('.') ? { path: resolve(dirname(filePath), specifier), root: filePath } : { path: specifier }
-  const isTypeOnly = statement.importKind === 'type'
+  const isTypeOnly = statement.importKind === declarationKinds.type
   const nodes: Array<ast.ImportNode> = []
-  const named = statement.specifiers.filter((element) => element.type === 'ImportSpecifier')
+  const named = statement.specifiers.filter((element) => element.type === nodeTypes.importSpecifier)
 
   for (const element of statement.specifiers) {
-    if (element.type === 'ImportDefaultSpecifier') nodes.push(ast.factory.createImport({ name: element.local.name, ...target, isTypeOnly }))
-    if (element.type === 'ImportNamespaceSpecifier')
+    if (element.type === nodeTypes.importDefaultSpecifier) nodes.push(ast.factory.createImport({ name: element.local.name, ...target, isTypeOnly }))
+    if (element.type === nodeTypes.importNamespaceSpecifier)
       nodes.push(ast.factory.createImport({ name: element.local.name, ...target, isTypeOnly, isNameSpace: true }))
   }
-  const values = named.filter((element) => element.importKind !== 'type')
-  const types = named.filter((element) => element.importKind === 'type')
+  const values = named.filter((element) => element.importKind !== declarationKinds.type)
+  const types = named.filter((element) => element.importKind === declarationKinds.type)
   if (values.length) nodes.push(ast.factory.createImport({ name: values.map(toImportName), ...target, isTypeOnly }))
   if (types.length) nodes.push(ast.factory.createImport({ name: types.map(toImportName), ...target, isTypeOnly: true }))
 
@@ -73,13 +94,13 @@ function toImportNodes(statement: ProgramStatement, filePath: string): Array<ast
  * Converts an `export … from` declaration into `ExportNode`s. Forms `printExport` cannot print stay as written.
  */
 function toExportNodes(statement: ProgramStatement): Array<ast.ExportNode> {
-  if (statement.type !== 'ExportAllDeclaration' && statement.type !== 'ExportNamedDeclaration') return []
+  if (statement.type !== nodeTypes.exportAllDeclaration && statement.type !== nodeTypes.exportNamedDeclaration) return []
   if (!statement.source || statement.attributes.length) return []
 
   const path = statement.source.value
-  const isTypeOnly = statement.exportKind === 'type'
+  const isTypeOnly = statement.exportKind === declarationKinds.type
 
-  if (statement.type === 'ExportAllDeclaration') {
+  if (statement.type === nodeTypes.exportAllDeclaration) {
     return [
       statement.exported
         ? ast.factory.createExport({ name: nameOf(statement.exported), path, isTypeOnly, asAlias: true })
@@ -88,7 +109,8 @@ function toExportNodes(statement: ProgramStatement): Array<ast.ExportNode> {
   }
   if (
     statement.specifiers.some(
-      (element) => element.exportKind === 'type' || element.exported.type === 'Literal' || nameOf(element.exported) !== nameOf(element.local),
+      (element) =>
+        element.exportKind === declarationKinds.type || element.exported.type === nodeTypes.literal || nameOf(element.exported) !== nameOf(element.local),
     )
   )
     return []
@@ -116,8 +138,8 @@ export function splitModuleDeclarations(
     if (!importNodes.length && !exportNodes.length) {
       // Lifted declarations print above the body, so stop at the first one that stays in place to keep the evaluation order.
       if (
-        statement.type === 'ImportDeclaration' ||
-        ((statement.type === 'ExportNamedDeclaration' || statement.type === 'ExportAllDeclaration') && statement.source)
+        statement.type === nodeTypes.importDeclaration ||
+        ((statement.type === nodeTypes.exportNamedDeclaration || statement.type === nodeTypes.exportAllDeclaration) && statement.source)
       )
         break
       continue

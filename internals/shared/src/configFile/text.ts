@@ -1,4 +1,4 @@
-import type { ArrayExpression, ObjectExpression } from './ast.ts'
+import { type ArrayExpression, nodeTypes, type ObjectExpression } from './ast.ts'
 import type { OptionValue } from './types.ts'
 
 /**
@@ -50,14 +50,14 @@ export function wrapPath(path: Array<string>, value: OptionValue): OptionValue {
  */
 export function appendItem(source: string, container: ObjectExpression | ArrayExpression, text: string): string {
   const { start, end } = container
-  const items: Array<{ start: number; end: number } | null> = container.type === 'ObjectExpression' ? container.properties : container.elements
+  const items: Array<{ start: number; end: number } | null> = container.type === nodeTypes.objectExpression ? container.properties : container.elements
   const last = items.filter((item) => item !== null).at(-1)
 
   if (!last) {
     const inner = source.slice(start + 1, end - 1)
     // A comment inside the empty literal stays, after the new item.
     if (inner.trim()) return replaceText(source, start + 1, start + 1, /^\s/.test(inner) ? `${text},` : `${text}, `)
-    return replaceText(source, start, end, container.type === 'ObjectExpression' ? `{ ${text} }` : `[${text}]`)
+    return replaceText(source, start, end, container.type === nodeTypes.objectExpression ? `{ ${text} }` : `[${text}]`)
   }
 
   const between = source.slice(last.end, end - 1)
@@ -76,8 +76,9 @@ export function appendItem(source: string, container: ObjectExpression | ArrayEx
 
 /** Drops the item at `index` from an object or array literal, with its own lines when it sits on them alone. */
 export function removeItem(source: string, node: ObjectExpression | ArrayExpression, index: number): string {
-  const items: Array<{ start: number; end: number }> = node.type === 'ObjectExpression' ? node.properties : node.elements.filter((element) => element !== null)
-  if (items.length === 1) return replaceText(source, node.start, node.end, node.type === 'ObjectExpression' ? '{}' : '[]')
+  const items: Array<{ start: number; end: number }> =
+    node.type === nodeTypes.objectExpression ? node.properties : node.elements.filter((element) => element !== null)
+  if (items.length === 1) return replaceText(source, node.start, node.end, node.type === nodeTypes.objectExpression ? '{}' : '[]')
 
   const { start, end } = items[index]!
   const lineStart = source.lastIndexOf('\n', start - 1) + 1

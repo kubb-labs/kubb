@@ -17,6 +17,36 @@ export type {
   VariableDeclaration,
 } from 'yuku-parser'
 
+/** Node types the config editor reads from the yuku AST. */
+export const nodeTypes = {
+  arrayExpression: 'ArrayExpression',
+  arrowFunctionExpression: 'ArrowFunctionExpression',
+  assignmentExpression: 'AssignmentExpression',
+  blockStatement: 'BlockStatement',
+  callExpression: 'CallExpression',
+  exportDefaultDeclaration: 'ExportDefaultDeclaration',
+  expressionStatement: 'ExpressionStatement',
+  functionExpression: 'FunctionExpression',
+  identifier: 'Identifier',
+  importDeclaration: 'ImportDeclaration',
+  importSpecifier: 'ImportSpecifier',
+  literal: 'Literal',
+  memberExpression: 'MemberExpression',
+  objectExpression: 'ObjectExpression',
+  objectPattern: 'ObjectPattern',
+  property: 'Property',
+  returnStatement: 'ReturnStatement',
+  spreadElement: 'SpreadElement',
+  tSAsExpression: 'TSAsExpression',
+  tSSatisfiesExpression: 'TSSatisfiesExpression',
+  templateLiteral: 'TemplateLiteral',
+  unaryExpression: 'UnaryExpression',
+  variableDeclaration: 'VariableDeclaration',
+} as const
+
+export const commentTypes = { line: 'Line' } as const
+export const propertyKinds = { init: 'init' } as const
+export const unaryOperators = { minus: '-', plus: '+' } as const
 const diagnosticSeverities = { error: 'error' } as const
 
 /** A parsed file: its statements and every comment in it, or why it could not be parsed. */
@@ -42,5 +72,5 @@ export function parseExpression(source: string): Expression | undefined {
   const parsed = parseSource(source)
   if ('reason' in parsed) return undefined
   const [statement] = parsed.program.body
-  return parsed.program.body.length === 1 && statement?.type === 'ExpressionStatement' ? statement.expression : undefined
+  return parsed.program.body.length === 1 && statement?.type === nodeTypes.expressionStatement ? statement.expression : undefined
 }
