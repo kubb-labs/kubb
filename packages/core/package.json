@@ -65,10 +65,6 @@
         "default": "./dist/index.cjs"
       }
     },
-    "./mocks": {
-      "types": "./dist/mocks.d.ts",
-      "default": "./dist/mocks.js"
-    },
     "./schemas/*": "./schemas/*",
     "./package.json": "./package.json"
   },
@@ -89,14 +85,6 @@
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "vue": "^3.5.44"
-  },
-  "peerDependencies": {
-    "vitest": "^4.0.0 || ^5.0.0"
-  },
-  "peerDependenciesMeta": {
-    "vitest": {
-      "optional": true
-    }
   },
   "engines": {
     "node": ">=22.22"

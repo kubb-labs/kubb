@@ -15,7 +15,6 @@ const vueSfc = {
 
 const entry = {
   index: 'src/index.ts',
-  mocks: 'src/mocks.ts',
 }
 
 // Entries that also ship as CommonJS. The test helpers import Vitest, which cannot be required, so they stay ESM-only.
