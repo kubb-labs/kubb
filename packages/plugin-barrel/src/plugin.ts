@@ -1,7 +1,6 @@
 import path from 'node:path'
 import { isPathInside, toPosixPath } from '@internals/utils'
-import { defineExtension } from '@kubb/core'
-import { ast, Diagnostics } from '@kubb/kit'
+import { ast, defineExtension, Diagnostics } from '@kubb/kit'
 import type { Config, NormalizedPlugin, Plugin } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
