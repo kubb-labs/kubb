@@ -1,7 +1,7 @@
 export { camelCase, pascalCase } from './casing.ts'
 export { getErrorChain, getErrorMessage, toError } from './errors.ts'
 export { isCIEnvironment } from './isCIEnvironment.ts'
-export { escapePointerToken } from './jsonPointer.ts'
+export { escapePointerToken, unescapePointerToken } from './jsonPointer.ts'
 export { copyToClipboard } from './copyToClipboard.ts'
 export { openInBrowser } from './openInBrowser.ts'
 export { exists, existsSync, isPathInside, listFiles, matchesStored, mkdir, mkdtemp, read, rm, toPosixPath, write, writeRaw } from './fs.ts'
