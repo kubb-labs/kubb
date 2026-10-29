@@ -13,12 +13,8 @@ import {
   type RestElement,
   type SpreadElement,
   type VariableDeclaration,
-  commentTypes,
-  nodeTypes,
   parseExpression,
   parseSource,
-  propertyKinds,
-  unaryOperators,
 } from './ast.ts'
 import { isAllowedPlugin, isOptionValue, isOutputKey, isOutputValue, isSafeKey, pickOutput, toExportName } from './rules.ts'
 import { appendItem, getPosition, IDENTIFIER_PATTERN, printKey, printValue, quotes, type Quote, removeItem, replaceText, wrapPath } from './text.ts'
@@ -107,21 +103,21 @@ function validateEdit(edit: ConfigEdit): string | undefined {
 /** Steps through `as`/`satisfies` and `() => ...` wrappers to the config object. */
 function unwrapValue(node: ValueNode): ValueNode {
   if (!node) return undefined
-  if (node.type === nodeTypes.tSAsExpression || node.type === nodeTypes.tSSatisfiesExpression) return unwrapValue(node.expression)
-  if (node.type !== nodeTypes.arrowFunctionExpression && node.type !== nodeTypes.functionExpression) return node
-  if (node.body?.type !== nodeTypes.blockStatement) return unwrapValue(node.body as Expression | null)
+  if (node.type === 'TSAsExpression' || node.type === 'TSSatisfiesExpression') return unwrapValue(node.expression)
+  if (node.type !== 'ArrowFunctionExpression' && node.type !== 'FunctionExpression') return node
+  if (node.body?.type !== 'BlockStatement') return unwrapValue(node.body as Expression | null)
 
-  const returned = node.body.body.find((statement) => statement.type === nodeTypes.returnStatement)
-  return unwrapValue(returned?.type === nodeTypes.returnStatement ? returned.argument : undefined)
+  const returned = node.body.body.find((statement) => statement.type === 'ReturnStatement')
+  return unwrapValue(returned?.type === 'ReturnStatement' ? returned.argument : undefined)
 }
 
 function isModuleExports(node: AssignmentExpression['left']): boolean {
   return (
-    node.type === nodeTypes.memberExpression &&
+    node.type === 'MemberExpression' &&
     !node.computed &&
-    node.object.type === nodeTypes.identifier &&
+    node.object.type === 'Identifier' &&
     node.object.name === identifiers.module &&
-    node.property.type === nodeTypes.identifier &&
+    node.property.type === 'Identifier' &&
     node.property.name === identifiers.exports
   )
 }
@@ -129,11 +125,11 @@ function isModuleExports(node: AssignmentExpression['left']): boolean {
 /** The exported config value and how the file exports it. */
 function findExport(program: Program): { exported: ValueNode; kind: ModuleKind } {
   for (const node of program.body) {
-    if (node.type === nodeTypes.exportDefaultDeclaration) {
+    if (node.type === 'ExportDefaultDeclaration') {
       // A `function` or `class` declaration is never a `defineConfig(...)` call, so `findConfigs` refuses it.
       return { exported: node.declaration as Expression, kind: moduleKinds.esm }
     }
-    if (node.type === nodeTypes.expressionStatement && node.expression.type === nodeTypes.assignmentExpression && isModuleExports(node.expression.left)) {
+    if (node.type === 'ExpressionStatement' && node.expression.type === 'AssignmentExpression' && isModuleExports(node.expression.left)) {
       return { exported: node.expression.right, kind: moduleKinds.cjs }
     }
   }
@@ -148,15 +144,15 @@ function findConfigs(source: string): ParsedConfig | { reason: string } {
   const { exported, kind } = findExport(parsed.program)
   const value = unwrapValue(exported)
   if (!value) return { reason: 'no `export default` or `module.exports` found' }
-  if (value.type !== nodeTypes.callExpression || value.callee.type !== nodeTypes.identifier || value.callee.name !== identifiers.defineConfig) {
+  if (value.type !== 'CallExpression' || value.callee.type !== 'Identifier' || value.callee.name !== identifiers.defineConfig) {
     return { reason: 'the exported config is not a defineConfig(...) call' }
   }
 
   const argument = unwrapValue(value.arguments[0])
   if (!argument) return { reason: 'defineConfig(...) was called without a config' }
 
-  const entries = argument.type === nodeTypes.arrayExpression ? argument.elements.map((element) => unwrapValue(element)) : [argument]
-  const configs = entries.filter((entry): entry is ObjectExpression => entry?.type === nodeTypes.objectExpression)
+  const entries = argument.type === 'ArrayExpression' ? argument.elements.map((element) => unwrapValue(element)) : [argument]
+  const configs = entries.filter((entry): entry is ObjectExpression => entry?.type === 'ObjectExpression')
   if (configs.length !== entries.length) return { reason: 'config is not an object literal' }
 
   return { ...parsed, configs, kind }
@@ -169,9 +165,9 @@ function findConfigEntry(configs: Array<ObjectExpression>, ref: ConfigRef | unde
 // Reading object literals
 
 function getKey(entry: ObjectPropertyKind | BindingProperty | RestElement): string | undefined {
-  if (entry.type !== nodeTypes.property || entry.computed) return undefined
-  if (entry.key.type === nodeTypes.identifier) return entry.key.name
-  return entry.key.type === nodeTypes.literal && typeof entry.key.value === 'string' ? entry.key.value : undefined
+  if (entry.type !== 'Property' || entry.computed) return undefined
+  if (entry.key.type === 'Identifier') return entry.key.name
+  return entry.key.type === 'Literal' && typeof entry.key.value === 'string' ? entry.key.value : undefined
 }
 
 /** The last one wins when the key repeats, as at runtime. */
@@ -182,46 +178,46 @@ function findProperty(node: ObjectExpression, key: string): { member: ObjectProp
 
 function getValue(node: ObjectExpression, key: string): ValueNode {
   const member = findProperty(node, key)?.member
-  return member?.type === nodeTypes.property ? member.value : member
+  return member?.type === 'Property' ? member.value : member
 }
 
 function getConfigName(config: ObjectExpression): string | undefined {
   const name = getValue(config, 'name')
-  return name?.type === nodeTypes.literal && typeof name.value === 'string' ? name.value : undefined
+  return name?.type === 'Literal' && typeof name.value === 'string' ? name.value : undefined
 }
 
 function isOverridden(node: ObjectExpression, index: number): boolean {
-  return node.properties.slice(index + 1).some((entry) => entry.type === nodeTypes.spreadElement)
+  return node.properties.slice(index + 1).some((entry) => entry.type === 'SpreadElement')
 }
 
 /** `key: value`, not a method, getter, setter, or `{ key }` shorthand. */
-function isPlainProperty(member: Extract<ObjectPropertyKind, { type: typeof nodeTypes.property }>): boolean {
-  return !member.method && !member.shorthand && member.kind === propertyKinds.init
+function isPlainProperty(member: Extract<ObjectPropertyKind, { type: 'Property' }>): boolean {
+  return !member.method && !member.shorthand && member.kind === 'init'
 }
 
 /** A literal's value, `undefined` for code. */
 function readLiteral(node: ValueNode): OptionValue | undefined {
   switch (node?.type) {
-    case nodeTypes.literal:
+    case 'Literal':
       // A bigint or a regex is code, not a value JSON can carry. A regex Node cannot compile also has a `null` value.
       return 'regex' in node || 'bigint' in node ? undefined : (node.value as OptionValue)
-    case nodeTypes.templateLiteral:
+    case 'TemplateLiteral':
       return node.expressions.length ? undefined : (node.quasis[0]?.value.cooked ?? '')
-    case nodeTypes.unaryExpression: {
+    case 'UnaryExpression': {
       const value = readLiteral(node.argument)
       if (typeof value !== 'number') return undefined
-      if (node.operator === unaryOperators.minus) return -value
-      if (node.operator === unaryOperators.plus) return value
+      if (node.operator === '-') return -value
+      if (node.operator === '+') return value
       return undefined
     }
-    case nodeTypes.arrayExpression: {
+    case 'ArrayExpression': {
       const values = node.elements.map((element) => readLiteral(element))
       return values.every((value) => value !== undefined) ? values : undefined
     }
-    case nodeTypes.objectExpression: {
+    case 'ObjectExpression': {
       const entries: Record<string, OptionValue> = {}
       for (const entry of node.properties) {
-        if (entry.type !== nodeTypes.property) return undefined
+        if (entry.type !== 'Property') return undefined
         const key = getKey(entry)
         const value = readLiteral(entry.value)
         // A `__proto__` key would replace the object's prototype instead of adding an entry.
@@ -237,16 +233,16 @@ function readLiteral(node: ValueNode): OptionValue | undefined {
 // Imports and factory calls
 
 function getRequirePath(node: ValueNode): string | undefined {
-  if (node?.type !== nodeTypes.callExpression || node.callee.type !== nodeTypes.identifier || node.callee.name !== identifiers.require) return undefined
+  if (node?.type !== 'CallExpression' || node.callee.type !== 'Identifier' || node.callee.name !== identifiers.require) return undefined
   const [argument] = node.arguments
-  return argument?.type === nodeTypes.literal && typeof argument.value === 'string' ? argument.value : undefined
+  return argument?.type === 'Literal' && typeof argument.value === 'string' ? argument.value : undefined
 }
 
 /** `import { exported as local } from '...'`. A default or namespace import has no exported name, so its local name stands in. */
 function importBindings(statement: ImportDeclaration): Array<[string, Import]> {
   return statement.specifiers.map((specifier) => {
-    const imported = specifier.type === nodeTypes.importSpecifier ? specifier.imported : specifier.local
-    const exported = imported.type === nodeTypes.identifier ? imported.name : imported.value
+    const imported = specifier.type === 'ImportSpecifier' ? specifier.imported : specifier.local
+    const exported = imported.type === 'Identifier' ? imported.name : imported.value
     return [specifier.local.name, { from: statement.source.value, exported }]
   })
 }
@@ -255,10 +251,10 @@ function importBindings(statement: ImportDeclaration): Array<[string, Import]> {
 function requireBindings(statement: VariableDeclaration): Array<[string, Import]> {
   return statement.declarations.flatMap((declarator): Array<[string, Import]> => {
     const from = getRequirePath(declarator.init)
-    if (from === undefined || declarator.id.type !== nodeTypes.objectPattern) return []
+    if (from === undefined || declarator.id.type !== 'ObjectPattern') return []
 
     return declarator.id.properties.flatMap((entry): Array<[string, Import]> => {
-      if (entry.type !== nodeTypes.property || entry.value.type !== nodeTypes.identifier) return []
+      if (entry.type !== 'Property' || entry.value.type !== 'Identifier') return []
       return [[entry.value.name, { from, exported: getKey(entry) ?? entry.value.name }]]
     })
   })
@@ -267,23 +263,23 @@ function requireBindings(statement: VariableDeclaration): Array<[string, Import]
 function getImports(program: Program): Map<string, Import> {
   return new Map(
     program.body.flatMap((statement) => {
-      if (statement.type === nodeTypes.importDeclaration) return importBindings(statement)
-      if (statement.type === nodeTypes.variableDeclaration) return requireBindings(statement)
+      if (statement.type === 'ImportDeclaration') return importBindings(statement)
+      if (statement.type === 'VariableDeclaration') return requireBindings(statement)
       return []
     }),
   )
 }
 
 function isImportStatement(node: Program['body'][number], kind: ModuleKind): boolean {
-  if (kind === moduleKinds.esm) return node.type === nodeTypes.importDeclaration
-  return node.type === nodeTypes.variableDeclaration && node.declarations.some((declarator) => getRequirePath(declarator.init) !== undefined)
+  if (kind === moduleKinds.esm) return node.type === 'ImportDeclaration'
+  return node.type === 'VariableDeclaration' && node.declarations.some((declarator) => getRequirePath(declarator.init) !== undefined)
 }
 
 /** The quote of the first string literal in the file, so new code matches it. */
 function detectQuote(node: unknown): Quote | undefined {
   if (!node || typeof node !== 'object') return undefined
   const { type, raw } = node as { type?: string; raw?: unknown }
-  if (type === nodeTypes.literal && typeof raw === 'string' && (raw[0] === quotes.single || raw[0] === quotes.double)) return raw[0]
+  if (type === 'Literal' && typeof raw === 'string' && (raw[0] === quotes.single || raw[0] === quotes.double)) return raw[0]
   for (const child of Object.values(node)) {
     const quote = detectQuote(child)
     if (quote) return quote
@@ -295,14 +291,14 @@ function detectQuote(node: unknown): Quote | undefined {
 function factoryNodes(config: ObjectExpression, kind: ExtensionKind): Array<ValueNode> {
   if (kind === extensionKinds.adapter) return [getValue(config, 'adapter')]
   const array = getValue(config, `${kind}s`)
-  return array?.type === nodeTypes.arrayExpression ? array.elements : []
+  return array?.type === 'ArrayExpression' ? array.elements : []
 }
 
 /** The factory calls of one kind whose callee the file imports. */
 function findCalls(program: Program, config: ObjectExpression, kind: ExtensionKind = extensionKinds.plugin): Array<FactoryCall> {
   const imports = getImports(program)
   return factoryNodes(config, kind).flatMap((node) => {
-    if (node?.type !== nodeTypes.callExpression || node.callee.type !== nodeTypes.identifier) return []
+    if (node?.type !== 'CallExpression' || node.callee.type !== 'Identifier') return []
     const imported = imports.get(node.callee.name)
     return imported ? [{ importName: node.callee.name, exportName: imported.exported, packageName: imported.from, call: node }] : []
   })
@@ -320,7 +316,7 @@ function findDisabled(source: string, comments: Array<Comment>, config: ObjectEx
   const lines = source.split('\n')
 
   return comments.flatMap((comment) => {
-    const match = comment.type === commentTypes.line ? comment.value.trim().match(DISABLED_MARKER_PATTERN) : null
+    const match = comment.type === 'Line' ? comment.value.trim().match(DISABLED_MARKER_PATTERN) : null
     // Only markers inside this entry, on a line of their own, so another entry or a trailing comment never matches.
     if (!match || comment.start < config.start || comment.end > config.end || !startsLine(source, comment.start)) return []
 
@@ -339,7 +335,7 @@ function readEditable(node: ObjectExpression, prefix: Array<string> = []): { val
   const locked: Array<Array<string>> = []
 
   for (const [index, entry] of node.properties.entries()) {
-    if (entry.type === nodeTypes.spreadElement) continue
+    if (entry.type === 'SpreadElement') continue
     const key = getKey(entry)
     if (key === undefined) return undefined
     if (findProperty(node, key)?.index !== index) continue
@@ -357,7 +353,7 @@ function readEditable(node: ObjectExpression, prefix: Array<string> = []): { val
       value[key] = literal
       continue
     }
-    if (member?.type !== nodeTypes.objectExpression) {
+    if (member?.type !== 'ObjectExpression') {
       locked.push(path)
       continue
     }
@@ -376,25 +372,25 @@ function readObjectOptions(options: ObjectExpression): OptionsView {
     const key = getKey(entry)
     if (key === undefined || !isSafeKey(key)) continue
 
-    const member = entry.type === nodeTypes.property && !isOverridden(options, index) ? entry.value : undefined
+    const member = entry.type === 'Property' && !isOverridden(options, index) ? entry.value : undefined
     const value = readLiteral(member)
     if (value !== undefined) {
       entries[key] = { literal: true, value }
       continue
     }
-    entries[key] = { literal: false, ...(member?.type === nodeTypes.objectExpression ? readEditable(member) : undefined) }
+    entries[key] = { literal: false, ...(member?.type === 'ObjectExpression' ? readEditable(member) : undefined) }
   }
   return entries
 }
 
 function readCallOptions(call: CallExpression): OptionsView {
   const options = call.arguments[0]
-  return options?.type === nodeTypes.objectExpression ? readObjectOptions(options) : {}
+  return options?.type === 'ObjectExpression' ? readObjectOptions(options) : {}
 }
 
 function readDisabledOptions(code: Array<string>): OptionsView {
   const call = parseExpression(code.join('\n').trim().replace(/,$/, ''))
-  return call?.type === nodeTypes.callExpression ? readCallOptions(call) : {}
+  return call?.type === 'CallExpression' ? readCallOptions(call) : {}
 }
 
 function toPluginView({ importName, packageName, call }: FactoryCall): PluginView {
@@ -466,11 +462,11 @@ function findPath(options: ObjectExpression, path: Array<string>): FoundPath {
     const { member, index } = found
     const isLast = depth === path.length - 1
     if (isLast) {
-      return member.type === nodeTypes.property && readLiteral(member.value) !== undefined
+      return member.type === 'Property' && readLiteral(member.value) !== undefined
         ? { object, index, value: member.value }
         : { reason: `${path.join('.')} is customized in code` }
     }
-    if (member.type !== nodeTypes.property || member.value.type !== nodeTypes.objectExpression) {
+    if (member.type !== 'Property' || member.value.type !== 'ObjectExpression') {
       return { reason: `${key} is not an object, so ${path.join('.')} cannot be reached` }
     }
     object = member.value
@@ -516,14 +512,14 @@ function setOption(source: string, call: CallExpression, path: Array<string>, va
     if (source[closing] !== ')') return { reason: 'the factory call could not be located in the file' }
     return { source: replaceText(source, closing, closing, printValue(wrapPath(path, value), quote)) }
   }
-  if (options.type !== nodeTypes.objectExpression) return { reason: 'the factory was not called with an object literal' }
+  if (options.type !== 'ObjectExpression') return { reason: 'the factory was not called with an object literal' }
   return setAtPath({ source, options, path, value, quote })
 }
 
 function removeOption(source: string, call: CallExpression, path: Array<string>): EditResult {
   const options = call.arguments[0]
   if (!options) return { source }
-  if (options.type !== nodeTypes.objectExpression) return { reason: 'the factory was not called with an object literal' }
+  if (options.type !== 'ObjectExpression') return { reason: 'the factory was not called with an object literal' }
   return removeAtPath({ source, options, path })
 }
 
@@ -564,14 +560,14 @@ function setInput(source: string, config: ObjectExpression, input: string, quote
   const value = printValue(input, quote)
   const found = findProperty(config, 'input')
   if (!found) return { source: appendItem(source, config, `input: ${value}`) }
-  if (found.member.type !== nodeTypes.property || !isPlainProperty(found.member)) return { reason: 'input is not a plain property' }
+  if (found.member.type !== 'Property' || !isPlainProperty(found.member)) return { reason: 'input is not a plain property' }
   if (isOverridden(config, found.index)) return { reason: 'a spread after input could override it' }
   return { source: replaceText(source, found.member.value.start, found.member.value.end, value) }
 }
 
 function getOutput(config: ObjectExpression): { object: ObjectExpression } | { reason: string } {
   const found = findProperty(config, 'output')
-  if (found?.member.type !== nodeTypes.property || found.member.value.type !== nodeTypes.objectExpression) return { reason: 'output is not an object literal' }
+  if (found?.member.type !== 'Property' || found.member.value.type !== 'ObjectExpression') return { reason: 'output is not an object literal' }
   if (isOverridden(config, found.index)) return { reason: 'a spread after output could override it' }
   return { object: found.member.value }
 }
@@ -667,7 +663,7 @@ function addPlugin({
 
   const key = `${kind}s`
   const array = getValue(config, key)
-  if (array ? array.type !== nodeTypes.arrayExpression : !isParser) return { reason: `${key} is not an array literal` }
+  if (array ? array.type !== 'ArrayExpression' : !isParser) return { reason: `${key} is not an array literal` }
   // A config without `parsers` runs the defaults, so the new array lists them before the added parser.
   const defaults = isParser && !array ? DEFAULT_PARSERS.filter((parser) => parser.importName !== importName) : []
 
@@ -683,7 +679,7 @@ function addPlugin({
   // The array sits below the imports, so adding to it first leaves the import lines where they are.
   const call = `${importName}(${Object.keys(options).length ? printValue(options, quote) : ''})`
   const next =
-    array?.type === nodeTypes.arrayExpression
+    array?.type === 'ArrayExpression'
       ? appendItem(source, array, call)
       : appendItem(source, config, `parsers: [${[...defaults.map((parser) => `${parser.importName}()`), call].join(', ')}]`)
 
@@ -698,7 +694,7 @@ function addPlugin({
 /** One item per line, so a call can be commented out alone. Skipped when comments sit between items. */
 function splitPlugins(source: string, config: ObjectExpression): string | undefined {
   const array = getValue(config, 'plugins')
-  if (array?.type !== nodeTypes.arrayExpression) return undefined
+  if (array?.type !== 'ArrayExpression') return undefined
 
   const items = array.elements.flatMap((element) => (element ? [element] : []))
   const { start, end } = array
@@ -780,11 +776,7 @@ function removeUnusedImports(source: string, packageName: string): string {
   // From the last statement up, so the offsets of the earlier ones stay valid.
   return parsed.program.body.reduceRight((current, statement) => {
     const bindings =
-      statement.type === nodeTypes.importDeclaration
-        ? importBindings(statement)
-        : statement.type === nodeTypes.variableDeclaration
-          ? requireBindings(statement)
-          : []
+      statement.type === 'ImportDeclaration' ? importBindings(statement) : statement.type === 'VariableDeclaration' ? requireBindings(statement) : []
     if (!bindings.length || bindings.some(([, { from }]) => from !== packageName)) return current
 
     const rest = replaceText(current, statement.start, statement.end)
@@ -818,7 +810,7 @@ function removeExtension(source: string, edit: RemoveExtensionEdit): EditResult 
     const calls = findCalls(parsed.program, config, kind).filter((entry) => entry.packageName === edit.plugin)
     const block = findDisabled(current, parsed.comments, config).find((entry) => entry.packageName === edit.plugin)
 
-    if (calls[0] && array?.type === nodeTypes.arrayExpression) {
+    if (calls[0] && array?.type === 'ArrayExpression') {
       const elements = array.elements.filter((element) => element !== null)
       if (kind === extensionKinds.parser && elements.length === calls.length) return { reason: `${edit.plugin} is the last parser in the parsers array` }
       current = removeItem(current, array, elements.indexOf(calls[0].call))
