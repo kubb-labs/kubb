@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.15.1 — Oct 29, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- `InputMeta.circularNames` and `InputMeta.enumNames` are now `ReadonlySet<string>` instead of arrays, so a generator calls `ctx.meta.enumNames.has(name)` without building its own set. Code that reads them as arrays needs `.has` instead of `.includes`, `.size` instead of `.length`, and `[...meta.enumNames]` for array methods. `new Set(meta.enumNames)` keeps working. This includes `banner` and `footer` functions, whose `BannerMeta` extends `InputMeta`. Kubb Studio still stores and sends both fields as arrays. ([#4506](https://github.com/kubb-labs/kubb/pull/4506), [`3a72a21`](https://github.com/kubb-labs/kubb/commit/3a72a21877a63d35c7ed89d03bb375fb10ccbd26))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.15.0 — Oct 28, 2026
 
 ### @kubb/cli
