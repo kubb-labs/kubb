@@ -17,10 +17,17 @@ let cached: { source: string; starts: Array<number> } | undefined
 function lineStarts(source: string): Array<number> {
   if (cached?.source !== source) {
     const starts = [0]
-    for (let at = source.indexOf('\n'); at !== -1; at = source.indexOf('\n', at + 1)) starts.push(at + 1)
+    for (const match of source.matchAll(/\n/g)) starts.push(match.index + 1)
     cached = { source, starts }
   }
   return cached.starts
+}
+
+/** The index of the last line start at or before `offset`, found by binary search. */
+function lineIndex(starts: Array<number>, offset: number, low = 0, high = starts.length - 1): number {
+  if (low >= high) return low
+  const mid = (low + high + 1) >> 1
+  return starts[mid]! <= offset ? lineIndex(starts, offset, mid, high) : lineIndex(starts, offset, low, mid - 1)
 }
 
 /**
@@ -31,17 +38,10 @@ export function locateInSpec({ adapter, source, location }: { adapter: Adapter; 
     const range = adapter.locate?.(source, location)
     if (!range) return undefined
     const starts = lineStarts(source)
-    // The 1-based line holding `range.start`: the last line start at or before it.
-    let low = 0
-    let high = starts.length - 1
-    while (low < high) {
-      const mid = (low + high + 1) >> 1
-      if (starts[mid]! <= range.start) low = mid
-      else high = mid - 1
-    }
+    const index = lineIndex(starts, range.start)
     const lineText = (number: number) => source.slice(starts[number - 1], number < starts.length ? starts[number]! - 1 : source.length).replace(/\r$/, '')
-    const line = low + 1
-    const column = range.start - starts[low]! + 1
+    const line = index + 1
+    const column = range.start - starts[index]! + 1
     const text = lineText(line)
     const width = String(line).length
     const gutter = (number?: number) => styleText('dim', `${number === undefined ? ''.padStart(width) : String(number).padStart(width)} │`)
