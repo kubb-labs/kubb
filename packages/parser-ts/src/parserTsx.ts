@@ -1,7 +1,6 @@
 import { defineExtension } from '@kubb/core'
 import { inlineTsx } from './inline.ts'
 import { parserTs, type ParserTsOptions } from './parserTs.ts'
-import type { TsNode } from './utils.ts'
 
 /**
  * Kubb parser for `.tsx` and `.jsx` files. Delegates to `parserTs`, since JSX
@@ -25,7 +24,7 @@ import type { TsNode } from './utils.ts'
  * })
  * ```
  */
-export const parserTsx = defineExtension<ParserTsOptions, object, string | TsNode>({
+export const parserTsx = defineExtension<ParserTsOptions, object, string>({
   kind: 'parser',
   meta: { name: 'tsx', issues: 'https://github.com/kubb-labs/kubb/issues' },
   build: (options) => ({ ...parserTs(options), extNames: ['.tsx', '.jsx'], inline: inlineTsx }),

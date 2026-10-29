@@ -1,79 +1,6 @@
-import { createRequire } from 'node:module'
 import { dirname, extname as getExtname, isAbsolute, relative, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { ast } from '@kubb/ast'
 import { type ImportSpecifier, type ModuleExportName, parse, type ProgramStatement } from 'yuku-parser'
-
-/**
- * A TypeScript compiler node, typed structurally so `@kubb/parser-ts` does not depend on `@typescript/typescript6`.
- *
- * @deprecated Pass printed strings to `print` instead. Support for compiler nodes is removed in the next major.
- */
-export type TsNode = { readonly kind: number }
-
-type Compiler = {
-  printNodes: (nodes: Array<TsNode>) => string
-}
-
-let compiler: Compiler | undefined
-
-// The parts of the TypeScript 6 API that printing compiler nodes uses, typed here so no package depends on it
-type TypeScript = {
-  createPrinter(options: { omitTrailingSemicolon: boolean; newLine: number; removeComments: boolean; noEmitHelpers: boolean }): {
-    printList(format: number, list: unknown, sourceFile: unknown): string
-  }
-  createSourceFile(fileName: string, text: string, target: number, setParentNodes: boolean, kind: number): unknown
-  factory: { createNodeArray(nodes: Array<TsNode>): unknown }
-  NewLineKind: { LineFeed: number }
-  ScriptTarget: { ES2022: number }
-  ScriptKind: { TSX: number }
-  ListFormat: { MultiLine: number }
-}
-
-/**
- * Loads TypeScript the first time `print` gets a compiler node. Strings never need it, so bundles for edge runtimes such as Cloudflare Workers leave it out.
- *
- * Loaded with `require`, not `import`: when ESM imports a CommonJS package, Node keeps a second copy of its source
- * to detect named exports, and for TypeScript that copy is about 9 MB.
- */
-function loadCompiler(): Compiler {
-  if (compiler) return compiler
-
-  const require = createRequire(import.meta.url)
-  // Look in the user's project first: a strict package manager such as pnpm does not link it next to this package
-  const paths = [process.cwd(), dirname(fileURLToPath(import.meta.url))]
-  let typescript: TypeScript | undefined
-  // `typescript` 5 and 6 ship the compiler API; next to TypeScript 7 it comes from `@typescript/typescript6`
-  for (const name of ['typescript', '@typescript/typescript6']) {
-    try {
-      const candidate = require(require.resolve(name, { paths }))
-      if (typeof candidate.createPrinter === 'function') {
-        typescript = candidate as TypeScript
-        break
-      }
-    } catch {}
-  }
-  if (!typescript) {
-    throw new Error(
-      '`print` received a TypeScript compiler node, which needs `typescript` 5 or 6, or `@typescript/typescript6`, installed. Pass a printed string instead.',
-    )
-  }
-
-  // One printer serves every call; printing does not mutate the source file, which only lends its compiler options
-  const printer = typescript.createPrinter({
-    omitTrailingSemicolon: true,
-    newLine: typescript.NewLineKind.LineFeed,
-    removeComments: false,
-    noEmitHelpers: true,
-  })
-  const sourceFile = typescript.createSourceFile('print.tsx', '', typescript.ScriptTarget.ES2022, true, typescript.ScriptKind.TSX)
-
-  compiler = {
-    printNodes: (nodes) => printer.printList(typescript.ListFormat.MultiLine, typescript.factory.createNodeArray(nodes), sourceFile),
-  }
-
-  return compiler
-}
 
 /**
  * Module specifier that imports `filePath` from the file at `root`: POSIX, relative to that file's directory, `./`-prefixed unless it climbs with `../`.
@@ -104,59 +31,38 @@ export function resolveOutputPath(path: string, extname: string | undefined, roo
   return current ? `${path.slice(0, -current.length)}${extname ?? ''}` : path
 }
 
-/**
- * Node types this module reads from the yuku AST.
- */
-const nodeTypes = {
-  identifier: 'Identifier',
-  literal: 'Literal',
-  importDeclaration: 'ImportDeclaration',
-  importSpecifier: 'ImportSpecifier',
-  importDefaultSpecifier: 'ImportDefaultSpecifier',
-  importNamespaceSpecifier: 'ImportNamespaceSpecifier',
-  exportAllDeclaration: 'ExportAllDeclaration',
-  exportNamedDeclaration: 'ExportNamedDeclaration',
-} as const
-
-/**
- * `importKind` and `exportKind` values this module reads from the yuku AST.
- */
-const declarationKinds = {
-  type: 'type',
-} as const
-
 function nameOf(node: ModuleExportName): string {
-  return node.type === nodeTypes.literal ? node.value : node.name
+  return node.type === 'Literal' ? node.value : node.name
 }
 
 /**
  * Converts an import specifier into an `ImportNode` name, keeping the quotes of a string-literal name (`{ 'a-b' as ab }`).
  */
 function toImportName({ imported, local }: ImportSpecifier): string | { propertyName: string; name: string } {
-  if (imported.type === nodeTypes.identifier && imported.name === local.name) return local.name
+  if (imported.type === 'Identifier' && imported.name === local.name) return local.name
 
-  return { propertyName: imported.type === nodeTypes.literal ? quoteModulePath(imported.value) : imported.name, name: local.name }
+  return { propertyName: imported.type === 'Literal' ? quoteModulePath(imported.value) : imported.name, name: local.name }
 }
 
 /**
  * Converts an `import` declaration into `ImportNode`s. Side-effect imports and imports with attributes or a phase stay as written.
  */
 function toImportNodes(statement: ProgramStatement, filePath: string): Array<ast.ImportNode> {
-  if (statement.type !== nodeTypes.importDeclaration || !statement.specifiers.length || statement.attributes.length || statement.phase) return []
+  if (statement.type !== 'ImportDeclaration' || !statement.specifiers.length || statement.attributes.length || statement.phase) return []
 
   const specifier = statement.source.value
   const target = specifier.startsWith('.') ? { path: resolve(dirname(filePath), specifier), root: filePath } : { path: specifier }
-  const isTypeOnly = statement.importKind === declarationKinds.type
+  const isTypeOnly = statement.importKind === 'type'
   const nodes: Array<ast.ImportNode> = []
-  const named = statement.specifiers.filter((element) => element.type === nodeTypes.importSpecifier)
+  const named = statement.specifiers.filter((element) => element.type === 'ImportSpecifier')
 
   for (const element of statement.specifiers) {
-    if (element.type === nodeTypes.importDefaultSpecifier) nodes.push(ast.factory.createImport({ name: element.local.name, ...target, isTypeOnly }))
-    if (element.type === nodeTypes.importNamespaceSpecifier)
+    if (element.type === 'ImportDefaultSpecifier') nodes.push(ast.factory.createImport({ name: element.local.name, ...target, isTypeOnly }))
+    if (element.type === 'ImportNamespaceSpecifier')
       nodes.push(ast.factory.createImport({ name: element.local.name, ...target, isTypeOnly, isNameSpace: true }))
   }
-  const values = named.filter((element) => element.importKind !== declarationKinds.type)
-  const types = named.filter((element) => element.importKind === declarationKinds.type)
+  const values = named.filter((element) => element.importKind !== 'type')
+  const types = named.filter((element) => element.importKind === 'type')
   if (values.length) nodes.push(ast.factory.createImport({ name: values.map(toImportName), ...target, isTypeOnly }))
   if (types.length) nodes.push(ast.factory.createImport({ name: types.map(toImportName), ...target, isTypeOnly: true }))
 
@@ -167,13 +73,13 @@ function toImportNodes(statement: ProgramStatement, filePath: string): Array<ast
  * Converts an `export … from` declaration into `ExportNode`s. Forms `printExport` cannot print stay as written.
  */
 function toExportNodes(statement: ProgramStatement): Array<ast.ExportNode> {
-  if (statement.type !== nodeTypes.exportAllDeclaration && statement.type !== nodeTypes.exportNamedDeclaration) return []
+  if (statement.type !== 'ExportAllDeclaration' && statement.type !== 'ExportNamedDeclaration') return []
   if (!statement.source || statement.attributes.length) return []
 
   const path = statement.source.value
-  const isTypeOnly = statement.exportKind === declarationKinds.type
+  const isTypeOnly = statement.exportKind === 'type'
 
-  if (statement.type === nodeTypes.exportAllDeclaration) {
+  if (statement.type === 'ExportAllDeclaration') {
     return [
       statement.exported
         ? ast.factory.createExport({ name: nameOf(statement.exported), path, isTypeOnly, asAlias: true })
@@ -182,8 +88,7 @@ function toExportNodes(statement: ProgramStatement): Array<ast.ExportNode> {
   }
   if (
     statement.specifiers.some(
-      (element) =>
-        element.exportKind === declarationKinds.type || element.exported.type === nodeTypes.literal || nameOf(element.exported) !== nameOf(element.local),
+      (element) => element.exportKind === 'type' || element.exported.type === 'Literal' || nameOf(element.exported) !== nameOf(element.local),
     )
   )
     return []
@@ -211,8 +116,8 @@ export function splitModuleDeclarations(
     if (!importNodes.length && !exportNodes.length) {
       // Lifted declarations print above the body, so stop at the first one that stays in place to keep the evaluation order.
       if (
-        statement.type === nodeTypes.importDeclaration ||
-        ((statement.type === nodeTypes.exportNamedDeclaration || statement.type === nodeTypes.exportAllDeclaration) && statement.source)
+        statement.type === 'ImportDeclaration' ||
+        ((statement.type === 'ExportNamedDeclaration' || statement.type === 'ExportAllDeclaration') && statement.source)
       )
         break
       continue
@@ -312,19 +217,15 @@ function withJSDoc({ jsDoc, declaration }: { jsDoc?: ast.JSDocNode | null; decla
 }
 
 /**
- * Joins printed code fragments with a newline.
- *
- * Passing TypeScript compiler nodes still works but is deprecated and needs `typescript` 5 or 6, or `@typescript/typescript6`, installed.
- * Support for compiler nodes is removed in the next major.
+ * Joins printed code fragments with a newline, skipping empty ones. Throws on a TypeScript compiler
+ * node, which earlier versions printed, so a handler that still returns one fails instead of
+ * emitting `[object Object]`.
  */
-export function print(...elements: Array<string | TsNode>): string {
-  const filtered = elements.filter(Boolean)
-  if (filtered.length === 0) return ''
-  if (filtered.every((element) => typeof element === 'string')) return filtered.join('\n')
-  // Printing compiler nodes as one list keeps the output byte-for-byte the same as before strings were accepted
-  if (filtered.every((element) => typeof element !== 'string')) return loadCompiler().printNodes(filtered)
-
-  return filtered.map((element) => (typeof element === 'string' ? element : loadCompiler().printNodes([element]).trimEnd())).join('\n')
+export function print(...elements: Array<string>): string {
+  if (elements.some((element) => element && typeof element !== 'string')) {
+    throw new TypeError('print() takes printed strings. TypeScript compiler nodes are no longer supported: build the code as a string.')
+  }
+  return elements.filter(Boolean).join('\n')
 }
 
 /**

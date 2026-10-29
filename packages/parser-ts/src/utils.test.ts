@@ -182,8 +182,4 @@ describe('print', () => {
   it('joins string fragments with a newline', () => {
     expect(printFragments('type A = string', 'type B = number')).toBe('type A = string\ntype B = number')
   })
-
-  it('asks for a TypeScript with the compiler API when it gets a compiler node and none is installed', () => {
-    expect(() => printFragments({ kind: 1 })).toThrow('needs `typescript` 5 or 6')
-  })
 })
