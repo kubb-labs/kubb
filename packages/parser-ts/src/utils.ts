@@ -1,6 +1,84 @@
+import { createRequire } from 'node:module'
 import { dirname, extname as getExtname, isAbsolute, relative, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { ast } from '@kubb/ast'
 import { type ImportSpecifier, type ModuleExportName, parse, type ProgramStatement } from 'yuku-parser'
+
+/**
+ * A TypeScript compiler node, typed structurally so `@kubb/parser-ts` does not depend on `@typescript/typescript6`.
+ *
+ * @deprecated Pass printed strings to `print` instead. Support for compiler nodes is removed in the next major.
+ */
+export type TsNode = { readonly kind: number }
+
+type Compiler = {
+  printNodes: (nodes: Array<TsNode>) => string
+}
+
+let compiler: Compiler | undefined
+
+// The parts of the TypeScript 6 API that printing compiler nodes uses, typed here so no package depends on it
+type TypeScript = {
+  createPrinter(options: { omitTrailingSemicolon: boolean; newLine: number; removeComments: boolean; noEmitHelpers: boolean }): {
+    printList(format: number, list: unknown, sourceFile: unknown): string
+  }
+  createSourceFile(fileName: string, text: string, target: number, setParentNodes: boolean, kind: number): unknown
+  factory: { createNodeArray(nodes: Array<TsNode>): unknown }
+  NewLineKind: { LineFeed: number }
+  ScriptTarget: { ES2022: number }
+  ScriptKind: { TSX: number }
+  ListFormat: { MultiLine: number }
+}
+
+/**
+ * Loads TypeScript the first time `print` gets a compiler node. Strings never need it, so bundles for edge runtimes such as Cloudflare Workers leave it out.
+ *
+ * Loaded with `require`, not `import`: when ESM imports a CommonJS package, Node keeps a second copy of its source
+ * to detect named exports, and for TypeScript that copy is about 9 MB.
+ */
+function loadCompiler(): Compiler {
+  if (compiler) return compiler
+
+  process.emitWarning(
+    'Printing TypeScript compiler nodes with `print` from `@kubb/parser-ts` is deprecated and is removed in the next major. Return printed strings from printer handlers instead.',
+    { type: 'DeprecationWarning', code: 'KUBB_PRINT_TS_NODE' },
+  )
+
+  const require = createRequire(import.meta.url)
+  // Look in the user's project first: a strict package manager such as pnpm does not link it next to this package
+  const paths = [process.cwd(), dirname(fileURLToPath(import.meta.url))]
+  let typescript: TypeScript | undefined
+  // `typescript` 5 and 6 ship the compiler API; next to TypeScript 7 it comes from `@typescript/typescript6`
+  for (const name of ['typescript', '@typescript/typescript6']) {
+    try {
+      const candidate = require(require.resolve(name, { paths }))
+      if (typeof candidate.createPrinter === 'function') {
+        typescript = candidate as TypeScript
+        break
+      }
+    } catch {}
+  }
+  if (!typescript) {
+    throw new Error(
+      '`print` received a TypeScript compiler node, which needs `typescript` 5 or 6, or `@typescript/typescript6`, installed. Pass a printed string instead.',
+    )
+  }
+
+  // One printer serves every call; printing does not mutate the source file, which only lends its compiler options
+  const printer = typescript.createPrinter({
+    omitTrailingSemicolon: true,
+    newLine: typescript.NewLineKind.LineFeed,
+    removeComments: false,
+    noEmitHelpers: true,
+  })
+  const sourceFile = typescript.createSourceFile('print.tsx', '', typescript.ScriptTarget.ES2022, true, typescript.ScriptKind.TSX)
+
+  compiler = {
+    printNodes: (nodes) => printer.printList(typescript.ListFormat.MultiLine, typescript.factory.createNodeArray(nodes), sourceFile),
+  }
+
+  return compiler
+}
 
 /**
  * Module specifier that imports `filePath` from the file at `root`: POSIX, relative to that file's directory, `./`-prefixed unless it climbs with `../`.
@@ -239,15 +317,19 @@ function withJSDoc({ jsDoc, declaration }: { jsDoc?: ast.JSDocNode | null; decla
 }
 
 /**
- * Joins printed code fragments with a newline, skipping empty ones. Throws on a TypeScript compiler
- * node, which earlier versions printed, so a handler that still returns one fails instead of
- * emitting `[object Object]`.
+ * Joins printed code fragments with a newline.
+ *
+ * Passing TypeScript compiler nodes still works but is deprecated and needs `typescript` 5 or 6, or `@typescript/typescript6`, installed.
+ * Support for compiler nodes is removed in the next major.
  */
-export function print(...elements: Array<string>): string {
-  if (elements.some((element) => element && typeof element !== 'string')) {
-    throw new TypeError('print() takes printed strings. TypeScript compiler nodes are no longer supported: build the code as a string.')
-  }
-  return elements.filter(Boolean).join('\n')
+export function print(...elements: Array<string | TsNode>): string {
+  const filtered = elements.filter(Boolean)
+  if (filtered.length === 0) return ''
+  if (filtered.every((element) => typeof element === 'string')) return filtered.join('\n')
+  // Printing compiler nodes as one list keeps the output byte-for-byte the same as before strings were accepted
+  if (filtered.every((element) => typeof element !== 'string')) return loadCompiler().printNodes(filtered)
+
+  return filtered.map((element) => (typeof element === 'string' ? element : loadCompiler().printNodes([element]).trimEnd())).join('\n')
 }
 
 /**

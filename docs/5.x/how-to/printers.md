@@ -36,7 +36,7 @@ pluginTs({
 })
 ```
 
-Inside a handler, `this.transform(node)` returns the printed type of a nested schema as a string. This is a breaking change for handlers that passed that result into `ts.factory`: build the type as a string instead.
+Inside a handler, `this.transform(node)` returns the printed type of a nested schema as a string. This is a breaking change for handlers that passed that result into `ts.factory`: build the type as a string instead. Handlers that return a compiler node from `typescript` 5 or 6, or from `@typescript/typescript6`, still work, but that form is deprecated and is removed in the next major.
 
 ## Zod schemas
 
