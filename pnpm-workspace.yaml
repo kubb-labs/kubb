@@ -9,12 +9,12 @@ allowBuilds:
   esbuild: true
   msw: true
 catalog:
-  "@types/node": 22.20.2
+  "@types/node": 22.20.5
   "@vitest/coverage-v8": ^5.0.5
   "@vitest/ui": ^5.0.5
   js-yaml: ^5.5.0
-  oxfmt: ^0.74.0
-  oxlint: ^1.89.0
+  oxfmt: ^0.75.0
+  oxlint: ^1.90.0
   "tinyexec": ^1.3.1
   tsdown: 0.23.1 # 0.23.2 pulls rolldown-plugin-dts 0.29 beta, which cannot find the TypeScript 7 API and fails every build
   typescript: ^7.0.2
