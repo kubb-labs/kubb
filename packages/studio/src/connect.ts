@@ -224,10 +224,12 @@ const REGISTRY_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/
 
 /** The CLI the project depends on, so `kubb add` installs next to what the config imports. */
 function findKubbBin(root: string): string | undefined {
-  const require = createRequire(path.resolve(root, 'package.json'))
+  const requireModule = createRequire(path.resolve(root, 'package.json'))
   const names = ['kubb', '@kubb/cli']
   // Nearest directory first, so a nested project does not pick up an ancestor's CLI.
-  return (require.resolve.paths('kubb') ?? []).flatMap((dir) => names.map((name) => path.join(dir, name, 'bin', 'kubb.js'))).find((bin) => existsSync(bin))
+  return (requireModule.resolve.paths('kubb') ?? [])
+    .flatMap((dir) => names.map((name) => path.join(dir, name, 'bin', 'kubb.js')))
+    .find((bin) => existsSync(bin))
 }
 
 /** Runs a `kubb` command without a shell, and keeps the end of its output for the failure reason. */

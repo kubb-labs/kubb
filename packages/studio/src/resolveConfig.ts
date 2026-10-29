@@ -27,10 +27,10 @@ async function importFromProject(packageName: string): Promise<Record<string, un
   try {
     return await import(packageName)
   } catch {
-    const require = createRequire(pathToFileURL(`${process.cwd()}/`))
-    // `require.resolve` picks the package's `require` condition, so prefer the ESM build sitting
+    const requireModule = createRequire(pathToFileURL(`${process.cwd()}/`))
+    // `requireModule.resolve` picks the package's `require` condition, so prefer the ESM build sitting
     // next to it. Loading the CJS copy would pull in a second `@kubb/core` instance.
-    const resolved = require.resolve(packageName)
+    const resolved = requireModule.resolve(packageName)
     const esm = resolved.replace(/\.cjs$/, '.js')
 
     return await import(pathToFileURL(esm !== resolved && existsSync(esm) ? esm : resolved).href)
