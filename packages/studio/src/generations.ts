@@ -139,6 +139,13 @@ export async function listDisk({ root, outputPath, maxFiles }: { root: string; o
 }
 
 /**
+ * The input as Studio stores and receives it. `JSON.stringify` writes a `Set` as `{}`, so the `meta` name sets become arrays.
+ */
+export function toInputJson(input: InputNode): InputNodeJson {
+  return { ...input, meta: { ...input.meta, circularNames: [...input.meta.circularNames], enumNames: [...input.meta.enumNames] } }
+}
+
+/**
  * Keeps recent generations by job id in `storage`, with an index next to them so a store on disk
  * survives a restart. A generation is only ever looked up by its job id, so on a pooled sandbox one
  * tenant never reaches another's output. Initial disk output and generated jobs each get their
@@ -259,9 +266,7 @@ export function createGenerationStore({
       let json: string
       try {
         json = JSON.stringify(
-          ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }),
-          // The `meta` name sets would serialize as `{}`.
-          (_key, value: unknown) => (value instanceof Set ? [...value] : value),
+          toInputJson(ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) })),
         )
       } catch {
         // An adapter can return what JSON cannot hold, which must not fail a finished generation.
