@@ -49,8 +49,8 @@ function walkSchema(node: SchemaNode, through: 'union' | 'intersection', visit: 
     visited.add(current)
     visit(current)
 
-    if (current.type === 'ref') walk(current.schema)
-    else if (current.type === through) for (const member of current.members ?? []) walk(member)
+    if (current.type === 'ref') return walk(current.schema)
+    if (current.type === through) for (const member of current.members ?? []) walk(member)
   }
 
   walk(node)

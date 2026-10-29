@@ -42,17 +42,16 @@ export async function withSpinner<T>({
     spinner = createSpinner()
     spinner.start(message)
   }
-  let timer: ReturnType<typeof setTimeout> | undefined
   if (done) start()
-  else timer = setTimeout(start, SPINNER_DELAY_MS)
+  const timer = done ? undefined : setTimeout(start, SPINNER_DELAY_MS)
   try {
     const result = await promise
     if (done) spinner?.stop(done(result))
-    else spinner?.clear()
+    if (!done) spinner?.clear()
     return result
   } catch (error) {
     if (failed) spinner?.error(failed)
-    else spinner?.clear()
+    if (!failed) spinner?.clear()
     throw error
   } finally {
     clearTimeout(timer)

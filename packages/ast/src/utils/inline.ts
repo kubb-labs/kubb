@@ -149,7 +149,7 @@ function rewriteNodes(nodes: Array<CodeNode> | undefined, rewrite: (text: string
     for (const field of CODE_NODE_TEXT_FIELDS[node.kind] ?? []) {
       const value = next[field]
       if (Array.isArray(value)) next[field] = value.map(rewrite)
-      else if (typeof value === 'string' && value) next[field] = rewrite(value)
+      if (typeof value === 'string' && value) next[field] = rewrite(value)
     }
     if ('nodes' in node && node.nodes) next.nodes = rewriteNodes(node.nodes, rewrite)
     return next as unknown as CodeNode

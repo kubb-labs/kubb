@@ -7,7 +7,7 @@ export { collect, collectSync, findSchema, transform } from './visitor.ts'
 export { extractStringsFromNodes } from './utils/extractStringsFromNodes.ts'
 export { inlineFiles, type InlineLanguage } from './utils/inline.ts'
 export { isBareRef, mergeRefWithSchema, refName, resolveRef, resolveRefName } from './utils/refs.ts'
-export { collectImportedRefNames, collectSchemaRefs, collectUsedSchemaNames, containsCircularRef, findCircularSchemas } from './utils/schemaGraph.ts'
+export { collectImportedRefNames, collectSchemaRefs, collectUsedSchemaNames, findCircularSchemas } from './utils/schemaGraph.ts'
 export { getSchemaLiteralValues, inferDiscriminatorPropertyName, resolveSchemaProperties } from './utils/schemaProperties.ts'
 
 export * as factory from './nodes/index.ts'

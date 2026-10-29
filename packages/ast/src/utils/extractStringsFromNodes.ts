@@ -36,7 +36,8 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
     const record = node as unknown as Record<string, unknown>
     for (const field of CODE_NODE_TEXT_FIELDS[node.kind] ?? []) {
       const value = record[field]
-      if (typeof value === 'string' ? value : Array.isArray(value)) parts.push(Array.isArray(value) ? value.join(', ') : (value as string))
+      if (Array.isArray(value)) parts.push(value.join(', '))
+      if (typeof value === 'string' && value) parts.push(value)
     }
 
     const nested = 'nodes' in node ? extractStringsFromNodes(node.nodes) : ''

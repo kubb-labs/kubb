@@ -1,10 +1,11 @@
-export { ast, containsCircularRef } from '@kubb/ast'
+export { ast } from '@kubb/ast'
 export { Url } from './Url.ts'
 export { enumPrimitive, macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
 export { macroEnumName } from './macros/macroEnumName.ts'
 export { macroSimplifyUnion } from './macros/macroSimplifyUnion.ts'
 export { mergeAdjacentObjectsLazy } from './utils/mergeAdjacentSchemas.ts'
 export { childName, enumPropName, extractRefName, isStringType, syncSchemaRef } from './utils/refs.ts'
+export { containsCircularRef } from './utils/schemaGraph.ts'
 export {
   addGenerator,
   addMacro,

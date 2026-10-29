@@ -5,7 +5,7 @@ import { createParameter } from '../nodes/parameter.ts'
 import { createProperty } from '../nodes/property.ts'
 import { createResponse } from '../nodes/response.ts'
 import { createSchema } from '../nodes/schema.ts'
-import { collectImportedRefNames, collectSchemaRefs, collectUsedSchemaNames, containsCircularRef, findCircularSchemas } from './schemaGraph.ts'
+import { collectImportedRefNames, collectSchemaRefs, collectUsedSchemaNames, findCircularSchemas } from './schemaGraph.ts'
 
 describe('findCircularSchemas', () => {
   it('detects an indirect cycle through refs nested in unions and arrays and skips acyclic schemas', () => {
@@ -225,39 +225,5 @@ describe('collectUsedSchemaNames', () => {
     const result = collectUsedSchemaNames([createItemOp], [bodySchema])
 
     expect(result).toStrictEqual(new Set(['CreateItemBody']))
-  })
-})
-
-describe('containsCircularRef', () => {
-  it('returns true when a nested ref points to a circular schema', () => {
-    const schema = createSchema({
-      type: 'object',
-      name: 'Cat',
-      properties: [
-        createProperty({
-          name: 'archEnemy',
-          required: false,
-          schema: createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' }),
-        }),
-      ],
-    })
-
-    expect(containsCircularRef(schema, { circularSchemas: new Set(['Pet']) })).toBe(true)
-  })
-
-  it('returns false when excludeName matches the only circular ref', () => {
-    const schema = createSchema({
-      type: 'object',
-      name: 'TreeNode',
-      properties: [
-        createProperty({
-          name: 'left',
-          required: false,
-          schema: createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' }),
-        }),
-      ],
-    })
-
-    expect(containsCircularRef(schema, { circularSchemas: new Set(['TreeNode']), excludeName: 'TreeNode' })).toBe(false)
   })
 })
