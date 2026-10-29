@@ -12,7 +12,6 @@ import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
-import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { checkoutGitInput, gitInputRegExp } from './gitInput.ts'
 import { inputToAdapterSource } from './input.ts'
@@ -386,7 +385,7 @@ export class KubbDriver {
 
           const generatorPlugins: Array<{
             plugin: NormalizedPlugin
-            context: Omit<GeneratorContext, 'options' | 'cache'>
+            context: Omit<GeneratorContext, 'options'>
             hrStart: ReturnType<typeof process.hrtime>
           }> = []
 
@@ -507,9 +506,7 @@ export class KubbDriver {
   /**
    * Runs schemas and operations through every plugin's generators. The walk is node-outer: each
    * schema is visited once and each operation once, and the node fans out to the matching
-   * generators of every plugin in dependency order. A per-node cache (`createNodeCache`) is created
-   * once per node and shared by all of that node's plugins, so node-derived work is computed once
-   * and reused instead of recomputed per plugin. Each node still runs through the plugin's macros
+   * generators of every plugin in dependency order. Each node still runs through the plugin's macros
    * and its exclude/include/override filters before that plugin's
    * generator sees it, so plugins stay isolated. Schemas run before operations so file output
    * stays deterministic across runs. A generator with a `match` predicate that resolves `false`
@@ -524,7 +521,7 @@ export class KubbDriver {
    * post-plugin listeners (the barrel writer and friends) complete.
    */
   async #runGenerators(
-    entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options' | 'cache'>; hrStart: ReturnType<typeof process.hrtime> }>,
+    entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,
   ): Promise<Array<Diagnostic>> {
     const diagnostics: Array<Diagnostic> = []
 
@@ -621,11 +618,10 @@ export class KubbDriver {
     }
 
     // Schemas before operations, in adapter order, so file output stays deterministic. For each
-    // node the plugins fan out in dependency order and share one cache. A caught error drops that
+    // node the plugins fan out in dependency order. A caught error drops that
     // plugin from the rest of the walk but not the others, so its remaining nodes are skipped
     // rather than retried. Generators run directly; `kubb:generate:*` still fires for observers.
     for (const node of schemas) {
-      const cache = createNodeCache()
       for (const state of states) {
         if (state.error || !state.schemaGenerators.length) continue
         try {
@@ -635,7 +631,7 @@ export class KubbDriver {
 
           const { transformedNode, options } = resolved
 
-          const ctx = { ...state.generatorContext, options, cache }
+          const ctx = { ...state.generatorContext, options }
           await this.#dispatchNode({
             generators: state.schemaGenerators,
             node: transformedNode,
@@ -654,7 +650,6 @@ export class KubbDriver {
     // `operations` receives, so every node is transformed and filtered exactly once. A plugin with
     // only an `operations` generator still collects its filtered nodes here.
     for (const node of operations) {
-      const cache = createNodeCache()
       for (const state of states) {
         if (state.error || (!state.operationGenerators.length && !state.operationsGenerators.length)) continue
         try {
@@ -665,7 +660,7 @@ export class KubbDriver {
 
           if (state.operationGenerators.length) {
             const { transformedNode } = resolved
-            const ctx = { ...state.generatorContext, options: resolved.options, cache }
+            const ctx = { ...state.generatorContext, options: resolved.options }
             await this.#dispatchNode({
               generators: state.operationGenerators,
               node: transformedNode,
@@ -682,11 +677,11 @@ export class KubbDriver {
     }
 
     // The `operations` batch fires once per plugin after the single operation walk, in dependency
-    // order, with a fresh cache since it spans every node rather than one.
+    // order.
     for (const state of states) {
       if (state.error || !state.operationsGenerators.length) continue
       try {
-        const ctx = { ...state.generatorContext, options: state.plugin.options, cache: createNodeCache() }
+        const ctx = { ...state.generatorContext, options: state.plugin.options }
         for (const generator of state.operationsGenerators) {
           await this.fileManager.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
         }
@@ -759,7 +754,7 @@ export class KubbDriver {
     return memo(this.#memo, key, compute) as TValue
   }
 
-  getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options' | 'cache'> {
+  getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
     const driver = this
 
     // Collect into the active build only. The host renders each collected diagnostic once after the
