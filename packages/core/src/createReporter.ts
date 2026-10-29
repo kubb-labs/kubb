@@ -1,4 +1,4 @@
-import type { LiteralUnion } from '@internals/utils'
+import type { LiteralUnion, ValueOf } from '@internals/utils'
 import type { Config } from './types.ts'
 import type { Diagnostic } from './Diagnostics.ts'
 
@@ -87,7 +87,7 @@ export type ReporterContext = {
    * Output verbosity. Use the `logLevel` constants exported from `@kubb/core`
    * (`silent`, `error`, `warn`, `info`, `verbose`).
    */
-  logLevel: (typeof logLevel)[keyof typeof logLevel]
+  logLevel: ValueOf<typeof logLevel>
 }
 
 /**

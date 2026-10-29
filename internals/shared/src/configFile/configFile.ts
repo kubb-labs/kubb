@@ -1,5 +1,6 @@
 import type { ExtensionKind } from '@kubb/core'
 import { getErrorMessage, read, writeRaw } from '@internals/utils'
+import type { ValueOf } from '@internals/utils'
 import {
   type AssignmentExpression,
   type BindingProperty,
@@ -48,7 +49,7 @@ const KINDS = new Set<string>(Object.values(extensionKinds))
 const identifiers = { defineConfig: 'defineConfig', require: 'require', module: 'module', exports: 'exports' } as const
 
 const moduleKinds = { esm: 'esm', cjs: 'cjs' } as const
-type ModuleKind = (typeof moduleKinds)[keyof typeof moduleKinds]
+type ModuleKind = ValueOf<typeof moduleKinds>
 
 type EditResult = { source: string } | { reason: string }
 type ParsedConfig = { program: Program; comments: Array<Comment>; configs: Array<ObjectExpression>; kind: ModuleKind }

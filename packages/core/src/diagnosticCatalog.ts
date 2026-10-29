@@ -1,3 +1,4 @@
+import type { ValueOf } from '@internals/utils'
 /**
  * Every diagnostic code with its docs entry: a short title, what triggers it, and how to resolve
  * it. The source of truth for {@link diagnosticCode}, and the kubb.dev `/reference/diagnostics`
@@ -239,4 +240,4 @@ export const diagnosticCode = Object.fromEntries(Object.entries(diagnosticCatalo
 /**
  * Union of the stable {@link diagnosticCode} values.
  */
-export type DiagnosticCode = (typeof diagnosticCode)[keyof typeof diagnosticCode]
+export type DiagnosticCode = ValueOf<typeof diagnosticCode>

@@ -1,3 +1,4 @@
+import type { ValueOf } from '@internals/utils'
 import type { ExtensionKind, ExtensionManifest } from '@kubb/core'
 
 /** Which `defineConfig(...)` entry an edit targets: its index or `name`, the first entry when omitted. */
@@ -19,7 +20,7 @@ export const ConfigEditOperation = {
   SET_OUTPUT: 'set-output',
   REMOVE_OUTPUT: 'remove-output',
 } as const
-export type ConfigEditOperation = (typeof ConfigEditOperation)[keyof typeof ConfigEditOperation]
+export type ConfigEditOperation = ValueOf<typeof ConfigEditOperation>
 
 /**
  * One change to `kubb.config.ts`. `plugin` is the package name, and `kind` picks the `plugins` entry

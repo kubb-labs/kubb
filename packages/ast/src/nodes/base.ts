@@ -1,3 +1,4 @@
+import type { ValueOf } from '@internals/utils'
 import type { nodeKinds } from '../constants.ts'
 
 /**
@@ -8,7 +9,7 @@ import type { nodeKinds } from '../constants.ts'
  * const kind: NodeKind = 'Schema'
  * ```
  */
-export type NodeKind = (typeof nodeKinds)[keyof typeof nodeKinds]
+export type NodeKind = ValueOf<typeof nodeKinds>
 
 /**
  * Base shape shared by all AST nodes.

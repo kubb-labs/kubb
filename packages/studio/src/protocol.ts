@@ -1,3 +1,4 @@
+import type { ValueOf } from '@internals/utils'
 import type { InputNode } from '@kubb/ast'
 import type { KubbHooks } from '@kubb/core'
 import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ExtensionEntry } from '@internals/shared'
@@ -334,7 +335,7 @@ export const AgentMessage = {
   READ_AST_NOT_ALLOWED: 'The agent was not granted permission to read the parsed spec',
   NO_INPUT: 'This job kept no API input',
 } as const
-export type AgentMessage = (typeof AgentMessage)[keyof typeof AgentMessage]
+export type AgentMessage = ValueOf<typeof AgentMessage>
 
 /**
  * A generation in flight. Cap'n Web keeps the three calls pointed at the same run, so a caller can
@@ -569,7 +570,7 @@ export const AgentPermission = {
   SAVE_INPUT: 'allowSaveInput',
   EXEC: 'allowExec',
 } as const satisfies Record<string, keyof AgentPermissions>
-export type AgentPermission = (typeof AgentPermission)[keyof typeof AgentPermission]
+export type AgentPermission = ValueOf<typeof AgentPermission>
 
 /**
  * Metadata part of `POST /api/snapshots`. The `tarball` part carries the packed package.
