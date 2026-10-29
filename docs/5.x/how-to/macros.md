@@ -82,20 +82,42 @@ Macros run before the resolver names anything, so a renamed `operationId` or `Sc
 > Keep macros pure. Build a new node and return it rather than mutating the input, since the AST is shared by reference.
 
 > [!WARNING]
-> Do not rename a schema by changing only the declaration's `name`. Every `$ref` to it still resolves to the old name, so imports and printed references point at a file the plugin no longer emits. Use [`macroRenameSchema`](/docs/5.x/reference/kit/ast#macros), which renames the declaration and retargets the refs in one pass.
+> Do not rename a schema by changing only the declaration's `name`. Every `$ref` to it still resolves to the old name, so imports and printed references point at a file the plugin no longer emits. Rename the declaration and set `targetName` on every ref pointing at it in one macro, and register that macro on every plugin that touches the schema.
+
+```typescript [renameOrder.ts]
+import { ast } from 'kubb/kit'
+
+const renameOrder = ast.defineMacro({
+  name: 'rename-order',
+  schema(node) {
+    const refNode = ast.narrowSchema(node, 'ref')
+    if (!refNode) return node.name === 'Order' ? { ...node, name: 'StoreOrder' } : undefined
+
+    // A ref node can be `Order`'s own declaration (`Order: { allOf: [$ref] }`), a pointer to `Order`, or both at once.
+    const renamesDeclaration = refNode.name === 'Order'
+    const renamesTarget = ast.resolveRefName(refNode) === 'Order'
+    if (!renamesDeclaration && !renamesTarget) return undefined
+
+    return {
+      ...refNode,
+      ...(renamesDeclaration ? { name: 'StoreOrder' } : {}),
+      ...(renamesTarget ? { targetName: 'StoreOrder' } : {}),
+    }
+  },
+})
+```
 
 ## Use the built-in macros
 
 `kubb/kit` exports presets for common normalizations. Compose them with your own through a plugin's `macros` option. See the [built-in macros table](/docs/5.x/reference/kit/ast#macros) for what each one does.
 
 ```typescript [presets.ts]
-import { ast, macroSimplifyUnion, macroDiscriminatorEnum, macroRenameSchema } from 'kubb/kit'
+import { ast, macroSimplifyUnion, macroDiscriminatorEnum } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
 const next = ast.applyMacros(root, [
   macroSimplifyUnion,
   macroDiscriminatorEnum({ propertyName: 'kind', values: ['cat', 'dog'] }),
-  macroRenameSchema({ from: 'Order', to: 'StoreOrder' }),
 ])
 ```
 

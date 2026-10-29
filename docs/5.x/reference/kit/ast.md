@@ -233,7 +233,7 @@ A macro is a named, composable transform built on `transform` that rewrites node
 | `defineMacro` | Type a macro and read it as one definition. |
 | `applyMacros` | Run a list of macros over a node tree.      |
 
-Kubb also ships built-in macros for common schema normalizations that any adapter can compose with its own. `macroDiscriminatorEnum` and `macroEnumName` read options, so call them to build the macro. Plugins that import another plugin's output compute names from the nodes they see, so register a rename on every plugin that touches the schema, for example by passing one shared `macros` array to each plugin.
+Kubb also ships built-in macros for common schema normalizations that any adapter can compose with its own. `macroDiscriminatorEnum` and `macroEnumName` read options, so call them to build the macro. Plugins that import another plugin's output compute names from the nodes they see, so register a rename on every plugin that touches the schema, for example by passing one shared `macros` array to each plugin. [Macros](/docs/5.x/how-to/macros) shows a rename macro.
 
 | Macro                    | Purpose                                                                                     |
 | ------------------------ | ------------------------------------------------------------------------------------------- |
