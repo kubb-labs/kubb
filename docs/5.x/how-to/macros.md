@@ -84,26 +84,50 @@ Macros run before the resolver names anything, so a renamed `operationId` or `Sc
 > [!WARNING]
 > Do not rename a schema by changing only the declaration's `name`. Every `$ref` to it still resolves to the old name, so imports and printed references point at a file the plugin no longer emits. Rename the declaration and set `targetName` on every ref pointing at it in one macro, and register that macro on every plugin that touches the schema.
 
-```typescript [renameOrder.ts]
+Copy this macro into your project. It renames the declaration and every ref pointing at it in one pass.
+
+```typescript [macroRenameSchema.ts]
 import { ast } from 'kubb/kit'
 
-const renameOrder = ast.defineMacro({
-  name: 'rename-order',
-  schema(node) {
-    const refNode = ast.narrowSchema(node, 'ref')
-    if (!refNode) return node.name === 'Order' ? { ...node, name: 'StoreOrder' } : undefined
+export function macroRenameSchema({ from, to }: { from: string; to: string }) {
+  return ast.defineMacro({
+    name: 'rename-schema',
+    schema(node) {
+      const refNode = ast.narrowSchema(node, 'ref')
 
-    // A ref node can be `Order`'s own declaration (`Order: { allOf: [$ref] }`), a pointer to `Order`, or both at once.
-    const renamesDeclaration = refNode.name === 'Order'
-    const renamesTarget = ast.resolveRefName(refNode) === 'Order'
-    if (!renamesDeclaration && !renamesTarget) return undefined
+      if (!refNode) {
+        return node.name === from ? { ...node, name: to } : undefined
+      }
 
-    return {
-      ...refNode,
-      ...(renamesDeclaration ? { name: 'StoreOrder' } : {}),
-      ...(renamesTarget ? { targetName: 'StoreOrder' } : {}),
-    }
-  },
+      // A ref node can be the renamed schema's own declaration, a pointer to it, or both at once.
+      const renamesDeclaration = refNode.name === from
+      const renamesTarget = ast.resolveRefName(refNode) === from
+      if (!renamesDeclaration && !renamesTarget) return undefined
+
+      return {
+        ...refNode,
+        ...(renamesDeclaration ? { name: to } : {}),
+        ...(renamesTarget ? { targetName: to } : {}),
+      }
+    },
+  })
+}
+```
+
+Pass one shared `macros` array to every plugin that reads the schema, so their names and imports agree:
+
+```typescript [kubb.config.ts]
+import { defineConfig } from 'kubb/config'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+import { macroRenameSchema } from './macroRenameSchema.ts'
+
+const macros = [macroRenameSchema({ from: 'Order', to: 'StoreOrder' })]
+
+export default defineConfig({
+  input: './petStore.yaml',
+  output: { path: './src/gen' },
+  plugins: [pluginTs({ macros }), pluginZod({ macros })],
 })
 ```
 
