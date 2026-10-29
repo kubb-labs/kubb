@@ -1,63 +1,23 @@
 import fs from 'node:fs'
+import { glob } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
-import { read, write } from '@internals/utils'
+import { read, toPosixPath, write } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, type RegistryEntry } from '@kubb/core'
+import { type Agent, type AgentName, detect, resolveCommand } from 'package-manager-detector'
 import { x } from 'tinyexec'
 
-export type PackageManagerName = 'npm' | 'pnpm' | 'yarn' | 'bun'
+export type PackageManagerName = Extract<AgentName, 'npm' | 'pnpm' | 'yarn' | 'bun'>
 
-/** Metadata describing a package manager's lock file and commands. */
-export type PackageManagerInfo = {
-  /** Identifier used in CLI commands, e.g. `pnpm`, `yarn`. */
-  name: PackageManagerName
-  /** Lock file names that identify this package manager in a project root. */
-  lockFiles: ReadonlyArray<string>
-  /** Subcommands passed to the package manager binary to create a `package.json`. */
-  initCommand: ReadonlyArray<string>
-  /** Subcommands passed to the package manager binary to install a dev dependency. */
-  installCommand: ReadonlyArray<string>
-  /** Subcommands passed to the package manager binary to uninstall a dependency. */
-  removeCommand: ReadonlyArray<string>
-  /** Subcommands passed to the package manager binary before a `package.json` script name. */
-  runCommand: ReadonlyArray<string>
-}
+/**
+ * A project's package manager: `name` for messages, `agent` for `resolveCommand`.
+ */
+export type PackageManagerInfo = { name: PackageManagerName; agent: Agent }
 
-/** Metadata for each supported package manager, keyed by its short name. */
-export const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
-  pnpm: {
-    name: 'pnpm',
-    lockFiles: ['pnpm-lock.yaml'],
-    initCommand: ['init'],
-    installCommand: ['add', '-D'],
-    removeCommand: ['remove'],
-    runCommand: [],
-  },
-  yarn: {
-    name: 'yarn',
-    lockFiles: ['yarn.lock'],
-    initCommand: ['init', '-y'],
-    installCommand: ['add', '-D'],
-    removeCommand: ['remove'],
-    runCommand: [],
-  },
-  bun: {
-    name: 'bun',
-    lockFiles: ['bun.lock', 'bun.lockb'],
-    initCommand: ['init', '-y'],
-    installCommand: ['add', '-d'],
-    removeCommand: ['remove'],
-    runCommand: ['run'],
-  },
-  npm: {
-    name: 'npm',
-    lockFiles: ['package-lock.json'],
-    initCommand: ['init', '-y'],
-    installCommand: ['install', '--save-dev'],
-    removeCommand: ['uninstall'],
-    runCommand: ['run'],
-  },
-}
+/**
+ * Subcommands that create a `package.json`; `package-manager-detector` has no `init` command.
+ */
+const initCommands: Record<PackageManagerName, ReadonlyArray<string>> = { npm: ['init', '-y'], pnpm: ['init'], yarn: ['init', '-y'], bun: ['init', '-y'] }
 
 /** Minimal shape of `package.json` fields read during detection. */
 type PackageJson = {
@@ -66,38 +26,19 @@ type PackageJson = {
   scripts?: Record<string, string>
 }
 
-/** Detects the package manager for `cwd`: the `packageManager` field in `package.json`, then a lock file, then `npm`. */
-export function detectPackageManager(cwd: string = process.cwd()): PackageManagerInfo {
-  const packageJsonPath = path.join(cwd, 'package.json')
-  if (fs.existsSync(packageJsonPath)) {
-    try {
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8')) as PackageJson
-      const pmField = packageJson.packageManager
-      if (typeof pmField === 'string') {
-        const name = pmField.split('@')[0]
-        if (name && name in packageManagers) {
-          return packageManagers[name as PackageManagerName]
-        }
-      }
-    } catch {
-      // Continue to lock file detection
-    }
-  }
-
-  for (const pm of Object.values(packageManagers)) {
-    if (pm.lockFiles.some((lockFile) => fs.existsSync(path.join(cwd, lockFile)))) {
-      return pm
-    }
-  }
-
-  return packageManagers.npm
+/**
+ * Detects the package manager in `cwd`: the `packageManager` field in `package.json`, then a lock file, then `npm`. Parent folders are not searched.
+ */
+export async function detectPackageManager(cwd: string = process.cwd()): Promise<PackageManagerInfo> {
+  const found = await detect({ cwd, stopDir: cwd, strategies: ['packageManager-field', 'lockfile'] })
+  return found && found.name in initCommands ? (found as PackageManagerInfo) : { name: 'npm', agent: 'npm' }
 }
 
 /**
  * Initializes a new `package.json` at `cwd` using the detected package manager.
  */
 export async function initPackageJson(cwd: string, packageManager: PackageManagerInfo): Promise<void> {
-  await x(packageManager.name, [...packageManager.initCommand], {
+  await x(packageManager.name, [...initCommands[packageManager.name]], {
     nodeOptions: { cwd, stdio: 'inherit' },
     throwOnError: true,
   })
@@ -117,11 +58,11 @@ export async function installPackages(
   packageManager: PackageManagerInfo,
   cwd: string = process.cwd(),
   onLine?: (line: string) => void,
-  command: ReadonlyArray<string> = packageManager.installCommand,
+  command: 'add' | 'uninstall' = 'add',
 ): Promise<void> {
-  const args = [...command, ...packages]
+  const { command: bin, args } = resolveCommand(packageManager.agent, command, command === 'add' ? ['-D', ...packages] : packages)!
   // No stdin, so a package manager that wants input fails instead of waiting. The timeout ends a stalled install.
-  const result = x(packageManager.name, args, {
+  const result = x(bin, args, {
     nodeOptions: { cwd, stdio: ['ignore', 'pipe', 'pipe'] },
     timeout: INSTALL_TIMEOUT_MS,
     throwOnError: false,
@@ -132,17 +73,17 @@ export async function installPackages(
     onLine?.(line)
   }
   if (result.exitCode === 0) return
-  if (result.exitCode === undefined) throw new Error(`\`${packageManager.name} ${args.join(' ')}\` timed out after ${INSTALL_TIMEOUT_MS / 60_000} minutes`)
+  if (result.exitCode === undefined) throw new Error(`\`${bin} ${args.join(' ')}\` timed out after ${INSTALL_TIMEOUT_MS / 60_000} minutes`)
 
   const output = lines.slice(-INSTALL_OUTPUT_LINES).join('\n')
-  throw new Error(`\`${packageManager.name} ${args.join(' ')}\` failed with exit code ${result.exitCode}${output ? `:\n${output}` : ''}`)
+  throw new Error(`\`${bin} ${args.join(' ')}\` failed with exit code ${result.exitCode}${output ? `:\n${output}` : ''}`)
 }
 
 /**
  * Uninstalls the given packages at `cwd` with the package manager's remove command, like {@link installPackages}.
  */
 export function uninstallPackages(packages: Array<string>, packageManager: PackageManagerInfo, cwd: string = process.cwd()): Promise<void> {
-  return installPackages(packages, packageManager, cwd, undefined, packageManager.removeCommand)
+  return installPackages(packages, packageManager, cwd, undefined, 'uninstall')
 }
 
 /**
@@ -172,24 +113,18 @@ const SKIPPED_DIRS = new Set(['node_modules', 'dist', 'build', 'coverage'])
 
 /**
  * Finds OpenAPI spec files up to `depth` folders below `cwd`, shallowest first, as `./`-relative
- * paths. Walks one level at a time and stops after `limit` files, so a large repo stays fast.
+ * paths. Skips hidden and build folders without walking them and returns at most `limit` files.
  */
 export async function findSpecFiles(cwd: string, { depth = 3, limit = 20 }: { depth?: number; limit?: number } = {}): Promise<Array<string>> {
   const found: Array<string> = []
-  let level: Array<string> = ['']
-  for (let current = 0; current <= depth && level.length && found.length < limit; current++) {
-    const listings = await Promise.all(
-      level.map(async (dir) => ({ dir, entries: await fs.promises.readdir(path.join(cwd, dir), { withFileTypes: true }).catch(() => []) })),
-    )
-    level = []
-    for (const { dir, entries } of listings) {
-      for (const entry of entries.toSorted((a, b) => a.name.localeCompare(b.name))) {
-        if (entry.isFile() && SPEC_FILE.test(entry.name)) found.push(`./${path.posix.join(dir, entry.name)}`)
-        if (entry.isDirectory() && !entry.name.startsWith('.') && !SKIPPED_DIRS.has(entry.name)) level.push(path.posix.join(dir, entry.name))
-      }
-    }
-  }
-  return found.slice(0, limit)
+  const pattern = `{${Array.from({ length: depth + 1 }, (_, level) => '*/'.repeat(level)).join(',')}}*`
+  // The extension stays out of the pattern so SPEC_FILE matches it case-insensitively. Dot folders are skipped by default.
+  const files = glob(pattern, { cwd, exclude: (file) => file.split(path.sep).some((segment) => SKIPPED_DIRS.has(segment)) })
+  for await (const file of files) if (SPEC_FILE.test(path.basename(file))) found.push(toPosixPath(file))
+  return found
+    .toSorted((a, b) => a.split('/').length - b.split('/').length || a.localeCompare(b))
+    .slice(0, limit)
+    .map((file) => `./${file}`)
 }
 
 /** The spec version and operation count, when the file states them. */

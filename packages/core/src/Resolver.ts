@@ -1,8 +1,8 @@
 import path from 'node:path'
-import { camelCase } from '@internals/utils'
+import { camelCase, memo } from '@internals/utils'
 import { ast, collectImportedRefNames, type FileNode, type ImportNode, type InputMeta, type Node, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
-import { type MemoKey, type MemoValue, memoize } from './memo.ts'
+import type { MemoKey, MemoValue } from './memo.ts'
 import { getInputKind } from './input.ts'
 import type { Group, Output } from './definePlugin.ts'
 import type { Config } from './types.ts'
@@ -394,7 +394,7 @@ export class Resolver {
    * Returns what `compute` produced the first time this build asked for `key`. A resolver lives for one build.
    */
   memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {
-    return memoize(this.#memo, key, compute)
+    return memo(this.#memo, key, compute) as TValue
   }
 
   /**

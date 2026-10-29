@@ -130,15 +130,22 @@ export function getParameters({ operation, refs }: OperationContext): Array<{ pa
 
 const PARAMETER_STYLES = new Set(['matrix', 'label', 'form', 'simple', 'spaceDelimited', 'pipeDelimited', 'deepObject'])
 
+function pickStyleFields({ style, explode, allowReserved }: { style?: string; explode?: boolean; allowReserved?: boolean }): {
+  style?: ast.ParameterStyle
+  explode?: boolean
+  allowReserved?: boolean
+} {
+  return {
+    ...(style !== undefined && PARAMETER_STYLES.has(style) ? { style: style as ast.ParameterStyle } : {}),
+    ...(explode !== undefined ? { explode } : {}),
+    ...(allowReserved !== undefined ? { allowReserved } : {}),
+  }
+}
+
 /** The `encoding` of a media type, reduced to the entries that set a field Kubb carries. A `style` outside the OpenAPI set is dropped. */
 function getEncoding(encoding: MediaTypeObject['encoding']): Record<string, ast.EncodingNode> | undefined {
-  const entries = Object.entries(encoding ?? {}).flatMap(([property, { contentType, style, explode, allowReserved }]) => {
-    const node: ast.EncodingNode = {
-      ...(contentType !== undefined ? { contentType } : {}),
-      ...(style !== undefined && PARAMETER_STYLES.has(style) ? { style: style as ast.ParameterStyle } : {}),
-      ...(explode !== undefined ? { explode } : {}),
-      ...(allowReserved !== undefined ? { allowReserved } : {}),
-    }
+  const entries = Object.entries(encoding ?? {}).flatMap(([property, { contentType, ...rest }]) => {
+    const node: ast.EncodingNode = { ...(contentType !== undefined ? { contentType } : {}), ...pickStyleFields(rest) }
     return Object.keys(node).length ? [[property, node] as const] : []
   })
 
@@ -230,10 +237,6 @@ function parseParameter({
     ? parseSchema({ schema: rawSchema as SchemaObject, name: schemaName })
     : ast.factory.createSchema({ type: options.unknownType })
   if (rawSchema) scanSchema(schema, contentType ? `${pointer}/content/${escapePointerToken(contentType)}/schema` : `${pointer}/schema`)
-  const style = param.style !== undefined && PARAMETER_STYLES.has(param.style) ? (param.style as ast.ParameterStyle) : undefined
-  const explode = param.explode
-  const allowReserved = param.allowReserved
-
   return ast.factory.createParameter({
     pointer,
     name: param.name,
@@ -243,9 +246,7 @@ function parseParameter({
       description: param.description ?? schema.description,
     },
     required: param.required ?? false,
-    ...(style !== undefined ? { style } : {}),
-    ...(explode !== undefined ? { explode } : {}),
-    ...(allowReserved !== undefined ? { allowReserved } : {}),
+    ...pickStyleFields(param),
     ...(contentType !== undefined ? { contentType } : {}),
   })
 }

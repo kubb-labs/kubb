@@ -442,21 +442,14 @@ export class Diagnostics {
    */
   static dedupe(diagnostics: ReadonlyArray<Diagnostic>): Array<Diagnostic> {
     const seen = new Set<string>()
-    const result: Array<Diagnostic> = []
-    for (const diagnostic of diagnostics) {
-      if (!isProblem(diagnostic)) {
-        result.push(diagnostic)
-        continue
-      }
+    return diagnostics.filter((diagnostic) => {
+      if (!isProblem(diagnostic)) return true
       const pointer = diagnostic.location && 'pointer' in diagnostic.location ? diagnostic.location.pointer : ''
       const key = `${diagnostic.code} ${pointer} ${diagnostic.plugin ?? ''}`
-      if (seen.has(key)) {
-        continue
-      }
+      if (seen.has(key)) return false
       seen.add(key)
-      result.push(diagnostic)
-    }
-    return result
+      return true
+    })
   }
 
   /**

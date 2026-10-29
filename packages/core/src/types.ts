@@ -396,10 +396,10 @@ declare global {
       'kubb:hook:start': [ctx: KubbHookStartContext]
       'kubb:hook:line': [ctx: KubbHookLineContext]
       'kubb:hook:end': [ctx: KubbHookEndContext]
-      'kubb:info': [ctx: KubbInfoContext]
+      'kubb:info': [ctx: KubbMessageContext]
       'kubb:error': [ctx: KubbErrorContext]
-      'kubb:success': [ctx: KubbSuccessContext]
-      'kubb:warn': [ctx: KubbWarnContext]
+      'kubb:success': [ctx: KubbMessageContext]
+      'kubb:warn': [ctx: KubbMessageContext]
       'kubb:diagnostic': [ctx: KubbDiagnosticContext]
       'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
       'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
@@ -557,12 +557,6 @@ export type KubbMessageContext = {
    */
   info?: string
 }
-
-export type KubbInfoContext = KubbMessageContext
-
-export type KubbSuccessContext = KubbMessageContext
-
-export type KubbWarnContext = KubbMessageContext
 
 export type KubbErrorContext = {
   /**

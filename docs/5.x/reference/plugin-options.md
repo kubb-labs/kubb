@@ -365,7 +365,7 @@ Rewrites AST nodes before they are printed, without forking the generator.
 
 Each [macro](/docs/5.x/how-to/macros) callback, such as `schema` or `operation`, receives the node and a context object and returns a replacement or `undefined` to leave it as is. Macros run in order, so a later one sees the output of an earlier one. The client plugins (`@kubb/plugin-fetch`, `@kubb/plugin-axios`, `@kubb/plugin-client`) run their built-in macros first and yours after them.
 
-The built-in macros `macroDiscriminatorEnum`, `macroEnumName`, `macroRenameSchema` and `macroSimplifyUnion` are exported from `kubb/kit`. See [Macros](/docs/5.x/reference/kit/ast#macros) for the `Macro` type and its callbacks.
+The built-in macros `macroDiscriminatorEnum`, `macroEnumName` and `macroSimplifyUnion` are exported from `kubb/kit`. See [Macros](/docs/5.x/reference/kit/ast#macros) for the `Macro` type and its callbacks.
 
 ```typescript [kubb.config.ts]
 import { ast } from 'kubb/kit'

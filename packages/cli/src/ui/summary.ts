@@ -2,6 +2,12 @@ import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
 import { logOutro } from './intro.ts'
 
+type SummaryStatus = 'success' | 'failed' | 'warning' | 'planned' | 'canceled'
+
+export function createSummary(hrStart: [number, number]): (title: string, status: SummaryStatus, lines: ReadonlyArray<string>) => void {
+  return (title, status, lines) => logCommandSummary({ title, status, hrStart, block: true, lines })
+}
+
 /**
  * Finishes a command with its outcome and duration before the labeled details.
  * A command with prompts closes its existing block; validation writes a standalone summary.
@@ -14,7 +20,7 @@ export function logCommandSummary({
   block = false,
 }: {
   title: string
-  status: 'success' | 'failed' | 'warning' | 'planned' | 'canceled'
+  status: SummaryStatus
   hrStart: [number, number]
   lines: ReadonlyArray<string>
   block?: boolean

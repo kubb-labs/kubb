@@ -9,7 +9,7 @@ import { run } from './run.ts'
 import { extensionKinds } from '@internals/shared'
 
 vi.mock('../init/utils.ts', () => ({
-  detectPackageManager: vi.fn(() => ({ name: 'pnpm', lockFiles: [], initCommand: [], installCommand: ['add', '-D'], removeCommand: ['remove'] })),
+  detectPackageManager: vi.fn(async () => ({ name: 'pnpm', agent: 'pnpm' })),
   uninstallPackages: vi.fn(async () => {}),
 }))
 vi.mock('@clack/prompts', async (importOriginal) => ({

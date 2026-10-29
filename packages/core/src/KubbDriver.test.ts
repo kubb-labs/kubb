@@ -555,7 +555,7 @@ describe('KubbDriver generator dispatch', () => {
     })
   })
 
-  it('shares one cache per node across plugins and gives each node a fresh one', async () => {
+  it('shares ctx.memo across plugins, so a node-named key is computed once per node', async () => {
     const seen: Array<{ plugin: string; node: string; token: number }> = []
     let counter = 0
     const cachePlugin = (name: string): Plugin => ({
@@ -566,7 +566,7 @@ describe('KubbDriver generator dispatch', () => {
             name: `${name}-cache`,
             schema(node: SchemaNode, gctx: GeneratorContext) {
               // The first plugin to reach a node fills the token, and the rest read the same value.
-              const token = gctx.cache.ensureItem('token', () => ++counter)
+              const token = gctx.memo(`token:${node.name}`, () => ++counter)
               seen.push({ plugin: gctx.plugin.name, node: node.name!, token })
               return null
             },

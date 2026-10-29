@@ -147,8 +147,6 @@ Use `collect` to stream matches as you find them, and `collectSync` to find spec
 
 ### Direct traversal
 
-`forEachChild` visits the immediate children of a node. `forEachSchema` visits schema nodes in a node's child tree, including the starting node when it is a schema. Neither helper follows refs.
-
 `findSchema` stops at the first schema that matches a predicate. Set `followRefs: true` to inspect resolved ref targets; traversal stops when it reaches an unresolved or cyclic ref.
 
 ```typescript twoslash [find-schema.ts]
@@ -230,20 +228,18 @@ Analyze how schemas reference each other, to prune unused schemas or wrap circul
 
 A macro is a named, composable transform built on `transform` that rewrites nodes before printing, adding ordering, gating, and reuse a bare visitor doesn't give you. See [Macros concepts](/docs/5.x/how-to/macros).
 
-| Export          | Purpose                                          |
-| --------------- | ------------------------------------------------ |
-| `defineMacro`   | Type a macro and read it as one definition.      |
-| `composeMacros` | Fold an ordered list of macros into one visitor. |
-| `applyMacros`   | Run a list of macros over a node tree.           |
+| Export        | Purpose                                     |
+| ------------- | ------------------------------------------- |
+| `defineMacro` | Type a macro and read it as one definition. |
+| `applyMacros` | Run a list of macros over a node tree.      |
 
-Kubb also ships built-in macros for common schema normalizations that any adapter can compose with its own. `macroDiscriminatorEnum`, `macroEnumName`, and `macroRenameSchema` read options, so call them to build the macro. Plugins that import another plugin's output compute names from the nodes they see, so register a rename on every plugin that touches the schema, for example by passing one shared `macros` array to each plugin.
+Kubb also ships built-in macros for common schema normalizations that any adapter can compose with its own. `macroDiscriminatorEnum` and `macroEnumName` read options, so call them to build the macro. Plugins that import another plugin's output compute names from the nodes they see, so register a rename on every plugin that touches the schema, for example by passing one shared `macros` array to each plugin. [Macros](/docs/5.x/how-to/macros) shows a rename macro.
 
 | Macro                    | Purpose                                                                                     |
 | ------------------------ | ------------------------------------------------------------------------------------------- |
 | `macroSimplifyUnion`     | Drop union members a broader scalar primitive already covers, such as a multi-value string enum next to `string`. |
 | `macroDiscriminatorEnum` | Replace a discriminator property's schema with a string enum of its allowed values.         |
 | `macroEnumName`          | Name an inline enum schema from its parent and property name.                               |
-| `macroRenameSchema`      | Rename a schema's declaration and stamp `targetName` on every ref pointing at it, so `resolver.imports` emits the new name everywhere. |
 
 ### Macro options and callbacks
 

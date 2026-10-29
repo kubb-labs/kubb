@@ -4,7 +4,6 @@ const entry = {
   index: 'src/index.ts',
   config: 'src/config.ts',
   kit: 'src/kit.ts',
-  'kit/testing': 'src/kit/testing.ts',
   jsx: 'src/jsx.ts',
   'jsx/jsx-runtime': 'src/jsx/jsx-runtime.ts',
   'jsx/jsx-dev-runtime': 'src/jsx/jsx-dev-runtime.ts',
@@ -19,7 +18,7 @@ const entry = {
   webpack: 'src/webpack.ts',
 }
 
-// Entries that also ship as CommonJS. `kit/testing` imports Vitest and the bundler integrations re-export the ESM-only unplugin-kubb, so both stay ESM-only.
+// Entries that also ship as CommonJS. The bundler integrations re-export the ESM-only unplugin-kubb, so they stay ESM-only.
 const cjsEntry = {
   index: 'src/index.ts',
   config: 'src/config.ts',

@@ -10,3 +10,8 @@
  * ```
  */
 export type LiteralUnion<T extends Base, Base = string> = T | (Base & {})
+
+/**
+ * Union of the values of an object type, such as `ValueOf<typeof nodeKinds>` for an `as const` table.
+ */
+export type ValueOf<T> = T[keyof T]

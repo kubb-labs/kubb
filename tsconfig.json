@@ -11,7 +11,6 @@
       "@kubb/ast": ["./packages/ast/src/index.ts"],
       "@kubb/core": ["./packages/core/src/index.ts"],
       "@kubb/kit": ["./packages/kit/src/index.ts"],
-      "@kubb/kit/testing": ["./packages/kit/src/testing.ts"],
       "@kubb/mcp": ["./packages/mcp/src/index.ts"],
       "@kubb/studio": ["./packages/studio/src/index.ts"],
       "@kubb/studio/protocol": ["./packages/studio/src/protocol.ts"],

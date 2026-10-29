@@ -1,3 +1,6 @@
+import type { ValueOf } from '@internals/utils'
+import type { nodeKinds } from '../constants.ts'
+
 /**
  * `kind` values used by AST nodes.
  *
@@ -6,26 +9,7 @@
  * const kind: NodeKind = 'Schema'
  * ```
  */
-export type NodeKind =
-  | 'Input'
-  | 'Operation'
-  | 'Schema'
-  | 'Property'
-  | 'Parameter'
-  | 'Response'
-  | 'RequestBody'
-  | 'Content'
-  | 'Type'
-  | 'File'
-  | 'Import'
-  | 'Export'
-  | 'Source'
-  | 'Const'
-  | 'Function'
-  | 'ArrowFunction'
-  | 'Text'
-  | 'Break'
-  | 'Jsx'
+export type NodeKind = ValueOf<typeof nodeKinds>
 
 /**
  * Base shape shared by all AST nodes.

@@ -39,6 +39,11 @@ type TypeScript = {
 function loadCompiler(): Compiler {
   if (compiler) return compiler
 
+  process.emitWarning(
+    'Printing TypeScript compiler nodes with `print` from `@kubb/parser-ts` is deprecated and is removed in the next major. Return printed strings from printer handlers instead.',
+    { type: 'DeprecationWarning', code: 'KUBB_PRINT_TS_NODE' },
+  )
+
   const require = createRequire(import.meta.url)
   // Look in the user's project first: a strict package manager such as pnpm does not link it next to this package
   const paths = [process.cwd(), dirname(fileURLToPath(import.meta.url))]

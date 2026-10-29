@@ -3,13 +3,7 @@ import type { CodeNode } from '../nodes/code.ts'
 import { createFile } from '../nodes/file.ts'
 import type { FileNode, ImportNode } from '../nodes/file.ts'
 import { importLocalName } from './combineFileMembers.ts'
-
-/**
- * Whether every source of `file` is inline. Other files absorb such a file, so it is never written.
- */
-export function isVirtualFile(file: FileNode): boolean {
-  return file.sources.length > 0 && file.sources.every((source) => source.inline)
-}
+import { CODE_NODE_TEXT_FIELDS } from './extractStringsFromNodes.ts'
 
 type InlineFilesResult = {
   /**
@@ -50,11 +44,13 @@ type InlineFilesOptions = {
 }
 
 /**
- * Replaces every name a file imports from a virtual file (see {@link isVirtualFile}) with that name's
+ * Replaces every name a file imports from a virtual file (one whose sources are all inline, so it is never written) with that name's
  * `inline.expression`, until no inline names are left. The definitions' own imports move to the importing file.
  */
 export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: InlineFilesOptions): InlineFilesResult {
-  const virtualFiles = new Map(files.filter(isVirtualFile).map((file) => [file.path, file]))
+  const virtualFiles = new Map(
+    files.filter((file) => file.sources.length > 0 && file.sources.every((source) => source.inline)).map((file) => [file.path, file]),
+  )
   const result: InlineFilesResult = { files: [], virtualPaths: [...virtualFiles.keys()], problems: [] }
   if (virtualFiles.size === 0) return result
 
@@ -147,25 +143,15 @@ function rewriteNodes(nodes: Array<CodeNode> | undefined, rewrite: (text: string
   return nodes?.map((node): CodeNode => {
     // Backward-compat: compiled plugins may still pass bare strings at runtime
     if (typeof node === 'string') return rewrite(node) as unknown as CodeNode
-    switch (node.kind) {
-      case nodeKinds.break:
-        return node
-      case nodeKinds.text:
-      case nodeKinds.jsx:
-        return { ...node, value: rewrite(node.value) }
-      case nodeKinds.function:
-      case nodeKinds.arrowFunction:
-        return {
-          ...node,
-          params: node.params && rewrite(node.params),
-          generics: Array.isArray(node.generics) ? node.generics.map(rewrite) : node.generics && rewrite(node.generics),
-          returnType: node.returnType && rewrite(node.returnType),
-          nodes: rewriteNodes(node.nodes, rewrite),
-        }
-      case nodeKinds.const:
-        return { ...node, type: node.type && rewrite(node.type), nodes: rewriteNodes(node.nodes, rewrite) }
-      default:
-        return { ...node, nodes: rewriteNodes(node.nodes, rewrite) }
+    if (node.kind === nodeKinds.break) return node
+
+    const next = { ...node } as unknown as Record<string, unknown>
+    for (const field of CODE_NODE_TEXT_FIELDS[node.kind] ?? []) {
+      const value = next[field]
+      if (Array.isArray(value)) next[field] = value.map(rewrite)
+      if (typeof value === 'string' && value) next[field] = rewrite(value)
     }
+    if ('nodes' in node && node.nodes) next.nodes = rewriteNodes(node.nodes, rewrite)
+    return next as unknown as CodeNode
   })
 }

@@ -1,4 +1,4 @@
-import { escapePointerToken } from '@internals/utils'
+import { escapePointerToken, unescapePointerToken } from '@internals/utils'
 import type { Adapter } from '@kubb/core'
 import * as yaml from 'yaml'
 
@@ -9,11 +9,9 @@ let cached: { source: string; document: yaml.Document } | { source: string; json
 
 const toRange = ([start, end]: yaml.Range): Range => ({ start, end })
 
-const unescapeToken = (token: string) => token.replaceAll('~1', '/').replaceAll('~0', '~')
-
 /** Walks a JSON pointer through maps and sequences; the range is the last key or item it reached. */
 function findPointer(document: yaml.Document, pointer: string): Range {
-  const tokens = pointer.replace(/^#/, '').split('/').slice(1).map(unescapeToken)
+  const tokens = pointer.replace(/^#/, '').split('/').slice(1).map(unescapePointerToken)
   return tokens.reduce<{ node: unknown; range: Range } | undefined>(
     (at, token) => {
       if (yaml.isMap(at?.node)) {

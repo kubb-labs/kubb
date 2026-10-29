@@ -4,13 +4,13 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
 import { BUNDLED_PACKAGES, ConfigEditOperation, extensionKinds, editConfig, editConfigFile, findConfigFile, readImports } from '@internals/shared'
-import { getErrorMessage, read } from '@internals/utils'
+import { getErrorMessage, pascalCase, read } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, readInstalledPackages, type RegistryDetail, type RegistryEntry } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
 import { isInteractiveRun, logIntro } from '../../ui/intro.ts'
 import { logBlock, logError, logStep, logWarn } from '../../ui/log.ts'
 import { withSpinner } from '../../ui/spinner.ts'
-import { logCommandSummary } from '../../ui/summary.ts'
+import { createSummary } from '../../ui/summary.ts'
 import { closestIds, fetchRegistryIndex, incompatibility, installSpec, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
 import { detectPackageManager } from '../init/utils.ts'
 import { installWithSpinner } from '../installWithSpinner.ts'
@@ -138,8 +138,7 @@ export function summarize(description: string, max = 64): string {
 export async function run({ id: input, configPath, yes, install }: AddOptions): Promise<void> {
   const cwd = process.cwd()
   const hrStart = process.hrtime()
-  const summary = (title: string, status: Parameters<typeof logCommandSummary>[0]['status'], lines: ReadonlyArray<string>) =>
-    logCommandSummary({ title, status, hrStart, block: true, lines })
+  const summary = createSummary(hrStart)
   const installedPackages: Array<string> = []
   const configured: Array<RegistryEntry> = []
   logIntro({ title: isInteractiveRun({ yes }) ? undefined : styleText('bgCyan', styleText('black', ' Kubb Add ')) })
@@ -181,7 +180,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       return
     }
     const { artifact, manifest } = entry
-    const kind = manifest.kind.charAt(0).toUpperCase() + manifest.kind.slice(1)
+    const kind = pascalCase(manifest.kind)
 
     const problem = incompatibility(manifest)
     if (problem)
@@ -248,7 +247,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       return
     }
 
-    const packageManager = detectPackageManager(cwd)
+    const packageManager = await detectPackageManager(cwd)
     const packages = () => (install ? `${installedPackages.length} installed with ${packageManager.name}` : 'installation skipped (--no-install)')
     if (install) {
       const names = [...targets.filter((target) => specs.includes(installSpec(target.artifact))).map((target) => target.artifact.package), ...bundled]

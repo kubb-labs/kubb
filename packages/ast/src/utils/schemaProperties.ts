@@ -32,30 +32,27 @@ import type { SchemaNode } from '../nodes/schema.ts'
  */
 export function resolveSchemaProperties({ node, propertyName }: { node: SchemaNode; propertyName: string }): ReadonlyArray<PropertyNode> {
   const properties: Array<PropertyNode> = []
+  walkSchema(node, 'intersection', (current) => {
+    if (current.type !== 'object') return
+    const property = current.properties.find((candidate) => candidate.name === propertyName)
+    if (property) properties.push(property)
+  })
+  return properties
+}
+
+function walkSchema(node: SchemaNode, through: 'union' | 'intersection', visit: (schema: SchemaNode) => void): void {
   const visited = new WeakSet<SchemaNode>()
 
-  function visit(current: SchemaNode | null | undefined): void {
+  function walk(current: SchemaNode | null | undefined): void {
     if (!current || visited.has(current)) return
     visited.add(current)
+    visit(current)
 
-    if (current.type === 'object') {
-      const property = current.properties.find((candidate) => candidate.name === propertyName)
-      if (property) properties.push(property)
-      return
-    }
-
-    if (current.type === 'ref') {
-      visit(current.schema)
-      return
-    }
-
-    if (current.type === 'intersection') {
-      for (const member of current.members ?? []) visit(member)
-    }
+    if (current.type === 'ref') return walk(current.schema)
+    if (current.type === through) for (const member of current.members ?? []) walk(member)
   }
 
-  visit(node)
-  return properties
+  walk(node)
 }
 
 /**
@@ -72,49 +69,20 @@ export function resolveSchemaProperties({ node, propertyName }: { node: SchemaNo
  */
 export function getSchemaLiteralValues(node: SchemaNode): ReadonlyArray<string | number | boolean | null> {
   const values = new Set<string | number | boolean | null>()
-  const visited = new WeakSet<SchemaNode>()
-
-  function visit(current: SchemaNode | null | undefined): void {
-    if (!current || visited.has(current)) return
-    visited.add(current)
-
-    if (current.type === 'enum') {
-      const enumValues = current.namedEnumValues?.map(({ value }) => value) ?? current.enumValues ?? []
-      for (const value of enumValues) values.add(value)
-      return
-    }
-
-    if (current.type === 'ref') {
-      visit(current.schema)
-      return
-    }
-
-    if (current.type === 'union') {
-      for (const member of current.members ?? []) visit(member)
-    }
-  }
-
-  visit(node)
+  walkSchema(node, 'union', (current) => {
+    if (current.type !== 'enum') return
+    for (const { value } of current.namedEnumValues ?? current.enumValues?.map((value) => ({ value })) ?? []) values.add(value)
+  })
   return [...values]
 }
 
 // Names of every property an object, resolved reference, or intersection exposes.
-function collectPropertyNames(node: SchemaNode, visited: WeakSet<SchemaNode> = new WeakSet()): Set<string> {
-  if (visited.has(node)) return new Set()
-  visited.add(node)
-
-  if (node.type === 'object') return new Set(node.properties.map((property) => property.name))
-  if (node.type === 'ref') return node.schema ? collectPropertyNames(node.schema, visited) : new Set()
-
-  if (node.type === 'intersection') {
-    const names = new Set<string>()
-    for (const member of node.members ?? []) {
-      for (const name of collectPropertyNames(member, visited)) names.add(name)
-    }
-    return names
-  }
-
-  return new Set()
+function collectPropertyNames(node: SchemaNode): Set<string> {
+  const names = new Set<string>()
+  walkSchema(node, 'intersection', (current) => {
+    if (current.type === 'object') for (const property of current.properties) names.add(property.name)
+  })
+  return names
 }
 
 /**

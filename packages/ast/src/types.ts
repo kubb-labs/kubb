@@ -31,6 +31,6 @@ export type {
   UnionSchemaNode,
   UrlSchemaNode,
 } from './nodes/schema.ts'
-export type { ParentOf, Visitor, VisitorContext } from './visitor.ts'
+export type { Visitor, VisitorContext } from './visitor.ts'
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from './createPrinter.ts'
 export type { Enforce, Macro } from './defineMacro.ts'

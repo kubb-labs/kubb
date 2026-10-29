@@ -46,16 +46,8 @@ export const fsStorage = createStorage(() => ({
     await rm(resolve(key), { force: true })
   },
   async readKeys(base?: string) {
-    const resolvedBase = resolve(base ?? process.cwd())
-    const keys: Array<string> = []
-
-    try {
-      for await (const path of listFiles(resolvedBase)) keys.push(path)
-    } catch (_error) {
-      // base directory does not exist yet
-    }
-
-    return keys
+    // An empty list when the base directory does not exist yet.
+    return Array.fromAsync(listFiles(resolve(base ?? process.cwd()))).catch(() => [])
   },
   async empty(base?: string) {
     if (!base) {

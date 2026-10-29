@@ -1,3 +1,4 @@
+import { memo } from '@internals/utils'
 import { ast, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
 import type { Filter, Override } from './definePlugin.ts'
 
@@ -13,16 +14,11 @@ export type ResolveOptionsContext<TOptions> = {
   override?: Array<Override<TOptions>>
 }
 
-const patternCache = new Map<string, RegExp>()
-const optionsCache = new WeakMap<object, WeakMap<Node, { value: unknown }>>()
+const patterns = new Map<string, RegExp>()
+const nodeCaches = new WeakMap<object, WeakMap<Node, unknown>>()
 
 function testPattern(value: string, pattern: string | RegExp): boolean {
-  if (typeof pattern === 'string') {
-    let regex = patternCache.get(pattern)
-    regex ??= new RegExp(pattern)
-    patternCache.set(pattern, regex)
-    return regex.test(value)
-  }
+  if (typeof pattern === 'string') return memo(patterns, pattern, () => new RegExp(pattern)).test(value)
   // .match() preserves the behavior of user-supplied global and sticky expressions.
   return value.match(pattern) !== null
 }
@@ -78,16 +74,6 @@ export function resolveOptions<TOptions>(node: Node, context: ResolveOptionsCont
     return computeOptions(node, context)
   }
 
-  let byOptions = optionsCache.get(options)
-  if (!byOptions) {
-    byOptions = new WeakMap()
-    optionsCache.set(options, byOptions)
-  }
-
-  const cached = byOptions.get(node)
-  if (cached) return cached.value as TOptions | null
-
-  const result = computeOptions(node, context)
-  byOptions.set(node, { value: result })
-  return result
+  const cache = memo(nodeCaches, options, () => new WeakMap<Node, unknown>())
+  return memo(cache, node, () => computeOptions(node, context)) as TOptions | null
 }

@@ -77,6 +77,7 @@
     "chokidar": "^6.0.0",
     "gunshi": "^0.37.3",
     "jiti": "^2.7.0",
+    "package-manager-detector": "^1.9.0",
     "tinyexec": "catalog:",
     "verkit": "^0.5.0",
     "yuku-parser": "^0.19.0"

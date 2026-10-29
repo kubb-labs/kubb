@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
-import { getElapsedMs, toError } from '@internals/utils'
-import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
+import { getElapsedMs, memo, toError } from '@internals/utils'
+import { ast, collectUsedSchemaNames, compareEnforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
@@ -11,8 +11,7 @@ import { kubbContext } from './composables.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
-import { type MemoKey, type MemoValue, memoize } from './memo.ts'
-import { createNodeCache } from './nodeCache.ts'
+import type { MemoKey, MemoValue } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { checkoutGitInput, gitInputRegExp } from './gitInput.ts'
 import { inputToAdapterSource } from './input.ts'
@@ -48,12 +47,8 @@ type ResolvedNode<TNode extends SchemaNode | OperationNode> = {
   options: NormalizedPlugin['options']
 }
 
-const ENFORCE_ORDER = { pre: -1, post: 1 } satisfies Record<Enforce, number>
-
 /** `include` filter types that select operations, and so prune the schemas they do not reach. */
 const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType', 'extension'])
-
-const enforceWeight = (plugin: NormalizedPlugin): number => (plugin.enforce ? ENFORCE_ORDER[plugin.enforce] : 0)
 
 /**
  * The options bag a `NormalizedPlugin` starts with before a plugin refines it: a directory output
@@ -78,25 +73,18 @@ function normalizePluginOptions(rawOptions: Plugin['options'], pluginName: strin
  * factory passed without calling it.
  */
 function assertPluginEntry(entry: unknown, index: number): asserts entry is Plugin {
-  if (typeof entry === 'function') {
-    const name = entry.name || 'pluginName'
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.invalidPluginOptions,
-      severity: 'error',
-      message: `plugins[${index}] is a function ("${name}"), not a plugin.`,
-      help: `Call it: ${name}()`,
-      location: { kind: 'config' },
-    })
-  }
-  if (typeof entry !== 'object' || entry === null) {
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.invalidPluginOptions,
-      severity: 'error',
-      message: `plugins[${index}] is ${entry === null ? 'null' : typeof entry}, not a plugin.`,
-      help: 'Pass the result of a plugin factory, for example `pluginTs()`, or remove the entry.',
-      location: { kind: 'config' },
-    })
-  }
+  if (typeof entry === 'object' && entry !== null) return
+
+  const name = typeof entry === 'function' ? entry.name || 'pluginName' : undefined
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.invalidPluginOptions,
+    severity: 'error',
+    message: name
+      ? `plugins[${index}] is a function ("${name}"), not a plugin.`
+      : `plugins[${index}] is ${entry === null ? 'null' : typeof entry}, not a plugin.`,
+    help: name ? `Call it: ${name}()` : 'Pass the result of a plugin factory, for example `pluginTs()`, or remove the entry.',
+    location: { kind: 'config' },
+  })
 }
 
 /**
@@ -219,7 +207,7 @@ export class KubbDriver {
    * config are ignored here and surface later through `requirePlugin`.
    */
   #sortPlugins(plugins: Array<NormalizedPlugin>): Array<NormalizedPlugin> {
-    const queue = [...plugins].sort((a, b) => enforceWeight(a) - enforceWeight(b))
+    const queue = [...plugins].sort((a, b) => compareEnforce(a.enforce, b.enforce))
     const names = new Set(queue.map((plugin) => plugin.name))
     const blockedBy = new Map(
       queue.map((plugin) => {
@@ -397,7 +385,7 @@ export class KubbDriver {
 
           const generatorPlugins: Array<{
             plugin: NormalizedPlugin
-            context: Omit<GeneratorContext, 'options' | 'cache'>
+            context: Omit<GeneratorContext, 'options'>
             hrStart: ReturnType<typeof process.hrtime>
           }> = []
 
@@ -408,29 +396,16 @@ export class KubbDriver {
             try {
               await hooks.callHook('kubb:plugin:start', { plugin })
             } catch (caughtError) {
-              const error = toError(caughtError)
-              const duration = getElapsedMs(hrStart)
-
-              await this.#emitPluginEnd({ plugin, duration, success: false, error })
-
-              diagnostics.push(
-                Diagnostics.fromExtension(error, { kind: 'plugin', extension: plugin }),
-                Diagnostics.performance({ plugin: plugin.name, duration }),
-              )
-
+              diagnostics.push(...(await this.#finishPlugin({ plugin, hrStart, error: toError(caughtError) })))
               continue
             }
 
             if ((plugin.generators?.length ?? 0) > 0) {
               generatorPlugins.push({ plugin, context, hrStart })
-
               continue
             }
 
-            const duration = getElapsedMs(hrStart)
-            diagnostics.push(Diagnostics.performance({ plugin: plugin.name, duration }))
-
-            await this.#emitPluginEnd({ plugin, duration, success: true })
+            diagnostics.push(...(await this.#finishPlugin({ plugin, hrStart })))
           }
 
           // Run every node through each plugin's macros and generators.
@@ -501,16 +476,37 @@ export class KubbDriver {
     }
   }
 
-  #emitPluginEnd({ plugin, duration, success, error }: { plugin: NormalizedPlugin; duration: number; success: boolean; error?: Error }): Promise<void> | void {
-    return this.hooks.callHook('kubb:plugin:end', this.#withFiles({ plugin, duration, success, ...(error ? { error } : {}), config: this.config }))
+  async #finishPlugin({
+    plugin,
+    hrStart,
+    error,
+    crashSite,
+  }: {
+    plugin: NormalizedPlugin
+    hrStart: ReturnType<typeof process.hrtime>
+    error?: Error
+    crashSite?: ReturnType<typeof getCrashSite>
+  }): Promise<Array<Diagnostic>> {
+    const duration = getElapsedMs(hrStart)
+    await this.hooks.callHook('kubb:plugin:end', this.#withFiles({ plugin, duration, success: !error, ...(error ? { error } : {}), config: this.config }))
+
+    const timing = Diagnostics.performance({ plugin: plugin.name, duration })
+    if (!error) return [timing]
+
+    const diagnostic = Diagnostics.fromExtension(error, { kind: 'plugin', extension: plugin })
+    const site = diagnostic.code === Diagnostics.code.pluginFailed && !diagnostic.location ? crashSite : undefined
+    return [
+      site
+        ? { ...diagnostic, message: `While generating ${site.label}: ${diagnostic.message}`, ...(site.location ? { location: site.location } : {}) }
+        : diagnostic,
+      timing,
+    ]
   }
 
   /**
    * Runs schemas and operations through every plugin's generators. The walk is node-outer: each
    * schema is visited once and each operation once, and the node fans out to the matching
-   * generators of every plugin in dependency order. A per-node cache (`createNodeCache`) is created
-   * once per node and shared by all of that node's plugins, so node-derived work is computed once
-   * and reused instead of recomputed per plugin. Each node still runs through the plugin's macros
+   * generators of every plugin in dependency order. Each node still runs through the plugin's macros
    * and its exclude/include/override filters before that plugin's
    * generator sees it, so plugins stay isolated. Schemas run before operations so file output
    * stays deterministic across runs. A generator with a `match` predicate that resolves `false`
@@ -525,18 +521,14 @@ export class KubbDriver {
    * post-plugin listeners (the barrel writer and friends) complete.
    */
   async #runGenerators(
-    entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options' | 'cache'>; hrStart: ReturnType<typeof process.hrtime> }>,
+    entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,
   ): Promise<Array<Diagnostic>> {
     const diagnostics: Array<Diagnostic> = []
 
     if (entries.length === 0) return diagnostics
 
     if (!this.inputNode) {
-      for (const { plugin, hrStart } of entries) {
-        const duration = getElapsedMs(hrStart)
-        diagnostics.push(Diagnostics.performance({ plugin: plugin.name, duration }))
-        await this.#emitPluginEnd({ plugin, duration, success: true })
-      }
+      for (const { plugin, hrStart } of entries) diagnostics.push(...(await this.#finishPlugin({ plugin, hrStart })))
       return diagnostics
     }
 
@@ -626,11 +618,10 @@ export class KubbDriver {
     }
 
     // Schemas before operations, in adapter order, so file output stays deterministic. For each
-    // node the plugins fan out in dependency order and share one cache. A caught error drops that
+    // node the plugins fan out in dependency order. A caught error drops that
     // plugin from the rest of the walk but not the others, so its remaining nodes are skipped
     // rather than retried. Generators run directly; `kubb:generate:*` still fires for observers.
     for (const node of schemas) {
-      const cache = createNodeCache()
       for (const state of states) {
         if (state.error || !state.schemaGenerators.length) continue
         try {
@@ -640,7 +631,7 @@ export class KubbDriver {
 
           const { transformedNode, options } = resolved
 
-          const ctx = { ...state.generatorContext, options, cache }
+          const ctx = { ...state.generatorContext, options }
           await this.#dispatchNode({
             generators: state.schemaGenerators,
             node: transformedNode,
@@ -659,7 +650,6 @@ export class KubbDriver {
     // `operations` receives, so every node is transformed and filtered exactly once. A plugin with
     // only an `operations` generator still collects its filtered nodes here.
     for (const node of operations) {
-      const cache = createNodeCache()
       for (const state of states) {
         if (state.error || (!state.operationGenerators.length && !state.operationsGenerators.length)) continue
         try {
@@ -670,7 +660,7 @@ export class KubbDriver {
 
           if (state.operationGenerators.length) {
             const { transformedNode } = resolved
-            const ctx = { ...state.generatorContext, options: resolved.options, cache }
+            const ctx = { ...state.generatorContext, options: resolved.options }
             await this.#dispatchNode({
               generators: state.operationGenerators,
               node: transformedNode,
@@ -687,11 +677,11 @@ export class KubbDriver {
     }
 
     // The `operations` batch fires once per plugin after the single operation walk, in dependency
-    // order, with a fresh cache since it spans every node rather than one.
+    // order.
     for (const state of states) {
       if (state.error || !state.operationsGenerators.length) continue
       try {
-        const ctx = { ...state.generatorContext, options: state.plugin.options, cache: createNodeCache() }
+        const ctx = { ...state.generatorContext, options: state.plugin.options }
         for (const generator of state.operationsGenerators) {
           await this.fileManager.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
         }
@@ -703,21 +693,8 @@ export class KubbDriver {
 
     // Close out every plugin in dependency order, so `kubb:plugin:end` and the timing diagnostics
     // still count up in plugin order for the CLI's `Plugins N/M` line.
-    for (const state of states) {
-      const duration = getElapsedMs(state.hrStart)
-      await this.#emitPluginEnd({ plugin: state.plugin, duration, success: !state.error, error: state.error ?? undefined })
-
-      if (state.error) {
-        const diagnostic = Diagnostics.fromExtension(state.error, { kind: 'plugin', extension: state.plugin })
-        // Only a crash gains the node it failed on. A coded error already says where it is.
-        const site = diagnostic.code === Diagnostics.code.pluginFailed && !diagnostic.location ? state.crashSite : undefined
-        diagnostics.push(
-          site
-            ? { ...diagnostic, message: `While generating ${site.label}: ${diagnostic.message}`, ...(site.location ? { location: site.location } : {}) }
-            : diagnostic,
-        )
-      }
-      diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration }))
+    for (const { plugin, hrStart, error, crashSite } of states) {
+      diagnostics.push(...(await this.#finishPlugin({ plugin, hrStart, error: error ?? undefined, crashSite })))
     }
 
     return diagnostics
@@ -774,10 +751,10 @@ export class KubbDriver {
   }
 
   memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {
-    return memoize(this.#memo, key, compute)
+    return memo(this.#memo, key, compute) as TValue
   }
 
-  getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options' | 'cache'> {
+  getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
     const driver = this
 
     // Collect into the active build only. The host renders each collected diagnostic once after the

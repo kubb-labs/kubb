@@ -80,14 +80,6 @@ export const pluginExample = defineExtension({
 
 Rounding out the package are the option and hook types every plugin, generator, adapter, resolver, and renderer author references, among them `PluginType`, `GeneratorContext`, `ResolveFileOptions`, `AdapterFactoryOptions`, `RendererFactory`, and `KubbHooks`.
 
-## Testing helpers
-
-`kubb/kit/testing` holds the Vitest-backed test helpers (`createMockedPlugin`, `createMockedAdapter`, `renderGeneratorOperation`, `matchFiles`) used to unit test a plugin or generator without running a full build. It is a separate entry point so the main `kubb/kit` import never pulls in Vitest.
-
-```typescript
-import { createMockedPlugin, renderGeneratorSchema } from 'kubb/kit/testing'
-```
-
 ## Why a separate package from `@kubb/core`
 
 `@kubb/core` also runs the build engine: the plugin driver, the file manager, and the CLI reporters. None of that is part of authoring a plugin. `@kubb/kit` keeps the two apart, the same way the surrounding `kubb/ast` and `kubb/jsx` subpaths separate the AST layer and the JSX renderer from the engine that drives them.

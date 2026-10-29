@@ -1,4 +1,3 @@
-import type { NodeKind } from './nodes/base.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
 /**
@@ -24,16 +23,7 @@ export const nodeKinds = {
   text: 'Text',
   break: 'Break',
   jsx: 'Jsx',
-} as const satisfies Record<string, NodeKind>
-
-/**
- * Traversal depth for AST visitor utilities.
- *
- * - `'shallow'` recurses through every node except nested `Schema` subtrees, which it treats as
- *   leaves: a schema node itself is visited, but its children are not.
- * - `'deep'` recursively visits all descendant nodes, including schema subtrees.
- */
-export type VisitorDepth = 'shallow' | 'deep'
+} as const
 
 /**
  * Schema type discriminators used by all AST schema nodes.

@@ -1,14 +1,21 @@
-import { nodeKinds, type VisitorDepth } from './constants.ts'
+import { nodeKinds } from './constants.ts'
 import type { Node } from './nodes/index.ts'
-import type { ContentNode } from './nodes/content.ts'
 import type { InputNode } from './nodes/input.ts'
 import type { NodeKind } from './nodes/base.ts'
 import type { OperationNode } from './nodes/operation.ts'
 import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
-import type { RequestBodyNode } from './nodes/requestBody.ts'
 import type { ResponseNode } from './nodes/response.ts'
 import type { SchemaNode } from './nodes/schema.ts'
+
+/**
+ * Traversal depth for AST visitor utilities.
+ *
+ * - `'shallow'` recurses through every node except nested `Schema` subtrees, which it treats as
+ *   leaves: a schema node itself is visited, but its children are not.
+ * - `'deep'` recursively visits all descendant nodes, including schema subtrees.
+ */
+export type VisitorDepth = 'shallow' | 'deep'
 
 /**
  * Child node fields per node kind, in traversal order (Babel's `VISITOR_KEYS`).
@@ -42,72 +49,22 @@ const VISITOR_KEY_BY_KIND: Partial<Record<NodeKind, VisitorKey>> = {
 }
 
 /**
- * Ordered mapping of `[NodeType, ParentType]` pairs.
- *
- * `ParentOf` uses this map to find parent types.
- */
-type ParentNodeMap = [
-  [InputNode, undefined],
-  [OperationNode, InputNode],
-  [RequestBodyNode, OperationNode],
-  [ContentNode, RequestBodyNode | ResponseNode],
-  [SchemaNode, InputNode | ContentNode | SchemaNode | PropertyNode | ParameterNode],
-  [PropertyNode, SchemaNode],
-  [ParameterNode, OperationNode],
-  [ResponseNode, OperationNode],
-]
-
-/**
- * Resolves the parent node type for a given AST node type.
- *
- * Visitor context relies on this so `ctx.parent` is typed for each callback.
- *
- * @example
- * ```ts
- * type InputParent = ParentOf<InputNode>
- * // undefined
- * ```
- *
- * @example
- * ```ts
- * type PropertyParent = ParentOf<PropertyNode>
- * // SchemaNode
- * ```
- *
- * @example
- * ```ts
- * type SchemaParent = ParentOf<SchemaNode>
- * // InputNode | ContentNode | SchemaNode | PropertyNode | ParameterNode
- * ```
- */
-export type ParentOf<T extends Node, TEntries extends ReadonlyArray<[Node, unknown]> = ParentNodeMap> = TEntries extends [
-  infer TEntry extends [Node, unknown],
-  ...infer TRest extends ReadonlyArray<[Node, unknown]>,
-]
-  ? T extends TEntry[0]
-    ? TEntry[1]
-    : ParentOf<T, TRest>
-  : Node
-
-/**
  * Traversal context passed as the second argument to every visitor callback.
- * `parent` is typed from the current node type.
  *
  * @example
  * ```ts
  * const visitor: Visitor = {
  *   schema(node, { parent }) {
- *     // parent type is narrowed by node kind
+ *     // parent is the node that holds this schema, or undefined at the root
  *   },
  * }
  * ```
  */
-export type VisitorContext<T extends Node = Node> = {
+export type VisitorContext = {
   /**
-   * Parent node of the currently visited node.
-   * For `InputNode`, this is `undefined`.
+   * Parent node of the currently visited node. For the root node, this is `undefined`.
    */
-  parent?: ParentOf<T>
+  parent?: Node
 }
 
 /**
@@ -137,12 +94,12 @@ export type VisitorContext<T extends Node = Node> = {
  * ```
  */
 export type Visitor = {
-  input?(node: InputNode, context: VisitorContext<InputNode>): undefined | null | InputNode
-  operation?(node: OperationNode, context: VisitorContext<OperationNode>): undefined | null | OperationNode
-  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): undefined | null | SchemaNode
-  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): undefined | null | PropertyNode
-  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): undefined | null | ParameterNode
-  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): undefined | null | ResponseNode
+  input?(node: InputNode, context: VisitorContext): undefined | null | InputNode
+  operation?(node: OperationNode, context: VisitorContext): undefined | null | OperationNode
+  schema?(node: SchemaNode, context: VisitorContext): undefined | null | SchemaNode
+  property?(node: PropertyNode, context: VisitorContext): undefined | null | PropertyNode
+  parameter?(node: ParameterNode, context: VisitorContext): undefined | null | ParameterNode
+  response?(node: ResponseNode, context: VisitorContext): undefined | null | ResponseNode
 }
 
 /**
@@ -233,23 +190,6 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
   return children
 }
 
-/**
- * Visits each direct child node in the AST's traversal order.
- *
- * @example
- * ```ts
- * forEachChild(operationNode, (child) => {
- *   console.log(child.kind)
- * })
- * ```
- */
-export function forEachChild(node: Node, visit: (child: Node) => void): void {
-  visitChildNodes(node, (child) => {
-    visit(child)
-    return false
-  })
-}
-
 function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
   const keys = VISITOR_KEYS[node.kind]
   if (!keys) return false
@@ -274,24 +214,6 @@ function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
     }
   }
   return false
-}
-
-/**
- * Visits each schema in a node's child tree in depth-first order. Includes `node` when it is a schema.
- *
- * @example
- * ```ts
- * forEachSchema(operationNode, (schema) => {
- *   console.log(schema.type)
- * })
- * ```
- */
-export function forEachSchema(node: Node, visit: (schema: SchemaNode) => void): void {
-  const walk = (current: Node): void => {
-    if (current.kind === nodeKinds.schema) visit(current)
-    forEachChild(current, walk)
-  }
-  walk(node)
 }
 
 /**

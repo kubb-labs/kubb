@@ -17,6 +17,7 @@ function setupReporters(
     reporters,
     writer = defaultWriter(),
     dryRun = false,
+    fileChanges = false,
   }: {
     /** Output verbosity. Use the `logLevel` constants exported from `@kubb/core`. */
     logLevel: number
@@ -27,6 +28,10 @@ function setupReporters(
      * Labels the memory-backed generation as a preview rather than a completed write.
      */
     dryRun?: boolean
+    /**
+     * Hands `fileChanges` to every reporter, not only `cli`.
+     */
+    fileChanges?: boolean
   },
 ): void {
   const hasJson = reporters.some((reporter) => reporter.name === 'json')
@@ -55,7 +60,7 @@ function setupReporters(
   let previous: Map<string, string> | undefined
   let paths: Array<string> = []
   let outputPath = ''
-  const trackChanges = selected.some((reporter) => reporter.name === 'cli') && logLevel > logLevelMap.silent
+  const trackChanges = (fileChanges || selected.some((reporter) => reporter.name === 'cli')) && logLevel > logLevelMap.silent
   context.hook('kubb:generation:start', async ({ config }) => {
     pluginFiles?.clear()
     seen.clear()
@@ -103,7 +108,7 @@ function setupReporters(
     }
     for (const reporter of selected) {
       const grouped = reporter.needsPluginFiles && pluginFiles?.size ? [...pluginFiles].map(([plugin, files]) => ({ plugin, files: [...files] })) : undefined
-      await reporter.report({ ...(reporter.name === 'cli' ? cliResult : result), pluginFiles: grouped }, ctx)
+      await reporter.report({ ...(reporter.name === 'cli' || fileChanges ? cliResult : result), pluginFiles: grouped }, ctx)
     }
   })
 

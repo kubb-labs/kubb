@@ -4,13 +4,13 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
 import { BUNDLED_PACKAGES, ConfigEditOperation, extensionKinds, editConfig, editConfigFile, findConfigFile, readConfig, readImports } from '@internals/shared'
-import { getErrorMessage, read } from '@internals/utils'
+import { getErrorMessage, pascalCase, read } from '@internals/utils'
 import { Diagnostics, readInstalledPackages } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
 import { isInteractiveRun, logIntro } from '../../ui/intro.ts'
 import { logBlock, logError, logStep } from '../../ui/log.ts'
 import { withSpinner } from '../../ui/spinner.ts'
-import { logCommandSummary } from '../../ui/summary.ts'
+import { createSummary } from '../../ui/summary.ts'
 import { closestIds, fetchRegistryIndex, registryUrl, toRegistryId, toShortId } from '../../utils/registry.ts'
 import { detectPackageManager, uninstallPackages } from '../init/utils.ts'
 
@@ -45,8 +45,7 @@ function removedLines({ before, after }: { before: string; after: string }): Arr
 export async function run({ id: input, configPath, yes, uninstall }: RemoveOptions): Promise<void> {
   const cwd = process.cwd()
   const hrStart = process.hrtime()
-  const summary = (title: string, status: Parameters<typeof logCommandSummary>[0]['status'], lines: ReadonlyArray<string>) =>
-    logCommandSummary({ title, status, hrStart, block: true, lines })
+  const summary = createSummary(hrStart)
   const fail = (title: string, lines: ReadonlyArray<string>) => {
     summary(title, 'failed', lines)
     process.exitCode = 1
@@ -79,7 +78,7 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
       )
     }
     const { artifact, manifest } = entry
-    const kind = manifest.kind.charAt(0).toUpperCase() + manifest.kind.slice(1)
+    const kind = pascalCase(manifest.kind)
     if (manifest.kind === extensionKinds.adapter)
       return fail('The adapter cannot be removed', [`  A config needs one adapter. Change it in ${configName} by hand.`])
 
@@ -143,7 +142,7 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
       if (!written.outcomes[0]?.applied) return fail(`Could not edit ${configName}`, [`  ${written.outcomes[0]?.reason ?? 'the config file was not changed'}`])
       logStep(`${manifest.export}() removed from ${configName}`)
     }
-    const packageManager = detectPackageManager(cwd)
+    const packageManager = await detectPackageManager(cwd)
     if (uninstalls)
       await withSpinner({
         message: `Uninstalling ${artifact.package} with ${packageManager.name}`,

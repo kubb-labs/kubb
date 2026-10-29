@@ -171,38 +171,36 @@ export function assertPluginOption({
   })
 }
 
-type ByTag = {
+/**
+ * Pattern filter on one operation or schema field: a literal string or a regex, matched case-sensitive.
+ * `tag` matches any of an operation's OpenAPI `tags`, `operationId` its id, `path` its full URL path,
+ * `contentType` a request body content type, and `schemaName` a `#/components/schemas` name.
+ */
+type ByPattern<T extends 'tag' | 'operationId' | 'path' | 'schemaName' | 'contentType'> = {
   /**
-   * Filter by OpenAPI `tags` field. Matches one or more tags assigned to operations.
+   * Field to match: `'tag'`, `'operationId'`, `'path'`, `'schemaName'`, or `'contentType'`.
    */
-  type: 'tag'
+  type: T
   /**
-   * Tag name to match (case-sensitive). Can be a literal string or regex pattern.
-   */
-  pattern: string | RegExp
-}
-
-type ByOperationId = {
-  /**
-   * Filter by OpenAPI `operationId` field. Each operation (GET, POST, etc.) has a unique identifier.
-   */
-  type: 'operationId'
-  /**
-   * Operation ID to match (case-sensitive). Can be a literal string or regex pattern.
+   * Literal value or regular expression the field must match.
    */
   pattern: string | RegExp
 }
 
-type ByPath = {
-  /**
-   * Filter by OpenAPI `path` (URL endpoint). Useful to group or filter by service segments like `/pets`, `/users`, etc.
-   */
-  type: 'path'
-  /**
-   * URL path to match (case-sensitive). Can be a literal string or regex pattern. Matches against the full path.
-   */
-  pattern: string | RegExp
-}
+/**
+ * Filter by OpenAPI `tags`.
+ */
+type ByTag = ByPattern<'tag'>
+
+/**
+ * Filter by OpenAPI `operationId`.
+ */
+type ByOperationId = ByPattern<'operationId'>
+
+/**
+ * Filter by OpenAPI `path` (URL endpoint), matched against the full path.
+ */
+type ByPath = ByPattern<'path'>
 
 type ByMethod = {
   /**
@@ -216,27 +214,15 @@ type ByMethod = {
   pattern: HttpMethod | RegExp
 }
 
-type BySchemaName = {
-  /**
-   * Filter by schema component name (TypeScript or JSON schema). Matches schemas in `#/components/schemas`.
-   */
-  type: 'schemaName'
-  /**
-   * Schema name to match (case-sensitive). Can be a literal string or regex pattern.
-   */
-  pattern: string | RegExp
-}
+/**
+ * Filter by schema component name in `#/components/schemas`.
+ */
+type BySchemaName = ByPattern<'schemaName'>
 
-type ByContentType = {
-  /**
-   * Filter by response or request content type: `'application/json'`, `'application/xml'`, etc.
-   */
-  type: 'contentType'
-  /**
-   * Content type to match (case-sensitive). Can be a literal string or regex pattern.
-   */
-  pattern: string | RegExp
-}
+/**
+ * Filter by request content type, such as `'application/json'`.
+ */
+type ByContentType = ByPattern<'contentType'>
 
 type ByExtension = {
   /** Filter operations by a vendor extension (`x-*` key) on the source operation. Does not apply to schemas. */

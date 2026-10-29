@@ -1,5 +1,5 @@
 import { ast } from '@kubb/ast'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { getRelativePath, print as printFragments, printExport, printImport, printSource } from './utils.ts'
 
 function print(...nodes: Array<ast.CodeNode>): string {
@@ -185,5 +185,14 @@ describe('print', () => {
 
   it('asks for a TypeScript with the compiler API when it gets a compiler node and none is installed', () => {
     expect(() => printFragments({ kind: 1 })).toThrow('needs `typescript` 5 or 6')
+  })
+
+  it('emits a deprecation warning when it gets a compiler node', () => {
+    const emitWarning = vi.spyOn(process, 'emitWarning').mockImplementation(() => {})
+
+    expect(() => printFragments({ kind: 1 })).toThrow()
+    expect(emitWarning).toHaveBeenCalledWith(expect.stringContaining('deprecated'), { type: 'DeprecationWarning', code: 'KUBB_PRINT_TS_NODE' })
+
+    emitWarning.mockRestore()
   })
 })

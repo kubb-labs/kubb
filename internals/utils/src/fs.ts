@@ -90,21 +90,8 @@ export async function write(path: string, data: string, options: WriteOptions = 
 
   const content = `${trimmed}\n`
   const resolved = resolve(path)
-  let stored = options.stored
-
-  if (stored === undefined) {
-    if (runtime.isBun) {
-      const file = Bun.file(resolved)
-      stored = (await file.exists()) ? await file.text() : null
-    } else {
-      try {
-        stored = await readFile(resolved, { encoding: 'utf-8' })
-      } catch {
-        /* file doesn't exist yet */
-        stored = null
-      }
-    }
-  }
+  // A missing file reads as `null`.
+  const stored = options.stored === undefined ? await read(resolved).catch(() => null) : options.stored
   if (matchesStored({ stored: stored ?? '', source: trimmed })) return null
 
   await writeRaw(resolved, content)
@@ -176,24 +163,6 @@ export async function* listFiles(directory: string): AsyncGenerator<string> {
  */
 export function toPosixPath(filePath: string): string {
   return filePath.replaceAll('\\', '/')
-}
-
-/**
- * Strips the file extension from a path or file name.
- * Only removes the last `.ext` segment when the dot is not part of a directory name.
- *
- * @example
- * trimExtName('petStore.ts')             // 'petStore'
- * trimExtName('/src/models/pet.ts')      // '/src/models/pet'
- * trimExtName('/project.v2/gen/pet.ts')  // '/project.v2/gen/pet'
- * trimExtName('noExtension')             // 'noExtension'
- */
-export function trimExtName(text: string): string {
-  const dotIndex = text.lastIndexOf('.')
-  if (dotIndex > 0 && !text.includes('/', dotIndex)) {
-    return text.slice(0, dotIndex)
-  }
-  return text
 }
 
 /**

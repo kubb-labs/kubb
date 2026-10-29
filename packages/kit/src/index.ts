@@ -2,7 +2,6 @@ export { ast } from '@kubb/ast'
 export { Url } from './Url.ts'
 export { enumPrimitive, macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
 export { macroEnumName } from './macros/macroEnumName.ts'
-export { macroRenameSchema } from './macros/macroRenameSchema.ts'
 export { macroSimplifyUnion } from './macros/macroSimplifyUnion.ts'
 export { mergeAdjacentObjectsLazy } from './utils/mergeAdjacentSchemas.ts'
 export { childName, enumPropName, extractRefName, isStringType, syncSchemaRef } from './utils/refs.ts'
@@ -67,7 +66,6 @@ export type {
   KubbPluginSetupContext,
   KubbPluginStartContext,
   Memo,
-  NodeCache,
   NormalizedPlugin,
   Output,
   OutputOptions,

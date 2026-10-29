@@ -63,10 +63,6 @@
         "default": "./dist/index.cjs"
       }
     },
-    "./testing": {
-      "types": "./dist/testing.d.ts",
-      "default": "./dist/testing.js"
-    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -84,14 +80,6 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*"
-  },
-  "peerDependencies": {
-    "vitest": "^4.0.0 || ^5.0.0"
-  },
-  "peerDependenciesMeta": {
-    "vitest": {
-      "optional": true
-    }
   },
   "engines": {
     "node": ">=22.22"

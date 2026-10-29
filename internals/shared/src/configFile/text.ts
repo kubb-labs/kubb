@@ -1,3 +1,4 @@
+import type { ValueOf } from '@internals/utils'
 import { type ArrayExpression, nodeTypes, type ObjectExpression } from './ast.ts'
 import type { OptionValue } from './types.ts'
 
@@ -8,7 +9,7 @@ import type { OptionValue } from './types.ts'
 export const IDENTIFIER_PATTERN = /^[A-Za-z_$][\w$]*$/
 
 export const quotes = { single: `'`, double: `"` } as const
-export type Quote = (typeof quotes)[keyof typeof quotes]
+export type Quote = ValueOf<typeof quotes>
 
 /** `source` with the text between `start` and `end` replaced by `text`. */
 export function replaceText(source: string, start: number, end: number, text = ''): string {
