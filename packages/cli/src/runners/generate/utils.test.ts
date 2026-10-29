@@ -140,6 +140,11 @@ describe('diffOutput', () => {
       expect(await diffOutput({ storage: memoryStorage(), paths, clean: true, previousFiles, counted })).toStrictEqual(
         await diffOutput({ storage, paths, clean: true, previousFiles }),
       )
+      // A path the writer never reported, such as a blank file the storage skipped, is read back.
+      counted.delete(join(dir, 'gen/tag.ts'))
+      expect(await diffOutput({ storage, paths, clean: false, previousFiles, counted })).toStrictEqual(
+        await diffOutput({ storage, paths, clean: false, previousFiles }),
+      )
     } finally {
       await rm(dir, { recursive: true, force: true })
     }

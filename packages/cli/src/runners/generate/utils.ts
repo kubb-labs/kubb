@@ -183,7 +183,7 @@ export function diffFile({
 /**
  * Compares generated output with the files captured before generation. The manifest recognizes
  * output rewritten by a formatter, and `clean` includes files the run would delete. `counted` holds
- * changes already worked out while the files were written; without it, each file is read back.
+ * changes already worked out while the files were written; any other path is read back.
  */
 export async function diffOutput({
   storage,
@@ -202,7 +202,7 @@ export async function diffOutput({
    */
   previousFiles: ReadonlyMap<string, string>
   /**
-   * Each written file's change from {@link diffFile}, `undefined` when unchanged. A path missing here was not written.
+   * Each written file's change from {@link diffFile}, `undefined` when unchanged. A path missing here, such as a blank file the storage skipped, is read back.
    */
   counted?: ReadonlyMap<string, FileChange | undefined>
 }): Promise<{ files: Array<FileChange>; unchanged: number }> {
@@ -214,8 +214,7 @@ export async function diffOutput({
     limit: 50,
     run: async (filePath, index) => {
       let change: FileChange | undefined
-      if (counted) {
-        if (!counted.has(filePath)) return
+      if (counted?.has(filePath)) {
         change = counted.get(filePath)
       } else {
         const next = await storage.readItem(filePath)
