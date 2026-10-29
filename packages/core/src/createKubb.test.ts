@@ -34,7 +34,7 @@ function makeAdapter({ schemas = [], operations = [] }: { schemas?: Array<Schema
   return createMockedAdapter({
     parse: async () => ({
       kind: 'Input' as const,
-      meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
+      meta: { circularNames: new Set<string>(), enumNames: new Set<string>() },
       schemas,
       operations,
     }),

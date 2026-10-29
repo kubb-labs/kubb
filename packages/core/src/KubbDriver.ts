@@ -808,7 +808,7 @@ export class KubbDriver {
         driver.fileManager.upsert(...files)
       },
       get meta(): InputMeta {
-        return driver.inputNode?.meta ?? { circularNames: [], enumNames: [] }
+        return driver.inputNode?.meta ?? { circularNames: new Set(), enumNames: new Set() }
       },
       get adapter(): Adapter {
         // Generators only read `adapter` during AST hooks, which run after the
