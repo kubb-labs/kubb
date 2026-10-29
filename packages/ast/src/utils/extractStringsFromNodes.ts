@@ -1,11 +1,24 @@
 import { nodeKinds } from '../constants.ts'
+import type { NodeKind } from '../nodes/base.ts'
 import type { CodeNode } from '../nodes/code.ts'
+
+/**
+ * Source-text fields per `CodeNode` kind, in read order. `generics` holds a string or an array of
+ * strings; `Const.type` counts only when it is a string. `Break` has none and `JSDoc` is left alone.
+ */
+export const CODE_NODE_TEXT_FIELDS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
+  Text: ['value'],
+  Jsx: ['value'],
+  Function: ['params', 'generics', 'returnType'],
+  ArrowFunction: ['params', 'generics', 'returnType'],
+  Const: ['type'],
+}
 
 /**
  * Extracts all string content from a `CodeNode` tree recursively.
  *
- * Collects text node values, identifier references in string fields (`params`, `generics`, `returnType`, `type`),
- * and nested node content. Used to build the full source string for import filtering.
+ * Collects the fields in {@link CODE_NODE_TEXT_FIELDS} and nested node content. Used to build the
+ * full source string for import filtering.
  */
 export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): string {
   if (!nodes?.length) return ''
@@ -21,19 +34,16 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
       if (node) collected.push(node as string)
       continue
     }
-    if (node.kind === nodeKinds.text || node.kind === nodeKinds.jsx) {
-      if (node.value) collected.push(node.value)
-      continue
-    }
     if (node.kind === nodeKinds.break) continue
 
     const parts: Array<string> = []
-    if ('params' in node && node.params) parts.push(node.params)
-    if ('generics' in node && node.generics) parts.push(Array.isArray(node.generics) ? node.generics.join(', ') : node.generics)
-    if ('returnType' in node && node.returnType) parts.push(node.returnType)
-    if ('type' in node && typeof node.type === 'string') parts.push(node.type)
+    const record = node as unknown as Record<string, unknown>
+    for (const field of CODE_NODE_TEXT_FIELDS[node.kind] ?? []) {
+      const value = record[field]
+      if (typeof value === 'string' ? value : Array.isArray(value)) parts.push(Array.isArray(value) ? value.join(', ') : (value as string))
+    }
 
-    const nested = extractStringsFromNodes(node.nodes)
+    const nested = 'nodes' in node ? extractStringsFromNodes(node.nodes) : ''
     if (nested) parts.push(nested)
 
     if (parts.length) collected.push(parts.join('\n'))

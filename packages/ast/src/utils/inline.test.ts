@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createFunction, createText } from '../nodes/code.ts'
 import { createFile, createImport, createSource } from '../nodes/file.ts'
 import type { FileNode } from '../nodes/file.ts'
-import { type InlineLanguage, inlineFiles as inlineFilesWith, isVirtualFile } from './inline.ts'
+import { type InlineLanguage, inlineFiles as inlineFilesWith } from './inline.ts'
 
 // A stand-in language with no TypeScript rules: every word is a reference, and anything but a word goes in parentheses.
 const words: InlineLanguage = {
@@ -51,14 +51,6 @@ function clientFile(code: string, extra: Partial<FileNode> = {}) {
 function code(file: FileNode | undefined) {
   return file?.sources.flatMap((source) => source.nodes?.map((node) => ('value' in node ? node.value : node)) ?? [])
 }
-
-describe('isVirtualFile', () => {
-  it('is true only when every source is inline', () => {
-    expect(isVirtualFile(operationFile)).toBe(true)
-    expect(isVirtualFile(clientFile('client()'))).toBe(false)
-    expect(isVirtualFile(createFile({ baseName: 'empty.ts', path: '/gen/empty.ts' }))).toBe(false)
-  })
-})
 
 describe('inlineFiles', () => {
   it('returns nothing when no file is virtual', () => {

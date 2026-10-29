@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, toError } from '@internals/utils'
-import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
+import { ast, collectUsedSchemaNames, compareEnforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
@@ -47,12 +47,8 @@ type ResolvedNode<TNode extends SchemaNode | OperationNode> = {
   options: NormalizedPlugin['options']
 }
 
-const ENFORCE_ORDER = { pre: -1, post: 1 } satisfies Record<Enforce, number>
-
 /** `include` filter types that select operations, and so prune the schemas they do not reach. */
 const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType', 'extension'])
-
-const enforceWeight = (plugin: NormalizedPlugin): number => (plugin.enforce ? ENFORCE_ORDER[plugin.enforce] : 0)
 
 /**
  * The options bag a `NormalizedPlugin` starts with before a plugin refines it: a directory output
@@ -211,7 +207,7 @@ export class KubbDriver {
    * config are ignored here and surface later through `requirePlugin`.
    */
   #sortPlugins(plugins: Array<NormalizedPlugin>): Array<NormalizedPlugin> {
-    const queue = [...plugins].sort((a, b) => enforceWeight(a) - enforceWeight(b))
+    const queue = [...plugins].sort((a, b) => compareEnforce(a.enforce, b.enforce))
     const names = new Set(queue.map((plugin) => plugin.name))
     const blockedBy = new Map(
       queue.map((plugin) => {

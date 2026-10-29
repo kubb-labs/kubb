@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createContent } from './nodes/content.ts'
 import { createInput } from './nodes/input.ts'
 import { createOperation } from './nodes/operation.ts'
 import { createParameter } from './nodes/parameter.ts'
@@ -47,11 +48,11 @@ function buildSampleTree(): InputNode {
     responses: [
       createResponse({
         statusCode: '200',
-        schema: createSchema({ type: 'ref', name: 'Pet' }),
+        content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'ref', name: 'Pet' }) })],
       }),
       createResponse({
         statusCode: '404',
-        schema: createSchema({ type: 'ref', name: 'Error' }),
+        content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'ref', name: 'Error' }) })],
       }),
     ],
   })

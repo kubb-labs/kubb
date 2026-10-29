@@ -2,58 +2,20 @@ import { nodeKinds } from '../constants.ts'
 import type { BaseNode, DistributiveOmit } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
+/** Subset of {@link SchemaType} covering the primitives plus `object`, `array`, and `date`; `schemaTypes` documents each. */
 export type PrimitiveSchemaType =
-  /**
-   * Text value.
-   */
   | 'string'
-  /**
-   * Floating-point number.
-   */
   | 'number'
-  /**
-   * Integer number.
-   */
   | 'integer'
-  /**
-   * Big integer number.
-   */
   | 'bigint'
-  /**
-   * Boolean value.
-   */
   | 'boolean'
-  /**
-   * Null value.
-   */
   | 'null'
-  /**
-   * Any value.
-   */
   | 'any'
-  /**
-   * Unknown value.
-   */
   | 'unknown'
-  /**
-   * No value (`void`).
-   */
   | 'void'
-  /**
-   * Never value.
-   */
   | 'never'
-  /**
-   * Object value.
-   */
   | 'object'
-  /**
-   * Array value.
-   */
   | 'array'
-  /**
-   * Date value.
-   */
   | 'date'
 
 /**

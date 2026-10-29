@@ -1,6 +1,5 @@
-import type { VisitorDepth } from './constants.ts'
 import type { Node } from './nodes/index.ts'
-import type { Visitor, VisitorContext, VisitorKey } from './visitor.ts'
+import type { Visitor, VisitorContext, VisitorDepth, VisitorKey } from './visitor.ts'
 import { transform, visitorKeys } from './visitor.ts'
 
 /**
@@ -17,6 +16,19 @@ function enforceWeight(enforce?: Enforce): number {
   if (enforce === 'pre') return 0
   if (enforce === 'post') return 2
   return 1
+}
+
+/**
+ * Compares two `enforce` hints for `Array.prototype.sort`: `pre` first, unmarked next, `post`
+ * last. Equal hints compare as `0`, so a stable sort keeps authored order within a bucket.
+ *
+ * @example
+ * ```ts
+ * plugins.sort((a, b) => compareEnforce(a.enforce, b.enforce))
+ * ```
+ */
+export function compareEnforce(a?: Enforce, b?: Enforce): number {
+  return enforceWeight(a) - enforceWeight(b)
 }
 
 /**
@@ -90,19 +102,11 @@ function chain({ macros, key, node, context }: ChainProps): Node | undefined {
 }
 
 /**
- * Folds an ordered list of macros into a single {@link Visitor} that `transform` (and the per-plugin
- * transform layer in `@kubb/core`) can run. Macros are stable-sorted by `enforce`, then applied
- * sequentially per node so later macros see earlier output. This differs from a plain visitor, which
- * has no names, ordering, or composition.
- *
- * @example
- * ```ts
- * const visitor = composeMacros([macroSimplifyUnion, macroDiscriminatorEnum])
- * const next = transform(root, visitor)
- * ```
+ * Folds an ordered list of macros into a single {@link Visitor} for `transform`. Macros are
+ * stable-sorted by `enforce`, then applied sequentially per node so later macros see earlier output.
  */
-export function composeMacros(macros: ReadonlyArray<Macro>): Visitor {
-  const ordered = [...macros].sort((a, b) => enforceWeight(a.enforce) - enforceWeight(b.enforce))
+function composeMacros(macros: ReadonlyArray<Macro>): Visitor {
+  const ordered = [...macros].sort((a, b) => compareEnforce(a.enforce, b.enforce))
 
   const visitor: Visitor = {}
   for (const key of visitorKeys) {

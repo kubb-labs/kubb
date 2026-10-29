@@ -4,11 +4,27 @@ import type { SchemaNode } from '../nodes/schema.ts'
 import { collect, collectSync } from '../visitor.ts'
 import { resolveRefName } from './refs.ts'
 
+type RefEntry = { name: string; hasPointer: boolean }
+
+/**
+ * Walks a node's subtree once and lists every ref it holds, in traversal order, as the resolved
+ * name plus whether the ref carries a `$ref` pointer. Memoized by node identity, so
+ * `collectSchemaRefs` and `collectImportedRefNames` share one scan per schema.
+ */
+const collectRefEntries = memoize(new WeakMap<SchemaNode, ReadonlyArray<RefEntry>>(), (node: SchemaNode): ReadonlyArray<RefEntry> =>
+  collectSync<RefEntry>(node, {
+    schema(child) {
+      if (child.type !== 'ref') return undefined
+      const name = resolveRefName(child)
+      return name ? { name, hasPointer: Boolean(child.ref) } : undefined
+    },
+  }),
+)
+
 /**
  * Collects the names of every schema a node's subtree references, resolved with `resolveRefName`.
- * Each ref contributes its name only, so the schema it points to is never traversed. The walk is
- * memoized by node identity, which lets `findCircularSchemas` and `containsCircularRef` share one
- * scan per schema.
+ * Each ref contributes its name only, so the schema it points to is never traversed. Memoized by
+ * node identity, which lets `findCircularSchemas` and `containsCircularRef` share one scan per schema.
  *
  * @example
  * ```ts
@@ -16,24 +32,15 @@ import { resolveRefName } from './refs.ts'
  * // Set { 'Category', 'Tag' }
  * ```
  */
-export const collectSchemaRefs = memoize(new WeakMap<SchemaNode, ReadonlySet<string>>(), (node: SchemaNode): ReadonlySet<string> => {
-  const refs = new Set<string>()
-  collectSync<void>(node, {
-    schema(child) {
-      if (child.type === 'ref') {
-        const name = resolveRefName(child)
-        if (name) refs.add(name)
-      }
-    },
-  })
-  return refs
-})
+export const collectSchemaRefs = memoize(
+  new WeakMap<SchemaNode, ReadonlySet<string>>(),
+  (node: SchemaNode): ReadonlySet<string> => new Set(collectRefEntries(node).map((entry) => entry.name)),
+)
 
 /**
  * Collects the de-duplicated target names of every pointer-carrying ref in a node's subtree, in
- * first-occurrence order. The walk is memoized by node identity, so the subtree is scanned once and
- * `resolver.imports` reads the same result across the ts, zod, and faker plugins instead of
- * re-scanning the same schema per plugin.
+ * first-occurrence order. Memoized by node identity, so `resolver.imports` reads the same result
+ * across the ts, zod, and faker plugins instead of re-scanning the same schema per plugin.
  *
  * Only refs that carry a `$ref` pointer count, so a synthesized ref pointing at a sibling in the
  * same file (a union member created by name) is left out. That leaves exactly the set
@@ -45,21 +52,9 @@ export const collectSchemaRefs = memoize(new WeakMap<SchemaNode, ReadonlySet<str
  * // ['Category', 'Tag']
  * ```
  */
-export const collectImportedRefNames = memoize(new WeakMap<SchemaNode, ReadonlyArray<string>>(), (node: SchemaNode): ReadonlyArray<string> => {
-  const seen = new Set<string>()
-  const names: Array<string> = []
-  collectSync<void>(node, {
-    schema(child) {
-      if (child.type !== 'ref' || !child.ref) return
-      const name = resolveRefName(child)
-      if (name && !seen.has(name)) {
-        seen.add(name)
-        names.push(name)
-      }
-    },
-  })
-  return names
-})
+export const collectImportedRefNames = memoize(new WeakMap<SchemaNode, ReadonlyArray<string>>(), (node: SchemaNode): ReadonlyArray<string> => [
+  ...new Set(collectRefEntries(node).flatMap((entry) => (entry.hasPointer ? [entry.name] : []))),
+])
 
 /**
  * Collects the names of all top-level schemas transitively used by a set of operations.
@@ -109,23 +104,20 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
 }
 
 /**
- * Finds every schema that takes part in a circular dependency chain in a schema dependency graph
- * that maps each schema name to the names it references directly.
+ * Finds every schema that takes part in a circular dependency chain, including direct self-loops.
  *
- * Use this when the graph was already collected during another pass (e.g. the adapter's convert
- * walk), so the schema nodes are not swept a second time. `findCircularSchemas` builds the graph
- * from schema nodes and delegates here.
+ * Wrap the returned schema positions in a deferred construct (a lazy getter or `z.lazy(() => …)`) so
+ * the generated code does not recurse forever. Refs are followed by name only, so the walk stays
+ * linear in the size of the schema graph.
  *
- * @example
- * ```ts
- * const graph = new Map([
- *   ['Pet', new Set(['Category'])],
- *   ['Category', new Set(['Pet'])],
- * ])
- * findCircularSchemasFromGraph(graph) // Set { 'Pet', 'Category' }
- * ```
+ * @note Call this once on the full graph, then check individual schemas with `containsCircularRef()`.
  */
-export function findCircularSchemasFromGraph(graph: ReadonlyMap<string, ReadonlySet<string>>): Set<string> {
+export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<string> {
+  const graph = new Map<string, ReadonlySet<string>>()
+  for (const schema of schemas) {
+    if (schema.name) graph.set(schema.name, collectSchemaRefs(schema))
+  }
+
   const circular = new Set<string>()
   for (const start of graph.keys()) {
     const visited = new Set<string>()
@@ -148,19 +140,22 @@ export function findCircularSchemasFromGraph(graph: ReadonlyMap<string, Readonly
 }
 
 /**
- * Finds every schema that takes part in a circular dependency chain, including direct self-loops.
+ * Returns `true` when a schema, or anything nested inside it, references a circular schema.
  *
- * Wrap the returned schema positions in a deferred construct (a lazy getter or `z.lazy(() => …)`) so
- * the generated code does not recurse forever. Refs are followed by name only, so the walk stays
- * linear in the size of the schema graph.
+ * Pass `excludeName` to skip refs to a specific schema, which helps when self-references are handled
+ * on their own. Pair it with `findCircularSchemas()` to decide where lazy wrappers go.
  *
- * @note Call this once on the full graph, then check individual schemas with `containsCircularRef()`.
+ * @note Reads the memoized `collectSchemaRefs()` set, so a schema is scanned once across plugins.
  */
-export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<string> {
-  const graph = new Map<string, ReadonlySet<string>>()
-  for (const schema of schemas) {
-    if (schema.name) graph.set(schema.name, collectSchemaRefs(schema))
+export function containsCircularRef(
+  node: SchemaNode | undefined,
+  { circularSchemas, excludeName }: { circularSchemas: ReadonlySet<string>; excludeName?: string },
+): boolean {
+  if (!node || circularSchemas.size === 0) return false
+
+  for (const name of collectSchemaRefs(node)) {
+    if (name !== excludeName && circularSchemas.has(name)) return true
   }
 
-  return findCircularSchemasFromGraph(graph)
+  return false
 }

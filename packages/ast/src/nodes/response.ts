@@ -1,7 +1,6 @@
 import { nodeKinds } from '../constants.ts'
 import type { BaseNode } from './base.ts'
-import { type ContentNode, createContent } from './content.ts'
-import type { SchemaNode } from './schema.ts'
+import type { ContentNode } from './content.ts'
 
 type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
@@ -65,17 +64,10 @@ export type ResponseNode = BaseNode & {
   content?: Array<ContentNode>
 }
 
-type ResponseInput = Pick<ResponseNode, 'statusCode'> &
-  Partial<Omit<ResponseNode, 'kind' | 'statusCode' | 'content'>> & {
-    content?: Array<ContentNode>
-    schema?: SchemaNode
-    mediaType?: string | null
-    keysToOmit?: Array<string> | null
-  }
+type ResponseInput = Pick<ResponseNode, 'statusCode'> & Partial<Omit<ResponseNode, 'kind' | 'statusCode'>>
 
 /**
- * Creates a `ResponseNode`. A single legacy `schema` (with optional `mediaType`/`keysToOmit`)
- * is normalized into one `content` entry.
+ * Creates a `ResponseNode`. Body schemas go in `content`, one entry per content type.
  *
  * @example
  * ```ts
@@ -86,8 +78,5 @@ type ResponseInput = Pick<ResponseNode, 'statusCode'> &
  * ```
  */
 export function createResponse(props: ResponseInput): ResponseNode {
-  const { schema, mediaType, keysToOmit, content, ...rest } = props
-  const entries = content ?? (schema ? [createContent({ contentType: mediaType ?? 'application/json', schema, keysToOmit: keysToOmit ?? null })] : undefined)
-
-  return { ...rest, content: entries, kind: nodeKinds.response }
+  return { ...props, kind: nodeKinds.response }
 }

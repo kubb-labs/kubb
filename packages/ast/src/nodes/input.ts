@@ -4,9 +4,6 @@ import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
 
 /**
- * A server from the source document, with `{variable}` placeholders filled from their defaults.
- */
-/**
  * A variable declared by a server URL template.
  */
 export type InputServerVariable = {
@@ -15,6 +12,9 @@ export type InputServerVariable = {
   description?: string
 }
 
+/**
+ * A server from the source document, with `{variable}` placeholders filled from their defaults.
+ */
 export type InputServer = {
   url: string
   description?: string
