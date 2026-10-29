@@ -303,15 +303,15 @@ export type ReadDiffResult = { hunks: Array<DiffHunk>; nextCursor: number | null
 export type ReadInputInput = { jobId: string }
 
 /**
- * The job's `InputNode`, as JSON. A ref schema names its target, which `input.schemas` holds, without a copy.
- */
-/**
  * An `InputNode` as JSON carries it: the `meta` name sets travel as arrays.
  */
 export type InputNodeJson = Omit<InputNode, 'meta'> & {
   meta: Omit<InputMeta, 'circularNames' | 'enumNames'> & { circularNames: Array<string>; enumNames: Array<string> }
 }
 
+/**
+ * The job's `InputNode`, as JSON. A ref schema names its target, which `input.schemas` holds, without a copy.
+ */
 export type ReadInputResult = { input: InputNodeJson }
 
 /**
