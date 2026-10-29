@@ -75,7 +75,7 @@
   },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/core": "workspace:*",
+    "@kubb/core": "workspace:^",
     "@tmcp/adapter-valibot": "^0.1.7",
     "@tmcp/transport-stdio": "^0.5.1",
     "jiti": "^2.7.0",

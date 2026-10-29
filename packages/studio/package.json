@@ -84,8 +84,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
-    "@kubb/core": "workspace:*",
+    "@kubb/ast": "workspace:^",
+    "@kubb/core": "workspace:^",
     "capnweb": "^0.12.0",
     "diff": "^9.0.0",
     "ofetch": "^1.5.1",

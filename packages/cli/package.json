@@ -73,7 +73,7 @@
   "dependencies": {
     "@clack/prompts": "^1.8.1",
     "@gunshi/plugin-dryrun": "^0.37.3",
-    "@kubb/core": "workspace:*",
+    "@kubb/core": "workspace:^",
     "chokidar": "^6.0.0",
     "gunshi": "^0.37.3",
     "jiti": "^2.7.0",

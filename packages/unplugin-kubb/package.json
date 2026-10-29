@@ -111,7 +111,7 @@
   },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/core": "workspace:*",
+    "@kubb/core": "workspace:^",
     "@kubb/parser-md": "workspace:*",
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-barrel": "workspace:*",

@@ -44,14 +44,14 @@ function loadCompiler(): Compiler {
     { type: 'DeprecationWarning', code: 'KUBB_PRINT_TS_NODE' },
   )
 
-  const require = createRequire(import.meta.url)
+  const requireModule = createRequire(import.meta.url)
   // Look in the user's project first: a strict package manager such as pnpm does not link it next to this package
   const paths = [process.cwd(), dirname(fileURLToPath(import.meta.url))]
   let typescript: TypeScript | undefined
   // `typescript` 5 and 6 ship the compiler API; next to TypeScript 7 it comes from `@typescript/typescript6`
   for (const name of ['typescript', '@typescript/typescript6']) {
     try {
-      const candidate = require(require.resolve(name, { paths }))
+      const candidate = requireModule(requireModule.resolve(name, { paths }))
       if (typeof candidate.createPrinter === 'function') {
         typescript = candidate as TypeScript
         break
