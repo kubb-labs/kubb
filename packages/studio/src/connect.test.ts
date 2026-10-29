@@ -10,7 +10,6 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { read } from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
-import { toInputJson } from './generations.ts'
 import {
   AGENT_INSTANCE_HEADER,
   type AgentApi,
@@ -377,7 +376,7 @@ describe('a sandbox job', () => {
     const parse = async () => {
       // What the adapter does for a URL input, or for a `$ref` inside the document.
       await fetch('http://169.254.169.254/latest/meta-data')
-      return ast.factory.createInput({ operations: [], meta: { title: 'Pets', circularNames: new Set<string>(), enumNames: new Set<string>() } })
+      return ast.factory.createInput({ operations: [], meta: { title: 'Pets' } })
     }
     const loadConfigs = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
     const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
@@ -742,7 +741,7 @@ describe('readDiff', () => {
 describe('readInput', () => {
   const input = ast.factory.createInput({
     operations: [ast.factory.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })],
-    meta: { title: 'Pet store', circularNames: new Set<string>(), enumNames: new Set<string>() },
+    meta: { title: 'Pet store' },
   })
   /** A project config whose adapter parses to `input`. */
   const withInput = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse: async () => input }) }]
@@ -762,7 +761,7 @@ describe('readInput', () => {
 
     const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
 
-    await expect(agent.readInput({ jobId: 'job-1' })).resolves.toStrictEqual({ input: JSON.parse(JSON.stringify(toInputJson(input))) })
+    await expect(agent.readInput({ jobId: 'job-1' })).resolves.toStrictEqual({ input: JSON.parse(JSON.stringify(input)) })
     await expect(agent.readInput({ jobId: 'job-unknown' })).rejects.toThrow(AgentMessage.GENERATION_GONE)
   })
 

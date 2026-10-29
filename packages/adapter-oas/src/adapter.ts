@@ -94,7 +94,6 @@ export const adapterOas = defineExtension<AdapterOas>({
     }): ast.InputNode {
       const parsedByName = new Map<string, ast.SchemaNode>()
       const refAliasMap = new Map<string, ast.RefSchemaNode>()
-      const enumNames = new Set<string>()
       const discriminatorParentNodes: Array<ast.SchemaNode> = []
 
       for (const [name, schema] of Object.entries(schemas)) {
@@ -104,15 +103,11 @@ export const adapterOas = defineExtension<AdapterOas>({
         if (node.type === 'ref' && node.name) {
           refAliasMap.set(name, node)
         }
-        if (ast.narrowSchema(node, 'enum') && node.name) {
-          enumNames.add(node.name)
-        }
         if (discriminator === 'propagate' && (schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
           discriminatorParentNodes.push(node)
         }
       }
 
-      const circularNames = ast.findCircularSchemas([...parsedByName.values()])
       const discriminatorChildMap: Map<string, DiscriminatorTarget> | null =
         discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
@@ -121,9 +116,6 @@ export const adapterOas = defineExtension<AdapterOas>({
       )
 
       const promotedEnums = enums === 'root' ? collectInlineEnums([...parsedByName.values(), ...operationNodes], new Set(Object.keys(schemas))) : null
-      if (promotedEnums) {
-        for (const name of promotedEnums.keys()) enumNames.add(name)
-      }
 
       // A collapsed single-member `allOf` is named after the wrapper, so the target comes from `ref`.
       const aliasTargetOf = (name: string) => {
@@ -203,8 +195,6 @@ export const adapterOas = defineExtension<AdapterOas>({
                 ]
               : []
           }),
-          circularNames,
-          enumNames,
           extensions: pickExtensions(document),
         },
       })

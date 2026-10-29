@@ -28,21 +28,12 @@ describe('createGenerationStore', () => {
     expect(JSON.stringify(kept)).not.toContain('"schema":')
   })
 
-  it('keeps the meta name sets as arrays', async () => {
-    const input = ast.factory.createInput({ meta: { circularNames: new Set(['Node']), enumNames: new Set(['Status']) } })
-    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-
-    await store.keepInput({ jobId: 'job-1', maxSetMb: 1, input })
-
-    expect((await store.readInput('job-1'))?.meta).toMatchObject({ circularNames: ['Node'], enumNames: ['Status'] })
-  })
-
   it('counts a kept input toward the size limit and drops it with its job', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 100 / (1024 * 1024) })
     const inputBytes = await store.keepInput({
       maxSetMb: 1,
       jobId: 'job-1',
-      input: ast.factory.createInput({ meta: { description: 'x'.repeat(200), circularNames: new Set<string>(), enumNames: new Set<string>() } }),
+      input: ast.factory.createInput({ meta: { description: 'x'.repeat(200) } }),
     })
     const output = await store.keep({ jobId: 'job-1', files: sourceFiles({ 'a.ts': 'one' }), maxSetMb: 1 })
     await store.add({ jobId: 'job-1', output, inputBytes })

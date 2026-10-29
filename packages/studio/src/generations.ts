@@ -4,7 +4,7 @@ import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
 import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
-import { type FilePage, type InputNodeJson, type ReadFilesResult } from './protocol.ts'
+import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
 const MB = 1024 * 1024
@@ -139,13 +139,6 @@ export async function listDisk({ root, outputPath, maxFiles }: { root: string; o
 }
 
 /**
- * The input as Studio stores and receives it. `JSON.stringify` writes a `Set` as `{}`, so the `meta` name sets become arrays.
- */
-export function toInputJson(input: InputNode): InputNodeJson {
-  return { ...input, meta: { ...input.meta, circularNames: [...input.meta.circularNames], enumNames: [...input.meta.enumNames] } }
-}
-
-/**
  * Keeps recent generations by job id in `storage`, with an index next to them so a store on disk
  * survives a restart. A generation is only ever looked up by its job id, so on a pooled sandbox one
  * tenant never reaches another's output. Initial disk output and generated jobs each get their
@@ -265,9 +258,7 @@ export function createGenerationStore({
       if (!input) return 0
       let json: string
       try {
-        json = JSON.stringify(
-          toInputJson(ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) })),
-        )
+        json = JSON.stringify(ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }))
       } catch {
         // An adapter can return what JSON cannot hold, which must not fail a finished generation.
         return 0
@@ -280,9 +271,9 @@ export function createGenerationStore({
     /**
      * The input `keepInput` kept for `jobId`, or `undefined` when there is none.
      */
-    async readInput(jobId: string): Promise<InputNodeJson | undefined> {
+    async readInput(jobId: string): Promise<InputNode | undefined> {
       const stored = await storage.readItem(`${dirOf(jobId)}input.json`)
-      return stored === null ? undefined : (JSON.parse(stored) as InputNodeJson)
+      return stored === null ? undefined : (JSON.parse(stored) as InputNode)
     },
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
     add,
