@@ -1,4 +1,4 @@
-import { memoize } from './memo.ts'
+import { memo } from '@internals/utils'
 
 /**
  * Per-node memo shared by every plugin that generates from the same schema or operation node in
@@ -47,7 +47,7 @@ export function createNodeCache(): NodeCache {
       return value
     },
     ensureItem<TValue>(key: string, factory: () => TValue): TValue {
-      return memoize(store, key, factory)
+      return memo(store, key, factory) as TValue
     },
   }
 }

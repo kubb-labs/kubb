@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { getElapsedMs, toError } from '@internals/utils'
+import { getElapsedMs, memo, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, compareEnforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
@@ -11,7 +11,7 @@ import { kubbContext } from './composables.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
-import { type MemoKey, type MemoValue, memoize } from './memo.ts'
+import type { MemoKey, MemoValue } from './memo.ts'
 import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { checkoutGitInput, gitInputRegExp } from './gitInput.ts'
@@ -756,7 +756,7 @@ export class KubbDriver {
   }
 
   memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {
-    return memoize(this.#memo, key, compute)
+    return memo(this.#memo, key, compute) as TValue
   }
 
   getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options' | 'cache'> {

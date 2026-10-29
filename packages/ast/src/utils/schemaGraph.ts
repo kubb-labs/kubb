@@ -1,4 +1,4 @@
-import { memoize } from '@internals/utils'
+import { memo } from '@internals/utils'
 import type { OperationNode } from '../nodes/operation.ts'
 import type { SchemaNode } from '../nodes/schema.ts'
 import { collect, collectSync } from '../visitor.ts'
@@ -11,15 +11,21 @@ type RefEntry = { name: string; hasPointer: boolean }
  * name plus whether the ref carries a `$ref` pointer. Memoized by node identity, so
  * `collectSchemaRefs` and `collectImportedRefNames` share one scan per schema.
  */
-const collectRefEntries = memoize(new WeakMap<SchemaNode, ReadonlyArray<RefEntry>>(), (node: SchemaNode): ReadonlyArray<RefEntry> =>
-  collectSync<RefEntry>(node, {
-    schema(child) {
-      if (child.type !== 'ref') return undefined
-      const name = resolveRefName(child)
-      return name ? { name, hasPointer: Boolean(child.ref) } : undefined
-    },
-  }),
-)
+const refEntries = new WeakMap<SchemaNode, ReadonlyArray<RefEntry>>()
+const schemaRefs = new WeakMap<SchemaNode, ReadonlySet<string>>()
+const importedRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
+
+function collectRefEntries(node: SchemaNode): ReadonlyArray<RefEntry> {
+  return memo(refEntries, node, () =>
+    collectSync<RefEntry>(node, {
+      schema(child) {
+        if (child.type !== 'ref') return undefined
+        const name = resolveRefName(child)
+        return name ? { name, hasPointer: Boolean(child.ref) } : undefined
+      },
+    }),
+  )
+}
 
 /**
  * Collects the names of every schema a node's subtree references, resolved with `resolveRefName`.
@@ -32,10 +38,9 @@ const collectRefEntries = memoize(new WeakMap<SchemaNode, ReadonlyArray<RefEntry
  * // Set { 'Category', 'Tag' }
  * ```
  */
-export const collectSchemaRefs = memoize(
-  new WeakMap<SchemaNode, ReadonlySet<string>>(),
-  (node: SchemaNode): ReadonlySet<string> => new Set(collectRefEntries(node).map((entry) => entry.name)),
-)
+export function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
+  return memo(schemaRefs, node, () => new Set(collectRefEntries(node).map((entry) => entry.name)))
+}
 
 /**
  * Collects the de-duplicated target names of every pointer-carrying ref in a node's subtree, in
@@ -52,9 +57,9 @@ export const collectSchemaRefs = memoize(
  * // ['Category', 'Tag']
  * ```
  */
-export const collectImportedRefNames = memoize(new WeakMap<SchemaNode, ReadonlyArray<string>>(), (node: SchemaNode): ReadonlyArray<string> => [
-  ...new Set(collectRefEntries(node).flatMap((entry) => (entry.hasPointer ? [entry.name] : []))),
-])
+export function collectImportedRefNames(node: SchemaNode): ReadonlyArray<string> {
+  return memo(importedRefNames, node, () => [...new Set(collectRefEntries(node).flatMap((entry) => (entry.hasPointer ? [entry.name] : [])))])
+}
 
 /**
  * Collects the names of all top-level schemas transitively used by a set of operations.
