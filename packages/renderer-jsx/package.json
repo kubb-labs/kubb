@@ -99,7 +99,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
+    "@kubb/ast": "workspace:^",
     "yaml": "catalog:"
   },
   "engines": {

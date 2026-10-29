@@ -71,7 +71,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@kubb/core": "workspace:*",
+    "@kubb/core": "workspace:^",
     "@kubb/kit": "workspace:*",
     "@readme/openapi-parser": "^10.0.0",
     "@scalar/openapi-upgrader": "^0.4.6",
