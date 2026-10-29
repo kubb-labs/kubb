@@ -8,33 +8,26 @@ import { FileManager } from './FileManager.ts'
 import { Hookable } from './Hookable.ts'
 import { type Memo, memoize } from './memo.ts'
 import { createNodeCache } from './nodeCache.ts'
-import { type KubbDriver, pluginNotFoundError } from './KubbDriver.ts'
-import type { Config, KubbHooks } from './types.ts'
+import { KubbDriver, pluginNotFoundError } from './KubbDriver.ts'
+import type { Config } from './types.ts'
 import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginType } from './definePlugin.ts'
 
 /**
- * Creates a minimal `KubbDriver` mock for unit tests.
+ * Creates a `KubbDriver` for unit tests, with `options.plugin` registered. `getPlugin` and
+ * `getResolver` return that plugin and its resolver for any name, so a generator's `requirePlugin`
+ * resolves without the dependency in `config.plugins`.
  */
 export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): KubbDriver {
-  const fileManager = new FileManager()
-  const memo = new Map<string, unknown>()
-
-  return {
-    config: options?.config ?? {
-      root: '.',
-      output: {
-        path: './path',
-      },
-    },
-    getPlugin(_pluginName: string): NormalizedPlugin | undefined {
-      return options?.plugin
-    },
-    getResolver: (_pluginName: string) => options?.plugin?.resolver,
-    memo: ((key: string, compute: () => unknown) => memoize(memo, key, compute)) as Memo,
-    fileManager,
-  } as unknown as KubbDriver
+  const config = options.config ?? ({ root: '.', output: { path: './path' } } as unknown as Config)
+  const driver = new KubbDriver(config, { hooks: new Hookable() })
+  if (options.plugin) {
+    driver.plugins.set(options.plugin.name, options.plugin)
+    driver.getPlugin = (() => options.plugin) as KubbDriver['getPlugin']
+    driver.getResolver = (() => options.plugin?.resolver) as KubbDriver['getResolver']
+  }
+  return driver
 }
 
 /** Creates a `kubb:plugin:setup` context for unit tests. `requirePlugin` fails for names `plugins` does not list. */
@@ -117,32 +110,28 @@ type RenderGeneratorOptions<TOptions extends PluginType> = {
   resolver: TOptions['resolver']
 }
 
+/**
+ * The generator context the driver builds for `opts.plugin`, with the test's `adapter`, `resolver`,
+ * and `meta` in place of the ones a run would set. Registers the plugin on the driver first.
+ */
 function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGeneratorOptions<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
-  const root = resolve(opts.config.root, opts.config.output.path)
+  const { driver, plugin } = opts
+  driver.plugins.set(plugin.name, plugin)
+  driver.adapter = opts.adapter
+  const context = driver.getContext(plugin)
 
   return {
+    ...context,
     config: opts.config,
-    root,
-    adapter: opts.adapter,
+    root: resolve(opts.config.root, opts.config.output.path),
     resolver: opts.resolver,
-    plugin: opts.plugin,
-    driver: opts.driver,
-    getResolver: (name: string) => opts.driver.getResolver(name),
-    requirePlugin: (pluginName: string) => {
-      const plugin = opts.driver.getPlugin(pluginName)
-      if (!plugin) throw pluginNotFoundError({ pluginName, requiredBy: opts.plugin.name })
-      return plugin
-    },
-    meta: opts.meta ?? {},
+    meta: opts.meta ?? context.meta,
     cache: createNodeCache(),
-    memo: opts.driver.memo.bind(opts.driver),
-    addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
-    upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
-    hooks: opts.driver.hooks ?? new Hookable<KubbHooks>(),
-    warn: (msg: string) => console.warn(msg),
-    error: (msg: string) => console.error(msg),
-    info: (msg: string) => console.info(msg),
-  } as unknown as Omit<GeneratorContext<TOptions>, 'options'>
+    // Outside a build `Diagnostics.report` drops messages, so tests see them on the console as before.
+    warn: (message) => console.warn(message),
+    error: (error) => console.error(error),
+    info: (message) => console.info(message),
+  }
 }
 
 async function renderNode<TOptions extends PluginType, TNode extends SchemaNode | OperationNode>({

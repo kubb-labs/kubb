@@ -1,8 +1,24 @@
 import { resolve } from 'node:path'
+import process from 'node:process'
 import { getElapsedMs } from '@internals/utils'
 import type { GenerationResult } from '../createReporter.ts'
 import { Diagnostics } from '../Diagnostics.ts'
 import type { SerializedDiagnostic } from '../formatDiagnostic.ts'
+import { resolveKubbDir } from '../storages/kubbStorage.ts'
+import type { Config } from '../types.ts'
+
+/**
+ * Where a reporter writes its output: the project's `.kubb` folder (resolved through
+ * {@link resolveKubbDir}) and a `kubb-<name>-<timestamp>` file name, with the config name reduced to
+ * `[a-zA-Z0-9_-]` so it cannot leave the folder.
+ */
+export function reportTarget(config: Config): { dir: string; name: string } {
+  const name = config.name?.replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '')
+  return {
+    dir: resolveKubbDir(resolve(process.cwd(), '.kubb')),
+    name: ['kubb', name, Date.now()].filter(Boolean).join('-'),
+  }
+}
 
 /**
  * One plugin's elapsed time, derived from a `performance` diagnostic.

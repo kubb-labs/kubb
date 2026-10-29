@@ -38,14 +38,8 @@ export const memoryStorage = createStorage(() => {
       return base ? keys.filter((k) => k.startsWith(base)) : keys
     },
     async empty(base?: string) {
-      if (!base) {
-        store.clear()
-        return
-      }
       for (const key of store.keys()) {
-        if (key.startsWith(base)) {
-          store.delete(key)
-        }
+        if (!base || key.startsWith(base)) store.delete(key)
       }
     },
   }

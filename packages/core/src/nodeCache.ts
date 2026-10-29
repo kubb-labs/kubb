@@ -1,3 +1,5 @@
+import { memoize } from './memo.ts'
+
 /**
  * Per-node memo shared by every plugin that generates from the same schema or operation node in
  * one generate pass. The driver creates one `NodeCache` per node during the walk and hands the
@@ -45,11 +47,7 @@ export function createNodeCache(): NodeCache {
       return value
     },
     ensureItem<TValue>(key: string, factory: () => TValue): TValue {
-      if (store.has(key)) return store.get(key) as TValue
-
-      const value = factory()
-      store.set(key, value)
-      return value
+      return memoize(store, key, factory)
     },
   }
 }

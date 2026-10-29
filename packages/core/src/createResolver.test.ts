@@ -1,8 +1,7 @@
 import { camelCase } from '@internals/utils'
 import { ast, type InputMeta } from '@kubb/ast'
 import { describe, expect, it, test } from 'vitest'
-import { createResolver } from './createResolver.ts'
-import { Resolver, toFilePath } from './Resolver.ts'
+import { createResolver, Resolver, toFilePath } from './Resolver.ts'
 import type { Config } from './types.ts'
 
 type TestResolver = Resolver & {

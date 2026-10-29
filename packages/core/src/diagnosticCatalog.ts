@@ -1,3 +1,6 @@
+import { version } from '../package.json'
+import type { Diagnostic, DiagnosticDoc, DiagnosticKind, ProblemDiagnostic } from './Diagnostics.ts'
+
 /**
  * Every diagnostic code with its docs entry: a short title, what triggers it, and how to resolve
  * it. The source of truth for {@link diagnosticCode}, and the kubb.dev `/reference/diagnostics`
@@ -240,3 +243,47 @@ export const diagnosticCode = Object.fromEntries(Object.entries(diagnosticCatalo
  * Union of the stable {@link diagnosticCode} values.
  */
 export type DiagnosticCode = (typeof diagnosticCode)[keyof typeof diagnosticCode]
+
+/**
+ * Docs major version, derived from the package version so the link tracks the published major.
+ */
+const docsMajor = version.split('.')[0] ?? '5'
+
+const docsByCode = new Map<DiagnosticCode, DiagnosticDoc>(Object.values(diagnosticCatalog).map((doc) => [doc.code, doc]))
+
+/**
+ * Builds a type guard that narrows a {@link Diagnostic} to the variant for `kind`. A diagnostic
+ * with no `kind` is treated as a `problem`.
+ */
+export function isKind<T extends Diagnostic>(kind: DiagnosticKind) {
+  return (diagnostic: Diagnostic): diagnostic is T => (diagnostic.kind ?? 'problem') === kind
+}
+
+/**
+ * Returns `true` when the diagnostic is a build {@link ProblemDiagnostic}.
+ *
+ * @example
+ * ```ts
+ * if (isProblem(diagnostic)) {
+ *   console.log(diagnostic.location)
+ * }
+ * ```
+ */
+export const isProblem = isKind<ProblemDiagnostic>('problem')
+
+/**
+ * Builds the kubb.dev docs URL for a diagnostic code, e.g.
+ * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found`.
+ */
+export function docsUrl(code: string): string {
+  const slug = code.toLowerCase().replaceAll('_', '-')
+  return `https://kubb.dev/docs/${docsMajor}.x/reference/diagnostics#${slug}`
+}
+
+/**
+ * The catalog entry for a code: its title, cause, and fix. Mirrors the kubb.dev
+ * `/reference/diagnostics#<slug>` section.
+ */
+export function explain(code: DiagnosticCode): DiagnosticDoc {
+  return docsByCode.get(code)!
+}

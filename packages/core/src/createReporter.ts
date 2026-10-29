@@ -153,25 +153,18 @@ export type UserReporter<T = void> = {
  */
 export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
   const { name, needsPluginFiles, drain } = reporter
-  if (!drain) {
-    return {
-      name,
-      needsPluginFiles,
-      async report(result, context) {
-        await reporter.report(result, context)
-      },
-    }
-  }
-
   const reports: Array<T> = []
   return {
     name,
     needsPluginFiles,
     async report(result, context) {
-      reports.push(await reporter.report(result, context))
+      const report = await reporter.report(result, context)
+      if (drain) reports.push(report)
     },
-    async drain(context) {
-      await drain(context, reports.splice(0))
-    },
+    ...(drain && {
+      async drain(context: ReporterContext) {
+        await drain(context, reports.splice(0))
+      },
+    }),
   }
 }

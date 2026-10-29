@@ -8,8 +8,7 @@ import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, 
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
-import { createResolver } from './createResolver.ts'
-import { Resolver } from './Resolver.ts'
+import { createResolver, Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { type MemoKey, type MemoValue, memoize } from './memo.ts'
 import { createNodeCache } from './nodeCache.ts'
@@ -78,25 +77,18 @@ function normalizePluginOptions(rawOptions: Plugin['options'], pluginName: strin
  * factory passed without calling it.
  */
 function assertPluginEntry(entry: unknown, index: number): asserts entry is Plugin {
-  if (typeof entry === 'function') {
-    const name = entry.name || 'pluginName'
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.invalidPluginOptions,
-      severity: 'error',
-      message: `plugins[${index}] is a function ("${name}"), not a plugin.`,
-      help: `Call it: ${name}()`,
-      location: { kind: 'config' },
-    })
-  }
-  if (typeof entry !== 'object' || entry === null) {
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.invalidPluginOptions,
-      severity: 'error',
-      message: `plugins[${index}] is ${entry === null ? 'null' : typeof entry}, not a plugin.`,
-      help: 'Pass the result of a plugin factory, for example `pluginTs()`, or remove the entry.',
-      location: { kind: 'config' },
-    })
-  }
+  if (typeof entry === 'object' && entry !== null) return
+
+  const name = typeof entry === 'function' ? entry.name || 'pluginName' : undefined
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.invalidPluginOptions,
+    severity: 'error',
+    message: name
+      ? `plugins[${index}] is a function ("${name}"), not a plugin.`
+      : `plugins[${index}] is ${entry === null ? 'null' : typeof entry}, not a plugin.`,
+    help: name ? `Call it: ${name}()` : 'Pass the result of a plugin factory, for example `pluginTs()`, or remove the entry.',
+    location: { kind: 'config' },
+  })
 }
 
 /**
@@ -408,29 +400,16 @@ export class KubbDriver {
             try {
               await hooks.callHook('kubb:plugin:start', { plugin })
             } catch (caughtError) {
-              const error = toError(caughtError)
-              const duration = getElapsedMs(hrStart)
-
-              await this.#emitPluginEnd({ plugin, duration, success: false, error })
-
-              diagnostics.push(
-                Diagnostics.fromExtension(error, { kind: 'plugin', extension: plugin }),
-                Diagnostics.performance({ plugin: plugin.name, duration }),
-              )
-
+              diagnostics.push(...(await this.#finishPlugin({ plugin, hrStart, error: toError(caughtError) })))
               continue
             }
 
             if ((plugin.generators?.length ?? 0) > 0) {
               generatorPlugins.push({ plugin, context, hrStart })
-
               continue
             }
 
-            const duration = getElapsedMs(hrStart)
-            diagnostics.push(Diagnostics.performance({ plugin: plugin.name, duration }))
-
-            await this.#emitPluginEnd({ plugin, duration, success: true })
+            diagnostics.push(...(await this.#finishPlugin({ plugin, hrStart })))
           }
 
           // Run every node through each plugin's macros and generators.
@@ -501,8 +480,36 @@ export class KubbDriver {
     }
   }
 
-  #emitPluginEnd({ plugin, duration, success, error }: { plugin: NormalizedPlugin; duration: number; success: boolean; error?: Error }): Promise<void> | void {
-    return this.hooks.callHook('kubb:plugin:end', this.#withFiles({ plugin, duration, success, ...(error ? { error } : {}), config: this.config }))
+  /**
+   * Closes out a plugin: emits `kubb:plugin:end` with its elapsed time and returns its diagnostics,
+   * the failure (when `error` is set) followed by its timing. A crash names the node it failed on
+   * (`crashSite`); a coded error already says where it is.
+   */
+  async #finishPlugin({
+    plugin,
+    hrStart,
+    error,
+    crashSite,
+  }: {
+    plugin: NormalizedPlugin
+    hrStart: ReturnType<typeof process.hrtime>
+    error?: Error
+    crashSite?: ReturnType<typeof getCrashSite>
+  }): Promise<Array<Diagnostic>> {
+    const duration = getElapsedMs(hrStart)
+    await this.hooks.callHook('kubb:plugin:end', this.#withFiles({ plugin, duration, success: !error, ...(error ? { error } : {}), config: this.config }))
+
+    const timing = Diagnostics.performance({ plugin: plugin.name, duration })
+    if (!error) return [timing]
+
+    const diagnostic = Diagnostics.fromExtension(error, { kind: 'plugin', extension: plugin })
+    const site = diagnostic.code === Diagnostics.code.pluginFailed && !diagnostic.location ? crashSite : undefined
+    return [
+      site
+        ? { ...diagnostic, message: `While generating ${site.label}: ${diagnostic.message}`, ...(site.location ? { location: site.location } : {}) }
+        : diagnostic,
+      timing,
+    ]
   }
 
   /**
@@ -532,11 +539,7 @@ export class KubbDriver {
     if (entries.length === 0) return diagnostics
 
     if (!this.inputNode) {
-      for (const { plugin, hrStart } of entries) {
-        const duration = getElapsedMs(hrStart)
-        diagnostics.push(Diagnostics.performance({ plugin: plugin.name, duration }))
-        await this.#emitPluginEnd({ plugin, duration, success: true })
-      }
+      for (const { plugin, hrStart } of entries) diagnostics.push(...(await this.#finishPlugin({ plugin, hrStart })))
       return diagnostics
     }
 
@@ -703,21 +706,8 @@ export class KubbDriver {
 
     // Close out every plugin in dependency order, so `kubb:plugin:end` and the timing diagnostics
     // still count up in plugin order for the CLI's `Plugins N/M` line.
-    for (const state of states) {
-      const duration = getElapsedMs(state.hrStart)
-      await this.#emitPluginEnd({ plugin: state.plugin, duration, success: !state.error, error: state.error ?? undefined })
-
-      if (state.error) {
-        const diagnostic = Diagnostics.fromExtension(state.error, { kind: 'plugin', extension: state.plugin })
-        // Only a crash gains the node it failed on. A coded error already says where it is.
-        const site = diagnostic.code === Diagnostics.code.pluginFailed && !diagnostic.location ? state.crashSite : undefined
-        diagnostics.push(
-          site
-            ? { ...diagnostic, message: `While generating ${site.label}: ${diagnostic.message}`, ...(site.location ? { location: site.location } : {}) }
-            : diagnostic,
-        )
-      }
-      diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration }))
+    for (const { plugin, hrStart, error, crashSite } of states) {
+      diagnostics.push(...(await this.#finishPlugin({ plugin, hrStart, error: error ?? undefined, crashSite })))
     }
 
     return diagnostics
