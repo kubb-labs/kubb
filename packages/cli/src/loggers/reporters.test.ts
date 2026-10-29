@@ -98,6 +98,7 @@ describe('setupReporters', () => {
         writer: createPlainWriter((line) => lines.push(line)),
       })
       await hooks.callHook('kubb:generation:start', { config })
+      await hooks.callHook('kubb:plugins:end', { config, files: [], upsertFile: () => {} })
       if (!dryRun) {
         await rm(output, { recursive: true })
         await mkdir(output)
@@ -109,8 +110,10 @@ describe('setupReporters', () => {
         [same, 'same'],
         [added, 'fresh'],
         [outside, 'after'],
-      ] as const)
+      ] as const) {
         await storage.writeItem(path, value)
+        await hooks.callHook('kubb:file:processed', { file: files.find((file) => file.path === path)!, source: value })
+      }
       await hooks.callHook('kubb:files:processing:end', { files, unchanged: [] })
       await hooks.callHook('kubb:generation:end', { config, storage, filesCreated: files.length, status: 'success', hrStart: process.hrtime() })
       const text = stripVTControlCharacters(lines.join('\n'))

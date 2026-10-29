@@ -6,7 +6,7 @@ import { stripVTControlCharacters } from 'node:util'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { type GeneratorContext, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { diffBuilds, diffOutput, listenForKeys, readOutputFiles, startWatcher, trackBuild } from './utils.ts'
+import { diffBuilds, diffFile, diffOutput, listenForKeys, readOutputFiles, startWatcher, trackBuild } from './utils.ts'
 
 describe('startWatcher', () => {
   let dir: string
@@ -130,6 +130,16 @@ describe('diffOutput', () => {
         unchanged: 1,
       })
       expect((await diffOutput({ storage, paths, clean: false, previousFiles })).files.map((file) => file.status)).toStrictEqual(['M', 'A'])
+
+      // Changes counted while writing give the same diff without reading the output back.
+      const counted = new Map(
+        await Promise.all(
+          paths.map(async (path) => [path, diffFile({ path, next: (await storage.readItem(path))!, previous: previousFiles.get(path) ?? null })] as const),
+        ),
+      )
+      expect(await diffOutput({ storage: memoryStorage(), paths, clean: true, previousFiles, counted })).toStrictEqual(
+        await diffOutput({ storage, paths, clean: true, previousFiles }),
+      )
     } finally {
       await rm(dir, { recursive: true, force: true })
     }
