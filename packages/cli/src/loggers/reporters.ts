@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { isPathInside } from '@internals/utils'
 import type { GenerationResult, Hookable, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
-import { cacheStorage, createCliReporter, createOutputManifest, logLevel as logLevelMap } from '@kubb/core'
+import { cacheStorage, createCliReporter, createOutputManifest, hasOutputPasses, logLevel as logLevelMap } from '@kubb/core'
 import { writer as defaultWriter } from '../ui/log.ts'
 import { installLogger } from './features/index.ts'
 import type { LoggerWriter } from './types.ts'
@@ -74,8 +74,7 @@ function setupReporters(
     // Read while the plugins generate; `kubb:plugins:end` waits for it, before cleaning can erase the baseline.
     reading = trackChanges && (dryRun || config.storage?.name === 'fs') ? readOutputFiles(outputPath) : undefined
     // Output passes rewrite stored files and a dry run compares through the manifest, so both read the output back.
-    const outputPasses = Boolean(config.output.format || config.output.lint || config.output.postGenerate?.length)
-    counted = reading && !dryRun && !outputPasses ? new Map() : undefined
+    counted = reading && !dryRun && !hasOutputPasses(config) ? new Map() : undefined
   })
   context.hook('kubb:plugins:end', async () => {
     if (reading) previous = await reading

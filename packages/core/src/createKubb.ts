@@ -40,7 +40,7 @@ function writesOutputDirectory(storage: Storage): boolean {
  * Whether anything runs over the output directory after the files are written. Only then can the
  * bytes on disk stop matching what Kubb wrote, which is what the manifest exists to track.
  */
-function hasOutputPasses({ output, storage }: Pick<Config, 'output' | 'storage'>): boolean {
+export function hasOutputPasses({ output, storage }: Pick<Config, 'output' | 'storage'>): boolean {
   return writesOutputDirectory(storage) && Boolean(output.format || output.lint || output.postGenerate?.length)
 }
 
