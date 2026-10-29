@@ -15,9 +15,7 @@ import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginType } from './definePlugin.ts'
 
 /**
- * Creates a `KubbDriver` for unit tests, with `options.plugin` registered. `getPlugin` and
- * `getResolver` return that plugin and its resolver for any name, so a generator's `requirePlugin`
- * resolves without the dependency in `config.plugins`.
+ * Creates a `KubbDriver` for unit tests whose `getPlugin` and `getResolver` return `options.plugin` for any name.
  */
 export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): KubbDriver {
   const config = options.config ?? ({ root: '.', output: { path: './path' } } as unknown as Config)
@@ -110,10 +108,6 @@ type RenderGeneratorOptions<TOptions extends PluginType> = {
   resolver: TOptions['resolver']
 }
 
-/**
- * The generator context the driver builds for `opts.plugin`, with the test's `adapter`, `resolver`,
- * and `meta` in place of the ones a run would set. Registers the plugin on the driver first.
- */
 function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGeneratorOptions<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
   const { driver, plugin } = opts
   driver.plugins.set(plugin.name, plugin)
@@ -127,7 +121,6 @@ function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGene
     resolver: opts.resolver,
     meta: opts.meta ?? context.meta,
     cache: createNodeCache(),
-    // Outside a build `Diagnostics.report` drops messages, so tests see them on the console as before.
     warn: (message) => console.warn(message),
     error: (error) => console.error(error),
     info: (message) => console.info(message),

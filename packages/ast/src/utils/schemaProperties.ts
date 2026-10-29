@@ -40,10 +40,7 @@ export function resolveSchemaProperties({ node, propertyName }: { node: SchemaNo
   return properties
 }
 
-/**
- * Visits `node` and every schema reachable through resolved refs and the members of `through`
- * compounds, each at most once. Any other node, such as an object or an enum, is a leaf, so the walk stops at it.
- */
+/** Visits `node` and each schema reachable through resolved refs and `through` members, once each. */
 function walkSchema(node: SchemaNode, through: 'union' | 'intersection', visit: (schema: SchemaNode) => void): void {
   const visited = new WeakSet<SchemaNode>()
 

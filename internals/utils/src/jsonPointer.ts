@@ -11,15 +11,7 @@ export function escapePointerToken(token: string): string {
   return token.replaceAll('~', '~0').replaceAll('/', '~1')
 }
 
-/**
- * Unescapes a single JSON pointer reference token per RFC 6901 (`~1` → `/`, then `~0` → `~`),
- * the inverse of {@link escapePointerToken}.
- *
- * @example
- * ```ts
- * unescapePointerToken('~1pets~1{id}') // '/pets/{id}'
- * ```
- */
+/** Unescapes one JSON pointer token per RFC 6901 (`~1` → `/`, then `~0` → `~`). */
 export function unescapePointerToken(token: string): string {
   return token.replaceAll('~1', '/').replaceAll('~0', '~')
 }

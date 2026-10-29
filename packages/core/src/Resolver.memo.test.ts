@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { createResolver, Resolver } from './Resolver.ts'
+import { createResolver } from './createResolver.ts'
+import { Resolver } from './Resolver.ts'
 
 describe('Resolver.memo', () => {
   test('computes a key once and returns the same value afterwards', () => {

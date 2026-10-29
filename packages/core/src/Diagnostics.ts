@@ -1,10 +1,16 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { getErrorChain, getErrorMessage, toError } from '@internals/utils'
-import { type DiagnosticCode, diagnosticCode, docsUrl, explain, isKind, isProblem } from './diagnosticCatalog.ts'
+import { version } from '../package.json'
+import { type DiagnosticCode, diagnosticCatalog, diagnosticCode } from './diagnosticCatalog.ts'
 import { crashCodes, format, serialize } from './formatDiagnostic.ts'
 import type { ExtensionKind, ExtensionNamed } from './defineExtension.ts'
 import type { KubbHooks } from './types.ts'
 import type { Hookable } from './Hookable.ts'
+
+/**
+ * Docs major version, derived from the package version so the link tracks the published major.
+ */
+const docsMajor = version.split('.')[0] ?? '5'
 
 /**
  * How serious a diagnostic is. `error` fails the build, `warning` and `info`
@@ -154,6 +160,26 @@ export type UpdateDiagnostic = {
 export type Diagnostic = ProblemDiagnostic | PerformanceDiagnostic | UpdateDiagnostic
 
 /**
+ * Builds a type guard that narrows a {@link Diagnostic} to the variant for `kind`. A diagnostic
+ * with no `kind` is treated as a `problem`.
+ */
+function isKind<T extends Diagnostic>(kind: DiagnosticKind) {
+  return (diagnostic: Diagnostic): diagnostic is T => (diagnostic.kind ?? 'problem') === kind
+}
+
+/**
+ * Returns `true` when the diagnostic is a build {@link ProblemDiagnostic}.
+ *
+ * @example
+ * ```ts
+ * if (isProblem(diagnostic)) {
+ *   console.log(diagnostic.location)
+ * }
+ * ```
+ */
+const isProblem = isKind<ProblemDiagnostic>('problem')
+
+/**
  * Returns `true` when the diagnostic is a per-plugin {@link PerformanceDiagnostic}.
  *
  * @example
@@ -180,6 +206,8 @@ const failedCode = {
   adapter: diagnosticCode.adapterFailed,
   parser: diagnosticCode.parserFailed,
 } as const satisfies Record<ExtensionKind, ProblemCode>
+
+const docsByCode = new Map<DiagnosticCode, DiagnosticDoc>(Object.values(diagnosticCatalog).map((doc) => [doc.code, doc]))
 
 const reporterKey = Symbol.for('kubb.diagnostics.reporter')
 
@@ -428,13 +456,18 @@ export class Diagnostics {
    * Builds the kubb.dev docs URL for a diagnostic code, e.g.
    * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found`.
    */
-  static docsUrl = docsUrl
+  static docsUrl(code: string): string {
+    const slug = code.toLowerCase().replaceAll('_', '-')
+    return `https://kubb.dev/docs/${docsMajor}.x/reference/diagnostics#${slug}`
+  }
 
   /**
    * The catalog entry for a code: its title, cause, and fix. Mirrors the kubb.dev
    * `/reference/diagnostics#<slug>` section.
    */
-  static explain = explain
+  static explain(code: DiagnosticCode): DiagnosticDoc {
+    return docsByCode.get(code)!
+  }
 
   /**
    * Reduces a diagnostic to its JSON-safe fields plus a `docsUrl`, for machine-readable

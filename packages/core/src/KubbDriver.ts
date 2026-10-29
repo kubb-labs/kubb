@@ -8,7 +8,8 @@ import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, 
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
-import { createResolver, Resolver } from './Resolver.ts'
+import { createResolver } from './createResolver.ts'
+import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { type MemoKey, type MemoValue, memoize } from './memo.ts'
 import { createNodeCache } from './nodeCache.ts'
@@ -476,11 +477,7 @@ export class KubbDriver {
     }
   }
 
-  /**
-   * Closes out a plugin: emits `kubb:plugin:end` with its elapsed time and returns its diagnostics,
-   * the failure (when `error` is set) followed by its timing. A crash names the node it failed on
-   * (`crashSite`); a coded error already says where it is.
-   */
+  /** Emits `kubb:plugin:end` and returns the plugin's failure, if any, followed by its timing. */
   async #finishPlugin({
     plugin,
     hrStart,
