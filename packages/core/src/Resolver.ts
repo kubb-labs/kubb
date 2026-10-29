@@ -609,8 +609,6 @@ export class Resolver {
       description: meta?.description,
       version: meta?.version,
       baseURL: meta?.baseURL,
-      circularNames: meta?.circularNames ?? new Set(),
-      enumNames: meta?.enumNames ?? new Set(),
       filePath: file?.path ?? '',
       baseName: file?.baseName ?? '',
       isBarrel: file?.isBarrel ?? false,

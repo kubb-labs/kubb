@@ -104,8 +104,8 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
    */
   adapter: Adapter
   /**
-   * Document metadata from the adapter: title, version, base URL, and pre-computed
-   * schema index fields (`circularNames`, `enumNames`).
+   * Document metadata from the adapter: title, version, base URL, servers, and security schemes.
+   * Derive schema indexes such as circular or enum names with `memo`.
    */
   meta: InputMeta
   /**

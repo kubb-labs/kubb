@@ -462,8 +462,6 @@ describe('default.banner', () => {
       title: 'Pet API',
       description: 'A very long description',
       version: '2.0.0',
-      circularNames: new Set<string>(),
-      enumNames: new Set<string>(),
     }
     const result = baseResolver.default.banner(meta, {
       config: mockConfig,
@@ -484,7 +482,7 @@ describe('default.footer', () => {
 // banner and footer share one user-text path: a string wins verbatim, and a function receives the
 // spec meta plus the per-file context, with the per-file fields defaulting to false/empty.
 describe('default.banner / default.footer user text', () => {
-  const meta: InputMeta = { title: 'Petstore', description: 'Test API', version: '1.0.0', circularNames: new Set<string>(), enumNames: new Set<string>() }
+  const meta: InputMeta = { title: 'Petstore', description: 'Test API', version: '1.0.0' }
   const describeFile = (m: { title?: string; isBarrel: boolean; isAggregation: boolean; filePath: string; baseName: string }) =>
     `${m.title ?? ''}|${m.isBarrel}|${m.isAggregation}|${m.filePath}|${m.baseName}`
 

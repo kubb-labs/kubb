@@ -36,7 +36,6 @@ describe('annotated enums', () => {
         { name: 'Second', value: 2, primitive: 'number' },
       ],
     })
-    expect(result.meta?.enumNames).toContain('Status')
     const container = ast.narrowSchema(result.schemas[1]!, 'object')!
     const reference = ast.narrowSchema(container.properties![0]!.schema, 'ref')!
     expect(reference.schema).toMatchObject({
@@ -51,13 +50,11 @@ describe('annotated enums', () => {
   it.each(['3.0.0', '3.0.4'])('keeps ordinary enum unions unchanged in OpenAPI %s', async (openapi) => {
     const result = await parse({ oneOf: members.map(({ const: value, ...annotations }) => ({ enum: [value], ...annotations })) }, openapi)
     expect(result.schemas[0]?.type).toBe('union')
-    expect(result.meta?.enumNames).not.toContain('Status')
   })
 
   it('recognizes const unions after the loader upgrades a document to OpenAPI 3.1', async () => {
     const result = await parse({ oneOf: members }, '3.0.4')
     expect(result.schemas[0]?.type).toBe('enum')
-    expect(result.meta?.enumNames).toContain('Status')
   })
 
   it('preserves string wire values without using titles as serialized values', async () => {
@@ -128,6 +125,5 @@ describe('annotated enums', () => {
   ] satisfies Array<SchemaObject>)('leaves ambiguous or additionally constrained unions unchanged: %j', async (schema) => {
     const result = await parse(schema)
     expect(result.schemas[0]?.type).toBe('union')
-    expect(result.meta?.enumNames).not.toContain('Status')
   })
 })

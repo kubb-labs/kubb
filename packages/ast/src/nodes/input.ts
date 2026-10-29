@@ -40,14 +40,11 @@ export type InputSecurityScheme = {
 
 /**
  * Metadata for an API document, populated by the adapter and available to every generator.
- *
- * Computed fields (`circularNames`, `enumNames`) are sets, pre-calculated once during the adapter
- * pre-scan so generators never need to iterate the full schema list themselves. Every other field
- * is a plain JSON value.
+ * Every field is a plain JSON value.
  *
  * @example
  * ```ts
- * const meta: InputMeta = { title: 'Pet Store', version: '1.0.0', baseURL: 'https://api.example.com/v2', circularNames: new Set(), enumNames: new Set() }
+ * const meta: InputMeta = { title: 'Pet Store', version: '1.0.0', baseURL: 'https://api.example.com/v2' }
  * ```
  */
 export type InputMeta = {
@@ -73,28 +70,6 @@ export type InputMeta = {
    * Vendor extensions (`x-*` keys) from the document root, copied as-is. Absent when the root has none.
    */
   extensions?: Record<string, unknown>
-  /**
-   * Names of schemas that participate in a circular reference chain.
-   * Computed once during the adapter pre-scan, so a generator never has to
-   * call `findCircularSchemas` itself.
-   *
-   * @example Wrap a circular schema in z.lazy()
-   * ```ts
-   * if (meta.circularNames.has(schema.name)) { ... }
-   * ```
-   */
-  circularNames: ReadonlySet<string>
-  /**
-   * Names of schemas whose type is `enum`.
-   * Computed once during the adapter pre-scan, so a generator never has to
-   * filter the schema list itself.
-   *
-   * @example Check if a referenced schema is an enum
-   * ```ts
-   * const isEnum = meta.enumNames.has(schemaName)
-   * ```
-   */
-  enumNames: ReadonlySet<string>
 }
 
 /**
@@ -107,7 +82,7 @@ export type InputMeta = {
  *   kind: 'Input',
  *   schemas: [],
  *   operations: [],
- *   meta: { circularNames: new Set(), enumNames: new Set() },
+ *   meta: {},
  * }
  * ```
  */
@@ -131,8 +106,8 @@ export type InputNode = BaseNode & {
 }
 
 /**
- * Creates an `InputNode`, defaulting `schemas`/`operations` to empty arrays and `meta` to empty
- * name lists. Every call allocates fresh defaults so no two inputs share them.
+ * Creates an `InputNode`, defaulting `schemas`/`operations` to empty arrays and `meta` to an empty
+ * object. Every call allocates fresh defaults so no two inputs share them.
  *
  * @example
  * ```ts
@@ -141,5 +116,5 @@ export type InputNode = BaseNode & {
  * ```
  */
 export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
-  return { schemas: [], operations: [], meta: { circularNames: new Set(), enumNames: new Set() }, ...overrides, kind: nodeKinds.input }
+  return { schemas: [], operations: [], meta: {}, ...overrides, kind: nodeKinds.input }
 }

@@ -1,4 +1,4 @@
-import type { InputMeta, InputNode } from '@kubb/ast'
+import type { InputNode } from '@kubb/ast'
 import type { KubbHooks } from '@kubb/core'
 import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ExtensionEntry } from '@internals/shared'
 
@@ -303,16 +303,9 @@ export type ReadDiffResult = { hunks: Array<DiffHunk>; nextCursor: number | null
 export type ReadInputInput = { jobId: string }
 
 /**
- * An `InputNode` as JSON carries it: the `meta` name sets travel as arrays.
- */
-export type InputNodeJson = Omit<InputNode, 'meta'> & {
-  meta: Omit<InputMeta, 'circularNames' | 'enumNames'> & { circularNames: Array<string>; enumNames: Array<string> }
-}
-
-/**
  * The job's `InputNode`, as JSON. A ref schema names its target, which `input.schemas` holds, without a copy.
  */
-export type ReadInputResult = { input: InputNodeJson }
+export type ReadInputResult = { input: InputNode }
 
 /**
  * Why the agent refuses a request. Studio matches on these to answer with the right status.
