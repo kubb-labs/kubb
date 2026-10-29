@@ -7,7 +7,9 @@ import type { SerializedDiagnostic } from '../formatDiagnostic.ts'
 import { resolveKubbDir } from '../storages/kubbStorage.ts'
 import type { Config } from '../types.ts'
 
-/** The `.kubb` folder and file name a reporter writes to; the sanitized name keeps the file inside the folder. */
+/**
+ * The `.kubb` folder and file name a reporter writes to; the sanitized name keeps the file inside the folder.
+ */
 export function reportTarget(config: Config): { dir: string; name: string } {
   const name = config.name?.replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '')
   return {

@@ -130,7 +130,6 @@ export function getParameters({ operation, refs }: OperationContext): Array<{ pa
 
 const PARAMETER_STYLES = new Set(['matrix', 'label', 'form', 'simple', 'spaceDelimited', 'pipeDelimited', 'deepObject'])
 
-/** The serialization fields a parameter or an encoding sets, left out when unset. A `style` outside the OpenAPI set is dropped. */
 function pickStyleFields({ style, explode, allowReserved }: { style?: string; explode?: boolean; allowReserved?: boolean }): {
   style?: ast.ParameterStyle
   explode?: boolean
@@ -143,7 +142,7 @@ function pickStyleFields({ style, explode, allowReserved }: { style?: string; ex
   }
 }
 
-/** The `encoding` of a media type, reduced to the entries that set a field Kubb carries. */
+/** The `encoding` of a media type, reduced to the entries that set a field Kubb carries. A `style` outside the OpenAPI set is dropped. */
 function getEncoding(encoding: MediaTypeObject['encoding']): Record<string, ast.EncodingNode> | undefined {
   const entries = Object.entries(encoding ?? {}).flatMap(([property, { contentType, ...rest }]) => {
     const node: ast.EncodingNode = { ...(contentType !== undefined ? { contentType } : {}), ...pickStyleFields(rest) }

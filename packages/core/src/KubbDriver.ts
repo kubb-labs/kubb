@@ -477,7 +477,6 @@ export class KubbDriver {
     }
   }
 
-  /** Emits `kubb:plugin:end` and returns the plugin's failure, if any, followed by its timing. */
   async #finishPlugin({
     plugin,
     hrStart,

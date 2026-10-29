@@ -2,7 +2,6 @@ import { nodeKinds } from '../constants.ts'
 import type { NodeKind } from '../nodes/base.ts'
 import type { CodeNode } from '../nodes/code.ts'
 
-/** Source-text fields per `CodeNode` kind, in read order. */
 export const CODE_NODE_TEXT_FIELDS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   Text: ['value'],
   Jsx: ['value'],

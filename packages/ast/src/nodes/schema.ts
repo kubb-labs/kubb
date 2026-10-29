@@ -2,7 +2,9 @@ import { nodeKinds } from '../constants.ts'
 import type { BaseNode, DistributiveOmit } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
-/** Subset of {@link SchemaType} covering the primitives plus `object`, `array`, and `date`; `schemaTypes` documents each. */
+/**
+ * Subset of {@link SchemaType} covering the primitives plus `object`, `array`, and `date`; `schemaTypes` documents each.
+ */
 export type PrimitiveSchemaType =
   | 'string'
   | 'number'

@@ -8,7 +8,6 @@ export function toPermissionFlag(key: string): string {
   return `--${key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)}`
 }
 
-/** Whether `value` starts with `http://` or `https://`. */
 export function isHttpUrl(value: string): boolean {
   return /^https?:\/\//.test(value)
 }

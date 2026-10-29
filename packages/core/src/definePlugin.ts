@@ -187,13 +187,19 @@ type ByPattern<T extends 'tag' | 'operationId' | 'path' | 'schemaName' | 'conten
   pattern: string | RegExp
 }
 
-/** Filter by OpenAPI `tags`. */
+/**
+ * Filter by OpenAPI `tags`.
+ */
 type ByTag = ByPattern<'tag'>
 
-/** Filter by OpenAPI `operationId`. */
+/**
+ * Filter by OpenAPI `operationId`.
+ */
 type ByOperationId = ByPattern<'operationId'>
 
-/** Filter by OpenAPI `path` (URL endpoint), matched against the full path. */
+/**
+ * Filter by OpenAPI `path` (URL endpoint), matched against the full path.
+ */
 type ByPath = ByPattern<'path'>
 
 type ByMethod = {
@@ -208,10 +214,14 @@ type ByMethod = {
   pattern: HttpMethod | RegExp
 }
 
-/** Filter by schema component name in `#/components/schemas`. */
+/**
+ * Filter by schema component name in `#/components/schemas`.
+ */
 type BySchemaName = ByPattern<'schemaName'>
 
-/** Filter by request content type, such as `'application/json'`. */
+/**
+ * Filter by request content type, such as `'application/json'`.
+ */
 type ByContentType = ByPattern<'contentType'>
 
 type ByExtension = {

@@ -9,10 +9,14 @@ import { x } from 'tinyexec'
 
 export type PackageManagerName = Extract<AgentName, 'npm' | 'pnpm' | 'yarn' | 'bun'>
 
-/** A project's package manager: `name` for messages, `agent` for `resolveCommand`. */
+/**
+ * A project's package manager: `name` for messages, `agent` for `resolveCommand`.
+ */
 export type PackageManagerInfo = { name: PackageManagerName; agent: Agent }
 
-/** Subcommands that create a `package.json`; `package-manager-detector` has no `init` command. */
+/**
+ * Subcommands that create a `package.json`; `package-manager-detector` has no `init` command.
+ */
 const initCommands: Record<PackageManagerName, ReadonlyArray<string>> = { npm: ['init', '-y'], pnpm: ['init'], yarn: ['init', '-y'], bun: ['init', '-y'] }
 
 /** Minimal shape of `package.json` fields read during detection. */
@@ -22,7 +26,9 @@ type PackageJson = {
   scripts?: Record<string, string>
 }
 
-/** Detects the package manager in `cwd`: the `packageManager` field in `package.json`, then a lock file, then `npm`. Parent folders are not searched. */
+/**
+ * Detects the package manager in `cwd`: the `packageManager` field in `package.json`, then a lock file, then `npm`. Parent folders are not searched.
+ */
 export async function detectPackageManager(cwd: string = process.cwd()): Promise<PackageManagerInfo> {
   const found = await detect({ cwd, stopDir: cwd, strategies: ['packageManager-field', 'lockfile'] })
   return found && found.name in initCommands ? (found as PackageManagerInfo) : { name: 'npm', agent: 'npm' }

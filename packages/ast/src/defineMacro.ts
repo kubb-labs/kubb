@@ -23,9 +23,7 @@ function enforceWeight(enforce?: Enforce): number {
  * last. Equal hints compare as `0`, so a stable sort keeps authored order within a bucket.
  *
  * @example
- * ```ts
- * plugins.sort((a, b) => compareEnforce(a.enforce, b.enforce))
- * ```
+ * `plugins.sort((a, b) => compareEnforce(a.enforce, b.enforce))`
  */
 export function compareEnforce(a?: Enforce, b?: Enforce): number {
   return enforceWeight(a) - enforceWeight(b)

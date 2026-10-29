@@ -4,7 +4,6 @@ import { logOutro } from './intro.ts'
 
 type SummaryStatus = 'success' | 'failed' | 'warning' | 'planned' | 'canceled'
 
-/** A {@link logCommandSummary} bound to the command's start time, closing the block a prompt opened. */
 export function createSummary(hrStart: [number, number]): (title: string, status: SummaryStatus, lines: ReadonlyArray<string>) => void {
   return (title, status, lines) => logCommandSummary({ title, status, hrStart, block: true, lines })
 }

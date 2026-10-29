@@ -28,7 +28,9 @@ function setupReporters(
      * Labels the memory-backed generation as a preview rather than a completed write.
      */
     dryRun?: boolean
-    /** Hands `fileChanges` to every reporter, not only `cli`. */
+    /**
+     * Hands `fileChanges` to every reporter, not only `cli`.
+     */
     fileChanges?: boolean
   },
 ): void {

@@ -61,7 +61,9 @@ const studioPermissionDescriptions: Record<AgentPermission, string> = {
   allowExec: 'Run the formatter, the linter, and output.postGenerate after a generation',
 }
 
-/** One `--allow-*` boolean flag per {@link AgentPermission}, off by default. */
+/**
+ * One `--allow-*` boolean flag per {@link AgentPermission}, off by default.
+ */
 export const studioPermissionArgs = Object.fromEntries(
   Object.entries(studioPermissionDescriptions).map(([key, description]) => [key, { type: 'boolean', description, default: false, toKebab: true }]),
 ) as Record<AgentPermission, { type: 'boolean'; description: string; default: false; toKebab: true }>
