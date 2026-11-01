@@ -27,7 +27,7 @@ Kubb differs from the others in five ways:
 
 Switch between a full build (types, Zod schemas, and a fetch client) and types only, where openapi-typescript joins.
 
-In a full build, Kubb is the fastest on the three smaller specs and ties HeyAPI on Cloudflare. In types only, Kubb does not lead every spec. openapi-typescript is the fastest on the two largest specs, and orval uses the least memory on three of the four.
+In a full build, Kubb is the fastest on the three smaller specs and ties HeyAPI on Cloudflare. In types only, Kubb does not lead every spec. openapi-typescript is the fastest on the three larger specs, and orval uses the least memory on three of the four.
 
 ::tool-benchmark
 ::
