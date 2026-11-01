@@ -32,7 +32,7 @@ In a full build, Kubb is the fastest on the three smaller specs and ties HeyAPI 
 ::tool-benchmark
 ::
 
-Median of five runs on Node 22, Linux x64 with 4 cores, November 2026. Compared kubb 5.15.3 (`@kubb/plugin-ts` 5.4.0, `@kubb/plugin-zod` 5.8.0, `@kubb/plugin-fetch` 5.11.0) with `@hey-api/openapi-ts` 0.99.0, orval 8.46.0, and openapi-typescript 7.13.0. orval has no types-only mode, so it writes models only there. Install size is `node_modules` after a clean `npm install` of each tool's packages for that output. To rerun it, see the [benchmark scripts](https://github.com/kubb-labs/kubb/tree/main/scripts/benchmark).
+Median of five runs on Node 22, Linux x64 with 4 cores, November 2026. Compared kubb 5.15.3 (`@kubb/plugin-ts` 5.4.0, `@kubb/plugin-zod` 5.8.0, `@kubb/plugin-fetch` 5.11.0) with `@hey-api/openapi-ts` 0.99.0, orval 8.46.0, and openapi-typescript 7.13.0. orval has no types-only mode, so it writes models only there. Install size is `node_modules` after a clean `npm install` of each tool's packages for that output.
 
 ## Plugin and feature coverage
 
