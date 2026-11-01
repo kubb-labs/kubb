@@ -20,6 +20,9 @@
 </h4>
 </div>
 
+> [!IMPORTANT]
+> **We are looking for maintainers.** Want to help shape Kubb? Email [kubb@kubb.dev](mailto:kubb@kubb.dev) or chat with us on [Discord](https://discord.gg/shfBFeczrm).
+
 <br />
 
 # Kubb
