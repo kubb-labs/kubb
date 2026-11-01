@@ -1,0 +1,9 @@
+{
+  "name": "benchmark-orval",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "orval": "8.46.0",
+    "zod": "4.6.7"
+  }
+}

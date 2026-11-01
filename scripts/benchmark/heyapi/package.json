@@ -1,0 +1,10 @@
+{
+  "name": "benchmark-heyapi",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@hey-api/openapi-ts": "0.99.0",
+    "typescript": "6.0.3",
+    "zod": "4.6.7"
+  }
+}
