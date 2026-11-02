@@ -56,6 +56,15 @@ describe('resolveSource', () => {
 
     await expect(resolveSource(url)).resolves.toStrictEqual({ openapi: '3.1.0', paths: {} })
   })
+
+  it('keeps the YAML parser, and its duplicate-key error, for a .yaml URL with a query string', async () => {
+    const body = '{"openapi":"3.1.0","paths":{"/pets":{},"/pets":{}}}'
+    using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(body, { status: 200 }))
+
+    const error = await resolveSource('https://specs.example.com/openapi.yaml?rev=1').catch((caught: unknown) => caught)
+
+    expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.invalidDocument)
+  })
 })
 
 describe('assertInputExists', () => {
