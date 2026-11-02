@@ -1,0 +1,70 @@
+{
+  "name": "@kubb/native",
+  "version": "5.15.3",
+  "description": "Shared helpers for Kubb core and plugins, with Rust implementations compiled to WebAssembly and JavaScript fallbacks.",
+  "keywords": [
+    "codegen",
+    "kubb",
+    "rust",
+    "wasm"
+  ],
+  "homepage": "https://kubb.dev",
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/native"
+  },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/stijnvanhulle"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/kubb"
+    },
+    {
+      "type": "custom",
+      "url": "https://kubb.dev/sponsors"
+    }
+  ],
+  "files": [
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "build:native": "cargo build --release --target wasm32-unknown-unknown --manifest-path crate/Cargo.toml && node scripts/embed.mjs",
+    "start": "tsdown --watch",
+    "typecheck": "tsc"
+  },
+  "engines": {
+    "node": ">=22.22"
+  }
+}

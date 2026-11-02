@@ -19,6 +19,7 @@ lib
 es
 artifacts
 coverage
+packages/native/crate/target
 *.tgz
 *.js.map
 

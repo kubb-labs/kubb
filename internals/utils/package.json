@@ -43,6 +43,9 @@
     "start": "tsdown --watch",
     "typecheck": "tsc"
   },
+  "dependencies": {
+    "@kubb/native": "workspace:^"
+  },
   "devDependencies": {
     "@types/node": "catalog:",
     "tinyexec": "catalog:"

@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { camelCase, pascalCase } from './casing.ts'
+import { convertCaseJs, convertCaseNative } from './convertCase.ts'
+import { native } from './loader.ts'
 
 describe('casing', () => {
   test.each([
@@ -51,5 +53,48 @@ describe('casing cache', () => {
     expect(camelCase('pet-store')).toBe('petStore')
     expect(pascalCase('pet-store')).toBe('PetStore')
     expect(camelCase('pet-store')).toBe('petStore')
+  })
+})
+
+describe('native', () => {
+  const inputs = [
+    'hello-world',
+    'HelloWorld',
+    'getHTTPSResponse',
+    'ABcDEf',
+    'AbCDe',
+    '123invalid',
+    'get2pet',
+    'hello@world',
+    'pet.petId',
+    'a/b\\c:d',
+    '  padded\t',
+    ' nbsp　wide﻿',
+    'x\u0085y',
+    'école',
+    'ÉCOLE',
+    'straße',
+    'ß',
+    'ſoo',
+    '😀',
+    '😀b',
+    'ID',
+    'iD',
+    'I',
+    '',
+  ]
+
+  test.skipIf(process.env.KUBB_NATIVE === '0')('loads the WebAssembly module', () => {
+    expect(native).not.toBeNull()
+  })
+
+  test.skipIf(!convertCaseNative).each(inputs)('convert_case(%j) matches the JavaScript version', (input) => {
+    expect(convertCaseNative!(input, false)).toBe(convertCaseJs(input, false))
+    expect(convertCaseNative!(input, true)).toBe(convertCaseJs(input, true))
+  })
+
+  test.skipIf(!convertCaseNative)('survives inputs larger than the initial memory', () => {
+    const input = 'word-'.repeat(200_000)
+    expect(convertCaseNative!(input, false)).toBe(convertCaseJs(input, false))
   })
 })

@@ -20,6 +20,7 @@ export default defineConfig({
     '**/.output/**',
     '**/.nitro/**',
     '**/CHANGELOG.md',
+    'packages/native/src/wasm.ts',
   ],
   overrides: [
     {

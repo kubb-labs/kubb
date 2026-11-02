@@ -261,6 +261,10 @@ importers:
         version: 0.19.0
 
   internals/utils:
+    dependencies:
+      '@kubb/native':
+        specifier: workspace:^
+        version: link:../../packages/native
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -277,6 +281,9 @@ importers:
       '@kubb/kit':
         specifier: workspace:*
         version: link:../kit
+      '@kubb/native':
+        specifier: workspace:^
+        version: link:../native
       '@readme/openapi-parser':
         specifier: ^10.0.0
         version: 10.0.0(openapi-types@12.1.3)
@@ -326,6 +333,9 @@ importers:
       '@kubb/mcp':
         specifier: workspace:*
         version: link:../mcp
+      '@kubb/native':
+        specifier: workspace:^
+        version: link:../native
       chokidar:
         specifier: ^6.0.0
         version: 6.0.0
@@ -366,6 +376,9 @@ importers:
       '@kubb/ast':
         specifier: workspace:^
         version: link:../ast
+      '@kubb/native':
+        specifier: workspace:^
+        version: link:../native
       tinyexec:
         specifier: 'catalog:'
         version: 1.3.1
@@ -388,6 +401,9 @@ importers:
       '@kubb/core':
         specifier: workspace:^
         version: link:../core
+      '@kubb/native':
+        specifier: workspace:^
+        version: link:../native
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
@@ -494,6 +510,8 @@ importers:
         specifier: workspace:*
         version: link:../renderer-jsx
 
+  packages/native: {}
+
   packages/parser-md:
     dependencies:
       '@kubb/ast':
@@ -523,6 +541,9 @@ importers:
       '@kubb/kit':
         specifier: workspace:*
         version: link:../kit
+      '@kubb/native':
+        specifier: workspace:^
+        version: link:../native
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
@@ -545,6 +566,9 @@ importers:
       '@kubb/core':
         specifier: workspace:^
         version: link:../core
+      '@kubb/native':
+        specifier: workspace:^
+        version: link:../native
       capnweb:
         specifier: ^0.12.0
         version: 0.12.0

@@ -69,7 +69,8 @@
   },
   "dependencies": {
     "@kubb/ast": "workspace:^",
-    "@kubb/core": "workspace:^"
+    "@kubb/core": "workspace:^",
+    "@kubb/native": "workspace:^"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*"
