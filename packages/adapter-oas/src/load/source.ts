@@ -91,7 +91,6 @@ export async function resolveSource(sourcePath: string): Promise<object | string
 
   return parseYaml(data, {
     origin: sourcePath,
-    // A `.yaml` file in flow syntax also starts with `{`; it keeps the YAML parser and its duplicate-key error.
     json: !/\.ya?ml$/i.test(pathname),
     help: 'Fix the syntax at the reported line, or check that `input` points at the spec and not an HTML page.',
   })
