@@ -2,6 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import * as jsYaml from 'js-yaml'
 import { describe, expect, it, vi } from 'vitest'
 import * as yaml from 'yaml'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
@@ -28,6 +29,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 vi.mock('yaml', async (importOriginal) => {
   const actual = await importOriginal<typeof import('yaml')>()
   return { ...actual, parse: vi.fn(actual.parse) }
+})
+
+vi.mock('js-yaml', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('js-yaml')>()
+  return { ...actual, load: vi.fn(actual.load) }
 })
 
 const petSchema: Document = {
@@ -128,13 +134,30 @@ components:
     expect(parse).not.toHaveBeenCalled()
   })
 
-  it.each([
-    ['inline JSON', '{"openapi":"3.0.3","info":{"title":"Pets API","version":"1"},"paths":{"/pets":{},"/pets":{}}}'],
-    ['inline YAML', 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths:\n  /pets: {}\n  /pets: {}\n'],
-  ])('rejects duplicate keys in %s instead of keeping the last one', async (_kind, data) => {
+  it('rejects duplicate keys in inline YAML instead of keeping the last one', async () => {
+    const data = 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths:\n  /pets: {}\n  /pets: {}\n'
     const error = await parseFromConfig({ type: 'data', data }).catch((caught: unknown) => caught)
 
     expect(Diagnostics.from(error).code).toBe(Diagnostics.code.invalidDocument)
+  })
+
+  it('parses inline JSON with `JSON.parse`, keeping the last value of a duplicate key', async () => {
+    const load = vi.mocked(jsYaml.load)
+    load.mockClear()
+
+    const doc = await parseFromConfig({
+      type: 'data',
+      data: '{"openapi":"3.0.3","info":{"title":"Pets API","version":"1"},"paths":{"/pets":{"get":{}},"/pets":{"post":{}}}}',
+    })
+
+    expect(doc.paths?.['/pets']).toEqual({ post: {} })
+    expect(load).not.toHaveBeenCalled()
+  })
+
+  it('parses a YAML flow mapping that is not JSON', async () => {
+    const doc = await parseFromConfig({ type: 'data', data: "{ openapi: '3.0.3', info: { title: Pets API, version: '1' }, paths: {} }" })
+
+    expect(doc.info.title).toBe('Pets API')
   })
 
   it('keeps timestamps as strings and `<<` as a plain key, like YAML 1.2', async () => {
