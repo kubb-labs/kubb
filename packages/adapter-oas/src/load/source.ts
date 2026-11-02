@@ -88,6 +88,8 @@ export async function resolveSource(sourcePath: string): Promise<object | string
 
   return parseYaml(data, {
     origin: sourcePath,
+    // A `.yaml` file in flow syntax also starts with `{`; it keeps the YAML parser and its duplicate-key error.
+    json: !/\.ya?ml$/i.test(sourcePath),
     help: 'Fix the syntax at the reported line, or check that `input` points at the spec and not an HTML page.',
   })
 }
@@ -96,16 +98,17 @@ export async function resolveSource(sourcePath: string): Promise<object | string
  * Parses a YAML (or JSON) spec. A syntax error throws `KUBB_INVALID_DOCUMENT` naming `origin`,
  * with the parser message, which keeps the line and column.
  *
- * A document that starts with `{` or `[` goes through `JSON.parse` first, about ten times faster
- * than `js-yaml` on a JSON spec. A duplicate key then keeps the last value, as every JSON parser
- * does. YAML flow syntax also starts with `{`, so a parse failure falls through to YAML.
+ * With `json` (the default), a document that starts with `{` or `[` goes through `JSON.parse`
+ * first, about ten times faster than `js-yaml` on a JSON spec. A duplicate key then keeps the last
+ * value, as every JSON parser does. YAML flow syntax also starts with `{`, so a parse failure falls
+ * through to YAML. Pass `json: false` for a source known to be YAML.
  *
  * `js-yaml` parses about ten times faster than `yaml`, and rejects duplicate keys instead of
  * keeping the last one. Its core schema keeps timestamps as strings and `<<` as a plain key, as
  * `yaml` does for YAML 1.2.
  */
-export function parseYaml(data: string, { origin, help }: { origin: string; help: string }): object {
-  if (/^\s*[[{]/.test(data)) {
+export function parseYaml(data: string, { origin, help, json = true }: { origin: string; help: string; json?: boolean }): object {
+  if (json && /^\s*[[{]/.test(data)) {
     try {
       return JSON.parse(data) as object
     } catch {

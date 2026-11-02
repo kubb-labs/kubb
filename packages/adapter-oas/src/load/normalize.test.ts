@@ -154,6 +154,19 @@ components:
     expect(load).not.toHaveBeenCalled()
   })
 
+  it('keeps the YAML parser, and its duplicate-key error, for a .yaml file written in flow syntax', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'kubb-yaml-flow-'))
+    const file = path.join(dir, 'spec.yaml')
+    await writeFile(file, '{"openapi":"3.0.3","info":{"title":"Pets API","version":"1"},"paths":{"/pets":{},"/pets":{}}}')
+    try {
+      const error = await parseFromConfig({ type: 'path', path: file }).catch((caught: unknown) => caught)
+
+      expect(Diagnostics.from(error).code).toBe(Diagnostics.code.invalidDocument)
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+  })
+
   it('parses a YAML flow mapping that is not JSON', async () => {
     const doc = await parseFromConfig({ type: 'data', data: "{ openapi: '3.0.3', info: { title: Pets API, version: '1' }, paths: {} }" })
 
