@@ -86,8 +86,12 @@ export async function resolveSource(sourcePath: string): Promise<object | string
     return data
   }
 
+  // A URL's query string or fragment must not hide the extension.
+  const pathname = urlRegExp.test(sourcePath) ? new URL(sourcePath).pathname : sourcePath
+
   return parseYaml(data, {
     origin: sourcePath,
+    json: !/\.ya?ml$/i.test(pathname),
     help: 'Fix the syntax at the reported line, or check that `input` points at the spec and not an HTML page.',
   })
 }
@@ -96,11 +100,23 @@ export async function resolveSource(sourcePath: string): Promise<object | string
  * Parses a YAML (or JSON) spec. A syntax error throws `KUBB_INVALID_DOCUMENT` naming `origin`,
  * with the parser message, which keeps the line and column.
  *
- * JSON is valid YAML, so one parser handles both. `js-yaml` parses about ten times faster than
- * `yaml`, and unlike `JSON.parse` it rejects duplicate keys instead of keeping the last one. Its
- * core schema keeps timestamps as strings and `<<` as a plain key, as `yaml` does for YAML 1.2.
+ * With `json` (the default), a document that starts with `{` or `[` goes through `JSON.parse`
+ * first, about ten times faster than `js-yaml` on a JSON spec. A duplicate key then keeps the last
+ * value, as every JSON parser does. YAML flow syntax also starts with `{`, so a parse failure falls
+ * through to YAML. Pass `json: false` for a source known to be YAML.
+ *
+ * `js-yaml` parses about ten times faster than `yaml`, and rejects duplicate keys instead of
+ * keeping the last one. Its core schema keeps timestamps as strings and `<<` as a plain key, as
+ * `yaml` does for YAML 1.2.
  */
-export function parseYaml(data: string, { origin, help }: { origin: string; help: string }): object {
+export function parseYaml(data: string, { origin, help, json = true }: { origin: string; help: string; json?: boolean }): object {
+  if (json && /^\s*[[{]/.test(data)) {
+    try {
+      return JSON.parse(data) as object
+    } catch {
+      // Not JSON, so YAML parses it below.
+    }
+  }
   try {
     const document = load(data, { schema: CORE_SCHEMA })
     if (document !== undefined) return document as object
