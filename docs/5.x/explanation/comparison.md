@@ -17,7 +17,7 @@ Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typ
 
 Kubb differs from the others in five ways:
 
-- It generates faster and uses less memory than HeyAPI and orval at every [spec size we measured](#speed-memory-and-install-size).
+- For a full build, it uses less memory than HeyAPI and orval on every [spec we measured](#speed-memory-and-install-size), and has the smallest install.
 - One config generates types, clients, query hooks, Zod, MSW, Faker, Cypress tests, an MCP server, and Redoc docs. See [plugin coverage](#plugin-and-feature-coverage).
 - Its clients return a result you narrow by status code, and you choose per call whether errors throw. See [type safety](#type-safety-and-response-handling).
 - Its runtime follows the spec's parameter styles, encodes bodies per media type, and reads server-sent events. See [client runtime](#client-runtime).
@@ -25,12 +25,14 @@ Kubb differs from the others in five ways:
 
 ## Speed, memory, and install size
 
-Switch between a full build (types, Zod schemas, and a fetch client) and types only, where openapi-typescript joins. In types only, openapi-typescript is faster than Kubb on the largest spec, but uses more memory.
+Switch between a full build (types, Zod schemas, and a fetch client) and types only, where openapi-typescript joins.
+
+In a full build, Kubb is the fastest on the three smaller specs and ties HeyAPI on Cloudflare. In types only, Kubb does not lead every spec. openapi-typescript is the fastest on the three larger specs, and orval uses the least memory on three of the four.
 
 ::tool-benchmark
 ::
 
-Median of five runs on Node 22, Linux x64, October 2026. Kubb ran from the `main` branches of kubb-labs/kubb and kubb-labs/plugins on October 24 (the first build after kubb 5.12.8 without the TypeScript compiler). Compared with `@hey-api/openapi-ts` 0.99.0, orval 8.44.0, and openapi-typescript 7.13.0. Install size is `node_modules` after a clean `npm install` with the same features.
+Median of five runs on Node 22, Linux x64 with 4 cores, November 2026. Compared kubb 5.15.3 (`@kubb/plugin-ts` 5.4.0, `@kubb/plugin-zod` 5.8.0, `@kubb/plugin-fetch` 5.11.0) with `@hey-api/openapi-ts` 0.99.0, orval 8.46.0, and openapi-typescript 7.13.0. orval has no types-only mode, so it writes models only there. Install size is `node_modules` after a clean `npm install` of each tool's packages for that output.
 
 ## Plugin and feature coverage
 
