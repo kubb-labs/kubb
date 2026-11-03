@@ -40,7 +40,7 @@ export type SharedOutput = {
    */
   path: string
   /**
-   * The schemas every spec defines identically, filled in by `kubb generate`.
+   * The shared schemas this spec defines, filled in by `kubb generate`.
    *
    * @internal
    */

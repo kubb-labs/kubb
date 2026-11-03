@@ -34,9 +34,10 @@ async function parse({ config, adapter }: Member): Promise<InputNode> {
 }
 
 /**
- * Fills `output.shared.schemas` on every config that sets `output.shared`. Configs with the same shared path share every schema
- * they all define identically, as long as the schemas it references are shared too. `conflicts` lists the names
- * they all define, but differently, which stay in each config's own output.
+ * Fills `output.shared.schemas` on every config that sets `output.shared`. Among configs with the same shared path, a schema
+ * is shared when two or more of them define it, all identically, and the schemas it references are shared too. Each config
+ * lists only the shared schemas it defines. `conflicts` lists the names two or more configs define differently, which stay
+ * in each config's own output.
  */
 export async function detectSharedSchemas(configs: Array<Config>): Promise<Detected> {
   const groups = new Map<string, Array<Member>>()
@@ -61,30 +62,35 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
       parsed.push({ member, input, schemas: new Map(input.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : []))) })
     }
 
-    const [first, ...rest] = parsed
-    if (!first) continue
-    const names = new Set<string>()
-    for (const [name, node] of first.schemas) {
-      const others = rest.flatMap(({ schemas }) => schemas.get(name) ?? [])
-      if (others.length < rest.length) continue
+    const definitions = new Map<string, Array<SchemaNode>>()
+    for (const { schemas } of parsed) {
+      for (const [name, node] of schemas) definitions.set(name, [...(definitions.get(name) ?? []), node])
+    }
+
+    // Each shared name with one of its definitions, which are all the same shape.
+    const shared = new Map<string, SchemaNode>()
+    for (const [name, [node, ...others]] of definitions) {
+      if (!node || others.length === 0) continue
 
       const shape = toShape(node)
-      const bucket = others.every((other) => toShape(other) === shape) ? names : conflicts
-      bucket.add(name)
+      if (others.every((other) => toShape(other) === shape)) shared.set(name, node)
+      else conflicts.add(name)
     }
 
     // A shared file imports its refs from the shared directory, so drop schemas until every ref is shared.
     let changed = true
     while (changed) {
       changed = false
-      for (const [name, node] of first.schemas) {
-        if (!names.has(name) || collectImportedRefNames(node).every((ref) => names.has(ref))) continue
-        names.delete(name)
+      for (const [name, node] of shared) {
+        if (collectImportedRefNames(node).every((ref) => shared.has(ref))) continue
+        shared.delete(name)
         changed = true
       }
     }
 
-    for (const { member, input } of parsed) detected.set(member.config, { shared: { ...member.shared, schemas: [...names] }, input })
+    for (const { member, input, schemas } of parsed) {
+      detected.set(member.config, { shared: { ...member.shared, schemas: [...shared.keys()].filter((name) => schemas.has(name)) }, input })
+    }
   }
 
   const inputs = new Map<Config, InputNode>()

@@ -28,7 +28,7 @@ function makeConfig(schemas: Array<SchemaNode>, shared: Config['output']['shared
 }
 
 describe('detectSharedSchemas', () => {
-  it('shares the schemas every config defines identically, with the schemas they reference', async () => {
+  it('shares the schemas both configs define identically, with the schemas they reference', async () => {
     const name = () => ast.factory.createSchema({ type: 'string', name: 'Name' })
     const color = () => object('Color', { hex: string(), name: ref('Name') })
     const animals = makeConfig([name(), color(), object('Animal', { name: ref('Name') })])
@@ -42,6 +42,31 @@ describe('detectSharedSchemas', () => {
     ])
     expect(conflicts).toStrictEqual([])
     expect(configs.map((config) => inputs.get(config)?.schemas.length)).toStrictEqual([3, 3])
+  })
+
+  it('shares a schema that only some configs define, and lists on each config only the shared schemas it defines', async () => {
+    const name = () => ast.factory.createSchema({ type: 'string', name: 'Name' })
+    const address = () => object('Address', { street: string() })
+    const pets = makeConfig([name(), address(), object('Pet', { name: ref('Name') })])
+    const shop = makeConfig([address(), object('Order', { address: ref('Address') })])
+    const components = makeConfig([name()])
+
+    const { configs, conflicts } = await detectSharedSchemas([pets, shop, components])
+
+    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([['Name', 'Address'], ['Address'], ['Name']])
+    expect(conflicts).toStrictEqual([])
+  })
+
+  it('shares nothing for a name two configs define identically and a third defines differently', async () => {
+    const address = () => object('Address', { street: string() })
+    const pets = makeConfig([address()])
+    const shop = makeConfig([address()])
+    const components = makeConfig([object('Address', { city: string() })])
+
+    const { configs, conflicts } = await detectSharedSchemas([pets, shop, components])
+
+    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([[], [], []])
+    expect(conflicts).toStrictEqual(['Address'])
   })
 
   it('keeps a schema defined differently, and every shared candidate that references it, in each output', async () => {
