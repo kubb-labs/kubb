@@ -276,15 +276,17 @@ When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/c
 
 `kubb generate` parses every spec first and picks the schemas to share:
 
-- A schema is shared when every config with the same `path` defines it identically, and every schema it references is shared too.
-- A schema that every spec defines, but differently, stays in each config's own output, and the CLI prints a warning that names it.
+- A schema is shared when two or more configs with the same `path` define it, all identically, and every schema it references is shared too. A config whose spec does not define it is unaffected.
+- A schema that two or more configs define differently stays in each config's own output, and the CLI prints a warning that names it.
 - A config alone in its `path` shares nothing.
 
 Only `kubb generate` compares the specs, so a single `createKubb` run, the bundler plugins, and MCP share nothing.
 
-With [`output.barrel`](#outputbarrel) set, the shared directory gets the same barrels as `output.path`, and [`output.format`](#outputformat) and [`output.lint`](#outputlint) run over it too. When any config that uses the shared directory sets [`output.clean`](#outputclean), `kubb generate` also wipes it once per run. The first config that uses it does so, right before it writes its files. A config's own barrels leave the shared schemas out, so import those from the shared directory's barrel.
+With [`output.barrel`](#outputbarrel) set, each config's barrels also re-export the shared schemas its spec defines, so `import type { Name } from './src/gen/animals/types'` keeps working. The shared directory gets no barrels of its own.
 
-Give the configs that share a directory the same plugins. Otherwise the shared root barrel lists only the last config's plugins. Keep `path` outside every config's `output.path`. Otherwise a later config's `output.clean` deletes shared files that only an earlier config writes.
+[`output.format`](#outputformat) and [`output.lint`](#outputlint) run over the shared directory too. When any config that uses it sets [`output.clean`](#outputclean), `kubb generate` also wipes it once per run. The first config that uses it does so, right before it writes its files.
+
+Keep `path` outside every config's `output.path`. Otherwise a later config's `output.clean` deletes shared files that only an earlier config writes.
 :::
 
 #### `output.defaultBanner`
