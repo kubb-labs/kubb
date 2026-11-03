@@ -172,17 +172,25 @@ describe('pluginBarrel', () => {
   })
 
   it.each([
-    ['a plugin output directory', 'types', '/workspace/src/common/types/name.ts', ['/workspace/src/common/types/index.ts', '/workspace/src/common/index.ts']],
-    ['the output root', '.', '/workspace/src/common/name.ts', ['/workspace/src/common/index.ts']],
-  ])('writes the output.shared barrels for a plugin writing to %s', async (_, outputPath, filePath, barrels) => {
-    const plugin = makePlugin({ name: 'plugin-types', outputPath, filePath, exportName: 'Name', output: { mode: 'directory' } })
+    [
+      'a plugin output directory',
+      'types',
+      '/workspace/src/common/types/name.ts',
+      { '/workspace/src/gen/types/index.ts': '../../common/types/name.ts', '/workspace/src/gen/index.ts': '../common/types/name.ts' },
+    ],
+    ['the output root', '.', '/workspace/src/common/name.ts', { '/workspace/src/gen/index.ts': '../common/name.ts' }],
+  ])(
+    're-exports the output.shared files from its own barrels, and writes none in output.shared, for a plugin writing to %s',
+    async (_, outputPath, filePath, barrels) => {
+      const plugin = makePlugin({ name: 'plugin-types', outputPath, filePath, exportName: 'Name', output: { mode: 'directory' } })
 
-    const { files } = await build({ plugins: [plugin], shared: { path: 'src/common' } })
-    const exportNames = (barrelPath: string) => files.find((file) => file.path === barrelPath)?.exports.flatMap((item) => item.name ?? [])
+      const { files, paths } = await build({ plugins: [plugin], shared: { path: 'src/common' } })
+      const exportsOf = (barrelPath: string) => files.find((file) => file.path === barrelPath)?.exports.map(({ name, path }) => ({ name, path }))
 
-    for (const barrel of barrels) expect(exportNames(barrel)).toStrictEqual(['Name'])
-    expect(exportNames('/workspace/src/gen/index.ts')).toBeUndefined()
-  })
+      for (const [barrel, path] of Object.entries(barrels)) expect(exportsOf(barrel)).toStrictEqual([{ name: ['Name'], path }])
+      expect(paths.filter((path) => path.startsWith('/workspace/src/common/') && path.endsWith('/index.ts'))).toStrictEqual([])
+    },
+  )
 
   it.each([
     { scenario: 'no banner or footer is configured', output: {}, banner: undefined, footer: undefined },
@@ -244,7 +252,7 @@ describe('pluginBarrel', () => {
     expect(rootExportNames).toContain('PetSchema')
   })
 
-  it('leaves the shared files of a barrel:false plugin without an owning plugin out of the shared barrels', async () => {
+  it('leaves the shared files of a barrel:false plugin without an owning plugin out of the barrels', async () => {
     const plugin = makePlugin({
       name: 'plugin-types',
       outputPath: 'types',
@@ -256,8 +264,8 @@ describe('pluginBarrel', () => {
 
     const { paths } = await build({ plugins: [plugin], shared: { path: 'src/common' } })
 
-    expect(paths).not.toContain('/workspace/src/common/types/index.ts')
-    expect(paths).not.toContain('/workspace/src/common/index.ts')
+    expect(paths).not.toContain('/workspace/src/gen/types/index.ts')
+    expect(paths).not.toContain('/workspace/src/gen/index.ts')
   })
 
   it('reports a path traversal when a plugin output path escapes the output directory', async () => {

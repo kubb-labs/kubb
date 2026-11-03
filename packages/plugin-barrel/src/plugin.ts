@@ -169,10 +169,10 @@ export const pluginBarrel = defineExtension({
       excludedPlugins.clear()
       excludedTargets.length = 0
 
-      const index = buildBarrelIndex(outputPath, relevantFiles)
-      // Shared schemas live outside `output.path`, so the shared directory gets its own index.
+      // The shared directory gets no barrels, since each config writes only some of its files. Each config's barrels
+      // re-export the shared schemas it defines instead, so imports from `output.path` keep working.
       const sharedRoot = config.output.shared && path.resolve(config.root, config.output.shared.path)
-      const shared = sharedRoot ? { root: sharedRoot, index: buildBarrelIndex(sharedRoot, relevantFiles) } : undefined
+      const index = buildBarrelIndex(outputPath, relevantFiles, sharedRoot)
       const reportedCollisions = new Set<string>()
       // Keyed by path and name: plugins sharing an `output.path` produce the same aliases.
       const namespaceExports = new Map<string, ast.ExportNode>()
@@ -188,27 +188,12 @@ export const pluginBarrel = defineExtension({
               namespaceExports.set(`${itemPath}\0${item.name}`, ast.factory.createExport({ ...item, path: itemPath }))
             })
         })
-        if (!shared) return
-        getBarrelFiles({
-          index: shared.index,
-          targetPath: path.resolve(shared.root, plugin.options.output.path),
-          barrelType,
-          nested,
-          recursive: true,
-          reportedCollisions,
-        }).forEach((file) => {
-          upsertFile(withBarrelBannerFooter({ file, plugin, config }))
-        })
       })
       pendingBarrels.length = 0
 
       if (rootBarrelConfig === false) return
 
       getBarrelFiles({ index, barrelType: rootBarrelConfig.type, additionalExports: [...namespaceExports.values()], reportedCollisions }).forEach((file) => {
-        upsertFile(file)
-      })
-      if (!shared) return
-      getBarrelFiles({ index: shared.index, barrelType: rootBarrelConfig.type, reportedCollisions }).forEach((file) => {
         upsertFile(file)
       })
     },
