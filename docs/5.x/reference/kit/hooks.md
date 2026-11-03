@@ -77,7 +77,8 @@ These come from the pipeline, so `.build()` and `.safeBuild()` fire them too.
 | `kubb:plugin:end`        | `{ plugin, duration, success, error, config, files, upsertFile }` | After a plugin finishes, with its timing and a file snapshot |
 | `kubb:plugins:end`       | `{ config, files, upsertFile }`                              | After every plugin has generated, before files hit disk. The spot to add aggregate files like a barrel |
 | `kubb:files:processing:start` | `{ files }`                                             | Before the batch of generated files is written         |
-| `kubb:files:processing:update`| `{ files }`                                             | As files are written. Here `files` holds progress records (`{ processed, total, percentage, source?, file, config }`), not the `FileNode` array the `:start` and `:end` variants carry |
+| `kubb:files:processing:update`| `{ files }`                                             | As files are written. Here `files` holds progress records (`{ processed, total, percentage, file, config }`), not the `FileNode` array the `:start` and `:end` variants carry. The source is on `kubb:file:processed` |
+| `kubb:file:processed`    | `{ file, source }`                                           | After each file is parsed and handed to the storage, with the source before any output pass rewrites it |
 | `kubb:files:processing:end` | `{ files }`                                               | After the batch is written                             |
 | `kubb:build:end`         | `{ files, config, outputDir }`                               | After every file is written                            |
 

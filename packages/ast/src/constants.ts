@@ -1,13 +1,29 @@
 import type { SchemaType } from './nodes/schema.ts'
 
 /**
- * Traversal depth for AST visitor utilities.
- *
- * - `'shallow'` recurses through every node except nested `Schema` subtrees, which it treats as
- *   leaves: a schema node itself is visited, but its children are not.
- * - `'deep'` recursively visits all descendant nodes, including schema subtrees.
+ * Node kind discriminators used by every AST node (for example `node.kind === nodeKinds.text`).
  */
-export type VisitorDepth = 'shallow' | 'deep'
+export const nodeKinds = {
+  input: 'Input',
+  operation: 'Operation',
+  schema: 'Schema',
+  property: 'Property',
+  parameter: 'Parameter',
+  response: 'Response',
+  requestBody: 'RequestBody',
+  content: 'Content',
+  type: 'Type',
+  file: 'File',
+  import: 'Import',
+  export: 'Export',
+  source: 'Source',
+  const: 'Const',
+  function: 'Function',
+  arrowFunction: 'ArrowFunction',
+  text: 'Text',
+  break: 'Break',
+  jsx: 'Jsx',
+} as const
 
 /**
  * Schema type discriminators used by all AST schema nodes.

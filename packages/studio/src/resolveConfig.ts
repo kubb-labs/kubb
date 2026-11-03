@@ -2,9 +2,10 @@ import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { type Adapter, Diagnostics, type ExtensionKind, isPackageName, type Parser, type Plugin, resolveMeta } from '@kubb/core'
-import { camelCase, isPathInside, toError } from '@internals/utils'
-import type { InstalledExtensions, JSONKubbConfig, OptionValue } from './protocol.ts'
+import { type Adapter, type Config, Diagnostics, type ExtensionKind, type Parser, type Plugin, resolveMeta } from '@kubb/core'
+import { isAllowedPlugin, isOptionValue, isOutputKey, isOutputValue, isPlainObject, isSafeKey, toExportName, toPluginName } from '@internals/shared'
+import { isPathInside, toError } from '@internals/utils'
+import type { InstalledExtensions, JSONKubbConfig } from './protocol.ts'
 
 /**
  * Turns the JSON config Studio sends back into live Kubb objects.
@@ -26,27 +27,14 @@ async function importFromProject(packageName: string): Promise<Record<string, un
   try {
     return await import(packageName)
   } catch {
-    const require = createRequire(pathToFileURL(`${process.cwd()}/`))
-    // `require.resolve` picks the package's `require` condition, so prefer the ESM build sitting
+    const requireModule = createRequire(pathToFileURL(`${process.cwd()}/`))
+    // `requireModule.resolve` picks the package's `require` condition, so prefer the ESM build sitting
     // next to it. Loading the CJS copy would pull in a second `@kubb/core` instance.
-    const resolved = require.resolve(packageName)
+    const resolved = requireModule.resolve(packageName)
     const esm = resolved.replace(/\.cjs$/, '.js')
 
     return await import(pathToFileURL(esm !== resolved && existsSync(esm) ? esm : resolved).href)
   }
-}
-
-/**
- * Strips the `@kubb/` scope from a plugin package name, matching the `name` convention Kubb
- * plugin factories use internally.
- *
- * @example
- * ```ts
- * toPluginName('@kubb/plugin-ts') // 'plugin-ts'
- * ```
- */
-function toPluginName(packageName: string): string {
-  return packageName.split('/').pop() ?? packageName
 }
 
 /**
@@ -85,31 +73,6 @@ export function toStudioName({
   kind?: ExtensionKind
 }): string {
   return [...extensions.values()].find(({ manifest }) => manifest.kind === kind && manifest.name === name)?.package ?? name
-}
-
-/**
- * Derives the conventional named export for a `@kubb/*` plugin package from its package name.
- *
- * @example
- * ```ts
- * toExportName('@kubb/plugin-react-query') // 'pluginReactQuery'
- * toExportName('@kubb/plugin-ts')          // 'pluginTs'
- * ```
- */
-export function toExportName(packageName: string): string {
-  return camelCase(toPluginName(packageName))
-}
-
-const KUBB_PLUGIN_SPECIFIER = /^@kubb\/plugin-[\w.-]+$/
-
-/**
- * Whether Studio may import `packageName` as a plugin: a `@kubb/plugin-*` package, or an installed
- * package whose `kubb-extension.json` has `kind: "plugin"`. A path, URL or arbitrary package is
- * refused before it can execute. `configFile.ts` applies the same rule before printing a plugin name.
- */
-export function isAllowedPlugin({ packageName, extensions }: { packageName: string; extensions: InstalledExtensions }): boolean {
-  if (!isPackageName(packageName)) return false
-  return KUBB_PLUGIN_SPECIFIER.test(packageName) || extensions.get(packageName)?.manifest.kind === 'plugin'
 }
 
 /**
@@ -207,18 +170,6 @@ export async function resolvePlugins({
 }
 
 /**
- * Keys that reach an object's prototype when assigned. Never read from or written into options.
- */
-const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
-
-/**
- * Whether `key` can be used as an option key without touching an object's prototype.
- */
-export function isSafeKey(key: string): boolean {
-  return !UNSAFE_KEYS.has(key)
-}
-
-/**
  * A JSON copy of plugin or adapter options: functions and other values JSON cannot hold are left
  * out, so nothing callable crosses the socket. Options that cannot be copied at all, such as a
  * circular structure, come back empty.
@@ -237,29 +188,6 @@ export function toJSONOptions(options: unknown): Record<string, unknown> {
   } catch {
     return {}
   }
-}
-
-/**
- * Whether `value` is an object literal or a null-prototype object, not an array or class instance.
- */
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  if (typeof value !== 'object' || value === null) return false
-  const prototype = Object.getPrototypeOf(value)
-  return prototype === null || prototype === Object.prototype
-}
-
-/**
- * Whether `value` survives a JSON round trip, so it can be printed into a config file as a literal.
- * A function, `undefined`, a non-finite number or a class instance comes back from Studio as a
- * lossy copy, so an edit carrying one is refused rather than written into the user's source.
- */
-export function isOptionValue(value: unknown): value is OptionValue {
-  if (value === null || typeof value === 'string' || typeof value === 'boolean') return true
-  if (typeof value === 'number') return Number.isFinite(value)
-  if (Array.isArray(value)) return value.every(isOptionValue)
-  if (isPlainObject(value)) return Object.entries(value).every(([key, entry]) => isSafeKey(key) && isOptionValue(entry))
-
-  return false
 }
 
 /**
@@ -445,6 +373,13 @@ async function rebuildExtension<T extends Adapter | Parser>({
   })
 
   return factory(mergeOptions((disk.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)) as T
+}
+
+/** Merges Studio's valid `output` overrides, with `null` unsetting a member. */
+export function mergeOutput({ output, studio }: { output: Config['output']; studio: unknown }): Config['output'] {
+  if (!isPlainObject(studio)) return output
+  const overrides = Object.fromEntries(Object.entries(studio).filter(([key, value]) => (value === null ? isOutputKey(key) : isOutputValue({ key, value }))))
+  return mergeOptions(output, overrides) as Config['output']
 }
 
 /**

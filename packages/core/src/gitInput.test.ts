@@ -1,0 +1,150 @@
+import { execFileSync } from 'node:child_process'
+import { existsSync } from 'node:fs'
+import { lstat, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { Diagnostics } from './Diagnostics.ts'
+import { checkoutGitInput, gitAuthEnv, parseGitInput, publicFetchConfig } from './gitInput.ts'
+
+describe('parseGitInput', () => {
+  it.each([
+    [
+      'a ref and a path',
+      'git+https://github.com/org/api.git#v2:specs/openapi.yaml',
+      { repo: 'https://github.com/org/api.git', ref: 'v2', path: 'specs/openapi.yaml' },
+    ],
+    [
+      'a path on the default branch',
+      'git+ssh://git@github.com/org/api.git#openapi.yaml',
+      { repo: 'ssh://git@github.com/org/api.git', ref: undefined, path: 'openapi.yaml' },
+    ],
+    ['the scp-style SSH form', 'git+git@github.com:org/api.git#main:openapi.yaml', { repo: 'git@github.com:org/api.git', ref: 'main', path: 'openapi.yaml' }],
+  ])('splits %s', (_name, input, expected) => {
+    expect(parseGitInput(input)).toStrictEqual(expected)
+  })
+
+  it.each([
+    ['no fragment', 'git+https://github.com/org/api.git'],
+    ['an empty path', 'git+https://github.com/org/api.git#main:'],
+    ['an empty ref', 'git+https://github.com/org/api.git#:openapi.yaml'],
+  ])('throws KUBB_GIT_INPUT_FAILED for %s', (_name, input) => {
+    expect(() => parseGitInput(input)).toThrow(Diagnostics.Error)
+  })
+})
+
+describe('checkoutGitInput', () => {
+  let root: string
+  let repo: string
+
+  beforeAll(async () => {
+    root = await mkdtemp(join(tmpdir(), 'kubb-git-test-'))
+    const git = (...args: Array<string>) => execFileSync('git', args, { cwd: root, stdio: 'ignore' })
+    await mkdir(join(root, 'specs'))
+    await writeFile(join(root, 'specs', 'openapi.yaml'), 'openapi: 3.1.0\n')
+    await writeFile(join(root, '..openapi.yaml'), 'openapi: 3.0.0\n')
+    await symlink('/etc/hostname', join(root, 'linked.yaml'))
+    git('init', '--quiet', '--initial-branch', 'main')
+    git('-c', 'user.name=kubb', '-c', 'user.email=kubb@example.com', 'commit', '--quiet', '--allow-empty', '-m', 'init')
+    git('add', '.')
+    git('-c', 'user.name=kubb', '-c', 'user.email=kubb@example.com', 'commit', '--quiet', '-m', 'spec')
+    git('tag', 'v1')
+    repo = pathToFileURL(root).href
+  })
+
+  afterAll(async () => {
+    await rm(root, { recursive: true, force: true })
+  })
+
+  it('checks out the spec at a ref and deletes it on dispose', async () => {
+    const checkout = await checkoutGitInput(`git+${repo}#v1:specs/openapi.yaml`)
+
+    expect(await readFile(checkout.path, 'utf8')).toBe('openapi: 3.1.0\n')
+    await checkout.dispose()
+    expect(existsSync(checkout.path)).toBe(false)
+  })
+
+  it('throws KUBB_GIT_INPUT_FAILED for a missing ref', async () => {
+    await expect(checkoutGitInput(`git+${repo}#missing:specs/openapi.yaml`)).rejects.toMatchObject({ diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' } })
+  })
+
+  it('reads a root-level file whose name starts with two dots', async () => {
+    const checkout = await checkoutGitInput(`git+${repo}#v1:..openapi.yaml`)
+
+    expect(await readFile(checkout.path, 'utf8')).toBe('openapi: 3.0.0\n')
+    await checkout.dispose()
+  })
+
+  it('checks out a symlink as a plain file', async () => {
+    const checkout = await checkoutGitInput(`git+${repo}#v1:linked.yaml`)
+
+    expect((await lstat(checkout.path)).isSymbolicLink()).toBe(false)
+    expect(await readFile(checkout.path, 'utf8')).toBe('/etc/hostname')
+    await checkout.dispose()
+  })
+
+  it('rejects a path that leaves the repository', async () => {
+    await expect(checkoutGitInput(`git+${repo}#v1:../outside.yaml`)).rejects.toMatchObject({ diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' } })
+  })
+
+  it('refuses an authorization with a line break before it fetches', async () => {
+    await expect(checkoutGitInput(`git+${repo}#v1:specs/openapi.yaml`, undefined, { authorization: 'Basic abc\r\nX-Other: 1' })).rejects.toMatchObject({
+      diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' },
+    })
+  })
+})
+
+describe('gitAuthEnv', () => {
+  it("adds the Authorization header for the repository's origin after the host's own pairs", () => {
+    const options = { repo: 'https://github.com/org/api.git', authorization: 'Basic abc' }
+
+    expect(gitAuthEnv({}, options)).toStrictEqual({
+      GIT_CONFIG_COUNT: '1',
+      GIT_CONFIG_KEY_0: 'http.https://github.com/.extraheader',
+      GIT_CONFIG_VALUE_0: 'Authorization: Basic abc',
+    })
+    expect(gitAuthEnv({ GIT_CONFIG_COUNT: '2', GIT_CONFIG_GLOBAL: '/etc/agent.gitconfig' }, options)).toStrictEqual({
+      GIT_CONFIG_COUNT: '3',
+      GIT_CONFIG_KEY_2: 'http.https://github.com/.extraheader',
+      GIT_CONFIG_VALUE_2: 'Authorization: Basic abc',
+    })
+    expect(gitAuthEnv({ GIT_CONFIG_COUNT: '-5' }, options).GIT_CONFIG_COUNT).toBe('1')
+  })
+
+  it.each(['Basic abc\nX-Other: 1', 'Basic abc\r'])('throws for an authorization with a line break: %j', (authorization) => {
+    expect(() => gitAuthEnv({}, { repo: 'https://github.com/org/api.git', authorization })).toThrow(Diagnostics.Error)
+  })
+})
+
+describe('publicFetchConfig', () => {
+  it('pins a host name to the addresses that were checked, and refuses redirects and other transports', () => {
+    expect(publicFetchConfig({ host: 'git.example.com', port: '443', addresses: ['93.184.216.34', '2606:4700:4700::1111'] })).toStrictEqual([
+      '-c',
+      'http.followRedirects=false',
+      '-c',
+      'protocol.allow=never',
+      '-c',
+      'protocol.https.allow=always',
+      '-c',
+      'http.curloptResolve=git.example.com:443:93.184.216.34,[2606:4700:4700::1111]',
+    ])
+  })
+
+  it('leaves an IP literal unpinned, since git does not look it up', () => {
+    expect(publicFetchConfig({ host: '93.184.216.34', port: '8443', addresses: ['93.184.216.34'] }).join(' ')).not.toContain('curloptResolve')
+  })
+})
+
+describe('checkoutGitInput with publicOnly', () => {
+  it.each([
+    ['plain http', 'git+http://93.184.216.34/api.git#main:openapi.yaml'],
+    ['an scp style address', 'git+git@github.com:org/api.git#main:openapi.yaml'],
+    ['a local path', 'git+file:///srv/api.git#main:openapi.yaml'],
+    ['a private address', 'git+https://10.0.0.5/api.git#main:openapi.yaml'],
+    ['the metadata address', 'git+https://169.254.169.254/api.git#main:openapi.yaml'],
+    ['a name that resolves to loopback', 'git+https://localhost/api.git#main:openapi.yaml'],
+  ])('refuses %s before it fetches anything', async (_label, input) => {
+    await expect(checkoutGitInput(input, undefined, { publicOnly: true })).rejects.toMatchObject({ diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' } })
+  })
+})

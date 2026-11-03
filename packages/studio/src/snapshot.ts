@@ -67,6 +67,23 @@ function header(path: string, size: number): Buffer {
 }
 
 /**
+ * Loads `tsdown` on first use. It is an optional peer dependency: it is large, and only snapshots need it.
+ */
+export async function loadTsdown(load = () => import('tsdown')): Promise<typeof import('tsdown')> {
+  try {
+    return await load()
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ERR_MODULE_NOT_FOUND' || !(error as Error).message.includes("'tsdown'")) throw error
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.missingDependency,
+      severity: 'error',
+      message: 'Missing dependency: tsdown. A snapshot builds its dist files with tsdown, which Kubb does not install by default.',
+      help: 'Run `npm i -D tsdown` in the project, then try again.',
+    })
+  }
+}
+
+/**
  * Packs a generation's files into a gzipped, npm-installable tarball: a `package/` root with the
  * generated sources, a `tsdown`-built `dist/` (esm + cjs), and a `package.json` manifest.
  */
@@ -96,8 +113,7 @@ export async function createSnapshotPackage({ files, packageInfo }: { files: Sna
     )
     const entry = [...sources.keys()].filter((path) => /\.(?:[cm]?[jt]sx?)$/.test(path)).map((path) => join(root, path))
     if (entry.length) {
-      // Loaded on first use: tsdown is large, and most agent processes never pack a snapshot.
-      const { build } = await import('tsdown')
+      const { build } = await loadTsdown()
       // `fixedExtension` emits the `.mjs`/`.cjs` the manifest names, whatever "type" the host's own package.json sets.
       await build({
         entry,

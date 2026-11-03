@@ -1,28 +1,36 @@
 import { describe, expect, it, vi } from 'vitest'
-import { inParallel, memoize } from './promise.ts'
+import { inParallel, memo } from './promise.ts'
 
-describe('memoize', () => {
-  it('caches by key using a Map (primitive keys)', () => {
-    const factory = vi.fn((n: number) => n * 2)
-    const fn = memoize(new Map<number, number>(), factory)
+describe('memo', () => {
+  it('computes once per key using a Map (primitive keys)', () => {
+    const store = new Map<number, number>()
+    const compute = vi.fn((n: number) => n * 2)
 
-    expect(fn(3)).toBe(6)
-    expect(fn(3)).toBe(6)
-    expect(fn(4)).toBe(8)
-    expect(factory).toHaveBeenCalledTimes(2)
+    expect(memo(store, 3, () => compute(3))).toBe(6)
+    expect(memo(store, 3, () => compute(3))).toBe(6)
+    expect(memo(store, 4, () => compute(4))).toBe(8)
+    expect(compute).toHaveBeenCalledTimes(2)
   })
 
-  it('caches by key using a WeakMap (object keys)', () => {
-    const factory = vi.fn((obj: { v: number }) => obj.v * 10)
-    const fn = memoize(new WeakMap(), factory)
-
+  it('computes once per key using a WeakMap (object keys)', () => {
+    const store = new WeakMap<{ v: number }, number>()
     const a = { v: 1 }
     const b = { v: 2 }
+    const compute = vi.fn((obj: { v: number }) => obj.v * 10)
 
-    expect(fn(a)).toBe(10)
-    expect(fn(a)).toBe(10)
-    expect(fn(b)).toBe(20)
-    expect(factory).toHaveBeenCalledTimes(2)
+    expect(memo(store, a, () => compute(a))).toBe(10)
+    expect(memo(store, a, () => compute(a))).toBe(10)
+    expect(memo(store, b, () => compute(b))).toBe(20)
+    expect(compute).toHaveBeenCalledTimes(2)
+  })
+
+  it('treats a cached null as a hit', () => {
+    const store = new Map<string, null>()
+    const compute = vi.fn(() => null)
+
+    memo(store, 'k', compute)
+    memo(store, 'k', compute)
+    expect(compute).toHaveBeenCalledTimes(1)
   })
 })
 

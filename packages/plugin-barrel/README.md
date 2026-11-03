@@ -58,11 +58,14 @@ export default defineConfig({
 
 `pluginBarrel()` takes no arguments. You configure it through `output.barrel`, on `defineConfig` or on a single plugin.
 
-| Option                 | Type                                                    | Default                   | Description                                                                                        |
-| ---------------------- | ------------------------------------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------- |
-| `output.barrel`        | `{ type: 'all' \| 'named', nested?: boolean } \| false` | `false` on `defineConfig` | Barrel settings. `false` on a plugin turns its barrel off and leaves its files out of the root one |
-| `output.barrel.type`   | `'all' \| 'named'`                                      | None                      | Export style for the generated barrel files                                                        |
-| `output.barrel.nested` | `boolean`                                               | `false`                   | Plugin only. Each barrel re-exports its own directory and the barrels below it                     |
+| Option                    | Type                                                                         | Default                   | Description                                                                                        |
+| ------------------------- | ---------------------------------------------------------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------- |
+| `output.barrel`           | `{ type: 'all' \| 'named', nested?: boolean, namespace?: boolean } \| false` | `false` on `defineConfig` | Barrel settings. `false` on a plugin turns its barrel off and leaves its files out of the root one |
+| `output.barrel.type`      | `'all' \| 'named'`                                                           | None                      | Export style for the generated barrel files                                                        |
+| `output.barrel.nested`    | `boolean`                                                                    | `false`                   | Plugin only. Each barrel re-exports its own directory and the barrels below it                     |
+| `output.barrel.namespace` | `boolean`                                                                    | `false`                   | Plugin only. Add named namespaces for immediate subdirectories and enable nested barrels           |
+
+Set `output.barrel.namespace: true` on a grouped fetch plugin to import a named service such as `PetService`, alongside standalone functions. Leave `sdk` unset when using query plugins. See the [fetch + React Query example](https://kubb.dev/extensions/kubb-labs/plugin-barrel/options#namespace).
 
 ### Export types
 

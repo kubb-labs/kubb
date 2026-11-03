@@ -3,8 +3,7 @@ import { chmodSync, mkdirSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import process from 'node:process'
-import { createStorage as createUnstorage } from 'unstorage'
-import fsDriver from 'unstorage/drivers/fs'
+import { exists, isPathInside, read, rm, writeRaw } from '@internals/utils'
 
 type KubbStorageOptions = {
   /**
@@ -36,8 +35,9 @@ export function resolveKubbDir(base = ''): string {
 }
 
 /**
- * unstorage on the fs driver, rooted at {@link resolveKubbDir}. The fs driver cannot set a file
- * mode, so the 0700 folder keeps files such as a stored token private.
+ * Key-value files rooted at {@link resolveKubbDir}. Each key is a file path inside that folder.
+ * Strings are stored as is and other values as JSON. `getItem` parses JSON and falls back to the
+ * raw string. The 0700 folder keeps files such as a stored token private.
  *
  * @example
  * ```ts
@@ -46,5 +46,30 @@ export function resolveKubbDir(base = ''): string {
  * ```
  */
 export function kubbStorage({ base }: KubbStorageOptions = {}) {
-  return createUnstorage({ driver: fsDriver({ base: resolveKubbDir(base) }) })
+  const dir = resolveKubbDir(base)
+  // Same keys as unstorage: `:` separates folders, and a key may not leave `dir`
+  const pathOf = (key: string) => {
+    const path = resolve(dir, key.replaceAll(':', '/'))
+    if (path === dir || !isPathInside(path, dir)) throw new Error(`Invalid key: ${JSON.stringify(key)}. It should not leave the storage folder`)
+    return path
+  }
+
+  return {
+    async getItem<T = unknown>(key: string): Promise<T | null> {
+      const path = pathOf(key)
+      if (!(await exists(path))) return null
+      const raw = await read(path)
+      try {
+        return JSON.parse(raw) as T
+      } catch {
+        return raw as T
+      }
+    },
+    async setItem(key: string, value: unknown): Promise<void> {
+      await writeRaw(pathOf(key), typeof value === 'string' ? value : JSON.stringify(value))
+    },
+    async removeItem(key: string): Promise<void> {
+      await rm(pathOf(key), { force: true })
+    },
+  }
 }

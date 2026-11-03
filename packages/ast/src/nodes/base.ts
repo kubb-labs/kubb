@@ -1,3 +1,6 @@
+import type { ValueOf } from '@internals/utils'
+import type { nodeKinds } from '../constants.ts'
+
 /**
  * `kind` values used by AST nodes.
  *
@@ -6,26 +9,7 @@
  * const kind: NodeKind = 'Schema'
  * ```
  */
-export type NodeKind =
-  | 'Input'
-  | 'Operation'
-  | 'Schema'
-  | 'Property'
-  | 'Parameter'
-  | 'Response'
-  | 'RequestBody'
-  | 'Content'
-  | 'Type'
-  | 'File'
-  | 'Import'
-  | 'Export'
-  | 'Source'
-  | 'Const'
-  | 'Function'
-  | 'ArrowFunction'
-  | 'Text'
-  | 'Break'
-  | 'Jsx'
+export type NodeKind = ValueOf<typeof nodeKinds>
 
 /**
  * Base shape shared by all AST nodes.
@@ -40,6 +24,12 @@ export type BaseNode = {
    * Node discriminator.
    */
   kind: NodeKind
+  /**
+   * Where the node comes from in the input, in the form the adapter's `locate` reads. Document
+   * adapters such as OpenAPI and AsyncAPI use an RFC 6901 JSON pointer, for example
+   * `#/components/schemas/Pet`. Plugins can copy it to the code nodes they emit.
+   */
+  pointer?: string
 }
 
 /** `Omit` applied to each member of a union, so the union survives. */

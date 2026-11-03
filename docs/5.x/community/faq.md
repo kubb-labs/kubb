@@ -39,7 +39,7 @@ Not out of the box. The default [adapter](/docs/5.x/explanation/architecture#ada
 :::
 
 :::accordion-item{label="What Node.js version is required?" icon="i-iconoir-help-circle"}
-Node.js 22.12 or higher. The CLI and config file are ESM-native.
+Node.js 22.22 or higher. The CLI and config file are ESM-native.
 :::
 
 :::accordion-item{label="Does Kubb support Bun or Deno?" icon="i-iconoir-help-circle"}

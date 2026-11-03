@@ -7,3 +7,7 @@ export function pluralize(count: number, noun: string): string {
 export function toPermissionFlag(key: string): string {
   return `--${key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)}`
 }
+
+export function isHttpUrl(value: string): boolean {
+  return /^https?:\/\//.test(value)
+}

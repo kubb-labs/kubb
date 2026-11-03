@@ -8,6 +8,7 @@ import type { KubbPluginSetupContext, Plugin } from './definePlugin.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
+import { Resolver } from './Resolver.ts'
 
 function makeConfig(overrides: Partial<Config> = {}): Config {
   return {
@@ -213,15 +214,53 @@ function fileNode(path: string): FileNode {
 
 function inputAdapter() {
   const schemas: Array<SchemaNode> = [
-    ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] }),
-    ast.factory.createSchema({ type: 'object', name: 'Store', properties: [] }),
+    ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [], pointer: '#/components/schemas/Pet' }),
+    ast.factory.createSchema({ type: 'object', name: 'Store', properties: [], pointer: '#/components/schemas/Store' }),
   ]
   const operations: Array<OperationNode> = [
-    ast.factory.createOperation({ operationId: 'getPet', method: 'GET', path: '/pet' }),
-    ast.factory.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' }),
+    ast.factory.createOperation({ operationId: 'getPet', method: 'GET', path: '/pet', pointer: '#/paths/~1pet/get' }),
+    ast.factory.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets', pointer: '#/paths/~1pets/get' }),
   ]
   return createMockedAdapter({ parse: async () => ast.factory.createInput({ schemas, operations }) })
 }
+
+test.each([true, false])('reserves component names only for schema-generating plugins (%s)', async (generatesSchemas) => {
+  const names: Array<string> = []
+  const base = new Resolver({ pluginName: 'names', name: (name) => `Api${name}` })
+  const plugin: Plugin = {
+    name: 'names',
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.setResolver(base)
+        ctx.addGenerator({
+          name: 'names',
+          ...(generatesSchemas
+            ? {
+                schema(_node: SchemaNode, { resolver }: GeneratorContext) {
+                  names.push(resolver.resolveName({ key: 'inline', name: 'ApiStore' }))
+                },
+              }
+            : {}),
+          operation(_node, { resolver }) {
+            names.push(resolver.resolveName({ key: 'inline', name: 'ApiStore' }))
+          },
+        })
+      },
+    },
+  }
+
+  for (let run = 0; run < 2; run++) {
+    const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+    try {
+      await driver.setup()
+      const { diagnostics } = await driver.run()
+      expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toEqual([])
+    } finally {
+      driver.dispose()
+    }
+  }
+  expect(names).toEqual(Array.from({ length: generatesSchemas ? 8 : 4 }, () => (generatesSchemas ? 'ApiStore2' : 'ApiStore')))
+})
 
 type Recorder = {
   schema: Array<{ plugin: string; name: string | null | undefined }>
@@ -229,6 +268,97 @@ type Recorder = {
   operations: Array<{ plugin: string; ids: Array<string> }>
   pairs: Array<{ generator: string; ctx: string }>
 }
+
+test.each([
+  { label: 'renamed', rename: 'StoreRenamed', options: {}, preferred: 'ApiStoreRenamed', expected: 'ApiStoreRenamed2', schemas: ['ApiPet', 'ApiStoreRenamed'] },
+  {
+    label: 'excluded',
+    rename: null,
+    options: { exclude: [{ type: 'schemaName' as const, pattern: '^Store$' }] },
+    preferred: 'ApiStore',
+    expected: 'ApiStore',
+    schemas: ['ApiPet'],
+  },
+  {
+    label: 'not included',
+    rename: null,
+    options: { include: [{ type: 'schemaName' as const, pattern: '^Pet$' }] },
+    preferred: 'ApiStore',
+    expected: 'ApiStore',
+    schemas: ['ApiPet'],
+  },
+  {
+    label: 'unreachable from included operations',
+    rename: null,
+    options: { include: [{ type: 'operationId' as const, pattern: '^getPet$' }] },
+    preferred: 'ApiStore',
+    expected: 'ApiStore',
+    schemas: [],
+  },
+])('reserves prepared schema names when a component is $label', async ({ rename, options, preferred, expected, schemas }) => {
+  const emittedSchemas: Array<string> = []
+  const inlineNames: Array<string> = []
+  const schemaMacro = vi.fn((node: SchemaNode) => (node.name === 'Store' && rename ? { ...node, name: rename } : undefined))
+  const plugin: Plugin = {
+    name: 'names',
+    options,
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.setResolver(new Resolver({ pluginName: 'names', name: (name) => `Api${name}` }))
+        ctx.addMacro({ name: 'rename', schema: schemaMacro })
+        ctx.addGenerator({
+          name: 'names',
+          schema(node, { resolver }) {
+            inlineNames.push(resolver.resolveName({ key: 'inline', name: preferred }))
+            emittedSchemas.push(resolver.name(node.name!))
+          },
+          operation(_node, { resolver }) {
+            inlineNames.push(resolver.resolveName({ key: 'inline', name: preferred }))
+          },
+        })
+      },
+    },
+  }
+  const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+  try {
+    await driver.setup()
+    const { diagnostics } = await driver.run()
+    expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toEqual([])
+    expect(emittedSchemas).toEqual(schemas)
+    expect(new Set(inlineNames)).toEqual(new Set([expected]))
+    expect(schemaMacro.mock.calls.map(([node]) => node.name)).toEqual(['Pet', 'Store'])
+  } finally {
+    driver.dispose()
+  }
+})
+
+test('preserves earlier schema output when preparation of a later schema fails', async () => {
+  const plugin: Plugin = {
+    name: 'names',
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.addMacro({
+          name: 'fail-store',
+          schema(node) {
+            if (node.name === 'Store') throw new Error('Cannot prepare Store')
+          },
+        })
+        ctx.addGenerator({ name: 'schemas', schema: (node) => [fileNode(`${node.name}.ts`)] })
+      },
+    },
+  }
+  const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+  try {
+    await driver.setup()
+    const { diagnostics } = await driver.run()
+    expect(driver.fileManager.files.map((file) => file.baseName)).toEqual(['Pet.ts'])
+    expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toMatchObject([
+      { message: 'While generating schema "Store": Cannot prepare Store' },
+    ])
+  } finally {
+    driver.dispose()
+  }
+})
 
 // A generator that records every call and emits one file per node, prefixed by plugin name so the
 // produced file set proves which plugin's generator ran for which node.
@@ -398,7 +528,7 @@ describe('KubbDriver generator dispatch', () => {
     })
   })
 
-  it('names the operation a generator crashed on, with an escaped pointer', async () => {
+  it('names the operation a generator crashed on, with the pointer the adapter set', async () => {
     const boomPlugin: Plugin = {
       name: 'boom',
       hooks: {
@@ -425,7 +555,7 @@ describe('KubbDriver generator dispatch', () => {
     })
   })
 
-  it('shares one cache per node across plugins and gives each node a fresh one', async () => {
+  it('shares ctx.memo across plugins, so a node-named key is computed once per node', async () => {
     const seen: Array<{ plugin: string; node: string; token: number }> = []
     let counter = 0
     const cachePlugin = (name: string): Plugin => ({
@@ -436,7 +566,7 @@ describe('KubbDriver generator dispatch', () => {
             name: `${name}-cache`,
             schema(node: SchemaNode, gctx: GeneratorContext) {
               // The first plugin to reach a node fills the token, and the rest read the same value.
-              const token = gctx.cache.ensureItem('token', () => ++counter)
+              const token = gctx.memo(`token:${node.name}`, () => ++counter)
               seen.push({ plugin: gctx.plugin.name, node: node.name!, token })
               return null
             },

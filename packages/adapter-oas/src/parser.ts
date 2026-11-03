@@ -14,9 +14,9 @@ export type OasParserContext = {
   document: Document
   refs: Refs
   /**
-   * Collision renames from `getSchemas`, keyed by the original component pointer. `convertRef`
-   * stamps `targetName` from it at ref creation, so refs to renamed schemas resolve to the
-   * emitted name without a post-parse pass.
+   * Renames from `getSchemas`, keyed by the collision-renamed component or nested `$defs` pointer.
+   * `convertRef` stamps `targetName` from it at ref creation, so refs to renamed schemas resolve
+   * to the emitted name without a post-parse pass.
    */
   renames?: ReadonlyMap<string, string>
   options?: Partial<ast.ParserOptions>

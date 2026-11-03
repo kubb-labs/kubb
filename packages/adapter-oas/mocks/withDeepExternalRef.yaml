@@ -1,0 +1,12 @@
+openapi: '3.0.3'
+info:
+  title: Deep External Ref API
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Household:
+      type: object
+      properties:
+        catName:
+          $ref: './external/animals.yaml#/components/schemas/Cat/properties/name'

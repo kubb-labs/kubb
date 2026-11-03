@@ -14,12 +14,6 @@ const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
  */
 const WATCHER_DEBOUNCE_MS = 250
 
-/** Interval in milliseconds between polls of a remote `input` URL in watch mode, which emits no filesystem events. */
-const URL_WATCHER_INTERVAL_MS = 2_000
-
-/** Upper bound in milliseconds for one URL watcher request, headers and body read, so a hung server never stalls polling. */
-const URL_WATCHER_TIMEOUT_MS = 10_000
-
 /** `14:02:11  petStore.yaml changed`, the line a watcher prints when its input changes. */
 export function formatChange({ target, removed = false, now = new Date() }: { target: string; removed?: boolean; now?: Date }): string {
   return `${styleText('dim', now.toTimeString().slice(0, 8))}  ${styleText('bold', target)} ${removed ? 'removed' : 'changed'}`
@@ -65,114 +59,6 @@ export async function startWatcher(
     if (debounceTimer) clearTimeout(debounceTimer)
     await watcher.close()
   }
-}
-
-/**
- * Fetches the body of a remote spec URL, `undefined` when the server does not answer with a
- * readable 2xx body before `signal` aborts. The caller seeds `startUrlWatcher` with the result, so
- * the watcher compares polls against the content the initial build ran on.
- */
-export async function fetchUrlBody(url: string, signal: AbortSignal = AbortSignal.timeout(URL_WATCHER_TIMEOUT_MS)): Promise<string | undefined> {
-  try {
-    const response = await fetch(url, { signal })
-    if (!response.ok) return undefined
-    return await response.text()
-  } catch {
-    return undefined
-  }
-}
-
-type UrlWatcherOptions = {
-  /**
-   * Sink for watcher messages, `console.log` by default.
-   */
-  log?: WatcherLog
-  /**
-   * Time in milliseconds between polls.
-   */
-  intervalMs?: number
-  /**
-   * Upper bound in milliseconds for one poll request, covering headers and body read.
-   */
-  timeoutMs?: number
-  /**
-   * Body the initial build ran against, the baseline for change detection. When omitted (the
-   * server was unreachable at startup), the first successful poll rebuilds so the output catches
-   * up as soon as the server responds.
-   */
-  initialBody?: string
-}
-
-/**
- * Polls a remote spec URL and calls `cb` whenever the response body changes. A remote document
- * emits no filesystem events, so this is the URL counterpart of `startWatcher`.
- *
- * `initialBody` seeds the change detection, so an edit landing between the initial build and the
- * first poll still rebuilds. An unreachable server (the API restarting between saves) is reported
- * once per outage and polling continues; after it recovers, a rebuild happens only when the body
- * actually differs from the last one seen, so a plain restart with an unchanged spec stays quiet.
- * Each request is aborted after `timeoutMs`, so a hung response delays at most one poll.
- * `cb` must never reject: its result is not awaited.
- *
- * Returns a function that stops polling and aborts the in-flight request, so callers (and tests)
- * can shut the watcher down without signaling the process.
- */
-export function startUrlWatcher(url: string, cb: (path: Array<string>) => Promise<void>, options: UrlWatcherOptions = {}): () => void {
-  const { log = { info: console.log, error: console.log }, intervalMs = URL_WATCHER_INTERVAL_MS, timeoutMs = URL_WATCHER_TIMEOUT_MS, initialBody } = options
-
-  let lastBody = initialBody
-  let offline = false
-  let timer: ReturnType<typeof setTimeout> | null = null
-  let controller: AbortController | null = null
-  let stopped = false
-
-  const stop = () => {
-    stopped = true
-    if (timer) clearTimeout(timer)
-    controller?.abort()
-  }
-  process.once('SIGINT', stop)
-  process.once('SIGTERM', stop)
-
-  const schedule = () => {
-    if (!stopped) {
-      timer = setTimeout(() => void poll(), intervalMs)
-    }
-  }
-
-  const poll = async (): Promise<void> => {
-    controller = new AbortController()
-    // The signal also aborts the body read, so a response that stalls mid-stream still times out.
-    const body = await fetchUrlBody(url, AbortSignal.any([controller.signal, AbortSignal.timeout(timeoutMs)]))
-
-    if (body === undefined) {
-      // `lastBody` survives the outage so recovery rebuilds only on real content changes.
-      if (!offline && !stopped) {
-        offline = true
-        log.error(styleText('red', `Cannot reach ${url}, polling until it responds again`))
-      }
-      schedule()
-      return
-    }
-
-    if (offline) {
-      offline = false
-      log.info(styleText('yellow', `${url} is reachable again`))
-    }
-    const changed = lastBody !== undefined && body !== lastBody
-    if (changed) {
-      log.info(formatChange({ target: url }))
-    }
-    if (changed || lastBody === undefined) {
-      void cb([url])
-    }
-    lastBody = body
-    schedule()
-  }
-
-  void poll()
-
-  return stop
 }
 
 /**
@@ -234,24 +120,6 @@ export function diffBuilds(previous: BuildSnapshot, next: BuildSnapshot): BuildD
   }
 }
 
-/**
- * Compares file contents or fingerprints by path.
- */
-export function diffFiles(previous: ReadonlyMap<string, string>, next: ReadonlyMap<string, string>): { files: Array<FileChange>; unchanged: number } {
-  const files: Array<FileChange> = []
-  let unchanged = 0
-  for (const [path, fingerprint] of next) {
-    const before = previous.get(path)
-    if (before === fingerprint) unchanged++
-    else files.push({ status: before === undefined ? 'A' : 'M', path })
-  }
-  for (const path of previous.keys()) {
-    if (!next.has(path)) files.push({ status: 'D', path })
-  }
-
-  return { files, unchanged }
-}
-
 /** A changed file with how many lines it gains and loses, counted as a multiset, which is cheap and close enough for a plan. */
 export type FileChange = { status: 'A' | 'M' | 'D'; path: string; added?: number; removed?: number }
 
@@ -287,8 +155,35 @@ export async function readOutputFiles(outputPath: string): Promise<Map<string, s
 }
 
 /**
+ * How one generated file differs from its copy before generation: `undefined` when both hold the
+ * same output, otherwise the change with its line counts. The manifest recognizes output a
+ * formatter rewrote.
+ */
+export function diffFile({
+  path,
+  next,
+  previous,
+  manifest,
+}: {
+  path: string
+  next: string
+  previous: string | null
+  manifest?: Pick<OutputManifest, 'isUpToDate'>
+}): FileChange | undefined {
+  if (previous !== null && (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: path, source: next, disk: previous }))) {
+    return undefined
+  }
+  return {
+    status: previous === null ? 'A' : 'M',
+    path,
+    ...countLineChanges(previous?.trim() ?? '', previous === null ? next.trimEnd() : next.trim()),
+  }
+}
+
+/**
  * Compares generated output with the files captured before generation. The manifest recognizes
- * output rewritten by a formatter, and `clean` includes files the run would delete.
+ * output rewritten by a formatter, and `clean` includes files the run would delete. `counted` holds
+ * changes already worked out while the files were written; any other path is read back.
  */
 export async function diffOutput({
   storage,
@@ -296,6 +191,7 @@ export async function diffOutput({
   clean,
   manifest,
   previousFiles,
+  counted,
 }: {
   storage: Storage
   paths: ReadonlyArray<string>
@@ -305,6 +201,10 @@ export async function diffOutput({
    * The output captured before a real run, including files removed by cleaning.
    */
   previousFiles: ReadonlyMap<string, string>
+  /**
+   * Each written file's change from {@link diffFile}, `undefined` when unchanged. A path missing here, such as a blank file the storage skipped, is read back.
+   */
+  counted?: ReadonlyMap<string, FileChange | undefined>
 }): Promise<{ files: Array<FileChange>; unchanged: number }> {
   const generated = new Set(paths)
   const changes: Array<FileChange | undefined> = []
@@ -313,18 +213,16 @@ export async function diffOutput({
     items: paths,
     limit: 50,
     run: async (filePath, index) => {
-      const next = await storage.readItem(filePath)
-      if (next === null) return
-      const previous = previousFiles.get(filePath) ?? null
-      if (previous !== null && (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: filePath, source: next, disk: previous }))) {
-        unchanged++
-        return
+      let change: FileChange | undefined
+      if (counted?.has(filePath)) {
+        change = counted.get(filePath)
+      } else {
+        const next = await storage.readItem(filePath)
+        if (next === null) return
+        change = diffFile({ path: filePath, next, previous: previousFiles.get(filePath) ?? null, manifest })
       }
-      changes[index] = {
-        status: previous === null ? 'A' : 'M',
-        path: filePath,
-        ...countLineChanges(previous?.trim() ?? '', previous === null ? next.trimEnd() : next.trim()),
-      }
+      if (change) changes[index] = change
+      else unchanged++
     },
   })
   const files = changes.filter((file) => file !== undefined)

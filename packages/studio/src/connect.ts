@@ -1,4 +1,7 @@
 import { randomUUID } from 'node:crypto'
+import { existsSync } from 'node:fs'
+import { writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -7,19 +10,23 @@ import { getErrorMessage, mkdtemp, read, rm, toError } from '@internals/utils'
 import {
   Diagnostics,
   cacheStorage,
+  checkoutGitInput,
   type Config,
   fsStorage,
   getInputKind,
+  type InputKind,
   Hookable,
   type KubbHooks,
+  type ProblemCode,
   type Storage,
   readInstalledPackages,
   resolveCacheDir,
   resolveMeta,
 } from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
+import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
-import { readConfig, readImports, writeConfigEdits } from './configFile.ts'
+import { BUNDLED_PACKAGES, editConfigFile, pickOutput, readConfig, readImports } from '@internals/shared'
 import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
@@ -32,6 +39,8 @@ import {
   AgentMessage,
   type AgentConnectInfo,
   type AgentPermissions,
+  type ConfigEdit,
+  ConfigEditOperation,
   type ConfigEntryView,
   type ConfigFileView,
   type ConfigRef,
@@ -50,11 +59,18 @@ import {
   type ReadFilesResult,
   type ReadInputInput,
   type ReadInputResult,
+  type InstallExtensionInput,
+  type InstallExtensionResult,
+  type RemoveExtensionInput,
+  type RemoveExtensionResult,
   type SaveConfigInput,
   type SaveResult,
   type StudioApi,
+  type UpdateExtensionsInput,
+  type UpdateExtensionsResult,
 } from './protocol.ts'
-import { assertOutputPaths, mergeAdapter, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
+import { withPublicFetch } from './publicFetch.ts'
+import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -66,8 +82,8 @@ const MAX_RETRY_DELAY_MS = 30_000
 const DISK_SNAPSHOT_MAX_FILES = 10_000
 // Sandboxes keep temporary output sets with a short lifetime.
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
-/** Extensions `kubb` ships with, so they count as installed without being a direct dependency. */
-const BUILT_IN_PACKAGES = ['@kubb/adapter-oas', '@kubb/parser-ts', '@kubb/parser-md', '@kubb/plugin-barrel']
+// What Studio may send a managed agent as its spec. Not `file` or `object`: a path would read the container's disk.
+const MANAGED_INPUT_KINDS = new Set<InputKind>(['inline', 'url', 'git'])
 
 /**
  * Studio closed with {@link AgentCloseCode.UNAUTHORIZED}. Hosts forget the token and pair again.
@@ -111,7 +127,7 @@ declare global {
        */
       'studio:command': [
         ctx: {
-          command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput' | 'readDiff'
+          command: 'generate' | 'saveConfig' | 'installExtension' | 'updateExtensions' | 'removeExtension' | 'readFiles' | 'readInput' | 'readDiff'
           info: string
           /**
            * The Studio user who asked for the command, when Studio names one.
@@ -160,6 +176,8 @@ export type ConnectAgentOptions = {
    * What Studio may do in this project. Every permission is off unless granted.
    */
   permissions?: Partial<AgentPermissions>
+  /** The CLI entry `installExtension` runs `kubb add` with. Found through the project's `kubb` or `@kubb/cli` dependency when omitted. */
+  kubbBin?: string
   /**
    * Receives the `studio:*` hooks and the `kubb:*` hooks of every generation.
    */
@@ -177,8 +195,9 @@ export type ConnectAgentOptions = {
   heartbeatInterval?: number
 }
 
-type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal'>> & {
+type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin'>> & {
   signal?: AbortSignal
+  kubbBin?: string
   permissions: AgentPermissions
   configFile: string
 }
@@ -193,6 +212,41 @@ type Session = {
   connected: PromiseWithResolvers<AgentConnectInfo>
   closed: boolean
   active?: { jobId: string; abort: () => void; settled: Promise<void> }
+  install?: { abort: () => void; settled: Promise<void> }
+  saving?: boolean
+}
+
+const INSTALL_TIMEOUT_MS = 5 * 60_000
+/** How many trailing lines of a failed `kubb add` the reason keeps. */
+const INSTALL_OUTPUT_LINES = 20
+/** `owner/slug` or `slug`, as `kubb add` takes it. Checked before it becomes an argument. */
+const REGISTRY_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/
+
+/** The CLI the project depends on, so `kubb add` installs next to what the config imports. */
+function findKubbBin(root: string): string | undefined {
+  const requireModule = createRequire(path.resolve(root, 'package.json'))
+  const names = ['kubb', '@kubb/cli']
+  // Nearest directory first, so a nested project does not pick up an ancestor's CLI.
+  return (requireModule.resolve.paths('kubb') ?? [])
+    .flatMap((dir) => names.map((name) => path.join(dir, name, 'bin', 'kubb.js')))
+    .find((bin) => existsSync(bin))
+}
+
+/** Runs a `kubb` command without a shell, and keeps the end of its output for the failure reason. */
+async function runKubb({ bin, args, cwd, signal }: { bin: string; args: Array<string>; cwd: string; signal: AbortSignal }) {
+  try {
+    const { stdout, stderr, exitCode } = await x(process.execPath, [bin, ...args], {
+      signal,
+      timeout: INSTALL_TIMEOUT_MS,
+      throwOnError: false,
+      nodeOptions: { cwd, env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' } },
+    })
+    const output = `${stdout}\n${stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
+    return { failed: exitCode !== 0, output: output || `kubb ${args[0]} exited with ${exitCode ?? 'a signal'}` }
+  } catch (error) {
+    // tinyexec still throws when the timeout hits or the process cannot start.
+    return { failed: true, output: `kubb ${args[0]} did not run: ${getErrorMessage(error)}` }
+  }
 }
 
 // A throwing host listener must not break the connection.
@@ -251,6 +305,9 @@ class GenerationRunTarget extends RpcTarget implements GenerationRun {
   }
 }
 
+/** A save's edit once a `set-input` document is named, or why it was refused. */
+type KeptEdit = (ConfigEdit & { document?: { fileName: string; text: string } }) | { reason: string }
+
 // Cap'n Web exposes only prototype methods, so the public methods are exactly `AgentApi`.
 class Agent extends RpcTarget implements AgentApi {
   readonly #options: ResolvedOptions
@@ -271,10 +328,26 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#session.info?.sandbox === true
   }
 
+  get #managed(): boolean {
+    return this.#session.info?.managed === true
+  }
+
   // A sandbox has no project to write to or edit, and Studio may always read what it generated there.
   get #permissions(): AgentPermissions {
     const { permissions } = this.#options
-    return this.#sandbox ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowRead: true, allowReadAst: true } : permissions
+    return this.#sandbox
+      ? {
+          ...permissions,
+          allowWrite: false,
+          allowConfigEdit: false,
+          allowInstall: false,
+          allowUpdate: false,
+          allowRemove: false,
+          allowSaveInput: false,
+          allowRead: true,
+          allowReadAst: true,
+        }
+      : permissions
   }
 
   // Owned agents retain output in the project cache. Each sandbox connection has a temporary cache.
@@ -297,9 +370,17 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   // Studio shows the thrown message, and the host logs the same text.
-  async #refuse({ message, permission }: { message: string; permission?: AgentPermission }): Promise<never> {
+  async #refuse({
+    message,
+    permission,
+    code = Diagnostics.code.unknown,
+  }: {
+    message: string
+    permission?: AgentPermission
+    code?: ProblemCode
+  }): Promise<never> {
     await this.#warn({ message, permission })
-    throw new Diagnostics.Error({ code: Diagnostics.code.unknown, severity: 'error', message })
+    throw new Diagnostics.Error({ code, severity: 'error', message })
   }
 
   #assertConnected(): void {
@@ -327,11 +408,13 @@ class Agent extends RpcTarget implements AgentApi {
   // dependency, config import and built-in that resolves and ships a valid `kubb-extension.json`.
   async #installedExtensions(source = read(this.#options.configFile)): Promise<InstalledExtensions> {
     const imports = await source.then(readImports, () => [])
-    const installed = await readInstalledPackages({ root: this.#options.root, packages: [...imports, ...BUILT_IN_PACKAGES], resolveFrom: ['kubb'] })
+    const installed = await readInstalledPackages({ root: this.#options.root, packages: [...imports, ...BUNDLED_PACKAGES], resolveFrom: ['kubb'] })
 
     return new Map(
       installed.flatMap(({ package: name, version, manifest }) =>
-        version !== undefined && manifest ? [[name, { package: name, version, manifest }] as const] : [],
+        version !== undefined && manifest
+          ? [[name, { package: name, version, manifest, ...(BUNDLED_PACKAGES.includes(name) ? { bundled: true as const } : {}) }] as const]
+          : [],
       ),
     )
   }
@@ -401,6 +484,8 @@ class Agent extends RpcTarget implements AgentApi {
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#session.closed) throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Connection is closed' })
     if (this.#session.active) return this.#refuse({ message: AgentMessage.GENERATION_IN_PROGRESS })
+    if (this.#session.install) return this.#refuse({ message: AgentMessage.INSTALL_IN_PROGRESS })
+    if (this.#session.saving) return this.#refuse({ message: AgentMessage.SAVE_IN_PROGRESS })
     const settled = Promise.withResolvers<void>()
     this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
     let root = this.#options.root
@@ -438,9 +523,13 @@ class Agent extends RpcTarget implements AgentApi {
     const { jobId, config: patch } = input
     // A sandbox has no spec on disk, so it only ever generates from the content Studio sends. A path
     // or URL would make it read host files or fetch internal addresses on behalf of any tenant.
-    const studioInput = this.#sandbox ? patch?.input : undefined
+    const studioInput = this.#sandbox || this.#managed ? patch?.input : undefined
     if (this.#sandbox && (typeof studioInput !== 'string' || !studioInput.trim() || getInputKind(studioInput) !== 'inline')) {
       return this.#refuse({ message: AgentMessage.SANDBOX_INPUT_ONLY })
+    }
+    // Studio may point a managed agent at a URL or a git file, and it falls back to its config's input without one. A file path would read the container's disk.
+    if (this.#managed && studioInput !== undefined && !MANAGED_INPUT_KINDS.has(getInputKind(studioInput))) {
+      return this.#refuse({ message: AgentMessage.MANAGED_INPUT_KIND })
     }
 
     const [configs, extensions] = await Promise.all([this.#options.loadConfigs(), this.#installedExtensions()])
@@ -461,31 +550,44 @@ class Agent extends RpcTarget implements AgentApi {
 
     const activePlugins = plugins ?? config.plugins
 
-    if (patch?.input && !this.#sandbox) {
+    if (patch?.input && !this.#sandbox && !this.#managed) {
       // A `kubb:warn` rather than `studio:warn`, so the generation's event stream carries it to Studio too.
       await emit(this.#options.hooks, 'kubb:warn', {
-        message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent',
+        message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox or managed agent',
       })
     }
 
-    const files = await generate({
-      config: {
-        ...config,
-        root,
-        input: studioInput ?? config.input,
-        storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
-        plugins: activePlugins,
-        adapter,
-        parsers,
-      },
-      hooks: this.#options.hooks,
-      signal,
-      allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
-    }).catch(async (error: unknown) => {
-      await this.#generations.drop(jobId)
-      await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
-      throw error
-    })
+    // A managed agent checks a git input out itself, so the fetch stays on public addresses and follows no redirect.
+    const checkout =
+      this.#managed && studioInput !== undefined && getInputKind(studioInput) === 'git'
+        ? await checkoutGitInput(studioInput, signal, { publicOnly: true, authorization: input.gitAuth?.authorization }).catch((error: unknown) =>
+            this.#refuse({ message: getErrorMessage(error), code: Diagnostics.code.gitInputFailed }),
+          )
+        : undefined
+    const run = () =>
+      generate({
+        config: {
+          ...config,
+          root,
+          input: checkout?.path ?? studioInput ?? config.input,
+          output: mergeOutput({ output: config.output, studio: patch?.output }),
+          storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
+          plugins: activePlugins,
+          adapter,
+          parsers,
+        },
+        hooks: this.#options.hooks,
+        signal,
+        allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
+      })
+    // The adapter fetches the URL and every `$ref` in it, so a managed agent limits the fetch itself to public addresses.
+    const files = await (this.#managed ? withPublicFetch(run) : run())
+      .catch(async (error: unknown) => {
+        await this.#generations.drop(jobId)
+        await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
+        throw error
+      })
+      .finally(() => checkout?.dispose())
 
     const output = await this.#generations.keep({ jobId, files, maxSetMb: this.#limits.maxMb })
     // Only `readInput` reads it, which needs `allowReadAst`.
@@ -526,10 +628,32 @@ class Agent extends RpcTarget implements AgentApi {
     }
 
     // A running generation reloads the config, so it would see half the change.
-    if (this.#session.active) return refuse('a generation is in progress')
+    const busy = this.#busy()
+    if (busy) return refuse(busy)
 
+    // Keeps `kubb add` from rewriting the config while this save is still writing it.
+    this.#session.saving = true
     try {
-      const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
+      const kept: Array<KeptEdit> = []
+      for (const edit of edits) kept.push(await this.#keepInput(edit))
+      const written = await editConfigFile({
+        filePath: configFile,
+        edits: kept.flatMap((edit) => ('reason' in edit ? [] : [edit])),
+        extensions: await this.#installedExtensions(),
+      })
+      let next = 0
+      // Back in the order Studio sent them, each naming the edit as sent rather than the document's file.
+      const outcomes = kept.map((edit, index) =>
+        'reason' in edit ? { edit: edits[index]!, applied: false, reason: edit.reason } : { ...written.outcomes[next++]!, edit: edits[index]! },
+      )
+      // A document is written only once its config edit applied, in edit order, so the last edit for a file wins.
+      let wroteDocument = false
+      for (const [index, edit] of kept.entries()) {
+        if (!('document' in edit) || !edit.document || !outcomes[index]!.applied) continue
+        await writeFile(path.join(this.#options.root, edit.document.fileName), edit.document.text, 'utf-8')
+        wroteDocument = true
+      }
+      const changed = written.changed || wroteDocument
       const applied = outcomes.filter((outcome) => outcome.applied).length
       await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`, input.requestedBy)
 
@@ -538,6 +662,122 @@ class Agent extends RpcTarget implements AgentApi {
       // Refuse every edit so Studio hears back instead of waiting.
       await emit(this.#options.hooks, 'studio:error', { error: toError(error) })
       return refuse(getErrorMessage(error))
+    } finally {
+      this.#session.saving = false
+    }
+  }
+
+  /**
+   * Readies a `set-input` edit for the config file: a document is pointed at `openapi.yaml` (`openapi.json`
+   * for JSON) in the project, one file per config entry, for `saveConfig` to write once the edit applies.
+   * A managed agent refuses a file path, as in a generation.
+   */
+  async #keepInput(edit: ConfigEdit): Promise<KeptEdit> {
+    // A blank input goes on unchanged, so the config writer refuses it before any file is written.
+    if (edit?.operation !== ConfigEditOperation.SET_INPUT || typeof edit.input !== 'string' || !edit.input.trim()) return edit
+    if (!this.#permissions.allowSaveInput) {
+      await this.#warn({ message: 'Ignored the spec to save: saving the input was not granted', permission: AgentPermission.SAVE_INPUT })
+      return { reason: 'the agent was not granted permission to save the input' }
+    }
+    const kind = getInputKind(edit.input)
+    if (this.#managed && !MANAGED_INPUT_KINDS.has(kind)) return { reason: AgentMessage.MANAGED_INPUT_KIND }
+    if (kind !== 'inline') return edit
+
+    const entry = edit.config === undefined || edit.config === 0 ? '' : `-${String(edit.config).replace(/[^\w.-]/g, '-')}`
+    const fileName = `openapi${entry}.${isJson(edit.input) ? 'json' : 'yaml'}`
+    return { ...edit, input: `./${fileName}`, document: { fileName, text: edit.input } }
+  }
+
+  /**
+   * Installs a registry extension into the project with `kubb add <id> --yes`, which also adds a
+   * plugin to `kubb.config.ts`. Studio calls `connect()` again afterwards to see the result.
+   */
+  async installExtension(input: InstallExtensionInput): Promise<InstallExtensionResult> {
+    this.#assertConnected()
+    const { root, configFile, kubbBin = findKubbBin(root) } = this.#options
+    const refuse = async (reason: string, permission?: AgentPermission): Promise<InstallExtensionResult> => {
+      await this.#warn({ message: `Ignored install: ${reason}`, permission })
+      return { installed: false, reason }
+    }
+
+    if (typeof input?.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
+    if (!this.#permissions.allowInstall) return refuse('installing extensions was not granted', AgentPermission.INSTALL)
+    if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
+    const busy = this.#busy()
+    if (busy) return refuse(busy)
+    if (!kubbBin) return refuse('kubb is not installed in the project')
+
+    const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['add', input.id, '--yes', '--config', configFile] })
+    await this.#logCommand('installExtension', `${failed ? 'failed to install' : 'installed'} ${input.id}`, input.requestedBy, failed)
+    return failed ? { installed: false, reason: output } : { installed: true }
+  }
+
+  /**
+   * Moves installed extensions to the registry's version with `kubb update [ids] --yes`, which
+   * installs packages and leaves `kubb.config.ts` alone. Studio calls `connect()` again afterwards.
+   */
+  async updateExtensions(input: UpdateExtensionsInput): Promise<UpdateExtensionsResult> {
+    this.#assertConnected()
+    const { root, kubbBin = findKubbBin(root) } = this.#options
+    const refuse = async (reason: string, permission?: AgentPermission): Promise<UpdateExtensionsResult> => {
+      await this.#warn({ message: `Ignored update: ${reason}`, permission })
+      return { updated: false, reason }
+    }
+
+    const ids = input?.ids ?? []
+    if (!Array.isArray(ids) || !ids.every((id) => typeof id === 'string' && REGISTRY_ID.test(id))) return refuse('the message carried an invalid registry id')
+    if (!this.#permissions.allowUpdate) return refuse('updating extensions was not granted', AgentPermission.UPDATE)
+    const busy = this.#busy()
+    if (busy) return refuse(busy)
+    if (!kubbBin) return refuse('kubb is not installed in the project')
+
+    const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['update', ...ids, '--yes'] })
+    await this.#logCommand('updateExtensions', `${failed ? 'failed to update' : 'updated'} ${ids.join(', ') || 'all extensions'}`, input?.requestedBy, failed)
+    return failed ? { updated: false, reason: output } : { updated: true }
+  }
+
+  /**
+   * Removes an extension with `kubb remove <id> --yes`, which deletes it from `kubb.config.ts` and
+   * uninstalls its package. Studio calls `connect()` again afterwards.
+   */
+  async removeExtension(input: RemoveExtensionInput): Promise<RemoveExtensionResult> {
+    this.#assertConnected()
+    const { root, configFile, kubbBin = findKubbBin(root) } = this.#options
+    const refuse = async (reason: string, permission?: AgentPermission): Promise<RemoveExtensionResult> => {
+      await this.#warn({ message: `Ignored remove: ${reason}`, permission })
+      return { removed: false, reason }
+    }
+
+    if (typeof input?.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
+    if (!this.#permissions.allowRemove) return refuse('removing extensions was not granted', AgentPermission.REMOVE)
+    if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
+    const busy = this.#busy()
+    if (busy) return refuse(busy)
+    if (!kubbBin) return refuse('kubb is not installed in the project')
+
+    const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['remove', input.id, '--yes', '--config', configFile] })
+    await this.#logCommand('removeExtension', `${failed ? 'failed to remove' : 'removed'} ${input.id}`, input.requestedBy, failed)
+    return failed ? { removed: false, reason: output } : { removed: true }
+  }
+
+  /** Why a command that touches the project cannot start right now. */
+  #busy(): string | undefined {
+    if (this.#session.active) return 'a generation is in progress'
+    if (this.#session.install) return 'an install, update, or remove is in progress'
+    if (this.#session.saving) return 'a save is in progress'
+    return undefined
+  }
+
+  /** Runs `kubb` in the project while holding off saves and generations, and ends it when the socket closes. */
+  async #runKubb({ bin, args }: { bin: string; args: Array<string> }) {
+    const controller = new AbortController()
+    const settled = Promise.withResolvers<void>()
+    this.#session.install = { abort: () => controller.abort(), settled: settled.promise }
+    try {
+      return await runKubb({ bin, args, cwd: this.#options.root, signal: controller.signal })
+    } finally {
+      this.#session.install = undefined
+      settled.resolve()
     }
   }
 
@@ -698,6 +938,8 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
     await emit(hooks, 'studio:warn', { message: 'Canceled the running generation: the connection to Kubb Studio closed' })
   }
   await active?.settled
+  session.install?.abort()
+  await session.install?.settled
   await agent.clear()
 
   return { ...close, connected: session.info !== undefined }
@@ -713,12 +955,23 @@ function pickConfig(configs: Array<Config>, ref: ConfigRef | undefined): Config 
   return configs[ref ?? 0]
 }
 
+/** Whether `text` parses as JSON, so a pasted document is saved under the matching extension. */
+function isJson(text: string): boolean {
+  try {
+    JSON.parse(text)
+    return true
+  } catch {
+    return false
+  }
+}
+
 /** The input path or URL Studio may show: no inline document, and no credentials from a URL. */
 function reportedInput(input: Config['input']): string | undefined {
   if (typeof input !== 'string') return undefined
   const kind = getInputKind(input)
   if (kind === 'inline') return undefined
-  if (kind !== 'url') return input
+  // The scp-style git form (`git+git@host:org/repo.git`) is no URL and carries no password.
+  if ((kind !== 'url' && kind !== 'git') || !URL.canParse(input)) return input
   const url = new URL(input)
   url.username = ''
   url.password = ''
@@ -732,6 +985,7 @@ function toEntryView(config: Config, extensions: InstalledExtensions): ConfigEnt
     ...(config.name !== undefined && { name: config.name }),
     ...(input !== undefined && { input }),
     output: config.output.path,
+    outputOptions: toJSONOptions(pickOutput(config.output)),
     plugins: config.plugins.map((plugin) => ({
       name: toStudioName({ name: resolveMeta(plugin).name, extensions }),
       options: toJSONOptions(plugin.options),
@@ -754,7 +1008,18 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
     studioUrl: options.studioUrl ?? defaultStudioUrl,
     root,
     configFile: path.resolve(root, options.configPath),
-    permissions: { allowWrite: false, allowConfigEdit: false, allowExec: false, allowRead: false, allowReadAst: false, ...options.permissions },
+    permissions: {
+      allowWrite: false,
+      allowConfigEdit: false,
+      allowInstall: false,
+      allowUpdate: false,
+      allowRemove: false,
+      allowSaveInput: false,
+      allowExec: false,
+      allowRead: false,
+      allowReadAst: false,
+      ...options.permissions,
+    },
     hooks: options.hooks ?? new Hookable<KubbHooks>(),
     maxRetryDelay: options.maxRetryDelay ?? MAX_RETRY_DELAY_MS,
     heartbeatInterval: Math.min(options.heartbeatInterval ?? HEARTBEAT_INTERVAL_MS, MAX_HEARTBEAT_INTERVAL_MS),

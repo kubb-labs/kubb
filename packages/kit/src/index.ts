@@ -1,8 +1,7 @@
 export { ast } from '@kubb/ast'
 export { Url } from './Url.ts'
-export { macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
+export { enumPrimitive, macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
 export { macroEnumName } from './macros/macroEnumName.ts'
-export { macroRenameSchema } from './macros/macroRenameSchema.ts'
 export { macroSimplifyUnion } from './macros/macroSimplifyUnion.ts'
 export { mergeAdjacentObjectsLazy } from './utils/mergeAdjacentSchemas.ts'
 export { childName, enumPropName, extractRefName, isStringType, syncSchemaRef } from './utils/refs.ts'
@@ -11,6 +10,7 @@ export {
   addGenerator,
   addMacro,
   assertPluginOption,
+  camelCase,
   createAdapter,
   createRenderer,
   createResolver,
@@ -26,7 +26,9 @@ export {
   isExtensionManifest,
   kubbContext,
   manifestProblems,
+  memo,
   memoryStorage,
+  pascalCase,
   requirePlugin,
   Resolver,
   setMacros,
@@ -63,7 +65,7 @@ export type {
   KubbPluginEndContext,
   KubbPluginSetupContext,
   KubbPluginStartContext,
-  NodeCache,
+  Memo,
   NormalizedPlugin,
   Output,
   OutputOptions,
@@ -79,6 +81,7 @@ export type {
   RendererFactory,
   ResolveFileOptions,
   ResolveImportsOptions,
+  ResolveNameOptions,
   ResolvePathOptions,
   ResolverFile,
   ResolverFileParams,

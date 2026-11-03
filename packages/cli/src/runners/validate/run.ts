@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { styleText } from 'node:util'
 import { findConfigFile } from '@internals/shared'
 import { toError } from '@internals/utils'
-import type { Config } from '@kubb/core'
+import { type Config, checkoutGitInput, getInputKind } from '@kubb/core'
 import { trackRun } from '../../Telemetry.ts'
 import { getConfigs } from '../../config.ts'
 import { pluralize } from '../../ui/text.ts'
@@ -11,7 +11,7 @@ import { logCommandSummary } from '../../ui/summary.ts'
 
 type ValidateOptions = {
   /**
-   * Path or URL to the specification to validate.
+   * Path, URL, or git input (`git+<repo>#<ref>:<path>`) of the specification to validate.
    */
   input: string
   configPath?: string
@@ -42,7 +42,7 @@ export async function run({ input, configPath }: ValidateOptions): Promise<void>
     // An array config often repeats one adapter, so each adapter and input pair is validated once.
     const unique = new Map(
       (loaded?.configs ?? []).map((config) => {
-        const resolved = URL.canParse(input) ? input : resolve(config.root || process.cwd(), input)
+        const resolved = getInputKind(input) === 'file' ? resolve(config.root || process.cwd(), input) : input
         return [`${config.adapter?.name}\0${resolved}`, { adapter: config.adapter, input: resolved }] as const
       }),
     )
@@ -51,7 +51,12 @@ export async function run({ input, configPath }: ValidateOptions): Promise<void>
     for (const target of targets) {
       adapterName = target.adapter?.name
       if (!target.adapter) throw new Error('No adapter is configured. Set adapter in your Kubb config to validate this specification.')
-      await target.adapter.validate(target.input, { throwOnError: true })
+      const checkout = getInputKind(target.input) === 'git' ? await checkoutGitInput(target.input) : undefined
+      try {
+        await target.adapter.validate(checkout?.path ?? target.input, { throwOnError: true })
+      } finally {
+        await checkout?.dispose()
+      }
     }
     const specifications = new Set(targets.map((target) => target.input)).size
     const adapterNames = [...new Set(targets.flatMap((target) => target.adapter?.name ?? []))]

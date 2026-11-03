@@ -1,6 +1,6 @@
 import { extname, posix } from 'node:path'
 import { ast, Diagnostics } from '@kubb/kit'
-import { toPosixPath } from '@internals/utils'
+import { pascalCase, toPosixPath } from '@internals/utils'
 import type { BarrelType } from './types.ts'
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx'])
@@ -24,20 +24,34 @@ function toRelativeModulePath(fromDir: string, filePath: string): string {
 
 type WalkContext = {
   sourceFiles: ReadonlyMap<string, ast.FileNode>
+  barrelFiles: Map<string, ast.FileNode>
   reportedCollisions: Set<string>
   recursive: boolean
+  namespace: boolean
+  additionalExports: ReadonlyArray<ast.ExportNode>
   leafExports: (dirPath: string, leafPath: string) => Array<ast.ExportNode>
+}
+
+function getExportNames({ item, dirPath, ctx }: { item: ast.ExportNode; dirPath: string; ctx: WalkContext }): Array<string> {
+  if (item.name != null) return [item.name].flat()
+
+  const itemPath = posix.join(dirPath, item.path)
+  const barrel = ctx.barrelFiles.get(itemPath)
+  if (barrel) return barrel.exports.flatMap((item) => getExportNames({ item, dirPath: posix.dirname(barrel.path), ctx }))
+
+  return ctx.sourceFiles.get(itemPath)?.sources.flatMap((source) => source.name || []) ?? []
 }
 
 /**
  * Builds the `index.ts` for `dirPath`. Keeps the first export of each name and reports later duplicates once per build.
  */
-function makeBarrel(dirPath: string, exports: Array<ast.ExportNode>, { sourceFiles, reportedCollisions }: WalkContext): ast.FileNode {
+function makeBarrel(dirPath: string, exports: Array<ast.ExportNode>, ctx: WalkContext): ast.FileNode {
+  const { reportedCollisions } = ctx
   const owners = new Map<string, string>()
   const uniqueExports = exports.flatMap((item) => {
     const itemPath = posix.join(dirPath, item.path)
     // A wildcard export carries no names, so collisions are checked against its source file.
-    const names = item.name == null ? (sourceFiles.get(itemPath)?.sources.flatMap((source) => source.name || []) ?? []) : [item.name].flat()
+    const names = getExportNames({ item, dirPath, ctx })
     const uniqueNames = names.filter((name) => {
       const first = owners.get(name)
       if (!first) {
@@ -62,7 +76,9 @@ function makeBarrel(dirPath: string, exports: Array<ast.ExportNode>, { sourceFil
     return uniqueNames.length > 0 ? [ast.factory.createExport({ ...item, name: Array.isArray(item.name) ? uniqueNames : uniqueNames[0] })] : []
   })
 
-  return ast.factory.createFile({ baseName: 'index.ts', path: `${dirPath}${BARREL_SUFFIX}`, exports: uniqueExports })
+  const file = ast.factory.createFile({ baseName: 'index.ts', path: `${dirPath}${BARREL_SUFFIX}`, exports: uniqueExports })
+  ctx.barrelFiles.set(file.path, file)
+  return file
 }
 
 type LeafStrategy = (path: string, sourceFile: ast.FileNode | undefined) => Array<ast.ExportNode>
@@ -105,6 +121,7 @@ function walkFlat(node: DirectoryNode, ctx: WalkContext, isRoot = true): FlatWal
   const barrels = results.flatMap((result) => result.barrels)
   const leaves = results.flatMap((result) => result.leaves)
   const exports = isRoot || ctx.recursive ? leaves.flatMap((leaf) => ctx.leafExports(node.path, leaf)) : []
+  if (isRoot) exports.push(...ctx.additionalExports)
 
   return { barrels: exports.length > 0 ? [...barrels, makeBarrel(node.path, exports, ctx)] : barrels, leaves }
 }
@@ -121,8 +138,13 @@ function walkNested(node: DirectoryNode, ctx: WalkContext): Array<ast.FileNode> 
     if (!child.children) return { barrels: [], exports: ctx.leafExports(node.path, child.path) }
 
     // A sub-directory has barrels only when it has its own `index.ts`.
-    const barrels = walkNested(child, ctx)
-    const exports = barrels.length > 0 ? [ast.factory.createExport({ path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`) })] : []
+    const barrels = walkNested(child, { ...ctx, namespace: false })
+    if (barrels.length === 0) return { barrels, exports: [] }
+
+    const modulePath = toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`)
+    const exports = [ast.factory.createExport({ path: modulePath })]
+    const name = pascalCase(posix.basename(child.path))
+    if (ctx.namespace) exports.push(ast.factory.createExport({ path: modulePath, name: /^[A-Za-z]/.test(name) ? name : `_${name}`, asAlias: true }))
     return { barrels, exports }
   })
   const barrels = results.flatMap((result) => result.barrels)
@@ -198,6 +220,10 @@ type GetBarrelFilesParams = {
   barrelType: BarrelType
   /** One `index.ts` per sub-directory, each re-exporting only what is directly inside it. */
   nested?: boolean
+  /** Add PascalCase namespace exports for immediate subdirectories and enable nested barrels. */
+  namespace?: boolean
+  /** Extra exports to forward from plugin barrels into the root barrel. */
+  additionalExports?: ReadonlyArray<ast.ExportNode>
   /** Also generate a barrel for each sub-directory when `nested` is false. */
   recursive?: boolean
   /**
@@ -222,6 +248,8 @@ export function getBarrelFiles({
   targetPath,
   barrelType,
   nested = false,
+  namespace = false,
+  additionalExports = [],
   recursive = false,
   reportedCollisions = new Set(),
 }: GetBarrelFilesParams): Array<ast.FileNode> {
@@ -231,10 +259,13 @@ export function getBarrelFiles({
   const strategy = barrelType === 'named' ? namedStrategy : allStrategy
   const ctx: WalkContext = {
     sourceFiles: index.sourceFiles,
+    barrelFiles: new Map(),
     reportedCollisions,
     recursive,
+    namespace,
+    additionalExports,
     leafExports: (dirPath, leafPath) => strategy(toRelativeModulePath(dirPath, leafPath), index.sourceFiles.get(leafPath)),
   }
 
-  return nested ? walkNested(node, ctx) : walkFlat(node, ctx).barrels
+  return nested || namespace ? walkNested(node, ctx) : walkFlat(node, ctx).barrels
 }

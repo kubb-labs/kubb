@@ -32,7 +32,7 @@ function groupedAccessor(name: string): string {
 }
 
 /**
- * Helpers for OpenAPI/Swagger paths, plus a thin wrapper over the native `URL`.
+ * Static helpers for OpenAPI/Swagger paths: template syntax conversion, parameter extraction, and URL composition.
  */
 export class Url {
   /**

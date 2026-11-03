@@ -1,5 +1,6 @@
 import { ast, childName, enumPropName, macroDiscriminatorEnum, macroEnumName } from '@kubb/kit'
 import { isDiscriminator, isNullable } from '../../oas.ts'
+import { getMappingKeys, propertyTypeOf, typedKeys } from '../discriminator/preserve.ts'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
@@ -9,6 +10,7 @@ import type { ConvertContext } from '../parseSchema.ts'
  * `options.unknownType`, otherwise parses it as a regular schema.
  */
 function resolveMapSchema(mapSchema: unknown, { options, parse }: Pick<ConvertContext, 'options' | 'parse'>): ast.SchemaNode {
+  if (mapSchema === false) return ast.factory.createSchema({ type: 'never' })
   if (mapSchema === true || (typeof mapSchema === 'object' && Object.keys(mapSchema as object).length === 0)) {
     return ast.factory.createSchema({ type: options.unknownType })
   }
@@ -35,10 +37,11 @@ function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | 
 /**
  * Converts an object-like schema into an `ObjectSchemaNode`.
  */
-export function convertObject({ schema, name, nullable, defaultValue, options, parse }: ConvertContext): ast.SchemaNode {
+export function convertObject({ schema, name, nullable, defaultValue, options, parse, refs }: ConvertContext): ast.SchemaNode {
+  const requiredNames = Array.isArray(schema.required) ? new Set(schema.required) : undefined
   const properties: Array<ast.PropertyNode> = schema.properties
     ? Object.entries(schema.properties).map(([propName, propSchema]) => {
-        const required = Array.isArray(schema.required) ? schema.required.includes(propName) : !!schema.required
+        const required = requiredNames ? requiredNames.has(propName) : !!schema.required
         const resolvedPropSchema = propSchema as SchemaObject
         const propNullable = isNullable(resolvedPropSchema)
 
@@ -50,7 +53,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
           name: propName,
           schema: {
             ...schemaNode,
-            nullable: schemaNode.type === 'null' ? undefined : propNullable || undefined,
+            nullable: schemaNode.type === 'null' ? undefined : propNullable || schemaNode.nullable || undefined,
           },
           required,
         })
@@ -69,6 +72,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
   const patternProperties = rawPatternProperties
     ? Object.fromEntries(Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [pattern, resolveMapSchema(patternSchema, { options, parse })]))
     : undefined
+  const propertyNames = 'propertyNames' in schema && schema.propertyNames !== undefined ? resolveMapSchema(schema.propertyNames, { options, parse }) : undefined
 
   const objectNode: ast.SchemaNode = createNode(
     { schema, name, nullable, defaultValue },
@@ -78,6 +82,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       properties,
       additionalProperties: additionalPropertiesNode,
       patternProperties,
+      propertyNames,
       minProperties: schema.minProperties,
       maxProperties: schema.maxProperties,
     },
@@ -85,7 +90,10 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
 
   if (isDiscriminator(schema) && schema.discriminator.mapping) {
     const discPropName = schema.discriminator.propertyName
-    const values = Object.keys(schema.discriminator.mapping)
+    const values = typedKeys({
+      keys: getMappingKeys({ discriminator: schema.discriminator, refs }),
+      propertyType: propertyTypeOf({ schema, propertyName: discPropName, refs }),
+    })
     const enumName = name ? enumPropName(name, discPropName, options.enumSuffix) : undefined
     return ast.applyMacros(objectNode, [macroDiscriminatorEnum({ propertyName: discPropName, values, enumName })], { depth: 'shallow' })
   }

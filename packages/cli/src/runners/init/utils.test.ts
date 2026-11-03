@@ -17,21 +17,29 @@ describe('detectPackageManager', () => {
     rmSync(cwd, { recursive: true, force: true })
   })
 
-  it('prefers the packageManager field over lock files', () => {
+  it('prefers the packageManager field over lock files', async () => {
     writeFileSync(join(cwd, 'package.json'), JSON.stringify({ packageManager: 'yarn@4.0.0' }))
     writeFileSync(join(cwd, 'pnpm-lock.yaml'), '')
 
-    expect(detectPackageManager(cwd).name).toBe('yarn')
+    expect(await detectPackageManager(cwd)).toMatchObject({ name: 'yarn', agent: 'yarn@berry' })
   })
 
-  it('detects bun from its lock file', () => {
+  it('detects bun from its lock file', async () => {
     writeFileSync(join(cwd, 'bun.lockb'), '')
 
-    expect(detectPackageManager(cwd).name).toBe('bun')
+    expect((await detectPackageManager(cwd)).name).toBe('bun')
   })
 
-  it('falls back to npm when nothing is found', () => {
-    expect(detectPackageManager(cwd).name).toBe('npm')
+  it('falls back to npm when nothing is found', async () => {
+    expect((await detectPackageManager(cwd)).name).toBe('npm')
+  })
+
+  it('ignores a lock file in a parent folder', async () => {
+    writeFileSync(join(cwd, 'pnpm-lock.yaml'), '')
+    const project = join(cwd, 'app')
+    mkdirSync(project)
+
+    expect((await detectPackageManager(project)).name).toBe('npm')
   })
 })
 
@@ -80,6 +88,12 @@ describe('project detection', () => {
       }
 
       expect(await findSpecFiles(cwd)).toStrictEqual(['./openapi.yaml', './api/swagger.json'])
+    })
+
+    it('matches an uppercase extension', async () => {
+      writeFileSync(join(cwd, 'OpenAPI.JSON'), '')
+
+      expect(await findSpecFiles(cwd)).toStrictEqual(['./OpenAPI.JSON'])
     })
   })
 

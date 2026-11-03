@@ -2,6 +2,8 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import * as clack from '@clack/prompts'
+import type { FileNode } from '@kubb/ast'
+import { fsStorage } from '@kubb/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createProject, registryEntry, registryIndex, stubFetch } from '../../utils/registryFixture.ts'
 import { generate } from '../generate/run.ts'
@@ -9,7 +11,7 @@ import { installPackages } from '../init/utils.ts'
 import { run } from './run.ts'
 
 vi.mock('../init/utils.ts', () => ({
-  detectPackageManager: vi.fn(() => ({ name: 'npm', lockFiles: [], initCommand: [], installCommand: ['install', '--save-dev'] })),
+  detectPackageManager: vi.fn(async () => ({ name: 'npm', agent: 'npm' })),
   installPackages: vi.fn(async () => {}),
 }))
 vi.mock('../generate/run.ts', () => ({ generate: vi.fn(async () => true) }))
@@ -100,11 +102,25 @@ describe('kubb update', () => {
     await writeFile(path.join(gen, 'kept.ts'), 'same')
     await writeFile(path.join(gen, 'changed.ts'), 'old')
     await writeFile(path.join(gen, 'removed.ts'), 'old')
-    await writeFile(path.join(cwd, 'kubb.config.ts'), `export default { root: ${JSON.stringify(cwd)}, input: './spec.yaml', output: { path: './gen' } }\n`)
-    vi.mocked(generate).mockImplementationOnce(async () => {
+    await writeFile(
+      path.join(cwd, 'kubb.config.ts'),
+      `export default { root: ${JSON.stringify(cwd)}, input: './spec.yaml', output: { path: './gen', clean: true } }\n`,
+    )
+    // Writes the way core does, with the hooks the reporters read the changes from.
+    vi.mocked(generate).mockImplementationOnce(async ({ config: loaded, hooks }) => {
+      const config = { ...loaded, storage: fsStorage() }
+      await hooks.callHook('kubb:generation:start', { config })
+      await hooks.callHook('kubb:plugins:end', { config, files: [], upsertFile: () => {} })
       await writeFile(path.join(gen, 'changed.ts'), 'new')
       await writeFile(path.join(gen, 'added.ts'), 'new')
       await rm(path.join(gen, 'removed.ts'))
+      const sources = { 'kept.ts': 'same', 'changed.ts': 'new', 'added.ts': 'new' }
+      const files = Object.keys(sources).map((name) => ({ path: path.join(gen, name) }) as FileNode)
+      for (const [name, source] of Object.entries(sources)) {
+        await hooks.callHook('kubb:file:processed', { file: { path: path.join(gen, name) } as FileNode, source })
+      }
+      await hooks.callHook('kubb:files:processing:end', { files, unchanged: [] })
+      await hooks.callHook('kubb:generation:end', { config, storage: config.storage, status: 'success' })
       return true
     })
 
@@ -129,11 +145,35 @@ describe('kubb update', () => {
     expect(installPackages).toHaveBeenCalledWith([`github:acme/kubb-plugin-x#${commit}`], expect.objectContaining({ name: 'npm' }), cwd, expect.any(Function))
   })
 
+  it('installs a major with --yes when its id is named', async () => {
+    await run({ ids: ['acme/plugin-z'], dryRun: false, yes: true })
+
+    expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-z@2.0.0'], expect.anything(), cwd, expect.any(Function))
+  })
+
   it('only updates the ids it is given', async () => {
     await run({ ids: ['acme/plugin-y'], dryRun: false, yes: true })
 
     expect(installPackages).not.toHaveBeenCalled()
     expect(output.join('\n')).toContain('1 of 1 up to date')
     expect(output.join('\n')).toContain('No updates for acme/plugin-y.')
+  })
+
+  it('exits with code 1 when a named extension is not installed', async () => {
+    await run({ ids: ['acme/plugin-missing'], dryRun: false, yes: true })
+
+    expect(output.join('\n')).toContain('acme/plugin-missing is not installed, or not in the registry.')
+    expect(installPackages).not.toHaveBeenCalled()
+    expect(process.exitCode).toBe(1)
+  })
+
+  it('exits with code 1 when a named update needs a newer Kubb', async () => {
+    stubFetch({ body: registryIndex([registryEntry({ name: 'plugin-x', version: '1.1.0', manifest: { compatibility: { kubb: '>=999.0.0' } } })]) })
+
+    await run({ ids: ['acme/plugin-x'], dryRun: false, yes: true })
+
+    expect(output.join('\n')).toContain('Skipped acme/plugin-x: "plugin-x" requires Kubb >=999.0.0')
+    expect(installPackages).not.toHaveBeenCalled()
+    expect(process.exitCode).toBe(1)
   })
 })

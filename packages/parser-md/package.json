@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-md",
-  "version": "5.11.6",
+  "version": "5.15.3",
   "description": "Markdown source file parser for Kubb. Converts the universal AST to `.md` source and prepends YAML frontmatter from the file meta.",
   "keywords": [
     "codegen",
@@ -70,11 +70,11 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
-    "@kubb/core": "workspace:*",
+    "@kubb/ast": "workspace:^",
+    "@kubb/core": "workspace:^",
     "yaml": "catalog:"
   },
   "engines": {
-    "node": ">=22.12"
+    "node": ">=22.22"
   }
 }

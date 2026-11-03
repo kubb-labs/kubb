@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { createSchema } from '../nodes/schema.ts'
-import { isBareRef, resolveRefName } from './refs.ts'
+import { isBareRef, refName, resolveRefName } from './refs.ts'
+
+describe('refName', () => {
+  it.each([
+    { ref: '#/components/schemas/Pet', expected: 'Pet' },
+    { ref: '#/components/schemas/a~1b~0c', expected: 'a/b~c' },
+    { ref: '#/components/schemas/https%3A~1~1geojson.org~1schema~1Point.json', expected: 'https://geojson.org/schema/Point.json' },
+    { ref: '#/components/schemas/100%', expected: '100%' },
+  ])('decodes the last segment of $ref', ({ ref, expected }) => {
+    expect(refName(ref)).toBe(expected)
+  })
+})
 
 describe('resolveRefName', () => {
   it('extracts the name from a $ref pointer', () => {

@@ -1,8 +1,9 @@
-import { pascalCase } from '@internals/utils'
+import { escapePointerToken, pascalCase } from '@internals/utils'
 import { ast } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
 import { getBinaryFallbackSchema, isJsonMimeType, isReference, pickExtensions } from './oas.ts'
+import { scanSchema } from './schemaDiagnostics.ts'
 import type { Refs } from './refs.ts'
 import type {
   ContentType,
@@ -103,21 +104,52 @@ export function getRequestContentType({ operation, refs }: OperationContext): st
 }
 
 /** Merges path-level and operation-level parameters; operation-level wins per `in:name`. */
-export function getParameters({ operation, refs }: OperationContext): Array<ParameterObject> {
-  const resolveParams = (params: Array<unknown>): Array<ParameterObject> =>
-    params.map((p) => refs.derefKeepingRef(p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
+export function getParameters({ operation, refs }: OperationContext): Array<{ param: ParameterObject; pointer: string }> {
+  // Each parameter keeps the pointer of the entry that declares it, on the path item or the operation.
+  const resolveParams = (params: Array<unknown>, pointer: string) =>
+    params.flatMap((entry, index) => {
+      const param = refs.derefKeepingRef(entry)
+      return param && typeof param === 'object' && 'in' in param && 'name' in param
+        ? [{ param: param as ParameterObject, pointer: `${pointer}/parameters/${index}` }]
+        : []
+    })
 
-  const operationParams = resolveParams(operation.schema?.parameters || [])
-  const pathLevelParams = resolveParams((operation.pathItem as { parameters?: Array<unknown> }).parameters ?? [])
+  const pathPointer = `#/paths/${escapePointerToken(operation.path)}`
+  const operationParams = resolveParams(operation.schema?.parameters || [], `${pathPointer}/${operation.method.toLowerCase()}`)
+  const pathLevelParams = resolveParams((operation.pathItem as { parameters?: Array<unknown> }).parameters ?? [], pathPointer)
 
-  const paramMap = new Map<string, ParameterObject>()
-  for (const p of [...pathLevelParams, ...operationParams]) {
-    if (p.name && p.in) {
-      paramMap.set(`${p.in}:${p.name}`, p)
+  const paramMap = new Map<string, { param: ParameterObject; pointer: string }>()
+  for (const entry of [...pathLevelParams, ...operationParams]) {
+    if (entry.param.name && entry.param.in) {
+      paramMap.set(`${entry.param.in}:${entry.param.name}`, entry)
     }
   }
 
   return Array.from(paramMap.values())
+}
+
+const PARAMETER_STYLES = new Set(['matrix', 'label', 'form', 'simple', 'spaceDelimited', 'pipeDelimited', 'deepObject'])
+
+function pickStyleFields({ style, explode, allowReserved }: { style?: string; explode?: boolean; allowReserved?: boolean }): {
+  style?: ast.ParameterStyle
+  explode?: boolean
+  allowReserved?: boolean
+} {
+  return {
+    ...(style !== undefined && PARAMETER_STYLES.has(style) ? { style: style as ast.ParameterStyle } : {}),
+    ...(explode !== undefined ? { explode } : {}),
+    ...(allowReserved !== undefined ? { allowReserved } : {}),
+  }
+}
+
+/** The `encoding` of a media type, reduced to the entries that set a field Kubb carries. A `style` outside the OpenAPI set is dropped. */
+function getEncoding(encoding: MediaTypeObject['encoding']): Record<string, ast.EncodingNode> | undefined {
+  const entries = Object.entries(encoding ?? {}).flatMap(([property, { contentType, ...rest }]) => {
+    const node: ast.EncodingNode = { ...(contentType !== undefined ? { contentType } : {}), ...pickStyleFields(rest) }
+    return Object.keys(node).length ? [[property, node] as const] : []
+  })
+
+  return entries.length ? Object.fromEntries(entries) : undefined
 }
 
 /** Schema for one media type of a `content` map, with the binary fallback for an emptied non-JSON entry. */
@@ -192,19 +224,21 @@ function collectPropertyKeysByFlag(schema: SchemaObject | null, flag: 'readOnly'
 
 function parseParameter({
   param,
+  pointer,
   parentName,
   options,
   parseSchema,
-}: Pick<OperationParseContext, 'options' | 'parseSchema'> & { param: ParameterObject; parentName?: string }): ast.ParameterNode {
+}: Pick<OperationParseContext, 'options' | 'parseSchema'> & { param: ParameterObject; pointer: string; parentName?: string }): ast.ParameterNode {
   const schemaName = parentName && param.name ? pascalCase(`${parentName} ${param.name}`) : undefined
-  const schema: ast.SchemaNode = param.schema
-    ? parseSchema({ schema: param.schema as SchemaObject, name: schemaName })
+  // A parameter defines either `schema` or `content`, and `content` holds exactly one media type.
+  const contentType = param.schema ? undefined : Object.keys(param.content ?? {})[0]
+  const rawSchema = param.schema ?? (contentType ? param.content?.[contentType]?.schema : undefined)
+  const schema: ast.SchemaNode = rawSchema
+    ? parseSchema({ schema: rawSchema as SchemaObject, name: schemaName })
     : ast.factory.createSchema({ type: options.unknownType })
-  const style = param.style as ast.ParameterStyle | undefined
-  const explode = param.explode
-  const allowReserved = param.allowReserved
-
+  if (rawSchema) scanSchema(schema, contentType ? `${pointer}/content/${escapePointerToken(contentType)}/schema` : `${pointer}/schema`)
   return ast.factory.createParameter({
+    pointer,
     name: param.name,
     in: param.in,
     schema: {
@@ -212,9 +246,8 @@ function parseParameter({
       description: param.description ?? schema.description,
     },
     required: param.required ?? false,
-    ...(style !== undefined ? { style } : {}),
-    ...(explode !== undefined ? { explode } : {}),
-    ...(allowReserved !== undefined ? { allowReserved } : {}),
+    ...pickStyleFields(param),
+    ...(contentType !== undefined ? { contentType } : {}),
   })
 }
 
@@ -225,7 +258,8 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const { refs, contentType, options, parseSchema } = ctx
   const operationId = getOperationId(operation)
   const operationName = operationId ? pascalCase(operationId) : undefined
-  const parameters = getParameters({ operation, refs }).map((param) => parseParameter({ options, parseSchema, param, parentName: operationName }))
+  const pointer = `#/paths/${escapePointerToken(operation.path)}/${operation.method.toLowerCase()}`
+  const parameters = getParameters({ operation, refs }).map((entry) => parseParameter({ options, parseSchema, ...entry, parentName: operationName }))
 
   // A configured contentType restricts the body to that one media type; otherwise every declared one is kept.
   const body = getRequestBody({ operation, refs })
@@ -236,11 +270,15 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const content = requestContentTypes.flatMap((ct) => {
     const schema = getBodySchema({ content: body?.content, contentType: ct, refs })
     if (!schema) return []
+    const node = parseSchema({ schema, name: requestBodyName })
+    scanSchema(node, `${pointer}/requestBody/content/${escapePointerToken(ct)}/schema`)
+    const encoding = getEncoding(body?.content?.[ct]?.encoding)
     return [
       ast.factory.createContent({
         contentType: ct,
-        schema: ast.optionality(parseSchema({ schema, name: requestBodyName }), bodyRequired),
+        schema: ast.optionality(node, bodyRequired),
         keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
+        ...(encoding && { encoding }),
       }),
     ]
   })
@@ -248,6 +286,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const requestBody =
     content.length > 0 || body?.description
       ? {
+          pointer: `${pointer}/requestBody`,
           description: body?.description,
           required: bodyRequired || undefined,
           content: content.length > 0 ? content : undefined,
@@ -263,6 +302,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
       const raw = getBodySchema({ content: response?.content, contentType: ct, refs })
       const node =
         raw && Object.keys(raw).length > 0 ? parseSchema({ schema: raw, name: responseName }) : ast.factory.createSchema({ type: options.emptySchemaType })
+      if (raw && ct) scanSchema(node, `${pointer}/responses/${statusCode}/content/${escapePointerToken(ct)}/schema`)
       return { schema: node, keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly') }
     }
 
@@ -280,6 +320,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     }
 
     return ast.factory.createResponse({
+      pointer: `${pointer}/responses/${statusCode}`,
       statusCode: statusCode as ast.StatusCode,
       description: response?.description,
       content: responseContent,
@@ -294,6 +335,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   }
 
   return ast.factory.createOperation({
+    pointer,
     operationId,
     protocol: 'http',
     method: operation.method.toUpperCase() as ast.HttpMethod,

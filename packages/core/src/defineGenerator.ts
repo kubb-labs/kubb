@@ -7,7 +7,7 @@ import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { ExtensionMeta } from './defineExtension.ts'
 import type { Plugin, PluginType, PluginName, ResolvePluginOptions } from './definePlugin.ts'
-import type { NodeCache } from './nodeCache.ts'
+import type { Memo } from './memo.ts'
 import type { Config } from './types.ts'
 import type { Hookable } from './Hookable.ts'
 
@@ -103,8 +103,8 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
    */
   adapter: Adapter
   /**
-   * Document metadata from the adapter: title, version, base URL, and pre-computed
-   * schema index fields (`circularNames`, `enumNames`).
+   * Document metadata from the adapter: title, version, base URL, servers, and security schemes.
+   * Derive schema indexes such as circular or enum names with `memo`.
    */
   meta: InputMeta
   /**
@@ -112,12 +112,11 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
    */
   options: TOptions['resolvedOptions']
   /**
-   * Cache scoped to the node being generated, shared by every plugin that generates from that
-   * same node in the current pass. Use it to compute node-derived work (resolved names, imports,
-   * parameters) once and let the other plugins reuse it. For the `operations` batch call, where
-   * there is no single node, the cache is a fresh scratch scope for that call.
+   * Cache for the whole build, shared by every plugin, where `resolver.memo` is one plugin. Prefix a
+   * key with the plugin name unless every plugin wants the same value, and name the node for
+   * node-derived work, such as `plugin-ts:imports:${node.operationId}`.
    */
-  cache: NodeCache
+  memo: Memo
 }
 
 /**

@@ -1,3 +1,4 @@
+import { unescapePointerToken } from '@internals/utils'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import type { ast } from '@kubb/kit'
 import type { ParseFn } from './emit/parseSchema.ts'
@@ -43,7 +44,7 @@ export function createRefs(document: Document) {
     const current = pointer
       .split('/')
       .filter(Boolean)
-      .map((token) => globalThis.decodeURIComponent(token).replaceAll('~1', '/').replaceAll('~0', '~'))
+      .map((token) => unescapePointerToken(globalThis.decodeURIComponent(token)))
       .reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], document as unknown)
 
     if (current) {

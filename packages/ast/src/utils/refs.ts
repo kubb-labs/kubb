@@ -1,9 +1,32 @@
 import type { RefSchemaNode, SchemaNode } from '../nodes/schema.ts'
 
-/** Returns the last segment of a `$ref` pointer, for example `'Pet'` for `#/components/schemas/Pet`. */
+/**
+ * Returns the last segment of a `$ref` pointer, for example `'Pet'` for `#/components/schemas/Pet`.
+ * The segment is decoded like the pointer resolver does: percent-escapes first, then `~1` and `~0`
+ * (RFC 6901), so `a~1b~0c` names the component `a/b~c`.
+ */
 export function refName(ref: string): string {
-  return ref.split('/').at(-1) ?? ref
+  const cached = refNames.get(ref)
+  if (cached !== undefined) return cached
+
+  const segment = ref.split('/').at(-1) ?? ref
+  let decoded = segment
+
+  try {
+    decoded = decodeURIComponent(segment)
+  } catch {
+    // A stray `%` is not a valid escape, so the segment is already the literal name.
+  }
+
+  const name = decoded.replaceAll('~1', '/').replaceAll('~0', '~')
+  if (refNames.size >= memoLimit) refNames.clear()
+  refNames.set(ref, name)
+  return name
 }
+
+// Every plugin resolves the same refs on every visit; the limit only bounds a long-running host.
+const refNames = new Map<string, string>()
+const memoLimit = 100_000
 
 /**
  * Resolves the emitted name of the schema a ref node points at. Prefers `targetName` (set when
@@ -27,6 +50,30 @@ export function resolveRefName(node: SchemaNode | null | undefined): string | nu
 }
 
 /**
+ * Follows a resolved ref chain to its target schema. Returns an unresolved or cyclic ref as is.
+ *
+ * @example
+ * ```ts
+ * const target = resolveRef(refSchema)
+ * ```
+ */
+export function resolveRef(node: SchemaNode): SchemaNode {
+  if (node.type !== 'ref' || !node.schema) return node
+
+  const seen = new WeakSet<SchemaNode>()
+  let current: SchemaNode = node
+  while (current.type === 'ref' && current.schema) {
+    if (seen.has(current)) return current
+    seen.add(current)
+    current = current.schema
+  }
+  return current
+}
+
+/** Fields of a ref node that describe the ref itself, so they never override the resolved schema. */
+const REF_OWN_KEYS: ReadonlySet<string> = new Set(['kind', 'type', 'name', 'ref', 'schema'])
+
+/**
  * Merges a ref node with its resolved schema, giving the fields set at the usage site precedence.
  *
  * Every field on the ref except `kind`, `type`, `name`, `ref`, and `schema` overrides the same field
@@ -43,10 +90,13 @@ export function resolveRefName(node: SchemaNode | null | undefined): string | nu
 export function mergeRefWithSchema(node: RefSchemaNode): SchemaNode {
   if (!node.schema) return node
 
-  const { kind: _kind, type: _type, name: _name, ref: _ref, schema: _schema, ...overrides } = node
-  const definedOverrides = Object.fromEntries(Object.entries(overrides).filter(([, value]) => value !== undefined))
+  const merged: Record<string, unknown> = { ...node.schema }
+  for (const key of Object.keys(node)) {
+    const value = (node as Record<string, unknown>)[key]
+    if (value !== undefined && !REF_OWN_KEYS.has(key)) merged[key] = value
+  }
 
-  return { ...node.schema, ...definedOverrides }
+  return merged as SchemaNode
 }
 
 /**

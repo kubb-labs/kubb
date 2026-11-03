@@ -1,3 +1,4 @@
+import type { ValueOf } from '@internals/utils'
 /**
  * Every diagnostic code with its docs entry: a short title, what triggers it, and how to resolve
  * it. The source of truth for {@link diagnosticCode}, and the kubb.dev `/reference/diagnostics`
@@ -29,6 +30,13 @@ export const diagnosticCatalog = {
     cause:
       'A URL set as `input` (or reached through a `$ref`) never answered, so the request failed before a status came back. A refused connection, an unknown host, an expired certificate, and a timeout all land here.',
     fix: 'Check that the host is running and reachable from this machine. For a local server, start it and confirm the port matches the one in `input`.',
+  },
+  gitInputFailed: {
+    code: 'KUBB_GIT_INPUT_FAILED',
+    title: 'Git input failed',
+    cause:
+      'A git `input` (`git+<repo>#<ref>:<path>`) is malformed, or `git` could not fetch it: git is not installed, the repository or ref does not exist, or the credentials were refused.',
+    fix: 'Write the input as `git+<repo>#<ref>:<path>`. Run `git fetch --depth 1 <repo> <ref>` yourself to see the git error, and set up a credential helper or SSH key for a private repository.',
   },
   inputRequired: {
     code: 'KUBB_INPUT_REQUIRED',
@@ -134,6 +142,12 @@ export const diagnosticCatalog = {
     cause: 'A schema uses a `format` Kubb does not map to a specific type, so it falls back to the base type.',
     fix: 'Use a format Kubb supports, or handle the custom format with a parser or plugin.',
   },
+  aliasCycle: {
+    code: 'KUBB_ALIAS_CYCLE',
+    title: 'Alias cycle',
+    cause: 'Schemas that only `$ref` each other form a loop, so none of them has a shape to generate. Kubb resolves them to `unknown`.',
+    fix: 'Break the loop by giving one of the schemas a real definition, or remove the `$ref` that closes it.',
+  },
   deprecated: {
     code: 'KUBB_DEPRECATED',
     title: 'Deprecated',
@@ -189,6 +203,12 @@ export const diagnosticCatalog = {
     cause: 'Two generated modules export the same name, so the barrel cannot re-export both.',
     fix: 'Rename one of the colliding declarations, or configure the plugin resolver to produce distinct names.',
   },
+  inlineFailed: {
+    code: 'KUBB_INLINE_FAILED',
+    title: 'Inline definition failed',
+    cause: 'A file imports a name from a file whose sources are all inline, and that name could not be inlined.',
+    fix: 'Give every name the file imports an inline definition, register a parser with inline support for its extension, or stop marking the source as inline.',
+  },
   internalError: {
     code: 'KUBB_INTERNAL_ERROR',
     title: 'Internal error',
@@ -220,4 +240,4 @@ export const diagnosticCode = Object.fromEntries(Object.entries(diagnosticCatalo
 /**
  * Union of the stable {@link diagnosticCode} values.
  */
-export type DiagnosticCode = (typeof diagnosticCode)[keyof typeof diagnosticCode]
+export type DiagnosticCode = ValueOf<typeof diagnosticCode>

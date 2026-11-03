@@ -20,28 +20,29 @@ Write handlers as regular methods, not arrow functions, when they use `this.base
 
 ## TypeScript types
 
-`@kubb/plugin-ts` builds TypeScript AST nodes, so a handler returns a `ts.TypeNode` created with the compiler's factory. This override prints `date` schemas as the JavaScript `Date` object instead of `string`.
+`@kubb/plugin-ts` prints type strings, so a handler returns the TypeScript type as a string. This override prints `date` schemas as the JavaScript `Date` object instead of `string`.
 
 ```typescript [date.ts]
-import ts from 'typescript'
 import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
   printer: {
     nodes: {
       date() {
-        return ts.factory.createTypeReferenceNode('Date', [])
+        return 'Date'
       },
     },
   },
 })
 ```
 
+Inside a handler, `this.transform(node)` returns the printed type of a nested schema as a string. This is a breaking change for handlers that passed that result into `ts.factory`: build the type as a string instead. Handlers that return a compiler node from `typescript` 5 or 6, or from `@typescript/typescript6`, still work, but that form is deprecated and is removed in the next major.
+
 ## Zod schemas
 
 `@kubb/plugin-zod` prints expression strings, so a handler returns the Zod code as a string. With `mini: true` the same overrides target the Zod Mini printer instead.
 
-```typescript twoslash [date.ts]
+```typescript [date.ts]
 import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
@@ -57,7 +58,7 @@ pluginZod({
 
 Use `this.base` to keep the default output and decorate it. This override appends `.openapi(...)` to every object schema, and nested nodes still print through the regular handlers.
 
-```typescript twoslash [openapi.ts]
+```typescript [openapi.ts]
 import { pluginZod } from '@kubb/plugin-zod'
 
 pluginZod({
@@ -77,7 +78,7 @@ A Zod handler can also read `this.options.direction`, which is `'decode'` while 
 
 `@kubb/plugin-faker` also prints strings, one Faker expression per schema node. This override generates floats where the spec declares integers.
 
-```typescript twoslash [integer.ts]
+```typescript [integer.ts]
 import { pluginFaker } from '@kubb/plugin-faker'
 
 pluginFaker({

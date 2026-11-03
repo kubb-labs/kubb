@@ -1,6 +1,6 @@
 {
   "name": "@kubb/kit",
-  "version": "5.11.6",
+  "version": "5.15.3",
   "description": "Authoring toolkit for Kubb plugins, generators, adapters, resolvers, and renderers.",
   "keywords": [
     "codegen",
@@ -45,13 +45,6 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "testing": [
-        "./dist/testing.d.ts"
-      ]
-    }
-  },
   "exports": {
     ".": {
       "import": {
@@ -62,10 +55,6 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
-    },
-    "./testing": {
-      "types": "./dist/testing.d.ts",
-      "default": "./dist/testing.js"
     },
     "./package.json": "./package.json"
   },
@@ -79,21 +68,13 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
-    "@kubb/core": "workspace:*"
+    "@kubb/ast": "workspace:^",
+    "@kubb/core": "workspace:^"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*"
   },
-  "peerDependencies": {
-    "vitest": "^4.0.0 || ^5.0.0"
-  },
-  "peerDependenciesMeta": {
-    "vitest": {
-      "optional": true
-    }
-  },
   "engines": {
-    "node": ">=22.12"
+    "node": ">=22.22"
   }
 }

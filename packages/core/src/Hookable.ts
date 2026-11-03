@@ -108,13 +108,6 @@ export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
   }
 
   /**
-   * No-op kept for callers written against the `EventEmitter`-backed version. Listeners are unbounded.
-   *
-   * @deprecated There is no listener ceiling anymore.
-   */
-  setMaxListeners(_max: number): void {}
-
-  /**
    * Removes all listeners from every hook channel.
    *
    * @example

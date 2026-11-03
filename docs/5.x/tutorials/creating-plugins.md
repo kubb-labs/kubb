@@ -13,7 +13,7 @@ navigation:
 
 # Create a Kubb plugin
 
-Build a plugin that writes `listPets.ts` containing the method and path of one API operation, then test its output. You need Node.js 22.12 or higher, npm, and TypeScript knowledge.
+Build a plugin that writes `listPets.ts` containing the method and path of one API operation, then test its output. You need Node.js 22.22 or higher, npm, and TypeScript knowledge.
 
 ::steps{level="2"}
 
@@ -52,7 +52,7 @@ paths:
 
 `defineExtension` with `kind: 'plugin'` takes the plugin's `meta` and a `setup` function. Register a generator and resolver in `setup` with the `setResolver` and `addGenerator` [composables](/docs/5.x/reference/kit/plugins#setup-context), then return the plugin's options:
 
-```typescript twoslash [src/plugin.ts]
+```typescript [src/plugin.ts]
 import { addGenerator, ast, createResolver, defineExtension, defineGenerator, setResolver } from 'kubb/kit'
 
 const resolver = createResolver({ pluginName: 'plugin-example' })

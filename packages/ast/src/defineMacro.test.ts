@@ -1,16 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import { createProperty } from './nodes/property.ts'
 import { createSchema } from './nodes/schema.ts'
-import { applyMacros, composeMacros, defineMacro } from './defineMacro.ts'
-import { transform } from './visitor.ts'
+import { applyMacros, defineMacro } from './defineMacro.ts'
 
-describe('composeMacros', () => {
+describe('applyMacros', () => {
   it('chains macros so a later macro sees the earlier output', () => {
     const root = createSchema({ name: 'Pet', type: 'object', properties: [] })
     const setTitle = defineMacro({ name: 'set-title', schema: (node) => ({ ...node, title: 'a' }) })
     const readTitle = defineMacro({ name: 'read-title', schema: (node) => (node.title === 'a' ? { ...node, description: 'saw-a' } : undefined) })
 
-    const next = transform(root, composeMacros([setTitle, readTitle]))
+    const next = applyMacros(root, [setTitle, readTitle])
 
     expect(next.description).toBe('saw-a')
   })
@@ -27,7 +26,7 @@ describe('composeMacros', () => {
         },
       })
 
-    transform(createSchema({ type: 'string' }), composeMacros([track('post', 'post'), track('plain'), track('pre', 'pre')]))
+    applyMacros(createSchema({ type: 'string' }), [track('post', 'post'), track('plain'), track('pre', 'pre')])
 
     expect(order).toEqual(['pre', 'plain', 'post'])
   })
@@ -40,11 +39,9 @@ describe('composeMacros', () => {
       schema: (node) => ({ ...node, description: 'touched' }),
     })
 
-    expect(transform(root, composeMacros([macro]))).toBe(root)
+    expect(applyMacros(root, [macro])).toBe(root)
   })
-})
 
-describe('applyMacros', () => {
   it('keeps the same reference when no macro changes anything', () => {
     const root = createSchema({ type: 'object', properties: [createProperty({ name: 'id', schema: createSchema({ type: 'string' }) })] })
 

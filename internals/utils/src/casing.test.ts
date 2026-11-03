@@ -45,3 +45,11 @@ describe('casing', () => {
     expect(pascalCase('aiType')).toBe('AiType')
   })
 })
+
+describe('casing cache', () => {
+  test('keeps camelCase and PascalCase results for the same text apart', () => {
+    expect(camelCase('pet-store')).toBe('petStore')
+    expect(pascalCase('pet-store')).toBe('PetStore')
+    expect(camelCase('pet-store')).toBe('petStore')
+  })
+})

@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "5.11.6",
+  "version": "5.15.3",
   "description": "Turn your API spec into type-safe code. Generate TypeScript types, API clients, hooks, validators and mocks from a spec such as OpenAPI.",
   "keywords": [
     "api-client",
@@ -133,10 +133,6 @@
         "default": "./dist/kit.cjs"
       }
     },
-    "./kit/testing": {
-      "types": "./dist/kit/testing.d.ts",
-      "default": "./dist/kit/testing.js"
-    },
     "./nuxt": {
       "types": "./dist/nuxt.d.ts",
       "default": "./dist/nuxt.js"
@@ -175,7 +171,7 @@
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:*",
+    "@kubb/core": "workspace:^",
     "@kubb/kit": "workspace:*",
     "@kubb/mcp": "workspace:*",
     "@kubb/parser-md": "workspace:*",
@@ -188,25 +184,17 @@
   "devDependencies": {
     "@farmfe/core": "^1.7.11",
     "@internals/utils": "workspace:*",
-    "@nuxt/kit": "^4.6.2",
-    "@nuxt/schema": "^4.6.2",
+    "@nuxt/kit": "^4.6.3",
+    "@nuxt/schema": "^4.6.3",
     "esbuild": "^0.28.2",
-    "rolldown": "^1.2.14",
-    "rollup": "^4.64.7",
+    "rolldown": "^1.2.16",
+    "rollup": "^4.67.2",
     "typescript": "catalog:",
-    "vite": "^8.3.4",
-    "webpack": "^5.112.0"
-  },
-  "peerDependencies": {
-    "vitest": "^4.0.0 || ^5.0.0"
-  },
-  "peerDependenciesMeta": {
-    "vitest": {
-      "optional": true
-    }
+    "vite": "^8.3.5",
+    "webpack": "^5.112.2"
   },
   "preferGlobal": true,
   "engines": {
-    "node": ">=22.12"
+    "node": ">=22.22"
   }
 }

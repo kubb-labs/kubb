@@ -1,5 +1,6 @@
 import { relative } from 'node:path'
 import { styleText } from 'node:util'
+import { logLevel as logLevelMap } from '@kubb/core'
 import { pluralize } from '../../ui/text.ts'
 import type { WriterProgress } from '../types.ts'
 import type { LoggerContext } from './context.ts'
@@ -8,7 +9,9 @@ import type { Spinner } from './spinner.ts'
 export type Progress = ReturnType<typeof createProgress>
 
 /** The progress bar over the file writes, and the counts the summary line shows. */
-export function createProgress({ writer, silent, text, onRun }: LoggerContext, spinner: Spinner) {
+export function createProgress({ writer, silent, human, logLevel, text, onRun }: LoggerContext, spinner: Spinner) {
+  // Plain output prints every advance as its own line, so it names each file only at the verbose level.
+  const nameFiles = human || logLevel >= logLevelMap.verbose
   const state = {
     progress: null as WriterProgress | null,
     totalFiles: 0,
@@ -39,7 +42,7 @@ export function createProgress({ writer, silent, text, onRun }: LoggerContext, s
     onRun('kubb:files:processing:update', ({ files }) => {
       for (const { file, config } of files) {
         state.processedFiles++
-        state.progress?.advance(`${state.inMemory ? 'Generating' : 'Writing'} ${relative(config.root, file.path)}`)
+        if (nameFiles) state.progress?.advance(`${state.inMemory ? 'Generating' : 'Writing'} ${relative(config.root, file.path)}`)
       }
     })
 

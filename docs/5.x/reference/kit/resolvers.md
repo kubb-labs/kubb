@@ -21,7 +21,7 @@ navigation:
 
 Provide `pluginName`. Methods use `this` to reach the merged resolver, so namespaced methods call `this.name(...)` for active casing.
 
-```typescript twoslash [resolver.ts]
+```typescript [resolver.ts]
 import { createResolver } from 'kubb/kit'
 import type { PluginType, Resolver } from 'kubb/kit'
 
@@ -54,6 +54,7 @@ export const resolver = createResolver<MyPlugin>({
 | `name`           | Active top-level identifier casing. Delegates to `default.name` when omitted |
 | `file`           | Top-level `FileNode` builder, delegates to `default.file`              |
 | `default.name`   | The core `camelCase` generated-identifier casing                       |
+| `memo`           | Caches a value under a string key for the rest of the build; wrap repeated casing in it |
 | `default.options`| Applies `exclude`, `include`, and `override` filters                   |
 | `default.path`   | Resolves to `output.path`, with optional tag/path-based subdirectories |
 | `default.file`   | Constructs a full `FileNode` using the resolver's `file.baseName` casing (camelCase by default, with `pet.petId` becoming `pet/petId`) |
@@ -66,28 +67,14 @@ export const resolver = createResolver<MyPlugin>({
 
 The resulting names and paths go through the resolver's own `name` and `file` conventions. `extname` defaults to `.ts`.
 
-```typescript twoslash [imports.ts]
-import { ast } from 'kubb/kit'
-import type { GeneratorContext, PluginType } from 'kubb/kit'
-
-declare const ctx: GeneratorContext<PluginType>
-const { resolver, root, output } = { ...ctx, output: { path: 'types' } }
-const node = ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet' })
-// ---cut---
+```typescript [imports.ts]
 const imports = resolver.imports({ node, root, output })
 // → [{ kind: 'Import', name: ['pet'], path: '/src/types/pet.ts' }]
 ```
 
 Pass `name` to override how a referenced schema name becomes the imported identifier, for example to point enum refs at a suffixed type name:
 
-```typescript twoslash [importsName.ts]
-import { ast } from 'kubb/kit'
-import type { GeneratorContext, PluginType } from 'kubb/kit'
-
-declare const ctx: GeneratorContext<PluginType>
-const { resolver, root, output } = { ...ctx, output: { path: 'types' } }
-const node = ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet' })
-// ---cut---
+```typescript [importsName.ts]
 const imports = resolver.imports({
   node,
   root,
@@ -95,6 +82,35 @@ const imports = resolver.imports({
   name: (schemaName) => `${resolver.name(schemaName)}Type`,
 })
 ```
+
+### Name reservations
+
+`resolver.resolveName({ key, name })` keeps the preferred name when available and adds `2`, `3`, and so on when it is taken. Use the same key for a declaration and its references.
+
+Use an array to separate the declaration's owner and role. Core compares array values in order and keeps segment boundaries distinct. Segments can be strings or `undefined`. String keys also work and are distinct from array keys.
+
+The driver reserves component names after applying each plugin's macros and filters. `resolver.name` only applies casing. Reserve extra identifiers, such as enum type aliases, with `resolver.reserveNames` before allocating names that could collide with them.
+
+```typescript [reserve-names.ts]
+resolver.reserveNames(['CreateContainerBody', 'CreateContainerBody2'])
+const name = resolver.resolveName({
+  key: ['operation', 'POST', '/containers', 'body'],
+  name: 'CreateContainerBody',
+})
+// 'CreateContainerBody3'
+```
+
+Pass `normalize` when a node's raw name differs from its emitted identifier. The returned name stays in its raw form. The callback must keep numeric suffixes distinct so allocation can find an unused identifier.
+
+```typescript [reserve-enums.ts]
+const name = resolver.resolveName({
+  key: ['enum', owner, node.pointer],
+  name: node.name,
+  normalize: (candidate) => resolver.name(candidate),
+})
+```
+
+Allocate names only for declarations the generator emits. `Resolver.merge` creates a resolver with no reservations.
 
 ### `Resolver.merge`
 
@@ -105,12 +121,7 @@ Use it to compose resolvers or apply partial overrides.
 > [!TIP]
 > Type a patch with `ResolverPatch<T>` to keep `this` and namespace shapes checked against the target resolver.
 
-```typescript twoslash [merge.ts]
-import { createResolver, Resolver } from 'kubb/kit'
-import type { PluginType } from 'kubb/kit'
-
-const resolver = createResolver<PluginType>({ pluginName: 'plugin-example' })
-// ---cut---
+```typescript [merge.ts]
 const patched = Resolver.merge(resolver, {
   name(name) {
     return `Custom${this.default.name(name)}`
@@ -134,6 +145,6 @@ type ResolverPatch = {
 }
 ```
 
-Methods run with a `this` context bound to the full, merged resolver, so write them as regular functions rather than arrow functions. `this.default.name(name)` always applies Kubb's core `camelCase` default. The plugin preset's `name` method remains separate.
+Methods run with a `this` context bound to the full, merged resolver, so write them as regular functions rather than arrow functions. `this.default.name(name)` always applies Kubb's core `camelCase` default. The plugin preset's `name` method remains separate. `this.memo(key, compute)` returns the same value for a key for the rest of the build, so a resolver computes each name once. A key is `prefix:rest`. Register the prefix and its value type in `Kubb.MemoRegistry`, next to `Kubb.PluginRegistry`, and the value is typed. `camelCase` and `pascalCase` are exported from `kubb/kit`.
 
 From a namespaced method, `this.name(name)` calls the active top-level `name` method and follows any user override. Calling `this.name` from the top-level `name` method itself recurses, so call an exported preset resolver such as `resolverTs.name` when you want to wrap its casing.

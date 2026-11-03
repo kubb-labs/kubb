@@ -98,6 +98,7 @@ describe('setupReporters', () => {
         writer: createPlainWriter((line) => lines.push(line)),
       })
       await hooks.callHook('kubb:generation:start', { config })
+      await hooks.callHook('kubb:plugins:end', { config, files: [], upsertFile: () => {} })
       if (!dryRun) {
         await rm(output, { recursive: true })
         await mkdir(output)
@@ -109,8 +110,10 @@ describe('setupReporters', () => {
         [same, 'same'],
         [added, 'fresh'],
         [outside, 'after'],
-      ] as const)
+      ] as const) {
         await storage.writeItem(path, value)
+        await hooks.callHook('kubb:file:processed', { file: files.find((file) => file.path === path)!, source: value })
+      }
       await hooks.callHook('kubb:files:processing:end', { files, unchanged: [] })
       await hooks.callHook('kubb:generation:end', { config, storage, filesCreated: files.length, status: 'success', hrStart: process.hrtime() })
       const text = stripVTControlCharacters(lines.join('\n'))
@@ -127,6 +130,28 @@ describe('setupReporters', () => {
     } finally {
       await rm(root, { recursive: true, force: true })
     }
+  })
+
+  it.each([
+    [logLevel.info, false],
+    [logLevel.verbose, true],
+  ])('names each written file in plain output only at the verbose level (log level %s)', async (level, named) => {
+    const hooks = new Hookable<KubbHooks>()
+    const lines: Array<string> = []
+    setupReporters(hooks, { logLevel: level, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
+    const config = createKubb({ root: '/tmp', input: './spec.yaml', output: { path: './gen' }, storage: memoryStorage() }).config
+    const files = (['a.ts', 'b.ts'] as const).map((name) => ast.factory.createFile({ path: `/tmp/gen/${name}`, baseName: name }))
+    await hooks.callHook('kubb:generation:start', { config })
+    await hooks.callHook('kubb:files:processing:start', { files })
+    await hooks.callHook('kubb:files:processing:update', {
+      files: files.map((file, index) => ({ file, config, processed: index + 1, total: 2, percentage: 50 * (index + 1) })),
+    })
+    await hooks.callHook('kubb:files:processing:end', { files, unchanged: [] })
+
+    const text = stripVTControlCharacters(lines.join('\n'))
+    expect(text).toContain('Generating 2 files')
+    expect(text).toContain('Generated 2 files in memory')
+    expect(text.includes('Generating gen/a.ts')).toBe(named)
   })
 
   it('lets json own stdout without installing the live logger when json is selected', async () => {

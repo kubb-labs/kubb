@@ -1,9 +1,16 @@
 import { ast, extractRefName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
+import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
-import { createDiscriminantNode, extractDiscriminatedAllOfMembers, narrowUnionMembers } from '../discriminator/preserve.ts'
+import {
+  createDiscriminantNode,
+  removeInheritedDiscriminator,
+  extractDiscriminatedAllOfMembers,
+  narrowUnionMembers,
+  propertyTypeOf,
+} from '../discriminator/preserve.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 import { extractExamples } from '../schemaShape.ts'
 import { convertAnnotatedEnum } from './annotatedEnum.ts'
@@ -90,11 +97,9 @@ function resolveUnionMembers(members: Array<unknown>, siblingProperties: Record<
 }
 
 /**
- * Enriches any `oneOf` or `anyOf` branches on a schema object with properties from sibling schemas.
+ * Enriches a schema object, and any `oneOf` or `anyOf` branches on it, with properties from sibling schemas.
  */
 function resolveUnionSchema(schema: SchemaObject, siblingProperties: Record<string, unknown>): SchemaObject {
-  if (!schema.oneOf && !schema.anyOf) return schema
-
   const resolvedSchema = (resolveUnionMembers([schema], siblingProperties)[0] as SchemaObject) ?? schema
   const next: SchemaObject = { ...resolvedSchema }
   if (schema.oneOf) {
@@ -126,13 +131,29 @@ export function convertRef({ schema, name, nullable, defaultValue, document, par
   // leniently, since the target is expected to live outside the fragment.
   // A circular ref still resolves, so only a `$ref` to a component the spec never declares is missing.
   if (refPath && document.components && !refs.resolve(refPath, { report: false })) {
-    return createNode(ctx, { type: 'unknown' })
+    return createNode(ctx, { type: ast.schemaTypes.unknown })
+  }
+
+  // A target outside `components.schemas` is never emitted as its own file, so inline it. A circular
+  // ref leaves `resolvedSchema` null and still becomes a ref node.
+  if (refPath && !refPath.startsWith(SCHEMA_REF_PREFIX) && resolvedSchema) {
+    return ast.factory.createSchema({
+      ...resolvedSchema,
+      title: schema.title ?? resolvedSchema.title,
+      description: schema.description ?? resolvedSchema.description,
+      deprecated: schema.deprecated ?? resolvedSchema.deprecated,
+      readOnly: schema.readOnly ?? resolvedSchema.readOnly,
+      writeOnly: schema.writeOnly ?? resolvedSchema.writeOnly,
+      default: defaultValue ?? resolvedSchema.default,
+      name: name ?? resolvedSchema.name,
+      nullable: nullable ?? resolvedSchema.nullable,
+    })
   }
 
   const targetName = renames?.get(schema.$ref!)
 
   return createNode(ctx, {
-    type: 'ref',
+    type: ast.schemaTypes.ref,
     name: extractRefName(schema.$ref!),
     ref: schema.$ref,
     ...(targetName ? { targetName } : {}),
@@ -144,15 +165,35 @@ export function convertRef({ schema, name, nullable, defaultValue, document, par
 export function convertNot({ schema, name, nullable, defaultValue, parse }: ConvertContext): ast.SchemaNode {
   const { not, ...rest } = schema as SchemaObject & { not: SchemaObject }
   const [subschema] = resolveUnionMembers([not], (rest.properties ?? {}) as Record<string, unknown>) as [SchemaObject]
-  const notNode = ast.factory.createSchema({ type: 'not', members: [parse({ schema: subschema })] })
+  const notNode = ast.factory.createSchema({ type: ast.schemaTypes.not, members: [parse({ schema: subschema })] })
 
-  return createNode({ schema, name, nullable, defaultValue }, { type: 'intersection', members: [parse({ schema: rest, name }), notNode] })
+  return createNode({ schema, name, nullable, defaultValue }, { type: ast.schemaTypes.intersection, members: [parse({ schema: rest, name }), notNode] })
+}
+
+/**
+ * Keywords that describe a schema or conditionally constrain it, but add no structure.
+ */
+const annotationKeys = new Set(['description', 'title', 'example', 'examples', 'default', 'deprecated', 'readOnly', 'writeOnly', 'if', 'then', 'else'])
+
+/**
+ * Moves `allOf` members that hold only annotations or `if`/`then`/`else` onto the parent, so they do
+ * not become `unknown`. The parent's own values win, and the conditional keywords are not enforced.
+ */
+function mergeAnnotations(schema: SchemaObject): SchemaObject {
+  const members = schema.allOf as Array<SchemaObject | ReferenceObject>
+  const isAnnotation = (member: SchemaObject | ReferenceObject) => !isReference(member) && Object.keys(member).every((key) => annotationKeys.has(key))
+  const annotations = members.filter(isAnnotation)
+  const rest = members.filter((member) => !isAnnotation(member))
+
+  return annotations.length && rest.length ? { ...Object.assign({}, ...annotations), ...schema, allOf: rest } : schema
 }
 
 /**
  * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
  */
-export function convertAllOf({ schema, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
+export function convertAllOf({ schema: original, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
+  const schema = mergeAnnotations(original)
+
   if (
     schema.allOf!.length === 1 &&
     !schema.properties &&
@@ -182,7 +223,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, parse, refs
   }
 
   const { members: discriminatedAllOf, discriminantValues } = extractDiscriminatedAllOfMembers({
-    allOfMembers: schema.allOf as Array<SchemaObject | ReferenceObject>,
+    allOfMembers: removeInheritedDiscriminator({ members: schema.allOf as Array<SchemaObject | ReferenceObject>, refs }),
     name,
     refs,
   })
@@ -232,7 +273,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, parse, refs
   return createNode(
     { schema, name, nullable, defaultValue },
     {
-      type: 'intersection',
+      type: ast.schemaTypes.intersection,
       members: [...mergeAdjacentObjectsLazy(allOfMembers.slice(0, syntheticStart)), ...mergeAdjacentObjectsLazy(allOfMembers.slice(syntheticStart))],
     },
   )
@@ -252,26 +293,43 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
   const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
   const { oneOf: _o, anyOf: _a, discriminator: _d, ...memberBaseSchema } = schema
   const sharedPropertiesNode = schema.properties ? parse({ schema: memberBaseSchema as SchemaObject, name }) : undefined
+  const missingRequired = (Array.isArray(schema.required) ? schema.required : []).filter((key) => !Object.hasOwn(schema.properties ?? {}, key))
 
-  if (sharedPropertiesNode || discriminator) {
-    const members = narrowUnionMembers({ unionMembers, discriminator, sharedPropertiesNode, parse, name, refs })
+  if (sharedPropertiesNode || discriminator || missingRequired.length) {
+    const members = narrowUnionMembers({
+      unionMembers,
+      discriminator,
+      sharedPropertiesNode,
+      parentType: discriminator && propertyTypeOf({ schema, propertyName: discriminator.propertyName, refs }),
+      parse,
+      name,
+      refs,
+    })
     const unionNode = createNode(ctx, {
-      type: 'union',
+      type: ast.schemaTypes.union,
       strategy,
       members,
       discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.inferDiscriminatorPropertyName(members),
     })
 
-    if (!sharedPropertiesNode) {
+    const requiredProperties = missingRequired.map((name) =>
+      ast.factory.createProperty({ name, required: true, schema: ast.factory.createSchema({ type: ast.schemaTypes.unknown }) }),
+    )
+    const siblings = sharedPropertiesNode ? [sharedPropertiesNode] : []
+    if (requiredProperties.length) {
+      siblings.push(ast.factory.createSchema({ type: ast.schemaTypes.object, properties: requiredProperties }))
+    }
+
+    if (!siblings.length) {
       return unionNode
     }
 
-    return createNode(ctx, { type: 'intersection', members: [unionNode, sharedPropertiesNode] })
+    return createNode(ctx, { type: ast.schemaTypes.intersection, members: [unionNode, ...siblings] })
   }
 
   const members = unionMembers.map((s) => parse({ schema: s as SchemaObject, name }))
   const unionNode = createNode(ctx, {
-    type: 'union',
+    type: ast.schemaTypes.union,
     strategy,
     members,
     discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.inferDiscriminatorPropertyName(members),
@@ -294,7 +352,7 @@ export function convertMultiType({ schema, name, nullable, defaultValue, parse }
   return createNode(
     { schema, name, nullable: arrayNullable, defaultValue },
     {
-      type: 'union',
+      type: ast.schemaTypes.union,
       members: nonNullTypes.map((t) => {
         const raw = { ...schema, type: t }
         const memberSchema = raw as SchemaObject

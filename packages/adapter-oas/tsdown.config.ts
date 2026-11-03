@@ -2,6 +2,7 @@ import { defineConfig, type UserConfig } from 'tsdown'
 
 const entry = {
   index: 'src/index.ts',
+  validateWorker: 'src/load/validateWorker.ts',
 }
 
 const shared: Partial<UserConfig> = {
@@ -28,10 +29,10 @@ export default defineConfig([
   },
   {
     // Also builds the CJS JavaScript. `keepNames` stays off the declaration passes: it leaks an untyped `__name` helper into .d.ts/.d.cts files.
-    entry,
+    entry: { index: 'src/index.ts' },
     format: ['esm', 'cjs'],
     ...shared,
     outputOptions: (options, format, { cjsDts }) => ({ ...options, keepNames: format === 'cjs' && !cjsDts }),
-    dts: { emitDtsOnly: true, compilerOptions: { baseUrl: '../..' } },
+    dts: { emitDtsOnly: true, tsconfig: '../../tsconfig.dts.json' },
   },
 ])

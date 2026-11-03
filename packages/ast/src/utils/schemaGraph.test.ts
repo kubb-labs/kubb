@@ -5,7 +5,7 @@ import { createParameter } from '../nodes/parameter.ts'
 import { createProperty } from '../nodes/property.ts'
 import { createResponse } from '../nodes/response.ts'
 import { createSchema } from '../nodes/schema.ts'
-import { collectImportedRefNames, collectSchemaRefs, collectUsedSchemaNames, findCircularSchemas, findCircularSchemasFromGraph } from './schemaGraph.ts'
+import { collectImportedRefNames, collectSchemaRefs, collectUsedSchemaNames, findCircularSchemas } from './schemaGraph.ts'
 
 describe('findCircularSchemas', () => {
   it('detects an indirect cycle through refs nested in unions and arrays and skips acyclic schemas', () => {
@@ -30,25 +30,17 @@ describe('findCircularSchemas', () => {
 
     expect(findCircularSchemas([Category, Pet, Cat])).toStrictEqual(new Set(['Pet', 'Cat']))
   })
-})
 
-describe('findCircularSchemasFromGraph', () => {
   it('detects a direct self-loop', () => {
-    const graph = new Map([['TreeNode', new Set(['TreeNode'])]])
+    const TreeNode = createSchema({
+      type: 'object',
+      name: 'TreeNode',
+      properties: [
+        createProperty({ name: 'parent', required: false, schema: createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' }) }),
+      ],
+    })
 
-    expect(findCircularSchemasFromGraph(graph)).toStrictEqual(new Set(['TreeNode']))
-  })
-
-  it('detects an indirect cycle and leaves non-participants out', () => {
-    const graph = new Map([
-      ['Pet', new Set(['Cat'])],
-      ['Cat', new Set(['Pet'])],
-      ['Owner', new Set(['Pet'])],
-    ])
-    const result = findCircularSchemasFromGraph(graph)
-
-    expect(result).toStrictEqual(new Set(['Pet', 'Cat']))
-    expect(result.has('Owner')).toBe(false)
+    expect(findCircularSchemas([TreeNode])).toStrictEqual(new Set(['TreeNode']))
   })
 })
 
@@ -130,7 +122,17 @@ describe('collectUsedSchemaNames', () => {
         schema: createSchema({ type: 'ref', name: 'ItemStatus', ref: '#/components/schemas/ItemStatus' }),
       }),
     ],
-    responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'ItemsResponse', ref: '#/components/schemas/ItemsResponse' }) })],
+    responses: [
+      createResponse({
+        statusCode: '200',
+        content: [
+          createContent({
+            contentType: 'application/json',
+            schema: createSchema({ type: 'ref', name: 'ItemsResponse', ref: '#/components/schemas/ItemsResponse' }),
+          }),
+        ],
+      }),
+    ],
   })
 
   const getOrdersOp = createOperation({
@@ -147,7 +149,15 @@ describe('collectUsedSchemaNames', () => {
       }),
     ],
     responses: [
-      createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'OrdersResponse', ref: '#/components/schemas/OrdersResponse' }) }),
+      createResponse({
+        statusCode: '200',
+        content: [
+          createContent({
+            contentType: 'application/json',
+            schema: createSchema({ type: 'ref', name: 'OrdersResponse', ref: '#/components/schemas/OrdersResponse' }),
+          }),
+        ],
+      }),
     ],
   })
 
@@ -174,7 +184,17 @@ describe('collectUsedSchemaNames', () => {
       path: '/items/{id}',
       tags: ['items'],
       parameters: [],
-      responses: [createResponse({ statusCode: '200', schema: createSchema({ type: 'ref', name: 'ItemDetail', ref: '#/components/schemas/ItemDetail' }) })],
+      responses: [
+        createResponse({
+          statusCode: '200',
+          content: [
+            createContent({
+              contentType: 'application/json',
+              schema: createSchema({ type: 'ref', name: 'ItemDetail', ref: '#/components/schemas/ItemDetail' }),
+            }),
+          ],
+        }),
+      ],
     })
 
     const result = collectUsedSchemaNames([detailOp], [tagSchema, itemSchema, responseSchema])

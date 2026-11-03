@@ -2,7 +2,7 @@ import { mkdir, rm, symlink, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
-import { exists, isPathInside, listFiles, read, toPosixPath, trimExtName, write, writeRaw } from './fs.ts'
+import { exists, isPathInside, listFiles, read, toPosixPath, write, writeRaw } from './fs.ts'
 
 const existsTestDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const existsTestFile = path.join(existsTestDir, 'test.txt')
@@ -115,23 +115,6 @@ describe('toPosixPath', () => {
   })
 })
 
-describe('trimExtName', () => {
-  test('strips extension from a full path', () => {
-    expect(trimExtName('/src/models/pet.ts')).toBe('/src/models/pet')
-  })
-
-  test('does not strip the dot from a directory segment', () => {
-    expect(trimExtName('/project.v2/gen/pet.ts')).toBe('/project.v2/gen/pet')
-  })
-
-  test('returns the input unchanged when there is no extension', () => {
-    expect(trimExtName('noExtension')).toBe('noExtension')
-  })
-
-  test('strips double extension (.d.ts)', () => {
-    expect(trimExtName('types.d.ts')).toBe('types.d')
-  })
-})
 describe('isPathInside', () => {
   it('returns true for a nested path', () => {
     expect(isPathInside('/repo/src/gen', '/repo')).toBe(true)

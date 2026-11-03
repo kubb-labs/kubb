@@ -1,9 +1,12 @@
-import { getErrorMessage, toError } from '@internals/utils'
+import { join } from 'node:path'
+import { escapePointerToken, getErrorMessage, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
-import type { AdapterSource } from '@kubb/kit'
+import type { AdapterSource, Diagnostic } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
+import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
+import type { ValidationErrors, WorkerResult } from './validateWorker.ts'
 import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
 /**
@@ -27,6 +30,56 @@ export function hasExternalRef(node: unknown): boolean {
 }
 
 /**
+ * Replaces each `$ref` into `#/paths/...` with a copy of its target, in place.
+ *
+ * The Swagger 2.0 upgrade moves `responses/200/schema` under `content`, so a ref to the old location
+ * would no longer resolve. A ref that points back into itself is kept, since inlining it never ends.
+ */
+function inlinePathRefs(node: unknown, resolve: (ref: string) => unknown, visiting: Array<string> = []): unknown {
+  if (!node || typeof node !== 'object') {
+    return node
+  }
+
+  const ref = (node as { $ref?: unknown }).$ref
+  if (typeof ref === 'string' && ref.startsWith('#/paths/') && !visiting.includes(ref)) {
+    const target = resolve(ref)
+    return target && typeof target === 'object' ? inlinePathRefs(structuredClone(target), resolve, [...visiting, ref]) : node
+  }
+
+  for (const [key, value] of Object.entries(node)) {
+    ;(node as Record<string, unknown>)[key] = inlinePathRefs(value, resolve, visiting)
+  }
+  return node
+}
+
+// Keys that hold user-named entries. An `x-` name here is a real schema, header or parameter, not an extension.
+const namedEntryKeys = new Set([
+  'properties',
+  'patternProperties',
+  'headers',
+  'schemas',
+  'responses',
+  'parameters',
+  'requestBodies',
+  'examples',
+  'links',
+  'callbacks',
+  'securitySchemes',
+  'securityDefinitions',
+  'pathItems',
+  'definitions',
+  '$defs',
+])
+
+/**
+ * True when `path` runs through an `x-` vendor extension. Kubb never reads an extension, so a `$ref`
+ * Kubb cannot read inside one cannot change the output.
+ */
+function isExtensionPath(path: ReadonlyArray<string | number>): boolean {
+  return path.some((token, index) => String(token).startsWith('x-') && !namedEntryKeys.has(String(path[index - 1])))
+}
+
+/**
  * Bundles a multi-file OpenAPI document into a single document via `api-ref-bundler`.
  *
  * External file schemas are hoisted into named `components.schemas` entries, so a property
@@ -39,24 +92,33 @@ export function hasExternalRef(node: unknown): boolean {
  * all-internal document it is a no-op that still walks the whole tree to confirm that, which
  * costs real time on a large spec.
  *
+ * `document` stands in for the file at `pathOrUrl`, such as inline input. Every other file or URL
+ * read, including one that fails, lands in `sources`. A `$ref` that cannot be read reports
+ * `KUBB_REF_NOT_FOUND` at the key that holds it, as a warning when it sits inside an `x-` extension.
+ *
  * @example Local file
  * `const document = await bundleDocument('./openapi.yaml')`
  *
  * @example Remote URL
  * `const document = await bundleDocument('https://example.com/openapi.yaml')`
  */
-export async function bundleDocument(pathOrUrl: string): Promise<Document> {
+export async function bundleDocument(pathOrUrl: string, { document, sources = [] }: { document?: Document; sources?: Array<string> } = {}): Promise<Document> {
   const cache = new Map<string, Promise<object | string>>()
+  // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
+  // `https:/`, so key on the canonical href to fetch each source once and to match the input.
+  const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
 
   const resolver = (sourcePath: string) => {
-    // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
-    // `https:/`, so cache on the canonical href to fetch each source once.
-    const key = urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath
+    if (document && sourcePath === pathOrUrl) {
+      return Promise.resolve(document)
+    }
+    const key = toKey(sourcePath)
     const cached = cache.get(key)
     if (cached) {
       return cached
     }
 
+    sources.push(key)
     const result = resolveSource(sourcePath)
     cache.set(key, result)
     return result
@@ -70,8 +132,28 @@ export async function bundleDocument(pathOrUrl: string): Promise<Document> {
     return root as Document
   }
 
-  return (await bundle(pathOrUrl, resolver)) as Document
+  return (await bundle(pathOrUrl, resolver, {
+    hooks: {
+      onError: (message, { path, state }) => {
+        // Only a `$ref` in the input itself has a key in the document to point at.
+        const pointer = toKey(state.baseFile) === toKey(pathOrUrl) ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
+        const diagnostic: Diagnostic = {
+          code: Diagnostics.code.refNotFound,
+          severity: isExtensionPath(path) ? 'warning' : 'error',
+          message: `Could not bundle an external \`$ref\`. ${message}.`,
+          help: 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
+          ...(pointer && { location: { kind: 'schema', pointer } }),
+        }
+        if (!Diagnostics.report(diagnostic) && diagnostic.severity === 'error') {
+          throw new Diagnostics.Error(diagnostic)
+        }
+      },
+    },
+  })) as Document
 }
+
+// Inline input has no file of its own, so its relative `$ref`s resolve from a stand-in name in `root`.
+const inlineInputName = '<inline input>'
 
 /**
  * Creates a `Document` from an `AdapterSource`.
@@ -79,7 +161,8 @@ export async function bundleDocument(pathOrUrl: string): Promise<Document> {
  * - `{ type: 'path' }` bundles an absolute file path (core resolves `input`) or remote URL via
  *   `api-ref-bundler`, hoisting external file schemas into named `components.schemas` entries so
  *   generators can emit named types and imports.
- * - `{ type: 'data' }` parses an inline string (YAML/JSON) or raw object.
+ * - `{ type: 'data' }` parses an inline string (YAML/JSON) or raw object, then bundles its
+ *   external `$ref`s from `root` when it has any. Each file or URL read lands in `sources`.
  *
  * Swagger 2.0 and OpenAPI 3.0 documents are up-converted to OpenAPI 3.1 via `@scalar/openapi-upgrader`.
  *
@@ -89,20 +172,38 @@ export async function bundleDocument(pathOrUrl: string): Promise<Document> {
  * const document = await parseFromConfig({ type: 'data', data: '{"openapi":"3.0.0",...}' })
  * ```
  */
-export async function parseFromConfig(source: AdapterSource): Promise<Document> {
+export async function parseFromConfig(source: AdapterSource, sources: Array<string> = []): Promise<Document> {
   const raw = await (async (): Promise<Document> => {
     // YAML parsing also handles JSON.
     if (source.type === 'data') {
-      return typeof source.data === 'string'
-        ? (parseYaml(source.data, {
-            origin: 'the inline `input` string',
-            help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
-          }) as Document)
-        : structuredClone(source.data as Document)
+      const data =
+        typeof source.data === 'string'
+          ? (parseYaml(source.data, {
+              origin: 'the inline `input` string',
+              help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
+            }) as Document)
+          : structuredClone(source.data as Document)
+      return source.root && hasExternalRef(data) ? bundleDocument(join(source.root, inlineInputName), { document: data, sources }) : data
     }
     await assertInputExists(source.path)
-    return bundleDocument(source.path)
+    return bundleDocument(source.path, { sources })
   })()
+
+  // Unquoted `swagger: 2.0` parses as the number 2, which `upgrade` does not recognise as a version.
+  if (raw && typeof raw === 'object') {
+    const document = raw as Record<string, unknown>
+    for (const key of ['swagger', 'openapi']) {
+      const version = document[key]
+      if (typeof version === 'number') {
+        document[key] = Number.isInteger(version) ? version.toFixed(1) : String(version)
+      }
+    }
+  }
+
+  if (raw && typeof raw === 'object' && 'swagger' in raw) {
+    const refs = createRefs(raw)
+    inlinePathRefs(raw, (ref) => refs.resolve(ref, { report: false }))
+  }
 
   // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.
   try {
@@ -187,11 +288,42 @@ export async function validateDocument(document: Document, { throwOnError = fals
       help: 'Fix each problem listed in the spec, then validate again.',
     })
 
-  for (const { message } of result.errors) {
+  reportValidationErrors(result)
+}
+
+function reportValidationErrors({ errors, additionalErrors }: ValidationErrors): void {
+  for (const { message } of errors) {
     // The code frame after the first line numbers a JSON copy of the spec, not the user's file.
     reportInvalidSpec(message.replace(/\n.*/s, ''))
   }
-  if (result.additionalErrors > 0) {
-    reportInvalidSpec(`${result.additionalErrors} more validation errors are not listed.`)
+  if (additionalErrors > 0) {
+    reportInvalidSpec(`${additionalErrors} more validation errors are not listed.`)
   }
+}
+
+/**
+ * Validates like {@link validateDocument} without `throwOnError`, but in a worker thread, so the
+ * build keeps generating while `@readme/openapi-parser` dereferences and checks the spec. Await the
+ * returned promise inside the build's diagnostics scope to report its warnings there. Falls back to
+ * validating in place where worker threads are missing, as in edge runtimes.
+ */
+export async function validateDocumentInWorker(document: Document): Promise<void> {
+  let message: WorkerResult
+  try {
+    const { Worker } = await import('node:worker_threads')
+    // Tests run the `.ts` source; the build emits `validateWorker.js` next to the bundle.
+    const workerFile = import.meta.url.endsWith('.ts') ? './validateWorker.ts' : './validateWorker.js'
+    // `workerData` is a structured clone, so the worker can dereference it without touching the cached document.
+    const worker = new Worker(new URL(workerFile, import.meta.url), { workerData: document })
+    message = await new Promise<WorkerResult>((resolve, reject) => {
+      worker.once('message', resolve)
+      worker.once('error', reject)
+      worker.once('exit', (code) => reject(new Error(`Validation worker exited with code ${code}`)))
+    }).finally(() => worker.terminate())
+  } catch {
+    return validateDocument(document)
+  }
+
+  if ('thrown' in message) return reportInvalidSpec(message.thrown)
+  if (!message.valid) reportValidationErrors(message)
 }

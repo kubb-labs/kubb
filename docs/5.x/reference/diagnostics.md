@@ -89,6 +89,18 @@ A plugin sets `meta.compatibility.kubb` or `meta.compatibility.node` to a range 
 
 Upgrade Kubb or Node.js to a version in the range, or install a version of the plugin that supports your current Kubb and Node.js.
 
+### KUBB_GIT_INPUT_FAILED: Git input failed {#kubb-git-input-failed}
+
+A git `input` (`git+<repo>#<ref>:<path>`) is malformed, or `git` could not fetch it: git is not installed, the repository or ref does not exist, or the credentials were refused.
+
+Write the input as `git+<repo>#<ref>:<path>`. Run `git fetch --depth 1 <repo> <ref>` yourself to see the git error, and set up a credential helper or SSH key for a private repository.
+
+### KUBB_INLINE_FAILED: Inline definition failed {#kubb-inline-failed}
+
+A file imports a name from a file whose sources are all inline, and Kubb could not replace that name. The name has no inline definition, its definition refers back to itself, or no parser for the file's extension supports inline sources. One diagnostic lists every such problem. The inline file is not written, so the run is marked failed.
+
+Give every name the file imports an inline definition, register a parser with inline support for its extension, or stop marking the source as inline.
+
 ### KUBB_INPUT_NOT_FOUND: Input not found {#kubb-input-not-found}
 
 The file set as `input` (or passed as `kubb generate PATH`) could not be read. The OpenAPI adapter checks the path before parsing, so the run stops here instead of failing later with a vague read error.
@@ -193,9 +205,11 @@ Run the command manually from the project root. Check the binary, spelling, and 
 
 ### KUBB_REF_NOT_FOUND: Reference not found {#kubb-ref-not-found}
 
-A `$ref` points at a definition that does not exist in the document.
+A `$ref` points at a definition that does not exist in the document, or at a file or URL Kubb cannot read.
 
-Add the missing definition or correct the `$ref`. Run `kubb validate` before generation. Bundle documents with external references when needed.
+Add the missing definition, create the missing file, or correct the `$ref`. Run `kubb validate` before generation.
+
+A `$ref` that Kubb cannot read inside an `x-` vendor extension is a warning, because Kubb never reads extensions and the output does not change.
 
 ### KUBB_UNKNOWN: Unknown error {#kubb-unknown}
 
@@ -224,6 +238,12 @@ Read the message and adjust the input or plugin options as needed. Plugin author
 A schema's `format` is not one Kubb maps to a specific type, so it falls back to the base type.
 
 Use a supported format, omit it if the base type is sufficient, or map it through a custom parser or plugin.
+
+### KUBB_ALIAS_CYCLE: Alias cycle {#kubb-alias-cycle}
+
+Schemas that only `$ref` each other form a loop, so none of them has a shape to generate. Kubb resolves them to `unknown`.
+
+Break the loop by giving one of the schemas a real definition, or remove the `$ref` that closes it.
 
 ## Info
 

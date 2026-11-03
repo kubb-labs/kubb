@@ -35,7 +35,17 @@ const multiselect = vi.mocked(prompts.multiselect)
 const options: StudioOptions = {
   version: '0.0.0',
   studioUrl: 'http://localhost:3000',
-  permission: { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false },
+  permission: {
+    allowRead: false,
+    allowReadAst: false,
+    allowWrite: false,
+    allowConfigEdit: false,
+    allowInstall: false,
+    allowUpdate: false,
+    allowRemove: false,
+    allowSaveInput: false,
+    allowExec: false,
+  },
   autoOpen: false,
 }
 
@@ -150,7 +160,17 @@ describe('resolvePermissions', () => {
     using project = stubProject()
     multiselect.mockResolvedValueOnce(['allowReadAst', 'allowWrite', 'allowExec'])
 
-    const answers = { allowRead: false, allowReadAst: true, allowWrite: true, allowConfigEdit: false, allowExec: true }
+    const answers = {
+      allowRead: false,
+      allowReadAst: true,
+      allowWrite: true,
+      allowConfigEdit: false,
+      allowInstall: false,
+      allowUpdate: false,
+      allowRemove: false,
+      allowSaveInput: false,
+      allowExec: true,
+    }
 
     await expect(resolvePermissions(options, credentials)).resolves.toEqual(answers)
     expect(multiselect).toHaveBeenCalledOnce()
@@ -170,7 +190,17 @@ describe('resolvePermissions', () => {
 
   it('asks nothing again once the project answered, and never stores a flag-granted permission', async () => {
     using project = stubProject()
-    const remembered = { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
+    const remembered = {
+      allowRead: false,
+      allowReadAst: false,
+      allowWrite: false,
+      allowConfigEdit: false,
+      allowInstall: false,
+      allowUpdate: false,
+      allowRemove: false,
+      allowSaveInput: false,
+      allowExec: false,
+    }
     const stored: Credentials = { ...credentials, projects: { [process.cwd()]: remembered } }
 
     await expect(resolvePermissions({ ...options, permission: { ...options.permission, allowExec: true } }, stored)).resolves.toEqual({
@@ -178,6 +208,27 @@ describe('resolvePermissions', () => {
       allowExec: true,
     })
     expect(multiselect).not.toHaveBeenCalled()
+    expect(project.write).not.toHaveBeenCalled()
+  })
+
+  it('asks every permission again on edit, with the saved ones checked, and replaces them', async () => {
+    using project = stubProject()
+    const stored: Credentials = { ...credentials, projects: { [process.cwd()]: { ...options.permission, allowRead: true, allowWrite: true } } }
+    multiselect.mockResolvedValueOnce(['allowRead', 'allowExec'])
+
+    await expect(resolvePermissions(options, stored, undefined, { edit: true })).resolves.toEqual({ ...options.permission, allowRead: true, allowExec: true })
+    expect(multiselect.mock.calls[0]?.[0].options).toHaveLength(Object.keys(options.permission).length)
+    expect(multiselect.mock.calls[0]?.[0].initialValues).toEqual(['allowRead', 'allowWrite'])
+    expect(project.write).toHaveBeenCalledWith(
+      expect.objectContaining({ projects: { [process.cwd()]: { ...options.permission, allowRead: true, allowExec: true } } }),
+    )
+  })
+
+  it('saves nothing when the edit list is canceled', async () => {
+    using project = stubProject()
+    vi.mocked(prompts.isCancel).mockReturnValueOnce(true)
+
+    await expect(resolvePermissions(options, credentials, undefined, { edit: true })).rejects.toThrow('Permissions are unchanged')
     expect(project.write).not.toHaveBeenCalled()
   })
 })

@@ -1,7 +1,7 @@
 import type { CLIOptions, Parser, Reporter, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, expectTypeOf, test } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { defineConfig } from './defineConfig.ts'
 
@@ -71,11 +71,26 @@ describe('defineConfig', () => {
 
     expect(configs).toHaveLength(count)
     for (const resolved of configs) {
-      expect(resolved.root).toBe(process.cwd())
+      // The config loader resolves `root` from the config's folder, so `defineConfig` leaves it unset.
+      expect(resolved.root).toBeUndefined()
       expect(resolved.adapter?.name).toBe('oas')
       expect(resolved.plugins?.map((plugin) => plugin.name)).toStrictEqual([pluginBarrelName])
       expect(resolved.output).toStrictEqual({ path: './gen', barrel: false, format: false, lint: false })
     }
+  })
+})
+
+describe('defineConfig types', () => {
+  test('reports unknown keys and keeps the inferred shape', () => {
+    // @ts-expect-error unknown key
+    defineConfig({ ...minimal, notAField: true })
+    // @ts-expect-error unknown output key inside the array form
+    defineConfig([{ input: 'spec.yaml', output: { path: './gen', badOut: 1 } }])
+
+    expectTypeOf(defineConfig({ ...minimal })).toEqualTypeOf<UserConfig<string>>()
+    expectTypeOf(defineConfig([{ ...minimal }])).toEqualTypeOf<Array<UserConfig<string>>>()
+    expectTypeOf(defineConfig(() => ({ ...minimal }))).toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig<string>>>()
+    expectTypeOf(defineConfig(Promise.resolve([{ ...minimal }]))).toEqualTypeOf<Promise<Array<UserConfig<string>>>>()
   })
 })
 

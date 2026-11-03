@@ -4,11 +4,11 @@ import process from 'node:process'
 import { generateConfigFile, KUBB_CONFIG_FILENAME } from '@internals/shared'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
-import * as z from 'zod/mini'
+import * as v from 'valibot'
 
-const initSchema = z.object({
-  input: z.optional(z.string().check(z.minLength(1), z.describe('Path to OpenAPI spec (default: ./openapi.yaml)'))),
-  output: z.optional(z.string().check(z.minLength(1), z.describe('Output directory (default: ./src/gen)'))),
+const initSchema = v.object({
+  input: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Path to OpenAPI spec (default: ./openapi.yaml)'))),
+  output: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Output directory (default: ./src/gen)'))),
 })
 
 export const initTool = defineTool(

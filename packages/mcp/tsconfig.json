@@ -3,7 +3,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "@kubb/renderer-jsx",
-    "types": ["bun-types", "../../reset.d.ts"]
+    "types": ["bun-types", "../../globals.d.ts"]
   },
   "include": ["src/**/*", "./package.json", "./tsdown.config.ts", "./vitest.config.ts"]
 }

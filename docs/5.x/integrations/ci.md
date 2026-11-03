@@ -26,6 +26,8 @@ navigation:
 
 Every provider needs an organization CI API key stored as `KUBB_TOKEN`. Snapshot installation uses a separate `registry` API key. Create both in Studio under Settings › Developers › Tokens.
 
+A snapshot builds its `dist` files with `tsdown`, which Kubb does not install by default. Add it next to `kubb` in the development dependencies with `npm i -D tsdown`.
+
 > [!NOTE]
 > Snapshots expire after seven days. Schedule a default-branch run if it can go a week without a push.
 

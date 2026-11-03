@@ -120,13 +120,15 @@ function collectFileChildren(element: unknown): FileChildren {
     },
     (host) => {
       if (host.type === 'kubb-source') {
-        const { name, isTypeOnly, isExportable, isIndexable, children } = host.props
+        const { name, pointer, isTypeOnly, isExportable, isIndexable, inline, children } = host.props
         sources.push(
           ast.factory.createSource({
             name: name?.toString(),
+            ...(pointer !== undefined ? { pointer } : {}),
             isTypeOnly: !!isTypeOnly,
             isExportable: !!isExportable,
             isIndexable: !!isIndexable,
+            ...(inline ? { inline } : {}),
             nodes: collectCodeNodes(children),
           }),
         )

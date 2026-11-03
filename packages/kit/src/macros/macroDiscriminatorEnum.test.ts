@@ -22,6 +22,19 @@ describe('macroDiscriminatorEnum', () => {
     expect(enumNode?.name).toBe('PetTypeEnum')
   })
 
+  it('keeps number values and marks the enum as a number primitive', () => {
+    const node = ast.factory.createSchema({
+      type: 'object',
+      properties: [ast.factory.createProperty({ name: 'type', schema: ast.factory.createSchema({ type: 'integer' }) })],
+    })
+
+    const result = applyShallow(node, macroDiscriminatorEnum({ propertyName: 'type', values: [1, 2] }))
+    const enumNode = result.type === 'object' ? result.properties?.find((p) => p.name === 'type')?.schema : undefined
+
+    expect(enumNode?.type === 'enum' ? enumNode.enumValues : undefined).toStrictEqual([1, 2])
+    expect(enumNode?.primitive).toBe('number')
+  })
+
   it('preserves readOnly and writeOnly on the replaced property', () => {
     const node = ast.factory.createSchema({
       type: 'object',

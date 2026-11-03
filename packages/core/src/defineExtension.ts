@@ -102,7 +102,8 @@ export type ExtensionDependencyRecord = Partial<Record<PluginName, ExtensionDepe
  */
 export function checkCompatibility(meta: ExtensionMeta): void {
   const checks = [
-    { target: 'Kubb', range: meta.compatibility?.kubb, version: kubbVersion },
+    // A canary build (`0.0.0-canary-<timestamp>`) is newer than every release, so no Kubb range applies to it.
+    { target: 'Kubb', range: kubbVersion.startsWith('0.0.0-') ? undefined : meta.compatibility?.kubb, version: kubbVersion },
     { target: 'Node.js', range: meta.compatibility?.node, version: process.versions.node },
   ]
 

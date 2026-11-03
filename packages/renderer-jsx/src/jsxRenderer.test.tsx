@@ -130,6 +130,19 @@ describe('jsxRenderer', () => {
     ])
   })
 
+  it('keeps the pointer a File.Source carries back to the input', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <File.Source name="Pet" pointer="#/components/schemas/Pet" isExportable>
+          {'export type Pet = { id: number }'}
+        </File.Source>
+      </File>,
+    )
+
+    expect(renderer.files[0]?.sources[0]).toMatchObject({ name: 'Pet', pointer: '#/components/schemas/Pet' })
+  })
+
   it('throws when text appears outside File.Source', async () => {
     const renderer = jsxRenderer()
 

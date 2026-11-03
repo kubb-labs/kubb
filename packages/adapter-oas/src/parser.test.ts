@@ -173,17 +173,41 @@ describe('buildAst', () => {
     const document = {
       openapi: '3.0.0',
       info: { title: '', version: '' },
-      paths: {},
+      paths: {
+        '/foo': {
+          get: {
+            responses: {
+              '200': { description: 'OK', content: { 'application/json': { schema: { type: 'object' } } } },
+              '404': { description: 'Missing', content: { 'application/json': { schema: { type: 'object', nullable: true } } } },
+            },
+          },
+        },
+      },
       components: { schemas: { Pet: { type: 'object', properties: { id: { type: 'integer' } } } } },
     } as Document
 
     it.each([
       { title: 'a ref node for a defined component', $ref: '#/components/schemas/Pet', type: 'ref' },
       { title: 'unknown for a component the document never defines', $ref: '#/components/schemas/Missing', type: 'unknown' },
+      { title: 'the target inline for a path outside components', $ref: '#/paths/~1foo/get/responses/200/content/application~1json/schema', type: 'object' },
     ])('returns $title', ({ $ref, type }) => {
       const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref } })
 
       expect(node.type).toBe(type)
+    })
+
+    it('keeps the nullability of an inlined path ref used as a property', () => {
+      const $ref = '#/paths/~1foo/get/responses/404/content/application~1json/schema'
+      const node = parseSchema({ document, refs: createRefs(document) }, { schema: { type: 'object', properties: { a: { $ref } } } })
+
+      expect(ast.narrowSchema(node, 'object')?.properties?.[0]?.schema.nullable).toBe(true)
+    })
+
+    it('keeps the usage-site description and default on an inlined path ref', () => {
+      const $ref = '#/paths/~1foo/get/responses/200/content/application~1json/schema'
+      const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref, description: 'used here', default: {} } })
+
+      expect([node.type, node.description, ast.narrowSchema(node, 'object')?.default]).toStrictEqual(['object', 'used here', {}])
     })
   })
 
@@ -300,6 +324,35 @@ describe('buildAst', () => {
       expect(sort).not.toHaveProperty('allowReserved')
     })
 
+    it('reads the schema and media type of a parameter described with content', async () => {
+      const oas = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/orders': {
+            get: {
+              operationId: 'listOrders',
+              parameters: [
+                {
+                  name: 'filter',
+                  in: 'query',
+                  content: { 'application/json': { schema: { type: 'object', properties: { status: { type: 'string' } } } } },
+                },
+                { name: 'sort', in: 'query', schema: { type: 'string' } },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+      const root = await parseOas(oas)
+      const op = findOperation(root, 'listOrders')
+
+      const filter = op?.parameters.find((p) => p.name === 'filter')
+      expect(filter).toMatchObject({ contentType: 'application/json', schema: { type: 'object' } })
+      expect(op?.parameters.find((p) => p.name === 'sort')).not.toHaveProperty('contentType')
+    })
+
     it('converts requestBody with description, required and a single content entry', async () => {
       const root = await parseOas(await buildMinimalOas())
       const createPet = findOperation(root, 'createPet')
@@ -340,6 +393,103 @@ describe('buildAst', () => {
         { contentType: 'application/json', schema: { type: 'object' } },
         { contentType: 'multipart/form-data', schema: { type: 'object' } },
       ])
+    })
+
+    it('carries the encoding of a form body onto its content entry', async () => {
+      const root = await parseOas({
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/u': {
+            post: {
+              operationId: 'urlenc',
+              requestBody: {
+                content: {
+                  'application/x-www-form-urlencoded': {
+                    schema: {
+                      type: 'object',
+                      properties: { tags: { type: 'array', items: { type: 'string' } }, filter: { type: 'object' }, plain: { type: 'string' } },
+                    },
+                    encoding: {
+                      filter: { style: 'deepObject', explode: true },
+                      tags: { explode: false },
+                      plain: {},
+                    },
+                  },
+                  'multipart/form-data': {
+                    schema: { type: 'object', properties: { meta: { type: 'object' } } },
+                    encoding: { meta: { contentType: 'application/json', allowReserved: true } },
+                  },
+                },
+              },
+              responses: { '204': { description: 'ok' } },
+            },
+          },
+        },
+      })
+      const content = findOperation(root, 'urlenc')?.requestBody?.content
+
+      expect(content?.map((entry) => [entry.contentType, entry.encoding])).toStrictEqual([
+        ['application/x-www-form-urlencoded', { filter: { style: 'deepObject', explode: true }, tags: { explode: false } }],
+        ['multipart/form-data', { meta: { contentType: 'application/json', allowReserved: true } }],
+      ])
+    })
+
+    it('drops a parameter style outside the OpenAPI set', async () => {
+      const root = await parseOas({
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/u': {
+            get: {
+              operationId: 'badParamStyle',
+              parameters: [
+                { name: 'a', in: 'query', schema: { type: 'array', items: { type: 'string' } }, style: "x'; throw 1; '", explode: true },
+                { name: 'b', in: 'query', schema: { type: 'object' }, style: 'deepObject' },
+              ],
+              responses: { '204': { description: 'ok' } },
+            },
+          },
+        },
+      })
+      const parameters = findOperation(root, 'badParamStyle')?.parameters
+
+      expect(parameters?.map((parameter) => [parameter.name, parameter.style])).toStrictEqual([
+        ['a', undefined],
+        ['b', 'deepObject'],
+      ])
+    })
+
+    it('drops an encoding style outside the OpenAPI set', async () => {
+      const root = await parseOas({
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/u': {
+            post: {
+              operationId: 'badStyle',
+              requestBody: {
+                content: {
+                  'application/x-www-form-urlencoded': {
+                    schema: { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
+                    encoding: { a: { style: "x'; throw 1; '", explode: true }, b: { style: 'bogus' } },
+                  },
+                },
+              },
+              responses: { '204': { description: 'ok' } },
+            },
+          },
+        },
+      })
+
+      expect(findOperation(root, 'badStyle')?.requestBody?.content?.[0]?.encoding).toStrictEqual({ a: { explode: true } })
+    })
+
+    it('leaves the encoding key off a body without encoding', async () => {
+      const root = await parseOas(multipartUploadDocument)
+      const content = findOperation(root, 'upload')?.requestBody?.content
+
+      expect(content?.every((entry) => !('encoding' in entry))).toBe(true)
     })
 
     it('keeps only the configured contentType in requestBody.content', async () => {
@@ -462,6 +612,16 @@ describe('parseSchema format', () => {
     { title: 'ipv4 without type', schema: { format: 'ipv4' }, expected: { type: 'ipv4', format: 'ipv4' } },
     { title: 'ipv6 without type', schema: { format: 'ipv6' }, expected: { type: 'ipv6', format: 'ipv6' } },
     { title: 'string uri', schema: { type: 'string', format: 'uri' }, expected: { type: 'url', format: 'uri' } },
+    // A relative reference or a bare host name is not a URL, so these stay plain strings.
+    { title: 'string uri-reference', schema: { type: 'string', format: 'uri-reference' }, expected: { type: 'string', format: 'uri-reference' } },
+    { title: 'string hostname', schema: { type: 'string', format: 'hostname' }, expected: { type: 'string', format: 'hostname' } },
+    { title: 'string idn-hostname', schema: { type: 'string', format: 'idn-hostname' }, expected: { type: 'string', format: 'idn-hostname' } },
+    { title: 'integer duration', schema: { type: 'integer', format: 'duration' }, expected: { type: 'integer', format: 'duration' } },
+    {
+      title: 'string uri-reference with length and pattern',
+      schema: { type: 'string', format: 'uri-reference', pattern: '^/', minLength: 2, maxLength: 10 },
+      expected: { type: 'string', format: 'uri-reference', pattern: '^/', min: 2, max: 10 },
+    },
     { title: 'string binary', schema: { type: 'string', format: 'binary' }, expected: { type: 'blob', format: 'binary' } },
     { title: 'string byte', schema: { type: 'string', format: 'byte' }, expected: { type: 'blob', format: 'byte' } },
     { title: 'string date-time', schema: { type: 'string', format: 'date-time' }, expected: { type: 'datetime', format: 'date-time' } },
@@ -703,6 +863,39 @@ describe('parseSchema allOf', () => {
     { title: 'additionalProperties', schema: { allOf: [{ $ref: '#/components/schemas/Foo' }], additionalProperties: false } },
   ] satisfies Array<{ title: string; schema: SchemaObject }>)('produces an intersection when a single-member allOf has a sibling $title', ({ schema }) => {
     expect(parseSchema(emptyCtx, { schema }).type).toBe('intersection')
+  })
+
+  it('keeps requiredness from a required-only allOf member next to a $ref', () => {
+    const doc = {
+      openapi: '3.0.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Base: { type: 'object', properties: { id: { type: 'string' }, name: { type: 'string' } } } } },
+    } as Document
+    const node = parseSchema(
+      { document: doc, refs: createRefs(doc) },
+      { schema: { allOf: [{ $ref: '#/components/schemas/Base' }, { required: ['id', 'name'] }] } },
+    )
+    const [, object] = ast.narrowSchema(node, 'intersection')?.members ?? []
+
+    expect(ast.narrowSchema(object!, 'object')?.properties?.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([
+      ['id', true, 'string'],
+      ['name', true, 'string'],
+    ])
+  })
+
+  it('drops an if/then allOf member and merges annotation-only members into the parent', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        allOf: [
+          { $ref: '#/components/schemas/Base' },
+          { if: { properties: { type: { const: 'card' } } }, then: { required: ['card'] } },
+          { description: 'hello' },
+        ],
+      },
+    })
+
+    expect(node).toMatchObject({ type: 'ref', description: 'hello' })
   })
 
   it('produces an intersection for multiple allOf members', () => {
@@ -1279,6 +1472,12 @@ describe('parseSchema const (OAS 3.1)', () => {
     const node = parseSchema(emptyCtx, { schema: { const: value } })
 
     expect(node).toMatchObject({ type: 'enum', enumValues: [value] })
+  })
+
+  it('narrows a $ref with a sibling const to the literal', () => {
+    const node = parseSchema(emptyCtx, { schema: { $ref: '#/components/schemas/KindEnum', const: 'circle' } })
+
+    expect(node).toMatchObject({ type: 'enum', enumValues: ['circle'] })
   })
 
   it('boolean const inside an object property has no name (inline literal)', () => {

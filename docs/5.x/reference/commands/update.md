@@ -14,7 +14,7 @@ navigation:
 
 # kubb update
 
-Run `kubb update` to move installed extensions to the version the [Kubb registry](/docs/5.x/reference/registry) pins. It shows each installed extension's version change and bump, asks which updates to install, and installs them with your project's package manager. Then it generates from `kubb.config.ts` with the new versions and summarizes the files that changed. With `--yes`, it installs every update except majors. It does not change `kubb.config.ts`.
+Run `kubb update` to move installed extensions to the version the [Kubb registry](/docs/5.x/reference/registry) pins. It shows each installed extension's version change and bump, asks which updates to install, and installs them with your project's package manager. Then it generates from `kubb.config.ts` with the new versions and summarizes the files that changed. With `--yes`, it installs every update except majors, unless you name the extension. It does not change `kubb.config.ts`.
 
 ## Usage
 
@@ -85,7 +85,7 @@ kubb update plugin-zod plugin-ts --yes
 | Option        | Default | Description |
 | ------------- | ------- | ----------- |
 | `--dry-run`   | `false` | List the available updates without installing them. |
-| `--yes`, `-y` | `false` | Install every update except majors without asking. |
+| `--yes`, `-y` | `false` | Install every update without asking. A major is only installed when its id is named. |
 
 ## Which extensions it updates
 
@@ -93,7 +93,7 @@ kubb update plugin-zod plugin-ts --yes
 
 An update that does not support your Kubb or Node.js version is skipped with `Skipped <id>: <reason>`. An extension pinned to a GitHub release installs as `github:<owner>/<repo>#<commit>`.
 
-An id that matches no installed extension prints `<id> is not installed, or not in the registry.` and the other ids still update. When nothing is outdated, the summary says `Already up to date`. An incompatible update is reported as skipped.
+An id that matches no installed extension prints `<id> is not installed, or not in the registry.` and exits with code 1. The other ids still update. When nothing is outdated, the summary says `Already up to date`. An incompatible update is reported as skipped.
 
 ## Environment variables
 
@@ -103,4 +103,4 @@ An id that matches no installed extension prints `<id> is not installed, or not 
 
 ## Exit codes
 
-`kubb update` exits with code 1 when an id is invalid, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update and when you cancel at the prompt. A failed generation after installation produces a warning summary that distinguishes installed extensions from failed regeneration and does not change the exit code.
+`kubb update` exits with code 1 when an id is invalid or not installed, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update and when you cancel at the prompt. A failed generation after installation produces a warning summary that distinguishes installed extensions from failed regeneration and does not change the exit code.

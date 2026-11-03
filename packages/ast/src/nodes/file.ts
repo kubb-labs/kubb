@@ -1,5 +1,6 @@
 import { hash } from 'node:crypto'
 import path from 'node:path'
+import { nodeKinds } from '../constants.ts'
 import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
 import { extractStringsFromNodes } from '../utils/extractStringsFromNodes.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
@@ -160,6 +161,11 @@ export type SourceNode = BaseNode & {
    */
   isIndexable?: boolean | null
   /**
+   * Marks the source as a definition that importing files absorb instead of import. `expression` is
+   * the declaration's right-hand side, such as `{ body: Pet }`.
+   */
+  inline?: { expression: string } | null
+  /**
    * Child nodes that make up this source fragment, in DOM order.
    * Use a {@link TextNode} for raw string content.
    */
@@ -259,7 +265,7 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
  * // import { useState } from 'react'
  * ```
  */
-export const createImport = nodeFactory<ImportNode>('Import')
+export const createImport = nodeFactory<ImportNode>(nodeKinds.import)
 
 /**
  * Creates an `ExportNode` representing a language-agnostic export/public API declaration.
@@ -270,7 +276,7 @@ export const createImport = nodeFactory<ImportNode>('Import')
  * // export { Pet } from './Pet'
  * ```
  */
-export const createExport = nodeFactory<ExportNode>('Export')
+export const createExport = nodeFactory<ExportNode>(nodeKinds.export)
 
 /**
  * Creates a `SourceNode` representing a fragment of source code within a file.
@@ -280,7 +286,7 @@ export const createExport = nodeFactory<ExportNode>('Export')
  * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })
  * ```
  */
-export const createSource = nodeFactory<SourceNode>('Source')
+export const createSource = nodeFactory<SourceNode>(nodeKinds.source)
 
 /**
  * Input descriptor for {@link createFile}, before `id`, `name`, and `extname` are computed
@@ -334,6 +340,7 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
   }
 
   const resolvedExports = input.exports?.length ? combineExports(input.exports) : []
+  const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
 
   // Skip building the source text and local-name set when there are no imports to resolve against them.
   const resolvedImports: Array<ImportNode> = (() => {
@@ -341,7 +348,8 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
 
     const sourceParts: Array<string> = []
     const localNames = new Set<string>()
-    for (const item of input.sources ?? []) {
+    // Only the sources the file keeps count: an import used just by a dropped duplicate is unused.
+    for (const item of resolvedSources) {
       const extracted = item.nodes && extractStringsFromNodes(item.nodes)
       if (extracted) sourceParts.push(extracted)
       if (item.name) localNames.add(item.name)
@@ -361,11 +369,10 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
       return [kept.length === imp.name.length ? imp : { ...imp, name: kept }]
     })
   })()
-  const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
 
   return {
     ...input,
-    kind: 'File',
+    kind: nodeKinds.file,
     id: hash('sha256', input.path, 'hex'),
     name: path.basename(input.baseName, extname),
     extname,

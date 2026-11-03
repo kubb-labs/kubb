@@ -2,6 +2,7 @@ import { define } from 'gunshi'
 import { command as connectCommand } from './connect.ts'
 import { command as loginCommand } from './login.ts'
 import { command as logoutCommand } from './logout.ts'
+import { command as permissionsCommand } from './permissions.ts'
 import { command as snapshotCommand } from './snapshot.ts'
 import { command as startCommand, stopCommand } from './background.ts'
 import { command as statusCommand } from './status.ts'
@@ -10,7 +11,15 @@ export const command = define({
   ...connectCommand,
   name: 'studio',
   description: 'Connect this project to Kubb Studio, or manage its pairing and snapshots.',
-  examples: ['kubb studio', 'kubb studio --allow-read', 'kubb studio login', 'kubb studio status', 'kubb studio logout', 'kubb studio snapshot'].join('\n'),
+  examples: [
+    'kubb studio',
+    'kubb studio --allow-read',
+    'kubb studio login',
+    'kubb studio status',
+    'kubb studio permissions',
+    'kubb studio logout',
+    'kubb studio snapshot',
+  ].join('\n'),
   subCommands: {
     start: startCommand,
     stop: stopCommand,
@@ -18,6 +27,7 @@ export const command = define({
     login: loginCommand,
     logout: logoutCommand,
     status: statusCommand,
+    permissions: permissionsCommand,
     snapshot: snapshotCommand,
   },
 })

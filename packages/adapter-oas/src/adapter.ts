@@ -1,12 +1,12 @@
 import { defineExtension } from '@kubb/core'
-import { ast } from '@kubb/kit'
+import { ast, Diagnostics } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
-import { assertDocument, parseFromConfig, validateDocument } from './load/normalize.ts'
+import { assertDocument, parseFromConfig, validateDocument, validateDocumentInWorker } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
 import { resolveBaseUrl, resolveServerUrl } from './model/server.ts'
 import { pickExtensions } from './oas.ts'
@@ -67,12 +67,14 @@ export const adapterOas = defineExtension<AdapterOas>({
   }) => ({ validate, contentType, server, discriminator, enums, dateType, integerType, unknownType, emptySchemaType, enumSuffix }),
   build({ validate, contentType, server, discriminator, enums, ...parserOptions }) {
     let parsedDocument: Document | null = null
+    let sources: Array<string> = []
+    const pendingValidations: Array<Promise<void>> = []
 
     // One cache per source: reusing one adapter instance across a `defineConfig` array must parse
     // each config's spec instead of replaying the first one, and a repeat `.parse()` call for the
     // same source must not redo the work. The `$ref` memo lives inside the `Refs` instance created
     // fresh for each document, scoped to this one pass.
-    const inputCache = new WeakMap<AdapterSource, Promise<ast.InputNode>>()
+    const inputCache = new WeakMap<AdapterSource, { promise: Promise<ast.InputNode>; sources: Array<string> }>()
 
     /**
      * Parses every schema and operation once, resolving ref aliases and discriminator children from that same pass.
@@ -81,34 +83,31 @@ export const adapterOas = defineExtension<AdapterOas>({
       document,
       refs,
       schemas,
+      pointers,
       parseSchema,
     }: {
       document: Document
       refs: ReturnType<typeof createRefs>
       schemas: Record<string, SchemaObject>
+      pointers: Map<string, string>
       parseSchema: ReturnType<typeof createSchemaParser>
     }): ast.InputNode {
       const parsedByName = new Map<string, ast.SchemaNode>()
-      const refAliasMap = new Map<string, ast.SchemaNode>()
-      const enumNames: Array<string> = []
+      const refAliasMap = new Map<string, ast.RefSchemaNode>()
       const discriminatorParentNodes: Array<ast.SchemaNode> = []
 
       for (const [name, schema] of Object.entries(schemas)) {
-        const node = parseSchema({ schema, name })
+        const node = { ...parseSchema({ schema, name }), pointer: pointers.get(name) }
         parsedByName.set(name, node)
-        scanSchema({ node, name })
-        if (node.type === 'ref' && node.name && node.name !== name) {
+        scanSchema(node)
+        if (node.type === 'ref' && node.name) {
           refAliasMap.set(name, node)
-        }
-        if (ast.narrowSchema(node, 'enum') && node.name) {
-          enumNames.push(node.name)
         }
         if (discriminator === 'propagate' && (schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
           discriminatorParentNodes.push(node)
         }
       }
 
-      const circularNames = [...ast.findCircularSchemas([...parsedByName.values()])]
       const discriminatorChildMap: Map<string, DiscriminatorTarget> | null =
         discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
@@ -117,8 +116,34 @@ export const adapterOas = defineExtension<AdapterOas>({
       )
 
       const promotedEnums = enums === 'root' ? collectInlineEnums([...parsedByName.values(), ...operationNodes], new Set(Object.keys(schemas))) : null
-      if (promotedEnums) {
-        for (const name of promotedEnums.keys()) enumNames.push(name)
+
+      // A collapsed single-member `allOf` is named after the wrapper, so the target comes from `ref`.
+      const aliasTargetOf = (name: string) => {
+        const node = refAliasMap.get(name)
+        return node?.ref ? ast.refName(node.ref) : node?.name
+      }
+
+      // A chain of pure aliases that leads back to `name` has no target to print, so it becomes `unknown`.
+      function isAliasCycle(name: string): boolean {
+        const seen = new Set([name])
+        for (let next = aliasTargetOf(name); next; next = aliasTargetOf(next)) {
+          if (next === name) return true
+          if (seen.has(next)) return false
+          seen.add(next)
+        }
+        return false
+      }
+
+      function createCycleNode(name: string, pointer: string | undefined): ast.SchemaNode {
+        Diagnostics.report({
+          code: Diagnostics.code.aliasCycle,
+          severity: 'warning',
+          message: `${name} only refers to other schemas that lead back to it, so it is resolved to unknown.`,
+          help: 'Give one of the schemas in the loop a real definition, or remove the `$ref` that closes it.',
+          location: { kind: 'schema', pointer: pointer ?? `#/components/schemas/${name}` },
+        })
+
+        return ast.factory.createSchema({ type: 'unknown', name, pointer })
       }
 
       const schemaNodes: Array<ast.SchemaNode> = promotedEnums ? [...promotedEnums.values()] : []
@@ -128,7 +153,8 @@ export const adapterOas = defineExtension<AdapterOas>({
         const parsed = parsedByName.get(name)!
         const child = discriminatorChildMap?.get(name)
         const base = child ? patchDiscriminatorNode(parsed, child) : parsed
-        const node = aliased ? { ...aliased, name } : base
+        const resolved = aliased ? { ...aliased, name, pointer: parsed.pointer } : base
+        const node = isAliasCycle(name) ? createCycleNode(name, parsed.pointer) : resolved
 
         schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)
       }
@@ -169,8 +195,6 @@ export const adapterOas = defineExtension<AdapterOas>({
                 ]
               : []
           }),
-          circularNames,
-          enumNames,
           extensions: pickExtensions(document),
         },
       })
@@ -180,31 +204,42 @@ export const adapterOas = defineExtension<AdapterOas>({
       get document() {
         return parsedDocument
       },
+      get sources() {
+        return sources
+      },
       locate,
       async validate(input, options) {
         const document = await parseFromConfig({ type: 'path', path: input })
         assertDocument(document)
         await validateDocument(document, options)
       },
+      async settle() {
+        await Promise.all(pendingValidations.splice(0))
+      },
       async parse(source, { signal } = {}) {
         signal?.throwIfAborted()
         const cached = inputCache.get(source)
-        if (cached) return cached
+        if (cached) {
+          sources = cached.sources
+          return cached.promise
+        }
 
+        const read: Array<string> = []
+        sources = read
         const promise = (async () => {
-          const document = await parseFromConfig(source)
+          const document = await parseFromConfig(source, read)
           signal?.throwIfAborted()
           assertDocument(document)
-          if (validate) await validateDocument(document)
+          if (validate) pendingValidations.push(validateDocumentInWorker(document))
           parsedDocument = document
 
           const refs = createRefs(document)
-          const { schemas, renames } = getSchemas(document, { contentType }, refs)
+          const { schemas, renames, pointers } = getSchemas(document, { contentType }, refs)
           const parseSchema = createSchemaParser({ document, refs, renames, options: parserOptions })
 
-          return parseInput({ document, refs, schemas, parseSchema })
+          return parseInput({ document, refs, schemas, pointers, parseSchema })
         })()
-        inputCache.set(source, promise)
+        inputCache.set(source, { promise, sources: read })
         return promise.catch((error: unknown) => {
           // A canceled parse must not poison the cache: the next call with the same source needs a fresh attempt.
           if (signal?.aborted) inputCache.delete(source)

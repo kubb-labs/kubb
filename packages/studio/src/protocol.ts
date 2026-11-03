@@ -1,5 +1,21 @@
+import type { ValueOf } from '@internals/utils'
 import type { InputNode } from '@kubb/ast'
-import type { ExtensionKind, ExtensionManifest, KubbHooks } from '@kubb/core'
+import type { KubbHooks } from '@kubb/core'
+import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ExtensionEntry } from '@internals/shared'
+
+export {
+  ConfigEditOperation,
+  type ConfigEdit,
+  type ConfigEditOutcome,
+  type ConfigFileView,
+  type ConfigRef,
+  type ConfigView,
+  type ExtensionEntry,
+  type InstalledExtensions,
+  type OptionsView,
+  type OptionValue,
+  type PluginView,
+} from '@internals/shared'
 
 /**
  * JSON-serializable Kubb config exchanged over RPC. A live `kubb/kit` config holds
@@ -18,9 +34,10 @@ export type JSONKubbConfig = {
     disabled?: boolean
   }>
   /**
-   * Raw OpenAPI / Swagger spec content (YAML or JSON string), never a file path or URL.
+   * Raw OpenAPI / Swagger spec content (YAML or JSON string), never a file path.
    * Required by a 'sandbox' agent, which has no disk config of its own and refuses anything else.
-   * A non-sandbox agent always reads its spec from disk, so this is ignored with a `kubb:warn`.
+   * A 'managed' agent also takes a URL or a `git+<repo>#<ref>:<path>` input, and falls back to its disk config without one.
+   * Any other agent always reads its spec from disk, so this is ignored with a `kubb:warn`.
    */
   input?: string
   /**
@@ -37,146 +54,12 @@ export type JSONKubbConfig = {
     name: string
     options?: object
   }>
+  /** Root `output` overrides for `barrel`, `format`, `lint`, `clean`, and `defaultBanner`. Other members are ignored. */
+  output?: object
   /**
    * Which `defineConfig(...)` entry to generate from. Omitted runs the first one.
    */
   config?: ConfigRef
-}
-
-/**
- * Which `defineConfig(...)` entry an edit targets, for a config file that exports an array.
- *
- * A number selects by position, a string matches the entry's `name`. Omitted targets the only
- * entry, or the first one when the file exports an array.
- */
-export type ConfigRef = string | number
-
-/**
- * A value the agent can read out of a plugin option in `kubb.config.ts` and round-trip through JSON.
- */
-export type OptionValue = string | number | boolean | null | Array<OptionValue> | { [key: string]: OptionValue }
-
-/**
- * One change to a plugin's options in the user's `kubb.config.ts`.
- *
- * `plugin` is the package name (`@kubb/plugin-ts`), the same identity used in {@link JSONKubbConfig}.
- * The agent applies these to the file with an AST patch, so only the targeted values are rewritten.
- *
- * Declared here rather than in `configFile.ts` because this is the wire contract, and the patcher
- * imports it from here. Type-only, so nothing pulls `magicast` into this entry point.
- */
-export type ConfigEdit =
-  /**
-   * Write a literal option value. `path` walks nested objects, so `['enum', 'type']` targets
-   * `pluginTs({ enum: { type } })`. `kind` names which factory call `plugin` is: one in `plugins`
-   * when left out, the config's `adapter`, or one in `parsers`.
-   */
-  | { operation: 'set'; config?: ConfigRef; kind?: ExtensionKind; plugin: string; path: Array<string>; value: unknown }
-  /**
-   * Drop an option so the extension falls back to its default. `kind` as for `set`.
-   */
-  | { operation: 'remove'; config?: ConfigRef; kind?: ExtensionKind; plugin: string; path: Array<string> }
-  /**
-   * Add a plugin factory call and its import to the `plugins` array.
-   */
-  | { operation: 'add-plugin'; config?: ConfigRef; plugin: string; options?: Record<string, unknown> }
-  /**
-   * Comment the plugin call out, keeping its options in the file so enabling it again restores them.
-   */
-  | { operation: 'disable-plugin'; config?: ConfigRef; plugin: string }
-  /**
-   * Uncomment a plugin call a previous `disable-plugin` commented out.
-   */
-  | { operation: 'enable-plugin'; config?: ConfigRef; plugin: string }
-
-/**
- * A factory call the agent found in a `defineConfig(...)`: a plugin in `plugins`, the `adapter`, or
- * a parser in `parsers`.
- */
-export type PluginView = {
-  /**
-   * Local identifier of the factory in the file, e.g. `pluginTs`. This is the alias when the plugin
-   * was imported under one.
-   */
-  importName: string
-  /**
-   * Module the factory is imported from, e.g. `@kubb/plugin-ts`.
-   */
-  packageName: string
-  /**
-   * Top-level option keys, each flagged with whether the agent may write it and, when it can, the
-   * value found in the file. An option marked `literal: false` holds a function or a reference the
-   * agent will not overwrite, so Studio shows the control disabled rather than hiding it, and
-   * `value` is absent since there is nothing safe to display as the current value.
-   *
-   * An object option that holds code in only some members, such as
-   * `output: { path: './gen', banner: () => '' }`, also carries `value` with its literal members
-   * and `locked` with the paths of the members that are code, relative to the option
-   * (`[['banner']]`). A `set` at any deeper path outside `locked` succeeds, so Studio can edit
-   * `output.path` there.
-   */
-  options: Record<string, { literal: boolean; value?: OptionValue; locked?: Array<Array<string>> }>
-  /**
-   * Set when the plugin call is commented out in the file. Its options stay on disk but are not
-   * readable, so `options` is empty until it is enabled again.
-   */
-  disabled?: true
-}
-
-/**
- * One `defineConfig(...)` entry. A config file that exports a single object has exactly one.
- */
-export type ConfigView = {
-  /**
-   * The entry's `name`, when it sets one. Studio labels the config picker with it.
-   */
-  name?: string
-  /**
-   * Each plugin call in the entry, with its top-level option keys.
-   */
-  plugins: Array<PluginView>
-  /**
-   * The `adapter` call, when the entry sets one through an imported factory.
-   */
-  adapter?: PluginView
-  /**
-   * The parser calls in `parsers`, when the entry lists any through imported factories.
-   */
-  parsers?: Array<PluginView>
-}
-
-/**
- * What the agent found in the user's config file, so Studio knows which controls it may offer.
- * Absent when the agent could not read the file at all.
- */
-export type ConfigFileView =
-  | {
-      managed: true
-      /**
-       * One entry per config the file exports, in source order. Every {@link ConfigEdit} names
-       * which of these it targets through its `config` field.
-       */
-      configs: Array<ConfigView>
-    }
-  | {
-      managed: false
-      /**
-       * Why the file is outside what the agent edits, for example a default export that is not a
-       * `defineConfig(...)` call. Studio shows this and offers no property-level controls.
-       */
-      reason: string
-    }
-
-/**
- * Outcome of a single {@link ConfigEdit}, returned in a {@link SaveResult}.
- */
-export type ConfigEditOutcome = {
-  edit: ConfigEdit
-  applied: boolean
-  /**
-   * Why the edit was refused, absent when it was applied.
-   */
-  reason?: string
 }
 
 /**
@@ -305,6 +188,10 @@ export type GenerateInput = {
    * Display name of the Studio user who asked for the run, shown in the agent's job log.
    */
   requestedBy?: string
+  /**
+   * A short-lived `Authorization` header value that a managed agent sends with the git fetch of a `git+` input, to its origin only.
+   */
+  gitAuth?: { authorization: string }
 }
 
 /**
@@ -338,6 +225,24 @@ export type SaveConfigInput = {
  * Per-edit outcomes. `changed` is false when every edit was a no-op, so a caller can skip reloading.
  */
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean }
+
+/** Asks the agent to run `kubb add <id>`: `owner/slug`, or a bare `slug` for an official extension. `requestedBy` as for {@link GenerateInput}. */
+export type InstallExtensionInput = { id: string; requestedBy?: string }
+
+/** `installed` is false when the agent refused or `kubb add` failed, with `reason` saying why. */
+export type InstallExtensionResult = { installed: boolean; reason?: string }
+
+/** Asks the agent to run `kubb update [ids] --yes`. Empty `ids` updates every installed extension the registry lists. */
+export type UpdateExtensionsInput = { ids?: Array<string>; requestedBy?: string }
+
+/** `updated` is false when the agent refused or `kubb update` failed, with `reason` saying why. */
+export type UpdateExtensionsResult = { updated: boolean; reason?: string }
+
+/** Asks the agent to run `kubb remove <id> --yes`. `requestedBy` as for {@link GenerateInput}. */
+export type RemoveExtensionInput = { id: string; requestedBy?: string }
+
+/** `removed` is false when the agent refused or `kubb remove` failed, with `reason` saying why. */
+export type RemoveExtensionResult = { removed: boolean; reason?: string }
 
 /**
  * Reads an immutable output set kept on disk, from a generation or the initial connection.
@@ -408,7 +313,10 @@ export type ReadInputResult = { input: InputNode }
  */
 export const AgentMessage = {
   GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
+  INSTALL_IN_PROGRESS: 'An extension install or update is running, please wait for it to finish',
+  SAVE_IN_PROGRESS: 'The config is being saved, please wait for it to finish',
   SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
+  MANAGED_INPUT_KIND: 'A managed agent generates from the OpenAPI document content, a URL, or a git file that Studio sends, not from a file path',
   CONFIG_ENTRY_NOT_FOUND: 'The config file has no entry at that position or with that name',
   JOB_REQUIRED: 'The request must name a job',
   FILE_REQUEST_INVALID: 'The request must name an output set and carry paths',
@@ -427,7 +335,7 @@ export const AgentMessage = {
   READ_AST_NOT_ALLOWED: 'The agent was not granted permission to read the parsed spec',
   NO_INPUT: 'This job kept no API input',
 } as const
-export type AgentMessage = (typeof AgentMessage)[keyof typeof AgentMessage]
+export type AgentMessage = ValueOf<typeof AgentMessage>
 
 /**
  * A generation in flight. Cap'n Web keeps the three calls pointed at the same run, so a caller can
@@ -449,6 +357,11 @@ export type AgentConnectInfo = {
    * temporary root, and generates from the spec Studio sends without editing a project or its config.
    */
   sandbox: boolean
+  /**
+   * A `managed` agent Studio hosts for the organization. It has no project spec on disk, so it
+   * may generate from a spec Studio sends: the content, a URL, or a git file.
+   */
+  managed?: boolean
   agentSlug: string
   /**
    * Absent for a sandbox or global agent, which belongs to no organization.
@@ -467,6 +380,12 @@ export type AgentApi = {
   connect: (info: AgentConnectInfo) => Promise<ConnectMessagePayload>
   startGeneration: (input: GenerateInput) => GenerationRun
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
+  /** Refused without `allowInstall` and `allowConfigEdit`. An agent from before `installExtension` rejects the call. */
+  installExtension: (input: InstallExtensionInput) => Promise<InstallExtensionResult>
+  /** Refused without `allowUpdate`. Installs packages only, so `kubb.config.ts` stays as it is. */
+  updateExtensions: (input: UpdateExtensionsInput) => Promise<UpdateExtensionsResult>
+  /** Refused without `allowRemove` and `allowConfigEdit`. An agent from before `removeExtension` rejects the call. */
+  removeExtension: (input: RemoveExtensionInput) => Promise<RemoveExtensionResult>
   readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
   /**
    * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
@@ -577,6 +496,8 @@ export type ConfigEntryView = {
   input?: string
   /** The output directory as the entry gives it, relative to the project root unless absolute. */
   output: string
+  /** The root `output` members Studio may set, as a JSON copy. */
+  outputOptions?: object
   /**
    * The output directory's current file list, readable through `readFiles` without generating.
    * Absent for a sandbox or when the host has not granted `allowRead`.
@@ -595,12 +516,6 @@ export type ConfigEntryView = {
     options?: object
   }>
 }
-
-/** An installed extension package and the manifest it ships. */
-export type ExtensionEntry = { package: string; version: string; manifest: ExtensionManifest }
-
-/** Installed extension packages by package name, the only ones Studio may import besides `@kubb/plugin-*`. */
-export type InstalledExtensions = ReadonlyMap<string, ExtensionEntry>
 
 /**
  * What an agent may do in the project it serves. Every one is off unless the host granted it, and
@@ -621,6 +536,14 @@ export type AgentPermissions = {
    * `allowWrite`, which covers generated output: this one edits a hand-authored source file.
    */
   allowConfigEdit: boolean
+  /** Whether the agent may run `kubb add` in the project, which also edits `kubb.config.ts`. Needs `allowConfigEdit` as well. */
+  allowInstall: boolean
+  /** Whether the agent may run `kubb update` in the project, which installs newer extension versions and leaves `kubb.config.ts` alone. */
+  allowUpdate: boolean
+  /** Whether the agent may run `kubb remove` in the project, which edits `kubb.config.ts` and uninstalls packages. Needs `allowConfigEdit` as well. */
+  allowRemove: boolean
+  /** Whether the agent may keep the spec Studio sends: a document in `openapi.yaml` and `input` in `kubb.config.ts`. Needs `allowConfigEdit` as well. */
+  allowSaveInput: boolean
   /**
    * Whether the agent shares existing output on connect and hands back file source through
    * `readFiles`. A sandbox always permits reads of its generated files.
@@ -641,9 +564,13 @@ export const AgentPermission = {
   READ_AST: 'allowReadAst',
   WRITE: 'allowWrite',
   CONFIG_EDIT: 'allowConfigEdit',
+  INSTALL: 'allowInstall',
+  UPDATE: 'allowUpdate',
+  REMOVE: 'allowRemove',
+  SAVE_INPUT: 'allowSaveInput',
   EXEC: 'allowExec',
 } as const satisfies Record<string, keyof AgentPermissions>
-export type AgentPermission = (typeof AgentPermission)[keyof typeof AgentPermission]
+export type AgentPermission = ValueOf<typeof AgentPermission>
 
 /**
  * Metadata part of `POST /api/snapshots`. The `tarball` part carries the packed package.

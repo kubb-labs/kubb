@@ -58,24 +58,35 @@ export const numericFormats: ReadonlySet<string> = new Set(['int32', 'int64', 'u
 /**
  * Static map from OAS `format` strings to Kubb `SchemaType` values.
  *
- * Only formats whose AST type differs from the OAS `type` field appear here.
+ * Lists formats whose AST type differs from the OAS `type` field, plus string formats that
+ * `KUBB_UNSUPPORTED_FORMAT` should not flag.
  * Formats that depend on runtime options (`int64`, `date-time`, `date`, `time`) are handled
- * separately in the parser. `ipv4` and `ipv6` map to their own dedicated schema types. `hostname`
- * and `idn-hostname` map to `'url'` as the closest generic string-format type.
+ * separately in the parser. `ipv4` and `ipv6` map to their own dedicated schema types.
+ * `uri-reference`, `iri`, `iri-reference`, `hostname` and `idn-hostname` map to `'string'`: a relative
+ * reference, a Unicode IRI or a bare host name is not a URL, so a `'url'` validator would reject valid
+ * values. `base64url`, `jwt`, `ulid`, `iban` and `duration` map to `'string'` because plugins check
+ * them by `format`.
  */
 export const formatMap = {
   uuid: 'uuid',
   email: 'email',
   'idn-email': 'email',
   uri: 'url',
-  'uri-reference': 'url',
+  'uri-reference': 'string',
+  iri: 'string',
+  'iri-reference': 'string',
   url: 'url',
   ipv4: 'ipv4',
   ipv6: 'ipv6',
-  hostname: 'url',
-  'idn-hostname': 'url',
+  hostname: 'string',
+  'idn-hostname': 'string',
   binary: 'blob',
   byte: 'blob',
+  base64url: 'string',
+  jwt: 'string',
+  ulid: 'string',
+  iban: 'string',
+  duration: 'string',
   // Numeric formats override the OAS `type` because format is more specific.
   // See https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.7
   int32: 'integer',

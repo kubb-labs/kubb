@@ -1,13 +1,40 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import * as jsYaml from 'js-yaml'
 import { describe, expect, it, vi } from 'vitest'
+import * as yaml from 'yaml'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
-import { assertDocument, bundleDocument, hasExternalRef, parseFromConfig, validateDocument } from './normalize.ts'
-import type { Document } from '../types.ts'
+import { assertDocument, bundleDocument, hasExternalRef, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
+import type { Document, SchemaObject } from '../types.ts'
+
+// Records each result a validation worker posts, so a test can tell the worker from the in-place fallback.
+const workerSpy = vi.hoisted(() => vi.fn())
+
+vi.mock('node:worker_threads', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:worker_threads')>()
+  return {
+    ...actual,
+    Worker: function (...args: ConstructorParameters<typeof actual.Worker>) {
+      const worker = new actual.Worker(...args)
+      worker.once('message', workerSpy)
+      return worker
+    },
+  }
+})
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+vi.mock('yaml', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('yaml')>()
+  return { ...actual, parse: vi.fn(actual.parse) }
+})
+
+vi.mock('js-yaml', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('js-yaml')>()
+  return { ...actual, load: vi.fn(actual.load) }
+})
 
 const petSchema: Document = {
   openapi: '3.0.3',
@@ -21,6 +48,58 @@ const petSchema: Document = {
 } as Document
 
 describe('parseFromConfig', () => {
+  it('bundles the external refs of inline data from root and lists the files it read', async () => {
+    const mocks = path.resolve(__dirname, '../../mocks')
+    const data = yaml.parse(await readFile(path.join(mocks, 'withExternalFileRef.yaml'), 'utf8'))
+    const sources: Array<string> = []
+    const doc = await parseFromConfig({ type: 'data', data, root: mocks }, sources)
+
+    expect(doc.components?.schemas?.['Pet']).toMatchObject({ type: 'object', properties: { name: { type: 'string' } } })
+    expect(sources).toStrictEqual([path.join(mocks, 'external/pet.yaml')])
+  })
+
+  it('lists the input file and the files its external refs read', async () => {
+    const mocks = path.resolve(__dirname, '../../mocks')
+    const sources: Array<string> = []
+    await parseFromConfig({ type: 'path', path: path.join(mocks, 'withExternalFileRef.yaml') }, sources)
+
+    expect(sources).toStrictEqual([path.join(mocks, 'withExternalFileRef.yaml'), path.join(mocks, 'external/pet.yaml')])
+  })
+
+  it('upgrades an unquoted `swagger: 2.0` instead of dropping its definitions', async () => {
+    const doc = await parseFromConfig({
+      type: 'data',
+      data: 'swagger: 2.0\ninfo: { title: t, version: 1.0.0 }\npaths: {}\ndefinitions:\n  Pet:\n    properties:\n      name: { type: string }\n',
+    })
+
+    expect(doc.openapi).toMatch(/^3\.1/)
+    expect(doc.components?.schemas).toHaveProperty('Pet')
+  })
+
+  it('resolves a Swagger 2.0 ref into a response schema after the upgrade', async () => {
+    const doc = await parseFromConfig({
+      type: 'data',
+      data: [
+        "swagger: '2.0'",
+        'info: { title: t, version: 1.0.0 }',
+        'paths:',
+        '  /x:',
+        '    get:',
+        '      responses:',
+        "        '200':",
+        '          description: ok',
+        '          schema:',
+        '            type: object',
+        '            properties:',
+        '              first: { type: string }',
+        "              second: { $ref: '#/paths/~1x/get/responses/200/schema/properties/first' }",
+      ].join('\n'),
+    })
+    const response = doc.paths?.['/x']?.get?.responses?.['200'] as { content: Record<string, { schema: SchemaObject }> }
+
+    expect(response.content['application/json']!.schema.properties?.second).toStrictEqual({ type: 'string' })
+  })
+
   it.each([
     { title: 'an inline object', data: petSchema },
     { title: 'an inline JSON string', data: JSON.stringify(petSchema) },
@@ -42,6 +121,66 @@ components:
     const doc = await parseFromConfig({ type: 'data', data })
 
     expect(doc.components?.schemas?.['Pet']).toBeDefined()
+  })
+
+  it('parses inline JSON and YAML without the slower `yaml` parser', async () => {
+    const parse = vi.mocked(yaml.parse)
+    parse.mockClear()
+
+    await parseFromConfig({ type: 'data', data: JSON.stringify(petSchema) })
+    const doc = await parseFromConfig({ type: 'data', data: 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths: {}\n' })
+
+    expect(doc.info.title).toBe('Pets API')
+    expect(parse).not.toHaveBeenCalled()
+  })
+
+  it('rejects duplicate keys in inline YAML instead of keeping the last one', async () => {
+    const data = 'openapi: 3.0.3\ninfo: { title: Pets API, version: 1.0.0 }\npaths:\n  /pets: {}\n  /pets: {}\n'
+    const error = await parseFromConfig({ type: 'data', data }).catch((caught: unknown) => caught)
+
+    expect(Diagnostics.from(error).code).toBe(Diagnostics.code.invalidDocument)
+  })
+
+  it('parses inline JSON with `JSON.parse`, keeping the last value of a duplicate key', async () => {
+    const load = vi.mocked(jsYaml.load)
+    load.mockClear()
+
+    const doc = await parseFromConfig({
+      type: 'data',
+      data: '{"openapi":"3.0.3","info":{"title":"Pets API","version":"1"},"paths":{"/pets":{"get":{}},"/pets":{"post":{}}}}',
+    })
+
+    expect(doc.paths?.['/pets']).toEqual({ post: {} })
+    expect(load).not.toHaveBeenCalled()
+  })
+
+  it('keeps the YAML parser, and its duplicate-key error, for a .yaml file written in flow syntax', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'kubb-yaml-flow-'))
+    const file = path.join(dir, 'spec.yaml')
+    await writeFile(file, '{"openapi":"3.0.3","info":{"title":"Pets API","version":"1"},"paths":{"/pets":{},"/pets":{}}}')
+    try {
+      const error = await parseFromConfig({ type: 'path', path: file }).catch((caught: unknown) => caught)
+
+      expect(Diagnostics.from(error).code).toBe(Diagnostics.code.invalidDocument)
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('parses a YAML flow mapping that is not JSON', async () => {
+    const doc = await parseFromConfig({ type: 'data', data: "{ openapi: '3.0.3', info: { title: Pets API, version: '1' }, paths: {} }" })
+
+    expect(doc.info.title).toBe('Pets API')
+  })
+
+  it('keeps timestamps as strings and `<<` as a plain key, like YAML 1.2', async () => {
+    const doc = await parseFromConfig({
+      type: 'data',
+      data: 'openapi: 3.0.3\ninfo: { title: Pets API, version: 2024-01-01 }\npaths: {}\nx-merge:\n  <<: { a: 1 }\n',
+    })
+
+    expect(doc.info.version).toBe('2024-01-01')
+    expect((doc as Record<string, unknown>)['x-merge']).toStrictEqual({ '<<': { a: 1 } })
   })
 
   it('up-converts a Swagger 2.0 document to OpenAPI 3', async () => {
@@ -120,6 +259,44 @@ describe('validateDocument', () => {
   })
 })
 
+describe('validateDocumentInWorker', () => {
+  const invalidSchema = {
+    openapi: '3.0.3',
+    info: { title: 'Invalid API', version: '1.0.0' },
+    paths: { '/pets': { get: { responses: { '200': {} } } } },
+  } as unknown as Document
+
+  it('reports the same warnings as validateDocument', async () => {
+    const inPlace: Array<Diagnostic> = []
+    const inWorker: Array<Diagnostic> = []
+
+    await Diagnostics.scope(
+      (diagnostic) => inPlace.push(diagnostic),
+      () => validateDocument(invalidSchema),
+    )
+    await Diagnostics.scope(
+      (diagnostic) => inWorker.push(diagnostic),
+      () => validateDocumentInWorker(invalidSchema),
+    )
+
+    expect(workerSpy).toHaveBeenCalled()
+    expect(inWorker.length).toBeGreaterThan(0)
+    expect(inWorker).toStrictEqual(inPlace)
+  })
+
+  it('reports nothing for a valid document', async () => {
+    const diagnostics: Array<Diagnostic> = []
+    const validSchema = { openapi: '3.0.3', info: { title: 'Valid API', version: '1.0.0' }, paths: {} } as unknown as Document
+
+    await Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => validateDocumentInWorker(validSchema),
+    )
+
+    expect(diagnostics).toStrictEqual([])
+  })
+})
+
 const remoteFiles: Record<string, string> = {
   'https://specs.example.com/main.yaml': `
 openapi: '3.0.3'
@@ -134,6 +311,17 @@ components:
       properties:
         pet:
           $ref: './schemas/Pet.yaml'
+`,
+  'https://specs.example.com/broken.yaml': `
+openapi: '3.0.3'
+info:
+  title: Remote API
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Pet:
+      $ref: './schemas/Gone.yaml'
 `,
   'https://specs.example.com/schemas/Pet.yaml': `
 type: object
@@ -206,6 +394,16 @@ describe('bundleDocument', () => {
     expect(doc.components?.schemas?.['Dog']).toBeUndefined()
   })
 
+  it('hoists a ref into a property of an external schema into components.schemas', async () => {
+    const doc = await bundleDocument(path.resolve(__dirname, '../../mocks/withDeepExternalRef.yaml'))
+
+    expect(doc.components?.schemas?.['Household']).toStrictEqual({
+      type: 'object',
+      properties: { catName: { $ref: '#/components/schemas/name' } },
+    })
+    expect(doc.components?.schemas?.['name']).toStrictEqual({ type: 'string' })
+  })
+
   it('resolves https refs found in a local document', async () => {
     using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(mockFetch)
 
@@ -248,6 +446,87 @@ describe('bundleDocument', () => {
     } catch (error) {
       expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.inputRequestFailed)
       expect(Diagnostics.isError(error) && error.diagnostic.message).toContain('HTTP 404')
+    }
+  })
+
+  it('reports an unreadable external ref at the key that holds it and still lists the file', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'kubb-bundle-'))
+    const sources: Array<string> = []
+    const document = {
+      openapi: '3.0.3',
+      info: { title: 'Pets API', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Pet: { $ref: './missing.yaml' } } },
+    } as Document
+
+    try {
+      await bundleDocument(path.join(dir, 'main.yaml'), { document, sources })
+      expect.unreachable('expected bundleDocument to throw')
+    } catch (error) {
+      expect(Diagnostics.isError(error) && error.diagnostic).toMatchObject({
+        code: Diagnostics.code.refNotFound,
+        location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+      })
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+    expect(sources).toStrictEqual([path.join(dir, 'missing.yaml')])
+  })
+
+  it('warns instead of failing when an unreadable external ref sits inside an x- extension', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'kubb-bundle-'))
+    const reported: Array<Diagnostic> = []
+    const document = {
+      openapi: '3.0.3',
+      info: { title: 'Pets API', version: '1.0.0' },
+      paths: {},
+      components: { schemas: {}, 'x-policies': { $ref: './missing.yaml' } },
+    } as Document
+
+    try {
+      await Diagnostics.scope(
+        (diagnostic) => reported.push(diagnostic),
+        () => bundleDocument(path.join(dir, 'main.yaml'), { document }),
+      )
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+
+    expect(reported).toMatchObject([{ code: Diagnostics.code.refNotFound, severity: 'warning', location: { pointer: '#/components/x-policies' } }])
+  })
+
+  it.each(['properties', 'headers', 'schemas', 'securitySchemes', 'securityDefinitions', 'definitions', '$defs'])(
+    'still fails for an unreadable external ref on an x- name under %s',
+    async (mapKey) => {
+      const dir = await mkdtemp(path.join(tmpdir(), 'kubb-bundle-'))
+      const document = {
+        openapi: '3.0.3',
+        info: { title: 'Pets API', version: '1.0.0' },
+        paths: {},
+        components: { [mapKey]: { 'x-Pet': { $ref: './missing.yaml' } } },
+      } as unknown as Document
+
+      try {
+        await expect(bundleDocument(path.join(dir, 'main.yaml'), { document })).rejects.toMatchObject({
+          diagnostic: { code: Diagnostics.code.refNotFound, severity: 'error' },
+        })
+      } finally {
+        await rm(dir, { recursive: true, force: true })
+      }
+    },
+  )
+
+  it('reports an unreadable external ref of a URL input at the key that holds it', async () => {
+    using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(mockFetch)
+
+    try {
+      await bundleDocument('https://specs.example.com/broken.yaml')
+      expect.unreachable('expected bundleDocument to throw')
+    } catch (error) {
+      expect(Diagnostics.isError(error) && error.diagnostic).toMatchObject({
+        code: Diagnostics.code.refNotFound,
+        location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+      })
     }
   })
 

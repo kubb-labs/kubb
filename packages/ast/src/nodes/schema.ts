@@ -1,58 +1,23 @@
+import { nodeKinds } from '../constants.ts'
 import type { BaseNode, DistributiveOmit } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
+/**
+ * Subset of {@link SchemaType} covering the primitives plus `object`, `array`, and `date`; `schemaTypes` documents each.
+ */
 export type PrimitiveSchemaType =
-  /**
-   * Text value.
-   */
   | 'string'
-  /**
-   * Floating-point number.
-   */
   | 'number'
-  /**
-   * Integer number.
-   */
   | 'integer'
-  /**
-   * Big integer number.
-   */
   | 'bigint'
-  /**
-   * Boolean value.
-   */
   | 'boolean'
-  /**
-   * Null value.
-   */
   | 'null'
-  /**
-   * Any value.
-   */
   | 'any'
-  /**
-   * Unknown value.
-   */
   | 'unknown'
-  /**
-   * No value (`void`).
-   */
   | 'void'
-  /**
-   * Never value.
-   */
   | 'never'
-  /**
-   * Object value.
-   */
   | 'object'
-  /**
-   * Array value.
-   */
   | 'array'
-  /**
-   * Date value.
-   */
   | 'date'
 
 /**
@@ -168,6 +133,21 @@ export type ObjectSchemaNode = SchemaNodeBase & {
    * Pattern-based property schemas.
    */
   patternProperties?: Record<string, SchemaNode>
+  /**
+   * Schema that each property name must match.
+   *
+   * @example
+   * ```ts
+   * const objectSchema: ObjectSchemaNode = {
+   *   kind: 'Schema',
+   *   type: 'object',
+   *   primitive: 'object',
+   *   properties: [],
+   *   propertyNames: { kind: 'Schema', type: 'string', primitive: 'string', pattern: '^[a-z]+$' },
+   * }
+   * ```
+   */
+  propertyNames?: SchemaNode
   /**
    * Minimum number of properties allowed.
    */
@@ -669,8 +649,8 @@ export function createSchema<T extends CreateSchemaInput>(props: T): CreateSchem
 export function createSchema(props: CreateSchemaInput): SchemaNode
 export function createSchema(props: CreateSchemaInput): SchemaNode {
   if (props.type === 'object') {
-    return { properties: [], primitive: 'object', ...props, kind: 'Schema' }
+    return { properties: [], primitive: 'object', ...props, kind: nodeKinds.schema }
   }
 
-  return { primitive: TYPE_TO_PRIMITIVE[props.type], ...props, kind: 'Schema' }
+  return { primitive: TYPE_TO_PRIMITIVE[props.type], ...props, kind: nodeKinds.schema }
 }

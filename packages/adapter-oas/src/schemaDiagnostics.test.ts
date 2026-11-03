@@ -31,7 +31,23 @@ async function collect(data: unknown = spec): Promise<Array<Diagnostic>> {
   return reported
 }
 
+const aliasCycleSpec = {
+  openapi: '3.1.0',
+  info: { title: 'r', version: '1' },
+  paths: {},
+  components: { schemas: { Baz: { $ref: '#/components/schemas/Qux' }, Qux: { $ref: '#/components/schemas/Baz' } } },
+}
+
 describe('schema diagnostics during parse', () => {
+  it('warns once per schema in a pure $ref alias cycle', async () => {
+    const diagnostics = (await collect(aliasCycleSpec)).filter((diagnostic) => diagnostic.code === 'KUBB_ALIAS_CYCLE')
+
+    expect(diagnostics).toHaveLength(2)
+    for (const pointer of ['#/components/schemas/Baz', '#/components/schemas/Qux']) {
+      expect(diagnostics).toContainEqual(expect.objectContaining({ severity: 'warning', location: { kind: 'schema', pointer } }))
+    }
+  })
+
   it('reports the deprecated schema at its component pointer', async () => {
     const diagnostics = await collect()
 
@@ -56,7 +72,7 @@ describe('schema diagnostics during parse', () => {
     const diagnostics = await collect(data)
 
     expect(diagnostics).toContainEqual(
-      expect.objectContaining({ code: 'KUBB_DEPRECATED', location: { kind: 'schema', pointer: '#/components/schemas/Name/members/1/members/0' } }),
+      expect.objectContaining({ code: 'KUBB_DEPRECATED', location: { kind: 'schema', pointer: '#/components/schemas/Name/allOf/1/not' } }),
     )
   })
 
@@ -110,7 +126,7 @@ describe('schema diagnostics during parse', () => {
       .filter((diagnostic) => diagnostic.code === 'KUBB_UNSUPPORTED_FORMAT')
       .map((diagnostic) => (diagnostic.location && 'pointer' in diagnostic.location ? diagnostic.location.pointer : undefined))
 
-    expect(pointers).toStrictEqual(['#/components/schemas/Pet/members/0', '#/components/schemas/Pet/members/1'])
+    expect(pointers).toStrictEqual(['#/components/schemas/Pet/oneOf/0', '#/components/schemas/Pet/oneOf/1'])
   })
 
   it('does not warn on any format the parser handles', async () => {

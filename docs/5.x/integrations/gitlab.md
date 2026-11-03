@@ -10,7 +10,7 @@ navigation:
 
 # Publish Kubb snapshots with GitLab CI
 
-Publish an installable Kubb Studio snapshot from GitLab CI so reviewers can compare generated files against the target branch and previous pipelines. Store `KUBB_TOKEN` as a masked CI/CD variable, commit your npm lockfile, and keep `kubb` in the development dependencies so `npm ci` installs the CLI.
+Publish an installable Kubb Studio snapshot from GitLab CI so reviewers can compare generated files against the target branch and previous pipelines. Store `KUBB_TOKEN` as a masked CI/CD variable, commit your npm lockfile, and keep `kubb` and `tsdown` in the development dependencies so `npm ci` installs the CLI.
 
 <!--@include: ../../snippets/integrations/ci-steps.md-->
 

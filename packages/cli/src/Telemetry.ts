@@ -166,7 +166,8 @@ export async function sendTelemetry(payload: ReturnType<typeof buildOtlpPayload>
         'Kubb-Telemetry-Source': 'kubb-cli',
       },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(5_000),
+      // Short, since an unfinished request keeps the process alive after the run.
+      signal: AbortSignal.timeout(1_000),
     })
   } catch (_e) {
     // Fail silently, telemetry must never break the run

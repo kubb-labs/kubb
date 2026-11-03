@@ -10,7 +10,7 @@ export function collectInlineEnums(roots: ReadonlyArray<ast.Node>, topLevelNames
   const promoted = new Map<string, ast.SchemaNode>()
 
   for (const root of roots) {
-    const isSchemaRoot = root.kind === 'Schema'
+    const isSchemaRoot = root.kind === ast.nodeKinds.schema
     for (const node of ast.collect<ast.SchemaNode>(root, { schema: (schemaNode) => schemaNode })) {
       if (node.type !== 'enum' || !node.name) continue
       // Skip a top-level enum component (it is already its own type) and any enum whose name a

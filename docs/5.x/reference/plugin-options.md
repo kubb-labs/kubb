@@ -87,7 +87,7 @@ Controls how generated `index.ts` files re-export the plugin's output. Toggle th
 
 | | |
 | --- | --- |
-| Type | `{ type: 'all' \| 'named', nested?: boolean } \| false` |
+| Type | `{ type: 'all' \| 'named', nested?: boolean, namespace?: boolean } \| false` |
 | Required | `false` |
 | Default | `{ type: 'named' }` from the plugin's default `output`, `false` once you pass your own `output` without `barrel` |
 
@@ -109,7 +109,9 @@ Skips barrel generation for this plugin and drops its files from the root barrel
 
 Add `nested: true`, for example `{ type: 'named', nested: true }`, to write an `index.ts` in every subdirectory that re-exports only what sits directly inside it. The root `output.barrel` on `defineConfig` has no `nested` field.
 
-Kubb reads the plugin's own `output.barrel` first, falls back to `config.output.barrel` on `defineConfig`, and finally to `false`. See [`@kubb/plugin-barrel` options](/extensions/kubb-labs/plugin-barrel/options) for the `type` and `nested` fields in detail.
+Add `namespace: true` on a plugin's barrel to expose each immediate group as a named namespace, alongside the standalone exports. This enables nested barrels. For tag-grouped fetch clients, use `group.name` to produce names such as `PetService`, then import `{ PetService }` from the client barrel. Leave fetch `sdk` unset when generating query hooks or options. See the [fetch + React Query example](/extensions/kubb-labs/plugin-barrel/options#namespace).
+
+Kubb reads the plugin's own `output.barrel` first, falls back to `config.output.barrel` on `defineConfig`, and finally to `false`. See [`@kubb/plugin-barrel` options](/extensions/kubb-labs/plugin-barrel/options) for the `type`, `nested`, and `namespace` fields in detail.
 
 ```typescript [kubb.config.ts]
 import { pluginZod } from '@kubb/plugin-zod'
@@ -153,6 +155,8 @@ Pair `banner: '/* eslint-disable */'` with `footer: '/* eslint-enable */'` to sc
 ## group {#group}
 
 Splits generated files into subfolders by the operation's tag or URL path, each under `{output.path}/{groupName}/`. Without `group`, every file lands directly in `output.path`.
+
+Combine tag grouping with [`output.barrel.namespace`](#output-barrel) to expose each group as a named service while retaining standalone operation imports.
 
 | | |
 | --- | --- |
@@ -361,7 +365,7 @@ Rewrites AST nodes before they are printed, without forking the generator.
 
 Each [macro](/docs/5.x/how-to/macros) callback, such as `schema` or `operation`, receives the node and a context object and returns a replacement or `undefined` to leave it as is. Macros run in order, so a later one sees the output of an earlier one. The client plugins (`@kubb/plugin-fetch`, `@kubb/plugin-axios`, `@kubb/plugin-client`) run their built-in macros first and yours after them.
 
-The built-in macros `macroDiscriminatorEnum`, `macroEnumName`, `macroRenameSchema` and `macroSimplifyUnion` are exported from `kubb/kit`. See [Macros](/docs/5.x/reference/kit/ast#macros) for the `Macro` type and its callbacks.
+The built-in macros `macroDiscriminatorEnum`, `macroEnumName` and `macroSimplifyUnion` are exported from `kubb/kit`. See [Macros](/docs/5.x/reference/kit/ast#macros) for the `Macro` type and its callbacks.
 
 ```typescript [kubb.config.ts]
 import { ast } from 'kubb/kit'

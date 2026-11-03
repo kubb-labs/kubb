@@ -50,6 +50,9 @@ async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOpt
     )
 
   await run({ logLevel: 'info', watch: false, reporters }).catch((error: Error) => void lines.push(error.message))
+  // A failed build sets `exitCode` instead of calling `exit()`, so telemetry can finish; record it the same way.
+  if (process.exitCode) lines.push(`exit ${process.exitCode}`)
+  process.exitCode = undefined
 
   return Object.assign(lines, { stdout })
 }

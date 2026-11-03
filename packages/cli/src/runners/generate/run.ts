@@ -26,12 +26,12 @@ import { pluralize } from '../../ui/text.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createPlainWriter } from '../../loggers/plainWriter.ts'
 import { logIntro, logOutro, logSpacer, logTip } from '../../ui/intro.ts'
-import { logError, logInfo, logStep } from '../../ui/log.ts'
+import { logError, logInfo, logStep, logWarn } from '../../ui/log.ts'
 import { logBanner } from '../../ui/mascot.ts'
 import { createSpinner } from '../../ui/spinner.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
-import { type BuildDiff, type BuildSnapshot, diffBuilds, fetchUrlBody, listenForKeys, startUrlWatcher, startWatcher, trackBuild } from './utils.ts'
+import { type BuildDiff, type BuildSnapshot, diffBuilds, listenForKeys, startWatcher, trackBuild } from './utils.ts'
 
 /** NPM registry endpoint used to check for @kubb/cli updates. */
 const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
@@ -87,7 +87,8 @@ export async function generate(options: GenerateProps): Promise<boolean> {
   const kubb = createKubb(config, { hooks, cleanShared, inputNode })
   const result = await kubb.generate()
 
-  await report({
+  // Not awaited: the request finishes in the background, capped by its timeout, so it never delays the summary.
+  void report({
     // A setup that threw leaves no driver, so read the configured plugins instead.
     plugins: kubb.config.plugins.flatMap((p) =>
       p && typeof p === 'object' ? [{ name: p.meta?.name ?? p.name ?? '', options: (p.options ?? {}) as Record<string, unknown> }] : [],
@@ -108,10 +109,10 @@ type GenerateCommandOptions = {
   dryRun?: boolean
 }
 
-/** The latest published version, `undefined` when the registry does not answer in time. Never rejects. */
-async function fetchLatestVersion(): Promise<string | undefined> {
+/** The latest published version, `undefined` when the registry does not answer in time or `signal` aborts. Never rejects. */
+async function fetchLatestVersion(signal: AbortSignal): Promise<string | undefined> {
   try {
-    const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS) })
+    const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.any([signal, AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS)]) })
     const data = (await res.json()) as { version: string }
     return data.version
   } catch {
@@ -120,8 +121,7 @@ async function fetchLatestVersion(): Promise<string | undefined> {
   }
 }
 
-async function checkForUpdate({ hooks, latest }: { hooks: Hookable<KubbHooks>; latest: Promise<string | undefined> }): Promise<void> {
-  const latestVersion = await latest
+async function checkForUpdate({ hooks, latestVersion }: { hooks: Hookable<KubbHooks>; latestVersion: string | undefined }): Promise<void> {
   if (latestVersion && isOutdated({ installed: version, latest: latestVersion })) {
     await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion }))
   }
@@ -143,11 +143,15 @@ function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: Build
 /**
  * Runs the full Kubb generation lifecycle for the given CLI options.
  * Loads configs, sets up the reporters (CLI `--reporter` picks which of `config.reporters` to trigger),
- * checks for a newer version, and calls `generate` for each config entry.
+ * calls `generate` for each config entry, and prints an update notice when the registry answered in time.
  */
 export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters, dryRun }: GenerateCommandOptions): Promise<void> {
-  // Started first so the registry request overlaps the banner and the config load.
-  const latest = fetchLatestVersion()
+  // Started first and never awaited: the notice prints at the end only when the registry has answered by then.
+  const updateCheck = new AbortController()
+  let latestVersion: string | undefined
+  void fetchLatestVersion(updateCheck.signal).then((value) => {
+    latestVersion = value
+  })
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new Hookable<KubbHooks>()
 
@@ -212,10 +216,6 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 
-  // Inside the bootstrap group, so an update notice reads as part of the setup rather than as part
-  // of the first config's generation.
-  await checkForUpdate({ hooks, latest })
-
   const detectShared = async (list: Array<Config>): Promise<Detected> => {
     try {
       const detected = await detectSharedSchemas(list.map((config) => ({ ...config, input: input ?? config.input })))
@@ -266,9 +266,9 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     for (const config of configs) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
-      const watchPath = inputKind === 'file' || inputKind === 'url' ? (effectiveInput as string) : undefined
+      const watchPath = inputKind === 'file' ? (effectiveInput as string) : undefined
       if (watchPath && tracker) {
-        const label = styleText('yellow', `Watching ${inputKind === 'url' ? watchPath : path.relative(process.cwd(), watchPath)}`)
+        const label = styleText('yellow', `Watching ${path.relative(process.cwd(), watchPath)}`)
         let previous: BuildSnapshot | undefined
         let isRebuild = false
         // Don't removeAll() between builds, that would also drop logger and lifecycle
@@ -311,21 +311,12 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           })
         }
 
-        // For a URL input, capture the document before the build: it becomes the watcher's
-        // change-detection baseline, so an edit landing before the first poll still rebuilds.
-        // When the server is down the baseline stays undefined and the watcher rebuilds on its
-        // first successful poll, so recovery with an unchanged document still generates output.
-        const initialBody = inputKind === 'url' ? await fetchUrlBody(watchPath) : undefined
-
-        // The watchers ignore their startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
+        // The watcher ignores its startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
         await rebuild()
 
-        if (inputKind === 'url') {
-          startUrlWatcher(watchPath, rebuild, { log: { info: logInfo, error: logError }, initialBody })
-        } else {
-          await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
-        }
+        await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
       } else {
+        if (tracker && !quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
         try {
           const succeeded = await generate({ input, config, hooks, dryRun, cleanShared: cleansShared.has(config), inputNode: shared.inputs.get(config) })
           if (!succeeded) anyFailed = true
@@ -336,6 +327,10 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       }
     }
 
+    // A request still in flight would keep the process alive until its timeout.
+    updateCheck.abort()
+    await checkForUpdate({ hooks, latestVersion })
+
     await hooks.callHook('kubb:lifecycle:end')
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
@@ -344,8 +339,9 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       logTip()
     }
 
+    // `exitCode`, not `exit()`, so a telemetry request still in flight can finish within its timeout.
     if (anyFailed) {
-      process.exit(1)
+      process.exitCode = 1
     }
   } catch (error) {
     await Diagnostics.emit(errorHooks, error)

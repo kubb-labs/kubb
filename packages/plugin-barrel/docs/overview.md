@@ -12,6 +12,7 @@ Kubb adds the plugin to `plugins` for you, so no setup is needed. Generator plug
 
 - `type: 'named'` re-exports each symbol by name, which suits tree-shaking. `type: 'all'` writes `export *`.
 - `nested: true`, on a plugin only, makes each barrel re-export just its own folder and the barrels below it. The root barrel is always flat.
+- `namespace: true`, on a plugin only, enables nested barrels and adds named namespaces for immediate subdirectories, alongside standalone exports.
 - `false` on a plugin turns its barrel off and leaves its files out of the root barrel.
 
 A plugin that writes schemas to an [`output.shared`](https://kubb.dev/docs/5.x/reference/configuration#outputshared) directory gets the same barrels there, plus a root barrel when `output.barrel` is set on `defineConfig`. Its own barrels leave the shared schemas out, so import those from the shared directory's barrel. A plugin with `output.mode: 'file'` gets no barrel of its own, and the root barrel re-exports that file directly. Passing your own `output` object to a plugin replaces its default `barrel: { type: 'named' }`, so that plugin falls back to the root setting. When two files export the same name, Kubb reports an error, and a `named` barrel keeps only the first one.

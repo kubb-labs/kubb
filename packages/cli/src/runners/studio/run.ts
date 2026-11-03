@@ -77,6 +77,10 @@ export type StudioValues = {
   allowReadAst?: boolean
   allowWrite?: boolean
   allowConfigEdit?: boolean
+  allowInstall?: boolean
+  allowUpdate?: boolean
+  allowRemove?: boolean
+  allowSaveInput?: boolean
   allowExec?: boolean
   open?: boolean
   logLevel?: CLIOptions['logLevel']
@@ -202,6 +206,15 @@ const PERMISSIONS: ReadonlyArray<{
   { key: AgentPermission.READ_AST, label: 'read spec', title: () => 'Read the parsed spec', hint: 'browse schemas and operations' },
   { key: AgentPermission.WRITE, label: 'write files', title: () => 'Write files to disk', hint: 'generate from the browser' },
   { key: AgentPermission.CONFIG_EDIT, label: 'edit config', title: (configPath) => `Change ${configPath}`, hint: 'edit plugin options' },
+  { key: AgentPermission.INSTALL, label: 'add plugins', title: () => 'Install extensions from the registry', hint: 'kubb add from the browser' },
+  { key: AgentPermission.UPDATE, label: 'update plugins', title: () => 'Update installed extensions', hint: 'kubb update from the browser' },
+  { key: AgentPermission.REMOVE, label: 'remove plugins', title: () => 'Remove extensions', hint: 'kubb remove from the browser' },
+  {
+    key: AgentPermission.SAVE_INPUT,
+    label: 'save input',
+    title: (configPath) => `Save the spec from Studio as the input in ${configPath}`,
+    hint: 'keep a pasted spec, URL, or git file',
+  },
   { key: AgentPermission.EXEC, label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
 ]
 
@@ -229,6 +242,7 @@ export async function resolvePermissions(
   options: StudioOptions,
   credentials: Credentials,
   configPath: string = KUBB_CONFIG_FILENAME,
+  { edit = false }: { edit?: boolean } = {},
 ): Promise<Record<AgentPermission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
@@ -236,7 +250,8 @@ export async function resolvePermissions(
     AgentPermission,
     boolean
   >
-  const pending = PERMISSIONS.filter(({ key }) => !options.permission[key] && typeof remembered?.[key] !== 'boolean')
+  // `edit` asks again for every permission no flag grants, with the saved ones checked.
+  const pending = PERMISSIONS.filter(({ key }) => !options.permission[key] && (edit || typeof remembered?.[key] !== 'boolean'))
 
   if (!pending.length || isCIEnvironment() || !canUseTTY()) return granted
 
@@ -244,10 +259,14 @@ export async function resolvePermissions(
   const selected = await prompts.multiselect({
     message: 'What may Kubb Studio do in this project?',
     options: pending.map(({ key, title, hint }) => ({ value: key, label: title(configPath), hint })),
+    ...(edit ? { initialValues: pending.filter(({ key }) => remembered?.[key] === true).map(({ key }) => key) } : {}),
     required: false,
   })
   // A canceled list grants nothing and saves nothing, so the next run asks again.
-  if (prompts.isCancel(selected)) return granted
+  if (prompts.isCancel(selected)) {
+    if (edit) throw new Error('Canceled. Permissions are unchanged.')
+    return granted
+  }
 
   const answers = Object.fromEntries(pending.map(({ key }) => [key, selected.includes(key)]))
   await writeCredentials({

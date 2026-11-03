@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import { inParallel, matchesStored, toError } from '@internals/utils'
+import { inParallel, isPathInside, matchesStored, toError } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -24,6 +24,11 @@ type WriteOptions = ParseOptions & {
    * unchanged. Omitted when no formatter, linter, or `postGenerate` step is configured.
    */
   manifest?: OutputManifest
+  /**
+   * Directory the storage emptied right before this write. Files under it cannot exist yet, so they
+   * are written without reading the previous value back.
+   */
+  cleaned?: string
   /**
    * Receives `kubb:files:processing:start`, `:update` (in input order, as files finish) and `:end` for the write. `config` fills the update rows.
    */
@@ -107,9 +112,10 @@ async function writeChanged({
   file,
   source,
   signal,
-}: Pick<WriteOptions, 'storage' | 'manifest' | 'signal'> & { file: FileNode; source: string }): Promise<boolean> {
+  cleaned,
+}: Pick<WriteOptions, 'storage' | 'manifest' | 'signal' | 'cleaned'> & { file: FileNode; source: string }): Promise<boolean> {
   signal?.throwIfAborted()
-  const stored = await storage.readItem(file.path)
+  const stored = cleaned && isPathInside(file.path, cleaned) ? null : await storage.readItem(file.path)
   if (stored !== null && (matchesStored({ stored, source }) || manifest?.isUpToDate({ key: file.path, source, disk: stored }))) return false
   signal?.throwIfAborted()
   await storage.writeItem(file.path, source, { stored })
@@ -134,6 +140,12 @@ function createProgress(files: Array<FileNode>, config: Config, hooks: Hookable<
   }
 }
 
+/** Links each source without a pointer to the node its file was generated from. */
+function withPointer(files: ReadonlyArray<FileNode>, pointer: string | undefined): ReadonlyArray<FileNode> {
+  if (!pointer) return files
+  return files.map((file) => ({ ...file, sources: file.sources.map((source) => (source.pointer ? source : { ...source, pointer })) }))
+}
+
 /**
  * In-memory file store for generated files, and the writer that turns them into source
  * strings on `storage`. Files sharing a `path` are merged (sources/imports/exports
@@ -150,9 +162,15 @@ function createProgress(files: Array<FileNode>, config: Config, hooks: Hookable<
  */
 export class FileManager {
   readonly #cache = new Map<string, FileNode>()
+  // Paths whose cached entry is a raw merge that `createFile` has not normalized yet. Generator
+  // results land here so a plugin writing every schema into one file (`output.mode: 'file'`)
+  // normalizes that file once, not once per schema over everything merged so far.
+  readonly #pending = new Set<string>()
   // Cached sorted view, rebuilt lazily on the next `files` read. Nulled (not mutated) on every
   // write so callers holding a prior reference keep their snapshot, `dispose()` included.
   #sorted: Array<FileNode> | null = null
+  // Files `#defer` built with `mergeFile`, which only `#cache` references, so they are safe to extend.
+  readonly #merges = new WeakSet<FileNode>()
 
   add(...files: Array<FileNode>): Array<FileNode> {
     return this.#store(files, false)
@@ -166,14 +184,19 @@ export class FileManager {
   async dispatch<TElement = unknown>({
     result,
     renderer,
+    pointer,
   }: {
     result: TElement | Array<FileNode> | undefined | null
     renderer?: RendererFactory<TElement> | null
+    /**
+     * Pointer of the node the result was generated from, set on each source that carries none.
+     */
+    pointer?: string
   }): Promise<void> {
     if (!result) return
 
     if (Array.isArray(result)) {
-      this.upsert(...(result as Array<FileNode>))
+      this.#defer(withPointer(result as Array<FileNode>, pointer))
       return
     }
 
@@ -182,10 +205,44 @@ export class FileManager {
     using instance = renderer()
     await instance.render(result)
 
-    this.upsert(...instance.files)
+    this.#defer(withPointer(instance.files, pointer))
+  }
+
+  /** Upserts without normalizing: the raw merge waits in `#pending` until the file is read. */
+  #defer(files: ReadonlyArray<FileNode>): void {
+    for (const file of files) {
+      this.#pending.add(file.path)
+      const existing = this.#cache.get(file.path)
+      if (!existing) {
+        this.#cache.set(file.path, file)
+        continue
+      }
+      if (!this.#merges.has(existing)) {
+        const merged = mergeFile(existing, file)
+        this.#merges.add(merged)
+        this.#cache.set(file.path, merged)
+        continue
+      }
+      existing.banner = file.banner
+      existing.footer = file.footer
+      existing.copy = file.copy ?? existing.copy
+      existing.sources.push(...file.sources)
+      existing.imports.push(...file.imports)
+      existing.exports.push(...file.exports)
+    }
+    if (files.length > 0) this.#sorted = null
+  }
+
+  /** Normalizes the pending raw merges, so every entry in `#cache` is a `createFile` result. */
+  #flush(): void {
+    for (const path of this.#pending) {
+      this.#cache.set(path, ast.factory.createFile(this.#cache.get(path)!))
+    }
+    this.#pending.clear()
   }
 
   #store(files: ReadonlyArray<FileNode>, mergeExisting: boolean): Array<FileNode> {
+    this.#flush()
     // Same-path files in one batch always merge; an existing file only on upsert.
     const batch = new Set<string>()
     const resolved = files.map((file) => {
@@ -200,10 +257,22 @@ export class FileManager {
   }
 
   /**
+   * Removes the files at `paths`, so they are neither listed nor written.
+   */
+  delete(...paths: Array<string>): void {
+    for (const path of paths) {
+      this.#cache.delete(path)
+      this.#pending.delete(path)
+    }
+    if (paths.length > 0) this.#sorted = null
+  }
+
+  /**
    * Releases all stored files. Called by the core after `kubb:build:end`.
    */
   dispose(): void {
     this.#cache.clear()
+    this.#pending.clear()
     this.#sorted = null
   }
 
@@ -212,6 +281,7 @@ export class FileManager {
    * last within a length bucket). Returns a cached view, do not mutate.
    */
   get files(): Array<FileNode> {
+    this.#flush()
     return (this.#sorted ??= [...this.#cache.values()].sort(compareFiles))
   }
 
@@ -238,12 +308,13 @@ export class FileManager {
    * memory rather than holding every source, while still overlapping each file's write with the
    * next file's parse. Files finish in whatever order they parse, so each finished file flushes the
    * run of finished files ahead of it as one `kubb:files:processing:update`, keeping rows in input order.
+   * Each parsed source goes out once on `kubb:file:processed`, so listeners read it without the pool holding it.
    *
    * A file the storage already holds is skipped, so a rebuild that generates identical output
    * writes nothing and leaves every mtime where it was. `kubb:files:processing:end` lists the
    * skipped paths as `unchanged`.
    */
-  async write(files: Array<FileNode>, { storage, parsers, manifest, signal, hooks, config }: WriteOptions): Promise<void> {
+  async write(files: Array<FileNode>, { storage, parsers, manifest, signal, hooks, config, cleaned }: WriteOptions): Promise<void> {
     if (files.length === 0) return
 
     await hooks?.callHook('kubb:files:processing:start', { files })
@@ -256,7 +327,10 @@ export class FileManager {
       run: async (file, index) => {
         signal?.throwIfAborted()
         const source = await this.parse(file, { parsers })
-        if (source && !(await writeChanged({ storage, manifest, file, source, signal }))) unchanged.push(file.path)
+        if (source) {
+          if (!(await writeChanged({ storage, manifest, file, source, signal, cleaned }))) unchanged.push(file.path)
+          await hooks?.callHook('kubb:file:processed', { file, source })
+        }
         await progress?.(index)
       },
     })

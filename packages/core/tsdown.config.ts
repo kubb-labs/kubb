@@ -15,7 +15,6 @@ const vueSfc = {
 
 const entry = {
   index: 'src/index.ts',
-  mocks: 'src/mocks.ts',
 }
 
 // Entries that also ship as CommonJS. The test helpers import Vitest, which cannot be required, so they stay ESM-only.
@@ -51,7 +50,7 @@ export default defineConfig([
     format: 'cjs',
     ...shared,
     outputOptions: (options, _format, { cjsDts }) => ({ ...options, keepNames: !cjsDts }),
-    dts: { emitDtsOnly: true, compilerOptions: { baseUrl: '../..' } },
+    dts: { emitDtsOnly: true, tsconfig: '../../tsconfig.dts.json' },
   },
   {
     // Declarations get their own build: `keepNames` leaks an untyped `__name` helper into .d.ts files.
@@ -59,7 +58,7 @@ export default defineConfig([
     format: 'esm',
     ...shared,
     outputOptions: {},
-    dts: { emitDtsOnly: true, compilerOptions: { baseUrl: '../..' } },
+    dts: { emitDtsOnly: true, tsconfig: '../../tsconfig.dts.json' },
   },
   {
     entry: { 'html/ui': 'src/reporters/html/ui.ts' },

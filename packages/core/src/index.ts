@@ -4,6 +4,7 @@ export {
   addMacro,
   injectFile,
   kubbContext,
+  memo,
   requirePlugin,
   setMacros,
   setOptions,
@@ -15,7 +16,8 @@ export {
 } from './composables.ts'
 export { Diagnostics } from './Diagnostics.ts'
 export type { DiagnosticFormatOptions, SerializedDiagnostic } from './formatDiagnostic.ts'
-export { createKubb } from './createKubb.ts'
+export { camelCase, pascalCase } from '@internals/utils'
+export { createKubb, hasOutputPasses } from './createKubb.ts'
 export { createReporter, logLevel, type ReporterPluginFiles } from './createReporter.ts'
 export { cliReporter, createCliReporter } from './reporters/cliReporter.ts'
 export { fileReporter } from './reporters/fileReporter.ts'
@@ -30,6 +32,8 @@ export { assertPluginOption, definePlugin } from './definePlugin.ts'
 export { createResolver } from './createResolver.ts'
 export { Resolver } from './Resolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
+export { checkoutGitInput } from './gitInput.ts'
+export { isPublicAddress } from './publicAddress.ts'
 export { getInputKind } from './input.ts'
 export { cacheStorage, resolveCacheDir } from './storages/cacheStorage.ts'
 export { createOutputManifest, type OutputManifest } from './outputManifest.ts'
@@ -81,7 +85,7 @@ export type {
   RegistryGuide,
   RegistryIndex,
 } from './manifest.ts'
-export type { NodeCache } from './nodeCache.ts'
+export type { Memo } from './memo.ts'
 export type { Parser, ParserDefinition, ParserFactory } from './defineParser.ts'
 export type {
   Exclude,
@@ -109,6 +113,7 @@ export type {
   ResolveBannerFile,
   ResolveFileOptions,
   ResolveImportsOptions,
+  ResolveNameOptions,
   ResolveOptionsContext,
   ResolvePathOptions,
   ResolverDefault,

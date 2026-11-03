@@ -28,7 +28,7 @@ Choose the outputs you need with plugins in one `kubb.config.ts` file. Generated
 
 The animation below follows a spec through Kubb's generation pipeline. The adapter turns schemas and operations into AST nodes, then plugins generate files from those nodes.
 
-```typescript twoslash [kubb.config.ts]
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginZod } from '@kubb/plugin-zod'

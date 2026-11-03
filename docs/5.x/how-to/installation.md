@@ -15,7 +15,7 @@ Install Kubb in an existing project. To learn generation with a supplied specifi
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 22.12 or higher.
+- [Node.js](https://nodejs.org/) 22.22 or higher.
 - TypeScript 5 or higher if you use a TypeScript config or import generated types.
 
 ::steps{level="2"}

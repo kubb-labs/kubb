@@ -1,14 +1,21 @@
-import type { VisitorDepth } from './constants.ts'
+import { nodeKinds } from './constants.ts'
 import type { Node } from './nodes/index.ts'
-import type { ContentNode } from './nodes/content.ts'
 import type { InputNode } from './nodes/input.ts'
 import type { NodeKind } from './nodes/base.ts'
 import type { OperationNode } from './nodes/operation.ts'
 import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
-import type { RequestBodyNode } from './nodes/requestBody.ts'
 import type { ResponseNode } from './nodes/response.ts'
 import type { SchemaNode } from './nodes/schema.ts'
+
+/**
+ * Traversal depth for AST visitor utilities.
+ *
+ * - `'shallow'` recurses through every node except nested `Schema` subtrees, which it treats as
+ *   leaves: a schema node itself is visited, but its children are not.
+ * - `'deep'` recursively visits all descendant nodes, including schema subtrees.
+ */
+export type VisitorDepth = 'shallow' | 'deep'
 
 /**
  * Child node fields per node kind, in traversal order (Babel's `VISITOR_KEYS`).
@@ -19,7 +26,7 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   RequestBody: ['content'],
   Content: ['schema'],
   Response: ['content'],
-  Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'rest'],
+  Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'propertyNames', 'rest'],
   Property: ['schema'],
   Parameter: ['schema'],
 }
@@ -42,72 +49,22 @@ const VISITOR_KEY_BY_KIND: Partial<Record<NodeKind, VisitorKey>> = {
 }
 
 /**
- * Ordered mapping of `[NodeType, ParentType]` pairs.
- *
- * `ParentOf` uses this map to find parent types.
- */
-type ParentNodeMap = [
-  [InputNode, undefined],
-  [OperationNode, InputNode],
-  [RequestBodyNode, OperationNode],
-  [ContentNode, RequestBodyNode | ResponseNode],
-  [SchemaNode, InputNode | ContentNode | SchemaNode | PropertyNode | ParameterNode],
-  [PropertyNode, SchemaNode],
-  [ParameterNode, OperationNode],
-  [ResponseNode, OperationNode],
-]
-
-/**
- * Resolves the parent node type for a given AST node type.
- *
- * Visitor context relies on this so `ctx.parent` is typed for each callback.
- *
- * @example
- * ```ts
- * type InputParent = ParentOf<InputNode>
- * // undefined
- * ```
- *
- * @example
- * ```ts
- * type PropertyParent = ParentOf<PropertyNode>
- * // SchemaNode
- * ```
- *
- * @example
- * ```ts
- * type SchemaParent = ParentOf<SchemaNode>
- * // InputNode | ContentNode | SchemaNode | PropertyNode | ParameterNode
- * ```
- */
-export type ParentOf<T extends Node, TEntries extends ReadonlyArray<[Node, unknown]> = ParentNodeMap> = TEntries extends [
-  infer TEntry extends [Node, unknown],
-  ...infer TRest extends ReadonlyArray<[Node, unknown]>,
-]
-  ? T extends TEntry[0]
-    ? TEntry[1]
-    : ParentOf<T, TRest>
-  : Node
-
-/**
  * Traversal context passed as the second argument to every visitor callback.
- * `parent` is typed from the current node type.
  *
  * @example
  * ```ts
  * const visitor: Visitor = {
  *   schema(node, { parent }) {
- *     // parent type is narrowed by node kind
+ *     // parent is the node that holds this schema, or undefined at the root
  *   },
  * }
  * ```
  */
-export type VisitorContext<T extends Node = Node> = {
+export type VisitorContext = {
   /**
-   * Parent node of the currently visited node.
-   * For `InputNode`, this is `undefined`.
+   * Parent node of the currently visited node. For the root node, this is `undefined`.
    */
-  parent?: ParentOf<T>
+  parent?: Node
 }
 
 /**
@@ -137,12 +94,12 @@ export type VisitorContext<T extends Node = Node> = {
  * ```
  */
 export type Visitor = {
-  input?(node: InputNode, context: VisitorContext<InputNode>): undefined | null | InputNode
-  operation?(node: OperationNode, context: VisitorContext<OperationNode>): undefined | null | OperationNode
-  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): undefined | null | SchemaNode
-  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): undefined | null | PropertyNode
-  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): undefined | null | ParameterNode
-  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): undefined | null | ResponseNode
+  input?(node: InputNode, context: VisitorContext): undefined | null | InputNode
+  operation?(node: OperationNode, context: VisitorContext): undefined | null | OperationNode
+  schema?(node: SchemaNode, context: VisitorContext): undefined | null | SchemaNode
+  property?(node: PropertyNode, context: VisitorContext): undefined | null | PropertyNode
+  parameter?(node: ParameterNode, context: VisitorContext): undefined | null | ParameterNode
+  response?(node: ResponseNode, context: VisitorContext): undefined | null | ResponseNode
 }
 
 /**
@@ -223,26 +180,85 @@ function isNodeRecord(value: unknown): value is Record<string, unknown> {
  * // returns parameters, the request body, and responses
  * ```
  */
-function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undefined> {
-  // `Schema` children are only walked when `recurse` is `true`.
-  const keys = node.kind === 'Schema' && !recurse ? undefined : VISITOR_KEYS[node.kind]
-  if (!keys) return
+function getChildren(node: Node, recurse: boolean): Array<Node> {
+  if (node.kind === nodeKinds.schema && !recurse) return []
+  const children: Array<Node> = []
+  visitChildNodes(node, (child) => {
+    children.push(child)
+    return false
+  })
+  return children
+}
+
+function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
+  const keys = VISITOR_KEYS[node.kind]
+  if (!keys) return false
 
   const record = node as unknown as Record<string, unknown>
   for (const key of keys) {
     const value = record[key]
     if (Array.isArray(value)) {
-      for (const item of value) if (isNode(item)) yield item
+      for (const item of value) if (isNode(item) && visit(item)) return true
       continue
     }
     if (isNode(value)) {
-      yield value
+      if (visit(value)) return true
       continue
     }
     if (isNodeRecord(value)) {
-      for (const item of Object.values(value)) if (isNode(item)) yield item
+      for (const name in value) {
+        if (!Object.hasOwn(value, name)) continue
+        const item = value[name]
+        if (isNode(item) && visit(item)) return true
+      }
     }
   }
+  return false
+}
+
+/**
+ * Finds the first schema that matches `predicate` in depth-first order. Set `followRefs` to include resolved ref targets.
+ *
+ * @example
+ * ```ts
+ * const firstString = findSchema(operationNode, {
+ *   predicate: (schema) => schema.type === 'string',
+ * })
+ * ```
+ */
+export function findSchema(
+  node: Node,
+  {
+    predicate,
+    followRefs = false,
+  }: {
+    predicate: (schema: SchemaNode) => boolean
+    followRefs?: boolean
+  },
+): SchemaNode | undefined {
+  const seen = followRefs ? new WeakSet<SchemaNode>() : undefined
+  const walk = (current: Node): SchemaNode | undefined => {
+    if (current.kind === nodeKinds.schema) {
+      if (predicate(current)) return current
+      if (seen) {
+        if (seen.has(current)) return undefined
+        seen.add(current)
+        if (current.type === 'ref' && current.schema) {
+          const found = walk(current.schema)
+          if (found) return found
+        }
+      }
+    }
+
+    let found: SchemaNode | undefined
+    visitChildNodes(current, (child) => {
+      found = walk(child)
+      return found !== undefined
+    })
+    if (found) return found
+    return undefined
+  }
+  return walk(node)
 }
 
 /**
@@ -313,7 +329,7 @@ function transformNode(node: Node, visitor: Visitor, recurse: boolean, parent: N
  * (e.g. `additionalProperties: true`) intact.
  */
 function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node {
-  const keys = node.kind === 'Schema' && !recurse ? undefined : VISITOR_KEYS[node.kind]
+  const keys = node.kind === nodeKinds.schema && !recurse ? undefined : VISITOR_KEYS[node.kind]
   if (!keys) return node
 
   const record = node as unknown as Record<string, unknown>
@@ -406,5 +422,18 @@ function* collectNode<T>(node: Node, visitor: VisitorOf<T>, recurse: boolean, pa
  * ```
  */
 export function collectSync<T>(node: Node, options: CollectOptions<T>): Array<T> {
-  return Array.from(collect(node, options))
+  const { depth, parent, ...visitor } = options
+  const result: Array<T> = []
+  // Plain recursion: draining nested generators costs a `yield*` hop per level for every value.
+  collectInto<T>(node, visitor, (depth ?? 'deep') === 'deep', parent, result)
+  return result
+}
+
+function collectInto<T>(node: Node, visitor: VisitorOf<T>, recurse: boolean, parent: Node | undefined, result: Array<T>): void {
+  const v = applyVisitor<T>(node, visitor, parent)
+  if (v != null) result.push(v)
+
+  for (const child of getChildren(node, recurse)) {
+    collectInto<T>(child, visitor, recurse, node, result)
+  }
 }

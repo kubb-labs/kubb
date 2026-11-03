@@ -70,7 +70,8 @@ describe('getConfigs', () => {
     const configPath = await writeConfig(join(dir, file))
     using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(dir)
 
-    await expect(getConfigs({})).resolves.toMatchObject({ configPath })
+    // A config in .config/ or configs/ belongs to the folder above it.
+    await expect(getConfigs({})).resolves.toMatchObject({ configPath, configs: [{ root: dir }] })
   })
 
   it('walks up to a parent directory, and so does findConfigFile', async () => {
@@ -80,8 +81,19 @@ describe('getConfigs', () => {
     await mkdir(cwd, { recursive: true })
     using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(cwd)
 
-    await expect(getConfigs({})).resolves.toMatchObject({ configPath })
+    await expect(getConfigs({})).resolves.toMatchObject({ configPath, configs: [{ root: dir }] })
     expect(findConfigFile(cwd)).toBe(configPath)
+  })
+
+  it('resolves a missing root to the folder of the config, not the cwd', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
+    const configPath = join(dir, 'kubb.config.mjs')
+    await writeFile(configPath, `export default [{ input: './pets.yaml', output: { path: './gen' } }, { root: './api', output: { path: './gen' } }]\n`)
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(tmpdir())
+
+    const { configs } = await getConfigs({ configPath })
+
+    expect(configs.map((config) => config.root)).toStrictEqual([dir, join(dir, 'api')])
   })
 
   it('prefers the nearest directory, then .kubbrc over kubb.config, then the extension order', async () => {

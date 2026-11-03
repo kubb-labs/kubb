@@ -24,7 +24,7 @@ type ResolverOptions<T extends PluginType> = Omit<T['resolver'], keyof Resolver>
  * export const resolverTs = createResolver<PluginTs>({
  *   pluginName: 'plugin-ts',
  *   name(name) {
- *     return ensureValidVarName(pascalCase(name))
+ *     return this.memo(`name:${name}`, () => ensureValidVarName(pascalCase(name)))
  *   },
  * })
  * ```

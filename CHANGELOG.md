@@ -1,5 +1,563 @@
 # Changelog
 
+## v5.15.3 — Oct 29, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Make `kubb generate` up to 4 times faster on large specs that raise many diagnostics or write thousands of files.
+  
+  - Index the spec once per run for diagnostic code frames, instead of splitting it into lines for every diagnostic. Cloudflare's 27.7 MB spec, with 239 deprecation notices, drops from 60 s to about 14 s.
+  - Count the "File changes" summary from each file as it is written, instead of reading the whole output back afterwards, and read the previous output while the plugins generate.
+  - Print only the start and end of the write in plain output, such as CI logs and piped runs, instead of one line per file. `--log-level verbose` still lists every file.
+  - Add the `kubb:file:processed` hook, which carries each file's source as it is handed to the storage. ([#4517](https://github.com/kubb-labs/kubb/pull/4517), [`a5be80b`](https://github.com/kubb-labs/kubb/commit/a5be80bd925d51870e2db04435797005882593f8))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.15.2 — Oct 29, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Publish dependencies on `@kubb/core` and `@kubb/ast` as caret ranges instead of exact versions. A plugin that pulls in a newer `@kubb/parser-ts`, `@kubb/kit`, or `@kubb/renderer-jsx` can now share the project's `@kubb/core` and `@kubb/ast` when the project's version is the same or newer, instead of installing a second copy. ([#4513](https://github.com/kubb-labs/kubb/pull/4513), [`deb28f5`](https://github.com/kubb-labs/kubb/commit/deb28f556f06885d034f12f5c5b083d53269cf10))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Remove `InputMeta.circularNames` and `InputMeta.enumNames`, so `InputMeta` only holds plain document metadata. A generator that needs either set builds it once per build with `ctx.memo`:
+  
+  ```ts
+  const schemas = ctx.driver.inputNode?.schemas ?? []
+  const circularNames = ctx.memo('circularNames:set', () => ast.findCircularSchemas(schemas))
+  const enumNames = ctx.memo('enumNames:set', () => new Set(schemas.flatMap((schema) => (schema.type === 'enum' && schema.name ? [schema.name] : []))))
+  ```
+  
+  `BannerMeta` loses both fields too. Kubb Studio now stores and sends `meta` as it is. ([#4508](https://github.com/kubb-labs/kubb/pull/4508), [`0722a70`](https://github.com/kubb-labs/kubb/commit/0722a7032f14e10bcfe22df4e09ec867b51b174d))
+- Remove exports that nothing in Kubb or the official plugins used, and trim the code behind the rest. Generated output does not change.
+  
+  - Remove `ast.forEachChild`, `ast.forEachSchema`, `ast.composeMacros`, `ast.isVirtualFile`, `ast.findCircularSchemasFromGraph`, and the `ParentOf` type. `VisitorContext` is now `{ parent?: Node }`. Use `ast.collect` to walk nodes and `ast.applyMacros` to run macros.
+  - Remove `macroRenameSchema` from `kubb/kit`. The macros guide shows its source to copy into your project.
+  - Warn with a `DeprecationWarning` when a printer handler returns a TypeScript compiler node to `print` from `@kubb/parser-ts`. Compiler nodes still print, and support for them is removed in the next major; return a string.
+  - Remove `Hookable.setMaxListeners` and the `KubbInfoContext`, `KubbSuccessContext`, and `KubbWarnContext` aliases of `KubbMessageContext`.
+  - Remove `ctx.cache` and the `NodeCache` type, so `ctx.memo` and `resolver.memo` are the one way to cache. Replace `ctx.cache.ensureItem(key, compute)` with `ctx.memo(key, compute)` and put the node in the key, such as `plugin-ts:imports:${node.operationId}`.
+  - Remove the Vitest-backed test helpers: `@kubb/core/mocks`, `@kubb/kit/testing`, and `kubb/kit/testing` are gone, and no package lists Vitest as a peer dependency. Copy the helpers you use from [kubb-labs/plugins](https://github.com/kubb-labs/plugins/blob/main/configs/mocks.ts) into your own test setup. ([`cc0c35a`](https://github.com/kubb-labs/kubb/commit/cc0c35ae2c95b3114d6f9bdb1844a515f9b4b4d4))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.15.1 — Oct 29, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- `InputMeta.circularNames` and `InputMeta.enumNames` are now `ReadonlySet<string>` instead of arrays, so a generator calls `ctx.meta.enumNames.has(name)` without building its own set. Code that reads them as arrays needs `.has` instead of `.includes`, `.size` instead of `.length`, and `[...meta.enumNames]` for array methods. `new Set(meta.enumNames)` keeps working. This includes `banner` and `footer` functions, whose `BannerMeta` extends `InputMeta`. Kubb Studio still stores and sends both fields as arrays. ([#4506](https://github.com/kubb-labs/kubb/pull/4506), [`3a72a21`](https://github.com/kubb-labs/kubb/commit/3a72a21877a63d35c7ed89d03bb375fb10ccbd26))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.15.0 — Oct 28, 2026
+
+### @kubb/cli
+
+#### Features
+
+- Add `kubb studio permissions` to change the permissions saved for a project. It shows the same list as `kubb studio`, with the saved answers checked, and keeps the pairing. Before, the only way to undo an answer was to edit `credentials.json` or pair again with `kubb studio login`. ([`2e33928`](https://github.com/kubb-labs/kubb/commit/2e339283d80a0c9295cca6325a9ee1903b4cb74c))
+
+#### Bug Fixes
+
+- Make `kubb generate` about 0.25 s faster on every run. The update check no longer delays the build: the notice prints at the end only when the registry answered in time. The telemetry request runs in the background with a 1 s cap. `kubb generate` no longer loads the code of the other commands, and source maps load only when `KUBB_DEBUG` is set. ([#4500](https://github.com/kubb-labs/kubb/pull/4500), [`893ac1c`](https://github.com/kubb-labs/kubb/commit/893ac1cd7be6890665eb3160d28ca59968203d61))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Speed up `output.clean`. Files written into the cleaned output are no longer read back first, and `fsStorage` moves the previous output aside and deletes it in the background while the new files are written. ([#4499](https://github.com/kubb-labs/kubb/pull/4499), [`28ffd24`](https://github.com/kubb-labs/kubb/commit/28ffd2499f21e1c02e5f218934f6b8c338cb6088))
+
+### @kubb/kit
+
+#### Features
+
+- Add `this.memo(key, compute)` to every resolver, one cache per plugin per build, and `ctx.memo` plus the `memo()` composable, one cache per build shared by every plugin. Register a key prefix and its value type in `Kubb.MemoRegistry` to type the value. Export `camelCase` and `pascalCase` from `@kubb/kit` and `@kubb/core`, so a plugin computes each name once per build. Cache `Resolver.resolveName` allocations, `ast.refName`, and the TypeScript parser's relative import paths, and dedent text nodes in one pass. Generated output is unchanged; a large spec generates about 10% faster. ([#4501](https://github.com/kubb-labs/kubb/pull/4501), [`0c8fdae`](https://github.com/kubb-labs/kubb/commit/0c8fdae58ea25c7f60d44ab3191343d1be3bac3b))
+
+#### Bug Fixes
+
+- Speed up `macroSimplifyUnion` on specs whose unions reference large components, with the same output. A union member that is a `$ref` is now compared by its pointer instead of by its whole resolved schema, so a spec such as Stripe's generates in about half the time. ([#4491](https://github.com/kubb-labs/kubb/pull/4491), [`cb44deb`](https://github.com/kubb-labs/kubb/commit/cb44deb8b1f908698056cea357d7017e2dd25236))
+
+### @kubb/plugin-barrel
+
+#### Features
+
+- Add named service namespace exports alongside standalone operation functions with `output.barrel.namespace`.
+  
+  - Enable nested barrels and export each immediate subdirectory under its PascalCase name.
+  - Forward service namespaces through an enabled root barrel.
+  - Keep standalone fetch functions available for React Query hooks and options.
+  
+  ```ts
+  pluginFetch({
+    output: { path: 'client', barrel: { type: 'named', namespace: true } },
+    group: { type: 'tag', name: ({ group }) => `${group}Service` },
+  })
+  ```
+  
+  Import the generated service with `import { PetService } from './gen/client'` and call `PetService.getPet(...)`. ([#4487](https://github.com/kubb-labs/kubb/pull/4487), [`5382d23`](https://github.com/kubb-labs/kubb/commit/5382d234d5d44bf8e70b8242bf79f918abf2f0fe))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.14.6 — Oct 27, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Report a `$ref` that Kubb cannot read inside an `x-` vendor extension as a `KUBB_REF_NOT_FOUND` warning instead of an error. Kubb never reads extensions, so such a ref cannot change the output, and a spec like Spotify's no longer fails generation over it. ([#4479](https://github.com/kubb-labs/kubb/pull/4479), [`33338d0`](https://github.com/kubb-labs/kubb/commit/33338d01e0eb8b08b1ae0b59ac1e661abf48b031))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.14.5 — Oct 27, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Resolve relative `$ref` files in inline input and parsed objects against `root`, the way a file input already does. A `$ref` to a file or URL Kubb cannot read now reports `KUBB_REF_NOT_FOUND` at the key that holds it, instead of leaving the type as `unknown`. The new `adapter.sources` lists the files and URLs the last parse read, and `generateModule` returns them, so a watcher can rebuild when a `$ref` file changes. ([#4478](https://github.com/kubb-labs/kubb/pull/4478), [`55c67b7`](https://github.com/kubb-labs/kubb/commit/55c67b794f9df920fee95c34174546ba2352d294))
+- Let `resolveName`'s `normalize` return several names, so a declaration that emits more than one identifier takes a name only when all of them are free. A plugin naming an enum no longer has to allocate its value and its type alias in two passes. ([#4475](https://github.com/kubb-labs/kubb/pull/4475), [`17fd32e`](https://github.com/kubb-labs/kubb/commit/17fd32e5d646886a1c782a4d9c77b3ce3b1279eb))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.14.4 — Oct 27, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add `Resolver.reserveNames` and `Resolver.resolveName` to prevent duplicate exports. Keys can be strings or arrays. The driver reserves component names after applying macros and filters. ([#4474](https://github.com/kubb-labs/kubb/pull/4474), [`1d4b33e`](https://github.com/kubb-labs/kubb/commit/1d4b33ef610283e85589b7bb451613c8e341e654))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Prevent union simplification from crashing on large schemas with shared references, including Stripe's OpenAPI specification. ([#4472](https://github.com/kubb-labs/kubb/pull/4472), [`7eec525`](https://github.com/kubb-labs/kubb/commit/7eec5257fc76c77dba12e7ba69eda3e6b234ffaf))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.14.3 — Oct 26, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Preserve parent `required` fields declared in `oneOf` and `anyOf` members without changing the referenced component schemas. ([#4471](https://github.com/kubb-labs/kubb/pull/4471), [`78416ca`](https://github.com/kubb-labs/kubb/commit/78416ca94c1e79ab1b8eac5dbb4cb4763c409cde))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Drop repeated members from unions, so `oneOf: [string, string, number]` becomes `string | number` for every plugin. ([#4468](https://github.com/kubb-labs/kubb/pull/4468), [`5283f77`](https://github.com/kubb-labs/kubb/commit/5283f774f1d521e6663ff4effd11bec852bc6335))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.14.2 — Oct 25, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- A schema that is a single-member `allOf` around a `$ref` is no longer resolved to `unknown` as an alias cycle with itself. ([#4464](https://github.com/kubb-labs/kubb/pull/4464), [`a6b88a1`](https://github.com/kubb-labs/kubb/commit/a6b88a1c4daf7d1a5eceff26cc49fa16879db14d))
+- An `encoding` style outside the OpenAPI set is no longer carried onto the request body content. ([#4465](https://github.com/kubb-labs/kubb/pull/4465), [`33511d0`](https://github.com/kubb-labs/kubb/commit/33511d0e677a39cfc1d6ca3b63a742a4d61c9210))
+- A parameter `style` outside the OpenAPI set is no longer carried onto the parameter. ([#4466](https://github.com/kubb-labs/kubb/pull/4466), [`ed7acf0`](https://github.com/kubb-labs/kubb/commit/ed7acf0a52ae7a6a43f5e3e5c636bb618413db26))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.14.1 — Oct 25, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- An `allOf` member that only holds annotations (`description`, `title`, `example`) or `if`/`then`/`else` no longer becomes `unknown`. The annotations move onto the parent schema. The conditional keywords are dropped, not enforced. ([#4456](https://github.com/kubb-labs/kubb/pull/4456), [`8afa63a`](https://github.com/kubb-labs/kubb/commit/8afa63a7e317847adad2f379580455bb25b48264))
+- An `allOf` member that only lists `required` next to a `$ref` or properties no longer becomes `unknown`. The listed properties now keep their schema and stay required in the generated types, Zod schemas and fakers. ([#4454](https://github.com/kubb-labs/kubb/pull/4454), [`2ad4d2e`](https://github.com/kubb-labs/kubb/commit/2ad4d2ef8b4caa2078957ba67c5f46420bf2dbc7))
+- Discriminator mapping keys now take the type of the discriminator property. An `integer`, `number` or `boolean` discriminator produces `type_id: 1` or `z.literal(1)` instead of the string `'1'`, so the union members no longer collapse to `never` and valid payloads pass validation. ([#4458](https://github.com/kubb-labs/kubb/pull/4458), [`3b0dd7f`](https://github.com/kubb-labs/kubb/commit/3b0dd7fb34d027674662999df4a5087cddeda655))
+- A `$ref` to a path outside `components.schemas`, such as `#/paths/~1foo/get/responses/200/content/application~1json/schema/items`, is now inlined. Before, it was named after its last segment and imported from a file that was never generated, so the output failed to compile. ([#4459](https://github.com/kubb-labs/kubb/pull/4459), [`7c4a046`](https://github.com/kubb-labs/kubb/commit/7c4a046eb323f07f709792b8a2c542a2f2890ca5))
+- A child schema that extends a discriminated parent through `allOf` and declares its own discriminator for grandchildren no longer collapses to `never`. The parent's discriminator property now accepts the keys of every level, the child keeps the parent's type, and a grandchild narrows to its own mapping key. ([#4460](https://github.com/kubb-labs/kubb/pull/4460), [`d3a7f26`](https://github.com/kubb-labs/kubb/commit/d3a7f26c7e6ea3299af57521c33efc64cd357898))
+- A `const` next to a `$ref` (OpenAPI 3.1) is no longer dropped. The property narrows to the literal, so a `z.discriminatedUnion` over members that pin the discriminator to different values no longer throws `Duplicate discriminator value`. ([#4455](https://github.com/kubb-labs/kubb/pull/4455), [`92f04a2`](https://github.com/kubb-labs/kubb/commit/92f04a27f0241bf34c0b50aa5a4810dedef6f741))
+- A Swagger 2.0 spec that uses the same external `$ref` twice inside a response schema no longer fails with `KUBB_REF_NOT_FOUND`. The bundler's second reference pointed at the old `responses/200/schema` location, which the upgrade to 3.x moves, so such references are now inlined before the upgrade. ([#4457](https://github.com/kubb-labs/kubb/pull/4457), [`399c6cd`](https://github.com/kubb-labs/kubb/commit/399c6cd9708540baabc40c2fa6ce9fd4aea81528))
+- Two schemas that only `$ref` each other no longer print a self-referencing type such as `export type Baz = Baz`. A chain of pure aliases that leads back to itself now resolves to `unknown`. ([#4461](https://github.com/kubb-labs/kubb/pull/4461), [`c643855`](https://github.com/kubb-labs/kubb/commit/c643855cb48b6fb391b252095c299f2586d9f9fe))
+- An unquoted `swagger: 2.0` (parsed by YAML as the number `2`) is now upgraded like `swagger: '2.0'`, so its `definitions` are no longer dropped. ([#4456](https://github.com/kubb-labs/kubb/pull/4456), [`8afa63a`](https://github.com/kubb-labs/kubb/commit/8afa63a7e317847adad2f379580455bb25b48264))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Each request body content entry now carries an `encoding` record with the `contentType`, `style`, `explode` and `allowReserved` of every property that sets one in the spec. ([#4463](https://github.com/kubb-labs/kubb/pull/4463), [`1449d70`](https://github.com/kubb-labs/kubb/commit/1449d701f5a0eb897e4118297cbe8f3272e2073b))
+- A `$ref` to a component whose name contains `/` or `~` now resolves to the same name as the component. The last segment of the pointer is decoded the way the resolver does it: percent-escapes first, then `~1` and `~0` (RFC 6901). Before, `#/components/schemas/a~1b~0c` imported `A1B0C` from a file that was never emitted, because the component itself is `a/b~c` and is emitted as `ABc`. ([#4462](https://github.com/kubb-labs/kubb/pull/4462), [`1decec7`](https://github.com/kubb-labs/kubb/commit/1decec7d7503cd18cfd04cfccf3c82d66758777b))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb update <id>` now exits with code 1 when it skips a named extension because it needs a newer Kubb or Node.js. Kubb Studio no longer reports such an update as a success. ([#4440](https://github.com/kubb-labs/kubb/pull/4440), [`004e504`](https://github.com/kubb-labs/kubb/commit/004e5042a9e994064a1cb84ab58c677641375060))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- A loop of schemas that only `$ref` each other now reports a `KUBB_ALIAS_CYCLE` warning, in addition to resolving to `unknown`. ([#4461](https://github.com/kubb-labs/kubb/pull/4461), [`c643855`](https://github.com/kubb-labs/kubb/commit/c643855cb48b6fb391b252095c299f2586d9f9fe))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.14.0 — Oct 25, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Add inline sources. Files that import a source marked `inline: { expression }` get the expression in place of the name, and a file whose sources are all inline is not written. The parser for the file's extension supplies the language rules through the new `inline` member, which `parserTs` implements.
+  
+  ```tsx
+  <File.Source name="AddPetStatus200" isTypeOnly isExportable inline={{ expression: 'Pet' }}>
+    {`export type AddPetStatus200 = Pet`}
+  </File.Source>
+  ``` ([#4438](https://github.com/kubb-labs/kubb/pull/4438), [`065536e`](https://github.com/kubb-labs/kubb/commit/065536e7ffab544375efe7b96623e739b64d215c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.13.1 — Oct 24, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Add direct child and schema traversal helpers, early schema lookup, and ref resolution to the AST package.
+  
+  - Expose `forEachChild`, `forEachSchema`, `findSchema`, and `resolveRef`.
+  - Keep OpenAPI `propertyNames` schemas on typed object nodes. ([#4437](https://github.com/kubb-labs/kubb/pull/4437), [`60b7227`](https://github.com/kubb-labs/kubb/commit/60b7227708943526c0eab6315fc88031d3783495))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb add` writes parsers into `kubb.config.ts`, and `kubb update <id>` exits with code 1 when the id is not installed. ([#4431](https://github.com/kubb-labs/kubb/pull/4431), [`368c76c`](https://github.com/kubb-labs/kubb/commit/368c76c40726c25b496fd6812916607bafce2540))
+- `kubb add` and `kubb init` edit `kubb.config.ts` without `@kubb/studio`. The config editor uses `yuku-parser` instead of `magicast`.
+  
+  Breaking: `applyConfigEdits` and `writeConfigEdits` are now `editConfig` and `editConfigFile`, and the `set` and `remove` operations are now `set-option` and `remove-option`. ([#4433](https://github.com/kubb-labs/kubb/pull/4433), [`8fdd6a5`](https://github.com/kubb-labs/kubb/commit/8fdd6a5e78ca66a285a068fdaa69f740a98d4fb8))
+- `kubb remove` ignores plugins Studio switched off, and `kubb add` stops before installing a parser when there is no config. ([#4435](https://github.com/kubb-labs/kubb/pull/4435), [`8f9cc98`](https://github.com/kubb-labs/kubb/commit/8f9cc98c015184a80d148664d806bac4ca12ce40))
+- Add `kubb remove <id>` and the `--allow-remove` permission for Studio. ([#4431](https://github.com/kubb-labs/kubb/pull/4431), [`368c76c`](https://github.com/kubb-labs/kubb/commit/368c76c40726c25b496fd6812916607bafce2540))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Skip the Kubb version check for extensions on a canary build. ([#4436](https://github.com/kubb-labs/kubb/pull/4436), [`1f14f43`](https://github.com/kubb-labs/kubb/commit/1f14f43847e0a8d8317e60f3f50dcc0ce286bd63))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- The agent marks each installed extension that ships with `kubb` as `bundled`. ([#4435](https://github.com/kubb-labs/kubb/pull/4435), [`8f9cc98`](https://github.com/kubb-labs/kubb/commit/8f9cc98c015184a80d148664d806bac4ca12ce40))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.13.0 — Oct 24, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Require Node.js 22.22+ (chokidar 6) and reject malformed `servers[].url` values (`@readme/openapi-parser` 10). ([#4426](https://github.com/kubb-labs/kubb/pull/4426), [`071c883`](https://github.com/kubb-labs/kubb/commit/071c883d9be752f277788069a4645ba7a3f58dfa))
+
+#### Bug Fixes
+
+- Locate warning code frames in JSON specs without re-parsing. ([#4423](https://github.com/kubb-labs/kubb/pull/4423), [`6287bcd`](https://github.com/kubb-labs/kubb/commit/6287bcd140409af7df2195fc2ea036fa58f3989f))
+- Validate the spec in a worker thread during generation. ([#4421](https://github.com/kubb-labs/kubb/pull/4421), [`c1f4d81`](https://github.com/kubb-labs/kubb/commit/c1f4d81ca27fed6e4b814f548baadba1616babda))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- AST nodes and diagnostics point at the spec key they came from, with a new `pointer` prop on `File.Source`. ([#4424](https://github.com/kubb-labs/kubb/pull/4424), [`a0a7cad`](https://github.com/kubb-labs/kubb/commit/a0a7cad1c85aab84a3f59cfe46e142cff3676d07))
+- Speed up generation by 8 to 20% on large specs, with the same output. ([#4415](https://github.com/kubb-labs/kubb/pull/4415), [`6d826d1`](https://github.com/kubb-labs/kubb/commit/6d826d17293a3824b333e6482c7ec6edc59146de))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Drop `unstorage` and `lru-cache`; `kubbStorage` now only has `getItem`, `setItem` and `removeItem`. ([#4418](https://github.com/kubb-labs/kubb/pull/4418), [`78bada1`](https://github.com/kubb-labs/kubb/commit/78bada1b0fbfc615032d6e45655e64fe687dd93d))
+
+### @kubb/mcp
+
+#### Bug Fixes
+
+- Validate tool input with `valibot` instead of `zod`. ([#4417](https://github.com/kubb-labs/kubb/pull/4417), [`2d0fc76`](https://github.com/kubb-labs/kubb/commit/2d0fc764902117179cf3347c608b53cb8b20fc19))
+
+### @kubb/parser-ts
+
+#### Features
+
+- Drop the TypeScript compiler dependency; printing compiler nodes is deprecated and needs `typescript` installed. ([#4416](https://github.com/kubb-labs/kubb/pull/4416), [`df8fc0b`](https://github.com/kubb-labs/kubb/commit/df8fc0b54d680860230c084dddd9e67ce6e890e3))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Make `tsdown` an optional peer; `kubb studio snapshot` needs it installed. ([#4419](https://github.com/kubb-labs/kubb/pull/4419), [`9cbfdfd`](https://github.com/kubb-labs/kubb/commit/9cbfdfd82147bb6dd2e688d4fc66789b8d40f4e5))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.8 — Oct 23, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Support parameters described with `content` instead of `schema`. The parameter type now comes from the schema of its media type instead of `unknown`, and the new `ParameterNode.contentType` field holds that media type, such as `application/json`, so clients can JSON-encode the value. ([#4413](https://github.com/kubb-labs/kubb/pull/4413), [`1b0c70e`](https://github.com/kubb-labs/kubb/commit/1b0c70e16edf0cdac822403391501830eaae878a))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.7 — Oct 23, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Emit schemas declared in nested `$defs` and `definitions` blocks, and resolve references to their generated schema names. ([#4401](https://github.com/kubb-labs/kubb/pull/4401), [`c30d952`](https://github.com/kubb-labs/kubb/commit/c30d952a231196e841add0db49cd3bd4777b9277))
+- Map `iri`, `iri-reference`, `base64url`, `jwt`, `ulid`, `iban` and `duration` to a `string` node, so they no longer raise `KUBB_UNSUPPORTED_FORMAT`. Their generated output is unchanged. A numeric schema with one of these formats, such as `type: integer, format: duration`, keeps its declared type. ([#4412](https://github.com/kubb-labs/kubb/pull/4412), [`9e12356`](https://github.com/kubb-labs/kubb/commit/9e12356afcc19c2e0ffcdb5de9edeb9ac222cad8))
+- Map `format: uri-reference`, `hostname` and `idn-hostname` to a `string` node instead of `url`. `plugin-zod` now prints `z.string()` for them, so relative references such as `/media/picture.jpg` and bare host names such as `example.com` pass validation. The node keeps its `format`, `minLength`, `maxLength` and `pattern`. ([#4410](https://github.com/kubb-labs/kubb/pull/4410), [`d5b2a1b`](https://github.com/kubb-labs/kubb/commit/d5b2a1b0876f8ded76d322798e57486828bf605a))
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- Resolve a config's `root` from the folder of `kubb.config.ts`, so the CLI, the bundler, the MCP server and `openapi-import` read the same paths wherever they run.
+  
+  - Default `root` to the config's folder, or the folder above `.config/` and `configs/`, instead of `process.cwd()`. `defineConfig` no longer fills it in.
+  - Pick a config for a `*.openapi.yaml` import only when its `input` is that spec, or when it has no `input`. A config written for another spec, such as one in a parent folder, no longer applies.
+  - Fail an import that no config fits with `No Kubb config applies to <spec>`, including under webpack and Rspack, which hung on import errors before. ([#4409](https://github.com/kubb-labs/kubb/pull/4409), [`c2139bc`](https://github.com/kubb-labs/kubb/commit/c2139bcca57c451d07bcf112c6fce6b736f8d339))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@jay23606](https://github.com/jay23606), [@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.6 — Oct 23, 2026
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- Import a `*.openapi.yaml` spec to get the output of every plugin in your config as one module. `kubb()` without a `config` option loads `kubb.config.ts`. ([#4402](https://github.com/kubb-labs/kubb/pull/4402), [`01cf778`](https://github.com/kubb-labs/kubb/commit/01cf778e28806e7b9f80b4c436d866c766ea7103))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.5 — Oct 22, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Parse JSON and YAML specs with `js-yaml` before falling back to `yaml`, for inline and file inputs alike. Loading a 1.4 MB YAML spec drops from about 470 ms to 105 ms, and an inline 1.9 MB JSON spec from about 700 ms to 50 ms. `js-yaml` runs with its core schema, so timestamps stay strings and `<<` stays a plain key, as with `yaml`'s YAML 1.2 defaults. A spec that fails to parse still reports the `yaml` error with its line and column.
+  
+  JSON specs no longer go through `JSON.parse`, which kept the last of two duplicate keys. A JSON spec with a duplicate key, for example the same path twice, now fails with `KUBB_INVALID_DOCUMENT`, as a YAML spec does. ([#4398](https://github.com/kubb-labs/kubb/pull/4398), [`71f48a4`](https://github.com/kubb-labs/kubb/commit/71f48a4448ba3b71f692b5db5d0b06f9d7e3eda4))
+- Speed up `locate` when a caller passes the same spec content as a new string. Diagnostics and editor tools that map many JSON pointers for one spec now compare the spec text once instead of on every call. On a 1.9 MB spec, 6,676 lookups drop from 4.6 s to 0.5 s. ([#4394](https://github.com/kubb-labs/kubb/pull/4394), [`5f712fb`](https://github.com/kubb-labs/kubb/commit/5f712fbddcb9c66a61e2e0f27b54465e8122c65c))
+- Cache the results of `camelCase` and `pascalCase`. A build resolves the same names many times, about 47,000 calls for a spec with 1,000 schemas, and each call ran four regular expressions. The cache holds up to 10,000 entries and then starts over. ([#4399](https://github.com/kubb-labs/kubb/pull/4399), [`d2d20fc`](https://github.com/kubb-labs/kubb/commit/d2d20fc97deeb1c586c46107b8d5a48b9cbaf7aa))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Speed up builds that write many schemas into one file (`output.mode: 'file'`). Generator results for a file are now merged once when the files are read, not re-normalized on every schema. On a 1.9 MB spec with `@kubb/plugin-ts` writing a single file, the build drops from 3.3 s to 2.3 s and allocates about 600 MB less.
+  
+  Named imports in such a file can come out in a different order, sorted by the fragments' names instead of following generation order. The imported names stay the same.
+  
+  `createFile` now checks which imports are used against the sources it keeps, so an import used only by a duplicate source it drops is left out. ([#4396](https://github.com/kubb-labs/kubb/pull/4396), [`df9f3ab`](https://github.com/kubb-labs/kubb/commit/df9f3ab84dedd9ab976942ee95d2969ac0b669dd))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.4 — Oct 22, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Studio can read and edit the root `output` options of a config entry: `barrel`, `format`, `lint`, `clean`, and `defaultBanner`. The agent checks each value against the type the option takes.
+  
+  - The connect payload reports them as `outputOptions` on each entry, and the config file view as `output`.
+  - A generation takes `output` overrides.
+  - Two new config edits, `set-output` and `remove-output`, write inside `output` in `kubb.config.ts`.
+  - Every other `output` member, `path` and `postGenerate` among them, stays with the config file. The agent never sends it to Studio, ignores it in overrides, and refuses edits to it. ([#4390](https://github.com/kubb-labs/kubb/pull/4390), [`baea3fe`](https://github.com/kubb-labs/kubb/commit/baea3fefca95028794ed85b310c9aca7cf81b2ee))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.3 — Oct 22, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- `checkoutGitInput` takes an `authorization` option, a one-line header value that git sends to the input's origin for that fetch only, through `GIT_CONFIG_*` variables added after the host's own. `GenerateInput` gains an optional `gitAuth: { authorization }` field that carries it. Studio uses it to send a short-lived header for a private repository to a managed agent, so no credential sits in the input URL or the container. A failed git checkout on a managed agent now keeps the `KUBB_GIT_INPUT_FAILED` code, so Studio can tell it apart from a failed generation, and an agent that predates the field ignores it. ([#4384](https://github.com/kubb-labs/kubb/pull/4384), [`3d852a9`](https://github.com/kubb-labs/kubb/commit/3d852a9dda33c34cbc6720a749eddeab4c8aadbf))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Studio can save the spec it sends as the agent's input, behind the new `--allow-save-input` permission, which is off by default. A pasted document goes to `openapi.yaml` (or `openapi.json`) in the project, and `input` in `kubb.config.ts` points to it, a URL, or a git file. It needs `--allow-config-edit` too. `@kubb/studio/protocol` now exports `ConfigEditOperation`, which names each config edit operation. ([#4385](https://github.com/kubb-labs/kubb/pull/4385), [`9ad2ef6`](https://github.com/kubb-labs/kubb/commit/9ad2ef6b725a7995e0dda3cb4d5e501f84b60ef4))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.2 — Oct 22, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Studio can install and update registry extensions through the agent, behind the new `--allow-install` and `--allow-update` permissions. `kubb add` exits with code 1 when it cannot write the plugin into `kubb.config.ts`, and `kubb update --yes` installs a major when you name it. ([#4382](https://github.com/kubb-labs/kubb/pull/4382), [`2dc1d18`](https://github.com/kubb-labs/kubb/commit/2dc1d18d2c4efab16e6a53fedd15e085046abc39))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.1 — Oct 22, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- `checkoutGitInput` takes a `publicOnly` option. It accepts an https repository on public addresses only, connects to the addresses it checked, and refuses a redirect. Core also exports `isPublicAddress`. ([#4381](https://github.com/kubb-labs/kubb/pull/4381), [`4e0311b`](https://github.com/kubb-labs/kubb/commit/4e0311bec1b2c379f43a6a6280498741d0dc46dc))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- A managed agent now generates from a spec that Studio sends: the document itself, a URL, or a `git+<repo>#<ref>:<path>` file. It fetches a URL and a git repository from public addresses only, and it refuses a file path. A sandbox still takes the document only. ([#4379](https://github.com/kubb-labs/kubb/pull/4379), [`fdb25b8`](https://github.com/kubb-labs/kubb/commit/fdb25b831fbf307adb67ab7ef4080e049677c0d4))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.12.0 — Oct 21, 2026
+
+### @kubb/cli
+
+#### Features
+
+- `kubb generate --watch` follows a local `input` file only and no longer polls a URL `input`. A URL or git input is generated once, with a warning, so rerun Kubb after the remote spec changes. ([#4375](https://github.com/kubb-labs/kubb/pull/4375), [`39f6950`](https://github.com/kubb-labs/kubb/commit/39f695096ee5a0f952cf12a31242886f0cbee236))
+
+### @kubb/core
+
+#### Features
+
+- `input` reads a spec from a git repository. Write it as `git+<repo>#<ref>:<path>`, where `<ref>` is an optional branch, tag, or full commit SHA. Kubb runs a shallow `git fetch` into a temporary folder, so any host works, a private repository uses your git credentials, and relative `$ref` files resolve. `kubb validate` accepts the same form.
+  
+  ```ts
+  export default defineConfig({
+    input: 'git+https://github.com/org/api.git#v2:specs/openapi.yaml',
+  })
+  ```
+  
+  A failed fetch reports `KUBB_GIT_INPUT_FAILED`. ([#4375](https://github.com/kubb-labs/kubb/pull/4375), [`39f6950`](https://github.com/kubb-labs/kubb/commit/39f695096ee5a0f952cf12a31242886f0cbee236))
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- Load the compiler API from `@typescript/typescript6`, so `print` keeps working next to TypeScript 7, which no longer exports it. Custom printers that build compiler nodes import `ts` from `@typescript/typescript6`.
+  
+  ```diff
+  - import ts from 'typescript'
+  + import ts from '@typescript/typescript6'
+  ``` ([#4370](https://github.com/kubb-labs/kubb/pull/4370), [`b3bc95a`](https://github.com/kubb-labs/kubb/commit/b3bc95a4af3b94cfa2aa2ea282572663904eeebf))
+
+### kubb
+
+#### Bug Fixes
+
+- `defineConfig` now reports unknown config keys, such as a misspelled `output.clean`. Values returned from a callback or a Promise are not checked by TypeScript; add `satisfies UserConfig` there. ([#4376](https://github.com/kubb-labs/kubb/pull/4376), [`14cf395`](https://github.com/kubb-labs/kubb/commit/14cf39552290c6de296d2e9f6e3ab2d38d54a143))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.11.6 — Oct 20, 2026
 
 ### @kubb/studio

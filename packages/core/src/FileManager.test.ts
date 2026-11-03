@@ -230,6 +230,17 @@ describe('FileManager', () => {
       expect(writeItem).not.toHaveBeenCalled()
     })
 
+    it('writes files under the cleaned directory without reading them back', async () => {
+      const storage = memoryStorage()
+      const readItem = vi.spyOn(storage, 'readItem')
+      const manager = new FileManager()
+
+      await manager.write([makeFileWithSources('/gen/a.ts', ['/* a.ts */']), makeFileWithSources('/other/b.ts', ['/* b.ts */'])], { storage, cleaned: '/gen' })
+
+      expect(readItem.mock.calls).toStrictEqual([['/other/b.ts']])
+      expect(await storage.readItem('/gen/a.ts')).toContain('/* a.ts */')
+    })
+
     it('writes a file whose content changed since the last run', async () => {
       const storage = memoryStorage()
       const manager = new FileManager()
@@ -333,6 +344,20 @@ describe('FileManager', () => {
       expect(hookCalls).toStrictEqual(['start:2', 'update:1:a.ts', 'update:2:b.ts', 'end:2'])
     })
 
+    it('hands each parsed source to kubb:file:processed, including files the storage already held', async () => {
+      const storage = memoryStorage()
+      await storage.writeItem('a.ts', '/* a */')
+      const hooks = new Hookable<KubbHooks>()
+      const processed: Array<string> = []
+      hooks.hook('kubb:file:processed', ({ file, source }) => {
+        processed.push(`${file.path}:${source}`)
+      })
+
+      await new FileManager().write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], { storage, hooks })
+
+      expect(processed.toSorted()).toStrictEqual(['a.ts:/* a */', 'b.ts:/* b */'])
+    })
+
     it('lists the files the storage already held as unchanged on the end hook', async () => {
       const storage = memoryStorage()
       await storage.writeItem('a.ts', '/* a */')
@@ -370,6 +395,18 @@ describe('FileManager', () => {
   })
 })
 
+describe('FileManager#delete', () => {
+  it('removes stored and pending files from the listing', () => {
+    const manager = new FileManager()
+    manager.add(makeFile('/gen/a.ts', 'const a = 1'), makeFile('/gen/b.ts', 'const b = 1'))
+    void manager.dispatch({ result: [makeFile('/gen/c.ts', 'const c = 1')] })
+
+    manager.delete('/gen/a.ts', '/gen/c.ts')
+
+    expect(manager.files.map((file) => file.path)).toEqual(['/gen/b.ts'])
+  })
+})
+
 describe('FileManager#dispatch', () => {
   it.each([
     ['null', null],
@@ -393,6 +430,26 @@ describe('FileManager#dispatch', () => {
     expect(fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
   })
 
+  it('links each source without a pointer to the node it was generated from', () => {
+    const fileManager = new FileManager()
+    const file = ast.factory.createFile({
+      baseName: 'pet.ts',
+      path: '/out/pet.ts',
+      sources: [
+        ast.factory.createSource({ name: 'Pet', nodes: [] }),
+        ast.factory.createSource({ name: 'PetStatus', pointer: '#/components/schemas/Pet/properties/status', nodes: [] }),
+      ],
+    })
+
+    fileManager.dispatch({ result: [file], pointer: '#/components/schemas/Pet' })
+
+    expect(fileManager.files[0]?.sources.map((source) => source.pointer)).toStrictEqual([
+      '#/components/schemas/Pet',
+      '#/components/schemas/Pet/properties/status',
+    ])
+    expect(file.sources[0]?.pointer).toBeUndefined()
+  })
+
   it('routes element results through the renderer, upserting its files', async () => {
     const fileManager = new FileManager()
     const renderer = {
@@ -406,5 +463,78 @@ describe('FileManager#dispatch', () => {
 
     expect(renderer.render).toHaveBeenCalledOnce()
     expect(fileManager.files.map((f) => f.name)).toStrictEqual(['async-1'])
+  })
+
+  it('normalizes fragments of one file once, when the files are read', () => {
+    const fileManager = new FileManager()
+    const fragments = ['a', 'b', 'c'].map((value) => makeFile('index.ts', value))
+    const createFile = vi.spyOn(ast.factory, 'createFile')
+
+    for (const fragment of fragments) fileManager.dispatch({ result: [fragment] })
+    expect(createFile).not.toHaveBeenCalled()
+
+    const [file] = fileManager.files
+    expect(createFile).toHaveBeenCalledOnce()
+    expect(file?.sources.map((source) => source.nodes?.map((node) => ('value' in node ? node.value : '')).join(''))).toStrictEqual(['a', 'b', 'c'])
+    createFile.mockRestore()
+  })
+
+  it('leaves dispatched fragments unchanged while merging them', () => {
+    const fileManager = new FileManager()
+    const fragments = ['a', 'b', 'c'].map((value) => makeFile('index.ts', value))
+
+    for (const fragment of fragments) fileManager.dispatch({ result: [fragment] })
+
+    expect(fileManager.files[0]?.sources).toHaveLength(3)
+    expect(fragments.map((fragment) => fragment.sources.length)).toStrictEqual([1, 1, 1])
+  })
+
+  it('merges dispatched fragments the same way upsert does', () => {
+    const fragments = ['a', 'b', 'a'].map((value) => makeFile('index.ts', value))
+    const dispatched = new FileManager()
+    const upserted = new FileManager()
+
+    for (const fragment of fragments) {
+      dispatched.dispatch({ result: [fragment] })
+      upserted.upsert(fragment)
+    }
+
+    expect(dispatched.files).toStrictEqual(upserted.files)
+  })
+
+  it('drops an import used only by a duplicate source the file does not keep', () => {
+    const fragment = (name: string, value: string, imports: Array<{ name: Array<string>; path: string }>) =>
+      ast.factory.createFile({
+        path: 'index.ts',
+        baseName: 'index.ts',
+        sources: [ast.factory.createSource({ name, nodes: [ast.factory.createText(value)] })],
+        imports: imports.map((item) => ast.factory.createImport(item)),
+        exports: [],
+      })
+    const fragments = [
+      fragment('Pet', 'type Pet = A', [{ name: ['A'], path: './a.ts' }]),
+      fragment('Pet', 'type Pet = B', [{ name: ['B'], path: './b.ts' }]),
+      fragment('Order', 'type Order = string', []),
+    ]
+    const dispatched = new FileManager()
+    const upserted = new FileManager()
+
+    for (const item of fragments) {
+      dispatched.dispatch({ result: [item] })
+      upserted.upsert(item)
+    }
+
+    for (const manager of [dispatched, upserted]) {
+      expect(manager.files[0]?.imports.map((item) => item.path)).toStrictEqual(['./a.ts'])
+    }
+  })
+
+  it('merges pending fragments before a later upsert of the same file', () => {
+    const fileManager = new FileManager()
+
+    fileManager.dispatch({ result: [makeFile('index.ts', 'a')] })
+    const [merged] = fileManager.upsert(makeFile('index.ts', 'b'))
+
+    expect(merged?.sources).toHaveLength(2)
   })
 })

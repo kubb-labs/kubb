@@ -33,7 +33,7 @@ describe('createGenerationStore', () => {
     const inputBytes = await store.keepInput({
       maxSetMb: 1,
       jobId: 'job-1',
-      input: ast.factory.createInput({ meta: { description: 'x'.repeat(200), circularNames: [], enumNames: [] } }),
+      input: ast.factory.createInput({ meta: { description: 'x'.repeat(200) } }),
     })
     const output = await store.keep({ jobId: 'job-1', files: sourceFiles({ 'a.ts': 'one' }), maxSetMb: 1 })
     await store.add({ jobId: 'job-1', output, inputBytes })

@@ -16,7 +16,7 @@ type Options = {
  *
  * When `pascal` is `true` the first word is also capitalized (PascalCase), otherwise only subsequent words are.
  */
-function toCamelOrPascal(text: string, pascal: boolean): string {
+function convert(text: string, pascal: boolean): string {
   return text
     .trim()
     .replace(/([a-z\d])([A-Z])/g, '$1 $2')
@@ -31,6 +31,21 @@ function toCamelOrPascal(text: string, pascal: boolean): string {
     })
     .join('')
     .replace(/[^a-zA-Z0-9]/g, '')
+}
+
+// Plugins case the same names on every visit. Clearing at the limit bounds a long-running host.
+const cache = new Map<string, string>()
+const cacheLimit = 100_000
+
+function toCamelOrPascal(text: string, pascal: boolean): string {
+  const key = `${pascal ? 'P' : 'c'}${text}`
+  const cached = cache.get(key)
+  if (cached !== undefined) return cached
+
+  const result = convert(text, pascal)
+  if (cache.size >= cacheLimit) cache.clear()
+  cache.set(key, result)
+  return result
 }
 
 /**

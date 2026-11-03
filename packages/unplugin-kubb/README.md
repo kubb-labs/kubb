@@ -115,15 +115,25 @@ export default defineConfig({
 })
 ```
 
+## Import a spec
+
+Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module. This also works in the Vite dev server.
+
+```ts
+import { getPetById, petSchema } from './petStore.openapi.yaml'
+```
+
+For types in `tsc` and your editor, add [`openapi-import`](https://github.com/kubb-labs/openapi-import).
+
 ## Options
 
 ### config
 
-Define the options for Kubb.
+Your Kubb config. Without it, the plugin loads `kubb.config.ts` like the CLI does.
 
 ```typescript [Options]
 type Options = {
-  config: UserConfig
+  config?: UserConfig
 }
 ```
 

@@ -1,25 +1,7 @@
 import type { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
-type BasePropsWithBaseName = {
-  /**
-   * Base file name including extension, derived from the input path.
-   * Based on UNIX basename convention: `${name}${extname}`.
-   *
-   * @link https://nodejs.org/api/path.html#pathbasenamepath-suffix
-   *
-   * @example
-   * `baseName: 'petStore.ts'`
-   */
-  baseName: `${string}.${string}`
-  /**
-   * Fully qualified path to the generated file.
-   *
-   * @example
-   * `path: 'src/models/petStore.ts'`
-   */
-  path: string
-}
+type BasePropsWithBaseName = Pick<ast.FileNode, 'baseName' | 'path'>
 
 type BasePropsWithoutBaseName = {
   baseName?: never
@@ -32,33 +14,18 @@ type BasePropsWithoutBaseName = {
 
 type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
-type Props<TMeta> = BaseProps & {
-  key?: Key
-  /**
-   * Arbitrary metadata attached to the file node for plugins to read.
-   */
-  meta?: TMeta | null
-  /**
-   * Text prepended to the generated file content before any source blocks.
-   * Accepts `null` so `resolver.default.banner()` results can be passed directly.
-   */
-  banner?: string | null
-  /**
-   * Text appended to the generated file content after all source blocks.
-   * Accepts `null` so `resolver.default.footer()` results can be passed directly.
-   */
-  footer?: string | null
-  /**
-   * Absolute on-disk path to copy into the output, through the parser's `copy` hook when it has
-   * one. Use to emit a real source file shipped inside a package (a template) into the generated
-   * folder. Child source blocks are ignored for output but still drive barrel generation.
-   */
-  copy?: string | null
-  /**
-   * Child nodes rendered as the content of this file (source blocks, imports, exports).
-   */
-  children?: KubbReactNode
-}
+type Props<TMeta extends object> = BaseProps &
+  Pick<ast.UserFileNode<TMeta>, 'banner' | 'footer' | 'copy'> & {
+    key?: Key
+    /**
+     * Arbitrary metadata attached to the file node for plugins to read.
+     */
+    meta?: TMeta | null
+    /**
+     * Child nodes rendered as the content of this file (source blocks, imports, exports).
+     */
+    children?: KubbReactNode
+  }
 
 /**
  * Declares a generated file entry to be collected by the renderer.

@@ -1,4 +1,4 @@
-import type { LiteralUnion } from '@internals/utils'
+import type { LiteralUnion, ValueOf } from '@internals/utils'
 import type { Config } from './types.ts'
 import type { Diagnostic } from './Diagnostics.ts'
 
@@ -87,7 +87,7 @@ export type ReporterContext = {
    * Output verbosity. Use the `logLevel` constants exported from `@kubb/core`
    * (`silent`, `error`, `warn`, `info`, `verbose`).
    */
-  logLevel: (typeof logLevel)[keyof typeof logLevel]
+  logLevel: ValueOf<typeof logLevel>
 }
 
 /**
@@ -153,25 +153,18 @@ export type UserReporter<T = void> = {
  */
 export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
   const { name, needsPluginFiles, drain } = reporter
-  if (!drain) {
-    return {
-      name,
-      needsPluginFiles,
-      async report(result, context) {
-        await reporter.report(result, context)
-      },
-    }
-  }
-
   const reports: Array<T> = []
   return {
     name,
     needsPluginFiles,
     async report(result, context) {
-      reports.push(await reporter.report(result, context))
+      const report = await reporter.report(result, context)
+      if (drain) reports.push(report)
     },
-    async drain(context) {
-      await drain(context, reports.splice(0))
-    },
+    ...(drain && {
+      async drain(context: ReporterContext) {
+        await drain(context, reports.splice(0))
+      },
+    }),
   }
 }

@@ -30,7 +30,7 @@ export { createSchema } from './schema.ts'
  * ```ts
  * function getKind(node: Node): string {
  *   switch (node.kind) {
- *     case 'Input':
+ *     case nodeKinds.input:
  *       return 'input'
  *     default:
  *       return 'other'

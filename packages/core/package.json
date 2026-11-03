@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "5.11.6",
+  "version": "5.15.3",
   "description": "Core engine for Kubb. Provides the plugin driver, file manager and build orchestration used by every Kubb plugin.",
   "keywords": [
     "code-generator",
@@ -47,13 +47,6 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "mocks": [
-        "./dist/mocks.d.ts"
-      ]
-    }
-  },
   "exports": {
     ".": {
       "import": {
@@ -64,10 +57,6 @@
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
       }
-    },
-    "./mocks": {
-      "types": "./dist/mocks.d.ts",
-      "default": "./dist/mocks.js"
     },
     "./schemas/*": "./schemas/*",
     "./package.json": "./package.json"
@@ -82,24 +71,15 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
+    "@kubb/ast": "workspace:^",
     "tinyexec": "catalog:",
-    "unstorage": "^1.17.6",
     "verkit": "^0.5.0"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "vue": "^3.5.44"
   },
-  "peerDependencies": {
-    "vitest": "^4.0.0 || ^5.0.0"
-  },
-  "peerDependenciesMeta": {
-    "vitest": {
-      "optional": true
-    }
-  },
   "engines": {
-    "node": ">=22.12"
+    "node": ">=22.22"
   }
 }

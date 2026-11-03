@@ -1,5 +1,6 @@
 import { exists, getErrorMessage, read, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
+import { CORE_SCHEMA, load } from 'js-yaml'
 import { parse } from 'yaml'
 
 export const urlRegExp = /^https?:\/+/i
@@ -77,11 +78,6 @@ async function readSource(sourcePath: string): Promise<string> {
 /**
  * Reads and parses one source file or URL referenced during bundling: YAML/JSON is parsed into an
  * object, Markdown is returned as-is (bundled inline rather than dereferenced).
- *
- * JSON is valid YAML, so `yaml`'s `parse` handles both, but its general-purpose parser (comments,
- * anchors, block scalars, multi-document streams) does much more work than `JSON.parse` needs to.
- * `JSON.parse` runs first and fails fast on the first non-JSON character, so a real YAML document
- * falls through to `parse` at negligible cost.
  */
 export async function resolveSource(sourcePath: string): Promise<object | string> {
   const data = await readSource(sourcePath)
@@ -90,21 +86,43 @@ export async function resolveSource(sourcePath: string): Promise<object | string
     return data
   }
 
-  try {
-    return JSON.parse(data) as object
-  } catch {
-    return parseYaml(data, {
-      origin: sourcePath,
-      help: 'Fix the syntax at the reported line, or check that `input` points at the spec and not an HTML page.',
-    })
-  }
+  // A URL's query string or fragment must not hide the extension.
+  const pathname = urlRegExp.test(sourcePath) ? new URL(sourcePath).pathname : sourcePath
+
+  return parseYaml(data, {
+    origin: sourcePath,
+    json: !/\.ya?ml$/i.test(pathname),
+    help: 'Fix the syntax at the reported line, or check that `input` points at the spec and not an HTML page.',
+  })
 }
 
 /**
  * Parses a YAML (or JSON) spec. A syntax error throws `KUBB_INVALID_DOCUMENT` naming `origin`,
  * with the parser message, which keeps the line and column.
+ *
+ * With `json` (the default), a document that starts with `{` or `[` goes through `JSON.parse`
+ * first, about ten times faster than `js-yaml` on a JSON spec. A duplicate key then keeps the last
+ * value, as every JSON parser does. YAML flow syntax also starts with `{`, so a parse failure falls
+ * through to YAML. Pass `json: false` for a source known to be YAML.
+ *
+ * `js-yaml` parses about ten times faster than `yaml`, and rejects duplicate keys instead of
+ * keeping the last one. Its core schema keeps timestamps as strings and `<<` as a plain key, as
+ * `yaml` does for YAML 1.2.
  */
-export function parseYaml(data: string, { origin, help }: { origin: string; help: string }): object {
+export function parseYaml(data: string, { origin, help, json = true }: { origin: string; help: string; json?: boolean }): object {
+  if (json && /^\s*[[{]/.test(data)) {
+    try {
+      return JSON.parse(data) as object
+    } catch {
+      // Not JSON, so YAML parses it below.
+    }
+  }
+  try {
+    const document = load(data, { schema: CORE_SCHEMA })
+    if (document !== undefined) return document as object
+  } catch {
+    // `yaml` parses it again below to report the error with its line and column.
+  }
   try {
     return parse(data) as object
   } catch (error) {

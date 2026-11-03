@@ -360,6 +360,15 @@ declare global {
     interface PluginOptionsRegistry {}
 
     /**
+     * Registry of memo key prefixes to the value stored under them, so `memo(`prefix:rest`, compute)`
+     * returns that type. Augment it the way `PluginRegistry` is augmented.
+     */
+    interface MemoRegistry {
+      name: string
+      resolveName: string
+    }
+
+    /**
      * Registry of hook names to their listener argument tuples.
      * Augment this interface to add hook events without touching core types.
      *
@@ -392,13 +401,14 @@ declare global {
       'kubb:hook:start': [ctx: KubbHookStartContext]
       'kubb:hook:line': [ctx: KubbHookLineContext]
       'kubb:hook:end': [ctx: KubbHookEndContext]
-      'kubb:info': [ctx: KubbInfoContext]
+      'kubb:info': [ctx: KubbMessageContext]
       'kubb:error': [ctx: KubbErrorContext]
-      'kubb:success': [ctx: KubbSuccessContext]
-      'kubb:warn': [ctx: KubbWarnContext]
+      'kubb:success': [ctx: KubbMessageContext]
+      'kubb:warn': [ctx: KubbMessageContext]
       'kubb:diagnostic': [ctx: KubbDiagnosticContext]
       'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
       'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
+      'kubb:file:processed': [ctx: KubbFileProcessedContext]
       'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
       'kubb:plugin:start': [ctx: KubbPluginStartContext]
       'kubb:plugin:end': [ctx: KubbPluginEndContext]
@@ -554,12 +564,6 @@ export type KubbMessageContext = {
   info?: string
 }
 
-export type KubbInfoContext = KubbMessageContext
-
-export type KubbSuccessContext = KubbMessageContext
-
-export type KubbWarnContext = KubbMessageContext
-
 export type KubbErrorContext = {
   /**
    * The caught error.
@@ -620,6 +624,13 @@ export type KubbFilesProcessingUpdateContext = {
    * All files processed in this flush chunk.
    */
   files: Array<KubbFileProcessingUpdate>
+}
+
+export type KubbFileProcessedContext = {
+  /** The file that was just parsed and handed to the storage. */
+  file: FileNode
+  /** The parsed content handed to the storage, before it trims the content or an output pass such as a formatter rewrites it. */
+  source: string
 }
 
 export type KubbFilesProcessingEndContext = {

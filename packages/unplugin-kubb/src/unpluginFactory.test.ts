@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { defineExtension, memoryStorage, type UserConfig } from '@kubb/core'
@@ -7,12 +10,12 @@ import { unpluginFactory } from './unpluginFactory.ts'
 
 type KubbUnpluginOptions = ReturnType<typeof unpluginFactory>
 
+/** The plugin that runs the Kubb build, the first of the two the factory returns. */
 function getPluginOptions(options: KubbUnpluginOptions) {
-  if (Array.isArray(options)) {
-    throw new Error('Expected a single unplugin option')
-  }
+  const [plugin] = Array.isArray(options) ? options : [options]
+  if (!plugin) throw new Error('Expected an unplugin option')
 
-  return options
+  return plugin
 }
 
 // unplugin@3's UnpluginContextMeta requires a `versions` map alongside `framework`.
@@ -65,10 +68,50 @@ describe('unpluginFactory', () => {
     expect(lines).toContain('Issues   1 error')
   })
 
-  test('fails the host build when the config is missing', async () => {
+  test('fails the host build when the config is missing and no kubb.config.ts exists', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'unplugin-kubb-'))
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(root)
     const pluginOptions = getPluginOptions(unpluginFactory(undefined, viteMeta))
 
     await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb] Config is not set')
+    await fs.rm(root, { recursive: true, force: true })
+  })
+
+  test('loads kubb.config.ts when the config option is not set', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'unplugin-kubb-'))
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(root)
+    // A config without `input` skips generation, so a load error is the only way this fails.
+    await fs.writeFile(path.join(root, 'kubb.config.ts'), "globalThis.__kubbConfigLoaded = true\nexport default { output: { path: './gen' } }\n")
+    const pluginOptions = getPluginOptions(unpluginFactory(undefined, viteMeta))
+
+    await pluginOptions.buildStart?.call(createBuildContext())
+
+    expect((globalThis as { __kubbConfigLoaded?: boolean }).__kubbConfigLoaded).toBe(true)
+    await fs.rm(root, { recursive: true, force: true })
+  })
+
+  test('resolves a relative root from the folder of the kubb.config.ts it finds', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'unplugin-kubb-'))
+    await fs.mkdir(path.join(root, 'specs'))
+    await fs.mkdir(path.join(root, 'web'))
+    await fs.writeFile(path.join(root, 'specs', 'pet.openapi.yaml'), 'openapi: 3.0.0\ninfo: { title: Pets, version: 1.0.0 }\npaths: {}\n')
+    await fs.writeFile(path.join(root, 'kubb.config.ts'), "export default { root: './specs', input: './pet.openapi.yaml', output: { path: './gen' } }\n")
+    // The bundler runs in a subfolder, so a root resolved from cwd would miss the spec.
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(path.join(root, 'web'))
+    const pluginOptions = getPluginOptions(unpluginFactory(undefined, viteMeta))
+
+    await expect(pluginOptions.buildStart?.call(createBuildContext())).resolves.toBeUndefined()
+    await fs.rm(root, { recursive: true, force: true })
+  })
+
+  test('skips the build for a config without input, used only for spec imports', async () => {
+    const setup = vi.fn()
+    const { input: _input, ...config } = createConfig(setup)
+    const pluginOptions = getPluginOptions(unpluginFactory({ config }, viteMeta))
+
+    await pluginOptions.buildStart?.call(createBuildContext())
+
+    expect(setup).not.toHaveBeenCalled()
   })
 
   test('generates once when the host starts several builds with one instance', async () => {

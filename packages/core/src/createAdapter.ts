@@ -9,9 +9,10 @@ import type { DiagnosticLocation } from './Diagnostics.ts'
  * input shape with paths resolved to absolute.
  *
  * - `{ type: 'path' }`: single file on disk.
- * - `{ type: 'data' }`: raw string or parsed object provided inline.
+ * - `{ type: 'data' }`: raw string or parsed object provided inline. `root` is the folder that
+ *   relative external `$ref`s in it resolve from.
  */
-export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown }
+export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown; root?: string }
 
 /**
  * Generic parameters used by `defineExtension` with `kind: 'adapter'` and the resulting `Adapter` type.
@@ -71,6 +72,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    */
   document: TOptions['document'] | null
   /**
+   * The files and URLs the last `parse()` read, such as the ones external `$ref`s point at, including
+   * any that could not be read. Inline data is not listed. A watcher rebuilds when one of them changes.
+   */
+  sources?: Array<string>
+  /**
    * Parse the source into a universal `InputNode`.
    *
    * An adapter that renames schemas (e.g. collision handling) must stamp `targetName` on
@@ -83,6 +89,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * Validate the document at the given path or URL.
    */
   validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
+  /**
+   * Waits for work `parse` left running alongside generation, such as spec validation in a worker thread.
+   * Kubb awaits it before `kubb:build:end`, inside the build's diagnostics scope. Must not reject.
+   */
+  settle?: () => Promise<void>
   /**
    * Zero-based UTF-16 offsets of a diagnostic in `source` for a code frame, `end` exclusive; `undefined` when it cannot be found.
    */

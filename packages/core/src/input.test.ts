@@ -22,6 +22,7 @@ describe('getInputKind', () => {
     ['a relative path', './petStore.yaml', 'file'],
     ['an absolute path', '/specs/openapi.json', 'file'],
     ['an http(s) address', 'https://example.com/openapi.json', 'url'],
+    ['a git repository', 'git+https://github.com/org/api.git#main:openapi.yaml', 'git'],
     ['inline JSON content', '{ "openapi": "3.1.0" }', 'inline'],
     ['multi-line YAML content', 'openapi: 3.1.0\ninfo:\n  title: Pets', 'inline'],
     ['a single-line YAML document marker', 'swagger: "2.0"', 'inline'],
@@ -52,7 +53,7 @@ describe('inputToAdapterSource', () => {
     ['a parsed object', { openapi: '3.1.0' }],
     ['a parsed spec that happens to carry a path property', { openapi: '3.1.0', path: './petStore.yaml' }],
   ])('passes %s as data', (_name, data) => {
-    expect(inputToAdapterSource(createConfig(data))).toStrictEqual({ type: 'data', data })
+    expect(inputToAdapterSource(createConfig(data))).toStrictEqual({ type: 'data', data, root: '/project' })
   })
 
   it.each([

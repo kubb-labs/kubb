@@ -3,7 +3,7 @@ layout: doc
 title: Kit API
 description: The kubb/kit reference for authoring plugins, generators,
   resolvers, renderers, adapters, parsers, and storage backends, plus the ast
-  namespace, Diagnostics, the engine surface, and the testing helpers.
+  namespace, Diagnostics, and the engine surface.
 outline:
   - 2
   - 3
@@ -37,6 +37,5 @@ Import authoring APIs from `kubb/kit`, included with the `kubb` package.
 | [AST and node builders](./kit/ast)             | `ast`                      | The namespace behind `factory` builders, visitors, guards, macros, and printers. |
 | [Engine](./kit/engine)                     | `createKubb`, `Diagnostics` | The `kubb`-package surface that runs your plugins and the errors it collects. |
 | [Lifecycle hooks](./kit/hooks)                 | `KubbHooks`                | Every `kubb:*` hook a build fires, its payload, and when it fires. |
-| [Testing](./kit/testing)                       | `kubb/kit/testing`         | Vitest-backed helpers for testing plugins, generators, and adapters. |
 | [Extension manifest](./kit/manifest)           | `kubb-extension.json`      | The file an extension package ships for the registry, `kubb add`, and Studio. |
 | [Extension docs](./kit/extension-docs)         | `docs/`                    | The Markdown pages an extension ships for kubb.dev. |
