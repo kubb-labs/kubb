@@ -559,10 +559,10 @@ export class Resolver {
    * and `group`. The path may not escape `root`, which keeps a `file.path` that interpolates
    * spec-derived values from writing outside the project.
    */
-  #resolveOverridePath(filePath: string, root: string, projectRoot: string): string {
+  #resolveOverridePath(filePath: string, root: string, outputRoot: string): string {
     const resolved = path.resolve(root, filePath)
-    // A shared schema resolves against the shared root, but an absolute `file.path` may point back into the project.
-    const parent = isPathInside(resolved, root) ? root : projectRoot
+    // A shared schema resolves against the shared root, but an absolute `file.path` may point back into the output directory.
+    const parent = isPathInside(resolved, root) ? root : outputRoot
     assertInside({
       target: resolved,
       parent,
@@ -574,13 +574,13 @@ export class Resolver {
   }
 
   /** The absolute path `#resolveFile` places a file at. */
-  #resolveFilePath({ name, extname, tag, path: groupPath, root: projectRoot, output, group }: ResolveFileOptions): string {
+  #resolveFilePath({ name, extname, tag, path: groupPath, root: outputRoot, output, group }: ResolveFileOptions): string {
     // A shared schema's file and every import of it move under `output.shared.path`; operation files carry a `tag` or `path`.
     const shared = !tag && !groupPath && output.shared?.schemas?.includes(name) ? output.shared : undefined
-    const root = shared ? path.resolve(projectRoot, shared.path) : projectRoot
+    const root = shared ? path.resolve(outputRoot, shared.path) : outputRoot
     const baseName = this.#baseName({ name, extname })
     return this.#filePath
-      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root, projectRoot)
+      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root, outputRoot)
       : this.#resolvePath({ baseName, tag, path: groupPath, root, output, group })
   }
 
