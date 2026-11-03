@@ -116,7 +116,7 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-barrel": "workspace:*",
     "jiti": "^2.7.0",
-    "unplugin": "^3.5.0",
+    "unplugin": "^3.7.0",
     "yuku-codegen": "^0.19.0",
     "yuku-parser": "^0.19.0"
   },
@@ -126,10 +126,10 @@
     "@kubb/ast": "workspace:*",
     "@nuxt/kit": "^4.6.3",
     "@nuxt/schema": "^4.6.3",
-    "@rspack/core": "^2.2.9",
+    "@rspack/core": "^2.3.0",
     "esbuild": "^0.28.2",
-    "rolldown": "^1.2.15",
-    "rollup": "^4.65.1",
+    "rolldown": "^1.2.16",
+    "rollup": "^4.67.2",
     "vite": "^8.3.5",
     "webpack": "^5.112.2"
   },
