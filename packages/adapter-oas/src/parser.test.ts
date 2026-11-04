@@ -1996,6 +1996,37 @@ describe('parseSchema enum', () => {
     ])
   })
 
+  it.each([
+    { title: 'minimum', schema: { type: 'integer', enum: [0, 1, 2], minimum: 1 }, values: [1, 2] },
+    { title: 'maximum', schema: { type: 'integer', enum: [0, 1, 2], maximum: 1 }, values: [0, 1] },
+    { title: 'exclusiveMinimum', schema: { type: 'integer', enum: [0, 1, 2], exclusiveMinimum: 0 }, values: [1, 2] },
+    { title: 'exclusiveMaximum', schema: { type: 'integer', enum: [0, 1, 2], exclusiveMaximum: 2 }, values: [0, 1] },
+    { title: 'multipleOf', schema: { type: 'number', enum: [0.3, 0.35, 0.6], multipleOf: 0.1 }, values: [0.3, 0.6] },
+    { title: 'bounds that exclude every value', schema: { type: 'integer', enum: [0, 1], minimum: 5 }, values: [0, 1] },
+  ] satisfies Array<{ title: string; schema: SchemaObject; values: Array<number> }>)('drops enum values outside $title', ({ schema, values }) => {
+    const node = parseSchema(emptyCtx, { schema })
+
+    expect(ast.narrowSchema(node, 'enum')?.namedEnumValues?.map((v) => v.value)).toStrictEqual(values)
+  })
+
+  it('drops formatted enum values outside the bounds', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'integer', format: 'int32', enum: [0, 1, 2], minimum: 1 } })
+
+    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => ast.narrowSchema(member, 'enum')?.enumValues?.[0])).toStrictEqual([1, 2])
+  })
+
+  it('x-enumNames keeps each name with its value when bounds drop values', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'integer', enum: [0, 1, 2], minimum: 1, 'x-enumNames': ['Zero', 'One', 'Two'] },
+    })
+    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+
+    expect(values?.map(({ name, value }) => ({ name, value }))).toStrictEqual([
+      { name: 'One', value: 1 },
+      { name: 'Two', value: 2 },
+    ])
+  })
+
   it('x-enumNames falls back to stringified value when fewer names than values', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
