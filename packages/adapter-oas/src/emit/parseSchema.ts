@@ -51,9 +51,7 @@ type SchemaRule = {
  * Ordered schema rule table. Order is significant: composition keywords (`not`, `$ref`, `allOf`,
  * `oneOf`/`anyOf`) take precedence over `const` (except a `$ref` with a sibling `const`, where the
  * `const` wins), which takes precedence over a genuine OAS 3.1 multi-type array (more than one
- * non-`null` type), which takes precedence over `enum`, which takes precedence over `format`/`type`.
- * `enum` runs before `format` so an enum with a handled format (e.g. `type: integer, format: int32`)
- * keeps its values instead of widening to the format's type; the node still carries `format`.
+ * non-`null` type), which takes precedence over `format`/`type`.
  * A multi-type array must split into its per-type members before `format` runs, otherwise
  * `format` collapses the whole schema to one type (e.g. `type: ['null', 'integer', 'string'],
  * format: 'int32'` would drop `string` and emit just `integer`); each split-off member still
@@ -68,16 +66,6 @@ export const schemaRules: Array<SchemaRule> = [
   { match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },
   { match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
   { match: ({ schema }) => Array.isArray(schema.type) && schema.type.filter((t) => t !== 'null').length > 1, convert: convertMultiType },
-  {
-    // A date enum still becomes a `Date` when `dateType` resolves to `'date'`, so the `format` rule handles it.
-    match: ({ schema, options }) => {
-      if (!schema.enum?.length) return false
-      if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time')
-        return resolveDateTypeValue(options.dateType, schema.format) !== 'date'
-      return true
-    },
-    convert: convertEnum,
-  },
   {
     match: ({ schema, options }) => {
       if (!schema.format) return false
@@ -96,6 +84,7 @@ export const schemaRules: Array<SchemaRule> = [
     match: ({ schema, type }) => !type && (schema.minimum !== undefined || schema.maximum !== undefined),
     convert: (ctx) => convertNumeric(ctx, 'number'),
   },
+  { match: ({ schema }) => !!schema.enum?.length, convert: convertEnum },
   {
     match: ({ schema, type }) =>
       type === 'object' || !!schema.properties || !!schema.additionalProperties || 'patternProperties' in schema || 'propertyNames' in schema,
