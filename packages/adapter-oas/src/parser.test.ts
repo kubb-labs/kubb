@@ -632,6 +632,23 @@ describe('parseSchema format', () => {
     { title: 'number double', schema: { type: 'number', format: 'double' }, expected: { type: 'number', format: 'double' } },
     { title: 'string with an unknown format', schema: { type: 'string', format: 'custom-format' }, expected: { type: 'string', format: 'custom-format' } },
     { title: 'enum with a format', schema: { type: 'string', format: 'custom-enum', enum: ['a', 'b'] }, expected: { type: 'enum', format: 'custom-enum' } },
+    {
+      title: 'integer int32 enum with x-enumNames',
+      schema: { type: 'integer', format: 'int32', enum: [0, 1], 'x-enumNames': ['None', 'Received'] },
+      expected: {
+        type: 'enum',
+        format: 'int32',
+        namedEnumValues: [
+          { name: 'None', value: 0, primitive: 'number' },
+          { name: 'Received', value: 1, primitive: 'number' },
+        ],
+      },
+    },
+    {
+      title: 'string uuid enum',
+      schema: { type: 'string', format: 'uuid', enum: ['a', 'b'] },
+      expected: { type: 'enum', format: 'uuid', enumValues: ['a', 'b'] },
+    },
     // A numeric format on a `type: 'string'` schema describes how the number is spelled, so the declared type wins.
     { title: 'string int64', schema: { type: 'string', format: 'int64' }, expected: { type: 'string', format: 'int64' } },
     { title: 'string float', schema: { type: 'string', format: 'float' }, expected: { type: 'string', format: 'float' } },
