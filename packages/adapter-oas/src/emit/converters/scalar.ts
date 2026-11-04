@@ -46,6 +46,21 @@ function getNumericConstraints(schema: SchemaObject): Pick<ast.NumberSchemaNode,
 }
 
 /**
+ * Whether an enum value satisfies the schema's numeric bounds. A value that is not a number always passes.
+ */
+function isWithinBounds({ value, schema }: { value: unknown; schema: SchemaObject }): boolean {
+  if (typeof value !== 'number') return true
+  const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf } = schema
+  if (minimum !== undefined && value < minimum) return false
+  if (maximum !== undefined && value > maximum) return false
+  if (typeof exclusiveMinimum === 'number' && value <= exclusiveMinimum) return false
+  if (typeof exclusiveMaximum === 'number' && value >= exclusiveMaximum) return false
+  // The tolerance keeps float quotients such as `0.3 / 0.1` from failing.
+  if (multipleOf !== undefined && Math.abs(value / multipleOf - Math.round(value / multipleOf)) > 1e-9) return false
+  return true
+}
+
+/**
  * Builds a `null` scalar node carrying the schema's documentation. Shared by the `const: null`
  * and the drf-spectacular `NullEnum` (`{ enum: [null] }`) branches, which render identically.
  */
@@ -145,7 +160,11 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
   }
 
   const nullInEnum = schema.enum!.includes(null)
-  const filteredValues = (nullInEnum ? schema.enum!.filter((v) => v !== null) : schema.enum!) as Array<string | number | boolean>
+  // `enum` and the numeric bounds apply together, so a value outside the bounds is never valid. Bounds that
+  // exclude every value are a spec error, so they are ignored rather than leaving an empty enum.
+  const boundsApply = schema.enum!.some((value) => value !== null && isWithinBounds({ value, schema }))
+  const isMember = (value: unknown) => value !== null && (!boundsApply || isWithinBounds({ value, schema }))
+  const filteredValues = schema.enum!.filter(isMember) as Array<string | number | boolean>
 
   // drf-spectacular `NullEnum` ({ enum: [null] }) is just `null`. An empty enum node would
   // render as `never` (plugin-ts) / invalid `z.enum([])` (plugin-zod). Mirror the `const: null`
@@ -170,10 +189,10 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
     return createNode(ctx, { type: 'enum', primitive, enumValues: uniqueValues })
   }
 
-  // Names and descriptions run parallel to `enum`, so drop the slots of the removed `null` values to keep each name with its value.
-  const withoutNullSlots = (list: unknown) => (Array.isArray(list) ? list.filter((_, index) => schema.enum![index] !== null) : undefined)
-  const rawEnumNames = extensionKey ? (withoutNullSlots((schema as Record<string, unknown>)[extensionKey]) as Array<string | number> | undefined) : undefined
-  const rawEnumDescriptions = descriptionKey ? (withoutNullSlots((schema as Record<string, unknown>)[descriptionKey]) as Array<string> | undefined) : undefined
+  // Names and descriptions run parallel to `enum`, so drop the slots of the removed values to keep each name with its value.
+  const memberSlots = (list: unknown) => (Array.isArray(list) ? list.filter((_, index) => isMember(schema.enum![index])) : undefined)
+  const rawEnumNames = extensionKey ? (memberSlots((schema as Record<string, unknown>)[extensionKey]) as Array<string | number> | undefined) : undefined
+  const rawEnumDescriptions = descriptionKey ? (memberSlots((schema as Record<string, unknown>)[descriptionKey]) as Array<string> | undefined) : undefined
   const seenNames = new Set<string>()
 
   return createNode(ctx, {
