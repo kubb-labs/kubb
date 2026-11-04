@@ -70,8 +70,12 @@ export const schemaRules: Array<SchemaRule> = [
   { match: ({ schema }) => Array.isArray(schema.type) && schema.type.filter((t) => t !== 'null').length > 1, convert: convertMultiType },
   {
     // A date enum still becomes a `Date` when `dateType` resolves to `'date'`, so the `format` rule handles it.
-    match: ({ schema: { enum: values, format }, options }) =>
-      !!values?.length && !((format === 'date-time' || format === 'date' || format === 'time') && resolveDateTypeValue(options.dateType, format) === 'date'),
+    match: ({ schema, options }) => {
+      if (!schema.enum?.length) return false
+      if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time')
+        return resolveDateTypeValue(options.dateType, schema.format) !== 'date'
+      return true
+    },
     convert: convertEnum,
   },
   {
