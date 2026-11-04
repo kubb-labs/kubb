@@ -46,15 +46,15 @@ function getNumericConstraints(schema: SchemaObject): Pick<ast.NumberSchemaNode,
 }
 
 /**
- * Whether an enum value satisfies the schema's numeric bounds. A value that is not a number always passes.
+ * Whether an enum value fits the schema's numeric bounds.
  */
 function isWithinBounds({ value, schema }: { value: unknown; schema: SchemaObject }): boolean {
   if (typeof value !== 'number') return true
-  const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf } = schema
-  if (minimum !== undefined && value < minimum) return false
-  if (maximum !== undefined && value > maximum) return false
-  if (typeof exclusiveMinimum === 'number' && value <= exclusiveMinimum) return false
-  if (typeof exclusiveMaximum === 'number' && value >= exclusiveMaximum) return false
+  const { min, max, exclusiveMinimum, exclusiveMaximum, multipleOf } = getNumericConstraints(schema)
+  if (min !== undefined && value < min) return false
+  if (max !== undefined && value > max) return false
+  if (exclusiveMinimum !== undefined && value <= exclusiveMinimum) return false
+  if (exclusiveMaximum !== undefined && value >= exclusiveMaximum) return false
   // The tolerance keeps float quotients such as `0.3 / 0.1` from failing.
   if (multipleOf !== undefined && Math.abs(value / multipleOf - Math.round(value / multipleOf)) > 1e-9) return false
   return true
