@@ -2009,6 +2009,12 @@ describe('parseSchema enum', () => {
     expect(ast.narrowSchema(node, 'enum')?.namedEnumValues?.map((v) => v.value)).toStrictEqual(values)
   })
 
+  it('drops formatted enum values outside the bounds', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'integer', format: 'int32', enum: [0, 1, 2], minimum: 1 } })
+
+    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => ast.narrowSchema(member, 'enum')?.enumValues?.[0])).toStrictEqual([1, 2])
+  })
+
   it('x-enumNames keeps each name with its value when bounds drop values', () => {
     const node = parseSchema(emptyCtx, {
       schema: { type: 'integer', enum: [0, 1, 2], minimum: 1, 'x-enumNames': ['Zero', 'One', 'Two'] },

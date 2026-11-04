@@ -61,6 +61,16 @@ function isWithinBounds({ value, schema }: { value: unknown; schema: SchemaObjec
 }
 
 /**
+ * Builds the test for which `enum` entries stay: not `null`, and within the numeric bounds. `enum` and the bounds
+ * apply together, so a value outside them is never valid. Bounds that exclude every value are a spec error, so
+ * they are ignored rather than leaving an empty enum.
+ */
+function createEnumMemberFilter(schema: SchemaObject): (value: unknown) => boolean {
+  const boundsApply = schema.enum!.some((value) => value !== null && isWithinBounds({ value, schema }))
+  return (value) => value !== null && (!boundsApply || isWithinBounds({ value, schema }))
+}
+
+/**
  * Builds a `null` scalar node carrying the schema's documentation. Shared by the `const: null`
  * and the drf-spectacular `NullEnum` (`{ enum: [null] }`) branches, which render identically.
  */
@@ -160,10 +170,7 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
   }
 
   const nullInEnum = schema.enum!.includes(null)
-  // `enum` and the numeric bounds apply together, so a value outside the bounds is never valid. Bounds that
-  // exclude every value are a spec error, so they are ignored rather than leaving an empty enum.
-  const boundsApply = schema.enum!.some((value) => value !== null && isWithinBounds({ value, schema }))
-  const isMember = (value: unknown) => value !== null && (!boundsApply || isWithinBounds({ value, schema }))
+  const isMember = createEnumMemberFilter(schema)
   const filteredValues = schema.enum!.filter(isMember) as Array<string | number | boolean>
 
   // drf-spectacular `NullEnum` ({ enum: [null] }) is just `null`. An empty enum node would
@@ -216,7 +223,7 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
  */
 export function convertFormattedEnum(context: ConvertContext): ast.SchemaNode {
   const { schema, nullable } = context
-  const values = [...new Set(schema.enum!.filter((value) => value !== null))] as Array<string | number | boolean>
+  const values = [...new Set(schema.enum!.filter(createEnumMemberFilter(schema)))] as Array<string | number | boolean>
 
   return createNode(
     { ...context, nullable: nullable || schema.enum!.includes(null) || undefined },
