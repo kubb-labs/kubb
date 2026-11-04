@@ -645,6 +645,17 @@ describe('parseSchema format', () => {
       },
     },
     {
+      title: 'string date-time enum when dateType is date',
+      schema: { type: 'string', format: 'date-time', enum: ['2024-01-01T00:00:00Z'] },
+      options: { dateType: 'date' },
+      expected: { type: 'date', format: 'date-time', representation: 'date' },
+    },
+    {
+      title: 'string date-time enum',
+      schema: { type: 'string', format: 'date-time', enum: ['2024-01-01T00:00:00Z'] },
+      expected: { type: 'enum', format: 'date-time', enumValues: ['2024-01-01T00:00:00Z'] },
+    },
+    {
       title: 'string uuid enum',
       schema: { type: 'string', format: 'uuid', enum: ['a', 'b'] },
       expected: { type: 'enum', format: 'uuid', enumValues: ['a', 'b'] },
