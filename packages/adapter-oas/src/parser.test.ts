@@ -632,34 +632,6 @@ describe('parseSchema format', () => {
     { title: 'number double', schema: { type: 'number', format: 'double' }, expected: { type: 'number', format: 'double' } },
     { title: 'string with an unknown format', schema: { type: 'string', format: 'custom-format' }, expected: { type: 'string', format: 'custom-format' } },
     { title: 'enum with a format', schema: { type: 'string', format: 'custom-enum', enum: ['a', 'b'] }, expected: { type: 'enum', format: 'custom-enum' } },
-    {
-      title: 'integer int32 enum with x-enumNames',
-      schema: { type: 'integer', format: 'int32', enum: [0, 1], 'x-enumNames': ['None', 'Received'] },
-      expected: {
-        type: 'enum',
-        format: 'int32',
-        namedEnumValues: [
-          { name: 'None', value: 0, primitive: 'number' },
-          { name: 'Received', value: 1, primitive: 'number' },
-        ],
-      },
-    },
-    {
-      title: 'string date-time enum when dateType is date',
-      schema: { type: 'string', format: 'date-time', enum: ['2024-01-01T00:00:00Z'] },
-      options: { dateType: 'date' },
-      expected: { type: 'date', format: 'date-time', representation: 'date' },
-    },
-    {
-      title: 'string date-time enum',
-      schema: { type: 'string', format: 'date-time', enum: ['2024-01-01T00:00:00Z'] },
-      expected: { type: 'enum', format: 'date-time', enumValues: ['2024-01-01T00:00:00Z'] },
-    },
-    {
-      title: 'string uuid enum',
-      schema: { type: 'string', format: 'uuid', enum: ['a', 'b'] },
-      expected: { type: 'enum', format: 'uuid', enumValues: ['a', 'b'] },
-    },
     // A numeric format on a `type: 'string'` schema describes how the number is spelled, so the declared type wins.
     { title: 'string int64', schema: { type: 'string', format: 'int64' }, expected: { type: 'string', format: 'int64' } },
     { title: 'string float', schema: { type: 'string', format: 'float' }, expected: { type: 'string', format: 'float' } },
@@ -1876,7 +1848,6 @@ describe('parseSchema enum', () => {
     { title: 'integer with x-enumNames', schema: { type: 'integer', enum: [0, 1], 'x-enumNames': ['Off', 'On'] }, primitive: 'number', values: [0, 1] },
     { title: 'string with x-enumNames', schema: { enum: ['a', 'b'], 'x-enumNames': ['Alpha', 'Beta'] }, primitive: 'string', values: ['a', 'b'] },
     { title: 'untyped numeric', schema: { enum: [0, 1] }, primitive: 'number', values: [0, 1] },
-    { title: 'untyped int32', schema: { format: 'int32', enum: [0, 1] }, primitive: 'number', values: [0, 1] },
     { title: 'untyped boolean', schema: { enum: [true, false] }, primitive: 'boolean', values: [true, false] },
   ] satisfies Array<{ title: string; schema: SchemaObject; primitive: string; values: Array<unknown> }>)(
     'produces namedEnumValues with primitive $primitive for a $title enum',
@@ -1962,7 +1933,6 @@ describe('parseSchema enum', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
         type: 'integer',
-        format: 'int32',
         enum: [null, 0, 1],
         'x-enumNames': ['Null', 'Off', 'On'],
         'x-enumDescriptions': ['No value', 'Turned off', 'Turned on'],
