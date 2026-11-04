@@ -632,6 +632,58 @@ describe('parseSchema format', () => {
     { title: 'number double', schema: { type: 'number', format: 'double' }, expected: { type: 'number', format: 'double' } },
     { title: 'string with an unknown format', schema: { type: 'string', format: 'custom-format' }, expected: { type: 'string', format: 'custom-format' } },
     { title: 'enum with a format', schema: { type: 'string', format: 'custom-enum', enum: ['a', 'b'] }, expected: { type: 'enum', format: 'custom-enum' } },
+    {
+      title: 'int32 enum with x-enumNames',
+      schema: { type: 'integer', format: 'int32', enum: [0, 1], 'x-enumNames': ['None', 'Received'] },
+      expected: {
+        type: 'union',
+        format: 'int32',
+        members: [
+          { type: 'enum', enumValues: [0] },
+          { type: 'enum', enumValues: [1] },
+        ],
+      },
+    },
+    {
+      title: 'uuid enum',
+      schema: { type: 'string', format: 'uuid', enum: ['a', 'b'] },
+      expected: {
+        type: 'union',
+        format: 'uuid',
+        members: [
+          { type: 'enum', enumValues: ['a'] },
+          { type: 'enum', enumValues: ['b'] },
+        ],
+      },
+    },
+    {
+      title: 'date-time enum',
+      schema: { type: 'string', format: 'date-time', enum: ['2024-01-01T00:00:00Z'] },
+      expected: { type: 'union', format: 'date-time', members: [{ type: 'enum', enumValues: ['2024-01-01T00:00:00Z'] }] },
+    },
+    {
+      title: 'date-time enum when dateType is date',
+      schema: { type: 'string', format: 'date-time', enum: ['2024-01-01T00:00:00Z'] },
+      options: { dateType: 'date' },
+      expected: { type: 'date', format: 'date-time' },
+    },
+    {
+      title: 'int64 enum (default integerType bigint)',
+      schema: { type: 'integer', format: 'int64', enum: [0, 1] },
+      expected: { type: 'bigint', format: 'int64' },
+    },
+    {
+      title: 'int64 enum when integerType is number',
+      schema: { type: 'integer', format: 'int64', enum: [0, 1] },
+      options: { integerType: 'number' },
+      expected: { type: 'union', format: 'int64' },
+    },
+    { title: 'binary enum', schema: { type: 'string', format: 'binary', enum: ['a'] }, expected: { type: 'blob', format: 'binary' } },
+    {
+      title: 'nullable int32 enum',
+      schema: { type: 'integer', format: 'int32', nullable: true, enum: [null, 0] },
+      expected: { type: 'union', format: 'int32', nullable: true, members: [{ type: 'enum', enumValues: [0] }] },
+    },
     // A numeric format on a `type: 'string'` schema describes how the number is spelled, so the declared type wins.
     { title: 'string int64', schema: { type: 'string', format: 'int64' }, expected: { type: 'string', format: 'int64' } },
     { title: 'string float', schema: { type: 'string', format: 'float' }, expected: { type: 'string', format: 'float' } },
@@ -1925,6 +1977,54 @@ describe('parseSchema enum', () => {
     // After deduping values to [1, 2], names are looked up by position in the deduped array
     expect(values?.map((v) => v.name)).toStrictEqual(['First', 'Duplicate'])
     expect(values?.map((v) => v.value)).toStrictEqual([1, 2])
+  })
+
+  it('x-enumNames keeps each name with its value when the enum holds null', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'integer',
+        enum: [null, 0, 1],
+        'x-enumNames': ['Null', 'Off', 'On'],
+        'x-enumDescriptions': ['No value', 'Turned off', 'Turned on'],
+      },
+    })
+    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+
+    expect(values?.map(({ name, value, description }) => ({ name, value, description }))).toStrictEqual([
+      { name: 'Off', value: 0, description: 'Turned off' },
+      { name: 'On', value: 1, description: 'Turned on' },
+    ])
+  })
+
+  it.each([
+    { title: 'minimum', schema: { type: 'integer', enum: [0, 1, 2], minimum: 1 }, values: [1, 2] },
+    { title: 'maximum', schema: { type: 'integer', enum: [0, 1, 2], maximum: 1 }, values: [0, 1] },
+    { title: 'exclusiveMinimum', schema: { type: 'integer', enum: [0, 1, 2], exclusiveMinimum: 0 }, values: [1, 2] },
+    { title: 'exclusiveMaximum', schema: { type: 'integer', enum: [0, 1, 2], exclusiveMaximum: 2 }, values: [0, 1] },
+    { title: 'multipleOf', schema: { type: 'number', enum: [0.3, 0.35, 0.6], multipleOf: 0.1 }, values: [0.3, 0.6] },
+    { title: 'bounds that exclude every value', schema: { type: 'integer', enum: [0, 1], minimum: 5 }, values: [0, 1] },
+  ] satisfies Array<{ title: string; schema: SchemaObject; values: Array<number> }>)('drops enum values outside $title', ({ schema, values }) => {
+    const node = parseSchema(emptyCtx, { schema })
+
+    expect(ast.narrowSchema(node, 'enum')?.namedEnumValues?.map((v) => v.value)).toStrictEqual(values)
+  })
+
+  it('drops formatted enum values outside the bounds', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'integer', format: 'int32', enum: [0, 1, 2], minimum: 1 } })
+
+    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => ast.narrowSchema(member, 'enum')?.enumValues?.[0])).toStrictEqual([1, 2])
+  })
+
+  it('x-enumNames keeps each name with its value when bounds drop values', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'integer', enum: [0, 1, 2], minimum: 1, 'x-enumNames': ['Zero', 'One', 'Two'] },
+    })
+    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+
+    expect(values?.map(({ name, value }) => ({ name, value }))).toStrictEqual([
+      { name: 'One', value: 1 },
+      { name: 'Two', value: 2 },
+    ])
   })
 
   it('x-enumNames falls back to stringified value when fewer names than values', () => {
