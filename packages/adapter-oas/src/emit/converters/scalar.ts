@@ -156,7 +156,10 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
 
   const enumNullable = nullable || nullInEnum || undefined
   const enumDefault = schema.default === null && enumNullable ? undefined : schema.default
-  const primitive: 'number' | 'boolean' | 'string' = type === 'boolean' ? 'boolean' : type === 'number' || type === 'integer' ? 'number' : 'string'
+  // An untyped enum takes its primitive from its values when they all share one type, such as `{ enum: [0, 1] }`.
+  const valueType = type ?? (filteredValues.every((v) => typeof v === typeof filteredValues[0]) ? typeof filteredValues[0] : undefined)
+  const primitive: 'number' | 'boolean' | 'string' =
+    valueType === 'boolean' ? 'boolean' : valueType === 'number' || valueType === 'integer' ? 'number' : 'string'
   const uniqueValues = [...new Set(filteredValues)]
 
   const ctx = { schema, name, nullable: enumNullable as true | undefined, defaultValue: enumDefault }

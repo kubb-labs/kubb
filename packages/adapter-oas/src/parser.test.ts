@@ -1875,6 +1875,9 @@ describe('parseSchema enum', () => {
     { title: 'boolean', schema: { type: 'boolean', enum: [true, false] }, primitive: 'boolean', values: [true, false] },
     { title: 'integer with x-enumNames', schema: { type: 'integer', enum: [0, 1], 'x-enumNames': ['Off', 'On'] }, primitive: 'number', values: [0, 1] },
     { title: 'string with x-enumNames', schema: { enum: ['a', 'b'], 'x-enumNames': ['Alpha', 'Beta'] }, primitive: 'string', values: ['a', 'b'] },
+    { title: 'untyped numeric', schema: { enum: [0, 1] }, primitive: 'number', values: [0, 1] },
+    { title: 'untyped int32', schema: { format: 'int32', enum: [0, 1] }, primitive: 'number', values: [0, 1] },
+    { title: 'untyped boolean', schema: { enum: [true, false] }, primitive: 'boolean', values: [true, false] },
   ] satisfies Array<{ title: string; schema: SchemaObject; primitive: string; values: Array<unknown> }>)(
     'produces namedEnumValues with primitive $primitive for a $title enum',
     async ({ schema, primitive, values }) => {
