@@ -1958,6 +1958,24 @@ describe('parseSchema enum', () => {
     expect(values?.map((v) => v.value)).toStrictEqual([1, 2])
   })
 
+  it('x-enumNames keeps each name with its value when the enum holds null', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'integer',
+        format: 'int32',
+        enum: [null, 0, 1],
+        'x-enumNames': ['Null', 'Off', 'On'],
+        'x-enumDescriptions': ['No value', 'Turned off', 'Turned on'],
+      },
+    })
+    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+
+    expect(values?.map(({ name, value, description }) => ({ name, value, description }))).toStrictEqual([
+      { name: 'Off', value: 0, description: 'Turned off' },
+      { name: 'On', value: 1, description: 'Turned on' },
+    ])
+  })
+
   it('x-enumNames falls back to stringified value when fewer names than values', () => {
     const node = parseSchema(emptyCtx, {
       schema: {

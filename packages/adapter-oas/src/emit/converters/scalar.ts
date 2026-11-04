@@ -170,8 +170,10 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
     return createNode(ctx, { type: 'enum', primitive, enumValues: uniqueValues })
   }
 
-  const rawEnumNames = extensionKey ? ((schema as Record<string, unknown>)[extensionKey] as Array<string | number>) : undefined
-  const rawEnumDescriptions = descriptionKey ? ((schema as Record<string, unknown>)[descriptionKey] as Array<string>) : undefined
+  // Names and descriptions run parallel to `enum`, so drop the slots of the removed `null` values to keep each name with its value.
+  const withoutNullSlots = (list: unknown) => (Array.isArray(list) ? list.filter((_, index) => schema.enum![index] !== null) : undefined)
+  const rawEnumNames = extensionKey ? (withoutNullSlots((schema as Record<string, unknown>)[extensionKey]) as Array<string | number> | undefined) : undefined
+  const rawEnumDescriptions = descriptionKey ? (withoutNullSlots((schema as Record<string, unknown>)[descriptionKey]) as Array<string> | undefined) : undefined
   const seenNames = new Set<string>()
 
   return createNode(ctx, {
