@@ -8,7 +8,7 @@ We welcome contributions that help improve Kubb. A few ways to get involved:
 
 Please read and follow our [Code of Conduct](https://github.com/kubb-labs/.github/blob/main/CODE_OF_CONDUCT.md). Be respectful and open-minded, search the [issue tracker](https://github.com/kubb-labs/kubb/issues) before opening a PR, and for opinion-driven changes open an issue first.
 
-You may use AI tools to contribute. See our [AI Contribution Policy](./AI_POLICY.md).
+Read our [AI Contribution Policy](./AI_POLICY.md) before you use AI tools to contribute.
 
 ## Prerequisites
 
