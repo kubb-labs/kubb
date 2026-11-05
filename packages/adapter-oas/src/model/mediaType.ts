@@ -3,7 +3,9 @@ import { isJsonMimeType, isOpenApi32, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, MediaTypeObject, ReferenceObject, SchemaObject } from '../types.ts'
 
-/** The media type without its parameters, so `text/event-stream; charset=utf-8` matches the bare name. */
+/**
+ * The media type without its parameters, so `text/event-stream; charset=utf-8` matches the bare name.
+ */
 function baseMediaType(contentType: string): string {
   return contentType.split(';')[0]!.trim().toLowerCase()
 }
@@ -15,12 +17,16 @@ export function isStream(contentType: string, mediaType: MediaTypeObject | null)
   return STREAM_MEDIA_TYPES.has(baseMediaType(contentType)) || mediaType?.itemSchema !== undefined
 }
 
-/** Whether the media type is `text/event-stream`, with or without parameters. */
+/**
+ * Whether the media type is `text/event-stream`, with or without parameters.
+ */
 export function isEventStream(contentType: string): boolean {
   return baseMediaType(contentType) === 'text/event-stream'
 }
 
-/** Replaces a `data` string that holds JSON with its `contentSchema`, so the event reads as parsed. */
+/**
+ * Replaces a `data` string that holds JSON with its `contentSchema`, so the event reads as parsed.
+ */
 function withParsedData(schema: SchemaObject, refs: Refs): SchemaObject {
   const data = schema.properties?.data as SchemaObject | ReferenceObject | undefined
   const resolved = data && isReference(data) ? refs.resolve<SchemaObject>(data.$ref, { report: false }) : data
@@ -30,10 +36,14 @@ function withParsedData(schema: SchemaObject, refs: Refs): SchemaObject {
   return parsed as SchemaObject
 }
 
-/** Keywords next to `$ref` that only annotate it, so a reference that carries nothing else stays a reference. */
+/**
+ * Keywords next to `$ref` that only annotate it, so a reference that carries nothing else stays a reference.
+ */
 const REF_ANNOTATIONS = new Set(['$ref', 'summary', 'description', '$comment'])
 
-/** Applies `extra` on top of `base` the way JSON Schema does: `properties` and `required` add up, other keywords of `extra` win. */
+/**
+ * Applies `extra` on top of `base` the way JSON Schema does: `properties` and `required` add up, other keywords of `extra` win.
+ */
 function mergeSchemas(base: Pick<SchemaObject, 'properties' | 'required'>, extra: SchemaObject): SchemaObject {
   const required = [...new Set([...(Array.isArray(base.required) ? base.required : []), ...(Array.isArray(extra.required) ? extra.required : [])])]
   const merged = { type: 'object', ...base, ...extra, properties: { ...base.properties, ...extra.properties }, ...(required.length ? { required } : {}) }
@@ -41,9 +51,10 @@ function mergeSchemas(base: Pick<SchemaObject, 'properties' | 'required'>, extra
 }
 
 /**
- * Normalizes the OpenAPI 3.2 `text/event-stream` item schema into one schema per event: keywords next to a `$ref`
- * apply to the referenced schema, shared `properties` merge into each inline `oneOf`/`anyOf` member and a JSON
- * `data` string becomes its `contentSchema`.
+ * Normalizes the OpenAPI 3.2 `text/event-stream` item schema into one schema per event.
+ * - Keywords next to a `$ref` apply to the referenced schema.
+ * - Shared `properties` merge into each inline `oneOf`/`anyOf` member.
+ * - A JSON `data` string becomes its `contentSchema`.
  */
 export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs): SchemaObject | ReferenceObject {
   if (isReference(schema)) {
@@ -66,7 +77,9 @@ export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs
   return event as SchemaObject
 }
 
-/** Whether the schema, or a composition member of it, declares an `event` or `data` property. */
+/**
+ * Whether the schema, following `$ref`s, or a composition member of it declares an `event` or `data` property.
+ */
 function declaresEventFields(schema: SchemaObject | ReferenceObject, refs: Refs, seen: Set<string>): boolean {
   if (isReference(schema)) {
     if (seen.has(schema.$ref)) return false

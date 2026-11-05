@@ -2845,6 +2845,10 @@ describe('OpenAPI 3.2', () => {
     return findOperation(root, operationId)?.responses[0]?.content?.[0]
   }
 
+  function property(node: ast.ObjectSchemaNode, name: string): ast.PropertyNode | undefined {
+    return node.properties.find((entry) => entry.name === name)
+  }
+
   it('turns the text/event-stream itemSchema into an event union with data typed from contentSchema', async () => {
     const root = await parseOas(
       streamingDocument({
@@ -2874,7 +2878,6 @@ describe('OpenAPI 3.2', () => {
     const union = ast.narrowSchema(content!.schema!, 'union')
     expect(union?.discriminatorPropertyName).toBe('event')
     const [delta, ping] = union!.members!.map((member) => ast.narrowSchema(member, 'object')!)
-    const property = (node: ast.ObjectSchemaNode, name: string) => node.properties.find((entry) => entry.name === name)
     expect(property(delta!, 'event')).toMatchObject({ required: true, schema: { type: 'enum', enumValues: ['message_delta'] } })
     expect(property(delta!, 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
     expect(property(delta!, 'retry')).toMatchObject({ required: false, schema: { type: 'integer' } })
@@ -2911,7 +2914,6 @@ describe('OpenAPI 3.2', () => {
     const content = firstContent(root)
     const union = ast.narrowSchema(content!.schema!, 'union')
     const [addString, addJson] = union!.members!.map((member) => ast.narrowSchema(member, 'object')!)
-    const property = (node: ast.ObjectSchemaNode, name: string) => node.properties.find((entry) => entry.name === name)
 
     expect(content?.stream).toMatchObject({ shape: 'event' })
     expect(union?.discriminatorPropertyName).toBe('event')
