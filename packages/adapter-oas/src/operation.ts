@@ -205,8 +205,8 @@ function getStreamField({
 
   return {
     stream: {
-      ...(raw ? { itemSchema: node } : {}),
-      ...(raw && isEventStream(contentType) ? { itemShape: getItemShape(raw, refs) } : {}),
+      ...(raw ? { schema: node } : {}),
+      ...(raw && isEventStream(contentType) ? { shape: getItemShape(raw, refs) } : {}),
     },
   }
 }
