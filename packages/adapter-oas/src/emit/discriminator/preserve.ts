@@ -83,10 +83,7 @@ export function createDiscriminantNode({ propertyName, values }: { propertyName:
   })
 }
 
-/**
- * The `$ref` of an OpenAPI 3.2 `defaultMapping`, which names the schema a value outside `mapping`
- * falls back to, as a bare schema name or a `$ref`. `undefined` when the discriminator has none.
- */
+/** The `$ref` of an OpenAPI 3.2 `defaultMapping`, given as a schema name or a `$ref`; `undefined` when there is none. */
 export function getDefaultMappingRef(discriminator: DiscriminatorObject | undefined): string | undefined {
   const value = discriminator?.defaultMapping
   if (!value) return undefined
@@ -211,7 +208,6 @@ export function narrowUnionMembers({
   }
 
   function implicitDiscriminantValue(member: unknown): string | null {
-    // The default member accepts every value outside `mapping`, so its name is not a discriminant.
     if (!discriminator || discriminator.mapping || !isReference(member) || member.$ref === getDefaultMappingRef(discriminator)) return null
     const value = extractRefName(member.$ref)
     if (!value) return null

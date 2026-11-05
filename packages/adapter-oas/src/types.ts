@@ -57,10 +57,7 @@ export type SchemaObject = {
    * OAS 3.1: encoding applied to string content, such as `base64`.
    */
   contentEncoding?: string
-  /**
-   * OAS 3.1: schema of the decoded value when `contentMediaType` is set, such as the JSON document
-   * a string holds.
-   */
+  /** OAS 3.1: schema of the decoded value a string with `contentMediaType` holds. */
   contentSchema?: SchemaObject | ReferenceObject
   $ref?: string
   /**
@@ -95,14 +92,13 @@ export type Document = OpenAPIV3_1.Document & Record<string, unknown>
 export type OperationObject = OpenAPIV3_1.OperationObject & Record<string, unknown>
 
 /**
- * Path item object holding the operations and shared parameters for a single URL path.
- * `additionalOperations` is the OpenAPI 3.2 map of operations for HTTP methods outside the fixed fields.
+ * Path item object holding the operations and shared parameters for a single URL path, plus the
+ * OpenAPI 3.2 `additionalOperations` map for HTTP methods outside the fixed fields.
  */
 export type PathItemObject = OpenAPIV3_1.PathItemObject & { additionalOperations?: Record<string, OperationObject> }
 
 /**
- * Discriminator object for `oneOf`/`anyOf` schemas in OpenAPI. `defaultMapping` is the OpenAPI 3.2
- * schema name or `$ref` used when the property value is not in `mapping`.
+ * Discriminator object for `oneOf`/`anyOf` schemas, with the OpenAPI 3.2 `defaultMapping` fallback schema.
  */
 export type DiscriminatorObject = OpenAPIV3_1.DiscriminatorObject & { defaultMapping?: string }
 
@@ -122,14 +118,12 @@ export type ResponseObject = OpenAPIV3_1.ResponseObject
 export type RequestBodyObject = OpenAPIV3_1.RequestBodyObject
 
 /**
- * OpenAPI media type object that maps a content-type string to its schema. `itemSchema` is the
- * OpenAPI 3.2 schema of one item of a sequential media type such as `text/event-stream`.
+ * OpenAPI media type object, with the OpenAPI 3.2 `itemSchema` of one item of a sequential media type.
  */
 export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject & { itemSchema?: SchemaObject | ReferenceObject }
 
 /**
- * OpenAPI parameter object, narrowed so `in` is always one of the valid locations. `querystring`
- * is the OpenAPI 3.2 location for the whole query string as one value.
+ * OpenAPI parameter object, narrowed so `in` is always one of the valid locations.
  */
 export type ParameterObject = {
   in: 'cookie' | 'header' | 'path' | 'query' | 'querystring'

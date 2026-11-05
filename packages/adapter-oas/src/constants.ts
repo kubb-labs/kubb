@@ -30,10 +30,7 @@ export const SCHEMA_REF_PREFIX = '#/components/schemas/' as const
  */
 export const SUPPORTED_METHODS: ReadonlySet<string> = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query'])
 
-/**
- * Media types OpenAPI 3.2 reads as a sequence of items, each described by `itemSchema`
- * (or by `schema` on `text/event-stream` in a 3.0 or 3.1 document).
- */
+/** Media types OpenAPI 3.2 reads as a sequence of items, each described by `itemSchema`. */
 export const SEQUENTIAL_MEDIA_TYPES: ReadonlySet<string> = new Set([
   'application/jsonl',
   'application/x-ndjson',

@@ -50,28 +50,14 @@ export type ContentNode = BaseNode & {
    */
   contentType: string
   /**
-   * Body schema for this content type. For a sequential media type this is the same node as
-   * `itemSchema`, so a plugin that only reads `schema` types one item instead of the whole stream.
+   * Body schema for this content type. For a sequential media type it is the same node as `itemSchema`.
    */
   schema?: SchemaNode
-  /**
-   * Schema of one item of a sequential media type, from the OpenAPI 3.2 `itemSchema`, or from
-   * `schema` on a `text/event-stream` entry in a 3.0 or 3.1 document where it describes one event.
-   * Absent for complete (non-sequential) content.
-   */
+  /** One item of a sequential media type: the OpenAPI 3.2 `itemSchema`, or `schema` on a 3.0/3.1 `text/event-stream` entry. */
   itemSchema?: SchemaNode
-  /**
-   * `true` when the content is a sequence of items (`text/event-stream`, `application/jsonl`,
-   * `application/x-ndjson`, `application/json-seq`, `application/geo+json-seq`, `multipart/mixed`,
-   * or any media type that declares `itemSchema`), so a client should stream it instead of
-   * reading one body.
-   */
+  /** `true` for a stream of items (`text/event-stream`, JSON Lines, NDJSON, JSON-seq, `multipart/mixed`, or any media type with `itemSchema`). */
   sequential?: boolean
-  /**
-   * For `text/event-stream`: `'event'` when `itemSchema` describes the parsed event with its
-   * `event`, `data`, `id` and `retry` fields, `'data'` when it only describes the `data` payload
-   * and the client wraps it in its own event type.
-   */
+  /** For `text/event-stream`: `'event'` when `itemSchema` is the parsed event (`event`, `data`, `id`, `retry`), `'data'` when it is only the `data` payload. */
   itemShape?: 'event' | 'data'
   /**
    * Property keys to exclude from the generated type via `Omit<Type, Keys>`.

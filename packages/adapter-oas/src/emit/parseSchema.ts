@@ -95,11 +95,7 @@ export const schemaRules: Array<SchemaRule> = [
   },
   { match: matchesFormat, convert: convertFormat },
   { match: ({ schema }) => isBinary(schema), convert: (ctx) => createNode(ctx, { type: 'blob', primitive: 'string' }) },
-  {
-    // A string that holds an encoded value, such as JSON, stays a string and carries the decoded schema.
-    match: ({ schema, type }) => !type && (schema.contentMediaType !== undefined || schema.contentSchema !== undefined),
-    convert: convertString,
-  },
+  { match: ({ schema, type }) => !type && (schema.contentMediaType !== undefined || schema.contentSchema !== undefined), convert: convertString },
   {
     match: ({ schema, type }) => !type && (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined),
     convert: convertString,
