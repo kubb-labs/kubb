@@ -9,13 +9,35 @@ function simplify(members: Array<SchemaNode>): Array<SchemaNode> {
 }
 
 describe('macroSimplifyUnion', () => {
-  it('drops a multi-value enum covered by a broader scalar while keeping other members', () => {
-    const string = ast.factory.createSchema({ type: ast.schemaTypes.string })
+  it('drops a multi-value number enum covered by a broader scalar while keeping other members', () => {
+    const number = ast.factory.createSchema({ type: ast.schemaTypes.number })
     const ref = ast.factory.createSchema({ type: ast.schemaTypes.ref, ref: '#/components/schemas/Bar', name: 'Bar' })
 
     expect(
-      simplify([ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.string, enumValues: ['x', 'y'] }), string, ref]),
-    ).toStrictEqual([string, ref])
+      simplify([ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.number, enumValues: [1, 2] }), number, ref]),
+    ).toStrictEqual([number, ref])
+  })
+
+  it('keeps a multi-value string enum beside a plain string and clears a name copied from the union', () => {
+    const string = ast.factory.createSchema({ type: ast.schemaTypes.string, name: 'ModelId' })
+    const known = ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.string, name: 'ModelId', enumValues: ['gpt-a', 'gpt-b'] })
+    const result = ast.applyMacros(ast.factory.createSchema({ type: ast.schemaTypes.union, name: 'ModelId', members: [string, known] }), [macroSimplifyUnion], {
+      depth: 'shallow',
+    })
+
+    expect(ast.narrowSchema(result, ast.schemaTypes.union)?.members).toStrictEqual([string, { ...known, name: null }])
+  })
+
+  it('keeps the name of a string enum that is not the union name', () => {
+    const string = ast.factory.createSchema({ type: ast.schemaTypes.string })
+    const known = ast.factory.createSchema({
+      type: ast.schemaTypes.enum,
+      primitive: ast.schemaTypes.string,
+      name: 'KnownModels',
+      enumValues: ['gpt-a', 'gpt-b'],
+    })
+
+    expect(simplify([string, known])).toStrictEqual([string, known])
   })
 
   it('keeps a single-value enum even when a broader scalar is present', () => {

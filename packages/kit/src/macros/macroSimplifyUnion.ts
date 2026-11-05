@@ -50,36 +50,55 @@ function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
 }
 
 /**
- * Filters union members, dropping enum members that a broader scalar primitive already covers.
+ * Drops an enum a broader scalar already covers, except a multi-value string enum beside a plain
+ * string. Those literals are the known values of an open string (`anyOf: [string, string enum]`).
+ * A name copied from the union is cleared so printers inline `(string & {}) | 'a' | 'b'` instead of
+ * a second type with the union's name. Single-value enums are kept either way.
  */
-function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
-  const scalarPrimitives = new Set<string>(members.filter((member) => SCALAR_PRIMITIVE_TYPES.has(member.type)).map((m) => m.type))
-  if (!scalarPrimitives.size) return members
+function simplifyEnumMember(member: SchemaNode, scalarPrimitives: Set<string>, unionName: string | null | undefined): SchemaNode | undefined {
+  const enumNode = ast.narrowSchema(member, ast.schemaTypes.enum)
+  if (!enumNode) return member
 
-  return members.filter((member) => {
-    const enumNode = ast.narrowSchema(member, ast.schemaTypes.enum)
-    if (!enumNode) return true
+  const primitive = enumNode.primitive
+  if (!primitive) return member
 
-    const primitive = enumNode.primitive
-    if (!primitive) return true
+  const enumValueCount = enumNode.namedEnumValues?.length ?? enumNode.enumValues?.length ?? 0
+  if (enumValueCount <= 1) return member
 
-    const enumValueCount = enumNode.namedEnumValues?.length ?? enumNode.enumValues?.length ?? 0
-    if (enumValueCount <= 1) return true
+  const covered =
+    scalarPrimitives.has(primitive) ||
+    ((primitive === ast.schemaTypes.integer || primitive === ast.schemaTypes.number) &&
+      (scalarPrimitives.has(ast.schemaTypes.integer) || scalarPrimitives.has(ast.schemaTypes.number)))
+  if (!covered) return member
 
-    if (scalarPrimitives.has(primitive)) return false
-    if (
-      (primitive === ast.schemaTypes.integer || primitive === ast.schemaTypes.number) &&
-      (scalarPrimitives.has(ast.schemaTypes.integer) || scalarPrimitives.has(ast.schemaTypes.number))
-    )
-      return false
+  if (primitive === ast.schemaTypes.string && scalarPrimitives.has(ast.schemaTypes.string)) {
+    return enumNode.name && enumNode.name === unionName ? { ...enumNode, name: null } : member
+  }
 
-    return true
-  })
+  return undefined
 }
 
 /**
- * Removes union members that repeat an earlier one, and members a broader scalar primitive already
- * covers, such as a multi-value string enum sitting next to a plain `string`. Single-value enums are kept.
+ * Filters union members, dropping enum members that a broader scalar primitive already covers.
+ * String enums beside a plain string are kept. See {@link simplifyEnumMember}.
+ */
+function simplifyUnionMembers(members: Array<SchemaNode>, unionName: string | null | undefined): Array<SchemaNode> {
+  const scalarPrimitives = new Set<string>(members.filter((member) => SCALAR_PRIMITIVE_TYPES.has(member.type)).map((member) => member.type))
+  if (!scalarPrimitives.size) return members
+
+  const simplified: Array<SchemaNode> = []
+  for (const member of members) {
+    const kept = simplifyEnumMember(member, scalarPrimitives, unionName)
+    if (kept) simplified.push(kept)
+  }
+
+  return simplified
+}
+
+/**
+ * Removes union members that repeat an earlier one, and enum members a broader scalar primitive
+ * already covers, such as a multi-value number enum next to `number`. A multi-value string enum
+ * next to a plain `string` is kept, so the known values survive. Single-value enums are kept.
  *
  * @example
  * ```ts
@@ -92,8 +111,8 @@ export const macroSimplifyUnion = ast.defineMacro({
     const unionNode = ast.narrowSchema(node, ast.schemaTypes.union)
     if (!unionNode?.members?.length) return undefined
 
-    const simplified = simplifyUnionMembers(dedupeMembers(unionNode.members))
-    if (simplified.length === unionNode.members.length) return undefined
+    const simplified = simplifyUnionMembers(dedupeMembers(unionNode.members), unionNode.name)
+    if (simplified.length === unionNode.members.length && simplified.every((member, index) => member === unionNode.members?.[index])) return undefined
 
     return { ...unionNode, members: simplified }
   },

@@ -1071,6 +1071,19 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(['string', 'number'])
   })
 
+  it.each(['oneOf', 'anyOf'] as const)('keeps the known values of a %s between a plain string and a string enum', (keyword) => {
+    const node = parseSchema(emptyCtx, {
+      name: 'ModelId',
+      schema: { [keyword]: [{ type: 'string' }, { type: 'string', enum: ['gpt-a', 'gpt-b'] }] },
+    })
+
+    expect(node).toMatchObject({
+      type: 'union',
+      name: 'ModelId',
+      members: [{ type: 'string' }, { type: 'enum', name: null, primitive: 'string', enumValues: ['gpt-a', 'gpt-b'] }],
+    })
+  })
+
   it('combines oneOf and anyOf members into a single union with strategy one', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
