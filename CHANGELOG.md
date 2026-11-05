@@ -1,5 +1,23 @@
 # Changelog
 
+## v5.15.4 — Nov 5, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Drop enum values that break the schema's `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum` or `multipleOf`, so `{ type: integer, enum: [0, 1], minimum: 1 }` generates `1` instead of `0 | 1`. The matching `x-enumNames` and `x-enumDescriptions` entries are dropped with them. ([#4526](https://github.com/kubb-labs/kubb/pull/4526), [`4da8f04`](https://github.com/kubb-labs/kubb/commit/4da8f04ab1f1fcd79211c07e61675da490c40384))
+- Parse a JSON spec with `JSON.parse`, about ten times faster than `js-yaml` on the same file. A duplicate key in JSON input now keeps the last value, as every JSON parser does, instead of failing with `KUBB_INVALID_DOCUMENT`. YAML input is unchanged and still rejects duplicate keys. ([#4522](https://github.com/kubb-labs/kubb/pull/4522), [`cedadee`](https://github.com/kubb-labs/kubb/commit/cedadee165b66dadd06dd47ad5f90c82e5e95d35))
+- Keep the values of an `enum` that also has a `format`, such as `type: integer, format: int32`. These enums generated as a plain `number` (or `z.int32()`) and now generate a union of their values, such as `0 | 1 | 2`, under the same type name. Enums whose format prints as `Date`, `bigint` or `Blob` are unchanged.
+  
+  Keep each `x-enumNames` and `x-enumDescriptions` entry with its own value when the enum holds `null`, such as `enum: [null, 0, 1]`. Before, the names shifted by one and the last one was dropped. ([#4526](https://github.com/kubb-labs/kubb/pull/4526), [`4da8f04`](https://github.com/kubb-labs/kubb/commit/4da8f04ab1f1fcd79211c07e61675da490c40384))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.15.3 — Oct 29, 2026
 
 ### @kubb/cli
