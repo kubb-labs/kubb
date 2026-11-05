@@ -25,14 +25,19 @@ export function isEventStream(contentType: string): boolean {
 }
 
 /**
- * Replaces a `data` string that holds JSON with its `contentSchema`, so the event reads as parsed.
+ * Replaces a `data` string that holds JSON with its `contentSchema`, so the event reads as parsed, in the schema and
+ * in its inline `allOf`/`oneOf`/`anyOf` children.
  */
 function withParsedData(schema: SchemaObject, refs: Refs): SchemaObject {
   const data = schema.properties?.data as SchemaObject | ReferenceObject | undefined
   const resolved = data && isReference(data) ? refs.resolve<SchemaObject>(data.$ref, { report: false }) : data
-  if (!resolved?.contentSchema || !resolved.contentMediaType || !isJsonMimeType(resolved.contentMediaType)) return schema
+  const parsedData = resolved?.contentSchema && resolved.contentMediaType && isJsonMimeType(resolved.contentMediaType) ? resolved.contentSchema : undefined
+  const children = (['allOf', 'oneOf', 'anyOf'] as const).flatMap((key) => {
+    const members = schema[key] as Array<SchemaObject | ReferenceObject> | undefined
+    return members ? [[key, members.map((member) => (isReference(member) ? member : withParsedData(member, refs)))]] : []
+  })
 
-  const parsed = { ...schema, properties: { ...schema.properties, data: resolved.contentSchema } }
+  const parsed = { ...schema, ...Object.fromEntries(children), ...(parsedData ? { properties: { ...schema.properties, data: parsedData } } : {}) }
   return parsed as SchemaObject
 }
 

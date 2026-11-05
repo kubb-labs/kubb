@@ -2923,6 +2923,35 @@ describe('OpenAPI 3.2', () => {
     expect(property(addJson!, 'retry')).toMatchObject({ required: false, schema: { type: 'integer' } })
   })
 
+  it('types JSON data declared in an allOf child of an event member', async () => {
+    const root = await parseOas(
+      streamingDocument({
+        'text/event-stream': {
+          itemSchema: {
+            oneOf: [
+              {
+                allOf: [
+                  { type: 'object', properties: { event: { const: 'message_delta' } } },
+                  {
+                    type: 'object',
+                    properties: { data: { contentMediaType: 'application/json', contentSchema: { $ref: '#/components/schemas/MessageDelta' } } },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      }),
+    )
+    const content = firstContent(root)
+    const deltas = ast.collectSync<ast.SchemaNode>(content!.schema!, {
+      schema: (node) => (node.type === 'ref' && node.name === 'MessageDelta' ? node : undefined),
+    })
+
+    expect(content?.stream).toMatchObject({ shape: 'event' })
+    expect(deltas).toHaveLength(1)
+  })
+
   it('follows a chain of $ref aliases when reading the event shape', async () => {
     const root = await parseOas({
       ...streamingDocument({ 'text/event-stream': { itemSchema: { $ref: '#/components/schemas/Alias' } } }),
@@ -3090,7 +3119,7 @@ describe('OpenAPI 3.2', () => {
     ])
   })
 
-  it('resolves a $ref into components.mediaTypes for a request body and a response', async () => {
+  it('resolves a $ref into components.mediaTypes, through an alias, for a request body and a response', async () => {
     const root = await parseOas({
       openapi: '3.2.0',
       info,
@@ -3098,7 +3127,7 @@ describe('OpenAPI 3.2', () => {
         '/items': {
           post: {
             operationId: 'createItem',
-            requestBody: { content: { 'application/json': { $ref: '#/components/mediaTypes/Item' } } },
+            requestBody: { content: { 'application/json': { $ref: '#/components/mediaTypes/ItemAlias' } } },
             responses: { '200': { description: 'OK', content: { 'application/jsonl': { $ref: '#/components/mediaTypes/ItemStream' } } } },
           },
         },
@@ -3107,6 +3136,7 @@ describe('OpenAPI 3.2', () => {
         schemas: { Item: { type: 'object', properties: { id: { type: 'string' } } } },
         mediaTypes: {
           Item: { schema: { $ref: '#/components/schemas/Item' } },
+          ItemAlias: { $ref: '#/components/mediaTypes/Item' },
           ItemStream: { itemSchema: { $ref: '#/components/schemas/Item' } },
         },
       },
@@ -3115,6 +3145,21 @@ describe('OpenAPI 3.2', () => {
 
     expect(op?.requestBody?.content).toMatchObject([{ contentType: 'application/json', schema: { type: 'ref', name: 'Item' } }])
     expect(op?.responses[0]?.content).toMatchObject([{ contentType: 'application/jsonl', schema: { type: 'ref', name: 'Item' }, stream: {} }])
+  })
+
+  it('drops the body of a components.mediaTypes $ref chain that loops', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/items': {
+          post: { operationId: 'createItem', requestBody: { content: { 'application/json': { $ref: '#/components/mediaTypes/A' } } }, responses: {} },
+        },
+      },
+      components: { mediaTypes: { A: { $ref: '#/components/mediaTypes/B' }, B: { $ref: '#/components/mediaTypes/A' } } },
+    })
+
+    expect(findOperation(root, 'createItem')?.requestBody?.content?.[0]?.schema).toBeUndefined()
   })
 
   it('generates the methods of additionalOperations next to the fixed methods', async () => {

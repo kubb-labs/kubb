@@ -104,18 +104,18 @@ export function createRefs(document: Document) {
   }
 
   /**
-   * Resolves a `$ref` value without mutating anything: when `value` holds a `$ref`, returns the
-   * resolved target. Returns `null` when the value is empty, cannot be resolved, or is still a
-   * `$ref` after resolving (e.g. a document with no component registry). A non-`$ref` value is
-   * returned as-is.
+   * Resolves a `$ref` value without mutating anything: when `value` holds a `$ref`, follows it, and
+   * any `$ref` it points to, until a target. Returns `null` when the value is empty, cannot be
+   * resolved, or the chain loops. A non-`$ref` value is returned as-is.
    */
   function deref<T = unknown>(value: unknown): T | null {
-    if (!isReference(value)) {
-      return value ? (value as T) : null
+    const follow = (current: unknown, seen: Set<string>): T | null => {
+      if (!isReference(current)) return current ? (current as T) : null
+      if (seen.has(current.$ref)) return null
+      seen.add(current.$ref)
+      return follow(resolve(current.$ref), seen)
     }
-
-    const resolved = resolve<T>(value.$ref)
-    return resolved && !isReference(resolved) ? resolved : null
+    return follow(value, new Set())
   }
 
   /** Resolves a `$ref` object but keeps the `$ref` field on the result; other values pass through. */
