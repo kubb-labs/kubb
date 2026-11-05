@@ -1,4 +1,4 @@
-import { ast, extractRefName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
+import { ast, extractRefName, macroDedupeUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
@@ -335,7 +335,7 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
     discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.inferDiscriminatorPropertyName(members),
   })
 
-  return ast.applyMacros(unionNode, [macroSimplifyUnion], { depth: 'shallow' })
+  return ast.applyMacros(unionNode, [macroDedupeUnion], { depth: 'shallow' })
 }
 
 /**
