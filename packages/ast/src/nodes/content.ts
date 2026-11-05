@@ -50,9 +50,29 @@ export type ContentNode = BaseNode & {
    */
   contentType: string
   /**
-   * Body schema for this content type.
+   * Body schema for this content type. For a sequential media type this is the same node as
+   * `itemSchema`, so a plugin that only reads `schema` types one item instead of the whole stream.
    */
   schema?: SchemaNode
+  /**
+   * Schema of one item of a sequential media type, from the OpenAPI 3.2 `itemSchema`, or from
+   * `schema` on a `text/event-stream` entry in a 3.0 or 3.1 document where it describes one event.
+   * Absent for complete (non-sequential) content.
+   */
+  itemSchema?: SchemaNode
+  /**
+   * `true` when the content is a sequence of items (`text/event-stream`, `application/jsonl`,
+   * `application/x-ndjson`, `application/json-seq`, `application/geo+json-seq`, `multipart/mixed`,
+   * or any media type that declares `itemSchema`), so a client should stream it instead of
+   * reading one body.
+   */
+  sequential?: boolean
+  /**
+   * For `text/event-stream`: `'event'` when `itemSchema` describes the parsed event with its
+   * `event`, `data`, `id` and `retry` fields, `'data'` when it only describes the `data` payload
+   * and the client wraps it in its own event type.
+   */
+  itemShape?: 'event' | 'data'
   /**
    * Property keys to exclude from the generated type via `Omit<Type, Keys>`.
    * Set when a referenced schema has `readOnly`/`writeOnly` fields that should be omitted.

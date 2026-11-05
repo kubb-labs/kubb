@@ -3,7 +3,11 @@ import { optionality } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
 
-export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie'
+/**
+ * Where a parameter is sent. `querystring` is the OpenAPI 3.2 location for the whole query string as
+ * one value, described with `content` instead of `schema`.
+ */
+export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie' | 'querystring'
 
 /**
  * Parameter serialization style, controlling how a parameter value is rendered into the request.
@@ -31,7 +35,7 @@ export type ParameterNode = BaseNode & {
    */
   name: string
   /**
-   * Parameter location (`path`, `query`, `header`, or `cookie`).
+   * Parameter location (`path`, `query`, `header`, `cookie`, or `querystring`).
    */
   in: ParameterLocation
   /**
@@ -59,7 +63,8 @@ export type ParameterNode = BaseNode & {
   allowReserved?: boolean
   /**
    * Media type of a parameter described with `content` instead of `schema`, for example
-   * `application/json` when the value is sent as a JSON-encoded string. Absent for `schema` parameters.
+   * `application/json` when the value is sent as a JSON-encoded string, or
+   * `application/x-www-form-urlencoded` for a `querystring` parameter. Absent for `schema` parameters.
    */
   contentType?: string
 }

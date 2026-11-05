@@ -238,7 +238,7 @@ export function convertFormattedEnum(context: ConvertContext): ast.SchemaNode {
  * Converts a `type: 'string'` schema into a `StringSchemaNode`.
  */
 export function convertString(context: ConvertContext): ast.SchemaNode {
-  const { schema } = context
+  const { schema, parse } = context
 
   return createNode(context, {
     type: 'string',
@@ -246,6 +246,8 @@ export function convertString(context: ConvertContext): ast.SchemaNode {
     min: schema.minLength,
     max: schema.maxLength,
     pattern: schema.pattern,
+    contentMediaType: schema.contentMediaType,
+    contentSchema: schema.contentSchema ? parse({ schema: schema.contentSchema as SchemaObject }) : undefined,
   })
 }
 

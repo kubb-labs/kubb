@@ -40,7 +40,7 @@ The same specification can therefore produce several outputs in one run. The [fi
 
 ## Adapters {#adapters}
 
-An adapter resolves input-specific details, including references, nullability, discriminators, and formats. The default [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) supports OpenAPI 2.0, 3.0, and 3.1. A custom adapter converts another input format into the same AST, so downstream plugins do not read that format directly.
+An adapter resolves input-specific details, including references, nullability, discriminators, and formats. The default [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) supports OpenAPI 2.0, 3.0, 3.1, and 3.2. A custom adapter converts another input format into the same AST, so downstream plugins do not read that format directly.
 
 ::flow-diagram{preset="adapter"}
 ::

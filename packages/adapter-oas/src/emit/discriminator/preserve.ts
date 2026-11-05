@@ -84,6 +84,17 @@ export function createDiscriminantNode({ propertyName, values }: { propertyName:
 }
 
 /**
+ * The `$ref` of an OpenAPI 3.2 `defaultMapping`, which names the schema a value outside `mapping`
+ * falls back to, as a bare schema name or a `$ref`. `undefined` when the discriminator has none.
+ */
+export function getDefaultMappingRef(discriminator: DiscriminatorObject | undefined): string | undefined {
+  const value = discriminator?.defaultMapping
+  if (!value) return undefined
+
+  return value.includes('/') ? value : `${SCHEMA_REF_PREFIX}${value}`
+}
+
+/**
  * Returns every discriminator key whose mapping value matches `ref`, in mapping order.
  *
  * A mapping may point several keys at the same schema, in which case the member has to be
@@ -200,7 +211,8 @@ export function narrowUnionMembers({
   }
 
   function implicitDiscriminantValue(member: unknown): string | null {
-    if (!discriminator || discriminator.mapping || !isReference(member)) return null
+    // The default member accepts every value outside `mapping`, so its name is not a discriminant.
+    if (!discriminator || discriminator.mapping || !isReference(member) || member.$ref === getDefaultMappingRef(discriminator)) return null
     const value = extractRefName(member.$ref)
     if (!value) return null
     // Silent walk — the reporting resolve() would flag missing refs as errors during speculative lookup.

@@ -2,6 +2,7 @@ import { escapePointerToken, pascalCase } from '@internals/utils'
 import { ast } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
+import { getItemSchema, getItemShape, isEventStream, isSequential } from './model/mediaType.ts'
 import { getBinaryFallbackSchema, isJsonMimeType, isReference, pickExtensions } from './oas.ts'
 import { scanSchema } from './schemaDiagnostics.ts'
 import type { Refs } from './refs.ts'
@@ -46,6 +47,18 @@ function slugify(value: string): string {
     .replace(/[^a-zA-Z0-9]/g, '-')
     .replace(/-{2,}/g, '-')
     .replace(/^-|-$/g, '')
+}
+
+/**
+ * JSON pointer of the operation: `#/paths/<path>/<method>` for a fixed method field, or
+ * `#/paths/<path>/additionalOperations/<METHOD>` for an OpenAPI 3.2 additional operation.
+ */
+export function getOperationPointer({ path, method }: Pick<Operation, 'path' | 'method'>): string {
+  const pathPointer = `#/paths/${escapePointerToken(path)}`
+
+  return SUPPORTED_METHODS.has(method.toLowerCase())
+    ? `${pathPointer}/${method.toLowerCase()}`
+    : `${pathPointer}/additionalOperations/${escapePointerToken(method)}`
 }
 
 /**
@@ -115,7 +128,7 @@ export function getParameters({ operation, refs }: OperationContext): Array<{ pa
     })
 
   const pathPointer = `#/paths/${escapePointerToken(operation.path)}`
-  const operationParams = resolveParams(operation.schema?.parameters || [], `${pathPointer}/${operation.method.toLowerCase()}`)
+  const operationParams = resolveParams(operation.schema?.parameters || [], getOperationPointer(operation))
   const pathLevelParams = resolveParams((operation.pathItem as { parameters?: Array<unknown> }).parameters ?? [], pathPointer)
 
   const paramMap = new Map<string, { param: ParameterObject; pointer: string }>()
@@ -152,28 +165,63 @@ function getEncoding(encoding: MediaTypeObject['encoding']): Record<string, ast.
   return entries.length ? Object.fromEntries(entries) : undefined
 }
 
-/** Schema for one media type of a `content` map, with the binary fallback for an emptied non-JSON entry. */
-export function getBodySchema({
-  content,
-  contentType,
-  refs,
-}: {
-  content: Record<string, MediaTypeObject> | undefined
-  contentType: string | undefined
-  refs: Refs
-}): SchemaObject | null {
-  const entry = contentType ? content?.[contentType] : undefined
-  if (!entry) return null
+type ContentMap = Record<string, MediaTypeObject | ReferenceObject> | undefined
 
-  const binary = getBinaryFallbackSchema(contentType, entry.schema)
-  if (binary) return binary
-
-  return entry.schema ? refs.derefKeepingRef(entry.schema as SchemaObject) : null
+/** The media type entry for `contentType`, with a `$ref` into `components.mediaTypes` resolved. `null` when absent. */
+export function getMediaType({ content, contentType, refs }: { content: ContentMap; contentType: string | undefined; refs: Refs }): MediaTypeObject | null {
+  return contentType ? refs.deref<MediaTypeObject>(content?.[contentType]) : null
 }
 
 /**
- * Builds an `Operation` for every supported HTTP method on every path, in document order.
- * `x-` path keys and unresolvable path-item `$ref`s are skipped.
+ * Schema for one media type of a `content` map, with the binary fallback for an emptied non-JSON
+ * entry. For a sequential media type this is the item schema, so `schema: string` next to
+ * `itemSchema` types one item instead of a string.
+ */
+export function getBodySchema({ content, contentType, refs }: { content: ContentMap; contentType: string | undefined; refs: Refs }): SchemaObject | null {
+  const entry = getMediaType({ content, contentType, refs })
+  if (!entry) return null
+
+  const schema = getItemSchema({ contentType: contentType!, mediaType: entry, refs }) ?? entry.schema
+  const binary = getBinaryFallbackSchema(contentType, schema)
+  if (binary) return binary
+
+  return schema ? refs.derefKeepingRef(schema as SchemaObject) : null
+}
+
+/**
+ * The streaming fields of a content node, set when the media type is sequential. `node` is the
+ * parsed body schema, which already is the item schema for sequential content.
+ */
+function getSequentialFields({
+  contentType,
+  mediaType,
+  refs,
+  node,
+}: {
+  contentType: string
+  mediaType: MediaTypeObject | null
+  refs: Refs
+  node: ast.SchemaNode
+}): Pick<ast.ContentNode, 'itemSchema' | 'sequential' | 'itemShape'> {
+  if (!isSequential(contentType, mediaType)) return {}
+  const raw = getItemSchema({ contentType, mediaType, refs })
+
+  return {
+    sequential: true,
+    ...(raw ? { itemSchema: node } : {}),
+    ...(raw && isEventStream(contentType) ? { itemShape: getItemShape(raw, refs) } : {}),
+  }
+}
+
+/** The keyword the body schema was read from, for the diagnostic pointer. */
+function schemaKeyword(mediaType: MediaTypeObject | null): 'itemSchema' | 'schema' {
+  return mediaType?.itemSchema ? 'itemSchema' : 'schema'
+}
+
+/**
+ * Builds an `Operation` for every supported HTTP method on every path, in document order, then
+ * for every method in the OpenAPI 3.2 `additionalOperations` map. `x-` path keys and
+ * unresolvable path-item `$ref`s are skipped.
  */
 export function getOperations(document: Document, refs: Refs): Array<Operation> {
   const operations: Array<Operation> = []
@@ -203,6 +251,11 @@ export function getOperations(document: Document, refs: Refs): Array<Operation> 
       }
       operations.push({ path, method, schema: schema as OperationObject, pathItem })
     }
+    for (const [method, schema] of Object.entries(pathItem.additionalOperations ?? {})) {
+      if (schema && typeof schema === 'object') {
+        operations.push({ path, method, schema, pathItem })
+      }
+    }
   }
 
   return operations
@@ -228,11 +281,12 @@ function parseParameter({
   parentName,
   options,
   parseSchema,
-}: Pick<OperationParseContext, 'options' | 'parseSchema'> & { param: ParameterObject; pointer: string; parentName?: string }): ast.ParameterNode {
+  refs,
+}: Pick<OperationParseContext, 'options' | 'parseSchema' | 'refs'> & { param: ParameterObject; pointer: string; parentName?: string }): ast.ParameterNode {
   const schemaName = parentName && param.name ? pascalCase(`${parentName} ${param.name}`) : undefined
   // A parameter defines either `schema` or `content`, and `content` holds exactly one media type.
   const contentType = param.schema ? undefined : Object.keys(param.content ?? {})[0]
-  const rawSchema = param.schema ?? (contentType ? param.content?.[contentType]?.schema : undefined)
+  const rawSchema = param.schema ?? getMediaType({ content: param.content, contentType, refs })?.schema
   const schema: ast.SchemaNode = rawSchema
     ? parseSchema({ schema: rawSchema as SchemaObject, name: schemaName })
     : ast.factory.createSchema({ type: options.unknownType })
@@ -258,8 +312,8 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const { refs, contentType, options, parseSchema } = ctx
   const operationId = getOperationId(operation)
   const operationName = operationId ? pascalCase(operationId) : undefined
-  const pointer = `#/paths/${escapePointerToken(operation.path)}/${operation.method.toLowerCase()}`
-  const parameters = getParameters({ operation, refs }).map((entry) => parseParameter({ options, parseSchema, ...entry, parentName: operationName }))
+  const pointer = getOperationPointer(operation)
+  const parameters = getParameters({ operation, refs }).map((entry) => parseParameter({ options, parseSchema, refs, ...entry, parentName: operationName }))
 
   // A configured contentType restricts the body to that one media type; otherwise every declared one is kept.
   const body = getRequestBody({ operation, refs })
@@ -270,15 +324,17 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const content = requestContentTypes.flatMap((ct) => {
     const schema = getBodySchema({ content: body?.content, contentType: ct, refs })
     if (!schema) return []
+    const mediaType = getMediaType({ content: body?.content, contentType: ct, refs })
     const node = parseSchema({ schema, name: requestBodyName })
-    scanSchema(node, `${pointer}/requestBody/content/${escapePointerToken(ct)}/schema`)
-    const encoding = getEncoding(body?.content?.[ct]?.encoding)
+    scanSchema(node, `${pointer}/requestBody/content/${escapePointerToken(ct)}/${schemaKeyword(mediaType)}`)
+    const encoding = getEncoding(mediaType?.encoding)
     return [
       ast.factory.createContent({
         contentType: ct,
         schema: ast.optionality(node, bodyRequired),
         keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
         ...(encoding && { encoding }),
+        ...getSequentialFields({ contentType: ct, mediaType, refs, node }),
       }),
     ]
   })
@@ -300,10 +356,15 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
 
     const parseEntrySchema = (ct?: string) => {
       const raw = getBodySchema({ content: response?.content, contentType: ct, refs })
+      const mediaType = getMediaType({ content: response?.content, contentType: ct, refs })
       const node =
         raw && Object.keys(raw).length > 0 ? parseSchema({ schema: raw, name: responseName }) : ast.factory.createSchema({ type: options.emptySchemaType })
-      if (raw && ct) scanSchema(node, `${pointer}/responses/${statusCode}/content/${escapePointerToken(ct)}/schema`)
-      return { schema: node, keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly') }
+      if (raw && ct) scanSchema(node, `${pointer}/responses/${statusCode}/content/${escapePointerToken(ct)}/${schemaKeyword(mediaType)}`)
+      return {
+        schema: node,
+        keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly'),
+        ...(ct ? getSequentialFields({ contentType: ct, mediaType, refs, node }) : {}),
+      }
     }
 
     const responseContentTypes = contentType ? [contentType] : Object.keys(response?.content ?? {})

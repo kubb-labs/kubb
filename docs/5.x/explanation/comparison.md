@@ -40,7 +40,7 @@ Median of five runs on Node 22, Linux x64 with 4 cores, November 2026. Compared 
 
 | Feature                                                          | Kubb | orval |     HeyAPI     |   openapi-ts   |
 | ---------------------------------------------------------------- | :--: | :---: | :------------: | :------------: |
-| [OpenAPI 2.0, 3.0, 3.1 input](/extensions/kubb-labs/adapter-oas) |  ✅  |  ✅   |       ✅       | 🔶<sup>1</sup> |
+| [OpenAPI 2.0, 3.0, 3.1, 3.2 input](/extensions/kubb-labs/adapter-oas) |  ✅  |  ✅   |       ✅       | 🔶<sup>1</sup> |
 | [TypeScript types](/extensions/kubb-labs/plugin-ts)              |  ✅  |  ✅   |       ✅       |       ✅       |
 | [HTTP client (Axios, Fetch)](/extensions/kubb-labs/plugin-axios) |  ✅  |  ✅   |       ✅       | 🔶<sup>2</sup> |
 | [React Query hooks](/extensions/kubb-labs/plugin-react-query)    |  ✅  |  ✅   |       ✅       | 🟡<sup>2</sup> |

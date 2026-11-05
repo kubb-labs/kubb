@@ -2827,3 +2827,206 @@ describe('$ref path-item and requestBody resolution', () => {
     },
   )
 })
+
+describe('OpenAPI 3.2', () => {
+  const info = { title: 'Test', version: '1.0.0' }
+  const messageDelta = { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] }
+
+  function streamingDocument(content: Record<string, unknown>, openapi = '3.2.0') {
+    return {
+      openapi,
+      info,
+      paths: { '/stream': { get: { operationId: 'stream', responses: { '200': { description: 'OK', content } } } } },
+      components: { schemas: { MessageDelta: messageDelta } },
+    }
+  }
+
+  function firstContent(root: ast.InputNode, operationId = 'stream'): ast.ContentNode | undefined {
+    return findOperation(root, operationId)?.responses[0]?.content?.[0]
+  }
+
+  it('turns the text/event-stream itemSchema into an event union with data typed from contentSchema', async () => {
+    const root = await parseOas(
+      streamingDocument({
+        'text/event-stream': {
+          itemSchema: {
+            type: 'object',
+            required: ['event'],
+            properties: { data: { type: 'string' }, event: { type: 'string' }, id: { type: 'string' }, retry: { type: 'integer', minimum: 0 } },
+            oneOf: [
+              {
+                properties: {
+                  event: { const: 'message_delta' },
+                  data: { contentMediaType: 'application/json', contentSchema: { $ref: '#/components/schemas/MessageDelta' } },
+                },
+              },
+              { properties: { event: { const: 'ping' } } },
+            ],
+          },
+        },
+      }),
+    )
+    const content = firstContent(root)
+
+    expect(content).toMatchObject({ contentType: 'text/event-stream', sequential: true, itemShape: 'event' })
+    expect(content?.itemSchema).toBe(content?.schema)
+
+    const union = ast.narrowSchema(content!.schema!, 'union')
+    expect(union?.discriminatorPropertyName).toBe('event')
+    const [delta, ping] = union!.members!.map((member) => ast.narrowSchema(member, 'object')!)
+    const property = (node: ast.ObjectSchemaNode, name: string) => node.properties.find((entry) => entry.name === name)
+    expect(property(delta!, 'event')).toMatchObject({ required: true, schema: { type: 'enum', enumValues: ['message_delta'] } })
+    expect(property(delta!, 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
+    expect(property(delta!, 'retry')).toMatchObject({ required: false, schema: { type: 'integer' } })
+    expect(property(ping!, 'event')?.schema).toMatchObject({ type: 'enum', enumValues: ['ping'] })
+    expect(property(ping!, 'data')?.schema).toMatchObject({ type: 'string' })
+  })
+
+  it('types the item from itemSchema when schema is a string next to it', async () => {
+    const content = firstContent(
+      await parseOas(streamingDocument({ 'text/event-stream': { schema: { type: 'string' }, itemSchema: { $ref: '#/components/schemas/MessageDelta' } } })),
+    )
+
+    expect(content).toMatchObject({ sequential: true, itemShape: 'data', schema: { type: 'ref', name: 'MessageDelta' }, itemSchema: { type: 'ref' } })
+  })
+
+  it('keeps a 3.0 text/event-stream schema as the item schema', async () => {
+    const content = firstContent(
+      await parseOas(
+        streamingDocument(
+          {
+            'text/event-stream': {
+              schema: {
+                oneOf: [
+                  { type: 'object', properties: { event: { type: 'string', enum: ['ping'] } } },
+                  { type: 'object', properties: { event: { type: 'string', enum: ['stock_update'] }, data: { type: 'object' } } },
+                ],
+                discriminator: { propertyName: 'event' },
+              },
+            },
+          },
+          '3.0.3',
+        ),
+      ),
+    )
+
+    expect(content).toMatchObject({ sequential: true, itemShape: 'event', schema: { type: 'union', discriminatorPropertyName: 'event' } })
+    expect(content?.itemSchema).toBe(content?.schema)
+  })
+
+  it.each(['application/jsonl', 'application/x-ndjson', 'application/json-seq'])('types each %s record from itemSchema', async (contentType) => {
+    const content = firstContent(await parseOas(streamingDocument({ [contentType]: { itemSchema: { $ref: '#/components/schemas/MessageDelta' } } })))
+
+    expect(content).toMatchObject({ contentType, sequential: true, schema: { type: 'ref', name: 'MessageDelta' }, itemSchema: { type: 'ref' } })
+    expect(content).not.toHaveProperty('itemShape')
+  })
+
+  it('leaves complete content without the streaming fields', async () => {
+    const content = firstContent(await parseOas(streamingDocument({ 'application/json': { schema: { type: 'string' } } })))
+
+    expect(content).toMatchObject({ schema: { type: 'string' } })
+    expect(content).not.toHaveProperty('sequential')
+    expect(content).not.toHaveProperty('itemSchema')
+  })
+
+  it('carries contentMediaType and contentSchema on a string outside an event stream', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'string', contentMediaType: 'application/json', contentSchema: { type: 'object' } } })
+
+    expect(node).toMatchObject({ type: 'string', contentMediaType: 'application/json', contentSchema: { type: 'object' } })
+  })
+
+  it('reads a querystring parameter described with content', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/search': {
+          get: {
+            operationId: 'search',
+            parameters: [
+              {
+                name: 'query',
+                in: 'querystring',
+                content: { 'application/x-www-form-urlencoded': { schema: { type: 'object', properties: { q: { type: 'string' } } } } },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+
+    expect(findOperation(root, 'search')?.parameters).toMatchObject([
+      { name: 'query', in: 'querystring', contentType: 'application/x-www-form-urlencoded', schema: { type: 'object' } },
+    ])
+  })
+
+  it('resolves a $ref into components.mediaTypes for a request body and a response', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/items': {
+          post: {
+            operationId: 'createItem',
+            requestBody: { content: { 'application/json': { $ref: '#/components/mediaTypes/Item' } } },
+            responses: { '200': { description: 'OK', content: { 'application/jsonl': { $ref: '#/components/mediaTypes/ItemStream' } } } },
+          },
+        },
+      },
+      components: {
+        schemas: { Item: { type: 'object', properties: { id: { type: 'string' } } } },
+        mediaTypes: {
+          Item: { schema: { $ref: '#/components/schemas/Item' } },
+          ItemStream: { itemSchema: { $ref: '#/components/schemas/Item' } },
+        },
+      },
+    })
+    const op = findOperation(root, 'createItem')
+
+    expect(op?.requestBody?.content).toMatchObject([{ contentType: 'application/json', schema: { type: 'ref', name: 'Item' } }])
+    expect(op?.responses[0]?.content).toMatchObject([{ contentType: 'application/jsonl', sequential: true, schema: { type: 'ref', name: 'Item' } }])
+  })
+
+  it('generates the methods of additionalOperations next to the fixed methods', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/cache': {
+          parameters: [{ name: 'key', in: 'query', schema: { type: 'string' } }],
+          get: { operationId: 'readCache', responses: { '200': { description: 'OK' } } },
+          additionalOperations: { PURGE: { operationId: 'purgeCache', responses: { '204': { description: 'Purged' } } } },
+        },
+      },
+    })
+    const purge = findOperation(root, 'purgeCache')
+
+    expect(root.operations.map((operation) => operation.method)).toStrictEqual(['GET', 'PURGE'])
+    expect(purge).toMatchObject({ path: '/cache', pointer: '#/paths/~1cache/additionalOperations/PURGE', parameters: [{ name: 'key' }] })
+    expect(purge?.responses[0]?.pointer).toBe('#/paths/~1cache/additionalOperations/PURGE/responses/204')
+  })
+
+  it('adds the defaultMapping schema as the fallback member of a discriminated union', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {},
+      components: {
+        schemas: {
+          Pet: {
+            oneOf: [{ $ref: '#/components/schemas/Dog' }],
+            discriminator: { propertyName: 'kind', mapping: { dog: '#/components/schemas/Dog' }, defaultMapping: 'UnknownPet' },
+          },
+          Dog: { type: 'object', properties: { kind: { type: 'string' } } },
+          UnknownPet: { type: 'object', properties: { kind: { type: 'string' } } },
+        },
+      },
+    })
+    const pet = ast.narrowSchema(findSchema(root, 'Pet')!, 'union')
+
+    expect(pet?.members).toHaveLength(2)
+    expect(pet?.members?.[0]).toMatchObject({ type: 'intersection', members: [{ type: 'ref', name: 'Dog' }, { type: 'object' }] })
+    expect(pet?.members?.[1]).toMatchObject({ type: 'ref', name: 'UnknownPet' })
+  })
+})

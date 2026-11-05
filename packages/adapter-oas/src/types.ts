@@ -57,6 +57,11 @@ export type SchemaObject = {
    * OAS 3.1: encoding applied to string content, such as `base64`.
    */
   contentEncoding?: string
+  /**
+   * OAS 3.1: schema of the decoded value when `contentMediaType` is set, such as the JSON document
+   * a string holds.
+   */
+  contentSchema?: SchemaObject | ReferenceObject
   $ref?: string
   /**
    * OAS 3.1: positional tuple items, replacing the multi-item `items` array from OAS 3.0.
@@ -91,13 +96,15 @@ export type OperationObject = OpenAPIV3_1.OperationObject & Record<string, unkno
 
 /**
  * Path item object holding the operations and shared parameters for a single URL path.
+ * `additionalOperations` is the OpenAPI 3.2 map of operations for HTTP methods outside the fixed fields.
  */
-export type PathItemObject = OpenAPIV3_1.PathItemObject
+export type PathItemObject = OpenAPIV3_1.PathItemObject & { additionalOperations?: Record<string, OperationObject> }
 
 /**
- * Discriminator object for `oneOf`/`anyOf` schemas in OpenAPI.
+ * Discriminator object for `oneOf`/`anyOf` schemas in OpenAPI. `defaultMapping` is the OpenAPI 3.2
+ * schema name or `$ref` used when the property value is not in `mapping`.
  */
-export type DiscriminatorObject = OpenAPIV3_1.DiscriminatorObject
+export type DiscriminatorObject = OpenAPIV3_1.DiscriminatorObject & { defaultMapping?: string }
 
 /**
  * OpenAPI reference object pointing to a schema definition via `$ref`.
@@ -115,15 +122,17 @@ export type ResponseObject = OpenAPIV3_1.ResponseObject
 export type RequestBodyObject = OpenAPIV3_1.RequestBodyObject
 
 /**
- * OpenAPI media type object that maps a content-type string to its schema.
+ * OpenAPI media type object that maps a content-type string to its schema. `itemSchema` is the
+ * OpenAPI 3.2 schema of one item of a sequential media type such as `text/event-stream`.
  */
-export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject
+export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject & { itemSchema?: SchemaObject | ReferenceObject }
 
 /**
- * OpenAPI parameter object, narrowed so `in` is always one of the four valid locations.
+ * OpenAPI parameter object, narrowed so `in` is always one of the valid locations. `querystring`
+ * is the OpenAPI 3.2 location for the whole query string as one value.
  */
 export type ParameterObject = {
-  in: 'cookie' | 'header' | 'path' | 'query'
+  in: 'cookie' | 'header' | 'path' | 'query' | 'querystring'
 } & OpenAPIV3_1.ParameterObject
 
 /**

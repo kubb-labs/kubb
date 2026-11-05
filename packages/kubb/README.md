@@ -29,7 +29,7 @@
 
 ### Turn your API spec into type-safe code
 
-Kubb turns an API spec, such as OpenAPI, into TypeScript types, API clients, hooks, validators and mocks, and keeps them in sync with your API. It reads OpenAPI 2.0, 3.0 and 3.1.
+Kubb turns an API spec, such as OpenAPI, into TypeScript types, API clients, hooks, validators and mocks, and keeps them in sync with your API. It reads OpenAPI 2.0, 3.0, 3.1 and 3.2.
 
 ## Installation
 
@@ -67,7 +67,7 @@ Try Studio's shared sandbox, [connect a local project](https://kubb.dev/docs/5.x
 
 - Generate TypeScript types, type-safe clients, [TanStack Query](https://github.com/TanStack/query) and [SWR](https://github.com/vercel/swr) hooks, [Zod](https://github.com/colinhacks/zod) validators, [Faker](https://github.com/faker-js/faker) mocks, and [MSW](https://github.com/mswjs/msw) handlers from one schema.
 - Generate a typed [axios](https://axios-http.com/) or [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) client with status-keyed results, auth, validation, file uploads, server-sent events, interceptors, and a swappable transport.
-- Read OpenAPI 2.0, 3.0, and 3.1 through adapters like [`@kubb/adapter-oas`](https://npmx.dev/package/@kubb/adapter-oas), with output for Node.js and Bun.
+- Read OpenAPI 2.0, 3.0, 3.1, and 3.2 through adapters like [`@kubb/adapter-oas`](https://npmx.dev/package/@kubb/adapter-oas), with output for Node.js and Bun.
 - Enable only the [plugins](https://github.com/kubb-labs/plugins) you need: `plugin-ts`, `plugin-axios`, `plugin-fetch`, `plugin-react-query`, `plugin-vue-query`, `plugin-swr`, `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-redoc`, `plugin-mcp`.
 - Shape the output by grouping files by tag, including or excluding operations, and writing to disk, memory, or a custom storage backend.
 - Build your own plugins, generators, adapters, and renderers with the [`kubb/kit`](https://kubb.dev/docs/5.x/reference/kit) authoring toolkit, plus a JSX renderer for component-based output.

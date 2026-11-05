@@ -24,7 +24,7 @@ import type { AdapterOas, Document, SchemaObject } from './types.ts'
 export const adapterOasName = 'oas' satisfies AdapterOas['name']
 
 /**
- * Default Kubb adapter for OpenAPI 2.0, 3.0, and 3.1 specifications. Reads the
+ * Default Kubb adapter for OpenAPI 2.0, 3.0, 3.1, and 3.2 specifications. Reads the
  * spec from `input` (a file path, URL, inline content, or parsed object), validates
  * it, resolves the base URL, and converts every schema and operation into the
  * universal AST that every downstream plugin consumes.
