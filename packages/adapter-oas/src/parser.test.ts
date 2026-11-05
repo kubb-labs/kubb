@@ -2929,10 +2929,11 @@ describe('OpenAPI 3.2', () => {
     expect(content).not.toHaveProperty('itemSchema')
   })
 
-  it('carries contentMediaType and contentSchema on a string outside an event stream', () => {
+  it('carries the content media type and schema on a string outside an event stream', () => {
     const node = parseSchema(emptyCtx, { schema: { type: 'string', contentMediaType: 'application/json', contentSchema: { type: 'object' } } })
 
-    expect(node).toMatchObject({ type: 'string', contentMediaType: 'application/json', contentSchema: { type: 'object' } })
+    expect(node).toMatchObject({ type: 'string', content: { mediaType: 'application/json', schema: { type: 'object' } } })
+    expect(parseSchema(emptyCtx, { schema: { type: 'string' } })).not.toHaveProperty('content')
   })
 
   it('reads a querystring parameter described with content', async () => {

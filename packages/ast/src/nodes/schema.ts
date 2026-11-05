@@ -443,13 +443,10 @@ export type StringSchemaNode = SchemaNodeBase & {
    */
   pattern?: string
   /**
-   * Media type of the encoded value the string holds, such as `application/json`.
+   * The encoded value the string holds: its media type, such as `application/json`, and the schema of
+   * the decoded value. JSON Schema does not validate that schema by default, so validators keep it opt-in.
    */
-  contentMediaType?: string
-  /**
-   * Schema of the decoded value. JSON Schema does not validate it by default, so validators keep it opt-in.
-   */
-  contentSchema?: SchemaNode
+  content?: { mediaType?: string; schema?: SchemaNode }
 }
 
 /**

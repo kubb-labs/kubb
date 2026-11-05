@@ -7,7 +7,7 @@ Read the OpenAPI 3.2 fields for streamed responses, so plugins can type `text/ev
 
 - `ContentNode` gets `itemSchema`, `sequential` and `itemShape`. `schema` holds the same item node, so a plugin that only reads `schema` types one item.
 - A `text/event-stream` item schema becomes one event type per `oneOf` member, with `event` as a literal and `data` typed from `contentSchema`.
-- A string schema node carries `contentMediaType` and `contentSchema`.
+- A string schema node carries `content` with the `mediaType` and decoded `schema` of the value it holds.
 - The adapter also reads `in: querystring` parameters, `$ref`s into `components.mediaTypes`, `additionalOperations`, and `discriminator.defaultMapping`.
 
 ```yaml
