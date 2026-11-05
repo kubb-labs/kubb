@@ -421,7 +421,8 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     pointer,
     operationId,
     protocol: 'http',
-    method: operation.method.toUpperCase() as ast.HttpMethod,
+    // An `additionalOperations` key is sent with its own capitalization, so only the fixed lowercase fields are uppercased.
+    method: (SUPPORTED_METHODS.has(operation.method) ? operation.method.toUpperCase() : operation.method) as ast.HttpMethod,
     path: operation.path,
     tags: Array.isArray(operation.schema.tags) ? operation.schema.tags.map(String) : [],
     summary: pickDoc('summary') || undefined,

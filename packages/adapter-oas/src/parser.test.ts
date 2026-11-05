@@ -2882,6 +2882,59 @@ describe('OpenAPI 3.2', () => {
     expect(property(ping!, 'data')?.schema).toMatchObject({ type: 'string' })
   })
 
+  it('applies the keywords next to a $ref itemSchema to the referenced event schema', async () => {
+    const root = await parseOas({
+      ...streamingDocument({
+        'text/event-stream': {
+          itemSchema: {
+            $ref: '#/components/schemas/Event',
+            required: ['event'],
+            oneOf: [
+              { properties: { event: { const: 'addString' } } },
+              {
+                properties: {
+                  event: { const: 'addJson' },
+                  data: { contentMediaType: 'application/json', contentSchema: { $ref: '#/components/schemas/MessageDelta' } },
+                },
+              },
+            ],
+          },
+        },
+      }),
+      components: {
+        schemas: {
+          MessageDelta: messageDelta,
+          Event: { type: 'object', properties: { event: { type: 'string' }, data: { type: 'string' }, id: { type: 'string' }, retry: { type: 'integer' } } },
+        },
+      },
+    })
+    const content = firstContent(root)
+    const union = ast.narrowSchema(content!.schema!, 'union')
+    const [addString, addJson] = union!.members!.map((member) => ast.narrowSchema(member, 'object')!)
+    const property = (node: ast.ObjectSchemaNode, name: string) => node.properties.find((entry) => entry.name === name)
+
+    expect(content?.stream).toMatchObject({ shape: 'event' })
+    expect(union?.discriminatorPropertyName).toBe('event')
+    expect(property(addString!, 'event')).toMatchObject({ required: true, schema: { type: 'enum', enumValues: ['addString'] } })
+    expect(property(addString!, 'data')?.schema).toMatchObject({ type: 'string' })
+    expect(property(addJson!, 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
+    expect(property(addJson!, 'retry')).toMatchObject({ required: false, schema: { type: 'integer' } })
+  })
+
+  it('follows a chain of $ref aliases when reading the event shape', async () => {
+    const root = await parseOas({
+      ...streamingDocument({ 'text/event-stream': { itemSchema: { $ref: '#/components/schemas/Alias' } } }),
+      components: {
+        schemas: {
+          Alias: { $ref: '#/components/schemas/Event' },
+          Event: { type: 'object', properties: { event: { type: 'string' }, data: { type: 'string' } } },
+        },
+      },
+    })
+
+    expect(firstContent(root)).toMatchObject({ schema: { type: 'ref', name: 'Alias' }, stream: { shape: 'event' } })
+  })
+
   it('keeps a $ref member of an event union as a reference and still parses the inline members', async () => {
     const root = await parseOas({
       openapi: '3.2.0',
@@ -3078,13 +3131,15 @@ describe('OpenAPI 3.2', () => {
             },
             // The spec forbids a fixed method here, so the entry is skipped instead of shadowing `get`.
             GET: { operationId: 'readCacheAgain', responses: { '200': { description: 'OK' } } },
+            doWork: { operationId: 'doWork', responses: { '200': { description: 'OK' } } },
           },
         },
       },
     })
     const purge = findOperation(root, 'purgeCache')
 
-    expect(root.operations.map((operation) => operation.method)).toStrictEqual(['GET', 'PURGE'])
+    expect(root.operations.map((operation) => operation.method)).toStrictEqual(['GET', 'PURGE', 'doWork'])
+    expect(findOperation(root, 'doWork')?.pointer).toBe('#/paths/~1cache/additionalOperations/doWork')
     expect(purge).toMatchObject({ path: '/cache', pointer: '#/paths/~1cache/additionalOperations/PURGE' })
     expect(purge?.parameters.map((parameter) => [parameter.name, parameter.pointer])).toStrictEqual([
       ['key', '#/paths/~1cache/parameters/0'],

@@ -30,12 +30,27 @@ function withParsedData(schema: SchemaObject, refs: Refs): SchemaObject {
   return parsed as SchemaObject
 }
 
+/** Keywords next to `$ref` that only annotate it, so a reference that carries nothing else stays a reference. */
+const REF_ANNOTATIONS = new Set(['$ref', 'summary', 'description', '$comment'])
+
+/** Applies `extra` on top of `base` the way JSON Schema does: `properties` and `required` add up, other keywords of `extra` win. */
+function mergeSchemas(base: Pick<SchemaObject, 'properties' | 'required'>, extra: SchemaObject): SchemaObject {
+  const required = [...new Set([...(Array.isArray(base.required) ? base.required : []), ...(Array.isArray(extra.required) ? extra.required : [])])]
+  const merged = { type: 'object', ...base, ...extra, properties: { ...base.properties, ...extra.properties }, ...(required.length ? { required } : {}) }
+  return merged as SchemaObject
+}
+
 /**
- * Normalizes the OpenAPI 3.2 `text/event-stream` item schema into one schema per event: shared `properties`
- * merge into each inline `oneOf`/`anyOf` member and a JSON `data` string becomes its `contentSchema`.
+ * Normalizes the OpenAPI 3.2 `text/event-stream` item schema into one schema per event: keywords next to a `$ref`
+ * apply to the referenced schema, shared `properties` merge into each inline `oneOf`/`anyOf` member and a JSON
+ * `data` string becomes its `contentSchema`.
  */
 export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs): SchemaObject | ReferenceObject {
-  if (isReference(schema)) return schema
+  if (isReference(schema)) {
+    const siblings = Object.fromEntries(Object.entries(schema).filter(([key]) => !REF_ANNOTATIONS.has(key)))
+    const resolved = Object.keys(siblings).length ? refs.resolve<SchemaObject>(schema.$ref, { report: false }) : null
+    return resolved ? toEventSchema(mergeSchemas(resolved, siblings as SchemaObject), refs) : schema
+  }
   const key = schema.oneOf?.length ? 'oneOf' : schema.anyOf?.length ? 'anyOf' : undefined
   if (!key) return withParsedData(schema, refs)
 
@@ -43,34 +58,25 @@ export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs
   const { properties, required, ...rest } = schema
   // A `$ref` member stays a reference, so the shared properties can only move into members when every member is inline.
   const merge = !!properties && !members.some(isReference)
-  const mergeShared = (member: SchemaObject): SchemaObject => {
-    if (!merge) return member
-    const memberRequired = [...new Set([...(Array.isArray(required) ? required : []), ...(Array.isArray(member.required) ? member.required : [])])]
-    const merged = {
-      type: 'object',
-      ...member,
-      properties: { ...properties, ...member.properties },
-      ...(memberRequired.length ? { required: memberRequired } : {}),
-    }
-    return merged as SchemaObject
+  const shared = { properties, required }
+  const event = {
+    ...(merge ? rest : schema),
+    [key]: members.map((member) => (isReference(member) ? member : withParsedData(merge ? mergeSchemas(shared, member) : member, refs))),
   }
-
-  const event = { ...(merge ? rest : schema), [key]: members.map((member) => (isReference(member) ? member : withParsedData(mergeShared(member), refs))) }
   return event as SchemaObject
 }
 
 /** Whether the schema, or a composition member of it, declares an `event` or `data` property. */
 function declaresEventFields(schema: SchemaObject | ReferenceObject, refs: Refs, seen: Set<string>): boolean {
-  const resolved = (() => {
-    if (!isReference(schema)) return schema
-    if (seen.has(schema.$ref)) return null
+  if (isReference(schema)) {
+    if (seen.has(schema.$ref)) return false
     seen.add(schema.$ref)
-    return refs.resolve<SchemaObject>(schema.$ref, { report: false })
-  })()
-  if (!resolved) return false
-  if (resolved.properties && (Object.hasOwn(resolved.properties, 'event') || Object.hasOwn(resolved.properties, 'data'))) return true
+    const resolved = refs.resolve<SchemaObject | ReferenceObject>(schema.$ref, { report: false })
+    return !!resolved && declaresEventFields(resolved, refs, seen)
+  }
+  if (schema.properties && (Object.hasOwn(schema.properties, 'event') || Object.hasOwn(schema.properties, 'data'))) return true
 
-  const members = [...(resolved.oneOf ?? []), ...(resolved.anyOf ?? []), ...(resolved.allOf ?? [])] as Array<SchemaObject | ReferenceObject>
+  const members = [...(schema.oneOf ?? []), ...(schema.anyOf ?? []), ...(schema.allOf ?? [])] as Array<SchemaObject | ReferenceObject>
   return members.some((member) => declaresEventFields(member, refs, seen))
 }
 
