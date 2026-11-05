@@ -65,9 +65,9 @@ function visit(node: ast.SchemaNode, pointer: string): void {
     return
   }
 
-  // shortcut: a member the parser adds, such as the wrapper around `not` with sibling keys, gets an index past the spec's own entries; set pointers in the converters if editors need those exact.
-  if (node.type === 'union' && node.discriminatorPropertyName) reportDuplicateDiscriminator(node, pointer)
+  if (node.type === 'union' && node.discriminatorPropertyName) reportDuplicateDiscriminator(node, node.discriminatorPropertyName, pointer)
 
+  // shortcut: a member the parser adds, such as the wrapper around `not` with sibling keys, gets an index past the spec's own entries; set pointers in the converters if editors need those exact.
   if (node.type === 'union' || node.type === 'intersection') {
     const keyword = node.type === 'intersection' ? 'allOf' : node.strategy === 'any' ? 'anyOf' : 'oneOf'
     for (const [index, member] of (node.members ?? []).entries()) {
@@ -77,8 +77,7 @@ function visit(node: ast.SchemaNode, pointer: string): void {
 }
 
 // Two members sharing a discriminator value make `z.discriminatedUnion` throw on its first parse.
-function reportDuplicateDiscriminator(node: ast.UnionSchemaNode, pointer: string): void {
-  const propertyName = node.discriminatorPropertyName!
+function reportDuplicateDiscriminator(node: ast.UnionSchemaNode, propertyName: string, pointer: string): void {
   const membersByValue = new Map<string | number | boolean | null, Array<string>>()
   for (const [index, member] of (node.members ?? []).entries()) {
     const label = ast.resolveRefName(member) ?? member.name ?? `member ${index}`
