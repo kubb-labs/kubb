@@ -81,7 +81,12 @@ function reportDuplicateDiscriminator(node: ast.UnionSchemaNode, propertyName: s
   const membersByValue = new Map<string | number | boolean | null, Array<string>>()
   for (const [index, member] of (node.members ?? []).entries()) {
     const label = ast.resolveRefName(member) ?? member.name ?? `member ${index}`
-    const values = new Set(ast.resolveSchemaProperties({ node: member, propertyName }).flatMap((property) => ast.getSchemaLiteralValues(property.schema)))
+    // `allOf` and a `mapping` narrow the property on top of the member's own literal, so only values every literal allows count.
+    const literalSets = ast
+      .resolveSchemaProperties({ node: member, propertyName })
+      .map((property) => new Set(ast.getSchemaLiteralValues(property.schema)))
+      .filter((literals) => literals.size > 0)
+    const values = literalSets.reduce((narrowed, literals) => narrowed.intersection(literals), literalSets[0] ?? new Set())
     for (const value of values) membersByValue.set(value, [...(membersByValue.get(value) ?? []), label])
   }
 

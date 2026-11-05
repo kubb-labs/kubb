@@ -86,6 +86,21 @@ describe('schema diagnostics during parse', () => {
     ])
   })
 
+  it.each(['preserve', 'propagate'] as const)('does not warn when a mapping gives each member its own value (%s)', async (discriminator) => {
+    const spec = structuredClone(duplicateDiscriminatorSpec)
+    Object.assign(spec.components.schemas.Item.discriminator, {
+      mapping: { in: '#/components/schemas/InMsg', out: '#/components/schemas/OutMsg' },
+    })
+    const adapter = adapterOas({ validate: false, discriminator })
+    const reported: Array<Diagnostic> = []
+    await Diagnostics.scope(
+      (diagnostic) => reported.push(diagnostic),
+      () => adapter.parse({ type: 'data', data: spec }),
+    )
+
+    expect(reported.filter((diagnostic) => diagnostic.code === 'KUBB_DUPLICATE_DISCRIMINATOR')).toHaveLength(0)
+  })
+
   it('does not warn when every discriminator value is distinct', async () => {
     const spec = structuredClone(duplicateDiscriminatorSpec)
     spec.components.schemas.OutMsg.properties.type.enum = ['output']
