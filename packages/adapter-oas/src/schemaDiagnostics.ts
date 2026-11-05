@@ -85,14 +85,14 @@ function reportDuplicateDiscriminator(node: ast.UnionSchemaNode, propertyName: s
     for (const value of values) membersByValue.set(value, [...(membersByValue.get(value) ?? []), label])
   }
 
-  for (const [value, members] of membersByValue) {
-    if (members.length < 2) continue
-    Diagnostics.report({
-      code: Diagnostics.code.duplicateDiscriminator,
-      severity: 'warning',
-      message: `Discriminator "${propertyName}" value ${JSON.stringify(value)} maps to more than one schema (${members.join(', ')}).`,
-      help: `Give each schema its own "${propertyName}" value, or drop the discriminator so the union is matched member by member.`,
-      location: { kind: 'schema', pointer },
-    })
-  }
+  // One report per union: `Diagnostics.dedupe` keys on code and pointer, so a second report here would be dropped.
+  const duplicates = [...membersByValue].filter(([, members]) => members.length > 1)
+  if (!duplicates.length) return
+  Diagnostics.report({
+    code: Diagnostics.code.duplicateDiscriminator,
+    severity: 'warning',
+    message: `Discriminator "${propertyName}" has values that map to more than one schema: ${duplicates.map(([value, members]) => `${JSON.stringify(value)} (${members.join(', ')})`).join(', ')}.`,
+    help: `Give each schema its own "${propertyName}" value, or drop the discriminator so the union is matched member by member.`,
+    location: { kind: 'schema', pointer },
+  })
 }

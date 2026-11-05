@@ -38,10 +38,10 @@ const aliasCycleSpec = {
   components: { schemas: { Baz: { $ref: '#/components/schemas/Qux' }, Qux: { $ref: '#/components/schemas/Baz' } } },
 }
 
-const message = (role: string) => ({
+const message = (role: string, type = 'message') => ({
   type: 'object',
   required: ['type', 'role'],
-  properties: { type: { type: 'string', enum: ['message'] }, role: { type: 'string', enum: [role] } },
+  properties: { type: { type: 'string', enum: [type] }, role: { type: 'string', enum: [role] } },
 })
 
 const duplicateDiscriminatorSpec = {
@@ -67,8 +67,21 @@ describe('schema diagnostics during parse', () => {
     expect(diagnostics).toEqual([
       expect.objectContaining({
         severity: 'warning',
-        message: 'Discriminator "type" value "message" maps to more than one schema (InMsg, OutMsg).',
+        message: 'Discriminator "type" has values that map to more than one schema: "message" (InMsg, OutMsg).',
         location: { kind: 'schema', pointer: '#/components/schemas/Item' },
+      }),
+    ])
+  })
+
+  it('lists every duplicate value of one union in a single warning', async () => {
+    const spec = structuredClone(duplicateDiscriminatorSpec)
+    Object.assign(spec.components.schemas, { InEvt: message('user', 'event'), OutEvt: message('assistant', 'event') })
+    spec.components.schemas.Item.oneOf.push({ $ref: '#/components/schemas/InEvt' }, { $ref: '#/components/schemas/OutEvt' })
+    const diagnostics = (await collect(spec)).filter((diagnostic) => diagnostic.code === 'KUBB_DUPLICATE_DISCRIMINATOR')
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        message: 'Discriminator "type" has values that map to more than one schema: "message" (InMsg, OutMsg), "event" (InEvt, OutEvt).',
       }),
     ])
   })
