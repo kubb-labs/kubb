@@ -447,7 +447,7 @@ export type StringSchemaNode = SchemaNodeBase & {
    */
   contentMediaType?: string
   /**
-   * Schema of the decoded value. OpenAPI does not validate it by default, so validators keep it opt-in.
+   * Schema of the decoded value. JSON Schema does not validate it by default, so validators keep it opt-in.
    */
   contentSchema?: SchemaNode
 }

@@ -54,7 +54,7 @@ export type ContentNode = BaseNode & {
    */
   schema?: SchemaNode
   /**
-   * Schema of one item of a sequential media type: the 3.2 `itemSchema`, or `schema` on a 3.0/3.1 `text/event-stream` entry.
+   * Schema of one item of a sequential media type, such as one event of `text/event-stream` or one line of JSON Lines.
    */
   itemSchema?: SchemaNode
   /**
