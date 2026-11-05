@@ -142,6 +142,13 @@ export const diagnosticCatalog = {
     cause: 'A schema uses a `format` Kubb does not map to a specific type, so it falls back to the base type.',
     fix: 'Use a format Kubb supports, or handle the custom format with a parser or plugin.',
   },
+  duplicateDiscriminator: {
+    code: 'KUBB_DUPLICATE_DISCRIMINATOR',
+    title: 'Duplicate discriminator value',
+    cause:
+      'Two or more members of a `oneOf` or `anyOf` share the same `discriminator` value, so the discriminator cannot tell them apart. A Zod `z.discriminatedUnion` built from it throws on its first parse.',
+    fix: 'Give each member its own discriminator value, or remove the `discriminator` so the union is matched member by member.',
+  },
   aliasCycle: {
     code: 'KUBB_ALIAS_CYCLE',
     title: 'Alias cycle',

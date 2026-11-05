@@ -38,7 +38,49 @@ const aliasCycleSpec = {
   components: { schemas: { Baz: { $ref: '#/components/schemas/Qux' }, Qux: { $ref: '#/components/schemas/Baz' } } },
 }
 
+const message = (role: string) => ({
+  type: 'object',
+  required: ['type', 'role'],
+  properties: { type: { type: 'string', enum: ['message'] }, role: { type: 'string', enum: [role] } },
+})
+
+const duplicateDiscriminatorSpec = {
+  openapi: '3.1.0',
+  info: { title: 'r', version: '1' },
+  paths: {},
+  components: {
+    schemas: {
+      InMsg: message('user'),
+      OutMsg: message('assistant'),
+      Item: {
+        oneOf: [{ $ref: '#/components/schemas/InMsg' }, { $ref: '#/components/schemas/OutMsg' }],
+        discriminator: { propertyName: 'type' },
+      },
+    },
+  },
+}
+
 describe('schema diagnostics during parse', () => {
+  it('warns when two oneOf members share a discriminator value', async () => {
+    const diagnostics = (await collect(duplicateDiscriminatorSpec)).filter((diagnostic) => diagnostic.code === 'KUBB_DUPLICATE_DISCRIMINATOR')
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        severity: 'warning',
+        message: 'Discriminator "type" value "message" maps to more than one schema (InMsg, OutMsg).',
+        location: { kind: 'schema', pointer: '#/components/schemas/Item' },
+      }),
+    ])
+  })
+
+  it('does not warn when every discriminator value is distinct', async () => {
+    const spec = structuredClone(duplicateDiscriminatorSpec)
+    spec.components.schemas.OutMsg.properties.type.enum = ['output']
+    const diagnostics = (await collect(spec)).filter((diagnostic) => diagnostic.code === 'KUBB_DUPLICATE_DISCRIMINATOR')
+
+    expect(diagnostics).toHaveLength(0)
+  })
+
   it('warns once per schema in a pure $ref alias cycle', async () => {
     const diagnostics = (await collect(aliasCycleSpec)).filter((diagnostic) => diagnostic.code === 'KUBB_ALIAS_CYCLE')
 

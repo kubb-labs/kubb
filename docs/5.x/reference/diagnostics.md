@@ -239,6 +239,12 @@ A schema's `format` is not one Kubb maps to a specific type, so it falls back to
 
 Use a supported format, omit it if the base type is sufficient, or map it through a custom parser or plugin.
 
+### KUBB_DUPLICATE_DISCRIMINATOR: Duplicate discriminator value {#kubb-duplicate-discriminator}
+
+Two or more members of a `oneOf` or `anyOf` share the same `discriminator` value, so the discriminator cannot tell them apart. Kubb still generates, but a Zod `z.discriminatedUnion` built from it throws `Duplicate discriminator value` on its first parse.
+
+Give each member its own discriminator value, or remove the `discriminator` so the union is matched member by member.
+
 ### KUBB_ALIAS_CYCLE: Alias cycle {#kubb-alias-cycle}
 
 Schemas that only `$ref` each other form a loop, so none of them has a shape to generate. Kubb resolves them to `unknown`.

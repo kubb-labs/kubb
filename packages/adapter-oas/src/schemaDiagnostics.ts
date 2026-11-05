@@ -1,12 +1,11 @@
 import { escapePointerToken } from '@internals/utils'
-import type { ast } from '@kubb/kit'
-import { Diagnostics } from '@kubb/kit'
+import { ast, Diagnostics } from '@kubb/kit'
 import { isHandledFormat } from './emit/schemaShape.ts'
 
 /**
  * Links one freshly converted schema and its nested schemas to their RFC 6901 pointers
  * (`#/components/schemas/Pet/properties/owner/properties/name`), and reports the advisory
- * diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`) against them.
+ * diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`, `KUBB_DUPLICATE_DISCRIMINATOR`) against them.
  * Refs are not followed, so the resolved schema is handled under its own walk.
  * Reports land in the active build run, are a no-op outside one, and repeats are deduped by the build.
  */
@@ -67,10 +66,34 @@ function visit(node: ast.SchemaNode, pointer: string): void {
   }
 
   // shortcut: a member the parser adds, such as the wrapper around `not` with sibling keys, gets an index past the spec's own entries; set pointers in the converters if editors need those exact.
+  if (node.type === 'union' && node.discriminatorPropertyName) reportDuplicateDiscriminator(node, pointer)
+
   if (node.type === 'union' || node.type === 'intersection') {
     const keyword = node.type === 'intersection' ? 'allOf' : node.strategy === 'any' ? 'anyOf' : 'oneOf'
     for (const [index, member] of (node.members ?? []).entries()) {
       visit(member, `${pointer}/${keyword}/${index}`)
     }
+  }
+}
+
+// Two members sharing a discriminator value make `z.discriminatedUnion` throw on its first parse.
+function reportDuplicateDiscriminator(node: ast.UnionSchemaNode, pointer: string): void {
+  const propertyName = node.discriminatorPropertyName!
+  const membersByValue = new Map<string | number | boolean | null, Array<string>>()
+  for (const [index, member] of (node.members ?? []).entries()) {
+    const label = ast.resolveRefName(member) ?? member.name ?? `member ${index}`
+    const values = new Set(ast.resolveSchemaProperties({ node: member, propertyName }).flatMap((property) => ast.getSchemaLiteralValues(property.schema)))
+    for (const value of values) membersByValue.set(value, [...(membersByValue.get(value) ?? []), label])
+  }
+
+  for (const [value, members] of membersByValue) {
+    if (members.length < 2) continue
+    Diagnostics.report({
+      code: Diagnostics.code.duplicateDiscriminator,
+      severity: 'warning',
+      message: `Discriminator "${propertyName}" value ${JSON.stringify(value)} maps to more than one schema (${members.join(', ')}).`,
+      help: `Give each schema its own "${propertyName}" value, or drop the discriminator so the union is matched member by member.`,
+      location: { kind: 'schema', pointer },
+    })
   }
 }
