@@ -36,14 +36,14 @@ Median of five runs on Node 22, Linux x64 with 4 cores, November 2026. Compared 
 
 ## Plugin and feature coverage
 
-✅ built in · 🟡 community or separate package · 🔶 needs extra user code · 🛑 not supported
+✅ built in · 🟠 partial · 🟡 community or separate package · 🔶 needs extra user code · 🛑 not supported
 
 | Feature                                                          |      Kubb      |     orval      |     HeyAPI     |   openapi-ts   |
 | ---------------------------------------------------------------- | :------------: | :------------: | :------------: | :------------: |
 | [OpenAPI 2.0 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       | 🛑<sup>1</sup> |
 | [OpenAPI 3.0 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       |       ✅       |
 | [OpenAPI 3.1 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       |       ✅       |
-| [OpenAPI 3.2 input](/extensions/kubb-labs/adapter-oas)           | ✅<sup>2</sup> | 🛑<sup>3</sup> | 🛑<sup>3</sup> | 🛑<sup>3</sup> |
+| [OpenAPI 3.2 input](/extensions/kubb-labs/adapter-oas)           | 🟠<sup>2</sup> | 🛑<sup>3</sup> | 🛑<sup>3</sup> | 🛑<sup>3</sup> |
 | [TypeScript types](/extensions/kubb-labs/plugin-ts)              |       ✅       |       ✅       |       ✅       |       ✅       |
 | [HTTP client (Axios, Fetch)](/extensions/kubb-labs/plugin-axios) |       ✅       |       ✅       |       ✅       | 🔶<sup>4</sup> |
 | [React Query hooks](/extensions/kubb-labs/plugin-react-query)    |       ✅       |       ✅       |       ✅       | 🟡<sup>4</sup> |
@@ -58,7 +58,7 @@ Median of five runs on Node 22, Linux x64 with 4 cores, November 2026. Compared 
 | [Barrel index files](/extensions/kubb-labs/plugin-barrel)        |       ✅       |       ✅       |       ✅       |       🛑       |
 
 1. openapi-typescript 7 reads 3.0 and 3.1 only. Convert Swagger 2.0 first, or use version 5.
-2. Kubb reads the 3.2 `query` method, `itemSchema` for streamed responses, `querystring` parameters, `$ref`s into `components.mediaTypes`, `additionalOperations`, and `discriminator.defaultMapping`.
+2. Kubb reads the 3.2 `query` method, `itemSchema` for streamed responses, `querystring` parameters, `$ref`s into `components.mediaTypes`, `additionalOperations`, and `discriminator.defaultMapping`. The remaining 3.2 fields are tracked in [kubb-labs/kubb#4542](https://github.com/kubb-labs/kubb/issues/4542).
 3. orval, HeyAPI, and openapi-typescript list no OpenAPI 3.2 support in their docs. An orval [discussion](https://github.com/orval-labs/orval/discussions/3544) asks for it.
 4. openapi-typescript generates types only. Clients and hooks come from the `openapi-fetch` and `openapi-react-query` runtimes, both in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559).
 5. HeyAPI lists SWR as planned and MSW and Faker as in progress.
