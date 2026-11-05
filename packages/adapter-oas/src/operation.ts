@@ -293,6 +293,7 @@ function collectPropertyKeysByFlag(schema: SchemaObject | null, flag: 'readOnly'
   return keys.length ? keys : null
 }
 
+/** Converts one parameter into a `ParameterNode`, naming an inline schema after the operation and the parameter. */
 function parseParameter({
   param,
   pointer,

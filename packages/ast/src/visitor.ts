@@ -190,6 +190,7 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
   return children
 }
 
+/** Calls `visit` for each direct child node and stops at the first call that returns `true`. */
 function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
   const keys = VISITOR_KEYS[node.kind]
   if (!keys) return false

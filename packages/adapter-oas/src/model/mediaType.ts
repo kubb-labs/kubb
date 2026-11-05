@@ -1,5 +1,5 @@
 import { STREAM_MEDIA_TYPES } from '../constants.ts'
-import { isJsonMimeType, isReference } from '../oas.ts'
+import { isJsonMimeType, isOpenApi32, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, MediaTypeObject, ReferenceObject, SchemaObject } from '../types.ts'
 
@@ -82,15 +82,6 @@ export function getItemShape(schema: SchemaObject | ReferenceObject, refs: Refs)
 }
 
 /**
- * Whether `schema` on `text/event-stream` describes one event: documents below OpenAPI 3.2 have no
- * `itemSchema`, so `schema` is the event by convention. From 3.2 it describes the complete stream.
- */
-export function usesEventSchemaAsItem(document: Document): boolean {
-  const [major = 0, minor = 0] = String(document.openapi).split('.').map(Number)
-  return major < 3 || (major === 3 && minor < 2)
-}
-
-/**
  * Returns the raw item schema: `itemSchema`, or `schema` on `text/event-stream` as 3.0 and 3.1 documents write one event.
  */
 export function getItemSchema({
@@ -105,7 +96,8 @@ export function getItemSchema({
   document: Document
 }): SchemaObject | ReferenceObject | null {
   if (!mediaType || !isStream(contentType, mediaType)) return null
-  const raw = mediaType.itemSchema ?? (isEventStream(contentType) && usesEventSchemaAsItem(document) ? mediaType.schema : undefined)
+  // Below 3.2 there is no `itemSchema`, so `schema` on an event stream is the event by convention; from 3.2 it is the whole stream.
+  const raw = mediaType.itemSchema ?? (isEventStream(contentType) && !isOpenApi32(document) ? mediaType.schema : undefined)
   if (!raw) return null
 
   return isEventStream(contentType) ? toEventSchema(raw, refs) : raw

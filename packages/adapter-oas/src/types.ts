@@ -170,7 +170,8 @@ export type AdapterOasOptions = {
   /**
    * Validate the OpenAPI spec with `@readme/openapi-parser` before parsing. Each problem is
    * reported as a `KUBB_INVALID_SPEC` warning and generation continues. Set to `false` to skip the
-   * check, which also makes generation faster on a large spec.
+   * check, which also makes generation faster on a large spec. An OpenAPI 3.2 document is not
+   * validated yet and gets one warning that says so.
    *
    * @default true
    */
