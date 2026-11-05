@@ -2,7 +2,7 @@ import { escapePointerToken, pascalCase } from '@internals/utils'
 import { ast } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
-import { getItemSchema, getItemShape, isEventStream, isSequential } from './model/mediaType.ts'
+import { getItemSchema, getItemShape, isEventStream, isStream } from './model/mediaType.ts'
 import { getBinaryFallbackSchema, isJsonMimeType, isReference, pickExtensions } from './oas.ts'
 import { scanSchema } from './schemaDiagnostics.ts'
 import type { Refs } from './refs.ts'
@@ -176,7 +176,7 @@ export function getMediaType({ content, contentType, refs }: { content: ContentM
 
 /**
  * Returns the schema for one media type of a `content` map, with the binary fallback for an emptied non-JSON
- * entry. For a sequential media type this is the item schema, so `schema: string` next to `itemSchema` types one item.
+ * entry. For a stream this is the item schema, so `schema: string` next to `itemSchema` types one item.
  */
 export function getBodySchema({
   content,
@@ -200,7 +200,7 @@ export function getBodySchema({
   return schema ? refs.derefKeepingRef(schema as SchemaObject) : null
 }
 
-/** The `stream` field of a content node, set when the media type is sequential. `node` is the parsed item schema. */
+/** The `stream` field of a content node, set when the media type is a stream. `node` is the parsed item schema. */
 function getStreamField({
   contentType,
   mediaType,
@@ -214,7 +214,7 @@ function getStreamField({
   document: Document
   node: ast.SchemaNode
 }): Pick<ast.ContentNode, 'stream'> {
-  if (!isSequential(contentType, mediaType)) return {}
+  if (!isStream(contentType, mediaType)) return {}
   const raw = getItemSchema({ contentType, mediaType, refs, document })
 
   return {

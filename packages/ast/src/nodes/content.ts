@@ -54,7 +54,7 @@ export type ContentNode = BaseNode & {
    */
   schema?: SchemaNode
   /**
-   * Set when the content is a sequence of items (an event stream, JSON Lines, a channel of messages) instead of one body.
+   * Set when the content is a stream of items (an event stream, JSON Lines, a channel of messages) instead of one body.
    */
   stream?: {
     /**

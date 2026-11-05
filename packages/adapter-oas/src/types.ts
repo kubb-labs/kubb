@@ -120,7 +120,7 @@ export type ResponseObject = OpenAPIV3_1.ResponseObject
 export type RequestBodyObject = OpenAPIV3_1.RequestBodyObject
 
 /**
- * OpenAPI media type object, with the OpenAPI 3.2 `itemSchema` of one item of a sequential media type.
+ * OpenAPI media type object, with the OpenAPI 3.2 `itemSchema` of one item of a stream.
  */
 export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject & { itemSchema?: SchemaObject | ReferenceObject }
 

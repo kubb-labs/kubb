@@ -1,4 +1,4 @@
-import { SEQUENTIAL_MEDIA_TYPES } from '../constants.ts'
+import { STREAM_MEDIA_TYPES } from '../constants.ts'
 import { isJsonMimeType, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, MediaTypeObject, ReferenceObject, SchemaObject } from '../types.ts'
@@ -8,10 +8,10 @@ function baseMediaType(contentType: string): string {
 }
 
 /**
- * Returns `true` for an OpenAPI 3.2 sequential media type, or for any media type that declares `itemSchema`.
+ * Returns `true` for a media type read as a stream of items: one that OpenAPI 3.2 lists, or any that declares `itemSchema`.
  */
-export function isSequential(contentType: string, mediaType: MediaTypeObject | null): boolean {
-  return SEQUENTIAL_MEDIA_TYPES.has(baseMediaType(contentType)) || mediaType?.itemSchema !== undefined
+export function isStream(contentType: string, mediaType: MediaTypeObject | null): boolean {
+  return STREAM_MEDIA_TYPES.has(baseMediaType(contentType)) || mediaType?.itemSchema !== undefined
 }
 
 export function isEventStream(contentType: string): boolean {
@@ -100,7 +100,7 @@ export function getItemSchema({
   refs: Refs
   document: Document
 }): SchemaObject | ReferenceObject | null {
-  if (!mediaType || !isSequential(contentType, mediaType)) return null
+  if (!mediaType || !isStream(contentType, mediaType)) return null
   const raw = mediaType.itemSchema ?? (isEventStream(contentType) && usesEventSchemaAsItem(document) ? mediaType.schema : undefined)
   if (!raw) return null
 
