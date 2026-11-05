@@ -38,25 +38,30 @@ Median of five runs on Node 22, Linux x64 with 4 cores, November 2026. Compared 
 
 ✅ built in · 🟡 community or separate package · 🔶 needs extra user code · 🛑 not supported
 
-| Feature                                                          | Kubb | orval |     HeyAPI     |   openapi-ts   |
-| ---------------------------------------------------------------- | :--: | :---: | :------------: | :------------: |
-| [OpenAPI 2.0, 3.0, 3.1, 3.2 input](/extensions/kubb-labs/adapter-oas) |  ✅  |  ✅   |       ✅       | 🔶<sup>1</sup> |
-| [TypeScript types](/extensions/kubb-labs/plugin-ts)              |  ✅  |  ✅   |       ✅       |       ✅       |
-| [HTTP client (Axios, Fetch)](/extensions/kubb-labs/plugin-axios) |  ✅  |  ✅   |       ✅       | 🔶<sup>2</sup> |
-| [React Query hooks](/extensions/kubb-labs/plugin-react-query)    |  ✅  |  ✅   |       ✅       | 🟡<sup>2</sup> |
-| [Vue Query composables](/extensions/kubb-labs/plugin-vue-query)  |  ✅  |  ✅   |       ✅       |       🛑       |
-| [SWR hooks](/extensions/kubb-labs/plugin-swr)                    |  ✅  |  ✅   | 🛑<sup>3</sup> |       🟡       |
-| [Zod validation schemas](/extensions/kubb-labs/plugin-zod)       |  ✅  |  ✅   |       ✅       |       🛑       |
-| [MSW request handlers](/extensions/kubb-labs/plugin-msw)         |  ✅  |  ✅   | 🛑<sup>3</sup> |       🛑       |
-| [Faker.js mock data](/extensions/kubb-labs/plugin-faker)         |  ✅  |  ✅   | 🛑<sup>3</sup> |       🛑       |
-| [Cypress E2E tests](/extensions/kubb-labs/plugin-cypress)        |  ✅  |  🛑   |       🛑       |       🛑       |
-| [MCP server](/extensions/kubb-labs/plugin-mcp)                   |  ✅  |  ✅   |       🛑       |       🛑       |
-| [Redoc API documentation](/extensions/kubb-labs/plugin-redoc)    |  ✅  |  🛑   |       🛑       |       🛑       |
-| [Barrel index files](/extensions/kubb-labs/plugin-barrel)        |  ✅  |  ✅   |       ✅       |       🛑       |
+| Feature                                                          |      Kubb      |     orval      |     HeyAPI     |   openapi-ts   |
+| ---------------------------------------------------------------- | :------------: | :------------: | :------------: | :------------: |
+| [OpenAPI 2.0 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       | 🛑<sup>1</sup> |
+| [OpenAPI 3.0 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       |       ✅       |
+| [OpenAPI 3.1 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       |       ✅       |
+| [OpenAPI 3.2 input](/extensions/kubb-labs/adapter-oas)           | ✅<sup>2</sup> | 🛑<sup>3</sup> | 🛑<sup>3</sup> | 🛑<sup>3</sup> |
+| [TypeScript types](/extensions/kubb-labs/plugin-ts)              |       ✅       |       ✅       |       ✅       |       ✅       |
+| [HTTP client (Axios, Fetch)](/extensions/kubb-labs/plugin-axios) |       ✅       |       ✅       |       ✅       | 🔶<sup>4</sup> |
+| [React Query hooks](/extensions/kubb-labs/plugin-react-query)    |       ✅       |       ✅       |       ✅       | 🟡<sup>4</sup> |
+| [Vue Query composables](/extensions/kubb-labs/plugin-vue-query)  |       ✅       |       ✅       |       ✅       |       🛑       |
+| [SWR hooks](/extensions/kubb-labs/plugin-swr)                    |       ✅       |       ✅       | 🛑<sup>5</sup> |       🟡       |
+| [Zod validation schemas](/extensions/kubb-labs/plugin-zod)       |       ✅       |       ✅       |       ✅       |       🛑       |
+| [MSW request handlers](/extensions/kubb-labs/plugin-msw)         |       ✅       |       ✅       | 🛑<sup>5</sup> |       🛑       |
+| [Faker.js mock data](/extensions/kubb-labs/plugin-faker)         |       ✅       |       ✅       | 🛑<sup>5</sup> |       🛑       |
+| [Cypress E2E tests](/extensions/kubb-labs/plugin-cypress)        |       ✅       |       🛑       |       🛑       |       🛑       |
+| [MCP server](/extensions/kubb-labs/plugin-mcp)                   |       ✅       |       ✅       |       🛑       |       🛑       |
+| [Redoc API documentation](/extensions/kubb-labs/plugin-redoc)    |       ✅       |       🛑       |       🛑       |       🛑       |
+| [Barrel index files](/extensions/kubb-labs/plugin-barrel)        |       ✅       |       ✅       |       ✅       |       🛑       |
 
-1. openapi-typescript reads 3.0 and 3.1 only. Convert Swagger 2.0 first.
-2. openapi-typescript generates types only. Clients and hooks come from the `openapi-fetch` and `openapi-react-query` runtimes, both in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559).
-3. HeyAPI lists SWR as planned and MSW and Faker as in progress.
+1. openapi-typescript 7 reads 3.0 and 3.1 only. Convert Swagger 2.0 first, or use version 5.
+2. Kubb reads the 3.2 `query` method, `itemSchema` for streamed responses, `querystring` parameters, `$ref`s into `components.mediaTypes`, `additionalOperations`, and `discriminator.defaultMapping`.
+3. orval, HeyAPI, and openapi-typescript list no OpenAPI 3.2 support in their docs. An orval [discussion](https://github.com/orval-labs/orval/discussions/3544) asks for it.
+4. openapi-typescript generates types only. Clients and hooks come from the `openapi-fetch` and `openapi-react-query` runtimes, both in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559).
+5. HeyAPI lists SWR as planned and MSW and Faker as in progress.
 
 ## Type safety and response handling
 
