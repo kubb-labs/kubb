@@ -50,23 +50,24 @@ export type ContentNode = BaseNode & {
    */
   contentType: string
   /**
-   * Body schema for this content type. For a sequential media type it is the same node as `itemSchema`.
+   * Body schema for this content type. For a stream it is the same node as `stream.itemSchema`.
    */
   schema?: SchemaNode
   /**
-   * Schema of one item of a sequential media type, such as one event of `text/event-stream` or one line of JSON Lines.
+   * Set when the content is a sequence of items (an event stream, JSON Lines, a channel of messages) instead of one body.
    */
-  itemSchema?: SchemaNode
-  /**
-   * Whether the content is a stream of items (`text/event-stream`, JSON Lines, NDJSON, JSON-seq, `multipart/mixed`, or any `itemSchema`).
-   */
-  sequential?: boolean
-  /**
-   * What `itemSchema` describes on a `text/event-stream` entry.
-   * - `'event'` the parsed event with its `event`, `data`, `id` and `retry` fields
-   * - `'data'` only the `data` payload, which the client wraps in its own event type
-   */
-  itemShape?: 'event' | 'data'
+  stream?: {
+    /**
+     * Schema of one item, such as one event of `text/event-stream` or one line of JSON Lines.
+     */
+    itemSchema?: SchemaNode
+    /**
+     * What `itemSchema` describes for an event stream.
+     * - `'event'` the parsed event with its `event`, `data`, `id` and `retry` fields
+     * - `'data'` only the `data` payload, which the client wraps in its own event type
+     */
+    itemShape?: 'event' | 'data'
+  }
   /**
    * Property keys to exclude from the generated type via `Omit<Type, Keys>`.
    * Set when a referenced schema has `readOnly`/`writeOnly` fields that should be omitted.

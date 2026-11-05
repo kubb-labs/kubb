@@ -2868,8 +2868,8 @@ describe('OpenAPI 3.2', () => {
     )
     const content = firstContent(root)
 
-    expect(content).toMatchObject({ contentType: 'text/event-stream', sequential: true, itemShape: 'event' })
-    expect(content?.itemSchema).toBe(content?.schema)
+    expect(content).toMatchObject({ contentType: 'text/event-stream', stream: { itemShape: 'event' } })
+    expect(content?.stream?.itemSchema).toBe(content?.schema)
 
     const union = ast.narrowSchema(content!.schema!, 'union')
     expect(union?.discriminatorPropertyName).toBe('event')
@@ -2887,7 +2887,7 @@ describe('OpenAPI 3.2', () => {
       await parseOas(streamingDocument({ 'text/event-stream': { schema: { type: 'string' }, itemSchema: { $ref: '#/components/schemas/MessageDelta' } } })),
     )
 
-    expect(content).toMatchObject({ sequential: true, itemShape: 'data', schema: { type: 'ref', name: 'MessageDelta' }, itemSchema: { type: 'ref' } })
+    expect(content).toMatchObject({ schema: { type: 'ref', name: 'MessageDelta' }, stream: { itemShape: 'data', itemSchema: { type: 'ref' } } })
   })
 
   it('keeps a 3.0 text/event-stream schema as the item schema', async () => {
@@ -2910,23 +2910,22 @@ describe('OpenAPI 3.2', () => {
       ),
     )
 
-    expect(content).toMatchObject({ sequential: true, itemShape: 'event', schema: { type: 'union', discriminatorPropertyName: 'event' } })
-    expect(content?.itemSchema).toBe(content?.schema)
+    expect(content).toMatchObject({ stream: { itemShape: 'event' }, schema: { type: 'union', discriminatorPropertyName: 'event' } })
+    expect(content?.stream?.itemSchema).toBe(content?.schema)
   })
 
   it.each(['application/jsonl', 'application/x-ndjson', 'application/json-seq'])('types each %s record from itemSchema', async (contentType) => {
     const content = firstContent(await parseOas(streamingDocument({ [contentType]: { itemSchema: { $ref: '#/components/schemas/MessageDelta' } } })))
 
-    expect(content).toMatchObject({ contentType, sequential: true, schema: { type: 'ref', name: 'MessageDelta' }, itemSchema: { type: 'ref' } })
-    expect(content).not.toHaveProperty('itemShape')
+    expect(content).toMatchObject({ contentType, schema: { type: 'ref', name: 'MessageDelta' }, stream: { itemSchema: { type: 'ref' } } })
+    expect(content?.stream).not.toHaveProperty('itemShape')
   })
 
   it('leaves complete content without the streaming fields', async () => {
     const content = firstContent(await parseOas(streamingDocument({ 'application/json': { schema: { type: 'string' } } })))
 
     expect(content).toMatchObject({ schema: { type: 'string' } })
-    expect(content).not.toHaveProperty('sequential')
-    expect(content).not.toHaveProperty('itemSchema')
+    expect(content).not.toHaveProperty('stream')
   })
 
   it('carries the content media type and schema on a string outside an event stream', () => {
@@ -2986,7 +2985,7 @@ describe('OpenAPI 3.2', () => {
     const op = findOperation(root, 'createItem')
 
     expect(op?.requestBody?.content).toMatchObject([{ contentType: 'application/json', schema: { type: 'ref', name: 'Item' } }])
-    expect(op?.responses[0]?.content).toMatchObject([{ contentType: 'application/jsonl', sequential: true, schema: { type: 'ref', name: 'Item' } }])
+    expect(op?.responses[0]?.content).toMatchObject([{ contentType: 'application/jsonl', schema: { type: 'ref', name: 'Item' }, stream: {} }])
   })
 
   it('generates the methods of additionalOperations next to the fixed methods', async () => {

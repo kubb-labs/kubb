@@ -188,8 +188,8 @@ export function getBodySchema({ content, contentType, refs }: { content: Content
   return schema ? refs.derefKeepingRef(schema as SchemaObject) : null
 }
 
-/** The streaming fields of a content node, set when the media type is sequential. `node` is the parsed item schema. */
-function getSequentialFields({
+/** The `stream` field of a content node, set when the media type is sequential. `node` is the parsed item schema. */
+function getStreamField({
   contentType,
   mediaType,
   refs,
@@ -199,14 +199,15 @@ function getSequentialFields({
   mediaType: MediaTypeObject | null
   refs: Refs
   node: ast.SchemaNode
-}): Pick<ast.ContentNode, 'itemSchema' | 'sequential' | 'itemShape'> {
+}): Pick<ast.ContentNode, 'stream'> {
   if (!isSequential(contentType, mediaType)) return {}
   const raw = getItemSchema({ contentType, mediaType, refs })
 
   return {
-    sequential: true,
-    ...(raw ? { itemSchema: node } : {}),
-    ...(raw && isEventStream(contentType) ? { itemShape: getItemShape(raw, refs) } : {}),
+    stream: {
+      ...(raw ? { itemSchema: node } : {}),
+      ...(raw && isEventStream(contentType) ? { itemShape: getItemShape(raw, refs) } : {}),
+    },
   }
 }
 
@@ -329,7 +330,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
         schema: ast.optionality(node, bodyRequired),
         keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
         ...(encoding && { encoding }),
-        ...getSequentialFields({ contentType: ct, mediaType, refs, node }),
+        ...getStreamField({ contentType: ct, mediaType, refs, node }),
       }),
     ]
   })
@@ -358,7 +359,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
       return {
         schema: node,
         keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly'),
-        ...(ct ? getSequentialFields({ contentType: ct, mediaType, refs, node }) : {}),
+        ...(ct ? getStreamField({ contentType: ct, mediaType, refs, node }) : {}),
       }
     }
 
