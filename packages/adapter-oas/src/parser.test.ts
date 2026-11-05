@@ -3109,15 +3109,17 @@ describe('OpenAPI 3.2', () => {
             },
           },
           Dog: { type: 'object', properties: { kind: { type: 'string' } } },
-          UnknownPet: { type: 'object', properties: { kind: { type: 'string' } } },
+          UnknownPet: { allOf: [{ $ref: '#/components/schemas/Pet' }, { type: 'object', properties: { note: { type: 'string' } } }] },
         },
       },
     })
     const pet = ast.narrowSchema(findSchema(root, 'Pet')!, 'union')
+    const literals = ast.collectSync<ast.SchemaNode>(findSchema(root, 'UnknownPet')!, { schema: (node) => (node.type === 'enum' ? node : undefined) })
 
     expect(pet?.members).toHaveLength(2)
     expect(pet?.members?.[0]).toMatchObject({ type: 'intersection', members: [{ type: 'ref', name: 'Dog' }, { type: 'object' }] })
-    // The default member also appears in `mapping`, but it stays open to every value outside it.
+    // The default member also appears in `mapping`, but it stays open to every value outside it, also where it inherits from the parent.
     expect(pet?.members?.[1]).toMatchObject({ type: 'ref', name: 'UnknownPet' })
+    expect(literals).toHaveLength(0)
   })
 })

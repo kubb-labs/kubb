@@ -309,7 +309,8 @@ export function extractDiscriminatedAllOfMembers({
     if (!deref || !discriminator || (isDiscriminator(deref) && !parentUnion)) return true
 
     const childRef = `${SCHEMA_REF_PREFIX}${name}`
-    const values = findDiscriminators({ mapping: discriminator.mapping, ref: childRef })
+    // The default child accepts every value outside `mapping`, so it gets no discriminant of its own.
+    const values = childRef === getDefaultMappingRef(discriminator) ? [] : findDiscriminators({ mapping: discriminator.mapping, ref: childRef })
     if (values.length) {
       const { propertyName } = discriminator
       const propertyType = propertyTypeOf({ schema: deref, propertyName, refs }) ?? propertyTypeOf({ schema: { $ref: childRef }, propertyName, refs })
