@@ -18,7 +18,7 @@ navigation:
 An adapter converts an input specification into the shared AST.
 
 > [!TIP]
-> For OpenAPI 2.0, 3.0, and 3.1 use the official [`@kubb/adapter-oas`](/extensions/kubb-labs/adapter-oas). Kubb picks it for you when you import `defineConfig` from the `kubb` package. Write a custom adapter only when you target a different specification such as AsyncAPI, GraphQL, JSON Schema, or gRPC.
+> For OpenAPI 2.0, 3.0, 3.1, and 3.2 use the official [`@kubb/adapter-oas`](/extensions/kubb-labs/adapter-oas). Kubb picks it for you when you import `defineConfig` from the `kubb` package. Write a custom adapter only when you target a different specification such as AsyncAPI, GraphQL, JSON Schema, or gRPC.
 
 ## `defineExtension`
 

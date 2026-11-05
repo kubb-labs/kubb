@@ -84,6 +84,16 @@ export function createDiscriminantNode({ propertyName, values }: { propertyName:
 }
 
 /**
+ * Returns the `$ref` of an OpenAPI 3.2 `defaultMapping`, written as a schema name or a `$ref`; `undefined` when none.
+ */
+export function getDefaultMappingRef(discriminator: DiscriminatorObject | undefined): string | undefined {
+  const value = discriminator?.defaultMapping
+  if (!value) return undefined
+
+  return value.includes('/') ? value : `${SCHEMA_REF_PREFIX}${value}`
+}
+
+/**
  * Returns every discriminator key whose mapping value matches `ref`, in mapping order.
  *
  * A mapping may point several keys at the same schema, in which case the member has to be
@@ -231,10 +241,14 @@ export function narrowUnionMembers({
     return constrains(variant) ? null : value
   }
 
+  const defaultRef = getDefaultMappingRef(discriminator)
+
   return unionMembers.map((s) => {
     const ref = isReference(s) ? s.$ref : undefined
-    const mappedValues = findDiscriminators({ mapping: discriminator?.mapping, ref })
-    const implicitValue = mappedValues.length ? null : implicitDiscriminantValue(s)
+    // The default member accepts every value outside `mapping`, so it is never narrowed.
+    const isDefault = ref !== undefined && ref === defaultRef
+    const mappedValues = isDefault ? [] : findDiscriminators({ mapping: discriminator?.mapping, ref })
+    const implicitValue = mappedValues.length || isDefault ? null : implicitDiscriminantValue(s)
     const propertyType = propertyTypeOf({ schema: s as SchemaObject, propertyName: discriminator?.propertyName ?? '', refs }) ?? parentType
     const discriminatorValues = typedKeys({ keys: mappedValues.length ? mappedValues : implicitValue ? [implicitValue] : [], propertyType })
     const memberNode = parse({ schema: s as SchemaObject, name })
@@ -295,7 +309,9 @@ export function extractDiscriminatedAllOfMembers({
     if (!deref || !discriminator || (isDiscriminator(deref) && !parentUnion)) return true
 
     const childRef = `${SCHEMA_REF_PREFIX}${name}`
-    const values = findDiscriminators({ mapping: discriminator.mapping, ref: childRef })
+    // The default child accepts every value outside `mapping`, so it drops the parent like a mapped child but gets no discriminant.
+    const isDefault = childRef === getDefaultMappingRef(discriminator)
+    const values = isDefault ? [] : findDiscriminators({ mapping: discriminator.mapping, ref: childRef })
     if (values.length) {
       const { propertyName } = discriminator
       const propertyType = propertyTypeOf({ schema: deref, propertyName, refs }) ?? propertyTypeOf({ schema: { $ref: childRef }, propertyName, refs })
@@ -303,7 +319,7 @@ export function extractDiscriminatedAllOfMembers({
     }
 
     // Only a `oneOf`/`anyOf` parent is replaced by its discriminant; any other parent stays in the intersection.
-    const replaced = parentUnion && (values.length > 0 || parentUnion.some((member) => isReference(member) && member.$ref === childRef))
+    const replaced = parentUnion && (isDefault || values.length > 0 || parentUnion.some((member) => isReference(member) && member.$ref === childRef))
 
     return !replaced
   })

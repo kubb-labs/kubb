@@ -96,6 +96,10 @@ export const schemaRules: Array<SchemaRule> = [
   { match: matchesFormat, convert: convertFormat },
   { match: ({ schema }) => isBinary(schema), convert: (ctx) => createNode(ctx, { type: 'blob', primitive: 'string' }) },
   {
+    match: ({ schema, type }) => !type && !schema.enum?.length && (schema.contentMediaType !== undefined || schema.contentSchema !== undefined),
+    convert: convertString,
+  },
+  {
     match: ({ schema, type }) => !type && (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined),
     convert: convertString,
   },

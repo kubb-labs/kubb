@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getBinaryFallbackSchema, isDiscriminator } from './oas.ts'
+import { getBinaryFallbackSchema, isDiscriminator, isJsonMimeType } from './oas.ts'
 import type { SchemaObject } from './types.ts'
 
 describe('isDiscriminator', () => {
@@ -12,6 +12,13 @@ describe('isDiscriminator', () => {
     { title: 'false for a Swagger 2 string-form discriminator', schema: { discriminator: 'type' }, expected: false },
   ])('returns $title', ({ schema, expected }) => {
     expect(isDiscriminator(schema)).toBe(expected)
+  })
+})
+
+describe('isJsonMimeType', () => {
+  it('matches a JSON media type regardless of case', () => {
+    expect(isJsonMimeType('application/JSON')).toBe(true)
+    expect(isJsonMimeType('text/plain')).toBe(false)
   })
 })
 
