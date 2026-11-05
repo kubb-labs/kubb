@@ -9,19 +9,11 @@ function simplify(members: Array<SchemaNode>): Array<SchemaNode> {
 }
 
 describe('macroSimplifyUnion', () => {
-  it('drops a multi-value enum covered by a broader scalar while keeping other members', () => {
-    const string = ast.factory.createSchema({ type: ast.schemaTypes.string })
-    const ref = ast.factory.createSchema({ type: ast.schemaTypes.ref, ref: '#/components/schemas/Bar', name: 'Bar' })
-
-    expect(
-      simplify([ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.string, enumValues: ['x', 'y'] }), string, ref]),
-    ).toStrictEqual([string, ref])
-  })
-
-  it('keeps a single-value enum even when a broader scalar is present', () => {
+  it('keeps enum members next to a broader scalar', () => {
     const members = [
-      ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.string, enumValues: ['accepted'] }),
       ast.factory.createSchema({ type: ast.schemaTypes.string }),
+      ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.string, enumValues: ['gpt-a', 'gpt-b'] }),
+      ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.string, enumValues: ['accepted'] }),
     ]
 
     expect(simplify(members)).toStrictEqual(members)
