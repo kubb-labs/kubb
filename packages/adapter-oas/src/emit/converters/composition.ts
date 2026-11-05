@@ -290,7 +290,6 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
   const ctx = { schema, name, nullable, defaultValue }
   const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
   const declaredMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
-  // The `defaultMapping` schema is a member too: it is what a value outside `mapping` resolves to.
   const defaultRef = getDefaultMappingRef(discriminator)
   const allMembers =
     defaultRef && !declaredMembers.some((member) => isReference(member) && member.$ref === defaultRef)

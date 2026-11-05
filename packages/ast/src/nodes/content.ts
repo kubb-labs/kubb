@@ -53,11 +53,19 @@ export type ContentNode = BaseNode & {
    * Body schema for this content type. For a sequential media type it is the same node as `itemSchema`.
    */
   schema?: SchemaNode
-  /** One item of a sequential media type: the OpenAPI 3.2 `itemSchema`, or `schema` on a 3.0/3.1 `text/event-stream` entry. */
+  /**
+   * Schema of one item of a sequential media type: the 3.2 `itemSchema`, or `schema` on a 3.0/3.1 `text/event-stream` entry.
+   */
   itemSchema?: SchemaNode
-  /** `true` for a stream of items (`text/event-stream`, JSON Lines, NDJSON, JSON-seq, `multipart/mixed`, or any media type with `itemSchema`). */
+  /**
+   * Whether the content is a stream of items (`text/event-stream`, JSON Lines, NDJSON, JSON-seq, `multipart/mixed`, or any `itemSchema`).
+   */
   sequential?: boolean
-  /** For `text/event-stream`: `'event'` when `itemSchema` is the parsed event (`event`, `data`, `id`, `retry`), `'data'` when it is only the `data` payload. */
+  /**
+   * What `itemSchema` describes on a `text/event-stream` entry.
+   * - `'event'` the parsed event with its `event`, `data`, `id` and `retry` fields
+   * - `'data'` only the `data` payload, which the client wraps in its own event type
+   */
   itemShape?: 'event' | 'data'
   /**
    * Property keys to exclude from the generated type via `Omit<Type, Keys>`.

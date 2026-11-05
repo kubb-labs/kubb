@@ -49,7 +49,9 @@ function slugify(value: string): string {
     .replace(/^-|-$/g, '')
 }
 
-/** JSON pointer of the operation, under `additionalOperations` for an OpenAPI 3.2 method outside the fixed fields. */
+/**
+ * Returns the operation's JSON pointer, under `additionalOperations` for an OpenAPI 3.2 method outside the fixed fields.
+ */
 export function getOperationPointer({ path, method }: Pick<Operation, 'path' | 'method'>): string {
   const pathPointer = `#/paths/${escapePointerToken(path)}`
 
@@ -164,12 +166,17 @@ function getEncoding(encoding: MediaTypeObject['encoding']): Record<string, ast.
 
 type ContentMap = Record<string, MediaTypeObject | ReferenceObject> | undefined
 
-/** The media type entry for `contentType`, with a `$ref` into `components.mediaTypes` resolved. `null` when absent. */
+/**
+ * Returns the media type entry for `contentType`, resolving a `$ref` into `components.mediaTypes`. `null` when absent.
+ */
 export function getMediaType({ content, contentType, refs }: { content: ContentMap; contentType: string | undefined; refs: Refs }): MediaTypeObject | null {
   return contentType ? refs.deref<MediaTypeObject>(content?.[contentType]) : null
 }
 
-/** Schema for one media type of a `content` map: the item schema for a sequential one, with the binary fallback for an emptied non-JSON entry. */
+/**
+ * Returns the schema for one media type of a `content` map, with the binary fallback for an emptied non-JSON
+ * entry. For a sequential media type this is the item schema, so `schema: string` next to `itemSchema` types one item.
+ */
 export function getBodySchema({ content, contentType, refs }: { content: ContentMap; contentType: string | undefined; refs: Refs }): SchemaObject | null {
   const entry = getMediaType({ content, contentType, refs })
   if (!contentType || !entry) return null
@@ -203,14 +210,13 @@ function getSequentialFields({
   }
 }
 
-/** The keyword the body schema was read from, for the diagnostic pointer. */
 function schemaKeyword(mediaType: MediaTypeObject | null): 'itemSchema' | 'schema' {
   return mediaType?.itemSchema ? 'itemSchema' : 'schema'
 }
 
 /**
- * Builds an `Operation` for every supported HTTP method on every path, in document order, then for
- * the OpenAPI 3.2 `additionalOperations`. `x-` path keys and unresolvable path-item `$ref`s are skipped.
+ * Builds an `Operation` for every supported HTTP method and every OpenAPI 3.2 `additionalOperations` entry on
+ * every path, in document order. `x-` path keys and unresolvable path-item `$ref`s are skipped.
  */
 export function getOperations(document: Document, refs: Refs): Array<Operation> {
   const operations: Array<Operation> = []

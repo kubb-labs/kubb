@@ -29,7 +29,7 @@
 
 ### Turn your API spec into type-safe code
 
-Kubb turns an API spec, such as OpenAPI, into TypeScript types, API clients, hooks, validators and mocks, and keeps them in sync with your API. It reads OpenAPI 2.0, 3.0, 3.1 and 3.2.
+Kubb turns an API spec, such as OpenAPI, into TypeScript types, API clients, hooks, validators and mocks, and keeps them in sync with your API. It reads OpenAPI 2.0, 3.0, 3.1, and 3.2.
 
 ## Installation
 

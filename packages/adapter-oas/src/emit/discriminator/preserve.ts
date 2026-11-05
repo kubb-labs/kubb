@@ -83,7 +83,9 @@ export function createDiscriminantNode({ propertyName, values }: { propertyName:
   })
 }
 
-/** The `$ref` of an OpenAPI 3.2 `defaultMapping`, given as a schema name or a `$ref`; `undefined` when there is none. */
+/**
+ * Returns the `$ref` of an OpenAPI 3.2 `defaultMapping`, written as a schema name or a `$ref`; `undefined` when none.
+ */
 export function getDefaultMappingRef(discriminator: DiscriminatorObject | undefined): string | undefined {
   const value = discriminator?.defaultMapping
   if (!value) return undefined

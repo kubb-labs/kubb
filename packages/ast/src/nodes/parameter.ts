@@ -3,7 +3,9 @@ import { optionality } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
 
-/** Where a parameter is sent. `querystring` is the OpenAPI 3.2 location for the whole query string as one `content` value. */
+/**
+ * Where a parameter is sent. `querystring` is the OpenAPI 3.2 location for the whole query string as one `content` value.
+ */
 export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie' | 'querystring'
 
 /**

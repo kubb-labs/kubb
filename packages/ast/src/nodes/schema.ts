@@ -442,9 +442,13 @@ export type StringSchemaNode = SchemaNodeBase & {
    * Regex pattern.
    */
   pattern?: string
-  /** Media type of the encoded value the string holds, such as `application/json`. */
+  /**
+   * Media type of the encoded value the string holds, such as `application/json`.
+   */
   contentMediaType?: string
-  /** Schema of the decoded value. OpenAPI does not validate it by default, so validators keep it opt-in. */
+  /**
+   * Schema of the decoded value. OpenAPI does not validate it by default, so validators keep it opt-in.
+   */
   contentSchema?: SchemaNode
 }
 

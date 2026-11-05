@@ -57,7 +57,9 @@ export type SchemaObject = {
    * OAS 3.1: encoding applied to string content, such as `base64`.
    */
   contentEncoding?: string
-  /** OAS 3.1: schema of the decoded value a string with `contentMediaType` holds. */
+  /**
+   * OAS 3.1: schema of the decoded value a string with `contentMediaType` holds.
+   */
   contentSchema?: SchemaObject | ReferenceObject
   $ref?: string
   /**
