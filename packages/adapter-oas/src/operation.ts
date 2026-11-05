@@ -172,9 +172,9 @@ export function getMediaType({ content, contentType, refs }: { content: ContentM
 /** Schema for one media type of a `content` map: the item schema for a sequential one, with the binary fallback for an emptied non-JSON entry. */
 export function getBodySchema({ content, contentType, refs }: { content: ContentMap; contentType: string | undefined; refs: Refs }): SchemaObject | null {
   const entry = getMediaType({ content, contentType, refs })
-  if (!entry) return null
+  if (!contentType || !entry) return null
 
-  const schema = getItemSchema({ contentType: contentType!, mediaType: entry, refs }) ?? entry.schema
+  const schema = getItemSchema({ contentType, mediaType: entry, refs }) ?? entry.schema
   const binary = getBinaryFallbackSchema(contentType, schema)
   if (binary) return binary
 

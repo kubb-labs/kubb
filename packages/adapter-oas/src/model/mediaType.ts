@@ -41,10 +41,10 @@ export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs
   const members = schema[key] as Array<SchemaObject | ReferenceObject>
   if (members.some(isReference)) return schema
 
-  const { properties, required, ...rest } = schema as SchemaObject & { properties?: Record<string, unknown>; required?: Array<string> }
+  const { properties, required, ...rest } = schema
   const mergeShared = (member: SchemaObject): SchemaObject => {
     if (!properties) return member
-    const memberRequired = [...new Set([...(required ?? []), ...((member.required as Array<string> | undefined) ?? [])])]
+    const memberRequired = [...new Set([...(Array.isArray(required) ? required : []), ...(Array.isArray(member.required) ? member.required : [])])]
     const merged = {
       type: 'object',
       ...member,
@@ -94,5 +94,5 @@ export function getItemSchema({
   const raw = mediaType.itemSchema ?? (isEventStream(contentType) ? mediaType.schema : undefined)
   if (!raw) return null
 
-  return isEventStream(contentType) ? toEventSchema(raw as SchemaObject | ReferenceObject, refs) : (raw as SchemaObject | ReferenceObject)
+  return isEventStream(contentType) ? toEventSchema(raw, refs) : raw
 }
