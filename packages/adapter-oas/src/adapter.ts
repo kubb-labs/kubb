@@ -112,7 +112,7 @@ export const adapterOas = defineExtension<AdapterOas>({
         discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
       const operationNodes = getOperations(document, refs).map((operation) =>
-        parseOperation({ operation, refs, contentType, options: parserOptions, parseSchema }),
+        parseOperation({ operation, document, refs, contentType, options: parserOptions, parseSchema }),
       )
 
       const promotedEnums = enums === 'root' ? collectInlineEnums([...parsedByName.values(), ...operationNodes], new Set(Object.keys(schemas))) : null

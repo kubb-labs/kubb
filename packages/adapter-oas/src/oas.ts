@@ -84,5 +84,6 @@ const jsonMimeFragments = ['application/json', 'application/x-json', 'text/json'
  * ```
  */
 export function isJsonMimeType(mimeType: string): boolean {
-  return jsonMimeFragments.some((fragment) => mimeType.includes(fragment))
+  const lower = mimeType.toLowerCase()
+  return jsonMimeFragments.some((fragment) => lower.includes(fragment))
 }

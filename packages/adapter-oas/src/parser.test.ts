@@ -2882,6 +2882,76 @@ describe('OpenAPI 3.2', () => {
     expect(property(ping!, 'data')?.schema).toMatchObject({ type: 'string' })
   })
 
+  it('keeps a $ref member of an event union as a reference and still parses the inline members', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/stream': {
+          get: {
+            operationId: 'stream',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    itemSchema: {
+                      oneOf: [
+                        { $ref: '#/components/schemas/Ping' },
+                        {
+                          type: 'object',
+                          properties: {
+                            event: { const: 'message_delta' },
+                            data: { contentMediaType: 'application/JSON', contentSchema: { $ref: '#/components/schemas/MessageDelta' } },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: { schemas: { MessageDelta: messageDelta, Ping: { type: 'object', properties: { event: { const: 'ping' } } } } },
+    })
+    const content = firstContent(root)
+    const [ping, delta] = ast.narrowSchema(content!.schema!, 'union')!.members!
+
+    expect(content?.stream).toMatchObject({ shape: 'event' })
+    expect(ping).toMatchObject({ type: 'ref', name: 'Ping' })
+    expect(ast.narrowSchema(delta!, 'object')?.properties.find((entry) => entry.name === 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
+  })
+
+  it('reads schema on a 3.2 text/event-stream entry as the complete stream, not one event', async () => {
+    const content = firstContent(await parseOas(streamingDocument({ 'text/event-stream': { schema: { type: 'string' } } })))
+
+    expect(content).toMatchObject({ schema: { type: 'string' }, stream: {} })
+    expect(content?.stream).not.toHaveProperty('schema')
+  })
+
+  it('shares one item node between schema and stream.schema on an optional request body', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/items': {
+          post: {
+            operationId: 'importItems',
+            requestBody: { content: { 'application/jsonl': { itemSchema: { $ref: '#/components/schemas/MessageDelta' } } } },
+            responses: { '204': { description: 'Imported' } },
+          },
+        },
+      },
+      components: { schemas: { MessageDelta: messageDelta } },
+    })
+    const content = findOperation(root, 'importItems')?.requestBody?.content?.[0]
+
+    expect(content?.schema).toMatchObject({ type: 'ref', optional: true })
+    expect(content?.stream?.schema).toBe(content?.schema)
+  })
+
   it('types the item from itemSchema when schema is a string next to it', async () => {
     const content = firstContent(
       await parseOas(streamingDocument({ 'text/event-stream': { schema: { type: 'string' }, itemSchema: { $ref: '#/components/schemas/MessageDelta' } } })),
@@ -2921,6 +2991,12 @@ describe('OpenAPI 3.2', () => {
     expect(content?.stream).not.toHaveProperty('shape')
   })
 
+  it('types an empty itemSchema as the empty schema type instead of a blob', async () => {
+    const content = firstContent(await parseOas(streamingDocument({ 'application/jsonl': { itemSchema: {} } })))
+
+    expect(content).toMatchObject({ schema: { type: 'unknown' }, stream: { schema: { type: 'unknown' } } })
+  })
+
   it('leaves complete content without the streaming fields', async () => {
     const content = firstContent(await parseOas(streamingDocument({ 'application/json': { schema: { type: 'string' } } })))
 
@@ -2928,11 +3004,9 @@ describe('OpenAPI 3.2', () => {
     expect(content).not.toHaveProperty('stream')
   })
 
-  it('carries the content media type and schema on a string outside an event stream', () => {
-    const node = parseSchema(emptyCtx, { schema: { type: 'string', contentMediaType: 'application/json', contentSchema: { type: 'object' } } })
-
-    expect(node).toMatchObject({ type: 'string', content: { mediaType: 'application/json', schema: { type: 'object' } } })
-    expect(parseSchema(emptyCtx, { schema: { type: 'string' } })).not.toHaveProperty('content')
+  it('types a string that holds encoded content as a string, and keeps an enum on it', () => {
+    expect(parseSchema(emptyCtx, { schema: { contentMediaType: 'application/json', contentSchema: { type: 'object' } } })).toMatchObject({ type: 'string' })
+    expect(parseSchema(emptyCtx, { schema: { contentMediaType: 'text/plain', enum: ['a', 'b'] } })).toMatchObject({ type: 'enum', enumValues: ['a', 'b'] })
   })
 
   it('reads a querystring parameter described with content', async () => {
@@ -2996,14 +3070,26 @@ describe('OpenAPI 3.2', () => {
         '/cache': {
           parameters: [{ name: 'key', in: 'query', schema: { type: 'string' } }],
           get: { operationId: 'readCache', responses: { '200': { description: 'OK' } } },
-          additionalOperations: { PURGE: { operationId: 'purgeCache', responses: { '204': { description: 'Purged' } } } },
+          additionalOperations: {
+            PURGE: {
+              operationId: 'purgeCache',
+              parameters: [{ name: 'token', in: 'header', schema: { type: 'string' } }],
+              responses: { '204': { description: 'Purged' } },
+            },
+            // The spec forbids a fixed method here, so the entry is skipped instead of shadowing `get`.
+            GET: { operationId: 'readCacheAgain', responses: { '200': { description: 'OK' } } },
+          },
         },
       },
     })
     const purge = findOperation(root, 'purgeCache')
 
     expect(root.operations.map((operation) => operation.method)).toStrictEqual(['GET', 'PURGE'])
-    expect(purge).toMatchObject({ path: '/cache', pointer: '#/paths/~1cache/additionalOperations/PURGE', parameters: [{ name: 'key' }] })
+    expect(purge).toMatchObject({ path: '/cache', pointer: '#/paths/~1cache/additionalOperations/PURGE' })
+    expect(purge?.parameters.map((parameter) => [parameter.name, parameter.pointer])).toStrictEqual([
+      ['key', '#/paths/~1cache/parameters/0'],
+      ['token', '#/paths/~1cache/additionalOperations/PURGE/parameters/0'],
+    ])
     expect(purge?.responses[0]?.pointer).toBe('#/paths/~1cache/additionalOperations/PURGE/responses/204')
   })
 
@@ -3016,7 +3102,11 @@ describe('OpenAPI 3.2', () => {
         schemas: {
           Pet: {
             oneOf: [{ $ref: '#/components/schemas/Dog' }],
-            discriminator: { propertyName: 'kind', mapping: { dog: '#/components/schemas/Dog' }, defaultMapping: 'UnknownPet' },
+            discriminator: {
+              propertyName: 'kind',
+              mapping: { dog: '#/components/schemas/Dog', other: '#/components/schemas/UnknownPet' },
+              defaultMapping: 'UnknownPet',
+            },
           },
           Dog: { type: 'object', properties: { kind: { type: 'string' } } },
           UnknownPet: { type: 'object', properties: { kind: { type: 'string' } } },
@@ -3027,6 +3117,7 @@ describe('OpenAPI 3.2', () => {
 
     expect(pet?.members).toHaveLength(2)
     expect(pet?.members?.[0]).toMatchObject({ type: 'intersection', members: [{ type: 'ref', name: 'Dog' }, { type: 'object' }] })
+    // The default member also appears in `mapping`, but it stays open to every value outside it.
     expect(pet?.members?.[1]).toMatchObject({ type: 'ref', name: 'UnknownPet' })
   })
 })

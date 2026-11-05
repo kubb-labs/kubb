@@ -1,7 +1,7 @@
 import { SEQUENTIAL_MEDIA_TYPES } from '../constants.ts'
 import { isJsonMimeType, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
-import type { MediaTypeObject, ReferenceObject, SchemaObject } from '../types.ts'
+import type { Document, MediaTypeObject, ReferenceObject, SchemaObject } from '../types.ts'
 
 function baseMediaType(contentType: string): string {
   return contentType.split(';')[0]!.trim().toLowerCase()
@@ -37,7 +37,11 @@ export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs
   if (!key) return withParsedData(schema, refs)
 
   const members = schema[key] as Array<SchemaObject | ReferenceObject>
-  if (members.some(isReference)) return schema
+  if (members.some(isReference)) {
+    // A named member stays a reference, so only the inline members get their `data` parsed.
+    const mixed = { ...schema, [key]: members.map((member) => (isReference(member) ? member : withParsedData(member, refs))) }
+    return mixed as SchemaObject
+  }
 
   const { properties, required, ...rest } = schema
   const mergeShared = (member: SchemaObject): SchemaObject => {
@@ -78,19 +82,32 @@ export function getItemShape(schema: SchemaObject | ReferenceObject, refs: Refs)
 }
 
 /**
+ * Whether `schema` on `text/event-stream` describes one event: documents below OpenAPI 3.2 have no
+ * `itemSchema`, so `schema` is the event by convention. From 3.2 it describes the complete stream.
+ */
+export function usesEventSchemaAsItem(document: Document): boolean {
+  const [major = 0, minor = 0] = String(document.openapi ?? '3.1')
+    .split('.')
+    .map(Number)
+  return major < 3 || (major === 3 && minor < 2)
+}
+
+/**
  * Returns the raw item schema: `itemSchema`, or `schema` on `text/event-stream` as 3.0 and 3.1 documents write one event.
  */
 export function getItemSchema({
   contentType,
   mediaType,
   refs,
+  document,
 }: {
   contentType: string
   mediaType: MediaTypeObject | null
   refs: Refs
+  document: Document
 }): SchemaObject | ReferenceObject | null {
   if (!mediaType || !isSequential(contentType, mediaType)) return null
-  const raw = mediaType.itemSchema ?? (isEventStream(contentType) ? mediaType.schema : undefined)
+  const raw = mediaType.itemSchema ?? (isEventStream(contentType) && usesEventSchemaAsItem(document) ? mediaType.schema : undefined)
   if (!raw) return null
 
   return isEventStream(contentType) ? toEventSchema(raw, refs) : raw

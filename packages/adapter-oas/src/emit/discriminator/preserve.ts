@@ -210,7 +210,7 @@ export function narrowUnionMembers({
   }
 
   function implicitDiscriminantValue(member: unknown): string | null {
-    if (!discriminator || discriminator.mapping || !isReference(member) || member.$ref === getDefaultMappingRef(discriminator)) return null
+    if (!discriminator || discriminator.mapping || !isReference(member)) return null
     const value = extractRefName(member.$ref)
     if (!value) return null
     // Silent walk — the reporting resolve() would flag missing refs as errors during speculative lookup.
@@ -241,10 +241,14 @@ export function narrowUnionMembers({
     return constrains(variant) ? null : value
   }
 
+  const defaultRef = getDefaultMappingRef(discriminator)
+
   return unionMembers.map((s) => {
     const ref = isReference(s) ? s.$ref : undefined
-    const mappedValues = findDiscriminators({ mapping: discriminator?.mapping, ref })
-    const implicitValue = mappedValues.length ? null : implicitDiscriminantValue(s)
+    // The default member accepts every value outside `mapping`, so it is never narrowed.
+    const isDefault = ref !== undefined && ref === defaultRef
+    const mappedValues = isDefault ? [] : findDiscriminators({ mapping: discriminator?.mapping, ref })
+    const implicitValue = mappedValues.length || isDefault ? null : implicitDiscriminantValue(s)
     const propertyType = propertyTypeOf({ schema: s as SchemaObject, propertyName: discriminator?.propertyName ?? '', refs }) ?? parentType
     const discriminatorValues = typedKeys({ keys: mappedValues.length ? mappedValues : implicitValue ? [implicitValue] : [], propertyType })
     const memberNode = parse({ schema: s as SchemaObject, name })

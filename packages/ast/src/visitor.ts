@@ -26,7 +26,7 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   RequestBody: ['content'],
   Content: ['schema', 'stream'],
   Response: ['content'],
-  Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'propertyNames', 'rest', 'content'],
+  Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'propertyNames', 'rest'],
   Property: ['schema'],
   Parameter: ['schema'],
 }
@@ -195,21 +195,24 @@ function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
   if (!keys) return false
 
   const record = node as unknown as Record<string, unknown>
+  // A node under two keys, such as a stream item under `schema` and `stream`, is visited once.
+  const seen = new Set<Node>()
+  const visitOnce = (child: Node) => !seen.has(child) && (seen.add(child), visit(child))
   for (const key of keys) {
     const value = record[key]
     if (Array.isArray(value)) {
-      for (const item of value) if (isNode(item) && visit(item)) return true
+      for (const item of value) if (isNode(item) && visitOnce(item)) return true
       continue
     }
     if (isNode(value)) {
-      if (visit(value)) return true
+      if (visitOnce(value)) return true
       continue
     }
     if (isNodeRecord(value)) {
       for (const name in value) {
         if (!Object.hasOwn(value, name)) continue
         const item = value[name]
-        if (isNode(item) && visit(item)) return true
+        if (isNode(item) && visitOnce(item)) return true
       }
     }
   }
@@ -334,6 +337,13 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
 
   const record = node as unknown as Record<string, unknown>
   let updates: Record<string, unknown> | undefined
+  // A node under two keys is transformed once, so both keys keep pointing at one node.
+  const done = new Map<Node, Node>()
+  const transformOnce = (child: Node) => {
+    const next = done.get(child) ?? transformNode(child, visitor, recurse, node)
+    done.set(child, next)
+    return next
+  }
 
   for (const key of keys) {
     if (!(key in record)) continue
@@ -344,7 +354,7 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
       // allocates nothing. This also drops the per-array `.map` closure that ran on every node.
       let mapped: Array<unknown> | undefined
       for (const [i, item] of value.entries()) {
-        const next = isNode(item) ? transformNode(item, visitor, recurse, node) : item
+        const next = isNode(item) ? transformOnce(item) : item
         if (mapped) {
           mapped.push(next)
           continue
@@ -355,14 +365,14 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
       continue
     }
     if (isNode(value)) {
-      const next = transformNode(value, visitor, recurse, node)
+      const next = transformOnce(value)
       if (next !== value) (updates ??= {})[key] = next
       continue
     }
     if (isNodeRecord(value)) {
       let mapped: Record<string, unknown> | undefined
       for (const [name, item] of Object.entries(value)) {
-        const next = isNode(item) ? transformNode(item, visitor, recurse, node) : item
+        const next = isNode(item) ? transformOnce(item) : item
         if (next !== item) (mapped ??= { ...value })[name] = next
       }
       if (mapped) (updates ??= {})[key] = mapped

@@ -36,6 +36,7 @@ type OperationContext = {
 
 /** What `parseOperation` needs beyond the operation. */
 export type OperationParseContext = {
+  document: Document
   refs: Refs
   contentType?: ContentType
   options: ast.ParserOptions
@@ -177,12 +178,23 @@ export function getMediaType({ content, contentType, refs }: { content: ContentM
  * Returns the schema for one media type of a `content` map, with the binary fallback for an emptied non-JSON
  * entry. For a sequential media type this is the item schema, so `schema: string` next to `itemSchema` types one item.
  */
-export function getBodySchema({ content, contentType, refs }: { content: ContentMap; contentType: string | undefined; refs: Refs }): SchemaObject | null {
+export function getBodySchema({
+  content,
+  contentType,
+  refs,
+  document,
+}: {
+  content: ContentMap
+  contentType: string | undefined
+  refs: Refs
+  document: Document
+}): SchemaObject | null {
   const entry = getMediaType({ content, contentType, refs })
   if (!contentType || !entry) return null
 
-  const schema = getItemSchema({ contentType, mediaType: entry, refs }) ?? entry.schema
-  const binary = getBinaryFallbackSchema(contentType, schema)
+  const schema = getItemSchema({ contentType, mediaType: entry, refs, document }) ?? entry.schema
+  // A declared `itemSchema`, even an empty one, is a schema of its own and not an emptied binary entry.
+  const binary = entry.itemSchema ? undefined : getBinaryFallbackSchema(contentType, schema)
   if (binary) return binary
 
   return schema ? refs.derefKeepingRef(schema as SchemaObject) : null
@@ -193,15 +205,17 @@ function getStreamField({
   contentType,
   mediaType,
   refs,
+  document,
   node,
 }: {
   contentType: string
   mediaType: MediaTypeObject | null
   refs: Refs
+  document: Document
   node: ast.SchemaNode
 }): Pick<ast.ContentNode, 'stream'> {
   if (!isSequential(contentType, mediaType)) return {}
-  const raw = getItemSchema({ contentType, mediaType, refs })
+  const raw = getItemSchema({ contentType, mediaType, refs, document })
 
   return {
     stream: {
@@ -213,6 +227,12 @@ function getStreamField({
 
 function schemaKeyword(mediaType: MediaTypeObject | null): 'itemSchema' | 'schema' {
   return mediaType?.itemSchema ? 'itemSchema' : 'schema'
+}
+
+/** Pointer of a media type entry, following a `$ref` into `components.mediaTypes` so a diagnostic lands on the source. */
+function mediaTypePointer(content: ContentMap, contentType: string, fallback: string): string {
+  const entry = content?.[contentType]
+  return isReference(entry) ? entry.$ref : fallback
 }
 
 /**
@@ -248,7 +268,8 @@ export function getOperations(document: Document, refs: Refs): Array<Operation> 
       operations.push({ path, method, schema: schema as OperationObject, pathItem })
     }
     for (const [method, schema] of Object.entries(pathItem.additionalOperations ?? {})) {
-      if (schema && typeof schema === 'object') {
+      // The spec forbids a fixed method here; such an entry would also take the fixed operation's pointer.
+      if (schema && typeof schema === 'object' && !SUPPORTED_METHODS.has(method.toLowerCase())) {
         operations.push({ path, method, schema, pathItem })
       }
     }
@@ -305,7 +326,7 @@ function parseParameter({
  * Converts an OAS `Operation` into an `OperationNode`.
  */
 export function parseOperation({ operation, ...ctx }: OperationParseContext & { operation: Operation }): ast.OperationNode {
-  const { refs, contentType, options, parseSchema } = ctx
+  const { document, refs, contentType, options, parseSchema } = ctx
   const operationId = getOperationId(operation)
   const operationName = operationId ? pascalCase(operationId) : undefined
   const pointer = getOperationPointer(operation)
@@ -318,19 +339,19 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const requestContentTypes = contentType ? [contentType] : Object.keys(body?.content ?? {})
 
   const content = requestContentTypes.flatMap((ct) => {
-    const schema = getBodySchema({ content: body?.content, contentType: ct, refs })
+    const schema = getBodySchema({ content: body?.content, contentType: ct, refs, document })
     if (!schema) return []
     const mediaType = getMediaType({ content: body?.content, contentType: ct, refs })
-    const node = parseSchema({ schema, name: requestBodyName })
-    scanSchema(node, `${pointer}/requestBody/content/${escapePointerToken(ct)}/${schemaKeyword(mediaType)}`)
+    const node = ast.optionality(parseSchema({ schema, name: requestBodyName }), bodyRequired)
+    scanSchema(node, `${mediaTypePointer(body?.content, ct, `${pointer}/requestBody/content/${escapePointerToken(ct)}`)}/${schemaKeyword(mediaType)}`)
     const encoding = getEncoding(mediaType?.encoding)
     return [
       ast.factory.createContent({
         contentType: ct,
-        schema: ast.optionality(node, bodyRequired),
+        schema: node,
         keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
         ...(encoding && { encoding }),
-        ...getStreamField({ contentType: ct, mediaType, refs, node }),
+        ...getStreamField({ contentType: ct, mediaType, refs, document, node }),
       }),
     ]
   })
@@ -351,15 +372,18 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     const responseName = operationName ? `${operationName}Status${statusCode}` : undefined
 
     const parseEntrySchema = (ct?: string) => {
-      const raw = getBodySchema({ content: response?.content, contentType: ct, refs })
+      const raw = getBodySchema({ content: response?.content, contentType: ct, refs, document })
       const mediaType = getMediaType({ content: response?.content, contentType: ct, refs })
       const node =
         raw && Object.keys(raw).length > 0 ? parseSchema({ schema: raw, name: responseName }) : ast.factory.createSchema({ type: options.emptySchemaType })
-      if (raw && ct) scanSchema(node, `${pointer}/responses/${statusCode}/content/${escapePointerToken(ct)}/${schemaKeyword(mediaType)}`)
+      if (raw && ct) {
+        const base = mediaTypePointer(response?.content, ct, `${pointer}/responses/${statusCode}/content/${escapePointerToken(ct)}`)
+        scanSchema(node, `${base}/${schemaKeyword(mediaType)}`)
+      }
       return {
         schema: node,
         keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly'),
-        ...(ct ? getStreamField({ contentType: ct, mediaType, refs, node }) : {}),
+        ...(ct ? getStreamField({ contentType: ct, mediaType, refs, document, node }) : {}),
       }
     }
 

@@ -126,6 +126,22 @@ describe('transform', () => {
   })
 })
 
+describe('a node under two keys', () => {
+  const item = createSchema({ type: 'string' })
+  const content = createContent({ contentType: 'text/event-stream', schema: item, stream: { schema: item, shape: 'data' } })
+
+  it('is collected once', () => {
+    expect(collectSync<SchemaNode>(content, { schema: (node) => node })).toHaveLength(1)
+  })
+
+  it('is transformed once, so both keys keep one node', () => {
+    const next = transform(content, { schema: (node) => ({ ...node, description: 'd' }) })
+
+    expect(next.schema?.description).toBe('d')
+    expect(next.stream?.schema).toBe(next.schema)
+  })
+})
+
 describe('VisitorContext — parent', () => {
   it('passes the owning schema as parent to the property visitor', () => {
     const root = createInput({
