@@ -237,7 +237,7 @@ Kubb also ships built-in macros for common schema normalizations that any adapte
 
 | Macro                    | Purpose                                                                                     |
 | ------------------------ | ------------------------------------------------------------------------------------------- |
-| `macroSimplifyUnion`     | Drop union members a broader scalar primitive already covers, such as a multi-value string enum next to `string`. |
+| `macroDedupeUnion`       | Drop union members that repeat an earlier one, ignoring the source pointer.                 |
 | `macroDiscriminatorEnum` | Replace a discriminator property's schema with a string enum of its allowed values.         |
 | `macroEnumName`          | Name an inline enum schema from its parent and property name.                               |
 

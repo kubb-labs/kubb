@@ -47,18 +47,18 @@ function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
  *
  * @example
  * ```ts
- * const next = applyMacros(unionSchema, [macroSimplifyUnion], { depth: 'shallow' })
+ * const next = applyMacros(unionSchema, [macroDedupeUnion], { depth: 'shallow' })
  * ```
  */
-export const macroSimplifyUnion = ast.defineMacro({
-  name: 'simplify-union',
+export const macroDedupeUnion = ast.defineMacro({
+  name: 'dedupe-union',
   schema(node) {
     const unionNode = ast.narrowSchema(node, ast.schemaTypes.union)
     if (!unionNode?.members?.length) return undefined
 
-    const simplified = dedupeMembers(unionNode.members)
-    if (simplified.length === unionNode.members.length) return undefined
+    const deduped = dedupeMembers(unionNode.members)
+    if (deduped.length === unionNode.members.length) return undefined
 
-    return { ...unionNode, members: simplified }
+    return { ...unionNode, members: deduped }
   },
 })
