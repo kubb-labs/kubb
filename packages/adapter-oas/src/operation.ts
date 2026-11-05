@@ -225,6 +225,7 @@ function getStreamField({
   }
 }
 
+/** The media type keyword the body schema was read from, for the diagnostic pointer. */
 function schemaKeyword(mediaType: MediaTypeObject | null): 'itemSchema' | 'schema' {
   return mediaType?.itemSchema ? 'itemSchema' : 'schema'
 }

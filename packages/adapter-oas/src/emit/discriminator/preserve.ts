@@ -309,8 +309,9 @@ export function extractDiscriminatedAllOfMembers({
     if (!deref || !discriminator || (isDiscriminator(deref) && !parentUnion)) return true
 
     const childRef = `${SCHEMA_REF_PREFIX}${name}`
-    // The default child accepts every value outside `mapping`, so it gets no discriminant of its own.
-    const values = childRef === getDefaultMappingRef(discriminator) ? [] : findDiscriminators({ mapping: discriminator.mapping, ref: childRef })
+    // The default child accepts every value outside `mapping`, so it drops the parent like a mapped child but gets no discriminant.
+    const isDefault = childRef === getDefaultMappingRef(discriminator)
+    const values = isDefault ? [] : findDiscriminators({ mapping: discriminator.mapping, ref: childRef })
     if (values.length) {
       const { propertyName } = discriminator
       const propertyType = propertyTypeOf({ schema: deref, propertyName, refs }) ?? propertyTypeOf({ schema: { $ref: childRef }, propertyName, refs })
@@ -318,7 +319,7 @@ export function extractDiscriminatedAllOfMembers({
     }
 
     // Only a `oneOf`/`anyOf` parent is replaced by its discriminant; any other parent stays in the intersection.
-    const replaced = parentUnion && (values.length > 0 || parentUnion.some((member) => isReference(member) && member.$ref === childRef))
+    const replaced = parentUnion && (isDefault || values.length > 0 || parentUnion.some((member) => isReference(member) && member.$ref === childRef))
 
     return !replaced
   })

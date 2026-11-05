@@ -3114,12 +3114,16 @@ describe('OpenAPI 3.2', () => {
       },
     })
     const pet = ast.narrowSchema(findSchema(root, 'Pet')!, 'union')
-    const literals = ast.collectSync<ast.SchemaNode>(findSchema(root, 'UnknownPet')!, { schema: (node) => (node.type === 'enum' ? node : undefined) })
+    const unknownPet = findSchema(root, 'UnknownPet')!
+    const literals = ast.collectSync<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'enum' ? node : undefined) })
+    const parentRefs = ast.collectSync<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'ref' && node.name === 'Pet' ? node : undefined) })
 
     expect(pet?.members).toHaveLength(2)
     expect(pet?.members?.[0]).toMatchObject({ type: 'intersection', members: [{ type: 'ref', name: 'Dog' }, { type: 'object' }] })
     // The default member also appears in `mapping`, but it stays open to every value outside it, also where it inherits from the parent.
     expect(pet?.members?.[1]).toMatchObject({ type: 'ref', name: 'UnknownPet' })
+    // The parent reference is dropped too, so `Pet` and `UnknownPet` do not refer to each other.
+    expect(parentRefs).toHaveLength(0)
     expect(literals).toHaveLength(0)
   })
 })
