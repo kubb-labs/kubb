@@ -37,15 +37,11 @@ export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs
   if (!key) return withParsedData(schema, refs)
 
   const members = schema[key] as Array<SchemaObject | ReferenceObject>
-  if (members.some(isReference)) {
-    // A named member stays a reference, so only the inline members get their `data` parsed.
-    const mixed = { ...schema, [key]: members.map((member) => (isReference(member) ? member : withParsedData(member, refs))) }
-    return mixed as SchemaObject
-  }
-
   const { properties, required, ...rest } = schema
+  // A `$ref` member stays a reference, so the shared properties can only move into members when every member is inline.
+  const merge = !!properties && !members.some(isReference)
   const mergeShared = (member: SchemaObject): SchemaObject => {
-    if (!properties) return member
+    if (!merge) return member
     const memberRequired = [...new Set([...(Array.isArray(required) ? required : []), ...(Array.isArray(member.required) ? member.required : [])])]
     const merged = {
       type: 'object',
@@ -56,7 +52,7 @@ export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs
     return merged as SchemaObject
   }
 
-  const event = { ...(properties ? rest : schema), [key]: members.map((member) => withParsedData(mergeShared(member as SchemaObject), refs)) }
+  const event = { ...(merge ? rest : schema), [key]: members.map((member) => (isReference(member) ? member : withParsedData(mergeShared(member), refs))) }
   return event as SchemaObject
 }
 
@@ -86,9 +82,7 @@ export function getItemShape(schema: SchemaObject | ReferenceObject, refs: Refs)
  * `itemSchema`, so `schema` is the event by convention. From 3.2 it describes the complete stream.
  */
 export function usesEventSchemaAsItem(document: Document): boolean {
-  const [major = 0, minor = 0] = String(document.openapi ?? '3.1')
-    .split('.')
-    .map(Number)
+  const [major = 0, minor = 0] = String(document.openapi).split('.').map(Number)
   return major < 3 || (major === 3 && minor < 2)
 }
 
