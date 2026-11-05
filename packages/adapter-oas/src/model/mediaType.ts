@@ -57,12 +57,12 @@ export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs
 }
 
 function declaresEventFields(schema: SchemaObject | ReferenceObject, refs: Refs, seen: Set<string>): boolean {
-  let resolved: SchemaObject | null = schema as SchemaObject
-  if (isReference(schema)) {
-    if (seen.has(schema.$ref)) return false
+  const resolved = (() => {
+    if (!isReference(schema)) return schema
+    if (seen.has(schema.$ref)) return null
     seen.add(schema.$ref)
-    resolved = refs.resolve<SchemaObject>(schema.$ref, { report: false })
-  }
+    return refs.resolve<SchemaObject>(schema.$ref, { report: false })
+  })()
   if (!resolved) return false
   if (resolved.properties && (Object.hasOwn(resolved.properties, 'event') || Object.hasOwn(resolved.properties, 'data'))) return true
 
