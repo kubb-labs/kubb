@@ -1,5 +1,68 @@
 # Changelog
 
+## v5.16.0 — Nov 6, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Read the OpenAPI 3.2 fields for streamed responses, so plugins can type `text/event-stream`, JSON Lines, NDJSON and JSON Text Sequence content.
+  
+  - `ContentNode` gets `stream` with the item `schema` and `shape` for a stream of items. `schema` holds the same item node, so a plugin that only reads `schema` types one item.
+  - A `text/event-stream` item schema becomes one event type per `oneOf` member, with `event` as a literal and `data` typed from `contentSchema`.
+  - The adapter also reads `in: querystring` parameters, `$ref`s into `components.mediaTypes`, `additionalOperations`, and `discriminator.defaultMapping`.
+  
+  ```yaml
+  text/event-stream:
+    itemSchema:
+      required: [event]
+      properties:
+        event: { type: string }
+        data: { type: string }
+      oneOf:
+        - properties:
+            event: { const: message_delta }
+            data: { contentMediaType: application/json, contentSchema: { $ref: '#/components/schemas/MessageDelta' } }
+        - properties:
+            event: { const: ping }
+  ```
+  
+  ```ts
+  type StreamEvent = { event: 'message_delta'; data: MessageDelta } | { event: 'ping'; data?: string }
+  ``` ([#4541](https://github.com/kubb-labs/kubb/pull/4541), [`1acf140`](https://github.com/kubb-labs/kubb/commit/1acf14004f35caabadc422e0d1353f2aade0cfd6))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Keep the enum values in a union of a plain scalar and an enum, such as `anyOf: [{ type: string }, { type: string, enum: [gpt-a, gpt-b] }]`. Before, the enum was dropped and the union generated as plain `string` or `z.string()`. With `@kubb/plugin-ts` and `@kubb/plugin-zod` it now generates `(string & {}) | 'gpt-a' | 'gpt-b'` and `z.union([z.string(), z.enum(['gpt-a', 'gpt-b'])])`.
+  
+  Rename `macroSimplifyUnion` to `macroDedupeUnion`, since it now only drops repeated union members. Update imports from `kubb/kit` or `@kubb/kit` to the new name. ([#4536](https://github.com/kubb-labs/kubb/pull/4536), [`42ab9ba`](https://github.com/kubb-labs/kubb/commit/42ab9baf19853ed3330ee0768ff58fdb39654667))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.15.4 — Nov 5, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Drop enum values that break the schema's `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum` or `multipleOf`, so `{ type: integer, enum: [0, 1], minimum: 1 }` generates `1` instead of `0 | 1`. The matching `x-enumNames` and `x-enumDescriptions` entries are dropped with them. ([#4526](https://github.com/kubb-labs/kubb/pull/4526), [`4da8f04`](https://github.com/kubb-labs/kubb/commit/4da8f04ab1f1fcd79211c07e61675da490c40384))
+- Parse a JSON spec with `JSON.parse`, about ten times faster than `js-yaml` on the same file. A duplicate key in JSON input now keeps the last value, as every JSON parser does, instead of failing with `KUBB_INVALID_DOCUMENT`. YAML input is unchanged and still rejects duplicate keys. ([#4522](https://github.com/kubb-labs/kubb/pull/4522), [`cedadee`](https://github.com/kubb-labs/kubb/commit/cedadee165b66dadd06dd47ad5f90c82e5e95d35))
+- Keep the values of an `enum` that also has a `format`, such as `type: integer, format: int32`. These enums generated as a plain `number` (or `z.int32()`) and now generate a union of their values, such as `0 | 1 | 2`, under the same type name. Enums whose format prints as `Date`, `bigint` or `Blob` are unchanged.
+  
+  Keep each `x-enumNames` and `x-enumDescriptions` entry with its own value when the enum holds `null`, such as `enum: [null, 0, 1]`. Before, the names shifted by one and the last one was dropped. ([#4526](https://github.com/kubb-labs/kubb/pull/4526), [`4da8f04`](https://github.com/kubb-labs/kubb/commit/4da8f04ab1f1fcd79211c07e61675da490c40384))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.15.3 — Oct 29, 2026
 
 ### @kubb/cli

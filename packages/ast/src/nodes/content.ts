@@ -50,9 +50,24 @@ export type ContentNode = BaseNode & {
    */
   contentType: string
   /**
-   * Body schema for this content type.
+   * Body schema for this content type. For a stream it is the same node as `stream.schema`.
    */
   schema?: SchemaNode
+  /**
+   * Set when the content is a stream of items (an event stream, JSON Lines, a channel of messages) instead of one body.
+   */
+  stream?: {
+    /**
+     * Schema of one item, such as one event of `text/event-stream` or one line of JSON Lines.
+     */
+    schema?: SchemaNode
+    /**
+     * What `schema` describes for an event stream.
+     * - `'event'` the parsed event with its `event`, `data`, `id` and `retry` fields
+     * - `'data'` only the `data` payload, which the client wraps in its own event type
+     */
+    shape?: 'event' | 'data'
+  }
   /**
    * Property keys to exclude from the generated type via `Omit<Type, Keys>`.
    * Set when a referenced schema has `readOnly`/`writeOnly` fields that should be omitted.

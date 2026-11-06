@@ -4,7 +4,7 @@
   "name": "oas",
   "export": "adapterOas",
   "displayName": "OpenAPI",
-  "description": "Reads an OpenAPI 2.0, 3.0, or 3.1 spec and converts every schema and operation into the AST that Kubb plugins generate from.",
+  "description": "Reads an OpenAPI 2.0, 3.0, 3.1, or 3.2 spec and converts every schema and operation into the AST that Kubb plugins generate from.",
   "category": "openapi",
   "icon": {
     "light": "https://kubb.dev/feature/openapi.svg"

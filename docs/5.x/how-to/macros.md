@@ -136,11 +136,11 @@ export default defineConfig({
 `kubb/kit` exports presets for common normalizations. Compose them with your own through a plugin's `macros` option. See the [built-in macros table](/docs/5.x/reference/kit/ast#macros) for what each one does.
 
 ```typescript [presets.ts]
-import { ast, macroSimplifyUnion, macroDiscriminatorEnum } from 'kubb/kit'
+import { ast, macroDedupeUnion, macroDiscriminatorEnum } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
 const next = ast.applyMacros(root, [
-  macroSimplifyUnion,
+  macroDedupeUnion,
   macroDiscriminatorEnum({ propertyName: 'kind', values: ['cat', 'dog'] }),
 ])
 ```

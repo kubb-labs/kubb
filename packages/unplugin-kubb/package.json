@@ -1,6 +1,6 @@
 {
   "name": "unplugin-kubb",
-  "version": "5.15.3",
+  "version": "5.16.0",
   "description": "Integration of Kubb for Vite, webpack, Rollup, Rolldown, Rspack, esbuild, Farm, Nuxt, and Astro.",
   "keywords": [
     "astro",
@@ -124,12 +124,12 @@
     "@farmfe/core": "^1.7.11",
     "@internals/shared": "workspace:*",
     "@kubb/ast": "workspace:*",
-    "@nuxt/kit": "^4.6.3",
-    "@nuxt/schema": "^4.6.3",
-    "@rspack/core": "^2.3.0",
+    "@nuxt/kit": "^4.6.4",
+    "@nuxt/schema": "^4.6.4",
+    "@rspack/core": "^2.3.1",
     "esbuild": "^0.28.2",
     "rolldown": "^1.2.16",
-    "rollup": "^4.67.2",
+    "rollup": "^4.67.4",
     "vite": "^8.3.5",
     "webpack": "^5.112.2"
   },

@@ -135,7 +135,7 @@ Rerun with `--reporter json` or `--verbose` to get the stack. Then [open an issu
 
 The document resolved from `input` cannot be read as an OpenAPI or Swagger document. Its JSON or YAML has a syntax error, it declares neither `openapi` nor `swagger`, or its version cannot be upgraded to OpenAPI 3.1.
 
-Fix the syntax at the line the message reports, and check that `input` points at the spec and not an HTML page. Use a Swagger 2.0, OpenAPI 3.0, or OpenAPI 3.1 document, and pass the document itself rather than a wrapper. Missing versions fail even when validation is disabled.
+Fix the syntax at the line the message reports, and check that `input` points at the spec and not an HTML page. Use a Swagger 2.0, OpenAPI 3.0, 3.1, or 3.2 document, and pass the document itself rather than a wrapper. Missing versions fail even when validation is disabled.
 
 ### KUBB_INVALID_PLUGIN_OPTIONS: Invalid plugin options {#kubb-invalid-plugin-options}
 

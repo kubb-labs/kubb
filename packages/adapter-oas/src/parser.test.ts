@@ -632,6 +632,58 @@ describe('parseSchema format', () => {
     { title: 'number double', schema: { type: 'number', format: 'double' }, expected: { type: 'number', format: 'double' } },
     { title: 'string with an unknown format', schema: { type: 'string', format: 'custom-format' }, expected: { type: 'string', format: 'custom-format' } },
     { title: 'enum with a format', schema: { type: 'string', format: 'custom-enum', enum: ['a', 'b'] }, expected: { type: 'enum', format: 'custom-enum' } },
+    {
+      title: 'int32 enum with x-enumNames',
+      schema: { type: 'integer', format: 'int32', enum: [0, 1], 'x-enumNames': ['None', 'Received'] },
+      expected: {
+        type: 'union',
+        format: 'int32',
+        members: [
+          { type: 'enum', enumValues: [0] },
+          { type: 'enum', enumValues: [1] },
+        ],
+      },
+    },
+    {
+      title: 'uuid enum',
+      schema: { type: 'string', format: 'uuid', enum: ['a', 'b'] },
+      expected: {
+        type: 'union',
+        format: 'uuid',
+        members: [
+          { type: 'enum', enumValues: ['a'] },
+          { type: 'enum', enumValues: ['b'] },
+        ],
+      },
+    },
+    {
+      title: 'date-time enum',
+      schema: { type: 'string', format: 'date-time', enum: ['2024-01-01T00:00:00Z'] },
+      expected: { type: 'union', format: 'date-time', members: [{ type: 'enum', enumValues: ['2024-01-01T00:00:00Z'] }] },
+    },
+    {
+      title: 'date-time enum when dateType is date',
+      schema: { type: 'string', format: 'date-time', enum: ['2024-01-01T00:00:00Z'] },
+      options: { dateType: 'date' },
+      expected: { type: 'date', format: 'date-time' },
+    },
+    {
+      title: 'int64 enum (default integerType bigint)',
+      schema: { type: 'integer', format: 'int64', enum: [0, 1] },
+      expected: { type: 'bigint', format: 'int64' },
+    },
+    {
+      title: 'int64 enum when integerType is number',
+      schema: { type: 'integer', format: 'int64', enum: [0, 1] },
+      options: { integerType: 'number' },
+      expected: { type: 'union', format: 'int64' },
+    },
+    { title: 'binary enum', schema: { type: 'string', format: 'binary', enum: ['a'] }, expected: { type: 'blob', format: 'binary' } },
+    {
+      title: 'nullable int32 enum',
+      schema: { type: 'integer', format: 'int32', nullable: true, enum: [null, 0] },
+      expected: { type: 'union', format: 'int32', nullable: true, members: [{ type: 'enum', enumValues: [0] }] },
+    },
     // A numeric format on a `type: 'string'` schema describes how the number is spelled, so the declared type wins.
     { title: 'string int64', schema: { type: 'string', format: 'int64' }, expected: { type: 'string', format: 'int64' } },
     { title: 'string float', schema: { type: 'string', format: 'float' }, expected: { type: 'string', format: 'float' } },
@@ -1927,6 +1979,54 @@ describe('parseSchema enum', () => {
     expect(values?.map((v) => v.value)).toStrictEqual([1, 2])
   })
 
+  it('x-enumNames keeps each name with its value when the enum holds null', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'integer',
+        enum: [null, 0, 1],
+        'x-enumNames': ['Null', 'Off', 'On'],
+        'x-enumDescriptions': ['No value', 'Turned off', 'Turned on'],
+      },
+    })
+    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+
+    expect(values?.map(({ name, value, description }) => ({ name, value, description }))).toStrictEqual([
+      { name: 'Off', value: 0, description: 'Turned off' },
+      { name: 'On', value: 1, description: 'Turned on' },
+    ])
+  })
+
+  it.each([
+    { title: 'minimum', schema: { type: 'integer', enum: [0, 1, 2], minimum: 1 }, values: [1, 2] },
+    { title: 'maximum', schema: { type: 'integer', enum: [0, 1, 2], maximum: 1 }, values: [0, 1] },
+    { title: 'exclusiveMinimum', schema: { type: 'integer', enum: [0, 1, 2], exclusiveMinimum: 0 }, values: [1, 2] },
+    { title: 'exclusiveMaximum', schema: { type: 'integer', enum: [0, 1, 2], exclusiveMaximum: 2 }, values: [0, 1] },
+    { title: 'multipleOf', schema: { type: 'number', enum: [0.3, 0.35, 0.6], multipleOf: 0.1 }, values: [0.3, 0.6] },
+    { title: 'bounds that exclude every value', schema: { type: 'integer', enum: [0, 1], minimum: 5 }, values: [0, 1] },
+  ] satisfies Array<{ title: string; schema: SchemaObject; values: Array<number> }>)('drops enum values outside $title', ({ schema, values }) => {
+    const node = parseSchema(emptyCtx, { schema })
+
+    expect(ast.narrowSchema(node, 'enum')?.namedEnumValues?.map((v) => v.value)).toStrictEqual(values)
+  })
+
+  it('drops formatted enum values outside the bounds', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'integer', format: 'int32', enum: [0, 1, 2], minimum: 1 } })
+
+    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => ast.narrowSchema(member, 'enum')?.enumValues?.[0])).toStrictEqual([1, 2])
+  })
+
+  it('x-enumNames keeps each name with its value when bounds drop values', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'integer', enum: [0, 1, 2], minimum: 1, 'x-enumNames': ['Zero', 'One', 'Two'] },
+    })
+    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+
+    expect(values?.map(({ name, value }) => ({ name, value }))).toStrictEqual([
+      { name: 'One', value: 1 },
+      { name: 'Two', value: 2 },
+    ])
+  })
+
   it('x-enumNames falls back to stringified value when fewer names than values', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
@@ -2726,4 +2826,361 @@ describe('$ref path-item and requestBody resolution', () => {
       })
     },
   )
+})
+
+describe('OpenAPI 3.2', () => {
+  const info = { title: 'Test', version: '1.0.0' }
+  const messageDelta = { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] }
+
+  function streamingDocument(content: Record<string, unknown>, openapi = '3.2.0') {
+    return {
+      openapi,
+      info,
+      paths: { '/stream': { get: { operationId: 'stream', responses: { '200': { description: 'OK', content } } } } },
+      components: { schemas: { MessageDelta: messageDelta } },
+    }
+  }
+
+  function firstContent(root: ast.InputNode, operationId = 'stream'): ast.ContentNode | undefined {
+    return findOperation(root, operationId)?.responses[0]?.content?.[0]
+  }
+
+  function property(node: ast.ObjectSchemaNode, name: string): ast.PropertyNode | undefined {
+    return node.properties.find((entry) => entry.name === name)
+  }
+
+  it('turns the text/event-stream itemSchema into an event union with data typed from contentSchema', async () => {
+    const root = await parseOas(
+      streamingDocument({
+        'text/event-stream': {
+          itemSchema: {
+            type: 'object',
+            required: ['event'],
+            properties: { data: { type: 'string' }, event: { type: 'string' }, id: { type: 'string' }, retry: { type: 'integer', minimum: 0 } },
+            oneOf: [
+              {
+                properties: {
+                  event: { const: 'message_delta' },
+                  data: { contentMediaType: 'application/json', contentSchema: { $ref: '#/components/schemas/MessageDelta' } },
+                },
+              },
+              { properties: { event: { const: 'ping' } } },
+            ],
+          },
+        },
+      }),
+    )
+    const content = firstContent(root)
+
+    expect(content).toMatchObject({ contentType: 'text/event-stream', stream: { shape: 'event' } })
+    expect(content?.stream?.schema).toBe(content?.schema)
+
+    const union = ast.narrowSchema(content!.schema!, 'union')
+    expect(union?.discriminatorPropertyName).toBe('event')
+    const [delta, ping] = union!.members!.map((member) => ast.narrowSchema(member, 'object')!)
+    expect(property(delta!, 'event')).toMatchObject({ required: true, schema: { type: 'enum', enumValues: ['message_delta'] } })
+    expect(property(delta!, 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
+    expect(property(delta!, 'retry')).toMatchObject({ required: false, schema: { type: 'integer' } })
+    expect(property(ping!, 'event')?.schema).toMatchObject({ type: 'enum', enumValues: ['ping'] })
+    expect(property(ping!, 'data')?.schema).toMatchObject({ type: 'string' })
+  })
+
+  it('applies the keywords next to a $ref itemSchema to the referenced event schema', async () => {
+    const root = await parseOas({
+      ...streamingDocument({
+        'text/event-stream': {
+          itemSchema: {
+            $ref: '#/components/schemas/Event',
+            required: ['event'],
+            oneOf: [
+              { properties: { event: { const: 'addString' } } },
+              {
+                properties: {
+                  event: { const: 'addJson' },
+                  data: { contentMediaType: 'application/json', contentSchema: { $ref: '#/components/schemas/MessageDelta' } },
+                },
+              },
+            ],
+          },
+        },
+      }),
+      components: {
+        schemas: {
+          MessageDelta: messageDelta,
+          Event: { type: 'object', properties: { event: { type: 'string' }, data: { type: 'string' }, id: { type: 'string' }, retry: { type: 'integer' } } },
+        },
+      },
+    })
+    const content = firstContent(root)
+    const union = ast.narrowSchema(content!.schema!, 'union')
+    const [addString, addJson] = union!.members!.map((member) => ast.narrowSchema(member, 'object')!)
+
+    expect(content?.stream).toMatchObject({ shape: 'event' })
+    expect(union?.discriminatorPropertyName).toBe('event')
+    expect(property(addString!, 'event')).toMatchObject({ required: true, schema: { type: 'enum', enumValues: ['addString'] } })
+    expect(property(addString!, 'data')?.schema).toMatchObject({ type: 'string' })
+    expect(property(addJson!, 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
+    expect(property(addJson!, 'retry')).toMatchObject({ required: false, schema: { type: 'integer' } })
+  })
+
+  it('follows a chain of $ref aliases when reading the event shape', async () => {
+    const root = await parseOas({
+      ...streamingDocument({ 'text/event-stream': { itemSchema: { $ref: '#/components/schemas/Alias' } } }),
+      components: {
+        schemas: {
+          Alias: { $ref: '#/components/schemas/Event' },
+          Event: { type: 'object', properties: { event: { type: 'string' }, data: { type: 'string' } } },
+        },
+      },
+    })
+
+    expect(firstContent(root)).toMatchObject({ schema: { type: 'ref', name: 'Alias' }, stream: { shape: 'event' } })
+  })
+
+  it('keeps a $ref member of an event union as a reference and still parses the inline members', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/stream': {
+          get: {
+            operationId: 'stream',
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'text/event-stream': {
+                    itemSchema: {
+                      oneOf: [
+                        { $ref: '#/components/schemas/Ping' },
+                        {
+                          type: 'object',
+                          properties: {
+                            event: { const: 'message_delta' },
+                            data: { contentMediaType: 'application/JSON', contentSchema: { $ref: '#/components/schemas/MessageDelta' } },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      components: { schemas: { MessageDelta: messageDelta, Ping: { type: 'object', properties: { event: { const: 'ping' } } } } },
+    })
+    const content = firstContent(root)
+    const [ping, delta] = ast.narrowSchema(content!.schema!, 'union')!.members!
+
+    expect(content?.stream).toMatchObject({ shape: 'event' })
+    expect(ping).toMatchObject({ type: 'ref', name: 'Ping' })
+    expect(ast.narrowSchema(delta!, 'object')?.properties.find((entry) => entry.name === 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
+  })
+
+  it('reads schema on a 3.2 text/event-stream entry as the complete stream, not one event', async () => {
+    const content = firstContent(await parseOas(streamingDocument({ 'text/event-stream': { schema: { type: 'string' } } })))
+
+    expect(content).toMatchObject({ schema: { type: 'string' }, stream: {} })
+    expect(content?.stream).not.toHaveProperty('schema')
+  })
+
+  it('shares one item node between schema and stream.schema on an optional request body', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/items': {
+          post: {
+            operationId: 'importItems',
+            requestBody: { content: { 'application/jsonl': { itemSchema: { $ref: '#/components/schemas/MessageDelta' } } } },
+            responses: { '204': { description: 'Imported' } },
+          },
+        },
+      },
+      components: { schemas: { MessageDelta: messageDelta } },
+    })
+    const content = findOperation(root, 'importItems')?.requestBody?.content?.[0]
+
+    expect(content?.schema).toMatchObject({ type: 'ref', optional: true })
+    expect(content?.stream?.schema).toBe(content?.schema)
+  })
+
+  it('types the item from itemSchema when schema is a string next to it', async () => {
+    const content = firstContent(
+      await parseOas(streamingDocument({ 'text/event-stream': { schema: { type: 'string' }, itemSchema: { $ref: '#/components/schemas/MessageDelta' } } })),
+    )
+
+    expect(content).toMatchObject({ schema: { type: 'ref', name: 'MessageDelta' }, stream: { shape: 'data', schema: { type: 'ref' } } })
+  })
+
+  it('keeps a 3.0 text/event-stream schema as the item schema', async () => {
+    const content = firstContent(
+      await parseOas(
+        streamingDocument(
+          {
+            'text/event-stream': {
+              schema: {
+                oneOf: [
+                  { type: 'object', properties: { event: { type: 'string', enum: ['ping'] } } },
+                  { type: 'object', properties: { event: { type: 'string', enum: ['stock_update'] }, data: { type: 'object' } } },
+                ],
+                discriminator: { propertyName: 'event' },
+              },
+            },
+          },
+          '3.0.3',
+        ),
+      ),
+    )
+
+    expect(content).toMatchObject({ stream: { shape: 'event' }, schema: { type: 'union', discriminatorPropertyName: 'event' } })
+    expect(content?.stream?.schema).toBe(content?.schema)
+  })
+
+  it.each(['application/jsonl', 'application/x-ndjson', 'application/json-seq'])('types each %s record from itemSchema', async (contentType) => {
+    const content = firstContent(await parseOas(streamingDocument({ [contentType]: { itemSchema: { $ref: '#/components/schemas/MessageDelta' } } })))
+
+    expect(content).toMatchObject({ contentType, schema: { type: 'ref', name: 'MessageDelta' }, stream: { schema: { type: 'ref' } } })
+    expect(content?.stream).not.toHaveProperty('shape')
+  })
+
+  it('types an empty itemSchema as the empty schema type instead of a blob', async () => {
+    const content = firstContent(await parseOas(streamingDocument({ 'application/jsonl': { itemSchema: {} } })))
+
+    expect(content).toMatchObject({ schema: { type: 'unknown' }, stream: { schema: { type: 'unknown' } } })
+  })
+
+  it('leaves complete content without the streaming fields', async () => {
+    const content = firstContent(await parseOas(streamingDocument({ 'application/json': { schema: { type: 'string' } } })))
+
+    expect(content).toMatchObject({ schema: { type: 'string' } })
+    expect(content).not.toHaveProperty('stream')
+  })
+
+  it('types a string that holds encoded content as a string, and keeps an enum on it', () => {
+    expect(parseSchema(emptyCtx, { schema: { contentMediaType: 'application/json', contentSchema: { type: 'object' } } })).toMatchObject({ type: 'string' })
+    expect(parseSchema(emptyCtx, { schema: { contentMediaType: 'text/plain', enum: ['a', 'b'] } })).toMatchObject({ type: 'enum', enumValues: ['a', 'b'] })
+  })
+
+  it('reads a querystring parameter described with content', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/search': {
+          get: {
+            operationId: 'search',
+            parameters: [
+              {
+                name: 'query',
+                in: 'querystring',
+                content: { 'application/x-www-form-urlencoded': { schema: { type: 'object', properties: { q: { type: 'string' } } } } },
+              },
+            ],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+
+    expect(findOperation(root, 'search')?.parameters).toMatchObject([
+      { name: 'query', in: 'querystring', contentType: 'application/x-www-form-urlencoded', schema: { type: 'object' } },
+    ])
+  })
+
+  it('resolves a $ref into components.mediaTypes for a request body and a response', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/items': {
+          post: {
+            operationId: 'createItem',
+            requestBody: { content: { 'application/json': { $ref: '#/components/mediaTypes/Item' } } },
+            responses: { '200': { description: 'OK', content: { 'application/jsonl': { $ref: '#/components/mediaTypes/ItemStream' } } } },
+          },
+        },
+      },
+      components: {
+        schemas: { Item: { type: 'object', properties: { id: { type: 'string' } } } },
+        mediaTypes: {
+          Item: { schema: { $ref: '#/components/schemas/Item' } },
+          ItemStream: { itemSchema: { $ref: '#/components/schemas/Item' } },
+        },
+      },
+    })
+    const op = findOperation(root, 'createItem')
+
+    expect(op?.requestBody?.content).toMatchObject([{ contentType: 'application/json', schema: { type: 'ref', name: 'Item' } }])
+    expect(op?.responses[0]?.content).toMatchObject([{ contentType: 'application/jsonl', schema: { type: 'ref', name: 'Item' }, stream: {} }])
+  })
+
+  it('generates the methods of additionalOperations next to the fixed methods', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/cache': {
+          parameters: [{ name: 'key', in: 'query', schema: { type: 'string' } }],
+          get: { operationId: 'readCache', responses: { '200': { description: 'OK' } } },
+          additionalOperations: {
+            PURGE: {
+              operationId: 'purgeCache',
+              parameters: [{ name: 'token', in: 'header', schema: { type: 'string' } }],
+              responses: { '204': { description: 'Purged' } },
+            },
+            // The spec forbids a fixed method here, so the entry is skipped instead of shadowing `get`.
+            GET: { operationId: 'readCacheAgain', responses: { '200': { description: 'OK' } } },
+            doWork: { operationId: 'doWork', responses: { '200': { description: 'OK' } } },
+          },
+        },
+      },
+    })
+    const purge = findOperation(root, 'purgeCache')
+
+    expect(root.operations.map((operation) => operation.method)).toStrictEqual(['GET', 'PURGE', 'doWork'])
+    expect(findOperation(root, 'doWork')?.pointer).toBe('#/paths/~1cache/additionalOperations/doWork')
+    expect(purge).toMatchObject({ path: '/cache', pointer: '#/paths/~1cache/additionalOperations/PURGE' })
+    expect(purge?.parameters.map((parameter) => [parameter.name, parameter.pointer])).toStrictEqual([
+      ['key', '#/paths/~1cache/parameters/0'],
+      ['token', '#/paths/~1cache/additionalOperations/PURGE/parameters/0'],
+    ])
+    expect(purge?.responses[0]?.pointer).toBe('#/paths/~1cache/additionalOperations/PURGE/responses/204')
+  })
+
+  it('adds the defaultMapping schema as the fallback member of a discriminated union', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {},
+      components: {
+        schemas: {
+          Pet: {
+            oneOf: [{ $ref: '#/components/schemas/Dog' }],
+            discriminator: {
+              propertyName: 'kind',
+              mapping: { dog: '#/components/schemas/Dog', other: '#/components/schemas/UnknownPet' },
+              defaultMapping: 'UnknownPet',
+            },
+          },
+          Dog: { type: 'object', properties: { kind: { type: 'string' } } },
+          UnknownPet: { allOf: [{ $ref: '#/components/schemas/Pet' }, { type: 'object', properties: { note: { type: 'string' } } }] },
+        },
+      },
+    })
+    const pet = ast.narrowSchema(findSchema(root, 'Pet')!, 'union')
+    const unknownPet = findSchema(root, 'UnknownPet')!
+    const literals = ast.collectSync<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'enum' ? node : undefined) })
+    const parentRefs = ast.collectSync<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'ref' && node.name === 'Pet' ? node : undefined) })
+
+    expect(pet?.members).toHaveLength(2)
+    expect(pet?.members?.[0]).toMatchObject({ type: 'intersection', members: [{ type: 'ref', name: 'Dog' }, { type: 'object' }] })
+    // The default member also appears in `mapping`, but it stays open to every value outside it, also where it inherits from the parent.
+    expect(pet?.members?.[1]).toMatchObject({ type: 'ref', name: 'UnknownPet' })
+    // The parent reference is dropped too, so `Pet` and `UnknownPet` do not refer to each other.
+    expect(parentRefs).toHaveLength(0)
+    expect(literals).toHaveLength(0)
+  })
 })

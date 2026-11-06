@@ -1,9 +1,10 @@
 import type { ast } from '@kubb/kit'
+import { formatMap } from '../constants.ts'
 import { isBinary, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, SchemaObject } from '../types.ts'
 import { convertAllOf, convertMultiType, convertNot, convertRef, convertUnion } from './converters/composition.ts'
-import { convertConst, convertEnum, convertFormat, convertNumeric, convertString, createNullNode } from './converters/scalar.ts'
+import { convertConst, convertEnum, convertFormat, convertFormattedEnum, convertNumeric, convertString, createNullNode } from './converters/scalar.ts'
 import { convertArray, convertObject, convertTuple } from './converters/structural.ts'
 import { createNode } from './createNode.ts'
 import { isHandledFormat, resolveDateTypeValue } from './schemaShape.ts'
@@ -48,6 +49,27 @@ type SchemaRule = {
 }
 
 /**
+ * Whether the `format` rule owns the schema: a handled format, and for a date format a `dateType` that is not `false`.
+ */
+function matchesFormat({ schema, options }: ConvertContext): boolean {
+  if (!schema.format) return false
+  if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time')
+    return resolveDateTypeValue(options.dateType, schema.format) !== false
+  return isHandledFormat(schema.format)
+}
+
+/**
+ * Whether the format prints as a plain `string` or `number`, so narrowing it to literal values cannot break callers.
+ * `Date`, `bigint` and `Blob` outputs keep the format.
+ */
+function formatPrintsPlainType({ schema, options, type }: ConvertContext): boolean {
+  const format = schema.format!
+  if (format === 'date-time' || format === 'date' || format === 'time') return resolveDateTypeValue(options.dateType, format) !== 'date'
+  if ((format === 'int64' || format === 'uint64') && type !== 'string') return options.integerType !== 'bigint'
+  return formatMap[format as keyof typeof formatMap] !== 'blob'
+}
+
+/**
  * Ordered schema rule table. Order is significant: composition keywords (`not`, `$ref`, `allOf`,
  * `oneOf`/`anyOf`) take precedence over `const` (except a `$ref` with a sibling `const`, where the
  * `const` wins), which takes precedence over a genuine OAS 3.1 multi-type array (more than one
@@ -67,15 +89,16 @@ export const schemaRules: Array<SchemaRule> = [
   { match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
   { match: ({ schema }) => Array.isArray(schema.type) && schema.type.filter((t) => t !== 'null').length > 1, convert: convertMultiType },
   {
-    match: ({ schema, options }) => {
-      if (!schema.format) return false
-      if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time')
-        return resolveDateTypeValue(options.dateType, schema.format) !== false
-      return isHandledFormat(schema.format)
-    },
-    convert: convertFormat,
+    // A formatted enum keeps its values as a union of literals, not a named enum, so its type keeps its name.
+    match: (ctx) => ctx.type !== 'array' && !!ctx.schema.enum?.some((value) => value !== null) && matchesFormat(ctx) && formatPrintsPlainType(ctx),
+    convert: convertFormattedEnum,
   },
+  { match: matchesFormat, convert: convertFormat },
   { match: ({ schema }) => isBinary(schema), convert: (ctx) => createNode(ctx, { type: 'blob', primitive: 'string' }) },
+  {
+    match: ({ schema, type }) => !type && !schema.enum?.length && (schema.contentMediaType !== undefined || schema.contentSchema !== undefined),
+    convert: convertString,
+  },
   {
     match: ({ schema, type }) => !type && (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined),
     convert: convertString,

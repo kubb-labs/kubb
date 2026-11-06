@@ -1,4 +1,4 @@
-import { ast, extractRefName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
+import { ast, extractRefName, macroDedupeUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
@@ -6,6 +6,7 @@ import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import {
   createDiscriminantNode,
+  getDefaultMappingRef,
   removeInheritedDiscriminator,
   extractDiscriminatedAllOfMembers,
   narrowUnionMembers,
@@ -287,10 +288,16 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
   if (annotatedEnum) return annotatedEnum
   const { schema, name, nullable, defaultValue, parse, refs } = context
   const ctx = { schema, name, nullable, defaultValue }
-  const unionMembers = resolveUnionMembers([...(schema.oneOf ?? []), ...(schema.anyOf ?? [])], schema.properties ?? {})
-  const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
-  const explicitDiscriminatorPropertyName = isDiscriminator(schema) ? schema.discriminator.propertyName : undefined
   const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
+  const declaredMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
+  const defaultRef = getDefaultMappingRef(discriminator)
+  const allMembers =
+    defaultRef && !declaredMembers.some((member) => isReference(member) && member.$ref === defaultRef)
+      ? [...declaredMembers, { $ref: defaultRef }]
+      : declaredMembers
+  const unionMembers = resolveUnionMembers(allMembers, schema.properties ?? {})
+  const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
+  const explicitDiscriminatorPropertyName = discriminator?.propertyName
   const { oneOf: _o, anyOf: _a, discriminator: _d, ...memberBaseSchema } = schema
   const sharedPropertiesNode = schema.properties ? parse({ schema: memberBaseSchema as SchemaObject, name }) : undefined
   const missingRequired = (Array.isArray(schema.required) ? schema.required : []).filter((key) => !Object.hasOwn(schema.properties ?? {}, key))
@@ -335,7 +342,7 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
     discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.inferDiscriminatorPropertyName(members),
   })
 
-  return ast.applyMacros(unionNode, [macroSimplifyUnion], { depth: 'shallow' })
+  return ast.applyMacros(unionNode, [macroDedupeUnion], { depth: 'shallow' })
 }
 
 /**

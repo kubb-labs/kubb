@@ -9,6 +9,88 @@ outline: 2
 
 # Changelog
 
+## v5.16.0 — Nov 6, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Read the OpenAPI 3.2 fields for streamed responses, so plugins can type `text/event-stream`, JSON Lines, NDJSON and JSON Text Sequence content. ([#4541](https://github.com/kubb-labs/kubb/pull/4541))
+
+  - `ContentNode` gets `stream` with the item `schema` and `shape` for a stream of items. `schema` holds the same item node, so a plugin that only reads `schema` types one item.
+  - A `text/event-stream` item schema becomes one event type per `oneOf` member, with `event` as a literal and `data` typed from `contentSchema`.
+  - The adapter also reads `in: querystring` parameters, `$ref`s into `components.mediaTypes`, `additionalOperations`, and `discriminator.defaultMapping`.
+
+  ```yaml
+  text/event-stream:
+    itemSchema:
+      required: [event]
+      properties:
+        event: { type: string }
+        data: { type: string }
+      oneOf:
+        - properties:
+            event: { const: message_delta }
+            data: { contentMediaType: application/json, contentSchema: { $ref: '#/components/schemas/MessageDelta' } }
+        - properties:
+            event: { const: ping }
+  ```
+
+  ```ts
+  type StreamEvent = { event: 'message_delta'; data: MessageDelta } | { event: 'ping'; data?: string }
+  ```
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Keep the enum values in a union of a plain scalar and an enum, such as `anyOf: [{ type: string }, { type: string, enum: [gpt-a, gpt-b] }]`. Before, the enum was dropped and the union generated as plain `string` or `z.string()`. With `@kubb/plugin-ts` and `@kubb/plugin-zod` it now generates `(string & {}) | 'gpt-a' | 'gpt-b'` and `z.union([z.string(), z.enum(['gpt-a', 'gpt-b'])])`.
+
+  Rename `macroSimplifyUnion` to `macroDedupeUnion`, since it now only drops repeated union members. Update imports from `kubb/kit` or `@kubb/kit` to the new name. ([#4536](https://github.com/kubb-labs/kubb/pull/4536))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.15.4 — Nov 5, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Drop enum values that break the schema's `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum` or `multipleOf`, so `{ type: integer, enum: [0, 1], minimum: 1 }` generates `1` instead of `0 | 1`. The matching `x-enumNames` and `x-enumDescriptions` entries are dropped with them. ([#4526](https://github.com/kubb-labs/kubb/pull/4526))
+- Parse a JSON spec with `JSON.parse`, about ten times faster than `js-yaml` on the same file. A duplicate key in JSON input now keeps the last value, as every JSON parser does, instead of failing with `KUBB_INVALID_DOCUMENT`. YAML input is unchanged and still rejects duplicate keys. ([#4522](https://github.com/kubb-labs/kubb/pull/4522))
+- Keep the values of an `enum` that also has a `format`, such as `type: integer, format: int32`. These enums generated as a plain `number` (or `z.int32()`) and now generate a union of their values, such as `0 | 1 | 2`, under the same type name. Enums whose format prints as `Date`, `bigint` or `Blob` are unchanged.
+
+  Keep each `x-enumNames` and `x-enumDescriptions` entry with its own value when the enum holds `null`, such as `enum: [null, 0, 1]`. Before, the names shifted by one and the last one was dropped. ([#4526](https://github.com/kubb-labs/kubb/pull/4526))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.15.3 — Oct 29, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Make `kubb generate` up to 4 times faster on large specs that raise many diagnostics or write thousands of files.
+
+  - Index the spec once per run for diagnostic code frames, instead of splitting it into lines for every diagnostic. Cloudflare's 27.7 MB spec, with 239 deprecation notices, drops from 60 s to about 14 s.
+  - Count the "File changes" summary from each file as it is written, instead of reading the whole output back afterwards, and read the previous output while the plugins generate.
+  - Print only the start and end of the write in plain output, such as CI logs and piped runs, instead of one line per file. `--log-level verbose` still lists every file.
+  - Add the `kubb:file:processed` hook, which carries each file's source as it is handed to the storage. ([#4517](https://github.com/kubb-labs/kubb/pull/4517))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.15.2 — Oct 29, 2026
 
 ### @kubb/adapter-oas
