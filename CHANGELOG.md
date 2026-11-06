@@ -1,5 +1,50 @@
 # Changelog
 
+## v5.16.0 — Nov 6, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Read the OpenAPI 3.2 fields for streamed responses, so plugins can type `text/event-stream`, JSON Lines, NDJSON and JSON Text Sequence content.
+  
+  - `ContentNode` gets `stream` with the item `schema` and `shape` for a stream of items. `schema` holds the same item node, so a plugin that only reads `schema` types one item.
+  - A `text/event-stream` item schema becomes one event type per `oneOf` member, with `event` as a literal and `data` typed from `contentSchema`.
+  - The adapter also reads `in: querystring` parameters, `$ref`s into `components.mediaTypes`, `additionalOperations`, and `discriminator.defaultMapping`.
+  
+  ```yaml
+  text/event-stream:
+    itemSchema:
+      required: [event]
+      properties:
+        event: { type: string }
+        data: { type: string }
+      oneOf:
+        - properties:
+            event: { const: message_delta }
+            data: { contentMediaType: application/json, contentSchema: { $ref: '#/components/schemas/MessageDelta' } }
+        - properties:
+            event: { const: ping }
+  ```
+  
+  ```ts
+  type StreamEvent = { event: 'message_delta'; data: MessageDelta } | { event: 'ping'; data?: string }
+  ``` ([#4541](https://github.com/kubb-labs/kubb/pull/4541), [`1acf140`](https://github.com/kubb-labs/kubb/commit/1acf14004f35caabadc422e0d1353f2aade0cfd6))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Keep the enum values in a union of a plain scalar and an enum, such as `anyOf: [{ type: string }, { type: string, enum: [gpt-a, gpt-b] }]`. Before, the enum was dropped and the union generated as plain `string` or `z.string()`. With `@kubb/plugin-ts` and `@kubb/plugin-zod` it now generates `(string & {}) | 'gpt-a' | 'gpt-b'` and `z.union([z.string(), z.enum(['gpt-a', 'gpt-b'])])`.
+  
+  Rename `macroSimplifyUnion` to `macroDedupeUnion`, since it now only drops repeated union members. Update imports from `kubb/kit` or `@kubb/kit` to the new name. ([#4536](https://github.com/kubb-labs/kubb/pull/4536), [`42ab9ba`](https://github.com/kubb-labs/kubb/commit/42ab9baf19853ed3330ee0768ff58fdb39654667))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.15.4 — Nov 5, 2026
 
 ### @kubb/adapter-oas
