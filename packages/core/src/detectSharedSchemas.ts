@@ -17,6 +17,11 @@ type Detected = {
   configs: Array<Config>
   conflicts: Array<string>
   /**
+   * The plugins that configs with the same shared path set up with different options. Each config writes the shared
+   * schemas it defines, so those configs can overwrite each other's shared files.
+   */
+  mismatchedPlugins: Array<string>
+  /**
    * The parsed spec of every config that was compared, keyed by the returned config, so the build does not parse it again.
    */
   inputs: Map<Config, ParsedInput>
@@ -27,6 +32,17 @@ function toShape(node: SchemaNode): string {
   return JSON.stringify(node, function (key, value) {
     return key === 'schema' && this.type === 'ref' ? undefined : value
   })
+}
+
+// Functions drop out and keys are sorted, so only the plain settings are compared. Options JSON cannot hold, such as a cycle, are skipped.
+function toOptionsShape(options: unknown): string | undefined {
+  try {
+    return JSON.stringify(options, (_, value) =>
+      value && typeof value === 'object' && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))) : value,
+    )
+  } catch {
+    return undefined
+  }
 }
 
 // Collects what the adapter reports, for the build to report. A spec that fails to parse throws the way the build does, so a caller can tell it from a bug in detection.
@@ -58,8 +74,20 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
 
   const detected = new Map<Config, { shared: SharedOutput; parsed: ParsedInput }>()
   const conflicts = new Set<string>()
+  const mismatchedPlugins = new Set<string>()
   for (const group of groups.values()) {
     if (group.length < 2) continue
+
+    const optionShapes = new Map<string, Set<string>>()
+    for (const { config } of group) {
+      for (const plugin of config.plugins) {
+        // The build reports a plugin without a name, so detection skips it.
+        const name = plugin.meta?.name ?? plugin.name
+        const shape = toOptionsShape(plugin.options)
+        if (name && shape !== undefined) optionShapes.set(name, (optionShapes.get(name) ?? new Set()).add(shape))
+      }
+    }
+    for (const [name, shapes] of optionShapes) if (shapes.size > 1) mismatchedPlugins.add(name)
 
     const specs: Array<{ member: Member; parsed: ParsedInput; schemas: Map<string, SchemaNode> }> = []
     // Sequential, since configs may share one adapter instance.
@@ -115,5 +143,5 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
     return next
   })
 
-  return { configs: result, conflicts: [...conflicts], inputs }
+  return { configs: result, conflicts: [...conflicts], mismatchedPlugins: [...mismatchedPlugins], inputs }
 }

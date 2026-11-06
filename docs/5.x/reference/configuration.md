@@ -281,7 +281,7 @@ When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/c
 - A config alone in its `path` shares nothing.
 - A plugin with `output.mode: 'file'` writes every schema to its one file, so it shares none.
 
-Every config writes the shared schemas it defines, so give each config that uses the same `path` the same options for the plugins they have in common. Kubb compares the schemas, not the plugin options.
+Every config writes the shared schemas it defines, so give each config that uses the same `path` the same options for the plugins they have in common. When those options differ, the CLI prints a warning that names the plugin. Options that are functions are not compared.
 
 Only `kubb generate` compares the specs, so a single `createKubb` run, the bundler plugins, and MCP share nothing.
 

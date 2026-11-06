@@ -225,11 +225,17 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           info: 'The largest group of specs that define one the same shares it. Every other spec keeps its own copy, with the schemas that reference it.',
         })
       }
+      if (detected.mismatchedPlugins.length > 0) {
+        await hooks.callHook('kubb:warn', {
+          message: `Configs that share an \`output.shared.path\` set different options for: ${detected.mismatchedPlugins.join(', ')}.`,
+          info: 'Each config writes the shared schemas it defines, so give these plugins the same options in every config.',
+        })
+      }
       return detected
     } catch (error) {
       // A spec that fails to parse is reported by its own build, with its config. Anything else is a bug in detection.
       if (!(error instanceof Diagnostics.Error)) throw error
-      return { configs: list, conflicts: [], inputs: new Map() }
+      return { configs: list, conflicts: [], mismatchedPlugins: [], inputs: new Map() }
     }
   }
   const sharedPathOf = (config: Config) => config.output.shared && path.resolve(config.root, config.output.shared.path)

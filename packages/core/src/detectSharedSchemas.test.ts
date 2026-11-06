@@ -109,6 +109,22 @@ describe('detectSharedSchemas', () => {
     expect(conflicts).toStrictEqual(['Color'])
   })
 
+  it('lists a plugin that configs sharing a path set up with different options, ignoring key order and functions', async () => {
+    const plugin = (name: string, options: object) => ({ name, options }) as unknown as Config['plugins'][number]
+    const animals = {
+      ...makeConfig([string()]),
+      plugins: [plugin('plugin-ts', { enumType: 'asConst', output: { path: 'types' }, transform: () => 1 }), plugin('plugin-zod', {})],
+    }
+    const fruits = {
+      ...makeConfig([string()]),
+      plugins: [plugin('plugin-ts', { output: { path: 'types' }, enumType: 'asConst', transform: () => 2 }), plugin('plugin-zod', { coercion: true })],
+    }
+
+    const { mismatchedPlugins } = await detectSharedSchemas([animals, fruits])
+
+    expect(mismatchedPlugins).toStrictEqual(['plugin-zod'])
+  })
+
   it('replaces a schemas list set by hand with the detected one', async () => {
     const name = () => ast.factory.createSchema({ type: 'string', name: 'Name' })
     const animals = makeConfig([name(), object('Animal', {})], { path: './gen/common', schemas: ['Animal'] })
