@@ -57,6 +57,10 @@ export type SchemaObject = {
    * OAS 3.1: encoding applied to string content, such as `base64`.
    */
   contentEncoding?: string
+  /**
+   * OAS 3.1: schema of the decoded value a string with `contentMediaType` holds.
+   */
+  contentSchema?: SchemaObject | ReferenceObject
   $ref?: string
   /**
    * OAS 3.1: positional tuple items, replacing the multi-item `items` array from OAS 3.0.
@@ -90,14 +94,15 @@ export type Document = OpenAPIV3_1.Document & Record<string, unknown>
 export type OperationObject = OpenAPIV3_1.OperationObject & Record<string, unknown>
 
 /**
- * Path item object holding the operations and shared parameters for a single URL path.
+ * Path item object holding the operations and shared parameters for a single URL path, plus the
+ * OpenAPI 3.2 `additionalOperations` map for HTTP methods outside the fixed fields.
  */
-export type PathItemObject = OpenAPIV3_1.PathItemObject
+export type PathItemObject = OpenAPIV3_1.PathItemObject & { additionalOperations?: Record<string, OperationObject> }
 
 /**
- * Discriminator object for `oneOf`/`anyOf` schemas in OpenAPI.
+ * Discriminator object for `oneOf`/`anyOf` schemas, with the OpenAPI 3.2 `defaultMapping` fallback schema.
  */
-export type DiscriminatorObject = OpenAPIV3_1.DiscriminatorObject
+export type DiscriminatorObject = OpenAPIV3_1.DiscriminatorObject & { defaultMapping?: string }
 
 /**
  * OpenAPI reference object pointing to a schema definition via `$ref`.
@@ -115,15 +120,15 @@ export type ResponseObject = OpenAPIV3_1.ResponseObject
 export type RequestBodyObject = OpenAPIV3_1.RequestBodyObject
 
 /**
- * OpenAPI media type object that maps a content-type string to its schema.
+ * OpenAPI media type object, with the OpenAPI 3.2 `itemSchema` of one item of a stream.
  */
-export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject
+export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject & { itemSchema?: SchemaObject | ReferenceObject }
 
 /**
- * OpenAPI parameter object, narrowed so `in` is always one of the four valid locations.
+ * OpenAPI parameter object, narrowed so `in` is always one of the valid locations.
  */
 export type ParameterObject = {
-  in: 'cookie' | 'header' | 'path' | 'query'
+  in: 'cookie' | 'header' | 'path' | 'query' | 'querystring'
 } & OpenAPIV3_1.ParameterObject
 
 /**
@@ -165,7 +170,8 @@ export type AdapterOasOptions = {
   /**
    * Validate the OpenAPI spec with `@readme/openapi-parser` before parsing. Each problem is
    * reported as a `KUBB_INVALID_SPEC` warning and generation continues. Set to `false` to skip the
-   * check, which also makes generation faster on a large spec.
+   * check, which also makes generation faster on a large spec. An OpenAPI 3.2 document is not
+   * validated yet and gets one warning that says so.
    *
    * @default true
    */

@@ -1,4 +1,4 @@
-import type { DiscriminatorObject, ReferenceObject, SchemaObject } from './types.ts'
+import type { DiscriminatorObject, Document, ReferenceObject, SchemaObject } from './types.ts'
 
 /**
  * Returns `true` when a schema should be treated as nullable.
@@ -15,6 +15,15 @@ export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): 
   if (Array.isArray(schemaType)) return schemaType.includes('null')
 
   return false
+}
+
+/**
+ * Returns `true` for an OpenAPI 3.2 or later document. Swagger 2.0 and OpenAPI 3.0 documents are
+ * upgraded to 3.1 before parsing, so `openapi` is always set here.
+ */
+export function isOpenApi32(document: Document): boolean {
+  const [major = 0, minor = 0] = String(document.openapi).split('.').map(Number)
+  return major > 3 || (major === 3 && minor >= 2)
 }
 
 /**
@@ -84,5 +93,6 @@ const jsonMimeFragments = ['application/json', 'application/x-json', 'text/json'
  * ```
  */
 export function isJsonMimeType(mimeType: string): boolean {
-  return jsonMimeFragments.some((fragment) => mimeType.includes(fragment))
+  const lower = mimeType.toLowerCase()
+  return jsonMimeFragments.some((fragment) => lower.includes(fragment))
 }

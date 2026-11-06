@@ -6,9 +6,10 @@ import type { ResponseNode } from './response.ts'
 
 /**
  * HTTP method an operation responds to. `QUERY` is the safe, idempotent method with a request body
- * from RFC 10008, declared with the `query` field of an OpenAPI 3.2 path item.
+ * from RFC 10008, declared with the `query` field of an OpenAPI 3.2 path item. Any other name is a
+ * method the source declares outside this fixed set, in the capitalization it is sent with.
  */
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE' | 'QUERY'
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE' | 'QUERY' | (string & {})
 
 /**
  * Fields shared by every operation, regardless of transport.

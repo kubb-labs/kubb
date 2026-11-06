@@ -3,7 +3,10 @@ import { optionality } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
 
-export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie'
+/**
+ * Where a parameter is sent. `querystring` carries the whole query string as one value, serialized per `contentType`.
+ */
+export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie' | 'querystring'
 
 /**
  * Parameter serialization style, controlling how a parameter value is rendered into the request.
@@ -31,7 +34,7 @@ export type ParameterNode = BaseNode & {
    */
   name: string
   /**
-   * Parameter location (`path`, `query`, `header`, or `cookie`).
+   * Parameter location (`path`, `query`, `header`, `cookie`, or `querystring`).
    */
   in: ParameterLocation
   /**

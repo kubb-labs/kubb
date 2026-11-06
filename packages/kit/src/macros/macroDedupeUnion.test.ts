@@ -1,59 +1,29 @@
 import { ast } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { macroSimplifyUnion } from './macroSimplifyUnion.ts'
+import { macroDedupeUnion } from './macroDedupeUnion.ts'
 
-function simplify(members: Array<SchemaNode>): Array<SchemaNode> {
-  const result = ast.applyMacros(ast.factory.createSchema({ type: ast.schemaTypes.union, members }), [macroSimplifyUnion], { depth: 'shallow' })
+function dedupe(members: Array<SchemaNode>): Array<SchemaNode> {
+  const result = ast.applyMacros(ast.factory.createSchema({ type: ast.schemaTypes.union, members }), [macroDedupeUnion], { depth: 'shallow' })
   return result.type === ast.schemaTypes.union ? (result.members ?? []) : []
 }
 
-describe('macroSimplifyUnion', () => {
-  it('drops a multi-value number enum covered by a broader scalar while keeping other members', () => {
-    const number = ast.factory.createSchema({ type: ast.schemaTypes.number })
-    const ref = ast.factory.createSchema({ type: ast.schemaTypes.ref, ref: '#/components/schemas/Bar', name: 'Bar' })
-
-    expect(
-      simplify([ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.number, enumValues: [1, 2] }), number, ref]),
-    ).toStrictEqual([number, ref])
-  })
-
-  it('keeps a multi-value string enum beside a plain string and clears a name copied from the union', () => {
-    const string = ast.factory.createSchema({ type: ast.schemaTypes.string, name: 'ModelId' })
-    const known = ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.string, name: 'ModelId', enumValues: ['gpt-a', 'gpt-b'] })
-    const result = ast.applyMacros(ast.factory.createSchema({ type: ast.schemaTypes.union, name: 'ModelId', members: [string, known] }), [macroSimplifyUnion], {
-      depth: 'shallow',
-    })
-
-    expect(ast.narrowSchema(result, ast.schemaTypes.union)?.members).toStrictEqual([string, { ...known, name: null }])
-  })
-
-  it('keeps the name of a string enum that is not the union name', () => {
-    const string = ast.factory.createSchema({ type: ast.schemaTypes.string })
-    const known = ast.factory.createSchema({
-      type: ast.schemaTypes.enum,
-      primitive: ast.schemaTypes.string,
-      name: 'KnownModels',
-      enumValues: ['gpt-a', 'gpt-b'],
-    })
-
-    expect(simplify([string, known])).toStrictEqual([string, known])
-  })
-
-  it('keeps a single-value enum even when a broader scalar is present', () => {
+describe('macroDedupeUnion', () => {
+  it('keeps enum members next to a broader scalar', () => {
     const members = [
-      ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.string, enumValues: ['accepted'] }),
       ast.factory.createSchema({ type: ast.schemaTypes.string }),
+      ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.string, enumValues: ['gpt-a', 'gpt-b'] }),
+      ast.factory.createSchema({ type: ast.schemaTypes.enum, primitive: ast.schemaTypes.string, enumValues: ['accepted'] }),
     ]
 
-    expect(simplify(members)).toStrictEqual(members)
+    expect(dedupe(members)).toStrictEqual(members)
   })
 
   it('drops repeated members, ignoring the source pointer', () => {
     const string = ast.factory.createSchema({ type: ast.schemaTypes.string, pointer: '#/a' })
     const number = ast.factory.createSchema({ type: ast.schemaTypes.number })
 
-    expect(simplify([string, ast.factory.createSchema({ type: ast.schemaTypes.string, pointer: '#/b' }), number])).toStrictEqual([string, number])
+    expect(dedupe([string, ast.factory.createSchema({ type: ast.schemaTypes.string, pointer: '#/b' }), number])).toStrictEqual([string, number])
   })
 
   it('deduplicates deeply shared schemas without expanding the resolved graph', () => {
@@ -68,7 +38,7 @@ describe('macroSimplifyUnion', () => {
     const member = ast.factory.createSchema({ type: ast.schemaTypes.ref, name: 'Shared', schema: shared, pointer: '#/a' })
     const duplicate = { ...member, pointer: '#/b' }
 
-    const result = simplify([member, duplicate])
+    const result = dedupe([member, duplicate])
 
     expect(result).toHaveLength(1)
     expect(result[0]).toBe(member)
@@ -79,7 +49,7 @@ describe('macroSimplifyUnion', () => {
     const number = { ...string, schema: ast.factory.createSchema({ type: ast.schemaTypes.number }) }
     const nullable = { ...string, nullable: true }
 
-    expect(simplify([string, number, nullable, { ...string }])).toStrictEqual([string, number, nullable])
+    expect(dedupe([string, number, nullable, { ...string }])).toStrictEqual([string, number, nullable])
   })
 
   it('does not hash the resolved schema of a ref that carries a pointer', () => {
@@ -89,21 +59,21 @@ describe('macroSimplifyUnion', () => {
     // Same pointer, so the same target: a structurally different `schema` must not keep both.
     const repeat = { ...first, schema: ast.factory.createSchema({ type: ast.schemaTypes.number }) }
 
-    expect(simplify([first, other, repeat])).toStrictEqual([first, other])
+    expect(dedupe([first, other, repeat])).toStrictEqual([first, other])
   })
 
   it('hashes ref-shaped data under default in full', () => {
     const first = ast.factory.createSchema({ type: ast.schemaTypes.unknown, default: { type: 'ref', ref: '#/x', schema: 1 } })
     const second = { ...first, default: { type: 'ref', ref: '#/x', schema: 2 } }
 
-    expect(simplify([first, second])).toStrictEqual([first, second])
+    expect(dedupe([first, second])).toStrictEqual([first, second])
   })
 
   it('keeps object and array defaults distinct', () => {
     const object = ast.factory.createSchema({ type: ast.schemaTypes.unknown, default: {} })
     const array = { ...object, default: [] }
 
-    expect(simplify([object, array])).toStrictEqual([object, array])
+    expect(dedupe([object, array])).toStrictEqual([object, array])
   })
 
   it('keeps distinct Date defaults and deduplicates their serialized equivalents', () => {
@@ -111,6 +81,6 @@ describe('macroSimplifyUnion', () => {
     const second = { ...first, default: new Date('2026-01-02T00:00:00.000Z') }
     const serialized = { ...first, default: '2026-01-01T00:00:00.000Z' }
 
-    expect(simplify([first, second, serialized])).toStrictEqual([first, second])
+    expect(dedupe([first, second, serialized])).toStrictEqual([first, second])
   })
 })

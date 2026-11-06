@@ -37,7 +37,7 @@ export function compareEnforce(a?: Enforce, b?: Enforce): number {
  */
 export type Macro = Visitor & {
   /**
-   * Macro identifier used to tell macros apart, for example `'simplify-union'`.
+   * Macro identifier used to tell macros apart, for example `'dedupe-union'`.
    */
   name: string
   /**

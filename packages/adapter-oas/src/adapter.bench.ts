@@ -35,7 +35,7 @@ function parseOas(document: Document): void {
   }
   ast.findCircularSchemas(nodes)
 
-  for (const operation of getOperations(document, refs)) parseOperation({ operation, refs, options: DEFAULT_PARSER_OPTIONS, parseSchema })
+  for (const operation of getOperations(document, refs)) parseOperation({ operation, document, refs, options: DEFAULT_PARSER_OPTIONS, parseSchema })
 }
 
 test('parseOas() performance / petStore spec', async ({ bench }) => {

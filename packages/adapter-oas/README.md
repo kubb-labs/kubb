@@ -24,7 +24,7 @@
 
 ### OpenAPI and Swagger adapter for Kubb
 
-Parses and validates Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 specifications and transforms them into a `@kubb/ast` `RootNode` for downstream code generation plugins.
+Parses and validates Swagger 2.0, OpenAPI 3.0, 3.1, and 3.2 specifications and transforms them into a `@kubb/ast` `RootNode` for downstream code generation plugins.
 
 ## Installation
 

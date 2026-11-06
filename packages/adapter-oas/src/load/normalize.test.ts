@@ -246,6 +246,19 @@ describe('validateDocument', () => {
     expect(diagnostics.every((diagnostic) => !Diagnostics.isProblem(diagnostic) || !diagnostic.message.includes('\n'))).toBe(true)
   })
 
+  it('reports one warning for an OpenAPI 3.2 document instead of validating it', async () => {
+    const diagnostics: Array<Diagnostic> = []
+    const document = { openapi: '3.2.0', info: { title: 'Streams', version: '1.0.0' }, paths: {} } as unknown as Document
+
+    await Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => validateDocument(document),
+    )
+
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.invalidSpec, severity: 'warning', message: expect.stringContaining('3.2') }])
+    await expect(validateDocument(document, { throwOnError: true })).rejects.toThrow('3.2')
+  })
+
   it('reports nothing for a valid document', async () => {
     const diagnostics: Array<Diagnostic> = []
     const validSchema = { openapi: '3.0.3', info: { title: 'Valid API', version: '1.0.0' }, paths: {} } as unknown as Document
@@ -260,6 +273,18 @@ describe('validateDocument', () => {
 })
 
 describe('validateDocumentInWorker', () => {
+  it('reports the OpenAPI 3.2 warning without starting a worker', async () => {
+    const diagnostics: Array<Diagnostic> = []
+    const document = { openapi: '3.2.0', info: { title: 'Streams', version: '1.0.0' }, paths: {} } as unknown as Document
+
+    await Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => validateDocumentInWorker(document),
+    )
+
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.invalidSpec, message: expect.stringContaining('3.2') }])
+  })
+
   const invalidSchema = {
     openapi: '3.0.3',
     info: { title: 'Invalid API', version: '1.0.0' },
