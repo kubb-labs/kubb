@@ -448,6 +448,12 @@ describe('output.shared', () => {
     expect(baseResolver.file({ name: 'Name', extname: '.ts', tag: 'pets', ...sharedContext }).path).toBe('/root/types/name.ts')
   })
 
+  it('keeps a shared schema of a file-mode plugin in its own file', () => {
+    const fileContext = { ...sharedContext, output: { ...sharedContext.output, path: 'types.ts', mode: 'file' as const } }
+
+    expect(baseResolver.file({ name: 'Name', extname: '.ts', ...fileContext }).path).toBe('/root/types.ts')
+  })
+
   it('imports a shared schema from the shared path', () => {
     const node = ast.factory.createSchema({
       type: 'object',

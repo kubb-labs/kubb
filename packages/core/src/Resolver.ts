@@ -576,7 +576,8 @@ export class Resolver {
   /** The absolute path `#resolveFile` places a file at. */
   #resolveFilePath({ name, extname, tag, path: groupPath, root: outputRoot, output, group }: ResolveFileOptions): string {
     // A shared schema's file and every import of it move under `output.shared.path`; operation files carry a `tag` or `path`.
-    const shared = !tag && !groupPath && output.shared?.schemas?.includes(name) ? output.shared : undefined
+    // A file-mode plugin writes all schemas to one file, which configs sharing different schemas would overwrite, so it shares none.
+    const shared = output.mode === 'directory' && !tag && !groupPath && output.shared?.schemas?.includes(name) ? output.shared : undefined
     const root = shared ? path.resolve(outputRoot, shared.path) : outputRoot
     const baseName = this.#baseName({ name, extname })
     return this.#filePath
