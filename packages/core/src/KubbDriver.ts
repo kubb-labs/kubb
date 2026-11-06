@@ -4,6 +4,7 @@ import { ast, collectUsedSchemaNames, compareEnforce, type FileNode, type InputM
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
+import type { ParsedInput } from './detectSharedSchemas.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, Output, PluginType } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
@@ -37,9 +38,9 @@ type Options = {
    */
   cleanSharedPath?: string
   /**
-   * The spec already parsed, so `run` skips `adapter.parse`.
+   * The spec already parsed, so `run` reports its diagnostics and skips `adapter.parse`.
    */
-  inputNode?: InputNode
+  parsed?: ParsedInput
 }
 
 type RequirePluginContext = {
@@ -142,7 +143,6 @@ export class KubbDriver {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null
-    this.inputNode = options.inputNode ?? null
   }
 
   /**
@@ -260,6 +260,12 @@ export class KubbDriver {
    */
   async #parseInput(): Promise<void> {
     if (this.inputNode || !this.adapter || !this.#adapterSource) return
+
+    if (this.options.parsed) {
+      for (const diagnostic of this.options.parsed.diagnostics) Diagnostics.report(diagnostic)
+      this.inputNode = this.options.parsed.inputNode
+      return
+    }
 
     this.options.signal?.throwIfAborted()
     const source = this.#adapterSource

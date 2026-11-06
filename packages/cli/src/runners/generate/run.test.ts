@@ -3,7 +3,17 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, defineExtension, fsStorage, memoryStorage, type PostGenerateCommand, resolveCacheDir, resolveMeta, type UserConfig } from '@kubb/core'
+import {
+  type Config,
+  defineExtension,
+  Diagnostics,
+  fsStorage,
+  memoryStorage,
+  type PostGenerateCommand,
+  resolveCacheDir,
+  resolveMeta,
+  type UserConfig,
+} from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
 import * as env from '../../utils/env.ts'
@@ -143,6 +153,28 @@ describe('shared schemas', () => {
     const lines = await bootstrap({ configs: [withSeason('winter'), withSeason('summer')] })
 
     expect(lines).toContain('⚠ Not shared, since the specs define them differently: Season. Each config keeps its own copy of these schemas.')
+  })
+
+  it('reports what the adapter finds while parsing a spec for detection, and fails the run', async () => {
+    const withRef = (name: string, ref: string) =>
+      ({
+        root: process.cwd(),
+        input: {
+          openapi: '3.0.3',
+          info: { title: name, version: '1' },
+          paths: {},
+          components: { schemas: { Name: { type: 'string' }, Pet: { type: 'object', properties: { name: { $ref: ref } } } } },
+        },
+        output: { path: `./gen/${name}`, shared: { path: './gen/common' }, format: false, lint: false },
+        adapter: adapterOas(),
+        plugins: [],
+        storage: memoryStorage(),
+      }) satisfies UserConfig as unknown as Config
+
+    const lines = await bootstrap({ configs: [withRef('pets', '#/components/schemas/Name'), withRef('shop', '#/components/schemas/Missing')] })
+
+    expect(lines.some((line) => line.includes(Diagnostics.code.refNotFound))).toBe(true)
+    expect(lines.at(-1)).toBe('exit 1')
   })
 
   it.each([

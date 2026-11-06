@@ -63,13 +63,13 @@ type GenerateProps = {
   /**
    * The spec already parsed to detect shared schemas, so the build does not parse it again.
    */
-  inputNode?: CreateKubbOptions['inputNode']
+  parsed?: CreateKubbOptions['parsed']
 }
 
 type Detected = Awaited<ReturnType<typeof detectSharedSchemas>>
 
 export async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, dryRun = false, cleanShared, inputNode } = options
+  const { input, hooks, dryRun = false, cleanShared, parsed } = options
 
   const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
 
@@ -84,7 +84,7 @@ export async function generate(options: GenerateProps): Promise<boolean> {
 
   // Core formats, lints and runs `output.postGenerate` after an error-free build, and reports
   // their failures as coded diagnostics that reach the summary, the json report and the exit code.
-  const kubb = createKubb(config, { hooks, cleanShared, inputNode })
+  const kubb = createKubb(config, { hooks, cleanShared, parsed })
   const result = await kubb.generate()
 
   // Not awaited: the request finishes in the background, capped by its timeout, so it never delays the summary.
@@ -240,7 +240,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     const group = configs.filter((other) => sharedPathOf(other) === sharedPathOf(config))
     const detected = await detectShared(group)
     const current = detected.configs[group.indexOf(config)] ?? config
-    return { config: current, inputNode: detected.inputs.get(current) }
+    return { config: current, parsed: detected.inputs.get(current) }
   }
   // The first config of each shared directory empties it when any of them sets `output.clean`, so a later one never deletes what an earlier one wrote.
   const sharedOwners = new Map<string, Config>()
@@ -276,7 +276,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async () => {
           const hrStart = process.hrtime()
-          const current = isRebuild && config.output.shared ? await redetect(config) : { config, inputNode: shared.inputs.get(config) }
+          const current = isRebuild && config.output.shared ? await redetect(config) : { config, parsed: shared.inputs.get(config) }
           const succeeded = await generate({ input, ...current, hooks, dryRun, cleanShared: !isRebuild && cleansShared.has(config) })
           isRebuild = true
           const snapshot = tracker.take()
@@ -318,7 +318,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       } else {
         if (tracker && !quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
         try {
-          const succeeded = await generate({ input, config, hooks, dryRun, cleanShared: cleansShared.has(config), inputNode: shared.inputs.get(config) })
+          const succeeded = await generate({ input, config, hooks, dryRun, cleanShared: cleansShared.has(config), parsed: shared.inputs.get(config) })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await Diagnostics.emit(errorHooks, configError)

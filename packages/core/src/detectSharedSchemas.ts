@@ -2,11 +2,16 @@ import { resolve } from 'node:path'
 import { collectImportedRefNames, type InputNode, type SchemaNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import type { SharedOutput } from './definePlugin.ts'
-import { Diagnostics } from './Diagnostics.ts'
+import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { inputToAdapterSource } from './input.ts'
 import type { Config } from './types.ts'
 
 type Member = { config: Config; adapter: Adapter; shared: SharedOutput }
+
+/**
+ * A spec parsed ahead of its build, with what the adapter reported while parsing it.
+ */
+export type ParsedInput = { inputNode: InputNode; diagnostics: Array<Diagnostic> }
 
 type Detected = {
   configs: Array<Config>
@@ -14,7 +19,7 @@ type Detected = {
   /**
    * The parsed spec of every config that was compared, keyed by the returned config, so the build does not parse it again.
    */
-  inputs: Map<Config, InputNode>
+  inputs: Map<Config, ParsedInput>
 }
 
 // Skips the target a ref embeds, so recursive schemas serialize and only the ref itself is compared.
@@ -24,10 +29,15 @@ function toShape(node: SchemaNode): string {
   })
 }
 
-// Reports a spec that fails to parse the way the build does, so a caller can tell it from a bug in detection.
-async function parse({ config, adapter }: Member): Promise<InputNode> {
+// Collects what the adapter reports, for the build to report. A spec that fails to parse throws the way the build does, so a caller can tell it from a bug in detection.
+async function parse({ config, adapter }: Member): Promise<ParsedInput> {
+  const diagnostics: Array<Diagnostic> = []
   try {
-    return await adapter.parse(inputToAdapterSource(config))
+    const inputNode = await Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => adapter.parse(inputToAdapterSource(config)),
+    )
+    return { inputNode, diagnostics }
   } catch (caughtError) {
     throw new Diagnostics.Error(Diagnostics.fromExtension(caughtError, { kind: 'adapter', extension: adapter }))
   }
@@ -50,16 +60,16 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
     groups.set(key, [...(groups.get(key) ?? []), { config, adapter, shared }])
   }
 
-  const detected = new Map<Config, { shared: SharedOutput; input: InputNode }>()
+  const detected = new Map<Config, { shared: SharedOutput; parsed: ParsedInput }>()
   const conflicts = new Set<string>()
   for (const group of groups.values()) {
     if (group.length < 2) continue
 
-    const parsed: Array<{ member: Member; input: InputNode; schemas: Map<string, SchemaNode> }> = []
+    const parsed: Array<{ member: Member; parsed: ParsedInput; schemas: Map<string, SchemaNode> }> = []
     // Sequential, since configs may share one adapter instance.
     for (const member of group) {
       const input = await parse(member)
-      parsed.push({ member, input, schemas: new Map(input.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : []))) })
+      parsed.push({ member, parsed: input, schemas: new Map(input.inputNode.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : []))) })
     }
 
     const definitions = new Map<string, Array<SchemaNode>>()
@@ -88,18 +98,18 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
       }
     }
 
-    for (const { member, input, schemas } of parsed) {
-      detected.set(member.config, { shared: { ...member.shared, schemas: [...shared.keys()].filter((name) => schemas.has(name)) }, input })
+    for (const { member, parsed: input, schemas } of parsed) {
+      detected.set(member.config, { shared: { ...member.shared, schemas: [...shared.keys()].filter((name) => schemas.has(name)) }, parsed: input })
     }
   }
 
-  const inputs = new Map<Config, InputNode>()
+  const inputs = new Map<Config, ParsedInput>()
   const result = configs.map((config) => {
     const entry = detected.get(config)
     if (!entry) return config
 
     const next = { ...config, output: { ...config.output, shared: entry.shared } }
-    inputs.set(next, entry.input)
+    inputs.set(next, entry.parsed)
     return next
   })
 

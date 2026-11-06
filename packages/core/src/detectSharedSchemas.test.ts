@@ -2,6 +2,7 @@ import { ast, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { detectSharedSchemas } from './detectSharedSchemas.ts'
+import { Diagnostics } from './Diagnostics.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import type { Config } from './types.ts'
 
@@ -41,7 +42,7 @@ describe('detectSharedSchemas', () => {
       ['Name', 'Color'],
     ])
     expect(conflicts).toStrictEqual([])
-    expect(configs.map((config) => inputs.get(config)?.schemas.length)).toStrictEqual([3, 3])
+    expect(configs.map((config) => inputs.get(config)?.inputNode.schemas.length)).toStrictEqual([3, 3])
   })
 
   it('shares a schema that only some configs define, and lists on each config only the shared schemas it defines', async () => {
@@ -67,6 +68,20 @@ describe('detectSharedSchemas', () => {
 
     expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([[], [], []])
     expect(conflicts).toStrictEqual(['Address'])
+  })
+
+  it('keeps the diagnostics the adapter reports while parsing, for the build to report', async () => {
+    const warning = { code: Diagnostics.code.invalidSpec, severity: 'warning', message: 'Broken spec.' } as const
+    const animals = makeConfig([string()])
+    const fruits = makeConfig([string()])
+    vi.mocked(fruits.adapter!.parse).mockImplementation(async () => {
+      Diagnostics.report(warning)
+      return ast.factory.createInput()
+    })
+
+    const { configs, inputs } = await detectSharedSchemas([animals, fruits])
+
+    expect(configs.map((config) => inputs.get(config)?.diagnostics)).toStrictEqual([[], [warning]])
   })
 
   it('keeps a schema defined differently, and every shared candidate that references it, in each output', async () => {

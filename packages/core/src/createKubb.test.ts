@@ -299,12 +299,17 @@ describe('createKubb', () => {
     expect(await storage.readItem(staleFile)).toBe(expected)
   })
 
-  it('uses the given inputNode instead of parsing the spec', async () => {
+  it('reports the diagnostics of the given parsed spec instead of parsing it again', async () => {
     const adapter = createMockedAdapter({ parse: vi.fn(async () => ast.factory.createInput()) })
+    const warning = { code: Diagnostics.code.invalidSpec, severity: 'warning', message: 'Broken spec.' } as const
 
-    await createKubb(makeConfig({ adapter }), { hooks: new Hookable<KubbHooks>(), inputNode: ast.factory.createInput() }).build()
+    const { diagnostics } = await createKubb(makeConfig({ adapter }), {
+      hooks: new Hookable<KubbHooks>(),
+      parsed: { inputNode: ast.factory.createInput(), diagnostics: [warning] },
+    }).build()
 
     expect(adapter.parse).not.toHaveBeenCalled()
+    expect(diagnostics).toContainEqual(warning)
   })
 
   it('output.clean raises a KUBB_CLEAN_ROOT diagnostic when output.shared.path is the project root', async () => {

@@ -1,9 +1,10 @@
 import { resolve } from 'node:path'
 import { isPathInside } from '@internals/utils'
-import type { FileNode, InputNode } from '@kubb/ast'
+import type { FileNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
+import type { ParsedInput } from './detectSharedSchemas.ts'
 import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
 import { cacheStorage } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -59,9 +60,10 @@ export type CreateKubbOptions = {
    */
   cleanShared?: boolean
   /**
-   * The spec already parsed, so the build does not parse it again. `kubb generate` passes the node it parsed to detect shared schemas.
+   * The spec already parsed, so the build reports its diagnostics and does not parse it again. `kubb generate` passes the spec it
+   * parsed to detect shared schemas.
    */
-  inputNode?: InputNode
+  parsed?: ParsedInput
 }
 
 /**
@@ -119,14 +121,14 @@ export class Kubb {
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
   readonly #cleanShared: boolean
-  readonly #inputNode: InputNode | undefined
+  readonly #parsed: ParsedInput | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
     this.#cleanShared = options.cleanShared ?? false
-    this.#inputNode = options.inputNode
+    this.#parsed = options.parsed
   }
 
   get storage(): Storage {
@@ -169,7 +171,7 @@ export class Kubb {
 
     // The driver empties `cleanPath` right before it writes the new files, so a run that fails
     // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath, cleanSharedPath, inputNode: this.#inputNode })
+    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath, cleanSharedPath, parsed: this.#parsed })
     await driver.setup()
 
     this.#driver = driver
