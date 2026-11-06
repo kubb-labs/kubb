@@ -281,6 +281,8 @@ When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/c
 - A config alone in its `path` shares nothing.
 - A plugin with `output.mode: 'file'` writes every schema to its one file, so it shares none.
 
+Every config writes the shared schemas it defines, so give each config that uses the same `path` the same options for the plugins they have in common. Kubb compares the schemas, not the plugin options.
+
 Only `kubb generate` compares the specs, so a single `createKubb` run, the bundler plugins, and MCP share nothing.
 
 With [`output.barrel`](#outputbarrel) set, each config's barrels also re-export the shared schemas its spec defines, so `import type { Name } from './src/gen/animals/types'` keeps working. The shared directory gets no barrels of its own.
