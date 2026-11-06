@@ -243,15 +243,11 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     return { config: current, parsed: detected.inputs.get(current) }
   }
   // The first config of each shared directory empties it when any of them sets `output.clean`, so a later one never deletes what an earlier one wrote.
-  const sharedOwners = new Map<string, Config>()
-  const cleanedShared = new Set<string>()
-  for (const config of configs) {
-    const sharedPath = sharedPathOf(config)
-    if (!sharedPath) continue
-    if (!sharedOwners.has(sharedPath)) sharedOwners.set(sharedPath, config)
-    if (config.output.clean) cleanedShared.add(sharedPath)
+  const cleansShared = new Set<Config>()
+  for (const sharedPath of new Set(configs.map(sharedPathOf))) {
+    const group = configs.filter((config) => sharedPathOf(config) === sharedPath)
+    if (sharedPath && group.some((config) => config.output.clean)) cleansShared.add(group[0]!)
   }
-  const cleansShared = new Set([...sharedOwners].flatMap(([sharedPath, config]) => (cleanedShared.has(sharedPath) ? [config] : [])))
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 

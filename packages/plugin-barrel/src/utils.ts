@@ -179,19 +179,17 @@ export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<ast.Fi
   const entries = files.flatMap((file) => {
     const filePath = toPosixPath(file.path)
     const root = roots.find((root) => filePath.startsWith(`${root}/`))
-    const isSource = root !== undefined && !filePath.endsWith(BARREL_SUFFIX) && SOURCE_EXTENSIONS.has(extname(filePath))
-    return isSource
-      ? [
-          {
-            file,
-            filePath,
-            parts: filePath
-              .slice(root.length + 1)
-              .split('/')
-              .filter(Boolean),
-          },
-        ]
-      : []
+    if (root === undefined || filePath.endsWith(BARREL_SUFFIX) || !SOURCE_EXTENSIONS.has(extname(filePath))) return []
+    return [
+      {
+        file,
+        filePath,
+        parts: filePath
+          .slice(root.length + 1)
+          .split('/')
+          .filter(Boolean),
+      },
+    ]
   })
   const sourceFiles = new Map(entries.map(({ filePath, file }) => [filePath, file] as const))
 
