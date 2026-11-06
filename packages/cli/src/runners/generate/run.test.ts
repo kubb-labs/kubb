@@ -152,7 +152,9 @@ describe('shared schemas', () => {
 
     const lines = await bootstrap({ configs: [withSeason('winter'), withSeason('summer')] })
 
-    expect(lines).toContain('⚠ Not shared, since the specs define them differently: Season. Each config keeps its own copy of these schemas.')
+    expect(lines).toContain(
+      '⚠ The specs define these schemas differently: Season. The largest group of specs that define one the same shares it. Every other spec keeps its own copy, with the schemas that reference it.',
+    )
   })
 
   it('reports what the adapter finds while parsing a spec for detection, and fails the run', async () => {

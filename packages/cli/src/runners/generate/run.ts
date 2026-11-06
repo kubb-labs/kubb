@@ -221,8 +221,8 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       const detected = await detectSharedSchemas(list.map((config) => ({ ...config, input: input ?? config.input })))
       if (detected.conflicts.length > 0) {
         await hooks.callHook('kubb:warn', {
-          message: `Not shared, since the specs define them differently: ${detected.conflicts.join(', ')}.`,
-          info: 'Each config keeps its own copy of these schemas.',
+          message: `The specs define these schemas differently: ${detected.conflicts.join(', ')}.`,
+          info: 'The largest group of specs that define one the same shares it. Every other spec keeps its own copy, with the schemas that reference it.',
         })
       }
       return detected

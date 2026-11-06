@@ -276,8 +276,8 @@ When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/c
 
 `kubb generate` parses every spec first and picks the schemas to share:
 
-- A schema is shared when two or more configs with the same `path` define it, all identically, and every schema it references is shared too. A config whose spec does not define it is unaffected.
-- A schema that two or more configs define differently stays in each config's own output, and the CLI prints a warning that names it.
+- A schema is shared when two or more configs with the same `path` define it identically. A config shares it only when it also shares every schema it references. A config whose spec does not define it is unaffected.
+- When configs define a schema differently, the largest group of two or more that define it identically shares it, or the first such group on a tie. Every other config keeps its own copy, along with its schemas that reference it. The CLI prints a warning that names the schema.
 - A config alone in its `path` shares nothing.
 
 Only `kubb generate` compares the specs, so a single `createKubb` run, the bundler plugins, and MCP share nothing.

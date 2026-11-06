@@ -58,16 +58,16 @@ describe('detectSharedSchemas', () => {
     expect(conflicts).toStrictEqual([])
   })
 
-  it('shares nothing for a name two configs define identically and a third defines differently', async () => {
-    const address = () => object('Address', { street: string() })
-    const pets = makeConfig([address()])
-    const shop = makeConfig([address()])
-    const components = makeConfig([object('Address', { city: string() })])
+  it('shares a schema with the configs that define it the same, and the schemas that reference it, when another defines it differently', async () => {
+    const badge = () => object('Badge', { tag: ref('Tag') })
+    const pets = makeConfig([object('Tag', { label: string() }), badge()])
+    const shop = makeConfig([object('Tag', { label: string() }), badge()])
+    const components = makeConfig([object('Tag', { text: string() }), badge()])
 
     const { configs, conflicts } = await detectSharedSchemas([pets, shop, components])
 
-    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([[], [], []])
-    expect(conflicts).toStrictEqual(['Address'])
+    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([['Tag', 'Badge'], ['Tag', 'Badge'], []])
+    expect(conflicts).toStrictEqual(['Tag'])
   })
 
   it('keeps the diagnostics the adapter reports while parsing, for the build to report', async () => {
