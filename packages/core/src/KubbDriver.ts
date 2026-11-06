@@ -71,6 +71,8 @@ const defaultPluginOptions = (): NormalizedPlugin['options'] => ({ output: { pat
  */
 function normalizePluginOptions(rawOptions: Plugin['options'], pluginName: string): NormalizedPlugin['options'] {
   const options: NormalizedPlugin['options'] = { ...defaultPluginOptions(), ...(rawOptions ?? {}) }
+  // A plugin can pass `override: undefined`, which the spread keeps.
+  options.override ??= []
   const group = 'group' in options ? (options.group as Group | null | undefined) : undefined
   options.output = normalizeOutput({ output: options.output, group, pluginName })
   return options
