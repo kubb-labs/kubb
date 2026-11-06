@@ -235,7 +235,11 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     } catch (error) {
       // A spec that fails to parse is reported by its own build, with its config. Anything else is a bug in detection.
       if (!(error instanceof Diagnostics.Error)) throw error
-      return { configs: list, conflicts: [], mismatchedPlugins: [], inputs: new Map() }
+      // Share nothing until the whole group parses, so a watch rebuild never writes with the lists of an earlier detection.
+      const unshared = list.map((config) =>
+        config.output.shared ? { ...config, output: { ...config.output, shared: { ...config.output.shared, schemas: [] } } } : config,
+      )
+      return { configs: unshared, conflicts: [], mismatchedPlugins: [], inputs: new Map() }
     }
   }
   const sharedPathOf = (config: Config) => config.output.shared && path.resolve(config.root, config.output.shared.path)
