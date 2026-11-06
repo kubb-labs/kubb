@@ -83,18 +83,11 @@ function visit(node: ast.SchemaNode, pointer: string): void {
  */
 function reportDuplicateDiscriminators(node: ast.UnionSchemaNode, propertyName: string, pointer: string): void {
   const keyword = node.strategy === 'any' ? 'anyOf' : 'oneOf'
-  const membersByValue = new Map<string | number | boolean | null, Array<string>>()
+  const membersByValue = new Map<Literal, Array<string>>()
 
   for (const [index, member] of (node.members ?? []).entries()) {
-    // Every slice of an intersection constrains the property, so only values they all allow count.
-    const slices = ast
-      .resolveSchemaProperties({ node: member, propertyName })
-      .map((property) => ast.getSchemaLiteralValues(property.schema))
-      .filter((values) => values.length > 0)
-    const values = slices.reduce((acc, values) => acc.filter((value) => values.includes(value)), slices[0] ?? [])
     const label = memberName(member) ?? `${keyword}/${index}`
-
-    for (const value of values) membersByValue.set(value, [...(membersByValue.get(value) ?? []), label])
+    for (const value of memberValues(member, propertyName)) membersByValue.set(value, [...(membersByValue.get(value) ?? []), label])
   }
 
   const duplicates = [...membersByValue].filter(([, members]) => members.length > 1)
@@ -109,6 +102,24 @@ function reportDuplicateDiscriminators(node: ast.UnionSchemaNode, propertyName: 
     help: `Give each member its own "${propertyName}" value, or drop the discriminator. Zod's z.discriminatedUnion throws on the first parse of this union.`,
     location: { kind: 'schema', pointer },
   })
+}
+
+type Literal = string | number | boolean | null
+
+// Values a member allows for the discriminator. A nested `oneOf`/`anyOf` allows any of its alternatives' values.
+function memberValues(node: ast.SchemaNode, propertyName: string, seen = new Set<ast.SchemaNode>()): Array<Literal> {
+  if (seen.has(node)) return []
+  seen.add(node)
+  const target = node.type === 'ref' && node.schema ? node.schema : node
+  if (target.type === 'union') return [...new Set(target.members?.flatMap((member) => memberValues(member, propertyName, seen)))]
+
+  return intersect(ast.resolveSchemaProperties({ node, propertyName }).map((property) => [...ast.getSchemaLiteralValues(property.schema)]))
+}
+
+// Every slice that pins values narrows the set, so only values they all allow count. Unpinned slices are ignored.
+function intersect(slices: Array<Array<Literal>>): Array<Literal> {
+  const pinned = slices.filter((values) => values.length > 0)
+  return pinned.reduce((acc, values) => acc.filter((value) => values.includes(value)), pinned[0] ?? [])
 }
 
 // A member is a `$ref`, or an intersection of the `$ref` and its narrowed discriminant.

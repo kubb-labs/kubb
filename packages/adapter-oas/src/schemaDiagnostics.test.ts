@@ -177,11 +177,25 @@ describe('schema diagnostics during parse', () => {
       expect(await duplicates(spec)).toHaveLength(0)
     })
 
+    it('warns when a nested anyOf member shares a value with a sibling', async () => {
+      const spec = itemSpec(
+        {
+          oneOf: [{ $ref: '#/components/schemas/InMsg' }, { anyOf: [{ $ref: '#/components/schemas/OutMsg' }, { $ref: '#/components/schemas/Other' }] }],
+          discriminator: { propertyName: 'type' },
+        },
+        { Other: { type: 'object', properties: { type: { type: 'string', enum: ['other'] } } } },
+      )
+
+      expect(await duplicates(spec)).toHaveLength(1)
+    })
+
     it('stays quiet when a mapping gives the members distinct values', async () => {
-      const spec = itemSpec({
-        oneOf,
-        discriminator: { propertyName: 'role', mapping: { user: '#/components/schemas/InMsg', assistant: '#/components/schemas/OutMsg' } },
-      })
+      // Both members allow either role, so only the mapping keeps their values apart.
+      const shared = { type: 'object', properties: { role: { type: 'string', enum: ['user', 'assistant'] } } }
+      const spec = itemSpec(
+        { oneOf, discriminator: { propertyName: 'role', mapping: { user: '#/components/schemas/InMsg', assistant: '#/components/schemas/OutMsg' } } },
+        { InMsg: shared, OutMsg: shared },
+      )
 
       expect(await duplicates(spec)).toHaveLength(0)
     })
