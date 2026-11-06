@@ -3,7 +3,7 @@ import { collectImportedRefNames, type InputNode, type SchemaNode } from '@kubb/
 import type { Adapter } from './createAdapter.ts'
 import type { SharedOutput } from './definePlugin.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
-import { inputToAdapterSource } from './input.ts'
+import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 import type { Config } from './types.ts'
 
 type Member = { config: Config; adapter: Adapter; shared: SharedOutput }
@@ -32,15 +32,11 @@ function toShape(node: SchemaNode): string {
 // Collects what the adapter reports, for the build to report. A spec that fails to parse throws the way the build does, so a caller can tell it from a bug in detection.
 async function parse({ config, adapter }: Member): Promise<ParsedInput> {
   const diagnostics: Array<Diagnostic> = []
-  try {
-    const inputNode = await Diagnostics.scope(
-      (diagnostic) => diagnostics.push(diagnostic),
-      () => adapter.parse(inputToAdapterSource(config)),
-    )
-    return { inputNode, diagnostics }
-  } catch (caughtError) {
-    throw new Diagnostics.Error(Diagnostics.fromExtension(caughtError, { kind: 'adapter', extension: adapter }))
-  }
+  const inputNode = await Diagnostics.scope(
+    (diagnostic) => diagnostics.push(diagnostic),
+    () => parseAdapterSource(adapter, inputToAdapterSource(config)),
+  )
+  return { inputNode, diagnostics }
 }
 
 /**

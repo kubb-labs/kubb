@@ -14,8 +14,7 @@ import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
-import { checkoutGitInput, gitInputRegExp } from './gitInput.ts'
-import { inputToAdapterSource } from './input.ts'
+import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 
 import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
@@ -268,15 +267,7 @@ export class KubbDriver {
     }
 
     this.options.signal?.throwIfAborted()
-    const source = this.#adapterSource
-    const checkout = source.type === 'path' && gitInputRegExp.test(source.path) ? await checkoutGitInput(source.path, this.options.signal) : undefined
-    try {
-      this.inputNode = await this.adapter.parse(checkout ? { type: 'path', path: checkout.path } : source, { signal: this.options.signal })
-    } catch (caughtError) {
-      throw new Diagnostics.Error(Diagnostics.fromExtension(caughtError, { kind: 'adapter', extension: this.adapter }))
-    } finally {
-      await checkout?.dispose()
-    }
+    this.inputNode = await parseAdapterSource(this.adapter, this.#adapterSource, this.options.signal)
   }
 
   /**

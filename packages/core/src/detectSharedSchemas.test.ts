@@ -1,6 +1,10 @@
 import { ast, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
+
+const checkout = vi.hoisted(() => ({ path: '/tmp/kubb-git/spec.yaml', dispose: vi.fn(async () => {}) }))
+vi.mock('./gitInput.ts', async (importOriginal) => ({ ...(await importOriginal<object>()), checkoutGitInput: vi.fn(async () => checkout) }))
+
 import { detectSharedSchemas } from './detectSharedSchemas.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
@@ -68,6 +72,16 @@ describe('detectSharedSchemas', () => {
 
     expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([['Tag', 'Badge'], ['Tag', 'Badge'], []])
     expect(conflicts).toStrictEqual(['Tag'])
+  })
+
+  it('parses a git input from its checkout, and deletes the checkout afterwards', async () => {
+    const animals = { ...makeConfig([string()]), input: 'git+https://github.com/org/api.git#main:spec.yaml' }
+    const fruits = makeConfig([string()])
+
+    await detectSharedSchemas([animals, fruits])
+
+    expect(animals.adapter!.parse).toHaveBeenCalledWith({ type: 'path', path: checkout.path }, expect.anything())
+    expect(checkout.dispose).toHaveBeenCalledOnce()
   })
 
   it('keeps the diagnostics the adapter reports while parsing, for the build to report', async () => {
