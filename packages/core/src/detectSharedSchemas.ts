@@ -11,9 +11,9 @@ import type { Config } from './types.ts'
 export type ParsedInput = { inputNode: InputNode; diagnostics: Array<Diagnostic> }
 
 /**
- * How `kubb generate` builds one config, in the order the configs were given.
+ * What detection found for one config, in the order the configs were given.
  */
-export type SharedPlan = {
+export type DetectedConfig = {
   /**
    * The config, with `output.shared.schemas` filled in when it was compared.
    */
@@ -30,7 +30,7 @@ export type SharedPlan = {
 }
 
 type Detected = {
-  plans: Array<SharedPlan>
+  configs: Array<DetectedConfig>
   conflicts: Array<string>
   /**
    * The plugins that configs with the same shared path set up with different options. Each config writes the shared
@@ -67,26 +67,26 @@ async function parse(config: Config, adapter: Adapter): Promise<ParsedInput> {
   return { inputNode, diagnostics }
 }
 
-function withSchemas(config: Config, schemas: Array<string>): Config {
+function setSharedSchemas(config: Config, schemas: Array<string>): Config {
   return { ...config, output: { ...config.output, shared: { ...config.output.shared!, schemas } } }
 }
 
 /**
- * Plans the builds of `configs`, in order. Fills `output.shared.schemas` on every config that sets `output.shared`. Among
+ * Returns one entry per config, in order. Fills `output.shared.schemas` on every config that sets `output.shared`. Among
  * configs with the same shared path, a schema is shared by the largest group of two or more configs that define it
  * identically, the first group on a tie. A config shares it only when it also shares every schema it references. Each
  * config lists only the shared schemas it defines. `conflicts` lists the names that configs define differently. A config
  * outside the sharing group keeps its own copy.
  */
 export async function detectSharedSchemas(configs: Array<Config>): Promise<Detected> {
-  const plans: Array<SharedPlan> = configs.map((config) => ({ config, cleanShared: false }))
-  const groups = new Map<string, Array<SharedPlan>>()
-  for (const plan of plans) {
-    const { shared } = plan.config.output
-    if (!shared || !plan.config.adapter) continue
+  const detected: Array<DetectedConfig> = configs.map((config) => ({ config, cleanShared: false }))
+  const groups = new Map<string, Array<DetectedConfig>>()
+  for (const entry of detected) {
+    const { shared } = entry.config.output
+    if (!shared || !entry.config.adapter) continue
 
-    const key = resolve(plan.config.root, shared.path)
-    groups.set(key, [...(groups.get(key) ?? []), plan])
+    const key = resolve(entry.config.root, shared.path)
+    groups.set(key, [...(groups.get(key) ?? []), entry])
   }
 
   const conflicts = new Set<string>()
@@ -106,18 +106,18 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
     }
     for (const [name, shapes] of optionShapes) if (shapes.size > 1) mismatchedPlugins.add(name)
 
-    const specs: Array<{ plan: SharedPlan; parsed: ParsedInput; schemas: Map<string, SchemaNode> }> = []
+    const specs: Array<{ entry: DetectedConfig; parsed: ParsedInput; schemas: Map<string, SchemaNode> }> = []
     try {
       // Sequential, since configs may share one adapter instance.
-      for (const plan of group) {
-        const parsed = await parse(plan.config, plan.config.adapter!)
-        specs.push({ plan, parsed, schemas: new Map(parsed.inputNode.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : []))) })
+      for (const entry of group) {
+        const parsed = await parse(entry.config, entry.config.adapter!)
+        specs.push({ entry, parsed, schemas: new Map(parsed.inputNode.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : []))) })
       }
     } catch (error) {
       // A spec that fails to parse is reported by its own build. Anything else is a bug in detection.
       if (!(error instanceof Diagnostics.Error)) throw error
       // Share nothing until the whole group parses, so a watch rebuild never writes with the lists of an earlier detection.
-      for (const plan of group) plan.config = withSchemas(plan.config, [])
+      for (const entry of group) entry.config = setSharedSchemas(entry.config, [])
       continue
     }
 
@@ -152,14 +152,14 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
       }
     }
 
-    specs.forEach(({ plan, parsed }, index) => {
-      plan.config = withSchemas(
-        plan.config,
+    specs.forEach(({ entry, parsed }, index) => {
+      entry.config = setSharedSchemas(
+        entry.config,
         [...shared].flatMap(([name, members]) => (members.has(index) ? [name] : [])),
       )
-      plan.parsed = parsed
+      entry.parsed = parsed
     })
   }
 
-  return { plans, conflicts: [...conflicts], mismatchedPlugins: [...mismatchedPlugins] }
+  return { configs: detected, conflicts: [...conflicts], mismatchedPlugins: [...mismatchedPlugins] }
 }

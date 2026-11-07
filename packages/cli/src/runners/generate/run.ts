@@ -19,7 +19,7 @@ import {
   logLevel as logLevelMap,
   memoryStorage,
   type ReporterName,
-  type SharedPlan,
+  type DetectedConfig,
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { trackRun } from '../../Telemetry.ts'
@@ -216,7 +216,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   await hooks.callHook('kubb:lifecycle:start', { version })
 
   // Parses every spec once and fills `output.shared.schemas`. The CLI `--input` replaces each config's input before the comparison, as `generate` does.
-  const detectShared = async (): Promise<Array<SharedPlan>> => {
+  const detectShared = async (): Promise<Array<DetectedConfig>> => {
     const detected = await detectSharedSchemas(configs.map((config) => ({ ...config, input: input ?? config.input })))
     if (detected.conflicts.length > 0) {
       await hooks.callHook('kubb:warn', {
@@ -230,9 +230,9 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         info: 'Each config writes the shared schemas it defines, so give these plugins the same options in every config.',
       })
     }
-    return detected.plans
+    return detected.configs
   }
-  const plans = await detectShared()
+  const detected = await detectShared()
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
@@ -244,7 +244,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     let armKeys: (() => void) | undefined
     // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
     let queue = Promise.resolve()
-    for (const [index, { config }] of plans.entries()) {
+    for (const [index, { config }] of detected.entries()) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
       const watchPath = inputKind === 'file' ? (effectiveInput as string) : undefined
@@ -258,8 +258,8 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         const build = async () => {
           const hrStart = process.hrtime()
           // An edited spec can change which schemas its group shares, so a rebuild detects again. It never empties the shared directory.
-          const plan = isRebuild && config.output.shared ? (await detectShared())[index]! : plans[index]!
-          const succeeded = await generate({ input, ...plan, hooks, dryRun, cleanShared: !isRebuild && plan.cleanShared })
+          const current = isRebuild && config.output.shared ? (await detectShared())[index]! : detected[index]!
+          const succeeded = await generate({ input, ...current, hooks, dryRun, cleanShared: !isRebuild && current.cleanShared })
           isRebuild = true
           const snapshot = tracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
@@ -300,7 +300,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       } else {
         if (tracker && !quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
         try {
-          const succeeded = await generate({ input, ...plans[index]!, hooks, dryRun })
+          const succeeded = await generate({ input, ...detected[index]!, hooks, dryRun })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await Diagnostics.emit(errorHooks, configError)

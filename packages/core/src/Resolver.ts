@@ -370,12 +370,12 @@ export class Resolver {
   // Full-path override from `options.file.path`, bound to the resolver. Absent by default, in which
   // case the built-in `output.path`/`group` layout is used.
   #filePath: ((params: ResolverFilePathParams) => string) | undefined
-  #shared: SharedOutput | undefined
+  #sharedOutput: SharedOutput | undefined
 
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
     this.#options = options
-    this.#shared = options.shared
+    this.#sharedOutput = options.shared
     this.#baseName = options.file?.baseName ? options.file.baseName.bind(this) : toBaseName
     this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
     this.default = {
@@ -584,7 +584,7 @@ export class Resolver {
   #resolveFilePath({ name, extname, tag, path: groupPath, root: outputRoot, output, group }: ResolveFileOptions): string {
     // A shared schema's file and every import of it move under `output.shared.path`; operation files carry a `tag` or `path`.
     // A file-mode plugin writes all schemas to one file, which configs sharing different schemas would overwrite, so it shares none.
-    const shared = output.mode === 'directory' && !tag && !groupPath && this.#shared?.schemas?.includes(name) ? this.#shared : undefined
+    const shared = output.mode === 'directory' && !tag && !groupPath && this.#sharedOutput?.schemas?.includes(name) ? this.#sharedOutput : undefined
     const root = shared ? shared.path : outputRoot
     const baseName = this.#baseName({ name, extname })
     return this.#filePath

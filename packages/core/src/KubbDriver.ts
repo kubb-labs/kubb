@@ -122,7 +122,7 @@ export class KubbDriver {
    * `output.shared` with its path resolved against `root`. Every resolver gets it, so a plugin's
    * own `output`, an override's `output`, or a `setResolver` cannot drop it.
    */
-  readonly #shared: SharedOutput | undefined
+  readonly #sharedOutput: SharedOutput | undefined
 
   /**
    * Central file store for all generated files.
@@ -143,11 +143,11 @@ export class KubbDriver {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null
-    this.#shared = config.output.shared && { ...config.output.shared, path: resolve(config.root, config.output.shared.path) }
+    this.#sharedOutput = config.output.shared && { ...config.output.shared, path: resolve(config.root, config.output.shared.path) }
   }
 
   #createResolver(pluginName: string): Resolver {
-    return createResolver<PluginType>({ pluginName, shared: this.#shared })
+    return createResolver<PluginType>({ pluginName, shared: this.#sharedOutput })
   }
 
   /**

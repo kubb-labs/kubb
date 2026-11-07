@@ -150,18 +150,18 @@ export class Kubb {
     const config = this.config
     const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
 
-    const cleanTargets: Array<[option: string, target: string]> = []
-    if (config.output.clean) cleanTargets.push(['output.path', resolve(config.root, config.output.path)])
-    if (this.#cleanShared && config.output.shared) cleanTargets.push(['output.shared.path', resolve(config.root, config.output.shared.path)])
+    const dirsToClean: Array<[option: string, dir: string]> = []
+    if (config.output.clean) dirsToClean.push(['output.path', resolve(config.root, config.output.path)])
+    if (this.#cleanShared && config.output.shared) dirsToClean.push(['output.shared.path', resolve(config.root, config.output.shared.path)])
 
     // clean only removes generated code. Refuse when the output resolves to the project root or
     // an ancestor of it, otherwise the wipe would delete kubb.config and every source file.
-    for (const [option, target] of cleanTargets) {
-      if (!isPathInside(config.root, target)) continue
+    for (const [option, dir] of dirsToClean) {
+      if (!isPathInside(config.root, dir)) continue
       throw new Diagnostics.Error({
         code: Diagnostics.code.cleanRoot,
         severity: 'error',
-        message: `output.clean cannot delete "${target}" because it is the project root or a parent of it.`,
+        message: `output.clean cannot delete "${dir}" because it is the project root or a parent of it.`,
         help: `Point \`${option}\` at a subdirectory such as \`./src/gen\` so clean only removes generated code.`,
         location: { kind: 'config' },
       })
@@ -169,7 +169,7 @@ export class Kubb {
 
     // The driver empties `cleanPaths` right before it writes the new files, so a run that fails
     // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPaths: cleanTargets.map(([, target]) => target), parsed: this.#parsed })
+    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPaths: dirsToClean.map(([, dir]) => dir), parsed: this.#parsed })
     await driver.setup()
 
     this.#driver = driver
