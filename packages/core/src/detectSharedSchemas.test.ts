@@ -141,10 +141,7 @@ describe('detectSharedSchemas', () => {
 
     const { configs } = await detectSharedSchemas([unshared, alone])
 
-    expect(configs).toStrictEqual([
-      { config: unshared, cleanSharedOutput: false },
-      { config: alone, cleanSharedOutput: false },
-    ])
+    expect(configs).toStrictEqual([{ config: unshared }, { config: alone }])
     for (const { config } of configs) expect(config.adapter!.parse).not.toHaveBeenCalled()
   })
 
@@ -155,7 +152,7 @@ describe('detectSharedSchemas', () => {
 
     const { configs } = await detectSharedSchemas([animals, fruits, alone])
 
-    expect(configs.map(({ cleanSharedOutput }) => cleanSharedOutput)).toStrictEqual([true, false, true])
+    expect(configs.map(({ config }) => config.output.shared?.clean)).toStrictEqual([true, false, true])
   })
 
   it('shares nothing in a group whose spec fails to parse, and leaves the error to the build', async () => {

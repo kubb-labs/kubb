@@ -58,17 +58,13 @@ type GenerateProps = {
    */
   dryRun?: boolean
   /**
-   * Empties `output.shared.path` before writing.
-   */
-  cleanSharedOutput?: boolean
-  /**
    * The spec already parsed to detect shared schemas, so the build does not parse it again.
    */
   parsed?: CreateKubbOptions['parsed']
 }
 
 export async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, dryRun = false, cleanSharedOutput, parsed } = options
+  const { input, hooks, dryRun = false, parsed } = options
 
   const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
 
@@ -83,7 +79,7 @@ export async function generate(options: GenerateProps): Promise<boolean> {
 
   // Core formats, lints and runs `output.postGenerate` after an error-free build, and reports
   // their failures as coded diagnostics that reach the summary, the json report and the exit code.
-  const kubb = createKubb(config, { hooks, cleanSharedOutput, parsed })
+  const kubb = createKubb(config, { hooks, parsed })
   const result = await kubb.generate()
 
   // Not awaited: the request finishes in the background, capped by its timeout, so it never delays the summary.
@@ -257,9 +253,11 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async () => {
           const hrStart = process.hrtime()
-          // An edited spec can change which schemas its group shares, so a rebuild detects again. It never empties the shared directory.
-          const current = isRebuild && config.output.shared ? (await detectShared())[index]! : detected[index]!
-          const succeeded = await generate({ input, ...current, hooks, dryRun, cleanSharedOutput: !isRebuild && current.cleanSharedOutput })
+          // An edited spec can change which schemas its group shares, so a rebuild detects again, without emptying the shared directory.
+          const { config: current, parsed } = isRebuild && config.output.shared ? (await detectShared())[index]! : detected[index]!
+          const rebuilt =
+            isRebuild && current.output.shared ? { ...current, output: { ...current.output, shared: { ...current.output.shared, clean: false } } } : current
+          const succeeded = await generate({ input, config: rebuilt, parsed, hooks, dryRun })
           isRebuild = true
           const snapshot = tracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
