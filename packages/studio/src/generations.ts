@@ -135,22 +135,33 @@ export async function generate({
 }
 
 /**
- * What the output directory holds when the editor connects. `undefined` when `outputPath` is not a real
- * subdirectory of `root` (listing the root would take in every source file) or holds more than `maxFiles`.
+ * What the output directories hold when the editor connects: `output.path` and, when set, `output.shared.path`.
+ * `undefined` when one of them is not a real subdirectory of `root` (listing the root would take in every source
+ * file) or they hold more than `maxFiles` together.
  */
-export async function listDisk({ root, outputPath, maxFiles }: { root: string; outputPath: string; maxFiles: number }): Promise<SourceFiles | undefined> {
-  const outputDir = resolve(root, outputPath)
-  const fromRoot = relative(resolve(root), outputDir)
-  if (!fromRoot || fromRoot.startsWith('..') || fromRoot.startsWith(sep)) return undefined
-
+export async function listDisk({
+  root,
+  outputPaths,
+  maxFiles,
+}: {
+  root: string
+  outputPaths: Array<string>
+  maxFiles: number
+}): Promise<SourceFiles | undefined> {
   const storage = fsStorage()
-  const keys = await storage.readKeys(outputDir)
-  if (keys.length > maxFiles) return undefined
+  const paths = new Set<string>()
+  for (const outputPath of outputPaths) {
+    const outputDir = resolve(root, outputPath)
+    const fromRoot = relative(resolve(root), outputDir)
+    if (!fromRoot || fromRoot.startsWith('..') || fromRoot.startsWith(sep)) return undefined
 
-  const paths = keys
-    .filter((key) => !key.split('/').includes('node_modules'))
-    .map((key) => relative(resolve(root), resolve(outputDir, key)).replaceAll('\\', '/'))
-  return { storage, root, paths: new Set(paths) }
+    for (const key of await storage.readKeys(outputDir)) {
+      if (key.split('/').includes('node_modules')) continue
+      paths.add(relative(resolve(root), resolve(outputDir, key)).replaceAll('\\', '/'))
+    }
+    if (paths.size > maxFiles) return undefined
+  }
+  return { storage, root, paths }
 }
 
 /**

@@ -447,7 +447,12 @@ class Agent extends RpcTarget implements AgentApi {
 
   async #readDiskOutput(config: Config): Promise<DiskOutput | undefined> {
     if (this.#sandbox || !this.#permissions.allowRead || this.#session.active) return undefined
-    const files = await listDisk({ root: this.#options.root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES })
+    const { path: outputPath, shared } = config.output
+    const files = await listDisk({
+      root: this.#options.root,
+      outputPaths: shared ? [outputPath, shared.path] : [outputPath],
+      maxFiles: DISK_SNAPSHOT_MAX_FILES,
+    })
     if (!files) return undefined
 
     const { jobId, output } = await this.#generations.keepInitial(files)
