@@ -241,6 +241,8 @@ Kubb also ships built-in macros for common schema normalizations that any adapte
 | `macroDiscriminatorEnum` | Replace a discriminator property's schema with a string enum of its allowed values.         |
 | `macroEnumName`          | Name an inline enum schema from its parent and property name.                               |
 
+`macroSimplifyUnion` is the name `macroDedupeUnion` had before 5.16. It still works, but is deprecated: update the import.
+
 ### Macro options and callbacks
 
 A macro carries the per-kind callbacks of a [visitor](/docs/5.x/reference/kit/ast#visitors), plus a `name`, an optional `enforce` order, and an optional `match` predicate.
