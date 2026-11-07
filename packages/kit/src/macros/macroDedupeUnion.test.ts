@@ -1,7 +1,8 @@
 import { ast } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { macroDedupeUnion, macroSimplifyUnion } from './macroDedupeUnion.ts'
+import { macroSimplifyUnion } from '../index.ts'
+import { macroDedupeUnion } from './macroDedupeUnion.ts'
 
 function dedupe(members: Array<SchemaNode>): Array<SchemaNode> {
   const result = ast.applyMacros(ast.factory.createSchema({ type: ast.schemaTypes.union, members }), [macroDedupeUnion], { depth: 'shallow' })
