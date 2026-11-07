@@ -428,28 +428,35 @@ describe('resolver.imports', () => {
 })
 
 describe('output.shared', () => {
-  const sharedContext = { ...context, output: { ...context.output, shared: { path: '../common', schemas: ['Name'] } } }
+  const shared = { path: '/common', schemas: ['Name'] }
+  const sharedResolver = new Resolver({ pluginName: 'test', shared })
 
   it('places a listed schema under the shared path with the plugin layout', () => {
-    expect(baseResolver.file({ name: 'Name', extname: '.ts', ...sharedContext }).path).toBe('/common/types/name.ts')
-    expect(baseResolver.file({ name: 'Pet', extname: '.ts', ...sharedContext }).path).toBe('/root/types/pet.ts')
+    expect(sharedResolver.file({ name: 'Name', extname: '.ts', ...context }).path).toBe('/common/types/name.ts')
+    expect(sharedResolver.file({ name: 'Pet', extname: '.ts', ...context }).path).toBe('/root/types/pet.ts')
+  })
+
+  it('keeps the shared path through Resolver.merge', () => {
+    const merged = Resolver.merge(sharedResolver, { name: (name) => name.toUpperCase() })
+
+    expect(merged.file({ name: 'Name', extname: '.ts', ...context }).path).toBe('/common/types/name.ts')
   })
 
   it.each([
     ['a relative file.path under the shared root', 'mocks/name.ts', '/common/mocks/name.ts'],
     ['an absolute file.path inside the project root', '/root/mocks/name.ts', '/root/mocks/name.ts'],
   ])('resolves %s for a shared schema', (_, customPath, expected) => {
-    const resolver = createResolver<TestPluginFactory>({ pluginName: 'test', file: { path: () => customPath }, greet: () => '', farewell: () => '' })
+    const resolver = createResolver<TestPluginFactory>({ pluginName: 'test', shared, file: { path: () => customPath }, greet: () => '', farewell: () => '' })
 
-    expect(resolver.file({ name: 'Name', extname: '.ts', ...sharedContext }).path).toBe(expected)
+    expect(resolver.file({ name: 'Name', extname: '.ts', ...context }).path).toBe(expected)
   })
 
   it('keeps an operation file in its own output when its name matches a shared schema', () => {
-    expect(baseResolver.file({ name: 'Name', extname: '.ts', tag: 'pets', ...sharedContext }).path).toBe('/root/types/name.ts')
+    expect(sharedResolver.file({ name: 'Name', extname: '.ts', tag: 'pets', ...context }).path).toBe('/root/types/name.ts')
   })
 
   it('keeps a shared schema of a file-mode plugin, and every import of it, in its own file', () => {
-    const fileContext = { ...sharedContext, output: { ...sharedContext.output, path: 'types.ts', mode: 'file' as const } }
+    const fileContext = { ...context, output: { path: 'types.ts', mode: 'file' as const } }
     const node = ast.factory.createSchema({
       type: 'object',
       properties: [
@@ -457,8 +464,8 @@ describe('output.shared', () => {
       ],
     })
 
-    expect(baseResolver.file({ name: 'Name', extname: '.ts', ...fileContext }).path).toBe('/root/types.ts')
-    expect(baseResolver.imports({ node, ...fileContext }).map((imp) => imp.path)).toStrictEqual(['/root/types.ts'])
+    expect(sharedResolver.file({ name: 'Name', extname: '.ts', ...fileContext }).path).toBe('/root/types.ts')
+    expect(sharedResolver.imports({ node, ...fileContext }).map((imp) => imp.path)).toStrictEqual(['/root/types.ts'])
   })
 
   it('imports a shared schema from the shared path', () => {
@@ -470,7 +477,7 @@ describe('output.shared', () => {
       ],
     })
 
-    expect(baseResolver.imports({ node, ...sharedContext }).map((imp) => imp.path)).toStrictEqual(['/common/types/name.ts', '/root/types/pet.ts'])
+    expect(sharedResolver.imports({ node, ...context }).map((imp) => imp.path)).toStrictEqual(['/common/types/name.ts', '/root/types/pet.ts'])
   })
 })
 

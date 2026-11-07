@@ -39,14 +39,14 @@ describe('detectSharedSchemas', () => {
     const animals = makeConfig([name(), color(), object('Animal', { name: ref('Name') })])
     const fruits = makeConfig([object('Fruit', { color: ref('Color') }), color(), name()])
 
-    const { configs, conflicts, inputs } = await detectSharedSchemas([animals, fruits])
+    const { configs, conflicts } = await detectSharedSchemas([animals, fruits])
 
-    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([
+    expect(configs.map(({ config }) => config.output.shared?.schemas)).toStrictEqual([
       ['Name', 'Color'],
       ['Name', 'Color'],
     ])
     expect(conflicts).toStrictEqual([])
-    expect(configs.map((config) => inputs.get(config)?.inputNode.schemas.length)).toStrictEqual([3, 3])
+    expect(configs.map(({ parsed }) => parsed?.inputNode.schemas.length)).toStrictEqual([3, 3])
   })
 
   it('shares a schema that only some configs define, and lists on each config only the shared schemas it defines', async () => {
@@ -58,7 +58,7 @@ describe('detectSharedSchemas', () => {
 
     const { configs, conflicts } = await detectSharedSchemas([pets, shop, components])
 
-    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([['Name', 'Address'], ['Address'], ['Name']])
+    expect(configs.map(({ config }) => config.output.shared?.schemas)).toStrictEqual([['Name', 'Address'], ['Address'], ['Name']])
     expect(conflicts).toStrictEqual([])
   })
 
@@ -70,7 +70,7 @@ describe('detectSharedSchemas', () => {
 
     const { configs, conflicts } = await detectSharedSchemas([pets, shop, components])
 
-    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([['Tag', 'Badge'], ['Tag', 'Badge'], []])
+    expect(configs.map(({ config }) => config.output.shared?.schemas)).toStrictEqual([['Tag', 'Badge'], ['Tag', 'Badge'], []])
     expect(conflicts).toStrictEqual(['Tag'])
   })
 
@@ -93,9 +93,9 @@ describe('detectSharedSchemas', () => {
       return ast.factory.createInput()
     })
 
-    const { configs, inputs } = await detectSharedSchemas([animals, fruits])
+    const { configs } = await detectSharedSchemas([animals, fruits])
 
-    expect(configs.map((config) => inputs.get(config)?.diagnostics)).toStrictEqual([[], [warning]])
+    expect(configs.map(({ parsed }) => parsed?.diagnostics)).toStrictEqual([[], [warning]])
   })
 
   it('keeps a schema defined differently, and every shared candidate that references it, in each output', async () => {
@@ -105,7 +105,7 @@ describe('detectSharedSchemas', () => {
 
     const { configs, conflicts } = await detectSharedSchemas([animals, fruits])
 
-    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([[], []])
+    expect(configs.map(({ config }) => config.output.shared?.schemas)).toStrictEqual([[], []])
     expect(conflicts).toStrictEqual(['Color'])
   })
 
@@ -132,7 +132,7 @@ describe('detectSharedSchemas', () => {
 
     const { configs } = await detectSharedSchemas([animals, fruits])
 
-    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([['Name'], ['Name']])
+    expect(configs.map(({ config }) => config.output.shared?.schemas)).toStrictEqual([['Name'], ['Name']])
   })
 
   it('leaves configs without output.shared, or alone in their shared path, untouched', async () => {
@@ -141,7 +141,33 @@ describe('detectSharedSchemas', () => {
 
     const { configs } = await detectSharedSchemas([unshared, alone])
 
-    expect(configs).toStrictEqual([unshared, alone])
-    for (const config of configs) expect(config.adapter!.parse).not.toHaveBeenCalled()
+    expect(configs).toStrictEqual([
+      { config: unshared, cleanSharedOutput: false },
+      { config: alone, cleanSharedOutput: false },
+    ])
+    for (const { config } of configs) expect(config.adapter!.parse).not.toHaveBeenCalled()
+  })
+
+  it('marks the first config of a shared directory to clean it when any config that uses it sets output.clean', async () => {
+    const animals = makeConfig([string()])
+    const fruits = { ...makeConfig([string()]), output: { path: './gen/fruits', clean: true, shared: { path: './gen/common' } } }
+    const alone = { ...makeConfig([string()], { path: './gen/other' }), output: { path: './gen/alone', clean: true, shared: { path: './gen/other' } } }
+
+    const { configs } = await detectSharedSchemas([animals, fruits, alone])
+
+    expect(configs.map(({ cleanSharedOutput }) => cleanSharedOutput)).toStrictEqual([true, false, true])
+  })
+
+  it('shares nothing in a group whose spec fails to parse, and leaves the error to the build', async () => {
+    const animals = makeConfig([ast.factory.createSchema({ type: 'string', name: 'Name' })])
+    const fruits = makeConfig([ast.factory.createSchema({ type: 'string', name: 'Name' })])
+    vi.mocked(fruits.adapter!.parse).mockRejectedValue(new Error('broken'))
+
+    const { configs } = await detectSharedSchemas([animals, fruits])
+
+    expect(configs.map(({ config, parsed }) => [config.output.shared?.schemas, parsed])).toStrictEqual([
+      [[], undefined],
+      [[], undefined],
+    ])
   })
 })

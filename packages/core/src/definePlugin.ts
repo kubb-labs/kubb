@@ -84,12 +84,6 @@ export type Output = {
    * Pass a function to compute the footer from the file's `BannerMeta`.
    */
   footer?: string | ((meta: BannerMeta) => string)
-  /**
-   * The global `output.shared`, set by Kubb.
-   *
-   * @internal
-   */
-  shared?: SharedOutput
 } & ExtractRegistryKey<Kubb.PluginOptionsRegistry, 'output'>
 
 /**
