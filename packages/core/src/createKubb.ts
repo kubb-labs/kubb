@@ -150,16 +150,14 @@ export class Kubb {
     const config = this.config
     const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
 
-    const cleanPath = config.output.clean ? resolve(config.root, config.output.path) : undefined
-    const cleanSharedPath = this.#cleanShared && config.output.shared ? resolve(config.root, config.output.shared.path) : undefined
+    const cleanTargets: Array<[option: string, target: string]> = []
+    if (config.output.clean) cleanTargets.push(['output.path', resolve(config.root, config.output.path)])
+    if (this.#cleanShared && config.output.shared) cleanTargets.push(['output.shared.path', resolve(config.root, config.output.shared.path)])
 
     // clean only removes generated code. Refuse when the output resolves to the project root or
     // an ancestor of it, otherwise the wipe would delete kubb.config and every source file.
-    for (const [option, target] of [
-      ['output.path', cleanPath],
-      ['output.shared.path', cleanSharedPath],
-    ] as const) {
-      if (!target || !isPathInside(config.root, target)) continue
+    for (const [option, target] of cleanTargets) {
+      if (!isPathInside(config.root, target)) continue
       throw new Diagnostics.Error({
         code: Diagnostics.code.cleanRoot,
         severity: 'error',
@@ -169,9 +167,9 @@ export class Kubb {
       })
     }
 
-    // The driver empties `cleanPath` right before it writes the new files, so a run that fails
+    // The driver empties `cleanPaths` right before it writes the new files, so a run that fails
     // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath, cleanSharedPath, parsed: this.#parsed })
+    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPaths: cleanTargets.map(([, target]) => target), parsed: this.#parsed })
     await driver.setup()
 
     this.#driver = driver
