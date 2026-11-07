@@ -3,7 +3,17 @@ import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
-import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
+import {
+  type Config,
+  createKubb,
+  type CreateKubbOptions,
+  type Diagnostic,
+  Diagnostics,
+  fsStorage,
+  type Hookable,
+  type KubbHooks,
+  type Storage,
+} from '@kubb/core'
 import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
@@ -90,17 +100,22 @@ function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
  */
 export async function generate({
   config,
+  parsed,
   hooks,
   signal,
   allowExec,
 }: {
   config: Config
+  /**
+   * The spec already parsed to detect shared schemas, so the build does not parse it again.
+   */
+  parsed?: CreateKubbOptions['parsed']
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const kubb = createKubb({ ...config, output }, { hooks, signal })
+  const kubb = createKubb({ ...config, output }, { hooks, signal, parsed })
   let input: InputNode | null = null
   // The driver drops its `inputNode` once the build is over, so read it as the build ends.
   const unhook = kubb.hooks.hook('kubb:build:end', (ctx) => {
@@ -120,22 +135,33 @@ export async function generate({
 }
 
 /**
- * What the output directory holds when the editor connects. `undefined` when `outputPath` is not a real
- * subdirectory of `root` (listing the root would take in every source file) or holds more than `maxFiles`.
+ * What the output directories hold when the editor connects: `output.path` and, when set, `output.shared.path`.
+ * `undefined` when one of them is not a real subdirectory of `root` (listing the root would take in every source
+ * file) or they hold more than `maxFiles` together.
  */
-export async function listDisk({ root, outputPath, maxFiles }: { root: string; outputPath: string; maxFiles: number }): Promise<SourceFiles | undefined> {
-  const outputDir = resolve(root, outputPath)
-  const fromRoot = relative(resolve(root), outputDir)
-  if (!fromRoot || fromRoot.startsWith('..') || fromRoot.startsWith(sep)) return undefined
-
+export async function listDisk({
+  root,
+  outputPaths,
+  maxFiles,
+}: {
+  root: string
+  outputPaths: Array<string>
+  maxFiles: number
+}): Promise<SourceFiles | undefined> {
   const storage = fsStorage()
-  const keys = await storage.readKeys(outputDir)
-  if (keys.length > maxFiles) return undefined
+  const paths = new Set<string>()
+  for (const outputPath of outputPaths) {
+    const outputDir = resolve(root, outputPath)
+    const fromRoot = relative(resolve(root), outputDir)
+    if (!fromRoot || fromRoot.startsWith('..') || fromRoot.startsWith(sep)) return undefined
 
-  const paths = keys
-    .filter((key) => !key.split('/').includes('node_modules'))
-    .map((key) => relative(resolve(root), resolve(outputDir, key)).replaceAll('\\', '/'))
-  return { storage, root, paths: new Set(paths) }
+    for (const key of await storage.readKeys(outputDir)) {
+      if (key.split('/').includes('node_modules')) continue
+      paths.add(relative(resolve(root), resolve(outputDir, key)).replaceAll('\\', '/'))
+    }
+    if (paths.size > maxFiles) return undefined
+  }
+  return { storage, root, paths }
 }
 
 /**

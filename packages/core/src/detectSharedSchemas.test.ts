@@ -7,8 +7,9 @@ vi.mock('./gitInput.ts', async (importOriginal) => ({ ...(await importOriginal<o
 
 import { detectSharedSchemas } from './detectSharedSchemas.ts'
 import { Diagnostics } from './Diagnostics.ts'
+import { Hookable } from './Hookable.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
-import type { Config } from './types.ts'
+import type { Config, KubbHooks } from './types.ts'
 
 const ref = (name: string) => ast.factory.createSchema({ type: 'ref', name, ref: `#/components/schemas/${name}` })
 const object = (name: string, properties: Record<string, SchemaNode>) =>
@@ -133,6 +134,22 @@ describe('detectSharedSchemas', () => {
     const { configs } = await detectSharedSchemas([animals, fruits])
 
     expect(configs.map(({ config }) => config.output.shared?.schemas)).toStrictEqual([['Name'], ['Name']])
+  })
+
+  it('reports a conflict and a plugin set up differently as kubb:warn when given hooks', async () => {
+    const plugin = (options: object) => ({ name: 'plugin-zod', options }) as unknown as Config['plugins'][number]
+    const animals = { ...makeConfig([object('Color', { hex: string() })]), plugins: [plugin({})] }
+    const fruits = { ...makeConfig([object('Color', { rgb: string() })]), plugins: [plugin({ coercion: true })] }
+    const hooks = new Hookable<KubbHooks>()
+    const warn = vi.fn()
+    hooks.hook('kubb:warn', warn)
+
+    await detectSharedSchemas([animals, fruits], { hooks })
+
+    expect(warn.mock.calls.map(([{ message }]) => message)).toStrictEqual([
+      'The specs define these schemas differently: Color.',
+      'Configs that share an `output.shared.path` set different options for: plugin-zod.',
+    ])
   })
 
   it('leaves configs without output.shared, or alone in their shared path, untouched', async () => {

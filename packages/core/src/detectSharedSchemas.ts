@@ -4,7 +4,8 @@ import type { Adapter } from './createAdapter.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 import type { SharedOutput } from './definePlugin.ts'
-import type { Config } from './types.ts'
+import type { Hookable } from './Hookable.ts'
+import type { Config, KubbHooks } from './types.ts'
 
 /**
  * A spec parsed ahead of its build, with what the adapter reported while parsing it.
@@ -64,9 +65,10 @@ function setShared(config: Config, patch: Partial<SharedOutput>): Config {
  * `output.shared`. Among configs with the same shared path, a schema is shared by the largest group of two or more configs
  * that define it identically, the first group on a tie. A config shares it only when it also shares every schema it
  * references. Each config lists only the shared schemas it defines. `conflicts` lists the names that configs define
- * differently. A config outside the sharing group keeps its own copy.
+ * differently. A config outside the sharing group keeps its own copy. With `hooks`, the conflicts and the plugins that
+ * configs set up differently are reported as `kubb:warn`.
  */
-export async function detectSharedSchemas(configs: Array<Config>): Promise<Detected> {
+export async function detectSharedSchemas(configs: Array<Config>, { hooks }: { hooks?: Hookable<KubbHooks> } = {}): Promise<Detected> {
   const detected: Array<DetectedConfig> = configs.map((config) => ({ config }))
   const groups = new Map<string, Array<DetectedConfig>>()
   for (const entry of detected) {
@@ -143,6 +145,19 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
     specs.forEach(({ entry, parsed }, index) => {
       entry.config = setShared(entry.config, { schemas: [...shared].flatMap(([name, members]) => (members.has(index) ? [name] : [])) })
       entry.parsed = parsed
+    })
+  }
+
+  if (hooks && conflicts.size > 0) {
+    await hooks.callHook('kubb:warn', {
+      message: `The specs define these schemas differently: ${[...conflicts].join(', ')}.`,
+      info: 'The largest group of specs that define one the same shares it. Every other spec keeps its own copy, with the schemas that reference it.',
+    })
+  }
+  if (hooks && mismatchedPlugins.size > 0) {
+    await hooks.callHook('kubb:warn', {
+      message: `Configs that share an \`output.shared.path\` set different options for: ${[...mismatchedPlugins].join(', ')}.`,
+      info: 'Each config writes the shared schemas it defines, so give these plugins the same options in every config.',
     })
   }
 

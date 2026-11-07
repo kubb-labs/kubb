@@ -2,11 +2,12 @@
 '@kubb/core': minor
 '@kubb/cli': minor
 '@kubb/plugin-barrel': minor
+'@kubb/studio': minor
 ---
 
 Add `output.shared` so schemas that several specs define are generated once in a shared directory and imported from there.
 
-- Detects the shared schemas in `kubb generate`: a schema is shared when two or more configs with the same `output.shared.path` define it identically.
+- Detects the shared schemas in `kubb generate` and in a Kubb Studio project agent: a schema is shared when two or more configs with the same `output.shared.path` define it identically.
 - Writes each shared schema under `output.shared.path`, with the same plugin layout as `output.path`, and points every import of it there across all plugins.
 - Shares a schema that the specs define differently with the largest group that defines it identically. Every other config keeps its own copy, and the CLI warns with its name.
 - Warns when configs that share a path give the same plugin different options.

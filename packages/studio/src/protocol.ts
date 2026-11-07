@@ -499,8 +499,8 @@ export type ConfigEntryView = {
   /** The root `output` members Studio may set, as a JSON copy. */
   outputOptions?: object
   /**
-   * The output directory's current file list, readable through `readFiles` without generating.
-   * Absent for a sandbox or when the host has not granted `allowRead`.
+   * The current file list of the output directory and of `output.shared.path`, readable through `readFiles`
+   * without generating. Absent for a sandbox or when the host has not granted `allowRead`.
    */
   disk?: DiskOutput
   plugins: Array<{

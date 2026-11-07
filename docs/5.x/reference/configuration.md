@@ -283,7 +283,7 @@ When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/c
 
 Every config writes the shared schemas it defines, so give each config that uses the same `path` the same options for the plugins they have in common. When those options differ, the CLI prints a warning that names the plugin. Options that are functions are not compared.
 
-Only `kubb generate` compares the specs, so a single `createKubb` run, the bundler plugins, and MCP share nothing.
+`kubb generate` and a Kubb Studio project agent compare the specs. A single `createKubb` run, a Studio sandbox or managed agent, the bundler plugins, and MCP share nothing.
 
 With [`output.barrel`](#outputbarrel) set, each config's barrels also re-export the shared schemas its spec defines, so `import type { Name } from './src/gen/animals/types'` keeps working. The shared directory gets no barrels of its own.
 
