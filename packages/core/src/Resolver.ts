@@ -243,7 +243,9 @@ export type ResolverBuildOptions = {
   pluginName: string
   name?: (name: string) => string
   file?: ResolverFile
-  /** The config's `output.shared` with `path` absolute, set by the driver so `file` and `imports` place a listed schema under it. */
+  /**
+   * The config's `output.shared` with `path` absolute, set by the driver so `file` and `imports` place a listed schema under it.
+   */
   shared?: SharedOutput
 }
 

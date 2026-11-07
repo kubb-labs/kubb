@@ -79,7 +79,7 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
   const conflicts = new Set<string>()
   const mismatchedPlugins = new Set<string>()
   for (const group of groups.values()) {
-    group[0]!.cleanSharedOutput = group.some(({ config }) => config.output.clean === true)
+    group[0]!.cleanSharedOutput = group.some(({ config }) => config.output.clean)
     if (group.length < 2) continue
 
     const optionShapes = new Map<string, Set<string>>()
@@ -101,7 +101,7 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
         specs.push({ entry, parsed, schemas: new Map(parsed.inputNode.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : []))) })
       }
     } catch (error) {
-      // A failed parse is that build's to report, so the group shares nothing until every spec parses; anything else is a bug here.
+      // A failed parse is that build's to report, so the group shares nothing until every spec parses. Anything else is a bug here.
       if (!(error instanceof Diagnostics.Error)) throw error
       for (const entry of group) entry.config = setSharedSchemas(entry.config, [])
       continue
