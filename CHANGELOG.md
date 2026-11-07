@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.16.1 — Nov 7, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Warn with `KUBB_DUPLICATE_DISCRIMINATOR` when two `oneOf`/`anyOf` members pin the declared `discriminator` property to the same value, pointing at the union in the spec. Such a union can't pick a branch, and Zod's `z.discriminatedUnion` throws `Duplicate discriminator value` on the first parse. ([#4538](https://github.com/kubb-labs/kubb/pull/4538), [`0d23171`](https://github.com/kubb-labs/kubb/commit/0d23171d4b30d4944fdd7686c9bc32d10638dded))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@tombeckenham](https://github.com/tombeckenham)
+
 ## v5.16.0 — Nov 6, 2026
 
 ### @kubb/adapter-oas
