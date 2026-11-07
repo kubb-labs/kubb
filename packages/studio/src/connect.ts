@@ -1000,6 +1000,7 @@ function toEntryView(config: Config, extensions: InstalledExtensions): ConfigEnt
     ...(config.name !== undefined && { name: config.name }),
     ...(input !== undefined && { input }),
     output: config.output.path,
+    ...(config.output.shared && { shared: config.output.shared.path }),
     outputOptions: toJSONOptions(pickOutput(config.output)),
     plugins: config.plugins.map((plugin) => ({
       name: toStudioName({ name: resolveMeta(plugin).name, extensions }),

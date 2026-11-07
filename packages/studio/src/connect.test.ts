@@ -222,7 +222,7 @@ describe('the handshake', () => {
 
   it('reports every entry of a config array, with the credentials left out of a URL input', async () => {
     const pets = { ...projectConfig(), input: 'https://alice:secret@example.com/openapi.json?v=2' }
-    const admin = { ...projectConfig(), name: 'admin', input: './admin.yaml', output: { path: 'src/admin' } }
+    const admin = { ...projectConfig(), name: 'admin', input: './admin.yaml', output: { path: 'src/admin', shared: { path: 'src/common' } } }
     const { agent } = await connectStudio({ loadConfigs: async () => [pets, admin] })
 
     const { config } = await agent.connect(info)
@@ -231,7 +231,7 @@ describe('the handshake', () => {
     const adapter = { name: '@kubb/adapter-oas', options: {} }
     expect(config.configs).toStrictEqual([
       { input: 'https://example.com/openapi.json?v=2', output: 'src/gen', outputOptions: { clean: false }, plugins, adapter, parsers: [] },
-      { name: 'admin', input: './admin.yaml', output: 'src/admin', outputOptions: {}, plugins, adapter, parsers: [] },
+      { name: 'admin', input: './admin.yaml', output: 'src/admin', shared: 'src/common', outputOptions: {}, plugins, adapter, parsers: [] },
     ])
   })
 
