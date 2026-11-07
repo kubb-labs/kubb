@@ -213,20 +213,8 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
   // Parses every spec once and fills `output.shared.schemas`. The CLI `--input` replaces each config's input before the comparison, as `generate` does.
   const detectShared = async (): Promise<Array<DetectedConfig>> => {
-    const detected = await detectSharedSchemas(configs.map((config) => ({ ...config, input: input ?? config.input })))
-    if (detected.conflicts.length > 0) {
-      await hooks.callHook('kubb:warn', {
-        message: `The specs define these schemas differently: ${detected.conflicts.join(', ')}.`,
-        info: 'The largest group of specs that define one the same shares it. Every other spec keeps its own copy, with the schemas that reference it.',
-      })
-    }
-    if (detected.mismatchedPlugins.length > 0) {
-      await hooks.callHook('kubb:warn', {
-        message: `Configs that share an \`output.shared.path\` set different options for: ${detected.mismatchedPlugins.join(', ')}.`,
-        info: 'Each config writes the shared schemas it defines, so give these plugins the same options in every config.',
-      })
-    }
-    return detected.configs
+    const withInput = configs.map((config) => ({ ...config, input: input ?? config.input }))
+    return (await detectSharedSchemas(withInput, { hooks })).configs
   }
   const detected = await detectShared()
 

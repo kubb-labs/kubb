@@ -12,6 +12,7 @@ import {
   cacheStorage,
   checkoutGitInput,
   type Config,
+  detectSharedSchemas,
   fsStorage,
   getInputKind,
   type InputKind,
@@ -564,18 +565,27 @@ class Agent extends RpcTarget implements AgentApi {
             this.#refuse({ message: getErrorMessage(error), code: Diagnostics.code.gitInputFailed }),
           )
         : undefined
+    // A project agent compares the config array, so this entry writes the schemas it shares to the shared directory. A sandbox
+    // or managed agent generates from the spec Studio sends and must not read the other entries' inputs, so it shares nothing.
+    const detected =
+      !this.#sandbox && !this.#managed && config.output.shared
+        ? (await detectSharedSchemas(configs, { hooks: this.#options.hooks })).configs[configs.indexOf(config)]
+        : undefined
+    // One entry generates at a time, so emptying the shared directory would delete what the other entries wrote.
+    const shared = detected?.config.output.shared && { ...detected.config.output.shared, clean: false }
     const run = () =>
       generate({
         config: {
           ...config,
           root,
           input: checkout?.path ?? studioInput ?? config.input,
-          output: mergeOutput({ output: config.output, studio: patch?.output }),
+          output: mergeOutput({ output: shared ? { ...config.output, shared } : config.output, studio: patch?.output }),
           storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
           plugins: activePlugins,
           adapter,
           parsers,
         },
+        parsed: detected?.parsed,
         hooks: this.#options.hooks,
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,

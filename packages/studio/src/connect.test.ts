@@ -655,6 +655,45 @@ describe('a config array', () => {
   })
 })
 
+describe('shared schemas', () => {
+  const withShared = (clean = false) => ({
+    ...projectConfig(),
+    output: { path: 'src/gen', clean, shared: { path: 'src/common' } },
+    adapter: createMockedAdapter({
+      parse: vi.fn(async () => ast.factory.createInput({ schemas: [ast.factory.createSchema({ type: 'string', name: 'Name' })] })),
+    }),
+  })
+
+  it('a project agent compares the config array and builds the entry with its shared schemas, without emptying the shared directory', async () => {
+    const { hooks, heard } = withHooks()
+    const started = heard('kubb:build:start')
+    const [pets, shop] = [withShared(true), withShared()]
+    const { agent } = await connectStudio({ hooks, loadConfigs: async () => [pets, shop] })
+
+    await run({ agent, jobId: 'job-1' })
+
+    expect(started.mock.calls[0]?.[0].config.output.shared).toStrictEqual({ path: 'src/common', schemas: ['Name'], clean: false })
+    expect(pets.adapter.parse).toHaveBeenCalledOnce()
+    expect(shop.adapter.parse).toHaveBeenCalledOnce()
+  })
+
+  it('a sandbox shares nothing and never reads the other entries', async () => {
+    const { hooks, heard } = withHooks()
+    const started = heard('kubb:build:start')
+    const [pets, shop] = [withShared(), withShared()]
+    const { agent } = await connectStudio({
+      hooks,
+      loadConfigs: async () => [pets, shop],
+      connectInfo: { sandbox: true, agentSlug: 'sandbox', studioVersion: '1.0.0' },
+    })
+
+    await agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
+
+    expect(started.mock.calls[0]?.[0].config.output.shared).toStrictEqual({ path: 'src/common' })
+    expect(shop.adapter.parse).not.toHaveBeenCalled()
+  })
+})
+
 describe('readFiles', () => {
   it('refuses to read when the host did not grant allowRead, and names the permission for the host', async () => {
     const { hooks, heard } = withHooks()

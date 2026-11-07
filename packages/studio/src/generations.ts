@@ -3,7 +3,17 @@ import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
-import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
+import {
+  type Config,
+  createKubb,
+  type CreateKubbOptions,
+  type Diagnostic,
+  Diagnostics,
+  fsStorage,
+  type Hookable,
+  type KubbHooks,
+  type Storage,
+} from '@kubb/core'
 import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
@@ -90,17 +100,22 @@ function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
  */
 export async function generate({
   config,
+  parsed,
   hooks,
   signal,
   allowExec,
 }: {
   config: Config
+  /**
+   * The spec already parsed to detect shared schemas, so the build does not parse it again.
+   */
+  parsed?: CreateKubbOptions['parsed']
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const kubb = createKubb({ ...config, output }, { hooks, signal })
+  const kubb = createKubb({ ...config, output }, { hooks, signal, parsed })
   let input: InputNode | null = null
   // The driver drops its `inputNode` once the build is over, so read it as the build ends.
   const unhook = kubb.hooks.hook('kubb:build:end', (ctx) => {
