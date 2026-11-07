@@ -11,23 +11,10 @@ import type { Config } from './types.ts'
 export type ParsedInput = { inputNode: InputNode; diagnostics: Array<Diagnostic> }
 
 /**
- * What detection found for one config, in the order the configs were given.
+ * What detection found for one config, in the order given: the config with `output.shared.schemas` filled in, its parsed
+ * spec when it was compared, and whether its build empties `output.shared.path` before writing (see `CreateKubbOptions`).
  */
-export type DetectedConfig = {
-  /**
-   * The config, with `output.shared.schemas` filled in when it was compared.
-   */
-  config: Config
-  /**
-   * The parsed spec, when the config was compared, so the build does not parse it again.
-   */
-  parsed?: ParsedInput
-  /**
-   * Whether the build empties `output.shared.path` before it writes: the first config of a shared directory, when any
-   * config that uses it sets `output.clean`, so a later config never deletes what an earlier one wrote.
-   */
-  cleanSharedOutput: boolean
-}
+export type DetectedConfig = { config: Config; parsed?: ParsedInput; cleanSharedOutput: boolean }
 
 type Detected = {
   configs: Array<DetectedConfig>
@@ -114,9 +101,8 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
         specs.push({ entry, parsed, schemas: new Map(parsed.inputNode.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : []))) })
       }
     } catch (error) {
-      // A spec that fails to parse is reported by its own build. Anything else is a bug in detection.
+      // A failed parse is that build's to report, so the group shares nothing until every spec parses; anything else is a bug here.
       if (!(error instanceof Diagnostics.Error)) throw error
-      // Share nothing until the whole group parses, so a watch rebuild never writes with the lists of an earlier detection.
       for (const entry of group) entry.config = setSharedSchemas(entry.config, [])
       continue
     }
