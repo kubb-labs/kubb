@@ -245,6 +245,12 @@ Schemas that only `$ref` each other form a loop, so none of them has a shape to 
 
 Break the loop by giving one of the schemas a real definition, or remove the `$ref` that closes it.
 
+### KUBB_DUPLICATE_DISCRIMINATOR: Duplicate discriminator value {#kubb-duplicate-discriminator}
+
+Two or more `oneOf`/`anyOf` members pin the `discriminator` property to the same value, so the value cannot pick a branch. Zod `z.discriminatedUnion` throws on the first parse of such a union.
+
+Give each member its own discriminator value, or drop the `discriminator` so the members are matched by shape.
+
 ## Info
 
 An info diagnostic is advisory and never fails the run.

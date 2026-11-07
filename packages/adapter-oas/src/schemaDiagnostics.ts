@@ -1,12 +1,11 @@
 import { escapePointerToken } from '@internals/utils'
-import type { ast } from '@kubb/kit'
-import { Diagnostics } from '@kubb/kit'
+import { ast, Diagnostics } from '@kubb/kit'
 import { isHandledFormat } from './emit/schemaShape.ts'
 
 /**
  * Links one freshly converted schema and its nested schemas to their RFC 6901 pointers
  * (`#/components/schemas/Pet/properties/owner/properties/name`), and reports the advisory
- * diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`) against them.
+ * diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`, `KUBB_DUPLICATE_DISCRIMINATOR`) against them.
  * Refs are not followed, so the resolved schema is handled under its own walk.
  * Reports land in the active build run, are a no-op outside one, and repeats are deduped by the build.
  */
@@ -67,10 +66,65 @@ function visit(node: ast.SchemaNode, pointer: string): void {
   }
 
   // shortcut: a member the parser adds, such as the wrapper around `not` with sibling keys, gets an index past the spec's own entries; set pointers in the converters if editors need those exact.
+  if (node.type === 'union' && node.discriminatorPropertyName) reportDuplicateDiscriminators(node, node.discriminatorPropertyName, pointer)
+
   if (node.type === 'union' || node.type === 'intersection') {
     const keyword = node.type === 'intersection' ? 'allOf' : node.strategy === 'any' ? 'anyOf' : 'oneOf'
     for (const [index, member] of (node.members ?? []).entries()) {
       visit(member, `${pointer}/${keyword}/${index}`)
     }
   }
+}
+
+/**
+ * Reports a declared discriminator whose value pins more than one member. The spec cannot tell
+ * those members apart, and Zod's `z.discriminatedUnion` throws on the first parse.
+ * One diagnostic per union, since the build dedupes by code and pointer.
+ */
+function reportDuplicateDiscriminators(node: ast.UnionSchemaNode, propertyName: string, pointer: string): void {
+  const keyword = node.strategy === 'any' ? 'anyOf' : 'oneOf'
+  const membersByValue = new Map<Literal, Array<string>>()
+
+  for (const [index, member] of (node.members ?? []).entries()) {
+    const label = memberName(member) ?? `${keyword}/${index}`
+    for (const value of memberValues(member, propertyName)) membersByValue.set(value, [...(membersByValue.get(value) ?? []), label])
+  }
+
+  const duplicates = [...membersByValue].filter(([, members]) => members.length > 1)
+  if (!duplicates.length) return
+
+  Diagnostics.report({
+    code: Diagnostics.code.duplicateDiscriminator,
+    severity: 'warning',
+    message: duplicates
+      .map(([value, members]) => `Discriminator "${propertyName}" value ${JSON.stringify(value)} matches more than one member (${members.join(', ')}).`)
+      .join(' '),
+    help: `Give each member its own "${propertyName}" value, or drop the discriminator. Zod's z.discriminatedUnion throws on the first parse of this union.`,
+    location: { kind: 'schema', pointer },
+  })
+}
+
+type Literal = string | number | boolean | null
+
+// Values a member allows for the discriminator. A nested `oneOf`/`anyOf` allows any of its alternatives' values.
+function memberValues(node: ast.SchemaNode, propertyName: string, seen = new Set<ast.SchemaNode>()): Array<Literal> {
+  if (seen.has(node)) return []
+  seen.add(node)
+  const target = node.type === 'ref' && node.schema ? node.schema : node
+  if (target.type === 'union') return [...new Set(target.members?.flatMap((member) => memberValues(member, propertyName, seen)))]
+
+  return intersect(ast.resolveSchemaProperties({ node, propertyName }).map((property) => [...ast.getSchemaLiteralValues(property.schema)]))
+}
+
+// Every slice that pins values narrows the set, so only values they all allow count. Unpinned slices are ignored.
+function intersect(slices: Array<Array<Literal>>): Array<Literal> {
+  const pinned = slices.filter((values) => values.length > 0)
+  return pinned.reduce((acc, values) => acc.filter((value) => values.includes(value)), pinned[0] ?? [])
+}
+
+// A member is a `$ref`, or an intersection of the `$ref` and its narrowed discriminant.
+function memberName(member: ast.SchemaNode): string | undefined {
+  if (member.type === 'ref') return member.name ?? undefined
+  if (member.type === 'intersection') return member.members?.map(memberName).find(Boolean)
+  return undefined
 }

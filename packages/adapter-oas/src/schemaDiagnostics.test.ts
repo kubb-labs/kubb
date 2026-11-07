@@ -142,4 +142,62 @@ describe('schema diagnostics during parse', () => {
 
     expect(diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_UNSUPPORTED_FORMAT')).toHaveLength(0)
   })
+
+  describe('duplicate discriminator values', () => {
+    const message = (role: string) => ({
+      type: 'object',
+      required: ['type', 'role'],
+      properties: { type: { type: 'string', enum: ['message'] }, role: { type: 'string', enum: [role] } },
+    })
+    const itemSpec = (item: object, extra: object = {}) => ({
+      openapi: '3.1.0',
+      info: { title: 'repro', version: '1' },
+      paths: {},
+      components: { schemas: { InMsg: message('user'), OutMsg: message('assistant'), ...extra, Item: item } },
+    })
+    const oneOf = [{ $ref: '#/components/schemas/InMsg' }, { $ref: '#/components/schemas/OutMsg' }]
+    const duplicates = async (data: unknown) => (await collect(data)).filter((diagnostic) => diagnostic.code === 'KUBB_DUPLICATE_DISCRIMINATOR')
+
+    it('warns at the union when two members share a discriminator value', async () => {
+      expect(await duplicates(itemSpec({ oneOf, discriminator: { propertyName: 'type' } }))).toStrictEqual([
+        expect.objectContaining({
+          severity: 'warning',
+          message: 'Discriminator "type" value "message" matches more than one member (InMsg, OutMsg).',
+          location: { kind: 'schema', pointer: '#/components/schemas/Item' },
+        }),
+      ])
+    })
+
+    it('stays quiet when each member has its own value', async () => {
+      const spec = itemSpec(
+        { oneOf: [{ $ref: '#/components/schemas/InMsg' }, { $ref: '#/components/schemas/Other' }], discriminator: { propertyName: 'type' } },
+        { Other: { type: 'object', properties: { type: { type: 'string', enum: ['other'] } } } },
+      )
+
+      expect(await duplicates(spec)).toHaveLength(0)
+    })
+
+    it('warns when a nested anyOf member shares a value with a sibling', async () => {
+      const spec = itemSpec(
+        {
+          oneOf: [{ $ref: '#/components/schemas/InMsg' }, { anyOf: [{ $ref: '#/components/schemas/OutMsg' }, { $ref: '#/components/schemas/Other' }] }],
+          discriminator: { propertyName: 'type' },
+        },
+        { Other: { type: 'object', properties: { type: { type: 'string', enum: ['other'] } } } },
+      )
+
+      expect(await duplicates(spec)).toHaveLength(1)
+    })
+
+    it('stays quiet when a mapping gives the members distinct values', async () => {
+      // Both members allow either role, so only the mapping keeps their values apart.
+      const shared = { type: 'object', properties: { role: { type: 'string', enum: ['user', 'assistant'] } } }
+      const spec = itemSpec(
+        { oneOf, discriminator: { propertyName: 'role', mapping: { user: '#/components/schemas/InMsg', assistant: '#/components/schemas/OutMsg' } } },
+        { InMsg: shared, OutMsg: shared },
+      )
+
+      expect(await duplicates(spec)).toHaveLength(0)
+    })
+  })
 })

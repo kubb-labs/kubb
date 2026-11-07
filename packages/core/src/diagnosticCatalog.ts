@@ -148,6 +148,13 @@ export const diagnosticCatalog = {
     cause: 'Schemas that only `$ref` each other form a loop, so none of them has a shape to generate. Kubb resolves them to `unknown`.',
     fix: 'Break the loop by giving one of the schemas a real definition, or remove the `$ref` that closes it.',
   },
+  duplicateDiscriminator: {
+    code: 'KUBB_DUPLICATE_DISCRIMINATOR',
+    title: 'Duplicate discriminator value',
+    cause:
+      'Two or more `oneOf`/`anyOf` members pin the `discriminator` property to the same value, so the value cannot pick a branch. Zod `z.discriminatedUnion` throws on the first parse of such a union.',
+    fix: 'Give each member its own discriminator value, or drop the `discriminator` so the members are matched by shape.',
+  },
   deprecated: {
     code: 'KUBB_DEPRECATED',
     title: 'Deprecated',
