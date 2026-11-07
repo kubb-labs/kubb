@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.16.1 — Nov 7, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Warn with `KUBB_DUPLICATE_DISCRIMINATOR` when two `oneOf`/`anyOf` members pin the declared `discriminator` property to the same value, pointing at the union in the spec. Such a union can't pick a branch, and Zod's `z.discriminatedUnion` throws `Duplicate discriminator value` on the first parse. ([#4538](https://github.com/kubb-labs/kubb/pull/4538), [`0d23171`](https://github.com/kubb-labs/kubb/commit/0d23171d4b30d4944fdd7686c9bc32d10638dded))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Keep `macroSimplifyUnion` as a deprecated alias of `macroDedupeUnion`. A plugin built before the rename in 5.16, such as `@kubb/plugin-axios` 5.12, imports the old name and crashed with `Cannot read properties of undefined (reading 'input')` in `composeMacros`. Update the import to `macroDedupeUnion`; the alias goes away in the next major. ([#4552](https://github.com/kubb-labs/kubb/pull/4552), [`3808bbf`](https://github.com/kubb-labs/kubb/commit/3808bbf7dd17df952f10066352847dccb9625951))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle), [@tombeckenham](https://github.com/tombeckenham)
+
 ## v5.16.0 — Nov 6, 2026
 
 ### @kubb/adapter-oas
