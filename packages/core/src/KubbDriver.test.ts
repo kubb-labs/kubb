@@ -604,10 +604,18 @@ describe('KubbDriver generator dispatch', () => {
     expect((normalized as Record<string, unknown>).enumType).toBe('asConst')
   })
 
-  it('gives every plugin the global output.shared resolved against root, replacing a plugin-level one', async () => {
+  it('places a shared schema under output.shared.path through every plugin resolver, a custom one included', async () => {
     const plugins = [
       { name: 'types', options: { output: { path: 'types' } }, hooks: {} },
-      { name: 'zod', options: { output: { path: 'zod', shared: { path: '../own', schemas: ['Store'] } } }, hooks: {} },
+      {
+        name: 'zod',
+        options: { output: { path: 'zod' } },
+        hooks: {
+          'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+            ctx.setResolver({ name: (name: string) => `${name}Schema` })
+          },
+        },
+      },
     ] as unknown as Array<Plugin>
     const sharedDriver = makeDriver(
       makeConfig({ root: '/project', adapter: inputAdapter(), plugins, output: { path: './gen/animals', shared: { path: './gen/common', schemas: ['Pet'] } } }),
@@ -615,27 +623,13 @@ describe('KubbDriver generator dispatch', () => {
     await sharedDriver.setup()
     await sharedDriver.run()
 
-    for (const name of ['types', 'zod']) {
-      expect(sharedDriver.plugins.get(name)!.options.output.shared).toStrictEqual({ path: '/project/gen/common', schemas: ['Pet'] })
-    }
-  })
-
-  it('keeps the global output.shared on an override that brings its own output', async () => {
-    const override = [
-      { type: 'schemaName', pattern: 'Pet', options: { output: { path: 'pets' } } },
-      { type: 'schemaName', pattern: 'Store', options: { enumType: 'asConst' } },
-    ]
-    const plugins = [{ name: 'types', options: { output: { path: 'types' }, override }, hooks: {} }] as unknown as Array<Plugin>
-    const sharedDriver = makeDriver(
-      makeConfig({ root: '/project', adapter: inputAdapter(), plugins, output: { path: './gen/animals', shared: { path: './gen/common', schemas: ['Pet'] } } }),
-    )
-    await sharedDriver.setup()
-    await sharedDriver.run()
-
-    expect(sharedDriver.plugins.get('types')!.options.override.map((entry) => entry.options)).toStrictEqual([
-      { output: { path: 'pets', shared: { path: '/project/gen/common', schemas: ['Pet'] } } },
-      { enumType: 'asConst' },
-    ])
+    const file = (pluginName: string, name: string) =>
+      sharedDriver
+        .getResolver(pluginName)
+        .file({ name, extname: '.ts', root: '/project/gen/animals', output: sharedDriver.plugins.get(pluginName)!.options.output }).path
+    expect(file('types', 'Pet')).toBe('/project/gen/common/types/pet.ts')
+    expect(file('zod', 'Pet')).toBe('/project/gen/common/zod/pet.ts')
+    expect(file('types', 'Store')).toBe('/project/gen/animals/types/store.ts')
   })
 
   it("skips a generator's schema and operation calls for a node its match predicate resolves false for, and still calls them when true", async () => {

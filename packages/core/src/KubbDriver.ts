@@ -5,7 +5,7 @@ import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiag
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { ParsedInput } from './detectSharedSchemas.ts'
-import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, Output, PluginType } from './definePlugin.ts'
+import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginType, SharedOutput } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
@@ -71,8 +71,6 @@ const defaultPluginOptions = (): NormalizedPlugin['options'] => ({ output: { pat
  */
 function normalizePluginOptions(rawOptions: Plugin['options'], pluginName: string): NormalizedPlugin['options'] {
   const options: NormalizedPlugin['options'] = { ...defaultPluginOptions(), ...(rawOptions ?? {}) }
-  // A plugin can pass `override: undefined`, which the spread keeps.
-  options.override ??= []
   const group = 'group' in options ? (options.group as Group | null | undefined) : undefined
   options.output = normalizeOutput({ output: options.output, group, pluginName })
   return options
@@ -124,6 +122,11 @@ export class KubbDriver {
    * Intentionally outlives the build, cleared by `dispose()`.
    */
   #adapterSource: AdapterSource | null = null
+  /**
+   * `output.shared` with its path resolved against `root`. Every resolver gets it, so a plugin's
+   * own `output`, an override's `output`, or a `setResolver` cannot drop it.
+   */
+  readonly #shared: SharedOutput | undefined
 
   /**
    * Central file store for all generated files.
@@ -144,6 +147,11 @@ export class KubbDriver {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null
+    this.#shared = config.output.shared && { ...config.output.shared, path: resolve(config.root, config.output.shared.path) }
+  }
+
+  #createResolver(pluginName: string): Resolver {
+    return createResolver<PluginType>({ pluginName, shared: this.#shared })
   }
 
   /**
@@ -187,7 +195,7 @@ export class KubbDriver {
           // `rawPlugin.options` is the user-supplied shape. The normalized `output`/`exclude`/`override`
           // bag is filled in by the post-setup `normalizePluginOptions` pass, after `setOptions` runs.
           options: (rawPlugin.options ?? defaultPluginOptions()) as NormalizedPlugin['options'],
-          resolver: createResolver<PluginType>({ pluginName: meta.name }),
+          resolver: this.#createResolver(meta.name),
         }
         return normalizedPlugin
       }),
@@ -308,7 +316,7 @@ export class KubbDriver {
           plugin.generators = [...(plugin.generators ?? []), ...generators]
         },
         setResolver: (resolver) => {
-          plugin.resolver = Resolver.merge(createResolver<PluginType>({ pluginName: plugin.name }), resolver)
+          plugin.resolver = Resolver.merge(this.#createResolver(plugin.name), resolver)
         },
         addMacro: (macro) => {
           plugin.macros = [...(plugin.macros ?? []), macro]
@@ -374,18 +382,9 @@ export class KubbDriver {
 
           // Normalize each plugin's options once setup hooks have run, so the generate loop always
           // sees a filled-in bag whether or not the plugin called `setOptions`.
-          // The global `output.shared` path is resolved here, since a resolver only sees the output directory.
-          const shared = config.output.shared && { ...config.output.shared, path: resolve(config.root, config.output.shared.path) }
           for (const plugin of this.plugins.values()) {
             this.options.signal?.throwIfAborted()
             plugin.options = normalizePluginOptions(plugin.options, plugin.name)
-            if (!shared) continue
-            plugin.options.output.shared = shared
-            // An `override` with its own `output` replaces the whole object, so it carries the shared list too.
-            plugin.options.override = plugin.options.override.map((entry) => {
-              const { output } = entry.options as { output?: Output }
-              return output ? { ...entry, options: { ...entry.options, output: { ...output, shared } } } : entry
-            })
           }
 
           if (this.adapter && this.inputNode) {
@@ -765,7 +764,7 @@ export class KubbDriver {
   /** Reads `plugin.resolver`, falling back to a fresh default for a name that is not a registered plugin. */
   getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
   getResolver(pluginName: string): Resolver {
-    return this.plugins.get(pluginName)?.resolver ?? createResolver<PluginType>({ pluginName })
+    return this.plugins.get(pluginName)?.resolver ?? this.#createResolver(pluginName)
   }
 
   memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {

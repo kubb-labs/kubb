@@ -39,14 +39,14 @@ describe('detectSharedSchemas', () => {
     const animals = makeConfig([name(), color(), object('Animal', { name: ref('Name') })])
     const fruits = makeConfig([object('Fruit', { color: ref('Color') }), color(), name()])
 
-    const { configs, conflicts, inputs } = await detectSharedSchemas([animals, fruits])
+    const { plans, conflicts } = await detectSharedSchemas([animals, fruits])
 
-    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([
+    expect(plans.map(({ config }) => config.output.shared?.schemas)).toStrictEqual([
       ['Name', 'Color'],
       ['Name', 'Color'],
     ])
     expect(conflicts).toStrictEqual([])
-    expect(configs.map((config) => inputs.get(config)?.inputNode.schemas.length)).toStrictEqual([3, 3])
+    expect(plans.map(({ parsed }) => parsed?.inputNode.schemas.length)).toStrictEqual([3, 3])
   })
 
   it('shares a schema that only some configs define, and lists on each config only the shared schemas it defines', async () => {
@@ -56,9 +56,9 @@ describe('detectSharedSchemas', () => {
     const shop = makeConfig([address(), object('Order', { address: ref('Address') })])
     const components = makeConfig([name()])
 
-    const { configs, conflicts } = await detectSharedSchemas([pets, shop, components])
+    const { plans, conflicts } = await detectSharedSchemas([pets, shop, components])
 
-    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([['Name', 'Address'], ['Address'], ['Name']])
+    expect(plans.map(({ config }) => config.output.shared?.schemas)).toStrictEqual([['Name', 'Address'], ['Address'], ['Name']])
     expect(conflicts).toStrictEqual([])
   })
 
@@ -68,9 +68,9 @@ describe('detectSharedSchemas', () => {
     const shop = makeConfig([object('Tag', { label: string() }), badge()])
     const components = makeConfig([object('Tag', { text: string() }), badge()])
 
-    const { configs, conflicts } = await detectSharedSchemas([pets, shop, components])
+    const { plans, conflicts } = await detectSharedSchemas([pets, shop, components])
 
-    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([['Tag', 'Badge'], ['Tag', 'Badge'], []])
+    expect(plans.map(({ config }) => config.output.shared?.schemas)).toStrictEqual([['Tag', 'Badge'], ['Tag', 'Badge'], []])
     expect(conflicts).toStrictEqual(['Tag'])
   })
 
@@ -93,9 +93,9 @@ describe('detectSharedSchemas', () => {
       return ast.factory.createInput()
     })
 
-    const { configs, inputs } = await detectSharedSchemas([animals, fruits])
+    const { plans } = await detectSharedSchemas([animals, fruits])
 
-    expect(configs.map((config) => inputs.get(config)?.diagnostics)).toStrictEqual([[], [warning]])
+    expect(plans.map(({ parsed }) => parsed?.diagnostics)).toStrictEqual([[], [warning]])
   })
 
   it('keeps a schema defined differently, and every shared candidate that references it, in each output', async () => {
@@ -103,9 +103,9 @@ describe('detectSharedSchemas', () => {
     const animals = makeConfig([object('Color', { hex: string() }), swatch()])
     const fruits = makeConfig([object('Color', { rgb: string() }), swatch()])
 
-    const { configs, conflicts } = await detectSharedSchemas([animals, fruits])
+    const { plans, conflicts } = await detectSharedSchemas([animals, fruits])
 
-    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([[], []])
+    expect(plans.map(({ config }) => config.output.shared?.schemas)).toStrictEqual([[], []])
     expect(conflicts).toStrictEqual(['Color'])
   })
 
@@ -130,18 +130,44 @@ describe('detectSharedSchemas', () => {
     const animals = makeConfig([name(), object('Animal', {})], { path: './gen/common', schemas: ['Animal'] })
     const fruits = makeConfig([name(), object('Fruit', {})], { path: './gen/common', schemas: ['Fruit'] })
 
-    const { configs } = await detectSharedSchemas([animals, fruits])
+    const { plans } = await detectSharedSchemas([animals, fruits])
 
-    expect(configs.map((config) => config.output.shared?.schemas)).toStrictEqual([['Name'], ['Name']])
+    expect(plans.map(({ config }) => config.output.shared?.schemas)).toStrictEqual([['Name'], ['Name']])
   })
 
   it('leaves configs without output.shared, or alone in their shared path, untouched', async () => {
     const unshared = makeConfig([string()], undefined)
     const alone = makeConfig([string()], { path: './gen/other' })
 
-    const { configs } = await detectSharedSchemas([unshared, alone])
+    const { plans } = await detectSharedSchemas([unshared, alone])
 
-    expect(configs).toStrictEqual([unshared, alone])
-    for (const config of configs) expect(config.adapter!.parse).not.toHaveBeenCalled()
+    expect(plans).toStrictEqual([
+      { config: unshared, cleanShared: false },
+      { config: alone, cleanShared: false },
+    ])
+    for (const { config } of plans) expect(config.adapter!.parse).not.toHaveBeenCalled()
+  })
+
+  it('marks the first config of a shared directory to clean it when any config that uses it sets output.clean', async () => {
+    const animals = makeConfig([string()])
+    const fruits = { ...makeConfig([string()]), output: { path: './gen/fruits', clean: true, shared: { path: './gen/common' } } }
+    const alone = { ...makeConfig([string()], { path: './gen/other' }), output: { path: './gen/alone', clean: true, shared: { path: './gen/other' } } }
+
+    const { plans } = await detectSharedSchemas([animals, fruits, alone])
+
+    expect(plans.map(({ cleanShared }) => cleanShared)).toStrictEqual([true, false, true])
+  })
+
+  it('shares nothing in a group whose spec fails to parse, and leaves the error to the build', async () => {
+    const animals = makeConfig([ast.factory.createSchema({ type: 'string', name: 'Name' })])
+    const fruits = makeConfig([ast.factory.createSchema({ type: 'string', name: 'Name' })])
+    vi.mocked(fruits.adapter!.parse).mockRejectedValue(new Error('broken'))
+
+    const { plans } = await detectSharedSchemas([animals, fruits])
+
+    expect(plans.map(({ config, parsed }) => [config.output.shared?.schemas, parsed])).toStrictEqual([
+      [[], undefined],
+      [[], undefined],
+    ])
   })
 })

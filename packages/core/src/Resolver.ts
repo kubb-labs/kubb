@@ -4,7 +4,7 @@ import { ast, collectImportedRefNames, type FileNode, type ImportNode, type Inpu
 import { Diagnostics } from './Diagnostics.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
 import { getInputKind } from './input.ts'
-import type { Group, Output } from './definePlugin.ts'
+import type { Group, Output, SharedOutput } from './definePlugin.ts'
 import type { Config } from './types.ts'
 import { resolveOptions, type ResolveOptionsContext } from './resolveOptions.ts'
 
@@ -243,6 +243,11 @@ export type ResolverBuildOptions = {
   pluginName: string
   name?: (name: string) => string
   file?: ResolverFile
+  /**
+   * The config's `output.shared`, with `path` already absolute. Set by the driver, so every
+   * plugin's `file` and `imports` place a listed schema under it.
+   */
+  shared?: SharedOutput
 }
 
 /**
@@ -365,10 +370,12 @@ export class Resolver {
   // Full-path override from `options.file.path`, bound to the resolver. Absent by default, in which
   // case the built-in `output.path`/`group` layout is used.
   #filePath: ((params: ResolverFilePathParams) => string) | undefined
+  #shared: SharedOutput | undefined
 
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
     this.#options = options
+    this.#shared = options.shared
     this.#baseName = options.file?.baseName ? options.file.baseName.bind(this) : toBaseName
     this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
     this.default = {
@@ -512,7 +519,7 @@ export class Resolver {
     for (const [key, value] of Object.entries(options)) {
       // `file` drives file naming through `#baseName`, not a top-level method, so it must not be
       // assigned here (it would shadow the `file` method with a plain `{ name }` object).
-      if (key === 'pluginName' || key === 'default' || key === 'file' || value === undefined) continue
+      if (key === 'pluginName' || key === 'default' || key === 'file' || key === 'shared' || value === undefined) continue
       root[key] = isNamespace(value) ? Object.fromEntries(Object.entries(value).map(([method, member]) => [method, bind(member)])) : bind(value)
     }
   }
@@ -577,8 +584,8 @@ export class Resolver {
   #resolveFilePath({ name, extname, tag, path: groupPath, root: outputRoot, output, group }: ResolveFileOptions): string {
     // A shared schema's file and every import of it move under `output.shared.path`; operation files carry a `tag` or `path`.
     // A file-mode plugin writes all schemas to one file, which configs sharing different schemas would overwrite, so it shares none.
-    const shared = output.mode === 'directory' && !tag && !groupPath && output.shared?.schemas?.includes(name) ? output.shared : undefined
-    const root = shared ? path.resolve(outputRoot, shared.path) : outputRoot
+    const shared = output.mode === 'directory' && !tag && !groupPath && this.#shared?.schemas?.includes(name) ? this.#shared : undefined
+    const root = shared ? shared.path : outputRoot
     const baseName = this.#baseName({ name, extname })
     return this.#filePath
       ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root, outputRoot)
