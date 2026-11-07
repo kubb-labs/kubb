@@ -55,11 +55,6 @@ export type CreateKubbOptions = {
    */
   signal?: AbortSignal
   /**
-   * Empties `output.shared.path` before writing. `kubb generate` sets it on the first config of each shared directory
-   * when any of them sets `output.clean`, so a later config never deletes what an earlier one wrote.
-   */
-  cleanSharedOutput?: boolean
-  /**
    * The spec already parsed, so the build reports its diagnostics and does not parse it again. `kubb generate` passes the spec it
    * parsed to detect shared schemas.
    */
@@ -120,14 +115,12 @@ export class Kubb {
   #driver: KubbDriver | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
-  readonly #cleanSharedOutput: boolean
   readonly #parsed: ParsedInput | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
-    this.#cleanSharedOutput = options.cleanSharedOutput ?? false
     this.#parsed = options.parsed
   }
 
@@ -152,7 +145,7 @@ export class Kubb {
 
     const dirsToClean: Array<[option: string, dir: string]> = []
     if (config.output.clean) dirsToClean.push(['output.path', resolve(config.root, config.output.path)])
-    if (this.#cleanSharedOutput && config.output.shared) dirsToClean.push(['output.shared.path', resolve(config.root, config.output.shared.path)])
+    if (config.output.shared?.clean) dirsToClean.push(['output.shared.path', resolve(config.root, config.output.shared.path)])
 
     // clean only removes generated code. Refuse when the output resolves to the project root or
     // an ancestor of it, otherwise the wipe would delete kubb.config and every source file.

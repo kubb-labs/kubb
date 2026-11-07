@@ -3,6 +3,7 @@ import { collectImportedRefNames, type InputNode, type SchemaNode } from '@kubb/
 import type { Adapter } from './createAdapter.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
+import type { SharedOutput } from './definePlugin.ts'
 import type { Config } from './types.ts'
 
 /**
@@ -11,10 +12,10 @@ import type { Config } from './types.ts'
 export type ParsedInput = { inputNode: InputNode; diagnostics: Array<Diagnostic> }
 
 /**
- * What detection found for one config, in the order given: the config with `output.shared.schemas` filled in, its parsed
- * spec when it was compared, and whether its build empties `output.shared.path` before writing (see `CreateKubbOptions`).
+ * What detection found for one config, in the order given: the config with `output.shared.schemas` and
+ * `output.shared.clean` filled in, and its parsed spec when it was compared.
  */
-export type DetectedConfig = { config: Config; parsed?: ParsedInput; cleanSharedOutput: boolean }
+export type DetectedConfig = { config: Config; parsed?: ParsedInput }
 
 type Detected = {
   configs: Array<DetectedConfig>
@@ -54,19 +55,19 @@ async function parse(config: Config, adapter: Adapter): Promise<ParsedInput> {
   return { inputNode, diagnostics }
 }
 
-function setSharedSchemas(config: Config, schemas: Array<string>): Config {
-  return { ...config, output: { ...config.output, shared: { ...config.output.shared!, schemas } } }
+function setShared(config: Config, patch: Partial<SharedOutput>): Config {
+  return { ...config, output: { ...config.output, shared: { ...config.output.shared!, ...patch } } }
 }
 
 /**
- * Returns one entry per config, in order. Fills `output.shared.schemas` on every config that sets `output.shared`. Among
- * configs with the same shared path, a schema is shared by the largest group of two or more configs that define it
- * identically, the first group on a tie. A config shares it only when it also shares every schema it references. Each
- * config lists only the shared schemas it defines. `conflicts` lists the names that configs define differently. A config
- * outside the sharing group keeps its own copy.
+ * Returns one entry per config, in order. Fills `output.shared.schemas` and `output.shared.clean` on every config that sets
+ * `output.shared`. Among configs with the same shared path, a schema is shared by the largest group of two or more configs
+ * that define it identically, the first group on a tie. A config shares it only when it also shares every schema it
+ * references. Each config lists only the shared schemas it defines. `conflicts` lists the names that configs define
+ * differently. A config outside the sharing group keeps its own copy.
  */
 export async function detectSharedSchemas(configs: Array<Config>): Promise<Detected> {
-  const detected: Array<DetectedConfig> = configs.map((config) => ({ config, cleanSharedOutput: false }))
+  const detected: Array<DetectedConfig> = configs.map((config) => ({ config }))
   const groups = new Map<string, Array<DetectedConfig>>()
   for (const entry of detected) {
     const { shared } = entry.config.output
@@ -79,7 +80,8 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
   const conflicts = new Set<string>()
   const mismatchedPlugins = new Set<string>()
   for (const group of groups.values()) {
-    group[0]!.cleanSharedOutput = group.some(({ config }) => config.output.clean)
+    // The first config of a shared directory empties it when any of them sets `output.clean`, so a later one never deletes what an earlier one wrote.
+    if (group.some(({ config }) => config.output.clean)) group.forEach((entry, index) => (entry.config = setShared(entry.config, { clean: index === 0 })))
     if (group.length < 2) continue
 
     const optionShapes = new Map<string, Set<string>>()
@@ -103,7 +105,7 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
     } catch (error) {
       // A failed parse is that build's to report, so the group shares nothing until every spec parses. Anything else is a bug here.
       if (!(error instanceof Diagnostics.Error)) throw error
-      for (const entry of group) entry.config = setSharedSchemas(entry.config, [])
+      for (const entry of group) entry.config = setShared(entry.config, { schemas: [] })
       continue
     }
 
@@ -139,10 +141,7 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
     }
 
     specs.forEach(({ entry, parsed }, index) => {
-      entry.config = setSharedSchemas(
-        entry.config,
-        [...shared].flatMap(([name, members]) => (members.has(index) ? [name] : [])),
-      )
+      entry.config = setShared(entry.config, { schemas: [...shared].flatMap(([name, members]) => (members.has(index) ? [name] : [])) })
       entry.parsed = parsed
     })
   }
