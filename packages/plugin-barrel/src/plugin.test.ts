@@ -64,10 +64,18 @@ function schemasPlugin(output: Record<string, unknown> = {}) {
   })
 }
 
-async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<Plugin>; barrel?: { type: 'all' | 'named' } | false }) {
+async function build({
+  plugins,
+  barrel = { type: 'named' },
+  shared,
+}: {
+  plugins: Array<Plugin>
+  barrel?: { type: 'all' | 'named' } | false
+  shared?: Config['output']['shared']
+}) {
   const config = {
     root: '/workspace',
-    output: { path: 'src/gen', barrel },
+    output: { path: 'src/gen', barrel, shared },
     parsers: [],
     reporters: [],
     plugins: [...plugins, pluginBarrel()] as unknown as Array<Plugin>,
@@ -164,6 +172,27 @@ describe('pluginBarrel', () => {
   })
 
   it.each([
+    [
+      'a plugin output directory',
+      'types',
+      '/workspace/src/common/types/name.ts',
+      { '/workspace/src/gen/types/index.ts': '../../common/types/name.ts', '/workspace/src/gen/index.ts': '../common/types/name.ts' },
+    ],
+    ['the output root', '.', '/workspace/src/common/name.ts', { '/workspace/src/gen/index.ts': '../common/name.ts' }],
+  ])(
+    're-exports the output.shared files from its own barrels, and writes none in output.shared, for a plugin writing to %s',
+    async (_, outputPath, filePath, barrels) => {
+      const plugin = makePlugin({ name: 'plugin-types', outputPath, filePath, exportName: 'Name', output: { mode: 'directory' } })
+
+      const { files, paths } = await build({ plugins: [plugin], shared: { path: 'src/common' } })
+      const exportsOf = (barrelPath: string) => files.find((file) => file.path === barrelPath)?.exports.map(({ name, path }) => ({ name, path }))
+
+      for (const [barrel, path] of Object.entries(barrels)) expect(exportsOf(barrel)).toStrictEqual([{ name: ['Name'], path }])
+      expect(paths.filter((path) => path.startsWith('/workspace/src/common/') && path.endsWith('/index.ts'))).toStrictEqual([])
+    },
+  )
+
+  it.each([
     { scenario: 'no banner or footer is configured', output: {}, banner: undefined, footer: undefined },
     { scenario: 'a plugin banner and footer are configured', output: { banner: '// header', footer: '// footer' }, banner: '// header', footer: '// footer' },
     {
@@ -221,6 +250,22 @@ describe('pluginBarrel', () => {
     expect(paths).not.toContain('/workspace/src/gen/types/index.ts')
     expect(rootExportNames).not.toContain('Pet')
     expect(rootExportNames).toContain('PetSchema')
+  })
+
+  it('leaves the shared files of a barrel:false plugin without an owning plugin out of the barrels', async () => {
+    const plugin = makePlugin({
+      name: 'plugin-types',
+      outputPath: 'types',
+      filePath: '/workspace/src/common/types/name.ts',
+      exportName: 'Name',
+      output: { mode: 'directory', barrel: false },
+      meta: {},
+    })
+
+    const { paths } = await build({ plugins: [plugin], shared: { path: 'src/common' } })
+
+    expect(paths).not.toContain('/workspace/src/gen/types/index.ts')
+    expect(paths).not.toContain('/workspace/src/gen/index.ts')
   })
 
   it('reports a path traversal when a plugin output path escapes the output directory', async () => {

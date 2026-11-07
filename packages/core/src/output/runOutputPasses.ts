@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { styleText } from 'node:util'
-import { detectTool, FORMATTER_PREFERENCE, formatters, LINTER_PREFERENCE, linters, type ToolCommand, tokenize } from '@internals/utils'
+import { detectTool, FORMATTER_PREFERENCE, formatters, isPathInside, LINTER_PREFERENCE, linters, type ToolCommand, tokenize } from '@internals/utils'
 import { Diagnostics } from '../Diagnostics.ts'
 import type { Hookable } from '../Hookable.ts'
 import type { Config, KubbHooks } from '../types.ts'
@@ -10,7 +11,7 @@ import { runHook } from './runHook.ts'
 export type RunOutputPassesOptions = {
   config: Config
   /**
-   * Absolute directory the formatter and linter run over.
+   * Absolute directory the formatter and linter run over, together with `output.shared.path` when it sits outside it.
    */
   outputPath: string
   hooks: Hookable<KubbHooks>
@@ -35,12 +36,12 @@ const TOOL_PASSES: ReadonlyArray<ToolPass> = [
   { kind: 'lint', label: 'linter', verb: 'Linting', tools: linters, preference: LINTER_PREFERENCE, code: Diagnostics.code.lintFailed },
 ]
 
-type ToolPassRun = Pick<RunOutputPassesOptions, 'hooks' | 'outputPath' | 'signal'> & { pass: ToolPass; setting: string; cwd: string }
+type ToolPassRun = Pick<RunOutputPassesOptions, 'hooks' | 'signal'> & { pass: ToolPass; setting: string; cwd: string; targets: Array<string> }
 
 /**
  * Resolves `auto` to an installed tool and runs it. Returns the failure instead of throwing.
  */
-async function runToolPass({ pass, setting, outputPath, hooks, cwd, signal }: ToolPassRun): Promise<Error | null> {
+async function runToolPass({ pass, setting, targets, hooks, cwd, signal }: ToolPassRun): Promise<Error | null> {
   const detected = setting === 'auto' ? await detectTool(pass.preference, cwd) : setting
   if (!detected) {
     await hooks.callHook('kubb:warn', { message: `No ${pass.label} found (${pass.preference.join(', ')}). Skipping ${pass.verb.toLowerCase()}.` })
@@ -51,16 +52,16 @@ async function runToolPass({ pass, setting, outputPath, hooks, cwd, signal }: To
   }
 
   const tool = pass.tools[detected]
-  // Nothing to run over when the output directory was never written: the tool would fail on an
-  // empty target (oxlint with --no-ignore reports "No files found to lint").
-  if (!tool || !existsSync(outputPath)) return null
+  if (!tool) return null
 
-  const result = await runHook({ hooks, command: tool.command, args: tool.args(outputPath), cwd, signal })
-  if (result.success) {
-    await hooks.callHook('kubb:success', { message: `${pass.verb} with ${styleText('dim', detected)} on ${styleText('dim', outputPath)} successfully` })
-    return null
+  // Nothing to run over when a directory was never written: the tool would fail on an
+  // empty target (oxlint with --no-ignore reports "No files found to lint").
+  for (const target of targets.filter((target) => existsSync(target))) {
+    const result = await runHook({ hooks, command: tool.command, args: tool.args(target), cwd, signal })
+    if (!result.success) return result.error
+    await hooks.callHook('kubb:success', { message: `${pass.verb} with ${styleText('dim', detected)} on ${styleText('dim', target)} successfully` })
   }
-  return result.error
+  return null
 }
 
 /**
@@ -90,12 +91,17 @@ export async function runOutputPasses({ config, outputPath, hooks, signal }: Run
     await Diagnostics.emit(hooks, diagnostic)
   }
 
+  const sharedPath = config.output.shared && resolve(config.root, config.output.shared.path)
+  const roots = [...new Set(sharedPath ? [outputPath, sharedPath] : [outputPath])]
+  // A directory inside another target is covered by it, so each tool runs over it once.
+  const targets = roots.filter((target) => !roots.some((other) => other !== target && isPathInside(target, other)))
+
   for (const pass of TOOL_PASSES) {
     const setting = config.output[pass.kind]
     if (!setting) continue
 
     await hooks.callHook(`kubb:${pass.kind}:start`)
-    const error = await runToolPass({ pass, setting, outputPath, hooks, cwd: config.root, signal })
+    const error = await runToolPass({ pass, setting, targets, hooks, cwd: config.root, signal })
     if (error) await report(pass.code, pass.label, error)
     await hooks.callHook(`kubb:${pass.kind}:end`)
     signal?.throwIfAborted()

@@ -1,8 +1,9 @@
 import { resolve } from 'node:path'
 import { Diagnostics } from './Diagnostics.ts'
+import type { InputNode } from '@kubb/ast'
 import type { Config, Input } from './types.ts'
-import type { AdapterSource } from './createAdapter.ts'
-import { gitInputRegExp } from './gitInput.ts'
+import type { Adapter, AdapterSource } from './createAdapter.ts'
+import { checkoutGitInput, gitInputRegExp } from './gitInput.ts'
 
 /**
  * What an `input` value points at, once Kubb has looked at it.
@@ -100,4 +101,19 @@ export function inputToAdapterSource(config: Config): AdapterSource {
   if (kind === 'url' || kind === 'git') return { type: 'path', path: input }
 
   return { type: 'path', path: resolve(config.root, input) }
+}
+
+/**
+ * Parses `source` with `adapter`. A git input is checked out first and deleted afterwards, and a parse failure throws
+ * as a diagnostic that names the adapter.
+ */
+export async function parseAdapterSource(adapter: Adapter, source: AdapterSource, signal?: AbortSignal): Promise<InputNode> {
+  const checkout = source.type === 'path' && gitInputRegExp.test(source.path) ? await checkoutGitInput(source.path, signal) : undefined
+  try {
+    return await adapter.parse(checkout ? { type: 'path', path: checkout.path } : source, { signal })
+  } catch (caughtError) {
+    throw new Diagnostics.Error(Diagnostics.fromExtension(caughtError, { kind: 'adapter', extension: adapter }))
+  } finally {
+    await checkout?.dispose()
+  }
 }

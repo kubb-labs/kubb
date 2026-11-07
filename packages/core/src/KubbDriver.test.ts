@@ -604,6 +604,34 @@ describe('KubbDriver generator dispatch', () => {
     expect((normalized as Record<string, unknown>).enumType).toBe('asConst')
   })
 
+  it('places a shared schema under output.shared.path through every plugin resolver, a custom one included', async () => {
+    const plugins = [
+      { name: 'types', options: { output: { path: 'types' } }, hooks: {} },
+      {
+        name: 'zod',
+        options: { output: { path: 'zod' } },
+        hooks: {
+          'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+            ctx.setResolver({ name: (name: string) => `${name}Schema` })
+          },
+        },
+      },
+    ] as unknown as Array<Plugin>
+    const sharedDriver = makeDriver(
+      makeConfig({ root: '/project', adapter: inputAdapter(), plugins, output: { path: './gen/animals', shared: { path: './gen/common', schemas: ['Pet'] } } }),
+    )
+    await sharedDriver.setup()
+    await sharedDriver.run()
+
+    const file = (pluginName: string, name: string) =>
+      sharedDriver
+        .getResolver(pluginName)
+        .file({ name, extname: '.ts', root: '/project/gen/animals', output: sharedDriver.plugins.get(pluginName)!.options.output }).path
+    expect(file('types', 'Pet')).toBe('/project/gen/common/types/pet.ts')
+    expect(file('zod', 'Pet')).toBe('/project/gen/common/zod/pet.ts')
+    expect(file('types', 'Store')).toBe('/project/gen/animals/types/store.ts')
+  })
+
   it("skips a generator's schema and operation calls for a node its match predicate resolves false for, and still calls them when true", async () => {
     rec = { schema: [], operation: [], operations: [], pairs: [] }
     const petOnly: Generator = {
