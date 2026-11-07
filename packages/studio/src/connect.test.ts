@@ -870,6 +870,16 @@ describe('current disk output', () => {
     await expect(fsStorage().readItem(`${root}/src/gen/pet.ts`)).resolves.toBe('on disk\n')
   })
 
+  it('lists the shared directory with the output directory, so a shared file reads and diffs against the disk', async () => {
+    await seedDisk({ 'src/gen/pet.ts': 'pet', 'src/common/name.ts': 'name', 'src/other.ts': 'not output' })
+    const config = { ...projectConfig(), output: { path: 'src/gen', clean: false, shared: { path: 'src/common' } } }
+    const { agent } = await connectStudio({ permissions: { allowRead: true }, loadConfigs: async () => [config] })
+    const output = (await agent.connect(info)).config.configs[0]!.disk
+
+    expect(output?.files.toSorted()).toStrictEqual(['src/common/name.ts', 'src/gen/pet.ts'])
+    await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/common/name.ts'] })).resolves.toStrictEqual({ files: { 'src/common/name.ts': 'name' } })
+  })
+
   it('keeps the initial output immutable after local edits', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'first' })
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
