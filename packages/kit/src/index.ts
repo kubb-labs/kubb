@@ -1,6 +1,6 @@
 export { ast } from '@kubb/ast'
 export { Url } from './Url.ts'
-export { macroDedupeUnion } from './macros/macroDedupeUnion.ts'
+export { macroDedupeUnion, macroSimplifyUnion } from './macros/macroDedupeUnion.ts'
 export { enumPrimitive, macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
 export { macroEnumName } from './macros/macroEnumName.ts'
 export { mergeAdjacentObjectsLazy } from './utils/mergeAdjacentSchemas.ts'
