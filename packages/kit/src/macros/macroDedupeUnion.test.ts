@@ -1,6 +1,7 @@
 import { ast } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
+import { macroSimplifyUnion } from '../index.ts'
 import { macroDedupeUnion } from './macroDedupeUnion.ts'
 
 function dedupe(members: Array<SchemaNode>): Array<SchemaNode> {
@@ -9,6 +10,10 @@ function dedupe(members: Array<SchemaNode>): Array<SchemaNode> {
 }
 
 describe('macroDedupeUnion', () => {
+  it('is still exported under its old name, macroSimplifyUnion', () => {
+    expect(macroSimplifyUnion).toBe(macroDedupeUnion)
+  })
+
   it('keeps enum members next to a broader scalar', () => {
     const members = [
       ast.factory.createSchema({ type: ast.schemaTypes.string }),

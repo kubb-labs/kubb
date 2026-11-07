@@ -62,3 +62,10 @@ export const macroDedupeUnion = ast.defineMacro({
     return { ...unionNode, members: deduped }
   },
 })
+
+/**
+ * The name `macroDedupeUnion` had before 5.16. Kept so a plugin built against an older `@kubb/kit` keeps running.
+ *
+ * @deprecated Use `macroDedupeUnion`. Removed in the next major.
+ */
+export const macroSimplifyUnion = macroDedupeUnion
