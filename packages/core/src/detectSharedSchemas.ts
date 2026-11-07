@@ -26,7 +26,7 @@ export type DetectedConfig = {
    * Whether the build empties `output.shared.path` before it writes: the first config of a shared directory, when any
    * config that uses it sets `output.clean`, so a later config never deletes what an earlier one wrote.
    */
-  cleanShared: boolean
+  cleanSharedOutput: boolean
 }
 
 type Detected = {
@@ -79,7 +79,7 @@ function setSharedSchemas(config: Config, schemas: Array<string>): Config {
  * outside the sharing group keeps its own copy.
  */
 export async function detectSharedSchemas(configs: Array<Config>): Promise<Detected> {
-  const detected: Array<DetectedConfig> = configs.map((config) => ({ config, cleanShared: false }))
+  const detected: Array<DetectedConfig> = configs.map((config) => ({ config, cleanSharedOutput: false }))
   const groups = new Map<string, Array<DetectedConfig>>()
   for (const entry of detected) {
     const { shared } = entry.config.output
@@ -92,7 +92,7 @@ export async function detectSharedSchemas(configs: Array<Config>): Promise<Detec
   const conflicts = new Set<string>()
   const mismatchedPlugins = new Set<string>()
   for (const group of groups.values()) {
-    group[0]!.cleanShared = group.some(({ config }) => config.output.clean === true)
+    group[0]!.cleanSharedOutput = group.some(({ config }) => config.output.clean === true)
     if (group.length < 2) continue
 
     const optionShapes = new Map<string, Set<string>>()

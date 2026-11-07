@@ -60,7 +60,7 @@ type GenerateProps = {
   /**
    * Empties `output.shared.path` before writing.
    */
-  cleanShared?: boolean
+  cleanSharedOutput?: boolean
   /**
    * The spec already parsed to detect shared schemas, so the build does not parse it again.
    */
@@ -68,7 +68,7 @@ type GenerateProps = {
 }
 
 export async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, dryRun = false, cleanShared, parsed } = options
+  const { input, hooks, dryRun = false, cleanSharedOutput, parsed } = options
 
   const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
 
@@ -83,7 +83,7 @@ export async function generate(options: GenerateProps): Promise<boolean> {
 
   // Core formats, lints and runs `output.postGenerate` after an error-free build, and reports
   // their failures as coded diagnostics that reach the summary, the json report and the exit code.
-  const kubb = createKubb(config, { hooks, cleanShared, parsed })
+  const kubb = createKubb(config, { hooks, cleanSharedOutput, parsed })
   const result = await kubb.generate()
 
   // Not awaited: the request finishes in the background, capped by its timeout, so it never delays the summary.
@@ -259,7 +259,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           const hrStart = process.hrtime()
           // An edited spec can change which schemas its group shares, so a rebuild detects again. It never empties the shared directory.
           const current = isRebuild && config.output.shared ? (await detectShared())[index]! : detected[index]!
-          const succeeded = await generate({ input, ...current, hooks, dryRun, cleanShared: !isRebuild && current.cleanShared })
+          const succeeded = await generate({ input, ...current, hooks, dryRun, cleanSharedOutput: !isRebuild && current.cleanSharedOutput })
           isRebuild = true
           const snapshot = tracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
