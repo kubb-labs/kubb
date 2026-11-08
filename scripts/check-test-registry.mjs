@@ -5,13 +5,11 @@ import { readFileSync } from 'node:fs'
 const registryUrl = new URL('../configs/test-registry.json', import.meta.url)
 const registry = JSON.parse(readFileSync(registryUrl, 'utf8'))
 
-const repoRoot = new URL('..', import.meta.url)
-const committed = execFileSync('git', ['ls-files', '-z', '*.test.ts', '*.test.tsx', '*.spec.ts', '*.spec.tsx', '*.bench.ts'], {
-  cwd: repoRoot,
-  encoding: 'utf8',
-})
+// Same suffixes Vitest discovers by default, plus benchmarks.
+const testFile = /\.(test|spec|bench)\.[cm]?[jt]sx?$/
+const committed = execFileSync('git', ['ls-files', '-z'], { cwd: new URL('..', import.meta.url), encoding: 'utf8' })
   .split('\0')
-  .filter(Boolean)
+  .filter((file) => testFile.test(file))
 
 const unregistered = committed.filter((file) => !(file in registry))
 const stale = Object.keys(registry).filter((file) => !committed.includes(file))

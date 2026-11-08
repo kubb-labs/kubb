@@ -1,4 +1,5 @@
 {
+  "internals/changelog/format.test.mjs": "Pins the changelog heading regexes against prefix matches (5.0.0 vs 5.0.0-rc.1, kubb vs unplugin-kubb) that corrupt release notes.",
   "internals/shared/src/configFile/configFile.test.ts": "Studio config sync: readConfig and editConfig parser and editor with many branches, nothing else covers it.",
   "internals/shared/src/init.test.ts": "Only check of the kubb init config text; packages/cli init run.test.ts mocks the writer.",
   "internals/shared/src/loader.test.ts": "Regression: config reload across .js, .mjs, .cjs, .ts and imported helpers, which Node's import cache broke.",
