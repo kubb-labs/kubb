@@ -34,4 +34,17 @@ describe('macroDiscriminatorEnum', () => {
     expect(enumNode?.type === 'enum' ? enumNode.enumValues : undefined).toStrictEqual([1, 2])
     expect(enumNode?.primitive).toBe('number')
   })
+
+  it('preserves readOnly and writeOnly on the replaced property', () => {
+    const node = ast.factory.createSchema({
+      type: 'object',
+      properties: [ast.factory.createProperty({ name: 'type', schema: ast.factory.createSchema({ type: 'string', readOnly: true, writeOnly: true }) })],
+    })
+
+    const result = applyShallow(node, macroDiscriminatorEnum({ propertyName: 'type', values: ['dog'] }))
+    const typeProp = result.type === 'object' ? result.properties?.find((p) => p.name === 'type') : undefined
+
+    expect(typeProp?.schema.readOnly).toBe(true)
+    expect(typeProp?.schema.writeOnly).toBe(true)
+  })
 })

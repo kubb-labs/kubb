@@ -76,6 +76,7 @@ describe('toPosixPath', () => {
 describe('isPathInside', () => {
   it('returns false when the path escapes the parent', () => {
     expect(isPathInside('../other', '.')).toBe(false)
+    expect(isPathInside('/repo/gen-extra', '/repo/gen')).toBe(false)
   })
 
   it('resolves relative and dot inputs before comparing', () => {

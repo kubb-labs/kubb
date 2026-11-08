@@ -71,6 +71,21 @@ describe('runOutputPasses', () => {
     expect(seen.names).toStrictEqual([])
   })
 
+  it('reports a failing postGenerate command as a coded diagnostic and keeps going', async () => {
+    const node = process.execPath
+    const hooks = new Hookable<KubbHooks>()
+    const seen = record(hooks)
+    const config = makeConfig({ postGenerate: [`"${node}" -e "process.exit(1)"`, { name: 'after', command: `"${node}" -e "process.exit(0)"` }] })
+
+    const diagnostics = await runOutputPasses({ config, outputPath: '/nowhere', hooks })
+
+    expect(diagnostics).toHaveLength(1)
+    expect(diagnostics[0]).toMatchObject({ code: 'KUBB_POST_GENERATE_FAILED', severity: 'error', location: { kind: 'config' } })
+    expect(diagnostics[0]?.message).toContain('Post-generate command failed')
+    expect(seen.diagnostics).toStrictEqual(diagnostics)
+    expect(seen.starts.map((ctx) => ctx.name)).toStrictEqual([undefined, 'after'])
+  })
+
   it('announces the format pass but runs no tool when the output directory does not exist', async () => {
     const hooks = new Hookable<KubbHooks>()
     const seen = record(hooks)

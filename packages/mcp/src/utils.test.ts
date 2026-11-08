@@ -1,8 +1,29 @@
-import type { Diagnostic } from '@kubb/core'
+import { type Diagnostic, Diagnostics } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { formatDiagnostics } from './utils.ts'
 
 describe('formatDiagnostics', () => {
+  it('renders the agent block from Diagnostics.format without ANSI styling', () => {
+    const diagnostic: Diagnostic = {
+      code: 'KUBB_REF_NOT_FOUND',
+      severity: 'error',
+      message: 'missing Pet',
+      plugin: '@kubb/adapter-oas',
+      location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+      help: 'add it',
+    }
+
+    expect(formatDiagnostics([diagnostic])).toBe(
+      [
+        'error KUBB_REF_NOT_FOUND [@kubb/adapter-oas]: missing Pet',
+        '  at: #/components/schemas/Pet',
+        `  why: ${Diagnostics.explain('KUBB_REF_NOT_FOUND').cause}`,
+        '  fix: add it',
+        `  docs: ${Diagnostics.docsUrl('KUBB_REF_NOT_FOUND')}`,
+      ].join('\n'),
+    )
+  })
+
   it('renders the underlying errors and the report link, separating entries with a blank line', () => {
     const crash: Diagnostic = {
       code: 'KUBB_PLUGIN_FAILED',

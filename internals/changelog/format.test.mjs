@@ -9,6 +9,10 @@ describe('versionHeadingPattern', () => {
   it('does not match a longer version sharing the same numeric prefix', () => {
     expect(versionHeadingPattern('5.0.0').test('## v5.0.0-rc.1 — Jul 3, 2026')).toBe(false)
   })
+
+  it('matches a bare version with no prerelease suffix', () => {
+    expect(versionHeadingPattern('5.0.0').test('## v5.0.0 — Jul 3, 2026')).toBe(true)
+  })
 })
 
 describe('packageHeadingPattern', () => {

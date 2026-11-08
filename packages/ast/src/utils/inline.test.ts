@@ -53,6 +53,10 @@ function code(file: FileNode | undefined) {
 }
 
 describe('inlineFiles', () => {
+  it('returns nothing when no file is virtual', () => {
+    expect(inlineFiles([clientFile('client()')])).toEqual({ files: [], virtualPaths: [], problems: [] })
+  })
+
   it('replaces imported names with their definitions, nested ones too', () => {
     const { files, virtualPaths, problems } = inlineFiles([
       operationFile,

@@ -117,6 +117,15 @@ describe('getBarrelFiles', () => {
     expect(tagsBarrel.exports.map((e) => e.path)).toStrictEqual(['./getTag.ts'])
   })
 
+  it('adds service namespaces and retains standalone exports with all barrels', () => {
+    const files = [makeFile(`${ROOT}/PetService/getPet.ts`, ['getPet'])]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all', namespace: true })]
+
+    expect(barrels.map((file) => file.path)).toStrictEqual([`${ROOT}/PetService/index.ts`, `${ROOT}/index.ts`])
+    expect(barrels[1]?.exports).toMatchObject([{ path: './PetService/index.ts' }, { path: './PetService/index.ts', name: 'PetService', asAlias: true }])
+    expect(barrels[0]?.exports[0]?.path).toBe('./getPet.ts')
+  })
+
   it.each([
     ['pet-service', 'PetService'],
     ['123-pets', '_123Pets'],

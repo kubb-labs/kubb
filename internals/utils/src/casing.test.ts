@@ -24,6 +24,10 @@ describe('casing', () => {
   ])('camelCase(%s, options) -> %s', (input, options, expected) => {
     expect(camelCase(input, options as Parameters<typeof camelCase>[1])).toBe(expected)
   })
+
+  test('pascalCase keeps an all-caps acronym', () => {
+    expect(pascalCase('is HTML test')).toBe('IsHTMLTest')
+  })
 })
 
 describe('casing cache', () => {

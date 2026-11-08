@@ -30,6 +30,30 @@ describe('combineSources', () => {
 })
 
 describe('combineExports', () => {
+  it('returns one export per path with the names merged, deduplicated and sorted', () => {
+    const pet = createExport({ name: ['Pet'], path: './models' })
+    const order = createExport({ name: ['Order'], path: './models' })
+    const result = combineExports([pet, pet, order])
+
+    expect(result).toStrictEqual([{ kind: 'Export', name: ['Order', 'Pet'], path: './models' }])
+  })
+
+  it('keeps type-only and value exports from the same path separate', () => {
+    const value = createExport({
+      name: ['Pet'],
+      path: './Pet',
+      isTypeOnly: false,
+    })
+    const typeOnly = createExport({
+      name: ['Pet'],
+      path: './Pet',
+      isTypeOnly: true,
+    })
+    const result = combineExports([value, typeOnly])
+
+    expect(result).toHaveLength(2)
+  })
+
   it('returns wildcard exports before named ones, type-only first, then sorted by path', () => {
     const named = createExport({ name: ['Pet'], path: './Pet' })
     const c = createExport({ path: './c' })
@@ -107,6 +131,16 @@ describe('combineImports', () => {
     const result = combineImports([imp], [], 'self')
 
     expect(result).toHaveLength(0)
+  })
+
+  it('keeps a default import when a named import from the same path is used', () => {
+    const client = createImport({ name: 'client', path: '@kubb/plugin-axios/clients/axios' })
+    const types = createImport({ name: ['Client'], path: '@kubb/plugin-axios/clients/axios', isTypeOnly: true })
+    // The merged grouped source omits the function body, so `client` is absent, but `Client` is referenced.
+    const result = combineImports([client, types], [], 'type Options = Client')
+
+    expect(result).toContainEqual(client)
+    expect(result).toContainEqual(types)
   })
 
   it('still drops a default import when no named import from the same path is used', () => {

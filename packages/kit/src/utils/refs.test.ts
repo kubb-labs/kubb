@@ -16,6 +16,7 @@ describe('childName', () => {
 describe('enumPropName', () => {
   it('combines parentName, propName, and enumSuffix', () => {
     expect(enumPropName('Order', 'status', 'enum')).toBe('OrderStatusEnum')
+    expect(enumPropName('Order', 'status', 'Type')).toBe('OrderStatusType')
   })
 })
 

@@ -32,6 +32,12 @@ describe('applyMacros', () => {
     expect(applyMacros(root, [macro])).toBe(root)
   })
 
+  it('keeps the same reference when no macro changes anything', () => {
+    const root = createSchema({ type: 'object', properties: [createProperty({ name: 'id', schema: createSchema({ type: 'string' }) })] })
+
+    expect(applyMacros(root, [defineMacro({ name: 'noop', schema: () => undefined })])).toBe(root)
+  })
+
   it('rewrites matching schema nodes deep in the tree', () => {
     const root = createSchema({ type: 'object', properties: [createProperty({ name: 'count', schema: createSchema({ type: 'integer' }) })] })
     const macro = defineMacro({ name: 'integer-to-string', schema: (node) => (node.type === 'integer' ? { ...node, type: 'string' } : undefined) })

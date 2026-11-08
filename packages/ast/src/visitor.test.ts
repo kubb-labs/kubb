@@ -61,6 +61,12 @@ function buildSampleTree(): InputNode {
 }
 
 describe('transform', () => {
+  it('preserves identity with no visitors', () => {
+    const root = buildSampleTree()
+
+    expect(transform(root, {})).toBe(root)
+  })
+
   it('rebuilds the changed branch and reuses untouched subtrees when a visitor returns a new node', () => {
     const root = buildSampleTree()
     const result = transform(root, {
@@ -95,6 +101,23 @@ describe('transform', () => {
     const map = renamed.schemas[0]
     expect(map?.type === 'object' ? map.patternProperties?.['^x-']?.name : undefined).toBe('Renamed')
     expect(untouched).toBe(root)
+  })
+
+  it('visits parameter schemas but not property schemas when depth: shallow', () => {
+    const root = buildSampleTree()
+    const types: Array<string> = []
+    transform(root, {
+      depth: 'shallow',
+      schema(schema): SchemaNode {
+        types.push(schema.type)
+        return schema
+      },
+    })
+
+    // Parameter schema (integer) is still visited: it is not a schema property
+    expect(types).toContain('integer')
+    // 'string' (Pet.name property schema) is not visited: guarded by depth
+    expect(types).not.toContain('string')
   })
 })
 

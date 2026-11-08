@@ -16,6 +16,12 @@ describe('detectTool', () => {
     vi.clearAllMocks()
   })
 
+  it('prefers the first candidate when several are available', async () => {
+    vi.mocked(x).mockImplementation(() => makeResult(0))
+
+    expect(await detectTool(['oxfmt', 'biome', 'prettier'])).toBe('oxfmt')
+  })
+
   it('skips missing candidates and returns the first available one', async () => {
     vi.mocked(x).mockImplementation((command: string) => {
       return makeResult(command === 'biome' ? 0 : 1)
@@ -40,6 +46,10 @@ describe('detectTool', () => {
 })
 
 describe('tokenize', () => {
+  it('splits on whitespace', () => {
+    expect(tokenize('oxlint --fix ./src')).toStrictEqual(['oxlint', '--fix', './src'])
+  })
+
   it('keeps a double-quoted argument together and strips the quotes', () => {
     expect(tokenize('git commit -m "initial commit"')).toStrictEqual(['git', 'commit', '-m', 'initial commit'])
   })

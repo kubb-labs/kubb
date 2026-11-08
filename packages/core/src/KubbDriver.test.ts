@@ -559,6 +559,28 @@ describe('KubbDriver generator dispatch', () => {
     ])
   })
 
+  it("skips a generator's schema and operation calls for a node its match predicate resolves false for, and still calls them when true", async () => {
+    rec = { schema: [], operation: [], operations: [], pairs: [] }
+    const petOnly: Generator = {
+      ...recordingGenerator('petOnly', rec),
+      match: (node) => ('operationId' in node ? node.operationId === 'getPet' : node.name === 'Pet'),
+    }
+    const plugin: Plugin = {
+      name: 'petOnlyPlugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator(petOnly)
+        },
+      },
+    }
+    const matchDriver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+    await matchDriver.setup()
+    await matchDriver.run()
+
+    expect(rec.schema).toStrictEqual([{ plugin: 'petOnlyPlugin', name: 'Pet' }])
+    expect(rec.operation).toStrictEqual([{ plugin: 'petOnlyPlugin', id: 'getPet' }])
+  })
+
   it('filters per generator, not per plugin, when a matched and an unmatched generator share a plugin', async () => {
     rec = { schema: [], operation: [], operations: [], pairs: [] }
     // Operation-only generators (no `schema`/`operations`) so the emitted file set below only

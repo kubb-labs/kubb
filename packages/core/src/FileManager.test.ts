@@ -320,6 +320,14 @@ describe('FileManager#delete', () => {
 })
 
 describe('FileManager#dispatch', () => {
+  it.each([null, undefined])('does not render when the result is %s', async (result) => {
+    const fileManager = new FileManager()
+    const renderer = vi.fn()
+
+    await expect(fileManager.dispatch({ result, renderer: renderer as never })).resolves.toBeUndefined()
+    expect(renderer).not.toHaveBeenCalled()
+  })
+
   it.each([['an element without a renderer', { kind: 'element' }]])('does not upsert when the result is %s', (_name, result) => {
     const fileManager = new FileManager()
     const upsert = vi.spyOn(fileManager, 'upsert')
