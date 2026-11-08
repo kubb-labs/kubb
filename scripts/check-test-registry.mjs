@@ -5,8 +5,12 @@ import { readFileSync } from 'node:fs'
 const registryUrl = new URL('../configs/test-registry.json', import.meta.url)
 const registry = JSON.parse(readFileSync(registryUrl, 'utf8'))
 
-const committed = execFileSync('git', ['ls-files', '*.test.ts', '*.test.tsx', '*.bench.ts'], { encoding: 'utf8' })
-  .split('\n')
+const repoRoot = new URL('..', import.meta.url)
+const committed = execFileSync('git', ['ls-files', '-z', '*.test.ts', '*.test.tsx', '*.spec.ts', '*.spec.tsx', '*.bench.ts'], {
+  cwd: repoRoot,
+  encoding: 'utf8',
+})
+  .split('\0')
   .filter(Boolean)
 
 const unregistered = committed.filter((file) => !(file in registry))
