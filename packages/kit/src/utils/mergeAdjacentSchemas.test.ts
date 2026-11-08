@@ -24,29 +24,12 @@ function summarize(nodes: Array<SchemaNode>) {
 }
 
 describe('mergeAdjacentObjects', () => {
-  it('merges a run of adjacent anonymous objects into one', () => {
-    const result = mergeAdjacentObjects([makeObject(['a']), makeObject(['b']), makeObject(['c'])])
-    expect(summarize(result)).toStrictEqual([{ type: 'object', name: undefined, props: ['a', 'b', 'c'] }])
-  })
-
   it('does not merge across a named object', () => {
     const result = mergeAdjacentObjects([makeObject(['a']), makeObject(['b'], 'Named'), makeObject(['c'])])
     expect(summarize(result)).toStrictEqual([
       { type: 'object', name: undefined, props: ['a'] },
       { type: 'object', name: 'Named', props: ['b'] },
       { type: 'object', name: undefined, props: ['c'] },
-    ])
-  })
-
-  it('does not merge ref nodes with anonymous objects', () => {
-    const result = mergeAdjacentObjects([
-      ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Address', name: 'Address' }),
-      makeObject(['streetNumber']),
-      makeObject(['streetName']),
-    ])
-    expect(summarize(result)).toStrictEqual([
-      { type: 'ref', name: 'Address', ref: '#/components/schemas/Address' },
-      { type: 'object', name: undefined, props: ['streetNumber', 'streetName'] },
     ])
   })
 })

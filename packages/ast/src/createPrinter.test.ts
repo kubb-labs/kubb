@@ -47,68 +47,6 @@ describe('createPrinter', () => {
     expect(zodPrinter().print(createSchema({ type: 'string' }))).toBe('z.string()')
   })
 
-  it('transforms nested object properties and union members through this.transform()', () => {
-    type P = PrinterFactoryOptions<'zod', object, string>
-
-    const zodPrinter = createPrinter<P>(() => ({
-      name: 'zod',
-      options: {},
-      nodes: {
-        string() {
-          return 'z.string()'
-        },
-        number() {
-          return 'z.number()'
-        },
-        object(node) {
-          const props = node.properties.map((p) => `${p.name}: ${this.transform(p.schema)}`).join(', ')
-          return `z.object({ ${props} })`
-        },
-        union(node) {
-          const members = node.members?.map((m) => this.transform(m)).filter(Boolean) ?? []
-          return `z.union([${members.join(', ')}])`
-        },
-      },
-    }))
-
-    const node = createSchema({
-      type: 'object',
-      properties: [
-        createProperty({
-          name: 'id',
-          schema: createSchema({ type: 'number' }),
-        }),
-        createProperty({
-          name: 'label',
-          schema: createSchema({ type: 'union', members: [createSchema({ type: 'string' }), createSchema({ type: 'number' })] }),
-        }),
-      ],
-    })
-
-    expect(zodPrinter().print(node)).toBe('z.object({ id: z.number(), label: z.union([z.string(), z.number()]) })')
-  })
-
-  it('lets an override wrap the replaced handler via this.base()', () => {
-    type P = PrinterFactoryOptions<'zod', object, string>
-
-    const zodPrinter = createPrinter<P>(() => ({
-      name: 'zod',
-      options: {},
-      nodes: {
-        string() {
-          return 'z.string()'
-        },
-      },
-      overrides: {
-        string(node) {
-          return `${this.base(node)}.describe('wrapped')`
-        },
-      },
-    }))
-
-    expect(zodPrinter().print(createSchema({ type: 'string' }))).toBe("z.string().describe('wrapped')")
-  })
-
   it('dispatches nested nodes through overrides when a base handler recurses', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
 

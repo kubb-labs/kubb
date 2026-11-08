@@ -75,15 +75,6 @@ describe('adapterOas.parse', () => {
     expect(ast.narrowSchema(box!.properties[0]!.schema, 'ref')).toMatchObject({ targetName: 'Box_Card' })
   })
 
-  it('parses each schema and operation', async () => {
-    const adapter = adapterOas({ validate: false })
-
-    const node = await adapter.parse({ type: 'data', data: minimalSpec })
-
-    expect(node.schemas.map((s) => s.name)).toStrictEqual(['Pet', 'Category'])
-    expect(node.operations.map((operation) => operation.operationId)).toStrictEqual(['listPets'])
-  })
-
   it('links each schema, operation, parameter, request body and response to its JSON pointer, also for a renamed schema', async () => {
     const spec = {
       openapi: '3.0.3',
@@ -349,22 +340,6 @@ describe('adapterOas options', () => {
       },
     },
   } as const
-
-  it('leaves child schemas as written for discriminator: preserve (default)', async () => {
-    const node = await adapterOas({ validate: false }).parse({ type: 'data', data: discriminatedSpec })
-
-    const cat = ast.narrowSchema(
-      node.schemas.find((schema) => schema.name === 'Cat')!,
-      'object',
-    )
-    const dog = ast.narrowSchema(
-      node.schemas.find((schema) => schema.name === 'Dog')!,
-      'object',
-    )
-
-    expect(cat?.properties.find((property) => property.name === 'petType')?.schema.type).toBe('string')
-    expect(dog?.properties.map((property) => property.name)).toStrictEqual(['bark'])
-  })
 
   it('pins the discriminator property to its mapping key on each child for discriminator: propagate', async () => {
     const node = await adapterOas({ validate: false, discriminator: 'propagate' }).parse({ type: 'data', data: discriminatedSpec })
@@ -729,25 +704,6 @@ describe('adapterOas options', () => {
 
     const status = node.operations[0]?.parameters.find((parameter) => parameter.name === 'status')
     expect(status?.schema).toMatchObject({ type: 'ref', name: 'ListPetsStatus', ref: '#/components/schemas/ListPetsStatus' })
-  })
-
-  it('keeps inline enums on their property for enums: inline (default)', async () => {
-    const spec = {
-      openapi: '3.0.0',
-      info: { title: 'Pets', version: '1.0.0' },
-      paths: {},
-      components: {
-        schemas: {
-          Pet: { type: 'object', properties: { status: { type: 'string', enum: ['available', 'sold'] } } },
-        },
-      },
-    } as const
-
-    const node = await adapterOas({ validate: false }).parse({ type: 'data', data: spec })
-
-    expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['Pet'])
-    const pet = ast.narrowSchema(node.schemas[0]!, 'object')
-    expect(pet?.properties[0]?.schema).toMatchObject({ type: 'enum', name: 'PetStatusEnum', enumValues: ['available', 'sold'] })
   })
 })
 

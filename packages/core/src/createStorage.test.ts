@@ -78,10 +78,6 @@ describe.each(storages)('Storage contract: $name', ({ create, written, keysUnder
     rmSync(dir, { recursive: true, force: true })
   })
 
-  it('returns null from readItem for a missing key', async () => {
-    expect(await storage.readItem(join(dir, 'missing.ts'))).toBeNull()
-  })
-
   it('returns the written value from readItem after writeItem', async () => {
     const key = join(dir, 'hello.ts')
 

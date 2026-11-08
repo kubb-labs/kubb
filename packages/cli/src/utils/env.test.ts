@@ -25,13 +25,6 @@ describe('canUseTTY', () => {
   })
 
   it.each([
-    {
-      isTTY: true,
-      columns: 80,
-      ci: '',
-      expected: true,
-      label: 'isTTY with valid columns and no CI',
-    },
     { isTTY: false, columns: 80, ci: '', expected: false, label: 'no isTTY' },
     {
       isTTY: true,

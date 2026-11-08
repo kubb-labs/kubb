@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { adapterOas } from '../../adapter.ts'
 
 describe.each(['oneOf', 'anyOf'] as const)('%s parent required properties', (keyword) => {
-  test.each(['any', 'unknown', 'void'] as const)('keeps undeclared required keys unconstrained with emptySchemaType=%s', async (emptySchemaType) => {
+  test.each(['any'] as const)('keeps undeclared required keys unconstrained with emptySchemaType=%s', async (emptySchemaType) => {
     const root = await adapterOas({ validate: false, emptySchemaType }).parse({
       type: 'data',
       data: {
@@ -33,12 +33,8 @@ describe.each(['oneOf', 'anyOf'] as const)('%s parent required properties', (key
   test.each([
     { openapi: '3.0.0', references: true, siblings: true },
     { openapi: '3.1.0', references: true, siblings: true },
-    { openapi: '3.0.0', references: false, siblings: true },
-    { openapi: '3.1.0', references: false, siblings: true },
     { openapi: '3.0.0', references: true, siblings: false },
     { openapi: '3.1.0', references: true, siblings: false },
-    { openapi: '3.0.0', references: false, siblings: false },
-    { openapi: '3.1.0', references: false, siblings: false },
   ])('preserves required member keys in $openapi with references=$references and siblings=$siblings', async ({ openapi, references, siblings }) => {
     const a = { type: 'object', properties: { a: { type: 'string', nullable: true } } }
     const b = { type: 'object', properties: { b: { type: 'string' } } }

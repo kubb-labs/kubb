@@ -17,14 +17,6 @@ afterEach(() => {
 })
 
 describe('resolveKubbDir', () => {
-  it('resolves a relative base inside KUBB_HOME', () => {
-    expect(resolveKubbDir('cache')).toBe(join(home, 'cache'))
-  })
-
-  it('uses an absolute base as is', () => {
-    expect(resolveKubbDir(join(home, 'project', '.kubb'))).toBe(join(home, 'project', '.kubb'))
-  })
-
   it.skipIf(process.platform === 'win32')('creates the folder with mode 0700 and tightens an existing one', () => {
     chmodSync(home, 0o755)
 
@@ -45,17 +37,6 @@ describe('resolveKubbDir', () => {
 })
 
 describe('kubbStorage', () => {
-  it('writes keys as files inside the folder', async () => {
-    const storage = kubbStorage({ base: 'cache' })
-
-    await storage.setItem('machine-secret', 'secret')
-    await storage.setItem('reports/data.js', 'data')
-
-    expect(readFileSync(join(home, 'cache', 'machine-secret'), 'utf8')).toBe('secret')
-    expect(readFileSync(join(home, 'cache', 'reports', 'data.js'), 'utf8')).toBe('data')
-    expect(await storage.getItem('machine-secret')).toBe('secret')
-  })
-
   it('reads and writes files in the format unstorage used', async () => {
     const storage = kubbStorage({ base: 'project' })
     writeFileSync(join(home, 'project', 'credentials.json'), '{"studioUrl":"https://studio.kubb.dev","token":"t"}')

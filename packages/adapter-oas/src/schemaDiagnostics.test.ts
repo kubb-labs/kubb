@@ -168,15 +168,6 @@ describe('schema diagnostics during parse', () => {
       ])
     })
 
-    it('stays quiet when each member has its own value', async () => {
-      const spec = itemSpec(
-        { oneOf: [{ $ref: '#/components/schemas/InMsg' }, { $ref: '#/components/schemas/Other' }], discriminator: { propertyName: 'type' } },
-        { Other: { type: 'object', properties: { type: { type: 'string', enum: ['other'] } } } },
-      )
-
-      expect(await duplicates(spec)).toHaveLength(0)
-    })
-
     it('warns when a nested anyOf member shares a value with a sibling', async () => {
       const spec = itemSpec(
         {

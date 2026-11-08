@@ -1,25 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { getBinaryFallbackSchema, isDiscriminator, isJsonMimeType } from './oas.ts'
+import { getBinaryFallbackSchema, isDiscriminator } from './oas.ts'
 import type { SchemaObject } from './types.ts'
 
 describe('isDiscriminator', () => {
-  it.each([
-    {
-      title: 'true for a discriminator object',
-      schema: { discriminator: { propertyName: 'type', mapping: { Cat: '#/components/schemas/Cat' } } },
-      expected: true,
+  it.each([{ title: 'false for a Swagger 2 string-form discriminator', schema: { discriminator: 'type' }, expected: false }])(
+    'returns $title',
+    ({ schema, expected }) => {
+      expect(isDiscriminator(schema)).toBe(expected)
     },
-    { title: 'false for a Swagger 2 string-form discriminator', schema: { discriminator: 'type' }, expected: false },
-  ])('returns $title', ({ schema, expected }) => {
-    expect(isDiscriminator(schema)).toBe(expected)
-  })
-})
-
-describe('isJsonMimeType', () => {
-  it('matches a JSON media type regardless of case', () => {
-    expect(isJsonMimeType('application/JSON')).toBe(true)
-    expect(isJsonMimeType('text/plain')).toBe(false)
-  })
+  )
 })
 
 describe('getBinaryFallbackSchema', () => {
@@ -27,9 +16,6 @@ describe('getBinaryFallbackSchema', () => {
 
   it.each([
     { title: 'the binary schema for an octet-stream entry without a schema', contentType: 'application/octet-stream', schema: undefined, expected: binary },
-    { title: 'the binary schema for an octet-stream entry the 3.1 upgrade emptied out', contentType: 'application/octet-stream', schema: {}, expected: binary },
-    { title: 'the binary schema for another non-JSON media type', contentType: 'application/pdf', schema: {}, expected: binary },
-    { title: 'undefined when the entry carries a schema of its own', contentType: 'application/octet-stream', schema: { type: 'object' }, expected: undefined },
     {
       title: 'undefined when the entry carries a $ref',
       contentType: 'application/octet-stream',

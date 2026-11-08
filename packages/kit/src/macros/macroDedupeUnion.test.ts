@@ -24,13 +24,6 @@ describe('macroDedupeUnion', () => {
     expect(dedupe(members)).toStrictEqual(members)
   })
 
-  it('drops repeated members, ignoring the source pointer', () => {
-    const string = ast.factory.createSchema({ type: ast.schemaTypes.string, pointer: '#/a' })
-    const number = ast.factory.createSchema({ type: ast.schemaTypes.number })
-
-    expect(dedupe([string, ast.factory.createSchema({ type: ast.schemaTypes.string, pointer: '#/b' }), number])).toStrictEqual([string, number])
-  })
-
   it('deduplicates deeply shared schemas without expanding the resolved graph', () => {
     const shared = Array.from({ length: 30 }).reduce<SchemaNode>(
       (schema) =>

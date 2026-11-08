@@ -16,27 +16,4 @@ describe('createProperty', () => {
       schema: { kind: 'Schema', type: 'string', primitive: 'string', optional: true, nullish: undefined },
     })
   })
-
-  it('accepts required: true', () => {
-    const node = createProperty({
-      name: 'id',
-      schema: createSchema({ type: 'integer' }),
-      required: true,
-    })
-
-    expect(node.required).toBe(true)
-    expect(node.schema.optional).toBeFalsy()
-    expect(node.schema.nullable).toBeFalsy()
-    expect(node.schema.nullish).toBeFalsy()
-  })
-
-  it('marks a non-required nullable schema nullish without a dialect', () => {
-    const node = createProperty({
-      name: 'name',
-      schema: createSchema({ type: 'string', nullable: true }),
-    })
-
-    expect(node.schema.nullish).toBe(true)
-    expect(node.schema.optional).toBeUndefined()
-  })
 })

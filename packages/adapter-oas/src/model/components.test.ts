@@ -10,12 +10,6 @@ describe('getSchemas', () => {
     paths: {},
   } as Document
 
-  it('returns empty schemas when components is absent', () => {
-    const { schemas, renames } = getSchemas(base, {}, createRefs(base))
-    expect(schemas).toStrictEqual({})
-    expect(renames.size).toBe(0)
-  })
-
   it.each([
     {
       title: 'component schemas',

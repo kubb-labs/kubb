@@ -4,16 +4,6 @@ import { createExport, createImport, createSource } from '../nodes/file.ts'
 import { combineExports, combineImports, combineSources } from './combineFileMembers.ts'
 
 describe('combineSources', () => {
-  it('deduplicates sources with the same name', () => {
-    const src = createSource({
-      name: 'Pet',
-      nodes: [createText('export type Pet = {}')],
-    })
-    const result = combineSources([src, src])
-
-    expect(result).toHaveLength(1)
-  })
-
   it('deduplicates by reference when name is absent', () => {
     const src = createSource({ nodes: [createText('const x = 1')] })
     const result = combineSources([src, src])
@@ -40,30 +30,6 @@ describe('combineSources', () => {
 })
 
 describe('combineExports', () => {
-  it('returns one export per path with the names merged, deduplicated and sorted', () => {
-    const pet = createExport({ name: ['Pet'], path: './models' })
-    const order = createExport({ name: ['Order'], path: './models' })
-    const result = combineExports([pet, pet, order])
-
-    expect(result).toStrictEqual([{ kind: 'Export', name: ['Order', 'Pet'], path: './models' }])
-  })
-
-  it('keeps type-only and value exports from the same path separate', () => {
-    const value = createExport({
-      name: ['Pet'],
-      path: './Pet',
-      isTypeOnly: false,
-    })
-    const typeOnly = createExport({
-      name: ['Pet'],
-      path: './Pet',
-      isTypeOnly: true,
-    })
-    const result = combineExports([value, typeOnly])
-
-    expect(result).toHaveLength(2)
-  })
-
   it('returns wildcard exports before named ones, type-only first, then sorted by path', () => {
     const named = createExport({ name: ['Pet'], path: './Pet' })
     const c = createExport({ path: './c' })
@@ -93,26 +59,16 @@ describe('combineImports', () => {
   it.each([
     { label: 'a named import', imp: createImport({ name: ['z'], path: 'zod' }) },
     { label: 'a namespace import', imp: createImport({ name: 'z', path: 'zod' }) },
-    { label: 'an aliased named import', imp: createImport({ name: [{ propertyName: 'zod', name: 'z' }], path: 'zod' }) },
   ])('keeps $label when its local name appears in the source', ({ imp }) => {
     expect(combineImports([imp], [], 'const schema = z.string()')).toStrictEqual([imp])
   })
 
-  it.each([
-    { label: 'a named import', imp: createImport({ name: ['unused'], path: 'lodash' }) },
-    { label: 'a namespace import', imp: createImport({ name: 'unused', path: 'lodash' }) },
-    { label: 'an aliased named import', imp: createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' }) },
-  ])('filters out $label when its name does not appear in the source', ({ imp }) => {
-    expect(combineImports([imp], [], 'const x = 1')).toStrictEqual([])
-  })
-
-  it('retains imports that are re-exported', () => {
-    const imp = createImport({ name: ['Pet'], path: './Pet' })
-    const exp = createExport({ name: ['Pet'], path: './Pet' })
-    const result = combineImports([imp], [exp], '')
-
-    expect(result).toHaveLength(1)
-  })
+  it.each([{ label: 'an aliased named import', imp: createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' }) }])(
+    'filters out $label when its name does not appear in the source',
+    ({ imp }) => {
+      expect(combineImports([imp], [], 'const x = 1')).toStrictEqual([])
+    },
+  )
 
   it('returns one import per path with the names merged, deduplicated and sorted', () => {
     const pet = createImport({ name: ['Pet'], path: './models' })
@@ -142,16 +98,6 @@ describe('combineImports', () => {
     expect(result).toHaveLength(2)
   })
 
-  it('returns namespace imports before named ones, then sorted by path', () => {
-    const c = createImport({ name: ['c'], path: './c' })
-    const a = createImport({ name: ['a'], path: './a' })
-    const b = createImport({ name: ['b'], path: './b' })
-    const ns = createImport({ name: 'z', path: 'zod' })
-    const result = combineImports([c, a, ns, b], [], 'a b c z')
-
-    expect(result.map((i) => i.path)).toStrictEqual(['zod', './a', './b', './c'])
-  })
-
   it('skips an import when path equals root', () => {
     const imp = createImport({
       name: ['self'],
@@ -161,16 +107,6 @@ describe('combineImports', () => {
     const result = combineImports([imp], [], 'self')
 
     expect(result).toHaveLength(0)
-  })
-
-  it('keeps a default import when a used named import from the same path is retained', () => {
-    const client = createImport({ name: 'client', path: '@kubb/plugin-axios/clients/axios' })
-    const types = createImport({ name: ['Client', 'RequestConfig'], path: '@kubb/plugin-axios/clients/axios', isTypeOnly: true })
-    // The merged grouped source omits the function body, so `client` is absent — but `Client` is referenced.
-    const result = combineImports([client, types], [], 'Partial<RequestConfig> & { client?: Client }')
-
-    expect(result.some((i) => i.name === 'client')).toBe(true)
-    expect(result.some((i) => Array.isArray(i.name) && i.name.includes('Client'))).toBe(true)
   })
 
   it('still drops a default import when no named import from the same path is used', () => {

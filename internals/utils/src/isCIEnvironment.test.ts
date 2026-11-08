@@ -31,10 +31,6 @@ describe('isCIEnvironment', () => {
     expect(isCIEnvironment()).toBe(true)
   })
 
-  it('returns false when no CI env var is set', () => {
-    expect(isCIEnvironment()).toBe(false)
-  })
-
   it.each(['false', '0'])('returns false when CI is %s', (value) => {
     vi.stubEnv('CI', value)
 

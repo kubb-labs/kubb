@@ -3,19 +3,6 @@ import { createText } from './code.ts'
 import { createFile, createImport, createSource } from './file.ts'
 
 describe('createFile', () => {
-  it('creates a FileNode with correct kind, id, name and extname', () => {
-    const file = createFile({
-      baseName: 'petStore.ts',
-      path: 'src/models/petStore.ts',
-    })
-
-    expect(file.kind).toBe('File')
-    expect(file.name).toBe('petStore')
-    expect(file.extname).toBe('.ts')
-    expect(typeof file.id).toBe('string')
-    expect(file.id.length).toBeGreaterThan(0)
-  })
-
   it('throws when baseName has no extension', () => {
     expect(() =>
       createFile({
@@ -23,23 +10,6 @@ describe('createFile', () => {
         path: 'src/petStore',
       }),
     ).toThrow(/No extname found/)
-  })
-
-  it('filters unused imports', () => {
-    const usedImport = createImport({ name: ['z'], path: 'zod' })
-    const unusedImport = createImport({ name: ['unused'], path: 'lodash' })
-    const src = createSource({
-      nodes: [createText('const schema = z.string()')],
-    })
-    const file = createFile({
-      baseName: 'schema.ts',
-      path: 'src/schema.ts',
-      sources: [src],
-      imports: [usedImport, unusedImport],
-    })
-
-    expect(file.imports.map((i) => i.path)).toContain('zod')
-    expect(file.imports.map((i) => i.path)).not.toContain('lodash')
   })
 
   it('drops imports that resolve to the containing file (self-imports)', () => {

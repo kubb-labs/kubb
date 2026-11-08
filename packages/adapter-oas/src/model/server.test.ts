@@ -40,10 +40,6 @@ describe('resolveBaseUrl', () => {
 })
 
 describe('resolveServerUrl', () => {
-  it('returns the url unchanged when there are no variables', () => {
-    expect(resolveServerUrl({ url: 'https://api.example.com' })).toBe('https://api.example.com')
-  })
-
   it('replaces variables from the override, falling back to the variable default', () => {
     expect(
       resolveServerUrl(

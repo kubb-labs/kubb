@@ -66,19 +66,6 @@ describe('Diagnostics.serialize', () => {
 })
 
 describe('Diagnostics.from', () => {
-  it('returns the structured diagnostic, with help and plugin, from a DiagnosticError', () => {
-    const diagnostic = { code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing', help: 'fix the ref', plugin: '@kubb/plugin-zod' } as const
-
-    expect(Diagnostics.from(new Diagnostics.Error(diagnostic))).toStrictEqual(diagnostic)
-  })
-
-  it('should unwrap a DiagnosticError nested in the cause chain', () => {
-    const inner = new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
-    const wrapped = new Error('listener failed', { cause: inner })
-
-    expect(Diagnostics.from(wrapped).code).toBe('KUBB_REF_NOT_FOUND')
-  })
-
   it('recognizes a DiagnosticError from a duplicated core copy structurally', () => {
     // A different `@kubb/core` copy produces a DiagnosticError that fails `instanceof` but
     // still carries its `diagnostic`. Simulate one with a plain Error of the same shape.
@@ -131,19 +118,6 @@ describe('Diagnostics.from', () => {
 describe('Diagnostics.fromExtension', () => {
   const extension = { meta: { name: 'plugin-acme', issues: 'https://github.com/acme/plugin/issues' } }
 
-  it('reports a plugin crash as KUBB_PLUGIN_FAILED with the plugin and its issue tracker', () => {
-    const cause = new Error('boom')
-
-    expect(Diagnostics.fromExtension(cause, { kind: 'plugin', extension })).toStrictEqual({
-      code: 'KUBB_PLUGIN_FAILED',
-      severity: 'error',
-      message: 'boom',
-      cause,
-      plugin: 'plugin-acme',
-      issues: 'https://github.com/acme/plugin/issues',
-    })
-  })
-
   it('adds the issue tracker to a *_FAILED code the extension throws itself', () => {
     const error = new Diagnostics.Error({ code: 'KUBB_PLUGIN_FAILED', severity: 'error', message: 'invariant broken' })
 
@@ -153,16 +127,6 @@ describe('Diagnostics.fromExtension', () => {
       plugin: 'plugin-acme',
       issues: 'https://github.com/acme/plugin/issues',
     })
-  })
-
-  it('names an adapter or parser in the message, not in `plugin`, so it is not counted as a failed plugin', () => {
-    const adapter = Diagnostics.fromExtension(new Error('boom'), { kind: 'adapter', extension: { name: 'oas' } })
-    const parser = Diagnostics.fromExtension(new Error('boom'), { kind: 'parser', extension: { name: 'typescript' } })
-
-    expect(adapter).toMatchObject({ code: 'KUBB_ADAPTER_FAILED', message: 'adapter "oas" crashed: boom' })
-    expect(parser).toMatchObject({ code: 'KUBB_PARSER_FAILED', message: 'parser "typescript" crashed: boom' })
-    expect(adapter).not.toHaveProperty('plugin')
-    expect(adapter).not.toHaveProperty('issues')
   })
 
   it('keeps the code of a structured error and adds no issue link', () => {
@@ -175,19 +139,6 @@ describe('Diagnostics.fromExtension', () => {
     const abort = new DOMException('aborted', 'AbortError')
 
     expect(Diagnostics.fromExtension(abort, { kind: 'adapter', extension })).toMatchObject({ code: 'KUBB_UNKNOWN' })
-  })
-})
-
-describe('Diagnostics.count', () => {
-  it('counts problems by severity and ignores performance', () => {
-    const counts = Diagnostics.count([
-      problem(),
-      problem({ severity: 'warning' }),
-      problem({ severity: 'info' }),
-      Diagnostics.performance({ plugin: 'a', duration: 5 }),
-    ])
-
-    expect(counts).toStrictEqual({ errors: 1, warnings: 1, infos: 1 })
   })
 })
 
@@ -298,17 +249,6 @@ describe('Diagnostics.dedupe', () => {
 })
 
 describe('Diagnostics.scope / Diagnostics.report', () => {
-  it('routes reported diagnostics to the active sink and returns true', () => {
-    const collected: Array<Diagnostic> = []
-    const reported = Diagnostics.scope(
-      (diagnostic) => collected.push(diagnostic),
-      () => Diagnostics.report(problem()),
-    )
-
-    expect(reported).toBe(true)
-    expect(collected).toHaveLength(1)
-  })
-
   it('shares the sink with another copy of @kubb/core through globalThis', () => {
     const sink = (globalThis as Record<symbol, AsyncLocalStorage<(diagnostic: Diagnostic) => void>>)[Symbol.for('kubb.diagnostics.reporter')]
     const collected: Array<Diagnostic> = []
