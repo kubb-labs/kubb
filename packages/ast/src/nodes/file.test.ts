@@ -3,12 +3,13 @@ import { createText } from './code.ts'
 import { createFile, createImport, createSource } from './file.ts'
 
 describe('createFile', () => {
-  it('gives the file a non-empty id', () => {
+  it('creates a File node with a non-empty id', () => {
     const file = createFile({
       baseName: 'petStore.ts',
       path: 'src/models/petStore.ts',
     })
 
+    expect(file.kind).toBe('File')
     expect(typeof file.id).toBe('string')
     expect(file.id.length).toBeGreaterThan(0)
   })

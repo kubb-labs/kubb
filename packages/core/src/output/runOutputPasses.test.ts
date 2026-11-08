@@ -11,6 +11,7 @@ import type { Config, KubbHooks, KubbHookStartContext } from '../types.ts'
 import type { Diagnostic } from '../Diagnostics.ts'
 import { runOutputPasses } from './runOutputPasses.ts'
 
+const node = process.execPath
 const roots: Array<string> = []
 
 afterEach(() => {
@@ -71,8 +72,24 @@ describe('runOutputPasses', () => {
     expect(seen.names).toStrictEqual([])
   })
 
+  it('runs postGenerate commands in order with their step names', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const seen = record(hooks)
+    const config = makeConfig({ postGenerate: [`"${node}" -e "process.exit(0)"`, { name: 'types', command: `"${node}" -e "process.exit(0)"` }] })
+
+    const diagnostics = await runOutputPasses({ config, outputPath: '/nowhere', hooks })
+
+    expect(diagnostics).toStrictEqual([])
+    expect(seen.names).toStrictEqual(['kubb:hooks:start', 'kubb:hooks:end'])
+    expect(seen.starts.map((ctx) => ({ command: ctx.command, name: ctx.name }))).toStrictEqual([
+      { command: node, name: undefined },
+      { command: node, name: 'types' },
+    ])
+    expect(seen.successes).toHaveLength(2)
+    expect(seen.successes[1]).toContain('types')
+  })
+
   it('reports a failing postGenerate command as a coded diagnostic and keeps going', async () => {
-    const node = process.execPath
     const hooks = new Hookable<KubbHooks>()
     const seen = record(hooks)
     const config = makeConfig({ postGenerate: [`"${node}" -e "process.exit(1)"`, { name: 'after', command: `"${node}" -e "process.exit(0)"` }] })

@@ -58,6 +58,18 @@ describe('checkCompatibility', () => {
     expect(() => checkCompatibility({ name: 'plugin-a', compatibility: { kubb: `>=${version}`, node: '>=18' } })).not.toThrow()
   })
 
+  it('throws KUBB_INCOMPATIBLE_EXTENSION for a Kubb range the running core does not satisfy', () => {
+    expect(() => checkCompatibility({ name: 'plugin-a', compatibility: { kubb: '>=99' } })).toThrow(
+      expect.objectContaining({
+        diagnostic: expect.objectContaining({
+          code: Diagnostics.code.incompatibleExtension,
+          plugin: 'plugin-a',
+          message: `"plugin-a" requires Kubb >=99, but ${version} is running.`,
+        }),
+      }),
+    )
+  })
+
   it('skips the Kubb range on a canary build', async () => {
     vi.resetModules()
     vi.doMock('../package.json', () => ({ version: '0.0.0-canary-20261024172631' }))

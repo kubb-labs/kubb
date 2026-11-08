@@ -512,6 +512,23 @@ describe('Kubb#generate', () => {
     expect(end?.diagnostics).toMatchObject([{ code: Diagnostics.code.invalidPluginOptions, message: 'plugins[0] is null, not a plugin.' }])
   })
 
+  it('reports failure and ends failed when processOutput returns an error', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const diagnostic: Diagnostic = { code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }
+    let endStatus: string | undefined
+    hooks.hook('kubb:generation:end', ({ status }) => {
+      endStatus = status
+    })
+
+    const result = await createKubb(makeConfig({ root: tempRoot(), storage: fsStorage() }), { hooks }).generate({
+      processOutput: async () => [diagnostic],
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.diagnostics).toContain(diagnostic)
+    expect(endStatus).toBe('failed')
+  })
+
   it.each([['skips processOutput when the storage keeps the output in memory', memoryStorage, 0]])('%s', async (_name, storage, calls) => {
     hooks = new Hookable<KubbHooks>()
     const formatStarted = vi.fn()

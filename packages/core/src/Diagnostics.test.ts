@@ -129,6 +129,16 @@ describe('Diagnostics.fromExtension', () => {
     })
   })
 
+  it('names an adapter or parser in the message, not in `plugin`, so it is not counted as a failed plugin', () => {
+    const adapter = Diagnostics.fromExtension(new Error('boom'), { kind: 'adapter', extension: { name: 'oas' } })
+    const parser = Diagnostics.fromExtension(new Error('boom'), { kind: 'parser', extension: { name: 'typescript' } })
+
+    expect(adapter).toMatchObject({ code: 'KUBB_ADAPTER_FAILED', message: 'adapter "oas" crashed: boom' })
+    expect(parser).toMatchObject({ code: 'KUBB_PARSER_FAILED', message: 'parser "typescript" crashed: boom' })
+    expect(adapter).not.toHaveProperty('plugin')
+    expect(adapter).not.toHaveProperty('issues')
+  })
+
   it('keeps the code of a structured error and adds no issue link', () => {
     const error = new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
 
@@ -139,6 +149,19 @@ describe('Diagnostics.fromExtension', () => {
     const abort = new DOMException('aborted', 'AbortError')
 
     expect(Diagnostics.fromExtension(abort, { kind: 'adapter', extension })).toMatchObject({ code: 'KUBB_UNKNOWN' })
+  })
+})
+
+describe('Diagnostics.count', () => {
+  it('counts problems by severity and ignores performance', () => {
+    const counts = Diagnostics.count([
+      problem(),
+      problem({ severity: 'warning' }),
+      problem({ severity: 'info' }),
+      Diagnostics.performance({ plugin: 'a', duration: 5 }),
+    ])
+
+    expect(counts).toStrictEqual({ errors: 1, warnings: 1, infos: 1 })
   })
 })
 
@@ -249,6 +272,17 @@ describe('Diagnostics.dedupe', () => {
 })
 
 describe('Diagnostics.scope / Diagnostics.report', () => {
+  it('routes reported diagnostics to the active sink and returns true', () => {
+    const collected: Array<Diagnostic> = []
+    const reported = Diagnostics.scope(
+      (diagnostic) => collected.push(diagnostic),
+      () => Diagnostics.report(problem()),
+    )
+
+    expect(reported).toBe(true)
+    expect(collected).toHaveLength(1)
+  })
+
   it('shares the sink with another copy of @kubb/core through globalThis', () => {
     const sink = (globalThis as Record<symbol, AsyncLocalStorage<(diagnostic: Diagnostic) => void>>)[Symbol.for('kubb.diagnostics.reporter')]
     const collected: Array<Diagnostic> = []

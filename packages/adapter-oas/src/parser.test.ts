@@ -800,6 +800,20 @@ describe('parseSchema allOf', () => {
     expect(node).toMatchObject({ type: 'ref', description: 'hello' })
   })
 
+  it('appends sibling properties as an extra intersection member', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        allOf: [{ $ref: '#/components/schemas/Pet' }],
+        properties: { extra: { type: 'string' } },
+      },
+    })
+
+    // first member: the $ref, last member: the sibling properties object
+    const members = ast.narrowSchema(node, 'intersection')?.members ?? []
+    expect(members[0]?.type).toBe('ref')
+    expect(members[members.length - 1]?.type).toBe('object')
+  })
+
   it('resolves required keys missing from outer properties by looking into allOf members', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
@@ -1358,6 +1372,31 @@ describe('parseSchema object properties', () => {
     ])
   })
 
+  it('narrows only the discriminator property to the mapping keys', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'object',
+        required: ['petType'],
+        properties: {
+          petType: { type: 'string' },
+          name: { type: 'string' },
+        },
+        discriminator: {
+          propertyName: 'petType',
+          mapping: {
+            Cat: '#/components/schemas/Cat',
+            Dog: '#/components/schemas/Dog',
+          },
+        },
+      },
+    })
+
+    expect(ast.narrowSchema(node, 'object')?.properties).toMatchObject([
+      { name: 'petType', schema: { type: 'enum', enumValues: ['Cat', 'Dog'] } },
+      { name: 'name', schema: { type: 'string' } },
+    ])
+  })
+
   it('leaves the discriminator property a string when the discriminator has no mapping', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
@@ -1439,6 +1478,20 @@ describe('parseSchema object patternProperties', () => {
     const node = parseSchema(emptyCtx, { schema: { type: 'object', patternProperties: { '^x-': pattern } } })
 
     expect(ast.narrowSchema(node, 'object')?.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
+  })
+
+  it('keeps properties next to patternProperties', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'object',
+        properties: { id: { type: 'integer' } },
+        patternProperties: { '^meta_': { type: 'string' } },
+      },
+    })
+    const narrowed = ast.narrowSchema(node, 'object')
+
+    expect(narrowed?.properties?.map((p) => p.name)).toStrictEqual(['id'])
+    expect(narrowed?.patternProperties?.['^meta_']).toMatchObject({ type: 'string' })
   })
 })
 
