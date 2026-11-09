@@ -304,6 +304,30 @@ describe('adapterOas.parse', () => {
     expect(node.meta.servers?.[0]).not.toHaveProperty('variables')
   })
 
+  it('puts operation servers, else path item servers, on the operation node', async () => {
+    const adapter = adapterOas({ validate: false })
+    const node = await adapter.parse({
+      type: 'data',
+      data: {
+        ...minimalSpec,
+        servers: [{ url: 'https://api.example.com' }],
+        paths: {
+          '/files': {
+            servers: [{ url: 'https://{region}.files.example.com', variables: { region: { default: 'eu' } } }, { description: 'No url' }],
+            get: { operationId: 'listFiles', responses: { '200': { description: 'ok' } } },
+            post: { operationId: 'uploadFile', servers: [{ url: 'https://upload.example.com' }], responses: { '200': { description: 'ok' } } },
+          },
+          '/pets': minimalSpec.paths['/pets'],
+        },
+      },
+    })
+    const [listFiles, uploadFile, listPets] = node.operations
+
+    expect(listFiles?.servers).toEqual([{ url: 'https://eu.files.example.com', variables: { region: { default: 'eu' } } }])
+    expect(uploadFile?.servers).toEqual([{ url: 'https://upload.example.com' }])
+    expect(listPets).not.toHaveProperty('servers')
+  })
+
   it('lists the servers and security schemes of a Swagger 2.0 document', async () => {
     const adapter = adapterOas({ validate: false })
     const node = await adapter.parse({

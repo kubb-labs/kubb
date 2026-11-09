@@ -1,4 +1,4 @@
-import { Diagnostics } from '@kubb/kit'
+import { type ast, Diagnostics } from '@kubb/kit'
 import type { Document, ServerObject, ServerOptions } from '../types.ts'
 
 /**
@@ -60,4 +60,20 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
   }
 
   return url
+}
+
+/**
+ * Maps OpenAPI servers to `InputServer` entries: drops entries without a `url` and fills `{variable}` defaults.
+ */
+export function toInputServers(servers: Array<ServerObject>): Array<ast.InputServer> {
+  return servers
+    .filter((entry) => entry.url)
+    .map(({ url, description, variables }) => {
+      const declared = variables && Object.keys(variables).length > 0 ? { variables } : {}
+      try {
+        return { url: resolveServerUrl({ url, variables }), description, ...declared }
+      } catch {
+        return { url, description, ...declared }
+      }
+    })
 }

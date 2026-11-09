@@ -8,7 +8,7 @@ import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discr
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
 import { assertDocument, parseFromConfig, validateDocument, validateDocumentInWorker } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
-import { resolveBaseUrl, resolveServerUrl } from './model/server.ts'
+import { resolveBaseUrl, toInputServers } from './model/server.ts'
 import { pickExtensions } from './oas.ts'
 import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
@@ -169,16 +169,7 @@ export const adapterOas = defineExtension<AdapterOas>({
           description: document.info?.description,
           version: document.info?.version,
           baseURL: resolveBaseUrl({ document, server }),
-          servers: (document.servers ?? [])
-            .filter((entry) => entry.url)
-            .map(({ url, description, variables }) => {
-              const declared = variables && Object.keys(variables).length > 0 ? { variables } : {}
-              try {
-                return { url: resolveServerUrl({ url, variables }), description, ...declared }
-              } catch {
-                return { url, description, ...declared }
-              }
-            }),
+          servers: toInputServers(document.servers ?? []),
           securitySchemes: Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
             const scheme = refs.deref<Record<string, string>>(value)
             return scheme?.type
