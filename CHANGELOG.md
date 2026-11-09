@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.17.0 — Nov 9, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Keep `servers` declared on a path item or an operation, such as an upload or streaming host. `OperationNode` gets an optional `servers` field from the operation's `servers`, else its path item's, mapped the same way as `InputMeta.servers`: entries without a `url` are dropped and variable defaults are filled in. The field is absent when neither declares servers, so plugins fall back to the document's servers. ([#4554](https://github.com/kubb-labs/kubb/pull/4554), [`e2700e9`](https://github.com/kubb-labs/kubb/commit/e2700e9c8cd2cd8e4d1520e9f40a12e44485de9b))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.16.1 — Nov 7, 2026
 
 ### @kubb/adapter-oas
