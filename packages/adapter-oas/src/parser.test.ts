@@ -615,12 +615,14 @@ describe('parseSchema metadata', () => {
     expect(parseSchema(emptyCtx, { schema })).toMatchObject(expected)
   })
 
-  it.each([{ title: 'x-nullable: true', schema: { type: 'string', 'x-nullable': true } }] satisfies Array<{ title: string; schema: SchemaObject }>)(
-    'sets nullable via $title',
-    ({ schema }) => {
-      expect(parseSchema(emptyCtx, { schema }).nullable).toBe(true)
-    },
-  )
+  it.each([
+    { title: 'nullable: true (OAS 3.0)', schema: { type: 'string', nullable: true } },
+    { title: 'x-nullable: true', schema: { type: 'string', 'x-nullable': true } },
+    { title: 'a type array including null (OAS 3.1)', schema: { type: ['string', 'null'] } },
+    { title: 'null in the enum values (OAS 3.0 convention)', schema: { enum: ['a', 'b', null] } },
+  ] satisfies Array<{ title: string; schema: SchemaObject }>)('sets nullable via $title', ({ schema }) => {
+    expect(parseSchema(emptyCtx, { schema }).nullable).toBe(true)
+  })
 })
 
 describe('parseSchema default', () => {
