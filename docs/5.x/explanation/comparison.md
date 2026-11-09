@@ -87,7 +87,7 @@ See [serialization](/extensions/kubb-labs/plugin-fetch/guides/serialization) for
 
 | Feature                                                                                                                      | Kubb |     orval      |     HeyAPI     |
 | ---------------------------------------------------------------------------------------------------------------------------- | :--: | :------------: | :------------: |
-| [Parameter styles from the spec](/docs/5.x/reference/serialization#parameter-styles)                                         |  ✅  | 🔶<sup>1</sup> | 🔶<sup>2</sup> |
+| [Parameter styles from the spec](/extensions/kubb-labs/plugin-fetch/guides/serialization#parameter-styles)                   |  ✅  | 🔶<sup>1</sup> | 🔶<sup>2</sup> |
 | OpenAPI `encoding` object for form bodies                                                                                    |  ✅  |       🛑       |       🛑       |
 | [Pluggable codecs per media type](/extensions/kubb-labs/plugin-fetch/guides/serialization#encode-request-bodies) (XML, YAML) |  ✅  |       🛑       |       🛑       |
 | [Runtime request and response validation](/extensions/kubb-labs/plugin-fetch/guides/error-handling#validation-failures)      |  ✅  | 🔶<sup>3</sup> |       ✅       |
