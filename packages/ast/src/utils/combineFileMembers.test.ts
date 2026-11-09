@@ -94,6 +94,17 @@ describe('combineImports', () => {
     },
   )
 
+  it('retains imports that are re-exported even when the source does not use them', () => {
+    const imp = createImport({ name: ['Pet'], path: './Pet' })
+    const exp = createExport({ name: ['Pet'], path: './Pet' })
+
+    expect(combineImports([imp], [exp], 'const x = 1')).toHaveLength(1)
+  })
+
+  it('keeps every import when there is no source to check against', () => {
+    expect(combineImports([createImport({ name: ['unused'], path: 'lodash' })], [], '')).toHaveLength(1)
+  })
+
   it('returns one import per path with the names merged, deduplicated and sorted', () => {
     const pet = createImport({ name: ['Pet'], path: './models' })
     const order = createImport({ name: ['Order'], path: './models' })

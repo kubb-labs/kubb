@@ -20,6 +20,15 @@ function objectSchema(props: Array<{ name: string; schema: ast.SchemaNode }>) {
 describe('buildDiscriminatorChildMap', () => {
   it.each([
     {
+      title: 'a union schema has no discriminatorPropertyName',
+      schema: ast.factory.createSchema({
+        type: 'union',
+        members: [
+          ast.factory.createSchema({ type: 'intersection', members: [refSchema('Cat'), objectSchema([{ name: 'kind', schema: enumSchema(['cat']) }])] }),
+        ],
+      }),
+    },
+    {
       title: 'a member is not an intersection',
       schema: ast.factory.createSchema({ type: 'union', members: [refSchema('Cat')], discriminatorPropertyName: 'kind' }),
     },
