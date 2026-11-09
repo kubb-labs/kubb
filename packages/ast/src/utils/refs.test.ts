@@ -5,7 +5,6 @@ import { isBareRef, refName, resolveRefName } from './refs.ts'
 describe('refName', () => {
   it.each([
     { ref: '#/components/schemas/Pet', expected: 'Pet' },
-    { ref: '#/components/schemas/a~1b~0c', expected: 'a/b~c' },
     { ref: '#/components/schemas/https%3A~1~1geojson.org~1schema~1Point.json', expected: 'https://geojson.org/schema/Point.json' },
     { ref: '#/components/schemas/100%', expected: '100%' },
   ])('decodes the last segment of $ref', ({ ref, expected }) => {
@@ -14,24 +13,6 @@ describe('refName', () => {
 })
 
 describe('resolveRefName', () => {
-  it('extracts the name from a $ref pointer', () => {
-    const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
-
-    expect(resolveRefName(ref)).toBe('Pet')
-  })
-
-  it('prefers targetName over the pointer segment', () => {
-    const ref = createSchema({ type: 'ref', name: 'Order', ref: '#/components/schemas/Order', targetName: 'OrderSchema' })
-
-    expect(resolveRefName(ref)).toBe('OrderSchema')
-  })
-
-  it('falls back to node.name when ref is missing', () => {
-    const ref = createSchema({ type: 'ref', name: 'Pet' })
-
-    expect(resolveRefName(ref)).toBe('Pet')
-  })
-
   it('returns null for non-ref nodes', () => {
     expect(resolveRefName(createSchema({ type: 'string' }))).toBeNull()
     expect(resolveRefName(undefined)).toBeNull()

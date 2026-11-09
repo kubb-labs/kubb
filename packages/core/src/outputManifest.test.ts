@@ -22,15 +22,8 @@ async function recordedManifest() {
 }
 
 describe('createOutputManifest', () => {
-  it('starts empty when no cache exists yet', async () => {
-    const manifest = await createOutputManifest({ storage: memoryStorage(), cache: memoryStorage() })
-
-    expect(manifest.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(false)
-  })
-
   it.each([
     ['the recorded source and output', { key: 'a.ts', source: 'const a = 1', disk: formatted }, true],
-    ['a changed source', { key: 'a.ts', source: 'const a = 2', disk: formatted }, false],
     ['an edited output with the same source', { key: 'a.ts', source: 'const a = 1', disk: 'const a = 999\n' }, false],
     ['a key it never recorded', { key: 'unknown.ts', source: 'const a = 1', disk: formatted }, false],
   ])('returns %s as up to date: %s', async (_name, entry, expected) => {

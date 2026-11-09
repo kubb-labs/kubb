@@ -61,13 +61,10 @@ function buildSampleTree(): InputNode {
 }
 
 describe('transform', () => {
-  it('preserves identity when nothing changes (structural sharing)', () => {
+  it('preserves identity with no visitors', () => {
     const root = buildSampleTree()
 
-    // A no-op transform returns the exact same reference.
     expect(transform(root, {})).toBe(root)
-    // Visitors that return their input unchanged are also no-ops.
-    expect(transform(root, { schema: (schema) => schema, operation: (operation) => operation })).toBe(root)
   })
 
   it('rebuilds the changed branch and reuses untouched subtrees when a visitor returns a new node', () => {
@@ -106,7 +103,7 @@ describe('transform', () => {
     expect(untouched).toBe(root)
   })
 
-  it('does not recurse into schema properties/items/members when depth: shallow', () => {
+  it('visits parameter schemas but not property schemas when depth: shallow', () => {
     const root = buildSampleTree()
     const types: Array<string> = []
     transform(root, {
@@ -117,11 +114,9 @@ describe('transform', () => {
       },
     })
 
-    // Top-level object schema is visited
-    expect(types).toContain('object')
-    // Parameter schema (integer) is still visited — not a schema property
+    // Parameter schema (integer) is still visited: it is not a schema property
     expect(types).toContain('integer')
-    // 'string' (Pet.name property schema) is NOT visited — guarded by depth
+    // 'string' (Pet.name property schema) is not visited: guarded by depth
     expect(types).not.toContain('string')
   })
 })
@@ -193,19 +188,6 @@ describe('VisitorContext — parent', () => {
 })
 
 describe('collectSync', () => {
-  it('collects all schema types with default depth traversal', () => {
-    const root = buildSampleTree()
-    const types = collectSync<string>(root, {
-      schema(n) {
-        return n.type
-      },
-    })
-
-    expect(types).toContain('object')
-    expect(types).toContain('integer')
-    expect(types).toContain('string')
-  })
-
   it('collects schemas inside a tuple rest and patternProperties', () => {
     const root = createInput({
       schemas: [

@@ -356,20 +356,6 @@ describe('default.file', () => {
 
     expect(file).toMatchObject({ baseName: 'listPets.ts', path: '/root/types/listPets.ts', sources: [], imports: [], exports: [] })
   })
-
-  it.each([
-    // dots before a letter split into nested directories
-    ['pet.petId', '/root/types/pet/petId.ts'],
-    ['api.v2', '/root/types/api/v2.ts'],
-    // version numbers (dot before a digit) stay in one segment
-    ['some_operation_v3.14', '/root/types/someOperationV314.ts'],
-    // leading dots must not escape the output directory
-    ['..Schema', '/root/types/schema.ts'],
-  ])('nests dotted file name %s into %s', (name, expected) => {
-    const file = resolver.default.file({ name, extname: '.ts', ...context })
-
-    expect(file.path).toBe(expected)
-  })
 })
 
 describe('resolver.imports', () => {

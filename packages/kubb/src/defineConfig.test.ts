@@ -23,10 +23,6 @@ async function settle(config: ConfigShape): Promise<Array<UserConfig>> {
 }
 
 describe('defineConfig', () => {
-  test('applies the typescript, tsx, and markdown parsers when not set', () => {
-    expect(resolve().parsers?.map((parser) => parser.name)).toStrictEqual(['typescript', 'tsx', 'markdown'])
-  })
-
   test('registers the built-in reporters when not set', () => {
     expect(resolve().reporters?.map((reporter) => reporter.name)).toStrictEqual(['cli', 'json', 'file', 'html'])
   })

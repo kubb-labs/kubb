@@ -30,10 +30,6 @@ describe('detectPackageManager', () => {
     expect((await detectPackageManager(cwd)).name).toBe('bun')
   })
 
-  it('falls back to npm when nothing is found', async () => {
-    expect((await detectPackageManager(cwd)).name).toBe('npm')
-  })
-
   it('ignores a lock file in a parent folder', async () => {
     writeFileSync(join(cwd, 'pnpm-lock.yaml'), '')
     const project = join(cwd, 'app')

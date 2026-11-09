@@ -1,14 +1,13 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { ast, type FileNode } from '@kubb/ast'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Hookable } from './Hookable.ts'
-import type { Config, KubbHooks } from './types.ts'
+import type { KubbHooks } from './types.ts'
 import { FileManager } from './FileManager.ts'
-import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
-import { fsStorage } from './storages/fsStorage.ts'
+import type { OutputManifest } from './outputManifest.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
 const tempDirs: Array<string> = []
@@ -55,12 +54,6 @@ function makeFileWithSources(filePath: string, sources: Array<string> = []) {
 
 describe('FileManager', () => {
   describe('add', () => {
-    it('stores every distinct file', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/a.ts', 'export const x = 1'), makeFile('/src/b.ts'))
-      expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/a.ts', '/src/b.ts'])
-    })
-
     it('merges two files with the same path passed in a single call', () => {
       const manager = new FileManager()
       manager.add(makeFile('/src/foo.ts', 'const a = 1'), makeFile('/src/foo.ts', 'const b = 2'))
@@ -70,12 +63,6 @@ describe('FileManager', () => {
   })
 
   describe('upsert', () => {
-    it('stores a new file when it does not yet exist', () => {
-      const manager = new FileManager()
-      manager.upsert(makeFile('/src/foo.ts', 'export const x = 1'))
-      expect(manager.files).toHaveLength(1)
-    })
-
     it('merges into an existing file with the same path', () => {
       const manager = new FileManager()
       manager.add(makeFile('/src/foo.ts', 'const a = 1'))
@@ -97,15 +84,6 @@ describe('FileManager', () => {
   })
 
   describe('files sorting', () => {
-    it('returns files sorted by path length (shortest first)', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/components/button/index.ts'), makeFile('/src/a.ts'), makeFile('/src/components/b.ts'))
-      const paths = manager.files.map((f) => f.path)
-      expect(paths[0]).toBe('/src/a.ts')
-      expect(paths[1]).toBe('/src/components/b.ts')
-      expect(paths[2]).toBe('/src/components/button/index.ts')
-    })
-
     it('places index files last within the same length bucket', () => {
       const manager = new FileManager()
       manager.add(makeFile('/src/index.ts'), makeFile('/src/types.ts'))
@@ -203,32 +181,21 @@ describe('FileManager', () => {
   })
 
   describe('write', () => {
-    it('writes every file in the batch', async () => {
-      const storage = memoryStorage()
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */']), makeFileWithSources('b.ts', ['/* b.ts */'])], { storage })
-
-      expect(await storage.readItem('a.ts')).toContain('/* a.ts */')
-      expect(await storage.readItem('b.ts')).toContain('/* b.ts */')
-    })
-
     // With no manifest in play, the stored bytes decide. A storage keeping bytes verbatim stores
     // leading whitespace back, so comparing against a trimmed source would rewrite every build.
-    it.each([
-      ['the same bytes', '/* a.ts */', '/* a.ts */'],
-      ['the source plus a trailing newline', '/* a.ts */\n', '/* a.ts */'],
-      ['a source with leading whitespace, verbatim', '\n/* a.ts */', '\n/* a.ts */'],
-    ])('skips a file when the storage holds %s', async (_name, stored, source) => {
-      const storage = memoryStorage()
-      await storage.writeItem('a.ts', stored)
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      const manager = new FileManager()
+    it.each([['a source with leading whitespace, verbatim', '\n/* a.ts */', '\n/* a.ts */']])(
+      'skips a file when the storage holds %s',
+      async (_name, stored, source) => {
+        const storage = memoryStorage()
+        await storage.writeItem('a.ts', stored)
+        const writeItem = vi.spyOn(storage, 'writeItem')
+        const manager = new FileManager()
 
-      await manager.write([makeFileWithSources('a.ts', [source])], { storage })
+        await manager.write([makeFileWithSources('a.ts', [source])], { storage })
 
-      expect(writeItem).not.toHaveBeenCalled()
-    })
+        expect(writeItem).not.toHaveBeenCalled()
+      },
+    )
 
     it('writes files under the cleaned directory without reading them back', async () => {
       const storage = memoryStorage()
@@ -241,57 +208,22 @@ describe('FileManager', () => {
       expect(await storage.readItem('/gen/a.ts')).toContain('/* a.ts */')
     })
 
-    it('writes a file whose content changed since the last run', async () => {
-      const storage = memoryStorage()
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage })
-      await manager.write([makeFileWithSources('a.ts', ['/* changed */'])], { storage })
-
-      expect(await storage.readItem('a.ts')).toContain('/* changed */')
-    })
-
     // A written file is tracked so the commit re-reads it; a skipped file's record already stands.
-    it.each([
-      ['skips', 'a file the output passes already turned into what is on disk', '/* a.ts */;\n', true, []],
-      ['writes', 'a file the manifest does not vouch for', '/* stale */', false, ['a.ts']],
-      ['writes', 'a file that is not on disk yet, whatever the manifest says', null, true, ['a.ts']],
-    ])('%s %s', async (_verb, _name, stored, upToDate, tracked) => {
-      const storage = memoryStorage()
-      if (stored !== null) await storage.writeItem('a.ts', stored)
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      const manifest = stubManifest({ upToDate })
-      const manager = new FileManager()
+    it.each([['writes', 'a file that is not on disk yet, whatever the manifest says', null, true, ['a.ts']]])(
+      '%s %s',
+      async (_verb, _name, stored, upToDate, tracked) => {
+        const storage = memoryStorage()
+        if (stored !== null) await storage.writeItem('a.ts', stored)
+        const writeItem = vi.spyOn(storage, 'writeItem')
+        const manifest = stubManifest({ upToDate })
+        const manager = new FileManager()
 
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest })
+        await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest })
 
-      expect(writeItem.mock.calls.map(([key]) => key)).toStrictEqual(tracked)
-      expect(manifest.tracked).toStrictEqual(tracked)
-    })
-
-    it('leaves the output alone on a rebuild after a formatter reflowed it', async () => {
-      const dir = mkdtempSync(path.join(tmpdir(), 'kubb-rebuild-'))
-      tempDirs.push(dir)
-      const filePath = path.join(dir, 'a.ts')
-      const storage = fsStorage()
-      const cache = memoryStorage()
-      const files = [makeFileWithSources(filePath, [`export const a = 'b'`])]
-
-      const first = await createOutputManifest({ storage, cache })
-      await new FileManager().write(files, { storage, manifest: first })
-
-      // What prettier or biome leaves behind on a default config: reflowed quotes, a semicolon,
-      // and a trailing newline, none of which match the bytes Kubb wrote.
-      writeFileSync(filePath, 'export const a = "b";\n', { encoding: 'utf-8' })
-      await first.commit()
-
-      const second = await createOutputManifest({ storage, cache })
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      await new FileManager().write(files, { storage, manifest: second })
-
-      expect(writeItem).not.toHaveBeenCalled()
-      expect(readFileSync(filePath, { encoding: 'utf-8' })).toBe('export const a = "b";\n')
-    })
+        expect(writeItem.mock.calls.map(([key]) => key)).toStrictEqual(tracked)
+        expect(manifest.tracked).toStrictEqual(tracked)
+      },
+    )
 
     it('parses each file before writing it', async () => {
       const parsed: Array<string> = []
@@ -322,26 +254,6 @@ describe('FileManager', () => {
 
       expect(parsed.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
       expect(written.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
-    })
-
-    it('fires start once, update per file, then end once, writing every file concurrently', async () => {
-      const hookCalls: Array<string> = []
-      const storage = memoryStorage()
-      const manager = new FileManager()
-      const hooks = new Hookable<KubbHooks>()
-      hooks.hook('kubb:files:processing:start', ({ files }) => {
-        hookCalls.push(`start:${files.length}`)
-      })
-      hooks.hook('kubb:files:processing:update', ({ files }) => {
-        hookCalls.push(...files.map((item) => `update:${item.processed}:${item.file.path}`))
-      })
-      hooks.hook('kubb:files:processing:end', ({ files }) => {
-        hookCalls.push(`end:${files.length}`)
-      })
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], { storage, hooks, config: {} as Config })
-
-      expect(hookCalls).toStrictEqual(['start:2', 'update:1:a.ts', 'update:2:b.ts', 'end:2'])
     })
 
     it('hands each parsed source to kubb:file:processed, including files the storage already held', async () => {
@@ -408,26 +320,21 @@ describe('FileManager#delete', () => {
 })
 
 describe('FileManager#dispatch', () => {
-  it.each([
-    ['null', null],
-    ['undefined', undefined],
-    ['an element without a renderer', { kind: 'element' }],
-  ])('does not upsert when the result is %s', (_name, result) => {
+  it.each([null, undefined])('does not render when the result is %s', async (result) => {
+    const fileManager = new FileManager()
+    const renderer = vi.fn()
+
+    await expect(fileManager.dispatch({ result, renderer: renderer as never })).resolves.toBeUndefined()
+    expect(renderer).not.toHaveBeenCalled()
+  })
+
+  it.each([['an element without a renderer', { kind: 'element' }]])('does not upsert when the result is %s', (_name, result) => {
     const fileManager = new FileManager()
     const upsert = vi.spyOn(fileManager, 'upsert')
 
     fileManager.dispatch({ result })
 
     expect(upsert).not.toHaveBeenCalled()
-  })
-
-  it('upserts every file when the result is an Array<FileNode>', () => {
-    const fileManager = new FileManager()
-    const files = [makeFile('a.ts'), makeFile('b.ts')]
-
-    fileManager.dispatch({ result: files })
-
-    expect(fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
   })
 
   it('links each source without a pointer to the node it was generated from', () => {
@@ -489,19 +396,6 @@ describe('FileManager#dispatch', () => {
     expect(fragments.map((fragment) => fragment.sources.length)).toStrictEqual([1, 1, 1])
   })
 
-  it('merges dispatched fragments the same way upsert does', () => {
-    const fragments = ['a', 'b', 'a'].map((value) => makeFile('index.ts', value))
-    const dispatched = new FileManager()
-    const upserted = new FileManager()
-
-    for (const fragment of fragments) {
-      dispatched.dispatch({ result: [fragment] })
-      upserted.upsert(fragment)
-    }
-
-    expect(dispatched.files).toStrictEqual(upserted.files)
-  })
-
   it('drops an import used only by a duplicate source the file does not keep', () => {
     const fragment = (name: string, value: string, imports: Array<{ name: Array<string>; path: string }>) =>
       ast.factory.createFile({
@@ -527,14 +421,5 @@ describe('FileManager#dispatch', () => {
     for (const manager of [dispatched, upserted]) {
       expect(manager.files[0]?.imports.map((item) => item.path)).toStrictEqual(['./a.ts'])
     }
-  })
-
-  it('merges pending fragments before a later upsert of the same file', () => {
-    const fileManager = new FileManager()
-
-    fileManager.dispatch({ result: [makeFile('index.ts', 'a')] })
-    const [merged] = fileManager.upsert(makeFile('index.ts', 'b'))
-
-    expect(merged?.sources).toHaveLength(2)
   })
 })

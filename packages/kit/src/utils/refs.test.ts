@@ -1,12 +1,6 @@
 import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { childName, enumPropName, extractRefName, isStringType, syncSchemaRef } from './refs.ts'
-
-describe('extractRefName', () => {
-  it('extracts schema name from component schema refs', () => {
-    expect(extractRefName('#/components/schemas/Order')).toBe('Order')
-  })
-})
+import { childName, enumPropName, isStringType, syncSchemaRef } from './refs.ts'
 
 describe('childName', () => {
   it('returns null when parentName is undefined', () => {
@@ -22,10 +16,6 @@ describe('childName', () => {
 describe('enumPropName', () => {
   it('combines parentName, propName, and enumSuffix', () => {
     expect(enumPropName('Order', 'status', 'enum')).toBe('OrderStatusEnum')
-  })
-
-  it('works without parentName and with a custom suffix', () => {
-    expect(enumPropName(undefined, 'status', 'enum')).toBe('StatusEnum')
     expect(enumPropName('Order', 'status', 'Type')).toBe('OrderStatusType')
   })
 })

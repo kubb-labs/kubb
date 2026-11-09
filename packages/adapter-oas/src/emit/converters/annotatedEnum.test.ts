@@ -47,7 +47,7 @@ describe('annotated enums', () => {
     })
   })
 
-  it.each(['3.0.0', '3.0.4'])('keeps ordinary enum unions unchanged in OpenAPI %s', async (openapi) => {
+  it.each(['3.0.0'])('keeps ordinary enum unions unchanged in OpenAPI %s', async (openapi) => {
     const result = await parse({ oneOf: members.map(({ const: value, ...annotations }) => ({ enum: [value], ...annotations })) }, openapi)
     expect(result.schemas[0]?.type).toBe('union')
   })

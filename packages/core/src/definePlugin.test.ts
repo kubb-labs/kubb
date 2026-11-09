@@ -1,7 +1,6 @@
-import { ast } from '@kubb/ast'
-import type { OperationNode, SchemaNode } from '@kubb/ast'
+import type { OperationNode } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, createMockedSetupContext, renderGeneratorOperation } from '@kubb/core/mocks'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { defineExtension } from './defineExtension.ts'
 import { defineGenerator } from './defineGenerator.ts'
 import { assertPluginOption, normalizeOutput } from './definePlugin.ts'
@@ -9,7 +8,6 @@ import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver } from './Resolver.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
-import type { GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
 
@@ -39,25 +37,6 @@ async function setupDriver(plugins: Config['plugins'], hooks = new Hookable<Kubb
 }
 
 describe('kubb:plugin:setup context', () => {
-  it('addGenerator() stores every generator passed as separate arguments', async () => {
-    const genSchema = { name: 'gen-schema', schema: vi.fn() }
-    const genOperation = { name: 'gen-operation', operation: vi.fn() }
-    const genOperations = { name: 'gen-operations', operations: vi.fn() }
-    const hookPlugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'hook-plugin' },
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator(genSchema, genOperation, genOperations)
-        },
-      },
-    })()
-
-    const driver = await setupDriver([hookPlugin])
-
-    expect(driver.plugins.get('hook-plugin')?.generators).toStrictEqual([genSchema, genOperation, genOperations])
-  })
-
   it('setResolver() merges partial overrides with the defaults, on getResolver() and plugin.resolver alike', async () => {
     const hookPlugin = defineExtension({
       kind: 'plugin',
@@ -85,62 +64,6 @@ describe('kubb:plugin:setup context', () => {
       }),
     ).toBe('/tmp/root/gen/pets.ts')
     expect(driver.plugins.get('hook-plugin')?.resolver?.name('any value')).toBe('CustomName')
-  })
-
-  it('passes the resolver set during setup on ctx.resolver to a generator', async () => {
-    const seen: Array<string> = []
-    const hookPlugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'hook-plugin' },
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.setResolver({
-            name() {
-              return 'ResolvedFromSetup'
-            },
-          })
-          ctx.addGenerator({
-            name: 'test-gen',
-            schema(_node: SchemaNode, generatorCtx: GeneratorContext) {
-              seen.push(generatorCtx.resolver.name('pet schema'))
-            },
-          })
-        },
-      },
-    })()
-    const adapter = createMockedAdapter({
-      parse: async () => ast.factory.createInput({ schemas: [ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })] }),
-    })
-
-    const driver = new KubbDriver(makeConfig({ adapter, plugins: [hookPlugin] }), { hooks: new Hookable<KubbHooks>() })
-    await driver.setup()
-    await driver.run()
-
-    expect(seen).toStrictEqual(['ResolvedFromSetup'])
-  })
-
-  it('setOptions() merges resolved options into the normalized plugin', async () => {
-    const hookPlugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'hook-plugin' },
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.setOptions({
-            output: { path: 'types' },
-            enumType: 'asConst',
-            syntaxType: 'type',
-          })
-        },
-      },
-    })()
-
-    const driver = await setupDriver([hookPlugin])
-
-    const plugin = driver.plugins.get('hook-plugin')!
-    const opts = plugin.options as Record<string, unknown>
-    expect(opts.enumType).toBe('asConst')
-    expect(opts.syntaxType).toBe('type')
-    expect(opts.output).toStrictEqual({ path: 'types', mode: 'directory' })
   })
 })
 

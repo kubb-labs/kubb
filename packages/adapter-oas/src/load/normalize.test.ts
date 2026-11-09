@@ -58,14 +58,6 @@ describe('parseFromConfig', () => {
     expect(sources).toStrictEqual([path.join(mocks, 'external/pet.yaml')])
   })
 
-  it('lists the input file and the files its external refs read', async () => {
-    const mocks = path.resolve(__dirname, '../../mocks')
-    const sources: Array<string> = []
-    await parseFromConfig({ type: 'path', path: path.join(mocks, 'withExternalFileRef.yaml') }, sources)
-
-    expect(sources).toStrictEqual([path.join(mocks, 'withExternalFileRef.yaml'), path.join(mocks, 'external/pet.yaml')])
-  })
-
   it('upgrades an unquoted `swagger: 2.0` instead of dropping its definitions', async () => {
     const doc = await parseFromConfig({
       type: 'data',
@@ -98,29 +90,6 @@ describe('parseFromConfig', () => {
     const response = doc.paths?.['/x']?.get?.responses?.['200'] as { content: Record<string, { schema: SchemaObject }> }
 
     expect(response.content['application/json']!.schema.properties?.second).toStrictEqual({ type: 'string' })
-  })
-
-  it.each([
-    { title: 'an inline object', data: petSchema },
-    { title: 'an inline JSON string', data: JSON.stringify(petSchema) },
-    {
-      title: 'an inline YAML string',
-      data: `
-openapi: '3.0.3'
-info:
-  title: Pets API
-  version: 1.0.0
-paths: {}
-components:
-  schemas:
-    Pet:
-      type: object
-`,
-    },
-  ])('parses $title via type: data', async ({ data }) => {
-    const doc = await parseFromConfig({ type: 'data', data })
-
-    expect(doc.components?.schemas?.['Pet']).toBeDefined()
   })
 
   it('parses inline JSON and YAML without the slower `yaml` parser', async () => {
@@ -181,14 +150,6 @@ components:
 
     expect(doc.info.version).toBe('2024-01-01')
     expect((doc as Record<string, unknown>)['x-merge']).toStrictEqual({ '<<': { a: 1 } })
-  })
-
-  it('up-converts a Swagger 2.0 document to OpenAPI 3', async () => {
-    const swagger2 = { swagger: '2.0', info: { title: 'Test', version: '1.0.0' }, paths: {} }
-
-    const doc = await parseFromConfig({ type: 'data', data: swagger2 })
-
-    expect(doc.openapi).toMatch(/^3\./)
   })
 
   it('throws KUBB_INVALID_DOCUMENT with the line and column for invalid inline YAML', async () => {

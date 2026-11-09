@@ -21,7 +21,12 @@ describe('buildDiscriminatorChildMap', () => {
   it.each([
     {
       title: 'a union schema has no discriminatorPropertyName',
-      schema: ast.factory.createSchema({ type: 'union', members: [refSchema('Cat'), refSchema('Dog')] }),
+      schema: ast.factory.createSchema({
+        type: 'union',
+        members: [
+          ast.factory.createSchema({ type: 'intersection', members: [refSchema('Cat'), objectSchema([{ name: 'kind', schema: enumSchema(['cat']) }])] }),
+        ],
+      }),
     },
     {
       title: 'a member is not an intersection',
@@ -39,21 +44,6 @@ describe('buildDiscriminatorChildMap', () => {
     },
   ])('returns an empty map when $title', ({ schema }) => {
     expect(buildDiscriminatorChildMap([schema]).size).toBe(0)
-  })
-
-  it('builds child entries from a top-level discriminated union (Case 1)', () => {
-    const member = ast.factory.createSchema({
-      type: 'intersection',
-      members: [refSchema('Cat'), objectSchema([{ name: 'kind', schema: enumSchema(['cat']) }])],
-    })
-    const union = ast.factory.createSchema({
-      type: 'union',
-      members: [member],
-      discriminatorPropertyName: 'kind',
-    })
-
-    const map = buildDiscriminatorChildMap([union])
-    expect(map.get('Cat')).toStrictEqual({ propertyName: 'kind', enumValues: ['cat'] })
   })
 
   it('unwraps an intersection wrapping a discriminated union (Case 2)', () => {

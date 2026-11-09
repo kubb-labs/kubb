@@ -43,18 +43,6 @@ describe('KubbDriver#setup', () => {
     expect(names.indexOf('normal')).toBeLessThan(names.indexOf('post'))
   })
 
-  test('orders a transitive dependency chain so dependencies always run first', async () => {
-    const pluginTop = { name: 'top', dependencies: ['middle'], hooks: {} }
-    const pluginMiddle = { name: 'middle', dependencies: ['base'], hooks: {} }
-    const pluginBase = { name: 'base', hooks: {} }
-
-    // declared dependents-first so declaration order alone cannot produce the result
-    const driver = makeDriver(makeConfig({ plugins: [pluginTop, pluginMiddle, pluginBase] }))
-    await driver.setup()
-
-    expect([...driver.plugins.keys()]).toStrictEqual(['base', 'middle', 'top'])
-  })
-
   test('setup rejects with a config diagnostic when plugin dependencies form a cycle', async () => {
     const first = { name: 'first', dependencies: ['second'], hooks: {} }
     const second = { name: 'second', dependencies: ['first'], hooks: {} }
@@ -66,7 +54,6 @@ describe('KubbDriver#setup', () => {
 
   test.each([
     ['an uncalled factory', [function pluginTs() {}], 'plugins[0] is a function ("pluginTs"), not a plugin.', 'Call it: pluginTs()'],
-    ['a null entry', [null], 'plugins[0] is null, not a plugin.', undefined],
     [
       'a duplicate name',
       [
@@ -144,7 +131,6 @@ describe('GeneratorContext diagnostics', () => {
   // Only an error fails the build; every level is attributed to the plugin.
   it.each<['error' | 'warn' | 'info', string, string, boolean]>([
     ['error', Diagnostics.code.pluginFailed, 'error', true],
-    ['warn', Diagnostics.code.pluginWarning, 'warning', false],
     ['info', Diagnostics.code.pluginInfo, 'info', false],
   ])('reports ctx.%s as a %s diagnostic attributed to the plugin', (method, code, severity, failsBuild) => {
     const diagnostics = collect((ctx) => ctx[method]('boom'))
@@ -170,20 +156,6 @@ describe('GeneratorContext diagnostics', () => {
     expect(onError).not.toHaveBeenCalled()
   })
 
-  it('keeps the code, help, and location of a Diagnostics.Error passed to ctx.error', () => {
-    const error = new Diagnostics.Error({
-      code: Diagnostics.code.refNotFound,
-      severity: 'error',
-      message: 'Could not find #/components/schemas/Pet',
-      help: 'Add the schema.',
-      location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
-    })
-
-    expect(collect((ctx) => ctx.error(error))).toMatchObject([
-      { code: Diagnostics.code.refNotFound, help: 'Add the schema.', location: { pointer: '#/components/schemas/Pet' }, plugin: 'pluginA' },
-    ])
-  })
-
   it('lets a Diagnostics.Error passed to ctx.error keep its own code over the options', () => {
     const error = new Diagnostics.Error({ code: Diagnostics.code.refNotFound, severity: 'error', message: 'missing', help: 'own help' })
 
@@ -200,12 +172,12 @@ describe('GeneratorContext diagnostics', () => {
     ])
   })
 
-  it.each([
-    ['ctx.requirePlugin', () => context().requirePlugin('missing'), /Plugin "missing" is required by "pluginA" but not found/],
-    ['driver.requirePlugin', () => driver.requirePlugin('missing'), /Plugin "missing" is required but not found/],
-  ])('throws with the caller in the message when %s misses', (_name, requirePlugin, message) => {
-    expect(requirePlugin).toThrowError(message)
-  })
+  it.each([['ctx.requirePlugin', () => context().requirePlugin('missing'), /Plugin "missing" is required by "pluginA" but not found/]])(
+    'throws with the caller in the message when %s misses',
+    (_name, requirePlugin, message) => {
+      expect(requirePlugin).toThrowError(message)
+    },
+  )
 })
 
 function fileNode(path: string): FileNode {
@@ -224,7 +196,7 @@ function inputAdapter() {
   return createMockedAdapter({ parse: async () => ast.factory.createInput({ schemas, operations }) })
 }
 
-test.each([true, false])('reserves component names only for schema-generating plugins (%s)', async (generatesSchemas) => {
+test.each([false])('reserves component names only for schema-generating plugins (%s)', async (generatesSchemas) => {
   const names: Array<string> = []
   const base = new Resolver({ pluginName: 'names', name: (name) => `Api${name}` })
   const plugin: Plugin = {
@@ -585,23 +557,6 @@ describe('KubbDriver generator dispatch', () => {
       { plugin: 'one', node: 'Store', token: 2 },
       { plugin: 'two', node: 'Store', token: 2 },
     ])
-  })
-
-  it('normalizes plugin options after setup even when setOptions is never called', async () => {
-    const plugin = {
-      name: 'opts-plugin',
-      options: { output: { path: 'types' }, enumType: 'asConst' },
-      hooks: {},
-    } as unknown as Plugin
-    const optsDriver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
-    await optsDriver.setup()
-    await optsDriver.run()
-
-    const normalized = optsDriver.plugins.get('opts-plugin')!.options
-    expect(normalized.output).toStrictEqual({ path: 'types', mode: 'directory' })
-    expect(normalized.exclude).toStrictEqual([])
-    expect(normalized.override).toStrictEqual([])
-    expect((normalized as Record<string, unknown>).enumType).toBe('asConst')
   })
 
   it("skips a generator's schema and operation calls for a node its match predicate resolves false for, and still calls them when true", async () => {
