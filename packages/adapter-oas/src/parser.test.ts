@@ -494,6 +494,9 @@ describe('parseSchema types', () => {
 
 describe('parseSchema format', () => {
   it.each([
+    { title: 'string uuid', schema: { type: 'string', format: 'uuid' }, expected: { type: 'uuid', format: 'uuid' } },
+    { title: 'uuid without type', schema: { format: 'uuid' }, expected: { type: 'uuid', format: 'uuid' } },
+    { title: 'string email', schema: { type: 'string', format: 'email' }, expected: { type: 'email', format: 'email' } },
     { title: 'ipv4 without type', schema: { format: 'ipv4' }, expected: { type: 'ipv4', format: 'ipv4' } },
     { title: 'ipv6 without type', schema: { format: 'ipv6' }, expected: { type: 'ipv6', format: 'ipv6' } },
     { title: 'string uri', schema: { type: 'string', format: 'uri' }, expected: { type: 'url', format: 'uri' } },
@@ -511,6 +514,8 @@ describe('parseSchema format', () => {
     { title: 'integer int32', schema: { type: 'integer', format: 'int32' }, expected: { type: 'integer', format: 'int32' } },
     { title: 'integer int64 (default integerType bigint)', schema: { type: 'integer', format: 'int64' }, expected: { type: 'bigint', format: 'int64' } },
     { title: 'integer uint64 (default integerType bigint)', schema: { type: 'integer', format: 'uint64' }, expected: { type: 'bigint', format: 'uint64' } },
+    { title: 'number float', schema: { type: 'number', format: 'float' }, expected: { type: 'number', format: 'float' } },
+    { title: 'number double', schema: { type: 'number', format: 'double' }, expected: { type: 'number', format: 'double' } },
     { title: 'string with an unknown format', schema: { type: 'string', format: 'custom-format' }, expected: { type: 'string', format: 'custom-format' } },
     { title: 'enum with a format', schema: { type: 'string', format: 'custom-enum', enum: ['a', 'b'] }, expected: { type: 'enum', format: 'custom-enum' } },
     {
