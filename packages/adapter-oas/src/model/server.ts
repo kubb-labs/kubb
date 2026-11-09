@@ -1,4 +1,4 @@
-import { Diagnostics } from '@kubb/kit'
+import { type ast, Diagnostics } from '@kubb/kit'
 import type { Document, ServerObject, ServerOptions } from '../types.ts'
 
 /**
@@ -60,4 +60,27 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
   }
 
   return url
+}
+
+/**
+ * Maps OpenAPI server objects to `InputServer` entries. Entries without a `url` are dropped, and
+ * `{variable}` placeholders are filled from their defaults. A default outside its `enum` leaves the URL as declared.
+ *
+ * @example
+ * ```ts
+ * toInputServers([{ url: 'https://{env}.example.com', variables: { env: { default: 'api' } } }])
+ * // [{ url: 'https://api.example.com', variables: { env: { default: 'api' } } }]
+ * ```
+ */
+export function toInputServers(servers: Array<ServerObject>): Array<ast.InputServer> {
+  return servers
+    .filter((entry) => entry.url)
+    .map(({ url, description, variables }) => {
+      const declared = variables && Object.keys(variables).length > 0 ? { variables } : {}
+      try {
+        return { url: resolveServerUrl({ url, variables }), description, ...declared }
+      } catch {
+        return { url, description, ...declared }
+      }
+    })
 }

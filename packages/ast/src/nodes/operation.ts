@@ -1,5 +1,6 @@
 import { nodeKinds } from '../constants.ts'
 import type { BaseNode } from './base.ts'
+import type { InputServer } from './input.ts'
 import type { ParameterNode } from './parameter.ts'
 import { createRequestBody, type RequestBodyNode } from './requestBody.ts'
 import type { ResponseNode } from './response.ts'
@@ -55,6 +56,11 @@ type OperationNodeBase = BaseNode & {
    * Vendor extensions (`x-*` keys) from the source operation, copied as-is. Absent when the source has none.
    */
   extensions?: Record<string, unknown>
+  /**
+   * Servers that override the document's `servers` for this operation, such as an upload or streaming host.
+   * Taken from the operation's `servers`, else from its path item's. Absent when neither declares servers.
+   */
+  servers?: Array<InputServer>
 }
 
 /**
