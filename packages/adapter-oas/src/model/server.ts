@@ -63,14 +63,7 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
 }
 
 /**
- * Maps OpenAPI server objects to `InputServer` entries. Entries without a `url` are dropped, and
- * `{variable}` placeholders are filled from their defaults. A default outside its `enum` leaves the URL as declared.
- *
- * @example
- * ```ts
- * toInputServers([{ url: 'https://{env}.example.com', variables: { env: { default: 'api' } } }])
- * // [{ url: 'https://api.example.com', variables: { env: { default: 'api' } } }]
- * ```
+ * Maps OpenAPI servers to `InputServer` entries: drops entries without a `url` and fills `{variable}` defaults.
  */
 export function toInputServers(servers: Array<ServerObject>): Array<ast.InputServer> {
   return servers

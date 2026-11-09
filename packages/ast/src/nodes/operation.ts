@@ -56,10 +56,7 @@ type OperationNodeBase = BaseNode & {
    * Vendor extensions (`x-*` keys) from the source operation, copied as-is. Absent when the source has none.
    */
   extensions?: Record<string, unknown>
-  /**
-   * Servers that override the document's `servers` for this operation, such as an upload or streaming host.
-   * Taken from the operation's `servers`, else from its path item's. Absent when neither declares servers.
-   */
+  /** The operation's own `servers`, else its path item's, such as an upload host. Absent when neither declares any. */
   servers?: Array<InputServer>
 }
 
