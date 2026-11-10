@@ -57,6 +57,8 @@ Start with a `#` title and a one-paragraph description. Leave out install comman
 
 ## Check `package.json`
 
+Add these entries to the fields you already have, and keep the existing ones:
+
 ```json [package.json fields]
 {
   "files": ["dist", "kubb-extension.json", "docs"],
@@ -76,7 +78,7 @@ Start with a `#` title and a one-paragraph description. Leave out install comman
 
 ::::tabs-item{label="npm"}
 
-Check that the tarball lists `kubb-extension.json` and the `docs/` files, then publish:
+Set a version that npm does not have yet. Check that the tarball lists `kubb-extension.json` and the `docs/` files next to your build, then publish:
 
 ```shell [Terminal]
 npm pack --dry-run
@@ -95,6 +97,8 @@ A package that npm does not list can install from a GitHub release. `kubb add` t
 - There is no `build`, `prepack`, `prepare`, `prepublish`, `publish`, or install script, and no `workspaces`. Rename `build`, for example to `compile`.
 - The release tag is the `package.json` version, such as `v1.0.0`.
 
+Commit the manifest, the overview, and the build, then create a GitHub release from that commit.
+
 ::::
 
 :::
@@ -107,7 +111,7 @@ Open a [submission issue](https://github.com/kubb-labs/registry/issues/new?templ
 | --- | --- |
 | An npm package (pins `latest`) | `kubb-plugin-example` |
 | A specific npm version | `kubb-plugin-example@1.0.0` |
-| A package folder in a GitHub monorepo | `https://github.com/acme/kubb-plugins/tree/main/packages/example` |
+| A package on npm, by its folder in a GitHub monorepo | `https://github.com/acme/kubb-plugins/tree/main/packages/example` |
 | A GitHub release, package not on npm | `https://github.com/acme/kubb-plugin-example/tree/v1.0.0` |
 
 In **Categories**, tick every category that fits. The first tick is the main one.
@@ -117,6 +121,8 @@ Within minutes, a workflow opens a review pull request with the [record](/docs/5
 ## Wait for the review {#review}
 
 A maintainer reviews the pull request against [`REVIEW.md`](https://github.com/kubb-labs/registry/blob/main/REVIEW.md). Validation reads `package.json`, `kubb-extension.json`, and the `docs/` folder from the npm tarball or the GitHub release.
+
+Once the pull request exists, editing the issue no longer starts the submission again. When a check fails or the maintainer asks for changes, publish a fixed version and reply in the pull request.
 
 After a maintainer merges the pull request, the registry lists the extension within minutes. Users install it with:
 
