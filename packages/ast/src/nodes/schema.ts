@@ -160,9 +160,17 @@ export type ObjectSchemaNode = SchemaNodeBase & {
   /**
    * Minimum number of properties allowed.
    */
-  minProperties?: number
+  min?: number
   /**
    * Maximum number of properties allowed.
+   */
+  max?: number
+  /**
+   * @deprecated Use `min`. Removed in the next major.
+   */
+  minProperties?: number
+  /**
+   * @deprecated Use `max`. Removed in the next major.
    */
   maxProperties?: number
 }
@@ -492,11 +500,15 @@ export type NumberSchemaNode = SchemaNodeBase & {
    */
   max?: number
   /**
-   * Exclusive minimum value.
+   * Bounds the value may not equal: it must be greater than `min` and less than `max`.
+   */
+  exclusive?: { min?: number; max?: number }
+  /**
+   * @deprecated Use `exclusive.min`. Removed in the next major.
    */
   exclusiveMinimum?: number
   /**
-   * Exclusive maximum value.
+   * @deprecated Use `exclusive.max`. Removed in the next major.
    */
   exclusiveMaximum?: number
   /**

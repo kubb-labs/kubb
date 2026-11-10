@@ -35,12 +35,21 @@ function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaType {
 }
 
 /** Shared by number, integer and bigint nodes; the exclusive bounds keep only the OAS 3.1 numeric form. */
-function getNumericConstraints(schema: SchemaObject): Pick<ast.NumberSchemaNode, 'min' | 'max' | 'exclusiveMinimum' | 'exclusiveMaximum' | 'multipleOf'> {
+function getNumericConstraints(
+  schema: SchemaObject,
+): Pick<ast.NumberSchemaNode, 'min' | 'max' | 'exclusive' | 'exclusiveMinimum' | 'exclusiveMaximum' | 'multipleOf'> {
+  const exclusiveMinimum = typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined
+  const exclusiveMaximum = typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined
+  const hasExclusive = exclusiveMinimum !== undefined || exclusiveMaximum !== undefined
   return {
     min: schema.minimum,
     max: schema.maximum,
-    exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
-    exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+    ...(hasExclusive && {
+      exclusive: { ...(exclusiveMinimum !== undefined && { min: exclusiveMinimum }), ...(exclusiveMaximum !== undefined && { max: exclusiveMaximum }) },
+    }),
+    // shortcut: the pre-`exclusive` names, kept so plugins that read them keep working, remove them in the next major.
+    exclusiveMinimum,
+    exclusiveMaximum,
     multipleOf: schema.multipleOf,
   }
 }
@@ -50,11 +59,11 @@ function getNumericConstraints(schema: SchemaObject): Pick<ast.NumberSchemaNode,
  */
 function isWithinBounds({ value, schema }: { value: unknown; schema: SchemaObject }): boolean {
   if (typeof value !== 'number') return true
-  const { min, max, exclusiveMinimum, exclusiveMaximum, multipleOf } = getNumericConstraints(schema)
+  const { min, max, exclusive, multipleOf } = getNumericConstraints(schema)
   if (min !== undefined && value < min) return false
   if (max !== undefined && value > max) return false
-  if (exclusiveMinimum !== undefined && value <= exclusiveMinimum) return false
-  if (exclusiveMaximum !== undefined && value >= exclusiveMaximum) return false
+  if (exclusive?.min !== undefined && value <= exclusive.min) return false
+  if (exclusive?.max !== undefined && value >= exclusive.max) return false
   // The tolerance keeps float quotients such as `0.3 / 0.1` from failing.
   if (multipleOf !== undefined && Math.abs(value / multipleOf - Math.round(value / multipleOf)) > 1e-9) return false
   return true

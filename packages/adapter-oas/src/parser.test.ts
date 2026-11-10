@@ -701,8 +701,16 @@ describe('parseSchema constraints', () => {
     { title: 'uniqueItems: false on an array', schema: { type: 'array', uniqueItems: false }, expected: { type: 'array', unique: false } },
     { title: 'minItems on a tuple', schema: { prefixItems: [{ type: 'string' }], minItems: 1 }, expected: { type: 'tuple', min: 1 } },
     { title: 'maxItems on a tuple', schema: { prefixItems: [{ type: 'string' }], maxItems: 4 }, expected: { type: 'tuple', max: 4 } },
-    { title: 'numeric exclusiveMinimum on a number', schema: { type: 'number', exclusiveMinimum: 0 }, expected: { type: 'number', exclusiveMinimum: 0 } },
-    { title: 'numeric exclusiveMinimum on an integer', schema: { type: 'integer', exclusiveMinimum: 0 }, expected: { type: 'integer', exclusiveMinimum: 0 } },
+    {
+      title: 'numeric exclusiveMinimum on a number',
+      schema: { type: 'number', exclusiveMinimum: 0 },
+      expected: { type: 'number', exclusive: { min: 0 }, exclusiveMinimum: 0 },
+    },
+    {
+      title: 'numeric exclusiveMinimum on an integer',
+      schema: { type: 'integer', exclusiveMinimum: 0 },
+      expected: { type: 'integer', exclusive: { min: 0 }, exclusiveMinimum: 0 },
+    },
     {
       title: 'minimum and maximum on a float number',
       schema: { type: 'number', format: 'float', minimum: -90, maximum: 90 },
@@ -716,7 +724,7 @@ describe('parseSchema constraints', () => {
     {
       title: 'numeric exclusiveMinimum and exclusiveMaximum on a double number',
       schema: { type: 'number', format: 'double', exclusiveMinimum: 0, exclusiveMaximum: 100 },
-      expected: { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 100 },
+      expected: { type: 'number', exclusive: { min: 0, max: 100 }, exclusiveMinimum: 0, exclusiveMaximum: 100 },
     },
     {
       title: 'multipleOf on an int64 integer',
@@ -733,7 +741,7 @@ describe('parseSchema constraints', () => {
       title: 'a boolean exclusiveMinimum (OAS 3.0 style) on a number',
       schema: { type: 'number', exclusiveMinimum: true },
       type: 'number',
-      keys: ['exclusiveMinimum'],
+      keys: ['exclusive', 'exclusiveMinimum'],
     },
     { title: 'minimum and maximum on a uuid string', schema: { type: 'string', format: 'uuid', minimum: 0, maximum: 1 }, type: 'uuid', keys: ['min', 'max'] },
   ] satisfies Array<{ title: string; schema: SchemaObject; type: string; keys: Array<string> }>)('ignores $title', ({ schema, type, keys }) => {
@@ -3161,7 +3169,7 @@ describe('JSON Schema 2020-12 object keywords', () => {
             unevaluatedProperties: false,
             dependentRequired: { creditCard: ['billingAddress'] },
           },
-          Labels: { type: 'object', unevaluatedProperties: { type: 'string' } },
+          Labels: { type: 'object', unevaluatedProperties: { type: 'string' }, minProperties: 1, maxProperties: 5 },
         },
       },
     })
@@ -3171,7 +3179,7 @@ describe('JSON Schema 2020-12 object keywords', () => {
       additionalProperties: false,
       conditionals: [{ if: presence('creditCard'), then: presence('billingAddress') }],
     })
-    expect(findSchema(root, 'Labels')).toMatchObject({ additionalProperties: { type: 'string' } })
+    expect(findSchema(root, 'Labels')).toMatchObject({ additionalProperties: { type: 'string' }, min: 1, max: 5, minProperties: 1, maxProperties: 5 })
   })
   it('keeps an object open when unevaluatedProperties sits next to allOf, and skips an empty dependentRequired list', async () => {
     const root = await parseOas({

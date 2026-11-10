@@ -97,6 +97,9 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       additionalProperties: additionalPropertiesNode,
       patternProperties,
       propertyNames,
+      min: schema.minProperties,
+      max: schema.maxProperties,
+      // shortcut: the pre-`min`/`max` names, kept so plugins that read them keep working, remove them in the next major.
       minProperties: schema.minProperties,
       maxProperties: schema.maxProperties,
     },

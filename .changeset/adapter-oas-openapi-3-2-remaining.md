@@ -27,6 +27,18 @@ Read the OpenAPI 3.0, 3.1 and 3.2 fields the adapter skipped, so plugins get eve
 - A discriminator without `propertyName`, optional from 3.2, no longer crashes the parse. Its `defaultMapping` schema joins the union.
 - A response without `description` parses.
 
+### Deprecated
+
+Bounds use `min` and `max` on every node type, as string, array and number nodes already did:
+
+- Object nodes get `min` and `max` from `minProperties` and `maxProperties`. `minProperties` and `maxProperties` stay filled until the next major.
+- Number nodes get `exclusive` with `min` and `max` from `exclusiveMinimum` and `exclusiveMaximum`. The old fields stay filled until the next major.
+
+```diff
+- { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 100 }
++ { type: 'number', exclusive: { min: 0, max: 100 } }
+```
+
 ### Removed
 
 `meta.securitySchemes` and `InputSecurityScheme` are replaced by `meta.auth` and `AuthScheme`. Each scheme's `credential` has the same shape as the `Auth` object that `@kubb/plugin-fetch` and `@kubb/plugin-axios` pass to your `auth` resolver, so the AST and the generated client share one format:
