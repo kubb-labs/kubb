@@ -5,7 +5,7 @@
 
 Rename "agent" to "runner" and "project" in the Studio runtime. A runner is the process that connects to Kubb Studio, such as `kubb studio` or the Docker image. A project is the record you manage in Studio.
 
-This is a breaking change with no aliases. This `@kubb/studio` version only works with a Kubb Studio that serves `/api/runner/*`. An older Studio rejects it, and an older `@kubb/studio` does not connect to a new Studio. Upgrade both together.
+This `@kubb/studio` version only works with a Kubb Studio that serves `/api/runner/*`, and an older Studio rejects it. kubb.studio serves the old and the new endpoints, so older `@kubb/studio` versions keep working there. The old export names have no aliases.
 
 ### Changed
 
