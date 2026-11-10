@@ -5,7 +5,6 @@ import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 
-/** The JSON Schema 2020-12 `contains` of an array or tuple, with `minContains` and `maxContains` as its `min` and `max`. */
 function getContains(schema: SchemaObject, parse: ConvertContext['parse']): Pick<ast.ArraySchemaNode, 'contains'> {
   const { contains, minContains, maxContains } = schema as { contains?: unknown; minContains?: unknown; maxContains?: unknown }
   if (!contains || typeof contains !== 'object') return {}

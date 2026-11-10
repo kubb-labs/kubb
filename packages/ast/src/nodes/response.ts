@@ -45,7 +45,6 @@ export type ResponseNode = BaseNode & {
    * HTTP status code or `'default'` for a fallback response.
    */
   statusCode: StatusCode
-  /** Short one-line response summary. */
   summary?: string
   /**
    * Optional response description.
@@ -68,9 +67,13 @@ export type ResponseNode = BaseNode & {
    * ```
    */
   content?: Array<ContentNode>
-  /** Response headers, as `in: 'header'` parameters. `Content-Type` is left out. */
+  /**
+   * Response headers, as `in: 'header'` parameters. `Content-Type` is left out.
+   */
   headers?: Array<ParameterNode>
-  /** Links to operations a client can call next with values from this response, by name. */
+  /**
+   * Links to operations a client can call next with values from this response, by name.
+   */
   links?: Record<string, ResponseLink>
 }
 

@@ -7,7 +7,9 @@ import type { Document, SecuritySchemeObject } from '../types.ts'
 const SCHEME_POINTER = '#/components/securitySchemes/'
 const API_KEY_LOCATIONS = new Set(['header', 'query', 'cookie'])
 
-/** How a client sends the scheme's credential, or `undefined` when it cannot place one. */
+/**
+ * How a client sends the scheme's credential, or `undefined` when it cannot place one.
+ */
 function getCredential(scheme: SecuritySchemeObject): ast.AuthCredential | undefined {
   if (scheme.type === 'apiKey') {
     return scheme.name && scheme.in && API_KEY_LOCATIONS.has(scheme.in) ? { type: 'apiKey', in: scheme.in as 'header', name: scheme.name } : undefined

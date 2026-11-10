@@ -243,7 +243,6 @@ export function convertFormattedEnum(context: ConvertContext): ast.SchemaNode {
   )
 }
 
-/** JSON Schema `contentMediaType`, `contentEncoding` and `contentSchema` as one `content` field, absent when none is set. */
 function getStringContent({ schema, parse }: ConvertContext): Pick<ast.StringSchemaNode, 'content'> {
   const { contentMediaType: mediaType, contentEncoding: encoding, contentSchema } = schema
   if (mediaType === undefined && encoding === undefined && !contentSchema) return {}

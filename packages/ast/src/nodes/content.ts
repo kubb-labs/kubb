@@ -23,23 +23,28 @@ export type EncodingNode = {
    * Whether reserved characters are sent as-is instead of percent-encoded.
    */
   allowReserved?: boolean
-  /** Serialization per property of a part that is itself a multipart body. */
   encoding?: Record<string, EncodingNode>
-  /** Serialization of the first parts by position, for a part that is itself a multipart body. */
+  /**
+   * Serialization of the first parts by position, for a part that is itself a multipart body.
+   */
   prefixEncoding?: Array<EncodingNode>
-  /** Serialization of every part after `prefixEncoding`, for a part that is itself a multipart body. */
+  /**
+   * Serialization of every part after `prefixEncoding`, for a part that is itself a multipart body.
+   */
   itemEncoding?: EncodingNode
 }
 
-/** One example of a body or parameter value, from the source's named examples. */
 export type ExampleNode = {
-  /** Key of the example in the source, absent for a single unnamed example. */
+  /**
+   * Key of the example in the source, absent for a single unnamed example.
+   */
   name?: string
   summary?: string
   description?: string
-  /** The example as data, before serialization. */
   value?: unknown
-  /** The example as it is sent on the wire, such as a URL-encoded query string. */
+  /**
+   * The example as it is sent on the wire, such as a URL-encoded query string.
+   */
   serializedValue?: string
 }
 
@@ -95,11 +100,14 @@ export type ContentNode = BaseNode & {
    * Serialization settings per body property that sets at least one field in the spec's `encoding`.
    */
   encoding?: Record<string, EncodingNode>
-  /** Examples of the body. Absent when the source gives none. */
   examples?: Array<ExampleNode>
-  /** Serialization of the first parts by position, for a body sent as an array of parts such as `multipart/mixed`. */
+  /**
+   * Serialization of the first parts by position, for a body sent as an array of parts such as `multipart/mixed`.
+   */
   prefixEncoding?: Array<EncodingNode>
-  /** Serialization of every part after `prefixEncoding`, for a body sent as an array of parts such as `multipart/mixed`. */
+  /**
+   * Serialization of every part after `prefixEncoding`, for a body sent as an array of parts such as `multipart/mixed`.
+   */
   itemEncoding?: EncodingNode
 }
 

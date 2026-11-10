@@ -77,7 +77,6 @@ export function createSchemaParser(ctx: OasParserContext) {
     return withConditionals(node, schema)
   }
 
-  /** An object that requires `keys` to be present, whatever their values. */
   function requireKeys(keys: Array<string>): ast.SchemaNode {
     const unknown = ast.factory.createSchema({ type: ast.schemaTypes.unknown })
     return ast.factory.createSchema({

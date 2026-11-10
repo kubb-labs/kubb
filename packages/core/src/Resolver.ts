@@ -411,7 +411,9 @@ export class Resolver {
     for (const name of names) this.#usedNames.add(name)
   }
 
-  /** Reads each tag's `parent`, so a `tag` group nests a child's folder in its parent's. The driver calls it after parsing. */
+  /**
+   * Reads each tag's `parent`, so a `tag` group nests a child's folder in its parent's. The driver calls it after parsing.
+   */
   setTags(tags: InputMeta['tags']): void {
     this.#tagParents.clear()
     for (const { name, parent } of tags ?? []) if (parent) this.#tagParents.set(name, parent)

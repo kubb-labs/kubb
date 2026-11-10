@@ -17,7 +17,6 @@ export type InputServerVariable = {
  */
 export type InputServer = {
   url: string
-  /** Short name that identifies the server, such as `production`. */
   name?: string
   description?: string
   /**
@@ -27,30 +26,31 @@ export type InputServer = {
   variables?: Record<string, InputServerVariable>
 }
 
-/** A link to documentation outside the source document. */
 export type ExternalDocs = { url: string; description?: string }
 
-/** A tag from the source document that operations are grouped under. */
 export type InputTag = {
   name: string
-  /** Short one-line summary, such as the label a docs site shows. */
   summary?: string
   description?: string
-  /** Name of the tag this tag nests under. `group: { type: 'tag' }` places its files in the parent's folder. */
+  /**
+   * Name of the tag this tag nests under. `group: { type: 'tag' }` places its files in the parent's folder.
+   */
   parent?: string
-  /** What the tag is for, such as `nav`, `badge`, or `audience`. */
+  /**
+   * What the tag is for, such as `nav`, `badge`, or `audience`.
+   */
   kind?: string
   externalDocs?: ExternalDocs
 }
 
-/** One OAuth2 flow: the endpoints it calls and the scopes it grants. */
 export type OAuthFlow = {
   authorizationUrl?: string
-  /** Endpoint that issues the device code of the device authorization flow (RFC 8628). */
+  /**
+   * Endpoint that issues the device code of the device authorization flow (RFC 8628).
+   */
   deviceAuthorizationUrl?: string
   tokenUrl?: string
   refreshUrl?: string
-  /** Scope names mapped to their descriptions. */
   scopes?: Record<string, string>
 }
 
@@ -122,11 +122,12 @@ export type InputMeta = {
    * API version string from `info.version` in the source document.
    */
   version?: string
-  /** Short summary from `info.summary`. */
   summary?: string
   termsOfService?: string
   contact?: { name?: string; url?: string; email?: string }
-  /** `identifier` is an SPDX license expression, such as `Apache-2.0`. */
+  /**
+   * `identifier` is an SPDX license expression, such as `Apache-2.0`.
+   */
   license?: { name: string; identifier?: string; url?: string }
   externalDocs?: ExternalDocs
   /**
@@ -134,9 +135,10 @@ export type InputMeta = {
    */
   baseURL?: string | null
   servers?: Array<InputServer>
-  /** Tags declared at the document root, in document order. Absent when the document declares none. */
   tags?: Array<InputTag>
-  /** Ways to authenticate that operations refer to by name. Absent when the document declares none. */
+  /**
+   * Ways to authenticate that operations refer to by name. Absent when the document declares none.
+   */
   auth?: Array<AuthScheme>
   /**
    * Vendor extensions (`x-*` keys) from the document root, copied as-is. Absent when the root has none.

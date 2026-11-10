@@ -20,7 +20,6 @@ import { groupUnsupportedFormats, scanSchema } from './schemaDiagnostics.ts'
 import { locate } from './sourceLocator.ts'
 import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
-/** The License Object, kept only with the `name` the spec requires. */
 function getLicense(source: unknown): ast.InputMeta['license'] {
   const { name, ...rest } = pickStrings(source, ['name', 'identifier', 'url']) ?? {}
   return name ? { name, ...rest } : undefined

@@ -469,11 +469,8 @@ export type StringSchemaNode = SchemaNodeBase & {
    * Visitors skip `schema`, so the string type does not import it.
    */
   content?: {
-    /** Media type of the encoded value, such as `application/json`. */
     mediaType?: string
-    /** How the value is encoded into the string, such as `base64`. */
     encoding?: string
-    /** Schema of the decoded value. */
     schema?: SchemaNode
   }
 }

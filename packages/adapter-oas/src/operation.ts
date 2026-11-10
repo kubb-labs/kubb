@@ -150,7 +150,6 @@ function pickStyleFields({ style, explode, allowReserved }: { style?: string; ex
   }
 }
 
-/** The encoding fields of a media type or nested part, minus entries that set nothing Kubb carries. */
 function getEncodingFields({
   encoding,
   prefixEncoding,
@@ -178,7 +177,9 @@ function toEncodingNode({ contentType, encoding, prefixEncoding, itemEncoding, .
   }
 }
 
-/** The named `examples` of a media type or parameter, else its single `example`. A 3.2 `dataValue` wins over `value`. */
+/**
+ * The named `examples` of a media type or parameter, else its single `example`. A 3.2 `dataValue` wins over `value`.
+ */
 function getExamples({ example, examples }: { example?: unknown; examples?: Record<string, unknown> }, refs: Refs): Pick<ast.ContentNode, 'examples'> {
   const named = Object.entries(examples ?? {}).flatMap(([name, entry]) => {
     const resolved = refs.deref<ExampleObject>(entry)
@@ -235,7 +236,6 @@ export function getBodySchema({
   return schema ? refs.derefKeepingRef(schema as SchemaObject) : null
 }
 
-/** A response's `links` by name, `$ref`s resolved. Runtime expressions stay as written. */
 function getLinks(links: unknown, refs: Refs): Record<string, ast.ResponseLink> | undefined {
   const entries = Object.entries(links ?? {}).flatMap(([name, value]) => {
     const link = refs.deref<Record<string, unknown>>(value)
