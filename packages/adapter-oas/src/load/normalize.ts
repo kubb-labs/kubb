@@ -9,6 +9,7 @@ import { isOpenApi32 } from '../oas.ts'
 import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
 import type { ValidationErrors, WorkerResult } from './validateWorker.ts'
+import { resolveSchemaIds } from './schemaIds.ts'
 import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
 /**
@@ -146,6 +147,8 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
   // api-ref-bundler swallows resolver errors and leaves refs unresolved, so surface an
   // unreadable input document as a hard error before bundling.
   const root = await resolver(pathOrUrl)
+  // Before bundling, so a `$ref` to a schema's `$id` URL is not fetched.
+  resolveSchemaIds(root)
 
   if (typeof root === 'object' && root !== null && !hasExternalRef(root)) {
     return root as Document
@@ -204,6 +207,7 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
               help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
             }) as Document)
           : structuredClone(source.data as Document)
+      resolveSchemaIds(data)
       return source.root && hasExternalRef(data) ? bundleDocument(join(source.root, inlineInputName), { document: data, sources }) : data
     }
     await assertInputExists(source.path)

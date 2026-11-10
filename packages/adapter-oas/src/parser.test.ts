@@ -3226,3 +3226,32 @@ describe('JSON Schema 2020-12 applicators', () => {
     expect(findSchema(root, 'Pair')).toMatchObject({ type: 'tuple', rest: undefined })
   })
 })
+
+describe('JSON Schema identifiers', () => {
+  it('resolves $refs to an $anchor or $id and a $dynamicRef to its $dynamicAnchor', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: { $anchor: 'pet', type: 'object', properties: { name: { type: 'string' } } },
+          Owner: { $id: 'https://example.com/schemas/owner', type: 'object', properties: { id: { type: 'string' } } },
+          Node: { $dynamicAnchor: 'node', type: 'object', properties: { children: { type: 'array', items: { $dynamicRef: '#node' } } } },
+          Home: {
+            type: 'object',
+            properties: { pet: { $ref: '#pet' }, owner: { $ref: 'https://example.com/schemas/owner' } },
+          },
+        },
+      },
+    })
+    const home = ast.narrowSchema(findSchema(root, 'Home')!, 'object')!
+    const node = ast.narrowSchema(findSchema(root, 'Node')!, 'object')!
+
+    expect(home.properties.map((property) => property.schema)).toMatchObject([
+      { type: 'ref', name: 'Pet' },
+      { type: 'ref', name: 'Owner' },
+    ])
+    expect(ast.narrowSchema(node.properties[0]!.schema, 'array')?.items?.[0]).toMatchObject({ type: 'ref', name: 'Node' })
+  })
+})
