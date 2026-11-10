@@ -1,11 +1,9 @@
 import { escapePointerToken } from '@internals/utils'
 
-type Visit = (node: Record<string, unknown>, pointer: string) => void
-
 const DATA_KEYS = new Set(['example', 'examples', 'const', 'enum', 'default'])
 const NAMED_ENTRY_KEYS = new Set(['properties', 'patternProperties', '$defs', 'definitions', 'schemas', 'dependentSchemas'])
 
-function walk(node: unknown, pointer: string, visit: Visit, parentKey?: string): void {
+function walk(node: unknown, pointer: string, visit: (node: Record<string, unknown>, pointer: string) => void, parentKey?: string): void {
   if (!node || typeof node !== 'object') return
   if (!Array.isArray(node)) visit(node as Record<string, unknown>, pointer)
   const named = parentKey !== undefined && NAMED_ENTRY_KEYS.has(parentKey)

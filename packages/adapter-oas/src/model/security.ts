@@ -9,7 +9,9 @@ const API_KEY_LOCATIONS = new Set(['header', 'query', 'cookie'])
 
 function getCredential(scheme: SecuritySchemeObject): ast.AuthCredential | undefined {
   if (scheme.type === 'apiKey') {
-    return scheme.name && scheme.in && API_KEY_LOCATIONS.has(scheme.in) ? { type: 'apiKey', in: scheme.in as 'header', name: scheme.name } : undefined
+    return scheme.name && scheme.in && API_KEY_LOCATIONS.has(scheme.in)
+      ? { type: 'apiKey', in: scheme.in as 'header' | 'query' | 'cookie', name: scheme.name }
+      : undefined
   }
   if (scheme.type === 'http') {
     return scheme.scheme ? { type: 'http', scheme: scheme.scheme.toLowerCase(), ...(scheme.bearerFormat && { bearerFormat: scheme.bearerFormat }) } : undefined

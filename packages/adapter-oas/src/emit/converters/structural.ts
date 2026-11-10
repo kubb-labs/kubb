@@ -6,7 +6,7 @@ import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 
 function getContains(schema: SchemaObject, parse: ConvertContext['parse']): Pick<ast.ArraySchemaNode, 'contains'> {
-  const { contains, minContains, maxContains } = schema as { contains?: unknown; minContains?: unknown; maxContains?: unknown }
+  const { contains, minContains, maxContains } = schema
   if (!contains || typeof contains !== 'object') return {}
   return {
     contains: {
@@ -72,7 +72,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       })
     : []
 
-  const additionalProperties = schema.additionalProperties ?? (schema as { unevaluatedProperties?: SchemaObject['additionalProperties'] }).unevaluatedProperties
+  const additionalProperties = schema.additionalProperties ?? schema.unevaluatedProperties
   const additionalPropertiesNode = (() => {
     if (additionalProperties === true) return true
     if (additionalProperties) return resolveMapSchema(additionalProperties, { options, parse })
@@ -121,7 +121,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
  */
 export function convertTuple({ schema, name, nullable, defaultValue, options, parse }: ConvertContext): ast.SchemaNode {
   const tupleItems = (schema.prefixItems ?? []).map((item) => parse({ schema: item as SchemaObject }))
-  const tail = schema.items ?? (schema as { unevaluatedItems?: SchemaObject['items'] }).unevaluatedItems
+  const tail = schema.items ?? schema.unevaluatedItems
   // items: false closes the tuple; absent/true widens the tail to unknownType.
   const rest =
     tail === false ? undefined : !tail || tail === true ? ast.factory.createSchema({ type: options.unknownType }) : parse({ schema: tail as SchemaObject })

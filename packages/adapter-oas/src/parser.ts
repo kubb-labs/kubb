@@ -27,9 +27,8 @@ export type OasParserContext = {
  * `unevaluated*` also sees what composition siblings evaluate, so with such a sibling it is dropped to keep the schema open.
  */
 function hasUnevaluatedSiblings(schema: SchemaObject): boolean {
-  const record = schema as Record<string, unknown>
-  if (record['unevaluatedProperties'] === undefined && record['unevaluatedItems'] === undefined) return false
-  return ['allOf', 'anyOf', 'oneOf', 'if', 'dependentSchemas', '$ref'].some((key) => record[key] !== undefined)
+  if (schema.unevaluatedProperties === undefined && schema.unevaluatedItems === undefined) return false
+  return [schema.allOf, schema.anyOf, schema.oneOf, schema.if, schema.dependentSchemas, schema.$ref].some((value) => value !== undefined)
 }
 
 /**
@@ -48,8 +47,8 @@ export function createSchemaParser(ctx: OasParserContext) {
       return parseSchema({ schema: flattenedSchema, name })
     }
     if (hasUnevaluatedSiblings(schema)) {
-      const { unevaluatedProperties: _properties, unevaluatedItems: _items, ...open } = schema as SchemaObject & Record<string, unknown>
-      return parseSchema({ schema: open as SchemaObject, name })
+      const { unevaluatedProperties: _properties, unevaluatedItems: _items, ...open } = schema
+      return parseSchema({ schema: open, name })
     }
 
     const nullable = isNullable(schema) || undefined
@@ -95,7 +94,6 @@ export function createSchemaParser(ctx: OasParserContext) {
   }
 
   function toConditionals(schema: SchemaObject): NonNullable<ast.SchemaNode['conditionals']> {
-    const keywords = schema as { if?: unknown; then?: unknown; else?: unknown; dependentRequired?: unknown; dependentSchemas?: unknown }
     const branch = (value: unknown) => {
       if (!value || typeof value !== 'object') return undefined
       const { required, type, ...rest } = value as SchemaObject
@@ -106,17 +104,17 @@ export function createSchemaParser(ctx: OasParserContext) {
     const entries = (value: unknown) => (value && typeof value === 'object' ? Object.entries(value) : [])
     const conditionals: NonNullable<ast.SchemaNode['conditionals']> = []
 
-    const condition = branch(keywords.if)
+    const condition = branch(schema.if)
     if (condition) {
-      const thenNode = branch(keywords.then)
-      const elseNode = branch(keywords.else)
+      const thenNode = branch(schema.then)
+      const elseNode = branch(schema.else)
       conditionals.push({ if: condition, ...(thenNode && { then: thenNode }), ...(elseNode && { else: elseNode }) })
     }
-    for (const [key, required] of entries(keywords.dependentRequired)) {
+    for (const [key, required] of entries(schema.dependentRequired)) {
       if (Array.isArray(required) && required.length && required.every((name) => typeof name === 'string'))
         conditionals.push({ if: requireKeys([key]), then: requireKeys(required) })
     }
-    for (const [key, dependent] of entries(keywords.dependentSchemas)) {
+    for (const [key, dependent] of entries(schema.dependentSchemas)) {
       const thenNode = branch(dependent)
       if (thenNode) conditionals.push({ if: requireKeys([key]), then: thenNode })
     }

@@ -14,6 +14,7 @@ import type {
   EncodingObject,
   ExampleObject,
   HeaderObject,
+  LinkObject,
   MediaTypeObject,
   OperationObject,
   ParameterObject,
@@ -22,7 +23,6 @@ import type {
   RequestBodyObject,
   ResponseObject,
   SchemaObject,
-  ServerObject,
 } from './types.ts'
 
 /**
@@ -235,13 +235,13 @@ export function getBodySchema({
 
 function getLinks(links: unknown, refs: Refs): Record<string, ast.ResponseLink> | undefined {
   const entries = Object.entries(links ?? {}).flatMap(([name, value]) => {
-    const link = refs.deref<Record<string, unknown>>(value)
+    const link = refs.deref<LinkObject>(value)
     if (!link) return []
-    const server = link['server'] && typeof link['server'] === 'object' ? toInputServers([link['server'] as ServerObject])[0] : undefined
+    const server = link.server ? toInputServers([link.server])[0] : undefined
     const node: ast.ResponseLink = {
       ...pickStrings(link, ['operationId', 'operationRef', 'description']),
-      ...(typeof link['parameters'] === 'object' && link['parameters'] !== null && { parameters: link['parameters'] as Record<string, unknown> }),
-      ...('requestBody' in link && { requestBody: link['requestBody'] }),
+      ...(link.parameters && { parameters: link.parameters }),
+      ...('requestBody' in link && { requestBody: link.requestBody }),
       ...(server && { server }),
     }
     return [[name, node] as const]

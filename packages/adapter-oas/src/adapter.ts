@@ -20,11 +20,6 @@ import { groupUnsupportedFormats, scanSchema } from './schemaDiagnostics.ts'
 import { locate } from './sourceLocator.ts'
 import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
-function getLicense(source: unknown): ast.InputMeta['license'] {
-  const { name, ...rest } = pickStrings(source, ['name', 'identifier', 'url']) ?? {}
-  return name ? { name, ...rest } : undefined
-}
-
 /**
  * The `name` of `@kubb/adapter-oas`, used to identify this adapter in a Kubb config.
  */
@@ -180,7 +175,10 @@ export const adapterOas = defineExtension<AdapterOas>({
           summary: document.info?.summary,
           termsOfService: document.info?.termsOfService,
           contact: pickStrings(document.info?.contact, ['name', 'url', 'email']),
-          license: getLicense(document.info?.license),
+          license:
+            typeof document.info?.license?.name === 'string'
+              ? { ...pickStrings(document.info.license, ['identifier', 'url']), name: document.info.license.name }
+              : undefined,
           externalDocs: getExternalDocs(document.externalDocs),
           baseURL: resolveBaseUrl({ document, server }),
           servers: toInputServers(document.servers ?? []),
