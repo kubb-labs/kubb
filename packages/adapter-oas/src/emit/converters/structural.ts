@@ -5,16 +5,6 @@ import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 
-/** The JSON Schema 2020-12 `dependentSchemas` map, parsed. */
-function getDependentSchemas(schema: SchemaObject, parse: ConvertContext['parse']): Record<string, ast.SchemaNode> | undefined {
-  const value = (schema as { dependentSchemas?: unknown }).dependentSchemas
-  if (!value || typeof value !== 'object') return undefined
-  const entries = Object.entries(value).flatMap(([key, entry]) =>
-    entry && typeof entry === 'object' ? [[key, parse({ schema: entry as SchemaObject })] as const] : [],
-  )
-  return entries.length ? Object.fromEntries(entries) : undefined
-}
-
 /** The JSON Schema 2020-12 `contains`, `minContains` and `maxContains` of an array or tuple. */
 function getContains(schema: SchemaObject, parse: ConvertContext['parse']): Pick<ast.ArraySchemaNode, 'contains' | 'minContains' | 'maxContains'> {
   const { contains, minContains, maxContains } = schema as { contains?: unknown; minContains?: unknown; maxContains?: unknown }
@@ -24,16 +14,6 @@ function getContains(schema: SchemaObject, parse: ConvertContext['parse']): Pick
     ...(typeof minContains === 'number' && { minContains }),
     ...(typeof maxContains === 'number' && { maxContains }),
   }
-}
-
-/** The JSON Schema 2020-12 `dependentRequired` map, keeping only lists of property names. */
-function getDependentRequired(schema: SchemaObject): Record<string, Array<string>> | undefined {
-  const value = (schema as { dependentRequired?: unknown }).dependentRequired
-  if (!value || typeof value !== 'object') return undefined
-  const entries = Object.entries(value).filter(
-    (entry): entry is [string, Array<string>] => Array.isArray(entry[1]) && entry[1].every((key) => typeof key === 'string'),
-  )
-  return entries.length ? Object.fromEntries(entries) : undefined
 }
 
 /**
@@ -117,8 +97,6 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       propertyNames,
       minProperties: schema.minProperties,
       maxProperties: schema.maxProperties,
-      dependentRequired: getDependentRequired(schema),
-      dependentSchemas: getDependentSchemas(schema, parse),
     },
   )
 

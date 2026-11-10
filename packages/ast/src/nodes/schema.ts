@@ -97,10 +97,12 @@ type SchemaNodeBase = BaseNode & {
   format?: string
   externalDocs?: ExternalDocs
   /**
-   * JSON Schema `if`/`then`/`else`: a value that matches `if` must also match `then`, any other value `else`.
-   * Visitors do not walk it, like a string's `content.schema`.
+   * Conditions the value must also meet: one that matches `if` must match `then`, any other `else`. Holds
+   * JSON Schema `if`/`then`/`else`, and each `dependentRequired` and `dependentSchemas` entry, whose `if` is an
+   * object that requires the trigger key. There, a required property with an `unknown` schema only checks
+   * that the key is present. Visitors do not walk it, like a string's `content.schema`.
    */
-  conditional?: { if: SchemaNode; then?: SchemaNode; else?: SchemaNode }
+  conditionals?: Array<{ if: SchemaNode; then?: SchemaNode; else?: SchemaNode }>
 }
 
 /**
@@ -155,12 +157,6 @@ export type ObjectSchemaNode = SchemaNodeBase & {
    * ```
    */
   propertyNames?: SchemaNode
-  /**
-   * Properties that become required when a key is present, such as `{ creditCard: ['billingAddress'] }`.
-   */
-  dependentRequired?: Record<string, Array<string>>
-  /** Schemas the whole object must also match when a key is present. Visitors do not walk them. */
-  dependentSchemas?: Record<string, SchemaNode>
   /**
    * Minimum number of properties allowed.
    */

@@ -1,4 +1,4 @@
-import type { ast } from '@kubb/kit'
+import { ast } from '@kubb/kit'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { createNode } from './emit/createNode.ts'
 import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
@@ -58,18 +58,51 @@ export function createSchemaParser(ctx: OasParserContext) {
     const rule = schemaRules.find((entry) => entry.match(context))
     const node = rule ? rule.convert(context) : createNode(context, { type: options.emptySchemaType as ast.ScalarSchemaType })
 
-    return withConditional(node, schema)
+    return withConditionals(node, schema)
   }
 
-  /** Adds JSON Schema `if`/`then`/`else` to the converted node, whatever its type. */
-  function withConditional(node: ast.SchemaNode, schema: SchemaObject): ast.SchemaNode {
-    const { if: condition, then, else: otherwise } = schema as { if?: unknown; then?: unknown; else?: unknown }
-    if (!condition || typeof condition !== 'object') return node
-    const branch = (value: unknown) => (value && typeof value === 'object' ? parseSchema({ schema: value as SchemaObject }) : undefined)
-    const thenNode = branch(then)
-    const elseNode = branch(otherwise)
+  /** An object that requires `keys` to be present, whatever their values. */
+  function requireKeys(keys: Array<string>): ast.SchemaNode {
+    const unknown = ast.factory.createSchema({ type: ast.schemaTypes.unknown })
+    return ast.factory.createSchema({
+      type: ast.schemaTypes.object,
+      primitive: 'object',
+      properties: keys.map((name) => ast.factory.createProperty({ name, required: true, schema: unknown })),
+    })
+  }
 
-    return { ...node, conditional: { if: branch(condition)!, ...(thenNode && { then: thenNode }), ...(elseNode && { else: elseNode }) } }
+  /**
+   * Adds JSON Schema `if`/`then`/`else`, `dependentRequired` and `dependentSchemas` to the converted node as
+   * `conditionals`, whatever its type. A dependency is `if` the trigger key is present `then` the rest.
+   */
+  function withConditionals(node: ast.SchemaNode, schema: SchemaObject): ast.SchemaNode {
+    const keywords = schema as { if?: unknown; then?: unknown; else?: unknown; dependentRequired?: unknown; dependentSchemas?: unknown }
+    const branch = (value: unknown) => {
+      if (!value || typeof value !== 'object') return undefined
+      const { required, type, ...rest } = value as SchemaObject
+      // A subschema with only `required`, such as `{ required: ['postalCode'] }`, would otherwise parse as `unknown`.
+      if (Array.isArray(required) && required.length && (type === undefined || type === 'object') && !Object.keys(rest).length) return requireKeys(required)
+      return parseSchema({ schema: value as SchemaObject })
+    }
+    const entries = (value: unknown) => (value && typeof value === 'object' ? Object.entries(value) : [])
+    const conditionals: NonNullable<ast.SchemaNode['conditionals']> = []
+
+    const condition = branch(keywords.if)
+    if (condition) {
+      const thenNode = branch(keywords.then)
+      const elseNode = branch(keywords.else)
+      conditionals.push({ if: condition, ...(thenNode && { then: thenNode }), ...(elseNode && { else: elseNode }) })
+    }
+    for (const [key, required] of entries(keywords.dependentRequired)) {
+      if (Array.isArray(required) && required.every((name) => typeof name === 'string'))
+        conditionals.push({ if: requireKeys([key]), then: requireKeys(required) })
+    }
+    for (const [key, dependent] of entries(keywords.dependentSchemas)) {
+      const thenNode = branch(dependent)
+      if (thenNode) conditionals.push({ if: requireKeys([key]), then: thenNode })
+    }
+
+    return conditionals.length ? { ...node, conditionals } : node
   }
 
   return parseSchema

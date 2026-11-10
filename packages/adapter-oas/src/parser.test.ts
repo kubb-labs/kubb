@@ -3146,7 +3146,7 @@ describe('OpenAPI 3.0 and 3.1 document fields', () => {
 })
 
 describe('JSON Schema 2020-12 object keywords', () => {
-  it('closes an object with unevaluatedProperties: false and keeps dependentRequired', async () => {
+  it('closes an object with unevaluatedProperties: false and turns dependentRequired into a conditional', async () => {
     const root = await parseOas({
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
@@ -3164,7 +3164,11 @@ describe('JSON Schema 2020-12 object keywords', () => {
       },
     })
 
-    expect(findSchema(root, 'Payment')).toMatchObject({ additionalProperties: false, dependentRequired: { creditCard: ['billingAddress'] } })
+    const presence = (name: string) => ({ type: 'object', properties: [{ name, required: true, schema: { type: 'unknown' } }] })
+    expect(findSchema(root, 'Payment')).toMatchObject({
+      additionalProperties: false,
+      conditionals: [{ if: presence('creditCard'), then: presence('billingAddress') }],
+    })
     expect(findSchema(root, 'Labels')).toMatchObject({ additionalProperties: { type: 'string' } })
   })
 })
@@ -3192,8 +3196,14 @@ describe('JSON Schema 2020-12 applicators', () => {
     })
     const address = findSchema(root, 'Address')!
 
-    expect(address.conditional).toMatchObject({ if: { type: 'object' }, then: { type: 'object' }, else: { type: 'object' } })
-    expect(ast.narrowSchema(address, 'object')?.dependentSchemas?.['country']).toBeDefined()
+    // `if`/`then`/`else` first, then the `dependentSchemas` entry: if `country` is present, require `postalCode`.
+    expect(address.conditionals).toMatchObject([
+      { if: { type: 'object' }, then: { type: 'object' }, else: { type: 'object' } },
+      {
+        if: { type: 'object', properties: [{ name: 'country', required: true }] },
+        then: { type: 'object', properties: [{ name: 'postalCode', required: true }] },
+      },
+    ])
     expect(findSchema(root, 'Tags')).toMatchObject({ type: 'array', contains: { type: 'enum', enumValues: ['admin'] }, minContains: 1, maxContains: 2 })
     expect(findSchema(root, 'Pair')).toMatchObject({ type: 'tuple', rest: undefined })
   })
