@@ -93,6 +93,15 @@ export type AuthTokenSource = { type: 'oauth2'; flows: Record<string, OAuthFlow>
 
 /**
  * One way to authenticate, keyed by `name`, which operations refer to in `auth`.
+ *
+ * @example An OAuth2 scheme whose token is sent as a bearer token
+ * ```ts
+ * const oauth: AuthScheme = {
+ *   name: 'oauth',
+ *   credential: { type: 'bearer' },
+ *   tokenSource: { type: 'oauth2', flows: { clientCredentials: { tokenUrl: 'https://auth.example.com/token' } } },
+ * }
+ * ```
  */
 export type AuthScheme = {
   name: string
@@ -103,8 +112,13 @@ export type AuthScheme = {
 }
 
 /**
- * One way to meet an operation's auth: every scheme in it applies together. `scopes` are the OAuth2 or OpenID
+ * One way to meet an operation's auth. Every scheme in it applies together. `scopes` are the OAuth2 or OpenID
  * Connect scopes the call needs. An empty list means the call may be sent without credentials.
+ *
+ * @example An API key and an OAuth2 token together, or no auth at all
+ * ```ts
+ * const auth: Array<AuthRequirement> = [[{ scheme: 'apiKey' }, { scheme: 'oauth', scopes: ['write'] }], []]
+ * ```
  */
 export type AuthRequirement = Array<{ scheme: string; scopes?: Array<string> }>
 

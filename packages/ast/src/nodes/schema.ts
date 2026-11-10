@@ -99,8 +99,8 @@ type SchemaNodeBase = BaseNode & {
   /**
    * Conditions the value must also meet: one that matches `if` must match `then`, any other `else`. Holds
    * JSON Schema `if`/`then`/`else`, and each `dependentRequired` and `dependentSchemas` entry, whose `if` is an
-   * object that requires the trigger key. There, a required property with an `unknown` schema only checks
-   * that the key is present. Visitors do not walk it, like a string's `content.schema`.
+   * object that requires the trigger key. In those entries, a required property with an `unknown` schema only
+   * checks that the key is present. Visitors do not walk it, like a string's `content.schema`.
    */
   conditionals?: Array<{ if: SchemaNode; then?: SchemaNode; else?: SchemaNode }>
 }

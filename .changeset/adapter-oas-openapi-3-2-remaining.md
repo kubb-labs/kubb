@@ -4,7 +4,7 @@
 '@kubb/core': minor
 ---
 
-Read the remaining OpenAPI 3.2 fields, so a 3.2 document no longer generates the same AST as a 3.1 document, and the 3.0 and 3.1 fields the adapter skipped.
+Read the OpenAPI 3.0, 3.1 and 3.2 fields the adapter skipped, so a 3.2 document no longer generates the same AST as a 3.1 document.
 
 - `$self` sets the base URI that relative `$ref`s resolve against. A relative `$self` resolves against the file's own location first.
 - Tags land on `meta.tags` with `summary`, `parent` and `kind`. With `group: { type: 'tag' }`, a child tag's folder sits inside its parent's, such as `animals/cats/`.
@@ -21,7 +21,7 @@ Read the remaining OpenAPI 3.2 fields, so a 3.2 document no longer generates the
 - `StatusCode` includes ranges such as `2XX`, which responses already used.
 - `OperationNode` gets `auth`, from the operation or else the document: a list of alternatives, each a list of `{ scheme, scopes }`. A 3.2 key that names a scheme by URI becomes the scheme name.
 
-`meta.auth` and `AuthScheme` replace `meta.securitySchemes` and `InputSecurityScheme`, which stay filled and are deprecated until the next major. The new shape is by how a client sends the credential instead of by the OpenAPI fields. Each scheme has a `credential` (`bearer`, `basic`, `apiKey` with `in` and `name`, `http` with another `scheme`, or `mutualTLS`) and, for OAuth2 and OpenID Connect, a `tokenSource` with the flows, including the 3.2 `deviceAuthorization` and `metadataUrl`, or the discovery `url`. A scheme a client cannot place, such as an `apiKey` outside a header, query or cookie, is left out.
+`meta.auth` and `AuthScheme` replace `meta.securitySchemes` and `InputSecurityScheme`, which stay filled and are deprecated until the next major. The new shape follows how a client sends the credential, not the OpenAPI field names. Each scheme has a `credential` (`bearer`, `basic`, `apiKey` with `in` and `name`, `http` with another `scheme`, or `mutualTLS`) and, for OAuth2 and OpenID Connect, a `tokenSource` with the flows, including the 3.2 `deviceAuthorization` and `metadataUrl`, or the discovery `url`. A scheme a client cannot place, such as an `apiKey` outside a header, query or cookie, is left out.
 
 ```ts
 // before

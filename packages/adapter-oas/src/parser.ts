@@ -73,7 +73,7 @@ export function createSchemaParser(ctx: OasParserContext) {
 
   /**
    * Adds JSON Schema `if`/`then`/`else`, `dependentRequired` and `dependentSchemas` to the converted node as
-   * `conditionals`, whatever its type. A dependency is `if` the trigger key is present `then` the rest.
+   * `conditionals`, whatever its type. Each dependency becomes `if` its trigger key is present, `then` the dependent keys or schema.
    */
   function withConditionals(node: ast.SchemaNode, schema: SchemaObject): ast.SchemaNode {
     const keywords = schema as { if?: unknown; then?: unknown; else?: unknown; dependentRequired?: unknown; dependentSchemas?: unknown }

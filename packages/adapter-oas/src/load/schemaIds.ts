@@ -13,7 +13,7 @@ function walk(node: unknown, pointer: string, visit: Visit): void {
  * `$dynamicRef`, into a `#/...` JSON pointer, so they resolve like any local `$ref` and are not fetched.
  *
  * shortcut: `$id` matches the `$ref` string exactly and `$dynamicRef` resolves statically to its anchor,
- * so a relative `$id` base or a recursively extended schema is not followed; upgrade if a spec needs that.
+ * so a relative `$id` base or a recursively extended schema is not followed, upgrade when a spec needs that.
  */
 export function resolveSchemaIds(document: unknown): void {
   const targets = new Map<string, string>()

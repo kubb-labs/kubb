@@ -459,7 +459,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     }
 
     const responsePointer = `${pointer}/responses/${statusCode}`
-    // The spec ignores a `Content-Type` header: the media type of `content` says it.
+    // The spec ignores a `Content-Type` header, since `content` already names the media type.
     const headers = Object.entries(response?.headers ?? {}).flatMap(([name, value]) => {
       const header = name.toLowerCase() === 'content-type' ? null : refs.deref<HeaderObject>(value)
       if (!header) return []
