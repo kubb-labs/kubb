@@ -100,7 +100,7 @@ type SchemaNodeBase = BaseNode & {
   externalDocs?: ExternalDocs
   /**
    * JSON Schema `if`/`then`/`else`: a value that matches `if` must also match `then`, any other value `else`.
-   * Visitors do not walk it, like `contentSchema`.
+   * Visitors do not walk it, like a string's `content.schema`.
    */
   conditional?: { if: SchemaNode; then?: SchemaNode; else?: SchemaNode }
 }
@@ -476,12 +476,18 @@ export type StringSchemaNode = SchemaNodeBase & {
    * Regex pattern.
    */
   pattern?: string
-  /** Media type of the value the string holds, such as `application/json` for an encoded JSON document. */
-  contentMediaType?: string
-  /** Encoding of the string's content, such as `base64`. */
-  contentEncoding?: string
-  /** Schema of the decoded value. Visitors skip it, so the string type does not import that schema. */
-  contentSchema?: SchemaNode
+  /**
+   * What the string holds when it encodes another value, such as a JSON document or `base64` bytes.
+   * Visitors skip `schema`, so the string type does not import it.
+   */
+  content?: {
+    /** Media type of the encoded value, such as `application/json`. */
+    mediaType?: string
+    /** How the value is encoded into the string, such as `base64`. */
+    encoding?: string
+    /** Schema of the decoded value. */
+    schema?: SchemaNode
+  }
 }
 
 /**

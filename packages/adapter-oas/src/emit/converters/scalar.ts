@@ -234,6 +234,19 @@ export function convertFormattedEnum(context: ConvertContext): ast.SchemaNode {
   )
 }
 
+/** JSON Schema `contentMediaType`, `contentEncoding` and `contentSchema` as one `content` field, absent when none is set. */
+function getStringContent({ schema, parse }: ConvertContext): Pick<ast.StringSchemaNode, 'content'> {
+  const { contentMediaType: mediaType, contentEncoding: encoding, contentSchema } = schema
+  if (mediaType === undefined && encoding === undefined && !contentSchema) return {}
+  return {
+    content: {
+      ...(mediaType !== undefined && { mediaType }),
+      ...(encoding !== undefined && { encoding }),
+      ...(contentSchema && { schema: parse({ schema: contentSchema as SchemaObject }) }),
+    },
+  }
+}
+
 /**
  * Converts a `type: 'string'` schema into a `StringSchemaNode`.
  */
@@ -246,9 +259,7 @@ export function convertString(context: ConvertContext): ast.SchemaNode {
     min: schema.minLength,
     max: schema.maxLength,
     pattern: schema.pattern,
-    ...(schema.contentMediaType !== undefined && { contentMediaType: schema.contentMediaType }),
-    ...(schema.contentEncoding !== undefined && { contentEncoding: schema.contentEncoding }),
-    ...(schema.contentSchema && { contentSchema: context.parse({ schema: schema.contentSchema as SchemaObject }) }),
+    ...getStringContent(context),
   })
 }
 

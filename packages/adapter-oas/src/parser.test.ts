@@ -2835,7 +2835,7 @@ describe('OpenAPI 3.2', () => {
 describe('OpenAPI 3.2 annotations', () => {
   const info = { title: 'Test', version: '1.0.0' }
 
-  it('keeps contentMediaType and the parsed contentSchema on a string schema', async () => {
+  it('groups contentMediaType and the parsed contentSchema into content on a string schema', async () => {
     const root = await parseOas({
       openapi: '3.2.0',
       info,
@@ -2850,8 +2850,7 @@ describe('OpenAPI 3.2 annotations', () => {
 
     expect(findSchema(root, 'Payload')).toMatchObject({
       type: 'string',
-      contentMediaType: 'application/json',
-      contentSchema: { type: 'ref', name: 'Pet' },
+      content: { mediaType: 'application/json', schema: { type: 'ref', name: 'Pet' } },
     })
   })
 })
@@ -3169,7 +3168,7 @@ describe('OpenAPI 3.0 and 3.1 document fields', () => {
     })
 
     expect(root.meta).toMatchObject({ summary: 'Pets', license: { name: 'Apache 2.0', identifier: 'Apache-2.0' } })
-    expect(findSchema(root, 'Avatar')).toMatchObject({ type: 'string', contentEncoding: 'base64', contentMediaType: 'image/png' })
+    expect(findSchema(root, 'Avatar')).toMatchObject({ type: 'string', content: { encoding: 'base64', mediaType: 'image/png' } })
   })
 })
 
