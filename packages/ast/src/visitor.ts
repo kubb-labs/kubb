@@ -31,6 +31,12 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   Parameter: ['schema'],
 }
 
+/**
+ * Schema fields that hold checks rather than shape: the `conditionals` entries, `contains` and a string's `content`.
+ * `transform` and `collect` skip them, and `visitChildNodes` walks them with `checks: true`.
+ */
+export const schemaCheckKeys = ['conditionals', 'contains', 'content'] as const
+
 /** Visitor callback names in traversal order, the keys of {@link Visitor}. */
 export const visitorKeys = ['input', 'operation', 'schema', 'property', 'parameter', 'response'] as const
 
@@ -190,32 +196,38 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
   return children
 }
 
-/** Calls `visit` for each direct child node and stops at the first call that returns `true`. */
-function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
-  const keys = VISITOR_KEYS[node.kind]
+/**
+ * Calls `visit` for each direct child node and stops at the first call that returns `true`.
+ * With `checks: true`, a schema's {@link schemaCheckKeys} fields are walked too.
+ */
+export function visitChildNodes(node: Node, visit: (child: Node) => boolean, { checks = false }: { checks?: boolean } = {}): boolean {
+  const keys = checks && node.kind === nodeKinds.schema ? [...(VISITOR_KEYS[node.kind] ?? []), ...schemaCheckKeys] : VISITOR_KEYS[node.kind]
   if (!keys) return false
 
   const record = node as unknown as Record<string, unknown>
   // A node under two keys, such as a stream item under `schema` and `stream`, is visited once.
   const seen = new Set<Node>()
   const visitOnce = (child: Node) => !seen.has(child) && (seen.add(child), visit(child))
+  const visitRecord = (value: Record<string, unknown>) => {
+    for (const name in value) {
+      if (!Object.hasOwn(value, name)) continue
+      const item = value[name]
+      if (isNode(item) && visitOnce(item)) return true
+    }
+    return false
+  }
   for (const key of keys) {
     const value = record[key]
     if (Array.isArray(value)) {
-      for (const item of value) if (isNode(item) && visitOnce(item)) return true
+      // Items can be plain objects that hold nodes, such as the `{ if, then, else }` entries of `conditionals`.
+      for (const item of value) if (isNode(item) ? visitOnce(item) : isNodeRecord(item) && visitRecord(item)) return true
       continue
     }
     if (isNode(value)) {
       if (visitOnce(value)) return true
       continue
     }
-    if (isNodeRecord(value)) {
-      for (const name in value) {
-        if (!Object.hasOwn(value, name)) continue
-        const item = value[name]
-        if (isNode(item) && visitOnce(item)) return true
-      }
-    }
+    if (isNodeRecord(value) && visitRecord(value)) return true
   }
   return false
 }

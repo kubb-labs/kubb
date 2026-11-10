@@ -316,15 +316,17 @@ describe('adapterOas.parse', () => {
             servers: [{ url: 'https://{region}.files.example.com', variables: { region: { default: 'eu' } } }, { description: 'No url' }],
             get: { operationId: 'listFiles', responses: { '200': { description: 'ok' } } },
             post: { operationId: 'uploadFile', servers: [{ url: 'https://upload.example.com' }], responses: { '200': { description: 'ok' } } },
+            put: { operationId: 'replaceFile', servers: [], responses: { '200': { description: 'ok' } } },
           },
           '/pets': minimalSpec.paths['/pets'],
         },
       },
     })
-    const [listFiles, uploadFile, listPets] = node.operations
+    const [listFiles, uploadFile, replaceFile, listPets] = node.operations
 
     expect(listFiles?.servers).toEqual([{ url: 'https://eu.files.example.com', variables: { region: { default: 'eu' } } }])
     expect(uploadFile?.servers).toEqual([{ url: 'https://upload.example.com' }])
+    expect(replaceFile?.servers).toEqual(listFiles?.servers)
     expect(listPets).not.toHaveProperty('servers')
   })
 
@@ -674,6 +676,143 @@ describe('adapterOas options', () => {
       Pet: 'object',
       Dog: 'object',
     })
+  })
+
+  it('applies the keywords next to a component $ref together with its target', async () => {
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Base: { type: 'object', description: 'base', properties: { a: { type: 'string' }, b: { type: 'string' } }, dependentRequired: { a: ['b'] } },
+            Plain: { $ref: '#/components/schemas/Base' },
+            Described: { $ref: '#/components/schemas/Base', description: 'own', deprecated: true },
+            Conditional: { $ref: '#/components/schemas/Base', if: { required: ['a'] }, then: { required: ['c'] } },
+            Outer: { $ref: '#/components/schemas/Conditional' },
+            Chained: { $ref: '#/components/schemas/Plain', dependentRequired: { b: ['a'] } },
+            Required: { $ref: '#/components/schemas/Base', required: ['a'] },
+            Extended: { $ref: '#/components/schemas/Base', properties: { c: { type: 'number' } } },
+            Repeated: { $ref: '#/components/schemas/Base', dependentRequired: { a: ['b'] } },
+            Merged: { $ref: '#/components/schemas/Base', allOf: [{ type: 'object', properties: { d: { type: 'boolean' } } }] },
+            Flat: { description: 'flat', dependentRequired: { a: ['b'] } },
+            FlatAlias: { $ref: '#/components/schemas/Flat', dependentRequired: { b: ['a'] } },
+          },
+        },
+      },
+    })
+
+    const find = (name: string) => node.schemas.find((schema) => schema.name === name)!
+    const conditionKeys = (name: string) =>
+      find(name).conditionals?.map((entry) =>
+        [entry.if, entry.then].map((branch) => ast.narrowSchema(branch, 'object')?.properties.map((property) => property.name)),
+      )
+    const memberProperties = (name: string) =>
+      ast
+        .narrowSchema(find(name), 'intersection')
+        ?.members?.map((member) => ast.narrowSchema(member, 'object')?.properties.map((property) => [property.name, property.required]))
+
+    expect(find('Plain')).toMatchObject({ type: 'object', description: 'base' })
+    expect(find('Described')).toMatchObject({ type: 'object', description: 'own', deprecated: true })
+    expect(conditionKeys('Described')).toStrictEqual([[['a'], ['b']]])
+    expect(conditionKeys('Conditional')).toStrictEqual([
+      [['a'], ['b']],
+      [['a'], ['c']],
+    ])
+    expect(conditionKeys('Outer')).toStrictEqual(conditionKeys('Conditional'))
+    expect(conditionKeys('Chained')).toStrictEqual([
+      [['a'], ['b']],
+      [['b'], ['a']],
+    ])
+    expect(memberProperties('Required')).toStrictEqual([
+      [
+        ['a', false],
+        ['b', false],
+      ],
+      [['a', true]],
+    ])
+    expect(memberProperties('Extended')).toStrictEqual([
+      [
+        ['a', false],
+        ['b', false],
+      ],
+      [['c', false]],
+    ])
+    expect(conditionKeys('Repeated')).toStrictEqual([[['a'], ['b']]])
+    expect(conditionKeys('FlatAlias')).toStrictEqual([
+      [['b'], ['a']],
+      [['a'], ['b']],
+    ])
+    expect(memberProperties('Merged')).toStrictEqual([
+      [['d', false]],
+      [
+        ['a', false],
+        ['b', false],
+      ],
+    ])
+    expect(conditionKeys('Base')).toStrictEqual([[['a'], ['b']]])
+  })
+
+  it('leaves the enums inside conditionals inline when enums are promoted to the root', async () => {
+    const condition = (value: string, field: string) => ({
+      if: { properties: { status: { type: 'string', enum: [value] } }, required: ['status'] },
+      then: { required: [field] },
+    })
+    const node = await adapterOas({ validate: false, enums: 'root' }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Pet: { type: 'object', properties: { status: { type: 'string' } }, ...condition('sold', 'soldAt') },
+            Order: { type: 'object', properties: { status: { type: 'string' } }, ...condition('shipped', 'shippedAt') },
+          },
+        },
+      },
+    })
+
+    const statusIn = (name: string) =>
+      ast
+        .narrowSchema(node.schemas.find((schema) => schema.name === name)?.conditionals?.[0]?.if, 'object')
+        ?.properties.find((property) => property.name === 'status')?.schema
+
+    expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['Pet', 'Order'])
+    expect(statusIn('Pet')).toMatchObject({ type: 'enum', enumValues: ['sold'] })
+    expect(statusIn('Order')).toMatchObject({ type: 'enum', enumValues: ['shipped'] })
+  })
+
+  it('preserves separate alias and target conditional pairs and their used refs', async () => {
+    const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` })
+    const target = { type: 'number', description: 'target', if: ref('TargetIf'), then: ref('TargetThen') }
+    const alias = { ...ref('Target'), type: 'string', description: 'alias', if: ref('AliasIf'), then: ref('AliasThen') }
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'review', version: '1' },
+      paths: {
+        '/test': { get: { operationId: 'test', responses: { '200': { description: 'ok', content: { 'application/json': { schema: ref('Alias') } } } } } },
+      },
+      components: {
+        schemas: {
+          Alias: alias,
+          Target: target,
+          ...Object.fromEntries(
+            ['TargetIf', 'TargetThen', 'AliasIf', 'AliasThen', 'Unused'].map((name) => [name, { type: 'object', properties: { [name]: { type: 'string' } } }]),
+          ),
+        },
+      },
+    }
+    const node = await adapterOas({ validate: false }).parse({ type: 'data', data: document })
+    const parsed = node.schemas.find((schema) => schema.name === 'Alias')!
+    expect(parsed).toMatchObject({ type: 'string', description: 'alias' })
+    expect(parsed.conditionals?.map((pair) => [ast.resolveRefName(pair.if), ast.resolveRefName(pair.then)])).toStrictEqual([
+      ['AliasIf', 'AliasThen'],
+      ['TargetIf', 'TargetThen'],
+    ])
+    expect([...ast.collectUsedSchemaNames(node.operations, node.schemas)].sort()).toStrictEqual(['Alias', 'AliasIf', 'AliasThen', 'TargetIf', 'TargetThen'])
   })
 
   it('keeps a single-member allOf around a union ref as a ref instead of treating it as a cycle', async () => {
