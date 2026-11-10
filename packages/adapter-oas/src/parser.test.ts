@@ -3004,3 +3004,22 @@ describe('OpenAPI 3.2 examples', () => {
     expect(operation.responses[0]?.content?.[0]?.examples).toStrictEqual([{ name: 'rex', description: 'A dog', value: { name: 'Rex' } }])
   })
 })
+
+describe('event stream sentinel', () => {
+  it.each(['x-sse-sentinel', 'x-speakeasy-sse-sentinel'])('reads %s on a text/event-stream entry', async (key) => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/stream': {
+          get: {
+            operationId: 'stream',
+            responses: { '200': { description: 'OK', content: { 'text/event-stream': { itemSchema: { type: 'string' }, [key]: '[DONE]' } } } },
+          },
+        },
+      },
+    })
+
+    expect(findOperation(root, 'stream')?.responses[0]?.content?.[0]?.stream).toMatchObject({ shape: 'data', sentinel: '[DONE]' })
+  })
+})

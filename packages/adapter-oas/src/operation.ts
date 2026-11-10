@@ -237,6 +237,14 @@ export function getBodySchema({
   return schema ? refs.derefKeepingRef(schema as SchemaObject) : null
 }
 
+/** Vendor extensions that name the `data` value ending an event stream, in the order they are read. */
+const SENTINEL_EXTENSIONS = ['x-sse-sentinel', 'x-speakeasy-sse-sentinel'] as const
+
+function getSentinel(mediaType: MediaTypeObject | null): string | undefined {
+  const record = mediaType as Record<string, unknown> | null
+  return SENTINEL_EXTENSIONS.map((key) => record?.[key]).find((value): value is string => typeof value === 'string')
+}
+
 /** The `stream` field of a content node, set when the media type is a stream. `node` is the parsed item schema. */
 function getStreamField({
   contentType,
@@ -253,11 +261,13 @@ function getStreamField({
 }): Pick<ast.ContentNode, 'stream'> {
   if (!isStream(contentType, mediaType)) return {}
   const raw = getItemSchema({ contentType, mediaType, refs, document })
+  const sentinel = isEventStream(contentType) ? getSentinel(mediaType) : undefined
 
   return {
     stream: {
       ...(raw ? { schema: node } : {}),
       ...(raw && isEventStream(contentType) ? { shape: getItemShape(raw, refs) } : {}),
+      ...(sentinel !== undefined && { sentinel }),
     },
   }
 }
