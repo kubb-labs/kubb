@@ -2831,3 +2831,27 @@ describe('OpenAPI 3.2', () => {
     expect(literals).toHaveLength(0)
   })
 })
+
+describe('OpenAPI 3.2 annotations', () => {
+  const info = { title: 'Test', version: '1.0.0' }
+
+  it('keeps contentMediaType and the parsed contentSchema on a string schema', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {},
+      components: {
+        schemas: {
+          Payload: { type: 'string', contentMediaType: 'application/json', contentSchema: { $ref: '#/components/schemas/Pet' } },
+          Pet: { type: 'object', properties: { name: { type: 'string' } } },
+        },
+      },
+    })
+
+    expect(findSchema(root, 'Payload')).toMatchObject({
+      type: 'string',
+      contentMediaType: 'application/json',
+      contentSchema: { type: 'ref', name: 'Pet' },
+    })
+  })
+})

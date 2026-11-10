@@ -246,6 +246,8 @@ export function convertString(context: ConvertContext): ast.SchemaNode {
     min: schema.minLength,
     max: schema.maxLength,
     pattern: schema.pattern,
+    ...(schema.contentMediaType !== undefined && { contentMediaType: schema.contentMediaType }),
+    ...(schema.contentSchema && { contentSchema: context.parse({ schema: schema.contentSchema as SchemaObject }) }),
   })
 }
 
