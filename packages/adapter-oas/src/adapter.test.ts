@@ -689,6 +689,7 @@ describe('adapterOas options', () => {
             Wrapper: { $ref: '#/components/schemas/Base', if: { required: ['a'] }, then: { required: ['c'] } },
             Plain: { $ref: '#/components/schemas/Base' },
             Chained: { $ref: '#/components/schemas/Plain', dependentRequired: { b: ['a'] } },
+            Outer: { $ref: '#/components/schemas/Wrapper' },
           },
         },
       },
@@ -708,7 +709,33 @@ describe('adapterOas options', () => {
       [['a'], ['b']],
       [['b'], ['a']],
     ])
+    expect(keys('Outer')).toStrictEqual(keys('Wrapper'))
     expect(keys('Base')).toStrictEqual([[['a'], ['b']]])
+  })
+
+  it('keeps the conditionals of a $ref alias whose target is renamed after a name collision', async () => {
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Order: { type: 'object', properties: { a: { type: 'string' } } },
+            Wrapper: { $ref: '#/components/schemas/Order', dependentRequired: { a: ['b'] } },
+          },
+          responses: {
+            Order: { description: 'ok', content: { 'application/json': { schema: { type: 'string' } } } },
+          },
+        },
+      },
+    })
+
+    const wrapper = node.schemas.find((schema) => schema.name === 'Wrapper')!
+
+    expect(node.schemas.map((schema) => schema.name)).toContain('OrderSchema')
+    expect([wrapper.type, wrapper.conditionals?.length]).toStrictEqual(['object', 1])
   })
 
   it('keeps a single-member allOf around a union ref as a ref instead of treating it as a cycle', async () => {

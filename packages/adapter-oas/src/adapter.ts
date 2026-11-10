@@ -148,16 +148,31 @@ export const adapterOas = defineExtension<AdapterOas>({
         return ast.factory.createSchema({ type: 'unknown', name, pointer })
       }
 
+      /**
+       * Returns the node `name` aliases, renamed to `name`, or `undefined` when `name` is not an alias.
+       * Keywords next to a `$ref` apply together with the target, so the alias keeps its own conditionals after the target's.
+       */
+      function resolveAlias(name: string, seen = new Set<string>()): ast.SchemaNode | undefined {
+        const parsed = parsedByName.get(name)!
+        const ref = refAliasMap.get(name)
+        const target = ref?.targetName ?? ref?.name
+        const aliased = target && !seen.has(target) ? parsedByName.get(target) : undefined
+        // A collapsed single-member `allOf` aliases itself.
+        if (!aliased || aliased === parsed) return aliased
+        seen.add(name)
+        // A target that is an alias with its own conditionals is resolved first, so the conditionals of its target are kept too.
+        const resolved = (aliased.conditionals && resolveAlias(target!, seen)) || aliased
+        const conditionals = [...(resolved.conditionals ?? []), ...(parsed.conditionals ?? [])]
+
+        return { ...resolved, name, pointer: parsed.pointer, ...(conditionals.length && { conditionals }) }
+      }
+
       const schemaNodes: Array<ast.SchemaNode> = promotedEnums ? [...promotedEnums.values()] : []
       for (const name of Object.keys(schemas)) {
-        const aliasTarget = refAliasMap.get(name)?.name
-        const aliased = aliasTarget ? parsedByName.get(aliasTarget) : undefined
         const parsed = parsedByName.get(name)!
         const child = discriminatorChildMap?.get(name)
         const base = child ? patchDiscriminatorNode(parsed, child) : parsed
-        // Keywords next to a `$ref` apply together with the target, so the alias keeps its own conditionals. A collapsed `allOf` aliases itself.
-        const conditionals = aliased === parsed ? parsed.conditionals : [...(aliased?.conditionals ?? []), ...(parsed.conditionals ?? [])]
-        const resolved = aliased ? { ...aliased, name, pointer: parsed.pointer, ...(conditionals?.length && { conditionals }) } : base
+        const resolved = resolveAlias(name) ?? base
         const node = isAliasCycle(name) ? createCycleNode(name, parsed.pointer) : resolved
 
         schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)

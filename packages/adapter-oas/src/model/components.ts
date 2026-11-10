@@ -213,9 +213,12 @@ const semanticSuffixes: Record<SchemaSourceMode, string> = {
 export function getSchemas(document: Document, { contentType }: { contentType?: ContentType }, refs: Refs): GetSchemasResult {
   const components = document.components
 
+  /**
+   * Replaces a `$ref` schema with its target. A `$ref` to another `$ref`, or one with conditional
+   * siblings that inlining would drop, stays as it is, so the parser reads it as an alias.
+   */
   function resolveSchemaRef(schema: SchemaObject): SchemaObject {
     if (!isReference(schema)) return schema
-    // Inlining the target would drop these siblings, so the parser reads them from the alias itself.
     if (['if', 'dependentRequired', 'dependentSchemas'].some((key) => key in schema)) return schema
     const resolved = refs.resolve<SchemaObject>(schema.$ref)
     return resolved && !isReference(resolved) ? resolved : schema
