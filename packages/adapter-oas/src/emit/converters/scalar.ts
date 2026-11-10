@@ -247,6 +247,7 @@ export function convertString(context: ConvertContext): ast.SchemaNode {
     max: schema.maxLength,
     pattern: schema.pattern,
     ...(schema.contentMediaType !== undefined && { contentMediaType: schema.contentMediaType }),
+    ...(schema.contentEncoding !== undefined && { contentEncoding: schema.contentEncoding }),
     ...(schema.contentSchema && { contentSchema: context.parse({ schema: schema.contentSchema as SchemaObject }) }),
   })
 }

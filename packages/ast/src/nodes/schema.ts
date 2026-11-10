@@ -1,5 +1,6 @@
 import { nodeKinds } from '../constants.ts'
 import type { BaseNode, DistributiveOmit } from './base.ts'
+import type { ExternalDocs } from './input.ts'
 import type { PropertyNode } from './property.ts'
 
 /**
@@ -96,6 +97,7 @@ type SchemaNodeBase = BaseNode & {
   format?: string
   /** How the value is written as XML. Absent when the source sets nothing. */
   xml?: XmlNode
+  externalDocs?: ExternalDocs
 }
 
 /**
@@ -461,6 +463,8 @@ export type StringSchemaNode = SchemaNodeBase & {
   pattern?: string
   /** Media type of the value the string holds, such as `application/json` for an encoded JSON document. */
   contentMediaType?: string
+  /** Encoding of the string's content, such as `base64`. */
+  contentEncoding?: string
   /** Schema of the decoded value. Visitors skip it, so the string type does not import that schema. */
   contentSchema?: SchemaNode
 }

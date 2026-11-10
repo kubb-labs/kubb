@@ -151,11 +151,15 @@ export type SecuritySchemeObject = {
   name?: string
   flows?: Record<string, ast.InputOAuthFlow>
   oauth2MetadataUrl?: string
+  openIdConnectUrl?: string
   deprecated?: boolean
 }
 
 /** OpenAPI tag object, with the OpenAPI 3.2 `summary`, `parent` and `kind`. */
 export type TagObject = OpenAPIV3_1.TagObject & { summary?: string; parent?: string; kind?: string }
+
+/** OpenAPI header object: a parameter without `name` and `in`. */
+export type HeaderObject = OpenAPIV3_1.HeaderObject
 
 /**
  * OpenAPI server object describing a base URL and its `{variable}` substitutions, with the OpenAPI 3.2 `name`.

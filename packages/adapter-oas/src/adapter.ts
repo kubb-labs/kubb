@@ -10,7 +10,7 @@ import { assertDocument, parseFromConfig, validateDocument, validateDocumentInWo
 import { getSchemas } from './model/components.ts'
 import { resolveBaseUrl, toInputServers } from './model/server.ts'
 import { toInputTags } from './model/tag.ts'
-import { pickExtensions } from './oas.ts'
+import { getExternalDocs, pickExtensions, pickStrings } from './oas.ts'
 import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
@@ -18,6 +18,12 @@ import { createRefs } from './refs.ts'
 import { groupUnsupportedFormats, scanSchema } from './schemaDiagnostics.ts'
 import { locate } from './sourceLocator.ts'
 import type { AdapterOas, Document, SchemaObject, SecuritySchemeObject } from './types.ts'
+
+/** The License Object, kept only with the `name` the spec requires. */
+function getLicense(source: unknown): ast.InputMeta['license'] {
+  const { name, ...rest } = pickStrings(source, ['name', 'identifier', 'url']) ?? {}
+  return name ? { name, ...rest } : undefined
+}
 
 /**
  * The `name` of `@kubb/adapter-oas`, used to identify this adapter in a Kubb config.
@@ -169,6 +175,11 @@ export const adapterOas = defineExtension<AdapterOas>({
           title: document.info?.title,
           description: document.info?.description,
           version: document.info?.version,
+          summary: document.info?.summary,
+          termsOfService: document.info?.termsOfService,
+          contact: pickStrings(document.info?.contact, ['name', 'url', 'email']),
+          license: getLicense(document.info?.license),
+          externalDocs: getExternalDocs(document.externalDocs),
           baseURL: resolveBaseUrl({ document, server }),
           servers: toInputServers(document.servers ?? []),
           ...(document.tags?.length && { tags: toInputTags(document.tags) }),
@@ -186,6 +197,7 @@ export const adapterOas = defineExtension<AdapterOas>({
                     parameterName: scheme.name,
                     ...(scheme.flows && { flows: scheme.flows }),
                     ...(scheme.oauth2MetadataUrl && { oauth2MetadataUrl: scheme.oauth2MetadataUrl }),
+                    ...(scheme.openIdConnectUrl && { openIdConnectUrl: scheme.openIdConnectUrl }),
                     ...(scheme.deprecated && { deprecated: true }),
                   },
                 ]

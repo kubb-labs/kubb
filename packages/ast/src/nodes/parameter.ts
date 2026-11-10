@@ -68,6 +68,9 @@ export type ParameterNode = BaseNode & {
   contentType?: string
   /** Examples of the parameter value. Absent when the source gives none. */
   examples?: Array<ExampleNode>
+  deprecated?: boolean
+  /** Whether an empty value, such as `?flag=`, may be sent. Deprecated in the source spec. */
+  allowEmptyValue?: boolean
 }
 
 type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>

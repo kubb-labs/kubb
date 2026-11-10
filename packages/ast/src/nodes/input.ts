@@ -27,6 +27,9 @@ export type InputServer = {
   variables?: Record<string, InputServerVariable>
 }
 
+/** A link to documentation outside the source document. */
+export type ExternalDocs = { url: string; description?: string }
+
 /** A tag from the source document that operations are grouped under. */
 export type InputTag = {
   name: string
@@ -37,6 +40,7 @@ export type InputTag = {
   parent?: string
   /** What the tag is for, such as `nav`, `badge`, or `audience`. */
   kind?: string
+  externalDocs?: ExternalDocs
 }
 
 /** One OAuth2 flow: the endpoints it calls and the scopes it grants. */
@@ -65,6 +69,8 @@ export type InputSecurityScheme = {
   flows?: Record<string, InputOAuthFlow>
   /** URL of the OAuth2 authorization server metadata (RFC 8414). */
   oauth2MetadataUrl?: string
+  /** OpenID Connect discovery URL of an `openIdConnect` scheme. */
+  openIdConnectUrl?: string
   deprecated?: boolean
 }
 
@@ -90,6 +96,13 @@ export type InputMeta = {
    * API version string from `info.version` in the source document.
    */
   version?: string
+  /** Short summary from `info.summary`. */
+  summary?: string
+  termsOfService?: string
+  contact?: { name?: string; url?: string; email?: string }
+  /** `identifier` is an SPDX license expression, such as `Apache-2.0`. */
+  license?: { name: string; identifier?: string; url?: string }
+  externalDocs?: ExternalDocs
   /**
    * Resolved base URL from the first matching server entry in the source document.
    */

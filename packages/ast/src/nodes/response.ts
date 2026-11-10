@@ -1,6 +1,8 @@
 import { nodeKinds } from '../constants.ts'
 import type { BaseNode } from './base.ts'
 import { type ContentNode, createContent } from './content.ts'
+import type { InputServer } from './input.ts'
+import type { ParameterNode } from './parameter.ts'
 import type { SchemaNode } from './schema.ts'
 
 type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
@@ -66,6 +68,23 @@ export type ResponseNode = BaseNode & {
    * ```
    */
   content?: Array<ContentNode>
+  /** Response headers, as `in: 'header'` parameters. `Content-Type` is left out. */
+  headers?: Array<ParameterNode>
+  /** Links to operations a client can call next with values from this response, by name. */
+  links?: Record<string, ResponseLink>
+}
+
+/**
+ * A link from a response to another operation. `parameters` and `requestBody` hold values or runtime
+ * expressions such as `$response.body#/id`, copied as-is.
+ */
+export type ResponseLink = {
+  operationId?: string
+  operationRef?: string
+  parameters?: Record<string, unknown>
+  requestBody?: unknown
+  description?: string
+  server?: InputServer
 }
 
 type ResponseInput = Pick<ResponseNode, 'statusCode'> &

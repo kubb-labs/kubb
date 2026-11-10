@@ -5,7 +5,7 @@ import type { ParseFn } from './emit/parseSchema.ts'
 import { getItemSchema, getItemShape, isEventStream, isStream } from './model/mediaType.ts'
 import { toSecurityRequirements } from './model/security.ts'
 import { toInputServers } from './model/server.ts'
-import { getBinaryFallbackSchema, isReference, pickExtensions } from './oas.ts'
+import { getBinaryFallbackSchema, getExternalDocs, isReference, pickExtensions, pickStrings } from './oas.ts'
 import { scanSchema } from './schemaDiagnostics.ts'
 import type { Refs } from './refs.ts'
 import type {
@@ -13,6 +13,7 @@ import type {
   Document,
   EncodingObject,
   ExampleObject,
+  HeaderObject,
   MediaTypeObject,
   OperationObject,
   ParameterObject,
@@ -21,6 +22,7 @@ import type {
   RequestBodyObject,
   ResponseObject,
   SchemaObject,
+  ServerObject,
 } from './types.ts'
 
 /**
@@ -233,6 +235,23 @@ export function getBodySchema({
   return schema ? refs.derefKeepingRef(schema as SchemaObject) : null
 }
 
+/** A response's `links` by name, `$ref`s resolved. Runtime expressions stay as written. */
+function getLinks(links: unknown, refs: Refs): Record<string, ast.ResponseLink> | undefined {
+  const entries = Object.entries(links ?? {}).flatMap(([name, value]) => {
+    const link = refs.deref<Record<string, unknown>>(value)
+    if (!link) return []
+    const server = link['server'] && typeof link['server'] === 'object' ? toInputServers([link['server'] as ServerObject])[0] : undefined
+    const node: ast.ResponseLink = {
+      ...pickStrings(link, ['operationId', 'operationRef', 'description']),
+      ...(typeof link['parameters'] === 'object' && link['parameters'] !== null && { parameters: link['parameters'] as Record<string, unknown> }),
+      ...('requestBody' in link && { requestBody: link['requestBody'] }),
+      ...(server && { server }),
+    }
+    return [[name, node] as const]
+  })
+  return entries.length ? Object.fromEntries(entries) : undefined
+}
+
 /** Vendor extensions that name the `data` value ending an event stream, in the order they are read. */
 const SENTINEL_EXTENSIONS = ['x-sse-sentinel', 'x-speakeasy-sse-sentinel'] as const
 
@@ -366,6 +385,8 @@ function parseParameter({
     ...pickStyleFields(param),
     ...(contentType !== undefined ? { contentType } : {}),
     ...getExamples(mediaType ?? param, refs),
+    ...(param.deprecated && { deprecated: true }),
+    ...(param.allowEmptyValue && { allowEmptyValue: true }),
   })
 }
 
@@ -447,12 +468,26 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
       responseContent.push(ast.factory.createContent({ contentType: '', ...parseEntrySchema(contentType) }))
     }
 
+    const responsePointer = `${pointer}/responses/${statusCode}`
+    // The spec ignores a `Content-Type` header: the media type of `content` says it.
+    const headers = Object.entries(response?.headers ?? {}).flatMap(([name, value]) => {
+      const header = name.toLowerCase() === 'content-type' ? null : refs.deref<HeaderObject>(value)
+      if (!header) return []
+      const param: ParameterObject = { ...header, name, in: 'header' }
+      return [
+        parseParameter({ param, pointer: `${responsePointer}/headers/${escapePointerToken(name)}`, parentName: responseName, options, parseSchema, refs }),
+      ]
+    })
+    const links = getLinks(response?.links, refs)
+
     return ast.factory.createResponse({
-      pointer: `${pointer}/responses/${statusCode}`,
+      pointer: responsePointer,
       statusCode: statusCode as ast.StatusCode,
       summary: response?.summary,
       description: response?.description,
       content: responseContent,
+      ...(headers.length && { headers }),
+      ...(links && { links }),
     })
   })
 
@@ -477,6 +512,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     summary: pickDoc('summary') || undefined,
     description: pickDoc('description') || undefined,
     deprecated: operation.schema.deprecated || undefined,
+    externalDocs: getExternalDocs(operation.schema.externalDocs),
     parameters,
     requestBody,
     responses,

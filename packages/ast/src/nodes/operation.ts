@@ -1,6 +1,6 @@
 import { nodeKinds } from '../constants.ts'
 import type { BaseNode } from './base.ts'
-import type { InputServer } from './input.ts'
+import type { ExternalDocs, InputServer } from './input.ts'
 import type { ParameterNode } from './parameter.ts'
 import { createRequestBody, type RequestBodyNode } from './requestBody.ts'
 import type { ResponseNode } from './response.ts'
@@ -40,6 +40,7 @@ type OperationNodeBase = BaseNode & {
    * Marks the operation as deprecated.
    */
   deprecated?: boolean
+  externalDocs?: ExternalDocs
   /**
    * Query, path, header, and cookie parameters for the operation.
    */

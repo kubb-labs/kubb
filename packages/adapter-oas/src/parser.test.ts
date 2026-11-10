@@ -3120,3 +3120,74 @@ describe('security requirements', () => {
     ])
   })
 })
+
+describe('OpenAPI 3.0 and 3.1 document fields', () => {
+  it('reads info, externalDocs, response headers and links, parameter flags and openIdConnectUrl', async () => {
+    const root = await parseOas({
+      openapi: '3.0.3',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+        termsOfService: 'https://example.com/terms',
+        contact: { name: 'API team', email: 'api@example.com' },
+        license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
+      },
+      externalDocs: { url: 'https://example.com/docs' },
+      tags: [{ name: 'pets', externalDocs: { url: 'https://example.com/pets' } }],
+      paths: {
+        '/pets': {
+          post: {
+            operationId: 'createPet',
+            externalDocs: { url: 'https://example.com/create', description: 'Guide' },
+            parameters: [{ name: 'legacy', in: 'query', deprecated: true, allowEmptyValue: true, schema: { type: 'string' } }],
+            responses: {
+              '201': {
+                description: 'Created',
+                headers: {
+                  Location: { required: true, schema: { type: 'string' } },
+                  'Content-Type': { schema: { type: 'string' } },
+                  'X-Rate-Limit': { $ref: '#/components/headers/RateLimit' },
+                },
+                links: { getPet: { operationId: 'getPet', parameters: { petId: '$response.body#/id' } } },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        headers: { RateLimit: { description: 'Calls left', schema: { type: 'integer' } } },
+        securitySchemes: { oidc: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/.well-known/openid-configuration' } },
+      },
+    })
+    const operation = findOperation(root, 'createPet')!
+    const response = operation.responses[0]!
+
+    expect(root.meta).toMatchObject({
+      termsOfService: 'https://example.com/terms',
+      contact: { name: 'API team', email: 'api@example.com' },
+      license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
+      externalDocs: { url: 'https://example.com/docs' },
+      tags: [{ name: 'pets', externalDocs: { url: 'https://example.com/pets' } }],
+      securitySchemes: [{ name: 'oidc', openIdConnectUrl: 'https://example.com/.well-known/openid-configuration' }],
+    })
+    expect(operation.externalDocs).toStrictEqual({ url: 'https://example.com/create', description: 'Guide' })
+    expect(operation.parameters[0]).toMatchObject({ deprecated: true, allowEmptyValue: true })
+    expect(response.headers?.map(({ name, in: location, required, schema }) => [name, location, required, schema.type, schema.description])).toStrictEqual([
+      ['Location', 'header', true, 'string', undefined],
+      ['X-Rate-Limit', 'header', false, 'integer', 'Calls left'],
+    ])
+    expect(response.links).toStrictEqual({ getPet: { operationId: 'getPet', parameters: { petId: '$response.body#/id' } } })
+  })
+
+  it('reads the 3.1 info summary, license identifier and string contentEncoding', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0', summary: 'Pets', license: { name: 'Apache 2.0', identifier: 'Apache-2.0' } },
+      paths: {},
+      components: { schemas: { Avatar: { type: 'string', contentEncoding: 'base64', contentMediaType: 'image/png' } } },
+    })
+
+    expect(root.meta).toMatchObject({ summary: 'Pets', license: { name: 'Apache 2.0', identifier: 'Apache-2.0' } })
+    expect(findSchema(root, 'Avatar')).toMatchObject({ type: 'string', contentEncoding: 'base64', contentMediaType: 'image/png' })
+  })
+})

@@ -1,3 +1,4 @@
+import type { ast } from '@kubb/kit'
 import type { DiscriminatorObject, Document, ReferenceObject, SchemaObject } from './types.ts'
 
 /**
@@ -24,6 +25,26 @@ export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): 
 export function isOpenApi32(document: Document): boolean {
   const [major = 0, minor = 0] = String(document.openapi).split('.').map(Number)
   return major > 3 || (major === 3 && minor >= 2)
+}
+
+/**
+ * Returns the string-valued `keys` of `source`, or `undefined` when it sets none of them.
+ */
+export function pickStrings<TKey extends string>(source: unknown, keys: ReadonlyArray<TKey>): Partial<Record<TKey, string>> | undefined {
+  if (!source || typeof source !== 'object') return undefined
+  const entries = keys.flatMap((key) => {
+    const value = (source as Record<string, unknown>)[key]
+    return typeof value === 'string' ? [[key, value] as const] : []
+  })
+  return entries.length ? (Object.fromEntries(entries) as Partial<Record<TKey, string>>) : undefined
+}
+
+/**
+ * Returns an External Documentation Object with its `url`, or `undefined` without one.
+ */
+export function getExternalDocs(source: unknown): ast.ExternalDocs | undefined {
+  const docs = pickStrings(source, ['url', 'description'])
+  return docs?.url ? { url: docs.url, ...(docs.description !== undefined && { description: docs.description }) } : undefined
 }
 
 /**
