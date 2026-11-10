@@ -60,8 +60,7 @@ type OperationNodeBase = BaseNode & {
   /** The operation's own `servers`, else its path item's, such as an upload host. Absent when neither declares any. */
   servers?: Array<InputServer>
   /**
-   * Ways to authenticate, from the operation or else the document. The client meets any one entry, and each
-   * entry names schemes in `meta.auth`. `[]` means the operation needs no auth.
+   * Ways to authenticate, from the operation or else the document. Any one entry is enough. `[]` means no auth.
    */
   auth?: Array<AuthRequirement>
 }

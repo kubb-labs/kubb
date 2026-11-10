@@ -71,15 +71,11 @@ export type ResponseNode = BaseNode & {
    * Response headers, as `in: 'header'` parameters. `Content-Type` is left out.
    */
   headers?: Array<ParameterNode>
-  /**
-   * Links to operations a client can call next with values from this response, by name.
-   */
   links?: Record<string, ResponseLink>
 }
 
 /**
- * A link from a response to another operation. `parameters` and `requestBody` hold values or runtime
- * expressions such as `$response.body#/id`, copied as-is.
+ * A link to another operation. `parameters` and `requestBody` hold runtime expressions such as `$response.body#/id`.
  */
 export type ResponseLink = {
   operationId?: string

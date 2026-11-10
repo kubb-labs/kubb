@@ -72,7 +72,6 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       })
     : []
 
-  // JSON Schema 2020-12 `unevaluatedProperties` closes or types the extra keys the same way when `additionalProperties` is absent.
   const additionalProperties = schema.additionalProperties ?? (schema as { unevaluatedProperties?: SchemaObject['additionalProperties'] }).unevaluatedProperties
   const additionalPropertiesNode = (() => {
     if (additionalProperties === true) return true
@@ -122,7 +121,6 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
  */
 export function convertTuple({ schema, name, nullable, defaultValue, options, parse }: ConvertContext): ast.SchemaNode {
   const tupleItems = (schema.prefixItems ?? []).map((item) => parse({ schema: item as SchemaObject }))
-  // `unevaluatedItems` types or closes the tail the same way when `items` is absent.
   const tail = schema.items ?? (schema as { unevaluatedItems?: SchemaObject['items'] }).unevaluatedItems
   // items: false closes the tuple; absent/true widens the tail to unknownType.
   const rest =

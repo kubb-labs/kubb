@@ -24,27 +24,15 @@ export type EncodingNode = {
    */
   allowReserved?: boolean
   encoding?: Record<string, EncodingNode>
-  /**
-   * Serialization of the first parts by position, for a part that is itself a multipart body.
-   */
   prefixEncoding?: Array<EncodingNode>
-  /**
-   * Serialization of every part after `prefixEncoding`, for a part that is itself a multipart body.
-   */
   itemEncoding?: EncodingNode
 }
 
 export type ExampleNode = {
-  /**
-   * Key of the example in the source, absent for a single unnamed example.
-   */
   name?: string
   summary?: string
   description?: string
   value?: unknown
-  /**
-   * The example as it is sent on the wire, such as a URL-encoded query string.
-   */
   serializedValue?: string
 }
 

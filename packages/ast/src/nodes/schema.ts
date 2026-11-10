@@ -97,10 +97,8 @@ type SchemaNodeBase = BaseNode & {
   format?: string
   externalDocs?: ExternalDocs
   /**
-   * Conditions the value must also meet: one that matches `if` must match `then`, any other `else`. Holds
-   * JSON Schema `if`/`then`/`else`, and each `dependentRequired` and `dependentSchemas` entry, whose `if` is an
-   * object that requires the trigger key. In those entries, a required property with an `unknown` schema only
-   * checks that the key is present. Visitors do not walk it, like a string's `content.schema`.
+   * `if`/`then`/`else`, `dependentRequired` and `dependentSchemas`. A required `unknown` property in `if` means "key is present".
+   * Visitors do not walk it.
    */
   conditionals?: Array<{ if: SchemaNode; then?: SchemaNode; else?: SchemaNode }>
 }
@@ -213,8 +211,7 @@ export type ArraySchemaNode = SchemaNodeBase & {
    */
   unique?: boolean
   /**
-   * Items that must be present: at least `min` (default 1) and at most `max` items match `schema`. `min` and `max` on
-   * the array itself count all items. Visitors do not walk `schema`.
+   * At least `min` (default 1) and at most `max` items match `schema`. Visitors do not walk `schema`.
    */
   contains?: { schema: SchemaNode; min?: number; max?: number }
 }
@@ -465,8 +462,7 @@ export type StringSchemaNode = SchemaNodeBase & {
    */
   pattern?: string
   /**
-   * What the string holds when it encodes another value, such as a JSON document or `base64` bytes.
-   * Visitors skip `schema`, so the string type does not import it.
+   * The value the string encodes, such as a JSON document or `base64` bytes. Visitors do not walk `schema`.
    */
   content?: {
     mediaType?: string

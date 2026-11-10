@@ -24,9 +24,7 @@ export type OasParserContext = {
 }
 
 /**
- * JSON Schema `unevaluatedProperties` and `unevaluatedItems` also see the keys and items that composition or
- * conditional siblings evaluate. Kubb maps them onto `additionalProperties` and the tuple tail of one object, so
- * with such a sibling they are dropped and the schema stays open, rather than rejecting what a sibling allows.
+ * `unevaluated*` also sees what composition siblings evaluate, so with such a sibling it is dropped to keep the schema open.
  */
 function hasUnevaluatedSiblings(schema: SchemaObject): boolean {
   const record = schema as Record<string, unknown>
@@ -87,8 +85,7 @@ export function createSchemaParser(ctx: OasParserContext) {
   }
 
   /**
-   * Adds JSON Schema `if`/`then`/`else`, `dependentRequired` and `dependentSchemas` to the converted node as
-   * `conditionals`, whatever its type. Each dependency becomes `if` its trigger key is present, `then` the dependent keys or schema.
+   * Adds `if`/`then`/`else`, `dependentRequired` and `dependentSchemas` to the node as `conditionals`.
    */
   function withConditionals(node: ast.SchemaNode, schema: SchemaObject): ast.SchemaNode {
     // `allOf` members that hold only annotations and `if`/`then`/`else` are not parsed as members, so read their conditionals here.

@@ -180,9 +180,6 @@ const annotationKeys = new Set(['description', 'title', 'example', 'examples', '
  * Moves `allOf` members that hold only annotations or `if`/`then`/`else` onto the parent, so they do
  * not become `unknown`. The parent's own values win. The parser reads their `if`/`then`/`else` into `conditionals`.
  */
-/**
- * An `allOf` member that holds only annotations or `if`/`then`/`else`.
- */
 export function isAnnotationMember(member: unknown): boolean {
   return !!member && typeof member === 'object' && !isReference(member) && Object.keys(member).every((key) => annotationKeys.has(key))
 }

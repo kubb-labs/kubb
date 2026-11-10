@@ -83,13 +83,11 @@ function isExtensionPath(path: ReadonlyArray<string | number>): boolean {
 }
 
 /**
- * Returns the base for relative `$ref`s: the OpenAPI 3.2 `$self` resolved against `pathOrUrl`, else `pathOrUrl`.
- * A `$self` that only names the document, such as a URN, is ignored.
+ * Returns the base for relative `$ref`s: the 3.2 `$self` resolved against `pathOrUrl`, else `pathOrUrl`.
  */
 export function getBaseUri(pathOrUrl: string, root: unknown): string {
   const self = root && typeof root === 'object' ? (root as { $self?: unknown }).$self : undefined
   if (typeof self !== 'string' || !self) return pathOrUrl
-  // `$self` only hints at the base, so a malformed value such as `https:///` keeps `pathOrUrl`.
   try {
     if (urlRegExp.test(self)) return new URL(self).href
     if (/^file:/i.test(self)) return fileURLToPath(self)
@@ -130,7 +128,6 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
 
-  // The location the bundler reads the input document from, which `$self` moves.
   let entry = pathOrUrl
   let entryDocument: object | string | undefined = document
   const resolver = (sourcePath: string) => {
@@ -212,7 +209,6 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
               help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
             }) as Document)
           : structuredClone(source.data as Document)
-      // `bundleDocument` resolves schema ids itself, so walk the tree once on either path.
       if (source.root && hasExternalRef(data)) return bundleDocument(join(source.root, inlineInputName), { document: data, sources })
       resolveSchemaIds(data)
       return data

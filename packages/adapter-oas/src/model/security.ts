@@ -7,9 +7,6 @@ import type { Document, SecuritySchemeObject } from '../types.ts'
 const SCHEME_POINTER = '#/components/securitySchemes/'
 const API_KEY_LOCATIONS = new Set(['header', 'query', 'cookie'])
 
-/**
- * How a client sends the scheme's credential, or `undefined` when it cannot place one.
- */
 function getCredential(scheme: SecuritySchemeObject): ast.AuthCredential | undefined {
   if (scheme.type === 'apiKey') {
     return scheme.name && scheme.in && API_KEY_LOCATIONS.has(scheme.in) ? { type: 'apiKey', in: scheme.in as 'header', name: scheme.name } : undefined
@@ -29,8 +26,7 @@ function getCredential(scheme: SecuritySchemeObject): ast.AuthCredential | undef
 }
 
 /**
- * Maps `components.securitySchemes` to `AuthScheme` entries by how a client sends the credential. A scheme the
- * client cannot place, such as an `apiKey` outside a header, query or cookie, is left out.
+ * Maps `components.securitySchemes` to `AuthScheme` entries, leaving out a scheme a client cannot place.
  */
 export function toAuthSchemes(schemes: Record<string, unknown> | undefined, refs: Refs): Array<ast.AuthScheme> {
   return Object.entries(schemes ?? {}).flatMap(([name, value]) => {
@@ -49,8 +45,7 @@ export function toAuthSchemes(schemes: Record<string, unknown> | undefined, refs
 }
 
 /**
- * Maps security requirements to `AuthRequirement` entries. From 3.2 a key may be a URI to the scheme, such as
- * `#/components/securitySchemes/oauth`, which becomes `oauth`. Returns `undefined` for a missing or malformed list.
+ * Maps security requirements to `AuthRequirement` entries. A 3.2 URI key becomes the scheme name.
  */
 export function toAuthRequirements(requirements: unknown, document: Document): Array<ast.AuthRequirement> | undefined {
   if (!Array.isArray(requirements)) return undefined

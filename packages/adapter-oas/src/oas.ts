@@ -27,9 +27,6 @@ export function isOpenApi32(document: Document): boolean {
   return major > 3 || (major === 3 && minor >= 2)
 }
 
-/**
- * Returns the string-valued `keys` of `source`, or `undefined` when it sets none of them.
- */
 export function pickStrings<TKey extends string>(source: unknown, keys: ReadonlyArray<TKey>): Partial<Record<TKey, string>> | undefined {
   if (!source || typeof source !== 'object') return undefined
   const entries = keys.flatMap((key) => {
@@ -39,9 +36,6 @@ export function pickStrings<TKey extends string>(source: unknown, keys: Readonly
   return entries.length ? (Object.fromEntries(entries) as Partial<Record<TKey, string>>) : undefined
 }
 
-/**
- * Returns an External Documentation Object with its `url`, or `undefined` without one.
- */
 export function getExternalDocs(source: unknown): ast.ExternalDocs | undefined {
   const docs = pickStrings(source, ['url', 'description'])
   return docs?.url ? { url: docs.url, ...(docs.description !== undefined && { description: docs.description }) } : undefined

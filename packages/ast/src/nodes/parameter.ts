@@ -68,9 +68,6 @@ export type ParameterNode = BaseNode & {
   contentType?: string
   examples?: Array<ExampleNode>
   deprecated?: boolean
-  /**
-   * Whether the parameter may be sent with an empty value, such as `?flag=`.
-   */
   allowEmptyValue?: boolean
 }
 

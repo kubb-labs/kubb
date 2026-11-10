@@ -177,9 +177,6 @@ function toEncodingNode({ contentType, encoding, prefixEncoding, itemEncoding, .
   }
 }
 
-/**
- * The named `examples` of a media type or parameter, else its single `example`. A 3.2 `dataValue` wins over `value`.
- */
 function getExamples({ example, examples }: { example?: unknown; examples?: Record<string, unknown> }, refs: Refs): Pick<ast.ContentNode, 'examples'> {
   const named = Object.entries(examples ?? {}).flatMap(([name, entry]) => {
     const resolved = refs.deref<ExampleObject>(entry)

@@ -2,9 +2,7 @@ import { escapePointerToken } from '@internals/utils'
 
 type Visit = (node: Record<string, unknown>, pointer: string) => void
 
-// Keys that hold instance data, not schemas. Their values can contain `$ref` or `$id` strings that are not references.
 const DATA_KEYS = new Set(['example', 'examples', 'const', 'enum', 'default'])
-// Keys whose children are named entries, so a child called `example` or `x-…` is still a schema.
 const NAMED_ENTRY_KEYS = new Set(['properties', 'patternProperties', '$defs', 'definitions', 'schemas', 'dependentSchemas'])
 
 function walk(node: unknown, pointer: string, visit: Visit, parentKey?: string): void {
@@ -18,9 +16,7 @@ function walk(node: unknown, pointer: string, visit: Visit, parentKey?: string):
 }
 
 /**
- * The target for `ref` seen at `pointer`: the declaration in the nearest enclosing schema, as for a
- * `$dynamicRef` to a generic's own `$dynamicAnchor`, else the only declaration. `undefined` when the name is
- * declared more than once and none encloses the ref.
+ * The declaration in the nearest enclosing schema, else the only one, else `undefined`.
  */
 function pick(declarations: Array<string> | undefined, pointer: string): string | undefined {
   if (!declarations) return undefined
@@ -30,9 +26,8 @@ function pick(declarations: Array<string> | undefined, pointer: string): string 
 }
 
 /**
- * Rewrites, in place, each `$ref` that names a schema by its `$id`, `$anchor` or `$dynamicAnchor`, and each
- * `$dynamicRef`, into a `#/...` JSON pointer, so they resolve like any local `$ref` and are not fetched.
- * Example values, `const`, `enum`, `default` and `x-` extensions are left as written.
+ * Rewrites, in place, each `$ref` to an `$id`, `$anchor` or `$dynamicAnchor`, and each `$dynamicRef`, into a
+ * `#/...` pointer, so it is not fetched. Instance data and `x-` extensions are left as written.
  *
  * shortcut: `$id` matches the `$ref` string exactly and `$dynamicRef` resolves statically to the nearest
  * enclosing anchor, so a relative `$id` base or a recursively extended schema is not followed, upgrade when a spec needs that.
