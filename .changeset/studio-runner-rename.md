@@ -9,10 +9,10 @@ This is a breaking change with no aliases. This `@kubb/studio` version only work
 
 ### Changed
 
-- The runner endpoints are `/api/runner/pairing`, `/api/runner/token` and `/api/runner/socket`. They were under `/api/agent/`.
+- The runner endpoints are `/api/runner/token` and `/api/runner/socket`. They were under `/api/agent/`.
 - `KUBB_AGENT_MAX_GENERATIONS` is now `KUBB_RUNNER_MAX_GENERATIONS`, and `KUBB_AGENT_MAX_GENERATIONS_MB` is now `KUBB_RUNNER_MAX_GENERATIONS_MB`. Kubb ignores the old names.
 - `kubb studio snapshot --json` prints `projectUrl` instead of `agentUrl`, and the URL points to `/projects/<slug>`.
-- `~/.kubb` credentials store `projectId` and `projectSlug` instead of `agentId` and `agentSlug`. Run `kubb studio login` once after you upgrade.
+- `~/.kubb` credentials store `projectId` and `projectSlug` instead of `agentId` and `agentSlug`. Kubb treats older credentials as not paired, so run `kubb studio login` once after you upgrade.
 
 ### Removed
 

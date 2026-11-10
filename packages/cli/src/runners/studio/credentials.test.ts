@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm, stat } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { clearCredentials, getMachineId, getProjectKubbHome, writeCredentials } from './credentials.ts'
+import { clearCredentials, getMachineId, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 
 let home: string
 
@@ -14,6 +14,14 @@ beforeEach(async () => {
 afterEach(async () => {
   vi.unstubAllEnvs()
   await rm(home, { recursive: true, force: true })
+})
+
+describe('readCredentials', () => {
+  it('treats a credential stored before the project rename as not paired', async () => {
+    await writeCredentials({ studioUrl: 'https://kubb.studio', token: 'token', agentId: '1', agentSlug: 'brave-otter' } as never)
+
+    await expect(readCredentials()).resolves.toBeNull()
+  })
 })
 
 describe('getMachineId', () => {

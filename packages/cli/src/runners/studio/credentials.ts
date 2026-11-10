@@ -64,14 +64,15 @@ export type Credentials = {
 /**
  * Reads the stored credential, or null when this machine has not paired yet or the file is
  * unreadable or corrupt. A bad file is treated as "not paired" so `kubb studio login` can
- * overwrite it rather than the CLI dying on it.
+ * overwrite it rather than the CLI dying on it. So is a file from before `projectId` replaced
+ * `agentId`, which pairs again instead of connecting under a name it no longer has.
  */
 export async function readCredentials(): Promise<Credentials | null> {
   const stored = await projectStorage()
     .getItem<Credentials>(CREDENTIALS_FILENAME)
     .catch(() => null)
 
-  return typeof stored?.token === 'string' && stored.token !== '' ? stored : null
+  return typeof stored?.token === 'string' && stored.token !== '' && typeof stored.projectId === 'string' ? stored : null
 }
 
 /**

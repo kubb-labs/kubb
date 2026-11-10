@@ -53,7 +53,7 @@ for (;;) {
   token ??= (await pairRunner({ type: 'cli', name: 'my-project', hostname, machineId, onCode })).token
   try {
     // Resolves on shutdown, rejects when Studio refuses the token.
-    await connectRunner({ token, configPath: 'kubb.config.ts', loadConfig, version: '1.0.0', hooks, signal })
+    await connectRunner({ token, configPath: 'kubb.config.ts', loadConfigs, version: '1.0.0', hooks, signal })
     break
   } catch (error) {
     if (!(error instanceof InvalidRunnerTokenError)) throw error
