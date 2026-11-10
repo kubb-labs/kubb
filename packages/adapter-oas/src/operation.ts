@@ -421,8 +421,10 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
         }
       : undefined
 
-  const responses = getResponseStatusCodes(operation).map((statusCode) => {
-    const response = getResponseByStatusCode({ operation, refs, statusCode })
+  const responses = getResponseStatusCodes(operation).map((key) => {
+    const response = getResponseByStatusCode({ operation, refs, statusCode: key })
+    // A range such as `2XX` is written `2xx`. Pointers keep the key as the document spells it.
+    const statusCode = key.toLowerCase() as ast.StatusCode
     // `Status<code>` keeps nested enum names clear of a component schema named `<operation><statusCode>`.
     const responseName = operationName ? `${operationName}Status${statusCode}` : undefined
 
@@ -432,7 +434,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
       const node =
         raw && Object.keys(raw).length > 0 ? parseSchema({ schema: raw, name: responseName }) : ast.factory.createSchema({ type: options.emptySchemaType })
       if (raw && ct) {
-        const base = mediaTypePointer(response?.content, ct, `${pointer}/responses/${statusCode}/content/${escapePointerToken(ct)}`)
+        const base = mediaTypePointer(response?.content, ct, `${pointer}/responses/${key}/content/${escapePointerToken(ct)}`)
         scanSchema(node, `${base}/${schemaKeyword(mediaType)}`)
       }
       return {
@@ -455,7 +457,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
       responseContent.push(ast.factory.createContent({ contentType: '', ...parseEntrySchema(contentType) }))
     }
 
-    const responsePointer = `${pointer}/responses/${statusCode}`
+    const responsePointer = `${pointer}/responses/${key}`
     // The spec ignores a `Content-Type` header, since `content` already names the media type.
     const headers = Object.entries(response?.headers ?? {}).flatMap(([name, value]) => {
       const header = name.toLowerCase() === 'content-type' ? null : refs.deref<HeaderObject>(value)
@@ -469,7 +471,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
 
     return ast.factory.createResponse({
       pointer: responsePointer,
-      statusCode: statusCode as ast.StatusCode,
+      statusCode,
       summary: response?.summary,
       description: response?.description,
       content: responseContent,

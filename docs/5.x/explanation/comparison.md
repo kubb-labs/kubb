@@ -72,7 +72,7 @@ openapi-typescript ships no generated client, so it is left out of this table an
 | [Status-discriminated response result](/extensions/kubb-labs/plugin-fetch/guides/error-handling) |  ✅  | 🔶<sup>1</sup> | 🔶<sup>2</sup> |
 | Multiple success (2xx) responses                                                                 |  ✅  |       ✅       |       ✅       |
 | Multiple content types per response                                                              |  ✅  |       ✅       | 🛑<sup>3</sup> |
-| `default` and wildcard (`4XX`, `5XX`) responses                                                  |  ✅  |       ✅       |       ✅       |
+| `default` and wildcard (`4xx`, `5xx`) responses                                                  |  ✅  |       ✅       |       ✅       |
 | [Typed error responses](/extensions/kubb-labs/plugin-fetch/guides/error-handling)                |  ✅  | 🔶<sup>1</sup> |       ✅       |
 | [Throw or return the error per call](/extensions/kubb-labs/plugin-fetch/guides/error-handling)   |  ✅  |       🛑       |       ✅       |
 | [Zod v4 schemas tied to the types](/extensions/kubb-labs/plugin-zod)                             |  ✅  |       ✅       |       ✅       |

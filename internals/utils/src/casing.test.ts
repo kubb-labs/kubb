@@ -19,6 +19,10 @@ describe('casing', () => {
     // digit → letter boundary
     ['123invalid', '123Invalid'],
     ['get2pet', 'get2Pet'],
+    // a status range stays lower case
+    ['listPets Status 2xx', 'listPetsStatus2xx'],
+    ['listPetsStatus4xx headers', 'listPetsStatus4xxHeaders'],
+    ['get2xxl', 'get2Xxl'],
     // mixed separators
     ['hello-world_foo', 'helloWorldFoo'],
     // special chars stripped (@ is not a separator, just removed)
@@ -43,6 +47,7 @@ describe('casing', () => {
     expect(pascalCase('pet pet')).toBe('PetPet')
     expect(pascalCase('is HTML test')).toBe('IsHTMLTest')
     expect(pascalCase('aiType')).toBe('AiType')
+    expect(pascalCase('list pets status 2xx')).toBe('ListPetsStatus2xx')
   })
 })
 
