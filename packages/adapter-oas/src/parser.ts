@@ -74,13 +74,18 @@ export function createSchemaParser(ctx: OasParserContext) {
     return withConditionals(node, schema)
   }
 
+  // The key lists of the presence checks `requireKeys` builds, so two entries that check the same keys compare equal.
+  const presenceKeys = new WeakMap<ast.SchemaNode, string>()
+
   function requireKeys(keys: Array<string>): ast.SchemaNode {
     const unknown = ast.factory.createSchema({ type: ast.schemaTypes.unknown })
-    return ast.factory.createSchema({
+    const node = ast.factory.createSchema({
       type: ast.schemaTypes.object,
       primitive: 'object',
       properties: keys.map((name) => ast.factory.createProperty({ name, required: true, schema: unknown })),
     })
+    presenceKeys.set(node, keys.join('\0'))
+    return node
   }
 
   /**
@@ -91,18 +96,20 @@ export function createSchemaParser(ctx: OasParserContext) {
     const sources = [schema, ...(Array.isArray(schema.allOf) ? (schema.allOf as Array<unknown>).filter(isAnnotationMember) : [])] as Array<SchemaObject>
     const conditionals = sources.flatMap(toConditionals)
     // A collapsed one-member `allOf` already carries the conditionals of its member, so a repeated entry is skipped.
-    const existing = new Set((node.conditionals ?? []).map(conditionalKey))
-    const added = conditionals.filter((entry) => !existing.has(conditionalKey(entry)))
+    const existing = new Set((node.conditionals ?? []).map(presenceKey))
+    const added = conditionals.filter((entry) => {
+      const key = presenceKey(entry)
+      return key === undefined || !existing.has(key)
+    })
     return added.length ? { ...node, conditionals: [...(node.conditionals ?? []), ...added] } : node
   }
 
   /**
-   * A comparable key for one `conditionals` entry. A ref's resolved `schema` can point back up the tree, so the key leaves it out.
+   * The keys an entry checks for presence, or `undefined` when a branch checks more than presence and the entry is always kept.
    */
-  function conditionalKey(entry: NonNullable<ast.SchemaNode['conditionals']>[number]): string {
-    return JSON.stringify(entry, function (this: { type?: string }, key, value) {
-      return key === 'schema' && this.type === 'ref' ? undefined : value
-    })
+  function presenceKey({ if: condition, then: thenNode, else: elseNode }: NonNullable<ast.SchemaNode['conditionals']>[number]): string | undefined {
+    const keys = [condition, thenNode, elseNode].map((branch) => (branch ? presenceKeys.get(branch) : ''))
+    return keys.includes(undefined) ? undefined : keys.join('\n')
   }
 
   function toConditionals(schema: SchemaObject): NonNullable<ast.SchemaNode['conditionals']> {
