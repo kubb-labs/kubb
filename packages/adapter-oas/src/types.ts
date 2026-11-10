@@ -149,7 +149,7 @@ export type SecuritySchemeObject = {
   bearerFormat?: string
   in?: string
   name?: string
-  flows?: Record<string, ast.InputOAuthFlow>
+  flows?: Record<string, Record<string, unknown>>
   oauth2MetadataUrl?: string
   openIdConnectUrl?: string
   deprecated?: boolean

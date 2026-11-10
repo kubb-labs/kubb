@@ -1,6 +1,6 @@
 import { nodeKinds } from '../constants.ts'
 import type { BaseNode } from './base.ts'
-import type { ExternalDocs, InputServer } from './input.ts'
+import type { AuthRequirement, ExternalDocs, InputServer } from './input.ts'
 import type { ParameterNode } from './parameter.ts'
 import { createRequestBody, type RequestBodyNode } from './requestBody.ts'
 import type { ResponseNode } from './response.ts'
@@ -60,10 +60,10 @@ type OperationNodeBase = BaseNode & {
   /** The operation's own `servers`, else its path item's, such as an upload host. Absent when neither declares any. */
   servers?: Array<InputServer>
   /**
-   * Ways to authenticate, from the operation or else the document. Each entry maps scheme names in
-   * `meta.securitySchemes` to the scopes it needs, and all schemes in one entry apply together. `[]` means none.
+   * Ways to authenticate, from the operation or else the document. The client meets any one entry, and each
+   * entry names schemes in `meta.auth`. `[]` means the operation needs no auth.
    */
-  security?: Array<Record<string, Array<string>>>
+  auth?: Array<AuthRequirement>
 }
 
 /**

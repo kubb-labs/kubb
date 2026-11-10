@@ -2913,17 +2913,20 @@ describe('OpenAPI 3.2 security schemes', () => {
       },
     })
 
-    expect(root.meta.securitySchemes).toMatchObject([
+    expect(root.meta.auth).toStrictEqual([
       {
         name: 'oauth',
-        type: 'oauth2',
-        oauth2MetadataUrl: 'https://auth.example.com/.well-known/oauth-authorization-server',
         deprecated: true,
-        flows: {
-          deviceAuthorization: {
-            deviceAuthorizationUrl: 'https://auth.example.com/device',
-            tokenUrl: 'https://auth.example.com/token',
-            scopes: { read: 'Read access' },
+        credential: { type: 'bearer' },
+        tokenSource: {
+          type: 'oauth2',
+          metadataUrl: 'https://auth.example.com/.well-known/oauth-authorization-server',
+          flows: {
+            deviceAuthorization: {
+              deviceAuthorizationUrl: 'https://auth.example.com/device',
+              tokenUrl: 'https://auth.example.com/token',
+              scopes: { read: 'Read access' },
+            },
           },
         },
       },
@@ -3066,9 +3069,9 @@ describe('security requirements', () => {
       components: { securitySchemes: { apiKey: { type: 'apiKey', in: 'header', name: 'X-Key' }, oauth: { type: 'oauth2', flows: {} } } },
     })
 
-    expect(root.operations.map(({ operationId, security }) => [operationId, security])).toStrictEqual([
-      ['listPets', [{ apiKey: [] }]],
-      ['createPet', [{ oauth: ['write'] }, {}]],
+    expect(root.operations.map(({ operationId, auth }) => [operationId, auth])).toStrictEqual([
+      ['listPets', [[{ scheme: 'apiKey' }]]],
+      ['createPet', [[{ scheme: 'oauth', scopes: ['write'] }], []]],
       ['clearPets', []],
     ])
   })
@@ -3121,7 +3124,9 @@ describe('OpenAPI 3.0 and 3.1 document fields', () => {
       license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
       externalDocs: { url: 'https://example.com/docs' },
       tags: [{ name: 'pets', externalDocs: { url: 'https://example.com/pets' } }],
-      securitySchemes: [{ name: 'oidc', openIdConnectUrl: 'https://example.com/.well-known/openid-configuration' }],
+      auth: [
+        { name: 'oidc', credential: { type: 'bearer' }, tokenSource: { type: 'openIdConnect', url: 'https://example.com/.well-known/openid-configuration' } },
+      ],
     })
     expect(operation.externalDocs).toStrictEqual({ url: 'https://example.com/create', description: 'Guide' })
     expect(operation.parameters[0]).toMatchObject({ deprecated: true, allowEmptyValue: true })
@@ -3277,6 +3282,32 @@ describe('status code ranges', () => {
     expect(findOperation(root, 'a')?.responses.map((response) => [response.statusCode, response.content?.[0]?.schema?.type])).toStrictEqual([
       ['2XX', 'string'],
       ['4XX', 'object'],
+    ])
+  })
+})
+
+describe('auth schemes', () => {
+  it('maps each scheme to how a client sends the credential, and leaves out one it cannot place', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        securitySchemes: {
+          basic: { type: 'http', scheme: 'Basic', description: 'User and password' },
+          digest: { type: 'http', scheme: 'digest' },
+          key: { type: 'apiKey', in: 'cookie', name: 'sid' },
+          bodyKey: { type: 'apiKey', in: 'body', name: 'key' },
+          tls: { type: 'mutualTLS' },
+        },
+      },
+    })
+
+    expect(root.meta.auth).toStrictEqual([
+      { name: 'basic', description: 'User and password', credential: { type: 'basic' } },
+      { name: 'digest', credential: { type: 'http', scheme: 'digest' } },
+      { name: 'key', credential: { type: 'apiKey', in: 'cookie', name: 'sid' } },
+      { name: 'tls', credential: { type: 'mutualTLS' } },
     ])
   })
 })

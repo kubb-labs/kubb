@@ -8,6 +8,7 @@ import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discr
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
 import { assertDocument, parseFromConfig, validateDocument, validateDocumentInWorker } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
+import { toAuthSchemes } from './model/security.ts'
 import { resolveBaseUrl, toInputServers } from './model/server.ts'
 import { toInputTags } from './model/tag.ts'
 import { getExternalDocs, pickExtensions, pickStrings } from './oas.ts'
@@ -17,7 +18,7 @@ import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { createRefs } from './refs.ts'
 import { groupUnsupportedFormats, scanSchema } from './schemaDiagnostics.ts'
 import { locate } from './sourceLocator.ts'
-import type { AdapterOas, Document, SchemaObject, SecuritySchemeObject } from './types.ts'
+import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
 /** The License Object, kept only with the `name` the spec requires. */
 function getLicense(source: unknown): ast.InputMeta['license'] {
@@ -168,6 +169,8 @@ export const adapterOas = defineExtension<AdapterOas>({
 
       const operations = promotedEnums ? operationNodes.map((node) => refPromotedEnums(node, promotedEnums!)) : operationNodes
 
+      const authSchemes = toAuthSchemes(document.components?.securitySchemes, refs)
+
       return ast.factory.createInput({
         schemas: schemaNodes,
         operations,
@@ -183,26 +186,7 @@ export const adapterOas = defineExtension<AdapterOas>({
           baseURL: resolveBaseUrl({ document, server }),
           servers: toInputServers(document.servers ?? []),
           ...(document.tags?.length && { tags: toInputTags(document.tags) }),
-          securitySchemes: Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
-            const scheme = refs.deref<SecuritySchemeObject>(value)
-            return scheme?.type
-              ? [
-                  {
-                    name,
-                    type: scheme.type,
-                    description: scheme.description,
-                    scheme: scheme.scheme,
-                    bearerFormat: scheme.bearerFormat,
-                    in: scheme.in,
-                    parameterName: scheme.name,
-                    ...(scheme.flows && { flows: scheme.flows }),
-                    ...(scheme.oauth2MetadataUrl && { oauth2MetadataUrl: scheme.oauth2MetadataUrl }),
-                    ...(scheme.openIdConnectUrl && { openIdConnectUrl: scheme.openIdConnectUrl }),
-                    ...(scheme.deprecated && { deprecated: true }),
-                  },
-                ]
-              : []
-          }),
+          ...(authSchemes.length && { auth: authSchemes }),
           extensions: pickExtensions(document),
         },
       })
