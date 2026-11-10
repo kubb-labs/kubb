@@ -890,3 +890,33 @@ describe('adapterOas ref targetName', () => {
     expect(ast.resolveRefName(responseRef)).toBe('OrderSchema')
   })
 })
+
+it('preserves separate alias and target conditional pairs and their used refs', async () => {
+  const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` })
+  const target = { type: 'number', description: 'target', if: ref('TargetIf'), then: ref('TargetThen') }
+  const alias = { ...ref('Target'), type: 'string', description: 'alias', if: ref('AliasIf'), then: ref('AliasThen') }
+  const document = {
+    openapi: '3.1.0',
+    info: { title: 'review', version: '1' },
+    paths: {
+      '/test': { get: { operationId: 'test', responses: { '200': { description: 'ok', content: { 'application/json': { schema: ref('Alias') } } } } } },
+    },
+    components: {
+      schemas: {
+        Alias: alias,
+        Target: target,
+        ...Object.fromEntries(
+          ['TargetIf', 'TargetThen', 'AliasIf', 'AliasThen', 'Unused'].map((name) => [name, { type: 'object', properties: { [name]: { type: 'string' } } }]),
+        ),
+      },
+    },
+  }
+  const node = await adapterOas({ validate: false }).parse({ type: 'data', data: document })
+  const parsed = node.schemas.find((schema) => schema.name === 'Alias')!
+  expect(parsed).toMatchObject({ type: 'string', description: 'alias' })
+  expect(parsed.conditionals?.map((pair) => [ast.resolveRefName(pair.if), ast.resolveRefName(pair.then)])).toStrictEqual([
+    ['AliasIf', 'AliasThen'],
+    ['TargetIf', 'TargetThen'],
+  ])
+  expect([...ast.collectUsedSchemaNames(node.operations, node.schemas)].sort()).toStrictEqual(['Alias', 'AliasIf', 'AliasThen', 'TargetIf', 'TargetThen'])
+})

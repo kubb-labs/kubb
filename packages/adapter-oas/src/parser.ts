@@ -44,6 +44,17 @@ export function createSchemaParser(ctx: OasParserContext) {
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }): ast.SchemaNode {
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema !== schema) {
+      const pairs = (schema.allOf as Array<SchemaObject>).map(({ if: condition, then, else: otherwise }) => ({ if: condition, then, else: otherwise }))
+      if (pairs.some((pair) => pair.if !== undefined || pair.then !== undefined || pair.else !== undefined)) {
+        // Flatten other keywords with their existing precedence, but read each conditional in its original scope.
+        const { if: _if, then: _then, else: _else, ...shape } = flattenedSchema
+        return withConditionals(parseSchema({ schema: shape as SchemaObject, name }), {
+          if: schema.if,
+          then: schema.then,
+          else: schema.else,
+          allOf: pairs,
+        } as SchemaObject)
+      }
       return parseSchema({ schema: flattenedSchema, name })
     }
     if (hasUnevaluatedSiblings(schema)) {
