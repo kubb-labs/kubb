@@ -44,6 +44,10 @@ export type ResponseNode = BaseNode & {
    */
   statusCode: StatusCode
   /**
+   * Short one-line response summary.
+   */
+  summary?: string
+  /**
    * Optional response description.
    */
   description?: string

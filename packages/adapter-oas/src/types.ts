@@ -110,9 +110,10 @@ export type DiscriminatorObject = OpenAPIV3_1.DiscriminatorObject & { defaultMap
 export type ReferenceObject = OpenAPIV3_1.ReferenceObject
 
 /**
- * OpenAPI response object holding the content and headers for one status code.
+ * OpenAPI response object holding the content and headers for one status code, with the OpenAPI 3.2
+ * `summary`. From 3.2 `description` is optional.
  */
-export type ResponseObject = OpenAPIV3_1.ResponseObject
+export type ResponseObject = Omit<OpenAPIV3_1.ResponseObject, 'description'> & { description?: string; summary?: string }
 
 /**
  * OpenAPI request body object that maps content types to their media type objects.

@@ -2855,3 +2855,18 @@ describe('OpenAPI 3.2 annotations', () => {
     })
   })
 })
+
+describe('OpenAPI 3.2 responses', () => {
+  it('reads the response summary and accepts a response without description', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: { '/pets': { get: { operationId: 'listPets', responses: { '200': { summary: 'The pets' }, '404': {} } } } },
+    })
+
+    expect(findOperation(root, 'listPets')?.responses.map(({ statusCode, summary, description }) => ({ statusCode, summary, description }))).toStrictEqual([
+      { statusCode: '200', summary: 'The pets', description: undefined },
+      { statusCode: '404', summary: undefined, description: undefined },
+    ])
+  })
+})

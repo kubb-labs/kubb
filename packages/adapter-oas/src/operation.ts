@@ -393,6 +393,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     return ast.factory.createResponse({
       pointer: `${pointer}/responses/${statusCode}`,
       statusCode: statusCode as ast.StatusCode,
+      summary: response?.summary,
       description: response?.description,
       content: responseContent,
     })
