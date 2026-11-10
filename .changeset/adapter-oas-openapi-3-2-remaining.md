@@ -20,4 +20,5 @@ Read the remaining OpenAPI 3.2 fields, so a 3.2 document no longer generates the
 - 3.0 and 3.1 fields that were not read before: `info` `summary`, `termsOfService`, `contact` and `license` on `meta`; `externalDocs` on the document, tags, operations and schemas; response `headers` and `links`; parameter `deprecated` and `allowEmptyValue`; `openIdConnectUrl`; and string `contentEncoding`.
 - JSON Schema 2020-12: `unevaluatedProperties` and `unevaluatedItems` close or type extra keys and tuple items when `additionalProperties` or `items` is absent. Schema nodes get `conditional` for `if`/`then`/`else`, object nodes get `dependentRequired` and `dependentSchemas`, and array nodes get `contains`, `minContains` and `maxContains`.
 - A `$ref` to a schema's `$id`, `$anchor` or `$dynamicAnchor`, and a `$dynamicRef`, now resolve like a local `$ref`. Before, an anchor ref failed as not found and an `$id` URL was fetched.
+- `StatusCode` includes ranges such as `2XX`, which responses already used.
 - `OperationNode` gets `security`, from the operation or else the document. A 3.2 key that names a scheme by URI becomes the scheme name.

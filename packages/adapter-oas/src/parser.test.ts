@@ -3273,3 +3273,28 @@ describe('single-member allOf wrapper', () => {
     expect(findSchema(root, 'PetId')).toMatchObject({ xml: { nodeType: 'attribute' }, externalDocs: { url: 'https://example.com/ids' } })
   })
 })
+
+describe('status code ranges', () => {
+  it('keeps 2XX and 4XX responses with their schemas', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/a': {
+          get: {
+            operationId: 'a',
+            responses: {
+              '2XX': { description: 'OK', content: { 'application/json': { schema: { type: 'string' } } } },
+              '4XX': { description: 'Client error', content: { 'application/json': { schema: { type: 'object' } } } },
+            },
+          },
+        },
+      },
+    })
+
+    expect(findOperation(root, 'a')?.responses.map((response) => [response.statusCode, response.content?.[0]?.schema?.type])).toStrictEqual([
+      ['2XX', 'string'],
+      ['4XX', 'object'],
+    ])
+  })
+})
