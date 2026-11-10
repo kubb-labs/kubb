@@ -8,7 +8,6 @@ import { bundle } from 'api-ref-bundler'
 import { isOpenApi32 } from '../oas.ts'
 import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
-import { validateOpenApi32 } from './validate32.ts'
 import type { ValidationErrors, WorkerResult } from './validateWorker.ts'
 import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
@@ -285,6 +284,8 @@ function reportInvalidSpec(message: string): void {
 export async function validateDocument(document: Document, { throwOnError = false }: { throwOnError?: boolean } = {}): Promise<void> {
   // `@readme/openapi-parser` 10 throws on a 3.2 document, so check it against the 3.2 JSON Schema instead.
   if (isOpenApi32(document)) {
+    // Loaded on use, like `@readme/openapi-parser` below, so a config with `validate` off never loads ajv.
+    const { validateOpenApi32 } = await import('./validate32.ts')
     const result = validateOpenApi32(document)
     if (result.valid) return
     if (throwOnError)
