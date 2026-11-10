@@ -85,8 +85,6 @@ export type ContentNode = BaseNode & {
      * - `'data'` only the `data` payload, which the client wraps in its own event type
      */
     shape?: 'event' | 'data'
-    /** `data` value that ends the stream, such as `[DONE]`. The client stops reading when an event carries it. */
-    sentinel?: string
   }
   /**
    * Property keys to exclude from the generated type via `Omit<Type, Keys>`.
