@@ -14,7 +14,7 @@ import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { createRefs } from './refs.ts'
-import { scanSchema } from './schemaDiagnostics.ts'
+import { groupUnsupportedFormats, scanSchema } from './schemaDiagnostics.ts'
 import { locate } from './sourceLocator.ts'
 import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
@@ -228,7 +228,7 @@ export const adapterOas = defineExtension<AdapterOas>({
           const { schemas, renames, pointers } = getSchemas(document, { contentType }, refs)
           const parseSchema = createSchemaParser({ document, refs, renames, options: parserOptions })
 
-          return parseInput({ document, refs, schemas, pointers, parseSchema })
+          return groupUnsupportedFormats(() => parseInput({ document, refs, schemas, pointers, parseSchema }))
         })()
         inputCache.set(source, { promise, sources: read })
         return promise.catch((error: unknown) => {
