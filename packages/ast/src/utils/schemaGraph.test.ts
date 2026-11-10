@@ -44,6 +44,39 @@ describe('findCircularSchemas', () => {
   })
 })
 
+describe('schemas inside conditionals, contains and content', () => {
+  const ref = (name: string) => createSchema({ type: 'ref', name, ref: `#/components/schemas/${name}` })
+  const node = createSchema({
+    type: 'object',
+    name: 'Order',
+    properties: [
+      createProperty({
+        name: 'labels',
+        required: false,
+        schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })], contains: { schema: ref('Label') } }),
+      }),
+      createProperty({
+        name: 'meta',
+        required: false,
+        schema: createSchema({ type: 'string', content: { mediaType: 'application/json', schema: ref('Meta') } }),
+      }),
+    ],
+    conditionals: [{ if: createSchema({ type: 'object', properties: [] }), then: ref('Card') }],
+  })
+
+  it('counts them for cycles and used schemas', () => {
+    const Card = createSchema({ type: 'object', name: 'Card', properties: [createProperty({ name: 'order', required: false, schema: ref('Order') })] })
+
+    expect(collectSchemaRefs(node)).toStrictEqual(new Set(['Label', 'Meta', 'Card']))
+    expect(findCircularSchemas([node, Card])).toStrictEqual(new Set(['Order', 'Card']))
+  })
+
+  it('imports them only with checks', () => {
+    expect(collectImportedRefNames(node)).toStrictEqual([])
+    expect(collectImportedRefNames(node, { checks: true })).toStrictEqual(['Label', 'Meta', 'Card'])
+  })
+})
+
 describe('collectImportedRefNames', () => {
   it('collects pointer-carrying ref names in first-occurrence order, de-duplicated, preferring targetName', () => {
     const schema = createSchema({

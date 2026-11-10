@@ -72,6 +72,8 @@ const imports = resolver.imports({ node, root, output })
 // → [{ kind: 'Import', name: ['pet'], path: '/src/types/pet.ts' }]
 ```
 
+Refs inside `conditionals`, `contains` and a string's `content` are left out, because most plugins do not print those checks. A plugin that prints them passes `checks: true`.
+
 Pass `name` to override how a referenced schema name becomes the imported identifier, for example to point enum refs at a suffixed type name:
 
 ```typescript [importsName.ts]

@@ -188,6 +188,36 @@ describe('VisitorContext — parent', () => {
   })
 })
 
+describe('schemas inside conditionals, contains and content', () => {
+  const node = createSchema({
+    type: 'object',
+    properties: [
+      createProperty({
+        name: 'tags',
+        schema: createSchema({ type: 'array', items: [createSchema({ type: 'string' })], contains: { schema: createSchema({ type: 'integer' }) } }),
+      }),
+      createProperty({
+        name: 'meta',
+        schema: createSchema({ type: 'string', content: { mediaType: 'application/json', schema: createSchema({ type: 'boolean' }) } }),
+      }),
+    ],
+    conditionals: [{ if: createSchema({ type: 'number' }), then: createSchema({ type: 'null' }) }],
+  })
+
+  it('collects them', () => {
+    const types = collectSync<string>(node, { schema: (schema) => schema.type })
+
+    expect(types).toEqual(expect.arrayContaining(['integer', 'boolean', 'number', 'null']))
+  })
+
+  it('transforms them and keeps the fields around them', () => {
+    const next = transform(node, { schema: (schema) => (schema.type === 'null' ? createSchema({ type: 'unknown' }) : undefined) })
+
+    expect(next.conditionals).toStrictEqual([{ if: node.conditionals![0]!.if, then: createSchema({ type: 'unknown' }) }])
+    expect(transform(node, { schema: () => undefined })).toBe(node)
+  })
+})
+
 describe('collectSync', () => {
   it('collects schemas inside a tuple rest and patternProperties', () => {
     const root = createInput({

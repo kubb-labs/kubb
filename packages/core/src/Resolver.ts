@@ -123,6 +123,12 @@ export type ResolveImportsOptions = {
    * point enum refs at a suffixed type name. Defaults to the resolver's top-level `name`.
    */
   name?: (schemaName: string) => string
+  /**
+   * Also import the refs inside `conditionals`, `contains` and a string's `content`, for a plugin that prints those checks.
+   *
+   * @default false
+   */
+  checks?: boolean
 }
 
 /**
@@ -464,10 +470,10 @@ export class Resolver {
    * reads the same ref set instead of re-scanning it per plugin.
    */
   imports(options: ResolveImportsOptions): Array<ImportNode> {
-    const { node, root, output, group, extname = '.ts', name } = options
+    const { node, root, output, group, extname = '.ts', name, checks } = options
     const resolveName = name ?? ((schemaName: string) => this.name(schemaName))
 
-    return collectImportedRefNames(node).map((schemaName) =>
+    return collectImportedRefNames(node, { checks }).map((schemaName) =>
       ast.factory.createImport({
         name: [resolveName(schemaName)],
         path: this.#resolveFilePath({ name: schemaName, extname, root, output, group }),

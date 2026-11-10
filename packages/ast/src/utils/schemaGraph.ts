@@ -1,7 +1,9 @@
 import { memo } from '@internals/utils'
+import { nodeKinds } from '../constants.ts'
+import type { Node } from '../nodes/index.ts'
 import type { OperationNode } from '../nodes/operation.ts'
 import type { SchemaNode } from '../nodes/schema.ts'
-import { collect, collectSync } from '../visitor.ts'
+import { collect, schemaCheckKeys, visitChildNodes } from '../visitor.ts'
 import { resolveRefName } from './refs.ts'
 
 type RefEntry = { name: string; hasPointer: boolean }
@@ -12,19 +14,26 @@ type RefEntry = { name: string; hasPointer: boolean }
  * `collectSchemaRefs` and `collectImportedRefNames` share one scan per schema.
  */
 const refEntries = new WeakMap<SchemaNode, ReadonlyArray<RefEntry>>()
+const shapeRefEntries = new WeakMap<SchemaNode, ReadonlyArray<RefEntry>>()
 const schemaRefs = new WeakMap<SchemaNode, ReadonlySet<string>>()
 const importedRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
+const importedCheckRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
 
-function collectRefEntries(node: SchemaNode): ReadonlyArray<RefEntry> {
-  return memo(refEntries, node, () =>
-    collectSync<RefEntry>(node, {
-      schema(child) {
-        if (child.type !== 'ref') return undefined
-        const name = resolveRefName(child)
-        return name ? { name, hasPointer: Boolean(child.ref) } : undefined
-      },
-    }),
-  )
+function collectRefEntries(node: SchemaNode, checks: boolean): ReadonlyArray<RefEntry> {
+  return memo(checks ? refEntries : shapeRefEntries, node, () => {
+    const entries: Array<RefEntry> = []
+    const skip = checks ? undefined : schemaCheckKeys
+    const walk = (current: Node): boolean => {
+      if (current.kind === nodeKinds.schema && current.type === 'ref') {
+        const name = resolveRefName(current)
+        if (name) entries.push({ name, hasPointer: Boolean(current.ref) })
+      }
+      visitChildNodes(current, walk, skip)
+      return false
+    }
+    walk(node)
+    return entries
+  })
 }
 
 /**
@@ -39,7 +48,7 @@ function collectRefEntries(node: SchemaNode): ReadonlyArray<RefEntry> {
  * ```
  */
 export function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
-  return memo(schemaRefs, node, () => new Set(collectRefEntries(node).map((entry) => entry.name)))
+  return memo(schemaRefs, node, () => new Set(collectRefEntries(node, true).map((entry) => entry.name)))
 }
 
 /**
@@ -49,7 +58,8 @@ export function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
  *
  * Only refs that carry a `$ref` pointer count, so a synthesized ref pointing at a sibling in the
  * same file (a union member created by name) is left out. That leaves exactly the set
- * `resolver.imports` emits.
+ * `resolver.imports` emits. Refs inside `conditionals`, `contains` and `content` count only with
+ * `checks: true`, for a plugin that prints those checks.
  *
  * @example
  * ```ts
@@ -57,8 +67,10 @@ export function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
  * // ['Category', 'Tag']
  * ```
  */
-export function collectImportedRefNames(node: SchemaNode): ReadonlyArray<string> {
-  return memo(importedRefNames, node, () => [...new Set(collectRefEntries(node).flatMap((entry) => (entry.hasPointer ? [entry.name] : [])))])
+export function collectImportedRefNames(node: SchemaNode, { checks = false }: { checks?: boolean } = {}): ReadonlyArray<string> {
+  return memo(checks ? importedCheckRefNames : importedRefNames, node, () => [
+    ...new Set(collectRefEntries(node, checks).flatMap((entry) => (entry.hasPointer ? [entry.name] : []))),
+  ])
 }
 
 /**

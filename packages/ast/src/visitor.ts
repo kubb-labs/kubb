@@ -26,10 +26,16 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   RequestBody: ['content'],
   Content: ['schema', 'stream'],
   Response: ['content', 'headers'],
-  Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'propertyNames', 'rest'],
+  Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'propertyNames', 'rest', 'conditionals', 'contains', 'content'],
   Property: ['schema'],
   Parameter: ['schema'],
 }
+
+/**
+ * Schema fields that hold checks rather than shape: the `conditionals` entries, `contains` and a string's `content`.
+ * `collectImportedRefNames` leaves them out unless asked, so a plugin that does not print them imports nothing for them.
+ */
+export const schemaCheckKeys: ReadonlySet<string> = new Set(['conditionals', 'contains', 'content'])
 
 /** Visitor callback names in traversal order, the keys of {@link Visitor}. */
 export const visitorKeys = ['input', 'operation', 'schema', 'property', 'parameter', 'response'] as const
@@ -190,8 +196,10 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
   return children
 }
 
-/** Calls `visit` for each direct child node and stops at the first call that returns `true`. */
-function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
+/**
+ * Calls `visit` for each direct child node and stops at the first call that returns `true`. Keys in `skip` are left out.
+ */
+export function visitChildNodes(node: Node, visit: (child: Node) => boolean, skip?: ReadonlySet<string>): boolean {
   const keys = VISITOR_KEYS[node.kind]
   if (!keys) return false
 
@@ -199,23 +207,27 @@ function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
   // A node under two keys, such as a stream item under `schema` and `stream`, is visited once.
   const seen = new Set<Node>()
   const visitOnce = (child: Node) => !seen.has(child) && (seen.add(child), visit(child))
+  const visitRecord = (value: Record<string, unknown>) => {
+    for (const name in value) {
+      if (!Object.hasOwn(value, name)) continue
+      const item = value[name]
+      if (isNode(item) && visitOnce(item)) return true
+    }
+    return false
+  }
   for (const key of keys) {
+    if (skip?.has(key)) continue
     const value = record[key]
     if (Array.isArray(value)) {
-      for (const item of value) if (isNode(item) && visitOnce(item)) return true
+      // Items can be plain objects that hold nodes, such as the `{ if, then, else }` entries of `conditionals`.
+      for (const item of value) if (isNode(item) ? visitOnce(item) : isNodeRecord(item) && visitRecord(item)) return true
       continue
     }
     if (isNode(value)) {
       if (visitOnce(value)) return true
       continue
     }
-    if (isNodeRecord(value)) {
-      for (const name in value) {
-        if (!Object.hasOwn(value, name)) continue
-        const item = value[name]
-        if (isNode(item) && visitOnce(item)) return true
-      }
-    }
+    if (isNodeRecord(value) && visitRecord(value)) return true
   }
   return false
 }
@@ -345,6 +357,14 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
     done.set(child, next)
     return next
   }
+  const transformRecord = (value: Record<string, unknown>) => {
+    let mapped: Record<string, unknown> | undefined
+    for (const [name, item] of Object.entries(value)) {
+      const next = isNode(item) ? transformOnce(item) : item
+      if (next !== item) (mapped ??= { ...value })[name] = next
+    }
+    return mapped ?? value
+  }
 
   for (const key of keys) {
     if (!(key in record)) continue
@@ -355,7 +375,7 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
       // allocates nothing. This also drops the per-array `.map` closure that ran on every node.
       let mapped: Array<unknown> | undefined
       for (const [i, item] of value.entries()) {
-        const next = isNode(item) ? transformOnce(item) : item
+        const next = isNode(item) ? transformOnce(item) : isNodeRecord(item) ? transformRecord(item) : item
         if (mapped) {
           mapped.push(next)
           continue
@@ -371,12 +391,8 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
       continue
     }
     if (isNodeRecord(value)) {
-      let mapped: Record<string, unknown> | undefined
-      for (const [name, item] of Object.entries(value)) {
-        const next = isNode(item) ? transformOnce(item) : item
-        if (next !== item) (mapped ??= { ...value })[name] = next
-      }
-      if (mapped) (updates ??= {})[key] = mapped
+      const next = transformRecord(value)
+      if (next !== value) (updates ??= {})[key] = next
     }
   }
 
