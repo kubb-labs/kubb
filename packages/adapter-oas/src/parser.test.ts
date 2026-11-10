@@ -2965,3 +2965,42 @@ describe('OpenAPI 3.2 encoding', () => {
     expect(form?.encoding).toStrictEqual({ parts: { contentType: 'multipart/mixed', encoding: { meta: { contentType: 'application/json' } } } })
   })
 })
+
+describe('OpenAPI 3.2 examples', () => {
+  it('reads dataValue and serializedValue of media type and parameter examples', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          get: {
+            operationId: 'listPets',
+            parameters: [
+              {
+                name: 'filter',
+                in: 'query',
+                schema: { type: 'object' },
+                examples: { byName: { summary: 'By name', dataValue: { name: 'Rex' }, serializedValue: 'name=Rex' } },
+              },
+              { name: 'limit', in: 'query', schema: { type: 'integer' }, example: 10 },
+            ],
+            responses: {
+              '200': {
+                description: 'OK',
+                content: { 'application/json': { schema: { type: 'object' }, examples: { rex: { $ref: '#/components/examples/Rex' } } } },
+              },
+            },
+          },
+        },
+      },
+      components: { examples: { Rex: { description: 'A dog', value: { name: 'Rex' } } } },
+    })
+    const operation = findOperation(root, 'listPets')!
+
+    expect(operation.parameters.map((parameter) => parameter.examples)).toStrictEqual([
+      [{ name: 'byName', summary: 'By name', value: { name: 'Rex' }, serializedValue: 'name=Rex' }],
+      [{ value: 10 }],
+    ])
+    expect(operation.responses[0]?.content?.[0]?.examples).toStrictEqual([{ name: 'rex', description: 'A dog', value: { name: 'Rex' } }])
+  })
+})

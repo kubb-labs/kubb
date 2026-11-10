@@ -38,6 +38,26 @@ export type EncodingNode = {
 }
 
 /**
+ * One example of a body or parameter value, from the source's named examples.
+ */
+export type ExampleNode = {
+  /**
+   * Key of the example in the source, absent for a single unnamed example.
+   */
+  name?: string
+  summary?: string
+  description?: string
+  /**
+   * The example as data, before serialization.
+   */
+  value?: unknown
+  /**
+   * The example as it is sent on the wire, such as a URL-encoded query string.
+   */
+  serializedValue?: string
+}
+
+/**
  * AST node representing one content-type entry of a request body or response.
  *
  * There is one entry per content type declared in the spec (e.g. `application/json`,
@@ -89,6 +109,10 @@ export type ContentNode = BaseNode & {
    * Serialization settings per body property that sets at least one field in the spec's `encoding`.
    */
   encoding?: Record<string, EncodingNode>
+  /**
+   * Examples of the body. Absent when the source gives none.
+   */
+  examples?: Array<ExampleNode>
   /**
    * Serialization of the first parts by position, for a body sent as an array of parts such as `multipart/mixed`.
    */

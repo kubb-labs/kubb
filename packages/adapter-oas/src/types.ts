@@ -138,6 +138,11 @@ export type MediaTypeObject = Omit<OpenAPIV3_1.MediaTypeObject, 'encoding'> &
   Pick<EncodingObject, 'encoding' | 'prefixEncoding' | 'itemEncoding'> & { itemSchema?: SchemaObject | ReferenceObject }
 
 /**
+ * OpenAPI example object, with the OpenAPI 3.2 `dataValue` and `serializedValue`.
+ */
+export type ExampleObject = OpenAPIV3_1.ExampleObject & { dataValue?: unknown; serializedValue?: string }
+
+/**
  * OpenAPI parameter object, narrowed so `in` is always one of the valid locations.
  */
 export type ParameterObject = {

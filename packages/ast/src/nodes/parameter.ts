@@ -1,6 +1,7 @@
 import { nodeKinds } from '../constants.ts'
 import { optionality } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
+import type { ExampleNode } from './content.ts'
 import type { SchemaNode } from './schema.ts'
 
 /**
@@ -65,6 +66,10 @@ export type ParameterNode = BaseNode & {
    * `application/json` when the value is sent as a JSON-encoded string. Absent for `schema` parameters.
    */
   contentType?: string
+  /**
+   * Examples of the parameter value. Absent when the source gives none.
+   */
+  examples?: Array<ExampleNode>
 }
 
 type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>

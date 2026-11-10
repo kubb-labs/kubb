@@ -11,6 +11,7 @@ import type {
   ContentType,
   Document,
   EncodingObject,
+  ExampleObject,
   MediaTypeObject,
   OperationObject,
   ParameterObject,
@@ -177,6 +178,30 @@ function toEncodingNode({ contentType, encoding, prefixEncoding, itemEncoding, .
   }
 }
 
+/**
+ * The named `examples` of a media type or parameter, else its single `example`. A 3.2 `dataValue` wins over `value`.
+ */
+function getExamples({ example, examples }: { example?: unknown; examples?: Record<string, unknown> }, refs: Refs): Pick<ast.ContentNode, 'examples'> {
+  const named = Object.entries(examples ?? {}).flatMap(([name, entry]) => {
+    const resolved = refs.deref<ExampleObject>(entry)
+    if (!resolved) return []
+    const { summary, description, dataValue, value, serializedValue } = resolved
+    const data = dataValue !== undefined ? dataValue : value
+    return [
+      {
+        name,
+        ...(typeof summary === 'string' && { summary }),
+        ...(typeof description === 'string' && { description }),
+        ...(data !== undefined && { value: data }),
+        ...(typeof serializedValue === 'string' && { serializedValue }),
+      },
+    ]
+  })
+  if (named.length) return { examples: named }
+
+  return example !== undefined ? { examples: [{ value: example }] } : {}
+}
+
 type ContentMap = Record<string, MediaTypeObject | ReferenceObject> | undefined
 
 /**
@@ -317,7 +342,8 @@ function parseParameter({
   const schemaName = parentName && param.name ? pascalCase(`${parentName} ${param.name}`) : undefined
   // A parameter defines either `schema` or `content`, and `content` holds exactly one media type.
   const contentType = param.schema ? undefined : Object.keys(param.content ?? {})[0]
-  const rawSchema = param.schema ?? getMediaType({ content: param.content, contentType, refs })?.schema
+  const mediaType = getMediaType({ content: param.content, contentType, refs })
+  const rawSchema = param.schema ?? mediaType?.schema
   const schema: ast.SchemaNode = rawSchema
     ? parseSchema({ schema: rawSchema as SchemaObject, name: schemaName })
     : ast.factory.createSchema({ type: options.unknownType })
@@ -333,6 +359,7 @@ function parseParameter({
     required: param.required ?? false,
     ...pickStyleFields(param),
     ...(contentType !== undefined ? { contentType } : {}),
+    ...getExamples(mediaType ?? param, refs),
   })
 }
 
@@ -364,6 +391,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
         schema: node,
         keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
         ...(mediaType && getEncodingFields(mediaType)),
+        ...(mediaType && getExamples(mediaType, refs)),
         ...getStreamField({ contentType: ct, mediaType, refs, document, node }),
       }),
     ]
@@ -397,6 +425,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
         schema: node,
         keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly'),
         ...(mediaType && getEncodingFields(mediaType)),
+        ...(mediaType && getExamples(mediaType, refs)),
         ...(ct ? getStreamField({ contentType: ct, mediaType, refs, document, node }) : {}),
       }
     }
