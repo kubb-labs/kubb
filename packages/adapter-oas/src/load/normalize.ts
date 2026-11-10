@@ -89,10 +89,15 @@ function isExtensionPath(path: ReadonlyArray<string | number>): boolean {
 export function getBaseUri(pathOrUrl: string, root: unknown): string {
   const self = root && typeof root === 'object' ? (root as { $self?: unknown }).$self : undefined
   if (typeof self !== 'string' || !self) return pathOrUrl
-  if (urlRegExp.test(self)) return new URL(self).href
-  if (/^file:/i.test(self)) return fileURLToPath(self)
-  if (/^[a-z][a-z\d+.-]*:/i.test(self)) return pathOrUrl
-  return urlRegExp.test(pathOrUrl) ? new URL(self, pathOrUrl).href : resolve(dirname(pathOrUrl), self)
+  // `$self` only hints at the base, so a malformed value such as `https:///` keeps `pathOrUrl`.
+  try {
+    if (urlRegExp.test(self)) return new URL(self).href
+    if (/^file:/i.test(self)) return fileURLToPath(self)
+    if (/^[a-z][a-z\d+.-]*:/i.test(self)) return pathOrUrl
+    return urlRegExp.test(pathOrUrl) ? new URL(self, pathOrUrl).href : resolve(dirname(pathOrUrl), self)
+  } catch {
+    return pathOrUrl
+  }
 }
 
 /**

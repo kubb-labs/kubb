@@ -8,6 +8,7 @@ import { createResponse } from './nodes/response.ts'
 import { createSchema } from './nodes/schema.ts'
 import type { InputNode } from './nodes/input.ts'
 import type { OperationNode } from './nodes/operation.ts'
+import type { ParameterNode } from './nodes/parameter.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 import { collectSync, transform } from './visitor.ts'
 
@@ -203,5 +204,19 @@ describe('collectSync', () => {
     })
 
     expect(names).toStrictEqual(['Tail', 'Extension'])
+  })
+})
+
+describe('response headers', () => {
+  it('are visited as parameters with their schemas', () => {
+    const header = createParameter({
+      name: 'X-Rate-Limit',
+      in: 'header',
+      schema: createSchema({ type: 'ref', name: 'RateLimit', ref: '#/components/schemas/RateLimit' }),
+    })
+    const response = createResponse({ statusCode: '200', headers: [header] })
+
+    expect(collectSync<ParameterNode>(response, { parameter: (node) => node })).toStrictEqual([header])
+    expect(collectSync<SchemaNode>(response, { schema: (node) => (node.type === 'ref' ? node : undefined) })).toHaveLength(1)
   })
 })

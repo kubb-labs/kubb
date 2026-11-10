@@ -20,7 +20,7 @@ const XML_NODE_TYPES = new Set(['element', 'attribute', 'text', 'cdata', 'none']
 /**
  * Reads the XML Object. The deprecated `attribute: true` and `wrapped: true` become the 3.2 `nodeType`.
  */
-function getXml(xml: unknown): ast.XmlNode | undefined {
+export function getXml(xml: unknown): ast.XmlNode | undefined {
   if (!xml || typeof xml !== 'object') return undefined
   const { name, namespace, prefix, nodeType, attribute, wrapped } = xml as Record<string, unknown>
   const type =

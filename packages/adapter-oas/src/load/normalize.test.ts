@@ -568,6 +568,8 @@ describe('getBaseUri', () => {
     ['a relative $self against a URL', 'https://example.com/a/openapi.yaml', { $self: '../b/openapi.yaml' }, 'https://example.com/b/openapi.yaml'],
     ['an absolute URL $self', '/specs/openapi.yaml', { $self: 'https://api.example.com/openapi.yaml' }, 'https://api.example.com/openapi.yaml'],
     ['a URN $self, which locates nothing', '/specs/openapi.yaml', { $self: 'urn:example:api' }, '/specs/openapi.yaml'],
+    ['a malformed URL $self', '/specs/openapi.yaml', { $self: 'https:///' }, '/specs/openapi.yaml'],
+    ['an invalid file URL $self', '/specs/openapi.yaml', { $self: 'file://host/%E0%A4%A' }, '/specs/openapi.yaml'],
   ])('returns the base for %s', (_title, pathOrUrl, root, expected) => {
     expect(getBaseUri(pathOrUrl, root)).toBe(expected)
   })

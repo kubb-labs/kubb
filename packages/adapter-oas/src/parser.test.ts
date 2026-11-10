@@ -3255,3 +3255,21 @@ describe('JSON Schema identifiers', () => {
     expect(ast.narrowSchema(node.properties[0]!.schema, 'array')?.items?.[0]).toMatchObject({ type: 'ref', name: 'Node' })
   })
 })
+
+describe('single-member allOf wrapper', () => {
+  it('keeps the wrapper xml and externalDocs', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Id: { type: 'string', xml: { name: 'id' } },
+          PetId: { allOf: [{ $ref: '#/components/schemas/Id' }], xml: { nodeType: 'attribute' }, externalDocs: { url: 'https://example.com/ids' } },
+        },
+      },
+    })
+
+    expect(findSchema(root, 'PetId')).toMatchObject({ xml: { nodeType: 'attribute' }, externalDocs: { url: 'https://example.com/ids' } })
+  })
+})
