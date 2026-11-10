@@ -29,6 +29,13 @@ describe('getBinaryFallbackSchema', () => {
       schema: { $ref: '#/components/schemas/Pet' },
       expected: undefined,
     },
+    {
+      title: 'the binary schema with the annotations the upgrade kept',
+      contentType: 'application/octet-stream',
+      schema: { description: 'The asset' },
+      expected: { ...binary, description: 'The asset' },
+    },
+    { title: 'undefined when the entry declares a type', contentType: 'text/plain', schema: { type: 'string', description: 'Text' }, expected: undefined },
     { title: 'undefined for a JSON media type', contentType: 'application/json', schema: undefined, expected: undefined },
     { title: 'undefined for a JSON-like media type', contentType: 'application/vnd.api+json', schema: {}, expected: undefined },
     { title: 'undefined for a missing media type', contentType: undefined, schema: undefined, expected: undefined },

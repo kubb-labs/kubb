@@ -352,6 +352,24 @@ describe('buildAst', () => {
       expect(notModified?.content).toMatchObject([{ contentType: '' }])
     })
 
+    it('types an octet-stream body with a description as a blob', async () => {
+      const root = await parseOas({
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/assets': {
+            post: {
+              operationId: 'uploadAsset',
+              requestBody: { content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary', description: 'The asset' } } } },
+              responses: { '204': { description: 'ok' } },
+            },
+          },
+        },
+      })
+
+      expect(findOperation(root, 'uploadAsset')?.requestBody?.content?.[0]?.schema).toMatchObject({ type: 'blob', description: 'The asset' })
+    })
+
     it('populates requestBody.content with every content type in spec order', async () => {
       const root = await parseOas(multipartUploadDocument)
       const upload = findOperation(root, 'upload')
