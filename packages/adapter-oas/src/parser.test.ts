@@ -1194,6 +1194,30 @@ describe('parseSchema oneOf / anyOf', () => {
 })
 
 describe('parseSchema discriminator on union', () => {
+  it('leaves an array member out of the discriminant intersection', async () => {
+    const root = await parseOas({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Content: {
+            oneOf: [{ $ref: '#/components/schemas/ContentDirectory' }, { $ref: '#/components/schemas/ContentFile' }],
+            discriminator: { propertyName: 'type', mapping: { array: '#/components/schemas/ContentDirectory', file: '#/components/schemas/ContentFile' } },
+          },
+          ContentDirectory: { type: 'array', items: { $ref: '#/components/schemas/ContentFile' } },
+          ContentFile: { type: 'object', properties: { type: { type: 'string' } }, required: ['type'] },
+        },
+      },
+    })
+    const members = ast.narrowSchema(
+      root.schemas.find((schema) => schema.name === 'Content'),
+      'union',
+    )?.members
+
+    expect(members?.map((member) => member.type)).toStrictEqual(['ref', 'intersection'])
+  })
+
   it('narrows the discriminator property to the mapping keys of each union member when a mapping is present', () => {
     const node = parseSchema(emptyCtx, {
       schema: {

@@ -171,6 +171,18 @@ export function removeInheritedDiscriminator({
 }
 
 /**
+ * Whether a member can carry the discriminator property. A discriminator is only a hint, so an array
+ * or primitive member keeps its own type instead of an intersection no value can satisfy.
+ */
+function isObjectLike(member: unknown, refs: Refs): boolean {
+  const schema = isReference(member) ? refs.resolve<SchemaObject>(member.$ref, { report: false }) : (member as SchemaObject | undefined)
+  const type = schema?.type
+  if (type === undefined) return true
+
+  return Array.isArray(type) ? type.includes('object') : type === 'object'
+}
+
+/**
  * Narrows each `oneOf`/`anyOf` member with its discriminant value, intersecting the member's own
  * node with either the shared-properties slice carrying that value, or a synthetic discriminant
  * literal. The referenced child schema's own definition is left untouched — narrowing happens only
@@ -253,7 +265,7 @@ export function narrowUnionMembers({
     const discriminatorValues = typedKeys({ keys: mappedValues.length ? mappedValues : implicitValue ? [implicitValue] : [], propertyType })
     const memberNode = parse({ schema: s as SchemaObject, name })
 
-    if (!discriminatorValues.length || !discriminator) {
+    if (!discriminatorValues.length || !discriminator || !isObjectLike(s, refs)) {
       return memberNode
     }
 
