@@ -19,7 +19,7 @@ const schemaRefs = new WeakMap<SchemaNode, ReadonlySet<string>>()
 const importedRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
 const importedCheckRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
 
-function collectRefEntries(node: SchemaNode, checks: boolean): ReadonlyArray<RefEntry> {
+function collectRefEntries(node: SchemaNode, { checks = false }: { checks?: boolean } = {}): ReadonlyArray<RefEntry> {
   return memo(checks ? refEntries : shapeRefEntries, node, () => {
     const entries: Array<RefEntry> = []
     const skip = checks ? undefined : schemaCheckKeys
@@ -48,7 +48,7 @@ function collectRefEntries(node: SchemaNode, checks: boolean): ReadonlyArray<Ref
  * ```
  */
 export function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
-  return memo(schemaRefs, node, () => new Set(collectRefEntries(node, true).map((entry) => entry.name)))
+  return memo(schemaRefs, node, () => new Set(collectRefEntries(node, { checks: true }).map((entry) => entry.name)))
 }
 
 /**
@@ -69,7 +69,7 @@ export function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
  */
 export function collectImportedRefNames(node: SchemaNode, { checks = false }: { checks?: boolean } = {}): ReadonlyArray<string> {
   return memo(checks ? importedCheckRefNames : importedRefNames, node, () => [
-    ...new Set(collectRefEntries(node, checks).flatMap((entry) => (entry.hasPointer ? [entry.name] : []))),
+    ...new Set(collectRefEntries(node, { checks }).flatMap((entry) => (entry.hasPointer ? [entry.name] : []))),
   ])
 }
 
