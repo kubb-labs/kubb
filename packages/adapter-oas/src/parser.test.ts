@@ -3230,7 +3230,7 @@ describe('JSON Schema 2020-12 applicators', () => {
         then: { type: 'object', properties: [{ name: 'postalCode', required: true }] },
       },
     ])
-    expect(findSchema(root, 'Tags')).toMatchObject({ type: 'array', contains: { type: 'enum', enumValues: ['admin'] }, minContains: 1, maxContains: 2 })
+    expect(findSchema(root, 'Tags')).toMatchObject({ type: 'array', contains: { schema: { type: 'enum', enumValues: ['admin'] }, min: 1, max: 2 } })
     expect(findSchema(root, 'Pair')).toMatchObject({ type: 'tuple', rest: undefined })
   })
   it('reads if/then from allOf members', async () => {

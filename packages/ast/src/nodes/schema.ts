@@ -204,10 +204,11 @@ export type ArraySchemaNode = SchemaNodeBase & {
    * Whether all items must be unique.
    */
   unique?: boolean
-  /** Schema that at least `minContains` (default 1) and at most `maxContains` items must match. Visitors do not walk it. */
-  contains?: SchemaNode
-  minContains?: number
-  maxContains?: number
+  /**
+   * Items that must be present: at least `min` (default 1) and at most `max` items match `schema`. `min` and `max` on
+   * the array itself count all items. Visitors do not walk `schema`.
+   */
+  contains?: { schema: SchemaNode; min?: number; max?: number }
 }
 
 /**

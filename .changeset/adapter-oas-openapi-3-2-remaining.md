@@ -16,7 +16,7 @@ Read the OpenAPI 3.0, 3.1 and 3.2 fields the adapter skipped, so plugins get eve
 - `ContentNode` gets `examples`, `prefixEncoding` and `itemEncoding`. `EncodingNode` gets `encoding`, `prefixEncoding` and `itemEncoding`, for `multipart/mixed` and nested multipart bodies.
 - `ExampleNode` holds one example. A 3.2 `dataValue` becomes `value`, and `serializedValue` is kept.
 - Schema nodes get `externalDocs` and `conditionals`: one `{ if, then, else }` entry for `if`/`then`/`else` and for each `dependentRequired` and `dependentSchemas` key.
-- Array nodes get `contains`, `minContains` and `maxContains`. String nodes get `content` with the `mediaType`, `encoding` and parsed `schema` of the value they encode.
+- Array nodes get `contains` with the `schema` some items must match and, from `minContains` and `maxContains`, how many (`min`, `max`). String nodes get `content` with the `mediaType`, `encoding` and parsed `schema` of the value they encode.
 - `StatusCode` includes ranges such as `2XX`.
 
 ### Changed

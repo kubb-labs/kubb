@@ -5,14 +5,16 @@ import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 
-/** The JSON Schema 2020-12 `contains`, `minContains` and `maxContains` of an array or tuple. */
-function getContains(schema: SchemaObject, parse: ConvertContext['parse']): Pick<ast.ArraySchemaNode, 'contains' | 'minContains' | 'maxContains'> {
+/** The JSON Schema 2020-12 `contains` of an array or tuple, with `minContains` and `maxContains` as its `min` and `max`. */
+function getContains(schema: SchemaObject, parse: ConvertContext['parse']): Pick<ast.ArraySchemaNode, 'contains'> {
   const { contains, minContains, maxContains } = schema as { contains?: unknown; minContains?: unknown; maxContains?: unknown }
   if (!contains || typeof contains !== 'object') return {}
   return {
-    contains: parse({ schema: contains as SchemaObject }),
-    ...(typeof minContains === 'number' && { minContains }),
-    ...(typeof maxContains === 'number' && { maxContains }),
+    contains: {
+      schema: parse({ schema: contains as SchemaObject }),
+      ...(typeof minContains === 'number' && { min: minContains }),
+      ...(typeof maxContains === 'number' && { max: maxContains }),
+    },
   }
 }
 
