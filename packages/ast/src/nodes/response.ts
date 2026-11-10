@@ -10,7 +10,7 @@ type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 /**
  * Response status code literal used by operations.
  *
- * Includes three-digit HTTP status code strings, ranges such as `"2XX"`, and `"default"` for catch-all responses.
+ * Includes three-digit HTTP status code strings, ranges such as `"2xx"`, and `"default"` for catch-all responses.
  *
  * @example
  * ```ts
@@ -18,7 +18,7 @@ type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
  * const fallback: StatusCode = 'default'
  * ```
  */
-export type StatusCode = `${1 | 2 | 3 | 4 | 5}${Digit}${Digit}` | `${1 | 2 | 3 | 4 | 5}XX` | 'default'
+export type StatusCode = `${1 | 2 | 3 | 4 | 5}${Digit}${Digit}` | `${1 | 2 | 3 | 4 | 5}xx` | 'default'
 
 /**
  * AST node representing one operation response variant.

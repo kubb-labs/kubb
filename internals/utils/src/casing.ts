@@ -17,20 +17,23 @@ type Options = {
  * When `pascal` is `true` the first word is also capitalized (PascalCase), otherwise only subsequent words are.
  */
 function convert(text: string, pascal: boolean): string {
-  return text
-    .trim()
-    .replace(/([a-z\d])([A-Z])/g, '$1 $2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-    .replace(/(\d)([a-z])/g, '$1 $2')
-    .split(/[\s\-_./\\:]+/)
-    .filter(Boolean)
-    .map((word, i) => {
-      if (word.length > 1 && word === word.toUpperCase()) return word
-      const head = i === 0 && !pascal ? word.charAt(0).toLowerCase() : word.charAt(0).toUpperCase()
-      return head + word.slice(1)
-    })
-    .join('')
-    .replace(/[^a-zA-Z0-9]/g, '')
+  return (
+    text
+      .trim()
+      .replace(/([a-z\d])([A-Z])/g, '$1 $2')
+      .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+      // A status range such as `2xx` stays one word.
+      .replace(/(\d)(?!xx(?![a-z]))([a-z])/g, '$1 $2')
+      .split(/[\s\-_./\\:]+/)
+      .filter(Boolean)
+      .map((word, i) => {
+        if (word.length > 1 && word === word.toUpperCase()) return word
+        const head = i === 0 && !pascal ? word.charAt(0).toLowerCase() : word.charAt(0).toUpperCase()
+        return head + word.slice(1)
+      })
+      .join('')
+      .replace(/[^a-zA-Z0-9]/g, '')
+  )
 }
 
 // Plugins case the same names on every visit. Clearing at the limit bounds a long-running host.

@@ -3337,7 +3337,7 @@ describe('single-member allOf wrapper', () => {
 })
 
 describe('status code ranges', () => {
-  it('keeps 2XX and 4XX responses with their schemas', async () => {
+  it('writes range responses in lower case and keeps their schemas and pointers', async () => {
     const root = await parseOas({
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
@@ -3354,9 +3354,9 @@ describe('status code ranges', () => {
       },
     })
 
-    expect(findOperation(root, 'a')?.responses.map((response) => [response.statusCode, response.content?.[0]?.schema?.type])).toStrictEqual([
-      ['2XX', 'string'],
-      ['4XX', 'object'],
+    expect(findOperation(root, 'a')?.responses.map((response) => [response.statusCode, response.content?.[0]?.schema?.type, response.pointer])).toStrictEqual([
+      ['2xx', 'string', '#/paths/~1a/get/responses/2XX'],
+      ['4xx', 'object', '#/paths/~1a/get/responses/4XX'],
     ])
   })
 })
