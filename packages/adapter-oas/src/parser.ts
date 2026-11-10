@@ -44,18 +44,9 @@ export function createSchemaParser(ctx: OasParserContext) {
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }): ast.SchemaNode {
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema !== schema) {
-      const pairs = (schema.allOf as Array<SchemaObject>).map(({ if: condition, then, else: otherwise }) => ({ if: condition, then, else: otherwise }))
-      if (pairs.some((pair) => pair.if !== undefined || pair.then !== undefined || pair.else !== undefined)) {
-        // Flatten other keywords with their existing precedence, but read each conditional in its original scope.
-        const { if: _if, then: _then, else: _else, ...shape } = flattenedSchema
-        return withConditionals(parseSchema({ schema: shape as SchemaObject, name }), {
-          if: schema.if,
-          then: schema.then,
-          else: schema.else,
-          allOf: pairs,
-        } as SchemaObject)
-      }
-      return parseSchema({ schema: flattenedSchema, name })
+      // `flattenSchema` keeps the first value of each keyword, so the conditionals of the schema and of every member are read on their own.
+      const { if: _if, then: _then, else: _else, dependentRequired: _required, dependentSchemas: _schemas, ...shape } = flattenedSchema
+      return withConditionals(parseSchema({ schema: shape, name }), [schema, ...(schema.allOf as Array<SchemaObject>)])
     }
     if (hasUnevaluatedSiblings(schema)) {
       const { unevaluatedProperties: _properties, unevaluatedItems: _items, ...open } = schema
@@ -82,7 +73,9 @@ export function createSchemaParser(ctx: OasParserContext) {
     const rule = schemaRules.find((entry) => entry.match(context))
     const node = rule ? rule.convert(context) : createNode(context, { type: options.emptySchemaType as ast.ScalarSchemaType })
 
-    return withConditionals(node, schema)
+    // `allOf` members that hold only annotations and `if`/`then`/`else` are not parsed as members, so read their conditionals here.
+    const annotationMembers = Array.isArray(schema.allOf) ? (schema.allOf as Array<SchemaObject>).filter(isAnnotationMember) : []
+    return withConditionals(node, [schema, ...annotationMembers])
   }
 
   // The key lists of the presence checks `requireKeys` builds, so two entries that check the same keys compare equal.
@@ -102,9 +95,7 @@ export function createSchemaParser(ctx: OasParserContext) {
   /**
    * Adds `if`/`then`/`else`, `dependentRequired` and `dependentSchemas` to the node as `conditionals`.
    */
-  function withConditionals(node: ast.SchemaNode, schema: SchemaObject): ast.SchemaNode {
-    // `allOf` members that hold only annotations and `if`/`then`/`else` are not parsed as members, so read their conditionals here.
-    const sources = [schema, ...(Array.isArray(schema.allOf) ? (schema.allOf as Array<unknown>).filter(isAnnotationMember) : [])] as Array<SchemaObject>
+  function withConditionals(node: ast.SchemaNode, sources: Array<SchemaObject>): ast.SchemaNode {
     const conditionals = sources.flatMap(toConditionals)
     // A collapsed one-member `allOf` already carries the conditionals of its member, so a repeated entry is skipped.
     const existing = new Set((node.conditionals ?? []).map(presenceKey))
