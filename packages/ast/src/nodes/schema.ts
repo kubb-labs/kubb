@@ -94,6 +94,23 @@ type SchemaNodeBase = BaseNode & {
    * Schema `format` value.
    */
   format?: string
+  /** How the value is written as XML. Absent when the source sets nothing. */
+  xml?: XmlNode
+}
+
+/**
+ * How a schema's value is written as XML.
+ */
+export type XmlNode = {
+  /** Element or attribute name, in place of the property or schema name. */
+  name?: string
+  namespace?: string
+  prefix?: string
+  /**
+   * What the value becomes: an element, an attribute, text or CDATA inside the parent, or `none` for
+   * no node of its own, such as an array whose items sit directly in the parent.
+   */
+  nodeType?: 'element' | 'attribute' | 'text' | 'cdata' | 'none'
 }
 
 /**

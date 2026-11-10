@@ -30,6 +30,7 @@ export type {
   TimeSchemaNode,
   UnionSchemaNode,
   UrlSchemaNode,
+  XmlNode,
 } from './nodes/schema.ts'
 export type { Visitor, VisitorContext } from './visitor.ts'
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from './createPrinter.ts'

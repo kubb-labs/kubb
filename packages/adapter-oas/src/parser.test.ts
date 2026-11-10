@@ -3065,3 +3065,30 @@ describe('OpenAPI 3.2 parameter style and discriminator', () => {
     ])
   })
 })
+
+describe('OpenAPI 3.2 XML', () => {
+  it('reads nodeType and turns the deprecated attribute and wrapped into it', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: {
+            type: 'object',
+            xml: { name: 'pet', namespace: 'https://example.com/pet', prefix: 'p' },
+            properties: {
+              id: { type: 'integer', xml: { attribute: true } },
+              note: { type: 'string', xml: { nodeType: 'cdata' } },
+              tags: { type: 'array', items: { type: 'string' }, xml: { wrapped: true } },
+            },
+          },
+        },
+      },
+    })
+    const pet = ast.narrowSchema(findSchema(root, 'Pet')!, 'object')!
+
+    expect(pet.xml).toStrictEqual({ name: 'pet', namespace: 'https://example.com/pet', prefix: 'p' })
+    expect(pet.properties.map((property) => property.schema.xml?.nodeType)).toStrictEqual(['attribute', 'cdata', 'element'])
+  })
+})
