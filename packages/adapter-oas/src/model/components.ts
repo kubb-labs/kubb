@@ -215,6 +215,8 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
 
   function resolveSchemaRef(schema: SchemaObject): SchemaObject {
     if (!isReference(schema)) return schema
+    // Inlining the target would drop these siblings, so the parser reads them from the alias itself.
+    if (['if', 'dependentRequired', 'dependentSchemas'].some((key) => key in schema)) return schema
     const resolved = refs.resolve<SchemaObject>(schema.$ref)
     return resolved && !isReference(resolved) ? resolved : schema
   }

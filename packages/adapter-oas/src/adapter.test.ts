@@ -676,6 +676,41 @@ describe('adapterOas options', () => {
     })
   })
 
+  it('keeps the conditionals of a $ref alias next to the ones of its target', async () => {
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Base: { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } }, dependentRequired: { a: ['b'] } },
+            Wrapper: { $ref: '#/components/schemas/Base', if: { required: ['a'] }, then: { required: ['c'] } },
+            Plain: { $ref: '#/components/schemas/Base' },
+            Chained: { $ref: '#/components/schemas/Plain', dependentRequired: { b: ['a'] } },
+          },
+        },
+      },
+    })
+
+    const keys = (name: string) =>
+      node.schemas
+        .find((schema) => schema.name === name)!
+        .conditionals?.map((entry) => [entry.if, entry.then].map((branch) => ast.narrowSchema(branch, 'object')?.properties.map((property) => property.name)))
+
+    expect(keys('Wrapper')).toStrictEqual([
+      [['a'], ['b']],
+      [['a'], ['c']],
+    ])
+    expect(keys('Plain')).toStrictEqual([[['a'], ['b']]])
+    expect(keys('Chained')).toStrictEqual([
+      [['a'], ['b']],
+      [['b'], ['a']],
+    ])
+    expect(keys('Base')).toStrictEqual([[['a'], ['b']]])
+  })
+
   it('keeps a single-member allOf around a union ref as a ref instead of treating it as a cycle', async () => {
     const node = await adapterOas({ validate: false }).parse({
       type: 'data',
