@@ -156,8 +156,8 @@ export const adapterOas = defineExtension<AdapterOas>({
         const child = discriminatorChildMap?.get(name)
         const base = child ? patchDiscriminatorNode(parsed, child) : parsed
         // Keywords next to a `$ref` apply together with the target, so the alias keeps its own conditionals. A collapsed `allOf` aliases itself.
-        const conditionals = [...(aliased?.conditionals ?? []), ...((aliased !== parsed && parsed.conditionals) || [])]
-        const resolved = aliased ? { ...aliased, name, pointer: parsed.pointer, ...(conditionals.length && { conditionals }) } : base
+        const conditionals = aliased === parsed ? parsed.conditionals : [...(aliased?.conditionals ?? []), ...(parsed.conditionals ?? [])]
+        const resolved = aliased ? { ...aliased, name, pointer: parsed.pointer, ...(conditionals?.length && { conditionals }) } : base
         const node = isAliasCycle(name) ? createCycleNode(name, parsed.pointer) : resolved
 
         schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)
