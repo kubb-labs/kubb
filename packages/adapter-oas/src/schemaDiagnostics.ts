@@ -32,6 +32,11 @@ export function groupUnsupportedFormats<T>(fn: () => T): T {
   }
 }
 
+function tallyFormat(format: string, pointer: string): void {
+  if (!formatTally) return reportUnsupportedFormat(format, [pointer])
+  formatTally.set(format, (formatTally.get(format) ?? new Set()).add(pointer))
+}
+
 function reportUnsupportedFormat(format: string, pointers: Array<string>): void {
   const count = pointers.length
   Diagnostics.report({
@@ -58,8 +63,7 @@ function visit(node: ast.SchemaNode, pointer: string): void {
   }
 
   if (typeof node.format === 'string' && !isHandledFormat(node.format)) {
-    if (formatTally) formatTally.set(node.format, (formatTally.get(node.format) ?? new Set()).add(pointer))
-    else reportUnsupportedFormat(node.format, [pointer])
+    tallyFormat(node.format, pointer)
   }
 
   if (node.type === 'object') {

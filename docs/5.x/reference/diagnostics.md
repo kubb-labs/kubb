@@ -235,7 +235,7 @@ Read the message and adjust the input or plugin options as needed. Plugin author
 
 ### KUBB_UNSUPPORTED_FORMAT: Unsupported format {#kubb-unsupported-format}
 
-A schema's `format` is not one Kubb maps to a specific type, so it falls back to the base type. Kubb reports each format once, at the first schema that uses it, with the number of schemas that use it.
+A schema's `format` is not one Kubb maps to a specific type, so it falls back to the base type. Kubb reports each format once, with a count, at the first schema that uses it.
 
 Use a supported format, omit it if the base type is sufficient, or map it through a custom parser or plugin.
 
