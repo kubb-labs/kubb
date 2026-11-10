@@ -26,7 +26,7 @@ Kubb Studio client runtime.
 
 Connects a Kubb project to [Kubb Studio](https://kubb.studio) through typed Cap'n Web RPC over one
 authenticated WebSocket, and publishes snapshots from CI in one HTTP request. It backs the `kubb studio`
-CLI command and the `kubblabs/studio-runner` Docker image.
+CLI command and the `kubblabs/kubb-runner` Docker image.
 
 Most people never install this directly. Reach for `kubb studio` instead, which pairs your machine
 and runs this for you.

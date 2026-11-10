@@ -13,7 +13,7 @@ navigation:
 
 Use [Kubb Studio](https://kubb.studio) to generate and review a project's clients, types, schemas, hooks, and mocks from the browser. Start with Kubb installed and a `kubb.config.ts` in your project. `kubb studio` needs Kubb 5.6.1 or later, because Studio refuses older runners. `kubb studio snapshot` needs Kubb 5.6.2 or later.
 
-For a quick trial without local setup, use Studio's shared sandbox with a spec you are comfortable providing outside your environment. For a persistent team connection on your infrastructure, use the [Docker runner](https://hub.docker.com/r/kubblabs/studio-runner). An organization admin approves its pairing code.
+For a quick trial without local setup, use Studio's shared sandbox with a spec you are comfortable providing outside your environment. For a persistent team connection on your infrastructure, use the [Docker runner](https://hub.docker.com/r/kubblabs/kubb-runner). An organization admin approves its pairing code.
 
 ## Connect your project
 
