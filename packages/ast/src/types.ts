@@ -4,19 +4,7 @@ export type { DistributiveOmit, NodeKind } from './nodes/base.ts'
 export type { ArrowFunctionNode, BreakNode, CodeNode, ConstNode, FunctionNode, JSDocNode, JsxNode, TextNode, TypeNode } from './nodes/code.ts'
 export type { ContentNode, EncodingNode, ExampleNode } from './nodes/content.ts'
 export type { ExportNode, FileNode, ImportNode, SourceNode, UserFileNode } from './nodes/file.ts'
-export type {
-  AuthCredential,
-  AuthRequirement,
-  AuthScheme,
-  AuthTokenSource,
-  ExternalDocs,
-  InputMeta,
-  InputNode,
-  InputSecurityScheme,
-  InputServer,
-  InputTag,
-  OAuthFlow,
-} from './nodes/input.ts'
+export type { AuthCredential, AuthRequirement, AuthScheme, ExternalDocs, InputMeta, InputNode, InputServer, InputTag, OAuthFlow } from './nodes/input.ts'
 export type { GenericOperationNode, HttpMethod, HttpOperationNode, OperationNode } from './nodes/operation.ts'
 export type { ParameterLocation, ParameterNode, ParameterStyle } from './nodes/parameter.ts'
 export type { PropertyNode } from './nodes/property.ts'

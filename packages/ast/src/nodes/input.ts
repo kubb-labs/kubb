@@ -43,21 +43,6 @@ export type InputTag = {
   externalDocs?: ExternalDocs
 }
 
-/**
- * An authentication scheme from the source document, keyed by `name`. `parameterName` is the header, query, or cookie name of an `apiKey`.
- *
- * @deprecated Use `AuthScheme` from `meta.auth`. Removed in the next major.
- */
-export type InputSecurityScheme = {
-  name: string
-  type: string
-  description?: string
-  scheme?: string
-  bearerFormat?: string
-  in?: string
-  parameterName?: string
-}
-
 /** One OAuth2 flow: the endpoints it calls and the scopes it grants. */
 export type OAuthFlow = {
   authorizationUrl?: string
@@ -70,36 +55,29 @@ export type OAuthFlow = {
 }
 
 /**
- * How a client sends a credential with each request.
- * - `bearer`: `Authorization: Bearer <token>`. OAuth2 and OpenID Connect tokens are sent this way.
- * - `basic`: `Authorization: Basic <base64 user:password>`.
+ * How a client sends a credential, in the same shape as the `Auth` object the generated clients pass to `auth`.
+ * - `http`: `Authorization: Bearer <token>` or `Basic <base64 user:password>`, or another scheme such as `digest`.
  * - `apiKey`: a key under `name` in a header, the query string or a cookie.
- * - `http`: any other `Authorization` scheme, such as `Digest`.
+ * - `oauth2`: a bearer token from one of the `flows`, such as `authorizationCode` or `deviceAuthorization`.
+ *   `metadataUrl` points at the authorization server metadata (RFC 8414).
+ * - `openIdConnect`: a bearer token, with `url` pointing at the discovery document.
  * - `mutualTLS`: a client certificate on the connection, nothing in the request.
  */
 export type AuthCredential =
-  | { type: 'bearer'; format?: string }
-  | { type: 'basic' }
+  | { type: 'http'; scheme: 'bearer' | 'basic' | (string & {}) }
   | { type: 'apiKey'; in: 'header' | 'query' | 'cookie'; name: string }
-  | { type: 'http'; scheme: string }
+  | { type: 'oauth2'; flows: Record<string, OAuthFlow>; metadataUrl?: string }
+  | { type: 'openIdConnect'; url?: string }
   | { type: 'mutualTLS' }
-
-/**
- * How a client gets the token it sends. `oauth2` lists the flows by name, such as `authorizationCode` or
- * `deviceAuthorization`, and `metadataUrl` points at the authorization server metadata (RFC 8414). `openIdConnect`
- * points at the discovery document.
- */
-export type AuthTokenSource = { type: 'oauth2'; flows: Record<string, OAuthFlow>; metadataUrl?: string } | { type: 'openIdConnect'; url: string }
 
 /**
  * One way to authenticate, keyed by `name`, which operations refer to in `auth`.
  *
- * @example An OAuth2 scheme whose token is sent as a bearer token
+ * @example An OAuth2 scheme with a client credentials flow
  * ```ts
  * const oauth: AuthScheme = {
  *   name: 'oauth',
- *   credential: { type: 'bearer' },
- *   tokenSource: { type: 'oauth2', flows: { clientCredentials: { tokenUrl: 'https://auth.example.com/token' } } },
+ *   credential: { type: 'oauth2', flows: { clientCredentials: { tokenUrl: 'https://auth.example.com/token' } } },
  * }
  * ```
  */
@@ -108,7 +86,6 @@ export type AuthScheme = {
   description?: string
   deprecated?: boolean
   credential: AuthCredential
-  tokenSource?: AuthTokenSource
 }
 
 /**
@@ -158,8 +135,6 @@ export type InputMeta = {
   servers?: Array<InputServer>
   /** Tags declared at the document root, in document order. Absent when the document declares none. */
   tags?: Array<InputTag>
-  /** @deprecated Use `auth`. Removed in the next major. */
-  securitySchemes?: Array<InputSecurityScheme>
   /** Ways to authenticate that operations refer to by name. Absent when the document declares none. */
   auth?: Array<AuthScheme>
   /**

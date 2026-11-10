@@ -186,23 +186,6 @@ export const adapterOas = defineExtension<AdapterOas>({
           baseURL: resolveBaseUrl({ document, server }),
           servers: toInputServers(document.servers ?? []),
           ...(document.tags?.length && { tags: toInputTags(document.tags) }),
-          // shortcut: the pre-`auth` shape, kept so plugins that read it keep working, remove it in the next major.
-          securitySchemes: Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
-            const scheme = refs.deref<Record<string, string>>(value)
-            return scheme?.type
-              ? [
-                  {
-                    name,
-                    type: scheme.type,
-                    description: scheme.description,
-                    scheme: scheme.scheme,
-                    bearerFormat: scheme.bearerFormat,
-                    in: scheme.in,
-                    parameterName: scheme.name,
-                  },
-                ]
-              : []
-          }),
           ...(authSchemes.length && { auth: authSchemes }),
           extensions: pickExtensions(document),
         },

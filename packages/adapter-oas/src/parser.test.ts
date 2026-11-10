@@ -2917,8 +2917,7 @@ describe('OpenAPI 3.2 security schemes', () => {
       {
         name: 'oauth',
         deprecated: true,
-        credential: { type: 'bearer' },
-        tokenSource: {
+        credential: {
           type: 'oauth2',
           metadataUrl: 'https://auth.example.com/.well-known/oauth-authorization-server',
           flows: {
@@ -3124,9 +3123,7 @@ describe('OpenAPI 3.0 and 3.1 document fields', () => {
       license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
       externalDocs: { url: 'https://example.com/docs' },
       tags: [{ name: 'pets', externalDocs: { url: 'https://example.com/pets' } }],
-      auth: [
-        { name: 'oidc', credential: { type: 'bearer' }, tokenSource: { type: 'openIdConnect', url: 'https://example.com/.well-known/openid-configuration' } },
-      ],
+      auth: [{ name: 'oidc', credential: { type: 'openIdConnect', url: 'https://example.com/.well-known/openid-configuration' } }],
     })
     expect(operation.externalDocs).toStrictEqual({ url: 'https://example.com/create', description: 'Guide' })
     expect(operation.parameters[0]).toMatchObject({ deprecated: true, allowEmptyValue: true })
@@ -3304,7 +3301,7 @@ describe('auth schemes', () => {
     })
 
     expect(root.meta.auth).toStrictEqual([
-      { name: 'basic', description: 'User and password', credential: { type: 'basic' } },
+      { name: 'basic', description: 'User and password', credential: { type: 'http', scheme: 'basic' } },
       { name: 'digest', credential: { type: 'http', scheme: 'digest' } },
       { name: 'key', credential: { type: 'apiKey', in: 'cookie', name: 'sid' } },
       { name: 'tls', credential: { type: 'mutualTLS' } },

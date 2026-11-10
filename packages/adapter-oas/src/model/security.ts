@@ -12,25 +12,16 @@ function getCredential(scheme: SecuritySchemeObject): ast.AuthCredential | undef
   if (scheme.type === 'apiKey') {
     return scheme.name && scheme.in && API_KEY_LOCATIONS.has(scheme.in) ? { type: 'apiKey', in: scheme.in as 'header', name: scheme.name } : undefined
   }
-  if (scheme.type === 'http') {
-    const name = scheme.scheme?.toLowerCase()
-    if (name === 'bearer') return { type: 'bearer', ...(scheme.bearerFormat && { format: scheme.bearerFormat }) }
-    if (name === 'basic') return { type: 'basic' }
-    return scheme.scheme ? { type: 'http', scheme: scheme.scheme } : undefined
+  if (scheme.type === 'http') return scheme.scheme ? { type: 'http', scheme: scheme.scheme.toLowerCase() } : undefined
+  if (scheme.type === 'openIdConnect') return { type: 'openIdConnect', ...(scheme.openIdConnectUrl && { url: scheme.openIdConnectUrl }) }
+  if (scheme.type === 'oauth2') {
+    const flows = Object.entries(scheme.flows ?? {}).map(([name, flow]) => {
+      const scopes = flow && typeof flow === 'object' && flow.scopes && typeof flow.scopes === 'object' ? { scopes: flow.scopes as Record<string, string> } : {}
+      return [name, { ...pickStrings(flow, ['authorizationUrl', 'deviceAuthorizationUrl', 'tokenUrl', 'refreshUrl']), ...scopes }] as const
+    })
+    return { type: 'oauth2', flows: Object.fromEntries(flows), ...(scheme.oauth2MetadataUrl && { metadataUrl: scheme.oauth2MetadataUrl }) }
   }
-  if (scheme.type === 'oauth2' || scheme.type === 'openIdConnect') return { type: 'bearer' }
   return scheme.type === 'mutualTLS' ? { type: 'mutualTLS' } : undefined
-}
-
-/** Where a client gets the token from, for an `oauth2` or `openIdConnect` scheme. */
-function getTokenSource(scheme: SecuritySchemeObject): ast.AuthTokenSource | undefined {
-  if (scheme.type === 'openIdConnect') return scheme.openIdConnectUrl ? { type: 'openIdConnect', url: scheme.openIdConnectUrl } : undefined
-  if (scheme.type !== 'oauth2') return undefined
-  const flows = Object.entries(scheme.flows ?? {}).map(([name, flow]) => {
-    const scopes = flow && typeof flow === 'object' && flow.scopes && typeof flow.scopes === 'object' ? { scopes: flow.scopes as Record<string, string> } : {}
-    return [name, { ...pickStrings(flow, ['authorizationUrl', 'deviceAuthorizationUrl', 'tokenUrl', 'refreshUrl']), ...scopes }] as const
-  })
-  return { type: 'oauth2', flows: Object.fromEntries(flows), ...(scheme.oauth2MetadataUrl && { metadataUrl: scheme.oauth2MetadataUrl }) }
 }
 
 /**
@@ -42,14 +33,12 @@ export function toAuthSchemes(schemes: Record<string, unknown> | undefined, refs
     const scheme = refs.deref<SecuritySchemeObject>(value)
     const credential = scheme && getCredential(scheme)
     if (!scheme || !credential) return []
-    const tokenSource = getTokenSource(scheme)
     return [
       {
         name,
         ...(scheme.description && { description: scheme.description }),
         ...(scheme.deprecated && { deprecated: true }),
         credential,
-        ...(tokenSource && { tokenSource }),
       },
     ]
   })

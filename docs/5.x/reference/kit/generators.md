@@ -71,26 +71,26 @@ const getOnlyGenerator = defineGenerator({
 
 ### `GeneratorContext` properties (the `ctx` argument passed to each method)
 
-| Property              | Type                                                                      | Purpose                                                                                                                                    |
-| --------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ctx.config`          | `Config`                                                                  | Resolved Kubb configuration                                                                                                                |
-| `ctx.root`            | `string`                                                                  | Absolute path to the output directory for the current plugin                                                                               |
-| `ctx.options`         | `TResolvedOptions`                                                        | Per-node resolved options (after exclude/include/override filtering)                                                                       |
-| `ctx.plugin`          | `Plugin`                                                                  | The owning plugin descriptor                                                                                                               |
-| `ctx.resolver`        | `Resolver`                                                                | Resolver for the current plugin                                                                                                            |
-| `ctx.driver`          | `KubbDriver`                                                              | Plugin driver for cross-plugin access                                                                                                      |
-| `ctx.hooks`           | `Hookable<KubbHooks>`                                                     | Event bus for `KubbHooks` events                                                                                                           |
-| `ctx.adapter`         | `Adapter`                                                                 | The adapter that parsed the input spec                                                                                                     |
-| `ctx.meta`            | `InputMeta`                                                               | Document metadata from the adapter. Carries `title`, `version`, `baseURL`, and every declared `servers` entry and `securitySchemes` entry. |
-| `ctx.memo()`          | `(key: string, compute: () => T) => T`                                    | Cache that lives for the whole build and is shared by every plugin. See [Caching with `ctx.memo`](#memo)                                   |
-| `ctx.addFile()`       | `(...files: FileNode[]) => Promise<void>`                                 | Add files, skipping any that already exist                                                                                                 |
-| `ctx.upsertFile()`    | `(...files: FileNode[]) => Promise<void>`                                 | Add or merge files (concatenates sources and imports)                                                                                      |
-| `ctx.getPlugin()`     | `(name: string) => Plugin \| undefined`                                   | Get a plugin by name                                                                                                                       |
-| `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Get a plugin by name or throw a descriptive error                                                                                          |
-| `ctx.getResolver()`   | `(name: string) => Resolver`                                              | Get a resolver by plugin name                                                                                                              |
-| `ctx.info()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Emit an info message via the build event system                                                                                            |
-| `ctx.warn()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Emit a warning via the build event system. `options` sets the fix and the source pointer                                                   |
-| `ctx.error()`         | `(error: string \| Error, options?: { code?, help?, location? }) => void` | Emit an error via the build event system. A `Diagnostics.Error` keeps its code, help, and location                                         |
+| Property              | Type                                                                      | Purpose                                                                                                                            |
+| --------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `ctx.config`          | `Config`                                                                  | Resolved Kubb configuration                                                                                                        |
+| `ctx.root`            | `string`                                                                  | Absolute path to the output directory for the current plugin                                                                       |
+| `ctx.options`         | `TResolvedOptions`                                                        | Per-node resolved options (after exclude/include/override filtering)                                                               |
+| `ctx.plugin`          | `Plugin`                                                                  | The owning plugin descriptor                                                                                                       |
+| `ctx.resolver`        | `Resolver`                                                                | Resolver for the current plugin                                                                                                    |
+| `ctx.driver`          | `KubbDriver`                                                              | Plugin driver for cross-plugin access                                                                                              |
+| `ctx.hooks`           | `Hookable<KubbHooks>`                                                     | Event bus for `KubbHooks` events                                                                                                   |
+| `ctx.adapter`         | `Adapter`                                                                 | The adapter that parsed the input spec                                                                                             |
+| `ctx.meta`            | `InputMeta`                                                               | Document metadata from the adapter. Carries `title`, `version`, `baseURL`, every declared `servers` entry, and the `auth` schemes. |
+| `ctx.memo()`          | `(key: string, compute: () => T) => T`                                    | Cache that lives for the whole build and is shared by every plugin. See [Caching with `ctx.memo`](#memo)                           |
+| `ctx.addFile()`       | `(...files: FileNode[]) => Promise<void>`                                 | Add files, skipping any that already exist                                                                                         |
+| `ctx.upsertFile()`    | `(...files: FileNode[]) => Promise<void>`                                 | Add or merge files (concatenates sources and imports)                                                                              |
+| `ctx.getPlugin()`     | `(name: string) => Plugin \| undefined`                                   | Get a plugin by name                                                                                                               |
+| `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Get a plugin by name or throw a descriptive error                                                                                  |
+| `ctx.getResolver()`   | `(name: string) => Resolver`                                              | Get a resolver by plugin name                                                                                                      |
+| `ctx.info()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Emit an info message via the build event system                                                                                    |
+| `ctx.warn()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Emit a warning via the build event system. `options` sets the fix and the source pointer                                           |
+| `ctx.error()`         | `(error: string \| Error, options?: { code?, help?, location? }) => void` | Emit an error via the build event system. A `Diagnostics.Error` keeps its code, help, and location                                 |
 
 ### Caching with `ctx.memo` {#memo}
 
@@ -107,7 +107,9 @@ export const operationGenerator = defineGenerator({
   name: 'operation-generator',
   operation(node, ctx) {
     // One entry per operation. Other generators that ask for the same key reuse it.
-    const schemas = ctx.memo(`my-plugin:schemas:${node.operationId}`, () => ast.collectSync<ast.SchemaNode>(node, { depth: 'shallow', schema: (schema) => schema }))
+    const schemas = ctx.memo(`my-plugin:schemas:${node.operationId}`, () =>
+      ast.collectSync<ast.SchemaNode>(node, { depth: 'shallow', schema: (schema) => schema }),
+    )
 
     return
   },

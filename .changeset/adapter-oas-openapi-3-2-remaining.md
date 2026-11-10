@@ -27,13 +27,17 @@ Read the OpenAPI 3.0, 3.1 and 3.2 fields the adapter skipped, so plugins get eve
 - A discriminator without `propertyName`, optional from 3.2, no longer crashes the parse. Its `defaultMapping` schema joins the union.
 - A response without `description` parses.
 
-### Deprecated
+### Removed
 
-`meta.securitySchemes` and `InputSecurityScheme` stay filled until the next major. Use `meta.auth` and `AuthScheme` instead, which follow how a client sends the credential:
+`meta.securitySchemes` and `InputSecurityScheme` are replaced by `meta.auth` and `AuthScheme`. Each scheme's `credential` has the same shape as the `Auth` object that `@kubb/plugin-fetch` and `@kubb/plugin-axios` pass to your `auth` resolver, so the AST and the generated client share one format:
 
-- `credential` is `bearer`, `basic`, `apiKey` with `in` and `name`, `http` with another `scheme`, or `mutualTLS`.
-- `tokenSource`, for OAuth2 and OpenID Connect, holds the flows (with the 3.2 `deviceAuthorization` and `metadataUrl`) or the discovery `url`.
-- A scheme a client cannot place, such as an `apiKey` outside a header, query or cookie, is left out.
+- `http` with `scheme` (`bearer`, `basic`, or another such as `digest`).
+- `apiKey` with `in` and `name`.
+- `oauth2` with its `flows`, including the 3.2 `deviceAuthorization`, and `metadataUrl`.
+- `openIdConnect` with the discovery `url`.
+- `mutualTLS`.
+
+A scheme a client cannot place, such as an `apiKey` outside a header, query or cookie, is left out.
 
 ```ts
 // before: meta.securitySchemes
