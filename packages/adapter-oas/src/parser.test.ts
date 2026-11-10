@@ -3196,3 +3196,33 @@ describe('JSON Schema 2020-12 object keywords', () => {
     expect(findSchema(root, 'Labels')).toMatchObject({ additionalProperties: { type: 'string' } })
   })
 })
+
+describe('JSON Schema 2020-12 applicators', () => {
+  it('reads if/then/else, dependentSchemas, contains and unevaluatedItems', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Address: {
+            type: 'object',
+            properties: { country: { type: 'string' }, postalCode: { type: 'string' } },
+            if: { properties: { country: { const: 'US' } } },
+            then: { properties: { postalCode: { pattern: '^[0-9]{5}$' } } },
+            else: { properties: { postalCode: { pattern: '^[A-Z0-9 ]+$' } } },
+            dependentSchemas: { country: { required: ['postalCode'] } },
+          },
+          Tags: { type: 'array', items: { type: 'string' }, contains: { const: 'admin' }, minContains: 1, maxContains: 2 },
+          Pair: { type: 'array', prefixItems: [{ type: 'string' }, { type: 'number' }], unevaluatedItems: false },
+        },
+      },
+    })
+    const address = findSchema(root, 'Address')!
+
+    expect(address.conditional).toMatchObject({ if: { type: 'object' }, then: { type: 'object' }, else: { type: 'object' } })
+    expect(ast.narrowSchema(address, 'object')?.dependentSchemas?.['country']).toBeDefined()
+    expect(findSchema(root, 'Tags')).toMatchObject({ type: 'array', contains: { type: 'enum', enumValues: ['admin'] }, minContains: 1, maxContains: 2 })
+    expect(findSchema(root, 'Pair')).toMatchObject({ type: 'tuple', rest: undefined })
+  })
+})

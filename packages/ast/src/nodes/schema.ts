@@ -98,6 +98,11 @@ type SchemaNodeBase = BaseNode & {
   /** How the value is written as XML. Absent when the source sets nothing. */
   xml?: XmlNode
   externalDocs?: ExternalDocs
+  /**
+   * JSON Schema `if`/`then`/`else`: a value that matches `if` must also match `then`, any other value `else`.
+   * Visitors do not walk it, like `contentSchema`.
+   */
+  conditional?: { if: SchemaNode; then?: SchemaNode; else?: SchemaNode }
 }
 
 /**
@@ -171,6 +176,8 @@ export type ObjectSchemaNode = SchemaNodeBase & {
    * Properties that become required when a key is present, such as `{ creditCard: ['billingAddress'] }`.
    */
   dependentRequired?: Record<string, Array<string>>
+  /** Schemas the whole object must also match when a key is present. Visitors do not walk them. */
+  dependentSchemas?: Record<string, SchemaNode>
   /**
    * Minimum number of properties allowed.
    */
@@ -218,6 +225,10 @@ export type ArraySchemaNode = SchemaNodeBase & {
    * Whether all items must be unique.
    */
   unique?: boolean
+  /** Schema that at least `minContains` (default 1) and at most `maxContains` items must match. Visitors do not walk it. */
+  contains?: SchemaNode
+  minContains?: number
+  maxContains?: number
 }
 
 /**

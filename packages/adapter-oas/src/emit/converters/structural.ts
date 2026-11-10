@@ -5,6 +5,27 @@ import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 
+/** The JSON Schema 2020-12 `dependentSchemas` map, parsed. */
+function getDependentSchemas(schema: SchemaObject, parse: ConvertContext['parse']): Record<string, ast.SchemaNode> | undefined {
+  const value = (schema as { dependentSchemas?: unknown }).dependentSchemas
+  if (!value || typeof value !== 'object') return undefined
+  const entries = Object.entries(value).flatMap(([key, entry]) =>
+    entry && typeof entry === 'object' ? [[key, parse({ schema: entry as SchemaObject })] as const] : [],
+  )
+  return entries.length ? Object.fromEntries(entries) : undefined
+}
+
+/** The JSON Schema 2020-12 `contains`, `minContains` and `maxContains` of an array or tuple. */
+function getContains(schema: SchemaObject, parse: ConvertContext['parse']): Pick<ast.ArraySchemaNode, 'contains' | 'minContains' | 'maxContains'> {
+  const { contains, minContains, maxContains } = schema as { contains?: unknown; minContains?: unknown; maxContains?: unknown }
+  if (!contains || typeof contains !== 'object') return {}
+  return {
+    contains: parse({ schema: contains as SchemaObject }),
+    ...(typeof minContains === 'number' && { minContains }),
+    ...(typeof maxContains === 'number' && { maxContains }),
+  }
+}
+
 /** The JSON Schema 2020-12 `dependentRequired` map, keeping only lists of property names. */
 function getDependentRequired(schema: SchemaObject): Record<string, Array<string>> | undefined {
   const value = (schema as { dependentRequired?: unknown }).dependentRequired
@@ -97,6 +118,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       minProperties: schema.minProperties,
       maxProperties: schema.maxProperties,
       dependentRequired: getDependentRequired(schema),
+      dependentSchemas: getDependentSchemas(schema, parse),
     },
   )
 
@@ -118,13 +140,11 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
  */
 export function convertTuple({ schema, name, nullable, defaultValue, options, parse }: ConvertContext): ast.SchemaNode {
   const tupleItems = (schema.prefixItems ?? []).map((item) => parse({ schema: item as SchemaObject }))
+  // `unevaluatedItems` types or closes the tail the same way when `items` is absent.
+  const tail = schema.items ?? (schema as { unevaluatedItems?: SchemaObject['items'] }).unevaluatedItems
   // items: false closes the tuple; absent/true widens the tail to unknownType.
   const rest =
-    schema.items === false
-      ? undefined
-      : !schema.items || schema.items === true
-        ? ast.factory.createSchema({ type: options.unknownType })
-        : parse({ schema: schema.items as SchemaObject })
+    tail === false ? undefined : !tail || tail === true ? ast.factory.createSchema({ type: options.unknownType }) : parse({ schema: tail as SchemaObject })
 
   return createNode(
     { schema, name, nullable, defaultValue },
@@ -135,6 +155,7 @@ export function convertTuple({ schema, name, nullable, defaultValue, options, pa
       rest,
       min: schema.minItems,
       max: schema.maxItems,
+      ...getContains(schema, parse),
     },
   )
 }
@@ -156,6 +177,7 @@ export function convertArray({ schema, name, nullable, defaultValue, options, pa
       min: schema.minItems,
       max: schema.maxItems,
       unique: schema.uniqueItems ?? undefined,
+      ...getContains(schema, parse),
     },
   )
 }

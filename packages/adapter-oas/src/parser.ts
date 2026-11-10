@@ -55,11 +55,21 @@ export function createSchemaParser(ctx: OasParserContext) {
       renames,
     }
 
-    for (const rule of schemaRules) {
-      if (rule.match(context)) return rule.convert(context)
-    }
+    const rule = schemaRules.find((entry) => entry.match(context))
+    const node = rule ? rule.convert(context) : createNode(context, { type: options.emptySchemaType as ast.ScalarSchemaType })
 
-    return createNode(context, { type: options.emptySchemaType as ast.ScalarSchemaType })
+    return withConditional(node, schema)
+  }
+
+  /** Adds JSON Schema `if`/`then`/`else` to the converted node, whatever its type. */
+  function withConditional(node: ast.SchemaNode, schema: SchemaObject): ast.SchemaNode {
+    const { if: condition, then, else: otherwise } = schema as { if?: unknown; then?: unknown; else?: unknown }
+    if (!condition || typeof condition !== 'object') return node
+    const branch = (value: unknown) => (value && typeof value === 'object' ? parseSchema({ schema: value as SchemaObject }) : undefined)
+    const thenNode = branch(then)
+    const elseNode = branch(otherwise)
+
+    return { ...node, conditional: { if: branch(condition)!, ...(thenNode && { then: thenNode }), ...(elseNode && { else: elseNode }) } }
   }
 
   return parseSchema
