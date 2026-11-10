@@ -1,6 +1,6 @@
 ---
-'@kubb/studio': minor
-'@kubb/cli': minor
+'@kubb/studio': patch
+'@kubb/cli': patch
 ---
 
 Rename "agent" to "runner" and "project" in the Studio runtime. A runner is the process that connects to Kubb Studio, such as `kubb studio` or the Docker image. A project is the record you manage in Studio.
