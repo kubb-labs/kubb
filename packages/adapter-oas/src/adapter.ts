@@ -17,7 +17,7 @@ import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { createRefs } from './refs.ts'
 import { groupUnsupportedFormats, scanSchema } from './schemaDiagnostics.ts'
 import { locate } from './sourceLocator.ts'
-import type { AdapterOas, Document, SchemaObject } from './types.ts'
+import type { AdapterOas, Document, SchemaObject, SecuritySchemeObject } from './types.ts'
 
 /**
  * The `name` of `@kubb/adapter-oas`, used to identify this adapter in a Kubb config.
@@ -173,7 +173,7 @@ export const adapterOas = defineExtension<AdapterOas>({
           servers: toInputServers(document.servers ?? []),
           ...(document.tags?.length && { tags: toInputTags(document.tags) }),
           securitySchemes: Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
-            const scheme = refs.deref<Record<string, string>>(value)
+            const scheme = refs.deref<SecuritySchemeObject>(value)
             return scheme?.type
               ? [
                   {
@@ -184,6 +184,9 @@ export const adapterOas = defineExtension<AdapterOas>({
                     bearerFormat: scheme.bearerFormat,
                     in: scheme.in,
                     parameterName: scheme.name,
+                    ...(scheme.flows && { flows: scheme.flows }),
+                    ...(scheme.oauth2MetadataUrl && { oauth2MetadataUrl: scheme.oauth2MetadataUrl }),
+                    ...(scheme.deprecated && { deprecated: true }),
                   },
                 ]
               : []

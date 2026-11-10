@@ -133,6 +133,22 @@ export type ParameterObject = {
 } & OpenAPIV3_1.ParameterObject
 
 /**
+ * OpenAPI security scheme object, read loosely since its fields depend on `type`. Adds the OpenAPI 3.2
+ * `deviceAuthorization` flow, `oauth2MetadataUrl` and `deprecated`.
+ */
+export type SecuritySchemeObject = {
+  type?: string
+  description?: string
+  scheme?: string
+  bearerFormat?: string
+  in?: string
+  name?: string
+  flows?: Record<string, ast.InputOAuthFlow>
+  oauth2MetadataUrl?: string
+  deprecated?: boolean
+}
+
+/**
  * OpenAPI tag object, with the OpenAPI 3.2 `summary`, `parent` and `kind`.
  */
 export type TagObject = OpenAPIV3_1.TagObject & { summary?: string; parent?: string; kind?: string }

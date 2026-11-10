@@ -50,6 +50,23 @@ export type InputTag = {
 }
 
 /**
+ * One OAuth2 flow: the endpoints it calls and the scopes it grants.
+ */
+export type InputOAuthFlow = {
+  authorizationUrl?: string
+  /**
+   * Endpoint that issues the device code of the device authorization flow (RFC 8628).
+   */
+  deviceAuthorizationUrl?: string
+  tokenUrl?: string
+  refreshUrl?: string
+  /**
+   * Scope names mapped to their descriptions.
+   */
+  scopes?: Record<string, string>
+}
+
+/**
  * An authentication scheme from the source document, keyed by `name`. `parameterName` is the header, query, or cookie name of an `apiKey`.
  */
 export type InputSecurityScheme = {
@@ -60,6 +77,15 @@ export type InputSecurityScheme = {
   bearerFormat?: string
   in?: string
   parameterName?: string
+  /**
+   * OAuth2 flows by name, such as `authorizationCode` or `deviceAuthorization`.
+   */
+  flows?: Record<string, InputOAuthFlow>
+  /**
+   * URL of the OAuth2 authorization server metadata (RFC 8414).
+   */
+  oauth2MetadataUrl?: string
+  deprecated?: boolean
 }
 
 /**

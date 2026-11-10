@@ -2889,3 +2889,45 @@ describe('OpenAPI 3.2 tags', () => {
     ])
   })
 })
+
+describe('OpenAPI 3.2 security schemes', () => {
+  it('reads the deviceAuthorization flow, oauth2MetadataUrl and deprecated', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        securitySchemes: {
+          oauth: {
+            type: 'oauth2',
+            oauth2MetadataUrl: 'https://auth.example.com/.well-known/oauth-authorization-server',
+            deprecated: true,
+            flows: {
+              deviceAuthorization: {
+                deviceAuthorizationUrl: 'https://auth.example.com/device',
+                tokenUrl: 'https://auth.example.com/token',
+                scopes: { read: 'Read access' },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(root.meta.securitySchemes).toMatchObject([
+      {
+        name: 'oauth',
+        type: 'oauth2',
+        oauth2MetadataUrl: 'https://auth.example.com/.well-known/oauth-authorization-server',
+        deprecated: true,
+        flows: {
+          deviceAuthorization: {
+            deviceAuthorizationUrl: 'https://auth.example.com/device',
+            tokenUrl: 'https://auth.example.com/token',
+            scopes: { read: 'Read access' },
+          },
+        },
+      },
+    ])
+  })
+})
