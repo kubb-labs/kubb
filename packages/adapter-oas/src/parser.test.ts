@@ -3046,33 +3046,6 @@ describe('OpenAPI 3.2 parameter style and discriminator', () => {
   })
 })
 
-describe('OpenAPI 3.2 XML', () => {
-  it('reads nodeType and turns the deprecated attribute and wrapped into it', async () => {
-    const root = await parseOas({
-      openapi: '3.2.0',
-      info: { title: 'Test', version: '1.0.0' },
-      paths: {},
-      components: {
-        schemas: {
-          Pet: {
-            type: 'object',
-            xml: { name: 'pet', namespace: 'https://example.com/pet', prefix: 'p' },
-            properties: {
-              id: { type: 'integer', xml: { attribute: true } },
-              note: { type: 'string', xml: { nodeType: 'cdata' } },
-              tags: { type: 'array', items: { type: 'string' }, xml: { wrapped: true } },
-            },
-          },
-        },
-      },
-    })
-    const pet = ast.narrowSchema(findSchema(root, 'Pet')!, 'object')!
-
-    expect(pet.xml).toStrictEqual({ name: 'pet', namespace: 'https://example.com/pet', prefix: 'p' })
-    expect(pet.properties.map((property) => property.schema.xml?.nodeType)).toStrictEqual(['attribute', 'cdata', 'element'])
-  })
-})
-
 describe('security requirements', () => {
   it('reads operation security, falls back to the document, and maps 3.2 URI keys to scheme names', async () => {
     const root = await parseOas({
@@ -3256,20 +3229,20 @@ describe('JSON Schema identifiers', () => {
 })
 
 describe('single-member allOf wrapper', () => {
-  it('keeps the wrapper xml and externalDocs', async () => {
+  it('keeps the wrapper externalDocs', async () => {
     const root = await parseOas({
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
       paths: {},
       components: {
         schemas: {
-          Id: { type: 'string', xml: { name: 'id' } },
-          PetId: { allOf: [{ $ref: '#/components/schemas/Id' }], xml: { nodeType: 'attribute' }, externalDocs: { url: 'https://example.com/ids' } },
+          Id: { type: 'string' },
+          PetId: { allOf: [{ $ref: '#/components/schemas/Id' }], externalDocs: { url: 'https://example.com/ids' } },
         },
       },
     })
 
-    expect(findSchema(root, 'PetId')).toMatchObject({ xml: { nodeType: 'attribute' }, externalDocs: { url: 'https://example.com/ids' } })
+    expect(findSchema(root, 'PetId')).toMatchObject({ externalDocs: { url: 'https://example.com/ids' } })
   })
 })
 

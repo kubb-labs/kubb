@@ -15,25 +15,6 @@ type NodeBaseContext = Pick<ConvertContext, 'schema' | 'name' | 'nullable' | 'de
  */
 type CreateSchemaProps = Parameters<typeof ast.factory.createSchema>[0]
 
-const XML_NODE_TYPES = new Set(['element', 'attribute', 'text', 'cdata', 'none'])
-
-/**
- * Reads the XML Object. The deprecated `attribute: true` and `wrapped: true` become the 3.2 `nodeType`.
- */
-export function getXml(xml: unknown): ast.XmlNode | undefined {
-  if (!xml || typeof xml !== 'object') return undefined
-  const { name, namespace, prefix, nodeType, attribute, wrapped } = xml as Record<string, unknown>
-  const type =
-    typeof nodeType === 'string' && XML_NODE_TYPES.has(nodeType) ? nodeType : attribute === true ? 'attribute' : wrapped === true ? 'element' : undefined
-  const node = {
-    ...(typeof name === 'string' && { name }),
-    ...(typeof namespace === 'string' && { namespace }),
-    ...(typeof prefix === 'string' && { prefix }),
-    ...(type && { nodeType: type as ast.XmlNode['nodeType'] }),
-  }
-  return Object.keys(node).length ? node : undefined
-}
-
 /**
  * Builds a schema node from a converter's base context plus its type-specific fields. Every
  * converter needs the same metadata fields (`title`, `description`, `examples`, ...) alongside
@@ -51,7 +32,6 @@ export function createNode({ schema, name, nullable, defaultValue }: NodeBaseCon
     default: defaultValue,
     examples: extractExamples(schema),
     format: schema.format,
-    xml: getXml(schema.xml),
     externalDocs: getExternalDocs(schema.externalDocs),
     ...extras,
   })

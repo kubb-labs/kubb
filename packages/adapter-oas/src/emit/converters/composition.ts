@@ -3,7 +3,7 @@ import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { getExternalDocs, isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
-import { createNode, getXml } from '../createNode.ts'
+import { createNode } from '../createNode.ts'
 import {
   createDiscriminantNode,
   getDefaultMappingRef,
@@ -220,7 +220,6 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
       examples: extractExamples(schema) ?? memberNode.examples,
       pattern: schema.pattern ?? ('pattern' in memberNode ? memberNode.pattern : undefined),
       format: schema.format ?? memberNode.format,
-      xml: getXml(schema.xml) ?? memberNode.xml,
       externalDocs: getExternalDocs(schema.externalDocs) ?? memberNode.externalDocs,
     } as ast.DistributiveOmit<ast.SchemaNode, 'kind'>)
   }

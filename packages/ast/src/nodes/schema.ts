@@ -95,29 +95,12 @@ type SchemaNodeBase = BaseNode & {
    * Schema `format` value.
    */
   format?: string
-  /** How the value is written as XML. Absent when the source sets nothing. */
-  xml?: XmlNode
   externalDocs?: ExternalDocs
   /**
    * JSON Schema `if`/`then`/`else`: a value that matches `if` must also match `then`, any other value `else`.
    * Visitors do not walk it, like a string's `content.schema`.
    */
   conditional?: { if: SchemaNode; then?: SchemaNode; else?: SchemaNode }
-}
-
-/**
- * How a schema's value is written as XML.
- */
-export type XmlNode = {
-  /** Element or attribute name, in place of the property or schema name. */
-  name?: string
-  namespace?: string
-  prefix?: string
-  /**
-   * What the value becomes: an element, an attribute, text or CDATA inside the parent, or `none` for
-   * no node of its own, such as an array whose items sit directly in the parent.
-   */
-  nodeType?: 'element' | 'attribute' | 'text' | 'cdata' | 'none'
 }
 
 /**
