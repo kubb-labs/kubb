@@ -316,15 +316,17 @@ describe('adapterOas.parse', () => {
             servers: [{ url: 'https://{region}.files.example.com', variables: { region: { default: 'eu' } } }, { description: 'No url' }],
             get: { operationId: 'listFiles', responses: { '200': { description: 'ok' } } },
             post: { operationId: 'uploadFile', servers: [{ url: 'https://upload.example.com' }], responses: { '200': { description: 'ok' } } },
+            put: { operationId: 'replaceFile', servers: [], responses: { '200': { description: 'ok' } } },
           },
           '/pets': minimalSpec.paths['/pets'],
         },
       },
     })
-    const [listFiles, uploadFile, listPets] = node.operations
+    const [listFiles, uploadFile, replaceFile, listPets] = node.operations
 
     expect(listFiles?.servers).toEqual([{ url: 'https://eu.files.example.com', variables: { region: { default: 'eu' } } }])
     expect(uploadFile?.servers).toEqual([{ url: 'https://upload.example.com' }])
+    expect(replaceFile?.servers).toEqual(listFiles?.servers)
     expect(listPets).not.toHaveProperty('servers')
   })
 

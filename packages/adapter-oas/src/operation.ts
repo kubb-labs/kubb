@@ -485,7 +485,8 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     return typeof fallback === 'string' ? fallback : undefined
   }
 
-  const servers = operation.schema.servers ?? operation.pathItem.servers
+  // An empty operation `servers` list overrides nothing, so the path item's servers still apply.
+  const servers = operation.schema.servers?.length ? operation.schema.servers : operation.pathItem.servers
   const auth = toAuthRequirements(operation.schema.security ?? document.security, document)
 
   return ast.factory.createOperation({
