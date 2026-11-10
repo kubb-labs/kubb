@@ -693,6 +693,8 @@ describe('adapterOas options', () => {
             Chained: { $ref: '#/components/schemas/Plain', dependentRequired: { b: ['a'] } },
             Required: { $ref: '#/components/schemas/Base', required: ['a'] },
             Extended: { $ref: '#/components/schemas/Base', properties: { c: { type: 'number' } } },
+            Repeated: { $ref: '#/components/schemas/Base', dependentRequired: { a: ['b'] } },
+            Merged: { $ref: '#/components/schemas/Base', allOf: [{ type: 'object', properties: { d: { type: 'boolean' } } }] },
           },
         },
       },
@@ -734,7 +736,45 @@ describe('adapterOas options', () => {
       ],
       [['c', false]],
     ])
+    expect(conditionKeys('Repeated')).toStrictEqual([[['a'], ['b']]])
+    expect(memberProperties('Merged')).toStrictEqual([
+      [['d', false]],
+      [
+        ['a', false],
+        ['b', false],
+      ],
+    ])
     expect(conditionKeys('Base')).toStrictEqual([[['a'], ['b']]])
+  })
+
+  it('leaves the enums inside conditionals inline when enums are promoted to the root', async () => {
+    const condition = (value: string, field: string) => ({
+      if: { properties: { status: { type: 'string', enum: [value] } }, required: ['status'] },
+      then: { required: [field] },
+    })
+    const node = await adapterOas({ validate: false, enums: 'root' }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Pet: { type: 'object', properties: { status: { type: 'string' } }, ...condition('sold', 'soldAt') },
+            Order: { type: 'object', properties: { status: { type: 'string' } }, ...condition('shipped', 'shippedAt') },
+          },
+        },
+      },
+    })
+
+    const statusIn = (name: string) =>
+      ast
+        .narrowSchema(node.schemas.find((schema) => schema.name === name)?.conditionals?.[0]?.if, 'object')
+        ?.properties.find((property) => property.name === 'status')?.schema
+
+    expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['Pet', 'Order'])
+    expect(statusIn('Pet')).toMatchObject({ type: 'enum', enumValues: ['sold'] })
+    expect(statusIn('Order')).toMatchObject({ type: 'enum', enumValues: ['shipped'] })
   })
 
   it('keeps a single-member allOf around a union ref as a ref instead of treating it as a cycle', async () => {

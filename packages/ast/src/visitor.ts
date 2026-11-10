@@ -26,16 +26,16 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   RequestBody: ['content'],
   Content: ['schema', 'stream'],
   Response: ['content', 'headers'],
-  Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'propertyNames', 'rest', 'conditionals', 'contains', 'content'],
+  Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'propertyNames', 'rest'],
   Property: ['schema'],
   Parameter: ['schema'],
 }
 
 /**
  * Schema fields that hold checks rather than shape: the `conditionals` entries, `contains` and a string's `content`.
- * `collectImportedRefNames` leaves them out unless asked, so a plugin that does not print them imports nothing for them.
+ * `transform` and `collect` skip them, and `visitChildNodes` walks them with `checks: true`.
  */
-export const schemaCheckKeys: ReadonlySet<string> = new Set(['conditionals', 'contains', 'content'])
+export const schemaCheckKeys = ['conditionals', 'contains', 'content'] as const
 
 /** Visitor callback names in traversal order, the keys of {@link Visitor}. */
 export const visitorKeys = ['input', 'operation', 'schema', 'property', 'parameter', 'response'] as const
@@ -197,10 +197,11 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
 }
 
 /**
- * Calls `visit` for each direct child node and stops at the first call that returns `true`. Keys in `skip` are left out.
+ * Calls `visit` for each direct child node and stops at the first call that returns `true`.
+ * With `checks: true`, a schema's {@link schemaCheckKeys} fields are walked too.
  */
-export function visitChildNodes(node: Node, visit: (child: Node) => boolean, skip?: ReadonlySet<string>): boolean {
-  const keys = VISITOR_KEYS[node.kind]
+export function visitChildNodes(node: Node, visit: (child: Node) => boolean, { checks = false }: { checks?: boolean } = {}): boolean {
+  const keys = checks && node.kind === nodeKinds.schema ? [...(VISITOR_KEYS[node.kind] ?? []), ...schemaCheckKeys] : VISITOR_KEYS[node.kind]
   if (!keys) return false
 
   const record = node as unknown as Record<string, unknown>
@@ -216,7 +217,6 @@ export function visitChildNodes(node: Node, visit: (child: Node) => boolean, ski
     return false
   }
   for (const key of keys) {
-    if (skip?.has(key)) continue
     const value = record[key]
     if (Array.isArray(value)) {
       // Items can be plain objects that hold nodes, such as the `{ if, then, else }` entries of `conditionals`.
@@ -357,14 +357,6 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
     done.set(child, next)
     return next
   }
-  const transformRecord = (value: Record<string, unknown>) => {
-    let mapped: Record<string, unknown> | undefined
-    for (const [name, item] of Object.entries(value)) {
-      const next = isNode(item) ? transformOnce(item) : item
-      if (next !== item) (mapped ??= { ...value })[name] = next
-    }
-    return mapped ?? value
-  }
 
   for (const key of keys) {
     if (!(key in record)) continue
@@ -375,7 +367,7 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
       // allocates nothing. This also drops the per-array `.map` closure that ran on every node.
       let mapped: Array<unknown> | undefined
       for (const [i, item] of value.entries()) {
-        const next = isNode(item) ? transformOnce(item) : isNodeRecord(item) ? transformRecord(item) : item
+        const next = isNode(item) ? transformOnce(item) : item
         if (mapped) {
           mapped.push(next)
           continue
@@ -391,8 +383,12 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
       continue
     }
     if (isNodeRecord(value)) {
-      const next = transformRecord(value)
-      if (next !== value) (updates ??= {})[key] = next
+      let mapped: Record<string, unknown> | undefined
+      for (const [name, item] of Object.entries(value)) {
+        const next = isNode(item) ? transformOnce(item) : item
+        if (next !== item) (mapped ??= { ...value })[name] = next
+      }
+      if (mapped) (updates ??= {})[key] = mapped
     }
   }
 

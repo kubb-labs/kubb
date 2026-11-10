@@ -98,6 +98,7 @@ type SchemaNodeBase = BaseNode & {
   externalDocs?: ExternalDocs
   /**
    * `if`/`then`/`else`, `dependentRequired` and `dependentSchemas`. A required `unknown` property in `if` means "key is present".
+   * Visitors do not walk it.
    */
   conditionals?: Array<{ if: SchemaNode; then?: SchemaNode; else?: SchemaNode }>
 }
@@ -210,7 +211,7 @@ export type ArraySchemaNode = SchemaNodeBase & {
    */
   unique?: boolean
   /**
-   * At least `min` (default 1) and at most `max` items match `schema`.
+   * At least `min` (default 1) and at most `max` items match `schema`. Visitors do not walk `schema`.
    */
   contains?: { schema: SchemaNode; min?: number; max?: number }
 }
@@ -461,7 +462,7 @@ export type StringSchemaNode = SchemaNodeBase & {
    */
   pattern?: string
   /**
-   * The value the string encodes, such as a JSON document or `base64` bytes.
+   * The value the string encodes, such as a JSON document or `base64` bytes. Visitors do not walk `schema`.
    */
   content?: {
     mediaType?: string

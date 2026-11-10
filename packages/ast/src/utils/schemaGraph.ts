@@ -3,7 +3,7 @@ import { nodeKinds } from '../constants.ts'
 import type { Node } from '../nodes/index.ts'
 import type { OperationNode } from '../nodes/operation.ts'
 import type { SchemaNode } from '../nodes/schema.ts'
-import { collect, schemaCheckKeys, visitChildNodes } from '../visitor.ts'
+import { collect, visitChildNodes } from '../visitor.ts'
 import { resolveRefName } from './refs.ts'
 
 type RefEntry = { name: string; hasPointer: boolean }
@@ -22,13 +22,12 @@ const importedCheckRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
 function collectRefEntries(node: SchemaNode, { checks }: { checks: boolean }): ReadonlyArray<RefEntry> {
   return memo(checks ? checkRefEntries : refEntries, node, () => {
     const entries: Array<RefEntry> = []
-    const skip = checks ? undefined : schemaCheckKeys
     const walk = (current: Node): boolean => {
       if (current.kind === nodeKinds.schema && current.type === 'ref') {
         const name = resolveRefName(current)
         if (name) entries.push({ name, hasPointer: Boolean(current.ref) })
       }
-      visitChildNodes(current, walk, skip)
+      visitChildNodes(current, walk, { checks })
       return false
     }
     walk(node)

@@ -90,8 +90,17 @@ export function createSchemaParser(ctx: OasParserContext) {
     // `allOf` members that hold only annotations and `if`/`then`/`else` are not parsed as members, so read their conditionals here.
     const sources = [schema, ...(Array.isArray(schema.allOf) ? (schema.allOf as Array<unknown>).filter(isAnnotationMember) : [])] as Array<SchemaObject>
     const conditionals = sources.flatMap(toConditionals)
-    // A collapsed one-member `allOf` already carries the conditionals of its member.
-    return conditionals.length ? { ...node, conditionals: [...(node.conditionals ?? []), ...conditionals] } : node
+    // A collapsed one-member `allOf` already carries the conditionals of its member, so a repeated entry is skipped.
+    const existing = new Set((node.conditionals ?? []).map(conditionalKey))
+    const added = conditionals.filter((entry) => !existing.has(conditionalKey(entry)))
+    return added.length ? { ...node, conditionals: [...(node.conditionals ?? []), ...added] } : node
+  }
+
+  // A ref's resolved `schema` can point back up the tree, so the key leaves it out.
+  function conditionalKey(entry: NonNullable<ast.SchemaNode['conditionals']>[number]): string {
+    return JSON.stringify(entry, function (this: { type?: string }, key, value) {
+      return key === 'schema' && this.type === 'ref' ? undefined : value
+    })
   }
 
   function toConditionals(schema: SchemaObject): NonNullable<ast.SchemaNode['conditionals']> {

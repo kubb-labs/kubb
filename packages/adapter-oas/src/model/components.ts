@@ -224,7 +224,8 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
     if (!resolved) return schema
     const target = inlineRef(resolved, seen.add($ref))
     if (!Object.keys(siblings).length) return target
-    const wrapped = { ...siblings, allOf: [target] }
+    const own = 'allOf' in siblings && Array.isArray(siblings.allOf) ? siblings.allOf : []
+    const wrapped = { ...siblings, allOf: [...own, target] }
 
     return wrapped as SchemaObject
   }
