@@ -1,7 +1,7 @@
 import { hash } from 'node:crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setTimeout as delay } from 'node:timers/promises'
-import { pairAgent, PairingCanceledError, PairingDeniedError, PairingExpiredError, pollForPairingToken, startPairing, type PairingSession } from './pair.ts'
+import { pairRunner, PairingCanceledError, PairingDeniedError, PairingExpiredError, pollForPairingToken, startPairing, type PairingSession } from './pair.ts'
 
 vi.mock('node:timers/promises', () => ({
   setTimeout: vi.fn(async () => {}),
@@ -36,8 +36,8 @@ afterEach(() => {
 describe('pollForPairingToken', () => {
   it('returns the token once Studio approves', async () => {
     const result = {
-      token: 'agent-token',
-      agent: { id: '1', slug: 'brave-otter', name: 'demo' },
+      token: 'runner-token',
+      project: { id: '1', slug: 'brave-otter', name: 'demo' },
     }
     fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'authorization_pending' }, 400)).mockResolvedValueOnce(createMockResponse(result))
 
@@ -48,13 +48,13 @@ describe('pollForPairingToken', () => {
   })
 
   it("surfaces Studio's error_description on access_denied", async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'access_denied', error_description: 'agent limit reached' }, 403))
+    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'access_denied', error_description: 'project limit reached' }, 403))
 
     const promise = pollForPairingToken({ studioUrl: 'https://studio.test', session })
     promise.catch(() => {})
     await vi.runAllTimersAsync()
 
-    await expect(promise).rejects.toThrow('agent limit reached')
+    await expect(promise).rejects.toThrow('project limit reached')
     await expect(promise).rejects.toBeInstanceOf(PairingDeniedError)
   })
 
@@ -78,7 +78,7 @@ describe('pollForPairingToken', () => {
     ['Studio answers with a null JSON body', createMockResponse(null, 400), 'Kubb Studio answered with status 400'],
   ])('keeps polling when %s, and reports the miss through onRetry', async (_case, first, message) => {
     const onRetry = vi.fn()
-    const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
+    const result = { token: 'runner-token', project: { id: '1', slug: 'brave-otter', name: 'demo' } }
     fetchMock
       .mockImplementationOnce(() => (first instanceof Error ? Promise.reject(first) : Promise.resolve(first)))
       .mockResolvedValueOnce(createMockResponse(result))
@@ -108,9 +108,9 @@ describe('pollForPairingToken', () => {
 describe('startPairing', () => {
   it.each([
     ['cli', { client_id: 'kubb-cli' }],
-    ['user', { client_id: 'kubb-agent', agent_kind: 'user' }],
-    ['sandbox', { client_id: 'kubb-agent', agent_kind: 'sandbox' }],
-  ] as const)('sends the client id, the agent kind and the hashed machine id for a %s machine', async (type, client) => {
+    ['user', { client_id: 'kubb-runner', runner_kind: 'user' }],
+    ['sandbox', { client_id: 'kubb-runner', runner_kind: 'sandbox' }],
+  ] as const)('sends the client id, the runner kind and the hashed machine id for a %s machine', async (type, client) => {
     fetchMock.mockResolvedValueOnce(createMockResponse(session))
 
     await startPairing({ studioUrl: 'https://studio.test', type, name: 'my-project', hostname: 'my-host', machineId: 'secret' })
@@ -132,15 +132,15 @@ describe('startPairing', () => {
   })
 })
 
-describe('pairAgent', () => {
-  const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
-  const options = { studioUrl: 'https://studio.test', type: 'user', name: 'kubb-agent on box', hostname: 'box', machineId: 'secret' } as const
+describe('pairRunner', () => {
+  const result = { token: 'runner-token', project: { id: '1', slug: 'brave-otter', name: 'demo' } }
+  const options = { studioUrl: 'https://studio.test', type: 'user', name: 'kubb-runner on box', hostname: 'box', machineId: 'secret' } as const
 
   it('hands the code to the host, then returns the approved token', async () => {
     const onCode = vi.fn()
     fetchMock.mockResolvedValueOnce(createMockResponse(session)).mockResolvedValueOnce(createMockResponse(result))
 
-    const promise = pairAgent({ ...options, onCode })
+    const promise = pairRunner({ ...options, onCode })
     await vi.runAllTimersAsync()
 
     await expect(promise).resolves.toEqual(result)
@@ -155,7 +155,7 @@ describe('pairAgent', () => {
       .mockResolvedValueOnce(createMockResponse({ ...session, user_code: 'WXYZ-1234' }))
       .mockResolvedValueOnce(createMockResponse(result))
 
-    const promise = pairAgent({ ...options, onCode, maxAttempts: 2 })
+    const promise = pairRunner({ ...options, onCode, maxAttempts: 2 })
     await vi.runAllTimersAsync()
 
     await expect(promise).resolves.toEqual(result)
@@ -165,7 +165,7 @@ describe('pairAgent', () => {
   it('never asks for a new code after a denial', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse(session)).mockResolvedValueOnce(createMockResponse({ error: 'access_denied' }, 403))
 
-    const promise = pairAgent({ ...options, onCode: vi.fn(), maxAttempts: 5 })
+    const promise = pairRunner({ ...options, onCode: vi.fn(), maxAttempts: 5 })
     promise.catch(() => {})
     await vi.runAllTimersAsync()
 

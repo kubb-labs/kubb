@@ -1,6 +1,6 @@
 import { pluginId as dryRunId } from '@gunshi/plugin-dryrun'
 import type { DryRunExtension } from '@gunshi/plugin-dryrun'
-import type { AgentPermission } from '@kubb/studio/protocol'
+import type { RunnerPermission } from '@kubb/studio/protocol'
 
 export { dryRunId }
 
@@ -48,7 +48,7 @@ export const studioConnectionArgs = {
   },
 } as const
 
-const studioPermissionDescriptions: Record<AgentPermission, string> = {
+const studioPermissionDescriptions: Record<RunnerPermission, string> = {
   allowRead: 'Read the source of files a generation produced. Asked for once per project when omitted',
   allowReadAst: 'Read the parsed spec (the Kubb AST). Asked for once per project when omitted',
   allowWrite: 'Write generated files to disk. Asked for once per project when omitted',
@@ -62,8 +62,8 @@ const studioPermissionDescriptions: Record<AgentPermission, string> = {
 }
 
 /**
- * One `--allow-*` boolean flag per {@link AgentPermission}, off by default.
+ * One `--allow-*` boolean flag per {@link RunnerPermission}, off by default.
  */
 export const studioPermissionArgs = Object.fromEntries(
   Object.entries(studioPermissionDescriptions).map(([key, description]) => [key, { type: 'boolean', description, default: false, toKebab: true }]),
-) as Record<AgentPermission, { type: 'boolean'; description: string; default: false; toKebab: true }>
+) as Record<RunnerPermission, { type: 'boolean'; description: string; default: false; toKebab: true }>

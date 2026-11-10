@@ -31,14 +31,14 @@ import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
 import {
-  AGENT_INSTANCE_HEADER,
-  AGENT_SOCKET_PATH,
-  type AgentApi,
-  AgentPermission,
-  AgentCloseCode,
-  AgentMessage,
-  type AgentConnectInfo,
-  type AgentPermissions,
+  RUNNER_INSTANCE_HEADER,
+  RUNNER_SOCKET_PATH,
+  type RunnerApi,
+  RunnerPermission,
+  RunnerCloseCode,
+  RunnerMessage,
+  type RunnerConnectInfo,
+  type RunnerPermissions,
   type ConfigEdit,
   ConfigEditOperation,
   type ConfigEntryView,
@@ -74,7 +74,7 @@ import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugin
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
-// Studio marks an agent offline after its liveness window, so a slower cadence would look dead.
+// Studio marks a runner offline after its liveness window, so a slower cadence would look dead.
 const MAX_HEARTBEAT_INTERVAL_MS = 60_000
 const PING_TIMEOUT_MS = 10_000
 const OPEN_TIMEOUT_MS = 5_000
@@ -82,35 +82,35 @@ const MAX_RETRY_DELAY_MS = 30_000
 const DISK_SNAPSHOT_MAX_FILES = 10_000
 // Sandboxes keep temporary output sets with a short lifetime.
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
-// What Studio may send a managed agent as its spec. Not `file` or `object`: a path would read the container's disk.
+// What Studio may send a managed runner as its spec. Not `file` or `object`: a path would read the container's disk.
 const MANAGED_INPUT_KINDS = new Set<InputKind>(['inline', 'url', 'git'])
 
 /**
- * Studio closed with {@link AgentCloseCode.UNAUTHORIZED}. Hosts forget the token and pair again.
+ * Studio closed with {@link RunnerCloseCode.UNAUTHORIZED}. Hosts forget the token and pair again.
  */
-export class InvalidAgentTokenError extends Error {
+export class InvalidRunnerTokenError extends Error {
   constructor(studioUrl: string) {
-    super(`Kubb Studio rejected this agent's token. It expired or was revoked, or the agent was deleted in ${studioUrl}.`)
-    this.name = 'InvalidAgentTokenError'
+    super(`Kubb Studio rejected this runner's token. It expired or was revoked, or the project was deleted in ${studioUrl}.`)
+    this.name = 'InvalidRunnerTokenError'
   }
 }
 
 /**
- * Studio closed with {@link AgentCloseCode.INCOMPATIBLE}. Only an upgrade helps.
+ * Studio closed with {@link RunnerCloseCode.INCOMPATIBLE}. Only an upgrade helps.
  */
-export class IncompatibleAgentError extends Error {
+export class IncompatibleRunnerError extends Error {
   constructor({ studioUrl, detail }: { studioUrl: string; detail?: string }) {
-    super(`Kubb Studio at ${studioUrl} requires a newer agent${detail ? `: ${detail}` : ''}. Upgrade kubb or the Kubb agent image.`)
-    this.name = 'IncompatibleAgentError'
+    super(`Kubb Studio at ${studioUrl} requires a newer runner${detail ? `: ${detail}` : ''}. Upgrade kubb or the Kubb runner image.`)
+    this.name = 'IncompatibleRunnerError'
   }
 }
 
-export type StudioConnectedContext = AgentConnectInfo & {
+export type StudioConnectedContext = RunnerConnectInfo & {
   url: string
   /**
    * The Studio, runtime, and host versions, so a host can show a mismatch.
    */
-  versions: { studio: string; kubb: string; agent: string }
+  versions: { studio: string; kubb: string; runner: string }
 }
 
 declare global {
@@ -142,15 +142,15 @@ declare global {
       /**
        * A refused or ignored request, with the missing permission so the host can add a remedy.
        */
-      'studio:warn': [ctx: { message: string; permission?: AgentPermission }]
+      'studio:warn': [ctx: { message: string; permission?: RunnerPermission }]
       'studio:error': [ctx: { error: Error }]
     }
   }
 }
 
-export type ConnectAgentOptions = {
+export type ConnectRunnerOptions = {
   /**
-   * The agent's bearer token, from {@link pairAgent}.
+   * The runner's bearer token, from {@link pairRunner}.
    */
   token: string
   studioUrl?: string
@@ -175,7 +175,7 @@ export type ConnectAgentOptions = {
   /**
    * What Studio may do in this project. Every permission is off unless granted.
    */
-  permissions?: Partial<AgentPermissions>
+  permissions?: Partial<RunnerPermissions>
   /** The CLI entry `installExtension` runs `kubb add` with. Found through the project's `kubb` or `@kubb/cli` dependency when omitted. */
   kubbBin?: string
   /**
@@ -195,21 +195,21 @@ export type ConnectAgentOptions = {
   heartbeatInterval?: number
 }
 
-type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin'>> & {
+type ResolvedOptions = Required<Omit<ConnectRunnerOptions, 'signal' | 'kubbBin'>> & {
   signal?: AbortSignal
   kubbBin?: string
-  permissions: AgentPermissions
+  permissions: RunnerPermissions
   configFile: string
 }
 
 type Rpc = { studio: StudioApi; closed: Promise<{ code: number; reason: string }>; close: () => void }
 
 // Tests swap in an in-process pair.
-export type OpenRpc = (input: { url: URL; token: string; instanceId: string; agent: AgentApi }) => Rpc
+export type OpenRpc = (input: { url: URL; token: string; instanceId: string; runner: RunnerApi }) => Rpc
 
 type Session = {
-  info?: AgentConnectInfo
-  connected: PromiseWithResolvers<AgentConnectInfo>
+  info?: RunnerConnectInfo
+  connected: PromiseWithResolvers<RunnerConnectInfo>
   closed: boolean
   active?: { jobId: string; abort: () => void; settled: Promise<void> }
   install?: { abort: () => void; settled: Promise<void> }
@@ -308,8 +308,8 @@ class GenerationRunTarget extends RpcTarget implements GenerationRun {
 /** A save's edit once a `set-input` document is named, or why it was refused. */
 type KeptEdit = (ConfigEdit & { document?: { fileName: string; text: string } }) | { reason: string }
 
-// Cap'n Web exposes only prototype methods, so the public methods are exactly `AgentApi`.
-class Agent extends RpcTarget implements AgentApi {
+// Cap'n Web exposes only prototype methods, so the public methods are exactly `RunnerApi`.
+class Runner extends RpcTarget implements RunnerApi {
   readonly #options: ResolvedOptions
   readonly #session: Session
   readonly #limits = resolveGenerationLimits()
@@ -333,7 +333,7 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   // A sandbox has no project to write to or edit, and Studio may always read what it generated there.
-  get #permissions(): AgentPermissions {
+  get #permissions(): RunnerPermissions {
     const { permissions } = this.#options
     return this.#sandbox
       ? {
@@ -350,7 +350,7 @@ class Agent extends RpcTarget implements AgentApi {
       : permissions
   }
 
-  // Owned agents retain output in the project cache. Each sandbox connection has a temporary cache.
+  // Runners of a project retain output in the project cache. Each sandbox connection has a temporary cache.
   get #generations(): GenerationStore {
     this.#store ??= createGenerationStore({
       storage: cacheStorage({ root: this.#sandbox ? this.#sandboxCacheRoot : this.#options.root }),
@@ -365,7 +365,7 @@ class Agent extends RpcTarget implements AgentApi {
     if (this.#sandbox) await rm(resolveCacheDir(this.#sandboxCacheRoot), { recursive: true, force: true })
   }
 
-  #warn({ message, permission }: { message: string; permission?: AgentPermission }): Promise<void> {
+  #warn({ message, permission }: { message: string; permission?: RunnerPermission }): Promise<void> {
     return emit(this.#options.hooks, 'studio:warn', { message, permission })
   }
 
@@ -376,7 +376,7 @@ class Agent extends RpcTarget implements AgentApi {
     code = Diagnostics.code.unknown,
   }: {
     message: string
-    permission?: AgentPermission
+    permission?: RunnerPermission
     code?: ProblemCode
   }): Promise<never> {
     await this.#warn({ message, permission })
@@ -404,7 +404,7 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
-  // Not cached either: the user can install a plugin while the agent runs. Keeps each project
+  // Not cached either: the user can install a plugin while the runner runs. Keeps each project
   // dependency, config import and built-in that resolves and ships a valid `kubb-extension.json`.
   async #installedExtensions(source = read(this.#options.configFile)): Promise<InstalledExtensions> {
     const imports = await source.then(readImports, () => [])
@@ -419,7 +419,7 @@ class Agent extends RpcTarget implements AgentApi {
     )
   }
 
-  async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
+  async connect(info: RunnerConnectInfo): Promise<ConnectMessagePayload> {
     this.#session.info = info
     const { configPath, root, version, loadConfigs, configFile } = this.#options
     const source = read(configFile)
@@ -437,7 +437,7 @@ class Agent extends RpcTarget implements AgentApi {
     this.#session.connected.resolve(info)
 
     return {
-      versions: { kubb: kubbVersion, agent: version },
+      versions: { kubb: kubbVersion, runner: version },
       root,
       config: { path: configPath, file, extensions: [...extensions.values()], configs: entries },
       permissions: this.#permissions,
@@ -483,9 +483,9 @@ class Agent extends RpcTarget implements AgentApi {
     this.#assertConnected()
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#session.closed) throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Connection is closed' })
-    if (this.#session.active) return this.#refuse({ message: AgentMessage.GENERATION_IN_PROGRESS })
-    if (this.#session.install) return this.#refuse({ message: AgentMessage.INSTALL_IN_PROGRESS })
-    if (this.#session.saving) return this.#refuse({ message: AgentMessage.SAVE_IN_PROGRESS })
+    if (this.#session.active) return this.#refuse({ message: RunnerMessage.GENERATION_IN_PROGRESS })
+    if (this.#session.install) return this.#refuse({ message: RunnerMessage.INSTALL_IN_PROGRESS })
+    if (this.#session.saving) return this.#refuse({ message: RunnerMessage.SAVE_IN_PROGRESS })
     const settled = Promise.withResolvers<void>()
     this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
     let root = this.#options.root
@@ -525,16 +525,16 @@ class Agent extends RpcTarget implements AgentApi {
     // or URL would make it read host files or fetch internal addresses on behalf of any tenant.
     const studioInput = this.#sandbox || this.#managed ? patch?.input : undefined
     if (this.#sandbox && (typeof studioInput !== 'string' || !studioInput.trim() || getInputKind(studioInput) !== 'inline')) {
-      return this.#refuse({ message: AgentMessage.SANDBOX_INPUT_ONLY })
+      return this.#refuse({ message: RunnerMessage.SANDBOX_INPUT_ONLY })
     }
-    // Studio may point a managed agent at a URL or a git file, and it falls back to its config's input without one. A file path would read the container's disk.
+    // Studio may point a managed runner at a URL or a git file, and it falls back to its config's input without one. A file path would read the container's disk.
     if (this.#managed && studioInput !== undefined && !MANAGED_INPUT_KINDS.has(getInputKind(studioInput))) {
-      return this.#refuse({ message: AgentMessage.MANAGED_INPUT_KIND })
+      return this.#refuse({ message: RunnerMessage.MANAGED_INPUT_KIND })
     }
 
     const [configs, extensions] = await Promise.all([this.#options.loadConfigs(), this.#installedExtensions()])
     const config = pickConfig(configs, patch?.config)
-    if (!config) return this.#refuse({ message: AgentMessage.CONFIG_ENTRY_NOT_FOUND })
+    if (!config) return this.#refuse({ message: RunnerMessage.CONFIG_ENTRY_NOT_FOUND })
     const [plugins, adapter, parsers] = await Promise.all([
       mergePlugins({ diskPlugins: config.plugins, studioPlugins: patch?.plugins, extensions }).then((merged) => {
         assertOutputPaths({ plugins: merged ?? [], diskPlugins: config.plugins, root, outputPath: config.output.path })
@@ -553,11 +553,11 @@ class Agent extends RpcTarget implements AgentApi {
     if (patch?.input && !this.#sandbox && !this.#managed) {
       // A `kubb:warn` rather than `studio:warn`, so the generation's event stream carries it to Studio too.
       await emit(this.#options.hooks, 'kubb:warn', {
-        message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox or managed agent',
+        message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox or managed runner',
       })
     }
 
-    // A managed agent checks a git input out itself, so the fetch stays on public addresses and follows no redirect.
+    // A managed runner checks a git input out itself, so the fetch stays on public addresses and follows no redirect.
     const checkout =
       this.#managed && studioInput !== undefined && getInputKind(studioInput) === 'git'
         ? await checkoutGitInput(studioInput, signal, { publicOnly: true, authorization: input.gitAuth?.authorization }).catch((error: unknown) =>
@@ -580,7 +580,7 @@ class Agent extends RpcTarget implements AgentApi {
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
       })
-    // The adapter fetches the URL and every `$ref` in it, so a managed agent limits the fetch itself to public addresses.
+    // The adapter fetches the URL and every `$ref` in it, so a managed runner limits the fetch itself to public addresses.
     const files = await (this.#managed ? withPublicFetch(run) : run())
       .catch(async (error: unknown) => {
         await this.#generations.drop(jobId)
@@ -624,7 +624,7 @@ class Agent extends RpcTarget implements AgentApi {
 
     if (!this.#permissions.allowConfigEdit) {
       await this.#warn({ message: 'Ignored save: editing kubb.config.ts was not granted' })
-      return refuse('the agent was not granted permission to edit kubb.config.ts')
+      return refuse('the runner was not granted permission to edit kubb.config.ts')
     }
 
     // A running generation reloads the config, so it would see half the change.
@@ -670,17 +670,17 @@ class Agent extends RpcTarget implements AgentApi {
   /**
    * Readies a `set-input` edit for the config file: a document is pointed at `openapi.yaml` (`openapi.json`
    * for JSON) in the project, one file per config entry, for `saveConfig` to write once the edit applies.
-   * A managed agent refuses a file path, as in a generation.
+   * A managed runner refuses a file path, as in a generation.
    */
   async #keepInput(edit: ConfigEdit): Promise<KeptEdit> {
     // A blank input goes on unchanged, so the config writer refuses it before any file is written.
     if (edit?.operation !== ConfigEditOperation.SET_INPUT || typeof edit.input !== 'string' || !edit.input.trim()) return edit
     if (!this.#permissions.allowSaveInput) {
-      await this.#warn({ message: 'Ignored the spec to save: saving the input was not granted', permission: AgentPermission.SAVE_INPUT })
-      return { reason: 'the agent was not granted permission to save the input' }
+      await this.#warn({ message: 'Ignored the spec to save: saving the input was not granted', permission: RunnerPermission.SAVE_INPUT })
+      return { reason: 'the runner was not granted permission to save the input' }
     }
     const kind = getInputKind(edit.input)
-    if (this.#managed && !MANAGED_INPUT_KINDS.has(kind)) return { reason: AgentMessage.MANAGED_INPUT_KIND }
+    if (this.#managed && !MANAGED_INPUT_KINDS.has(kind)) return { reason: RunnerMessage.MANAGED_INPUT_KIND }
     if (kind !== 'inline') return edit
 
     const entry = edit.config === undefined || edit.config === 0 ? '' : `-${String(edit.config).replace(/[^\w.-]/g, '-')}`
@@ -695,14 +695,14 @@ class Agent extends RpcTarget implements AgentApi {
   async installExtension(input: InstallExtensionInput): Promise<InstallExtensionResult> {
     this.#assertConnected()
     const { root, configFile, kubbBin = findKubbBin(root) } = this.#options
-    const refuse = async (reason: string, permission?: AgentPermission): Promise<InstallExtensionResult> => {
+    const refuse = async (reason: string, permission?: RunnerPermission): Promise<InstallExtensionResult> => {
       await this.#warn({ message: `Ignored install: ${reason}`, permission })
       return { installed: false, reason }
     }
 
     if (typeof input?.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
-    if (!this.#permissions.allowInstall) return refuse('installing extensions was not granted', AgentPermission.INSTALL)
-    if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
+    if (!this.#permissions.allowInstall) return refuse('installing extensions was not granted', RunnerPermission.INSTALL)
+    if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', RunnerPermission.CONFIG_EDIT)
     const busy = this.#busy()
     if (busy) return refuse(busy)
     if (!kubbBin) return refuse('kubb is not installed in the project')
@@ -719,14 +719,14 @@ class Agent extends RpcTarget implements AgentApi {
   async updateExtensions(input: UpdateExtensionsInput): Promise<UpdateExtensionsResult> {
     this.#assertConnected()
     const { root, kubbBin = findKubbBin(root) } = this.#options
-    const refuse = async (reason: string, permission?: AgentPermission): Promise<UpdateExtensionsResult> => {
+    const refuse = async (reason: string, permission?: RunnerPermission): Promise<UpdateExtensionsResult> => {
       await this.#warn({ message: `Ignored update: ${reason}`, permission })
       return { updated: false, reason }
     }
 
     const ids = input?.ids ?? []
     if (!Array.isArray(ids) || !ids.every((id) => typeof id === 'string' && REGISTRY_ID.test(id))) return refuse('the message carried an invalid registry id')
-    if (!this.#permissions.allowUpdate) return refuse('updating extensions was not granted', AgentPermission.UPDATE)
+    if (!this.#permissions.allowUpdate) return refuse('updating extensions was not granted', RunnerPermission.UPDATE)
     const busy = this.#busy()
     if (busy) return refuse(busy)
     if (!kubbBin) return refuse('kubb is not installed in the project')
@@ -743,14 +743,14 @@ class Agent extends RpcTarget implements AgentApi {
   async removeExtension(input: RemoveExtensionInput): Promise<RemoveExtensionResult> {
     this.#assertConnected()
     const { root, configFile, kubbBin = findKubbBin(root) } = this.#options
-    const refuse = async (reason: string, permission?: AgentPermission): Promise<RemoveExtensionResult> => {
+    const refuse = async (reason: string, permission?: RunnerPermission): Promise<RemoveExtensionResult> => {
       await this.#warn({ message: `Ignored remove: ${reason}`, permission })
       return { removed: false, reason }
     }
 
     if (typeof input?.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
-    if (!this.#permissions.allowRemove) return refuse('removing extensions was not granted', AgentPermission.REMOVE)
-    if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
+    if (!this.#permissions.allowRemove) return refuse('removing extensions was not granted', RunnerPermission.REMOVE)
+    if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', RunnerPermission.CONFIG_EDIT)
     const busy = this.#busy()
     if (busy) return refuse(busy)
     if (!kubbBin) return refuse('kubb is not installed in the project')
@@ -786,14 +786,14 @@ class Agent extends RpcTarget implements AgentApi {
    */
   async readInput(input: ReadInputInput): Promise<ReadInputResult> {
     this.#assertConnected()
-    if (!this.#permissions.allowReadAst) return this.#refuse({ message: AgentMessage.READ_AST_NOT_ALLOWED, permission: AgentPermission.READ_AST })
-    if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: AgentMessage.JOB_REQUIRED })
+    if (!this.#permissions.allowReadAst) return this.#refuse({ message: RunnerMessage.READ_AST_NOT_ALLOWED, permission: RunnerPermission.READ_AST })
+    if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: RunnerMessage.JOB_REQUIRED })
 
     const generation = await this.#generations.get(input.jobId)
-    if (!generation) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
+    if (!generation) return this.#refuse({ message: RunnerMessage.GENERATION_GONE })
     // A rerun of the job can leave an earlier run's input on disk, so trust only what this run kept.
     const kept = generation.inputBytes ? await this.#generations.readInput(input.jobId) : undefined
-    if (!kept) return this.#refuse({ message: AgentMessage.NO_INPUT })
+    if (!kept) return this.#refuse({ message: RunnerMessage.NO_INPUT })
     await this.#logCommand('readInput', 'read the API input')
 
     return { input: kept }
@@ -804,16 +804,16 @@ class Agent extends RpcTarget implements AgentApi {
    */
   async readFiles(input: ReadFilesInput): Promise<ReadFilesResult> {
     this.#assertConnected()
-    if (!this.#permissions.allowRead) return this.#refuse({ message: AgentMessage.READ_NOT_ALLOWED, permission: AgentPermission.READ })
+    if (!this.#permissions.allowRead) return this.#refuse({ message: RunnerMessage.READ_NOT_ALLOWED, permission: RunnerPermission.READ })
     if (!Array.isArray(input.paths) || typeof input.jobId !== 'string' || !input.jobId) {
-      return this.#refuse({ message: AgentMessage.FILE_REQUEST_INVALID })
+      return this.#refuse({ message: RunnerMessage.FILE_REQUEST_INVALID })
     }
     const { paths } = input
-    if (paths.length > MAX_FILES_PER_REQUEST) return this.#refuse({ message: AgentMessage.TOO_MANY_FILES })
-    if (!isValidPage(input)) return this.#refuse({ message: AgentMessage.INVALID_PAGE })
+    if (paths.length > MAX_FILES_PER_REQUEST) return this.#refuse({ message: RunnerMessage.TOO_MANY_FILES })
+    if (!isValidPage(input)) return this.#refuse({ message: RunnerMessage.INVALID_PAGE })
 
     const generation = await this.#generations.get(input.jobId)
-    if (!generation) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
+    if (!generation) return this.#refuse({ message: RunnerMessage.GENERATION_GONE })
 
     // Only paths the set holds are read, never an arbitrary path.
     const result = await this.#generations.read({ generation, paths, cursor: input.cursor, limit: input.limit })
@@ -827,17 +827,17 @@ class Agent extends RpcTarget implements AgentApi {
    */
   async readDiff(input: ReadDiffInput): Promise<ReadDiffResult> {
     this.#assertConnected()
-    if (!this.#permissions.allowRead) return this.#refuse({ message: AgentMessage.READ_NOT_ALLOWED, permission: AgentPermission.READ })
+    if (!this.#permissions.allowRead) return this.#refuse({ message: RunnerMessage.READ_NOT_ALLOWED, permission: RunnerPermission.READ })
     const { jobId, path, base, cursor = 0, limit } = input
     if (typeof jobId !== 'string' || !jobId || typeof path !== 'string' || !path || typeof base?.jobId !== 'string' || !base.jobId) {
-      return this.#refuse({ message: AgentMessage.DIFF_REQUEST_INVALID })
+      return this.#refuse({ message: RunnerMessage.DIFF_REQUEST_INVALID })
     }
     if (!isValidPage({ cursor, limit })) {
-      return this.#refuse({ message: AgentMessage.INVALID_PAGE })
+      return this.#refuse({ message: RunnerMessage.INVALID_PAGE })
     }
 
     const [generation, baseGeneration] = await Promise.all([this.#generations.get(jobId), this.#generations.get(base.jobId)])
-    if (!generation || !baseGeneration) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
+    if (!generation || !baseGeneration) return this.#refuse({ message: RunnerMessage.GENERATION_GONE })
 
     // Only paths the sets hold are read, never an arbitrary path.
     const [after, before] = await Promise.all([
@@ -846,7 +846,7 @@ class Agent extends RpcTarget implements AgentApi {
     ])
     const afterContent = after.files[path]
     // Over the size cap only hashes are kept, which must not read as a deleted file.
-    if (afterContent === undefined && path in generation.output.hashes) return this.#refuse({ message: AgentMessage.HASHES_ONLY })
+    if (afterContent === undefined && path in generation.output.hashes) return this.#refuse({ message: RunnerMessage.HASHES_ONLY })
     const beforeContent = before.files[path]
     if (beforeContent === undefined)
       return { hunks: [], nextCursor: null, hasBase: false, stats: { additions: 0, deletions: 0, hunks: 0, lines: 0, coarse: false } }
@@ -865,10 +865,10 @@ class Agent extends RpcTarget implements AgentApi {
   }
 }
 
-const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
+const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, runner }) => {
   // Node's `WebSocket` takes undici's `headers` option, which the DOM typing leaves out.
   const NodeWebSocket = WebSocket as unknown as new (url: URL, init: { headers: Record<string, string> }) => WebSocket
-  const socket = new NodeWebSocket(url, { headers: { Authorization: `Bearer ${token}`, [AGENT_INSTANCE_HEADER]: instanceId } })
+  const socket = new NodeWebSocket(url, { headers: { Authorization: `Bearer ${token}`, [RUNNER_INSTANCE_HEADER]: instanceId } })
   const timer = setTimeout(() => socket.close(3008, 'Connection timeout'), OPEN_TIMEOUT_MS)
   socket.addEventListener('open', () => clearTimeout(timer), { once: true })
 
@@ -880,7 +880,7 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
     })
   }).finally(() => clearTimeout(timer))
 
-  const studio = newWebSocketRpcSession<StudioApi>(socket, agent)
+  const studio = newWebSocketRpcSession<StudioApi>(socket, runner)
   studio.onRpcBroken(() => socket.close())
 
   return {
@@ -896,8 +896,8 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
 async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
   const { hooks, signal, heartbeatInterval, token, studioUrl, version } = options
   const session: Session = { connected: Promise.withResolvers(), closed: false }
-  const agent = new Agent({ options, session })
-  const rpc = openRpc({ url, token, instanceId, agent })
+  const runner = new Runner({ options, session })
+  const rpc = openRpc({ url, token, instanceId, runner })
   signal?.addEventListener('abort', rpc.close, { once: true })
   let timer: ReturnType<typeof setTimeout> | undefined
 
@@ -919,7 +919,7 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
 
   void session.connected.promise.then(
     async (info) => {
-      await emit(hooks, 'studio:connected', { ...info, url: studioUrl, versions: { studio: info.studioVersion, kubb: kubbVersion, agent: version } })
+      await emit(hooks, 'studio:connected', { ...info, url: studioUrl, versions: { studio: info.studioVersion, kubb: kubbVersion, runner: version } })
       if (!session.closed) timer = setTimeout(heartbeat, heartbeatInterval)
     },
     () => {},
@@ -940,13 +940,13 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
   await active?.settled
   session.install?.abort()
   await session.install?.settled
-  await agent.clear()
+  await runner.clear()
 
   return { ...close, connected: session.info !== undefined }
 }
 
 /**
- * The connection loop with a swappable transport. {@link connectAgent} passes a real WebSocket.
+ * The connection loop with a swappable transport. {@link connectRunner} passes a real WebSocket.
  */
 /** The entry Studio named by position or `name`, else the first. `undefined` for one the file does not have. */
 function pickConfig(configs: Array<Config>, ref: ConfigRef | undefined): Config | undefined {
@@ -1001,7 +1001,7 @@ function toEntryView(config: Config, extensions: InstalledExtensions): ConfigEnt
   }
 }
 
-export async function runAgent({ options, openRpc }: { options: ConnectAgentOptions; openRpc: OpenRpc }): Promise<void> {
+export async function runStudioRunner({ options, openRpc }: { options: ConnectRunnerOptions; openRpc: OpenRpc }): Promise<void> {
   const root = options.root ?? process.cwd()
   const resolved: ResolvedOptions = {
     ...options,
@@ -1025,7 +1025,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
     heartbeatInterval: Math.min(options.heartbeatInterval ?? HEARTBEAT_INTERVAL_MS, MAX_HEARTBEAT_INTERVAL_MS),
   }
   const { studioUrl, hooks, signal, maxRetryDelay } = resolved
-  const url = secureUrl({ studioUrl, path: AGENT_SOCKET_PATH, socket: true })
+  const url = secureUrl({ studioUrl, path: RUNNER_SOCKET_PATH, socket: true })
   // One per call, so a reconnect is the same process to Studio and a restart is a new one.
   const instanceId = randomUUID()
   let attempt = 0
@@ -1035,9 +1035,9 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
     if (signal?.aborted) return
     await emit(hooks, 'studio:disconnected', { code, reason })
 
-    if (code === AgentCloseCode.UNAUTHORIZED) throw new InvalidAgentTokenError(studioUrl)
-    if (code === AgentCloseCode.INCOMPATIBLE) throw new IncompatibleAgentError({ studioUrl, detail: reason })
-    if (code === AgentCloseCode.SUPERSEDED) return
+    if (code === RunnerCloseCode.UNAUTHORIZED) throw new InvalidRunnerTokenError(studioUrl)
+    if (code === RunnerCloseCode.INCOMPATIBLE) throw new IncompatibleRunnerError({ studioUrl, detail: reason })
+    if (code === RunnerCloseCode.SUPERSEDED) return
 
     // Reset only once Studio called connect(), so a socket that opens and closes again backs off.
     if (connected) attempt = 0
@@ -1049,17 +1049,17 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
 
 /**
  * Connects this project to Kubb Studio and serves its commands until `signal` aborts. Reconnects
- * with jittered backoff, and resolves when another process of the agent takes over. Rejects with
- * {@link InvalidAgentTokenError} so the host can pair again, or {@link IncompatibleAgentError}.
+ * with jittered backoff, and resolves when another runner of the same project takes over. Rejects with
+ * {@link InvalidRunnerTokenError} so the host can pair again, or {@link IncompatibleRunnerError}.
  *
  * @example
  * ```ts
  * const hooks = new Hookable<KubbHooks>()
- * hooks.hook('studio:connected', ({ agentSlug }) => console.log(`Connected as ${agentSlug}`))
+ * hooks.hook('studio:connected', ({ projectSlug }) => console.log(`Connected as ${projectSlug}`))
  *
- * await connectAgent({ token, configPath: 'kubb.config.ts', loadConfigs, version: '1.0.0', hooks, signal })
+ * await connectRunner({ token, configPath: 'kubb.config.ts', loadConfigs, version: '1.0.0', hooks, signal })
  * ```
  */
-export function connectAgent(options: ConnectAgentOptions): Promise<void> {
-  return runAgent({ options, openRpc: openWebSocketRpc })
+export function connectRunner(options: ConnectRunnerOptions): Promise<void> {
+  return runStudioRunner({ options, openRpc: openWebSocketRpc })
 }

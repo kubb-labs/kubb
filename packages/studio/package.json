@@ -1,12 +1,12 @@
 {
   "name": "@kubb/studio",
   "version": "5.18.0",
-  "description": "Kubb Studio client runtime. Connects a Kubb project to Kubb Studio over one WebSocket and publishes CI snapshots, shared by the `kubb studio` CLI command and the Docker agent.",
+  "description": "Kubb Studio client runtime. Connects a Kubb project to Kubb Studio over one WebSocket and publishes CI snapshots, shared by the `kubb studio` CLI command and the Docker runner.",
   "keywords": [
-    "agent",
     "codegen",
     "kubb",
     "openapi",
+    "runner",
     "studio",
     "typescript",
     "websocket"

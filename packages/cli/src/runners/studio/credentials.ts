@@ -8,7 +8,7 @@ const projectBase = (project = process.cwd()) => path.join('projects', hash('sha
 /**
  * Root for the credential and machine identity of the current project, inside `KUBB_HOME`.
  *
- * Studio agents are project connections, so two projects on one machine must not share the same
+ * A Studio project belongs to one project folder, so two folders on one machine must not share the same
  * persisted token or machine secret.
  */
 export function getProjectKubbHome(project = process.cwd()): string {
@@ -35,8 +35,8 @@ export type Credentials = {
    * Bearer token for this machine. Never logged, never printed.
    */
   token: string
-  agentId: string
-  agentSlug: string
+  projectId: string
+  projectSlug: string
   /**
    * The organization that approved the pairing, absent when Studio sends none.
    */
@@ -90,7 +90,7 @@ export async function clearCredentials(): Promise<void> {
 
 /**
  * Reads this project's machine secret, creating it on first use. Pairing sends its hash, so pairing
- * the same project again rotates one agent's token instead of creating a second agent. It lives
+ * the same project again rotates one project's token instead of creating a second project. It lives
  * apart from the credential, which {@link clearCredentials} deletes.
  */
 export async function getMachineId(): Promise<string> {

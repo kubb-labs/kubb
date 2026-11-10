@@ -44,7 +44,7 @@ type KeptGeneration = {
 }
 
 /**
- * The content fingerprint Studio compares snapshots by. Agent runs and CI uploads must agree on it.
+ * The content fingerprint Studio compares snapshots by. Runner runs and CI uploads must agree on it.
  */
 export const hashOf = (content: string) => createHash('sha1').update(content).digest('hex').slice(0, 16)
 
@@ -59,14 +59,14 @@ function positiveNumber(value: string | undefined): number | undefined {
 }
 
 /**
- * How many generations an agent keeps and how large they may get, read from
- * `KUBB_AGENT_MAX_GENERATIONS` and `KUBB_AGENT_MAX_GENERATIONS_MB`.
+ * How many generations a runner keeps and how large they may get, read from
+ * `KUBB_RUNNER_MAX_GENERATIONS` and `KUBB_RUNNER_MAX_GENERATIONS_MB`.
  * An unset or invalid value keeps the default.
  */
 export function resolveGenerationLimits(): { maxCount: number; maxMb: number } {
   return {
-    maxCount: Math.max(1, Math.floor(positiveNumber(process.env.KUBB_AGENT_MAX_GENERATIONS) ?? 8)),
-    maxMb: positiveNumber(process.env.KUBB_AGENT_MAX_GENERATIONS_MB) ?? 100,
+    maxCount: Math.max(1, Math.floor(positiveNumber(process.env.KUBB_RUNNER_MAX_GENERATIONS) ?? 8)),
+    maxMb: positiveNumber(process.env.KUBB_RUNNER_MAX_GENERATIONS_MB) ?? 100,
   }
 }
 

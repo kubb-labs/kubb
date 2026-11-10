@@ -300,7 +300,7 @@ export async function mergePlugins({
 /**
  * Throws `KUBB_PATH_TRAVERSAL` when a plugin would write outside the config's output folder to a path
  * the disk config does not set. Studio can change `output.path`, also inside `override`, and add
- * plugins, so without this check any member of the Studio organization could write any file the agent
+ * plugins, so without this check any member of the Studio organization could write any file the runner
  * can reach, including `node_modules` code the next run imports. A path from the config file stays
  * allowed, since a monorepo may write outside its root.
  */

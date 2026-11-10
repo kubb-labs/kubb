@@ -99,10 +99,10 @@ See [serialization](/extensions/kubb-labs/plugin-fetch/guides/serialization) for
 
 ## Kubb Studio
 
-[Kubb Studio](https://kubb.studio) is the web IDE for Kubb. It runs the generator through an agent on your machine, and the agent never uploads your spec file. orval, HeyAPI, and openapi-typescript have no equivalent for the features below.
+[Kubb Studio](https://kubb.studio) is the web IDE for Kubb. It runs the generator through a runner on your machine, and the runner never uploads your spec file. orval, HeyAPI, and openapi-typescript have no equivalent for the features below.
 
 - [API skills for Claude Code, Cursor, and Codex](/docs/5.x/integrations/studio#give-your-ai-tools-your-api), built from your spec, so AI tools call your generated clients instead of guessing endpoints (Pro plan).
-- One AI plugin marketplace and shared agents for the whole team.
+- One AI plugin marketplace and shared projects for the whole team.
 - [Review added, changed, and removed files](/docs/5.x/integrations/studio#review-and-save-generated-files) before you save them.
 - Edit `kubb.config.ts` from the browser.
 - [An installable snapshot for every pull request](/docs/5.x/integrations/github-actions).

@@ -2,15 +2,15 @@ import { readFileSync } from 'node:fs'
 import process from 'node:process'
 
 /**
- * Stable identity for the CI agent a snapshot run registers or reuses.
+ * Stable identity for the CI project a snapshot run registers or reuses.
  */
 export type CiContext = {
   /**
-   * Fed into the machine token, so the same merge or pull request reuses one agent.
+   * Fed into the machine token, so the same merge or pull request reuses one project.
    */
   id: string
   /**
-   * Agent display name shown in Studio.
+   * Project display name shown in Studio.
    */
   name: string
   /** The commit this run builds, so the next snapshot can diff against it. */
@@ -46,7 +46,7 @@ export function gitlabRefSlug(ref: string): string {
 /**
  * Detects the CI provider from its environment variables and derives a stable identity from it.
  * The GitHub row reproduces `gh:<repositoryId>:<prNumber>`, the identity `kubb-labs/action` has
- * always registered agents under, so an existing repository keeps reusing its agent.
+ * always registered projects under, so an existing repository keeps reusing its project.
  */
 export function detectCi(env: Record<string, string | undefined> = process.env): CiContext | null {
   if (env.GITHUB_ACTIONS) {
@@ -85,8 +85,8 @@ export function detectCi(env: Record<string, string | undefined> = process.env):
   }
 
   if (env.CIRCLECI) {
-    // Owner-qualified: two projects with the same name under different CircleCI orgs must not
-    // collide on one agent, since registering it purges the other project's live sessions.
+    // Owner-qualified: two CircleCI projects with the same name under different orgs must not
+    // collide on one Studio project, since registering it purges the other one's live sessions.
     const owner = env.CIRCLE_PROJECT_USERNAME ?? ''
     const project = env.CIRCLE_PROJECT_REPONAME ?? 'circleci'
     const scope = env.CIRCLE_PR_NUMBER ?? env.CIRCLE_BRANCH ?? ''

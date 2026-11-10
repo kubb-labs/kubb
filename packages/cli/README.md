@@ -151,7 +151,7 @@ npx kubb studio
 ```
 
 The first run pairs the machine. The CLI prints a short code, you approve it in Studio, and the CLI
-stores the agent token in `~/.kubb/credentials.json` at mode `0600`. Later runs reuse it. Set
+stores the runner token in `~/.kubb/credentials.json` at mode `0600`. Later runs reuse it. Set
 `KUBB_HOME` to store it, the machine secret, and the session registry somewhere other than
 `~/.kubb`.
 

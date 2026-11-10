@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Connect a project to Kubb Studio
-description: Run kubb studio to pair a local Kubb project with Kubb Studio, review generated clients, types, and mocks in the browser, and keep an agent running.
+description: Run kubb studio to pair a local Kubb project with Kubb Studio, review generated clients, types, and mocks in the browser, and keep a runner running.
 outline: [2, 3]
 order: 1
 navigation:
@@ -11,9 +11,9 @@ navigation:
 
 # Connect a project to Kubb Studio
 
-Use [Kubb Studio](https://kubb.studio) to generate and review a project's clients, types, schemas, hooks, and mocks from the browser. Start with Kubb installed and a `kubb.config.ts` in your project. `kubb studio` needs Kubb 5.6.1 or later, because Studio refuses older agents. `kubb studio snapshot` needs Kubb 5.6.2 or later.
+Use [Kubb Studio](https://kubb.studio) to generate and review a project's clients, types, schemas, hooks, and mocks from the browser. Start with Kubb installed and a `kubb.config.ts` in your project. `kubb studio` needs Kubb 5.6.1 or later, because Studio refuses older runners. `kubb studio snapshot` needs Kubb 5.6.2 or later.
 
-For a quick trial without local setup, use Studio's shared sandbox with a spec you are comfortable providing outside your environment. For a persistent team connection on your infrastructure, use the [Docker agent](https://hub.docker.com/r/kubblabs/kubb-agent). An organization admin approves its pairing code.
+For a quick trial without local setup, use Studio's shared sandbox with a spec you are comfortable providing outside your environment. For a persistent team connection on your infrastructure, use the [Docker runner](https://hub.docker.com/r/kubblabs/studio-runner). An organization admin approves its pairing code.
 
 ## Connect your project
 
@@ -23,10 +23,10 @@ Run this command from the project directory:
 kubb studio
 ```
 
-Approve the pairing code in the Studio window and answer the permission prompts. Each project directory pairs as its own agent. Keep the command running, select the connected agent in Studio, and generate to see progress and the file tree.
+Approve the pairing code in the Studio window and answer the permission prompts. Each project directory pairs as its own project in Studio. Keep the command running, select the connected project in Studio, and generate to see progress and the file tree.
 
 > [!NOTE]
-> With a CLI or Docker agent, generation runs in your environment. Studio receives plugin settings, the project path, progress, generated file paths, and a hash of each generated file. The agent never uploads a local spec. Every permission is off by default. With `--allow-read`, Studio can read generated file contents, and with `--allow-read-ast`, the spec as Kubb parsed it. Writing files needs `--allow-write`, and editing `kubb.config.ts` needs `--allow-config-edit`.
+> With a local or Docker runner, generation runs in your environment. Studio receives plugin settings, the project path, progress, generated file paths, and a hash of each generated file. The runner never uploads a local spec. Every permission is off by default. With `--allow-read`, Studio can read generated file contents, and with `--allow-read-ast`, the spec as Kubb parsed it. Writing files needs `--allow-write`, and editing `kubb.config.ts` needs `--allow-config-edit`.
 
 ## Review and save generated files
 
@@ -36,14 +36,14 @@ To view file contents and diffs, then write generated files to disk, connect wit
 kubb studio --allow-read --allow-write
 ```
 
-With no permissions granted, Kubb leaves your output folder alone and Studio sees file paths and progress only. The agent keeps copies of recent generations in `node_modules/.cache/kubb`. The CLI remembers permission answers per project. See [Options](/docs/5.x/reference/commands/studio#options) for `--allow-config-edit`, `--allow-exec`, and the other flags.
+With no permissions granted, Kubb leaves your output folder alone and Studio sees file paths and progress only. The runner keeps copies of recent generations in `node_modules/.cache/kubb`. The CLI remembers permission answers per project. See [Options](/docs/5.x/reference/commands/studio#options) for `--allow-config-edit`, `--allow-exec`, and the other flags.
 
 ## Give your AI tools your API
 
-On the Pro plan, Studio turns an agent's OpenAPI spec into a plugin for Claude Code, Cursor, and Codex. The plugin holds skills that list the API's servers, authentication, operations, and schemas. Your organization gets one plugin marketplace, with one plugin per published agent.
+On the Pro plan, Studio turns a project's OpenAPI spec into a plugin for Claude Code, Cursor, and Codex. The plugin holds skills that list the API's servers, authentication, operations, and schemas. Your organization gets one plugin marketplace, with one plugin per published project.
 
-1. Connect the agent with `--allow-read-ast` and run a generation. Studio reads the parsed spec of the latest successful generation.
-2. In Studio, open **Settings › your organization › AI**, select **Publish an agent**, and choose the agent.
+1. Connect a runner with `--allow-read-ast` and run a generation. Studio reads the parsed spec of the latest successful generation.
+2. In Studio, open **Settings › your organization › AI**, select **Publish a project**, and choose the project.
 3. Create an AI key: a token of type **AI (read-only)** under **Settings › Developers › Tokens**, or use the **Create an AI key** link on the AI page. A registry key does not work here. Git asks for the AI key as the password the first time; any username works.
 4. Add the marketplace once with your tool, then install the plugin for each API:
 
@@ -66,12 +66,12 @@ codex plugin marketplace add https://kubb.studio/plugins/<organization-slug>.git
 
 :::
 
-Cursor and Codex install a plugin from their plugin browser, not with a command. Studio shows the exact commands for each plugin. Republish the agent after the spec changes, then update the marketplace in your tool.
+Cursor and Codex install a plugin from their plugin browser, not with a command. Studio shows the exact commands for each plugin. Republish the project after the spec changes, then update the marketplace in your tool.
 
 > [!NOTE]
 > Plans without AI plugins see the AI page locked. An AI key in the URL, such as `https://kubb:<key>@kubb.studio/...`, works in CI but ends up in shell history and logs.
 
-## Keep an agent running in the background
+## Keep a runner running in the background
 
 Start the connection from your project directory:
 

@@ -8,8 +8,8 @@ import { KUBB_CONFIG_FILENAME } from '@internals/shared'
 import { copyToClipboard, isCIEnvironment, openInBrowser, toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { connectAgent, defaultStudioUrl, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
-import { AgentPermission } from '@kubb/studio/protocol'
+import { connectRunner, defaultStudioUrl, InvalidRunnerTokenError, pairRunner, PairingCanceledError } from '@kubb/studio'
+import { RunnerPermission } from '@kubb/studio/protocol'
 import { trackRun } from '../../Telemetry.ts'
 import { plainWriter } from '../../loggers/plainWriter.ts'
 import setupReporters from '../../loggers/reporters.ts'
@@ -36,7 +36,7 @@ export type StudioOptions = {
    * What Studio may do in this project. Each flag grants outright; the rest are asked once per
    * project through {@link resolvePermissions}.
    */
-  permission: Record<AgentPermission, boolean>
+  permission: Record<RunnerPermission, boolean>
   /**
    * Whether to open the approval page in a browser during pairing.
    */
@@ -50,10 +50,10 @@ export type SnapshotOptions = Pick<StudioOptions, 'configPath' | 'studioUrl' | '
    */
   token?: string
   /**
-   * Stable identity for the CI agent. Falls back to CI auto-detection.
+   * Stable identity for the CI project. Falls back to CI auto-detection.
    */
   id?: string
-  /** Identity of another CI agent to also compare with. Falls back to CI auto-detection. */
+  /** Identity of another CI project to also compare with. Falls back to CI auto-detection. */
   baseId?: string
   /**
    * Package name for the generated tarball. Falls back to the nearest package.json.
@@ -94,7 +94,7 @@ type LoginOptions = {
    */
   signal?: AbortSignal
   /**
-   * Credentials from before this login. When the fresh pairing resolves to the same agent on the
+   * Credentials from before this login. When the fresh pairing resolves to the same project on the
    * same Studio, its saved project permissions carry forward instead of being asked again.
    * Left out for an explicitly requested `kubb studio login`, which always starts clean.
    */
@@ -117,7 +117,7 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
   let countdown: NodeJS.Timeout | undefined
 
   try {
-    const { token, agent } = await pairAgent({
+    const { token, project } = await pairRunner({
       studioUrl,
       type: 'cli',
       name: path.basename(process.cwd()),
@@ -158,15 +158,15 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
       },
     })
     clearInterval(countdown)
-    spinner.stop(`Paired as ${agent.name}${agent.organizationSlug ? ` · org ${agent.organizationSlug}` : ''}`)
+    spinner.stop(`Paired as ${project.name}${project.organizationSlug ? ` · org ${project.organizationSlug}` : ''}`)
 
-    const keepsIdentity = previousCredentials?.studioUrl === studioUrl && previousCredentials.agentId === agent.id
+    const keepsIdentity = previousCredentials?.studioUrl === studioUrl && previousCredentials.projectId === project.id
     const credentials: Credentials = {
       studioUrl,
       token,
-      agentId: agent.id,
-      agentSlug: agent.slug,
-      ...(agent.organizationSlug ? { organizationSlug: agent.organizationSlug } : {}),
+      projectId: project.id,
+      projectSlug: project.slug,
+      ...(project.organizationSlug ? { organizationSlug: project.organizationSlug } : {}),
       ...(keepsIdentity && previousCredentials?.projects ? { projects: previousCredentials.projects } : {}),
     }
     await writeCredentials(credentials)
@@ -194,7 +194,7 @@ export function formatCountdown(ms: number): string {
  * What each permission is asked as, in the order the list shows them.
  */
 const PERMISSIONS: ReadonlyArray<{
-  key: AgentPermission
+  key: RunnerPermission
   /**
    * Short label for status output and the connect summary.
    */
@@ -202,27 +202,27 @@ const PERMISSIONS: ReadonlyArray<{
   title: (configPath: string) => string
   hint: string
 }> = [
-  { key: AgentPermission.READ, label: 'read source', title: () => 'Read generated files', hint: 'show code in the browser' },
-  { key: AgentPermission.READ_AST, label: 'read spec', title: () => 'Read the parsed spec', hint: 'browse schemas and operations' },
-  { key: AgentPermission.WRITE, label: 'write files', title: () => 'Write files to disk', hint: 'generate from the browser' },
-  { key: AgentPermission.CONFIG_EDIT, label: 'edit config', title: (configPath) => `Change ${configPath}`, hint: 'edit plugin options' },
-  { key: AgentPermission.INSTALL, label: 'add plugins', title: () => 'Install extensions from the registry', hint: 'kubb add from the browser' },
-  { key: AgentPermission.UPDATE, label: 'update plugins', title: () => 'Update installed extensions', hint: 'kubb update from the browser' },
-  { key: AgentPermission.REMOVE, label: 'remove plugins', title: () => 'Remove extensions', hint: 'kubb remove from the browser' },
+  { key: RunnerPermission.READ, label: 'read source', title: () => 'Read generated files', hint: 'show code in the browser' },
+  { key: RunnerPermission.READ_AST, label: 'read spec', title: () => 'Read the parsed spec', hint: 'browse schemas and operations' },
+  { key: RunnerPermission.WRITE, label: 'write files', title: () => 'Write files to disk', hint: 'generate from the browser' },
+  { key: RunnerPermission.CONFIG_EDIT, label: 'edit config', title: (configPath) => `Change ${configPath}`, hint: 'edit plugin options' },
+  { key: RunnerPermission.INSTALL, label: 'add plugins', title: () => 'Install extensions from the registry', hint: 'kubb add from the browser' },
+  { key: RunnerPermission.UPDATE, label: 'update plugins', title: () => 'Update installed extensions', hint: 'kubb update from the browser' },
+  { key: RunnerPermission.REMOVE, label: 'remove plugins', title: () => 'Remove extensions', hint: 'kubb remove from the browser' },
   {
-    key: AgentPermission.SAVE_INPUT,
+    key: RunnerPermission.SAVE_INPUT,
     label: 'save input',
     title: (configPath) => `Save the spec from Studio as the input in ${configPath}`,
     hint: 'keep a pasted spec, URL, or git file',
   },
-  { key: AgentPermission.EXEC, label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
+  { key: RunnerPermission.EXEC, label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
 ]
 
 /**
  * Two permissions per row, each marked granted or not, with the flags that grant the missing ones
  * after the last row. For `kubb studio status`.
  */
-export function formatPermissionRows(granted: Partial<Record<AgentPermission, boolean>>): Array<string> {
+export function formatPermissionRows(granted: Partial<Record<RunnerPermission, boolean>>): Array<string> {
   const width = Math.max(...PERMISSIONS.map(({ label }) => label.length))
   const cells = PERMISSIONS.map(({ key, label }) => `${granted[key] ? styleText('green', '✓') : styleText('red', '✖')} ${label.padEnd(width)}`)
   const rows = Array.from({ length: Math.ceil(cells.length / 2) }, (_, index) => cells.slice(index * 2, index * 2 + 2).join('  '))
@@ -243,11 +243,11 @@ export async function resolvePermissions(
   credentials: Credentials,
   configPath: string = KUBB_CONFIG_FILENAME,
   { edit = false }: { edit?: boolean } = {},
-): Promise<Record<AgentPermission, boolean>> {
+): Promise<Record<RunnerPermission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
   const granted = Object.fromEntries(PERMISSIONS.map(({ key }) => [key, options.permission[key] || remembered?.[key] === true])) as Record<
-    AgentPermission,
+    RunnerPermission,
     boolean
   >
   // `edit` asks again for every permission no flag grants, with the saved ones checked.
@@ -400,7 +400,7 @@ export async function connect(
 
     for (;;) {
       try {
-        await connectAgent({
+        await connectRunner({
           token: credentials.token,
           studioUrl: options.studioUrl,
           configPath,
@@ -413,7 +413,7 @@ export async function connect(
         })
         break
       } catch (error) {
-        if (!(error instanceof InvalidAgentTokenError)) throw error
+        if (!(error instanceof InvalidRunnerTokenError)) throw error
         await context.onState?.('authentication required')
         await clearCredentials()
         if (pairedAgain) throw new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
@@ -490,7 +490,7 @@ export async function runStudio(
     version,
     configPath: values.config,
     studioUrl: values.url ?? defaultStudioUrl,
-    permission: Object.fromEntries(Object.values(AgentPermission).map((key) => [key, values[key] ?? false])) as Record<AgentPermission, boolean>,
+    permission: Object.fromEntries(Object.values(RunnerPermission).map((key) => [key, values[key] ?? false])) as Record<RunnerPermission, boolean>,
     autoOpen: values.open ?? true,
     logLevel: values.logLevel,
   }

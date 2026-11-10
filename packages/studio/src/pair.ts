@@ -23,9 +23,9 @@ type PairingResult = {
    * Bearer token for this machine. Write credentials with mode 0600 and never log the value.
    */
   token: string
-  agent: {
+  project: {
     /**
-     * Stable agent id in Studio.
+     * Stable project id in Studio.
      */
     id: string
     /**
@@ -37,7 +37,7 @@ type PairingResult = {
      */
     name: string
     /**
-     * This agent's organization slug, absent for a sandbox or global agent, which has none.
+     * The project's organization slug, absent for the sandbox or global sandbox, which has none.
      */
     organizationSlug?: string
   }
@@ -45,12 +45,12 @@ type PairingResult = {
 
 /**
  * What this machine registers as. Any member may approve `cli` (`kubb studio`); only an admin may
- * approve `user` and `sandbox` (the Docker image). A `ci` agent never pairs.
+ * approve `user` and `sandbox` (the Docker image). A `ci` project never pairs.
  */
-type PairingAgentType = 'cli' | 'user' | 'sandbox'
+type PairingRunnerType = 'cli' | 'user' | 'sandbox'
 
 /** Labels, not secrets: a person approving the code in the browser is what authorizes a pairing. */
-const CLIENT_IDS = { cli: 'kubb-cli', agent: 'kubb-agent' } as const
+const CLIENT_IDS = { cli: 'kubb-cli', runner: 'kubb-runner' } as const
 
 /**
  * Thrown when a caller aborts `startPairing` or `pollForPairingToken` through their `signal`, such
@@ -72,7 +72,7 @@ export class PairingExpiredError extends Error {
   }
 }
 
-/** Thrown when the pairing was denied in the browser, including by the organization's agent limit. */
+/** Thrown when the pairing was denied in the browser, including by the organization's project limit. */
 export class PairingDeniedError extends Error {
   constructor(message = 'Pairing was denied in the browser') {
     super(message)
@@ -82,15 +82,15 @@ export class PairingDeniedError extends Error {
 
 type StartPairingOptions = {
   studioUrl?: string
-  type: PairingAgentType
+  type: PairingRunnerType
   /**
-   * Display name for the agent, usually the project or machine name.
+   * Display name for the project in Studio, usually the folder or machine name.
    */
   name: string
   hostname: string
   /**
-   * A stable secret the host keeps for this machine. Studio stores its hash against the agent, so
-   * the same machine pairing again rotates one agent's token instead of creating a second agent.
+   * A stable secret the host keeps for this machine. Studio stores its hash against the project, so
+   * the same machine pairing again rotates one project's token instead of creating a second project.
    */
   machineId: string
   /**
@@ -107,11 +107,11 @@ export async function startPairing({ studioUrl = defaultStudioUrl, type, name, h
     const pairing = await ofetch<PairingSession>(secureUrl({ studioUrl, path: '/api/auth/device/code' }).href, {
       method: 'POST',
       body: {
-        client_id: type === 'cli' ? CLIENT_IDS.cli : CLIENT_IDS.agent,
+        client_id: type === 'cli' ? CLIENT_IDS.cli : CLIENT_IDS.runner,
         name,
         hostname,
         machine_token: hash('sha256', machineId),
-        agent_kind: type === 'cli' ? undefined : type,
+        runner_kind: type === 'cli' ? undefined : type,
       },
       signal,
     })
@@ -153,7 +153,7 @@ type PollResponse =
       error: PollError | string
       /**
        * Why, when Studio has something more useful to say than the RFC code. An approval that hits
-       * the organization's agent limit comes back as `access_denied` with the limit spelled out.
+       * the organization's project limit comes back as `access_denied` with the limit spelled out.
        */
       error_description?: string
     }
@@ -166,7 +166,7 @@ function isPairingResult(response: PollResponse): response is PairingResult {
  * Polls until the user approves or denies, honoring the server's `slow_down` back-off.
  *
  * Studio's own endpoint is used rather than the auth layer's `/device/token`, because an approved
- * Kubb pairing is worth an agent bearer token, not a user session.
+ * Kubb pairing is worth a runner bearer token, not a user session.
  *
  * @throws {PairingExpiredError} when the code expires before anyone approves it.
  * @throws {PairingDeniedError} when the pairing is denied in the browser.
@@ -193,7 +193,7 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
     let response: PollResponse
     try {
       // A denial, an expiry, and "not yet" all come back as 4xx with a body to switch on.
-      const { status, _data } = await ofetch.raw<PollResponse>(secureUrl({ studioUrl, path: '/api/agent/token' }).href, {
+      const { status, _data } = await ofetch.raw<PollResponse>(secureUrl({ studioUrl, path: '/api/runner/token' }).href, {
         method: 'POST',
         body: { device_code: session.device_code },
         signal,
@@ -257,7 +257,7 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
   throw new PairingExpiredError()
 }
 
-type PairAgentOptions = StartPairingOptions & {
+type PairRunnerOptions = StartPairingOptions & {
   /** Shows the code to whoever approves it. Called again for each fresh code. */
   onCode: (session: PairingSession, attempt: number) => void | Promise<void>
   /** Called when a poll could not reach Studio. Polling carries on. */
@@ -272,7 +272,7 @@ type PairAgentOptions = StartPairingOptions & {
 /**
  * Pairs this machine with Studio: asks for a code, hands it to the host to show, and waits for approval.
  */
-export async function pairAgent({ onCode, onRetry, maxAttempts = 1, ...options }: PairAgentOptions): Promise<PairingResult> {
+export async function pairRunner({ onCode, onRetry, maxAttempts = 1, ...options }: PairRunnerOptions): Promise<PairingResult> {
   for (let attempt = 1; ; attempt++) {
     const session = await startPairing(options)
     await onCode(session, attempt)

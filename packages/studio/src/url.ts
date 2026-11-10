@@ -16,7 +16,7 @@ function isLoopbackHost(hostname: string): boolean {
  *
  * @example
  * ```ts
- * secureUrl({ studioUrl: 'https://kubb.studio', path: '/api/agent/socket', socket: true }).href // 'wss://kubb.studio/api/agent/socket'
+ * secureUrl({ studioUrl: 'https://kubb.studio', path: '/api/runner/socket', socket: true }).href // 'wss://kubb.studio/api/runner/socket'
  * ```
  */
 export function secureUrl({ studioUrl, path, socket = false }: { studioUrl: string; path: string; socket?: boolean }): URL {

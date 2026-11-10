@@ -226,7 +226,7 @@ const countKey = { error: 'errors', warning: 'warnings', info: 'infos' } as cons
  */
 export class Diagnostics {
   // A plugin that loads another copy of `@kubb/core` (the project's own, beside a host such as the
-  // Studio agent) still reports into the run, as `kubbContext` does.
+  // Studio runner) still reports into the run, as `kubbContext` does.
   static #reporterStorage: AsyncLocalStorage<(diagnostic: Diagnostic) => void> = ((globalThis as ReporterHost)[reporterKey] ??= new AsyncLocalStorage())
 
   /**

@@ -759,7 +759,7 @@ export class KubbDriver {
     const driver = this
 
     // Collect into the active build only. The host renders each collected diagnostic once after the
-    // build (the CLI via `Diagnostics.emit`, the agent via its post-build loop), so emitting a live
+    // build (the CLI via `Diagnostics.emit`, the Studio runner via its post-build loop), so emitting a live
     // `kubb:error`/`kubb:warn`/`kubb:info` here would render it twice.
     const report = (diagnostic: Omit<ProblemDiagnostic, 'plugin'>): void => {
       Diagnostics.report({ ...diagnostic, plugin: plugin.name })

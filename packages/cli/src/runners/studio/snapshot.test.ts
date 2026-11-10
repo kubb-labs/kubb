@@ -32,7 +32,7 @@ const published: PublishedSnapshot = {
   name: '@acme/api',
   version: '1.0.0',
   integrity: 'sha512-abc',
-  agent: { id: 'agent-1', name: 'acme/api#42', slug: 'brave-otter' },
+  project: { id: 'project-1', name: 'acme/api#42', slug: 'brave-otter' },
   url: '/packages/brave-otter/%40acme%2Fapi.tgz',
   snapshotIdUrl: '/packages/snap-1/snapshot.tgz',
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -90,19 +90,19 @@ describe('snapshot', () => {
     )
   })
 
-  it('prints one JSON line with absolute URLs, the agent page and the changes', async () => {
+  it('prints one JSON line with absolute URLs, the project page and the changes', async () => {
     await snapshot(baseOptions({ json: true }))
 
     expect(vi.mocked(console.log)).toHaveBeenCalledOnce()
     expect(printedJson()).toMatchObject({
       url: 'http://localhost:3000/packages/brave-otter/%40acme%2Fapi.tgz',
       snapshotIdUrl: 'http://localhost:3000/packages/snap-1/snapshot.tgz',
-      agentUrl: 'http://localhost:3000/agents/brave-otter',
+      projectUrl: 'http://localhost:3000/projects/brave-otter',
       changes: published.changes,
     })
   })
 
-  it("compares with the base branch's agent, and labels those changes with the branch", async () => {
+  it("compares with the base branch's project, and labels those changes with the branch", async () => {
     vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:42', name: 'acme/api#42', base: { branch: 'main', id: 'gh:123:refs/heads/main' } })
     vi.mocked(createSnapshot).mockResolvedValue({ ...published, branchChanges })
 
@@ -112,7 +112,7 @@ describe('snapshot', () => {
     expect(printedJson().branchChanges).toStrictEqual({ ...branchChanges, branch: 'main' })
   })
 
-  it('compares with the agent --base-id names on any CI, labeled with that id', async () => {
+  it('compares with the project --base-id names on any CI, labeled with that id', async () => {
     vi.mocked(createSnapshot).mockResolvedValue({ ...published, branchChanges })
 
     await snapshot(baseOptions({ json: true, id: 'jenkins:api:pr-12', baseId: 'jenkins:api:main' }))
@@ -211,12 +211,12 @@ describe('formatBranchChanges', () => {
     {
       changes: { branch: 'main', base: null, added: [], changed: [], removed: [], baseFound: false },
       expected: 'No snapshot of main to compare with',
-      label: 'says so when no CI agent is registered for the branch yet',
+      label: 'says so when no CI project is registered for the branch yet',
     },
     {
       changes: { branch: 'main', base: null, added: [], changed: [], removed: [], baseFound: true },
       expected: 'No snapshot of main for this package yet',
-      label: 'says so when the branch has an agent but no snapshot of this package yet',
+      label: 'says so when the branch has a project but no snapshot of this package yet',
     },
   ])('$label', ({ changes, expected }) => {
     expect(formatBranchChanges(changes)).toBe(expected)

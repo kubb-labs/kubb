@@ -73,8 +73,8 @@ The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, whic
 | `--no-open`                                 |                       | Do not open the approval page in a browser.                                                                                                                                                                                                                                         |
 | `--log-level=<silent\|info\|verbose>`, `-l` | `info`                | Set the verbosity.                                                                                                                                                                                                                                                                  |
 | `--token=<key>`                             |                       | `snapshot` only: organization CI API key. Defaults to `KUBB_TOKEN`.                                                                                                                                                                                                                 |
-| `--id=<id>`                                 |                       | `snapshot` only: stable identity for the CI agent. Auto-detected on GitHub Actions, GitLab CI, Bitbucket Pipelines and CircleCI.                                                                                                                                                    |
-| `--base-id=<id>`                            |                       | `snapshot` only: the `--id` of another CI agent, such as the base branch's, to also compare with. Auto-detected on GitHub pull requests and GitLab merge requests.                                                                                                                  |
+| `--id=<id>`                                 |                       | `snapshot` only: stable identity for the CI project. Auto-detected on GitHub Actions, GitLab CI, Bitbucket Pipelines and CircleCI.                                                                                                                                                  |
+| `--base-id=<id>`                            |                       | `snapshot` only: the `--id` of another CI project, such as the base branch's, to also compare with. Auto-detected on GitHub pull requests and GitLab merge requests.                                                                                                                |
 | `--name=<name>`                             |                       | `snapshot` only: package name for the tarball. Defaults to the name in the nearest `package.json` that has a name and a version.                                                                                                                                                    |
 | `--package-version=<version>`               |                       | `snapshot` only: package version for the tarball. Defaults to the version in the nearest `package.json` that has a name and a version.                                                                                                                                              |
 | `--json`                                    | `false`               | `snapshot` only: print the result as one JSON object instead of a summary.                                                                                                                                                                                                          |
@@ -89,37 +89,37 @@ Each action exits with code 1 when it fails.
 
 ## Environment variables
 
-| Variable                        | Description                                                                      |
-| ------------------------------- | -------------------------------------------------------------------------------- |
-| `KUBB_HOME`                     | Directory the CLI keeps its Studio state in. Defaults to `~/.kubb`.              |
-| `KUBB_TOKEN`                    | `snapshot` only: organization CI API key. Same as `--token`.                     |
-| `KUBB_AGENT_MAX_GENERATIONS`    | How many recent generations the agent keeps for Studio to read. Defaults to `8`. |
-| `KUBB_AGENT_MAX_GENERATIONS_MB` | Size cap in MB for the kept generations. Defaults to `100`.                      |
+| Variable                         | Description                                                                       |
+| -------------------------------- | --------------------------------------------------------------------------------- |
+| `KUBB_HOME`                      | Directory the CLI keeps its Studio state in. Defaults to `~/.kubb`.               |
+| `KUBB_TOKEN`                     | `snapshot` only: organization CI API key. Same as `--token`.                      |
+| `KUBB_RUNNER_MAX_GENERATIONS`    | How many recent generations the runner keeps for Studio to read. Defaults to `8`. |
+| `KUBB_RUNNER_MAX_GENERATIONS_MB` | Size cap in MB for the kept generations. Defaults to `100`.                       |
 
 Initial disk output has a separate retention budget with the same count and size caps as generated runs. Unchanged output reuses its retained ID across reconnects.
 
 ## Snapshot output
 
-`--json` prints one JSON object with `id`, `name`, `version`, `integrity`, `url`, `snapshotIdUrl`, `expiresAt`, and `agentUrl`. It also includes `number` and `webUrl` when Studio sends them, and the summary then shows the snapshot number and a `View` link. It also includes `changes` and `branchChanges` when comparisons are available. Installing a snapshot requires a separate `registry` API key.
+`--json` prints one JSON object with `id`, `name`, `version`, `integrity`, `url`, `snapshotIdUrl`, `expiresAt`, and `projectUrl`. It also includes `number` and `webUrl` when Studio sends them, and the summary then shows the snapshot number and a `View` link. It also includes `changes` and `branchChanges` when comparisons are available. Installing a snapshot requires a separate `registry` API key.
 
-| JSON field      | Compared with                                                                                                                                                                                                                                                                                               |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `changes`       | The previous snapshot on the same pull request or branch.                                                                                                                                                                                                                                                   |
-| `branchChanges` | The latest snapshot of the agent named by `--base-id`, or of the base branch detected on a GitHub pull request or GitLab merge request. Its `branch` field names that agent. Its `baseFound` field distinguishes a branch with no CI agent from one with an agent that has no snapshot of this package yet. |
+| JSON field      | Compared with                                                                                                                                                                                                                                                                                                      |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `changes`       | The previous snapshot on the same pull request or branch.                                                                                                                                                                                                                                                          |
+| `branchChanges` | The latest snapshot of the project named by `--base-id`, or of the base branch detected on a GitHub pull request or GitLab merge request. Its `branch` field names that project. Its `baseFound` field distinguishes a branch with no CI project from one with a project that has no snapshot of this package yet. |
 
-## CI agent identity
+## CI project identity
 
 `snapshot` detects GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI. Other providers require a stable `--id`. Use a stable `--id` on the base branch and pass that identity as `--base-id` on pull request runs. Passing `--id` turns off base detection, so also pass `--base-id` to get `branchChanges`.
 
 ### GitLab CI
 
-Every pipeline on a merge request publishes to one CI agent. A branch pipeline publishes to one agent per branch, so the default branch has one agent too. Pass `--id` to group runs your own way.
+Every pipeline on a merge request publishes to one CI project. A branch pipeline publishes to one project per branch, so the default branch has one project too. Pass `--id` to group runs your own way.
 
 A merge request pipeline compares with its target branch. The snapshot reports which generated files changed against that branch's latest snapshot in `branchChanges`, and against the merge request's previous pipeline in `changes`. The commit it records is the head of the source branch.
 
 ## Plugins in Studio {#plugins-in-studio}
 
-Studio builds its plugin list and option forms from [extension manifests](/docs/5.x/reference/kit/manifest). When Studio connects, the agent reports each extension that is installed in the project, ships a valid `kubb-extension.json`, and comes from one of these places:
+Studio builds its plugin list and option forms from [extension manifests](/docs/5.x/reference/kit/manifest). When Studio connects, the runner reports each extension that is installed in the project, ships a valid `kubb-extension.json`, and comes from one of these places:
 
 - The `dependencies` and `devDependencies` in the project's `package.json`.
 - The packages `kubb.config.ts` imports.
@@ -127,13 +127,13 @@ Studio builds its plugin list and option forms from [extension manifests](/docs/
 
 A third-party plugin works in Studio once it is installed in the project and ships a manifest with `kind: "plugin"`. It needs no registry entry. Install it with [`kubb add`](/docs/5.x/reference/commands/add) or your package manager, then reconnect so Studio sees it.
 
-The adapter and the parsers the config registers get a settings form the same way, from the `options` in their manifest. The agent reports them on connect with a JSON copy of their options, and the edits Studio sends on generate are merged over the options in `kubb.config.ts`. A `null` value unsets an option for that run, so the extension's default applies. An extension without a manifest, such as `parserTsx`, is listed without fields.
+The adapter and the parsers the config registers get a settings form the same way, from the `options` in their manifest. The runner reports them on connect with a JSON copy of their options, and the edits Studio sends on generate are merged over the options in `kubb.config.ts`. A `null` value unsets an option for that run, so the extension's default applies. An extension without a manifest, such as `parserTsx`, is listed without fields.
 
-The agent imports a plugin package only when it is a `@kubb/plugin-*` package, or an installed package whose manifest has `kind: "plugin"`. It calls the factory the manifest names in `export`. The agent refuses any other package name before it imports anything, and config edits follow the same rule.
+The runner imports a plugin package only when it is a `@kubb/plugin-*` package, or an installed package whose manifest has `kind: "plugin"`. It calls the factory the manifest names in `export`. The runner refuses any other package name before it imports anything, and config edits follow the same rule.
 
-| Agent                           | Plugins it can run                                                                   |
-| ------------------------------- | ------------------------------------------------------------------------------------ |
-| `kubb studio` on your machine   | `@kubb/plugin-*` packages and plugins installed in the project that ship a manifest. |
-| Docker agent and hosted sandbox | Only the packages installed in their image. They install nothing at runtime.         |
+| Runner                        | Plugins it can run                                                                   |
+| ----------------------------- | ------------------------------------------------------------------------------------ |
+| `kubb studio` on your machine | `@kubb/plugin-*` packages and plugins installed in the project that ship a manifest. |
+| Docker runner and the sandbox | Only the packages installed in their image. They install nothing at runtime.         |
 
-Studio also lists plugins from the [kubb.dev registry](/docs/5.x/reference/registry). A plugin that the agent cannot run shows as not installed, with a `kubb add <id>` hint to install it.
+Studio also lists plugins from the [kubb.dev registry](/docs/5.x/reference/registry). A plugin that the runner cannot run shows as not installed, with a `kubb add <id>` hint to install it.

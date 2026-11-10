@@ -25,7 +25,7 @@ export {
 export type JSONKubbConfig = {
   /**
    * Plugins with their serialized options. `name` is the package name (e.g. `@kubb/plugin-ts`)
-   * and `options` is an opaque blob the agent forwards unchanged to the plugin factory. An entry
+   * and `options` is an opaque blob the runner forwards unchanged to the plugin factory. An entry
    * with `disabled: true` is dropped even when the disk config's `plugins` array still lists it.
    */
   plugins?: Array<{
@@ -35,9 +35,9 @@ export type JSONKubbConfig = {
   }>
   /**
    * Raw OpenAPI / Swagger spec content (YAML or JSON string), never a file path.
-   * Required by a 'sandbox' agent, which has no disk config of its own and refuses anything else.
-   * A 'managed' agent also takes a URL or a `git+<repo>#<ref>:<path>` input, and falls back to its disk config without one.
-   * Any other agent always reads its spec from disk, so this is ignored with a `kubb:warn`.
+   * Required by a 'sandbox' runner, which has no disk config of its own and refuses anything else.
+   * A 'managed' runner also takes a URL or a `git+<repo>#<ref>:<path>` input, and falls back to its disk config without one.
+   * Any other runner always reads its spec from disk, so this is ignored with a `kubb:warn`.
    */
   input?: string
   /**
@@ -165,7 +165,7 @@ export type GenerationEventPayloads = {
 }
 
 /**
- * Versioned envelope around one lifecycle event. Cap'n Web streams preserve the order the agent
+ * Versioned envelope around one lifecycle event. Cap'n Web streams preserve the order the runner
  * emitted them in, so the receiver replays a run by reading the stream straight through.
  */
 export type GenerationEvent = {
@@ -177,19 +177,19 @@ export type GenerationEvent = {
 }
 
 /**
- * Asks the agent to run one generation. `jobId` tags every event the run emits so a caller
- * watching several runs can tell them apart. `requestedBy` names the Studio user in the agent's
- * command log, and Studio leaves it out for a shared agent.
+ * Asks the runner to run one generation. `jobId` tags every event the run emits so a caller
+ * watching several runs can tell them apart. `requestedBy` names the Studio user in the runner's
+ * command log, and Studio leaves it out for a shared runner.
  */
 export type GenerateInput = {
   jobId: string
   config: JSONKubbConfig
   /**
-   * Display name of the Studio user who asked for the run, shown in the agent's job log.
+   * Display name of the Studio user who asked for the run, shown in the runner's job log.
    */
   requestedBy?: string
   /**
-   * A short-lived `Authorization` header value that a managed agent sends with the git fetch of a `git+` input, to its origin only.
+   * A short-lived `Authorization` header value that a managed runner sends with the git fetch of a `git+` input, to its origin only.
    */
   gitAuth?: { authorization: string }
 }
@@ -211,12 +211,12 @@ export type GenerateResult = {
 }
 
 /**
- * Asks the agent to apply a batch of edits to the config file on disk. `requestedBy` as for {@link GenerateInput}.
+ * Asks the runner to apply a batch of edits to the config file on disk. `requestedBy` as for {@link GenerateInput}.
  */
 export type SaveConfigInput = {
   edits: Array<ConfigEdit>
   /**
-   * Display name of the Studio user who asked for the save, shown in the agent's job log.
+   * Display name of the Studio user who asked for the save, shown in the runner's job log.
    */
   requestedBy?: string
 }
@@ -226,22 +226,22 @@ export type SaveConfigInput = {
  */
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean }
 
-/** Asks the agent to run `kubb add <id>`: `owner/slug`, or a bare `slug` for an official extension. `requestedBy` as for {@link GenerateInput}. */
+/** Asks the runner to run `kubb add <id>`: `owner/slug`, or a bare `slug` for an official extension. `requestedBy` as for {@link GenerateInput}. */
 export type InstallExtensionInput = { id: string; requestedBy?: string }
 
-/** `installed` is false when the agent refused or `kubb add` failed, with `reason` saying why. */
+/** `installed` is false when the runner refused or `kubb add` failed, with `reason` saying why. */
 export type InstallExtensionResult = { installed: boolean; reason?: string }
 
-/** Asks the agent to run `kubb update [ids] --yes`. Empty `ids` updates every installed extension the registry lists. */
+/** Asks the runner to run `kubb update [ids] --yes`. Empty `ids` updates every installed extension the registry lists. */
 export type UpdateExtensionsInput = { ids?: Array<string>; requestedBy?: string }
 
-/** `updated` is false when the agent refused or `kubb update` failed, with `reason` saying why. */
+/** `updated` is false when the runner refused or `kubb update` failed, with `reason` saying why. */
 export type UpdateExtensionsResult = { updated: boolean; reason?: string }
 
-/** Asks the agent to run `kubb remove <id> --yes`. `requestedBy` as for {@link GenerateInput}. */
+/** Asks the runner to run `kubb remove <id> --yes`. `requestedBy` as for {@link GenerateInput}. */
 export type RemoveExtensionInput = { id: string; requestedBy?: string }
 
-/** `removed` is false when the agent refused or `kubb remove` failed, with `reason` saying why. */
+/** `removed` is false when the runner refused or `kubb remove` failed, with `reason` saying why. */
 export type RemoveExtensionResult = { removed: boolean; reason?: string }
 
 /**
@@ -265,7 +265,7 @@ export type FilePage = { nextCursor: number | null; totalLines: number }
 export type ReadFilesResult = { files: Record<string, string>; pages?: Record<string, FilePage> }
 
 /**
- * Asks for one page of a file's line diff between two kept sets, so a large file never leaves the agent whole.
+ * Asks for one page of a file's line diff between two kept sets, so a large file never leaves the runner whole.
  * `jobId`'s `output` is the newer side, `base` the older one. `cursor` and `limit` page the patch lines.
  */
 export type ReadDiffInput = { jobId: string; path: string; base: { jobId: string }; cursor?: number; limit: number }
@@ -299,7 +299,7 @@ export type DiffStats = {
 export type ReadDiffResult = { hunks: Array<DiffHunk>; nextCursor: number | null; hasBase: boolean; stats: DiffStats }
 
 /**
- * Asks for the Kubb AST one job parsed its spec into. A job the agent no longer keeps fails with {@link AgentMessage.GENERATION_GONE}.
+ * Asks for the Kubb AST one job parsed its spec into. A job the runner no longer keeps fails with {@link RunnerMessage.GENERATION_GONE}.
  */
 export type ReadInputInput = { jobId: string }
 
@@ -309,33 +309,33 @@ export type ReadInputInput = { jobId: string }
 export type ReadInputResult = { input: InputNode }
 
 /**
- * Why the agent refuses a request. Studio matches on these to answer with the right status.
+ * Why the runner refuses a request. Studio matches on these to answer with the right status.
  */
-export const AgentMessage = {
+export const RunnerMessage = {
   GENERATION_IN_PROGRESS: 'A generation is already in progress, please wait for it to finish',
   INSTALL_IN_PROGRESS: 'An extension install or update is running, please wait for it to finish',
   SAVE_IN_PROGRESS: 'The config is being saved, please wait for it to finish',
-  SANDBOX_INPUT_ONLY: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
-  MANAGED_INPUT_KIND: 'A managed agent generates from the OpenAPI document content, a URL, or a git file that Studio sends, not from a file path',
+  SANDBOX_INPUT_ONLY: 'A sandbox runner generates only from the OpenAPI document content Studio sends, not from a file path or URL',
+  MANAGED_INPUT_KIND: 'A managed runner generates from the OpenAPI document content, a URL, or a git file that Studio sends, not from a file path',
   CONFIG_ENTRY_NOT_FOUND: 'The config file has no entry at that position or with that name',
   JOB_REQUIRED: 'The request must name a job',
   FILE_REQUEST_INVALID: 'The request must name an output set and carry paths',
   TOO_MANY_FILES: 'Too many paths were requested at once',
   INVALID_PAGE: 'The requested file page is invalid',
   DIFF_REQUEST_INVALID: 'The request must name a job, a base, and a path',
-  HASHES_ONLY: 'This agent kept only the hashes of that job',
+  HASHES_ONLY: 'This runner kept only the hashes of that job',
   /**
-   * A read for a job whose files the agent no longer keeps.
+   * A read for a job whose files the runner no longer keeps.
    */
-  GENERATION_GONE: 'The files of this generation are no longer kept on the agent, run the generation again',
-  READ_NOT_ALLOWED: 'The agent was not granted permission to read generated files',
+  GENERATION_GONE: 'The files of this generation are no longer kept on the runner, run the generation again',
+  READ_NOT_ALLOWED: 'The runner was not granted permission to read generated files',
   /**
    * Reading the parsed spec is its own permission.
    */
-  READ_AST_NOT_ALLOWED: 'The agent was not granted permission to read the parsed spec',
+  READ_AST_NOT_ALLOWED: 'The runner was not granted permission to read the parsed spec',
   NO_INPUT: 'This job kept no API input',
 } as const
-export type AgentMessage = ValueOf<typeof AgentMessage>
+export type RunnerMessage = ValueOf<typeof RunnerMessage>
 
 /**
  * A generation in flight. Cap'n Web keeps the three calls pointed at the same run, so a caller can
@@ -348,82 +348,82 @@ export type GenerationRun = {
 }
 
 /**
- * What Studio knows about the agent on the other end of a socket. Studio passes it with every
- * {@link AgentApi.connect} call, so it stays the authority on whether the agent is a sandbox.
+ * What Studio knows about the runner on the other end of a socket. Studio passes it with every
+ * {@link RunnerApi.connect} call, so it stays the authority on whether the runner is a sandbox.
  */
-export type AgentConnectInfo = {
+export type RunnerConnectInfo = {
   /**
-   * A shared `sandbox` or `global` agent. It keeps generations on temporary disk, runs each job in a
+   * A shared `sandbox` or `global` runner. It keeps generations on temporary disk, runs each job in a
    * temporary root, and generates from the spec Studio sends without editing a project or its config.
    */
   sandbox: boolean
   /**
-   * A `managed` agent Studio hosts for the organization. It has no project spec on disk, so it
+   * A `managed` runner Studio hosts for the organization. It has no project spec on disk, so it
    * may generate from a spec Studio sends: the content, a URL, or a git file.
    */
   managed?: boolean
-  agentSlug: string
+  projectSlug: string
   /**
-   * Absent for a sandbox or global agent, which belongs to no organization.
+   * Absent for a sandbox or global runner, which belongs to no organization.
    */
   organizationSlug?: string
   studioVersion: string
 }
 
 /**
- * Operations Studio invokes on an agent over its socket.
+ * Operations Studio invokes on a runner over its socket.
  */
-export type AgentApi = {
+export type RunnerApi = {
   /**
    * The first call on every socket, and again whenever Studio needs the current config.
    */
-  connect: (info: AgentConnectInfo) => Promise<ConnectMessagePayload>
+  connect: (info: RunnerConnectInfo) => Promise<ConnectMessagePayload>
   startGeneration: (input: GenerateInput) => GenerationRun
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
-  /** Refused without `allowInstall` and `allowConfigEdit`. An agent from before `installExtension` rejects the call. */
+  /** Refused without `allowInstall` and `allowConfigEdit`. A runner from before `installExtension` rejects the call. */
   installExtension: (input: InstallExtensionInput) => Promise<InstallExtensionResult>
   /** Refused without `allowUpdate`. Installs packages only, so `kubb.config.ts` stays as it is. */
   updateExtensions: (input: UpdateExtensionsInput) => Promise<UpdateExtensionsResult>
-  /** Refused without `allowRemove` and `allowConfigEdit`. An agent from before `removeExtension` rejects the call. */
+  /** Refused without `allowRemove` and `allowConfigEdit`. A runner from before `removeExtension` rejects the call. */
   removeExtension: (input: RemoveExtensionInput) => Promise<RemoveExtensionResult>
   readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
   /**
-   * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
+   * Refused unless the runner was granted `allowRead`, like {@link RunnerApi.readFiles}.
    */
   readInput: (input: ReadInputInput) => Promise<ReadInputResult>
   /**
-   * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
+   * Refused unless the runner was granted `allowRead`, like {@link RunnerApi.readFiles}.
    */
   readDiff: (input: ReadDiffInput) => Promise<ReadDiffResult>
 }
 
 /**
- * Operations an agent invokes on Studio over its socket.
+ * Operations a runner invokes on Studio over its socket.
  */
 export type StudioApi = {
   /**
-   * Keeps the connection alive. A ping that does not settle in time makes the agent reconnect.
+   * Keeps the connection alive. A ping that does not settle in time makes the runner reconnect.
    */
   ping: () => Promise<void>
 }
 
 /**
- * Close codes Studio sends when it ends an agent socket on purpose. `UNAUTHORIZED` means the token
+ * Close codes Studio sends when it ends a runner socket on purpose. `UNAUTHORIZED` means the token
  * was refused, so pair again. `SUPERSEDED` and `INCOMPATIBLE` mean stop. Any other code, `1011`
- * included, is an ordinary drop and the agent reconnects.
+ * included, is an ordinary drop and the runner reconnects.
  */
-export const AgentCloseCode = {
+export const RunnerCloseCode = {
   UNAUTHORIZED: 4001,
   SUPERSEDED: 4002,
   INCOMPATIBLE: 4003,
 } as const
 
-export const AGENT_SOCKET_PATH = '/api/agent/socket'
+export const RUNNER_SOCKET_PATH = '/api/runner/socket'
 
 /**
- * Optional header naming the process a socket belongs to, for agents that run several processes.
+ * Optional header naming the process a socket belongs to, for projects that run several runners.
  */
-export const AGENT_INSTANCE_HEADER = 'x-kubb-instance-id'
+export const RUNNER_INSTANCE_HEADER = 'x-kubb-instance-id'
 
 /**
  * How many files a single `readFiles` request may ask for at once.
@@ -436,7 +436,7 @@ export const MAX_PAGE_LINES = 2000
 export const MAX_SNAPSHOT_BYTES = 50 * 1024 * 1024
 
 /**
- * Connection payload returned by {@link AgentApi.connect}. Carries only what Studio renders, with
+ * Connection payload returned by {@link RunnerApi.connect}. Carries only what Studio renders, with
  * everything about the config under one key.
  */
 export type ConnectMessagePayload = {
@@ -446,16 +446,16 @@ export type ConnectMessagePayload = {
    */
   versions: {
     /**
-     * The version of the `@kubb/studio` runtime the agent runs.
+     * The version of the `@kubb/studio` runtime the runner runs.
      */
     kubb: string
     /**
      * The version of the host itself (the `kubb.agent` package or the `kubb` CLI).
      */
-    agent: string
+    runner: string
   }
   /**
-   * The agent's project root. This is the workspace that generation runs against.
+   * The runner's project folder on disk. This is the workspace that generation runs against.
    */
   root: string
   /**
@@ -467,8 +467,8 @@ export type ConnectMessagePayload = {
      */
     path: string
     /**
-     * What the agent read out of the config file itself, so Studio can render the plugin editor
-     * against the real file. Absent when the agent could not read it, or was not granted
+     * What the runner read out of the config file itself, so Studio can render the plugin editor
+     * against the real file. Absent when the runner could not read it, or was not granted
      * `allowConfigEdit`.
      */
     file?: ConfigFileView
@@ -477,7 +477,7 @@ export type ConnectMessagePayload = {
     /** Every entry the config exports, in source order. */
     configs: Array<ConfigEntryView>
   }
-  permissions: AgentPermissions
+  permissions: RunnerPermissions
 }
 
 export type DiskOutput = {
@@ -487,7 +487,7 @@ export type DiskOutput = {
 }
 
 /**
- * One `defineConfig(...)` entry as the agent runs it. Every option is a JSON copy: anything JSON cannot
+ * One `defineConfig(...)` entry as the runner runs it. Every option is a JSON copy: anything JSON cannot
  * hold, such as a function, is left out. A plugin defined in the project keeps its own `name`.
  */
 export type ConfigEntryView = {
@@ -518,48 +518,48 @@ export type ConfigEntryView = {
 }
 
 /**
- * What an agent may do in the project it serves. Every one is off unless the host granted it, and
+ * What a runner may do in the project it serves. Every one is off unless the host granted it, and
  * a sandbox narrows them further.
  */
-export type AgentPermissions = {
+export type RunnerPermissions = {
   /**
-   * Whether the agent writes generated files to disk. Always false for a sandbox.
+   * Whether the runner writes generated files to disk. Always false for a sandbox.
    */
   allowWrite: boolean
   /**
-   * Whether the agent runs the formatter, the linter, and `output.postGenerate` as child
+   * Whether the runner runs the formatter, the linter, and `output.postGenerate` as child
    * processes after a generation.
    */
   allowExec: boolean
   /**
-   * Whether the agent may change plugin options in the user's `kubb.config.ts`. Separate from
+   * Whether the runner may change plugin options in the user's `kubb.config.ts`. Separate from
    * `allowWrite`, which covers generated output: this one edits a hand-authored source file.
    */
   allowConfigEdit: boolean
-  /** Whether the agent may run `kubb add` in the project, which also edits `kubb.config.ts`. Needs `allowConfigEdit` as well. */
+  /** Whether the runner may run `kubb add` in the project, which also edits `kubb.config.ts`. Needs `allowConfigEdit` as well. */
   allowInstall: boolean
-  /** Whether the agent may run `kubb update` in the project, which installs newer extension versions and leaves `kubb.config.ts` alone. */
+  /** Whether the runner may run `kubb update` in the project, which installs newer extension versions and leaves `kubb.config.ts` alone. */
   allowUpdate: boolean
-  /** Whether the agent may run `kubb remove` in the project, which edits `kubb.config.ts` and uninstalls packages. Needs `allowConfigEdit` as well. */
+  /** Whether the runner may run `kubb remove` in the project, which edits `kubb.config.ts` and uninstalls packages. Needs `allowConfigEdit` as well. */
   allowRemove: boolean
-  /** Whether the agent may keep the spec Studio sends: a document in `openapi.yaml` and `input` in `kubb.config.ts`. Needs `allowConfigEdit` as well. */
+  /** Whether the runner may keep the spec Studio sends: a document in `openapi.yaml` and `input` in `kubb.config.ts`. Needs `allowConfigEdit` as well. */
   allowSaveInput: boolean
   /**
-   * Whether the agent shares existing output on connect and hands back file source through
+   * Whether the runner shares existing output on connect and hands back file source through
    * `readFiles`. A sandbox always permits reads of its generated files.
    */
   allowRead: boolean
   /**
-   * Whether the agent hands back the parsed spec (the Kubb AST) in response to `readInput`.
+   * Whether the runner hands back the parsed spec (the Kubb AST) in response to `readInput`.
    * Separate from `allowRead`, which covers generated files. Always true for a sandbox.
    */
   allowReadAst: boolean
 }
 
 /**
- * The keys of {@link AgentPermissions}, such as the permission a refused request names.
+ * The keys of {@link RunnerPermissions}, such as the permission a refused request names.
  */
-export const AgentPermission = {
+export const RunnerPermission = {
   READ: 'allowRead',
   READ_AST: 'allowReadAst',
   WRITE: 'allowWrite',
@@ -569,15 +569,15 @@ export const AgentPermission = {
   REMOVE: 'allowRemove',
   SAVE_INPUT: 'allowSaveInput',
   EXEC: 'allowExec',
-} as const satisfies Record<string, keyof AgentPermissions>
-export type AgentPermission = ValueOf<typeof AgentPermission>
+} as const satisfies Record<string, keyof RunnerPermissions>
+export type RunnerPermission = ValueOf<typeof RunnerPermission>
 
 /**
  * Metadata part of `POST /api/snapshots`. The `tarball` part carries the packed package.
  */
 export type SnapshotUploadMetadata = {
   /**
-   * Stable CI identity, such as `gh:<repoId>:<pr>`. Snapshots with the same `id` share one CI agent.
+   * Stable CI identity, such as `gh:<repoId>:<pr>`. Snapshots with the same `id` share one CI project.
    */
   id: string
   name: string
@@ -588,7 +588,7 @@ export type SnapshotUploadMetadata = {
    */
   commit?: string
   /**
-   * The `id` of another CI agent, such as the base branch's, to also compare with.
+   * The `id` of another CI project, such as the base branch's, to also compare with.
    */
   baseId?: string
   /**
@@ -612,8 +612,8 @@ export type SnapshotChanges = {
 }
 
 /**
- * {@link SnapshotChanges} against another CI agent. `baseFound` is `false` when Studio has no CI
- * agent with that id yet, and `true` when it has one without a snapshot of this package.
+ * {@link SnapshotChanges} against another CI project. `baseFound` is `false` when Studio has no CI
+ * project with that id yet, and `true` when it has one without a snapshot of this package.
  */
 export type BranchSnapshotChanges = SnapshotChanges & { baseFound: boolean }
 
@@ -625,9 +625,9 @@ export type PublishedSnapshot = {
   name: string | null
   version: string | null
   integrity: string | null
-  agent: { id: string; name: string; slug: string | null }
+  project: { id: string; name: string; slug: string | null }
   /**
-   * Readable download path, often `/packages/{agentSlug}/{name}.tgz`.
+   * Readable download path, often `/packages/{projectSlug}/{name}.tgz`.
    */
   url: string
   snapshotIdUrl: string
@@ -636,17 +636,17 @@ export type PublishedSnapshot = {
    */
   webUrl?: string
   /**
-   * The snapshot's sequence number on its CI agent, shown as `#182`. Absent from a Studio that does not send it.
+   * The snapshot's sequence number on its CI project, shown as `#182`. Absent from a Studio that does not send it.
    */
   number?: number
   createdAt: string
   expiresAt: string
   /**
-   * What changed since the previous snapshot of this package on the same CI agent.
+   * What changed since the previous snapshot of this package on the same CI project.
    */
   changes?: SnapshotChanges
   /**
-   * What differs from the latest snapshot of the CI agent `baseId` names. Absent without a base.
+   * What differs from the latest snapshot of the CI project `baseId` names. Absent without a base.
    */
   branchChanges?: BranchSnapshotChanges
 }

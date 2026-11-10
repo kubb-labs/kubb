@@ -268,9 +268,9 @@ describe('studio session events', () => {
     const lines = await render(async (context) => {
       await context.callHook('studio:connected', {
         url: 'http://localhost:3000',
-        versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' },
+        versions: { studio: '5.1.0', kubb: '5.0.6', runner: '5.0.6' },
         sandbox: false,
-        agentSlug: 'brave-otter',
+        projectSlug: 'brave-otter',
         studioVersion: '5.1.0',
       })
       await context.callHook('studio:command', { command: 'saveConfig', info: 'applied 2/3 edits to kubb.config.ts' })
@@ -286,7 +286,7 @@ describe('studio session events', () => {
       'Ready for jobs',
       'Retrying connection to Kubb Studio in 30.00s',
       '⚠ Ignored save: editing kubb.config.ts was not granted; pass --allow-config-edit to allow it',
-      '⚠ Another process connected to Kubb Studio as this agent, so this one stopped',
+      '⚠ Another process connected to Kubb Studio for this project, so this one stopped',
     ])
     vi.useRealTimers()
   })
@@ -296,9 +296,9 @@ describe('studio session events', () => {
     const lines = await render(async (context) => {
       await context.callHook('studio:connected', {
         url: 'http://localhost:3000',
-        versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' },
+        versions: { studio: '5.1.0', kubb: '5.0.6', runner: '5.0.6' },
         sandbox: false,
-        agentSlug: 'brave-otter',
+        projectSlug: 'brave-otter',
         studioVersion: '5.1.0',
       })
       const generation = {

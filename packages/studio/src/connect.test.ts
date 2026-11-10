@@ -9,13 +9,13 @@ import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, reso
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { read } from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
+import { type ConnectRunnerOptions, connectRunner, IncompatibleRunnerError, InvalidRunnerTokenError, type OpenRpc, runStudioRunner } from './connect.ts'
 import {
-  AGENT_INSTANCE_HEADER,
-  type AgentApi,
-  AgentCloseCode,
-  AgentMessage,
-  type AgentConnectInfo,
+  RUNNER_INSTANCE_HEADER,
+  type RunnerApi,
+  RunnerCloseCode,
+  RunnerMessage,
+  type RunnerConnectInfo,
   type ConfigEdit,
   ConfigEditOperation,
   type ConfigRef,
@@ -28,11 +28,11 @@ vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
 // Reconnects wait for nothing, so a test sees the next socket straight away.
 vi.mock('node:timers/promises', () => ({ setTimeout: vi.fn(async () => {}) }))
 
-// `kubb add` is the CLI's own command; the test checks what the agent runs it with.
+// `kubb add` is the CLI's own command; the test checks what the runner runs it with.
 const x = vi.hoisted(() => vi.fn())
 vi.mock('tinyexec', () => ({ x }))
 
-// Studio may add a plugin of its own, which the agent imports by package name.
+// Studio may add a plugin of its own, which the runner imports by package name.
 vi.mock('@kubb/plugin-ts', () => ({ pluginTs: (options: unknown) => ({ name: 'plugin-ts', options }) }))
 
 // Recorded but real, so a sandbox run's job root can be checked without faking the filesystem.
@@ -62,7 +62,7 @@ vi.mock('@kubb/core', async (importOriginal) => {
 })
 
 const studioUrl = 'https://studio.test'
-const info: AgentConnectInfo = { sandbox: false, agentSlug: 'brave-otter', organizationSlug: 'acme', studioVersion: '1.0.0' }
+const info: RunnerConnectInfo = { sandbox: false, projectSlug: 'brave-otter', organizationSlug: 'acme', studioVersion: '1.0.0' }
 const cleanups: Array<() => Promise<void>> = []
 
 afterEach(async () => {
@@ -75,19 +75,19 @@ beforeEach(() => {
   disk.cache = undefined
 })
 
-type Socket = { agent: AgentApi; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
+type Socket = { runner: RunnerApi; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
 
 // Stands in for Studio: each socket lands in `sockets`, and a test closes it with Studio's code.
-function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
+function startRunner(overrides: Partial<ConnectRunnerOptions> = {}) {
   const sockets: Array<Socket> = []
-  const openRpc: OpenRpc = ({ agent }) => {
+  const openRpc: OpenRpc = ({ runner }) => {
     const closed = Promise.withResolvers<{ code: number; reason: string }>()
     const ping = vi.fn().mockResolvedValue(undefined)
-    sockets.push({ agent, ping, close: (code, reason = '') => closed.resolve({ code, reason }) })
+    sockets.push({ runner, ping, close: (code, reason = '') => closed.resolve({ code, reason }) })
     return { studio: { ping }, closed: closed.promise, close: () => closed.resolve({ code: 1000, reason: '' }) }
   }
   const shutdown = new AbortController()
-  const done = runAgent({
+  const done = runStudioRunner({
     options: {
       token: 'token',
       studioUrl,
@@ -110,13 +110,13 @@ function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
 }
 
 // Starts the loop and finishes the handshake the way Studio does.
-async function connectStudio({ connectInfo = info, ...overrides }: Partial<ConnectAgentOptions> & { connectInfo?: AgentConnectInfo } = {}) {
-  const started = startAgent(overrides)
+async function connectStudio({ connectInfo = info, ...overrides }: Partial<ConnectRunnerOptions> & { connectInfo?: RunnerConnectInfo } = {}) {
+  const started = startRunner(overrides)
   await vi.waitFor(() => expect(started.sockets).toHaveLength(1))
   const socket = started.sockets[0]!
-  await socket.agent.connect(connectInfo)
+  await socket.runner.connect(connectInfo)
 
-  return { ...started, socket, agent: socket.agent }
+  return { ...started, socket, runner: socket.runner }
 }
 
 function withHooks(): { hooks: Hookable<KubbHooks>; heard: (name: keyof KubbHooks & string) => ReturnType<typeof vi.fn> } {
@@ -131,12 +131,12 @@ function withHooks(): { hooks: Hookable<KubbHooks>; heard: (name: keyof KubbHook
   }
 }
 
-async function run({ agent, jobId, requestedBy }: { agent: AgentApi; jobId: string; requestedBy?: string }) {
-  return agent.startGeneration({ jobId, config: {}, requestedBy }).result()
+async function run({ runner, jobId, requestedBy }: { runner: RunnerApi; jobId: string; requestedBy?: string }) {
+  return runner.startGeneration({ jobId, config: {}, requestedBy }).result()
 }
 
-describe('connectAgent', () => {
-  it('opens the agent socket with the bearer token and instance id, and rejects once Studio closes it with 4001', async () => {
+describe('connectRunner', () => {
+  it('opens the runner socket with the bearer token and instance id, and rejects once Studio closes it with 4001', async () => {
     const seen: Array<{ url?: string; headers: IncomingHttpHeaders }> = []
     const server = createServer()
     // Accepts the upgrade, then closes with 4001 the way Studio refuses a token.
@@ -151,7 +151,7 @@ describe('connectAgent', () => {
 
     try {
       await expect(
-        connectAgent({
+        connectRunner({
           token: 'good',
           studioUrl: `http://127.0.0.1:${port}`,
           configPath: 'kubb.config.ts',
@@ -159,9 +159,9 @@ describe('connectAgent', () => {
           root,
           loadConfigs: async () => [projectConfig()],
         }),
-      ).rejects.toBeInstanceOf(InvalidAgentTokenError)
+      ).rejects.toBeInstanceOf(InvalidRunnerTokenError)
       expect(seen).toStrictEqual([
-        { url: '/api/agent/socket', headers: expect.objectContaining({ authorization: 'Bearer good', [AGENT_INSTANCE_HEADER]: expect.any(String) }) },
+        { url: '/api/runner/socket', headers: expect.objectContaining({ authorization: 'Bearer good', [RUNNER_INSTANCE_HEADER]: expect.any(String) }) },
       ])
     } finally {
       server.close()
@@ -171,17 +171,17 @@ describe('connectAgent', () => {
 
 describe('the handshake', () => {
   it('returns the root, the versions and every permission off when the host granted none', async () => {
-    const { agent } = await connectStudio()
+    const { runner } = await connectStudio()
 
-    await expect(agent.connect(info)).resolves.toMatchObject({
+    await expect(runner.connect(info)).resolves.toMatchObject({
       root,
-      versions: { kubb: '5.0.0-test', agent: '2.0.0' },
+      versions: { kubb: '5.0.0-test', runner: '2.0.0' },
       permissions: { allowWrite: false, allowExec: false, allowConfigEdit: false, allowInstall: false, allowRead: false },
     })
   })
 
   it('reports the installed extensions, and a plugin by the package its manifest is in', async () => {
-    const projectRoot = await mkdtemp(join(tmpdir(), 'kubb-agent-extensions-'))
+    const projectRoot = await mkdtemp(join(tmpdir(), 'kubb-runner-extensions-'))
     cleanups.push(() => rm(projectRoot, { recursive: true, force: true }))
     const manifest = { kind: 'plugin', name: 'plugin-x', export: 'pluginX', displayName: 'X', description: 'Generates X.' }
     const packageDir = join(projectRoot, 'node_modules/@acme/plugin-x')
@@ -195,9 +195,9 @@ describe('the handshake', () => {
     await writeFile(join(parserDir, 'package.json'), JSON.stringify({ name: '@kubb/parser-md', version: '9.9.9' }))
     await writeFile(join(parserDir, 'kubb-extension.json'), JSON.stringify(parserManifest))
     const plugin = defineExtension({ kind: 'plugin', meta: { name: 'plugin-x' }, hooks: {} })()
-    const { agent } = await connectStudio({ root: projectRoot, loadConfigs: async () => [{ ...projectConfig({ projectRoot }), plugins: [plugin] }] })
+    const { runner } = await connectStudio({ root: projectRoot, loadConfigs: async () => [{ ...projectConfig({ projectRoot }), plugins: [plugin] }] })
 
-    const { config } = await agent.connect(info)
+    const { config } = await runner.connect(info)
 
     expect(config.configs[0]!.plugins).toStrictEqual([{ name: '@acme/plugin-x', options: {} }])
     // `pnpm test` puts the workspace on NODE_PATH, so Kubb's own extensions may resolve here too.
@@ -212,9 +212,9 @@ describe('the handshake', () => {
       meta: { name: 'typescript' },
       build: () => ({ extNames: ['.ts'], parse: () => '', print: () => '' }),
     })({ indent: 2, format: () => '' })
-    const { agent } = await connectStudio({ loadConfigs: async () => [{ ...projectConfig(), parsers: [parser] }] })
+    const { runner } = await connectStudio({ loadConfigs: async () => [{ ...projectConfig(), parsers: [parser] }] })
 
-    const { config } = await agent.connect(info)
+    const { config } = await runner.connect(info)
 
     expect(config.configs[0]!.adapter).toStrictEqual({ name: '@kubb/adapter-oas', options: {} })
     expect(config.configs[0]!.parsers).toStrictEqual([{ name: '@kubb/parser-ts', options: { indent: 2 } }])
@@ -223,9 +223,9 @@ describe('the handshake', () => {
   it('reports every entry of a config array, with the credentials left out of a URL input', async () => {
     const pets = { ...projectConfig(), input: 'https://alice:secret@example.com/openapi.json?v=2' }
     const admin = { ...projectConfig(), name: 'admin', input: './admin.yaml', output: { path: 'src/admin' } }
-    const { agent } = await connectStudio({ loadConfigs: async () => [pets, admin] })
+    const { runner } = await connectStudio({ loadConfigs: async () => [pets, admin] })
 
-    const { config } = await agent.connect(info)
+    const { config } = await runner.connect(info)
 
     const plugins = [{ name: '@kubb/plugin-barrel', options: {} }]
     const adapter = { name: '@kubb/adapter-oas', options: {} }
@@ -238,37 +238,37 @@ describe('the handshake', () => {
   it('announces the connection once per socket, with what Studio sent', async () => {
     const { hooks, heard } = withHooks()
     const connected = heard('studio:connected')
-    const { agent } = await connectStudio({ hooks })
-    await agent.connect(info)
+    const { runner } = await connectStudio({ hooks })
+    await runner.connect(info)
 
     await vi.waitFor(() =>
       expect(connected).toHaveBeenCalledExactlyOnceWith({
         ...info,
         url: studioUrl,
-        versions: { studio: '1.0.0', kubb: '5.0.0-test', agent: '2.0.0' },
+        versions: { studio: '1.0.0', kubb: '5.0.0-test', runner: '2.0.0' },
       }),
     )
   })
 
   it('refuses a command Studio sends before connect()', async () => {
-    const { sockets } = startAgent({ permissions: { allowRead: true } })
+    const { sockets } = startRunner({ permissions: { allowRead: true } })
     await vi.waitFor(() => expect(sockets).toHaveLength(1))
 
-    await expect(sockets[0]!.agent.readFiles({ jobId: 'job-1', paths: [] })).rejects.toThrow('Studio must call connect() before any other command')
+    await expect(sockets[0]!.runner.readFiles({ jobId: 'job-1', paths: [] })).rejects.toThrow('Studio must call connect() before any other command')
   })
 })
 
 describe('close codes', () => {
-  it('rejects with IncompatibleAgentError when the agent is too old', async () => {
+  it('rejects with IncompatibleRunnerError when the runner is too old', async () => {
     const { socket, done } = await connectStudio()
-    socket.close(AgentCloseCode.INCOMPATIBLE, 'needs 6.0.0')
+    socket.close(RunnerCloseCode.INCOMPATIBLE, 'needs 6.0.0')
 
-    await expect(done).rejects.toThrow(new IncompatibleAgentError({ studioUrl, detail: 'needs 6.0.0' }))
+    await expect(done).rejects.toThrow(new IncompatibleRunnerError({ studioUrl, detail: 'needs 6.0.0' }))
   })
 
   it('stops quietly when another process took over', async () => {
     const { socket, done, sockets } = await connectStudio()
-    socket.close(AgentCloseCode.SUPERSEDED)
+    socket.close(RunnerCloseCode.SUPERSEDED)
 
     await expect(done).resolves.toBeUndefined()
     expect(sockets).toHaveLength(1)
@@ -290,14 +290,14 @@ describe('close codes', () => {
     using _ = vi.spyOn(Math, 'random').mockReturnValue(1)
     const { hooks, heard } = withHooks()
     const reconnecting = heard('studio:reconnecting')
-    const { sockets } = startAgent({ hooks, maxRetryDelay: 60_000 })
+    const { sockets } = startRunner({ hooks, maxRetryDelay: 60_000 })
 
     await vi.waitFor(() => expect(sockets).toHaveLength(1))
     sockets[0]!.close(1011)
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
     sockets[1]!.close(1011)
     await vi.waitFor(() => expect(sockets).toHaveLength(3))
-    await sockets[2]!.agent.connect(info)
+    await sockets[2]!.runner.connect(info)
     sockets[2]!.close(1006)
     await vi.waitFor(() => expect(sockets).toHaveLength(4))
 
@@ -336,9 +336,9 @@ describe('heartbeat', () => {
 
 describe('a sandbox job', () => {
   it('runs under its own temporary root, removed with its manifest cache once the job ends', async () => {
-    const { agent } = await connectStudio({ connectInfo: { sandbox: true, agentSlug: 'sandbox', studioVersion: '1.0.0' } })
+    const { runner } = await connectStudio({ connectInfo: { sandbox: true, projectSlug: 'sandbox', studioVersion: '1.0.0' } })
 
-    await agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
+    await runner.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
 
     const jobRoot = await vi.mocked(mkdtemp).mock.results[0]?.value
     expect(jobRoot).toContain(join(tmpdir(), 'kubb-job-'))
@@ -349,29 +349,29 @@ describe('a sandbox job', () => {
   it('refuses a file path instead of reading it', async () => {
     const { hooks, heard } = withHooks()
     const warn = heard('studio:warn')
-    const { agent } = await connectStudio({ hooks, connectInfo: { sandbox: true, agentSlug: 'sandbox', studioVersion: '1.0.0' } })
+    const { runner } = await connectStudio({ hooks, connectInfo: { sandbox: true, projectSlug: 'sandbox', studioVersion: '1.0.0' } })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { input: '/etc/passwd' } }).result()).rejects.toThrow(AgentMessage.SANDBOX_INPUT_ONLY)
+    await expect(runner.startGeneration({ jobId: 'job-1', config: { input: '/etc/passwd' } }).result()).rejects.toThrow(RunnerMessage.SANDBOX_INPUT_ONLY)
     expect(warn).toHaveBeenCalledOnce()
     expect(vi.mocked(mkdtemp).mock.results).toHaveLength(1)
   })
 
-  it('refuses a file path from Studio on a managed agent, which has no business reading its disk', async () => {
-    const { agent } = await connectStudio({ connectInfo: { ...info, managed: true } })
+  it('refuses a file path from Studio on a managed runner, which has no business reading its disk', async () => {
+    const { runner } = await connectStudio({ connectInfo: { ...info, managed: true } })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { input: '/etc/passwd' } }).result()).rejects.toThrow(AgentMessage.MANAGED_INPUT_KIND)
+    await expect(runner.startGeneration({ jobId: 'job-1', config: { input: '/etc/passwd' } }).result()).rejects.toThrow(RunnerMessage.MANAGED_INPUT_KIND)
   })
 
   it.each([
     ['a git repository over plain http', 'git+http://93.184.216.34/api.git#main:openapi.yaml'],
     ['a git repository on a private address', 'git+https://10.0.0.5/api.git#main:openapi.yaml'],
   ])('refuses %s before it fetches anything', async (_label, input) => {
-    const { agent } = await connectStudio({ connectInfo: { ...info, managed: true } })
+    const { runner } = await connectStudio({ connectInfo: { ...info, managed: true } })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(/https repository URL|not a public address/)
+    await expect(runner.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(/https repository URL|not a public address/)
   })
 
-  it('limits the fetch of a managed agent to public addresses, and only while it generates', async () => {
+  it('limits the fetch of a managed runner to public addresses, and only while it generates', async () => {
     const original = globalThis.fetch
     const parse = async () => {
       // What the adapter does for a URL input, or for a `$ref` inside the document.
@@ -379,25 +379,25 @@ describe('a sandbox job', () => {
       return ast.factory.createInput({ operations: [], meta: { title: 'Pets' } })
     }
     const loadConfigs = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
-    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
+    const { runner } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow('not a public address')
+    await expect(runner.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow('not a public address')
     expect(globalThis.fetch).toBe(original)
   })
 
-  it('generates a managed agent from the spec Studio sends instead of warning that it is ignored', async () => {
+  it('generates a managed runner from the spec Studio sends instead of warning that it is ignored', async () => {
     const { hooks, heard } = withHooks()
     const warn = heard('kubb:warn')
-    const { agent } = await connectStudio({ hooks, connectInfo: { ...info, managed: true } })
+    const { runner } = await connectStudio({ hooks, connectInfo: { ...info, managed: true } })
 
-    await agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
+    await runner.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
     expect(warn).not.toHaveBeenCalled()
   })
 
   it('reports writes and config edits off and reads on, whatever the host granted', async () => {
-    const { agent } = await connectStudio({ permissions: { allowWrite: true, allowConfigEdit: true }, connectInfo: { ...info, sandbox: true } })
+    const { runner } = await connectStudio({ permissions: { allowWrite: true, allowConfigEdit: true }, connectInfo: { ...info, sandbox: true } })
 
-    await expect(agent.connect({ ...info, sandbox: true })).resolves.toMatchObject({
+    await expect(runner.connect({ ...info, sandbox: true })).resolves.toMatchObject({
       permissions: { allowWrite: false, allowConfigEdit: false, allowInstall: false, allowRead: true },
     })
   })
@@ -410,10 +410,10 @@ describe('installExtension', () => {
   it('runs kubb add with the id and the config path, without a shell, and reports the command', async () => {
     const { hooks, heard } = withHooks()
     const command = heard('studio:command')
-    const { agent } = await connectStudio({ hooks, permissions: granted, kubbBin: '/bin/kubb.js' })
+    const { runner } = await connectStudio({ hooks, permissions: granted, kubbBin: '/bin/kubb.js' })
     exec(0, 'added 1 package')
 
-    await expect(agent.installExtension({ id: 'plugin-zod', requestedBy: 'Ada' })).resolves.toStrictEqual({ installed: true })
+    await expect(runner.installExtension({ id: 'plugin-zod', requestedBy: 'Ada' })).resolves.toStrictEqual({ installed: true })
     expect(x).toHaveBeenCalledWith(
       process.execPath,
       ['/bin/kubb.js', 'add', 'plugin-zod', '--yes', '--config', join(root, 'kubb.config.ts')],
@@ -423,36 +423,36 @@ describe('installExtension', () => {
   })
 
   it('hands back the end of the output when kubb add fails', async () => {
-    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    const { runner } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     exec(1, 'Reading the registry\nNo extension named plugin-nope')
 
-    await expect(agent.installExtension({ id: 'plugin-nope' })).resolves.toStrictEqual({
+    await expect(runner.installExtension({ id: 'plugin-nope' })).resolves.toStrictEqual({
       installed: false,
       reason: 'Reading the registry\nNo extension named plugin-nope',
     })
   })
 
   it('holds off a save and a second install while kubb add runs, and ends the child when the socket closes', async () => {
-    const { agent, socket } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    const { runner, socket } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     const started = Promise.withResolvers<AbortSignal>()
     const child = Promise.withResolvers<{ stdout: string; stderr: string; exitCode: number | undefined }>()
     x.mockImplementationOnce((_file: string, _args: Array<string>, options: { signal: AbortSignal }) => {
       started.resolve(options.signal)
       return child.promise
     })
-    const install = agent.installExtension({ id: 'plugin-zod' })
+    const install = runner.installExtension({ id: 'plugin-zod' })
     const signal = await started.promise
 
     const edit: ConfigEdit = { operation: ConfigEditOperation.DISABLE_PLUGIN, config: 0, plugin: '@kubb/plugin-ts' }
-    await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({
+    await expect(runner.saveConfig({ edits: [edit] })).resolves.toMatchObject({
       outcomes: [{ applied: false, reason: 'an install, update, or remove is in progress' }],
     })
-    await expect(agent.installExtension({ id: 'plugin-msw' })).resolves.toMatchObject({
+    await expect(runner.installExtension({ id: 'plugin-msw' })).resolves.toMatchObject({
       installed: false,
       reason: 'an install, update, or remove is in progress',
     })
-    await expect(agent.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'an install, update, or remove is in progress' })
-    await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow(AgentMessage.INSTALL_IN_PROGRESS)
+    await expect(runner.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'an install, update, or remove is in progress' })
+    await expect(runner.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow(RunnerMessage.INSTALL_IN_PROGRESS)
 
     socket.close(1006)
     await vi.waitFor(() => expect(signal.aborted).toBe(true))
@@ -463,10 +463,10 @@ describe('installExtension', () => {
   it('runs kubb update with the ids and --yes, and reports the command', async () => {
     const { hooks, heard } = withHooks()
     const command = heard('studio:command')
-    const { agent } = await connectStudio({ hooks, permissions: granted, kubbBin: '/bin/kubb.js' })
+    const { runner } = await connectStudio({ hooks, permissions: granted, kubbBin: '/bin/kubb.js' })
     exec(0, 'Update complete')
 
-    await expect(agent.updateExtensions({ ids: ['plugin-zod'], requestedBy: 'Ada' })).resolves.toStrictEqual({ updated: true })
+    await expect(runner.updateExtensions({ ids: ['plugin-zod'], requestedBy: 'Ada' })).resolves.toStrictEqual({ updated: true })
     expect(x).toHaveBeenCalledWith(
       process.execPath,
       ['/bin/kubb.js', 'update', 'plugin-zod', '--yes'],
@@ -476,18 +476,18 @@ describe('installExtension', () => {
   })
 
   it('updates every extension without ids, and hands back the output when kubb update fails', async () => {
-    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    const { runner } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     exec(1, 'npm ERR! network')
 
-    await expect(agent.updateExtensions({})).resolves.toStrictEqual({ updated: false, reason: 'npm ERR! network' })
+    await expect(runner.updateExtensions({})).resolves.toStrictEqual({ updated: false, reason: 'npm ERR! network' })
     expect(x).toHaveBeenCalledWith(process.execPath, ['/bin/kubb.js', 'update', '--yes'], expect.anything())
   })
 
   it('refuses an update without allowUpdate or with an id that is not a registry id, and needs no other permission', async () => {
-    const { agent } = await connectStudio({ permissions: { ...granted, allowUpdate: false }, kubbBin: '/bin/kubb.js' })
-    await expect(agent.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'updating extensions was not granted' })
+    const { runner } = await connectStudio({ permissions: { ...granted, allowUpdate: false }, kubbBin: '/bin/kubb.js' })
+    await expect(runner.updateExtensions({})).resolves.toMatchObject({ updated: false, reason: 'updating extensions was not granted' })
 
-    const { agent: updateOnly } = await connectStudio({ permissions: { allowUpdate: true }, kubbBin: '/bin/kubb.js' })
+    const { runner: updateOnly } = await connectStudio({ permissions: { allowUpdate: true }, kubbBin: '/bin/kubb.js' })
     exec(0, 'Update complete')
     await expect(updateOnly.updateExtensions({})).resolves.toStrictEqual({ updated: true })
     // A message without a body updates everything, like an empty one, instead of throwing.
@@ -495,7 +495,7 @@ describe('installExtension', () => {
     await expect(updateOnly.updateExtensions(null as never)).resolves.toStrictEqual({ updated: true })
     x.mockClear()
 
-    const { agent: allowed } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    const { runner: allowed } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     await expect(allowed.updateExtensions({ ids: ['--dry-run'] })).resolves.toMatchObject({
       updated: false,
       reason: 'the message carried an invalid registry id',
@@ -506,10 +506,10 @@ describe('installExtension', () => {
   it('runs kubb remove with the id and the config path, and reports the command', async () => {
     const { hooks, heard } = withHooks()
     const command = heard('studio:command')
-    const { agent } = await connectStudio({ hooks, permissions: { allowRemove: true, allowConfigEdit: true }, kubbBin: '/bin/kubb.js' })
+    const { runner } = await connectStudio({ hooks, permissions: { allowRemove: true, allowConfigEdit: true }, kubbBin: '/bin/kubb.js' })
     exec(0, 'Removed plugin-zod')
 
-    await expect(agent.removeExtension({ id: 'plugin-zod', requestedBy: 'Ada' })).resolves.toStrictEqual({ removed: true })
+    await expect(runner.removeExtension({ id: 'plugin-zod', requestedBy: 'Ada' })).resolves.toStrictEqual({ removed: true })
     expect(x).toHaveBeenCalledWith(
       process.execPath,
       ['/bin/kubb.js', 'remove', 'plugin-zod', '--yes', '--config', join(root, 'kubb.config.ts')],
@@ -519,73 +519,73 @@ describe('installExtension', () => {
   })
 
   it('refuses a remove without allowRemove, without allowConfigEdit, or with an id that is not a registry id', async () => {
-    const { agent: noRemove } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    const { runner: noRemove } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     await expect(noRemove.removeExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ removed: false, reason: 'removing extensions was not granted' })
 
-    const { agent: noEdit } = await connectStudio({ permissions: { allowRemove: true }, kubbBin: '/bin/kubb.js' })
+    const { runner: noEdit } = await connectStudio({ permissions: { allowRemove: true }, kubbBin: '/bin/kubb.js' })
     await expect(noEdit.removeExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ removed: false, reason: 'editing kubb.config.ts was not granted' })
 
-    const { agent: allowed } = await connectStudio({ permissions: { allowRemove: true, allowConfigEdit: true }, kubbBin: '/bin/kubb.js' })
+    const { runner: allowed } = await connectStudio({ permissions: { allowRemove: true, allowConfigEdit: true }, kubbBin: '/bin/kubb.js' })
     await expect(allowed.removeExtension({ id: '--yes' })).resolves.toMatchObject({ removed: false, reason: 'the message carried no registry id' })
     expect(x).not.toHaveBeenCalled()
   })
 
   it('reports a kubb add that could not run instead of throwing', async () => {
-    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    const { runner } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     x.mockRejectedValueOnce(new Error('spawn ENOENT'))
 
-    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'kubb add did not run: spawn ENOENT' })
+    await expect(runner.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'kubb add did not run: spawn ENOENT' })
   })
 
   it('holds off an install, a second save and a generation while a save is still writing the config', async () => {
-    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    const { runner } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     const edit: ConfigEdit = { operation: ConfigEditOperation.DISABLE_PLUGIN, config: 0, plugin: '@kubb/plugin-ts' }
-    const save = agent.saveConfig({ edits: [edit] })
+    const save = runner.saveConfig({ edits: [edit] })
 
-    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'a save is in progress' })
-    await expect(agent.saveConfig({ edits: [edit] })).resolves.toMatchObject({ outcomes: [{ applied: false, reason: 'a save is in progress' }] })
-    await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow(AgentMessage.SAVE_IN_PROGRESS)
+    await expect(runner.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'a save is in progress' })
+    await expect(runner.saveConfig({ edits: [edit] })).resolves.toMatchObject({ outcomes: [{ applied: false, reason: 'a save is in progress' }] })
+    await expect(runner.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow(RunnerMessage.SAVE_IN_PROGRESS)
     await expect(save).resolves.toMatchObject({ outcomes: [{ edit }] })
     expect(x).not.toHaveBeenCalled()
   })
 
   it('lets the next command through once a failed install has settled', async () => {
-    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    const { runner } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
     exec(1, 'npm ERR! network')
-    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ installed: false, reason: 'npm ERR! network' })
+    await expect(runner.installExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ installed: false, reason: 'npm ERR! network' })
 
     exec(0, 'added 1 package')
-    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: true })
+    await expect(runner.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: true })
   })
 
   it('refuses without allowInstall, naming the permission, and runs nothing', async () => {
     const { hooks, heard } = withHooks()
     const warn = heard('studio:warn')
-    const { agent } = await connectStudio({ hooks, permissions: { allowConfigEdit: true }, kubbBin: '/bin/kubb.js' })
+    const { runner } = await connectStudio({ hooks, permissions: { allowConfigEdit: true }, kubbBin: '/bin/kubb.js' })
 
-    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'installing extensions was not granted' })
+    await expect(runner.installExtension({ id: 'plugin-zod' })).resolves.toStrictEqual({ installed: false, reason: 'installing extensions was not granted' })
     expect(warn).toHaveBeenCalledWith(expect.objectContaining({ permission: 'allowInstall' }))
     expect(x).not.toHaveBeenCalled()
   })
 
   it('refuses without allowConfigEdit, since kubb add edits the config', async () => {
-    const { agent } = await connectStudio({ permissions: { allowInstall: true }, kubbBin: '/bin/kubb.js' })
+    const { runner } = await connectStudio({ permissions: { allowInstall: true }, kubbBin: '/bin/kubb.js' })
 
-    await expect(agent.installExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ reason: 'editing kubb.config.ts was not granted' })
+    await expect(runner.installExtension({ id: 'plugin-zod' })).resolves.toMatchObject({ reason: 'editing kubb.config.ts was not granted' })
     expect(x).not.toHaveBeenCalled()
   })
 
   it('refuses an id that is not a registry id before it can become an argument', async () => {
-    const { agent } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
+    const { runner } = await connectStudio({ permissions: granted, kubbBin: '/bin/kubb.js' })
 
-    await expect(agent.installExtension({ id: '--allow-exec' })).resolves.toMatchObject({ reason: 'the message carried no registry id' })
-    await expect(agent.installExtension(null as never)).resolves.toMatchObject({ reason: 'the message carried no registry id' })
+    await expect(runner.installExtension({ id: '--allow-exec' })).resolves.toMatchObject({ reason: 'the message carried no registry id' })
+    await expect(runner.installExtension(null as never)).resolves.toMatchObject({ reason: 'the message carried no registry id' })
     expect(x).not.toHaveBeenCalled()
   })
 })
 
 describe('generation reports', () => {
-  async function events(run: ReturnType<AgentApi['startGeneration']>) {
+  async function events(run: ReturnType<RunnerApi['startGeneration']>) {
     const seen: Array<{ type: string; data: unknown }> = []
     const reader = (await run.events()).getReader()
     for (;;) {
@@ -595,24 +595,24 @@ describe('generation reports', () => {
     }
   }
 
-  it('tells Studio, through the event stream, that a project agent ignored its spec', async () => {
-    const { agent } = await connectStudio()
+  it('tells Studio, through the event stream, that a Docker or local runner ignored the spec from Studio', async () => {
+    const { runner } = await connectStudio()
 
-    const run = agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } })
+    const run = runner.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } })
     const [seen] = await Promise.all([events(run), run.result()])
 
     expect(seen).toContainEqual({
       type: 'kubb:warn',
-      data: [{ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox or managed agent', info: undefined }],
+      data: [{ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox or managed runner', info: undefined }],
     })
   })
 
   it('reports a plugin Studio asked for that cannot be loaded to the host as well', async () => {
     const { hooks, heard } = withHooks()
     const error = heard('kubb:error')
-    const { agent } = await connectStudio({ hooks })
+    const { runner } = await connectStudio({ hooks })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { plugins: [{ name: 'not-a-plugin' }] } }).result()).rejects.toThrow(
+    await expect(runner.startGeneration({ jobId: 'job-1', config: { plugins: [{ name: 'not-a-plugin' }] } }).result()).rejects.toThrow(
       'is not an installed Kubb plugin',
     )
     expect(error).toHaveBeenCalledWith({ error: expect.objectContaining({ message: expect.stringContaining('is not an installed Kubb plugin') }) })
@@ -621,10 +621,10 @@ describe('generation reports', () => {
   it('refuses an output path from Studio outside the output folder before anything is written', async () => {
     const { hooks, heard } = withHooks()
     const error = heard('kubb:error')
-    const { agent } = await connectStudio({ hooks, permissions: { allowWrite: true } })
+    const { runner } = await connectStudio({ hooks, permissions: { allowWrite: true } })
     const output = { path: '../../../home/alice/.ssh/authorized_keys' }
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { plugins: [{ name: '@kubb/plugin-ts', options: { output } }] } }).result()).rejects.toThrow(
+    await expect(runner.startGeneration({ jobId: 'job-1', config: { plugins: [{ name: '@kubb/plugin-ts', options: { output } }] } }).result()).rejects.toThrow(
       'Plugin "plugin-ts" would write to "/home/alice/.ssh/authorized_keys", outside the output folder',
     )
     expect(error).toHaveBeenCalledOnce()
@@ -636,10 +636,10 @@ describe('a config array', () => {
   const configs = () => [projectConfig(), { ...projectConfig({ content: 'export const admin = 1' }), name: 'admin' }]
 
   it('generates from the entry Studio names, by position or by name, and the first one otherwise', async () => {
-    const { agent } = await connectStudio({ loadConfigs: async () => configs(), permissions: { allowRead: true } })
+    const { runner } = await connectStudio({ loadConfigs: async () => configs(), permissions: { allowRead: true } })
     const content = async (jobId: string, config?: ConfigRef) => {
-      await agent.startGeneration({ jobId, config: { config } }).result()
-      return (await agent.readFiles({ jobId, paths: ['src/gen/pet.ts'], limit: 10 })).files['src/gen/pet.ts']
+      await runner.startGeneration({ jobId, config: { config } }).result()
+      return (await runner.readFiles({ jobId, paths: ['src/gen/pet.ts'], limit: 10 })).files['src/gen/pet.ts']
     }
 
     await expect(content('job-1')).resolves.toBe('export const pet = 1')
@@ -648,9 +648,9 @@ describe('a config array', () => {
   })
 
   it('refuses an entry the file does not have', async () => {
-    const { agent } = await connectStudio({ loadConfigs: async () => configs() })
+    const { runner } = await connectStudio({ loadConfigs: async () => configs() })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: { config: 'billing' } }).result()).rejects.toThrow(AgentMessage.CONFIG_ENTRY_NOT_FOUND)
+    await expect(runner.startGeneration({ jobId: 'job-1', config: { config: 'billing' } }).result()).rejects.toThrow(RunnerMessage.CONFIG_ENTRY_NOT_FOUND)
     expect(disk.storage).toBeUndefined()
   })
 })
@@ -659,28 +659,28 @@ describe('readFiles', () => {
   it('refuses to read when the host did not grant allowRead, and names the permission for the host', async () => {
     const { hooks, heard } = withHooks()
     const warn = heard('studio:warn')
-    const { agent } = await connectStudio({ hooks })
+    const { runner } = await connectStudio({ hooks })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).rejects.toThrow(AgentMessage.READ_NOT_ALLOWED)
+    await expect(runner.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).rejects.toThrow(RunnerMessage.READ_NOT_ALLOWED)
     expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowRead' })
   })
 
   it('returns only the paths the run produced, paged with their line count, so a request cannot escape the output', async () => {
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    await run({ agent, jobId: 'job-1' })
+    const { runner } = await connectStudio({ permissions: { allowRead: true } })
+    await run({ runner, jobId: 'job-1' })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['../../etc/passwd', 'src/gen/pet.ts'], limit: 10 })).resolves.toStrictEqual({
+    await expect(runner.readFiles({ jobId: 'job-1', paths: ['../../etc/passwd', 'src/gen/pet.ts'], limit: 10 })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 1' },
       pages: { 'src/gen/pet.ts': { nextCursor: null, totalLines: 1 } },
     })
   })
 
   it('refuses a page longer than the maximum', async () => {
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    await run({ agent, jobId: 'job-1' })
+    const { runner } = await connectStudio({ permissions: { allowRead: true } })
+    await run({ runner, jobId: 'job-1' })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], cursor: 0, limit: MAX_PAGE_LINES + 1 })).rejects.toThrow(
-      AgentMessage.INVALID_PAGE,
+    await expect(runner.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], cursor: 0, limit: MAX_PAGE_LINES + 1 })).rejects.toThrow(
+      RunnerMessage.INVALID_PAGE,
     )
   })
 })
@@ -688,22 +688,22 @@ describe('readFiles', () => {
 describe('readDiff', () => {
   async function twoRuns(permissions = { allowRead: true }) {
     const content = { current: 'export const pet = 1' }
-    const { agent } = await connectStudio({ permissions, loadConfigs: async () => [projectConfig({ content: content.current })] })
-    await run({ agent, jobId: 'job-1' })
+    const { runner } = await connectStudio({ permissions, loadConfigs: async () => [projectConfig({ content: content.current })] })
+    await run({ runner, jobId: 'job-1' })
     content.current = 'export const pet = 2'
-    await run({ agent, jobId: 'job-2' })
-    return agent
+    await run({ runner, jobId: 'job-2' })
+    return runner
   }
   const base = { jobId: 'job-1' } as const
 
   it('refuses without allowRead', async () => {
-    const agent = await twoRuns({ allowRead: false })
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow(AgentMessage.READ_NOT_ALLOWED)
+    const runner = await twoRuns({ allowRead: false })
+    await expect(runner.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow(RunnerMessage.READ_NOT_ALLOWED)
   })
 
   it('returns the changed lines of a file between two jobs', async () => {
-    const agent = await twoRuns()
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).resolves.toStrictEqual({
+    const runner = await twoRuns()
+    await expect(runner.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).resolves.toStrictEqual({
       hunks: [
         {
           index: 0,
@@ -721,8 +721,8 @@ describe('readDiff', () => {
   })
 
   it('reports a path the base does not hold, and never reads outside the sets', async () => {
-    const agent = await twoRuns()
-    await expect(agent.readDiff({ jobId: 'job-2', path: '../../etc/passwd', base, limit: 10 })).resolves.toStrictEqual({
+    const runner = await twoRuns()
+    await expect(runner.readDiff({ jobId: 'job-2', path: '../../etc/passwd', base, limit: 10 })).resolves.toStrictEqual({
       hunks: [],
       nextCursor: null,
       hasBase: false,
@@ -730,10 +730,10 @@ describe('readDiff', () => {
     })
   })
 
-  it('refuses a job the agent no longer keeps', async () => {
-    const agent = await twoRuns()
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base: { jobId: 'job-gone' }, limit: 10 })).rejects.toThrow(
-      AgentMessage.GENERATION_GONE,
+  it('refuses a job the runner no longer keeps', async () => {
+    const runner = await twoRuns()
+    await expect(runner.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base: { jobId: 'job-gone' }, limit: 10 })).rejects.toThrow(
+      RunnerMessage.GENERATION_GONE,
     )
   })
 })
@@ -749,31 +749,31 @@ describe('readInput', () => {
   it('refuses to read when the host did not grant allowReadAst, and names the permission for the host', async () => {
     const { hooks, heard } = withHooks()
     const warn = heard('studio:warn')
-    const { agent } = await connectStudio({ hooks })
+    const { runner } = await connectStudio({ hooks })
 
-    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(AgentMessage.READ_AST_NOT_ALLOWED)
+    await expect(runner.readInput({ jobId: 'job-1' })).rejects.toThrow(RunnerMessage.READ_AST_NOT_ALLOWED)
     expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowReadAst' })
   })
 
-  it('returns the AST the job parsed, also after the agent restarts, and refuses a job it does not keep', async () => {
+  it('returns the AST the job parsed, also after the runner restarts, and refuses a job it does not keep', async () => {
     const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfigs: withInput })
-    await run({ agent: first.agent, jobId: 'job-1' })
+    await run({ runner: first.runner, jobId: 'job-1' })
 
-    const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
+    const { runner } = await connectStudio({ permissions: { allowReadAst: true } })
 
-    await expect(agent.readInput({ jobId: 'job-1' })).resolves.toStrictEqual({ input: JSON.parse(JSON.stringify(input)) })
-    await expect(agent.readInput({ jobId: 'job-unknown' })).rejects.toThrow(AgentMessage.GENERATION_GONE)
+    await expect(runner.readInput({ jobId: 'job-1' })).resolves.toStrictEqual({ input: JSON.parse(JSON.stringify(input)) })
+    await expect(runner.readInput({ jobId: 'job-unknown' })).rejects.toThrow(RunnerMessage.GENERATION_GONE)
   })
 
   it('keeps no input for a run without allowReadAstAst, so a later grant finds none, not even an earlier run of the job', async () => {
     const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfigs: withInput })
-    await run({ agent: first.agent, jobId: 'job-1' })
+    await run({ runner: first.runner, jobId: 'job-1' })
     const rerun = await connectStudio({ loadConfigs: withInput })
-    await run({ agent: rerun.agent, jobId: 'job-1' })
+    await run({ runner: rerun.runner, jobId: 'job-1' })
 
-    const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
+    const { runner } = await connectStudio({ permissions: { allowReadAst: true } })
 
-    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(AgentMessage.NO_INPUT)
+    await expect(runner.readInput({ jobId: 'job-1' })).rejects.toThrow(RunnerMessage.NO_INPUT)
   })
 })
 
@@ -781,30 +781,30 @@ describe('generation history', () => {
   it('fingerprints every file in the run result, run on the project root', async () => {
     const { hooks, heard } = withHooks()
     const command = heard('studio:command')
-    const { agent } = await connectStudio({ hooks, permissions: { allowRead: true } })
+    const { runner } = await connectStudio({ hooks, permissions: { allowRead: true } })
 
-    const result = await run({ agent, jobId: 'job-1', requestedBy: 'Stijn' })
+    const result = await run({ runner, jobId: 'job-1', requestedBy: 'Stijn' })
 
     expect(result.hashes).toStrictEqual({ 'src/gen/pet.ts': expect.stringMatching(/^[0-9a-f]{16}$/) })
     expect(vi.mocked(mkdtemp)).toHaveBeenCalledWith(expect.stringContaining('kubb-output-'))
     expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk', requestedBy: 'Stijn' })
   })
 
-  it('reads every earlier job after the agent restarts, from the project cache', async () => {
+  it('reads every earlier job after the runner restarts, from the project cache', async () => {
     const content = { current: '' }
     const loadConfigs = async () => [projectConfig({ content: content.current })]
     const first = await connectStudio({ permissions: { allowRead: true }, loadConfigs })
     content.current = 'export const pet = 1'
-    await run({ agent: first.agent, jobId: 'job-1' })
+    await run({ runner: first.runner, jobId: 'job-1' })
     content.current = 'export const pet = 2'
-    await run({ agent: first.agent, jobId: 'job-2' })
+    await run({ runner: first.runner, jobId: 'job-2' })
 
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    const { runner } = await connectStudio({ permissions: { allowRead: true } })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+    await expect(runner.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 1' },
     })
-    await expect(agent.readFiles({ jobId: 'job-2', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+    await expect(runner.readFiles({ jobId: 'job-2', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 2' },
     })
   })
@@ -820,11 +820,11 @@ describe('current disk output', () => {
     await seedDisk({ 'src/gen/pet.ts': 'on disk\n', 'src/gen/empty.ts': '', 'src/other.ts': 'not output' })
     const { hooks, heard } = withHooks()
     const generationStarted = heard('kubb:build:start')
-    const { agent } = await connectStudio({ permissions: { allowRead: true }, hooks })
-    const output = (await agent.connect(info)).config.configs[0]!.disk
+    const { runner } = await connectStudio({ permissions: { allowRead: true }, hooks })
+    const output = (await runner.connect(info)).config.configs[0]!.disk
 
     expect(output?.files.toSorted()).toStrictEqual(['src/gen/empty.ts', 'src/gen/pet.ts'])
-    await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts', 'src/gen/empty.ts', 'src/other.ts'] })).resolves.toStrictEqual({
+    await expect(runner.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts', 'src/gen/empty.ts', 'src/other.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'on disk\n', 'src/gen/empty.ts': '' },
     })
     expect(generationStarted).not.toHaveBeenCalled()
@@ -833,45 +833,45 @@ describe('current disk output', () => {
 
   it('keeps the initial output immutable after local edits', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'first' })
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    const output = (await agent.connect(info)).config.configs[0]!.disk
+    const { runner } = await connectStudio({ permissions: { allowRead: true } })
+    const output = (await runner.connect(info)).config.configs[0]!.disk
     await seedDisk({ 'src/gen/pet.ts': 'second' })
-    await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
+    await expect(runner.readFiles({ jobId: output!.jobId, paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'first' },
     })
   })
 
   it('omits the disk output without read permission', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'private' })
-    const { agent } = await connectStudio()
+    const { runner } = await connectStudio()
 
-    expect((await agent.connect(info)).config.configs[0]!.disk).toBeUndefined()
+    expect((await runner.connect(info)).config.configs[0]!.disk).toBeUndefined()
   })
 
   it('omits the disk output for a sandbox even when it allows reads', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'private' })
     const connectInfo = { ...info, sandbox: true }
-    const { agent } = await connectStudio({ connectInfo, permissions: { allowRead: true } })
+    const { runner } = await connectStudio({ connectInfo, permissions: { allowRead: true } })
 
-    expect((await agent.connect(connectInfo)).config.configs[0]!.disk).toBeUndefined()
+    expect((await runner.connect(connectInfo)).config.configs[0]!.disk).toBeUndefined()
   })
 
   it('does not list the project when the output path is the root', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'private' })
-    const { agent } = await connectStudio({
+    const { runner } = await connectStudio({
       permissions: { allowRead: true },
       loadConfigs: async () => [{ ...projectConfig(), output: { path: '.' } }],
     })
 
-    expect((await agent.connect(info)).config.configs[0]!.disk).toBeUndefined()
+    expect((await runner.connect(info)).config.configs[0]!.disk).toBeUndefined()
   })
 
   it('compares a generated output with the initial disk snapshot', async () => {
     await seedDisk({ 'src/gen/pet.ts': 'old disk content' })
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    const output = (await agent.connect(info)).config.configs[0]!.disk
-    await run({ agent, jobId: 'job-1' })
-    const diff = await agent.readDiff({ jobId: 'job-1', path: 'src/gen/pet.ts', base: { jobId: output!.jobId }, limit: 100 })
+    const { runner } = await connectStudio({ permissions: { allowRead: true } })
+    const output = (await runner.connect(info)).config.configs[0]!.disk
+    await run({ runner, jobId: 'job-1' })
+    const diff = await runner.readDiff({ jobId: 'job-1', path: 'src/gen/pet.ts', base: { jobId: output!.jobId }, limit: 100 })
     expect(diff.hunks.flatMap((hunk) => hunk.lines)).toContain('-old disk content')
     expect(output?.hashes['src/gen/pet.ts']).toMatch(/^[0-9a-f]{16}$/)
   })
@@ -879,13 +879,13 @@ describe('current disk output', () => {
 
 describe('saveConfig', () => {
   it('refuses every edit when the host did not grant allowConfigEdit', async () => {
-    const { agent } = await connectStudio()
+    const { runner } = await connectStudio()
     const edits = [{ operation: ConfigEditOperation.REMOVE_OPTION, plugin: '@kubb/plugin-ts', path: ['enumType'] }] satisfies Parameters<
-      AgentApi['saveConfig']
+      RunnerApi['saveConfig']
     >[0]['edits']
 
-    await expect(agent.saveConfig({ edits })).resolves.toStrictEqual({
-      outcomes: [{ edit: edits[0], applied: false, reason: 'the agent was not granted permission to edit kubb.config.ts' }],
+    await expect(runner.saveConfig({ edits })).resolves.toStrictEqual({
+      outcomes: [{ edit: edits[0], applied: false, reason: 'the runner was not granted permission to edit kubb.config.ts' }],
       changed: false,
     })
   })
@@ -899,27 +899,27 @@ describe('saveConfig', () => {
 
   it('keeps a pasted spec in openapi.yaml and points input there', async () => {
     const project = await projectWithConfig()
-    const { agent } = await connectStudio({
+    const { runner } = await connectStudio({
       root: project,
       permissions: { allowConfigEdit: true, allowSaveInput: true },
       connectInfo: { ...info, managed: true },
     })
     const edit: ConfigEdit = { operation: ConfigEditOperation.SET_INPUT, input: 'openapi: 3.1.0\n' }
 
-    await expect(agent.saveConfig({ edits: [edit] })).resolves.toStrictEqual({ outcomes: [{ edit, applied: true }], changed: true })
+    await expect(runner.saveConfig({ edits: [edit] })).resolves.toStrictEqual({ outcomes: [{ edit, applied: true }], changed: true })
     expect(await read(join(project, 'openapi.yaml'))).toBe('openapi: 3.1.0\n')
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.yaml',`)
   })
 
   it('keeps a pasted JSON spec in openapi.json', async () => {
     const project = await projectWithConfig()
-    const { agent } = await connectStudio({
+    const { runner } = await connectStudio({
       root: project,
       permissions: { allowConfigEdit: true, allowSaveInput: true },
       connectInfo: { ...info, managed: true },
     })
 
-    await agent.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, input: '{"openapi":"3.1.0"}' }] })
+    await runner.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, input: '{"openapi":"3.1.0"}' }] })
 
     expect(await read(join(project, 'openapi.json'))).toBe('{"openapi":"3.1.0"}')
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.json',`)
@@ -929,13 +929,13 @@ describe('saveConfig', () => {
     const project = await mkdtemp(join(tmpdir(), 'kubb-save-input-'))
     cleanups.push(() => rm(project, { recursive: true, force: true }))
     await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig([{ input: './a.yaml', plugins: [] }, { input: './b.yaml', plugins: [] }])\n`)
-    const { agent } = await connectStudio({
+    const { runner } = await connectStudio({
       root: project,
       permissions: { allowConfigEdit: true, allowSaveInput: true },
       connectInfo: { ...info, managed: true },
     })
 
-    await agent.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, config: 1, input: 'openapi: 3.1.0\n' }] })
+    await runner.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, config: 1, input: 'openapi: 3.1.0\n' }] })
 
     expect(await read(join(project, 'openapi-1.yaml'))).toBe('openapi: 3.1.0\n')
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi-1.yaml'`)
@@ -946,13 +946,13 @@ describe('saveConfig', () => {
     cleanups.push(() => rm(project, { recursive: true, force: true }))
     await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig({ input: './openapi.yaml', ...overrides, plugins: [] })\n`)
     await writeFile(join(project, 'openapi.yaml'), 'openapi: 3.0.0\n')
-    const { agent } = await connectStudio({
+    const { runner } = await connectStudio({
       root: project,
       permissions: { allowConfigEdit: true, allowSaveInput: true },
       connectInfo: { ...info, managed: true },
     })
 
-    await expect(agent.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, input: 'openapi: 3.1.0\n' }] })).resolves.toMatchObject({
+    await expect(runner.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, input: 'openapi: 3.1.0\n' }] })).resolves.toMatchObject({
       outcomes: [{ applied: false }],
       changed: false,
     })
@@ -961,14 +961,14 @@ describe('saveConfig', () => {
 
   it('refuses a blank spec without writing a file', async () => {
     const project = await projectWithConfig()
-    const { agent } = await connectStudio({
+    const { runner } = await connectStudio({
       root: project,
       permissions: { allowConfigEdit: true, allowSaveInput: true },
       connectInfo: { ...info, managed: true },
     })
     const edit: ConfigEdit = { operation: ConfigEditOperation.SET_INPUT, input: '  ' }
 
-    await expect(agent.saveConfig({ edits: [edit] })).resolves.toStrictEqual({
+    await expect(runner.saveConfig({ edits: [edit] })).resolves.toStrictEqual({
       outcomes: [{ edit, applied: false, reason: 'the edit names no input' }],
       changed: false,
     })
@@ -977,11 +977,11 @@ describe('saveConfig', () => {
 
   it('refuses to keep a spec without allowSaveInput', async () => {
     const project = await projectWithConfig()
-    const { agent } = await connectStudio({ root: project, permissions: { allowConfigEdit: true }, connectInfo: { ...info, managed: true } })
+    const { runner } = await connectStudio({ root: project, permissions: { allowConfigEdit: true }, connectInfo: { ...info, managed: true } })
     const edit: ConfigEdit = { operation: ConfigEditOperation.SET_INPUT, input: 'https://example.com/openapi.yaml' }
 
-    await expect(agent.saveConfig({ edits: [edit] })).resolves.toStrictEqual({
-      outcomes: [{ edit, applied: false, reason: 'the agent was not granted permission to save the input' }],
+    await expect(runner.saveConfig({ edits: [edit] })).resolves.toStrictEqual({
+      outcomes: [{ edit, applied: false, reason: 'the runner was not granted permission to save the input' }],
       changed: false,
     })
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './sample.yaml',`)
@@ -996,10 +996,10 @@ describe('disconnect during generation', () => {
       .mockResolvedValueOnce([projectConfig()])
       .mockImplementationOnce(() => loaded.promise)
       .mockResolvedValue([projectConfig()])
-    const { agent, socket, sockets } = await connectStudio({ loadConfigs })
-    const generation = run({ agent, jobId: 'interrupted' }).catch(() => {})
+    const { runner, socket, sockets } = await connectStudio({ loadConfigs })
+    const generation = run({ runner, jobId: 'interrupted' }).catch(() => {})
     await vi.waitFor(() => expect(loadConfigs).toHaveBeenCalledTimes(2))
-    await expect(run({ agent, jobId: 'duplicate' })).rejects.toThrow('already in progress')
+    await expect(run({ runner, jobId: 'duplicate' })).rejects.toThrow('already in progress')
 
     socket.close(1006)
     await Promise.resolve()
@@ -1008,7 +1008,7 @@ describe('disconnect during generation', () => {
     await generation
 
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
-    await expect(run({ agent, jobId: 'late' })).rejects.toThrow('Connection is closed')
+    await expect(run({ runner, jobId: 'late' })).rejects.toThrow('Connection is closed')
   })
 
   it('cancels the run before a slow listener has heard why, and tells the host why it stopped', async () => {
@@ -1022,8 +1022,8 @@ describe('disconnect during generation', () => {
       .mockResolvedValueOnce([projectConfig()])
       .mockImplementationOnce(() => loaded.promise)
       .mockResolvedValue([projectConfig()])
-    const { agent, socket } = await connectStudio({ hooks, loadConfigs })
-    const generation = run({ agent, jobId: 'interrupted' })
+    const { runner, socket } = await connectStudio({ hooks, loadConfigs })
+    const generation = run({ runner, jobId: 'interrupted' })
     await vi.waitFor(() => expect(loadConfigs).toHaveBeenCalledTimes(2))
 
     socket.close(1011)

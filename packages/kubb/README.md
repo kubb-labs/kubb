@@ -59,7 +59,7 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 
 ## Kubb Studio
 
-[Kubb Studio](https://kubb.studio) is the visual companion for Kubb. Configure, run, and inspect generations in the browser while Kubb runs in your project or on an agent you control.
+[Kubb Studio](https://kubb.studio) is the visual companion for Kubb. Configure, run, and inspect generations in the browser while Kubb runs in your project or on a runner you control.
 
 Try Studio's shared sandbox, [connect a local project](https://kubb.dev/docs/5.x/integrations/studio), or [publish reviewable snapshots from CI](https://github.com/kubb-labs/action). Kubb remains MIT-licensed and works without Studio.
 

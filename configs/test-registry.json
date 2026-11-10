@@ -109,7 +109,7 @@
   "packages/studio/src/diskOutput.test.ts": "Only test of the real-disk snapshot kept across restarts under its own retention budget.",
   "packages/studio/src/generationEvents.test.ts": "Branchy stream: drops progress but keeps errors under backpressure, strips ANSI, maps hook events.",
   "packages/studio/src/generations.test.ts": "Branchy store: eviction by count, size, TTL; paging over mixed line endings; ref schema stripping.",
-  "packages/studio/src/pair.test.ts": "Golden path for kubb studio device-code pairing; CLI tests mock pairAgent, so nothing else covers it.",
+  "packages/studio/src/pair.test.ts": "Golden path for kubb studio device-code pairing; CLI tests mock pairRunner, so nothing else covers it.",
   "packages/studio/src/publicFetch.test.ts": "Security boundary (SSRF guard): redirects, private DNS, schemes; connect.test.ts touches one case only.",
   "packages/studio/src/resolveConfig.test.ts": "Branchy merge of Studio config: prototype pollution, path traversal, manifest lookup, JSON-lossy values.",
   "packages/studio/src/snapshot.test.ts": "Golden path for kubb studio snapshot upload: tarball layout, hashes, peer deps, 402 message; CLI mocks createSnapshot.",

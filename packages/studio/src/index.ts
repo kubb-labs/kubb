@@ -1,5 +1,5 @@
-export { connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type ConnectAgentOptions, type StudioConnectedContext } from './connect.ts'
-export { pairAgent, PairingCanceledError, PairingDeniedError, PairingExpiredError } from './pair.ts'
+export { connectRunner, IncompatibleRunnerError, InvalidRunnerTokenError, type ConnectRunnerOptions, type StudioConnectedContext } from './connect.ts'
+export { pairRunner, PairingCanceledError, PairingDeniedError, PairingExpiredError } from './pair.ts'
 export { createSnapshot } from './snapshot.ts'
 export { defaultStudioUrl } from './url.ts'
 export { editConfig, editConfigFile } from '@internals/shared'

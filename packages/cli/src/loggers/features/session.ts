@@ -25,9 +25,9 @@ export function createSession(ctx: LoggerContext, spinner: Spinner) {
     }
 
     spinner.stop()
-    // 4002 is `AgentCloseCode.SUPERSEDED`, spelled out because `@kubb/studio` is an optional peer.
+    // 4002 is `RunnerCloseCode.SUPERSEDED`, spelled out because `@kubb/studio` is an optional peer.
     if (code === 4002) {
-      writer.warn(text('⚠ Another process connected to Kubb Studio as this agent, so this one stopped'))
+      writer.warn(text('⚠ Another process connected to Kubb Studio for this project, so this one stopped'))
       return
     }
     writer.warn(text(`⚠ Kubb Studio ended the session (${reason || `code ${code}`})`))
@@ -61,11 +61,11 @@ export function createSession(ctx: LoggerContext, spinner: Spinner) {
   // The last generation's outcome, for the job line `studio:command` prints after it.
   let job: { fileCount: number; ms: number; errors: number } | null = null
 
-  hooks.hook('studio:connected', ({ url, versions: { studio, kubb, agent } }) => {
+  hooks.hook('studio:connected', ({ url, versions: { studio, kubb, runner } }) => {
     ctx.session = human
     spinner.stop()
     // The runtime version shows only when it differs from the host's.
-    const versions = [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, `Studio v${studio}`].filter(Boolean).join(' · ')
+    const versions = [`v${runner}`, kubb !== runner ? `runtime v${kubb}` : undefined, `Studio v${studio}`].filter(Boolean).join(' · ')
     writer.success(text(`✓ Connected to ${styleText('cyan', url)} ${styleText('dim', `· ${versions}`)}`))
     spinner.start('Ready for jobs')
   })

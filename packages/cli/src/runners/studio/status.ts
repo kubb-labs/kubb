@@ -31,7 +31,7 @@ const tilde = (file: string) => (isPathInside(file, homedir()) ? `~${file.slice(
 export function formatStatus({ studioUrl, credentials, worker, project, logPath, now = Date.now() }: StatusInput): Array<string> {
   const pairing = (() => {
     if (!credentials) return { value: `${styleText('red', '✖')} not paired`, command: 'kubb studio login' }
-    const name = `${credentials.agentSlug || credentials.agentId}${credentials.organizationSlug ? ` · org ${credentials.organizationSlug}` : ''}`
+    const name = `${credentials.projectSlug || credentials.projectId}${credentials.organizationSlug ? ` · org ${credentials.organizationSlug}` : ''}`
     if (credentials.studioUrl !== studioUrl) return { value: `${styleText('yellow', '!')} ${name} · ${credentials.studioUrl}`, command: 'kubb studio login' }
     return { value: `${styleText('green', '✓')} ${name}`, command: 'kubb studio logout' }
   })()

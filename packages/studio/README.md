@@ -26,7 +26,7 @@ Kubb Studio client runtime.
 
 Connects a Kubb project to [Kubb Studio](https://kubb.studio) through typed Cap'n Web RPC over one
 authenticated WebSocket, and publishes snapshots from CI in one HTTP request. It backs the `kubb studio`
-CLI command and the `kubblabs/kubb-agent` Docker image.
+CLI command and the `kubblabs/studio-runner` Docker image.
 
 Most people never install this directly. Reach for `kubb studio` instead, which pairs your machine
 and runs this for you.
@@ -41,22 +41,22 @@ npm install @kubb/studio
 
 ```typescript
 import { Hookable, type KubbHooks } from '@kubb/core'
-import { connectAgent, InvalidAgentTokenError, pairAgent } from '@kubb/studio'
+import { connectRunner, InvalidRunnerTokenError, pairRunner } from '@kubb/studio'
 
 const hooks = new Hookable<KubbHooks>()
-hooks.hook('studio:connected', ({ agentSlug }) => console.log(`Connected as ${agentSlug}`))
+hooks.hook('studio:connected', ({ projectSlug }) => console.log(`Connected as ${projectSlug}`))
 hooks.hook('studio:warn', ({ message }) => console.warn(message))
 
 let token = await readStoredToken()
 
 for (;;) {
-  token ??= (await pairAgent({ type: 'cli', name: 'my-project', hostname, machineId, onCode })).token
+  token ??= (await pairRunner({ type: 'cli', name: 'my-project', hostname, machineId, onCode })).token
   try {
     // Resolves on shutdown, rejects when Studio refuses the token.
-    await connectAgent({ token, configPath: 'kubb.config.ts', loadConfig, version: '1.0.0', hooks, signal })
+    await connectRunner({ token, configPath: 'kubb.config.ts', loadConfig, version: '1.0.0', hooks, signal })
     break
   } catch (error) {
-    if (!(error instanceof InvalidAgentTokenError)) throw error
+    if (!(error instanceof InvalidRunnerTokenError)) throw error
     token = undefined
   }
 }
@@ -71,31 +71,31 @@ running in a developer's project and a container running a fixed plugin set.
 | File             | What it owns                                                                     |
 | ---------------- | -------------------------------------------------------------------------------- |
 | `protocol.ts`    | The wire contract Studio compiles against, published as `@kubb/studio/protocol`. |
-| `connect.ts`     | `connectAgent`: the socket loop and the `Agent` that serves Studio's calls.      |
-| `pair.ts`        | `pairAgent`: RFC 8628 device pairing.                                            |
+| `connect.ts`     | `connectRunner`: the socket loop and the `Runner` that serves Studio's calls.    |
+| `pair.ts`        | `pairRunner`: RFC 8628 device pairing.                                           |
 | `snapshot.ts`    | `createSnapshot` for CI, and packing a generation into an npm tarball.           |
 | `generations.ts` | Running a generation and keeping its files and AST for `readFiles`/`readInput`.  |
 | `diff.ts`        | The paged line diff `readDiff` serves between two kept sets.                     |
 
 ## Connection
 
-`connectAgent` opens `wss://<studio>/api/agent/socket` with the agent's bearer token and an
+`connectRunner` opens `wss://<studio>/api/runner/socket` with the runner's bearer token and an
 `x-kubb-instance-id` header. Studio calls `connect(info)` as the first RPC call. `info` says whether
-the agent is a sandbox and carries its slug and Studio's version. From then on the agent pings every
+the runner is a sandbox and carries the project slug and Studio's version. From then on the runner pings every
 30 seconds, and Studio schedules one job at a time on the socket.
 
 With `allowRead`, the connect payload includes the current `output.path` file list. Studio reads
-file contents from disk through `readFiles` when a user opens a file. Sandbox agents have no disk
+file contents from disk through `readFiles` when a user opens a file. Sandbox runners have no disk
 output, and output paths outside the project root are excluded.
 
 Studio ends a socket on purpose with one of these close codes:
 
-| Code   | Meaning                                       | `connectAgent`                        |
-| ------ | --------------------------------------------- | ------------------------------------- |
-| `4001` | The token is invalid, expired, or revoked     | Rejects with `InvalidAgentTokenError` |
-| `4002` | Another process of the same agent took over   | Resolves                              |
-| `4003` | The agent is older than Studio accepts        | Rejects with `IncompatibleAgentError` |
-| other  | An ordinary drop, `1011` for a Studio failure | Reconnects with jittered backoff      |
+| Code   | Meaning                                       | `connectRunner`                        |
+| ------ | --------------------------------------------- | -------------------------------------- |
+| `4001` | The token is invalid, expired, or revoked     | Rejects with `InvalidRunnerTokenError` |
+| `4002` | Another runner of the same project took over  | Resolves                               |
+| `4003` | The runner is older than Studio accepts       | Rejects with `IncompatibleRunnerError` |
+| other  | An ordinary drop, `1011` for a Studio failure | Reconnects with jittered backoff       |
 
 Everything the runtime has to say goes through the `hooks` emitter: `studio:connected`,
 `studio:disconnected`, `studio:reconnecting`, `studio:command`, `studio:warn`, and `studio:error`,
@@ -119,12 +119,12 @@ A sandbox never writes or edits config, and always allows reads.
 ## Pairing
 
 No host starts with a token, so each one pairs over
-[RFC 8628](https://www.rfc-editor.org/rfc/rfc8628.html) device authorization. `pairAgent` asks Studio
+[RFC 8628](https://www.rfc-editor.org/rfc/rfc8628.html) device authorization. `pairRunner` asks Studio
 for a code, hands it to `onCode` to show, and polls until someone approves it in the browser.
 
 `machineId` is a secret the host keeps for the machine. Studio stores its hash, so the same machine
-pairing again rotates one agent's token instead of creating a second agent. Studio records the
-`type` with the agent. `cli` is `kubb studio`, which any member can approve. `user` and `sandbox`
+pairing again rotates one project's token instead of creating a second project. Studio records the
+`type` with the project. `cli` is `kubb studio`, which any member can approve. `user` and `sandbox`
 are the Docker image, run normally or as a sandbox. Only an admin can approve them. A denial
 throws `PairingDeniedError`, an expired code `PairingExpiredError`, and an aborted `signal`
 `PairingCanceledError`.
@@ -150,9 +150,9 @@ const snapshot = await createSnapshot({
 })
 ```
 
-Snapshots that share an `id` belong to one CI agent in Studio. `changes` lists the files added,
-changed, and removed since that agent's previous snapshot of the package. With `baseId`,
-`branchChanges` compares against the latest snapshot of the CI agent with that id, such as the base
+Snapshots that share an `id` belong to one CI project in Studio. `changes` lists the files added,
+changed, and removed since that project's previous snapshot of the package. With `baseId`,
+`branchChanges` compares against the latest snapshot of the CI project with that id, such as the base
 branch's.
 
 ## Supporting Kubb

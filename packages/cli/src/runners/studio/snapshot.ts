@@ -57,7 +57,7 @@ function absoluteUrl(studioUrl: string, path: string): string {
 
 type SnapshotResult = {
   id: string
-  /** Sequence number on the CI agent, when Studio sends one. */
+  /** Sequence number on the CI project, when Studio sends one. */
   number?: number
   name: string | null
   version: string | null
@@ -67,8 +67,8 @@ type SnapshotResult = {
   /** Studio page of the snapshot, when Studio sends one. */
   webUrl?: string
   expiresAt: string
-  agentUrl: string
-  /** What changed since the previous snapshot of this package on this agent. */
+  projectUrl: string
+  /** What changed since the previous snapshot of this package on this project. */
   changes?: SnapshotChanges
   /** What differs from the latest snapshot of the base branch, named by `branch`. */
   branchChanges?: BranchSnapshotChanges & { branch: string }
@@ -85,7 +85,7 @@ function toResult({ studioUrl, snapshot, ci }: { studioUrl: string; snapshot: Pu
     snapshotIdUrl: absoluteUrl(studioUrl, snapshot.snapshotIdUrl),
     webUrl: snapshot.webUrl ? absoluteUrl(studioUrl, snapshot.webUrl) : undefined,
     expiresAt: snapshot.expiresAt,
-    agentUrl: absoluteUrl(studioUrl, `/agents/${snapshot.agent.slug ?? snapshot.agent.id}`),
+    projectUrl: absoluteUrl(studioUrl, `/projects/${snapshot.project.slug ?? snapshot.project.id}`),
     changes: snapshot.changes,
     branchChanges: snapshot.branchChanges && ci.base ? { ...snapshot.branchChanges, branch: ci.base.branch } : undefined,
   }
@@ -137,7 +137,7 @@ function printSummary(result: SnapshotResult): void {
 
 /**
  * Generates the project, packs it, and publishes it to Kubb Studio in one request, under the CI
- * agent the run's identity names.
+ * project the run's identity names.
  */
 export async function snapshot(options: SnapshotOptions): Promise<void> {
   const token = options.token ?? process.env.KUBB_TOKEN

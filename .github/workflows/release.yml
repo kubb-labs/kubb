@@ -111,7 +111,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           release-mode: combined
 
-  # Managed agents bake kubb into their image, so platform bumps it and rebuilds the image. version
+  # Managed runners bake kubb into their image, so platform bumps it and rebuilds the image. version
   # lists the released packages as {name, version}, the same shape kubb-labs/plugins sends.
   dispatch-platform:
     name: Dispatch kubb-released to platform

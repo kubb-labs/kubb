@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as utils from '@internals/utils'
 import type { Config } from '@kubb/core'
-import { type ConnectAgentOptions, connectAgent, InvalidAgentTokenError, PairingCanceledError, pairAgent } from '@kubb/studio'
+import { type ConnectRunnerOptions, connectRunner, InvalidRunnerTokenError, PairingCanceledError, pairRunner } from '@kubb/studio'
 import * as env from '../../utils/env.ts'
 import * as config from '../../config.ts'
 import * as credentialsStore from './credentials.ts'
@@ -26,8 +26,8 @@ vi.mock('@clack/prompts', () => ({
 }))
 vi.mock('@kubb/studio', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kubb/studio')>()),
-  connectAgent: vi.fn(),
-  pairAgent: vi.fn(),
+  connectRunner: vi.fn(),
+  pairRunner: vi.fn(),
 }))
 
 const multiselect = vi.mocked(prompts.multiselect)
@@ -49,7 +49,7 @@ const options: StudioOptions = {
   autoOpen: false,
 }
 
-const credentials: Credentials = { studioUrl: options.studioUrl, token: 'token', agentId: 'id', agentSlug: 'slug' }
+const credentials: Credentials = { studioUrl: options.studioUrl, token: 'token', projectId: 'id', projectSlug: 'slug' }
 
 type ProjectOptions = {
   /**
@@ -104,11 +104,11 @@ afterEach(async () => {
 })
 
 /**
- * Mocks a browser pairing the user approves. `agentId` is what decides whether the reauthenticated
- * agent keeps the stored credential's identity, and so its saved project permissions.
+ * Mocks a browser pairing the user approves. `projectId` is what decides whether the reauthenticated
+ * project keeps the stored credential's identity, and so its saved project permissions.
  */
-function mockPairing(agentId: string = credentials.agentId, organizationSlug?: string) {
-  vi.mocked(pairAgent).mockImplementation(async ({ onCode }) => {
+function mockPairing(projectId: string = credentials.projectId, organizationSlug?: string) {
+  vi.mocked(pairRunner).mockImplementation(async ({ onCode }) => {
     await onCode(
       {
         device_code: 'device',
@@ -121,18 +121,18 @@ function mockPairing(agentId: string = credentials.agentId, organizationSlug?: s
       1,
     )
 
-    return { token: 'new-token', agent: { id: agentId, slug: 'slug', name: 'demo', organizationSlug } }
+    return { token: 'new-token', project: { id: projectId, slug: 'slug', name: 'demo', organizationSlug } }
   })
 }
 
 describe('login', () => {
-  it('pairs this machine as a cli agent and stores the approved token', async () => {
+  it('pairs this machine as a local runner and stores the approved token', async () => {
     using project = stubProject()
     using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
     mockPairing()
 
-    await expect(login(options)).resolves.toMatchObject({ token: 'new-token', agentId: credentials.agentId })
-    expect(pairAgent).toHaveBeenCalledWith(expect.objectContaining({ type: 'cli', studioUrl: options.studioUrl, machineId: 'machine-secret' }))
+    await expect(login(options)).resolves.toMatchObject({ token: 'new-token', projectId: credentials.projectId })
+    expect(pairRunner).toHaveBeenCalledWith(expect.objectContaining({ type: 'cli', studioUrl: options.studioUrl, machineId: 'machine-secret' }))
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token' }))
   })
 
@@ -140,7 +140,7 @@ describe('login', () => {
     using project = stubProject()
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((...args) => void lines.push(args.join(' ')))
-    mockPairing(credentials.agentId, 'kubb-labs')
+    mockPairing(credentials.projectId, 'kubb-labs')
 
     await login(options)
 
@@ -257,26 +257,26 @@ function fakeTty() {
 describe('connect', () => {
   const connected = {
     url: options.studioUrl,
-    versions: { studio: '1.0.0', kubb: '5.0.0', agent: '0.0.0' },
+    versions: { studio: '1.0.0', kubb: '5.0.0', runner: '0.0.0' },
     sandbox: false,
-    agentSlug: 'slug',
+    projectSlug: 'slug',
     studioVersion: '1.0.0',
   }
 
   /**
-   * A `connectAgent` stand-in. Each call runs the next queued attempt: `rejected` throws what the
+   * A `connectRunner` stand-in. Each call runs the next queued attempt: `rejected` throws what the
    * runtime throws when Studio turns the token down, `connected then rejected` announces the
    * session before it throws, and a call past the queue returns like a shutdown.
    */
   function mockConnection(...attempts: Array<'rejected' | 'connected then rejected'>) {
-    const calls: Array<ConnectAgentOptions> = []
+    const calls: Array<ConnectRunnerOptions> = []
 
-    vi.mocked(connectAgent).mockImplementation(async (connectOptions) => {
+    vi.mocked(connectRunner).mockImplementation(async (connectOptions) => {
       calls.push(connectOptions)
       const attempt = attempts[calls.length - 1]
       if (!attempt) return
       if (attempt === 'connected then rejected') await connectOptions.hooks?.callHook('studio:connected', connected)
-      throw new InvalidAgentTokenError(options.studioUrl)
+      throw new InvalidRunnerTokenError(options.studioUrl)
     })
 
     return calls
@@ -290,7 +290,7 @@ describe('connect', () => {
     expect(project.clear).toHaveBeenCalled()
   })
 
-  it('pairs again interactively and carries saved permissions forward for the same agent identity', async () => {
+  it('pairs again interactively and carries saved permissions forward for the same project identity', async () => {
     using project = stubProject({ stored: { ...credentials, projects: { [process.cwd()]: { allowWrite: true } } } })
     using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
     mockPairing()
@@ -302,17 +302,17 @@ describe('connect', () => {
     expect(calls.map(({ token }) => token)).toStrictEqual(['token', 'new-token'])
   })
 
-  it('does not carry saved permissions forward when the new agent identity differs', async () => {
+  it('does not carry saved permissions forward when the new project identity differs', async () => {
     using project = stubProject({ stored: { ...credentials, projects: { [process.cwd()]: { allowWrite: true } } } })
     using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    mockPairing('a-different-agent')
+    mockPairing('a-different-project')
     const calls = mockConnection('rejected')
 
     await connect(options)
 
     const written = project.write.mock.calls.map(([call]) => call).find((call) => call.token === 'new-token')
     expect(written?.projects).toBeUndefined()
-    // The permissions were granted to the previous agent, so the new one is asked again rather
+    // The permissions were granted to the previous project, so the new one is asked again rather
     // than inheriting them.
     expect(calls[1]?.permissions).toMatchObject({ allowWrite: false })
   })
@@ -320,11 +320,11 @@ describe('connect', () => {
   it('exits cleanly when the user cancels pairing again', async () => {
     using _project = stubProject({ stored: credentials })
     using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    vi.mocked(pairAgent).mockRejectedValue(new PairingCanceledError())
+    vi.mocked(pairRunner).mockRejectedValue(new PairingCanceledError())
     mockConnection('rejected')
 
     await expect(connect(options)).resolves.toBeUndefined()
-    expect(connectAgent).toHaveBeenCalledOnce()
+    expect(connectRunner).toHaveBeenCalledOnce()
   })
 
   it('stops instead of pairing forever when the newly approved token is rejected before it connects', async () => {
@@ -334,7 +334,7 @@ describe('connect', () => {
     mockConnection('rejected', 'rejected')
 
     await expect(connect(options)).rejects.toThrow(/rejected the newly approved token/)
-    expect(pairAgent).toHaveBeenCalledTimes(1)
+    expect(pairRunner).toHaveBeenCalledTimes(1)
   })
 
   it('pairs again for a later rejection once the new token has connected', async () => {
@@ -345,7 +345,7 @@ describe('connect', () => {
 
     await connect(options)
 
-    expect(pairAgent).toHaveBeenCalledTimes(2)
+    expect(pairRunner).toHaveBeenCalledTimes(2)
   })
 
   it('logs Studio commands and warnings through the plain logger when it runs as the background worker', async () => {
@@ -354,7 +354,7 @@ describe('connect', () => {
     using _log = vi.spyOn(console, 'log').mockImplementation((...args) => void lines.push(args.join(' ')))
     const states: Array<string> = []
 
-    vi.mocked(connectAgent).mockImplementation(async ({ hooks }) => {
+    vi.mocked(connectRunner).mockImplementation(async ({ hooks }) => {
       await hooks?.callHook('studio:connected', connected)
       await hooks?.callHook('studio:warn', { message: 'Ignored the spec from Studio' })
       await hooks?.callHook('studio:command', { command: 'generate', info: '1 plugin, in memory' })
@@ -373,7 +373,7 @@ describe('connect', () => {
     using _project = stubProject({ stored: { ...credentials, projects: { [process.cwd()]: { allowRead: true, allowReadAst: true } } } })
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((...args) => void lines.push(args.join(' ')))
-    vi.mocked(connectAgent).mockImplementation(async ({ hooks }) => {
+    vi.mocked(connectRunner).mockImplementation(async ({ hooks }) => {
       await hooks?.callHook('studio:connected', connected)
     })
 
@@ -387,7 +387,7 @@ describe('connect', () => {
     using _tty = fakeTty()
     using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
     using startWorker = vi.spyOn(background, 'startWorker').mockResolvedValue(undefined)
-    vi.mocked(connectAgent).mockImplementation(async ({ hooks, signal }) => {
+    vi.mocked(connectRunner).mockImplementation(async ({ hooks, signal }) => {
       await hooks?.callHook('studio:connected', connected)
       process.stdin.emit('data', Buffer.from('b'))
       expect(signal?.aborted).toBe(true)

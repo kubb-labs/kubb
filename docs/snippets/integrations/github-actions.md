@@ -5,7 +5,7 @@ name: Kubb snapshot
 
 on:
   pull_request:
-    # `closed` deletes the pull request's Studio agent. GitHub leaves it out by default.
+    # `closed` deletes the pull request's Studio project. GitHub leaves it out by default.
     types: [opened, synchronize, reopened, closed]
   # A snapshot of main is what pull requests compare with.
   push:

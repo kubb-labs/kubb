@@ -15,7 +15,7 @@ navigation:
 
 # Extension manifest
 
-`kubb-extension.json` describes an extension package. It sits at the package root and ships on npm. The [Kubb registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent read it. Generation does not: at runtime Kubb reads the extension's [`meta`](./extensions#meta).
+`kubb-extension.json` describes an extension package. It sits at the package root and ships on npm. The [Kubb registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) runner read it. Generation does not: at runtime Kubb reads the extension's [`meta`](./extensions#meta).
 
 The JSON Schema is [`https://kubb.dev/schemas/kubb-extension.json`](https://kubb.dev/schemas/kubb-extension.json). Set it as `$schema` to get validation and completion in your editor.
 
@@ -72,7 +72,7 @@ The extension's `meta.name`, such as `plugin-zod`, `oas`, or `typescript`. Kubb 
 ### `export`
 
 :::field{type="string" required}
-The factory export users call in `kubb.config.ts`, such as `pluginZod`. It must be a JavaScript identifier. `kubb add` imports this name, and the Studio agent calls it.
+The factory export users call in `kubb.config.ts`, such as `pluginZod`. It must be a JavaScript identifier. `kubb add` imports this name, and the Studio runner calls it.
 :::
 
 ### `displayName`
@@ -161,10 +161,10 @@ Form fields Kubb Studio shows for the extension. The [JSON Schema](https://kubb.
 
 Kubb and the registry check a manifest at different points:
 
-| Reader | Checks | On failure |
-| --- | --- | --- |
-| `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio agent | The required fields are set and well formed. Each `maintainers` entry has a `name`. Each `dependencies` and `optionalDependencies` entry is an extension name. `role` is `client` or `consumer`. `compatibility` holds only `kubb` and `node` string ranges. `options` is an array. | The manifest is skipped. |
-| The registry | The JSON Schema, unique option keys, `choices` on every `select`, and a `select` default that equals one of its choices. | The review pull request lists the problem, and the weekly bump keeps the previous pin. |
+| Reader                                                                 | Checks                                                                                                                                                                                                                                                                              | On failure                                                                             |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio runner | The required fields are set and well formed. Each `maintainers` entry has a `name`. Each `dependencies` and `optionalDependencies` entry is an extension name. `role` is `client` or `consumer`. `compatibility` holds only `kubb` and `node` string ranges. `options` is an array. | The manifest is skipped.                                                               |
+| The registry                                                           | The JSON Schema, unique option keys, `choices` on every `select`, and a `select` default that equals one of its choices.                                                                                                                                                            | The review pull request lists the problem, and the weekly bump keeps the previous pin. |
 
 ## Import `compatibility` into `meta` {#import-compatibility-into-meta}
 

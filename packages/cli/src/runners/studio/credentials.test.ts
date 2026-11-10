@@ -19,7 +19,7 @@ afterEach(async () => {
 describe('getMachineId', () => {
   it('keeps one id per project, even after the credential is cleared', async () => {
     const id = await getMachineId()
-    await writeCredentials({ studioUrl: 'https://kubb.studio', token: 'token', agentId: '1', agentSlug: 'brave-otter' })
+    await writeCredentials({ studioUrl: 'https://kubb.studio', token: 'token', projectId: '1', projectSlug: 'brave-otter' })
     await clearCredentials()
 
     expect(id).toMatch(/^[0-9a-f]{64}$/)

@@ -17,7 +17,7 @@ navigation:
 
 ## Supported providers
 
-| Provider                      | Agent identity                                      | Guide                                                                          |
+| Provider                      | Project identity                                    | Guide                                                                          |
 | ----------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------ |
 | GitHub Actions                | Detected                                            | [Publish snapshots with GitHub Actions](/docs/5.x/integrations/github-actions) |
 | GitLab CI                     | Detected                                            | [Publish snapshots with GitLab CI](/docs/5.x/integrations/gitlab)              |
@@ -33,18 +33,18 @@ A snapshot builds its `dist` files with `tsdown`, which Kubb does not install by
 
 ## Other CI providers
 
-For a provider without automatic agent identification, use a stable `--id` on the base branch and pass it as `--base-id` on pull request runs:
+For a provider without automatic project identification, use a stable `--id` on the base branch and pass it as `--base-id` on pull request runs:
 
 ```shell [Terminal]
 kubb studio snapshot --id jenkins:api:main                              # on main
 kubb studio snapshot --id jenkins:api:pr-12 --base-id jenkins:api:main  # on a pull request
 ```
 
-Use `kubb studio snapshot --json | jq -r '.url'` to pass the tarball URL to another step. See [CI agent identity](/docs/5.x/reference/commands/studio#ci-agent-identity) and [Snapshot output](/docs/5.x/reference/commands/studio#snapshot-output) for the result fields.
+Use `kubb studio snapshot --json | jq -r '.url'` to pass the tarball URL to another step. See [CI project identity](/docs/5.x/reference/commands/studio#ci-project-identity) and [Snapshot output](/docs/5.x/reference/commands/studio#snapshot-output) for the result fields.
 
 ## Open the snapshot in Studio
 
-Open the CI agent’s editor to read its latest unexpired package, comment on source lines, or preview generated HTML. Studio reads the stored tarball after the runner exits. Run the pipeline again to publish updated output.
+Open the CI project’s editor to read its latest unexpired package, comment on source lines, or preview generated HTML. Studio reads the stored tarball after the runner exits. Run the pipeline again to publish updated output.
 
 ## Install the snapshot
 
@@ -55,7 +55,7 @@ Configure the registry API key, then run the install command from the snapshot r
 ```
 
 ```shell [Terminal]
-npm i https://kubb.studio/packages/<agent>/<package>.tgz
+npm i https://kubb.studio/packages/<project>/<package>.tgz
 ```
 
 pnpm and Yarn install the same URL with the same `.npmrc`. Yarn 1 also needs the registry for the package's scope, or the install fails with HTTP 403:

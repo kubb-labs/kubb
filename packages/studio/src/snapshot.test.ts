@@ -133,7 +133,7 @@ describe('createSnapshotPackage', () => {
 describe('createSnapshot', () => {
   const options = { apiKey: 'kubb_key', id: 'gh:1:pr-2', name: 'acme/api#2', packageName: '@acme/api', version: '1.0.0', commit: 'abc' }
 
-  it('sends one multipart request with the metadata, the agent-compatible hashes and the tarball', async () => {
+  it('sends one multipart request with the metadata, the runner-compatible hashes and the tarball', async () => {
     const snapshot = { id: 'snap-1', url: '/packages/ci/acme-api.tgz' }
     using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot }, { status: 201 }))
 
