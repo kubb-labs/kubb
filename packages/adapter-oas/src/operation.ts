@@ -4,7 +4,7 @@ import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
 import { getItemSchema, getItemShape, isEventStream, isStream } from './model/mediaType.ts'
 import { toInputServers } from './model/server.ts'
-import { getBinaryFallbackSchema, isJsonMimeType, isReference, pickExtensions } from './oas.ts'
+import { getBinaryFallbackSchema, isReference, pickExtensions } from './oas.ts'
 import { scanSchema } from './schemaDiagnostics.ts'
 import type { Refs } from './refs.ts'
 import type {
@@ -104,17 +104,6 @@ export function getResponseByStatusCode({ operation, refs, statusCode }: Operati
  */
 export function getRequestBody({ operation, refs }: OperationContext): RequestBodyObject | null {
   return refs.deref<RequestBodyObject>(operation.schema.requestBody)
-}
-
-/**
- * Returns the primary request content type. Prefers a JSON-like media type (the last one wins
- * when several are declared), then the first declared one, defaulting to `'application/json'`.
- */
-export function getRequestContentType({ operation, refs }: OperationContext): string {
-  const content = getRequestBody({ operation, refs })?.content
-  const mediaTypes = content ? Object.keys(content) : []
-
-  return mediaTypes.findLast(isJsonMimeType) ?? mediaTypes[0] ?? 'application/json'
 }
 
 /** Merges path-level and operation-level parameters; operation-level wins per `in:name`. */
@@ -390,17 +379,15 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
       }
     }
 
-    const responseContentTypes = contentType ? [contentType] : Object.keys(response?.content ?? {})
+    const declaredContentTypes = Object.keys(response?.content ?? {})
+    // The adapter `contentType` only narrows a response that has a body.
+    const responseContentTypes = contentType && declaredContentTypes.length ? [contentType] : declaredContentTypes
     const responseContent = responseContentTypes.map((ct) => ast.factory.createContent({ contentType: ct, ...parseEntrySchema(ct) }))
 
     // A body-less response keeps one fallback entry so it still resolves to a (void/any) schema.
+    // Its empty `contentType` says there is no body, so plugins do not read a `text/*` request type as a `string` response.
     if (responseContent.length === 0) {
-      responseContent.push(
-        ast.factory.createContent({
-          contentType: getRequestContentType({ operation, refs }),
-          ...parseEntrySchema(contentType),
-        }),
-      )
+      responseContent.push(ast.factory.createContent({ contentType: '', ...parseEntrySchema(contentType) }))
     }
 
     return ast.factory.createResponse({

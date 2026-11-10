@@ -46,7 +46,7 @@ export type ContentNode = BaseNode & {
    */
   kind: 'Content'
   /**
-   * The content type for this entry (e.g. `'application/json'`).
+   * The content type for this entry (e.g. `'application/json'`), or `''` for a response without a body.
    */
   contentType: string
   /**

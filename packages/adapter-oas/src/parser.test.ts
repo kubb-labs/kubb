@@ -333,6 +333,25 @@ describe('buildAst', () => {
       expect(findOperation(root, 'getPetById')?.responses.find((r) => r.statusCode === '404')?.description).toBe('Not found')
     })
 
+    it('gives a body-less response an empty content type instead of the request one', async () => {
+      const root = await parseOas({
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/markdown/raw': {
+            post: {
+              operationId: 'renderRaw',
+              requestBody: { content: { 'text/plain': { schema: { type: 'string' } } } },
+              responses: { '304': { description: 'Not modified' } },
+            },
+          },
+        },
+      })
+      const notModified = findOperation(root, 'renderRaw')?.responses.find((r) => r.statusCode === '304')
+
+      expect(notModified?.content).toMatchObject([{ contentType: '' }])
+    })
+
     it('populates requestBody.content with every content type in spec order', async () => {
       const root = await parseOas(multipartUploadDocument)
       const upload = findOperation(root, 'upload')
