@@ -17,6 +17,10 @@ export type InputServerVariable = {
  */
 export type InputServer = {
   url: string
+  /**
+   * Short name that identifies the server, such as `production`.
+   */
+  name?: string
   description?: string
   /**
    * Variables of the source URL template, copied as-is. `url` already has their defaults filled in, so

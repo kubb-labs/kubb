@@ -68,8 +68,8 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
 export function toInputServers(servers: Array<ServerObject>): Array<ast.InputServer> {
   return servers
     .filter((entry) => entry.url)
-    .map(({ url, description, variables }) => {
-      const declared = variables && Object.keys(variables).length > 0 ? { variables } : {}
+    .map(({ url, name, description, variables }) => {
+      const declared = { ...(name !== undefined && { name }), ...(variables && Object.keys(variables).length > 0 && { variables }) }
       try {
         return { url: resolveServerUrl({ url, variables }), description, ...declared }
       } catch {

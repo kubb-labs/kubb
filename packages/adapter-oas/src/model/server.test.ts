@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Document } from '../types.ts'
-import { resolveBaseUrl, resolveServerUrl } from './server.ts'
+import { resolveBaseUrl, resolveServerUrl, toInputServers } from './server.ts'
 
 const minimalSpec: Document = {
   openapi: '3.0.0',
@@ -62,5 +62,14 @@ describe('resolveServerUrl', () => {
         { env: 'staging' },
       ),
     ).toThrow("Invalid server variable value 'staging' for 'env'")
+  })
+})
+
+describe('toInputServers', () => {
+  it('keeps the OpenAPI 3.2 server name', () => {
+    expect(toInputServers([{ url: 'https://api.example.com', name: 'production' }, { url: 'https://staging.example.com' }])).toStrictEqual([
+      { url: 'https://api.example.com', name: 'production', description: undefined },
+      { url: 'https://staging.example.com', description: undefined },
+    ])
   })
 })

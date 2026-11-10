@@ -133,9 +133,9 @@ export type ParameterObject = {
 } & OpenAPIV3_1.ParameterObject
 
 /**
- * OpenAPI server object describing a base URL and its `{variable}` substitutions.
+ * OpenAPI server object describing a base URL and its `{variable}` substitutions, with the OpenAPI 3.2 `name`.
  */
-export type ServerObject = OpenAPIV3_1.ServerObject
+export type ServerObject = OpenAPIV3_1.ServerObject & { name?: string }
 
 /**
  * Selects which entry in the spec's `servers` array becomes the base URL and
