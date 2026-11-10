@@ -12,13 +12,80 @@ navigation:
 
 # Submit to the registry
 
-Submit an extension to the Kubb registry so it shows up on [kubb.dev/extensions](/extensions) and in Kubb Studio, and users can install it with `kubb add`. Each record pins one npm version or one GitHub release commit, and a maintainer reviews every version before users get it.
+Submit a plugin, adapter, or parser to the Kubb registry so it shows up on [kubb.dev/extensions](/extensions) and in Kubb Studio, and users can install it with `kubb add`. Each record pins one npm version or one GitHub release commit, and a maintainer reviews every version before users get it.
 
-## Before you submit
+A package that already works in a `kubb.config.ts` needs two files, a release, and one issue. To build a plugin package from scratch first, follow [Publish a plugin](/docs/5.x/how-to/publish-a-plugin).
 
-The package ships a [`kubb-extension.json`](/docs/5.x/reference/kit/manifest) and a [`docs/` folder](/docs/5.x/reference/kit/extension-docs) at its root. [Publish a plugin](/docs/5.x/how-to/publish-a-plugin) walks through building and publishing one to npm.
+::steps{level="2"}
 
-### Publish from a GitHub release instead
+## Add the manifest
+
+Create `kubb-extension.json` at the package root. These five fields are required:
+
+```json [kubb-extension.json]
+{
+  "$schema": "https://kubb.dev/schemas/kubb-extension.json",
+  "kind": "plugin",
+  "name": "plugin-example",
+  "export": "pluginExample",
+  "displayName": "Example",
+  "description": "Writes a comment with the HTTP method and path of every operation."
+}
+```
+
+- `kind` is `plugin`, `adapter`, or `parser`.
+- `name` is the extension's `meta.name`.
+- `export` is the factory users call in `kubb.config.ts`, exported from the package entry point.
+
+[Extension manifest](/docs/5.x/reference/kit/manifest) lists the optional fields, such as `compatibility`, `maintainers`, and the `options` Studio shows as a form.
+
+## Add the overview
+
+Create `docs/overview.md`. kubb.dev renders it as the extension's page:
+
+```md [docs/overview.md]
+# Example
+
+Writes a comment with the HTTP method and path of every operation.
+
+## Setup
+
+Runs on its own and needs no other plugin.
+```
+
+Start with a `#` title and a one-paragraph description. Leave out install commands, because the page already shows how to install, and validation fails for an overview that contains one. [Extension docs](/docs/5.x/reference/kit/extension-docs) covers the optional `docs/options.md` and `docs/guides/`.
+
+## Check `package.json`
+
+```json [package.json fields]
+{
+  "files": ["dist", "kubb-extension.json", "docs"],
+  "repository": { "type": "git", "url": "https://github.com/acme/kubb-plugin-example" },
+  "peerDependencies": { "kubb": "^5.0.0" }
+}
+```
+
+- `files` ships the manifest and the `docs/` folder.
+- `repository` points to a GitHub repository you own, or one owned by an organization you belong to.
+- `kubb` or `@kubb/core` is a peer dependency, not a bundled one.
+- There is no `preinstall`, `install`, or `postinstall` script, or the overview explains what it does.
+
+## Publish a version
+
+:::tabs
+
+::::tabs-item{label="npm"}
+
+Check that the tarball lists `kubb-extension.json` and the `docs/` files, then publish:
+
+```shell [Terminal]
+npm pack --dry-run
+npm publish --access public
+```
+
+::::
+
+::::tabs-item{label="GitHub release"}
 
 A package that npm does not list can install from a GitHub release. `kubb add` then installs `github:<owner>/<repo>#<commit>`, and nothing builds on the user's machine. Validation checks these rules:
 
@@ -28,24 +95,36 @@ A package that npm does not list can install from a GitHub release. `kubb add` t
 - There is no `build`, `prepack`, `prepare`, `prepublish`, `publish`, or install script, and no `workspaces`. Rename `build`, for example to `compile`.
 - The release tag is the `package.json` version, such as `v1.0.0`.
 
+::::
+
+:::
+
 ## Open a submission issue
 
-Open a [submission issue](https://github.com/kubb-labs/registry/issues/new?template=submit-extension.yml) on kubb-labs/registry:
+Open a [submission issue](https://github.com/kubb-labs/registry/issues/new?template=submit-extension.yml) on kubb-labs/registry. In **Source**, enter one of these:
 
-- In **Source**, paste the npm package name, optionally with a version such as `kubb-plugin-example@1.0.0`. Without a version, the registry pins npm `latest`. For a GitHub release, paste the repository URL, optionally with the tag: `https://github.com/acme/kubb-plugin-example/tree/v1.0.0`. Without a tag, the registry pins the latest release.
-- In **Categories**, tick every category that fits. The first tick is the main one.
+| You have | Enter |
+| --- | --- |
+| An npm package (pins `latest`) | `kubb-plugin-example` |
+| A specific npm version | `kubb-plugin-example@1.0.0` |
+| A package folder in a GitHub monorepo | `https://github.com/acme/kubb-plugins/tree/main/packages/example` |
+| A GitHub release, package not on npm | `https://github.com/acme/kubb-plugin-example/tree/v1.0.0` |
 
-A workflow opens a review pull request with the [record](/docs/5.x/reference/registry#records) and comments the link on your issue. Your id is `<owner>/<slug>`, such as `acme/kubb-plugin-example`. See [Registry ids](/docs/5.x/reference/registry#registry-ids) for the rules. Until the review pull request exists, editing the issue starts the submission again.
+In **Categories**, tick every category that fits. The first tick is the main one.
 
-## Review
+Within minutes, a workflow opens a review pull request with the [record](/docs/5.x/reference/registry#records) and comments the link on your issue. If it reports a problem instead, fix it and edit the issue to run the submission again. Your id is `<owner>/<slug>`, such as `acme/kubb-plugin-example`. See [Registry ids](/docs/5.x/reference/registry#registry-ids) for the rules.
 
-A maintainer reviews the pull request against [`REVIEW.md`](https://github.com/kubb-labs/registry/blob/main/REVIEW.md). Validation reads `package.json`, `kubb-extension.json`, and the `docs/` folder from the npm tarball or the GitHub release, and never installs or runs your extension. When the package ships no `docs/overview.md`, the reviewer writes an overview in the registry.
+## Wait for the review {#review}
 
-After a maintainer merges the pull request, the registry lists it within minutes. Users install it with:
+A maintainer reviews the pull request against [`REVIEW.md`](https://github.com/kubb-labs/registry/blob/main/REVIEW.md). Validation reads `package.json`, `kubb-extension.json`, and the `docs/` folder from the npm tarball or the GitHub release.
+
+After a maintainer merges the pull request, the registry lists the extension within minutes. Users install it with:
 
 ```shell [Terminal]
 kubb add acme/kubb-plugin-example
 ```
+
+::
 
 ## Release a new version
 
