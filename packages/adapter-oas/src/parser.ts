@@ -96,7 +96,9 @@ export function createSchemaParser(ctx: OasParserContext) {
     return added.length ? { ...node, conditionals: [...(node.conditionals ?? []), ...added] } : node
   }
 
-  // A ref's resolved `schema` can point back up the tree, so the key leaves it out.
+  /**
+   * A comparable key for one `conditionals` entry. A ref's resolved `schema` can point back up the tree, so the key leaves it out.
+   */
   function conditionalKey(entry: NonNullable<ast.SchemaNode['conditionals']>[number]): string {
     return JSON.stringify(entry, function (this: { type?: string }, key, value) {
       return key === 'schema' && this.type === 'ref' ? undefined : value

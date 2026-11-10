@@ -8,17 +8,17 @@ import { resolveRefName } from './refs.ts'
 
 type RefEntry = { name: string; hasPointer: boolean }
 
-/**
- * Walks a node's subtree once and lists every ref it holds, in traversal order, as the resolved
- * name plus whether the ref carries a `$ref` pointer. Memoized per node and per `checks` mode, so
- * each helper below scans a schema once.
- */
 const refEntries = new WeakMap<SchemaNode, ReadonlyArray<RefEntry>>()
 const checkRefEntries = new WeakMap<SchemaNode, ReadonlyArray<RefEntry>>()
 const schemaRefs = new WeakMap<SchemaNode, ReadonlySet<string>>()
 const importedRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
 const importedCheckRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
 
+/**
+ * Walks a node's subtree once and lists every ref it holds, in traversal order, as the resolved
+ * name plus whether the ref carries a `$ref` pointer. Memoized per node and per `checks` mode, so
+ * each helper below scans a schema once.
+ */
 function collectRefEntries(node: SchemaNode, { checks }: { checks: boolean }): ReadonlyArray<RefEntry> {
   return memo(checks ? checkRefEntries : refEntries, node, () => {
     const entries: Array<RefEntry> = []
