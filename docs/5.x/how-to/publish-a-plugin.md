@@ -15,7 +15,7 @@ navigation:
 Publish a plugin to npm, then list it in the Kubb registry so users can install it with `kubb add` and find it in Studio. Start from a working plugin with tests, such as the one from [Create and extend a plugin](/docs/5.x/tutorials/creating-plugins). Adapters and parsers follow the same steps.
 
 > [!TIP]
-> A package that is already on npm can skip to [Submit to the registry](/docs/5.x/how-to/submit-to-the-registry), which lists the two files to add.
+> A package that is already on npm can skip to [Submit to the registry](/docs/5.x/how-to/submit-to-the-registry), which starts from an existing package.
 
 ::steps{level="2"}
 

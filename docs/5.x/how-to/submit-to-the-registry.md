@@ -14,13 +14,13 @@ navigation:
 
 Submit a plugin, adapter, or parser to the Kubb registry so it shows up on [kubb.dev/extensions](/extensions) and in Kubb Studio, and users can install it with `kubb add`. Each record pins one npm version or one GitHub release commit, and a maintainer reviews every version before users get it.
 
-A package that already works in a `kubb.config.ts` needs two files, a release, and one issue. To build a plugin package from scratch first, follow [Publish a plugin](/docs/5.x/how-to/publish-a-plugin).
+A package that already works in a `kubb.config.ts` needs a manifest, an overview, a published version, and a submission issue. To build the package first, follow [Publish a plugin](/docs/5.x/how-to/publish-a-plugin).
 
 ::steps{level="2"}
 
 ## Add the manifest
 
-Create `kubb-extension.json` at the package root. These five fields are required:
+Create `kubb-extension.json` at the package root. Every field below except `$schema` is required:
 
 ```json [kubb-extension.json]
 {
@@ -53,11 +53,11 @@ Writes a comment with the HTTP method and path of every operation.
 Runs on its own and needs no other plugin.
 ```
 
-Start with a `#` title and a one-paragraph description. Leave out install commands, because the page already shows how to install, and validation fails for an overview that contains one. [Extension docs](/docs/5.x/reference/kit/extension-docs) covers the optional `docs/options.md` and `docs/guides/`.
+Start with a `#` title and a one-paragraph description. Leave out install commands. Validation fails for an overview that contains one. [Extension docs](/docs/5.x/reference/kit/extension-docs) covers the optional `docs/options.md` and `docs/guides/`.
 
 ## Check `package.json`
 
-Add these entries to the fields you already have, and keep the existing ones:
+Add these entries and keep the ones you already have:
 
 ```json [package.json fields]
 {
@@ -122,7 +122,7 @@ Within minutes, a workflow opens a review pull request with the [record](/docs/5
 
 A maintainer reviews the pull request against [`REVIEW.md`](https://github.com/kubb-labs/registry/blob/main/REVIEW.md). Validation reads `package.json`, `kubb-extension.json`, and the `docs/` folder from the npm tarball or the GitHub release.
 
-Once the pull request exists, editing the issue no longer starts the submission again. When a check fails or the maintainer asks for changes, publish a fixed version and reply in the pull request.
+After the pull request exists, editing the issue no longer starts the submission again. When a check fails or the maintainer asks for changes, publish a fixed version and reply in the pull request.
 
 After a maintainer merges the pull request, the registry lists the extension within minutes. Users install it with:
 
