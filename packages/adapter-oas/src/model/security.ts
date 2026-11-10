@@ -1,0 +1,68 @@
+import { unescapePointerToken } from '@internals/utils'
+import type { ast } from '@kubb/kit'
+import { pickStrings } from '../oas.ts'
+import type { Refs } from '../refs.ts'
+import type { Document, SecuritySchemeObject } from '../types.ts'
+
+const SCHEME_POINTER = '#/components/securitySchemes/'
+const API_KEY_LOCATIONS = new Set(['header', 'query', 'cookie'])
+
+function getCredential(scheme: SecuritySchemeObject): ast.AuthCredential | undefined {
+  if (scheme.type === 'apiKey') {
+    return scheme.name && scheme.in && API_KEY_LOCATIONS.has(scheme.in)
+      ? { type: 'apiKey', in: scheme.in as 'header' | 'query' | 'cookie', name: scheme.name }
+      : undefined
+  }
+  if (scheme.type === 'http') {
+    return scheme.scheme ? { type: 'http', scheme: scheme.scheme.toLowerCase(), ...(scheme.bearerFormat && { bearerFormat: scheme.bearerFormat }) } : undefined
+  }
+  if (scheme.type === 'openIdConnect') return { type: 'openIdConnect', ...(scheme.openIdConnectUrl && { url: scheme.openIdConnectUrl }) }
+  if (scheme.type === 'oauth2') {
+    const flows = Object.entries(scheme.flows ?? {}).map(([name, flow]) => {
+      const scopes = flow && typeof flow === 'object' && flow.scopes && typeof flow.scopes === 'object' ? { scopes: flow.scopes as Record<string, string> } : {}
+      return [name, { ...pickStrings(flow, ['authorizationUrl', 'deviceAuthorizationUrl', 'tokenUrl', 'refreshUrl']), ...scopes }] as const
+    })
+    return { type: 'oauth2', flows: Object.fromEntries(flows), ...(scheme.oauth2MetadataUrl && { metadataUrl: scheme.oauth2MetadataUrl }) }
+  }
+  return scheme.type === 'mutualTLS' ? { type: 'mutualTLS' } : undefined
+}
+
+/**
+ * Maps `components.securitySchemes` to `AuthScheme` entries, leaving out a scheme a client cannot place.
+ */
+export function toAuthSchemes(schemes: Record<string, unknown> | undefined, refs: Refs): Array<ast.AuthScheme> {
+  return Object.entries(schemes ?? {}).flatMap(([name, value]) => {
+    const scheme = refs.deref<SecuritySchemeObject>(value)
+    const credential = scheme && getCredential(scheme)
+    if (!scheme || !credential) return []
+    return [
+      {
+        name,
+        ...(scheme.description && { description: scheme.description }),
+        ...(scheme.deprecated && { deprecated: true }),
+        credential,
+      },
+    ]
+  })
+}
+
+/**
+ * Maps security requirements to `AuthRequirement` entries. A 3.2 URI key becomes the scheme name.
+ */
+export function toAuthRequirements(requirements: unknown, document: Document): Array<ast.AuthRequirement> | undefined {
+  if (!Array.isArray(requirements)) return undefined
+  const schemes = document.components?.securitySchemes ?? {}
+  const toName = (key: string) => {
+    const index = key.indexOf(SCHEME_POINTER)
+    return Object.hasOwn(schemes, key) || index === -1 ? key : unescapePointerToken(key.slice(index + SCHEME_POINTER.length))
+  }
+
+  return requirements
+    .filter((requirement): requirement is Record<string, unknown> => !!requirement && typeof requirement === 'object')
+    .map((requirement) =>
+      Object.entries(requirement).map(([key, scopes]) => ({
+        scheme: toName(key),
+        ...(Array.isArray(scopes) && scopes.length && { scopes: scopes.map(String) }),
+      })),
+    )
+}

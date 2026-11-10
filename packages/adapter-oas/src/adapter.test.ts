@@ -238,8 +238,8 @@ describe('adapterOas.parse', () => {
       title: 'Test API',
       version: '1.0.0',
       servers: [],
-      securitySchemes: [],
     })
+    expect(node.meta.auth).toBeUndefined()
   })
 
   it('carries x-* vendor extensions on the operation and the document root', async () => {
@@ -287,9 +287,9 @@ describe('adapterOas.parse', () => {
       { url: 'https://api.example.com', description: 'Main', variables: { env: { default: 'api' } } },
       { url: 'https://{env}.example.com', variables: { env: { default: 'staging', enum: ['dev', 'prod'] } } },
     ])
-    expect(node.meta.securitySchemes).toEqual([
-      { name: 'bearer', type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      { name: 'shared', type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+    expect(node.meta.auth).toEqual([
+      { name: 'bearer', credential: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
+      { name: 'shared', credential: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
     ])
   })
 
@@ -344,7 +344,7 @@ describe('adapterOas.parse', () => {
     })
 
     expect(node.meta.servers).toEqual([{ url: 'https://api.example.com/v2' }])
-    expect(node.meta.securitySchemes).toEqual([{ name: 'api_key', type: 'apiKey', in: 'header', parameterName: 'X-API-Key' }])
+    expect(node.meta.auth).toEqual([{ name: 'api_key', credential: { type: 'apiKey', in: 'header', name: 'X-API-Key' } }])
   })
 })
 

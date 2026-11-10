@@ -77,7 +77,7 @@ export type Output = {
 export type Group = {
   /**
    * Property used to assign each operation to a group.
-   * - `'tag'` uses the first tag (`operation.getTags().at(0)?.name`).
+   * - `'tag'` uses the first tag (`operation.getTags().at(0)?.name`), nested in the folders of its `parent` tags.
    * - `'path'` uses the first segment of the operation's URL.
    */
   type: 'tag' | 'path'

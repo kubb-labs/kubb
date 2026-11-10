@@ -1,4 +1,5 @@
 import { ast } from '@kubb/kit'
+import { getExternalDocs } from '../oas.ts'
 import { extractExamples } from './schemaShape.ts'
 import type { ConvertContext } from './parseSchema.ts'
 
@@ -31,6 +32,7 @@ export function createNode({ schema, name, nullable, defaultValue }: NodeBaseCon
     default: defaultValue,
     examples: extractExamples(schema),
     format: schema.format,
+    externalDocs: getExternalDocs(schema.externalDocs),
     ...extras,
   })
 }

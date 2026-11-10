@@ -1,6 +1,6 @@
 import { ast, extractRefName, macroDedupeUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
-import { isDiscriminator, isReference } from '../../oas.ts'
+import { getExternalDocs, isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
@@ -178,13 +178,16 @@ const annotationKeys = new Set(['description', 'title', 'example', 'examples', '
 
 /**
  * Moves `allOf` members that hold only annotations or `if`/`then`/`else` onto the parent, so they do
- * not become `unknown`. The parent's own values win, and the conditional keywords are not enforced.
+ * not become `unknown`. The parent's own values win. The parser reads their `if`/`then`/`else` into `conditionals`.
  */
+export function isAnnotationMember(member: unknown): boolean {
+  return !!member && typeof member === 'object' && !isReference(member) && Object.keys(member).every((key) => annotationKeys.has(key))
+}
+
 function mergeAnnotations(schema: SchemaObject): SchemaObject {
   const members = schema.allOf as Array<SchemaObject | ReferenceObject>
-  const isAnnotation = (member: SchemaObject | ReferenceObject) => !isReference(member) && Object.keys(member).every((key) => annotationKeys.has(key))
-  const annotations = members.filter(isAnnotation)
-  const rest = members.filter((member) => !isAnnotation(member))
+  const annotations = members.filter(isAnnotationMember)
+  const rest = members.filter((member) => !isAnnotationMember(member))
 
   return annotations.length && rest.length ? { ...Object.assign({}, ...annotations), ...schema, allOf: rest } : schema
 }
@@ -220,6 +223,7 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
       examples: extractExamples(schema) ?? memberNode.examples,
       pattern: schema.pattern ?? ('pattern' in memberNode ? memberNode.pattern : undefined),
       format: schema.format ?? memberNode.format,
+      externalDocs: getExternalDocs(schema.externalDocs) ?? memberNode.externalDocs,
     } as ast.DistributiveOmit<ast.SchemaNode, 'kind'>)
   }
 
@@ -290,7 +294,8 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
   const ctx = { schema, name, nullable, defaultValue }
   const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
   const declaredMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
-  const defaultRef = getDefaultMappingRef(discriminator)
+  // From 3.2 `propertyName` is optional, and a discriminator with only `defaultMapping` still adds that member.
+  const defaultRef = getDefaultMappingRef(typeof schema.discriminator === 'object' ? schema.discriminator : undefined)
   const allMembers =
     defaultRef && !declaredMembers.some((member) => isReference(member) && member.$ref === defaultRef)
       ? [...declaredMembers, { $ref: defaultRef }]

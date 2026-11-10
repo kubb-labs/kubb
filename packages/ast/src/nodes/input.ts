@@ -17,6 +17,7 @@ export type InputServerVariable = {
  */
 export type InputServer = {
   url: string
+  name?: string
   description?: string
   /**
    * Variables of the source URL template, copied as-is. `url` already has their defaults filled in, so
@@ -25,18 +26,53 @@ export type InputServer = {
   variables?: Record<string, InputServerVariable>
 }
 
-/**
- * An authentication scheme from the source document, keyed by `name`. `parameterName` is the header, query, or cookie name of an `apiKey`.
- */
-export type InputSecurityScheme = {
+export type ExternalDocs = { url: string; description?: string }
+
+export type InputTag = {
   name: string
-  type: string
+  summary?: string
   description?: string
-  scheme?: string
-  bearerFormat?: string
-  in?: string
-  parameterName?: string
+  /**
+   * Name of the tag this tag nests under. `group: { type: 'tag' }` places its files in the parent's folder.
+   */
+  parent?: string
+  kind?: string
+  externalDocs?: ExternalDocs
 }
+
+export type OAuthFlow = {
+  authorizationUrl?: string
+  deviceAuthorizationUrl?: string
+  tokenUrl?: string
+  refreshUrl?: string
+  scopes?: Record<string, string>
+}
+
+/**
+ * How a client sends a credential, in the same shape as the `Auth` object the generated clients pass to `auth`.
+ */
+export type AuthCredential =
+  | { type: 'http'; scheme: 'bearer' | 'basic' | (string & {}); bearerFormat?: string }
+  | { type: 'apiKey'; in: 'header' | 'query' | 'cookie'; name: string }
+  | { type: 'oauth2'; flows: Record<string, OAuthFlow>; metadataUrl?: string }
+  | { type: 'openIdConnect'; url?: string }
+  | { type: 'mutualTLS' }
+
+/**
+ * One way to authenticate, keyed by `name`, which operations refer to in `auth`.
+ */
+export type AuthScheme = {
+  name: string
+  description?: string
+  deprecated?: boolean
+  credential: AuthCredential
+}
+
+/**
+ * One way to meet an operation's auth. Every scheme in it applies together. `scopes` are the OAuth2 or OpenID
+ * Connect scopes the call needs. An empty list means the call may be sent without credentials.
+ */
+export type AuthRequirement = Array<{ scheme: string; scopes?: Array<string> }>
 
 /**
  * Metadata for an API document, populated by the adapter and available to every generator.
@@ -60,12 +96,18 @@ export type InputMeta = {
    * API version string from `info.version` in the source document.
    */
   version?: string
+  summary?: string
+  termsOfService?: string
+  contact?: { name?: string; url?: string; email?: string }
+  license?: { name: string; identifier?: string; url?: string }
+  externalDocs?: ExternalDocs
   /**
    * Resolved base URL from the first matching server entry in the source document.
    */
   baseURL?: string | null
   servers?: Array<InputServer>
-  securitySchemes?: Array<InputSecurityScheme>
+  tags?: Array<InputTag>
+  auth?: Array<AuthScheme>
   /**
    * Vendor extensions (`x-*` keys) from the document root, copied as-is. Absent when the root has none.
    */

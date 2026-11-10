@@ -23,6 +23,17 @@ export type EncodingNode = {
    * Whether reserved characters are sent as-is instead of percent-encoded.
    */
   allowReserved?: boolean
+  encoding?: Record<string, EncodingNode>
+  prefixEncoding?: Array<EncodingNode>
+  itemEncoding?: EncodingNode
+}
+
+export type ExampleNode = {
+  name?: string
+  summary?: string
+  description?: string
+  value?: unknown
+  serializedValue?: string
 }
 
 /**
@@ -77,6 +88,15 @@ export type ContentNode = BaseNode & {
    * Serialization settings per body property that sets at least one field in the spec's `encoding`.
    */
   encoding?: Record<string, EncodingNode>
+  examples?: Array<ExampleNode>
+  /**
+   * Serialization of the first parts by position, for a body sent as an array of parts such as `multipart/mixed`.
+   */
+  prefixEncoding?: Array<EncodingNode>
+  /**
+   * Serialization of every part after `prefixEncoding`, for a body sent as an array of parts such as `multipart/mixed`.
+   */
+  itemEncoding?: EncodingNode
 }
 
 /**

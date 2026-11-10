@@ -8,8 +8,10 @@ import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discr
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
 import { assertDocument, parseFromConfig, validateDocument, validateDocumentInWorker } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
+import { toAuthSchemes } from './model/security.ts'
 import { resolveBaseUrl, toInputServers } from './model/server.ts'
-import { pickExtensions } from './oas.ts'
+import { toInputTags } from './model/tag.ts'
+import { getExternalDocs, pickExtensions, pickStrings } from './oas.ts'
 import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
@@ -161,6 +163,8 @@ export const adapterOas = defineExtension<AdapterOas>({
 
       const operations = promotedEnums ? operationNodes.map((node) => refPromotedEnums(node, promotedEnums!)) : operationNodes
 
+      const authSchemes = toAuthSchemes(document.components?.securitySchemes, refs)
+
       return ast.factory.createInput({
         schemas: schemaNodes,
         operations,
@@ -168,24 +172,18 @@ export const adapterOas = defineExtension<AdapterOas>({
           title: document.info?.title,
           description: document.info?.description,
           version: document.info?.version,
+          summary: document.info?.summary,
+          termsOfService: document.info?.termsOfService,
+          contact: pickStrings(document.info?.contact, ['name', 'url', 'email']),
+          license:
+            typeof document.info?.license?.name === 'string'
+              ? { ...pickStrings(document.info.license, ['identifier', 'url']), name: document.info.license.name }
+              : undefined,
+          externalDocs: getExternalDocs(document.externalDocs),
           baseURL: resolveBaseUrl({ document, server }),
           servers: toInputServers(document.servers ?? []),
-          securitySchemes: Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
-            const scheme = refs.deref<Record<string, string>>(value)
-            return scheme?.type
-              ? [
-                  {
-                    name,
-                    type: scheme.type,
-                    description: scheme.description,
-                    scheme: scheme.scheme,
-                    bearerFormat: scheme.bearerFormat,
-                    in: scheme.in,
-                    parameterName: scheme.name,
-                  },
-                ]
-              : []
-          }),
+          ...(document.tags?.length && { tags: toInputTags(document.tags) }),
+          ...(authSchemes.length && { auth: authSchemes }),
           extensions: pickExtensions(document),
         },
       })

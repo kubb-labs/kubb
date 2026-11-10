@@ -701,8 +701,16 @@ describe('parseSchema constraints', () => {
     { title: 'uniqueItems: false on an array', schema: { type: 'array', uniqueItems: false }, expected: { type: 'array', unique: false } },
     { title: 'minItems on a tuple', schema: { prefixItems: [{ type: 'string' }], minItems: 1 }, expected: { type: 'tuple', min: 1 } },
     { title: 'maxItems on a tuple', schema: { prefixItems: [{ type: 'string' }], maxItems: 4 }, expected: { type: 'tuple', max: 4 } },
-    { title: 'numeric exclusiveMinimum on a number', schema: { type: 'number', exclusiveMinimum: 0 }, expected: { type: 'number', exclusiveMinimum: 0 } },
-    { title: 'numeric exclusiveMinimum on an integer', schema: { type: 'integer', exclusiveMinimum: 0 }, expected: { type: 'integer', exclusiveMinimum: 0 } },
+    {
+      title: 'numeric exclusiveMinimum on a number',
+      schema: { type: 'number', exclusiveMinimum: 0 },
+      expected: { type: 'number', exclusive: { min: 0 }, exclusiveMinimum: 0 },
+    },
+    {
+      title: 'numeric exclusiveMinimum on an integer',
+      schema: { type: 'integer', exclusiveMinimum: 0 },
+      expected: { type: 'integer', exclusive: { min: 0 }, exclusiveMinimum: 0 },
+    },
     {
       title: 'minimum and maximum on a float number',
       schema: { type: 'number', format: 'float', minimum: -90, maximum: 90 },
@@ -716,7 +724,7 @@ describe('parseSchema constraints', () => {
     {
       title: 'numeric exclusiveMinimum and exclusiveMaximum on a double number',
       schema: { type: 'number', format: 'double', exclusiveMinimum: 0, exclusiveMaximum: 100 },
-      expected: { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 100 },
+      expected: { type: 'number', exclusive: { min: 0, max: 100 }, exclusiveMinimum: 0, exclusiveMaximum: 100 },
     },
     {
       title: 'multipleOf on an int64 integer',
@@ -733,7 +741,7 @@ describe('parseSchema constraints', () => {
       title: 'a boolean exclusiveMinimum (OAS 3.0 style) on a number',
       schema: { type: 'number', exclusiveMinimum: true },
       type: 'number',
-      keys: ['exclusiveMinimum'],
+      keys: ['exclusive', 'exclusiveMinimum'],
     },
     { title: 'minimum and maximum on a uuid string', schema: { type: 'string', format: 'uuid', minimum: 0, maximum: 1 }, type: 'uuid', keys: ['min', 'max'] },
   ] satisfies Array<{ title: string; schema: SchemaObject; type: string; keys: Array<string> }>)('ignores $title', ({ schema, type, keys }) => {
@@ -2829,5 +2837,552 @@ describe('OpenAPI 3.2', () => {
     // The parent reference is dropped too, so `Pet` and `UnknownPet` do not refer to each other.
     expect(parentRefs).toHaveLength(0)
     expect(literals).toHaveLength(0)
+  })
+})
+
+describe('OpenAPI 3.2 annotations', () => {
+  const info = { title: 'Test', version: '1.0.0' }
+
+  it('groups contentMediaType and the parsed contentSchema into content on a string schema', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {},
+      components: {
+        schemas: {
+          Payload: { type: 'string', contentMediaType: 'application/json', contentSchema: { $ref: '#/components/schemas/Pet' } },
+          Pet: { type: 'object', properties: { name: { type: 'string' } } },
+        },
+      },
+    })
+
+    expect(findSchema(root, 'Payload')).toMatchObject({
+      type: 'string',
+      content: { mediaType: 'application/json', schema: { type: 'ref', name: 'Pet' } },
+    })
+  })
+})
+
+describe('OpenAPI 3.2 responses', () => {
+  it('reads the response summary and accepts a response without description', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: { '/pets': { get: { operationId: 'listPets', responses: { '200': { summary: 'The pets' }, '404': {} } } } },
+    })
+
+    expect(findOperation(root, 'listPets')?.responses.map(({ statusCode, summary, description }) => ({ statusCode, summary, description }))).toStrictEqual([
+      { statusCode: '200', summary: 'The pets', description: undefined },
+      { statusCode: '404', summary: undefined, description: undefined },
+    ])
+  })
+})
+
+describe('OpenAPI 3.2 tags', () => {
+  it('reads the tag summary, parent and kind into meta.tags', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      tags: [
+        { name: 'animals', summary: 'Animals', kind: 'nav' },
+        { name: 'cats', description: 'Cats only', parent: 'animals' },
+      ],
+    })
+
+    expect(root.meta.tags).toStrictEqual([
+      { name: 'animals', summary: 'Animals', kind: 'nav' },
+      { name: 'cats', description: 'Cats only', parent: 'animals' },
+    ])
+  })
+})
+
+describe('OpenAPI 3.2 security schemes', () => {
+  it('reads the deviceAuthorization flow, oauth2MetadataUrl and deprecated', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        securitySchemes: {
+          oauth: {
+            type: 'oauth2',
+            oauth2MetadataUrl: 'https://auth.example.com/.well-known/oauth-authorization-server',
+            deprecated: true,
+            flows: {
+              deviceAuthorization: {
+                deviceAuthorizationUrl: 'https://auth.example.com/device',
+                tokenUrl: 'https://auth.example.com/token',
+                scopes: { read: 'Read access' },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(root.meta.auth).toStrictEqual([
+      {
+        name: 'oauth',
+        deprecated: true,
+        credential: {
+          type: 'oauth2',
+          metadataUrl: 'https://auth.example.com/.well-known/oauth-authorization-server',
+          flows: {
+            deviceAuthorization: {
+              deviceAuthorizationUrl: 'https://auth.example.com/device',
+              tokenUrl: 'https://auth.example.com/token',
+              scopes: { read: 'Read access' },
+            },
+          },
+        },
+      },
+    ])
+  })
+})
+
+describe('OpenAPI 3.2 encoding', () => {
+  it('reads prefixEncoding, itemEncoding and nested encoding', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/batch': {
+          post: {
+            operationId: 'batch',
+            requestBody: {
+              content: {
+                'multipart/mixed': {
+                  schema: { type: 'array', prefixItems: [{ type: 'object' }, { type: 'object' }], items: { type: 'string' } },
+                  prefixEncoding: [{ contentType: 'application/json' }, {}],
+                  itemEncoding: { contentType: 'text/plain' },
+                },
+                'multipart/form-data': {
+                  schema: { type: 'object', properties: { parts: { type: 'object' } } },
+                  encoding: { parts: { contentType: 'multipart/mixed', encoding: { meta: { contentType: 'application/json' }, empty: {} } } },
+                },
+              },
+            },
+            responses: { '204': { description: 'Done' } },
+          },
+        },
+      },
+    })
+    const [mixed, form] = findOperation(root, 'batch')!.requestBody!.content!
+
+    expect(mixed).toMatchObject({ prefixEncoding: [{ contentType: 'application/json' }, {}], itemEncoding: { contentType: 'text/plain' } })
+    expect(form?.encoding).toStrictEqual({ parts: { contentType: 'multipart/mixed', encoding: { meta: { contentType: 'application/json' } } } })
+  })
+})
+
+describe('OpenAPI 3.2 examples', () => {
+  it('reads dataValue and serializedValue of media type and parameter examples', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          get: {
+            operationId: 'listPets',
+            parameters: [
+              {
+                name: 'filter',
+                in: 'query',
+                schema: { type: 'object' },
+                examples: { byName: { summary: 'By name', dataValue: { name: 'Rex' }, serializedValue: 'name=Rex' } },
+              },
+              { name: 'limit', in: 'query', schema: { type: 'integer' }, example: 10 },
+            ],
+            responses: {
+              '200': {
+                description: 'OK',
+                content: { 'application/json': { schema: { type: 'object' }, examples: { rex: { $ref: '#/components/examples/Rex' } } } },
+              },
+            },
+          },
+        },
+      },
+      components: { examples: { Rex: { description: 'A dog', value: { name: 'Rex' } } } },
+    })
+    const operation = findOperation(root, 'listPets')!
+
+    expect(operation.parameters.map((parameter) => parameter.examples)).toStrictEqual([
+      [{ name: 'byName', summary: 'By name', value: { name: 'Rex' }, serializedValue: 'name=Rex' }],
+      [{ value: 10 }],
+    ])
+    expect(operation.responses[0]?.content?.[0]?.examples).toStrictEqual([{ name: 'rex', description: 'A dog', value: { name: 'Rex' } }])
+  })
+})
+
+describe('OpenAPI 3.2 parameter style and discriminator', () => {
+  const info = { title: 'Test', version: '1.0.0' }
+
+  it('keeps the cookie style', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/me': {
+          get: {
+            operationId: 'me',
+            parameters: [{ name: 'sid', in: 'cookie', style: 'cookie', schema: { type: 'string' } }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+
+    expect(findOperation(root, 'me')?.parameters[0]?.style).toBe('cookie')
+  })
+
+  it('adds the defaultMapping member of a discriminator without propertyName', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {},
+      components: {
+        schemas: {
+          Pet: { oneOf: [{ $ref: '#/components/schemas/Dog' }], discriminator: { defaultMapping: 'Other' } },
+          Dog: { type: 'object', properties: { kind: { type: 'string' } } },
+          Other: { type: 'object', properties: { note: { type: 'string' } } },
+        },
+      },
+    })
+
+    expect(ast.narrowSchema(findSchema(root, 'Pet')!, 'union')?.members).toMatchObject([
+      { type: 'ref', name: 'Dog' },
+      { type: 'ref', name: 'Other' },
+    ])
+  })
+})
+
+describe('security requirements', () => {
+  it('reads operation security, falls back to the document, and maps 3.2 URI keys to scheme names', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      security: [{ apiKey: [] }],
+      paths: {
+        '/pets': {
+          get: { operationId: 'listPets', responses: { '200': { description: 'OK' } } },
+          post: {
+            operationId: 'createPet',
+            security: [{ '#/components/securitySchemes/oauth': ['write'] }, {}],
+            responses: { '201': { description: 'Created' } },
+          },
+          delete: { operationId: 'clearPets', security: [], responses: { '204': { description: 'Done' } } },
+        },
+      },
+      components: { securitySchemes: { apiKey: { type: 'apiKey', in: 'header', name: 'X-Key' }, oauth: { type: 'oauth2', flows: {} } } },
+    })
+
+    expect(root.operations.map(({ operationId, auth }) => [operationId, auth])).toStrictEqual([
+      ['listPets', [[{ scheme: 'apiKey' }]]],
+      ['createPet', [[{ scheme: 'oauth', scopes: ['write'] }], []]],
+      ['clearPets', []],
+    ])
+  })
+})
+
+describe('OpenAPI 3.0 and 3.1 document fields', () => {
+  it('reads info, externalDocs, response headers and links, parameter flags and openIdConnectUrl', async () => {
+    const root = await parseOas({
+      openapi: '3.0.3',
+      info: {
+        title: 'Test',
+        version: '1.0.0',
+        termsOfService: 'https://example.com/terms',
+        contact: { name: 'API team', email: 'api@example.com' },
+        license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
+      },
+      externalDocs: { url: 'https://example.com/docs' },
+      tags: [{ name: 'pets', externalDocs: { url: 'https://example.com/pets' } }],
+      paths: {
+        '/pets': {
+          post: {
+            operationId: 'createPet',
+            externalDocs: { url: 'https://example.com/create', description: 'Guide' },
+            parameters: [{ name: 'legacy', in: 'query', deprecated: true, allowEmptyValue: true, schema: { type: 'string' } }],
+            responses: {
+              '201': {
+                description: 'Created',
+                headers: {
+                  Location: { required: true, schema: { type: 'string' } },
+                  'Content-Type': { schema: { type: 'string' } },
+                  'X-Rate-Limit': { $ref: '#/components/headers/RateLimit' },
+                },
+                links: { getPet: { operationId: 'getPet', parameters: { petId: '$response.body#/id' } } },
+              },
+            },
+          },
+        },
+      },
+      components: {
+        headers: { RateLimit: { description: 'Calls left', schema: { type: 'integer' } } },
+        securitySchemes: { oidc: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/.well-known/openid-configuration' } },
+      },
+    })
+    const operation = findOperation(root, 'createPet')!
+    const response = operation.responses[0]!
+
+    expect(root.meta).toMatchObject({
+      termsOfService: 'https://example.com/terms',
+      contact: { name: 'API team', email: 'api@example.com' },
+      license: { name: 'MIT', url: 'https://opensource.org/licenses/MIT' },
+      externalDocs: { url: 'https://example.com/docs' },
+      tags: [{ name: 'pets', externalDocs: { url: 'https://example.com/pets' } }],
+      auth: [{ name: 'oidc', credential: { type: 'openIdConnect', url: 'https://example.com/.well-known/openid-configuration' } }],
+    })
+    expect(operation.externalDocs).toStrictEqual({ url: 'https://example.com/create', description: 'Guide' })
+    expect(operation.parameters[0]).toMatchObject({ deprecated: true, allowEmptyValue: true })
+    expect(response.headers?.map(({ name, in: location, required, schema }) => [name, location, required, schema.type, schema.description])).toStrictEqual([
+      ['Location', 'header', true, 'string', undefined],
+      ['X-Rate-Limit', 'header', false, 'integer', 'Calls left'],
+    ])
+    expect(response.links).toStrictEqual({ getPet: { operationId: 'getPet', parameters: { petId: '$response.body#/id' } } })
+  })
+
+  it('reads the 3.1 info summary, license identifier and string contentEncoding', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0', summary: 'Pets', license: { name: 'Apache 2.0', identifier: 'Apache-2.0' } },
+      paths: {},
+      components: { schemas: { Avatar: { type: 'string', contentEncoding: 'base64', contentMediaType: 'image/png' } } },
+    })
+
+    expect(root.meta).toMatchObject({ summary: 'Pets', license: { name: 'Apache 2.0', identifier: 'Apache-2.0' } })
+    expect(findSchema(root, 'Avatar')).toMatchObject({ type: 'string', content: { encoding: 'base64', mediaType: 'image/png' } })
+  })
+})
+
+describe('JSON Schema 2020-12 object keywords', () => {
+  it('closes an object with unevaluatedProperties: false and turns dependentRequired into a conditional', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Payment: {
+            type: 'object',
+            properties: { creditCard: { type: 'string' }, billingAddress: { type: 'string' } },
+            unevaluatedProperties: false,
+            dependentRequired: { creditCard: ['billingAddress'] },
+          },
+          Labels: { type: 'object', unevaluatedProperties: { type: 'string' }, minProperties: 1, maxProperties: 5 },
+        },
+      },
+    })
+
+    const presence = (name: string) => ({ type: 'object', properties: [{ name, required: true, schema: { type: 'unknown' } }] })
+    expect(findSchema(root, 'Payment')).toMatchObject({
+      additionalProperties: false,
+      conditionals: [{ if: presence('creditCard'), then: presence('billingAddress') }],
+    })
+    expect(findSchema(root, 'Labels')).toMatchObject({ additionalProperties: { type: 'string' }, min: 1, max: 5, minProperties: 1, maxProperties: 5 })
+  })
+  it('keeps an object open when unevaluatedProperties sits next to allOf, and skips an empty dependentRequired list', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Base: { type: 'object', properties: { a: { type: 'string' } } },
+          Extended: {
+            type: 'object',
+            properties: { x: { type: 'string' } },
+            allOf: [{ $ref: '#/components/schemas/Base' }],
+            unevaluatedProperties: false,
+            dependentRequired: { x: [] },
+          },
+        },
+      },
+    })
+    const extended = ast.narrowSchema(findSchema(root, 'Extended')!, 'intersection')!
+
+    // `a` comes from `Base`, so closing the `x` object on its own would reject it.
+    expect(extended.members?.find((member) => member.type === 'object')).not.toMatchObject({ additionalProperties: false })
+    expect(extended.conditionals).toBeUndefined()
+  })
+})
+
+describe('JSON Schema 2020-12 applicators', () => {
+  it('reads if/then/else, dependentSchemas, contains and unevaluatedItems', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Address: {
+            type: 'object',
+            properties: { country: { type: 'string' }, postalCode: { type: 'string' } },
+            if: { properties: { country: { const: 'US' } } },
+            then: { properties: { postalCode: { pattern: '^[0-9]{5}$' } } },
+            else: { properties: { postalCode: { pattern: '^[A-Z0-9 ]+$' } } },
+            dependentSchemas: { country: { required: ['postalCode'] } },
+          },
+          Tags: { type: 'array', items: { type: 'string' }, contains: { const: 'admin' }, minContains: 1, maxContains: 2 },
+          Pair: { type: 'array', prefixItems: [{ type: 'string' }, { type: 'number' }], unevaluatedItems: false },
+        },
+      },
+    })
+    const address = findSchema(root, 'Address')!
+
+    // `if`/`then`/`else` first, then the `dependentSchemas` entry: if `country` is present, require `postalCode`.
+    expect(address.conditionals).toMatchObject([
+      { if: { type: 'object' }, then: { type: 'object' }, else: { type: 'object' } },
+      {
+        if: { type: 'object', properties: [{ name: 'country', required: true }] },
+        then: { type: 'object', properties: [{ name: 'postalCode', required: true }] },
+      },
+    ])
+    expect(findSchema(root, 'Tags')).toMatchObject({ type: 'array', contains: { schema: { type: 'enum', enumValues: ['admin'] }, min: 1, max: 2 } })
+    expect(findSchema(root, 'Pair')).toMatchObject({ type: 'tuple', rest: undefined })
+  })
+  it('reads if/then from allOf members', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Base: { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
+          Rules: {
+            allOf: [
+              { $ref: '#/components/schemas/Base' },
+              { if: { required: ['a'] }, then: { required: ['b'] } },
+              { if: { required: ['c'] }, then: { required: ['d'] } },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(findSchema(root, 'Rules')?.conditionals).toMatchObject([
+      { if: { properties: [{ name: 'a' }] }, then: { properties: [{ name: 'b' }] } },
+      { if: { properties: [{ name: 'c' }] }, then: { properties: [{ name: 'd' }] } },
+    ])
+  })
+})
+
+describe('JSON Schema identifiers', () => {
+  it('resolves $refs to an $anchor or $id and a $dynamicRef to its $dynamicAnchor', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: { $anchor: 'pet', type: 'object', properties: { name: { type: 'string' } } },
+          Owner: { $id: 'https://example.com/schemas/owner', type: 'object', properties: { id: { type: 'string' } } },
+          Node: { $dynamicAnchor: 'node', type: 'object', properties: { children: { type: 'array', items: { $dynamicRef: '#node' } } } },
+          Home: {
+            type: 'object',
+            properties: { pet: { $ref: '#pet' }, owner: { $ref: 'https://example.com/schemas/owner' } },
+          },
+        },
+      },
+    })
+    const home = ast.narrowSchema(findSchema(root, 'Home')!, 'object')!
+    const node = ast.narrowSchema(findSchema(root, 'Node')!, 'object')!
+
+    expect(home.properties.map((property) => property.schema)).toMatchObject([
+      { type: 'ref', name: 'Pet' },
+      { type: 'ref', name: 'Owner' },
+    ])
+    expect(ast.narrowSchema(node.properties[0]!.schema, 'array')?.items?.[0]).toMatchObject({ type: 'ref', name: 'Node' })
+  })
+  it('resolves a $dynamicRef to the enclosing $dynamicAnchor and leaves example data as written', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          List: {
+            $dynamicAnchor: 'item',
+            type: 'object',
+            properties: { items: { type: 'array', items: { $dynamicRef: '#item' } } },
+          },
+          Name: { $dynamicAnchor: 'item', type: 'string' },
+          Doc: { $anchor: 'doc', type: 'object', example: { $ref: '#doc' } },
+        },
+      },
+    })
+    const list = ast.narrowSchema(findSchema(root, 'List')!, 'object')!
+
+    expect(ast.narrowSchema(list.properties[0]!.schema, 'array')?.items?.[0]).toMatchObject({ type: 'ref', name: 'List' })
+    expect(findSchema(root, 'Doc')?.examples).toEqual([{ $ref: '#doc' }])
+  })
+})
+
+describe('single-member allOf wrapper', () => {
+  it('keeps the wrapper externalDocs', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Id: { type: 'string' },
+          PetId: { allOf: [{ $ref: '#/components/schemas/Id' }], externalDocs: { url: 'https://example.com/ids' } },
+        },
+      },
+    })
+
+    expect(findSchema(root, 'PetId')).toMatchObject({ externalDocs: { url: 'https://example.com/ids' } })
+  })
+})
+
+describe('status code ranges', () => {
+  it('keeps 2XX and 4XX responses with their schemas', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/a': {
+          get: {
+            operationId: 'a',
+            responses: {
+              '2XX': { description: 'OK', content: { 'application/json': { schema: { type: 'string' } } } },
+              '4XX': { description: 'Client error', content: { 'application/json': { schema: { type: 'object' } } } },
+            },
+          },
+        },
+      },
+    })
+
+    expect(findOperation(root, 'a')?.responses.map((response) => [response.statusCode, response.content?.[0]?.schema?.type])).toStrictEqual([
+      ['2XX', 'string'],
+      ['4XX', 'object'],
+    ])
+  })
+})
+
+describe('auth schemes', () => {
+  it('maps each scheme to how a client sends the credential, and leaves out one it cannot place', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        securitySchemes: {
+          basic: { type: 'http', scheme: 'Basic', description: 'User and password' },
+          digest: { type: 'http', scheme: 'digest' },
+          key: { type: 'apiKey', in: 'cookie', name: 'sid' },
+          bodyKey: { type: 'apiKey', in: 'body', name: 'key' },
+          tls: { type: 'mutualTLS' },
+        },
+      },
+    })
+
+    expect(root.meta.auth).toStrictEqual([
+      { name: 'basic', description: 'User and password', credential: { type: 'http', scheme: 'basic' } },
+      { name: 'digest', credential: { type: 'http', scheme: 'digest' } },
+      { name: 'key', credential: { type: 'apiKey', in: 'cookie', name: 'sid' } },
+      { name: 'tls', credential: { type: 'mutualTLS' } },
+    ])
   })
 })

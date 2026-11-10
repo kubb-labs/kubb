@@ -25,7 +25,7 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   Operation: ['parameters', 'requestBody', 'responses'],
   RequestBody: ['content'],
   Content: ['schema', 'stream'],
-  Response: ['content'],
+  Response: ['content', 'headers'],
   Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'propertyNames', 'rest'],
   Property: ['schema'],
   Parameter: ['schema'],

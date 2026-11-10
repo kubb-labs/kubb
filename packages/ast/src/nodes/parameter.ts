@@ -1,6 +1,7 @@
 import { nodeKinds } from '../constants.ts'
 import { optionality } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
+import type { ExampleNode } from './content.ts'
 import type { SchemaNode } from './schema.ts'
 
 /**
@@ -11,7 +12,7 @@ export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie' | 'querys
 /**
  * Parameter serialization style, controlling how a parameter value is rendered into the request.
  */
-export type ParameterStyle = 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject'
+export type ParameterStyle = 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject' | 'cookie'
 
 /**
  * AST node representing one operation parameter.
@@ -57,7 +58,7 @@ export type ParameterNode = BaseNode & {
   explode?: boolean
   /**
    * Whether reserved characters (RFC 3986 `:/?#[]@!$&'()*+,;=`) are sent as-is instead of
-   * percent-encoded. Only applies to query parameters. Absent when the source omits it.
+   * percent-encoded. Absent when the source omits it.
    */
   allowReserved?: boolean
   /**
@@ -65,6 +66,9 @@ export type ParameterNode = BaseNode & {
    * `application/json` when the value is sent as a JSON-encoded string. Absent for `schema` parameters.
    */
   contentType?: string
+  examples?: Array<ExampleNode>
+  deprecated?: boolean
+  allowEmptyValue?: boolean
 }
 
 type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>

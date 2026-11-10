@@ -1,3 +1,4 @@
+import type { ast } from '@kubb/kit'
 import type { DiscriminatorObject, Document, ReferenceObject, SchemaObject } from './types.ts'
 
 /**
@@ -26,6 +27,20 @@ export function isOpenApi32(document: Document): boolean {
   return major > 3 || (major === 3 && minor >= 2)
 }
 
+export function pickStrings<TKey extends string>(source: unknown, keys: ReadonlyArray<TKey>): Partial<Record<TKey, string>> | undefined {
+  if (!source || typeof source !== 'object') return undefined
+  const entries = keys.flatMap((key) => {
+    const value = (source as Record<string, unknown>)[key]
+    return typeof value === 'string' ? [[key, value] as const] : []
+  })
+  return entries.length ? (Object.fromEntries(entries) as Partial<Record<TKey, string>>) : undefined
+}
+
+export function getExternalDocs(source: unknown): ast.ExternalDocs | undefined {
+  const docs = pickStrings(source, ['url', 'description'])
+  return docs?.url ? { url: docs.url, ...(docs.description !== undefined && { description: docs.description }) } : undefined
+}
+
 /**
  * Returns the `x-*` keys of `source` as-is, or `undefined` when there are none.
  */
@@ -42,12 +57,12 @@ export function isReference(obj?: unknown): obj is ReferenceObject {
 }
 
 /**
- * Returns `true` when `obj` is a schema with a structured OAS 3.x `discriminator` object,
- * excluding the Swagger 2 string form.
+ * Returns `true` when `obj` is a schema with a structured OAS 3.x `discriminator` object that names a
+ * `propertyName`, excluding the Swagger 2 string form and a 3.2 discriminator that only sets `defaultMapping`.
  */
 export function isDiscriminator(obj?: unknown): obj is SchemaObject & { discriminator: DiscriminatorObject } {
-  const record = obj as Record<string, unknown>
-  return !!obj && !!record['discriminator'] && typeof record['discriminator'] !== 'string'
+  const discriminator = (obj as Record<string, unknown> | undefined)?.['discriminator']
+  return !!discriminator && typeof discriminator === 'object' && typeof (discriminator as DiscriminatorObject).propertyName === 'string'
 }
 
 /**

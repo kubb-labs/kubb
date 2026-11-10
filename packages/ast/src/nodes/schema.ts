@@ -1,5 +1,6 @@
 import { nodeKinds } from '../constants.ts'
 import type { BaseNode, DistributiveOmit } from './base.ts'
+import type { ExternalDocs } from './input.ts'
 import type { PropertyNode } from './property.ts'
 
 /**
@@ -94,6 +95,12 @@ type SchemaNodeBase = BaseNode & {
    * Schema `format` value.
    */
   format?: string
+  externalDocs?: ExternalDocs
+  /**
+   * `if`/`then`/`else`, `dependentRequired` and `dependentSchemas`. A required `unknown` property in `if` means "key is present".
+   * Visitors do not walk it.
+   */
+  conditionals?: Array<{ if: SchemaNode; then?: SchemaNode; else?: SchemaNode }>
 }
 
 /**
@@ -151,9 +158,17 @@ export type ObjectSchemaNode = SchemaNodeBase & {
   /**
    * Minimum number of properties allowed.
    */
-  minProperties?: number
+  min?: number
   /**
    * Maximum number of properties allowed.
+   */
+  max?: number
+  /**
+   * @deprecated Use `min`. Removed in Kubb v6.
+   */
+  minProperties?: number
+  /**
+   * @deprecated Use `max`. Removed in Kubb v6.
    */
   maxProperties?: number
 }
@@ -195,6 +210,10 @@ export type ArraySchemaNode = SchemaNodeBase & {
    * Whether all items must be unique.
    */
   unique?: boolean
+  /**
+   * At least `min` (default 1) and at most `max` items match `schema`. Visitors do not walk `schema`.
+   */
+  contains?: { schema: SchemaNode; min?: number; max?: number }
 }
 
 /**
@@ -442,6 +461,14 @@ export type StringSchemaNode = SchemaNodeBase & {
    * Regex pattern.
    */
   pattern?: string
+  /**
+   * The value the string encodes, such as a JSON document or `base64` bytes. Visitors do not walk `schema`.
+   */
+  content?: {
+    mediaType?: string
+    encoding?: string
+    schema?: SchemaNode
+  }
 }
 
 /**
@@ -466,11 +493,15 @@ export type NumberSchemaNode = SchemaNodeBase & {
    */
   max?: number
   /**
-   * Exclusive minimum value.
+   * Bounds the value may not equal: it must be greater than `min` and less than `max`.
+   */
+  exclusive?: { min?: number; max?: number }
+  /**
+   * @deprecated Use `exclusive.min`. Removed in Kubb v6.
    */
   exclusiveMinimum?: number
   /**
-   * Exclusive maximum value.
+   * @deprecated Use `exclusive.max`. Removed in Kubb v6.
    */
   exclusiveMaximum?: number
   /**

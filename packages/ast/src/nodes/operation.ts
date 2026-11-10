@@ -1,6 +1,6 @@
 import { nodeKinds } from '../constants.ts'
 import type { BaseNode } from './base.ts'
-import type { InputServer } from './input.ts'
+import type { AuthRequirement, ExternalDocs, InputServer } from './input.ts'
 import type { ParameterNode } from './parameter.ts'
 import { createRequestBody, type RequestBodyNode } from './requestBody.ts'
 import type { ResponseNode } from './response.ts'
@@ -40,6 +40,7 @@ type OperationNodeBase = BaseNode & {
    * Marks the operation as deprecated.
    */
   deprecated?: boolean
+  externalDocs?: ExternalDocs
   /**
    * Query, path, header, and cookie parameters for the operation.
    */
@@ -58,6 +59,10 @@ type OperationNodeBase = BaseNode & {
   extensions?: Record<string, unknown>
   /** The operation's own `servers`, else its path item's, such as an upload host. Absent when neither declares any. */
   servers?: Array<InputServer>
+  /**
+   * Ways to authenticate, from the operation or else the document. Any one entry is enough. `[]` means no auth.
+   */
+  auth?: Array<AuthRequirement>
 }
 
 /**
