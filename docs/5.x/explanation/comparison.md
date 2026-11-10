@@ -58,7 +58,7 @@ Median of five runs on Node 22, Linux x64 with 4 cores, November 2026. Compared 
 | [Barrel index files](/extensions/kubb-labs/plugin-barrel)        |       ✅       |       ✅       |       ✅       |       🛑       |
 
 1. openapi-typescript 7 reads 3.0 and 3.1 only. Convert Swagger 2.0 first, or use version 5.
-2. Kubb reads every OpenAPI 3.2 field into its AST, from `itemSchema` for streamed responses to `$self`, tag `parent` and the XML `nodeType`, and validates 3.2 documents against the official 3.2 JSON Schema.
+2. Kubb reads every OpenAPI 3.2 field into its AST, from `itemSchema` for streamed responses to `$self`, tag `parent` and the XML `nodeType`. A 3.2 document is not validated until `@readme/openapi-parser` supports 3.2.
 3. orval, HeyAPI, and openapi-typescript list no OpenAPI 3.2 support in their docs. An orval [discussion](https://github.com/orval-labs/orval/discussions/3544) asks for it.
 4. openapi-typescript generates types only. Clients and hooks come from the `openapi-fetch` and `openapi-react-query` runtimes, both in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559).
 5. HeyAPI lists SWR as planned and MSW and Faker as in progress.

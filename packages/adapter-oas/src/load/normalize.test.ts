@@ -36,21 +36,6 @@ vi.mock('js-yaml', async (importOriginal) => {
   return { ...actual, load: vi.fn(actual.load) }
 })
 
-// Breaks two OpenAPI 3.2 rules: `encoding` next to `prefixEncoding`, and a server URL with a query.
-const openApi32Document = {
-  openapi: '3.2.0',
-  info: { title: 'Batch', version: '1.0.0' },
-  servers: [{ url: 'https://api.example.com?v=1' }],
-  paths: {
-    '/batch': {
-      post: {
-        requestBody: { content: { 'multipart/mixed': { encoding: {}, prefixEncoding: [] } } },
-        responses: { '204': { summary: 'Done' } },
-      },
-    },
-  },
-} as unknown as Document
-
 const petSchema: Document = {
   openapi: '3.0.3',
   info: { title: 'Pets API', version: '1.0.0' },
@@ -222,31 +207,17 @@ describe('validateDocument', () => {
     expect(diagnostics.every((diagnostic) => !Diagnostics.isProblem(diagnostic) || !diagnostic.message.includes('\n'))).toBe(true)
   })
 
-  it('validates an OpenAPI 3.2 document against the 3.2 schema and the server URL rule', async () => {
+  it('reports one warning for an OpenAPI 3.2 document instead of validating it', async () => {
     const diagnostics: Array<Diagnostic> = []
+    const document = { openapi: '3.2.0', info: { title: 'Streams', version: '1.0.0' }, paths: {} } as unknown as Document
 
     await Diagnostics.scope(
       (diagnostic) => diagnostics.push(diagnostic),
-      () => validateDocument(openApi32Document),
+      () => validateDocument(document),
     )
 
-    expect(diagnostics.map((diagnostic) => (Diagnostics.isProblem(diagnostic) ? diagnostic.message : ''))).toStrictEqual([
-      '/paths/~1batch/post/requestBody/content/multipart~1mixed/prefixEncoding is not allowed here',
-      '/servers/0/url must not contain a query or fragment',
-    ])
-    await expect(validateDocument(openApi32Document, { throwOnError: true })).rejects.toThrow('prefixEncoding is not allowed here')
-  })
-
-  it('accepts a valid OpenAPI 3.2 document, such as a response without description', async () => {
-    const diagnostics: Array<Diagnostic> = []
-    const document = { openapi: '3.2.0', info: { title: 'Valid', version: '1.0.0' }, paths: { '/a': { get: { responses: { '200': { summary: 'OK' } } } } } }
-
-    await Diagnostics.scope(
-      (diagnostic) => diagnostics.push(diagnostic),
-      () => validateDocument(document as unknown as Document),
-    )
-
-    expect(diagnostics).toStrictEqual([])
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.invalidSpec, severity: 'warning', message: expect.stringContaining('3.2') }])
+    await expect(validateDocument(document, { throwOnError: true })).rejects.toThrow('3.2')
   })
 
   it('reports nothing for a valid document', async () => {
@@ -263,15 +234,16 @@ describe('validateDocument', () => {
 })
 
 describe('validateDocumentInWorker', () => {
-  it('validates an OpenAPI 3.2 document in the worker', async () => {
+  it('reports the OpenAPI 3.2 warning without starting a worker', async () => {
     const diagnostics: Array<Diagnostic> = []
+    const document = { openapi: '3.2.0', info: { title: 'Streams', version: '1.0.0' }, paths: {} } as unknown as Document
 
     await Diagnostics.scope(
       (diagnostic) => diagnostics.push(diagnostic),
-      () => validateDocumentInWorker(openApi32Document),
+      () => validateDocumentInWorker(document),
     )
 
-    expect(diagnostics).toHaveLength(2)
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.invalidSpec, message: expect.stringContaining('3.2') }])
   })
 
   const invalidSchema = {

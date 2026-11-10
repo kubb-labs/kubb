@@ -21,7 +21,7 @@ Pass these options to `adapterOas()`. All of them are optional.
 
 ### validate
 
-Validates the OpenAPI spec with `@readme/openapi-parser` before parsing. Each problem is reported as a [`KUBB_INVALID_SPEC`](https://kubb.dev/docs/5.x/reference/diagnostics#kubb-invalid-spec) warning, and generation continues. Set it to `false` to skip the check, which makes generation faster on a large spec. Run [`kubb validate`](https://kubb.dev/docs/5.x/reference/commands/validate) to list every error. `@readme/openapi-parser` does not support OpenAPI 3.2 yet, so a 3.2 document is checked against the official 3.2 JSON Schema instead.
+Validates the OpenAPI spec with `@readme/openapi-parser` before parsing. Each problem is reported as a [`KUBB_INVALID_SPEC`](https://kubb.dev/docs/5.x/reference/diagnostics#kubb-invalid-spec) warning, and generation continues. Set it to `false` to skip the check, which makes generation faster on a large spec. Run [`kubb validate`](https://kubb.dev/docs/5.x/reference/commands/validate) to list every error. An OpenAPI 3.2 document is not validated yet, because `@readme/openapi-parser` does not support 3.2, and gets one warning that says so.
 
 |          |           |
 | -------- | --------- |

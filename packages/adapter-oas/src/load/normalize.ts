@@ -282,20 +282,17 @@ function reportInvalidSpec(message: string): void {
  * ```
  */
 export async function validateDocument(document: Document, { throwOnError = false }: { throwOnError?: boolean } = {}): Promise<void> {
-  // `@readme/openapi-parser` 10 throws on a 3.2 document, so check it against the 3.2 JSON Schema instead.
+  // `@readme/openapi-parser` 10 throws on a 3.2 document, so say that the document was not checked instead of failing it.
   if (isOpenApi32(document)) {
-    // Loaded on use, like `@readme/openapi-parser` below, so a config with `validate` off never loads ajv.
-    const { validateOpenApi32 } = await import('./validate32.ts')
-    const result = validateOpenApi32(document)
-    if (result.valid) return
-    if (throwOnError)
-      throw new Diagnostics.Error({
-        code: Diagnostics.code.invalidSpec,
-        severity: 'error',
-        message: result.errors.map(({ message }) => message).join('\n'),
-        help: 'Fix each problem listed in the spec, then validate again.',
-      })
-    return reportValidationErrors(result)
+    const diagnostic: Diagnostic = {
+      code: Diagnostics.code.invalidSpec,
+      severity: 'warning',
+      message: 'The document was not validated: `@readme/openapi-parser` does not support OpenAPI 3.2 yet.',
+      help: 'Set `validate: false` on the adapter to skip this check until the validator supports OpenAPI 3.2.',
+    }
+    if (throwOnError) throw new Diagnostics.Error(diagnostic)
+    Diagnostics.report(diagnostic)
+    return
   }
 
   // The heaviest dependency in the package, and every config importing `@kubb/adapter-oas` would
@@ -345,6 +342,9 @@ function reportValidationErrors({ errors, additionalErrors }: ValidationErrors):
  * validating in place where worker threads are missing, as in edge runtimes.
  */
 export async function validateDocumentInWorker(document: Document): Promise<void> {
+  // The worker would only throw on a 3.2 document, so report the warning from here.
+  if (isOpenApi32(document)) return validateDocument(document)
+
   let message: WorkerResult
   try {
     const { Worker } = await import('node:worker_threads')
