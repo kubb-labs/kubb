@@ -42,12 +42,12 @@ export function isReference(obj?: unknown): obj is ReferenceObject {
 }
 
 /**
- * Returns `true` when `obj` is a schema with a structured OAS 3.x `discriminator` object,
- * excluding the Swagger 2 string form.
+ * Returns `true` when `obj` is a schema with a structured OAS 3.x `discriminator` object that names a
+ * `propertyName`, excluding the Swagger 2 string form and a 3.2 discriminator that only sets `defaultMapping`.
  */
 export function isDiscriminator(obj?: unknown): obj is SchemaObject & { discriminator: DiscriminatorObject } {
-  const record = obj as Record<string, unknown>
-  return !!obj && !!record['discriminator'] && typeof record['discriminator'] !== 'string'
+  const discriminator = (obj as Record<string, unknown> | undefined)?.['discriminator']
+  return !!discriminator && typeof discriminator === 'object' && typeof (discriminator as DiscriminatorObject).propertyName === 'string'
 }
 
 /**

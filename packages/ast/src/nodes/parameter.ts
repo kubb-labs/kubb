@@ -12,7 +12,7 @@ export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie' | 'querys
 /**
  * Parameter serialization style, controlling how a parameter value is rendered into the request.
  */
-export type ParameterStyle = 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject'
+export type ParameterStyle = 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject' | 'cookie'
 
 /**
  * AST node representing one operation parameter.
@@ -58,7 +58,7 @@ export type ParameterNode = BaseNode & {
   explode?: boolean
   /**
    * Whether reserved characters (RFC 3986 `:/?#[]@!$&'()*+,;=`) are sent as-is instead of
-   * percent-encoded. Only applies to query parameters. Absent when the source omits it.
+   * percent-encoded. Absent when the source omits it.
    */
   allowReserved?: boolean
   /**

@@ -15,3 +15,5 @@ Read the remaining OpenAPI 3.2 fields, so a 3.2 document no longer generates the
 - `InputSecurityScheme` gets the OAuth2 `flows`, including `deviceAuthorization`, plus `oauth2MetadataUrl` and `deprecated`.
 - `stream.sentinel` holds the `data` value that ends an event stream, read from `x-sse-sentinel` or `x-speakeasy-sse-sentinel`.
 - A string schema node keeps `contentMediaType` and the parsed `contentSchema`.
+- `ParameterStyle` gets the 3.2 `cookie` style.
+- A discriminator without `propertyName`, optional from 3.2, no longer crashes the parse. Its `defaultMapping` schema is added to the union.

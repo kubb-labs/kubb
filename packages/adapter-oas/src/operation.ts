@@ -133,7 +133,7 @@ export function getParameters({ operation, refs }: OperationContext): Array<{ pa
   return Array.from(paramMap.values())
 }
 
-const PARAMETER_STYLES = new Set(['matrix', 'label', 'form', 'simple', 'spaceDelimited', 'pipeDelimited', 'deepObject'])
+const PARAMETER_STYLES = new Set(['matrix', 'label', 'form', 'simple', 'spaceDelimited', 'pipeDelimited', 'deepObject', 'cookie'])
 
 function pickStyleFields({ style, explode, allowReserved }: { style?: string; explode?: boolean; allowReserved?: boolean }): {
   style?: ast.ParameterStyle

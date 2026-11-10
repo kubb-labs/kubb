@@ -3023,3 +3023,45 @@ describe('event stream sentinel', () => {
     expect(findOperation(root, 'stream')?.responses[0]?.content?.[0]?.stream).toMatchObject({ shape: 'data', sentinel: '[DONE]' })
   })
 })
+
+describe('OpenAPI 3.2 parameter style and discriminator', () => {
+  const info = { title: 'Test', version: '1.0.0' }
+
+  it('keeps the cookie style', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {
+        '/me': {
+          get: {
+            operationId: 'me',
+            parameters: [{ name: 'sid', in: 'cookie', style: 'cookie', schema: { type: 'string' } }],
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+
+    expect(findOperation(root, 'me')?.parameters[0]?.style).toBe('cookie')
+  })
+
+  it('adds the defaultMapping member of a discriminator without propertyName', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info,
+      paths: {},
+      components: {
+        schemas: {
+          Pet: { oneOf: [{ $ref: '#/components/schemas/Dog' }], discriminator: { defaultMapping: 'Other' } },
+          Dog: { type: 'object', properties: { kind: { type: 'string' } } },
+          Other: { type: 'object', properties: { note: { type: 'string' } } },
+        },
+      },
+    })
+
+    expect(ast.narrowSchema(findSchema(root, 'Pet')!, 'union')?.members).toMatchObject([
+      { type: 'ref', name: 'Dog' },
+      { type: 'ref', name: 'Other' },
+    ])
+  })
+})
