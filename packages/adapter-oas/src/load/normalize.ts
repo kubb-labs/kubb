@@ -212,8 +212,10 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
               help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
             }) as Document)
           : structuredClone(source.data as Document)
+      // `bundleDocument` resolves schema ids itself, so walk the tree once on either path.
+      if (source.root && hasExternalRef(data)) return bundleDocument(join(source.root, inlineInputName), { document: data, sources })
       resolveSchemaIds(data)
-      return source.root && hasExternalRef(data) ? bundleDocument(join(source.root, inlineInputName), { document: data, sources }) : data
+      return data
     }
     await assertInputExists(source.path)
     return bundleDocument(source.path, { sources })

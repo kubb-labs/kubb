@@ -178,13 +178,17 @@ const annotationKeys = new Set(['description', 'title', 'example', 'examples', '
 
 /**
  * Moves `allOf` members that hold only annotations or `if`/`then`/`else` onto the parent, so they do
- * not become `unknown`. The parent's own values win, and the conditional keywords are not enforced.
+ * not become `unknown`. The parent's own values win. The parser reads their `if`/`then`/`else` into `conditionals`.
  */
+/** An `allOf` member that holds only annotations or `if`/`then`/`else`. */
+export function isAnnotationMember(member: unknown): boolean {
+  return !!member && typeof member === 'object' && !isReference(member) && Object.keys(member).every((key) => annotationKeys.has(key))
+}
+
 function mergeAnnotations(schema: SchemaObject): SchemaObject {
   const members = schema.allOf as Array<SchemaObject | ReferenceObject>
-  const isAnnotation = (member: SchemaObject | ReferenceObject) => !isReference(member) && Object.keys(member).every((key) => annotationKeys.has(key))
-  const annotations = members.filter(isAnnotation)
-  const rest = members.filter((member) => !isAnnotation(member))
+  const annotations = members.filter(isAnnotationMember)
+  const rest = members.filter((member) => !isAnnotationMember(member))
 
   return annotations.length && rest.length ? { ...Object.assign({}, ...annotations), ...schema, allOf: rest } : schema
 }

@@ -1,5 +1,6 @@
 import { ast } from '@kubb/kit'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
+import { isAnnotationMember } from './emit/converters/composition.ts'
 import { createNode } from './emit/createNode.ts'
 import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
 import { flattenSchema } from './emit/schemaShape.ts'
@@ -23,6 +24,17 @@ export type OasParserContext = {
 }
 
 /**
+ * JSON Schema `unevaluatedProperties` and `unevaluatedItems` also see the keys and items that composition or
+ * conditional siblings evaluate. Kubb maps them onto `additionalProperties` and the tuple tail of one object, so
+ * with such a sibling they are dropped and the schema stays open, rather than rejecting what a sibling allows.
+ */
+function hasUnevaluatedSiblings(schema: SchemaObject): boolean {
+  const record = schema as Record<string, unknown>
+  if (record['unevaluatedProperties'] === undefined && record['unevaluatedItems'] === undefined) return false
+  return ['allOf', 'anyOf', 'oneOf', 'if', 'dependentSchemas', '$ref'].some((key) => record[key] !== undefined)
+}
+
+/**
  * Creates the schema converter bound to one OpenAPI document: `parseSchema` dispatches each
  * schema through the ordered `schemaRules` table, with the parser options merged once.
  *
@@ -36,6 +48,10 @@ export function createSchemaParser(ctx: OasParserContext) {
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema !== schema) {
       return parseSchema({ schema: flattenedSchema, name })
+    }
+    if (hasUnevaluatedSiblings(schema)) {
+      const { unevaluatedProperties: _properties, unevaluatedItems: _items, ...open } = schema as SchemaObject & Record<string, unknown>
+      return parseSchema({ schema: open as SchemaObject, name })
     }
 
     const nullable = isNullable(schema) || undefined
@@ -76,6 +92,13 @@ export function createSchemaParser(ctx: OasParserContext) {
    * `conditionals`, whatever its type. Each dependency becomes `if` its trigger key is present, `then` the dependent keys or schema.
    */
   function withConditionals(node: ast.SchemaNode, schema: SchemaObject): ast.SchemaNode {
+    // `allOf` members that hold only annotations and `if`/`then`/`else` are not parsed as members, so read their conditionals here.
+    const sources = [schema, ...(Array.isArray(schema.allOf) ? (schema.allOf as Array<unknown>).filter(isAnnotationMember) : [])] as Array<SchemaObject>
+    const conditionals = sources.flatMap(toConditionals)
+    return conditionals.length ? { ...node, conditionals } : node
+  }
+
+  function toConditionals(schema: SchemaObject): NonNullable<ast.SchemaNode['conditionals']> {
     const keywords = schema as { if?: unknown; then?: unknown; else?: unknown; dependentRequired?: unknown; dependentSchemas?: unknown }
     const branch = (value: unknown) => {
       if (!value || typeof value !== 'object') return undefined
@@ -94,7 +117,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       conditionals.push({ if: condition, ...(thenNode && { then: thenNode }), ...(elseNode && { else: elseNode }) })
     }
     for (const [key, required] of entries(keywords.dependentRequired)) {
-      if (Array.isArray(required) && required.every((name) => typeof name === 'string'))
+      if (Array.isArray(required) && required.length && required.every((name) => typeof name === 'string'))
         conditionals.push({ if: requireKeys([key]), then: requireKeys(required) })
     }
     for (const [key, dependent] of entries(keywords.dependentSchemas)) {
@@ -102,7 +125,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       if (thenNode) conditionals.push({ if: requireKeys([key]), then: thenNode })
     }
 
-    return conditionals.length ? { ...node, conditionals } : node
+    return conditionals
   }
 
   return parseSchema

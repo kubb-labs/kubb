@@ -3173,6 +3173,30 @@ describe('JSON Schema 2020-12 object keywords', () => {
     })
     expect(findSchema(root, 'Labels')).toMatchObject({ additionalProperties: { type: 'string' } })
   })
+  it('keeps an object open when unevaluatedProperties sits next to allOf, and skips an empty dependentRequired list', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Base: { type: 'object', properties: { a: { type: 'string' } } },
+          Extended: {
+            type: 'object',
+            properties: { x: { type: 'string' } },
+            allOf: [{ $ref: '#/components/schemas/Base' }],
+            unevaluatedProperties: false,
+            dependentRequired: { x: [] },
+          },
+        },
+      },
+    })
+    const extended = ast.narrowSchema(findSchema(root, 'Extended')!, 'intersection')!
+
+    // `a` comes from `Base`, so closing the `x` object on its own would reject it.
+    expect(extended.members?.find((member) => member.type === 'object')).not.toMatchObject({ additionalProperties: false })
+    expect(extended.conditionals).toBeUndefined()
+  })
 })
 
 describe('JSON Schema 2020-12 applicators', () => {
@@ -3209,6 +3233,30 @@ describe('JSON Schema 2020-12 applicators', () => {
     expect(findSchema(root, 'Tags')).toMatchObject({ type: 'array', contains: { type: 'enum', enumValues: ['admin'] }, minContains: 1, maxContains: 2 })
     expect(findSchema(root, 'Pair')).toMatchObject({ type: 'tuple', rest: undefined })
   })
+  it('reads if/then from allOf members', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Base: { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
+          Rules: {
+            allOf: [
+              { $ref: '#/components/schemas/Base' },
+              { if: { required: ['a'] }, then: { required: ['b'] } },
+              { if: { required: ['c'] }, then: { required: ['d'] } },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(findSchema(root, 'Rules')?.conditionals).toMatchObject([
+      { if: { properties: [{ name: 'a' }] }, then: { properties: [{ name: 'b' }] } },
+      { if: { properties: [{ name: 'c' }] }, then: { properties: [{ name: 'd' }] } },
+    ])
+  })
 })
 
 describe('JSON Schema identifiers', () => {
@@ -3237,6 +3285,28 @@ describe('JSON Schema identifiers', () => {
       { type: 'ref', name: 'Owner' },
     ])
     expect(ast.narrowSchema(node.properties[0]!.schema, 'array')?.items?.[0]).toMatchObject({ type: 'ref', name: 'Node' })
+  })
+  it('resolves a $dynamicRef to the enclosing $dynamicAnchor and leaves example data as written', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          List: {
+            $dynamicAnchor: 'item',
+            type: 'object',
+            properties: { items: { type: 'array', items: { $dynamicRef: '#item' } } },
+          },
+          Name: { $dynamicAnchor: 'item', type: 'string' },
+          Doc: { $anchor: 'doc', type: 'object', example: { $ref: '#doc' } },
+        },
+      },
+    })
+    const list = ast.narrowSchema(findSchema(root, 'List')!, 'object')!
+
+    expect(ast.narrowSchema(list.properties[0]!.schema, 'array')?.items?.[0]).toMatchObject({ type: 'ref', name: 'List' })
+    expect(findSchema(root, 'Doc')?.examples).toEqual([{ $ref: '#doc' }])
   })
 })
 
