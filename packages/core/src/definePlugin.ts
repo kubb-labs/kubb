@@ -77,13 +77,14 @@ export type Output = {
 export type Group = {
   /**
    * Property used to assign each operation to a group.
-   * - `'tag'` uses the first tag (`operation.getTags().at(0)?.name`).
+   * - `'tag'` uses the first tag (`operation.getTags().at(0)?.name`), nested in the folders of its `parent` tags.
    * - `'path'` uses the first segment of the operation's URL.
    */
   type: 'tag' | 'path'
   /**
-   * Returns the subdirectory name from the group key. Defaults to the camelCased tag for
-   * `tag` groups, or the first path segment as written in the spec for `path` groups.
+   * Returns the subdirectory name from the group key. Defaults to the camelCased tag, inside the
+   * folders of its `parent` tags, for `tag` groups, or the first path segment as written in the
+   * spec for `path` groups.
    */
   name?: (context: { group: string }) => string
 }

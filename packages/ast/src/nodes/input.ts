@@ -30,6 +30,26 @@ export type InputServer = {
 }
 
 /**
+ * A tag from the source document that operations are grouped under.
+ */
+export type InputTag = {
+  name: string
+  /**
+   * Short one-line summary, such as the label a docs site shows.
+   */
+  summary?: string
+  description?: string
+  /**
+   * Name of the tag this tag nests under. `group: { type: 'tag' }` places its files in the parent's folder.
+   */
+  parent?: string
+  /**
+   * What the tag is for, such as `nav`, `badge`, or `audience`.
+   */
+  kind?: string
+}
+
+/**
  * An authentication scheme from the source document, keyed by `name`. `parameterName` is the header, query, or cookie name of an `apiKey`.
  */
 export type InputSecurityScheme = {
@@ -69,6 +89,10 @@ export type InputMeta = {
    */
   baseURL?: string | null
   servers?: Array<InputServer>
+  /**
+   * Tags declared at the document root, in document order. Absent when the document declares none.
+   */
+  tags?: Array<InputTag>
   securitySchemes?: Array<InputSecurityScheme>
   /**
    * Vendor extensions (`x-*` keys) from the document root, copied as-is. Absent when the root has none.

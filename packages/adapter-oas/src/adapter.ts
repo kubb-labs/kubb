@@ -9,6 +9,7 @@ import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
 import { assertDocument, parseFromConfig, validateDocument, validateDocumentInWorker } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
 import { resolveBaseUrl, toInputServers } from './model/server.ts'
+import { toInputTags } from './model/tag.ts'
 import { pickExtensions } from './oas.ts'
 import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
@@ -170,6 +171,7 @@ export const adapterOas = defineExtension<AdapterOas>({
           version: document.info?.version,
           baseURL: resolveBaseUrl({ document, server }),
           servers: toInputServers(document.servers ?? []),
+          ...(document.tags?.length && { tags: toInputTags(document.tags) }),
           securitySchemes: Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
             const scheme = refs.deref<Record<string, string>>(value)
             return scheme?.type

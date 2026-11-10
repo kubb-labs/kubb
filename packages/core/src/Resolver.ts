@@ -358,6 +358,7 @@ export class Resolver {
   #options: ResolverBuildOptions
   #memo = new Map<string, unknown>()
   #usedNames = new Set<string>()
+  #tagParents = new Map<string, string>()
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
   // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
   #baseName: (params: Pick<ResolverFileParams, 'name' | 'extname'>) => FileNode['baseName']
@@ -408,6 +409,22 @@ export class Resolver {
    */
   reserveNames(names: Iterable<string>): void {
     for (const name of names) this.#usedNames.add(name)
+  }
+
+  /**
+   * Reads each tag's `parent`, so `group: { type: 'tag' }` places a child tag's folder inside its
+   * parent's. The driver calls this once the input is parsed.
+   *
+   * @example
+   * ```ts
+   * resolver.setTags([{ name: 'cats', parent: 'animals' }])
+   * resolver.default.path({ baseName: 'cat.ts', tag: 'cats', root: '/src', output: { path: 'types', mode: 'directory' }, group: { type: 'tag' } })
+   * // → '/src/types/animals/cats/cat.ts'
+   * ```
+   */
+  setTags(tags: InputMeta['tags']): void {
+    this.#tagParents.clear()
+    for (const { name, parent } of tags ?? []) if (parent) this.#tagParents.set(name, parent)
   }
 
   /**
@@ -517,13 +534,18 @@ export class Resolver {
   }
 
   /**
-   * A custom `group.name` wins; otherwise `tag` groups use the camelCased tag and `path`
-   * groups use the first non-traversal segment (`''` when none remain, placing the file in
-   * the output root, kept safe by the caller's boundary check).
+   * A custom `group.name` wins; otherwise `tag` groups use the camelCased tag, nested in the
+   * folders of its `parent` tags, and `path` groups use the first non-traversal segment (`''`
+   * when none remain, placing the file in the output root, kept safe by the caller's boundary check).
    */
-  static #resolveGroupDir(group: Group, groupValue: string): string {
+  #resolveGroupDir(group: Group, groupValue: string): string {
     if (group.name) return group.name({ group: groupValue })
-    if (group.type === 'tag') return camelCase(groupValue)
+    if (group.type === 'tag') {
+      const chain = [groupValue]
+      // A `parent` loop stops at the first tag seen twice.
+      for (let parent = this.#tagParents.get(groupValue); parent && !chain.includes(parent); parent = this.#tagParents.get(parent)) chain.unshift(parent)
+      return path.join(...chain.map((tag) => camelCase(tag)))
+    }
     const segment = groupValue.split('/').filter((part) => part !== '' && part !== '.' && part !== '..')[0]
     return segment ? camelCase(segment) : ''
   }
@@ -541,7 +563,7 @@ export class Resolver {
     const outputDir = path.resolve(root, output.path)
     // A file without the value its group needs (an SDK class per tag, grouped by path) is not grouped.
     const groupValue = group?.type === 'path' ? groupPath : tag
-    const result = group && groupValue ? path.resolve(outputDir, Resolver.#resolveGroupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)
+    const result = group && groupValue ? path.resolve(outputDir, this.#resolveGroupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)
 
     assertInside({
       target: result,

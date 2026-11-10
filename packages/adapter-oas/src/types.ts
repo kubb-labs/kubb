@@ -133,6 +133,11 @@ export type ParameterObject = {
 } & OpenAPIV3_1.ParameterObject
 
 /**
+ * OpenAPI tag object, with the OpenAPI 3.2 `summary`, `parent` and `kind`.
+ */
+export type TagObject = OpenAPIV3_1.TagObject & { summary?: string; parent?: string; kind?: string }
+
+/**
  * OpenAPI server object describing a base URL and its `{variable}` substitutions, with the OpenAPI 3.2 `name`.
  */
 export type ServerObject = OpenAPIV3_1.ServerObject & { name?: string }

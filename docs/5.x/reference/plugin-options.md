@@ -189,7 +189,7 @@ Property used to assign each operation to a group. An operation with no tag goes
 ::field-group
 
 :::field{name="'tag'"}
-Uses the operation's first tag.
+Uses the operation's first tag. When an OpenAPI 3.2 tag declares a `parent`, its folder sits inside the parent tag's folder, such as `animals/cats/`.
 :::
 
 :::field{name="'path'"}

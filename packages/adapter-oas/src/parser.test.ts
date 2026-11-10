@@ -2870,3 +2870,22 @@ describe('OpenAPI 3.2 responses', () => {
     ])
   })
 })
+
+describe('OpenAPI 3.2 tags', () => {
+  it('reads the tag summary, parent and kind into meta.tags', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      tags: [
+        { name: 'animals', summary: 'Animals', kind: 'nav' },
+        { name: 'cats', description: 'Cats only', parent: 'animals' },
+      ],
+    })
+
+    expect(root.meta.tags).toStrictEqual([
+      { name: 'animals', summary: 'Animals', kind: 'nav' },
+      { name: 'cats', description: 'Cats only', parent: 'animals' },
+    ])
+  })
+})

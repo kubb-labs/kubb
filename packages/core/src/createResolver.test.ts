@@ -315,6 +315,20 @@ describe('default.path', () => {
     ).toBe(expected)
   })
 
+  it('nests a tag group in the folders of its parent tags and stops at a parent loop', () => {
+    const resolver = createResolver({ pluginName: 'test' })
+    resolver.setTags([
+      { name: 'house cats', parent: 'cats' },
+      { name: 'cats', parent: 'animals' },
+      { name: 'a', parent: 'b' },
+      { name: 'b', parent: 'a' },
+    ])
+    const options = { baseName: 'petTypes.ts', root: '/root', output: { path: 'types', mode: 'directory' }, group: { type: 'tag' } } as const
+
+    expect(resolver.default.path({ ...options, tag: 'house cats' })).toBe('/root/types/animals/cats/houseCats/petTypes.ts')
+    expect(resolver.default.path({ ...options, tag: 'a' })).toBe('/root/types/b/a/petTypes.ts')
+  })
+
   it('sanitizes traversal segments in default path-based grouping', () => {
     const result = baseResolver.default.path({
       baseName: 'petTypes.ts',

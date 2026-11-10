@@ -369,6 +369,7 @@ export class KubbDriver {
           for (const plugin of this.plugins.values()) {
             this.options.signal?.throwIfAborted()
             plugin.options = normalizePluginOptions(plugin.options, plugin.name)
+            plugin.resolver.setTags(this.inputNode?.meta.tags)
           }
 
           if (this.adapter && this.inputNode) {
