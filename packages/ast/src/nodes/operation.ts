@@ -58,6 +58,11 @@ type OperationNodeBase = BaseNode & {
   extensions?: Record<string, unknown>
   /** The operation's own `servers`, else its path item's, such as an upload host. Absent when neither declares any. */
   servers?: Array<InputServer>
+  /**
+   * Ways to authenticate, from the operation or else the document. Each entry maps scheme names in
+   * `meta.securitySchemes` to the scopes it needs, and all schemes in one entry apply together. `[]` means none.
+   */
+  security?: Array<Record<string, Array<string>>>
 }
 
 /**

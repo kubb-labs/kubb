@@ -17,3 +17,6 @@ Read the remaining OpenAPI 3.2 fields, so a 3.2 document no longer generates the
 - A string schema node keeps `contentMediaType` and the parsed `contentSchema`.
 - `ParameterStyle` gets the 3.2 `cookie` style.
 - A discriminator without `propertyName`, optional from 3.2, no longer crashes the parse. Its `defaultMapping` schema is added to the union.
+- Schema nodes get `xml` with `name`, `namespace`, `prefix` and the 3.2 `nodeType`. The deprecated `attribute: true` and `wrapped: true` become `nodeType`.
+- `OperationNode` gets `security`, from the operation or else the document. A 3.2 key that names a scheme by URI becomes the scheme name.
+- A 3.2 document is validated against the official 3.2 JSON Schema, which `@readme/openapi-parser` does not support yet, plus the rule that a server `url` has no query or fragment. It no longer gets the "not validated" warning.

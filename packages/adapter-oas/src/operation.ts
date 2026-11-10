@@ -3,6 +3,7 @@ import { ast } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
 import { getItemSchema, getItemShape, isEventStream, isStream } from './model/mediaType.ts'
+import { toSecurityRequirements } from './model/security.ts'
 import { toInputServers } from './model/server.ts'
 import { getBinaryFallbackSchema, isReference, pickExtensions } from './oas.ts'
 import { scanSchema } from './schemaDiagnostics.ts'
@@ -463,6 +464,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   }
 
   const servers = operation.schema.servers ?? operation.pathItem.servers
+  const security = toSecurityRequirements(operation.schema.security ?? document.security, document)
 
   return ast.factory.createOperation({
     pointer,
@@ -480,5 +482,6 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     responses,
     extensions: pickExtensions(operation.schema),
     ...(servers && { servers: toInputServers(servers) }),
+    ...(security && { security }),
   })
 }

@@ -3092,3 +3092,31 @@ describe('OpenAPI 3.2 XML', () => {
     expect(pet.properties.map((property) => property.schema.xml?.nodeType)).toStrictEqual(['attribute', 'cdata', 'element'])
   })
 })
+
+describe('security requirements', () => {
+  it('reads operation security, falls back to the document, and maps 3.2 URI keys to scheme names', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      security: [{ apiKey: [] }],
+      paths: {
+        '/pets': {
+          get: { operationId: 'listPets', responses: { '200': { description: 'OK' } } },
+          post: {
+            operationId: 'createPet',
+            security: [{ '#/components/securitySchemes/oauth': ['write'] }, {}],
+            responses: { '201': { description: 'Created' } },
+          },
+          delete: { operationId: 'clearPets', security: [], responses: { '204': { description: 'Done' } } },
+        },
+      },
+      components: { securitySchemes: { apiKey: { type: 'apiKey', in: 'header', name: 'X-Key' }, oauth: { type: 'oauth2', flows: {} } } },
+    })
+
+    expect(root.operations.map(({ operationId, security }) => [operationId, security])).toStrictEqual([
+      ['listPets', [{ apiKey: [] }]],
+      ['createPet', [{ oauth: ['write'] }, {}]],
+      ['clearPets', []],
+    ])
+  })
+})
