@@ -1,5 +1,22 @@
 # Changelog
 
+## v5.17.1 — Nov 10, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Type a `format: binary` body as a blob when its schema also has a `description`, `title`, `example`, or another annotation. The OpenAPI 3.1 upgrade drops `format: binary` and leaves the annotation, so the body became `unknown`. The annotation is kept on the blob schema. ([#4559](https://github.com/kubb-labs/kubb/pull/4559), [`affd204`](https://github.com/kubb-labs/kubb/commit/affd2049f0ea59920773189341b1c617d9b3d03a))
+- Give a response without content an empty `contentType` (`''`) instead of the request's media type. A body-less `304` on an operation with a `text/plain` request body was typed as `string`, while the client returns `undefined`. The adapter `contentType` option no longer adds its media type to a response without content either. ([#4559](https://github.com/kubb-labs/kubb/pull/4559), [`affd204`](https://github.com/kubb-labs/kubb/commit/affd2049f0ea59920773189341b1c617d9b3d03a))
+- Leave array and primitive members of a discriminated `oneOf`/`anyOf` without the discriminant intersection. Only an object can carry the discriminator property, so `ContentDirectory & { type: 'array' }` matched no value and Zod rejected every directory listing. ([#4559](https://github.com/kubb-labs/kubb/pull/4559), [`affd204`](https://github.com/kubb-labs/kubb/commit/affd2049f0ea59920773189341b1c617d9b3d03a))
+- Report `KUBB_UNSUPPORTED_FORMAT` once per format, at the first schema that uses it, with the number of schemas that use it. The Stripe spec printed 826 warnings for three formats and now prints three. ([#4559](https://github.com/kubb-labs/kubb/pull/4559), [`affd204`](https://github.com/kubb-labs/kubb/commit/affd2049f0ea59920773189341b1c617d9b3d03a))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.17.0 — Nov 9, 2026
 
 ### @kubb/adapter-oas
