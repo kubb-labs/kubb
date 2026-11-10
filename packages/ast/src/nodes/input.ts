@@ -43,6 +43,21 @@ export type InputTag = {
   externalDocs?: ExternalDocs
 }
 
+/**
+ * An authentication scheme from the source document, keyed by `name`. `parameterName` is the header, query, or cookie name of an `apiKey`.
+ *
+ * @deprecated Use `AuthScheme` from `meta.auth`. Removed in the next major.
+ */
+export type InputSecurityScheme = {
+  name: string
+  type: string
+  description?: string
+  scheme?: string
+  bearerFormat?: string
+  in?: string
+  parameterName?: string
+}
+
 /** One OAuth2 flow: the endpoints it calls and the scopes it grants. */
 export type OAuthFlow = {
   authorizationUrl?: string
@@ -129,6 +144,8 @@ export type InputMeta = {
   servers?: Array<InputServer>
   /** Tags declared at the document root, in document order. Absent when the document declares none. */
   tags?: Array<InputTag>
+  /** @deprecated Use `auth`. Removed in the next major. */
+  securitySchemes?: Array<InputSecurityScheme>
   /** Ways to authenticate that operations refer to by name. Absent when the document declares none. */
   auth?: Array<AuthScheme>
   /**

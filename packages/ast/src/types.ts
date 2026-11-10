@@ -12,6 +12,7 @@ export type {
   ExternalDocs,
   InputMeta,
   InputNode,
+  InputSecurityScheme,
   InputServer,
   InputTag,
   OAuthFlow,

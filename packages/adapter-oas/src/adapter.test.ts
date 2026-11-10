@@ -238,6 +238,7 @@ describe('adapterOas.parse', () => {
       title: 'Test API',
       version: '1.0.0',
       servers: [],
+      securitySchemes: [],
     })
     expect(node.meta.auth).toBeUndefined()
   })
@@ -345,6 +346,8 @@ describe('adapterOas.parse', () => {
 
     expect(node.meta.servers).toEqual([{ url: 'https://api.example.com/v2' }])
     expect(node.meta.auth).toEqual([{ name: 'api_key', credential: { type: 'apiKey', in: 'header', name: 'X-API-Key' } }])
+    // The deprecated flat shape stays filled until the next major.
+    expect(node.meta.securitySchemes).toEqual([{ name: 'api_key', type: 'apiKey', in: 'header', parameterName: 'X-API-Key' }])
   })
 })
 
