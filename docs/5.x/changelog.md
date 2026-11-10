@@ -9,6 +9,71 @@ outline: 2
 
 # Changelog
 
+## v5.18.0 — Nov 10, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Add support for OpenAPI 3.1 and OpenAPI 3.2. ([#4561](https://github.com/kubb-labs/kubb/pull/4561))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.17.1 — Nov 10, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Type a `format: binary` body as a blob when its schema also has a `description`, `title`, `example`, or another annotation. The OpenAPI 3.1 upgrade drops `format: binary` and leaves the annotation, so the body became `unknown`. The annotation is kept on the blob schema. ([#4559](https://github.com/kubb-labs/kubb/pull/4559))
+- Give a response without content an empty `contentType` (`''`) instead of the request's media type. A body-less `304` on an operation with a `text/plain` request body was typed as `string`, while the client returns `undefined`. The adapter `contentType` option no longer adds its media type to a response without content either. ([#4559](https://github.com/kubb-labs/kubb/pull/4559))
+- Leave array and primitive members of a discriminated `oneOf`/`anyOf` without the discriminant intersection. Only an object can carry the discriminator property, so `ContentDirectory & { type: 'array' }` matched no value and Zod rejected every directory listing. ([#4559](https://github.com/kubb-labs/kubb/pull/4559))
+- Report `KUBB_UNSUPPORTED_FORMAT` once per format, at the first schema that uses it, with the number of schemas that use it. The Stripe spec printed 826 warnings for three formats and now prints three. ([#4559](https://github.com/kubb-labs/kubb/pull/4559))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.17.0 — Nov 9, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Keep `servers` declared on a path item or an operation, such as an upload or streaming host. `OperationNode` gets an optional `servers` field from the operation's `servers`, else its path item's, mapped the same way as `InputMeta.servers`: entries without a `url` are dropped and variable defaults are filled in. The field is absent when neither declares servers, so plugins fall back to the document's servers. ([#4554](https://github.com/kubb-labs/kubb/pull/4554))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.16.1 — Nov 7, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Warn with `KUBB_DUPLICATE_DISCRIMINATOR` when two `oneOf`/`anyOf` members pin the declared `discriminator` property to the same value, pointing at the union in the spec. Such a union can't pick a branch, and Zod's `z.discriminatedUnion` throws `Duplicate discriminator value` on the first parse. ([#4538](https://github.com/kubb-labs/kubb/pull/4538))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Keep `macroSimplifyUnion` as a deprecated alias of `macroDedupeUnion`. A plugin built before the rename in 5.16, such as `@kubb/plugin-axios` 5.12, imports the old name and crashed with `Cannot read properties of undefined (reading 'input')` in `composeMacros`. Update the import to `macroDedupeUnion`; the alias goes away in the next major. ([#4552](https://github.com/kubb-labs/kubb/pull/4552))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle), [@tombeckenham](https://github.com/tombeckenham)
+
 ## v5.16.0 — Nov 6, 2026
 
 ### @kubb/adapter-oas
