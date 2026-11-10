@@ -3005,25 +3005,6 @@ describe('OpenAPI 3.2 examples', () => {
   })
 })
 
-describe('event stream sentinel', () => {
-  it.each(['x-sse-sentinel', 'x-speakeasy-sse-sentinel'])('reads %s on a text/event-stream entry', async (key) => {
-    const root = await parseOas({
-      openapi: '3.2.0',
-      info: { title: 'Test', version: '1.0.0' },
-      paths: {
-        '/stream': {
-          get: {
-            operationId: 'stream',
-            responses: { '200': { description: 'OK', content: { 'text/event-stream': { itemSchema: { type: 'string' }, [key]: '[DONE]' } } } },
-          },
-        },
-      },
-    })
-
-    expect(findOperation(root, 'stream')?.responses[0]?.content?.[0]?.stream).toMatchObject({ shape: 'data', sentinel: '[DONE]' })
-  })
-})
-
 describe('OpenAPI 3.2 parameter style and discriminator', () => {
   const info = { title: 'Test', version: '1.0.0' }
 
@@ -3189,5 +3170,29 @@ describe('OpenAPI 3.0 and 3.1 document fields', () => {
 
     expect(root.meta).toMatchObject({ summary: 'Pets', license: { name: 'Apache 2.0', identifier: 'Apache-2.0' } })
     expect(findSchema(root, 'Avatar')).toMatchObject({ type: 'string', contentEncoding: 'base64', contentMediaType: 'image/png' })
+  })
+})
+
+describe('JSON Schema 2020-12 object keywords', () => {
+  it('closes an object with unevaluatedProperties: false and keeps dependentRequired', async () => {
+    const root = await parseOas({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Payment: {
+            type: 'object',
+            properties: { creditCard: { type: 'string' }, billingAddress: { type: 'string' } },
+            unevaluatedProperties: false,
+            dependentRequired: { creditCard: ['billingAddress'] },
+          },
+          Labels: { type: 'object', unevaluatedProperties: { type: 'string' } },
+        },
+      },
+    })
+
+    expect(findSchema(root, 'Payment')).toMatchObject({ additionalProperties: false, dependentRequired: { creditCard: ['billingAddress'] } })
+    expect(findSchema(root, 'Labels')).toMatchObject({ additionalProperties: { type: 'string' } })
   })
 })

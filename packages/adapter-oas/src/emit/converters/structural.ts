@@ -5,6 +5,16 @@ import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 
+/** The JSON Schema 2020-12 `dependentRequired` map, keeping only lists of property names. */
+function getDependentRequired(schema: SchemaObject): Record<string, Array<string>> | undefined {
+  const value = (schema as { dependentRequired?: unknown }).dependentRequired
+  if (!value || typeof value !== 'object') return undefined
+  const entries = Object.entries(value).filter(
+    (entry): entry is [string, Array<string>] => Array.isArray(entry[1]) && entry[1].every((key) => typeof key === 'string'),
+  )
+  return entries.length ? Object.fromEntries(entries) : undefined
+}
+
 /**
  * Resolves a `true` or empty-object map schema (`additionalProperties`/`patternProperties`) to
  * `options.unknownType`, otherwise parses it as a regular schema.
@@ -60,7 +70,8 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       })
     : []
 
-  const additionalProperties = schema.additionalProperties
+  // JSON Schema 2020-12 `unevaluatedProperties` closes or types the extra keys the same way when `additionalProperties` is absent.
+  const additionalProperties = schema.additionalProperties ?? (schema as { unevaluatedProperties?: SchemaObject['additionalProperties'] }).unevaluatedProperties
   const additionalPropertiesNode = (() => {
     if (additionalProperties === true) return true
     if (additionalProperties) return resolveMapSchema(additionalProperties, { options, parse })
@@ -85,6 +96,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       propertyNames,
       minProperties: schema.minProperties,
       maxProperties: schema.maxProperties,
+      dependentRequired: getDependentRequired(schema),
     },
   )
 

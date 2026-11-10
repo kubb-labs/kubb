@@ -168,6 +168,10 @@ export type ObjectSchemaNode = SchemaNodeBase & {
    */
   propertyNames?: SchemaNode
   /**
+   * Properties that become required when a key is present, such as `{ creditCard: ['billingAddress'] }`.
+   */
+  dependentRequired?: Record<string, Array<string>>
+  /**
    * Minimum number of properties allowed.
    */
   minProperties?: number

@@ -4,7 +4,7 @@
 '@kubb/core': minor
 ---
 
-Read the remaining OpenAPI 3.2 fields, so a 3.2 document no longer generates the same AST as a 3.1 document.
+Read the remaining OpenAPI 3.2 fields, so a 3.2 document no longer generates the same AST as a 3.1 document, and the 3.0 and 3.1 fields the adapter skipped.
 
 - `$self` sets the base URI that relative `$ref`s resolve against. A relative `$self` resolves against the file's own location first.
 - Tags land on `meta.tags` with `summary`, `parent` and `kind`. With `group: { type: 'tag' }`, a child tag's folder sits inside its parent's, such as `animals/cats/`.
@@ -13,9 +13,10 @@ Read the remaining OpenAPI 3.2 fields, so a 3.2 document no longer generates the
 - `ResponseNode` gets `summary`. A response without `description` parses.
 - `InputServer` gets `name`.
 - `InputSecurityScheme` gets the OAuth2 `flows`, including `deviceAuthorization`, plus `oauth2MetadataUrl` and `deprecated`.
-- `stream.sentinel` holds the `data` value that ends an event stream, read from `x-sse-sentinel` or `x-speakeasy-sse-sentinel`.
 - A string schema node keeps `contentMediaType` and the parsed `contentSchema`.
 - `ParameterStyle` gets the 3.2 `cookie` style.
 - A discriminator without `propertyName`, optional from 3.2, no longer crashes the parse. Its `defaultMapping` schema is added to the union.
 - Schema nodes get `xml` with `name`, `namespace`, `prefix` and the 3.2 `nodeType`. The deprecated `attribute: true` and `wrapped: true` become `nodeType`.
+- 3.0 and 3.1 fields that were not read before: `info` `summary`, `termsOfService`, `contact` and `license` on `meta`; `externalDocs` on the document, tags, operations and schemas; response `headers` and `links`; parameter `deprecated` and `allowEmptyValue`; `openIdConnectUrl`; and string `contentEncoding`.
+- JSON Schema 2020-12 `unevaluatedProperties` closes or types an object's extra keys when `additionalProperties` is absent, and object nodes get `dependentRequired`.
 - `OperationNode` gets `security`, from the operation or else the document. A 3.2 key that names a scheme by URI becomes the scheme name.
