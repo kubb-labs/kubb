@@ -62,7 +62,7 @@ export function isBinary(schema: SchemaObject): boolean {
 /**
  * Keywords that only annotate a schema. A schema with nothing else does not constrain the value.
  */
-const annotationKeywords = new Set(['title', 'description', 'example', 'examples', 'deprecated', 'readOnly', 'writeOnly', 'externalDocs'])
+const annotationKeywords = new Set(['title', 'description', 'default', 'example', 'examples', 'deprecated', 'readOnly', 'writeOnly', 'externalDocs'])
 
 /**
  * Returns the binary schema for a non-JSON entry the OAS 3.1 upgrade emptied out, or `undefined`
