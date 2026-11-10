@@ -442,14 +442,9 @@ export type StringSchemaNode = SchemaNodeBase & {
    * Regex pattern.
    */
   pattern?: string
-  /**
-   * Media type of the value the string holds, such as `application/json` for an encoded JSON document.
-   */
+  /** Media type of the value the string holds, such as `application/json` for an encoded JSON document. */
   contentMediaType?: string
-  /**
-   * Schema of the decoded value, set next to `contentMediaType`. Visitors do not walk it, so the
-   * string's own type does not import the schema it refers to.
-   */
+  /** Schema of the decoded value. Visitors skip it, so the string type does not import that schema. */
   contentSchema?: SchemaNode
 }
 

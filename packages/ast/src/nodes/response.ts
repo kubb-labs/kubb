@@ -43,9 +43,7 @@ export type ResponseNode = BaseNode & {
    * HTTP status code or `'default'` for a fallback response.
    */
   statusCode: StatusCode
-  /**
-   * Short one-line response summary.
-   */
+  /** Short one-line response summary. */
   summary?: string
   /**
    * Optional response description.

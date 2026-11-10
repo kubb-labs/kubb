@@ -17,9 +17,7 @@ export type InputServerVariable = {
  */
 export type InputServer = {
   url: string
-  /**
-   * Short name that identifies the server, such as `production`.
-   */
+  /** Short name that identifies the server, such as `production`. */
   name?: string
   description?: string
   /**
@@ -29,40 +27,26 @@ export type InputServer = {
   variables?: Record<string, InputServerVariable>
 }
 
-/**
- * A tag from the source document that operations are grouped under.
- */
+/** A tag from the source document that operations are grouped under. */
 export type InputTag = {
   name: string
-  /**
-   * Short one-line summary, such as the label a docs site shows.
-   */
+  /** Short one-line summary, such as the label a docs site shows. */
   summary?: string
   description?: string
-  /**
-   * Name of the tag this tag nests under. `group: { type: 'tag' }` places its files in the parent's folder.
-   */
+  /** Name of the tag this tag nests under. `group: { type: 'tag' }` places its files in the parent's folder. */
   parent?: string
-  /**
-   * What the tag is for, such as `nav`, `badge`, or `audience`.
-   */
+  /** What the tag is for, such as `nav`, `badge`, or `audience`. */
   kind?: string
 }
 
-/**
- * One OAuth2 flow: the endpoints it calls and the scopes it grants.
- */
+/** One OAuth2 flow: the endpoints it calls and the scopes it grants. */
 export type InputOAuthFlow = {
   authorizationUrl?: string
-  /**
-   * Endpoint that issues the device code of the device authorization flow (RFC 8628).
-   */
+  /** Endpoint that issues the device code of the device authorization flow (RFC 8628). */
   deviceAuthorizationUrl?: string
   tokenUrl?: string
   refreshUrl?: string
-  /**
-   * Scope names mapped to their descriptions.
-   */
+  /** Scope names mapped to their descriptions. */
   scopes?: Record<string, string>
 }
 
@@ -77,13 +61,9 @@ export type InputSecurityScheme = {
   bearerFormat?: string
   in?: string
   parameterName?: string
-  /**
-   * OAuth2 flows by name, such as `authorizationCode` or `deviceAuthorization`.
-   */
+  /** OAuth2 flows by name, such as `authorizationCode` or `deviceAuthorization`. */
   flows?: Record<string, InputOAuthFlow>
-  /**
-   * URL of the OAuth2 authorization server metadata (RFC 8414).
-   */
+  /** URL of the OAuth2 authorization server metadata (RFC 8414). */
   oauth2MetadataUrl?: string
   deprecated?: boolean
 }
@@ -115,9 +95,7 @@ export type InputMeta = {
    */
   baseURL?: string | null
   servers?: Array<InputServer>
-  /**
-   * Tags declared at the document root, in document order. Absent when the document declares none.
-   */
+  /** Tags declared at the document root, in document order. Absent when the document declares none. */
   tags?: Array<InputTag>
   securitySchemes?: Array<InputSecurityScheme>
   /**

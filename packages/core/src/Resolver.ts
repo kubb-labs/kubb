@@ -411,17 +411,7 @@ export class Resolver {
     for (const name of names) this.#usedNames.add(name)
   }
 
-  /**
-   * Reads each tag's `parent`, so `group: { type: 'tag' }` places a child tag's folder inside its
-   * parent's. The driver calls this once the input is parsed.
-   *
-   * @example
-   * ```ts
-   * resolver.setTags([{ name: 'cats', parent: 'animals' }])
-   * resolver.default.path({ baseName: 'cat.ts', tag: 'cats', root: '/src', output: { path: 'types', mode: 'directory' }, group: { type: 'tag' } })
-   * // → '/src/types/animals/cats/cat.ts'
-   * ```
-   */
+  /** Reads each tag's `parent`, so a `tag` group nests a child's folder in its parent's. The driver calls it after parsing. */
   setTags(tags: InputMeta['tags']): void {
     this.#tagParents.clear()
     for (const { name, parent } of tags ?? []) if (parent) this.#tagParents.set(name, parent)

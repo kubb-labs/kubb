@@ -109,10 +109,7 @@ export type DiscriminatorObject = OpenAPIV3_1.DiscriminatorObject & { defaultMap
  */
 export type ReferenceObject = OpenAPIV3_1.ReferenceObject
 
-/**
- * OpenAPI response object holding the content and headers for one status code, with the OpenAPI 3.2
- * `summary`. From 3.2 `description` is optional.
- */
+/** OpenAPI response object, with the OpenAPI 3.2 `summary`. From 3.2 `description` is optional. */
 export type ResponseObject = Omit<OpenAPIV3_1.ResponseObject, 'description'> & { description?: string; summary?: string }
 
 /**
@@ -130,16 +127,11 @@ export type EncodingObject = Omit<OpenAPIV3_1.EncodingObject, 'style'> & {
   itemEncoding?: EncodingObject
 }
 
-/**
- * OpenAPI media type object, with the OpenAPI 3.2 `itemSchema` of one item of a stream and the
- * positional `prefixEncoding` and `itemEncoding` of a body sent as an array of parts.
- */
+/** OpenAPI media type object, with the OpenAPI 3.2 `itemSchema`, `prefixEncoding` and `itemEncoding`. */
 export type MediaTypeObject = Omit<OpenAPIV3_1.MediaTypeObject, 'encoding'> &
   Pick<EncodingObject, 'encoding' | 'prefixEncoding' | 'itemEncoding'> & { itemSchema?: SchemaObject | ReferenceObject }
 
-/**
- * OpenAPI example object, with the OpenAPI 3.2 `dataValue` and `serializedValue`.
- */
+/** OpenAPI example object, with the OpenAPI 3.2 `dataValue` and `serializedValue`. */
 export type ExampleObject = OpenAPIV3_1.ExampleObject & { dataValue?: unknown; serializedValue?: string }
 
 /**
@@ -149,10 +141,7 @@ export type ParameterObject = {
   in: 'cookie' | 'header' | 'path' | 'query' | 'querystring'
 } & OpenAPIV3_1.ParameterObject
 
-/**
- * OpenAPI security scheme object, read loosely since its fields depend on `type`. Adds the OpenAPI 3.2
- * `deviceAuthorization` flow, `oauth2MetadataUrl` and `deprecated`.
- */
+/** OpenAPI security scheme object, with the OpenAPI 3.2 `deviceAuthorization` flow, `oauth2MetadataUrl` and `deprecated`. */
 export type SecuritySchemeObject = {
   type?: string
   description?: string
@@ -165,9 +154,7 @@ export type SecuritySchemeObject = {
   deprecated?: boolean
 }
 
-/**
- * OpenAPI tag object, with the OpenAPI 3.2 `summary`, `parent` and `kind`.
- */
+/** OpenAPI tag object, with the OpenAPI 3.2 `summary`, `parent` and `kind`. */
 export type TagObject = OpenAPIV3_1.TagObject & { summary?: string; parent?: string; kind?: string }
 
 /**

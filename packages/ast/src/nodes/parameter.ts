@@ -66,9 +66,7 @@ export type ParameterNode = BaseNode & {
    * `application/json` when the value is sent as a JSON-encoded string. Absent for `schema` parameters.
    */
   contentType?: string
-  /**
-   * Examples of the parameter value. Absent when the source gives none.
-   */
+  /** Examples of the parameter value. Absent when the source gives none. */
   examples?: Array<ExampleNode>
 }
 

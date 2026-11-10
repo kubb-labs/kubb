@@ -82,9 +82,8 @@ function isExtensionPath(path: ReadonlyArray<string | number>): boolean {
 }
 
 /**
- * Returns the base URI that relative `$ref`s in `root` resolve against: the OpenAPI 3.2 `$self`,
- * itself resolved against `pathOrUrl`, else `pathOrUrl`. A `$self` that is neither an `http(s)` nor a
- * `file:` URL, such as a URN, names the document without locating it, so `pathOrUrl` stays the base.
+ * Returns the base for relative `$ref`s: the OpenAPI 3.2 `$self` resolved against `pathOrUrl`, else `pathOrUrl`.
+ * A `$self` that only names the document, such as a URN, is ignored.
  */
 export function getBaseUri(pathOrUrl: string, root: unknown): string {
   const self = root && typeof root === 'object' ? (root as { $self?: unknown }).$self : undefined
