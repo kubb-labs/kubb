@@ -676,6 +676,67 @@ describe('adapterOas options', () => {
     })
   })
 
+  it('applies the keywords next to a component $ref together with its target', async () => {
+    const node = await adapterOas({ validate: false }).parse({
+      type: 'data',
+      data: {
+        openapi: '3.1.0',
+        info: { title: 'r', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            Base: { type: 'object', description: 'base', properties: { a: { type: 'string' }, b: { type: 'string' } }, dependentRequired: { a: ['b'] } },
+            Plain: { $ref: '#/components/schemas/Base' },
+            Described: { $ref: '#/components/schemas/Base', description: 'own', deprecated: true },
+            Conditional: { $ref: '#/components/schemas/Base', if: { required: ['a'] }, then: { required: ['c'] } },
+            Outer: { $ref: '#/components/schemas/Conditional' },
+            Chained: { $ref: '#/components/schemas/Plain', dependentRequired: { b: ['a'] } },
+            Required: { $ref: '#/components/schemas/Base', required: ['a'] },
+            Extended: { $ref: '#/components/schemas/Base', properties: { c: { type: 'number' } } },
+          },
+        },
+      },
+    })
+
+    const find = (name: string) => node.schemas.find((schema) => schema.name === name)!
+    const conditionKeys = (name: string) =>
+      find(name).conditionals?.map((entry) =>
+        [entry.if, entry.then].map((branch) => ast.narrowSchema(branch, 'object')?.properties.map((property) => property.name)),
+      )
+    const memberProperties = (name: string) =>
+      ast
+        .narrowSchema(find(name), 'intersection')
+        ?.members?.map((member) => ast.narrowSchema(member, 'object')?.properties.map((property) => [property.name, property.required]))
+
+    expect(find('Plain')).toMatchObject({ type: 'object', description: 'base' })
+    expect(find('Described')).toMatchObject({ type: 'object', description: 'own', deprecated: true })
+    expect(conditionKeys('Described')).toStrictEqual([[['a'], ['b']]])
+    expect(conditionKeys('Conditional')).toStrictEqual([
+      [['a'], ['b']],
+      [['a'], ['c']],
+    ])
+    expect(conditionKeys('Outer')).toStrictEqual(conditionKeys('Conditional'))
+    expect(conditionKeys('Chained')).toStrictEqual([
+      [['a'], ['b']],
+      [['b'], ['a']],
+    ])
+    expect(memberProperties('Required')).toStrictEqual([
+      [
+        ['a', false],
+        ['b', false],
+      ],
+      [['a', true]],
+    ])
+    expect(memberProperties('Extended')).toStrictEqual([
+      [
+        ['a', false],
+        ['b', false],
+      ],
+      [['c', false]],
+    ])
+    expect(conditionKeys('Base')).toStrictEqual([[['a'], ['b']]])
+  })
+
   it('keeps a single-member allOf around a union ref as a ref instead of treating it as a cycle', async () => {
     const node = await adapterOas({ validate: false }).parse({
       type: 'data',

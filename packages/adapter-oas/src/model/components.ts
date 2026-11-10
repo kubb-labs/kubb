@@ -213,8 +213,27 @@ const semanticSuffixes: Record<SchemaSourceMode, string> = {
 export function getSchemas(document: Document, { contentType }: { contentType?: ContentType }, refs: Refs): GetSchemasResult {
   const components = document.components
 
+  /**
+   * Follows a `$ref` to the schema it ends at. Keywords next to a `$ref` apply together with its target,
+   * so they stay on a one-member `allOf` around it.
+   */
+  function inlineRef(schema: SchemaObject, seen = new Set<string>()): SchemaObject {
+    if (!isReference(schema) || seen.has(schema.$ref)) return schema
+    const { $ref, ...siblings } = schema
+    const resolved = refs.resolve<SchemaObject>($ref)
+    if (!resolved) return schema
+    const target = inlineRef(resolved, seen.add($ref))
+    const wrapped = { ...siblings, allOf: [target] }
+
+    return Object.keys(siblings).length ? (wrapped as SchemaObject) : target
+  }
+
+  /**
+   * Replaces a `$ref` schema with its target. A plain `$ref` to another `$ref` stays as it is, so the parser reads it as an alias.
+   */
   function resolveSchemaRef(schema: SchemaObject): SchemaObject {
     if (!isReference(schema)) return schema
+    if (Object.keys(schema).length > 1) return inlineRef(schema)
     const resolved = refs.resolve<SchemaObject>(schema.$ref)
     return resolved && !isReference(resolved) ? resolved : schema
   }
