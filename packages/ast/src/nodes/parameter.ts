@@ -69,7 +69,7 @@ export type ParameterNode = BaseNode & {
   /** Examples of the parameter value. Absent when the source gives none. */
   examples?: Array<ExampleNode>
   deprecated?: boolean
-  /** Whether an empty value, such as `?flag=`, may be sent. Deprecated in the source spec. */
+  /** Whether the parameter may be sent with an empty value, such as `?flag=`. */
   allowEmptyValue?: boolean
 }
 
