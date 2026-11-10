@@ -99,7 +99,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       propertyNames,
       min: schema.minProperties,
       max: schema.maxProperties,
-      // shortcut: the pre-`min`/`max` names, kept so plugins that read them keep working, remove them in the next major.
+      // shortcut: the pre-`min`/`max` names, kept so plugins that read them keep working, remove them in Kubb v6.
       minProperties: schema.minProperties,
       maxProperties: schema.maxProperties,
     },

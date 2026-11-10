@@ -47,7 +47,7 @@ function getNumericConstraints(
     ...(hasExclusive && {
       exclusive: { ...(exclusiveMinimum !== undefined && { min: exclusiveMinimum }), ...(exclusiveMaximum !== undefined && { max: exclusiveMaximum }) },
     }),
-    // shortcut: the pre-`exclusive` names, kept so plugins that read them keep working, remove them in the next major.
+    // shortcut: the pre-`exclusive` names, kept so plugins that read them keep working, remove them in Kubb v6.
     exclusiveMinimum,
     exclusiveMaximum,
     multipleOf: schema.multipleOf,

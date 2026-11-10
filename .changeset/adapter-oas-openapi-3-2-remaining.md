@@ -23,16 +23,18 @@ Read the OpenAPI 3.0, 3.1 and 3.2 fields the adapter skipped, so plugins get eve
 
 - `$self` sets the base URI that relative `$ref`s resolve against.
 - A `$ref` to a schema's `$id`, `$anchor` or `$dynamicAnchor`, and a `$dynamicRef`, resolve like a local `$ref`. Before, an anchor ref failed as not found and an `$id` URL was fetched.
-- `unevaluatedProperties` and `unevaluatedItems` close or type extra keys and tuple items when `additionalProperties` or `items` is absent.
+- `unevaluatedProperties` and `unevaluatedItems` close or type extra keys and tuple items when `additionalProperties` or `items` is absent, and no `allOf`, `anyOf`, `oneOf`, `if`, `dependentSchemas` or `$ref` sits beside them.
 - A discriminator without `propertyName`, optional from 3.2, no longer crashes the parse. Its `defaultMapping` schema joins the union.
 - A response without `description` parses.
 
 ### Deprecated
 
-Bounds use `min` and `max` on every node type, as string, array and number nodes already did:
+These fields stay filled, so existing code keeps working. They are removed in Kubb v6.
 
-- Object nodes get `min` and `max` from `minProperties` and `maxProperties`. `minProperties` and `maxProperties` stay filled until the next major.
-- Number nodes get `exclusive` with `min` and `max` from `exclusiveMinimum` and `exclusiveMaximum`. The old fields stay filled until the next major.
+| Deprecated                                             | Use instead                                        |
+| ------------------------------------------------------ | -------------------------------------------------- |
+| `minProperties`, `maxProperties` on object nodes       | `min`, `max`, as on string, array and number nodes |
+| `exclusiveMinimum`, `exclusiveMaximum` on number nodes | `exclusive: { min, max }`                          |
 
 ```diff
 - { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 100 }

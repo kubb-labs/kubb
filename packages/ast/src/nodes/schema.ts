@@ -166,11 +166,11 @@ export type ObjectSchemaNode = SchemaNodeBase & {
    */
   max?: number
   /**
-   * @deprecated Use `min`. Removed in the next major.
+   * @deprecated Use `min`. Removed in Kubb v6.
    */
   minProperties?: number
   /**
-   * @deprecated Use `max`. Removed in the next major.
+   * @deprecated Use `max`. Removed in Kubb v6.
    */
   maxProperties?: number
 }
@@ -504,11 +504,11 @@ export type NumberSchemaNode = SchemaNodeBase & {
    */
   exclusive?: { min?: number; max?: number }
   /**
-   * @deprecated Use `exclusive.min`. Removed in the next major.
+   * @deprecated Use `exclusive.min`. Removed in Kubb v6.
    */
   exclusiveMinimum?: number
   /**
-   * @deprecated Use `exclusive.max`. Removed in the next major.
+   * @deprecated Use `exclusive.max`. Removed in Kubb v6.
    */
   exclusiveMaximum?: number
   /**
