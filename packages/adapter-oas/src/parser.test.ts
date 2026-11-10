@@ -2931,3 +2931,37 @@ describe('OpenAPI 3.2 security schemes', () => {
     ])
   })
 })
+
+describe('OpenAPI 3.2 encoding', () => {
+  it('reads prefixEncoding, itemEncoding and nested encoding', async () => {
+    const root = await parseOas({
+      openapi: '3.2.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/batch': {
+          post: {
+            operationId: 'batch',
+            requestBody: {
+              content: {
+                'multipart/mixed': {
+                  schema: { type: 'array', prefixItems: [{ type: 'object' }, { type: 'object' }], items: { type: 'string' } },
+                  prefixEncoding: [{ contentType: 'application/json' }, {}],
+                  itemEncoding: { contentType: 'text/plain' },
+                },
+                'multipart/form-data': {
+                  schema: { type: 'object', properties: { parts: { type: 'object' } } },
+                  encoding: { parts: { contentType: 'multipart/mixed', encoding: { meta: { contentType: 'application/json' }, empty: {} } } },
+                },
+              },
+            },
+            responses: { '204': { description: 'Done' } },
+          },
+        },
+      },
+    })
+    const [mixed, form] = findOperation(root, 'batch')!.requestBody!.content!
+
+    expect(mixed).toMatchObject({ prefixEncoding: [{ contentType: 'application/json' }, {}], itemEncoding: { contentType: 'text/plain' } })
+    expect(form?.encoding).toStrictEqual({ parts: { contentType: 'multipart/mixed', encoding: { meta: { contentType: 'application/json' } } } })
+  })
+})

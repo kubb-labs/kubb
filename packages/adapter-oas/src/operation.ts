@@ -10,6 +10,7 @@ import type { Refs } from './refs.ts'
 import type {
   ContentType,
   Document,
+  EncodingObject,
   MediaTypeObject,
   OperationObject,
   ParameterObject,
@@ -145,14 +146,35 @@ function pickStyleFields({ style, explode, allowReserved }: { style?: string; ex
   }
 }
 
-/** The `encoding` of a media type, reduced to the entries that set a field Kubb carries. A `style` outside the OpenAPI set is dropped. */
-function getEncoding(encoding: MediaTypeObject['encoding']): Record<string, ast.EncodingNode> | undefined {
-  const entries = Object.entries(encoding ?? {}).flatMap(([property, { contentType, ...rest }]) => {
-    const node: ast.EncodingNode = { ...(contentType !== undefined ? { contentType } : {}), ...pickStyleFields(rest) }
+/**
+ * The `encoding`, `prefixEncoding` and `itemEncoding` of a media type or of a nested multipart part. An `encoding`
+ * entry or `itemEncoding` that sets no field Kubb carries is dropped, and a `style` outside the OpenAPI set is dropped.
+ */
+function getEncodingFields({
+  encoding,
+  prefixEncoding,
+  itemEncoding,
+}: Pick<EncodingObject, 'encoding' | 'prefixEncoding' | 'itemEncoding'>): Pick<ast.EncodingNode, 'encoding' | 'prefixEncoding' | 'itemEncoding'> {
+  const entries = Object.entries(encoding ?? {}).flatMap(([property, entry]) => {
+    const node = toEncodingNode(entry)
     return Object.keys(node).length ? [[property, node] as const] : []
   })
+  const item = itemEncoding && toEncodingNode(itemEncoding)
 
-  return entries.length ? Object.fromEntries(entries) : undefined
+  return {
+    ...(entries.length && { encoding: Object.fromEntries(entries) }),
+    // Entries keep their position, so an empty one still stands for its part.
+    ...(prefixEncoding?.length && { prefixEncoding: prefixEncoding.map(toEncodingNode) }),
+    ...(item && Object.keys(item).length && { itemEncoding: item }),
+  }
+}
+
+function toEncodingNode({ contentType, encoding, prefixEncoding, itemEncoding, ...rest }: EncodingObject): ast.EncodingNode {
+  return {
+    ...(contentType !== undefined && { contentType }),
+    ...pickStyleFields(rest),
+    ...getEncodingFields({ encoding, prefixEncoding, itemEncoding }),
+  }
 }
 
 type ContentMap = Record<string, MediaTypeObject | ReferenceObject> | undefined
@@ -336,13 +358,12 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     const mediaType = getMediaType({ content: body?.content, contentType: ct, refs })
     const node = ast.optionality(parseSchema({ schema, name: requestBodyName }), bodyRequired)
     scanSchema(node, `${mediaTypePointer(body?.content, ct, `${pointer}/requestBody/content/${escapePointerToken(ct)}`)}/${schemaKeyword(mediaType)}`)
-    const encoding = getEncoding(mediaType?.encoding)
     return [
       ast.factory.createContent({
         contentType: ct,
         schema: node,
         keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
-        ...(encoding && { encoding }),
+        ...(mediaType && getEncodingFields(mediaType)),
         ...getStreamField({ contentType: ct, mediaType, refs, document, node }),
       }),
     ]
@@ -375,6 +396,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
       return {
         schema: node,
         keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly'),
+        ...(mediaType && getEncodingFields(mediaType)),
         ...(ct ? getStreamField({ contentType: ct, mediaType, refs, document, node }) : {}),
       }
     }

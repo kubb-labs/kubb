@@ -121,9 +121,21 @@ export type ResponseObject = Omit<OpenAPIV3_1.ResponseObject, 'description'> & {
 export type RequestBodyObject = OpenAPIV3_1.RequestBodyObject
 
 /**
- * OpenAPI media type object, with the OpenAPI 3.2 `itemSchema` of one item of a stream.
+ * How one part of a multipart body is serialized, with the OpenAPI 3.2 nested `encoding`, `prefixEncoding` and `itemEncoding`.
  */
-export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject & { itemSchema?: SchemaObject | ReferenceObject }
+export type EncodingObject = Omit<OpenAPIV3_1.EncodingObject, 'style'> & {
+  style?: string
+  encoding?: Record<string, EncodingObject>
+  prefixEncoding?: Array<EncodingObject>
+  itemEncoding?: EncodingObject
+}
+
+/**
+ * OpenAPI media type object, with the OpenAPI 3.2 `itemSchema` of one item of a stream and the
+ * positional `prefixEncoding` and `itemEncoding` of a body sent as an array of parts.
+ */
+export type MediaTypeObject = Omit<OpenAPIV3_1.MediaTypeObject, 'encoding'> &
+  Pick<EncodingObject, 'encoding' | 'prefixEncoding' | 'itemEncoding'> & { itemSchema?: SchemaObject | ReferenceObject }
 
 /**
  * OpenAPI parameter object, narrowed so `in` is always one of the valid locations.
