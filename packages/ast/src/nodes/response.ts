@@ -50,10 +50,11 @@ export type ResponseNode = BaseNode & {
   /**
    * All available content type entries for this response.
    *
-   * When the adapter `contentType` option is set, this array contains exactly one entry for that
-   * content type. Otherwise it contains one entry per content type declared in the spec, so that
-   * plugins can generate a union of response types (e.g. `application/json` and `application/xml`).
-   * Body-less responses keep a single entry whose `schema` is the empty/`void` placeholder.
+   * For a response that declares content, the array holds exactly one entry for the adapter
+   * `contentType` option when it is set. Otherwise it holds one entry per content type declared in
+   * the spec, so that plugins can generate a union of response types (e.g. `application/json` and
+   * `application/xml`). A body-less response always keeps a single entry whose `contentType` is `''`
+   * and whose `schema` is the empty/`void` placeholder, even when the option is set.
    *
    * @example
    * ```ts

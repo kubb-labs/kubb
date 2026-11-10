@@ -104,6 +104,27 @@ describe('schema diagnostics during parse', () => {
     expect(formatWarnings[0]).toMatchObject({ location: { pointer: '#/components/schemas/Pet/properties/owner/properties/badge' } })
   })
 
+  it('warns once per unmapped format with the number of schemas that use it', async () => {
+    const shared = {
+      openapi: '3.0.3',
+      info: { title: 'Pets', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: { type: 'object', properties: { createdAt: { type: 'integer', format: 'unix-time' }, updatedAt: { type: 'integer', format: 'unix-time' } } },
+          Owner: { type: 'object', properties: { joinedAt: { type: 'integer', format: 'unix-time' } } },
+        },
+      },
+    }
+    const formatWarnings = (await collect(shared)).filter((diagnostic) => diagnostic.code === 'KUBB_UNSUPPORTED_FORMAT')
+
+    expect(formatWarnings).toHaveLength(1)
+    expect(formatWarnings[0]).toMatchObject({
+      message: 'Kubb does not map the format "unix-time" to a specific type, so 3 schemas fall back to the base type.',
+      location: { pointer: '#/components/schemas/Pet/properties/createdAt' },
+    })
+  })
+
   it('reports each union member at its own indexed pointer', async () => {
     const union = {
       openapi: '3.0.3',

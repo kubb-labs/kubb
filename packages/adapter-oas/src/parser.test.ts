@@ -333,6 +333,43 @@ describe('buildAst', () => {
       expect(findOperation(root, 'getPetById')?.responses.find((r) => r.statusCode === '404')?.description).toBe('Not found')
     })
 
+    it('gives a body-less response an empty content type instead of the request one', async () => {
+      const root = await parseOas({
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/markdown/raw': {
+            post: {
+              operationId: 'renderRaw',
+              requestBody: { content: { 'text/plain': { schema: { type: 'string' } } } },
+              responses: { '304': { description: 'Not modified' } },
+            },
+          },
+        },
+      })
+      const notModified = findOperation(root, 'renderRaw')?.responses.find((r) => r.statusCode === '304')
+
+      expect(notModified?.content).toMatchObject([{ contentType: '' }])
+    })
+
+    it('types an octet-stream body with a description as a blob', async () => {
+      const root = await parseOas({
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        paths: {
+          '/assets': {
+            post: {
+              operationId: 'uploadAsset',
+              requestBody: { content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary', description: 'The asset' } } } },
+              responses: { '204': { description: 'ok' } },
+            },
+          },
+        },
+      })
+
+      expect(findOperation(root, 'uploadAsset')?.requestBody?.content?.[0]?.schema).toMatchObject({ type: 'blob', description: 'The asset' })
+    })
+
     it('populates requestBody.content with every content type in spec order', async () => {
       const root = await parseOas(multipartUploadDocument)
       const upload = findOperation(root, 'upload')
@@ -1157,6 +1194,30 @@ describe('parseSchema oneOf / anyOf', () => {
 })
 
 describe('parseSchema discriminator on union', () => {
+  it('leaves an array member out of the discriminant intersection', async () => {
+    const root = await parseOas({
+      openapi: '3.0.3',
+      info: { title: 't', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Content: {
+            oneOf: [{ $ref: '#/components/schemas/ContentDirectory' }, { $ref: '#/components/schemas/ContentFile' }],
+            discriminator: { propertyName: 'type', mapping: { array: '#/components/schemas/ContentDirectory', file: '#/components/schemas/ContentFile' } },
+          },
+          ContentDirectory: { type: 'array', items: { $ref: '#/components/schemas/ContentFile' } },
+          ContentFile: { type: 'object', properties: { type: { type: 'string' } }, required: ['type'] },
+        },
+      },
+    })
+    const members = ast.narrowSchema(
+      root.schemas.find((schema) => schema.name === 'Content'),
+      'union',
+    )?.members
+
+    expect(members?.map((member) => member.type)).toStrictEqual(['ref', 'intersection'])
+  })
+
   it('narrows the discriminator property to the mapping keys of each union member when a mapping is present', () => {
     const node = parseSchema(emptyCtx, {
       schema: {

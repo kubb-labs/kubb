@@ -13,6 +13,44 @@ export function scanSchema(node: ast.SchemaNode, pointer = node.pointer): void {
   if (pointer) visit(node, pointer)
 }
 
+// Pointers per unsupported format, collected while `groupUnsupportedFormats` runs.
+let formatTally: Map<string, Set<string>> | undefined
+
+/**
+ * Runs `fn` and reports `KUBB_UNSUPPORTED_FORMAT` once per format with the number of schemas that use it,
+ * instead of once per schema. `format` is an open value in OpenAPI, so a large spec would otherwise print
+ * thousands of warnings that say the same thing. `fn` must be synchronous.
+ */
+export function groupUnsupportedFormats<T>(fn: () => T): T {
+  formatTally = new Map()
+  try {
+    return fn()
+  } finally {
+    const tally = formatTally
+    formatTally = undefined
+    for (const [format, pointers] of tally) reportUnsupportedFormat(format, [...pointers])
+  }
+}
+
+function tallyFormat(format: string, pointer: string): void {
+  if (!formatTally) return reportUnsupportedFormat(format, [pointer])
+  formatTally.set(format, (formatTally.get(format) ?? new Set()).add(pointer))
+}
+
+function reportUnsupportedFormat(format: string, pointers: Array<string>): void {
+  const count = pointers.length
+  Diagnostics.report({
+    code: Diagnostics.code.unsupportedFormat,
+    severity: 'warning',
+    message:
+      count === 1
+        ? `Kubb does not map the format "${format}" to a specific type, so it falls back to the base type.`
+        : `Kubb does not map the format "${format}" to a specific type, so ${count} schemas fall back to the base type.`,
+    help: `Use a format Kubb supports, or handle "${format}" with a custom parser or plugin.`,
+    location: { kind: 'schema', pointer: pointers[0]! },
+  })
+}
+
 function visit(node: ast.SchemaNode, pointer: string): void {
   node.pointer ??= pointer
   if (node.deprecated) {
@@ -25,13 +63,7 @@ function visit(node: ast.SchemaNode, pointer: string): void {
   }
 
   if (typeof node.format === 'string' && !isHandledFormat(node.format)) {
-    Diagnostics.report({
-      code: Diagnostics.code.unsupportedFormat,
-      severity: 'warning',
-      message: `Kubb does not map the format "${node.format}" to a specific type, so it falls back to the base type.`,
-      help: `Use a format Kubb supports, or handle "${node.format}" with a custom parser or plugin.`,
-      location: { kind: 'schema', pointer },
-    })
+    tallyFormat(node.format, pointer)
   }
 
   if (node.type === 'object') {
