@@ -31,7 +31,7 @@ Read the OpenAPI 3.0, 3.1 and 3.2 fields the adapter skipped, so plugins get eve
 
 `meta.securitySchemes` and `InputSecurityScheme` are replaced by `meta.auth` and `AuthScheme`. Each scheme's `credential` has the same shape as the `Auth` object that `@kubb/plugin-fetch` and `@kubb/plugin-axios` pass to your `auth` resolver, so the AST and the generated client share one format:
 
-- `http` with `scheme` (`bearer`, `basic`, or another such as `digest`).
+- `http` with `scheme` (`bearer`, `basic`, or another such as `digest`) and `bearerFormat`.
 - `apiKey` with `in` and `name`.
 - `oauth2` with its `flows`, including the 3.2 `deviceAuthorization`, and `metadataUrl`.
 - `openIdConnect` with the discovery `url`.

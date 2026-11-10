@@ -12,7 +12,9 @@ function getCredential(scheme: SecuritySchemeObject): ast.AuthCredential | undef
   if (scheme.type === 'apiKey') {
     return scheme.name && scheme.in && API_KEY_LOCATIONS.has(scheme.in) ? { type: 'apiKey', in: scheme.in as 'header', name: scheme.name } : undefined
   }
-  if (scheme.type === 'http') return scheme.scheme ? { type: 'http', scheme: scheme.scheme.toLowerCase() } : undefined
+  if (scheme.type === 'http') {
+    return scheme.scheme ? { type: 'http', scheme: scheme.scheme.toLowerCase(), ...(scheme.bearerFormat && { bearerFormat: scheme.bearerFormat }) } : undefined
+  }
   if (scheme.type === 'openIdConnect') return { type: 'openIdConnect', ...(scheme.openIdConnectUrl && { url: scheme.openIdConnectUrl }) }
   if (scheme.type === 'oauth2') {
     const flows = Object.entries(scheme.flows ?? {}).map(([name, flow]) => {

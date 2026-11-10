@@ -57,6 +57,7 @@ export type OAuthFlow = {
 /**
  * How a client sends a credential, in the same shape as the `Auth` object the generated clients pass to `auth`.
  * - `http`: `Authorization: Bearer <token>` or `Basic <base64 user:password>`, or another scheme such as `digest`.
+ *   `bearerFormat` hints at the token format, such as `JWT`.
  * - `apiKey`: a key under `name` in a header, the query string or a cookie.
  * - `oauth2`: a bearer token from one of the `flows`, such as `authorizationCode` or `deviceAuthorization`.
  *   `metadataUrl` points at the authorization server metadata (RFC 8414).
@@ -64,7 +65,7 @@ export type OAuthFlow = {
  * - `mutualTLS`: a client certificate on the connection, nothing in the request.
  */
 export type AuthCredential =
-  | { type: 'http'; scheme: 'bearer' | 'basic' | (string & {}) }
+  | { type: 'http'; scheme: 'bearer' | 'basic' | (string & {}); bearerFormat?: string }
   | { type: 'apiKey'; in: 'header' | 'query' | 'cookie'; name: string }
   | { type: 'oauth2'; flows: Record<string, OAuthFlow>; metadataUrl?: string }
   | { type: 'openIdConnect'; url?: string }

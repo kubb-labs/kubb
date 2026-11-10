@@ -288,8 +288,8 @@ describe('adapterOas.parse', () => {
       { url: 'https://{env}.example.com', variables: { env: { default: 'staging', enum: ['dev', 'prod'] } } },
     ])
     expect(node.meta.auth).toEqual([
-      { name: 'bearer', credential: { type: 'http', scheme: 'bearer' } },
-      { name: 'shared', credential: { type: 'http', scheme: 'bearer' } },
+      { name: 'bearer', credential: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
+      { name: 'shared', credential: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
     ])
   })
 
