@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest'
 import type { ResponseNode, StatusCode } from '../nodes/response.ts'
 import { baseURL, responses, status } from './index.ts'
 
+// Like the adapter, a body-less response keeps one entry with an empty `contentType`.
 function response(statusCode: StatusCode, withBody = false): ResponseNode {
-  return { kind: 'Response', statusCode, ...(withBody ? { content: [{ kind: 'Content', contentType: 'application/json' }] } : {}) } as ResponseNode
+  return { kind: 'Response', statusCode, content: [{ kind: 'Content', contentType: withBody ? 'application/json' : '' }] } as ResponseNode
 }
 
 describe('http.status', () => {
@@ -32,6 +33,7 @@ describe('http.responses', () => {
   it('prefers a body, then an exact code', () => {
     expect(responses.primary({ responses: [response('204'), response('2xx', true), response('201', true)] })?.statusCode).toBe('201')
     expect(responses.primary({ responses: [response('2xx'), response('204')] })?.statusCode).toBe('204')
+    expect(responses.primary({ responses: [response('204'), response('200', true)] })?.statusCode).toBe('200')
     expect(responses.primary({ responses: [response('404')] })).toBeNull()
   })
 })
