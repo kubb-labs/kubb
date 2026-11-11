@@ -2,12 +2,13 @@ import * as graph from './graph/index.ts'
 import * as http from './http/index.ts'
 import * as ref from './ref/index.ts'
 import * as schema from './schema/index.ts'
+import { mergeRefWithSchema as mergeRef } from './utils/refs.ts'
 
 /** @deprecated Use `ast.ref.isBare`. Removed in Kubb v6. */
 export const isBareRef = ref.isBare
 
-/** @deprecated Use `ast.ref.merge`. Removed in Kubb v6. */
-export const mergeRefWithSchema = ref.merge
+/** @deprecated Use `ast.ref.sync`. Removed in Kubb v6. */
+export const mergeRefWithSchema = mergeRef
 
 /** @deprecated Use `ast.ref.name`. Removed in Kubb v6. */
 export const refName = ref.name

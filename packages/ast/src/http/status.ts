@@ -1,4 +1,7 @@
-import type { StatusCode } from '../nodes/response.ts'
+import type { ResponseNode, StatusCode } from '../nodes/response.ts'
+
+/** A status code or range, or a response that carries one. */
+type StatusInput = StatusCode | number | (string & {}) | Pick<ResponseNode, 'statusCode'>
 
 const classByRange = new Map([
   ['1xx', 1],
@@ -9,7 +12,8 @@ const classByRange = new Map([
 ])
 
 /** The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`. */
-function statusClass(statusCode: StatusCode | number | (string & {})): number | null {
+function statusClass(input: StatusInput): number | null {
+  const statusCode = typeof input === 'object' ? input.statusCode : input
   const rangeClass = classByRange.get(String(statusCode))
   if (rangeClass) return rangeClass
   const code = Number(statusCode)
@@ -19,18 +23,19 @@ function statusClass(statusCode: StatusCode | number | (string & {})): number | 
 export { statusClass as class }
 
 /** Whether the status code or range is `2xx`. */
-export function isSuccess(statusCode: StatusCode | number | (string & {})): boolean {
+export function isSuccess(statusCode: StatusInput): boolean {
   return statusClass(statusCode) === 2
 }
 
 /** Whether the status code or range is `4xx` or `5xx`. */
-export function isError(statusCode: StatusCode | number | (string & {})): boolean {
+export function isError(statusCode: StatusInput): boolean {
   const code = statusClass(statusCode)
   return code !== null && code >= 4
 }
 
 /** One concrete code for a status or range: `200` for `2xx` and `default`, the code itself otherwise. */
-export function toCode(statusCode: StatusCode | number | (string & {})): number {
+export function toCode(input: StatusInput): number {
+  const statusCode = typeof input === 'object' ? input.statusCode : input
   const code = Number(statusCode)
   return Number.isNaN(code) ? (statusClass(statusCode) ?? 2) * 100 : code
 }

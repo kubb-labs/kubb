@@ -26,3 +26,11 @@ describe('mediaType', () => {
     expect(isStream(mediaType)).toBe(expected)
   })
 })
+
+describe('mediaType with a content entry', () => {
+  it('reads the media type from the entry', () => {
+    expect(base({ contentType: 'Text/Plain; charset=utf-8' })).toBe('text/plain')
+    expect(isJson({ contentType: 'application/problem+json' })).toBe(true)
+    expect(isStream({ contentType: 'application/jsonl' })).toBe(true)
+  })
+})

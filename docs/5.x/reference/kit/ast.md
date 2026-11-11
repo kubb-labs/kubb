@@ -218,26 +218,26 @@ Analyze how schemas reference each other, to prune unused schemas or wrap circul
 
 These namespaces on `ast` read facts from nodes, so a plugin does not parse them again. `ast.mediaType`, `ast.schema`, `ast.server`, and `ast.auth` work for any spec. `ast.http` works for HTTP operations only.
 
-| Helper                       | Purpose                                                                                        |
-| ---------------------------- | ---------------------------------------------------------------------------------------------- |
-| `ast.mediaType.base`         | Drop the parameters and lowercase: `'Text/Plain; charset=utf-8'` gives `'text/plain'`.         |
-| `ast.mediaType.isJson`       | Whether a media type is `application/json`, `text/json`, or has a `+json` suffix.              |
-| `ast.mediaType.isStream`     | Whether a media type is server-sent events, JSON Lines, or a JSON text sequence (`+json-seq`). |
-| `ast.schema.jsonContent`     | The schema of the JSON document a string holds (`contentMediaType` with `contentSchema`).      |
-| `ast.schema.isString`        | Whether a schema prints as a plain `string`, including `date` and `time` as strings.           |
-| `ast.schema.numberBounds`    | The tightest inclusive `{ min, max }`, with exclusive bounds moved to the next `step`.         |
-| `ast.server.select`          | Pick a server by `index`, falling back to the first one.                                       |
-| `ast.server.byName`          | Map each server name to its server. The first server with a name wins.                         |
-| `ast.auth.resolve`           | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements.      |
-| `ast.http.is`                | Narrow an operation to an HTTP operation, so `method` and `path` are present.                  |
-| `ast.http.status.class`      | The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`.      |
-| `ast.http.status.isSuccess`  | Whether a status code or range is `2xx`.                                                       |
-| `ast.http.status.isError`    | Whether a status code or range is `4xx` or `5xx`.                                              |
-| `ast.http.status.toCode`     | One concrete code for a status or range: `200` for `2xx` and `default`.                        |
-| `ast.http.parameters`        | The parameters by location (`path`, `query`, `header`, `cookie`), first of a repeated name.    |
-| `ast.http.responses.success` | The operation's `2xx` responses.                                                               |
-| `ast.http.responses.primary` | The success response a client returns: one with a body first, then an exact code over a range. |
-| `ast.http.baseURL`           | A server's URL when it is absolute and has no template variables, else `undefined`.            |
+| Helper                       | Purpose                                                                                                                                                    |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ast.mediaType.base`         | Drop the parameters and lowercase: `'Text/Plain; charset=utf-8'` gives `'text/plain'`. Every `ast.mediaType` helper takes a media type or a content entry. |
+| `ast.mediaType.isJson`       | Whether a media type is `application/json`, `text/json`, or has a `+json` suffix.                                                                          |
+| `ast.mediaType.isStream`     | Whether a media type is server-sent events, JSON Lines, or a JSON text sequence (`+json-seq`).                                                             |
+| `ast.schema.jsonContent`     | The schema of the JSON document a string holds (`contentMediaType` with `contentSchema`).                                                                  |
+| `ast.schema.isString`        | Whether a schema prints as a plain `string`, including `date` and `time` as strings.                                                                       |
+| `ast.schema.numberBounds`    | The tightest inclusive `{ min, max }`, with exclusive bounds moved to the next `step`.                                                                     |
+| `ast.server.select`          | Pick a server by `index`, falling back to the first one.                                                                                                   |
+| `ast.server.byName`          | Map each server name to its server. The first server with a name wins.                                                                                     |
+| `ast.auth.resolve`           | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements.                                                                  |
+| `ast.http.is`                | Narrow an operation to an HTTP operation, so `method` and `path` are present.                                                                              |
+| `ast.http.status.class`      | The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`. Every `ast.http.status` helper takes a code or a response.       |
+| `ast.http.status.isSuccess`  | Whether a status code or range is `2xx`.                                                                                                                   |
+| `ast.http.status.isError`    | Whether a status code or range is `4xx` or `5xx`.                                                                                                          |
+| `ast.http.status.toCode`     | One concrete code for a status or range: `200` for `2xx` and `default`.                                                                                    |
+| `ast.http.parameters`        | The parameters by location (`path`, `query`, `header`, `cookie`), first of a repeated name.                                                                |
+| `ast.http.responses.success` | The operation's `2xx` responses.                                                                                                                           |
+| `ast.http.responses.primary` | The success response a client returns: one with a body first, then an exact code over a range.                                                             |
+| `ast.http.baseURL`           | A server's URL when it is absolute and has no template variables, else `undefined`.                                                                        |
 
 ```typescript [baseURL.ts]
 import { ast } from 'kubb/kit'

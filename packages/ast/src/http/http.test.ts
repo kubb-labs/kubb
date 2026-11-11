@@ -86,3 +86,11 @@ describe('http.parameters querystring', () => {
     )
   })
 })
+
+describe('http.status with a response', () => {
+  it('reads the status code from the response', () => {
+    expect(status.isSuccess({ statusCode: '201' })).toBe(true)
+    expect(status.isError({ statusCode: '4xx' })).toBe(true)
+    expect(status.toCode({ statusCode: 'default' })).toBe(200)
+  })
+})

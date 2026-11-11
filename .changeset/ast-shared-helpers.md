@@ -1,13 +1,13 @@
 ---
-'@kubb/ast': minor
+'@kubb/ast': patch
 '@kubb/adapter-oas': patch
-'@kubb/core': minor
-'@kubb/kit': minor
+'@kubb/core': patch
+'@kubb/kit': patch
 ---
 
 Add shared helpers so plugins stop re-deriving facts from the spec:
 
-- `ast.ref` (`name`, `resolve`, `isBare`, `merge`, `sync`) and `ast.graph` (`refs`, `usedNames`, `circular`, `importedNames`, `containsCircular`) group the ref and schema graph helpers.
+- `ast.ref` (`name`, `resolve`, `isBare`, `sync`) and `ast.graph` (`refs`, `usedNames`, `circular`, `importedNames`, `containsCircular`) group the ref and schema graph helpers.
 - `ast.schema` (`properties`, `literalValues`, `discriminatorName`, `jsonContent`, `isString`, `numberBounds`) reads facts from schema nodes.
 - `ast.mediaType`, `ast.http` (`is`, `status`, `responses`, `parameters`, `baseURL`), `ast.server` and `ast.auth` read media types, HTTP operations, servers and auth requirements.
 - `code` in `@kubb/kit`: `code.string`, `code.key`, `code.literal`, `code.isIdentifier` and `code.jsDoc` print safe JavaScript literals.
