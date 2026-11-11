@@ -1,4 +1,5 @@
 export { ast } from '@kubb/ast'
+export * as code from './code.ts'
 export { Url } from './Url.ts'
 export { macroDedupeUnion, macroSimplifyUnion } from './macros/macroDedupeUnion.ts'
 export { enumPrimitive, macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
