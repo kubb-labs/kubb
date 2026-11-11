@@ -301,7 +301,7 @@ describe('buildAst', () => {
       expect(op?.parameters.find((p) => p.name === 'sort')).not.toHaveProperty('contentType')
     })
 
-    it('keeps the encoding of a form-encoded querystring parameter', async () => {
+    it('spreads a form-encoded querystring object into query parameters with their encoding', async () => {
       const oas = {
         openapi: '3.2.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -328,7 +328,29 @@ describe('buildAst', () => {
       }
       const op = findOperation(await parseOas(oas), 'search')
 
-      expect(op?.parameters[0]?.encoding).toStrictEqual({ tags: { style: 'form', explode: false } })
+      expect(op?.parameters).toHaveLength(1)
+      expect(op?.parameters[0]).toMatchObject({ name: 'tags', in: 'query', style: 'form', explode: false, required: false })
+    })
+
+    it('keeps a JSON querystring parameter whole', async () => {
+      const oas = {
+        openapi: '3.2.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/search': {
+            get: {
+              operationId: 'search',
+              parameters: [
+                { name: 'filter', in: 'querystring', content: { 'application/json': { schema: { type: 'object', properties: { q: { type: 'string' } } } } } },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+      const op = findOperation(await parseOas(oas), 'search')
+
+      expect(op?.parameters).toMatchObject([{ name: 'filter', in: 'querystring', contentType: 'application/json' }])
     })
 
     it('converts requestBody with description, required and a single content entry', async () => {

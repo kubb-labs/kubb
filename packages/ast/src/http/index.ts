@@ -12,7 +12,7 @@ export function baseURL(server: InputServer | undefined): string | undefined {
   return URL.canParse(server.url) ? server.url : undefined
 }
 
-/** The operation's parameters by location. A name repeated within one location keeps its first parameter. */
+/** The operation's parameters by location, with a `querystring` parameter in `query`. A repeated name keeps its first parameter. */
 export function parameters(node: Pick<HttpOperationNode, 'parameters'>): Record<'path' | 'query' | 'header' | 'cookie', Array<ParameterNode>> {
   const group = (location: ParameterNode['in']) => {
     const seen = new Set<string>()
@@ -22,5 +22,9 @@ export function parameters(node: Pick<HttpOperationNode, 'parameters'>): Record<
       return true
     })
   }
-  return { path: group('path'), query: group('query'), header: group('header'), cookie: group('cookie') }
+  // A `querystring` parameter left whole, such as a JSON one, is sent as the query string, so it joins the query group.
+  const query = group('query')
+  const names = new Set(query.map((param) => param.name))
+  for (const param of group('querystring')) if (!names.has(param.name)) query.push(param)
+  return { path: group('path'), query, header: group('header'), cookie: group('cookie') }
 }

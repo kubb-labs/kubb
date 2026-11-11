@@ -72,3 +72,12 @@ describe('http.parameters', () => {
     })
   })
 })
+
+describe('http.parameters querystring', () => {
+  it('puts a whole querystring parameter in the query group after the query parameters', () => {
+    const param = (name: string, location: ParameterNode['in']) => ({ kind: 'Parameter', name, in: location }) as ParameterNode
+    expect(parameters({ parameters: [param('filter', 'querystring'), param('page', 'query'), param('page', 'querystring')] }).query.map((p) => p.name)).toEqual(
+      ['page', 'filter'],
+    )
+  })
+})

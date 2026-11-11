@@ -384,6 +384,31 @@ function parseParameter({
 }
 
 /**
+ * An OpenAPI 3.2 `querystring` parameter is the whole query string, so a form-encoded object becomes one query parameter
+ * per property, with the `style`, `explode` and `allowReserved` its `encoding` entry declares. Another content type, such
+ * as JSON, stays one `querystring` parameter, and a client sends its value as the whole query string.
+ */
+function spreadQuerystring(param: ast.ParameterNode): Array<ast.ParameterNode> {
+  if (param.in !== 'querystring') return [param]
+  const schema = param.schema.type === 'ref' ? param.schema.schema : param.schema
+  const formEncoded = !param.contentType || ast.mediaType.base(param.contentType) === 'application/x-www-form-urlencoded'
+  if (schema?.type !== 'object' || !formEncoded) return [param]
+  return schema.properties.map((property) => {
+    const { style, explode, allowReserved } = param.encoding?.[property.name] ?? {}
+    return ast.factory.createParameter({
+      ...(param.pointer ? { pointer: param.pointer } : {}),
+      name: property.name,
+      in: 'query',
+      schema: property.schema,
+      required: param.required && property.required,
+      ...(style !== undefined && { style }),
+      ...(explode !== undefined && { explode }),
+      ...(allowReserved !== undefined && { allowReserved }),
+    })
+  })
+}
+
+/**
  * Converts an OAS `Operation` into an `OperationNode`.
  */
 export function parseOperation({ operation, ...ctx }: OperationParseContext & { operation: Operation }): ast.OperationNode {
@@ -391,7 +416,9 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const operationId = getOperationId(operation)
   const operationName = operationId ? pascalCase(operationId) : undefined
   const pointer = getOperationPointer(operation)
-  const parameters = getParameters({ operation, refs }).map((entry) => parseParameter({ options, parseSchema, refs, ...entry, parentName: operationName }))
+  const parameters = getParameters({ operation, refs })
+    .map((entry) => parseParameter({ options, parseSchema, refs, ...entry, parentName: operationName }))
+    .flatMap(spreadQuerystring)
 
   // A configured contentType restricts the body to that one media type; otherwise every declared one is kept.
   const body = getRequestBody({ operation, refs })
