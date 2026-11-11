@@ -1,5 +1,24 @@
 # Changelog
 
+## v5.18.2 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Fix schemas found in real OpenAPI documents.
+  
+  - An `allOf` member that points at an alias `$ref` gives its properties to a `required`-only sibling, where they were `unknown`.
+  - A discriminator member with a nullable enum keeps its own value, where it got the schema name.
+  - A boolean schema (`true` or `false`) no longer stops the run.
+  - A `content` parameter keeps its `encoding` on the new `ParameterNode.encoding` field. ([#4574](https://github.com/kubb-labs/kubb/pull/4574), [`4348127`](https://github.com/kubb-labs/kubb/commit/434812729fb79c20fe1e13cbd4318bc4e6341f07))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.18.1 — Nov 11, 2026
 
 ### @kubb/adapter-oas
