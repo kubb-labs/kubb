@@ -28,3 +28,9 @@ export function isError(statusCode: StatusCode | number | (string & {})): boolea
   const code = statusClass(statusCode)
   return code !== null && code >= 4
 }
+
+/** One concrete code for a status or range: `200` for `2xx` and `default`, the code itself otherwise. */
+export function toCode(statusCode: StatusCode | number | (string & {})): number {
+  const code = Number(statusCode)
+  return Number.isNaN(code) ? (statusClass(statusCode) ?? 2) * 100 : code
+}

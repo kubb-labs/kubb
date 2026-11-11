@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { ResponseNode, StatusCode } from '../nodes/response.ts'
-import { baseURL, responses, status } from './index.ts'
+import type { ParameterNode } from '../nodes/parameter.ts'
+import { baseURL, parameters, responses, status } from './index.ts'
 
 // Like the adapter, a body-less response keeps one entry with an empty `contentType`.
 function response(statusCode: StatusCode, withBody = false): ResponseNode {
@@ -45,5 +46,29 @@ describe('http.baseURL', () => {
     expect(baseURL({ url: 'https://{env}.example.com' })).toBeUndefined()
     expect(baseURL({ url: 'https://dev.example.com', variables: { env: { default: 'dev' } } })).toBeUndefined()
     expect(baseURL(undefined)).toBeUndefined()
+  })
+})
+
+describe('http.status.toCode', () => {
+  it.each([
+    ['2xx', 200],
+    ['4xx', 400],
+    ['default', 200],
+    ['201', 201],
+  ] as const)('toCode(%s) is %s', (code, expected) => {
+    expect(status.toCode(code)).toBe(expected)
+  })
+})
+
+describe('http.parameters', () => {
+  it('groups by location and keeps the first of a repeated name', () => {
+    const param = (name: string, location: ParameterNode['in']) => ({ kind: 'Parameter', name, in: location }) as ParameterNode
+    const groups = parameters({ parameters: [param('id', 'path'), param('q', 'query'), param('q', 'query'), param('x', 'header'), param('s', 'cookie')] })
+    expect(Object.fromEntries(Object.entries(groups).map(([key, list]) => [key, list.map((p) => p.name)]))).toEqual({
+      path: ['id'],
+      query: ['q'],
+      header: ['x'],
+      cookie: ['s'],
+    })
   })
 })

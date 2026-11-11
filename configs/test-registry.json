@@ -31,6 +31,7 @@
   "packages/ast/src/mediaType/mediaType.test.ts": "One list of JSON, stream and form media types for the adapter and plugins, including the +json and +json-seq suffix branches.",
   "packages/ast/src/nodes/file.test.ts": "Regression: self-import and consolidated-output import dropping in createFile, with the comment explaining the bug.",
   "packages/ast/src/nodes/property.test.ts": "Only test of the required-omitted default in createProperty (required false, optional true); parser.test.ts always passes required.",
+  "packages/ast/src/schema/schema.test.ts": "The JSON-in-a-string rule (contentMediaType with contentSchema, skipped when encoded) that ts, zod and faker share.",
   "packages/ast/src/server/server.test.ts": "Server pick falls back to the first entry for an unknown index, and byName keeps the first server with a name.",
   "packages/ast/src/utils/combineFileMembers.test.ts": "Import and export merge, sort, type-only split and the 128+ identifier index are branchy with no other direct test.",
   "packages/ast/src/utils/combineFileMembers.win32.test.ts": "Regression for #4576: Windows import order must match POSIX; needs node:path mocked to win32, so it cannot share a file with the POSIX tests.",
