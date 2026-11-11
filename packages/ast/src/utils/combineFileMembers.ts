@@ -34,7 +34,9 @@ function sortKey(node: FileMember): string {
   const typeOnly = node.isTypeOnly ? '0' : '1'
   const hasName = node.name != null ? '1' : '0'
   const name = Array.isArray(node.name) ? node.name.toSorted().join('\0') : (node.name ?? '')
-  return `${isArray}:${typeOnly}:${node.path}:${hasName}:${name}`
+  // POSIX form without a drive letter, so `D:\src\x` sorts like `/src/x` and the order matches across OSes.
+  const path = node.path.replaceAll('\\', '/').replace(/^[a-z]:/i, '')
+  return `${isArray}:${typeOnly}:${path}:${hasName}:${name}`
 }
 
 /**

@@ -117,6 +117,15 @@ describe('combineImports', () => {
     ])
   })
 
+  it('sorts a Windows local path like its POSIX form, before a scoped package', () => {
+    const scoped = createImport({ name: ['fetch'], path: '@kubb/fetch' })
+    const posix = createImport({ name: ['Pet'], path: '/project/src/types/Pet.ts' })
+    const windows = createImport({ name: ['Pet'], path: 'D:\\project\\src\\types\\Pet.ts' })
+
+    expect(combineImports([scoped, posix], [], 'fetch Pet').map((i) => i.path)).toStrictEqual([posix.path, scoped.path])
+    expect(combineImports([scoped, windows], [], 'fetch Pet').map((i) => i.path)).toStrictEqual([windows.path, scoped.path])
+  })
+
   it('keeps value and type-only imports from the same path separate', () => {
     const value = createImport({
       name: ['Pet'],
