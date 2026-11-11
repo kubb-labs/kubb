@@ -1,3 +1,5 @@
+export { dedent, indent, unquote } from '@internals/utils'
+
 // A raw line break would end the literal.
 const quoteEscapes = new Map([
   ['\\', '\\\\'],

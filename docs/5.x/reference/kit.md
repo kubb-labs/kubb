@@ -59,13 +59,16 @@ Import authoring APIs from `kubb/kit`, included with the `kubb` package.
 
 `code` turns values into JavaScript source a generator can print, so a quote or line break in a spec name cannot break the output.
 
-| Helper              | Purpose                                                                           |
-| ------------------- | --------------------------------------------------------------------------------- |
-| `code.string`       | A single-quoted string literal with quotes, backslashes, and line breaks escaped. |
-| `code.key`          | An object key, quoted only when it is not identifier-shaped.                      |
-| `code.literal`      | A JSON value as a literal, with single-quoted strings.                            |
-| `code.isIdentifier` | Whether a name is a valid variable name and not a reserved word.                  |
-| `code.jsDoc`        | Text with a leading `@` escaped, so it cannot start a JSDoc tag.                  |
+| Helper              | Purpose                                                                                |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| `code.string`       | A single-quoted string literal with quotes, backslashes, and line breaks escaped.      |
+| `code.key`          | An object key, quoted only when it is not identifier-shaped.                           |
+| `code.literal`      | A JSON value as a literal, with single-quoted strings.                                 |
+| `code.isIdentifier` | Whether a name is a valid variable name and not a reserved word.                       |
+| `code.jsDoc`        | Text with a leading `@` escaped, so it cannot start a JSDoc tag.                       |
+| `code.indent`       | Indent every non-empty line by `unit` (two spaces by default). Blank lines stay empty. |
+| `code.dedent`       | Strip the common leading whitespace and the blank lines around the text.               |
+| `code.unquote`      | Strip one matching pair of `"`, `'` or `` ` `` from both ends.                         |
 
 ```typescript [code.ts]
 import { code } from 'kubb/kit'

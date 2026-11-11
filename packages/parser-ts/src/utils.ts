@@ -1,3 +1,4 @@
+import { dedent, indent } from '@internals/utils'
 import { createRequire } from 'node:module'
 import { dirname, extname as getExtname, isAbsolute, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -261,42 +262,6 @@ function printNodes({ nodes, separator }: { nodes: Array<ast.CodeNode> | undefin
 }
 
 /**
- * Indents every non-empty line of `text` by two spaces.
- */
-function indentLines(text: string): string {
-  if (!text) return ''
-  return text
-    .split('\n')
-    .map((line) => (line.trim() ? `  ${line}` : ''))
-    .join('\n')
-}
-
-/**
- * Strips the common leading whitespace and the surrounding blank lines, counting tabs and spaces alike, so indented template literals start at column zero.
- */
-function dedent(text: string): string {
-  if (!text) return ''
-  // Most text nodes are one line, so the common indent is its leading whitespace.
-  if (!text.includes('\n')) return text.trim() ? text.trimStart() : ''
-
-  const lines = text.split('\n')
-  const indents = lines.map((line) => {
-    const indent = line.length - line.trimStart().length
-    return indent === line.length ? -1 : indent
-  })
-  const start = indents.findIndex((indent) => indent !== -1)
-  if (start === -1) return ''
-  const end = indents.findLastIndex((indent) => indent !== -1)
-  // `-1` marks a blank line. `reduce`, not `Math.min(...indents)`, which overflows the stack on very long text.
-  const min = indents.reduce((lowest, indent) => (indent !== -1 && indent < lowest ? indent : lowest), Infinity)
-
-  return lines
-    .slice(start, end + 1)
-    .map((line, i) => (indents[start + i] === -1 ? '' : line.slice(min)))
-    .join('\n')
-}
-
-/**
  * Renders `<T>(params): ReturnType`; an async function wraps its return type in `Promise<>`.
  */
 function signature({ async: isAsync, generics, params, returnType }: Pick<ast.FunctionNode, 'async' | 'generics' | 'params' | 'returnType'>): string {
@@ -377,7 +342,7 @@ function printType(node: ast.TypeNode): string {
 function printFunction(node: ast.FunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes } = node
 
-  const body = indentLines(printNodes({ nodes, separator: '\n' }))
+  const body = indent(printNodes({ nodes, separator: '\n' }))
   const prefix = `${canExport ? 'export ' : ''}${isDefault ? 'default ' : ''}${isAsync ? 'async ' : ''}`
   const declaration = `${prefix}function ${name}${signature({ async: isAsync, generics, params, returnType })} {${body ? `\n${body}\n` : ''}}`
 
@@ -391,7 +356,7 @@ function printArrowFunction(node: ast.ArrowFunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes, singleLine } = node
 
   const body = printNodes({ nodes, separator: '\n' })
-  const arrowBody = singleLine ? ` => ${body}` : body ? ` => {\n${indentLines(body)}\n}` : ' => {}'
+  const arrowBody = singleLine ? ` => ${body}` : body ? ` => {\n${indent(body)}\n}` : ' => {}'
   const prefix = `${canExport ? 'export ' : ''}${isDefault ? 'default ' : ''}`
   const declaration = `${prefix}const ${name} = ${isAsync ? 'async ' : ''}${signature({ async: isAsync, generics, params, returnType })}${arrowBody}`
 

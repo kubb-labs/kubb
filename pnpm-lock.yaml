@@ -517,6 +517,10 @@ importers:
       yuku-parser:
         specifier: ^0.19.0
         version: 0.19.0
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
 
   packages/plugin-barrel:
     dependencies:

@@ -7,6 +7,7 @@
   "internals/utils/src/fs.test.ts": "write newline and no-rewrite rules against formatters, listFiles filtering and isPathInside path checks are branchy.",
   "internals/utils/src/isCIEnvironment.test.ts": "Small predicate, but the CI=false and CI=0 opt-out branch has no other test in the repo.",
   "internals/utils/src/promise.test.ts": "memo caching of a null value and inParallel worker hand-off are real logic.",
+  "internals/utils/src/text.test.ts": "Pins blank-line handling in indent and dedent, which every printer relies on, and quote matching in unquote.",
   "internals/utils/src/tools.test.ts": "detectTool preference order backs format auto; tokenize quoting has branches; no other test reaches them.",
   "packages/adapter-oas/src/adapter.bench.ts": "Only benchmark; CI reports parse time on the petStore spec so a slowdown is visible in the job log.",
   "packages/adapter-oas/src/adapter.test.ts": "Golden path: adapter.parse output, meta, servers, enums root, discriminator propagate, collision renames.",

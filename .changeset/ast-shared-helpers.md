@@ -11,7 +11,7 @@ Add shared helpers so plugins stop re-deriving facts from the spec:
 - `ast.schema` (`properties`, `literalValues`, `discriminatorName`, `jsonContent`, `isString`, `numberBounds`) reads facts from schema nodes.
 - `ast.mediaType`, `ast.http` (`is`, `status`, `responses`, `parameters`, `baseURL`), `ast.server` and `ast.auth` read media types, HTTP operations, servers and auth requirements.
 - `casing` in `@kubb/kit`: `casing.camel`, `casing.pascal`, `casing.snake`, `casing.screamingSnake` and `casing.capitalize`. `camelCase` and `pascalCase` from `@kubb/kit` are deprecated.
-- `code` in `@kubb/kit`: `code.string`, `code.key`, `code.literal`, `code.isIdentifier` and `code.jsDoc` print safe JavaScript literals.
+- `code` in `@kubb/kit`: `code.string`, `code.key`, `code.literal`, `code.isIdentifier` and `code.jsDoc` print safe JavaScript literals. `code.indent`, `code.dedent` and `code.unquote` work on any language's source.
 - `resolver.groupDir(group, value)` in `@kubb/core` returns the folder a group puts a file in.
 
 `resolver.imports({ checks: true })` no longer imports refs from checks that cannot fail: a `contains` with `minContains: 0` and no `maxContains`, and string `content` that is not JSON or is encoded.
