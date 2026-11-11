@@ -37,6 +37,16 @@ function withParsedData(schema: SchemaObject, refs: Refs): SchemaObject {
 }
 
 /**
+ * Inlines a `$ref` event whose JSON `data` string needs its `contentSchema`, so the shared component keeps `data` as a string elsewhere.
+ */
+function withParsedRef(schema: ReferenceObject, refs: Refs): SchemaObject | ReferenceObject {
+  const resolved = refs.resolve<SchemaObject | ReferenceObject>(schema.$ref, { report: false })
+  if (!resolved || isReference(resolved)) return schema
+  const parsed = withParsedData(resolved, refs)
+  return parsed === resolved ? schema : parsed
+}
+
+/**
  * Keywords next to `$ref` that only annotate it, so a reference that carries nothing else stays a reference.
  */
 const REF_ANNOTATIONS = new Set(['$ref', 'summary', 'description', '$comment'])
@@ -60,19 +70,19 @@ export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs
   if (isReference(schema)) {
     const siblings = Object.fromEntries(Object.entries(schema).filter(([key]) => !REF_ANNOTATIONS.has(key)))
     const resolved = Object.keys(siblings).length ? refs.resolve<SchemaObject>(schema.$ref, { report: false }) : null
-    return resolved ? toEventSchema(mergeSchemas(resolved, siblings as SchemaObject), refs) : schema
+    return resolved ? toEventSchema(mergeSchemas(resolved, siblings as SchemaObject), refs) : withParsedRef(schema, refs)
   }
   const key = schema.oneOf?.length ? 'oneOf' : schema.anyOf?.length ? 'anyOf' : undefined
   if (!key) return withParsedData(schema, refs)
 
   const members = schema[key] as Array<SchemaObject | ReferenceObject>
   const { properties, required, ...rest } = schema
-  // A `$ref` member stays a reference, so the shared properties can only move into members when every member is inline.
+  // Shared properties cannot move into a `$ref` member, so they only merge when every member is inline.
   const merge = !!properties && !members.some(isReference)
   const shared = { properties, required }
   const event = {
     ...(merge ? rest : schema),
-    [key]: members.map((member) => (isReference(member) ? member : withParsedData(merge ? mergeSchemas(shared, member) : member, refs))),
+    [key]: members.map((member) => (isReference(member) ? withParsedRef(member, refs) : withParsedData(merge ? mergeSchemas(shared, member) : member, refs))),
   }
   return event as SchemaObject
 }
