@@ -145,12 +145,6 @@ export function getItemSchema({
   return isEventStream(contentType) ? toEventSchema(raw, refs) : raw
 }
 
-/** How a stream's items are framed: `'events'` for `text/event-stream`, `'lines'` for JSON Lines and JSON text sequences. */
-export function getFraming(contentType: string): 'events' | 'lines' | undefined {
-  if (isEventStream(contentType)) return 'events'
-  return ast.mediaType.isStream(contentType) ? 'lines' : undefined
-}
-
 // A stream without a schema is a `blob` with a string primitive, so it keeps the JSON-parse default.
 function isTextSchema(schema: ast.SchemaNode | undefined): boolean {
   if (!schema) return false

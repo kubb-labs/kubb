@@ -14,17 +14,16 @@ export function baseURL(server: InputServer | undefined): string | undefined {
 
 /** The operation's parameters by location, with a `querystring` parameter in `query`. A repeated name keeps its first parameter. */
 export function parameters(node: Pick<HttpOperationNode, 'parameters'>): Record<'path' | 'query' | 'header' | 'cookie', Array<ParameterNode>> {
-  const group = (location: ParameterNode['in']) => {
+  const group = (...locations: Array<ParameterNode['in']>) => {
     const seen = new Set<string>()
-    return node.parameters.filter((param) => {
-      if (param.in !== location || seen.has(param.name)) return false
-      seen.add(param.name)
-      return true
-    })
+    return locations.flatMap((location) =>
+      node.parameters.filter((param) => {
+        if (param.in !== location || seen.has(param.name)) return false
+        seen.add(param.name)
+        return true
+      }),
+    )
   }
   // A `querystring` parameter left whole, such as a JSON one, is sent as the query string, so it joins the query group.
-  const query = group('query')
-  const names = new Set(query.map((param) => param.name))
-  for (const param of group('querystring')) if (!names.has(param.name)) query.push(param)
-  return { path: group('path'), query, header: group('header'), cookie: group('cookie') }
+  return { path: group('path'), query: group('query', 'querystring'), header: group('header'), cookie: group('cookie') }
 }

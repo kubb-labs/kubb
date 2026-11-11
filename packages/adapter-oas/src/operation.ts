@@ -2,7 +2,7 @@ import { escapePointerToken, pascalCase } from '@internals/utils'
 import { ast } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
-import { getFraming, getItemSchema, getItemShape, getTextData, isEventStream, isStream } from './model/mediaType.ts'
+import { getItemSchema, getItemShape, getTextData, isEventStream, isStream } from './model/mediaType.ts'
 import { toAuthRequirements } from './model/security.ts'
 import { toInputServers } from './model/server.ts'
 import { getBinaryFallbackSchema, getExternalDocs, isReference, pickExtensions, pickStrings } from './oas.ts'
@@ -266,7 +266,7 @@ function getStreamField({
   if (!isStream(contentType, mediaType)) return {}
   const raw = getItemSchema({ contentType, mediaType, refs, document })
   const shape = raw && isEventStream(contentType) ? getItemShape(raw, refs) : undefined
-  const framing = getFraming(contentType)
+  const framing = isEventStream(contentType) ? 'events' : ast.mediaType.isStream(contentType) ? 'lines' : undefined
   const textData = isEventStream(contentType) ? getTextData(node, shape ?? 'data') : undefined
 
   return {
@@ -390,9 +390,9 @@ function parseParameter({
  */
 function spreadQuerystring(param: ast.ParameterNode): Array<ast.ParameterNode> {
   if (param.in !== 'querystring') return [param]
-  const schema = param.schema.type === 'ref' ? param.schema.schema : param.schema
+  const schema = ast.resolveRef(param.schema)
   const formEncoded = !param.contentType || ast.mediaType.base(param.contentType) === 'application/x-www-form-urlencoded'
-  if (schema?.type !== 'object' || !formEncoded) return [param]
+  if (schema.type !== 'object' || !formEncoded) return [param]
   return schema.properties.map((property) => {
     const { style, explode, allowReserved } = param.encoding?.[property.name] ?? {}
     return ast.factory.createParameter({
