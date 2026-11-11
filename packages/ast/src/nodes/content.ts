@@ -78,16 +78,6 @@ export type ContentNode = BaseNode & {
      * - `'data'` only the `data` payload, which the client wraps in its own event type
      */
     shape?: 'event' | 'data'
-    /**
-     * How the items are framed: `'events'` for server-sent events, `'lines'` for one JSON value per line or record.
-     * Other adapters can add their own values.
-     */
-    framing?: 'events' | 'lines' | (string & {})
-    /**
-     * For server-sent events, whether `data` is typed as a string, so a client keeps it as text instead of parsing JSON.
-     * `true` when every event does, or the names of the events that do when only some do.
-     */
-    textData?: true | Array<string>
   }
   /**
    * Property keys to exclude from the generated type via `Omit<Type, Keys>`.

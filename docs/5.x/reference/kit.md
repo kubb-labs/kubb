@@ -41,6 +41,20 @@ Import authoring APIs from `kubb/kit`, included with the `kubb` package.
 | [Extension manifest](./kit/manifest)   | `kubb-extension.json`       | The file an extension package ships for the registry, `kubb add`, and Studio.    |
 | [Extension docs](./kit/extension-docs) | `docs/`                     | The Markdown pages an extension ships for kubb.dev.                              |
 
+## Casing
+
+`casing` turns names from a spec into identifiers and file names. Every helper takes `{ prefix, suffix }` except `capitalize`.
+
+| Helper                  | Example                                 |
+| ----------------------- | --------------------------------------- |
+| `casing.camel`          | `'get pet-by id'` gives `'getPetById'`. |
+| `casing.pascal`         | `'get pet-by id'` gives `'GetPetById'`. |
+| `casing.snake`          | `'helloWorld'` gives `'hello_world'`.   |
+| `casing.screamingSnake` | `'helloWorld'` gives `'HELLO_WORLD'`.   |
+| `casing.capitalize`     | `'getPetById'` gives `'GetPetById'`.    |
+
+`camelCase` and `pascalCase` from `kubb/kit` are deprecated. Use `casing.camel` and `casing.pascal`.
+
 ## Code literals
 
 `code` turns values into JavaScript source a generator can print, so a quote or line break in a spec name cannot break the output.

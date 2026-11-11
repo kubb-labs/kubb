@@ -76,3 +76,50 @@ export function camelCase(text: string, { prefix = '', suffix = '' }: Options = 
 export function pascalCase(text: string, { prefix = '', suffix = '' }: Options = {}): string {
   return toCamelOrPascal(`${prefix} ${text} ${suffix}`, true)
 }
+
+// A word starts at `petType`, `sensor2Reading`, and `HTTPResponse`, while `IDs` and `OAuth` stay whole
+const wordStart = /(?<=[a-z\d])(?=[A-Z])|(?<=[A-Z]{2})(?=[A-Z][a-z]{2})/
+
+/**
+ * Splits `text` into words on separators and on {@link wordStart}. A segment without lowercase letters, such as `COOL` or `2D`,
+ * is one word, so snake case leaves a name that is already in it unchanged.
+ */
+function words(text: string): Array<string> {
+  return text
+    .split(/[\s\-_./\\:]+/)
+    .filter(Boolean)
+    .flatMap((segment) => (segment === segment.toUpperCase() ? segment : segment.split(wordStart)))
+}
+
+/**
+ * Uppercases only the first character of `text`. Unlike `pascalCase` it never splits words or strips characters.
+ *
+ * @example
+ * `capitalize('getPetById') // 'GetPetById'`
+ */
+export function capitalize(text: string): string {
+  return `${text.charAt(0).toUpperCase()}${text.slice(1)}`
+}
+
+/**
+ * Converts `text` to snake_case.
+ *
+ * @example
+ * `snakeCase('helloWorld') // 'hello_world'`
+ */
+export function snakeCase(text: string, { prefix = '', suffix = '' }: Options = {}): string {
+  return words(`${prefix} ${text} ${suffix}`)
+    .map((word) => word.replace(/[^a-zA-Z0-9]/g, '').toLowerCase())
+    .filter(Boolean)
+    .join('_')
+}
+
+/**
+ * Converts `text` to SCREAMING_SNAKE_CASE.
+ *
+ * @example
+ * `screamingSnakeCase('helloWorld') // 'HELLO_WORLD'`
+ */
+export function screamingSnakeCase(text: string, { prefix = '', suffix = '' }: Options = {}): string {
+  return snakeCase(text, { prefix, suffix }).toUpperCase()
+}

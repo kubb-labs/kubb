@@ -1,8 +1,4 @@
-import { ast } from '@kubb/ast'
 import { pascalCase } from '@internals/utils'
-
-/** @deprecated Use `ast.ref.name`. Removed in Kubb v6. */
-export const extractRefName = ast.ref.name
 
 /**
  * Builds a PascalCase child schema name by joining a parent name and property name.
@@ -28,9 +24,3 @@ export function childName(parentName: string | null | undefined, propName: strin
 export function enumPropName(parentName: string | null | undefined, propName: string, enumSuffix: string): string {
   return pascalCase([parentName, propName, enumSuffix].filter(Boolean).join(' '))
 }
-
-/** @deprecated Use `ast.ref.sync`. Removed in Kubb v6. */
-export const syncSchemaRef = ast.ref.sync
-
-/** @deprecated Use `ast.schema.isString`. Removed in Kubb v6. */
-export const isStringType = ast.schema.isString

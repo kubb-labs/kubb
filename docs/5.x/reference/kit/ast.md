@@ -246,8 +246,6 @@ import { ast } from 'kubb/kit'
 const baseURL = ast.http.baseURL(ast.server.select(node.servers, { index: 0 }))
 ```
 
-A stream content entry also says how to read it, so a plugin does not parse the media type. `content.stream.framing` is `'events'` for server-sent events, or `'lines'` for JSON Lines and JSON text sequences. `content.stream.textData` is `true`, or the event names, when an event's `data` is typed as a string.
-
 ## Constants
 
 | Export        | Purpose                                  |

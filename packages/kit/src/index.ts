@@ -1,17 +1,17 @@
 export { ast } from '@kubb/ast'
+export * as casing from './casing.ts'
 export * as code from './code.ts'
+export { camelCase, containsCircularRef, extractRefName, isStringType, macroSimplifyUnion, pascalCase, syncSchemaRef } from './deprecated.ts'
 export { Url } from './Url.ts'
-export { macroDedupeUnion, macroSimplifyUnion } from './macros/macroDedupeUnion.ts'
+export { macroDedupeUnion } from './macros/macroDedupeUnion.ts'
 export { enumPrimitive, macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
 export { macroEnumName } from './macros/macroEnumName.ts'
 export { mergeAdjacentObjectsLazy } from './utils/mergeAdjacentSchemas.ts'
-export { childName, enumPropName, extractRefName, isStringType, syncSchemaRef } from './utils/refs.ts'
-export { containsCircularRef } from './utils/schemaGraph.ts'
+export { childName, enumPropName } from './utils/refs.ts'
 export {
   addGenerator,
   addMacro,
   assertPluginOption,
-  camelCase,
   createAdapter,
   createRenderer,
   createResolver,
@@ -29,7 +29,6 @@ export {
   manifestProblems,
   memo,
   memoryStorage,
-  pascalCase,
   requirePlugin,
   Resolver,
   setMacros,

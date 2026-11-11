@@ -2,7 +2,7 @@ import { escapePointerToken, pascalCase } from '@internals/utils'
 import { ast } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
-import { getItemSchema, getItemShape, getTextData, isEventStream, isStream } from './model/mediaType.ts'
+import { getItemSchema, getItemShape, isEventStream, isStream } from './model/mediaType.ts'
 import { toAuthRequirements } from './model/security.ts'
 import { toInputServers } from './model/server.ts'
 import { getBinaryFallbackSchema, getExternalDocs, isReference, pickExtensions, pickStrings } from './oas.ts'
@@ -265,16 +265,11 @@ function getStreamField({
 }): Pick<ast.ContentNode, 'stream'> {
   if (!isStream(contentType, mediaType)) return {}
   const raw = getItemSchema({ contentType, mediaType, refs, document })
-  const shape = raw && isEventStream(contentType) ? getItemShape(raw, refs) : undefined
-  const framing = isEventStream(contentType) ? 'events' : ast.mediaType.isStream(contentType) ? 'lines' : undefined
-  const textData = isEventStream(contentType) ? getTextData(node, shape ?? 'data') : undefined
 
   return {
     stream: {
       ...(raw ? { schema: node } : {}),
-      ...(shape ? { shape } : {}),
-      ...(framing ? { framing } : {}),
-      ...(textData ? { textData } : {}),
+      ...(raw && isEventStream(contentType) ? { shape: getItemShape(raw, refs) } : {}),
     },
   }
 }
