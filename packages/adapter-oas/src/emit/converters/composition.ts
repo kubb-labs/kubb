@@ -28,6 +28,7 @@ function collectSiblingProperties(
   const properties: Record<string, unknown> = { ...outerProperties }
   const visited = new Set<string>()
 
+  /** Adds the properties of one member, following its `$ref` and its own `allOf`. */
   function collectFrom(item: SchemaObject | ReferenceObject | undefined): void {
     if (!item) return
 

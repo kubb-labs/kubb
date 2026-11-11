@@ -234,6 +234,7 @@ export function narrowUnionMembers({
     // so skip folding the implicit name when the variant already pins the discriminator.
     const seen = new Set([member.$ref])
 
+    /** Whether the variant, or a schema it composes, pins the discriminator property to literal values. */
     function constrains(v: SchemaObject): boolean {
       const prop = v.properties?.[propertyName]
       const resolved = prop && isReference(prop) ? refs.resolve<SchemaObject>(prop.$ref, { report: false }) : (prop as SchemaObject | undefined)

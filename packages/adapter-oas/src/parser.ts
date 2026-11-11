@@ -41,6 +41,7 @@ export function createSchemaParser(ctx: OasParserContext) {
   const { document, refs, renames } = ctx
   const options: ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...ctx.options }
 
+  /** Converts one OpenAPI schema into a `SchemaNode`, through the first matching rule of `schemaRules`. */
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }): ast.SchemaNode {
     // A JSON Schema boolean: `true` accepts any value and `false` accepts none.
     if (typeof schema === 'boolean') {
