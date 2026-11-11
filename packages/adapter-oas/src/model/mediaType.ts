@@ -87,8 +87,26 @@ export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs
   return event as SchemaObject
 }
 
+const SSE_FIELDS: ReadonlySet<string> = new Set(['event', 'id', 'retry', 'data'])
+
 /**
- * Whether the schema, following `$ref`s, or a composition member of it declares an `event` or `data` property.
+ * Property names of the schema and its `allOf` members, following `$ref`s, as one combined object declares them.
+ */
+function collectFields(schema: SchemaObject | ReferenceObject, refs: Refs, seen: Set<string>): Array<string> {
+  if (isReference(schema)) {
+    if (seen.has(schema.$ref)) return []
+    seen.add(schema.$ref)
+    const resolved = refs.resolve<SchemaObject | ReferenceObject>(schema.$ref, { report: false })
+    return resolved ? collectFields(resolved, refs, seen) : []
+  }
+  const members = (schema.allOf ?? []) as Array<SchemaObject | ReferenceObject>
+  return [...Object.keys(schema.properties ?? {}), ...members.flatMap((member) => collectFields(member, refs, seen))]
+}
+
+/**
+ * Whether the schema, following `$ref`s, or a `oneOf`/`anyOf` member of it is a whole Server-Sent Event: its combined
+ * `allOf` fields declare `data`, or `event` with no field an event cannot carry. An `event` next to fields such as
+ * `planet` is the payload's own property, sent as JSON in the `data:` line.
  */
 function declaresEventFields(schema: SchemaObject | ReferenceObject, refs: Refs, seen: Set<string>): boolean {
   if (isReference(schema)) {
@@ -97,14 +115,16 @@ function declaresEventFields(schema: SchemaObject | ReferenceObject, refs: Refs,
     const resolved = refs.resolve<SchemaObject | ReferenceObject>(schema.$ref, { report: false })
     return !!resolved && declaresEventFields(resolved, refs, seen)
   }
-  if (schema.properties && (Object.hasOwn(schema.properties, 'event') || Object.hasOwn(schema.properties, 'data'))) return true
+  const fields = collectFields(schema, refs, new Set(seen))
+  if (fields.includes('data')) return true
+  if (fields.includes('event')) return fields.every((field) => SSE_FIELDS.has(field))
 
-  const members = [...(schema.oneOf ?? []), ...(schema.anyOf ?? []), ...(schema.allOf ?? [])] as Array<SchemaObject | ReferenceObject>
+  const members = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])] as Array<SchemaObject | ReferenceObject>
   return members.some((member) => declaresEventFields(member, refs, seen))
 }
 
 /**
- * Returns `'event'` when the item declares `event` or `data`, directly or in a composition member, else `'data'`.
+ * Returns `'event'` when the item is a whole event, directly or in a composition member (see `declaresEventFields`), else `'data'`.
  */
 export function getItemShape(schema: SchemaObject | ReferenceObject, refs: Refs): 'event' | 'data' {
   return declaresEventFields(schema, refs, new Set()) ? 'event' : 'data'
