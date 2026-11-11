@@ -188,7 +188,7 @@ for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => n
 
 ## Refs and naming helpers
 
-Ref helpers live in `ast.ref`, schema graph helpers in `ast.graph`, and schema property helpers in `ast.schema`. `childName` and `enumPropName` build names, so they are named exports of `kubb/kit`. The old top-level names, such as `ast.refName`, `ast.findCircularSchemas`, `ast.resolveSchemaProperties` and `ast.isHttpOperationNode`, and the kit exports `extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef`, are deprecated aliases that are removed in Kubb v6.
+Ref helpers live in `ast.ref`, schema graph helpers in `ast.graph`, and schema property helpers in `ast.schema`. `childName` and `enumPropName` build names, so they are named exports of `kubb/kit`. The old top-level names, such as `ast.refName`, `ast.findCircularSchemas`, `ast.resolveSchemaProperties` and `ast.isHttpOperationNode`, are deprecated. So are the kit exports `extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef`. Kubb v6 removes them.
 
 | Helper                | Purpose                                                                                                    |
 | --------------------- | ---------------------------------------------------------------------------------------------------------- |
@@ -197,7 +197,7 @@ Ref helpers live in `ast.ref`, schema graph helpers in `ast.graph`, and schema p
 | `ast.ref.resolveName` | Resolve the name a ref node emits, preferring its `targetName`.                                            |
 | `childName`           | Derive a child property name from context.                                                                 |
 | `enumPropName`        | Convert an enum value into a valid property name.                                                          |
-| `ref.sync`            | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override. |
+| `ast.ref.sync`        | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override. |
 
 ```typescript [refs.ts]
 import { ast } from 'kubb/kit'
@@ -207,28 +207,26 @@ const name = ast.ref.name('#/components/schemas/Pet') // 'Pet'
 
 ## Schema graph
 
-Analyze how schemas reference each other, to prune unused schemas or wrap circular ones in a lazy construct. They live in `ast.graph`.
+Analyze how schemas reference each other, to prune unused schemas or wrap circular ones in a lazy construct. These helpers live in `ast.graph`.
 
-| Helper                   | Purpose                                                                                                                                                         |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ast.graph.usedNames`    | Collect the names of every top-level schema transitively used by a set of operations. Pair it with `include` filters to leave unreferenced schemas ungenerated. |
-| `ast.graph.circular`     | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`.                      |
-| `graph.containsCircular` | Report whether a schema, or anything nested inside it, references a circular schema.                                                                            |
+| Helper                       | Purpose                                                                                                                                                         |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ast.graph.usedNames`        | Collect the names of every top-level schema transitively used by a set of operations. Pair it with `include` filters to leave unreferenced schemas ungenerated. |
+| `ast.graph.circular`         | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`.                      |
+| `ast.graph.containsCircular` | Report whether a schema, or anything nested inside it, references a circular schema.                                                                            |
 
-## Media types, servers, auth, and HTTP
+## Media types, schemas, servers, auth, and HTTP
 
-These namespaces on `ast` read facts from nodes, so a plugin does not parse them again. `ast.mediaType`, `ast.server`, and `ast.auth` work for any spec. `ast.http` holds the helpers that only hold for HTTP operations.
+These namespaces on `ast` read facts from nodes, so a plugin does not parse them again. `ast.mediaType`, `ast.server`, and `ast.auth` work for any spec. `ast.http` works for HTTP operations only.
 
 | Helper                       | Purpose                                                                                        |
 | ---------------------------- | ---------------------------------------------------------------------------------------------- |
 | `ast.mediaType.base`         | Drop the parameters and lowercase: `'Text/Plain; charset=utf-8'` gives `'text/plain'`.         |
-| `ast.mediaType.isJson`       | `application/json`, `text/json`, or a `+json` suffix.                                          |
-| `ast.mediaType.isStream`     | Server-sent events, JSON Lines, or JSON text sequences (`+json-seq`).                          |
+| `ast.mediaType.isJson`       | Whether a media type is `application/json`, `text/json`, or has a `+json` suffix.              |
+| `ast.mediaType.isStream`     | Whether a media type is server-sent events, JSON Lines, or a JSON text sequence (`+json-seq`). |
 | `ast.schema.jsonContent`     | The schema of the JSON document a string holds (`contentMediaType` with `contentSchema`).      |
 | `ast.schema.isString`        | Whether a schema prints as a plain `string`, including `date` and `time` as strings.           |
 | `ast.schema.numberBounds`    | The tightest inclusive `{ min, max }`, with exclusive bounds moved to the next `step`.         |
-| `ast.ref.sync`               | Merge a resolved ref with its target, letting usage-site fields override.                      |
-| `ast.graph.containsCircular` | Whether a schema refers to one of the circular schemas.                                        |
 | `ast.server.select`          | Pick a server by `index`, falling back to the first one.                                       |
 | `ast.server.byName`          | Map named servers by name. The first server with a name wins.                                  |
 | `ast.auth.resolve`           | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements.      |
@@ -249,7 +247,7 @@ import { ast } from 'kubb/kit'
 const baseURL = ast.http.baseURL(ast.server.select(node.servers, { index: 0 }))
 ```
 
-A stream content entry also says how to read it, so a plugin does not parse the media type: `content.stream.framing` is `'events'` for server-sent events or `'lines'` for JSON Lines and JSON text sequences, and `content.stream.textData` is `true`, or the event names, when an event's `data` is typed as a string.
+A stream content entry also says how to read it, so a plugin does not parse the media type. `content.stream.framing` is `'events'` for server-sent events, or `'lines'` for JSON Lines and JSON text sequences. `content.stream.textData` is `true`, or the event names, when an event's `data` is typed as a string.
 
 ## Constants
 
