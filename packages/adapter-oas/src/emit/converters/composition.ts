@@ -35,9 +35,8 @@ function collectSiblingProperties(
       if (visited.has(item.$ref)) return
       visited.add(item.$ref)
       const resolved = refs.resolve<SchemaObject>(item.$ref, { report: false })
-      if (resolved && !isReference(resolved)) {
-        collectFrom(resolved)
-      }
+      // The target can be another `$ref`, an alias, which `visited` keeps from looping.
+      collectFrom(resolved ?? undefined)
       return
     }
 

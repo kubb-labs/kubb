@@ -819,6 +819,28 @@ describe('parseSchema allOf', () => {
     expect(parseSchema(emptyCtx, { schema }).type).toBe('intersection')
   })
 
+  it('reads the properties of an allOf $ref that is itself an alias of another schema', () => {
+    const doc = {
+      openapi: '3.0.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: { Compact: { type: 'object', properties: { name: { type: 'string' } } }, Base: { $ref: '#/components/schemas/Compact' } },
+      },
+    } as unknown as Document
+    const node = parseSchema({ document: doc, refs: createRefs(doc) }, { schema: { allOf: [{ $ref: '#/components/schemas/Base' }, { required: ['name'] }] } })
+    const [, object] = ast.narrowSchema(node, 'intersection')?.members ?? []
+
+    expect(ast.narrowSchema(object!, 'object')?.properties?.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([['name', true, 'string']])
+  })
+
+  it.each([
+    [true, 'unknown'],
+    [false, 'never'],
+  ])('reads the boolean schema %s as %s', (schema, type) => {
+    expect(parseSchema(emptyCtx, { schema: schema as unknown as SchemaObject }).type).toBe(type)
+  })
+
   it('keeps requiredness from a required-only allOf member next to a $ref', () => {
     const doc = {
       openapi: '3.0.0',
@@ -1325,6 +1347,24 @@ describe('parseSchema discriminator on union', () => {
     expect(members?.map((member) => member.type)).toStrictEqual(['intersection', 'intersection'])
     expect(discriminantOf(members![0]!)).toStrictEqual(['Cat'])
     expect(discriminantOf(members![1]!)).toStrictEqual(['Dog'])
+  })
+
+  it('keeps a member whose discriminator is a nullable enum free of the implicit schema-name value', async () => {
+    const oas = {
+      openapi: '3.1.0',
+      info: { title: 'ImplicitDiscriminator', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: { oneOf: [{ $ref: '#/components/schemas/Cat' }], discriminator: { propertyName: 'petType' } },
+          Cat: { type: 'object', properties: { petType: { anyOf: [{ type: 'string', enum: ['cat'] }, { type: 'null' }] } } },
+        },
+      },
+    }
+
+    const pet = findSchema(await parseOas(oas), 'Pet')
+
+    expect(JSON.stringify(pet)).not.toContain('"enumValues":["Cat"]')
   })
 })
 

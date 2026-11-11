@@ -237,7 +237,9 @@ export function narrowUnionMembers({
     function constrains(v: SchemaObject): boolean {
       const prop = v.properties?.[propertyName]
       const resolved = prop && isReference(prop) ? refs.resolve<SchemaObject>(prop.$ref, { report: false }) : (prop as SchemaObject | undefined)
-      if (resolved && (Array.isArray(resolved.enum) || resolved.const !== undefined)) return true
+      // The OpenAPI 3.1 nullable form `anyOf: [{ enum }, { type: 'null' }]` pins the value in a member.
+      const candidates = resolved ? [resolved, ...((resolved.anyOf ?? resolved.oneOf ?? []) as Array<SchemaObject>)] : []
+      if (candidates.some((candidate) => Array.isArray(candidate.enum) || candidate.const !== undefined)) return true
       const composition = v.allOf ?? v.oneOf ?? v.anyOf
       if (!composition) return false
 

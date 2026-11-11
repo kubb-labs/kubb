@@ -42,6 +42,11 @@ export function createSchemaParser(ctx: OasParserContext) {
   const options: ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...ctx.options }
 
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }): ast.SchemaNode {
+    // A JSON Schema boolean: `true` accepts any value and `false` accepts none.
+    if (typeof schema === 'boolean') {
+      return ast.factory.createSchema({ type: schema ? (options.emptySchemaType as ast.ScalarSchemaType) : 'never', name: name ?? undefined })
+    }
+
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema !== schema) {
       // `flattenSchema` keeps the first value of each keyword, so the conditionals of the schema and of every member are read on their own.
