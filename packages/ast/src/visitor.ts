@@ -7,6 +7,7 @@ import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
 import type { ResponseNode } from './nodes/response.ts'
 import type { SchemaNode } from './nodes/schema.ts'
+import { jsonContent } from './schema/index.ts'
 
 /**
  * Traversal depth for AST visitor utilities.
@@ -196,9 +197,17 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
   return children
 }
 
+/** A check no printer emits: a `contains` that any array meets (`min: 0`, no `max`), or `content` that is not JSON. */
+function isInertCheck(node: Node, key: string): boolean {
+  if (node.kind !== nodeKinds.schema) return false
+  if (key === 'contains' && (node.type === 'array' || node.type === 'tuple')) return node.contains?.min === 0 && node.contains.max === undefined
+  if (key === 'content' && node.type === 'string') return !jsonContent(node)
+  return false
+}
+
 /**
  * Calls `visit` for each direct child node and stops at the first call that returns `true`.
- * With `checks: true`, a schema's {@link schemaCheckKeys} fields are walked too.
+ * With `checks: true`, a schema's {@link schemaCheckKeys} fields are walked too, except checks that cannot fail.
  */
 export function visitChildNodes(node: Node, visit: (child: Node) => boolean, { checks = false }: { checks?: boolean } = {}): boolean {
   const keys = checks && node.kind === nodeKinds.schema ? [...(VISITOR_KEYS[node.kind] ?? []), ...schemaCheckKeys] : VISITOR_KEYS[node.kind]
@@ -217,6 +226,7 @@ export function visitChildNodes(node: Node, visit: (child: Node) => boolean, { c
     return false
   }
   for (const key of keys) {
+    if (checks && isInertCheck(node, key)) continue
     const value = record[key]
     if (Array.isArray(value)) {
       // Items can be plain objects that hold nodes, such as the `{ if, then, else }` entries of `conditionals`.
