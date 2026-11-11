@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { base, isForm, isJson, isStream } from './index.ts'
+import { base, isJson, isStream } from './index.ts'
 
 describe('mediaType', () => {
   it('drops parameters and lowercases', () => {
@@ -24,13 +24,5 @@ describe('mediaType', () => {
     ['application/json', false],
   ])('isStream(%s) is %s', (mediaType, expected) => {
     expect(isStream(mediaType)).toBe(expected)
-  })
-
-  it.each([
-    ['multipart/form-data; boundary=x', true],
-    ['application/x-www-form-urlencoded', true],
-    ['multipart/mixed', false],
-  ])('isForm(%s) is %s', (mediaType, expected) => {
-    expect(isForm(mediaType)).toBe(expected)
   })
 })

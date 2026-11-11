@@ -225,7 +225,6 @@ These namespaces on `ast` read facts from nodes, so a plugin does not parse them
 | `ast.mediaType.base`         | Drop the parameters and lowercase: `'Text/Plain; charset=utf-8'` gives `'text/plain'`.         |
 | `ast.mediaType.isJson`       | `application/json`, `text/json`, or a `+json` suffix.                                          |
 | `ast.mediaType.isStream`     | Server-sent events, JSON Lines, or JSON text sequences (`+json-seq`).                          |
-| `ast.mediaType.isForm`       | `multipart/form-data` or `application/x-www-form-urlencoded`.                                  |
 | `ast.server.select`          | Pick a server by `index`, falling back to the first one.                                       |
 | `ast.server.byName`          | Map named servers by name. The first server with a name wins.                                  |
 | `ast.auth.resolve`           | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements.      |
