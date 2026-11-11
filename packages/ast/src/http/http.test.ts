@@ -71,6 +71,11 @@ describe('http.parameters', () => {
       cookie: ['s'],
     })
   })
+
+  it('builds the groups once per node', () => {
+    const node = { parameters: [{ kind: 'Parameter', name: 'id', in: 'path' } as ParameterNode] }
+    expect(parameters(node)).toBe(parameters(node))
+  })
 })
 
 describe('http.parameters querystring', () => {

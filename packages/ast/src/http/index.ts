@@ -12,8 +12,15 @@ export function baseURL(server: InputServer | undefined): string | undefined {
   return URL.canParse(server.url) ? server.url : undefined
 }
 
+type ParameterGroups = Record<'path' | 'query' | 'header' | 'cookie', Array<ParameterNode>>
+
+// Every plugin's generator visits the same node, so the groups are built once per node.
+const parametersByNode = new WeakMap<Pick<HttpOperationNode, 'parameters'>, ParameterGroups>()
+
 /** The operation's parameters by location, with a `querystring` parameter in `query`. A repeated name keeps its first parameter. */
-export function parameters(node: Pick<HttpOperationNode, 'parameters'>): Record<'path' | 'query' | 'header' | 'cookie', Array<ParameterNode>> {
+export function parameters(node: Pick<HttpOperationNode, 'parameters'>): ParameterGroups {
+  const cached = parametersByNode.get(node)
+  if (cached) return cached
   const group = (...locations: Array<ParameterNode['in']>) => {
     const seen = new Set<string>()
     return locations.flatMap((location) =>
@@ -25,5 +32,7 @@ export function parameters(node: Pick<HttpOperationNode, 'parameters'>): Record<
     )
   }
   // A `querystring` parameter left whole, such as a JSON one, is sent as the query string, so it joins the query group.
-  return { path: group('path'), query: group('query', 'querystring'), header: group('header'), cookie: group('cookie') }
+  const groups = { path: group('path'), query: group('query', 'querystring'), header: group('header'), cookie: group('cookie') }
+  parametersByNode.set(node, groups)
+  return groups
 }
