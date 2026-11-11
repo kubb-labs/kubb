@@ -35,7 +35,7 @@ Import authoring APIs from `kubb/kit`, included with the `kubb` package.
 | Part                                   | Entry point                 | What it does                                                                     |
 | -------------------------------------- | --------------------------- | -------------------------------------------------------------------------------- |
 | [AST and node builders](./kit/ast)     | `ast`                       | The namespace behind `factory` builders, visitors, guards, macros, and printers. |
-| [Code literals](#code-literals)        | `code`                      | Escapes strings, keys, and JSON values into JavaScript source.                   |
+| [Code text](#code-text)                | `code`                      | Quotes strings and indents source text for any language.                         |
 | [Engine](./kit/engine)                 | `createKubb`, `Diagnostics` | The `kubb`-package surface that runs your plugins and the errors it collects.    |
 | [Lifecycle hooks](./kit/hooks)         | `KubbHooks`                 | Every `kubb:*` hook a build fires, its payload, and when it fires.               |
 | [Extension manifest](./kit/manifest)   | `kubb-extension.json`       | The file an extension package ships for the registry, `kubb add`, and Studio.    |
@@ -55,20 +55,16 @@ Import authoring APIs from `kubb/kit`, included with the `kubb` package.
 
 `camelCase` and `pascalCase` from `kubb/kit` are deprecated. Use `casing.camel` and `casing.pascal`.
 
-## Code literals
+## Code text
 
-`code` turns values into JavaScript source a generator can print, so a quote or line break in a spec name cannot break the output.
+`code` holds text helpers that work for any output language, so a quote or line break in a spec name cannot break the output.
 
-| Helper              | Purpose                                                                                |
-| ------------------- | -------------------------------------------------------------------------------------- |
-| `code.string`       | A single-quoted string literal with quotes, backslashes, and line breaks escaped.      |
-| `code.key`          | An object key, quoted only when it is not identifier-shaped.                           |
-| `code.literal`      | A JSON value as a literal, with single-quoted strings.                                 |
-| `code.isIdentifier` | Whether a name is a valid variable name and not a reserved word.                       |
-| `code.jsDoc`        | Text with a leading `@` escaped, so it cannot start a JSDoc tag.                       |
-| `code.indent`       | Indent every non-empty line by `unit` (two spaces by default). Blank lines stay empty. |
-| `code.dedent`       | Strip the common leading whitespace and the blank lines around the text.               |
-| `code.unquote`      | Strip one matching pair of `"`, `'` or `` ` `` from both ends.                         |
+| Helper         | Purpose                                                                                          |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| `code.string`  | A single-quoted string literal with quotes, backslashes, and line breaks escaped.                |
+| `code.indent`  | Indent every non-empty line of `text` by `unit` (two spaces by default). Blank lines stay empty. |
+| `code.dedent`  | Strip the common leading whitespace and the blank lines around the text.                         |
+| `code.unquote` | Strip one matching pair of `"`, `'` or `` ` `` from both ends.                                   |
 
 ```typescript [code.ts]
 import { code } from 'kubb/kit'

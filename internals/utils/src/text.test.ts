@@ -3,8 +3,8 @@ import { dedent, indent, unquote } from './text.ts'
 
 describe('text', () => {
   it('indents non-empty lines and keeps blank lines empty', () => {
-    expect(indent('a\n\n  b')).toBe('  a\n\n    b')
-    expect(indent('a', '\t')).toBe('\ta')
+    expect(indent({ text: 'a\n\n  b' })).toBe('  a\n\n    b')
+    expect(indent({ text: 'a', unit: '\t' })).toBe('\ta')
   })
 
   it('strips the common indent and the surrounding blank lines', () => {

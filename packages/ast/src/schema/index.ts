@@ -29,10 +29,13 @@ export function isString(node: SchemaNode): boolean {
  * integer), an integer bound rounds inward, and an integer bound past `Number.MAX_SAFE_INTEGER` is left out, since it
  * prints as a rounded or invalid literal.
  */
-export function numberBounds(
-  { min, max, exclusive }: Pick<NumberSchemaNode, 'min' | 'max' | 'exclusive'>,
-  { integer = false, step }: { integer?: boolean; step?: number } = {},
-): { min?: number; max?: number } {
+export function numberBounds({
+  min,
+  max,
+  exclusive,
+  integer = false,
+  step,
+}: Pick<NumberSchemaNode, 'min' | 'max' | 'exclusive'> & { integer?: boolean; step?: number }): { min?: number; max?: number } {
   const grid = step ?? (integer ? 1 : undefined)
   const above = (bound: number) => (grid ? (Math.floor(bound / grid) + 1) * grid : bound)
   const below = (bound: number) => (grid ? (Math.ceil(bound / grid) - 1) * grid : bound)

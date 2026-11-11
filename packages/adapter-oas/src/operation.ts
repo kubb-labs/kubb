@@ -378,11 +378,7 @@ function parseParameter({
   })
 }
 
-/**
- * An OpenAPI 3.2 `querystring` parameter is the whole query string, so a form-encoded object becomes one query parameter
- * per property, with the `style`, `explode` and `allowReserved` its `encoding` entry declares. Another content type, such
- * as JSON, stays one `querystring` parameter, and a client sends its value as the whole query string.
- */
+// A form-encoded OpenAPI 3.2 `querystring` object becomes one query parameter per property; another content type stays whole.
 function spreadQuerystring(param: ast.ParameterNode): Array<ast.ParameterNode> {
   if (param.in !== 'querystring') return [param]
   const schema = ast.ref.resolve(param.schema)

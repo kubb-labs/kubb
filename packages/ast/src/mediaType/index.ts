@@ -1,4 +1,3 @@
-/** A media type, or a node that carries one, such as a content entry. */
 type MediaTypeInput = string | { contentType: string }
 
 const jsonMediaTypes = new Set(['application/json', 'text/json'])

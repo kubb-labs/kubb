@@ -1,6 +1,5 @@
 import type { ResponseNode, StatusCode } from '../nodes/response.ts'
 
-/** A status code or range, or a response that carries one. */
 type StatusInput = StatusCode | number | (string & {}) | Pick<ResponseNode, 'statusCode'>
 
 const classByRange = new Map([
@@ -22,12 +21,10 @@ function statusClass(input: StatusInput): number | null {
 
 export { statusClass as class }
 
-/** Whether the status code or range is `2xx`. */
 export function isSuccess(statusCode: StatusInput): boolean {
   return statusClass(statusCode) === 2
 }
 
-/** Whether the status code or range is `4xx` or `5xx`. */
 export function isError(statusCode: StatusInput): boolean {
   const code = statusClass(statusCode)
   return code !== null && code >= 4

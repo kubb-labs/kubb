@@ -47,6 +47,6 @@ describe('schema.numberBounds', () => {
     [{ min: -(2 ** 63), max: 2 ** 63 }, { integer: true }, {}],
     [{ exclusive: { min: 0.5 } }, {}, { min: 0.5 }],
   ] as const)('numberBounds(%o, %o) is %o', (node, options, expected) => {
-    expect(numberBounds(node, options)).toStrictEqual(expected)
+    expect(numberBounds({ ...node, ...options })).toStrictEqual(expected)
   })
 })

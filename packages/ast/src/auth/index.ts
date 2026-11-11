@@ -8,7 +8,13 @@ export type ResolvedScheme = {
 }
 
 /** Joins each requirement with its schemes. Drops undeclared and repeated requirements, and keeps an empty one (no auth needed). */
-export function resolve(auth: ReadonlyArray<AuthRequirement> | undefined, schemes: ReadonlyArray<AuthScheme> | undefined): Array<Array<ResolvedScheme>> {
+export function resolve({
+  auth,
+  schemes,
+}: {
+  auth: ReadonlyArray<AuthRequirement> | undefined
+  schemes: ReadonlyArray<AuthScheme> | undefined
+}): Array<Array<ResolvedScheme>> {
   const credentials = new Map(schemes?.map((scheme) => [scheme.name, scheme.credential]))
   const seen = new Set<string>()
   const resolved: Array<Array<ResolvedScheme>> = []

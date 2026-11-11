@@ -197,8 +197,8 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
   return children
 }
 
-/** A check no printer emits: a `contains` that any array meets (`min: 0`, no `max`), or `content` that is not JSON. */
-function isInertCheck(node: Node, key: string): boolean {
+// A check no printer emits: a `contains` that any array meets (`min: 0`, no `max`), or `content` that is not JSON.
+function isNeverPrinted({ node, key }: { node: Node; key: string }): boolean {
   if (node.kind !== nodeKinds.schema) return false
   if (key === 'contains' && (node.type === 'array' || node.type === 'tuple')) return node.contains?.min === 0 && node.contains.max === undefined
   if (key === 'content' && node.type === 'string') return !jsonContent(node)
@@ -226,7 +226,7 @@ export function visitChildNodes(node: Node, visit: (child: Node) => boolean, { c
     return false
   }
   for (const key of keys) {
-    if (checks && isInertCheck(node, key)) continue
+    if (checks && isNeverPrinted({ node, key })) continue
     const value = record[key]
     if (Array.isArray(value)) {
       // Items can be plain objects that hold nodes, such as the `{ if, then, else }` entries of `conditionals`.

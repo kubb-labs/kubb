@@ -2,7 +2,6 @@ import type { HttpOperationNode } from '../nodes/operation.ts'
 import type { ResponseNode } from '../nodes/response.ts'
 import { isSuccess } from './status.ts'
 
-/** The operation's `2xx` responses. */
 export function success(node: Pick<HttpOperationNode, 'responses'>): Array<ResponseNode> {
   return node.responses.filter((response) => isSuccess(response.statusCode))
 }

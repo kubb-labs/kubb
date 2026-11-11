@@ -80,10 +80,7 @@ export function pascalCase(text: string, { prefix = '', suffix = '' }: Options =
 // A word starts at `petType`, `sensor2Reading`, and `HTTPResponse`, while `IDs` and `OAuth` stay whole
 const wordStart = /(?<=[a-z\d])(?=[A-Z])|(?<=[A-Z]{2})(?=[A-Z][a-z]{2})/
 
-/**
- * Splits `text` into words on separators and on {@link wordStart}. A segment without lowercase letters, such as `COOL` or `2D`,
- * is one word, so snake case leaves a name that is already in it unchanged.
- */
+// A segment without lowercase letters, such as `COOL` or `2D`, stays one word, so a snake_case name is left unchanged.
 function words(text: string): Array<string> {
   return text
     .split(/[\s\-_./\\:]+/)

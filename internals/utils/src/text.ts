@@ -2,9 +2,9 @@
  * Indents every non-empty line of `text` by `unit`, leaving blank lines empty.
  *
  * @example
- * `indent('a\n\nb') // '  a\n\n  b'`
+ * `indent({ text: 'a\n\nb' }) // '  a\n\n  b'`
  */
-export function indent(text: string, unit = '  '): string {
+export function indent({ text, unit = '  ' }: { text: string; unit?: string }): string {
   if (!text) return ''
   return text
     .split('\n')

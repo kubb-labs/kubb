@@ -342,7 +342,7 @@ function printType(node: ast.TypeNode): string {
 function printFunction(node: ast.FunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes } = node
 
-  const body = indent(printNodes({ nodes, separator: '\n' }))
+  const body = indent({ text: printNodes({ nodes, separator: '\n' }) })
   const prefix = `${canExport ? 'export ' : ''}${isDefault ? 'default ' : ''}${isAsync ? 'async ' : ''}`
   const declaration = `${prefix}function ${name}${signature({ async: isAsync, generics, params, returnType })} {${body ? `\n${body}\n` : ''}}`
 
@@ -356,7 +356,7 @@ function printArrowFunction(node: ast.ArrowFunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes, singleLine } = node
 
   const body = printNodes({ nodes, separator: '\n' })
-  const arrowBody = singleLine ? ` => ${body}` : body ? ` => {\n${indent(body)}\n}` : ' => {}'
+  const arrowBody = singleLine ? ` => ${body}` : body ? ` => {\n${indent({ text: body })}\n}` : ' => {}'
   const prefix = `${canExport ? 'export ' : ''}${isDefault ? 'default ' : ''}`
   const declaration = `${prefix}const ${name} = ${isAsync ? 'async ' : ''}${signature({ async: isAsync, generics, params, returnType })}${arrowBody}`
 
