@@ -1,4 +1,4 @@
-import { ast, enumPrimitive, extractRefName, macroDiscriminatorEnum } from '@kubb/kit'
+import { ast, enumPrimitive, macroDiscriminatorEnum } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
@@ -223,7 +223,7 @@ export function narrowUnionMembers({
 
   function implicitDiscriminantValue(member: unknown): string | null {
     if (!discriminator || discriminator.mapping || !isReference(member)) return null
-    const value = extractRefName(member.$ref)
+    const value = ast.refName(member.$ref)
     if (!value) return null
     // Silent walk — the reporting resolve() would flag missing refs as errors during speculative lookup.
     const variant = refs.resolve<SchemaObject>(member.$ref, { report: false })

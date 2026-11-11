@@ -38,7 +38,7 @@ function collectRefEntries(node: SchemaNode, { checks }: { checks: boolean }): R
 /**
  * Collects the names of every schema a node's subtree references, resolved with `resolveRefName`.
  * Each ref contributes its name only, so the schema it points to is never traversed. Memoized by
- * node identity, which lets `findCircularSchemas` and `containsCircularRef` share one scan per schema.
+ * node identity, which lets `findCircularSchemas` and `ast.graph.containsCircular` share one scan per schema.
  *
  * @example
  * ```ts
@@ -126,7 +126,7 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
  * the generated code does not recurse forever. Refs are followed by name only, so the walk stays
  * linear in the size of the schema graph.
  *
- * @note Call this once on the full graph, then check individual schemas with `containsCircularRef()`.
+ * @note Call this once on the full graph, then check individual schemas with `ast.graph.containsCircular()`.
  */
 export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<string> {
   const graph = new Map<string, ReadonlySet<string>>()

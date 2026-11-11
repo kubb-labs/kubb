@@ -12,8 +12,10 @@ export { getSchemaLiteralValues, inferDiscriminatorPropertyName, resolveSchemaPr
 
 export * as auth from './auth/index.ts'
 export * as factory from './nodes/index.ts'
+export * as graph from './graph/index.ts'
 export * as http from './http/index.ts'
 export * as mediaType from './mediaType/index.ts'
+export * as ref from './ref/index.ts'
 export * as schema from './schema/index.ts'
 export * as server from './server/index.ts'
 export type * from './types.ts'

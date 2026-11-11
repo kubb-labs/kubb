@@ -1,4 +1,4 @@
-import { ast, extractRefName, macroDedupeUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
+import { ast, macroDedupeUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { getExternalDocs, isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
@@ -117,7 +117,7 @@ function resolveUnionSchema(schema: SchemaObject, siblingProperties: Record<stri
  *
  * The resolved schema is stored in `node.schema`. Usage-site sibling fields
  * (description, readOnly, nullable, etc.) are stored directly on the ref node.
- * Use `syncSchemaRef(node)` in printers to get a merged view of both.
+ * Use `ast.ref.sync(node)` in printers to get a merged view of both.
  * Circular refs are detected in `refs.resolveNode` and leave `schema` as `null`.
  */
 export function convertRef({ schema, name, nullable, defaultValue, document, parse, refs, renames }: ConvertContext): ast.SchemaNode {
@@ -155,7 +155,7 @@ export function convertRef({ schema, name, nullable, defaultValue, document, par
 
   return createNode(ctx, {
     type: ast.schemaTypes.ref,
-    name: extractRefName(schema.$ref!),
+    name: ast.refName(schema.$ref!),
     ref: schema.$ref,
     ...(targetName ? { targetName } : {}),
     schema: resolvedSchema,

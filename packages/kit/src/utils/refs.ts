@@ -1,10 +1,7 @@
 import { ast } from '@kubb/ast'
-import type { SchemaNode, SchemaType } from '@kubb/ast'
 import { pascalCase } from '@internals/utils'
 
-const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
-
-/** Returns the last path segment of a reference string, for example `'Pet'` for `#/components/schemas/Pet`. */
+/** @deprecated Use `ast.refName`. Removed in Kubb v6. */
 export const extractRefName = ast.refName
 
 /**
@@ -32,39 +29,8 @@ export function enumPropName(parentName: string | null | undefined, propName: st
   return pascalCase([parentName, propName, enumSuffix].filter(Boolean).join(' '))
 }
 
-/**
- * Applies `ast.mergeRefWithSchema()` to a resolved ref and rebuilds the result through
- * `ast.factory.createSchema()`. Non-ref nodes and unresolved refs are returned unchanged.
- *
- * @example
- * ```ts
- * const ref = ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet', description: 'A cute pet' })
- * const merged = syncSchemaRef(ref) // merges with resolved Pet schema
- * ```
- */
-export function syncSchemaRef(node: SchemaNode): SchemaNode {
-  const ref = ast.narrowSchema(node, 'ref')
+/** @deprecated Use `ast.ref.sync`. Removed in Kubb v6. */
+export const syncSchemaRef = ast.ref.sync
 
-  if (!ref?.schema) return node
-
-  return ast.factory.createSchema(ast.mergeRefWithSchema(ref))
-}
-
-/**
- * Returns `true` when a schema emits as a plain `string` type.
- *
- * Covers `string`, `uuid`, `email`, `url`, and `datetime` types. For `date` and `time`
- * types, returns `true` only when `representation` is `'string'` rather than `'date'`.
- */
-export function isStringType(node: SchemaNode): boolean {
-  if (plainStringTypes.has(node.type)) {
-    return true
-  }
-
-  const temporal = ast.narrowSchema(node, 'date') ?? ast.narrowSchema(node, 'time')
-  if (temporal) {
-    return temporal.representation !== 'date'
-  }
-
-  return false
-}
+/** @deprecated Use `ast.schema.isString`. Removed in Kubb v6. */
+export const isStringType = ast.schema.isString

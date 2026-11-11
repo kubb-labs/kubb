@@ -188,21 +188,21 @@ for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => n
 
 ## Refs and naming helpers
 
-The helpers split across two surfaces. `resolveRef`, `resolveRefName`, and `refName` ship on the `ast` namespace, like the guards and node types. `extractRefName`, `childName`, `enumPropName`, and `syncSchemaRef` are named exports of `kubb/kit` itself. The same split applies to `containsCircularRef` and the built-in macros below.
+`resolveRef`, `resolveRefName`, `refName` and `ref.sync` ship on the `ast` namespace. `childName` and `enumPropName` build names, so they are named exports of `kubb/kit`. The kit exports `extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef` are deprecated aliases of `ast.refName`, `ast.ref.sync`, `ast.schema.isString` and `ast.graph.containsCircular`, removed in Kubb v6.
 
 | Helper           | Purpose                                                                                                    |
 | ---------------- | ---------------------------------------------------------------------------------------------------------- |
 | `resolveRef`     | Follow resolved ref nodes to their target schema.                                                          |
-| `extractRefName` | Turn `'#/components/schemas/Pet'` into `'Pet'`.                                                            |
+| `refName`        | Turn `'#/components/schemas/Pet'` into `'Pet'`.                                                            |
 | `resolveRefName` | Resolve the name a ref node emits, preferring its `targetName`.                                            |
 | `childName`      | Derive a child property name from context.                                                                 |
 | `enumPropName`   | Convert an enum value into a valid property name.                                                          |
-| `syncSchemaRef`  | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override. |
+| `ref.sync`       | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override. |
 
 ```typescript [refs.ts]
-import { extractRefName } from 'kubb/kit'
+import { ast } from 'kubb/kit'
 
-const name = extractRefName('#/components/schemas/Pet')
+const name = ast.refName('#/components/schemas/Pet')
 //    ^?
 ```
 
@@ -214,7 +214,7 @@ Analyze how schemas reference each other, to prune unused schemas or wrap circul
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `collectUsedSchemaNames` | Collect the names of every top-level schema transitively used by a set of operations. Pair it with `include` filters to leave unreferenced schemas ungenerated. |
 | `findCircularSchemas`    | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`.                      |
-| `containsCircularRef`    | Report whether a schema, or anything nested inside it, references a circular schema.                                                                            |
+| `graph.containsCircular` | Report whether a schema, or anything nested inside it, references a circular schema.                                                                            |
 
 ## Media types, servers, auth, and HTTP
 
