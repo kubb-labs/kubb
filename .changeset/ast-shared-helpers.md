@@ -19,6 +19,6 @@ Add shared helpers so plugins stop re-deriving facts from the spec:
 
 `@kubb/adapter-oas` also reads any `application/*+json-seq` type as a stream, and no longer reads `multipart/mixed` as one unless it declares `itemSchema`.
 
-`extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef` in `@kubb/kit` are deprecated. Use `ast.refName`, `ast.ref.sync`, `ast.schema.isString` and `ast.graph.containsCircular`. They are removed in Kubb v6.
+`extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef` in `@kubb/kit` are deprecated. Use `ast.ref.name`, `ast.ref.sync`, `ast.schema.isString` and `ast.graph.containsCircular`. They are removed in Kubb v6.
 
-The top-level `ast.refName`, `ast.resolveRef`, `ast.resolveRefName`, `ast.isBareRef`, `ast.mergeRefWithSchema`, `ast.collectSchemaRefs`, `ast.collectUsedSchemaNames`, `ast.findCircularSchemas`, `ast.collectImportedRefNames`, `ast.resolveSchemaProperties`, `ast.getSchemaLiteralValues` and `ast.inferDiscriminatorPropertyName` are deprecated in favor of their namespaced names, and are removed in Kubb v6.
+The top-level `ast.refName`, `ast.resolveRef`, `ast.resolveRefName`, `ast.isBareRef`, `ast.mergeRefWithSchema`, `ast.collectSchemaRefs`, `ast.collectUsedSchemaNames`, `ast.findCircularSchemas`, `ast.collectImportedRefNames`, `ast.resolveSchemaProperties`, `ast.getSchemaLiteralValues` `ast.inferDiscriminatorPropertyName` and `ast.isHttpOperationNode` are deprecated in favor of their namespaced names, and are removed in Kubb v6.

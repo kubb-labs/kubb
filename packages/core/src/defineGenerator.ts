@@ -182,7 +182,7 @@ export type Generator<TOptions extends PluginType = PluginType, TElement = unkno
    * @example Only match GET operations
    * ```ts
    * match(node, ctx) {
-   *   return ast.isHttpOperationNode(node) && node.method.toLowerCase() === 'get'
+   *   return ast.http.is(node) && node.method.toLowerCase() === 'get'
    * }
    * ```
    */

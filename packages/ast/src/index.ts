@@ -1,5 +1,5 @@
 export { nodeKinds, schemaTypes } from './constants.ts'
-export { isHttpOperationNode, narrowSchema } from './guards.ts'
+export { narrowSchema } from './guards.ts'
 export { applyMacros, compareEnforce, defineMacro } from './defineMacro.ts'
 export { optionality } from './optionality.ts'
 export { createPrinter } from './createPrinter.ts'

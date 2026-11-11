@@ -180,7 +180,7 @@ for (const node of ast.collect<ast.SchemaNode>(root, { schema: (node) => node })
 }
 
 for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => node })) {
-  if (ast.isHttpOperationNode(node)) {
+  if (ast.http.is(node)) {
     console.log(`${node.method} ${node.path}`)
   }
 }
@@ -188,7 +188,7 @@ for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => n
 
 ## Refs and naming helpers
 
-Ref helpers live in `ast.ref`, schema graph helpers in `ast.graph`, and schema property helpers in `ast.schema`. `childName` and `enumPropName` build names, so they are named exports of `kubb/kit`. The old top-level names, such as `ast.refName`, `ast.findCircularSchemas` and `ast.resolveSchemaProperties`, and the kit exports `extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef`, are deprecated aliases that are removed in Kubb v6.
+Ref helpers live in `ast.ref`, schema graph helpers in `ast.graph`, and schema property helpers in `ast.schema`. `childName` and `enumPropName` build names, so they are named exports of `kubb/kit`. The old top-level names, such as `ast.refName`, `ast.findCircularSchemas`, `ast.resolveSchemaProperties` and `ast.isHttpOperationNode`, and the kit exports `extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef`, are deprecated aliases that are removed in Kubb v6.
 
 | Helper                | Purpose                                                                                                    |
 | --------------------- | ---------------------------------------------------------------------------------------------------------- |
@@ -233,7 +233,7 @@ These namespaces on `ast` read facts from nodes, so a plugin does not parse them
 | `ast.server.select`          | Pick a server by `index`, falling back to the first one.                                       |
 | `ast.server.byName`          | Map named servers by name. The first server with a name wins.                                  |
 | `ast.auth.resolve`           | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements.      |
-| `ast.http.is`                | Same as `isHttpOperationNode`.                                                                 |
+| `ast.http.is`                | Narrow an operation to an HTTP operation, so `method` and `path` are present.                  |
 | `ast.http.status.class`      | The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`.      |
 | `ast.http.status.isSuccess`  | Whether a status code or range is `2xx`.                                                       |
 | `ast.http.status.isError`    | Whether a status code or range is `4xx` or `5xx`.                                              |

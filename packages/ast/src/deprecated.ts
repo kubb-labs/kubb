@@ -1,4 +1,5 @@
 import * as graph from './graph/index.ts'
+import * as http from './http/index.ts'
 import * as ref from './ref/index.ts'
 import * as schema from './schema/index.ts'
 
@@ -37,3 +38,6 @@ export const inferDiscriminatorPropertyName = schema.discriminatorName
 
 /** @deprecated Use `ast.schema.properties`. Removed in Kubb v6. */
 export const resolveSchemaProperties = schema.properties
+
+/** @deprecated Use `ast.http.is`. Removed in Kubb v6. */
+export const isHttpOperationNode = http.is

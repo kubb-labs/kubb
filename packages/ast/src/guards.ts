@@ -19,7 +19,7 @@ export function narrowSchema<T extends SchemaNode['type']>(node: SchemaNode | un
  *
  * @example
  * ```ts
- * if (isHttpOperationNode(node)) {
+ * if (ast.http.is(node)) {
  *   console.log(node.method, node.path)
  * }
  * ```

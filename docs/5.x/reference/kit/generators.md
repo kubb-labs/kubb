@@ -60,7 +60,7 @@ import { ast, defineGenerator } from 'kubb/kit'
 const getOnlyGenerator = defineGenerator({
   name: 'get-only-generator',
   match(node, ctx) {
-    return node.kind === 'Operation' && ast.isHttpOperationNode(node) && node.method.toLowerCase() === 'get'
+    return node.kind === 'Operation' && ast.http.is(node) && node.method.toLowerCase() === 'get'
   },
   operation(node, ctx) {
     // node is already known to be a GET operation here
