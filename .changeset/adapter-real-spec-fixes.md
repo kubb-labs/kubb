@@ -1,5 +1,11 @@
 ---
 '@kubb/adapter-oas': patch
+'@kubb/ast': patch
 ---
 
-Fix three schemas found in real OpenAPI documents. An `allOf` member that points at an alias, a schema that is only a `$ref`, now gives its properties to a `required`-only sibling, where they were typed `unknown`. A discriminator member whose property is the nullable enum `anyOf: [{ enum }, { type: 'null' }]` keeps its own value, where it got the schema name. A boolean schema (`true` or `false`) is read as any value or as `never`, where it stopped the run with `Cannot use 'in' operator`.
+Fix schemas found in real OpenAPI documents.
+
+- An `allOf` member that points at an alias `$ref` gives its properties to a `required`-only sibling, where they were `unknown`.
+- A discriminator member with a nullable enum keeps its own value, where it got the schema name.
+- A boolean schema (`true` or `false`) no longer stops the run.
+- A `content` parameter keeps its `encoding` on the new `ParameterNode.encoding` field.
