@@ -29,6 +29,7 @@
   "packages/ast/src/nodes/file.test.ts": "Regression: self-import and consolidated-output import dropping in createFile, with the comment explaining the bug.",
   "packages/ast/src/nodes/property.test.ts": "Only test of the required-omitted default in createProperty (required false, optional true); parser.test.ts always passes required.",
   "packages/ast/src/utils/combineFileMembers.test.ts": "Import and export merge, sort, type-only split and the 128+ identifier index are branchy with no other direct test.",
+  "packages/ast/src/utils/combineFileMembers.win32.test.ts": "Regression for #4576: Windows import order must match POSIX; needs node:path mocked to win32, so it cannot share a file with the POSIX tests.",
   "packages/ast/src/utils/inline.test.ts": "Inline-source resolver: nested replacement, aliases, cycles and missing-name problems; drives rendered output.",
   "packages/ast/src/utils/refs.test.ts": "refName decodes ~1, ~0 and percent escapes; isBareRef has many modifier branches.",
   "packages/ast/src/utils/schemaGraph.test.ts": "Cycle detection and reachable-schema collection are graph logic a golden-path test would not pinpoint.",
