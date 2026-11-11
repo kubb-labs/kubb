@@ -2632,6 +2632,39 @@ describe('OpenAPI 3.2', () => {
     return node.properties.find((entry) => entry.name === name)
   }
 
+  it('sets the stream framing and which events keep text data', async () => {
+    const lines = firstContent(await parseOas(streamingDocument({ 'application/jsonl': { itemSchema: { $ref: '#/components/schemas/MessageDelta' } } })))
+    expect(lines?.stream).toMatchObject({ framing: 'lines' })
+    expect(lines?.stream?.textData).toBeUndefined()
+
+    const text = firstContent(await parseOas(streamingDocument({ 'text/event-stream': { itemSchema: { type: 'string' } } })))
+    expect(text?.stream).toMatchObject({ framing: 'events', shape: 'data', textData: true })
+
+    const mixed = firstContent(
+      await parseOas(
+        streamingDocument({
+          'text/event-stream': {
+            itemSchema: {
+              type: 'object',
+              required: ['event'],
+              properties: { data: { type: 'string' }, event: { type: 'string' } },
+              oneOf: [
+                {
+                  properties: {
+                    event: { const: 'message_delta' },
+                    data: { contentMediaType: 'application/json', contentSchema: { $ref: '#/components/schemas/MessageDelta' } },
+                  },
+                },
+                { properties: { event: { const: 'ping' } } },
+              ],
+            },
+          },
+        }),
+      ),
+    )
+    expect(mixed?.stream).toMatchObject({ framing: 'events', shape: 'event', textData: ['ping'] })
+  })
+
   it('turns the text/event-stream itemSchema into an event union with data typed from contentSchema', async () => {
     const root = await parseOas(
       streamingDocument({
