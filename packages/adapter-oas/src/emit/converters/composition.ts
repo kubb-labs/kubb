@@ -28,6 +28,7 @@ function collectSiblingProperties(
   const properties: Record<string, unknown> = { ...outerProperties }
   const visited = new Set<string>()
 
+  /** Adds the properties of one member, following its `$ref` and its own `allOf`. */
   function collectFrom(item: SchemaObject | ReferenceObject | undefined): void {
     if (!item) return
 
@@ -35,9 +36,8 @@ function collectSiblingProperties(
       if (visited.has(item.$ref)) return
       visited.add(item.$ref)
       const resolved = refs.resolve<SchemaObject>(item.$ref, { report: false })
-      if (resolved && !isReference(resolved)) {
-        collectFrom(resolved)
-      }
+      // The target can be another `$ref`, an alias, which `visited` keeps from looping.
+      collectFrom(resolved ?? undefined)
       return
     }
 
@@ -245,7 +245,13 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
     if (missingRequired.length) {
       const resolvedMembers = (schema.allOf as Array<SchemaObject | ReferenceObject>).flatMap((item) => {
         if (!isReference(item)) return [item as SchemaObject]
-        const deref = refs.resolve<SchemaObject>(item.$ref)
+        // An alias, a schema that is only a `$ref`, is followed to its target.
+        const seen = new Set<string>()
+        let deref: SchemaObject | ReferenceObject | null | undefined = item
+        while (deref && isReference(deref) && !seen.has(deref.$ref)) {
+          seen.add(deref.$ref)
+          deref = refs.resolve<SchemaObject>(deref.$ref)
+        }
         return deref && !isReference(deref) ? [deref] : []
       })
 
