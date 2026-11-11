@@ -1,5 +1,27 @@
 # Changelog
 
+## v5.18.1 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- An operation with an empty `servers` list now gets its path item's servers, since an empty list overrides nothing. ([#4570](https://github.com/kubb-labs/kubb/pull/4570), [`3a2e84d`](https://github.com/kubb-labs/kubb/commit/3a2e84de3457e4d532174ed2b9d2c2f3d3b940b9))
+- Apply the keywords next to a component schema's `$ref` together with its target. Such a schema used to become a plain copy of the target, so its own `description`, `required`, `properties`, `if`/`then`/`else`, `dependentRequired` and `dependentSchemas` were dropped. An `allOf` next to the `$ref` keeps its members, and an `allOf` member's `conditionals` are no longer replaced by the ones of the schema around it. ([#4570](https://github.com/kubb-labs/kubb/pull/4570), [`3a2e84d`](https://github.com/kubb-labs/kubb/commit/3a2e84de3457e4d532174ed2b9d2c2f3d3b940b9))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Write a status range in lower case. The adapter turns a response key such as `2XX` into `2xx`, and `StatusCode` lists `2xx` to `5xx`. The response `pointer` keeps the key as the document spells it. `camelCase` and `pascalCase` keep a range such as `2xx` as one word, so `listPets Status 2xx` becomes `listPetsStatus2xx` instead of `listPetsStatus2Xx`. ([#4572](https://github.com/kubb-labs/kubb/pull/4572), [`15e3b83`](https://github.com/kubb-labs/kubb/commit/15e3b836bfd1163d806c3dd73fcb8583919db6b8))
+- Cycle detection, `include` filtering and imports now see the schemas inside `conditionals`, `contains` and a string's `content`. `findCircularSchemas` and `collectUsedSchemaNames` follow refs in these fields, so a cycle through them is detected and an `include` filter keeps a schema only they reference. `resolver.imports` and `collectImportedRefNames` add those refs only with `checks: true`, which a plugin that prints these checks passes. `transform` and `collect` still skip these fields. ([#4570](https://github.com/kubb-labs/kubb/pull/4570), [`3a2e84d`](https://github.com/kubb-labs/kubb/commit/3a2e84de3457e4d532174ed2b9d2c2f3d3b940b9))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.18.0 — Nov 10, 2026
 
 ### @kubb/adapter-oas
