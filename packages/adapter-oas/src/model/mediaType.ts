@@ -1,27 +1,20 @@
-import { STREAM_MEDIA_TYPES } from '../constants.ts'
+import { ast } from '@kubb/kit'
 import { isJsonMimeType, isOpenApi32, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, MediaTypeObject, ReferenceObject, SchemaObject } from '../types.ts'
 
 /**
- * The media type without its parameters, so `text/event-stream; charset=utf-8` matches the bare name.
- */
-function baseMediaType(contentType: string): string {
-  return contentType.split(';')[0]!.trim().toLowerCase()
-}
-
-/**
- * Returns `true` for a media type read as a stream of items: one that OpenAPI 3.2 lists, or any that declares `itemSchema`.
+ * Returns `true` for a media type read as a stream of items: one `ast.mediaType.isStream` accepts, or any that declares `itemSchema`.
  */
 export function isStream(contentType: string, mediaType: MediaTypeObject | null): boolean {
-  return STREAM_MEDIA_TYPES.has(baseMediaType(contentType)) || mediaType?.itemSchema !== undefined
+  return ast.mediaType.isStream(contentType) || mediaType?.itemSchema !== undefined
 }
 
 /**
  * Whether the media type is `text/event-stream`, with or without parameters.
  */
 export function isEventStream(contentType: string): boolean {
-  return baseMediaType(contentType) === 'text/event-stream'
+  return ast.mediaType.base(contentType) === 'text/event-stream'
 }
 
 /**

@@ -10,6 +10,10 @@ export { isBareRef, mergeRefWithSchema, refName, resolveRef, resolveRefName } fr
 export { collectImportedRefNames, collectSchemaRefs, collectUsedSchemaNames, findCircularSchemas } from './utils/schemaGraph.ts'
 export { getSchemaLiteralValues, inferDiscriminatorPropertyName, resolveSchemaProperties } from './utils/schemaProperties.ts'
 
+export * as auth from './auth/index.ts'
 export * as factory from './nodes/index.ts'
+export * as http from './http/index.ts'
+export * as mediaType from './mediaType/index.ts'
+export * as server from './server/index.ts'
 export type * from './types.ts'
 export * as ast from './index.ts'

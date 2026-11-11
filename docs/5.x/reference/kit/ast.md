@@ -217,6 +217,34 @@ Analyze how schemas reference each other, to prune unused schemas or wrap circul
 | `findCircularSchemas`    | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`. |
 | `containsCircularRef`    | Report whether a schema, or anything nested inside it, references a circular schema. |
 
+## Media types, servers, auth, and HTTP
+
+These namespaces on `ast` read facts from nodes, so a plugin does not parse them again. `ast.mediaType`, `ast.server`, and `ast.auth` work for any spec. `ast.http` holds the helpers that only hold for HTTP operations.
+
+| Helper                          | Purpose                                                                                               |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `ast.mediaType.base`            | Drop the parameters and lowercase: `'Text/Plain; charset=utf-8'` gives `'text/plain'`.                |
+| `ast.mediaType.isJson`          | `application/json`, `text/json`, or a `+json` suffix.                                                 |
+| `ast.mediaType.isStream`        | Server-sent events, JSON Lines, JSON text sequences (`+json-seq`), or `multipart/mixed`.               |
+| `ast.mediaType.isForm`          | `multipart/form-data` or `application/x-www-form-urlencoded`.                                         |
+| `ast.server.select`             | Pick a server by `index`, falling back to the first one.                                              |
+| `ast.server.byName`             | Map named servers by name. The first server with a name wins.                                         |
+| `ast.auth.resolve`              | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements.             |
+| `ast.http.is`                   | Same as `isHttpOperationNode`.                                                                        |
+| `ast.http.status.class`         | The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`.             |
+| `ast.http.status.isSuccess`     | Whether a status code or range is `2xx`.                                                              |
+| `ast.http.status.isError`       | Whether a status code or range is `4xx` or `5xx`.                                                     |
+| `ast.http.responses.success`    | The operation's `2xx` responses.                                                                      |
+| `ast.http.responses.primary`    | The success response a client returns: one with a body first, then an exact code over a range.        |
+| `ast.http.baseURL`              | A server's URL when it is absolute and has no template variables, else `undefined`.                   |
+
+```typescript [baseURL.ts]
+import { ast } from 'kubb/kit'
+
+const baseURL = ast.http.baseURL(ast.server.select(node.servers, { index: 0 }))
+//    ^?
+```
+
 ## Constants
 
 | Export        | Purpose                                    |
