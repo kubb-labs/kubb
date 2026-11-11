@@ -80,7 +80,7 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * Parse the source into a universal `InputNode`.
    *
    * An adapter that renames schemas (e.g. collision handling) must stamp `targetName` on
-   * every ref node pointing at a renamed schema, so `ast.ref.resolveName` and `resolver.imports`
+   * every ref node pointing at a renamed schema, so `ast.ref.name` and `resolver.imports`
    * resolve a `$ref` to the file that is actually generated. Refs that keep their pointer's
    * last segment need no stamp.
    */

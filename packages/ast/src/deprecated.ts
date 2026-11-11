@@ -15,8 +15,8 @@ export const refName = ref.name
 /** @deprecated Use `ast.ref.resolve`. Removed in Kubb v6. */
 export const resolveRef = ref.resolve
 
-/** @deprecated Use `ast.ref.resolveName`. Removed in Kubb v6. */
-export const resolveRefName = ref.resolveName
+/** @deprecated Use `ast.ref.name`. Removed in Kubb v6. */
+export const resolveRefName = ref.name
 
 /** @deprecated Use `ast.graph.importedNames`. Removed in Kubb v6. */
 export const collectImportedRefNames = graph.importedNames

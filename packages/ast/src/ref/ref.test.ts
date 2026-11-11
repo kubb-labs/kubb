@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createSchema } from '../nodes/schema.ts'
-import { sync } from './index.ts'
+import { name, sync } from './index.ts'
 
 describe('sync', () => {
   it('merges sibling overrides over the resolved schema', () => {
@@ -27,5 +27,17 @@ describe('sync', () => {
     const merged = sync(ref)
     expect(merged.description).toBe('Original')
     expect(merged.readOnly).toBe(true)
+  })
+})
+
+describe('name', () => {
+  it('takes the last segment of a ref string', () => {
+    expect(name('#/components/schemas/Pet')).toBe('Pet')
+  })
+
+  it('prefers the targetName of a ref node', () => {
+    const node = createSchema({ type: 'ref', ref: '#/components/schemas/Order', targetName: 'OrderSchema' })
+    expect(name(node)).toBe('OrderSchema')
+    expect(name(createSchema({ type: 'string' }))).toBeNull()
   })
 })

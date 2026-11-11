@@ -808,7 +808,7 @@ describe('adapterOas options', () => {
     const node = await adapterOas({ validate: false }).parse({ type: 'data', data: document })
     const parsed = node.schemas.find((schema) => schema.name === 'Alias')!
     expect(parsed).toMatchObject({ type: 'string', description: 'alias' })
-    expect(parsed.conditionals?.map((pair) => [ast.ref.resolveName(pair.if), ast.ref.resolveName(pair.then)])).toStrictEqual([
+    expect(parsed.conditionals?.map((pair) => [ast.ref.name(pair.if), ast.ref.name(pair.then)])).toStrictEqual([
       ['AliasIf', 'AliasThen'],
       ['TargetIf', 'TargetThen'],
     ])
@@ -920,11 +920,11 @@ describe('adapterOas ref targetName', () => {
     const schemaRef = ast.narrowSchema(items[0]!, 'ref')
 
     expect(schemaRef?.targetName).toBe('OrderSchema')
-    expect(ast.ref.resolveName(schemaRef)).toBe('OrderSchema')
+    expect(ast.ref.name(schemaRef)).toBe('OrderSchema')
 
     const responseRef = ast.narrowSchema(node.operations[0]!.responses[0]!.content![0]!.schema!, 'ref')
 
     expect(responseRef?.targetName).toBe('OrderSchema')
-    expect(ast.ref.resolveName(responseRef)).toBe('OrderSchema')
+    expect(ast.ref.name(responseRef)).toBe('OrderSchema')
   })
 })

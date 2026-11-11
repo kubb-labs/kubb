@@ -190,14 +190,13 @@ for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => n
 
 Ref helpers live in `ast.ref`, schema graph helpers in `ast.graph`, and schema property helpers in `ast.schema`. `childName` and `enumPropName` build names, so they are named exports of `kubb/kit`. The old top-level names, such as `ast.refName`, `ast.findCircularSchemas`, `ast.resolveSchemaProperties` and `ast.isHttpOperationNode`, are deprecated. So are the kit exports `extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef`. Kubb v6 removes them.
 
-| Helper                | Purpose                                                                                                    |
-| --------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `ast.ref.resolve`     | Follow resolved ref nodes to their target schema.                                                          |
-| `ast.ref.name`        | Turn `'#/components/schemas/Pet'` into `'Pet'`.                                                            |
-| `ast.ref.resolveName` | Resolve the name a ref node emits, preferring its `targetName`.                                            |
-| `childName`           | Derive a child property name from context.                                                                 |
-| `enumPropName`        | Convert an enum value into a valid property name.                                                          |
-| `ast.ref.sync`        | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override. |
+| Helper            | Purpose                                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ast.ref.resolve` | Follow resolved ref nodes to their target schema.                                                                                              |
+| `ast.ref.name`    | The name a ref points at: `'Pet'` for `'#/components/schemas/Pet'`. A ref node gives its `targetName` first, so pass the node, not `node.ref`. |
+| `childName`       | Derive a child property name from context.                                                                                                     |
+| `enumPropName`    | Convert an enum value into a valid property name.                                                                                              |
+| `ast.ref.sync`    | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override.                                     |
 
 ```typescript [refs.ts]
 import { ast } from 'kubb/kit'

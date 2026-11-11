@@ -460,7 +460,7 @@ export class Resolver {
 
   /**
    * Builds one `ImportNode` per unique schema referenced in the tree, in first-occurrence
-   * order. Each ref's target resolves through `ast.ref.resolveName`, so collision- or macro-renamed
+   * order. Each ref's target resolves through `ast.ref.name`, so collision- or macro-renamed
    * schemas (`targetName`) import the emitted name. Names and paths go through the top-level
    * `name` and `file`, so import entries follow the plugin's conventions, and a per-call
    * `name` override wins over both.
