@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.18.4 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Type the `data` of a `text/event-stream` event from its `contentSchema` when the event is a `$ref` to a component, as a `oneOf` member or as the whole `itemSchema`, the same as inline events. The component itself keeps `data` as a string wherever it is used outside the stream. ([#4579](https://github.com/kubb-labs/kubb/pull/4579), [`e06edf3`](https://github.com/kubb-labs/kubb/commit/e06edf321c8b49eb756468cce9437bd30e41643e))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.18.3 — Nov 11, 2026
 
 ### @kubb/ast
