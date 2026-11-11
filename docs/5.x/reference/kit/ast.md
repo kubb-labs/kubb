@@ -217,7 +217,7 @@ Analyze how schemas reference each other, to prune unused schemas or wrap circul
 
 ## Media types, schemas, servers, auth, and HTTP
 
-These namespaces on `ast` read facts from nodes, so a plugin does not parse them again. `ast.mediaType`, `ast.server`, and `ast.auth` work for any spec. `ast.http` works for HTTP operations only.
+These namespaces on `ast` read facts from nodes, so a plugin does not parse them again. `ast.mediaType`, `ast.schema`, `ast.server`, and `ast.auth` work for any spec. `ast.http` works for HTTP operations only.
 
 | Helper                       | Purpose                                                                                        |
 | ---------------------------- | ---------------------------------------------------------------------------------------------- |
@@ -228,7 +228,7 @@ These namespaces on `ast` read facts from nodes, so a plugin does not parse them
 | `ast.schema.isString`        | Whether a schema prints as a plain `string`, including `date` and `time` as strings.           |
 | `ast.schema.numberBounds`    | The tightest inclusive `{ min, max }`, with exclusive bounds moved to the next `step`.         |
 | `ast.server.select`          | Pick a server by `index`, falling back to the first one.                                       |
-| `ast.server.byName`          | Map named servers by name. The first server with a name wins.                                  |
+| `ast.server.byName`          | Map each server name to its server. The first server with a name wins.                         |
 | `ast.auth.resolve`           | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements.      |
 | `ast.http.is`                | Narrow an operation to an HTTP operation, so `method` and `path` are present.                  |
 | `ast.http.status.class`      | The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`.      |
