@@ -35,7 +35,7 @@ Import authoring APIs from `kubb/kit`, included with the `kubb` package.
 | Part                                   | Entry point                 | What it does                                                                     |
 | -------------------------------------- | --------------------------- | -------------------------------------------------------------------------------- |
 | [AST and node builders](./kit/ast)     | `ast`                       | The namespace behind `factory` builders, visitors, guards, macros, and printers. |
-| [Code text](#code-text)                | `code`                      | Quotes strings and indents source text for any language.                         |
+| [Text](#text)                          | `text`                      | Quotes strings and indents source text for any language.                         |
 | [Engine](./kit/engine)                 | `createKubb`, `Diagnostics` | The `kubb`-package surface that runs your plugins and the errors it collects.    |
 | [Lifecycle hooks](./kit/hooks)         | `KubbHooks`                 | Every `kubb:*` hook a build fires, its payload, and when it fires.               |
 | [Extension manifest](./kit/manifest)   | `kubb-extension.json`       | The file an extension package ships for the registry, `kubb add`, and Studio.    |
@@ -55,19 +55,19 @@ Import authoring APIs from `kubb/kit`, included with the `kubb` package.
 
 `camelCase` and `pascalCase` from `kubb/kit` are deprecated. Use `casing.camel` and `casing.pascal`.
 
-## Code text
+## Text
 
-`code` holds text helpers that work for any output language, so a quote or line break in a spec name cannot break the output.
+`text` holds helpers that work for any output language, so a quote or line break in a spec name cannot break the output.
 
 | Helper         | Purpose                                                                                          |
 | -------------- | ------------------------------------------------------------------------------------------------ |
-| `code.string`  | A single-quoted string literal with quotes, backslashes, and line breaks escaped.                |
-| `code.indent`  | Indent every non-empty line of `text` by `unit` (two spaces by default). Blank lines stay empty. |
-| `code.dedent`  | Strip the common leading whitespace and the blank lines around the text.                         |
-| `code.unquote` | Strip one matching pair of `"`, `'` or `` ` `` from both ends.                                   |
+| `text.quote`   | A single-quoted string literal with quotes, backslashes, and line breaks escaped.                |
+| `text.indent`  | Indent every non-empty line of `text` by `unit` (two spaces by default). Blank lines stay empty. |
+| `text.dedent`  | Strip the common leading whitespace and the blank lines around the text.                         |
+| `text.unquote` | Strip one matching pair of `"`, `'` or `` ` `` from both ends.                                   |
 
-```typescript [code.ts]
-import { code } from 'kubb/kit'
+```typescript [text.ts]
+import { text } from 'kubb/kit'
 
-const line = `method: ${code.string("o'clock")}` // method: 'o\'clock'
+const line = `method: ${text.quote("o'clock")}` // method: 'o\'clock'
 ```

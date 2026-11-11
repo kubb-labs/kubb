@@ -1,6 +1,6 @@
 export { ast } from '@kubb/ast'
 export * as casing from './casing.ts'
-export * as code from './code.ts'
+export * as text from './text.ts'
 export { camelCase, containsCircularRef, extractRefName, isStringType, macroSimplifyUnion, pascalCase, syncSchemaRef } from './deprecated.ts'
 export { Url } from './Url.ts'
 export { macroDedupeUnion } from './macros/macroDedupeUnion.ts'

@@ -5,7 +5,7 @@
 '@kubb/kit': patch
 ---
 
-Add shared helpers for plugins: `ast.ref`, `ast.graph`, `ast.schema`, `ast.mediaType`, `ast.http`, `ast.server` and `ast.auth` in `@kubb/ast`, `casing` and `code` in `@kubb/kit`, and `resolver.groupDir` in `@kubb/core`.
+Add shared helpers for plugins: `ast.ref`, `ast.graph`, `ast.schema`, `ast.mediaType`, `ast.http`, `ast.server` and `ast.auth` in `@kubb/ast`, `casing` and `text` in `@kubb/kit`, and `resolver.groupDir` in `@kubb/core`.
 
 - `@kubb/adapter-oas` spreads a form-encoded OpenAPI 3.2 `querystring` object into one query parameter per property.
 - `@kubb/adapter-oas` reads any `application/*+json-seq` type as a stream, and reads `multipart/mixed` as one only when it declares `itemSchema`.
