@@ -2720,6 +2720,21 @@ describe('OpenAPI 3.2', () => {
     expect(firstContent(root)).toMatchObject({ schema: { type: 'ref', name: 'Alias' }, stream: { shape: 'event' } })
   })
 
+  it('reads an item whose event sits next to payload fields as data, as the Scalar Galaxy spec writes one', async () => {
+    const planetEvent = {
+      type: 'object',
+      properties: { event: { type: 'string', enum: ['created', 'updated'] }, planet: { type: 'string' }, note: { type: 'string' } },
+    }
+    const galaxy = await parseOas(streamingDocument({ 'text/event-stream': { itemSchema: planetEvent } }))
+    // Only SSE fields, so this one stays the whole event.
+    const ping = await parseOas(
+      streamingDocument({ 'text/event-stream': { itemSchema: { type: 'object', properties: { event: { const: 'ping' }, id: { type: 'string' } } } } }),
+    )
+
+    expect(firstContent(galaxy)?.stream).toMatchObject({ shape: 'data' })
+    expect(firstContent(ping)?.stream).toMatchObject({ shape: 'event' })
+  })
+
   it('keeps a $ref member of an event union as a reference and still parses the inline members', async () => {
     const root = await parseOas({
       openapi: '3.2.0',
