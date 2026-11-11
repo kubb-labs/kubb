@@ -148,7 +148,7 @@ export function getItemSchema({
 // A stream without a schema is a `blob` with a string primitive, so it keeps the JSON-parse default.
 function isTextSchema(schema: ast.SchemaNode | undefined): boolean {
   if (!schema) return false
-  const resolved = ast.resolveRef(schema)
+  const resolved = ast.ref.resolve(schema)
   return resolved.type !== 'blob' && resolved.primitive === 'string'
 }
 
@@ -159,11 +159,10 @@ function isTextSchema(schema: ast.SchemaNode | undefined): boolean {
 export function getTextData(item: ast.SchemaNode, shape: 'event' | 'data'): true | Array<string> | undefined {
   if (shape === 'data') return isTextSchema(item) ? true : undefined
 
-  const resolved = ast.resolveRef(item)
+  const resolved = ast.ref.resolve(item)
   const events = resolved.type === 'union' ? (ast.narrowSchema(resolved, 'union')?.members ?? []) : [resolved]
   // A discriminator makes each event an intersection of its `$ref` and the pinned `event`, so every part is read.
-  const propertySchemas = (event: ast.SchemaNode, propertyName: string) =>
-    ast.resolveSchemaProperties({ node: event, propertyName }).map(({ schema }) => schema)
+  const propertySchemas = (event: ast.SchemaNode, propertyName: string) => ast.schema.properties({ node: event, propertyName }).map(({ schema }) => schema)
   const textEvents = events.filter((event) => {
     const dataSchemas = propertySchemas(event, 'data')
     return dataSchemas.length > 0 && dataSchemas.every(isTextSchema)
@@ -171,6 +170,6 @@ export function getTextData(item: ast.SchemaNode, shape: 'event' | 'data'): true
   if (!textEvents.length) return undefined
   if (textEvents.length === events.length) return true
 
-  const eventNames = textEvents.map((event) => propertySchemas(event, 'event').flatMap((schema) => ast.getSchemaLiteralValues(ast.resolveRef(schema))))
+  const eventNames = textEvents.map((event) => propertySchemas(event, 'event').flatMap((schema) => ast.schema.literalValues(ast.ref.resolve(schema))))
   return eventNames.every((values) => values.length > 0) ? [...new Set(eventNames.flat().map(String))] : undefined
 }

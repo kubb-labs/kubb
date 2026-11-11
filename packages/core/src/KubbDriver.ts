@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, memo, toError } from '@internals/utils'
-import { ast, collectUsedSchemaNames, compareEnforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
+import { ast, compareEnforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
@@ -549,7 +549,7 @@ export class KubbDriver {
       const includedOps = operations.filter(
         (operation) => resolver.default.options(operation, { options: plugin.options, exclude, include, override }) !== null,
       )
-      allowedSchemaNamesByPlugin.set(plugin.name, collectUsedSchemaNames(includedOps, schemas))
+      allowedSchemaNamesByPlugin.set(plugin.name, ast.graph.usedNames(includedOps, schemas))
     }
 
     // Freeze each plugin's per-run state once so the node-outer walk stays cheap. A plugin's

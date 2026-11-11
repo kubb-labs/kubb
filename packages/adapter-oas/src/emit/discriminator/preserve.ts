@@ -223,7 +223,7 @@ export function narrowUnionMembers({
 
   function implicitDiscriminantValue(member: unknown): string | null {
     if (!discriminator || discriminator.mapping || !isReference(member)) return null
-    const value = ast.refName(member.$ref)
+    const value = ast.ref.name(member.$ref)
     if (!value) return null
     // Silent walk — the reporting resolve() would flag missing refs as errors during speculative lookup.
     const variant = refs.resolve<SchemaObject>(member.$ref, { report: false })

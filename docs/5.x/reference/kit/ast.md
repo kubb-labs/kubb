@@ -188,32 +188,32 @@ for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => n
 
 ## Refs and naming helpers
 
-`resolveRef`, `resolveRefName`, `refName` and `ref.sync` ship on the `ast` namespace. `childName` and `enumPropName` build names, so they are named exports of `kubb/kit`. The kit exports `extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef` are deprecated aliases of `ast.refName`, `ast.ref.sync`, `ast.schema.isString` and `ast.graph.containsCircular`, removed in Kubb v6.
+Ref helpers live in `ast.ref`, schema graph helpers in `ast.graph`, and schema property helpers in `ast.schema`. `childName` and `enumPropName` build names, so they are named exports of `kubb/kit`. The old top-level names, such as `ast.refName`, `ast.findCircularSchemas` and `ast.resolveSchemaProperties`, and the kit exports `extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef`, are deprecated aliases that are removed in Kubb v6.
 
-| Helper           | Purpose                                                                                                    |
-| ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| `resolveRef`     | Follow resolved ref nodes to their target schema.                                                          |
-| `refName`        | Turn `'#/components/schemas/Pet'` into `'Pet'`.                                                            |
-| `resolveRefName` | Resolve the name a ref node emits, preferring its `targetName`.                                            |
-| `childName`      | Derive a child property name from context.                                                                 |
-| `enumPropName`   | Convert an enum value into a valid property name.                                                          |
-| `ref.sync`       | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override. |
+| Helper                | Purpose                                                                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `ast.ref.resolve`     | Follow resolved ref nodes to their target schema.                                                          |
+| `ast.ref.name`        | Turn `'#/components/schemas/Pet'` into `'Pet'`.                                                            |
+| `ast.ref.resolveName` | Resolve the name a ref node emits, preferring its `targetName`.                                            |
+| `childName`           | Derive a child property name from context.                                                                 |
+| `enumPropName`        | Convert an enum value into a valid property name.                                                          |
+| `ref.sync`            | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override. |
 
 ```typescript [refs.ts]
 import { ast } from 'kubb/kit'
 
-const name = ast.refName('#/components/schemas/Pet')
+const name = ast.ref.name('#/components/schemas/Pet')
 //    ^?
 ```
 
 ## Schema graph
 
-Analyze how schemas reference each other, to prune unused schemas or wrap circular ones in a lazy construct. `collectUsedSchemaNames` and `findCircularSchemas` ship on the `ast` namespace.
+Analyze how schemas reference each other, to prune unused schemas or wrap circular ones in a lazy construct. They live in `ast.graph`.
 
 | Helper                   | Purpose                                                                                                                                                         |
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `collectUsedSchemaNames` | Collect the names of every top-level schema transitively used by a set of operations. Pair it with `include` filters to leave unreferenced schemas ungenerated. |
-| `findCircularSchemas`    | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`.                      |
+| `ast.graph.usedNames`    | Collect the names of every top-level schema transitively used by a set of operations. Pair it with `include` filters to leave unreferenced schemas ungenerated. |
+| `ast.graph.circular`     | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`.                      |
 | `graph.containsCircular` | Report whether a schema, or anything nested inside it, references a circular schema.                                                                            |
 
 ## Media types, servers, auth, and HTTP

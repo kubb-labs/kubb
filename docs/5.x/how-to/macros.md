@@ -101,7 +101,7 @@ export function macroRenameSchema({ from, to }: { from: string; to: string }) {
 
       // A ref node can be the renamed schema's own declaration, a pointer to it, or both at once.
       const renamesDeclaration = refNode.name === from
-      const renamesTarget = ast.resolveRefName(refNode) === from
+      const renamesTarget = ast.ref.resolveName(refNode) === from
       if (!renamesDeclaration && !renamesTarget) return undefined
 
       return {
@@ -139,10 +139,7 @@ export default defineConfig({
 import { ast, macroDedupeUnion, macroDiscriminatorEnum } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
-const next = ast.applyMacros(root, [
-  macroDedupeUnion,
-  macroDiscriminatorEnum({ propertyName: 'kind', values: ['cat', 'dog'] }),
-])
+const next = ast.applyMacros(root, [macroDedupeUnion, macroDiscriminatorEnum({ propertyName: 'kind', values: ['cat', 'dog'] })])
 ```
 
 Export macros from a shared module to reuse them across plugins and projects.

@@ -155,7 +155,7 @@ export function convertRef({ schema, name, nullable, defaultValue, document, par
 
   return createNode(ctx, {
     type: ast.schemaTypes.ref,
-    name: ast.refName(schema.$ref!),
+    name: ast.ref.name(schema.$ref!),
     ref: schema.$ref,
     ...(targetName ? { targetName } : {}),
     schema: resolvedSchema,
@@ -327,7 +327,7 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
       type: ast.schemaTypes.union,
       strategy,
       members,
-      discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.inferDiscriminatorPropertyName(members),
+      discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.schema.discriminatorName(members),
     })
 
     const requiredProperties = missingRequired.map((name) =>
@@ -350,7 +350,7 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
     type: ast.schemaTypes.union,
     strategy,
     members,
-    discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.inferDiscriminatorPropertyName(members),
+    discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.schema.discriminatorName(members),
   })
 
   return ast.applyMacros(unionNode, [macroDedupeUnion], { depth: 'shallow' })

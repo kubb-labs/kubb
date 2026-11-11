@@ -33,7 +33,7 @@ function parseOas(document: Document): void {
     scanSchema(node)
     nodes.push(node)
   }
-  ast.findCircularSchemas(nodes)
+  ast.graph.circular(nodes)
 
   for (const operation of getOperations(document, refs)) parseOperation({ operation, document, refs, options: DEFAULT_PARSER_OPTIONS, parseSchema })
 }

@@ -76,7 +76,7 @@ export const pluginExample = defineExtension({
 
 `macroDedupeUnion`, `macroDiscriminatorEnum`, `macroEnumName`, and `macroRenameSchema` are the built-in macro presets, ready to pass to `ast.applyMacros` or a plugin's `setMacros`. Build a custom macro with `ast.defineMacro` instead.
 
-`childName`, `enumPropName`, `extractRefName`, `isStringType`, `mergeAdjacentObjectsLazy`, `syncSchemaRef`, and `containsCircularRef` are schema-name and schema-graph helpers a generator or macro calls while shaping output, complementing the ref and graph helpers (`resolveRefName`, `findCircularSchemas`, `collectUsedSchemaNames`) that stay on `ast`.
+`childName`, `enumPropName`, and `mergeAdjacentObjectsLazy` are schema-name helpers a generator or macro calls while shaping output. Ref and graph helpers live on `ast.ref` and `ast.graph`, such as `ast.ref.resolveName`, `ast.graph.circular`, and `ast.graph.usedNames`.
 
 Rounding out the package are the option and hook types every plugin, generator, adapter, resolver, and renderer author references, among them `PluginType`, `GeneratorContext`, `ResolveFileOptions`, `AdapterFactoryOptions`, `RendererFactory`, and `KubbHooks`.
 

@@ -2,6 +2,12 @@ import { narrowSchema } from '../guards.ts'
 import { isJson } from '../mediaType/index.ts'
 import type { NumberSchemaNode, SchemaNode, SchemaType, StringSchemaNode } from '../nodes/schema.ts'
 
+export {
+  getSchemaLiteralValues as literalValues,
+  inferDiscriminatorPropertyName as discriminatorName,
+  resolveSchemaProperties as properties,
+} from '../utils/schemaProperties.ts'
+
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'])
 
 /** The schema of the JSON document a string holds (`contentMediaType` with `contentSchema`), else `undefined`. */

@@ -125,9 +125,9 @@ function process(node: Node) {
 ### Refs
 
 ```ts
-import { resolveRefName } from '@kubb/ast'
+import { ast } from '@kubb/ast'
 
-resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' }) // 'Pet'
+ast.ref.resolveName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' }) // 'Pet'
 ```
 
 ## Adding a node

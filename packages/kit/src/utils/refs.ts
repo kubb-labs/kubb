@@ -1,8 +1,8 @@
 import { ast } from '@kubb/ast'
 import { pascalCase } from '@internals/utils'
 
-/** @deprecated Use `ast.refName`. Removed in Kubb v6. */
-export const extractRefName = ast.refName
+/** @deprecated Use `ast.ref.name`. Removed in Kubb v6. */
+export const extractRefName = ast.ref.name
 
 /**
  * Builds a PascalCase child schema name by joining a parent name and property name.
