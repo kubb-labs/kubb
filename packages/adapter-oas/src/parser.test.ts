@@ -2762,6 +2762,54 @@ describe('OpenAPI 3.2', () => {
     expect(ast.narrowSchema(delta!, 'object')?.properties.find((entry) => entry.name === 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
   })
 
+  describe('$ref events with a JSON data string', () => {
+    const jsonData = { type: 'string', contentMediaType: 'application/json', contentSchema: { $ref: '#/components/schemas/MessageDelta' } }
+    const schemas = {
+      MessageDelta: messageDelta,
+      Ping: { type: 'object', properties: { event: { const: 'ping' } } },
+      DeltaEvent: { type: 'object', required: ['event', 'data'], properties: { event: { const: 'message_delta' }, data: jsonData } },
+    }
+    function document(itemSchema: Record<string, unknown>) {
+      return {
+        openapi: '3.2.0',
+        info,
+        paths: {
+          '/stream': { get: { operationId: 'stream', responses: { '200': { description: 'OK', content: { 'text/event-stream': { itemSchema } } } } } },
+          '/last': {
+            get: {
+              operationId: 'last',
+              responses: { '200': { description: 'OK', content: { 'application/json': { schema: { $ref: '#/components/schemas/DeltaEvent' } } } } },
+            },
+          },
+        },
+        components: { schemas },
+      }
+    }
+    function expectComponentKeepsStringData(root: ast.InputNode) {
+      const component = ast.narrowSchema(findSchema(root, 'DeltaEvent')!, 'object')
+      expect(property(component!, 'data')?.schema).toMatchObject({ type: 'string' })
+      expect(firstContent(root, 'last')?.schema).toMatchObject({ type: 'ref', name: 'DeltaEvent' })
+    }
+
+    it('parses data on a $ref oneOf member and keeps other $ref members as references', async () => {
+      const root = await parseOas(document({ oneOf: [{ $ref: '#/components/schemas/DeltaEvent' }, { $ref: '#/components/schemas/Ping' }] }))
+      const [delta, ping] = ast.narrowSchema(firstContent(root)!.schema!, 'union')!.members!
+
+      expect(property(ast.narrowSchema(delta!, 'object')!, 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
+      expect(ping).toMatchObject({ type: 'ref', name: 'Ping' })
+      expectComponentKeepsStringData(root)
+    })
+
+    it('parses data on a top-level $ref itemSchema', async () => {
+      const root = await parseOas(document({ $ref: '#/components/schemas/DeltaEvent' }))
+      const event = ast.narrowSchema(firstContent(root)!.schema!, 'object')
+
+      expect(firstContent(root)?.stream).toMatchObject({ shape: 'event' })
+      expect(property(event!, 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
+      expectComponentKeepsStringData(root)
+    })
+  })
+
   it('reads schema on a 3.2 text/event-stream entry as the complete stream, not one event', async () => {
     const content = firstContent(await parseOas(streamingDocument({ 'text/event-stream': { schema: { type: 'string' } } })))
 
