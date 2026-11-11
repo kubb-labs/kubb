@@ -2,27 +2,12 @@ import type { HttpOperationNode } from '../nodes/operation.ts'
 import type { ResponseNode } from '../nodes/response.ts'
 import { isSuccess } from './status.ts'
 
-/**
- * The operation's `2xx` responses, in the order the source lists them.
- *
- * @example
- * ```ts
- * ast.http.responses.success(node).map((response) => response.statusCode)
- * ```
- */
+/** The operation's `2xx` responses. */
 export function success(node: Pick<HttpOperationNode, 'responses'>): Array<ResponseNode> {
   return node.responses.filter((response) => isSuccess(response.statusCode))
 }
 
-/**
- * The success response a client returns: a response with a body wins over one without, such as `204`, and then
- * an exact code such as `200` wins over a `2xx` range listed before it. Returns `null` without a success response.
- *
- * @example
- * ```ts
- * ast.http.responses.primary(node)?.content
- * ```
- */
+/** The success response a client returns: one with a body first, then an exact code over a `2xx` range. */
 export function primary(node: Pick<HttpOperationNode, 'responses'>): ResponseNode | null {
   const responses = success(node)
   const withBody = responses.filter((response) => response.content?.length)

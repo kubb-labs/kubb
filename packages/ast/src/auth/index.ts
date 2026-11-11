@@ -1,27 +1,13 @@
 import type { AuthCredential, AuthRequirement, AuthScheme } from '../nodes/input.ts'
 
-/**
- * One scheme of a resolved requirement: its declared name and credential, and the scopes the requirement asks for.
- */
+/** One scheme of a resolved requirement, with the scopes the requirement asks for. */
 export type ResolvedScheme = {
   name: string
   credential: AuthCredential
   scopes: Array<string>
 }
 
-/**
- * Joins each requirement with the schemes it names. The result keeps the requirements as alternatives, each one a
- * list of schemes that apply together. A requirement that names an undeclared scheme can never be met, so it is
- * left out, and so is a repeated one. An empty requirement stays, since it means the call may be sent without auth.
- *
- * Pass the `schemes` of the document the operation comes from. Which credentials a runtime can send is up to the caller.
- *
- * @example
- * ```ts
- * ast.auth.resolve([[{ scheme: 'bearer' }], [{ scheme: 'missing' }]], meta.auth)
- * // [[{ name: 'bearer', credential: { type: 'http', scheme: 'bearer' }, scopes: [] }]]
- * ```
- */
+/** Joins each requirement with its schemes. Drops undeclared and repeated requirements, and keeps an empty one (no auth needed). */
 export function resolve(auth: ReadonlyArray<AuthRequirement> | undefined, schemes: ReadonlyArray<AuthScheme> | undefined): Array<Array<ResolvedScheme>> {
   const credentials = new Map(schemes?.map((scheme) => [scheme.name, scheme.credential]))
   const seen = new Set<string>()
