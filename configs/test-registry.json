@@ -97,7 +97,7 @@
   "packages/kit/src/macros/macroDedupeUnion.test.ts": "Union hashing with pointer, Date, default and resolved-schema branches; several cases read as regressions.",
   "packages/kit/src/macros/macroDiscriminatorEnum.test.ts": "enumName and number-primitive branches are not asserted by adapter-oas parser.test.ts, which only covers readOnly.",
   "packages/kit/src/utils/mergeAdjacentSchemas.test.ts": "Merge boundary at a named object; adapter-oas composition.test.ts does not cover merging.",
-  "packages/kit/src/utils/refs.test.ts": "childName and enumPropName build every nested schema and enum name; the empty-part and no-parent branches have no other test.",
+  "packages/kit/src/utils/names.test.ts": "childName and enumPropName build every nested schema and enum name; the empty-part and no-parent branches have no other test.",
   "packages/kubb/src/defineConfig.test.ts": "Golden path: config defaults for parsers, reporters, barrel plugin and every config shape, plus types.",
   "packages/mcp/src/tools/generate.test.ts": "MCP generate tool: coded diagnostics, array config, broken config load.",
   "packages/mcp/src/tools/validate.test.ts": "MCP validate tool: success and missing-file diagnostic payload.",

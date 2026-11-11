@@ -1,5 +1,5 @@
 import { ast } from '@kubb/ast'
-import { enumPropName } from '../utils/refs.ts'
+import { enumPropName } from '../utils/names.ts'
 
 type Props = {
   parentName: string | null | undefined

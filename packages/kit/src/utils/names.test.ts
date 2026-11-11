@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { childName, enumPropName } from './refs.ts'
+import { childName, enumPropName } from './names.ts'
 
 describe('childName', () => {
   it('returns null when parentName is undefined', () => {
