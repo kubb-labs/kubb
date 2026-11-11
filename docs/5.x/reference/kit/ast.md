@@ -225,6 +225,11 @@ These namespaces on `ast` read facts from nodes, so a plugin does not parse them
 | `ast.mediaType.base`         | Drop the parameters and lowercase: `'Text/Plain; charset=utf-8'` gives `'text/plain'`.         |
 | `ast.mediaType.isJson`       | `application/json`, `text/json`, or a `+json` suffix.                                          |
 | `ast.mediaType.isStream`     | Server-sent events, JSON Lines, or JSON text sequences (`+json-seq`).                          |
+| `ast.schema.jsonContent`     | The schema of the JSON document a string holds (`contentMediaType` with `contentSchema`).      |
+| `ast.schema.isString`        | Whether a schema prints as a plain `string`, including `date` and `time` as strings.           |
+| `ast.schema.numberBounds`    | The tightest inclusive `{ min, max }`, with exclusive bounds moved to the next `step`.         |
+| `ast.ref.sync`               | Merge a resolved ref with its target, letting usage-site fields override.                      |
+| `ast.graph.containsCircular` | Whether a schema refers to one of the circular schemas.                                        |
 | `ast.server.select`          | Pick a server by `index`, falling back to the first one.                                       |
 | `ast.server.byName`          | Map named servers by name. The first server with a name wins.                                  |
 | `ast.auth.resolve`           | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements.      |
@@ -232,6 +237,8 @@ These namespaces on `ast` read facts from nodes, so a plugin does not parse them
 | `ast.http.status.class`      | The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`.      |
 | `ast.http.status.isSuccess`  | Whether a status code or range is `2xx`.                                                       |
 | `ast.http.status.isError`    | Whether a status code or range is `4xx` or `5xx`.                                              |
+| `ast.http.status.toCode`     | One concrete code for a status or range: `200` for `2xx` and `default`.                        |
+| `ast.http.parameters`        | The parameters by location (`path`, `query`, `header`, `cookie`), first of a repeated name.    |
 | `ast.http.responses.success` | The operation's `2xx` responses.                                                               |
 | `ast.http.responses.primary` | The success response a client returns: one with a body first, then an exact code over a range. |
 | `ast.http.baseURL`           | A server's URL when it is absolute and has no template variables, else `undefined`.            |
@@ -242,6 +249,8 @@ import { ast } from 'kubb/kit'
 const baseURL = ast.http.baseURL(ast.server.select(node.servers, { index: 0 }))
 //    ^?
 ```
+
+A stream content entry also says how to read it, so a plugin does not parse the media type: `content.stream.framing` is `'events'` for server-sent events or `'lines'` for JSON Lines and JSON text sequences, and `content.stream.textData` is `true`, or the event names, when an event's `data` is typed as a string.
 
 ## Constants
 
