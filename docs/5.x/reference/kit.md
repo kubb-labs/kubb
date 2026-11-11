@@ -56,6 +56,5 @@ Import authoring APIs from `kubb/kit`, included with the `kubb` package.
 ```typescript [code.ts]
 import { code } from 'kubb/kit'
 
-const line = `method: ${code.string("o'clock")}`
-//    ^?
+const line = `method: ${code.string("o'clock")}` // method: 'o\'clock'
 ```
