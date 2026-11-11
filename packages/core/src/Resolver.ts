@@ -459,19 +459,6 @@ export class Resolver {
   }
 
   /**
-   * The folder a group puts a file in, relative to the output directory: the custom `group.name`, else the
-   * camelCased tag in the folders of its `parent` tags, or the first segment of the path.
-   *
-   * @example
-   * ```ts
-   * resolver.groupDir({ type: 'tag' }, 'pet store') // 'petStore'
-   * ```
-   */
-  groupDir(group: Group, value: string): string {
-    return this.#resolveGroupDir(group, value)
-  }
-
-  /**
    * Builds one `ImportNode` per unique schema referenced in the tree, in first-occurrence
    * order. Each ref's target resolves through `resolveRefName`, so collision- or macro-renamed
    * schemas (`targetName`) import the emitted name. Names and paths go through the top-level
@@ -542,11 +529,17 @@ export class Resolver {
   }
 
   /**
-   * A custom `group.name` wins; otherwise `tag` groups use the camelCased tag, nested in the
-   * folders of its `parent` tags, and `path` groups use the first non-traversal segment (`''`
-   * when none remain, placing the file in the output root, kept safe by the caller's boundary check).
+   * The folder a group puts a file in, relative to the output directory. A custom `group.name` wins; otherwise `tag`
+   * groups use the camelCased tag, nested in the folders of its `parent` tags, and `path` groups use the first
+   * non-traversal segment (`''` when none remain, placing the file in the output root, kept safe by the caller's
+   * boundary check).
+   *
+   * @example
+   * ```ts
+   * resolver.groupDir({ type: 'tag' }, 'pet store') // 'petStore'
+   * ```
    */
-  #resolveGroupDir(group: Group, groupValue: string): string {
+  groupDir(group: Group, groupValue: string): string {
     if (group.name) return group.name({ group: groupValue })
     if (group.type === 'tag') {
       const chain = [groupValue]
@@ -571,7 +564,7 @@ export class Resolver {
     const outputDir = path.resolve(root, output.path)
     // A file without the value its group needs (an SDK class per tag, grouped by path) is not grouped.
     const groupValue = group?.type === 'path' ? groupPath : tag
-    const result = group && groupValue ? path.resolve(outputDir, this.#resolveGroupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)
+    const result = group && groupValue ? path.resolve(outputDir, this.groupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)
 
     assertInside({
       target: result,
