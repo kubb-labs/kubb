@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { ast, type InputMeta } from '@kubb/ast'
 import { describe, expect, it, test } from 'vitest'
@@ -327,6 +328,16 @@ describe('default.path', () => {
 
     expect(resolver.default.path({ ...options, tag: 'house cats' })).toBe('/root/types/animals/cats/houseCats/petTypes.ts')
     expect(resolver.default.path({ ...options, tag: 'a' })).toBe('/root/types/b/a/petTypes.ts')
+  })
+
+  it('names the group folder the way default.path does', () => {
+    const resolver = createResolver({ pluginName: 'test' })
+    resolver.setTags([{ name: 'house cats', parent: 'cats' }])
+
+    expect(resolver.groupDir({ type: 'tag' }, 'pet store')).toBe('petStore')
+    expect(resolver.groupDir({ type: 'tag' }, 'house cats')).toBe(path.join('cats', 'houseCats'))
+    expect(resolver.groupDir({ type: 'path' }, '/pet-store/{id}')).toBe('petStore')
+    expect(resolver.groupDir({ type: 'tag', name: ({ group }) => `${group}Api` }, 'pets')).toBe('petsApi')
   })
 
   it('sanitizes traversal segments in default path-based grouping', () => {

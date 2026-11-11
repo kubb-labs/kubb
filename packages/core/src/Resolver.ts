@@ -459,6 +459,19 @@ export class Resolver {
   }
 
   /**
+   * The folder a group puts a file in, relative to the output directory: the custom `group.name`, else the
+   * camelCased tag in the folders of its `parent` tags, or the first segment of the path.
+   *
+   * @example
+   * ```ts
+   * resolver.groupDir({ type: 'tag' }, 'pet store') // 'petStore'
+   * ```
+   */
+  groupDir(group: Group, value: string): string {
+    return this.#resolveGroupDir(group, value)
+  }
+
+  /**
    * Builds one `ImportNode` per unique schema referenced in the tree, in first-occurrence
    * order. Each ref's target resolves through `resolveRefName`, so collision- or macro-renamed
    * schemas (`targetName`) import the emitted name. Names and paths go through the top-level
