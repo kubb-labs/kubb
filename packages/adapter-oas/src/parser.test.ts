@@ -2731,8 +2731,35 @@ describe('OpenAPI 3.2', () => {
       streamingDocument({ 'text/event-stream': { itemSchema: { type: 'object', properties: { event: { const: 'ping' }, id: { type: 'string' } } } } }),
     )
 
+    // `allOf` members combine into one object, so their fields count together.
+    const composed = await parseOas(
+      streamingDocument({
+        'text/event-stream': {
+          itemSchema: {
+            allOf: [
+              { type: 'object', properties: { event: { type: 'string' } } },
+              { type: 'object', properties: { planet: { type: 'string' } } },
+            ],
+          },
+        },
+      }),
+    )
+    const composedEvent = await parseOas(
+      streamingDocument({
+        'text/event-stream': {
+          itemSchema: {
+            type: 'object',
+            properties: { event: { type: 'string' }, note: { type: 'string' } },
+            allOf: [{ type: 'object', properties: { data: { type: 'string' } } }],
+          },
+        },
+      }),
+    )
+
     expect(firstContent(galaxy)?.stream).toMatchObject({ shape: 'data' })
     expect(firstContent(ping)?.stream).toMatchObject({ shape: 'event' })
+    expect(firstContent(composed)?.stream).toMatchObject({ shape: 'data' })
+    expect(firstContent(composedEvent)?.stream).toMatchObject({ shape: 'event' })
   })
 
   it('keeps a $ref member of an event union as a reference and still parses the inline members', async () => {
