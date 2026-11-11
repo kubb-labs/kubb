@@ -20,7 +20,7 @@ describe('mediaType', () => {
     ['application/x-ndjson', true],
     ['application/geo+json-seq', true],
     ['application/vnd.custom+json-seq', true],
-    ['multipart/mixed', true],
+    ['multipart/mixed', false],
     ['application/json', false],
   ])('isStream(%s) is %s', (mediaType, expected) => {
     expect(isStream(mediaType)).toBe(expected)

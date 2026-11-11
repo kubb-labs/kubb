@@ -11,7 +11,6 @@ order: 8
 navigation:
   title: AST & node builders
   icon: i-iconoir-code-brackets
-
 ---
 
 # AST and node builders
@@ -82,15 +81,15 @@ Object schemas can also include `propertyNames`, a schema that validates each ke
 
 Factories return defaulted, fully typed nodes for adapters and generator handlers. Never build AST literals by hand. Besides `createInput`, `createSchema`, and `createOperation`, the namespace provides constructors for source files and the TypeScript-level artifacts generators emit:
 
-| Factory                                                             | Purpose                                                  |
-| ------------------------------------------------------------------- | -------------------------------------------------------- |
-| `createFile`, `createSource`, `createText`                          | Build `FileNode`s emitted by generators.                 |
-| `createImport`, `createExport`                                      | Emit `import` / `export` statements.                     |
-| `createConst`, `createFunction`, `createArrowFunction`, `createJsx` | Emit TypeScript declarations and JSX.                    |
-| `createParameter`                                                   | Describe operation parameters.                           |
-| `createProperty`, `createType`                                      | Compose object properties and TypeScript types.          |
-| `createResponse`, `createRequestBody`, `createContent`              | Model responses, request bodies, and content entries.    |
-| `createBreak`                                                       | Emit line breaks between nodes.                          |
+| Factory                                                             | Purpose                                               |
+| ------------------------------------------------------------------- | ----------------------------------------------------- |
+| `createFile`, `createSource`, `createText`                          | Build `FileNode`s emitted by generators.              |
+| `createImport`, `createExport`                                      | Emit `import` / `export` statements.                  |
+| `createConst`, `createFunction`, `createArrowFunction`, `createJsx` | Emit TypeScript declarations and JSX.                 |
+| `createParameter`                                                   | Describe operation parameters.                        |
+| `createProperty`, `createType`                                      | Compose object properties and TypeScript types.       |
+| `createResponse`, `createRequestBody`, `createContent`              | Model responses, request bodies, and content entries. |
+| `createBreak`                                                       | Emit line breaks between nodes.                       |
 
 ## Visitors {#visitors}
 
@@ -191,13 +190,13 @@ for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => n
 
 The helpers split across two surfaces. `resolveRef`, `resolveRefName`, and `refName` ship on the `ast` namespace, like the guards and node types. `extractRefName`, `childName`, `enumPropName`, and `syncSchemaRef` are named exports of `kubb/kit` itself. The same split applies to `containsCircularRef` and the built-in macros below.
 
-| Helper           | Purpose                                                             |
-| ---------------- | ------------------------------------------------------------------- |
-| `resolveRef`     | Follow resolved ref nodes to their target schema.                   |
-| `extractRefName` | Turn `'#/components/schemas/Pet'` into `'Pet'`.                     |
-| `resolveRefName` | Resolve the name a ref node emits, preferring its `targetName`.     |
-| `childName`      | Derive a child property name from context.                          |
-| `enumPropName`   | Convert an enum value into a valid property name.                   |
+| Helper           | Purpose                                                                                                    |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| `resolveRef`     | Follow resolved ref nodes to their target schema.                                                          |
+| `extractRefName` | Turn `'#/components/schemas/Pet'` into `'Pet'`.                                                            |
+| `resolveRefName` | Resolve the name a ref node emits, preferring its `targetName`.                                            |
+| `childName`      | Derive a child property name from context.                                                                 |
+| `enumPropName`   | Convert an enum value into a valid property name.                                                          |
 | `syncSchemaRef`  | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override. |
 
 ```typescript [refs.ts]
@@ -211,32 +210,32 @@ const name = extractRefName('#/components/schemas/Pet')
 
 Analyze how schemas reference each other, to prune unused schemas or wrap circular ones in a lazy construct. `collectUsedSchemaNames` and `findCircularSchemas` ship on the `ast` namespace.
 
-| Helper                   | Purpose                                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------------------------- |
+| Helper                   | Purpose                                                                                                                                                         |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `collectUsedSchemaNames` | Collect the names of every top-level schema transitively used by a set of operations. Pair it with `include` filters to leave unreferenced schemas ungenerated. |
-| `findCircularSchemas`    | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`. |
-| `containsCircularRef`    | Report whether a schema, or anything nested inside it, references a circular schema. |
+| `findCircularSchemas`    | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`.                      |
+| `containsCircularRef`    | Report whether a schema, or anything nested inside it, references a circular schema.                                                                            |
 
 ## Media types, servers, auth, and HTTP
 
 These namespaces on `ast` read facts from nodes, so a plugin does not parse them again. `ast.mediaType`, `ast.server`, and `ast.auth` work for any spec. `ast.http` holds the helpers that only hold for HTTP operations.
 
-| Helper                          | Purpose                                                                                               |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `ast.mediaType.base`            | Drop the parameters and lowercase: `'Text/Plain; charset=utf-8'` gives `'text/plain'`.                |
-| `ast.mediaType.isJson`          | `application/json`, `text/json`, or a `+json` suffix.                                                 |
-| `ast.mediaType.isStream`        | Server-sent events, JSON Lines, JSON text sequences (`+json-seq`), or `multipart/mixed`.               |
-| `ast.mediaType.isForm`          | `multipart/form-data` or `application/x-www-form-urlencoded`.                                         |
-| `ast.server.select`             | Pick a server by `index`, falling back to the first one.                                              |
-| `ast.server.byName`             | Map named servers by name. The first server with a name wins.                                         |
-| `ast.auth.resolve`              | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements.             |
-| `ast.http.is`                   | Same as `isHttpOperationNode`.                                                                        |
-| `ast.http.status.class`         | The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`.             |
-| `ast.http.status.isSuccess`     | Whether a status code or range is `2xx`.                                                              |
-| `ast.http.status.isError`       | Whether a status code or range is `4xx` or `5xx`.                                                     |
-| `ast.http.responses.success`    | The operation's `2xx` responses.                                                                      |
-| `ast.http.responses.primary`    | The success response a client returns: one with a body first, then an exact code over a range.        |
-| `ast.http.baseURL`              | A server's URL when it is absolute and has no template variables, else `undefined`.                   |
+| Helper                       | Purpose                                                                                        |
+| ---------------------------- | ---------------------------------------------------------------------------------------------- |
+| `ast.mediaType.base`         | Drop the parameters and lowercase: `'Text/Plain; charset=utf-8'` gives `'text/plain'`.         |
+| `ast.mediaType.isJson`       | `application/json`, `text/json`, or a `+json` suffix.                                          |
+| `ast.mediaType.isStream`     | Server-sent events, JSON Lines, or JSON text sequences (`+json-seq`).                          |
+| `ast.mediaType.isForm`       | `multipart/form-data` or `application/x-www-form-urlencoded`.                                  |
+| `ast.server.select`          | Pick a server by `index`, falling back to the first one.                                       |
+| `ast.server.byName`          | Map named servers by name. The first server with a name wins.                                  |
+| `ast.auth.resolve`           | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements.      |
+| `ast.http.is`                | Same as `isHttpOperationNode`.                                                                 |
+| `ast.http.status.class`      | The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`.      |
+| `ast.http.status.isSuccess`  | Whether a status code or range is `2xx`.                                                       |
+| `ast.http.status.isError`    | Whether a status code or range is `4xx` or `5xx`.                                              |
+| `ast.http.responses.success` | The operation's `2xx` responses.                                                               |
+| `ast.http.responses.primary` | The success response a client returns: one with a body first, then an exact code over a range. |
+| `ast.http.baseURL`           | A server's URL when it is absolute and has no template variables, else `undefined`.            |
 
 ```typescript [baseURL.ts]
 import { ast } from 'kubb/kit'
@@ -247,10 +246,10 @@ const baseURL = ast.http.baseURL(ast.server.select(node.servers, { index: 0 }))
 
 ## Constants
 
-| Export        | Purpose                                    |
-| ------------- | ------------------------------------------ |
-| `schemaTypes` | Map of every schema `type` discriminant.   |
-| `nodeKinds`   | Map of every node `kind` discriminant.     |
+| Export        | Purpose                                  |
+| ------------- | ---------------------------------------- |
+| `schemaTypes` | Map of every schema `type` discriminant. |
+| `nodeKinds`   | Map of every node `kind` discriminant.   |
 
 ## Macros
 
@@ -263,11 +262,11 @@ A macro is a named, composable transform built on `transform` that rewrites node
 
 Kubb also ships built-in macros for common schema normalizations that any adapter can compose with its own. `macroDiscriminatorEnum` and `macroEnumName` read options, so call them to build the macro. Plugins that import another plugin's output compute names from the nodes they see, so register a rename on every plugin that touches the schema, for example by passing one shared `macros` array to each plugin. [Macros](/docs/5.x/how-to/macros) shows a rename macro.
 
-| Macro                    | Purpose                                                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------- |
-| `macroDedupeUnion`       | Drop union members that repeat an earlier one, ignoring the source pointer.                 |
-| `macroDiscriminatorEnum` | Replace a discriminator property's schema with a string enum of its allowed values.         |
-| `macroEnumName`          | Name an inline enum schema from its parent and property name.                               |
+| Macro                    | Purpose                                                                             |
+| ------------------------ | ----------------------------------------------------------------------------------- |
+| `macroDedupeUnion`       | Drop union members that repeat an earlier one, ignoring the source pointer.         |
+| `macroDiscriminatorEnum` | Replace a discriminator property's schema with a string enum of its allowed values. |
+| `macroEnumName`          | Name an inline enum schema from its parent and property name.                       |
 
 `macroSimplifyUnion` is the name `macroDedupeUnion` had before 5.16. It still works, but is deprecated: update the import.
 
