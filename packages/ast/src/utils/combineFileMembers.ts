@@ -31,7 +31,7 @@ export function importLocalName(item: ImportNameItem): string {
  * has a `root`, like `getRelativePath` in parser-ts. Sorting on it keeps the order the same on every OS.
  */
 function specifier(node: FileMember): string {
-  if (!node.root) return node.path.replaceAll('\\', '/')
+  if (!node.root) return node.path
   const relative = path.relative(path.dirname(node.root), node.path).replaceAll('\\', '/')
   return relative.startsWith('../') ? relative : `./${relative}`
 }
