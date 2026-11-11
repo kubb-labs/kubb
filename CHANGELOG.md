@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.18.3 — Nov 11, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Sort imports by the specifier written in the file, the POSIX path relative to the importing file, so Windows and macOS/Linux generate the same import order. Parent imports (`../`) now come before sibling imports (`./`). ([#4577](https://github.com/kubb-labs/kubb/pull/4577), [`4b0255c`](https://github.com/kubb-labs/kubb/commit/4b0255c9d39347d6c5b0a894786b77475f3eb99a))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.18.2 — Nov 11, 2026
 
 ### @kubb/adapter-oas
