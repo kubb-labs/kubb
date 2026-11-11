@@ -864,6 +864,22 @@ describe('parseSchema allOf', () => {
     expect(ast.narrowSchema(object!, 'object')?.properties?.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([['name', true, 'string']])
   })
 
+  it('marks a parent required key from an allOf alias $ref', () => {
+    const doc = {
+      openapi: '3.0.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: { Compact: { type: 'object', properties: { name: { type: 'string' } } }, Base: { $ref: '#/components/schemas/Compact' } },
+      },
+    } as unknown as Document
+    const node = parseSchema({ document: doc, refs: createRefs(doc) }, { schema: { allOf: [{ $ref: '#/components/schemas/Base' }], required: ['name'] } })
+
+    const [, object] = ast.narrowSchema(node, 'intersection')?.members ?? []
+
+    expect(ast.narrowSchema(object!, 'object')?.properties?.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([['name', true, 'string']])
+  })
+
   it.each([
     [true, 'unknown'],
     [false, 'never'],
@@ -1395,6 +1411,22 @@ describe('parseSchema discriminator on union', () => {
     const pet = findSchema(await parseOas(oas), 'Pet')
 
     expect(JSON.stringify(pet)).not.toContain('"enumValues":["Cat"]')
+  })
+
+  it('still folds the implicit value when a member next to the enum accepts any string', async () => {
+    const oas = {
+      openapi: '3.1.0',
+      info: { title: 'ImplicitDiscriminator', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: { oneOf: [{ $ref: '#/components/schemas/Cat' }], discriminator: { propertyName: 'petType' } },
+          Cat: { type: 'object', properties: { petType: { anyOf: [{ type: 'string', enum: ['cat'] }, { type: 'string' }] } } },
+        },
+      },
+    }
+
+    expect(JSON.stringify(findSchema(await parseOas(oas), 'Pet'))).toContain('"enumValues":["Cat"]')
   })
 })
 

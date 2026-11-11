@@ -244,7 +244,13 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
     if (missingRequired.length) {
       const resolvedMembers = (schema.allOf as Array<SchemaObject | ReferenceObject>).flatMap((item) => {
         if (!isReference(item)) return [item as SchemaObject]
-        const deref = refs.resolve<SchemaObject>(item.$ref)
+        // An alias, a schema that is only a `$ref`, is followed to its target.
+        const seen = new Set<string>()
+        let deref: SchemaObject | ReferenceObject | null | undefined = item
+        while (deref && isReference(deref) && !seen.has(deref.$ref)) {
+          seen.add(deref.$ref)
+          deref = refs.resolve<SchemaObject>(deref.$ref)
+        }
         return deref && !isReference(deref) ? [deref] : []
       })
 
