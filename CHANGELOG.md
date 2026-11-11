@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.18.5 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Read a `text/event-stream` item whose `event` sits next to payload fields, such as Scalar Galaxy's `{ event, planet, note }`, as the event's `data` instead of the whole event. Before, mocks dropped `planet` and `note`, the type put them on the event, and the client never filled them. An item that declares `data`, or only the SSE fields `event`, `id` and `retry`, is still read as the whole event. ([#4581](https://github.com/kubb-labs/kubb/pull/4581), [`bfc1645`](https://github.com/kubb-labs/kubb/commit/bfc1645e9841400339d7d1add52fcc57ba3da3d6))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.18.4 — Nov 11, 2026
 
 ### @kubb/adapter-oas
