@@ -117,6 +117,15 @@ describe('combineImports', () => {
     ])
   })
 
+  it('sorts local imports by their specifier relative to the importing file', () => {
+    const root = '/project/src/hooks/usePet.ts'
+    const scoped = createImport({ name: ['fetch'], path: '@kubb/fetch' })
+    const sibling = createImport({ name: ['helper'], path: '/project/src/hooks/helper.ts', root })
+    const parent = createImport({ name: ['Pet'], path: '/project/src/types/Pet.ts', root })
+
+    expect(combineImports([scoped, sibling, parent], [], 'fetch helper Pet').map((i) => i.path)).toStrictEqual([parent.path, sibling.path, scoped.path])
+  })
+
   it('keeps value and type-only imports from the same path separate', () => {
     const value = createImport({
       name: ['Pet'],

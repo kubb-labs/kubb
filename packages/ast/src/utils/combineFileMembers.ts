@@ -4,6 +4,7 @@
  * `combineImports` also drops imports nothing references. This works on a file's members, not on
  * schema content.
  */
+import path from 'node:path'
 import type { ExportNode, ImportNode, SourceNode } from '../nodes/file.ts'
 
 const IDENTIFIER_RUN = /[\w$]+/g
@@ -15,7 +16,7 @@ const INDEX_ABOVE_IMPORTS = 128
 
 type ImportNameItem = string | { propertyName: string; name?: string }
 
-type FileMember = { name?: string | Array<unknown> | null; isTypeOnly?: boolean | null; path: string }
+type FileMember = { name?: string | Array<unknown> | null; isTypeOnly?: boolean | null; path: string; root?: string | null }
 
 /**
  * Returns the local binding an import name item introduces: the alias when there is one, else the
@@ -26,15 +27,25 @@ export function importLocalName(item: ImportNameItem): string {
 }
 
 /**
+ * Returns the specifier a member is written with: POSIX and relative to the importing file when it
+ * has a `root`, like `getRelativePath` in parser-ts. Sorting on it keeps the order the same on every OS.
+ */
+function specifier(node: FileMember): string {
+  if (!node.root) return node.path
+  const relative = path.relative(path.dirname(node.root), node.path).replaceAll('\\', '/')
+  return relative.startsWith('../') ? relative : `./${relative}`
+}
+
+/**
  * Computes a multi-level sort key for exports and imports:
- * non-array names first (wildcards/namespace aliases). Type-only before value. Alphabetical path. Unnamed before named.
+ * non-array names first (wildcards/namespace aliases). Type-only before value. Alphabetical specifier. Unnamed before named.
  */
 function sortKey(node: FileMember): string {
   const isArray = Array.isArray(node.name) ? '1' : '0'
   const typeOnly = node.isTypeOnly ? '0' : '1'
   const hasName = node.name != null ? '1' : '0'
   const name = Array.isArray(node.name) ? node.name.toSorted().join('\0') : (node.name ?? '')
-  return `${isArray}:${typeOnly}:${node.path}:${hasName}:${name}`
+  return `${isArray}:${typeOnly}:${specifier(node)}:${hasName}:${name}`
 }
 
 /**
