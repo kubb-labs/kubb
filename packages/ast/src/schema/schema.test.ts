@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createSchema } from '../nodes/schema.ts'
-import { isString, jsonContent } from './index.ts'
+import { isString, jsonContent, numberBounds } from './index.ts'
 
 describe('schema.jsonContent', () => {
   const inner = createSchema({ type: 'object', properties: [] })
@@ -34,5 +34,19 @@ describe('isString', () => {
     expect(isString(createSchema({ type: 'date', representation: 'date' }))).toBe(false)
     expect(isString(createSchema({ type: 'time', representation: 'date' }))).toBe(false)
     expect(isString(createSchema({ type: 'number' }))).toBe(false)
+  })
+})
+
+describe('schema.numberBounds', () => {
+  it.each([
+    [{ min: 1, max: 5 }, {}, { min: 1, max: 5 }],
+    [{ exclusive: { min: 2, max: 8 } }, { integer: true }, { min: 3, max: 7 }],
+    [{ min: 1.2, max: 4.8 }, { integer: true }, { min: 2, max: 4 }],
+    [{ exclusive: { min: 0 } }, { integer: true, step: 5 }, { min: 5 }],
+    [{ min: 0, exclusive: { min: 3 } }, { integer: true }, { min: 4 }],
+    [{ min: -9_223_372_036_854_775_808, max: 9_223_372_036_854_775_807 }, { integer: true }, {}],
+    [{ exclusive: { min: 0.5 } }, {}, { min: 0.5 }],
+  ] as const)('numberBounds(%o, %o) is %o', (node, options, expected) => {
+    expect(numberBounds(node, options)).toStrictEqual(expected)
   })
 })
