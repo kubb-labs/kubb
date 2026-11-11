@@ -371,6 +371,7 @@ function parseParameter({
     required: param.required ?? false,
     ...pickStyleFields(param),
     ...(contentType !== undefined ? { contentType } : {}),
+    ...(mediaType?.encoding && { encoding: getEncodingFields({ encoding: mediaType.encoding }).encoding }),
     ...getExamples(mediaType ?? param, refs),
     ...(param.deprecated && { deprecated: true }),
     ...(param.allowEmptyValue && { allowEmptyValue: true }),

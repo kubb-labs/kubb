@@ -1,7 +1,7 @@
 import { nodeKinds } from '../constants.ts'
 import { optionality } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
-import type { ExampleNode } from './content.ts'
+import type { EncodingNode, ExampleNode } from './content.ts'
 import type { SchemaNode } from './schema.ts'
 
 /**
@@ -66,6 +66,11 @@ export type ParameterNode = BaseNode & {
    * `application/json` when the value is sent as a JSON-encoded string. Absent for `schema` parameters.
    */
   contentType?: string
+  /**
+   * Serialization settings per property of a `content` parameter, from the `encoding` of its media type. An OpenAPI 3.2
+   * `querystring` parameter sent as `application/x-www-form-urlencoded` uses it to set `style` and `explode` per field.
+   */
+  encoding?: Record<string, EncodingNode>
   examples?: Array<ExampleNode>
   deprecated?: boolean
   allowEmptyValue?: boolean

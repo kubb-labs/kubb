@@ -301,6 +301,36 @@ describe('buildAst', () => {
       expect(op?.parameters.find((p) => p.name === 'sort')).not.toHaveProperty('contentType')
     })
 
+    it('keeps the encoding of a form-encoded querystring parameter', async () => {
+      const oas = {
+        openapi: '3.2.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/search': {
+            get: {
+              operationId: 'search',
+              parameters: [
+                {
+                  name: 'q',
+                  in: 'querystring',
+                  content: {
+                    'application/x-www-form-urlencoded': {
+                      schema: { type: 'object', properties: { tags: { type: 'array', items: { type: 'string' } } } },
+                      encoding: { tags: { style: 'form', explode: false } },
+                    },
+                  },
+                },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+      const op = findOperation(await parseOas(oas), 'search')
+
+      expect(op?.parameters[0]?.encoding).toStrictEqual({ tags: { style: 'form', explode: false } })
+    })
+
     it('converts requestBody with description, required and a single content entry', async () => {
       const root = await parseOas(await buildMinimalOas())
       const createPet = findOperation(root, 'createPet')
