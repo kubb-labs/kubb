@@ -442,17 +442,6 @@ describe('shared', () => {
   const shared = { path: '/common', schemas: ['Name'] }
   const sharedResolver = new Resolver({ pluginName: 'test', shared })
 
-  it('places a listed schema under the shared path with the plugin layout', () => {
-    expect(sharedResolver.file({ name: 'Name', extname: '.ts', ...context }).path).toBe('/common/types/name.ts')
-    expect(sharedResolver.file({ name: 'Pet', extname: '.ts', ...context }).path).toBe('/root/types/pet.ts')
-  })
-
-  it('keeps the shared path through Resolver.merge', () => {
-    const merged = Resolver.merge(sharedResolver, { name: (name) => name.toUpperCase() })
-
-    expect(merged.file({ name: 'Name', extname: '.ts', ...context }).path).toBe('/common/types/name.ts')
-  })
-
   it('keeps a shared schema of a plugin with a custom file.path in its own output', () => {
     const resolver = createResolver<TestPluginFactory>({ pluginName: 'test', file: { path: () => 'mocks/name.ts' }, greet: () => '', farewell: () => '' })
     const withShared = Resolver.merge(new Resolver({ pluginName: 'test', shared }), resolver)

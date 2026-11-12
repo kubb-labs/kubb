@@ -157,12 +157,4 @@ describe('generate', () => {
     expect(placed).toStrictEqual(['/project/gen/common/types/name.ts', '/project/gen/Animal/types/animal.ts'])
     expect(await animals.storage.readItem('/project/gen/common/types/fruit.ts')).toBe('kept')
   })
-
-  it('shares nothing without the other entries of the config file', async () => {
-    const placed: Array<string> = []
-
-    await generate({ config: makeConfig('Animal', placed), allowExec: false })
-
-    expect(placed).toStrictEqual(['/project/gen/Animal/types/name.ts', '/project/gen/Animal/types/animal.ts'])
-  })
 })

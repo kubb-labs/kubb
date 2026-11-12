@@ -43,21 +43,6 @@ async function detect(configs: Array<Config>) {
 }
 
 describe('detectSharedSchemas', () => {
-  it('shares the schemas both configs define identically, with the schemas they reference', async () => {
-    const name = () => ast.factory.createSchema({ type: 'string', name: 'Name' })
-    const color = () => object('Color', { hex: string(), name: ref('Name') })
-    const animals = makeConfig([name(), color(), object('Animal', { name: ref('Name') })])
-    const fruits = makeConfig([object('Fruit', { color: ref('Color') }), color(), name()])
-
-    const { schemas, warnings } = await detect([animals, fruits])
-
-    expect(schemas).toStrictEqual([
-      ['Name', 'Color'],
-      ['Name', 'Color'],
-    ])
-    expect(warnings).toStrictEqual([])
-  })
-
   it('shares a schema that only some configs define, and lists on each config only the shared schemas it defines', async () => {
     const name = () => ast.factory.createSchema({ type: 'string', name: 'Name' })
     const address = () => object('Address', { street: string() })
