@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import * as yaml from 'js-yaml'
 import { escapePointerToken } from '@internals/utils'
-import { locate as locateIn } from './sourceLocator.ts'
+import { locate as locateIn, rememberEvents } from './sourceLocator.ts'
 
 vi.mock('js-yaml', async (importOriginal) => {
   const actual = await importOriginal<typeof import('js-yaml')>()
@@ -81,7 +81,7 @@ describe('OpenAPI source locations', () => {
     expect(locateIn(text, { kind: 'operation', pointer: '#/paths/~1pets~1{id}/get/parameters/2' })).toBeUndefined()
   })
 
-  it('parses a source once, also when the next call passes an equal but distinct string', () => {
+  it('parses a source once, also for an equal but distinct string, and not at all for one the adapter loaded', () => {
     const parseEvents = vi.mocked(yaml.parseEvents)
     const pointer = '#/components/schemas/Pet/properties/owner'
     // A source no earlier test parsed, and a copy that is equal but not the same string.
@@ -95,6 +95,13 @@ describe('OpenAPI source locations', () => {
 
     locateIn(`${fresh}x: 1\n`, { kind: 'schema', pointer })
     expect(parseEvents).toHaveBeenCalledTimes(2)
+
+    // Events the adapter kept while loading serve an equal source without another parse.
+    const loaded = `${fresh}y: 2\n`
+    rememberEvents({ source: loaded, events: parseEvents(loaded, {}) })
+    parseEvents.mockClear()
+    expect(locateIn([...loaded].join(''), { kind: 'schema', pointer })).toStrictEqual(first)
+    expect(parseEvents).not.toHaveBeenCalled()
   })
 })
 

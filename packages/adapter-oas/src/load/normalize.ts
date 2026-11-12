@@ -141,7 +141,8 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
     }
 
     sources.push(key)
-    const result = resolveSource(sourcePath)
+    // Diagnostics are located in the input file, not in the files it refers to.
+    const result = resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
     cache.set(key, result)
     return result
   }

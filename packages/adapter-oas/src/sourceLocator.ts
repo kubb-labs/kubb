@@ -1,7 +1,8 @@
+import { hash } from 'node:crypto'
 import { memo, unescapePointerToken } from '@internals/utils'
 import type { Adapter } from '@kubb/core'
-import { COLLECTION_STYLE, EVENT_ID, getScalarValue, parseEvents, SCALAR_STYLE } from 'js-yaml'
-import type { AliasEvent, ScalarEvent } from 'js-yaml'
+import { COLLECTION_STYLE, EVENT_ID, parseEvents, SCALAR_STYLE } from 'js-yaml'
+import type { Event } from 'js-yaml'
 
 type Range = ReturnType<NonNullable<Adapter['locate']>>
 
@@ -10,57 +11,90 @@ type Range = ReturnType<NonNullable<Adapter['locate']>>
  */
 type Child = { index: number; range: NonNullable<Range> }
 
-// Diagnostics of one run share a source, so its index is kept for the next call. A source that does not parse has none.
-let cached: { source: string; index: ReturnType<typeof indexSource> | undefined } | undefined
-
 /**
- * Parses YAML or JSON text into `js-yaml`'s flat event stream, which marks every key and value by
- * its offsets. That takes about a tenth of the time of a `yaml` document and reads JSON too. The
- * children of a mapping or a sequence are read the first time a pointer walks through it.
+ * The events of a source, each as its type, its style and the offsets of its text, plus the children
+ * of every collection a pointer walked through. An event object per value takes ten times the memory.
  */
-function indexSource(source: string) {
-  const events = parseEvents(source, {})
-  // Children by the index of their collection's opening event.
-  const collections = new Map<number, { keys: Map<string, Child>; items: Array<Child> }>()
-  let refs: Map<string, NonNullable<Range>> | undefined
+type EventIndex = {
+  types: Uint8Array
+  styles: Uint8Array
+  starts: Int32Array
+  ends: Int32Array
+  collections: Map<number, { keys: Map<string, Child>; items: Array<Child> }>
+  refs?: Map<string, NonNullable<Range>>
+}
 
-  // Quotes sit outside the offsets of a scalar's value.
-  const scalarRange = (event: ScalarEvent) => {
-    const quote = event.style === SCALAR_STYLE.SINGLE_QUOTED || event.style === SCALAR_STYLE.DOUBLE_QUOTED ? 1 : 0
-    return { start: event.valueStart - quote, end: event.valueEnd + quote }
-  }
+// Diagnostics of one run share a source, so its index is kept for the next call, under a hash of
+// the text so the adapter can let the text go. A source that does not parse has no index.
+let cached: { key: string; source?: string; index: EventIndex | undefined } | undefined
 
-  // The range of the node at `index`, and the index of the event after it.
-  const readNode = (index: number): NonNullable<Range> & { next: number } => {
-    const event = events[index]!
-    if (event.type === EVENT_ID.SCALAR) return { ...scalarRange(event), next: index + 1 }
-    if (event.type === EVENT_ID.MAPPING || event.type === EVENT_ID.SEQUENCE) {
-      let next = index + 1
-      let end = event.start
-      while (events[next]!.type !== EVENT_ID.POP) ({ end, next } = readNode(next))
-      // A flow collection ends at its closing bracket, which no event marks.
-      if (event.style === COLLECTION_STYLE.FLOW) end = source.indexOf(event.type === EVENT_ID.MAPPING ? '}' : ']', end) + 1
-      return { start: event.start, end, next: next + 1 }
+function indexEvents(events: ReadonlyArray<Event>): EventIndex {
+  const types = new Uint8Array(events.length)
+  const styles = new Uint8Array(events.length)
+  const starts = new Int32Array(events.length)
+  const ends = new Int32Array(events.length)
+
+  for (let at = 0; at < events.length; at++) {
+    const event = events[at]!
+    types[at] = event.type
+    if (event.type === EVENT_ID.SCALAR) {
+      // Quotes sit outside the offsets of a scalar's value.
+      const quote = event.style === SCALAR_STYLE.SINGLE_QUOTED || event.style === SCALAR_STYLE.DOUBLE_QUOTED ? 1 : 0
+      styles[at] = event.style
+      starts[at] = event.valueStart - quote
+      ends[at] = event.valueEnd + quote
     }
-    // Only an alias is left where a node starts.
-    const { anchorStart, anchorEnd } = event as AliasEvent
-    return { start: anchorStart - 1, end: anchorEnd, next: index + 1 }
+    if (event.type === EVENT_ID.ALIAS) {
+      starts[at] = event.anchorStart - 1
+      ends[at] = event.anchorEnd
+    }
+    if (event.type === EVENT_ID.MAPPING || event.type === EVENT_ID.SEQUENCE) {
+      styles[at] = event.style
+      starts[at] = event.start
+    }
+  }
+  return { types, styles, starts, ends, collections: new Map() }
+}
+
+function createLocator({ index, source }: { index: EventIndex; source: string }) {
+  const { types, styles, starts, ends, collections } = index
+  const isCollection = (at: number) => types[at] === EVENT_ID.MAPPING || types[at] === EVENT_ID.SEQUENCE
+
+  // `undefined` for a double-quoted scalar with an escape that JSON does not have, such as `\x41`.
+  const readText = (at: number): string | undefined => {
+    const text = source.slice(starts[at], ends[at])
+    if (styles[at] === SCALAR_STYLE.SINGLE_QUOTED) return text.slice(1, -1).replaceAll("''", "'")
+    if (styles[at] !== SCALAR_STYLE.DOUBLE_QUOTED) return text
+    try {
+      return JSON.parse(text) as string
+    } catch {
+      return undefined
+    }
   }
 
-  const readChildren = (index: number) => {
+  // The range of the node at `at`, and the index of the event after it.
+  const readNode = (at: number): NonNullable<Range> & { next: number } => {
+    if (!isCollection(at)) return { start: starts[at]!, end: ends[at]!, next: at + 1 }
+    let next = at + 1
+    let end = starts[at]!
+    while (types[next] !== EVENT_ID.POP) ({ end, next } = readNode(next))
+    // A flow collection ends at its closing bracket, which no event marks.
+    if (styles[at] === COLLECTION_STYLE.FLOW) end = source.indexOf(types[at] === EVENT_ID.MAPPING ? '}' : ']', end) + 1
+    return { start: starts[at]!, end, next: next + 1 }
+  }
+
+  const readChildren = (collection: number) => {
     const keys = new Map<string, Child>()
     const items: Array<Child> = []
-    const isMapping = events[index]!.type === EVENT_ID.MAPPING
-    for (let at = index + 1; events[at]!.type !== EVENT_ID.POP;) {
-      const key = isMapping ? events[at]! : undefined
-      if (key) at = readNode(at).next
+    const isMapping = types[collection] === EVENT_ID.MAPPING
+    for (let at = collection + 1; types[at] !== EVENT_ID.POP;) {
+      const key = isMapping ? at : undefined
+      if (key !== undefined) at = readNode(at).next
       const { start, end, next } = readNode(at)
-      if (!key) items.push({ index: at, range: { start, end } })
-      if (key?.type === EVENT_ID.SCALAR) {
-        const text = getScalarValue(source, key)
-        // A duplicate key keeps its first range.
-        if (!keys.has(text)) keys.set(text, { index: at, range: scalarRange(key) })
-      }
+      if (key === undefined) items.push({ index: at, range: { start, end } })
+      const text = key !== undefined && types[key] === EVENT_ID.SCALAR ? readText(key) : undefined
+      // A duplicate key keeps its first range.
+      if (text !== undefined && !keys.has(text)) keys.set(text, { index: at, range: { start: starts[key!]!, end: ends[key!]! } })
       at = next
     }
     return { keys, items }
@@ -72,16 +106,15 @@ function indexSource(source: string) {
      */
     find(pointer: string): Range {
       // The first event opens the document, the second is its root.
-      let index = 1
+      let at = 1
       let range: Range
       for (const token of pointer.replace(/^#/, '').split('/').slice(1).map(unescapePointerToken)) {
-        const type = events[index]?.type
-        if (type !== EVENT_ID.MAPPING && type !== EVENT_ID.SEQUENCE) return undefined
-        const at = index
-        const { keys, items } = memo(collections, at, () => readChildren(at))
+        if (!isCollection(at)) return undefined
+        const collection = at
+        const { keys, items } = memo(collections, collection, () => readChildren(collection))
         const child = keys.get(token) ?? items[Number(token)]
         if (!child) return undefined
-        index = child.index
+        at = child.index
         range = child.range
       }
       return range
@@ -90,24 +123,22 @@ function indexSource(source: string) {
      * The value range of the first `$ref` whose value is `ref`.
      */
     findRef(ref: string): Range {
-      if (!refs) {
-        refs = new Map()
-        for (const [index, event] of events.entries()) {
-          const value = events[index + 1]
-          if (event.type !== EVENT_ID.SCALAR || value?.type !== EVENT_ID.SCALAR) continue
-          if (event.valueEnd - event.valueStart !== 4 || !source.startsWith('$ref', event.valueStart)) continue
-          const text = getScalarValue(source, value)
-          if (!refs.has(text)) refs.set(text, scalarRange(value))
+      if (!index.refs) {
+        index.refs = new Map()
+        for (let at = 0; at + 1 < types.length; at++) {
+          if (types[at] !== EVENT_ID.SCALAR || types[at + 1] !== EVENT_ID.SCALAR || readText(at) !== '$ref') continue
+          const text = readText(at + 1)
+          if (text !== undefined && !index.refs.has(text)) index.refs.set(text, { start: starts[at + 1]!, end: ends[at + 1]! })
         }
       }
-      return refs.get(ref)
+      return index.refs.get(ref)
     },
   }
 }
 
-function parse(source: string): ReturnType<typeof indexSource> | undefined {
+function parse(source: string): EventIndex | undefined {
   try {
-    return indexSource(source)
+    return indexEvents(parseEvents(source, {}))
   } catch {
     // Text that is not YAML has no locations.
     return undefined
@@ -115,13 +146,27 @@ function parse(source: string): ReturnType<typeof indexSource> | undefined {
 }
 
 /**
+ * Keeps the positions of a source the adapter just parsed, so the first located diagnostic does not parse it again.
+ */
+export function rememberEvents({ source, events }: { source: string; events: ReadonlyArray<Event> }): void {
+  cached = { key: hash('sha256', source), index: indexEvents(events) }
+}
+
+/**
  * Maps OpenAPI JSON pointers and unresolved references to ranges in YAML or JSON source.
  */
 export const locate: NonNullable<Adapter['locate']> = (source, location) => {
   if (!('pointer' in location)) return undefined
+  if (cached?.source !== source) {
+    const key = hash('sha256', source)
+    cached = cached?.key === key ? cached : { key, index: parse(source) }
+  }
   // An equal but distinct string costs a full comparison on every check. Keeping the caller's
   // string turns the next checks into identity hits.
-  cached = cached?.source === source ? { ...cached, source } : { source, index: parse(source) }
+  cached.source = source
+  if (!cached.index) return undefined
+
+  const { find, findRef } = createLocator({ index: cached.index, source })
   const ref = 'ref' in location ? location.ref : undefined
-  return cached.index?.find(location.pointer) ?? (ref ? cached.index?.findRef(ref) : undefined)
+  return find(location.pointer) ?? (ref ? findRef(ref) : undefined)
 }

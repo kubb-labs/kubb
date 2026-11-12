@@ -1,7 +1,8 @@
 import { exists, getErrorMessage, read, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
-import { CORE_SCHEMA, load } from 'js-yaml'
+import { CORE_SCHEMA, constructFromEvents, parseEvents } from 'js-yaml'
 import { parse } from 'yaml'
+import { rememberEvents } from '../sourceLocator.ts'
 
 export const urlRegExp = /^https?:\/+/i
 
@@ -79,7 +80,7 @@ async function readSource(sourcePath: string): Promise<string> {
  * Reads and parses one source file or URL referenced during bundling: YAML/JSON is parsed into an
  * object, Markdown is returned as-is (bundled inline rather than dereferenced).
  */
-export async function resolveSource(sourcePath: string): Promise<object | string> {
+export async function resolveSource(sourcePath: string, { remember }: { remember?: boolean } = {}): Promise<object | string> {
   const data = await readSource(sourcePath)
 
   if (sourcePath.toLowerCase().endsWith('.md')) {
@@ -93,6 +94,7 @@ export async function resolveSource(sourcePath: string): Promise<object | string
     origin: sourcePath,
     json: !/\.ya?ml$/i.test(pathname),
     help: 'Fix the syntax at the reported line, or check that `input` points at the spec and not an HTML page.',
+    remember,
   })
 }
 
@@ -108,8 +110,14 @@ export async function resolveSource(sourcePath: string): Promise<object | string
  * `js-yaml` parses about ten times faster than `yaml`, and rejects duplicate keys instead of
  * keeping the last one. Its core schema keeps timestamps as strings and `<<` as a plain key, as
  * `yaml` does for YAML 1.2.
+ *
+ * With `remember`, the positions `js-yaml` found are kept for `locate`, so a located diagnostic
+ * does not parse the text a second time.
  */
-export function parseYaml(data: string, { origin, help, json = true }: { origin: string; help: string; json?: boolean }): object {
+export function parseYaml(
+  data: string,
+  { origin, help, json = true, remember = false }: { origin: string; help: string; json?: boolean; remember?: boolean },
+): object {
   if (json && /^\s*[[{]/.test(data)) {
     try {
       return JSON.parse(data) as object
@@ -118,8 +126,13 @@ export function parseYaml(data: string, { origin, help, json = true }: { origin:
     }
   }
   try {
-    const document = load(data, { schema: CORE_SCHEMA })
-    if (document !== undefined) return document as object
+    // `load` in two steps, to keep the events.
+    const events = parseEvents(data, {})
+    const documents = constructFromEvents(events, { source: data, schema: CORE_SCHEMA })
+    if (documents.length === 1 && documents[0] !== undefined) {
+      if (remember) rememberEvents({ source: data, events })
+      return documents[0] as object
+    }
   } catch {
     // `yaml` parses it again below to report the error with its line and column.
   }
