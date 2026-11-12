@@ -132,9 +132,7 @@ function splitLines(text: string): Array<string> {
 }
 
 function hashLine(line: string): number {
-  let hash = 0x811c9dc5
-  for (const char of line) hash = Math.imul(hash ^ char.codePointAt(0)!, 0x01000193)
-  return hash
+  return [...line].reduce((hash, char) => Math.imul(hash ^ char.codePointAt(0)!, 0x01000193), 0x811c9dc5)
 }
 
 function hashLines(text: string): Int32Array {
@@ -144,15 +142,12 @@ function hashLines(text: string): Int32Array {
 function countLineChanges({ before, after }: { before: Lines; after: Lines }): { added: number; removed: number } {
   const remaining = new Map<string | number, number>()
   for (const line of before) remaining.set(line, (remaining.get(line) ?? 0) + 1)
-  let added = 0
-  for (const line of after) {
+  const added = [...after].filter((line) => {
     const count = remaining.get(line) ?? 0
-    if (count === 0) {
-      added++
-      continue
-    }
+    if (count === 0) return true
     remaining.set(line, count - 1)
-  }
+    return false
+  }).length
   const removed = [...remaining.values()].reduce((sum, count) => sum + count, 0)
   return { added, removed }
 }
@@ -294,23 +289,19 @@ export async function diffOutput({
   previousFiles: ReadonlyMap<string, string>
 }): Promise<{ files: Array<FileChange>; unchanged: number }> {
   const generated = new Set(paths)
-  const changes: Array<FileChange | undefined> = []
-  let unchanged = 0
+  // `null` marks an unchanged file. A path the storage does not hold leaves a hole, which `filter` skips.
+  const results: Array<FileChange | null> = []
   await inParallel({
     items: paths,
     limit: 50,
     run: async (filePath, index) => {
       const next = await storage.readItem(filePath)
       if (next === null) return
-      const change = diffFile({ path: filePath, next, previous: previousFiles.get(filePath) ?? null, manifest })
-      if (!change) {
-        unchanged++
-        return
-      }
-      changes[index] = change
+      results[index] = diffFile({ path: filePath, next, previous: previousFiles.get(filePath) ?? null, manifest }) ?? null
     },
   })
-  const files = changes.filter((file) => file !== undefined)
+  const files = results.filter((result) => result !== null)
+  const unchanged = results.filter((result) => result === null).length
   if (clean) {
     for (const [filePath, source] of previousFiles) {
       if (!generated.has(filePath)) files.push({ status: 'D', path: filePath, added: 0, removed: splitLines(source.trimEnd()).length })
