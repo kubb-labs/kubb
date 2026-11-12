@@ -229,7 +229,10 @@ export async function createSnapshot({
     ),
   )
   const pluginNames = [...new Set(configs.flatMap((config) => config.plugins.map((plugin) => resolveMeta(plugin).name)))]
-  const installed = await readInstalledPackages({ root: configs[0]!.root, packages: pluginNames.map(toPackageName), resolveFrom: ['kubb'] })
+  const roots = [...new Set(configs.map((config) => config.root))]
+  const installed = (
+    await Promise.all(roots.map((root) => readInstalledPackages({ root, packages: pluginNames.map(toPackageName), resolveFrom: ['kubb'] })))
+  ).flat()
   // A third-party plugin is found by the manifest its package ships, as `@kubb/plugin-x` only names a built-in.
   const packageOf = (name: string) => installed.find(({ manifest }) => manifest?.kind === 'plugin' && manifest.name === name)?.package ?? toPackageName(name)
   const names = [...new Set(pluginNames.map(packageOf))]

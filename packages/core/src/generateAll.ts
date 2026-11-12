@@ -5,36 +5,19 @@ import { Hookable } from './Hookable.ts'
 import type { Config, KubbHooks, UserConfig } from './types.ts'
 
 export type GenerateAllOptions = Pick<CreateKubbOptions, 'hooks' | 'signal'> & {
-  /**
-   * Index of the one config to build, such as the config a watcher saw change. The others are still compared with it, so
-   * it shares schemas with them, but it never empties the directory they share.
-   */
+  /** Index of the one config to build. It is still compared with the others, but never empties the directory they share. */
   only?: number
 }
 
-/**
- * What one config of {@link generateAll} produced.
- */
 export type GenerateAllResult = GenerateResult & {
-  /**
-   * The resolved config that was built.
-   */
   config: Config
-  /**
-   * What the build threw outside its own diagnostics, such as a hook listener that failed. `diagnostics` holds it too.
-   */
+  /** What the build threw outside its own diagnostics. `diagnostics` holds it too. */
   error?: unknown
 }
 
 /**
  * One {@link Kubb} per config of a `defineConfig([...])` array, in order, each with the schemas it shares with the others.
  * With `only`, the one for that config. Call `generate()` on them one at a time, since they share the hooks.
- *
- * @example
- * ```ts
- * const [kubb] = await createKubbs(configs, { hooks, only: 0 })
- * const result = await kubb.generate()
- * ```
  */
 export async function createKubbs(
   configs: Array<UserConfig>,
@@ -45,19 +28,12 @@ export async function createKubbs(
 
   const config = configs[only]
   const detected = sharedByConfig[only]
-  // The other configs are not rebuilt, so this one must not empty the directory they share.
   return config ? [createKubb(config, { hooks, signal, sharedSchemas: detected && { ...detected, clean: false } })] : []
 }
 
 /**
  * Generates every config of a `defineConfig([...])` array, one after another, and returns one result per config in order.
  * A config that fails does not stop the others: its result has `success: false`. Only an aborted `signal` rejects.
- *
- * @example
- * ```ts
- * const results = await generateAll(configs, { hooks })
- * if (results.some((result) => !result.success)) process.exitCode = 1
- * ```
  */
 export async function generateAll(configs: Array<UserConfig>, options: GenerateAllOptions = {}): Promise<Array<GenerateAllResult>> {
   const results: Array<GenerateAllResult> = []
