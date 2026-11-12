@@ -678,5 +678,6 @@ describe('Kubb.generate', () => {
     const results = await Kubb.generate([broken, config()])
 
     expect(results.map((result) => result.success)).toStrictEqual([false, true])
+    expect(results.map((result) => result.kubb.config.adapter)).toStrictEqual([broken.adapter, expect.anything()])
   })
 })

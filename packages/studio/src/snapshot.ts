@@ -197,7 +197,8 @@ export async function createSnapshot({
 
   // Each package path with the file on disk it comes from.
   const sources = new Map<string, string>()
-  for (const { config, files } of results) {
+  for (const { kubb, files } of results) {
+    const { config } = kubb
     for (const file of files) {
       const path = relativeStoragePath({ root: config.root, filePath: file.path })
       const source = resolve(config.root, path)

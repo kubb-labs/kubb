@@ -66,7 +66,8 @@ export type FromConfigsOptions = Pick<CreateKubbOptions, 'hooks' | 'signal'> & {
 }
 
 export type ConfigGenerateResult = GenerateResult & {
-  config: Config
+  /** The instance that built this config, to read its `config`, `storage` or `hooks`, or to build it again. */
+  kubb: Kubb
   /** What the build threw outside its own diagnostics. `diagnostics` holds it too. */
   error?: unknown
 }
@@ -155,10 +156,10 @@ export class Kubb {
     const results: Array<ConfigGenerateResult> = []
     for (const kubb of await Kubb.fromConfigs(configs, options)) {
       try {
-        results.push({ ...(await kubb.generate()), config: kubb.config })
+        results.push({ ...(await kubb.generate()), kubb })
       } catch (error) {
         if (options.signal?.aborted) throw error
-        results.push({ success: false, files: [], diagnostics: [Diagnostics.from(error)], config: kubb.config, error })
+        results.push({ success: false, files: [], diagnostics: [Diagnostics.from(error)], kubb, error })
       }
     }
     return results
