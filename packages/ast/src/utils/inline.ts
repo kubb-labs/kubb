@@ -3,7 +3,7 @@ import type { CodeNode } from '../nodes/code.ts'
 import { createFile } from '../nodes/file.ts'
 import type { FileNode, ImportNode } from '../nodes/file.ts'
 import { importLocalName } from './combineFileMembers.ts'
-import { CODE_NODE_TEXT_FIELDS } from './extractStringsFromNodes.ts'
+import { CODE_NODE_TEXT_FIELDS } from './nodeText.ts'
 
 type InlineFilesResult = {
   /**

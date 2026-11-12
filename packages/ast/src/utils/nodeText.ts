@@ -12,15 +12,12 @@ export const CODE_NODE_TEXT_FIELDS: Partial<Record<NodeKind, ReadonlyArray<strin
 
 /**
  * Extracts all string content from a `CodeNode` tree recursively.
- *
  * Collects the text fields and nested node content, to build the source string for import filtering.
  */
 export function getNodeText(nodes: Array<CodeNode> | undefined): string {
   if (!nodes?.length) return ''
 
-  // Imperative single pass. The earlier `map().filter().join()` allocated a closure plus two
-  // intermediate arrays per call, and this runs recursively over every code node during file
-  // assembly, so the churn showed up in deopt traces. Appending directly keeps it flat.
+  // One flat pass: this runs over every code node during file assembly, so it skips `map().filter().join()` allocations.
   const collected: Array<string> = []
 
   for (const node of nodes) {
