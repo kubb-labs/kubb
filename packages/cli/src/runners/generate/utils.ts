@@ -131,18 +131,15 @@ function splitLines(text: string): Array<string> {
   return text ? text.split('\n') : []
 }
 
-// A `charCodeAt` loop, not a spread into characters: this runs over every line of the old output on each clean run.
+// A loop, not a spread into an array of characters: this runs over every line of the old output on each clean run.
 function hashLine(line: string): number {
   let hash = 0x811c9dc5
-  for (let index = 0; index < line.length; index++) hash = Math.imul(hash ^ line.charCodeAt(index), 0x01000193)
+  for (const char of line) hash = Math.imul(hash ^ char.codePointAt(0)!, 0x01000193)
   return hash
 }
 
 function hashLines(text: string): Int32Array {
-  const lines = splitLines(text)
-  const hashes = new Int32Array(lines.length)
-  for (let index = 0; index < lines.length; index++) hashes[index] = hashLine(lines[index]!)
-  return hashes
+  return Int32Array.from(splitLines(text), hashLine)
 }
 
 function countLineChanges({ before, after }: { before: Lines; after: Lines }): { added: number; removed: number } {
