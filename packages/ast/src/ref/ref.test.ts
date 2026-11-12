@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { createSchema } from '../nodes/schema.ts'
-import { getName, sync } from './index.ts'
+import { getName, mergeSchema } from './index.ts'
 
-describe('sync', () => {
+describe('mergeSchema', () => {
   it('merges sibling overrides over the resolved schema', () => {
     const resolved = createSchema({ type: 'object', description: 'Original' })
     const ref = createSchema({
@@ -14,7 +14,7 @@ describe('sync', () => {
       readOnly: true,
     })
 
-    const merged = sync(ref)
+    const merged = mergeSchema(ref)
     expect(merged.description).toBe('Override')
     expect(merged.readOnly).toBe(true)
     expect(merged.type).toBe('object')
@@ -24,7 +24,7 @@ describe('sync', () => {
     const resolved = createSchema({ type: 'string', description: 'Original', readOnly: true })
     const ref = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: resolved, description: undefined })
 
-    const merged = sync(ref)
+    const merged = mergeSchema(ref)
     expect(merged.description).toBe('Original')
     expect(merged.readOnly).toBe(true)
   })

@@ -11,8 +11,8 @@ export const pascalCase = pascal
 /** @deprecated Use `ast.ref.getName`. Removed in Kubb v6. */
 export const extractRefName = ast.ref.getName
 
-/** @deprecated Use `ast.ref.sync`. Removed in Kubb v6. */
-export const syncSchemaRef = ast.ref.sync
+/** @deprecated Use `ast.ref.mergeSchema`. Removed in Kubb v6. */
+export const syncSchemaRef = ast.ref.mergeSchema
 
 /** @deprecated Use `ast.schema.isString`. Removed in Kubb v6. */
 export const isStringType = ast.schema.isString

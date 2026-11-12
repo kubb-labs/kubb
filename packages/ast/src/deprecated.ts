@@ -7,14 +7,14 @@ import { mergeRefWithSchema as mergeRef } from './utils/refs.ts'
 /** @deprecated Use `ast.ref.isBare`. Removed in Kubb v6. */
 export const isBareRef = ref.isBare
 
-/** @deprecated Use `ast.ref.sync`. Removed in Kubb v6. */
+/** @deprecated Use `ast.ref.mergeSchema`. Removed in Kubb v6. */
 export const mergeRefWithSchema = mergeRef
 
 /** @deprecated Use `ast.ref.getName`. Removed in Kubb v6. */
 export const refName = ref.getName
 
-/** @deprecated Use `ast.ref.resolve`. Removed in Kubb v6. */
-export const resolveRef = ref.resolve
+/** @deprecated Use `ast.ref.getSchema`. Removed in Kubb v6. */
+export const resolveRef = ref.getSchema
 
 /** @deprecated Use `ast.ref.getName`. Removed in Kubb v6. */
 export const resolveRefName = ref.getName

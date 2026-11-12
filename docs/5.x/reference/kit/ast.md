@@ -190,13 +190,13 @@ for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => n
 
 Ref helpers live in `ast.ref`, schema graph helpers in `ast.graph`, and schema property helpers in `ast.schema`. `childName` and `enumPropName` build names, so they are named exports of `kubb/kit`. The old top-level names, such as `ast.refName`, `ast.findCircularSchemas`, `ast.resolveSchemaProperties` and `ast.isHttpOperationNode`, are deprecated. So are the kit exports `extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef`. Kubb v6 removes them.
 
-| Helper            | Purpose                                                                                                                                        |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ast.ref.resolve` | Follow resolved ref nodes to their target schema.                                                                                              |
-| `ast.ref.getName` | The name a ref points at: `'Pet'` for `'#/components/schemas/Pet'`. A ref node gives its `targetName` first, so pass the node, not `node.ref`. |
-| `childName`       | Derive a child property name from context.                                                                                                     |
-| `enumPropName`    | Convert an enum value into a valid property name.                                                                                              |
-| `ast.ref.sync`    | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override.                                     |
+| Helper                | Purpose                                                                                                                                        |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ast.ref.getSchema`   | Follow resolved ref nodes to their target schema.                                                                                              |
+| `ast.ref.getName`     | The name a ref points at: `'Pet'` for `'#/components/schemas/Pet'`. A ref node gives its `targetName` first, so pass the node, not `node.ref`. |
+| `childName`           | Derive a child property name from context.                                                                                                     |
+| `enumPropName`        | Convert an enum value into a valid property name.                                                                                              |
+| `ast.ref.mergeSchema` | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override.                                     |
 
 ```typescript [refs.ts]
 import { ast } from 'kubb/kit'
@@ -241,14 +241,14 @@ Every `ast.mediaType` helper takes a media type string or a content entry.
 
 | Helper                   | Purpose                                                                |
 | ------------------------ | ---------------------------------------------------------------------- |
-| `ast.server.select`      | Pick the server at `index`, falling back to the first one.             |
+| `ast.server.getServer`   | Pick the server at `index`, falling back to the first one.             |
 | `ast.server.groupByName` | Map each server name to its server. The first server with a name wins. |
 
 ## Auth
 
-| Helper             | Purpose                                                                                   |
-| ------------------ | ----------------------------------------------------------------------------------------- |
-| `ast.auth.resolve` | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements. |
+| Helper                | Purpose                                                                                   |
+| --------------------- | ----------------------------------------------------------------------------------------- |
+| `ast.auth.getSchemes` | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements. |
 
 ## HTTP
 
@@ -270,7 +270,7 @@ Every `ast.mediaType` helper takes a media type string or a content entry.
 import { ast } from 'kubb/kit'
 
 // string | undefined
-const baseURL = ast.http.getBaseURL(ast.server.select({ servers: node.servers, index: 0 }))
+const baseURL = ast.http.getBaseURL(ast.server.getServer({ servers: node.servers, index: 0 }))
 ```
 
 ## Constants

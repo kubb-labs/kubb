@@ -1,7 +1,7 @@
 import type { InputServer } from '../nodes/input.ts'
 
 /** The server at `index`, else the first one. */
-export function select({ servers, index = 0 }: { servers: ReadonlyArray<InputServer> | undefined; index?: number }): InputServer | undefined {
+export function getServer({ servers, index = 0 }: { servers: ReadonlyArray<InputServer> | undefined; index?: number }): InputServer | undefined {
   return servers?.[index] ?? servers?.[0]
 }
 

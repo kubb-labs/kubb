@@ -117,7 +117,7 @@ function resolveUnionSchema(schema: SchemaObject, siblingProperties: Record<stri
  *
  * The resolved schema is stored in `node.schema`. Usage-site sibling fields
  * (description, readOnly, nullable, etc.) are stored directly on the ref node.
- * Use `ast.ref.sync(node)` in printers to get a merged view of both.
+ * Use `ast.ref.mergeSchema(node)` in printers to get a merged view of both.
  * Circular refs are detected in `refs.resolveNode` and leave `schema` as `null`.
  */
 export function convertRef({ schema, name, nullable, defaultValue, document, parse, refs, renames }: ConvertContext): ast.SchemaNode {

@@ -381,7 +381,7 @@ function parseParameter({
 // A form-encoded OpenAPI 3.2 `querystring` object becomes one query parameter per property; another content type stays whole.
 function spreadQuerystring(param: ast.ParameterNode): Array<ast.ParameterNode> {
   if (param.in !== 'querystring') return [param]
-  const schema = ast.ref.resolve(param.schema)
+  const schema = ast.ref.getSchema(param.schema)
   const formEncoded = !param.contentType || ast.mediaType.getBase(param.contentType) === 'application/x-www-form-urlencoded'
   if (schema.type !== 'object' || !formEncoded) return [param]
   return schema.properties.map((property) => {

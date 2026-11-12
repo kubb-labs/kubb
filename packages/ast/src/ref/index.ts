@@ -1,10 +1,10 @@
-export { isBareRef as isBare, resolveRef as resolve } from '../utils/refs.ts'
+export { isBareRef as isBare, resolveRef as getSchema } from '../utils/refs.ts'
 import { narrowSchema } from '../guards.ts'
 import { createSchema, type SchemaNode } from '../nodes/schema.ts'
 import { mergeRefWithSchema, refName, resolveRefName } from '../utils/refs.ts'
 
 /** A resolved ref merged with its target schema, so usage-site fields such as `description` win. Other nodes come back unchanged. */
-export function sync(node: SchemaNode): SchemaNode {
+export function mergeSchema(node: SchemaNode): SchemaNode {
   const ref = narrowSchema(node, 'ref')
   return ref?.schema ? createSchema(mergeRefWithSchema(ref)) : node
 }
