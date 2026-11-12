@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { inParallel, memo } from './promise.ts'
 
 describe('memo', () => {
-  it('computes once per key using a WeakMap (object keys)', () => {
-    const store = new WeakMap<{ v: number }, number>()
+  it('computes once per key with a weak store (object keys)', () => {
+    const store = memo.create<{ v: number }, number>({ type: 'weak' })
     const a = { v: 1 }
     const b = { v: 2 }
     const compute = vi.fn((obj: { v: number }) => obj.v * 10)
@@ -15,12 +15,23 @@ describe('memo', () => {
   })
 
   it.each([null, undefined])('treats a cached %s as a hit', (cached) => {
-    const store = new Map<string, null | undefined>()
+    const store = memo.create<string, null | undefined>({ type: 'map' })
     const compute = vi.fn(() => cached)
 
     expect(memo(store, 'k', compute)).toBe(cached)
     expect(memo(store, 'k', compute)).toBe(cached)
     expect(compute).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps only the last entry with the last type, and hits for an equal key', () => {
+    const store = memo.create<string, number>({ type: 'last' })
+    const compute = vi.fn((key: string) => key.length)
+
+    memo(store, 'aa', () => compute('aa'))
+    memo(store, ['a', 'a'].join(''), () => compute('aa'))
+    memo(store, 'bbb', () => compute('bbb'))
+    memo(store, 'aa', () => compute('aa'))
+    expect(compute.mock.calls).toStrictEqual([['aa'], ['bbb'], ['aa']])
   })
 })
 

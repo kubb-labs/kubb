@@ -13,5 +13,5 @@ const quoteEscapes = new Map([
  */
 export function quote(value: string | number | boolean | undefined | null): string {
   if (value === undefined || value === null) return "''"
-  return `'${Array.from(String(value), (char) => quoteEscapes.get(char) ?? char).join('')}'`
+  return `'${String(value).replace(/[\\'\n\r]/g, (char) => quoteEscapes.get(char)!)}'`
 }

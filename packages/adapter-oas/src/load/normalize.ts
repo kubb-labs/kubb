@@ -141,7 +141,7 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
     }
 
     sources.push(key)
-    const result = resolveSource(sourcePath)
+    const result = resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
     cache.set(key, result)
     return result
   }

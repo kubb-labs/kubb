@@ -33,7 +33,7 @@ vi.mock('yaml', async (importOriginal) => {
 
 vi.mock('js-yaml', async (importOriginal) => {
   const actual = await importOriginal<typeof import('js-yaml')>()
-  return { ...actual, load: vi.fn(actual.load) }
+  return { ...actual, parseEvents: vi.fn(actual.parseEvents) }
 })
 
 const petSchema: Document = {
@@ -111,8 +111,8 @@ describe('parseFromConfig', () => {
   })
 
   it('parses inline JSON with `JSON.parse`, keeping the last value of a duplicate key', async () => {
-    const load = vi.mocked(jsYaml.load)
-    load.mockClear()
+    const parseEvents = vi.mocked(jsYaml.parseEvents)
+    parseEvents.mockClear()
 
     const doc = await parseFromConfig({
       type: 'data',
@@ -120,7 +120,7 @@ describe('parseFromConfig', () => {
     })
 
     expect(doc.paths?.['/pets']).toEqual({ post: {} })
-    expect(load).not.toHaveBeenCalled()
+    expect(parseEvents).not.toHaveBeenCalled()
   })
 
   it('keeps the YAML parser, and its duplicate-key error, for a .yaml file written in flow syntax', async () => {
