@@ -14,12 +14,12 @@ describe('memo', () => {
     expect(compute).toHaveBeenCalledTimes(2)
   })
 
-  it('treats a cached null as a hit', () => {
-    const store = new Map<string, null>()
-    const compute = vi.fn(() => null)
+  it.each([null, undefined])('treats a cached %s as a hit', (cached) => {
+    const store = new Map<string, null | undefined>()
+    const compute = vi.fn(() => cached)
 
-    memo(store, 'k', compute)
-    memo(store, 'k', compute)
+    expect(memo(store, 'k', compute)).toBe(cached)
+    expect(memo(store, 'k', compute)).toBe(cached)
     expect(compute).toHaveBeenCalledTimes(1)
   })
 })
