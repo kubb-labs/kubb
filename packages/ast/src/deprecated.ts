@@ -40,5 +40,5 @@ export const inferDiscriminatorPropertyName = schema.inferDiscriminator
 /** @deprecated Use `ast.schema.findProperties`. Removed in Kubb v6. */
 export const resolveSchemaProperties = schema.findProperties
 
-/** @deprecated Use `ast.http.is`. Removed in Kubb v6. */
-export const isHttpOperationNode = http.is
+/** @deprecated Use `ast.http.isOperation`. Removed in Kubb v6. */
+export const isHttpOperationNode = http.isOperation

@@ -180,7 +180,7 @@ for (const node of ast.collect<ast.SchemaNode>(root, { schema: (node) => node })
 }
 
 for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => node })) {
-  if (ast.http.is(node)) {
+  if (ast.http.isOperation(node)) {
     console.log(`${node.method} ${node.path}`)
   }
 }
@@ -256,7 +256,7 @@ Every `ast.mediaType` helper takes a media type string or a content entry.
 
 | Helper                             | Purpose                                                                                        |
 | ---------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `ast.http.is`                      | Narrow an operation to an HTTP operation, so `method` and `path` are present.                  |
+| `ast.http.isOperation`             | Narrow an operation to an HTTP operation, so `method` and `path` are present.                  |
 | `ast.http.status.getClass`         | The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`.      |
 | `ast.http.status.isSuccess`        | Whether a status code or range is `2xx`.                                                       |
 | `ast.http.status.isError`          | Whether a status code or range is `4xx` or `5xx`.                                              |
