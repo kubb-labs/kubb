@@ -68,7 +68,6 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
   const readText = (at: number): string | undefined => {
     const text = source.slice(starts[at], ends[at])
     if (styles[at] === SCALAR_STYLE.SINGLE_QUOTED) return text.slice(1, -1).replaceAll("''", "'")
-    if (styles[at] === SCALAR_STYLE.PLAIN) return toKeyText(text)
     if (styles[at] !== SCALAR_STYLE.DOUBLE_QUOTED) return text
     try {
       return JSON.parse(text) as string
@@ -96,7 +95,8 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
       if (key !== undefined) at = readNode(at).next
       const { start, end, next } = readNode(at)
       if (key === undefined) items.push({ index: at, range: { start, end } })
-      const text = key !== undefined && types[key] === EVENT_ID.SCALAR ? readText(key) : undefined
+      const raw = key !== undefined && types[key] === EVENT_ID.SCALAR ? readText(key) : undefined
+      const text = raw !== undefined && styles[key!] === SCALAR_STYLE.PLAIN ? toKeyText(raw) : raw
       // A duplicate key keeps its first range.
       if (text !== undefined && !keys.has(text)) keys.set(text, { index: at, range: { start: starts[key!]!, end: ends[key!]! } })
       at = next
