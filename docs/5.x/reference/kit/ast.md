@@ -258,7 +258,7 @@ ast.graph.containsCircular(ownerSchema, { circularSchemas: new Set(['Pet']) }) /
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `ast.schema.types`              | The `type` value of every schema, such as `'string'`.                                                       |
 | `ast.schema.narrow`             | The schema typed as the given `type`, or `null` when it is another type.                                    |
-| `ast.schema.find`               | The first schema in a tree that matches. Set `followRefs: true` to look through resolved refs.              |
+| `ast.schema.find`               | The first schema in a tree that matches. Set `followRefs: true` to look through resolved refs, and pass a `cache` to reuse earlier answers. |
 | `ast.schema.applyOptionality`   | The schema marked `optional` when not required, or `nullish` when it is also nullable.                      |
 | `ast.schema.findProperties`     | Every property with a given name on an object, a resolved ref, or an intersection. Unions are not searched. |
 | `ast.schema.getLiterals`        | The literal values an enum, a resolved ref, or a union of literals allows.                                  |
@@ -276,6 +276,14 @@ const dateSchema = ast.schema.find(root, {
   followRefs: true,
   predicate: (schema) => schema.type === 'date',
 })
+```
+
+To ask the same question for many schemas, keep one `cache` per predicate and `followRefs` value. Schemas that later calls reach again are not searched twice.
+
+```typescript [find-cache.ts]
+const dateCache = new WeakMap<ast.SchemaNode, ast.SchemaNode | null>()
+const hasDate = (schema: ast.SchemaNode) =>
+  ast.schema.find(schema, { followRefs: true, cache: dateCache, predicate: (node) => node.type === 'date' }) !== undefined
 ```
 
 ```typescript [narrow.ts]
