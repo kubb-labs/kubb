@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { inParallel, memo } from './promise.ts'
+import { createLastEntry, inParallel, memo } from './promise.ts'
 
 describe('memo', () => {
   it('computes once per key using a WeakMap (object keys)', () => {
@@ -21,6 +21,17 @@ describe('memo', () => {
     memo(store, 'k', compute)
     memo(store, 'k', compute)
     expect(compute).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps only the last entry with createLastEntry, and hits for an equal key', () => {
+    const store = createLastEntry<string, number>()
+    const compute = vi.fn((key: string) => key.length)
+
+    memo(store, 'aa', () => compute('aa'))
+    memo(store, ['a', 'a'].join(''), () => compute('aa'))
+    memo(store, 'bbb', () => compute('bbb'))
+    memo(store, 'aa', () => compute('aa'))
+    expect(compute.mock.calls).toStrictEqual([['aa'], ['bbb'], ['aa']])
   })
 })
 

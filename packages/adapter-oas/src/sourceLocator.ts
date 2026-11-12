@@ -1,5 +1,4 @@
-import { hash } from 'node:crypto'
-import { memo, unescapePointerToken } from '@internals/utils'
+import { createLastEntry, memo, unescapePointerToken } from '@internals/utils'
 import type { Adapter } from '@kubb/core'
 import { COLLECTION_STYLE, CORE_SCHEMA, EVENT_ID, load, parseEvents, SCALAR_STYLE } from 'js-yaml'
 import type { Event } from 'js-yaml'
@@ -18,8 +17,8 @@ type EventIndex = {
   refs?: Map<string, NonNullable<Range>>
 }
 
-// Diagnostics of one run share a source, so its index is kept, under a hash so the adapter can let the text go.
-let cached: { key: string; source?: string; index: EventIndex | undefined } | undefined
+// Diagnostics of one run share a source, so its index is kept for the next call.
+const indexes = createLastEntry<string, EventIndex | undefined>()
 
 // A plain `1.50` or `~` is a number or null to `js-yaml`, so the document, and the pointer, spell it `1.5` or `null`.
 function toKeyText(text: string): string {
@@ -103,21 +102,19 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
     return { keys, items }
   }
 
+  // Follows `tokens` from the collection at `at`. The range is the last key or item it reached.
+  const walk = ({ at, tokens: [token, ...rest], range }: { at: number; tokens: Array<string>; range: Range }): Range => {
+    if (token === undefined) return range
+    if (!isCollection(at)) return undefined
+    const { keys, items } = memo(collections, at, () => readChildren(at))
+    const child = keys.get(token) ?? items[Number(token)]
+    return child ? walk({ at: child.index, tokens: rest, range: child.range }) : undefined
+  }
+
   return {
     find(pointer: string): Range {
       // The first event opens the document, the second is its root.
-      let at = 1
-      let range: Range
-      for (const token of pointer.replace(/^#/, '').split('/').slice(1).map(unescapePointerToken)) {
-        if (!isCollection(at)) return undefined
-        const collection = at
-        const { keys, items } = memo(collections, collection, () => readChildren(collection))
-        const child = keys.get(token) ?? items[Number(token)]
-        if (!child) return undefined
-        at = child.index
-        range = child.range
-      }
-      return range
+      return walk({ at: 1, tokens: pointer.replace(/^#/, '').split('/').slice(1).map(unescapePointerToken), range: undefined })
     },
     findRef(ref: string): Range {
       if (!index.refs) {
@@ -143,7 +140,7 @@ function parse(source: string): EventIndex | undefined {
 }
 
 export function rememberEvents({ source, events }: { source: string; events: ReadonlyArray<Event> }): void {
-  cached = { key: hash('sha256', source), index: indexEvents(events) }
+  indexes.set(source, indexEvents(events))
 }
 
 /**
@@ -151,16 +148,10 @@ export function rememberEvents({ source, events }: { source: string; events: Rea
  */
 export const locate: NonNullable<Adapter['locate']> = (source, location) => {
   if (!('pointer' in location)) return undefined
-  if (cached?.source !== source) {
-    const key = hash('sha256', source)
-    cached = cached?.key === key ? cached : { key, index: parse(source) }
-  }
-  // An equal but distinct string costs a full comparison on every check. Keeping the caller's
-  // string turns the next checks into identity hits.
-  cached.source = source
-  if (!cached.index) return undefined
+  const index = memo(indexes, source, () => parse(source))
+  if (!index) return undefined
 
-  const { find, findRef } = createLocator({ index: cached.index, source })
+  const { find, findRef } = createLocator({ index, source })
   const ref = 'ref' in location ? location.ref : undefined
   return find(location.pointer) ?? (ref ? findRef(ref) : undefined)
 }

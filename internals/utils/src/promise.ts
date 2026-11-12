@@ -9,7 +9,7 @@
  */
 export type PossiblePromise<T> = Promise<T> | T
 
-type Store<TKey, TValue> = {
+export type Store<TKey, TValue> = {
   has(key: TKey): boolean
   get(key: TKey): TValue | undefined
   set(key: TKey, value: TValue): unknown
@@ -28,6 +28,31 @@ export function memo<TKey, TValue>(store: Store<TKey, TValue>, key: TKey, comput
   const value = compute()
   store.set(key, value)
   return value
+}
+
+/**
+ * A `memo` store that keeps only the last entry, for a cache that should hold one value at a time.
+ * A key equal to the stored one but a different object, such as a copy of a string, replaces the
+ * stored key, so the next check is an identity hit instead of a full comparison.
+ *
+ * @example
+ * `const index = memo(indexes, source, () => indexSource(source))`, with `const indexes = createLastEntry()`
+ */
+export function createLastEntry<TKey, TValue>(): Store<TKey, TValue> {
+  const entry = new Map<TKey, TValue>()
+  const set = (key: TKey, value: TValue) => {
+    entry.clear()
+    entry.set(key, value)
+  }
+  return {
+    has(key) {
+      if (!entry.has(key)) return false
+      set(key, entry.get(key) as TValue)
+      return true
+    },
+    get: (key) => entry.get(key),
+    set,
+  }
 }
 
 type ParallelOptions<TItem> = {
