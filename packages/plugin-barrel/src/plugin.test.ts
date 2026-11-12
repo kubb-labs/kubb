@@ -71,11 +71,12 @@ async function build({
 }: {
   plugins: Array<Plugin>
   barrel?: { type: 'all' | 'named' } | false
-  shared?: Config['output']['shared']
+  shared?: Config['shared']
 }) {
   const config = {
     root: '/workspace',
-    output: { path: 'src/gen', barrel, shared },
+    output: { path: 'src/gen', barrel },
+    shared,
     parsers: [],
     reporters: [],
     plugins: [...plugins, pluginBarrel()] as unknown as Array<Plugin>,
@@ -180,7 +181,7 @@ describe('pluginBarrel', () => {
     ],
     ['the output root', '.', '/workspace/src/common/name.ts', { '/workspace/src/gen/index.ts': '../common/name.ts' }],
   ])(
-    're-exports the output.shared files from its own barrels, and writes none in output.shared, for a plugin writing to %s',
+    're-exports the shared files from its own barrels, and writes none in shared.path, for a plugin writing to %s',
     async (_, outputPath, filePath, barrels) => {
       const plugin = makePlugin({ name: 'plugin-types', outputPath, filePath, exportName: 'Name', output: { mode: 'directory' } })
 

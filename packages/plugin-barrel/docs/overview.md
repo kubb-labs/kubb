@@ -15,7 +15,7 @@ Kubb adds the plugin to `plugins` for you, so no setup is needed. Generator plug
 - `namespace: true`, on a plugin only, enables nested barrels and adds named namespaces for immediate subdirectories, alongside standalone exports.
 - `false` on a plugin turns its barrel off and leaves its files out of the root barrel.
 
-With [`output.shared`](https://kubb.dev/docs/5.x/reference/configuration#outputshared), barrels also re-export the shared schemas a config defines, and the shared directory gets none. A plugin with `output.mode: 'file'` gets no barrel of its own, and the root barrel re-exports that file directly. Passing your own `output` object to a plugin replaces its default `barrel: { type: 'named' }`, so that plugin falls back to the root setting. When two files export the same name, Kubb reports an error, and a `named` barrel keeps only the first one.
+With [`shared`](https://kubb.dev/docs/5.x/reference/configuration#shared), barrels also re-export the shared schemas a config defines, and the shared directory gets none. A plugin with `output.mode: 'file'` gets no barrel of its own, and the root barrel re-exports that file directly. Passing your own `output` object to a plugin replaces its default `barrel: { type: 'named' }`, so that plugin falls back to the root setting. When two files export the same name, Kubb reports an error, and a `named` barrel keeps only the first one.
 
 See [Options](https://kubb.dev/extensions/kubb-labs/plugin-barrel/options) for every option and its default.
 

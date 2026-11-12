@@ -12,6 +12,7 @@ import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
+import type { SharedBuild } from './detectSharedSchemas.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 
 import type { Config, KubbHooks } from './types.ts'
@@ -30,6 +31,10 @@ type Options = {
    * right before the files are written, so a run that fails earlier leaves the previous output in place.
    */
   cleanPaths?: Array<string>
+  /**
+   * What `detectSharedSchemas` worked out for this config.
+   */
+  shared?: SharedBuild
 }
 
 type RequirePluginContext = {
@@ -134,10 +139,16 @@ export class KubbDriver {
     this.adapter = config.adapter ?? null
   }
 
-  // Every resolver gets `output.shared`, so a plugin's own `output`, an override, or a `setResolver` cannot drop it.
+  /** The absolute `shared.path`, when this build shares schemas. */
+  get #sharedPath(): string | undefined {
+    const { root, shared } = this.config
+    return shared && this.options.shared ? resolve(root, shared.path) : undefined
+  }
+
+  // Every resolver gets the shared schemas, so a plugin's own `output`, an override, or a `setResolver` cannot drop them.
   #createResolver(pluginName: string): Resolver {
-    const { root, output } = this.config
-    return new Resolver({ pluginName, shared: output.shared && { ...output.shared, path: resolve(root, output.shared.path) } })
+    const path = this.#sharedPath
+    return new Resolver({ pluginName, shared: path ? { path, schemas: this.options.shared!.schemas } : undefined })
   }
 
   /**
@@ -422,6 +433,7 @@ export class KubbDriver {
             manifest: this.options.manifest,
             signal: this.options.signal,
             cleaned: this.options.cleanPaths,
+            shared: this.#sharedPath ? { path: this.#sharedPath, written: this.options.shared!.written } : undefined,
             hooks,
             config,
           })

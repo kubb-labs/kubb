@@ -438,7 +438,7 @@ describe('resolver.imports', () => {
   })
 })
 
-describe('output.shared', () => {
+describe('shared', () => {
   const shared = { path: '/common', schemas: ['Name'] }
   const sharedResolver = new Resolver({ pluginName: 'test', shared })
 

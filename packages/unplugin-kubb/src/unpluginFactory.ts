@@ -5,6 +5,7 @@ import {
   type Config,
   createCliReporter,
   createKubb,
+  detectSharedSchemas,
   Diagnostics,
   fileReporter,
   Hookable,
@@ -97,8 +98,10 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
   const loadConfigs = () => (loaded ??= readConfigs())
 
   async function runBuild() {
-    for (const config of (await loadConfigs()).filter((config) => config.input)) {
-      const result = await createKubb(applyDefaults(config) as Config, { hooks }).generate()
+    const configs = (await loadConfigs()).filter((config) => config.input).map(applyDefaults)
+    const shared = await detectSharedSchemas(configs, hooks)
+    for (const [index, config] of configs.entries()) {
+      const result = await createKubb(config as Config, { hooks, shared: shared[index] }).generate()
       if (result.success) continue
 
       const failedCount = Diagnostics.failedPlugins(result.diagnostics).length

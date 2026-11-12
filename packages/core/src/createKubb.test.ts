@@ -256,25 +256,27 @@ describe('createKubb', () => {
   it.each([
     [true, null],
     [false, 'export const stale = 1\n'],
-  ])('empties output.shared.path only when output.shared.clean is %s', async (clean, expected) => {
+  ])('empties shared.path only when the shared build cleans: %s', async (clean, expected) => {
     const storage = memoryStorage()
     const staleFile = path.resolve('.', 'gen', 'common', 'stale.ts')
     await storage.writeItem(staleFile, 'export const stale = 1\n')
 
-    await createKubb(makeConfig({ ...config, storage, output: { path: './gen/animals', shared: { path: './gen/common', clean } } }), {
+    await createKubb(makeConfig({ ...config, storage, output: { path: './gen/animals' }, shared: { path: './gen/common' } }), {
       hooks: new Hookable<KubbHooks>(),
+      shared: { schemas: [], clean, written: new Map() },
     }).build()
 
     expect(await storage.readItem(staleFile)).toBe(expected)
   })
 
-  it('output.clean raises a KUBB_CLEAN_ROOT diagnostic when output.shared.path is the project root', async () => {
+  it('output.clean raises a KUBB_CLEAN_ROOT diagnostic when shared.path is the project root', async () => {
     const root = path.join(os.tmpdir(), 'kubb-clean-guard')
-    const kubb = createKubb(makeConfig({ ...config, root, output: { path: './gen', clean: true, shared: { path: '.', clean: true } } }), {
+    const kubb = createKubb(makeConfig({ ...config, root, output: { path: './gen', clean: true }, shared: { path: '.' } }), {
       hooks: new Hookable<KubbHooks>(),
+      shared: { schemas: [], clean: true, written: new Map() },
     })
 
-    await expect(kubb.setup()).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.cleanRoot, help: expect.stringContaining('output.shared.path') } })
+    await expect(kubb.setup()).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.cleanRoot, help: expect.stringContaining('`shared.path`') } })
   })
 
   it('keeps the previous output when output.clean is set and the run fails before writing', async () => {

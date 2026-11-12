@@ -39,19 +39,6 @@ export type SharedOutput = {
    * Directory the shared schemas are written to, resolved against `root`.
    */
   path: string
-  /**
-   * The shared schemas this spec defines, filled in by `kubb generate`.
-   *
-   * @internal
-   */
-  schemas?: Array<string>
-  /**
-   * Empties `path` before this config writes. `kubb generate` sets it on the first config of each shared directory when
-   * any of them sets `output.clean`, so a later config never deletes what an earlier one wrote.
-   *
-   * @internal
-   */
-  clean?: boolean
 }
 
 /**

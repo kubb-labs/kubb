@@ -11,7 +11,7 @@ import { runHook } from './runHook.ts'
 export type RunOutputPassesOptions = {
   config: Config
   /**
-   * Absolute directory the formatter and linter run over, together with `output.shared.path` when it sits outside it.
+   * Absolute directory the formatter and linter run over, together with `shared.path` when it sits outside it.
    */
   outputPath: string
   hooks: Hookable<KubbHooks>
@@ -91,7 +91,7 @@ export async function runOutputPasses({ config, outputPath, hooks, signal }: Run
     await Diagnostics.emit(hooks, diagnostic)
   }
 
-  const sharedPath = config.output.shared && resolve(config.root, config.output.shared.path)
+  const sharedPath = config.shared && resolve(config.root, config.shared.path)
   const roots = [...new Set(sharedPath ? [outputPath, sharedPath] : [outputPath])]
   // A directory inside another target is covered by it, so each tool runs over it once.
   const targets = roots.filter((target) => !roots.some((other) => other !== target && isPathInside(target, other)))

@@ -559,7 +559,7 @@ describe('KubbDriver generator dispatch', () => {
     ])
   })
 
-  it('places a shared schema under output.shared.path through every plugin resolver, a custom one included', async () => {
+  it('places a shared schema under shared.path through every plugin resolver, a custom one included', async () => {
     const plugins = [
       { name: 'types', options: { output: { path: 'types' } }, hooks: {} },
       {
@@ -572,8 +572,9 @@ describe('KubbDriver generator dispatch', () => {
         },
       },
     ] as unknown as Array<Plugin>
-    const sharedDriver = makeDriver(
-      makeConfig({ root: '/project', adapter: inputAdapter(), plugins, output: { path: './gen/animals', shared: { path: './gen/common', schemas: ['Pet'] } } }),
+    const sharedDriver = new KubbDriver(
+      makeConfig({ root: '/project', adapter: inputAdapter(), plugins, output: { path: './gen/animals' }, shared: { path: './gen/common' } }),
+      { hooks: new Hookable<KubbHooks>(), shared: { schemas: ['Pet'], clean: false, written: new Map() } },
     )
     await sharedDriver.setup()
     await sharedDriver.run()

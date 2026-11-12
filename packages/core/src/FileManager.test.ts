@@ -211,6 +211,27 @@ describe('FileManager', () => {
       expect(await storage.readItem('/gen/a.ts')).toContain('/* a.ts */')
     })
 
+    it('warns about a shared file another config of this run wrote differently, and not about one it wrote the same', async () => {
+      const storage = memoryStorage()
+      const hooks = new Hookable<KubbHooks>()
+      const warnings: Array<string> = []
+      hooks.hook('kubb:warn', ({ message }) => void warnings.push(message))
+      const shared = { path: '/common', written: new Map<string, string>() }
+
+      await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* a */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
+        storage,
+        hooks,
+        shared,
+      })
+      await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* b */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
+        storage,
+        hooks,
+        shared,
+      })
+
+      expect(warnings).toStrictEqual(['1 shared file differs from what another config wrote: /common/pet.ts.'])
+    })
+
     // A written file is tracked so the commit re-reads it; a skipped file's record already stands.
     it.each([['writes', 'a file that is not on disk yet, whatever the manifest says', null, true, ['a.ts']]])(
       '%s %s',

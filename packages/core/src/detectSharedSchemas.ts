@@ -1,9 +1,9 @@
 import { resolve } from 'node:path'
 import { ast, type SchemaNode } from '@kubb/ast'
-import type { SharedOutput } from './definePlugin.ts'
+import { resolveConfig } from './createKubb.ts'
 import type { Hookable } from './Hookable.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
-import type { Config, KubbHooks } from './types.ts'
+import type { Config, KubbHooks, UserConfig } from './types.ts'
 
 // Skips the target a ref embeds, so recursive schemas serialize and only the ref itself is compared.
 function toShape(node: SchemaNode): string {
@@ -12,8 +12,28 @@ function toShape(node: SchemaNode): string {
   })
 }
 
-// Fills `output.shared.schemas` on the configs of one shared directory, and returns the names they define differently.
-async function shareGroup(group: Array<{ config: Config; index: number }>, result: Array<Config>): Promise<Array<string>> {
+/**
+ * What one config of a `defineConfig([...])` array shares with the others. Pass it to `createKubb` as `shared`.
+ */
+export type SharedBuild = {
+  /**
+   * The shared schemas this config's spec defines.
+   */
+  schemas: Array<string>
+  /**
+   * Empties `shared.path` before this config writes. Set on the first config of each shared directory when any of them
+   * sets `output.clean`, so a later config never deletes what an earlier one wrote.
+   */
+  clean: boolean
+  /**
+   * The sources already written under `shared.path` in this run, keyed by file path. One map per shared directory, so a
+   * config that generates a shared file differently from the one before it is reported.
+   */
+  written: Map<string, string>
+}
+
+// Fills `schemas` on the builds of one shared directory, and returns the names its configs define differently.
+async function shareGroup(group: Array<{ config: Config; index: number }>, result: Array<SharedBuild | undefined>): Promise<Array<string>> {
   const specs: Array<Map<string, SchemaNode>> = []
   try {
     // Sequential, since configs may share one adapter instance.
@@ -58,44 +78,43 @@ async function shareGroup(group: Array<{ config: Config; index: number }>, resul
   }
 
   group.forEach(({ index }, specIndex) => {
-    const schemas = [...shared].flatMap(([name, members]) => (members.has(specIndex) ? [name] : []))
-    result[index] = withShared(result[index]!, { schemas })
+    result[index]!.schemas = [...shared].flatMap(([name, members]) => (members.has(specIndex) ? [name] : []))
   })
   return conflicts
 }
 
-function withShared(config: Config, patch: Partial<SharedOutput>): Config {
-  return { ...config, output: { ...config.output, shared: { ...config.output.shared!, ...patch } } }
-}
-
 /**
- * Returns `configs` in order, with `output.shared` filled in on each config that sets it. Configs are compared per shared
- * directory. A schema is shared by the largest group of two or more configs that define it identically, the first group on a
- * tie. A config shares it only when it also shares every schema it references. Schemas the configs define differently are
+ * Works out what the configs of a `defineConfig([...])` array share. Returns one entry per config, in order, to pass to
+ * `createKubb` as `shared`, and `undefined` for a config without `shared`. Configs are compared per shared directory. A
+ * schema is shared by the largest group of two or more configs that define it identically, the first group on a tie. A
+ * config shares it only when it also shares every schema it references. Schemas the configs define differently are
  * reported as `kubb:warn`. When any config of a shared directory sets `output.clean`, the first one empties it.
  *
  * shortcut: each build parses its spec again, so a URL or git branch that changes between the two parses can leave a stale
  * list; pass the parsed spec to the build if that shows up.
  */
-export async function detectSharedSchemas(configs: Array<Config>, hooks: Hookable<KubbHooks>): Promise<Array<Config>> {
+export async function detectSharedSchemas(userConfigs: Array<UserConfig>, hooks?: Hookable<KubbHooks>): Promise<Array<SharedBuild | undefined>> {
+  const configs = userConfigs.map(resolveConfig)
   const groups = new Map<string, Array<{ config: Config; index: number }>>()
   configs.forEach((config, index) => {
-    if (!config.output.shared || !config.adapter) return
-    const key = resolve(config.root, config.output.shared.path)
+    if (!config.shared || !config.adapter) return
+    const key = resolve(config.root, config.shared.path)
     groups.set(key, [...(groups.get(key) ?? []), { config, index }])
   })
 
-  const result = [...configs]
+  const result: Array<SharedBuild | undefined> = configs.map(() => undefined)
   const conflicts = new Set<string>()
   for (const group of groups.values()) {
     // Only the first config empties the shared directory, so a later one never deletes what an earlier one wrote.
-    if (group.some(({ config }) => config.output.clean)) group.forEach(({ index }, i) => (result[index] = withShared(result[index]!, { clean: i === 0 })))
+    const clean = group.some(({ config }) => config.output.clean)
+    const written = new Map<string, string>()
+    group.forEach(({ index }, i) => (result[index] = { schemas: [], clean: clean && i === 0, written }))
     if (group.length < 2) continue
     for (const name of await shareGroup(group, result)) conflicts.add(name)
   }
 
   if (conflicts.size > 0) {
-    await hooks.callHook('kubb:warn', {
+    await hooks?.callHook('kubb:warn', {
       message: `The specs define these schemas differently: ${[...conflicts].join(', ')}.`,
       info: 'The largest group of specs that define one the same shares it. Every other spec keeps its own copy, with the schemas that reference it.',
     })

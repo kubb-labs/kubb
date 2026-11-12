@@ -30,6 +30,10 @@ type WriteOptions = ParseOptions & {
    */
   cleaned?: Array<string>
   /**
+   * The absolute `shared.path` with the sources every config of this run wrote under it, keyed by file path.
+   */
+  shared?: { path: string; written: Map<string, string> }
+  /**
    * Receives `kubb:files:processing:start`, `:update` (in input order, as files finish) and `:end` for the write. `config` fills the update rows.
    */
   hooks?: Hookable<KubbHooks>
@@ -314,11 +318,13 @@ export class FileManager {
    * writes nothing and leaves every mtime where it was. `kubb:files:processing:end` lists the
    * skipped paths as `unchanged`.
    */
-  async write(files: Array<FileNode>, { storage, parsers, manifest, signal, hooks, config, cleaned }: WriteOptions): Promise<void> {
+  async write(files: Array<FileNode>, { storage, parsers, manifest, signal, hooks, config, cleaned, shared }: WriteOptions): Promise<void> {
     if (files.length === 0) return
 
     await hooks?.callHook('kubb:files:processing:start', { files })
     const unchanged: Array<string> = []
+    // Shared files this build generates differently from the config that wrote them first.
+    const mismatched: Array<string> = []
     const progress = hooks && config ? createProgress(files, config, hooks) : undefined
 
     await inParallel({
@@ -328,6 +334,11 @@ export class FileManager {
         signal?.throwIfAborted()
         const source = await this.parse(file, { parsers })
         if (source) {
+          if (shared && isPathInside(file.path, shared.path)) {
+            const first = shared.written.get(file.path)
+            if (first === undefined) shared.written.set(file.path, source)
+            else if (first !== source) mismatched.push(file.path)
+          }
           if (!(await writeChanged({ storage, manifest, file, source, signal, cleaned }))) unchanged.push(file.path)
           await hooks?.callHook('kubb:file:processed', { file, source })
         }
@@ -336,5 +347,12 @@ export class FileManager {
     })
 
     await hooks?.callHook('kubb:files:processing:end', { files, unchanged })
+
+    if (mismatched.length > 0) {
+      await hooks?.callHook('kubb:warn', {
+        message: `${mismatched.length} shared ${mismatched.length === 1 ? 'file differs' : 'files differ'} from what another config wrote: ${mismatched.slice(0, 3).join(', ')}${mismatched.length > 3 ? ', ...' : ''}.`,
+        info: 'The last config to write wins. Give the configs that use the same `shared.path` the same plugin options and banner.',
+      })
+    }
   }
 }

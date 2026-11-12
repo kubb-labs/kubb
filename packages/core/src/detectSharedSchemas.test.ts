@@ -19,11 +19,12 @@ const object = (name: string, properties: Record<string, SchemaNode>) =>
   })
 const string = () => ast.factory.createSchema({ type: 'string' })
 
-function makeConfig(schemas: Array<SchemaNode>, shared: Config['output']['shared'] = { path: './gen/common' }): Config {
+function makeConfig(schemas: Array<SchemaNode>, shared: Config['shared'] = { path: './gen/common' }): Config {
   return {
     root: '/project',
     input: './spec.json',
-    output: { path: './gen/api', shared },
+    output: { path: './gen/api' },
+    shared,
     parsers: [],
     reporters: [],
     adapter: createMockedAdapter({ parse: vi.fn(async () => ast.factory.createInput({ schemas })) }),
@@ -38,7 +39,7 @@ async function detect(configs: Array<Config>) {
   const warnings: Array<string> = []
   hooks.hook('kubb:warn', ({ message }) => void warnings.push(message))
   const result = await detectSharedSchemas(configs, hooks)
-  return { schemas: result.map((config) => config.output.shared?.schemas), warnings, result }
+  return { schemas: result.map((build) => build?.schemas), warnings, result }
 }
 
 describe('detectSharedSchemas', () => {
@@ -102,24 +103,14 @@ describe('detectSharedSchemas', () => {
     expect(checkout.dispose).toHaveBeenCalledOnce()
   })
 
-  it('replaces a schemas list set by hand with the detected one', async () => {
-    const name = () => ast.factory.createSchema({ type: 'string', name: 'Name' })
-    const animals = makeConfig([name(), object('Animal', {})], { path: './gen/common', schemas: ['Animal'] })
-    const fruits = makeConfig([name(), object('Fruit', {})], { path: './gen/common', schemas: ['Fruit'] })
-
-    const { schemas } = await detect([animals, fruits])
-
-    expect(schemas).toStrictEqual([['Name'], ['Name']])
-  })
-
-  it('leaves the configs untouched, without parsing, when fewer than two set output.shared', async () => {
-    const unshared = { ...makeConfig([string()]), output: { path: './gen/api' } }
+  it('shares nothing, without parsing, when fewer than two configs set shared', async () => {
+    const unshared = { ...makeConfig([string()]), shared: undefined }
     const alone = makeConfig([string()])
 
-    const { result } = await detect([unshared, alone])
+    const { schemas } = await detect([unshared, alone])
 
-    expect(result).toStrictEqual([unshared, alone])
-    for (const config of result) expect(config.adapter!.parse).not.toHaveBeenCalled()
+    expect(schemas).toStrictEqual([undefined, []])
+    for (const config of [unshared, alone]) expect(config.adapter!.parse).not.toHaveBeenCalled()
   })
 
   it('shares nothing when a spec fails to parse, and leaves the error to the build', async () => {
@@ -127,9 +118,9 @@ describe('detectSharedSchemas', () => {
     const fruits = makeConfig([ast.factory.createSchema({ type: 'string', name: 'Name' })])
     vi.mocked(fruits.adapter!.parse).mockRejectedValue(new Error('broken'))
 
-    const { result } = await detect([animals, fruits])
+    const { schemas } = await detect([animals, fruits])
 
-    expect(result).toStrictEqual([animals, fruits])
+    expect(schemas).toStrictEqual([[], []])
   })
 
   it('compares the configs of each shared path on their own', async () => {
@@ -147,11 +138,11 @@ describe('detectSharedSchemas', () => {
 
   it('marks the first config of a shared directory to clean it when any config that uses it sets output.clean', async () => {
     const animals = makeConfig([string()])
-    const fruits = { ...makeConfig([string()]), output: { path: './gen/fruits', clean: true, shared: { path: './gen/common' } } }
-    const alone = { ...makeConfig([string()], { path: './gen/other' }), output: { path: './gen/alone', clean: true, shared: { path: './gen/other' } } }
+    const fruits = { ...makeConfig([string()]), output: { path: './gen/fruits', clean: true } }
+    const alone = { ...makeConfig([string()], { path: './gen/other' }), output: { path: './gen/alone', clean: true } }
 
     const { result } = await detect([animals, fruits, alone])
 
-    expect(result.map((config) => config.output.shared?.clean)).toStrictEqual([true, false, true])
+    expect(result.map((build) => build?.clean)).toStrictEqual([true, false, true])
   })
 })
