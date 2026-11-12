@@ -341,7 +341,7 @@ When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/c
 
 - Configs are compared per `path`. A schema is shared when two or more of them define it identically. When they define it differently, the largest matching group shares it, every other config keeps its own copy, and `kubb generate` warns with its name.
 - `kubb generate`, `unplugin-kubb`, Kubb Studio and `kubb studio snapshot` compare the specs. Studio and a snapshot build one config, so they write the shared schemas that config defines and leave the rest of the shared directory as it is. A sandbox or managed Studio agent shares nothing.
-- When you call `createKubb` yourself, pass every config to `detectSharedSchemas` from `@kubb/core` and hand each build its entry as the `shared` option.
+- When you call `createKubb` yourself, pass every config to `detectSharedSchemas` from `@kubb/core` and hand each build its entry as the `sharedSchemas` option.
 - A plugin with `output.mode: 'file'` or a custom `file.path` shares nothing.
 - With [`output.barrel`](#outputbarrel) set, each config's barrels re-export the shared schemas it defines. The shared directory gets no barrels.
 - [`output.format`](#outputformat) and [`output.lint`](#outputlint) run over the shared directory too. When any config that uses it sets [`output.clean`](#outputclean), the first such config wipes it once per run.

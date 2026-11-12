@@ -3,7 +3,7 @@ import { isPathInside } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
-import type { SharedBuild } from './detectSharedSchemas.ts'
+import type { SharedSchemas } from './detectSharedSchemas.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
 import { cacheStorage } from './storages/cacheStorage.ts'
@@ -57,7 +57,7 @@ export type CreateKubbOptions = {
   /**
    * This config's entry from {@link detectSharedSchemas}. Without it the build shares nothing.
    */
-  shared?: SharedBuild
+  sharedSchemas?: SharedSchemas
 }
 
 /**
@@ -114,13 +114,13 @@ export class Kubb {
   #driver: KubbDriver | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
-  readonly #shared: SharedBuild | undefined
+  readonly #sharedSchemas: SharedSchemas | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
-    this.#shared = options.shared
+    this.#sharedSchemas = options.sharedSchemas
   }
 
   get storage(): Storage {
@@ -144,7 +144,7 @@ export class Kubb {
 
     const dirsToClean: Array<[option: string, dir: string]> = []
     if (config.output.clean) dirsToClean.push(['output.path', resolve(config.root, config.output.path)])
-    if (config.shared && this.#shared?.clean) dirsToClean.push(['shared.path', resolve(config.root, config.shared.path)])
+    if (config.shared && this.#sharedSchemas?.clean) dirsToClean.push(['shared.path', resolve(config.root, config.shared.path)])
 
     // clean only removes generated code. Refuse when the output resolves to the project root or
     // an ancestor of it, otherwise the wipe would delete kubb.config and every source file.
@@ -161,7 +161,13 @@ export class Kubb {
 
     // The driver empties `cleanPaths` right before it writes the new files, so a run that fails
     // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPaths: dirsToClean.map(([, dir]) => dir), shared: this.#shared })
+    const driver = new KubbDriver(config, {
+      hooks: this.hooks,
+      manifest,
+      signal,
+      cleanPaths: dirsToClean.map(([, dir]) => dir),
+      sharedSchemas: this.#sharedSchemas,
+    })
     await driver.setup()
 
     this.#driver = driver

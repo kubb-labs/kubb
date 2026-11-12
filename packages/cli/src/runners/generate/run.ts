@@ -18,7 +18,7 @@ import {
   logLevel as logLevelMap,
   memoryStorage,
   type ReporterName,
-  type SharedBuild,
+  type SharedSchemas,
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { trackRun } from '../../Telemetry.ts'
@@ -59,11 +59,11 @@ type GenerateProps = {
   /**
    * This config's entry from `detectSharedSchemas`.
    */
-  shared?: SharedBuild
+  sharedSchemas?: SharedSchemas
 }
 
 export async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, dryRun = false, shared } = options
+  const { input, hooks, dryRun = false, sharedSchemas } = options
 
   const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
 
@@ -78,7 +78,7 @@ export async function generate(options: GenerateProps): Promise<boolean> {
 
   // Core formats, lints and runs `output.postGenerate` after an error-free build, and reports
   // their failures as coded diagnostics that reach the summary, the json report and the exit code.
-  const kubb = createKubb(config, { hooks, shared })
+  const kubb = createKubb(config, { hooks, sharedSchemas })
   const result = await kubb.generate()
 
   // Not awaited: the request finishes in the background, capped by its timeout, so it never delays the summary.
@@ -211,12 +211,12 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   await hooks.callHook('kubb:lifecycle:start', { version })
 
   // What the configs share. The CLI `--input` replaces each config's input first, as `generate` does.
-  const detect = () =>
+  const detectShared = () =>
     detectSharedSchemas(
       configs.map((config) => ({ ...config, input: input ?? config.input })),
       hooks,
     )
-  let detected = await detect()
+  let sharedByConfig = await detectShared()
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
@@ -241,11 +241,11 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         const build = async () => {
           const hrStart = process.hrtime()
           // An edited spec can change what its configs share.
-          if (previous) detected = await detect()
-          const entry = detected[index]
+          if (previous) sharedByConfig = await detectShared()
+          const entry = sharedByConfig[index]
           // A rebuild never empties the shared directory, since it would delete what the other configs wrote.
-          const shared = previous && entry ? { ...entry, clean: false } : entry
-          const succeeded = await generate({ input, config, hooks, dryRun, shared })
+          const sharedSchemas = previous && entry ? { ...entry, clean: false } : entry
+          const succeeded = await generate({ input, config, hooks, dryRun, sharedSchemas })
           const snapshot = tracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
           previous = snapshot
@@ -285,7 +285,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       } else {
         if (tracker && !quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
         try {
-          const succeeded = await generate({ input, config, hooks, dryRun, shared: detected[index] })
+          const succeeded = await generate({ input, config, hooks, dryRun, sharedSchemas: sharedByConfig[index] })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await Diagnostics.emit(errorHooks, configError)

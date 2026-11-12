@@ -107,8 +107,8 @@ export async function generate({
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
   const detected = configs?.includes(config) ? (await detectSharedSchemas(configs, hooks))[configs.indexOf(config)] : undefined
   // Only this entry is built, so it never empties the directory the others share.
-  const shared = detected && { ...detected, clean: false }
-  const kubb = createKubb({ ...config, output }, { hooks, signal, shared })
+  const sharedSchemas = detected && { ...detected, clean: false }
+  const kubb = createKubb({ ...config, output }, { hooks, signal, sharedSchemas })
   let input: InputNode | null = null
   // The driver drops its `inputNode` once the build is over, so read it as the build ends.
   const unhook = kubb.hooks.hook('kubb:build:end', (ctx) => {

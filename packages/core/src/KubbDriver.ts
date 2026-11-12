@@ -12,7 +12,7 @@ import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
-import { getSharedWrites, type SharedBuild } from './detectSharedSchemas.ts'
+import { getSharedWrites, type SharedSchemas } from './detectSharedSchemas.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 
 import type { Config, KubbHooks } from './types.ts'
@@ -34,7 +34,7 @@ type Options = {
   /**
    * What `detectSharedSchemas` worked out for this config.
    */
-  shared?: SharedBuild
+  sharedSchemas?: SharedSchemas
 }
 
 type RequirePluginContext = {
@@ -142,9 +142,9 @@ export class KubbDriver {
   /** The absolute `shared.path` with what this build shares under it, when it shares schemas. */
   get #shared(): { path: string; schemas: Array<string>; written: Map<string, string> } | undefined {
     const { root, shared } = this.config
-    const build = this.options.shared
-    if (!shared || !build) return undefined
-    return { path: resolve(root, shared.path), schemas: build.schemas, written: getSharedWrites(build) }
+    const { sharedSchemas } = this.options
+    if (!shared || !sharedSchemas) return undefined
+    return { path: resolve(root, shared.path), schemas: sharedSchemas.names, written: getSharedWrites(sharedSchemas) }
   }
 
   // Every resolver gets the shared schemas, so a plugin's own `output`, an override, or a `setResolver` cannot drop them.

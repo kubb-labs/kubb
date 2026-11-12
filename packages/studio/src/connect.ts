@@ -564,7 +564,7 @@ class Agent extends RpcTarget implements AgentApi {
             this.#refuse({ message: getErrorMessage(error), code: Diagnostics.code.gitInputFailed }),
           )
         : undefined
-    const generated: Config = {
+    const buildConfig: Config = {
       ...config,
       root,
       input: checkout?.path ?? studioInput ?? config.input,
@@ -576,9 +576,9 @@ class Agent extends RpcTarget implements AgentApi {
     }
     const run = () =>
       generate({
-        config: generated,
+        config: buildConfig,
         // Sharing parses the other entries' specs, which a sandbox or managed agent must not read from its own disk.
-        configs: this.#sandbox || this.#managed ? undefined : configs.map((entry) => (entry === config ? generated : { ...entry, root })),
+        configs: this.#sandbox || this.#managed ? undefined : configs.map((entry) => (entry === config ? buildConfig : { ...entry, root })),
         hooks: this.#options.hooks,
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,

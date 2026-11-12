@@ -172,15 +172,15 @@ type BarrelIndex = {
 export function buildBarrelIndex({
   outputPath,
   files,
-  linkedPath,
+  sharedPath,
 }: {
   outputPath: string
   files: ReadonlyArray<ast.FileNode>
-  linkedPath?: string
+  sharedPath?: string
 }): BarrelIndex {
   const tree: DirectoryNode = { path: toPosixPath(outputPath), children: new Map() }
-  // Files under `linkedPath` (shared.path) join the tree at the same relative position; `outputPath` wins when both match.
-  const roots = linkedPath ? [tree.path, toPosixPath(linkedPath)] : [tree.path]
+  // Files under `sharedPath` (the config's `shared.path`) join the tree at the same relative position; `outputPath` wins when both match.
+  const roots = sharedPath ? [tree.path, toPosixPath(sharedPath)] : [tree.path]
   const rootOf = (filePath: string) => roots.find((root) => filePath.startsWith(`${root}/`))
   const sourceFiles = new Map(
     files.flatMap((file) => {

@@ -172,7 +172,7 @@ export const pluginBarrel = defineExtension({
       const index = buildBarrelIndex({
         outputPath,
         files: relevantFiles,
-        linkedPath: config.shared && path.resolve(config.root, config.shared.path),
+        sharedPath: config.shared && path.resolve(config.root, config.shared.path),
       })
       const reportedCollisions = new Set<string>()
       // Keyed by path and name: plugins sharing an `output.path` produce the same aliases.

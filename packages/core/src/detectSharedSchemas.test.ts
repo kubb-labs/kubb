@@ -39,7 +39,7 @@ async function detect(configs: Array<Config>) {
   const warnings: Array<string> = []
   hooks.hook('kubb:warn', ({ message }) => void warnings.push(message))
   const result = await detectSharedSchemas(configs, hooks)
-  return { schemas: result.map((build) => build?.schemas), warnings, result }
+  return { schemas: result.map((entry) => entry?.names), warnings, result }
 }
 
 describe('detectSharedSchemas', () => {
@@ -138,7 +138,7 @@ describe('detectSharedSchemas', () => {
 
   it('gives the configs of one shared directory the same record of written files, and another directory its own', async () => {
     const { result } = await detect([makeConfig([string()]), makeConfig([string()]), makeConfig([string()], { path: './gen/other' })])
-    const [first, second, other] = result.map((build) => getSharedWrites(build!))
+    const [first, second, other] = result.map((entry) => getSharedWrites(entry!))
 
     expect(second).toBe(first)
     expect(other).not.toBe(first)
@@ -151,6 +151,6 @@ describe('detectSharedSchemas', () => {
 
     const { result } = await detect([animals, fruits, alone])
 
-    expect(result.map((build) => build?.clean)).toStrictEqual([true, false, true])
+    expect(result.map((entry) => entry?.clean)).toStrictEqual([true, false, true])
   })
 })

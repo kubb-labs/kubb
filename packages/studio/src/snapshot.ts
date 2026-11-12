@@ -191,10 +191,10 @@ export async function createSnapshot({
   ...metadata
 }: CreateSnapshotOptions): Promise<PublishedSnapshot> {
   const url = secureUrl({ studioUrl, path: '/api/snapshots' })
-  const onDisk = { ...config, storage: fsStorage() }
+  const buildConfig = { ...config, storage: fsStorage() }
   const generated = await generate({
-    config: onDisk,
-    configs: configs?.map((entry) => (entry === config ? onDisk : entry)),
+    config: buildConfig,
+    configs: configs?.map((entry) => (entry === config ? buildConfig : entry)),
     hooks,
     signal,
     allowExec: true,
