@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { isPathInside } from '@internals/utils'
+import { getElapsedMs, isPathInside } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
@@ -7,7 +7,7 @@ import { KubbDriver } from './KubbDriver.ts'
 import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
 import { cacheStorage } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
+import type { BuildOutput, Config, KubbGenerationEndContext, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
 import { runOutputPasses, type RunOutputPassesOptions } from './output/runOutputPasses.ts'
 
@@ -234,7 +234,7 @@ export class Kubb {
     }
 
     if (Diagnostics.hasError(diagnostics)) {
-      await hooks.callHook('kubb:generation:end', { config, storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
+      await this.#end({ config, storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
       return { success: false, files, diagnostics }
     }
 
@@ -251,7 +251,7 @@ export class Kubb {
     // leaves files Kubb has to stay free to regenerate.
     if (!failed) await this.#manifest?.commit()
 
-    await hooks.callHook('kubb:generation:end', {
+    await this.#end({
       config,
       storage,
       diagnostics: finalDiagnostics,
@@ -261,6 +261,17 @@ export class Kubb {
     })
 
     return { success: !failed, files, diagnostics: finalDiagnostics }
+  }
+
+  /** Ends a run: `kubb:generation:end`, then the totals on `kubb:generation:summary`. */
+  async #end(ctx: Required<KubbGenerationEndContext>): Promise<void> {
+    await this.hooks.callHook('kubb:generation:end', ctx)
+    await this.hooks.callHook('kubb:generation:summary', {
+      duration: Math.round(getElapsedMs(ctx.hrStart)),
+      fileCount: ctx.filesCreated,
+      failedPlugins: Diagnostics.failedPlugins(ctx.diagnostics).length,
+      status: ctx.status,
+    })
   }
 
   dispose(): void {

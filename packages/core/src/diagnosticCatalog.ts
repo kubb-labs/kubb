@@ -55,7 +55,7 @@ export const diagnosticCatalog = {
     title: 'Invalid document',
     cause:
       'The `input` cannot be read as an OpenAPI or Swagger document: its JSON or YAML has a syntax error, it declares no `openapi` or `swagger` version field, or its version cannot be upgraded to OpenAPI 3.1.',
-    fix: 'Fix the syntax at the reported line, and check that `input` points at the spec and not an HTML page. Point `input` at a Swagger 2.0, OpenAPI 3.0, or OpenAPI 3.1 document, and check that a passed object is the spec itself rather than a wrapper around it.',
+    fix: 'Fix the syntax at the reported line, and check that `input` points at the spec and not an HTML page. Point `input` at a Swagger 2.0 or OpenAPI 3.0, 3.1, or 3.2 document, and check that a passed object is the spec itself rather than a wrapper around it.',
   },
   invalidSpec: {
     code: 'KUBB_INVALID_SPEC',
@@ -183,8 +183,9 @@ export const diagnosticCatalog = {
   invalidPluginOptions: {
     code: 'KUBB_INVALID_PLUGIN_OPTIONS',
     title: 'Invalid plugin options',
-    cause: "A plugin was configured with options that cannot be honored, for example `output.mode: 'file'` paired with a `group` option.",
-    fix: "Fix the plugin options. A single-file output has nothing to group, so remove the `group` option or use `output.mode: 'directory'`.",
+    cause:
+      "A plugin was configured with options that cannot be honored, for example a single-file output (`output.mode: 'file'`, or an `output.path` with a file extension) paired with a `group` option.",
+    fix: "Fix the plugin options. A single-file output has nothing to group, so remove the `group` option, give `output.path` a directory name, or set `output.mode: 'directory'`.",
   },
   postGenerateFailed: {
     code: 'KUBB_POST_GENERATE_FAILED',

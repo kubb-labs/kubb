@@ -59,6 +59,7 @@ These hooks wrap a full run. `.generate()` fires the `generation` and `setup` ho
 | `kubb:setup:start`       | none                                                          | Before the driver and storage are initialized          |
 | `kubb:setup:end`         | none                                                          | After setup, before the build pipeline                 |
 | `kubb:generation:end`    | `{ config, storage, status, diagnostics, filesCreated, hrStart }` | The run finishes, after the output passes         |
+| `kubb:generation:summary` | `{ duration, fileCount, failedPlugins, status }`             | Right after `kubb:generation:end`, with the run's totals. `duration` is in milliseconds |
 | `kubb:lifecycle:end`     | none                                                          | The CLI is done, after the last config                 |
 
 ## Build pipeline

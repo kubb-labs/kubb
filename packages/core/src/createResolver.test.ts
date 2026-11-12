@@ -161,7 +161,7 @@ describe('createResolver', () => {
       farewell: (name: string) => name,
     })
 
-    expect(() => resolver.file({ name: 'pet', extname: '.ts', ...context })).toThrow('outside the project root')
+    expect(() => resolver.file({ name: 'pet', extname: '.ts', ...context })).toThrow('outside the output directory')
   })
 
   it('Resolver.merge() rebuilds helpers on a new instance', () => {

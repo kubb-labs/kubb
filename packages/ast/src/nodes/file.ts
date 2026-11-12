@@ -153,7 +153,7 @@ export type SourceNode = BaseNode & {
    */
   isTypeOnly?: boolean | null
   /**
-   * Include the `export` keyword in the generated source.
+   * Mark this source as an exported declaration. The source text carries its own `export` keyword.
    */
   isExportable?: boolean | null
   /**

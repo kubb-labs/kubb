@@ -53,6 +53,7 @@ The function receives this context:
 |    `input` | `string \| undefined` | Positional input from `kubb generate <input>`. Overrides `config.input` when set. |
 |    `watch` | `boolean` | `true` in watch mode. |
 | `logLevel` | `'silent' \| 'info' \| 'verbose'` | Current log level. |
+| `reporters` | `Array<ReporterName> \| undefined` | Reporter names from `--reporter`, such as `['json']`. `undefined` without the flag. |
 |   `config` | `string \| undefined` | Value of the `--config` flag. `undefined` when the CLI finds the config file itself. |
 
 ### Multiple configurations (array)

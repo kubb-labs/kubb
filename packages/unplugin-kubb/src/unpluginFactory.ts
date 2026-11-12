@@ -38,7 +38,7 @@ export type Options = {
  * - `parsers` defaults to `[parserTs(), parserTsx(), parserMd()]`
  * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter, htmlReporter]`
  * - `plugins` gets `pluginBarrel()` appended when none is already present
- * - `output.barrel` defaults to `false` when not set (`pluginBarrel` is always present after the step above, but generates nothing until configured)
+ * - `output.barrel` defaults to `false` when not set (only the root barrel is off: plugins whose default `output` carries `barrel: { type: 'named' }` still get their own barrel)
  * - `output.format` and `output.lint` default to `false`
  */
 export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {

@@ -64,6 +64,7 @@ kubb remove plugin-zod --no-uninstall
 | `--config`, `-c`      |                  | Path to the Kubb config to edit. Without it, the CLI looks for the same config files as `kubb generate`, in the current directory and then in each parent directory. |
 | `--yes`, `-y`         | `false`          | Remove without asking. |
 | `--no-uninstall`      |                  | Edit the config only and keep the package installed. |
+| `--dry-run`           | `false`          | Print the config lines and the package the command would remove, then stop. Nothing is uninstalled or written. |
 
 ## What it removes
 

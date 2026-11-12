@@ -188,7 +188,7 @@ Check the parser options. If it is a bug, report it to the parser's maintainers 
 
 A resolved output path escaped the output directory. Kubb refuses to write outside `output.path`, so a crafted spec or a misconfigured `group.name` cannot drop files anywhere on disk.
 
-Keep generated paths within `output.path` and resolver `file.path` overrides within the project root. Reject `..` and path separators in names from the spec or `group.name`.
+Keep generated paths within `output.path` and resolver `file.path` overrides within the output directory. Reject `..` and path separators in names from the spec or `group.name`.
 
 ### KUBB_PLUGIN_FAILED: Plugin failed {#kubb-plugin-failed}
 
