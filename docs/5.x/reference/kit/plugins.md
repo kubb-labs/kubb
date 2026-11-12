@@ -42,14 +42,14 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ### Definition shape
 
-| Property       | Type                                                          | Required | Description                                                                                                                                                           |
-| -------------- | ------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kind`         | `'plugin'`                                                    | Yes      | Tells `defineExtension` to define a plugin.                                                                                                                           |
-| `meta`         | [`ExtensionMeta`](./extensions#meta)                          | Yes      | Name, version, and compatibility. `meta.name` follows `plugin-<feature>`. The plugin's own `name` is deprecated in favor of it, and optional when `meta.name` is set. |
-| `setup`        | `(options, kubb: KubbPluginSetupContext) => TResolvedOptions` | No       | Main plugin logic. Receives the user's options and returns the resolved options. Can be `async`.                                                                      |
-| `dependencies` | [`ExtensionDependencies`](./extensions#dependencies)          | No       | Plugins this one builds on. They run first, and a missing required one fails the run.                                                                                 |
-| `enforce`      | `'pre' \| 'post'`                                             | No       | Run this plugin before (`'pre'`) or after (`'post'`) the normal plugins. Dependency order still wins.                                                                 |
-| `hooks`        | `{ 'kubb:plugin:setup'?: ...; ... }`                          | No       | Lifecycle handlers (see [Plugin API](/docs/5.x/explanation/extensions#plugins)). `kubb:plugin:setup` runs after `setup`.                                              |
+| Property       | Type                                                          | Required | Description                                                                                                                        |
+| -------------- | ------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `kind`         | `'plugin'`                                                    | Yes      | Tells `defineExtension` to define a plugin.                                                                                        |
+| `meta`         | [`ExtensionMeta`](./extensions#meta)                          | Yes      | Name, version, and compatibility. `meta.name` follows `plugin-<feature>`. The returned `Plugin` takes its `name` from `meta.name`. |
+| `setup`        | `(options, kubb: KubbPluginSetupContext) => TResolvedOptions` | No       | Main plugin logic. Receives the user's options and returns the resolved options. Can be `async`.                                   |
+| `dependencies` | [`ExtensionDependencies`](./extensions#dependencies)          | No       | Plugins this one builds on. They run first, and a missing required one fails the run.                                              |
+| `enforce`      | `'pre' \| 'post'`                                             | No       | Run this plugin before (`'pre'`) or after (`'post'`) the normal plugins. Dependency order still wins.                              |
+| `hooks`        | `{ 'kubb:plugin:setup'?: ...; ... }`                          | No       | Lifecycle handlers (see [Plugin API](/docs/5.x/explanation/extensions#plugins)). `kubb:plugin:setup` runs after `setup`.           |
 
 The `Plugin` the factory returns keeps the user's raw options in `plugin.options`.
 
@@ -81,8 +81,8 @@ Named imports from JSON need a bundler that inlines them. See [Extension manifes
 
 `setup` and `kubb:plugin:setup` register generators, the resolver, macros, and options through the setup context. A plugin reaches it in one of two ways:
 
-- **The context argument**: `kubb` in `setup`, and `ctx` in the `kubb:plugin:setup` hook.
-- **Composables** from `kubb/kit`, such as `addGenerator()`. They take no context argument, so helper functions that setup calls can use them too.
+- Through the context argument, which is `kubb` in `setup` and `ctx` in the `kubb:plugin:setup` hook.
+- Through composables from `kubb/kit`, such as `addGenerator()`. Composables take no context argument, so helper functions that `setup` calls can use them too.
 
 ::::code-group
 

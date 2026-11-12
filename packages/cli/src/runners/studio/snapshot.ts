@@ -26,7 +26,7 @@ async function findPackageJson(directory: string): Promise<{ name: string; versi
       code: Diagnostics.code.unknown,
       severity: 'error',
       message: `No package.json with a name and a version found above ${process.cwd()}`,
-      help: 'Pass `--name` and `--version`, or run from a package with a package.json.',
+      help: 'Pass `--name` and `--package-version`, or run from a package with a package.json.',
     })
 
   return findPackageJson(parent)
@@ -148,11 +148,9 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       message: 'An organization CI API key is required. Pass --token or set KUBB_TOKEN.',
     })
   }
-  // A snapshot publishes the first entry.
   const { configs } = await loadConfigs(options)
-  const config = configs[0]!
   const ci = resolveCiIdentity(options)
-  // package.json is read only for whichever of name/version --name and --version did not supply.
+  // package.json is read only for whichever of name/version --name and --package-version did not supply.
   const { name, version: packageVersion } =
     options.name && options.packageVersion
       ? { name: options.name, version: options.packageVersion }
@@ -177,7 +175,6 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     const published = await createSnapshot({
       studioUrl: options.studioUrl,
       apiKey: token,
-      config,
       configs,
       hooks,
       id: ci.id,

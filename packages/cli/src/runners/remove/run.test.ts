@@ -53,6 +53,19 @@ afterEach(async () => {
 })
 
 describe('kubb remove', () => {
+  it('stops after the preview with --dry-run: no uninstall, no config write, no question', async () => {
+    await run({ id: 'acme/plugin-x', yes: false, uninstall: true, dryRun: true })
+
+    const printed = output.join('\n')
+    expect(printed).toContain('  - plugins: [pluginX()],')
+    expect(printed).toContain('Uninstalls @acme/kubb-plugin-x')
+    expect(printed).toContain('Dry run: nothing was uninstalled or written. Run the same command without --dry-run to remove it.')
+    expect(uninstallPackages).not.toHaveBeenCalled()
+    expect(clack.confirm).not.toHaveBeenCalled()
+    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toBe(config('pluginX()'))
+    expect(process.exitCode).toBeUndefined()
+  })
+
   it('removes the plugin from the config and uninstalls its package', async () => {
     await run({ id: 'acme/plugin-x', yes: true, uninstall: true })
 

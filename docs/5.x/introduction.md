@@ -15,7 +15,7 @@ navigation:
 
 Kubb generates code from API specifications: TypeScript types, API clients, query hooks, validators, and mocks. Regenerate when your specification changes to keep these files in sync with your API, then import them in your application.
 
-Choose the outputs you need with plugins in one `kubb.config.ts` file. Generated files belong to your project. The default [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) supports OpenAPI 2.0, 3.0, and 3.1.
+Choose the outputs you need with plugins in one `kubb.config.ts` file. Generated files belong to your project. The default [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) reads OpenAPI 2.0, 3.0, 3.1, and 3.2. It does not validate a 3.2 document yet.
 
 ## Features
 
@@ -26,7 +26,7 @@ Choose the outputs you need with plugins in one `kubb.config.ts` file. Generated
 
 ## See it work
 
-The animation below follows a spec through Kubb's generation pipeline. The adapter turns schemas and operations into AST nodes, then plugins generate files from those nodes.
+The animation below follows a specification through Kubb's generation pipeline. The adapter turns schemas and operations into AST nodes, then plugins generate files from those nodes.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'

@@ -1,18 +1,21 @@
+import { hash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { ast, type InputNode, type SchemaNode } from '@kubb/ast'
 import type { Hookable } from './Hookable.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 import type { KubbHooks, UserConfig } from './types.ts'
 
-// Skips the target a ref embeds, so recursive schemas serialize and only the ref itself is compared.
+// Skips the target a ref embeds, so recursive schemas serialize and only the ref itself is compared. Hashed, so
+// comparing many large specs holds one digest per schema, not its JSON.
 function toShape(node: SchemaNode): string {
-  return JSON.stringify(node, function (key, value) {
+  const json = JSON.stringify(node, function (key, value) {
     return key === 'schema' && this.type === 'ref' ? undefined : value
   })
+  return hash('sha256', json)
 }
 
 /**
- * What one config of a `defineConfig([...])` array shares with the others. Pass it to `createKubb` as `sharedSchemas`.
+ * What one config of a `defineConfig([...])` array shares with the others.
  */
 export type SharedSchemas = {
   /**
@@ -28,12 +31,12 @@ export type SharedSchemas = {
 
 type GroupMember = { config: UserConfig; root: string; index: number }
 
-// The sources each run wrote under a shared directory, keyed by file path, so a config that writes one differently is reported.
+// A digest of each file a run wrote under a shared directory, keyed by file path, so a config that writes one differently is reported.
 const sharedWrites = new WeakMap<SharedSchemas, Map<string, string>>()
 
 /**
- * The sources the configs sharing `entry`'s directory have written under it in this run. Empty for an entry that did not
- * come from `detectSharedSchemas`.
+ * A digest of each file the configs sharing `entry`'s directory have written under it in this run. Empty for an entry
+ * that did not come from `detectSharedSchemas`.
  */
 export function getSharedWrites(entry: SharedSchemas): Map<string, string> {
   return sharedWrites.get(entry) ?? new Map()

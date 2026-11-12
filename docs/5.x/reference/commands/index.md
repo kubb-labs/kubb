@@ -19,15 +19,15 @@ USAGE:
   kubb [COMMANDS] <OPTIONS> [<input>]
 
 COMMANDS:
-  [generate] <OPTIONS> [<input>]      Generate TypeScript types, API clients, React Query hooks, Zod schemas, and more from an OpenAPI specification. Reads kubb.config.ts by default. Pass an OpenAPI file path as the first argument to override the input without editing the config.
-  add <OPTIONS> [<input>]             Install a plugin, adapter, or parser from the Kubb registry at its reviewed version. A plugin or parser is added to kubb.config.ts, an adapter prints the code to add. Reads KUBB_REGISTRY to use another registry.
-  init <OPTIONS> [<input>]            Scaffold a kubb.config.ts and install plugins for code generation from an OpenAPI spec. Run without flags for interactive setup, or pass --input, --output, and --plugins to skip the prompts.
-  list <OPTIONS> [<input>]            List the installed Kubb extensions: their registry id, package, installed version, the version the Kubb registry pins, and whether an update exists.
-  mcp <OPTIONS> [<input>]             Start a Model Context Protocol (MCP) server that exposes Kubb code generation as tools for AI assistants. Once running, configure your AI client (Claude, Cursor, Windsurf, etc.) to connect to it — the assistant can then call kubb generate directly without leaving the chat.
+  [generate] <OPTIONS> [<input>]      Generate types, clients, hooks, and schemas from an OpenAPI specification.
+  add <OPTIONS> [<input>]             Find and install plugins, adapters, and parsers from the Kubb registry.
+  init <OPTIONS> [<input>]            Set up a config, install plugins, and run the first generation.
+  list <OPTIONS> [<input>]            List installed extensions, their versions, and available updates.
+  mcp <OPTIONS> [<input>]             Start an MCP server for code generation from an AI assistant.
   remove <OPTIONS> [<input>]          Remove a plugin or parser from kubb.config.ts and uninstall its package.
   studio <OPTIONS> [<input>]          Connect this project to Kubb Studio, or manage its pairing and snapshots.
-  update <OPTIONS> [<input>]          Update installed extensions to the version the Kubb registry pins. Pass ids to update only those, or --dry-run to list the updates without installing.
-  validate <OPTIONS> [<input>]        Parse and validate an OpenAPI/Swagger file for structural correctness. Reports schema errors, missing required fields, and malformed references. Use this before running generate to catch spec issues early.
+  update <OPTIONS> [<input>]          Update installed extensions, regenerate, and summarize file changes.
+  validate <OPTIONS> [<input>]        Check a specification with the configured adapter before generating.
 
 For more info, run any command with the `--help` flag:
   kubb --help
@@ -41,7 +41,7 @@ For more info, run any command with the `--help` flag:
   kubb validate --help
 ```
 
-Run `kubb` with no command and it runs `kubb generate`. After the commands, `kubb --help` lists the `generate` arguments, options, and examples, which [`kubb generate`](/docs/5.x/reference/commands/generate) documents.
+Without a command, `kubb` runs `kubb generate`. After the commands, `kubb --help` lists the `generate` arguments, options, and examples, which [`kubb generate`](/docs/5.x/reference/commands/generate) documents.
 
 ## Available commands
 
@@ -68,4 +68,4 @@ The CLI reads these shared environment variables.
 | `KUBB_DEBUG`             | `boolean` | all      | Turn on source maps, so stack traces point at the original source. Set it to `1` or `true`. Off by default because it slows startup. |
 | `KUBB_HOME`              | `string`  | `studio` | Directory the CLI keeps its Studio state in. Defaults to `~/.kubb`.             |
 | `KUBB_TOKEN`             | `string`  | `studio snapshot` | Organization CI API key. Same as `--token`.                            |
-| `KUBB_REGISTRY`          | `string`  | `add`, `update`, `list`, `remove` | Base URL of the extension registry. Defaults to `https://kubb.dev/registry`. |
+| `KUBB_REGISTRY`          | `string`  | `init`, `add`, `update`, `list`, `remove` | Base URL of the extension registry. Defaults to `https://kubb.dev/registry`. |

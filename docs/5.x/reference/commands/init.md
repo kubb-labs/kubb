@@ -15,7 +15,6 @@ navigation:
 
 Run `kubb init` for an interactive setup wizard. Kubb looks at your project first, asks a few questions, shows the config for review, then installs your chosen plugins, writes `kubb.config.ts`, and runs the first generation.
 
-
 ## Usage
 
 Run the command in the directory where your Kubb project lives:
@@ -27,12 +26,12 @@ npx kubb init
 Before the first question, Kubb detects:
 
 - The package manager (`bun`, `pnpm`, `npm`, or `yarn`).
-- OpenAPI and Swagger files in the repo, such as `openapi.yaml` or `api/swagger.json`, up to three folders deep. It skips `node_modules`, `dist`, `build`, and hidden folders, and shows the version and operation count of the first one.
+- OpenAPI and Swagger files in the repo, such as `openapi.yaml` or `api/swagger.json`, up to three folders deep. It skips `node_modules`, `dist`, `build`, `coverage`, and hidden folders, and shows the version and operation count of the first one.
 
 The wizard then asks for three things:
 
 - Which spec to read: a file it found, a URL, or another file.
-- Which [plugins](/extensions/kind/plugins) to add. The list comes from the [Kubb registry](/docs/5.x/reference/registry), with `plugin-ts` selected by default. Choose the plugins you need; the CLI does not infer them from your framework or installed libraries. Plugin manifests declare which dependencies a selection requires.
+- Which [plugins](/extensions/kind/plugins) to add. The list comes from the [Kubb registry](/docs/5.x/reference/registry), with `plugin-ts` selected by default. Choose the plugins you need. The CLI does not infer them from your framework or installed libraries. Plugin manifests declare which dependencies a selection requires.
 - The output folder, `./src/gen` by default.
 
 Kubb then shows the full `kubb.config.ts` and the packages it installs. Pick **Change a choice** to answer the questions again.
@@ -41,7 +40,7 @@ After you confirm, Kubb installs the packages, writes `kubb.config.ts`, and adds
 
 Kubb installs `kubb` at the exact version of the CLI you ran. Each plugin is added the way [`kubb add`](/docs/5.x/reference/commands/add) adds it: at the version the registry pins, and only when it supports the running Kubb and Node.js versions.
 
-Before it installs anything, Kubb checks the [manifest](/docs/5.x/reference/kit/manifest) of each chosen plugin. If a plugin's `dependencies` are not all chosen, or a plugin with `role: "consumer"` (such as `plugin-react-query`) has no client plugin next to it, `kubb init` names what is missing and stops.
+Before it installs anything, Kubb checks the [manifest](/docs/5.x/reference/kit/manifest) of each chosen plugin. The check fails when a plugin's `dependencies` are not all chosen, or when a plugin with `role: "consumer"` (such as `plugin-react-query`) has no client plugin next to it. The wizard then names what is missing and asks the questions again. With `--yes` or all three value flags, `kubb init` names what is missing and exits with code 1.
 
 ## Options
 
@@ -51,7 +50,7 @@ Before it installs anything, Kubb checks the [manifest](/docs/5.x/reference/kit/
 | `--input`, `-i`  |         | Path to the OpenAPI specification (local file or URL). Bypasses the spec path prompt.                                                                                                                                                                               |
 | `--output`, `-o` |         | Output directory for generated files. Bypasses the output directory prompt.                                                                                                                                                                                         |
 | `--plugins`      |         | Comma-separated registry ids of the plugins to add, the same ids [`kubb add`](/docs/5.x/reference/commands/add) takes, such as `plugin-ts,plugin-zod`, or short names such as `ts,zod`. Bypasses the plugin selection prompt. An id that is not in the registry stops `kubb init`. |
-| `--dry-run`     | `false` | Preview the wizard without installing packages, writing files, or running the first generation.                                                                                                                                                                  |
+| `--dry-run`      | `false` | Preview the wizard without installing packages, writing files, or running the first generation.                                                                                                                                                                  |
 
 Each flag skips only its own prompt and combines with `--yes`. Pass all three value flags to skip the choice prompts and review. If `kubb.config.ts` already exists, Kubb still asks before overwriting it unless you pass `--yes`.
 

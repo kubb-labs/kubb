@@ -1,4 +1,4 @@
 > [!NOTE]
-> Bundler integrations apply fewer defaults than the CLI: no Markdown parser, no reporters, and no `output.postGenerate` commands. Use the CLI when you need them. See [Defaults](/docs/5.x/reference/configuration#defaults).
+> Bundler integrations apply the same defaults as `defineConfig`, and run `output.format`, `output.lint`, and `output.postGenerate` during the build. They print a summary but do not run the `json`, `file`, or `html` reporters. Use the CLI when you need those reports. See [Defaults](/docs/5.x/reference/configuration#defaults).
 
 ::

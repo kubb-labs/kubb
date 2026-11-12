@@ -12,11 +12,11 @@ snapshot:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 ```
 
-With `kubb` and `tsdown` in the development dependencies, `npm ci` is the only setup. The `rules` run the job on merge request pipelines and on the default branch, so a merge request has a snapshot of its target branch to compare with.
+With `kubb` and `tsdown` in the development dependencies, `npm ci` is the only setup. The `rules` run the job on merge request pipelines and on the default branch. A merge request then has a snapshot of its target branch to compare with.
 
 ### Post the result as a note
 
-Use `--json` to capture the snapshot result, then post it as a merge request note with this script. It updates the same note on each pipeline and uses only Node:
+Use `--json` to capture the snapshot result, then post it as a merge request note with this script. The script updates the same note on each pipeline and uses only Node:
 
 ```js [scripts/kubb-note.mjs]
 import { readFileSync } from 'node:fs'
@@ -54,4 +54,4 @@ if (!response.ok) throw new Error(`GitLab answered ${response.status}`)
 ```
 
 > [!IMPORTANT]
-> Writing a note needs a project access token with the `api` scope, stored as `GITLAB_API_TOKEN`. `CI_JOB_TOKEN` does not carry it.
+> Writing a note needs a project access token with the `api` scope, stored as `GITLAB_API_TOKEN`. `CI_JOB_TOKEN` does not carry that scope.

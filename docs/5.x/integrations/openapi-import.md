@@ -17,7 +17,7 @@ navigation:
 import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
 ```
 
-It is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/pull/4712), so `tsc` and your editor type-check the plugin output in place of the spec. Go to definition, hover, and rename jump between the generated types and the keys in the spec.
+`openapi-import` is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/pull/4712), so `tsc` and your editor type-check the plugin output in place of the spec. Go to definition, hover, and rename jump between the generated types and the keys in the spec.
 
 > [!WARNING]
 > `openapi-import` is experimental. It needs TypeScript 7.1.0-beta or later with `--runExternalCode`.

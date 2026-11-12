@@ -1,3 +1,4 @@
+import { hash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { inParallel, isPathInside, matchesStored, toError } from '@internals/utils'
 import { ast, type CodeNode, type FileNode } from '@kubb/ast'
@@ -30,7 +31,7 @@ type WriteOptions = ParseOptions & {
    */
   cleaned?: Array<string>
   /**
-   * The absolute `shared.path` with the sources every config of this run wrote under it, keyed by file path.
+   * The absolute `shared.path` with a digest of what every config of this run wrote under it, keyed by file path.
    */
   shared?: { path: string; written: Map<string, string> }
   /**
@@ -335,9 +336,11 @@ export class FileManager {
         const source = await this.parse(file, { parsers })
         if (source) {
           if (shared && isPathInside(file.path, shared.path)) {
+            // A digest, so a run does not hold every shared file's source until its last config has built.
+            const digest = hash('sha256', source)
             const first = shared.written.get(file.path)
-            if (first === undefined) shared.written.set(file.path, source)
-            if (first !== undefined && first !== source) mismatched.push(file.path)
+            if (first === undefined) shared.written.set(file.path, digest)
+            if (first !== undefined && first !== digest) mismatched.push(file.path)
           }
           if (!(await writeChanged({ storage, manifest, file, source, signal, cleaned }))) unchanged.push(file.path)
           await hooks?.callHook('kubb:file:processed', { file, source })

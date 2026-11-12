@@ -21,7 +21,7 @@ navigation:
 ```typescript [vite.config.ts]
 import kubb from 'kubb/vite'
 import { defineConfig } from 'vite'
-import config from './kubb.config'
+import config from './kubb.config.ts'
 
 export default defineConfig({
   plugins: [kubb({ config })],

@@ -2,15 +2,14 @@ import path from 'node:path'
 import { adapterOas } from '@kubb/adapter-oas'
 import {
   cliReporter,
-  type Config,
   createCliReporter,
-  createKubb,
-  detectSharedSchemas,
+  type Diagnostic,
   Diagnostics,
   fileReporter,
   Hookable,
   htmlReporter,
   jsonReporter,
+  Kubb,
   type KubbHooks,
   logLevel,
   type ProblemDiagnostic,
@@ -39,7 +38,7 @@ export type Options = {
  * - `parsers` defaults to `[parserTs(), parserTsx(), parserMd()]`
  * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter, htmlReporter]`
  * - `plugins` gets `pluginBarrel()` appended when none is already present
- * - `output.barrel` defaults to `false` when not set (`pluginBarrel` is always present after the step above, but generates nothing until configured)
+ * - `output.barrel` defaults to `false` when not set (only the root barrel is off: plugins whose default `output` carries `barrel: { type: 'named' }` still get their own barrel)
  * - `output.format` and `output.lint` default to `false`
  */
 export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
@@ -102,15 +101,16 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
 
   async function runBuild() {
     const configs = (await loadConfigs()).filter((config) => config.input).map(applyDefaults)
-    const sharedByConfig = await detectSharedSchemas({ configs, hooks })
-    for (const [index, config] of configs.entries()) {
-      const result = await createKubb(config as Config, { hooks, sharedSchemas: sharedByConfig[index] }).generate()
-      if (result.success) continue
-
-      const failedCount = Diagnostics.failedPlugins(result.diagnostics).length
-      const firstError = result.diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
-      throw fail(firstError, failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed'))
+    // Every config builds, so a failing one does not hide the others' output or errors. The first failure fails the host build.
+    let failed: Array<Diagnostic> | undefined
+    for await (const { success, diagnostics } of Kubb.generate(configs, { hooks })) {
+      if (!success) failed ??= diagnostics
     }
+    if (!failed) return
+
+    const failedCount = Diagnostics.failedPlugins(failed).length
+    const firstError = failed.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
+    throw fail(firstError, failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed'))
   }
 
   // A rerun with `output.clean` loops webpack and Rspack watchers, so generate once per instance.

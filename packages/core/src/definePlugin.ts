@@ -209,7 +209,8 @@ type ByMethod = {
   type: 'method'
   /**
    * HTTP method to match, as one of the `HttpMethod` values (`'GET'`, `'POST'`, `'PUT'`,
-   * `'PATCH'`, `'DELETE'`, `'HEAD'`, `'OPTIONS'`, `'TRACE'`, `'QUERY'`) or a regex.
+   * `'PATCH'`, `'DELETE'`, `'HEAD'`, `'OPTIONS'`, `'TRACE'`, `'QUERY'`) or a regex. Matching ignores
+   * case, so `'get'` and `/get/` work too.
    */
   pattern: HttpMethod | RegExp
 }

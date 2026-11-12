@@ -5,10 +5,10 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
-import { createKubb } from './createKubb.ts'
+import { createKubb, Kubb } from './createKubb.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { defineExtension } from './defineExtension.ts'
-import type { Config, KubbHooks } from './types.ts'
+import type { Config, KubbHooks, UserConfig } from './types.ts'
 import type { Adapter } from './createAdapter.ts'
 import type { Plugin } from './definePlugin.ts'
 import { resolveCacheDir } from './storages/cacheStorage.ts'
@@ -255,12 +255,11 @@ describe('createKubb', () => {
 
   it('output.clean raises a KUBB_CLEAN_ROOT diagnostic when shared.path is the project root', async () => {
     const root = path.join(os.tmpdir(), 'kubb-clean-guard')
-    const kubb = createKubb(makeConfig({ ...config, root, output: { path: './gen', clean: true }, shared: { path: '.' } }), {
-      hooks: new Hookable<KubbHooks>(),
-      sharedSchemas: { names: [], clean: true },
-    })
+    const shared = makeConfig({ ...config, root, output: { path: './gen', clean: true }, shared: { path: '.' } })
 
-    await expect(kubb.setup()).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.cleanRoot, help: expect.stringContaining('`shared.path`') } })
+    const [first] = await Array.fromAsync(Kubb.generate([shared, shared]))
+
+    expect(first!.diagnostics).toContainEqual(expect.objectContaining({ code: Diagnostics.code.cleanRoot, help: expect.stringContaining('`shared.path`') }))
   })
 
   it('keeps the previous output when output.clean is set and the run fails before writing', async () => {
@@ -431,6 +430,94 @@ describe('createKubb', () => {
       ])
     })
 
+    it('matches a method filter in either case', async () => {
+      const operations = ['GET', 'POST'].map((method) =>
+        ast.factory.createOperation({ operationId: method, method: method as 'GET', path: '/pets', parameters: [], responses: [], tags: [] }),
+      )
+      const run = async (pattern: string | RegExp) => {
+        const seen: Array<string> = []
+        const plugin = defineExtension({
+          kind: 'plugin',
+          meta: { name: 'method-filter-plugin' },
+          hooks: {
+            'kubb:plugin:setup'(ctx) {
+              ctx.setOptions({ output: { path: '.' }, exclude: [], override: [], include: [{ type: 'method', pattern }] } as never)
+              ctx.addGenerator({ name: 'method-filter-gen', operation: (node) => void seen.push(node.operationId) })
+            },
+          },
+        })()
+
+        await createKubb(makeConfig({ adapter: makeAdapter({ operations }), plugins: [plugin as unknown as Plugin] }), {
+          hooks: new Hookable<KubbHooks>(),
+        }).build()
+
+        return seen
+      }
+
+      for (const pattern of ['GET', 'get', /GET/, /get/, /^GET$/]) expect(await run(pattern)).toEqual(['GET'])
+      expect(await run('DELETE')).toEqual([])
+      // A negative pattern written for the lowercase name keeps excluding the method.
+      for (const pattern of [/^(?!get$)/, '^(?!GET$)']) expect(await run(pattern)).toEqual(['POST'])
+    })
+
+    it('rejects a single-file override output under a group, like the plugin output', async () => {
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'override-group-plugin' },
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.setOptions({
+              output: { path: 'types' },
+              group: { type: 'tag' },
+              override: [{ type: 'schemaName', pattern: 'A', options: { output: { path: 'admin.ts' } } }],
+            } as never)
+          },
+        },
+      })()
+
+      const { diagnostics } = await createKubb(makeConfig({ plugins: [plugin as unknown as Plugin] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
+
+      expect(diagnostics.map((diagnostic) => diagnostic.code)).toContain(Diagnostics.code.invalidPluginOptions)
+    })
+
+    it('gives an override output its mode', async () => {
+      const seen: Array<unknown> = []
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'override-output-plugin' },
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.setOptions({
+              output: { path: 'types' },
+              exclude: [],
+              override: [
+                { type: 'schemaName', pattern: 'A', options: { output: { path: 'admin' } } },
+                { type: 'schemaName', pattern: 'B', options: { output: { path: 'admin.ts' } } },
+              ],
+            } as never)
+            ctx.addGenerator({
+              name: 'override-output-gen',
+              schema: (_node, generatorCtx) => void seen.push((generatorCtx.options as { output: unknown }).output),
+            })
+          },
+        },
+      })()
+
+      await createKubb(
+        makeConfig({
+          adapter: makeAdapter({ schemas: ['A', 'B', 'C'].map((name) => ast.factory.createSchema({ name, type: 'string' })) }),
+          plugins: [plugin as unknown as Plugin],
+        }),
+        { hooks: new Hookable<KubbHooks>() },
+      ).build()
+
+      expect(seen).toEqual([
+        { path: 'admin', mode: 'directory' },
+        { path: 'admin.ts', mode: 'file' },
+        { path: 'types', mode: 'directory' },
+      ])
+    })
+
     it('passes the same transformed node to operation and operations generators', async () => {
       const perNode: Array<OperationNode> = []
       let batch: Array<OperationNode> = []
@@ -529,6 +616,11 @@ describe('Kubb#generate', () => {
     hooks.hook('kubb:generation:end', ({ status }) => {
       endStatus = status
     })
+    let summary: unknown
+    hooks.hook('kubb:generation:summary', (ctx) => {
+      // Emitted after `kubb:generation:end`.
+      if (endStatus) summary = ctx
+    })
 
     const result = await createKubb(makeConfig({ root: tempRoot(), storage: fsStorage() }), { hooks }).generate({
       processOutput: async () => [diagnostic],
@@ -537,6 +629,7 @@ describe('Kubb#generate', () => {
     expect(result.success).toBe(false)
     expect(result.diagnostics).toContain(diagnostic)
     expect(endStatus).toBe('failed')
+    expect(summary).toStrictEqual({ duration: expect.any(Number), fileCount: 0, failedPlugins: 0, status: 'failed' })
   })
 
   it.each([['skips processOutput when the storage keeps the output in memory', memoryStorage, 0]])('%s', async (_name, storage, calls) => {
@@ -658,5 +751,47 @@ describe('Kubb#generate', () => {
     await project.generate(build)
 
     expect(project.hasManifest()).toBe(false)
+  })
+})
+
+describe('Kubb.generate', () => {
+  it('builds again from the same instance after a build released its driver', async () => {
+    const kubb = createKubb(makeConfig({ adapter: makeAdapter({ schemas: makeSchemas(2) }), plugins: [makeSchemaPlugin('types')] }))
+
+    const first = await kubb.safeBuild()
+    const second = await kubb.safeBuild()
+
+    expect(second.files.map((file) => file.path)).toStrictEqual(first.files.map((file) => file.path))
+    expect(second.files).toHaveLength(2)
+  })
+
+  it("yields a config's result before it builds the next config", async () => {
+    const parse = vi.fn(async () => ast.factory.createInput())
+    const later = makeConfig({ adapter: createMockedAdapter({ parse }) })
+
+    const results = Kubb.generate([makeConfig(), later])
+    await results.next()
+
+    expect(parse).not.toHaveBeenCalled()
+    await results.return()
+  })
+
+  it('generates the configs after one that fails, and marks only that one failed', async () => {
+    const config = (parse?: () => Promise<never>) =>
+      ({
+        root: '/project',
+        input: './spec.json',
+        output: { path: './gen' },
+        adapter: createMockedAdapter({ parse }),
+        storage: memoryStorage(),
+      }) satisfies UserConfig
+    const broken = config(async () => {
+      throw new Error('Cannot read the spec')
+    })
+
+    const results = await Array.fromAsync(Kubb.generate([broken, config()]))
+
+    expect(results.map((result) => result.success)).toStrictEqual([false, true])
+    expect(results.map((result) => result.kubb.config.adapter)).toStrictEqual([broken.adapter, expect.anything()])
   })
 })

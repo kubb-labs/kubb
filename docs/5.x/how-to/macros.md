@@ -15,11 +15,11 @@ navigation:
 
 Use a macro to transform schema or operation nodes before generation. Macros can rename symbols, change field types, or remove metadata across output targets.
 
-Import the macro engine through `ast` from `kubb/kit`. For callback signatures and context properties, see the [AST reference](/docs/5.x/reference/kit/ast#macros).
+Import `defineMacro` from `kubb/kit`. The engine that applies macros, `ast.macro.apply`, is on `ast` from the same package. For callback signatures and context properties, see the [AST reference](/docs/5.x/reference/kit/ast#macros).
 
 ## Writing a macro
 
-Define the node transformation:
+A macro has a `name` and one callback per node kind, such as `schema` or `operation`. Return a new node to replace the current one, or `undefined` to keep it.
 
 ```typescript [macro.ts]
 import { defineMacro } from 'kubb/kit'
@@ -71,7 +71,7 @@ export const pluginRename = defineExtension({
 })
 ```
 
-Together, the two macros on this page turn a `Pet` schema node into the node on the right. Hover a line to see what changed it.
+`macroIntegerToString` and `macroDropDescriptions` together turn a `Pet` schema node into the node on the right. Hover a line to see which macro changed it.
 
 ::flow-diagram{preset="macros"}
 ::
@@ -79,10 +79,10 @@ Together, the two macros on this page turn a `Pet` schema node into the node on 
 Macros run before the resolver names anything, so a renamed `operationId` or `SchemaNode.name` carries through to generated names, paths, and files.
 
 > [!TIP]
-> Keep macros pure. Build a new node and return it rather than mutating the input, since the AST is shared by reference.
+> Keep macros pure. Build a new node and return it instead of mutating the input, because every plugin shares the same AST nodes.
 
 > [!WARNING]
-> Do not rename a schema by changing only the declaration's `name`. Every `$ref` to it still resolves to the old name, so imports and printed references point at a file the plugin no longer emits. Rename the declaration and set `targetName` on every ref pointing at it in one macro, and register that macro on every plugin that touches the schema.
+> If a macro changes only the declaration's `name`, every `$ref` to the schema still resolves to the old name. Imports and printed references then point at a file the plugin no longer emits. Rename the declaration and set `targetName` on every ref pointing at it in one macro, and register that macro on every plugin that reads the schema.
 
 Copy this macro into your project. It renames the declaration and every ref pointing at it in one pass.
 
@@ -133,7 +133,7 @@ export default defineConfig({
 
 ## Use the built-in macros
 
-`kubb/kit` exports presets for common normalizations. Compose them with your own through a plugin's `macros` option. See the [built-in macros table](/docs/5.x/reference/kit/ast#macros) for what each one does.
+`kubb/kit` exports built-in macros for common normalizations. Combine them with your own through a plugin's `macros` option. See the [built-in macros table](/docs/5.x/reference/kit/ast#macros) for what each one does.
 
 ```typescript [presets.ts]
 import { ast, macroDedupeUnion, macroDiscriminatorEnum } from 'kubb/kit'

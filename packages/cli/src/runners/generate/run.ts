@@ -7,18 +7,16 @@ import {
   type CLIOptions,
   cliReporter,
   type Config,
-  createKubb,
-  detectSharedSchemas,
   Diagnostics,
   fileReporter,
   getInputKind,
   htmlReporter,
   jsonReporter,
+  Kubb,
   type KubbHooks,
   logLevel as logLevelMap,
   memoryStorage,
   type ReporterName,
-  type SharedSchemas,
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { trackRun } from '../../Telemetry.ts'
@@ -47,51 +45,46 @@ type LinterName = Exclude<NonNullable<Config['output']['lint']>, 'auto' | false>
 formatters satisfies Record<FormatterName, unknown>
 linters satisfies Record<LinterName, unknown>
 
-type GenerateProps = {
-  input?: string
-  config: Config
-  hooks: Hookable<KubbHooks>
-  /**
-   * When `true`, generates in memory instead of writing to disk, skips formatting, linting, and
-   * post-generate commands, and prints what would change on disk.
-   */
-  dryRun?: boolean
-  /**
-   * This config's entry from `detectSharedSchemas`.
-   */
-  sharedSchemas?: SharedSchemas
+function toRunConfig({ config, input, dryRun }: { config: Config; input?: string; dryRun: boolean }): Config {
+  return {
+    ...config,
+    input: input ?? config.input,
+    // Dry-run never touches disk, regardless of the config's own storage driver.
+    storage: dryRun ? memoryStorage() : config.storage,
+    // Also keeps core's `hasOutputPasses` false, so dry-run skips the output manifest write too.
+    output: dryRun ? { ...config.output, format: false, lint: false, postGenerate: [] } : config.output,
+  }
 }
 
-export async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, dryRun = false, sharedSchemas } = options
+type GenerateProps = {
+  configs: Array<Config>
+  hooks: Hookable<KubbHooks>
+}
 
-  const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
-
-  const config: Config = {
-    ...options.config,
-    input: input ?? options.config.input,
-    // Dry-run never touches disk, regardless of the config's own storage driver.
-    storage: dryRun ? memoryStorage() : options.config.storage,
-    // Also keeps core's `hasOutputPasses` false, so dry-run skips the output manifest write too.
-    output: dryRun ? { ...options.config.output, format: false, lint: false, postGenerate: [] } : options.config.output,
-  }
-
-  // Core formats, lints and runs `output.postGenerate` after an error-free build, and reports
-  // their failures as coded diagnostics that reach the summary, the json report and the exit code.
-  const kubb = createKubb(config, { hooks, sharedSchemas })
-  const result = await kubb.generate()
-
-  // Not awaited: the request finishes in the background, capped by its timeout, so it never delays the summary.
-  void report({
-    // A setup that threw leaves no driver, so read the configured plugins instead.
-    plugins: kubb.config.plugins.flatMap((p) =>
-      p && typeof p === 'object' ? [{ name: p.meta?.name ?? p.name ?? '', options: (p.options ?? {}) as Record<string, unknown> }] : [],
-    ),
-    filesCreated: result.files.length,
-    status: result.success ? 'success' : 'failed',
+/**
+ * Generates the configs and returns whether every build succeeded.
+ */
+export async function generate({ configs, hooks }: GenerateProps): Promise<boolean> {
+  // Not awaited: each request finishes in the background, capped by its timeout, so it never delays the summary.
+  const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
+    void trackRun({ command: 'generate', hrStart })({
+      plugins: config.plugins.flatMap((p) =>
+        p && typeof p === 'object' ? [{ name: p.meta?.name ?? p.name ?? '', options: (p.options ?? {}) as Record<string, unknown> }] : [],
+      ),
+      filesCreated,
+      status,
+    })
   })
-
-  return result.success
+  let succeeded = true
+  try {
+    for await (const { success, error } of Kubb.generate(configs, { hooks })) {
+      if (error) await Diagnostics.emit(hooks, error)
+      succeeded &&= success
+    }
+  } finally {
+    untrack()
+  }
+  return succeeded
 }
 
 type GenerateCommandOptions = {
@@ -135,11 +128,76 @@ function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: Build
 }
 
 /**
+ * Generates the configs, then again whenever a local `input` file changes. Returns whether the build succeeded when there is no file to watch.
+ */
+async function watch({ configs, hooks, quiet }: GenerateProps & { quiet: boolean }): Promise<boolean> {
+  const watchPaths = [...new Set(configs.flatMap(({ input }) => (typeof input === 'string' && getInputKind(input) === 'file' ? [input] : [])))]
+  if (!watchPaths.length) {
+    if (!quiet) logWarn('Watch mode only follows a local `input` file, so the configs are generated once.')
+    return generate({ configs, hooks })
+  }
+
+  const label = styleText('yellow', `Watching ${watchPaths.map((watchPath) => path.relative(process.cwd(), watchPath)).join(', ')}`)
+  const tracker = trackBuild(hooks)
+  let previous: BuildSnapshot | undefined
+  // Don't removeAll() between builds, that would also drop logger and lifecycle
+  // listeners. Plugin listeners are already disposed by safeBuild's dispose()
+  // in its finally block, so re-running generate() on the same hooks emitter is safe.
+  const build = async () => {
+    const hrStart = process.hrtime()
+    // Every config builds again, since an edited spec can change what the configs share.
+    const succeeded = await generate({ configs, hooks })
+    const snapshot = tracker.take()
+    if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
+    previous = snapshot
+
+    logStep(armKeys ? `${label}  ${styleText('dim', 'r rebuild · q quit')}` : label)
+    armKeys?.()
+    if (succeeded) {
+      logSpacer()
+      logTip()
+    }
+  }
+  // A trigger that lands while a build is queued joins it. One that lands during the build queues one more. Never rejects.
+  let queue = Promise.resolve()
+  let pending = false
+  const rebuild = (): Promise<void> => {
+    if (pending) return queue
+    pending = true
+    queue = queue
+      .then(() => {
+        pending = false
+        return build()
+      })
+      .catch((error) => void Diagnostics.emit(hooks, error))
+    return queue
+  }
+  const armKeys = quiet
+    ? undefined
+    : listenForKeys({
+        rebuild: () => void rebuild(),
+        quit: (code) => void Promise.resolve(hooks.callHook('kubb:lifecycle:end')).finally(() => process.exit(code)),
+      })
+
+  // The watcher ignores its startup state, so run the first build here. A failing one keeps watching so the user can fix the input.
+  await rebuild()
+  await startWatcher(watchPaths, rebuild, { info: logInfo, error: logError })
+  return true
+}
+
+/**
  * Runs the full Kubb generation lifecycle for the given CLI options.
  * Loads configs, sets up the reporters (CLI `--reporter` picks which of `config.reporters` to trigger),
  * calls `generate` for each config entry, and prints an update notice when the registry answered in time.
  */
-export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters, dryRun }: GenerateCommandOptions): Promise<void> {
+export async function run({
+  input,
+  configPath,
+  logLevel: logLevelKey,
+  watch: watchMode,
+  reporters: cliReporters,
+  dryRun,
+}: GenerateCommandOptions): Promise<void> {
   // Started first and never awaited: the notice prints at the end only when the registry has answered by then.
   const updateCheck = new AbortController()
   let latestVersion: string | undefined
@@ -157,18 +215,17 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   const json = requestedNames.includes('json')
   const quiet = logLevel <= logLevelMap.silent || json
 
-  // Errors raised outside a build have no report entry. In `json` mode they go to a stderr logger,
-  // so they are never silent and stdout stays one JSON document.
-  const errorHooks = json ? new Hookable<KubbHooks>() : hooks
-  if (json) setupReporters(errorHooks, { logLevel, reporters: [cliReporter], writer: createPlainWriter(console.error) })
+  // The run log goes to stderr in `json` mode, so an error with no report entry is never silent and stdout stays one JSON document.
+  if (json) setupReporters(hooks, { logLevel, reporters: [cliReporter], writer: createPlainWriter(console.error) })
 
   // The config loads while the banner plays; the output still prints in order once the banner is done.
   const banner = quiet ? undefined : logBanner(version)
   const loading = getConfigs({
     configPath,
     input,
-    watch,
+    watch: watchMode,
     logLevel: logLevelKey as CLIOptions['logLevel'],
+    reporters: cliReporters,
   })
   // Handled below; this keeps a rejection during the banner from counting as unhandled.
   loading.catch(() => undefined)
@@ -196,7 +253,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
     if (!json) setupReporters(hooks, { logLevel, reporters: [cliReporter] })
     // A diagnostic thrown while the config file runs, such as invalid extension options, sits in the cause chain.
-    await Diagnostics.emit(errorHooks, error)
+    await Diagnostics.emit(hooks, error)
 
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
     process.exit(1)
@@ -210,85 +267,13 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 
-  // What the configs share. The CLI `--input` replaces each config's input first, as `generate` does.
-  const detectShared = () => detectSharedSchemas({ configs: configs.map((config) => ({ ...config, input: input ?? config.input })), hooks })
-  let sharedByConfig = await detectShared()
+  const runConfigs = configs.map((config) => toRunConfig({ config, input, dryRun: dryRun ?? false }))
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
   try {
-    let anyFailed = false
-    // One tracker, one key listener and one build queue serve every watched config, so several configs never mix diffs or answer `r` twice.
-    const tracker = watch ? trackBuild(hooks) : undefined
-    const rebuilds: Array<() => Promise<void>> = []
-    let armKeys: (() => void) | undefined
-    // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
-    let queue = Promise.resolve()
-    for (const [index, config] of configs.entries()) {
-      const effectiveInput = input ?? config.input
-      const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
-      const watchPath = inputKind === 'file' ? (effectiveInput as string) : undefined
-      if (watchPath && tracker) {
-        const label = styleText('yellow', `Watching ${path.relative(process.cwd(), watchPath)}`)
-        let previous: BuildSnapshot | undefined
-        // Don't removeAll() between builds, that would also drop logger and lifecycle
-        // listeners. Plugin listeners are already disposed by safeBuild's dispose()
-        // in its finally block, so re-running generate() on the same hooks emitter is safe.
-        const build = async () => {
-          const hrStart = process.hrtime()
-          // An edited spec can change what its configs share.
-          if (previous) sharedByConfig = await detectShared()
-          const entry = sharedByConfig[index]
-          // A rebuild never empties the shared directory, since it would delete what the other configs wrote.
-          const sharedSchemas = previous && entry ? { ...entry, clean: false } : entry
-          const succeeded = await generate({ input, config, hooks, dryRun, sharedSchemas })
-          const snapshot = tracker.take()
-          if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
-          previous = snapshot
-
-          logStep(armKeys ? `${label}  ${styleText('dim', 'r rebuild · q quit')}` : label)
-          armKeys?.()
-          if (succeeded) {
-            logSpacer()
-            logTip()
-          }
-        }
-        // A trigger that lands while this config's build is queued joins it; one that lands during the build queues one more. Never rejects.
-        let pending = false
-        const rebuild = (): Promise<void> => {
-          if (pending) return queue
-          pending = true
-          queue = queue
-            .then(() => {
-              pending = false
-              return build()
-            })
-            .catch((error) => void Diagnostics.emit(errorHooks, error))
-          return queue
-        }
-        rebuilds.push(rebuild)
-        if (!quiet) {
-          armKeys ??= listenForKeys({
-            rebuild: () => rebuilds.forEach((trigger) => void trigger()),
-            quit: (code) => void Promise.resolve(hooks.callHook('kubb:lifecycle:end')).finally(() => process.exit(code)),
-          })
-        }
-
-        // The watcher ignores its startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
-        await rebuild()
-
-        await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
-      } else {
-        if (tracker && !quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
-        try {
-          const succeeded = await generate({ input, config, hooks, dryRun, sharedSchemas: sharedByConfig[index] })
-          if (!succeeded) anyFailed = true
-        } catch (configError) {
-          await Diagnostics.emit(errorHooks, configError)
-          anyFailed = true
-        }
-      }
-    }
+    // One config that fails does not stop the others.
+    const succeeded = await (watchMode ? watch({ configs: runConfigs, hooks, quiet }) : generate({ configs: runConfigs, hooks }))
 
     // A request still in flight would keep the process alive until its timeout.
     updateCheck.abort()
@@ -298,16 +283,16 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.
-    if (!quiet && !watch && !anyFailed) {
+    if (!quiet && !watchMode && succeeded) {
       logTip()
     }
 
     // `exitCode`, not `exit()`, so a telemetry request still in flight can finish within its timeout.
-    if (anyFailed) {
+    if (!succeeded) {
       process.exitCode = 1
     }
   } catch (error) {
-    await Diagnostics.emit(errorHooks, error)
+    await Diagnostics.emit(hooks, error)
     process.exit(1)
   }
 }

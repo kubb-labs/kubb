@@ -58,7 +58,7 @@ Export style for the barrel files. Required whenever `output.barrel` is set to a
 ::field-group
 
 :::field{name="'named'"}
-Re-exports each symbol by name from the file's named exports. Best for tree-shaking and explicit imports.
+Re-exports each symbol by name from the file's named exports. This style suits tree-shaking and explicit imports.
 :::
 
 :::field{name="'all'"}
@@ -111,7 +111,7 @@ export * from './User'
 // src/gen/api/index.ts re-exports its files and subdirectories
 export * from './user'
 export * from './post'
-export * from './types'
+export * from './types/index'
 
 // src/gen/api/types/index.ts re-exports its files
 export * from './User'
@@ -121,7 +121,7 @@ export * from './User'
 
 ### namespace
 
-Expose each immediate subdirectory as a named namespace, alongside its standalone exports. Editors can offer auto-imports for these namespaces when the generated files belong to the TypeScript project. This field works on a plugin's `output.barrel` only and enables nested barrels, even when `nested` is unset or `false`. The plugin needs its own `output.path`. A plugin that writes to the output root gets a warning and no namespaces.
+Exposes each immediate subdirectory as a named namespace, alongside its standalone exports. Editors can offer auto-imports for these namespaces when the generated files belong to the TypeScript project. This field works on a plugin's `output.barrel` only and enables nested barrels, even when `nested` is unset or `false`. The plugin needs its own `output.path`. A plugin that writes to the output root gets a warning and no namespaces.
 
 |          |           |
 | -------- | --------- |
@@ -133,6 +133,7 @@ For tag-grouped fetch clients, use `group.name` to name the service directories.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginFetch } from '@kubb/plugin-fetch'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -140,16 +141,19 @@ import { pluginTs } from '@kubb/plugin-ts'
 export default defineConfig({
   input: './petStore.yaml',
   output: { path: './src/gen', barrel: { type: 'named' } },
+  adapter: adapterOas({ integerType: 'number' }),
   plugins: [
     pluginTs({ output: { path: 'types' } }),
     pluginFetch({
       output: { path: 'client', barrel: { type: 'named', namespace: true } },
       group: { type: 'tag', name: ({ group }) => `${group}Service` },
     }),
-    pluginReactQuery({ output: { path: 'hooks' } }),
+    pluginReactQuery({ output: { path: 'hooks' }, hooks: true }),
   ],
 })
 ```
+
+`integerType: 'number'` types every `int64` as a `number`, so the example can pass `petId: 123`. A `number` loses precision above `Number.MAX_SAFE_INTEGER`. Keep the default `bigint` for larger ids and pass `123n`.
 
 For a `pet` tag, the operations land in `src/gen/client/petService/`. `src/gen/client/index.ts` exports both the operations and their PascalCase namespace:
 
@@ -161,10 +165,10 @@ export * as PetService from './petService/index'
 Both calling styles remain available alongside the generated hooks and query options:
 
 ```typescript [src/example.ts]
-import { PetService, getPet } from './gen/client'
+import { PetService, getPetById } from './gen/client'
 
-await PetService.getPet({ path: { petId: '123' } })
-await getPet({ path: { petId: '123' } })
+await PetService.getPetById({ path: { petId: 123 } })
+await getPetById({ path: { petId: 123 } })
 ```
 
 An enabled root barrel also forwards `PetService`. Namespace names use the PascalCase directory name. Names starting with a digit get an `_` prefix, and names with no letters or digits become `_`. Conflicting exports produce a diagnostic. Change `group.name` to resolve collisions.

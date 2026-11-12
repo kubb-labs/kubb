@@ -14,8 +14,7 @@ navigation:
 
 # kubb generate
 
-Run `kubb generate` to read your [`kubb.config.ts`](/docs/5.x/reference/configuration) and run the code-generation pipeline. It's the default command, so running `kubb` with no arguments does the same.
-
+Run `kubb generate` to read your [`kubb.config.ts`](/docs/5.x/reference/configuration) and run the code-generation pipeline. `generate` is the default command, so running `kubb` with no arguments does the same.
 
 ## Usage
 
@@ -53,7 +52,7 @@ kubb generate ./petStore.yaml
 
 `--watch` follows a local `input` file only. A URL or git input is generated once, so rerun Kubb after the remote spec changes.
 
-In `--watch` mode, each rebuild line shows the duration and the schemas and operations the spec gained or lost; the summary below it lists the files it added, modified, or removed. In an interactive terminal, press `r` to rebuild and `q` to quit.
+In `--watch` mode, each rebuild line shows the duration and the schemas and operations the spec gained or lost. The summary below it lists the files the rebuild added, modified, or removed. In an interactive terminal, press `r` to rebuild and `q` to quit.
 
 ## Reporters
 
@@ -79,7 +78,7 @@ File changes compare filesystem output with its contents before the run. Custom 
 | -------- | ------------------------------------------------------------------------------- |
 | `cli`    | The end-of-run summary in the terminal. Default. Uses plain text in non-interactive terminals and AI agent sessions. |
 | `json`   | A machine-readable report on stdout for CI. See [Diagnostics](/docs/5.x/reference/diagnostics#machine-readable-output) for the full JSON shape. |
-| `file`   | The run's diagnostics, written to `.kubb/kubb[-<name>]-<timestamp>.log`. The `<name>` segment is dropped when the config has no `name`. A run without diagnostics writes no file. |
+| `file`   | The run's summary, plugin timings, and problems, written to `.kubb/kubb[-<name>]-<timestamp>.log`. The `<name>` segment is dropped when the config has no `name`. |
 | `html`   | A browsable report directory with generated files and diagnostics, written to `.kubb/kubb[-<name>]-<timestamp>/index.html`. |
 
 Write a log file:
@@ -88,7 +87,7 @@ Write a log file:
 kubb generate --reporter file
 ```
 
-Print a JSON report for CI. The exit code is non-zero on any error:
+Print a JSON report for CI. Stdout holds only the report, and the run log goes to stderr. The exit code is non-zero on any error:
 
 ```shell [Terminal]
 kubb generate --reporter json

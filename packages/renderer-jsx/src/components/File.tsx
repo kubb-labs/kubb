@@ -62,7 +62,7 @@ type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value'> & {
 /**
  * Marks a block of source text to be associated with the enclosing {@link File}.
  *
- * Children are treated as the source string. `isExportable` prepends the `export` keyword,
+ * Children are treated as the source string. `isExportable` marks the source as an exported declaration,
  * `isIndexable` includes the source in barrel/index generation, and `name` keys deduplication.
  *
  * @example Exportable, indexable source block

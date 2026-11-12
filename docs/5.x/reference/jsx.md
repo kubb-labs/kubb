@@ -117,7 +117,7 @@ Marks a block of source text that belongs to the enclosing `File`. The children 
 | Prop | Type | Description |
 | --- | --- | --- |
 | `name?` | `string \| null` | Identifies the source for deduplication and barrel generation. |
-| `isExportable?` | `boolean \| null` | Prepend the `export` keyword. |
+| `isExportable?` | `boolean \| null` | Mark the source as an exported declaration. The source text still needs its own `export` keyword. |
 | `isIndexable?` | `boolean \| null` | Include the source in barrel and index generation. |
 | `isTypeOnly?` | `boolean \| null` | Mark the source as a type-only export. |
 | `inline?` | `{ expression: string } \| null` | Let importing files absorb the source instead of importing it. |
