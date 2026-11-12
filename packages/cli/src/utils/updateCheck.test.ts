@@ -97,7 +97,7 @@ describe('getLatestVersion', () => {
     expect(fetch).toHaveBeenCalledOnce()
   })
 
-  it('ignores and stores nothing for a version that is not valid semver', async () => {
+  it('ignores a registry version that is not valid semver', async () => {
     const fetch = mockRegistry('latest')
 
     expect(await getLatestVersion(new AbortController().signal)).toBeUndefined()

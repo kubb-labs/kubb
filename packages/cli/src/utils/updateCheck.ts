@@ -60,6 +60,6 @@ export async function getLatestVersion(signal: AbortSignal): Promise<string | un
   if (isStoredCheck(stored) && isFresh(stored.checkedAt)) return stored.version
 
   const latest = await fetchLatestVersion(signal)
-  if (latest) await storage?.setItem(STORE_KEY, { version: latest, checkedAt: Date.now() } satisfies StoredCheck).catch(() => undefined)
+  if (latest) await storage?.setItem(STORE_KEY, { version: latest, checkedAt: Date.now() }).catch(() => undefined)
   return latest
 }

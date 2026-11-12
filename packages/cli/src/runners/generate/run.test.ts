@@ -111,25 +111,27 @@ describe('bootstrap configuration group', () => {
   })
 })
 
+const CI_VARIABLES = [
+  'CI',
+  'GITHUB_ACTIONS',
+  'GITLAB_CI',
+  'BITBUCKET_BUILD_NUMBER',
+  'JENKINS_URL',
+  'CIRCLECI',
+  'TRAVIS',
+  'TEAMCITY_VERSION',
+  'BUILDKITE',
+  'TF_BUILD',
+]
+
 describe('update notice', () => {
   afterEach(() => rmSync(join(kubbHome, 'cache'), { recursive: true, force: true }))
 
   it('prints the notice from a fresh stored check without asking the registry', async () => {
-    for (const name of [
-      'CI',
-      'GITHUB_ACTIONS',
-      'GITLAB_CI',
-      'BITBUCKET_BUILD_NUMBER',
-      'JENKINS_URL',
-      'CIRCLECI',
-      'TRAVIS',
-      'TEAMCITY_VERSION',
-      'BUILDKITE',
-      'TF_BUILD',
-    ])
-      vi.stubEnv(name, '')
+    for (const name of CI_VARIABLES) vi.stubEnv(name, '')
     mkdirSync(join(kubbHome, 'cache'), { recursive: true })
     writeFileSync(join(kubbHome, 'cache', 'update-check.json'), JSON.stringify({ version: '99.0.0', checkedAt: Date.now() }))
+
     const lines = await bootstrap()
 
     expect(lines.some((line) => line.includes('v99.0.0'))).toBe(true)
