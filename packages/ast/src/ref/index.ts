@@ -1,4 +1,4 @@
-export { isBareRef as isBare, resolveRef as getSchema } from '../utils/refs.ts'
+export { isBareRef as isAlias, resolveRef as getSchema } from '../utils/refs.ts'
 import { narrowSchema } from '../guards.ts'
 import { createSchema, type SchemaNode } from '../nodes/schema.ts'
 import { mergeRefWithSchema, refName, resolveRefName } from '../utils/refs.ts'

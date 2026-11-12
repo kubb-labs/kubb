@@ -5,8 +5,8 @@ import * as schema from './schema/index.ts'
 import { mergeRefWithSchema as mergeRef } from './utils/refs.ts'
 import { collect } from './visitor.ts'
 
-/** @deprecated Use `ast.ref.isBare`. Removed in Kubb v6. */
-export const isBareRef = ref.isBare
+/** @deprecated Use `ast.ref.isAlias`. Removed in Kubb v6. */
+export const isBareRef = ref.isAlias
 
 /** @deprecated Use `ast.ref.mergeSchema`. Removed in Kubb v6. */
 export const mergeRefWithSchema = mergeRef
