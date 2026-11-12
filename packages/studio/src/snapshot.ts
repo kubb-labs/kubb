@@ -193,9 +193,12 @@ export async function createSnapshot({
   const sources = new Map<string, string>()
   // A failing entry does not stop the others, like `kubb generate`, so one run reports every failure.
   for await (const { success, error, diagnostics, files, kubb } of Kubb.generate(buildConfigs, { hooks, signal })) {
-    if (!success) failures.push(error ?? generationFailure(diagnostics))
+    if (!success) {
+      failures.push(error ?? generationFailure(diagnostics))
+      continue
+    }
     const { root } = kubb.config
-    for (const file of success ? files : []) {
+    for (const file of files) {
       const path = relativeStoragePath({ root, filePath: file.path })
       const source = resolve(root, path)
       const owner = sources.get(path)

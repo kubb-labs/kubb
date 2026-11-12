@@ -139,6 +139,77 @@ function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: Build
 }
 
 /**
+ * Builds each config on its own, then rebuilds it whenever its local `input` file changes. Returns whether a config
+ * with no file to watch, which is generated once, failed.
+ */
+async function watchConfigs({ configs, hooks, errorHooks, quiet }: Omit<GenerateProps, 'only'> & { quiet: boolean }): Promise<boolean> {
+  let anyFailed = false
+  // One tracker, one key listener and one build queue serve every watched config, so several configs never mix diffs or answer `r` twice.
+  const tracker = trackBuild(hooks)
+  const rebuilds: Array<() => Promise<void>> = []
+  let armKeys: (() => void) | undefined
+  // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
+  let queue = Promise.resolve()
+  // shortcut: each config builds on its own, so the configs of a shared directory are compared once per config at
+  // startup and the directory is never emptied; build them in one pass first if that startup gets slow.
+  for (const [index, config] of configs.entries()) {
+    const watchPath = typeof config.input === 'string' && getInputKind(config.input) === 'file' ? config.input : undefined
+    if (!watchPath) {
+      if (!quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
+      if (!(await generate({ configs, hooks, errorHooks, only: index }))) anyFailed = true
+      continue
+    }
+
+    const label = styleText('yellow', `Watching ${path.relative(process.cwd(), watchPath)}`)
+    let previous: BuildSnapshot | undefined
+    // Don't removeAll() between builds, that would also drop logger and lifecycle
+    // listeners. Plugin listeners are already disposed by safeBuild's dispose()
+    // in its finally block, so re-running generate() on the same hooks emitter is safe.
+    const build = async () => {
+      const hrStart = process.hrtime()
+      // Compared with the other configs again each time, since an edited spec can change what they share.
+      const succeeded = await generate({ configs, hooks, errorHooks, only: index })
+      const snapshot = tracker.take()
+      if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
+      previous = snapshot
+
+      logStep(armKeys ? `${label}  ${styleText('dim', 'r rebuild · q quit')}` : label)
+      armKeys?.()
+      if (succeeded) {
+        logSpacer()
+        logTip()
+      }
+    }
+    // A trigger that lands while this config's build is queued joins it; one that lands during the build queues one more. Never rejects.
+    let pending = false
+    const rebuild = (): Promise<void> => {
+      if (pending) return queue
+      pending = true
+      queue = queue
+        .then(() => {
+          pending = false
+          return build()
+        })
+        .catch((error) => void Diagnostics.emit(errorHooks, error))
+      return queue
+    }
+    rebuilds.push(rebuild)
+    if (!quiet) {
+      armKeys ??= listenForKeys({
+        rebuild: () => rebuilds.forEach((trigger) => void trigger()),
+        quit: (code) => void Promise.resolve(hooks.callHook('kubb:lifecycle:end')).finally(() => process.exit(code)),
+      })
+    }
+
+    // The watcher ignores its startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
+    await rebuild()
+
+    await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
+  }
+  return anyFailed
+}
+
+/**
  * Runs the full Kubb generation lifecycle for the given CLI options.
  * Loads configs, sets up the reporters (CLI `--reporter` picks which of `config.reporters` to trigger),
  * calls `generate` for each config entry, and prints an update notice when the registry answered in time.
@@ -219,72 +290,10 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
   try {
-    let anyFailed = false
-    // One tracker, one key listener and one build queue serve every watched config, so several configs never mix diffs or answer `r` twice.
-    const tracker = watch ? trackBuild(hooks) : undefined
-    const rebuilds: Array<() => Promise<void>> = []
-    let armKeys: (() => void) | undefined
-    // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
-    let queue = Promise.resolve()
     // Outside watch mode every config builds in one pass, and one that fails does not stop the others.
-    if (!tracker) anyFailed = !(await generate({ configs: runConfigs, hooks, errorHooks }))
-    // shortcut: watch mode builds each config on its own, so the configs of a shared directory are compared once per
-    // config at startup and the directory is never emptied; build them in one pass first if that startup gets slow.
-    for (const [index, config] of tracker ? configs.entries() : []) {
-      const effectiveInput = input ?? config.input
-      const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
-      const watchPath = inputKind === 'file' ? (effectiveInput as string) : undefined
-      if (watchPath && tracker) {
-        const label = styleText('yellow', `Watching ${path.relative(process.cwd(), watchPath)}`)
-        let previous: BuildSnapshot | undefined
-        // Don't removeAll() between builds, that would also drop logger and lifecycle
-        // listeners. Plugin listeners are already disposed by safeBuild's dispose()
-        // in its finally block, so re-running generate() on the same hooks emitter is safe.
-        const build = async () => {
-          const hrStart = process.hrtime()
-          // Compared with the other configs again each time, since an edited spec can change what they share.
-          const succeeded = await generate({ configs: runConfigs, hooks, errorHooks, only: index })
-          const snapshot = tracker.take()
-          if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
-          previous = snapshot
-
-          logStep(armKeys ? `${label}  ${styleText('dim', 'r rebuild · q quit')}` : label)
-          armKeys?.()
-          if (succeeded) {
-            logSpacer()
-            logTip()
-          }
-        }
-        // A trigger that lands while this config's build is queued joins it; one that lands during the build queues one more. Never rejects.
-        let pending = false
-        const rebuild = (): Promise<void> => {
-          if (pending) return queue
-          pending = true
-          queue = queue
-            .then(() => {
-              pending = false
-              return build()
-            })
-            .catch((error) => void Diagnostics.emit(errorHooks, error))
-          return queue
-        }
-        rebuilds.push(rebuild)
-        if (!quiet) {
-          armKeys ??= listenForKeys({
-            rebuild: () => rebuilds.forEach((trigger) => void trigger()),
-            quit: (code) => void Promise.resolve(hooks.callHook('kubb:lifecycle:end')).finally(() => process.exit(code)),
-          })
-        }
-
-        // The watcher ignores its startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
-        await rebuild()
-
-        await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
-      } else {
-        if (!quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
-        if (!(await generate({ configs: runConfigs, hooks, errorHooks, only: index }))) anyFailed = true
-      }
-    }
+    const anyFailed = watch
+      ? await watchConfigs({ configs: runConfigs, hooks, errorHooks, quiet })
+      : !(await generate({ configs: runConfigs, hooks, errorHooks }))
 
     // A request still in flight would keep the process alive until its timeout.
     updateCheck.abort()

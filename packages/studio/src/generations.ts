@@ -105,8 +105,8 @@ export async function generate({
   allowExec: boolean
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const index = Math.max(configs?.indexOf(config) ?? 0, 0)
-  const all = configs?.includes(config) ? configs : [config]
+  const all = configs ?? [config]
+  const index = all.indexOf(config)
   for await (const result of Kubb.generate(all.with(index, { ...config, output }), { hooks, signal, only: index })) {
     if (result.error) throw result.error
     if (!result.success) throw generationFailure(result.diagnostics)

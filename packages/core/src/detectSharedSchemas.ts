@@ -31,12 +31,12 @@ export type SharedSchemas = {
 
 type GroupMember = { config: UserConfig; root: string; index: number }
 
-// The sources each run wrote under a shared directory, keyed by file path, so a config that writes one differently is reported.
+// A digest of each file a run wrote under a shared directory, keyed by file path, so a config that writes one differently is reported.
 const sharedWrites = new WeakMap<SharedSchemas, Map<string, string>>()
 
 /**
- * The sources the configs sharing `entry`'s directory have written under it in this run. Empty for an entry that did not
- * come from `detectSharedSchemas`.
+ * A digest of each file the configs sharing `entry`'s directory have written under it in this run. Empty for an entry
+ * that did not come from `detectSharedSchemas`.
  */
 export function getSharedWrites(entry: SharedSchemas): Map<string, string> {
   return sharedWrites.get(entry) ?? new Map()
