@@ -169,7 +169,15 @@ type BarrelIndex = {
  * files under that path and builds their directory tree. Reuse the result across every barrel
  * derived from the same root rather than re-filtering and re-building per barrel.
  */
-export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<ast.FileNode>, linkedPath?: string): BarrelIndex {
+export function buildBarrelIndex({
+  outputPath,
+  files,
+  linkedPath,
+}: {
+  outputPath: string
+  files: ReadonlyArray<ast.FileNode>
+  linkedPath?: string
+}): BarrelIndex {
   const tree: DirectoryNode = { path: toPosixPath(outputPath), children: new Map() }
   // Files under `linkedPath` (shared.path) join the tree at the same relative position; `outputPath` wins when both match.
   const roots = linkedPath ? [tree.path, toPosixPath(linkedPath)] : [tree.path]
@@ -243,7 +251,7 @@ type GetBarrelFilesParams = {
  *
  * @example
  * ```ts
- * const index = buildBarrelIndex(outputPath, files)
+ * const index = buildBarrelIndex({ outputPath, files })
  * getBarrelFiles({ index, targetPath, barrelType }).forEach((file) => upsertFile(file))
  * ```
  */

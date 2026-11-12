@@ -169,7 +169,11 @@ export const pluginBarrel = defineExtension({
       excludedTargets.length = 0
 
       // Each config's barrels re-export the shared schemas it defines; the shared directory gets none, since each config writes only part of it.
-      const index = buildBarrelIndex(outputPath, relevantFiles, config.shared && path.resolve(config.root, config.shared.path))
+      const index = buildBarrelIndex({
+        outputPath,
+        files: relevantFiles,
+        linkedPath: config.shared && path.resolve(config.root, config.shared.path),
+      })
       const reportedCollisions = new Set<string>()
       // Keyed by path and name: plugins sharing an `output.path` produce the same aliases.
       const namespaceExports = new Map<string, ast.ExportNode>()
