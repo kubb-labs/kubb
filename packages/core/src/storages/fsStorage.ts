@@ -1,6 +1,6 @@
 import { readdir, rename } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
-import { listFiles, read, rm, write } from '@internals/utils'
+import { listFiles, readIfExists, rm, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
 
 /**
@@ -33,11 +33,7 @@ import { createStorage } from '../createStorage.ts'
 export const fsStorage = createStorage(() => ({
   name: 'fs',
   async readItem(key: string) {
-    try {
-      return await read(resolve(key))
-    } catch (_error) {
-      return null
-    }
+    return readIfExists(resolve(key))
   },
   async writeItem(key: string, value: string, options?: { stored?: string | null }) {
     await write(resolve(key), value, { sanity: false, stored: options?.stored })

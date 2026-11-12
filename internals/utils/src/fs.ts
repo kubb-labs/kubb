@@ -1,5 +1,5 @@
-import { access, glob as globNode, mkdir, readFile, writeFile } from 'node:fs/promises'
-
+import { existsSync, readFile, readFileSync, writeFile } from 'node:fs'
+import { access, glob as globNode, mkdir } from 'node:fs/promises'
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
 import { runtime } from './runtime.ts'
 
@@ -40,7 +40,36 @@ export async function read(path: string): Promise<string> {
   if (runtime.isBun) {
     return Bun.file(path).text()
   }
-  return readFile(path, { encoding: 'utf8' })
+  return new Promise((resolvePromise, reject) => readFile(path, 'utf8', (error, data) => (error ? reject(error) : resolvePromise(data))))
+}
+
+/**
+ * Reads the file at `path` as a UTF-8 string, or `null` when it does not exist or cannot be read.
+ * Uses `Bun.file().text()` when running under Bun, `fs.readFileSync` otherwise.
+ *
+ * @example
+ * ```ts
+ * const stored = await readIfExists('./src/gen/Pet.ts') // null on a first run
+ * ```
+ */
+export async function readIfExists(path: string): Promise<string | null> {
+  if (runtime.isBun) {
+    return Bun.file(path)
+      .text()
+      .catch(() => null)
+  }
+  // A small read is faster on the main thread than a thread-pool round trip, and `existsSync`
+  // answers a missing file without building an error.
+  if (!existsSync(path)) return null
+  try {
+    return readFileSync(path, 'utf8')
+  } catch (_error) {
+    return null
+  }
+}
+
+function writeUtf8(path: string, content: string): Promise<void> {
+  return new Promise((resolvePromise, reject) => writeFile(path, content, 'utf-8', (error) => (error ? reject(error) : resolvePromise())))
 }
 
 type WriteOptions = {
@@ -90,8 +119,7 @@ export async function write(path: string, data: string, options: WriteOptions = 
 
   const content = `${trimmed}\n`
   const resolved = resolve(path)
-  // A missing file reads as `null`.
-  const stored = options.stored === undefined ? await read(resolved).catch(() => null) : options.stored
+  const stored = options.stored === undefined ? await readIfExists(resolved) : options.stored
   if (matchesStored({ stored: stored ?? '', source: trimmed })) return null
 
   await writeRaw(resolved, content)
@@ -121,11 +149,11 @@ export async function writeRaw(path: string, content: string): Promise<void> {
     return
   }
   try {
-    await writeFile(resolved, content, { encoding: 'utf-8' })
+    await writeUtf8(resolved, content)
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
     await mkdir(dirname(resolved), { recursive: true })
-    await writeFile(resolved, content, { encoding: 'utf-8' })
+    await writeUtf8(resolved, content)
   }
 }
 
