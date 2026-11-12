@@ -22,10 +22,7 @@ const JITI_OPTIONS = {
  */
 const JAVASCRIPT_EXTENSION = /\.[cm]?jsx?$/
 
-/**
- * Extensions the runtime's own loader may load, with the module format the extension fixes. `.ts`
- * and `.js` take theirs from the nearest `package.json`. `.tsx` and `.jsx` always go through jiti.
- */
+// `.ts` and `.js` take their format from the nearest `package.json`. `.tsx` and `.jsx` always use jiti.
 const NATIVE_EXTENSIONS: Record<string, { typescript: boolean; format?: 'esm' | 'commonjs' }> = {
   '.ts': { typescript: true },
   '.mts': { typescript: true, format: 'esm' },
@@ -35,28 +32,15 @@ const NATIVE_EXTENSIONS: Record<string, { typescript: boolean; format?: 'esm' | 
   '.cjs': { typescript: false, format: 'commonjs' },
 }
 
-/**
- * CommonJS globals jiti provides in every file and Node leaves out of an ES module. An ES module
- * config that uses one goes straight to jiti.
- */
+// CommonJS globals jiti defines in an ES module and Node does not.
 const COMMONJS_GLOBAL = /\b(?:__dirname|__filename|require\s*\(|module\.exports\b|exports\.)/
 
-/**
- * A static `import` or `export` statement. jiti accepts one in a CommonJS file, Node does not.
- */
 const ESM_SYNTAX = /^\s*(?:import\b(?!\s*[.(])|export\b)/m
 
-/**
- * Node's messages for a file written in the other module format than Node reads it as: a CommonJS
- * global in an ES module, or an `import` or `export` statement in a CommonJS file. Both are for
- * a file the config imports, whose source is not checked up front.
- */
+// The same module format mismatch, in a file the config imports.
 const MODULE_FORMAT_ERROR = /is not defined in ES module scope|^Cannot use import statement outside a module|^Unexpected token 'export'/
 
-/**
- * Error codes Node sets when it cannot resolve or parse a module, as opposed to an error the
- * module's own code throws. jiti resolves and transpiles more than Node does, so these fall back.
- */
+// Node could not resolve or parse a module, where jiti may.
 const LOAD_ERROR_CODES = new Set([
   'ERR_MODULE_NOT_FOUND',
   'MODULE_NOT_FOUND',
@@ -73,21 +57,12 @@ const LOAD_ERROR_CODES = new Set([
   'ERR_VM_MODULE_LINK_FAILURE',
 ])
 
-/**
- * Global registry of the native loads whose module graph started evaluating. A global, because
- * the marker module that writes to it is a `data:` URL and shares no scope with this file.
- */
+// Global, because the `data:` marker module that writes to it shares no scope with this file.
 const EVALUATING = Symbol.for('kubb.loader.evaluating')
 
-/**
- * Files this process loaded before. Node's `import()` caches a module, and every module it
- * imports, for the life of the process, so only the first load of a file may use it.
- */
+// The runtime caches a module and its imports for the life of the process, so only a first load uses it.
 const loadedFiles = new Set<string>()
 
-/**
- * Per-call options for {@link loadModule}.
- */
 type LoadModuleOptions = {
   /**
    * Return the module's default export instead of the full namespace.
@@ -97,7 +72,6 @@ type LoadModuleOptions = {
 
 let jiti: Promise<Jiti> | undefined
 
-// Loaded on first use: a config Node imports by itself never pays for jiti.
 function getJiti(): Promise<Jiti> {
   jiti ??= import('jiti').then(({ createJiti }) => createJiti(import.meta.url, JITI_OPTIONS))
   return jiti
@@ -109,9 +83,6 @@ function evaluating(): Set<string> {
   return store[EVALUATING]
 }
 
-/**
- * Whether the nearest `package.json` above `filePath` sets `"type": "module"`.
- */
 async function isInEsmPackage(filePath: string): Promise<boolean> {
   for (let dir = dirname(filePath); ; dir = dirname(dir)) {
     const source = await readFile(join(dir, 'package.json'), 'utf8').catch(() => undefined)
@@ -127,13 +98,8 @@ async function isInEsmPackage(filePath: string): Promise<boolean> {
 }
 
 /**
- * How the runtime loads `filePath` by itself, or `undefined` to send the file to jiti.
- *
- * - Bun loads TypeScript, CommonJS, enums, extensionless imports and tsconfig `paths` itself.
- * - Under Node, the module format Node reads the file as, when the source matches it. An ES
- *   module must not use a CommonJS global. A CommonJS file must not use `import` or `export`
- *   statements: Node rejects them under `"type": "commonjs"`, and without a `type` it reparses
- *   the file as an ES module and prints a warning.
+ * How the runtime loads `filePath` by itself, or `undefined` for jiti. A CommonJS file with
+ * `import` statements goes to jiti, because Node rejects it or reparses it with a warning.
  */
 async function nativeFormat(filePath: string): Promise<'bun' | 'esm' | 'commonjs' | undefined> {
   const extension = NATIVE_EXTENSIONS[extname(filePath)]
@@ -151,24 +117,14 @@ async function nativeFormat(filePath: string): Promise<'bun' | 'esm' | 'commonjs
   return matches ? format : undefined
 }
 
-/**
- * Whether Node failed to load a module, so jiti should try: an error code Node sets for a module
- * it cannot resolve or parse, or a file written in the other module format.
- */
 function isLoadError(error: unknown): boolean {
   if (LOAD_ERROR_CODES.has((error as { code?: string } | null)?.code ?? '')) return true
   return (error instanceof ReferenceError || error instanceof SyntaxError) && MODULE_FORMAT_ERROR.test(error.message)
 }
 
 /**
- * Imports the ES module `filePath` with Node's own `import()`. Returns `undefined` when Node
- * cannot load the file, so the caller falls back to jiti.
- *
- * Node resolves, parses and links a whole ES module graph before it evaluates any of it. The
- * import goes through a wrapper whose first dependency is a marker module, so a failure with the
- * marker unset happened before any code ran, and jiti takes over without running the config twice.
- * Once code ran, only a failure to load a module falls back, see {@link isLoadError}. Any other
- * error is the config's own and is rethrown as it is.
+ * Node links the whole graph before it runs any of it, so a failure while the marker module is
+ * unset means no config code ran, and jiti can take over without running the config twice.
  */
 async function importEsm(filePath: string): Promise<object | undefined> {
   const url = pathToFileURL(filePath).href
@@ -190,13 +146,9 @@ async function importEsm(filePath: string): Promise<object | undefined> {
 }
 
 /**
- * Loads the CommonJS file `filePath` with Node's own `require()`. `import()` of a CommonJS file
- * breaks on Node 22 when the file requires an ES module package (`ERR_VM_MODULE_LINK_FAILURE`),
- * which `@kubb/*` packages do.
- *
- * CommonJS resolves each `require()` while the file runs, so a failure to load a module is only
- * found after the config started. That one falls back to jiti, which runs the config again. Any
- * other error is the config's own and is rethrown as it is.
+ * `require()`, because Node 22's `import()` of a CommonJS file that requires an ES module package
+ * fails with `ERR_VM_MODULE_LINK_FAILURE`. A `require()` fails while the config runs, so that
+ * fallback runs the config again.
  */
 function requireCommonJs(filePath: string): unknown {
   try {
@@ -207,11 +159,7 @@ function requireCommonJs(filePath: string): unknown {
   }
 }
 
-/**
- * Loads `filePath` with the runtime's own loader. Returns `undefined` when it cannot, so the
- * caller falls back to jiti. Under Bun every error surfaces as it is: jiti tries Bun's own loader
- * first there too, and Bun already loads what jiti would transpile.
- */
+// Bun errors surface as they are: jiti tries Bun's own loader first there too.
 async function importNative(filePath: string, format: 'bun' | 'esm' | 'commonjs'): Promise<unknown> {
   if (format === 'bun') return import(pathToFileURL(filePath).href)
   if (format === 'esm') return importEsm(filePath)
@@ -237,12 +185,8 @@ async function importJiti(filePath: string, options?: LoadModuleOptions): Promis
 /**
  * Loads a Kubb TypeScript or JavaScript config module.
  *
- * The first load of a file in a process uses the runtime's own loader when it can read the file
- * by itself: under Node, `import()` for an ES module and `require()` for CommonJS, under Bun,
- * `import()`. The runtime caches what it loads for the
- * life of the process, so everything else goes through jiti, which transpiles TypeScript and the
- * `@kubb/renderer-jsx` JSX runtime on the fly: a file Node cannot load, and every later load of
- * the same file, so a config edited on disk, and a TypeScript file it imports, is picked up.
+ * The first load of a file uses the runtime's own loader when it can run the file as is. A file
+ * it cannot load, and every later load, goes through jiti, so an edited config is picked up.
  *
  * @example
  * ```ts
