@@ -141,7 +141,7 @@ export class Kubb {
     configs: Array<UserConfig>,
     { hooks = new Hookable<KubbHooks>(), signal, only }: GenerateConfigsOptions = {},
   ): AsyncGenerator<ConfigGenerateResult, void, void> {
-    const sharedByConfig = await detectSharedSchemas(configs, hooks)
+    const sharedByConfig = await detectSharedSchemas({ configs, hooks })
     for (const index of only === undefined ? configs.keys() : [only]) {
       const kubb = new Kubb(configs[index]!, { hooks, signal })
       const detected = sharedByConfig[index]

@@ -139,7 +139,6 @@ export class KubbDriver {
     this.adapter = config.adapter ?? null
   }
 
-  /** The absolute `shared.path` with what this build shares under it, when it shares schemas. */
   get #shared(): { path: string; schemas: Array<string>; written: Map<string, string> } | undefined {
     const { root, shared } = this.config
     const { sharedSchemas } = this.options
