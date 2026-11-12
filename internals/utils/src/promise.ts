@@ -44,15 +44,12 @@ export function createLastEntry<TKey, TValue>(): Store<TKey, TValue> {
     entry.clear()
     entry.set(key, value)
   }
-  return {
-    has(key) {
-      if (!entry.has(key)) return false
-      set(key, entry.get(key) as TValue)
-      return true
-    },
-    get: (key) => entry.get(key),
-    set,
+  const touch = (key: TKey) => {
+    if (!entry.has(key)) return false
+    set(key, entry.get(key) as TValue)
+    return true
   }
+  return { has: touch, get: (key) => (touch(key) ? entry.get(key) : undefined), set }
 }
 
 type ParallelOptions<TItem> = {
