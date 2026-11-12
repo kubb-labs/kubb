@@ -9,7 +9,7 @@
  */
 export type PossiblePromise<T> = Promise<T> | T
 
-export type Store<TKey, TValue> = {
+type Store<TKey, TValue> = {
   has(key: TKey): boolean
   get(key: TKey): TValue | undefined
   set(key: TKey, value: TValue): unknown
