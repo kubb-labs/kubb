@@ -73,7 +73,7 @@ export function resolveGenerationLimits(): { maxCount: number; maxMb: number } {
 /**
  * Folds error-severity diagnostics into one thrown error so logs name the failing plugin or pass.
  */
-function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
+export function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
   const reasons = diagnostics
     .filter(Diagnostics.isProblem)
     .filter((diagnostic) => diagnostic.severity === 'error')
@@ -101,12 +101,7 @@ export async function generate({
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
   const kubb = createKubb({ ...config, output }, { hooks, signal })
-  let input: InputNode | null = null
-  // The driver drops its `inputNode` once the build is over, so read it as the build ends.
-  const unhook = kubb.hooks.hook('kubb:build:end', (ctx) => {
-    if (ctx.config === kubb.config) input = kubb.driver.inputNode
-  })
-  const result = await kubb.generate().finally(unhook)
+  const result = await kubb.generate()
   if (!result.success) throw generationFailure(result.diagnostics)
 
   // `kubb.config` carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
@@ -115,7 +110,7 @@ export async function generate({
     storage,
     root,
     paths: new Set(result.files.map((file) => relativeStoragePath({ root, filePath: file.path }))),
-    input,
+    input: result.input,
   }
 }
 
