@@ -146,7 +146,85 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
   }
 }
 
+type Columns = Pick<EventIndex, 'types' | 'styles' | 'starts' | 'ends'>
+
+function allocate({ size, from }: { size: number; from?: Columns }): Columns {
+  const columns = { types: new Uint8Array(size), styles: new Uint8Array(size), starts: new Int32Array(size), ends: new Int32Array(size) }
+  if (from) for (const key of ['types', 'styles', 'starts', 'ends'] as const) columns[key].set(from[key].subarray(0, size))
+  return columns
+}
+
+const jsonGap = /[ \t\n\r]*/y
+const jsonScalar = /"(?:[^"\\]+|\\.)*"|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?|true|false|null/y
+
+// The index `parseEvents` would give for JSON text, without its event objects, which take about 120 MB on a 28 MB spec.
+function indexJson(source: string): EventIndex | undefined {
+  let columns = allocate({ size: Math.max(64, source.length >> 4) })
+  let size = 0
+  let at = source.charCodeAt(0) === 0xfeff ? 1 : 0
+
+  const add = ({ type, style = 0, start = 0, end = 0 }: { type: number; style?: number; start?: number; end?: number }) => {
+    if (size === columns.types.length) columns = allocate({ size: size * 2, from: columns })
+    columns.types[size] = type
+    columns.styles[size] = style
+    columns.starts[size] = start
+    columns.ends[size] = end
+    size++
+  }
+  const skip = () => {
+    jsonGap.lastIndex = at
+    jsonGap.exec(source)
+    at = jsonGap.lastIndex
+  }
+  const readCollection = (isMapping: boolean): boolean => {
+    add({ type: isMapping ? EVENT_ID.MAPPING : EVENT_ID.SEQUENCE, style: COLLECTION_STYLE.FLOW, start: at++ })
+    const close = isMapping ? '}' : ']'
+    skip()
+    if (source[at] === close) {
+      at++
+      add({ type: EVENT_ID.POP })
+      return true
+    }
+    do {
+      if (!readEntry(isMapping)) return false
+      skip()
+    } while (source[at++] === ',')
+    add({ type: EVENT_ID.POP })
+    return source[at - 1] === close
+  }
+  const readEntry = (isMapping: boolean): boolean => {
+    skip()
+    if (!isMapping) return readValue()
+    if (source[at] !== '"' || !readValue()) return false
+    skip()
+    return source[at++] === ':' && readValue()
+  }
+  const readValue = (): boolean => {
+    skip()
+    if (source[at] === '{' || source[at] === '[') return readCollection(source[at] === '{')
+    jsonScalar.lastIndex = at
+    if (!jsonScalar.test(source)) return false
+    add({ type: EVENT_ID.SCALAR, style: source[at] === '"' ? SCALAR_STYLE.DOUBLE_QUOTED : SCALAR_STYLE.PLAIN, start: at, end: jsonScalar.lastIndex })
+    at = jsonScalar.lastIndex
+    return true
+  }
+
+  add({ type: EVENT_ID.DOCUMENT })
+  try {
+    if (!readValue()) return undefined
+  } catch {
+    // Nesting deeper than the call stack.
+    return undefined
+  }
+  skip()
+  if (at < source.length) return undefined
+  add({ type: EVENT_ID.POP })
+  return { ...allocate({ size, from: columns }), collections: new Map() }
+}
+
 function parse(source: string): EventIndex | undefined {
+  const json = /^\uFEFF?[ \t\n\r]*[[{]/.test(source) ? indexJson(source) : undefined
+  if (json) return json
   try {
     return indexEvents(parseEvents(source, { maxDepth: Number.POSITIVE_INFINITY }))
   } catch {

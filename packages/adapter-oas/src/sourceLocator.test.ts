@@ -135,6 +135,30 @@ describe('JSON source locations', () => {
     expect(locateIn(deep, { kind: 'schema', pointer: '#/paths' })).toStrictEqual({ start: 1, end: 8 })
   })
 
+  it('reads JSON text without the YAML event parser, and gives the ranges it would', () => {
+    const parseEvents = vi.mocked(yaml.parseEvents)
+    const text = '\uFEFF{\n\t"a\\"b": [1, -1.5e3, true, null, "\u00e9 \\u00e9", [], {}],\r\n "": {"$ref": "#/x"}}\n'
+    const pointers = ['#/a"b/0', '#/a"b/1', '#/a"b/2', '#/a"b/3', '#/a"b/4', '#/a"b', '#/', '#/missing']
+    const ranges = (input: string) => pointers.map((pointer) => locateIn(input, { kind: 'schema', pointer, ref: '#/x' }))
+    parseEvents.mockClear()
+
+    const located = ranges(text)
+    expect(parseEvents).not.toHaveBeenCalled()
+    expect(located.map((range) => range && text.slice(range.start, range.end))).toStrictEqual([
+      '1',
+      '-1.5e3',
+      'true',
+      'null',
+      '"\u00e9 \\u00e9"',
+      '"a\\"b"',
+      '""',
+      '"#/x"',
+    ])
+    // Not JSON: a trailing comma sends it to the YAML parser, which reads the same ranges.
+    expect(ranges(text.replace(/}}\n$/, '},}\n'))).toStrictEqual(located)
+    expect(parseEvents).toHaveBeenCalledTimes(1)
+  })
+
   it('locates a missing reference at its first usage', () => {
     const ref = locateIn(json, { kind: 'schema', pointer: '#/components/schemas/Owner', ref: '#/components/schemas/Owner' })!
 
