@@ -110,9 +110,6 @@ export async function resolveSource(sourcePath: string, { remember }: { remember
  * `js-yaml` parses about ten times faster than `yaml`, and rejects duplicate keys instead of
  * keeping the last one. Its core schema keeps timestamps as strings and `<<` as a plain key, as
  * `yaml` does for YAML 1.2.
- *
- * With `remember`, the positions `js-yaml` found are kept for `locate`, so a located diagnostic
- * does not parse the text a second time.
  */
 export function parseYaml(
   data: string,

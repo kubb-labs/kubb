@@ -21,11 +21,14 @@ const source = [
 ].join('\n')
 
 describe('OpenAPI source locations', () => {
-  it('locates YAML keys and unescapes JSON pointer tokens', () => {
+  it('locates YAML keys, plain keys by the value they parse to, and unescapes JSON pointer tokens', () => {
     const owner = locateIn(source, { kind: 'schema', pointer: '#/components/schemas/Pet/properties/owner' })!
     expect(source.slice(owner.start, owner.end)).toBe('owner')
     const escaped = locateIn(source, { kind: 'schema', pointer: '#/components/schemas/a~1b' })!
     expect(source.slice(escaped.start, escaped.end)).toBe('a/b')
+    const plain = '0x10: a\n~: b\n'
+    expect(locateIn(plain, { kind: 'schema', pointer: '#/16' })).toStrictEqual({ start: 0, end: 4 })
+    expect(locateIn(plain, { kind: 'schema', pointer: '#/null' })).toStrictEqual({ start: 8, end: 9 })
   })
 
   it('locates a missing reference at its usage and omits unknown pointers', () => {
@@ -96,7 +99,6 @@ describe('OpenAPI source locations', () => {
     locateIn(`${fresh}x: 1\n`, { kind: 'schema', pointer })
     expect(parseEvents).toHaveBeenCalledTimes(2)
 
-    // Events the adapter kept while loading serve an equal source without another parse.
     const loaded = `${fresh}y: 2\n`
     rememberEvents({ source: loaded, events: parseEvents(loaded, {}) })
     parseEvents.mockClear()

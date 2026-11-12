@@ -1,20 +1,14 @@
 import { hash } from 'node:crypto'
 import { memo, unescapePointerToken } from '@internals/utils'
 import type { Adapter } from '@kubb/core'
-import { COLLECTION_STYLE, EVENT_ID, parseEvents, SCALAR_STYLE } from 'js-yaml'
+import { COLLECTION_STYLE, CORE_SCHEMA, EVENT_ID, load, parseEvents, SCALAR_STYLE } from 'js-yaml'
 import type { Event } from 'js-yaml'
 
 type Range = ReturnType<NonNullable<Adapter['locate']>>
 
-/**
- * A value in a mapping or a sequence: the index of its event, and the range of its key or of the item itself.
- */
 type Child = { index: number; range: NonNullable<Range> }
 
-/**
- * The events of a source, each as its type, its style and the offsets of its text, plus the children
- * of every collection a pointer walked through. An event object per value takes ten times the memory.
- */
+// One entry per event in typed arrays: an event object per value takes ten times the memory.
 type EventIndex = {
   types: Uint8Array
   styles: Uint8Array
@@ -24,9 +18,19 @@ type EventIndex = {
   refs?: Map<string, NonNullable<Range>>
 }
 
-// Diagnostics of one run share a source, so its index is kept for the next call, under a hash of
-// the text so the adapter can let the text go. A source that does not parse has no index.
+// Diagnostics of one run share a source, so its index is kept, under a hash so the adapter can let the text go.
 let cached: { key: string; source?: string; index: EventIndex | undefined } | undefined
+
+// A plain `1.50` or `~` is a number or null to `js-yaml`, so the document, and the pointer, spell it `1.5` or `null`.
+function toKeyText(text: string): string {
+  if (!/^[-+.~\d]|^(?:null|true|false)$/i.test(text)) return text
+  try {
+    const value = load(text, { schema: CORE_SCHEMA })
+    return value === null || typeof value === 'number' || typeof value === 'boolean' ? String(value) : text
+  } catch {
+    return text
+  }
+}
 
 function indexEvents(events: ReadonlyArray<Event>): EventIndex {
   const types = new Uint8Array(events.length)
@@ -64,6 +68,7 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
   const readText = (at: number): string | undefined => {
     const text = source.slice(starts[at], ends[at])
     if (styles[at] === SCALAR_STYLE.SINGLE_QUOTED) return text.slice(1, -1).replaceAll("''", "'")
+    if (styles[at] === SCALAR_STYLE.PLAIN) return toKeyText(text)
     if (styles[at] !== SCALAR_STYLE.DOUBLE_QUOTED) return text
     try {
       return JSON.parse(text) as string
@@ -72,7 +77,6 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
     }
   }
 
-  // The range of the node at `at`, and the index of the event after it.
   const readNode = (at: number): NonNullable<Range> & { next: number } => {
     if (!isCollection(at)) return { start: starts[at]!, end: ends[at]!, next: at + 1 }
     let next = at + 1
@@ -101,9 +105,6 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
   }
 
   return {
-    /**
-     * Walks a JSON pointer through mappings and sequences. The range is the last key or item it reached.
-     */
     find(pointer: string): Range {
       // The first event opens the document, the second is its root.
       let at = 1
@@ -119,9 +120,6 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
       }
       return range
     },
-    /**
-     * The value range of the first `$ref` whose value is `ref`.
-     */
     findRef(ref: string): Range {
       if (!index.refs) {
         index.refs = new Map()
