@@ -13,7 +13,7 @@ navigation:
 
 # Publish Kubb Studio snapshots from CI
 
-`kubb studio snapshot` generates a package on a CI runner, uploads it to [Studio](/docs/5.x/integrations/studio) in one request, and exits. Run it on pull or merge requests and on the default branch so reviewers can compare their output.
+`kubb studio snapshot` generates a package on a CI runner, uploads it to [Studio](/docs/5.x/integrations/studio) in one request, and exits. Run it on pull or merge requests and on the default branch so reviewers can compare a request's output with the default branch.
 
 ## Supported providers
 

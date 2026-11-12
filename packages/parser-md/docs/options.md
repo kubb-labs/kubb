@@ -40,5 +40,6 @@ Endpoints generated from the OpenAPI spec.
 
 ::
 
-- `parserMd().print` accepts objects and Markdown strings, joined with blank lines.
-- `parserMd().print({ title: 'Pets', layout: 'doc' })` returns `---\ntitle: Pets\nlayout: doc\n---`.
+An empty object or `null` writes no frontmatter. A file banner, when set, goes above the frontmatter.
+
+`parserMd().print(...parts)` joins Markdown strings with blank lines and skips empty ones. It takes strings only, so frontmatter always comes from `meta.frontmatter`.

@@ -79,11 +79,13 @@ Read `version` from your `package.json` so it stays in sync with what you publis
 import { version } from '../package.json'
 ```
 
+A named import from JSON needs a bundler, such as tsdown, that inlines it. With plain `tsc` and `"module": "NodeNext"`, write the version in `meta` instead.
+
 A package that ships a [`kubb-extension.json`](./manifest) imports `compatibility` from it, so the ranges live in one file. See [Import `compatibility` into `meta`](./manifest#import-compatibility-into-meta).
 
 ### Compatibility checks
 
-Before any plugin runs, Kubb checks each plugin's and parser's `meta.compatibility` against the running `@kubb/core` and Node.js versions. A mismatch fails the run with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension), which names the extension and the version that is running. Kubb compares prerelease versions like regular ones.
+Before any plugin runs, Kubb checks the `meta.compatibility` of the adapter and of each parser and plugin against the running `@kubb/core` and Node.js versions. A mismatch fails the run with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension), which names the extension and the version that is running. Kubb compares prerelease versions like regular ones.
 
 ## `dependencies` {#dependencies}
 
@@ -112,7 +114,7 @@ Kubb checks the record before any plugin runs:
 - A missing entry without `optional: true` fails with [`KUBB_MISSING_DEPENDENCY`](/docs/5.x/reference/diagnostics#kubb-missing-dependency).
 - A `meta.version` outside the `version` range fails with [`KUBB_INCOMPATIBLE_DEPENDENCY`](/docs/5.x/reference/diagnostics#kubb-incompatible-dependency).
 
-When a dependency depends on the user's options, pass a function. It receives the options and returns the record:
+When a dependency depends on the user's options, pass a function. The function receives the options and `{ config }`, and returns the record:
 
 ```typescript [plugin-example.ts]
 import { defineExtension, type PluginType } from 'kubb/kit'
@@ -134,11 +136,11 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ## Factory statics
 
-Every factory `defineExtension` returns carries `kind` (`'plugin'`, `'adapter'`, or `'parser'`) and `meta`, so tools can read an extension's metadata without calling the factory or knowing its options:
+Every factory `defineExtension` returns carries `kind` (`'plugin'`, `'adapter'`, or `'parser'`) and `meta`. Tools read an extension's metadata from them without calling the factory or knowing its options:
 
 ```typescript
 pluginExample.kind // 'plugin'
 pluginExample.meta.name // 'plugin-example'
 ```
 
-A factory built from a deprecated factory function has no `meta` on it, because Kubb only learns it by calling the factory. The plugin or parser it returns still has `meta`, which falls back to `{ name }`.
+Factories from the deprecated `definePlugin`, `defineParser`, and `createAdapter` carry the same `kind` and `meta`. A hand-written plugin or parser object that sets only the deprecated `name` gets `meta: { name }` at runtime.

@@ -61,7 +61,7 @@ kubb remove plugin-zod --no-uninstall
 
 | Option                | Default          | Description |
 | --------------------- | ---------------- | ----------- |
-| `--config`, `-c`      | `kubb.config.ts` | Path to the Kubb config file. |
+| `--config`, `-c`      |                  | Path to the Kubb config to edit. Without it, the CLI looks for the same config files as `kubb generate`, in the current directory and then in each parent directory. |
 | `--yes`, `-y`         | `false`          | Remove without asking. |
 | `--no-uninstall`      |                  | Edit the config only and keep the package installed. |
 
@@ -85,4 +85,4 @@ It does not remove:
 
 ## Exit codes
 
-`kubb remove` exits with code 1 when it cannot remove the extension or the uninstall fails. It exits with code 0 when the extension is removed, was not in the project, or you cancel.
+`kubb remove` exits with code 1 when the id is invalid or unknown, it cannot remove the extension, or the uninstall fails. It exits with code 0 when the extension is removed, was not in the project, or you cancel.

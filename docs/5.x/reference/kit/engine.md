@@ -20,9 +20,9 @@ Import `createKubb` from the `kubb` package to run a build from your own code. F
 
 ## `createKubb` {#createkubb}
 
-`createKubb` accepts a `UserConfig` and returns a `Kubb` instance. Call `.safeBuild()` to run the pipeline and read the problems back from `BuildOutput`, or `.build()` to throw instead.
+`createKubb` accepts a `UserConfig` and returns a `Kubb` instance. Call `.safeBuild()` to run the pipeline and read the problems back from `BuildOutput`, or `.build()` to throw instead. An optional second argument takes `hooks`, a `Hookable<KubbHooks>` to share one emitter between builds, and `signal`, an `AbortSignal` that stops the build at the next checkpoint.
 
-Reach for `createKubb` when you orchestrate several builds, inspect diagnostics, or feed Kubb output into a larger toolchain. It applies the same defaults as `defineConfig`, so a shared config generates the same files from the CLI and from a script. Import it from `@kubb/core` for a bare engine without package defaults.
+Use `createKubb` to orchestrate several builds, inspect diagnostics, or feed Kubb output into a larger toolchain. `createKubb` applies the same defaults as `defineConfig`, so a shared config generates the same files from the CLI and from a script. Import it from `@kubb/core` for a bare engine without package defaults.
 
 ```typescript [build.ts]
 import { createKubb } from 'kubb'
@@ -36,7 +36,7 @@ const kubb = createKubb({
   plugins: [pluginTs(), pluginAxios()],
 })
 
-const { files, storage, diagnostics } = await kubb.safeBuild()
+const { files, diagnostics } = await kubb.safeBuild()
 
 if (Diagnostics.hasError(diagnostics)) {
   for (const diagnostic of diagnostics.filter(Diagnostics.isProblem)) {
@@ -51,8 +51,7 @@ for (const { plugin, duration } of diagnostics.filter(Diagnostics.isPerformance)
   console.log(`${plugin}: ${duration}ms`)
 }
 console.log(`Generated ${files.length} files`)
-const paths = await storage.readKeys()
-paths.forEach((path) => console.log(`  ${path}`))
+files.forEach((file) => console.log(`  ${file.path}`))
 ```
 
 ### `Kubb` instance members
@@ -66,7 +65,7 @@ paths.forEach((path) => console.log(`  ${path}`))
 | `.dispose()`   | `() => void`                                      | Releases the driver. The instance also implements `Symbol.dispose`, so `using kubb = createKubb(config)` disposes it for you. |
 | `.hooks`       | `Hookable<KubbHooks>`                             | Read-only. Shared hook emitter. Call `.hook(name, handler)` before a build to listen. See [lifecycle hooks](./hooks). |
 | `.config`      | `Config`                                          | Read-only. Resolved config, available right after `createKubb`. |
-| `.storage`     | `Storage`                                         | Read-only. Final source code keyed by absolute path. Available after `setup()`, throws before. |
+| `.storage`     | `Storage`                                         | Read-only. The configured storage backend (`config.storage`), available right after `createKubb`. Generated files are written under their absolute path. |
 | `.driver`      | driver handle                                     | Advanced plugin driver, available after `setup()`. Throws before. |
 
 ### `BuildOutput` fields {#buildoutput-fields}

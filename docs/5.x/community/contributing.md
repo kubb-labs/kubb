@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Contributing
-description: A concise guide to contributing to Kubb core and Kubb plugins.
+description: Set up the Kubb repository, run the checks, and open a pull request for Kubb core or a plugin.
 outline:
   - 2
   - 3
@@ -22,7 +22,7 @@ First, check the open [issues](https://github.com/kubb-labs/kubb/issues) and [pu
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/en/download) 22 or later.
+- [Node.js](https://nodejs.org/en/download) 22.22 or later.
 - [pnpm](https://pnpm.io/installation) 11 or later.
 - [Git](https://git-scm.com/) and, optionally, the [GitHub CLI](https://cli.github.com/).
 
@@ -43,7 +43,10 @@ cd kubb
 
 ```shell [Terminal]
 pnpm install
+pnpm build
 ```
+
+`pnpm build` compiles every package. Run it once after install so local packages resolve each other, and again after you change package source.
 
 ### Create a branch {#_3-create-a-branch}
 
@@ -53,7 +56,7 @@ git checkout -b feat/your-feature-name
 
 ### Iterate {#_4-iterate}
 
-Run a single package in watch mode:
+Build a single package in watch mode:
 
 ```shell [Terminal]
 pnpm -F @kubb/core start
@@ -62,7 +65,7 @@ pnpm -F @kubb/core start
 Run the test suite:
 
 ```shell [Terminal]
-pnpm run test
+pnpm test
 ```
 
 ::
@@ -81,17 +84,20 @@ pnpm run test
 | `packages/renderer-jsx/`      | JSX renderer used by plugins that emit components.                      |
 | `packages/cli/`               | The `kubb` CLI entry point.                                             |
 | `packages/mcp/`               | MCP server runtime.                                                     |
+| `packages/studio/`            | Connection between a project and Kubb Studio, behind `kubb studio`.     |
 | `packages/unplugin-kubb/`     | Bundler integrations (Vite, webpack, Rollup, Rolldown, Rspack, esbuild, Farm, Nuxt, Astro). |
-| `packages/kubb/`              | The meta package that re-exports `defineConfig` with sensible defaults. |
+| `packages/kubb/`              | The main package. It re-exports the public APIs and `defineConfig`, which fills in the defaults. |
 
 ### Quality gates
 
 Run these locally before pushing. CI runs the same commands.
 
 ```shell [Terminal]
-pnpm run typecheck
-pnpm run lint
-pnpm run test
+pnpm build
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm test:registry
 ```
 
 ## Kubb plugins
@@ -100,7 +106,7 @@ Build a community plugin in your own repository, or propose an official one in t
 
 ### Build a community plugin
 
-1. Follow the [Creating Your First Plugin](/docs/5.x/tutorials/creating-plugins) guide.
+1. Follow the [Create a Kubb plugin](/docs/5.x/tutorials/creating-plugins) tutorial.
 2. Use [`@kubb/plugin-axios`](https://github.com/kubb-labs/plugins/tree/main/packages/plugin-axios) as the layout to copy.
 3. Publish to npm under the `kubb-plugin-*` naming convention.
 4. Add a `kubb-extension.json` and a `docs/` folder with an `overview.md`, then submit the package to the Kubb registry. See [Publish a plugin](/docs/5.x/how-to/publish-a-plugin).
@@ -125,11 +131,13 @@ describe('resolverExample', () => {
 })
 ```
 
-Run tests for a single package:
+To run a single package's tests, point Vitest at its folder:
 
 ```shell [Terminal]
-pnpm -F @kubb/core test
+pnpm vitest run --config ./configs/vitest.config.ts packages/core
 ```
+
+List every new test file in `configs/test-registry.json` with one sentence that says what it covers. `pnpm test:registry` fails CI when a test file has no entry or an entry points at a deleted file.
 
 ## Commits and changesets
 
@@ -138,7 +146,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `f
 Add a [changeset](https://github.com/changesets/changesets) for any change that ships in a published package:
 
 ```shell [Terminal]
-pnpm run changeset
+pnpm changeset
 ```
 
 Skip the changeset only when the change does not affect published code, such as CI, internal tests, or docs.

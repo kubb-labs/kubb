@@ -45,6 +45,7 @@ A `SchemaNode` is discriminated by its `type`. The values fall into three famili
 | `union`        | One of multiple types                   | `string \| number`              |
 | `intersection` | Combination of multiple types           | `A & B`                         |
 | `enum`         | Fixed set of literal values             | `'active' \| 'inactive'`        |
+| `not`          | Value that must not match its member    | No equivalent                   |
 
 ### Scalar types
 
@@ -74,6 +75,8 @@ Object schemas can also include `propertyNames`, a schema that validates each ke
 | `uuid`     | UUID string                 | `550e8400-e29b-41d4-a716-446655440000` |
 | `email`    | Email address               | `user@example.com`                     |
 | `url`      | URL string                  | `https://example.com`                  |
+| `ipv4`     | IPv4 address                | `192.168.0.1`                          |
+| `ipv6`     | IPv6 address                | `2001:db8::1`                          |
 | `blob`     | Binary data                 | Raw bytes                              |
 
 ## Groups
@@ -121,7 +124,7 @@ ast.factory.createText('export const a = 1')
 
 ## `ast.node` {#visitors}
 
-`ast.node` walks and reads any node. Visitor objects use lowercase, kind-style keys (`input`, `operation`, `schema`, `property`, `parameter`, `response`). To rewrite nodes inside a plugin, reach for [macros](/docs/5.x/how-to/macros), which add names, ordering, and composition on top of `transform`.
+`ast.node` walks and reads any node. Visitor objects use lowercase, kind-style keys (`input`, `operation`, `schema`, `property`, `parameter`, `response`). To rewrite nodes inside a plugin, use [macros](/docs/5.x/how-to/macros), which add names, ordering, and composition on top of `transform`.
 
 | Helper               | Returns                                                                         |
 | -------------------- | ------------------------------------------------------------------------------- |
@@ -161,7 +164,7 @@ ast.node.kinds.schema // 'Schema'
 
 ## `ast.macro` {#macros}
 
-A macro is a named, composable transform built on `transform` that rewrites nodes before printing, adding ordering, gating, and reuse a bare visitor doesn't give you. Define one with `defineMacro` from `kubb/kit`. See [Macros concepts](/docs/5.x/how-to/macros).
+A macro is a named transform that rewrites nodes before printing. On top of `transform`, a macro adds ordering through `enforce` and gating through `match`. Define one with `defineMacro` from `kubb/kit`. See [Macros concepts](/docs/5.x/how-to/macros).
 
 | Helper                   | Returns                                                            |
 | ------------------------ | ------------------------------------------------------------------ |
@@ -179,13 +182,15 @@ const macroUntagged = defineMacro({
 ast.macro.apply(operation, [macroUntagged]).tags // ['untagged']
 ```
 
-Kubb also ships built-in macros for common schema normalizations that any adapter can compose with its own. `macroDiscriminatorEnum` and `macroEnumName` read options, so call them to build the macro. Plugins that import another plugin's output compute names from the nodes they see, so register a rename on every plugin that touches the schema, for example by passing one shared `macros` array to each plugin. [Macros](/docs/5.x/how-to/macros) shows a rename macro.
+Kubb also ships built-in macros for common schema normalizations that any adapter can compose with its own. `macroDiscriminatorEnum` and `macroEnumName` read options, so call them to build the macro.
 
-| Macro                    | Purpose                                                                             |
-| ------------------------ | ----------------------------------------------------------------------------------- |
-| `macroDedupeUnion`       | Drop union members that repeat an earlier one, ignoring the source pointer.         |
-| `macroDiscriminatorEnum` | Replace a discriminator property's schema with a string enum of its allowed values. |
-| `macroEnumName`          | Name an inline enum schema from its parent and property name.                       |
+A plugin that imports another plugin's output computes names from the nodes it sees. Register a rename on every plugin that touches the schema, for example by passing one shared `macros` array to each plugin. [Macros](/docs/5.x/how-to/macros) shows a rename macro.
+
+| Macro                    | Purpose                                                                       |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| `macroDedupeUnion`       | Drop union members that repeat an earlier one, ignoring the source pointer.   |
+| `macroDiscriminatorEnum` | Replace a discriminator property's schema with an enum of its allowed values. |
+| `macroEnumName`          | Name an inline enum schema from its parent and property name.                 |
 
 `macroSimplifyUnion` is the name `macroDedupeUnion` had before 5.16. It still works, but is deprecated: update the import.
 
@@ -200,7 +205,7 @@ type Macro = {
   match?: (node: Node) => boolean
   schema?(node: SchemaNode, context): SchemaNode | null | undefined
   operation?(node: OperationNode, context): OperationNode | null | undefined
-  // input, output, property, parameter, response
+  // input, property, parameter, response
 }
 ```
 
@@ -229,13 +234,13 @@ ast.ref.isAlias(petRef) // true
 
 Analyze how schemas reference each other, to prune unused schemas or wrap circular ones in a lazy construct.
 
-| Helper                       | Returns                                                                                                  |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `ast.graph.getRefNames`      | Every schema name a node refers to, at any depth.                                                        |
-| `ast.graph.getImportedNames` | The ref names a printed schema imports. Pass `{ checks: true }` to drop refs in checks no printer emits. |
-| `ast.graph.getUsedNames`     | The schema names a set of operations reaches, directly or through other schemas.                         |
-| `ast.graph.getCircularNames` | The schemas that take part in a circular chain, so they can be wrapped in a lazy getter.                 |
-| `ast.graph.containsCircular` | Whether a schema reaches one of the circular schemas.                                                    |
+| Helper                       | Returns                                                                                                                           |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `ast.graph.getRefNames`      | Every schema name a node refers to, at any depth.                                                                                 |
+| `ast.graph.getImportedNames` | The ref names a printed schema imports. Pass `{ checks: true }` to include refs inside `conditionals`, `contains`, and `content`. |
+| `ast.graph.getUsedNames`     | The schema names a set of operations reaches, directly or through other schemas.                                                  |
+| `ast.graph.getCircularNames` | The schemas that take part in a circular chain, so they can be wrapped in a lazy getter.                                          |
+| `ast.graph.containsCircular` | Whether a schema reaches one of the circular schemas.                                                                             |
 
 ```typescript [graph.ts]
 import { ast } from 'kubb/kit'
@@ -383,4 +388,6 @@ type PrinterNodes = Partial<{
 }>
 ```
 
-Handlers run with a `this` context, so write them as regular functions rather than arrow functions. `this.transform(node)` recurses into a nested schema node through the full handler map, overrides included. `this.base(node)` runs the built-in handler your override replaced, so you can wrap its output instead of rebuilding it. `this.options` reads the resolved printer options, such as `arrayType` on `@kubb/plugin-ts` or `direction` on `@kubb/plugin-zod`. Inside a handler, `this.import(ast.factory.createImport(...))` declares an import the printed code needs. The built-in generators collect these imports. In your own generator, call `printer.drainImports()` after printing to collect them.
+Handlers run with a `this` context, so write them as regular functions rather than arrow functions. `this.transform(node)` recurses into a nested schema node through the full handler map, overrides included. `this.base(node)` runs the built-in handler your override replaced, so you can wrap its output instead of rebuilding it.
+
+`this.options` reads the resolved printer options, such as `arrayType` on `@kubb/plugin-ts` or `direction` on `@kubb/plugin-zod`. Inside a handler, `this.import(ast.factory.createImport(...))` declares an import the printed code needs. The built-in generators collect these imports. In your own generator, call `printer.drainImports()` after printing to collect them.

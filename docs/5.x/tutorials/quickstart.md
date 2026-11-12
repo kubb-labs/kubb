@@ -131,12 +131,12 @@ The `.kubb` directory holds shared client and serialization helpers.
 
 Add a `tag` property to the `Pet` schema in `petStore.yaml`, alongside `id` and `name`:
 
-```yaml [petStore.yaml — properties]
+```yaml [petStore.yaml]
 tag:
   type: string
 ```
 
-Run `npx kubb generate` again and open `src/gen/models/Pet.ts`. It now includes an optional `tag` field because `tag` is not listed in the schema's `required` array. The client continues to import the regenerated types.
+Run `npx kubb generate` again and open `src/gen/models/Pet.ts`. The `Pet` type now includes an optional `tag` field because `tag` is not listed in the schema's `required` array. The client continues to import the regenerated types.
 
 You now have a typed client and have seen how a specification change flows into its output.
 

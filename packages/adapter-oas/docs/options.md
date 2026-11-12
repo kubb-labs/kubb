@@ -13,15 +13,15 @@ Pass these options to `adapterOas()`. All of them are optional.
 | [`enums`](#enums)                     | Where inline enums live.                                     |
 | [`dateType`](#datetype)               | How `date-time`, `date`, and `time` schemas are represented. |
 | [`integerType`](#integertype)         | How `int64` and `uint64` integers map to TypeScript.         |
-| [`unknownType`](#unknowntype)         | Type for schemas Kubb cannot infer.                          |
-| [`emptySchemaType`](#emptyschematype) | Type for empty schemas.                                      |
+| [`unknownType`](#unknowntype)         | Type for open map values and parameters without a schema.    |
+| [`emptySchemaType`](#emptyschematype) | Type for schemas with no type to infer.                      |
 | [`enumSuffix`](#enumsuffix)           | Suffix for derived enum names.                               |
 
 ## Option details
 
 ### validate
 
-Validates the OpenAPI spec with `@readme/openapi-parser` before parsing. Each problem is reported as a [`KUBB_INVALID_SPEC`](https://kubb.dev/docs/5.x/reference/diagnostics#kubb-invalid-spec) warning, and generation continues. Set it to `false` to skip the check, which makes generation faster on a large spec. Run [`kubb validate`](https://kubb.dev/docs/5.x/reference/commands/validate) to list every error. An OpenAPI 3.2 document is not validated yet, because `@readme/openapi-parser` does not support 3.2, and gets one warning that says so.
+Validates the OpenAPI spec with `@readme/openapi-parser` before parsing. Each problem is reported as a [`KUBB_INVALID_SPEC`](https://kubb.dev/docs/5.x/reference/diagnostics#kubb-invalid-spec) warning, and generation continues. Set it to `false` to skip the check, which makes generation faster on a large spec. Run [`kubb validate`](https://kubb.dev/docs/5.x/reference/commands/validate) to list every error. An OpenAPI 3.2 document is not validated yet, because `@readme/openapi-parser` does not support 3.2. Kubb reports one warning that says so.
 
 |          |           |
 | -------- | --------- |
@@ -40,7 +40,7 @@ Media type to keep when an operation declares several, for both request bodies a
 
 ### server
 
-Selects which entry in the spec's `servers` array Kubb resolves into the document `baseURL`, filling in any `{variable}` placeholders. `server.index` points at one of the spec's servers, usually `0` for the primary one. `server.variables` supplies placeholder values, falling back to each variable's `default` from the spec. Omit `server` and `baseURL` resolves to `null`.
+Selects which entry in the spec's `servers` array Kubb resolves into the document `baseURL`, filling in any `{variable}` placeholders. `server.index` points at one of the spec's servers, usually `0` for the primary one. `server.variables` supplies placeholder values, falling back to each variable's `default` from the spec. When `server` or `server.index` is omitted, `baseURL` resolves to `null`.
 
 |          |                                                          |
 | -------- | -------------------------------------------------------- |
@@ -64,11 +64,11 @@ How `discriminator` fields on `oneOf`/`anyOf` schemas are interpreted.
 ::field-group
 
 :::field{name="'preserve'"}
-Keeps child schemas exactly as written, though the discriminator still narrows types at the call site.
+Keeps child schemas exactly as written. The parent union still narrows each branch by its discriminator value.
 :::
 
 :::field{name="'propagate'"}
-Pushes the discriminator property with its literal value into each child schema, so each branch's `type` field is precisely typed.
+Also writes the discriminator property with its literal value into each child schema, so `Cat` and `Dog` are narrowed when used on their own.
 :::
 
 ::
@@ -80,8 +80,6 @@ openapi: 3.0.3
 components:
   schemas:
     Animal:
-      required: [type]
-      type: object
       oneOf:
         - $ref: '#/components/schemas/Cat'
         - $ref: '#/components/schemas/Dog'
@@ -103,15 +101,39 @@ components:
 ```
 
 ```typescript ['preserve' (default)]
-export type Cat = { type: string; indoor?: boolean }
-export type Dog = { type: string; name?: string }
-export type Animal = Cat | Dog
+export type Cat = {
+  type?: string;
+  indoor?: boolean;
+};
+
+export type Dog = {
+  type?: string;
+  name?: string;
+};
+
+export type Animal = Cat & {
+  type: 'cat';
+} | Dog & {
+  type: 'dog';
+};
 ```
 
 ```typescript ['propagate']
-export type Cat = { type: 'cat'; indoor?: boolean }
-export type Dog = { type: 'dog'; name?: string }
-export type Animal = Cat | Dog
+export type Cat = {
+  type: 'cat';
+  indoor?: boolean;
+};
+
+export type Dog = {
+  type: 'dog';
+  name?: string;
+};
+
+export type Animal = Cat & {
+  type: 'cat';
+} | Dog & {
+  type: 'dog';
+};
 ```
 
 ::
@@ -133,22 +155,44 @@ Keeps each enum on the property that declares it.
 :::
 
 :::field{name="'root'"}
-Lifts every inline enum to a reusable top-level schema named after its context (for example `PetStatusEnum`) and references it wherever it appears.
+Lifts every inline enum to a top-level schema named after its context (for example `PetStatusEnum`) and references it wherever it appears.
 :::
 
 ::
 
-For an enum with values `active` and `inactive` on `Pet.status`:
+The names are the same in both modes. With `'root'`, the enum is a schema of its own, so a plugin that writes one file per schema gives it its own file. For an enum with values `active` and `inactive` on `Pet.status`, `@kubb/plugin-ts` writes:
 
 ::code-group
 
 ```typescript ['inline' (default)]
-export type Pet = { status?: 'active' | 'inactive' }
+// types/Pet.ts
+export const petStatusEnum = {
+  active: 'active',
+  inactive: 'inactive',
+} as const;
+
+export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum];
+
+export type Pet = {
+  status?: PetStatusEnumKey;
+};
 ```
 
 ```typescript ['root']
-export type PetStatusEnum = 'active' | 'inactive'
-export type Pet = { status?: PetStatusEnum }
+// types/PetStatusEnum.ts
+export const petStatusEnum = {
+  active: 'active',
+  inactive: 'inactive',
+} as const;
+
+export type PetStatusEnumKey = (typeof petStatusEnum)[keyof typeof petStatusEnum];
+
+// types/Pet.ts
+import type { PetStatusEnumKey } from './PetStatusEnum'
+
+export type Pet = {
+  status?: PetStatusEnumKey;
+};
 ```
 
 ::
@@ -191,7 +235,7 @@ Represents date and time values as JavaScript `Date` objects. JSON values need p
 
 The string variants all emit `string` at the TypeScript type level. Schema plugins such as `@kubb/plugin-zod` validate the offset or local format.
 
-Pass an object to set `dateTime`, `date`, and `time` independently. A key you leave out defaults to `'string'`, regardless of the other keys.
+Pass an object to set `dateTime`, `date`, and `time` independently. A key that is left out defaults to `'string'`, regardless of the other keys.
 
 ```ts
 adapterOas({
@@ -216,7 +260,7 @@ How a schema with `format: int64` or `format: uint64` maps to TypeScript. Other 
 ::field-group
 
 :::field{name="'bigint'"}
-Represents 64-bit IDs exactly, but `JSON.stringify` and `JSON.parse` cannot round-trip it. Use it only when you handle bigint serialization yourself.
+Represents 64-bit IDs exactly, but `JSON.stringify` and `JSON.parse` cannot round-trip it. Use it only when the application handles bigint serialization itself.
 :::
 
 :::field{name="'number'"}
@@ -229,7 +273,7 @@ A schema with `type: string` stays a `string` whatever its `format`, so the [Pro
 
 ### unknownType
 
-AST type used when a schema's type cannot be inferred from the spec (`additionalProperties: true`, a missing `type`, and similar).
+AST type used where the spec allows any value but gives no schema for it: the values of `additionalProperties: {}`, a `patternProperties` entry set to `true` or `{}`, the extra items of an open `prefixItems` tuple, and a parameter without a `schema`. `additionalProperties: true` is not affected, and `@kubb/plugin-ts` always types its values as `unknown`.
 
 |          |                                |
 | -------- | ------------------------------ |
@@ -255,7 +299,7 @@ Represents a value callers should not use. Choose it when matching a legacy API 
 
 ### emptySchemaType
 
-AST type used for empty schemas (`{}`). It takes the same values as [`unknownType`](#unknowntype) and follows it unless you set it.
+AST type used for a schema with nothing to infer a type from: an empty schema (`{}`), a schema without a `type` such as one that holds only a `description`, and a response without a schema. `emptySchemaType` takes the same values as [`unknownType`](#unknowntype) and follows it when unset.
 
 |          |                                        |
 | -------- | -------------------------------------- |
@@ -268,7 +312,7 @@ AST type used for empty schemas (`{}`). It takes the same values as [`unknownTyp
 
 ### enumSuffix
 
-Suffix for the names Kubb gives inline enums: schema name, property name, and suffix, in PascalCase. The `status` enum on `Pet` becomes `PetStatusEnum`, or `PetStatusType` with `enumSuffix: 'type'`.
+Suffix for the names Kubb gives inline enums: schema name, property name, and suffix, in PascalCase. The `status` enum on `Pet` becomes `PetStatusEnum`, or `PetStatusType` with `enumSuffix: 'type'`. Plugins derive their own names from it, such as `petStatusEnum` and `PetStatusEnumKey` in `@kubb/plugin-ts`.
 
 |          |          |
 | -------- | -------- |

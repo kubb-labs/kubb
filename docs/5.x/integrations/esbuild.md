@@ -18,7 +18,7 @@ navigation:
 ```typescript [build.ts]
 import { build } from 'esbuild'
 import kubb from 'kubb/esbuild'
-import config from './kubb.config'
+import config from './kubb.config.ts'
 
 await build({
   entryPoints: ['src/index.ts'],

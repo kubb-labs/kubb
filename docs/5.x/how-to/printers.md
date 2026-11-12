@@ -36,7 +36,7 @@ pluginTs({
 })
 ```
 
-Inside a handler, `this.transform(node)` returns the printed type of a nested schema as a string. This is a breaking change for handlers that passed that result into `ts.factory`: build the type as a string instead. Handlers that return a compiler node from `typescript` 5 or 6, or from `@typescript/typescript6`, still work, but that form is deprecated and is removed in the next major.
+Inside a handler, `this.transform(node)` returns the printed type of a nested schema as a string. Handlers that passed that result into `ts.factory` break, so build the type as a string instead. Handlers that return a compiler node from `typescript` 5 or 6, or from `@typescript/typescript6`, still work. That form is deprecated and the next major removes it.
 
 ## Zod schemas
 
@@ -72,7 +72,7 @@ pluginZod({
 })
 ```
 
-A Zod handler can also read `this.options.direction`, which is `'decode'` while printing response schemas and `'encode'` while printing request bodies and parameters. Return a different expression per direction and the plugin treats the node as a two-way conversion, emitting an `${name}InputSchema` variant that request bodies resolve to. See [Encode a custom type on requests](/extensions/kubb-labs/plugin-zod/guides/customization#encode-custom-types).
+A Zod handler can also read `this.options.direction`, which is `'decode'` while printing response schemas and `'encode'` while printing request bodies and parameters. Return a different expression per direction and the plugin treats the node as a two-way conversion. It then emits an `${name}InputSchema` variant that request bodies resolve to. Type the handlers object as `PrinterZodNodes` from `@kubb/plugin-zod`, because the inline `printer.nodes` type also covers Zod Mini, which has no `direction`. See [Encode a custom type on requests](/extensions/kubb-labs/plugin-zod/guides/customization#encode-custom-types).
 
 ## Faker mocks
 

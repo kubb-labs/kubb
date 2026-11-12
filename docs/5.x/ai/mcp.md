@@ -20,7 +20,7 @@ Kubb ships a [Model Context Protocol](https://modelcontextprotocol.io/) server w
 a `kubb.config.ts`, and run generation from the chat.
 
 > [!NOTE]
-> This page covers using Kubb tooling inside your editor over MCP. To generate an MCP server from
+> This server runs Kubb tooling inside your editor over MCP. To generate an MCP server from
 > your OpenAPI spec, see [`@kubb/plugin-mcp`](/extensions/kubb-labs/plugin-mcp) instead.
 
 ## Client configuration {#client-configuration}
@@ -69,7 +69,7 @@ VS Code uses a `servers` key instead. Add this to `.vscode/mcp.json` for the wor
 
 ## Working directory {#working-directory}
 
-The server looks for `kubb.config.*` or `.kubbrc.*` in the folder the client starts it in, then in its parent folders, and rejects a `config` path outside that folder. Claude Code starts it in the folder you run `claude` from.
+The server looks for `kubb.config.*` or `.kubbrc.*` in the folder the client starts it in, then in its parent folders. The server rejects a `config` path outside the folder it starts in. Claude Code starts it in the folder you run `claude` from.
 
 If `generate` returns `No config file found`, the client started the server in another folder. Clients such as Claude Code ignore a `cwd` key, so change into the project in the command instead (macOS and Linux):
 
