@@ -89,12 +89,9 @@ function toggleTheme() {
       </dl>
       <p v-if="report.plugins.failed.length" class="failure">Failed plugins: {{ report.plugins.failed.join(', ') }}</p>
       <div v-if="slowestPlugin" class="insight">
-        <span>Slowest plugin</span><strong>{{ slowestPlugin.plugin }}</strong
-        ><span>{{ formatMs(slowestPlugin.durationMs) }}</span>
+        <span>Slowest plugin</span><strong>{{ slowestPlugin.plugin }}</strong><span>{{ formatMs(slowestPlugin.durationMs) }}</span>
       </div>
-      <div class="output">
-        <span>Output directory</span><code>{{ report.output }}</code>
-      </div>
+      <div class="output"><span>Output directory</span><code>{{ report.output }}</code></div>
     </section>
 
     <section v-if="pluginActivity.length">
@@ -139,10 +136,7 @@ function toggleTheme() {
       </div>
       <p v-if="!pluginFiles.length" class="muted">Kubb did not record any files for this run.</p>
       <details v-for="group in pluginFiles" :key="group.plugin" open>
-        <summary>
-          <span>{{ group.plugin }}</span
-          ><span class="count">{{ group.files.length }}</span>
-        </summary>
+        <summary><span>{{ group.plugin }}</span><span class="count">{{ group.files.length }}</span></summary>
         <ul class="file-list">
           <li v-for="path in group.files" :key="path">
             <code>{{ path }}</code>
