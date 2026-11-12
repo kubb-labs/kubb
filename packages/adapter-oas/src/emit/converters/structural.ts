@@ -35,10 +35,10 @@ function resolveMapSchema(mapSchema: unknown, { options, parse }: Pick<ConvertCo
  */
 function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | undefined; propName: string; enumSuffix: string }): ast.SchemaNode {
   const macro = macroEnumName(options)
-  const named = ast.applyMacros(node, [macro], { depth: 'shallow' })
-  const tupleNode = ast.narrowSchema(named, 'tuple')
+  const named = ast.macro.apply(node, [macro], { depth: 'shallow' })
+  const tupleNode = ast.schema.narrow(named, 'tuple')
   if (tupleNode?.items) {
-    const namedItems = tupleNode.items.map((item) => ast.applyMacros(item, [macro], { depth: 'shallow' }))
+    const namedItems = tupleNode.items.map((item) => ast.macro.apply(item, [macro], { depth: 'shallow' }))
     if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
       return { ...tupleNode, items: namedItems }
     }
@@ -110,7 +110,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       propertyType: propertyTypeOf({ schema, propertyName: discPropName, refs }),
     })
     const enumName = name ? enumPropName(name, discPropName, options.enumSuffix) : undefined
-    return ast.applyMacros(objectNode, [macroDiscriminatorEnum({ propertyName: discPropName, values, enumName })], { depth: 'shallow' })
+    return ast.macro.apply(objectNode, [macroDiscriminatorEnum({ propertyName: discPropName, values, enumName })], { depth: 'shallow' })
   }
 
   return objectNode

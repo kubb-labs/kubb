@@ -24,9 +24,9 @@ describe.each(['oneOf', 'anyOf'] as const)('%s parent required properties', (key
         },
       },
     })
-    const members = ast.narrowSchema(root.schemas[0], ast.schemaTypes.intersection)!.members!
-    expect(ast.narrowSchema(members.at(-1), ast.schemaTypes.object)!.properties).toMatchObject([
-      { name: 'missing', required: true, schema: { type: ast.schemaTypes.unknown } },
+    const members = ast.schema.narrow(root.schemas[0], ast.schema.types.intersection)!.members!
+    expect(ast.schema.narrow(members.at(-1), ast.schema.types.object)!.properties).toMatchObject([
+      { name: 'missing', required: true, schema: { type: ast.schema.types.unknown } },
     ])
   })
 
@@ -60,23 +60,23 @@ describe.each(['oneOf', 'anyOf'] as const)('%s parent required properties', (key
       },
     })
     const pet = root.schemas.find((node) => node.name === 'Pet')!
-    expect(pet).toMatchObject({ type: ast.schemaTypes.intersection, description: 'Parent description' })
-    const members = ast.narrowSchema(pet, ast.schemaTypes.intersection)!.members!
-    const union = ast.narrowSchema(members[0], ast.schemaTypes.union)!
+    expect(pet).toMatchObject({ type: ast.schema.types.intersection, description: 'Parent description' })
+    const members = ast.schema.narrow(pet, ast.schema.types.intersection)!.members!
+    const union = ast.schema.narrow(members[0], ast.schema.types.union)!
     expect(union.strategy).toBe(keyword === 'oneOf' ? 'one' : 'any')
     expect(union.members).toHaveLength(2)
-    const required = ast.narrowSchema(members.at(-1), ast.schemaTypes.object)!
-    expect(required.properties).toMatchObject([{ name: 'a', required: true, schema: { type: ast.schemaTypes.unknown } }])
+    const required = ast.schema.narrow(members.at(-1), ast.schema.types.object)!
+    expect(required.properties).toMatchObject([{ name: 'a', required: true, schema: { type: ast.schema.types.unknown } }])
     expect(required.properties[0]!.schema.optional).toBeUndefined()
     expect(required.properties[0]!.schema.nullish).toBeUndefined()
     expect(
-      ast.narrowSchema(
+      ast.schema.narrow(
         root.schemas.find((node) => node.name === 'A')!,
-        ast.schemaTypes.object,
+        ast.schema.types.object,
       )!.properties[0]!,
-    ).toMatchObject({ required: false, schema: { type: ast.schemaTypes.string, nullable: true } })
+    ).toMatchObject({ required: false, schema: { type: ast.schema.types.string, nullable: true } })
     if (siblings) {
-      expect(ast.narrowSchema(members[1], ast.schemaTypes.object)!.properties).toMatchObject([{ name: 'shared', required: true }])
+      expect(ast.schema.narrow(members[1], ast.schema.types.object)!.properties).toMatchObject([{ name: 'shared', required: true }])
     }
   })
 
@@ -101,13 +101,13 @@ describe.each(['oneOf', 'anyOf'] as const)('%s parent required properties', (key
         },
       },
     })
-    const members = ast.narrowSchema(root.schemas[0], ast.schemaTypes.intersection)!.members!
-    const required = ast.narrowSchema(members.at(-1), ast.schemaTypes.object)!.properties[0]!
+    const members = ast.schema.narrow(root.schemas[0], ast.schema.types.intersection)!.members!
+    const required = ast.schema.narrow(members.at(-1), ast.schema.types.object)!.properties[0]!
     expect(required.required).toBe(true)
-    expect(required.schema.type).toBe(ast.schemaTypes.unknown)
-    expect(ast.narrowSchema(members[0], ast.schemaTypes.union)!.members).toMatchObject([
-      { type: ast.schemaTypes.object, properties: [{ name: 'value', schema: { type: ast.schemaTypes.string } }] },
-      { type: ast.schemaTypes.object, properties: [{ name: 'value', schema: { type: ast.schemaTypes.number } }] },
+    expect(required.schema.type).toBe(ast.schema.types.unknown)
+    expect(ast.schema.narrow(members[0], ast.schema.types.union)!.members).toMatchObject([
+      { type: ast.schema.types.object, properties: [{ name: 'value', schema: { type: ast.schema.types.string } }] },
+      { type: ast.schema.types.object, properties: [{ name: 'value', schema: { type: ast.schema.types.number } }] },
     ])
   })
 })

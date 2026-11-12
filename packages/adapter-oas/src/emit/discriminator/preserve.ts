@@ -207,7 +207,7 @@ export function narrowUnionMembers({
   refs: Refs
 }): Array<ast.SchemaNode> {
   function pickDiscriminatorPropertyNode(node: ast.SchemaNode, propertyName: string): ast.SchemaNode | null {
-    const objectNode = ast.narrowSchema(node, 'object')
+    const objectNode = ast.schema.narrow(node, 'object')
     const discriminatorProperty = objectNode?.properties?.find((property) => property.name === propertyName)
 
     if (!discriminatorProperty) {
@@ -275,7 +275,7 @@ export function narrowUnionMembers({
 
     const narrowedDiscriminatorNode = sharedPropertiesNode
       ? pickDiscriminatorPropertyNode(
-          ast.applyMacros(sharedPropertiesNode, [macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: discriminatorValues })], {
+          ast.macro.apply(sharedPropertiesNode, [macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: discriminatorValues })], {
             depth: 'shallow',
           }),
           discriminator.propertyName,

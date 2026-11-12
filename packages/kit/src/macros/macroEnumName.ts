@@ -22,7 +22,7 @@ export function macroEnumName({ parentName, propName, enumSuffix }: Props) {
   return defineMacro({
     name: 'enum-name',
     schema(node) {
-      const enumNode = ast.narrowSchema(node, 'enum')
+      const enumNode = ast.schema.narrow(node, 'enum')
 
       if (enumNode?.primitive === 'boolean') return { ...node, name: null }
       if (enumNode) return { ...node, name: enumPropName(parentName, propName, enumSuffix) }

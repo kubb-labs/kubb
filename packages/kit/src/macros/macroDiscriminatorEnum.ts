@@ -29,7 +29,7 @@ export function macroDiscriminatorEnum({ propertyName, values, enumName }: Props
   return defineMacro({
     name: 'discriminator-enum',
     schema(node) {
-      const objectNode = ast.narrowSchema(node, 'object')
+      const objectNode = ast.schema.narrow(node, 'object')
       if (!objectNode?.properties?.length) return undefined
       if (!objectNode.properties.some((prop) => prop.name === propertyName)) return undefined
 

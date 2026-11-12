@@ -146,14 +146,14 @@ Use `collect` to find specific nodes, filter by a criterion, or build a list for
 
 ### Direct traversal
 
-`findSchema` stops at the first schema that matches a predicate. Set `followRefs: true` to inspect resolved ref targets; traversal stops when it reaches an unresolved or cyclic ref.
+`ast.schema.find` stops at the first schema that matches a predicate. Set `followRefs: true` to inspect resolved ref targets; traversal stops when it reaches an unresolved or cyclic ref.
 
 ```typescript twoslash [find-schema.ts]
 import { ast } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
 
-const dateSchema = ast.findSchema(root, {
+const dateSchema = ast.schema.find(root, {
   followRefs: true,
   predicate: (schema) => schema.type === 'date',
 })
@@ -161,7 +161,7 @@ const dateSchema = ast.findSchema(root, {
 
 ## Guards and narrowing {#guards-and-narrowing}
 
-Kubb exports type guards and a `narrowSchema` helper for safe discrimination:
+Kubb exports type guards and an `ast.schema.narrow` helper for safe discrimination:
 
 ```typescript [guards.ts]
 import { ast } from 'kubb/kit'
@@ -169,7 +169,7 @@ import { ast } from 'kubb/kit'
 const root = ast.factory.createInput({ schemas: [], operations: [] })
 
 for (const node of ast.collect<ast.SchemaNode>(root, { schema: (node) => node })) {
-  const obj = ast.narrowSchema(node, 'object')
+  const obj = ast.schema.narrow(node, 'object')
   if (obj) {
     console.log(`object with ${obj.properties.length} properties`)
   }
@@ -275,19 +275,19 @@ const baseURL = ast.http.getBaseURL(ast.server.getServer({ servers: node.servers
 
 ## Constants
 
-| Export        | Purpose                                  |
-| ------------- | ---------------------------------------- |
-| `schemaTypes` | Map of every schema `type` discriminant. |
-| `nodeKinds`   | Map of every node `kind` discriminant.   |
+| Export             | Purpose                                  |
+| ------------------ | ---------------------------------------- |
+| `ast.schema.types` | Map of every schema `type` discriminant. |
+| `ast.node.kinds`   | Map of every node `kind` discriminant.   |
 
 ## Macros
 
 A macro is a named, composable transform built on `transform` that rewrites nodes before printing, adding ordering, gating, and reuse a bare visitor doesn't give you. See [Macros concepts](/docs/5.x/how-to/macros).
 
-| Export        | Purpose                                                                                                 |
-| ------------- | ------------------------------------------------------------------------------------------------------- |
-| `defineMacro` | Type a macro and read it as one definition. Import it from `kubb/kit`; `ast.defineMacro` is deprecated. |
-| `applyMacros` | Run a list of macros over a node tree.                                                                  |
+| Export            | Purpose                                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------- |
+| `defineMacro`     | Type a macro and read it as one definition. Import it from `kubb/kit`; `ast.defineMacro` is deprecated. |
+| `ast.macro.apply` | Run a list of macros over a node tree.                                                                  |
 
 Kubb also ships built-in macros for common schema normalizations that any adapter can compose with its own. `macroDiscriminatorEnum` and `macroEnumName` read options, so call them to build the macro. Plugins that import another plugin's output compute names from the nodes they see, so register a rename on every plugin that touches the schema, for example by passing one shared `macros` array to each plugin. [Macros](/docs/5.x/how-to/macros) shows a rename macro.
 

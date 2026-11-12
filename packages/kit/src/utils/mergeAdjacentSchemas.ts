@@ -15,9 +15,9 @@ export function* mergeAdjacentObjectsLazy(members: Iterable<SchemaNode>): Genera
   let acc: SchemaNode | undefined
 
   for (const member of members) {
-    const objectMember = ast.narrowSchema(member, 'object')
+    const objectMember = ast.schema.narrow(member, 'object')
     if (objectMember && !objectMember.name && acc !== undefined) {
-      const accObject = ast.narrowSchema(acc, 'object')
+      const accObject = ast.schema.narrow(acc, 'object')
       if (accObject && !accObject.name) {
         acc = ast.factory.createSchema({
           ...accObject,

@@ -36,8 +36,8 @@ describe('annotated enums', () => {
         { name: 'Second', value: 2, primitive: 'number' },
       ],
     })
-    const container = ast.narrowSchema(result.schemas[1]!, 'object')!
-    const reference = ast.narrowSchema(container.properties![0]!.schema, 'ref')!
+    const container = ast.schema.narrow(result.schemas[1]!, 'object')!
+    const reference = ast.schema.narrow(container.properties![0]!.schema, 'ref')!
     expect(reference.schema).toMatchObject({
       type: 'enum',
       namedEnumValues: [

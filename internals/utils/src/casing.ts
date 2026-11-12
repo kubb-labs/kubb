@@ -1,11 +1,7 @@
 type Options = {
-  /**
-   * Text prepended before casing is applied.
-   */
+  /** Text prepended before casing is applied. */
   prefix?: string
-  /**
-   * Text appended before casing is applied.
-   */
+  /** Text appended before casing is applied. */
   suffix?: string
 }
 

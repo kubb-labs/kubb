@@ -1,3 +1,6 @@
+export { schemaTypes as types } from '../constants.ts'
+export { narrowSchema as narrow } from '../guards.ts'
+export { findSchema as find } from '../visitor.ts'
 import { narrowSchema } from '../guards.ts'
 import { isJson } from '../mediaType/index.ts'
 import type { NumberSchemaNode, SchemaNode, SchemaType, StringSchemaNode } from '../nodes/schema.ts'

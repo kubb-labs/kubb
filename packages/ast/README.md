@@ -111,12 +111,12 @@ const types = collect<string>(root, {
 ### Guards
 
 ```ts
-import { narrowSchema } from '@kubb/ast'
+import { ast } from '@kubb/ast'
 import type { Node } from '@kubb/ast'
 
 function process(node: Node) {
   if (node.kind === 'Schema') {
-    const obj = narrowSchema(node, 'object')
+    const obj = ast.schema.narrow(node, 'object')
     obj?.properties?.forEach((p) => console.log(p.name))
   }
 }

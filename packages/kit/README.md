@@ -74,7 +74,7 @@ export const pluginExample = defineExtension({
 
 `ast` and `factory` are the node builders a generator calls to construct the file, schema, and operation nodes it returns. `Diagnostics` is the structured error a plugin throws to report a problem with a location and a fix suggestion, and `memoryStorage` and `fsStorage` are the built-in storage backends, useful in tests and custom configs.
 
-`macroDedupeUnion`, `macroDiscriminatorEnum`, `macroEnumName`, and `macroRenameSchema` are the built-in macro presets, ready to pass to `ast.applyMacros` or a plugin's `setMacros`. Build a custom macro with `ast.defineMacro` instead.
+`macroDedupeUnion`, `macroDiscriminatorEnum`, `macroEnumName`, and `macroRenameSchema` are the built-in macro presets, ready to pass to `ast.macro.apply` or a plugin's `setMacros`. Build a custom macro with `ast.defineMacro` instead.
 
 `childName`, `enumPropName`, and `mergeAdjacentObjectsLazy` are schema-name helpers a generator or macro calls while shaping output. Ref and graph helpers live on `ast.ref` and `ast.graph`, such as `ast.ref.getName`, `ast.graph.getCircularNames`, and `ast.graph.getUsedNames`.
 
