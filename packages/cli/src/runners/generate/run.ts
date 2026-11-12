@@ -1,5 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
+import { setTimeout as delay } from 'node:timers/promises'
 import { styleText } from 'node:util'
 import { formatMs, formatters, getElapsedMs, linters } from '@internals/utils'
 import {
@@ -96,11 +97,9 @@ const UPDATE_WAIT_MS = 1_000
 
 /** `promise`'s value, or `undefined` when it takes longer than `ms`. */
 async function withTimeout<T>({ promise, ms }: { promise: Promise<T>; ms: number }): Promise<T | undefined> {
-  let timer: ReturnType<typeof setTimeout> | undefined
-  const timeout = new Promise<undefined>((resolve) => {
-    timer = setTimeout(resolve, ms)
-  })
-  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer))
+  const timer = new AbortController()
+  const timeout = delay(ms, undefined, { signal: timer.signal }).catch(() => undefined)
+  return Promise.race([promise, timeout]).finally(() => timer.abort())
 }
 
 async function checkForUpdate({ hooks, latestVersion }: { hooks: Hookable<KubbHooks>; latestVersion: string | undefined }): Promise<void> {
