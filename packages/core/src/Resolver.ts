@@ -47,7 +47,7 @@ export type ResolverPathParams = Omit<ResolverFileParams, 'name' | 'extname'> & 
  */
 export type ResolvePathOptions = ResolverPathParams & {
   /**
-   * Absolute project root that the output path is resolved against.
+   * Absolute directory the plugin's `output.path` is resolved against. Generators pass `ctx.root`, the config's output directory.
    */
   root: string
   /**
