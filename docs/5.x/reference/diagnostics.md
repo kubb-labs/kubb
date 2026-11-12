@@ -286,6 +286,8 @@ No action is required. The plugin name and message appear in the summary and JSO
 
 A newer Kubb version is published on npm than the one running.
 
+`kubb generate` asks npm at most once every 24 hours and keeps the answer in `KUBB_HOME` (default `~/.kubb`), so the notice also shows on runs that make no request. It skips the check in CI, detected from variables such as `CI` or `GITHUB_ACTIONS`.
+
 Update Kubb and your project plugins through your package manager.
 
 ## Machine-readable output

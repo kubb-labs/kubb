@@ -1,13 +1,19 @@
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
 import { type Config, fsStorage, type PostGenerateCommand, resolveCacheDir, resolveMeta, type UserConfig } from '@kubb/core'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
 import * as env from '../../utils/env.ts'
 import { run } from './run.ts'
+
+// The update check reads `KUBB_HOME`, so a notice stored by a real run never leaks into these tests.
+const kubbHome = mkdtempSync(join(tmpdir(), 'kubb-cli-home-'))
+beforeEach(() => void vi.stubEnv('KUBB_HOME', kubbHome))
+afterEach(() => void vi.unstubAllEnvs())
+afterAll(() => rmSync(kubbHome, { recursive: true, force: true }))
 
 type BootstrapOptions = {
   /**
@@ -102,6 +108,22 @@ describe('bootstrap configuration group', () => {
     const lines = await bootstrap({ reporters: ['json'] })
 
     expect([...lines]).toStrictEqual([])
+  })
+})
+
+describe('update notice', () => {
+  afterEach(() => rmSync(join(kubbHome, 'cache'), { recursive: true, force: true }))
+
+  it('prints the notice from a fresh stored check without asking the registry', async () => {
+    for (const name of ['CI', 'GITHUB_ACTIONS', 'GITLAB_CI', 'BUILDKITE', 'CIRCLECI', 'TF_BUILD', 'JENKINS_URL', 'TRAVIS']) vi.stubEnv(name, '')
+    mkdirSync(join(kubbHome, 'cache'), { recursive: true })
+    writeFileSync(join(kubbHome, 'cache', 'update-check.json'), JSON.stringify({ version: '99.0.0', checkedAt: Date.now() }))
+    using fetch = vi.spyOn(globalThis, 'fetch')
+
+    const lines = await bootstrap()
+
+    expect(lines.some((line) => line.includes('v99.0.0'))).toBe(true)
+    expect(fetch).not.toHaveBeenCalled()
   })
 })
 
