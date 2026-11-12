@@ -1,3 +1,4 @@
+import { setTimeout as sleep } from 'node:timers/promises'
 import { stripVTControlCharacters } from 'node:util'
 import { isRichOutput } from '../utils/env.ts'
 import { type Expression, getIntro, wakeUp } from '../loggers/banner.ts'
@@ -39,19 +40,6 @@ export function getBanner(version: string, command: string): string {
   return canDrawMascot(version, command) ? `\n${bannerIntro(version, 'open', command)}` : `Kubb CLI v${version}`
 }
 
-/** Resolves after `ms`, or as soon as `signal` aborts. */
-function pause({ ms, signal }: { ms: number; signal?: AbortSignal }): Promise<void> {
-  return new Promise((resolve) => {
-    const done = () => {
-      clearTimeout(timer)
-      signal?.removeEventListener('abort', done)
-      resolve()
-    }
-    const timer = setTimeout(done, ms)
-    signal?.addEventListener('abort', done)
-  })
-}
-
 /**
  * Opens `kubb generate` with the mascot playing its wake-up frames in place. Once `signal` aborts,
  * it jumps to the last frame, so the animation never holds up work that is already done.
@@ -72,6 +60,7 @@ export async function logBanner({ version, signal }: { version: string; signal?:
     if (index > 0) process.stdout.moveCursor(0, -frame.split('\n').length)
     console.log(frame)
     if (cut) return
-    await pause({ ms, signal })
+    // An abort rejects the sleep, and the next frame jumps to the last one.
+    await sleep(ms, undefined, { signal }).catch(() => undefined)
   }
 }

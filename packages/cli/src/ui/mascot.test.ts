@@ -3,6 +3,18 @@ import { wakeUp } from '../loggers/banner.ts'
 import * as env from '../utils/env.ts'
 import { logBanner } from './mascot.ts'
 
+// Fake timers do not patch `node:timers/promises`, so its sleep runs on the faked global `setTimeout`, aborting the same way.
+vi.mock('node:timers/promises', () => ({
+  setTimeout: (ms: number, value: unknown, { signal }: { signal?: AbortSignal } = {}) =>
+    new Promise((resolve, reject) => {
+      const timer = setTimeout(() => resolve(value), ms)
+      signal?.addEventListener('abort', () => {
+        clearTimeout(timer)
+        reject(signal.reason)
+      })
+    }),
+}))
+
 /** Gives the test worker's stdout the terminal members the banner reads, and puts the old ones back on dispose. */
 function fakeTerminal(members: Partial<Record<'hasColors' | 'columns' | 'moveCursor', unknown>>): Disposable {
   const previous = Object.keys(members).map((key) => [key, Object.getOwnPropertyDescriptor(process.stdout, key)] as const)
