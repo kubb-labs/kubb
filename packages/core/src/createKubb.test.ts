@@ -257,7 +257,7 @@ describe('createKubb', () => {
     const root = path.join(os.tmpdir(), 'kubb-clean-guard')
     const shared = makeConfig({ ...config, root, output: { path: './gen', clean: true }, shared: { path: '.' } })
 
-    const [first] = await Kubb.generate([shared, shared])
+    const [first] = await Array.fromAsync(Kubb.generate([shared, shared]))
 
     expect(first!.diagnostics).toContainEqual(expect.objectContaining({ code: Diagnostics.code.cleanRoot, help: expect.stringContaining('`shared.path`') }))
   })
@@ -671,6 +671,17 @@ describe('Kubb.generate', () => {
     expect(second.files).toHaveLength(2)
   })
 
+  it("yields a config's result before it builds the next config", async () => {
+    const parse = vi.fn(async () => ast.factory.createInput())
+    const later = makeConfig({ adapter: createMockedAdapter({ parse }) })
+
+    const results = Kubb.generate([makeConfig(), later])
+    await results.next()
+
+    expect(parse).not.toHaveBeenCalled()
+    await results.return()
+  })
+
   it('generates the configs after one that fails, and marks only that one failed', async () => {
     const config = (parse?: () => Promise<never>) =>
       ({
@@ -684,7 +695,7 @@ describe('Kubb.generate', () => {
       throw new Error('Cannot read the spec')
     })
 
-    const results = await Kubb.generate([broken, config()])
+    const results = await Array.fromAsync(Kubb.generate([broken, config()]))
 
     expect(results.map((result) => result.success)).toStrictEqual([false, true])
     expect(results.map((result) => result.kubb.config.adapter)).toStrictEqual([broken.adapter, expect.anything()])

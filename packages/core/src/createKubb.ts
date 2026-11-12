@@ -146,20 +146,19 @@ export class Kubb {
   }
 
   /**
-   * Generates every config of a `defineConfig([...])` array, one after another, and returns one result per config in order.
-   * A config that fails does not stop the others: its result has `success: false`. Only an aborted `signal` rejects.
+   * Generates every config of a `defineConfig([...])` array, one after another, and yields each config's result as it
+   * finishes, so a result is released as soon as the caller drops it. A config that fails does not stop the others: its
+   * result has `success: false`. Only an aborted `signal` rejects.
    */
-  static async generate(configs: Array<UserConfig>, options: GenerateConfigsOptions = {}): Promise<Array<ConfigGenerateResult>> {
-    const results: Array<ConfigGenerateResult> = []
+  static async *generate(configs: Array<UserConfig>, options: GenerateConfigsOptions = {}): AsyncGenerator<ConfigGenerateResult, void, void> {
     for (const kubb of await Kubb.#fromConfigs(configs, options)) {
       try {
-        results.push({ ...(await kubb.generate()), kubb })
+        yield { ...(await kubb.generate()), kubb }
       } catch (error) {
         if (options.signal?.aborted) throw error
-        results.push({ success: false, files: [], diagnostics: [Diagnostics.from(error)], input: null, kubb, error })
+        yield { success: false, files: [], diagnostics: [Diagnostics.from(error)], input: null, kubb, error }
       }
     }
-    return results
   }
 
   get storage(): Storage {

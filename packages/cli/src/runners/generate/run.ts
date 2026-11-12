@@ -86,11 +86,16 @@ export async function generate({ configs, errorHooks, ...options }: GenerateProp
       status,
     })
   })
-  const results = await Kubb.generate(configs, options).finally(untrack)
-  for (const { error } of results) {
-    if (error) await Diagnostics.emit(errorHooks, error)
+  let succeeded = true
+  try {
+    for await (const { success, error } of Kubb.generate(configs, options)) {
+      if (error) await Diagnostics.emit(errorHooks, error)
+      succeeded &&= success
+    }
+  } finally {
+    untrack()
   }
-  return results.every((result) => result.success)
+  return succeeded
 }
 
 type GenerateCommandOptions = {

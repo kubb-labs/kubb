@@ -188,20 +188,16 @@ export async function createSnapshot({
 }: CreateSnapshotOptions): Promise<PublishedSnapshot> {
   const url = secureUrl({ studioUrl, path: '/api/snapshots' })
   const buildConfigs = configs.map((config) => ({ ...config, storage: fsStorage() }))
-  // A failing entry does not stop the others, like `kubb generate`, so one run reports every failure.
-  const results = await Kubb.generate(buildConfigs, { hooks, signal })
-  const failures = results.filter((result) => !result.success).map((result) => result.error ?? generationFailure(result.diagnostics))
-  // Nothing is published from a partial generation.
-  if (failures.length === 1) throw failures[0]
-  if (failures.length) throw new AggregateError(failures, failures.map(getErrorMessage).join('\n'))
-
+  const failures: Array<unknown> = []
   // Each package path with the file on disk it comes from.
   const sources = new Map<string, string>()
-  for (const { kubb, files } of results) {
-    const { config } = kubb
-    for (const file of files) {
-      const path = relativeStoragePath({ root: config.root, filePath: file.path })
-      const source = resolve(config.root, path)
+  // A failing entry does not stop the others, like `kubb generate`, so one run reports every failure.
+  for await (const { success, error, diagnostics, files, kubb } of Kubb.generate(buildConfigs, { hooks, signal })) {
+    if (!success) failures.push(error ?? generationFailure(diagnostics))
+    const { root } = kubb.config
+    for (const file of success ? files : []) {
+      const path = relativeStoragePath({ root, filePath: file.path })
+      const source = resolve(root, path)
       const owner = sources.get(path)
       if (owner && owner !== source)
         throw new Diagnostics.Error({
@@ -213,6 +209,9 @@ export async function createSnapshot({
       sources.set(path, source)
     }
   }
+  // Nothing is published from a partial generation.
+  if (failures.length === 1) throw failures[0]
+  if (failures.length) throw new AggregateError(failures, failures.map(getErrorMessage).join('\n'))
 
   const storage = fsStorage()
   const files = Object.fromEntries(

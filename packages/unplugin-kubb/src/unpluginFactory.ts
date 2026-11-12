@@ -3,6 +3,7 @@ import { adapterOas } from '@kubb/adapter-oas'
 import {
   cliReporter,
   createCliReporter,
+  type Diagnostic,
   Diagnostics,
   fileReporter,
   Hookable,
@@ -101,11 +102,14 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
   async function runBuild() {
     const configs = (await loadConfigs()).filter((config) => config.input).map(applyDefaults)
     // Every config builds, so a failing one does not hide the others' output or errors. The first failure fails the host build.
-    const failed = (await Kubb.generate(configs, { hooks })).find((result) => !result.success)
+    let failed: Array<Diagnostic> | undefined
+    for await (const { success, diagnostics } of Kubb.generate(configs, { hooks })) {
+      if (!success) failed ??= diagnostics
+    }
     if (!failed) return
 
-    const failedCount = Diagnostics.failedPlugins(failed.diagnostics).length
-    const firstError = failed.diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
+    const failedCount = Diagnostics.failedPlugins(failed).length
+    const firstError = failed.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
     throw fail(firstError, failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed'))
   }
 

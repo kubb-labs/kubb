@@ -77,14 +77,13 @@ To build every config of a [`defineConfig([...])` array](/docs/5.x/reference/con
 import { Kubb } from '@kubb/core'
 import configs from './kubb.config.ts'
 
-const results = await Kubb.generate(configs)
-
-for (const { success, files, kubb } of results) {
+for await (const { success, files, kubb } of Kubb.generate(configs)) {
   console.log(kubb.config.name, success ? `${files.length} files` : 'failed')
 }
 ```
 
-- The configs build one after another. A config that fails does not stop the others: its result has `success: false`.
+- The configs build one after another, and each result is yielded as its config finishes. A result you do not keep is released before the next config builds, so a large array never holds every config's files in memory.
+- A config that fails does not stop the others: its result has `success: false`.
 - Configs that set the same [`shared`](/docs/5.x/reference/configuration#shared) path are compared first, so each build writes the schemas it shares to that directory.
 - Each result is a `GenerateResult` with the `kubb` instance that built it, to read its `config`, `storage` or `hooks`.
 - Pass `{ only: index }` to build one config of the array. It is still compared with the others, and never empties the directory they share.

@@ -107,19 +107,20 @@ export async function generate({
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
   const index = Math.max(configs?.indexOf(config) ?? 0, 0)
   const all = configs?.includes(config) ? configs : [config]
-  const [result] = await Kubb.generate(all.with(index, { ...config, output }), { hooks, signal, only: index })
-  if (!result) throw new Error('Generation failed')
-  if (result.error) throw result.error
-  if (!result.success) throw generationFailure(result.diagnostics)
+  for await (const result of Kubb.generate(all.with(index, { ...config, output }), { hooks, signal, only: index })) {
+    if (result.error) throw result.error
+    if (!result.success) throw generationFailure(result.diagnostics)
 
-  // The instance's config carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
-  const { storage, root } = result.kubb.config
-  return {
-    storage,
-    root,
-    paths: new Set(result.files.map((file) => relativeStoragePath({ root, filePath: file.path }))),
-    input: result.input,
+    // The instance's config carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
+    const { storage, root } = result.kubb.config
+    return {
+      storage,
+      root,
+      paths: new Set(result.files.map((file) => relativeStoragePath({ root, filePath: file.path }))),
+      input: result.input,
+    }
   }
+  throw new Error('Generation failed')
 }
 
 /**
