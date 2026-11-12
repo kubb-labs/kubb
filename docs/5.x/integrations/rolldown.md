@@ -18,7 +18,7 @@ navigation:
 ```typescript [rolldown.config.ts]
 import kubb from 'kubb/rolldown'
 import { defineConfig } from 'rolldown'
-import config from './kubb.config'
+import config from './kubb.config.ts'
 
 export default defineConfig({
   input: 'src/index.ts',

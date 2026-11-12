@@ -28,7 +28,9 @@ Use an existing [plugin](/extensions/kind/plugins) when it generates the output 
 | File syntax or assembly | Parser | Convert emitted nodes into source text. |
 | Where files are stored | Storage | Reuse generation with another destination. |
 
-For example, turning a date into a TypeScript `Date` type is a printer customization. Moving model files into a folder is a resolver customization. Changing a schema before several generators consume it calls for a macro. Macros run before printer handlers, so a macro change is visible to every output target while a printer change stays in one.
+For example, turning a date into a TypeScript `Date` type is a printer customization. Moving model files into a folder is a resolver customization. Changing a schema before several generators consume it calls for a macro.
+
+Macros run before printer handlers, so a macro change is visible to every output target while a printer change stays in one.
 
 ## Plugins {#plugins}
 
@@ -50,13 +52,17 @@ The [lifecycle reference](/docs/5.x/reference/kit/hooks) lists the firing order 
 
 Declared dependencies run before their dependents. Kubb uses `enforce: 'pre'`, normal plugins, then `enforce: 'post'` and declaration order to break ties. Dependencies take priority over `enforce`.
 
-A plugin declares its dependencies as a record keyed by plugin name. A missing required entry fails the run with `KUBB_MISSING_DEPENDENCY` before any plugin runs, and an `optional: true` entry is skipped when its plugin is missing. See [Extensions](/docs/5.x/reference/kit/extensions#dependencies). Resolvers let cooperating plugins read each other's names and paths instead of guessing them.
+A plugin declares its dependencies as a record keyed by plugin name. A missing required entry fails the run with `KUBB_MISSING_DEPENDENCY` before any plugin runs, and an `optional: true` entry is skipped when its plugin is missing. See [Extensions](/docs/5.x/reference/kit/extensions#dependencies).
+
+Resolvers let cooperating plugins read each other's names and paths instead of guessing them.
 
 Post-enforced plugins can process other plugins' emitted files. The built-in barrel plugin uses this to generate re-exports.
 
 ## Generators {#generators}
 
-A generator handles `schema` nodes, `operation` nodes, or the complete `operations` batch. Splitting output into generators keeps each task separate. An optional `match` predicate filters schema and operation handlers. It does not filter the batch handler.
+A generator handles `schema` nodes, `operation` nodes, or the complete `operations` batch. Splitting output into generators keeps each task separate.
+
+An optional `match` predicate filters schema and operation handlers. It does not filter the batch handler.
 
 Generators return files directly or elements for a renderer. See [Generator reference](/docs/5.x/reference/kit/generators) for handler signatures and context properties.
 

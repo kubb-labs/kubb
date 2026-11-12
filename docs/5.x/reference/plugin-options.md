@@ -229,15 +229,21 @@ Generates only the operations and schemas that match at least one entry, and ski
 | Required | `false`                 |
 | Default  | Everything is generated |
 
-Each entry filters by `tag`, `operationId`, `path`, `method`, `contentType`, or `schemaName`, with a `pattern` that is a string or a `RegExp`. A string is compiled with `new RegExp(pattern)`, so it is not an exact match: `pattern: 'pet'` also matches `'petType'` and `'superpet'`. Anchor it (`'^pet$'`) for an exact match. For `type: 'method'`, a string pattern is an uppercase HTTP method such as `'GET'`.
+Each entry filters by `tag`, `operationId`, `path`, `method`, `contentType`, or `schemaName`, with a `pattern` that is a string or a `RegExp`. A string is compiled with `new RegExp(pattern)`, so it is not an exact match: `pattern: 'pet'` also matches `'petType'` and `'superpet'`. Anchor it (`'^pet$'`) for an exact match.
+
+For `type: 'method'`, write the method in uppercase or lowercase. Kubb tests the pattern against both forms, so `'GET'`, `'get'`, `/GET/` and `/get/` all match a GET operation.
 
 An `extension` entry matches operations by a vendor extension on the source operation instead of a pattern: `key` is the `x-*` key, and the optional `value` must be strictly equal. Without `value`, the key being present is enough. It does not apply to schemas.
 
 ```typescript [Type definition]
 export type Include =
   | {
-      type: 'tag' | 'operationId' | 'path' | 'method' | 'contentType' | 'schemaName'
+      type: 'tag' | 'operationId' | 'path' | 'contentType' | 'schemaName'
       pattern: string | RegExp
+    }
+  | {
+      type: 'method'
+      pattern: HttpMethod | RegExp
     }
   | {
       type: 'extension'
@@ -269,7 +275,7 @@ Skips any operation or schema that matches at least one entry, the opposite of `
 
 Entries use the same fields as `include`. When both options match an item, `exclude` wins.
 
-When a client plugin (`@kubb/plugin-fetch` or `@kubb/plugin-axios`) excludes operations, the plugins that build on it (`@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-swr`, `@kubb/plugin-mcp`) skip those operations too, so you do not repeat the `exclude` list.
+When a client plugin (`@kubb/plugin-fetch`, `@kubb/plugin-axios`, or `@kubb/plugin-client`) excludes operations, the plugins that build on it (`@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-swr`, `@kubb/plugin-mcp`) skip those operations too, so you do not repeat the `exclude` list.
 
 ```typescript [kubb.config.ts]
 import { pluginTs } from '@kubb/plugin-ts'
@@ -295,9 +301,11 @@ Applies different plugin options to operations that match a pattern.
 
 Each entry takes the same fields as an `include` entry, plus an `options` object that accepts any plugin option except `override`, so rules cannot nest. Entries are checked top to bottom. The first match merges onto the plugin defaults, and later entries do not stack.
 
+The merge is shallow and `options` holds resolved values, so an object option replaces the plugin's value as a whole. An `output` without `mode` reads it from `output.path`, like the plugin's own `output`. Give any other object, such as `enum`, every field.
+
 ```typescript [Type definition]
 export type Override = Include & {
-  options: Omit<Partial<Options>, 'override'>
+  options: Omit<Partial<ResolvedOptions>, 'override'>
 }
 ```
 
@@ -311,7 +319,10 @@ pluginTs({
     {
       type: 'tag',
       pattern: 'admin',
-      options: { output: { path: 'admin' }, enum: { type: 'enum' } },
+      options: {
+        output: { path: 'admin' },
+        enum: { type: 'enum', constCasing: 'camelCase', typeSuffix: 'Key', keyCasing: 'none' },
+      },
     },
   ],
 })
@@ -347,6 +358,7 @@ import { pluginTs } from '@kubb/plugin-ts'
 pluginTs({
   resolver: {
     name(name) {
+      // the default camelCases, so `Pet` becomes `petModel`
       return `${this.default.name(name)}Model`
     },
   },

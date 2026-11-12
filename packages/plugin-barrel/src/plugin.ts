@@ -62,11 +62,12 @@ function getState(config: Config): BarrelState {
 /**
  * Generates an `index.ts` for every plugin output directory and one root
  * barrel at `config.output.path/index.ts` after the build completes. Ships
- * with Kubb and is registered by default in `defineConfig`, but generates
- * nothing until a barrel is configured.
+ * with Kubb and is registered by default in `defineConfig`.
  *
- * Each plugin inherits `output.barrel` from `config.output.barrel` (which
- * defaults to `false`, no barrel). Set `barrel: { type: 'named' | 'all' }` on
+ * A plugin without its own `output.barrel` inherits `config.output.barrel`
+ * (which defaults to `false`, no root barrel). The default `output` of most
+ * plugins carries `barrel: { type: 'named' }`, so they get a barrel unless you
+ * pass your own `output` without one. Set `barrel: { type: 'named' | 'all' }` on
  * the root config, a plugin, or both to opt in; a plugin-level `false`
  * overrides an enabled root barrel and also excludes that plugin's files
  * from the root barrel.

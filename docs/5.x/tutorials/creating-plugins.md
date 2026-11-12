@@ -113,7 +113,7 @@ Read the generated file:
 node -e "console.log(require('node:fs').readFileSync('src/gen/listPets.ts', 'utf8'))"
 ```
 
-It contains a comment naming `GET` and `/pets`.
+The file contains a comment naming `GET` and `/pets`.
 
 ## Test the output {#_5-test-the-output}
 
@@ -160,6 +160,6 @@ Run the test:
 npx vitest run src/plugin.test.ts
 ```
 
-Vitest reports one passing test. It checks the generated file in memory without writing to disk.
+Vitest reports one passing test. The test checks the generated file in memory without writing to disk.
 
 ::

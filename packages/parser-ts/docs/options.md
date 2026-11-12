@@ -16,7 +16,7 @@ Rewrites the extensions emitted in relative `import`/`export` statements. Each k
 
 Use `{ '.ts': '.js' }` to emit `.js` specifiers for ESM output compiled to JavaScript. Use `{ '.ts': '.ts' }` to keep `.ts` specifiers when you run the `.ts` files directly in Node.js or compile them with `rewriteRelativeImportExtensions`.
 
-The same mapping applies to runtime templates a plugin copies into the output, such as the `.kubb/` runtime files of `@kubb/plugin-fetch`. Their top-level `import` and `export … from` statements become import and export nodes, so the whole output follows one convention.
+The same mapping applies to runtime templates a plugin copies into the output, such as the `.kubb/` runtime files of `@kubb/plugin-fetch`. Their top-level `import` and `export … from` statements are rewritten the same way, so the whole output follows one convention.
 
 |          |                          |
 | -------- | ------------------------ |

@@ -225,6 +225,7 @@ export async function run({
     input,
     watch: watchMode,
     logLevel: logLevelKey as CLIOptions['logLevel'],
+    reporters: cliReporters,
   })
   // Handled below; this keeps a rejection during the banner from counting as unhandled.
   loading.catch(() => undefined)

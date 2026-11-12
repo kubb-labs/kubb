@@ -8,7 +8,7 @@ order: 1
 
 # Ecosystem
 
-Projects and articles from the community.
+These projects and articles come from the Kubb community.
 
 ## Production projects
 

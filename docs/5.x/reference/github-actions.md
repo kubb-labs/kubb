@@ -21,6 +21,8 @@ The `kubb-labs/action@v0` action generates and publishes a Studio snapshot. See 
 | `github-token`      | <code v-pre>${{ github.token }}</code> | Token that opens the init pull request and writes the snapshot comment. |
 | `working-directory` | `.`                   | Directory holding the Kubb config and the package.                      |
 | `config`            | `kubb.config.ts`      | Path to the config file, relative to `working-directory`.               |
+| `package-name`      | `name` in `package.json` | Package name for the snapshot tarball.                               |
+| `package-version`   | `version` in `package.json` | Package version for the snapshot tarball.                         |
 
 ## Outputs
 
@@ -32,11 +34,12 @@ The `kubb-labs/action@v0` action generates and publishes a Studio snapshot. See 
 | `tarball-url`     | URL of the generated tarball.                |
 | `integrity`       | SHA-512 integrity of the tarball.            |
 | `agent-url`       | Studio URL of the CI agent that holds the snapshot. |
-| `files-added`, `files-changed`, `files-removed` | Generated files added, changed, and removed since the previous snapshot on the pull request. |
+| `editor-url`      | Read-only Studio editor for the published output. |
+| `files-added`, `files-changed`, `files-removed` | Number of generated files added, changed, and removed since the previous snapshot on the pull request. |
 
 ## Kubb version
 
-The action runs `kubb studio snapshot` with the Kubb version installed in the repository, so the snapshot matches the version your config and plugins are built against. A local install must be Kubb 5.6.2 or later. Without one, the action uses the latest Kubb 5 release.
+The action runs `kubb studio snapshot` with the Kubb version installed in the repository, so the snapshot matches the version the config and plugins are built against. A local install must be Kubb 5.6.2 or later. Without one, the action uses the latest Kubb 5 release.
 
 ## Pull requests and branches
 

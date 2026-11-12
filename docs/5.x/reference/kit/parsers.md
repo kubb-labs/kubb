@@ -19,11 +19,11 @@ navigation:
 A parser turns a `FileNode` into source code.
 
 > [!TIP]
-> For TypeScript and JavaScript output use the built-in [`@kubb/parser-ts`](/extensions/kubb-labs/parser-ts). It is added by default when you import `defineConfig` from the `kubb` package. Build a custom parser only when you target a different language, such as Python, Kotlin, or Rust.
+> For TypeScript and JavaScript output, use the built-in [`@kubb/parser-ts`](/extensions/kubb-labs/parser-ts). `defineConfig` from the `kubb` package adds it when the config sets no `parsers`. Build a custom parser only for a different language, such as Python, Kotlin, or Rust.
 
 ## `defineExtension`
 
-`defineExtension` with `kind: 'parser'` takes a definition object and returns a factory. `build` receives the caller's options, or an empty object when omitted, and returns the parser methods. Declare extensions with `extNames`:
+`defineExtension` with `kind: 'parser'` takes a definition object and returns a factory. `build` receives the caller's options, or an empty object when omitted, and returns the parser methods. Declare the file extensions the parser handles with `extNames`:
 
 ```typescript [parserText.ts]
 import { defineExtension } from 'kubb/kit'
@@ -50,14 +50,7 @@ export const parserText = defineExtension({
 
 The parser's `name` comes from `meta.name`. Kubb checks `meta.compatibility` before the build, the same way it does for plugins. See [Extensions](./extensions).
 
-### `defineParser` (deprecated)
-
-> [!WARNING]
-> `defineParser` is deprecated. Use `defineExtension` with `kind: 'parser'` instead.
-
-`defineParser` takes the same definition object as `defineExtension`, without `kind`. To move over, rename the call and add `kind: 'parser'`. See [Extensions](./extensions#define-extension).
-
-Wire it into your config:
+Add the parser to the config. A `parsers` array replaces the default parsers, so list `parserTs()` and `parserTsx()` again to keep TypeScript output:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -71,14 +64,21 @@ export default defineConfig({
 })
 ```
 
+### `defineParser` (deprecated)
+
+> [!WARNING]
+> `defineParser` is deprecated. Use `defineExtension` with `kind: 'parser'` instead.
+
+`defineParser` takes the same definition object as `defineExtension`, without `kind`. To migrate, rename the call and add `kind: 'parser'`. See [Extensions](./extensions#define-extension).
+
 ## Parser anatomy
 
-Every parser the factory returns matches the `Parser` interface from [`kubb/kit`](/docs/5.x/reference/kit). `build` returns every field except `name` and `meta`:
+Every parser the factory returns matches the `Parser` interface from [`kubb/kit`](/docs/5.x/reference/kit). `build` returns every field except `name`, `meta`, and `options`, which the factory fills:
 
 | Property   | Type                                               | Required | When called                           | Purpose                                                                                                                                                                                                          |
 | ---------- | -------------------------------------------------- | -------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name`     | `string`                                           | Yes      |                                       | Unique parser identifier, filled from `meta.name`. Use the output language or format, such as `'typescript'`.                                                                                                    |
-| `extNames` | `Array<FileNode['extname']> \| undefined`          | Yes      |                                       | File extensions this parser handles. Set to `undefined` to register a catch-all fallback.                                                                                                                        |
+| `extNames` | `Array<FileNode['extname']> \| undefined`          | Yes      |                                       | File extensions this parser handles. Kubb registers the parser for each one. A parser with `undefined` here is registered for no extension, so `parse` is never called for it. |
 | `parse`    | `(file: FileNode) => string`                       | Yes      | After all plugins run                 | Serializes the file's sources into the final output string. Must return synchronously.                                                                                                                           |
 | `print`    | `(...nodes: TNode[]) => string`                    | Yes      | By plugins, while they generate files | Renders compiler AST nodes to source text. The node type is parser-specific, for example `ts.Node` for `parserTs`.                                                                                               |
 | `inline`   | `InlineLanguage`                                   | No       | Before barrels, for inline sources    | Finds the names in this language (`replaceIdentifiers`) and makes a definition safe to put where a name was (`wrap`). Files of this parser's extensions can then absorb inline sources. `parserTs` supports it. |

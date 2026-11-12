@@ -12,7 +12,7 @@ vi.mock('../../config.ts', () => ({
 vi.mock('./ci.ts', () => ({
   detectCi: vi.fn(() => ({ id: 'gh:123:42', name: 'acme/api#42', commit: 'c4d7e10aa' })),
 }))
-// No package.json anywhere: proves --name/--version overrides skip the filesystem lookup entirely,
+// No package.json anywhere: proves --name/--package-version overrides skip the filesystem lookup entirely,
 // and that omitting either still falls back to it.
 vi.mock('@internals/utils', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@internals/utils')>()),
@@ -174,8 +174,11 @@ describe('snapshot', () => {
     expect(createSnapshot).not.toHaveBeenCalled()
   })
 
-  it('falls back to package.json when only one of --name or --version is given, and fails when none exists', async () => {
-    await expect(snapshot(baseOptions({ name: '@acme/override', packageVersion: undefined }))).rejects.toThrow('No package.json')
+  it('falls back to package.json when only one of --name or --package-version is given, and fails when none exists', async () => {
+    await expect(snapshot(baseOptions({ name: '@acme/override', packageVersion: undefined }))).rejects.toMatchObject({
+      message: expect.stringContaining('No package.json'),
+      diagnostic: { help: expect.stringContaining('`--name` and `--package-version`') },
+    })
   })
 })
 

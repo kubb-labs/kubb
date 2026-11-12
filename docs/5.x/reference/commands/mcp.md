@@ -44,4 +44,4 @@ The server uses the stdio transport, so the client starts it as a local process.
 
 ## Working directory
 
-The server runs in the folder the client starts it in. `generate` looks for its config there, then in its parent folders, and rejects a `config` path outside it, and `init` writes `kubb.config.ts` there. [Set up the MCP server](/docs/5.x/ai/mcp#working-directory) shows how to start the server in your project.
+The server runs in the folder the client starts it in. `generate` looks for its config there, then in its parent folders, and rejects a `config` path outside it. `init` writes `kubb.config.ts` there. [Set up the MCP server](/docs/5.x/ai/mcp#working-directory) shows how to start the server in your project.

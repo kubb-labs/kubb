@@ -2,11 +2,11 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { define } from 'gunshi'
+import { defineWithTypes } from 'gunshi'
 import { BUNDLED_PACKAGES, ConfigEditOperation, extensionKinds, editConfig, editConfigFile, findConfigFile, readImports } from '@internals/shared'
 import { getErrorMessage, pascalCase, read } from '@internals/utils'
 import { Diagnostics, type ExtensionManifest, readInstalledPackages, type RegistryDetail, type RegistryEntry } from '@kubb/core'
-import { configArg, yesArg } from '../../commands/shared.ts'
+import { configArg, dryRunId, type DryRunExtensions, yesArg } from '../../commands/shared.ts'
 import { isInteractiveRun, logIntro } from '../../ui/intro.ts'
 import { logBlock, logError, logStep, logWarn } from '../../ui/log.ts'
 import { withSpinner } from '../../ui/spinner.ts'
@@ -23,6 +23,7 @@ export type AddOptions = {
   configPath?: string
   yes: boolean
   install: boolean
+  dryRun?: boolean
 }
 
 type ConfigTarget = Pick<RegistryDetail, 'artifact' | 'manifest'>
@@ -133,15 +134,16 @@ export function summarize(description: string, max = 64): string {
  * adds it to `kubb.config.ts`, offering to add the plugins it needs as well. An adapter is never
  * written: the command prints the snippet to swap it in by hand. Without an id, asks which one.
  * Previews the packages and config lines before asking. Refuses when the running Kubb or Node.js
- * version is outside its compatibility.
+ * version is outside its compatibility. With `dryRun`, stops after the preview: installs nothing and
+ * leaves the config as it is.
  */
-export async function run({ id: input, configPath, yes, install }: AddOptions): Promise<void> {
+export async function run({ id: input, configPath, yes, install, dryRun = false }: AddOptions): Promise<void> {
   const cwd = process.cwd()
   const hrStart = process.hrtime()
   const summary = createSummary(hrStart)
   const installedPackages: Array<string> = []
   const configured: Array<RegistryEntry> = []
-  logIntro({ title: isInteractiveRun({ yes }) ? undefined : styleText('bgCyan', styleText('black', ' Kubb Add ')) })
+  logIntro({ title: isInteractiveRun({ yes, dryRun }) ? undefined : styleText('bgCyan', styleText('black', ' Kubb Add ')) })
 
   try {
     const registry = registryUrl()
@@ -208,7 +210,8 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     }
     const dependencies = manifest.dependencies ?? []
     const missing = configFile ? dependencies.filter((name) => !inConfig(name)).flatMap((name) => byName.get(name) ?? []) : []
-    const withDependencies = await confirmDependencies({ entry, missing, yes })
+    // A dry run asks nothing and previews the recommended answer.
+    const withDependencies = await confirmDependencies({ entry, missing, yes: yes || dryRun })
     if (withDependencies === undefined) {
       summary('Add canceled', 'canceled', [`  ${kind}  ${manifest.name}`, '  No changes made'])
       return
@@ -240,6 +243,18 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       ...(preview && 'lines' in preview ? preview.lines.map((line) => styleText('green', `  + ${line}`)) : []),
       ...(preview && 'reason' in preview ? [styleText('yellow', `  cannot edit it: ${preview.reason}`)] : []),
     ])
+
+    if (dryRun) {
+      // The real run installs first and only then fails on the edit, so the dry run has to say it.
+      if (configFile && configSource === undefined) {
+        process.exitCode = 1
+        summary(`${kind} not added`, 'failed', [`Could not read ${configName}. Check the path passed with --config.`])
+        return
+      }
+      if (!configName) logBlock(['Add the import to your Kubb config and merge the property into its defineConfig call:', '', ...targets.map(toSnippet)])
+      summary(`${kind} not added`, 'planned', ['Dry run: nothing was installed or written. Run the same command without --dry-run to add it.'])
+      return
+    }
 
     const confirmed = yes || (await clack.confirm({ message: 'Add it?', initialValue: true }))
     if (clack.isCancel(confirmed) || !confirmed) {
@@ -305,7 +320,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
   }
 }
 
-export const command = define({
+export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   name: 'add',
   description: 'Find and install plugins, adapters, and parsers from the Kubb registry.',
   examples: [
@@ -314,6 +329,7 @@ export const command = define({
     'kubb add kubb-labs/plugin-react-query',
     'kubb add acme/plugin-x --yes',
     'kubb add plugin-zod --no-install',
+    'kubb add plugin-zod --dry-run',
   ].join('\n'),
   toKebab: true,
   args: {
@@ -331,5 +347,6 @@ export const command = define({
       default: true,
     },
   },
-  run: ({ values }) => run({ id: values.id, configPath: values.config, yes: values.yes, install: values.install }),
+  run: ({ values, extensions }) =>
+    run({ id: values.id, configPath: values.config, yes: values.yes, install: values.install, dryRun: extensions[dryRunId].enabled }),
 })

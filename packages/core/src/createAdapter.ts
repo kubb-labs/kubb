@@ -106,7 +106,7 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
 export type AdapterDefinition<T extends AdapterFactoryOptions = AdapterFactoryOptions> = {
   meta: ExtensionMeta<T['name']>
   /**
-   * Takes the user's options and returns the resolved options, which `build` receives and the adapter exposes as `options`.
+   * Takes the user's options and returns the resolved options, which `build` receives. The adapter exposes the user's options as `options`.
    * Without `setup`, the user's options are the resolved options.
    */
   setup?(options: T['options']): T['resolvedOptions']

@@ -40,7 +40,7 @@ The same specification can therefore produce several outputs in one run. The [fi
 
 ## Adapters {#adapters}
 
-An adapter resolves input-specific details, including references, nullability, discriminators, and formats. The default [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) supports OpenAPI 2.0, 3.0, 3.1, and 3.2. A custom adapter converts another input format into the same AST, so downstream plugins do not read that format directly.
+An adapter resolves input-specific details, including references, nullability, discriminators, and formats. The default [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) reads OpenAPI 2.0, 3.0, 3.1, and 3.2. It does not validate a 3.2 document yet. A custom adapter converts another input format into the same AST, so downstream plugins do not read that format directly.
 
 ::flow-diagram{preset="adapter"}
 ::
@@ -68,14 +68,14 @@ See [Extension model](/docs/5.x/explanation/extensions) for how these pieces coo
 
 ## Parsers {#parsers}
 
-Each parser claims file extensions. Kubb selects it for the emitted file, prints nodes during generation, and assembles the final source through `parse`. The default parsers handle `.ts`, `.tsx`, and `.md`.
+Each parser claims file extensions. Kubb selects it for the emitted file, prints nodes during generation, and assembles the final source through `parse`. The default parsers handle `.ts`, `.js`, `.tsx`, `.jsx`, `.md`, and `.markdown`.
 
 The TypeScript parser prints the banner, the imports, and each source node of a `FileNode` into the file's text:
 
 ::flow-diagram{preset="parsers"}
 ::
 
-These responsibilities differ. The plugin chooses which files and declarations to emit. A printer chooses how an individual schema appears in that output. The parser assembles the file's source text.
+The plugin, the printer, and the parser each have their own responsibility. The plugin chooses which files and declarations to emit. A printer chooses how an individual schema appears in that output. The parser assembles the file's source text.
 
 A printer inside a generator handles schema-specific output. A parser handles the assembled file. See [Customize printers](/docs/5.x/how-to/printers) and [Parser reference](/docs/5.x/reference/kit/parsers).
 

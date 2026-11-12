@@ -15,13 +15,13 @@ navigation:
 
 # Extension docs
 
-An extension ships its docs in a `docs/` folder at the package root, next to [`kubb-extension.json`](./manifest). The [registry](/docs/5.x/reference/registry#detail) reads the folder from the npm tarball of the pinned version, and kubb.dev renders it under `/extensions/<owner>/<slug>`. List `docs` in `files` in `package.json` so npm ships it.
+An extension ships its docs in a `docs/` folder at the package root, next to [`kubb-extension.json`](./manifest). The [registry](/docs/5.x/reference/registry#detail) reads the folder from the npm tarball or the GitHub release of the pinned version, and kubb.dev renders it under `/extensions/<owner>/<slug>`. List `docs` in `files` in `package.json` so npm ships it.
 
 ## Files
 
 | File | Page on kubb.dev | Required |
 | --- | --- | --- |
-| `docs/overview.md` | `/extensions/<owner>/<slug>`, also the summary in Studio | Yes |
+| `docs/overview.md` | `/extensions/<owner>/<slug>` | Yes |
 | `docs/options.md` | `/extensions/<owner>/<slug>/options` | No |
 | `docs/guides/<id>.md` | `/extensions/<owner>/<slug>/guides/<id>` | No |
 
@@ -29,7 +29,7 @@ The registry ignores other files in `docs/`. It skips a file larger than 256 KiB
 
 ## Title and description
 
-Start each file with a `#` title on its first line. The first paragraph after the title is the description, which guide cards, search, and the meta description show. Files have no frontmatter.
+Start each file with a `#` title on its first line. The first paragraph after the title is the description. For a guide, kubb.dev shows it on the guide's card, in the guide filter, and as the meta description. Files have no frontmatter.
 
 ## Guides
 

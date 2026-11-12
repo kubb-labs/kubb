@@ -21,7 +21,7 @@ Find your question, then open it for the answer. If your question is not here, a
 ::accordion
 
 :::accordion-item{label="Is Kubb production-ready?" icon="i-iconoir-help-circle"}
-Yes. The generated code is plain TypeScript. It has no runtime dependency on Kubb, no decorators, and no framework lock-in.
+Yes. The generated code is plain TypeScript with no runtime dependency on Kubb and no decorators.
 :::
 
 ::
@@ -53,7 +53,7 @@ The CLI and generated code run on Bun with no extra configuration. Deno isn't of
 ::accordion
 
 :::accordion-item{label="Do I commit generated files to Git?" icon="i-iconoir-help-circle"}
-Either way works. Many teams commit the generated code so CI can skip regeneration. Others add the output directory to `.gitignore` and generate during CI.
+Either way works. Commit the generated code so CI can skip regeneration, or add the output directory to `.gitignore` and generate during CI.
 :::
 
 :::accordion-item{label="How do I disable telemetry?" icon="i-iconoir-help-circle"}

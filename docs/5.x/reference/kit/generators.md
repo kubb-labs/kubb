@@ -27,10 +27,17 @@ import { ast, defineGenerator } from 'kubb/kit'
 const myGenerator = defineGenerator({
   name: 'my-generator',
   operation(node, ctx) {
+    const file = ctx.resolver.file({
+      name: node.operationId,
+      extname: '.ts',
+      root: ctx.root,
+      output: { path: 'operations', mode: 'directory' },
+    })
+
     return [
       ast.factory.createFile({
-        baseName: `${node.operationId}.ts`,
-        path: `./${node.operationId}.ts`,
+        baseName: file.baseName,
+        path: file.path,
         sources: [
           ast.factory.createSource({
             nodes: [ast.factory.createText(`export const op = '${node.operationId}'`)],
@@ -41,6 +48,8 @@ const myGenerator = defineGenerator({
   },
 })
 ```
+
+`ctx.resolver.file` resolves the path inside the output folder, so this generator writes `operations/<operationId>.ts` there. A plugin with an `output` option passes `ctx.options.output` instead of a fixed value.
 
 ### Generator methods
 
@@ -74,6 +83,7 @@ const getOnlyGenerator = defineGenerator({
 | Property              | Type                                                                      | Purpose                                                                                                                            |
 | --------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `ctx.config`          | `Config`                                                                  | Resolved Kubb configuration                                                                                                        |
+| `ctx.signal`          | `AbortSignal \| undefined`                                                | Stops generation at the next safe checkpoint when aborted                                                                          |
 | `ctx.root`            | `string`                                                                  | Absolute path to the output directory for the current plugin                                                                       |
 | `ctx.options`         | `TResolvedOptions`                                                        | Per-node resolved options (after exclude/include/override filtering)                                                               |
 | `ctx.plugin`          | `Plugin`                                                                  | The owning plugin descriptor                                                                                                       |

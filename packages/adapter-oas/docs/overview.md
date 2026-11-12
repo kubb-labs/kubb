@@ -13,9 +13,9 @@ Kubb uses `adapterOas()` by default, so no setup is needed. Set `adapter` in `de
 - `validate` checks the spec before parsing and reports each problem as a warning. Turn it off to speed up a large spec. Run `kubb validate` to list every error.
 - `dateType` sets how `date-time`, `date`, and `time` schemas are typed. Choose ISO strings (the default), `date-time` strings with or without a timezone offset, or JavaScript `Date` objects. Pass an object to set each format on its own.
 - `integerType` sets how `int64` and `uint64` schemas are typed. The default `'bigint'` is exact for 64-bit IDs but does not survive `JSON.stringify`. Choose `'number'` for most JSON APIs.
-- `unknownType` and `emptySchemaType` set the type for schemas Kubb cannot infer and for empty schemas (`{}`).
-- `discriminator: 'propagate'` writes the discriminator's literal value into each child schema, so each branch is typed precisely.
-- `enums: 'root'` lifts inline enums to reusable top-level schemas, named with `enumSuffix` (`PetStatusEnum`).
+- `unknownType` sets the type for open map values and parameters without a schema. `emptySchemaType` sets the type for empty schemas (`{}`) and schemas without a `type`.
+- `discriminator: 'propagate'` writes the discriminator's literal value into each child schema, so a child is narrowed when used on its own.
+- `enums: 'root'` lifts inline enums to top-level schemas, named with `enumSuffix` (`PetStatusEnum`).
 - `server` picks the entry in the spec's `servers` array that becomes the base URL and fills in its variables. It does not change where a generated client sends requests. Use the client plugin's own `baseURL` for that.
 - `contentType` picks one media type when an operation declares several. Without it, Kubb keeps every media type the operation declares.
 

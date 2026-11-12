@@ -47,7 +47,7 @@ export type ResolverPathParams = Omit<ResolverFileParams, 'name' | 'extname'> & 
  */
 export type ResolvePathOptions = ResolverPathParams & {
   /**
-   * Absolute project root that the output path is resolved against.
+   * Absolute directory the plugin's `output.path` is resolved against. Generators pass `ctx.root`, the config's output directory.
    */
   root: string
   /**
@@ -584,15 +584,15 @@ export class Resolver {
   /**
    * Resolves a resolver-supplied full path (`file.path`) against `root`, bypassing `output.path`
    * and `group`. The path may not escape `root`, which keeps a `file.path` that interpolates
-   * spec-derived values from writing outside the project.
+   * spec-derived values from writing outside the output directory.
    */
   #resolveOverridePath(filePath: string, root: string): string {
     const resolved = path.resolve(root, filePath)
     assertInside({
       target: resolved,
       parent: root,
-      message: `Resolved path "${resolved}" is outside the project root "${root}".`,
-      help: 'A resolver `file.path` must return a path inside the project root.',
+      message: `Resolved path "${resolved}" is outside the output directory "${root}".`,
+      help: 'A resolver `file.path` must return a path inside the output directory (`config.output.path`).',
     })
 
     return resolved
