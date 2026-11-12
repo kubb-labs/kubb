@@ -564,18 +564,22 @@ class Agent extends RpcTarget implements AgentApi {
             this.#refuse({ message: getErrorMessage(error), code: Diagnostics.code.gitInputFailed }),
           )
         : undefined
+    const buildConfig: Config = {
+      ...config,
+      root,
+      input: checkout?.path ?? studioInput ?? config.input,
+      output: mergeOutput({ output: config.output, studio: patch?.output }),
+      storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
+      plugins: activePlugins,
+      adapter,
+      parsers,
+    }
+    // Sharing parses the other entries' specs, which a sandbox or managed agent must not read from its own disk.
+    const buildConfigs = this.#sandbox || this.#managed ? [buildConfig] : configs.map((entry) => (entry === config ? buildConfig : { ...entry, root }))
     const run = () =>
       generate({
-        config: {
-          ...config,
-          root,
-          input: checkout?.path ?? studioInput ?? config.input,
-          output: mergeOutput({ output: config.output, studio: patch?.output }),
-          storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
-          plugins: activePlugins,
-          adapter,
-          parsers,
-        },
+        configs: buildConfigs,
+        only: buildConfigs.indexOf(buildConfig),
         hooks: this.#options.hooks,
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,

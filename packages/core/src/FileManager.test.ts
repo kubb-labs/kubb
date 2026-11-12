@@ -202,10 +202,34 @@ describe('FileManager', () => {
       const readItem = vi.spyOn(storage, 'readItem')
       const manager = new FileManager()
 
-      await manager.write([makeFileWithSources('/gen/a.ts', ['/* a.ts */']), makeFileWithSources('/other/b.ts', ['/* b.ts */'])], { storage, cleaned: '/gen' })
+      await manager.write([makeFileWithSources('/gen/a.ts', ['/* a.ts */']), makeFileWithSources('/other/b.ts', ['/* b.ts */'])], {
+        storage,
+        cleaned: ['/gen'],
+      })
 
       expect(readItem.mock.calls).toStrictEqual([['/other/b.ts']])
       expect(await storage.readItem('/gen/a.ts')).toContain('/* a.ts */')
+    })
+
+    it('warns about a shared file another config of this run wrote differently, and not about one it wrote the same', async () => {
+      const storage = memoryStorage()
+      const hooks = new Hookable<KubbHooks>()
+      const warnings: Array<string> = []
+      hooks.hook('kubb:warn', ({ message }) => void warnings.push(message))
+      const shared = { path: '/common', written: new Map<string, string>() }
+
+      await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* a */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
+        storage,
+        hooks,
+        shared,
+      })
+      await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* b */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
+        storage,
+        hooks,
+        shared,
+      })
+
+      expect(warnings).toStrictEqual(['Shared files that differ from what another config wrote: /common/pet.ts.'])
     })
 
     // A written file is tracked so the commit re-reads it; a skipped file's record already stands.

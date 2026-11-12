@@ -62,7 +62,8 @@ export type ResolvePathOptions = ResolverPathParams & {
 
 /**
  * The file request for `resolver.file` and `resolver.default.file`: the `name` and `extname` plus
- * the optional `tag`/`path` that grouping keys off.
+ * the optional `tag`/`path` that grouping keys off. An operation file always passes `tag` or `path`,
+ * since a file without either whose name matches a shared schema moves to `shared.path`.
  */
 export type ResolverFileParams = {
   name: string
@@ -248,6 +249,10 @@ export type ResolverBuildOptions = {
   pluginName: string
   name?: (name: string) => string
   file?: ResolverFile
+  /**
+   * The absolute `shared.path` and the shared schemas this build defines, set by the driver so `file` and `imports` place them under it.
+   */
+  shared?: { path: string; schemas: Array<string> }
 }
 
 /**
@@ -523,7 +528,7 @@ export class Resolver {
     for (const [key, value] of Object.entries(options)) {
       // `file` drives file naming through `#baseName`, not a top-level method, so it must not be
       // assigned here (it would shadow the `file` method with a plain `{ name }` object).
-      if (key === 'pluginName' || key === 'default' || key === 'file' || value === undefined) continue
+      if (key === 'pluginName' || key === 'default' || key === 'file' || key === 'shared' || value === undefined) continue
       root[key] = isNamespace(value) ? Object.fromEntries(Object.entries(value).map(([method, member]) => [method, bind(member)])) : bind(value)
     }
   }
@@ -594,7 +599,12 @@ export class Resolver {
   }
 
   /** The absolute path `#resolveFile` places a file at. */
-  #resolveFilePath({ name, extname, tag, path: groupPath, root, output, group }: ResolveFileOptions): string {
+  #resolveFilePath({ name, extname, tag, path: groupPath, root: outputRoot, output, group }: ResolveFileOptions): string {
+    // A shared schema's file and every import of it move under `shared.path`. Operation files carry a `tag` or `path`, so they stay.
+    // A file-mode plugin or a custom `file.path` writes outside the plugin layout, so it shares none.
+    const shared = this.#options.shared
+    const isShared = output.mode === 'directory' && !this.#filePath && !tag && !groupPath && shared?.schemas.includes(name)
+    const root = isShared ? shared!.path : outputRoot
     const baseName = this.#baseName({ name, extname })
     return this.#filePath
       ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root)

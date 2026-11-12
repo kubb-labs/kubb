@@ -8,13 +8,12 @@ import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, 
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
-import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
-import { checkoutGitInput, gitInputRegExp } from './gitInput.ts'
-import { inputToAdapterSource } from './input.ts'
+import { getSharedWrites, type SharedSchemas } from './detectSharedSchemas.ts'
+import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 
 import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
@@ -28,10 +27,14 @@ type Options = {
    */
   manifest?: OutputManifest
   /**
-   * The output directory `output.clean` empties. Emptied right before the files are written, so a
-   * run that fails earlier leaves the previous output in place.
+   * The directories `output.clean` empties: the output directory, and the shared one when this build cleans it. Emptied
+   * right before the files are written, so a run that fails earlier leaves the previous output in place.
    */
-  cleanPath?: string
+  cleanPaths?: Array<string>
+  /**
+   * What `detectSharedSchemas` worked out for this config.
+   */
+  sharedSchemas?: SharedSchemas
 }
 
 type RequirePluginContext = {
@@ -143,6 +146,18 @@ export class KubbDriver {
     this.adapter = config.adapter ?? null
   }
 
+  get #shared(): { path: string; schemas: Array<string>; written: Map<string, string> } | undefined {
+    const { root, shared } = this.config
+    const { sharedSchemas } = this.options
+    if (!shared || !sharedSchemas) return undefined
+    return { path: resolve(root, shared.path), schemas: sharedSchemas.names, written: getSharedWrites(sharedSchemas) }
+  }
+
+  // Every resolver gets the shared schemas, so a plugin's own `output`, an override, or a `setResolver` cannot drop them.
+  #createResolver(pluginName: string): Resolver {
+    return new Resolver({ pluginName, shared: this.#shared })
+  }
+
   /**
    * Checks the adapter's and parsers' `meta.compatibility`, then normalizes and checks every configured plugin, orders them, and registers their lifecycle handlers.
    * A plugin that another lists as a dependency runs first, then `enforce: 'pre'` before
@@ -184,7 +199,7 @@ export class KubbDriver {
           // `rawPlugin.options` is the user-supplied shape. The normalized `output`/`exclude`/`override`
           // bag is filled in by the post-setup `normalizePluginOptions` pass, after `setOptions` runs.
           options: (rawPlugin.options ?? defaultPluginOptions()) as NormalizedPlugin['options'],
-          resolver: createResolver<PluginType>({ pluginName: meta.name }),
+          resolver: this.#createResolver(meta.name),
         }
         return normalizedPlugin
       }),
@@ -260,15 +275,7 @@ export class KubbDriver {
     if (this.inputNode || !this.adapter || !this.#adapterSource) return
 
     this.options.signal?.throwIfAborted()
-    const source = this.#adapterSource
-    const checkout = source.type === 'path' && gitInputRegExp.test(source.path) ? await checkoutGitInput(source.path, this.options.signal) : undefined
-    try {
-      this.inputNode = await this.adapter.parse(checkout ? { type: 'path', path: checkout.path } : source, { signal: this.options.signal })
-    } catch (caughtError) {
-      throw new Diagnostics.Error(Diagnostics.fromExtension(caughtError, { kind: 'adapter', extension: this.adapter }))
-    } finally {
-      await checkout?.dispose()
-    }
+    this.inputNode = await parseAdapterSource({ adapter: this.adapter, source: this.#adapterSource, signal: this.options.signal })
   }
 
   /**
@@ -307,7 +314,7 @@ export class KubbDriver {
           plugin.generators = [...(plugin.generators ?? []), ...generators]
         },
         setResolver: (resolver) => {
-          plugin.resolver = Resolver.merge(createResolver<PluginType>({ pluginName: plugin.name }), resolver)
+          plugin.resolver = Resolver.merge(this.#createResolver(plugin.name), resolver)
         },
         addMacro: (macro) => {
           plugin.macros = [...(plugin.macros ?? []), macro]
@@ -425,14 +432,15 @@ export class KubbDriver {
           // Write every generated file once, after post-processing (barrel etc.) has had its
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
-          if (this.options.cleanPath) await config.storage.empty(this.options.cleanPath)
+          for (const cleanPath of this.options.cleanPaths ?? []) await config.storage.empty(cleanPath)
 
           await fileManager.write(fileManager.files, {
             storage: config.storage,
             parsers: parsersMap,
             manifest: this.options.manifest,
             signal: this.options.signal,
-            cleaned: this.options.cleanPath,
+            cleaned: this.options.cleanPaths,
+            shared: this.#shared,
             hooks,
             config,
           })
@@ -755,7 +763,7 @@ export class KubbDriver {
   /** Reads `plugin.resolver`, falling back to a fresh default for a name that is not a registered plugin. */
   getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
   getResolver(pluginName: string): Resolver {
-    return this.plugins.get(pluginName)?.resolver ?? createResolver<PluginType>({ pluginName })
+    return this.plugins.get(pluginName)?.resolver ?? this.#createResolver(pluginName)
   }
 
   memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {

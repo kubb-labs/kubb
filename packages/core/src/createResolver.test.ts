@@ -438,6 +438,47 @@ describe('resolver.imports', () => {
   })
 })
 
+describe('shared', () => {
+  const shared = { path: '/common', schemas: ['Name'] }
+  const sharedResolver = new Resolver({ pluginName: 'test', shared })
+
+  it('keeps a shared schema of a plugin with a custom file.path in its own output', () => {
+    const resolver = createResolver<TestPluginFactory>({ pluginName: 'test', file: { path: () => 'mocks/name.ts' }, greet: () => '', farewell: () => '' })
+    const withShared = Resolver.merge(new Resolver({ pluginName: 'test', shared }), resolver)
+
+    expect(withShared.file({ name: 'Name', extname: '.ts', ...context }).path).toBe('/root/mocks/name.ts')
+  })
+
+  it('keeps an operation file in its own output when its name matches a shared schema', () => {
+    expect(sharedResolver.file({ name: 'Name', extname: '.ts', tag: 'pets', ...context }).path).toBe('/root/types/name.ts')
+  })
+
+  it('keeps a shared schema of a file-mode plugin, and every import of it, in its own file', () => {
+    const fileContext = { ...context, output: { path: 'types.ts', mode: 'file' as const } }
+    const node = ast.factory.createSchema({
+      type: 'object',
+      properties: [
+        ast.factory.createProperty({ name: 'name', schema: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Name', name: 'Name' }) }),
+      ],
+    })
+
+    expect(sharedResolver.file({ name: 'Name', extname: '.ts', ...fileContext }).path).toBe('/root/types.ts')
+    expect(sharedResolver.imports({ node, ...fileContext }).map((imp) => imp.path)).toStrictEqual(['/root/types.ts'])
+  })
+
+  it('imports a shared schema from the shared path', () => {
+    const node = ast.factory.createSchema({
+      type: 'object',
+      properties: [
+        ast.factory.createProperty({ name: 'name', schema: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Name', name: 'Name' }) }),
+        ast.factory.createProperty({ name: 'pet', schema: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' }) }),
+      ],
+    })
+
+    expect(sharedResolver.imports({ node, ...context }).map((imp) => imp.path)).toStrictEqual(['/common/types/name.ts', '/root/types/pet.ts'])
+  })
+})
+
 const mockConfig = {
   input: 'petStore.yaml',
   output: { path: 'src/generated', defaultBanner: true },

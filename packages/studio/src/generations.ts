@@ -3,7 +3,7 @@ import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
-import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
+import { type Config, type Diagnostic, Diagnostics, fsStorage, type Hookable, Kubb, type KubbHooks, type Storage } from '@kubb/core'
 import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
@@ -85,27 +85,32 @@ export function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error
 }
 
 /**
- * Runs one generation and returns the files it produced. The formatter, the linter, and
- * `output.postGenerate` only run with `allowExec`. Throws when any plugin reports an error.
+ * Generates the config at `only` and returns the files it produced. It shares schemas with the other `configs` that set
+ * the same `shared.path`. The formatter, the linter, and `output.postGenerate` only run with `allowExec`. Throws when
+ * any plugin reports an error.
  */
 export async function generate({
-  config,
+  configs,
+  only = 0,
   hooks,
   signal,
   allowExec,
 }: {
-  config: Config
+  configs: Array<Config>
+  only?: number
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
 }): Promise<SourceFiles & { input: InputNode | null }> {
+  const config = configs[only]!
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const kubb = createKubb({ ...config, output }, { hooks, signal })
-  const result = await kubb.generate()
+  // With `only`, exactly one result is yielded.
+  const result = (await Array.fromAsync(Kubb.generate(configs.with(only, { ...config, output }), { hooks, signal, only })))[0]!
+  if (result.error) throw result.error
   if (!result.success) throw generationFailure(result.diagnostics)
 
-  // `kubb.config` carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
-  const { storage, root } = kubb.config
+  // The instance's config carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
+  const { storage, root } = result.kubb.config
   return {
     storage,
     root,
