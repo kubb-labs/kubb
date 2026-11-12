@@ -436,6 +436,30 @@ describe('resolver.imports', () => {
 
     expect(baseResolver.imports({ node, ...context })).toMatchObject([{ name: ['pet'], path: '/root/types/pet.ts' }])
   })
+
+  test.each([
+    ['ungrouped output', new Resolver({ pluginName: 'test' }), undefined],
+    ['a tag group', new Resolver({ pluginName: 'test' }), { type: 'tag' } as const],
+    ['a path group', new Resolver({ pluginName: 'test' }), { type: 'path' } as const],
+    ['a file.baseName override', new Resolver({ pluginName: 'test', file: { baseName: ({ name, extname }) => `${name}.mock${extname}` } }), undefined],
+  ])('repeated calls return the paths resolver.file gives for %s', (_label, resolver, group) => {
+    const output = { path: 'types', mode: 'directory' } as const
+    const expected = ['Pet', 'Order'].map((name) => resolver.file({ name, extname: '.ts', root: '/root', output, group }).path)
+    const paths = () => resolver.imports({ node: refNode, root: '/root', output, group }).map((entry) => entry.path)
+
+    expect(paths()).toStrictEqual(expected)
+    expect(paths()).toStrictEqual(expected)
+  })
+
+  it('keeps cached paths apart per root and extname for one output', () => {
+    const resolver = new Resolver({ pluginName: 'test' })
+    const output = { path: 'types', mode: 'directory' } as const
+    const paths = (root: string, extname?: '.ts' | '.js') => resolver.imports({ node: refNode, root, output, extname }).map((entry) => entry.path)
+
+    expect(paths('/root')).toStrictEqual(['/root/types/pet.ts', '/root/types/order.ts'])
+    expect(paths('/other')).toStrictEqual(['/other/types/pet.ts', '/other/types/order.ts'])
+    expect(paths('/root', '.js')).toStrictEqual(['/root/types/pet.js', '/root/types/order.js'])
+  })
 })
 
 const mockConfig = {
