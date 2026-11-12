@@ -258,7 +258,9 @@ export function createGenerationStore({
       if (!input) return 0
       let json: string
       try {
-        json = JSON.stringify(ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }))
+        json = JSON.stringify(
+          ast.node.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }),
+        )
       } catch {
         // An adapter can return what JSON cannot hold, which must not fail a finished generation.
         return 0

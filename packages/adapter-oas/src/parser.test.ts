@@ -130,7 +130,7 @@ describe('buildAst', () => {
   describe('schemas', () => {
     it('converts array schema and populates node.schema with the resolved ref schema', async () => {
       const root = await parseOas(await buildMinimalOas())
-      const list = ast.narrowSchema(findSchema(root, 'PetList'), 'array')
+      const list = ast.schema.narrow(findSchema(root, 'PetList'), 'array')
 
       expect(list?.type).toBe('array')
       expect(list?.items).toHaveLength(1)
@@ -146,20 +146,20 @@ describe('buildAst', () => {
 
     it('flattens single-member allOf for nullable $ref', async () => {
       const root = await parseOas(await buildMinimalOas())
-      const nullableRef = ast.narrowSchema(findSchema(root, 'NullableRef'), 'union')
+      const nullableRef = ast.schema.narrow(findSchema(root, 'NullableRef'), 'union')
 
       // The 3.1 upgrade rewrites `{ $ref, nullable: true }` into `anyOf: [$ref, null]`, so the
       // single-member allOf flattens to that union instead of a ref carrying `nullable`.
       expect(nullableRef?.type).toBe('union')
       expect(nullableRef?.members?.map((member) => member.type)).toStrictEqual(['ref', 'null'])
-      expect(ast.narrowSchema(nullableRef?.members?.[0], 'ref')?.ref).toBe('#/components/schemas/Pet')
+      expect(ast.schema.narrow(nullableRef?.members?.[0], 'ref')?.ref).toBe('#/components/schemas/Pet')
     })
 
     it('maps formats on properties nested inside an allOf member', async () => {
       const root = await parseOas(await buildMinimalOas())
-      const fullPet = ast.narrowSchema(findSchema(root, 'FullPet'), 'intersection')
+      const fullPet = ast.schema.narrow(findSchema(root, 'FullPet'), 'intersection')
       // second member is an inline object with createdAt (datetime) and email
-      const objectMember = ast.narrowSchema(
+      const objectMember = ast.schema.narrow(
         fullPet?.members?.find((m) => m.type === 'object'),
         'object',
       )
@@ -200,14 +200,14 @@ describe('buildAst', () => {
       const $ref = '#/paths/~1foo/get/responses/404/content/application~1json/schema'
       const node = parseSchema({ document, refs: createRefs(document) }, { schema: { type: 'object', properties: { a: { $ref } } } })
 
-      expect(ast.narrowSchema(node, 'object')?.properties?.[0]?.schema.nullable).toBe(true)
+      expect(ast.schema.narrow(node, 'object')?.properties?.[0]?.schema.nullable).toBe(true)
     })
 
     it('keeps the usage-site description and default on an inlined path ref', () => {
       const $ref = '#/paths/~1foo/get/responses/200/content/application~1json/schema'
       const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref, description: 'used here', default: {} } })
 
-      expect([node.type, node.description, ast.narrowSchema(node, 'object')?.default]).toStrictEqual(['object', 'used here', {}])
+      expect([node.type, node.description, ast.schema.narrow(node, 'object')?.default]).toStrictEqual(['object', 'used here', {}])
     })
   })
 
@@ -301,7 +301,7 @@ describe('buildAst', () => {
       expect(op?.parameters.find((p) => p.name === 'sort')).not.toHaveProperty('contentType')
     })
 
-    it('keeps the encoding of a form-encoded querystring parameter', async () => {
+    it('spreads a form-encoded querystring object into query parameters with their encoding', async () => {
       const oas = {
         openapi: '3.2.0',
         info: { title: 'Test', version: '1.0.0' },
@@ -328,7 +328,29 @@ describe('buildAst', () => {
       }
       const op = findOperation(await parseOas(oas), 'search')
 
-      expect(op?.parameters[0]?.encoding).toStrictEqual({ tags: { style: 'form', explode: false } })
+      expect(op?.parameters).toHaveLength(1)
+      expect(op?.parameters[0]).toMatchObject({ name: 'tags', in: 'query', style: 'form', explode: false, required: false })
+    })
+
+    it('keeps a JSON querystring parameter whole', async () => {
+      const oas = {
+        openapi: '3.2.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/search': {
+            get: {
+              operationId: 'search',
+              parameters: [
+                { name: 'filter', in: 'querystring', content: { 'application/json': { schema: { type: 'object', properties: { q: { type: 'string' } } } } } },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+      const op = findOperation(await parseOas(oas), 'search')
+
+      expect(op?.parameters).toMatchObject([{ name: 'filter', in: 'querystring', contentType: 'application/json' }])
     })
 
     it('converts requestBody with description, required and a single content entry', async () => {
@@ -859,9 +881,9 @@ describe('parseSchema allOf', () => {
       },
     } as unknown as Document
     const node = parseSchema({ document: doc, refs: createRefs(doc) }, { schema: { allOf: [{ $ref: '#/components/schemas/Base' }, { required: ['name'] }] } })
-    const [, object] = ast.narrowSchema(node, 'intersection')?.members ?? []
+    const [, object] = ast.schema.narrow(node, 'intersection')?.members ?? []
 
-    expect(ast.narrowSchema(object!, 'object')?.properties?.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([['name', true, 'string']])
+    expect(ast.schema.narrow(object!, 'object')?.properties?.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([['name', true, 'string']])
   })
 
   it('marks a parent required key from an allOf alias $ref', () => {
@@ -875,9 +897,9 @@ describe('parseSchema allOf', () => {
     } as unknown as Document
     const node = parseSchema({ document: doc, refs: createRefs(doc) }, { schema: { allOf: [{ $ref: '#/components/schemas/Base' }], required: ['name'] } })
 
-    const [, object] = ast.narrowSchema(node, 'intersection')?.members ?? []
+    const [, object] = ast.schema.narrow(node, 'intersection')?.members ?? []
 
-    expect(ast.narrowSchema(object!, 'object')?.properties?.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([['name', true, 'string']])
+    expect(ast.schema.narrow(object!, 'object')?.properties?.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([['name', true, 'string']])
   })
 
   it.each([
@@ -898,9 +920,9 @@ describe('parseSchema allOf', () => {
       { document: doc, refs: createRefs(doc) },
       { schema: { allOf: [{ $ref: '#/components/schemas/Base' }, { required: ['id', 'name'] }] } },
     )
-    const [, object] = ast.narrowSchema(node, 'intersection')?.members ?? []
+    const [, object] = ast.schema.narrow(node, 'intersection')?.members ?? []
 
-    expect(ast.narrowSchema(object!, 'object')?.properties?.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([
+    expect(ast.schema.narrow(object!, 'object')?.properties?.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([
       ['id', true, 'string'],
       ['name', true, 'string'],
     ])
@@ -929,7 +951,7 @@ describe('parseSchema allOf', () => {
     })
 
     // first member: the $ref, last member: the sibling properties object
-    const members = ast.narrowSchema(node, 'intersection')?.members ?? []
+    const members = ast.schema.narrow(node, 'intersection')?.members ?? []
     expect(members[0]?.type).toBe('ref')
     expect(members[members.length - 1]?.type).toBe('object')
   })
@@ -946,13 +968,13 @@ describe('parseSchema allOf', () => {
     })
 
     // The 2 anonymous allOf members are merged into 1; the injected required-key member is a separate synthetic member
-    const intersection = ast.narrowSchema(node, 'intersection')
+    const intersection = ast.schema.narrow(node, 'intersection')
     expect(intersection?.members).toHaveLength(2)
     // the merged allOf object contains both id and name
-    const mergedAllOf = ast.narrowSchema(intersection?.members?.[0], 'object')
+    const mergedAllOf = ast.schema.narrow(intersection?.members?.[0], 'object')
     expect(mergedAllOf?.properties?.map((p) => p.name)).toStrictEqual(['id', 'name'])
     // the injected member is an object with `id` marked required
-    const injected = ast.narrowSchema(intersection?.members?.[1], 'object')
+    const injected = ast.schema.narrow(intersection?.members?.[1], 'object')
     expect(injected?.properties?.find((p) => p.name === 'id')?.required).toBe(true)
   })
 
@@ -966,7 +988,7 @@ describe('parseSchema allOf', () => {
     })
 
     // only the allOf member + the sibling properties object; no extra injection
-    const objectMembers = ast.narrowSchema(node, 'intersection')?.members?.filter((m) => m.type === 'object')
+    const objectMembers = ast.schema.narrow(node, 'intersection')?.members?.filter((m) => m.type === 'object')
     expect(objectMembers).toHaveLength(2)
   })
 
@@ -995,9 +1017,9 @@ describe('parseSchema allOf', () => {
       },
     })
 
-    const intersection = ast.narrowSchema(node, 'intersection')
+    const intersection = ast.schema.narrow(node, 'intersection')
     expect(intersection?.members).toHaveLength(3)
-    const propNames = intersection?.members?.flatMap((m) => ast.narrowSchema(m, 'object')?.properties?.map((p) => p.name) ?? [])
+    const propNames = intersection?.members?.flatMap((m) => ast.schema.narrow(m, 'object')?.properties?.map((p) => p.name) ?? [])
     expect(propNames).toStrictEqual(expect.arrayContaining(['streetNumber', 'streetName']))
   })
 })
@@ -1007,7 +1029,7 @@ describe('parseSchema oneOf / anyOf', () => {
     const node = parseSchema(emptyCtx, { schema: { [keyword]: [{ type: 'string' }, { type: 'number' }] } })
 
     expect(node).toMatchObject({ type: 'union', strategy })
-    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(['string', 'number'])
+    expect(ast.schema.narrow(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(['string', 'number'])
   })
 
   it('combines oneOf and anyOf members into a single union with strategy one', () => {
@@ -1019,7 +1041,7 @@ describe('parseSchema oneOf / anyOf', () => {
     })
 
     expect(node).toMatchObject({ type: 'union', strategy: 'one' })
-    expect(ast.narrowSchema(node, 'union')?.members).toHaveLength(3)
+    expect(ast.schema.narrow(node, 'union')?.members).toHaveLength(3)
   })
 
   it.each([
@@ -1040,7 +1062,7 @@ describe('parseSchema oneOf / anyOf', () => {
     const node = parseSchema(emptyCtx, { schema: { oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }] } })
 
     expect(node.type).toBe('union')
-    expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBeUndefined()
+    expect(ast.schema.narrow(node, 'union')?.discriminatorPropertyName).toBeUndefined()
   })
 
   it('infers discriminatorPropertyName when a property carries a distinct literal per branch', () => {
@@ -1054,7 +1076,7 @@ describe('parseSchema oneOf / anyOf', () => {
       },
     })
 
-    expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBe('error')
+    expect(ast.schema.narrow(node, 'union')?.discriminatorPropertyName).toBe('error')
   })
 
   it('does not infer discriminatorPropertyName when no property has a single literal on every branch', () => {
@@ -1068,7 +1090,7 @@ describe('parseSchema oneOf / anyOf', () => {
       },
     })
 
-    expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBeUndefined()
+    expect(ast.schema.narrow(node, 'union')?.discriminatorPropertyName).toBeUndefined()
   })
 
   it.each([
@@ -1084,9 +1106,9 @@ describe('parseSchema oneOf / anyOf', () => {
       })
 
       expect(node.type).toBe('intersection')
-      const topIntersection = ast.narrowSchema(node, 'intersection')
-      const unionNode = ast.narrowSchema(topIntersection?.members?.[0], 'union')
-      const sharedNode = ast.narrowSchema(topIntersection?.members?.[1], 'object')
+      const topIntersection = ast.schema.narrow(node, 'intersection')
+      const unionNode = ast.schema.narrow(topIntersection?.members?.[0], 'union')
+      const sharedNode = ast.schema.narrow(topIntersection?.members?.[1], 'object')
 
       expect(unionNode?.members?.map((member) => member.type)).toStrictEqual(members)
       expect(sharedNode?.properties?.map((p) => p.name)).toStrictEqual(['id'])
@@ -1107,16 +1129,16 @@ describe('parseSchema oneOf / anyOf', () => {
       })
 
       expect(node.type).toBe('intersection')
-      const intersection = ast.narrowSchema(node, 'intersection')!
-      const unionNode = ast.narrowSchema(intersection.members?.[0], 'union')
-      const sharedNode = ast.narrowSchema(intersection.members?.[1], 'object')
+      const intersection = ast.schema.narrow(node, 'intersection')!
+      const unionNode = ast.schema.narrow(intersection.members?.[0], 'union')
+      const sharedNode = ast.schema.narrow(intersection.members?.[1], 'object')
 
       expect(unionNode).toBeDefined()
       expect(unionNode?.strategy).toBe('any')
       expect(unionNode?.members).toHaveLength(2)
 
-      const branchEmail = ast.narrowSchema(unionNode?.members?.[0], 'object')
-      const branchPhone = ast.narrowSchema(unionNode?.members?.[1], 'object')
+      const branchEmail = ast.schema.narrow(unionNode?.members?.[0], 'object')
+      const branchPhone = ast.schema.narrow(unionNode?.members?.[1], 'object')
 
       expect(branchEmail?.properties).toMatchObject([{ name: 'email', required: true, schema: { type: 'string' } }])
       expect(branchPhone?.properties).toMatchObject([{ name: 'phone', required: true, schema: { type: 'string' } }])
@@ -1165,24 +1187,24 @@ describe('parseSchema oneOf / anyOf', () => {
       })
 
       expect(node.type).toBe('intersection')
-      const intersection = ast.narrowSchema(node, 'intersection')!
+      const intersection = ast.schema.narrow(node, 'intersection')!
       expect(intersection.members).toHaveLength(3)
 
       const [refMember, objMember, unionMember] = intersection.members!
       expect(refMember?.type).toBe('ref')
 
-      const objNode = ast.narrowSchema(objMember, 'object')
+      const objNode = ast.schema.narrow(objMember, 'object')
       expect(objNode?.properties?.find((p) => p.name === 'tokenValue')?.required).toBe(false)
       expect(objNode?.properties?.find((p) => p.name === 'tokenType')?.required).toBe(false)
       expect(objNode?.properties?.find((p) => p.name === 'accountNumber')?.required).toBe(false)
 
-      const unionNode = ast.narrowSchema(unionMember, 'union')
+      const unionNode = ast.schema.narrow(unionMember, 'union')
       expect(unionNode).toBeDefined()
       expect(unionNode?.strategy).toBe('one')
       expect(unionNode?.members).toHaveLength(2)
 
-      const branch1 = ast.narrowSchema(unionNode?.members?.[0], 'object')
-      const branch2 = ast.narrowSchema(unionNode?.members?.[1], 'object')
+      const branch1 = ast.schema.narrow(unionNode?.members?.[0], 'object')
+      const branch2 = ast.schema.narrow(unionNode?.members?.[1], 'object')
 
       expect(branch1?.properties).toMatchObject([
         { name: 'tokenValue', required: true, schema: { type: 'unknown' } },
@@ -1212,13 +1234,13 @@ describe('parseSchema oneOf / anyOf', () => {
       })
 
       expect(node.type).toBe('intersection')
-      const intersection = ast.narrowSchema(node, 'intersection')!
+      const intersection = ast.schema.narrow(node, 'intersection')!
       const secondMember = intersection.members?.[1]
       expect(secondMember).toBeDefined()
-      const secondIntersection = ast.narrowSchema(secondMember!, 'intersection')
+      const secondIntersection = ast.schema.narrow(secondMember!, 'intersection')
       expect(secondIntersection).toBeDefined()
       const sharedObj = secondIntersection?.members?.find((m) => m.type === 'object')
-      const idProp = ast.narrowSchema(sharedObj!, 'object')?.properties.find((p) => p.name === 'id')
+      const idProp = ast.schema.narrow(sharedObj!, 'object')?.properties.find((p) => p.name === 'id')
       expect(idProp).toMatchObject({ required: true, schema: { type: 'string' } })
     })
 
@@ -1233,9 +1255,9 @@ describe('parseSchema oneOf / anyOf', () => {
         },
       })
 
-      const intersection = ast.narrowSchema(node, 'intersection')!
-      const unionNode = ast.narrowSchema(intersection.members?.[0], 'union')
-      const branchPhone = ast.narrowSchema(unionNode?.members?.[1], 'object')
+      const intersection = ast.schema.narrow(node, 'intersection')!
+      const unionNode = ast.schema.narrow(intersection.members?.[0], 'union')
+      const branchPhone = ast.schema.narrow(unionNode?.members?.[1], 'object')
 
       expect(branchPhone?.properties).toMatchObject([{ name: 'phone', required: true, schema: { type: 'unknown' } }])
     })
@@ -1258,9 +1280,9 @@ describe('parseSchema oneOf / anyOf', () => {
         },
       })
 
-      const intersection = ast.narrowSchema(node, 'intersection')!
-      const unionNode = ast.narrowSchema(intersection.members?.[0], 'union')
-      const branch = ast.narrowSchema(unionNode?.members?.[0], 'object')
+      const intersection = ast.schema.narrow(node, 'intersection')!
+      const unionNode = ast.schema.narrow(intersection.members?.[0], 'union')
+      const branch = ast.schema.narrow(unionNode?.members?.[0], 'object')
 
       expect(branch?.properties).toHaveLength(2)
       expect(branch?.properties.find((p) => p.name === 'localKey')).toMatchObject({ required: true, schema: { type: 'string' } })
@@ -1286,7 +1308,7 @@ describe('parseSchema discriminator on union', () => {
         },
       },
     })
-    const members = ast.narrowSchema(
+    const members = ast.schema.narrow(
       root.schemas.find((schema) => schema.name === 'Content'),
       'union',
     )?.members
@@ -1315,24 +1337,24 @@ describe('parseSchema discriminator on union', () => {
     })
 
     expect(node.type).toBe('intersection')
-    const topIntersection = ast.narrowSchema(node, 'intersection')!
-    const unionNode = ast.narrowSchema(topIntersection.members?.[0], 'union')!
-    const sharedPropertiesNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
+    const topIntersection = ast.schema.narrow(node, 'intersection')!
+    const unionNode = ast.schema.narrow(topIntersection.members?.[0], 'union')!
+    const sharedPropertiesNode = ast.schema.narrow(topIntersection.members?.[1], 'object')
     const sharedTypeProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'type')
 
-    expect(ast.narrowSchema(sharedTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog', 'hound', 'cat'])
+    expect(ast.schema.narrow(sharedTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog', 'hound', 'cat'])
 
     const { members } = unionNode
 
     // Dog member: intersection of Dog ref + synthetic discriminant object { type: 'dog' | 'hound' }, one value per mapping key
-    const dogIntersection = ast.narrowSchema(members![0], 'intersection')
-    const dogDiscNode = ast.narrowSchema(dogIntersection!.members![1], 'object')
+    const dogIntersection = ast.schema.narrow(members![0], 'intersection')
+    const dogDiscNode = ast.schema.narrow(dogIntersection!.members![1], 'object')
     const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
     expect(dogTypeProp?.schema).toMatchObject({ type: 'enum', readOnly: true, enumValues: ['dog', 'hound'] })
 
     // Cat member: intersection of Cat ref + synthetic discriminant object { type: 'cat' }
-    const catIntersection = ast.narrowSchema(members![1], 'intersection')
-    const catDiscNode = ast.narrowSchema(catIntersection!.members![1], 'object')
+    const catIntersection = ast.schema.narrow(members![1], 'intersection')
+    const catDiscNode = ast.schema.narrow(catIntersection!.members![1], 'object')
     const catTypeProp = catDiscNode?.properties?.find((p) => p.name === 'type')
     expect(catTypeProp?.schema).toMatchObject({ type: 'enum', readOnly: true, enumValues: ['cat'] })
   })
@@ -1358,8 +1380,8 @@ describe('parseSchema discriminator on union', () => {
     })
 
     expect(node.type).toBe('intersection')
-    const topIntersection = ast.narrowSchema(node, 'intersection')!
-    const sharedPropertiesNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
+    const topIntersection = ast.schema.narrow(node, 'intersection')!
+    const sharedPropertiesNode = ast.schema.narrow(topIntersection.members?.[1], 'object')
     const statusProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'status')
     // The enum schema should carry a name derived from the parent union name
     expect(statusProp?.schema.name).toBe('PetStatusEnum')
@@ -1383,11 +1405,11 @@ describe('parseSchema discriminator on union', () => {
     }
 
     const pet = findSchema(await parseOas(oas), 'Pet')
-    const { members } = ast.narrowSchema(pet, 'union')!
+    const { members } = ast.schema.narrow(pet, 'union')!
 
     const discriminantOf = (member: ast.SchemaNode) => {
-      const discNode = ast.narrowSchema(ast.narrowSchema(member, 'intersection')?.members?.[1], 'object')
-      return ast.narrowSchema(discNode?.properties?.find((p) => p.name === 'petType')?.schema, 'enum')?.enumValues
+      const discNode = ast.schema.narrow(ast.schema.narrow(member, 'intersection')?.members?.[1], 'object')
+      return ast.schema.narrow(discNode?.properties?.find((p) => p.name === 'petType')?.schema, 'enum')?.enumValues
     }
 
     expect(members?.map((member) => member.type)).toStrictEqual(['intersection', 'intersection'])
@@ -1454,7 +1476,7 @@ describe('parseSchema const (OAS 3.1)', () => {
       name: 'Pet',
     })
 
-    const objectNode = ast.narrowSchema(node, 'object')
+    const objectNode = ast.schema.narrow(node, 'object')
     const isHappyProp = objectNode?.properties.find((p) => p.name === 'isHappy')
 
     expect(isHappyProp?.schema).toMatchObject({ type: 'enum', name: null, enumValues: [false] })
@@ -1488,7 +1510,7 @@ describe('parseSchema null', () => {
       name: 'Wrapper',
     })
 
-    const fieldProp = ast.narrowSchema(node, 'object')?.properties.find((p) => p.name === 'field')
+    const fieldProp = ast.schema.narrow(node, 'object')?.properties.find((p) => p.name === 'field')
 
     expect(fieldProp?.schema.type).toBe('null')
     expect(fieldProp?.schema.nullable).toBeUndefined()
@@ -1525,7 +1547,7 @@ describe('parseSchema object properties', () => {
     'marks $title as $expected',
     ({ required, property, expected }) => {
       const node = parseSchema(emptyCtx, { schema: { type: 'object', required, properties: { id: property } } })
-      const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'id')
+      const prop = ast.schema.narrow(node, 'object')?.properties?.find((p) => p.name === 'id')
 
       expect({ required: prop?.required, optional: prop?.schema.optional, nullish: prop?.schema.nullish, nullable: prop?.schema.nullable }).toStrictEqual(
         expected,
@@ -1544,7 +1566,7 @@ describe('parseSchema object properties', () => {
       },
     })
 
-    expect(ast.narrowSchema(node, 'object')?.properties.map((p) => [p.name, p.required, p.schema.optional])).toStrictEqual([
+    expect(ast.schema.narrow(node, 'object')?.properties.map((p) => [p.name, p.required, p.schema.optional])).toStrictEqual([
       ['id', true, undefined],
       ['tag', true, undefined],
     ])
@@ -1569,7 +1591,7 @@ describe('parseSchema object properties', () => {
       },
     })
 
-    expect(ast.narrowSchema(node, 'object')?.properties).toMatchObject([
+    expect(ast.schema.narrow(node, 'object')?.properties).toMatchObject([
       { name: 'petType', schema: { type: 'enum', enumValues: ['Cat', 'Dog'] } },
       { name: 'name', schema: { type: 'string' } },
     ])
@@ -1585,7 +1607,7 @@ describe('parseSchema object properties', () => {
       },
     })
 
-    expect(ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'type')?.schema.type).toBe('string')
+    expect(ast.schema.narrow(node, 'object')?.properties?.find((p) => p.name === 'type')?.schema.type).toBe('string')
   })
 })
 
@@ -1598,19 +1620,19 @@ describe('parseSchema object additionalProperties', () => {
     const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties } })
 
     expect(node.type).toBe('object')
-    expect(ast.narrowSchema(node, 'object')?.additionalProperties).toMatchObject(expected)
+    expect(ast.schema.narrow(node, 'object')?.additionalProperties).toMatchObject(expected)
   })
 
   it('leaves additionalProperties unset for additionalProperties: false', () => {
     const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties: false } })
 
-    expect(ast.narrowSchema(node, 'object')?.additionalProperties).toBeFalsy()
+    expect(ast.schema.narrow(node, 'object')?.additionalProperties).toBeFalsy()
   })
 
   it('respects unknownType: any for empty additionalProperties', () => {
     const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties: {} } }, { unknownType: 'any' })
 
-    expect(ast.narrowSchema(node, 'object')?.additionalProperties).toMatchObject({ type: 'any' })
+    expect(ast.schema.narrow(node, 'object')?.additionalProperties).toMatchObject({ type: 'any' })
   })
 
   it('keeps properties next to additionalProperties', () => {
@@ -1622,7 +1644,7 @@ describe('parseSchema object additionalProperties', () => {
         additionalProperties: { type: 'string' },
       },
     })
-    const narrowed = ast.narrowSchema(node, 'object')
+    const narrowed = ast.schema.narrow(node, 'object')
 
     expect(narrowed?.properties?.map((p) => p.name)).toStrictEqual(['id'])
     expect(narrowed?.additionalProperties).toMatchObject({ type: 'string' })
@@ -1640,7 +1662,7 @@ describe('parseSchema object patternProperties', () => {
         },
       },
     })
-    const narrowed = ast.narrowSchema(node, 'object')
+    const narrowed = ast.schema.narrow(node, 'object')
 
     expect(node.type).toBe('object')
     expect(Object.keys(narrowed?.patternProperties ?? {})).toStrictEqual(['^S_', '^I_'])
@@ -1655,7 +1677,7 @@ describe('parseSchema object patternProperties', () => {
   ])('falls back to unknownType for $title', ({ pattern }) => {
     const node = parseSchema(emptyCtx, { schema: { type: 'object', patternProperties: { '^x-': pattern } } })
 
-    expect(ast.narrowSchema(node, 'object')?.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
+    expect(ast.schema.narrow(node, 'object')?.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
   })
 
   it('keeps properties next to patternProperties', () => {
@@ -1666,7 +1688,7 @@ describe('parseSchema object patternProperties', () => {
         patternProperties: { '^meta_': { type: 'string' } },
       },
     })
-    const narrowed = ast.narrowSchema(node, 'object')
+    const narrowed = ast.schema.narrow(node, 'object')
 
     expect(narrowed?.properties?.map((p) => p.name)).toStrictEqual(['id'])
     expect(narrowed?.patternProperties?.['^meta_']).toMatchObject({ type: 'string' })
@@ -1681,7 +1703,7 @@ describe('parseSchema prefixItems (tuple)', () => {
       },
     })
 
-    expect(ast.narrowSchema(node, 'tuple')?.items?.map((item) => item.type)).toStrictEqual(['string', 'ref', 'object'])
+    expect(ast.schema.narrow(node, 'tuple')?.items?.map((item) => item.type)).toStrictEqual(['string', 'ref', 'object'])
   })
 
   it.each([
@@ -1691,14 +1713,14 @@ describe('parseSchema prefixItems (tuple)', () => {
   ] satisfies Array<{ title: string; items: SchemaObject | boolean | undefined; rest: string }>)('maps $title', ({ items, rest }) => {
     const node = parseSchema(emptyCtx, { schema: { prefixItems: [{ type: 'string' }], items } })
 
-    expect(ast.narrowSchema(node, 'tuple')?.rest?.type).toBe(rest)
+    expect(ast.schema.narrow(node, 'tuple')?.rest?.type).toBe(rest)
   })
 
   it('omits rest when items is false — closed tuple', () => {
     const node = parseSchema(emptyCtx, {
       schema: { prefixItems: [{ type: 'number' }, { type: 'number' }], items: false },
     })
-    const narrowed = ast.narrowSchema(node, 'tuple')
+    const narrowed = ast.schema.narrow(node, 'tuple')
 
     expect(narrowed?.items).toHaveLength(2)
     expect(narrowed?.rest).toBeUndefined()
@@ -1719,8 +1741,8 @@ describe('parseSchema prefixItems (tuple)', () => {
       { enumSuffix: 'enum' },
     )
 
-    const identifierProp = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'identifier')
-    const tupleNode = ast.narrowSchema(identifierProp?.schema, 'tuple')
+    const identifierProp = ast.schema.narrow(node, 'object')?.properties?.find((p) => p.name === 'identifier')
+    const tupleNode = ast.schema.narrow(identifierProp?.schema, 'tuple')
     expect(tupleNode?.items?.[2]).toMatchObject({ type: 'enum', name: 'AddressIdentifierEnum' })
   })
 
@@ -1742,8 +1764,8 @@ describe('parseSchema prefixItems (tuple)', () => {
       { enumSuffix: 'enum' },
     )
 
-    const coordsProp = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'coords')
-    const tupleNode = ast.narrowSchema(coordsProp?.schema, 'tuple')
+    const coordsProp = ast.schema.narrow(node, 'object')?.properties?.find((p) => p.name === 'coords')
+    const tupleNode = ast.schema.narrow(coordsProp?.schema, 'tuple')
     expect(tupleNode?.items?.map((item) => item.name)).toStrictEqual([undefined, undefined])
   })
 })
@@ -1758,11 +1780,11 @@ describe('parseSchema enum', () => {
   it('deduplicates string enum values', () => {
     const node = parseSchema(emptyCtx, { schema: { enum: ['a', 'a', 'b'] } })
 
-    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual(['a', 'b'])
+    expect(ast.schema.narrow(node, 'enum')?.enumValues).toStrictEqual(['a', 'b'])
   })
 
   it('deduplicates numeric enum values and uses the stringified value as name', () => {
-    const namedEnumValues = ast.narrowSchema(parseSchema(emptyCtx, { schema: { type: 'integer', enum: [1, 1, 2] } }), 'enum')?.namedEnumValues
+    const namedEnumValues = ast.schema.narrow(parseSchema(emptyCtx, { schema: { type: 'integer', enum: [1, 1, 2] } }), 'enum')?.namedEnumValues
 
     expect(namedEnumValues?.map((v) => v.value)).toStrictEqual([1, 2])
     expect(namedEnumValues?.map((v) => v.name)).toStrictEqual(['1', '2'])
@@ -1780,7 +1802,7 @@ describe('parseSchema enum', () => {
       const node = parseSchema(emptyCtx, { schema })
 
       expect(node.nullable).toBe(true)
-      expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual(enumValues)
+      expect(ast.schema.narrow(node, 'enum')?.enumValues).toStrictEqual(enumValues)
     },
   )
 
@@ -1789,7 +1811,7 @@ describe('parseSchema enum', () => {
       schema: { oneOf: [{ type: 'string', enum: ['active', 'inactive'] }, { enum: [''] }, { enum: [null] }] },
     })
 
-    expect(ast.narrowSchema(node, 'union')?.members?.map((m) => m.type)).toStrictEqual(['enum', 'enum', 'null'])
+    expect(ast.schema.narrow(node, 'union')?.members?.map((m) => m.type)).toStrictEqual(['enum', 'enum', 'null'])
   })
 
   it.each([
@@ -1802,7 +1824,7 @@ describe('parseSchema enum', () => {
     'produces namedEnumValues with primitive $primitive for a $title enum',
     async ({ schema, primitive, values }) => {
       const node = parseSchema(emptyCtx, { schema })
-      const namedEnumValues = ast.narrowSchema(node, 'enum')?.namedEnumValues
+      const namedEnumValues = ast.schema.narrow(node, 'enum')?.namedEnumValues
 
       expect(node.type).toBe('enum')
       expect(node.primitive).toBe(primitive)
@@ -1819,7 +1841,7 @@ describe('parseSchema enum', () => {
         [key]: ['One', 'Two', 'Three'],
       },
     })
-    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+    const values = ast.schema.narrow(node, 'enum')?.namedEnumValues
 
     expect(values?.map((v) => v.name)).toStrictEqual(['One', 'Two', 'Three'])
     expect(values?.map((v) => v.value)).toStrictEqual([1, 2, 3])
@@ -1832,7 +1854,7 @@ describe('parseSchema enum', () => {
         'x-enum-descriptions': ['Currently active', 'No longer active'],
       },
     })
-    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+    const values = ast.schema.narrow(node, 'enum')?.namedEnumValues
 
     expect(values?.map((v) => v.name)).toStrictEqual(['active', 'inactive'])
     expect(values?.map((v) => v.description)).toStrictEqual(['Currently active', 'No longer active'])
@@ -1846,7 +1868,7 @@ describe('parseSchema enum', () => {
       },
     })
 
-    expect(ast.narrowSchema(node, 'enum')?.namedEnumValues?.map((v) => v.name)).toStrictEqual(['A', 'B'])
+    expect(ast.schema.narrow(node, 'enum')?.namedEnumValues?.map((v) => v.name)).toStrictEqual(['A', 'B'])
   })
 
   it('x-enumNames deduplicates by value first, mapping names by deduped index', () => {
@@ -1857,7 +1879,7 @@ describe('parseSchema enum', () => {
         'x-enumNames': ['First', 'Duplicate', 'Second'],
       },
     })
-    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+    const values = ast.schema.narrow(node, 'enum')?.namedEnumValues
 
     // After deduping values to [1, 2], names are looked up by position in the deduped array
     expect(values?.map((v) => v.name)).toStrictEqual(['First', 'Duplicate'])
@@ -1873,7 +1895,7 @@ describe('parseSchema enum', () => {
         'x-enumDescriptions': ['No value', 'Turned off', 'Turned on'],
       },
     })
-    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+    const values = ast.schema.narrow(node, 'enum')?.namedEnumValues
 
     expect(values?.map(({ name, value, description }) => ({ name, value, description }))).toStrictEqual([
       { name: 'Off', value: 0, description: 'Turned off' },
@@ -1891,20 +1913,20 @@ describe('parseSchema enum', () => {
   ] satisfies Array<{ title: string; schema: SchemaObject; values: Array<number> }>)('drops enum values outside $title', ({ schema, values }) => {
     const node = parseSchema(emptyCtx, { schema })
 
-    expect(ast.narrowSchema(node, 'enum')?.namedEnumValues?.map((v) => v.value)).toStrictEqual(values)
+    expect(ast.schema.narrow(node, 'enum')?.namedEnumValues?.map((v) => v.value)).toStrictEqual(values)
   })
 
   it('drops formatted enum values outside the bounds', () => {
     const node = parseSchema(emptyCtx, { schema: { type: 'integer', format: 'int32', enum: [0, 1, 2], minimum: 1 } })
 
-    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => ast.narrowSchema(member, 'enum')?.enumValues?.[0])).toStrictEqual([1, 2])
+    expect(ast.schema.narrow(node, 'union')?.members?.map((member) => ast.schema.narrow(member, 'enum')?.enumValues?.[0])).toStrictEqual([1, 2])
   })
 
   it('x-enumNames keeps each name with its value when bounds drop values', () => {
     const node = parseSchema(emptyCtx, {
       schema: { type: 'integer', enum: [0, 1, 2], minimum: 1, 'x-enumNames': ['Zero', 'One', 'Two'] },
     })
-    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+    const values = ast.schema.narrow(node, 'enum')?.namedEnumValues
 
     expect(values?.map(({ name, value }) => ({ name, value }))).toStrictEqual([
       { name: 'One', value: 1 },
@@ -1920,7 +1942,7 @@ describe('parseSchema enum', () => {
         'x-enumNames': ['Ten'],
       },
     })
-    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
+    const values = ast.schema.narrow(node, 'enum')?.namedEnumValues
 
     expect(values?.map((v) => v.name)).toStrictEqual(['Ten', '20', '30'])
     expect(values?.map((v) => v.value)).toStrictEqual([10, 20, 30])
@@ -1933,7 +1955,7 @@ describe('parseSchema enum', () => {
     const node = parseSchema(emptyCtx, { schema })
 
     expect(node.type).toBe('array')
-    expect(ast.narrowSchema(node, 'array')?.items?.[0]).toMatchObject({ type: 'enum', enumValues: ['x', 'y'] })
+    expect(ast.schema.narrow(node, 'array')?.items?.[0]).toMatchObject({ type: 'enum', enumValues: ['x', 'y'] })
   })
 })
 
@@ -1960,7 +1982,7 @@ describe('parseSchema OAS 3.1 type array', () => {
 
     expect(node).toMatchObject(expected)
     expect(node.nullable).toBe(expected['nullable'])
-    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(members)
+    expect(ast.schema.narrow(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(members)
   })
 
   it('each union member schema carries the shared schema properties', () => {
@@ -1968,7 +1990,7 @@ describe('parseSchema OAS 3.1 type array', () => {
       schema: { type: ['string', 'integer'], readOnly: true },
     })
 
-    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.readOnly)).toStrictEqual([true, true])
+    expect(ast.schema.narrow(node, 'union')?.members?.map((member) => member.readOnly)).toStrictEqual([true, true])
   })
 })
 
@@ -1976,7 +1998,7 @@ describe('parseSchema array', () => {
   it('produces an empty items array when items is absent', () => {
     const node = parseSchema(emptyCtx, { schema: { type: 'array' } })
 
-    expect(ast.narrowSchema(node, 'array')?.items).toStrictEqual([])
+    expect(ast.schema.narrow(node, 'array')?.items).toStrictEqual([])
   })
 
   it('converts nested array items recursively', () => {
@@ -2008,12 +2030,12 @@ describe('parseSchema array', () => {
       },
       name: 'GetPreferencesUnitsStatus200',
     })
-    const object = ast.narrowSchema(ast.narrowSchema(node, 'array')?.items?.[0], 'object')
+    const object = ast.schema.narrow(ast.schema.narrow(node, 'array')?.items?.[0], 'object')
 
     expect(node.type).toBe('array')
     expect(object?.type).toBe('object')
     expect(object?.properties?.map((p) => p.name)).toStrictEqual(['id', 'type', 'value'])
-    expect(ast.narrowSchema(object?.properties?.find((p) => p.name === 'type')?.schema, 'enum')?.enumValues).toStrictEqual(['area', 'density', 'length'])
+    expect(ast.schema.narrow(object?.properties?.find((p) => p.name === 'type')?.schema, 'enum')?.enumValues).toStrictEqual(['area', 'density', 'length'])
   })
 
   it('qualifies inline enums inside single-member allOf with the parent name', () => {
@@ -2036,8 +2058,8 @@ describe('parseSchema array', () => {
       },
       name: 'GetUser200',
     })
-    const ll = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'last_login')?.schema
-    const status = ast.narrowSchema(ll, 'object')?.properties?.[0]?.schema
+    const ll = ast.schema.narrow(node, 'object')?.properties?.find((p) => p.name === 'last_login')?.schema
+    const status = ast.schema.narrow(ll, 'object')?.properties?.[0]?.schema
 
     expect(status?.name).toBe('GetUser200LastLoginStatusEnum')
   })
@@ -2065,9 +2087,9 @@ describe('parseSchema array', () => {
       name: 'GetTransfers200',
     })
     // Find any deeply-nested status enum to verify its name
-    const enums = ast.collectSync(node, {
+    const enums = ast.node.collect(node, {
       schema(n) {
-        return ast.narrowSchema(n, 'enum') ?? undefined
+        return ast.schema.narrow(n, 'enum') ?? undefined
       },
     })
     const status = enums.find((e) => e.name?.includes('Status'))
@@ -2139,10 +2161,10 @@ describe('parseSchema array', () => {
 
     const collectEnumNames = (node: ast.SchemaNode | null | undefined): Array<string> =>
       node
-        ? ast
-            .collectSync(node, {
+        ? ast.node
+            .collect(node, {
               schema(n) {
-                return ast.narrowSchema(n, 'enum') ?? undefined
+                return ast.schema.narrow(n, 'enum') ?? undefined
               },
             })
             .map((e) => e.name)
@@ -2221,7 +2243,7 @@ describe('parser options', () => {
         } as SchemaObject,
       })
 
-      const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'oldProp')
+      const prop = ast.schema.narrow(node, 'object')?.properties?.find((p) => p.name === 'oldProp')
       expect(prop?.schema).toMatchObject({ type: 'unknown', deprecated: true, description: 'Deprecated legacy property' })
     })
   })
@@ -2304,8 +2326,8 @@ describe('parseSchema not keyword', () => {
     const node = parseSchema(emptyCtx, {
       schema: { type: 'object', properties: { query: { type: 'string' }, id: { type: 'string' } }, not: { required: ['query', 'id'] } },
     })
-    const notNode = ast.narrowSchema(ast.narrowSchema(node, 'intersection')?.members?.[1], 'not')
-    const inner = ast.narrowSchema(notNode?.members?.[0], 'object')
+    const notNode = ast.schema.narrow(ast.schema.narrow(node, 'intersection')?.members?.[1], 'not')
+    const inner = ast.schema.narrow(notNode?.members?.[0], 'object')
 
     expect(notNode).not.toBeNull()
     expect(inner?.properties.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([
@@ -2362,7 +2384,7 @@ describe('parseSchema circular allOf discriminator detection', () => {
 
     expect(cat?.type).toBe('intersection')
     // The intersection should contain only the concrete Cat properties — Animal is filtered out.
-    const members = ast.narrowSchema(cat, 'intersection')?.members ?? []
+    const members = ast.schema.narrow(cat, 'intersection')?.members ?? []
     expect(members.length).toBeGreaterThan(0)
     expect(members.some((m) => m.type === 'ref' && m.name === 'Animal')).toBe(false)
   })
@@ -2402,9 +2424,9 @@ describe('parseSchema circular allOf discriminator detection', () => {
       const schema = findSchema(root, name)
       expect(schema?.type).toBe('intersection')
       // A synthetic { type: value } object must be present in the intersection members.
-      return ast.narrowSchema(schema, 'intersection')?.members?.find((m) => {
-        const obj = ast.narrowSchema(m, 'object')
-        return obj?.properties?.some((p) => p.name === 'type' && ast.narrowSchema(p.schema, 'enum')?.enumValues?.[0] === value)
+      return ast.schema.narrow(schema, 'intersection')?.members?.find((m) => {
+        const obj = ast.schema.narrow(m, 'object')
+        return obj?.properties?.some((p) => p.name === 'type' && ast.schema.narrow(p.schema, 'enum')?.enumValues?.[0] === value)
       })
     }
 
@@ -2509,8 +2531,8 @@ describe('enum naming', () => {
       { enumSuffix: 'enum' },
     )
 
-    const tagsProp = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'tags')
-    const enumNode = ast.narrowSchema(ast.narrowSchema(tagsProp?.schema, 'array')?.items?.[0], 'enum')
+    const tagsProp = ast.schema.narrow(node, 'object')?.properties?.find((p) => p.name === 'tags')
+    const enumNode = ast.schema.narrow(ast.schema.narrow(tagsProp?.schema, 'array')?.items?.[0], 'enum')
 
     expect(enumNode?.name).toBe('ItemTagsEnum')
   })
@@ -2658,9 +2680,9 @@ describe('OpenAPI 3.2', () => {
     expect(content).toMatchObject({ contentType: 'text/event-stream', stream: { shape: 'event' } })
     expect(content?.stream?.schema).toBe(content?.schema)
 
-    const union = ast.narrowSchema(content!.schema!, 'union')
+    const union = ast.schema.narrow(content!.schema!, 'union')
     expect(union?.discriminatorPropertyName).toBe('event')
-    const [delta, ping] = union!.members!.map((member) => ast.narrowSchema(member, 'object')!)
+    const [delta, ping] = union!.members!.map((member) => ast.schema.narrow(member, 'object')!)
     expect(property(delta!, 'event')).toMatchObject({ required: true, schema: { type: 'enum', enumValues: ['message_delta'] } })
     expect(property(delta!, 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
     expect(property(delta!, 'retry')).toMatchObject({ required: false, schema: { type: 'integer' } })
@@ -2695,8 +2717,8 @@ describe('OpenAPI 3.2', () => {
       },
     })
     const content = firstContent(root)
-    const union = ast.narrowSchema(content!.schema!, 'union')
-    const [addString, addJson] = union!.members!.map((member) => ast.narrowSchema(member, 'object')!)
+    const union = ast.schema.narrow(content!.schema!, 'union')
+    const [addString, addJson] = union!.members!.map((member) => ast.schema.narrow(member, 'object')!)
 
     expect(content?.stream).toMatchObject({ shape: 'event' })
     expect(union?.discriminatorPropertyName).toBe('event')
@@ -2797,11 +2819,11 @@ describe('OpenAPI 3.2', () => {
       components: { schemas: { MessageDelta: messageDelta, Ping: { type: 'object', properties: { event: { const: 'ping' } } } } },
     })
     const content = firstContent(root)
-    const [ping, delta] = ast.narrowSchema(content!.schema!, 'union')!.members!
+    const [ping, delta] = ast.schema.narrow(content!.schema!, 'union')!.members!
 
     expect(content?.stream).toMatchObject({ shape: 'event' })
     expect(ping).toMatchObject({ type: 'ref', name: 'Ping' })
-    expect(ast.narrowSchema(delta!, 'object')?.properties.find((entry) => entry.name === 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
+    expect(ast.schema.narrow(delta!, 'object')?.properties.find((entry) => entry.name === 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
   })
 
   describe('$ref events with a JSON data string', () => {
@@ -2828,23 +2850,23 @@ describe('OpenAPI 3.2', () => {
       }
     }
     function expectComponentKeepsStringData(root: ast.InputNode) {
-      const component = ast.narrowSchema(findSchema(root, 'DeltaEvent')!, 'object')
+      const component = ast.schema.narrow(findSchema(root, 'DeltaEvent')!, 'object')
       expect(property(component!, 'data')?.schema).toMatchObject({ type: 'string' })
       expect(firstContent(root, 'last')?.schema).toMatchObject({ type: 'ref', name: 'DeltaEvent' })
     }
 
     it('parses data on a $ref oneOf member and keeps other $ref members as references', async () => {
       const root = await parseOas(document({ oneOf: [{ $ref: '#/components/schemas/DeltaEvent' }, { $ref: '#/components/schemas/Ping' }] }))
-      const [delta, ping] = ast.narrowSchema(firstContent(root)!.schema!, 'union')!.members!
+      const [delta, ping] = ast.schema.narrow(firstContent(root)!.schema!, 'union')!.members!
 
-      expect(property(ast.narrowSchema(delta!, 'object')!, 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
+      expect(property(ast.schema.narrow(delta!, 'object')!, 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
       expect(ping).toMatchObject({ type: 'ref', name: 'Ping' })
       expectComponentKeepsStringData(root)
     })
 
     it('parses data on a top-level $ref itemSchema', async () => {
       const root = await parseOas(document({ $ref: '#/components/schemas/DeltaEvent' }))
-      const event = ast.narrowSchema(firstContent(root)!.schema!, 'object')
+      const event = ast.schema.narrow(firstContent(root)!.schema!, 'object')
 
       expect(firstContent(root)?.stream).toMatchObject({ shape: 'event' })
       expect(property(event!, 'data')?.schema).toMatchObject({ type: 'ref', name: 'MessageDelta' })
@@ -3017,10 +3039,10 @@ describe('OpenAPI 3.2', () => {
         },
       },
     })
-    const pet = ast.narrowSchema(findSchema(root, 'Pet')!, 'union')
+    const pet = ast.schema.narrow(findSchema(root, 'Pet')!, 'union')
     const unknownPet = findSchema(root, 'UnknownPet')!
-    const literals = ast.collectSync<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'enum' ? node : undefined) })
-    const parentRefs = ast.collectSync<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'ref' && node.name === 'Pet' ? node : undefined) })
+    const literals = ast.node.collect<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'enum' ? node : undefined) })
+    const parentRefs = ast.node.collect<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'ref' && node.name === 'Pet' ? node : undefined) })
 
     expect(pet?.members).toHaveLength(2)
     expect(pet?.members?.[0]).toMatchObject({ type: 'intersection', members: [{ type: 'ref', name: 'Dog' }, { type: 'object' }] })
@@ -3241,7 +3263,7 @@ describe('OpenAPI 3.2 parameter style and discriminator', () => {
       },
     })
 
-    expect(ast.narrowSchema(findSchema(root, 'Pet')!, 'union')?.members).toMatchObject([
+    expect(ast.schema.narrow(findSchema(root, 'Pet')!, 'union')?.members).toMatchObject([
       { type: 'ref', name: 'Dog' },
       { type: 'ref', name: 'Other' },
     ])
@@ -3391,7 +3413,7 @@ describe('JSON Schema 2020-12 object keywords', () => {
         },
       },
     })
-    const extended = ast.narrowSchema(findSchema(root, 'Extended')!, 'intersection')!
+    const extended = ast.schema.narrow(findSchema(root, 'Extended')!, 'intersection')!
 
     // `a` comes from `Base`, so closing the `x` object on its own would reject it.
     expect(extended.members?.find((member) => member.type === 'object')).not.toMatchObject({ additionalProperties: false })
@@ -3477,14 +3499,14 @@ describe('JSON Schema identifiers', () => {
         },
       },
     })
-    const home = ast.narrowSchema(findSchema(root, 'Home')!, 'object')!
-    const node = ast.narrowSchema(findSchema(root, 'Node')!, 'object')!
+    const home = ast.schema.narrow(findSchema(root, 'Home')!, 'object')!
+    const node = ast.schema.narrow(findSchema(root, 'Node')!, 'object')!
 
     expect(home.properties.map((property) => property.schema)).toMatchObject([
       { type: 'ref', name: 'Pet' },
       { type: 'ref', name: 'Owner' },
     ])
-    expect(ast.narrowSchema(node.properties[0]!.schema, 'array')?.items?.[0]).toMatchObject({ type: 'ref', name: 'Node' })
+    expect(ast.schema.narrow(node.properties[0]!.schema, 'array')?.items?.[0]).toMatchObject({ type: 'ref', name: 'Node' })
   })
   it('resolves a $dynamicRef to the enclosing $dynamicAnchor and leaves example data as written', async () => {
     const root = await parseOas({
@@ -3503,9 +3525,9 @@ describe('JSON Schema identifiers', () => {
         },
       },
     })
-    const list = ast.narrowSchema(findSchema(root, 'List')!, 'object')!
+    const list = ast.schema.narrow(findSchema(root, 'List')!, 'object')!
 
-    expect(ast.narrowSchema(list.properties[0]!.schema, 'array')?.items?.[0]).toMatchObject({ type: 'ref', name: 'List' })
+    expect(ast.schema.narrow(list.properties[0]!.schema, 'array')?.items?.[0]).toMatchObject({ type: 'ref', name: 'List' })
     expect(findSchema(root, 'Doc')?.examples).toEqual([{ $ref: '#doc' }])
   })
 })

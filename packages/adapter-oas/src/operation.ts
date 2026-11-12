@@ -378,6 +378,27 @@ function parseParameter({
   })
 }
 
+// A form-encoded OpenAPI 3.2 `querystring` object becomes one query parameter per property; another content type stays whole.
+function spreadQuerystring(param: ast.ParameterNode): Array<ast.ParameterNode> {
+  if (param.in !== 'querystring') return [param]
+  const schema = ast.ref.getSchema(param.schema)
+  const formEncoded = !param.contentType || ast.mediaType.getBase(param.contentType) === 'application/x-www-form-urlencoded'
+  if (schema.type !== 'object' || !formEncoded) return [param]
+  return schema.properties.map((property) => {
+    const { style, explode, allowReserved } = param.encoding?.[property.name] ?? {}
+    return ast.factory.createParameter({
+      ...(param.pointer ? { pointer: param.pointer } : {}),
+      name: property.name,
+      in: 'query',
+      schema: property.schema,
+      required: param.required && property.required,
+      ...(style !== undefined && { style }),
+      ...(explode !== undefined && { explode }),
+      ...(allowReserved !== undefined && { allowReserved }),
+    })
+  })
+}
+
 /**
  * Converts an OAS `Operation` into an `OperationNode`.
  */
@@ -386,7 +407,9 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const operationId = getOperationId(operation)
   const operationName = operationId ? pascalCase(operationId) : undefined
   const pointer = getOperationPointer(operation)
-  const parameters = getParameters({ operation, refs }).map((entry) => parseParameter({ options, parseSchema, refs, ...entry, parentName: operationName }))
+  const parameters = getParameters({ operation, refs })
+    .map((entry) => parseParameter({ options, parseSchema, refs, ...entry, parentName: operationName }))
+    .flatMap(spreadQuerystring)
 
   // A configured contentType restricts the body to that one media type; otherwise every declared one is kept.
   const body = getRequestBody({ operation, refs })
@@ -398,7 +421,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     const schema = getBodySchema({ content: body?.content, contentType: ct, refs, document })
     if (!schema) return []
     const mediaType = getMediaType({ content: body?.content, contentType: ct, refs })
-    const node = ast.optionality(parseSchema({ schema, name: requestBodyName }), bodyRequired)
+    const node = ast.schema.applyOptionality(parseSchema({ schema, name: requestBodyName }), bodyRequired)
     scanSchema(node, `${mediaTypePointer(body?.content, ct, `${pointer}/requestBody/content/${escapePointerToken(ct)}`)}/${schemaKeyword(mediaType)}`)
     return [
       ast.factory.createContent({

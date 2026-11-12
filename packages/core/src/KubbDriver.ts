@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, memo, toError } from '@internals/utils'
-import { ast, collectUsedSchemaNames, compareEnforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
+import { ast, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
@@ -92,7 +92,7 @@ function assertPluginEntry(entry: unknown, index: number): asserts entry is Plug
  * pointer into the input.
  */
 function getCrashSite(node: SchemaNode | OperationNode): { label: string; location?: DiagnosticLocation } {
-  if (node.kind === ast.nodeKinds.schema) {
+  if (node.kind === ast.node.kinds.schema) {
     const label = node.name ? `schema "${node.name}"` : 'an inline schema'
     return { label, location: node.pointer ? { kind: 'schema', pointer: node.pointer } : undefined }
   }
@@ -207,7 +207,7 @@ export class KubbDriver {
    * config are ignored here and surface later through `requirePlugin`.
    */
   #sortPlugins(plugins: Array<NormalizedPlugin>): Array<NormalizedPlugin> {
-    const queue = [...plugins].sort((a, b) => compareEnforce(a.enforce, b.enforce))
+    const queue = [...plugins].sort((a, b) => ast.macro.compareOrder(a.enforce, b.enforce))
     const names = new Set(queue.map((plugin) => plugin.name))
     const blockedBy = new Map(
       queue.map((plugin) => {
@@ -448,7 +448,7 @@ export class KubbDriver {
    * (`kubb:plugins:end`) and the write see them.
    */
   #inlineFiles(parsers: ReadonlyMap<FileNode['extname'], Parser>): void {
-    const { files, virtualPaths, problems } = ast.inlineFiles(this.fileManager.files, { language: (file) => parsers.get(file.extname)?.inline })
+    const { files, virtualPaths, problems } = ast.file.inline(this.fileManager.files, { language: (file) => parsers.get(file.extname)?.inline })
     if (virtualPaths.length === 0) return
 
     this.fileManager.add(...files)
@@ -549,7 +549,7 @@ export class KubbDriver {
       const includedOps = operations.filter(
         (operation) => resolver.default.options(operation, { options: plugin.options, exclude, include, override }) !== null,
       )
-      allowedSchemaNamesByPlugin.set(plugin.name, collectUsedSchemaNames(includedOps, schemas))
+      allowedSchemaNamesByPlugin.set(plugin.name, ast.graph.getUsedNames(includedOps, schemas))
     }
 
     // Freeze each plugin's per-run state once so the node-outer walk stays cheap. A plugin's
@@ -585,7 +585,7 @@ export class KubbDriver {
     // per-node dispatch and the collected-operations batch both go through this so they agree on
     // what the plugin sees.
     const resolveForPlugin = <TNode extends SchemaNode | OperationNode>(state: PluginState, node: TNode): ResolvedNode<TNode> | null => {
-      const transformedNode = ast.applyMacros(node, state.plugin.macros ?? [])
+      const transformedNode = ast.macro.apply(node, state.plugin.macros ?? [])
       if (state.optionsAreStatic) return { transformedNode, options: state.plugin.options }
 
       const options = state.generatorContext.resolver.default.options<NormalizedPlugin['options']>(transformedNode, {

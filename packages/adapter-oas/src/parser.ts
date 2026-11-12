@@ -88,9 +88,9 @@ export function createSchemaParser(ctx: OasParserContext) {
   const presenceKeys = new WeakMap<ast.SchemaNode, string>()
 
   function requireKeys(keys: Array<string>): ast.SchemaNode {
-    const unknown = ast.factory.createSchema({ type: ast.schemaTypes.unknown })
+    const unknown = ast.factory.createSchema({ type: ast.schema.types.unknown })
     const node = ast.factory.createSchema({
-      type: ast.schemaTypes.object,
+      type: ast.schema.types.object,
       primitive: 'object',
       properties: keys.map((name) => ast.factory.createProperty({ name, required: true, schema: unknown })),
     })

@@ -68,11 +68,11 @@ describe('adapterOas.parse', () => {
     })
 
     expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['Box_Card', 'Box'])
-    const box = ast.narrowSchema(
+    const box = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Box')!,
       'object',
     )
-    expect(ast.narrowSchema(box!.properties[0]!.schema, 'ref')).toMatchObject({ targetName: 'Box_Card' })
+    expect(ast.schema.narrow(box!.properties[0]!.schema, 'ref')).toMatchObject({ targetName: 'Box_Card' })
   })
 
   it('links each schema, operation, parameter, request body and response to its JSON pointer, also for a renamed schema', async () => {
@@ -140,21 +140,21 @@ describe('adapterOas.parse', () => {
     const adapter = adapterOas({ validate: false })
     const node = await adapter.parse({ type: 'data', data: spec })
 
-    const pet = ast.narrowSchema(
+    const pet = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Pet')!,
       'object',
     )!
-    const tags = ast.narrowSchema(pet.properties[0]!.schema, 'array')!
-    const error = ast.narrowSchema(
+    const tags = ast.schema.narrow(pet.properties[0]!.schema, 'array')!
+    const error = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Error')!,
       'object',
     )!
-    const shape = ast.narrowSchema(
+    const shape = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Shape')!,
       'union',
     )!
     const [operation] = node.operations
-    const body = ast.narrowSchema(operation!.requestBody!.content![0]!.schema!, 'object')!
+    const body = ast.schema.narrow(operation!.requestBody!.content![0]!.schema!, 'object')!
     const pointers = [
       tags.pointer,
       tags.items![0]!.pointer,
@@ -370,11 +370,11 @@ describe('adapterOas options', () => {
   it('pins the discriminator property to its mapping key on each child for discriminator: propagate', async () => {
     const node = await adapterOas({ validate: false, discriminator: 'propagate' }).parse({ type: 'data', data: discriminatedSpec })
 
-    const cat = ast.narrowSchema(
+    const cat = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Cat')!,
       'object',
     )
-    const dog = ast.narrowSchema(
+    const dog = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Dog')!,
       'object',
     )
@@ -413,13 +413,13 @@ describe('adapterOas options', () => {
       },
     })
 
-    const union = ast.narrowSchema(
+    const union = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Parent')!,
       'union',
     )
     const values = union?.members?.map((member) => {
-      const discriminant = ast.narrowSchema(ast.narrowSchema(member, 'intersection')!.members![1]!, 'object')
-      return ast.narrowSchema(discriminant!.properties[0]!.schema, 'enum')?.enumValues
+      const discriminant = ast.schema.narrow(ast.schema.narrow(member, 'intersection')!.members![1]!, 'object')
+      return ast.schema.narrow(discriminant!.properties[0]!.schema, 'enum')?.enumValues
     })
 
     expect(values).toStrictEqual(expected)
@@ -447,12 +447,12 @@ describe('adapterOas options', () => {
       },
     })
 
-    const parent = ast.narrowSchema(
+    const parent = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Parent')!,
       'object',
     )
 
-    expect(ast.narrowSchema(parent!.properties[0]!.schema, 'enum')?.enumValues).toStrictEqual([1, 2])
+    expect(ast.schema.narrow(parent!.properties[0]!.schema, 'enum')?.enumValues).toStrictEqual([1, 2])
   })
 
   it('coerces mapping keys when the shared discriminator property is a $ref', async () => {
@@ -477,14 +477,14 @@ describe('adapterOas options', () => {
       },
     })
 
-    const parent = ast.narrowSchema(
+    const parent = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Parent')!,
       'intersection',
     )
-    const union = ast.narrowSchema(parent!.members![0]!, 'union')
+    const union = ast.schema.narrow(parent!.members![0]!, 'union')
     const values = union?.members?.map((member) => {
-      const discriminant = ast.narrowSchema(ast.narrowSchema(member, 'intersection')!.members![1]!, 'object')
-      return ast.narrowSchema(discriminant!.properties[0]!.schema, 'enum')?.enumValues
+      const discriminant = ast.schema.narrow(ast.schema.narrow(member, 'intersection')!.members![1]!, 'object')
+      return ast.schema.narrow(discriminant!.properties[0]!.schema, 'enum')?.enumValues
     })
 
     expect(values).toStrictEqual([[1], [2]])
@@ -515,13 +515,13 @@ describe('adapterOas options', () => {
       },
     })
 
-    const union = ast.narrowSchema(
+    const union = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Parent')!,
       'union',
     )
     const values = union?.members?.map((member) => {
-      const discriminant = ast.narrowSchema(ast.narrowSchema(member, 'intersection')!.members!.at(-1)!, 'object')
-      return ast.narrowSchema(discriminant!.properties[0]!.schema, 'enum')?.enumValues
+      const discriminant = ast.schema.narrow(ast.schema.narrow(member, 'intersection')!.members!.at(-1)!, 'object')
+      return ast.schema.narrow(discriminant!.properties[0]!.schema, 'enum')?.enumValues
     })
 
     expect(values).toStrictEqual([[1], [2]])
@@ -562,20 +562,20 @@ describe('adapterOas options', () => {
     })
 
     const typeValues = (name: string) =>
-      ast
-        .narrowSchema(
+      ast.schema
+        .narrow(
           node.schemas.find((schema) => schema.name === name)!,
           'intersection',
         )
-        ?.members?.flatMap((member) => ast.narrowSchema(member, 'object')?.properties ?? [])
+        ?.members?.flatMap((member) => ast.schema.narrow(member, 'object')?.properties ?? [])
         .filter((property) => property.name === '$type')
-        .map((property) => ast.narrowSchema(property.schema, 'enum')?.enumValues ?? property.schema.type)
+        .map((property) => ast.schema.narrow(property.schema, 'enum')?.enumValues ?? property.schema.type)
 
-    const foo = ast.narrowSchema(
+    const foo = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Foo')!,
       'object',
     )
-    const fooValues = ast.narrowSchema(foo!.properties[0]!.schema, 'enum')?.enumValues
+    const fooValues = ast.schema.narrow(foo!.properties[0]!.schema, 'enum')?.enumValues
 
     expect(fooValues).toStrictEqual(['FooBar', 'BarQux', 'FooBaz'])
     expect(typeValues('Bar')).toStrictEqual(['string'])
@@ -613,13 +613,13 @@ describe('adapterOas options', () => {
       },
     })
 
-    const members = ast.narrowSchema(
+    const members = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Bar')!,
       'intersection',
     )?.members
     const values = members
-      ?.flatMap((member) => ast.narrowSchema(member, 'object')?.properties ?? [])
-      .map((property) => ast.narrowSchema(property.schema, 'enum')?.enumValues ?? property.schema.type)
+      ?.flatMap((member) => ast.schema.narrow(member, 'object')?.properties ?? [])
+      .map((property) => ast.schema.narrow(property.schema, 'enum')?.enumValues ?? property.schema.type)
 
     expect(values).toStrictEqual(['string', ['FooBar']])
   })
@@ -640,11 +640,11 @@ describe('adapterOas options', () => {
       },
     })
 
-    const tilde = ast.narrowSchema(
+    const tilde = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Tilde')!,
       'object',
     )
-    const ref = ast.narrowSchema(tilde!.properties[0]!.schema, 'ref')
+    const ref = ast.schema.narrow(tilde!.properties[0]!.schema, 'ref')
 
     expect([ref?.name, ref?.schema?.type]).toStrictEqual(['a/b~c', 'string'])
     expect(node.schemas.map((schema) => schema.name)).toContain('a/b~c')
@@ -707,12 +707,12 @@ describe('adapterOas options', () => {
     const find = (name: string) => node.schemas.find((schema) => schema.name === name)!
     const conditionKeys = (name: string) =>
       find(name).conditionals?.map((entry) =>
-        [entry.if, entry.then].map((branch) => ast.narrowSchema(branch, 'object')?.properties.map((property) => property.name)),
+        [entry.if, entry.then].map((branch) => ast.schema.narrow(branch, 'object')?.properties.map((property) => property.name)),
       )
     const memberProperties = (name: string) =>
-      ast
-        .narrowSchema(find(name), 'intersection')
-        ?.members?.map((member) => ast.narrowSchema(member, 'object')?.properties.map((property) => [property.name, property.required]))
+      ast.schema
+        .narrow(find(name), 'intersection')
+        ?.members?.map((member) => ast.schema.narrow(member, 'object')?.properties.map((property) => [property.name, property.required]))
 
     expect(find('Plain')).toMatchObject({ type: 'object', description: 'base' })
     expect(find('Described')).toMatchObject({ type: 'object', description: 'own', deprecated: true })
@@ -776,8 +776,8 @@ describe('adapterOas options', () => {
     })
 
     const statusIn = (name: string) =>
-      ast
-        .narrowSchema(node.schemas.find((schema) => schema.name === name)?.conditionals?.[0]?.if, 'object')
+      ast.schema
+        .narrow(node.schemas.find((schema) => schema.name === name)?.conditionals?.[0]?.if, 'object')
         ?.properties.find((property) => property.name === 'status')?.schema
 
     expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['Pet', 'Order'])
@@ -808,11 +808,11 @@ describe('adapterOas options', () => {
     const node = await adapterOas({ validate: false }).parse({ type: 'data', data: document })
     const parsed = node.schemas.find((schema) => schema.name === 'Alias')!
     expect(parsed).toMatchObject({ type: 'string', description: 'alias' })
-    expect(parsed.conditionals?.map((pair) => [ast.resolveRefName(pair.if), ast.resolveRefName(pair.then)])).toStrictEqual([
+    expect(parsed.conditionals?.map((pair) => [ast.ref.getName(pair.if), ast.ref.getName(pair.then)])).toStrictEqual([
       ['AliasIf', 'AliasThen'],
       ['TargetIf', 'TargetThen'],
     ])
-    expect([...ast.collectUsedSchemaNames(node.operations, node.schemas)].sort()).toStrictEqual(['Alias', 'AliasIf', 'AliasThen', 'TargetIf', 'TargetThen'])
+    expect([...ast.graph.getUsedNames(node.operations, node.schemas)].sort()).toStrictEqual(['Alias', 'AliasIf', 'AliasThen', 'TargetIf', 'TargetThen'])
   })
 
   it('keeps a single-member allOf around a union ref as a ref instead of treating it as a cycle', async () => {
@@ -859,7 +859,7 @@ describe('adapterOas options', () => {
     expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['PetStatusEnum', 'ListPetsStatus', 'Pet'])
     expect(node.schemas[0]).toMatchObject({ type: 'enum', name: 'PetStatusEnum', enumValues: ['available', 'sold'] })
 
-    const pet = ast.narrowSchema(
+    const pet = ast.schema.narrow(
       node.schemas.find((schema) => schema.name === 'Pet')!,
       'object',
     )
@@ -916,15 +916,15 @@ describe('adapterOas ref targetName', () => {
     expect(node.schemas.map((schema) => schema.name)).toContain('OrderSchema')
 
     const orderList = node.schemas.find((schema) => schema.name === 'OrderList')
-    const items = ast.narrowSchema(orderList!, 'array')?.items ?? []
-    const schemaRef = ast.narrowSchema(items[0]!, 'ref')
+    const items = ast.schema.narrow(orderList!, 'array')?.items ?? []
+    const schemaRef = ast.schema.narrow(items[0]!, 'ref')
 
     expect(schemaRef?.targetName).toBe('OrderSchema')
-    expect(ast.resolveRefName(schemaRef)).toBe('OrderSchema')
+    expect(ast.ref.getName(schemaRef)).toBe('OrderSchema')
 
-    const responseRef = ast.narrowSchema(node.operations[0]!.responses[0]!.content![0]!.schema!, 'ref')
+    const responseRef = ast.schema.narrow(node.operations[0]!.responses[0]!.content![0]!.schema!, 'ref')
 
     expect(responseRef?.targetName).toBe('OrderSchema')
-    expect(ast.resolveRefName(responseRef)).toBe('OrderSchema')
+    expect(ast.ref.getName(responseRef)).toBe('OrderSchema')
   })
 })

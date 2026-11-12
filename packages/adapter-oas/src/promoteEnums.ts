@@ -10,8 +10,8 @@ export function collectInlineEnums(roots: ReadonlyArray<ast.Node>, topLevelNames
   const promoted = new Map<string, ast.SchemaNode>()
 
   for (const root of roots) {
-    const isSchemaRoot = root.kind === ast.nodeKinds.schema
-    for (const node of ast.collect<ast.SchemaNode>(root, { schema: (schemaNode) => schemaNode })) {
+    const isSchemaRoot = root.kind === ast.node.kinds.schema
+    for (const node of ast.node.collect<ast.SchemaNode>(root, { schema: (schemaNode) => schemaNode })) {
       if (node.type !== 'enum' || !node.name) continue
       // Skip a top-level enum component (it is already its own type) and any enum whose name a
       // component already owns.
@@ -31,7 +31,7 @@ export function collectInlineEnums(roots: ReadonlyArray<ast.Node>, topLevelNames
 export function refPromotedEnums<T extends ast.Node>(node: T, promoted: ReadonlyMap<string, ast.SchemaNode>): T {
   if (promoted.size === 0) return node
 
-  return ast.transform(node, {
+  return ast.node.transform(node, {
     schema(schemaNode) {
       if (schemaNode.type !== 'enum' || !schemaNode.name || !promoted.has(schemaNode.name)) return undefined
 

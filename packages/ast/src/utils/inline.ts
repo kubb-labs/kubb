@@ -3,7 +3,7 @@ import type { CodeNode } from '../nodes/code.ts'
 import { createFile } from '../nodes/file.ts'
 import type { FileNode, ImportNode } from '../nodes/file.ts'
 import { importLocalName } from './combineFileMembers.ts'
-import { CODE_NODE_TEXT_FIELDS } from './extractStringsFromNodes.ts'
+import { CODE_NODE_TEXT_FIELDS } from './nodeText.ts'
 
 type InlineFilesResult = {
   /**
@@ -138,7 +138,7 @@ function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode
   return name.length > 0 ? [{ ...imp, name }] : []
 }
 
-// Rewrites the string fields `extractStringsFromNodes` reads; JSDoc stays as written.
+// Rewrites the string fields `getNodeText` reads; JSDoc stays as written.
 function rewriteNodes(nodes: Array<CodeNode> | undefined, rewrite: (text: string) => string): Array<CodeNode> | undefined {
   return nodes?.map((node): CodeNode => {
     // Backward-compat: compiled plugins may still pass bare strings at runtime

@@ -10,7 +10,7 @@ import type { InputNode } from './nodes/input.ts'
 import type { OperationNode } from './nodes/operation.ts'
 import type { ParameterNode } from './nodes/parameter.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { collectSync, transform } from './visitor.ts'
+import { collect, transform } from './visitor.ts'
 
 /**
  * Builds a minimal sample AST with one `Pet` schema and one `getPetById` operation.
@@ -127,7 +127,7 @@ describe('a node under two keys', () => {
   const content = createContent({ contentType: 'text/event-stream', schema: item, stream: { schema: item, shape: 'data' } })
 
   it('is collected once', () => {
-    expect(collectSync<SchemaNode>(content, { schema: (node) => node })).toHaveLength(1)
+    expect(collect<SchemaNode>(content, { schema: (node) => node })).toHaveLength(1)
   })
 
   it('is transformed once, so both keys keep one node', () => {
@@ -188,7 +188,7 @@ describe('VisitorContext — parent', () => {
   })
 })
 
-describe('collectSync', () => {
+describe('collect', () => {
   it('collects schemas inside a tuple rest and patternProperties', () => {
     const root = createInput({
       schemas: [
@@ -197,7 +197,7 @@ describe('collectSync', () => {
       ],
     })
 
-    const names = collectSync<string>(root, {
+    const names = collect<string>(root, {
       schema(n) {
         return n.type === 'ref' ? (n.name ?? undefined) : undefined
       },
@@ -216,7 +216,7 @@ describe('response headers', () => {
     })
     const response = createResponse({ statusCode: '200', headers: [header] })
 
-    expect(collectSync<ParameterNode>(response, { parameter: (node) => node })).toStrictEqual([header])
-    expect(collectSync<SchemaNode>(response, { schema: (node) => (node.type === 'ref' ? node : undefined) })).toHaveLength(1)
+    expect(collect<ParameterNode>(response, { parameter: (node) => node })).toStrictEqual([header])
+    expect(collect<SchemaNode>(response, { schema: (node) => (node.type === 'ref' ? node : undefined) })).toHaveLength(1)
   })
 })

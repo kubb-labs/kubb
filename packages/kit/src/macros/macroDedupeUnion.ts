@@ -1,5 +1,6 @@
 import { hash } from 'node:crypto'
 import { ast } from '@kubb/ast'
+import { defineMacro } from '../authoring.ts'
 import type { SchemaNode } from '@kubb/ast'
 
 /**
@@ -20,7 +21,7 @@ function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
     // well only walks the same component graph again for every union that references it. The `kind`
     // check keeps plain data under `default` or `examples` hashed in full.
     const node = value as Partial<SchemaNode>
-    const skipsSchema = node.kind === ast.nodeKinds.schema && node.type === ast.schemaTypes.ref && typeof node.ref === 'string'
+    const skipsSchema = node.kind === ast.node.kinds.schema && node.type === ast.schema.types.ref && typeof node.ref === 'string'
     // Hash each shared subtree once instead of expanding resolved refs into a giant string.
     const entries = Array.isArray(value)
       ? value.map(key)
@@ -50,10 +51,10 @@ function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
  * const next = applyMacros(unionSchema, [macroDedupeUnion], { depth: 'shallow' })
  * ```
  */
-export const macroDedupeUnion = ast.defineMacro({
+export const macroDedupeUnion = defineMacro({
   name: 'dedupe-union',
   schema(node) {
-    const unionNode = ast.narrowSchema(node, ast.schemaTypes.union)
+    const unionNode = ast.schema.narrow(node, ast.schema.types.union)
     if (!unionNode?.members?.length) return undefined
 
     const deduped = dedupeMembers(unionNode.members)
@@ -62,10 +63,3 @@ export const macroDedupeUnion = ast.defineMacro({
     return { ...unionNode, members: deduped }
   },
 })
-
-/**
- * The name `macroDedupeUnion` had before 5.16. Kept so a plugin built against an older `@kubb/kit` keeps running.
- *
- * @deprecated Use `macroDedupeUnion`. Removed in the next major.
- */
-export const macroSimplifyUnion = macroDedupeUnion

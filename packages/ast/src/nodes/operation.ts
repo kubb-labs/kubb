@@ -111,7 +111,7 @@ export type GenericOperationNode = OperationNodeBase & {
  *
  * Discriminated on `protocol`: an {@link HttpOperationNode} (`protocol: 'http'`) guarantees
  * `method` and `path`, while a {@link GenericOperationNode} omits them. Narrow with
- * `isHttpOperationNode(node)` or `node.protocol === 'http'` before reading `method`/`path`.
+ * `ast.http.isOperation(node)` or `node.protocol === 'http'` before reading `method`/`path`.
  */
 export type OperationNode = HttpOperationNode | GenericOperationNode
 

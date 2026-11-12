@@ -75,6 +75,25 @@ describe('schemas inside conditionals, contains and content', () => {
     expect(collectImportedRefNames(node)).toStrictEqual([])
     expect(collectImportedRefNames(node, { checks: true })).toStrictEqual(['Label', 'Meta', 'Card'])
   })
+
+  it('leaves out checks no printer emits', () => {
+    const inert = createSchema({
+      type: 'object',
+      name: 'Inert',
+      properties: [
+        createProperty({ name: 'tags', required: false, schema: createSchema({ type: 'array', contains: { schema: ref('Tag'), min: 0 } }) }),
+        createProperty({ name: 'raw', required: false, schema: createSchema({ type: 'string', content: { mediaType: 'text/plain', schema: ref('Raw') } }) }),
+        createProperty({
+          name: 'blob',
+          required: false,
+          schema: createSchema({ type: 'string', content: { mediaType: 'application/json', encoding: 'base64', schema: ref('Blob') } }),
+        }),
+        createProperty({ name: 'some', required: false, schema: createSchema({ type: 'array', contains: { schema: ref('Some'), min: 0, max: 2 } }) }),
+      ],
+    })
+
+    expect(collectImportedRefNames(inert, { checks: true })).toStrictEqual(['Some'])
+  })
 })
 
 describe('collectImportedRefNames', () => {

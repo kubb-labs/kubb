@@ -145,7 +145,7 @@ function memberValues(node: ast.SchemaNode, propertyName: string, seen = new Set
   const target = node.type === 'ref' && node.schema ? node.schema : node
   if (target.type === 'union') return [...new Set(target.members?.flatMap((member) => memberValues(member, propertyName, seen)))]
 
-  return intersect(ast.resolveSchemaProperties({ node, propertyName }).map((property) => [...ast.getSchemaLiteralValues(property.schema)]))
+  return intersect(ast.schema.findProperties({ node, propertyName }).map((property) => [...ast.schema.getLiterals(property.schema)]))
 }
 
 // Every slice that pins values narrows the set, so only values they all allow count. Unpinned slices are ignored.

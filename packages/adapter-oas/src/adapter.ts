@@ -122,7 +122,7 @@ export const adapterOas = defineExtension<AdapterOas>({
       // A collapsed single-member `allOf` is named after the wrapper, so the target comes from `ref`.
       const aliasTargetOf = (name: string) => {
         const node = refAliasMap.get(name)
-        return node?.ref ? ast.refName(node.ref) : node?.name
+        return node?.ref ? ast.ref.getName(node.ref) : node?.name
       }
 
       // A chain of pure aliases that leads back to `name` has no target to print, so it becomes `unknown`.

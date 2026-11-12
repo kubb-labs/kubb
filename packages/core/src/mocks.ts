@@ -1,7 +1,7 @@
 import path, { resolve } from 'node:path'
 import { camelCase, memo } from '@internals/utils'
 import type { FileNode, InputMeta, Macro, OperationNode, SchemaNode } from '@kubb/ast'
-import { applyMacros, ast } from '@kubb/ast'
+import { ast } from '@kubb/ast'
 import { expect, vi } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
@@ -155,7 +155,7 @@ async function renderNode<TOptions extends PluginType, TNode extends SchemaNode 
   generate: (node: TNode, ctx: GeneratorContext<TOptions>) => ReturnType<NonNullable<Generator<TOptions>['schema']>>
 }): Promise<void> {
   const ctx = { ...createMockedPluginContext(opts), options: opts.options }
-  const transformedNode = opts.plugin.macros?.length ? applyMacros(node, opts.plugin.macros) : node
+  const transformedNode = opts.plugin.macros?.length ? ast.macro.apply(node, opts.plugin.macros) : node
   const matches = generator.match ? await generator.match(transformedNode, ctx) : true
   if (!matches) return
   await opts.driver.fileManager.dispatch({ result: await generate(transformedNode, ctx), renderer: generator.renderer })
@@ -213,7 +213,7 @@ export async function renderGeneratorOperations<TOptions extends PluginType>(
 ): Promise<void> {
   if (!generator.operations) return
   const context = createMockedPluginContext(opts)
-  const transformedNodes = opts.plugin.macros?.length ? nodes.map((n) => applyMacros(n, opts.plugin.macros!)) : nodes
+  const transformedNodes = opts.plugin.macros?.length ? nodes.map((n) => ast.macro.apply(n, opts.plugin.macros!)) : nodes
   const result = await generator.operations(transformedNodes, {
     ...context,
     options: opts.options,

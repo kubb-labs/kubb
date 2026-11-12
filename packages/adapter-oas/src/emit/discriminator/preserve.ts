@@ -1,4 +1,4 @@
-import { ast, enumPrimitive, extractRefName, macroDiscriminatorEnum } from '@kubb/kit'
+import { ast, enumPrimitive, macroDiscriminatorEnum } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
@@ -207,7 +207,7 @@ export function narrowUnionMembers({
   refs: Refs
 }): Array<ast.SchemaNode> {
   function pickDiscriminatorPropertyNode(node: ast.SchemaNode, propertyName: string): ast.SchemaNode | null {
-    const objectNode = ast.narrowSchema(node, 'object')
+    const objectNode = ast.schema.narrow(node, 'object')
     const discriminatorProperty = objectNode?.properties?.find((property) => property.name === propertyName)
 
     if (!discriminatorProperty) {
@@ -223,7 +223,7 @@ export function narrowUnionMembers({
 
   function implicitDiscriminantValue(member: unknown): string | null {
     if (!discriminator || discriminator.mapping || !isReference(member)) return null
-    const value = extractRefName(member.$ref)
+    const value = ast.ref.getName(member.$ref)
     if (!value) return null
     // Silent walk — the reporting resolve() would flag missing refs as errors during speculative lookup.
     const variant = refs.resolve<SchemaObject>(member.$ref, { report: false })
@@ -275,7 +275,7 @@ export function narrowUnionMembers({
 
     const narrowedDiscriminatorNode = sharedPropertiesNode
       ? pickDiscriminatorPropertyNode(
-          ast.applyMacros(sharedPropertiesNode, [macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: discriminatorValues })], {
+          ast.macro.apply(sharedPropertiesNode, [macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: discriminatorValues })], {
             depth: 'shallow',
           }),
           discriminator.propertyName,

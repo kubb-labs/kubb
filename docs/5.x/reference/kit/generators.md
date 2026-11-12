@@ -60,7 +60,7 @@ import { ast, defineGenerator } from 'kubb/kit'
 const getOnlyGenerator = defineGenerator({
   name: 'get-only-generator',
   match(node, ctx) {
-    return node.kind === 'Operation' && ast.isHttpOperationNode(node) && node.method.toLowerCase() === 'get'
+    return node.kind === 'Operation' && ast.http.isOperation(node) && node.method.toLowerCase() === 'get'
   },
   operation(node, ctx) {
     // node is already known to be a GET operation here
@@ -108,7 +108,7 @@ export const operationGenerator = defineGenerator({
   operation(node, ctx) {
     // One entry per operation. Other generators that ask for the same key reuse it.
     const schemas = ctx.memo(`my-plugin:schemas:${node.operationId}`, () =>
-      ast.collectSync<ast.SchemaNode>(node, { depth: 'shallow', schema: (schema) => schema }),
+      ast.node.collect<ast.SchemaNode>(node, { depth: 'shallow', schema: (schema) => schema }),
     )
 
     return

@@ -1,5 +1,5 @@
 import { nodeKinds } from '../constants.ts'
-import { optionality } from '../optionality.ts'
+import { applyOptionality } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
 import type { EncodingNode, ExampleNode } from './content.ts'
 import type { SchemaNode } from './schema.ts'
@@ -95,5 +95,5 @@ type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial
 export function createParameter(input: UserParameterNode): ParameterNode {
   const required = input.required ?? false
 
-  return { ...input, required, schema: optionality(input.schema, required), kind: nodeKinds.parameter }
+  return { ...input, required, schema: applyOptionality(input.schema, required), kind: nodeKinds.parameter }
 }
