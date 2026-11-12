@@ -3,7 +3,7 @@ import { inParallel, memo } from './promise.ts'
 
 describe('memo', () => {
   it('computes once per key with a weak store (object keys)', () => {
-    const store = memo.createEntry<{ v: number }, number>({ type: 'weak' })
+    const store = memo.create<{ v: number }, number>({ type: 'weak' })
     const a = { v: 1 }
     const b = { v: 2 }
     const compute = vi.fn((obj: { v: number }) => obj.v * 10)
@@ -15,7 +15,7 @@ describe('memo', () => {
   })
 
   it('treats a cached null as a hit', () => {
-    const store = memo.createEntry<string, null>({ type: 'map' })
+    const store = memo.create<string, null>({ type: 'map' })
     const compute = vi.fn(() => null)
 
     memo(store, 'k', compute)
@@ -24,7 +24,7 @@ describe('memo', () => {
   })
 
   it('keeps only the last entry with the last type, and hits for an equal key', () => {
-    const store = memo.createEntry<string, number>({ type: 'last' })
+    const store = memo.create<string, number>({ type: 'last' })
     const compute = vi.fn((key: string) => key.length)
 
     memo(store, 'aa', () => compute('aa'))

@@ -37,11 +37,11 @@ export function memo<TKey, TValue>(store: Store<TKey, TValue>, key: TKey, comput
  * identity hit instead of a full comparison.
  *
  * @example
- * `const indexes = memo.createEntry<string, Index>({ type: 'last' })`
+ * `const indexes = memo.create<string, Index>({ type: 'last' })`
  */
-function createEntry<TKey extends WeakKey, TValue>(options: { type: 'weak' }): WeakMap<TKey, TValue>
-function createEntry<TKey, TValue>(options: { type: 'map' | 'last' }): Store<TKey, TValue>
-function createEntry<TKey, TValue>({ type }: { type: 'map' | 'weak' | 'last' }): Store<TKey, TValue> {
+function createStore<TKey extends WeakKey, TValue>(options: { type: 'weak' }): WeakMap<TKey, TValue>
+function createStore<TKey, TValue>(options: { type: 'map' | 'last' }): Store<TKey, TValue>
+function createStore<TKey, TValue>({ type }: { type: 'map' | 'weak' | 'last' }): Store<TKey, TValue> {
   if (type === 'weak') return new WeakMap<WeakKey, TValue>() as Store<TKey, TValue>
   const entry = new Map<TKey, TValue>()
   if (type === 'map') return entry
@@ -57,7 +57,7 @@ function createEntry<TKey, TValue>({ type }: { type: 'map' | 'weak' | 'last' }):
   return { has: touch, get: (key) => (touch(key) ? entry.get(key) : undefined), set }
 }
 
-memo.createEntry = createEntry
+memo.create = createStore
 
 type ParallelOptions<TItem> = {
   /**
