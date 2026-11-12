@@ -149,7 +149,8 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     })
   }
   // A snapshot publishes the first entry.
-  const config = (await loadConfigs(options)).configs[0]!
+  const { configs } = await loadConfigs(options)
+  const config = configs[0]!
   const ci = resolveCiIdentity(options)
   // package.json is read only for whichever of name/version --name and --version did not supply.
   const { name, version: packageVersion } =
@@ -177,6 +178,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       studioUrl: options.studioUrl,
       apiKey: token,
       config,
+      configs,
       hooks,
       id: ci.id,
       name: ci.name,

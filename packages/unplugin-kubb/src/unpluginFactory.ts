@@ -72,6 +72,9 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
     reporter.report({ config, diagnostics, filesCreated, status, hrStart }, { logLevel: logLevel.info }),
   )
 
+  // The summary only lists a build's diagnostics, so a warning raised outside one, such as schemas the configs define differently, prints here.
+  hooks.hook('kubb:warn', ({ message, info }) => console.warn(`[${name}] ${[message, info].filter(Boolean).join(' ')}`))
+
   // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`. Keep the problem's code,
   // help and location, so the bundler shows the same diagnostic.
   const fail = (problem: ProblemDiagnostic | undefined, message: string) =>

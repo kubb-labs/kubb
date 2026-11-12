@@ -3,7 +3,7 @@ import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
-import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
+import { type Config, createKubb, detectSharedSchemas, type Diagnostic, Diagnostics, fsStorage, Hookable, type KubbHooks, type Storage } from '@kubb/core'
 import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
@@ -90,17 +90,25 @@ function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
  */
 export async function generate({
   config,
-  hooks,
+  configs,
+  hooks = new Hookable<KubbHooks>(),
   signal,
   allowExec,
 }: {
   config: Config
+  /**
+   * Every entry of the config file, with `config` among them, so it shares schemas with the entries that set the same `shared.path`.
+   */
+  configs?: Array<Config>
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const kubb = createKubb({ ...config, output }, { hooks, signal })
+  const detected = configs?.includes(config) ? (await detectSharedSchemas(configs, hooks))[configs.indexOf(config)] : undefined
+  // Only this entry is built, so it never empties the directory the others share.
+  const shared = detected && { ...detected, clean: false }
+  const kubb = createKubb({ ...config, output }, { hooks, signal, shared })
   let input: InputNode | null = null
   // The driver drops its `inputNode` once the build is over, so read it as the build ends.
   const unhook = kubb.hooks.hook('kubb:build:end', (ctx) => {

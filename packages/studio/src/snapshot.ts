@@ -165,6 +165,10 @@ type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'peerDepend
    * The project's Kubb config, generated like `kubb generate`: formatter, linter, and `output.postGenerate` included.
    */
   config: Config
+  /**
+   * Every entry of the config file, with `config` among them, so the snapshot shares schemas like `kubb generate` does.
+   */
+  configs?: Array<Config>
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
 }
@@ -181,12 +185,20 @@ export async function createSnapshot({
   studioUrl = defaultStudioUrl,
   apiKey,
   config,
+  configs,
   hooks,
   signal,
   ...metadata
 }: CreateSnapshotOptions): Promise<PublishedSnapshot> {
   const url = secureUrl({ studioUrl, path: '/api/snapshots' })
-  const generated = await generate({ config: { ...config, storage: fsStorage() }, hooks, signal, allowExec: true })
+  const onDisk = { ...config, storage: fsStorage() }
+  const generated = await generate({
+    config: onDisk,
+    configs: configs?.map((entry) => (entry === config ? onDisk : entry)),
+    hooks,
+    signal,
+    allowExec: true,
+  })
   const files = Object.fromEntries(
     await Promise.all(
       [...generated.paths].map(async (path) => {
