@@ -9,7 +9,6 @@ import {
   type Config,
   Diagnostics,
   fileReporter,
-  type GenerateConfigsOptions,
   getInputKind,
   htmlReporter,
   jsonReporter,
@@ -57,15 +56,15 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
   }
 }
 
-type GenerateProps = GenerateConfigsOptions & {
+type GenerateProps = {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
 }
 
 /**
- * Generates the configs, or the one `only` names, and returns whether every build succeeded.
+ * Generates the configs and returns whether every build succeeded.
  */
-export async function generate({ configs, hooks, ...options }: GenerateProps): Promise<boolean> {
+export async function generate({ configs, hooks }: GenerateProps): Promise<boolean> {
   // Not awaited: each request finishes in the background, capped by its timeout, so it never delays the summary.
   const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
     void trackRun({ command: 'generate', hrStart })({
@@ -78,7 +77,7 @@ export async function generate({ configs, hooks, ...options }: GenerateProps): P
   })
   let succeeded = true
   try {
-    for await (const { success, error } of Kubb.generate(configs, { hooks, ...options })) {
+    for await (const { success, error } of Kubb.generate(configs, { hooks })) {
       if (error) await Diagnostics.emit(hooks, error)
       succeeded &&= success
     }
@@ -129,9 +128,9 @@ function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: Build
 }
 
 /**
- * Generates the configs, then again whenever a local `input` file changes, and returns whether the first build succeeded.
+ * Generates the configs, then again whenever a local `input` file changes. Returns whether the build succeeded when there is no file to watch.
  */
-async function watch({ configs, hooks, quiet }: Omit<GenerateProps, 'only' | 'signal'> & { quiet: boolean }): Promise<boolean> {
+async function watch({ configs, hooks, quiet }: GenerateProps & { quiet: boolean }): Promise<boolean> {
   const watchPaths = [...new Set(configs.flatMap(({ input }) => (typeof input === 'string' && getInputKind(input) === 'file' ? [input] : [])))]
   if (!watchPaths.length) {
     if (!quiet) logWarn('Watch mode only follows a local `input` file, so the configs are generated once.')
@@ -141,14 +140,13 @@ async function watch({ configs, hooks, quiet }: Omit<GenerateProps, 'only' | 'si
   const label = styleText('yellow', `Watching ${watchPaths.map((watchPath) => path.relative(process.cwd(), watchPath)).join(', ')}`)
   const tracker = trackBuild(hooks)
   let previous: BuildSnapshot | undefined
-  let succeeded = true
   // Don't removeAll() between builds, that would also drop logger and lifecycle
   // listeners. Plugin listeners are already disposed by safeBuild's dispose()
   // in its finally block, so re-running generate() on the same hooks emitter is safe.
   const build = async () => {
     const hrStart = process.hrtime()
     // Every config builds again, since an edited spec can change what the configs share.
-    succeeded = await generate({ configs, hooks })
+    const succeeded = await generate({ configs, hooks })
     const snapshot = tracker.take()
     if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
     previous = snapshot
@@ -184,7 +182,7 @@ async function watch({ configs, hooks, quiet }: Omit<GenerateProps, 'only' | 'si
   // The watcher ignores its startup state, so run the first build here. A failing one keeps watching so the user can fix the input.
   await rebuild()
   await startWatcher(watchPaths, rebuild, { info: logInfo, error: logError })
-  return succeeded
+  return true
 }
 
 /**
