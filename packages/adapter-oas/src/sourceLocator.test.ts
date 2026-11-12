@@ -42,15 +42,70 @@ describe('OpenAPI source locations', () => {
     expect(json.slice(range.start, range.end)).toBe(JSON.stringify(name))
   })
 
-  it('parses a source once, also when the next call passes an equal but distinct string', () => {
+  it('locates block YAML without parsing a YAML document', () => {
+    const parseDocument = vi.mocked(yaml.parseDocument)
+    parseDocument.mockClear()
+    const fresh = `${source}# block\n`
+
+    const owner = locateIn(fresh, { kind: 'schema', pointer: '#/components/schemas/Pet/properties/owner' })!
+    const ref = locateIn(fresh, { kind: 'schema', pointer: '#/components/schemas/Owner', ref: '#/components/schemas/Owner' })!
+
+    expect(fresh.slice(owner.start, owner.end)).toBe('owner')
+    expect(fresh.slice(ref.start, ref.end)).toBe("'#/components/schemas/Owner'")
+    expect(locateIn(fresh, { kind: 'schema', pointer: '#/components/schemas/Missing' })).toBeUndefined()
+    expect(parseDocument).not.toHaveBeenCalled()
+  })
+
+  it('locates sequence items, quoted keys and keys after a block scalar', () => {
+    const text = [
+      '---',
+      '# a comment',
+      'paths:',
+      '  "/pets/{id}":',
+      '    get:',
+      '      description: |',
+      '        parameters: not a key',
+      '      parameters:',
+      '      - name: limit',
+      '        in: query',
+      '',
+      "      - $ref: '#/components/parameters/Offset' # shared",
+      '      tags:',
+      '        - pets',
+      "  '/it''s':",
+      '    get: {}',
+      '    servers:',
+      '      -',
+      '        url: https://example.com',
+      '',
+    ].join('\r\n')
+    const at = (pointer: string) => {
+      const range = locateIn(text, { kind: 'operation', pointer })!
+      return text.slice(range.start, range.end)
+    }
+
+    expect(at('#/paths/~1pets~1{id}')).toBe('"/pets/{id}"')
+    expect(at('#/paths/~1pets~1{id}/get/parameters')).toBe('parameters')
+    expect(at('#/paths/~1pets~1{id}/get/parameters/0')).toBe('name: limit\r\n        in: query')
+    expect(at('#/paths/~1pets~1{id}/get/parameters/0/in')).toBe('in')
+    expect(at('#/paths/~1pets~1{id}/get/parameters/1')).toBe("$ref: '#/components/parameters/Offset' # shared")
+    expect(at('#/paths/~1pets~1{id}/get/tags/0')).toBe('pets')
+    expect(at("#/paths/~1it's/get")).toBe('get')
+    expect(at("#/paths/~1it's/servers/0")).toBe('url: https://example.com')
+    expect(locateIn(text, { kind: 'operation', pointer: '#/paths/~1pets~1{id}/get/description/parameters' })).toBeUndefined()
+    expect(locateIn(text, { kind: 'operation', pointer: '#/paths/~1pets~1{id}/get/parameters/2' })).toBeUndefined()
+  })
+
+  it('falls back to the YAML parser inside a flow collection, and parses that source once', () => {
     const parseDocument = vi.mocked(yaml.parseDocument)
     const pointer = '#/components/schemas/Pet/properties/owner'
     // A source no earlier test parsed, and a copy that is equal but not the same string.
-    const fresh = `${source}\n`
+    const fresh = 'components:\n  schemas:\n    Pet: { properties: { owner: { type: string } } }\n'
     const copy = [...fresh].join('')
     parseDocument.mockClear()
 
-    const first = locateIn(fresh, { kind: 'schema', pointer })
+    const first = locateIn(fresh, { kind: 'schema', pointer })!
+    expect(fresh.slice(first.start, first.end)).toBe('owner')
     expect(locateIn(copy, { kind: 'schema', pointer })).toStrictEqual(first)
     expect(parseDocument).toHaveBeenCalledTimes(1)
 
