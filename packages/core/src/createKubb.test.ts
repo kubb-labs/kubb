@@ -449,6 +449,26 @@ describe('createKubb', () => {
       expect(await run('DELETE')).toEqual([])
     })
 
+    it('rejects a single-file override output under a group, like the plugin output', async () => {
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'override-group-plugin' },
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.setOptions({
+              output: { path: 'types' },
+              group: { type: 'tag' },
+              override: [{ type: 'schemaName', pattern: 'A', options: { output: { path: 'admin.ts' } } }],
+            } as never)
+          },
+        },
+      })()
+
+      const { diagnostics } = await createKubb(makeConfig({ plugins: [plugin as unknown as Plugin] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
+
+      expect(diagnostics.map((diagnostic) => diagnostic.code)).toContain(Diagnostics.code.invalidPluginOptions)
+    })
+
     it('gives an override output its mode', async () => {
       const seen: Array<unknown> = []
       const plugin = defineExtension({

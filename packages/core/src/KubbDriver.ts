@@ -69,7 +69,8 @@ function normalizePluginOptions(rawOptions: Plugin['options'], pluginName: strin
   options.override = options.override?.map((entry) => {
     const { output } = entry.options as { output?: Output }
     if (!output) return entry
-    return { ...entry, options: { ...entry.options, output: normalizeOutput({ output, pluginName }) } }
+    const entryGroup = 'group' in entry.options ? (entry.options.group as Group | null | undefined) : group
+    return { ...entry, options: { ...entry.options, output: normalizeOutput({ output, group: entryGroup, pluginName }) } }
   })
   return options
 }
