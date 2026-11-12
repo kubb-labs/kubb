@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { ResponseNode, StatusCode } from '../nodes/response.ts'
 import type { ParameterNode } from '../nodes/parameter.ts'
-import { getBaseURL, groupParameters, responses, status } from './index.ts'
+import { createContent, createRequestBody, createResponse, createSchema } from '../nodes/index.ts'
+import { getBaseURL, groupParameters, requestBody, responses, status } from './index.ts'
 
 // Like the adapter, a body-less response keeps one entry with an empty `contentType`.
 function response(statusCode: StatusCode, withBody = false): ResponseNode {
@@ -36,6 +37,32 @@ describe('http.responses', () => {
     expect(responses.findPrimary({ responses: [response('2xx'), response('204')] })?.statusCode).toBe('204')
     expect(responses.findPrimary({ responses: [response('204'), response('200', true)] })?.statusCode).toBe('200')
     expect(responses.findPrimary({ responses: [response('404')] })).toBeNull()
+  })
+
+  it('lists error responses', () => {
+    expect(responses.filterError({ responses: [response('200'), response('404'), response('5xx'), response('default')] }).map((r) => r.statusCode)).toEqual([
+      '404',
+      '5xx',
+    ])
+  })
+
+  it('collects the ref names the response bodies import', () => {
+    const pet = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
+    const error = createSchema({ type: 'ref', name: 'Error', ref: '#/components/schemas/Error' })
+    const withSchema = (statusCode: StatusCode, schema: ReturnType<typeof createSchema>) =>
+      createResponse({ statusCode, content: [createContent({ contentType: 'application/json', schema })] })
+
+    expect(responses.getImportedNames([withSchema('200', pet), response('204'), withSchema('404', error)])).toEqual(['Pet', 'Error'])
+  })
+})
+
+describe('http.requestBody', () => {
+  it('gives the first entry schema, or undefined without a body', () => {
+    const schema = createSchema({ type: 'string' })
+    const body = createRequestBody({ content: [createContent({ contentType: 'text/plain', schema })] })
+
+    expect(requestBody.getSchema({ requestBody: body })).toBe(schema)
+    expect(requestBody.getSchema({ requestBody: undefined })).toBeUndefined()
   })
 })
 

@@ -326,11 +326,12 @@ ast.auth.getRequirements({ auth: node.auth, schemes })
 
 `ast.http` works for HTTP operations only.
 
-| Helper                     | Returns                                                                                     |
-| -------------------------- | ------------------------------------------------------------------------------------------- |
-| `ast.http.isOperation`     | Whether an operation is an HTTP operation, narrowing it so `method` and `path` are present. |
-| `ast.http.groupParameters` | The parameters by location (`path`, `query`, `header`, `cookie`), first of a repeated name. |
-| `ast.http.getBaseURL`      | A server's URL when it is absolute and has no template variables, else `undefined`.         |
+| Helper                           | Returns                                                                                      |
+| -------------------------------- | -------------------------------------------------------------------------------------------- |
+| `ast.http.isOperation`           | Whether an operation is an HTTP operation, narrowing it so `method` and `path` are present.  |
+| `ast.http.groupParameters`       | The parameters by location (`path`, `query`, `header`, `cookie`), first of a repeated name.  |
+| `ast.http.getBaseURL`            | A server's URL when it is absolute and has no template variables, else `undefined`.          |
+| `ast.http.requestBody.getSchema` | The schema of the first request body entry, or `undefined` when the operation takes no body. |
 
 ```typescript [base-url.ts]
 import { ast } from 'kubb/kit'
@@ -341,10 +342,12 @@ const baseURL = ast.http.getBaseURL(ast.server.get({ servers: node.servers, inde
 
 ### `ast.http.responses`
 
-| Helper                             | Returns                                                                                        |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `ast.http.responses.filterSuccess` | The operation's `2xx` responses, ranges included.                                              |
-| `ast.http.responses.findPrimary`   | The success response a client returns: one with a body first, then an exact code over a range. |
+| Helper                                | Returns                                                                                        |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `ast.http.responses.filterSuccess`    | The operation's `2xx` responses, ranges included.                                              |
+| `ast.http.responses.findPrimary`      | The success response a client returns: one with a body first, then an exact code over a range. |
+| `ast.http.responses.filterError`      | The operation's `4xx` and `5xx` responses, ranges included.                                    |
+| `ast.http.responses.getImportedNames` | The ref names the response bodies import, so a generator can import their types.               |
 
 ### `ast.http.status`
 

@@ -3,6 +3,7 @@ import type { HttpOperationNode } from '../nodes/operation.ts'
 import type { ParameterNode } from '../nodes/parameter.ts'
 
 export { isHttpOperationNode as isOperation } from '../guards.ts'
+export * as requestBody from './requestBody.ts'
 export * as responses from './responses.ts'
 export * as status from './status.ts'
 
