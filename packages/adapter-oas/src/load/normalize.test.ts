@@ -6,7 +6,8 @@ import * as jsYaml from 'js-yaml'
 import { describe, expect, it, vi } from 'vitest'
 import * as yaml from 'yaml'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
-import { assertDocument, bundleDocument, getBaseUri, hasExternalRef, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
+import { assertDocument, bundleDocument, getBaseUri, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
+import { scanDocument } from './schemaIds.ts'
 import type { Document, SchemaObject } from '../types.ts'
 
 // Records each result a validation worker posts, so a test can tell the worker from the in-place fallback.
@@ -56,6 +57,20 @@ describe('parseFromConfig', () => {
 
     expect(doc.components?.schemas?.['Pet']).toMatchObject({ type: 'object', properties: { name: { type: 'string' } } })
     expect(sources).toStrictEqual([path.join(mocks, 'external/pet.yaml')])
+  })
+
+  it('resolves a $ref to an $id URL without fetching it, also with a root', async () => {
+    const sources: Array<string> = []
+    const data = {
+      openapi: '3.1.0',
+      info: { title: 't', version: '1.0.0' },
+      paths: {},
+      components: { schemas: { Owner: { $id: 'https://example.com/owner', type: 'object' }, Home: { $ref: 'https://example.com/owner' } } },
+    }
+    const doc = await parseFromConfig({ type: 'data', data, root: path.resolve(__dirname, '../../mocks') }, sources)
+
+    expect(doc.components?.schemas?.['Home']).toStrictEqual({ $ref: '#/components/schemas/Owner' })
+    expect(sources).toStrictEqual([])
   })
 
   it('upgrades an unquoted `swagger: 2.0` instead of dropping its definitions', async () => {
@@ -521,22 +536,50 @@ describe('bundleDocument', () => {
   })
 })
 
-describe('hasExternalRef', () => {
+describe('scanDocument', () => {
+  const none = { externalRef: false, schemaIds: false, pathRefs: false }
+
   it.each([
-    { title: 'false for a document with no $ref at all', node: { openapi: '3.1.0', paths: {} }, expected: false },
+    { title: 'nothing for a document with no $ref or target', node: { openapi: '3.1.0', paths: {} }, expected: none },
     {
-      title: 'false for an internal #/ ref, at any depth',
+      title: 'nothing for an internal #/components ref, at any depth',
       node: { paths: { '/pets': { get: { responses: { '200': { schema: { $ref: '#/components/schemas/Pet' } } } } } } },
-      expected: false,
+      expected: none,
     },
-    { title: 'true for a relative file ref', node: { components: { schemas: { Pet: { $ref: './schemas/Pet.yaml' } } } }, expected: true },
     {
-      title: 'true for an external ref nested inside an array',
-      node: { allOf: [{ $ref: '#/components/schemas/Base' }, { $ref: './extra.yaml' }] },
-      expected: true,
+      title: 'an external ref for a relative file ref',
+      node: { components: { schemas: { Pet: { $ref: './schemas/Pet.yaml' } } } },
+      expected: { ...none, externalRef: true },
     },
-  ])('returns $title', ({ node, expected }) => {
-    expect(hasExternalRef(node)).toBe(expected)
+    {
+      title: 'an external ref nested inside an array or an extension',
+      node: { allOf: [{ $ref: '#/components/schemas/Base' }, { 'x-extra': { $ref: './extra.yaml' } }] },
+      expected: { ...none, externalRef: true },
+    },
+    {
+      title: 'a target for an $id',
+      node: { components: { schemas: { Owner: { $id: 'https://example.com/owner' } } } },
+      expected: { ...none, schemaIds: true },
+    },
+    { title: 'a target for an $anchor inside allOf', node: { allOf: [{ $anchor: 'pet' }] }, expected: { ...none, schemaIds: true } },
+    {
+      title: 'a target for a schema named like an extension',
+      node: { components: { schemas: { 'x-pet': { $dynamicAnchor: 'pet' } } } },
+      expected: { ...none, schemaIds: true },
+    },
+    {
+      title: 'no target for an $anchor inside example data',
+      node: { schemas: { Pet: { example: { $anchor: 'pet' }, enum: [{ $id: 'x' }] } } },
+      expected: none,
+    },
+    { title: 'no target for an $id inside an extension', node: { 'x-meta': { $id: 'https://example.com/meta' } }, expected: none },
+    {
+      title: 'a path ref for a Swagger 2.0 ref into a response',
+      node: { paths: { '/x': { get: { parameters: [{ $ref: '#/paths/~1x/get/responses/200/schema' }] } } } },
+      expected: { ...none, pathRefs: true },
+    },
+  ])('finds $title', ({ node, expected }) => {
+    expect(scanDocument(node)).toStrictEqual(expected)
   })
 })
 
