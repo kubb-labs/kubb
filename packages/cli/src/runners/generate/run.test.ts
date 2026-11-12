@@ -131,6 +131,21 @@ describe('reporters', () => {
     expect(lines.some((line) => line.startsWith('✗ Generation failed') && line.includes('1 error'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
+
+  it('writes the run log to stderr, not stdout, when json owns stdout', async () => {
+    const config = {
+      root: process.cwd(),
+      input: './does-not-exist.yaml',
+      output: { path: './gen', format: false, lint: false },
+      adapter: adapterOas(),
+      plugins: [],
+    } satisfies UserConfig
+
+    const lines = await bootstrap({ configs: [config as unknown as Config], reporters: ['json'] })
+
+    expect(lines.stdout).toStrictEqual([])
+    expect(lines.some((line) => line.includes('Generation failed'))).toBe(true)
+  })
 })
 
 describe('shared schemas', () => {

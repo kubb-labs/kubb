@@ -60,16 +60,12 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
 type GenerateProps = GenerateConfigsOptions & {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
-  /**
-   * Where an error thrown outside a build is reported. Defaults to `hooks`.
-   */
-  errorHooks?: Hookable<KubbHooks>
 }
 
 /**
  * Generates the configs, or the one `only` names, and returns whether every build succeeded.
  */
-export async function generate({ configs, hooks, errorHooks = hooks, ...options }: GenerateProps): Promise<boolean> {
+export async function generate({ configs, hooks, ...options }: GenerateProps): Promise<boolean> {
   // Not awaited: each request finishes in the background, capped by its timeout, so it never delays the summary.
   const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
     void trackRun({ command: 'generate', hrStart })({
@@ -83,7 +79,7 @@ export async function generate({ configs, hooks, errorHooks = hooks, ...options 
   let succeeded = true
   try {
     for await (const { success, error } of Kubb.generate(configs, { hooks, ...options })) {
-      if (error) await Diagnostics.emit(errorHooks, error)
+      if (error) await Diagnostics.emit(hooks, error)
       succeeded &&= success
     }
   } finally {
@@ -135,11 +131,11 @@ function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: Build
 /**
  * Generates the configs, then again whenever a local `input` file changes, and returns whether the first build succeeded.
  */
-async function watch({ configs, hooks, errorHooks = hooks, quiet }: Omit<GenerateProps, 'only' | 'signal'> & { quiet: boolean }): Promise<boolean> {
+async function watch({ configs, hooks, quiet }: Omit<GenerateProps, 'only' | 'signal'> & { quiet: boolean }): Promise<boolean> {
   const watchPaths = [...new Set(configs.flatMap(({ input }) => (typeof input === 'string' && getInputKind(input) === 'file' ? [input] : [])))]
   if (!watchPaths.length) {
     if (!quiet) logWarn('Watch mode only follows a local `input` file, so the configs are generated once.')
-    return generate({ configs, hooks, errorHooks })
+    return generate({ configs, hooks })
   }
 
   const label = styleText('yellow', `Watching ${watchPaths.map((watchPath) => path.relative(process.cwd(), watchPath)).join(', ')}`)
@@ -152,7 +148,7 @@ async function watch({ configs, hooks, errorHooks = hooks, quiet }: Omit<Generat
   const build = async () => {
     const hrStart = process.hrtime()
     // Every config builds again, since an edited spec can change what the configs share.
-    succeeded = await generate({ configs, hooks, errorHooks })
+    succeeded = await generate({ configs, hooks })
     const snapshot = tracker.take()
     if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
     previous = snapshot
@@ -175,7 +171,7 @@ async function watch({ configs, hooks, errorHooks = hooks, quiet }: Omit<Generat
         pending = false
         return build()
       })
-      .catch((error) => void Diagnostics.emit(errorHooks, error))
+      .catch((error) => void Diagnostics.emit(hooks, error))
     return queue
   }
   const armKeys = quiet
@@ -221,10 +217,8 @@ export async function run({
   const json = requestedNames.includes('json')
   const quiet = logLevel <= logLevelMap.silent || json
 
-  // Errors raised outside a build have no report entry. In `json` mode they go to a stderr logger,
-  // so they are never silent and stdout stays one JSON document.
-  const errorHooks = json ? new Hookable<KubbHooks>() : hooks
-  if (json) setupReporters(errorHooks, { logLevel, reporters: [cliReporter], writer: createPlainWriter(console.error) })
+  // The run log goes to stderr in `json` mode, so an error with no report entry is never silent and stdout stays one JSON document.
+  if (json) setupReporters(hooks, { logLevel, reporters: [cliReporter], writer: createPlainWriter(console.error) })
 
   // The config loads while the banner plays; the output still prints in order once the banner is done.
   const banner = quiet ? undefined : logBanner(version)
@@ -260,7 +254,7 @@ export async function run({
 
     if (!json) setupReporters(hooks, { logLevel, reporters: [cliReporter] })
     // A diagnostic thrown while the config file runs, such as invalid extension options, sits in the cause chain.
-    await Diagnostics.emit(errorHooks, error)
+    await Diagnostics.emit(hooks, error)
 
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
     process.exit(1)
@@ -280,7 +274,7 @@ export async function run({
 
   try {
     // One config that fails does not stop the others.
-    const succeeded = await (watchMode ? watch({ configs: runConfigs, hooks, errorHooks, quiet }) : generate({ configs: runConfigs, hooks, errorHooks }))
+    const succeeded = await (watchMode ? watch({ configs: runConfigs, hooks, quiet }) : generate({ configs: runConfigs, hooks }))
 
     // A request still in flight would keep the process alive until its timeout.
     updateCheck.abort()
@@ -299,7 +293,7 @@ export async function run({
       process.exitCode = 1
     }
   } catch (error) {
-    await Diagnostics.emit(errorHooks, error)
+    await Diagnostics.emit(hooks, error)
     process.exit(1)
   }
 }
