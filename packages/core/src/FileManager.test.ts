@@ -291,6 +291,7 @@ describe('FileManager', () => {
       // One read per file serves both the write decision and the hook.
       expect(readItem).toHaveBeenCalledTimes(files.length)
 
+      stored.clear()
       await new FileManager().write(files, { storage, hooks, cleaned: '/gen' })
       expect(stored.get('/gen/a.ts')).toBeNull()
       expect(stored.get('/other/b.ts')).toBe('/* b */')
