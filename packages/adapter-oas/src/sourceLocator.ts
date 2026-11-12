@@ -17,9 +17,9 @@ type EventIndex = {
   refs?: Map<string, NonNullable<Range>>
 }
 
-// Diagnostics of one run share a source, so its index is kept for the next call.
 const flowGap = /(?:[\s,]|#[^\n]*)*/y
 
+// Diagnostics of one run share a source, so its index is kept for the next call.
 const indexes = memo.create<string, EventIndex | undefined>({ type: 'last' })
 
 // A plain `1.50` or `~` is a number or null to `js-yaml`, so the document, and the pointer, spell it `1.5` or `null`.
@@ -138,7 +138,7 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
           if (isCollection(at)) frames.push(types[at] === EVENT_ID.MAPPING ? 0 : -1)
           if (!isKey || types[at] !== EVENT_ID.SCALAR || types[at + 1] !== EVENT_ID.SCALAR || readText(at) !== '$ref') continue
           const text = readText(at + 1)
-          if (text !== undefined && !index.refs.has(text)) index.refs.set(text, { start: starts[at + 1]!, end: ends[at + 1]! })
+          if (!index.refs.has(text)) index.refs.set(text, { start: starts[at + 1]!, end: ends[at + 1]! })
         }
       }
       return index.refs.get(ref)
