@@ -2,12 +2,10 @@ import path from 'node:path'
 import { adapterOas } from '@kubb/adapter-oas'
 import {
   cliReporter,
-  type Config,
   createCliReporter,
-  createKubb,
-  detectSharedSchemas,
   Diagnostics,
   fileReporter,
+  generateAll,
   Hookable,
   htmlReporter,
   jsonReporter,
@@ -102,15 +100,13 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
 
   async function runBuild() {
     const configs = (await loadConfigs()).filter((config) => config.input).map(applyDefaults)
-    const sharedByConfig = await detectSharedSchemas(configs, hooks)
-    for (const [index, config] of configs.entries()) {
-      const result = await createKubb(config as Config, { hooks, sharedSchemas: sharedByConfig[index] }).generate()
-      if (result.success) continue
+    // Every config builds, so a failing one does not hide the others' output or errors. The first failure fails the host build.
+    const failed = (await generateAll(configs, { hooks })).find((result) => !result.success)
+    if (!failed) return
 
-      const failedCount = Diagnostics.failedPlugins(result.diagnostics).length
-      const firstError = result.diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
-      throw fail(firstError, failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed'))
-    }
+    const failedCount = Diagnostics.failedPlugins(failed.diagnostics).length
+    const firstError = failed.diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
+    throw fail(firstError, failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed'))
   }
 
   // A rerun with `output.clean` loops webpack and Rspack watchers, so generate once per instance.

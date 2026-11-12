@@ -7,10 +7,10 @@ import {
   type CLIOptions,
   cliReporter,
   type Config,
-  createKubb,
-  detectSharedSchemas,
   Diagnostics,
   fileReporter,
+  type GenerateAllOptions,
+  generateAll,
   getInputKind,
   htmlReporter,
   jsonReporter,
@@ -18,7 +18,6 @@ import {
   logLevel as logLevelMap,
   memoryStorage,
   type ReporterName,
-  type SharedSchemas,
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { trackRun } from '../../Telemetry.ts'
@@ -47,51 +46,51 @@ type LinterName = Exclude<NonNullable<Config['output']['lint']>, 'auto' | false>
 formatters satisfies Record<FormatterName, unknown>
 linters satisfies Record<LinterName, unknown>
 
-type GenerateProps = {
-  input?: string
-  config: Config
-  hooks: Hookable<KubbHooks>
-  /**
-   * When `true`, generates in memory instead of writing to disk, skips formatting, linting, and
-   * post-generate commands, and prints what would change on disk.
-   */
-  dryRun?: boolean
-  /**
-   * This config's entry from `detectSharedSchemas`.
-   */
-  sharedSchemas?: SharedSchemas
+/**
+ * The config a run builds: the CLI `--input` replaces its `input`, and a dry run generates in memory, skips formatting,
+ * linting and post-generate commands, and prints what would change on disk.
+ */
+function toRunConfig({ config, input, dryRun }: { config: Config; input?: string; dryRun: boolean }): Config {
+  return {
+    ...config,
+    input: input ?? config.input,
+    // Dry-run never touches disk, regardless of the config's own storage driver.
+    storage: dryRun ? memoryStorage() : config.storage,
+    // Also keeps core's `hasOutputPasses` false, so dry-run skips the output manifest write too.
+    output: dryRun ? { ...config.output, format: false, lint: false, postGenerate: [] } : config.output,
+  }
 }
 
-export async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, dryRun = false, sharedSchemas } = options
+type GenerateProps = GenerateAllOptions & {
+  configs: Array<Config>
+  hooks: Hookable<KubbHooks>
+  /**
+   * Receives what a config throws outside its own diagnostics.
+   */
+  errorHooks: Hookable<KubbHooks>
+}
 
-  const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
-
-  const config: Config = {
-    ...options.config,
-    input: input ?? options.config.input,
-    // Dry-run never touches disk, regardless of the config's own storage driver.
-    storage: dryRun ? memoryStorage() : options.config.storage,
-    // Also keeps core's `hasOutputPasses` false, so dry-run skips the output manifest write too.
-    output: dryRun ? { ...options.config.output, format: false, lint: false, postGenerate: [] } : options.config.output,
-  }
-
-  // Core formats, lints and runs `output.postGenerate` after an error-free build, and reports
-  // their failures as coded diagnostics that reach the summary, the json report and the exit code.
-  const kubb = createKubb(config, { hooks, sharedSchemas })
-  const result = await kubb.generate()
-
-  // Not awaited: the request finishes in the background, capped by its timeout, so it never delays the summary.
-  void report({
-    // A setup that threw leaves no driver, so read the configured plugins instead.
-    plugins: kubb.config.plugins.flatMap((p) =>
-      p && typeof p === 'object' ? [{ name: p.meta?.name ?? p.name ?? '', options: (p.options ?? {}) as Record<string, unknown> }] : [],
-    ),
-    filesCreated: result.files.length,
-    status: result.success ? 'success' : 'failed',
+/**
+ * Generates the configs, or the one `only` names, and returns whether every build succeeded. Core formats, lints and
+ * runs `output.postGenerate` after an error-free build, and reports their failures as coded diagnostics that reach the
+ * summary, the json report and the exit code.
+ */
+export async function generate({ configs, errorHooks, ...options }: GenerateProps): Promise<boolean> {
+  // Not awaited: each request finishes in the background, capped by its timeout, so it never delays the summary.
+  const untrack = options.hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
+    void trackRun({ command: 'generate', hrStart })({
+      plugins: config.plugins.flatMap((p) =>
+        p && typeof p === 'object' ? [{ name: p.meta?.name ?? p.name ?? '', options: (p.options ?? {}) as Record<string, unknown> }] : [],
+      ),
+      filesCreated,
+      status,
+    })
   })
-
-  return result.success
+  const results = await generateAll(configs, options).finally(untrack)
+  for (const { error } of results) {
+    if (error) await Diagnostics.emit(errorHooks, error)
+  }
+  return results.every((result) => result.success)
 }
 
 type GenerateCommandOptions = {
@@ -210,13 +209,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 
-  // What the configs share. The CLI `--input` replaces each config's input first, as `generate` does.
-  const detectShared = () =>
-    detectSharedSchemas(
-      configs.map((config) => ({ ...config, input: input ?? config.input })),
-      hooks,
-    )
-  let sharedByConfig = await detectShared()
+  const runConfigs = configs.map((config) => toRunConfig({ config, input, dryRun: dryRun ?? false }))
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
@@ -228,7 +221,11 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     let armKeys: (() => void) | undefined
     // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
     let queue = Promise.resolve()
-    for (const [index, config] of configs.entries()) {
+    // Outside watch mode every config builds in one pass, and one that fails does not stop the others.
+    if (!tracker) anyFailed = !(await generate({ configs: runConfigs, hooks, errorHooks }))
+    // shortcut: watch mode builds each config on its own, so the configs of a shared directory are compared once per
+    // config at startup and the directory is never emptied; build them in one pass first if that startup gets slow.
+    for (const [index, config] of tracker ? configs.entries() : []) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
       const watchPath = inputKind === 'file' ? (effectiveInput as string) : undefined
@@ -240,12 +237,8 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async () => {
           const hrStart = process.hrtime()
-          // An edited spec can change what its configs share.
-          if (previous) sharedByConfig = await detectShared()
-          const entry = sharedByConfig[index]
-          // A rebuild never empties the shared directory, since it would delete what the other configs wrote.
-          const sharedSchemas = previous && entry ? { ...entry, clean: false } : entry
-          const succeeded = await generate({ input, config, hooks, dryRun, sharedSchemas })
+          // Compared with the other configs again each time, since an edited spec can change what they share.
+          const succeeded = await generate({ configs: runConfigs, hooks, errorHooks, only: index })
           const snapshot = tracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
           previous = snapshot
@@ -283,14 +276,8 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
         await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
       } else {
-        if (tracker && !quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
-        try {
-          const succeeded = await generate({ input, config, hooks, dryRun, sharedSchemas: sharedByConfig[index] })
-          if (!succeeded) anyFailed = true
-        } catch (configError) {
-          await Diagnostics.emit(errorHooks, configError)
-          anyFailed = true
-        }
+        if (!quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
+        if (!(await generate({ configs: runConfigs, hooks, errorHooks, only: index }))) anyFailed = true
       }
     }
 

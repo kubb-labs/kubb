@@ -107,8 +107,8 @@ describe('kubb update', () => {
       `export default { root: ${JSON.stringify(cwd)}, input: './spec.yaml', output: { path: './gen', clean: true } }\n`,
     )
     // Writes the way core does, with the hooks the reporters read the changes from.
-    vi.mocked(generate).mockImplementationOnce(async ({ config: loaded, hooks }) => {
-      const config = { ...loaded, storage: fsStorage() }
+    vi.mocked(generate).mockImplementationOnce(async ({ configs: [loaded], hooks }) => {
+      const config = { ...loaded!, storage: fsStorage() }
       await hooks.callHook('kubb:generation:start', { config })
       await hooks.callHook('kubb:plugins:end', { config, files: [], upsertFile: () => {} })
       await writeFile(path.join(gen, 'changed.ts'), 'new')

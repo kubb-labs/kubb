@@ -3,18 +3,7 @@ import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
-import {
-  type Config,
-  createKubb,
-  detectSharedSchemas,
-  type Diagnostic,
-  Diagnostics,
-  fsStorage,
-  Hookable,
-  type KubbHooks,
-  type SharedSchemas,
-  type Storage,
-} from '@kubb/core'
+import { type Config, createKubbs, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
 import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
@@ -84,7 +73,7 @@ export function resolveGenerationLimits(): { maxCount: number; maxMb: number } {
 /**
  * Folds error-severity diagnostics into one thrown error so logs name the failing plugin or pass.
  */
-function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
+export function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
   const reasons = diagnostics
     .filter(Diagnostics.isProblem)
     .filter((diagnostic) => diagnostic.severity === 'error')
@@ -102,8 +91,7 @@ function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
 export async function generate({
   config,
   configs,
-  sharedSchemas,
-  hooks = new Hookable<KubbHooks>(),
+  hooks,
   signal,
   allowExec,
 }: {
@@ -112,19 +100,15 @@ export async function generate({
    * Every entry of the config file, with `config` among them, so it shares schemas with the entries that set the same `shared.path`.
    */
   configs?: Array<Config>
-  /**
-   * `config`'s entry from `detectSharedSchemas`, for a caller that builds every entry of the config file itself.
-   */
-  sharedSchemas?: SharedSchemas
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const detected = configs?.includes(config) ? (await detectSharedSchemas(configs, hooks))[configs.indexOf(config)] : undefined
-  // Only this entry is built, so it never empties the directory the others share.
-  const ownShare = detected && { ...detected, clean: false }
-  const kubb = createKubb({ ...config, output }, { hooks, signal, sharedSchemas: sharedSchemas ?? ownShare })
+  const index = Math.max(configs?.indexOf(config) ?? 0, 0)
+  const all = configs?.includes(config) ? configs : [config]
+  const [kubb] = await createKubbs(all.with(index, { ...config, output }), { hooks, signal, only: index })
+  if (!kubb) throw new Error('Generation failed')
   let input: InputNode | null = null
   // The driver drops its `inputNode` once the build is over, so read it as the build ends.
   const unhook = kubb.hooks.hook('kubb:build:end', (ctx) => {
