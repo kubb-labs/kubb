@@ -71,7 +71,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@clack/prompts": "^1.8.1",
+    "@clack/prompts": "^1.9.0",
     "@gunshi/plugin-dryrun": "^0.37.3",
     "@kubb/core": "workspace:^",
     "chokidar": "^6.0.0",
