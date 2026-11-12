@@ -134,7 +134,7 @@ export async function run({ id: input, configPath, yes, uninstall, dryRun = fals
     ])
 
     if (dryRun) {
-      summary(`${kind} not removed`, 'planned', [`Dry run: nothing was uninstalled or written. Run kubb remove ${toShortId(entry.id)} to remove it.`])
+      summary(`${kind} not removed`, 'planned', ['Dry run: nothing was uninstalled or written. Run the same command without --dry-run to remove it.'])
       return
     }
 

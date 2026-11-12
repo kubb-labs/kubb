@@ -59,7 +59,7 @@ describe('kubb remove', () => {
     const printed = output.join('\n')
     expect(printed).toContain('  - plugins: [pluginX()],')
     expect(printed).toContain('Uninstalls @acme/kubb-plugin-x')
-    expect(printed).toContain('Dry run: nothing was uninstalled or written. Run kubb remove acme/plugin-x to remove it.')
+    expect(printed).toContain('Dry run: nothing was uninstalled or written. Run the same command without --dry-run to remove it.')
     expect(uninstallPackages).not.toHaveBeenCalled()
     expect(clack.confirm).not.toHaveBeenCalled()
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toBe(config('pluginX()'))

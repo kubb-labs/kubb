@@ -447,6 +447,8 @@ describe('createKubb', () => {
 
       for (const pattern of ['GET', 'get', /GET/, /get/, /^GET$/]) expect(await run(pattern)).toEqual(['GET'])
       expect(await run('DELETE')).toEqual([])
+      // A negative pattern written for the lowercase name keeps excluding the method.
+      for (const pattern of [/^(?!get$)/, '^(?!GET$)']) expect(await run(pattern)).toEqual(['POST'])
     })
 
     it('rejects a single-file override output under a group, like the plugin output', async () => {

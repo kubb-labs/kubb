@@ -245,7 +245,8 @@ export async function run({ id: input, configPath, yes, install, dryRun = false 
     ])
 
     if (dryRun) {
-      summary(`${kind} not added`, 'planned', [`Dry run: nothing was installed or written. Run kubb add ${toShortId(entry.id)} to add it.`])
+      if (!configName) logBlock(['Add the import to your Kubb config and merge the property into its defineConfig call:', '', ...targets.map(toSnippet)])
+      summary(`${kind} not added`, 'planned', ['Dry run: nothing was installed or written. Run the same command without --dry-run to add it.'])
       return
     }
 

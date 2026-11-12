@@ -153,6 +153,8 @@ export default defineConfig({
 })
 ```
 
+`integerType: 'number'` types every `int64` as a `number`, so the example can pass `petId: 123`. A `number` loses precision above `Number.MAX_SAFE_INTEGER`. Keep the default `bigint` for larger ids and pass `123n`.
+
 For a `pet` tag, the operations land in `src/gen/client/petService/`. `src/gen/client/index.ts` exports both the operations and their PascalCase namespace:
 
 ```typescript [src/gen/client/index.ts]

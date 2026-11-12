@@ -101,7 +101,7 @@ describe('kubb add', () => {
     const printed = output.join('\n')
     expect(printed).toContain('Installs  @acme/kubb-plugin-x@1.2.0')
     expect(printed).toContain('  + plugins: [pluginX()],')
-    expect(printed).toContain('Dry run: nothing was installed or written. Run kubb add acme/plugin-x to add it.')
+    expect(printed).toContain('Dry run: nothing was installed or written. Run the same command without --dry-run to add it.')
     expect(installPackages).not.toHaveBeenCalled()
     expect(clack.confirm).not.toHaveBeenCalled()
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toBe(configSource)

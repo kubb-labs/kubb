@@ -15,12 +15,19 @@ export type ResolveOptionsContext<TOptions> = {
 }
 
 const patterns = new Map<string, RegExp>()
+const methodPatterns = new Map<string, RegExp>()
 const nodeCaches = new WeakMap<object, WeakMap<Node, unknown>>()
 
 function testPattern(value: string, pattern: string | RegExp): boolean {
   if (typeof pattern === 'string') return memo(patterns, pattern, () => new RegExp(pattern)).test(value)
   // .match() preserves the behavior of user-supplied global and sticky expressions.
   return value.match(pattern) !== null
+}
+
+// Methods match case-insensitively: the typed values are uppercase, older configs use lowercase.
+function testMethod(method: string, pattern: string | RegExp): boolean {
+  if (typeof pattern === 'string') return memo(methodPatterns, pattern, () => new RegExp(pattern, 'i')).test(method)
+  return method.match(pattern.ignoreCase ? pattern : new RegExp(pattern.source, `${pattern.flags}i`)) !== null
 }
 
 function matchesOperation(node: OperationNode, filter: Filter): boolean {
@@ -33,9 +40,7 @@ function matchesOperation(node: OperationNode, filter: Filter): boolean {
   if (type === 'tag') return node.tags.some((tag) => testPattern(tag, pattern))
   if (type === 'operationId') return testPattern(node.operationId, pattern)
   if (type === 'path') return node.path !== undefined && testPattern(node.path, pattern)
-  // Methods match in either case: the typed values are uppercase, older configs use lowercase.
-  if (type === 'method')
-    return node.method !== undefined && (testPattern(node.method.toUpperCase(), pattern) || testPattern(node.method.toLowerCase(), pattern))
+  if (type === 'method') return node.method !== undefined && testMethod(node.method, pattern)
   if (type === 'contentType') return node.requestBody?.content?.some((c) => testPattern(c.contentType, pattern)) ?? false
   return false
 }
