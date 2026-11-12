@@ -60,7 +60,7 @@ async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOpt
   if (process.exitCode) lines.push(`exit ${process.exitCode}`)
   process.exitCode = undefined
 
-  return Object.assign(lines, { stdout })
+  return Object.assign(lines, { stdout, fetchCalls: _fetch.mock.calls.length })
 }
 
 describe('bootstrap configuration group', () => {
@@ -115,15 +115,25 @@ describe('update notice', () => {
   afterEach(() => rmSync(join(kubbHome, 'cache'), { recursive: true, force: true }))
 
   it('prints the notice from a fresh stored check without asking the registry', async () => {
-    for (const name of ['CI', 'GITHUB_ACTIONS', 'GITLAB_CI', 'BUILDKITE', 'CIRCLECI', 'TF_BUILD', 'JENKINS_URL', 'TRAVIS']) vi.stubEnv(name, '')
+    for (const name of [
+      'CI',
+      'GITHUB_ACTIONS',
+      'GITLAB_CI',
+      'BITBUCKET_BUILD_NUMBER',
+      'JENKINS_URL',
+      'CIRCLECI',
+      'TRAVIS',
+      'TEAMCITY_VERSION',
+      'BUILDKITE',
+      'TF_BUILD',
+    ])
+      vi.stubEnv(name, '')
     mkdirSync(join(kubbHome, 'cache'), { recursive: true })
     writeFileSync(join(kubbHome, 'cache', 'update-check.json'), JSON.stringify({ version: '99.0.0', checkedAt: Date.now() }))
-    using fetch = vi.spyOn(globalThis, 'fetch')
-
     const lines = await bootstrap()
 
     expect(lines.some((line) => line.includes('v99.0.0'))).toBe(true)
-    expect(fetch).not.toHaveBeenCalled()
+    expect(lines.fetchCalls).toBe(0)
   })
 })
 
