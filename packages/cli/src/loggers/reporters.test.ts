@@ -26,6 +26,59 @@ import { createPlainWriter } from './plainWriter.ts'
 
 vi.mock('gunshi/agent', () => ({ getAgentProfile: vi.fn(() => ({ isAgent: false })) }))
 
+/**
+ * Writes the way `FileManager.write` does: one read of the stored file, skipped under a folder that
+ * was just cleaned, decides the write and goes out on `kubb:file:processed`.
+ */
+async function writeFiles({
+  hooks,
+  storage,
+  entries,
+  cleaned,
+}: {
+  hooks: Hookable<KubbHooks>
+  storage: Storage
+  entries: ReadonlyArray<readonly [path: string, source: string]>
+  cleaned?: string
+}) {
+  const files = entries.map(([path]) => ast.factory.createFile({ path, baseName: 'example.ts' }))
+  const unchanged: Array<string> = []
+  await hooks.callHook('kubb:files:processing:start', { files })
+  for (const [index, [path, source]] of entries.entries()) {
+    const stored = cleaned && path.startsWith(`${cleaned}/`) ? null : await storage.readItem(path)
+    if (stored?.trim() === source.trim()) unchanged.push(path)
+    else await storage.writeItem(path, source)
+    await hooks.callHook('kubb:file:processed', { file: files[index]!, source, stored })
+  }
+  await hooks.callHook('kubb:files:processing:end', { files, unchanged })
+  return files
+}
+
+/** Runs one generation over `output` with the `cli` reporter and returns the summary it printed. */
+async function summarize({
+  root,
+  output,
+  entries,
+  clean = false,
+}: {
+  root: string
+  output: string
+  entries: ReadonlyArray<readonly [path: string, source: string]>
+  clean?: boolean
+}): Promise<string> {
+  const storage = fsStorage()
+  const config = createKubb({ root, input: './openapi.yaml', output: { path: output, clean }, storage }).config
+  const hooks = new Hookable<KubbHooks>()
+  const lines: Array<string> = []
+  setupReporters(hooks, { logLevel: logLevel.info, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
+  await hooks.callHook('kubb:generation:start', { config })
+  await hooks.callHook('kubb:plugins:end', { config, files: [], upsertFile: () => {} })
+  if (clean) await storage.empty(output)
+  const files = await writeFiles({ hooks, storage, entries, cleaned: clean ? output : undefined })
+  await hooks.callHook('kubb:generation:end', { config, storage, filesCreated: files.length, status: 'success', hrStart: process.hrtime() })
+  return stripVTControlCharacters(lines.join('\n'))
+}
+
 describe('setupReporters', () => {
   it('attributes each file to its first plugin for every reporter and resets between configs', async () => {
     const hooks = new Hookable<KubbHooks>()
@@ -99,22 +152,18 @@ describe('setupReporters', () => {
       })
       await hooks.callHook('kubb:generation:start', { config })
       await hooks.callHook('kubb:plugins:end', { config, files: [], upsertFile: () => {} })
-      if (!dryRun) {
-        await rm(output, { recursive: true })
-        await mkdir(output)
-      }
-      const files = [pet, same, added, outside].map((path) => ast.factory.createFile({ path, baseName: 'example.ts' }))
-      await hooks.callHook('kubb:files:processing:start', { files })
-      for (const [path, value] of [
-        [pet, 'new'],
-        [same, 'same'],
-        [added, 'fresh'],
-        [outside, 'after'],
-      ] as const) {
-        await storage.writeItem(path, value)
-        await hooks.callHook('kubb:file:processed', { file: files.find((file) => file.path === path)!, source: value })
-      }
-      await hooks.callHook('kubb:files:processing:end', { files, unchanged: [] })
+      if (!dryRun) await storage.empty(output)
+      const files = await writeFiles({
+        hooks,
+        storage,
+        entries: [
+          [pet, 'new'],
+          [same, 'same'],
+          [added, 'fresh'],
+          [outside, 'after'],
+        ],
+        cleaned: dryRun ? undefined : output,
+      })
       await hooks.callHook('kubb:generation:end', { config, storage, filesCreated: files.length, status: 'success', hrStart: process.hrtime() })
       const text = stripVTControlCharacters(lines.join('\n'))
       expect(text).toContain(`3 files ${dryRun ? 'planned' : 'generated'} · 1 unchanged`)
@@ -127,6 +176,46 @@ describe('setupReporters', () => {
         expect(text).toContain('Nothing was written.')
         expect(await readFile(stale, 'utf8')).toBe('gone')
       }
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
+  it('counts an unchanged rerun, an edited file, and a file clean deletes from the stored text the write reads', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'kubb-summary-live-'))
+    try {
+      const output = join(root, 'gen')
+      const pet = join(output, 'pet.ts'),
+        tag = join(output, 'nested/tag.ts'),
+        stale = join(output, 'stale.ts')
+      const entries = [
+        [pet, 'a\nb\nc'],
+        [tag, 'tag'],
+        [stale, 'x\ny'],
+      ] as const
+      await summarize({ root, output, entries })
+
+      const unchanged = await summarize({ root, output, entries })
+      expect(unchanged).toContain('0 files generated · 3 unchanged')
+      expect(unchanged).toContain('0 added · 0 modified · 0 deleted')
+
+      await writeFile(pet, 'a\nb\nc\n// edited by hand\n')
+      const edited = await summarize({ root, output, entries })
+      expect(edited).toContain('0 added · 1 modified · 0 deleted')
+      expect(edited).toContain('Lines  +0 −1')
+
+      const cleaned = await summarize({
+        root,
+        output,
+        clean: true,
+        entries: [
+          [pet, 'a\nB\nc\nd'],
+          [tag, 'tag'],
+        ],
+      })
+      expect(cleaned).toContain('1 file generated · 1 unchanged')
+      expect(cleaned).toContain('0 added · 1 modified · 1 deleted')
+      expect(cleaned).toContain('Lines  +2 −3')
     } finally {
       await rm(root, { recursive: true, force: true })
     }

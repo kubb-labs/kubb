@@ -626,6 +626,8 @@ export type KubbFileProcessedContext = {
   file: FileNode
   /** The parsed content handed to the storage, before it trims the content or an output pass such as a formatter rewrites it. */
   source: string
+  /** What the storage held at `file.path` before the write, or `null` when the path was missing or `output.clean` emptied its folder. */
+  stored?: string | null
 }
 
 export type KubbFilesProcessingEndContext = {
