@@ -15,6 +15,7 @@ import { resolveCacheDir } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
+import type { RunOutputPassesOptions } from './output/runOutputPasses.ts'
 
 function makeConfig(overrides: Partial<Config> = {}): Config {
   return {
@@ -551,7 +552,9 @@ describe('createKubb', () => {
 
 type ProjectBuild = {
   source?: string
-  processOutput?: () => Promise<Array<Diagnostic>>
+  processOutput?: (context: RunOutputPassesOptions) => Promise<Array<Diagnostic>>
+  clean?: boolean
+  format?: Config['output']['format']
 }
 
 describe('Kubb#generate', () => {
@@ -666,25 +669,28 @@ describe('Kubb#generate', () => {
     const root = tempRoot()
 
     const filePath = path.join(root, 'gen', 'world.ts')
+    const otherPath = path.join(root, 'gen', 'other.ts')
     const storage = fsStorage()
 
-    const generate = ({ source = `export const hello = 'world'`, processOutput = async () => [] }: ProjectBuild = {}) => {
+    const generate = ({ source = `export const hello = 'world'`, processOutput = async () => [], clean, ...build }: ProjectBuild = {}) => {
       const plugin = defineExtension({
         kind: 'plugin',
         meta: { name: 'plugin' },
         hooks: {
           'kubb:plugin:setup'(ctx) {
             ctx.injectFile(makeFile(filePath, source))
+            ctx.injectFile(makeFile(otherPath, `export const other = 1`))
           },
         },
       })()
 
-      const config = makeConfig({ root, output: { path: './gen', format }, storage, plugins: [plugin] })
+      const config = makeConfig({ root, output: { path: './gen', format: build.format ?? format, clean }, storage, plugins: [plugin] })
       return createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput })
     }
 
     return {
       filePath,
+      otherPath,
       storage,
       generate,
       read: () => fs.readFileSync(filePath, { encoding: 'utf-8' }),
@@ -725,6 +731,81 @@ describe('Kubb#generate', () => {
     await project.generate({ source: `export const hello = 'moon'` })
 
     expect(project.read()).toBe(`export const hello = 'moon'\n`)
+  })
+
+  describe('files handed to the output passes', () => {
+    // Stands in for a formatter that reflows every file it is given, or the whole folder.
+    const reflow =
+      (seen: Array<ReadonlyArray<string> | undefined>) =>
+      async ({ outputPath, files }: RunOutputPassesOptions) => {
+        seen.push(files)
+        for (const file of files ?? fs.readdirSync(outputPath).map((name) => path.join(outputPath, name))) {
+          fs.writeFileSync(file, `${fs.readFileSync(file, 'utf-8').trim()};\n`)
+        }
+        return []
+      }
+
+    it('runs over the whole folder on a first run, over nothing on an unchanged rerun, and over the changed file after an edit', async () => {
+      const project = createProject()
+      const seen: Array<ReadonlyArray<string> | undefined> = []
+
+      await project.generate({ processOutput: reflow(seen) })
+      await project.generate({ processOutput: reflow(seen) })
+      await project.generate({ processOutput: reflow(seen), source: `export const hello = 'moon'` })
+
+      expect(seen).toStrictEqual([undefined, [], [project.filePath]])
+      expect(project.read()).toBe(`export const hello = 'moon';\n`)
+      expect(fs.readFileSync(project.otherPath, 'utf-8')).toBe(`export const other = 1;\n`)
+    })
+
+    it('reports a file the formatter rewrote earlier as unchanged on a rerun', async () => {
+      const project = createProject()
+      await project.generate({ processOutput: reflow([]) })
+
+      const writeItem = vi.spyOn(project.storage, 'writeItem')
+      await project.generate({ processOutput: reflow([]) })
+
+      expect(writeItem).not.toHaveBeenCalledWith(project.filePath, expect.anything())
+      expect(writeItem).not.toHaveBeenCalledWith(project.otherPath, expect.anything())
+    })
+
+    it('runs over the whole folder on a clean run', async () => {
+      const project = createProject()
+      const seen: Array<ReadonlyArray<string> | undefined> = []
+      await project.generate({ processOutput: reflow(seen) })
+
+      await project.generate({ processOutput: reflow(seen), source: `export const hello = 'moon'`, clean: true })
+
+      expect(seen).toStrictEqual([undefined, undefined])
+    })
+
+    it('runs over the whole folder when the pass settings changed since the recorded run', async () => {
+      const seen: Array<ReadonlyArray<string> | undefined> = []
+      const project = createProject({ format: 'oxfmt' })
+      await project.generate({ processOutput: reflow(seen) })
+
+      await project.generate({ processOutput: reflow(seen), format: 'prettier' })
+
+      expect(seen).toStrictEqual([undefined, undefined])
+    })
+
+    it('keeps running over a file a failed pass left behind', async () => {
+      const project = createProject()
+      const seen: Array<ReadonlyArray<string> | undefined> = []
+      await project.generate({ processOutput: reflow(seen) })
+      const failing = async (context: RunOutputPassesOptions) => {
+        seen.push(context.files)
+        return [
+          { code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } },
+        ] satisfies Array<Diagnostic>
+      }
+
+      await project.generate({ processOutput: failing, source: `export const hello = 'moon'` })
+      await project.generate({ processOutput: reflow(seen), source: `export const hello = 'moon'` })
+
+      expect(seen).toStrictEqual([undefined, [project.filePath], [project.filePath]])
+      expect(project.read()).toBe(`export const hello = 'moon';\n`)
+    })
   })
 
   it.each<[string, Parameters<typeof createProject>[0], ProjectBuild]>([

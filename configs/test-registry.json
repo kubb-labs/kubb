@@ -86,6 +86,7 @@
   "packages/core/src/installedPackages.test.ts": "Pins the exports-map bug behind kubb add, list, update and remove; no other test touches it.",
   "packages/core/src/manifest.test.ts": "Registry and manifest validators at a trust boundary, with many reject branches.",
   "packages/core/src/output/runHook.test.ts": "Real child processes: exit codes, ENOENT, abort grace and node_modules/.bin lookup for postGenerate hooks.",
+  "packages/core/src/output/runOutputPasses.files.test.ts": "Mocked spawns pin which files reach each tool, the chunking at the argument limit, and the skip when nothing was written.",
   "packages/core/src/output/runOutputPasses.test.ts": "Golden path for format and postGenerate passes, including a real oxfmt run.",
   "packages/core/src/outputManifest.test.ts": "Up-to-date decisions are branchy; pins multi-config and corrupted-cache regressions.",
   "packages/core/src/publicAddress.test.ts": "Security range table; gitInput and studio publicFetch tests only hit loopback, 10.x and 169.254.",

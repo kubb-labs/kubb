@@ -120,12 +120,16 @@ async function writeChanged({
 }> {
   signal?.throwIfAborted()
   const stored = cleaned && isPathInside(file.path, cleaned) ? null : await storage.readItem(file.path)
-  if (stored !== null && (matchesStored({ stored, source }) || manifest?.isUpToDate({ key: file.path, source, disk: stored }))) {
+  if (stored !== null && manifest?.isUpToDate({ key: file.path, source, disk: stored })) {
+    return { written: false, stored }
+  }
+  if (stored !== null && matchesStored({ stored, source })) {
+    // Bytes matching the source say nothing about whether the output passes ran over them.
+    manifest?.track({ key: file.path, source })
     return { written: false, stored }
   }
   signal?.throwIfAborted()
   await storage.writeItem(file.path, source, { stored })
-  // Only a file that was written can have been changed by the output passes.
   manifest?.track({ key: file.path, source })
   return { written: true, stored }
 }

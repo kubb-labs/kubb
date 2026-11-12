@@ -38,6 +38,9 @@ function stubManifest({ upToDate }: { upToDate: boolean }): OutputManifest & { t
     track({ key }) {
       tracked.push(key)
     },
+    pending() {
+      return tracked
+    },
     async commit() {},
   }
 }
@@ -224,6 +227,23 @@ describe('FileManager', () => {
         expect(manifest.tracked).toStrictEqual(tracked)
       },
     )
+
+    // A verbatim match skips the write but is still tracked, so the output passes run over it.
+    it.each([
+      ['tracks', 'a verbatim match the manifest has no record of', false, ['a.ts']],
+      ['does not track', 'a file the manifest records as up to date', true, []],
+    ])('%s %s without writing it', async (_verb, _name, upToDate, tracked) => {
+      const storage = memoryStorage()
+      await storage.writeItem('a.ts', '/* a.ts */')
+      const writeItem = vi.spyOn(storage, 'writeItem')
+      const manifest = stubManifest({ upToDate })
+      const manager = new FileManager()
+
+      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest })
+
+      expect(writeItem).not.toHaveBeenCalled()
+      expect(manifest.tracked).toStrictEqual(tracked)
+    })
 
     it('parses each file before writing it', async () => {
       const parsed: Array<string> = []

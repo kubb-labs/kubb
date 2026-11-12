@@ -7,6 +7,11 @@ import { x } from 'tinyexec'
 export type ToolCommand = {
   command: string
   args: (outputPath: string) => Array<string>
+  /**
+   * Argv for running over a list of files instead of the directory. Only set for tools that apply
+   * the same ignore rules to a named file as to a file they find in the directory.
+   */
+  files?: (paths: ReadonlyArray<string>) => Array<string>
   errorMessage: string
 }
 
@@ -17,13 +22,17 @@ export const formatters = {
   prettier: {
     command: 'prettier',
     args: (outputPath: string) => ['--ignore-unknown', '--write', outputPath],
+    files: (paths) => ['--ignore-unknown', '--write', ...paths],
     errorMessage: 'Prettier not found',
   },
   biome: {
     command: 'biome',
     args: (outputPath: string) => ['format', '--write', outputPath],
+    // A list where every file is ignored is not an error when the directory run would have succeeded.
+    files: (paths) => ['format', '--write', '--no-errors-on-unmatched', ...paths],
     errorMessage: 'Biome not found',
   },
+  // No `files`: oxfmt formats a named file even when .gitignore excludes it from a directory run.
   oxfmt: {
     command: 'oxfmt',
     args: (outputPath: string) => [outputPath],

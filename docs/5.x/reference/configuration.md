@@ -209,6 +209,8 @@ Formatter to run on every generated file.
 Default: `false`.
 
 `'auto'` detects the first formatter it finds ([oxfmt](https://oxc.rs) then [Biome](https://biomejs.dev) then [Prettier](https://prettier.io)). A named tool forces that one. `false` skips formatting. Kubb reads your local `.prettierrc` or `biome.json`.
+
+The first run, and a run with `output.clean` or a changed `output.format` or `output.lint`, formats the whole `output.path`. After that, Prettier and Biome format only the files the run wrote, and oxfmt still formats the whole folder. A run that writes no file skips formatting. After you change the formatter's own config, run once with `output.clean: true` so every file is formatted again.
 :::
 
 #### `output.lint`
@@ -219,6 +221,8 @@ Linter to run after generation.
 Default: `false`.
 
 `'auto'` detects the first linter it finds ([oxlint](https://oxc.rs) then [Biome](https://biomejs.dev) then [ESLint](https://eslint.org)). A named tool forces that one. `false` skips linting.
+
+The linter runs over the whole `output.path`, so rules that look across files still see every file. A rerun that writes no file skips linting.
 :::
 
 #### `output.postGenerate`

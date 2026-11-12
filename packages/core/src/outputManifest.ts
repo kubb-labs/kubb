@@ -24,6 +24,10 @@ type OutputManifestEntry = {
 
 type ManifestData = {
   version: number
+  /**
+   * The `passes` of the run that wrote the entries. Missing in a manifest from before it existed.
+   */
+  passes?: string
   entries: Record<string, OutputManifestEntry>
 }
 
@@ -40,10 +44,15 @@ export type OutputManifest = {
    */
   isUpToDate(options: { key: string; source: string; disk: string }): boolean
   /**
-   * Records the source Kubb wrote for `key`, marking it as the only kind of file the output passes
-   * can have changed and so the only kind `commit` has to re-read.
+   * Records the source Kubb wrote for `key`, or left on disk without a record of the output passes
+   * having seen it, marking it as a file the passes have to run over and `commit` has to re-read.
    */
   track(options: { key: string; source: string }): void
+  /**
+   * The tracked keys, the only files the output passes have to run over this run. `null` when they
+   * have to run over the whole output: the stored entries are missing or came from other `passes`.
+   */
+  pending(): Array<string> | null
   /**
    * Re-reads the files written this run and persists their source/output pairs on top of what is
    * stored. Nothing is pruned: a run generating a different set of files, or writing to a different
@@ -54,32 +63,49 @@ export type OutputManifest = {
 
 const MANIFEST_KEY = 'output-manifest.json'
 
-async function loadEntries({ cache }: { cache: Storage }): Promise<Record<string, OutputManifestEntry>> {
+async function loadData({ cache }: { cache: Storage }): Promise<Omit<ManifestData, 'version'>> {
   try {
     const stored = await cache.readItem(MANIFEST_KEY)
-    if (stored === null) return {}
+    if (stored === null) return { entries: {} }
 
     const data = JSON.parse(stored) as ManifestData
-    if (data.version !== VERSION) return {}
-    if (typeof data.entries !== 'object' || data.entries === null || Array.isArray(data.entries)) return {}
+    if (data.version !== VERSION) return { entries: {} }
+    if (typeof data.entries !== 'object' || data.entries === null || Array.isArray(data.entries)) return { entries: {} }
 
-    return data.entries
+    return { passes: data.passes, entries: data.entries }
   } catch {
-    return {}
+    return { entries: {} }
   }
+}
+
+type CreateOutputManifestOptions = {
+  /**
+   * Holds the generated files.
+   */
+  storage: Storage
+  /**
+   * Holds the manifest itself.
+   */
+  cache: Storage
+  /**
+   * Identifies the output pass settings. Entries recorded under other settings say nothing about
+   * what these passes make of a file, so `pending` returns `null` until a run under them commits.
+   */
+  passes?: string
 }
 
 /**
  * Loads the stored manifest, starting empty when it is missing, unreadable, or from an older
- * version. `storage` holds the generated files, `cache` holds the manifest itself.
+ * version.
  *
  * @example
  * ```ts
- * const manifest = await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) })
+ * const manifest = await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }), passes: 'prettier' })
  * ```
  */
-export async function createOutputManifest({ storage, cache }: { storage: Storage; cache: Storage }): Promise<OutputManifest> {
-  const entries = await loadEntries({ cache })
+export async function createOutputManifest({ storage, cache, passes = '' }: CreateOutputManifestOptions): Promise<OutputManifest> {
+  const data = await loadData({ cache })
+  const entries = data.entries
   const tracked = new Map<string, string>()
 
   return {
@@ -91,6 +117,11 @@ export async function createOutputManifest({ storage, cache }: { storage: Storag
     },
     track({ key, source }) {
       tracked.set(key, hash('sha256', source))
+    },
+    pending() {
+      if (data.passes !== passes) return null
+
+      return [...tracked.keys()]
     },
     async commit() {
       try {
@@ -108,7 +139,7 @@ export async function createOutputManifest({ storage, cache }: { storage: Storag
           },
         })
 
-        await cache.writeItem(MANIFEST_KEY, JSON.stringify({ version: VERSION, entries: next } satisfies ManifestData))
+        await cache.writeItem(MANIFEST_KEY, JSON.stringify({ version: VERSION, passes, entries: next } satisfies ManifestData))
       } catch {
         /* the record is an optimization, so a storage failure here must not fail a finished build */
       }

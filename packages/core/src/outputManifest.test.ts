@@ -71,6 +71,26 @@ describe('createOutputManifest', () => {
     expect(manifest.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(false)
   })
 
+  it.each([
+    ['no stored manifest', null, 'prettier', null],
+    ['entries from other pass settings', 'oxfmt', 'prettier', null],
+    ['entries from the same pass settings', 'prettier', 'prettier', ['b.ts']],
+  ])('returns the pending files for %s', async (_name, previous, passes, expected) => {
+    const storage = memoryStorage()
+    const cache = memoryStorage()
+    await storage.writeItem('a.ts', formatted)
+    if (previous !== null) {
+      const first = await createOutputManifest({ storage, cache, passes: previous })
+      first.track({ key: 'a.ts', source: 'const a = 1' })
+      await first.commit()
+    }
+
+    const manifest = await createOutputManifest({ storage, cache, passes })
+    manifest.track({ key: 'b.ts', source: 'const b = 2' })
+
+    expect(manifest.pending()).toStrictEqual(expected)
+  })
+
   it('skips a file that disappeared before the commit', async () => {
     const storage = memoryStorage()
     const cache = memoryStorage()

@@ -164,7 +164,13 @@ export class Kubb {
     const signal = this.#signal
     signal?.throwIfAborted()
     const config = this.config
-    const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
+    const manifest = hasOutputPasses(config)
+      ? await createOutputManifest({
+          storage: config.storage,
+          cache: cacheStorage({ root: config.root }),
+          passes: JSON.stringify([config.output.format, config.output.lint]),
+        })
+      : undefined
 
     const cleanPath = config.output.clean ? resolve(config.root, config.output.path) : undefined
 
@@ -271,7 +277,7 @@ export class Kubb {
 
     const processOutput = options.processOutput ?? runOutputPasses
     const outputDiagnostics = writesOutputDirectory(config.storage)
-      ? await processOutput({ config, outputPath: resolve(config.root, config.output.path), hooks, signal })
+      ? await processOutput({ config, outputPath: resolve(config.root, config.output.path), files: this.#passFiles(files.length), hooks, signal })
       : []
 
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
@@ -292,6 +298,18 @@ export class Kubb {
     })
 
     return { success: !failed, files, diagnostics: finalDiagnostics, input }
+  }
+
+  /**
+   * The files the output passes have to run over, or `undefined` for the whole output directory. A
+   * clean run, one that rewrote every file, or one without a record from the same pass settings
+   * takes the directory, which also covers files in it that this run did not generate.
+   */
+  #passFiles(generated: number): ReadonlyArray<string> | undefined {
+    const pending = this.#manifest?.pending()
+    if (!pending || this.config.output.clean || pending.length >= generated) return undefined
+
+    return pending
   }
 
   /** Ends a run: `kubb:generation:end`, then the totals on `kubb:generation:summary`. */
