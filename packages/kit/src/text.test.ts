@@ -7,5 +7,6 @@ describe('text', () => {
     expect(quote('a\\b\nc\rd')).toBe("'a\\\\b\\nc\\rd'")
     expect(quote(undefined)).toBe("''")
     expect(quote(42)).toBe("'42'")
+    expect(quote('plain 😀 text')).toBe("'plain 😀 text'")
   })
 })
