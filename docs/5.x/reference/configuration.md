@@ -80,7 +80,7 @@ export default defineConfig([
 ])
 ```
 
-A config function can return an array to combine both forms. When the specs define the same schemas, set [`shared`](#shared) to generate those once.
+A config function can return an array to combine both forms.
 
 ## Defaults {#defaults}
 
@@ -193,7 +193,7 @@ This writes every type into `src/gen/types.ts` and one client file per operation
 #### `output.clean`
 
 :::field{type="boolean"}
-Wipe `output.path` before regenerating, and the [`shared`](#shared) directory when one is set.
+Wipe `output.path` before regenerating.
 
 Default: `false`.
 
@@ -310,47 +310,6 @@ A string applies to every file the plugin generates, including barrel (`index.ts
 
 :::field{type="string | ((meta: BannerMeta) => string)"}
 Text appended to the end of every file a plugin generates. Mirror of [`output.banner`](#outputbanner), with the same `string | ((meta: BannerMeta) => string)` type.
-:::
-
-### `shared`
-
-:::field{type="{ path: string }"}
-Schemas that several specs define, written once to a shared directory. Every other generated file imports them from there.
-
-Kubb writes each shared schema under `path`, resolved against [`root`](#root), with the same plugin layout as `output.path`. Give every config in an [array](#multiple-configurations-array) the same value:
-
-```typescript twoslash [kubb.config.ts]
-import { defineConfig } from 'kubb/config'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginZod } from '@kubb/plugin-zod'
-
-const shared = { path: './src/gen/common' }
-
-export default defineConfig([
-  {
-    input: './animals.json',
-    output: { path: './src/gen/animals' },
-    shared,
-    plugins: [pluginTs(), pluginZod()],
-  },
-  {
-    input: './fruits.json',
-    output: { path: './src/gen/fruits' },
-    shared,
-    plugins: [pluginTs(), pluginZod()],
-  },
-])
-```
-
-When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/common/types/Name.ts` once, and `src/gen/animals/types/Animal.ts` imports it from there.
-
-- Configs are compared per `path`. A schema is shared when two or more of them define it identically. When they define it differently, the largest matching group shares it, every other config keeps its own copy, and `kubb generate` warns with its name.
-- `kubb generate`, `unplugin-kubb`, Kubb Studio and `kubb studio snapshot` compare the specs. Studio builds one config at a time, so it writes the shared schemas that config defines and leaves the rest of the shared directory as it is. A sandbox or managed Studio agent shares nothing.
-- When you run builds yourself, call `Kubb.generate(configs)` from `@kubb/core` in place of one `createKubb` per config. It compares the specs, builds every config, and keeps going when one fails.
-- A plugin with `output.mode: 'file'` or a custom `file.path` shares nothing.
-- With [`output.barrel`](#outputbarrel) set, each config's barrels re-export the shared schemas it defines. The shared directory gets no barrels.
-- [`output.format`](#outputformat) and [`output.lint`](#outputlint) run over the shared directory too. When any config that uses it sets [`output.clean`](#outputclean), the first such config wipes it once per run.
-- Keep `path` outside every `output.path`, and give each config the same options for the plugins they have in common. Kubb warns when a config writes a shared file differently from the config before it, and the last one wins.
 :::
 
 ### `plugins`

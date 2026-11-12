@@ -3,7 +3,7 @@ import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
-import { type Config, type Diagnostic, Diagnostics, fsStorage, type Hookable, Kubb, type KubbHooks, type Storage } from '@kubb/core'
+import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
 import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
@@ -90,37 +90,28 @@ export function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error
  */
 export async function generate({
   config,
-  configs,
   hooks,
   signal,
   allowExec,
 }: {
   config: Config
-  /**
-   * Every entry of the config file, with `config` among them, so it shares schemas with the entries that set the same `shared.path`.
-   */
-  configs?: Array<Config>
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const all = configs ?? [config]
-  const index = all.indexOf(config)
-  for await (const result of Kubb.generate(all.with(index, { ...config, output }), { hooks, signal, only: index })) {
-    if (result.error) throw result.error
-    if (!result.success) throw generationFailure(result.diagnostics)
+  const kubb = createKubb({ ...config, output }, { hooks, signal })
+  const result = await kubb.generate()
+  if (!result.success) throw generationFailure(result.diagnostics)
 
-    // The instance's config carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
-    const { storage, root } = result.kubb.config
-    return {
-      storage,
-      root,
-      paths: new Set(result.files.map((file) => relativeStoragePath({ root, filePath: file.path }))),
-      input: result.input,
-    }
+  // `kubb.config` carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
+  const { storage, root } = kubb.config
+  return {
+    storage,
+    root,
+    paths: new Set(result.files.map((file) => relativeStoragePath({ root, filePath: file.path }))),
+    input: result.input,
   }
-  throw new Error('Generation failed')
 }
 
 /**

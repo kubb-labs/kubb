@@ -24,7 +24,7 @@ type CollisionRow = { scenario: string; barrelType: BarrelType; files: Array<ast
 describe('getBarrelFiles', () => {
   it('returns one wildcard barrel for flat files and skips files outside the root', () => {
     const files = [makeFile(`${ROOT}/user.ts`), makeFile(`${ROOT}/pet.ts`), makeFile('/workspace/src/gen/other/pet.ts')]
-    const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'all' })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all' })]
 
     expect(barrels).toHaveLength(1)
     expect(barrels[0]!.path).toBe(`${ROOT}/index.ts`)
@@ -33,7 +33,7 @@ describe('getBarrelFiles', () => {
 
   it('returns named exports when barrelType is named', () => {
     const files = [makeFile(`${ROOT}/pet.ts`, ['Pet', 'createPet'])]
-    const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'named' })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named' })]
 
     expect(barrels).toHaveLength(1)
     expect(barrels[0]!.exports[0]?.name).toStrictEqual(['Pet', 'createPet'])
@@ -54,7 +54,7 @@ describe('getBarrelFiles', () => {
     const diagnostics: Array<Diagnostic> = []
     const barrels = Diagnostics.scope(
       (diagnostic) => diagnostics.push(diagnostic),
-      () => [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType })],
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType })],
     )
 
     expect(barrels[0]?.exports).toHaveLength(exportCount)
@@ -63,7 +63,7 @@ describe('getBarrelFiles', () => {
 
   it('reports a collision once across related barrels', () => {
     const diagnostics: Array<Diagnostic> = []
-    const index = buildBarrelIndex({ outputPath: ROOT, files: [makeFile(`${ROOT}/pets/a.ts`, ['Pet']), makeFile(`${ROOT}/pets/b.ts`, ['Pet'])] })
+    const index = buildBarrelIndex(ROOT, [makeFile(`${ROOT}/pets/a.ts`, ['Pet']), makeFile(`${ROOT}/pets/b.ts`, ['Pet'])])
     const reportedCollisions = new Set<string>()
     Diagnostics.scope(
       (diagnostic) => diagnostics.push(diagnostic),
@@ -80,7 +80,7 @@ describe('getBarrelFiles', () => {
 
   it('returns a hierarchical barrel per directory with named leaf exports when nested is true', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`, ['listPets']), makeFile(`${ROOT}/users/getUser.ts`, ['getUser'])]
-    const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'named', nested: true })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named', nested: true })]
 
     expect(barrels.map((b) => b.path).sort()).toStrictEqual([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`])
 
@@ -93,7 +93,7 @@ describe('getBarrelFiles', () => {
 
   it('returns a barrel per subdirectory grouping its files when recursive is true', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/pets/createPet.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
-    const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'all', recursive: true })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all', recursive: true })]
 
     expect(barrels.map((b) => b.path).sort()).toStrictEqual([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`])
 
@@ -103,7 +103,7 @@ describe('getBarrelFiles', () => {
 
   it('returns a barrel per level linking root files and nested directories when depths are mixed', () => {
     const files = [makeFile(`${ROOT}/pet.ts`), makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/pets/tags/getTag.ts`)]
-    const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'all', nested: true })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all', nested: true })]
 
     expect(barrels.map((b) => b.path).sort()).toStrictEqual([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/pets/tags/index.ts`])
 
@@ -119,7 +119,7 @@ describe('getBarrelFiles', () => {
 
   it('adds service namespaces and retains standalone exports with all barrels', () => {
     const files = [makeFile(`${ROOT}/PetService/getPet.ts`, ['getPet'])]
-    const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'all', namespace: true })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all', namespace: true })]
 
     expect(barrels.map((file) => file.path)).toStrictEqual([`${ROOT}/PetService/index.ts`, `${ROOT}/index.ts`])
     expect(barrels[1]?.exports).toMatchObject([{ path: './PetService/index.ts' }, { path: './PetService/index.ts', name: 'PetService', asAlias: true }])
@@ -133,7 +133,7 @@ describe('getBarrelFiles', () => {
     ['---', '_'],
   ])('creates the valid namespace %s as %s', (directory, name) => {
     const files = [makeFile(`${ROOT}/${directory}/getPet.ts`, ['getPet'])]
-    const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'named', namespace: true })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named', namespace: true })]
 
     expect(barrels.at(-1)?.exports.find((item) => item.asAlias)?.name).toBe(name)
   })
@@ -143,7 +143,7 @@ describe('getBarrelFiles', () => {
     const files = [makeFile(`${ROOT}/pet-service/getPet.ts`, ['getPet']), makeFile(`${ROOT}/pet_service/addPet.ts`, ['addPet'])]
     const barrels = Diagnostics.scope(
       (diagnostic) => diagnostics.push(diagnostic),
-      () => [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'named', namespace: true })],
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named', namespace: true })],
     )
 
     expect(
@@ -160,7 +160,7 @@ describe('getBarrelFiles', () => {
     const files = [makeFile(`${ROOT}/PetService/getPet.ts`, ['PetService'])]
     const barrels = Diagnostics.scope(
       (diagnostic) => diagnostics.push(diagnostic),
-      () => [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'named', namespace: true })],
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named', namespace: true })],
     )
 
     expect(barrels.at(-1)?.exports.some((item) => item.asAlias)).toBe(false)
@@ -171,7 +171,7 @@ describe('getBarrelFiles', () => {
     const hidden = makeFile(`${ROOT}/hidden/internal.ts`, ['internal'])
     hidden.sources[0]!.isIndexable = false
     const files = [hidden, makeFile(`${ROOT}/PetService/admin/getPet.ts`, ['getPet'])]
-    const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'named', namespace: true })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named', namespace: true })]
 
     expect(barrels.map((file) => file.path)).not.toContain(`${ROOT}/hidden/index.ts`)
     expect(barrels.find((file) => file.path === `${ROOT}/PetService/index.ts`)?.exports).toMatchObject([{ path: './admin/index.ts' }])
@@ -181,7 +181,7 @@ describe('getBarrelFiles', () => {
 
   it('derives a subtree barrel from a shared index via targetPath', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`, ['listPets']), makeFile(`${ROOT}/users/getUser.ts`, ['getUser'])]
-    const index = buildBarrelIndex({ outputPath: ROOT, files })
+    const index = buildBarrelIndex(ROOT, files)
     const barrels = [...getBarrelFiles({ index, targetPath: `${ROOT}/pets`, barrelType: 'named' })]
 
     expect(barrels).toHaveLength(1)

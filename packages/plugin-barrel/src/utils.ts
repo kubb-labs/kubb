@@ -19,8 +19,7 @@ function sortedChildren(node: DirectoryNode): Array<TreeNode> {
 }
 
 function toRelativeModulePath(fromDir: string, filePath: string): string {
-  const relativePath = posix.relative(fromDir, filePath)
-  return relativePath.startsWith('../') ? relativePath : `./${relativePath}`
+  return `./${posix.relative(fromDir, filePath)}`
 }
 
 type WalkContext = {
@@ -169,35 +168,24 @@ type BarrelIndex = {
  * files under that path and builds their directory tree. Reuse the result across every barrel
  * derived from the same root rather than re-filtering and re-building per barrel.
  */
-export function buildBarrelIndex({
-  outputPath,
-  files,
-  sharedPath,
-}: {
-  outputPath: string
-  files: ReadonlyArray<ast.FileNode>
-  sharedPath?: string
-}): BarrelIndex {
+export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<ast.FileNode>): BarrelIndex {
   const tree: DirectoryNode = { path: toPosixPath(outputPath), children: new Map() }
-  // Files under `sharedPath` (the config's `shared.path`) join the tree at the same relative position; `outputPath` wins when both match.
-  const roots = sharedPath ? [tree.path, toPosixPath(sharedPath)] : [tree.path]
-  const rootOf = (filePath: string) => roots.find((root) => filePath.startsWith(`${root}/`))
   const sourceFiles = new Map(
     files.flatMap((file) => {
       const filePath = toPosixPath(file.path)
-      const isSource = rootOf(filePath) !== undefined && !filePath.endsWith(BARREL_SUFFIX) && SOURCE_EXTENSIONS.has(extname(filePath))
+      const isSource = filePath.startsWith(`${tree.path}/`) && !filePath.endsWith(BARREL_SUFFIX) && SOURCE_EXTENSIONS.has(extname(filePath))
       return isSource ? [[filePath, file] as const] : []
     }),
   )
 
   for (const filePath of sourceFiles.keys()) {
     const parts = filePath
-      .slice(rootOf(filePath)!.length + 1)
+      .slice(tree.path.length + 1)
       .split('/')
       .filter(Boolean)
     parts.reduce<DirectoryNode>((dir, part, i) => {
       const path = `${dir.path}/${part}`
-      const child: TreeNode = dir.children.get(part) ?? (i === parts.length - 1 ? { path: filePath } : { path, children: new Map() })
+      const child: TreeNode = dir.children.get(part) ?? (i === parts.length - 1 ? { path } : { path, children: new Map() })
       dir.children.set(part, child)
       return child.children ? child : dir
     }, tree)
@@ -251,7 +239,7 @@ type GetBarrelFilesParams = {
  *
  * @example
  * ```ts
- * const index = buildBarrelIndex({ outputPath, files })
+ * const index = buildBarrelIndex(outputPath, files)
  * getBarrelFiles({ index, targetPath, barrelType }).forEach((file) => upsertFile(file))
  * ```
  */

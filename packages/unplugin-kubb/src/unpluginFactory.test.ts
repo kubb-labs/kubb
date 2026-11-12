@@ -104,32 +104,6 @@ describe('unpluginFactory', () => {
     await fs.rm(root, { recursive: true, force: true })
   })
 
-  test('compares the specs of a kubb.config.ts array that sets shared, and warns about a schema they define differently', async () => {
-    using _log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
-    using warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'unplugin-kubb-'))
-    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(root)
-    const spec = (season: string) =>
-      JSON.stringify({
-        openapi: '3.0.3',
-        info: { title: season, version: '1' },
-        paths: {},
-        components: { schemas: { Season: { type: 'string', enum: [season] } } },
-      })
-    await fs.writeFile(path.join(root, 'winter.json'), spec('winter'))
-    await fs.writeFile(path.join(root, 'summer.json'), spec('summer'))
-    await fs.writeFile(
-      path.join(root, 'kubb.config.ts'),
-      `export default ['winter', 'summer'].map((season) => ({ input: \`./\${season}.json\`, output: { path: \`./gen/\${season}\` }, shared: { path: './gen/common' } }))\n`,
-    )
-    const pluginOptions = getPluginOptions(unpluginFactory(undefined, viteMeta))
-
-    await pluginOptions.buildStart?.call(createBuildContext())
-
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('[unplugin-kubb] The specs define these schemas differently: Season.'))
-    await fs.rm(root, { recursive: true, force: true })
-  })
-
   test('skips the build for a config without input, used only for spec imports', async () => {
     const setup = vi.fn()
     const { input: _input, ...config } = createConfig(setup)

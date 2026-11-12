@@ -1,8 +1,7 @@
 import { ast } from '@kubb/ast'
-import { type Config, type GeneratorContext, type KubbPluginSetupContext, memoryStorage, type Plugin } from '@kubb/core'
-import { createMockedAdapter } from '@kubb/core/mocks'
+import { memoryStorage } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { createGenerationStore, generate, hashOf, type GenerationStore, type SourceFiles } from './generations.ts'
+import { createGenerationStore, hashOf, type GenerationStore, type SourceFiles } from './generations.ts'
 
 function sourceFiles(files: Record<string, string>): SourceFiles {
   const storage = memoryStorage()
@@ -108,53 +107,5 @@ describe('createGenerationStore', () => {
     expect(await store.get('job-1')).toBeUndefined()
     expect((await store.get('job-3'))?.jobId).toBe('job-3')
     expect((await storage.readKeys()).filter((key) => key.endsWith('a.ts'))).toHaveLength(2)
-  })
-})
-
-describe('generate', () => {
-  // Records where the build places each schema file.
-  function makeConfig(name: string, placed: Array<string>): Config {
-    const types: Plugin = {
-      name: 'types',
-      options: { output: { path: 'types' } },
-      hooks: {
-        'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
-          ctx.addGenerator({
-            name: 'types',
-            schema(node: ast.SchemaNode, gctx: GeneratorContext) {
-              placed.push(
-                gctx.getResolver('types').file({ name: node.name!, extname: '.ts', root: gctx.root, output: { path: 'types', mode: 'directory' } }).path,
-              )
-              return null
-            },
-          })
-        },
-      },
-    } as unknown as Plugin
-    const schemas = [ast.factory.createSchema({ type: 'string', name: 'Name' }), ast.factory.createSchema({ type: 'string', name })]
-
-    return {
-      root: '/project',
-      input: './spec.json',
-      output: { path: `./gen/${name}`, clean: true },
-      shared: { path: './gen/common' },
-      parsers: [],
-      reporters: [],
-      adapter: createMockedAdapter({ parse: async () => ast.factory.createInput({ schemas }) }),
-      plugins: [types],
-      storage: memoryStorage(),
-    }
-  }
-
-  it('places a schema the other entries of the config file define too under shared.path, and keeps what they wrote there', async () => {
-    const placed: Array<string> = []
-    const animals = makeConfig('Animal', placed)
-    const fruits = makeConfig('Fruit', [])
-    await animals.storage.writeItem('/project/gen/common/types/fruit.ts', 'kept')
-
-    await generate({ config: animals, configs: [animals, fruits], allowExec: false })
-
-    expect(placed).toStrictEqual(['/project/gen/common/types/name.ts', '/project/gen/Animal/types/animal.ts'])
-    expect(await animals.storage.readItem('/project/gen/common/types/fruit.ts')).toBe('kept')
   })
 })

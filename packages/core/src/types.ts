@@ -185,21 +185,6 @@ export type Config<TInput = Input> = {
     defaultBanner?: 'simple' | 'full' | false
   } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
   /**
-   * Schemas that several configs of a `defineConfig([...])` array define identically, written once to a shared directory.
-   * Give every config that shares the directory the same `path`.
-   *
-   * @example
-   * ```ts
-   * shared: { path: './src/gen/shared' }
-   * ```
-   */
-  shared?: {
-    /**
-     * Directory the shared schemas are written to, with the plugin layout, resolved against `root`.
-     */
-    path: string
-  }
-  /**
    * Where generated files are persisted. Defaults to `fsStorage()` (disk). Pass `memoryStorage()`
    * to keep files in RAM, or implement `Storage` for a custom backend such as cloud or a database.
    *
