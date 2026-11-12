@@ -140,6 +140,9 @@ describe('diffFile', () => {
   it.each([
     ['a modified file', 'a\nb\nc', 'a\nB\nc\nd'],
     ['a file with surrounding blank lines', '\n\n  a\nb\n\n', 'a\nb\nc'],
+    ['an unchanged file', 'a\nb\n', '\na\nb'],
+    ['an edit that keeps the length', 'a\nb\nc', 'a\nc\nb'],
+    ['non-ASCII lines', 'é\n🐶\nb', 'é\n🐱\nb'],
   ])('gives the same change against a fingerprint as against the text, for %s', (_label, stored, next) => {
     const path = '/gen/pet.ts'
 
