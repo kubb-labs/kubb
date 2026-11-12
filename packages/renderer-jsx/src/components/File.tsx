@@ -1,4 +1,5 @@
 import type { ast } from '@kubb/ast'
+import { jsx } from '../jsx-runtime.ts'
 import type { Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
 type BasePropsWithBaseName = Pick<ast.FileNode, 'baseName' | 'path'>
@@ -43,12 +44,12 @@ type Props<TMeta extends object> = BaseProps &
  * </File>
  * ```
  */
-export function File<TMeta extends object = object>({ children, ...props }: Props<TMeta>): KubbReactElement {
+export function File<TMeta extends object = object>(props: Props<TMeta>): KubbReactElement {
   if (!props.baseName || !props.path) {
-    return <>{children}</>
+    return <>{props.children}</>
   }
 
-  return <kubb-file {...props}>{children}</kubb-file>
+  return jsx('kubb-file', props)
 }
 
 type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value'> & {
@@ -79,8 +80,8 @@ type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value'> & {
  * </File.Source>
  * ```
  */
-function FileSource({ children, ...props }: FileSourceProps): KubbReactElement {
-  return <kubb-source {...props}>{children}</kubb-source>
+function FileSource(props: FileSourceProps): KubbReactElement {
+  return jsx('kubb-source', props)
 }
 
 type FileExportProps = Omit<ast.ExportNode, 'kind'> & { key?: Key }
@@ -103,7 +104,7 @@ type FileExportProps = Omit<ast.ExportNode, 'kind'> & { key?: Key }
  * ```
  */
 function FileExport(props: FileExportProps): KubbReactElement {
-  return <kubb-export {...props} />
+  return jsx('kubb-export', props)
 }
 
 type FileImportProps = Omit<ast.ImportNode, 'kind'> & { key?: Key }
@@ -132,7 +133,7 @@ type FileImportProps = Omit<ast.ImportNode, 'kind'> & { key?: Key }
  * ```
  */
 function FileImport(props: FileImportProps): KubbReactElement {
-  return <kubb-import {...props} />
+  return jsx('kubb-import', props)
 }
 
 File.Export = FileExport

@@ -1,4 +1,5 @@
 import type { ast } from '@kubb/ast'
+import { jsx } from '../../jsx-runtime.ts'
 import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
 type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes'> & {
@@ -27,6 +28,6 @@ type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes'> & {
  * </Const>
  * ```
  */
-export function Const({ children, ...props }: ConstProps): KubbReactElement {
-  return <kubb-const {...props}>{children}</kubb-const>
+export function Const(props: ConstProps): KubbReactElement {
+  return jsx('kubb-const', props)
 }

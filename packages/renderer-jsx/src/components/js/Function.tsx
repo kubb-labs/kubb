@@ -1,4 +1,5 @@
 import type { ast } from '@kubb/ast'
+import { jsx } from '../../jsx-runtime.ts'
 import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
 type Props = Omit<ast.FunctionNode, 'kind' | 'nodes'> & {
@@ -22,8 +23,8 @@ type Props = Omit<ast.FunctionNode, 'kind' | 'nodes'> & {
  * // }
  * ```
  */
-export function Function({ children, ...props }: Props): KubbReactElement {
-  return <kubb-function {...props}>{children}</kubb-function>
+export function Function(props: Props): KubbReactElement {
+  return jsx('kubb-function', props)
 }
 
 type ArrowFunctionProps = Omit<ast.ArrowFunctionNode, 'kind' | 'nodes'> & {
@@ -47,8 +48,8 @@ type ArrowFunctionProps = Omit<ast.ArrowFunctionNode, 'kind' | 'nodes'> & {
  * // export const double = (n: number): number => n * 2
  * ```
  */
-function ArrowFunction({ children, ...props }: ArrowFunctionProps): KubbReactElement {
-  return <kubb-arrow-function {...props}>{children}</kubb-arrow-function>
+function ArrowFunction(props: ArrowFunctionProps): KubbReactElement {
+  return jsx('kubb-arrow-function', props)
 }
 
 Function.Arrow = ArrowFunction

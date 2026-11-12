@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { Const } from './components/js/Const.tsx'
 import { File } from './components/File.tsx'
 import { Function } from './components/js/Function.tsx'
+import { Jsx } from './components/jsx/Jsx.tsx'
 import { Type } from './components/js/Type.tsx'
 import { jsxRenderer } from './jsxRenderer.ts'
 
@@ -164,6 +165,30 @@ describe('jsxRenderer', () => {
     )
 
     expect(renderer.files.map((file) => file.baseName)).toStrictEqual(['inner.ts'])
+  })
+
+  it('merges a nested File into the enclosing file and keeps Jsx text as one node', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="a.ts" path="src/a.ts">
+        <File.Import name={['a']} path="a" />
+        <File baseName="b.ts" path="src/b.ts">
+          <File.Import name={['b']} path="b" />
+          <File.Source name="B">{'const b = 1'}</File.Source>
+        </File>
+        <File.Source name="A">
+          <Function name="render">
+            <Jsx>{'<div />'}</Jsx>
+          </Function>
+        </File.Source>
+      </File>,
+    )
+
+    const [file] = renderer.files
+    expect(renderer.files.length).toBe(1)
+    expect(file?.imports.map((node) => node.path)).toStrictEqual(['a', 'b'])
+    expect(file?.sources.map((node) => node.name)).toStrictEqual(['B', 'A'])
+    expect(file?.sources[1]?.nodes?.[0]).toMatchObject({ kind: 'Function', nodes: [{ kind: 'Jsx', value: '<div />' }] })
   })
 
   it('renders every file in a nested children array', async () => {
