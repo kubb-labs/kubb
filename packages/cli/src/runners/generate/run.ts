@@ -60,15 +60,18 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
 type GenerateProps = GenerateConfigsOptions & {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
-  errorHooks: Hookable<KubbHooks>
+  /**
+   * Where an error thrown outside a build is reported. Defaults to `hooks`.
+   */
+  errorHooks?: Hookable<KubbHooks>
 }
 
 /**
  * Generates the configs, or the one `only` names, and returns whether every build succeeded.
  */
-export async function generate({ configs, errorHooks, ...options }: GenerateProps): Promise<boolean> {
+export async function generate({ configs, hooks, errorHooks = hooks, ...options }: GenerateProps): Promise<boolean> {
   // Not awaited: each request finishes in the background, capped by its timeout, so it never delays the summary.
-  const untrack = options.hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
+  const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
     void trackRun({ command: 'generate', hrStart })({
       plugins: config.plugins.flatMap((p) =>
         p && typeof p === 'object' ? [{ name: p.meta?.name ?? p.name ?? '', options: (p.options ?? {}) as Record<string, unknown> }] : [],
@@ -79,7 +82,7 @@ export async function generate({ configs, errorHooks, ...options }: GenerateProp
   })
   let succeeded = true
   try {
-    for await (const { success, error } of Kubb.generate(configs, options)) {
+    for await (const { success, error } of Kubb.generate(configs, { hooks, ...options })) {
       if (error) await Diagnostics.emit(errorHooks, error)
       succeeded &&= success
     }
@@ -129,72 +132,63 @@ function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: Build
   logStep([`Rebuilt in ${formatMs(durationMs)}`, specChange].filter(Boolean).join(styleText('dim', ' · ')))
 }
 
-// Returns whether a config with no file to watch, which is generated once, failed.
-async function watchConfigs({ configs, hooks, errorHooks, quiet }: Omit<GenerateProps, 'only'> & { quiet: boolean }): Promise<boolean> {
-  let anyFailed = false
-  // One tracker, one key listener and one build queue serve every watched config, so several configs never mix diffs or answer `r` twice.
+/**
+ * Generates the configs, then again whenever a local `input` file changes, and returns whether the first build succeeded.
+ */
+async function watch({ configs, hooks, errorHooks = hooks, quiet }: Omit<GenerateProps, 'only' | 'signal'> & { quiet: boolean }): Promise<boolean> {
+  const watchPaths = [...new Set(configs.flatMap(({ input }) => (typeof input === 'string' && getInputKind(input) === 'file' ? [input] : [])))]
+  if (!watchPaths.length) {
+    if (!quiet) logWarn('Watch mode only follows a local `input` file, so the configs are generated once.')
+    return generate({ configs, hooks, errorHooks })
+  }
+
+  const label = styleText('yellow', `Watching ${watchPaths.map((watchPath) => path.relative(process.cwd(), watchPath)).join(', ')}`)
   const tracker = trackBuild(hooks)
-  const rebuilds: Array<() => Promise<void>> = []
-  let armKeys: (() => void) | undefined
-  // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
+  let previous: BuildSnapshot | undefined
+  let succeeded = true
+  // Don't removeAll() between builds, that would also drop logger and lifecycle
+  // listeners. Plugin listeners are already disposed by safeBuild's dispose()
+  // in its finally block, so re-running generate() on the same hooks emitter is safe.
+  const build = async () => {
+    const hrStart = process.hrtime()
+    // Every config builds again, since an edited spec can change what the configs share.
+    succeeded = await generate({ configs, hooks, errorHooks })
+    const snapshot = tracker.take()
+    if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
+    previous = snapshot
+
+    logStep(armKeys ? `${label}  ${styleText('dim', 'r rebuild · q quit')}` : label)
+    armKeys?.()
+    if (succeeded) {
+      logSpacer()
+      logTip()
+    }
+  }
+  // A trigger that lands while a build is queued joins it. One that lands during the build queues one more. Never rejects.
   let queue = Promise.resolve()
-  // shortcut: each config builds on its own, so the configs of a shared directory are compared once per config at
-  // startup and the directory is never emptied, build them in one pass first if that startup gets slow.
-  for (const [index, config] of configs.entries()) {
-    const watchPath = typeof config.input === 'string' && getInputKind(config.input) === 'file' ? config.input : undefined
-    if (!watchPath) {
-      if (!quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
-      if (!(await generate({ configs, hooks, errorHooks, only: index }))) anyFailed = true
-      continue
-    }
-
-    const label = styleText('yellow', `Watching ${path.relative(process.cwd(), watchPath)}`)
-    let previous: BuildSnapshot | undefined
-    // Don't removeAll() between builds, that would also drop logger and lifecycle
-    // listeners. Plugin listeners are already disposed by safeBuild's dispose()
-    // in its finally block, so re-running generate() on the same hooks emitter is safe.
-    const build = async () => {
-      const hrStart = process.hrtime()
-      // Compared with the other configs again each time, since an edited spec can change what they share.
-      const succeeded = await generate({ configs, hooks, errorHooks, only: index })
-      const snapshot = tracker.take()
-      if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
-      previous = snapshot
-
-      logStep(armKeys ? `${label}  ${styleText('dim', 'r rebuild · q quit')}` : label)
-      armKeys?.()
-      if (succeeded) {
-        logSpacer()
-        logTip()
-      }
-    }
-    // A trigger that lands while this config's build is queued joins it. One that lands during the build queues one more. Never rejects.
-    let pending = false
-    const rebuild = (): Promise<void> => {
-      if (pending) return queue
-      pending = true
-      queue = queue
-        .then(() => {
-          pending = false
-          return build()
-        })
-        .catch((error) => void Diagnostics.emit(errorHooks, error))
-      return queue
-    }
-    rebuilds.push(rebuild)
-    if (!quiet) {
-      armKeys ??= listenForKeys({
-        rebuild: () => rebuilds.forEach((trigger) => void trigger()),
+  let pending = false
+  const rebuild = (): Promise<void> => {
+    if (pending) return queue
+    pending = true
+    queue = queue
+      .then(() => {
+        pending = false
+        return build()
+      })
+      .catch((error) => void Diagnostics.emit(errorHooks, error))
+    return queue
+  }
+  const armKeys = quiet
+    ? undefined
+    : listenForKeys({
+        rebuild: () => void rebuild(),
         quit: (code) => void Promise.resolve(hooks.callHook('kubb:lifecycle:end')).finally(() => process.exit(code)),
       })
-    }
 
-    // The watcher ignores its startup state, so run the first build here. A failing one keeps watching so the user can fix the input.
-    await rebuild()
-
-    await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })
-  }
-  return anyFailed
+  // The watcher ignores its startup state, so run the first build here. A failing one keeps watching so the user can fix the input.
+  await rebuild()
+  await startWatcher(watchPaths, rebuild, { info: logInfo, error: logError })
+  return succeeded
 }
 
 /**
@@ -202,7 +196,14 @@ async function watchConfigs({ configs, hooks, errorHooks, quiet }: Omit<Generate
  * Loads configs, sets up the reporters (CLI `--reporter` picks which of `config.reporters` to trigger),
  * calls `generate` for each config entry, and prints an update notice when the registry answered in time.
  */
-export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters, dryRun }: GenerateCommandOptions): Promise<void> {
+export async function run({
+  input,
+  configPath,
+  logLevel: logLevelKey,
+  watch: watchMode,
+  reporters: cliReporters,
+  dryRun,
+}: GenerateCommandOptions): Promise<void> {
   // Started first and never awaited: the notice prints at the end only when the registry has answered by then.
   const updateCheck = new AbortController()
   let latestVersion: string | undefined
@@ -230,7 +231,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   const loading = getConfigs({
     configPath,
     input,
-    watch,
+    watch: watchMode,
     logLevel: logLevelKey as CLIOptions['logLevel'],
   })
   // Handled below; this keeps a rejection during the banner from counting as unhandled.
@@ -278,10 +279,8 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
   try {
-    // Outside watch mode every config builds in one pass, and one that fails does not stop the others.
-    const anyFailed = watch
-      ? await watchConfigs({ configs: runConfigs, hooks, errorHooks, quiet })
-      : !(await generate({ configs: runConfigs, hooks, errorHooks }))
+    // One config that fails does not stop the others.
+    const succeeded = await (watchMode ? watch({ configs: runConfigs, hooks, errorHooks, quiet }) : generate({ configs: runConfigs, hooks, errorHooks }))
 
     // A request still in flight would keep the process alive until its timeout.
     updateCheck.abort()
@@ -291,12 +290,12 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.
-    if (!quiet && !watch && !anyFailed) {
+    if (!quiet && !watchMode && succeeded) {
       logTip()
     }
 
     // `exitCode`, not `exit()`, so a telemetry request still in flight can finish within its timeout.
-    if (anyFailed) {
+    if (!succeeded) {
       process.exitCode = 1
     }
   } catch (error) {

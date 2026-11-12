@@ -56,7 +56,7 @@ async function regenerate({ cwd, configPath }: { cwd: string; configPath: string
       },
     }
     setupReporters(hooks, { logLevel: logLevelMap.info, reporters: [collect], fileChanges: true })
-    if (!(await generate({ configs, hooks, errorHooks: hooks }))) throw new Error('Generation failed')
+    if (!(await generate({ configs, hooks }))) throw new Error('Generation failed')
     const changed = changes.added + changes.modified + changes.deleted
     spinner.stop(changed ? `Generated: ${pluralize(changed, 'file')} changed` : 'Generated: no files changed')
     return { changes, output: configs.map((config) => path.relative(cwd, path.resolve(config.root ?? cwd, config.output.path)) || '.').join(', ') }
