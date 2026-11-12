@@ -39,6 +39,19 @@ export function getSharedWrites(build: SharedBuild): Map<string, string> {
   return sharedWrites.get(build) ?? new Map()
 }
 
+// A shared file imports its refs from the shared directory, so a spec keeps sharing a schema only while it shares every
+// ref of that schema too. Dropping one can leave another without its refs, so this runs again until nothing drops.
+function dropUnsharedRefs(shared: Map<string, Set<number>>, specs: Array<Map<string, SchemaNode>>): Map<string, Set<number>> {
+  const kept = new Map<string, Set<number>>()
+  for (const [name, members] of shared) {
+    const sharing = [...members].filter((index) => ast.graph.getImportedNames(specs[index]!.get(name)!).every((ref) => shared.get(ref)?.has(index)))
+    if (sharing.length >= 2) kept.set(name, new Set(sharing))
+  }
+
+  const size = (schemas: Map<string, Set<number>>) => [...schemas.values()].reduce((sum, members) => sum + members.size, 0)
+  return size(kept) === size(shared) ? kept : dropUnsharedRefs(kept, specs)
+}
+
 // Fills `schemas` on the builds of one shared directory, and returns the names its configs define differently.
 async function shareGroup(group: Array<GroupMember>, result: Array<SharedBuild | undefined>): Promise<Array<string>> {
   const specs: Array<Map<string, SchemaNode>> = []
@@ -54,7 +67,7 @@ async function shareGroup(group: Array<GroupMember>, result: Array<SharedBuild |
   }
 
   // Each name with the indexes of the specs that share it.
-  const shared = new Map<string, Set<number>>()
+  const candidates = new Map<string, Set<number>>()
   const conflicts: Array<string> = []
   for (const name of new Set(specs.flatMap((schemas) => [...schemas.keys()]))) {
     const byShape = new Map<string, Array<number>>()
@@ -67,22 +80,10 @@ async function shareGroup(group: Array<GroupMember>, result: Array<SharedBuild |
     if (byShape.size > 1) conflicts.push(name)
 
     const largest = [...byShape.values()].reduce((best, next) => (next.length > best.length ? next : best))
-    if (largest.length >= 2) shared.set(name, new Set(largest))
+    if (largest.length >= 2) candidates.set(name, new Set(largest))
   }
 
-  // A shared file imports its refs from the shared directory, so drop a spec from a schema until it shares every ref too.
-  let changed = true
-  while (changed) {
-    changed = false
-    for (const [name, members] of shared) {
-      for (const index of members) {
-        if (ast.graph.getImportedNames(specs[index]!.get(name)!).every((ref) => shared.get(ref)?.has(index))) continue
-        members.delete(index)
-        changed = true
-      }
-      if (members.size < 2) shared.delete(name)
-    }
-  }
+  const shared = dropUnsharedRefs(candidates, specs)
 
   group.forEach(({ index }, specIndex) => {
     result[index]!.schemas = [...shared].flatMap(([name, members]) => (members.has(specIndex) ? [name] : []))
