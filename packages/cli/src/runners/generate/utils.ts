@@ -131,8 +131,11 @@ function splitLines(text: string): Array<string> {
   return text ? text.split('\n') : []
 }
 
+// A loop, not a spread into an array of characters: this runs over every line of the old output on each clean run.
 function hashLine(line: string): number {
-  return [...line].reduce((hash, char) => Math.imul(hash ^ char.codePointAt(0)!, 0x01000193), 0x811c9dc5)
+  let hash = 0x811c9dc5
+  for (const char of line) hash = Math.imul(hash ^ char.codePointAt(0)!, 0x01000193)
+  return hash
 }
 
 function hashLines(text: string): Int32Array {
@@ -176,6 +179,7 @@ export async function readOutputFiles(outputPath: string): Promise<Map<string, s
  * Hashes of a file `output.clean` deleted, enough to tell whether its regenerated copy changed and by how many lines.
  */
 export type FileFingerprint = {
+  length: number
   digest: string
   lines: Int32Array
   deletedLines: number
@@ -188,7 +192,7 @@ export function fingerprintFile(text: string): FileFingerprint {
   const leading = body.slice(0, body.length - trimmed.length).split('\n').length - 1
   const lines = hashLines(trimmed)
 
-  return { digest: hash('sha1', trimmed), lines, deletedLines: body ? lines.length + leading : 0 }
+  return { length: trimmed.length, digest: hash('sha1', trimmed), lines, deletedLines: body ? lines.length + leading : 0 }
 }
 
 /**
@@ -231,7 +235,7 @@ export function diffFile({
   if (previous === null) return { status: 'A', path, added: splitLines(next.trimEnd()).length, removed: 0 }
   if (typeof previous !== 'string') {
     const trimmed = next.trim()
-    if (hash('sha1', trimmed) === previous.digest) return undefined
+    if (trimmed.length === previous.length && hash('sha1', trimmed) === previous.digest) return undefined
     return { status: 'M', path, ...countLineChanges({ before: previous.lines, after: hashLines(trimmed) }) }
   }
   if (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: path, source: next, disk: previous })) return undefined
