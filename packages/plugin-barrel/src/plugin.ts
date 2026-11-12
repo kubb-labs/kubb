@@ -168,7 +168,7 @@ export const pluginBarrel = defineExtension({
       excludedPlugins.clear()
       excludedTargets.length = 0
 
-      // Each config's barrels re-export the shared schemas it defines; the shared directory gets none, since each config writes only part of it.
+      // Each config's barrels re-export the shared schemas it defines. The shared directory gets none, since each config writes only part of it.
       const index = buildBarrelIndex({
         outputPath,
         files: relevantFiles,
