@@ -97,7 +97,6 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
       if (key === undefined) items.push({ index: at, range: { start, end } })
       const raw = key !== undefined && types[key] === EVENT_ID.SCALAR ? readText(key) : undefined
       const text = raw !== undefined && styles[key!] === SCALAR_STYLE.PLAIN ? toKeyText(raw) : raw
-      // A duplicate key keeps its first range.
       if (text !== undefined && !keys.has(text)) keys.set(text, { index: at, range: { start: starts[key!]!, end: ends[key!]! } })
       at = next
     }
@@ -143,9 +142,6 @@ function parse(source: string): EventIndex | undefined {
   }
 }
 
-/**
- * Keeps the positions of a source the adapter just parsed, so the first located diagnostic does not parse it again.
- */
 export function rememberEvents({ source, events }: { source: string; events: ReadonlyArray<Event> }): void {
   cached = { key: hash('sha256', source), index: indexEvents(events) }
 }

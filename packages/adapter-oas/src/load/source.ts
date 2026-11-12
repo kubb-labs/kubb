@@ -123,7 +123,6 @@ export function parseYaml(
     }
   }
   try {
-    // `load` in two steps, to keep the events.
     const events = parseEvents(data, {})
     const documents = constructFromEvents(events, { source: data, schema: CORE_SCHEMA })
     if (documents.length === 1 && documents[0] !== undefined) {
