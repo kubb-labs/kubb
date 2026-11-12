@@ -101,7 +101,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
   async function runBuild() {
     const configs = (await loadConfigs()).filter((config) => config.input).map(applyDefaults)
     // Every config builds, so a failing one does not hide the others' output or errors. The first failure fails the host build.
-    const failed = (await Kubb.generateAll(configs, { hooks })).find((result) => !result.success)
+    const failed = (await Kubb.generate(configs, { hooks })).find((result) => !result.success)
     if (!failed) return
 
     const failedCount = Diagnostics.failedPlugins(failed.diagnostics).length

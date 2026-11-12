@@ -661,7 +661,7 @@ describe('Kubb#generate', () => {
   })
 })
 
-describe('Kubb.generateAll', () => {
+describe('Kubb.generate', () => {
   it('generates the configs after one that fails, and marks only that one failed', async () => {
     const config = (parse?: () => Promise<never>) =>
       ({
@@ -675,7 +675,7 @@ describe('Kubb.generateAll', () => {
       throw new Error('Cannot read the spec')
     })
 
-    const results = await Kubb.generateAll([broken, config()])
+    const results = await Kubb.generate([broken, config()])
 
     expect(results.map((result) => result.success)).toStrictEqual([false, true])
   })

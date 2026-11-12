@@ -9,7 +9,7 @@ import {
   type Config,
   Diagnostics,
   fileReporter,
-  type GenerateAllOptions,
+  type FromConfigsOptions,
   getInputKind,
   htmlReporter,
   jsonReporter,
@@ -61,7 +61,7 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
   }
 }
 
-type GenerateProps = GenerateAllOptions & {
+type GenerateProps = FromConfigsOptions & {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
   /**
@@ -86,7 +86,7 @@ export async function generate({ configs, errorHooks, ...options }: GenerateProp
       status,
     })
   })
-  const results = await Kubb.generateAll(configs, options).finally(untrack)
+  const results = await Kubb.generate(configs, options).finally(untrack)
   for (const { error } of results) {
     if (error) await Diagnostics.emit(errorHooks, error)
   }

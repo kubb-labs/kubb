@@ -189,7 +189,7 @@ export async function createSnapshot({
   const url = secureUrl({ studioUrl, path: '/api/snapshots' })
   const buildConfigs = configs.map((config) => ({ ...config, storage: fsStorage() }))
   // A failing entry does not stop the others, like `kubb generate`, so one run reports every failure.
-  const results = await Kubb.generateAll(buildConfigs, { hooks, signal })
+  const results = await Kubb.generate(buildConfigs, { hooks, signal })
   const failures = results.filter((result) => !result.success).map((result) => result.error ?? generationFailure(result.diagnostics))
   // Nothing is published from a partial generation.
   if (failures.length === 1) throw failures[0]
