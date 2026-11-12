@@ -1,7 +1,12 @@
 import { existsSync, readFile, readFileSync, writeFile } from 'node:fs'
 import { access, glob as globNode, mkdir } from 'node:fs/promises'
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
+import { promisify } from 'node:util'
 import { runtime } from './runtime.ts'
+
+// The callback API skips the `FileHandle` every `fs/promises` call opens.
+const readFileAsync = promisify(readFile)
+const writeFileAsync = promisify(writeFile)
 
 export { existsSync } from 'node:fs'
 export { mkdir, mkdtemp, rm } from 'node:fs/promises'
@@ -40,7 +45,7 @@ export async function read(path: string): Promise<string> {
   if (runtime.isBun) {
     return Bun.file(path).text()
   }
-  return new Promise((resolvePromise, reject) => readFile(path, 'utf8', (error, data) => (error ? reject(error) : resolvePromise(data))))
+  return readFileAsync(path, { encoding: 'utf8' })
 }
 
 /**
@@ -66,10 +71,6 @@ export async function readIfExists(path: string): Promise<string | null> {
   } catch (_error) {
     return null
   }
-}
-
-function writeUtf8(path: string, content: string): Promise<void> {
-  return new Promise((resolvePromise, reject) => writeFile(path, content, 'utf-8', (error) => (error ? reject(error) : resolvePromise())))
 }
 
 type WriteOptions = {
@@ -149,11 +150,11 @@ export async function writeRaw(path: string, content: string): Promise<void> {
     return
   }
   try {
-    await writeUtf8(resolved, content)
+    await writeFileAsync(resolved, content, { encoding: 'utf-8' })
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
     await mkdir(dirname(resolved), { recursive: true })
-    await writeUtf8(resolved, content)
+    await writeFileAsync(resolved, content, { encoding: 'utf-8' })
   }
 }
 
