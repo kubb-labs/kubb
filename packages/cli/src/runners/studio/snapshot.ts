@@ -148,9 +148,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       message: 'An organization CI API key is required. Pass --token or set KUBB_TOKEN.',
     })
   }
-  // A snapshot publishes the first entry.
   const { configs } = await loadConfigs(options)
-  const config = configs[0]!
   const ci = resolveCiIdentity(options)
   // package.json is read only for whichever of name/version --name and --version did not supply.
   const { name, version: packageVersion } =
@@ -177,7 +175,6 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     const published = await createSnapshot({
       studioUrl: options.studioUrl,
       apiKey: token,
-      config,
       configs,
       hooks,
       id: ci.id,

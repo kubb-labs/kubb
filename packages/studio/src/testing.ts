@@ -8,10 +8,14 @@ export const root = '/project'
  * A project whose one plugin injects `src/gen/pet.ts`, named `plugin-barrel` so a snapshot can resolve its package.
  * It generates in memory unless `projectRoot` names a real folder.
  */
-export function projectConfig({ content = 'export const pet = 1', projectRoot }: { content?: string; projectRoot?: string } = {}): Config {
+export function projectConfig({
+  content = 'export const pet = 1',
+  projectRoot,
+  fileName = 'pet.ts',
+}: { content?: string; projectRoot?: string; fileName?: string } = {}): Config {
   const file = ast.factory.createFile({
-    path: `${projectRoot ?? root}/src/gen/pet.ts`,
-    baseName: 'pet.ts',
+    path: `${projectRoot ?? root}/src/gen/${fileName}`,
+    baseName: fileName as `${string}.${string}`,
     sources: [ast.factory.createSource({ nodes: [ast.factory.createText(content)] })],
     imports: [],
     exports: [],

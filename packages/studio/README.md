@@ -140,7 +140,7 @@ import { createSnapshot } from '@kubb/studio'
 
 const snapshot = await createSnapshot({
   apiKey: process.env.KUBB_TOKEN!,
-  config,
+  configs,
   id: 'gh:123:pr-4',
   name: 'acme/api#4',
   packageName: '@acme/api',

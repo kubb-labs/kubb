@@ -2,7 +2,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
 import { mkdir, mkdtemp, read, rm, writeRaw } from '@internals/utils'
-import { type Config, Diagnostics, fsStorage, type Hookable, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
+import { type Config, detectSharedSchemas, Diagnostics, fsStorage, Hookable, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
 import { ofetch } from 'ofetch'
 import { generate, hashOf } from './generations.ts'
 import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
@@ -162,13 +162,10 @@ type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'peerDepend
    */
   apiKey: string
   /**
-   * The project's Kubb config, generated like `kubb generate`: formatter, linter, and `output.postGenerate` included.
+   * Every entry of the project's Kubb config, generated like `kubb generate`: formatter, linter, and `output.postGenerate` included.
+   * One package holds the output of them all.
    */
-  config: Config
-  /**
-   * Every entry of the config file, with `config` among them, so the snapshot shares schemas like `kubb generate` does.
-   */
-  configs?: Array<Config>
+  configs: Array<Config>
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
 }
@@ -178,31 +175,43 @@ type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'peerDepend
  *
  * @example
  * ```ts
- * const { url } = await createSnapshot({ apiKey: process.env.KUBB_TOKEN!, config, id: 'gh:123:pr-4', name: 'acme/api#4', packageName: '@acme/api', version: '1.0.0' })
+ * const { url } = await createSnapshot({ apiKey: process.env.KUBB_TOKEN!, configs, id: 'gh:123:pr-4', name: 'acme/api#4', packageName: '@acme/api', version: '1.0.0' })
  * ```
  */
 export async function createSnapshot({
   studioUrl = defaultStudioUrl,
   apiKey,
-  config,
   configs,
-  hooks,
+  hooks = new Hookable<KubbHooks>(),
   signal,
   ...metadata
 }: CreateSnapshotOptions): Promise<PublishedSnapshot> {
   const url = secureUrl({ studioUrl, path: '/api/snapshots' })
-  const buildConfig = { ...config, storage: fsStorage() }
-  const generated = await generate({
-    config: buildConfig,
-    configs: configs?.map((entry) => (entry === config ? buildConfig : entry)),
-    hooks,
-    signal,
-    allowExec: true,
-  })
+  const buildConfigs = configs.map((config) => ({ ...config, storage: fsStorage() }))
+  const sharedByConfig = await detectSharedSchemas(buildConfigs, hooks)
+  // Each package path with the file on disk it comes from.
+  const sources = new Map<string, string>()
+  // One at a time: the entries share the hooks, and may write to one shared directory.
+  for (const [index, config] of buildConfigs.entries()) {
+    const generated = await generate({ config, sharedSchemas: sharedByConfig[index], hooks, signal, allowExec: true })
+    for (const path of generated.paths) {
+      const source = resolve(generated.root, path)
+      const owner = sources.get(path)
+      if (owner && owner !== source)
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.unknown,
+          severity: 'error',
+          message: `Snapshot has two generated files at "${path}": "${owner}" and "${source}"`,
+          help: 'Give the config entries the same `root`, or output paths that do not overlap.',
+        })
+      sources.set(path, source)
+    }
+  }
+  const storage = fsStorage()
   const files = Object.fromEntries(
     await Promise.all(
-      [...generated.paths].map(async (path) => {
-        const content = await generated.storage.readItem(resolve(generated.root, path))
+      [...sources].map(async ([path, source]) => {
+        const content = await storage.readItem(source)
         if (content === null)
           throw new Diagnostics.Error({
             code: Diagnostics.code.internalError,
@@ -213,8 +222,8 @@ export async function createSnapshot({
       }),
     ),
   )
-  const pluginNames = config.plugins.map((plugin) => resolveMeta(plugin).name)
-  const installed = await readInstalledPackages({ root: config.root, packages: pluginNames.map(toPackageName), resolveFrom: ['kubb'] })
+  const pluginNames = [...new Set(configs.flatMap((config) => config.plugins.map((plugin) => resolveMeta(plugin).name)))]
+  const installed = await readInstalledPackages({ root: configs[0]!.root, packages: pluginNames.map(toPackageName), resolveFrom: ['kubb'] })
   // A third-party plugin is found by the manifest its package ships, as `@kubb/plugin-x` only names a built-in.
   const packageOf = (name: string) => installed.find(({ manifest }) => manifest?.kind === 'plugin' && manifest.name === name)?.package ?? toPackageName(name)
   const names = [...new Set(pluginNames.map(packageOf))]

@@ -137,7 +137,7 @@ describe('createSnapshot', () => {
     const snapshot = { id: 'snap-1', url: '/packages/ci/acme-api.tgz' }
     using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot }, { status: 201 }))
 
-    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: projectConfig() })).resolves.toStrictEqual(snapshot)
+    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', configs: [projectConfig()] })).resolves.toStrictEqual(snapshot)
 
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect(url).toBe('https://studio.test/api/snapshots')
@@ -171,7 +171,7 @@ describe('createSnapshot', () => {
     using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 }))
 
     try {
-      await createSnapshot({ ...options, studioUrl: 'https://studio.test', config: { ...config, plugins: [...config.plugins, pluginX] } })
+      await createSnapshot({ ...options, studioUrl: 'https://studio.test', configs: [{ ...config, plugins: [...config.plugins, pluginX] }] })
     } finally {
       await Promise.all([rm(projectRoot, { recursive: true, force: true }), rm(resolveCacheDir(projectRoot), { recursive: true, force: true })])
     }
@@ -190,7 +190,7 @@ describe('createSnapshot', () => {
     using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 }))
 
     try {
-      await createSnapshot({ ...options, studioUrl: 'https://studio.test', config: { ...config, output: { ...config.output, postGenerate: [rewrite] } } })
+      await createSnapshot({ ...options, studioUrl: 'https://studio.test', configs: [{ ...config, output: { ...config.output, postGenerate: [rewrite] } }] })
     } finally {
       await Promise.all([rm(projectRoot, { recursive: true, force: true }), rm(resolveCacheDir(projectRoot), { recursive: true, force: true })])
     }
@@ -199,12 +199,30 @@ describe('createSnapshot', () => {
     expect((JSON.parse(String(body.get('metadata'))) as SnapshotUploadMetadata).hashes).toStrictEqual({ 'src/gen/pet.ts': hashOf('export const pet = 2') })
   })
 
+  it('packs the output of every config entry into the one package', async () => {
+    const projectRoot = await mkdtemp(join(tmpdir(), 'kubb-snapshot-test-'))
+    const configs = [projectConfig({ projectRoot }), projectConfig({ projectRoot, fileName: 'order.ts', content: 'export const order = 1' })]
+    using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 }))
+
+    try {
+      await createSnapshot({ ...options, studioUrl: 'https://studio.test', configs })
+    } finally {
+      await Promise.all([rm(projectRoot, { recursive: true, force: true }), rm(resolveCacheDir(projectRoot), { recursive: true, force: true })])
+    }
+
+    const body = fetchMock.mock.calls[0]![1]!.body as FormData
+    expect(Object.keys((JSON.parse(String(body.get('metadata'))) as SnapshotUploadMetadata).hashes).sort()).toStrictEqual([
+      'src/gen/order.ts',
+      'src/gen/pet.ts',
+    ])
+  })
+
   it('names the upgrade page when Studio refuses the snapshot over a limit', async () => {
     using _ = vi
       .spyOn(globalThis, 'fetch')
       .mockResolvedValue(Response.json({ message: 'Snapshot limit reached', data: { upgradeUrl: 'https://kubb.studio/billing' } }, { status: 402 }))
 
-    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: projectConfig() })).rejects.toThrow(
+    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', configs: [projectConfig()] })).rejects.toThrow(
       'Kubb Studio refused the snapshot (status 402): Snapshot limit reached. Upgrade at https://kubb.studio/billing.',
     )
   })

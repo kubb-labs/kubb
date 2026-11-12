@@ -3,7 +3,18 @@ import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
-import { type Config, createKubb, detectSharedSchemas, type Diagnostic, Diagnostics, fsStorage, Hookable, type KubbHooks, type Storage } from '@kubb/core'
+import {
+  type Config,
+  createKubb,
+  detectSharedSchemas,
+  type Diagnostic,
+  Diagnostics,
+  fsStorage,
+  Hookable,
+  type KubbHooks,
+  type SharedSchemas,
+  type Storage,
+} from '@kubb/core'
 import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
@@ -91,6 +102,7 @@ function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
 export async function generate({
   config,
   configs,
+  sharedSchemas,
   hooks = new Hookable<KubbHooks>(),
   signal,
   allowExec,
@@ -100,6 +112,10 @@ export async function generate({
    * Every entry of the config file, with `config` among them, so it shares schemas with the entries that set the same `shared.path`.
    */
   configs?: Array<Config>
+  /**
+   * `config`'s entry from `detectSharedSchemas`, for a caller that builds every entry of the config file itself.
+   */
+  sharedSchemas?: SharedSchemas
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
@@ -107,8 +123,8 @@ export async function generate({
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
   const detected = configs?.includes(config) ? (await detectSharedSchemas(configs, hooks))[configs.indexOf(config)] : undefined
   // Only this entry is built, so it never empties the directory the others share.
-  const sharedSchemas = detected && { ...detected, clean: false }
-  const kubb = createKubb({ ...config, output }, { hooks, signal, sharedSchemas })
+  const ownShare = detected && { ...detected, clean: false }
+  const kubb = createKubb({ ...config, output }, { hooks, signal, sharedSchemas: sharedSchemas ?? ownShare })
   let input: InputNode | null = null
   // The driver drops its `inputNode` once the build is over, so read it as the build ends.
   const unhook = kubb.hooks.hook('kubb:build:end', (ctx) => {
