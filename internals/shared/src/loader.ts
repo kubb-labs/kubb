@@ -1,11 +1,6 @@
-import { randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
-import { createRequire } from 'node:module'
-import { dirname, extname, join } from 'node:path'
-import process from 'node:process'
-import { pathToFileURL } from 'node:url'
-import { runtime } from '@internals/utils'
-import type { Jiti, JitiOptions } from 'jiti'
+import { dirname, join } from 'node:path'
+import { createJiti } from 'jiti'
 
 /**
  * jiti options for loading Kubb config modules: the automatic JSX runtime pointed at
@@ -14,7 +9,7 @@ import type { Jiti, JitiOptions } from 'jiti'
 const JITI_OPTIONS = {
   jsx: { runtime: 'automatic', importSource: '@kubb/renderer-jsx' },
   moduleCache: false,
-} satisfies JitiOptions
+} satisfies Parameters<typeof createJiti>[1]
 
 /**
  * Plain JavaScript files. jiti hands these to Node's native `import()`, whose module cache never
@@ -22,47 +17,9 @@ const JITI_OPTIONS = {
  */
 const JAVASCRIPT_EXTENSION = /\.[cm]?jsx?$/
 
-// `.ts` and `.js` take their format from the nearest `package.json`. `.tsx` and `.jsx` always use jiti.
-const NATIVE_EXTENSIONS: Record<string, { typescript: boolean; format?: 'esm' | 'commonjs' }> = {
-  '.ts': { typescript: true },
-  '.mts': { typescript: true, format: 'esm' },
-  '.cts': { typescript: true, format: 'commonjs' },
-  '.js': { typescript: false },
-  '.mjs': { typescript: false, format: 'esm' },
-  '.cjs': { typescript: false, format: 'commonjs' },
-}
-
-// CommonJS globals jiti defines in an ES module and Node does not.
-const COMMONJS_GLOBAL = /\b(?:__dirname|__filename|require\s*\(|module\.exports\b|exports\.)/
-
-const ESM_SYNTAX = /^\s*(?:import\b(?!\s*[.(])|export\b)/m
-
-// The same module format mismatch, in a file the config imports.
-const MODULE_FORMAT_ERROR = /is not defined in ES module scope|^Cannot use import statement outside a module|^Unexpected token 'export'/
-
-// Node could not resolve or parse a module, where jiti may.
-const LOAD_ERROR_CODES = new Set([
-  'ERR_MODULE_NOT_FOUND',
-  'MODULE_NOT_FOUND',
-  'ERR_UNKNOWN_FILE_EXTENSION',
-  'ERR_UNSUPPORTED_DIR_IMPORT',
-  'ERR_PACKAGE_PATH_NOT_EXPORTED',
-  'ERR_PACKAGE_IMPORT_NOT_DEFINED',
-  'ERR_IMPORT_ATTRIBUTE_MISSING',
-  'ERR_REQUIRE_ESM',
-  'ERR_REQUIRE_ASYNC_MODULE',
-  'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX',
-  'ERR_INVALID_TYPESCRIPT_SYNTAX',
-  'ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING',
-  'ERR_VM_MODULE_LINK_FAILURE',
-])
-
-// Global, because the `data:` marker module that writes to it shares no scope with this file.
-const EVALUATING = Symbol.for('kubb.loader.evaluating')
-
-// The runtime caches a module and its imports for the life of the process, so only a first load uses it.
-const loadedFiles = new Set<string>()
-
+/**
+ * Per-call options for {@link loadModule}.
+ */
 type LoadModuleOptions = {
   /**
    * Return the module's default export instead of the full namespace.
@@ -70,123 +27,35 @@ type LoadModuleOptions = {
   default?: boolean
 }
 
-let jiti: Promise<Jiti> | undefined
+const jiti = createJiti(import.meta.url, JITI_OPTIONS)
 
-function getJiti(): Promise<Jiti> {
-  jiti ??= import('jiti').then(({ createJiti }) => createJiti(import.meta.url, JITI_OPTIONS))
-  return jiti
-}
+// Tries the runtime's own `import()` before transpiling. Node caches what it loads for the life
+// of the process, so only the first load of a file uses it.
+const nativeFirstJiti = createJiti(import.meta.url, { ...JITI_OPTIONS, tryNative: true })
 
-function evaluating(): Set<string> {
-  const store = globalThis as { [EVALUATING]?: Set<string> }
-  store[EVALUATING] ??= new Set()
-  return store[EVALUATING]
-}
+const loadedFiles = new Set<string>()
 
 async function isInEsmPackage(filePath: string): Promise<boolean> {
   for (let dir = dirname(filePath); ; dir = dirname(dir)) {
     const source = await readFile(join(dir, 'package.json'), 'utf8').catch(() => undefined)
-    if (source !== undefined) {
-      try {
-        return (JSON.parse(source) as { type?: string } | null)?.type === 'module'
-      } catch {
-        return false
-      }
-    }
+    if (source !== undefined) return /"type"\s*:\s*"module"/.test(source)
     if (dirname(dir) === dir) return false
   }
 }
 
-/**
- * How the runtime loads `filePath` by itself, or `undefined` for jiti. A CommonJS file with
- * `import` statements goes to jiti, because Node rejects it or reparses it with a warning.
- */
-async function nativeFormat(filePath: string): Promise<'bun' | 'esm' | 'commonjs' | undefined> {
-  const extension = NATIVE_EXTENSIONS[extname(filePath)]
-  if (!extension) return undefined
-  if (runtime.isBun) return 'bun'
-  if (runtime.name !== 'node') return undefined
-  // Unset before Node strips types by default, and under `--no-strip-types`.
-  if (extension.typescript && !process.features.typescript) return undefined
-
-  const source = await readFile(filePath, 'utf8').catch(() => undefined)
-  if (source === undefined) return undefined
-
-  const format = extension.format ?? ((await isInEsmPackage(filePath)) ? 'esm' : 'commonjs')
-  const matches = format === 'esm' ? !COMMONJS_GLOBAL.test(source) : !ESM_SYNTAX.test(source)
-  return matches ? format : undefined
-}
-
-function isLoadError(error: unknown): boolean {
-  if (LOAD_ERROR_CODES.has((error as { code?: string } | null)?.code ?? '')) return true
-  return (error instanceof ReferenceError || error instanceof SyntaxError) && MODULE_FORMAT_ERROR.test(error.message)
+// CommonJS stays on plain jiti: Node 22's `import()` of a CommonJS file that requires an ES module
+// package fails, and jiti then transpiles the whole graph, which made `.cts` configs four times slower.
+async function isEsModule(filePath: string): Promise<boolean> {
+  if (/\.m[jt]s$/.test(filePath)) return true
+  return /\.[jt]s$/.test(filePath) && isInEsmPackage(filePath)
 }
 
 /**
- * Node links the whole graph before it runs any of it, so a failure while the marker module is
- * unset means no config code ran, and jiti can take over without running the config twice.
- */
-async function importEsm(filePath: string): Promise<object | undefined> {
-  const url = pathToFileURL(filePath).href
-  const id = randomUUID()
-  const marker = `data:text/javascript,${encodeURIComponent(`globalThis[Symbol.for(${JSON.stringify(EVALUATING.description)})].add(${JSON.stringify(id)})`)}`
-  const wrapper = `data:text/javascript,${encodeURIComponent(`import ${JSON.stringify(marker)};import ${JSON.stringify(url)}`)}`
-  const started = evaluating()
-
-  try {
-    await import(wrapper)
-  } catch (error) {
-    if (!started.has(id) || isLoadError(error)) return undefined
-    throw error
-  } finally {
-    started.delete(id)
-  }
-
-  return (await import(url)) as object
-}
-
-/**
- * `require()`, because Node 22's `import()` of a CommonJS file that requires an ES module package
- * fails with `ERR_VM_MODULE_LINK_FAILURE`. A `require()` fails while the config runs, so that
- * fallback runs the config again.
- */
-function requireCommonJs(filePath: string): unknown {
-  try {
-    return createRequire(import.meta.url)(filePath)
-  } catch (error) {
-    if (isLoadError(error)) return undefined
-    throw error
-  }
-}
-
-// Bun errors surface as they are: jiti tries Bun's own loader first there too.
-async function importNative(filePath: string, format: 'bun' | 'esm' | 'commonjs'): Promise<unknown> {
-  if (format === 'bun') return import(pathToFileURL(filePath).href)
-  if (format === 'esm') return importEsm(filePath)
-  return requireCommonJs(filePath)
-}
-
-async function importJiti(filePath: string, options?: LoadModuleOptions): Promise<unknown> {
-  const jiti = await getJiti()
-
-  if (!JAVASCRIPT_EXTENSION.test(filePath)) {
-    return options?.default ? jiti.import(filePath, { default: true }) : jiti.import(filePath)
-  }
-
-  // Transpiled through jiti instead, so every load re-evaluates the file as it is on disk now.
-  // A TypeScript file it imports reloads too. A plain JavaScript file it imports still goes
-  // through Node's `import()` and stays cached until the process restarts.
-  const mod = (await jiti.evalModule(await readFile(filePath, 'utf8'), { filename: filePath, async: true, forceTranspile: true })) as
-    | { default?: unknown }
-    | undefined
-  return options?.default ? (mod?.default ?? mod) : mod
-}
-
-/**
- * Loads a Kubb TypeScript or JavaScript config module.
+ * Loads a Kubb TypeScript or JavaScript config module via jiti.
  *
- * The first load of a file uses the runtime's own loader when it can run the file as is. A file
- * it cannot load, and every later load, goes through jiti, so an edited config is picked up.
+ * The first load of an ES module tries the runtime's own `import()`, and jiti transpiles TypeScript
+ * and the `@kubb/renderer-jsx` JSX runtime only when that fails. Every later load re-evaluates the file
+ * through jiti, so a config edited on disk is picked up by the next load.
  *
  * @example
  * ```ts
@@ -197,11 +66,19 @@ export async function loadModule<T = unknown>(filePath: string, options?: LoadMo
   const isFirstLoad = !loadedFiles.has(filePath)
   loadedFiles.add(filePath)
 
-  const format = isFirstLoad ? await nativeFormat(filePath) : undefined
-  if (format) {
-    const mod = (await importNative(filePath, format)) as { default?: unknown } | undefined
-    if (mod !== undefined) return (options?.default ? (mod?.default ?? mod) : mod) as T
+  if (isFirstLoad && (await isEsModule(filePath))) {
+    return (options?.default ? nativeFirstJiti.import(filePath, { default: true }) : nativeFirstJiti.import(filePath)) as Promise<T>
   }
 
-  return (await importJiti(filePath, options)) as T
+  if (!JAVASCRIPT_EXTENSION.test(filePath)) {
+    return (options?.default ? jiti.import(filePath, { default: true }) : jiti.import(filePath)) as Promise<T>
+  }
+
+  // Transpiled through jiti instead, so every load re-evaluates the file as it is on disk now.
+  // A TypeScript file it imports reloads too. A plain JavaScript file it imports still goes
+  // through Node's `import()` and stays cached until the process restarts.
+  const mod = (await jiti.evalModule(await readFile(filePath, 'utf8'), { filename: filePath, async: true, forceTranspile: true })) as
+    | { default?: unknown }
+    | undefined
+  return (options?.default ? (mod?.default ?? mod) : mod) as T
 }

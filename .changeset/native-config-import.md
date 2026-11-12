@@ -4,4 +4,4 @@
 'unplugin-kubb': patch
 ---
 
-Load `kubb.config.*` with Node's own `import()` or `require()` when Node can run the file as is, and keep jiti for everything else: `.tsx` configs, an `enum`, a tsconfig `paths` alias, a relative import without its extension, and any reload in the same process. Under Bun, Bun's own `import()` loads every config except `.tsx`. jiti now loads only when a config needs it. On a machine where jiti's transform cache is cold, such as CI, a run is about 150 ms faster.
+The first load of an ES module `kubb.config.*` tries Node's own `import()` through jiti's `tryNative` before jiti transpiles it. CommonJS configs and reloads load as before. On a machine where jiti's transform cache is cold, such as CI, a run is about 145 ms faster.
