@@ -78,7 +78,7 @@ The pipeline fires these hooks, so `.build()` and `.safeBuild()` fire them too.
 | `kubb:plugins:end`       | `{ config, files, upsertFile }`                              | After every plugin has generated, before files hit disk. The spot to add aggregate files like a barrel |
 | `kubb:files:processing:start` | `{ files }`                                             | Before the batch of generated files is written         |
 | `kubb:files:processing:update`| `{ files }`                                             | As files are written. Here `files` holds progress records (`{ processed, total, percentage, file, config }`), not the `FileNode` array the `:start` and `:end` variants carry. The source is on `kubb:file:processed` |
-| `kubb:file:processed`    | `{ file, source }`                                           | After each file is parsed and handed to the storage, with the source before any output pass rewrites it |
+| `kubb:file:processed`    | `{ file, source, stored }`                                   | After each file is parsed and handed to the storage, with the source before any output pass rewrites it. `stored` is what the storage held at that path before the write, or `null` when the path was missing or `output.clean` emptied its folder |
 | `kubb:files:processing:end` | `{ files, unchanged }`                                    | After the batch is written. `unchanged` lists the paths the storage already held with the same content |
 | `kubb:build:end`         | `{ files, config, outputDir }`                               | After every file is written                            |
 

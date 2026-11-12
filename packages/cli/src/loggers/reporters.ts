@@ -2,12 +2,39 @@ import process from 'node:process'
 import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import { isPathInside } from '@internals/utils'
-import type { GenerationResult, Hookable, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
+import type { GenerationResult, Hookable, KubbGenerationEndContext, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
 import { cacheStorage, createCliReporter, createOutputManifest, hasOutputPasses, logLevel as logLevelMap } from '@kubb/core'
 import { writer as defaultWriter } from '../ui/log.ts'
 import { installLogger } from './features/index.ts'
 import type { LoggerWriter } from './types.ts'
-import { diffFile, diffOutput, type FileChange, readOutputFiles } from '../runners/generate/utils.ts'
+import {
+  type ChangeTally,
+  createChangeTally,
+  diffFile,
+  diffOutput,
+  type FileFingerprint,
+  readOutputFiles,
+  readOutputFingerprints,
+  tallyChange,
+} from '../runners/generate/utils.ts'
+
+type LiveChanges = {
+  tally: ChangeTally
+  // The files `output.clean` is about to delete, the only trace of them once the folder is emptied.
+  fingerprints: Map<string, FileFingerprint>
+  processed: Set<string>
+}
+
+type GenerationRun = {
+  outputPath: string
+  filesUnchanged: number
+  paths: Set<string>
+  // Read-back runs only: the whole output as it was before generation.
+  previous?: Map<string, string>
+  reading?: Promise<Map<string, string>>
+  // A run without output passes counts each file as it is written, against the stored text the write already read.
+  live?: LiveChanges
+}
 
 /** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
 function setupReporters(
@@ -56,31 +83,36 @@ function setupReporters(
   }
 
   // Configs generate one at a time, so the last write before `kubb:generation:end` is this config's.
-  let filesUnchanged = 0
-  let previous: Map<string, string> | undefined
-  let reading: Promise<Map<string, string>> | undefined
-  // Changes worked out from each source as it is written, so the summary does not read the output back.
-  let counted: Map<string, FileChange | undefined> | undefined
-  let paths: Array<string> = []
-  let outputPath = ''
+  let run: GenerationRun | undefined
   const trackChanges = (fileChanges || selected.some((reporter) => reporter.name === 'cli')) && logLevel > logLevelMap.silent
   context.hook('kubb:generation:start', ({ config }) => {
     pluginFiles?.clear()
     seen.clear()
-    filesUnchanged = 0
-    paths = []
-    outputPath = resolve(config.root, config.output.path)
-    previous = undefined
-    // Read while the plugins generate; `kubb:plugins:end` waits for it, before cleaning can erase the baseline.
-    reading = trackChanges && (dryRun || config.storage?.name === 'fs') ? readOutputFiles(outputPath) : undefined
-    // Output passes rewrite stored files and a dry run compares through the manifest, so both read the output back.
-    counted = reading && !dryRun && !hasOutputPasses(config) ? new Map() : undefined
+    const outputPath = resolve(config.root, config.output.path)
+    const tracked = trackChanges && (dryRun || config.storage?.name === 'fs')
+    const live = ((): LiveChanges | undefined => {
+      // Output passes rewrite stored files and a dry run compares through the manifest, so both read the output back.
+      if (!tracked || dryRun || hasOutputPasses(config)) return undefined
+      return { tally: createChangeTally(), fingerprints: new Map(), processed: new Set() }
+    })()
+    run = {
+      outputPath,
+      filesUnchanged: 0,
+      paths: new Set(),
+      live,
+      // Read while the plugins generate; `kubb:plugins:end` waits for it, before cleaning can erase the baseline.
+      reading: tracked && !live ? readOutputFiles(outputPath) : undefined,
+    }
   })
-  context.hook('kubb:plugins:end', async () => {
-    if (reading) previous = await reading
+  context.hook('kubb:plugins:end', async ({ config }) => {
+    if (!run) return
+    if (run.reading) run.previous = await run.reading
+    // The last moment the old files exist: the storage empties the folder right after this hook.
+    if (run.live && config.output.clean) run.live.fingerprints = await readOutputFingerprints(run.outputPath)
   })
   context.hook('kubb:files:processing:start', async ({ files }) => {
-    if (!previous) return
+    if (!run?.previous) return
+    const { previous, outputPath } = run
     // Plugin output can live outside the main output folder; capture it before writes start.
     for (const file of files) {
       if (previous.has(file.path) || isPathInside(outputPath, file.path)) continue
@@ -88,39 +120,58 @@ function setupReporters(
       if (source !== null) previous.set(file.path, source)
     }
   })
-  context.hook('kubb:file:processed', ({ file, source }) => {
-    if (!counted || !previous) return
-    // The storage writes the trimmed source and skips a blank one.
+  context.hook('kubb:file:processed', ({ file, source, stored = null }) => {
+    const live = run?.live
+    if (!live) return
+    // The storage writes the trimmed source and skips a blank one, which leaves the stored file as it was.
     const next = source.trim()
-    if (next) counted.set(file.path, diffFile({ path: file.path, next, previous: previous.get(file.path) ?? null }))
+    if (!next) return
+    live.processed.add(file.path)
+    tallyChange({ tally: live.tally, change: diffFile({ path: file.path, next, previous: stored ?? live.fingerprints.get(file.path) ?? null }) })
   })
   context.hook('kubb:files:processing:end', ({ files, unchanged }) => {
-    filesUnchanged = unchanged.length
-    paths = files.map((file) => file.path)
+    if (!run) return
+    run.filesUnchanged = unchanged.length
+    run.paths = new Set(files.map((file) => file.path))
   })
 
-  context.hook('kubb:generation:end', async ({ config, storage, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
-    const result: GenerationResult = { config, diagnostics, filesCreated, filesUnchanged, dryRun, status, hrStart }
-    const cliResult = { ...result }
-    if (previous && status !== 'failed') {
-      const manifest = dryRun ? await createOutputManifest({ storage, cache: cacheStorage({ root: config.root }) }) : undefined
-      const diff = await diffOutput({
-        storage,
-        paths,
-        clean: Boolean(config.output.clean),
-        manifest,
-        previousFiles: previous,
-        counted,
-      })
-      const changes = { added: 0, modified: 0, deleted: 0, linesAdded: 0, linesRemoved: 0 }
-      const counts = { A: 'added', M: 'modified', D: 'deleted' } as const
-      for (const file of diff.files) {
-        changes[counts[file.status]]++
-        changes.linesAdded += file.added ?? 0
-        changes.linesRemoved += file.removed ?? 0
+  /** The run's totals: counted while writing, or worked out by reading the output back. */
+  async function countChanges({
+    config,
+    storage,
+    current,
+  }: Pick<KubbGenerationEndContext, 'config' | 'storage'> & { current: GenerationRun }): Promise<ChangeTally | undefined> {
+    const { live, paths, previous } = current
+    if (live) {
+      const { tally, fingerprints, processed } = live
+      for (const [filePath, fingerprint] of fingerprints) {
+        if (!paths.has(filePath)) tallyChange({ tally, change: { status: 'D', path: filePath, removed: fingerprint.deletedLines } })
       }
-      cliResult.filesCreated = changes.added + changes.modified + diff.unchanged
-      cliResult.filesUnchanged = diff.unchanged
+      // A blank file left whatever the storage held in place, so a stored copy counts as unchanged.
+      for (const filePath of paths.difference(processed)) {
+        if ((await storage.readItem(filePath)) !== null) tally.unchanged++
+      }
+      return tally
+    }
+    if (!previous) return undefined
+    const manifest = dryRun ? await createOutputManifest({ storage, cache: cacheStorage({ root: config.root }) }) : undefined
+    const diff = await diffOutput({ storage, paths, clean: Boolean(config.output.clean), manifest, previousFiles: previous })
+    const changes = createChangeTally()
+    changes.unchanged = diff.unchanged
+    for (const file of diff.files) tallyChange({ tally: changes, change: file })
+    return changes
+  }
+
+  context.hook('kubb:generation:end', async ({ config, storage, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
+    const current = run
+    run = undefined
+    const result: GenerationResult = { config, diagnostics, filesCreated, filesUnchanged: current?.filesUnchanged ?? 0, dryRun, status, hrStart }
+    const cliResult = { ...result }
+    const counted = current && status !== 'failed' ? await countChanges({ config, storage, current }) : undefined
+    if (counted) {
+      const { unchanged, ...changes } = counted
+      cliResult.filesCreated = changes.added + changes.modified + unchanged
+      cliResult.filesUnchanged = unchanged
       cliResult.fileChanges = changes
     }
     for (const reporter of selected) {

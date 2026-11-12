@@ -1,5 +1,39 @@
 # Changelog
 
+## v5.18.7 — Nov 12, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Correct the docs these packages ship for kubb.dev. The adapter's discriminator and enum examples show the real generated output, `unknownType` and `emptySchemaType` describe the schemas they cover, and `parserMd().print` is documented as joining strings. ([#4589](https://github.com/kubb-labs/kubb/pull/4589), [`e0cb3bb`](https://github.com/kubb-labs/kubb/commit/e0cb3bb1afa7232906eb0a87c1a0355d3c366165))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb add --dry-run` and `kubb remove --dry-run` now stop after the preview instead of installing packages and editing `kubb.config.ts`. A config function receives the `reporters` selected with `--reporter`, and the `kubb studio snapshot` error names the `--package-version` flag. ([#4591](https://github.com/kubb-labs/kubb/pull/4591), [`a8facc9`](https://github.com/kubb-labs/kubb/commit/a8facc9af71d8f3ae102341348ef70ac2f0aec1a))
+- `kubb generate --reporter json` now writes the run log to stderr. Stdout still holds only the JSON report. ([#4592](https://github.com/kubb-labs/kubb/pull/4592), [`209c0ee`](https://github.com/kubb-labs/kubb/commit/209c0eea91f186beb305e5f059501029abc30a64))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add `Kubb.generate(configs)`, which builds every config of a `defineConfig([...])` array and keeps going when one fails. `kubb generate`, `kubb update`, `unplugin-kubb` and `kubb studio snapshot` now use it. ([#4592](https://github.com/kubb-labs/kubb/pull/4592), [`209c0ee`](https://github.com/kubb-labs/kubb/commit/209c0eea91f186beb305e5f059501029abc30a64))
+- A `type: 'method'` filter now matches in either case, so the documented `pattern: 'GET'` selects operations like `'get'` does. An `override` entry's `output` gets its `mode` from `output.path`, which fixes the `No extname found` crash for `output: { path: 'admin' }`. Core now emits `kubb:generation:summary` after `kubb:generation:end`, and the `KUBB_PATH_TRAVERSAL` message for a resolver `file.path` names the output directory. ([#4591](https://github.com/kubb-labs/kubb/pull/4591), [`a8facc9`](https://github.com/kubb-labs/kubb/commit/a8facc9af71d8f3ae102341348ef70ac2f0aec1a))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- `kubb studio snapshot` now publishes every entry of a `defineConfig([...])` array in one package. `createSnapshot` takes `configs` in place of `config`. ([#4592](https://github.com/kubb-labs/kubb/pull/4592), [`209c0ee`](https://github.com/kubb-labs/kubb/commit/209c0eea91f186beb305e5f059501029abc30a64))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.18.6 — Nov 12, 2026
 
 ### @kubb/ast

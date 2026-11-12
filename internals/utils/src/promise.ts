@@ -24,7 +24,8 @@ export type Store<TKey, TValue> = {
  * `const refs = memo(refCache, node, () => collectRefs(node))`
  */
 export function memo<TKey, TValue>(store: Store<TKey, TValue>, key: TKey, compute: () => TValue): TValue {
-  if (store.has(key)) return store.get(key) as TValue
+  const cached = store.get(key)
+  if (cached !== undefined || store.has(key)) return cached as TValue
   const value = compute()
   store.set(key, value)
   return value

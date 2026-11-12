@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, isPathInside } from '@internals/utils'
-import type { FileNode } from '@kubb/ast'
+import type { FileNode, InputNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -55,8 +55,16 @@ export type CreateKubbOptions = {
   signal?: AbortSignal
 }
 
+export type ConfigGenerateResult = GenerateResult & {
+  kubb: Kubb
+  /**
+   * What the build threw outside its own diagnostics. `diagnostics` holds it too.
+   */
+  error?: unknown
+}
+
 /**
- * Host hooks for a single {@link Kubb.generate} call. All optional. Progress narration rides the
+ * Host hooks for a single {@link Kubb#generate} call. All optional. Progress narration rides the
  * `kubb:*` lifecycle hooks on `.hooks`, so hosts subscribe there rather than pass a callback.
  */
 export type GenerateOptions = {
@@ -69,7 +77,7 @@ export type GenerateOptions = {
 }
 
 /**
- * What a {@link Kubb.generate} call produced, for the host to map onto its own result shape.
+ * What a {@link Kubb#generate} call produced, for the host to map onto its own result shape.
  */
 export type GenerateResult = {
   /**
@@ -84,6 +92,10 @@ export type GenerateResult = {
    * Build diagnostics plus any collected from the output passes.
    */
   diagnostics: Array<Diagnostic>
+  /**
+   * The parsed spec the build generated from, `null` when the build failed before parsing.
+   */
+  input: InputNode | null
 }
 
 /**
@@ -114,6 +126,25 @@ export class Kubb {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
+  }
+
+  /**
+   * Generates every config of a `defineConfig([...])` array in order and yields each result as its config finishes, so
+   * memory holds one config at a time. A config that fails does not stop the others. Only an aborted `signal` rejects.
+   */
+  static async *generate(
+    configs: Array<UserConfig>,
+    { hooks = new Hookable<KubbHooks>(), signal }: Pick<CreateKubbOptions, 'hooks' | 'signal'> = {},
+  ): AsyncGenerator<ConfigGenerateResult, void, void> {
+    for (const config of configs) {
+      const kubb = new Kubb(config, { hooks, signal })
+      try {
+        yield { ...(await kubb.generate()), kubb }
+      } catch (error) {
+        if (signal?.aborted) throw error
+        yield { success: false, files: [], diagnostics: [Diagnostics.from(error)], input: null, kubb, error }
+      }
+    }
   }
 
   get storage(): Storage {
@@ -187,7 +218,7 @@ export class Kubb {
     const storage = self.storage
     const { diagnostics } = await driver.run()
 
-    return { diagnostics, files: driver.fileManager.files, driver, storage }
+    return { diagnostics, files: driver.fileManager.files, driver, storage, input: driver.inputNode }
   }
 
   /**
@@ -212,7 +243,7 @@ export class Kubb {
 
     // A setup failure, such as an invalid plugin entry, becomes a diagnostic like any build
     // problem, so reporters still get a failed `kubb:generation:end` for this config.
-    let output: Pick<BuildOutput, 'files' | 'diagnostics'>
+    let output: Pick<BuildOutput, 'files' | 'diagnostics' | 'input'>
     try {
       await hooks.callHook('kubb:setup:start')
       await this.setup()
@@ -221,9 +252,9 @@ export class Kubb {
       output = await this.safeBuild()
     } catch (caughtError) {
       if (signal?.aborted) throw caughtError
-      output = { files: [], diagnostics: [Diagnostics.from(caughtError)] }
+      output = { files: [], diagnostics: [Diagnostics.from(caughtError)], input: null }
     }
-    const { files, diagnostics } = output
+    const { files, diagnostics, input } = output
     const storage = this.storage
     signal?.throwIfAborted()
 
@@ -235,7 +266,7 @@ export class Kubb {
 
     if (Diagnostics.hasError(diagnostics)) {
       await this.#end({ config, storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
-      return { success: false, files, diagnostics }
+      return { success: false, files, diagnostics, input }
     }
 
     const processOutput = options.processOutput ?? runOutputPasses
@@ -260,7 +291,7 @@ export class Kubb {
       hrStart,
     })
 
-    return { success: !failed, files, diagnostics: finalDiagnostics }
+    return { success: !failed, files, diagnostics: finalDiagnostics, input }
   }
 
   /** Ends a run: `kubb:generation:end`, then the totals on `kubb:generation:summary`. */
@@ -276,6 +307,8 @@ export class Kubb {
 
   dispose(): void {
     this.#driver?.dispose()
+    // The next build sets up a fresh driver: a released one has no spec and would build nothing.
+    this.#driver = null
   }
 
   [Symbol.dispose](): void {

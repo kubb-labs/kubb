@@ -1,5 +1,5 @@
 import type { PossiblePromise } from '@internals/utils'
-import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputMeta, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import type { Reporter, ReporterName } from './createReporter.ts'
 import type { Storage } from './createStorage.ts'
@@ -626,6 +626,8 @@ export type KubbFileProcessedContext = {
   file: FileNode
   /** The parsed content handed to the storage, before it trims the content or an output pass such as a formatter rewrites it. */
   source: string
+  /** What the storage held at `file.path` before the write, or `null` when the path was missing or `output.clean` emptied its folder. */
+  stored?: string | null
 }
 
 export type KubbFilesProcessingEndContext = {
@@ -732,6 +734,10 @@ export type BuildOutput = {
    * The plugin driver that orchestrated this build.
    */
   driver: KubbDriver
+  /**
+   * The parsed spec the build generated from, `null` when there was none to parse.
+   */
+  input: InputNode | null
   /**
    * The configured `Storage` backend, for reading back a generated file's final content.
    * Use `files` to list what this build produced.

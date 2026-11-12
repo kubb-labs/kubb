@@ -140,6 +140,8 @@ const patched = Resolver.merge(resolver, {
 
 Kubb resolves the path `file.path` returns against the root `output.path` directory, and the result must stay inside that directory. The `output` argument is the plugin's own `output`.
 
+`resolver.imports` keeps each import path for the rest of the build, so `file.baseName` and `file.path` must return the same result for the same arguments.
+
 ```typescript [Type definition]
 type ResolverPatch = {
   name?: (name: string) => string

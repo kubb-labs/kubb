@@ -1,10 +1,10 @@
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
-import { mkdir, mkdtemp, read, rm, writeRaw } from '@internals/utils'
-import { type Config, Diagnostics, fsStorage, type Hookable, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
+import { getErrorMessage, mkdir, mkdtemp, read, rm, writeRaw } from '@internals/utils'
+import { type Config, Diagnostics, fsStorage, type Hookable, Kubb, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
 import { ofetch } from 'ofetch'
-import { generate, hashOf } from './generations.ts'
+import { generationFailure, hashOf, relativeStoragePath } from './generations.ts'
 import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
 import { toPackageName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
@@ -162,9 +162,10 @@ type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'peerDepend
    */
   apiKey: string
   /**
-   * The project's Kubb config, generated like `kubb generate`: formatter, linter, and `output.postGenerate` included.
+   * Every entry of the project's Kubb config, generated like `kubb generate`: formatter, linter, and `output.postGenerate` included.
+   * One package holds the output of them all.
    */
-  config: Config
+  configs: Array<Config>
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
 }
@@ -174,23 +175,52 @@ type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'peerDepend
  *
  * @example
  * ```ts
- * const { url } = await createSnapshot({ apiKey: process.env.KUBB_TOKEN!, config, id: 'gh:123:pr-4', name: 'acme/api#4', packageName: '@acme/api', version: '1.0.0' })
+ * const { url } = await createSnapshot({ apiKey: process.env.KUBB_TOKEN!, configs, id: 'gh:123:pr-4', name: 'acme/api#4', packageName: '@acme/api', version: '1.0.0' })
  * ```
  */
 export async function createSnapshot({
   studioUrl = defaultStudioUrl,
   apiKey,
-  config,
+  configs,
   hooks,
   signal,
   ...metadata
 }: CreateSnapshotOptions): Promise<PublishedSnapshot> {
   const url = secureUrl({ studioUrl, path: '/api/snapshots' })
-  const generated = await generate({ config: { ...config, storage: fsStorage() }, hooks, signal, allowExec: true })
+  const buildConfigs = configs.map((config) => ({ ...config, storage: fsStorage() }))
+  const failures: Array<unknown> = []
+  // Each package path with the file on disk it comes from.
+  const sources = new Map<string, string>()
+  // A failing entry does not stop the others, like `kubb generate`, so one run reports every failure.
+  for await (const { success, error, diagnostics, files, kubb } of Kubb.generate(buildConfigs, { hooks, signal })) {
+    if (!success) {
+      failures.push(error ?? generationFailure(diagnostics))
+      continue
+    }
+    const { root } = kubb.config
+    for (const file of files) {
+      const path = relativeStoragePath({ root, filePath: file.path })
+      const source = resolve(root, path)
+      const owner = sources.get(path)
+      if (owner && owner !== source)
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.unknown,
+          severity: 'error',
+          message: `Snapshot has two generated files at "${path}": "${owner}" and "${source}"`,
+          help: 'Give the config entries the same `root`, or output paths that do not overlap.',
+        })
+      sources.set(path, source)
+    }
+  }
+  // Nothing is published from a partial generation.
+  if (failures.length === 1) throw failures[0]
+  if (failures.length) throw new AggregateError(failures, failures.map(getErrorMessage).join('\n'))
+
+  const storage = fsStorage()
   const files = Object.fromEntries(
     await Promise.all(
-      [...generated.paths].map(async (path) => {
-        const content = await generated.storage.readItem(resolve(generated.root, path))
+      [...sources].map(async ([path, source]) => {
+        const content = await storage.readItem(source)
         if (content === null)
           throw new Diagnostics.Error({
             code: Diagnostics.code.internalError,
@@ -201,8 +231,11 @@ export async function createSnapshot({
       }),
     ),
   )
-  const pluginNames = config.plugins.map((plugin) => resolveMeta(plugin).name)
-  const installed = await readInstalledPackages({ root: config.root, packages: pluginNames.map(toPackageName), resolveFrom: ['kubb'] })
+  const pluginNames = [...new Set(configs.flatMap((config) => config.plugins.map((plugin) => resolveMeta(plugin).name)))]
+  const roots = [...new Set(configs.map((config) => config.root))]
+  const installed = (
+    await Promise.all(roots.map((root) => readInstalledPackages({ root, packages: pluginNames.map(toPackageName), resolveFrom: ['kubb'] })))
+  ).flat()
   // A third-party plugin is found by the manifest its package ships, as `@kubb/plugin-x` only names a built-in.
   const packageOf = (name: string) => installed.find(({ manifest }) => manifest?.kind === 'plugin' && manifest.name === name)?.package ?? toPackageName(name)
   const names = [...new Set(pluginNames.map(packageOf))]

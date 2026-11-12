@@ -2,14 +2,14 @@ import path from 'node:path'
 import { adapterOas } from '@kubb/adapter-oas'
 import {
   cliReporter,
-  type Config,
   createCliReporter,
-  createKubb,
+  type Diagnostic,
   Diagnostics,
   fileReporter,
   Hookable,
   htmlReporter,
   jsonReporter,
+  Kubb,
   type KubbHooks,
   logLevel,
   type ProblemDiagnostic,
@@ -71,6 +71,9 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
     reporter.report({ config, diagnostics, filesCreated, status, hrStart }, { logLevel: logLevel.info }),
   )
 
+  // The summary only lists a build's diagnostics, so a warning raised outside one, such as schemas the configs define differently, prints here.
+  hooks.hook('kubb:warn', ({ message, info }) => console.warn(`[${name}] ${[message, info].filter(Boolean).join(' ')}`))
+
   // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`. Keep the problem's code,
   // help and location, so the bundler shows the same diagnostic.
   const fail = (problem: ProblemDiagnostic | undefined, message: string) =>
@@ -97,14 +100,17 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
   const loadConfigs = () => (loaded ??= readConfigs())
 
   async function runBuild() {
-    for (const config of (await loadConfigs()).filter((config) => config.input)) {
-      const result = await createKubb(applyDefaults(config) as Config, { hooks }).generate()
-      if (result.success) continue
-
-      const failedCount = Diagnostics.failedPlugins(result.diagnostics).length
-      const firstError = result.diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
-      throw fail(firstError, failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed'))
+    const configs = (await loadConfigs()).filter((config) => config.input).map(applyDefaults)
+    // Every config builds, so a failing one does not hide the others' output or errors. The first failure fails the host build.
+    let failed: Array<Diagnostic> | undefined
+    for await (const { success, diagnostics } of Kubb.generate(configs, { hooks })) {
+      if (!success) failed ??= diagnostics
     }
+    if (!failed) return
+
+    const failedCount = Diagnostics.failedPlugins(failed).length
+    const firstError = failed.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
+    throw fail(firstError, failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed'))
   }
 
   // A rerun with `output.clean` loops webpack and Rspack watchers, so generate once per instance.

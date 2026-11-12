@@ -2,7 +2,7 @@ import { mkdir, rm, symlink, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
-import { isPathInside, listFiles, read, toPosixPath, write, writeRaw } from './fs.ts'
+import { isPathInside, listFiles, read, readIfExists, toPosixPath, write, writeRaw } from './fs.ts'
 
 const rwTestDir = path.join(os.tmpdir(), 'kubb-test-read-write')
 const rwFilePath = path.join(rwTestDir, 'helloWorld.js')
@@ -38,6 +38,18 @@ describe('read / write', () => {
     await write(nested, 'const a = 1')
 
     expect(await read(nested)).toBe('const a = 1\n')
+  })
+
+  test('readIfExists returns the content, or null for a missing file or a directory', async () => {
+    await writeRaw(rwFilePath, 'const a = 1\n')
+
+    expect(await readIfExists(rwFilePath)).toBe('const a = 1\n')
+    expect(await readIfExists(path.join(rwTestDir, 'missing', 'file.ts'))).toBeNull()
+    expect(await readIfExists(rwTestDir)).toBeNull()
+  })
+
+  test('read rejects for a missing file', async () => {
+    await expect(read(path.join(rwTestDir, 'missing.ts'))).rejects.toMatchObject({ code: 'ENOENT' })
   })
 
   it('write returns undefined for empty/whitespace data', async () => {
