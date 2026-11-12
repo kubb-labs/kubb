@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { ast, type SchemaNode } from '@kubb/ast'
+import { ast, type InputNode, type SchemaNode } from '@kubb/ast'
 import type { Hookable } from './Hookable.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 import type { KubbHooks, UserConfig } from './types.ts'
@@ -39,52 +39,60 @@ export function getSharedWrites(build: SharedBuild): Map<string, string> {
   return sharedWrites.get(build) ?? new Map()
 }
 
+/** A spec's named schemas, each with its shape and the names of the schemas it references. */
+type Spec = Map<string, { shape: string; refs: ReadonlyArray<string> }>
+
+/** Each shared schema name with the indexes of the specs that share it. */
+type Sharing = Map<string, Set<number>>
+
 // A shared file imports its refs from the shared directory, so a spec keeps sharing a schema only while it shares every
 // ref of that schema too. Dropping one can leave another without its refs, so this runs again until nothing drops.
-function dropUnsharedRefs(shared: Map<string, Set<number>>, specs: Array<Map<string, SchemaNode>>): Map<string, Set<number>> {
-  const kept = new Map<string, Set<number>>()
+function dropUnsharedRefs(shared: Sharing, specs: Array<Spec>): Sharing {
+  const kept: Sharing = new Map()
   for (const [name, members] of shared) {
-    const sharing = [...members].filter((index) => ast.graph.getImportedNames(specs[index]!.get(name)!).every((ref) => shared.get(ref)?.has(index)))
-    if (sharing.length >= 2) kept.set(name, new Set(sharing))
+    const sharing = new Set([...members].filter((index) => specs[index]!.get(name)!.refs.every((ref) => shared.get(ref)?.has(index))))
+    if (sharing.size >= 2) kept.set(name, sharing)
   }
 
-  const size = (schemas: Map<string, Set<number>>) => [...schemas.values()].reduce((sum, members) => sum + members.size, 0)
-  return size(kept) === size(shared) ? kept : dropUnsharedRefs(kept, specs)
+  const settled = [...shared].every(([name, members]) => kept.get(name)?.size === members.size)
+  return settled ? kept : dropUnsharedRefs(kept, specs)
 }
 
 // Fills `schemas` on the builds of one shared directory, and returns the names its configs define differently.
-async function shareGroup(group: Array<GroupMember>, result: Array<SharedBuild | undefined>): Promise<Array<string>> {
-  const specs: Array<Map<string, SchemaNode>> = []
+async function shareGroup(group: Array<GroupMember>, result: Array<SharedBuild | undefined>): Promise<Set<string>> {
+  const inputs: Array<InputNode> = []
   try {
     // Sequential, since configs may share one adapter instance.
     for (const { config, root } of group) {
-      const input = await parseAdapterSource({ adapter: config.adapter!, source: inputToAdapterSource({ input: config.input, root }) })
-      specs.push(new Map(input.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : []))))
+      inputs.push(await parseAdapterSource({ adapter: config.adapter!, source: inputToAdapterSource({ input: config.input, root }) }))
     }
   } catch {
     // The build parses the spec again and reports why it failed.
-    return []
+    return new Set()
   }
+  const specs: Array<Spec> = inputs.map(
+    (input) => new Map(input.schemas.flatMap((node) => (node.name ? [[node.name, { shape: toShape(node), refs: ast.graph.getImportedNames(node) }]] : []))),
+  )
 
-  // Each name with the indexes of the specs that share it.
-  const candidates = new Map<string, Set<number>>()
-  const conflicts: Array<string> = []
-  for (const name of new Set(specs.flatMap((schemas) => [...schemas.keys()]))) {
-    const byShape = new Map<string, Array<number>>()
-    specs.forEach((schemas, index) => {
-      const node = schemas.get(name)
-      if (!node) return
-      const shape = toShape(node)
-      byShape.set(shape, [...(byShape.get(shape) ?? []), index])
-    })
-    if (byShape.size > 1) conflicts.push(name)
+  // Each schema name, with the specs that define it grouped by shape.
+  const byName = new Map<string, Map<string, Set<number>>>()
+  specs.forEach((schemas, index) => {
+    for (const [name, { shape }] of schemas) {
+      const byShape = byName.get(name) ?? new Map<string, Set<number>>()
+      byName.set(name, byShape.set(shape, (byShape.get(shape) ?? new Set<number>()).add(index)))
+    }
+  })
 
-    const largest = [...byShape.values()].reduce((best, next) => (next.length > best.length ? next : best))
-    if (largest.length >= 2) candidates.set(name, new Set(largest))
+  // The largest group of specs that define a name the same shares it, the first group on a tie.
+  const candidates: Sharing = new Map()
+  const conflicts = new Set<string>()
+  for (const [name, byShape] of byName) {
+    if (byShape.size > 1) conflicts.add(name)
+    const largest = [...byShape.values()].reduce((best, next) => (next.size > best.size ? next : best))
+    if (largest.size >= 2) candidates.set(name, largest)
   }
 
   const shared = dropUnsharedRefs(candidates, specs)
-
   group.forEach(({ index }, specIndex) => {
     result[index]!.schemas = [...shared].flatMap(([name, members]) => (members.has(specIndex) ? [name] : []))
   })
