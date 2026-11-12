@@ -57,7 +57,7 @@ jobs:
 
       - &setup
         name: Setup Tools
-        uses: kubb-labs/config/.github/setup@78a8e47fd83e12065225fad5d4e6610a85a3b70c # main
+        uses: kubb-labs/config/.github/setup@45aaffaaf8ab17ffdcd46cf364adc32d5c6178a1 # main
 
       - &build
         name: Build
