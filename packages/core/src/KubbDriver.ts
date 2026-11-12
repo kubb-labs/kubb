@@ -448,7 +448,7 @@ export class KubbDriver {
    * (`kubb:plugins:end`) and the write see them.
    */
   #inlineFiles(parsers: ReadonlyMap<FileNode['extname'], Parser>): void {
-    const { files, virtualPaths, problems } = ast.inlineFiles(this.fileManager.files, { language: (file) => parsers.get(file.extname)?.inline })
+    const { files, virtualPaths, problems } = ast.file.inline(this.fileManager.files, { language: (file) => parsers.get(file.extname)?.inline })
     if (virtualPaths.length === 0) return
 
     this.fileManager.add(...files)

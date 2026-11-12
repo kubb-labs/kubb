@@ -7,8 +7,7 @@ import { createPrinter as createPrinterImpl } from './createPrinter.ts'
 import { defineMacro as defineMacroImpl } from './defineMacro.ts'
 import * as macro from './macro/index.ts'
 import * as node from './node/index.ts'
-import { applyOptionality } from './optionality.ts'
-import { collect } from './visitor.ts'
+import * as file from './file/index.ts'
 
 /** @deprecated Use `ast.ref.isAlias`. Removed in Kubb v6. */
 export const isBareRef = ref.isAlias
@@ -49,11 +48,11 @@ export const resolveSchemaProperties = schema.findProperties
 /** @deprecated Use `ast.http.isOperation`. Removed in Kubb v6. */
 export const isHttpOperationNode = http.isOperation
 
-/** @deprecated Use `ast.collect`, which returns the same array. Removed in Kubb v6. */
-export const collectSync = collect
+/** @deprecated Use `ast.node.collect`, which returns the same array. Removed in Kubb v6. */
+export const collectSync = node.collect
 
-/** @deprecated Use `ast.applyOptionality`. Removed in Kubb v6. */
-export const optionality = applyOptionality
+/** @deprecated Use `ast.schema.applyOptionality`. Removed in Kubb v6. */
+export const optionality = schema.applyOptionality
 
 /** @deprecated Use `ast.node.getText`. Removed in Kubb v6. */
 export const extractStringsFromNodes = node.getText
@@ -81,3 +80,12 @@ export const findSchema = schema.find
 
 /** @deprecated Use `ast.schema.narrow`. Removed in Kubb v6. */
 export const narrowSchema = schema.narrow
+
+/** @deprecated Use `ast.node.transform`. Removed in Kubb v6. */
+export const transform = node.transform
+
+/** @deprecated Use `ast.node.collect`. Removed in Kubb v6. */
+export const collect = node.collect
+
+/** @deprecated Use `ast.file.inline`. Removed in Kubb v6. */
+export const inlineFiles = file.inline

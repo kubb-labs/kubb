@@ -1,3 +1,4 @@
+export { applyOptionality } from '../optionality.ts'
 export { schemaTypes as types } from '../constants.ts'
 export { narrowSchema as narrow } from '../guards.ts'
 export { findSchema as find } from '../visitor.ts'

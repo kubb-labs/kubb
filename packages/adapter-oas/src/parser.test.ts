@@ -2087,7 +2087,7 @@ describe('parseSchema array', () => {
       name: 'GetTransfers200',
     })
     // Find any deeply-nested status enum to verify its name
-    const enums = ast.collect(node, {
+    const enums = ast.node.collect(node, {
       schema(n) {
         return ast.schema.narrow(n, 'enum') ?? undefined
       },
@@ -3041,8 +3041,8 @@ describe('OpenAPI 3.2', () => {
     })
     const pet = ast.schema.narrow(findSchema(root, 'Pet')!, 'union')
     const unknownPet = findSchema(root, 'UnknownPet')!
-    const literals = ast.collect<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'enum' ? node : undefined) })
-    const parentRefs = ast.collect<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'ref' && node.name === 'Pet' ? node : undefined) })
+    const literals = ast.node.collect<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'enum' ? node : undefined) })
+    const parentRefs = ast.node.collect<ast.SchemaNode>(unknownPet, { schema: (node) => (node.type === 'ref' && node.name === 'Pet' ? node : undefined) })
 
     expect(pet?.members).toHaveLength(2)
     expect(pet?.members?.[0]).toMatchObject({ type: 'intersection', members: [{ type: 'ref', name: 'Dog' }, { type: 'object' }] })

@@ -180,7 +180,7 @@ Thanks to everyone who contributed to this release:
 
 - Remove exports that nothing in Kubb or the official plugins used, and trim the code behind the rest. Generated output does not change.
 
-  - Remove `ast.forEachChild`, `ast.forEachSchema`, `ast.composeMacros`, `ast.isVirtualFile`, `ast.findCircularSchemasFromGraph`, and the `ParentOf` type. `VisitorContext` is now `{ parent?: Node }`. Use `ast.collect` to walk nodes and `ast.macro.apply` to run macros.
+  - Remove `ast.forEachChild`, `ast.forEachSchema`, `ast.composeMacros`, `ast.isVirtualFile`, `ast.findCircularSchemasFromGraph`, and the `ParentOf` type. `VisitorContext` is now `{ parent?: Node }`. Use `ast.node.collect` to walk nodes and `ast.macro.apply` to run macros.
   - Remove `macroRenameSchema` from `kubb/kit`. The macros guide shows its source to copy into your project.
   - Warn with a `DeprecationWarning` when a printer handler returns a TypeScript compiler node to `print` from `@kubb/parser-ts`. Compiler nodes still print, and support for them is removed in the next major; return a string.
   - Remove `Hookable.setMaxListeners` and the `KubbInfoContext`, `KubbSuccessContext`, and `KubbWarnContext` aliases of `KubbMessageContext`.

@@ -1,10 +1,9 @@
-export { applyOptionality } from './optionality.ts'
-export { collect, transform } from './visitor.ts'
-export { inlineFiles, type InlineLanguage } from './utils/inline.ts'
+export type { InlineLanguage } from './utils/inline.ts'
 export * from './deprecated.ts'
 
 export * as auth from './auth/index.ts'
 export * as factory from './nodes/index.ts'
+export * as file from './file/index.ts'
 export * as graph from './graph/index.ts'
 export * as http from './http/index.ts'
 export * as macro from './macro/index.ts'

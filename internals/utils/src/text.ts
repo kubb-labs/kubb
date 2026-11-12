@@ -1,6 +1,5 @@
 /**
  * Indents every non-empty line of `text` by `unit`, leaving blank lines empty.
- *
  * @example
  * `indent({ text: 'a\n\nb' }) // '  a\n\n  b'`
  */
@@ -39,7 +38,6 @@ export function dedent(text: string): string {
 
 /**
  * Strips one matching pair of `"`, `'` or `` ` `` from both ends of `text`. Returns `text` unchanged without a matching pair.
- *
  * @example
  * `unquote('"hello"') // 'hello'`
  */

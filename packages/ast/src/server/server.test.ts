@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getServer, groupByName } from './index.ts'
+import { get, groupByName } from './index.ts'
 
 const servers = [
   { url: 'https://a.example.com', name: 'a' },
@@ -10,9 +10,9 @@ const servers = [
 
 describe('server', () => {
   it('selects by index and falls back to the first', () => {
-    expect(getServer({ servers, index: 1 })?.url).toBe('https://b.example.com')
-    expect(getServer({ servers, index: 9 })?.url).toBe('https://a.example.com')
-    expect(getServer({ servers: undefined })).toBeUndefined()
+    expect(get({ servers, index: 1 })?.url).toBe('https://b.example.com')
+    expect(get({ servers, index: 9 })?.url).toBe('https://a.example.com')
+    expect(get({ servers: undefined })).toBeUndefined()
   })
 
   it('maps named servers, first name wins', () => {

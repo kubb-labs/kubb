@@ -93,16 +93,16 @@ Factories return defaulted, fully typed nodes for adapters and generator handler
 
 ## Visitors {#visitors}
 
-Two visitor functions cover the common traversal patterns: `transform` rewrites the tree and `collect` gathers nodes. Visitor objects use lowercase, kind-style keys (`input`, `operation`, `schema`, `property`, `parameter`, `response`). To rewrite nodes inside a plugin, reach for [macros](/docs/5.x/how-to/macros), which add names, ordering, and composition on top of `transform`. For logging, validation, or statistics, `collect` the nodes you care about.
+Two visitor functions in `ast.node` cover the common traversal patterns: `ast.node.transform` rewrites the tree and `ast.node.collect` gathers nodes. Visitor objects use lowercase, kind-style keys (`input`, `operation`, `schema`, `property`, `parameter`, `response`). To rewrite nodes inside a plugin, reach for [macros](/docs/5.x/how-to/macros), which add names, ordering, and composition on top of `transform`. For logging, validation, or statistics, `collect` the nodes you care about.
 
-### `transform`: synchronous, returns a new tree
+### `ast.node.transform`: synchronous, returns a new tree
 
 ```typescript [transform.ts]
 import { ast } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
 
-const enhanced = ast.transform(root, {
+const enhanced = ast.node.transform(root, {
   schema(node) {
     if (node.type === 'object' && node.additionalProperties === undefined) {
       return { ...node, additionalProperties: false }
@@ -117,7 +117,7 @@ const enhanced = ast.transform(root, {
 
 Use `transform` to change AST structure, normalize inconsistencies, or annotate nodes.
 
-### `collect`: gather matching nodes
+### `ast.node.collect`: gather matching nodes
 
 `collect` walks the tree depth-first and returns every non-null value a visitor callback returns, as an `Array<T>`. Pass `depth: 'shallow'` to skip nested schema subtrees.
 
@@ -126,13 +126,13 @@ import { ast } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
 
-const mutations = ast.collect<ast.OperationNode>(root, {
+const mutations = ast.node.collect<ast.OperationNode>(root, {
   operation(node) {
     return node.method === 'POST' ? node : undefined
   },
 })
 
-const deprecated = ast.collect<ast.SchemaNode>(root, {
+const deprecated = ast.node.collect<ast.SchemaNode>(root, {
   schema(node) {
     return 'deprecated' in node && node.deprecated ? node : undefined
   },
@@ -168,7 +168,7 @@ import { ast } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
 
-for (const node of ast.collect<ast.SchemaNode>(root, { schema: (node) => node })) {
+for (const node of ast.node.collect<ast.SchemaNode>(root, { schema: (node) => node })) {
   const obj = ast.schema.narrow(node, 'object')
   if (obj) {
     console.log(`object with ${obj.properties.length} properties`)
@@ -179,7 +179,7 @@ for (const node of ast.collect<ast.SchemaNode>(root, { schema: (node) => node })
   }
 }
 
-for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => node })) {
+for (const node of ast.node.collect<ast.OperationNode>(root, { operation: (node) => node })) {
   if (ast.http.isOperation(node)) {
     console.log(`${node.method} ${node.path}`)
   }
@@ -241,7 +241,7 @@ Every `ast.mediaType` helper takes a media type string or a content entry.
 
 | Helper                   | Purpose                                                                |
 | ------------------------ | ---------------------------------------------------------------------- |
-| `ast.server.getServer`   | Pick the server at `index`, falling back to the first one.             |
+| `ast.server.get`         | Pick the server at `index`, falling back to the first one.             |
 | `ast.server.groupByName` | Map each server name to its server. The first server with a name wins. |
 
 ## Auth
@@ -270,7 +270,7 @@ Every `ast.mediaType` helper takes a media type string or a content entry.
 import { ast } from 'kubb/kit'
 
 // string | undefined
-const baseURL = ast.http.getBaseURL(ast.server.getServer({ servers: node.servers, index: 0 }))
+const baseURL = ast.http.getBaseURL(ast.server.get({ servers: node.servers, index: 0 }))
 ```
 
 ## Constants
