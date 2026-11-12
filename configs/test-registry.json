@@ -80,7 +80,6 @@
   "packages/core/src/defineExtension.test.ts": "defineExtension is the public extension surface; covers compatibility, dependencies, setup order and deprecated aliases.",
   "packages/core/src/definePlugin.test.ts": "normalizeOutput and assertPluginOption are branchy config validators; also covers the public mocks helpers.",
   "packages/core/src/detectSharedSchemas.test.ts": "Only test of shared-schema detection: largest-group matching, the reference cascade, per-directory grouping, clean ownership and parse failures.",
-  "packages/core/src/generateAll.test.ts": "Only test that a failing config does not stop the configs after it, which the CLI, unplugin-kubb and Studio snapshot rely on.",
   "packages/core/src/gitInput.test.ts": "Parser plus SSRF, header-injection and path-escape guards against a real git repo.",
   "packages/core/src/input.test.ts": "getInputKind is a classifier with eight branches; legacy input diagnostics are user-facing config errors.",
   "packages/core/src/installedPackages.test.ts": "Pins the exports-map bug behind kubb add, list, update and remove; no other test touches it.",

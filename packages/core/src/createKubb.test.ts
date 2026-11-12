@@ -5,10 +5,10 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
-import { createKubb } from './createKubb.ts'
+import { createKubb, Kubb } from './createKubb.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { defineExtension } from './defineExtension.ts'
-import type { Config, KubbHooks } from './types.ts'
+import type { Config, KubbHooks, UserConfig } from './types.ts'
 import type { Adapter } from './createAdapter.ts'
 import type { Plugin } from './definePlugin.ts'
 import { resolveCacheDir } from './storages/cacheStorage.ts'
@@ -658,5 +658,25 @@ describe('Kubb#generate', () => {
     await project.generate(build)
 
     expect(project.hasManifest()).toBe(false)
+  })
+})
+
+describe('Kubb.generateAll', () => {
+  it('generates the configs after one that fails, and marks only that one failed', async () => {
+    const config = (parse?: () => Promise<never>) =>
+      ({
+        root: '/project',
+        input: './spec.json',
+        output: { path: './gen' },
+        adapter: createMockedAdapter({ parse }),
+        storage: memoryStorage(),
+      }) satisfies UserConfig
+    const broken = config(async () => {
+      throw new Error('Cannot read the spec')
+    })
+
+    const results = await Kubb.generateAll([broken, config()])
+
+    expect(results.map((result) => result.success)).toStrictEqual([false, true])
   })
 })

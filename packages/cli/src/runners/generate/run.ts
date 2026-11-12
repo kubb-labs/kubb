@@ -10,10 +10,10 @@ import {
   Diagnostics,
   fileReporter,
   type GenerateAllOptions,
-  generateAll,
   getInputKind,
   htmlReporter,
   jsonReporter,
+  Kubb,
   type KubbHooks,
   logLevel as logLevelMap,
   memoryStorage,
@@ -86,7 +86,7 @@ export async function generate({ configs, errorHooks, ...options }: GenerateProp
       status,
     })
   })
-  const results = await generateAll(configs, options).finally(untrack)
+  const results = await Kubb.generateAll(configs, options).finally(untrack)
   for (const { error } of results) {
     if (error) await Diagnostics.emit(errorHooks, error)
   }

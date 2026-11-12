@@ -3,7 +3,7 @@ import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
-import { type Config, createKubbs, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
+import { type Config, type Diagnostic, Diagnostics, fsStorage, type Hookable, Kubb, type KubbHooks, type Storage } from '@kubb/core'
 import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
@@ -107,7 +107,7 @@ export async function generate({
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
   const index = Math.max(configs?.indexOf(config) ?? 0, 0)
   const all = configs?.includes(config) ? configs : [config]
-  const [kubb] = await createKubbs(all.with(index, { ...config, output }), { hooks, signal, only: index })
+  const [kubb] = await Kubb.fromConfigs(all.with(index, { ...config, output }), { hooks, signal, only: index })
   if (!kubb) throw new Error('Generation failed')
   let input: InputNode | null = null
   // The driver drops its `inputNode` once the build is over, so read it as the build ends.

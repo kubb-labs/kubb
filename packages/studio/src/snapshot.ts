@@ -2,7 +2,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
 import { getErrorMessage, mkdir, mkdtemp, read, rm, writeRaw } from '@internals/utils'
-import { type Config, Diagnostics, fsStorage, generateAll, type Hookable, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
+import { type Config, Diagnostics, fsStorage, type Hookable, Kubb, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
 import { ofetch } from 'ofetch'
 import { generationFailure, hashOf, relativeStoragePath } from './generations.ts'
 import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
@@ -189,7 +189,7 @@ export async function createSnapshot({
   const url = secureUrl({ studioUrl, path: '/api/snapshots' })
   const buildConfigs = configs.map((config) => ({ ...config, storage: fsStorage() }))
   // A failing entry does not stop the others, like `kubb generate`, so one run reports every failure.
-  const results = await generateAll(buildConfigs, { hooks, signal })
+  const results = await Kubb.generateAll(buildConfigs, { hooks, signal })
   const failures = results.filter((result) => !result.success).map((result) => result.error ?? generationFailure(result.diagnostics))
   // Nothing is published from a partial generation.
   if (failures.length === 1) throw failures[0]
