@@ -119,20 +119,20 @@ Use `transform` to change AST structure, normalize inconsistencies, or annotate 
 
 ### `collect`: gather matching nodes
 
-`collect` is a generator function, so it yields matches lazily and you consume it with `for...of` or spread it into an array. When you want the array up front, call `collectSync`, which is the eager counterpart and returns `Array<T>`.
+`collect` walks the tree depth-first and returns every non-null value a visitor callback returns, as an `Array<T>`. Pass `depth: 'shallow'` to skip nested schema subtrees.
 
 ```typescript [collect.ts]
 import { ast } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
 
-const mutations = ast.collectSync<ast.OperationNode>(root, {
+const mutations = ast.collect<ast.OperationNode>(root, {
   operation(node) {
     return node.method === 'POST' ? node : undefined
   },
 })
 
-const deprecated = ast.collectSync<ast.SchemaNode>(root, {
+const deprecated = ast.collect<ast.SchemaNode>(root, {
   schema(node) {
     return 'deprecated' in node && node.deprecated ? node : undefined
   },
@@ -142,7 +142,7 @@ console.log(`POST operations: ${mutations.length}`)
 console.log(`Deprecated schemas: ${deprecated.length}`)
 ```
 
-Use `collect` to stream matches as you find them, and `collectSync` to find specific nodes, filter by a criterion, or build a list for later processing.
+Use `collect` to find specific nodes, filter by a criterion, or build a list for later processing. `collectSync` is a deprecated alias for it.
 
 ### Direct traversal
 

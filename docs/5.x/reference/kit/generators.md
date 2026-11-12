@@ -107,9 +107,7 @@ export const operationGenerator = defineGenerator({
   name: 'operation-generator',
   operation(node, ctx) {
     // One entry per operation. Other generators that ask for the same key reuse it.
-    const schemas = ctx.memo(`my-plugin:schemas:${node.operationId}`, () =>
-      ast.collectSync<ast.SchemaNode>(node, { depth: 'shallow', schema: (schema) => schema }),
-    )
+    const schemas = ctx.memo(`my-plugin:schemas:${node.operationId}`, () => ast.collect<ast.SchemaNode>(node, { depth: 'shallow', schema: (schema) => schema }))
 
     return
   },

@@ -91,7 +91,7 @@ const root = createInput({
 ### Visitor
 
 ```ts
-import { collectSync, transform } from '@kubb/ast'
+import { collect, transform } from '@kubb/ast'
 
 // Immutable transformation
 const updated = transform(root, {
@@ -101,7 +101,7 @@ const updated = transform(root, {
 })
 
 // Extraction
-const types = collectSync<string>(root, {
+const types = collect<string>(root, {
   schema(node) {
     return node.type
   },

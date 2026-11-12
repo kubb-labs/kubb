@@ -3,6 +3,7 @@ import * as http from './http/index.ts'
 import * as ref from './ref/index.ts'
 import * as schema from './schema/index.ts'
 import { mergeRefWithSchema as mergeRef } from './utils/refs.ts'
+import { collect } from './visitor.ts'
 
 /** @deprecated Use `ast.ref.isBare`. Removed in Kubb v6. */
 export const isBareRef = ref.isBare
@@ -42,3 +43,6 @@ export const resolveSchemaProperties = schema.findProperties
 
 /** @deprecated Use `ast.http.isOperation`. Removed in Kubb v6. */
 export const isHttpOperationNode = http.isOperation
+
+/** @deprecated Use `ast.collect`, which returns the same array. Removed in Kubb v6. */
+export const collectSync = collect

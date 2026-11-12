@@ -408,53 +408,19 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
 }
 
 /**
- * Lazy depth-first collection pass. Yields every non-null value returned by
- * the visitor callbacks. Use `collectSync` for the eager array form.
- *
- * @example Collect every operationId
- * ```ts
- * const ids: string[] = []
- * for (const id of collect<string>(root, {
- *   operation(node) {
- *     return node.operationId
- *   },
- * })) {
- *   ids.push(id)
- * }
- * ```
- */
-export function* collect<T>(node: Node, options: CollectOptions<T>): Generator<T, void, undefined> {
-  const { depth, parent, ...visitor } = options
-  const recurse = (depth ?? 'deep') === 'deep'
-
-  // Thread the split-out visitor through the recursion instead of rebuilding `{ ...options, parent }`
-  // for every child, mirroring `transform`. Keeps the recursive object shape stable.
-  yield* collectNode<T>(node, visitor, recurse, parent)
-}
-
-function* collectNode<T>(node: Node, visitor: VisitorOf<T>, recurse: boolean, parent: Node | undefined): Generator<T, void, undefined> {
-  const v = applyVisitor<T>(node, visitor, parent)
-  if (v != null) yield v
-
-  for (const child of getChildren(node, recurse)) {
-    yield* collectNode<T>(child, visitor, recurse, node)
-  }
-}
-
-/**
- * Eager depth-first collection pass. Gathers every non-null value the visitor
+ * Depth-first collection pass. Gathers every non-null value the visitor
  * callbacks return into an array.
  *
  * @example Collect every operationId
  * ```ts
- * const ids = collectSync<string>(root, {
+ * const ids = collect<string>(root, {
  *   operation(node) {
  *     return node.operationId
  *   },
  * })
  * ```
  */
-export function collectSync<T>(node: Node, options: CollectOptions<T>): Array<T> {
+export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
   const { depth, parent, ...visitor } = options
   const result: Array<T> = []
   // Plain recursion: draining nested generators costs a `yield*` hop per level for every value.
