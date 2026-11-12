@@ -211,11 +211,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   await hooks.callHook('kubb:lifecycle:start', { version })
 
   // What the configs share. The CLI `--input` replaces each config's input first, as `generate` does.
-  const detectShared = () =>
-    detectSharedSchemas(
-      configs.map((config) => ({ ...config, input: input ?? config.input })),
-      hooks,
-    )
+  const detectShared = () => detectSharedSchemas({ configs: configs.map((config) => ({ ...config, input: input ?? config.input })), hooks })
   let sharedByConfig = await detectShared()
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)

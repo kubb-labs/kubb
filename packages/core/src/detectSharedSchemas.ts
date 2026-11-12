@@ -39,12 +39,12 @@ export function getSharedWrites(entry: SharedSchemas): Map<string, string> {
   return sharedWrites.get(entry) ?? new Map()
 }
 
-/** Each shared schema name with the indexes of the specs that share it. */
+// Each shared schema name with the indexes of the specs that share it.
 type SharedBy = Map<string, Set<number>>
 
 // A shared file imports its refs from the shared directory, so a spec keeps sharing a schema only while it shares every
 // ref of that schema too. Dropping one can leave another without its refs, so this runs again until nothing drops.
-function dropUnsharedRefs(sharedBy: SharedBy, refsBySpec: Array<Map<string, ReadonlyArray<string>>>): SharedBy {
+function dropUnsharedRefs({ sharedBy, refsBySpec }: { sharedBy: SharedBy; refsBySpec: Array<Map<string, ReadonlyArray<string>>> }): SharedBy {
   const kept: SharedBy = new Map()
   let dropped = false
   for (const [name, specIndexes] of sharedBy) {
@@ -52,7 +52,16 @@ function dropUnsharedRefs(sharedBy: SharedBy, refsBySpec: Array<Map<string, Read
     dropped ||= withSharedRefs.size !== specIndexes.size
     if (withSharedRefs.size >= 2) kept.set(name, withSharedRefs)
   }
-  return dropped ? dropUnsharedRefs(kept, refsBySpec) : kept
+  return dropped ? dropUnsharedRefs({ sharedBy: kept, refsBySpec }) : kept
+}
+
+// `undefined` when the spec does not parse: the build parses it again and reports why it failed.
+async function parseSpec({ config, root }: Pick<GroupMember, 'config' | 'root'>): Promise<InputNode | undefined> {
+  try {
+    return await parseAdapterSource({ adapter: config.adapter!, source: inputToAdapterSource({ input: config.input, root }) })
+  } catch {
+    return undefined
+  }
 }
 
 // Fills `names` on the entries of one shared directory, and adds the names its configs define differently to `conflicts`.
@@ -62,13 +71,8 @@ async function detectGroup({ group, result, conflicts }: { group: Array<GroupMem
   const refsBySpec: Array<Map<string, ReadonlyArray<string>>> = []
   // Sequential, since configs may share one adapter instance.
   for (const [specIndex, { config, root }] of group.entries()) {
-    let input: InputNode
-    try {
-      input = await parseAdapterSource({ adapter: config.adapter!, source: inputToAdapterSource({ input: config.input, root }) })
-    } catch {
-      // The build parses the spec again and reports why it failed.
-      return
-    }
+    const input = await parseSpec({ config, root })
+    if (!input) return
 
     const refs = new Map<string, ReadonlyArray<string>>()
     for (const node of input.schemas) {
@@ -89,7 +93,7 @@ async function detectGroup({ group, result, conflicts }: { group: Array<GroupMem
     if (largest.size >= 2) candidates.set(name, largest)
   }
 
-  for (const [name, specIndexes] of dropUnsharedRefs(candidates, refsBySpec)) {
+  for (const [name, specIndexes] of dropUnsharedRefs({ sharedBy: candidates, refsBySpec })) {
     for (const specIndex of specIndexes) result[group[specIndex]!.index]!.names.push(name)
   }
 }
@@ -101,10 +105,16 @@ async function detectGroup({ group, result, conflicts }: { group: Array<GroupMem
  * config shares it only when it also shares every schema it references. Schemas the configs define differently are
  * reported as `kubb:warn`. When any config of a shared directory sets `output.clean`, the first one empties it.
  *
- * shortcut: each build parses its spec again, so a URL or git branch that changes between the two parses can leave a stale
- * list; pass the parsed spec to the build if that shows up.
+ * shortcut: each build parses its spec again, so a URL or git branch that changes between the two parses can leave a
+ * stale list, pass the parsed spec to the build if that shows up.
  */
-export async function detectSharedSchemas(configs: Array<UserConfig>, hooks: Hookable<KubbHooks>): Promise<Array<SharedSchemas | undefined>> {
+export async function detectSharedSchemas({
+  configs,
+  hooks,
+}: {
+  configs: Array<UserConfig>
+  hooks: Hookable<KubbHooks>
+}): Promise<Array<SharedSchemas | undefined>> {
   const groups = new Map<string, Array<GroupMember>>()
   configs.forEach((config, index) => {
     if (!config.shared || !config.adapter) return

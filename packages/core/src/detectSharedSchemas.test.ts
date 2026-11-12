@@ -38,7 +38,7 @@ async function detect(configs: Array<Config>) {
   const hooks = new Hookable<KubbHooks>()
   const warnings: Array<string> = []
   hooks.hook('kubb:warn', ({ message }) => void warnings.push(message))
-  const result = await detectSharedSchemas(configs, hooks)
+  const result = await detectSharedSchemas({ configs, hooks })
   return { schemas: result.map((entry) => entry?.names), warnings, result }
 }
 

@@ -102,7 +102,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
 
   async function runBuild() {
     const configs = (await loadConfigs()).filter((config) => config.input).map(applyDefaults)
-    const sharedByConfig = await detectSharedSchemas(configs, hooks)
+    const sharedByConfig = await detectSharedSchemas({ configs, hooks })
     for (const [index, config] of configs.entries()) {
       const result = await createKubb(config as Config, { hooks, sharedSchemas: sharedByConfig[index] }).generate()
       if (result.success) continue

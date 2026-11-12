@@ -105,7 +105,7 @@ export async function generate({
   allowExec: boolean
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const detected = configs?.includes(config) ? (await detectSharedSchemas(configs, hooks))[configs.indexOf(config)] : undefined
+  const detected = configs?.includes(config) ? (await detectSharedSchemas({ configs, hooks }))[configs.indexOf(config)] : undefined
   // Only this entry is built, so it never empties the directory the others share.
   const sharedSchemas = detected && { ...detected, clean: false }
   const kubb = createKubb({ ...config, output }, { hooks, signal, sharedSchemas })
