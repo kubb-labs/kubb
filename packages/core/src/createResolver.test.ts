@@ -453,13 +453,11 @@ describe('output.shared', () => {
     expect(merged.file({ name: 'Name', extname: '.ts', ...context }).path).toBe('/common/types/name.ts')
   })
 
-  it.each([
-    ['a relative file.path under the shared root', 'mocks/name.ts', '/common/mocks/name.ts'],
-    ['an absolute file.path inside the project root', '/root/mocks/name.ts', '/root/mocks/name.ts'],
-  ])('resolves %s for a shared schema', (_, customPath, expected) => {
-    const resolver = createResolver<TestPluginFactory>({ pluginName: 'test', shared, file: { path: () => customPath }, greet: () => '', farewell: () => '' })
+  it('keeps a shared schema of a plugin with a custom file.path in its own output', () => {
+    const resolver = createResolver<TestPluginFactory>({ pluginName: 'test', file: { path: () => 'mocks/name.ts' }, greet: () => '', farewell: () => '' })
+    const withShared = Resolver.merge(new Resolver({ pluginName: 'test', shared }), resolver)
 
-    expect(resolver.file({ name: 'Name', extname: '.ts', ...context }).path).toBe(expected)
+    expect(withShared.file({ name: 'Name', extname: '.ts', ...context }).path).toBe('/root/mocks/name.ts')
   })
 
   it('keeps an operation file in its own output when its name matches a shared schema', () => {

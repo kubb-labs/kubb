@@ -4,12 +4,10 @@ import { ast, type FileNode, type InputMeta, type InputNode, type OperationNode,
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { ParsedInput } from './detectSharedSchemas.ts'
-import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginType, SharedOutput } from './definePlugin.ts'
+import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginType } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
-import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
@@ -28,14 +26,10 @@ type Options = {
    */
   manifest?: OutputManifest
   /**
-   * The directories `output.clean` empties: the output directory, and the shared one when this build cleans it. Emptied
-   * right before the files are written, so a run that fails earlier leaves the previous output in place.
+   * The output directory `output.clean` empties. Emptied right before the files are written, so a
+   * run that fails earlier leaves the previous output in place.
    */
-  cleanPaths?: Array<string>
-  /**
-   * The spec already parsed, so `run` reports its diagnostics and skips `adapter.parse`.
-   */
-  parsed?: ParsedInput
+  cleanPath?: string
 }
 
 type RequirePluginContext = {
@@ -118,11 +112,6 @@ export class KubbDriver {
    * Intentionally outlives the build, cleared by `dispose()`.
    */
   #adapterSource: AdapterSource | null = null
-  /**
-   * `output.shared` with its path resolved against `root`. Every resolver gets it, so a plugin's
-   * own `output`, an override's `output`, or a `setResolver` cannot drop it.
-   */
-  readonly #sharedOutput: SharedOutput | undefined
 
   /**
    * Central file store for all generated files.
@@ -143,11 +132,12 @@ export class KubbDriver {
     this.config = config
     this.options = options
     this.adapter = config.adapter ?? null
-    this.#sharedOutput = config.output.shared && { ...config.output.shared, path: resolve(config.root, config.output.shared.path) }
   }
 
+  // Every resolver gets `output.shared`, so a plugin's own `output`, an override, or a `setResolver` cannot drop it.
   #createResolver(pluginName: string): Resolver {
-    return createResolver<PluginType>({ pluginName, shared: this.#sharedOutput })
+    const { root, output } = this.config
+    return new Resolver({ pluginName, shared: output.shared && { ...output.shared, path: resolve(root, output.shared.path) } })
   }
 
   /**
@@ -265,12 +255,6 @@ export class KubbDriver {
    */
   async #parseInput(): Promise<void> {
     if (this.inputNode || !this.adapter || !this.#adapterSource) return
-
-    if (this.options.parsed) {
-      for (const diagnostic of this.options.parsed.diagnostics) Diagnostics.report(diagnostic)
-      this.inputNode = this.options.parsed.inputNode
-      return
-    }
 
     this.options.signal?.throwIfAborted()
     this.inputNode = await parseAdapterSource(this.adapter, this.#adapterSource, this.options.signal)
@@ -430,14 +414,14 @@ export class KubbDriver {
           // Write every generated file once, after post-processing (barrel etc.) has had its
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
-          for (const cleanPath of this.options.cleanPaths ?? []) await config.storage.empty(cleanPath)
+          if (this.options.cleanPath) await config.storage.empty(this.options.cleanPath)
 
           await fileManager.write(fileManager.files, {
             storage: config.storage,
             parsers: parsersMap,
             manifest: this.options.manifest,
             signal: this.options.signal,
-            cleaned: this.options.cleanPaths,
+            cleaned: this.options.cleanPath,
             hooks,
             config,
           })

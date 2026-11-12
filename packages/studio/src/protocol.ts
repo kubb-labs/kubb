@@ -496,13 +496,11 @@ export type ConfigEntryView = {
   input?: string
   /** The output directory as the entry gives it, relative to the project root unless absolute. */
   output: string
-  /** The `output.shared.path` directory as the entry gives it, when the entry shares schemas with the other entries. */
-  shared?: string
   /** The root `output` members Studio may set, as a JSON copy. */
   outputOptions?: object
   /**
-   * The current file list of the output directory and of `output.shared.path`, readable through `readFiles`
-   * without generating. Absent for a sandbox or when the host has not granted `allowRead`.
+   * The output directory's current file list, readable through `readFiles` without generating.
+   * Absent for a sandbox or when the host has not granted `allowRead`.
    */
   disk?: DiskOutput
   plugins: Array<{

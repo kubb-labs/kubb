@@ -10,7 +10,6 @@ type ResolverOptions<T extends PluginType> = Omit<T['resolver'], keyof Resolver>
   pluginName: T['name']
   name?: T['resolver']['name']
   file?: ResolverFile
-  shared?: ResolverBuildOptions['shared']
 } & ThisType<T['resolver']>
 
 /**

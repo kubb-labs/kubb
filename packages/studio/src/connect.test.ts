@@ -222,7 +222,7 @@ describe('the handshake', () => {
 
   it('reports every entry of a config array, with the credentials left out of a URL input', async () => {
     const pets = { ...projectConfig(), input: 'https://alice:secret@example.com/openapi.json?v=2' }
-    const admin = { ...projectConfig(), name: 'admin', input: './admin.yaml', output: { path: 'src/admin', shared: { path: 'src/common' } } }
+    const admin = { ...projectConfig(), name: 'admin', input: './admin.yaml', output: { path: 'src/admin' } }
     const { agent } = await connectStudio({ loadConfigs: async () => [pets, admin] })
 
     const { config } = await agent.connect(info)
@@ -231,7 +231,7 @@ describe('the handshake', () => {
     const adapter = { name: '@kubb/adapter-oas', options: {} }
     expect(config.configs).toStrictEqual([
       { input: 'https://example.com/openapi.json?v=2', output: 'src/gen', outputOptions: { clean: false }, plugins, adapter, parsers: [] },
-      { name: 'admin', input: './admin.yaml', output: 'src/admin', shared: 'src/common', outputOptions: {}, plugins, adapter, parsers: [] },
+      { name: 'admin', input: './admin.yaml', output: 'src/admin', outputOptions: {}, plugins, adapter, parsers: [] },
     ])
   })
 
@@ -655,45 +655,6 @@ describe('a config array', () => {
   })
 })
 
-describe('shared schemas', () => {
-  const withShared = (clean = false) => ({
-    ...projectConfig(),
-    output: { path: 'src/gen', clean, shared: { path: 'src/common' } },
-    adapter: createMockedAdapter({
-      parse: vi.fn(async () => ast.factory.createInput({ schemas: [ast.factory.createSchema({ type: 'string', name: 'Name' })] })),
-    }),
-  })
-
-  it('a project agent compares the config array and builds the entry with its shared schemas, without emptying the shared directory', async () => {
-    const { hooks, heard } = withHooks()
-    const started = heard('kubb:build:start')
-    const [pets, shop] = [withShared(true), withShared()]
-    const { agent } = await connectStudio({ hooks, loadConfigs: async () => [pets, shop] })
-
-    await run({ agent, jobId: 'job-1' })
-
-    expect(started.mock.calls[0]?.[0].config.output.shared).toStrictEqual({ path: 'src/common', schemas: ['Name'], clean: false })
-    expect(pets.adapter.parse).toHaveBeenCalledOnce()
-    expect(shop.adapter.parse).toHaveBeenCalledOnce()
-  })
-
-  it('a sandbox shares nothing and never reads the other entries', async () => {
-    const { hooks, heard } = withHooks()
-    const started = heard('kubb:build:start')
-    const [pets, shop] = [withShared(), withShared()]
-    const { agent } = await connectStudio({
-      hooks,
-      loadConfigs: async () => [pets, shop],
-      connectInfo: { sandbox: true, agentSlug: 'sandbox', studioVersion: '1.0.0' },
-    })
-
-    await agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
-
-    expect(started.mock.calls[0]?.[0].config.output.shared).toStrictEqual({ path: 'src/common' })
-    expect(shop.adapter.parse).not.toHaveBeenCalled()
-  })
-})
-
 describe('readFiles', () => {
   it('refuses to read when the host did not grant allowRead, and names the permission for the host', async () => {
     const { hooks, heard } = withHooks()
@@ -868,16 +829,6 @@ describe('current disk output', () => {
     })
     expect(generationStarted).not.toHaveBeenCalled()
     await expect(fsStorage().readItem(`${root}/src/gen/pet.ts`)).resolves.toBe('on disk\n')
-  })
-
-  it('lists the shared directory with the output directory, so a shared file reads and diffs against the disk', async () => {
-    await seedDisk({ 'src/gen/pet.ts': 'pet', 'src/common/name.ts': 'name', 'src/other.ts': 'not output' })
-    const config = { ...projectConfig(), output: { path: 'src/gen', clean: false, shared: { path: 'src/common' } } }
-    const { agent } = await connectStudio({ permissions: { allowRead: true }, loadConfigs: async () => [config] })
-    const output = (await agent.connect(info)).config.configs[0]!.disk
-
-    expect(output?.files.toSorted()).toStrictEqual(['src/common/name.ts', 'src/gen/pet.ts'])
-    await expect(agent.readFiles({ jobId: output!.jobId, paths: ['src/common/name.ts'] })).resolves.toStrictEqual({ files: { 'src/common/name.ts': 'name' } })
   })
 
   it('keeps the initial output immutable after local edits', async () => {

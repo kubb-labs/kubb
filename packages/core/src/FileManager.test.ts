@@ -202,10 +202,7 @@ describe('FileManager', () => {
       const readItem = vi.spyOn(storage, 'readItem')
       const manager = new FileManager()
 
-      await manager.write([makeFileWithSources('/gen/a.ts', ['/* a.ts */']), makeFileWithSources('/other/b.ts', ['/* b.ts */'])], {
-        storage,
-        cleaned: ['/gen'],
-      })
+      await manager.write([makeFileWithSources('/gen/a.ts', ['/* a.ts */']), makeFileWithSources('/other/b.ts', ['/* b.ts */'])], { storage, cleaned: '/gen' })
 
       expect(readItem.mock.calls).toStrictEqual([['/other/b.ts']])
       expect(await storage.readItem('/gen/a.ts')).toContain('/* a.ts */')

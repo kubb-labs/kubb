@@ -252,22 +252,6 @@ describe('pluginBarrel', () => {
     expect(rootExportNames).toContain('PetSchema')
   })
 
-  it('leaves the shared files of a barrel:false plugin without an owning plugin out of the barrels', async () => {
-    const plugin = makePlugin({
-      name: 'plugin-types',
-      outputPath: 'types',
-      filePath: '/workspace/src/common/types/name.ts',
-      exportName: 'Name',
-      output: { mode: 'directory', barrel: false },
-      meta: {},
-    })
-
-    const { paths } = await build({ plugins: [plugin], shared: { path: 'src/common' } })
-
-    expect(paths).not.toContain('/workspace/src/gen/types/index.ts')
-    expect(paths).not.toContain('/workspace/src/gen/index.ts')
-  })
-
   it('reports a path traversal when a plugin output path escapes the output directory', async () => {
     const escapingPlugin = makePlugin({
       name: 'plugin-types',

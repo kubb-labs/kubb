@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { camelCase, isPathInside, memo } from '@internals/utils'
+import { camelCase, memo } from '@internals/utils'
 import { ast, type FileNode, type ImportNode, type InputMeta, type Node, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
@@ -376,12 +376,10 @@ export class Resolver {
   // Full-path override from `options.file.path`, bound to the resolver. Absent by default, in which
   // case the built-in `output.path`/`group` layout is used.
   #filePath: ((params: ResolverFilePathParams) => string) | undefined
-  #sharedOutput: SharedOutput | undefined
 
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
     this.#options = options
-    this.#sharedOutput = options.shared
     this.#baseName = options.file?.baseName ? options.file.baseName.bind(this) : toBaseName
     this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
     this.default = {
@@ -588,14 +586,12 @@ export class Resolver {
    * and `group`. The path may not escape `root`, which keeps a `file.path` that interpolates
    * spec-derived values from writing outside the project.
    */
-  #resolveOverridePath(filePath: string, root: string, outputRoot: string): string {
+  #resolveOverridePath(filePath: string, root: string): string {
     const resolved = path.resolve(root, filePath)
-    // A shared schema resolves against the shared root, but an absolute `file.path` may point back into the output directory.
-    const parent = isPathInside(resolved, root) ? root : outputRoot
     assertInside({
       target: resolved,
-      parent,
-      message: `Resolved path "${resolved}" is outside the project root "${parent}".`,
+      parent: root,
+      message: `Resolved path "${resolved}" is outside the project root "${root}".`,
       help: 'A resolver `file.path` must return a path inside the project root.',
     })
 
@@ -605,12 +601,13 @@ export class Resolver {
   /** The absolute path `#resolveFile` places a file at. */
   #resolveFilePath({ name, extname, tag, path: groupPath, root: outputRoot, output, group }: ResolveFileOptions): string {
     // A shared schema's file and every import of it move under `output.shared.path`; operation files carry a `tag` or `path`.
-    // A file-mode plugin writes all schemas to one file, which configs sharing different schemas would overwrite, so it shares none.
-    const shared = output.mode === 'directory' && !tag && !groupPath && this.#sharedOutput?.schemas?.includes(name) ? this.#sharedOutput : undefined
-    const root = shared ? shared.path : outputRoot
+    // A file-mode plugin or a custom `file.path` writes outside the plugin layout, so it shares none.
+    const shared = this.#options.shared
+    const isShared = output.mode === 'directory' && !this.#filePath && !tag && !groupPath && shared?.schemas?.includes(name)
+    const root = isShared ? shared!.path : outputRoot
     const baseName = this.#baseName({ name, extname })
     return this.#filePath
-      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root, outputRoot)
+      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root)
       : this.#resolvePath({ baseName, tag, path: groupPath, root, output, group })
   }
 

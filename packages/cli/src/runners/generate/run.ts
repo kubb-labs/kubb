@@ -8,7 +8,6 @@ import {
   cliReporter,
   type Config,
   createKubb,
-  type CreateKubbOptions,
   detectSharedSchemas,
   Diagnostics,
   fileReporter,
@@ -19,7 +18,6 @@ import {
   logLevel as logLevelMap,
   memoryStorage,
   type ReporterName,
-  type DetectedConfig,
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { trackRun } from '../../Telemetry.ts'
@@ -57,14 +55,10 @@ type GenerateProps = {
    * post-generate commands, and prints what would change on disk.
    */
   dryRun?: boolean
-  /**
-   * The spec already parsed to detect shared schemas, so the build does not parse it again.
-   */
-  parsed?: CreateKubbOptions['parsed']
 }
 
 export async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, dryRun = false, parsed } = options
+  const { input, hooks, dryRun = false } = options
 
   const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
 
@@ -79,7 +73,7 @@ export async function generate(options: GenerateProps): Promise<boolean> {
 
   // Core formats, lints and runs `output.postGenerate` after an error-free build, and reports
   // their failures as coded diagnostics that reach the summary, the json report and the exit code.
-  const kubb = createKubb(config, { hooks, parsed })
+  const kubb = createKubb(config, { hooks })
   const result = await kubb.generate()
 
   // Not awaited: the request finishes in the background, capped by its timeout, so it never delays the summary.
@@ -211,12 +205,13 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 
-  // Parses every spec once and fills `output.shared.schemas`. The CLI `--input` replaces each config's input before the comparison, as `generate` does.
-  const detectShared = async (): Promise<Array<DetectedConfig>> => {
-    const withInput = configs.map((config) => ({ ...config, input: input ?? config.input }))
-    return (await detectSharedSchemas(withInput, { hooks })).configs
-  }
-  const detected = await detectShared()
+  // Fills `output.shared.schemas`. The CLI `--input` replaces each config's input first, as `generate` does.
+  const detect = () =>
+    detectSharedSchemas(
+      configs.map((config) => ({ ...config, input: input ?? config.input })),
+      hooks,
+    )
+  let detected = await detect()
 
   if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
 
@@ -228,25 +223,21 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     let armKeys: (() => void) | undefined
     // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
     let queue = Promise.resolve()
-    for (const [index, { config }] of detected.entries()) {
+    for (const [index, config] of configs.entries()) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
       const watchPath = inputKind === 'file' ? (effectiveInput as string) : undefined
       if (watchPath && tracker) {
         const label = styleText('yellow', `Watching ${path.relative(process.cwd(), watchPath)}`)
         let previous: BuildSnapshot | undefined
-        let isRebuild = false
         // Don't removeAll() between builds, that would also drop logger and lifecycle
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async () => {
           const hrStart = process.hrtime()
-          // An edited spec can change which schemas its group shares, so a rebuild detects again, without emptying the shared directory.
-          const { config: current, parsed } = isRebuild && config.output.shared ? (await detectShared())[index]! : detected[index]!
-          const rebuilt =
-            isRebuild && current.output.shared ? { ...current, output: { ...current.output, shared: { ...current.output.shared, clean: false } } } : current
-          const succeeded = await generate({ input, config: rebuilt, parsed, hooks, dryRun })
-          isRebuild = true
+          // An edited spec can change what its configs share.
+          if (previous) detected = await detect()
+          const succeeded = await generate({ input, config: detected[index]!, hooks, dryRun })
           const snapshot = tracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
           previous = snapshot
@@ -286,7 +277,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       } else {
         if (tracker && !quiet) logWarn('Watch mode only follows a local `input` file, so this config is generated once.')
         try {
-          const succeeded = await generate({ input, ...detected[index]!, hooks, dryRun })
+          const succeeded = await generate({ input, config: detected[index]!, hooks, dryRun })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await Diagnostics.emit(errorHooks, configError)

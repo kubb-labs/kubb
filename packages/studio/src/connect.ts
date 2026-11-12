@@ -12,7 +12,6 @@ import {
   cacheStorage,
   checkoutGitInput,
   type Config,
-  detectSharedSchemas,
   fsStorage,
   getInputKind,
   type InputKind,
@@ -447,12 +446,7 @@ class Agent extends RpcTarget implements AgentApi {
 
   async #readDiskOutput(config: Config): Promise<DiskOutput | undefined> {
     if (this.#sandbox || !this.#permissions.allowRead || this.#session.active) return undefined
-    const { path: outputPath, shared } = config.output
-    const files = await listDisk({
-      root: this.#options.root,
-      outputPaths: shared ? [outputPath, shared.path] : [outputPath],
-      maxFiles: DISK_SNAPSHOT_MAX_FILES,
-    })
+    const files = await listDisk({ root: this.#options.root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES })
     if (!files) return undefined
 
     const { jobId, output } = await this.#generations.keepInitial(files)
@@ -570,27 +564,18 @@ class Agent extends RpcTarget implements AgentApi {
             this.#refuse({ message: getErrorMessage(error), code: Diagnostics.code.gitInputFailed }),
           )
         : undefined
-    // A project agent compares the config array, so this entry writes the schemas it shares to the shared directory. A sandbox
-    // or managed agent generates from the spec Studio sends and must not read the other entries' inputs, so it shares nothing.
-    const detected =
-      !this.#sandbox && !this.#managed && config.output.shared
-        ? (await detectSharedSchemas(configs, { hooks: this.#options.hooks })).configs[configs.indexOf(config)]
-        : undefined
-    // One entry generates at a time, so emptying the shared directory would delete what the other entries wrote.
-    const shared = detected?.config.output.shared && { ...detected.config.output.shared, clean: false }
     const run = () =>
       generate({
         config: {
           ...config,
           root,
           input: checkout?.path ?? studioInput ?? config.input,
-          output: mergeOutput({ output: shared ? { ...config.output, shared } : config.output, studio: patch?.output }),
+          output: mergeOutput({ output: config.output, studio: patch?.output }),
           storage: outputRoot ? stagingStorage({ root, directory: outputRoot }) : fsStorage(),
           plugins: activePlugins,
           adapter,
           parsers,
         },
-        parsed: detected?.parsed,
         hooks: this.#options.hooks,
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
@@ -1000,7 +985,6 @@ function toEntryView(config: Config, extensions: InstalledExtensions): ConfigEnt
     ...(config.name !== undefined && { name: config.name }),
     ...(input !== undefined && { input }),
     output: config.output.path,
-    ...(config.output.shared && { shared: config.output.shared.path }),
     outputOptions: toJSONOptions(pickOutput(config.output)),
     plugins: config.plugins.map((plugin) => ({
       name: toStudioName({ name: resolveMeta(plugin).name, extensions }),

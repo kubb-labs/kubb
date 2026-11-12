@@ -253,43 +253,6 @@ describe('createKubb', () => {
     ])
   })
 
-  it.each([
-    [true, null],
-    [false, 'export const stale = 1\n'],
-  ])('empties output.shared.path only when output.shared.clean is %s', async (clean, expected) => {
-    const storage = memoryStorage()
-    const staleFile = path.resolve('.', 'gen', 'common', 'stale.ts')
-    await storage.writeItem(staleFile, 'export const stale = 1\n')
-
-    await createKubb(makeConfig({ ...config, storage, output: { path: './gen/animals', shared: { path: './gen/common', clean } } }), {
-      hooks: new Hookable<KubbHooks>(),
-    }).build()
-
-    expect(await storage.readItem(staleFile)).toBe(expected)
-  })
-
-  it('reports the diagnostics of the given parsed spec instead of parsing it again', async () => {
-    const adapter = createMockedAdapter({ parse: vi.fn(async () => ast.factory.createInput()) })
-    const warning = { code: Diagnostics.code.invalidSpec, severity: 'warning', message: 'Broken spec.' } as const
-
-    const { diagnostics } = await createKubb(makeConfig({ adapter }), {
-      hooks: new Hookable<KubbHooks>(),
-      parsed: { inputNode: ast.factory.createInput(), diagnostics: [warning] },
-    }).build()
-
-    expect(adapter.parse).not.toHaveBeenCalled()
-    expect(diagnostics).toContainEqual(warning)
-  })
-
-  it('output.clean raises a KUBB_CLEAN_ROOT diagnostic when output.shared.path is the project root', async () => {
-    const root = path.join(os.tmpdir(), 'kubb-clean-guard')
-    const kubb = createKubb(makeConfig({ ...config, root, output: { path: './gen', clean: true, shared: { path: '.', clean: true } } }), {
-      hooks: new Hookable<KubbHooks>(),
-    })
-
-    await expect(kubb.setup()).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.cleanRoot, help: expect.stringContaining('output.shared.path') } })
-  })
-
   it('keeps the previous output when output.clean is set and the run fails before writing', async () => {
     const storage = memoryStorage()
     const outputFile = path.resolve('.', 'gen', 'previous.ts')

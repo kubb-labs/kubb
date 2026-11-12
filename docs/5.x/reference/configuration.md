@@ -187,7 +187,7 @@ This writes every type into `src/gen/types.ts` and one client file per operation
 #### `output.clean`
 
 :::field{type="boolean"}
-Wipe `output.path` before regenerating, and the [`output.shared`](#outputshared) directory when one is set.
+Wipe `output.path` before regenerating.
 
 Default: `false`.
 
@@ -272,24 +272,12 @@ export default defineConfig([
 ])
 ```
 
-When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/common/types/Name.ts` and `src/gen/common/zod/nameSchema.ts` once, and `src/gen/animals/types/Animal.ts` imports `Name` from `../../common/types/Name`.
+When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/common/types/Name.ts` once, and `src/gen/animals/types/Animal.ts` imports it from there.
 
-`kubb generate` parses every spec first and picks the schemas to share:
-
-- A schema is shared when two or more configs with the same `path` define it identically. A config shares it only when it also shares every schema it references. A config whose spec does not define it is unaffected.
-- When configs define a schema differently, the largest group of two or more that define it identically shares it, or the first such group on a tie. Every other config keeps its own copy, along with its schemas that reference it. The CLI prints a warning that names the schema.
-- A config alone in its `path` shares nothing.
-- A plugin with `output.mode: 'file'` writes every schema to its one file, so it shares none.
-
-Every config writes the shared schemas it defines, so give each config that uses the same `path` the same options for the plugins they have in common. When those options differ, the CLI prints a warning that names the plugin. Options that are functions are not compared.
-
-`kubb generate` and a Kubb Studio project agent compare the specs. A single `createKubb` run, a Studio sandbox or managed agent, the bundler plugins, and MCP share nothing.
-
-With [`output.barrel`](#outputbarrel) set, each config's barrels also re-export the shared schemas its spec defines, so `import type { Name } from './src/gen/animals/types'` keeps working. The shared directory gets no barrels of its own.
-
-[`output.format`](#outputformat) and [`output.lint`](#outputlint) run over the shared directory too. When any config that uses it sets [`output.clean`](#outputclean), `kubb generate` also wipes it once per run. The first config that uses it does so, right before it writes its files.
-
-Keep `path` outside every config's `output.path`. Otherwise a later config's `output.clean` deletes shared files that only an earlier config writes.
+- A schema is shared when two or more configs define it identically. When they define it differently, the largest matching group shares it, every other config keeps its own copy, and `kubb generate` warns with its name.
+- Only `kubb generate` compares the specs. A plugin with `output.mode: 'file'` or a custom `file.path` shares nothing.
+- With [`output.barrel`](#outputbarrel) set, each config's barrels re-export the shared schemas it defines. The shared directory gets no barrels.
+- Keep `path` outside every `output.path`, and give each config the same options for the plugins they have in common.
 :::
 
 #### `output.defaultBanner`

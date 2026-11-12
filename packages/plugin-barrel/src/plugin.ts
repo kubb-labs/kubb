@@ -113,7 +113,6 @@ export const pluginBarrel = defineExtension({
         // The output root holds every plugin's files, so there only the owner match applies.
         if (target !== base && isPathInside(target, base)) {
           excludedTargets.push(target)
-          if (config.output.shared) excludedTargets.push(path.resolve(config.root, config.output.shared.path, plugin.options.output.path))
         }
         return
       }
@@ -169,10 +168,8 @@ export const pluginBarrel = defineExtension({
       excludedPlugins.clear()
       excludedTargets.length = 0
 
-      // The shared directory gets no barrels, since each config writes only some of its files. Each config's barrels
-      // re-export the shared schemas it defines instead, so imports from `output.path` keep working.
-      const sharedRoot = config.output.shared && path.resolve(config.root, config.output.shared.path)
-      const index = buildBarrelIndex(outputPath, relevantFiles, sharedRoot)
+      // Each config's barrels re-export the shared schemas it defines; the shared directory gets none, since each config writes only part of it.
+      const index = buildBarrelIndex(outputPath, relevantFiles, config.output.shared && path.resolve(config.root, config.output.shared.path))
       const reportedCollisions = new Set<string>()
       // Keyed by path and name: plugins sharing an `output.path` produce the same aliases.
       const namespaceExports = new Map<string, ast.ExportNode>()

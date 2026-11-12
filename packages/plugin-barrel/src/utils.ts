@@ -168,32 +168,25 @@ type BarrelIndex = {
  * Indexes `files` once for the directory rooted at `outputPath`: filters to indexable source
  * files under that path and builds their directory tree. Reuse the result across every barrel
  * derived from the same root rather than re-filtering and re-building per barrel.
- *
- * Files under `linkedPath` join the tree at the same relative position, so the barrels re-export
- * them from where they live. A file at `${linkedPath}/types/name.ts` appears in `${outputPath}/types/index.ts`.
  */
 export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<ast.FileNode>, linkedPath?: string): BarrelIndex {
   const tree: DirectoryNode = { path: toPosixPath(outputPath), children: new Map() }
-  // `outputPath` comes first, so a file under both keeps its real position.
+  // Files under `linkedPath` (output.shared) join the tree at the same relative position; `outputPath` wins when both match.
   const roots = linkedPath ? [tree.path, toPosixPath(linkedPath)] : [tree.path]
-  const entries = files.flatMap((file) => {
-    const filePath = toPosixPath(file.path)
-    const root = roots.find((root) => filePath.startsWith(`${root}/`))
-    if (root === undefined || filePath.endsWith(BARREL_SUFFIX) || !SOURCE_EXTENSIONS.has(extname(filePath))) return []
-    return [
-      {
-        file,
-        filePath,
-        parts: filePath
-          .slice(root.length + 1)
-          .split('/')
-          .filter(Boolean),
-      },
-    ]
-  })
-  const sourceFiles = new Map(entries.map(({ filePath, file }) => [filePath, file] as const))
+  const rootOf = (filePath: string) => roots.find((root) => filePath.startsWith(`${root}/`))
+  const sourceFiles = new Map(
+    files.flatMap((file) => {
+      const filePath = toPosixPath(file.path)
+      const isSource = rootOf(filePath) !== undefined && !filePath.endsWith(BARREL_SUFFIX) && SOURCE_EXTENSIONS.has(extname(filePath))
+      return isSource ? [[filePath, file] as const] : []
+    }),
+  )
 
-  for (const { filePath, parts } of entries) {
+  for (const filePath of sourceFiles.keys()) {
+    const parts = filePath
+      .slice(rootOf(filePath)!.length + 1)
+      .split('/')
+      .filter(Boolean)
     parts.reduce<DirectoryNode>((dir, part, i) => {
       const path = `${dir.path}/${part}`
       const child: TreeNode = dir.children.get(part) ?? (i === parts.length - 1 ? { path: filePath } : { path, children: new Map() })
