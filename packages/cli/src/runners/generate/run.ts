@@ -209,8 +209,10 @@ export async function run({
   // The run log goes to stderr in `json` mode, so an error with no report entry is never silent and stdout stays one JSON document.
   if (json) setupReporters(hooks, { logLevel, reporters: [cliReporter], writer: createPlainWriter(console.error) })
 
-  // The config loads while the banner plays; the output still prints in order once the banner is done.
-  const banner = quiet ? undefined : logBanner(version)
+  // The config loads while the banner plays. Once it settles the banner jumps to its last frame, so
+  // the build starts right away and no frame lands between log lines.
+  const bannerCut = new AbortController()
+  const banner = quiet ? undefined : logBanner({ version, signal: bannerCut.signal })
   const loading = getConfigs({
     configPath,
     input,
@@ -218,8 +220,11 @@ export async function run({
     logLevel: logLevelKey as CLIOptions['logLevel'],
     reporters: cliReporters,
   })
-  // Handled below; this keeps a rejection during the banner from counting as unhandled.
-  loading.catch(() => undefined)
+  // A rejection is handled below; this also keeps it from counting as unhandled during the banner.
+  void loading.then(
+    () => bannerCut.abort(),
+    () => bannerCut.abort(),
+  )
   await banner
 
   if (!quiet) {

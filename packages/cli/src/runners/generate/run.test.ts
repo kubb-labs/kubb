@@ -6,6 +6,7 @@ import { adapterOas } from '@kubb/adapter-oas'
 import { type Config, fsStorage, type PostGenerateCommand, resolveCacheDir, resolveMeta, type UserConfig } from '@kubb/core'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
+import * as mascot from '../../ui/mascot.ts'
 import * as env from '../../utils/env.ts'
 import { run } from './run.ts'
 
@@ -136,6 +137,32 @@ describe('update notice', () => {
 
     expect(lines.some((line) => line.includes('v99.0.0'))).toBe(true)
     expect(lines.fetchCalls).toBe(0)
+  })
+})
+
+describe('banner', () => {
+  /** Stands in for the banner: it plays until `run` cuts it, then logs that it did. */
+  function spyOnBanner() {
+    return vi
+      .spyOn(mascot, 'logBanner')
+      .mockImplementation(({ signal }) => new Promise((resolve) => signal?.addEventListener('abort', () => resolve(console.log('banner cut')))))
+  }
+
+  it('cuts the banner once the config loads, before anything else prints', async () => {
+    using _banner = spyOnBanner()
+    const lines = await bootstrap()
+
+    expect(lines[0]).toBe('banner cut')
+    expect(lines).toContain('Loaded kubb.config.ts')
+  })
+
+  it('cuts the banner, then prints the error and exits with 1 when the config fails during it', async () => {
+    using _banner = spyOnBanner()
+    const lines = await bootstrap({ fail: true })
+
+    expect(lines[0]).toBe('banner cut')
+    expect(lines).toContain('✗ Config failed loading')
+    expect(lines.at(-1)).toBe('exit 1')
   })
 })
 
