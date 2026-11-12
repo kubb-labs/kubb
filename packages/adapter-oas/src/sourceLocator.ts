@@ -37,15 +37,16 @@ function indexEvents(events: ReadonlyArray<Event>): EventIndex {
   const starts = new Int32Array(events.length)
   const ends = new Int32Array(events.length)
 
-  for (let at = 0; at < events.length; at++) {
+  for (let at = 0, last = 0; at < events.length; last = Math.max(last, starts[at]!, ends[at]!), at++) {
     const event = events[at]!
     types[at] = event.type
     if (event.type === EVENT_ID.SCALAR) {
-      // Quotes sit outside the offsets of a scalar's value.
+      // Quotes sit outside the offsets of a scalar's value. An empty value has none, so it sits where the node before it ended.
       const quote = event.style === SCALAR_STYLE.SINGLE_QUOTED || event.style === SCALAR_STYLE.DOUBLE_QUOTED ? 1 : 0
+      const empty = event.valueStart < 0
       styles[at] = event.style
-      starts[at] = event.valueStart - quote
-      ends[at] = event.valueEnd + quote
+      starts[at] = empty ? last : event.valueStart - quote
+      ends[at] = empty ? last : event.valueEnd + quote
     }
     if (event.type === EVENT_ID.ALIAS) {
       starts[at] = event.anchorStart - 1

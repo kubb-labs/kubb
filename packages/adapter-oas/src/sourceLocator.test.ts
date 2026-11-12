@@ -21,7 +21,7 @@ const source = [
 ].join('\n')
 
 describe('OpenAPI source locations', () => {
-  it('locates YAML keys, plain keys by the value they parse to, and unescapes JSON pointer tokens', () => {
+  it('locates YAML keys, plain keys by the value they parse to, empty items, and unescapes JSON pointer tokens', () => {
     const owner = locateIn(source, { kind: 'schema', pointer: '#/components/schemas/Pet/properties/owner' })!
     expect(source.slice(owner.start, owner.end)).toBe('owner')
     const escaped = locateIn(source, { kind: 'schema', pointer: '#/components/schemas/a~1b' })!
@@ -29,6 +29,9 @@ describe('OpenAPI source locations', () => {
     const plain = '0x10: a\n~: b\n'
     expect(locateIn(plain, { kind: 'schema', pointer: '#/16' })).toStrictEqual({ start: 0, end: 4 })
     expect(locateIn(plain, { kind: 'schema', pointer: '#/null' })).toStrictEqual({ start: 8, end: 9 })
+    const empty = 'items:\n  -\n  - a:\n'
+    expect(locateIn(empty, { kind: 'schema', pointer: '#/items/0' })).toStrictEqual({ start: 9, end: 9 })
+    expect(locateIn(empty, { kind: 'schema', pointer: '#/items/1' })).toStrictEqual({ start: 15, end: 16 })
   })
 
   it('locates a missing reference at its usage and omits unknown pointers', () => {
