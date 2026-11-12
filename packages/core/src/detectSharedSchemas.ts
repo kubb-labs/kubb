@@ -1,4 +1,6 @@
+import { resolve } from 'node:path'
 import { ast, type SchemaNode } from '@kubb/ast'
+import type { SharedOutput } from './definePlugin.ts'
 import type { Hookable } from './Hookable.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 import type { Config, KubbHooks } from './types.ts'
@@ -10,18 +12,8 @@ function toShape(node: SchemaNode): string {
   })
 }
 
-/**
- * Returns `configs` in order, with `output.shared.schemas` filled in on each config that sets `output.shared`. A schema is
- * shared by the largest group of two or more configs that define it identically, the first group on a tie. A config shares
- * it only when it also shares every schema it references. Schemas the configs define differently are reported as `kubb:warn`.
- *
- * shortcut: each build parses its spec again, so a URL or git branch that changes between the two parses can leave a stale
- * list; pass the parsed spec to the build if that shows up.
- */
-export async function detectSharedSchemas(configs: Array<Config>, hooks: Hookable<KubbHooks>): Promise<Array<Config>> {
-  const group = configs.flatMap((config, index) => (config.output.shared && config.adapter ? [{ config, index }] : []))
-  if (group.length < 2) return configs
-
+// Fills `output.shared.schemas` on the configs of one shared directory, and returns the names they define differently.
+async function shareGroup(group: Array<{ config: Config; index: number }>, result: Array<Config>): Promise<Array<string>> {
   const specs: Array<Map<string, SchemaNode>> = []
   try {
     // Sequential, since configs may share one adapter instance.
@@ -31,7 +23,7 @@ export async function detectSharedSchemas(configs: Array<Config>, hooks: Hookabl
     }
   } catch {
     // The build parses the spec again and reports why it failed.
-    return configs
+    return []
   }
 
   // Each name with the indexes of the specs that share it.
@@ -65,17 +57,48 @@ export async function detectSharedSchemas(configs: Array<Config>, hooks: Hookabl
     }
   }
 
-  if (conflicts.length > 0) {
+  group.forEach(({ index }, specIndex) => {
+    const schemas = [...shared].flatMap(([name, members]) => (members.has(specIndex) ? [name] : []))
+    result[index] = withShared(result[index]!, { schemas })
+  })
+  return conflicts
+}
+
+function withShared(config: Config, patch: Partial<SharedOutput>): Config {
+  return { ...config, output: { ...config.output, shared: { ...config.output.shared!, ...patch } } }
+}
+
+/**
+ * Returns `configs` in order, with `output.shared` filled in on each config that sets it. Configs are compared per shared
+ * directory. A schema is shared by the largest group of two or more configs that define it identically, the first group on a
+ * tie. A config shares it only when it also shares every schema it references. Schemas the configs define differently are
+ * reported as `kubb:warn`. When any config of a shared directory sets `output.clean`, the first one empties it.
+ *
+ * shortcut: each build parses its spec again, so a URL or git branch that changes between the two parses can leave a stale
+ * list; pass the parsed spec to the build if that shows up.
+ */
+export async function detectSharedSchemas(configs: Array<Config>, hooks: Hookable<KubbHooks>): Promise<Array<Config>> {
+  const groups = new Map<string, Array<{ config: Config; index: number }>>()
+  configs.forEach((config, index) => {
+    if (!config.output.shared || !config.adapter) return
+    const key = resolve(config.root, config.output.shared.path)
+    groups.set(key, [...(groups.get(key) ?? []), { config, index }])
+  })
+
+  const result = [...configs]
+  const conflicts = new Set<string>()
+  for (const group of groups.values()) {
+    // Only the first config empties the shared directory, so a later one never deletes what an earlier one wrote.
+    if (group.some(({ config }) => config.output.clean)) group.forEach(({ index }, i) => (result[index] = withShared(result[index]!, { clean: i === 0 })))
+    if (group.length < 2) continue
+    for (const name of await shareGroup(group, result)) conflicts.add(name)
+  }
+
+  if (conflicts.size > 0) {
     await hooks.callHook('kubb:warn', {
-      message: `The specs define these schemas differently: ${conflicts.join(', ')}.`,
+      message: `The specs define these schemas differently: ${[...conflicts].join(', ')}.`,
       info: 'The largest group of specs that define one the same shares it. Every other spec keeps its own copy, with the schemas that reference it.',
     })
   }
-
-  const result = [...configs]
-  group.forEach(({ config, index }, specIndex) => {
-    const schemas = [...shared].flatMap(([name, members]) => (members.has(specIndex) ? [name] : []))
-    result[index] = { ...config, output: { ...config.output, shared: { ...config.output.shared!, schemas } } }
-  })
   return result
 }

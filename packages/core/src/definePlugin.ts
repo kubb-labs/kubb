@@ -45,6 +45,13 @@ export type SharedOutput = {
    * @internal
    */
   schemas?: Array<string>
+  /**
+   * Empties `path` before this config writes. `kubb generate` sets it on the first config of each shared directory when
+   * any of them sets `output.clean`, so a later config never deletes what an earlier one wrote.
+   *
+   * @internal
+   */
+  clean?: boolean
 }
 
 /**

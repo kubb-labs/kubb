@@ -25,10 +25,10 @@ type WriteOptions = ParseOptions & {
    */
   manifest?: OutputManifest
   /**
-   * Directory the storage emptied right before this write. Files under it cannot exist yet, so they
+   * Directories the storage emptied right before this write. Files under them cannot exist yet, so they
    * are written without reading the previous value back.
    */
-  cleaned?: string
+  cleaned?: Array<string>
   /**
    * Receives `kubb:files:processing:start`, `:update` (in input order, as files finish) and `:end` for the write. `config` fills the update rows.
    */
@@ -115,7 +115,7 @@ async function writeChanged({
   cleaned,
 }: Pick<WriteOptions, 'storage' | 'manifest' | 'signal' | 'cleaned'> & { file: FileNode; source: string }): Promise<boolean> {
   signal?.throwIfAborted()
-  const stored = cleaned && isPathInside(file.path, cleaned) ? null : await storage.readItem(file.path)
+  const stored = cleaned?.some((dir) => isPathInside(file.path, dir)) ? null : await storage.readItem(file.path)
   if (stored !== null && (matchesStored({ stored, source }) || manifest?.isUpToDate({ key: file.path, source, disk: stored }))) return false
   signal?.throwIfAborted()
   await storage.writeItem(file.path, source, { stored })

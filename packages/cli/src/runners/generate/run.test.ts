@@ -3,7 +3,17 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, Diagnostics, fsStorage, memoryStorage, type PostGenerateCommand, resolveCacheDir, resolveMeta, type UserConfig } from '@kubb/core'
+import {
+  type Config,
+  defineExtension,
+  Diagnostics,
+  fsStorage,
+  memoryStorage,
+  type PostGenerateCommand,
+  resolveCacheDir,
+  resolveMeta,
+  type UserConfig,
+} from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
 import * as env from '../../utils/env.ts'
@@ -167,6 +177,41 @@ describe('shared schemas', () => {
 
     expect(lines.some((line) => line.includes(Diagnostics.code.refNotFound))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
+  })
+
+  it.each([
+    [true, null],
+    [false, 'stale'],
+  ])('empties the shared directory once, before the first config that writes to it, when a later config sets output.clean: %s', async (clean, expected) => {
+    const storage = memoryStorage()
+    const shared = (file: string) => join(process.cwd(), 'gen', 'common', file)
+    await storage.writeItem(shared('stale.ts'), 'stale')
+    // Writes into the shared directory after the first config's clean, so a second clean would remove it.
+    const writesShared = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'writes-shared' },
+      hooks: {
+        async 'kubb:build:end'() {
+          await storage.writeItem(shared('animals.ts'), 'animals')
+        },
+      },
+    })()
+    const configs = ['animals', 'fruits'].map(
+      (name, index) =>
+        ({
+          root: process.cwd(),
+          input: { openapi: '3.0.3', info: { title: name, version: '1' }, paths: {} },
+          output: { path: `./gen/${name}`, clean: clean && index === 1, shared: { path: './gen/common' }, format: false, lint: false },
+          adapter: adapterOas(),
+          plugins: index === 0 ? [writesShared] : [],
+          storage,
+        }) satisfies UserConfig as unknown as Config,
+    )
+
+    await bootstrap({ configs })
+
+    expect(await storage.readItem(shared('stale.ts'))).toBe(expected)
+    expect(await storage.readItem(shared('animals.ts'))).toBe('animals')
   })
 })
 

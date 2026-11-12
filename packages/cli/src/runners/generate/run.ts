@@ -237,7 +237,11 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           const hrStart = process.hrtime()
           // An edited spec can change what its configs share.
           if (previous) detected = await detect()
-          const succeeded = await generate({ input, config: detected[index]!, hooks, dryRun })
+          const entry = detected[index]!
+          // A rebuild never empties the shared directory, since it would delete what the other configs wrote.
+          const { shared } = entry.output
+          const current = previous && shared?.clean ? { ...entry, output: { ...entry.output, shared: { ...shared, clean: false } } } : entry
+          const succeeded = await generate({ input, config: current, hooks, dryRun })
           const snapshot = tracker.take()
           if (previous) logRebuild({ diff: diffBuilds(previous, snapshot), durationMs: getElapsedMs(hrStart) })
           previous = snapshot

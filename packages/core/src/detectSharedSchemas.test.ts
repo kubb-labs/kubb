@@ -131,4 +131,27 @@ describe('detectSharedSchemas', () => {
 
     expect(result).toStrictEqual([animals, fruits])
   })
+
+  it('compares the configs of each shared path on their own', async () => {
+    const tag = (field: string) => object('Tag', { [field]: string() })
+    const a = makeConfig([tag('label')])
+    const b = makeConfig([tag('label')])
+    const c = makeConfig([tag('text')], { path: './gen/other' })
+    const d = makeConfig([tag('text')], { path: './gen/other' })
+    const e = makeConfig([tag('text')], { path: './gen/other' })
+
+    const { schemas } = await detect([a, b, c, d, e])
+
+    expect(schemas).toStrictEqual([['Tag'], ['Tag'], ['Tag'], ['Tag'], ['Tag']])
+  })
+
+  it('marks the first config of a shared directory to clean it when any config that uses it sets output.clean', async () => {
+    const animals = makeConfig([string()])
+    const fruits = { ...makeConfig([string()]), output: { path: './gen/fruits', clean: true, shared: { path: './gen/common' } } }
+    const alone = { ...makeConfig([string()], { path: './gen/other' }), output: { path: './gen/alone', clean: true, shared: { path: './gen/other' } } }
+
+    const { result } = await detect([animals, fruits, alone])
+
+    expect(result.map((config) => config.output.shared?.clean)).toStrictEqual([true, false, true])
+  })
 })

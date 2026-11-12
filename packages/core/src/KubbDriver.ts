@@ -26,10 +26,10 @@ type Options = {
    */
   manifest?: OutputManifest
   /**
-   * The output directory `output.clean` empties. Emptied right before the files are written, so a
-   * run that fails earlier leaves the previous output in place.
+   * The directories `output.clean` empties: the output directory, and the shared one when this build cleans it. Emptied
+   * right before the files are written, so a run that fails earlier leaves the previous output in place.
    */
-  cleanPath?: string
+  cleanPaths?: Array<string>
 }
 
 type RequirePluginContext = {
@@ -414,14 +414,14 @@ export class KubbDriver {
           // Write every generated file once, after post-processing (barrel etc.) has had its
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
-          if (this.options.cleanPath) await config.storage.empty(this.options.cleanPath)
+          for (const cleanPath of this.options.cleanPaths ?? []) await config.storage.empty(cleanPath)
 
           await fileManager.write(fileManager.files, {
             storage: config.storage,
             parsers: parsersMap,
             manifest: this.options.manifest,
             signal: this.options.signal,
-            cleaned: this.options.cleanPath,
+            cleaned: this.options.cleanPaths,
             hooks,
             config,
           })
