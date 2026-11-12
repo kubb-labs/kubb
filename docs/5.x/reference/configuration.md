@@ -28,6 +28,8 @@ export default defineConfig({
 
 ## Config formats
 
+The config can be an ES module or CommonJS, in TypeScript or JavaScript (`.ts`, `.mts`, `.cts`, `.js`, `.mjs`, `.cjs`). Kubb loads the file with the runtime's own loader when the runtime can run it as is. Under Node, it falls back to [jiti](https://github.com/unjs/jiti) for a config that uses an `enum`, a tsconfig `paths` alias, a relative import without its extension, or `__dirname` in an ES module. Under Bun, which loads all of those itself, only `.tsx` and `.jsx` configs go through jiti, so JSX uses the `@kubb/renderer-jsx` runtime. A config reloaded in the same process, such as by Studio or the MCP server, always goes through jiti so edits on disk are picked up.
+
 ### Single config object
 
 Export an object as in the example above. `defineConfig` also accepts a Promise of a config.
