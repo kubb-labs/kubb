@@ -26,9 +26,10 @@ describe('OpenAPI source locations', () => {
     expect(source.slice(owner.start, owner.end)).toBe('owner')
     const escaped = locateIn(source, { kind: 'schema', pointer: '#/components/schemas/a~1b' })!
     expect(source.slice(escaped.start, escaped.end)).toBe('a/b')
-    const plain = '0x10: a\n~: b\n'
+    const plain = '0x10: a\n~: b\n"\\x50": c\n'
     expect(locateIn(plain, { kind: 'schema', pointer: '#/16' })).toStrictEqual({ start: 0, end: 4 })
     expect(locateIn(plain, { kind: 'schema', pointer: '#/null' })).toStrictEqual({ start: 8, end: 9 })
+    expect(locateIn(plain, { kind: 'schema', pointer: '#/P' })).toStrictEqual({ start: 13, end: 19 })
     const empty = 'items:\n  -\n  - a:\n'
     expect(locateIn(empty, { kind: 'schema', pointer: '#/items/0' })).toStrictEqual({ start: 9, end: 9 })
     expect(locateIn(empty, { kind: 'schema', pointer: '#/items/1' })).toStrictEqual({ start: 15, end: 16 })
@@ -37,6 +38,9 @@ describe('OpenAPI source locations', () => {
   it('locates a missing reference at its usage and omits unknown pointers', () => {
     const ref = locateIn(source, { kind: 'schema', pointer: '#/components/schemas/Owner', ref: '#/components/schemas/Owner' })!
     expect(source.slice(ref.start, ref.end)).toBe("'#/components/schemas/Owner'")
+    const shadowed = "tags: ['$ref', '#/x']\na: $ref\n'#/x': 1\nb:\n  $ref: '#/x'\n"
+    const real = shadowed.lastIndexOf("'#/x'")
+    expect(locateIn(shadowed, { kind: 'schema', pointer: '#/missing', ref: '#/x' })).toStrictEqual({ start: real, end: real + 5 })
     expect(locateIn(source, { kind: 'schema', pointer: '#/components/schemas/Missing' })).toBeUndefined()
     expect(locateIn(source, { kind: 'config' })).toBeUndefined()
   })
@@ -127,6 +131,8 @@ describe('JSON source locations', () => {
     expect(JSON.parse(json.slice(item.start, item.end))).toStrictEqual({ $ref: '#/components/parameters/Offset' })
     expect(json.slice(key.start, key.end)).toBe('"a/b"')
     expect(locateIn(json, { kind: 'schema', pointer: '#/paths/~1pets/get/parameters/2' })).toBeUndefined()
+    const deep = JSON.stringify({ paths: {}, nested: JSON.parse(`${'['.repeat(150)}${']'.repeat(150)}`) })
+    expect(locateIn(deep, { kind: 'schema', pointer: '#/paths' })).toStrictEqual({ start: 1, end: 8 })
   })
 
   it('locates a missing reference at its first usage', () => {
@@ -143,5 +149,8 @@ describe('JSON source locations', () => {
     expect(flow.slice(pet.start, pet.end)).toBe('"Pet"')
     expect(flow.slice(ref.start, ref.end)).toBe('other.yaml#/Pets')
     expect(locateIn('a: [1, 2\nb: }', { kind: 'schema', pointer: '#/a' })).toBeUndefined()
+    const commented = 'x:\n  - {b: 1 # }\n    }\n'
+    const item = locateIn(commented, { kind: 'schema', pointer: '#/x/0' })!
+    expect(commented.slice(item.start, item.end)).toBe('{b: 1 # }\n    }')
   })
 })

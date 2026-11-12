@@ -18,6 +18,8 @@ type EventIndex = {
 }
 
 // Diagnostics of one run share a source, so its index is kept for the next call.
+const flowGap = /(?:[\s,]|#[^\n]*)*/y
+
 const indexes = memo.create<string, EventIndex | undefined>({ type: 'last' })
 
 // A plain `1.50` or `~` is a number or null to `js-yaml`, so the document, and the pointer, spell it `1.5` or `null`.
@@ -64,15 +66,14 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
   const { types, styles, starts, ends, collections } = index
   const isCollection = (at: number) => types[at] === EVENT_ID.MAPPING || types[at] === EVENT_ID.SEQUENCE
 
-  // `undefined` for a double-quoted scalar with an escape that JSON does not have, such as `\x41`.
-  const readText = (at: number): string | undefined => {
+  const readText = (at: number): string => {
     const text = source.slice(starts[at], ends[at])
     if (styles[at] === SCALAR_STYLE.SINGLE_QUOTED) return text.slice(1, -1).replaceAll("''", "'")
     if (styles[at] !== SCALAR_STYLE.DOUBLE_QUOTED) return text
     try {
       return JSON.parse(text) as string
     } catch {
-      return undefined
+      return String(load(text, { schema: CORE_SCHEMA }))
     }
   }
 
@@ -81,8 +82,12 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
     let next = at + 1
     let end = starts[at]!
     while (types[next] !== EVENT_ID.POP) ({ end, next } = readNode(next))
-    // A flow collection ends at its closing bracket, which no event marks.
-    if (styles[at] === COLLECTION_STYLE.FLOW) end = source.indexOf(types[at] === EVENT_ID.MAPPING ? '}' : ']', end) + 1
+    // A flow collection ends at its closing bracket, which no event marks, after any commas and comments.
+    if (styles[at] === COLLECTION_STYLE.FLOW) {
+      flowGap.lastIndex = end
+      flowGap.exec(source)
+      end = flowGap.lastIndex + 1
+    }
     return { start: starts[at]!, end, next: next + 1 }
   }
 
@@ -120,8 +125,18 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
     findRef(ref: string): Range {
       if (!index.refs) {
         index.refs = new Map()
-        for (let at = 0; at + 1 < types.length; at++) {
-          if (types[at] !== EVENT_ID.SCALAR || types[at + 1] !== EVENT_ID.SCALAR || readText(at) !== '$ref') continue
+        // -1 in a sequence. In a mapping, 0 before a key and 1 before its value.
+        const frames: Array<number> = []
+        for (let at = 1; at + 1 < types.length; at++) {
+          if (types[at] === EVENT_ID.POP) {
+            frames.pop()
+            continue
+          }
+          const top = frames.length - 1
+          const isKey = frames[top] === 0
+          if (frames[top]! >= 0) frames[top] = 1 - frames[top]!
+          if (isCollection(at)) frames.push(types[at] === EVENT_ID.MAPPING ? 0 : -1)
+          if (!isKey || types[at] !== EVENT_ID.SCALAR || types[at + 1] !== EVENT_ID.SCALAR || readText(at) !== '$ref') continue
           const text = readText(at + 1)
           if (text !== undefined && !index.refs.has(text)) index.refs.set(text, { start: starts[at + 1]!, end: ends[at + 1]! })
         }
@@ -133,7 +148,7 @@ function createLocator({ index, source }: { index: EventIndex; source: string })
 
 function parse(source: string): EventIndex | undefined {
   try {
-    return indexEvents(parseEvents(source, {}))
+    return indexEvents(parseEvents(source, { maxDepth: Number.POSITIVE_INFINITY }))
   } catch {
     // Text that is not YAML has no locations.
     return undefined
