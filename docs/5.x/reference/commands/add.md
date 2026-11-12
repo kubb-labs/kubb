@@ -116,6 +116,7 @@ npx kubb add acme/kubb-plugin-example
 | `--config=<path>`, `-c <path>` |         | Path to the Kubb config to edit. Used for plugins and parsers. Without it, the CLI looks for the same config files as `kubb generate`, in the current directory and then in each parent directory. |
 | `--yes`, `-y`                  | `false` | Skip the confirmation. Needs an id. |
 | `--no-install`                 |         | Do not install the package. A plugin or parser is still added to the config. |
+| `--dry-run`                    | `false` | Print the packages and config lines the command would add, then stop. Nothing is installed or written. |
 
 > [!TIP]
 > Pass `--yes` in scripts and CI, where no one can answer the prompt.

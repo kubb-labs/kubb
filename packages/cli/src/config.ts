@@ -13,6 +13,8 @@ type GetConfigsOptions = {
   watch?: boolean
   /** Log level forwarded to the user's `defineConfig` function. */
   logLevel?: CLIOptions['logLevel']
+  /** Reporters selected with `--reporter`, forwarded to the user's `defineConfig` function. */
+  reporters?: CLIOptions['reporters']
 }
 
 type GetConfigsResult = {
@@ -23,7 +25,7 @@ type GetConfigsResult = {
 }
 
 /** Discovers the Kubb config and resolves it into normalized configs, each guaranteed to have a `plugins` array. */
-export async function getConfigs({ configPath, input, watch, logLevel }: GetConfigsOptions): Promise<GetConfigsResult> {
+export async function getConfigs({ configPath, input, watch, logLevel, reporters }: GetConfigsOptions): Promise<GetConfigsResult> {
   const file = configPath ? resolve(configPath) : findConfigFile()
   if (!file) {
     throw new Diagnostics.Error({
@@ -37,7 +39,7 @@ export async function getConfigs({ configPath, input, watch, logLevel }: GetConf
 
   let configs: Array<Config>
   try {
-    configs = await loadConfigFile<Config>({ file, cli: { config: configPath, input, watch, logLevel } satisfies CLIOptions })
+    configs = await loadConfigFile<Config>({ file, cli: { config: configPath, input, watch, logLevel, reporters } satisfies CLIOptions })
   } catch (error) {
     throw new Diagnostics.Error({
       code: Diagnostics.code.unknown,

@@ -33,7 +33,9 @@ function matchesOperation(node: OperationNode, filter: Filter): boolean {
   if (type === 'tag') return node.tags.some((tag) => testPattern(tag, pattern))
   if (type === 'operationId') return testPattern(node.operationId, pattern)
   if (type === 'path') return node.path !== undefined && testPattern(node.path, pattern)
-  if (type === 'method') return node.method !== undefined && testPattern(node.method.toLowerCase(), pattern)
+  // Methods match in either case: the typed values are uppercase, older configs use lowercase.
+  if (type === 'method')
+    return node.method !== undefined && (testPattern(node.method.toUpperCase(), pattern) || testPattern(node.method.toLowerCase(), pattern))
   if (type === 'contentType') return node.requestBody?.content?.some((c) => testPattern(c.contentType, pattern)) ?? false
   return false
 }

@@ -2,11 +2,11 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { define } from 'gunshi'
+import { defineWithTypes } from 'gunshi'
 import { BUNDLED_PACKAGES, ConfigEditOperation, extensionKinds, editConfig, editConfigFile, findConfigFile, readConfig, readImports } from '@internals/shared'
 import { getErrorMessage, pascalCase, read } from '@internals/utils'
 import { Diagnostics, readInstalledPackages } from '@kubb/core'
-import { configArg, yesArg } from '../../commands/shared.ts'
+import { configArg, dryRunId, type DryRunExtensions, yesArg } from '../../commands/shared.ts'
 import { isInteractiveRun, logIntro } from '../../ui/intro.ts'
 import { logBlock, logError, logStep } from '../../ui/log.ts'
 import { withSpinner } from '../../ui/spinner.ts'
@@ -22,6 +22,7 @@ export type RemoveOptions = {
   configPath?: string
   yes: boolean
   uninstall: boolean
+  dryRun?: boolean
 }
 
 /** The lines of `before` that `after` no longer has, trimmed. */
@@ -40,9 +41,10 @@ function removedLines({ before, after }: { before: string; after: string }): Arr
 /**
  * Removes a plugin or parser from `kubb.config.ts` and uninstalls its package. Refuses the adapter,
  * which the config needs, and an extension another one in the config depends on. Previews the
- * change before asking.
+ * change before asking. With `dryRun`, stops after the preview: uninstalls nothing and leaves the
+ * config as it is.
  */
-export async function run({ id: input, configPath, yes, uninstall }: RemoveOptions): Promise<void> {
+export async function run({ id: input, configPath, yes, uninstall, dryRun = false }: RemoveOptions): Promise<void> {
   const cwd = process.cwd()
   const hrStart = process.hrtime()
   const summary = createSummary(hrStart)
@@ -50,7 +52,7 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
     summary(title, 'failed', lines)
     process.exitCode = 1
   }
-  logIntro({ title: isInteractiveRun({ yes }) ? undefined : styleText('bgCyan', styleText('black', ' Kubb Remove ')) })
+  logIntro({ title: isInteractiveRun({ yes, dryRun }) ? undefined : styleText('bgCyan', styleText('black', ' Kubb Remove ')) })
 
   try {
     const id = toRegistryId(input)
@@ -131,6 +133,11 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
       packageLine,
     ])
 
+    if (dryRun) {
+      summary(`${kind} not removed`, 'planned', [`Dry run: nothing was uninstalled or written. Run kubb remove ${toShortId(entry.id)} to remove it.`])
+      return
+    }
+
     const confirmed = yes || (await clack.confirm({ message: 'Remove it?', initialValue: true }))
     if (clack.isCancel(confirmed) || !confirmed) {
       summary('Remove canceled', 'canceled', [`  ${kind}  ${manifest.name}`, '  No changes made'])
@@ -160,10 +167,12 @@ export async function run({ id: input, configPath, yes, uninstall }: RemoveOptio
   }
 }
 
-export const command = define({
+export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   name: 'remove',
   description: 'Remove a plugin or parser from kubb.config.ts and uninstall its package.',
-  examples: ['kubb remove plugin-zod', 'kubb remove acme/plugin-x --yes', 'kubb remove plugin-zod --no-uninstall'].join('\n'),
+  examples: ['kubb remove plugin-zod', 'kubb remove acme/plugin-x --yes', 'kubb remove plugin-zod --no-uninstall', 'kubb remove plugin-zod --dry-run'].join(
+    '\n',
+  ),
   toKebab: true,
   args: {
     id: {
@@ -180,5 +189,6 @@ export const command = define({
       default: true,
     },
   },
-  run: ({ values }) => run({ id: values.id, configPath: values.config, yes: values.yes, uninstall: values.uninstall }),
+  run: ({ values, extensions }) =>
+    run({ id: values.id, configPath: values.config, yes: values.yes, uninstall: values.uninstall, dryRun: extensions[dryRunId].enabled }),
 })

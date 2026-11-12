@@ -421,6 +421,72 @@ describe('createKubb', () => {
       ])
     })
 
+    it('matches a method filter in either case', async () => {
+      const operations = ['GET', 'POST'].map((method) =>
+        ast.factory.createOperation({ operationId: method, method: method as 'GET', path: '/pets', parameters: [], responses: [], tags: [] }),
+      )
+      const run = async (pattern: string | RegExp) => {
+        const seen: Array<string> = []
+        const plugin = defineExtension({
+          kind: 'plugin',
+          meta: { name: 'method-filter-plugin' },
+          hooks: {
+            'kubb:plugin:setup'(ctx) {
+              ctx.setOptions({ output: { path: '.' }, exclude: [], override: [], include: [{ type: 'method', pattern }] } as never)
+              ctx.addGenerator({ name: 'method-filter-gen', operation: (node) => void seen.push(node.operationId) })
+            },
+          },
+        })()
+
+        await createKubb(makeConfig({ adapter: makeAdapter({ operations }), plugins: [plugin as unknown as Plugin] }), {
+          hooks: new Hookable<KubbHooks>(),
+        }).build()
+
+        return seen
+      }
+
+      for (const pattern of ['GET', 'get', /GET/, /get/, /^GET$/]) expect(await run(pattern)).toEqual(['GET'])
+      expect(await run('DELETE')).toEqual([])
+    })
+
+    it('gives an override output its mode', async () => {
+      const seen: Array<unknown> = []
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'override-output-plugin' },
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.setOptions({
+              output: { path: 'types' },
+              exclude: [],
+              override: [
+                { type: 'schemaName', pattern: 'A', options: { output: { path: 'admin' } } },
+                { type: 'schemaName', pattern: 'B', options: { output: { path: 'admin.ts' } } },
+              ],
+            } as never)
+            ctx.addGenerator({
+              name: 'override-output-gen',
+              schema: (_node, generatorCtx) => void seen.push((generatorCtx.options as { output: unknown }).output),
+            })
+          },
+        },
+      })()
+
+      await createKubb(
+        makeConfig({
+          adapter: makeAdapter({ schemas: ['A', 'B', 'C'].map((name) => ast.factory.createSchema({ name, type: 'string' })) }),
+          plugins: [plugin as unknown as Plugin],
+        }),
+        { hooks: new Hookable<KubbHooks>() },
+      ).build()
+
+      expect(seen).toEqual([
+        { path: 'admin', mode: 'directory' },
+        { path: 'admin.ts', mode: 'file' },
+        { path: 'types', mode: 'directory' },
+      ])
+    })
+
     it('passes the same transformed node to operation and operations generators', async () => {
       const perNode: Array<OperationNode> = []
       let batch: Array<OperationNode> = []
@@ -519,6 +585,11 @@ describe('Kubb#generate', () => {
     hooks.hook('kubb:generation:end', ({ status }) => {
       endStatus = status
     })
+    let summary: unknown
+    hooks.hook('kubb:generation:summary', (ctx) => {
+      // Emitted after `kubb:generation:end`.
+      if (endStatus) summary = ctx
+    })
 
     const result = await createKubb(makeConfig({ root: tempRoot(), storage: fsStorage() }), { hooks }).generate({
       processOutput: async () => [diagnostic],
@@ -527,6 +598,7 @@ describe('Kubb#generate', () => {
     expect(result.success).toBe(false)
     expect(result.diagnostics).toContain(diagnostic)
     expect(endStatus).toBe('failed')
+    expect(summary).toStrictEqual({ duration: expect.any(Number), fileCount: 0, failedPlugins: 0, status: 'failed' })
   })
 
   it.each([['skips processOutput when the storage keeps the output in memory', memoryStorage, 0]])('%s', async (_name, storage, calls) => {

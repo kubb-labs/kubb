@@ -93,6 +93,28 @@ describe('kubb add', () => {
     expect(clack.confirm).toHaveBeenCalledWith(expect.objectContaining({ message: 'Add it?' }))
   })
 
+  it('stops after the preview with --dry-run: no install, no config write, no question', async () => {
+    stubFetch({ body: registryIndex([pluginX]) })
+
+    await run({ id: 'acme/plugin-x', yes: false, install: true, dryRun: true })
+
+    const printed = output.join('\n')
+    expect(printed).toContain('Installs  @acme/kubb-plugin-x@1.2.0')
+    expect(printed).toContain('  + plugins: [pluginX()],')
+    expect(printed).toContain('Dry run: nothing was installed or written. Run kubb add acme/plugin-x to add it.')
+    expect(installPackages).not.toHaveBeenCalled()
+    expect(clack.confirm).not.toHaveBeenCalled()
+    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toBe(configSource)
+    expect(process.exitCode).toBeUndefined()
+
+    stubFetch({ body: registryIndex([pluginTs, pluginZod]) })
+    await run({ id: 'plugin-zod', yes: false, install: true, dryRun: true })
+
+    expect(clack.select).not.toHaveBeenCalled()
+    expect(output.join('\n')).toContain('Installs  @acme/kubb-plugin-ts@5.0.0  @acme/kubb-plugin-zod@5.2.0')
+    expect(installPackages).not.toHaveBeenCalled()
+  })
+
   it('searches the registry in memory, marking installed extensions as not selectable', async () => {
     const adapterX = registryEntry({
       name: 'adapter-x',

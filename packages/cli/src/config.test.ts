@@ -41,6 +41,15 @@ describe('getConfigs', () => {
     expect(configs[0]).toMatchObject({ input: './from-cli.yaml' })
   })
 
+  it('passes the reporters selected with --reporter to a config function', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
+    const configPath = join(dir, 'kubb.config.mjs')
+    await writeFile(configPath, `export default ({ reporters }) => ({ name: String(reporters), root: '.', input: './pets.yaml', output: { path: './gen' } })\n`)
+
+    expect((await getConfigs({ configPath, reporters: ['json', 'file'] })).configs[0]?.name).toBe('json,file')
+    expect((await getConfigs({ configPath })).configs[0]?.name).toBe('undefined')
+  })
+
   it('throws a clear error when no config is found', async () => {
     dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
 

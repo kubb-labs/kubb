@@ -231,7 +231,7 @@ Generates only the operations and schemas that match at least one entry, and ski
 
 Each entry filters by `tag`, `operationId`, `path`, `method`, `contentType`, or `schemaName`, with a `pattern` that is a string or a `RegExp`. A string is compiled with `new RegExp(pattern)`, so it is not an exact match: `pattern: 'pet'` also matches `'petType'` and `'superpet'`. Anchor it (`'^pet$'`) for an exact match.
 
-For `type: 'method'`, Kubb tests the pattern against the lowercase method name. Write `'get'` or `/get/i`. An uppercase string such as `'GET'` matches no operation.
+For `type: 'method'`, write the method in uppercase or lowercase. Kubb tests the pattern against both forms, so `'GET'`, `'get'`, `/GET/` and `/get/` all match a GET operation.
 
 An `extension` entry matches operations by a vendor extension on the source operation instead of a pattern: `key` is the `x-*` key, and the optional `value` must be strictly equal. Without `value`, the key being present is enough. It does not apply to schemas.
 
@@ -301,7 +301,7 @@ Applies different plugin options to operations that match a pattern.
 
 Each entry takes the same fields as an `include` entry, plus an `options` object that accepts any plugin option except `override`, so rules cannot nest. Entries are checked top to bottom. The first match merges onto the plugin defaults, and later entries do not stack.
 
-The merge is shallow and `options` holds resolved values, so an object option replaces the plugin's value as a whole. Give `output` its `mode`, and give an object such as `enum` every field.
+The merge is shallow and `options` holds resolved values, so an object option replaces the plugin's value as a whole. An `output` without `mode` reads it from `output.path`, like the plugin's own `output`. Give any other object, such as `enum`, every field.
 
 ```typescript [Type definition]
 export type Override = Include & {
@@ -320,7 +320,7 @@ pluginTs({
       type: 'tag',
       pattern: 'admin',
       options: {
-        output: { path: 'admin', mode: 'directory' },
+        output: { path: 'admin' },
         enum: { type: 'enum', constCasing: 'camelCase', typeSuffix: 'Key', keyCasing: 'none' },
       },
     },

@@ -1,6 +1,5 @@
 import { stripVTControlCharacters } from 'node:util'
-import { getElapsedMs } from '@internals/utils'
-import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
+import type { Hookable, KubbHooks } from '@kubb/core'
 import { type GenerationEvent, type GenerationEventPayloads, type GenerationEventType, generationEventTypes } from './protocol.ts'
 import { relativeStoragePath } from './generations.ts'
 
@@ -118,19 +117,6 @@ export function createGenerationStream(
   })
 
   for (const type of generationEventTypes) forward(type)
-
-  // Registered after the loop so the summary follows its `kubb:generation:end`; core never emits it.
-  on('kubb:generation:end', ({ diagnostics = [], status, hrStart, filesCreated }) => {
-    if (!hrStart) {
-      return
-    }
-
-    const duration = Math.round(getElapsedMs(hrStart))
-
-    emitEvent('kubb:generation:summary', [
-      { duration, fileCount: filesCreated ?? 0, failedPlugins: Diagnostics.failedPlugins(diagnostics).length, status: status ?? 'success' },
-    ])
-  })
 
   /**
    * Takes this generation's listeners off the session emitter. Safe to call twice.

@@ -133,6 +133,7 @@ For tag-grouped fetch clients, use `group.name` to name the service directories.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginFetch } from '@kubb/plugin-fetch'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
@@ -140,6 +141,7 @@ import { pluginTs } from '@kubb/plugin-ts'
 export default defineConfig({
   input: './petStore.yaml',
   output: { path: './src/gen', barrel: { type: 'named' } },
+  adapter: adapterOas({ integerType: 'number' }),
   plugins: [
     pluginTs({ output: { path: 'types' } }),
     pluginFetch({
@@ -163,8 +165,8 @@ Both calling styles remain available alongside the generated hooks and query opt
 ```typescript [src/example.ts]
 import { PetService, getPetById } from './gen/client'
 
-await PetService.getPetById({ path: { petId: 123n } })
-await getPetById({ path: { petId: 123n } })
+await PetService.getPetById({ path: { petId: 123 } })
+await getPetById({ path: { petId: 123 } })
 ```
 
 An enabled root barrel also forwards `PetService`. Namespace names use the PascalCase directory name. Names starting with a digit get an `_` prefix, and names with no letters or digits become `_`. Conflicting exports produce a diagnostic. Change `group.name` to resolve collisions.

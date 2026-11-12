@@ -4,7 +4,7 @@ import { ast, type FileNode, type InputMeta, type InputNode, type OperationNode,
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginType } from './definePlugin.ts'
+import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, Output, PluginType } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
@@ -65,6 +65,12 @@ function normalizePluginOptions(rawOptions: Plugin['options'], pluginName: strin
   const options: NormalizedPlugin['options'] = { ...defaultPluginOptions(), ...(rawOptions ?? {}) }
   const group = 'group' in options ? (options.group as Group | null | undefined) : undefined
   options.output = normalizeOutput({ output: options.output, group, pluginName })
+  // An override replaces `output` as a whole, so its `output` needs the same `mode` default.
+  options.override = options.override?.map((entry) => {
+    const { output } = entry.options as { output?: Output }
+    if (!output) return entry
+    return { ...entry, options: { ...entry.options, output: normalizeOutput({ output, pluginName }) } }
+  })
   return options
 }
 
