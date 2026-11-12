@@ -70,7 +70,7 @@ Every member is required. `readItem` returns `null` for a missing key. Kubb skip
 
 ## `fsStorage`
 
-`fsStorage` is the default backend. It writes each file to its path on disk and creates directories as needed.
+`fsStorage` is the default backend. It writes each file to its path on disk and creates directories as needed. Under Node, two worker threads do the writes, so the main thread keeps printing files. The workers exit once they have been idle for a second, so they never keep the process alive.
 
 ## `memoryStorage`
 

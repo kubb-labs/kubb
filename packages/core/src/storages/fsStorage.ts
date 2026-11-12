@@ -1,7 +1,8 @@
 import { readdir, rename } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
-import { listFiles, readIfExists, rm, write } from '@internals/utils'
+import { listFiles, matchesStored, readIfExists, rm, runtime, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
+import { getFsWorkers } from './fsWorkers.ts'
 
 /**
  * Built-in filesystem storage driver.
@@ -15,6 +16,7 @@ import { createStorage } from '../createStorage.ts'
  * - the write is skipped when the file already holds that content, ignoring any trailing newline
  *   a formatter left behind
  * - missing parent directories are created automatically
+ * - under Node, writes run on worker threads, so the main thread only prints and compares sources
  * - `FileManager.write` bounds in-flight writes, so this driver does not pace itself
  * - `empty` moves the directory aside and deletes it in the background
  *
@@ -36,7 +38,16 @@ export const fsStorage = createStorage(() => ({
     return readIfExists(resolve(key))
   },
   async writeItem(key: string, value: string, options?: { stored?: string | null }) {
-    await write(resolve(key), value, { sanity: false, stored: options?.stored })
+    if (runtime.isBun) {
+      await write(resolve(key), value, { sanity: false, stored: options?.stored })
+      return
+    }
+    const trimmed = value.trim()
+    if (trimmed === '') return
+    const path = resolve(key)
+    const stored = options?.stored === undefined ? await readIfExists(path) : options.stored
+    if (stored !== null && matchesStored({ stored, source: trimmed })) return
+    await getFsWorkers().write(path, `${trimmed}\n`)
   },
   async removeItem(key: string) {
     await rm(resolve(key), { force: true })

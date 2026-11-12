@@ -93,6 +93,7 @@
   "packages/core/src/reporters/report.test.ts": "buildReport aggregation (passed and failed plugins, sorted timings, docsUrl) is not asserted by the CLI reporter tests.",
   "packages/core/src/storages/cacheStorage.test.ts": "resolveCacheDir fallback and per-root hashing branches; createKubb only checks file existence.",
   "packages/core/src/storages/fsStorage.test.ts": "Pins the formatter mtime skip and the move-aside-then-delete empty with stale trash cleanup.",
+  "packages/core/src/storages/fsWorkers.test.ts": "Worker-thread writes: per-file write errors, stored text on the hook, abort, and idle shutdown so the process exits.",
   "packages/core/src/storages/kubbStorage.test.ts": "0700 mode, KUBB_HOME, key traversal rejection and unstorage file-format compatibility.",
   "packages/kit/src/Url.test.ts": "Path param sanitizing for path-to-regexp with commented regressions (hyphen, $, duplicate names).",
   "packages/kit/src/macros/macroDedupeUnion.test.ts": "Union hashing with pointer, Date, default and resolved-schema branches; several cases read as regressions.",
