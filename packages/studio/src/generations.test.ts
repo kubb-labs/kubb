@@ -152,7 +152,7 @@ describe('generate', () => {
     const fruits = makeConfig('Fruit', [])
     await animals.storage.writeItem('/project/gen/common/types/fruit.ts', 'kept')
 
-    await generate({ config: animals, configs: [animals, fruits], allowExec: false })
+    await generate({ configs: [animals, fruits], allowExec: false })
 
     expect(placed).toStrictEqual(['/project/gen/common/types/name.ts', '/project/gen/Animal/types/animal.ts'])
     expect(await animals.storage.readItem('/project/gen/common/types/fruit.ts')).toBe('kept')

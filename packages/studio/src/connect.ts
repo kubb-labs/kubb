@@ -574,11 +574,12 @@ class Agent extends RpcTarget implements AgentApi {
       adapter,
       parsers,
     }
+    // Sharing parses the other entries' specs, which a sandbox or managed agent must not read from its own disk.
+    const buildConfigs = this.#sandbox || this.#managed ? [buildConfig] : configs.map((entry) => (entry === config ? buildConfig : { ...entry, root }))
     const run = () =>
       generate({
-        config: buildConfig,
-        // Sharing parses the other entries' specs, which a sandbox or managed agent must not read from its own disk.
-        configs: this.#sandbox || this.#managed ? undefined : configs.map((entry) => (entry === config ? buildConfig : { ...entry, root })),
+        configs: buildConfigs,
+        only: buildConfigs.indexOf(buildConfig),
         hooks: this.#options.hooks,
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
