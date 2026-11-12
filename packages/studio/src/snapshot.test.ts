@@ -1,9 +1,10 @@
-import { mkdtempSync } from 'node:fs'
+import { existsSync, mkdtempSync } from 'node:fs'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { gunzipSync } from 'node:zlib'
 import { defineExtension, resolveCacheDir } from '@kubb/core'
+import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { hashOf } from './generations.ts'
 import type { SnapshotUploadMetadata } from './protocol.ts'
@@ -215,6 +216,25 @@ describe('createSnapshot', () => {
       'src/gen/order.ts',
       'src/gen/pet.ts',
     ])
+  })
+
+  it('generates the other config entries when one fails, then fails without publishing', async () => {
+    const projectRoot = await mkdtemp(join(tmpdir(), 'kubb-snapshot-test-'))
+    const parse = async () => {
+      throw new Error('Cannot read the spec')
+    }
+    const broken = { ...projectConfig({ projectRoot }), adapter: createMockedAdapter({ parse }) }
+    const configs = [broken, projectConfig({ projectRoot, fileName: 'order.ts' })]
+    using fetchMock = vi.spyOn(globalThis, 'fetch')
+
+    try {
+      await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', configs })).rejects.toThrow('Cannot read the spec')
+      expect(existsSync(join(projectRoot, 'src/gen/order.ts'))).toBe(true)
+    } finally {
+      await Promise.all([rm(projectRoot, { recursive: true, force: true }), rm(resolveCacheDir(projectRoot), { recursive: true, force: true })])
+    }
+
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('names the upgrade page when Studio refuses the snapshot over a limit', async () => {

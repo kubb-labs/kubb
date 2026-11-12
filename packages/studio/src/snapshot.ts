@@ -1,7 +1,7 @@
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
-import { mkdir, mkdtemp, read, rm, writeRaw } from '@internals/utils'
+import { getErrorMessage, mkdir, mkdtemp, read, rm, writeRaw } from '@internals/utils'
 import { type Config, detectSharedSchemas, Diagnostics, fsStorage, Hookable, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
 import { ofetch } from 'ofetch'
 import { generate, hashOf } from './generations.ts'
@@ -191,9 +191,15 @@ export async function createSnapshot({
   const sharedByConfig = await detectSharedSchemas(buildConfigs, hooks)
   // Each package path with the file on disk it comes from.
   const sources = new Map<string, string>()
+  const failures: Array<unknown> = []
   // One at a time: the entries share the hooks, and may write to one shared directory.
   for (const [index, config] of buildConfigs.entries()) {
-    const generated = await generate({ config, sharedSchemas: sharedByConfig[index], hooks, signal, allowExec: true })
+    // A failing entry does not stop the others, like `kubb generate`, so one run reports every failure.
+    const generated = await generate({ config, sharedSchemas: sharedByConfig[index], hooks, signal, allowExec: true }).catch((error: unknown) => {
+      if (signal?.aborted) throw error
+      failures.push(error)
+    })
+    if (!generated) continue
     for (const path of generated.paths) {
       const source = resolve(generated.root, path)
       const owner = sources.get(path)
@@ -207,6 +213,10 @@ export async function createSnapshot({
       sources.set(path, source)
     }
   }
+  // Nothing is published from a partial generation.
+  if (failures.length === 1) throw failures[0]
+  if (failures.length) throw new AggregateError(failures, failures.map(getErrorMessage).join('\n'))
+
   const storage = fsStorage()
   const files = Object.fromEntries(
     await Promise.all(
