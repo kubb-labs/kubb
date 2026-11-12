@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { ResponseNode, StatusCode } from '../nodes/response.ts'
 import type { ParameterNode } from '../nodes/parameter.ts'
-import { baseURL, parameters, responses, status } from './index.ts'
+import { getBaseURL, groupParameters, responses, status } from './index.ts'
 
 // Like the adapter, a body-less response keeps one entry with an empty `contentType`.
 function response(statusCode: StatusCode, withBody = false): ResponseNode {
@@ -15,7 +15,7 @@ describe('http.status', () => {
     [404, 4],
     ['default', null],
   ] as const)('class(%s) is %s', (code, expected) => {
-    expect(status.class(code)).toBe(expected)
+    expect(status.getClass(code)).toBe(expected)
   })
 
   it('tells successes from errors', () => {
@@ -28,24 +28,24 @@ describe('http.status', () => {
 
 describe('http.responses', () => {
   it('lists success responses', () => {
-    expect(responses.success({ responses: [response('200'), response('404'), response('2xx')] }).map((r) => r.statusCode)).toEqual(['200', '2xx'])
+    expect(responses.filterSuccess({ responses: [response('200'), response('404'), response('2xx')] }).map((r) => r.statusCode)).toEqual(['200', '2xx'])
   })
 
   it('prefers a body, then an exact code', () => {
-    expect(responses.primary({ responses: [response('204'), response('2xx', true), response('201', true)] })?.statusCode).toBe('201')
-    expect(responses.primary({ responses: [response('2xx'), response('204')] })?.statusCode).toBe('204')
-    expect(responses.primary({ responses: [response('204'), response('200', true)] })?.statusCode).toBe('200')
-    expect(responses.primary({ responses: [response('404')] })).toBeNull()
+    expect(responses.findPrimary({ responses: [response('204'), response('2xx', true), response('201', true)] })?.statusCode).toBe('201')
+    expect(responses.findPrimary({ responses: [response('2xx'), response('204')] })?.statusCode).toBe('204')
+    expect(responses.findPrimary({ responses: [response('204'), response('200', true)] })?.statusCode).toBe('200')
+    expect(responses.findPrimary({ responses: [response('404')] })).toBeNull()
   })
 })
 
-describe('http.baseURL', () => {
+describe('http.getBaseURL', () => {
   it('keeps only absolute, untemplated URLs', () => {
-    expect(baseURL({ url: 'https://api.example.com/v2' })).toBe('https://api.example.com/v2')
-    expect(baseURL({ url: '/v2' })).toBeUndefined()
-    expect(baseURL({ url: 'https://{env}.example.com' })).toBeUndefined()
-    expect(baseURL({ url: 'https://dev.example.com', variables: { env: { default: 'dev' } } })).toBeUndefined()
-    expect(baseURL(undefined)).toBeUndefined()
+    expect(getBaseURL({ url: 'https://api.example.com/v2' })).toBe('https://api.example.com/v2')
+    expect(getBaseURL({ url: '/v2' })).toBeUndefined()
+    expect(getBaseURL({ url: 'https://{env}.example.com' })).toBeUndefined()
+    expect(getBaseURL({ url: 'https://dev.example.com', variables: { env: { default: 'dev' } } })).toBeUndefined()
+    expect(getBaseURL(undefined)).toBeUndefined()
   })
 })
 
@@ -60,10 +60,10 @@ describe('http.status.toCode', () => {
   })
 })
 
-describe('http.parameters', () => {
+describe('http.groupParameters', () => {
   it('groups by location and keeps the first of a repeated name', () => {
     const param = (name: string, location: ParameterNode['in']) => ({ kind: 'Parameter', name, in: location }) as ParameterNode
-    const groups = parameters({ parameters: [param('id', 'path'), param('q', 'query'), param('q', 'query'), param('x', 'header'), param('s', 'cookie')] })
+    const groups = groupParameters({ parameters: [param('id', 'path'), param('q', 'query'), param('q', 'query'), param('x', 'header'), param('s', 'cookie')] })
     expect(Object.fromEntries(Object.entries(groups).map(([key, list]) => [key, list.map((p) => p.name)]))).toEqual({
       path: ['id'],
       query: ['q'],
@@ -74,14 +74,14 @@ describe('http.parameters', () => {
 
   it('builds the groups once per node', () => {
     const node = { parameters: [{ kind: 'Parameter', name: 'id', in: 'path' } as ParameterNode] }
-    expect(parameters(node)).toBe(parameters(node))
+    expect(groupParameters(node)).toBe(groupParameters(node))
   })
 })
 
-describe('http.parameters querystring', () => {
+describe('http.groupParameters querystring', () => {
   it('puts a whole querystring parameter in the query group after the query parameters', () => {
     const param = (name: string, location: ParameterNode['in']) => ({ kind: 'Parameter', name, in: location }) as ParameterNode
-    expect(parameters({ parameters: [param('filter', 'querystring'), param('page', 'query'), param('page', 'querystring')] }).query.map((p) => p.name)).toEqual(
+    expect(groupParameters({ parameters: [param('filter', 'querystring'), param('page', 'query'), param('page', 'querystring')] }).query.map((p) => p.name)).toEqual(
       ['page', 'filter'],
     )
   })

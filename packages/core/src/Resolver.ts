@@ -460,12 +460,12 @@ export class Resolver {
 
   /**
    * Builds one `ImportNode` per unique schema referenced in the tree, in first-occurrence
-   * order. Each ref's target resolves through `ast.ref.name`, so collision- or macro-renamed
+   * order. Each ref's target resolves through `ast.ref.getName`, so collision- or macro-renamed
    * schemas (`targetName`) import the emitted name. Names and paths go through the top-level
    * `name` and `file`, so import entries follow the plugin's conventions, and a per-call
    * `name` override wins over both.
    *
-   * The subtree scan runs through `ast.graph.importedNames`, which memoizes by node identity, so a
+   * The subtree scan runs through `ast.graph.getImportedNames`, which memoizes by node identity, so a
    * schema shared across the ts, zod, and faker plugins is walked once and every plugin's resolver
    * reads the same ref set instead of re-scanning it per plugin.
    */
@@ -473,7 +473,7 @@ export class Resolver {
     const { node, root, output, group, extname = '.ts', name, checks } = options
     const resolveName = name ?? ((schemaName: string) => this.name(schemaName))
 
-    return ast.graph.importedNames(node, { checks }).map((schemaName) =>
+    return ast.graph.getImportedNames(node, { checks }).map((schemaName) =>
       ast.factory.createImport({
         name: [resolveName(schemaName)],
         path: this.#resolveFilePath({ name: schemaName, extname, root, output, group }),

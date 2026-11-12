@@ -7,7 +7,7 @@ import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
 import type { ResponseNode } from './nodes/response.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { jsonContent } from './schema/index.ts'
+import { getEmbeddedJson } from './schema/index.ts'
 
 /**
  * Traversal depth for AST visitor utilities.
@@ -201,7 +201,7 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
 function isNeverPrinted({ node, key }: { node: Node; key: string }): boolean {
   if (node.kind !== nodeKinds.schema) return false
   if (key === 'contains' && (node.type === 'array' || node.type === 'tuple')) return node.contains?.min === 0 && node.contains.max === undefined
-  if (key === 'content' && node.type === 'string') return !jsonContent(node)
+  if (key === 'content' && node.type === 'string') return !getEmbeddedJson(node)
   return false
 }
 

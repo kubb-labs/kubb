@@ -19,7 +19,7 @@ function statusClass(input: StatusInput): number | null {
   return Number.isNaN(code) ? null : Math.floor(code / 100)
 }
 
-export { statusClass as class }
+export { statusClass as getClass }
 
 export function isSuccess(statusCode: StatusInput): boolean {
   return statusClass(statusCode) === 2

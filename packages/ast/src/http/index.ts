@@ -7,7 +7,7 @@ export * as responses from './responses.ts'
 export * as status from './status.ts'
 
 /** The server's URL when it is absolute and has no template variables, else `undefined`. */
-export function baseURL(server: InputServer | undefined): string | undefined {
+export function getBaseURL(server: InputServer | undefined): string | undefined {
   if (!server || server.variables || server.url.includes('{') || !server.url.includes('://')) return undefined
   return URL.canParse(server.url) ? server.url : undefined
 }
@@ -18,7 +18,7 @@ type ParameterGroups = Record<'path' | 'query' | 'header' | 'cookie', Array<Para
 const parametersByNode = new WeakMap<Pick<HttpOperationNode, 'parameters'>, ParameterGroups>()
 
 /** The operation's parameters by location, with a `querystring` parameter in `query`. A repeated name keeps its first parameter. */
-export function parameters(node: Pick<HttpOperationNode, 'parameters'>): ParameterGroups {
+export function groupParameters(node: Pick<HttpOperationNode, 'parameters'>): ParameterGroups {
   const cached = parametersByNode.get(node)
   if (cached) return cached
   const group = (...locations: Array<ParameterNode['in']>) => {

@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { createSchema } from '../nodes/schema.ts'
-import { isString, jsonContent, numberBounds } from './index.ts'
+import { isString, getEmbeddedJson, getNumberBounds } from './index.ts'
 
-describe('schema.jsonContent', () => {
+describe('schema.getEmbeddedJson', () => {
   const inner = createSchema({ type: 'object', properties: [] })
 
   it('returns the schema of a JSON string', () => {
-    expect(jsonContent({ content: { mediaType: 'application/json', schema: inner } })).toBe(inner)
+    expect(getEmbeddedJson({ content: { mediaType: 'application/json', schema: inner } })).toBe(inner)
   })
 
   it('ignores other media types, encoded content, or no schema', () => {
-    expect(jsonContent({ content: { mediaType: 'text/plain', schema: inner } })).toBeUndefined()
-    expect(jsonContent({ content: { mediaType: 'application/json', encoding: 'base64', schema: inner } })).toBeUndefined()
-    expect(jsonContent({ content: { mediaType: 'application/json' } })).toBeUndefined()
+    expect(getEmbeddedJson({ content: { mediaType: 'text/plain', schema: inner } })).toBeUndefined()
+    expect(getEmbeddedJson({ content: { mediaType: 'application/json', encoding: 'base64', schema: inner } })).toBeUndefined()
+    expect(getEmbeddedJson({ content: { mediaType: 'application/json' } })).toBeUndefined()
   })
 })
 
@@ -37,7 +37,7 @@ describe('isString', () => {
   })
 })
 
-describe('schema.numberBounds', () => {
+describe('schema.getNumberBounds', () => {
   it.each([
     [{ min: 1, max: 5 }, {}, { min: 1, max: 5 }],
     [{ exclusive: { min: 2, max: 8 } }, { integer: true }, { min: 3, max: 7 }],
@@ -46,7 +46,7 @@ describe('schema.numberBounds', () => {
     [{ min: 0, exclusive: { min: 3 } }, { integer: true }, { min: 4 }],
     [{ min: -(2 ** 63), max: 2 ** 63 }, { integer: true }, {}],
     [{ exclusive: { min: 0.5 } }, {}, { min: 0.5 }],
-  ] as const)('numberBounds(%o, %o) is %o', (node, options, expected) => {
-    expect(numberBounds({ ...node, ...options })).toStrictEqual(expected)
+  ] as const)('getNumberBounds(%o, %o) is %o', (node, options, expected) => {
+    expect(getNumberBounds({ ...node, ...options })).toStrictEqual(expected)
   })
 })

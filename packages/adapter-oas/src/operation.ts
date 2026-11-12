@@ -382,7 +382,7 @@ function parseParameter({
 function spreadQuerystring(param: ast.ParameterNode): Array<ast.ParameterNode> {
   if (param.in !== 'querystring') return [param]
   const schema = ast.ref.resolve(param.schema)
-  const formEncoded = !param.contentType || ast.mediaType.base(param.contentType) === 'application/x-www-form-urlencoded'
+  const formEncoded = !param.contentType || ast.mediaType.getBase(param.contentType) === 'application/x-www-form-urlencoded'
   if (schema.type !== 'object' || !formEncoded) return [param]
   return schema.properties.map((property) => {
     const { style, explode, allowReserved } = param.encoding?.[property.name] ?? {}

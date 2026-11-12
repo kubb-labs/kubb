@@ -193,7 +193,7 @@ Ref helpers live in `ast.ref`, schema graph helpers in `ast.graph`, and schema p
 | Helper            | Purpose                                                                                                                                        |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ast.ref.resolve` | Follow resolved ref nodes to their target schema.                                                                                              |
-| `ast.ref.name`    | The name a ref points at: `'Pet'` for `'#/components/schemas/Pet'`. A ref node gives its `targetName` first, so pass the node, not `node.ref`. |
+| `ast.ref.getName` | The name a ref points at: `'Pet'` for `'#/components/schemas/Pet'`. A ref node gives its `targetName` first, so pass the node, not `node.ref`. |
 | `childName`       | Derive a child property name from context.                                                                                                     |
 | `enumPropName`    | Convert an enum value into a valid property name.                                                                                              |
 | `ast.ref.sync`    | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override.                                     |
@@ -201,7 +201,7 @@ Ref helpers live in `ast.ref`, schema graph helpers in `ast.graph`, and schema p
 ```typescript [refs.ts]
 import { ast } from 'kubb/kit'
 
-const name = ast.ref.name('#/components/schemas/Pet') // 'Pet'
+const name = ast.ref.getName('#/components/schemas/Pet') // 'Pet'
 ```
 
 ## Schema graph
@@ -210,22 +210,22 @@ Analyze how schemas reference each other, to prune unused schemas or wrap circul
 
 | Helper                       | Purpose                                                                                                                                                         |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ast.graph.usedNames`        | Collect the names of every top-level schema transitively used by a set of operations. Pair it with `include` filters to leave unreferenced schemas ungenerated. |
-| `ast.graph.circular`         | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`.                      |
+| `ast.graph.getUsedNames`     | Collect the names of every top-level schema transitively used by a set of operations. Pair it with `include` filters to leave unreferenced schemas ungenerated. |
+| `ast.graph.getCircular`      | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`.                      |
 | `ast.graph.containsCircular` | Report whether a schema, or anything nested inside it, references a circular schema.                                                                            |
 
 ## Schemas
 
 `ast.schema` reads facts from schema nodes, so a plugin does not walk them again.
 
-| Helper                         | Purpose                                                                                                        |
-| ------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `ast.schema.properties`        | Every property named `propertyName` on an object, a resolved ref, or an intersection. Unions are not searched. |
-| `ast.schema.literalValues`     | The literal values an enum, a resolved ref, or a union of literals allows.                                     |
-| `ast.schema.discriminatorName` | The property every member pins to its own literal, which can act as an implicit discriminator.                 |
-| `ast.schema.jsonContent`       | The schema of the JSON document a string holds (`contentMediaType` with `contentSchema`).                      |
-| `ast.schema.isString`          | Whether a schema prints as a plain `string`, including `date` and `time` as strings.                           |
-| `ast.schema.numberBounds`      | The tightest inclusive `{ min, max }`, with exclusive bounds moved to the next `step`.                         |
+| Helper                          | Purpose                                                                                                        |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `ast.schema.findProperties`     | Every property named `propertyName` on an object, a resolved ref, or an intersection. Unions are not searched. |
+| `ast.schema.getLiterals`        | The literal values an enum, a resolved ref, or a union of literals allows.                                     |
+| `ast.schema.inferDiscriminator` | The property every member pins to its own literal, which can act as an implicit discriminator.                 |
+| `ast.schema.getEmbeddedJson`    | The schema of the JSON document a string holds (`contentMediaType` with `contentSchema`).                      |
+| `ast.schema.isString`           | Whether a schema prints as a plain `string`, including `date` and `time` as strings.                           |
+| `ast.schema.getNumberBounds`    | The tightest inclusive `{ min, max }`, with exclusive bounds moved to the next `step`.                         |
 
 ## Media types
 
@@ -233,16 +233,16 @@ Every `ast.mediaType` helper takes a media type string or a content entry.
 
 | Helper                   | Purpose                                                                                        |
 | ------------------------ | ---------------------------------------------------------------------------------------------- |
-| `ast.mediaType.base`     | Drop the parameters and lowercase: `'Text/Plain; charset=utf-8'` gives `'text/plain'`.         |
+| `ast.mediaType.getBase`  | Drop the parameters and lowercase: `'Text/Plain; charset=utf-8'` gives `'text/plain'`.         |
 | `ast.mediaType.isJson`   | Whether a media type is `application/json`, `text/json`, or has a `+json` suffix.              |
 | `ast.mediaType.isStream` | Whether a media type is server-sent events, JSON Lines, or a JSON text sequence (`+json-seq`). |
 
 ## Servers
 
-| Helper              | Purpose                                                                |
-| ------------------- | ---------------------------------------------------------------------- |
-| `ast.server.select` | Pick the server at `index`, falling back to the first one.             |
-| `ast.server.byName` | Map each server name to its server. The first server with a name wins. |
+| Helper                   | Purpose                                                                |
+| ------------------------ | ---------------------------------------------------------------------- |
+| `ast.server.select`      | Pick the server at `index`, falling back to the first one.             |
+| `ast.server.groupByName` | Map each server name to its server. The first server with a name wins. |
 
 ## Auth
 
@@ -254,23 +254,23 @@ Every `ast.mediaType` helper takes a media type string or a content entry.
 
 `ast.http` works for HTTP operations only. Every `ast.http.status` helper takes a status code, a range or a response.
 
-| Helper                       | Purpose                                                                                        |
-| ---------------------------- | ---------------------------------------------------------------------------------------------- |
-| `ast.http.is`                | Narrow an operation to an HTTP operation, so `method` and `path` are present.                  |
-| `ast.http.status.class`      | The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`.      |
-| `ast.http.status.isSuccess`  | Whether a status code or range is `2xx`.                                                       |
-| `ast.http.status.isError`    | Whether a status code or range is `4xx` or `5xx`.                                              |
-| `ast.http.status.toCode`     | One concrete code for a status or range: `200` for `2xx` and `default`.                        |
-| `ast.http.parameters`        | The parameters by location (`path`, `query`, `header`, `cookie`), first of a repeated name.    |
-| `ast.http.responses.success` | The operation's `2xx` responses.                                                               |
-| `ast.http.responses.primary` | The success response a client returns: one with a body first, then an exact code over a range. |
-| `ast.http.baseURL`           | A server's URL when it is absolute and has no template variables, else `undefined`.            |
+| Helper                             | Purpose                                                                                        |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `ast.http.is`                      | Narrow an operation to an HTTP operation, so `method` and `path` are present.                  |
+| `ast.http.status.getClass`         | The class digit of a status code or range: `2` for `201` and `2xx`, `null` for `default`.      |
+| `ast.http.status.isSuccess`        | Whether a status code or range is `2xx`.                                                       |
+| `ast.http.status.isError`          | Whether a status code or range is `4xx` or `5xx`.                                              |
+| `ast.http.status.toCode`           | One concrete code for a status or range: `200` for `2xx` and `default`.                        |
+| `ast.http.groupParameters`         | The parameters by location (`path`, `query`, `header`, `cookie`), first of a repeated name.    |
+| `ast.http.responses.filterSuccess` | The operation's `2xx` responses.                                                               |
+| `ast.http.responses.findPrimary`   | The success response a client returns: one with a body first, then an exact code over a range. |
+| `ast.http.getBaseURL`              | A server's URL when it is absolute and has no template variables, else `undefined`.            |
 
 ```typescript [baseURL.ts]
 import { ast } from 'kubb/kit'
 
 // string | undefined
-const baseURL = ast.http.baseURL(ast.server.select({ servers: node.servers, index: 0 }))
+const baseURL = ast.http.getBaseURL(ast.server.select({ servers: node.servers, index: 0 }))
 ```
 
 ## Constants

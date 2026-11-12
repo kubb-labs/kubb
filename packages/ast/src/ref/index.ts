@@ -13,8 +13,8 @@ export function sync(node: SchemaNode): SchemaNode {
  * The name a ref points at. A `$ref` string gives its last segment: `'#/components/schemas/Pet'` gives `'Pet'`.
  * A ref node gives its `targetName` first, so pass the node, not `node.ref`, to respect a renamed target. Other nodes give `null`.
  */
-export function name(ref: string): string
-export function name(node: SchemaNode | null | undefined): string | null
-export function name(input: string | SchemaNode | null | undefined): string | null {
+export function getName(ref: string): string
+export function getName(node: SchemaNode | null | undefined): string | null
+export function getName(input: string | SchemaNode | null | undefined): string | null {
   return typeof input === 'string' ? refName(input) : resolveRefName(input)
 }

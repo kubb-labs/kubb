@@ -127,7 +127,7 @@ function process(node: Node) {
 ```ts
 import { ast } from '@kubb/ast'
 
-ast.ref.name({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' }) // 'Pet'
+ast.ref.getName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' }) // 'Pet'
 ```
 
 ## Adding a node

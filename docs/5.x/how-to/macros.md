@@ -101,7 +101,7 @@ export function macroRenameSchema({ from, to }: { from: string; to: string }) {
 
       // A ref node can be the renamed schema's own declaration, a pointer to it, or both at once.
       const renamesDeclaration = refNode.name === from
-      const renamesTarget = ast.ref.name(refNode) === from
+      const renamesTarget = ast.ref.getName(refNode) === from
       if (!renamesDeclaration && !renamesTarget) return undefined
 
       return {

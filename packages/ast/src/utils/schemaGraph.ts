@@ -36,7 +36,7 @@ function collectRefEntries(node: SchemaNode, { checks }: { checks: boolean }): R
 }
 
 /**
- * Collects the names of every schema a node's subtree references, resolved with `ast.ref.name`.
+ * Collects the names of every schema a node's subtree references, resolved with `ast.ref.getName`.
  * Each ref contributes its name only, so the schema it points to is never traversed. Memoized by
  * node identity, which lets `findCircularSchemas` and `ast.graph.containsCircular` share one scan per schema.
  *

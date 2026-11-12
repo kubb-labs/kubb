@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { byName, select } from './index.ts'
+import { groupByName, select } from './index.ts'
 
 const servers = [
   { url: 'https://a.example.com', name: 'a' },
@@ -16,7 +16,7 @@ describe('server', () => {
   })
 
   it('maps named servers, first name wins', () => {
-    const named = byName(servers)
+    const named = groupByName(servers)
     expect([...named.keys()]).toEqual(['a', 'b'])
     expect(named.get('a')?.url).toBe('https://a.example.com')
   })

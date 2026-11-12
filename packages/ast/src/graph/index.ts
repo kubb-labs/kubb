@@ -2,10 +2,10 @@ import type { SchemaNode } from '../nodes/schema.ts'
 import { collectSchemaRefs } from '../utils/schemaGraph.ts'
 
 export {
-  collectImportedRefNames as importedNames,
-  collectSchemaRefs as refs,
-  collectUsedSchemaNames as usedNames,
-  findCircularSchemas as circular,
+  collectImportedRefNames as getImportedNames,
+  collectSchemaRefs as getRefs,
+  collectUsedSchemaNames as getUsedNames,
+  findCircularSchemas as getCircular,
 } from '../utils/schemaGraph.ts'
 
 /** Whether a schema, or anything inside it, refers to one of `circularSchemas`, other than `excludeName`. */

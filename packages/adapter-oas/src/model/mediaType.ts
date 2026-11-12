@@ -14,7 +14,7 @@ export function isStream(contentType: string, mediaType: MediaTypeObject | null)
  * Whether the media type is `text/event-stream`, with or without parameters.
  */
 export function isEventStream(contentType: string): boolean {
-  return ast.mediaType.base(contentType) === 'text/event-stream'
+  return ast.mediaType.getBase(contentType) === 'text/event-stream'
 }
 
 /**

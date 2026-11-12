@@ -8,8 +8,8 @@ export const camelCase = camel
 /** @deprecated Use `casing.pascal`. Removed in Kubb v6. */
 export const pascalCase = pascal
 
-/** @deprecated Use `ast.ref.name`. Removed in Kubb v6. */
-export const extractRefName = ast.ref.name
+/** @deprecated Use `ast.ref.getName`. Removed in Kubb v6. */
+export const extractRefName = ast.ref.getName
 
 /** @deprecated Use `ast.ref.sync`. Removed in Kubb v6. */
 export const syncSchemaRef = ast.ref.sync

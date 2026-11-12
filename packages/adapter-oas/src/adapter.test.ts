@@ -808,11 +808,11 @@ describe('adapterOas options', () => {
     const node = await adapterOas({ validate: false }).parse({ type: 'data', data: document })
     const parsed = node.schemas.find((schema) => schema.name === 'Alias')!
     expect(parsed).toMatchObject({ type: 'string', description: 'alias' })
-    expect(parsed.conditionals?.map((pair) => [ast.ref.name(pair.if), ast.ref.name(pair.then)])).toStrictEqual([
+    expect(parsed.conditionals?.map((pair) => [ast.ref.getName(pair.if), ast.ref.getName(pair.then)])).toStrictEqual([
       ['AliasIf', 'AliasThen'],
       ['TargetIf', 'TargetThen'],
     ])
-    expect([...ast.graph.usedNames(node.operations, node.schemas)].sort()).toStrictEqual(['Alias', 'AliasIf', 'AliasThen', 'TargetIf', 'TargetThen'])
+    expect([...ast.graph.getUsedNames(node.operations, node.schemas)].sort()).toStrictEqual(['Alias', 'AliasIf', 'AliasThen', 'TargetIf', 'TargetThen'])
   })
 
   it('keeps a single-member allOf around a union ref as a ref instead of treating it as a cycle', async () => {
@@ -920,11 +920,11 @@ describe('adapterOas ref targetName', () => {
     const schemaRef = ast.narrowSchema(items[0]!, 'ref')
 
     expect(schemaRef?.targetName).toBe('OrderSchema')
-    expect(ast.ref.name(schemaRef)).toBe('OrderSchema')
+    expect(ast.ref.getName(schemaRef)).toBe('OrderSchema')
 
     const responseRef = ast.narrowSchema(node.operations[0]!.responses[0]!.content![0]!.schema!, 'ref')
 
     expect(responseRef?.targetName).toBe('OrderSchema')
-    expect(ast.ref.name(responseRef)).toBe('OrderSchema')
+    expect(ast.ref.getName(responseRef)).toBe('OrderSchema')
   })
 })

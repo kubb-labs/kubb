@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { base, isJson, isStream } from './index.ts'
+import { getBase, isJson, isStream } from './index.ts'
 
 describe('mediaType', () => {
   it('drops parameters and lowercases', () => {
-    expect(base('Text/Plain; charset=utf-8')).toBe('text/plain')
+    expect(getBase('Text/Plain; charset=utf-8')).toBe('text/plain')
   })
 
   it.each([
@@ -29,7 +29,7 @@ describe('mediaType', () => {
 
 describe('mediaType with a content entry', () => {
   it('reads the media type from the entry', () => {
-    expect(base({ contentType: 'Text/Plain; charset=utf-8' })).toBe('text/plain')
+    expect(getBase({ contentType: 'Text/Plain; charset=utf-8' })).toBe('text/plain')
     expect(isJson({ contentType: 'application/problem+json' })).toBe(true)
     expect(isStream({ contentType: 'application/jsonl' })).toBe(true)
   })

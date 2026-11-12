@@ -3,15 +3,15 @@ import { isJson } from '../mediaType/index.ts'
 import type { NumberSchemaNode, SchemaNode, SchemaType, StringSchemaNode } from '../nodes/schema.ts'
 
 export {
-  getSchemaLiteralValues as literalValues,
-  inferDiscriminatorPropertyName as discriminatorName,
-  resolveSchemaProperties as properties,
+  getSchemaLiteralValues as getLiterals,
+  inferDiscriminatorPropertyName as inferDiscriminator,
+  resolveSchemaProperties as findProperties,
 } from '../utils/schemaProperties.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'])
 
 /** The schema of the JSON document a string holds (`contentMediaType` with `contentSchema`), else `undefined`. */
-export function jsonContent({ content }: Pick<StringSchemaNode, 'content'>): SchemaNode | undefined {
+export function getEmbeddedJson({ content }: Pick<StringSchemaNode, 'content'>): SchemaNode | undefined {
   // shortcut: an encoded document (`contentEncoding`) is not decoded, so only its encoding is checked; decode it once a spec needs both.
   if (!content?.schema || content.encoding || !content.mediaType) return undefined
   return isJson(content.mediaType) ? content.schema : undefined
@@ -29,7 +29,7 @@ export function isString(node: SchemaNode): boolean {
  * integer), an integer bound rounds inward, and an integer bound past `Number.MAX_SAFE_INTEGER` is left out, since it
  * prints as a rounded or invalid literal.
  */
-export function numberBounds({
+export function getNumberBounds({
   min,
   max,
   exclusive,

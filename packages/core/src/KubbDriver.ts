@@ -549,7 +549,7 @@ export class KubbDriver {
       const includedOps = operations.filter(
         (operation) => resolver.default.options(operation, { options: plugin.options, exclude, include, override }) !== null,
       )
-      allowedSchemaNamesByPlugin.set(plugin.name, ast.graph.usedNames(includedOps, schemas))
+      allowedSchemaNamesByPlugin.set(plugin.name, ast.graph.getUsedNames(includedOps, schemas))
     }
 
     // Freeze each plugin's per-run state once so the node-outer walk stays cheap. A plugin's
