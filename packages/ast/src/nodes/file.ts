@@ -2,7 +2,7 @@ import { hash } from 'node:crypto'
 import path from 'node:path'
 import { nodeKinds } from '../constants.ts'
 import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
-import { getNodeText } from '../utils/nodeText.ts'
+import { collectNodeStrings } from '../utils/nodeText.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
 import type { CodeNode } from './code.ts'
 
@@ -350,12 +350,10 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     const localNames = new Set<string>()
     // Only the sources the file keeps count: an import used just by a dropped duplicate is unused.
     for (const item of resolvedSources) {
-      const extracted = item.nodes && getNodeText(item.nodes)
-      if (extracted) sourceParts.push(extracted)
+      collectNodeStrings(item.nodes, sourceParts)
       if (item.name) localNames.add(item.name)
     }
-    const source = sourceParts.join('\n') || undefined
-    const combinedImports = combineImports(input.imports, resolvedExports, source)
+    const combinedImports = combineImports(input.imports, resolvedExports, sourceParts)
     // Consolidating output (`mode: 'file'`) can put a symbol's definition and an import of it in the
     // same file: by path when the import still targets this file, by name when consolidation moved it.
     return combinedImports.flatMap((imp) => {

@@ -11,6 +11,27 @@ export const CODE_NODE_TEXT_FIELDS: Partial<Record<NodeKind, ReadonlyArray<strin
 }
 
 /**
+ * Pushes every string `getNodeText` reads from `nodes` into `into`, without joining them. An array field
+ * pushes each item, so the result matches `getNodeText` for any search term without `\n` or `, `.
+ */
+export function collectNodeStrings(nodes: Array<CodeNode> | undefined, into: Array<string>): Array<string> {
+  for (const node of nodes ?? []) {
+    if (typeof node === 'string') {
+      if (node) into.push(node as string)
+      continue
+    }
+    const record = node as unknown as Record<string, unknown>
+    for (const field of CODE_NODE_TEXT_FIELDS[node.kind] ?? []) {
+      const value = record[field]
+      if (Array.isArray(value)) into.push(...value.filter(Boolean))
+      if (typeof value === 'string' && value) into.push(value)
+    }
+    if ('nodes' in node) collectNodeStrings(node.nodes, into)
+  }
+  return into
+}
+
+/**
  * Extracts all string content from a `CodeNode` tree recursively.
  * Collects the text fields and nested node content, to build the source string for import filtering.
  */

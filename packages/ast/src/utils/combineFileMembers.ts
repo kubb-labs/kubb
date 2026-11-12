@@ -136,17 +136,20 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
  * Retains imports that are referenced in `source` or re-exported. Imports with the same path and
  * `isTypeOnly` flag have their names merged. Returns a sorted, deduplicated, filtered array.
  */
-export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
+export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string | ReadonlyArray<string>): Array<ImportNode> {
+  const fragments = (typeof source === 'string' ? [source] : source)?.filter(Boolean)
+  const hasSource = Boolean(fragments?.length)
   // Build a lookup of all exported names to retain imports that are re-exported
   const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
   // `createFile` re-runs on every merge into a file, so scanning the source once per import name
   // costs a heavily merged file that scan again for every fragment it already holds. Indexing pays
   // for itself there, and costs more than it saves on the small files the default output produces.
-  const identifiers = source && imports.length > INDEX_ABOVE_IMPORTS ? new Set(source.match(IDENTIFIER_RUN)) : null
+  const identifiers = hasSource && imports.length > INDEX_ABOVE_IMPORTS ? new Set(fragments!.flatMap((fragment) => fragment.match(IDENTIFIER_RUN) ?? [])) : null
 
   // A name in the index is used. One that is not still might be, inside a longer identifier, so the
   // substring test stays behind it.
-  const isUsed = (importName: string): boolean => !source || identifiers?.has(importName) || source.includes(importName) || exportedNames.has(importName)
+  const isUsed = (importName: string): boolean =>
+    !hasSource || identifiers?.has(importName) || fragments!.some((fragment) => fragment.includes(importName)) || exportedNames.has(importName)
 
   // Memoize object import names so the same logical (propertyName, name) pair always
   // reuses the same object reference. Set-based deduplication then works correctly.
