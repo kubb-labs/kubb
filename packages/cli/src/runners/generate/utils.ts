@@ -190,23 +190,15 @@ export async function readOutputFiles(outputPath: string): Promise<Map<string, s
  * line, where the text of a large output tree takes hundreds of megabytes.
  */
 export type FileFingerprint = {
-  /**
-   * SHA-1 of the trimmed text, the text a regenerated file is compared with.
-   */
+  /** SHA-1 of the trimmed text, the text a regenerated file is compared with. */
   digest: string
-  /**
-   * Line hashes of the trimmed text, which count the lines a change adds and removes.
-   */
+  /** Line hashes of the trimmed text, which count the lines a change adds and removes. */
   lines: Int32Array
-  /**
-   * Lines the summary counts as removed when the file is not regenerated.
-   */
+  /** Lines the summary counts as removed when the file is not regenerated. */
   deletedLines: number
 }
 
-/**
- * Fingerprints the text of a stored file.
- */
+/** Fingerprints the text of a stored file. */
 export function fingerprintFile(text: string): FileFingerprint {
   const body = text.trimEnd()
   const trimmed = body.trimStart()
@@ -270,9 +262,7 @@ export type ChangeTally = { added: number; modified: number; deleted: number; li
 
 const statusKeys = { A: 'added', M: 'modified', D: 'deleted' } as const
 
-/**
- * Adds one file's outcome to the totals: a {@link FileChange}, or `undefined` for an unchanged file.
- */
+/** Adds one file's outcome to the totals: a {@link FileChange}, or `undefined` for an unchanged file. */
 export function tallyChange({ tally, change }: { tally: ChangeTally; change: FileChange | undefined }): void {
   if (!change) {
     tally.unchanged++
