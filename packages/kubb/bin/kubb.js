@@ -1,5 +1,12 @@
 #!/usr/bin/env node
 
+import module from 'node:module'
+
+// Later runs reuse the compiled code. Node reads NODE_COMPILE_CACHE and NODE_DISABLE_COMPILE_CACHE itself, and a failure must not stop the CLI.
+try {
+  module.enableCompileCache?.()
+} catch {}
+
 // Mapping 35 bundles costs 10 to 30 ms per run, so only debug runs pay for readable stack traces.
 if (['1', 'true'].includes(process.env.KUBB_DEBUG ?? '')) process.setSourceMapsEnabled?.(true)
 process.title = 'Kubb'
