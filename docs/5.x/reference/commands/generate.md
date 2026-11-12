@@ -88,7 +88,7 @@ Write a log file:
 kubb generate --reporter file
 ```
 
-Print a JSON report for CI. The exit code is non-zero on any error:
+Print a JSON report for CI. Stdout holds only the report, and the run log goes to stderr. The exit code is non-zero on any error:
 
 ```shell [Terminal]
 kubb generate --reporter json
