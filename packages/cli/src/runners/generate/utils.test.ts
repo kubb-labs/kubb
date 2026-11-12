@@ -6,7 +6,7 @@ import { stripVTControlCharacters } from 'node:util'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { type GeneratorContext, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { diffBuilds, diffFile, diffOutput, listenForKeys, readOutputFiles, startWatcher, trackBuild } from './utils.ts'
+import { diffBuilds, diffFile, diffOutput, fingerprintFile, listenForKeys, readOutputFiles, readOutputFingerprints, startWatcher, trackBuild } from './utils.ts'
 
 describe('startWatcher', () => {
   let dir: string
@@ -130,21 +130,53 @@ describe('diffOutput', () => {
         unchanged: 1,
       })
       expect((await diffOutput({ storage, paths, clean: false, previousFiles })).files.map((file) => file.status)).toStrictEqual(['M', 'A'])
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+  })
+})
 
-      // Changes counted while writing give the same diff without reading the output back.
-      const counted = new Map(
-        await Promise.all(
-          paths.map(async (path) => [path, diffFile({ path, next: (await storage.readItem(path))!, previous: previousFiles.get(path) ?? null })] as const),
-        ),
+describe('diffFile', () => {
+  it.each([
+    ['an unchanged file', 'a\nb\nc\n', 'a\nb\nc'],
+    ['a modified file', 'a\nb\nc', 'a\nB\nc\nd'],
+    ['a file with repeated lines', 'x\nx\ny', 'x\ny\ny'],
+    ['a file with surrounding blank lines', '\n\n  a\nb\n\n', 'a\nb\nc'],
+  ])('gives the same change against a fingerprint as against the text, for %s', (_label, stored, next) => {
+    const path = '/gen/pet.ts'
+
+    expect(diffFile({ path, next, previous: fingerprintFile(stored) })).toStrictEqual(diffFile({ path, next, previous: stored }))
+  })
+
+  it('counts every line of a new file as added', () => {
+    expect(diffFile({ path: '/gen/pet.ts', next: 'a\nb', previous: null })).toStrictEqual({ status: 'A', path: '/gen/pet.ts', added: 2, removed: 0 })
+  })
+})
+
+describe('readOutputFingerprints', () => {
+  it('fingerprints every file below the folder and counts the lines a deletion removes, blank lines above the first included', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'kubb-fingerprints-'))
+    try {
+      await mkdir(join(dir, 'gen/nested'), { recursive: true })
+      await writeFile(join(dir, 'gen/pet.ts'), 'a\nb\nc\n')
+      await writeFile(join(dir, 'gen/nested/tag.ts'), '\n\nd')
+      await writeFile(join(dir, 'gen/blank.ts'), '  \n')
+      const fingerprints = await readOutputFingerprints(join(dir, 'gen'))
+      const previousFiles = await readOutputFiles(join(dir, 'gen'))
+
+      expect(new Map([...fingerprints].map(([path, fingerprint]) => [path, fingerprint.deletedLines]))).toStrictEqual(
+        new Map([
+          [join(dir, 'gen/pet.ts'), 3],
+          [join(dir, 'gen/nested/tag.ts'), 3],
+          [join(dir, 'gen/blank.ts'), 0],
+        ]),
       )
-      expect(await diffOutput({ storage: memoryStorage(), paths, clean: true, previousFiles, counted })).toStrictEqual(
-        await diffOutput({ storage, paths, clean: true, previousFiles }),
+      // The lines a fingerprint counts as deleted match the ones the text gives.
+      const deleted = await diffOutput({ storage: memoryStorage(), paths: [], clean: true, previousFiles })
+      expect(new Map(deleted.files.map((file) => [file.path, file.removed]))).toStrictEqual(
+        new Map([...fingerprints].map(([path, fingerprint]) => [path, fingerprint.deletedLines])),
       )
-      // A path the writer never reported, such as a blank file the storage skipped, is read back.
-      counted.delete(join(dir, 'gen/tag.ts'))
-      expect(await diffOutput({ storage, paths, clean: false, previousFiles, counted })).toStrictEqual(
-        await diffOutput({ storage, paths, clean: false, previousFiles }),
-      )
+      expect(await readOutputFingerprints(join(dir, 'missing'))).toStrictEqual(new Map())
     } finally {
       await rm(dir, { recursive: true, force: true })
     }

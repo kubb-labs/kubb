@@ -1,3 +1,5 @@
+import { hash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import { readdir } from 'node:fs/promises'
 import { join, relative } from 'node:path'
 import process from 'node:process'
@@ -123,13 +125,39 @@ export function diffBuilds(previous: BuildSnapshot, next: BuildSnapshot): BuildD
 /** A changed file with how many lines it gains and loses, counted as a multiset, which is cheap and close enough for a plan. */
 export type FileChange = { status: 'A' | 'M' | 'D'; path: string; added?: number; removed?: number }
 
-function countLineChanges(before: string, after: string): { added: number; removed: number } {
-  const remaining = new Map<string, number>()
-  for (const line of before ? before.split('\n') : []) remaining.set(line, (remaining.get(line) ?? 0) + 1)
+type Lines = ArrayLike<string | number>
+
+const NO_LINES: Lines = []
+
+function splitLines(text: string): Lines {
+  return text ? text.split('\n') : NO_LINES
+}
+
+/** One 32-bit FNV-1a hash per line, splitting the way `text.split('\n')` does. */
+function hashLines(text: string): Int32Array {
+  if (!text) return new Int32Array(0)
+  const hashes: Array<number> = []
+  let hash = 0x811c9dc5
+  for (let index = 0; index < text.length; index++) {
+    const code = text.charCodeAt(index)
+    if (code === 10) {
+      hashes.push(hash)
+      hash = 0x811c9dc5
+      continue
+    }
+    hash = Math.imul(hash ^ code, 0x01000193)
+  }
+  hashes.push(hash)
+  return Int32Array.from(hashes)
+}
+
+function countLineChanges({ before, after }: { before: Lines; after: Lines }): { added: number; removed: number } {
+  const remaining = new Map<string | number, number>()
+  for (let index = 0; index < before.length; index++) remaining.set(before[index]!, (remaining.get(before[index]!) ?? 0) + 1)
   let added = 0
-  for (const line of after ? after.split('\n') : []) {
-    const count = remaining.get(line) ?? 0
-    if (count > 0) remaining.set(line, count - 1)
+  for (let index = 0; index < after.length; index++) {
+    const count = remaining.get(after[index]!) ?? 0
+    if (count > 0) remaining.set(after[index]!, count - 1)
     else added++
   }
   const removed = [...remaining.values()].reduce((sum, count) => sum + count, 0)
@@ -138,7 +166,9 @@ function countLineChanges(before: string, after: string): { added: number; remov
 
 /**
  * Reads the output before generation, so cleaning the directory cannot erase the diff baseline.
- * A missing directory or an unreadable file is skipped.
+ * A missing directory or an unreadable file is skipped. This keeps every file's text for the whole
+ * run, so only a dry run and a run with output passes use it: they compare against the output read
+ * back at the end.
  */
 export async function readOutputFiles(outputPath: string): Promise<Map<string, string>> {
   const entries = await readdir(outputPath, { recursive: true, withFileTypes: true }).catch(() => [])
@@ -155,9 +185,64 @@ export async function readOutputFiles(outputPath: string): Promise<Map<string, s
 }
 
 /**
+ * What is left of a file once `output.clean` deleted it: a hash of its text and one per line, which
+ * is enough to tell whether its regenerated copy changed and by how many lines. A few bytes per
+ * line, where the text of a large output tree takes hundreds of megabytes.
+ */
+export type FileFingerprint = {
+  /**
+   * SHA-1 of the trimmed text, the text a regenerated file is compared with.
+   */
+  digest: string
+  /**
+   * Line hashes of the trimmed text, which count the lines a change adds and removes.
+   */
+  lines: Int32Array
+  /**
+   * Lines the summary counts as removed when the file is not regenerated.
+   */
+  deletedLines: number
+}
+
+/**
+ * Fingerprints the text of a stored file.
+ */
+export function fingerprintFile(text: string): FileFingerprint {
+  const body = text.trimEnd()
+  const trimmed = body.trimStart()
+  // A deleted file also counts the blank lines above its first line, which trimming drops.
+  const leading = body.slice(0, body.length - trimmed.length).split('\n').length - 1
+  const lines = hashLines(trimmed)
+
+  return { digest: hash('sha1', trimmed), lines, deletedLines: body ? lines.length + leading : 0 }
+}
+
+/**
+ * Fingerprints every file under the output folder right before `output.clean` empties it. Files are
+ * read one at a time and dropped again, so the old tree is never held in memory. A missing
+ * directory or an unreadable file is skipped.
+ */
+export async function readOutputFingerprints(outputPath: string): Promise<Map<string, FileFingerprint>> {
+  const entries = await readdir(outputPath, { recursive: true, withFileTypes: true }).catch(() => [])
+  const fingerprints = new Map<string, FileFingerprint>()
+  for (const entry of entries) {
+    if (!entry.isFile()) continue
+    const filePath = join(entry.parentPath, entry.name)
+    try {
+      // Synchronous on purpose: one read at a time is several times faster here than a pool of `fs.promises` reads.
+      fingerprints.set(filePath, fingerprintFile(readFileSync(filePath, 'utf8')))
+    } catch {
+      /* unreadable, so it cannot be compared */
+    }
+  }
+  return fingerprints
+}
+
+/**
  * How one generated file differs from its copy before generation: `undefined` when both hold the
- * same output, otherwise the change with its line counts. The manifest recognizes output a
- * formatter rewrote.
+ * same output, otherwise the change with its line counts. `previous` is the stored text, the
+ * {@link FileFingerprint} of a file `output.clean` deleted, or `null` for a new file. The manifest
+ * recognizes output a formatter rewrote.
  */
 export function diffFile({
   path,
@@ -167,23 +252,44 @@ export function diffFile({
 }: {
   path: string
   next: string
-  previous: string | null
+  previous: string | FileFingerprint | null
   manifest?: Pick<OutputManifest, 'isUpToDate'>
 }): FileChange | undefined {
-  if (previous !== null && (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: path, source: next, disk: previous }))) {
-    return undefined
+  if (previous === null) return { status: 'A', path, added: splitLines(next.trimEnd()).length, removed: 0 }
+  if (typeof previous !== 'string') {
+    const trimmed = next.trim()
+    if (hash('sha1', trimmed) === previous.digest) return undefined
+    return { status: 'M', path, ...countLineChanges({ before: previous.lines, after: hashLines(trimmed) }) }
   }
-  return {
-    status: previous === null ? 'A' : 'M',
-    path,
-    ...countLineChanges(previous?.trim() ?? '', previous === null ? next.trimEnd() : next.trim()),
+  if (matchesStored({ stored: previous, source: next }) || manifest?.isUpToDate({ key: path, source: next, disk: previous })) return undefined
+  return { status: 'M', path, ...countLineChanges({ before: splitLines(previous.trim()), after: splitLines(next.trim()) }) }
+}
+
+/** The totals the summary prints, plus the files that came out the same. */
+export type ChangeTally = { added: number; modified: number; deleted: number; linesAdded: number; linesRemoved: number; unchanged: number }
+
+const statusKeys = { A: 'added', M: 'modified', D: 'deleted' } as const
+
+/**
+ * Adds one file's outcome to the totals: a {@link FileChange}, or `undefined` for an unchanged file.
+ */
+export function tallyChange({ tally, change }: { tally: ChangeTally; change: FileChange | undefined }): void {
+  if (!change) {
+    tally.unchanged++
+    return
   }
+  tally[statusKeys[change.status]]++
+  tally.linesAdded += change.added ?? 0
+  tally.linesRemoved += change.removed ?? 0
+}
+
+export function createChangeTally(): ChangeTally {
+  return { added: 0, modified: 0, deleted: 0, linesAdded: 0, linesRemoved: 0, unchanged: 0 }
 }
 
 /**
  * Compares generated output with the files captured before generation. The manifest recognizes
- * output rewritten by a formatter, and `clean` includes files the run would delete. `counted` holds
- * changes already worked out while the files were written; any other path is read back.
+ * output rewritten by a formatter, and `clean` includes files the run would delete.
  */
 export async function diffOutput({
   storage,
@@ -191,7 +297,6 @@ export async function diffOutput({
   clean,
   manifest,
   previousFiles,
-  counted,
 }: {
   storage: Storage
   paths: ReadonlyArray<string>
@@ -201,10 +306,6 @@ export async function diffOutput({
    * The output captured before a real run, including files removed by cleaning.
    */
   previousFiles: ReadonlyMap<string, string>
-  /**
-   * Each written file's change from {@link diffFile}, `undefined` when unchanged. A path missing here, such as a blank file the storage skipped, is read back.
-   */
-  counted?: ReadonlyMap<string, FileChange | undefined>
 }): Promise<{ files: Array<FileChange>; unchanged: number }> {
   const generated = new Set(paths)
   const changes: Array<FileChange | undefined> = []
@@ -213,14 +314,9 @@ export async function diffOutput({
     items: paths,
     limit: 50,
     run: async (filePath, index) => {
-      let change: FileChange | undefined
-      if (counted?.has(filePath)) {
-        change = counted.get(filePath)
-      } else {
-        const next = await storage.readItem(filePath)
-        if (next === null) return
-        change = diffFile({ path: filePath, next, previous: previousFiles.get(filePath) ?? null, manifest })
-      }
+      const next = await storage.readItem(filePath)
+      if (next === null) return
+      const change = diffFile({ path: filePath, next, previous: previousFiles.get(filePath) ?? null, manifest })
       if (change) changes[index] = change
       else unchanged++
     },
@@ -228,7 +324,7 @@ export async function diffOutput({
   const files = changes.filter((file) => file !== undefined)
   if (clean) {
     for (const [filePath, source] of previousFiles) {
-      if (!generated.has(filePath)) files.push({ status: 'D', path: filePath, ...countLineChanges(source.trimEnd(), '') })
+      if (!generated.has(filePath)) files.push({ status: 'D', path: filePath, added: 0, removed: splitLines(source.trimEnd()).length })
     }
   }
 

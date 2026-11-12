@@ -270,6 +270,32 @@ describe('FileManager', () => {
       expect(processed.toSorted()).toStrictEqual(['a.ts:/* a */', 'b.ts:/* b */'])
     })
 
+    it('hands kubb:file:processed what the storage held before the write, and null under a folder that was just cleaned', async () => {
+      const storage = memoryStorage()
+      await storage.writeItem('/gen/a.ts', '/* old */')
+      await storage.writeItem('/other/b.ts', '/* b */')
+      const readItem = vi.spyOn(storage, 'readItem')
+      const hooks = new Hookable<KubbHooks>()
+      const stored = new Map<string, string | null | undefined>()
+      hooks.hook('kubb:file:processed', ({ file, stored: previous }) => {
+        stored.set(file.path, previous)
+      })
+      const files = [
+        makeFileWithSources('/gen/a.ts', ['/* a */']),
+        makeFileWithSources('/other/b.ts', ['/* b */']),
+        makeFileWithSources('/other/c.ts', ['/* c */']),
+      ]
+
+      await new FileManager().write(files, { storage, hooks })
+      expect(Object.fromEntries(stored)).toStrictEqual({ '/gen/a.ts': '/* old */', '/other/b.ts': '/* b */', '/other/c.ts': null })
+      // One read per file serves both the write decision and the hook.
+      expect(readItem).toHaveBeenCalledTimes(files.length)
+
+      await new FileManager().write(files, { storage, hooks, cleaned: '/gen' })
+      expect(stored.get('/gen/a.ts')).toBeNull()
+      expect(stored.get('/other/b.ts')).toBe('/* b */')
+    })
+
     it('lists the files the storage already held as unchanged on the end hook', async () => {
       const storage = memoryStorage()
       await storage.writeItem('a.ts', '/* a */')

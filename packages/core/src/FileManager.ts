@@ -104,7 +104,8 @@ function compareFiles(a: FileNode, b: FileNode): number {
 /**
  * Writes `source` to `file.path` unless the storage already holds it, either verbatim or, per the
  * manifest, as what the output passes make of it. Checking here rather than in a driver gives a
- * storage writing to S3 or a database the same guarantee `fsStorage` has. `false` when skipped.
+ * storage writing to S3 or a database the same guarantee `fsStorage` has. `written` is `false` when
+ * skipped, and `stored` is what the storage held before the write.
  */
 async function writeChanged({
   storage,
@@ -113,15 +114,20 @@ async function writeChanged({
   source,
   signal,
   cleaned,
-}: Pick<WriteOptions, 'storage' | 'manifest' | 'signal' | 'cleaned'> & { file: FileNode; source: string }): Promise<boolean> {
+}: Pick<WriteOptions, 'storage' | 'manifest' | 'signal' | 'cleaned'> & { file: FileNode; source: string }): Promise<{
+  written: boolean
+  stored: string | null
+}> {
   signal?.throwIfAborted()
   const stored = cleaned && isPathInside(file.path, cleaned) ? null : await storage.readItem(file.path)
-  if (stored !== null && (matchesStored({ stored, source }) || manifest?.isUpToDate({ key: file.path, source, disk: stored }))) return false
+  if (stored !== null && (matchesStored({ stored, source }) || manifest?.isUpToDate({ key: file.path, source, disk: stored }))) {
+    return { written: false, stored }
+  }
   signal?.throwIfAborted()
   await storage.writeItem(file.path, source, { stored })
   // Only a file that was written can have been changed by the output passes.
   manifest?.track({ key: file.path, source })
-  return true
+  return { written: true, stored }
 }
 
 /** Reports finished files in input order: each finished file flushes the run of finished files ahead of it as one update. */
@@ -308,7 +314,8 @@ export class FileManager {
    * memory rather than holding every source, while still overlapping each file's write with the
    * next file's parse. Files finish in whatever order they parse, so each finished file flushes the
    * run of finished files ahead of it as one `kubb:files:processing:update`, keeping rows in input order.
-   * Each parsed source goes out once on `kubb:file:processed`, so listeners read it without the pool holding it.
+   * Each parsed source goes out once on `kubb:file:processed`, next to the content the storage held before the write,
+   * so listeners compare the two without the pool holding either or reading the output a second time.
    *
    * A file the storage already holds is skipped, so a rebuild that generates identical output
    * writes nothing and leaves every mtime where it was. `kubb:files:processing:end` lists the
@@ -328,8 +335,9 @@ export class FileManager {
         signal?.throwIfAborted()
         const source = await this.parse(file, { parsers })
         if (source) {
-          if (!(await writeChanged({ storage, manifest, file, source, signal, cleaned }))) unchanged.push(file.path)
-          await hooks?.callHook('kubb:file:processed', { file, source })
+          const { written, stored } = await writeChanged({ storage, manifest, file, source, signal, cleaned })
+          if (!written) unchanged.push(file.path)
+          await hooks?.callHook('kubb:file:processed', { file, source, stored })
         }
         await progress?.(index)
       },
