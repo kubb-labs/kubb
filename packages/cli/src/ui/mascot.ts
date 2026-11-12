@@ -1,4 +1,3 @@
-import { setTimeout as sleep } from 'node:timers/promises'
 import { stripVTControlCharacters } from 'node:util'
 import { isRichOutput } from '../utils/env.ts'
 import { type Expression, getIntro, wakeUp } from '../loggers/banner.ts'
@@ -40,22 +39,39 @@ export function getBanner(version: string, command: string): string {
   return canDrawMascot(version, command) ? `\n${bannerIntro(version, 'open', command)}` : `Kubb CLI v${version}`
 }
 
+/** Resolves after `ms`, or as soon as `signal` aborts. */
+function pause({ ms, signal }: { ms: number; signal?: AbortSignal }): Promise<void> {
+  return new Promise((resolve) => {
+    const done = () => {
+      clearTimeout(timer)
+      signal?.removeEventListener('abort', done)
+      resolve()
+    }
+    const timer = setTimeout(done, ms)
+    signal?.addEventListener('abort', done)
+  })
+}
+
 /**
- * Opens `kubb generate` with the mascot playing its wake-up frames in place, which takes under a
- * second and overlaps the config load. Elsewhere the still {@link getBanner} is the header.
+ * Opens `kubb generate` with the mascot playing its wake-up frames in place. Once `signal` aborts,
+ * it jumps to the last frame, so the animation never holds up work that is already done.
+ * Elsewhere the still {@link getBanner} is the header.
  */
-export async function logBanner(version: string): Promise<void> {
+export async function logBanner({ version, signal }: { version: string; signal?: AbortSignal }): Promise<void> {
   if (!canDrawMascot(version, 'generate')) {
     console.log(getBanner(version, 'generate'))
 
     return
   }
 
+  const [lastExpression] = wakeUp.at(-1)!
   console.log('')
   for (const [index, [expression, ms]] of wakeUp.entries()) {
-    const frame = bannerIntro(version, expression, 'generate')
+    const cut = signal?.aborted ?? false
+    const frame = bannerIntro(version, cut ? lastExpression : expression, 'generate')
     if (index > 0) process.stdout.moveCursor(0, -frame.split('\n').length)
     console.log(frame)
-    await sleep(ms)
+    if (cut) return
+    await pause({ ms, signal })
   }
 }

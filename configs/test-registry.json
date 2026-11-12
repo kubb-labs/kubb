@@ -65,6 +65,7 @@
   "packages/cli/src/runners/studio/snapshot.test.ts": "Golden path for kubb studio snapshot: CI identity, base selection, JSON and human output.",
   "packages/cli/src/runners/update/run.test.ts": "Golden path for kubb update: dry run, major gating, regenerate summary, compatibility refusal.",
   "packages/cli/src/runners/validate/run.test.ts": "Golden path for kubb validate with and without adapter-oas and with a configured adapter.",
+  "packages/cli/src/ui/mascot.test.ts": "Pins that the generate banner jumps to its last frame once the config loads and prints no frames without a rich terminal.",
   "packages/cli/src/utils/env.test.ts": "Pins the columns=0 IDE terminal regression; reporters.test.ts only covers the TTY-true path.",
   "packages/cli/src/utils/registry.test.ts": "Trust-boundary validator: rejects path-like ids, non-http KUBB_REGISTRY, bad semver, non-JSON index.",
   "packages/core/src/Diagnostics.test.ts": "Diagnostics.from is a branchy cause-chain resolver; the formatted output is what users read in the CLI.",
