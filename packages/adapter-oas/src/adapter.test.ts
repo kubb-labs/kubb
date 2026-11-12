@@ -562,8 +562,8 @@ describe('adapterOas options', () => {
     })
 
     const typeValues = (name: string) =>
-      ast
-        .narrowSchema(
+      ast.schema
+        .narrow(
           node.schemas.find((schema) => schema.name === name)!,
           'intersection',
         )
@@ -710,8 +710,8 @@ describe('adapterOas options', () => {
         [entry.if, entry.then].map((branch) => ast.schema.narrow(branch, 'object')?.properties.map((property) => property.name)),
       )
     const memberProperties = (name: string) =>
-      ast
-        .narrowSchema(find(name), 'intersection')
+      ast.schema
+        .narrow(find(name), 'intersection')
         ?.members?.map((member) => ast.schema.narrow(member, 'object')?.properties.map((property) => [property.name, property.required]))
 
     expect(find('Plain')).toMatchObject({ type: 'object', description: 'base' })
@@ -776,8 +776,8 @@ describe('adapterOas options', () => {
     })
 
     const statusIn = (name: string) =>
-      ast
-        .narrowSchema(node.schemas.find((schema) => schema.name === name)?.conditionals?.[0]?.if, 'object')
+      ast.schema
+        .narrow(node.schemas.find((schema) => schema.name === name)?.conditionals?.[0]?.if, 'object')
         ?.properties.find((property) => property.name === 'status')?.schema
 
     expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['Pet', 'Order'])

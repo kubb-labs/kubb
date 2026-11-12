@@ -2161,7 +2161,7 @@ describe('parseSchema array', () => {
 
     const collectEnumNames = (node: ast.SchemaNode | null | undefined): Array<string> =>
       node
-        ? ast
+        ? ast.node
             .collect(node, {
               schema(n) {
                 return ast.schema.narrow(n, 'enum') ?? undefined
