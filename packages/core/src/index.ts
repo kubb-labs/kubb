@@ -27,7 +27,6 @@ export { createRenderer } from './createRenderer.ts'
 export { createStorage } from './createStorage.ts'
 export { defineGenerator } from './defineGenerator.ts'
 export { defineParser } from './defineParser.ts'
-export { detectSharedSchemas, type SharedSchemas } from './detectSharedSchemas.ts'
 export { assertPluginOption, definePlugin } from './definePlugin.ts'
 export { createResolver } from './createResolver.ts'
 export { Resolver } from './Resolver.ts'
@@ -57,7 +56,7 @@ export type {
   ProblemDiagnostic,
   UpdateDiagnostic,
 } from './Diagnostics.ts'
-export type { CreateKubbOptions, FromConfigsOptions, ConfigGenerateResult, GenerateOptions, GenerateResult } from './createKubb.ts'
+export type { CreateKubbOptions, GenerateConfigsOptions, ConfigGenerateResult, GenerateOptions, GenerateResult } from './createKubb.ts'
 export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { SummaryRenderer } from './reporters/summary.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'

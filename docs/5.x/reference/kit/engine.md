@@ -62,12 +62,32 @@ paths.forEach((path) => console.log(`  ${path}`))
 | `.setup()`     | `() => Promise<void>`                             | Initializes the driver and storage. The build methods call it when needed. |
 | `.safeBuild()` | `() => Promise<BuildOutput>`                      | The canonical call. Runs the pipeline and collects problems in `BuildOutput.diagnostics` instead of throwing. |
 | `.build()`     | `() => Promise<BuildOutput>`                      | Runs `safeBuild()` and throws an `AggregateError` holding every error diagnostic when one has `severity: 'error'`. |
-| `.generate()`  | `(options?) => Promise<GenerateResult>`           | Runs one full generation, including the `kubb:generation:*` hooks and the optional `processOutput` pass. Never throws on a build error. Returns `{ success, files, diagnostics }`. |
-| `.dispose()`   | `() => void`                                      | Releases the driver. The instance also implements `Symbol.dispose`, so `using kubb = createKubb(config)` disposes it for you. |
+| `.generate()`  | `(options?) => Promise<GenerateResult>`           | Runs one full generation, including the `kubb:generation:*` hooks and the optional `processOutput` pass. Never throws on a build error. Returns `{ success, files, diagnostics, input }`. |
+| `.dispose()`   | `() => void`                                      | Releases the driver. The next build sets up a new one. The instance also implements `Symbol.dispose`, so `using kubb = createKubb(config)` disposes it for you. |
 | `.hooks`       | `Hookable<KubbHooks>`                             | Read-only. Shared hook emitter. Call `.hook(name, handler)` before a build to listen. See [lifecycle hooks](./hooks). |
 | `.config`      | `Config`                                          | Read-only. Resolved config, available right after `createKubb`. |
 | `.storage`     | `Storage`                                         | Read-only. Final source code keyed by absolute path. Available after `setup()`, throws before. |
-| `.driver`      | driver handle                                     | Advanced plugin driver, available after `setup()`. Throws before. |
+| `.driver`      | driver handle                                     | Advanced plugin driver, available after `setup()` until the build ends. Throws before and after. |
+
+### `Kubb.generate(configs)` {#kubb-generate}
+
+To build every config of a [`defineConfig([...])` array](/docs/5.x/reference/configuration#multiple-configurations-array), call the static `Kubb.generate` from `@kubb/core`. It is what `kubb generate` runs.
+
+```typescript [build.ts]
+import { Kubb } from '@kubb/core'
+import configs from './kubb.config.ts'
+
+const results = await Kubb.generate(configs)
+
+for (const { success, files, kubb } of results) {
+  console.log(kubb.config.name, success ? `${files.length} files` : 'failed')
+}
+```
+
+- The configs build one after another. A config that fails does not stop the others: its result has `success: false`.
+- Configs that set the same [`shared`](/docs/5.x/reference/configuration#shared) path are compared first, so each build writes the schemas it shares to that directory.
+- Each result is a `GenerateResult` with the `kubb` instance that built it, to read its `config`, `storage` or `hooks`.
+- Pass `{ only: index }` to build one config of the array. It is still compared with the others, and never empties the directory they share.
 
 ### `BuildOutput` fields {#buildoutput-fields}
 
@@ -77,6 +97,7 @@ paths.forEach((path) => console.log(`  ${path}`))
 | `storage`     | `Storage`           | Generated source code behind the `Storage` API |
 | `driver`      | driver handle       | Plugin driver for introspection |
 | `diagnostics` | `Array<Diagnostic>` | Problems collected during the build, plus a `performance` diagnostic per plugin |
+| `input`       | `InputNode \| null` | The parsed spec the build generated from, `null` when there was none to parse |
 
 Each problem diagnostic carries a `code`, a `severity` (`error`, `warning`, or `info`), a `message`, and the `plugin` that produced it. A failed plugin keeps its original error on `cause`. A `performance` diagnostic (`kind: 'performance'`) carries a `duration` in milliseconds.
 

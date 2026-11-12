@@ -1,5 +1,5 @@
 import type { PossiblePromise } from '@internals/utils'
-import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputMeta, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import type { Reporter, ReporterName } from './createReporter.ts'
 import type { Storage } from './createStorage.ts'
@@ -747,6 +747,8 @@ export type BuildOutput = {
    * The plugin driver that orchestrated this build.
    */
   driver: KubbDriver
+  /** The parsed spec the build generated from, `null` when there was none to parse. */
+  input: InputNode | null
   /**
    * The configured `Storage` backend, for reading back a generated file's final content.
    * Use `files` to list what this build produced.

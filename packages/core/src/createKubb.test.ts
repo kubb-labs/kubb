@@ -255,12 +255,11 @@ describe('createKubb', () => {
 
   it('output.clean raises a KUBB_CLEAN_ROOT diagnostic when shared.path is the project root', async () => {
     const root = path.join(os.tmpdir(), 'kubb-clean-guard')
-    const kubb = createKubb(makeConfig({ ...config, root, output: { path: './gen', clean: true }, shared: { path: '.' } }), {
-      hooks: new Hookable<KubbHooks>(),
-      sharedSchemas: { names: [], clean: true },
-    })
+    const shared = makeConfig({ ...config, root, output: { path: './gen', clean: true }, shared: { path: '.' } })
 
-    await expect(kubb.setup()).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.cleanRoot, help: expect.stringContaining('`shared.path`') } })
+    const [first] = await Kubb.generate([shared, shared])
+
+    expect(first!.diagnostics).toContainEqual(expect.objectContaining({ code: Diagnostics.code.cleanRoot, help: expect.stringContaining('`shared.path`') }))
   })
 
   it('keeps the previous output when output.clean is set and the run fails before writing', async () => {
@@ -662,6 +661,16 @@ describe('Kubb#generate', () => {
 })
 
 describe('Kubb.generate', () => {
+  it('builds again from the same instance after a build released its driver', async () => {
+    const kubb = createKubb(makeConfig({ adapter: makeAdapter({ schemas: makeSchemas(2) }), plugins: [makeSchemaPlugin('types')] }))
+
+    const first = await kubb.safeBuild()
+    const second = await kubb.safeBuild()
+
+    expect(second.files.map((file) => file.path)).toStrictEqual(first.files.map((file) => file.path))
+    expect(second.files).toHaveLength(2)
+  })
+
   it('generates the configs after one that fails, and marks only that one failed', async () => {
     const config = (parse?: () => Promise<never>) =>
       ({

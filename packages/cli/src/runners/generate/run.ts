@@ -9,7 +9,7 @@ import {
   type Config,
   Diagnostics,
   fileReporter,
-  type FromConfigsOptions,
+  type GenerateConfigsOptions,
   getInputKind,
   htmlReporter,
   jsonReporter,
@@ -61,7 +61,7 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
   }
 }
 
-type GenerateProps = FromConfigsOptions & {
+type GenerateProps = GenerateConfigsOptions & {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
   /**

@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { isPathInside } from '@internals/utils'
-import type { FileNode } from '@kubb/ast'
+import type { FileNode, InputNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { detectSharedSchemas, type SharedSchemas } from './detectSharedSchemas.ts'
@@ -54,13 +54,9 @@ export type CreateKubbOptions = {
    * Stops the build at the next safe checkpoint.
    */
   signal?: AbortSignal
-  /**
-   * This config's entry from {@link detectSharedSchemas}. Without it the build shares nothing.
-   */
-  sharedSchemas?: SharedSchemas
 }
 
-export type FromConfigsOptions = Pick<CreateKubbOptions, 'hooks' | 'signal'> & {
+export type GenerateConfigsOptions = Pick<CreateKubbOptions, 'hooks' | 'signal'> & {
   /** Index of the one config to build. It is still compared with the others, but never empties the directory they share. */
   only?: number
 }
@@ -101,6 +97,8 @@ export type GenerateResult = {
    * Build diagnostics plus any collected from the output passes.
    */
   diagnostics: Array<Diagnostic>
+  /** The parsed spec the build generated from, `null` when the build failed before parsing. */
+  input: InputNode | null
 }
 
 /**
@@ -126,40 +124,39 @@ export class Kubb {
   #driver: KubbDriver | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
-  readonly #sharedSchemas: SharedSchemas | undefined
+  #sharedSchemas: SharedSchemas | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
-    this.#sharedSchemas = options.sharedSchemas
   }
 
-  /**
-   * One {@link Kubb} per config of a `defineConfig([...])` array, in order, each with the schemas it shares with the others.
-   * With `only`, the one for that config. Call `generate()` on them one at a time, since they share the hooks.
-   */
-  static async fromConfigs(configs: Array<UserConfig>, { hooks = new Hookable<KubbHooks>(), signal, only }: FromConfigsOptions = {}): Promise<Array<Kubb>> {
+  // One instance per config, or only the one `only` names, each with the schemas it shares with the others.
+  static async #fromConfigs(configs: Array<UserConfig>, { hooks = new Hookable<KubbHooks>(), signal, only }: GenerateConfigsOptions): Promise<Array<Kubb>> {
     const sharedByConfig = await detectSharedSchemas(configs, hooks)
-    if (only === undefined) return configs.map((config, index) => new Kubb(config, { hooks, signal, sharedSchemas: sharedByConfig[index] }))
-
-    const config = configs[only]
-    const detected = sharedByConfig[only]
-    return config ? [new Kubb(config, { hooks, signal, sharedSchemas: detected && { ...detected, clean: false } })] : []
+    const built = only === undefined ? [...configs.keys()] : [only].filter((index) => index in configs)
+    return built.map((index) => {
+      const kubb = new Kubb(configs[index]!, { hooks, signal })
+      const detected = sharedByConfig[index]
+      // A config built on its own must not empty the directory the others share.
+      kubb.#sharedSchemas = only === undefined ? detected : detected && { ...detected, clean: false }
+      return kubb
+    })
   }
 
   /**
    * Generates every config of a `defineConfig([...])` array, one after another, and returns one result per config in order.
    * A config that fails does not stop the others: its result has `success: false`. Only an aborted `signal` rejects.
    */
-  static async generate(configs: Array<UserConfig>, options: FromConfigsOptions = {}): Promise<Array<ConfigGenerateResult>> {
+  static async generate(configs: Array<UserConfig>, options: GenerateConfigsOptions = {}): Promise<Array<ConfigGenerateResult>> {
     const results: Array<ConfigGenerateResult> = []
-    for (const kubb of await Kubb.fromConfigs(configs, options)) {
+    for (const kubb of await Kubb.#fromConfigs(configs, options)) {
       try {
         results.push({ ...(await kubb.generate()), kubb })
       } catch (error) {
         if (options.signal?.aborted) throw error
-        results.push({ success: false, files: [], diagnostics: [Diagnostics.from(error)], kubb, error })
+        results.push({ success: false, files: [], diagnostics: [Diagnostics.from(error)], input: null, kubb, error })
       }
     }
     return results
@@ -245,7 +242,7 @@ export class Kubb {
     const storage = self.storage
     const { diagnostics } = await driver.run()
 
-    return { diagnostics, files: driver.fileManager.files, driver, storage }
+    return { diagnostics, files: driver.fileManager.files, driver, storage, input: driver.inputNode }
   }
 
   /**
@@ -270,7 +267,7 @@ export class Kubb {
 
     // A setup failure, such as an invalid plugin entry, becomes a diagnostic like any build
     // problem, so reporters still get a failed `kubb:generation:end` for this config.
-    let output: Pick<BuildOutput, 'files' | 'diagnostics'>
+    let output: Pick<BuildOutput, 'files' | 'diagnostics' | 'input'>
     try {
       await hooks.callHook('kubb:setup:start')
       await this.setup()
@@ -279,9 +276,9 @@ export class Kubb {
       output = await this.safeBuild()
     } catch (caughtError) {
       if (signal?.aborted) throw caughtError
-      output = { files: [], diagnostics: [Diagnostics.from(caughtError)] }
+      output = { files: [], diagnostics: [Diagnostics.from(caughtError)], input: null }
     }
-    const { files, diagnostics } = output
+    const { files, diagnostics, input } = output
     const storage = this.storage
     signal?.throwIfAborted()
 
@@ -293,7 +290,7 @@ export class Kubb {
 
     if (Diagnostics.hasError(diagnostics)) {
       await hooks.callHook('kubb:generation:end', { config, storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
-      return { success: false, files, diagnostics }
+      return { success: false, files, diagnostics, input }
     }
 
     const processOutput = options.processOutput ?? runOutputPasses
@@ -318,11 +315,13 @@ export class Kubb {
       hrStart,
     })
 
-    return { success: !failed, files, diagnostics: finalDiagnostics }
+    return { success: !failed, files, diagnostics: finalDiagnostics, input }
   }
 
   dispose(): void {
     this.#driver?.dispose()
+    // The next build sets up a fresh driver: a released one has no spec and would build nothing.
+    this.#driver = null
   }
 
   [Symbol.dispose](): void {

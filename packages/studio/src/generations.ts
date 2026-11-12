@@ -107,23 +107,18 @@ export async function generate({
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
   const index = Math.max(configs?.indexOf(config) ?? 0, 0)
   const all = configs?.includes(config) ? configs : [config]
-  const [kubb] = await Kubb.fromConfigs(all.with(index, { ...config, output }), { hooks, signal, only: index })
-  if (!kubb) throw new Error('Generation failed')
-  let input: InputNode | null = null
-  // The driver drops its `inputNode` once the build is over, so read it as the build ends.
-  const unhook = kubb.hooks.hook('kubb:build:end', (ctx) => {
-    if (ctx.config === kubb.config) input = kubb.driver.inputNode
-  })
-  const result = await kubb.generate().finally(unhook)
+  const [result] = await Kubb.generate(all.with(index, { ...config, output }), { hooks, signal, only: index })
+  if (!result) throw new Error('Generation failed')
+  if (result.error) throw result.error
   if (!result.success) throw generationFailure(result.diagnostics)
 
-  // `kubb.config` carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
-  const { storage, root } = kubb.config
+  // The instance's config carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
+  const { storage, root } = result.kubb.config
   return {
     storage,
     root,
     paths: new Set(result.files.map((file) => relativeStoragePath({ root, filePath: file.path }))),
-    input,
+    input: result.input,
   }
 }
 
