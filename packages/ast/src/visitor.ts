@@ -242,6 +242,10 @@ export function visitChildNodes(node: Node, visit: (child: Node) => boolean, { c
   return false
 }
 
+type FindResult = { found: SchemaNode | undefined; low: number }
+
+const notFound: FindResult = { found: undefined, low: Number.POSITIVE_INFINITY }
+
 /**
  * Finds the first schema that matches `predicate` in depth-first order. Set `followRefs` to include resolved ref targets.
  *
@@ -257,34 +261,79 @@ export function findSchema(
   {
     predicate,
     followRefs = false,
+    cache,
   }: {
     predicate: (schema: SchemaNode) => boolean
     followRefs?: boolean
+    /**
+     * Remembers the match below each schema (`null` for none), so later calls skip the parts of the graph they share.
+     * Keep one cache per `predicate` and `followRefs` value, for example one per build.
+     * In a cyclic graph, a cached call can return a different match than the first one in depth-first order.
+     */
+    cache?: WeakMap<SchemaNode, SchemaNode | null>
   },
 ): SchemaNode | undefined {
-  const seen = followRefs ? new WeakSet<SchemaNode>() : undefined
-  const walk = (current: Node): SchemaNode | undefined => {
-    if (current.kind === nodeKinds.schema) {
-      if (predicate(current)) return current
-      if (seen) {
-        if (seen.has(current)) return undefined
-        seen.add(current)
-        if (current.type === 'ref' && current.schema) {
-          const found = walk(current.schema)
-          if (found) return found
-        }
-      }
-    }
+  // With `followRefs`, as in Tarjan's algorithm: the visit order of a schema still being walked, or for a finished
+  // schema without a match the lowest visit order of an unfinished schema its subtree reached. Only a schema whose
+  // subtree reached nothing visited before it has a final no-match; until then it waits in `pending`.
+  const state = followRefs ? new Map<SchemaNode, number>() : undefined
+  const pending: Array<SchemaNode> = []
+  let order = 0
 
-    let found: SchemaNode | undefined
+  const walkChildren = (current: Node, initial: FindResult): FindResult => {
+    let result = initial
     visitChildNodes(current, (child) => {
-      found = walk(child)
-      return found !== undefined
+      const next = walk(child)
+      result = next.found || next.low < result.low ? next : result
+      return next.found !== undefined
     })
-    if (found) return found
-    return undefined
+    return result
   }
-  return walk(node)
+
+  const walkSchema = (current: SchemaNode): FindResult => {
+    const target = state && current.type === 'ref' && current.schema ? walk(current.schema) : notFound
+    if (target.found) return target
+    return walkChildren(current, target)
+  }
+
+  const walk = (current: Node): FindResult => {
+    if (current.kind !== nodeKinds.schema) return walkChildren(current, notFound)
+
+    const cached = cache?.get(current)
+    if (cached === null) return notFound
+    if (cached) return { found: cached, low: Number.POSITIVE_INFINITY }
+    if (predicate(current)) {
+      cache?.set(current, current)
+      return { found: current, low: Number.POSITIVE_INFINITY }
+    }
+    const known = state?.get(current)
+    if (known !== undefined) return { found: undefined, low: known }
+
+    const index = order++
+    const start = pending.length
+    state?.set(current, index)
+    const result = walkSchema(current)
+    if (result.found) {
+      cache?.set(current, result.found)
+      return result
+    }
+    if (!state) {
+      cache?.set(current, null)
+      return notFound
+    }
+    if (result.low < index) {
+      state.set(current, result.low)
+      pending.push(current)
+      return result
+    }
+    for (const done of [...pending.splice(start), current]) {
+      state.set(done, Number.POSITIVE_INFINITY)
+      cache?.set(done, null)
+    }
+    return notFound
+  }
+
+  return walk(node).found
 }
 
 /**
