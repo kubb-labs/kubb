@@ -12,7 +12,7 @@ import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
 import { runOutputPasses, type RunOutputPassesOptions } from './output/runOutputPasses.ts'
 
-export function resolveConfig(userConfig: UserConfig): Config {
+function resolveConfig(userConfig: UserConfig): Config {
   return {
     ...userConfig,
     root: userConfig.root || process.cwd(),

@@ -14,7 +14,6 @@ import type {
   Plugin,
   PluginName,
   ResolvePluginOptions,
-  SharedOutput,
 } from './definePlugin.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { HookResult } from './output/runHook.ts'
@@ -194,7 +193,12 @@ export type Config<TInput = Input> = {
    * shared: { path: './src/gen/shared' }
    * ```
    */
-  shared?: SharedOutput
+  shared?: {
+    /**
+     * Directory the shared schemas are written to, with the plugin layout, resolved against `root`.
+     */
+    path: string
+  }
   /**
    * Where generated files are persisted. Defaults to `fsStorage()` (disk). Pass `memoryStorage()`
    * to keep files in RAM, or implement `Storage` for a custom backend such as cloud or a database.

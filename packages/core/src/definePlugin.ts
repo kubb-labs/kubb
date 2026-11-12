@@ -32,16 +32,6 @@ export type ResolvePluginOptions<TName> = TName extends keyof Kubb.PluginRegistr
 export type OutputMode = 'directory' | 'file'
 
 /**
- * Schemas written once under `path`, with the plugin layout, and imported from there by every other file.
- */
-export type SharedOutput = {
-  /**
-   * Directory the shared schemas are written to, resolved against `root`.
-   */
-  path: string
-}
-
-/**
  * Output configuration shared by every plugin. Each plugin extends this with
  * its own keys via the `Kubb.PluginOptionsRegistry.output` interface merge.
  */

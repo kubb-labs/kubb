@@ -337,7 +337,7 @@ export class FileManager {
           if (shared && isPathInside(file.path, shared.path)) {
             const first = shared.written.get(file.path)
             if (first === undefined) shared.written.set(file.path, source)
-            else if (first !== source) mismatched.push(file.path)
+            if (first !== undefined && first !== source) mismatched.push(file.path)
           }
           if (!(await writeChanged({ storage, manifest, file, source, signal, cleaned }))) unchanged.push(file.path)
           await hooks?.callHook('kubb:file:processed', { file, source })
@@ -350,7 +350,7 @@ export class FileManager {
 
     if (mismatched.length > 0) {
       await hooks?.callHook('kubb:warn', {
-        message: `${mismatched.length} shared ${mismatched.length === 1 ? 'file differs' : 'files differ'} from what another config wrote: ${mismatched.slice(0, 3).join(', ')}${mismatched.length > 3 ? ', ...' : ''}.`,
+        message: `Shared files that differ from what another config wrote: ${mismatched.slice(0, 3).join(', ')}${mismatched.length > 3 ? ', ...' : ''}.`,
         info: 'The last config to write wins. Give the configs that use the same `shared.path` the same plugin options and banner.',
       })
     }

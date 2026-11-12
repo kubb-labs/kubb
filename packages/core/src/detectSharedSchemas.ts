@@ -1,9 +1,8 @@
 import { resolve } from 'node:path'
 import { ast, type SchemaNode } from '@kubb/ast'
-import { resolveConfig } from './createKubb.ts'
 import type { Hookable } from './Hookable.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
-import type { Config, KubbHooks, UserConfig } from './types.ts'
+import type { KubbHooks, UserConfig } from './types.ts'
 
 // Skips the target a ref embeds, so recursive schemas serialize and only the ref itself is compared.
 function toShape(node: SchemaNode): string {
@@ -25,20 +24,28 @@ export type SharedBuild = {
    * sets `output.clean`, so a later config never deletes what an earlier one wrote.
    */
   clean: boolean
-  /**
-   * The sources already written under `shared.path` in this run, keyed by file path. One map per shared directory, so a
-   * config that generates a shared file differently from the one before it is reported.
-   */
-  written: Map<string, string>
+}
+
+type GroupMember = { config: UserConfig; root: string; index: number }
+
+// The sources each run wrote under a shared directory, keyed by file path, so a config that writes one differently is reported.
+const sharedWrites = new WeakMap<SharedBuild, Map<string, string>>()
+
+/**
+ * The sources the configs sharing `build`'s directory have written under it in this run. Empty for a build that did not
+ * come from `detectSharedSchemas`.
+ */
+export function getSharedWrites(build: SharedBuild): Map<string, string> {
+  return sharedWrites.get(build) ?? new Map()
 }
 
 // Fills `schemas` on the builds of one shared directory, and returns the names its configs define differently.
-async function shareGroup(group: Array<{ config: Config; index: number }>, result: Array<SharedBuild | undefined>): Promise<Array<string>> {
+async function shareGroup(group: Array<GroupMember>, result: Array<SharedBuild | undefined>): Promise<Array<string>> {
   const specs: Array<Map<string, SchemaNode>> = []
   try {
     // Sequential, since configs may share one adapter instance.
-    for (const { config } of group) {
-      const input = await parseAdapterSource(config.adapter!, inputToAdapterSource(config))
+    for (const { config, root } of group) {
+      const input = await parseAdapterSource(config.adapter!, inputToAdapterSource({ input: config.input, root }))
       specs.push(new Map(input.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : []))))
     }
   } catch {
@@ -93,13 +100,13 @@ async function shareGroup(group: Array<{ config: Config; index: number }>, resul
  * shortcut: each build parses its spec again, so a URL or git branch that changes between the two parses can leave a stale
  * list; pass the parsed spec to the build if that shows up.
  */
-export async function detectSharedSchemas(userConfigs: Array<UserConfig>, hooks?: Hookable<KubbHooks>): Promise<Array<SharedBuild | undefined>> {
-  const configs = userConfigs.map(resolveConfig)
-  const groups = new Map<string, Array<{ config: Config; index: number }>>()
+export async function detectSharedSchemas(configs: Array<UserConfig>, hooks: Hookable<KubbHooks>): Promise<Array<SharedBuild | undefined>> {
+  const groups = new Map<string, Array<GroupMember>>()
   configs.forEach((config, index) => {
     if (!config.shared || !config.adapter) return
-    const key = resolve(config.root, config.shared.path)
-    groups.set(key, [...(groups.get(key) ?? []), { config, index }])
+    const root = config.root || process.cwd()
+    const key = resolve(root, config.shared.path)
+    groups.set(key, [...(groups.get(key) ?? []), { config, root, index }])
   })
 
   const result: Array<SharedBuild | undefined> = configs.map(() => undefined)
@@ -108,13 +115,17 @@ export async function detectSharedSchemas(userConfigs: Array<UserConfig>, hooks?
     // Only the first config empties the shared directory, so a later one never deletes what an earlier one wrote.
     const clean = group.some(({ config }) => config.output.clean)
     const written = new Map<string, string>()
-    group.forEach(({ index }, i) => (result[index] = { schemas: [], clean: clean && i === 0, written }))
+    group.forEach(({ index }, i) => {
+      const build = { schemas: [], clean: clean && i === 0 }
+      sharedWrites.set(build, written)
+      result[index] = build
+    })
     if (group.length < 2) continue
     for (const name of await shareGroup(group, result)) conflicts.add(name)
   }
 
   if (conflicts.size > 0) {
-    await hooks?.callHook('kubb:warn', {
+    await hooks.callHook('kubb:warn', {
       message: `The specs define these schemas differently: ${[...conflicts].join(', ')}.`,
       info: 'The largest group of specs that define one the same shares it. Every other spec keeps its own copy, with the schemas that reference it.',
     })

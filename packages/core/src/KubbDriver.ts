@@ -12,7 +12,7 @@ import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
-import type { SharedBuild } from './detectSharedSchemas.ts'
+import { getSharedWrites, type SharedBuild } from './detectSharedSchemas.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 
 import type { Config, KubbHooks } from './types.ts'
@@ -139,16 +139,17 @@ export class KubbDriver {
     this.adapter = config.adapter ?? null
   }
 
-  /** The absolute `shared.path`, when this build shares schemas. */
-  get #sharedPath(): string | undefined {
+  /** The absolute `shared.path` with what this build shares under it, when it shares schemas. */
+  get #shared(): { path: string; schemas: Array<string>; written: Map<string, string> } | undefined {
     const { root, shared } = this.config
-    return shared && this.options.shared ? resolve(root, shared.path) : undefined
+    const build = this.options.shared
+    if (!shared || !build) return undefined
+    return { path: resolve(root, shared.path), schemas: build.schemas, written: getSharedWrites(build) }
   }
 
   // Every resolver gets the shared schemas, so a plugin's own `output`, an override, or a `setResolver` cannot drop them.
   #createResolver(pluginName: string): Resolver {
-    const path = this.#sharedPath
-    return new Resolver({ pluginName, shared: path ? { path, schemas: this.options.shared!.schemas } : undefined })
+    return new Resolver({ pluginName, shared: this.#shared })
   }
 
   /**
@@ -433,7 +434,7 @@ export class KubbDriver {
             manifest: this.options.manifest,
             signal: this.options.signal,
             cleaned: this.options.cleanPaths,
-            shared: this.#sharedPath ? { path: this.#sharedPath, written: this.options.shared!.written } : undefined,
+            shared: this.#shared,
             hooks,
             config,
           })

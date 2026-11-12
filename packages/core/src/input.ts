@@ -69,7 +69,7 @@ function isLegacyInput(input: unknown): boolean {
  * verbatim and a local path is resolved against `config.root`, all as `{ type: 'path' }`. The
  * driver checks out a git input before the adapter parses it.
  */
-export function inputToAdapterSource(config: Config): AdapterSource {
+export function inputToAdapterSource(config: Pick<Config, 'input' | 'root'>): AdapterSource {
   const input = config.input
 
   if (input && isLegacyInput(input)) {

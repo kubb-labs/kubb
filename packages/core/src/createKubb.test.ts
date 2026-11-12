@@ -263,7 +263,7 @@ describe('createKubb', () => {
 
     await createKubb(makeConfig({ ...config, storage, output: { path: './gen/animals' }, shared: { path: './gen/common' } }), {
       hooks: new Hookable<KubbHooks>(),
-      shared: { schemas: [], clean, written: new Map() },
+      shared: { schemas: [], clean },
     }).build()
 
     expect(await storage.readItem(staleFile)).toBe(expected)
@@ -273,7 +273,7 @@ describe('createKubb', () => {
     const root = path.join(os.tmpdir(), 'kubb-clean-guard')
     const kubb = createKubb(makeConfig({ ...config, root, output: { path: './gen', clean: true }, shared: { path: '.' } }), {
       hooks: new Hookable<KubbHooks>(),
-      shared: { schemas: [], clean: true, written: new Map() },
+      shared: { schemas: [], clean: true },
     })
 
     await expect(kubb.setup()).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.cleanRoot, help: expect.stringContaining('`shared.path`') } })

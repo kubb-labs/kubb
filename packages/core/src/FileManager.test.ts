@@ -229,7 +229,7 @@ describe('FileManager', () => {
         shared,
       })
 
-      expect(warnings).toStrictEqual(['1 shared file differs from what another config wrote: /common/pet.ts.'])
+      expect(warnings).toStrictEqual(['Shared files that differ from what another config wrote: /common/pet.ts.'])
     })
 
     // A written file is tracked so the commit re-reads it; a skipped file's record already stands.
