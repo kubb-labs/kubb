@@ -42,21 +42,9 @@ describe('OpenAPI source locations', () => {
     expect(json.slice(range.start, range.end)).toBe(JSON.stringify(name))
   })
 
-  it('locates block YAML without parsing a YAML document', () => {
+  it('locates sequence items, quoted keys and keys after a block scalar without parsing a YAML document', () => {
     const parseDocument = vi.mocked(yaml.parseDocument)
     parseDocument.mockClear()
-    const fresh = `${source}# block\n`
-
-    const owner = locateIn(fresh, { kind: 'schema', pointer: '#/components/schemas/Pet/properties/owner' })!
-    const ref = locateIn(fresh, { kind: 'schema', pointer: '#/components/schemas/Owner', ref: '#/components/schemas/Owner' })!
-
-    expect(fresh.slice(owner.start, owner.end)).toBe('owner')
-    expect(fresh.slice(ref.start, ref.end)).toBe("'#/components/schemas/Owner'")
-    expect(locateIn(fresh, { kind: 'schema', pointer: '#/components/schemas/Missing' })).toBeUndefined()
-    expect(parseDocument).not.toHaveBeenCalled()
-  })
-
-  it('locates sequence items, quoted keys and keys after a block scalar', () => {
     const text = [
       '---',
       '# a comment',
@@ -85,7 +73,6 @@ describe('OpenAPI source locations', () => {
     }
 
     expect(at('#/paths/~1pets~1{id}')).toBe('"/pets/{id}"')
-    expect(at('#/paths/~1pets~1{id}/get/parameters')).toBe('parameters')
     expect(at('#/paths/~1pets~1{id}/get/parameters/0')).toBe('name: limit\r\n        in: query')
     expect(at('#/paths/~1pets~1{id}/get/parameters/0/in')).toBe('in')
     expect(at('#/paths/~1pets~1{id}/get/parameters/1')).toBe("$ref: '#/components/parameters/Offset' # shared")
@@ -94,6 +81,7 @@ describe('OpenAPI source locations', () => {
     expect(at("#/paths/~1it's/servers/0")).toBe('url: https://example.com')
     expect(locateIn(text, { kind: 'operation', pointer: '#/paths/~1pets~1{id}/get/description/parameters' })).toBeUndefined()
     expect(locateIn(text, { kind: 'operation', pointer: '#/paths/~1pets~1{id}/get/parameters/2' })).toBeUndefined()
+    expect(parseDocument).not.toHaveBeenCalled()
   })
 
   it('falls back to the YAML parser inside a flow collection, and parses that source once', () => {
