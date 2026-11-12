@@ -70,7 +70,6 @@ function setupReporters(
   let previous: Map<string, string> | undefined
   let reading: Promise<Map<string, string>> | undefined
   // A run without output passes counts each file as it is written, against the stored text the write already read.
-  let live = false
   let tally: ChangeTally | undefined
   // Fingerprints of the files `output.clean` is about to delete, the only trace of them once the folder is emptied.
   let cleaned: Map<string, FileFingerprint> | undefined
@@ -86,21 +85,18 @@ function setupReporters(
     paths = []
     outputPath = resolve(config.root, config.output.path)
     previous = undefined
-    tally = undefined
     cleaned = undefined
     processed.clear()
     const tracked = trackChanges && (dryRun || config.storage?.name === 'fs')
     // Output passes rewrite stored files and a dry run compares through the manifest, so both read the output back.
-    live = tracked && !dryRun && !hasOutputPasses(config)
+    tally = tracked && !dryRun && !hasOutputPasses(config) ? createChangeTally() : undefined
     // Read while the plugins generate; `kubb:plugins:end` waits for it, before cleaning can erase the baseline.
-    reading = tracked && !live ? readOutputFiles(outputPath) : undefined
+    reading = tracked && !tally ? readOutputFiles(outputPath) : undefined
   })
   context.hook('kubb:plugins:end', async ({ config }) => {
     if (reading) previous = await reading
-    if (!live) return
-    tally = createChangeTally()
     // The last moment the old files exist: the storage empties the folder right after this hook.
-    if (config.output.clean) cleaned = await readOutputFingerprints(outputPath)
+    if (tally && config.output.clean) cleaned = await readOutputFingerprints(outputPath)
   })
   context.hook('kubb:files:processing:start', async ({ files }) => {
     if (!previous) return

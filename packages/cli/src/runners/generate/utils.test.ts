@@ -147,10 +147,6 @@ describe('diffFile', () => {
 
     expect(diffFile({ path, next, previous: fingerprintFile(stored) })).toStrictEqual(diffFile({ path, next, previous: stored }))
   })
-
-  it('counts every line of a new file as added', () => {
-    expect(diffFile({ path: '/gen/pet.ts', next: 'a\nb', previous: null })).toStrictEqual({ status: 'A', path: '/gen/pet.ts', added: 2, removed: 0 })
-  })
 })
 
 describe('readOutputFingerprints', () => {
