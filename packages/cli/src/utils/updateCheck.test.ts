@@ -89,6 +89,22 @@ describe('getLatestVersion', () => {
     expect(() => readFileSync(storePath())).toThrow()
   })
 
+  it('asks the registry again when the stored version is not valid semver', async () => {
+    store({ version: 'not-a-version', checkedAt: NOW })
+    const fetch = mockRegistry('9.0.0')
+
+    expect(await getLatestVersion(new AbortController().signal)).toBe('9.0.0')
+    expect(fetch).toHaveBeenCalledOnce()
+  })
+
+  it('ignores and stores nothing for a version that is not valid semver', async () => {
+    const fetch = mockRegistry('latest')
+
+    expect(await getLatestVersion(new AbortController().signal)).toBeUndefined()
+    expect(fetch).toHaveBeenCalledOnce()
+    expect(() => readFileSync(storePath())).toThrow()
+  })
+
   it('ignores an error answer from the registry', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ error: 'Not found' }, { status: 404 }))
 

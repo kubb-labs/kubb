@@ -91,6 +91,18 @@ type GenerateCommandOptions = {
   dryRun?: boolean
 }
 
+/** Upper bound in milliseconds for the update check's cache read or write once generation is done. */
+const UPDATE_WAIT_MS = 1_000
+
+/** `promise`'s value, or `undefined` when it takes longer than `ms`. */
+async function withTimeout<T>({ promise, ms }: { promise: Promise<T>; ms: number }): Promise<T | undefined> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<undefined>((resolve) => {
+    timer = setTimeout(resolve, ms)
+  })
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer))
+}
+
 async function checkForUpdate({ hooks, latestVersion }: { hooks: Hookable<KubbHooks>; latestVersion: string | undefined }): Promise<void> {
   if (latestVersion && isOutdated({ installed: version, latest: latestVersion })) {
     await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion }))
@@ -255,9 +267,9 @@ export async function run({
     // One config that fails does not stop the others.
     const succeeded = await (watchMode ? watch({ configs: runConfigs, hooks, quiet }) : generate({ configs: runConfigs, hooks }))
 
-    // Aborting first settles a request still in flight at once, so awaiting the answer never delays the run.
+    // Aborting settles a request in flight at once; the timeout covers a cache read or write on a stalled disk.
     updateCheck.abort()
-    await checkForUpdate({ hooks, latestVersion: await latestVersion })
+    await checkForUpdate({ hooks, latestVersion: await withTimeout({ promise: latestVersion, ms: UPDATE_WAIT_MS }) })
 
     await hooks.callHook('kubb:lifecycle:end')
 

@@ -1,5 +1,6 @@
 import { isCIEnvironment } from '@internals/utils'
 import { kubbStorage } from '@kubb/core'
+import { isValid } from 'verkit'
 
 /** NPM registry endpoint used to check for @kubb/cli updates. */
 const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
@@ -19,7 +20,7 @@ type StoredCheck = {
 
 function isStoredCheck(value: unknown): value is StoredCheck {
   const check = value as Partial<StoredCheck> | null
-  return typeof check?.version === 'string' && typeof check.checkedAt === 'number'
+  return typeof check?.version === 'string' && isValid(check.version) && typeof check.checkedAt === 'number'
 }
 
 // A timestamp in the future, from a clock set back, counts as stale so it cannot hide updates.
@@ -34,7 +35,7 @@ async function fetchLatestVersion(signal: AbortSignal): Promise<string | undefin
     const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.any([signal, AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS)]) })
     if (!res.ok) return undefined
     const data = (await res.json()) as { version?: unknown }
-    return typeof data.version === 'string' ? data.version : undefined
+    return typeof data.version === 'string' && isValid(data.version) ? data.version : undefined
   } catch {
     return undefined
   }
