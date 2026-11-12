@@ -1,4 +1,4 @@
-import { createLastEntry, memo, unescapePointerToken } from '@internals/utils'
+import { memo, unescapePointerToken } from '@internals/utils'
 import type { Adapter } from '@kubb/core'
 import { COLLECTION_STYLE, CORE_SCHEMA, EVENT_ID, load, parseEvents, SCALAR_STYLE } from 'js-yaml'
 import type { Event } from 'js-yaml'
@@ -18,7 +18,7 @@ type EventIndex = {
 }
 
 // Diagnostics of one run share a source, so its index is kept for the next call.
-const indexes = createLastEntry<string, EventIndex | undefined>()
+const indexes = memo.createEntry<string, EventIndex | undefined>({ type: 'last' })
 
 // A plain `1.50` or `~` is a number or null to `js-yaml`, so the document, and the pointer, spell it `1.5` or `null`.
 function toKeyText(text: string): string {

@@ -31,15 +31,20 @@ export function memo<TKey, TValue>(store: Store<TKey, TValue>, key: TKey, comput
 }
 
 /**
- * A `memo` store that keeps only the last entry, for a cache that should hold one value at a time.
- * A key equal to the stored one but a different object, such as a copy of a string, replaces the
- * stored key, so the next check is an identity hit instead of a full comparison.
+ * Creates a store for `memo`. `'map'` and `'weak'` return a `Map` and a `WeakMap`. `'last'` keeps only
+ * the last entry, for a cache that should hold one value at a time: a key equal to the stored one but
+ * a different object, such as a copy of a string, replaces the stored key, so the next lookup is an
+ * identity hit instead of a full comparison.
  *
  * @example
- * `const index = memo(indexes, source, () => indexSource(source))`, with `const indexes = createLastEntry()`
+ * `const indexes = memo.createEntry<string, Index>({ type: 'last' })`
  */
-export function createLastEntry<TKey, TValue>(): Store<TKey, TValue> {
+function createEntry<TKey extends WeakKey, TValue>(options: { type: 'weak' }): WeakMap<TKey, TValue>
+function createEntry<TKey, TValue>(options: { type: 'map' | 'last' }): Store<TKey, TValue>
+function createEntry<TKey, TValue>({ type }: { type: 'map' | 'weak' | 'last' }): Store<TKey, TValue> {
+  if (type === 'weak') return new WeakMap<WeakKey, TValue>() as Store<TKey, TValue>
   const entry = new Map<TKey, TValue>()
+  if (type === 'map') return entry
   const set = (key: TKey, value: TValue) => {
     entry.clear()
     entry.set(key, value)
@@ -51,6 +56,8 @@ export function createLastEntry<TKey, TValue>(): Store<TKey, TValue> {
   }
   return { has: touch, get: (key) => (touch(key) ? entry.get(key) : undefined), set }
 }
+
+memo.createEntry = createEntry
 
 type ParallelOptions<TItem> = {
   /**

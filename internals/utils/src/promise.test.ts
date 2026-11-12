@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createLastEntry, inParallel, memo } from './promise.ts'
+import { inParallel, memo } from './promise.ts'
 
 describe('memo', () => {
-  it('computes once per key using a WeakMap (object keys)', () => {
-    const store = new WeakMap<{ v: number }, number>()
+  it('computes once per key with a weak store (object keys)', () => {
+    const store = memo.createEntry<{ v: number }, number>({ type: 'weak' })
     const a = { v: 1 }
     const b = { v: 2 }
     const compute = vi.fn((obj: { v: number }) => obj.v * 10)
@@ -15,7 +15,7 @@ describe('memo', () => {
   })
 
   it('treats a cached null as a hit', () => {
-    const store = new Map<string, null>()
+    const store = memo.createEntry<string, null>({ type: 'map' })
     const compute = vi.fn(() => null)
 
     memo(store, 'k', compute)
@@ -23,8 +23,8 @@ describe('memo', () => {
     expect(compute).toHaveBeenCalledTimes(1)
   })
 
-  it('keeps only the last entry with createLastEntry, and hits for an equal key', () => {
-    const store = createLastEntry<string, number>()
+  it('keeps only the last entry with the last type, and hits for an equal key', () => {
+    const store = memo.createEntry<string, number>({ type: 'last' })
     const compute = vi.fn((key: string) => key.length)
 
     memo(store, 'aa', () => compute('aa'))
