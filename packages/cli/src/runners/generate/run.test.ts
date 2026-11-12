@@ -1,14 +1,20 @@
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
 import { type Config, fsStorage, type PostGenerateCommand, resolveCacheDir, resolveMeta, type UserConfig } from '@kubb/core'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
 import * as mascot from '../../ui/mascot.ts'
 import * as env from '../../utils/env.ts'
 import { run } from './run.ts'
+
+// The update check reads `KUBB_HOME`, so a notice stored by a real run never leaks into these tests.
+const kubbHome = mkdtempSync(join(tmpdir(), 'kubb-cli-home-'))
+beforeEach(() => void vi.stubEnv('KUBB_HOME', kubbHome))
+afterEach(() => void vi.unstubAllEnvs())
+afterAll(() => rmSync(kubbHome, { recursive: true, force: true }))
 
 type BootstrapOptions = {
   /**
@@ -55,7 +61,7 @@ async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOpt
   if (process.exitCode) lines.push(`exit ${process.exitCode}`)
   process.exitCode = undefined
 
-  return Object.assign(lines, { stdout })
+  return Object.assign(lines, { stdout, fetchCalls: _fetch.mock.calls.length })
 }
 
 describe('bootstrap configuration group', () => {
@@ -103,6 +109,34 @@ describe('bootstrap configuration group', () => {
     const lines = await bootstrap({ reporters: ['json'] })
 
     expect([...lines]).toStrictEqual([])
+  })
+})
+
+const CI_VARIABLES = [
+  'CI',
+  'GITHUB_ACTIONS',
+  'GITLAB_CI',
+  'BITBUCKET_BUILD_NUMBER',
+  'JENKINS_URL',
+  'CIRCLECI',
+  'TRAVIS',
+  'TEAMCITY_VERSION',
+  'BUILDKITE',
+  'TF_BUILD',
+]
+
+describe('update notice', () => {
+  afterEach(() => rmSync(join(kubbHome, 'cache'), { recursive: true, force: true }))
+
+  it('prints the notice from a fresh stored check without asking the registry', async () => {
+    for (const name of CI_VARIABLES) vi.stubEnv(name, '')
+    mkdirSync(join(kubbHome, 'cache'), { recursive: true })
+    writeFileSync(join(kubbHome, 'cache', 'update-check.json'), JSON.stringify({ version: '99.0.0', checkedAt: Date.now() }))
+
+    const lines = await bootstrap()
+
+    expect(lines.some((line) => line.includes('v99.0.0'))).toBe(true)
+    expect(lines.fetchCalls).toBe(0)
   })
 })
 
