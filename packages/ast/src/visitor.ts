@@ -178,25 +178,6 @@ function isNodeRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/**
- * Returns the immediate traversable children of `node`.
- *
- * @example
- * ```ts
- * const children = getChildren(operationNode, true)
- * // returns parameters, the request body, and responses
- * ```
- */
-function getChildren(node: Node, recurse: boolean): Array<Node> {
-  if (node.kind === nodeKinds.schema && !recurse) return []
-  const children: Array<Node> = []
-  visitChildNodes(node, (child) => {
-    children.push(child)
-    return false
-  })
-  return children
-}
-
 // A check no printer emits: a `contains` that any array meets (`min: 0`, no `max`), or `content` that is not JSON.
 function isNeverPrinted({ node, key }: { node: Node; key: string }): boolean {
   if (node.kind !== nodeKinds.schema) return false
@@ -206,38 +187,61 @@ function isNeverPrinted({ node, key }: { node: Node; key: string }): boolean {
 }
 
 /**
+ * Child keys of a schema walked with `checks: true`: the shape keys, then {@link schemaCheckKeys}.
+ */
+const SCHEMA_CHECK_VISITOR_KEYS: ReadonlyArray<string> = [...VISITOR_KEYS.Schema!, ...schemaCheckKeys]
+
+/**
+ * Children a node already passed to `visit`. A node under two keys, such as a stream item under `schema` and
+ * `stream`, is visited once. The `Set` is only created once a node has a second child.
+ */
+type SeenChildren = { first: Node | undefined; rest: Set<Node> | undefined }
+
+function visitOnce(child: Node, seen: SeenChildren, visit: (child: Node) => boolean): boolean {
+  if (seen.first === undefined) {
+    seen.first = child
+    return visit(child)
+  }
+  if (seen.first === child || seen.rest?.has(child)) return false
+  ;(seen.rest ??= new Set()).add(child)
+  return visit(child)
+}
+
+function visitRecord(value: Record<string, unknown>, seen: SeenChildren, visit: (child: Node) => boolean): boolean {
+  for (const name in value) {
+    if (!Object.hasOwn(value, name)) continue
+    const item = value[name]
+    if (isNode(item) && visitOnce(item, seen, visit)) return true
+  }
+  return false
+}
+
+/**
  * Calls `visit` for each direct child node and stops at the first call that returns `true`.
  * With `checks: true`, a schema's {@link schemaCheckKeys} fields are walked too, except checks that cannot fail.
  */
 export function visitChildNodes(node: Node, visit: (child: Node) => boolean, { checks = false }: { checks?: boolean } = {}): boolean {
-  const keys = checks && node.kind === nodeKinds.schema ? [...(VISITOR_KEYS[node.kind] ?? []), ...schemaCheckKeys] : VISITOR_KEYS[node.kind]
+  const withChecks = checks && node.kind === nodeKinds.schema
+  const keys = withChecks ? SCHEMA_CHECK_VISITOR_KEYS : VISITOR_KEYS[node.kind]
   if (!keys) return false
 
   const record = node as unknown as Record<string, unknown>
-  // A node under two keys, such as a stream item under `schema` and `stream`, is visited once.
-  const seen = new Set<Node>()
-  const visitOnce = (child: Node) => !seen.has(child) && (seen.add(child), visit(child))
-  const visitRecord = (value: Record<string, unknown>) => {
-    for (const name in value) {
-      if (!Object.hasOwn(value, name)) continue
-      const item = value[name]
-      if (isNode(item) && visitOnce(item)) return true
-    }
-    return false
-  }
+  let seen: SeenChildren | undefined
   for (const key of keys) {
-    if (checks && isNeverPrinted({ node, key })) continue
     const value = record[key]
+    if (value === undefined || value === null) continue
+    if (withChecks && isNeverPrinted({ node, key })) continue
+    seen ??= { first: undefined, rest: undefined }
     if (Array.isArray(value)) {
       // Items can be plain objects that hold nodes, such as the `{ if, then, else }` entries of `conditionals`.
-      for (const item of value) if (isNode(item) ? visitOnce(item) : isNodeRecord(item) && visitRecord(item)) return true
+      for (const item of value) if (isNode(item) ? visitOnce(item, seen, visit) : isNodeRecord(item) && visitRecord(item, seen, visit)) return true
       continue
     }
     if (isNode(value)) {
-      if (visitOnce(value)) return true
+      if (visitOnce(value, seen, visit)) return true
       continue
     }
-    if (isNodeRecord(value) && visitRecord(value)) return true
+    if (isNodeRecord(value) && visitRecord(value, seen, visit)) return true
   }
   return false
 }
@@ -409,17 +413,18 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
 
   const record = node as unknown as Record<string, unknown>
   let updates: Record<string, unknown> | undefined
-  // A node under two keys is transformed once, so both keys keep pointing at one node.
-  const done = new Map<Node, Node>()
+  // A node under two keys is transformed once, so both keys keep pointing at one node. Leaves never create the map.
+  let done: Map<Node, Node> | undefined
   const transformOnce = (child: Node) => {
+    done ??= new Map()
     const next = done.get(child) ?? transformNode(child, visitor, recurse, node)
     done.set(child, next)
     return next
   }
 
   for (const key of keys) {
-    if (!(key in record)) continue
     const value = record[key]
+    if (value === undefined || value === null) continue
     if (Array.isArray(value)) {
       // Rebuild the array lazily: allocate a new array only once a child actually changes, copying
       // the unchanged prefix at that point. An unchanged array keeps its original reference and
@@ -481,7 +486,9 @@ function collectInto<T>(node: Node, visitor: VisitorOf<T>, recurse: boolean, par
   const v = applyVisitor<T>(node, visitor, parent)
   if (v != null) result.push(v)
 
-  for (const child of getChildren(node, recurse)) {
+  if (node.kind === nodeKinds.schema && !recurse) return
+  visitChildNodes(node, (child) => {
     collectInto<T>(child, visitor, recurse, node, result)
-  }
+    return false
+  })
 }

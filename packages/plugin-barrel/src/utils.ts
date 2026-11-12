@@ -13,12 +13,24 @@ const BARREL_SUFFIX = `/index.ts`
 type TreeNode = { path: string; children?: undefined } | DirectoryNode
 type DirectoryNode = { path: string; children: Map<string, TreeNode> }
 
-/** A directory's children in name order, the way a directory listing sorts them. */
-function sortedChildren(node: DirectoryNode): Array<TreeNode> {
-  return [...node.children.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([, child]) => child)
+/** A directory's children in name order, the way a directory listing sorts them. Every barrel of a build walks the same tree. */
+function sortedChildren(node: DirectoryNode): ReadonlyArray<TreeNode> {
+  const cached = sortedChildrenCache.get(node)
+  if (cached) return cached
+  const sorted = [...node.children.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([, child]) => child)
+  sortedChildrenCache.set(node, sorted)
+  return sorted
 }
 
+const sortedChildrenCache = new WeakMap<DirectoryNode, ReadonlyArray<TreeNode>>()
+
+// An empty, `.` or `..` segment, which `posix.relative` would normalize away.
+const UNNORMALIZED_SEGMENT = /(?:^|\/)\.{0,2}(?:\/|$)/
+
 function toRelativeModulePath(fromDir: string, filePath: string): string {
+  // Tree paths extend their parent's path with `/<name>`, so below `fromDir` the relative path is the rest of the path.
+  const rest = filePath.startsWith(`${fromDir}/`) ? filePath.slice(fromDir.length + 1) : undefined
+  if (rest && !UNNORMALIZED_SEGMENT.test(rest)) return `./${rest}`
   return `./${posix.relative(fromDir, filePath)}`
 }
 
@@ -83,6 +95,25 @@ function makeBarrel(dirPath: string, exports: Array<ast.ExportNode>, ctx: WalkCo
 
 type LeafStrategy = (path: string, sourceFile: ast.FileNode | undefined) => Array<ast.ExportNode>
 
+type LeafNames = { hasSources: boolean; hasIndexable: boolean; valueNames: Array<string>; typeNames: Array<string> }
+
+// A nested barrel asks for the same file's names once per ancestor folder; only the relative path differs.
+const leafNamesCache = new WeakMap<ast.FileNode, LeafNames>()
+
+function getLeafNames(sourceFile: ast.FileNode): LeafNames {
+  const cached = leafNamesCache.get(sourceFile)
+  if (cached) return cached
+  const { sources } = sourceFile
+  const names: LeafNames = {
+    hasSources: sources.length > 0,
+    hasIndexable: sources.some((source) => source.isIndexable),
+    valueNames: indexableNames(sources, false),
+    typeNames: indexableNames(sources, true),
+  }
+  leafNamesCache.set(sourceFile, names)
+  return names
+}
+
 function indexableNames(sources: ReadonlyArray<ast.SourceNode>, isTypeOnly: boolean): Array<string> {
   const names = sources.flatMap((source) => (source.isIndexable && source.name && Boolean(source.isTypeOnly) === isTypeOnly ? [source.name] : []))
   return [...new Set(names)].sort()
@@ -92,18 +123,18 @@ function indexableNames(sources: ReadonlyArray<ast.SourceNode>, isTypeOnly: bool
  * Re-exports the whole module, unless it has sources and none of them is indexable.
  */
 const allStrategy: LeafStrategy = (path, sourceFile) => {
-  const sources = sourceFile?.sources ?? []
-  return sources.length > 0 && !sources.some((source) => source.isIndexable) ? [] : [ast.factory.createExport({ path })]
+  const names = sourceFile && getLeafNames(sourceFile)
+  return names?.hasSources && !names.hasIndexable ? [] : [ast.factory.createExport({ path })]
 }
 
 /**
  * Re-exports the indexable names, values and types separately, or the whole module when it has no sources.
  */
 const namedStrategy: LeafStrategy = (path, sourceFile) => {
-  if (!sourceFile?.sources.length) return [ast.factory.createExport({ path })]
+  const names = sourceFile && getLeafNames(sourceFile)
+  if (!names?.hasSources) return [ast.factory.createExport({ path })]
 
-  const valueNames = indexableNames(sourceFile.sources, false)
-  const typeNames = indexableNames(sourceFile.sources, true)
+  const { valueNames, typeNames } = names
   return [
     ...(valueNames.length > 0 ? [ast.factory.createExport({ name: valueNames, path })] : []),
     ...(typeNames.length > 0 ? [ast.factory.createExport({ name: typeNames, path, isTypeOnly: true })] : []),

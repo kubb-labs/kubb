@@ -101,6 +101,13 @@ describe('getBarrelFiles', () => {
     expect(petsBarrel.exports.map((e) => e.path)).toStrictEqual(['./createPet.ts', './listPets.ts'])
   })
 
+  it('normalizes a `.` segment in a file path the way posix.relative does', () => {
+    const files = [makeFile(`${ROOT}/./pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all', recursive: true })]
+
+    expect(barrels.find((b) => b.path === `${ROOT}/index.ts`)!.exports.map((e) => e.path)).toStrictEqual(['./pets/listPets.ts', './users/getUser.ts'])
+  })
+
   it('returns a barrel per level linking root files and nested directories when depths are mixed', () => {
     const files = [makeFile(`${ROOT}/pet.ts`), makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/pets/tags/getTag.ts`)]
     const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all', nested: true })]

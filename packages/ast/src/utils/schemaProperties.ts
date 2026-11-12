@@ -67,14 +67,24 @@ function walkSchema(node: SchemaNode, through: 'union' | 'intersection', visit: 
  * // ['cat', 'dog']
  * ```
  */
-export function getSchemaLiteralValues(node: SchemaNode): ReadonlyArray<string | number | boolean | null> {
-  const values = new Set<string | number | boolean | null>()
+export function getSchemaLiteralValues(node: SchemaNode): ReadonlyArray<LiteralValue> {
+  const cached = literalValues.get(node)
+  if (cached) return cached
+
+  const values = new Set<LiteralValue>()
   walkSchema(node, 'union', (current) => {
     if (current.type !== 'enum') return
     for (const { value } of current.namedEnumValues ?? current.enumValues?.map((value) => ({ value })) ?? []) values.add(value)
   })
-  return [...values]
+  const result = Object.freeze([...values])
+  literalValues.set(node, result)
+  return result
 }
+
+type LiteralValue = string | number | boolean | null
+
+// Printers read an enum's values each time they print it.
+const literalValues = new WeakMap<SchemaNode, ReadonlyArray<LiteralValue>>()
 
 // Names of every property an object, resolved reference, or intersection exposes.
 function collectPropertyNames(node: SchemaNode): Set<string> {
