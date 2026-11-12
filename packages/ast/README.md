@@ -34,7 +34,7 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 | `ast.factory` (via `@kubb/ast`) | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue                          |
 | `kubb/kit`                      | Re-exports the `ast` and `factory` namespaces, the way most Kubb code reaches the AST without a direct dependency |
 
-`@kubb/ast` is an internal library. Inside the Kubb ecosystem the whole surface travels on the `ast` namespace from `kubb/kit`, so plugins and generators reach it there instead of depending on this package directly. The examples below import from `@kubb/ast` for clarity; through `kubb/kit` the same calls read as `ast.transform`, `ast.factory.createSchema`, and so on.
+`@kubb/ast` is an internal library. Inside the Kubb ecosystem the whole surface travels on the `ast` namespace from `kubb/kit`, so plugins and generators reach it there instead of depending on this package directly. The examples below import from `@kubb/ast` for clarity; through `kubb/kit` the same calls read as `ast.node.transform`, `ast.factory.createSchema`, and so on.
 
 ## Node tree
 
@@ -91,17 +91,17 @@ const root = createInput({
 ### Visitor
 
 ```ts
-import { collectSync, transform } from '@kubb/ast'
+import { ast } from '@kubb/ast'
 
 // Immutable transformation
-const updated = transform(root, {
+const updated = ast.node.transform(root, {
   schema(node) {
     return { ...node, description: 'generated' }
   },
 })
 
 // Extraction
-const types = collectSync<string>(root, {
+const types = ast.node.collect<string>(root, {
   schema(node) {
     return node.type
   },
@@ -111,12 +111,12 @@ const types = collectSync<string>(root, {
 ### Guards
 
 ```ts
-import { narrowSchema } from '@kubb/ast'
+import { ast } from '@kubb/ast'
 import type { Node } from '@kubb/ast'
 
 function process(node: Node) {
   if (node.kind === 'Schema') {
-    const obj = narrowSchema(node, 'object')
+    const obj = ast.schema.narrow(node, 'object')
     obj?.properties?.forEach((p) => console.log(p.name))
   }
 }
@@ -125,9 +125,9 @@ function process(node: Node) {
 ### Refs
 
 ```ts
-import { resolveRefName } from '@kubb/ast'
+import { ast } from '@kubb/ast'
 
-resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' }) // 'Pet'
+ast.ref.getName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' }) // 'Pet'
 ```
 
 ## Adding a node

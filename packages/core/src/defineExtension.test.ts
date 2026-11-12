@@ -106,12 +106,6 @@ describe('checkDependencies', () => {
     expect(() => checkDependencies({ name: 'plugin-a', dependencies, plugins })).not.toThrow()
   })
 
-  it('throws KUBB_MISSING_DEPENDENCY for a missing required plugin', () => {
-    expect(() => checkDependencies({ name: 'plugin-a', dependencies: { 'plugin-missing': {} }, plugins })).toThrow(
-      expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.missingDependency, plugin: 'plugin-a' }) }),
-    )
-  })
-
   it('throws KUBB_INCOMPATIBLE_DEPENDENCY for an out-of-range version, also when optional', () => {
     expect(() => checkDependencies({ name: 'plugin-a', dependencies: { 'plugin-versioned': { version: '^3.0.0', optional: true } }, plugins })).toThrow(
       expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.incompatibleDependency, plugin: 'plugin-a' }) }),

@@ -1,3 +1,4 @@
+import type { ast } from '@kubb/kit'
 import type { DiscriminatorObject, Document, ReferenceObject, SchemaObject } from './types.ts'
 
 /**
@@ -26,6 +27,20 @@ export function isOpenApi32(document: Document): boolean {
   return major > 3 || (major === 3 && minor >= 2)
 }
 
+export function pickStrings<TKey extends string>(source: unknown, keys: ReadonlyArray<TKey>): Partial<Record<TKey, string>> | undefined {
+  if (!source || typeof source !== 'object') return undefined
+  const entries = keys.flatMap((key) => {
+    const value = (source as Record<string, unknown>)[key]
+    return typeof value === 'string' ? [[key, value] as const] : []
+  })
+  return entries.length ? (Object.fromEntries(entries) as Partial<Record<TKey, string>>) : undefined
+}
+
+export function getExternalDocs(source: unknown): ast.ExternalDocs | undefined {
+  const docs = pickStrings(source, ['url', 'description'])
+  return docs?.url ? { url: docs.url, ...(docs.description !== undefined && { description: docs.description }) } : undefined
+}
+
 /**
  * Returns the `x-*` keys of `source` as-is, or `undefined` when there are none.
  */
@@ -42,12 +57,12 @@ export function isReference(obj?: unknown): obj is ReferenceObject {
 }
 
 /**
- * Returns `true` when `obj` is a schema with a structured OAS 3.x `discriminator` object,
- * excluding the Swagger 2 string form.
+ * Returns `true` when `obj` is a schema with a structured OAS 3.x `discriminator` object that names a
+ * `propertyName`, excluding the Swagger 2 string form and a 3.2 discriminator that only sets `defaultMapping`.
  */
 export function isDiscriminator(obj?: unknown): obj is SchemaObject & { discriminator: DiscriminatorObject } {
-  const record = obj as Record<string, unknown>
-  return !!obj && !!record['discriminator'] && typeof record['discriminator'] !== 'string'
+  const discriminator = (obj as Record<string, unknown> | undefined)?.['discriminator']
+  return !!discriminator && typeof discriminator === 'object' && typeof (discriminator as DiscriminatorObject).propertyName === 'string'
 }
 
 /**
@@ -60,18 +75,23 @@ export function isBinary(schema: SchemaObject): boolean {
 }
 
 /**
+ * Keywords that only annotate a schema. A schema with nothing else does not constrain the value.
+ */
+const annotationKeywords = new Set(['title', 'description', 'default', 'example', 'examples', 'deprecated', 'readOnly', 'writeOnly', 'externalDocs'])
+
+/**
  * Returns the binary schema for a non-JSON entry the OAS 3.1 upgrade emptied out, or `undefined`
  * when the entry carries a schema of its own. The upgrade rewrites `format: 'binary'` into
  * `contentMediaType` and drops it whenever it only repeats the media type key, for any binary
  * media type (`application/octet-stream`, `application/pdf`, `image/png`, ...), not just
  * `application/octet-stream`. Without the fallback such a body resolves to the empty schema type
- * instead of a blob.
+ * instead of a blob. Annotations such as `description` survive the upgrade and are kept.
  */
 export function getBinaryFallbackSchema(mediaType: string | undefined, schema: SchemaObject | ReferenceObject | undefined): SchemaObject | undefined {
   if (!mediaType || isJsonMimeType(mediaType)) return undefined
-  if (schema && Object.keys(schema).length > 0) return undefined
+  if (schema && Object.keys(schema).some((key) => !annotationKeywords.has(key) && !key.startsWith('x-'))) return undefined
 
-  return { type: 'string', contentMediaType: 'application/octet-stream' }
+  return { ...(schema as SchemaObject | undefined), type: 'string', contentMediaType: 'application/octet-stream' }
 }
 
 /**

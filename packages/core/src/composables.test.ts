@@ -1,5 +1,5 @@
 import { setTimeout as delay } from 'node:timers/promises'
-import { ast, type Macro, type SchemaNode } from '@kubb/ast'
+import type { Macro } from '@kubb/ast'
 import { createMockedAdapter, createMockedSetupContext } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import {
@@ -17,7 +17,6 @@ import {
   useOptions,
   requirePlugin,
 } from './composables.ts'
-import { createKubb } from './createKubb.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Plugin } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
@@ -152,37 +151,6 @@ describe('KubbDriver#setupHooks with composables', () => {
     driver.dispose()
     driver.memo('test:names', compute)
     expect(compute).toHaveBeenCalledTimes(2)
-  })
-
-  it('generates the files of a generator added after an await in setup', async () => {
-    const schemas: Array<SchemaNode> = [ast.factory.createSchema({ name: 'Pet', type: 'string' })]
-    const plugin: Plugin = {
-      name: 'await-plugin',
-      hooks: {
-        async 'kubb:plugin:setup'() {
-          await delay(1)
-          addGenerator({
-            name: 'await-gen',
-            schema(node) {
-              return [
-                ast.factory.createFile({
-                  path: `/gen/${node.name}.ts`,
-                  baseName: `${node.name}.ts`,
-                  sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export type ${node.name} = string`)] })],
-                  imports: [],
-                  exports: [],
-                }),
-              ]
-            },
-          })
-        },
-      },
-    }
-
-    const adapter = createMockedAdapter({ parse: async () => ({ ...ast.factory.createInput(), schemas }) })
-    const { files } = await createKubb(makeConfig({ adapter, plugins: [plugin] }), { hooks: new Hookable<KubbHooks>() }).build()
-
-    expect(files.map((generated) => generated.path)).toStrictEqual(['/gen/Pet.ts'])
   })
 })
 

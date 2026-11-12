@@ -16,10 +16,8 @@ describe('detectTool', () => {
     vi.clearAllMocks()
   })
 
-  it('returns the first candidate when available', async () => {
-    vi.mocked(x).mockImplementation((command: string) => {
-      return makeResult(command === 'oxfmt' ? 0 : 1)
-    })
+  it('prefers the first candidate when several are available', async () => {
+    vi.mocked(x).mockImplementation(() => makeResult(0))
 
     expect(await detectTool(['oxfmt', 'biome', 'prettier'])).toBe('oxfmt')
   })

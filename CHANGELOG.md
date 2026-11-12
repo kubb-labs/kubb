@@ -1,5 +1,229 @@
 # Changelog
 
+## v5.18.6 — Nov 12, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Add shared helpers for plugins: `ast.ref`, `ast.graph`, `ast.schema`, `ast.mediaType`, `ast.http`, `ast.server` and `ast.auth` in `@kubb/ast`, `casing` and `text` in `@kubb/kit`, and `resolver.groupDir` in `@kubb/core`.
+  
+  - `@kubb/adapter-oas` spreads a form-encoded OpenAPI 3.2 `querystring` object into one query parameter per property.
+  - `@kubb/adapter-oas` reads any `application/*+json-seq` type as a stream, and reads `multipart/mixed` as one only when it declares `itemSchema`.
+  - `resolver.imports({ checks: true })` skips refs in checks that cannot fail.
+  
+  The top-level ref, graph and schema helpers on `ast`, `ast.isHttpOperationNode`, `ast.collectSync`, `ast.optionality`, `ast.extractStringsFromNodes`, `ast.compareEnforce`, `ast.applyMacros`, `ast.nodeKinds`, `ast.schemaTypes`, `ast.findSchema`, `ast.narrowSchema`, `ast.transform`, `ast.collect`, `ast.inlineFiles` (now under `ast.macro`, `ast.node`, `ast.schema` and `ast.file`), `ast.createPrinter` and `ast.defineMacro` (now `createPrinter` and `defineMacro` from `@kubb/kit`), and `camelCase`, `pascalCase`, `extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef` from `@kubb/kit` are deprecated. Each one's JSDoc names its replacement. Kubb v6 removes them. ([#4583](https://github.com/kubb-labs/kubb/pull/4583), [`d6f53c7`](https://github.com/kubb-labs/kubb/commit/d6f53c7bca5506acfbe38a4cf5eb57e0d5cf1515))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.5 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Read a `text/event-stream` item whose `event` sits next to payload fields, such as Scalar Galaxy's `{ event, planet, note }`, as the event's `data` instead of the whole event. Before, mocks dropped `planet` and `note`, the type put them on the event, and the client never filled them. An item that declares `data`, or only the SSE fields `event`, `id` and `retry`, is still read as the whole event. ([#4581](https://github.com/kubb-labs/kubb/pull/4581), [`bfc1645`](https://github.com/kubb-labs/kubb/commit/bfc1645e9841400339d7d1add52fcc57ba3da3d6))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.4 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Type the `data` of a `text/event-stream` event from its `contentSchema` when the event is a `$ref` to a component, as a `oneOf` member or as the whole `itemSchema`, the same as inline events. The component itself keeps `data` as a string wherever it is used outside the stream. ([#4579](https://github.com/kubb-labs/kubb/pull/4579), [`e06edf3`](https://github.com/kubb-labs/kubb/commit/e06edf321c8b49eb756468cce9437bd30e41643e))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.3 — Nov 11, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Sort imports by the specifier written in the file, the POSIX path relative to the importing file, so Windows and macOS/Linux generate the same import order. Parent imports (`../`) now come before sibling imports (`./`). ([#4577](https://github.com/kubb-labs/kubb/pull/4577), [`4b0255c`](https://github.com/kubb-labs/kubb/commit/4b0255c9d39347d6c5b0a894786b77475f3eb99a))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.2 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Fix schemas found in real OpenAPI documents.
+  
+  - An `allOf` member that points at an alias `$ref` gives its properties to a `required`-only sibling, where they were `unknown`.
+  - A discriminator member with a nullable enum keeps its own value, where it got the schema name.
+  - A boolean schema (`true` or `false`) no longer stops the run.
+  - A `content` parameter keeps its `encoding` on the new `ParameterNode.encoding` field. ([#4574](https://github.com/kubb-labs/kubb/pull/4574), [`4348127`](https://github.com/kubb-labs/kubb/commit/434812729fb79c20fe1e13cbd4318bc4e6341f07))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.1 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- An operation with an empty `servers` list now gets its path item's servers, since an empty list overrides nothing. ([#4570](https://github.com/kubb-labs/kubb/pull/4570), [`3a2e84d`](https://github.com/kubb-labs/kubb/commit/3a2e84de3457e4d532174ed2b9d2c2f3d3b940b9))
+- Apply the keywords next to a component schema's `$ref` together with its target. Such a schema used to become a plain copy of the target, so its own `description`, `required`, `properties`, `if`/`then`/`else`, `dependentRequired` and `dependentSchemas` were dropped. An `allOf` next to the `$ref` keeps its members, and an `allOf` member's `conditionals` are no longer replaced by the ones of the schema around it. ([#4570](https://github.com/kubb-labs/kubb/pull/4570), [`3a2e84d`](https://github.com/kubb-labs/kubb/commit/3a2e84de3457e4d532174ed2b9d2c2f3d3b940b9))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Write a status range in lower case. The adapter turns a response key such as `2XX` into `2xx`, and `StatusCode` lists `2xx` to `5xx`. The response `pointer` keeps the key as the document spells it. `camelCase` and `pascalCase` keep a range such as `2xx` as one word, so `listPets Status 2xx` becomes `listPetsStatus2xx` instead of `listPetsStatus2Xx`. ([#4572](https://github.com/kubb-labs/kubb/pull/4572), [`15e3b83`](https://github.com/kubb-labs/kubb/commit/15e3b836bfd1163d806c3dd73fcb8583919db6b8))
+- Cycle detection, `include` filtering and imports now see the schemas inside `conditionals`, `contains` and a string's `content`. `findCircularSchemas` and `collectUsedSchemaNames` follow refs in these fields, so a cycle through them is detected and an `include` filter keeps a schema only they reference. `resolver.imports` and `collectImportedRefNames` add those refs only with `checks: true`, which a plugin that prints these checks passes. `transform` and `collect` still skip these fields. ([#4570](https://github.com/kubb-labs/kubb/pull/4570), [`3a2e84d`](https://github.com/kubb-labs/kubb/commit/3a2e84de3457e4d532174ed2b9d2c2f3d3b940b9))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.0 — Nov 10, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Read the OpenAPI 3.0, 3.1 and 3.2 fields the adapter skipped, so plugins get every field that affects generated code.
+  
+  ### Added
+  
+  - `meta` gets `summary`, `termsOfService`, `contact`, `license`, `externalDocs`, `tags` and `auth`. `InputServer` gets `name`.
+  - `meta.tags` entries have `summary`, `parent` and `kind`. With `group: { type: 'tag' }`, a child tag's folder sits inside its parent's, such as `animals/cats/`.
+  - `OperationNode` gets `externalDocs` and `auth`. `auth` comes from the operation, or else the document.
+  - `ResponseNode` gets `summary`, `headers` and `links`.
+  - `ParameterNode` gets `examples`, `deprecated` and `allowEmptyValue`. `ParameterStyle` gets the 3.2 `cookie` style.
+  - `ContentNode` gets `examples`, `prefixEncoding` and `itemEncoding`. `EncodingNode` gets `encoding`, `prefixEncoding` and `itemEncoding`, for `multipart/mixed` and nested multipart bodies.
+  - `ExampleNode` holds one example. A 3.2 `dataValue` becomes `value`, and `serializedValue` is kept.
+  - Schema nodes get `externalDocs` and `conditionals`: one `{ if, then, else }` entry for `if`/`then`/`else` and for each `dependentRequired` and `dependentSchemas` key.
+  - Array nodes get `contains` with the `schema` some items must match and, from `minContains` and `maxContains`, how many (`min`, `max`). String nodes get `content` with the `mediaType`, `encoding` and parsed `schema` of the value they encode.
+  - `StatusCode` includes ranges such as `2XX`.
+  
+  ### Changed
+  
+  - `$self` sets the base URI that relative `$ref`s resolve against.
+  - A `$ref` to a schema's `$id`, `$anchor` or `$dynamicAnchor`, and a `$dynamicRef`, resolve like a local `$ref`. Before, an anchor ref failed as not found and an `$id` URL was fetched.
+  - `unevaluatedProperties` and `unevaluatedItems` close or type extra keys and tuple items when `additionalProperties` or `items` is absent, and no `allOf`, `anyOf`, `oneOf`, `if`, `dependentSchemas` or `$ref` sits beside them.
+  - A discriminator without `propertyName`, optional from 3.2, no longer crashes the parse. Its `defaultMapping` schema joins the union.
+  - A response without `description` parses.
+  
+  ### Deprecated
+  
+  These fields stay filled, so existing code keeps working. They are removed in Kubb v6.
+  
+  | Deprecated                                             | Use instead                                        |
+  | ------------------------------------------------------ | -------------------------------------------------- |
+  | `minProperties`, `maxProperties` on object nodes       | `min`, `max`, as on string, array and number nodes |
+  | `exclusiveMinimum`, `exclusiveMaximum` on number nodes | `exclusive: { min, max }`                          |
+  
+  ```diff
+  - { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 100 }
+  + { type: 'number', exclusive: { min: 0, max: 100 } }
+  ```
+  
+  ### Removed
+  
+  `meta.securitySchemes` and `InputSecurityScheme` are replaced by `meta.auth` and `AuthScheme`. Each scheme's `credential` has the same shape as the `Auth` object that `@kubb/plugin-fetch` and `@kubb/plugin-axios` pass to your `auth` resolver, so the AST and the generated client share one format:
+  
+  - `http` with `scheme` (`bearer`, `basic`, or another such as `digest`) and `bearerFormat`.
+  - `apiKey` with `in` and `name`.
+  - `oauth2` with its `flows`, including the 3.2 `deviceAuthorization`, and `metadataUrl`.
+  - `openIdConnect` with the discovery `url`.
+  - `mutualTLS`.
+  
+  A scheme a client cannot place, such as an `apiKey` outside a header, query or cookie, is left out.
+  
+  ```ts
+  // before: meta.securitySchemes
+  { name: 'api_key', type: 'apiKey', in: 'header', parameterName: 'X-API-Key' }
+  // after: meta.auth
+  { name: 'api_key', credential: { type: 'apiKey', in: 'header', name: 'X-API-Key' } }
+  ```
+  
+  `OperationNode.auth` lists alternatives, each a list of `{ scheme, scopes }`. A 3.2 key that names a scheme by URI becomes the scheme name. ([#4561](https://github.com/kubb-labs/kubb/pull/4561), [`86bafb5`](https://github.com/kubb-labs/kubb/commit/86bafb5c1e24d39ce61dd891f198944fa0e8388c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.17.1 — Nov 10, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Type a `format: binary` body as a blob when its schema also has a `description`, `title`, `example`, or another annotation. The OpenAPI 3.1 upgrade drops `format: binary` and leaves the annotation, so the body became `unknown`. The annotation is kept on the blob schema. ([#4559](https://github.com/kubb-labs/kubb/pull/4559), [`affd204`](https://github.com/kubb-labs/kubb/commit/affd2049f0ea59920773189341b1c617d9b3d03a))
+- Give a response without content an empty `contentType` (`''`) instead of the request's media type. A body-less `304` on an operation with a `text/plain` request body was typed as `string`, while the client returns `undefined`. The adapter `contentType` option no longer adds its media type to a response without content either. ([#4559](https://github.com/kubb-labs/kubb/pull/4559), [`affd204`](https://github.com/kubb-labs/kubb/commit/affd2049f0ea59920773189341b1c617d9b3d03a))
+- Leave array and primitive members of a discriminated `oneOf`/`anyOf` without the discriminant intersection. Only an object can carry the discriminator property, so `ContentDirectory & { type: 'array' }` matched no value and Zod rejected every directory listing. ([#4559](https://github.com/kubb-labs/kubb/pull/4559), [`affd204`](https://github.com/kubb-labs/kubb/commit/affd2049f0ea59920773189341b1c617d9b3d03a))
+- Report `KUBB_UNSUPPORTED_FORMAT` once per format, at the first schema that uses it, with the number of schemas that use it. The Stripe spec printed 826 warnings for three formats and now prints three. ([#4559](https://github.com/kubb-labs/kubb/pull/4559), [`affd204`](https://github.com/kubb-labs/kubb/commit/affd2049f0ea59920773189341b1c617d9b3d03a))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.17.0 — Nov 9, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Keep `servers` declared on a path item or an operation, such as an upload or streaming host. `OperationNode` gets an optional `servers` field from the operation's `servers`, else its path item's, mapped the same way as `InputMeta.servers`: entries without a `url` are dropped and variable defaults are filled in. The field is absent when neither declares servers, so plugins fall back to the document's servers. ([#4554](https://github.com/kubb-labs/kubb/pull/4554), [`e2700e9`](https://github.com/kubb-labs/kubb/commit/e2700e9c8cd2cd8e4d1520e9f40a12e44485de9b))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.16.1 — Nov 7, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Warn with `KUBB_DUPLICATE_DISCRIMINATOR` when two `oneOf`/`anyOf` members pin the declared `discriminator` property to the same value, pointing at the union in the spec. Such a union can't pick a branch, and Zod's `z.discriminatedUnion` throws `Duplicate discriminator value` on the first parse. ([#4538](https://github.com/kubb-labs/kubb/pull/4538), [`0d23171`](https://github.com/kubb-labs/kubb/commit/0d23171d4b30d4944fdd7686c9bc32d10638dded))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Keep `macroSimplifyUnion` as a deprecated alias of `macroDedupeUnion`. A plugin built before the rename in 5.16, such as `@kubb/plugin-axios` 5.12, imports the old name and crashed with `Cannot read properties of undefined (reading 'input')` in `composeMacros`. Update the import to `macroDedupeUnion`; the alias goes away in the next major. ([#4552](https://github.com/kubb-labs/kubb/pull/4552), [`3808bbf`](https://github.com/kubb-labs/kubb/commit/3808bbf7dd17df952f10066352847dccb9625951))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle), [@tombeckenham](https://github.com/tombeckenham)
+
 ## v5.16.0 — Nov 6, 2026
 
 ### @kubb/adapter-oas

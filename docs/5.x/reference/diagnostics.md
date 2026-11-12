@@ -235,7 +235,7 @@ Read the message and adjust the input or plugin options as needed. Plugin author
 
 ### KUBB_UNSUPPORTED_FORMAT: Unsupported format {#kubb-unsupported-format}
 
-A schema's `format` is not one Kubb maps to a specific type, so it falls back to the base type.
+A schema's `format` is not one Kubb maps to a specific type, so it falls back to the base type. Kubb reports each format once, with a count, at the first schema that uses it.
 
 Use a supported format, omit it if the base type is sufficient, or map it through a custom parser or plugin.
 
@@ -244,6 +244,12 @@ Use a supported format, omit it if the base type is sufficient, or map it throug
 Schemas that only `$ref` each other form a loop, so none of them has a shape to generate. Kubb resolves them to `unknown`.
 
 Break the loop by giving one of the schemas a real definition, or remove the `$ref` that closes it.
+
+### KUBB_DUPLICATE_DISCRIMINATOR: Duplicate discriminator value {#kubb-duplicate-discriminator}
+
+Two or more `oneOf`/`anyOf` members pin the `discriminator` property to the same value, so the value cannot pick a branch. Zod `z.discriminatedUnion` throws on the first parse of such a union.
+
+Give each member its own discriminator value, or drop the `discriminator` so the members are matched by shape.
 
 ## Info
 

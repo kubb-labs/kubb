@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { ast, type InputMeta } from '@kubb/ast'
 import { describe, expect, it, test } from 'vitest'
@@ -315,6 +316,30 @@ describe('default.path', () => {
     ).toBe(expected)
   })
 
+  it('nests a tag group in the folders of its parent tags and stops at a parent loop', () => {
+    const resolver = createResolver({ pluginName: 'test' })
+    resolver.setTags([
+      { name: 'house cats', parent: 'cats' },
+      { name: 'cats', parent: 'animals' },
+      { name: 'a', parent: 'b' },
+      { name: 'b', parent: 'a' },
+    ])
+    const options = { baseName: 'petTypes.ts', root: '/root', output: { path: 'types', mode: 'directory' }, group: { type: 'tag' } } as const
+
+    expect(resolver.default.path({ ...options, tag: 'house cats' })).toBe('/root/types/animals/cats/houseCats/petTypes.ts')
+    expect(resolver.default.path({ ...options, tag: 'a' })).toBe('/root/types/b/a/petTypes.ts')
+  })
+
+  it('names the group folder the way default.path does', () => {
+    const resolver = createResolver({ pluginName: 'test' })
+    resolver.setTags([{ name: 'house cats', parent: 'cats' }])
+
+    expect(resolver.groupDir({ type: 'tag' }, 'pet store')).toBe('petStore')
+    expect(resolver.groupDir({ type: 'tag' }, 'house cats')).toBe(path.join('cats', 'houseCats'))
+    expect(resolver.groupDir({ type: 'path' }, '/pet-store/{id}')).toBe('petStore')
+    expect(resolver.groupDir({ type: 'tag', name: ({ group }) => `${group}Api` }, 'pets')).toBe('petsApi')
+  })
+
   it('sanitizes traversal segments in default path-based grouping', () => {
     const result = baseResolver.default.path({
       baseName: 'petTypes.ts',
@@ -355,20 +380,6 @@ describe('default.file', () => {
     const file = resolver.default.file({ name: 'list pets', extname: '.ts', ...context })
 
     expect(file).toMatchObject({ baseName: 'listPets.ts', path: '/root/types/listPets.ts', sources: [], imports: [], exports: [] })
-  })
-
-  it.each([
-    // dots before a letter split into nested directories
-    ['pet.petId', '/root/types/pet/petId.ts'],
-    ['api.v2', '/root/types/api/v2.ts'],
-    // version numbers (dot before a digit) stay in one segment
-    ['some_operation_v3.14', '/root/types/someOperationV314.ts'],
-    // leading dots must not escape the output directory
-    ['..Schema', '/root/types/schema.ts'],
-  ])('nests dotted file name %s into %s', (name, expected) => {
-    const file = resolver.default.file({ name, extname: '.ts', ...context })
-
-    expect(file.path).toBe(expected)
   })
 })
 

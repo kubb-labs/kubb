@@ -186,9 +186,9 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  *
  * @example Tiny Zod printer
  * ```ts
- * import { createPrinter, type PrinterFactoryOptions } from '@kubb/ast'
+ * import { ast, createPrinter } from '@kubb/kit'
  *
- * type PrinterZod = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
+ * type PrinterZod = ast.PrinterFactoryOptions<'zod', { strict?: boolean }, string>
  *
  * export const zodPrinter = createPrinter<PrinterZod>((options) => ({
  *   name: 'zod',

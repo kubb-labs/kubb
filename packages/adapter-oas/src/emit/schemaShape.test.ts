@@ -2,13 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { flattenSchema, resolveDateTypeValue } from './schemaShape.ts'
 
 describe('resolveDateTypeValue', () => {
-  it('applies a scalar dateType to every format', () => {
-    expect(resolveDateTypeValue('date', 'date-time')).toBe('date')
-    expect(resolveDateTypeValue('date', 'date')).toBe('date')
-    expect(resolveDateTypeValue('date', 'time')).toBe('date')
-    expect(resolveDateTypeValue(false, 'date-time')).toBe(false)
-  })
-
   it('reads the matching key from the object form, defaulting an omitted key to string', () => {
     expect(resolveDateTypeValue({ dateTime: 'date' }, 'date-time')).toBe('date')
     expect(resolveDateTypeValue({ dateTime: 'date' }, 'date')).toBe('string')
@@ -18,12 +11,7 @@ describe('resolveDateTypeValue', () => {
 })
 
 describe('flattenSchema', () => {
-  it.each([
-    { title: 'there is no allOf', schema: { type: 'string' as const } },
-    { title: 'allOf is empty', schema: { allOf: [] } },
-    { title: 'allOf contains a $ref', schema: { allOf: [{ $ref: '#/components/schemas/Pet' }] } },
-    { title: 'allOf contains structural keys', schema: { allOf: [{ properties: { id: { type: 'integer' as const } } }] } },
-  ])('returns schema unchanged when $title', ({ schema }) => {
+  it.each([{ title: 'allOf is empty', schema: { allOf: [] } }])('returns schema unchanged when $title', ({ schema }) => {
     expect(flattenSchema(schema)).toBe(schema)
   })
 

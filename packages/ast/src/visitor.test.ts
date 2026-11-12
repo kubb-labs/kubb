@@ -8,8 +8,9 @@ import { createResponse } from './nodes/response.ts'
 import { createSchema } from './nodes/schema.ts'
 import type { InputNode } from './nodes/input.ts'
 import type { OperationNode } from './nodes/operation.ts'
+import type { ParameterNode } from './nodes/parameter.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { collectSync, transform } from './visitor.ts'
+import { collect, transform } from './visitor.ts'
 
 /**
  * Builds a minimal sample AST with one `Pet` schema and one `getPetById` operation.
@@ -61,13 +62,10 @@ function buildSampleTree(): InputNode {
 }
 
 describe('transform', () => {
-  it('preserves identity when nothing changes (structural sharing)', () => {
+  it('preserves identity with no visitors', () => {
     const root = buildSampleTree()
 
-    // A no-op transform returns the exact same reference.
     expect(transform(root, {})).toBe(root)
-    // Visitors that return their input unchanged are also no-ops.
-    expect(transform(root, { schema: (schema) => schema, operation: (operation) => operation })).toBe(root)
   })
 
   it('rebuilds the changed branch and reuses untouched subtrees when a visitor returns a new node', () => {
@@ -106,7 +104,7 @@ describe('transform', () => {
     expect(untouched).toBe(root)
   })
 
-  it('does not recurse into schema properties/items/members when depth: shallow', () => {
+  it('visits parameter schemas but not property schemas when depth: shallow', () => {
     const root = buildSampleTree()
     const types: Array<string> = []
     transform(root, {
@@ -117,11 +115,9 @@ describe('transform', () => {
       },
     })
 
-    // Top-level object schema is visited
-    expect(types).toContain('object')
-    // Parameter schema (integer) is still visited — not a schema property
+    // Parameter schema (integer) is still visited: it is not a schema property
     expect(types).toContain('integer')
-    // 'string' (Pet.name property schema) is NOT visited — guarded by depth
+    // 'string' (Pet.name property schema) is not visited: guarded by depth
     expect(types).not.toContain('string')
   })
 })
@@ -131,7 +127,7 @@ describe('a node under two keys', () => {
   const content = createContent({ contentType: 'text/event-stream', schema: item, stream: { schema: item, shape: 'data' } })
 
   it('is collected once', () => {
-    expect(collectSync<SchemaNode>(content, { schema: (node) => node })).toHaveLength(1)
+    expect(collect<SchemaNode>(content, { schema: (node) => node })).toHaveLength(1)
   })
 
   it('is transformed once, so both keys keep one node', () => {
@@ -192,20 +188,7 @@ describe('VisitorContext — parent', () => {
   })
 })
 
-describe('collectSync', () => {
-  it('collects all schema types with default depth traversal', () => {
-    const root = buildSampleTree()
-    const types = collectSync<string>(root, {
-      schema(n) {
-        return n.type
-      },
-    })
-
-    expect(types).toContain('object')
-    expect(types).toContain('integer')
-    expect(types).toContain('string')
-  })
-
+describe('collect', () => {
   it('collects schemas inside a tuple rest and patternProperties', () => {
     const root = createInput({
       schemas: [
@@ -214,12 +197,26 @@ describe('collectSync', () => {
       ],
     })
 
-    const names = collectSync<string>(root, {
+    const names = collect<string>(root, {
       schema(n) {
         return n.type === 'ref' ? (n.name ?? undefined) : undefined
       },
     })
 
     expect(names).toStrictEqual(['Tail', 'Extension'])
+  })
+})
+
+describe('response headers', () => {
+  it('are visited as parameters with their schemas', () => {
+    const header = createParameter({
+      name: 'X-Rate-Limit',
+      in: 'header',
+      schema: createSchema({ type: 'ref', name: 'RateLimit', ref: '#/components/schemas/RateLimit' }),
+    })
+    const response = createResponse({ statusCode: '200', headers: [header] })
+
+    expect(collect<ParameterNode>(response, { parameter: (node) => node })).toStrictEqual([header])
+    expect(collect<SchemaNode>(response, { schema: (node) => (node.type === 'ref' ? node : undefined) })).toHaveLength(1)
   })
 })

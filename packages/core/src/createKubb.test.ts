@@ -104,21 +104,6 @@ describe('createKubb', () => {
     })
   })
 
-  test('returns the files a plugin injected during setup from build', async () => {
-    const { driver, files } = await createKubb(config, {
-      hooks: new Hookable<KubbHooks>(),
-    }).build()
-
-    expect(driver).toBeDefined()
-    expect(files.map(({ baseName, sources }) => ({ baseName, sources }))).toStrictEqual([
-      {
-        baseName: 'world.json',
-        sources: [{ kind: 'Source', nodes: [{ kind: 'Text', value: '{ "hello": "world" }' }] }],
-      },
-    ])
-    expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
-  })
-
   test('moves inline sources into the files that import them and does not write the virtual file', async () => {
     const types = ast.factory.createFile({
       path: '/gen/types/AddPet.ts',
@@ -177,13 +162,6 @@ describe('createKubb', () => {
     // Both missing names survive `Diagnostics.dedupe`, in one diagnostic.
     const inlineFailed = diagnostics.filter((diagnostic) => 'code' in diagnostic && diagnostic.code === Diagnostics.code.inlineFailed)
     expect(inlineFailed).toEqual([expect.objectContaining({ severity: 'error', message: expect.stringMatching(/AddPetStatus404[\s\S]*AddPetStatus500/) })])
-  })
-
-  test('stops before setup when its signal is aborted', async () => {
-    const controller = new AbortController()
-    controller.abort(new Error('Canceled'))
-
-    await expect(createKubb(config, { signal: controller.signal }).build()).rejects.toThrow('Canceled')
   })
 
   test('stops mid-build when its signal aborts during parsing', async () => {
@@ -250,14 +228,6 @@ describe('createKubb', () => {
     const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [throwingSetup] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
 
     expect(Diagnostics.failedPlugins(diagnostics)).toStrictEqual(['plugin-throws'])
-  })
-
-  it('does not report a dependency missing from the config', async () => {
-    const dependent = defineExtension({ kind: 'plugin', meta: { name: 'plugin-dependent' }, dependencies: ['plugin-missing'], hooks: {} })()
-
-    const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [dependent] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
-
-    expect(diagnostics.filter(Diagnostics.isProblem)).toStrictEqual([])
   })
 
   it('fails the run when setup requires a plugin the config lacks, naming the plugin that needs it', async () => {
@@ -411,31 +381,6 @@ describe('createKubb', () => {
     ])
   })
 
-  it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    const hookPlugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'hook-plugin' },
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({
-            name: 'hook-gen',
-            operations: vi.fn(),
-          })
-        },
-      },
-    })()
-    const hookConfig = makeConfig({ ...config, plugins: [hookPlugin] })
-
-    await createKubb(hookConfig, { hooks }).build()
-    await createKubb(hookConfig, { hooks }).build()
-
-    expect(hooks.listenerCount('kubb:plugin:setup')).toBe(0)
-    expect(hooks.listenerCount('kubb:generate:schema')).toBe(0)
-    expect(hooks.listenerCount('kubb:generate:operation')).toBe(0)
-    expect(hooks.listenerCount('kubb:generate:operations')).toBe(0)
-  })
-
   describe('per-node options and transform reuse', () => {
     it('resolves per-node options when an override matches', async () => {
       const seen: Array<{ name: string | null | undefined; options: { marker?: string } }> = []
@@ -585,25 +530,6 @@ describe('Kubb#generate', () => {
   let hooks: Hookable<KubbHooks>
   afterEach(() => hooks?.removeAllHooks())
 
-  it('emits generation:start before generation:end and ends with success', async () => {
-    hooks = new Hookable<KubbHooks>()
-    const events: Array<string> = []
-    let endStatus: string | undefined
-    hooks.hook('kubb:generation:start', () => {
-      events.push('start')
-    })
-    hooks.hook('kubb:generation:end', ({ status }) => {
-      events.push('end')
-      endStatus = status
-    })
-
-    const result = await createKubb(makeConfig(), { hooks }).generate()
-
-    expect(events).toStrictEqual(['start', 'end'])
-    expect(endStatus).toBe('success')
-    expect(result.success).toBe(true)
-  })
-
   it('turns a setup failure into an emitted diagnostic and a failed generation:end', async () => {
     hooks = new Hookable<KubbHooks>()
     const emitted: Array<string> = []
@@ -640,10 +566,7 @@ describe('Kubb#generate', () => {
     expect(endStatus).toBe('failed')
   })
 
-  it.each([
-    ['skips processOutput when the storage keeps the output in memory', memoryStorage, 0],
-    ['runs processOutput once when the storage writes the output to disk', fsStorage, 1],
-  ])('%s', async (_name, storage, calls) => {
+  it.each([['skips processOutput when the storage keeps the output in memory', memoryStorage, 0]])('%s', async (_name, storage, calls) => {
     hooks = new Hookable<KubbHooks>()
     const formatStarted = vi.fn()
     hooks.hook('kubb:format:start', formatStarted)

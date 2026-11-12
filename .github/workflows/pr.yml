@@ -138,6 +138,9 @@ jobs:
           NODE_OPTIONS: '--max_old_space_size=4096'
         run: pnpm run lint
 
+      - name: Test registry
+        run: pnpm run test:registry
+
   prerelease:
     name: Prerelease
     timeout-minutes: 15

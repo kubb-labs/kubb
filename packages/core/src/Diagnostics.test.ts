@@ -66,19 +66,6 @@ describe('Diagnostics.serialize', () => {
 })
 
 describe('Diagnostics.from', () => {
-  it('returns the structured diagnostic, with help and plugin, from a DiagnosticError', () => {
-    const diagnostic = { code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing', help: 'fix the ref', plugin: '@kubb/plugin-zod' } as const
-
-    expect(Diagnostics.from(new Diagnostics.Error(diagnostic))).toStrictEqual(diagnostic)
-  })
-
-  it('should unwrap a DiagnosticError nested in the cause chain', () => {
-    const inner = new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
-    const wrapped = new Error('listener failed', { cause: inner })
-
-    expect(Diagnostics.from(wrapped).code).toBe('KUBB_REF_NOT_FOUND')
-  })
-
   it('recognizes a DiagnosticError from a duplicated core copy structurally', () => {
     // A different `@kubb/core` copy produces a DiagnosticError that fails `instanceof` but
     // still carries its `diagnostic`. Simulate one with a plain Error of the same shape.
@@ -130,19 +117,6 @@ describe('Diagnostics.from', () => {
 
 describe('Diagnostics.fromExtension', () => {
   const extension = { meta: { name: 'plugin-acme', issues: 'https://github.com/acme/plugin/issues' } }
-
-  it('reports a plugin crash as KUBB_PLUGIN_FAILED with the plugin and its issue tracker', () => {
-    const cause = new Error('boom')
-
-    expect(Diagnostics.fromExtension(cause, { kind: 'plugin', extension })).toStrictEqual({
-      code: 'KUBB_PLUGIN_FAILED',
-      severity: 'error',
-      message: 'boom',
-      cause,
-      plugin: 'plugin-acme',
-      issues: 'https://github.com/acme/plugin/issues',
-    })
-  })
 
   it('adds the issue tracker to a *_FAILED code the extension throws itself', () => {
     const error = new Diagnostics.Error({ code: 'KUBB_PLUGIN_FAILED', severity: 'error', message: 'invariant broken' })

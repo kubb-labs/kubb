@@ -1,6 +1,8 @@
 import { nodeKinds } from '../constants.ts'
 import type { BaseNode } from './base.ts'
 import { type ContentNode, createContent } from './content.ts'
+import type { InputServer } from './input.ts'
+import type { ParameterNode } from './parameter.ts'
 import type { SchemaNode } from './schema.ts'
 
 type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
@@ -8,7 +10,7 @@ type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 /**
  * Response status code literal used by operations.
  *
- * Includes three-digit HTTP status code strings and `"default"` for catch-all responses.
+ * Includes three-digit HTTP status code strings, ranges such as `"2xx"`, and `"default"` for catch-all responses.
  *
  * @example
  * ```ts
@@ -16,7 +18,7 @@ type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
  * const fallback: StatusCode = 'default'
  * ```
  */
-export type StatusCode = `${1 | 2 | 3 | 4 | 5}${Digit}${Digit}` | 'default'
+export type StatusCode = `${1 | 2 | 3 | 4 | 5}${Digit}${Digit}` | `${1 | 2 | 3 | 4 | 5}xx` | 'default'
 
 /**
  * AST node representing one operation response variant.
@@ -43,6 +45,7 @@ export type ResponseNode = BaseNode & {
    * HTTP status code or `'default'` for a fallback response.
    */
   statusCode: StatusCode
+  summary?: string
   /**
    * Optional response description.
    */
@@ -50,10 +53,11 @@ export type ResponseNode = BaseNode & {
   /**
    * All available content type entries for this response.
    *
-   * When the adapter `contentType` option is set, this array contains exactly one entry for that
-   * content type. Otherwise it contains one entry per content type declared in the spec, so that
-   * plugins can generate a union of response types (e.g. `application/json` and `application/xml`).
-   * Body-less responses keep a single entry whose `schema` is the empty/`void` placeholder.
+   * For a response that declares content, the array holds exactly one entry for the adapter
+   * `contentType` option when it is set. Otherwise it holds one entry per content type declared in
+   * the spec, so that plugins can generate a union of response types (e.g. `application/json` and
+   * `application/xml`). A body-less response always keeps a single entry whose `contentType` is `''`
+   * and whose `schema` is the empty/`void` placeholder, even when the option is set.
    *
    * @example
    * ```ts
@@ -63,6 +67,23 @@ export type ResponseNode = BaseNode & {
    * ```
    */
   content?: Array<ContentNode>
+  /**
+   * Response headers, as `in: 'header'` parameters. `Content-Type` is left out.
+   */
+  headers?: Array<ParameterNode>
+  links?: Record<string, ResponseLink>
+}
+
+/**
+ * A link to another operation. `parameters` and `requestBody` hold runtime expressions such as `$response.body#/id`.
+ */
+export type ResponseLink = {
+  operationId?: string
+  operationRef?: string
+  parameters?: Record<string, unknown>
+  requestBody?: unknown
+  description?: string
+  server?: InputServer
 }
 
 type ResponseInput = Pick<ResponseNode, 'statusCode'> &

@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { collectImportedRefNames, type InputNode, type SchemaNode } from '@kubb/ast'
+import { ast, type InputNode, type SchemaNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
@@ -134,7 +134,7 @@ export async function detectSharedSchemas(configs: Array<Config>, { hooks }: { h
       for (const [name, members] of shared) {
         for (const index of members) {
           const node = specs[index]!.schemas.get(name)!
-          if (collectImportedRefNames(node).every((ref) => shared.get(ref)?.has(index))) continue
+          if (ast.graph.getImportedNames(node).every((ref) => shared.get(ref)?.has(index))) continue
           members.delete(index)
           changed = true
         }

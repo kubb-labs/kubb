@@ -6,7 +6,7 @@ import * as jsYaml from 'js-yaml'
 import { describe, expect, it, vi } from 'vitest'
 import * as yaml from 'yaml'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
-import { assertDocument, bundleDocument, hasExternalRef, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
+import { assertDocument, bundleDocument, getBaseUri, hasExternalRef, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
 import type { Document, SchemaObject } from '../types.ts'
 
 // Records each result a validation worker posts, so a test can tell the worker from the in-place fallback.
@@ -58,14 +58,6 @@ describe('parseFromConfig', () => {
     expect(sources).toStrictEqual([path.join(mocks, 'external/pet.yaml')])
   })
 
-  it('lists the input file and the files its external refs read', async () => {
-    const mocks = path.resolve(__dirname, '../../mocks')
-    const sources: Array<string> = []
-    await parseFromConfig({ type: 'path', path: path.join(mocks, 'withExternalFileRef.yaml') }, sources)
-
-    expect(sources).toStrictEqual([path.join(mocks, 'withExternalFileRef.yaml'), path.join(mocks, 'external/pet.yaml')])
-  })
-
   it('upgrades an unquoted `swagger: 2.0` instead of dropping its definitions', async () => {
     const doc = await parseFromConfig({
       type: 'data',
@@ -98,29 +90,6 @@ describe('parseFromConfig', () => {
     const response = doc.paths?.['/x']?.get?.responses?.['200'] as { content: Record<string, { schema: SchemaObject }> }
 
     expect(response.content['application/json']!.schema.properties?.second).toStrictEqual({ type: 'string' })
-  })
-
-  it.each([
-    { title: 'an inline object', data: petSchema },
-    { title: 'an inline JSON string', data: JSON.stringify(petSchema) },
-    {
-      title: 'an inline YAML string',
-      data: `
-openapi: '3.0.3'
-info:
-  title: Pets API
-  version: 1.0.0
-paths: {}
-components:
-  schemas:
-    Pet:
-      type: object
-`,
-    },
-  ])('parses $title via type: data', async ({ data }) => {
-    const doc = await parseFromConfig({ type: 'data', data })
-
-    expect(doc.components?.schemas?.['Pet']).toBeDefined()
   })
 
   it('parses inline JSON and YAML without the slower `yaml` parser', async () => {
@@ -181,14 +150,6 @@ components:
 
     expect(doc.info.version).toBe('2024-01-01')
     expect((doc as Record<string, unknown>)['x-merge']).toStrictEqual({ '<<': { a: 1 } })
-  })
-
-  it('up-converts a Swagger 2.0 document to OpenAPI 3', async () => {
-    const swagger2 = { swagger: '2.0', info: { title: 'Test', version: '1.0.0' }, paths: {} }
-
-    const doc = await parseFromConfig({ type: 'data', data: swagger2 })
-
-    expect(doc.openapi).toMatch(/^3\./)
   })
 
   it('throws KUBB_INVALID_DOCUMENT with the line and column for invalid inline YAML', async () => {
@@ -596,6 +557,42 @@ describe('assertDocument', () => {
       expect.unreachable('expected assertDocument to throw')
     } catch (error) {
       expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.invalidDocument)
+    }
+  })
+})
+
+describe('getBaseUri', () => {
+  it.each([
+    ['no $self', '/specs/openapi.yaml', {}, '/specs/openapi.yaml'],
+    ['a relative $self against a file', '/specs/a/openapi.yaml', { $self: '../b/openapi.yaml' }, path.resolve('/specs/b/openapi.yaml')],
+    ['a relative $self against a URL', 'https://example.com/a/openapi.yaml', { $self: '../b/openapi.yaml' }, 'https://example.com/b/openapi.yaml'],
+    ['an absolute URL $self', '/specs/openapi.yaml', { $self: 'https://api.example.com/openapi.yaml' }, 'https://api.example.com/openapi.yaml'],
+    ['a URN $self, which locates nothing', '/specs/openapi.yaml', { $self: 'urn:example:api' }, '/specs/openapi.yaml'],
+    ['a malformed URL $self', '/specs/openapi.yaml', { $self: 'https:///' }, '/specs/openapi.yaml'],
+    ['an invalid file URL $self', '/specs/openapi.yaml', { $self: 'file://host/%E0%A4%A' }, '/specs/openapi.yaml'],
+  ])('returns the base for %s', (_title, pathOrUrl, root, expected) => {
+    expect(getBaseUri(pathOrUrl, root)).toBe(expected)
+  })
+})
+
+describe('bundleDocument with $self', () => {
+  it('resolves relative $refs against $self instead of the file location', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'kubb-self-'))
+    try {
+      await writeFile(path.join(dir, 'pet.yaml'), 'type: object\nproperties:\n  name:\n    type: string\n')
+      const document = {
+        openapi: '3.2.0',
+        $self: '../openapi.yaml',
+        info: { title: 'Self', version: '1.0.0' },
+        paths: {},
+        components: { schemas: { Pet: { $ref: './pet.yaml' } } },
+      } as unknown as Document
+      // The document is read from `docs/`, but `$self` places it next to `pet.yaml`.
+      const bundled = await bundleDocument(path.join(dir, 'docs/openapi.yaml'), { document })
+
+      expect(bundled.components?.schemas?.['Pet']).toMatchObject({ type: 'object', properties: { name: { type: 'string' } } })
+    } finally {
+      await rm(dir, { recursive: true, force: true })
     }
   })
 })

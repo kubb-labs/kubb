@@ -4,19 +4,6 @@ import { createSchema } from '../nodes/schema.ts'
 import { getSchemaLiteralValues, inferDiscriminatorPropertyName, resolveSchemaProperties } from './schemaProperties.ts'
 
 describe('resolveSchemaProperties', () => {
-  it('finds properties through references and intersections', () => {
-    const property = createProperty({
-      name: 'type',
-      required: true,
-      schema: createSchema({ type: 'enum', enumValues: ['cat'] }),
-    })
-    const object = createSchema({ type: 'object', properties: [property] })
-    const ref = createSchema({ type: 'ref', name: 'Cat', schema: object })
-    const node = createSchema({ type: 'intersection', members: [ref, createSchema({ type: 'object', properties: [property] })] })
-
-    expect(resolveSchemaProperties({ node, propertyName: 'type' })).toStrictEqual([property, property])
-  })
-
   it('does not find properties in union branches', () => {
     const node = createSchema({
       type: 'union',

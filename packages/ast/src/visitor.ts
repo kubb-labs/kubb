@@ -7,6 +7,7 @@ import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
 import type { ResponseNode } from './nodes/response.ts'
 import type { SchemaNode } from './nodes/schema.ts'
+import { getEmbeddedJson } from './schema/index.ts'
 
 /**
  * Traversal depth for AST visitor utilities.
@@ -25,11 +26,17 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   Operation: ['parameters', 'requestBody', 'responses'],
   RequestBody: ['content'],
   Content: ['schema', 'stream'],
-  Response: ['content'],
+  Response: ['content', 'headers'],
   Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'propertyNames', 'rest'],
   Property: ['schema'],
   Parameter: ['schema'],
 }
+
+/**
+ * Schema fields that hold checks rather than shape: the `conditionals` entries, `contains` and a string's `content`.
+ * `transform` and `collect` skip them, and `visitChildNodes` walks them with `checks: true`.
+ */
+export const schemaCheckKeys = ['conditionals', 'contains', 'content'] as const
 
 /** Visitor callback names in traversal order, the keys of {@link Visitor}. */
 export const visitorKeys = ['input', 'operation', 'schema', 'property', 'parameter', 'response'] as const
@@ -190,32 +197,47 @@ function getChildren(node: Node, recurse: boolean): Array<Node> {
   return children
 }
 
-/** Calls `visit` for each direct child node and stops at the first call that returns `true`. */
-function visitChildNodes(node: Node, visit: (child: Node) => boolean): boolean {
-  const keys = VISITOR_KEYS[node.kind]
+// A check no printer emits: a `contains` that any array meets (`min: 0`, no `max`), or `content` that is not JSON.
+function isNeverPrinted({ node, key }: { node: Node; key: string }): boolean {
+  if (node.kind !== nodeKinds.schema) return false
+  if (key === 'contains' && (node.type === 'array' || node.type === 'tuple')) return node.contains?.min === 0 && node.contains.max === undefined
+  if (key === 'content' && node.type === 'string') return !getEmbeddedJson(node)
+  return false
+}
+
+/**
+ * Calls `visit` for each direct child node and stops at the first call that returns `true`.
+ * With `checks: true`, a schema's {@link schemaCheckKeys} fields are walked too, except checks that cannot fail.
+ */
+export function visitChildNodes(node: Node, visit: (child: Node) => boolean, { checks = false }: { checks?: boolean } = {}): boolean {
+  const keys = checks && node.kind === nodeKinds.schema ? [...(VISITOR_KEYS[node.kind] ?? []), ...schemaCheckKeys] : VISITOR_KEYS[node.kind]
   if (!keys) return false
 
   const record = node as unknown as Record<string, unknown>
   // A node under two keys, such as a stream item under `schema` and `stream`, is visited once.
   const seen = new Set<Node>()
   const visitOnce = (child: Node) => !seen.has(child) && (seen.add(child), visit(child))
+  const visitRecord = (value: Record<string, unknown>) => {
+    for (const name in value) {
+      if (!Object.hasOwn(value, name)) continue
+      const item = value[name]
+      if (isNode(item) && visitOnce(item)) return true
+    }
+    return false
+  }
   for (const key of keys) {
+    if (checks && isNeverPrinted({ node, key })) continue
     const value = record[key]
     if (Array.isArray(value)) {
-      for (const item of value) if (isNode(item) && visitOnce(item)) return true
+      // Items can be plain objects that hold nodes, such as the `{ if, then, else }` entries of `conditionals`.
+      for (const item of value) if (isNode(item) ? visitOnce(item) : isNodeRecord(item) && visitRecord(item)) return true
       continue
     }
     if (isNode(value)) {
       if (visitOnce(value)) return true
       continue
     }
-    if (isNodeRecord(value)) {
-      for (const name in value) {
-        if (!Object.hasOwn(value, name)) continue
-        const item = value[name]
-        if (isNode(item) && visitOnce(item)) return true
-      }
-    }
+    if (isNodeRecord(value) && visitRecord(value)) return true
   }
   return false
 }
@@ -386,53 +408,19 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
 }
 
 /**
- * Lazy depth-first collection pass. Yields every non-null value returned by
- * the visitor callbacks. Use `collectSync` for the eager array form.
- *
- * @example Collect every operationId
- * ```ts
- * const ids: string[] = []
- * for (const id of collect<string>(root, {
- *   operation(node) {
- *     return node.operationId
- *   },
- * })) {
- *   ids.push(id)
- * }
- * ```
- */
-export function* collect<T>(node: Node, options: CollectOptions<T>): Generator<T, void, undefined> {
-  const { depth, parent, ...visitor } = options
-  const recurse = (depth ?? 'deep') === 'deep'
-
-  // Thread the split-out visitor through the recursion instead of rebuilding `{ ...options, parent }`
-  // for every child, mirroring `transform`. Keeps the recursive object shape stable.
-  yield* collectNode<T>(node, visitor, recurse, parent)
-}
-
-function* collectNode<T>(node: Node, visitor: VisitorOf<T>, recurse: boolean, parent: Node | undefined): Generator<T, void, undefined> {
-  const v = applyVisitor<T>(node, visitor, parent)
-  if (v != null) yield v
-
-  for (const child of getChildren(node, recurse)) {
-    yield* collectNode<T>(child, visitor, recurse, node)
-  }
-}
-
-/**
- * Eager depth-first collection pass. Gathers every non-null value the visitor
+ * Depth-first collection pass. Gathers every non-null value the visitor
  * callbacks return into an array.
  *
  * @example Collect every operationId
  * ```ts
- * const ids = collectSync<string>(root, {
+ * const ids = collect<string>(root, {
  *   operation(node) {
  *     return node.operationId
  *   },
  * })
  * ```
  */
-export function collectSync<T>(node: Node, options: CollectOptions<T>): Array<T> {
+export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
   const { depth, parent, ...visitor } = options
   const result: Array<T> = []
   // Plain recursion: draining nested generators costs a `yield*` hop per level for every value.

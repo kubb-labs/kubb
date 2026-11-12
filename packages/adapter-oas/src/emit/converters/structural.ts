@@ -5,6 +5,18 @@ import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 
+function getContains(schema: SchemaObject, parse: ConvertContext['parse']): Pick<ast.ArraySchemaNode, 'contains'> {
+  const { contains, minContains, maxContains } = schema
+  if (!contains || typeof contains !== 'object') return {}
+  return {
+    contains: {
+      schema: parse({ schema: contains as SchemaObject }),
+      ...(typeof minContains === 'number' && { min: minContains }),
+      ...(typeof maxContains === 'number' && { max: maxContains }),
+    },
+  }
+}
+
 /**
  * Resolves a `true` or empty-object map schema (`additionalProperties`/`patternProperties`) to
  * `options.unknownType`, otherwise parses it as a regular schema.
@@ -23,10 +35,10 @@ function resolveMapSchema(mapSchema: unknown, { options, parse }: Pick<ConvertCo
  */
 function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | undefined; propName: string; enumSuffix: string }): ast.SchemaNode {
   const macro = macroEnumName(options)
-  const named = ast.applyMacros(node, [macro], { depth: 'shallow' })
-  const tupleNode = ast.narrowSchema(named, 'tuple')
+  const named = ast.macro.apply(node, [macro], { depth: 'shallow' })
+  const tupleNode = ast.schema.narrow(named, 'tuple')
   if (tupleNode?.items) {
-    const namedItems = tupleNode.items.map((item) => ast.applyMacros(item, [macro], { depth: 'shallow' }))
+    const namedItems = tupleNode.items.map((item) => ast.macro.apply(item, [macro], { depth: 'shallow' }))
     if (namedItems.some((item, i) => item !== tupleNode.items![i])) {
       return { ...tupleNode, items: namedItems }
     }
@@ -60,7 +72,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       })
     : []
 
-  const additionalProperties = schema.additionalProperties
+  const additionalProperties = schema.additionalProperties ?? schema.unevaluatedProperties
   const additionalPropertiesNode = (() => {
     if (additionalProperties === true) return true
     if (additionalProperties) return resolveMapSchema(additionalProperties, { options, parse })
@@ -83,6 +95,9 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       additionalProperties: additionalPropertiesNode,
       patternProperties,
       propertyNames,
+      min: schema.minProperties,
+      max: schema.maxProperties,
+      // shortcut: the pre-`min`/`max` names, kept so plugins that read them keep working, remove them in Kubb v6.
       minProperties: schema.minProperties,
       maxProperties: schema.maxProperties,
     },
@@ -95,7 +110,7 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
       propertyType: propertyTypeOf({ schema, propertyName: discPropName, refs }),
     })
     const enumName = name ? enumPropName(name, discPropName, options.enumSuffix) : undefined
-    return ast.applyMacros(objectNode, [macroDiscriminatorEnum({ propertyName: discPropName, values, enumName })], { depth: 'shallow' })
+    return ast.macro.apply(objectNode, [macroDiscriminatorEnum({ propertyName: discPropName, values, enumName })], { depth: 'shallow' })
   }
 
   return objectNode
@@ -106,13 +121,10 @@ export function convertObject({ schema, name, nullable, defaultValue, options, p
  */
 export function convertTuple({ schema, name, nullable, defaultValue, options, parse }: ConvertContext): ast.SchemaNode {
   const tupleItems = (schema.prefixItems ?? []).map((item) => parse({ schema: item as SchemaObject }))
+  const tail = schema.items ?? schema.unevaluatedItems
   // items: false closes the tuple; absent/true widens the tail to unknownType.
   const rest =
-    schema.items === false
-      ? undefined
-      : !schema.items || schema.items === true
-        ? ast.factory.createSchema({ type: options.unknownType })
-        : parse({ schema: schema.items as SchemaObject })
+    tail === false ? undefined : !tail || tail === true ? ast.factory.createSchema({ type: options.unknownType }) : parse({ schema: tail as SchemaObject })
 
   return createNode(
     { schema, name, nullable, defaultValue },
@@ -123,6 +135,7 @@ export function convertTuple({ schema, name, nullable, defaultValue, options, pa
       rest,
       min: schema.minItems,
       max: schema.maxItems,
+      ...getContains(schema, parse),
     },
   )
 }
@@ -144,6 +157,7 @@ export function convertArray({ schema, name, nullable, defaultValue, options, pa
       min: schema.minItems,
       max: schema.maxItems,
       unique: schema.uniqueItems ?? undefined,
+      ...getContains(schema, parse),
     },
   )
 }

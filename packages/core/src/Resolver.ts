@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, isPathInside, memo } from '@internals/utils'
-import { ast, collectImportedRefNames, type FileNode, type ImportNode, type InputMeta, type Node, type SchemaNode } from '@kubb/ast'
+import { ast, type FileNode, type ImportNode, type InputMeta, type Node, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
 import { getInputKind } from './input.ts'
@@ -124,6 +124,12 @@ export type ResolveImportsOptions = {
    * point enum refs at a suffixed type name. Defaults to the resolver's top-level `name`.
    */
   name?: (schemaName: string) => string
+  /**
+   * Also import the refs inside `conditionals`, `contains` and a string's `content`, for a plugin that prints those checks.
+   *
+   * @default false
+   */
+  checks?: boolean
 }
 
 /**
@@ -363,6 +369,7 @@ export class Resolver {
   #options: ResolverBuildOptions
   #memo = new Map<string, unknown>()
   #usedNames = new Set<string>()
+  #tagParents = new Map<string, string>()
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
   // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
   #baseName: (params: Pick<ResolverFileParams, 'name' | 'extname'>) => FileNode['baseName']
@@ -417,6 +424,11 @@ export class Resolver {
     for (const name of names) this.#usedNames.add(name)
   }
 
+  setTags(tags: InputMeta['tags']): void {
+    this.#tagParents.clear()
+    for (const { name, parent } of tags ?? []) if (parent) this.#tagParents.set(name, parent)
+  }
+
   /**
    * Returns the same name for repeated declaration keys. Adds numeric suffixes starting at `2`
    * when the preferred name is taken. Array segment order and boundaries matter. String and array
@@ -455,20 +467,20 @@ export class Resolver {
 
   /**
    * Builds one `ImportNode` per unique schema referenced in the tree, in first-occurrence
-   * order. Each ref's target resolves through `resolveRefName`, so collision- or macro-renamed
+   * order. Each ref's target resolves through `ast.ref.getName`, so collision- or macro-renamed
    * schemas (`targetName`) import the emitted name. Names and paths go through the top-level
    * `name` and `file`, so import entries follow the plugin's conventions, and a per-call
    * `name` override wins over both.
    *
-   * The subtree scan runs through `collectImportedRefNames`, which memoizes by node identity, so a
+   * The subtree scan runs through `ast.graph.getImportedNames`, which memoizes by node identity, so a
    * schema shared across the ts, zod, and faker plugins is walked once and every plugin's resolver
    * reads the same ref set instead of re-scanning it per plugin.
    */
   imports(options: ResolveImportsOptions): Array<ImportNode> {
-    const { node, root, output, group, extname = '.ts', name } = options
+    const { node, root, output, group, extname = '.ts', name, checks } = options
     const resolveName = name ?? ((schemaName: string) => this.name(schemaName))
 
-    return collectImportedRefNames(node).map((schemaName) =>
+    return ast.graph.getImportedNames(node, { checks }).map((schemaName) =>
       ast.factory.createImport({
         name: [resolveName(schemaName)],
         path: this.#resolveFilePath({ name: schemaName, extname, root, output, group }),
@@ -524,13 +536,24 @@ export class Resolver {
   }
 
   /**
-   * A custom `group.name` wins; otherwise `tag` groups use the camelCased tag and `path`
-   * groups use the first non-traversal segment (`''` when none remain, placing the file in
-   * the output root, kept safe by the caller's boundary check).
+   * The folder a group puts a file in, relative to the output directory. A custom `group.name` wins; otherwise `tag`
+   * groups use the camelCased tag, nested in the folders of its `parent` tags, and `path` groups use the first
+   * non-traversal segment (`''` when none remain, placing the file in the output root, kept safe by the caller's
+   * boundary check).
+   *
+   * @example
+   * ```ts
+   * resolver.groupDir({ type: 'tag' }, 'pet store') // 'petStore'
+   * ```
    */
-  static #resolveGroupDir(group: Group, groupValue: string): string {
+  groupDir(group: Group, groupValue: string): string {
     if (group.name) return group.name({ group: groupValue })
-    if (group.type === 'tag') return camelCase(groupValue)
+    if (group.type === 'tag') {
+      const chain = [groupValue]
+      // A `parent` loop stops at the first tag seen twice.
+      for (let parent = this.#tagParents.get(groupValue); parent && !chain.includes(parent); parent = this.#tagParents.get(parent)) chain.unshift(parent)
+      return path.join(...chain.map((tag) => camelCase(tag)))
+    }
     const segment = groupValue.split('/').filter((part) => part !== '' && part !== '.' && part !== '..')[0]
     return segment ? camelCase(segment) : ''
   }
@@ -548,7 +571,7 @@ export class Resolver {
     const outputDir = path.resolve(root, output.path)
     // A file without the value its group needs (an SDK class per tag, grouped by path) is not grouped.
     const groupValue = group?.type === 'path' ? groupPath : tag
-    const result = group && groupValue ? path.resolve(outputDir, Resolver.#resolveGroupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)
+    const result = group && groupValue ? path.resolve(outputDir, this.groupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)
 
     assertInside({
       target: result,

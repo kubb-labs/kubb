@@ -1,5 +1,5 @@
 import { nodeKinds } from '../constants.ts'
-import { optionality } from '../optionality.ts'
+import { applyOptionality } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
 
@@ -54,5 +54,5 @@ type UserPropertyNode = Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<Pro
 export function createProperty(input: UserPropertyNode): PropertyNode {
   const required = input.required ?? false
 
-  return { ...input, required, schema: optionality(input.schema, required), kind: nodeKinds.property }
+  return { ...input, required, schema: applyOptionality(input.schema, required), kind: nodeKinds.property }
 }

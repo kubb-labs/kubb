@@ -3,12 +3,18 @@ import { ast } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
 import { getItemSchema, getItemShape, isEventStream, isStream } from './model/mediaType.ts'
-import { getBinaryFallbackSchema, isJsonMimeType, isReference, pickExtensions } from './oas.ts'
+import { toAuthRequirements } from './model/security.ts'
+import { toInputServers } from './model/server.ts'
+import { getBinaryFallbackSchema, getExternalDocs, isReference, pickExtensions, pickStrings } from './oas.ts'
 import { scanSchema } from './schemaDiagnostics.ts'
 import type { Refs } from './refs.ts'
 import type {
   ContentType,
   Document,
+  EncodingObject,
+  ExampleObject,
+  HeaderObject,
+  LinkObject,
   MediaTypeObject,
   OperationObject,
   ParameterObject,
@@ -105,17 +111,6 @@ export function getRequestBody({ operation, refs }: OperationContext): RequestBo
   return refs.deref<RequestBodyObject>(operation.schema.requestBody)
 }
 
-/**
- * Returns the primary request content type. Prefers a JSON-like media type (the last one wins
- * when several are declared), then the first declared one, defaulting to `'application/json'`.
- */
-export function getRequestContentType({ operation, refs }: OperationContext): string {
-  const content = getRequestBody({ operation, refs })?.content
-  const mediaTypes = content ? Object.keys(content) : []
-
-  return mediaTypes.findLast(isJsonMimeType) ?? mediaTypes[0] ?? 'application/json'
-}
-
 /** Merges path-level and operation-level parameters; operation-level wins per `in:name`. */
 export function getParameters({ operation, refs }: OperationContext): Array<{ param: ParameterObject; pointer: string }> {
   // Each parameter keeps the pointer of the entry that declares it, on the path item or the operation.
@@ -141,7 +136,7 @@ export function getParameters({ operation, refs }: OperationContext): Array<{ pa
   return Array.from(paramMap.values())
 }
 
-const PARAMETER_STYLES = new Set(['matrix', 'label', 'form', 'simple', 'spaceDelimited', 'pipeDelimited', 'deepObject'])
+const PARAMETER_STYLES = new Set(['matrix', 'label', 'form', 'simple', 'spaceDelimited', 'pipeDelimited', 'deepObject', 'cookie'])
 
 function pickStyleFields({ style, explode, allowReserved }: { style?: string; explode?: boolean; allowReserved?: boolean }): {
   style?: ast.ParameterStyle
@@ -155,14 +150,52 @@ function pickStyleFields({ style, explode, allowReserved }: { style?: string; ex
   }
 }
 
-/** The `encoding` of a media type, reduced to the entries that set a field Kubb carries. A `style` outside the OpenAPI set is dropped. */
-function getEncoding(encoding: MediaTypeObject['encoding']): Record<string, ast.EncodingNode> | undefined {
-  const entries = Object.entries(encoding ?? {}).flatMap(([property, { contentType, ...rest }]) => {
-    const node: ast.EncodingNode = { ...(contentType !== undefined ? { contentType } : {}), ...pickStyleFields(rest) }
+function getEncodingFields({
+  encoding,
+  prefixEncoding,
+  itemEncoding,
+}: Pick<EncodingObject, 'encoding' | 'prefixEncoding' | 'itemEncoding'>): Pick<ast.EncodingNode, 'encoding' | 'prefixEncoding' | 'itemEncoding'> {
+  const entries = Object.entries(encoding ?? {}).flatMap(([property, entry]) => {
+    const node = toEncodingNode(entry)
     return Object.keys(node).length ? [[property, node] as const] : []
   })
+  const item = itemEncoding && toEncodingNode(itemEncoding)
 
-  return entries.length ? Object.fromEntries(entries) : undefined
+  return {
+    ...(entries.length && { encoding: Object.fromEntries(entries) }),
+    // Entries keep their position, so an empty one still stands for its part.
+    ...(prefixEncoding?.length && { prefixEncoding: prefixEncoding.map(toEncodingNode) }),
+    ...(item && Object.keys(item).length && { itemEncoding: item }),
+  }
+}
+
+function toEncodingNode({ contentType, encoding, prefixEncoding, itemEncoding, ...rest }: EncodingObject): ast.EncodingNode {
+  return {
+    ...(contentType !== undefined && { contentType }),
+    ...pickStyleFields(rest),
+    ...getEncodingFields({ encoding, prefixEncoding, itemEncoding }),
+  }
+}
+
+function getExamples({ example, examples }: { example?: unknown; examples?: Record<string, unknown> }, refs: Refs): Pick<ast.ContentNode, 'examples'> {
+  const named = Object.entries(examples ?? {}).flatMap(([name, entry]) => {
+    const resolved = refs.deref<ExampleObject>(entry)
+    if (!resolved) return []
+    const { summary, description, dataValue, value, serializedValue } = resolved
+    const data = dataValue !== undefined ? dataValue : value
+    return [
+      {
+        name,
+        ...(typeof summary === 'string' && { summary }),
+        ...(typeof description === 'string' && { description }),
+        ...(data !== undefined && { value: data }),
+        ...(typeof serializedValue === 'string' && { serializedValue }),
+      },
+    ]
+  })
+  if (named.length) return { examples: named }
+
+  return example !== undefined ? { examples: [{ value: example }] } : {}
 }
 
 type ContentMap = Record<string, MediaTypeObject | ReferenceObject> | undefined
@@ -198,6 +231,22 @@ export function getBodySchema({
   if (binary) return binary
 
   return schema ? refs.derefKeepingRef(schema as SchemaObject) : null
+}
+
+function getLinks(links: unknown, refs: Refs): Record<string, ast.ResponseLink> | undefined {
+  const entries = Object.entries(links ?? {}).flatMap(([name, value]) => {
+    const link = refs.deref<LinkObject>(value)
+    if (!link) return []
+    const server = link.server ? toInputServers([link.server])[0] : undefined
+    const node: ast.ResponseLink = {
+      ...pickStrings(link, ['operationId', 'operationRef', 'description']),
+      ...(link.parameters && { parameters: link.parameters }),
+      ...('requestBody' in link && { requestBody: link.requestBody }),
+      ...(server && { server }),
+    }
+    return [[name, node] as const]
+  })
+  return entries.length ? Object.fromEntries(entries) : undefined
 }
 
 /** The `stream` field of a content node, set when the media type is a stream. `node` is the parsed item schema. */
@@ -305,7 +354,8 @@ function parseParameter({
   const schemaName = parentName && param.name ? pascalCase(`${parentName} ${param.name}`) : undefined
   // A parameter defines either `schema` or `content`, and `content` holds exactly one media type.
   const contentType = param.schema ? undefined : Object.keys(param.content ?? {})[0]
-  const rawSchema = param.schema ?? getMediaType({ content: param.content, contentType, refs })?.schema
+  const mediaType = getMediaType({ content: param.content, contentType, refs })
+  const rawSchema = param.schema ?? mediaType?.schema
   const schema: ast.SchemaNode = rawSchema
     ? parseSchema({ schema: rawSchema as SchemaObject, name: schemaName })
     : ast.factory.createSchema({ type: options.unknownType })
@@ -321,6 +371,31 @@ function parseParameter({
     required: param.required ?? false,
     ...pickStyleFields(param),
     ...(contentType !== undefined ? { contentType } : {}),
+    ...(mediaType?.encoding && { encoding: getEncodingFields({ encoding: mediaType.encoding }).encoding }),
+    ...getExamples(mediaType ?? param, refs),
+    ...(param.deprecated && { deprecated: true }),
+    ...(param.allowEmptyValue && { allowEmptyValue: true }),
+  })
+}
+
+// A form-encoded OpenAPI 3.2 `querystring` object becomes one query parameter per property; another content type stays whole.
+function spreadQuerystring(param: ast.ParameterNode): Array<ast.ParameterNode> {
+  if (param.in !== 'querystring') return [param]
+  const schema = ast.ref.getSchema(param.schema)
+  const formEncoded = !param.contentType || ast.mediaType.getBase(param.contentType) === 'application/x-www-form-urlencoded'
+  if (schema.type !== 'object' || !formEncoded) return [param]
+  return schema.properties.map((property) => {
+    const { style, explode, allowReserved } = param.encoding?.[property.name] ?? {}
+    return ast.factory.createParameter({
+      ...(param.pointer ? { pointer: param.pointer } : {}),
+      name: property.name,
+      in: 'query',
+      schema: property.schema,
+      required: param.required && property.required,
+      ...(style !== undefined && { style }),
+      ...(explode !== undefined && { explode }),
+      ...(allowReserved !== undefined && { allowReserved }),
+    })
   })
 }
 
@@ -332,7 +407,9 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const operationId = getOperationId(operation)
   const operationName = operationId ? pascalCase(operationId) : undefined
   const pointer = getOperationPointer(operation)
-  const parameters = getParameters({ operation, refs }).map((entry) => parseParameter({ options, parseSchema, refs, ...entry, parentName: operationName }))
+  const parameters = getParameters({ operation, refs })
+    .map((entry) => parseParameter({ options, parseSchema, refs, ...entry, parentName: operationName }))
+    .flatMap(spreadQuerystring)
 
   // A configured contentType restricts the body to that one media type; otherwise every declared one is kept.
   const body = getRequestBody({ operation, refs })
@@ -344,15 +421,15 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     const schema = getBodySchema({ content: body?.content, contentType: ct, refs, document })
     if (!schema) return []
     const mediaType = getMediaType({ content: body?.content, contentType: ct, refs })
-    const node = ast.optionality(parseSchema({ schema, name: requestBodyName }), bodyRequired)
+    const node = ast.schema.applyOptionality(parseSchema({ schema, name: requestBodyName }), bodyRequired)
     scanSchema(node, `${mediaTypePointer(body?.content, ct, `${pointer}/requestBody/content/${escapePointerToken(ct)}`)}/${schemaKeyword(mediaType)}`)
-    const encoding = getEncoding(mediaType?.encoding)
     return [
       ast.factory.createContent({
         contentType: ct,
         schema: node,
         keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
-        ...(encoding && { encoding }),
+        ...(mediaType && getEncodingFields(mediaType)),
+        ...(mediaType && getExamples(mediaType, refs)),
         ...getStreamField({ contentType: ct, mediaType, refs, document, node }),
       }),
     ]
@@ -368,8 +445,10 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
         }
       : undefined
 
-  const responses = getResponseStatusCodes(operation).map((statusCode) => {
-    const response = getResponseByStatusCode({ operation, refs, statusCode })
+  const responses = getResponseStatusCodes(operation).map((key) => {
+    const response = getResponseByStatusCode({ operation, refs, statusCode: key })
+    // A range such as `2XX` is written `2xx`. Pointers keep the key as the document spells it.
+    const statusCode = key.toLowerCase() as ast.StatusCode
     // `Status<code>` keeps nested enum names clear of a component schema named `<operation><statusCode>`.
     const responseName = operationName ? `${operationName}Status${statusCode}` : undefined
 
@@ -379,34 +458,49 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
       const node =
         raw && Object.keys(raw).length > 0 ? parseSchema({ schema: raw, name: responseName }) : ast.factory.createSchema({ type: options.emptySchemaType })
       if (raw && ct) {
-        const base = mediaTypePointer(response?.content, ct, `${pointer}/responses/${statusCode}/content/${escapePointerToken(ct)}`)
+        const base = mediaTypePointer(response?.content, ct, `${pointer}/responses/${key}/content/${escapePointerToken(ct)}`)
         scanSchema(node, `${base}/${schemaKeyword(mediaType)}`)
       }
       return {
         schema: node,
         keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly'),
+        ...(mediaType && getEncodingFields(mediaType)),
+        ...(mediaType && getExamples(mediaType, refs)),
         ...(ct ? getStreamField({ contentType: ct, mediaType, refs, document, node }) : {}),
       }
     }
 
-    const responseContentTypes = contentType ? [contentType] : Object.keys(response?.content ?? {})
+    const declaredContentTypes = Object.keys(response?.content ?? {})
+    // The adapter `contentType` only narrows a response that has a body.
+    const responseContentTypes = contentType && declaredContentTypes.length ? [contentType] : declaredContentTypes
     const responseContent = responseContentTypes.map((ct) => ast.factory.createContent({ contentType: ct, ...parseEntrySchema(ct) }))
 
     // A body-less response keeps one fallback entry so it still resolves to a (void/any) schema.
+    // Its empty `contentType` says there is no body, so plugins do not read a `text/*` request type as a `string` response.
     if (responseContent.length === 0) {
-      responseContent.push(
-        ast.factory.createContent({
-          contentType: getRequestContentType({ operation, refs }),
-          ...parseEntrySchema(contentType),
-        }),
-      )
+      responseContent.push(ast.factory.createContent({ contentType: '', ...parseEntrySchema(contentType) }))
     }
 
+    const responsePointer = `${pointer}/responses/${key}`
+    // The spec ignores a `Content-Type` header, since `content` already names the media type.
+    const headers = Object.entries(response?.headers ?? {}).flatMap(([name, value]) => {
+      const header = name.toLowerCase() === 'content-type' ? null : refs.deref<HeaderObject>(value)
+      if (!header) return []
+      const param: ParameterObject = { ...header, name, in: 'header' }
+      return [
+        parseParameter({ param, pointer: `${responsePointer}/headers/${escapePointerToken(name)}`, parentName: responseName, options, parseSchema, refs }),
+      ]
+    })
+    const links = getLinks(response?.links, refs)
+
     return ast.factory.createResponse({
-      pointer: `${pointer}/responses/${statusCode}`,
-      statusCode: statusCode as ast.StatusCode,
+      pointer: responsePointer,
+      statusCode,
+      summary: response?.summary,
       description: response?.description,
       content: responseContent,
+      ...(headers.length && { headers }),
+      ...(links && { links }),
     })
   })
 
@@ -416,6 +510,10 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     const fallback = (operation.pathItem as Record<string, unknown>)[key]
     return typeof fallback === 'string' ? fallback : undefined
   }
+
+  // An empty operation `servers` list overrides nothing, so the path item's servers still apply.
+  const servers = operation.schema.servers?.length ? operation.schema.servers : operation.pathItem.servers
+  const auth = toAuthRequirements(operation.schema.security ?? document.security, document)
 
   return ast.factory.createOperation({
     pointer,
@@ -428,9 +526,12 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     summary: pickDoc('summary') || undefined,
     description: pickDoc('description') || undefined,
     deprecated: operation.schema.deprecated || undefined,
+    externalDocs: getExternalDocs(operation.schema.externalDocs),
     parameters,
     requestBody,
     responses,
     extensions: pickExtensions(operation.schema),
+    ...(servers && { servers: toInputServers(servers) }),
+    ...(auth && { auth }),
   })
 }

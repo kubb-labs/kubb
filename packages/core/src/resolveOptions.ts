@@ -44,14 +44,14 @@ function matchesSchema(node: SchemaNode, filter: Filter): boolean | null {
 }
 
 function computeOptions<TOptions>(node: Node, { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>): TOptions | null {
-  if (node.kind === ast.nodeKinds.operation) {
+  if (node.kind === ast.node.kinds.operation) {
     if (exclude.some((filter) => matchesOperation(node, filter))) return null
     if (include && !include.some((filter) => matchesOperation(node, filter))) return null
 
     return { ...options, ...override.find((filter) => matchesOperation(node, filter))?.options }
   }
 
-  if (node.kind === ast.nodeKinds.schema) {
+  if (node.kind === ast.node.kinds.schema) {
     if (exclude.some((filter) => matchesSchema(node, filter) === true)) return null
     if (include) {
       const applicable = include.map((filter) => matchesSchema(node, filter)).filter((result) => result !== null)

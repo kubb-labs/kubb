@@ -1,5 +1,6 @@
 import { nodeKinds } from '../constants.ts'
 import type { BaseNode } from './base.ts'
+import type { AuthRequirement, ExternalDocs, InputServer } from './input.ts'
 import type { ParameterNode } from './parameter.ts'
 import { createRequestBody, type RequestBodyNode } from './requestBody.ts'
 import type { ResponseNode } from './response.ts'
@@ -39,6 +40,7 @@ type OperationNodeBase = BaseNode & {
    * Marks the operation as deprecated.
    */
   deprecated?: boolean
+  externalDocs?: ExternalDocs
   /**
    * Query, path, header, and cookie parameters for the operation.
    */
@@ -55,6 +57,12 @@ type OperationNodeBase = BaseNode & {
    * Vendor extensions (`x-*` keys) from the source operation, copied as-is. Absent when the source has none.
    */
   extensions?: Record<string, unknown>
+  /** The operation's own `servers`, else its path item's, such as an upload host. Absent when neither declares any. */
+  servers?: Array<InputServer>
+  /**
+   * Ways to authenticate, from the operation or else the document. Any one entry is enough. `[]` means no auth.
+   */
+  auth?: Array<AuthRequirement>
 }
 
 /**
@@ -103,7 +111,7 @@ export type GenericOperationNode = OperationNodeBase & {
  *
  * Discriminated on `protocol`: an {@link HttpOperationNode} (`protocol: 'http'`) guarantees
  * `method` and `path`, while a {@link GenericOperationNode} omits them. Narrow with
- * `isHttpOperationNode(node)` or `node.protocol === 'http'` before reading `method`/`path`.
+ * `ast.http.isOperation(node)` or `node.protocol === 'http'` before reading `method`/`path`.
  */
 export type OperationNode = HttpOperationNode | GenericOperationNode
 

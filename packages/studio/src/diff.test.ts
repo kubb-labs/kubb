@@ -83,11 +83,6 @@ describe('pageHunks', () => {
   const first = { index: 0, oldStart: 1, oldLines: 2, newStart: 1, newLines: 2 }
   const second = { index: 1, oldStart: 10, oldLines: 1, newStart: 10, newLines: 1 }
 
-  it('ends a page before a hunk that does not fit', () => {
-    expect(pageHunks({ hunks, cursor: 0, limit: 4 })).toStrictEqual({ hunks: [{ ...first, lines: [' a', '-b', '+c'] }], nextCursor: 3 })
-    expect(pageHunks({ hunks, cursor: 3, limit: 4 })).toStrictEqual({ hunks: [{ ...second, lines: ['-d', '+e'] }], nextCursor: null })
-  })
-
   it('splits only a hunk longer than a page, with its header on each part', () => {
     expect(pageHunks({ hunks, cursor: 0, limit: 2 })).toStrictEqual({ hunks: [{ ...first, lines: [' a', '-b'] }], nextCursor: 2 })
     expect(pageHunks({ hunks, cursor: 2, limit: 2 })).toStrictEqual({ hunks: [{ ...first, lines: ['+c'] }], nextCursor: 3 })

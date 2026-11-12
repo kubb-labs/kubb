@@ -1,4 +1,4 @@
-import { ast, enumPrimitive, extractRefName, macroDiscriminatorEnum } from '@kubb/kit'
+import { ast, enumPrimitive, macroDiscriminatorEnum } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
@@ -171,6 +171,18 @@ export function removeInheritedDiscriminator({
 }
 
 /**
+ * Whether a member can carry the discriminator property. A discriminator is only a hint, so an array
+ * or primitive member keeps its own type instead of an intersection no value can satisfy.
+ */
+function isObjectLike(member: unknown, refs: Refs): boolean {
+  const schema = isReference(member) ? refs.resolve<SchemaObject>(member.$ref, { report: false }) : (member as SchemaObject | undefined)
+  const type = schema?.type
+  if (type === undefined) return true
+
+  return Array.isArray(type) ? type.includes('object') : type === 'object'
+}
+
+/**
  * Narrows each `oneOf`/`anyOf` member with its discriminant value, intersecting the member's own
  * node with either the shared-properties slice carrying that value, or a synthetic discriminant
  * literal. The referenced child schema's own definition is left untouched — narrowing happens only
@@ -195,7 +207,7 @@ export function narrowUnionMembers({
   refs: Refs
 }): Array<ast.SchemaNode> {
   function pickDiscriminatorPropertyNode(node: ast.SchemaNode, propertyName: string): ast.SchemaNode | null {
-    const objectNode = ast.narrowSchema(node, 'object')
+    const objectNode = ast.schema.narrow(node, 'object')
     const discriminatorProperty = objectNode?.properties?.find((property) => property.name === propertyName)
 
     if (!discriminatorProperty) {
@@ -211,7 +223,7 @@ export function narrowUnionMembers({
 
   function implicitDiscriminantValue(member: unknown): string | null {
     if (!discriminator || discriminator.mapping || !isReference(member)) return null
-    const value = extractRefName(member.$ref)
+    const value = ast.ref.getName(member.$ref)
     if (!value) return null
     // Silent walk — the reporting resolve() would flag missing refs as errors during speculative lookup.
     const variant = refs.resolve<SchemaObject>(member.$ref, { report: false })
@@ -222,10 +234,14 @@ export function narrowUnionMembers({
     // so skip folding the implicit name when the variant already pins the discriminator.
     const seen = new Set([member.$ref])
 
+    /** Whether the variant, or a schema it composes, pins the discriminator property to literal values. */
     function constrains(v: SchemaObject): boolean {
       const prop = v.properties?.[propertyName]
       const resolved = prop && isReference(prop) ? refs.resolve<SchemaObject>(prop.$ref, { report: false }) : (prop as SchemaObject | undefined)
-      if (resolved && (Array.isArray(resolved.enum) || resolved.const !== undefined)) return true
+      const pins = (candidate: SchemaObject) => Array.isArray(candidate.enum) || candidate.const !== undefined
+      // The OpenAPI 3.1 nullable form `anyOf: [{ enum }, { type: 'null' }]` pins the value, a plain `string` member does not.
+      const members = ((resolved?.anyOf ?? resolved?.oneOf ?? []) as Array<SchemaObject>).filter((member) => member.type !== 'null')
+      if (resolved && (pins(resolved) || (members.length > 0 && members.every(pins)))) return true
       const composition = v.allOf ?? v.oneOf ?? v.anyOf
       if (!composition) return false
 
@@ -253,13 +269,13 @@ export function narrowUnionMembers({
     const discriminatorValues = typedKeys({ keys: mappedValues.length ? mappedValues : implicitValue ? [implicitValue] : [], propertyType })
     const memberNode = parse({ schema: s as SchemaObject, name })
 
-    if (!discriminatorValues.length || !discriminator) {
+    if (!discriminatorValues.length || !discriminator || !isObjectLike(s, refs)) {
       return memberNode
     }
 
     const narrowedDiscriminatorNode = sharedPropertiesNode
       ? pickDiscriminatorPropertyNode(
-          ast.applyMacros(sharedPropertiesNode, [macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: discriminatorValues })], {
+          ast.macro.apply(sharedPropertiesNode, [macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: discriminatorValues })], {
             depth: 'shallow',
           }),
           discriminator.propertyName,

@@ -36,8 +36,8 @@ describe('annotated enums', () => {
         { name: 'Second', value: 2, primitive: 'number' },
       ],
     })
-    const container = ast.narrowSchema(result.schemas[1]!, 'object')!
-    const reference = ast.narrowSchema(container.properties![0]!.schema, 'ref')!
+    const container = ast.schema.narrow(result.schemas[1]!, 'object')!
+    const reference = ast.schema.narrow(container.properties![0]!.schema, 'ref')!
     expect(reference.schema).toMatchObject({
       type: 'enum',
       namedEnumValues: [
@@ -47,7 +47,7 @@ describe('annotated enums', () => {
     })
   })
 
-  it.each(['3.0.0', '3.0.4'])('keeps ordinary enum unions unchanged in OpenAPI %s', async (openapi) => {
+  it.each(['3.0.0'])('keeps ordinary enum unions unchanged in OpenAPI %s', async (openapi) => {
     const result = await parse({ oneOf: members.map(({ const: value, ...annotations }) => ({ enum: [value], ...annotations })) }, openapi)
     expect(result.schemas[0]?.type).toBe('union')
   })

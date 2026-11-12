@@ -8,13 +8,15 @@ import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discr
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
 import { assertDocument, parseFromConfig, validateDocument, validateDocumentInWorker } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
-import { resolveBaseUrl, resolveServerUrl } from './model/server.ts'
-import { pickExtensions } from './oas.ts'
+import { toAuthSchemes } from './model/security.ts'
+import { resolveBaseUrl, toInputServers } from './model/server.ts'
+import { toInputTags } from './model/tag.ts'
+import { getExternalDocs, pickExtensions, pickStrings } from './oas.ts'
 import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { createRefs } from './refs.ts'
-import { scanSchema } from './schemaDiagnostics.ts'
+import { groupUnsupportedFormats, scanSchema } from './schemaDiagnostics.ts'
 import { locate } from './sourceLocator.ts'
 import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
@@ -120,7 +122,7 @@ export const adapterOas = defineExtension<AdapterOas>({
       // A collapsed single-member `allOf` is named after the wrapper, so the target comes from `ref`.
       const aliasTargetOf = (name: string) => {
         const node = refAliasMap.get(name)
-        return node?.ref ? ast.refName(node.ref) : node?.name
+        return node?.ref ? ast.ref.getName(node.ref) : node?.name
       }
 
       // A chain of pure aliases that leads back to `name` has no target to print, so it becomes `unknown`.
@@ -161,6 +163,8 @@ export const adapterOas = defineExtension<AdapterOas>({
 
       const operations = promotedEnums ? operationNodes.map((node) => refPromotedEnums(node, promotedEnums!)) : operationNodes
 
+      const authSchemes = toAuthSchemes(document.components?.securitySchemes, refs)
+
       return ast.factory.createInput({
         schemas: schemaNodes,
         operations,
@@ -168,33 +172,18 @@ export const adapterOas = defineExtension<AdapterOas>({
           title: document.info?.title,
           description: document.info?.description,
           version: document.info?.version,
+          summary: document.info?.summary,
+          termsOfService: document.info?.termsOfService,
+          contact: pickStrings(document.info?.contact, ['name', 'url', 'email']),
+          license:
+            typeof document.info?.license?.name === 'string'
+              ? { ...pickStrings(document.info.license, ['identifier', 'url']), name: document.info.license.name }
+              : undefined,
+          externalDocs: getExternalDocs(document.externalDocs),
           baseURL: resolveBaseUrl({ document, server }),
-          servers: (document.servers ?? [])
-            .filter((entry) => entry.url)
-            .map(({ url, description, variables }) => {
-              const declared = variables && Object.keys(variables).length > 0 ? { variables } : {}
-              try {
-                return { url: resolveServerUrl({ url, variables }), description, ...declared }
-              } catch {
-                return { url, description, ...declared }
-              }
-            }),
-          securitySchemes: Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
-            const scheme = refs.deref<Record<string, string>>(value)
-            return scheme?.type
-              ? [
-                  {
-                    name,
-                    type: scheme.type,
-                    description: scheme.description,
-                    scheme: scheme.scheme,
-                    bearerFormat: scheme.bearerFormat,
-                    in: scheme.in,
-                    parameterName: scheme.name,
-                  },
-                ]
-              : []
-          }),
+          servers: toInputServers(document.servers ?? []),
+          ...(document.tags?.length && { tags: toInputTags(document.tags) }),
+          ...(authSchemes.length && { auth: authSchemes }),
           extensions: pickExtensions(document),
         },
       })
@@ -237,7 +226,7 @@ export const adapterOas = defineExtension<AdapterOas>({
           const { schemas, renames, pointers } = getSchemas(document, { contentType }, refs)
           const parseSchema = createSchemaParser({ document, refs, renames, options: parserOptions })
 
-          return parseInput({ document, refs, schemas, pointers, parseSchema })
+          return groupUnsupportedFormats(() => parseInput({ document, refs, schemas, pointers, parseSchema }))
         })()
         inputCache.set(source, { promise, sources: read })
         return promise.catch((error: unknown) => {

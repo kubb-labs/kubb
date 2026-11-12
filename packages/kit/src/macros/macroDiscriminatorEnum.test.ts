@@ -3,8 +3,8 @@ import type { SchemaNode } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { macroDiscriminatorEnum } from './macroDiscriminatorEnum.ts'
 
-function applyShallow(node: SchemaNode, macro: Parameters<typeof ast.applyMacros>[1][number]): SchemaNode {
-  return ast.applyMacros(node, [macro], { depth: 'shallow' })
+function applyShallow(node: SchemaNode, macro: Parameters<typeof ast.macro.apply>[1][number]): SchemaNode {
+  return ast.macro.apply(node, [macro], { depth: 'shallow' })
 }
 
 describe('macroDiscriminatorEnum', () => {

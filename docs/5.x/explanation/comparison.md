@@ -58,7 +58,7 @@ Median of five runs on Node 22, Linux x64 with 4 cores, November 2026. Compared 
 | [Barrel index files](/extensions/kubb-labs/plugin-barrel)        |       ✅       |       ✅       |       ✅       |       🛑       |
 
 1. openapi-typescript 7 reads 3.0 and 3.1 only. Convert Swagger 2.0 first, or use version 5.
-2. Kubb reads the 3.2 `query` method, `itemSchema` for streamed responses, `querystring` parameters, `$ref`s into `components.mediaTypes`, `additionalOperations`, and `discriminator.defaultMapping`. The remaining 3.2 fields are tracked in [kubb-labs/kubb#4542](https://github.com/kubb-labs/kubb/issues/4542).
+2. Kubb reads the OpenAPI 3.2 fields that code generation uses into its AST, including `itemSchema` for streamed responses, `$self` and tag `parent`. A 3.2 document is not validated until `@readme/openapi-parser` supports 3.2.
 3. orval, HeyAPI, and openapi-typescript list no OpenAPI 3.2 support in their docs. An orval [discussion](https://github.com/orval-labs/orval/discussions/3544) asks for it.
 4. openapi-typescript generates types only. Clients and hooks come from the `openapi-fetch` and `openapi-react-query` runtimes, both in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559).
 5. HeyAPI lists SWR as planned and MSW and Faker as in progress.
@@ -72,7 +72,7 @@ openapi-typescript ships no generated client, so it is left out of this table an
 | [Status-discriminated response result](/extensions/kubb-labs/plugin-fetch/guides/error-handling) |  ✅  | 🔶<sup>1</sup> | 🔶<sup>2</sup> |
 | Multiple success (2xx) responses                                                                 |  ✅  |       ✅       |       ✅       |
 | Multiple content types per response                                                              |  ✅  |       ✅       | 🛑<sup>3</sup> |
-| `default` and wildcard (`4XX`, `5XX`) responses                                                  |  ✅  |       ✅       |       ✅       |
+| `default` and wildcard (`4xx`, `5xx`) responses                                                  |  ✅  |       ✅       |       ✅       |
 | [Typed error responses](/extensions/kubb-labs/plugin-fetch/guides/error-handling)                |  ✅  | 🔶<sup>1</sup> |       ✅       |
 | [Throw or return the error per call](/extensions/kubb-labs/plugin-fetch/guides/error-handling)   |  ✅  |       🛑       |       ✅       |
 | [Zod v4 schemas tied to the types](/extensions/kubb-labs/plugin-zod)                             |  ✅  |       ✅       |       ✅       |
@@ -87,7 +87,7 @@ See [serialization](/extensions/kubb-labs/plugin-fetch/guides/serialization) for
 
 | Feature                                                                                                                      | Kubb |     orval      |     HeyAPI     |
 | ---------------------------------------------------------------------------------------------------------------------------- | :--: | :------------: | :------------: |
-| [Parameter styles from the spec](/docs/5.x/reference/serialization#parameter-styles)                                         |  ✅  | 🔶<sup>1</sup> | 🔶<sup>2</sup> |
+| [Parameter styles from the spec](/extensions/kubb-labs/plugin-fetch/guides/serialization#parameter-styles)                   |  ✅  | 🔶<sup>1</sup> | 🔶<sup>2</sup> |
 | OpenAPI `encoding` object for form bodies                                                                                    |  ✅  |       🛑       |       🛑       |
 | [Pluggable codecs per media type](/extensions/kubb-labs/plugin-fetch/guides/serialization#encode-request-bodies) (XML, YAML) |  ✅  |       🛑       |       🛑       |
 | [Runtime request and response validation](/extensions/kubb-labs/plugin-fetch/guides/error-handling#validation-failures)      |  ✅  | 🔶<sup>3</sup> |       ✅       |

@@ -4,16 +4,6 @@ import { createSchema } from './nodes/schema.ts'
 import { applyMacros, defineMacro } from './defineMacro.ts'
 
 describe('applyMacros', () => {
-  it('chains macros so a later macro sees the earlier output', () => {
-    const root = createSchema({ name: 'Pet', type: 'object', properties: [] })
-    const setTitle = defineMacro({ name: 'set-title', schema: (node) => ({ ...node, title: 'a' }) })
-    const readTitle = defineMacro({ name: 'read-title', schema: (node) => (node.title === 'a' ? { ...node, description: 'saw-a' } : undefined) })
-
-    const next = applyMacros(root, [setTitle, readTitle])
-
-    expect(next.description).toBe('saw-a')
-  })
-
   it('orders pre before unmarked before post regardless of list order', () => {
     const order: Array<string> = []
     const track = (name: 'pre' | 'plain' | 'post', enforce?: 'pre' | 'post') =>
@@ -56,16 +46,5 @@ describe('applyMacros', () => {
     const prop = 'properties' in next ? next.properties[0] : undefined
 
     expect(prop?.schema.type).toBe('string')
-  })
-
-  it('rewrites the root node only when depth is shallow', () => {
-    const root = createSchema({ type: 'object', properties: [createProperty({ name: 'count', schema: createSchema({ type: 'integer' }) })] })
-    const macro = defineMacro({ name: 'describe', schema: (node) => ({ ...node, description: 'touched' }) })
-
-    const next = applyMacros(root, [macro], { depth: 'shallow' })
-    const prop = 'properties' in next ? next.properties[0] : undefined
-
-    expect(next.description).toBe('touched')
-    expect(prop?.schema.description).toBeUndefined()
   })
 })

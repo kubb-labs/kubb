@@ -1,27 +1,20 @@
-import { STREAM_MEDIA_TYPES } from '../constants.ts'
+import { ast } from '@kubb/kit'
 import { isJsonMimeType, isOpenApi32, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, MediaTypeObject, ReferenceObject, SchemaObject } from '../types.ts'
 
 /**
- * The media type without its parameters, so `text/event-stream; charset=utf-8` matches the bare name.
- */
-function baseMediaType(contentType: string): string {
-  return contentType.split(';')[0]!.trim().toLowerCase()
-}
-
-/**
- * Returns `true` for a media type read as a stream of items: one that OpenAPI 3.2 lists, or any that declares `itemSchema`.
+ * Returns `true` for a media type read as a stream of items: one `ast.mediaType.isStream` accepts, or any that declares `itemSchema`.
  */
 export function isStream(contentType: string, mediaType: MediaTypeObject | null): boolean {
-  return STREAM_MEDIA_TYPES.has(baseMediaType(contentType)) || mediaType?.itemSchema !== undefined
+  return ast.mediaType.isStream(contentType) || mediaType?.itemSchema !== undefined
 }
 
 /**
  * Whether the media type is `text/event-stream`, with or without parameters.
  */
 export function isEventStream(contentType: string): boolean {
-  return baseMediaType(contentType) === 'text/event-stream'
+  return ast.mediaType.getBase(contentType) === 'text/event-stream'
 }
 
 /**
@@ -34,6 +27,16 @@ function withParsedData(schema: SchemaObject, refs: Refs): SchemaObject {
 
   const parsed = { ...schema, properties: { ...schema.properties, data: resolved.contentSchema } }
   return parsed as SchemaObject
+}
+
+/**
+ * Inlines a `$ref` event whose JSON `data` string needs its `contentSchema`, so the shared component keeps `data` as a string elsewhere.
+ */
+function withParsedRef(schema: ReferenceObject, refs: Refs): SchemaObject | ReferenceObject {
+  const resolved = refs.resolve<SchemaObject | ReferenceObject>(schema.$ref, { report: false })
+  if (!resolved || isReference(resolved)) return schema
+  const parsed = withParsedData(resolved, refs)
+  return parsed === resolved ? schema : parsed
 }
 
 /**
@@ -60,25 +63,43 @@ export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs
   if (isReference(schema)) {
     const siblings = Object.fromEntries(Object.entries(schema).filter(([key]) => !REF_ANNOTATIONS.has(key)))
     const resolved = Object.keys(siblings).length ? refs.resolve<SchemaObject>(schema.$ref, { report: false }) : null
-    return resolved ? toEventSchema(mergeSchemas(resolved, siblings as SchemaObject), refs) : schema
+    return resolved ? toEventSchema(mergeSchemas(resolved, siblings as SchemaObject), refs) : withParsedRef(schema, refs)
   }
   const key = schema.oneOf?.length ? 'oneOf' : schema.anyOf?.length ? 'anyOf' : undefined
   if (!key) return withParsedData(schema, refs)
 
   const members = schema[key] as Array<SchemaObject | ReferenceObject>
   const { properties, required, ...rest } = schema
-  // A `$ref` member stays a reference, so the shared properties can only move into members when every member is inline.
+  // Shared properties cannot move into a `$ref` member, so they only merge when every member is inline.
   const merge = !!properties && !members.some(isReference)
   const shared = { properties, required }
   const event = {
     ...(merge ? rest : schema),
-    [key]: members.map((member) => (isReference(member) ? member : withParsedData(merge ? mergeSchemas(shared, member) : member, refs))),
+    [key]: members.map((member) => (isReference(member) ? withParsedRef(member, refs) : withParsedData(merge ? mergeSchemas(shared, member) : member, refs))),
   }
   return event as SchemaObject
 }
 
+const SSE_FIELDS: ReadonlySet<string> = new Set(['event', 'id', 'retry', 'data'])
+
 /**
- * Whether the schema, following `$ref`s, or a composition member of it declares an `event` or `data` property.
+ * Property names of the schema and its `allOf` members, following `$ref`s, as one combined object declares them.
+ */
+function collectFields(schema: SchemaObject | ReferenceObject, refs: Refs, seen: Set<string>): Array<string> {
+  if (isReference(schema)) {
+    if (seen.has(schema.$ref)) return []
+    seen.add(schema.$ref)
+    const resolved = refs.resolve<SchemaObject | ReferenceObject>(schema.$ref, { report: false })
+    return resolved ? collectFields(resolved, refs, seen) : []
+  }
+  const members = (schema.allOf ?? []) as Array<SchemaObject | ReferenceObject>
+  return [...Object.keys(schema.properties ?? {}), ...members.flatMap((member) => collectFields(member, refs, seen))]
+}
+
+/**
+ * Whether the schema, following `$ref`s, or a `oneOf`/`anyOf` member of it is a whole Server-Sent Event: its combined
+ * `allOf` fields declare `data`, or `event` with no field an event cannot carry. An `event` next to fields such as
+ * `planet` is the payload's own property, sent as JSON in the `data:` line.
  */
 function declaresEventFields(schema: SchemaObject | ReferenceObject, refs: Refs, seen: Set<string>): boolean {
   if (isReference(schema)) {
@@ -87,14 +108,16 @@ function declaresEventFields(schema: SchemaObject | ReferenceObject, refs: Refs,
     const resolved = refs.resolve<SchemaObject | ReferenceObject>(schema.$ref, { report: false })
     return !!resolved && declaresEventFields(resolved, refs, seen)
   }
-  if (schema.properties && (Object.hasOwn(schema.properties, 'event') || Object.hasOwn(schema.properties, 'data'))) return true
+  const fields = collectFields(schema, refs, new Set(seen))
+  if (fields.includes('data')) return true
+  if (fields.includes('event')) return fields.every((field) => SSE_FIELDS.has(field))
 
-  const members = [...(schema.oneOf ?? []), ...(schema.anyOf ?? []), ...(schema.allOf ?? [])] as Array<SchemaObject | ReferenceObject>
+  const members = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])] as Array<SchemaObject | ReferenceObject>
   return members.some((member) => declaresEventFields(member, refs, seen))
 }
 
 /**
- * Returns `'event'` when the item declares `event` or `data`, directly or in a composition member, else `'data'`.
+ * Returns `'event'` when the item is a whole event, directly or in a composition member (see `declaresEventFields`), else `'data'`.
  */
 export function getItemShape(schema: SchemaObject | ReferenceObject, refs: Refs): 'event' | 'data' {
   return declaresEventFields(schema, refs, new Set()) ? 'event' : 'data'

@@ -1,36 +1,44 @@
 import { memo } from '@internals/utils'
+import { nodeKinds } from '../constants.ts'
+import type { Node } from '../nodes/index.ts'
 import type { OperationNode } from '../nodes/operation.ts'
 import type { SchemaNode } from '../nodes/schema.ts'
-import { collect, collectSync } from '../visitor.ts'
+import { collect, visitChildNodes } from '../visitor.ts'
 import { resolveRefName } from './refs.ts'
 
 type RefEntry = { name: string; hasPointer: boolean }
 
-/**
- * Walks a node's subtree once and lists every ref it holds, in traversal order, as the resolved
- * name plus whether the ref carries a `$ref` pointer. Memoized by node identity, so
- * `collectSchemaRefs` and `collectImportedRefNames` share one scan per schema.
- */
 const refEntries = new WeakMap<SchemaNode, ReadonlyArray<RefEntry>>()
+const checkRefEntries = new WeakMap<SchemaNode, ReadonlyArray<RefEntry>>()
 const schemaRefs = new WeakMap<SchemaNode, ReadonlySet<string>>()
 const importedRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
+const importedCheckRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
 
-function collectRefEntries(node: SchemaNode): ReadonlyArray<RefEntry> {
-  return memo(refEntries, node, () =>
-    collectSync<RefEntry>(node, {
-      schema(child) {
-        if (child.type !== 'ref') return undefined
-        const name = resolveRefName(child)
-        return name ? { name, hasPointer: Boolean(child.ref) } : undefined
-      },
-    }),
-  )
+/**
+ * Walks a node's subtree once and lists every ref it holds, in traversal order, as the resolved
+ * name plus whether the ref carries a `$ref` pointer. Memoized per node and per `checks` mode, so
+ * each helper below scans a schema once.
+ */
+function collectRefEntries(node: SchemaNode, { checks }: { checks: boolean }): ReadonlyArray<RefEntry> {
+  return memo(checks ? checkRefEntries : refEntries, node, () => {
+    const entries: Array<RefEntry> = []
+    const walk = (current: Node): boolean => {
+      if (current.kind === nodeKinds.schema && current.type === 'ref') {
+        const name = resolveRefName(current)
+        if (name) entries.push({ name, hasPointer: Boolean(current.ref) })
+      }
+      visitChildNodes(current, walk, { checks })
+      return false
+    }
+    walk(node)
+    return entries
+  })
 }
 
 /**
- * Collects the names of every schema a node's subtree references, resolved with `resolveRefName`.
+ * Collects the names of every schema a node's subtree references, resolved with `ast.ref.getName`.
  * Each ref contributes its name only, so the schema it points to is never traversed. Memoized by
- * node identity, which lets `findCircularSchemas` and `containsCircularRef` share one scan per schema.
+ * node identity, which lets `findCircularSchemas` and `ast.graph.containsCircular` share one scan per schema.
  *
  * @example
  * ```ts
@@ -39,7 +47,7 @@ function collectRefEntries(node: SchemaNode): ReadonlyArray<RefEntry> {
  * ```
  */
 export function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
-  return memo(schemaRefs, node, () => new Set(collectRefEntries(node).map((entry) => entry.name)))
+  return memo(schemaRefs, node, () => new Set(collectRefEntries(node, { checks: true }).map((entry) => entry.name)))
 }
 
 /**
@@ -49,7 +57,8 @@ export function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
  *
  * Only refs that carry a `$ref` pointer count, so a synthesized ref pointing at a sibling in the
  * same file (a union member created by name) is left out. That leaves exactly the set
- * `resolver.imports` emits.
+ * `resolver.imports` emits. Refs inside `conditionals`, `contains` and `content` count only with
+ * `checks: true`, for a plugin that prints those checks.
  *
  * @example
  * ```ts
@@ -57,8 +66,10 @@ export function collectSchemaRefs(node: SchemaNode): ReadonlySet<string> {
  * // ['Category', 'Tag']
  * ```
  */
-export function collectImportedRefNames(node: SchemaNode): ReadonlyArray<string> {
-  return memo(importedRefNames, node, () => [...new Set(collectRefEntries(node).flatMap((entry) => (entry.hasPointer ? [entry.name] : [])))])
+export function collectImportedRefNames(node: SchemaNode, { checks = false }: { checks?: boolean } = {}): ReadonlyArray<string> {
+  return memo(checks ? importedCheckRefNames : importedRefNames, node, () => [
+    ...new Set(collectRefEntries(node, { checks }).flatMap((entry) => (entry.hasPointer ? [entry.name] : []))),
+  ])
 }
 
 /**
@@ -115,7 +126,7 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
  * the generated code does not recurse forever. Refs are followed by name only, so the walk stays
  * linear in the size of the schema graph.
  *
- * @note Call this once on the full graph, then check individual schemas with `containsCircularRef()`.
+ * @note Call this once on the full graph, then check individual schemas with `ast.graph.containsCircular()`.
  */
 export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<string> {
   const graph = new Map<string, ReadonlySet<string>>()

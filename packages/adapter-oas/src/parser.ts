@@ -1,5 +1,6 @@
-import type { ast } from '@kubb/kit'
+import { ast } from '@kubb/kit'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
+import { isAnnotationMember } from './emit/converters/composition.ts'
 import { createNode } from './emit/createNode.ts'
 import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
 import { flattenSchema } from './emit/schemaShape.ts'
@@ -23,6 +24,14 @@ export type OasParserContext = {
 }
 
 /**
+ * `unevaluated*` also sees what composition siblings evaluate, so with such a sibling it is dropped to keep the schema open.
+ */
+function hasUnevaluatedSiblings(schema: SchemaObject): boolean {
+  if (schema.unevaluatedProperties === undefined && schema.unevaluatedItems === undefined) return false
+  return [schema.allOf, schema.anyOf, schema.oneOf, schema.if, schema.dependentSchemas, schema.$ref].some((value) => value !== undefined)
+}
+
+/**
  * Creates the schema converter bound to one OpenAPI document: `parseSchema` dispatches each
  * schema through the ordered `schemaRules` table, with the parser options merged once.
  *
@@ -32,10 +41,22 @@ export function createSchemaParser(ctx: OasParserContext) {
   const { document, refs, renames } = ctx
   const options: ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...ctx.options }
 
+  /** Converts one OpenAPI schema into a `SchemaNode`, through the first matching rule of `schemaRules`. */
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }): ast.SchemaNode {
+    // A JSON Schema boolean: `true` accepts any value and `false` accepts none.
+    if (typeof schema === 'boolean') {
+      return ast.factory.createSchema({ type: schema ? (options.emptySchemaType as ast.ScalarSchemaType) : 'never', name: name ?? undefined })
+    }
+
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema !== schema) {
-      return parseSchema({ schema: flattenedSchema, name })
+      // `flattenSchema` keeps the first value of each keyword, so the conditionals of the schema and of every member are read on their own.
+      const { if: _if, then: _then, else: _else, dependentRequired: _required, dependentSchemas: _schemas, ...shape } = flattenedSchema
+      return withConditionals(parseSchema({ schema: shape, name }), [schema, ...(schema.allOf as Array<SchemaObject>)])
+    }
+    if (hasUnevaluatedSiblings(schema)) {
+      const { unevaluatedProperties: _properties, unevaluatedItems: _items, ...open } = schema
+      return parseSchema({ schema: open, name })
     }
 
     const nullable = isNullable(schema) || undefined
@@ -55,11 +76,77 @@ export function createSchemaParser(ctx: OasParserContext) {
       renames,
     }
 
-    for (const rule of schemaRules) {
-      if (rule.match(context)) return rule.convert(context)
+    const rule = schemaRules.find((entry) => entry.match(context))
+    const node = rule ? rule.convert(context) : createNode(context, { type: options.emptySchemaType as ast.ScalarSchemaType })
+
+    // `allOf` members that hold only annotations and `if`/`then`/`else` are not parsed as members, so read their conditionals here.
+    const annotationMembers = Array.isArray(schema.allOf) ? (schema.allOf as Array<SchemaObject>).filter(isAnnotationMember) : []
+    return withConditionals(node, [schema, ...annotationMembers])
+  }
+
+  // The key lists of the presence checks `requireKeys` builds, so two entries that check the same keys compare equal.
+  const presenceKeys = new WeakMap<ast.SchemaNode, string>()
+
+  function requireKeys(keys: Array<string>): ast.SchemaNode {
+    const unknown = ast.factory.createSchema({ type: ast.schema.types.unknown })
+    const node = ast.factory.createSchema({
+      type: ast.schema.types.object,
+      primitive: 'object',
+      properties: keys.map((name) => ast.factory.createProperty({ name, required: true, schema: unknown })),
+    })
+    presenceKeys.set(node, keys.join('\0'))
+    return node
+  }
+
+  /**
+   * Adds `if`/`then`/`else`, `dependentRequired` and `dependentSchemas` to the node as `conditionals`.
+   */
+  function withConditionals(node: ast.SchemaNode, sources: Array<SchemaObject>): ast.SchemaNode {
+    const conditionals = sources.flatMap(toConditionals)
+    // A collapsed one-member `allOf` already carries the conditionals of its member, so a repeated entry is skipped.
+    const existing = new Set((node.conditionals ?? []).map(presenceKey))
+    const added = conditionals.filter((entry) => {
+      const key = presenceKey(entry)
+      return key === undefined || !existing.has(key)
+    })
+    return added.length ? { ...node, conditionals: [...(node.conditionals ?? []), ...added] } : node
+  }
+
+  /**
+   * The keys an entry checks for presence, or `undefined` when a branch checks more than presence and the entry is always kept.
+   */
+  function presenceKey({ if: condition, then: thenNode, else: elseNode }: NonNullable<ast.SchemaNode['conditionals']>[number]): string | undefined {
+    const keys = [condition, thenNode, elseNode].map((branch) => (branch ? presenceKeys.get(branch) : ''))
+    return keys.includes(undefined) ? undefined : keys.join('\n')
+  }
+
+  function toConditionals(schema: SchemaObject): NonNullable<ast.SchemaNode['conditionals']> {
+    const branch = (value: unknown) => {
+      if (!value || typeof value !== 'object') return undefined
+      const { required, type, ...rest } = value as SchemaObject
+      // A subschema with only `required`, such as `{ required: ['postalCode'] }`, would otherwise parse as `unknown`.
+      if (Array.isArray(required) && required.length && (type === undefined || type === 'object') && !Object.keys(rest).length) return requireKeys(required)
+      return parseSchema({ schema: value as SchemaObject })
+    }
+    const entries = (value: unknown) => (value && typeof value === 'object' ? Object.entries(value) : [])
+    const conditionals: NonNullable<ast.SchemaNode['conditionals']> = []
+
+    const condition = branch(schema.if)
+    if (condition) {
+      const thenNode = branch(schema.then)
+      const elseNode = branch(schema.else)
+      conditionals.push({ if: condition, ...(thenNode && { then: thenNode }), ...(elseNode && { else: elseNode }) })
+    }
+    for (const [key, required] of entries(schema.dependentRequired)) {
+      if (Array.isArray(required) && required.length && required.every((name) => typeof name === 'string'))
+        conditionals.push({ if: requireKeys([key]), then: requireKeys(required) })
+    }
+    for (const [key, dependent] of entries(schema.dependentSchemas)) {
+      const thenNode = branch(dependent)
+      if (thenNode) conditionals.push({ if: requireKeys([key]), then: thenNode })
     }
 
-    return createNode(context, { type: options.emptySchemaType as ast.ScalarSchemaType })
+    return conditionals
   }
 
   return parseSchema

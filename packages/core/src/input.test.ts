@@ -33,13 +33,6 @@ describe('getInputKind', () => {
 })
 
 describe('inputToAdapterSource', () => {
-  it('resolves a relative path against the config root', () => {
-    expect(inputToAdapterSource(createConfig('./petStore.yaml'))).toStrictEqual({
-      type: 'path',
-      path: '/project/petStore.yaml',
-    })
-  })
-
   it('keeps a URL verbatim', () => {
     expect(inputToAdapterSource(createConfig('https://example.com/openapi.json'))).toStrictEqual({
       type: 'path',

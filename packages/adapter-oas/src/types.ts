@@ -77,6 +77,16 @@ export type SchemaObject = {
    * (no extra elements allowed), while `items: true` is equivalent to an unconstrained rest.
    */
   items?: SchemaObject | ReferenceObject | boolean
+  unevaluatedProperties?: SchemaObject | ReferenceObject | boolean
+  unevaluatedItems?: SchemaObject | ReferenceObject | boolean
+  contains?: SchemaObject | ReferenceObject
+  minContains?: number
+  maxContains?: number
+  if?: SchemaObject | ReferenceObject
+  then?: SchemaObject | ReferenceObject
+  else?: SchemaObject | ReferenceObject
+  dependentRequired?: Record<string, Array<string>>
+  dependentSchemas?: Record<string, SchemaObject | ReferenceObject>
   /**
    * Allowed values for this schema.
    */
@@ -109,10 +119,7 @@ export type DiscriminatorObject = OpenAPIV3_1.DiscriminatorObject & { defaultMap
  */
 export type ReferenceObject = OpenAPIV3_1.ReferenceObject
 
-/**
- * OpenAPI response object holding the content and headers for one status code.
- */
-export type ResponseObject = OpenAPIV3_1.ResponseObject
+export type ResponseObject = Omit<OpenAPIV3_1.ResponseObject, 'description'> & { description?: string; summary?: string }
 
 /**
  * OpenAPI request body object that maps content types to their media type objects.
@@ -120,9 +127,19 @@ export type ResponseObject = OpenAPIV3_1.ResponseObject
 export type RequestBodyObject = OpenAPIV3_1.RequestBodyObject
 
 /**
- * OpenAPI media type object, with the OpenAPI 3.2 `itemSchema` of one item of a stream.
+ * How one part of a multipart body is serialized, with the OpenAPI 3.2 nested `encoding`, `prefixEncoding` and `itemEncoding`.
  */
-export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject & { itemSchema?: SchemaObject | ReferenceObject }
+export type EncodingObject = Omit<OpenAPIV3_1.EncodingObject, 'style'> & {
+  style?: string
+  encoding?: Record<string, EncodingObject>
+  prefixEncoding?: Array<EncodingObject>
+  itemEncoding?: EncodingObject
+}
+
+export type MediaTypeObject = Omit<OpenAPIV3_1.MediaTypeObject, 'encoding'> &
+  Pick<EncodingObject, 'encoding' | 'prefixEncoding' | 'itemEncoding'> & { itemSchema?: SchemaObject | ReferenceObject }
+
+export type ExampleObject = OpenAPIV3_1.ExampleObject & { dataValue?: unknown; serializedValue?: string }
 
 /**
  * OpenAPI parameter object, narrowed so `in` is always one of the valid locations.
@@ -131,10 +148,29 @@ export type ParameterObject = {
   in: 'cookie' | 'header' | 'path' | 'query' | 'querystring'
 } & OpenAPIV3_1.ParameterObject
 
+export type SecuritySchemeObject = {
+  type?: string
+  description?: string
+  scheme?: string
+  bearerFormat?: string
+  in?: string
+  name?: string
+  flows?: Record<string, Record<string, unknown>>
+  oauth2MetadataUrl?: string
+  openIdConnectUrl?: string
+  deprecated?: boolean
+}
+
+export type TagObject = OpenAPIV3_1.TagObject & { summary?: string; parent?: string; kind?: string }
+
+export type HeaderObject = OpenAPIV3_1.HeaderObject
+
+export type LinkObject = OpenAPIV3_1.LinkObject
+
 /**
- * OpenAPI server object describing a base URL and its `{variable}` substitutions.
+ * OpenAPI server object describing a base URL and its `{variable}` substitutions, with the OpenAPI 3.2 `name`.
  */
-export type ServerObject = OpenAPIV3_1.ServerObject
+export type ServerObject = OpenAPIV3_1.ServerObject & { name?: string }
 
 /**
  * Selects which entry in the spec's `servers` array becomes the base URL and

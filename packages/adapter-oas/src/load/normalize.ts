@@ -1,4 +1,5 @@
-import { join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { escapePointerToken, getErrorMessage, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource, Diagnostic } from '@kubb/kit'
@@ -8,6 +9,7 @@ import { isOpenApi32 } from '../oas.ts'
 import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
 import type { ValidationErrors, WorkerResult } from './validateWorker.ts'
+import { resolveSchemaIds } from './schemaIds.ts'
 import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
 /**
@@ -81,6 +83,22 @@ function isExtensionPath(path: ReadonlyArray<string | number>): boolean {
 }
 
 /**
+ * Returns the base for relative `$ref`s: the 3.2 `$self` resolved against `pathOrUrl`, else `pathOrUrl`.
+ */
+export function getBaseUri(pathOrUrl: string, root: unknown): string {
+  const self = root && typeof root === 'object' ? (root as { $self?: unknown }).$self : undefined
+  if (typeof self !== 'string' || !self) return pathOrUrl
+  try {
+    if (urlRegExp.test(self)) return new URL(self).href
+    if (/^file:/i.test(self)) return fileURLToPath(self)
+    if (/^[a-z][a-z\d+.-]*:/i.test(self)) return pathOrUrl
+    return urlRegExp.test(pathOrUrl) ? new URL(self, pathOrUrl).href : resolve(dirname(pathOrUrl), self)
+  } catch {
+    return pathOrUrl
+  }
+}
+
+/**
  * Bundles a multi-file OpenAPI document into a single document via `api-ref-bundler`.
  *
  * External file schemas are hoisted into named `components.schemas` entries, so a property
@@ -93,8 +111,9 @@ function isExtensionPath(path: ReadonlyArray<string | number>): boolean {
  * all-internal document it is a no-op that still walks the whole tree to confirm that, which
  * costs real time on a large spec.
  *
- * `document` stands in for the file at `pathOrUrl`, such as inline input. Every other file or URL
- * read, including one that fails, lands in `sources`. A `$ref` that cannot be read reports
+ * `document` stands in for the file at `pathOrUrl`, such as inline input. Relative `$ref`s resolve
+ * against the OpenAPI 3.2 `$self` when the document sets one. Every other file or URL read,
+ * including one that fails, lands in `sources`. A `$ref` that cannot be read reports
  * `KUBB_REF_NOT_FOUND` at the key that holds it, as a warning when it sits inside an `x-` extension.
  *
  * @example Local file
@@ -109,9 +128,11 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
 
+  let entry = pathOrUrl
+  let entryDocument: object | string | undefined = document
   const resolver = (sourcePath: string) => {
-    if (document && sourcePath === pathOrUrl) {
-      return Promise.resolve(document)
+    if (entryDocument !== undefined && toKey(sourcePath) === toKey(entry)) {
+      return Promise.resolve(entryDocument)
     }
     const key = toKey(sourcePath)
     const cached = cache.get(key)
@@ -128,16 +149,20 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
   // api-ref-bundler swallows resolver errors and leaves refs unresolved, so surface an
   // unreadable input document as a hard error before bundling.
   const root = await resolver(pathOrUrl)
+  // Before bundling, so a `$ref` to a schema's `$id` URL is not fetched.
+  resolveSchemaIds(root)
 
   if (typeof root === 'object' && root !== null && !hasExternalRef(root)) {
     return root as Document
   }
+  entry = getBaseUri(pathOrUrl, root)
+  entryDocument = root
 
-  return (await bundle(pathOrUrl, resolver, {
+  return (await bundle(entry, resolver, {
     hooks: {
       onError: (message, { path, state }) => {
         // Only a `$ref` in the input itself has a key in the document to point at.
-        const pointer = toKey(state.baseFile) === toKey(pathOrUrl) ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
+        const pointer = toKey(state.baseFile) === toKey(entry) ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
         const diagnostic: Diagnostic = {
           code: Diagnostics.code.refNotFound,
           severity: isExtensionPath(path) ? 'warning' : 'error',
@@ -184,7 +209,9 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
               help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
             }) as Document)
           : structuredClone(source.data as Document)
-      return source.root && hasExternalRef(data) ? bundleDocument(join(source.root, inlineInputName), { document: data, sources }) : data
+      if (source.root && hasExternalRef(data)) return bundleDocument(join(source.root, inlineInputName), { document: data, sources })
+      resolveSchemaIds(data)
+      return data
     }
     await assertInputExists(source.path)
     return bundleDocument(source.path, { sources })

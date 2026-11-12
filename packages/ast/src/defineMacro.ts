@@ -23,9 +23,9 @@ function enforceWeight(enforce?: Enforce): number {
  * last. Equal hints compare as `0`, so a stable sort keeps authored order within a bucket.
  *
  * @example
- * `plugins.sort((a, b) => compareEnforce(a.enforce, b.enforce))`
+ * `plugins.sort((a, b) => compareMacroOrder(a.enforce, b.enforce))`
  */
-export function compareEnforce(a?: Enforce, b?: Enforce): number {
+export function compareMacroOrder(a?: Enforce, b?: Enforce): number {
   return enforceWeight(a) - enforceWeight(b)
 }
 
@@ -104,7 +104,7 @@ function chain({ macros, key, node, context }: ChainProps): Node | undefined {
  * stable-sorted by `enforce`, then applied sequentially per node so later macros see earlier output.
  */
 function composeMacros(macros: ReadonlyArray<Macro>): Visitor {
-  const ordered = [...macros].sort((a, b) => compareEnforce(a.enforce, b.enforce))
+  const ordered = [...macros].sort((a, b) => compareMacroOrder(a.enforce, b.enforce))
 
   const visitor: Visitor = {}
   for (const key of visitorKeys) {

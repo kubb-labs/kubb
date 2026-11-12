@@ -189,6 +189,7 @@ See [CONTRIBUTING.md](https://github.com/kubb-labs/kubb/blob/main/CONTRIBUTING.m
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/oller"><img src="https://avatars.githubusercontent.com/u/1219831?v=4?s=100" width="100px;" alt="David Ollerhead"/><br /><sub><b>David Ollerhead</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=oller" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/TopGrd"><img src="https://avatars.githubusercontent.com/u/4202848?v=4?s=100" width="100px;" alt="Robot."/><br /><sub><b>Robot.</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=TopGrd" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://openstory.so"><img src="https://avatars.githubusercontent.com/u/34339192?v=4?s=100" width="100px;" alt="Tom Beckenham"/><br /><sub><b>Tom Beckenham</b></sub></a><br /><a href="https://github.com/kubb-labs/kubb/commits?author=tombeckenham" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

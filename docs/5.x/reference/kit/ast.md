@@ -1,9 +1,8 @@
 ---
 layout: doc
 title: AST and node builders
-description: The ast namespace groups the factory node builders, the transform
-  and collect visitors, direct schema traversal helpers, the guards, the ref
-  and naming helpers, the macro engine, and the printer helper behind one import.
+description: The ast namespace from kubb/kit, one group per subject. Each
+  helper lists what it returns, with a sample call.
 outline:
   - 2
   - 3
@@ -11,14 +10,13 @@ order: 8
 navigation:
   title: AST & node builders
   icon: i-iconoir-code-brackets
-
 ---
 
 # AST and node builders
 
 ## `ast`
 
-`ast` is `kubb/kit`'s namespace for the entire AST surface, the same way TypeScript groups its node constructors under `ts.factory`. It carries the `factory` node builders, the `transform` and `collect` visitors, the guards, the ref and string helpers, and the macro engine.
+`ast` is `kubb/kit`'s namespace for the entire AST surface, the same way TypeScript groups its node constructors under `ts.factory`. Each group reads or builds one kind of thing: `ast.factory` builds nodes, `ast.node` walks them, and the other groups read schemas, refs, media types, servers, auth and HTTP operations. Each helper is a verb plus what it returns, such as `getName` or `findProperties`, or a yes-or-no question such as `isJson`. Inside a group whose name is the noun, the bare verb is enough: `ast.schema.find`, `ast.macro.apply`.
 
 ```typescript [ast-namespace.ts]
 import { ast } from 'kubb/kit'
@@ -29,7 +27,7 @@ const root = ast.factory.createInput({
 })
 ```
 
-Node building goes through `ast.factory`. `ast.factory.createFile`, `ast.factory.createSource`, and `ast.factory.createText` build the `FileNode` tree a generator returns. See the [factory table](#factory-functions) below.
+Node building goes through `ast.factory`. `ast.factory.createFile`, `ast.factory.createSource`, and `ast.factory.createText` build the `FileNode` tree a generator returns. See [`ast.factory`](#factory-functions) below.
 
 For why the AST exists and how it fits the pipeline, see [AST concepts](/docs/5.x/explanation/architecture#ast).
 
@@ -78,168 +76,118 @@ Object schemas can also include `propertyNames`, a schema that validates each ke
 | `url`      | URL string                  | `https://example.com`                  |
 | `blob`     | Binary data                 | Raw bytes                              |
 
-## Factory functions {#factory-functions}
+## Groups
 
-Factories return defaulted, fully typed nodes for adapters and generator handlers. Never build AST literals by hand. Besides `createInput`, `createSchema`, and `createOperation`, the namespace provides constructors for source files and the TypeScript-level artifacts generators emit:
+| Group                               | Covers                                              |
+| ----------------------------------- | --------------------------------------------------- |
+| [`ast.factory`](#factory-functions) | Build nodes.                                        |
+| [`ast.node`](#visitors)             | Walk, rewrite and read any node.                    |
+| [`ast.file`](#ast-file)             | Rewrite file nodes.                                 |
+| [`ast.macro`](#macros)              | Run macros.                                         |
+| [`ast.ref`](#ast-ref)               | Read `$ref` nodes.                                  |
+| [`ast.graph`](#ast-graph)           | Walk the schema graph.                              |
+| [`ast.schema`](#ast-schema)         | Narrow, find and read schema nodes.                 |
+| [`ast.mediaType`](#ast-media-type)  | Read a media type or a content entry.               |
+| [`ast.server`](#ast-server)         | Pick from the document's servers.                   |
+| [`ast.auth`](#ast-auth)             | Join auth requirements with their schemes.          |
+| [`ast.http`](#ast-http)             | Read HTTP operations, their responses and statuses. |
+| [`kubb/kit` authoring](#printers)   | `createPrinter` and `defineMacro`.                  |
 
-| Factory                                                             | Purpose                                                  |
-| ------------------------------------------------------------------- | -------------------------------------------------------- |
-| `createFile`, `createSource`, `createText`                          | Build `FileNode`s emitted by generators.                 |
-| `createImport`, `createExport`                                      | Emit `import` / `export` statements.                     |
-| `createConst`, `createFunction`, `createArrowFunction`, `createJsx` | Emit TypeScript declarations and JSX.                    |
-| `createParameter`                                                   | Describe operation parameters.                           |
-| `createProperty`, `createType`                                      | Compose object properties and TypeScript types.          |
-| `createResponse`, `createRequestBody`, `createContent`              | Model responses, request bodies, and content entries.    |
-| `createBreak`                                                       | Emit line breaks between nodes.                          |
+The old top-level names, such as `ast.narrowSchema`, `ast.transform` or `ast.isHttpOperationNode`, still work as deprecated aliases. Each one's JSDoc names its replacement, and Kubb v6 removes them.
 
-## Visitors {#visitors}
+## `ast.factory` {#factory-functions}
 
-Two visitor functions cover the common traversal patterns: `transform` rewrites the tree and `collect` gathers nodes. Visitor objects use lowercase, kind-style keys (`input`, `operation`, `schema`, `property`, `parameter`, `response`). To rewrite nodes inside a plugin, reach for [macros](/docs/5.x/how-to/macros), which add names, ordering, and composition on top of `transform`. For logging, validation, or statistics, `collect` the nodes you care about.
+Factories return defaulted, fully typed nodes for adapters and generator handlers. Never build AST literals by hand.
 
-### `transform`: synchronous, returns a new tree
+| Factory                                                             | Builds                                          |
+| ------------------------------------------------------------------- | ----------------------------------------------- |
+| `createInput`, `createSchema`, `createOperation`                    | The input tree, its schemas and operations.     |
+| `createParameter`, `createProperty`                                 | Operation parameters and object properties.     |
+| `createResponse`, `createRequestBody`, `createContent`              | Responses, request bodies, and content entries. |
+| `createFile`, `createSource`, `createText`                          | The `FileNode`s a generator returns.            |
+| `createImport`, `createExport`                                      | `import` and `export` statements.               |
+| `createConst`, `createFunction`, `createArrowFunction`, `createJsx` | TypeScript declarations and JSX.                |
+| `createType`, `createBreak`                                         | TypeScript types and line breaks between nodes. |
 
-```typescript [transform.ts]
+```typescript [factory.ts]
 import { ast } from 'kubb/kit'
 
-const root = ast.factory.createInput({ schemas: [], operations: [] })
+ast.factory.createSchema({ type: 'string', format: 'email' })
+// { kind: 'Schema', type: 'string', primitive: 'string', format: 'email' }
 
-const enhanced = ast.transform(root, {
-  schema(node) {
-    if (node.type === 'object' && node.additionalProperties === undefined) {
-      return { ...node, additionalProperties: false }
-    }
-    return node
-  },
-  operation(node) {
-    return { ...node, tags: node.tags?.length ? node.tags : ['untagged'] }
-  },
-})
+ast.factory.createText('export const a = 1')
+// { kind: 'Text', value: 'export const a = 1' }
 ```
 
-Use `transform` to change AST structure, normalize inconsistencies, or annotate nodes.
+## `ast.node` {#visitors}
 
-### `collect`: gather matching nodes
+`ast.node` walks and reads any node. Visitor objects use lowercase, kind-style keys (`input`, `operation`, `schema`, `property`, `parameter`, `response`). To rewrite nodes inside a plugin, reach for [macros](/docs/5.x/how-to/macros), which add names, ordering, and composition on top of `transform`.
 
-`collect` is a generator function, so it yields matches lazily and you consume it with `for...of` or spread it into an array. When you want the array up front, call `collectSync`, which is the eager counterpart and returns `Array<T>`.
+| Helper               | Returns                                                                         |
+| -------------------- | ------------------------------------------------------------------------------- |
+| `ast.node.transform` | A copy of the tree with each visited node replaced by what the visitor returns. |
+| `ast.node.collect`   | Every non-null value a visitor returns, depth-first, as an array.               |
+| `ast.node.kinds`     | The `kind` value of every node, such as `'Schema'`.                             |
+| `ast.node.getText`   | The text of code nodes, joined with new lines.                                  |
 
-```typescript [collect.ts]
+Pass `depth: 'shallow'` to `transform` or `collect` to skip nested schema subtrees.
+
+```typescript [node.ts]
 import { ast } from 'kubb/kit'
 
 const root = ast.factory.createInput({ schemas: [], operations: [] })
 
-const mutations = ast.collectSync<ast.OperationNode>(root, {
+const strict = ast.node.transform(root, {
+  schema(node) {
+    return node.type === 'object' && node.additionalProperties === undefined ? { ...node, additionalProperties: false } : node
+  },
+})
+
+const mutations = ast.node.collect<ast.OperationNode>(root, {
   operation(node) {
     return node.method === 'POST' ? node : undefined
   },
 })
+// Array<OperationNode>
 
-const deprecated = ast.collectSync<ast.SchemaNode>(root, {
-  schema(node) {
-    return 'deprecated' in node && node.deprecated ? node : undefined
-  },
+ast.node.kinds.schema // 'Schema'
+```
+
+## `ast.file` {#ast-file}
+
+| Helper            | Returns                                                                                                          |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `ast.file.inline` | `{ files, virtualPaths, problems }`, with names imported from virtual files replaced by their inline expression. |
+
+## `ast.macro` {#macros}
+
+A macro is a named, composable transform built on `transform` that rewrites nodes before printing, adding ordering, gating, and reuse a bare visitor doesn't give you. Define one with `defineMacro` from `kubb/kit`. See [Macros concepts](/docs/5.x/how-to/macros).
+
+| Helper                   | Returns                                                            |
+| ------------------------ | ------------------------------------------------------------------ |
+| `ast.macro.apply`        | The tree after running a list of macros over it.                   |
+| `ast.macro.compareOrder` | A sort result that puts `pre` macros first and `post` macros last. |
+
+```typescript [macro.ts]
+import { ast, defineMacro } from 'kubb/kit'
+
+const macroUntagged = defineMacro({
+  name: 'untagged',
+  operation: (node) => (node.tags?.length ? undefined : { ...node, tags: ['untagged'] }),
 })
 
-console.log(`POST operations: ${mutations.length}`)
-console.log(`Deprecated schemas: ${deprecated.length}`)
+ast.macro.apply(operation, [macroUntagged]).tags // ['untagged']
 ```
-
-Use `collect` to stream matches as you find them, and `collectSync` to find specific nodes, filter by a criterion, or build a list for later processing.
-
-### Direct traversal
-
-`findSchema` stops at the first schema that matches a predicate. Set `followRefs: true` to inspect resolved ref targets; traversal stops when it reaches an unresolved or cyclic ref.
-
-```typescript twoslash [find-schema.ts]
-import { ast } from 'kubb/kit'
-
-const root = ast.factory.createInput({ schemas: [], operations: [] })
-
-const dateSchema = ast.findSchema(root, {
-  followRefs: true,
-  predicate: (schema) => schema.type === 'date',
-})
-```
-
-## Guards and narrowing {#guards-and-narrowing}
-
-Kubb exports type guards and a `narrowSchema` helper for safe discrimination:
-
-```typescript [guards.ts]
-import { ast } from 'kubb/kit'
-
-const root = ast.factory.createInput({ schemas: [], operations: [] })
-
-for (const node of ast.collect<ast.SchemaNode>(root, { schema: (node) => node })) {
-  const obj = ast.narrowSchema(node, 'object')
-  if (obj) {
-    console.log(`object with ${obj.properties.length} properties`)
-  }
-
-  if (node.type === 'ref') {
-    console.log(`reference to: ${node.ref}`)
-  }
-}
-
-for (const node of ast.collect<ast.OperationNode>(root, { operation: (node) => node })) {
-  if (ast.isHttpOperationNode(node)) {
-    console.log(`${node.method} ${node.path}`)
-  }
-}
-```
-
-## Refs and naming helpers
-
-The helpers split across two surfaces. `resolveRef`, `resolveRefName`, and `refName` ship on the `ast` namespace, like the guards and node types. `extractRefName`, `childName`, `enumPropName`, and `syncSchemaRef` are named exports of `kubb/kit` itself. The same split applies to `containsCircularRef` and the built-in macros below.
-
-| Helper           | Purpose                                                             |
-| ---------------- | ------------------------------------------------------------------- |
-| `resolveRef`     | Follow resolved ref nodes to their target schema.                   |
-| `extractRefName` | Turn `'#/components/schemas/Pet'` into `'Pet'`.                     |
-| `resolveRefName` | Resolve the name a ref node emits, preferring its `targetName`.     |
-| `childName`      | Derive a child property name from context.                          |
-| `enumPropName`   | Convert an enum value into a valid property name.                   |
-| `syncSchemaRef`  | Merge a ref node with its resolved schema, letting usage-site fields (`description`, `nullable`) override. |
-
-```typescript [refs.ts]
-import { extractRefName } from 'kubb/kit'
-
-const name = extractRefName('#/components/schemas/Pet')
-//    ^?
-```
-
-## Schema graph
-
-Analyze how schemas reference each other, to prune unused schemas or wrap circular ones in a lazy construct. `collectUsedSchemaNames` and `findCircularSchemas` ship on the `ast` namespace.
-
-| Helper                   | Purpose                                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------------------------- |
-| `collectUsedSchemaNames` | Collect the names of every top-level schema transitively used by a set of operations. Pair it with `include` filters to leave unreferenced schemas ungenerated. |
-| `findCircularSchemas`    | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`. |
-| `containsCircularRef`    | Report whether a schema, or anything nested inside it, references a circular schema. |
-
-## Constants
-
-| Export        | Purpose                                    |
-| ------------- | ------------------------------------------ |
-| `schemaTypes` | Map of every schema `type` discriminant.   |
-| `nodeKinds`   | Map of every node `kind` discriminant.     |
-
-## Macros
-
-A macro is a named, composable transform built on `transform` that rewrites nodes before printing, adding ordering, gating, and reuse a bare visitor doesn't give you. See [Macros concepts](/docs/5.x/how-to/macros).
-
-| Export        | Purpose                                     |
-| ------------- | ------------------------------------------- |
-| `defineMacro` | Type a macro and read it as one definition. |
-| `applyMacros` | Run a list of macros over a node tree.      |
 
 Kubb also ships built-in macros for common schema normalizations that any adapter can compose with its own. `macroDiscriminatorEnum` and `macroEnumName` read options, so call them to build the macro. Plugins that import another plugin's output compute names from the nodes they see, so register a rename on every plugin that touches the schema, for example by passing one shared `macros` array to each plugin. [Macros](/docs/5.x/how-to/macros) shows a rename macro.
 
-| Macro                    | Purpose                                                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------- |
-| `macroDedupeUnion`       | Drop union members that repeat an earlier one, ignoring the source pointer.                 |
-| `macroDiscriminatorEnum` | Replace a discriminator property's schema with a string enum of its allowed values.         |
-| `macroEnumName`          | Name an inline enum schema from its parent and property name.                               |
+| Macro                    | Purpose                                                                             |
+| ------------------------ | ----------------------------------------------------------------------------------- |
+| `macroDedupeUnion`       | Drop union members that repeat an earlier one, ignoring the source pointer.         |
+| `macroDiscriminatorEnum` | Replace a discriminator property's schema with a string enum of its allowed values. |
+| `macroEnumName`          | Name an inline enum schema from its parent and property name.                       |
+
+`macroSimplifyUnion` is the name `macroDedupeUnion` had before 5.16. It still works, but is deprecated: update the import.
 
 ### Macro options and callbacks
 
@@ -258,13 +206,168 @@ type Macro = {
 
 Each callback returns a replacement node, or `undefined` or `null` to leave the node untouched.
 
-## Printers
+## `ast.ref` {#ast-ref}
 
-Lower-level helpers for parsers that turn the AST into source code:
+| Helper                | Returns                                                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `ast.ref.getName`     | The name a ref points at. A ref node gives its `targetName` first, so pass the node, not `node.ref`. Other nodes give `null`. |
+| `ast.ref.getSchema`   | The schema a ref node points at, or the node itself.                                                                          |
+| `ast.ref.isAlias`     | Whether a ref adds nothing to its target, so it prints as just the target name.                                               |
+| `ast.ref.mergeSchema` | The ref node with its resolved schema merged in. Usage-site fields such as `description` and `nullable` win.                  |
 
-| Export          | Purpose                                |
-| --------------- | -------------------------------------- |
-| `createPrinter` | Typed helper for creating a `Printer`. |
+`childName` and `enumPropName` build names, so they are named exports of `kubb/kit`.
+
+```typescript [ref.ts]
+import { ast } from 'kubb/kit'
+
+ast.ref.getName('#/components/schemas/Pet') // 'Pet'
+ast.ref.getSchema(petRef).type // 'object'
+ast.ref.isAlias(petRef) // true
+```
+
+## `ast.graph` {#ast-graph}
+
+Analyze how schemas reference each other, to prune unused schemas or wrap circular ones in a lazy construct.
+
+| Helper                       | Returns                                                                                                  |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `ast.graph.getRefNames`      | Every schema name a node refers to, at any depth.                                                        |
+| `ast.graph.getImportedNames` | The ref names a printed schema imports. Pass `{ checks: true }` to drop refs in checks no printer emits. |
+| `ast.graph.getUsedNames`     | The schema names a set of operations reaches, directly or through other schemas.                         |
+| `ast.graph.getCircularNames` | The schemas that take part in a circular chain, so they can be wrapped in a lazy getter.                 |
+| `ast.graph.containsCircular` | Whether a schema reaches one of the circular schemas.                                                    |
+
+```typescript [graph.ts]
+import { ast } from 'kubb/kit'
+
+ast.graph.getRefNames(ownerSchema) // Set { 'Pet' }
+ast.graph.getCircularNames([nodeSchema, tagSchema]) // Set { 'Node' }
+ast.graph.containsCircular(ownerSchema, { circularSchemas: new Set(['Pet']) }) // true
+```
+
+## `ast.schema` {#ast-schema}
+
+`ast.schema` narrows, finds and reads schema nodes, so a plugin does not walk them again.
+
+| Helper                          | Returns                                                                                                     |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `ast.schema.types`              | The `type` value of every schema, such as `'string'`.                                                       |
+| `ast.schema.narrow`             | The schema typed as the given `type`, or `null` when it is another type.                                    |
+| `ast.schema.find`               | The first schema in a tree that matches. Set `followRefs: true` to look through resolved refs.              |
+| `ast.schema.applyOptionality`   | The schema marked `optional` when not required, or `nullish` when it is also nullable.                      |
+| `ast.schema.findProperties`     | Every property with a given name on an object, a resolved ref, or an intersection. Unions are not searched. |
+| `ast.schema.getLiterals`        | The literal values an enum, a resolved ref, or a union of literals allows.                                  |
+| `ast.schema.inferDiscriminator` | The property every member pins to its own literal, which can act as an implicit discriminator.              |
+| `ast.schema.getEmbeddedJson`    | The schema of the JSON document a string holds (`contentMediaType` with `contentSchema`).                   |
+| `ast.schema.isString`           | Whether a schema prints as a plain `string`, including `date` and `time` as strings.                        |
+| `ast.schema.getNumberBounds`    | The tightest inclusive `{ min, max }`, with exclusive bounds moved to the next `step`.                      |
+
+```typescript twoslash [schema.ts]
+import { ast } from 'kubb/kit'
+
+const root = ast.factory.createInput({ schemas: [], operations: [] })
+
+const dateSchema = ast.schema.find(root, {
+  followRefs: true,
+  predicate: (schema) => schema.type === 'date',
+})
+```
+
+```typescript [narrow.ts]
+for (const node of ast.node.collect<ast.SchemaNode>(root, { schema: (node) => node })) {
+  const obj = ast.schema.narrow(node, 'object')
+  if (obj) {
+    console.log(`object with ${obj.properties.length} properties`)
+  }
+}
+```
+
+```typescript [schema-values.ts]
+ast.schema.getLiterals(petKind) // ['cat', 'dog']
+ast.schema.inferDiscriminator([catSchema, dogSchema]) // 'kind'
+ast.schema.getNumberBounds({ min: 0.5, exclusive: { max: 10 }, integer: true }) // { min: 1, max: 9 }
+```
+
+## `ast.mediaType` {#ast-media-type}
+
+Every `ast.mediaType` helper takes a media type string or a content entry.
+
+| Helper                   | Returns                                                                                        |
+| ------------------------ | ---------------------------------------------------------------------------------------------- |
+| `ast.mediaType.getBase`  | The media type without parameters, in lowercase.                                               |
+| `ast.mediaType.isJson`   | Whether a media type is `application/json`, `text/json`, or has a `+json` suffix.              |
+| `ast.mediaType.isStream` | Whether a media type is server-sent events, JSON Lines, or a JSON text sequence (`+json-seq`). |
+
+```typescript [media-type.ts]
+ast.mediaType.getBase('Application/JSON; charset=utf-8') // 'application/json'
+ast.mediaType.isJson('application/problem+json') // true
+ast.mediaType.isStream('text/event-stream') // true
+```
+
+## `ast.server` {#ast-server}
+
+| Helper                   | Returns                                                                   |
+| ------------------------ | ------------------------------------------------------------------------- |
+| `ast.server.get`         | The server at `index`, falling back to the first one.                     |
+| `ast.server.groupByName` | Each server name mapped to its server. The first server with a name wins. |
+
+## `ast.auth` {#ast-auth}
+
+| Helper                     | Returns                                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `ast.auth.getRequirements` | Each of `node.auth`'s requirements with its schemes. Undeclared and repeated requirements are dropped. |
+
+```typescript [auth.ts]
+ast.auth.getRequirements({ auth: node.auth, schemes })
+// [[{ name: 'oauth', credential: { type: 'oauth2' }, scopes: ['read:pets'] }]]
+```
+
+## `ast.http` {#ast-http}
+
+`ast.http` works for HTTP operations only.
+
+| Helper                           | Returns                                                                                      |
+| -------------------------------- | -------------------------------------------------------------------------------------------- |
+| `ast.http.isOperation`           | Whether an operation is an HTTP operation, narrowing it so `method` and `path` are present.  |
+| `ast.http.groupParameters`       | The parameters by location (`path`, `query`, `header`, `cookie`), first of a repeated name.  |
+| `ast.http.getBaseURL`            | A server's URL when it is absolute and has no template variables, else `undefined`.          |
+| `ast.http.requestBody.getSchema` | The schema of the first request body entry, or `undefined` when the operation takes no body. |
+
+```typescript [base-url.ts]
+import { ast } from 'kubb/kit'
+
+// string | undefined
+const baseURL = ast.http.getBaseURL(ast.server.get({ servers: node.servers, index: 0 }))
+```
+
+### `ast.http.responses`
+
+| Helper                                | Returns                                                                                        |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `ast.http.responses.filterSuccess`    | The operation's `2xx` responses, ranges included.                                              |
+| `ast.http.responses.findPrimary`      | The success response a client returns: one with a body first, then an exact code over a range. |
+| `ast.http.responses.filterError`      | The operation's `4xx` and `5xx` responses, ranges included.                                    |
+| `ast.http.responses.getImportedNames` | The ref names the response bodies import, so a generator can import their types.               |
+
+### `ast.http.status`
+
+Every `ast.http.status` helper takes a status code, a range, or a response.
+
+| Helper                      | Returns                                                         |
+| --------------------------- | --------------------------------------------------------------- |
+| `ast.http.status.getClass`  | The class digit: `2` for `201` and `2xx`, `null` for `default`. |
+| `ast.http.status.isSuccess` | Whether the code is `2xx`.                                      |
+| `ast.http.status.isError`   | Whether the code is `4xx` or `5xx`.                             |
+| `ast.http.status.toCode`    | One concrete code: `200` for `2xx` and `default`.               |
+
+## Printers {#printers}
+
+`createPrinter` and `defineMacro` are authoring helpers, so they are top-level exports of `kubb/kit`, next to `defineGenerator` and `definePlugin`.
+
+| Export          | Returns                                                                  |
+| --------------- | ------------------------------------------------------------------------ |
+| `createPrinter` | A printer factory: it takes the printer options and returns a `Printer`. |
+| `defineMacro`   | The same macro object, typed as a `Macro`.                               |
 
 `createPrinter` takes an `overrides` map to replace the handler for individual schema node types. Pass overrides through the `overrides` field rather than spreading them into `nodes`, otherwise `this.base` cannot find the original handler. The `printer.nodes` option on `@kubb/plugin-ts`, `@kubb/plugin-zod`, and `@kubb/plugin-faker` feeds this map. See [Customize printers](/docs/5.x/how-to/printers).
 
