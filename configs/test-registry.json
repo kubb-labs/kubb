@@ -2,7 +2,7 @@
   "internals/changelog/format.test.mjs": "Pins the changelog heading regexes against prefix matches (5.0.0 vs 5.0.0-rc.1, kubb vs unplugin-kubb) that corrupt release notes.",
   "internals/shared/src/configFile/configFile.test.ts": "Studio config sync: readConfig and editConfig parser and editor with many branches, nothing else covers it.",
   "internals/shared/src/init.test.ts": "Only check of the kubb init config text; packages/cli init run.test.ts mocks the writer.",
-  "internals/shared/src/loader.test.ts": "Regression: config reload across .js, .mjs, .cjs, .ts and imported helpers, which Node's import cache broke. Pins that the first load of an ES module config is native and that jiti still loads the rest.",
+  "internals/shared/src/loader.test.ts": "Regression: config reload across .js, .mjs, .cjs, .ts and imported helpers, which Node's import cache broke, and the native first load of an ES module config with jiti for the rest.",
   "internals/utils/src/casing.test.ts": "camelCase and pascalCase normalizer with acronym, digit, separator and cache branches that drive every generated name.",
   "internals/utils/src/fs.test.ts": "write newline and no-rewrite rules against formatters, listFiles filtering and isPathInside path checks are branchy.",
   "internals/utils/src/isCIEnvironment.test.ts": "Small predicate, but the CI=false and CI=0 opt-out branch has no other test in the repo.",
