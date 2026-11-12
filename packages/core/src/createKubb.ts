@@ -57,14 +57,17 @@ export type CreateKubbOptions = {
 }
 
 export type GenerateConfigsOptions = Pick<CreateKubbOptions, 'hooks' | 'signal'> & {
-  /** Index of the one config to build. It is still compared with the others, but never empties the directory they share. */
+  /**
+   * Index of the one config to build. It is still compared with the others, but never empties the directory they share.
+   */
   only?: number
 }
 
 export type ConfigGenerateResult = GenerateResult & {
-  /** The instance that built this config, to read its `config`, `storage` or `hooks`, or to build it again. */
   kubb: Kubb
-  /** What the build threw outside its own diagnostics. `diagnostics` holds it too. */
+  /**
+   * What the build threw outside its own diagnostics. `diagnostics` holds it too.
+   */
   error?: unknown
 }
 
@@ -97,7 +100,9 @@ export type GenerateResult = {
    * Build diagnostics plus any collected from the output passes.
    */
   diagnostics: Array<Diagnostic>
-  /** The parsed spec the build generated from, `null` when the build failed before parsing. */
+  /**
+   * The parsed spec the build generated from, `null` when the build failed before parsing.
+   */
   input: InputNode | null
 }
 
@@ -133,9 +138,8 @@ export class Kubb {
   }
 
   /**
-   * Generates every config of a `defineConfig([...])` array, one after another, and yields each config's result as it
-   * finishes, so a result is released as soon as the caller drops it. A config that fails does not stop the others: its
-   * result has `success: false`. Only an aborted `signal` rejects.
+   * Generates every config of a `defineConfig([...])` array in order and yields each result as its config finishes, so
+   * memory holds one config at a time. A config that fails does not stop the others. Only an aborted `signal` rejects.
    */
   static async *generate(
     configs: Array<UserConfig>,

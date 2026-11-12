@@ -5,4 +5,4 @@
 '@kubb/studio': minor
 ---
 
-Add `Kubb.generate(configs)` to `@kubb/core`, and export the `Kubb` class. It builds every config of a `defineConfig([...])` array with the schemas it shares, and a config that fails no longer stops the others. `kubb generate`, `kubb update`, `unplugin-kubb` and `kubb studio snapshot` now run through `Kubb.generate`, so `unplugin-kubb` builds the remaining configs before it fails the host build.
+Add `Kubb.generate(configs)`, which builds every config of a `defineConfig([...])` array and keeps going when one fails. `kubb generate`, `kubb update`, `unplugin-kubb` and `kubb studio snapshot` now use it.

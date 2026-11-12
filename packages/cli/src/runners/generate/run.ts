@@ -46,10 +46,6 @@ type LinterName = Exclude<NonNullable<Config['output']['lint']>, 'auto' | false>
 formatters satisfies Record<FormatterName, unknown>
 linters satisfies Record<LinterName, unknown>
 
-/**
- * The config a run builds: the CLI `--input` replaces its `input`, and a dry run generates in memory, skips formatting,
- * linting and post-generate commands, and prints what would change on disk.
- */
 function toRunConfig({ config, input, dryRun }: { config: Config; input?: string; dryRun: boolean }): Config {
   return {
     ...config,
@@ -64,16 +60,11 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
 type GenerateProps = GenerateConfigsOptions & {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
-  /**
-   * Receives what a config throws outside its own diagnostics.
-   */
   errorHooks: Hookable<KubbHooks>
 }
 
 /**
- * Generates the configs, or the one `only` names, and returns whether every build succeeded. Core formats, lints and
- * runs `output.postGenerate` after an error-free build, and reports their failures as coded diagnostics that reach the
- * summary, the json report and the exit code.
+ * Generates the configs, or the one `only` names, and returns whether every build succeeded.
  */
 export async function generate({ configs, errorHooks, ...options }: GenerateProps): Promise<boolean> {
   // Not awaited: each request finishes in the background, capped by its timeout, so it never delays the summary.
@@ -138,10 +129,7 @@ function logRebuild({ diff: { schemas, operations }, durationMs }: { diff: Build
   logStep([`Rebuilt in ${formatMs(durationMs)}`, specChange].filter(Boolean).join(styleText('dim', ' · ')))
 }
 
-/**
- * Builds each config on its own, then rebuilds it whenever its local `input` file changes. Returns whether a config
- * with no file to watch, which is generated once, failed.
- */
+// Returns whether a config with no file to watch, which is generated once, failed.
 async function watchConfigs({ configs, hooks, errorHooks, quiet }: Omit<GenerateProps, 'only'> & { quiet: boolean }): Promise<boolean> {
   let anyFailed = false
   // One tracker, one key listener and one build queue serve every watched config, so several configs never mix diffs or answer `r` twice.
@@ -151,7 +139,7 @@ async function watchConfigs({ configs, hooks, errorHooks, quiet }: Omit<Generate
   // Configs share the hooks emitter, so every build, from any watcher or the `r` key, waits for the one before it.
   let queue = Promise.resolve()
   // shortcut: each config builds on its own, so the configs of a shared directory are compared once per config at
-  // startup and the directory is never emptied; build them in one pass first if that startup gets slow.
+  // startup and the directory is never emptied, build them in one pass first if that startup gets slow.
   for (const [index, config] of configs.entries()) {
     const watchPath = typeof config.input === 'string' && getInputKind(config.input) === 'file' ? config.input : undefined
     if (!watchPath) {
@@ -180,7 +168,7 @@ async function watchConfigs({ configs, hooks, errorHooks, quiet }: Omit<Generate
         logTip()
       }
     }
-    // A trigger that lands while this config's build is queued joins it; one that lands during the build queues one more. Never rejects.
+    // A trigger that lands while this config's build is queued joins it. One that lands during the build queues one more. Never rejects.
     let pending = false
     const rebuild = (): Promise<void> => {
       if (pending) return queue
@@ -201,7 +189,7 @@ async function watchConfigs({ configs, hooks, errorHooks, quiet }: Omit<Generate
       })
     }
 
-    // The watcher ignores its startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
+    // The watcher ignores its startup state, so run the first build here. A failing one keeps watching so the user can fix the input.
     await rebuild()
 
     await startWatcher([watchPath], rebuild, { info: logInfo, error: logError })

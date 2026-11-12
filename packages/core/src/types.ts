@@ -747,7 +747,9 @@ export type BuildOutput = {
    * The plugin driver that orchestrated this build.
    */
   driver: KubbDriver
-  /** The parsed spec the build generated from, `null` when there was none to parse. */
+  /**
+   * The parsed spec the build generated from, `null` when there was none to parse.
+   */
   input: InputNode | null
   /**
    * The configured `Storage` backend, for reading back a generated file's final content.
