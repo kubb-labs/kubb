@@ -11,7 +11,7 @@ navigation:
 
 # Connect a project to Kubb Studio
 
-Use [Kubb Studio](https://kubb.studio) to generate and review a project's clients, types, schemas, hooks, and mocks from the browser. Start with Kubb installed and a `kubb.config.ts` in your project. `kubb studio` needs Kubb 5.6.1 or later, because Studio refuses older agents. `kubb studio snapshot` needs Kubb 5.6.2 or later.
+Use [Kubb Studio](https://kubb.studio) to generate and review a project's clients, types, schemas, hooks, and mocks from the browser. Start with Kubb installed and a `kubb.config.ts` in your project. `kubb studio` needs Kubb 5.11.6 or later, because Studio refuses older agents. `kubb studio snapshot` needs Kubb 5.6.2 or later.
 
 For a quick trial without local setup, use Studio's shared sandbox with a spec you are comfortable providing outside your environment. For a persistent team connection on your infrastructure, use the [Docker agent](https://hub.docker.com/r/kubblabs/kubb-agent). An organization admin approves its pairing code.
 
@@ -44,7 +44,7 @@ On the Pro plan, Studio turns an agent's OpenAPI spec into a plugin for Claude C
 
 1. Connect the agent with `--allow-read-ast` and run a generation. Studio reads the parsed spec of the latest successful generation.
 2. In Studio, open **Settings › your organization › AI**, select **Publish an agent**, and choose the agent.
-3. Create an AI key: a token of type **AI (read-only)** under **Settings › Developers › Tokens**, or use the **Create an AI key** link on the AI page. A registry key does not work here. Git asks for the AI key as the password the first time; any username works.
+3. Create an AI key: a token of type **AI (read-only)** under **Settings › Developers › Tokens**, or use the **Create an AI key** link on the AI page. A registry key does not work here. Git asks for the AI key as the password the first time, and any username works.
 4. Add the marketplace once with your tool, then install the plugin for each API:
 
 :::code-group{sync="ai-tool"}

@@ -51,7 +51,7 @@ pluginFaker({
 })
 ```
 
-`file.path` returns the file's full path and bypasses the `output.path` and `group` layout, so the resolver owns where the file lands. This override moves every Faker file into a `mocks/` folder. The returned path may not escape the project root.
+`file.path` replaces the plugin's `output.path` and `group` layout, so the resolver owns where the file lands. Kubb resolves the returned path against the root `output.path` directory, and the path must stay inside that directory. This override moves every Faker file from `mocks/` to `fixtures/`. The plugin's barrel covers its `output.path` folder, so the moved files get no `index.ts`.
 
 ```typescript [file-path.ts]
 import { pluginFaker } from '@kubb/plugin-faker'
@@ -59,8 +59,8 @@ import { pluginFaker } from '@kubb/plugin-faker'
 pluginFaker({
   resolver: {
     file: {
-      path({ baseName, output }) {
-        return `${output.path}/mocks/${baseName}`
+      path({ baseName }) {
+        return `fixtures/${baseName}`
       },
     },
   },

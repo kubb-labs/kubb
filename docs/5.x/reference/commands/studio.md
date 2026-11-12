@@ -18,7 +18,7 @@ Run `kubb studio` to connect a project to [Kubb Studio](https://kubb.studio). Th
 
 ## Usage
 
-Connect the current project. On the first run, open the pairing page and approve the code the CLI shows before it expires. The CLI copies the code to the clipboard when `pbcopy`, `xclip`, or `clip.exe` is available. It then asks which permissions to grant for this project in one list, with the two read permissions checked.
+Connect the current project. On the first run, open the pairing page and approve the code the CLI shows before it expires. The CLI copies the code to the clipboard when `pbcopy`, `xclip`, `wl-copy`, or `clip.exe` is available. It then asks which permissions to grant for this project in one list, with nothing checked.
 
 While connected, the CLI logs each job Studio runs on one line: the time, the command, who asked for it, and the result. The job's own steps and diagnostics stay in Studio. Press `b` to move the session to the background worker, the same as `kubb studio start`.
 
@@ -79,7 +79,7 @@ The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, whic
 | `--package-version=<version>`               |                       | `snapshot` only: package version for the tarball. Defaults to the version in the nearest `package.json` that has a name and a version.                                                                                                                                              |
 | `--json`                                    | `false`               | `snapshot` only: print the result as one JSON object instead of a summary.                                                                                                                                                                                                          |
 
-`snapshot` takes no `--allow-*` flag. It generates like `kubb generate`: it writes to `output.path`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB. It needs `tsdown` installed in the project to build the package's `dist` files: run `npm i -D tsdown`.
+`snapshot` takes no `--allow-*` flag. It generates like `kubb generate`: it writes to `output.path`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB. `snapshot` builds the package's `dist` files with `tsdown`, so install it in the project with `npm i -D tsdown`.
 
 Without `--allow-read`, a session still generates and reports file paths, but Studio cannot display their contents. The CLI asks about permissions not supplied as flags and remembers answers per project directory. Without a TTY it skips the permission prompts, so pass the flags the run needs. In CI it also refuses to pair and needs stored credentials, so use `snapshot` there instead.
 
@@ -100,7 +100,7 @@ Initial disk output has a separate retention budget with the same count and size
 
 ## Snapshot output
 
-`--json` prints one JSON object with `id`, `name`, `version`, `integrity`, `url`, `snapshotIdUrl`, `expiresAt`, and `agentUrl`. It also includes `number` and `webUrl` when Studio sends them, and the summary then shows the snapshot number and a `View` link. It also includes `changes` and `branchChanges` when comparisons are available. Installing a snapshot requires a separate `registry` API key.
+`--json` prints one JSON object with `id`, `name`, `version`, `integrity`, `url`, `snapshotIdUrl`, `expiresAt`, and `agentUrl`. The object includes `number` and `webUrl` when Studio sends them, and the summary then shows the snapshot number and a `View` link. It includes `changes` and `branchChanges` when comparisons are available. Installing a snapshot requires a separate `registry` API key.
 
 | JSON field      | Compared with                                                                                                                                                                                                                                                                                               |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

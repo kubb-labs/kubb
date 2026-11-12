@@ -17,7 +17,7 @@ navigation:
 
 ```typescript [rollup.config.ts]
 import kubb from 'kubb/rollup'
-import config from './kubb.config'
+import config from './kubb.config.ts'
 
 export default {
   input: 'src/index.ts',

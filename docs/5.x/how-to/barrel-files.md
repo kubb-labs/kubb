@@ -12,7 +12,7 @@ navigation:
 
 # Add barrel files
 
-A barrel file is an `index.ts` that re-exports everything in a directory, so consumers import from one place. [`@kubb/plugin-barrel`](/extensions/kubb-labs/plugin-barrel) ships inside `kubb` and `defineConfig` registers it for you. It generates nothing until you set `output.barrel`.
+A barrel file is an `index.ts` that re-exports everything in a directory, so consumers import from one place. [`@kubb/plugin-barrel`](/extensions/kubb-labs/plugin-barrel) ships inside `kubb` and `defineConfig` registers it for you. The root barrel is off by default, so Kubb writes no root `index.ts` until you set `output.barrel`. Each plugin's default `output` carries `barrel: { type: 'named' }`, so a plugin such as `pluginTs()` already writes `types/index.ts`.
 
 Toggle the export style and barrel depth to see what each `index.ts` re-exports.
 
@@ -21,7 +21,7 @@ Toggle the export style and barrel depth to see what each `index.ts` re-exports.
 
 ## Enable the root barrel
 
-Set `output.barrel` on `defineConfig`. It controls the root `index.ts` and the default every plugin inherits. `type` is `'named'` for per-symbol re-exports or `'all'` for `export *`. See [`type`](/extensions/kubb-labs/plugin-barrel/options#type) for the difference.
+Set `output.barrel` on `defineConfig` to write the root `index.ts`. A plugin inherits this value only when its own `output` sets no `barrel`. A plugin left on its default `output` keeps `{ type: 'named' }`. `type` is `'named'` for per-symbol re-exports or `'all'` for `export *`. See [`type`](/extensions/kubb-labs/plugin-barrel/options#type) for the difference.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -36,7 +36,7 @@ export default defineConfig({
 
 ## Adjust a single plugin
 
-Set `barrel` inside a plugin's `output` to change or drop that plugin's barrel. `nested: true` writes an `index.ts` in every subdirectory instead of one flat barrel. `false` skips the plugin's barrel and drops its files from the root barrel. A plugin only gets a barrel in `output.mode: 'directory'`, the mode an extensionless `output.path` implies.
+Set `barrel` inside a plugin's `output` to change or drop that plugin's barrel. `nested: true` writes an `index.ts` in every subdirectory instead of one flat barrel. `false` skips the plugin's barrel and drops its files from the root barrel. A plugin gets a barrel only in `output.mode: 'directory'`, the mode an `output.path` without a file extension implies.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'

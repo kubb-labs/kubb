@@ -15,13 +15,13 @@ navigation:
 
 # Extension registry
 
-The Kubb extension registry lists reviewed plugins, adapters, and parsers. Each entry pins one npm version or one GitHub release. [`kubb add`](/docs/5.x/reference/commands/add), [`kubb update`](/docs/5.x/reference/commands/update), [`kubb list`](/docs/5.x/reference/commands/list), kubb.dev, and Kubb Studio read it.
+The Kubb extension registry lists reviewed plugins, adapters, and parsers. Each entry pins one npm version or one GitHub release. The CLI, kubb.dev, and Kubb Studio read it. In the CLI, [`kubb init`](/docs/5.x/reference/commands/init), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb update`](/docs/5.x/reference/commands/update), [`kubb list`](/docs/5.x/reference/commands/list), and [`kubb remove`](/docs/5.x/reference/commands/remove) use it.
 
 The base URL is `https://kubb.dev/registry`. The registry is a set of plain static JSON documents:
 
 - Served as `application/json`, with CORS allowed, so any site or tool can read them.
 - Answered directly, never through a redirect.
-- Cached for 10 minutes (`cache-control: public, max-age=600`).
+- Cached for 10 minutes (`cache-control: max-age=600`).
 
 [kubb-labs/registry](https://github.com/kubb-labs/registry) builds the documents on every merge and once a day.
 
@@ -37,7 +37,7 @@ The CLI accepts a bare `<slug>` and reads it as `kubb-labs/<slug>`. An entry own
 
 ## `GET <base>/index.json` {#index}
 
-Returns every extension in the registry:
+Returns every extension in the registry. The index is the only document the CLI reads, and Kubb Studio reads it for its plugin list.
 
 ```typescript
 type RegistryIndex = {
@@ -51,7 +51,7 @@ The CLI rejects an index whose `version` is not `1`. It skips an entry that fail
 
 ## `GET <base>/<owner>/<slug>.json` {#detail}
 
-Returns one extension and the docs its pinned version ships:
+Returns one extension and the docs its pinned version ships. kubb.dev builds its extension pages from this document. The CLI does not read it.
 
 ```typescript
 type RegistryDetail = RegistryEntry & {
@@ -74,7 +74,7 @@ The fields come from the package's [`docs/` folder](/docs/5.x/reference/kit/exte
 - `options` is the Markdown of `docs/options.md`, or `null` when the package ships none.
 - `guides` holds one entry per `docs/guides/<id>.md`, in file name order. `id` is the file name without `.md`, `title` is the first `#` heading, `description` is the first paragraph after it, and `content` is the whole file.
 
-Read a missing `options` as `null` and a missing `guides` as `[]`. An unknown id answers 404, and `kubb add` reports `"<id>" is not in the registry at <registry>.`
+Read a missing `options` as `null` and a missing `guides` as `[]`. An unknown id answers 404. `kubb add` looks the id up in the index instead and prints `No extension named <id>` when the index does not list it.
 
 ## `RegistryEntry` {#registry-entry}
 
@@ -149,7 +149,7 @@ When the pinned version was approved. Every version bump moves it.
 
 Timestamps are UTC, to the second, such as `2026-10-12T20:00:00Z`.
 
-The CLI skips an entry unless `id` is a full `<owner>/<slug>`, `artifact` is an npm or GitHub pin with an exact semver version, and `manifest` is valid with the entry's `kind`. A detail document's `id` must equal the id the CLI asked for.
+The CLI skips an entry unless `id` is a full `<owner>/<slug>`, `artifact` is an npm or GitHub pin with an exact semver version, and `manifest` is valid with the entry's `kind`.
 
 ## Records
 
@@ -197,12 +197,12 @@ The record JSON Schema is [`https://kubb.dev/schemas/registry-record.json`](http
 
 ## Host your own registry
 
-Serve the same two documents from any static host, then point the CLI at it with `KUBB_REGISTRY`. To build them from your own records, fork [kubb-labs/registry](https://github.com/kubb-labs/registry), replace `extensions/`, and run `pnpm build`. The `dist/` folder is the whole registry.
+Serve `index.json` from any static host, then point the CLI at it with `KUBB_REGISTRY`. The CLI needs no other document. Serve the detail documents as well when another tool reads the extension docs from your registry. To build all of them from your own records, fork [kubb-labs/registry](https://github.com/kubb-labs/registry), replace `extensions/`, and run `pnpm build`. The `dist/` folder is the whole registry.
 
 ```shell [Terminal]
 KUBB_REGISTRY=https://registry.example.com kubb add acme/plugin-graphql
 ```
 
-With that base URL, the CLI reads `https://registry.example.com/index.json` and `https://registry.example.com/acme/plugin-graphql.json`. `KUBB_REGISTRY` must start with `http://` or `https://`, and trailing slashes are removed.
+With that base URL, the CLI reads `https://registry.example.com/index.json` and looks up `acme/plugin-graphql` in it. `KUBB_REGISTRY` must start with `http://` or `https://`, and trailing slashes are removed.
 
-Your documents must follow the shapes on this page, and `index.json` must set `version: 1`. Answer 404 for an unknown id. Studio always reads the kubb.dev index, so a private registry changes what the CLI installs, not what Studio lists.
+Your documents must follow the shapes on this page, and `index.json` must set `version: 1`. Answer 404 for a detail document of an unknown id. kubb.dev and Studio always read the kubb.dev registry, so a private registry changes what the CLI installs, not what kubb.dev or Studio lists.

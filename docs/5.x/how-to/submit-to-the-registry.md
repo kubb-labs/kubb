@@ -12,7 +12,7 @@ navigation:
 
 # Submit to the registry
 
-Submit a plugin, adapter, or parser to the Kubb registry so it shows up on [kubb.dev/extensions](/extensions) and in Kubb Studio, and users can install it with `kubb add`. Each record pins one npm version or one GitHub release commit, and a maintainer reviews every version before users get it.
+Submit a plugin, adapter, or parser to the Kubb registry to list it on [kubb.dev/extensions](/extensions) and in Kubb Studio. Users can then install it with `kubb add`. Each record pins one npm version or one GitHub release commit, and a maintainer reviews every version before users get it.
 
 A package that already works in a `kubb.config.ts` needs a manifest, an overview, a published version, and a submission issue. To build the package first, follow [Publish a plugin](/docs/5.x/how-to/publish-a-plugin).
 
@@ -111,6 +111,7 @@ Open a [submission issue](https://github.com/kubb-labs/registry/issues/new?templ
 | --- | --- |
 | An npm package (pins `latest`) | `kubb-plugin-example` |
 | A specific npm version | `kubb-plugin-example@1.0.0` |
+| An npm page | `https://www.npmjs.com/package/kubb-plugin-example` |
 | A package on npm, by its folder in a GitHub monorepo | `https://github.com/acme/kubb-plugins/tree/main/packages/example` |
 | A GitHub release, package not on npm | `https://github.com/acme/kubb-plugin-example/tree/v1.0.0` |
 
@@ -120,7 +121,7 @@ Within minutes, a workflow opens a review pull request with the [record](/docs/5
 
 ## Wait for the review {#review}
 
-A maintainer reviews the pull request against [`REVIEW.md`](https://github.com/kubb-labs/registry/blob/main/REVIEW.md). Validation reads `package.json`, `kubb-extension.json`, and the `docs/` folder from the npm tarball or the GitHub release.
+A maintainer reviews the pull request against [`REVIEW.md`](https://github.com/kubb-labs/registry/blob/main/REVIEW.md). Validation reads `kubb-extension.json` and the `docs/` folder from the npm tarball or the GitHub release. For a GitHub release, it also reads `package.json`.
 
 After the pull request exists, editing the issue no longer starts the submission again. When a check fails or the maintainer asks for changes, publish a fixed version and reply in the pull request.
 

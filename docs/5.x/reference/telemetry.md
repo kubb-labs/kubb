@@ -23,22 +23,24 @@ The Kubb CLI collects anonymous command, plugin, and performance data.
 
 Telemetry includes these fields:
 
-| Field            | Description                                                                             | Example                                                                         |
-| ---------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `command`        | CLI command that was run                                                                | `"generate"`, `"validate"`, `"mcp"`                                             |
-| `kubbVersion`    | Kubb CLI version                                                                        | `"5.0.0"`                                                                       |
-| `nodeVersion`    | Node.js major version                                                                   | `"22"`                                                                          |
-| `runtime`        | JavaScript runtime name                                                                 | `"node"`, `"bun"`, `"deno"`                                                     |
-| `runtimeVersion` | Runtime major version                                                                   | `"22"`                                                                          |
-| `platform`       | Operating system                                                                        | `"linux"`, `"darwin"`, `"win32"`                                                |
-| `ci`             | Whether running in CI                                                                   | `true`                                                                          |
-| `tty`            | Whether a terminal is attached to stdin, which usually means a person typed the command | `true`                                                                          |
-| `agent`          | Name of the AI coding agent that ran the command, if any                                | `"claude"`                                                                      |
-| `mcpClient`      | Name the MCP client reports when it connects (only for `mcp`)                           | `"claude-code"`, `"cursor-vscode"`                                              |
-| `plugins`        | Plugin names and their options (only for `generate`)                                    | `[{ "name": "@kubb/plugin-ts", "options": { "output": { "path": "types" } } }]` |
-| `duration`       | Command execution time in milliseconds                                                  | `1432`                                                                          |
-| `filesCreated`   | Number of files generated (only for `generate`)                                         | `47`                                                                            |
-| `status`         | Whether the command succeeded or failed                                                 | `"success"`                                                                     |
+| Field            | Description                                                                             | Example                                                                   |
+| ---------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `command`        | CLI command that was run                                                                | `"generate"`, `"validate"`, `"mcp"`, `"studio"`                           |
+| `kubbVersion`    | Kubb CLI version                                                                        | `"5.0.0"`                                                                 |
+| `nodeVersion`    | Node.js major version                                                                   | `"22"`                                                                    |
+| `runtime`        | JavaScript runtime name                                                                 | `"node"`, `"bun"`, `"deno"`                                               |
+| `runtimeVersion` | Runtime major version                                                                   | `"22"`                                                                    |
+| `platform`       | Operating system                                                                        | `"linux"`, `"darwin"`, `"win32"`                                          |
+| `ci`             | Whether running in CI                                                                   | `true`                                                                    |
+| `tty`            | Whether a terminal is attached to stdin, which usually means a person typed the command | `true`                                                                    |
+| `agent`          | Name of the AI coding agent that ran the command, if any                                | `"claude"`                                                                |
+| `mcpClient`      | Name the MCP client reports when it connects (only for `mcp`)                           | `"claude-code"`, `"cursor-vscode"`                                        |
+| `plugins`        | Plugin names and the options passed to each plugin (only for `generate`)                | `[{ "name": "plugin-ts", "options": { "output": { "path": "types" } } }]` |
+| `duration`       | Command execution time in milliseconds                                                  | `1432`                                                                    |
+| `filesCreated`   | Number of files generated (only for `generate`)                                         | `47`                                                                      |
+| `status`         | Whether the command succeeded or failed                                                 | `"success"`                                                               |
+
+Plugin options are sent as the JSON form of what the config passes to each plugin. Values such as `output.path`, `importPath`, `baseURL`, and a string `banner` are included. Functions are dropped.
 
 ### Commands that send telemetry
 
@@ -47,16 +49,18 @@ Telemetry includes these fields:
 | `kubb generate` | Sent after code generation completes or fails                       |
 | `kubb validate` | Sent after OpenAPI validation completes or fails                    |
 | `kubb mcp`      | Sent when an MCP client connects, or when the server fails to start |
+| `kubb studio`   | Sent after a Studio command completes or fails                      |
 
 ## What is not collected
 
 Kubb never sends:
 
 - OpenAPI specification contents
-- File paths or directory structures
-- Secrets, API keys, or tokens
+- The input path, the project root, or the names of generated files
 - Source code or generated code
-- IP addresses or user identifiers
+- User identifiers
+
+Kubb does not read environment variables or credential files for telemetry. A secret reaches the payload only when a plugin option in `kubb.config.ts` holds it as a literal value.
 
 ## How to opt out
 
@@ -70,4 +74,6 @@ DO_NOT_TRACK=1 kubb generate
 
 ## Data transmission
 
-Telemetry is formatted as [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) traces. Kubb sends them to `https://otlp.kubb.dev/v1/traces` at the end of each command. The request fires only when you are online. It times out after 5 seconds and fails silently if anything goes wrong.
+Telemetry is formatted as [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) traces. Kubb sends them to `https://otlp.kubb.dev/v1/traces` at the end of each command. The request times out after 1 second and fails silently, so an offline machine or a blocked host never interrupts a run.
+
+Unless telemetry is disabled, the CLI prints a notice about it to stderr at the start of a command. `--help`, `--version`, and `--json` skip the notice.

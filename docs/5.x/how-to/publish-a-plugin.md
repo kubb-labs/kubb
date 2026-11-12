@@ -12,7 +12,7 @@ navigation:
 
 # Publish a plugin
 
-Publish a plugin to npm, then list it in the Kubb registry so users can install it with `kubb add` and find it in Studio. Start from a working plugin with tests, such as the one from [Create and extend a plugin](/docs/5.x/tutorials/creating-plugins). Adapters and parsers follow the same steps.
+Publish a plugin to npm, then list it in the Kubb registry. Users can then install it with `kubb add` and find it in Studio. Start from a working plugin with a test, such as the one from [Create a plugin](/docs/5.x/tutorials/creating-plugins). Adapters and parsers follow the same steps.
 
 > [!TIP]
 > A package that is already on npm can skip to [Submit to the registry](/docs/5.x/how-to/submit-to-the-registry), which starts from an existing package.
@@ -87,26 +87,17 @@ Create `kubb-extension.json` at the package root. It tells the registry, `kubb a
   "displayName": "Example",
   "description": "Writes a comment with the HTTP method and path of every operation.",
   "maintainers": [{ "name": "Acme", "github": "acme" }],
-  "compatibility": { "kubb": ">=5.8.3", "node": ">=22" },
-  "options": [
-    {
-      "key": "prefix",
-      "path": ["prefix"],
-      "label": "Prefix",
-      "description": "Text written at the start of every comment.",
-      "type": "text"
-    }
-  ]
+  "compatibility": { "kubb": ">=5.8.3", "node": ">=22" }
 }
 ```
 
-Set `name` to the plugin's `meta.name` and `export` to the factory that `src/index.ts` exports. Add an `options` entry for each option users should edit in Studio.
+Set `name` to the plugin's `meta.name` and `export` to the factory that `src/index.ts` exports. When the plugin takes options, add an [`options`](/docs/5.x/reference/kit/manifest#options) entry for each one users should edit in Studio.
 
-Give `meta.compatibility` in `src/plugin.ts` the same ranges, `{ kubb: '>=5.8.3', node: '>=22' }`, so Kubb checks them at runtime too. With a bundler, [import `compatibility` from the manifest](/docs/5.x/reference/kit/manifest#import-compatibility-into-meta) instead. [Extension manifest](/docs/5.x/reference/kit/manifest) lists every field, including `maintainers` and `dependencies`.
+Give `meta.compatibility` in `src/plugin.ts` the same ranges, `{ kubb: '>=5.8.3', node: '>=22' }`, so Kubb checks them at runtime too. With a bundler, [import `compatibility` from the manifest](/docs/5.x/reference/kit/manifest#import-compatibility-into-meta) instead. [Extension manifest](/docs/5.x/reference/kit/manifest) lists every field, including `options` and `dependencies`.
 
 ## Write the docs {#write-the-docs}
 
-Create a `docs/` folder next to the manifest. kubb.dev renders it as the extension's page, and Studio shows the overview as its summary:
+Create a `docs/` folder next to the manifest. kubb.dev renders it as the extension's page. Studio shows the manifest's `description` instead:
 
 ```text [docs/]
 docs/
@@ -134,7 +125,7 @@ npm pack --dry-run
 npm pack
 ```
 
-The dry run should list the `dist/` files, `kubb-extension.json`, the `docs/` files, and `package.json`, but no fixture, tests, or generated client files. `prepack` runs the build and both tests first.
+The dry run should list the `dist/` files, `kubb-extension.json`, the `docs/` files, and `package.json`, but no fixture, tests, or generated client files. `prepack` runs the build and the test first.
 
 ## Publish to npm
 

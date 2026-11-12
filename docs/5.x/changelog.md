@@ -9,13 +9,130 @@ outline: 2
 
 # Changelog
 
+## v5.18.6 — Nov 12, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Add shared helpers for plugins: `ast.ref`, `ast.graph`, `ast.schema`, `ast.mediaType`, `ast.http`, `ast.server` and `ast.auth` in `@kubb/ast`, `casing` and `text` in `@kubb/kit`, and `resolver.groupDir` in `@kubb/core`. ([#4583](https://github.com/kubb-labs/kubb/pull/4583))
+
+  - `@kubb/adapter-oas` spreads a form-encoded OpenAPI 3.2 `querystring` object into one query parameter per property.
+  - `@kubb/adapter-oas` reads any `application/*+json-seq` type as a stream, and reads `multipart/mixed` as one only when it declares `itemSchema`.
+  - `resolver.imports({ checks: true })` skips refs in checks that cannot fail.
+
+  The top-level ref, graph and schema helpers on `ast`, `ast.isHttpOperationNode`, `ast.collectSync`, `ast.optionality`, `ast.extractStringsFromNodes`, `ast.compareEnforce`, `ast.applyMacros`, `ast.nodeKinds`, `ast.schemaTypes`, `ast.findSchema`, `ast.narrowSchema`, `ast.transform`, `ast.collect`, `ast.inlineFiles` (now under `ast.macro`, `ast.node`, `ast.schema` and `ast.file`), `ast.createPrinter` and `ast.defineMacro` (now `createPrinter` and `defineMacro` from `@kubb/kit`), and `camelCase`, `pascalCase`, `extractRefName`, `syncSchemaRef`, `isStringType` and `containsCircularRef` from `@kubb/kit` are deprecated. Each one's JSDoc names its replacement. Kubb v6 removes them.
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.5 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Read a `text/event-stream` item whose `event` sits next to payload fields, such as Scalar Galaxy's `{ event, planet, note }`, as the event's `data` instead of the whole event. Before, mocks dropped `planet` and `note`, the type put them on the event, and the client never filled them. An item that declares `data`, or only the SSE fields `event`, `id` and `retry`, is still read as the whole event. ([#4581](https://github.com/kubb-labs/kubb/pull/4581))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.4 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Type the `data` of a `text/event-stream` event from its `contentSchema` when the event is a `$ref` to a component, as a `oneOf` member or as the whole `itemSchema`, the same as inline events. The component itself keeps `data` as a string wherever it is used outside the stream. ([#4579](https://github.com/kubb-labs/kubb/pull/4579))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.3 — Nov 11, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Sort imports by the specifier written in the file, the POSIX path relative to the importing file, so Windows and macOS/Linux generate the same import order. Parent imports (`../`) now come before sibling imports (`./`). ([#4577](https://github.com/kubb-labs/kubb/pull/4577))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.2 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Fix schemas found in real OpenAPI documents. ([#4574](https://github.com/kubb-labs/kubb/pull/4574))
+
+  - An `allOf` member that points at an alias `$ref` gives its properties to a `required`-only sibling, where they were `unknown`.
+  - A discriminator member with a nullable enum keeps its own value, where it got the schema name.
+  - A boolean schema (`true` or `false`) no longer stops the run.
+  - A `content` parameter keeps its `encoding` on the new `ParameterNode.encoding` field.
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.1 — Nov 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- An operation with an empty `servers` list now gets its path item's servers, since an empty list overrides nothing. ([#4570](https://github.com/kubb-labs/kubb/pull/4570))
+- Apply the keywords next to a component schema's `$ref` together with its target. Such a schema used to become a plain copy of the target, so its own `description`, `required`, `properties`, `if`/`then`/`else`, `dependentRequired` and `dependentSchemas` were dropped. An `allOf` next to the `$ref` keeps its members, and an `allOf` member's `conditionals` are no longer replaced by the ones of the schema around it. ([#4570](https://github.com/kubb-labs/kubb/pull/4570))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Write a status range in lower case. The adapter turns a response key such as `2XX` into `2xx`, and `StatusCode` lists `2xx` to `5xx`. The response `pointer` keeps the key as the document spells it. `camelCase` and `pascalCase` keep a range such as `2xx` as one word, so `listPets Status 2xx` becomes `listPetsStatus2xx` instead of `listPetsStatus2Xx`. ([#4572](https://github.com/kubb-labs/kubb/pull/4572))
+- Cycle detection, `include` filtering and imports now see the schemas inside `conditionals`, `contains` and a string's `content`. `findCircularSchemas` and `collectUsedSchemaNames` follow refs in these fields, so a cycle through them is detected and an `include` filter keeps a schema only they reference. `resolver.imports` and `collectImportedRefNames` add those refs only with `checks: true`, which a plugin that prints these checks passes. `transform` and `collect` still skip these fields. ([#4570](https://github.com/kubb-labs/kubb/pull/4570))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.18.0 — Nov 10, 2026
 
 ### @kubb/adapter-oas
 
 #### Features
 
-- Add support for OpenAPI 3.1 and OpenAPI 3.2. ([#4561](https://github.com/kubb-labs/kubb/pull/4561))
+- Read the OpenAPI 3.0, 3.1 and 3.2 fields the adapter skipped, so plugins get every field that affects generated code. ([#4561](https://github.com/kubb-labs/kubb/pull/4561))
+
+  - `meta` gets `summary`, `termsOfService`, `contact`, `license`, `externalDocs`, `tags` and `auth`. `OperationNode` gets `externalDocs` and `auth`, `ResponseNode` gets `summary`, `headers` and `links`, and `ParameterNode` gets `examples`, `deprecated` and `allowEmptyValue`.
+  - Schema nodes get `externalDocs` and `conditionals`, array nodes get `contains`, and string nodes get `content`.
+  - A `$ref` to a schema's `$id`, `$anchor` or `$dynamicAnchor`, and a `$dynamicRef`, resolve like a local `$ref`. `$self` sets the base URI that relative `$ref`s resolve against.
+  - A discriminator without `propertyName` and a response without `description` parse.
+  - Deprecated: `minProperties` and `maxProperties` on object nodes (use `min` and `max`), and `exclusiveMinimum` and `exclusiveMaximum` on number nodes (use `exclusive: { min, max }`). These fields stay filled and are removed in Kubb v6.
+  - Removed: `meta.securitySchemes` and `InputSecurityScheme` are replaced by `meta.auth` and `AuthScheme`.
+
+  ```ts
+  // before: meta.securitySchemes
+  { name: 'api_key', type: 'apiKey', in: 'header', parameterName: 'X-API-Key' }
+  // after: meta.auth
+  { name: 'api_key', credential: { type: 'apiKey', in: 'header', name: 'X-API-Key' } }
+  ```
 
 ### Contributors
 
@@ -102,7 +219,7 @@ Thanks to everyone who contributed to this release:
   ```
 
   ```ts
-  type StreamEvent = { event: 'message_delta'; data: MessageDelta } | { event: 'ping'; data?: string }
+  type StreamEvent = { event: 'message_delta'; data?: MessageDelta } | { event: 'ping'; data?: string }
   ```
 
 ### @kubb/kit
@@ -180,7 +297,7 @@ Thanks to everyone who contributed to this release:
 
 - Remove exports that nothing in Kubb or the official plugins used, and trim the code behind the rest. Generated output does not change.
 
-  - Remove `ast.forEachChild`, `ast.forEachSchema`, `ast.composeMacros`, `ast.isVirtualFile`, `ast.findCircularSchemasFromGraph`, and the `ParentOf` type. `VisitorContext` is now `{ parent?: Node }`. Use `ast.node.collect` to walk nodes and `ast.macro.apply` to run macros.
+  - Remove `ast.forEachChild`, `ast.forEachSchema`, `ast.composeMacros`, `ast.isVirtualFile`, `ast.findCircularSchemasFromGraph`, and the `ParentOf` type. `VisitorContext` is now `{ parent?: Node }`. Use `ast.collect` to walk nodes and `ast.applyMacros` to run macros.
   - Remove `macroRenameSchema` from `kubb/kit`. The macros guide shows its source to copy into your project.
   - Warn with a `DeprecationWarning` when a printer handler returns a TypeScript compiler node to `print` from `@kubb/parser-ts`. Compiler nodes still print, and support for them is removed in the next major; return a string.
   - Remove `Hookable.setMaxListeners` and the `KubbInfoContext`, `KubbSuccessContext`, and `KubbWarnContext` aliases of `KubbMessageContext`.
@@ -639,6 +756,12 @@ Thanks to everyone who contributed to this release:
 
 ## v5.12.0 — Oct 21, 2026
 
+### @kubb/cli
+
+#### Features
+
+- `kubb generate --watch` follows a local `input` file only and no longer polls a URL `input`. A URL or git input is generated once, with a warning, so rerun Kubb after the remote spec changes. ([#4375](https://github.com/kubb-labs/kubb/pull/4375))
+
 ### @kubb/core
 
 #### Features
@@ -920,6 +1043,12 @@ Thanks to everyone who contributed to this release:
 
 ## v5.9.4 — Oct 14, 2026
 
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- `datetime` schema nodes always set both `offset` and `local`, and circular schemas are found through the shared `@kubb/ast` graph. ([#4293](https://github.com/kubb-labs/kubb/pull/4293))
+
 ### @kubb/ast
 
 #### Bug Fixes
@@ -1040,7 +1169,7 @@ Thanks to everyone who contributed to this release:
 
 #### Bug Fixes
 
-- Config edits and `readConfig` cover the adapter and parsers, so Studio can edit and save their options. ([#4282](https://github.com/kubb-labs/kubb/pull/4282)), ([#4276](https://github.com/kubb-labs/kubb/pull/4276))
+- Config edits and `readConfig` cover the adapter and parsers, so Studio can edit and save their options. ([#4282](https://github.com/kubb-labs/kubb/pull/4282), [#4276](https://github.com/kubb-labs/kubb/pull/4276))
 - A `null` option value from Studio unsets the value from `kubb.config.ts` for that generate. ([#4278](https://github.com/kubb-labs/kubb/pull/4278))
 
 ### Contributors
@@ -1966,14 +2095,15 @@ Thanks to everyone who contributed to this release:
   To upgrade, replace any camelCase flag in a script or CI job with its kebab-case name. The CLI
   now rejects an unrecognized flag with an error instead of silently ignoring it.
 
-  ````bash
+  ```bash
   # Before
   kubb studio --allowWrite --allowExec
 
   # After
   kubb studio --allow-write --allow-exec
-  ``` ([#4046](https://github.com/kubb-labs/kubb/pull/4046), [`e5ecdda`](https://github.com/kubb-labs/kubb/commit/e5ecdda06acbd3b99c2716384b2a8ac56eedfad8))
-  ````
+  ```
+
+  ([#4046](https://github.com/kubb-labs/kubb/pull/4046), [`e5ecdda`](https://github.com/kubb-labs/kubb/commit/e5ecdda06acbd3b99c2716384b2a8ac56eedfad8))
 
 ### @kubb/studio
 
@@ -2038,10 +2168,11 @@ Thanks to everyone who contributed to this release:
   - Prints a summary, or one JSON object with `--json` for a script to read.
   - `@kubb/studio` now also exports `createAgent` and `machineTokenFrom`, so a host can register a CI agent without hand-rolling the request.
 
-  ````shell
+  ```shell
   KUBB_TOKEN=$KUBB_TOKEN kubb studio snapshot --json
-  ``` ([#4038](https://github.com/kubb-labs/kubb/pull/4038), [`4cd9f5e`](https://github.com/kubb-labs/kubb/commit/4cd9f5e311e5dc6edb14287c13db0a5466b4e892))
-  ````
+  ```
+
+  ([#4038](https://github.com/kubb-labs/kubb/pull/4038), [`4cd9f5e`](https://github.com/kubb-labs/kubb/commit/4cd9f5e311e5dc6edb14287c13db0a5466b4e892))
 
 ### Contributors
 

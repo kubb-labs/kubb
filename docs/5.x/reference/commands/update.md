@@ -14,7 +14,7 @@ navigation:
 
 # kubb update
 
-Run `kubb update` to move installed extensions to the version the [Kubb registry](/docs/5.x/reference/registry) pins. It shows each installed extension's version change and bump, asks which updates to install, and installs them with your project's package manager. Then it generates from `kubb.config.ts` with the new versions and summarizes the files that changed. With `--yes`, it installs every update except majors, unless you name the extension. It does not change `kubb.config.ts`.
+Run `kubb update` to move installed extensions to the version the [Kubb registry](/docs/5.x/reference/registry) pins. The command shows each installed extension's version change and bump, asks which updates to install, and installs them with your project's package manager. It then offers to generate from `kubb.config.ts` with the new versions and summarizes the files that changed. With `--yes`, it installs every update except majors, unless you name the extension, and does not regenerate. `kubb update` never changes `kubb.config.ts`.
 
 ## Usage
 
@@ -57,7 +57,7 @@ kubb update --dry-run
 
 ```text [Output]
 ◇ Checked 2 extensions against the registry
-│  Extension         Current  Latest  
+│  Extension         Current  Latest
 │  @kubb/plugin-ts   5.0.0    5.2.0   minor
 │  @kubb/plugin-zod  5.2.0    6.0.0   major · breaking
 │
@@ -103,4 +103,4 @@ An id that matches no installed extension prints `<id> is not installed, or not 
 
 ## Exit codes
 
-`kubb update` exits with code 1 when an id is invalid or not installed, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update and when you cancel at the prompt. A failed generation after installation produces a warning summary that distinguishes installed extensions from failed regeneration and does not change the exit code.
+`kubb update` exits with code 1 when an id is invalid or not installed, a named extension's update is incompatible, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update and when you cancel at the prompt. When the generation after the install fails, the summary says `Extensions updated; generation failed` and the exit code does not change.

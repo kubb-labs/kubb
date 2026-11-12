@@ -14,9 +14,9 @@ navigation:
 
 # kubb add
 
-Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it lets you search the registry. It checks that the extension supports your Kubb and Node.js versions, shows the packages it installs and the lines it adds to the config, asks for confirmation, and installs the package as a dev dependency.
+Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it lets you search the registry. The command checks that the extension supports your Kubb and Node.js versions, then shows the packages it installs and the lines it adds to the config. After you confirm, it installs the package as a dev dependency.
 
-It adds a plugin or parser to `kubb.config.ts`. For an adapter, it prints the code to add.
+`kubb add` writes a plugin or parser to `kubb.config.ts`. For an adapter, it prints the code to add.
 
 When the config has no `parsers`, adding a parser also writes the defaults: `parserTs()`, `parserTsx()`, and `parserMd()`.
 
@@ -39,17 +39,17 @@ kubb add
 │  ↑/↓ to select • Enter: confirm • Type: to search
 ```
 
-Each row is the id to pass to `kubb add`. The focused row also shows the description. Typing filters the rows on the id, display name, and description, without a request per key. An installed extension shows `installed` and cannot be picked.
+Each row is the id to pass to `kubb add`. The focused row also shows the description. Typing filters the rows on the id, display name, and description. An installed extension shows `installed` and cannot be picked.
 
 Before asking, the CLI shows what it will do:
 
 ```text [Output]
-◇  Plugin plugin-zod v5.2.0 · Zod schemas from your spec
+◇  Plugin plugin-faker v5.3.2 · Generates a Faker.js mock-data factory for every schema in your…
 │  Needs     plugin-ts ✓ installed
-│  Installs  @kubb/plugin-zod@5.2.0
+│  Installs  @kubb/plugin-faker@5.3.2
 │  Config    kubb.config.ts
-│    + import { pluginZod } from '@kubb/plugin-zod'
-│    + plugins: [pluginTs(), pluginZod()],
+│    + import { pluginFaker } from '@kubb/plugin-faker'
+│    + plugins: [pluginTs(), pluginFaker()],
 ◆  Add it?
 ```
 
@@ -59,13 +59,13 @@ After the install, the summary lists the packages, the registrations it added, a
 ✓ Plugin ready  4.20s
 
   Packages  1 installed with pnpm
-  + pluginZod()
+  + pluginFaker()
 
 Next     kubb generate
-Options  kubb.dev/extensions/kubb-labs/plugin-zod
+Options  kubb.dev/extensions/kubb-labs/plugin-faker
 ```
 
-With `--no-install`, the summary says `Plugin configured` and reports that installation was skipped. An existing registration counts as zero plugins added. When installation succeeds but the config needs manual changes, the summary reports both results and prints the snippet to add. Adapters and parsers use their own labels.
+With `--no-install`, the summary says `Plugin configured` and reports that installation was skipped. For a plugin already in the config, it says `Plugin already configured`. When the install succeeds but the config needs manual changes, it says `Plugin needs configuration` and the CLI prints the snippet to add. Adapters and parsers use `Adapter` and `Parser` in these titles.
 
 Add an official plugin by its slug:
 
@@ -113,9 +113,9 @@ npx kubb add acme/kubb-plugin-example
 
 | Option                         | Default | Description |
 | ------------------------------ | ------- | ----------- |
-| `--config=<path>`, `-c <path>` |         | Path to the Kubb config to edit. Only used for plugins. Without it, the CLI looks for the same config files as `kubb generate`, in the current directory and then in each parent directory. |
+| `--config=<path>`, `-c <path>` |         | Path to the Kubb config to edit. Used for plugins and parsers. Without it, the CLI looks for the same config files as `kubb generate`, in the current directory and then in each parent directory. |
 | `--yes`, `-y`                  | `false` | Skip the confirmation. Needs an id. |
-| `--no-install`                 |         | Do not install the package. A plugin is still added to the config. |
+| `--no-install`                 |         | Do not install the package. A plugin or parser is still added to the config. |
 
 > [!TIP]
 > Pass `--yes` in scripts and CI, where no one can answer the prompt.
@@ -126,13 +126,13 @@ When the manifest lists `dependencies` that are not in `kubb.config.ts`, the CLI
 
 ## Unknown ids
 
-An id the registry does not list prints `No extension named <id> in the registry`, the closest ids as `kubb add <id>` commands, and a link to [kubb.dev/extensions](https://kubb.dev/extensions).
+An id the registry does not list prints `No extension named <id>`, the closest ids as `kubb add <id>` commands, and a link to [kubb.dev/extensions](https://kubb.dev/extensions).
 
 ## Config changes
 
-For a plugin, `kubb add` adds its import and a call at the end of the `plugins` array. A plugin already in the array is left alone.
+For a plugin, `kubb add` adds its import and a call at the end of the `plugins` array. For a parser, it does the same in the `parsers` array. An extension already in its array is left alone.
 
-When the config cannot be edited, the CLI prints `Could not edit <file>: <reason>` and the snippet to add by hand. This happens when `plugins` is not an array literal, or when the export name is already imported from another package.
+When the config cannot be edited, the CLI prints `Could not edit <file>: <reason>` and the snippet to add by hand, then exits with code 1. The edit fails when `plugins` is not an array literal, or when the export name is already imported from another module.
 
 ## Environment variables
 
@@ -142,4 +142,13 @@ When the config cannot be edited, the CLI prints `Could not edit <file>: <reason
 
 ## Exit codes
 
-`kubb add` exits with code 1 when the id is invalid, unknown, or missing with `--yes`, the registry cannot be read or sends an invalid index, the extension is incompatible, no config is found for a plugin, or the install fails. It exits with code 0 when you cancel at the prompt, and when it prints the snippet because the config could not be edited.
+`kubb add` exits with code 1 in these cases:
+
+- The id is invalid, unknown, or missing with `--yes`.
+- The registry cannot be read or sends an invalid index.
+- The extension does not support the running Kubb or Node.js version.
+- No config is found for a plugin or parser.
+- The install fails.
+- A plugin or parser cannot be written to the config, so the CLI prints the snippet.
+
+It exits with code 0 when you cancel at the prompt, and for an adapter, which is never written to the config.

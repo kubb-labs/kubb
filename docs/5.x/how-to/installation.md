@@ -22,7 +22,7 @@ Install Kubb in an existing project. To learn generation with a supplied specifi
 
 ## Install Kubb and your plugins
 
-`kubb` ships the CLI, the core runtime, the OpenAPI adapter, and the TypeScript, TSX, and Markdown parsers. Each output comes from its own plugin package, so install only the [plugins](/extensions/kind/plugins) you need. This example adds the TypeScript plugin:
+Each output comes from its own plugin package, so install `kubb` and only the [plugins](/extensions/kind/plugins) you need. This example adds the TypeScript plugin:
 
 :::code-group{sync="package-manager"}
 
@@ -68,7 +68,7 @@ Then run `npx kubb generate`. Kubb writes the generated files to `output.path`.
 
 ## Add plugins later
 
-Once the config exists, [`kubb add`](/docs/5.x/reference/commands/add) installs a plugin at the version the [Kubb registry](/docs/5.x/reference/registry) pins and adds it to `kubb.config.ts`:
+After you create the config, [`kubb add`](/docs/5.x/reference/commands/add) installs a plugin at the version the [Kubb registry](/docs/5.x/reference/registry) pins and adds it to `kubb.config.ts`:
 
 ```shell [Terminal]
 npx kubb add plugin-zod

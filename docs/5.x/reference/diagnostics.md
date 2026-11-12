@@ -15,28 +15,33 @@ navigation:
 # Diagnostics
 
 When a build fails, Kubb prints a diagnostic with a stable code, the message, the location in your
-document, and a suggested fix. In a terminal, Kubb groups problems by plugin, with the code on the right and a link to its entry below:
+document, and a suggested fix. In a terminal, the code sits on the right with a link to its entry below. A problem that a plugin reports is listed under that plugin's name:
 
 ```text [Terminal]
- plugin-ts
-
-  ✖ Could not find #/components/schemas/Owner                    KUBB_REF_NOT_FOUND
-    at   #/components/schemas/Pet/properties/owner
-    fix  Add the missing definition under components.schemas, or fix the $ref.
+  ✖ Could not find a definition for #/components/schemas/Owner.     KUBB_REF_NOT_FOUND
+    at   petStore.yaml:336:17
+    fix  Add the schema under `components.schemas`, or fix the `$ref`. Run `kubb validate` to check the spec.
     ↳ Learn more  kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found
 ```
 
-When an AI coding agent, CI, or a pipe reads the output, Kubb prints plain labeled rows instead. The rows include the cause and fix from this page, so the output alone explains the problem. A crash adds `caused by:` and the first `stack:` frames:
+When an AI coding agent, CI, or a pipe reads the output, Kubb prints plain labeled rows instead. The rows include the cause and the fix, so the output alone explains the problem. A problem from a plugin carries the plugin name in brackets after the code. A crash adds `caused by:` and the first `stack:` frames. The run summary follows, and the exit code is 1:
 
 ```text [Agent]
-error KUBB_REF_NOT_FOUND [plugin-ts]: Could not find #/components/schemas/Owner
-  at: #/components/schemas/Pet/properties/owner
+error KUBB_REF_NOT_FOUND: Could not find a definition for #/components/schemas/Owner.
+  at: petStore.yaml:336:17 (#/components/schemas/Owner)
   why: A `$ref` could not be resolved in the source document.
-  fix: Add the missing definition under components.schemas, or fix the $ref.
+  fix: Add the schema under `components.schemas`, or fix the `$ref`. Run `kubb validate` to check the spec.
   docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found
+warning KUBB_INVALID_SPEC: Missing $ref pointer "#/components/schemas/Owner". Token "Owner" does not exist.
+  why: The document does not pass OpenAPI schema validation. Kubb still generates from it, but the output can be incomplete or wrong.
+  fix: Fix the spec, or run `kubb validate` to list every error. Set `validate: false` on the adapter to skip this check.
+  docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-invalid-spec
+✗ Generation failed  202ms
 
-Kubb failed: 1 error (plugin-ts). Exit code 1.
-Rerun with --reporter json for machine-readable diagnostics.
+  28 files generated
+  Plugins  3 passed
+  Issues   1 error · 1 warning
+  Target   ./src/gen
 ```
 
 ## Codes
@@ -55,9 +60,9 @@ Check the input and the adapter options. If it is a bug, report it to the adapte
 
 ### KUBB_ADAPTER_REQUIRED: Adapter required {#kubb-adapter-required}
 
-An action needs an adapter but none is configured.
+A plugin that only works with the OpenAPI adapter runs with a different adapter, or with none. The Kubb plugins that read adapter options raise it, and so does `@kubb/plugin-redoc`.
 
-Set `adapter` in your config, for example `adapterOas()`. Standard `defineConfig` supplies the default OpenAPI adapter, so this catalog code is not currently emitted for an omitted adapter.
+Set `adapter: adapterOas()` in your config. `defineConfig` supplies the OpenAPI adapter when `adapter` is omitted, so the code appears only with a custom adapter or with `createKubb` from `@kubb/core`.
 
 ### KUBB_BARREL_DUPLICATE_EXPORT: Duplicate barrel export {#kubb-barrel-duplicate-export}
 
@@ -215,7 +220,7 @@ A `$ref` that Kubb cannot read inside an `x-` vendor extension is a warning, bec
 
 A fallback for an error that does not yet carry a specific diagnostic code.
 
-Run `kubb generate --reporter file` for a log under `.kubb/`, or use `--verbose`. Inspect the message and stack. Report unclear failures with the message and `Environment:` block. Unclassified errors have no suggested fix or docs URL in CLI output.
+Run `kubb generate --reporter file` for a log under `.kubb/`, or use `--verbose`. Inspect the message and stack. Report unclear failures with the message and `Environment:` block. In CLI output an unclassified error shows a generic fix and no docs URL.
 
 ## Warnings
 
@@ -226,6 +231,10 @@ A warning is reported and the run continues.
 The document does not pass OpenAPI schema validation. Kubb reports each problem and keeps generating, but the output can be incomplete or wrong. `@kubb/adapter-oas` checks this when [`validate`](/extensions/kubb-labs/adapter-oas/options#validate) is `true`, the default.
 
 Fix the reported problem in the spec. Run [`kubb validate`](/docs/5.x/reference/commands/validate) to list every error with its location. Set `validate: false` on the adapter to skip the check.
+
+`kubb validate` reports the same code as an error and exits with a non-zero code.
+
+The validator does not support OpenAPI 3.2 yet. For a 3.2 document, Kubb reports this code with the message that the document was not validated.
 
 ### KUBB_PLUGIN_WARNING: Plugin warning {#kubb-plugin-warning}
 
@@ -293,6 +302,8 @@ without scraping the terminal:
     "plugins": { "passed": 2, "failed": ["plugin-zod"], "total": 3 },
     "counts": { "errors": 1, "warnings": 0, "infos": 0 },
     "filesCreated": 0,
+    "filesUnchanged": 0,
+    "dryRun": false,
     "durationMs": 312,
     "output": "/project/src/gen",
     "timings": [{ "plugin": "plugin-ts", "durationMs": 84 }],
@@ -318,7 +329,8 @@ per-plugin durations slowest first. `name` is the config name, empty when unname
 Each diagnostic carries the catalog `title` and `cause` for its code, so an agent can act on it
 without opening this page. `help` falls back to the catalog fix when the diagnostic has none.
 When the diagnostic wraps a thrown error, `causes` lists the messages of the underlying errors,
-and a crash (`KUBB_UNKNOWN` or a `*_FAILED` extension code) adds the root `stack`.
+and a crash adds the root `stack`. The crash codes are `KUBB_UNKNOWN`, `KUBB_INTERNAL_ERROR`, `KUBB_PLUGIN_FAILED`,
+`KUBB_ADAPTER_FAILED`, and `KUBB_PARSER_FAILED`.
 
 The exit code is unchanged: non-zero on any error. See [`--reporter`](/docs/5.x/reference/commands/generate#reporters)
 for the other reporters.

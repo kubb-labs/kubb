@@ -15,7 +15,7 @@ navigation:
 
 # Extension manifest
 
-`kubb-extension.json` describes an extension package. It sits at the package root and ships on npm. The [Kubb registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent read it. Generation does not: at runtime Kubb reads the extension's [`meta`](./extensions#meta).
+`kubb-extension.json` describes an extension package. It sits at the package root and ships on npm. The [Kubb registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent read it. Generation does not read it. At runtime, Kubb reads the extension's [`meta`](./extensions#meta).
 
 The JSON Schema is [`https://kubb.dev/schemas/kubb-extension.json`](https://kubb.dev/schemas/kubb-extension.json). Set it as `$schema` to get validation and completion in your editor.
 
@@ -60,7 +60,7 @@ The JSON Schema URL, `https://kubb.dev/schemas/kubb-extension.json`. Only editor
 ### `kind`
 
 :::field{type="'plugin' | 'adapter' | 'parser'" required}
-What the package extends. `kubb add` adds a `plugin` or `parser` to the config and prints the code for an `adapter`. Studio builds a form for every kind: plugins can be switched on and off, while the adapter and the parsers are the ones the config registers.
+What the package extends. `kubb add` adds a `plugin` or `parser` to the config and prints the code for an `adapter`. Studio builds a form for every kind. Users switch plugins on and off there, while the adapter and the parsers are the ones the config registers.
 :::
 
 ### `name`
@@ -126,13 +126,13 @@ The people who maintain the extension, shown on its kubb.dev page. Each entry ne
 ### `dependencies`
 
 :::field{type="Array<string>"}
-Names of the extensions that must be in the same config, such as `["plugin-ts"]`. kubb.dev lists them on the extension's page, and `kubb init` checks that each one is chosen. Generation does not read them: at runtime Kubb uses the plugin's own [`dependencies`](./extensions#dependencies).
+Names of the extensions that must be in the same config, such as `["plugin-ts"]`. kubb.dev lists them on the extension's page, and `kubb init` checks that each one is chosen. Generation does not read them. At runtime, Kubb uses the plugin's own [`dependencies`](./extensions#dependencies).
 :::
 
 ### `optionalDependencies`
 
 :::field{type="Array<string>"}
-Names of the extensions the plugin uses when they are in the same config, or needs only for some option values. `@kubb/plugin-msw` lists `["plugin-faker"]`, because it needs `@kubb/plugin-faker` only with `parser: 'faker'`. They match the entries marked `optional: true` or picked from the options in the plugin's runtime [`dependencies`](./extensions#dependencies). kubb.dev lists them below the dependencies. `kubb init` does not require them.
+Names of the extensions the plugin uses when they are in the same config, or needs only for some option values. `@kubb/plugin-msw` lists `["plugin-faker"]`, because it needs `@kubb/plugin-faker` only with `parser: 'faker'`. The names match the entries marked `optional: true` or picked from the options in the plugin's runtime [`dependencies`](./extensions#dependencies). kubb.dev lists them below the dependencies. `kubb init` does not require them.
 :::
 
 ### `compatibility`
@@ -163,7 +163,7 @@ Kubb and the registry check a manifest at different points:
 
 | Reader | Checks | On failure |
 | --- | --- | --- |
-| `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio agent | The required fields are set and well formed. Each `maintainers` entry has a `name`. Each `dependencies` and `optionalDependencies` entry is an extension name. `role` is `client` or `consumer`. `compatibility` holds only `kubb` and `node` string ranges. `options` is an array. | The manifest is skipped. |
+| `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio agent | The required fields are set and well formed. Each `maintainers` entry has a `name`. Each `dependencies` and `optionalDependencies` entry is an extension name. `role` is `client` or `consumer`. `compatibility` holds only `kubb` and `node` string ranges. Each `options` entry has a `key`, a `label`, a known `type`, and a non-empty `path` without `__proto__`, `constructor`, or `prototype`. Option keys are unique, every `select` has `choices`, and a `select` default equals one of them. | The manifest is skipped. |
 | The registry | The JSON Schema, unique option keys, `choices` on every `select`, and a `select` default that equals one of its choices. | The review pull request lists the problem, and the weekly bump keeps the previous pin. |
 
 ## Import `compatibility` into `meta` {#import-compatibility-into-meta}
