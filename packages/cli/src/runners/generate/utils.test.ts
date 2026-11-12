@@ -118,7 +118,7 @@ describe('diffOutput', () => {
       await storage.writeItem(join(dir, 'gen/pet.ts'), 'a\nB\nc\nd')
       await storage.writeItem(join(dir, 'gen/tag.ts'), 'same')
       await storage.writeItem(join(dir, 'gen/toy.ts'), 'new')
-      const paths = ['pet.ts', 'tag.ts', 'toy.ts'].map((name) => join(dir, 'gen', name))
+      const paths = new Set(['pet.ts', 'tag.ts', 'toy.ts'].map((name) => join(dir, 'gen', name)))
 
       const previousFiles = await readOutputFiles(join(dir, 'gen'))
       expect(await diffOutput({ storage, paths, clean: true, previousFiles })).toStrictEqual({

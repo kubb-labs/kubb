@@ -274,7 +274,7 @@ export async function diffOutput({
   previousFiles,
 }: {
   storage: Storage
-  paths: ReadonlyArray<string>
+  paths: ReadonlySet<string>
   clean: boolean
   manifest?: Pick<OutputManifest, 'isUpToDate'>
   /**
@@ -282,11 +282,10 @@ export async function diffOutput({
    */
   previousFiles: ReadonlyMap<string, string>
 }): Promise<{ files: Array<FileChange>; unchanged: number }> {
-  const generated = new Set(paths)
   // `null` marks an unchanged file. A path the storage does not hold leaves a hole, which `filter` skips.
   const results: Array<FileChange | null> = []
   await inParallel({
-    items: paths,
+    items: [...paths],
     limit: 50,
     run: async (filePath, index) => {
       const next = await storage.readItem(filePath)
@@ -298,7 +297,7 @@ export async function diffOutput({
   const unchanged = results.filter((result) => result === null).length
   if (clean) {
     for (const [filePath, source] of previousFiles) {
-      if (!generated.has(filePath)) files.push({ status: 'D', path: filePath, added: 0, removed: splitLines(source.trimEnd()).length })
+      if (!paths.has(filePath)) files.push({ status: 'D', path: filePath, added: 0, removed: splitLines(source.trimEnd()).length })
     }
   }
 

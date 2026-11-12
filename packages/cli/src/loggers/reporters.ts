@@ -25,6 +25,17 @@ type LiveChanges = {
   processed: Set<string>
 }
 
+type GenerationRun = {
+  outputPath: string
+  filesUnchanged: number
+  paths: Set<string>
+  // Read-back runs only: the whole output as it was before generation.
+  previous?: Map<string, string>
+  reading?: Promise<Map<string, string>>
+  // A run without output passes counts each file as it is written, against the stored text the write already read.
+  live?: LiveChanges
+}
+
 /** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
 function setupReporters(
   context: Hookable<KubbHooks>,
@@ -72,38 +83,36 @@ function setupReporters(
   }
 
   // Configs generate one at a time, so the last write before `kubb:generation:end` is this config's.
-  let filesUnchanged = 0
-  // Read-back runs only: the whole output as it was before generation.
-  let previous: Map<string, string> | undefined
-  let reading: Promise<Map<string, string>> | undefined
-  // A run without output passes counts each file as it is written, against the stored text the write already read.
-  let live: LiveChanges | undefined
-  let paths: Array<string> = []
-  let outputPath = ''
+  let run: GenerationRun | undefined
   const trackChanges = (fileChanges || selected.some((reporter) => reporter.name === 'cli')) && logLevel > logLevelMap.silent
   context.hook('kubb:generation:start', ({ config }) => {
     pluginFiles?.clear()
     seen.clear()
-    filesUnchanged = 0
-    paths = []
-    outputPath = resolve(config.root, config.output.path)
-    previous = undefined
+    const outputPath = resolve(config.root, config.output.path)
     const tracked = trackChanges && (dryRun || config.storage?.name === 'fs')
-    live = ((): LiveChanges | undefined => {
+    const live = ((): LiveChanges | undefined => {
       // Output passes rewrite stored files and a dry run compares through the manifest, so both read the output back.
       if (!tracked || dryRun || hasOutputPasses(config)) return undefined
       return { tally: createChangeTally(), fingerprints: new Map(), processed: new Set() }
     })()
-    // Read while the plugins generate; `kubb:plugins:end` waits for it, before cleaning can erase the baseline.
-    reading = tracked && !live ? readOutputFiles(outputPath) : undefined
+    run = {
+      outputPath,
+      filesUnchanged: 0,
+      paths: new Set(),
+      live,
+      // Read while the plugins generate; `kubb:plugins:end` waits for it, before cleaning can erase the baseline.
+      reading: tracked && !live ? readOutputFiles(outputPath) : undefined,
+    }
   })
   context.hook('kubb:plugins:end', async ({ config }) => {
-    if (reading) previous = await reading
+    if (!run) return
+    if (run.reading) run.previous = await run.reading
     // The last moment the old files exist: the storage empties the folder right after this hook.
-    if (live && config.output.clean) live.fingerprints = await readOutputFingerprints(outputPath)
+    if (run.live && config.output.clean) run.live.fingerprints = await readOutputFingerprints(run.outputPath)
   })
   context.hook('kubb:files:processing:start', async ({ files }) => {
-    if (!previous) return
+    if (!run?.previous) return
+    const { previous, outputPath } = run
     // Plugin output can live outside the main output folder; capture it before writes start.
     for (const file of files) {
       if (previous.has(file.path) || isPathInside(outputPath, file.path)) continue
@@ -112,6 +121,7 @@ function setupReporters(
     }
   })
   context.hook('kubb:file:processed', ({ file, source, stored = null }) => {
+    const live = run?.live
     if (!live) return
     // The storage writes the trimmed source and skips a blank one, which leaves the stored file as it was.
     const next = source.trim()
@@ -120,21 +130,26 @@ function setupReporters(
     tallyChange({ tally: live.tally, change: diffFile({ path: file.path, next, previous: stored ?? live.fingerprints.get(file.path) ?? null }) })
   })
   context.hook('kubb:files:processing:end', ({ files, unchanged }) => {
-    filesUnchanged = unchanged.length
-    paths = files.map((file) => file.path)
+    if (!run) return
+    run.filesUnchanged = unchanged.length
+    run.paths = new Set(files.map((file) => file.path))
   })
 
   /** The run's totals: counted while writing, or worked out by reading the output back. */
-  async function countChanges({ config, storage }: Pick<KubbGenerationEndContext, 'config' | 'storage'>): Promise<ChangeTally | undefined> {
+  async function countChanges({
+    config,
+    storage,
+    current,
+  }: Pick<KubbGenerationEndContext, 'config' | 'storage'> & { current: GenerationRun }): Promise<ChangeTally | undefined> {
+    const { live, paths, previous } = current
     if (live) {
       const { tally, fingerprints, processed } = live
-      const generated = new Set(paths)
       for (const [filePath, fingerprint] of fingerprints) {
-        if (!generated.has(filePath)) tallyChange({ tally, change: { status: 'D', path: filePath, removed: fingerprint.deletedLines } })
+        if (!paths.has(filePath)) tallyChange({ tally, change: { status: 'D', path: filePath, removed: fingerprint.deletedLines } })
       }
       // A blank file left whatever the storage held in place, so a stored copy counts as unchanged.
-      for (const filePath of paths) {
-        if (!processed.has(filePath) && (await storage.readItem(filePath)) !== null) tally.unchanged++
+      for (const filePath of paths.difference(processed)) {
+        if ((await storage.readItem(filePath)) !== null) tally.unchanged++
       }
       return tally
     }
@@ -148,16 +163,17 @@ function setupReporters(
   }
 
   context.hook('kubb:generation:end', async ({ config, storage, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
-    const result: GenerationResult = { config, diagnostics, filesCreated, filesUnchanged, dryRun, status, hrStart }
+    const current = run
+    run = undefined
+    const result: GenerationResult = { config, diagnostics, filesCreated, filesUnchanged: current?.filesUnchanged ?? 0, dryRun, status, hrStart }
     const cliResult = { ...result }
-    const counted = status === 'failed' ? undefined : await countChanges({ config, storage })
+    const counted = current && status !== 'failed' ? await countChanges({ config, storage, current }) : undefined
     if (counted) {
       const { unchanged, ...changes } = counted
       cliResult.filesCreated = changes.added + changes.modified + unchanged
       cliResult.filesUnchanged = unchanged
       cliResult.fileChanges = changes
     }
-    live = undefined
     for (const reporter of selected) {
       const grouped = reporter.needsPluginFiles && pluginFiles?.size ? [...pluginFiles].map(([plugin, files]) => ({ plugin, files: [...files] })) : undefined
       await reporter.report({ ...(reporter.name === 'cli' || fileChanges ? cliResult : result), pluginFiles: grouped }, ctx)
