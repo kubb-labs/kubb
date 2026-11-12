@@ -1,4 +1,5 @@
 import { ast } from '@kubb/ast'
+import { defineMacro } from '../authoring.ts'
 
 type Props = {
   propertyName: string
@@ -25,7 +26,7 @@ export function enumPrimitive(values: Props['values']): 'string' | 'number' | 'b
  * ```
  */
 export function macroDiscriminatorEnum({ propertyName, values, enumName }: Props) {
-  return ast.defineMacro({
+  return defineMacro({
     name: 'discriminator-enum',
     schema(node) {
       const objectNode = ast.narrowSchema(node, 'object')

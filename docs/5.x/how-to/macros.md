@@ -22,9 +22,9 @@ Import the macro engine through `ast` from `kubb/kit`. For callback signatures a
 Define the node transformation:
 
 ```typescript [macro.ts]
-import { ast } from 'kubb/kit'
+import { defineMacro } from 'kubb/kit'
 
-const macroIntegerToString = ast.defineMacro({
+const macroIntegerToString = defineMacro({
   name: 'integer-to-string',
   schema(node) {
     return node.type === 'integer' ? { ...node, type: 'string' } : undefined
@@ -35,9 +35,9 @@ const macroIntegerToString = ast.defineMacro({
 The `match` predicate skips a macro for nodes it does not care about, and `enforce` places a macro before or after the unmarked ones.
 
 ```typescript [enforce.ts]
-import { ast } from 'kubb/kit'
+import { defineMacro } from 'kubb/kit'
 
-const macroUntagged = ast.defineMacro({
+const macroUntagged = defineMacro({
   name: 'untagged',
   enforce: 'post',
   match: (node) => node.kind === 'Operation',
@@ -52,9 +52,9 @@ const macroUntagged = ast.defineMacro({
 Pass macros through a plugin's `macros` option, or register them from `setup` with `addMacro` and `setMacros`. Macros run per plugin, so one plugin's macros never change the nodes another plugin sees.
 
 ```typescript [plugin.ts]
-import { ast, defineExtension } from 'kubb/kit'
+import { defineExtension, defineMacro } from 'kubb/kit'
 
-const macroDropDescriptions = ast.defineMacro({
+const macroDropDescriptions = defineMacro({
   name: 'drop-descriptions',
   schema(node) {
     return 'description' in node && node.description ? { ...node, description: undefined } : undefined
@@ -87,10 +87,10 @@ Macros run before the resolver names anything, so a renamed `operationId` or `Sc
 Copy this macro into your project. It renames the declaration and every ref pointing at it in one pass.
 
 ```typescript [macroRenameSchema.ts]
-import { ast } from 'kubb/kit'
+import { ast, defineMacro } from 'kubb/kit'
 
 export function macroRenameSchema({ from, to }: { from: string; to: string }) {
-  return ast.defineMacro({
+  return defineMacro({
     name: 'rename-schema',
     schema(node) {
       const refNode = ast.narrowSchema(node, 'ref')

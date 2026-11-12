@@ -1,5 +1,6 @@
 import { hash } from 'node:crypto'
 import { ast } from '@kubb/ast'
+import { defineMacro } from '../authoring.ts'
 import type { SchemaNode } from '@kubb/ast'
 
 /**
@@ -50,7 +51,7 @@ function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
  * const next = applyMacros(unionSchema, [macroDedupeUnion], { depth: 'shallow' })
  * ```
  */
-export const macroDedupeUnion = ast.defineMacro({
+export const macroDedupeUnion = defineMacro({
   name: 'dedupe-union',
   schema(node) {
     const unionNode = ast.narrowSchema(node, ast.schemaTypes.union)

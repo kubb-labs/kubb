@@ -3,7 +3,8 @@ import * as http from './http/index.ts'
 import * as ref from './ref/index.ts'
 import * as schema from './schema/index.ts'
 import { mergeRefWithSchema as mergeRef } from './utils/refs.ts'
-import { compareMacroOrder } from './defineMacro.ts'
+import { createPrinter as createPrinterImpl } from './createPrinter.ts'
+import { compareMacroOrder, defineMacro as defineMacroImpl } from './defineMacro.ts'
 import { applyOptionality } from './optionality.ts'
 import { getNodeText } from './utils/extractStringsFromNodes.ts'
 import { collect } from './visitor.ts'
@@ -58,3 +59,9 @@ export const extractStringsFromNodes = getNodeText
 
 /** @deprecated Use `ast.compareMacroOrder`. Removed in Kubb v6. */
 export const compareEnforce = compareMacroOrder
+
+/** @deprecated Use `createPrinter` from `@kubb/kit`. Removed in Kubb v6. */
+export const createPrinter = createPrinterImpl
+
+/** @deprecated Use `defineMacro` from `@kubb/kit`. Removed in Kubb v6. */
+export const defineMacro = defineMacroImpl

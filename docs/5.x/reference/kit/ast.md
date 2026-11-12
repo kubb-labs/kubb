@@ -284,10 +284,10 @@ const baseURL = ast.http.getBaseURL(ast.server.getServer({ servers: node.servers
 
 A macro is a named, composable transform built on `transform` that rewrites nodes before printing, adding ordering, gating, and reuse a bare visitor doesn't give you. See [Macros concepts](/docs/5.x/how-to/macros).
 
-| Export        | Purpose                                     |
-| ------------- | ------------------------------------------- |
-| `defineMacro` | Type a macro and read it as one definition. |
-| `applyMacros` | Run a list of macros over a node tree.      |
+| Export        | Purpose                                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------------------- |
+| `defineMacro` | Type a macro and read it as one definition. Import it from `kubb/kit`; `ast.defineMacro` is deprecated. |
+| `applyMacros` | Run a list of macros over a node tree.                                                                  |
 
 Kubb also ships built-in macros for common schema normalizations that any adapter can compose with its own. `macroDiscriminatorEnum` and `macroEnumName` read options, so call them to build the macro. Plugins that import another plugin's output compute names from the nodes they see, so register a rename on every plugin that touches the schema, for example by passing one shared `macros` array to each plugin. [Macros](/docs/5.x/how-to/macros) shows a rename macro.
 
@@ -320,9 +320,9 @@ Each callback returns a replacement node, or `undefined` or `null` to leave the 
 
 Lower-level helpers for parsers that turn the AST into source code:
 
-| Export          | Purpose                                |
-| --------------- | -------------------------------------- |
-| `createPrinter` | Typed helper for creating a `Printer`. |
+| Export          | Purpose                                                                                              |
+| --------------- | ---------------------------------------------------------------------------------------------------- |
+| `createPrinter` | Typed helper for creating a `Printer`. Import it from `kubb/kit`; `ast.createPrinter` is deprecated. |
 
 `createPrinter` takes an `overrides` map to replace the handler for individual schema node types. Pass overrides through the `overrides` field rather than spreading them into `nodes`, otherwise `this.base` cannot find the original handler. The `printer.nodes` option on `@kubb/plugin-ts`, `@kubb/plugin-zod`, and `@kubb/plugin-faker` feeds this map. See [Customize printers](/docs/5.x/how-to/printers).
 
