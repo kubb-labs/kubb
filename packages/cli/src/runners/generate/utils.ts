@@ -173,16 +173,11 @@ export async function readOutputFiles(outputPath: string): Promise<Map<string, s
 }
 
 /**
- * What is left of a file once `output.clean` deleted it: a hash of its text and one per line, which
- * is enough to tell whether its regenerated copy changed and by how many lines. A few bytes per
- * line, where the text of a large output tree takes hundreds of megabytes.
+ * Hashes of a file `output.clean` deleted, enough to tell whether its regenerated copy changed and by how many lines.
  */
 export type FileFingerprint = {
   digest: string
   lines: Int32Array
-  /**
-   * Lines the summary counts as removed when the file is not regenerated.
-   */
   deletedLines: number
 }
 
@@ -197,9 +192,8 @@ export function fingerprintFile(text: string): FileFingerprint {
 }
 
 /**
- * Fingerprints every file under the output folder right before `output.clean` empties it. Files are
- * read one at a time and dropped again, so the old tree is never held in memory. A missing
- * directory or an unreadable file is skipped.
+ * Fingerprints every file under the output folder right before `output.clean` empties it, one file at a time, so the
+ * old tree is never held in memory. A missing directory or an unreadable file is skipped.
  */
 export async function readOutputFingerprints(outputPath: string): Promise<Map<string, FileFingerprint>> {
   const entries = await readdir(outputPath, { recursive: true, withFileTypes: true }).catch(() => [])
