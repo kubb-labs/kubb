@@ -107,7 +107,7 @@ export function inputToAdapterSource(config: Pick<Config, 'input' | 'root'>): Ad
  * Parses `source` with `adapter`. A git input is checked out first and deleted afterwards, and a parse failure throws
  * as a diagnostic that names the adapter.
  */
-export async function parseAdapterSource(adapter: Adapter, source: AdapterSource, signal?: AbortSignal): Promise<InputNode> {
+export async function parseAdapterSource({ adapter, source, signal }: { adapter: Adapter; source: AdapterSource; signal?: AbortSignal }): Promise<InputNode> {
   const checkout = source.type === 'path' && gitInputRegExp.test(source.path) ? await checkoutGitInput(source.path, signal) : undefined
   try {
     return await adapter.parse(checkout ? { type: 'path', path: checkout.path } : source, { signal })

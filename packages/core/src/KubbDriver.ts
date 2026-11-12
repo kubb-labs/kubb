@@ -269,7 +269,7 @@ export class KubbDriver {
     if (this.inputNode || !this.adapter || !this.#adapterSource) return
 
     this.options.signal?.throwIfAborted()
-    this.inputNode = await parseAdapterSource(this.adapter, this.#adapterSource, this.options.signal)
+    this.inputNode = await parseAdapterSource({ adapter: this.adapter, source: this.#adapterSource, signal: this.options.signal })
   }
 
   /**

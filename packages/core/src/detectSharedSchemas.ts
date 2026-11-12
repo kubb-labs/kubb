@@ -45,7 +45,7 @@ async function shareGroup(group: Array<GroupMember>, result: Array<SharedBuild |
   try {
     // Sequential, since configs may share one adapter instance.
     for (const { config, root } of group) {
-      const input = await parseAdapterSource(config.adapter!, inputToAdapterSource({ input: config.input, root }))
+      const input = await parseAdapterSource({ adapter: config.adapter!, source: inputToAdapterSource({ input: config.input, root }) })
       specs.push(new Map(input.schemas.flatMap((node) => (node.name ? [[node.name, node] as const] : []))))
     }
   } catch {
