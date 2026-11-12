@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { inParallel, isPathInside, matchesStored, toError } from '@internals/utils'
-import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
+import { ast, getNodeText, type CodeNode, type FileNode } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
@@ -38,7 +38,7 @@ type WriteOptions = ParseOptions & {
 
 function joinSources(file: FileNode): string {
   return file.sources
-    .map((source) => extractStringsFromNodes(source.nodes as Array<CodeNode>))
+    .map((source) => getNodeText(source.nodes as Array<CodeNode>))
     .filter(Boolean)
     .join('\n\n')
 }

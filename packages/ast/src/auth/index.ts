@@ -8,7 +8,7 @@ export type ResolvedScheme = {
 }
 
 /** Joins each requirement with its schemes. Drops undeclared and repeated requirements, and keeps an empty one (no auth needed). */
-export function getSchemes({
+export function getRequirements({
   auth,
   schemes,
 }: {

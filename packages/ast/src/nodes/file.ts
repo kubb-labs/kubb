@@ -2,7 +2,7 @@ import { hash } from 'node:crypto'
 import path from 'node:path'
 import { nodeKinds } from '../constants.ts'
 import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
-import { extractStringsFromNodes } from '../utils/extractStringsFromNodes.ts'
+import { getNodeText } from '../utils/extractStringsFromNodes.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
 import type { CodeNode } from './code.ts'
 
@@ -350,7 +350,7 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     const localNames = new Set<string>()
     // Only the sources the file keeps count: an import used just by a dropped duplicate is unused.
     for (const item of resolvedSources) {
-      const extracted = item.nodes && extractStringsFromNodes(item.nodes)
+      const extracted = item.nodes && getNodeText(item.nodes)
       if (extracted) sourceParts.push(extracted)
       if (item.name) localNames.add(item.name)
     }

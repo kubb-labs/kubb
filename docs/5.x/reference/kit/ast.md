@@ -211,7 +211,7 @@ Analyze how schemas reference each other, to prune unused schemas or wrap circul
 | Helper                       | Purpose                                                                                                                                                         |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ast.graph.getUsedNames`     | Collect the names of every top-level schema transitively used by a set of operations. Pair it with `include` filters to leave unreferenced schemas ungenerated. |
-| `ast.graph.getCircular`      | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`.                      |
+| `ast.graph.getCircularNames` | Find every schema that takes part in a circular dependency chain, so those positions can be wrapped in a lazy getter or `z.lazy(() => …)`.                      |
 | `ast.graph.containsCircular` | Report whether a schema, or anything nested inside it, references a circular schema.                                                                            |
 
 ## Schemas
@@ -246,9 +246,9 @@ Every `ast.mediaType` helper takes a media type string or a content entry.
 
 ## Auth
 
-| Helper                | Purpose                                                                                   |
-| --------------------- | ----------------------------------------------------------------------------------------- |
-| `ast.auth.getSchemes` | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements. |
+| Helper                     | Purpose                                                                                   |
+| -------------------------- | ----------------------------------------------------------------------------------------- |
+| `ast.auth.getRequirements` | Join `node.auth` with the document's schemes. Drops undeclared and repeated requirements. |
 
 ## HTTP
 

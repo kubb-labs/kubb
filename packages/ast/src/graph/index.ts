@@ -3,9 +3,9 @@ import { collectSchemaRefs } from '../utils/schemaGraph.ts'
 
 export {
   collectImportedRefNames as getImportedNames,
-  collectSchemaRefs as getRefs,
+  collectSchemaRefs as getRefNames,
   collectUsedSchemaNames as getUsedNames,
-  findCircularSchemas as getCircular,
+  findCircularSchemas as getCircularNames,
 } from '../utils/schemaGraph.ts'
 
 /** Whether a schema, or anything inside it, refers to one of `circularSchemas`, other than `excludeName`. */

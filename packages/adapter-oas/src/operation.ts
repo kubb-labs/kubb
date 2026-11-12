@@ -421,7 +421,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     const schema = getBodySchema({ content: body?.content, contentType: ct, refs, document })
     if (!schema) return []
     const mediaType = getMediaType({ content: body?.content, contentType: ct, refs })
-    const node = ast.optionality(parseSchema({ schema, name: requestBodyName }), bodyRequired)
+    const node = ast.applyOptionality(parseSchema({ schema, name: requestBodyName }), bodyRequired)
     scanSchema(node, `${mediaTypePointer(body?.content, ct, `${pointer}/requestBody/content/${escapePointerToken(ct)}`)}/${schemaKeyword(mediaType)}`)
     return [
       ast.factory.createContent({

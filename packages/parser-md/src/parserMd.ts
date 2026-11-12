@@ -47,7 +47,7 @@ export const parserMd = defineExtension({
       print: (...parts: Array<string>) => parts.filter(Boolean).join('\n\n'),
       parse(file) {
         const body = file.sources
-          .map((source) => ast.extractStringsFromNodes(source.nodes))
+          .map((source) => ast.getNodeText(source.nodes))
           .filter(Boolean)
           .map((text) => text.trimEnd())
           .join('\n\n')

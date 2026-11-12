@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, memo, toError } from '@internals/utils'
-import { ast, compareEnforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
+import { ast, compareMacroOrder, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
@@ -207,7 +207,7 @@ export class KubbDriver {
    * config are ignored here and surface later through `requirePlugin`.
    */
   #sortPlugins(plugins: Array<NormalizedPlugin>): Array<NormalizedPlugin> {
-    const queue = [...plugins].sort((a, b) => compareEnforce(a.enforce, b.enforce))
+    const queue = [...plugins].sort((a, b) => compareMacroOrder(a.enforce, b.enforce))
     const names = new Set(queue.map((plugin) => plugin.name))
     const blockedBy = new Map(
       queue.map((plugin) => {

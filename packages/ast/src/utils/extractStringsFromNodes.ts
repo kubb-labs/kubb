@@ -15,7 +15,7 @@ export const CODE_NODE_TEXT_FIELDS: Partial<Record<NodeKind, ReadonlyArray<strin
  *
  * Collects the text fields and nested node content, to build the source string for import filtering.
  */
-export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): string {
+export function getNodeText(nodes: Array<CodeNode> | undefined): string {
   if (!nodes?.length) return ''
 
   // Imperative single pass. The earlier `map().filter().join()` allocated a closure plus two
@@ -39,7 +39,7 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
       if (typeof value === 'string' && value) parts.push(value)
     }
 
-    const nested = 'nodes' in node ? extractStringsFromNodes(node.nodes) : ''
+    const nested = 'nodes' in node ? getNodeText(node.nodes) : ''
     if (nested) parts.push(nested)
 
     if (parts.length) collected.push(parts.join('\n'))

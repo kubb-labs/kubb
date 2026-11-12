@@ -3,6 +3,9 @@ import * as http from './http/index.ts'
 import * as ref from './ref/index.ts'
 import * as schema from './schema/index.ts'
 import { mergeRefWithSchema as mergeRef } from './utils/refs.ts'
+import { compareMacroOrder } from './defineMacro.ts'
+import { applyOptionality } from './optionality.ts'
+import { getNodeText } from './utils/extractStringsFromNodes.ts'
 import { collect } from './visitor.ts'
 
 /** @deprecated Use `ast.ref.isAlias`. Removed in Kubb v6. */
@@ -23,14 +26,14 @@ export const resolveRefName = ref.getName
 /** @deprecated Use `ast.graph.getImportedNames`. Removed in Kubb v6. */
 export const collectImportedRefNames = graph.getImportedNames
 
-/** @deprecated Use `ast.graph.getRefs`. Removed in Kubb v6. */
-export const collectSchemaRefs = graph.getRefs
+/** @deprecated Use `ast.graph.getRefNames`. Removed in Kubb v6. */
+export const collectSchemaRefs = graph.getRefNames
 
 /** @deprecated Use `ast.graph.getUsedNames`. Removed in Kubb v6. */
 export const collectUsedSchemaNames = graph.getUsedNames
 
-/** @deprecated Use `ast.graph.getCircular`. Removed in Kubb v6. */
-export const findCircularSchemas = graph.getCircular
+/** @deprecated Use `ast.graph.getCircularNames`. Removed in Kubb v6. */
+export const findCircularSchemas = graph.getCircularNames
 
 /** @deprecated Use `ast.schema.getLiterals`. Removed in Kubb v6. */
 export const getSchemaLiteralValues = schema.getLiterals
@@ -46,3 +49,12 @@ export const isHttpOperationNode = http.isOperation
 
 /** @deprecated Use `ast.collect`, which returns the same array. Removed in Kubb v6. */
 export const collectSync = collect
+
+/** @deprecated Use `ast.applyOptionality`. Removed in Kubb v6. */
+export const optionality = applyOptionality
+
+/** @deprecated Use `ast.getNodeText`. Removed in Kubb v6. */
+export const extractStringsFromNodes = getNodeText
+
+/** @deprecated Use `ast.compareMacroOrder`. Removed in Kubb v6. */
+export const compareEnforce = compareMacroOrder

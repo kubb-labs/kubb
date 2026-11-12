@@ -1,10 +1,10 @@
 export { nodeKinds, schemaTypes } from './constants.ts'
 export { narrowSchema } from './guards.ts'
-export { applyMacros, compareEnforce, defineMacro } from './defineMacro.ts'
-export { optionality } from './optionality.ts'
+export { applyMacros, compareMacroOrder, defineMacro } from './defineMacro.ts'
+export { applyOptionality } from './optionality.ts'
 export { createPrinter } from './createPrinter.ts'
 export { collect, findSchema, transform } from './visitor.ts'
-export { extractStringsFromNodes } from './utils/extractStringsFromNodes.ts'
+export { getNodeText } from './utils/extractStringsFromNodes.ts'
 export { inlineFiles, type InlineLanguage } from './utils/inline.ts'
 export * from './deprecated.ts'
 
