@@ -115,6 +115,16 @@ describe('kubb add', () => {
     expect(installPackages).not.toHaveBeenCalled()
   })
 
+  it('fails a dry run when the config passed with --config cannot be read', async () => {
+    stubFetch({ body: registryIndex([pluginX]) })
+
+    await run({ id: 'acme/plugin-x', configPath: './missing.ts', yes: false, install: true, dryRun: true })
+
+    expect(output.join('\n')).toContain('Could not read missing.ts. Check the path passed with --config.')
+    expect(installPackages).not.toHaveBeenCalled()
+    expect(process.exitCode).toBe(1)
+  })
+
   it('searches the registry in memory, marking installed extensions as not selectable', async () => {
     const adapterX = registryEntry({
       name: 'adapter-x',

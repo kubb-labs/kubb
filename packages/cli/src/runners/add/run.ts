@@ -245,6 +245,12 @@ export async function run({ id: input, configPath, yes, install, dryRun = false 
     ])
 
     if (dryRun) {
+      // The real run installs first and only then fails on the edit, so the dry run has to say it.
+      if (configFile && configSource === undefined) {
+        process.exitCode = 1
+        summary(`${kind} not added`, 'failed', [`Could not read ${configName}. Check the path passed with --config.`])
+        return
+      }
       if (!configName) logBlock(['Add the import to your Kubb config and merge the property into its defineConfig call:', '', ...targets.map(toSnippet)])
       summary(`${kind} not added`, 'planned', ['Dry run: nothing was installed or written. Run the same command without --dry-run to add it.'])
       return
