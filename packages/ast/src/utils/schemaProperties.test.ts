@@ -46,6 +46,13 @@ describe('getSchemaLiteralValues', () => {
 
     expect(getSchemaLiteralValues(node)).toStrictEqual(['cat'])
   })
+
+  it('returns the same frozen array for the same node', () => {
+    const node = createSchema({ type: 'enum', enumValues: ['cat', 'dog'] })
+
+    expect(getSchemaLiteralValues(node)).toBe(getSchemaLiteralValues(node))
+    expect(Object.isFrozen(getSchemaLiteralValues(node))).toBe(true)
+  })
 })
 
 describe('inferDiscriminatorPropertyName', () => {
