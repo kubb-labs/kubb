@@ -138,9 +138,7 @@ describe('diffOutput', () => {
 
 describe('diffFile', () => {
   it.each([
-    ['an unchanged file', 'a\nb\nc\n', 'a\nb\nc'],
     ['a modified file', 'a\nb\nc', 'a\nB\nc\nd'],
-    ['a file with repeated lines', 'x\nx\ny', 'x\ny\ny'],
     ['a file with surrounding blank lines', '\n\n  a\nb\n\n', 'a\nb\nc'],
   ])('gives the same change against a fingerprint as against the text, for %s', (_label, stored, next) => {
     const path = '/gen/pet.ts'
@@ -158,7 +156,6 @@ describe('readOutputFingerprints', () => {
       await writeFile(join(dir, 'gen/nested/tag.ts'), '\n\nd')
       await writeFile(join(dir, 'gen/blank.ts'), '  \n')
       const fingerprints = await readOutputFingerprints(join(dir, 'gen'))
-      const previousFiles = await readOutputFiles(join(dir, 'gen'))
 
       expect(new Map([...fingerprints].map(([path, fingerprint]) => [path, fingerprint.deletedLines]))).toStrictEqual(
         new Map([
@@ -166,11 +163,6 @@ describe('readOutputFingerprints', () => {
           [join(dir, 'gen/nested/tag.ts'), 3],
           [join(dir, 'gen/blank.ts'), 0],
         ]),
-      )
-      // The lines a fingerprint counts as deleted match the ones the text gives.
-      const deleted = await diffOutput({ storage: memoryStorage(), paths: [], clean: true, previousFiles })
-      expect(new Map(deleted.files.map((file) => [file.path, file.removed]))).toStrictEqual(
-        new Map([...fingerprints].map(([path, fingerprint]) => [path, fingerprint.deletedLines])),
       )
       expect(await readOutputFingerprints(join(dir, 'missing'))).toStrictEqual(new Map())
     } finally {

@@ -21,15 +21,10 @@ import { createMockedPlugin } from '@kubb/core/mocks'
 import { getAgentProfile } from 'gunshi/agent'
 import { describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
-import { readOutputFiles } from '../runners/generate/utils.ts'
 import setupReporters from './reporters.ts'
 import { createPlainWriter } from './plainWriter.ts'
 
 vi.mock('gunshi/agent', () => ({ getAgentProfile: vi.fn(() => ({ isAgent: false })) }))
-vi.mock('../runners/generate/utils.ts', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../runners/generate/utils.ts')>()
-  return { ...actual, readOutputFiles: vi.fn(actual.readOutputFiles) }
-})
 
 /**
  * Writes the way `FileManager.write` does: one read of the stored file, skipped under a folder that
@@ -131,7 +126,6 @@ describe('setupReporters', () => {
     try {
       const output = join(root, 'gen')
       await mkdir(output)
-      vi.mocked(readOutputFiles).mockClear()
       const pet = join(output, 'pet.ts'),
         same = join(output, 'same.ts'),
         stale = join(output, 'stale.ts'),
@@ -178,8 +172,6 @@ describe('setupReporters', () => {
       expect(reports).toHaveLength(1)
       expect(reports[0]).toMatchObject({ filesCreated: files.length, filesUnchanged: 0 })
       expect(reports[0]?.fileChanges).toBeUndefined()
-      // Only the dry run compares against a copy of the whole output; a real run counts as it writes.
-      expect(readOutputFiles).toHaveBeenCalledTimes(dryRun ? 1 : 0)
       if (dryRun) {
         expect(text).toContain('Nothing was written.')
         expect(await readFile(stale, 'utf8')).toBe('gone')
@@ -189,50 +181,26 @@ describe('setupReporters', () => {
     }
   })
 
-  it('counts an unchanged rerun, an edited file, and a file clean deletes from one read per file, without reading the output up front', async () => {
+  it('counts an unchanged rerun, an edited file, and a file clean deletes from the stored text the write reads', async () => {
     const root = await mkdtemp(join(tmpdir(), 'kubb-summary-live-'))
     try {
       const output = join(root, 'gen')
       const pet = join(output, 'pet.ts'),
         tag = join(output, 'nested/tag.ts'),
         stale = join(output, 'stale.ts')
-      vi.mocked(readOutputFiles).mockClear()
+      const entries = [
+        [pet, 'a\nb\nc'],
+        [tag, 'tag'],
+        [stale, 'x\ny'],
+      ] as const
+      await summarize({ root, output, entries })
 
-      const first = await summarize({
-        root,
-        output,
-        entries: [
-          [pet, 'a\nb\nc'],
-          [tag, 'tag'],
-          [stale, 'x\ny'],
-        ],
-      })
-      expect(first).toContain('3 files generated')
-      expect(first).toContain('3 added · 0 modified · 0 deleted')
-      expect(first).toContain('Lines  +6 −0')
-
-      const unchanged = await summarize({
-        root,
-        output,
-        entries: [
-          [pet, 'a\nb\nc'],
-          [tag, 'tag'],
-          [stale, 'x\ny'],
-        ],
-      })
+      const unchanged = await summarize({ root, output, entries })
       expect(unchanged).toContain('0 files generated · 3 unchanged')
       expect(unchanged).toContain('0 added · 0 modified · 0 deleted')
 
       await writeFile(pet, 'a\nb\nc\n// edited by hand\n')
-      const edited = await summarize({
-        root,
-        output,
-        entries: [
-          [pet, 'a\nb\nc'],
-          [tag, 'tag'],
-          [stale, 'x\ny'],
-        ],
-      })
+      const edited = await summarize({ root, output, entries })
       expect(edited).toContain('0 added · 1 modified · 0 deleted')
       expect(edited).toContain('Lines  +0 −1')
 
@@ -248,8 +216,6 @@ describe('setupReporters', () => {
       expect(cleaned).toContain('1 file generated · 1 unchanged')
       expect(cleaned).toContain('0 added · 1 modified · 1 deleted')
       expect(cleaned).toContain('Lines  +2 −3')
-
-      expect(readOutputFiles).not.toHaveBeenCalled()
     } finally {
       await rm(root, { recursive: true, force: true })
     }

@@ -125,40 +125,33 @@ export function diffBuilds(previous: BuildSnapshot, next: BuildSnapshot): BuildD
 /** A changed file with how many lines it gains and loses, counted as a multiset, which is cheap and close enough for a plan. */
 export type FileChange = { status: 'A' | 'M' | 'D'; path: string; added?: number; removed?: number }
 
-type Lines = ArrayLike<string | number>
+type Lines = Iterable<string | number>
 
-const NO_LINES: Lines = []
-
-function splitLines(text: string): Lines {
-  return text ? text.split('\n') : NO_LINES
+function splitLines(text: string): Array<string> {
+  return text ? text.split('\n') : []
 }
 
-/** One 32-bit FNV-1a hash per line, splitting the way `text.split('\n')` does. */
-function hashLines(text: string): Int32Array {
-  if (!text) return new Int32Array(0)
-  const hashes: Array<number> = []
+function hashLine(line: string): number {
   let hash = 0x811c9dc5
-  for (let index = 0; index < text.length; index++) {
-    const code = text.charCodeAt(index)
-    if (code === 10) {
-      hashes.push(hash)
-      hash = 0x811c9dc5
-      continue
-    }
-    hash = Math.imul(hash ^ code, 0x01000193)
-  }
-  hashes.push(hash)
-  return Int32Array.from(hashes)
+  for (const char of line) hash = Math.imul(hash ^ char.codePointAt(0)!, 0x01000193)
+  return hash
+}
+
+function hashLines(text: string): Int32Array {
+  return Int32Array.from(splitLines(text), hashLine)
 }
 
 function countLineChanges({ before, after }: { before: Lines; after: Lines }): { added: number; removed: number } {
   const remaining = new Map<string | number, number>()
-  for (let index = 0; index < before.length; index++) remaining.set(before[index]!, (remaining.get(before[index]!) ?? 0) + 1)
+  for (const line of before) remaining.set(line, (remaining.get(line) ?? 0) + 1)
   let added = 0
-  for (let index = 0; index < after.length; index++) {
-    const count = remaining.get(after[index]!) ?? 0
-    if (count > 0) remaining.set(after[index]!, count - 1)
-    else added++
+  for (const line of after) {
+    const count = remaining.get(line) ?? 0
+    if (count === 0) {
+      added++
+      continue
+    }
+    remaining.set(line, count - 1)
   }
   const removed = [...remaining.values()].reduce((sum, count) => sum + count, 0)
   return { added, removed }
@@ -190,15 +183,14 @@ export async function readOutputFiles(outputPath: string): Promise<Map<string, s
  * line, where the text of a large output tree takes hundreds of megabytes.
  */
 export type FileFingerprint = {
-  /** SHA-1 of the trimmed text, the text a regenerated file is compared with. */
   digest: string
-  /** Line hashes of the trimmed text, which count the lines a change adds and removes. */
   lines: Int32Array
-  /** Lines the summary counts as removed when the file is not regenerated. */
+  /**
+   * Lines the summary counts as removed when the file is not regenerated.
+   */
   deletedLines: number
 }
 
-/** Fingerprints the text of a stored file. */
 export function fingerprintFile(text: string): FileFingerprint {
   const body = text.trimEnd()
   const trimmed = body.trimStart()
@@ -257,12 +249,16 @@ export function diffFile({
   return { status: 'M', path, ...countLineChanges({ before: splitLines(previous.trim()), after: splitLines(next.trim()) }) }
 }
 
-/** The totals the summary prints, plus the files that came out the same. */
+/**
+ * The totals the summary prints, plus the files that came out the same.
+ */
 export type ChangeTally = { added: number; modified: number; deleted: number; linesAdded: number; linesRemoved: number; unchanged: number }
 
 const statusKeys = { A: 'added', M: 'modified', D: 'deleted' } as const
 
-/** Adds one file's outcome to the totals: a {@link FileChange}, or `undefined` for an unchanged file. */
+/**
+ * Adds one file's outcome to the totals: a {@link FileChange}, or `undefined` for an unchanged file.
+ */
 export function tallyChange({ tally, change }: { tally: ChangeTally; change: FileChange | undefined }): void {
   if (!change) {
     tally.unchanged++
@@ -307,8 +303,11 @@ export async function diffOutput({
       const next = await storage.readItem(filePath)
       if (next === null) return
       const change = diffFile({ path: filePath, next, previous: previousFiles.get(filePath) ?? null, manifest })
-      if (change) changes[index] = change
-      else unchanged++
+      if (!change) {
+        unchanged++
+        return
+      }
+      changes[index] = change
     },
   })
   const files = changes.filter((file) => file !== undefined)
