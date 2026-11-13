@@ -178,9 +178,7 @@ export type ConnectAgentOptions = {
    */
   permissions?: Partial<AgentPermissions>
   /**
-   * The host runs a shared sandbox agent, such as the Docker image with `KUBB_AGENT_TYPE=sandbox`.
-   * Only then may Studio read what it generated without `allowRead` and `allowReadAst`. Studio can
-   * still ask for sandbox mode, but that only takes permissions away.
+   * The host runs a shared sandbox agent, which lets Studio read what it generated. Studio's own `sandbox` flag only takes permissions away.
    * @default false
    */
   sandbox?: boolean
@@ -340,8 +338,7 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#session.info?.managed === true
   }
 
-  // A sandbox has no project to write to or edit. Studio may read what it generated there only when
-  // the host says it is one, since Studio's own `sandbox` flag must never raise a permission.
+  // A sandbox has no project to write to or edit. Only the host's `sandbox` option grants reads.
   get #permissions(): AgentPermissions {
     const { permissions, sandbox } = this.#options
     return this.#sandbox
@@ -566,8 +563,7 @@ class Agent extends RpcTarget implements AgentApi {
       })
     }
 
-    // A managed agent checks a git input out itself, so the fetch stays on public addresses and follows no redirect.
-    // That includes the config's own input, which Studio may have saved there.
+    // A managed agent checks out any git input itself, the config's too, so the fetch stays on public addresses.
     const managedInput = this.#managed ? (studioInput ?? config.input) : undefined
     const checkout =
       typeof managedInput === 'string' && getInputKind(managedInput) === 'git'

@@ -123,8 +123,7 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
   // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
-  // A `$ref` could otherwise read any file the process can, such as a stored token. Taken from
-  // `pathOrUrl`, not `$self`, which the document itself sets.
+  // From `pathOrUrl`, not the document's own `$self`, so a `$ref` cannot read a stored token elsewhere.
   const refused = new Map<string, string>()
   const fileRoot = urlRegExp.test(pathOrUrl) || fileRefsBlocked() ? undefined : dirname(resolve(pathOrUrl))
 

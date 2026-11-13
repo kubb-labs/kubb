@@ -14,9 +14,7 @@ export function withoutFileRefs<T>(run: () => Promise<T>): Promise<T> {
   return blocked.run(true, run)
 }
 
-/**
- * Whether the running load is inside {@link withoutFileRefs}.
- */
+/** Whether the running load is inside {@link withoutFileRefs}. */
 export function fileRefsBlocked(): boolean {
   return blocked.getStore() === true
 }
