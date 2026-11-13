@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { memo as storeMemo } from '@internals/utils'
 import type { Macro, UserFileNode } from '@kubb/ast'
 import type { Generator } from './defineGenerator.ts'
 import type { KubbPluginSetupContext, NormalizedPlugin, PluginType, PluginName, ResolvePluginOptions } from './definePlugin.ts'
@@ -88,8 +89,24 @@ export function injectFile(file: UserFileNode): void {
 
 /**
  * Returns a value computed once per build and shared by every plugin, like `ctx.memo`.
+ *
+ * Pass a store first to cache in it instead, with no build needed: a `Map` or `WeakMap`, or one
+ * from `memo.create`.
+ *
+ * @example Once per build
+ * `const names = memo('myPlugin:names', () => collectNames(schemas))`
+ *
+ * @example In your own store
+ * ```ts
+ * const cache = new WeakMap<ast.SchemaNode, Array<string>>()
+ * const refs = memo(cache, node, () => collectRefs(node))
+ * ```
  */
-export const memo: Memo = (key, compute) => requireContext('memo').memo(key, compute)
+export const memo: Memo & typeof storeMemo = Object.assign(
+  (...args: [string, () => unknown] | Parameters<typeof storeMemo>) =>
+    args.length === 3 ? storeMemo(...args) : (requireContext('memo').memo as (key: string, compute: () => unknown) => unknown)(...args),
+  { create: storeMemo.create },
+) as Memo & typeof storeMemo
 
 /**
  * Returns the options the user passed to the plugin being set up, like `ctx.options`.

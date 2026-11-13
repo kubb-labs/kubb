@@ -137,6 +137,8 @@ export const pluginExample = defineExtension({
 | `config`        | `useConfig()`     | `Config`                                                  | The resolved build configuration at setup time                                |
 | `options`       | `useOptions()`    | `TOptions`                                                | The plugin's own options as passed by the user                                |
 
+The `memo` export also caches in a store you own, anywhere: `memo(store, key, compute)` takes a `Map` or `WeakMap`, and `memo.create({ type: 'map' | 'weak' | 'last' })` creates one.
+
 `useKubb()` returns the whole setup context. `tryUseKubb()` does the same, but returns `undefined` outside setup instead of throwing.
 
 Composables read the context of the plugin whose setup is running, also after an `await`. Each plugin gets its own context, so composables in one plugin's setup never reach another plugin. Outside `setup` and `kubb:plugin:setup`, they throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context). That includes generators and later hooks, which run after setup and receive their own `ctx`. Both ways can be used in the same setup.
