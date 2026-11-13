@@ -270,10 +270,10 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
     ),
   ]
 
-  const normalizedNames = new Map<string, Array<SchemaWithMetadata>>()
+  const normalizedNames = memo.create<string, SchemaWithMetadata>({ type: 'list' })
   for (const item of candidates) {
     const key = pascalCase(item.originalName)
-    memo(normalizedNames, key, (): Array<SchemaWithMetadata> => []).push(item)
+    normalizedNames.add(key, item)
   }
 
   const schemas: Record<string, SchemaObject> = {}

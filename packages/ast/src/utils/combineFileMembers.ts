@@ -151,7 +151,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
 
   // Memoize object import names so the same logical (propertyName, name) pair always
   // reuses the same object reference. Set-based deduplication then works correctly.
-  const importNameMemo = new Map<string, ImportNameItem>()
+  const importNameMemo = memo.create<string, ImportNameItem>({ type: 'map' })
   const canonicalizeName = (n: ImportNameItem): ImportNameItem => {
     if (typeof n === 'string') return n
     const key = `${n.propertyName}:${n.name ?? ''}`

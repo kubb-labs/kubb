@@ -51,7 +51,7 @@ type BarrelState = {
 }
 
 // One state per build, keyed by the build's `config`. The object form has no factory closure to hold it.
-const states = new WeakMap<Config, BarrelState>()
+const states = memo.create<Config, BarrelState>({ type: 'weak' })
 
 function getState(config: Config): BarrelState {
   return memo(states, config, () => ({ excludedPlugins: new Set(), excludedTargets: [], pendingBarrels: [] }))

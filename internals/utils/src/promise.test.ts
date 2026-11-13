@@ -47,6 +47,22 @@ describe('memo', () => {
     expect(store.has('a')).toBe(false)
     expect(store.has('c')).toBe(true)
   })
+
+  it('collects values per key with the list and set types', () => {
+    const list = memo.create<string, number>({ type: 'list' })
+    list.add('a', 1)
+    list.add('a', 1)
+    list.add('b', 2)
+    expect([...list]).toStrictEqual([
+      ['a', [1, 1]],
+      ['b', [2]],
+    ])
+
+    const set = memo.create<string, number>({ type: 'set' })
+    set.add('a', 1)
+    set.add('a', 1)
+    expect([...set.get('a')!]).toStrictEqual([1])
+  })
 })
 
 describe('inParallel', () => {

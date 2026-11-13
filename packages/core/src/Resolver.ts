@@ -367,12 +367,12 @@ export class Resolver {
   /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
   #options: ResolverBuildOptions
-  #memo = new Map<string, unknown>()
+  #memo = memo.create<string, unknown>({ type: 'map' })
   #usedNames = new Set<string>()
-  #stringNames = new Map<string, string>()
+  #stringNames = memo.create<string, string>({ type: 'map' })
   #arrayNames = createNameNode()
-  #outputDirs = new WeakMap<Output, Map<string, string>>()
-  #importPaths = new WeakMap<Output, Map<string, Map<string, Map<string, string>>>>()
+  #outputDirs = memo.create<Output, Map<string, string>>({ type: 'weak' })
+  #importPaths = memo.create<Output, Map<string, Map<string, Map<string, string>>>>({ type: 'weak' })
   #tagParents = new Map<string, string>()
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
   // Defaults to `toBaseName` when a resolver sets no `file.baseName`.

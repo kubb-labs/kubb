@@ -17,7 +17,7 @@ type AsyncListener<TArgs extends Array<unknown>> = (...args: TArgs) => unknown
  * ```
  */
 export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
-  readonly #listeners = new Map<string, Set<AsyncListener<Array<unknown>>>>()
+  readonly #listeners = memo.create<string, AsyncListener<Array<unknown>>>({ type: 'set' })
 
   /**
    * Calls `hookName` and awaits all registered listeners sequentially.
@@ -56,7 +56,7 @@ export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
    * ```
    */
   hook<THookName extends keyof THooks & string>(hookName: THookName, handler: AsyncListener<THooks[THookName]>): () => void {
-    memo(this.#listeners, hookName, () => new Set<AsyncListener<Array<unknown>>>()).add(handler as AsyncListener<Array<unknown>>)
+    this.#listeners.add(hookName, handler as AsyncListener<Array<unknown>>)
     return () => this.removeHook(hookName, handler)
   }
 

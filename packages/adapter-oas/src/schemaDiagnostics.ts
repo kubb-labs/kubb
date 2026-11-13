@@ -14,7 +14,8 @@ export function scanSchema(node: ast.SchemaNode, pointer = node.pointer): void {
 }
 
 // Pointers per unsupported format, collected while `groupUnsupportedFormats` runs.
-let formatTally: Map<string, Set<string>> | undefined
+let formatTally: ReturnType<typeof createFormatTally> | undefined
+const createFormatTally = () => memo.create<string, string>({ type: 'set' })
 
 /**
  * Runs `fn` and reports `KUBB_UNSUPPORTED_FORMAT` once per format with the number of schemas that use it,
@@ -22,7 +23,7 @@ let formatTally: Map<string, Set<string>> | undefined
  * thousands of warnings that say the same thing. `fn` must be synchronous.
  */
 export function groupUnsupportedFormats<T>(fn: () => T): T {
-  formatTally = new Map()
+  formatTally = createFormatTally()
   try {
     return fn()
   } finally {
@@ -34,7 +35,7 @@ export function groupUnsupportedFormats<T>(fn: () => T): T {
 
 function tallyFormat(format: string, pointer: string): void {
   if (!formatTally) return reportUnsupportedFormat(format, [pointer])
-  memo(formatTally, format, () => new Set<string>()).add(pointer)
+  formatTally.add(format, pointer)
 }
 
 function reportUnsupportedFormat(format: string, pointers: Array<string>): void {
@@ -115,11 +116,11 @@ function visit(node: ast.SchemaNode, pointer: string): void {
  */
 function reportDuplicateDiscriminators(node: ast.UnionSchemaNode, propertyName: string, pointer: string): void {
   const keyword = node.strategy === 'any' ? 'anyOf' : 'oneOf'
-  const membersByValue = new Map<Literal, Array<string>>()
+  const membersByValue = memo.create<Literal, string>({ type: 'list' })
 
   for (const [index, member] of (node.members ?? []).entries()) {
     const label = memberName(member) ?? `${keyword}/${index}`
-    for (const value of memberValues(member, propertyName)) memo(membersByValue, value, (): Array<string> => []).push(label)
+    for (const value of memberValues(member, propertyName)) membersByValue.add(value, label)
   }
 
   const duplicates = [...membersByValue].filter(([, members]) => members.length > 1)

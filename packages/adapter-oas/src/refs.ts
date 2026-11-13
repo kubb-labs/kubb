@@ -26,7 +26,7 @@ export type Refs = ReturnType<typeof createRefs>
  */
 export function createRefs(document: Document) {
   const pointerCache = new Map<string, unknown>()
-  const resolvedNodeCache = new Map<string, ast.SchemaNode | null>()
+  const resolvedNodeCache = memo.create<string, ast.SchemaNode | null>({ type: 'map' })
   const resolvingRefs = new Set<string>()
 
   function walkPointer<T>($ref: string): { applicable: boolean; value: T | null } {

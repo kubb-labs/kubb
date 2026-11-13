@@ -116,7 +116,7 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
  * `const document = await bundleDocument('https://example.com/openapi.yaml')`
  */
 export async function bundleDocument(pathOrUrl: string, { document, sources = [] }: { document?: Document; sources?: Array<string> } = {}): Promise<Document> {
-  const cache = new Map<string, Promise<object | string>>()
+  const cache = memo.create<string, Promise<object | string>>({ type: 'map' })
   // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
