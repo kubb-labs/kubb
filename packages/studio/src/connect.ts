@@ -27,6 +27,7 @@ import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
 import { BUNDLED_PACKAGES, editConfigFile, pickOutput, readConfig, readImports } from '@internals/shared'
+import { signAgentPayload } from './agentKey.ts'
 import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
@@ -39,6 +40,7 @@ import {
   AgentMessage,
   type AgentConnectInfo,
   type AgentPermissions,
+  AgentSignatureContext,
   type AgentType,
   type ConfigEdit,
   ConfigEditOperation,
@@ -52,6 +54,7 @@ import {
   type GenerationEvent,
   type GenerationRun,
   type InstalledExtensions,
+  MAX_CONNECT_CHALLENGE_LENGTH,
   MAX_FILES_PER_REQUEST,
   MAX_PAGE_LINES,
   type ReadDiffInput,
@@ -152,9 +155,13 @@ declare global {
 
 export type ConnectAgentOptions = {
   /**
-   * The agent's bearer token, from {@link pairAgent}.
+   * The agent's bearer token, from {@link pairAgent}. A function is read before every socket opens.
    */
-  token: string
+  token: string | (() => string | Promise<string>)
+  /**
+   * The agent key from `generateAgentKey`, which signs the connect challenge.
+   */
+  privateKey?: string
   studioUrl?: string
   /**
    * The config path shown in Studio, relative to `root` unless absolute.
@@ -203,9 +210,10 @@ export type ConnectAgentOptions = {
   heartbeatInterval?: number
 }
 
-type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin'>> & {
+type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin' | 'privateKey'>> & {
   signal?: AbortSignal
   kubbBin?: string
+  privateKey?: string
   permissions: AgentPermissions
   configFile: string
 }
@@ -453,12 +461,19 @@ class Agent extends RpcTarget implements AgentApi {
       entries.push({ ...toEntryView(config, extensions), ...(disk && { disk }) })
     }
     this.#session.connected.resolve(info)
+    const { privateKey } = this.#options
+    const { challenge } = info
+    const signature =
+      privateKey && typeof challenge === 'string' && challenge && challenge.length <= MAX_CONNECT_CHALLENGE_LENGTH
+        ? signAgentPayload({ privateKey, context: AgentSignatureContext.CONNECT, payload: challenge })
+        : undefined
 
     return {
       versions: { kubb: kubbVersion, agent: version },
       root,
       config: { path: configPath, file, extensions: [...extensions.values()], configs: entries },
       permissions: this.#permissions,
+      ...(signature && { signature }),
     }
   }
 
@@ -926,7 +941,9 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
 }
 
 async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
-  const { hooks, signal, heartbeatInterval, token, studioUrl, version } = options
+  const { hooks, signal, heartbeatInterval, studioUrl, version } = options
+  const token = typeof options.token === 'function' ? await options.token() : options.token
+  if (signal?.aborted) return { code: 1000, reason: '', connected: false }
   const session: Session = { connected: Promise.withResolvers(), closed: false }
   const agent = new Agent({ options, session })
   const rpc = openRpc({ url, token, instanceId, agent })

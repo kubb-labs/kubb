@@ -16,11 +16,13 @@ import {
   AgentCloseCode,
   AgentMessage,
   type AgentConnectInfo,
+  AgentSignatureContext,
   type ConfigEdit,
   ConfigEditOperation,
   type ConfigRef,
   MAX_PAGE_LINES,
 } from './protocol.ts'
+import { generateAgentKey, getAgentPublicKey, verifyAgentSignature } from './agentKey.ts'
 import { projectConfig, root } from './testing.ts'
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
@@ -80,15 +82,15 @@ beforeEach(() => {
   disk.cache = undefined
 })
 
-type Socket = { agent: AgentApi; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
+type Socket = { agent: AgentApi; token: string; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
 
 // Stands in for Studio: each socket lands in `sockets`, and a test closes it with Studio's code.
 function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
   const sockets: Array<Socket> = []
-  const openRpc: OpenRpc = ({ agent }) => {
+  const openRpc: OpenRpc = ({ agent, token }) => {
     const closed = Promise.withResolvers<{ code: number; reason: string }>()
     const ping = vi.fn().mockResolvedValue(undefined)
-    sockets.push({ agent, ping, close: (code, reason = '') => closed.resolve({ code, reason }) })
+    sockets.push({ agent, token, ping, close: (code, reason = '') => closed.resolve({ code, reason }) })
     return { studio: { ping }, closed: closed.promise, close: () => closed.resolve({ code: 1000, reason: '' }) }
   }
   const shutdown = new AbortController()
@@ -255,6 +257,22 @@ describe('the handshake', () => {
     )
   })
 
+  it('signs the challenge with the agent key, and only when it has both', async () => {
+    const privateKey = generateAgentKey()
+    const challenge = 'c2lnbi1tZS1wbGVhc2Utc3R1ZGlv'
+    const withKey = await connectStudio({ privateKey })
+
+    const { signature } = await withKey.agent.connect({ ...info, challenge })
+    expect(
+      verifyAgentSignature({ publicKey: getAgentPublicKey(privateKey), context: AgentSignatureContext.CONNECT, payload: challenge, signature: signature! }),
+    ).toBe(true)
+    expect(await withKey.agent.connect(info)).not.toHaveProperty('signature')
+    expect(await withKey.agent.connect({ ...info, challenge: 'x'.repeat(1025) })).not.toHaveProperty('signature')
+
+    const withoutKey = await connectStudio()
+    expect(await withoutKey.agent.connect({ ...info, challenge })).not.toHaveProperty('signature')
+  })
+
   it('refuses a command Studio sends before connect()', async () => {
     const { sockets } = startAgent({ permissions: { allowRead: true } })
     await vi.waitFor(() => expect(sockets).toHaveLength(1))
@@ -289,6 +307,16 @@ describe('close codes', () => {
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
     expect(disconnected).toHaveBeenCalledWith({ code: 1006, reason: 'gone' })
     expect(reconnecting).toHaveBeenCalledOnce()
+  })
+
+  it('reads the token again for every socket, so a refreshed token is the one it reconnects with', async () => {
+    let token = 'old-token'
+    const { socket, sockets } = await connectStudio({ token: () => token })
+    token = 'new-token'
+    socket.close(1006, 'gone')
+
+    await vi.waitFor(() => expect(sockets).toHaveLength(2))
+    expect(sockets.map((socket) => socket.token)).toStrictEqual(['old-token', 'new-token'])
   })
 
   it('keeps backing off while sockets close before the handshake, and resets once Studio connects', async () => {

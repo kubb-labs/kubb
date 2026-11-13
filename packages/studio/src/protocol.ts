@@ -373,6 +373,32 @@ export type AgentConnectInfo = {
    */
   organizationSlug?: string
   studioVersion: string
+  /**
+   * A challenge that an agent with a key signs in {@link ConnectMessagePayload.signature}.
+   */
+  challenge?: string
+}
+
+export const MAX_CONNECT_CHALLENGE_LENGTH = 1024
+
+/**
+ * What a signature is for. A signature made for one context never verifies for another.
+ */
+export const AgentSignatureContext = {
+  CONNECT: 'kubb-studio/agent-connect/v1',
+  TOKEN_REFRESH: 'kubb-studio/agent-token-refresh/v1',
+} as const
+export type AgentSignatureContext = ValueOf<typeof AgentSignatureContext>
+
+/**
+ * The proof an agent with a key adds to a token refresh.
+ */
+export type TokenRefreshProof = {
+  /**
+   * When the proof was signed, in milliseconds since the Unix epoch.
+   */
+  signed_at: number
+  signature: string
 }
 
 /**
@@ -483,6 +509,10 @@ export type ConnectMessagePayload = {
     configs: Array<ConfigEntryView>
   }
   permissions: AgentPermissions
+  /**
+   * The signed {@link AgentConnectInfo.challenge}, from an agent that holds a key.
+   */
+  signature?: string
 }
 
 export type DiskOutput = {

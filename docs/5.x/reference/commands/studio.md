@@ -53,7 +53,11 @@ To change its URL or config, stop it and start it with the new flags. Flags can 
 
 To change the saved permissions, run `kubb studio permissions`. A running connection keeps the old ones until you restart it. Keep `--url` and `--config`, and leave out the `--allow-*` flag of any permission you turned off, since a flag grants it anyway.
 
-The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, which defaults to `~/.kubb`. `status` prints the log path. `stop` waits for a running generation to clean up, and `logout` stops the worker before it removes credentials. An interrupted job does not run again.
+The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, which defaults to `~/.kubb`. `status` prints the log path.
+
+While it is connected, the CLI renews its token once a day, so a project that stays connected is not asked to pair again. Pairing also creates a key that stays on your machine, stored next to the token. A project paired with an earlier release has no key and keeps working, and `kubb studio login` adds one.
+
+`stop` waits for a running generation to clean up, and `logout` stops the worker before it removes credentials. An interrupted job does not run again.
 
 ## Options
 

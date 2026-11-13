@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as utils from '@internals/utils'
 import type { Config } from '@kubb/core'
-import { type ConnectAgentOptions, connectAgent, InvalidAgentTokenError, PairingCanceledError, pairAgent } from '@kubb/studio'
+import { type ConnectAgentOptions, connectAgent, InvalidAgentTokenError, PairingCanceledError, pairAgent, refreshAgentToken } from '@kubb/studio'
 import * as env from '../../utils/env.ts'
 import * as config from '../../config.ts'
 import * as credentialsStore from './credentials.ts'
@@ -28,6 +28,7 @@ vi.mock('@kubb/studio', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kubb/studio')>()),
   connectAgent: vi.fn(),
   pairAgent: vi.fn(),
+  refreshAgentToken: vi.fn(),
 }))
 
 const multiselect = vi.mocked(prompts.multiselect)
@@ -50,7 +51,7 @@ const options: StudioOptions = {
   autoOpen: false,
 }
 
-const credentials: Credentials = { studioUrl: options.studioUrl, token: 'token', agentId: 'id', agentSlug: 'slug' }
+const credentials: Credentials = { studioUrl: options.studioUrl, token: 'token', issuedAt: new Date().toISOString(), agentId: 'id', agentSlug: 'slug' }
 
 type ProjectOptions = {
   /**
@@ -69,6 +70,11 @@ function stubProject({ stored = null, ci = false, tty = true }: ProjectOptions =
   const read = vi.spyOn(credentialsStore, 'readCredentials').mockResolvedValue(stored)
   const write = vi.spyOn(credentialsStore, 'writeCredentials').mockResolvedValue(undefined)
   const clear = vi.spyOn(credentialsStore, 'clearCredentials').mockResolvedValue(undefined)
+  const update = vi.spyOn(credentialsStore, 'updateCredentials').mockImplementation(async (change) => {
+    const next = change(await credentialsStore.readCredentials())
+    if (next) await credentialsStore.writeCredentials(next)
+    return next
+  })
   const machineId = vi.spyOn(credentialsStore, 'getMachineId').mockResolvedValue('machine-secret')
   const configs = vi.spyOn(config, 'getConfigs').mockResolvedValue({
     configPath: '/project/kubb.config.ts',
@@ -78,13 +84,15 @@ function stubProject({ stored = null, ci = false, tty = true }: ProjectOptions =
   const canUseTTY = vi.spyOn(env, 'canUseTTY').mockReturnValue(tty)
   const copy = vi.spyOn(utils, 'copyToClipboard').mockResolvedValue(true)
   multiselect.mockResolvedValue([])
+  // A Studio without the refresh route, unless a test says otherwise.
+  vi.mocked(refreshAgentToken).mockResolvedValue(null)
 
   return {
     write,
     clear,
     copy,
     [Symbol.dispose]() {
-      for (const spy of [read, write, clear, machineId, configs, isCI, canUseTTY, copy]) {
+      for (const spy of [read, write, clear, update, machineId, configs, isCI, canUseTTY, copy]) {
         spy.mockRestore()
       }
     },
@@ -134,7 +142,30 @@ describe('login', () => {
 
     await expect(login(options)).resolves.toMatchObject({ token: 'new-token', agentId: credentials.agentId })
     expect(pairAgent).toHaveBeenCalledWith(expect.objectContaining({ type: 'cli', studioUrl: options.studioUrl, machineId: 'machine-secret' }))
-    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token' }))
+    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token', issuedAt: expect.any(String) }))
+  })
+
+  it('keeps permissions saved while the pairing waited for approval', async () => {
+    const saved = { ...credentials, projects: { '/project': { allowWrite: false } } }
+    using project = stubProject({ stored: saved })
+    using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    mockPairing()
+
+    await login(options, { previousCredentials: { ...credentials, projects: { '/project': { allowWrite: true } } } })
+
+    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ projects: saved.projects }))
+  })
+
+  it('pairs with a new agent key and stores it with the token', async () => {
+    using project = stubProject()
+    using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    mockPairing()
+
+    const stored = await login(options)
+
+    expect(stored.privateKey).toMatch(/^-----BEGIN PRIVATE KEY-----/)
+    expect(pairAgent).toHaveBeenCalledWith(expect.objectContaining({ privateKey: stored.privateKey }))
+    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token', privateKey: stored.privateKey }))
   })
 
   it('shows the code with its link, copies it in the background, and stores the organization', async () => {
@@ -275,7 +306,8 @@ describe('connect', () => {
     const calls: Array<ConnectAgentOptions> = []
 
     vi.mocked(connectAgent).mockImplementation(async (connectOptions) => {
-      calls.push(connectOptions)
+      // The token as the socket would read it when it opens.
+      calls.push({ ...connectOptions, token: typeof connectOptions.token === 'function' ? await connectOptions.token() : connectOptions.token })
       const attempt = attempts[calls.length - 1]
       if (!attempt) return
       if (attempt === 'connected then rejected') await connectOptions.hooks?.callHook('studio:connected', connected)
@@ -349,6 +381,86 @@ describe('connect', () => {
     await connect(options)
 
     expect(pairAgent).toHaveBeenCalledTimes(2)
+  })
+
+  it.each([
+    ['issued more than a day ago', { issuedAt: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString() }],
+    ['stored by a release without token refresh', { issuedAt: undefined }],
+  ])('refreshes a token %s before it connects, and stores the new one', async (_case, issued) => {
+    using project = stubProject({ stored: { ...credentials, ...issued } })
+    vi.mocked(refreshAgentToken).mockResolvedValueOnce('refreshed-token')
+    const calls = mockConnection()
+
+    await connect(options)
+
+    expect(refreshAgentToken).toHaveBeenCalledWith(expect.objectContaining({ studioUrl: options.studioUrl, token: 'token', machineId: 'machine-secret' }))
+    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token', issuedAt: expect.any(String) }))
+    expect(calls.map(({ token }) => token)).toStrictEqual(['refreshed-token'])
+  })
+
+  it('does not store a refreshed token over credentials another pairing replaced', async () => {
+    const stale = { ...credentials, issuedAt: undefined }
+    using project = stubProject({ stored: stale })
+    vi.mocked(credentialsStore.readCredentials)
+      .mockResolvedValueOnce(stale)
+      .mockResolvedValue({ ...stale, token: 'paired-elsewhere' })
+    vi.mocked(refreshAgentToken).mockResolvedValueOnce('refreshed-token')
+    mockConnection()
+
+    await connect(options)
+
+    expect(project.write).not.toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token' }))
+  })
+
+  it('hands the stored agent key to the connection and the refresh, and connects without one when it has none', async () => {
+    using _project = stubProject({ stored: { ...credentials, issuedAt: undefined, privateKey: 'pem' } })
+    const calls = mockConnection()
+
+    await connect(options)
+
+    expect(calls[0]?.privateKey).toBe('pem')
+    expect(refreshAgentToken).toHaveBeenCalledWith(expect.objectContaining({ privateKey: 'pem' }))
+
+    using _old = stubProject({ stored: credentials })
+    const old = mockConnection()
+    await connect(options)
+    expect(old[0]?.privateKey).toBeUndefined()
+  })
+
+  it('keeps a token issued within the day, and refreshes it once a day while connected', async () => {
+    using project = stubProject({ stored: credentials })
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
+    vi.mocked(refreshAgentToken).mockResolvedValueOnce('refreshed-token')
+    let readToken: (() => string | Promise<string>) | undefined
+    vi.mocked(connectAgent).mockImplementation(async ({ token }) => {
+      readToken = token as () => string
+      expect(refreshAgentToken).not.toHaveBeenCalled()
+      await vi.advanceTimersByTimeAsync(24 * 60 * 60 * 1000)
+    })
+
+    try {
+      await connect(options)
+    } finally {
+      vi.useRealTimers()
+    }
+
+    expect(refreshAgentToken).toHaveBeenCalledOnce()
+    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token' }))
+    // The next socket opens with the refreshed token.
+    expect(await readToken?.()).toBe('refreshed-token')
+  })
+
+  it('trades a rejected token in once before it asks for a new pairing', async () => {
+    using project = stubProject({ stored: credentials })
+    vi.mocked(refreshAgentToken).mockResolvedValueOnce('refreshed-token')
+    const calls = mockConnection('rejected')
+
+    await connect(options)
+
+    expect(refreshAgentToken).toHaveBeenCalledOnce()
+    expect(pairAgent).not.toHaveBeenCalled()
+    expect(project.clear).not.toHaveBeenCalled()
+    expect(calls.map(({ token }) => token)).toStrictEqual(['token', 'refreshed-token'])
   })
 
   it('logs Studio commands and warnings through the plain logger when it runs as the background worker', async () => {

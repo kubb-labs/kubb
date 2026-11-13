@@ -1,8 +1,8 @@
-import { mkdtemp, readFile, rm, stat } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, stat, utimes } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { clearCredentials, getMachineId, getProjectKubbHome, writeCredentials } from './credentials.ts'
+import { clearCredentials, getCredentialsPath, getMachineId, getProjectKubbHome, readCredentials, updateCredentials, writeCredentials } from './credentials.ts'
 
 let home: string
 
@@ -31,5 +31,47 @@ describe('getMachineId', () => {
 
     expect((await stat(getProjectKubbHome())).mode & 0o777).toBe(0o700)
     expect((await readFile(path.join(getProjectKubbHome(), 'machine-secret'), 'utf8')).length).toBe(64)
+  })
+})
+
+describe('readCredentials', () => {
+  it('reads credentials written before token refresh and agent keys, and keeps the key in the token file', async () => {
+    const released = { studioUrl: 'https://kubb.studio', token: 'token', agentId: '1', agentSlug: 'brave-otter' }
+    await writeCredentials(released)
+    await expect(readCredentials()).resolves.toStrictEqual(released)
+
+    await writeCredentials({ ...released, issuedAt: '2026-11-13T00:00:00.000Z', privateKey: 'pem' })
+    await expect(readCredentials()).resolves.toMatchObject({ issuedAt: '2026-11-13T00:00:00.000Z', privateKey: 'pem' })
+    expect(JSON.parse(await readFile(getCredentialsPath(), 'utf8'))).toMatchObject({ token: 'token', privateKey: 'pem' })
+  })
+})
+
+describe('updateCredentials', () => {
+  const stored = { studioUrl: 'https://kubb.studio', token: 'token', agentId: '1', agentSlug: 'brave-otter' }
+
+  it('keeps both changes when a token refresh and a permission change overlap', async () => {
+    await writeCredentials(stored)
+
+    await Promise.all([
+      updateCredentials((current) => current && { ...current, token: 'refreshed' }),
+      updateCredentials((current) => current && { ...current, projects: { '/project': { allowWrite: false } } }),
+    ])
+
+    await expect(readCredentials()).resolves.toMatchObject({ token: 'refreshed', projects: { '/project': { allowWrite: false } } })
+  })
+
+  it('lets two writers take over a lock left by a process that died, one after the other', async () => {
+    await writeCredentials(stored)
+    const lock = path.join(getProjectKubbHome(), 'credentials.lock')
+    await mkdir(lock)
+    const longAgo = new Date(Date.now() - 60_000)
+    await utimes(lock, longAgo, longAgo)
+
+    await Promise.all([
+      updateCredentials((current) => current && { ...current, token: 'refreshed' }),
+      updateCredentials((current) => current && { ...current, projects: { '/project': { allowWrite: false } } }),
+    ])
+
+    await expect(readCredentials()).resolves.toMatchObject({ token: 'refreshed', projects: { '/project': { allowWrite: false } } })
   })
 })
