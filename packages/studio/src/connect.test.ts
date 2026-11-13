@@ -676,7 +676,7 @@ describe('generation reports', () => {
   async function events(run: ReturnType<AgentApi['startGeneration']>) {
     const seen: Array<{ type: string; data: unknown }> = []
     const reader = (await run.events()).getReader()
-    for (;;) {
+    while (true) {
       const { done, value } = await reader.read()
       if (done) return seen
       seen.push({ type: value.type, data: value.data })

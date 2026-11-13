@@ -132,25 +132,35 @@ async function tryLock(lock: string): Promise<boolean> {
  * cannot overwrite each other's change. Returning nothing leaves the file as it is. Resolves what
  * `update` returned.
  */
-export async function updateCredentials<T extends Credentials | null | undefined>(update: (stored: Credentials | null) => T): Promise<T> {
+export function updateCredentials<T extends Credentials | null | undefined>(update: (stored: Credentials | null) => T): Promise<T> {
+  return withLock(async () => {
+    const next = update(await readCredentials())
+    if (next) await writeCredentials(next)
+    return next
+  })
+}
+
+async function withLock<T>(run: () => Promise<T>): Promise<T> {
   const home = getProjectKubbHome()
   const lock = path.join(home, 'credentials.lock')
   await mkdir(home, { recursive: true, mode: 0o700 })
   while (!(await tryLock(lock))) await sleep(LOCK_RETRY_MS)
   try {
-    const next = update(await readCredentials())
-    if (next) await writeCredentials(next)
-    return next
+    return await run()
   } finally {
     await rmdir(lock).catch(() => undefined)
   }
 }
 
 /**
- * Forgets the stored credential. Succeeds when there was nothing to forget.
+ * Forgets the stored credential. Succeeds when there was nothing to forget. Given a `token`, a
+ * credential another process stored since, with a different token, is kept.
  */
-export async function clearCredentials(): Promise<void> {
-  await projectStorage().removeItem(CREDENTIALS_FILENAME)
+export function clearCredentials(token?: string): Promise<void> {
+  return withLock(async () => {
+    if (token && (await readCredentials())?.token !== token) return
+    await projectStorage().removeItem(CREDENTIALS_FILENAME)
+  })
 }
 
 /**

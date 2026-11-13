@@ -34,6 +34,19 @@ describe('getMachineId', () => {
   })
 })
 
+describe('clearCredentials', () => {
+  it('keeps a credential stored since under another token, and forgets the one it was given', async () => {
+    const stored = { studioUrl: 'https://kubb.studio', token: 'new-token', agentId: '1', agentSlug: 'brave-otter' }
+    await writeCredentials(stored)
+
+    await clearCredentials('rejected-token')
+    await expect(readCredentials()).resolves.toMatchObject({ token: 'new-token' })
+
+    await clearCredentials('new-token')
+    await expect(readCredentials()).resolves.toBeNull()
+  })
+})
+
 describe('readCredentials', () => {
   it('reads credentials written before token refresh and agent keys, and keeps the key in the token file', async () => {
     const released = { studioUrl: 'https://kubb.studio', token: 'token', agentId: '1', agentSlug: 'brave-otter' }
