@@ -23,10 +23,7 @@ function transformPathParam(raw: string): string {
     .join('')
 }
 
-/**
- * Sanitizes a parameter name and suffixes it with a counter when an earlier name in the same path
- * already normalized to the same identifier.
- */
+// Suffixes a counter when an earlier name in the same path normalized to the same identifier.
 function uniqueParamName(raw: string, seen: Map<string, number>): string {
   const base = transformPathParam(raw)
   const count = (seen.get(base) ?? 0) + 1
@@ -70,14 +67,10 @@ export class Url {
   }
 
   /**
-   * Maps each `{placeholder}` name in an OpenAPI/Swagger path to the identifier {@link Url.toPath}
-   * gives it, with the same collision handling. A name that repeats keeps its first identifier.
+   * Maps each `{placeholder}` name in a path to the identifier {@link Url.toPath} gives it.
    *
    * @example
-   * Url.toParamNames('/stores/{store-id}/pets/{pet-id}') // Map { 'store-id' => 'storeId', 'pet-id' => 'petId' }
-   *
-   * @example
-   * Url.toParamNames('/groups/{group-id}/{group.id}.json') // Map { 'group-id' => 'groupId', 'group.id' => 'groupId2' }
+   * Url.toParamNames('/groups/{group-id}/{group.id}') // Map { 'group-id' => 'groupId', 'group.id' => 'groupId2' }
    */
   static toParamNames(path: string): Map<string, string> {
     const seen = new Map<string, number>()

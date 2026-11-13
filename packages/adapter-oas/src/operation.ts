@@ -536,11 +536,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   })
 }
 
-/**
- * Renames the `path` parameters of an HTTP operation and their `{placeholder}` in `path` to the
- * identifiers {@link Url.toPath} uses, so `/pets/{pet-id}` becomes `/pets/{petId}`. Path parameter
- * names never reach the wire, so the request stays the same. Other parameters are untouched.
- */
+/** Renames path parameters and their `{placeholder}` to the names {@link Url.toPath} uses. */
 export function camelCasePathParams(node: ast.OperationNode): ast.OperationNode {
   if (!node.path) return node
   const names = Url.toParamNames(node.path)
