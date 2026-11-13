@@ -113,7 +113,7 @@ Every permission is off by default, and each covers one trust boundary:
 | `allowConfigEdit` | Studio may change plugin options in `kubb.config.ts`.                                          |
 | `allowRead`       | Studio may read existing output files and the files a generation produced.                     |
 | `allowReadAst`    | Studio may read back the parsed spec (the Kubb AST).                                           |
-| `allowFileRefs`   | A `$ref` in the spec may read a local file outside the project.          |
+| `allowFileRefs`   | A `$ref` in the spec may read a local file outside the project.                                |
 
 A sandbox never writes or edits config. One the host declares with `sandbox: true` always allows reads.
 
