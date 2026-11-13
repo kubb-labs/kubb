@@ -83,8 +83,8 @@ export function findEscapingOutputPath(value: unknown): string | undefined {
   const output = isPlainObject(value) ? value.output : undefined
   if (isPlainObject(output) && typeof output.path === 'string') {
     const normalized = path.posix.normalize(output.path.replaceAll('\\', '/'))
-    // A drive letter, as in `C:../src`, is outside the folder even when Node calls it relative.
-    if (path.posix.isAbsolute(normalized) || /^[a-z]:/i.test(normalized) || normalized === '..' || normalized.startsWith('../')) return output.path
+    // Checked before normalizing, which turns `C:/../src` into `src`: a drive letter always leaves the folder.
+    if (path.posix.isAbsolute(normalized) || /^[a-z]:/i.test(output.path) || normalized === '..' || normalized.startsWith('../')) return output.path
   }
   for (const entry of Object.values(value)) {
     const found = findEscapingOutputPath(entry)

@@ -942,6 +942,14 @@ describe('editConfig', () => {
         { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['override'], value: [{ options: { output: { path: 'a/../../b' } } }] },
       ],
       ['a drive-relative path', { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['output', 'path'], value: 'C:../src' }],
+      [
+        'a drive path that normalizes away',
+        { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['output', 'path'], value: 'C:/../src' },
+      ],
+      [
+        'a drive path with backslashes',
+        { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['output', 'path'], value: 'C:\\..\\src' },
+      ],
       ['a new plugin', { operation: ConfigEditOperation.ADD_PLUGIN, plugin: '@kubb/plugin-zod', options: { output: { path: '..\\src' } } }],
     ] satisfies Array<[string, ConfigEdit]>)('refuses %s that resolves outside the output folder', (_, edit) => {
       const result = editConfig({ source, edits: [edit] })
