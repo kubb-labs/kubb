@@ -2,9 +2,8 @@ import { realpath } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { escapePointerToken, getErrorMessage, isPathInside, memo, toError } from '@internals/utils'
-import { fileRefScope } from '@kubb/core'
 import { Diagnostics } from '@kubb/kit'
-import type { AdapterSource, Diagnostic } from '@kubb/kit'
+import type { AdapterSource, Diagnostic, FileRefs } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
 import { isOpenApi32 } from '../oas.ts'
@@ -110,8 +109,8 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
  * against the OpenAPI 3.2 `$self` when the document sets one. Every other file or URL read,
  * including one that fails, lands in `sources`. A `$ref` that cannot be read reports
  * `KUBB_REF_NOT_FOUND` at the key that holds it, as a warning when it sits inside an `x-` extension.
- * So does any local file from a URL input, and, inside `withFileRefs`, a local file outside the
- * folder of `pathOrUrl` and the scope's root.
+ * So does any local file from a URL input, and a local file `fileRefs` does not allow: one outside
+ * the folder of `pathOrUrl` and the `fileRefs` folder, or any with `false`.
  *
  * @example Local file
  * `const document = await bundleDocument('./openapi.yaml')`
@@ -119,15 +118,17 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
  * @example Remote URL
  * `const document = await bundleDocument('https://example.com/openapi.yaml')`
  */
-export async function bundleDocument(pathOrUrl: string, { document, sources = [] }: { document?: Document; sources?: Array<string> } = {}): Promise<Document> {
+export async function bundleDocument(
+  pathOrUrl: string,
+  { document, sources = [], fileRefs }: { document?: Document; sources?: Array<string>; fileRefs?: FileRefs } = {},
+): Promise<Document> {
   const cache = memo.create<string, Promise<object | string>>()
   // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
   const refused = new Map<string, string>()
-  const scope = fileRefScope()
   // From `pathOrUrl`, not the document's own `$self`, so a `$ref` cannot read a stored token elsewhere.
-  const fileRoots = urlRegExp.test(pathOrUrl) || scope === false ? [] : scope === undefined ? undefined : [dirname(resolve(pathOrUrl)), scope]
+  const fileRoots = urlRegExp.test(pathOrUrl) || fileRefs === false ? [] : fileRefs === undefined ? undefined : [dirname(resolve(pathOrUrl)), fileRefs]
   // Compared after following links, so a link inside a folder cannot point outside it.
   const realRoots = fileRoots?.map((root) => realpath(root).catch(() => root))
   const isOutside = async (sourcePath: string) => {
@@ -182,7 +183,7 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
           severity: isExtensionPath(path) ? 'warning' : 'error',
           message: reason ? `Refused an external \`$ref\`: ${reason}.` : `Could not bundle an external \`$ref\`. ${message}.`,
           help: reason
-            ? 'Move the file inside the input folder or the project, or inline the schema.'
+            ? 'Move the file inside the project, grant the agent `allowFileRefs`, or inline the schema.'
             : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
         }
@@ -214,7 +215,7 @@ const inlineInputName = '<inline input>'
  * const document = await parseFromConfig({ type: 'data', data: '{"openapi":"3.0.0",...}' })
  * ```
  */
-export async function parseFromConfig(source: AdapterSource, sources: Array<string> = []): Promise<Document> {
+export async function parseFromConfig(source: AdapterSource, sources: Array<string> = [], { fileRefs }: { fileRefs?: FileRefs } = {}): Promise<Document> {
   const raw = await (async (): Promise<Document> => {
     // YAML parsing also handles JSON.
     if (source.type === 'data') {
@@ -227,13 +228,13 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
           : structuredClone(source.data as Document)
       const isObject = Boolean(data) && typeof data === 'object'
       // `bundleDocument` returns the document as is when it has no external ref.
-      if (source.root && isObject) return bundleDocument(join(source.root, inlineInputName), { document: data, sources })
+      if (source.root && isObject) return bundleDocument(join(source.root, inlineInputName), { document: data, sources, fileRefs })
       const scan = resolveTargets(data)
       if (isObject) scans.set(data, scan)
       return data
     }
     await assertInputExists(source.path)
-    return bundleDocument(source.path, { sources })
+    return bundleDocument(source.path, { sources, fileRefs })
   })()
 
   // Unquoted `swagger: 2.0` parses as the number 2, which `upgrade` does not recognise as a version.

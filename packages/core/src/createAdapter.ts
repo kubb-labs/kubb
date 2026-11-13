@@ -12,6 +12,12 @@ import type { DiagnosticLocation } from './Diagnostics.ts'
  * - `{ type: 'data' }`: raw string or parsed object provided inline. `root` is the folder that
  *   relative external `$ref`s in it resolve from.
  */
+/**
+ * Which local files a `$ref` in the input may read, for a host that does not trust the spec: only
+ * files inside the input's folder or this folder, or none with `false`. Any file when unset.
+ */
+export type FileRefs = string | false
+
 export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown; root?: string }
 
 /**
@@ -84,7 +90,7 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * resolve a `$ref` to the file that is actually generated. Refs that keep their pointer's
    * last segment need no stamp.
    */
-  parse: (source: AdapterSource, options?: { signal?: AbortSignal }) => PossiblePromise<InputNode>
+  parse: (source: AdapterSource, options?: { signal?: AbortSignal; fileRefs?: FileRefs }) => PossiblePromise<InputNode>
   /**
    * Validate the document at the given path or URL.
    */

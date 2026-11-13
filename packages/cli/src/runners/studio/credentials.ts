@@ -56,6 +56,7 @@ export type Credentials = {
       allowUpdate?: boolean
       allowRemove?: boolean
       allowSaveInput?: boolean
+      allowFileRefs?: boolean
       allowExec?: boolean
     }
   >

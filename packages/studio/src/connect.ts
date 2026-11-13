@@ -22,7 +22,6 @@ import {
   readInstalledPackages,
   resolveCacheDir,
   resolveMeta,
-  withFileRefs,
 } from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { x } from 'tinyexec'
@@ -350,6 +349,7 @@ class Agent extends RpcTarget implements AgentApi {
           allowUpdate: false,
           allowRemove: false,
           allowSaveInput: false,
+          allowFileRefs: false,
           allowRead: sandbox || permissions.allowRead,
           allowReadAst: sandbox || permissions.allowReadAst,
         }
@@ -571,6 +571,8 @@ class Agent extends RpcTarget implements AgentApi {
             this.#refuse({ message: getErrorMessage(error), code: Diagnostics.code.gitInputFailed }),
           )
         : undefined
+    // Studio may have sent or saved the spec, so its `$ref`s read no file on a shared or hosted agent, and stay inside the project unless the host allows more.
+    const fileRefs = this.#sandbox || this.#managed ? false : this.#permissions.allowFileRefs ? undefined : this.#options.root
     const run = () =>
       generate({
         config: {
@@ -586,11 +588,10 @@ class Agent extends RpcTarget implements AgentApi {
         hooks: this.#options.hooks,
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
+        fileRefs,
       })
     // The adapter fetches the URL and every `$ref` in it, so a managed agent limits the fetch itself to public addresses.
-    // Studio may have sent or saved the spec, so its `$ref`s stay inside the project, or read no file at all on a shared or hosted agent.
-    const fileRefs = this.#sandbox || this.#managed ? false : this.#options.root
-    const files = await withFileRefs(fileRefs, this.#managed ? () => withPublicFetch(run) : run)
+    const files = await (this.#managed ? withPublicFetch(run) : run())
       .catch(async (error: unknown) => {
         await this.#generations.drop(jobId)
         await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
@@ -1025,6 +1026,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
       allowUpdate: false,
       allowRemove: false,
       allowSaveInput: false,
+      allowFileRefs: false,
       allowExec: false,
       allowRead: false,
       allowReadAst: false,

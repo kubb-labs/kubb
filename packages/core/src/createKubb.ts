@@ -2,6 +2,7 @@ import { resolve } from 'node:path'
 import { getElapsedMs, isPathInside } from '@internals/utils'
 import type { FileNode, InputNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
+import type { FileRefs } from './createAdapter.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
@@ -53,6 +54,10 @@ export type CreateKubbOptions = {
    * Stops the build at the next safe checkpoint.
    */
   signal?: AbortSignal
+  /**
+   * Limits the local files a `$ref` in the input may read. Unset, a `$ref` reads any file.
+   */
+  fileRefs?: FileRefs
 }
 
 export type ConfigGenerateResult = GenerateResult & {
@@ -121,11 +126,13 @@ export class Kubb {
   #driver: KubbDriver | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
+  readonly #fileRefs: FileRefs | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
+    this.#fileRefs = options.fileRefs
   }
 
   /**
@@ -182,7 +189,7 @@ export class Kubb {
 
     // The driver empties `cleanPath` right before it writes the new files, so a run that fails
     // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath })
+    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath, fileRefs: this.#fileRefs })
     await driver.setup()
 
     this.#driver = driver

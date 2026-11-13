@@ -31,7 +31,6 @@ export { assertPluginOption, definePlugin } from './definePlugin.ts'
 export { createResolver } from './createResolver.ts'
 export { Resolver } from './Resolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
-export { fileRefScope, withFileRefs } from './fileRefs.ts'
 export { checkoutGitInput } from './gitInput.ts'
 export { isPublicAddress } from './publicAddress.ts'
 export { getInputKind } from './input.ts'
@@ -45,7 +44,7 @@ export { Hookable } from './Hookable.ts'
 export { runHook, type HookResult, type RunHookOptions } from './output/runHook.ts'
 export { runOutputPasses, type RunOutputPassesOptions } from './output/runOutputPasses.ts'
 
-export type { Adapter, AdapterDefinition, AdapterFactory, AdapterFactoryOptions, AdapterSource } from './createAdapter.ts'
+export type { Adapter, AdapterDefinition, AdapterFactory, AdapterFactoryOptions, AdapterSource, FileRefs } from './createAdapter.ts'
 export type {
   Diagnostic,
   DiagnosticDoc,

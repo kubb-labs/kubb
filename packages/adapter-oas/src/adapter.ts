@@ -205,7 +205,7 @@ export const adapterOas = defineExtension<AdapterOas>({
       async settle() {
         await Promise.all(pendingValidations.splice(0))
       },
-      async parse(source, { signal } = {}) {
+      async parse(source, { signal, fileRefs } = {}) {
         signal?.throwIfAborted()
         const cached = inputCache.get(source)
         if (cached) {
@@ -216,7 +216,7 @@ export const adapterOas = defineExtension<AdapterOas>({
         const read: Array<string> = []
         sources = read
         const promise = (async () => {
-          const document = await parseFromConfig(source, read)
+          const document = await parseFromConfig(source, read, { fileRefs })
           signal?.throwIfAborted()
           assertDocument(document)
           if (validate) pendingValidations.push(validateDocumentInWorker(document))

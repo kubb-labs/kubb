@@ -544,6 +544,8 @@ export type AgentPermissions = {
   allowRemove: boolean
   /** Whether the agent may keep the spec Studio sends: a document in `openapi.yaml` and `input` in `kubb.config.ts`. Needs `allowConfigEdit` as well. */
   allowSaveInput: boolean
+  /** Whether a `$ref` in the spec may read a local file outside the spec's folder and the project. Never on a sandbox or managed agent, which read none. */
+  allowFileRefs: boolean
   /**
    * Whether the agent shares existing output on connect and hands back file source through
    * `readFiles`. A sandbox always permits reads of its generated files.
@@ -568,6 +570,7 @@ export const AgentPermission = {
   UPDATE: 'allowUpdate',
   REMOVE: 'allowRemove',
   SAVE_INPUT: 'allowSaveInput',
+  FILE_REFS: 'allowFileRefs',
   EXEC: 'allowExec',
 } as const satisfies Record<string, keyof AgentPermissions>
 export type AgentPermission = ValueOf<typeof AgentPermission>

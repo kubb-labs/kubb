@@ -46,6 +46,7 @@ export type {
   AdapterFactory,
   AdapterFactoryOptions,
   AdapterSource,
+  FileRefs,
   BannerMeta,
   Config,
   Diagnostic,

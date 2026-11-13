@@ -3,7 +3,7 @@ import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
-import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
+import { type Config, createKubb, type Diagnostic, Diagnostics, type FileRefs, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
 import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
@@ -93,14 +93,16 @@ export async function generate({
   hooks,
   signal,
   allowExec,
+  fileRefs,
 }: {
   config: Config
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
+  fileRefs?: FileRefs
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const kubb = createKubb({ ...config, output }, { hooks, signal })
+  const kubb = createKubb({ ...config, output }, { hooks, signal, fileRefs })
   const result = await kubb.generate()
   if (!result.success) throw generationFailure(result.diagnostics)
 

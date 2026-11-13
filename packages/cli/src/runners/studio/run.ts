@@ -81,6 +81,7 @@ export type StudioValues = {
   allowUpdate?: boolean
   allowRemove?: boolean
   allowSaveInput?: boolean
+  allowFileRefs?: boolean
   allowExec?: boolean
   open?: boolean
   logLevel?: CLIOptions['logLevel']
@@ -215,6 +216,7 @@ const PERMISSIONS: ReadonlyArray<{
     title: (configPath) => `Save the spec from Studio as the input in ${configPath}`,
     hint: 'keep a pasted spec, URL, or git file',
   },
+  { key: AgentPermission.FILE_REFS, label: 'outside refs', title: () => 'Let a $ref read files outside the project', hint: 'specs that share schemas' },
   { key: AgentPermission.EXEC, label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
 ]
 

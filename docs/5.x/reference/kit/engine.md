@@ -20,7 +20,7 @@ Import `createKubb` from the `kubb` package to run a build from your own code. F
 
 ## `createKubb` {#createkubb}
 
-`createKubb` accepts a `UserConfig` and returns a `Kubb` instance. Call `.safeBuild()` to run the pipeline and read the problems back from `BuildOutput`, or `.build()` to throw instead. An optional second argument takes `hooks`, a `Hookable<KubbHooks>` to share one emitter between builds, and `signal`, an `AbortSignal` that stops the build at the next checkpoint.
+`createKubb` accepts a `UserConfig` and returns a `Kubb` instance. Call `.safeBuild()` to run the pipeline and read the problems back from `BuildOutput`, or `.build()` to throw instead. An optional second argument takes `hooks`, a `Hookable<KubbHooks>` to share one emitter between builds, `signal`, an `AbortSignal` that stops the build at the next checkpoint, and `fileRefs`, which limits the local files a `$ref` in the input may read to the input's folder and the folder you pass, or to none with `false`.
 
 Use `createKubb` to orchestrate several builds, inspect diagnostics, or feed Kubb output into a larger toolchain. `createKubb` applies the same defaults as `defineConfig`, so a shared config generates the same files from the CLI and from a script. Import it from `@kubb/core` for a bare engine without package defaults.
 

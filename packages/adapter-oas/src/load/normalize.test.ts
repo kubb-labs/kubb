@@ -5,7 +5,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import * as jsYaml from 'js-yaml'
 import { describe, expect, it, vi } from 'vitest'
 import * as yaml from 'yaml'
-import { withFileRefs } from '@kubb/core'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import { assertDocument, bundleDocument, getBaseUri, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
 import { scanDocument } from './schemaIds.ts'
@@ -659,10 +658,11 @@ describe('bundleDocument file confinement', () => {
   const documentWith = (ref: string, extra: object = {}) =>
     ({ openapi: '3.1.0', info: { title: 'T', version: '1' }, paths: {}, components: { schemas: { Leak: { $ref: ref } } }, ...extra }) as unknown as Document
 
-  // As a Studio agent loads a spec: the scope root is a sibling folder, so only the input's own folder counts.
-  const inScope = <T>(dir: string, run: () => Promise<T>) => withFileRefs(path.join(dir, 'project'), run)
+  // As a Studio agent loads a spec: `fileRefs` is a sibling folder, so only the input's own folder counts.
+  const bundle = (dir: string, document: Document, fileRefs: string | false = path.join(dir, 'project')) =>
+    bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document, fileRefs })
 
-  it('reads a ../ ref outside any scope, as the CLI does', async () => {
+  it('reads a ../ ref without fileRefs, as the CLI does', async () => {
     await withSpecs(async (dir) => {
       const bundled = await bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document: documentWith('../secret.yaml') })
       expect(JSON.stringify(bundled)).toContain('token')
@@ -672,17 +672,15 @@ describe('bundleDocument file confinement', () => {
   it.each([
     ['a ../ ref', '../secret.yaml', {}],
     ['a ref behind a $self that leaves the folder', './secret.yaml', { $self: '../openapi.yaml' }],
-  ])('refuses %s outside the input folder and the scope root', async (_title, ref, extra) => {
+  ])('refuses %s outside the input folder and the fileRefs folder', async (_title, ref, extra) => {
     await withSpecs(async (dir) => {
-      await expect(inScope(dir, () => bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document: documentWith(ref, extra) }))).rejects.toThrow(
-        /is outside/,
-      )
+      await expect(bundle(dir, documentWith(ref, extra))).rejects.toThrow(/is outside/)
     })
   })
 
-  it('reads a ../ ref inside the scope root', async () => {
+  it('reads a ../ ref inside the fileRefs folder', async () => {
     await withSpecs(async (dir) => {
-      const bundled = await withFileRefs(dir, () => bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document: documentWith('../secret.yaml') }))
+      const bundled = await bundle(dir, documentWith('../secret.yaml'), dir)
       expect(JSON.stringify(bundled)).toContain('token')
     })
   })
@@ -690,24 +688,20 @@ describe('bundleDocument file confinement', () => {
   it('refuses a link inside the input folder that points outside it', async () => {
     await withSpecs(async (dir) => {
       await symlink(path.join(dir, 'secret.yaml'), path.join(dir, 'spec/link.yaml'))
-      await expect(inScope(dir, () => bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document: documentWith('./link.yaml') }))).rejects.toThrow(
-        /is outside/,
-      )
+      await expect(bundle(dir, documentWith('./link.yaml'))).rejects.toThrow(/is outside/)
     })
   })
 
-  it('reads a ref inside the input folder within a scope', async () => {
+  it('reads a ref inside the input folder with fileRefs set', async () => {
     await withSpecs(async (dir) => {
-      const bundled = await inScope(dir, () => bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document: documentWith('./pet.yaml') }))
+      const bundled = await bundle(dir, documentWith('./pet.yaml'))
       expect(JSON.stringify(bundled)).toContain('token')
     })
   })
 
-  it('refuses every local ref when the scope turns file refs off', async () => {
+  it('refuses every local ref when fileRefs is false', async () => {
     await withSpecs(async (dir) => {
-      await expect(withFileRefs(false, () => bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document: documentWith('./pet.yaml') }))).rejects.toThrow(
-        /may not read local files/,
-      )
+      await expect(bundle(dir, documentWith('./pet.yaml'), false)).rejects.toThrow(/may not read local files/)
     })
   })
 
