@@ -382,6 +382,24 @@ describe('adapterOas pathParamsCasing', () => {
     expect(node.operations[0]?.path).toBe('/stores/{storeId}/pets/{petId}')
     expect(node.operations[0]?.parameters.map((param) => param.name)).toStrictEqual(['storeId', 'petId', 'page-size'])
   })
+
+  it('keeps the spec names of an operation with a matrix path parameter, whose name is sent', async () => {
+    const matrixSpec = {
+      ...spec,
+      paths: {
+        '/groups/{group-id}': {
+          get: {
+            parameters: [{ name: 'group-id', in: 'path', required: true, style: 'matrix', schema: { type: 'string' } }],
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+    } as const
+    const node = await adapterOas({ validate: false, pathParamsCasing: 'camelcase' }).parse({ type: 'data', data: matrixSpec })
+
+    expect(node.operations[0]?.path).toBe('/groups/{group-id}')
+    expect(node.operations[0]?.parameters[0]?.name).toBe('group-id')
+  })
 })
 
 describe('adapterOas options', () => {
