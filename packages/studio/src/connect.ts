@@ -12,7 +12,6 @@ import {
   cacheStorage,
   checkoutGitInput,
   type Config,
-  type FileRefs,
   fsStorage,
   getInputKind,
   type InputKind,
@@ -71,7 +70,7 @@ import {
   type UpdateExtensionsResult,
 } from './protocol.ts'
 import { withPublicFetch } from './publicFetch.ts'
-import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
+import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, resolveFileRefs, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -358,13 +357,6 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
-  // Studio may have sent or saved the spec, so its `$ref`s read no local file on a shared or hosted
-  // agent, and stay inside the project unless the host allows more.
-  get #fileRefs(): FileRefs | undefined {
-    if (this.#sandbox || this.#managed) return false
-    return this.#permissions.allowFileRefs ? undefined : this.#options.root
-  }
-
   // Owned agents retain output in the project cache. Each sandbox connection has a temporary cache.
   get #generations(): GenerationStore {
     this.#store ??= createGenerationStore({
@@ -595,7 +587,13 @@ class Agent extends RpcTarget implements AgentApi {
         hooks: this.#options.hooks,
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
-        fileRefs: checkout?.dir ?? this.#fileRefs,
+        fileRefs: resolveFileRefs({
+          sandbox: this.#sandbox,
+          managed: this.#managed,
+          allowFileRefs: this.#permissions.allowFileRefs,
+          root: this.#options.root,
+          checkoutDir: checkout?.dir,
+        }),
       })
     // The adapter fetches the URL and every `$ref` in it, so a shared or hosted agent limits the fetch itself to public addresses.
     const files = await (this.#sandbox || this.#managed ? withPublicFetch(run) : run())

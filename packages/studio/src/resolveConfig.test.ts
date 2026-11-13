@@ -1,7 +1,7 @@
 import { type Adapter, Diagnostics, type ExtensionManifest, type Parser, type Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionEntry, JSONKubbConfig } from './protocol.ts'
-import { assertOutputPaths, mergeOptions, mergeOutput, mergeParsers, mergePlugins, resolvePlugins, toJSONOptions } from './resolveConfig.ts'
+import { assertOutputPaths, mergeOptions, mergeOutput, mergeParsers, mergePlugins, resolveFileRefs, resolvePlugins, toJSONOptions } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -238,6 +238,21 @@ describe('toJSONOptions', () => {
     const options = { output: { path: 'types' }, group: { type: 'tag', name: (group: string) => group }, pattern: /x/, big: 1n, macros: [() => 1] }
 
     expect(toJSONOptions(options)).toStrictEqual({ output: { path: 'types' }, group: { type: 'tag' }, pattern: {}, macros: [null] })
+  })
+})
+
+describe('resolveFileRefs', () => {
+  const project = { sandbox: false, managed: false, allowFileRefs: false, root: '/project' }
+
+  it.each([
+    ['a project agent to its root', project, '/project'],
+    ['a project agent granted allowFileRefs to any file', { ...project, allowFileRefs: true }, undefined],
+    ['a sandbox agent to no file, whatever the host granted', { ...project, sandbox: true, allowFileRefs: true }, false],
+    ['a managed agent to no file, whatever the host granted', { ...project, managed: true, allowFileRefs: true }, false],
+    ['a managed agent with a git input to its checkout', { ...project, managed: true, checkoutDir: '/checkout' }, '/checkout'],
+    ['a sandbox agent to no file even with a checkout', { ...project, sandbox: true, checkoutDir: '/checkout' }, false],
+  ])('limits %s', (_label, options, expected) => {
+    expect(resolveFileRefs(options)).toBe(expected)
   })
 })
 
