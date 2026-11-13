@@ -44,6 +44,7 @@ const options: StudioOptions = {
     allowUpdate: false,
     allowRemove: false,
     allowSaveInput: false,
+    allowFileRefs: false,
     allowExec: false,
   },
   autoOpen: false,
@@ -169,6 +170,7 @@ describe('resolvePermissions', () => {
       allowUpdate: false,
       allowRemove: false,
       allowSaveInput: false,
+      allowFileRefs: false,
       allowExec: true,
     }
 
@@ -199,6 +201,7 @@ describe('resolvePermissions', () => {
       allowUpdate: false,
       allowRemove: false,
       allowSaveInput: false,
+      allowFileRefs: false,
       allowExec: false,
     }
     const stored: Credentials = { ...credentials, projects: { [process.cwd()]: remembered } }

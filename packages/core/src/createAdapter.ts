@@ -83,8 +83,11 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * every ref node pointing at a renamed schema, so `ast.ref.getName` and `resolver.imports`
    * resolve a `$ref` to the file that is actually generated. Refs that keep their pointer's
    * last segment need no stamp.
+   *
+   * With `fileRefs`, a `$ref` may only read local files inside those folders, for a host that does
+   * not trust the spec. An empty list allows none. Unset, a `$ref` reads any file.
    */
-  parse: (source: AdapterSource, options?: { signal?: AbortSignal }) => PossiblePromise<InputNode>
+  parse: (source: AdapterSource, options?: { signal?: AbortSignal; fileRefs?: Array<string> }) => PossiblePromise<InputNode>
   /**
    * Validate the document at the given path or URL.
    */

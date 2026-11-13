@@ -93,14 +93,16 @@ export async function generate({
   hooks,
   signal,
   allowExec,
+  fileRefs,
 }: {
   config: Config
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
+  fileRefs?: Array<string>
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const kubb = createKubb({ ...config, output }, { hooks, signal })
+  const kubb = createKubb({ ...config, output }, { hooks, signal, fileRefs })
   const result = await kubb.generate()
   if (!result.success) throw generationFailure(result.diagnostics)
 

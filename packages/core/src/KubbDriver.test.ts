@@ -9,6 +9,9 @@ import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
 import { Resolver } from './Resolver.ts'
+import { checkoutGitInput } from './gitInput.ts'
+
+vi.mock('./gitInput.ts', async (importOriginal) => ({ ...(await importOriginal<typeof import('./gitInput.ts')>()), checkoutGitInput: vi.fn() }))
 
 function makeConfig(overrides: Partial<Config> = {}): Config {
   return {
@@ -617,5 +620,22 @@ describe('KubbDriver generator dispatch', () => {
       'unmatched/op-getPet.ts',
       'unmatched/op-listPets.ts',
     ])
+  })
+})
+
+describe('KubbDriver fileRefs', () => {
+  const gitInput = 'git+https://example.com/api.git#main:specs/openapi.yaml'
+
+  it.each([
+    ['adds the git checkout folder to the folders a host allows', ['/project'], ['/project', '/checkout']],
+    ['leaves an unset limit unset', undefined, undefined],
+  ])('%s', async (_label, fileRefs, expected) => {
+    vi.mocked(checkoutGitInput).mockResolvedValueOnce({ path: '/checkout/specs/openapi.yaml', dir: '/checkout', dispose: async () => {} })
+    const parse = vi.fn(async () => ast.factory.createInput({ operations: [], meta: { title: 'Pets' } }))
+    const driver = new KubbDriver(makeConfig({ input: gitInput, adapter: createMockedAdapter({ parse }) }), { hooks: new Hookable<KubbHooks>(), fileRefs })
+
+    await driver.setup()
+    await driver.run()
+    expect(parse).toHaveBeenCalledWith({ type: 'path', path: '/checkout/specs/openapi.yaml' }, expect.objectContaining({ fileRefs: expected }))
   })
 })

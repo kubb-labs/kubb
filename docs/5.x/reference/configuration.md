@@ -122,7 +122,7 @@ Where Kubb reads your spec: a local file path, a URL, a file in a git repository
 
 A string that starts with `{` or `[`, spans multiple lines, or opens with a YAML `openapi:` or `swagger:` key is read as inline content. A string that starts with `git+` is a git input.
 
-Anything else is a file path or a URL. A relative path resolves against [`root`](#root), which is the folder of the config file unless you set it. Relative `$ref` files in inline content or a parsed object also resolve against `root`.
+Anything else is a file path or a URL. A relative path resolves against [`root`](#root), which is the folder of the config file unless you set it. Relative `$ref` files in inline content or a parsed object also resolve against `root`. A URL input reads no local files from its `$ref`s, so a fetched spec cannot point at files on the machine.
 
 Write a git input as `git+<repo>#<ref>:<path>`. `<ref>` is a branch, a tag, or a full commit SHA when the host allows fetching by SHA (GitHub and GitLab do). Leave out `<ref>:` to use the default branch.
 

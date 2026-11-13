@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { type ExtensionKind, isPackageName } from '@kubb/core'
 import { camelCase } from '@internals/utils'
 import { extensionKinds, type InstalledExtensions, type OptionValue } from './types.ts'
@@ -70,4 +71,24 @@ export function isOutputValue({ key, value }: { key: string; value: unknown }): 
 
 export function pickOutput<T>(output: Record<string, T>): Record<string, T> {
   return Object.fromEntries(Object.entries(output).filter(([key]) => isOutputKey(key)))
+}
+
+/**
+ * Returns the first `output.path` in `value`, at any depth (`override` entries included), that is
+ * absolute or climbs out of the folder it resolves against.
+ */
+export function findEscapingOutputPath(value: unknown): string | undefined {
+  if (!Array.isArray(value) && !isPlainObject(value)) return undefined
+
+  const output = isPlainObject(value) ? value.output : undefined
+  if (isPlainObject(output) && typeof output.path === 'string') {
+    const normalized = path.posix.normalize(output.path.replaceAll('\\', '/'))
+    // Checked before normalizing, which turns `C:/../src` into `src`. A drive letter always leaves the folder.
+    if (path.posix.isAbsolute(normalized) || /^[a-z]:/i.test(output.path) || normalized === '..' || normalized.startsWith('../')) return output.path
+  }
+  for (const entry of Object.values(value)) {
+    const found = findEscapingOutputPath(entry)
+    if (found !== undefined) return found
+  }
+  return undefined
 }

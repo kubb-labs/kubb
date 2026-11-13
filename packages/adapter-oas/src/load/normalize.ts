@@ -1,6 +1,7 @@
+import { realpath } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { escapePointerToken, getErrorMessage, memo, toError } from '@internals/utils'
+import { escapePointerToken, getErrorMessage, isPathInside, memo, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource, Diagnostic } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -92,6 +93,17 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
 }
 
 /**
+ * Whether `filePath` is inside one of `folders`. Links are followed first, so a link inside a
+ * folder cannot point outside it.
+ */
+async function isInsideFolders(filePath: string, folders: Array<string>): Promise<boolean> {
+  const real = (item: string) => realpath(resolve(item)).catch(() => resolve(item))
+  const target = await real(filePath)
+  const realFolders = await Promise.all(folders.map(real))
+  return [...folders, ...realFolders].some((folder) => isPathInside(target, folder))
+}
+
+/**
  * Bundles a multi-file OpenAPI document into a single document via `api-ref-bundler`.
  *
  * External file schemas are hoisted into named `components.schemas` entries, so a property
@@ -108,6 +120,7 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
  * against the OpenAPI 3.2 `$self` when the document sets one. Every other file or URL read,
  * including one that fails, lands in `sources`. A `$ref` that cannot be read reports
  * `KUBB_REF_NOT_FOUND` at the key that holds it, as a warning when it sits inside an `x-` extension.
+ * So does any local file from a URL input, and a local file outside every `fileRefs` folder.
  *
  * @example Local file
  * `const document = await bundleDocument('./openapi.yaml')`
@@ -115,19 +128,32 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
  * @example Remote URL
  * `const document = await bundleDocument('https://example.com/openapi.yaml')`
  */
-export async function bundleDocument(pathOrUrl: string, { document, sources = [] }: { document?: Document; sources?: Array<string> } = {}): Promise<Document> {
+export async function bundleDocument(
+  pathOrUrl: string,
+  { document, sources = [], fileRefs }: { document?: Document; sources?: Array<string>; fileRefs?: Array<string> } = {},
+): Promise<Document> {
   const cache = memo.create<string, Promise<object | string>>()
   // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
+  // The folders a `$ref` may read local files from. The host names them, never the document's own
+  // `$self`, so a `$ref` cannot read a stored token elsewhere. A URL input has none.
+  const folders = urlRegExp.test(pathOrUrl) ? [] : fileRefs
+  const refused = new Set<string>()
 
   let entry = pathOrUrl
   let entryDocument: object | string | undefined = document
-  const resolver = (sourcePath: string) => {
+  const resolver = async (sourcePath: string) => {
     if (entryDocument !== undefined && toKey(sourcePath) === toKey(entry)) {
-      return Promise.resolve(entryDocument)
+      return entryDocument
     }
     const key = toKey(sourcePath)
+    const isFileRef = key !== toKey(pathOrUrl) && !urlRegExp.test(sourcePath)
+    if (isFileRef && folders && !(await isInsideFolders(sourcePath, folders))) {
+      // api-ref-bundler drops the rejection's message, so `onError` looks the path up here.
+      refused.add(sourcePath)
+      throw new Error(`Refused ${sourcePath}`)
+    }
     return memo(cache, key, () => {
       sources.push(key)
       return resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
@@ -152,11 +178,16 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
       onError: (message, { path, state }) => {
         // Only a `$ref` in the input itself has a key in the document to point at.
         const pointer = toKey(state.baseFile) === toKey(entry) ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
+        const refusedPath = [...refused].find((sourcePath) => message.includes(sourcePath))
         const diagnostic: Diagnostic = {
           code: Diagnostics.code.refNotFound,
           severity: isExtensionPath(path) ? 'warning' : 'error',
-          message: `Could not bundle an external \`$ref\`. ${message}.`,
-          help: 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
+          message: refusedPath ? `Refused an external \`$ref\` to the local file ${refusedPath}.` : `Could not bundle an external \`$ref\`. ${message}.`,
+          help: refusedPath
+            ? folders?.length
+              ? 'This run only reads local files inside the folders its host allows, such as the project. Move the file there or inline the schema. On your own agent, `--allow-file-refs` lifts the limit.'
+              : 'This input reads no local file. Inline the schema, or serve the file from a URL.'
+            : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
         }
         if (!Diagnostics.report(diagnostic) && diagnostic.severity === 'error') {
@@ -187,7 +218,7 @@ const inlineInputName = '<inline input>'
  * const document = await parseFromConfig({ type: 'data', data: '{"openapi":"3.0.0",...}' })
  * ```
  */
-export async function parseFromConfig(source: AdapterSource, sources: Array<string> = []): Promise<Document> {
+export async function parseFromConfig(source: AdapterSource, sources: Array<string> = [], { fileRefs }: { fileRefs?: Array<string> } = {}): Promise<Document> {
   const raw = await (async (): Promise<Document> => {
     // YAML parsing also handles JSON.
     if (source.type === 'data') {
@@ -200,13 +231,13 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
           : structuredClone(source.data as Document)
       const isObject = Boolean(data) && typeof data === 'object'
       // `bundleDocument` returns the document as is when it has no external ref.
-      if (source.root && isObject) return bundleDocument(join(source.root, inlineInputName), { document: data, sources })
+      if (source.root && isObject) return bundleDocument(join(source.root, inlineInputName), { document: data, sources, fileRefs })
       const scan = resolveTargets(data)
       if (isObject) scans.set(data, scan)
       return data
     }
     await assertInputExists(source.path)
-    return bundleDocument(source.path, { sources })
+    return bundleDocument(source.path, { sources, fileRefs })
   })()
 
   // Unquoted `swagger: 2.0` parses as the number 2, which `upgrade` does not recognise as a version.

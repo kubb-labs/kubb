@@ -53,6 +53,10 @@ export type CreateKubbOptions = {
    * Stops the build at the next safe checkpoint.
    */
   signal?: AbortSignal
+  /**
+   * The only folders a `$ref` in the input may read local files from. Unset, a `$ref` reads any file.
+   */
+  fileRefs?: Array<string>
 }
 
 export type ConfigGenerateResult = GenerateResult & {
@@ -121,11 +125,13 @@ export class Kubb {
   #driver: KubbDriver | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
+  readonly #fileRefs: Array<string> | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
+    this.#fileRefs = options.fileRefs
   }
 
   /**
@@ -182,7 +188,7 @@ export class Kubb {
 
     // The driver empties `cleanPath` right before it writes the new files, so a run that fails
     // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath })
+    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath, fileRefs: this.#fileRefs })
     await driver.setup()
 
     this.#driver = driver

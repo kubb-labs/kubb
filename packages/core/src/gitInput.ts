@@ -116,7 +116,7 @@ export function gitAuthEnv(env: NodeJS.ProcessEnv, { repo, authorization }: { re
 /**
  * Fetches one commit of a git repository into a temporary directory with a shallow `git fetch`,
  * so any host and the user's own git credentials work, and relative `$ref` files resolve.
- * Resolves to the spec path on disk and a `dispose` that deletes the checkout.
+ * Resolves to the spec path on disk, the checkout `dir`, and a `dispose` that deletes the checkout.
  *
  * With `publicOnly`, the repository must be an https URL on public addresses, the fetch connects to
  * the addresses checked, and it does not follow a redirect. `authorization` adds that header to this
@@ -126,7 +126,7 @@ export async function checkoutGitInput(
   input: string,
   signal?: AbortSignal,
   { publicOnly = false, authorization }: { publicOnly?: boolean; authorization?: string } = {},
-): Promise<{ path: string; dispose: () => Promise<void> }> {
+): Promise<{ path: string; dir: string; dispose: () => Promise<void> }> {
   const { repo, ref, path } = parseGitInput(input)
   const authEnv = authorization ? gitAuthEnv(process.env, { repo, authorization }) : {}
   const fetchConfig = publicOnly ? await resolvePublicFetchConfig(repo, signal) : []
@@ -166,5 +166,5 @@ export async function checkoutGitInput(
     throw gitError(`Cannot run \`git\` for ${label}: ${getErrorMessage(error)}`, error)
   }
 
-  return { path: specPath, dispose }
+  return { path: specPath, dir, dispose }
 }

@@ -11,7 +11,7 @@ const REDIRECTS = new Set([301, 302, 303, 307, 308])
 const NO_BODY = new Set([204, 205, 304])
 
 function notPublic(host: string): Error {
-  return new Error(`${host} is not a public address, so a managed agent does not fetch from it`)
+  return new Error(`${host} is not a public address, so this agent does not fetch from it`)
 }
 
 function createLookup(blocked?: net.BlockList): net.LookupFunction {
@@ -63,8 +63,8 @@ function request({ url, blocked, signal }: { url: URL; blocked?: net.BlockList; 
  */
 export function createPublicFetch(blocked?: net.BlockList): typeof fetch {
   const publicFetch = async (input: Parameters<typeof fetch>[0], init?: RequestInit): Promise<Response> => {
-    if (typeof input !== 'string' && !(input instanceof URL)) throw new TypeError('A managed agent fetches by URL only')
-    if (init?.method && init.method.toUpperCase() !== 'GET') throw new TypeError('A managed agent only sends GET requests')
+    if (typeof input !== 'string' && !(input instanceof URL)) throw new TypeError('This agent fetches by URL only')
+    if (init?.method && init.method.toUpperCase() !== 'GET') throw new TypeError('This agent only sends GET requests')
 
     let url = new URL(input)
     for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
@@ -81,7 +81,7 @@ export function createPublicFetch(blocked?: net.BlockList): typeof fetch {
 
 /**
  * Runs `run` with the global `fetch` limited to public addresses, then puts the original back.
- * A managed agent runs one job at a time, so nothing else shares the window.
+ * A sandbox or managed agent runs one job at a time, so nothing else shares the window.
  */
 export async function withPublicFetch<T>(run: () => Promise<T>): Promise<T> {
   const original = globalThis.fetch

@@ -348,8 +348,13 @@ export type GenerationRun = {
 }
 
 /**
+ * Every kind of agent Studio knows. A host passes its own kind to `connectAgent`.
+ */
+export type AgentType = 'user' | 'cli' | 'ci' | 'sandbox' | 'global' | 'managed'
+
+/**
  * What Studio knows about the agent on the other end of a socket. Studio passes it with every
- * {@link AgentApi.connect} call, so it stays the authority on whether the agent is a sandbox.
+ * {@link AgentApi.connect} call. Its `sandbox` flag can only take permissions away. The host decides the rest.
  */
 export type AgentConnectInfo = {
   /**
@@ -544,14 +549,16 @@ export type AgentPermissions = {
   allowRemove: boolean
   /** Whether the agent may keep the spec Studio sends: a document in `openapi.yaml` and `input` in `kubb.config.ts`. Needs `allowConfigEdit` as well. */
   allowSaveInput: boolean
+  /** Whether a `$ref` in the spec may read a local file outside the project. Never on a sandbox or managed agent, which read none. */
+  allowFileRefs: boolean
   /**
    * Whether the agent shares existing output on connect and hands back file source through
-   * `readFiles`. A sandbox always permits reads of its generated files.
+   * `readFiles`. A sandbox the host declares always permits reads of its generated files.
    */
   allowRead: boolean
   /**
    * Whether the agent hands back the parsed spec (the Kubb AST) in response to `readInput`.
-   * Separate from `allowRead`, which covers generated files. Always true for a sandbox.
+   * Separate from `allowRead`, which covers generated files. Always true for a sandbox the host declares.
    */
   allowReadAst: boolean
 }
@@ -568,6 +575,7 @@ export const AgentPermission = {
   UPDATE: 'allowUpdate',
   REMOVE: 'allowRemove',
   SAVE_INPUT: 'allowSaveInput',
+  FILE_REFS: 'allowFileRefs',
   EXEC: 'allowExec',
 } as const satisfies Record<string, keyof AgentPermissions>
 export type AgentPermission = ValueOf<typeof AgentPermission>
