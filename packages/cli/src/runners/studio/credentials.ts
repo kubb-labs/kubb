@@ -42,7 +42,8 @@ export type Credentials = {
    */
   issuedAt?: string
   /**
-   * The agent key as a PKCS #8 PEM string, absent for an agent paired without one.
+   * The agent key as a PKCS #8 PEM string, absent for an agent paired without one. Kept in the
+   * system keychain where there is one, and in the credential file otherwise.
    */
   privateKey?: string
   agentId: string
@@ -81,15 +82,41 @@ export async function readCredentials(): Promise<Credentials | null> {
   const stored = await projectStorage()
     .getItem<Credentials>(CREDENTIALS_FILENAME)
     .catch(() => null)
+  if (typeof stored?.token !== 'string' || stored.token === '') return null
+  if (stored.privateKey) return stored
 
-  return typeof stored?.token === 'string' && stored.token !== '' ? stored : null
+  const privateKey = await keychainEntry()
+    .then((entry) => entry?.getPassword())
+    .catch(() => null)
+
+  return privateKey ? { ...stored, privateKey } : stored
 }
 
 /**
- * Writes the credential into the project folder, which only its owner can open.
+ * Writes the credential into the project folder, which only its owner can open. The agent key goes
+ * to the system keychain instead when one accepts it, so a copy of the folder does not carry it.
  */
-export async function writeCredentials(credentials: Credentials): Promise<void> {
-  await projectStorage().setItem(CREDENTIALS_FILENAME, credentials)
+export async function writeCredentials({ privateKey, ...credentials }: Credentials): Promise<void> {
+  const inKeychain =
+    privateKey !== undefined &&
+    (await keychainEntry()
+      .then(async (entry) => {
+        await entry?.setPassword(privateKey)
+        return entry !== null
+      })
+      .catch(() => false))
+
+  await projectStorage().setItem(CREDENTIALS_FILENAME, inKeychain ? credentials : { ...credentials, privateKey })
+}
+
+/**
+ * The keychain item for this project: macOS Keychain, Windows Credential Manager, or Secret Service
+ * on Linux. Null when the native binding is missing for this platform.
+ */
+async function keychainEntry() {
+  const keyring = await import('@napi-rs/keyring').catch(() => null)
+
+  return keyring ? new keyring.AsyncEntry('kubb-studio', getProjectKubbHome()) : null
 }
 
 const LOCK_STALE_MS = 10_000
@@ -160,6 +187,9 @@ export function clearCredentials(token?: string): Promise<void> {
   return withLock(async () => {
     if (token && (await readCredentials())?.token !== token) return
     await projectStorage().removeItem(CREDENTIALS_FILENAME)
+    await keychainEntry()
+      .then((entry) => entry?.deletePassword())
+      .catch(() => undefined)
   })
 }
 
