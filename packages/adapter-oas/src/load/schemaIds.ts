@@ -2,6 +2,7 @@ import { escapePointerToken } from '@internals/utils'
 
 const DATA_KEYS = new Set(['example', 'examples', 'const', 'enum', 'default'])
 const NAMED_ENTRY_KEYS = new Set(['properties', 'patternProperties', '$defs', 'definitions', 'schemas', 'dependentSchemas'])
+const TARGET_KEYS = ['$id', '$anchor', '$dynamicAnchor'] as const
 
 function walk(node: unknown, pointer: string, visit: (node: Record<string, unknown>, pointer: string) => void, parentKey?: string): void {
   if (!node || typeof node !== 'object') return
@@ -11,6 +12,36 @@ function walk(node: unknown, pointer: string, visit: (node: Record<string, unkno
     if (!named && (DATA_KEYS.has(key) || key.startsWith('x-'))) continue
     walk(value, `${pointer}/${escapePointerToken(key)}`, visit, Array.isArray(node) ? parentKey : key)
   }
+}
+
+export type DocumentScan = {
+  /** A `$ref` points outside the document. */
+  externalRef: boolean
+  /** An `$id`, `$anchor` or `$dynamicAnchor` sits where {@link resolveSchemaIds} reads it. */
+  schemaIds: boolean
+  /** A `$ref` points into `#/paths/`. */
+  pathRefs: boolean
+}
+
+/** Answers, in one walk and without building JSON pointers, what the loading steps after it need to know. */
+export function scanDocument(document: unknown): DocumentScan {
+  const scan: DocumentScan = { externalRef: false, schemaIds: false, pathRefs: false }
+  const visit = ({ node, readsIds, parentKey }: { node: unknown; readsIds: boolean; parentKey?: string }): void => {
+    if (!node || typeof node !== 'object') return
+    const isArray = Array.isArray(node)
+    const record = node as Record<string, unknown>
+    const ref = record['$ref']
+    if (typeof ref === 'string' && !ref.startsWith('#')) scan.externalRef = true
+    if (typeof ref === 'string' && ref.startsWith('#/paths/')) scan.pathRefs = true
+    if (readsIds && !isArray && TARGET_KEYS.some((key) => typeof record[key] === 'string')) scan.schemaIds = true
+    const named = parentKey !== undefined && NAMED_ENTRY_KEYS.has(parentKey)
+    for (const key in record) {
+      const childReadsIds = readsIds && (named || !(DATA_KEYS.has(key) || key.startsWith('x-')))
+      visit({ node: record[key], readsIds: childReadsIds, parentKey: isArray ? parentKey : key })
+    }
+  }
+  visit({ node: document, readsIds: true })
+  return scan
 }
 
 /**

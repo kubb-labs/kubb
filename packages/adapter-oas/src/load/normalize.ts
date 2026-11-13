@@ -9,27 +9,20 @@ import { isOpenApi32 } from '../oas.ts'
 import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
 import type { ValidationErrors, WorkerResult } from './validateWorker.ts'
-import { resolveSchemaIds } from './schemaIds.ts'
+import { type DocumentScan, resolveSchemaIds, scanDocument } from './schemaIds.ts'
 import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
+// The scan of each document returned unbundled, so a later step can skip a walk it answers.
+const scans = new WeakMap<object, DocumentScan>()
+
 /**
- * True when `node` contains a `$ref` pointing outside the current document (a relative path,
- * absolute path, or URL). An internal `#/...` fragment does not count.
- *
- * `Object.values` reads array elements and object property values alike, so the same recursion
- * walks both without a separate array branch.
+ * Rewrites `$id` and `$anchor` refs in place, then returns the scan of the result.
  */
-export function hasExternalRef(node: unknown): boolean {
-  if (!node || typeof node !== 'object') {
-    return false
-  }
-
-  const ref = (node as { $ref?: unknown }).$ref
-  if (typeof ref === 'string' && !ref.startsWith('#')) {
-    return true
-  }
-
-  return Object.values(node).some(hasExternalRef)
+function resolveTargets(document: unknown): DocumentScan {
+  const scan = scanDocument(document)
+  if (!scan.schemaIds) return scan
+  resolveSchemaIds(document)
+  return scanDocument(document)
 }
 
 /**
@@ -150,9 +143,10 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
   // unreadable input document as a hard error before bundling.
   const root = await resolver(pathOrUrl)
   // Before bundling, so a `$ref` to a schema's `$id` URL is not fetched.
-  resolveSchemaIds(root)
+  const scan = resolveTargets(root)
 
-  if (typeof root === 'object' && root !== null && !hasExternalRef(root)) {
+  if (typeof root === 'object' && root !== null && !scan.externalRef) {
+    scans.set(root, scan)
     return root as Document
   }
   entry = getBaseUri(pathOrUrl, root)
@@ -209,8 +203,11 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
               help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
             }) as Document)
           : structuredClone(source.data as Document)
-      if (source.root && hasExternalRef(data)) return bundleDocument(join(source.root, inlineInputName), { document: data, sources })
-      resolveSchemaIds(data)
+      const isObject = Boolean(data) && typeof data === 'object'
+      // `bundleDocument` returns the document as is when it has no external ref.
+      if (source.root && isObject) return bundleDocument(join(source.root, inlineInputName), { document: data, sources })
+      const scan = resolveTargets(data)
+      if (isObject) scans.set(data, scan)
       return data
     }
     await assertInputExists(source.path)
@@ -228,7 +225,7 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
     }
   }
 
-  if (raw && typeof raw === 'object' && 'swagger' in raw) {
+  if (raw && typeof raw === 'object' && 'swagger' in raw && (scans.get(raw)?.pathRefs ?? true)) {
     const refs = createRefs(raw)
     inlinePathRefs(raw, (ref) => refs.resolve(ref, { report: false }))
   }
