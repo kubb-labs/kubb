@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, stat, utimes } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-const keychain = vi.hoisted(() => ({ items: new Map<string, string>(), available: true }))
+const keychain = vi.hoisted(() => ({ items: new Map<string, string>(), available: true, pending: undefined as Promise<string | null> | undefined }))
 
 vi.mock('@napi-rs/keyring', () => ({
   AsyncEntry: class {
@@ -16,6 +16,7 @@ vi.mock('@napi-rs/keyring', () => ({
     }
     async getPassword() {
       if (!keychain.available) throw new Error("Couldn't access platform storage: AccessDenied")
+      if (keychain.pending) return keychain.pending
       return keychain.items.get(this.account) ?? null
     }
     async deletePassword() {
@@ -32,6 +33,7 @@ beforeEach(async () => {
   home = await mkdtemp(path.join(tmpdir(), 'kubb-home-'))
   keychain.items.clear()
   keychain.available = true
+  keychain.pending = undefined
   vi.stubEnv('KUBB_HOME', home)
 })
 
@@ -100,6 +102,23 @@ describe('readCredentials', () => {
 })
 
 describe('updateCredentials', () => {
+  it('keeps its lock fresh while a slow keychain call holds it past the stale age', async () => {
+    let answer = (_key: string | null) => {}
+    keychain.pending = new Promise<string | null>((resolve) => (answer = resolve))
+    await writeCredentials({ studioUrl: 'https://kubb.studio', token: 'token', agentId: '1', agentSlug: 'brave-otter' })
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
+    const lock = path.join(getProjectKubbHome(), 'credentials.lock')
+
+    const update = updateCredentials((current) => current)
+    await vi.waitFor(async () => expect(await stat(lock)).toBeDefined())
+    vi.advanceTimersByTime(11_000)
+    await vi.waitFor(async () => expect(Date.now() - (await stat(lock)).mtimeMs).toBeLessThan(10_000))
+
+    answer(null)
+    await update
+    vi.useRealTimers()
+  })
+
   const stored = { studioUrl: 'https://kubb.studio', token: 'token', agentId: '1', agentSlug: 'brave-otter' }
 
   it('keeps both changes when a token refresh and a permission change overlap', async () => {

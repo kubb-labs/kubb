@@ -1,5 +1,5 @@
 import { hash, randomBytes, randomUUID } from 'node:crypto'
-import { mkdir, rename, rmdir, stat } from 'node:fs/promises'
+import { mkdir, rename, rmdir, stat, utimes } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as sleep } from 'node:timers/promises'
@@ -116,7 +116,8 @@ export async function writeCredentials({ privateKey, ...credentials }: Credentia
 async function keychainEntry() {
   const keyring = await import('@napi-rs/keyring').catch(() => null)
 
-  return keyring ? new keyring.AsyncEntry('kubb-studio', getProjectKubbHome()) : null
+  // Without Secret Service, Linux would fall back to the kernel keyring, which a reboot empties.
+  return keyring ? new keyring.AsyncEntry('kubb-studio', getProjectKubbHome(), { linux: { store: 'secret-service' } }) : null
 }
 
 const LOCK_STALE_MS = 10_000
@@ -172,9 +173,16 @@ async function withLock<T>(run: () => Promise<T>): Promise<T> {
   const lock = path.join(home, 'credentials.lock')
   await mkdir(home, { recursive: true, mode: 0o700 })
   while (!(await tryLock(lock))) await sleep(LOCK_RETRY_MS)
+  // A keychain prompt can keep the owner waiting past LOCK_STALE_MS, so it keeps the lock fresh.
+  const renew = setInterval(() => {
+    const now = new Date()
+    void utimes(lock, now, now).catch(() => undefined)
+  }, LOCK_STALE_MS / 2)
+  renew.unref()
   try {
     return await run()
   } finally {
+    clearInterval(renew)
     await rmdir(lock).catch(() => undefined)
   }
 }

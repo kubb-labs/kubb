@@ -55,7 +55,7 @@ To change the saved permissions, run `kubb studio permissions`. A running connec
 
 The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, which defaults to `~/.kubb`. `status` prints the log path.
 
-While it is connected, the CLI renews its token once a day, so a project that stays connected is not asked to pair again. Pairing also creates a key that stays on your machine. It goes in the system keychain (macOS Keychain, Windows Credential Manager, or Secret Service on Linux), or next to the token where there is none, such as in CI or a container. A project paired with an earlier release has no key and keeps working, and `kubb studio login` adds one.
+While it is connected, the CLI renews its token once a day, so a project that stays connected is not asked to pair again. Pairing also creates a key that stays on your machine. It goes in the system keychain (macOS Keychain, Windows Credential Manager, or Secret Service on Linux), or next to the token when there is none, such as in CI or a container, or when the keychain refuses access. A project paired with an earlier release has no key and keeps working, and `kubb studio login` adds one.
 
 `stop` waits for a running generation to clean up, and `logout` stops the worker before it removes credentials. An interrupted job does not run again.
 
