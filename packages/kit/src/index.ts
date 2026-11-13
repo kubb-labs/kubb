@@ -58,7 +58,6 @@ export type {
   ExtensionManifest,
   ExtensionManifestOption,
   ExtensionMeta,
-  FileRefs,
   Generator,
   GeneratorContext,
   Group,

@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
-import { getErrorMessage, mkdtemp, read, rm, toError } from '@internals/utils'
+import { getErrorMessage, isPathInside, mkdtemp, read, rm, toError } from '@internals/utils'
 import {
   Diagnostics,
   cacheStorage,
@@ -696,6 +696,10 @@ class Agent extends RpcTarget implements AgentApi {
     }
     const kind = getInputKind(edit.input)
     if (this.#managed && !MANAGED_INPUT_KINDS.has(kind)) return { reason: AgentMessage.MANAGED_INPUT_KIND }
+    // The next generation reads the input itself, whatever a `$ref` may read.
+    if (kind === 'file' && !isPathInside(path.resolve(this.#options.root, edit.input), this.#options.root)) {
+      return { reason: 'the input is a file outside the project' }
+    }
     if (kind !== 'inline') return edit
 
     const entry = edit.config === undefined || edit.config === 0 ? '' : `-${String(edit.config).replace(/[^\w.-]/g, '-')}`

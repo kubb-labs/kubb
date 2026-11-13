@@ -17,13 +17,13 @@ import { checkoutGitInput, gitInputRegExp } from './gitInput.ts'
 import { inputToAdapterSource } from './input.ts'
 
 import type { Config, KubbHooks } from './types.ts'
-import type { Adapter, AdapterSource, FileRefs } from './createAdapter.ts'
+import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { Hookable } from './Hookable.ts'
 
 type Options = {
   hooks: Hookable<KubbHooks>
   signal?: AbortSignal
-  fileRefs?: FileRefs
+  fileRefs?: Array<string>
   /**
    * Passed to `fileManager.write` so files the output passes already normalized are left alone.
    */
@@ -266,7 +266,7 @@ export class KubbDriver {
     try {
       this.inputNode = await this.adapter.parse(checkout ? { type: 'path', path: checkout.path } : source, {
         signal: this.options.signal,
-        fileRefs: checkout && this.options.fileRefs ? checkout.dir : this.options.fileRefs,
+        fileRefs: checkout && this.options.fileRefs ? [...this.options.fileRefs, checkout.dir] : this.options.fileRefs,
       })
     } catch (caughtError) {
       throw new Diagnostics.Error(Diagnostics.fromExtension(caughtError, { kind: 'adapter', extension: this.adapter }))

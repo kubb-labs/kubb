@@ -58,7 +58,7 @@ const studioPermissionDescriptions: Record<AgentPermission, string> = {
   allowRemove:
     'Let Studio remove extensions with kubb remove, which edits kubb.config.ts and uninstalls packages; needs --allow-config-edit too. Asked for once per project when omitted',
   allowSaveInput: 'Let Studio save the spec it sends as the input in kubb.config.ts; needs --allow-config-edit too. Asked for once per project when omitted',
-  allowFileRefs: 'Let a $ref in the spec read a local file outside the spec folder and the project. Asked for once per project when omitted',
+  allowFileRefs: 'Let a $ref in the spec read a local file outside the project. Asked for once per project when omitted',
   allowExec: 'Run the formatter, the linter, and output.postGenerate after a generation',
 }
 

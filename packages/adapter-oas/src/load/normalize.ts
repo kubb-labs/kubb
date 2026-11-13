@@ -3,7 +3,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { escapePointerToken, getErrorMessage, isPathInside, memo, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
-import type { AdapterSource, Diagnostic, FileRefs } from '@kubb/kit'
+import type { AdapterSource, Diagnostic } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
 import { isOpenApi32 } from '../oas.ts'
@@ -120,8 +120,7 @@ async function isInsideFolders(filePath: string, folders: Array<string>): Promis
  * against the OpenAPI 3.2 `$self` when the document sets one. Every other file or URL read,
  * including one that fails, lands in `sources`. A `$ref` that cannot be read reports
  * `KUBB_REF_NOT_FOUND` at the key that holds it, as a warning when it sits inside an `x-` extension.
- * So does any local file from a URL input, and a local file `fileRefs` does not allow: one outside
- * the folder of `pathOrUrl` and the `fileRefs` folder, or any with `false`.
+ * So does any local file from a URL input, and a local file outside every `fileRefs` folder.
  *
  * @example Local file
  * `const document = await bundleDocument('./openapi.yaml')`
@@ -131,15 +130,15 @@ async function isInsideFolders(filePath: string, folders: Array<string>): Promis
  */
 export async function bundleDocument(
   pathOrUrl: string,
-  { document, sources = [], fileRefs }: { document?: Document; sources?: Array<string>; fileRefs?: FileRefs } = {},
+  { document, sources = [], fileRefs }: { document?: Document; sources?: Array<string>; fileRefs?: Array<string> } = {},
 ): Promise<Document> {
   const cache = memo.create<string, Promise<object | string>>()
   // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
-  // The folders a `$ref` may read local files from. From `pathOrUrl`, not the document's own `$self`,
-  // so a `$ref` cannot read a stored token elsewhere. A URL input has none.
-  const folders = urlRegExp.test(pathOrUrl) || fileRefs === false ? [] : fileRefs === undefined ? undefined : [dirname(resolve(pathOrUrl)), fileRefs]
+  // The folders a `$ref` may read local files from. The host names them, never the document's own
+  // `$self`, so a `$ref` cannot read a stored token elsewhere. A URL input has none.
+  const folders = urlRegExp.test(pathOrUrl) ? [] : fileRefs
   const refused = new Set<string>()
 
   let entry = pathOrUrl
@@ -186,7 +185,7 @@ export async function bundleDocument(
           message: refusedPath ? `Refused an external \`$ref\` to the local file ${refusedPath}.` : `Could not bundle an external \`$ref\`. ${message}.`,
           help: refusedPath
             ? folders?.length
-              ? 'This Kubb Studio agent only reads files inside the project. Move the file there, start the agent with `--allow-file-refs`, or inline the schema.'
+              ? 'This run only reads files inside the project. Move the file there, start the agent with `--allow-file-refs`, or inline the schema.'
               : 'This input reads no local file. Inline the schema, or serve the file from a URL.'
             : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
@@ -219,7 +218,7 @@ const inlineInputName = '<inline input>'
  * const document = await parseFromConfig({ type: 'data', data: '{"openapi":"3.0.0",...}' })
  * ```
  */
-export async function parseFromConfig(source: AdapterSource, sources: Array<string> = [], { fileRefs }: { fileRefs?: FileRefs } = {}): Promise<Document> {
+export async function parseFromConfig(source: AdapterSource, sources: Array<string> = [], { fileRefs }: { fileRefs?: Array<string> } = {}): Promise<Document> {
   const raw = await (async (): Promise<Document> => {
     // YAML parsing also handles JSON.
     if (source.type === 'data') {

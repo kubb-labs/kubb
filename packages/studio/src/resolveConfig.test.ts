@@ -245,14 +245,14 @@ describe('resolveFileRefs', () => {
   const project = { sandbox: false, managed: false, allowFileRefs: false, root: '/project' }
 
   it.each([
-    ['a project agent to its root', project, '/project'],
+    ['a project agent to its root', project, ['/project']],
     ['a project agent granted allowFileRefs to any file', { ...project, allowFileRefs: true }, undefined],
-    ['a sandbox agent to no file, whatever the host granted', { ...project, sandbox: true, allowFileRefs: true }, false],
-    ['a managed agent to no file, whatever the host granted', { ...project, managed: true, allowFileRefs: true }, false],
-    ['a managed agent with a git input to its checkout', { ...project, managed: true, checkoutDir: '/checkout' }, '/checkout'],
-    ['a sandbox agent to no file even with a checkout', { ...project, sandbox: true, checkoutDir: '/checkout' }, false],
+    ['a sandbox agent to no file, whatever the host granted', { ...project, sandbox: true, allowFileRefs: true }, []],
+    ['a managed agent to no file, whatever the host granted', { ...project, managed: true, allowFileRefs: true }, []],
+    ['a managed agent with a git input to its checkout', { ...project, managed: true, checkoutDir: '/checkout' }, ['/checkout']],
+    ['a sandbox agent to no file even with a checkout', { ...project, sandbox: true, checkoutDir: '/checkout' }, []],
   ])('limits %s', (_label, options, expected) => {
-    expect(resolveFileRefs(options)).toBe(expected)
+    expect(resolveFileRefs(options)).toStrictEqual(expected)
   })
 })
 

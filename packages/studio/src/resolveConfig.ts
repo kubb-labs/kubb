@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { type Adapter, type Config, Diagnostics, type ExtensionKind, type FileRefs, type Parser, type Plugin, resolveMeta } from '@kubb/core'
+import { type Adapter, type Config, Diagnostics, type ExtensionKind, type Parser, type Plugin, resolveMeta } from '@kubb/core'
 import { isAllowedPlugin, isOptionValue, isOutputKey, isOutputValue, isPlainObject, isSafeKey, toExportName, toPluginName } from '@internals/shared'
 import { isPathInside, toError } from '@internals/utils'
 import type { InstalledExtensions, JSONKubbConfig } from './protocol.ts'
@@ -339,9 +339,9 @@ export function assertOutputPaths({
 }
 
 /**
- * Which local files a `$ref` may read on each kind of agent. Studio may have sent or saved the spec,
- * so a sandbox or managed agent reads none outside the git checkout it made itself, and a project
- * agent stays inside its `root` unless the host granted `allowFileRefs`.
+ * The folders a `$ref` may read local files from on each kind of agent. Studio may have sent or
+ * saved the spec, so a sandbox or managed agent gets none but the git checkout it made itself, and
+ * a project agent its `root`. `undefined` is no limit, once the host granted `allowFileRefs`.
  */
 export function resolveFileRefs({
   sandbox,
@@ -355,10 +355,10 @@ export function resolveFileRefs({
   allowFileRefs: boolean
   root: string
   checkoutDir?: string
-}): FileRefs | undefined {
-  if (sandbox) return false
-  if (managed) return checkoutDir ?? false
-  return allowFileRefs ? undefined : root
+}): Array<string> | undefined {
+  if (sandbox) return []
+  if (managed) return checkoutDir ? [checkoutDir] : []
+  return allowFileRefs ? undefined : [root]
 }
 
 /**

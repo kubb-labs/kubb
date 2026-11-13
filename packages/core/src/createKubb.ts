@@ -2,7 +2,6 @@ import { resolve } from 'node:path'
 import { getElapsedMs, isPathInside } from '@internals/utils'
 import type { FileNode, InputNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
-import type { FileRefs } from './createAdapter.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
@@ -55,9 +54,9 @@ export type CreateKubbOptions = {
    */
   signal?: AbortSignal
   /**
-   * Limits the local files a `$ref` in the input may read. Unset, a `$ref` reads any file.
+   * The only folders a `$ref` in the input may read local files from. Unset, a `$ref` reads any file.
    */
-  fileRefs?: FileRefs
+  fileRefs?: Array<string>
 }
 
 export type ConfigGenerateResult = GenerateResult & {
@@ -126,7 +125,7 @@ export class Kubb {
   #driver: KubbDriver | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
-  readonly #fileRefs: FileRefs | undefined
+  readonly #fileRefs: Array<string> | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)

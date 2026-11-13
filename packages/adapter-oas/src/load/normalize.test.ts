@@ -658,8 +658,8 @@ describe('bundleDocument file confinement', () => {
   const documentWith = (ref: string, extra: object = {}) =>
     ({ openapi: '3.1.0', info: { title: 'T', version: '1' }, paths: {}, components: { schemas: { Leak: { $ref: ref } } }, ...extra }) as unknown as Document
 
-  // As a Studio agent loads a spec: `fileRefs` is a sibling folder, so only the input's own folder counts.
-  const bundle = (dir: string, document: Document, fileRefs: string | false = path.join(dir, 'project')) =>
+  // As a Studio agent loads a spec: only the spec's own folder is allowed unless a test says otherwise.
+  const bundle = (dir: string, document: Document, fileRefs: Array<string> = [path.join(dir, 'spec')]) =>
     bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document, fileRefs })
 
   it('reads a ../ ref without fileRefs, as the CLI does', async () => {
@@ -672,15 +672,15 @@ describe('bundleDocument file confinement', () => {
   it.each([
     ['a ../ ref', '../secret.yaml', {}],
     ['a ref behind a $self that leaves the folder', './secret.yaml', { $self: '../openapi.yaml' }],
-  ])('refuses %s outside the input folder and the fileRefs folder', async (_title, ref, extra) => {
+  ])('refuses %s outside the fileRefs folders', async (_title, ref, extra) => {
     await withSpecs(async (dir) => {
       await expect(bundle(dir, documentWith(ref, extra))).rejects.toThrow(/Refused an external/)
     })
   })
 
-  it('reads a ../ ref inside the fileRefs folder', async () => {
+  it('reads a ../ ref inside a fileRefs folder', async () => {
     await withSpecs(async (dir) => {
-      const bundled = await bundle(dir, documentWith('../secret.yaml'), dir)
+      const bundled = await bundle(dir, documentWith('../secret.yaml'), [dir])
       expect(JSON.stringify(bundled)).toContain('token')
     })
   })
@@ -692,16 +692,10 @@ describe('bundleDocument file confinement', () => {
     })
   })
 
-  it('reads a ref inside the input folder with fileRefs set', async () => {
+  it('reads a ref inside a fileRefs folder', async () => {
     await withSpecs(async (dir) => {
       const bundled = await bundle(dir, documentWith('./pet.yaml'))
       expect(JSON.stringify(bundled)).toContain('token')
-    })
-  })
-
-  it('treats an empty fileRefs folder as a limit, not as no limit', async () => {
-    await withSpecs(async (dir) => {
-      await expect(bundle(dir, documentWith('../secret.yaml'), '')).rejects.toThrow(/Refused an external/)
     })
   })
 
@@ -711,9 +705,9 @@ describe('bundleDocument file confinement', () => {
     })
   })
 
-  it('refuses every local ref when fileRefs is false', async () => {
+  it('refuses every local ref when fileRefs is empty', async () => {
     await withSpecs(async (dir) => {
-      await expect(bundle(dir, documentWith('./pet.yaml'), false)).rejects.toThrow(/Refused an external/)
+      await expect(bundle(dir, documentWith('./pet.yaml'), [])).rejects.toThrow(/Refused an external/)
     })
   })
 

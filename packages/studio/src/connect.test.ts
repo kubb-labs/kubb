@@ -417,7 +417,7 @@ describe('a sandbox job', () => {
     const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
 
     await agent.startGeneration({ jobId: 'job-1', config: { input: 'git+https://example.com/api.git#main:specs/openapi.yaml' } }).result()
-    expect(parse).toHaveBeenCalledWith({ type: 'path', path: '/checkout/specs/openapi.yaml' }, expect.objectContaining({ fileRefs: '/checkout' }))
+    expect(parse).toHaveBeenCalledWith({ type: 'path', path: '/checkout/specs/openapi.yaml' }, expect.objectContaining({ fileRefs: ['/checkout'] }))
   })
 
   it('reports allowFileRefs off on a managed agent, whatever the host granted', async () => {
@@ -443,9 +443,9 @@ describe('a sandbox job', () => {
   })
 
   it.each([
-    ['a managed agent with local file refs off', {}, { managed: true }, {}, false],
-    ['a sandbox agent with local file refs off', { permissions: { allowFileRefs: true } }, { sandbox: true }, { input: 'openapi: 3.1.0' }, false],
-    ['a project agent with local file refs inside its root', {}, {}, {}, root],
+    ['a managed agent with local file refs off', {}, { managed: true }, {}, []],
+    ['a sandbox agent with local file refs off', { permissions: { allowFileRefs: true } }, { sandbox: true }, { input: 'openapi: 3.1.0' }, []],
+    ['a project agent with local file refs inside its root', {}, {}, {}, [root]],
     ['a project agent granted allowFileRefs with no limit', { permissions: { allowFileRefs: true } }, {}, {}, undefined],
   ])('parses the spec of %s', async (_label, options, kind, config, expected) => {
     const parse = vi.fn(async () => ast.factory.createInput({ operations: [], meta: { title: 'Pets' } }))
@@ -963,6 +963,18 @@ describe('saveConfig', () => {
     await expect(agent.saveConfig({ edits: [edit] })).resolves.toStrictEqual({ outcomes: [{ edit, applied: true }], changed: true })
     expect(await read(join(project, 'openapi.yaml'))).toBe('openapi: 3.1.0\n')
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.yaml',`)
+  })
+
+  it.each([
+    ['refuses a file input outside the project', '../../home/kubb/.ssh/id_rsa', false],
+    ['saves a file input inside the project', './specs/petstore.yaml', true],
+  ])('%s', async (_label, input, applied) => {
+    const project = await projectWithConfig()
+    const { agent } = await connectStudio({ root: project, permissions: { allowConfigEdit: true, allowSaveInput: true } })
+
+    const result = await agent.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, input }] })
+    expect(result.outcomes[0]).toMatchObject({ applied })
+    expect((await read(join(project, 'kubb.config.ts'))).includes(input)).toBe(applied)
   })
 
   it('keeps a pasted JSON spec in openapi.json', async () => {

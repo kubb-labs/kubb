@@ -44,7 +44,7 @@ export { Hookable } from './Hookable.ts'
 export { runHook, type HookResult, type RunHookOptions } from './output/runHook.ts'
 export { runOutputPasses, type RunOutputPassesOptions } from './output/runOutputPasses.ts'
 
-export type { Adapter, AdapterDefinition, AdapterFactory, AdapterFactoryOptions, AdapterSource, FileRefs } from './createAdapter.ts'
+export type { Adapter, AdapterDefinition, AdapterFactory, AdapterFactoryOptions, AdapterSource } from './createAdapter.ts'
 export type {
   Diagnostic,
   DiagnosticDoc,
