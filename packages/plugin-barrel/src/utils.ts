@@ -1,6 +1,6 @@
 import { extname, posix } from 'node:path'
 import { ast, Diagnostics } from '@kubb/kit'
-import { pascalCase, toPosixPath } from '@internals/utils'
+import { memo, pascalCase, toPosixPath } from '@internals/utils'
 import type { BarrelType } from './types.ts'
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx'])
@@ -15,11 +15,7 @@ type DirectoryNode = { path: string; children: Map<string, TreeNode> }
 
 /** A directory's children in name order, the way a directory listing sorts them. Every barrel of a build walks the same tree. */
 function sortedChildren(node: DirectoryNode): ReadonlyArray<TreeNode> {
-  const cached = sortedChildrenCache.get(node)
-  if (cached) return cached
-  const sorted = [...node.children.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([, child]) => child)
-  sortedChildrenCache.set(node, sorted)
-  return sorted
+  return memo(sortedChildrenCache, node, () => [...node.children.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([, child]) => child))
 }
 
 const sortedChildrenCache = new WeakMap<DirectoryNode, ReadonlyArray<TreeNode>>()
@@ -101,17 +97,13 @@ type LeafNames = { hasSources: boolean; hasIndexable: boolean; valueNames: Array
 const leafNamesCache = new WeakMap<ast.FileNode, LeafNames>()
 
 function getLeafNames(sourceFile: ast.FileNode): LeafNames {
-  const cached = leafNamesCache.get(sourceFile)
-  if (cached) return cached
   const { sources } = sourceFile
-  const names: LeafNames = {
+  return memo(leafNamesCache, sourceFile, () => ({
     hasSources: sources.length > 0,
     hasIndexable: sources.some((source) => source.isIndexable),
     valueNames: indexableNames(sources, false),
     typeNames: indexableNames(sources, true),
-  }
-  leafNamesCache.set(sourceFile, names)
-  return names
+  }))
 }
 
 function indexableNames(sources: ReadonlyArray<ast.SourceNode>, isTypeOnly: boolean): Array<string> {

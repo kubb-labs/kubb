@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { isPathInside, toPosixPath } from '@internals/utils'
+import { isPathInside, memo, toPosixPath } from '@internals/utils'
 import { ast, defineExtension, Diagnostics } from '@kubb/kit'
 import type { Config, NormalizedPlugin, Plugin } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
@@ -54,9 +54,7 @@ type BarrelState = {
 const states = new WeakMap<Config, BarrelState>()
 
 function getState(config: Config): BarrelState {
-  const state = states.get(config) ?? { excludedPlugins: new Set(), excludedTargets: [], pendingBarrels: [] }
-  states.set(config, state)
-  return state
+  return memo(states, config, () => ({ excludedPlugins: new Set(), excludedTargets: [], pendingBarrels: [] }))
 }
 
 /**
