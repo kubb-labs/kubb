@@ -21,6 +21,11 @@ describe('Url.toPath', () => {
     // literal `.json` suffix is preserved
     expect(Url.toPath('/groups/{group-id}/{group.id}.json')).toBe('/groups/:groupId/:groupId2.json')
   })
+
+  test('never reuses a name that already ends in a counter', () => {
+    expect(Url.toPath('/{group-id}/{group.id}/{groupId2}')).toBe('/:groupId/:groupId2/:groupId22')
+    expect(Url.toPath('/{groupId2}/{group-id}/{group.id}')).toBe('/:groupId2/:groupId/:groupId3')
+  })
 })
 
 describe('Url.toParamNames', () => {
@@ -37,6 +42,15 @@ describe('Url.toParamNames', () => {
         ['group.id', 'groupId2'],
       ]),
     )
+  })
+
+  test('gives distinct placeholders distinct names that stay in step with Url.toPath', () => {
+    for (const path of ['/{group-id}/{group.id}/{groupId2}', '/{a-b}/{a-b}/{a.b}']) {
+      const names = Url.toParamNames(path)
+      const renamed = path.replace(/\{([^}]+)\}/g, (_match, name: string) => `{${names.get(name)}}`)
+      expect(new Set(names.values()).size).toBe(names.size)
+      expect(Url.toPath(renamed)).toBe(Url.toPath(path))
+    }
   })
 })
 

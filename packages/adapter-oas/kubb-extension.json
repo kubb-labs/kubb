@@ -177,6 +177,23 @@
           "value": "root"
         }
       ]
+    },
+    {
+      "key": "pathParamsCasing",
+      "path": ["pathParamsCasing"],
+      "label": "Path Params Casing",
+      "description": "Rename path parameters and their {placeholder}, such as {pet-id} to petId. The HTTP request stays the same.",
+      "type": "select",
+      "choices": [
+        {
+          "label": "as in the spec",
+          "value": null
+        },
+        {
+          "label": "camelcase",
+          "value": "camelcase"
+        }
+      ]
     }
   ]
 }

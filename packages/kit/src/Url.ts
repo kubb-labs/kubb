@@ -23,12 +23,13 @@ function transformPathParam(raw: string): string {
     .join('')
 }
 
-function uniqueParamName(raw: string, seen: Map<string, number>): string {
+function uniqueParamName(raw: string, used: Set<string>): string {
   const base = transformPathParam(raw)
-  const count = (seen.get(base) ?? 0) + 1
-  seen.set(base, count)
+  let name = base
+  for (let i = 2; used.has(name); i++) name = `${base}${i}`
+  used.add(name)
 
-  return count === 1 ? base : `${base}${count}`
+  return name
 }
 
 /**
@@ -60,9 +61,9 @@ export class Url {
    * Url.toPath('/groups/{group-id}/{group.id}.json') // '/groups/:groupId/:groupId2.json'
    */
   static toPath(path: string): string {
-    const seen = new Map<string, number>()
+    const used = new Set<string>()
 
-    return path.replace(/\{([^}]+)\}/g, (_match, param: string) => `:${uniqueParamName(param, seen)}`)
+    return path.replace(/\{([^}]+)\}/g, (_match, param: string) => `:${uniqueParamName(param, used)}`)
   }
 
   /**
@@ -72,11 +73,12 @@ export class Url {
    * Url.toParamNames('/groups/{group-id}/{group.id}') // Map { 'group-id' => 'groupId', 'group.id' => 'groupId2' }
    */
   static toParamNames(path: string): Map<string, string> {
-    const seen = new Map<string, number>()
+    const used = new Set<string>()
     const names = new Map<string, string>()
 
     for (const [, param] of path.matchAll(/\{([^}]+)\}/g)) {
-      if (!names.has(param!)) names.set(param!, uniqueParamName(param!, seen))
+      const name = uniqueParamName(param!, used)
+      if (!names.has(param!)) names.set(param!, name)
     }
 
     return names
