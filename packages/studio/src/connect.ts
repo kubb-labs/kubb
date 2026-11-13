@@ -941,6 +941,7 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
 async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
   const { hooks, signal, heartbeatInterval, studioUrl, version } = options
   const token = typeof options.token === 'function' ? await options.token() : options.token
+  if (signal?.aborted) return { code: 1000, reason: '', connected: false }
   const session: Session = { connected: Promise.withResolvers(), closed: false }
   const agent = new Agent({ options, session })
   const rpc = openRpc({ url, token, instanceId, agent })

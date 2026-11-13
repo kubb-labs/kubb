@@ -373,26 +373,37 @@ export async function connect(
 
     const warn = (message: string) => options.logLevel !== 'silent' && console.log(styleText('yellow', message))
     // Resolves whether the token changed; a failure keeps the old one.
-    const refresh = async ({ force = false } = {}): Promise<boolean> => {
-      const issuedAt = Date.parse(credentials.issuedAt ?? '')
-      if (!force && Date.now() - issuedAt < REFRESH_EVERY_MS) return false
+    const refreshToken = async (force: boolean): Promise<boolean> => {
+      if (!force && Date.now() - Date.parse(credentials.issuedAt ?? '') < REFRESH_EVERY_MS) return false
+      const replaced = credentials.token
       try {
         const token = await refreshAgentToken({
           studioUrl: options.studioUrl,
-          token: credentials.token,
+          token: replaced,
           machineId: await getMachineId(),
           privateKey: credentials.privateKey,
           signal,
         })
-        if (!token) return false
-        credentials = { ...credentials, token, issuedAt: new Date().toISOString() }
-        await writeCredentials(credentials).catch((error: unknown) => warn(`Could not store the refreshed token: ${toError(error).message}`))
+        // A pairing that finished meanwhile owns the credentials now.
+        if (!token || credentials.token !== replaced) return false
+        const refreshed = { token, issuedAt: new Date().toISOString() }
+        credentials = { ...credentials, ...refreshed }
+        // Only the token changes on disk, so permissions saved since this run read the file are kept.
+        await readCredentials()
+          .then((stored) => (stored?.token === replaced ? writeCredentials({ ...stored, ...refreshed }) : undefined))
+          .catch((error: unknown) => warn(`Could not store the refreshed token: ${toError(error).message}`))
         return true
       } catch (error) {
         if (!signal.aborted && !(error instanceof InvalidAgentTokenError)) warn(`Could not refresh the agent token: ${toError(error).message}`)
         return false
       }
     }
+    // The timer and a rejected token share one request: two refreshes of one token cannot both succeed.
+    let refreshing: Promise<boolean> | undefined
+    const refresh = ({ force = false } = {}): Promise<boolean> =>
+      (refreshing ??= refreshToken(force).finally(() => {
+        refreshing = undefined
+      }))
     await refresh()
     refreshTimer = setInterval(() => void refresh(), REFRESH_EVERY_MS)
     refreshTimer.unref()

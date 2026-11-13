@@ -382,6 +382,33 @@ describe('connect', () => {
     expect(calls.map(({ token }) => token)).toStrictEqual(['refreshed-token'])
   })
 
+  it('stores only the refreshed token, keeping permissions saved since the run read its credentials', async () => {
+    const stale = { ...credentials, issuedAt: undefined }
+    using project = stubProject({ stored: stale })
+    const saved = { ...stale, projects: { '/project': { allowWrite: false } } }
+    vi.mocked(credentialsStore.readCredentials).mockResolvedValueOnce(stale).mockResolvedValue(saved)
+    vi.mocked(refreshAgentToken).mockResolvedValueOnce('refreshed-token')
+    mockConnection()
+
+    await connect(options)
+
+    expect(project.write).toHaveBeenCalledWith({ ...saved, token: 'refreshed-token', issuedAt: expect.any(String) })
+  })
+
+  it('does not store a refreshed token over credentials another pairing replaced', async () => {
+    const stale = { ...credentials, issuedAt: undefined }
+    using project = stubProject({ stored: stale })
+    vi.mocked(credentialsStore.readCredentials)
+      .mockResolvedValueOnce(stale)
+      .mockResolvedValue({ ...stale, token: 'paired-elsewhere' })
+    vi.mocked(refreshAgentToken).mockResolvedValueOnce('refreshed-token')
+    mockConnection()
+
+    await connect(options)
+
+    expect(project.write).not.toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token' }))
+  })
+
   it('hands the stored agent key to the connection and the refresh, and connects without one when it has none', async () => {
     using _project = stubProject({ stored: { ...credentials, issuedAt: undefined, privateKey: 'pem' } })
     const calls = mockConnection()
