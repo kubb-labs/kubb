@@ -23,6 +23,23 @@ describe('Url.toPath', () => {
   })
 })
 
+describe('Url.toParamNames', () => {
+  test('maps each placeholder to the identifier Url.toPath gives it', () => {
+    expect(Url.toParamNames('/stores/{store-id}/pets/{pet-id}')).toEqual(
+      new Map([
+        ['store-id', 'storeId'],
+        ['pet-id', 'petId'],
+      ]),
+    )
+    expect(Url.toParamNames('/groups/{group-id}/{group.id}.json')).toEqual(
+      new Map([
+        ['group-id', 'groupId'],
+        ['group.id', 'groupId2'],
+      ]),
+    )
+  })
+})
+
 describe('Url.toGroupedTemplateString', () => {
   test('reads each param off a grouped path object through dot access when the name is a valid identifier', () => {
     expect(Url.toGroupedTemplateString('/pet/{petId}')).toBe('`/pet/${path.petId}`')

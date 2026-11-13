@@ -24,6 +24,18 @@ function transformPathParam(raw: string): string {
 }
 
 /**
+ * Sanitizes a parameter name and suffixes it with a counter when an earlier name in the same path
+ * already normalized to the same identifier.
+ */
+function uniqueParamName(raw: string, seen: Map<string, number>): string {
+  const base = transformPathParam(raw)
+  const count = (seen.get(base) ?? 0) + 1
+  seen.set(base, count)
+
+  return count === 1 ? base : `${base}${count}`
+}
+
+/**
  * Renders how a grouped `path` object's member is accessed: dot access for an identifier (reserved
  * words are valid property names), bracket access with the raw name otherwise.
  */
@@ -54,13 +66,28 @@ export class Url {
   static toPath(path: string): string {
     const seen = new Map<string, number>()
 
-    return path.replace(/\{([^}]+)\}/g, (_match, param: string) => {
-      const base = transformPathParam(param)
-      const count = (seen.get(base) ?? 0) + 1
-      seen.set(base, count)
+    return path.replace(/\{([^}]+)\}/g, (_match, param: string) => `:${uniqueParamName(param, seen)}`)
+  }
 
-      return count === 1 ? `:${base}` : `:${base}${count}`
-    })
+  /**
+   * Maps each `{placeholder}` name in an OpenAPI/Swagger path to the identifier {@link Url.toPath}
+   * gives it, with the same collision handling. A name that repeats keeps its first identifier.
+   *
+   * @example
+   * Url.toParamNames('/stores/{store-id}/pets/{pet-id}') // Map { 'store-id' => 'storeId', 'pet-id' => 'petId' }
+   *
+   * @example
+   * Url.toParamNames('/groups/{group-id}/{group.id}.json') // Map { 'group-id' => 'groupId', 'group.id' => 'groupId2' }
+   */
+  static toParamNames(path: string): Map<string, string> {
+    const seen = new Map<string, number>()
+    const names = new Map<string, string>()
+
+    for (const [, param] of path.matchAll(/\{([^}]+)\}/g)) {
+      if (!names.has(param!)) names.set(param!, uniqueParamName(param!, seen))
+    }
+
+    return names
   }
 
   /**
