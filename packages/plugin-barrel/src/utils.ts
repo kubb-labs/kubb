@@ -208,8 +208,7 @@ export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<ast.Fi
       .filter(Boolean)
     parts.reduce<DirectoryNode>((dir, part, i) => {
       const path = `${dir.path}/${part}`
-      const child: TreeNode = dir.children.get(part) ?? (i === parts.length - 1 ? { path } : { path, children: new Map() })
-      dir.children.set(part, child)
+      const child = memo(dir.children, part, (): TreeNode => (i === parts.length - 1 ? { path } : { path, children: new Map() }))
       return child.children ? child : dir
     }, tree)
   }

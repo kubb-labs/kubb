@@ -1,4 +1,4 @@
-import { toError } from '@internals/utils'
+import { memo, toError } from '@internals/utils'
 
 /**
  * A function that can be registered as a hook listener, synchronous or async. Any return value is
@@ -56,9 +56,7 @@ export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
    * ```
    */
   hook<THookName extends keyof THooks & string>(hookName: THookName, handler: AsyncListener<THooks[THookName]>): () => void {
-    let listeners = this.#listeners.get(hookName)
-    if (!listeners) this.#listeners.set(hookName, (listeners = new Set()))
-    listeners.add(handler as AsyncListener<Array<unknown>>)
+    memo(this.#listeners, hookName, () => new Set<AsyncListener<Array<unknown>>>()).add(handler as AsyncListener<Array<unknown>>)
     return () => this.removeHook(hookName, handler)
   }
 

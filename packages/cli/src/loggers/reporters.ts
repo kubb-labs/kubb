@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
-import { isPathInside } from '@internals/utils'
+import { isPathInside, memo } from '@internals/utils'
 import type { GenerationResult, Hookable, KubbGenerationEndContext, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
 import { cacheStorage, createCliReporter, createOutputManifest, hasOutputPasses, logLevel as logLevelMap } from '@kubb/core'
 import { writer as defaultWriter } from '../ui/log.ts'
@@ -75,9 +75,7 @@ function setupReporters(
       for (const file of files) {
         if (seen.has(file.path)) continue
         seen.add(file.path)
-        const paths = pluginFiles.get(plugin.name) ?? []
-        paths.push(file.path)
-        pluginFiles.set(plugin.name, paths)
+        memo(pluginFiles, plugin.name, (): Array<string> => []).push(file.path)
       }
     })
   }

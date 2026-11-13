@@ -1,4 +1,4 @@
-import { escapePointerToken } from '@internals/utils'
+import { escapePointerToken, memo } from '@internals/utils'
 
 const DATA_KEYS = new Set(['example', 'examples', 'const', 'enum', 'default'])
 const NAMED_ENTRY_KEYS = new Set(['properties', 'patternProperties', '$defs', 'definitions', 'schemas', 'dependentSchemas'])
@@ -63,7 +63,7 @@ function pick(declarations: Array<string> | undefined, pointer: string): string 
  */
 export function resolveSchemaIds(document: unknown): void {
   const targets = new Map<string, Array<string>>()
-  const declare = (key: string, pointer: string) => targets.set(key, [...(targets.get(key) ?? []), pointer])
+  const declare = (key: string, pointer: string) => memo(targets, key, (): Array<string> => []).push(pointer)
   walk(document, '#', (node, pointer) => {
     if (typeof node['$id'] === 'string') declare(node['$id'], pointer)
     for (const key of ['$anchor', '$dynamicAnchor']) {

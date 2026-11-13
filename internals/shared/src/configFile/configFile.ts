@@ -1,5 +1,5 @@
 import type { ExtensionKind } from '@kubb/core'
-import { getErrorMessage, read, writeRaw } from '@internals/utils'
+import { getErrorMessage, memo, read, writeRaw } from '@internals/utils'
 import type { ValueOf } from '@internals/utils'
 import {
   type AssignmentExpression,
@@ -678,7 +678,7 @@ function addPlugin({
   for (const item of [...defaults, { importName, packageName: edit.plugin }]) {
     const from = imports.get(item.importName)?.from
     if (from && from !== item.packageName) return { reason: `${item.importName} is already imported from ${from}` }
-    if (!from) missing.set(item.packageName, [...(missing.get(item.packageName) ?? []), item.importName])
+    if (!from) memo(missing, item.packageName, (): Array<string> => []).push(item.importName)
   }
 
   // The array sits below the imports, so adding to it first leaves the import lines where they are.

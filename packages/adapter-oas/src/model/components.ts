@@ -1,4 +1,4 @@
-import { escapePointerToken, pascalCase } from '@internals/utils'
+import { escapePointerToken, memo, pascalCase } from '@internals/utils'
 import { SCHEMA_REF_PREFIX } from '../constants.ts'
 import { isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
@@ -273,9 +273,7 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
   const normalizedNames = new Map<string, Array<SchemaWithMetadata>>()
   for (const item of candidates) {
     const key = pascalCase(item.originalName)
-    const bucket = normalizedNames.get(key) ?? []
-    bucket.push(item)
-    normalizedNames.set(key, bucket)
+    memo(normalizedNames, key, (): Array<SchemaWithMetadata> => []).push(item)
   }
 
   const schemas: Record<string, SchemaObject> = {}
