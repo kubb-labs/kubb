@@ -155,14 +155,10 @@ declare global {
 
 export type ConnectAgentOptions = {
   /**
-   * The agent's bearer token, from {@link pairAgent}. A function is called before every socket opens,
-   * so a host that refreshes the token with {@link refreshAgentToken} reconnects with the new one.
+   * The agent's bearer token, from {@link pairAgent}. A function is read before every socket opens.
    */
   token: string | (() => string | Promise<string>)
-  /**
-   * The agent key from `generateAgentKey`, stored with the token. With it, the agent signs the
-   * challenge Studio sends in `connect(info)`. An agent paired without a key leaves it out.
-   */
+  /** The agent key from `generateAgentKey`, used to sign Studio's connect challenge. */
   privateKey?: string
   studioUrl?: string
   /**

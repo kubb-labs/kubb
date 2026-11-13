@@ -96,10 +96,7 @@ type StartPairingOptions = {
    * the same machine pairing again rotates one agent's token instead of creating a second agent.
    */
   machineId: string
-  /**
-   * The agent key from `generateAgentKey`. Its public half goes to Studio as `public_key`, and the
-   * host stores the key with the token. Left out, the agent pairs without a key.
-   */
+  /** The agent key from `generateAgentKey`; its public half is sent as `public_key`. */
   privateKey?: string
   /**
    * Aborting this cancels the request in flight and rejects with {@link PairingCanceledError}.
@@ -304,41 +301,23 @@ export async function pairAgent({ onCode, onRetry, maxAttempts = 1, ...options }
   }
 }
 
-/** How long a token refresh may take before it is given up, in milliseconds. */
 const REFRESH_TIMEOUT_MS = 15_000
 
 type RefreshAgentTokenOptions = {
   studioUrl?: string
-  /**
-   * The token to trade in. Studio retires it as soon as it answers with the new one.
-   */
   token: string
-  /**
-   * The same secret the machine paired with, sent as `machine_id`, so a leaked token alone cannot be renewed.
-   */
+  /** The secret the machine paired with, sent as `machine_id`. */
   machineId: string
-  /**
-   * The agent key stored with the token, when it has one. Adds a {@link TokenRefreshProof} to the request.
-   */
+  /** The stored agent key, which adds a {@link TokenRefreshProof}. */
   privateKey?: string
   signal?: AbortSignal
-  /**
-   * Milliseconds before the request is given up.
-   * @default 15000
-   */
+  /** @default 15000 */
   timeout?: number
 }
 
 /**
- * Trades the agent's token for a new one with a full lifetime through `POST /api/agent/token/refresh`.
- * The old token stops working at once, so store the new one before anything else. Sockets open with
- * the old token stay up: Studio moves them to the new one.
- *
- * Returns `null` when the token cannot be refreshed but still works: a Studio without the route (404),
- * or a kind of agent whose token does not expire (409).
- *
- * @throws {InvalidAgentTokenError} when Studio refuses the token (401): it expired or was revoked, or
- * `machineId` belongs to another machine. Pair again.
+ * Trades the token for a new one; the old one stops working at once. `null` for 404 or 409.
+ * @throws {InvalidAgentTokenError} when Studio refuses the token (401).
  */
 export async function refreshAgentToken({
   studioUrl = defaultStudioUrl,

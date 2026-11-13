@@ -373,45 +373,27 @@ export type AgentConnectInfo = {
    */
   organizationSlug?: string
   studioVersion: string
-  /**
-   * A random string Studio picks for this socket, such as 32 random bytes in base64url. An agent that
-   * holds a key answers with {@link ConnectMessagePayload.signature}. Ignored when longer than
-   * {@link MAX_CONNECT_CHALLENGE_LENGTH}, and absent from a Studio that does not check agent keys.
-   */
+  /** Random string Studio picks per socket; an agent with a key answers with {@link ConnectMessagePayload.signature}. */
   challenge?: string
 }
 
 /** The longest {@link AgentConnectInfo.challenge} an agent signs. */
 export const MAX_CONNECT_CHALLENGE_LENGTH = 1024
 
-/**
- * What an agent key signature is for. The signed bytes are the UTF-8 encoding of the context, a line
- * feed, and the payload, so a signature made for one purpose never verifies for another.
- */
+/** Signed bytes are UTF-8 of `${context}\n${payload}`, so a signature for one context never verifies for another. */
 export const AgentSignatureContext = {
-  /**
-   * The payload is {@link AgentConnectInfo.challenge}, exactly as Studio sent it.
-   */
+  /** Payload: {@link AgentConnectInfo.challenge}, exactly as Studio sent it. */
   CONNECT: 'kubb-studio/agent-connect/v1',
-  /**
-   * The payload is the `signed_at` of the refresh request in decimal, a line feed, and the SHA-256 of
-   * the bearer token in lowercase hex.
-   */
+  /** Payload: `${signed_at}\n${sha256 hex of the bearer token}`. */
   TOKEN_REFRESH: 'kubb-studio/agent-token-refresh/v1',
 } as const
 export type AgentSignatureContext = ValueOf<typeof AgentSignatureContext>
 
-/**
- * Optional proof sent with `POST /api/agent/token/refresh` next to `machine_id` by an agent that holds a key.
- */
+/** Optional proof an agent with a key adds to the token refresh body next to `machine_id`. */
 export type TokenRefreshProof = {
-  /**
-   * When the agent signed the request, in milliseconds since the Unix epoch.
-   */
+  /** Milliseconds since the Unix epoch. */
   signed_at: number
-  /**
-   * Ed25519 signature for {@link AgentSignatureContext.TOKEN_REFRESH}, base64url without padding.
-   */
+  /** Ed25519 signature for {@link AgentSignatureContext.TOKEN_REFRESH}, base64url. */
   signature: string
 }
 
@@ -523,11 +505,7 @@ export type ConnectMessagePayload = {
     configs: Array<ConfigEntryView>
   }
   permissions: AgentPermissions
-  /**
-   * Ed25519 signature for {@link AgentSignatureContext.CONNECT} over {@link AgentConnectInfo.challenge},
-   * base64url without padding. Sent only when Studio sent a challenge and the agent holds a key, which
-   * an agent paired before agent keys does not.
-   */
+  /** Ed25519 signature for {@link AgentSignatureContext.CONNECT}, base64url; only with a key and a challenge. */
   signature?: string
 }
 
