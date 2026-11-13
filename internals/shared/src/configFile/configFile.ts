@@ -881,10 +881,10 @@ export function editConfig({ source, edits, extensions = new Map() }: { source: 
   let current = source
 
   const outcomes = edits.map((edit): ConfigEditOutcome => {
-    const invalid = validateEdit(edit)
-    if (invalid) return { edit, applied: false, reason: invalid }
-
     try {
+      const invalid = validateEdit(edit)
+      if (invalid) return { edit, applied: false, reason: invalid }
+
       const result = applyEdit({ source: current, edit, extensions })
       if ('reason' in result) return { edit, applied: false, reason: result.reason }
       current = result.source

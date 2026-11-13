@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -665,6 +665,13 @@ describe('bundleDocument file confinement', () => {
   ])('refuses %s outside the input folder', async (_title, ref, extra) => {
     await withSpecs(async (dir) => {
       await expect(bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document: documentWith(ref, extra) })).rejects.toThrow(/outside the input's folder/)
+    })
+  })
+
+  it('refuses a link inside the input folder that points outside it', async () => {
+    await withSpecs(async (dir) => {
+      await symlink(path.join(dir, 'secret.yaml'), path.join(dir, 'spec/link.yaml'))
+      await expect(bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document: documentWith('./link.yaml') })).rejects.toThrow(/outside the input's folder/)
     })
   })
 

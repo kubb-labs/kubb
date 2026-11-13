@@ -1,3 +1,4 @@
+import { realpath } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { escapePointerToken, getErrorMessage, isPathInside, memo, toError } from '@internals/utils'
@@ -126,6 +127,15 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
   // From `pathOrUrl`, not the document's own `$self`, so a `$ref` cannot read a stored token elsewhere.
   const refused = new Map<string, string>()
   const fileRoot = urlRegExp.test(pathOrUrl) || fileRefsBlocked() ? undefined : dirname(resolve(pathOrUrl))
+  // Compared after following links, so a link inside the folder cannot point outside it.
+  const realRoot = fileRoot === undefined ? undefined : realpath(fileRoot).catch(() => fileRoot)
+  const isOutside = async (sourcePath: string) =>
+    realRoot === undefined || !isPathInside(await realpath(resolve(sourcePath)).catch(() => resolve(sourcePath)), await realRoot)
+  const load = (key: string, sourcePath: string) =>
+    memo(cache, key, () => {
+      sources.push(key)
+      return resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
+    })
 
   let entry = pathOrUrl
   let entryDocument: object | string | undefined = document
@@ -134,17 +144,16 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
       return Promise.resolve(entryDocument)
     }
     const key = toKey(sourcePath)
-    if (key !== toKey(pathOrUrl) && !urlRegExp.test(sourcePath) && (fileRoot === undefined || !isPathInside(resolve(sourcePath), fileRoot))) {
+    if (key === toKey(pathOrUrl) || urlRegExp.test(sourcePath)) return load(key, sourcePath)
+
+    return isOutside(sourcePath).then((outside) => {
+      if (!outside) return load(key, sourcePath)
       // api-ref-bundler drops the rejection's message, so `onError` looks the reason up here.
       refused.set(
         sourcePath,
         fileRoot === undefined ? `this input may not read local files, such as ${sourcePath}` : `${sourcePath} is outside the input's folder ${fileRoot}`,
       )
-      return Promise.reject(new Error(refused.get(sourcePath)))
-    }
-    return memo(cache, key, () => {
-      sources.push(key)
-      return resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
+      throw new Error(refused.get(sourcePath))
     })
   }
 
