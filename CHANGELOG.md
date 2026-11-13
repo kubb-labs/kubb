@@ -1,5 +1,20 @@
 # Changelog
 
+## v5.19.0 — Nov 13, 2026
+
+### @kubb/core
+
+#### Features
+
+- `memo` now also caches in a store you own: `memo(store, key, compute)` takes a `Map` or `WeakMap` and needs no build. `memo.create()` creates a store, and `memo.create({ weak: true })` one that frees an entry with its key. ([#4612](https://github.com/kubb-labs/kubb/pull/4612), [`131b6a7`](https://github.com/kubb-labs/kubb/commit/131b6a758debdbcbe255be6652a521c644cdafb4))
+- `memo.create({ max })` creates a bounded store: it empties itself before the entry that would pass `max`, so a cache in a long-running process cannot grow without end. `max: 1` keeps only the last entry. ([#4614](https://github.com/kubb-labs/kubb/pull/4614), [`9575030`](https://github.com/kubb-labs/kubb/commit/9575030bd3c5ac31394ce3f2104e6c0f6aa05a71))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.18.8 — Nov 13, 2026
 
 ### @kubb/adapter-oas
