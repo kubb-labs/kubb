@@ -158,7 +158,9 @@ export type ConnectAgentOptions = {
    * The agent's bearer token, from {@link pairAgent}. A function is read before every socket opens.
    */
   token: string | (() => string | Promise<string>)
-  /** The agent key from `generateAgentKey`, used to sign Studio's connect challenge. */
+  /**
+   * The agent key from `generateAgentKey`, which signs the connect challenge.
+   */
   privateKey?: string
   studioUrl?: string
   /**

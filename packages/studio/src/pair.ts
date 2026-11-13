@@ -96,7 +96,9 @@ type StartPairingOptions = {
    * the same machine pairing again rotates one agent's token instead of creating a second agent.
    */
   machineId: string
-  /** The agent key from `generateAgentKey`; its public half is sent as `public_key`. */
+  /**
+   * The agent key from `generateAgentKey`. Only its public half is sent.
+   */
   privateKey?: string
   /**
    * Aborting this cancels the request in flight and rejects with {@link PairingCanceledError}.
@@ -306,18 +308,27 @@ const REFRESH_TIMEOUT_MS = 15_000
 type RefreshAgentTokenOptions = {
   studioUrl?: string
   token: string
-  /** The secret the machine paired with, sent as `machine_id`. */
+  /**
+   * The secret the machine paired with.
+   */
   machineId: string
-  /** The stored agent key, which adds a {@link TokenRefreshProof}. */
+  /**
+   * The stored agent key, which signs the request.
+   */
   privateKey?: string
   signal?: AbortSignal
-  /** @default 15000 */
+  /**
+   * How long to wait for an answer, in milliseconds.
+   *
+   * @default 15000
+   */
   timeout?: number
 }
 
 /**
- * Trades the token for a new one; the old one stops working at once. `null` for 404 or 409.
- * @throws {InvalidAgentTokenError} when Studio refuses the token (401).
+ * Trades the agent's token for a new one. The old token stops working at once, so store the new
+ * one first. Resolves `null` when there is nothing to refresh, and rejects with
+ * {@link InvalidAgentTokenError} when the token is refused.
  */
 export async function refreshAgentToken({
   studioUrl = defaultStudioUrl,
@@ -342,7 +353,7 @@ export async function refreshAgentToken({
       body: { machine_id: machineId, ...proof },
       signal: signal ? AbortSignal.any([signal, deadline]) : deadline,
       ignoreResponseError: true,
-      // A second attempt would send a token the first one may already have retired.
+      // A second attempt would send a token the first may have retired.
       retry: 0,
     })
     .catch((error: unknown) => {

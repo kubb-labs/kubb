@@ -21,7 +21,6 @@ import { getConfigs } from '../../config.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, writeCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
 
-/** How often a connection refreshes its token. */
 const REFRESH_EVERY_MS = 24 * 60 * 60 * 1000
 
 export type StudioOptions = {
@@ -465,7 +464,7 @@ export async function connect(
         break
       } catch (error) {
         if (!(error instanceof InvalidAgentTokenError)) throw error
-        // The answer to an earlier refresh may have been lost, and Studio lets the replaced token refresh once more.
+        // The answer to an earlier refresh may have been lost, so the token is traded in once more.
         if (!recovered && !pairedAgain) {
           recovered = true
           if (await refresh({ force: true })) continue

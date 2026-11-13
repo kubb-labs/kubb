@@ -35,9 +35,13 @@ export type Credentials = {
    * Bearer token for this machine. Never logged, never printed.
    */
   token: string
-  /** When Studio issued `token`, as an ISO date. */
+  /**
+   * When `token` was issued, as an ISO date.
+   */
   issuedAt?: string
-  /** The agent key as a PKCS #8 PEM string, absent for an agent paired without one. */
+  /**
+   * The agent key as a PKCS #8 PEM string, absent for an agent paired without one.
+   */
   privateKey?: string
   agentId: string
   agentSlug: string
