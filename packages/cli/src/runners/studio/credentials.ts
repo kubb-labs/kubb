@@ -1,5 +1,5 @@
-import { hash, randomBytes } from 'node:crypto'
-import { mkdir, rmdir, stat } from 'node:fs/promises'
+import { hash, randomBytes, randomUUID } from 'node:crypto'
+import { mkdir, rename, rmdir, stat } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as sleep } from 'node:timers/promises'
@@ -93,35 +93,54 @@ export async function writeCredentials(credentials: Credentials): Promise<void> 
 }
 
 const LOCK_STALE_MS = 10_000
+const LOCK_RETRY_MS = 25
+
+/**
+ * Takes the lock and resolves `true`, or resolves `false` while another process holds it. A lock
+ * older than {@link LOCK_STALE_MS} was left by a process that died, and is cleared for the next try.
+ */
+async function tryLock(lock: string): Promise<boolean> {
+  const taken = await mkdir(lock).then(
+    () => true,
+    (error: NodeJS.ErrnoException) => {
+      if (error.code !== 'EEXIST') throw error
+      return false
+    },
+  )
+  if (taken) return true
+
+  const isStale = (dir: string) => stat(dir).then(({ mtimeMs }) => Date.now() - mtimeMs > LOCK_STALE_MS)
+  if (!(await isStale(lock).catch(() => false))) return false
+  // Moving the lock aside is atomic: one contender takes it, and the others find it gone.
+  const aside = `${lock}.${randomUUID()}`
+  if (
+    !(await rename(lock, aside).then(
+      () => true,
+      () => false,
+    ))
+  )
+    return false
+  // A contender that was slower to look may have moved a live lock, which goes back.
+  const cleared = (await isStale(aside)) ? rmdir(aside) : rename(aside, lock)
+  await cleared.catch(() => undefined)
+
+  return false
+}
 
 /**
  * Applies `update` to the stored credential under a lock that every writer takes, so two processes
- * cannot overwrite each other's change. Returning nothing leaves the file as it is.
+ * cannot overwrite each other's change. Returning nothing leaves the file as it is. Resolves what
+ * `update` returned.
  */
-export async function updateCredentials(update: (stored: Credentials | null) => Credentials | null | undefined): Promise<void> {
+export async function updateCredentials<T extends Credentials | null | undefined>(update: (stored: Credentials | null) => T): Promise<T> {
   const home = getProjectKubbHome()
   const lock = path.join(home, 'credentials.lock')
   await mkdir(home, { recursive: true, mode: 0o700 })
-  for (;;) {
-    try {
-      await mkdir(lock)
-      break
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
-      const age =
-        Date.now() -
-        (await stat(lock).then(
-          ({ mtimeMs }) => mtimeMs,
-          () => Date.now(),
-        ))
-      // A lock left behind by a process that died is taken over.
-      if (age > LOCK_STALE_MS) await rmdir(lock).catch(() => undefined)
-      else await sleep(25)
-    }
-  }
+  while (!(await tryLock(lock))) await sleep(LOCK_RETRY_MS)
   try {
     const next = update(await readCredentials())
     if (next) await writeCredentials(next)
+    return next
   } finally {
     await rmdir(lock).catch(() => undefined)
   }

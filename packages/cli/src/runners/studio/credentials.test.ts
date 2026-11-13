@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, stat } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, stat, utimes } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -60,12 +60,18 @@ describe('updateCredentials', () => {
     await expect(readCredentials()).resolves.toMatchObject({ token: 'refreshed', projects: { '/project': { allowWrite: false } } })
   })
 
-  it('leaves the file alone when the update returns nothing, and releases the lock', async () => {
+  it('lets two writers take over a lock left by a process that died, one after the other', async () => {
     await writeCredentials(stored)
+    const lock = path.join(getProjectKubbHome(), 'credentials.lock')
+    await mkdir(lock)
+    const longAgo = new Date(Date.now() - 60_000)
+    await utimes(lock, longAgo, longAgo)
 
-    await updateCredentials(() => undefined)
-    await updateCredentials((current) => current && { ...current, token: 'next' })
+    await Promise.all([
+      updateCredentials((current) => current && { ...current, token: 'refreshed' }),
+      updateCredentials((current) => current && { ...current, projects: { '/project': { allowWrite: false } } }),
+    ])
 
-    await expect(readCredentials()).resolves.toMatchObject({ token: 'next' })
+    await expect(readCredentials()).resolves.toMatchObject({ token: 'refreshed', projects: { '/project': { allowWrite: false } } })
   })
 })

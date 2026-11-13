@@ -165,8 +165,7 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
     clearInterval(countdown)
     spinner.stop(`Paired as ${agent.name}${agent.organizationSlug ? ` · org ${agent.organizationSlug}` : ''}`)
 
-    const keepsIdentity = previousCredentials?.studioUrl === studioUrl && previousCredentials.agentId === agent.id
-    const credentials: Credentials = {
+    const paired: Credentials = {
       studioUrl,
       token,
       issuedAt: new Date().toISOString(),
@@ -174,9 +173,13 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
       agentId: agent.id,
       agentSlug: agent.slug,
       ...(agent.organizationSlug ? { organizationSlug: agent.organizationSlug } : {}),
-      ...(keepsIdentity && previousCredentials?.projects ? { projects: previousCredentials.projects } : {}),
     }
-    await updateCredentials(() => credentials)
+    const credentials = await updateCredentials((stored) => {
+      // Read under the lock, so permissions saved while the pairing waited are kept.
+      const previous = stored ?? previousCredentials
+      const keepsIdentity = previous?.studioUrl === studioUrl && previous.agentId === agent.id
+      return { ...paired, ...(keepsIdentity && previous.projects ? { projects: previous.projects } : {}) }
+    })
 
     console.log(`Credentials stored in ${getCredentialsPath()}`)
 

@@ -1,7 +1,7 @@
 import { createPublicKey, generateKeyPairSync, hash, sign, verify } from 'node:crypto'
 import type { AgentSignatureContext } from './protocol.ts'
 
-function signedBytes(context: AgentSignatureContext, payload: string): Buffer {
+function signedBytes({ context, payload }: { context: AgentSignatureContext; payload: string }): Buffer {
   return Buffer.from(`${context}\n${payload}`, 'utf8')
 }
 
@@ -23,7 +23,7 @@ export function getAgentPublicKey(privateKey: string): string {
  * Signs `payload` for `context` and returns the Ed25519 signature in base64url.
  */
 export function signAgentPayload({ privateKey, context, payload }: { privateKey: string; context: AgentSignatureContext; payload: string }): string {
-  return sign(null, signedBytes(context, payload), privateKey).toString('base64url')
+  return sign(null, signedBytes({ context, payload }), privateKey).toString('base64url')
 }
 
 /**
@@ -42,7 +42,7 @@ export function verifyAgentSignature({
 }): boolean {
   try {
     const key = createPublicKey({ key: { kty: 'OKP', crv: 'Ed25519', x: publicKey }, format: 'jwk' })
-    return verify(null, signedBytes(context, payload), key, Buffer.from(signature, 'base64url'))
+    return verify(null, signedBytes({ context, payload }), key, Buffer.from(signature, 'base64url'))
   } catch {
     return false
   }
