@@ -124,8 +124,8 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
   // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
-  // From `pathOrUrl`, not the document's own `$self`, so a `$ref` cannot read a stored token elsewhere.
   const refused = new Map<string, string>()
+  // From `pathOrUrl`, not the document's own `$self`, so a `$ref` cannot read a stored token elsewhere.
   const fileRoot = urlRegExp.test(pathOrUrl) || fileRefsBlocked() ? undefined : dirname(resolve(pathOrUrl))
   // Compared after following links, so a link inside the folder cannot point outside it.
   const realRoot = fileRoot === undefined ? undefined : realpath(fileRoot).catch(() => fileRoot)
@@ -149,11 +149,10 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
     return isOutside(sourcePath).then((outside) => {
       if (!outside) return load(key, sourcePath)
       // api-ref-bundler drops the rejection's message, so `onError` looks the reason up here.
-      refused.set(
-        sourcePath,
-        fileRoot === undefined ? `this input may not read local files, such as ${sourcePath}` : `${sourcePath} is outside the input's folder ${fileRoot}`,
-      )
-      throw new Error(refused.get(sourcePath))
+      const reason =
+        fileRoot === undefined ? `this input may not read local files, such as ${sourcePath}` : `${sourcePath} is outside the input's folder ${fileRoot}`
+      refused.set(sourcePath, reason)
+      throw new Error(reason)
     })
   }
 

@@ -1,5 +1,5 @@
-import { type ExtensionKind, isPackageName } from '@kubb/core'
 import path from 'node:path'
+import { type ExtensionKind, isPackageName } from '@kubb/core'
 import { camelCase } from '@internals/utils'
 import { extensionKinds, type InstalledExtensions, type OptionValue } from './types.ts'
 
@@ -78,16 +78,9 @@ export function pickOutput<T>(output: Record<string, T>): Record<string, T> {
  * absolute or climbs out of the folder it resolves against.
  */
 export function findEscapingOutputPath(value: unknown): string | undefined {
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      const found = findEscapingOutputPath(item)
-      if (found !== undefined) return found
-    }
-    return undefined
-  }
-  if (!isPlainObject(value)) return undefined
+  if (!Array.isArray(value) && !isPlainObject(value)) return undefined
 
-  const output = value.output
+  const output = isPlainObject(value) ? value.output : undefined
   if (isPlainObject(output) && typeof output.path === 'string') {
     const normalized = path.posix.normalize(output.path.replaceAll('\\', '/'))
     // A drive letter, as in `C:../src`, is outside the folder even when Node calls it relative.
