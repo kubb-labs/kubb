@@ -1,5 +1,23 @@
 # Changelog
 
+## v5.19.2 — Nov 13, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- `kubb studio` keeps a connected project paired.
+  
+  - The CLI renews its token once a day while connected.
+  - Pairing creates a key that stays on the machine.
+  - `@kubb/studio` adds `refreshAgentToken` and `generateAgentKey`. ([#4619](https://github.com/kubb-labs/kubb/pull/4619), [`38fe788`](https://github.com/kubb-labs/kubb/commit/38fe788f710169d5c235820b21c618331cffe512))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.19.1 — Nov 13, 2026
 
 ### @kubb/adapter-oas
