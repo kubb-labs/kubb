@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
-import { isPathInside } from '@internals/utils'
+import { isPathInside, memo } from '@internals/utils'
 import type { GenerationResult, Hookable, KubbGenerationEndContext, KubbHooks, Reporter, ReporterContext } from '@kubb/core'
 import { cacheStorage, createCliReporter, createOutputManifest, hasOutputPasses, logLevel as logLevelMap } from '@kubb/core'
 import { writer as defaultWriter } from '../ui/log.ts'
@@ -68,16 +68,14 @@ function setupReporters(
     return [createCliReporter({ render: installLogger({ hooks: context, writer, logLevel }).renderSummary })]
   })
   const ctx: ReporterContext = { logLevel }
-  const pluginFiles = selected.some((reporter) => reporter.needsPluginFiles) ? new Map<string, Array<string>>() : undefined
+  const pluginFiles = selected.some((reporter) => reporter.needsPluginFiles) ? memo.create<string, Array<string>>() : undefined
   const seen = new Set<string>()
   if (pluginFiles) {
     context.hook('kubb:plugin:end', ({ plugin, files }) => {
       for (const file of files) {
         if (seen.has(file.path)) continue
         seen.add(file.path)
-        const paths = pluginFiles.get(plugin.name) ?? []
-        paths.push(file.path)
-        pluginFiles.set(plugin.name, paths)
+        memo(pluginFiles, plugin.name, () => []).push(file.path)
       }
     })
   }

@@ -94,7 +94,7 @@ export function getRelativePath(root: string, filePath: string): string {
 }
 
 // The limit bounds what a long-running host keeps across builds into fresh roots; one build stays well under it.
-const relativePaths = memo.create<string, string>({ type: 'map', limit: 100_000 })
+const relativePaths = memo.create<string, string>({ max: 100_000 })
 
 /**
  * Swaps the extension of a relative import/export path for `extname`. Package specifiers and extension-less paths stay as-is.

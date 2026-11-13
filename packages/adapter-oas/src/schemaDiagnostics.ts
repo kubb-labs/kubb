@@ -1,4 +1,4 @@
-import { escapePointerToken } from '@internals/utils'
+import { escapePointerToken, memo } from '@internals/utils'
 import { ast, Diagnostics } from '@kubb/kit'
 import { isHandledFormat } from './emit/schemaShape.ts'
 
@@ -22,7 +22,7 @@ let formatTally: Map<string, Set<string>> | undefined
  * thousands of warnings that say the same thing. `fn` must be synchronous.
  */
 export function groupUnsupportedFormats<T>(fn: () => T): T {
-  formatTally = new Map()
+  formatTally = memo.create()
   try {
     return fn()
   } finally {
@@ -34,7 +34,7 @@ export function groupUnsupportedFormats<T>(fn: () => T): T {
 
 function tallyFormat(format: string, pointer: string): void {
   if (!formatTally) return reportUnsupportedFormat(format, [pointer])
-  formatTally.set(format, (formatTally.get(format) ?? new Set()).add(pointer))
+  memo(formatTally, format, () => new Set()).add(pointer)
 }
 
 function reportUnsupportedFormat(format: string, pointers: Array<string>): void {
@@ -115,11 +115,11 @@ function visit(node: ast.SchemaNode, pointer: string): void {
  */
 function reportDuplicateDiscriminators(node: ast.UnionSchemaNode, propertyName: string, pointer: string): void {
   const keyword = node.strategy === 'any' ? 'anyOf' : 'oneOf'
-  const membersByValue = new Map<Literal, Array<string>>()
+  const membersByValue = memo.create<Literal, Array<string>>()
 
   for (const [index, member] of (node.members ?? []).entries()) {
     const label = memberName(member) ?? `${keyword}/${index}`
-    for (const value of memberValues(member, propertyName)) membersByValue.set(value, [...(membersByValue.get(value) ?? []), label])
+    for (const value of memberValues(member, propertyName)) memo(membersByValue, value, () => []).push(label)
   }
 
   const duplicates = [...membersByValue].filter(([, members]) => members.length > 1)

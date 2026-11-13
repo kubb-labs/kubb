@@ -82,7 +82,7 @@ export function getSchemaLiteralValues(node: SchemaNode): ReadonlyArray<LiteralV
 type LiteralValue = string | number | boolean | null
 
 // Printers read an enum's values each time they print it.
-const literalValues = new WeakMap<SchemaNode, ReadonlyArray<LiteralValue>>()
+const literalValues = memo.create<SchemaNode, ReadonlyArray<LiteralValue>>({ weak: true })
 
 // Names of every property an object, resolved reference, or intersection exposes.
 function collectPropertyNames(node: SchemaNode): Set<string> {

@@ -18,7 +18,7 @@ import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginType } fro
  */
 export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): KubbDriver {
   const fileManager = new FileManager()
-  const memoStore = new Map<string, unknown>()
+  const memoStore = memo.create<string, unknown>()
 
   return {
     config: options?.config ?? {
@@ -42,7 +42,7 @@ export function createMockedSetupContext<TFactory extends PluginType = PluginTyp
   options = {} as TFactory['options'],
 }: { plugins?: Array<string>; options?: TFactory['options'] } = {}): KubbPluginSetupContext<TFactory> {
   const registered = plugins.map((name) => ({ name }) as unknown as Plugin)
-  const memoStore = new Map<string, unknown>()
+  const memoStore = memo.create<string, unknown>()
 
   return {
     config: { plugins: registered } as unknown as Config,

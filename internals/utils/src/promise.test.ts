@@ -3,7 +3,7 @@ import { inParallel, memo } from './promise.ts'
 
 describe('memo', () => {
   it('computes once per key with a weak store (object keys)', () => {
-    const store = memo.create<{ v: number }, number>({ type: 'weak' })
+    const store = memo.create<{ v: number }, number>({ weak: true })
     const a = { v: 1 }
     const b = { v: 2 }
     const compute = vi.fn((obj: { v: number }) => obj.v * 10)
@@ -15,7 +15,7 @@ describe('memo', () => {
   })
 
   it.each([null, undefined])('treats a cached %s as a hit', (cached) => {
-    const store = memo.create<string, null | undefined>({ type: 'map' })
+    const store = memo.create<string, null | undefined>()
     const compute = vi.fn(() => cached)
 
     expect(memo(store, 'k', compute)).toBe(cached)
@@ -23,8 +23,8 @@ describe('memo', () => {
     expect(compute).toHaveBeenCalledTimes(1)
   })
 
-  it('keeps only the last entry with the last type, and hits for an equal key', () => {
-    const store = memo.create<string, number>({ type: 'last' })
+  it('keeps only the last entry with max 1, and hits for an equal key', () => {
+    const store = memo.create<string, number>({ max: 1 })
     const compute = vi.fn((key: string) => key.length)
 
     memo(store, 'aa', () => compute('aa'))
@@ -34,8 +34,8 @@ describe('memo', () => {
     expect(compute.mock.calls).toStrictEqual([['aa'], ['bbb'], ['aa']])
   })
 
-  it('empties a map store before the entry that would pass its limit', () => {
-    const store = memo.create<string, number>({ type: 'map', limit: 2 })
+  it('empties a store before the entry that would pass max', () => {
+    const store = memo.create<string, number>({ max: 2 })
     const compute = vi.fn(() => 1)
 
     memo(store, 'a', compute)
@@ -46,6 +46,11 @@ describe('memo', () => {
     memo(store, 'c', compute)
     expect(store.has('a')).toBe(false)
     expect(store.has('c')).toBe(true)
+  })
+
+  it('rejects options that cannot combine', () => {
+    // @ts-expect-error a WeakMap has no size to bound
+    memo.create<object, number>({ weak: true, max: 2 })
   })
 })
 

@@ -8,11 +8,11 @@ import { resolveRefName } from './refs.ts'
 
 type RefEntry = { name: string; hasPointer: boolean }
 
-const refEntries = new WeakMap<SchemaNode, ReadonlyArray<RefEntry>>()
-const checkRefEntries = new WeakMap<SchemaNode, ReadonlyArray<RefEntry>>()
-const schemaRefs = new WeakMap<SchemaNode, ReadonlySet<string>>()
-const importedRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
-const importedCheckRefNames = new WeakMap<SchemaNode, ReadonlyArray<string>>()
+const refEntries = memo.create<SchemaNode, ReadonlyArray<RefEntry>>({ weak: true })
+const checkRefEntries = memo.create<SchemaNode, ReadonlyArray<RefEntry>>({ weak: true })
+const schemaRefs = memo.create<SchemaNode, ReadonlySet<string>>({ weak: true })
+const importedRefNames = memo.create<SchemaNode, ReadonlyArray<string>>({ weak: true })
+const importedCheckRefNames = memo.create<SchemaNode, ReadonlyArray<string>>({ weak: true })
 
 /**
  * Walks a node's subtree once and lists every ref it holds, in traversal order, as the resolved

@@ -13,7 +13,7 @@ export type SpecPosition = {
 
 // Diagnostics of one run share a source, so its line starts are indexed once. Splitting a large
 // spec per diagnostic made code frames the slowest part of a run.
-const startsBySource = memo.create<string, Array<number>>({ type: 'last' })
+const startsBySource = memo.create<string, Array<number>>({ max: 1 })
 
 function lineStarts(source: string): Array<number> {
   return memo(startsBySource, source, () => {
