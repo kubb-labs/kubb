@@ -350,6 +350,40 @@ describe('adapterOas.parse', () => {
   })
 })
 
+describe('adapterOas pathParamsCasing', () => {
+  const spec = {
+    openapi: '3.0.0',
+    info: { title: 'Pets', version: '1.0.0' },
+    paths: {
+      '/stores/{store-id}/pets/{pet-id}': {
+        parameters: [{ name: 'store-id', in: 'path', required: true, schema: { type: 'string' } }],
+        get: {
+          operationId: 'getPet',
+          parameters: [
+            { name: 'pet-id', in: 'path', required: true, schema: { type: 'string' } },
+            { name: 'page-size', in: 'query', schema: { type: 'integer' } },
+          ],
+          responses: { '200': { description: 'ok' } },
+        },
+      },
+    },
+  } as const
+
+  it('keeps the spec names by default', async () => {
+    const node = await adapterOas({ validate: false }).parse({ type: 'data', data: spec })
+
+    expect(node.operations[0]?.path).toBe('/stores/{store-id}/pets/{pet-id}')
+    expect(node.operations[0]?.parameters.map((param) => param.name)).toStrictEqual(['store-id', 'pet-id', 'page-size'])
+  })
+
+  it('camelCases path parameters and placeholders only', async () => {
+    const node = await adapterOas({ validate: false, pathParamsCasing: 'camelcase' }).parse({ type: 'data', data: spec })
+
+    expect(node.operations[0]?.path).toBe('/stores/{storeId}/pets/{petId}')
+    expect(node.operations[0]?.parameters.map((param) => param.name)).toStrictEqual(['storeId', 'petId', 'page-size'])
+  })
+})
+
 describe('adapterOas options', () => {
   const discriminatedSpec = {
     openapi: '3.0.0',

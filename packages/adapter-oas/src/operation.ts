@@ -1,5 +1,5 @@
 import { escapePointerToken, pascalCase } from '@internals/utils'
-import { ast } from '@kubb/kit'
+import { ast, Url } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
 import { getItemSchema, getItemShape, isEventStream, isStream } from './model/mediaType.ts'
@@ -534,4 +534,20 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     ...(servers && { servers: toInputServers(servers) }),
     ...(auth && { auth }),
   })
+}
+
+/**
+ * Renames the `path` parameters of an HTTP operation and their `{placeholder}` in `path` to the
+ * identifiers {@link Url.toPath} uses, so `/pets/{pet-id}` becomes `/pets/{petId}`. Path parameter
+ * names never reach the wire, so the request stays the same. Other parameters are untouched.
+ */
+export function camelCasePathParams(node: ast.OperationNode): ast.OperationNode {
+  if (!node.path) return node
+  const names = Url.toParamNames(node.path)
+
+  return {
+    ...node,
+    path: node.path.replace(/\{([^}]+)\}/g, (_match, name: string) => `{${names.get(name) ?? name}}`),
+    parameters: node.parameters.map((param) => (param.in === 'path' && names.has(param.name) ? { ...param, name: names.get(param.name)! } : param)),
+  }
 }

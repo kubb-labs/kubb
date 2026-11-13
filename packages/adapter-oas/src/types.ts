@@ -250,6 +250,15 @@ export type AdapterOasOptions = {
    * @default 'inline'
    */
   enums?: 'inline' | 'root'
+  /**
+   * Renames `path` parameters and their `{placeholder}` in the operation path.
+   * - `'camelcase'` turns `{pet-id}` into `petId`, the same name MSW routes and query keys use. Names
+   *   that collide get a counter suffix (`{group-id}` and `{group.id}` become `groupId` and `groupId2`).
+   *
+   * Path parameter names never reach the wire, so the HTTP request stays the same. Query, header,
+   * cookie, and body names are untouched. Omit to keep the names from the spec.
+   */
+  pathParamsCasing?: 'camelcase'
 } & Partial<ast.ParserOptions>
 
 /**
@@ -261,6 +270,7 @@ export type AdapterOasResolvedOptions = {
   server: AdapterOasOptions['server']
   discriminator: NonNullable<AdapterOasOptions['discriminator']>
   enums: NonNullable<AdapterOasOptions['enums']>
+  pathParamsCasing: AdapterOasOptions['pathParamsCasing']
   dateType: NonNullable<AdapterOasOptions['dateType']>
   integerType: NonNullable<AdapterOasOptions['integerType']>
   unknownType: NonNullable<AdapterOasOptions['unknownType']>
