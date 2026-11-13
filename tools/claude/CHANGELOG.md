@@ -1,5 +1,9 @@
 # @kubb/claude-plugin
 
+## 5.18.8
+
+No changes in this release.
+
 ## 5.18.7
 
 No changes in this release.

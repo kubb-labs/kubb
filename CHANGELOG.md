@@ -1,5 +1,51 @@
 # Changelog
 
+## v5.18.8 — Nov 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Read a spec faster before parsing: one walk now checks for external refs, `$id` and `$anchor` targets, and Swagger 2.0 path refs, and builds JSON pointers only when a spec has an `$id` or `$anchor`. On large specs the adapter parses about 0.2 s sooner. ([#4610](https://github.com/kubb-labs/kubb/pull/4610), [`70474ee`](https://github.com/kubb-labs/kubb/commit/70474ee40bc1d331494cba67381ff961cfb66761))
+- Locate diagnostics without parsing the spec a second time. On a 45 MB YAML spec, `kubb generate` prints the same locations about 16 s sooner and peaks about 620 MB lower. A large JSON spec peaks about 70 MB higher. ([#4594](https://github.com/kubb-labs/kubb/pull/4594), [`4e4af92`](https://github.com/kubb-labs/kubb/commit/4e4af929a1946e497ec8cec14f83267a40557404))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Speed up generation on large specs: the AST walk allocates less per node, an enum's literal values are read once per node, and nested barrels compute each file's exports once. ([#4601](https://github.com/kubb-labs/kubb/pull/4601), [`fd295a2`](https://github.com/kubb-labs/kubb/commit/fd295a211b6c263dd1187d6a883dfef3c8dbd330))
+- `ast.schema.find` takes an optional `cache` (a `WeakMap` you keep per predicate), so repeated searches with `followRefs` skip parts of the schema graph they already searched. ([#4600](https://github.com/kubb-labs/kubb/pull/4600), [`f6ed3d2`](https://github.com/kubb-labs/kubb/commit/f6ed3d21e567705a00d071436cf2b920f6d64e3e))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Make `kubb generate` start the build as soon as the config loads in an interactive terminal, instead of waiting for the mascot animation to finish. A small spec now finishes about 0.8 seconds sooner, with the same final output. ([#4604](https://github.com/kubb-labs/kubb/pull/4604), [`e60000f`](https://github.com/kubb-labs/kubb/commit/e60000f937e4c1490bd53f0e219ef4fb8373f803))
+- Make the "File changes" summary faster on a rerun with `output.clean`: hashing each line of the old output no longer copies it into an array of characters, and a regenerated file with a different length skips the SHA-1 check. The summary is the same. ([#4608](https://github.com/kubb-labs/kubb/pull/4608), [`2df0fea`](https://github.com/kubb-labs/kubb/commit/2df0fea11bbd9d37d781ac9d1f3b41779d746fdc))
+- Make `kubb generate` faster on most runs: it asks npm for a newer version at most once every 24 hours, keeps the answer in `~/.kubb/cache`, and never asks in CI. ([#4605](https://github.com/kubb-labs/kubb/pull/4605), [`7f60960`](https://github.com/kubb-labs/kubb/commit/7f6096043ef795dad19c514fed8d231813610c89))
+- Rerun `kubb generate` with less memory and time: the "File changes" summary no longer reads the whole output folder up front.
+  
+  - Add `stored` to `kubb:file:processed`: what the storage held at that path before the write, or `null` when there was nothing. ([#4597](https://github.com/kubb-labs/kubb/pull/4597), [`e9a4f90`](https://github.com/kubb-labs/kubb/commit/e9a4f904c38f7b8f433e213949d7c629228ef029))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Keep each schema's import path and each resolved name for the rest of the build, and look up a `memo` hit with one map read. On the 45 MB Microsoft Graph spec, `kubb generate` uses about 3% less CPU, with the same output. ([#4602](https://github.com/kubb-labs/kubb/pull/4602), [`fc1a81d`](https://github.com/kubb-labs/kubb/commit/fc1a81d96e42dcbc39a2309352ffaaadf8c367e7))
+- `kubb generate` writes and compares output files faster: it reads a stored file synchronously, skips the read for a file that is not on disk, and writes through the callback `fs` API instead of `fs/promises`. The files on disk stay the same. ([#4599](https://github.com/kubb-labs/kubb/pull/4599), [`6454ae2`](https://github.com/kubb-labs/kubb/commit/6454ae27afcbba7634df807cc36c5ebbb202735f))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Make `text.quote` about 13 times faster, with the same output. ([#4594](https://github.com/kubb-labs/kubb/pull/4594), [`4e4af92`](https://github.com/kubb-labs/kubb/commit/4e4af929a1946e497ec8cec14f83267a40557404))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.18.7 — Nov 12, 2026
 
 ### @kubb/adapter-oas
