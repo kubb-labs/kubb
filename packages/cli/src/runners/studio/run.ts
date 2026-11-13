@@ -18,7 +18,7 @@ import { logBlock, logStep } from '../../ui/log.ts'
 import { createSpinner } from '../../ui/spinner.ts'
 import { canUseTTY, isRichOutput } from '../../utils/env.ts'
 import { getConfigs } from '../../config.ts'
-import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, writeCredentials } from './credentials.ts'
+import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, updateCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
 
 const REFRESH_EVERY_MS = 24 * 60 * 60 * 1000
@@ -176,7 +176,7 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
       ...(agent.organizationSlug ? { organizationSlug: agent.organizationSlug } : {}),
       ...(keepsIdentity && previousCredentials?.projects ? { projects: previousCredentials.projects } : {}),
     }
-    await writeCredentials(credentials)
+    await updateCredentials(() => credentials)
 
     console.log(`Credentials stored in ${getCredentialsPath()}`)
 
@@ -277,9 +277,10 @@ export async function resolvePermissions(
   }
 
   const answers = Object.fromEntries(pending.map(({ key }) => [key, selected.includes(key)]))
-  await writeCredentials({
-    ...credentials,
-    projects: { ...credentials.projects, [project]: { ...remembered, ...answers } },
+  // Merged into the stored record, so a token refreshed by a running connection is kept.
+  await updateCredentials((stored) => {
+    const current = stored ?? credentials
+    return { ...current, projects: { ...current.projects, [project]: { ...current.projects?.[project], ...answers } } }
   })
 
   return { ...granted, ...answers }
@@ -388,9 +389,9 @@ export async function connect(
         const refreshed = { token, issuedAt: new Date().toISOString() }
         credentials = { ...credentials, ...refreshed }
         // Only the token changes on disk, so permissions saved since this run read the file are kept.
-        await readCredentials()
-          .then((stored) => (stored?.token === replaced ? writeCredentials({ ...stored, ...refreshed }) : undefined))
-          .catch((error: unknown) => warn(`Could not store the refreshed token: ${toError(error).message}`))
+        await updateCredentials((stored) => (stored?.token === replaced ? { ...stored, ...refreshed } : undefined)).catch((error: unknown) =>
+          warn(`Could not store the refreshed token: ${toError(error).message}`),
+        )
         return true
       } catch (error) {
         if (!signal.aborted && !(error instanceof InvalidAgentTokenError)) warn(`Could not refresh the agent token: ${toError(error).message}`)

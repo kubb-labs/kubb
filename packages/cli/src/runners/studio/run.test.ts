@@ -70,6 +70,10 @@ function stubProject({ stored = null, ci = false, tty = true }: ProjectOptions =
   const read = vi.spyOn(credentialsStore, 'readCredentials').mockResolvedValue(stored)
   const write = vi.spyOn(credentialsStore, 'writeCredentials').mockResolvedValue(undefined)
   const clear = vi.spyOn(credentialsStore, 'clearCredentials').mockResolvedValue(undefined)
+  const update = vi.spyOn(credentialsStore, 'updateCredentials').mockImplementation(async (change) => {
+    const next = change(await credentialsStore.readCredentials())
+    if (next) await credentialsStore.writeCredentials(next)
+  })
   const machineId = vi.spyOn(credentialsStore, 'getMachineId').mockResolvedValue('machine-secret')
   const configs = vi.spyOn(config, 'getConfigs').mockResolvedValue({
     configPath: '/project/kubb.config.ts',
@@ -87,7 +91,7 @@ function stubProject({ stored = null, ci = false, tty = true }: ProjectOptions =
     clear,
     copy,
     [Symbol.dispose]() {
-      for (const spy of [read, write, clear, machineId, configs, isCI, canUseTTY, copy]) {
+      for (const spy of [read, write, clear, update, machineId, configs, isCI, canUseTTY, copy]) {
         spy.mockRestore()
       }
     },

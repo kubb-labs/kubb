@@ -1,6 +1,8 @@
 import { hash, randomBytes } from 'node:crypto'
+import { mkdir, rmdir, stat } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
+import { setTimeout as sleep } from 'node:timers/promises'
 import { kubbStorage, resolveKubbDir } from '@kubb/core'
 
 const projectBase = (project = process.cwd()) => path.join('projects', hash('sha256', project))
@@ -88,6 +90,41 @@ export async function readCredentials(): Promise<Credentials | null> {
  */
 export async function writeCredentials(credentials: Credentials): Promise<void> {
   await projectStorage().setItem(CREDENTIALS_FILENAME, credentials)
+}
+
+const LOCK_STALE_MS = 10_000
+
+/**
+ * Applies `update` to the stored credential under a lock that every writer takes, so two processes
+ * cannot overwrite each other's change. Returning nothing leaves the file as it is.
+ */
+export async function updateCredentials(update: (stored: Credentials | null) => Credentials | null | undefined): Promise<void> {
+  const home = getProjectKubbHome()
+  const lock = path.join(home, 'credentials.lock')
+  await mkdir(home, { recursive: true, mode: 0o700 })
+  for (;;) {
+    try {
+      await mkdir(lock)
+      break
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+      const age =
+        Date.now() -
+        (await stat(lock).then(
+          ({ mtimeMs }) => mtimeMs,
+          () => Date.now(),
+        ))
+      // A lock left behind by a process that died is taken over.
+      if (age > LOCK_STALE_MS) await rmdir(lock).catch(() => undefined)
+      else await sleep(25)
+    }
+  }
+  try {
+    const next = update(await readCredentials())
+    if (next) await writeCredentials(next)
+  } finally {
+    await rmdir(lock).catch(() => undefined)
+  }
 }
 
 /**
