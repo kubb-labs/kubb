@@ -15,23 +15,15 @@ function walk(node: unknown, pointer: string, visit: (node: Record<string, unkno
 }
 
 export type DocumentScan = {
-  /**
-   * A `$ref` points outside the document.
-   */
+  /** A `$ref` points outside the document. */
   externalRef: boolean
-  /**
-   * An `$id`, `$anchor` or `$dynamicAnchor` sits where {@link resolveSchemaIds} reads it.
-   */
+  /** An `$id`, `$anchor` or `$dynamicAnchor` sits where {@link resolveSchemaIds} reads it. */
   schemaIds: boolean
-  /**
-   * A `$ref` points into `#/paths/`.
-   */
+  /** A `$ref` points into `#/paths/`. */
   pathRefs: boolean
 }
 
-/**
- * Answers, in one walk and without building JSON pointers, what the loading steps after it need to know.
- */
+/** Answers, in one walk and without building JSON pointers, what the loading steps after it need to know. */
 export function scanDocument(document: unknown): DocumentScan {
   const scan: DocumentScan = { externalRef: false, schemaIds: false, pathRefs: false }
   const visit = ({ node, readsIds, parentKey }: { node: unknown; readsIds: boolean; parentKey?: string }): void => {
