@@ -23,7 +23,6 @@ function transformPathParam(raw: string): string {
     .join('')
 }
 
-// Suffixes a counter when an earlier name in the same path normalized to the same identifier.
 function uniqueParamName(raw: string, seen: Map<string, number>): string {
   const base = transformPathParam(raw)
   const count = (seen.get(base) ?? 0) + 1
