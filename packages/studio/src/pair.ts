@@ -3,7 +3,9 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import { ofetch } from 'ofetch'
+import { getAgentPublicKey, getTokenRefreshPayload, signAgentPayload } from './agentKey.ts'
 import { InvalidAgentTokenError } from './connect.ts'
+import { AgentSignatureContext, type TokenRefreshProof } from './protocol.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 /**
@@ -95,6 +97,11 @@ type StartPairingOptions = {
    */
   machineId: string
   /**
+   * The agent key from `generateAgentKey`. Its public half goes to Studio as `public_key`, and the
+   * host stores the key with the token. Left out, the agent pairs without a key.
+   */
+  privateKey?: string
+  /**
    * Aborting this cancels the request in flight and rejects with {@link PairingCanceledError}.
    */
   signal?: AbortSignal
@@ -103,7 +110,15 @@ type StartPairingOptions = {
 /**
  * Asks Studio for a pairing code, sending the hashed machine id with it.
  */
-export async function startPairing({ studioUrl = defaultStudioUrl, type, name, hostname, machineId, signal }: StartPairingOptions): Promise<PairingSession> {
+export async function startPairing({
+  studioUrl = defaultStudioUrl,
+  type,
+  name,
+  hostname,
+  machineId,
+  privateKey,
+  signal,
+}: StartPairingOptions): Promise<PairingSession> {
   try {
     const pairing = await ofetch<PairingSession>(secureUrl({ studioUrl, path: '/api/auth/device/code' }).href, {
       method: 'POST',
@@ -113,6 +128,7 @@ export async function startPairing({ studioUrl = defaultStudioUrl, type, name, h
         hostname,
         machine_token: hash('sha256', machineId),
         agent_kind: type === 'cli' ? undefined : type,
+        public_key: privateKey ? getAgentPublicKey(privateKey) : undefined,
       },
       signal,
     })
@@ -301,6 +317,10 @@ type RefreshAgentTokenOptions = {
    * The same secret the machine paired with, sent as `machine_id`, so a leaked token alone cannot be renewed.
    */
   machineId: string
+  /**
+   * The agent key stored with the token, when it has one. Adds a {@link TokenRefreshProof} to the request.
+   */
+  privateKey?: string
   signal?: AbortSignal
   /**
    * Milliseconds before the request is given up.
@@ -324,15 +344,23 @@ export async function refreshAgentToken({
   studioUrl = defaultStudioUrl,
   token,
   machineId,
+  privateKey,
   signal,
   timeout = REFRESH_TIMEOUT_MS,
 }: RefreshAgentTokenOptions): Promise<string | null> {
   const deadline = AbortSignal.timeout(timeout)
+  const signedAt = Date.now()
+  const proof: TokenRefreshProof | undefined = privateKey
+    ? {
+        signed_at: signedAt,
+        signature: signAgentPayload({ privateKey, context: AgentSignatureContext.TOKEN_REFRESH, payload: getTokenRefreshPayload({ token, signedAt }) }),
+      }
+    : undefined
   const { status, _data } = await ofetch
     .raw<{ token?: unknown }>(secureUrl({ studioUrl, path: '/api/agent/token/refresh' }).href, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
-      body: { machine_id: machineId },
+      body: { machine_id: machineId, ...proof },
       signal: signal ? AbortSignal.any([signal, deadline]) : deadline,
       ignoreResponseError: true,
       // A second attempt would send a token the first one may already have retired.

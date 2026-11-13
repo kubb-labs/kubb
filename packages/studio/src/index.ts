@@ -1,3 +1,4 @@
+export { generateAgentKey, getAgentPublicKey, getTokenRefreshPayload, signAgentPayload, verifyAgentSignature } from './agentKey.ts'
 export { connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type ConnectAgentOptions, type StudioConnectedContext } from './connect.ts'
 export { pairAgent, PairingCanceledError, PairingDeniedError, PairingExpiredError, refreshAgentToken } from './pair.ts'
 export { createSnapshot } from './snapshot.ts'

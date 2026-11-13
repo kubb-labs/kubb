@@ -373,6 +373,46 @@ export type AgentConnectInfo = {
    */
   organizationSlug?: string
   studioVersion: string
+  /**
+   * A random string Studio picks for this socket, such as 32 random bytes in base64url. An agent that
+   * holds a key answers with {@link ConnectMessagePayload.signature}. Ignored when longer than
+   * {@link MAX_CONNECT_CHALLENGE_LENGTH}, and absent from a Studio that does not check agent keys.
+   */
+  challenge?: string
+}
+
+/** The longest {@link AgentConnectInfo.challenge} an agent signs. */
+export const MAX_CONNECT_CHALLENGE_LENGTH = 1024
+
+/**
+ * What an agent key signature is for. The signed bytes are the UTF-8 encoding of the context, a line
+ * feed, and the payload, so a signature made for one purpose never verifies for another.
+ */
+export const AgentSignatureContext = {
+  /**
+   * The payload is {@link AgentConnectInfo.challenge}, exactly as Studio sent it.
+   */
+  CONNECT: 'kubb-studio/agent-connect/v1',
+  /**
+   * The payload is the `signed_at` of the refresh request in decimal, a line feed, and the SHA-256 of
+   * the bearer token in lowercase hex.
+   */
+  TOKEN_REFRESH: 'kubb-studio/agent-token-refresh/v1',
+} as const
+export type AgentSignatureContext = ValueOf<typeof AgentSignatureContext>
+
+/**
+ * Optional proof sent with `POST /api/agent/token/refresh` next to `machine_id` by an agent that holds a key.
+ */
+export type TokenRefreshProof = {
+  /**
+   * When the agent signed the request, in milliseconds since the Unix epoch.
+   */
+  signed_at: number
+  /**
+   * Ed25519 signature for {@link AgentSignatureContext.TOKEN_REFRESH}, base64url without padding.
+   */
+  signature: string
 }
 
 /**
@@ -483,6 +523,12 @@ export type ConnectMessagePayload = {
     configs: Array<ConfigEntryView>
   }
   permissions: AgentPermissions
+  /**
+   * Ed25519 signature for {@link AgentSignatureContext.CONNECT} over {@link AgentConnectInfo.challenge},
+   * base64url without padding. Sent only when Studio sent a challenge and the agent holds a key, which
+   * an agent paired before agent keys does not.
+   */
+  signature?: string
 }
 
 export type DiskOutput = {

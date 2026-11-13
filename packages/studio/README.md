@@ -73,6 +73,7 @@ running in a developer's project and a container running a fixed plugin set.
 | `protocol.ts`    | The wire contract Studio compiles against, published as `@kubb/studio/protocol`. |
 | `connect.ts`     | `connectAgent`: the socket loop and the `Agent` that serves Studio's calls.      |
 | `pair.ts`        | `pairAgent`: RFC 8628 device pairing, and `refreshAgentToken`.                   |
+| `agentKey.ts`    | The agent key: generating it, signing with it, and `verifyAgentSignature`.       |
 | `snapshot.ts`    | `createSnapshot` for CI, and packing a generation into an npm tarball.           |
 | `generations.ts` | Running a generation and keeping its files and AST for `readFiles`/`readInput`.  |
 | `diff.ts`        | The paged line diff `readDiff` serves between two kept sets.                     |
@@ -156,6 +157,42 @@ The request gives up after 15 seconds (`timeout`) and is never retried. Pass `to
 current token, so a refresh needs no restart. The `kubb studio` CLI refreshes a token older than a day
 when it connects and once a day while it runs, and tries one refresh before it pairs again after
 `InvalidAgentTokenError`.
+
+## Agent key
+
+An agent can hold an Ed25519 key that never leaves its machine, so a later Studio can require more
+than the bearer token. This is optional on both sides: an agent paired without a key, and a Studio
+that ignores the fields below, keep working as before.
+
+```typescript
+import { generateAgentKey, pairAgent } from '@kubb/studio'
+
+const privateKey = generateAgentKey()
+const { token } = await pairAgent({ type: 'cli', name, hostname, machineId, privateKey, onCode })
+await storeCredentials({ token, privateKey })
+```
+
+`generateAgentKey` returns the key as a PKCS #8 PEM string. Store it with the token, under the same
+file permissions. Pass it as `privateKey` to `pairAgent`, `connectAgent`, and `refreshAgentToken`:
+
+| Step      | What the agent sends                                                                                |
+| --------- | --------------------------------------------------------------------------------------------------- |
+| Pairing   | `public_key` in `POST /api/auth/device/code`: the raw 32-byte public key, base64url without padding |
+| Handshake | `signature` in the `connect` result, when Studio sent `challenge` in `connect(info)`                |
+| Refresh   | `signed_at` (milliseconds since the epoch) and `signature` in the body, next to `machine_id`        |
+
+Every signature is Ed25519 over the UTF-8 bytes of a context string, a line feed (`\n`), and a
+payload, encoded as base64url without padding. The contexts are in `AgentSignatureContext`, from
+`@kubb/studio/protocol`:
+
+| Context                              | Payload                                                                            |
+| ------------------------------------ | ---------------------------------------------------------------------------------- |
+| `kubb-studio/agent-connect/v1`       | The `challenge` exactly as Studio sent it, at most 1024 characters                 |
+| `kubb-studio/agent-token-refresh/v1` | `signed_at` in decimal, `\n`, and the SHA-256 of the bearer token in lowercase hex |
+
+Studio checks a signature with `verifyAgentSignature({ publicKey, context, payload, signature })`,
+which returns `false` for a malformed key or signature, and builds the refresh payload with
+`getTokenRefreshPayload({ token, signedAt })`.
 
 ## CI snapshots
 

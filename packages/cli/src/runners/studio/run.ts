@@ -8,7 +8,7 @@ import { KUBB_CONFIG_FILENAME } from '@internals/shared'
 import { copyToClipboard, isCIEnvironment, openInBrowser, toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { connectAgent, defaultStudioUrl, InvalidAgentTokenError, pairAgent, PairingCanceledError, refreshAgentToken } from '@kubb/studio'
+import { connectAgent, defaultStudioUrl, generateAgentKey, InvalidAgentTokenError, pairAgent, PairingCanceledError, refreshAgentToken } from '@kubb/studio'
 import { AgentPermission } from '@kubb/studio/protocol'
 import { trackRun } from '../../Telemetry.ts'
 import { plainWriter } from '../../loggers/plainWriter.ts'
@@ -121,12 +121,15 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
   let countdown: NodeJS.Timeout | undefined
 
   try {
+    // A new key per pairing: Studio keeps the public half the latest pairing sent.
+    const privateKey = generateAgentKey()
     const { token, agent } = await pairAgent({
       studioUrl,
       type: 'cli',
       name: path.basename(process.cwd()),
       hostname: hostname(),
       machineId: await getMachineId(),
+      privateKey,
       signal,
       onCode: (session) => {
         logStep(
@@ -169,6 +172,7 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
       studioUrl,
       token,
       issuedAt: new Date().toISOString(),
+      privateKey,
       agentId: agent.id,
       agentSlug: agent.slug,
       ...(agent.organizationSlug ? { organizationSlug: agent.organizationSlug } : {}),
@@ -378,7 +382,13 @@ export async function connect(
       const issuedAt = Date.parse(credentials.issuedAt ?? '')
       if (!force && Date.now() - issuedAt < REFRESH_EVERY_MS) return false
       try {
-        const token = await refreshAgentToken({ studioUrl: options.studioUrl, token: credentials.token, machineId: await getMachineId(), signal })
+        const token = await refreshAgentToken({
+          studioUrl: options.studioUrl,
+          token: credentials.token,
+          machineId: await getMachineId(),
+          privateKey: credentials.privateKey,
+          signal,
+        })
         if (!token) return false
         credentials = { ...credentials, token, issuedAt: new Date().toISOString() }
         // The old token is already retired, so the new one is kept in memory even when storage fails.
@@ -438,6 +448,7 @@ export async function connect(
         await connectAgent({
           // Read on every reconnect, so a refresh while connected is picked up without a restart.
           token: () => credentials.token,
+          privateKey: credentials.privateKey,
           studioUrl: options.studioUrl,
           configPath,
           version: options.version,

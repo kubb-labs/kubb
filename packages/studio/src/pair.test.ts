@@ -1,7 +1,9 @@
 import { hash } from 'node:crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setTimeout as delay } from 'node:timers/promises'
+import { generateAgentKey, getAgentPublicKey, getTokenRefreshPayload, verifyAgentSignature } from './agentKey.ts'
 import { InvalidAgentTokenError } from './connect.ts'
+import { AgentSignatureContext } from './protocol.ts'
 import {
   pairAgent,
   PairingCanceledError,
@@ -133,6 +135,17 @@ describe('startPairing', () => {
     })
   })
 
+  it('sends the public half of the agent key, and never the key itself', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse(session))
+    const privateKey = generateAgentKey()
+
+    await startPairing({ studioUrl: 'https://studio.test', type: 'cli', name: 'my-project', hostname: 'my-host', machineId: 'secret', privateKey })
+
+    const body = String(fetchMock.mock.calls[0]![1].body)
+    expect(JSON.parse(body)).toMatchObject({ public_key: getAgentPublicKey(privateKey) })
+    expect(body).not.toContain('PRIVATE KEY')
+  })
+
   it('rejects a response without a pairing code', async () => {
     fetchMock.mockResolvedValueOnce(new Response('<html></html>', { status: 200 }))
 
@@ -195,6 +208,19 @@ describe('refreshAgentToken', () => {
     expect(String(url)).toBe('https://studio.test/api/agent/token/refresh')
     expect(new Headers(init.headers).get('authorization')).toBe('Bearer old-token')
     expect(JSON.parse(String(init.body))).toStrictEqual({ machine_id: 'secret' })
+  })
+
+  it('adds a signature over the time and the token when the agent holds a key', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'new-token' }))
+    const privateKey = generateAgentKey()
+
+    await refreshAgentToken({ ...options, privateKey })
+
+    const body = JSON.parse(String(fetchMock.mock.calls[0]![1].body))
+    expect(body).toStrictEqual({ machine_id: 'secret', signed_at: Date.now(), signature: expect.any(String) })
+    const payload = getTokenRefreshPayload({ token: 'old-token', signedAt: body.signed_at })
+    const publicKey = getAgentPublicKey(privateKey)
+    expect(verifyAgentSignature({ publicKey, context: AgentSignatureContext.TOKEN_REFRESH, payload, signature: body.signature })).toBe(true)
   })
 
   it.each([

@@ -27,6 +27,7 @@ import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
 import { BUNDLED_PACKAGES, editConfigFile, pickOutput, readConfig, readImports } from '@internals/shared'
+import { signAgentPayload } from './agentKey.ts'
 import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
@@ -39,6 +40,7 @@ import {
   AgentMessage,
   type AgentConnectInfo,
   type AgentPermissions,
+  AgentSignatureContext,
   type AgentType,
   type ConfigEdit,
   ConfigEditOperation,
@@ -52,6 +54,7 @@ import {
   type GenerationEvent,
   type GenerationRun,
   type InstalledExtensions,
+  MAX_CONNECT_CHALLENGE_LENGTH,
   MAX_FILES_PER_REQUEST,
   MAX_PAGE_LINES,
   type ReadDiffInput,
@@ -156,6 +159,11 @@ export type ConnectAgentOptions = {
    * so a host that refreshes the token with {@link refreshAgentToken} reconnects with the new one.
    */
   token: string | (() => string | Promise<string>)
+  /**
+   * The agent key from `generateAgentKey`, stored with the token. With it, the agent signs the
+   * challenge Studio sends in `connect(info)`. An agent paired without a key leaves it out.
+   */
+  privateKey?: string
   studioUrl?: string
   /**
    * The config path shown in Studio, relative to `root` unless absolute.
@@ -204,9 +212,10 @@ export type ConnectAgentOptions = {
   heartbeatInterval?: number
 }
 
-type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin'>> & {
+type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin' | 'privateKey'>> & {
   signal?: AbortSignal
   kubbBin?: string
+  privateKey?: string
   permissions: AgentPermissions
   configFile: string
 }
@@ -454,12 +463,19 @@ class Agent extends RpcTarget implements AgentApi {
       entries.push({ ...toEntryView(config, extensions), ...(disk && { disk }) })
     }
     this.#session.connected.resolve(info)
+    const { privateKey } = this.#options
+    const { challenge } = info
+    const signature =
+      privateKey && typeof challenge === 'string' && challenge && challenge.length <= MAX_CONNECT_CHALLENGE_LENGTH
+        ? signAgentPayload({ privateKey, context: AgentSignatureContext.CONNECT, payload: challenge })
+        : undefined
 
     return {
       versions: { kubb: kubbVersion, agent: version },
       root,
       config: { path: configPath, file, extensions: [...extensions.values()], configs: entries },
       permissions: this.#permissions,
+      ...(signature && { signature }),
     }
   }
 

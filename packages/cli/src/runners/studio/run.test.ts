@@ -140,6 +140,18 @@ describe('login', () => {
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token', issuedAt: expect.any(String) }))
   })
 
+  it('pairs with a new agent key and stores it with the token', async () => {
+    using project = stubProject()
+    using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    mockPairing()
+
+    const stored = await login(options)
+
+    expect(stored.privateKey).toMatch(/^-----BEGIN PRIVATE KEY-----/)
+    expect(pairAgent).toHaveBeenCalledWith(expect.objectContaining({ privateKey: stored.privateKey }))
+    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token', privateKey: stored.privateKey }))
+  })
+
   it('shows the code with its link, copies it in the background, and stores the organization', async () => {
     using project = stubProject()
     const lines: Array<string> = []
@@ -368,6 +380,21 @@ describe('connect', () => {
     expect(refreshAgentToken).toHaveBeenCalledWith(expect.objectContaining({ studioUrl: options.studioUrl, token: 'token', machineId: 'machine-secret' }))
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token', issuedAt: expect.any(String) }))
     expect(calls.map(({ token }) => token)).toStrictEqual(['refreshed-token'])
+  })
+
+  it('hands the stored agent key to the connection and the refresh, and connects without one when it has none', async () => {
+    using _project = stubProject({ stored: { ...credentials, issuedAt: undefined, privateKey: 'pem' } })
+    const calls = mockConnection()
+
+    await connect(options)
+
+    expect(calls[0]?.privateKey).toBe('pem')
+    expect(refreshAgentToken).toHaveBeenCalledWith(expect.objectContaining({ privateKey: 'pem' }))
+
+    using _old = stubProject({ stored: credentials })
+    const old = mockConnection()
+    await connect(options)
+    expect(old[0]?.privateKey).toBeUndefined()
   })
 
   it('keeps a token issued within the day, and refreshes it once a day while connected', async () => {

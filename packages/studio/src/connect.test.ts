@@ -16,11 +16,13 @@ import {
   AgentCloseCode,
   AgentMessage,
   type AgentConnectInfo,
+  AgentSignatureContext,
   type ConfigEdit,
   ConfigEditOperation,
   type ConfigRef,
   MAX_PAGE_LINES,
 } from './protocol.ts'
+import { generateAgentKey, getAgentPublicKey, verifyAgentSignature } from './agentKey.ts'
 import { projectConfig, root } from './testing.ts'
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
@@ -253,6 +255,22 @@ describe('the handshake', () => {
         versions: { studio: '1.0.0', kubb: '5.0.0-test', agent: '2.0.0' },
       }),
     )
+  })
+
+  it('signs the challenge with the agent key, and only when it has both', async () => {
+    const privateKey = generateAgentKey()
+    const challenge = 'c2lnbi1tZS1wbGVhc2Utc3R1ZGlv'
+    const withKey = await connectStudio({ privateKey })
+
+    const { signature } = await withKey.agent.connect({ ...info, challenge })
+    expect(
+      verifyAgentSignature({ publicKey: getAgentPublicKey(privateKey), context: AgentSignatureContext.CONNECT, payload: challenge, signature: signature! }),
+    ).toBe(true)
+    expect(await withKey.agent.connect(info)).not.toHaveProperty('signature')
+    expect(await withKey.agent.connect({ ...info, challenge: 'x'.repeat(1025) })).not.toHaveProperty('signature')
+
+    const withoutKey = await connectStudio()
+    expect(await withoutKey.agent.connect({ ...info, challenge })).not.toHaveProperty('signature')
   })
 
   it('refuses a command Studio sends before connect()', async () => {

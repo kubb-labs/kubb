@@ -40,6 +40,11 @@ export type Credentials = {
    * which are refreshed on the next connect.
    */
   issuedAt?: string
+  /**
+   * The agent key this machine paired with, as a PKCS #8 PEM string. Only its public half reaches
+   * Studio. Absent in credentials paired before agent keys, which keep working without one.
+   */
+  privateKey?: string
   agentId: string
   agentSlug: string
   /**

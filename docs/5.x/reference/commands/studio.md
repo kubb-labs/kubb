@@ -55,7 +55,9 @@ To change the saved permissions, run `kubb studio permissions`. A running connec
 
 The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, which defaults to `~/.kubb`. `status` prints the log path.
 
-A connection trades a token issued more than a day ago for a new one when it starts, and again once a day while it runs, so a project that stays connected never has to be approved again. When Studio rejects the token, the CLI tries one refresh before it asks you to pair again. A Studio without token refresh keeps the token until it expires. `stop` waits for a running generation to clean up, and `logout` stops the worker before it removes credentials. An interrupted job does not run again.
+A connection trades a token issued more than a day ago for a new one when it starts, and again once a day while it runs, so a project that stays connected never has to be approved again. When Studio rejects the token, the CLI tries one refresh before it asks you to pair again. A Studio without token refresh keeps the token until it expires.
+
+Pairing also creates a key for the project that never leaves the machine. The CLI stores it next to the token and sends Studio only its public half, so a Studio that checks it can tell this machine from someone who only copied the token. A project paired with an earlier release has no key and keeps working, and `kubb studio login` adds one. `stop` waits for a running generation to clean up, and `logout` stops the worker before it removes credentials. An interrupted job does not run again.
 
 ## Options
 
