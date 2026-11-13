@@ -696,7 +696,7 @@ class Agent extends RpcTarget implements AgentApi {
     }
     const kind = getInputKind(edit.input)
     if (this.#managed && !MANAGED_INPUT_KINDS.has(kind)) return { reason: AgentMessage.MANAGED_INPUT_KIND }
-    // The next generation reads the input itself, whatever a `$ref` may read.
+    // The next generation reads the input file itself, and the `$ref` limit does not cover it.
     if (kind === 'file' && !isPathInside(path.resolve(this.#options.root, edit.input), this.#options.root)) {
       return { reason: 'the input is a file outside the project' }
     }

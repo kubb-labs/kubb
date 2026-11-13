@@ -349,7 +349,7 @@ export type GenerationRun = {
 
 /**
  * What Studio knows about the agent on the other end of a socket. Studio passes it with every
- * {@link AgentApi.connect} call. Its `sandbox` flag can only take permissions away: the host decides the rest.
+ * {@link AgentApi.connect} call. Its `sandbox` flag can only take permissions away. The host decides the rest.
  */
 export type AgentConnectInfo = {
   /**

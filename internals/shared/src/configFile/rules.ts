@@ -83,7 +83,7 @@ export function findEscapingOutputPath(value: unknown): string | undefined {
   const output = isPlainObject(value) ? value.output : undefined
   if (isPlainObject(output) && typeof output.path === 'string') {
     const normalized = path.posix.normalize(output.path.replaceAll('\\', '/'))
-    // Checked before normalizing, which turns `C:/../src` into `src`: a drive letter always leaves the folder.
+    // Checked before normalizing, which turns `C:/../src` into `src`. A drive letter always leaves the folder.
     if (path.posix.isAbsolute(normalized) || /^[a-z]:/i.test(output.path) || normalized === '..' || normalized.startsWith('../')) return output.path
   }
   for (const entry of Object.values(value)) {

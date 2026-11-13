@@ -341,7 +341,7 @@ export function assertOutputPaths({
 /**
  * The folders a `$ref` may read local files from on each kind of agent. Studio may have sent or
  * saved the spec, so a sandbox or managed agent gets none but the git checkout it made itself, and
- * a project agent its `root`. `undefined` is no limit, once the host granted `allowFileRefs`.
+ * a project agent its `root`. `undefined` means no limit, which only `allowFileRefs` grants.
  */
 export function resolveFileRefs({
   sandbox,
