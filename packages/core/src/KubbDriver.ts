@@ -266,7 +266,7 @@ export class KubbDriver {
     try {
       this.inputNode = await this.adapter.parse(checkout ? { type: 'path', path: checkout.path } : source, {
         signal: this.options.signal,
-        fileRefs: this.options.fileRefs,
+        fileRefs: checkout && this.options.fileRefs ? checkout.dir : this.options.fileRefs,
       })
     } catch (caughtError) {
       throw new Diagnostics.Error(Diagnostics.fromExtension(caughtError, { kind: 'adapter', extension: this.adapter }))

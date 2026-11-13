@@ -97,8 +97,10 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
  * folder cannot point outside it.
  */
 async function isInsideFolders(filePath: string, folders: Array<string>): Promise<boolean> {
-  const [target, ...roots] = await Promise.all([filePath, ...folders].map((item) => realpath(resolve(item)).catch(() => resolve(item))))
-  return roots.some((root) => isPathInside(target!, root))
+  const real = (item: string) => realpath(resolve(item)).catch(() => resolve(item))
+  const target = await real(filePath)
+  const realFolders = await Promise.all(folders.map(real))
+  return [...folders, ...realFolders].some((folder) => isPathInside(target, folder))
 }
 
 /**
@@ -137,7 +139,7 @@ export async function bundleDocument(
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
   // The folders a `$ref` may read local files from. From `pathOrUrl`, not the document's own `$self`,
   // so a `$ref` cannot read a stored token elsewhere. A URL input has none.
-  const folders = urlRegExp.test(pathOrUrl) || fileRefs === false ? [] : fileRefs && [dirname(resolve(pathOrUrl)), fileRefs]
+  const folders = urlRegExp.test(pathOrUrl) || fileRefs === false ? [] : fileRefs === undefined ? undefined : [dirname(resolve(pathOrUrl)), fileRefs]
   const refused = new Set<string>()
 
   let entry = pathOrUrl
@@ -183,7 +185,9 @@ export async function bundleDocument(
           severity: isExtensionPath(path) ? 'warning' : 'error',
           message: refusedPath ? `Refused an external \`$ref\` to the local file ${refusedPath}.` : `Could not bundle an external \`$ref\`. ${message}.`,
           help: refusedPath
-            ? 'A URL input reads no local file, and a Kubb Studio agent only reads files inside the project. Move the file there, grant the agent `allowFileRefs`, or inline the schema.'
+            ? folders?.length
+              ? 'This Kubb Studio agent only reads files inside the project. Move the file there, start the agent with `--allow-file-refs`, or inline the schema.'
+              : 'This input reads no local file. Inline the schema, or serve the file from a URL.'
             : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
         }

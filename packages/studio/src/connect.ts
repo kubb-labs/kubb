@@ -341,20 +341,21 @@ class Agent extends RpcTarget implements AgentApi {
   // A sandbox has no project to write to or edit. Only the host's `sandbox` option grants reads.
   get #permissions(): AgentPermissions {
     const { permissions, sandbox } = this.#options
-    return this.#sandbox
-      ? {
-          ...permissions,
-          allowWrite: false,
-          allowConfigEdit: false,
-          allowInstall: false,
-          allowUpdate: false,
-          allowRemove: false,
-          allowSaveInput: false,
-          allowFileRefs: false,
-          allowRead: sandbox || permissions.allowRead,
-          allowReadAst: sandbox || permissions.allowReadAst,
-        }
-      : permissions
+    if (this.#managed) return { ...permissions, allowFileRefs: false }
+    if (!this.#sandbox) return permissions
+
+    return {
+      ...permissions,
+      allowWrite: false,
+      allowConfigEdit: false,
+      allowInstall: false,
+      allowUpdate: false,
+      allowRemove: false,
+      allowSaveInput: false,
+      allowFileRefs: false,
+      allowRead: sandbox || permissions.allowRead,
+      allowReadAst: sandbox || permissions.allowReadAst,
+    }
   }
 
   // Studio may have sent or saved the spec, so its `$ref`s read no local file on a shared or hosted
@@ -594,7 +595,7 @@ class Agent extends RpcTarget implements AgentApi {
         hooks: this.#options.hooks,
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
-        fileRefs: this.#fileRefs,
+        fileRefs: checkout?.dir ?? this.#fileRefs,
       })
     // The adapter fetches the URL and every `$ref` in it, so a shared or hosted agent limits the fetch itself to public addresses.
     const files = await (this.#sandbox || this.#managed ? withPublicFetch(run) : run())

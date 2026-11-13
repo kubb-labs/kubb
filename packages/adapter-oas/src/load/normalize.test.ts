@@ -699,6 +699,18 @@ describe('bundleDocument file confinement', () => {
     })
   })
 
+  it('treats an empty fileRefs folder as a limit, not as no limit', async () => {
+    await withSpecs(async (dir) => {
+      await expect(bundle(dir, documentWith('../secret.yaml'), '')).rejects.toThrow(/Refused an external/)
+    })
+  })
+
+  it('reports a missing file inside the folder as not found, not as refused', async () => {
+    await withSpecs(async (dir) => {
+      await expect(bundle(dir, documentWith('./missing.yaml'))).rejects.toThrow(/Could not bundle/)
+    })
+  })
+
   it('refuses every local ref when fileRefs is false', async () => {
     await withSpecs(async (dir) => {
       await expect(bundle(dir, documentWith('./pet.yaml'), false)).rejects.toThrow(/Refused an external/)

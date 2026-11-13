@@ -349,7 +349,7 @@ export type GenerationRun = {
 
 /**
  * What Studio knows about the agent on the other end of a socket. Studio passes it with every
- * {@link AgentApi.connect} call, so it stays the authority on whether the agent is a sandbox.
+ * {@link AgentApi.connect} call. Its `sandbox` flag can only take permissions away: the host decides the rest.
  */
 export type AgentConnectInfo = {
   /**
@@ -548,12 +548,12 @@ export type AgentPermissions = {
   allowFileRefs: boolean
   /**
    * Whether the agent shares existing output on connect and hands back file source through
-   * `readFiles`. A sandbox always permits reads of its generated files.
+   * `readFiles`. A sandbox the host declares always permits reads of its generated files.
    */
   allowRead: boolean
   /**
    * Whether the agent hands back the parsed spec (the Kubb AST) in response to `readInput`.
-   * Separate from `allowRead`, which covers generated files. Always true for a sandbox.
+   * Separate from `allowRead`, which covers generated files. Always true for a sandbox the host declares.
    */
   allowReadAst: boolean
 }

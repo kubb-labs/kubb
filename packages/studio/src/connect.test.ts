@@ -5,7 +5,7 @@ import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { ast } from '@kubb/ast'
-import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
+import { checkoutGitInput, type Config, defineExtension, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { read } from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -58,7 +58,12 @@ vi.mock('@kubb/core', async (importOriginal) => {
       },
     }
   }
-  return { ...core, fsStorage: () => (disk.storage ??= createDisk()), cacheStorage: () => (disk.cache ??= core.memoryStorage()) }
+  return {
+    ...core,
+    checkoutGitInput: vi.fn(core.checkoutGitInput),
+    fsStorage: () => (disk.storage ??= createDisk()),
+    cacheStorage: () => (disk.cache ??= core.memoryStorage()),
+  }
 })
 
 const studioUrl = 'https://studio.test'
@@ -403,6 +408,23 @@ describe('a sandbox job', () => {
     await expect(agent.connect({ ...info, sandbox: true })).resolves.toMatchObject({
       permissions: { allowWrite: false, allowConfigEdit: false, allowInstall: false, allowRead: true, allowReadAst: true },
     })
+  })
+
+  it('lets a managed agent read $ref files inside its git checkout, and nowhere else', async () => {
+    vi.mocked(checkoutGitInput).mockResolvedValueOnce({ path: '/checkout/specs/openapi.yaml', dir: '/checkout', dispose: async () => {} })
+    const parse = vi.fn(async () => ast.factory.createInput({ operations: [], meta: { title: 'Pets' } }))
+    const loadConfigs = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
+    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
+
+    await agent.startGeneration({ jobId: 'job-1', config: { input: 'git+https://example.com/api.git#main:specs/openapi.yaml' } }).result()
+    expect(parse).toHaveBeenCalledWith({ type: 'path', path: '/checkout/specs/openapi.yaml' }, expect.objectContaining({ fileRefs: '/checkout' }))
+  })
+
+  it('reports allowFileRefs off on a managed agent, whatever the host granted', async () => {
+    const connectInfo = { ...info, managed: true }
+    const { agent } = await connectStudio({ permissions: { allowFileRefs: true }, connectInfo })
+
+    await expect(agent.connect(connectInfo)).resolves.toMatchObject({ permissions: { allowFileRefs: false } })
   })
 
   it('takes permissions away but never grants reads when only Studio says sandbox', async () => {
