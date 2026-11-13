@@ -177,10 +177,10 @@ export type ConnectAgentOptions = {
    */
   permissions?: Partial<AgentPermissions>
   /**
-   * The host runs a shared sandbox agent, which lets Studio read what it generated. Studio's own `sandbox` flag only takes permissions away.
-   * @default false
+   * The kind of agent the host runs. A `'sandbox'` is shared, and lets Studio read what it generated. Studio's own `sandbox` flag only takes permissions away.
+   * @default 'user'
    */
-  sandbox?: boolean
+  agentType?: 'user' | 'sandbox'
   /** The CLI entry `installExtension` runs `kubb add` with. Found through the project's `kubb` or `@kubb/cli` dependency when omitted. */
   kubbBin?: string
   /**
@@ -330,16 +330,17 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   get #sandbox(): boolean {
-    return this.#options.sandbox || this.#session.info?.sandbox === true
+    return this.#options.agentType === 'sandbox' || this.#session.info?.sandbox === true
   }
 
   get #managed(): boolean {
     return this.#session.info?.managed === true
   }
 
-  // A sandbox has no project to write to or edit. Only the host's `sandbox` option grants reads.
+  // A sandbox has no project to write to or edit. Only the host's `agentType` grants reads.
   get #permissions(): AgentPermissions {
-    const { permissions, sandbox } = this.#options
+    const { permissions } = this.#options
+    const sandbox = this.#options.agentType === 'sandbox'
     if (this.#managed) return { ...permissions, allowFileRefs: false }
     if (!this.#sandbox) return permissions
 
@@ -1026,7 +1027,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
     ...options,
     studioUrl: options.studioUrl ?? defaultStudioUrl,
     root,
-    sandbox: options.sandbox ?? false,
+    agentType: options.agentType ?? 'user',
     configFile: path.resolve(root, options.configPath),
     permissions: {
       allowWrite: false,

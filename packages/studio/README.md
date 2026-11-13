@@ -115,7 +115,7 @@ Every permission is off by default, and each covers one trust boundary:
 | `allowReadAst`    | Studio may read back the parsed spec (the Kubb AST).                                           |
 | `allowFileRefs`   | A `$ref` in the spec may read a local file outside the project.                                |
 
-A sandbox never writes or edits config. A sandbox the host declares with `sandbox: true` always allows reads.
+A sandbox never writes or edits config. A sandbox the host declares with `agentType: 'sandbox'` always allows reads.
 
 ## Pairing
 

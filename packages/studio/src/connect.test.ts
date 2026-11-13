@@ -403,7 +403,11 @@ describe('a sandbox job', () => {
   })
 
   it('reports writes and config edits off and reads on for a host-declared sandbox, whatever the host granted', async () => {
-    const { agent } = await connectStudio({ sandbox: true, permissions: { allowWrite: true, allowConfigEdit: true }, connectInfo: { ...info, sandbox: true } })
+    const { agent } = await connectStudio({
+      agentType: 'sandbox',
+      permissions: { allowWrite: true, allowConfigEdit: true },
+      connectInfo: { ...info, sandbox: true },
+    })
 
     await expect(agent.connect({ ...info, sandbox: true })).resolves.toMatchObject({
       permissions: { allowWrite: false, allowConfigEdit: false, allowInstall: false, allowRead: true, allowReadAst: true },
