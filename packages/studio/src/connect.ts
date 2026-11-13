@@ -152,9 +152,10 @@ declare global {
 
 export type ConnectAgentOptions = {
   /**
-   * The agent's bearer token, from {@link pairAgent}.
+   * The agent's bearer token, from {@link pairAgent}. A function is called before every socket opens,
+   * so a host that refreshes the token with {@link refreshAgentToken} reconnects with the new one.
    */
-  token: string
+  token: string | (() => string | Promise<string>)
   studioUrl?: string
   /**
    * The config path shown in Studio, relative to `root` unless absolute.
@@ -926,7 +927,8 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
 }
 
 async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
-  const { hooks, signal, heartbeatInterval, token, studioUrl, version } = options
+  const { hooks, signal, heartbeatInterval, studioUrl, version } = options
+  const token = typeof options.token === 'function' ? await options.token() : options.token
   const session: Session = { connected: Promise.withResolvers(), closed: false }
   const agent = new Agent({ options, session })
   const rpc = openRpc({ url, token, instanceId, agent })

@@ -8,7 +8,7 @@ import { KUBB_CONFIG_FILENAME } from '@internals/shared'
 import { copyToClipboard, isCIEnvironment, openInBrowser, toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { connectAgent, defaultStudioUrl, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
+import { connectAgent, defaultStudioUrl, InvalidAgentTokenError, pairAgent, PairingCanceledError, refreshAgentToken } from '@kubb/studio'
 import { AgentPermission } from '@kubb/studio/protocol'
 import { trackRun } from '../../Telemetry.ts'
 import { plainWriter } from '../../loggers/plainWriter.ts'
@@ -20,6 +20,9 @@ import { canUseTTY, isRichOutput } from '../../utils/env.ts'
 import { getConfigs } from '../../config.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, writeCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
+
+/** How often a connection trades its token for a new one, well inside Studio's 30-day default lifetime. */
+const REFRESH_EVERY_MS = 24 * 60 * 60 * 1000
 
 export type StudioOptions = {
   /**
@@ -165,6 +168,7 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
     const credentials: Credentials = {
       studioUrl,
       token,
+      issuedAt: new Date().toISOString(),
       agentId: agent.id,
       agentSlug: agent.slug,
       ...(agent.organizationSlug ? { organizationSlug: agent.organizationSlug } : {}),
@@ -344,6 +348,7 @@ export async function connect(
     events.once('SIGTERM', stop)
   }
   let unwatch: (() => void) | undefined
+  let refreshTimer: NodeJS.Timeout | undefined
   try {
     if (!context.prepared) {
       const { getWorkerStatus } = await import('./background.ts')
@@ -361,6 +366,33 @@ export async function connect(
     let hinted = false
     // Set by a fresh pairing until it connects, so a token rejected right after approval fails the run instead of looping.
     let pairedAgain = false
+    // Set by a refresh after a rejected token until it connects, so a rejected token is traded in at most once.
+    let recovered = false
+
+    const warn = (message: string) => options.logLevel !== 'silent' && console.log(styleText('yellow', message))
+    /**
+     * Trades a token issued more than a day ago (or at an unknown time) for a new one and stores it.
+     * `force` refreshes whatever its age. Resolves whether the token changed; a failure keeps the old one.
+     */
+    const refresh = async ({ force = false } = {}): Promise<boolean> => {
+      const issuedAt = Date.parse(credentials.issuedAt ?? '')
+      if (!force && Date.now() - issuedAt < REFRESH_EVERY_MS) return false
+      try {
+        const token = await refreshAgentToken({ studioUrl: options.studioUrl, token: credentials.token, machineId: await getMachineId(), signal })
+        if (!token) return false
+        credentials = { ...credentials, token, issuedAt: new Date().toISOString() }
+        // The old token is already retired, so the new one is kept in memory even when storage fails.
+        await writeCredentials(credentials).catch((error: unknown) => warn(`Could not store the refreshed token: ${toError(error).message}`))
+        return true
+      } catch (error) {
+        // A rejected token surfaces again from the connection, which pairs again.
+        if (!signal.aborted && !(error instanceof InvalidAgentTokenError)) warn(`Could not refresh the agent token: ${toError(error).message}`)
+        return false
+      }
+    }
+    await refresh()
+    refreshTimer = setInterval(() => void refresh(), REFRESH_EVERY_MS)
+    refreshTimer.unref()
 
     // The background worker writes to a log file, so it gets the plain logger rather than the
     // animated one. The logger also covers the `studio:*` events and each generation run.
@@ -375,6 +407,7 @@ export async function connect(
     let background = false
     hooks.hook('studio:connected', async () => {
       pairedAgain = false
+      recovered = false
       await context.onState?.('connected')
       if (listens && !unwatch) {
         unwatch = watchKeys({
@@ -403,7 +436,8 @@ export async function connect(
     for (;;) {
       try {
         await connectAgent({
-          token: credentials.token,
+          // Read on every reconnect, so a refresh while connected is picked up without a restart.
+          token: () => credentials.token,
           studioUrl: options.studioUrl,
           configPath,
           version: options.version,
@@ -417,6 +451,12 @@ export async function connect(
         break
       } catch (error) {
         if (!(error instanceof InvalidAgentTokenError)) throw error
+        // The answer to an earlier refresh may have been lost. Studio lets the replaced token refresh
+        // once more, which saves an approval.
+        if (!recovered && !pairedAgain) {
+          recovered = true
+          if (await refresh({ force: true })) continue
+        }
         await context.onState?.('authentication required')
         await clearCredentials()
         if (pairedAgain) throw new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
@@ -444,6 +484,7 @@ export async function connect(
   } catch (error) {
     if (!(error instanceof PairingCanceledError)) throw error
   } finally {
+    clearInterval(refreshTimer)
     unwatch?.()
     events.off('SIGINT', stop)
     events.off('SIGTERM', stop)

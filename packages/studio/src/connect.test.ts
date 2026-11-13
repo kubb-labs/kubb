@@ -80,15 +80,15 @@ beforeEach(() => {
   disk.cache = undefined
 })
 
-type Socket = { agent: AgentApi; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
+type Socket = { agent: AgentApi; token: string; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
 
 // Stands in for Studio: each socket lands in `sockets`, and a test closes it with Studio's code.
 function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
   const sockets: Array<Socket> = []
-  const openRpc: OpenRpc = ({ agent }) => {
+  const openRpc: OpenRpc = ({ agent, token }) => {
     const closed = Promise.withResolvers<{ code: number; reason: string }>()
     const ping = vi.fn().mockResolvedValue(undefined)
-    sockets.push({ agent, ping, close: (code, reason = '') => closed.resolve({ code, reason }) })
+    sockets.push({ agent, token, ping, close: (code, reason = '') => closed.resolve({ code, reason }) })
     return { studio: { ping }, closed: closed.promise, close: () => closed.resolve({ code: 1000, reason: '' }) }
   }
   const shutdown = new AbortController()
@@ -289,6 +289,16 @@ describe('close codes', () => {
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
     expect(disconnected).toHaveBeenCalledWith({ code: 1006, reason: 'gone' })
     expect(reconnecting).toHaveBeenCalledOnce()
+  })
+
+  it('reads the token again for every socket, so a refreshed token is the one it reconnects with', async () => {
+    let token = 'old-token'
+    const { socket, sockets } = await connectStudio({ token: () => token })
+    token = 'new-token'
+    socket.close(1006, 'gone')
+
+    await vi.waitFor(() => expect(sockets).toHaveLength(2))
+    expect(sockets.map((socket) => socket.token)).toStrictEqual(['old-token', 'new-token'])
   })
 
   it('keeps backing off while sockets close before the handshake, and resets once Studio connects', async () => {

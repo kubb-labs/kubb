@@ -35,6 +35,11 @@ export type Credentials = {
    * Bearer token for this machine. Never logged, never printed.
    */
   token: string
+  /**
+   * When Studio issued `token`, as an ISO date. Absent in credentials written before token refresh,
+   * which are refreshed on the next connect.
+   */
+  issuedAt?: string
   agentId: string
   agentSlug: string
   /**

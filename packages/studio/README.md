@@ -72,7 +72,7 @@ running in a developer's project and a container running a fixed plugin set.
 | ---------------- | -------------------------------------------------------------------------------- |
 | `protocol.ts`    | The wire contract Studio compiles against, published as `@kubb/studio/protocol`. |
 | `connect.ts`     | `connectAgent`: the socket loop and the `Agent` that serves Studio's calls.      |
-| `pair.ts`        | `pairAgent`: RFC 8628 device pairing.                                            |
+| `pair.ts`        | `pairAgent`: RFC 8628 device pairing, and `refreshAgentToken`.                   |
 | `snapshot.ts`    | `createSnapshot` for CI, and packing a generation into an npm tarball.           |
 | `generations.ts` | Running a generation and keeping its files and AST for `readFiles`/`readInput`.  |
 | `diff.ts`        | The paged line diff `readDiff` serves between two kept sets.                     |
@@ -129,6 +129,33 @@ pairing again rotates one agent's token instead of creating a second agent. Stud
 are the Docker image, run normally or as a sandbox. Only an admin can approve them. A denial
 throws `PairingDeniedError`, an expired code `PairingExpiredError`, and an aborted `signal`
 `PairingCanceledError`.
+
+## Token refresh
+
+A paired token expires 30 days after Studio issued it, unless the host trades it in first.
+`refreshAgentToken` calls `POST /api/agent/token/refresh` with the token and the same `machineId` the
+machine paired with, and resolves the new token. The old token stops working at once, so store the
+new one first. Open sockets stay up, and Studio moves them to the new token.
+
+```typescript
+import { refreshAgentToken } from '@kubb/studio'
+
+const next = await refreshAgentToken({ studioUrl, token, machineId, signal })
+if (next) await storeToken({ token: next, issuedAt: new Date().toISOString() })
+```
+
+| Studio answers | `refreshAgentToken`                                            |
+| -------------- | -------------------------------------------------------------- |
+| `200`          | Resolves the new token                                         |
+| `404`, `409`   | Resolves `null`: an older Studio, or a kind that never expires |
+| `401`          | Rejects with `InvalidAgentTokenError`                          |
+| other, timeout | Rejects, and the token is unchanged                            |
+
+The request gives up after 15 seconds (`timeout`) and is never retried. Pass `token` to
+`connectAgent` as a function, such as `() => credentials.token`, and every reconnect reads the
+current token, so a refresh needs no restart. The `kubb studio` CLI refreshes a token older than a day
+when it connects and once a day while it runs, and tries one refresh before it pairs again after
+`InvalidAgentTokenError`.
 
 ## CI snapshots
 

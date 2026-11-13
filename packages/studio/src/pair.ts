@@ -3,6 +3,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import { ofetch } from 'ofetch'
+import { InvalidAgentTokenError } from './connect.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 /**
@@ -285,4 +286,80 @@ export async function pairAgent({ onCode, onRetry, maxAttempts = 1, ...options }
       }
     }
   }
+}
+
+/** How long a token refresh may take before it is given up, in milliseconds. */
+const REFRESH_TIMEOUT_MS = 15_000
+
+type RefreshAgentTokenOptions = {
+  studioUrl?: string
+  /**
+   * The token to trade in. Studio retires it as soon as it answers with the new one.
+   */
+  token: string
+  /**
+   * The same secret the machine paired with, sent as `machine_id`, so a leaked token alone cannot be renewed.
+   */
+  machineId: string
+  signal?: AbortSignal
+  /**
+   * Milliseconds before the request is given up.
+   * @default 15000
+   */
+  timeout?: number
+}
+
+/**
+ * Trades the agent's token for a new one with a full lifetime through `POST /api/agent/token/refresh`.
+ * The old token stops working at once, so store the new one before anything else. Sockets open with
+ * the old token stay up: Studio moves them to the new one.
+ *
+ * Returns `null` when the token cannot be refreshed but still works: a Studio without the route (404),
+ * or a kind of agent whose token does not expire (409).
+ *
+ * @throws {InvalidAgentTokenError} when Studio refuses the token (401): it expired or was revoked, or
+ * `machineId` belongs to another machine. Pair again.
+ */
+export async function refreshAgentToken({
+  studioUrl = defaultStudioUrl,
+  token,
+  machineId,
+  signal,
+  timeout = REFRESH_TIMEOUT_MS,
+}: RefreshAgentTokenOptions): Promise<string | null> {
+  const deadline = AbortSignal.timeout(timeout)
+  const { status, _data } = await ofetch
+    .raw<{ token?: unknown }>(secureUrl({ studioUrl, path: '/api/agent/token/refresh' }).href, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: { machine_id: machineId },
+      signal: signal ? AbortSignal.any([signal, deadline]) : deadline,
+      ignoreResponseError: true,
+      // A second attempt would send a token the first one may already have retired.
+      retry: 0,
+    })
+    .catch((error: unknown) => {
+      if (deadline.aborted && !signal?.aborted)
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.inputRequestFailed,
+          severity: 'error',
+          message: `Kubb Studio did not answer the token refresh within ${timeout} ms`,
+          help: 'The token is unchanged. Try again later.',
+        })
+      throw error
+    })
+
+  if (status === 404 || status === 409) return null
+  if (status === 401) throw new InvalidAgentTokenError(studioUrl)
+  if (status < 200 || status >= 300)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.inputRequestFailed,
+      severity: 'error',
+      message: `Kubb Studio answered the token refresh with status ${status}`,
+      help: 'The token is unchanged. Try again later.',
+    })
+  if (typeof _data?.token !== 'string' || !_data.token)
+    throw new Diagnostics.Error({ code: Diagnostics.code.unknown, severity: 'error', message: 'Kubb Studio answered the token refresh without a token' })
+
+  return _data.token
 }

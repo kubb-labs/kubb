@@ -1,7 +1,17 @@
 import { hash } from 'node:crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setTimeout as delay } from 'node:timers/promises'
-import { pairAgent, PairingCanceledError, PairingDeniedError, PairingExpiredError, pollForPairingToken, startPairing, type PairingSession } from './pair.ts'
+import { InvalidAgentTokenError } from './connect.ts'
+import {
+  pairAgent,
+  PairingCanceledError,
+  PairingDeniedError,
+  PairingExpiredError,
+  pollForPairingToken,
+  refreshAgentToken,
+  startPairing,
+  type PairingSession,
+} from './pair.ts'
 
 vi.mock('node:timers/promises', () => ({
   setTimeout: vi.fn(async () => {}),
@@ -171,5 +181,52 @@ describe('pairAgent', () => {
 
     await expect(promise).rejects.toBeInstanceOf(PairingDeniedError)
     expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('refreshAgentToken', () => {
+  const options = { studioUrl: 'https://studio.test', token: 'old-token', machineId: 'secret' }
+
+  it('trades the bearer token and the machine secret for a new token', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'new-token' }))
+
+    await expect(refreshAgentToken(options)).resolves.toBe('new-token')
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(String(url)).toBe('https://studio.test/api/agent/token/refresh')
+    expect(new Headers(init.headers).get('authorization')).toBe('Bearer old-token')
+    expect(JSON.parse(String(init.body))).toStrictEqual({ machine_id: 'secret' })
+  })
+
+  it.each([
+    ['a Studio without the route', 404],
+    ['an agent kind that does not refresh', 409],
+  ])('returns null for %s (%i), so the host keeps its token', async (_case, status) => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ statusMessage: 'nope' }, status))
+
+    await expect(refreshAgentToken(options)).resolves.toBeNull()
+  })
+
+  it('rejects with InvalidAgentTokenError when Studio refuses the token', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ statusMessage: 'Unauthorized' }, 401))
+
+    await expect(refreshAgentToken(options)).rejects.toBeInstanceOf(InvalidAgentTokenError)
+  })
+
+  it.each([
+    ['a server error', createMockResponse({}, 500), 'status 500'],
+    ['an answer without a token', createMockResponse({}), 'without a token'],
+  ])('rejects on %s', async (_case, response, message) => {
+    fetchMock.mockResolvedValueOnce(response)
+
+    await expect(refreshAgentToken(options)).rejects.toThrow(message)
+  })
+
+  it('gives up once the timeout passes', async () => {
+    vi.useRealTimers()
+    fetchMock.mockImplementationOnce(
+      (_url, init: RequestInit) => new Promise((_resolve, reject) => init.signal?.addEventListener('abort', () => reject(init.signal?.reason))),
+    )
+
+    await expect(refreshAgentToken({ ...options, timeout: 20 })).rejects.toThrow('did not answer the token refresh within 20 ms')
   })
 })
