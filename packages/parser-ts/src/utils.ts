@@ -88,15 +88,13 @@ export function getRelativePath(root: string, filePath: string): string {
   // A relative input resolves against the working directory, so that directory is part of its key.
   const key = isAbsolute(root) && isAbsolute(filePath) ? `${root}\u0000${filePath}` : `${process.cwd()}\u0000${root}\u0000${filePath}`
   return memo(relativePaths, key, () => {
-    if (relativePaths.size >= memoLimit) relativePaths.clear()
     const slashed = relative(dirname(root), filePath).replaceAll('\\', '/')
     return slashed.startsWith('../') ? slashed : `./${slashed}`
   })
 }
 
 // The limit bounds what a long-running host keeps across builds into fresh roots; one build stays well under it.
-const relativePaths = new Map<string, string>()
-const memoLimit = 100_000
+const relativePaths = memo.create<string, string>({ type: 'map', limit: 100_000 })
 
 /**
  * Swaps the extension of a relative import/export path for `extname`. Package specifiers and extension-less paths stay as-is.

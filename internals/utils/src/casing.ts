@@ -35,15 +35,11 @@ function convert(text: string, pascal: boolean): string {
 }
 
 // Plugins case the same names on every visit. Clearing at the limit bounds a long-running host.
-const cache = new Map<string, string>()
-const cacheLimit = 100_000
+const cache = memo.create<string, string>({ type: 'map', limit: 100_000 })
 
 function toCamelOrPascal(text: string, pascal: boolean): string {
   const key = `${pascal ? 'P' : 'c'}${text}`
-  return memo(cache, key, () => {
-    if (cache.size >= cacheLimit) cache.clear()
-    return convert(text, pascal)
-  })
+  return memo(cache, key, () => convert(text, pascal))
 }
 
 /**

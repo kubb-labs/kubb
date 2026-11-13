@@ -33,6 +33,20 @@ describe('memo', () => {
     memo(store, 'aa', () => compute('aa'))
     expect(compute.mock.calls).toStrictEqual([['aa'], ['bbb'], ['aa']])
   })
+
+  it('empties a map store before the entry that would pass its limit', () => {
+    const store = memo.create<string, number>({ type: 'map', limit: 2 })
+    const compute = vi.fn(() => 1)
+
+    memo(store, 'a', compute)
+    memo(store, 'b', compute)
+    memo(store, 'a', compute)
+    expect(compute).toHaveBeenCalledTimes(2)
+
+    memo(store, 'c', compute)
+    expect(store.has('a')).toBe(false)
+    expect(store.has('c')).toBe(true)
+  })
 })
 
 describe('inParallel', () => {

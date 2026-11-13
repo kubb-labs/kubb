@@ -17,14 +17,12 @@ export function refName(ref: string): string {
       // A stray `%` is not a valid escape, so the segment is already the literal name.
     }
 
-    if (refNames.size >= memoLimit) refNames.clear()
     return decoded.replaceAll('~1', '/').replaceAll('~0', '~')
   })
 }
 
 // Every plugin resolves the same refs on every visit; the limit only bounds a long-running host.
-const refNames = new Map<string, string>()
-const memoLimit = 100_000
+const refNames = memo.create<string, string>({ type: 'map', limit: 100_000 })
 
 /**
  * Resolves the emitted name of the schema a ref node points at. Prefers `targetName` (set when
