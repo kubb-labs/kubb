@@ -674,7 +674,7 @@ describe('bundleDocument file confinement', () => {
     ['a ref behind a $self that leaves the folder', './secret.yaml', { $self: '../openapi.yaml' }],
   ])('refuses %s outside the input folder and the fileRefs folder', async (_title, ref, extra) => {
     await withSpecs(async (dir) => {
-      await expect(bundle(dir, documentWith(ref, extra))).rejects.toThrow(/is outside/)
+      await expect(bundle(dir, documentWith(ref, extra))).rejects.toThrow(/Refused an external/)
     })
   })
 
@@ -688,7 +688,7 @@ describe('bundleDocument file confinement', () => {
   it('refuses a link inside the input folder that points outside it', async () => {
     await withSpecs(async (dir) => {
       await symlink(path.join(dir, 'secret.yaml'), path.join(dir, 'spec/link.yaml'))
-      await expect(bundle(dir, documentWith('./link.yaml'))).rejects.toThrow(/is outside/)
+      await expect(bundle(dir, documentWith('./link.yaml'))).rejects.toThrow(/Refused an external/)
     })
   })
 
@@ -701,14 +701,14 @@ describe('bundleDocument file confinement', () => {
 
   it('refuses every local ref when fileRefs is false', async () => {
     await withSpecs(async (dir) => {
-      await expect(bundle(dir, documentWith('./pet.yaml'), false)).rejects.toThrow(/may not read local files/)
+      await expect(bundle(dir, documentWith('./pet.yaml'), false)).rejects.toThrow(/Refused an external/)
     })
   })
 
   it('refuses a local ref from a URL input, even behind a file $self', async () => {
     await withSpecs(async (dir) => {
       const document = documentWith('./pet.yaml', { $self: pathToFileURL(path.join(dir, 'spec/openapi.yaml')).href })
-      await expect(bundleDocument('https://example.com/openapi.yaml', { document })).rejects.toThrow(/may not read local files/)
+      await expect(bundleDocument('https://example.com/openapi.yaml', { document })).rejects.toThrow(/Refused an external/)
     })
   })
 })

@@ -93,6 +93,15 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
 }
 
 /**
+ * Whether `filePath` is inside one of `folders`. Links are followed first, so a link inside a
+ * folder cannot point outside it.
+ */
+async function isInsideFolders(filePath: string, folders: Array<string>): Promise<boolean> {
+  const [target, ...roots] = await Promise.all([filePath, ...folders].map((item) => realpath(resolve(item)).catch(() => resolve(item))))
+  return roots.some((root) => isPathInside(target!, root))
+}
+
+/**
  * Bundles a multi-file OpenAPI document into a single document via `api-ref-bundler`.
  *
  * External file schemas are hoisted into named `components.schemas` entries, so a property
@@ -126,36 +135,27 @@ export async function bundleDocument(
   // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
-  const refused = new Map<string, string>()
-  // From `pathOrUrl`, not the document's own `$self`, so a `$ref` cannot read a stored token elsewhere.
-  const fileRoots = urlRegExp.test(pathOrUrl) || fileRefs === false ? [] : fileRefs === undefined ? undefined : [dirname(resolve(pathOrUrl)), fileRefs]
-  // Compared after following links, so a link inside a folder cannot point outside it.
-  const realRoots = fileRoots?.map((root) => realpath(root).catch(() => root))
-  const isOutside = async (sourcePath: string) => {
-    const target = await realpath(resolve(sourcePath)).catch(() => resolve(sourcePath))
-    return !(await Promise.all(realRoots ?? [])).some((root) => isPathInside(target, root))
-  }
-  const load = (key: string, sourcePath: string) =>
-    memo(cache, key, () => {
-      sources.push(key)
-      return resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
-    })
+  // The folders a `$ref` may read local files from. From `pathOrUrl`, not the document's own `$self`,
+  // so a `$ref` cannot read a stored token elsewhere. A URL input has none.
+  const folders = urlRegExp.test(pathOrUrl) || fileRefs === false ? [] : fileRefs && [dirname(resolve(pathOrUrl)), fileRefs]
+  const refused = new Set<string>()
 
   let entry = pathOrUrl
   let entryDocument: object | string | undefined = document
-  const resolver = (sourcePath: string) => {
+  const resolver = async (sourcePath: string) => {
     if (entryDocument !== undefined && toKey(sourcePath) === toKey(entry)) {
-      return Promise.resolve(entryDocument)
+      return entryDocument
     }
     const key = toKey(sourcePath)
-    if (fileRoots === undefined || key === toKey(pathOrUrl) || urlRegExp.test(sourcePath)) return load(key, sourcePath)
-
-    return isOutside(sourcePath).then((outside) => {
-      if (!outside) return load(key, sourcePath)
-      // api-ref-bundler drops the rejection's message, so `onError` looks the reason up here.
-      const reason = fileRoots.length ? `${sourcePath} is outside ${fileRoots.join(' and ')}` : `this input may not read local files, such as ${sourcePath}`
-      refused.set(sourcePath, reason)
-      throw new Error(reason)
+    const isFileRef = key !== toKey(pathOrUrl) && !urlRegExp.test(sourcePath)
+    if (isFileRef && folders && !(await isInsideFolders(sourcePath, folders))) {
+      // api-ref-bundler drops the rejection's message, so `onError` looks the path up here.
+      refused.add(sourcePath)
+      throw new Error(`Refused ${sourcePath}`)
+    }
+    return memo(cache, key, () => {
+      sources.push(key)
+      return resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
     })
   }
 
@@ -177,13 +177,13 @@ export async function bundleDocument(
       onError: (message, { path, state }) => {
         // Only a `$ref` in the input itself has a key in the document to point at.
         const pointer = toKey(state.baseFile) === toKey(entry) ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
-        const reason = [...refused].find(([sourcePath]) => message.includes(sourcePath))?.[1]
+        const refusedPath = [...refused].find((sourcePath) => message.includes(sourcePath))
         const diagnostic: Diagnostic = {
           code: Diagnostics.code.refNotFound,
           severity: isExtensionPath(path) ? 'warning' : 'error',
-          message: reason ? `Refused an external \`$ref\`: ${reason}.` : `Could not bundle an external \`$ref\`. ${message}.`,
-          help: reason
-            ? 'Move the file inside the project, grant the agent `allowFileRefs`, or inline the schema.'
+          message: refusedPath ? `Refused an external \`$ref\` to the local file ${refusedPath}.` : `Could not bundle an external \`$ref\`. ${message}.`,
+          help: refusedPath
+            ? 'A URL input reads no local file, and a Kubb Studio agent only reads files inside the project. Move the file there, grant the agent `allowFileRefs`, or inline the schema.'
             : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
         }

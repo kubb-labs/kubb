@@ -12,6 +12,7 @@ import {
   cacheStorage,
   checkoutGitInput,
   type Config,
+  type FileRefs,
   fsStorage,
   getInputKind,
   type InputKind,
@@ -356,6 +357,13 @@ class Agent extends RpcTarget implements AgentApi {
       : permissions
   }
 
+  // Studio may have sent or saved the spec, so its `$ref`s read no local file on a shared or hosted
+  // agent, and stay inside the project unless the host allows more.
+  get #fileRefs(): FileRefs | undefined {
+    if (this.#sandbox || this.#managed) return false
+    return this.#permissions.allowFileRefs ? undefined : this.#options.root
+  }
+
   // Owned agents retain output in the project cache. Each sandbox connection has a temporary cache.
   get #generations(): GenerationStore {
     this.#store ??= createGenerationStore({
@@ -571,8 +579,6 @@ class Agent extends RpcTarget implements AgentApi {
             this.#refuse({ message: getErrorMessage(error), code: Diagnostics.code.gitInputFailed }),
           )
         : undefined
-    // Studio may have sent or saved the spec, so its `$ref`s read no file on a shared or hosted agent, and stay inside the project unless the host allows more.
-    const fileRefs = this.#sandbox || this.#managed ? false : this.#permissions.allowFileRefs ? undefined : this.#options.root
     const run = () =>
       generate({
         config: {
@@ -588,7 +594,7 @@ class Agent extends RpcTarget implements AgentApi {
         hooks: this.#options.hooks,
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
-        fileRefs,
+        fileRefs: this.#fileRefs,
       })
     // The adapter fetches the URL and every `$ref` in it, so a managed agent limits the fetch itself to public addresses.
     const files = await (this.#managed ? withPublicFetch(run) : run())
