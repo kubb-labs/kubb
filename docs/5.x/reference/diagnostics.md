@@ -214,7 +214,7 @@ A `$ref` points at a definition that does not exist in the document, or at a fil
 
 Add the missing definition, create the missing file, or correct the `$ref`. Run `kubb validate` before generation.
 
-Kubb also refuses a `$ref` to a local file outside the input's folder, or any local file from a URL input, with this code. Move the file next to the input or below it, or inline the schema.
+Kubb also reports this code for a `$ref` to a local file from a URL input. A Kubb Studio agent refuses one outside the input's folder and the project, or any local file on a sandbox or managed agent. Move the file inside the project, or inline the schema.
 
 A `$ref` that Kubb cannot read inside an `x-` vendor extension is a warning, because Kubb never reads extensions and the output does not change.
 

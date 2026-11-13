@@ -22,7 +22,7 @@ import {
   readInstalledPackages,
   resolveCacheDir,
   resolveMeta,
-  withoutFileRefs,
+  withFileRefs,
 } from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { x } from 'tinyexec'
@@ -588,9 +588,9 @@ class Agent extends RpcTarget implements AgentApi {
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
       })
     // The adapter fetches the URL and every `$ref` in it, so a managed agent limits the fetch itself to public addresses.
-    // Neither kind trusts the spec, so no `$ref` in it may read a local file, such as the agent's token.
-    const untrusted = () => withoutFileRefs(this.#managed ? () => withPublicFetch(run) : run)
-    const files = await (this.#sandbox || this.#managed ? untrusted() : run())
+    // Studio may have sent or saved the spec, so its `$ref`s stay inside the project, or read no file at all on a shared or hosted agent.
+    const fileRefs = this.#sandbox || this.#managed ? false : this.#options.root
+    const files = await withFileRefs(fileRefs, this.#managed ? () => withPublicFetch(run) : run)
       .catch(async (error: unknown) => {
         await this.#generations.drop(jobId)
         await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)

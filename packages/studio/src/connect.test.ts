@@ -5,7 +5,7 @@ import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { ast } from '@kubb/ast'
-import { type Config, defineExtension, fileRefsBlocked, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
+import { type Config, defineExtension, fileRefScope, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { read } from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -418,19 +418,20 @@ describe('a sandbox job', () => {
   })
 
   it.each([
-    ['a managed', { managed: true }, {}],
-    ['a sandbox', { sandbox: true }, { input: 'openapi: 3.1.0' }],
-  ])('parses the spec of %s agent with local file refs blocked', async (_label, kind, config) => {
-    let blocked: boolean | undefined
+    ['a managed agent with local file refs blocked', { managed: true }, {}, false],
+    ['a sandbox agent with local file refs blocked', { sandbox: true }, { input: 'openapi: 3.1.0' }, false],
+    ['a project agent with local file refs inside its root', {}, {}, root],
+  ])('parses the spec of %s', async (_label, kind, config, expected) => {
+    let scope: string | false | undefined
     const parse = async () => {
-      blocked = fileRefsBlocked()
+      scope = fileRefScope()
       return ast.factory.createInput({ operations: [], meta: { title: 'Pets' } })
     }
     const loadConfigs = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
     const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, ...kind } })
 
     await agent.startGeneration({ jobId: 'job-1', config }).result()
-    expect(blocked).toBe(true)
+    expect(scope).toBe(expected)
   })
 })
 

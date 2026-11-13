@@ -2,7 +2,7 @@ import { realpath } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { escapePointerToken, getErrorMessage, isPathInside, memo, toError } from '@internals/utils'
-import { fileRefsBlocked } from '@kubb/core'
+import { fileRefScope } from '@kubb/core'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource, Diagnostic } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -110,8 +110,8 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
  * against the OpenAPI 3.2 `$self` when the document sets one. Every other file or URL read,
  * including one that fails, lands in `sources`. A `$ref` that cannot be read reports
  * `KUBB_REF_NOT_FOUND` at the key that holds it, as a warning when it sits inside an `x-` extension.
- * So does a `$ref` to a local file outside the folder of `pathOrUrl`, any local file from a URL
- * input, and any local file inside `withoutFileRefs`.
+ * So does any local file from a URL input, and, inside `withFileRefs`, a local file outside the
+ * folder of `pathOrUrl` and the scope's root.
  *
  * @example Local file
  * `const document = await bundleDocument('./openapi.yaml')`
@@ -125,12 +125,15 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
   const refused = new Map<string, string>()
+  const scope = fileRefScope()
   // From `pathOrUrl`, not the document's own `$self`, so a `$ref` cannot read a stored token elsewhere.
-  const fileRoot = urlRegExp.test(pathOrUrl) || fileRefsBlocked() ? undefined : dirname(resolve(pathOrUrl))
-  // Compared after following links, so a link inside the folder cannot point outside it.
-  const realRoot = fileRoot === undefined ? undefined : realpath(fileRoot).catch(() => fileRoot)
-  const isOutside = async (sourcePath: string) =>
-    realRoot === undefined || !isPathInside(await realpath(resolve(sourcePath)).catch(() => resolve(sourcePath)), await realRoot)
+  const fileRoots = urlRegExp.test(pathOrUrl) || scope === false ? [] : scope === undefined ? undefined : [dirname(resolve(pathOrUrl)), scope]
+  // Compared after following links, so a link inside a folder cannot point outside it.
+  const realRoots = fileRoots?.map((root) => realpath(root).catch(() => root))
+  const isOutside = async (sourcePath: string) => {
+    const target = await realpath(resolve(sourcePath)).catch(() => resolve(sourcePath))
+    return !(await Promise.all(realRoots ?? [])).some((root) => isPathInside(target, root))
+  }
   const load = (key: string, sourcePath: string) =>
     memo(cache, key, () => {
       sources.push(key)
@@ -144,13 +147,12 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
       return Promise.resolve(entryDocument)
     }
     const key = toKey(sourcePath)
-    if (key === toKey(pathOrUrl) || urlRegExp.test(sourcePath)) return load(key, sourcePath)
+    if (fileRoots === undefined || key === toKey(pathOrUrl) || urlRegExp.test(sourcePath)) return load(key, sourcePath)
 
     return isOutside(sourcePath).then((outside) => {
       if (!outside) return load(key, sourcePath)
       // api-ref-bundler drops the rejection's message, so `onError` looks the reason up here.
-      const reason =
-        fileRoot === undefined ? `this input may not read local files, such as ${sourcePath}` : `${sourcePath} is outside the input's folder ${fileRoot}`
+      const reason = fileRoots.length ? `${sourcePath} is outside ${fileRoots.join(' and ')}` : `this input may not read local files, such as ${sourcePath}`
       refused.set(sourcePath, reason)
       throw new Error(reason)
     })
@@ -180,7 +182,7 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
           severity: isExtensionPath(path) ? 'warning' : 'error',
           message: reason ? `Refused an external \`$ref\`: ${reason}.` : `Could not bundle an external \`$ref\`. ${message}.`,
           help: reason
-            ? 'Move the file next to the input, or into a folder below it, or inline the schema.'
+            ? 'Move the file inside the input folder or the project, or inline the schema.'
             : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
         }
