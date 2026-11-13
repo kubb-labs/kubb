@@ -5,7 +5,7 @@ import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { ast } from '@kubb/ast'
-import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
+import { type Config, defineExtension, fileRefsBlocked, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { read } from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -394,12 +394,43 @@ describe('a sandbox job', () => {
     expect(warn).not.toHaveBeenCalled()
   })
 
-  it('reports writes and config edits off and reads on, whatever the host granted', async () => {
-    const { agent } = await connectStudio({ permissions: { allowWrite: true, allowConfigEdit: true }, connectInfo: { ...info, sandbox: true } })
+  it('reports writes and config edits off and reads on for a host-declared sandbox, whatever the host granted', async () => {
+    const { agent } = await connectStudio({ sandbox: true, permissions: { allowWrite: true, allowConfigEdit: true }, connectInfo: { ...info, sandbox: true } })
 
     await expect(agent.connect({ ...info, sandbox: true })).resolves.toMatchObject({
-      permissions: { allowWrite: false, allowConfigEdit: false, allowInstall: false, allowRead: true },
+      permissions: { allowWrite: false, allowConfigEdit: false, allowInstall: false, allowRead: true, allowReadAst: true },
     })
+  })
+
+  it('takes permissions away but never grants reads when only Studio says sandbox', async () => {
+    const { agent } = await connectStudio({ permissions: { allowWrite: true }, connectInfo: { ...info, sandbox: true } })
+
+    await expect(agent.connect({ ...info, sandbox: true })).resolves.toMatchObject({
+      permissions: { allowWrite: false, allowRead: false, allowReadAst: false },
+    })
+  })
+
+  it('checks a managed agent out of its config git input on public addresses only', async () => {
+    const loadConfigs = async () => [{ ...projectConfig(), input: 'git+http://10.0.0.5:8080/api.git#main:openapi.yaml' }]
+    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow(/https repository URL|not a public address/)
+  })
+
+  it.each([
+    ['a managed', { managed: true }, {}],
+    ['a sandbox', { sandbox: true }, { input: 'openapi: 3.1.0' }],
+  ])('parses the spec of %s agent with local file refs blocked', async (_label, kind, config) => {
+    let blocked: boolean | undefined
+    const parse = async () => {
+      blocked = fileRefsBlocked()
+      return ast.factory.createInput({ operations: [], meta: { title: 'Pets' } })
+    }
+    const loadConfigs = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
+    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, ...kind } })
+
+    await agent.startGeneration({ jobId: 'job-1', config }).result()
+    expect(blocked).toBe(true)
   })
 })
 

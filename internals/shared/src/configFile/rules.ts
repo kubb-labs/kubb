@@ -1,4 +1,5 @@
 import { type ExtensionKind, isPackageName } from '@kubb/core'
+import path from 'node:path'
 import { camelCase } from '@internals/utils'
 import { extensionKinds, type InstalledExtensions, type OptionValue } from './types.ts'
 
@@ -70,4 +71,30 @@ export function isOutputValue({ key, value }: { key: string; value: unknown }): 
 
 export function pickOutput<T>(output: Record<string, T>): Record<string, T> {
   return Object.fromEntries(Object.entries(output).filter(([key]) => isOutputKey(key)))
+}
+
+/**
+ * Returns the first `output.path` in `value`, at any depth (`override` entries included), that is
+ * absolute or climbs out of the folder it resolves against.
+ */
+export function findEscapingOutputPath(value: unknown): string | undefined {
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = findEscapingOutputPath(item)
+      if (found !== undefined) return found
+    }
+    return undefined
+  }
+  if (!isPlainObject(value)) return undefined
+
+  const output = value.output
+  if (isPlainObject(output) && typeof output.path === 'string') {
+    const normalized = path.posix.normalize(output.path.replaceAll('\\', '/'))
+    if (path.posix.isAbsolute(normalized) || path.win32.isAbsolute(output.path) || normalized === '..' || normalized.startsWith('../')) return output.path
+  }
+  for (const entry of Object.values(value)) {
+    const found = findEscapingOutputPath(entry)
+    if (found !== undefined) return found
+  }
+  return undefined
 }

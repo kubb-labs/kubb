@@ -21,7 +21,7 @@ import {
   propertyKinds,
   unaryOperators,
 } from './ast.ts'
-import { isAllowedPlugin, isOptionValue, isOutputKey, isOutputValue, isSafeKey, pickOutput, toExportName } from './rules.ts'
+import { findEscapingOutputPath, isAllowedPlugin, isOptionValue, isOutputKey, isOutputValue, isSafeKey, pickOutput, toExportName } from './rules.ts'
 import { appendItem, getPosition, IDENTIFIER_PATTERN, printKey, printValue, quotes, type Quote, removeItem, replaceText, wrapPath } from './text.ts'
 import {
   type ConfigEdit,
@@ -69,7 +69,7 @@ function isNonEmptyString(value: unknown): value is string {
 
 /** Edits cross the wire, so their shape is checked before anything reads them. */
 function validateEdit(edit: ConfigEdit): string | undefined {
-  const { operation, plugin, config, path, kind, input } = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
+  const { operation, plugin, config, path, kind, input, value, options } = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
 
   if (typeof operation !== 'string' || !OPERATIONS.has(operation)) return `unknown operation ${JSON.stringify(operation)}`
   if (config !== undefined && typeof config !== 'string' && !Number.isSafeInteger(config)) return 'config must name an entry or give its index'
@@ -82,6 +82,12 @@ function validateEdit(edit: ConfigEdit): string | undefined {
   const isOutput = OUTPUT_OPERATIONS.has(operation)
 
   if (!isOutput && !isNonEmptyString(plugin)) return 'the edit names no plugin'
+
+  // The next generation writes there, so an edit may only point a plugin inside the output folder.
+  const written =
+    operation === ConfigEditOperation.SET_OPTION && Array.isArray(path) ? path.reduceRight<unknown>((inner, key) => ({ [String(key)]: inner }), value) : options
+  const escaping = findEscapingOutputPath(written)
+  if (escaping !== undefined) return `output.path ${JSON.stringify(escaping)} resolves outside the output folder`
 
   if (kind !== undefined) {
     if (typeof kind !== 'string' || !KINDS.has(kind)) return `unknown kind ${JSON.stringify(kind)}`

@@ -934,6 +934,20 @@ describe('editConfig', () => {
       expect(result.source).toBe(source.replace(`        syntaxType: 'type',\n`, `        syntaxType: 'type',\n        output: { path: 'types' },\n`))
     })
 
+    it.each([
+      ['a plugin output.path', { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['output', 'path'], value: '../../src' }],
+      ['an output object', { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['output'], value: { path: '/etc' } }],
+      [
+        'an override entry',
+        { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['override'], value: [{ options: { output: { path: 'a/../../b' } } }] },
+      ],
+      ['a new plugin', { operation: ConfigEditOperation.ADD_PLUGIN, plugin: '@kubb/plugin-zod', options: { output: { path: '..\\src' } } }],
+    ] satisfies Array<[string, ConfigEdit]>)('refuses %s that resolves outside the output folder', (_, edit) => {
+      const result = editConfig({ source, edits: [edit] })
+      expect(result.source).toBe(source)
+      expect(result.outcomes[0]).toMatchObject({ applied: false, reason: expect.stringContaining('outside the output folder') })
+    })
+
     it('removes an option with its whole line, keeping the comments around it', () => {
       const result = editConfig({ source, edits: [{ operation: ConfigEditOperation.REMOVE_OPTION, plugin: '@kubb/plugin-ts', path: ['arrayType'] }] })
       expect(result.source).toBe(source.replace(`        arrayType: 'generic', // array syntax\n`, ''))

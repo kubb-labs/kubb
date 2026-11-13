@@ -22,6 +22,7 @@ import {
   readInstalledPackages,
   resolveCacheDir,
   resolveMeta,
+  withoutFileRefs,
 } from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { x } from 'tinyexec'
@@ -176,6 +177,13 @@ export type ConnectAgentOptions = {
    * What Studio may do in this project. Every permission is off unless granted.
    */
   permissions?: Partial<AgentPermissions>
+  /**
+   * The host runs a shared sandbox agent, such as the Docker image with `KUBB_AGENT_TYPE=sandbox`.
+   * Only then may Studio read what it generated without `allowRead` and `allowReadAst`. Studio can
+   * still ask for sandbox mode, but that only takes permissions away.
+   * @default false
+   */
+  sandbox?: boolean
   /** The CLI entry `installExtension` runs `kubb add` with. Found through the project's `kubb` or `@kubb/cli` dependency when omitted. */
   kubbBin?: string
   /**
@@ -325,16 +333,17 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   get #sandbox(): boolean {
-    return this.#session.info?.sandbox === true
+    return this.#options.sandbox || this.#session.info?.sandbox === true
   }
 
   get #managed(): boolean {
     return this.#session.info?.managed === true
   }
 
-  // A sandbox has no project to write to or edit, and Studio may always read what it generated there.
+  // A sandbox has no project to write to or edit. Studio may read what it generated there only when
+  // the host says it is one, since Studio's own `sandbox` flag must never raise a permission.
   get #permissions(): AgentPermissions {
-    const { permissions } = this.#options
+    const { permissions, sandbox } = this.#options
     return this.#sandbox
       ? {
           ...permissions,
@@ -344,8 +353,8 @@ class Agent extends RpcTarget implements AgentApi {
           allowUpdate: false,
           allowRemove: false,
           allowSaveInput: false,
-          allowRead: true,
-          allowReadAst: true,
+          allowRead: sandbox || permissions.allowRead,
+          allowReadAst: sandbox || permissions.allowReadAst,
         }
       : permissions
   }
@@ -558,9 +567,11 @@ class Agent extends RpcTarget implements AgentApi {
     }
 
     // A managed agent checks a git input out itself, so the fetch stays on public addresses and follows no redirect.
+    // That includes the config's own input, which Studio may have saved there.
+    const managedInput = this.#managed ? (studioInput ?? config.input) : undefined
     const checkout =
-      this.#managed && studioInput !== undefined && getInputKind(studioInput) === 'git'
-        ? await checkoutGitInput(studioInput, signal, { publicOnly: true, authorization: input.gitAuth?.authorization }).catch((error: unknown) =>
+      typeof managedInput === 'string' && getInputKind(managedInput) === 'git'
+        ? await checkoutGitInput(managedInput, signal, { publicOnly: true, authorization: input.gitAuth?.authorization }).catch((error: unknown) =>
             this.#refuse({ message: getErrorMessage(error), code: Diagnostics.code.gitInputFailed }),
           )
         : undefined
@@ -581,7 +592,9 @@ class Agent extends RpcTarget implements AgentApi {
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
       })
     // The adapter fetches the URL and every `$ref` in it, so a managed agent limits the fetch itself to public addresses.
-    const files = await (this.#managed ? withPublicFetch(run) : run())
+    // Neither kind trusts the spec, so no `$ref` in it may read a local file, such as the agent's token.
+    const untrusted = () => withoutFileRefs(this.#managed ? () => withPublicFetch(run) : run)
+    const files = await (this.#sandbox || this.#managed ? untrusted() : run())
       .catch(async (error: unknown) => {
         await this.#generations.drop(jobId)
         await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
@@ -1007,6 +1020,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
     ...options,
     studioUrl: options.studioUrl ?? defaultStudioUrl,
     root,
+    sandbox: options.sandbox ?? false,
     configFile: path.resolve(root, options.configPath),
     permissions: {
       allowWrite: false,

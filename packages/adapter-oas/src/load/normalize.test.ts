@@ -1,10 +1,11 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import * as jsYaml from 'js-yaml'
 import { describe, expect, it, vi } from 'vitest'
 import * as yaml from 'yaml'
+import { withoutFileRefs } from '@kubb/core'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import { assertDocument, bundleDocument, getBaseUri, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
 import { scanDocument } from './schemaIds.ts'
@@ -622,20 +623,63 @@ describe('bundleDocument with $self', () => {
   it('resolves relative $refs against $self instead of the file location', async () => {
     const dir = await mkdtemp(path.join(tmpdir(), 'kubb-self-'))
     try {
-      await writeFile(path.join(dir, 'pet.yaml'), 'type: object\nproperties:\n  name:\n    type: string\n')
       const document = {
         openapi: '3.2.0',
-        $self: '../openapi.yaml',
+        $self: './docs/openapi.yaml',
         info: { title: 'Self', version: '1.0.0' },
         paths: {},
         components: { schemas: { Pet: { $ref: './pet.yaml' } } },
       } as unknown as Document
-      // The document is read from `docs/`, but `$self` places it next to `pet.yaml`.
-      const bundled = await bundleDocument(path.join(dir, 'docs/openapi.yaml'), { document })
+      await mkdir(path.join(dir, 'docs'))
+      await writeFile(path.join(dir, 'docs/pet.yaml'), 'type: object\nproperties:\n  name:\n    type: string\n')
+      // The document is read from the folder root, but `$self` places it next to `docs/pet.yaml`.
+      const bundled = await bundleDocument(path.join(dir, 'openapi.yaml'), { document })
 
       expect(bundled.components?.schemas?.['Pet']).toMatchObject({ type: 'object', properties: { name: { type: 'string' } } })
     } finally {
       await rm(dir, { recursive: true, force: true })
     }
+  })
+})
+
+describe('bundleDocument file confinement', () => {
+  const secret = 'type: object\nproperties:\n  token:\n    type: string\n'
+
+  async function withSpecs(run: (dir: string) => Promise<void>) {
+    const dir = await mkdtemp(path.join(tmpdir(), 'kubb-confine-'))
+    try {
+      await mkdir(path.join(dir, 'spec'))
+      await writeFile(path.join(dir, 'secret.yaml'), secret)
+      await writeFile(path.join(dir, 'spec/pet.yaml'), secret)
+      await run(dir)
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+  }
+  const documentWith = (ref: string, extra: object = {}) =>
+    ({ openapi: '3.1.0', info: { title: 'T', version: '1' }, paths: {}, components: { schemas: { Leak: { $ref: ref } } }, ...extra }) as unknown as Document
+
+  it.each([
+    ['a ../ ref', '../secret.yaml', {}],
+    ['a ref behind a $self that leaves the folder', './secret.yaml', { $self: '../openapi.yaml' }],
+  ])('refuses %s outside the input folder', async (_title, ref, extra) => {
+    await withSpecs(async (dir) => {
+      await expect(bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document: documentWith(ref, extra) })).rejects.toThrow(/outside the input's folder/)
+    })
+  })
+
+  it('reads a ref inside the input folder', async () => {
+    await withSpecs(async (dir) => {
+      const bundled = await bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document: documentWith('./pet.yaml') })
+      expect(JSON.stringify(bundled)).toContain('token')
+    })
+  })
+
+  it('refuses every local ref inside withoutFileRefs', async () => {
+    await withSpecs(async (dir) => {
+      await expect(withoutFileRefs(() => bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document: documentWith('./pet.yaml') }))).rejects.toThrow(
+        /may not read local files/,
+      )
+    })
   })
 })

@@ -1,6 +1,7 @@
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { escapePointerToken, getErrorMessage, memo, toError } from '@internals/utils'
+import { escapePointerToken, getErrorMessage, isPathInside, memo, toError } from '@internals/utils'
+import { fileRefsBlocked } from '@kubb/core'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource, Diagnostic } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -108,6 +109,8 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
  * against the OpenAPI 3.2 `$self` when the document sets one. Every other file or URL read,
  * including one that fails, lands in `sources`. A `$ref` that cannot be read reports
  * `KUBB_REF_NOT_FOUND` at the key that holds it, as a warning when it sits inside an `x-` extension.
+ * So does a `$ref` to a local file outside the folder of `pathOrUrl`, any local file from a URL
+ * input, and any local file inside `withoutFileRefs`.
  *
  * @example Local file
  * `const document = await bundleDocument('./openapi.yaml')`
@@ -120,6 +123,10 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
   // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
+  // A `$ref` could otherwise read any file the process can, such as a stored token. Taken from
+  // `pathOrUrl`, not `$self`, which the document itself sets.
+  const refused = new Map<string, string>()
+  const fileRoot = urlRegExp.test(pathOrUrl) || fileRefsBlocked() ? undefined : dirname(resolve(pathOrUrl))
 
   let entry = pathOrUrl
   let entryDocument: object | string | undefined = document
@@ -128,6 +135,14 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
       return Promise.resolve(entryDocument)
     }
     const key = toKey(sourcePath)
+    if (key !== toKey(pathOrUrl) && !urlRegExp.test(sourcePath) && (fileRoot === undefined || !isPathInside(resolve(sourcePath), fileRoot))) {
+      // api-ref-bundler drops the rejection's message, so `onError` looks the reason up here.
+      refused.set(
+        sourcePath,
+        fileRoot === undefined ? `this input may not read local files, such as ${sourcePath}` : `${sourcePath} is outside the input's folder ${fileRoot}`,
+      )
+      return Promise.reject(new Error(refused.get(sourcePath)))
+    }
     return memo(cache, key, () => {
       sources.push(key)
       return resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
@@ -152,11 +167,14 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
       onError: (message, { path, state }) => {
         // Only a `$ref` in the input itself has a key in the document to point at.
         const pointer = toKey(state.baseFile) === toKey(entry) ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
+        const reason = [...refused].find(([sourcePath]) => message.includes(sourcePath))?.[1]
         const diagnostic: Diagnostic = {
           code: Diagnostics.code.refNotFound,
           severity: isExtensionPath(path) ? 'warning' : 'error',
-          message: `Could not bundle an external \`$ref\`. ${message}.`,
-          help: 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
+          message: reason ? `Refused an external \`$ref\`: ${reason}.` : `Could not bundle an external \`$ref\`. ${message}.`,
+          help: reason
+            ? 'Move the file next to the input, or into a folder below it, or inline the schema.'
+            : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
         }
         if (!Diagnostics.report(diagnostic) && diagnostic.severity === 'error') {
