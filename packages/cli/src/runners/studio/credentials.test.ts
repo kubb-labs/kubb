@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm, stat, utimes } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, stat, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -102,6 +102,25 @@ describe('readCredentials', () => {
 })
 
 describe('updateCredentials', () => {
+  it('drops its write and leaves the lock alone after another process took the lock over', async () => {
+    let answer = (_key: string | null) => {}
+    keychain.pending = new Promise<string | null>((resolve) => (answer = resolve))
+    await writeCredentials(stored)
+    const lock = path.join(getProjectKubbHome(), 'credentials.lock')
+
+    const paused = updateCredentials((current) => current && { ...current, token: 'stale' })
+    await vi.waitFor(async () => expect(await readFile(path.join(lock, 'owner'), 'utf8')).toBeTruthy())
+    // What a second process does once the first one's lock looks abandoned.
+    await rm(lock, { recursive: true })
+    await mkdir(lock)
+    await writeFile(path.join(lock, 'owner'), 'other-process')
+
+    answer(null)
+    await expect(paused).rejects.toThrow(/took over/)
+    await expect(readCredentials()).resolves.toMatchObject({ token: 'token' })
+    await expect(readFile(path.join(lock, 'owner'), 'utf8')).resolves.toBe('other-process')
+  })
+
   it('keeps its lock fresh while a slow keychain call holds it past the stale age', async () => {
     let answer = (_key: string | null) => {}
     keychain.pending = new Promise<string | null>((resolve) => (answer = resolve))

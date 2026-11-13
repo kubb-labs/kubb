@@ -1,5 +1,5 @@
 import { hash, randomBytes, randomUUID } from 'node:crypto'
-import { mkdir, rename, rmdir, stat, utimes } from 'node:fs/promises'
+import { mkdir, readFile, rename, rm, stat, utimes, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as sleep } from 'node:timers/promises'
@@ -149,7 +149,7 @@ async function tryLock(lock: string): Promise<boolean> {
   )
     return false
   // A contender that was slower to look may have moved a live lock, which goes back.
-  const cleared = (await isStale(aside)) ? rmdir(aside) : rename(aside, lock)
+  const cleared = (await isStale(aside)) ? rm(aside, { recursive: true, force: true }) : rename(aside, lock)
   await cleared.catch(() => undefined)
 
   return false
@@ -161,18 +161,34 @@ async function tryLock(lock: string): Promise<boolean> {
  * `update` returned.
  */
 export function updateCredentials<T extends Credentials | null | undefined>(update: (stored: Credentials | null) => T): Promise<T> {
-  return withLock(async () => {
+  return withLock(async (assertOwner) => {
     const next = update(await readCredentials())
-    if (next) await writeCredentials(next)
+    if (next) {
+      await assertOwner()
+      await writeCredentials(next)
+    }
     return next
   })
 }
 
-async function withLock<T>(run: () => Promise<T>): Promise<T> {
+/**
+ * Runs `run` while holding the credential lock. `assertOwner` throws once another process has taken
+ * the lock over, which happens when this one was paused past {@link LOCK_STALE_MS}, so a write made
+ * from an older read never lands on top of the newer owner's.
+ */
+async function withLock<T>(run: (assertOwner: () => Promise<void>) => Promise<T>): Promise<T> {
   const home = getProjectKubbHome()
   const lock = path.join(home, 'credentials.lock')
+  const ownerFile = path.join(lock, 'owner')
   await mkdir(home, { recursive: true, mode: 0o700 })
   while (!(await tryLock(lock))) await sleep(LOCK_RETRY_MS)
+  const owner = randomUUID()
+  await writeFile(ownerFile, owner)
+  const owns = () =>
+    readFile(ownerFile, 'utf8').then(
+      (stored) => stored === owner,
+      () => false,
+    )
   // A keychain prompt can keep the owner waiting past LOCK_STALE_MS, so it keeps the lock fresh.
   const renew = setInterval(() => {
     const now = new Date()
@@ -180,10 +196,13 @@ async function withLock<T>(run: () => Promise<T>): Promise<T> {
   }, LOCK_STALE_MS / 2)
   renew.unref()
   try {
-    return await run()
+    return await run(async () => {
+      if (!(await owns())) throw new Error('Another kubb process took over the Studio credentials while this one was paused. Run the command again.')
+    })
   } finally {
     clearInterval(renew)
-    await rmdir(lock).catch(() => undefined)
+    // shortcut: the check and the removal are two steps, so a takeover between them is still possible; use an OS file lock if that window matters.
+    if (await owns()) await rm(lock, { recursive: true, force: true }).catch(() => undefined)
   }
 }
 
@@ -192,8 +211,9 @@ async function withLock<T>(run: () => Promise<T>): Promise<T> {
  * credential another process stored since, with a different token, is kept.
  */
 export function clearCredentials(token?: string): Promise<void> {
-  return withLock(async () => {
+  return withLock(async (assertOwner) => {
     if (token && (await readCredentials())?.token !== token) return
+    await assertOwner()
     await projectStorage().removeItem(CREDENTIALS_FILENAME)
     await keychainEntry()
       .then((entry) => entry?.deletePassword())
