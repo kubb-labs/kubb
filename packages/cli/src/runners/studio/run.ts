@@ -408,6 +408,7 @@ export async function connect(
           configPath,
           version: options.version,
           root: process.cwd(),
+          agentType: 'cli',
           permissions,
           loadConfigs: async () => (await loadConfigs(options)).configs,
           hooks,

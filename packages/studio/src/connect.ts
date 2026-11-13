@@ -39,6 +39,7 @@ import {
   AgentMessage,
   type AgentConnectInfo,
   type AgentPermissions,
+  type AgentType,
   type ConfigEdit,
   ConfigEditOperation,
   type ConfigEntryView,
@@ -74,6 +75,7 @@ import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugin
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
+const SHARED_AGENT_TYPES = new Set<AgentType>(['sandbox', 'global'])
 // Studio marks an agent offline after its liveness window, so a slower cadence would look dead.
 const MAX_HEARTBEAT_INTERVAL_MS = 60_000
 const PING_TIMEOUT_MS = 10_000
@@ -177,10 +179,11 @@ export type ConnectAgentOptions = {
    */
   permissions?: Partial<AgentPermissions>
   /**
-   * The kind of agent the host runs. A `'sandbox'` is shared, and lets Studio read what it generated. Studio's own `sandbox` flag only takes permissions away.
+   * The kind of agent the host runs. A `'sandbox'` or `'global'` agent is shared, and lets Studio read what it generated.
+   * Studio's own `sandbox` and `managed` flags only take permissions away.
    * @default 'user'
    */
-  agentType?: 'user' | 'sandbox'
+  agentType?: AgentType
   /** The CLI entry `installExtension` runs `kubb add` with. Found through the project's `kubb` or `@kubb/cli` dependency when omitted. */
   kubbBin?: string
   /**
@@ -330,17 +333,24 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   get #sandbox(): boolean {
-    return this.#options.agentType === 'sandbox' || this.#session.info?.sandbox === true
+    return SHARED_AGENT_TYPES.has(this.#options.agentType) || this.#session.info?.sandbox === true
   }
 
   get #managed(): boolean {
-    return this.#session.info?.managed === true
+    return this.#options.agentType === 'managed' || this.#session.info?.managed === true
+  }
+
+  // The host's kind, unless Studio's flags narrow it to a sandbox or a managed agent.
+  get #agentType(): AgentType {
+    if (this.#sandbox) return 'sandbox'
+    if (this.#managed) return 'managed'
+    return this.#options.agentType
   }
 
   // A sandbox has no project to write to or edit. Only the host's `agentType` grants reads.
   get #permissions(): AgentPermissions {
-    const { permissions } = this.#options
-    const sandbox = this.#options.agentType === 'sandbox'
+    const { permissions, agentType } = this.#options
+    const sandbox = SHARED_AGENT_TYPES.has(agentType)
     if (this.#managed) return { ...permissions, allowFileRefs: false }
     if (!this.#sandbox) return permissions
 
@@ -589,10 +599,10 @@ class Agent extends RpcTarget implements AgentApi {
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
         fileRefs: resolveFileRefs({
-          sandbox: this.#sandbox,
-          managed: this.#managed,
+          agentType: this.#agentType,
           allowFileRefs: this.#permissions.allowFileRefs,
           root: this.#options.root,
+          input: config.input,
           checkoutDir: checkout?.dir,
         }),
       })
@@ -686,7 +696,7 @@ class Agent extends RpcTarget implements AgentApi {
   /**
    * Readies a `set-input` edit for the config file: a document is pointed at `openapi.yaml` (`openapi.json`
    * for JSON) in the project, one file per config entry, for `saveConfig` to write once the edit applies.
-   * A managed agent refuses a file path, as in a generation.
+   * A managed agent refuses a file path, as in a generation. Every agent refuses a file path outside the project.
    */
   async #keepInput(edit: ConfigEdit): Promise<KeptEdit> {
     // A blank input goes on unchanged, so the config writer refuses it before any file is written.
@@ -698,7 +708,9 @@ class Agent extends RpcTarget implements AgentApi {
     const kind = getInputKind(edit.input)
     if (this.#managed && !MANAGED_INPUT_KINDS.has(kind)) return { reason: AgentMessage.MANAGED_INPUT_KIND }
     // The next generation reads the input file itself, and the `$ref` limit does not cover it.
-    if (kind === 'file' && !isPathInside(path.resolve(this.#options.root, edit.input), this.#options.root)) {
+    // A `url` that is not http(s), such as `C:\spec.yaml`, is read as a file path too.
+    const isFilePath = kind === 'file' || (kind === 'url' && !/^https?:/i.test(edit.input))
+    if (isFilePath && !isPathInside(path.resolve(this.#options.root, edit.input), this.#options.root)) {
       return { reason: 'the input is a file outside the project' }
     }
     if (kind !== 'inline') return edit

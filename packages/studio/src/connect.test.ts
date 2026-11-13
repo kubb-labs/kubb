@@ -449,6 +449,8 @@ describe('a sandbox job', () => {
   it.each([
     ['a managed agent with local file refs off', {}, { managed: true }, {}, []],
     ['a sandbox agent with local file refs off', { permissions: { allowFileRefs: true } }, { sandbox: true }, { input: 'openapi: 3.1.0' }, []],
+    ['a host-declared global agent with local file refs off', { agentType: 'global' as const }, {}, { input: 'openapi: 3.1.0' }, []],
+    ['a host-declared managed agent with local file refs off', { agentType: 'managed' as const, permissions: { allowFileRefs: true } }, {}, {}, []],
     ['a project agent with local file refs inside its root', {}, {}, {}, [root]],
     ['a project agent granted allowFileRefs with no limit', { permissions: { allowFileRefs: true } }, {}, {}, undefined],
   ])('parses the spec of %s', async (_label, options, kind, config, expected) => {
@@ -971,6 +973,7 @@ describe('saveConfig', () => {
 
   it.each([
     ['refuses a file input outside the project', '../../home/kubb/.ssh/id_rsa', false],
+    ['refuses a drive-letter input outside the project', 'C:/../../home/kubb/.ssh/id_rsa', false],
     ['saves a file input inside the project', './specs/petstore.yaml', true],
   ])('%s', async (_label, input, applied) => {
     const project = await projectWithConfig()

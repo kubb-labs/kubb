@@ -242,16 +242,20 @@ describe('toJSONOptions', () => {
 })
 
 describe('resolveFileRefs', () => {
-  const project = { sandbox: false, managed: false, allowFileRefs: false, root: '/project' }
+  const project = { agentType: 'user', allowFileRefs: false, root: '/project' } as const
+  const outside = '../specs/openapi.yaml'
 
   it.each([
     ['a project agent to its root', project, ['/project']],
+    ['a CLI agent to its root', { ...project, agentType: 'cli' }, ['/project']],
+    ['a project agent to its root and the folder of its own file input', { ...project, input: outside }, ['/project', '/specs']],
+    ['a project agent to its root alone for a URL input', { ...project, input: 'https://example.com/openapi.yaml' }, ['/project']],
     ['a project agent granted allowFileRefs to any file', { ...project, allowFileRefs: true }, undefined],
-    ['a sandbox agent to no file, whatever the host granted', { ...project, sandbox: true, allowFileRefs: true }, []],
-    ['a managed agent to no file, whatever the host granted', { ...project, managed: true, allowFileRefs: true }, []],
-    ['a managed agent with a git input to its checkout', { ...project, managed: true, checkoutDir: '/checkout' }, ['/checkout']],
-    ['a sandbox agent to no file even with a checkout', { ...project, sandbox: true, checkoutDir: '/checkout' }, []],
-  ])('limits %s', (_label, options, expected) => {
+    ['a sandbox agent to no file, whatever the host granted', { ...project, agentType: 'sandbox', allowFileRefs: true, input: outside }, []],
+    ['a global agent to no file', { ...project, agentType: 'global', checkoutDir: '/checkout' }, []],
+    ['a managed agent to no file, whatever the host granted', { ...project, agentType: 'managed', allowFileRefs: true, input: outside }, []],
+    ['a managed agent with a git input to its checkout', { ...project, agentType: 'managed', checkoutDir: '/checkout' }, ['/checkout']],
+  ] as const)('limits %s', (_label, options, expected) => {
     expect(resolveFileRefs(options)).toStrictEqual(expected)
   })
 })

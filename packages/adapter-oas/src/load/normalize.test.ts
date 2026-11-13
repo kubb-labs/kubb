@@ -658,7 +658,7 @@ describe('bundleDocument file confinement', () => {
   const documentWith = (ref: string, extra: object = {}) =>
     ({ openapi: '3.1.0', info: { title: 'T', version: '1' }, paths: {}, components: { schemas: { Leak: { $ref: ref } } }, ...extra }) as unknown as Document
 
-  // As a Studio agent loads a spec: only the spec's own folder is allowed unless a test says otherwise.
+  // As a Studio agent loads a spec: only the `spec` folder is allowed unless a test says otherwise.
   const bundle = (dir: string, document: Document, fileRefs: Array<string> = [path.join(dir, 'spec')]) =>
     bundleDocument(path.join(dir, 'spec/openapi.yaml'), { document, fileRefs })
 
@@ -685,7 +685,7 @@ describe('bundleDocument file confinement', () => {
     })
   })
 
-  it('refuses a link inside the input folder that points outside it', async () => {
+  it('refuses a link inside an allowed folder that points outside it', async () => {
     await withSpecs(async (dir) => {
       await symlink(path.join(dir, 'secret.yaml'), path.join(dir, 'spec/link.yaml'))
       await expect(bundle(dir, documentWith('./link.yaml'))).rejects.toThrow(/Refused an external/)

@@ -348,6 +348,11 @@ export type GenerationRun = {
 }
 
 /**
+ * Every kind of agent Studio knows. A host passes its own kind to `connectAgent`.
+ */
+export type AgentType = 'user' | 'cli' | 'ci' | 'sandbox' | 'global' | 'managed'
+
+/**
  * What Studio knows about the agent on the other end of a socket. Studio passes it with every
  * {@link AgentApi.connect} call. Its `sandbox` flag can only take permissions away. The host decides the rest.
  */

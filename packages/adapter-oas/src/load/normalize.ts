@@ -185,7 +185,7 @@ export async function bundleDocument(
           message: refusedPath ? `Refused an external \`$ref\` to the local file ${refusedPath}.` : `Could not bundle an external \`$ref\`. ${message}.`,
           help: refusedPath
             ? folders?.length
-              ? 'This run only reads files inside the project. Move the file there, start the agent with `--allow-file-refs`, or inline the schema.'
+              ? 'This run only reads local files inside the folders its host allows, such as the project. Move the file there or inline the schema. On your own agent, `--allow-file-refs` lifts the limit.'
               : 'This input reads no local file. Inline the schema, or serve the file from a URL.'
             : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
