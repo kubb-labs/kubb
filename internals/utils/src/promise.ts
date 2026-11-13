@@ -15,9 +15,9 @@ type Store<TKey, TValue> = {
   set(key: TKey, value: TValue): unknown
 }
 
-type Buckets<TKey, TValue, TBucket> = Map<TKey, TBucket> & {
+type Collection<TKey, TValue, TValues> = Map<TKey, TValues> & {
   /**
-   * Adds `value` to the bucket under `key`, creating the bucket first when the key is new.
+   * Adds `value` to the values under `key`, starting them when the key is new.
    */
   add(key: TKey, value: TValue): void
 }
@@ -44,8 +44,8 @@ export function memo<TKey, TValue>(store: Store<TKey, TValue>, key: TKey, comput
  * - `weak` holds the keys weakly, in a `WeakMap`, so an entry goes away with its key.
  * - `max` bounds the store: it empties itself before the entry that would pass `max`, which keeps a
  *   cache in a long-running process from growing without end. `max: 1` keeps only the last entry.
- * - `bucket` collects values per key, in an array (`'list'`) or a `Set` (`'set'`), and adds
- *   `add(key, value)`, which creates the bucket on the first value.
+ * - `collect` keeps many values per key, in an array (`'list'`) or a `Set` (`'set'`), and adds
+ *   `add(key, value)` to put one more value under a key.
  *
  * @example
  * `const patterns = memo.create<string, RegExp>()`
@@ -56,29 +56,29 @@ export function memo<TKey, TValue>(store: Store<TKey, TValue>, key: TKey, comput
  * @example Bounded
  * `const names = memo.create<string, string>({ max: 100_000 })`
  *
- * @example Buckets
+ * @example Many values per key
  * ```ts
- * const filesByPlugin = memo.create<string, string>({ bucket: 'list' })
+ * const filesByPlugin = memo.create<string, string>({ collect: 'list' })
  * filesByPlugin.add('plugin-ts', 'models.ts')
  * ```
  */
-function createStore<TKey, TValue>(options?: { weak?: false; max?: undefined; bucket?: undefined }): Map<TKey, TValue>
-function createStore<TKey extends WeakKey, TValue>(options: { weak: true; max?: undefined; bucket?: undefined }): WeakMap<TKey, TValue>
-function createStore<TKey, TValue>(options: { max: number; weak?: false; bucket?: undefined }): Store<TKey, TValue>
-function createStore<TKey, TValue>(options: { bucket: 'list'; weak?: false; max?: undefined }): Buckets<TKey, TValue, Array<TValue>>
-function createStore<TKey, TValue>(options: { bucket: 'set'; weak?: false; max?: undefined }): Buckets<TKey, TValue, Set<TValue>>
-function createStore<TKey, TValue>({ weak, max, bucket }: { weak?: boolean; max?: number; bucket?: 'list' | 'set' } = {}): Store<TKey, TValue> {
+function createStore<TKey, TValue>(options?: { weak?: false; max?: undefined; collect?: undefined }): Map<TKey, TValue>
+function createStore<TKey extends WeakKey, TValue>(options: { weak: true; max?: undefined; collect?: undefined }): WeakMap<TKey, TValue>
+function createStore<TKey, TValue>(options: { max: number; weak?: false; collect?: undefined }): Store<TKey, TValue>
+function createStore<TKey, TValue>(options: { collect: 'list'; weak?: false; max?: undefined }): Collection<TKey, TValue, Array<TValue>>
+function createStore<TKey, TValue>(options: { collect: 'set'; weak?: false; max?: undefined }): Collection<TKey, TValue, Set<TValue>>
+function createStore<TKey, TValue>({ weak, max, collect }: { weak?: boolean; max?: number; collect?: 'list' | 'set' } = {}): Store<TKey, TValue> {
   if (weak) return new WeakMap<WeakKey, TValue>() as Store<TKey, TValue>
-  if (bucket === 'list') {
-    const buckets = new Map<TKey, Array<TValue>>()
-    return Object.assign(buckets, {
-      add: (key: TKey, value: TValue) => void memo(buckets, key, (): Array<TValue> => []).push(value),
+  if (collect === 'list') {
+    const values = new Map<TKey, Array<TValue>>()
+    return Object.assign(values, {
+      add: (key: TKey, value: TValue) => void memo(values, key, (): Array<TValue> => []).push(value),
     }) as unknown as Store<TKey, TValue>
   }
-  if (bucket === 'set') {
-    const buckets = new Map<TKey, Set<TValue>>()
-    return Object.assign(buckets, {
-      add: (key: TKey, value: TValue) => void memo(buckets, key, () => new Set<TValue>()).add(value),
+  if (collect === 'set') {
+    const values = new Map<TKey, Set<TValue>>()
+    return Object.assign(values, {
+      add: (key: TKey, value: TValue) => void memo(values, key, () => new Set<TValue>()).add(value),
     }) as unknown as Store<TKey, TValue>
   }
   const entry = new Map<TKey, TValue>()

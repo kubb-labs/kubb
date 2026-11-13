@@ -53,8 +53,8 @@ describe('memo', () => {
     memo.create<object, number>({ weak: true, max: 2 })
   })
 
-  it('collects values per key with the list and set buckets', () => {
-    const list = memo.create<string, number>({ bucket: 'list' })
+  it('collects values per key into a list or a set', () => {
+    const list = memo.create<string, number>({ collect: 'list' })
     list.add('a', 1)
     list.add('a', 1)
     list.add('b', 2)
@@ -63,7 +63,7 @@ describe('memo', () => {
       ['b', [2]],
     ])
 
-    const set = memo.create<string, number>({ bucket: 'set' })
+    const set = memo.create<string, number>({ collect: 'set' })
     set.add('a', 1)
     set.add('a', 1)
     expect([...set.get('a')!]).toStrictEqual([1])

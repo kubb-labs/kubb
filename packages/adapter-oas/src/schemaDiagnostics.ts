@@ -15,7 +15,7 @@ export function scanSchema(node: ast.SchemaNode, pointer = node.pointer): void {
 
 // Pointers per unsupported format, collected while `groupUnsupportedFormats` runs.
 let formatTally: ReturnType<typeof createFormatTally> | undefined
-const createFormatTally = () => memo.create<string, string>({ bucket: 'set' })
+const createFormatTally = () => memo.create<string, string>({ collect: 'set' })
 
 /**
  * Runs `fn` and reports `KUBB_UNSUPPORTED_FORMAT` once per format with the number of schemas that use it,
@@ -116,7 +116,7 @@ function visit(node: ast.SchemaNode, pointer: string): void {
  */
 function reportDuplicateDiscriminators(node: ast.UnionSchemaNode, propertyName: string, pointer: string): void {
   const keyword = node.strategy === 'any' ? 'anyOf' : 'oneOf'
-  const membersByValue = memo.create<Literal, string>({ bucket: 'list' })
+  const membersByValue = memo.create<Literal, string>({ collect: 'list' })
 
   for (const [index, member] of (node.members ?? []).entries()) {
     const label = memberName(member) ?? `${keyword}/${index}`

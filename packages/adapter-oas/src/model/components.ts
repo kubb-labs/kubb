@@ -270,7 +270,7 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
     ),
   ]
 
-  const normalizedNames = memo.create<string, SchemaWithMetadata>({ bucket: 'list' })
+  const normalizedNames = memo.create<string, SchemaWithMetadata>({ collect: 'list' })
   for (const item of candidates) {
     const key = pascalCase(item.originalName)
     normalizedNames.add(key, item)
