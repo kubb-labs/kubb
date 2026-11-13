@@ -87,7 +87,7 @@ Tag folders no longer add `Controller` (or `Requests` for Cypress/MCP). To retai
 | `transformers.schema` | `macros`. |
 | `mapper` | Schema macros or a `printer.nodes` override. |
 | `generators` | A custom plugin. |
-| `paramsType`, `pathParamsType`, `paramsCasing` | One grouped `{ body, path, query, headers }` object, with names from the spec. |
+| `paramsType`, `pathParamsType`, `paramsCasing` | One grouped `{ body, path, query, headers }` object, with names from the spec. For camelCase path params, set [`pathParamsCasing: 'camelcase'`](/extensions/kubb-labs/adapter-oas/options#pathparamscasing) on the adapter. |
 
 Required parameters make their group required. Unused groups are typed `never`. Update positional call sites:
 
