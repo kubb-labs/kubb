@@ -450,7 +450,7 @@ export async function connect(
     })
     hooks.hook('studio:reconnecting', () => context.onState?.('reconnecting'))
 
-    for (;;) {
+    while (true) {
       try {
         await connectAgent({
           token: () => credentials.token,
@@ -474,7 +474,7 @@ export async function connect(
           if (await refresh({ force: true })) continue
         }
         await context.onState?.('authentication required')
-        await clearCredentials()
+        await clearCredentials(credentials.token)
         if (pairedAgain) throw new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
         if (context.onState || isCIEnvironment() || !canUseTTY()) throw new Error(`${error.message} Run \`kubb studio login\` to pair again.`)
 
