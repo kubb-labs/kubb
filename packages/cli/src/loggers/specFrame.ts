@@ -1,4 +1,5 @@
 import { styleText } from 'node:util'
+import { memo } from '@internals/utils'
 import type { Adapter, DiagnosticLocation } from '@kubb/core'
 
 /**
@@ -12,15 +13,14 @@ export type SpecPosition = {
 
 // Diagnostics of one run share a source, so its line starts are indexed once. Splitting a large
 // spec per diagnostic made code frames the slowest part of a run.
-let cached: { source: string; starts: Array<number> } | undefined
+const startsBySource = memo.create<string, Array<number>>({ type: 'last' })
 
 function lineStarts(source: string): Array<number> {
-  if (cached?.source !== source) {
+  return memo(startsBySource, source, () => {
     const starts = [0]
     for (const match of source.matchAll(/\n/g)) starts.push(match.index + 1)
-    cached = { source, starts }
-  }
-  return cached.starts
+    return starts
+  })
 }
 
 /** The index of the last line start at or before `offset`, found by binary search. */
