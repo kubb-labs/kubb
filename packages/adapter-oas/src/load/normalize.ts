@@ -1,6 +1,6 @@
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { escapePointerToken, getErrorMessage, toError } from '@internals/utils'
+import { escapePointerToken, getErrorMessage, memo, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource, Diagnostic } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -128,15 +128,10 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
       return Promise.resolve(entryDocument)
     }
     const key = toKey(sourcePath)
-    const cached = cache.get(key)
-    if (cached) {
-      return cached
-    }
-
-    sources.push(key)
-    const result = resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
-    cache.set(key, result)
-    return result
+    return memo(cache, key, () => {
+      sources.push(key)
+      return resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
+    })
   }
 
   // api-ref-bundler swallows resolver errors and leaves refs unresolved, so surface an

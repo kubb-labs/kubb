@@ -1,4 +1,5 @@
 import { hash } from 'node:crypto'
+import { memo } from '@internals/utils'
 import { ast } from '@kubb/ast'
 import { defineMacro } from '../authoring.ts'
 import type { SchemaNode } from '@kubb/ast'
@@ -14,23 +15,20 @@ function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
   function key(value: unknown): string {
     if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'undefined'
     if (value instanceof Date) return key(value.toJSON())
-    const cached = keys.get(value)
-    if (cached) return cached
-
-    // A ref node's `ref` pointer already identifies its target, so hashing its resolved `schema` as
-    // well only walks the same component graph again for every union that references it. The `kind`
-    // check keeps plain data under `default` or `examples` hashed in full.
-    const node = value as Partial<SchemaNode>
-    const skipsSchema = node.kind === ast.node.kinds.schema && node.type === ast.schema.types.ref && typeof node.ref === 'string'
-    // Hash each shared subtree once instead of expanding resolved refs into a giant string.
-    const entries = Array.isArray(value)
-      ? value.map(key)
-      : Object.entries(value)
-          .filter(([name, child]) => name !== 'pointer' && child !== undefined && !(skipsSchema && name === 'schema'))
-          .map(([name, child]) => [name, key(child)])
-    const result = hash('sha256', JSON.stringify([Array.isArray(value), entries]))
-    keys.set(value, result)
-    return result
+    return memo(keys, value, () => {
+      // A ref node's `ref` pointer already identifies its target, so hashing its resolved `schema` as
+      // well only walks the same component graph again for every union that references it. The `kind`
+      // check keeps plain data under `default` or `examples` hashed in full.
+      const node = value as Partial<SchemaNode>
+      const skipsSchema = node.kind === ast.node.kinds.schema && node.type === ast.schema.types.ref && typeof node.ref === 'string'
+      // Hash each shared subtree once instead of expanding resolved refs into a giant string.
+      const entries = Array.isArray(value)
+        ? value.map(key)
+        : Object.entries(value)
+            .filter(([name, child]) => name !== 'pointer' && child !== undefined && !(skipsSchema && name === 'schema'))
+            .map(([name, child]) => [name, key(child)])
+      return hash('sha256', JSON.stringify([Array.isArray(value), entries]))
+    })
   }
 
   return members.filter((member) => {

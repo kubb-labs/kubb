@@ -5,6 +5,7 @@
  * schema content.
  */
 import path from 'node:path'
+import { memo } from '@internals/utils'
 import type { ExportNode, ImportNode, SourceNode } from '../nodes/file.ts'
 
 const IDENTIFIER_RUN = /[\w$]+/g
@@ -154,8 +155,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   const canonicalizeName = (n: ImportNameItem): ImportNameItem => {
     if (typeof n === 'string') return n
     const key = `${n.propertyName}:${n.name ?? ''}`
-    if (!importNameMemo.has(key)) importNameMemo.set(key, n)
-    return importNameMemo.get(key)!
+    return memo(importNameMemo, key, () => n)
   }
 
   // Paths that keep at least one used named import. A default import from such a path is retained

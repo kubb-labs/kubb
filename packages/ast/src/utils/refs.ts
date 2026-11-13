@@ -1,3 +1,4 @@
+import { memo } from '@internals/utils'
 import type { RefSchemaNode, SchemaNode } from '../nodes/schema.ts'
 
 /**
@@ -6,22 +7,19 @@ import type { RefSchemaNode, SchemaNode } from '../nodes/schema.ts'
  * (RFC 6901), so `a~1b~0c` names the component `a/b~c`.
  */
 export function refName(ref: string): string {
-  const cached = refNames.get(ref)
-  if (cached !== undefined) return cached
+  return memo(refNames, ref, () => {
+    const segment = ref.split('/').at(-1) ?? ref
+    let decoded = segment
 
-  const segment = ref.split('/').at(-1) ?? ref
-  let decoded = segment
+    try {
+      decoded = decodeURIComponent(segment)
+    } catch {
+      // A stray `%` is not a valid escape, so the segment is already the literal name.
+    }
 
-  try {
-    decoded = decodeURIComponent(segment)
-  } catch {
-    // A stray `%` is not a valid escape, so the segment is already the literal name.
-  }
-
-  const name = decoded.replaceAll('~1', '/').replaceAll('~0', '~')
-  if (refNames.size >= memoLimit) refNames.clear()
-  refNames.set(ref, name)
-  return name
+    if (refNames.size >= memoLimit) refNames.clear()
+    return decoded.replaceAll('~1', '/').replaceAll('~0', '~')
+  })
 }
 
 // Every plugin resolves the same refs on every visit; the limit only bounds a long-running host.

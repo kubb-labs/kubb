@@ -1,3 +1,4 @@
+import { memo } from '@internals/utils'
 import type { PropertyNode } from '../nodes/property.ts'
 import type { SchemaNode } from '../nodes/schema.ts'
 
@@ -68,17 +69,14 @@ function walkSchema(node: SchemaNode, through: 'union' | 'intersection', visit: 
  * ```
  */
 export function getSchemaLiteralValues(node: SchemaNode): ReadonlyArray<LiteralValue> {
-  const cached = literalValues.get(node)
-  if (cached) return cached
-
-  const values = new Set<LiteralValue>()
-  walkSchema(node, 'union', (current) => {
-    if (current.type !== 'enum') return
-    for (const { value } of current.namedEnumValues ?? current.enumValues?.map((value) => ({ value })) ?? []) values.add(value)
+  return memo(literalValues, node, () => {
+    const values = new Set<LiteralValue>()
+    walkSchema(node, 'union', (current) => {
+      if (current.type !== 'enum') return
+      for (const { value } of current.namedEnumValues ?? current.enumValues?.map((value) => ({ value })) ?? []) values.add(value)
+    })
+    return Object.freeze([...values])
   })
-  const result = Object.freeze([...values])
-  literalValues.set(node, result)
-  return result
 }
 
 type LiteralValue = string | number | boolean | null

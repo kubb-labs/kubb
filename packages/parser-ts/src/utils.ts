@@ -1,4 +1,4 @@
-import { dedent, indent } from '@internals/utils'
+import { dedent, indent, memo } from '@internals/utils'
 import { createRequire } from 'node:module'
 import { dirname, extname as getExtname, isAbsolute, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -87,14 +87,11 @@ function loadCompiler(): Compiler {
 export function getRelativePath(root: string, filePath: string): string {
   // A relative input resolves against the working directory, so that directory is part of its key.
   const key = isAbsolute(root) && isAbsolute(filePath) ? `${root}\u0000${filePath}` : `${process.cwd()}\u0000${root}\u0000${filePath}`
-  const cached = relativePaths.get(key)
-  if (cached !== undefined) return cached
-
-  const slashed = relative(dirname(root), filePath).replaceAll('\\', '/')
-  const result = slashed.startsWith('../') ? slashed : `./${slashed}`
-  if (relativePaths.size >= memoLimit) relativePaths.clear()
-  relativePaths.set(key, result)
-  return result
+  return memo(relativePaths, key, () => {
+    if (relativePaths.size >= memoLimit) relativePaths.clear()
+    const slashed = relative(dirname(root), filePath).replaceAll('\\', '/')
+    return slashed.startsWith('../') ? slashed : `./${slashed}`
+  })
 }
 
 // The limit bounds what a long-running host keeps across builds into fresh roots; one build stays well under it.

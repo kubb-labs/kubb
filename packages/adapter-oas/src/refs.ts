@@ -1,4 +1,4 @@
-import { unescapePointerToken } from '@internals/utils'
+import { memo, unescapePointerToken } from '@internals/utils'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import type { ast } from '@kubb/kit'
 import type { ParseFn } from './emit/parseSchema.ts'
@@ -85,7 +85,7 @@ export function createRefs(document: Document) {
   function resolveNode(refPath: string, parse: ParseFn): ast.SchemaNode | null {
     if (resolvingRefs.has(refPath)) return null
 
-    if (!resolvedNodeCache.has(refPath)) {
+    return memo(resolvedNodeCache, refPath, () => {
       let resolved: ast.SchemaNode | null = null
       try {
         const referenced = resolve<SchemaObject>(refPath)
@@ -97,10 +97,8 @@ export function createRefs(document: Document) {
       } catch {
         // Ref cannot be resolved in this document (e.g. unit tests with minimal documents).
       }
-      resolvedNodeCache.set(refPath, resolved)
-    }
-
-    return resolvedNodeCache.get(refPath) ?? null
+      return resolved
+    })
   }
 
   /**
