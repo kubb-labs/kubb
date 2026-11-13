@@ -98,7 +98,7 @@ export function injectFile(file: UserFileNode): void {
  *
  * @example In your own store
  * ```ts
- * const cache = memo.create<ast.SchemaNode, Array<string>>({ type: 'weak' })
+ * const cache = memo.create<ast.SchemaNode, Array<string>>({ weak: true })
  * const refs = memo(cache, node, () => collectRefs(node))
  * ```
  */

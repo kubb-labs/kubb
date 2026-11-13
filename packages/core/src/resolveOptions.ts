@@ -14,9 +14,9 @@ export type ResolveOptionsContext<TOptions> = {
   override?: Array<Override<TOptions>>
 }
 
-const patterns = memo.create<string, RegExp>({ type: 'map' })
-const methodPatterns = memo.create<string, RegExp>({ type: 'map' })
-const nodeCaches = memo.create<object, WeakMap<Node, unknown>>({ type: 'weak' })
+const patterns = memo.create<string, RegExp>()
+const methodPatterns = memo.create<string, RegExp>()
+const nodeCaches = memo.create<object, WeakMap<Node, unknown>>({ weak: true })
 
 function testPattern(value: string, pattern: string | RegExp): boolean {
   if (typeof pattern === 'string') return memo(patterns, pattern, () => new RegExp(pattern)).test(value)

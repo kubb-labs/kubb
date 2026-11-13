@@ -17,7 +17,7 @@ type AsyncListener<TArgs extends Array<unknown>> = (...args: TArgs) => unknown
  * ```
  */
 export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
-  readonly #listeners = memo.create<string, AsyncListener<Array<unknown>>>({ type: 'set' })
+  readonly #listeners = memo.create<string, AsyncListener<Array<unknown>>>({ bucket: 'set' })
 
   /**
    * Calls `hookName` and awaits all registered listeners sequentially.

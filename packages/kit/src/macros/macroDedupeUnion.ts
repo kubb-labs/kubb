@@ -10,7 +10,7 @@ import type { SchemaNode } from '@kubb/ast'
  */
 function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
   const seen = new Set<string>()
-  const keys = memo.create<object, string>({ type: 'weak' })
+  const keys = memo.create<object, string>({ weak: true })
 
   function key(value: unknown): string {
     if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'undefined'

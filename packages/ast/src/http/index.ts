@@ -17,7 +17,7 @@ export function getBaseURL(server: InputServer | undefined): string | undefined 
 type ParameterGroups = Record<'path' | 'query' | 'header' | 'cookie', Array<ParameterNode>>
 
 // Every plugin's generator visits the same node, so the groups are built once per node.
-const parametersByNode = memo.create<Pick<HttpOperationNode, 'parameters'>, ParameterGroups>({ type: 'weak' })
+const parametersByNode = memo.create<Pick<HttpOperationNode, 'parameters'>, ParameterGroups>({ weak: true })
 
 /** The operation's parameters by location, with a `querystring` parameter in `query`. A repeated name keeps its first parameter. */
 export function groupParameters(node: Pick<HttpOperationNode, 'parameters'>): ParameterGroups {

@@ -22,7 +22,7 @@ export function refName(ref: string): string {
 }
 
 // Every plugin resolves the same refs on every visit; the limit only bounds a long-running host.
-const refNames = memo.create<string, string>({ type: 'map', limit: 100_000 })
+const refNames = memo.create<string, string>({ max: 100_000 })
 
 /**
  * Resolves the emitted name of the schema a ref node points at. Prefers `targetName` (set when

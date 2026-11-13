@@ -88,7 +88,7 @@ describe('composables', () => {
       setOptions({ label: 'resolved' })
 
       expect(memo('test:value', () => 'value')).toBe('value')
-      const store = memo.create<string, number>({ type: 'map' })
+      const store = memo.create<string, number>()
       expect(memo(store, 'a', () => 1)).toBe(1)
       expect(memo(store, 'a', () => 2)).toBe(1)
       expect(useOptions()).toBe(ctx.options)

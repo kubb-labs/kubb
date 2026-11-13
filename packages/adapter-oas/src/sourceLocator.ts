@@ -20,7 +20,7 @@ type EventIndex = {
 const flowGap = /(?:[\s,]|#[^\n]*)*/y
 
 // Diagnostics of one run share a source, so its index is kept for the next call.
-const indexes = memo.create<string, EventIndex | undefined>({ type: 'last' })
+const indexes = memo.create<string, EventIndex | undefined>({ max: 1 })
 
 // A plain `1.50` or `~` is a number or null to `js-yaml`, so the document, and the pointer, spell it `1.5` or `null`.
 function toKeyText(text: string): string {

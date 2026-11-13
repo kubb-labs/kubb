@@ -137,7 +137,7 @@ export const pluginExample = defineExtension({
 | `config`        | `useConfig()`     | `Config`                                                  | The resolved build configuration at setup time                                |
 | `options`       | `useOptions()`    | `TOptions`                                                | The plugin's own options as passed by the user                                |
 
-The `memo` export also caches in a store you own, anywhere: `memo(store, key, compute)` takes a `Map` or `WeakMap`, and `memo.create({ type: 'map' | 'weak' | 'last' | 'list' | 'set' })` creates one. A `'map'` store takes a `limit` and empties itself when it is full. `'list'` and `'set'` stores keep an array or a `Set` per key and fill it with `add(key, value)`.
+The `memo` export also caches in a store you own, anywhere: `memo(store, key, compute)` takes a `Map` or `WeakMap`, or a store from `memo.create()`. Its options each change one thing: `weak: true` frees an entry with its key, `max` empties the store when it is full (`max: 1` keeps only the last entry), and `bucket: 'list' | 'set'` keeps an array or a `Set` per key that you fill with `add(key, value)`.
 
 `useKubb()` returns the whole setup context. `tryUseKubb()` does the same, but returns `undefined` outside setup instead of throwing.
 

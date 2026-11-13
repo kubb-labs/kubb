@@ -18,7 +18,7 @@ function sortedChildren(node: DirectoryNode): ReadonlyArray<TreeNode> {
   return memo(sortedChildrenCache, node, () => [...node.children.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([, child]) => child))
 }
 
-const sortedChildrenCache = memo.create<DirectoryNode, ReadonlyArray<TreeNode>>({ type: 'weak' })
+const sortedChildrenCache = memo.create<DirectoryNode, ReadonlyArray<TreeNode>>({ weak: true })
 
 // An empty, `.` or `..` segment, which `posix.relative` would normalize away.
 const UNNORMALIZED_SEGMENT = /(?:^|\/)\.{0,2}(?:\/|$)/
@@ -94,7 +94,7 @@ type LeafStrategy = (path: string, sourceFile: ast.FileNode | undefined) => Arra
 type LeafNames = { hasSources: boolean; hasIndexable: boolean; valueNames: Array<string>; typeNames: Array<string> }
 
 // A nested barrel asks for the same file's names once per ancestor folder; only the relative path differs.
-const leafNamesCache = memo.create<ast.FileNode, LeafNames>({ type: 'weak' })
+const leafNamesCache = memo.create<ast.FileNode, LeafNames>({ weak: true })
 
 function getLeafNames(sourceFile: ast.FileNode): LeafNames {
   const { sources } = sourceFile

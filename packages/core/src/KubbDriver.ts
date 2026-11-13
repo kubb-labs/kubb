@@ -129,7 +129,7 @@ export class KubbDriver {
    */
   readonly fileManager = new FileManager()
   readonly plugins = new Map<string, NormalizedPlugin>()
-  readonly #memo = memo.create<string, unknown>({ type: 'map' })
+  readonly #memo = memo.create<string, unknown>()
 
   /**
    * Removers for every listener the driver added (plugin, generator) so `dispose()` can detach

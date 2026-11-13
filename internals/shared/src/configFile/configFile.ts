@@ -674,7 +674,7 @@ function addPlugin({
 
   // The missing imports by package, so `parserTs` and `parserTsx` share one line.
   const imports = getImports(parsed.program)
-  const missing = memo.create<string, string>({ type: 'list' })
+  const missing = memo.create<string, string>({ bucket: 'list' })
   for (const item of [...defaults, { importName, packageName: edit.plugin }]) {
     const from = imports.get(item.importName)?.from
     if (from && from !== item.packageName) return { reason: `${item.importName} is already imported from ${from}` }

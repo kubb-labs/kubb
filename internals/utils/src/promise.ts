@@ -39,65 +39,57 @@ export function memo<TKey, TValue>(store: Store<TKey, TValue>, key: TKey, comput
 }
 
 /**
- * Creates a store for `memo`. `'map'` and `'weak'` return a `Map` and a `WeakMap`. A `'map'` store with
- * a `limit` empties itself before the entry that would pass the limit, which bounds a cache in a
- * long-running process. `'last'` keeps only
- * the last entry, for a cache that should hold one value at a time: a key equal to the stored one but
- * a different object, such as a copy of a string, replaces the stored key, so the next lookup is an
- * identity hit instead of a full comparison.
+ * Creates a store for `memo`. With no options it is a `Map`. Each option changes one thing:
  *
- * `'list'` and `'set'` return a `Map` of buckets, an array or a `Set` per key, with an `add(key, value)`
- * that creates the bucket on the first value.
+ * - `weak` holds the keys weakly, in a `WeakMap`, so an entry goes away with its key.
+ * - `max` bounds the store: it empties itself before the entry that would pass `max`, which keeps a
+ *   cache in a long-running process from growing without end. `max: 1` keeps only the last entry.
+ * - `bucket` collects values per key, in an array (`'list'`) or a `Set` (`'set'`), and adds
+ *   `add(key, value)`, which creates the bucket on the first value.
  *
  * @example
- * `const indexes = memo.create<string, Index>({ type: 'last' })`
+ * `const patterns = memo.create<string, RegExp>()`
+ *
+ * @example Freed with its key
+ * `const refs = memo.create<SchemaNode, Array<string>>({ weak: true })`
+ *
+ * @example Bounded
+ * `const names = memo.create<string, string>({ max: 100_000 })`
  *
  * @example Buckets
  * ```ts
- * const filesByPlugin = memo.create<string, string>({ type: 'list' })
+ * const filesByPlugin = memo.create<string, string>({ bucket: 'list' })
  * filesByPlugin.add('plugin-ts', 'models.ts')
  * ```
- *
- * @example Bounded
- * `const names = memo.create<string, string>({ type: 'map', limit: 100_000 })`
  */
-function createStore<TKey extends WeakKey, TValue>(options: { type: 'weak' }): WeakMap<TKey, TValue>
-function createStore<TKey, TValue>(options: { type: 'list' }): Buckets<TKey, TValue, Array<TValue>>
-function createStore<TKey, TValue>(options: { type: 'set' }): Buckets<TKey, TValue, Set<TValue>>
-function createStore<TKey, TValue>(options: { type: 'map' }): Map<TKey, TValue>
-function createStore<TKey, TValue>(options: { type: 'map'; limit: number } | { type: 'last' }): Store<TKey, TValue>
-function createStore<TKey, TValue>({ type, limit }: { type: 'map' | 'weak' | 'last' | 'list' | 'set'; limit?: number }): Store<TKey, TValue> {
-  if (type === 'weak') return new WeakMap<WeakKey, TValue>() as Store<TKey, TValue>
-  if (type === 'list') {
+function createStore<TKey, TValue>(options?: { weak?: false; max?: undefined; bucket?: undefined }): Map<TKey, TValue>
+function createStore<TKey extends WeakKey, TValue>(options: { weak: true; max?: undefined; bucket?: undefined }): WeakMap<TKey, TValue>
+function createStore<TKey, TValue>(options: { max: number; weak?: false; bucket?: undefined }): Store<TKey, TValue>
+function createStore<TKey, TValue>(options: { bucket: 'list'; weak?: false; max?: undefined }): Buckets<TKey, TValue, Array<TValue>>
+function createStore<TKey, TValue>(options: { bucket: 'set'; weak?: false; max?: undefined }): Buckets<TKey, TValue, Set<TValue>>
+function createStore<TKey, TValue>({ weak, max, bucket }: { weak?: boolean; max?: number; bucket?: 'list' | 'set' } = {}): Store<TKey, TValue> {
+  if (weak) return new WeakMap<WeakKey, TValue>() as Store<TKey, TValue>
+  if (bucket === 'list') {
     const buckets = new Map<TKey, Array<TValue>>()
-    return Object.assign(buckets, { add: (key: TKey, value: TValue) => void memo(buckets, key, (): Array<TValue> => []).push(value) }) as unknown as Store<
-      TKey,
-      TValue
-    >
+    return Object.assign(buckets, {
+      add: (key: TKey, value: TValue) => void memo(buckets, key, (): Array<TValue> => []).push(value),
+    }) as unknown as Store<TKey, TValue>
   }
-  if (type === 'set') {
+  if (bucket === 'set') {
     const buckets = new Map<TKey, Set<TValue>>()
-    return Object.assign(buckets, { add: (key: TKey, value: TValue) => void memo(buckets, key, () => new Set<TValue>()).add(value) }) as unknown as Store<
-      TKey,
-      TValue
-    >
+    return Object.assign(buckets, {
+      add: (key: TKey, value: TValue) => void memo(buckets, key, () => new Set<TValue>()).add(value),
+    }) as unknown as Store<TKey, TValue>
   }
   const entry = new Map<TKey, TValue>()
-  if (type === 'map') {
-    if (limit === undefined) return entry
-    return {
-      has: (key) => entry.has(key),
-      get: (key) => entry.get(key),
-      set: (key, value) => {
-        if (entry.size >= limit) entry.clear()
-        entry.set(key, value)
-      },
-    }
-  }
+  if (max === undefined) return entry
   const set = (key: TKey, value: TValue) => {
-    entry.clear()
+    if (entry.size >= max) entry.clear()
     entry.set(key, value)
   }
+  if (max !== 1) return { has: (key) => entry.has(key), get: (key) => entry.get(key), set }
+  // A key equal to the stored one but a different object, such as a copy of a string, replaces the
+  // stored key, so the next lookup is an identity hit instead of a full comparison.
   const touch = (key: TKey) => {
     if (!entry.has(key)) return false
     set(key, entry.get(key) as TValue)

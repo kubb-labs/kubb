@@ -68,7 +68,7 @@ function setupReporters(
     return [createCliReporter({ render: installLogger({ hooks: context, writer, logLevel }).renderSummary })]
   })
   const ctx: ReporterContext = { logLevel }
-  const pluginFiles = selected.some((reporter) => reporter.needsPluginFiles) ? memo.create<string, string>({ type: 'list' }) : undefined
+  const pluginFiles = selected.some((reporter) => reporter.needsPluginFiles) ? memo.create<string, string>({ bucket: 'list' }) : undefined
   const seen = new Set<string>()
   if (pluginFiles) {
     context.hook('kubb:plugin:end', ({ plugin, files }) => {
