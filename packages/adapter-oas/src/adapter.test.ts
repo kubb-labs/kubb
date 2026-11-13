@@ -383,6 +383,24 @@ describe('adapterOas pathParamsCasing', () => {
     expect(node.operations[0]?.parameters.map((param) => param.name)).toStrictEqual(['storeId', 'petId', 'page-size'])
   })
 
+  it('camelCases snake_case path parameters too', async () => {
+    const snakeSpec = {
+      ...spec,
+      paths: {
+        '/pets/{pet_id}': {
+          get: {
+            parameters: [{ name: 'pet_id', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+    } as const
+    const node = await adapterOas({ validate: false, pathParamsCasing: 'camelcase' }).parse({ type: 'data', data: snakeSpec })
+
+    expect(node.operations[0]?.path).toBe('/pets/{petId}')
+    expect(node.operations[0]?.parameters[0]?.name).toBe('petId')
+  })
+
   it('keeps the spec names of an operation with a matrix path parameter, whose name is sent', async () => {
     const matrixSpec = {
       ...spec,

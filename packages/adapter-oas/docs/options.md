@@ -208,7 +208,7 @@ Renames `path` parameters and their `{placeholder}` in the operation path. Omit 
 | Required | `false`       |
 | Default  | `undefined`   |
 
-With `'camelcase'`, `{pet-id}` becomes `petId`, the same name MSW routes and query keys already use. Names that collide get a counter suffix, so `{group-id}` and `{group.id}` become `groupId` and `groupId2`. Path parameter names never reach the wire, so the HTTP request stays the same. The one exception is the `matrix` style, which sends the name (`;group-id=42`), so an operation with a matrix path parameter keeps its spec names. Query, header, cookie, and body names are not changed.
+With `'camelcase'`, `{pet-id}`, `{pet_id}`, and `{PetId}` all become `petId`, and MSW routes and query keys use the same name. Names that collide get a counter suffix, so `{group-id}` and `{group.id}` become `groupId` and `groupId2`. Path parameter names never reach the wire, so the HTTP request stays the same. The one exception is the `matrix` style, which sends the name (`;group-id=42`), so an operation with a matrix path parameter keeps its spec names. Query, header, cookie, and body names are not changed.
 
 For `GET /stores/{store-id}/pets/{pet-id}`, `@kubb/plugin-client` generates:
 

@@ -182,7 +182,7 @@
       "key": "pathParamsCasing",
       "path": ["pathParamsCasing"],
       "label": "Path Params Casing",
-      "description": "Rename path parameters and their {placeholder}, such as {pet-id} to petId. The HTTP request stays the same.",
+      "description": "Rename path parameters and their {placeholder} to camelCase, such as {pet-id} or {pet_id} to petId. The HTTP request stays the same.",
       "type": "select",
       "choices": [
         {

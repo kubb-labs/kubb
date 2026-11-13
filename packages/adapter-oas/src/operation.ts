@@ -536,7 +536,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   })
 }
 
-/** Renames path parameters and their `{placeholder}` to the names {@link Url.toPath} uses. */
+/** Renames path parameters and their `{placeholder}` to the camelCase names from {@link Url.toParamNames}. */
 export function camelCasePathParams(node: ast.OperationNode): ast.OperationNode {
   // A `matrix` value is sent as `;name=value`, so renaming would change the request.
   if (!node.path || node.parameters.some((param) => param.in === 'path' && param.style === 'matrix')) return node

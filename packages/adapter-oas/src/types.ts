@@ -251,8 +251,8 @@ export type AdapterOasOptions = {
    */
   enums?: 'inline' | 'root'
   /**
-   * `'camelcase'` renames path parameters and their `{placeholder}` (`{pet-id}` to `petId`), as MSW
-   * routes already do. The HTTP request stays the same. Omit to keep the names from the spec.
+   * `'camelcase'` renames path parameters and their `{placeholder}` to camelCase (`{pet-id}` and
+   * `{pet_id}` to `petId`). The HTTP request stays the same. Omit to keep the names from the spec.
    */
   pathParamsCasing?: 'camelcase'
 } & Partial<ast.ParserOptions>

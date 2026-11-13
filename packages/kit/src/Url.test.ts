@@ -29,7 +29,7 @@ describe('Url.toPath', () => {
 })
 
 describe('Url.toParamNames', () => {
-  test('maps each placeholder to the identifier Url.toPath gives it', () => {
+  test('maps each placeholder to a camelCase identifier', () => {
     expect(Url.toParamNames('/stores/{store-id}/pets/{pet-id}')).toEqual(
       new Map([
         ['store-id', 'storeId'],
@@ -44,12 +44,17 @@ describe('Url.toParamNames', () => {
     )
   })
 
-  test('gives distinct placeholders distinct names that stay in step with Url.toPath', () => {
-    for (const path of ['/{group-id}/{group.id}/{groupId2}', '/{a-b}/{a-b}/{a.b}']) {
+  test('camelCases names that are already identifiers', () => {
+    expect([...Url.toParamNames('/{pet_id}/{PetId2}/{$id}/{userID}').values()]).toEqual(['petId', 'petId2', 'id', 'userID'])
+  })
+
+  test('gives distinct placeholders distinct names that Url.toPath keeps as they are', () => {
+    expect([...Url.toParamNames('/{a-b}/{a-b}/{a.b}').values()]).toEqual(['aB', 'aB3'])
+    for (const path of ['/{group-id}/{group.id}/{groupId2}', '/{pet_id}/{pet-id}']) {
       const names = Url.toParamNames(path)
       const renamed = path.replace(/\{([^}]+)\}/g, (_match, name: string) => `{${names.get(name)}}`)
       expect(new Set(names.values()).size).toBe(names.size)
-      expect(Url.toPath(renamed)).toBe(Url.toPath(path))
+      expect(Url.toPath(renamed)).toBe(renamed.replace(/\{([^}]+)\}/g, ':$1'))
     }
   })
 })
