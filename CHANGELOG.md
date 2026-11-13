@@ -1,5 +1,26 @@
 # Changelog
 
+## v5.19.1 — Nov 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Harden the Kubb Studio agent against specs it does not control.
+  
+  - On a Studio agent, a `$ref` only reads local files inside the project and the folder of the config's own input file. A sandbox agent reads none, and a managed agent only inside the checkout of a git input. `kubb studio --allow-file-refs` lifts the project limit, and `kubb generate` is unchanged.
+  - A URL input no longer reads local files through a `$ref`.
+  - A sandbox agent only fetches a URL `$ref` from public addresses, and a managed agent only checks out a git input from them.
+  - Only the host's new `agentType` option of `connectAgent`, set to `'sandbox'` or `'global'`, lets Studio read a sandbox's output. Studio's own flag no longer does.
+  - Studio can no longer save an `input` outside the project, or an `output.path` outside the output folder.
+  - `createKubb` and an adapter's `parse` take `fileRefs`, the folders a `$ref` may read from. ([#4616](https://github.com/kubb-labs/kubb/pull/4616), [`308288f`](https://github.com/kubb-labs/kubb/commit/308288f928bdc48d4a29c80c6c0edc94bba5ccc0))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.19.0 — Nov 13, 2026
 
 ### @kubb/core
