@@ -11,7 +11,7 @@ const REDIRECTS = new Set([301, 302, 303, 307, 308])
 const NO_BODY = new Set([204, 205, 304])
 
 function notPublic(host: string): Error {
-  return new Error(`${host} is not a public address, so a managed agent does not fetch from it`)
+  return new Error(`${host} is not a public address, so this agent does not fetch from it`)
 }
 
 function createLookup(blocked?: net.BlockList): net.LookupFunction {

@@ -596,8 +596,8 @@ class Agent extends RpcTarget implements AgentApi {
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
         fileRefs: this.#fileRefs,
       })
-    // The adapter fetches the URL and every `$ref` in it, so a managed agent limits the fetch itself to public addresses.
-    const files = await (this.#managed ? withPublicFetch(run) : run())
+    // The adapter fetches the URL and every `$ref` in it, so a shared or hosted agent limits the fetch itself to public addresses.
+    const files = await (this.#sandbox || this.#managed ? withPublicFetch(run) : run())
       .catch(async (error: unknown) => {
         await this.#generations.drop(jobId)
         await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)

@@ -371,7 +371,10 @@ describe('a sandbox job', () => {
     await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(/https repository URL|not a public address/)
   })
 
-  it('limits the fetch of a managed agent to public addresses, and only while it generates', async () => {
+  it.each([
+    ['a managed', { managed: true }, {}],
+    ['a sandbox', { sandbox: true }, { input: 'openapi: 3.1.0' }],
+  ])('limits the fetch of %s agent to public addresses, and only while it generates', async (_label, kind, config) => {
     const original = globalThis.fetch
     const parse = async () => {
       // What the adapter does for a URL input, or for a `$ref` inside the document.
@@ -379,9 +382,9 @@ describe('a sandbox job', () => {
       return ast.factory.createInput({ operations: [], meta: { title: 'Pets' } })
     }
     const loadConfigs = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
-    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
+    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, ...kind } })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow('not a public address')
+    await expect(agent.startGeneration({ jobId: 'job-1', config }).result()).rejects.toThrow('not a public address')
     expect(globalThis.fetch).toBe(original)
   })
 
