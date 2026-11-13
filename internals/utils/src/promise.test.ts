@@ -52,22 +52,6 @@ describe('memo', () => {
     // @ts-expect-error a WeakMap has no size to bound
     memo.create<object, number>({ weak: true, max: 2 })
   })
-
-  it('collects values per key into a list or a set', () => {
-    const list = memo.create<string, number>({ collect: 'list' })
-    list.add('a', 1)
-    list.add('a', 1)
-    list.add('b', 2)
-    expect([...list]).toStrictEqual([
-      ['a', [1, 1]],
-      ['b', [2]],
-    ])
-
-    const set = memo.create<string, number>({ collect: 'set' })
-    set.add('a', 1)
-    set.add('a', 1)
-    expect([...set.get('a')!]).toStrictEqual([1])
-  })
 })
 
 describe('inParallel', () => {

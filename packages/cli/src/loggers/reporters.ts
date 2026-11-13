@@ -68,14 +68,14 @@ function setupReporters(
     return [createCliReporter({ render: installLogger({ hooks: context, writer, logLevel }).renderSummary })]
   })
   const ctx: ReporterContext = { logLevel }
-  const pluginFiles = selected.some((reporter) => reporter.needsPluginFiles) ? memo.create<string, string>({ collect: 'list' }) : undefined
+  const pluginFiles = selected.some((reporter) => reporter.needsPluginFiles) ? memo.create<string, Array<string>>() : undefined
   const seen = new Set<string>()
   if (pluginFiles) {
     context.hook('kubb:plugin:end', ({ plugin, files }) => {
       for (const file of files) {
         if (seen.has(file.path)) continue
         seen.add(file.path)
-        pluginFiles.add(plugin.name, file.path)
+        memo(pluginFiles, plugin.name, () => []).push(file.path)
       }
     })
   }

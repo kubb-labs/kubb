@@ -15,13 +15,6 @@ type Store<TKey, TValue> = {
   set(key: TKey, value: TValue): unknown
 }
 
-type Collection<TKey, TValue, TValues> = Map<TKey, TValues> & {
-  /**
-   * Adds `value` to the values under `key`, starting them when the key is new.
-   */
-  add(key: TKey, value: TValue): void
-}
-
 /**
  * Returns the value cached under `key` in `store`, computing and storing it on the first call.
  * Pass a `WeakMap` for object keys, so an entry goes away with its key, or a `Map` for primitive
@@ -44,8 +37,6 @@ export function memo<TKey, TValue>(store: Store<TKey, TValue>, key: TKey, comput
  * - `weak` holds the keys weakly, in a `WeakMap`, so an entry goes away with its key.
  * - `max` bounds the store: it empties itself before the entry that would pass `max`, which keeps a
  *   cache in a long-running process from growing without end. `max: 1` keeps only the last entry.
- * - `collect` keeps many values per key, in an array (`'list'`) or a `Set` (`'set'`), and adds
- *   `add(key, value)` to put one more value under a key.
  *
  * @example
  * `const patterns = memo.create<string, RegExp>()`
@@ -58,29 +49,15 @@ export function memo<TKey, TValue>(store: Store<TKey, TValue>, key: TKey, comput
  *
  * @example Many values per key
  * ```ts
- * const filesByPlugin = memo.create<string, string>({ collect: 'list' })
- * filesByPlugin.add('plugin-ts', 'models.ts')
+ * const filesByPlugin = memo.create<string, Array<string>>()
+ * memo(filesByPlugin, 'plugin-ts', () => []).push('models.ts')
  * ```
  */
-function createStore<TKey, TValue>(options?: { weak?: false; max?: undefined; collect?: undefined }): Map<TKey, TValue>
-function createStore<TKey extends WeakKey, TValue>(options: { weak: true; max?: undefined; collect?: undefined }): WeakMap<TKey, TValue>
-function createStore<TKey, TValue>(options: { max: number; weak?: false; collect?: undefined }): Store<TKey, TValue>
-function createStore<TKey, TValue>(options: { collect: 'list'; weak?: false; max?: undefined }): Collection<TKey, TValue, Array<TValue>>
-function createStore<TKey, TValue>(options: { collect: 'set'; weak?: false; max?: undefined }): Collection<TKey, TValue, Set<TValue>>
-function createStore<TKey, TValue>({ weak, max, collect }: { weak?: boolean; max?: number; collect?: 'list' | 'set' } = {}): Store<TKey, TValue> {
+function createStore<TKey, TValue>(options?: { weak?: false; max?: undefined }): Map<TKey, TValue>
+function createStore<TKey extends WeakKey, TValue>(options: { weak: true; max?: undefined }): WeakMap<TKey, TValue>
+function createStore<TKey, TValue>(options: { max: number; weak?: false }): Store<TKey, TValue>
+function createStore<TKey, TValue>({ weak, max }: { weak?: boolean; max?: number } = {}): Store<TKey, TValue> {
   if (weak) return new WeakMap<WeakKey, TValue>() as Store<TKey, TValue>
-  if (collect === 'list') {
-    const values = new Map<TKey, Array<TValue>>()
-    return Object.assign(values, {
-      add: (key: TKey, value: TValue) => void memo(values, key, (): Array<TValue> => []).push(value),
-    }) as unknown as Store<TKey, TValue>
-  }
-  if (collect === 'set') {
-    const values = new Map<TKey, Set<TValue>>()
-    return Object.assign(values, {
-      add: (key: TKey, value: TValue) => void memo(values, key, () => new Set<TValue>()).add(value),
-    }) as unknown as Store<TKey, TValue>
-  }
   const entry = new Map<TKey, TValue>()
   if (max === undefined) return entry
   const set = (key: TKey, value: TValue) => {

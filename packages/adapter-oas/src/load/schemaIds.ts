@@ -62,8 +62,8 @@ function pick(declarations: Array<string> | undefined, pointer: string): string 
  * enclosing anchor, so a relative `$id` base or a recursively extended schema is not followed, upgrade when a spec needs that.
  */
 export function resolveSchemaIds(document: unknown): void {
-  const targets = memo.create<string, string>({ collect: 'list' })
-  const declare = (key: string, pointer: string) => targets.add(key, pointer)
+  const targets = memo.create<string, Array<string>>()
+  const declare = (key: string, pointer: string) => memo(targets, key, () => []).push(pointer)
   walk(document, '#', (node, pointer) => {
     if (typeof node['$id'] === 'string') declare(node['$id'], pointer)
     for (const key of ['$anchor', '$dynamicAnchor']) {
