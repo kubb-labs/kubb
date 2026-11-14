@@ -12,7 +12,7 @@ import { toAuthSchemes } from './model/security.ts'
 import { resolveBaseUrl, toInputServers } from './model/server.ts'
 import { toInputTags } from './model/tag.ts'
 import { getExternalDocs, pickExtensions, pickStrings } from './oas.ts'
-import { getOperations, parseOperation } from './operation.ts'
+import { camelCasePathParams, getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { createRefs } from './refs.ts'
@@ -61,13 +61,14 @@ export const adapterOas = defineExtension<AdapterOas>({
     server,
     discriminator = 'preserve',
     enums = 'inline',
+    pathParamsCasing,
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
     enumSuffix = DEFAULT_PARSER_OPTIONS.enumSuffix,
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
-  }) => ({ validate, contentType, server, discriminator, enums, dateType, integerType, unknownType, emptySchemaType, enumSuffix }),
-  build({ validate, contentType, server, discriminator, enums, ...parserOptions }) {
+  }) => ({ validate, contentType, server, discriminator, enums, pathParamsCasing, dateType, integerType, unknownType, emptySchemaType, enumSuffix }),
+  build({ validate, contentType, server, discriminator, enums, pathParamsCasing, ...parserOptions }) {
     let parsedDocument: Document | null = null
     let sources: Array<string> = []
     const pendingValidations: Array<Promise<void>> = []
@@ -113,9 +114,10 @@ export const adapterOas = defineExtension<AdapterOas>({
       const discriminatorChildMap: Map<string, DiscriminatorTarget> | null =
         discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
-      const operationNodes = getOperations(document, refs).map((operation) =>
-        parseOperation({ operation, document, refs, contentType, options: parserOptions, parseSchema }),
-      )
+      const operationNodes = getOperations(document, refs).map((operation) => {
+        const node = parseOperation({ operation, document, refs, contentType, options: parserOptions, parseSchema })
+        return pathParamsCasing === 'camelcase' ? camelCasePathParams(node) : node
+      })
 
       const promotedEnums = enums === 'root' ? collectInlineEnums([...parsedByName.values(), ...operationNodes], new Set(Object.keys(schemas))) : null
 

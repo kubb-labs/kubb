@@ -250,6 +250,11 @@ export type AdapterOasOptions = {
    * @default 'inline'
    */
   enums?: 'inline' | 'root'
+  /**
+   * `'camelcase'` renames path parameters and their `{placeholder}` to camelCase (`{pet-id}` and
+   * `{pet_id}` to `petId`). The HTTP request stays the same. Omit to keep the names from the spec.
+   */
+  pathParamsCasing?: 'camelcase'
 } & Partial<ast.ParserOptions>
 
 /**
@@ -261,6 +266,7 @@ export type AdapterOasResolvedOptions = {
   server: AdapterOasOptions['server']
   discriminator: NonNullable<AdapterOasOptions['discriminator']>
   enums: NonNullable<AdapterOasOptions['enums']>
+  pathParamsCasing: AdapterOasOptions['pathParamsCasing']
   dateType: NonNullable<AdapterOasOptions['dateType']>
   integerType: NonNullable<AdapterOasOptions['integerType']>
   unknownType: NonNullable<AdapterOasOptions['unknownType']>

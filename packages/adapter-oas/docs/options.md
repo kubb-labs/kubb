@@ -4,18 +4,19 @@ Pass these options to `adapterOas()`. All of them are optional.
 
 ## Options overview
 
-| Option                                | Purpose                                                      |
-| ------------------------------------- | ------------------------------------------------------------ |
-| [`validate`](#validate)               | Validate the spec before parsing.                            |
-| [`contentType`](#contenttype)         | Preferred media type for request and response schemas.       |
-| [`server`](#server)                   | Which spec server Kubb resolves into the document `baseURL`. |
-| [`discriminator`](#discriminator)     | How `discriminator` fields are interpreted.                  |
-| [`enums`](#enums)                     | Where inline enums live.                                     |
-| [`dateType`](#datetype)               | How `date-time`, `date`, and `time` schemas are represented. |
-| [`integerType`](#integertype)         | How `int64` and `uint64` integers map to TypeScript.         |
-| [`unknownType`](#unknowntype)         | Type for open map values and parameters without a schema.    |
-| [`emptySchemaType`](#emptyschematype) | Type for schemas with no type to infer.                      |
-| [`enumSuffix`](#enumsuffix)           | Suffix for derived enum names.                               |
+| Option                                  | Purpose                                                      |
+| --------------------------------------- | ------------------------------------------------------------ |
+| [`validate`](#validate)                 | Validate the spec before parsing.                            |
+| [`contentType`](#contenttype)           | Preferred media type for request and response schemas.       |
+| [`server`](#server)                     | Which spec server Kubb resolves into the document `baseURL`. |
+| [`discriminator`](#discriminator)       | How `discriminator` fields are interpreted.                  |
+| [`enums`](#enums)                       | Where inline enums live.                                     |
+| [`pathParamsCasing`](#pathparamscasing) | Rename path parameters to camelCase.                         |
+| [`dateType`](#datetype)                 | How `date-time`, `date`, and `time` schemas are represented. |
+| [`integerType`](#integertype)           | How `int64` and `uint64` integers map to TypeScript.         |
+| [`unknownType`](#unknowntype)           | Type for open map values and parameters without a schema.    |
+| [`emptySchemaType`](#emptyschematype)   | Type for schemas with no type to infer.                      |
+| [`enumSuffix`](#enumsuffix)             | Suffix for derived enum names.                               |
 
 ## Option details
 
@@ -193,6 +194,32 @@ import type { PetStatusEnumKey } from './PetStatusEnum'
 export type Pet = {
   status?: PetStatusEnumKey;
 };
+```
+
+::
+
+### pathParamsCasing
+
+Renames `path` parameters and their `{placeholder}` in the operation path. Omit it to keep the names from the spec.
+
+|          |               |
+| -------- | ------------- |
+| Type     | `'camelcase'` |
+| Required | `false`       |
+| Default  | `undefined`   |
+
+With `'camelcase'`, `{pet-id}`, `{pet_id}`, and `{PetId}` all become `petId`, and MSW routes and query keys use the same name. Names that collide get a counter suffix, so `{group-id}` and `{group.id}` become `groupId` and `groupId2`. Path parameter names never reach the wire, so the HTTP request stays the same. The one exception is the `matrix` style, which sends the name (`;group-id=42`), so an operation with a matrix path parameter keeps its spec names. Query, header, cookie, and body names are not changed.
+
+For `GET /stores/{store-id}/pets/{pet-id}`, `@kubb/plugin-client` generates:
+
+::code-group
+
+```typescript [default]
+await getPet({ path: { 'store-id': storeId, 'pet-id': petId } })
+```
+
+```typescript ['camelcase']
+await getPet({ path: { storeId, petId } })
 ```
 
 ::

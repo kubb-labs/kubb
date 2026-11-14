@@ -1,5 +1,30 @@
 # Changelog
 
+## v5.20.0 — Nov 14, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Add `pathParamsCasing: 'camelcase'` to `adapterOas()`. It renames path parameters and their `{placeholder}` in the operation path, so `GET /pets/{pet-id}` is called as `getPet({ path: { petId } })`.
+  
+  - `{pet-id}`, `{pet_id}`, and `{PetId}` all become `petId`, the name MSW routes and query keys then use too. Colliding names get a counter suffix (`groupId`, `groupId2`).
+  - Query, header, cookie, and body names stay as the spec writes them, and the HTTP request is unchanged.
+  - `@kubb/kit` adds `Url.toParamNames`, which maps each placeholder to a unique camelCase name. ([#4621](https://github.com/kubb-labs/kubb/pull/4621), [`bb7ae62`](https://github.com/kubb-labs/kubb/commit/bb7ae6260ba58943d3b5b98916f0aadce48db6ab))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- - `kubb studio` no longer forgets a token another process stored while its own was being rejected.
+  - Logging out waits for a running credential update. ([#4622](https://github.com/kubb-labs/kubb/pull/4622), [`d8c3d6c`](https://github.com/kubb-labs/kubb/commit/d8c3d6ca801174136aaa05fca9858cda5b2d1ae5))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.19.2 — Nov 13, 2026
 
 ### @kubb/studio
