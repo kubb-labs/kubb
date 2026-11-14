@@ -61,7 +61,7 @@ type GenerateProps = {
  * Generates the configs and returns whether every build succeeded.
  */
 export async function generate({ configs, hooks }: GenerateProps): Promise<boolean> {
-  // Not awaited: each request finishes in the background, capped by its timeout, so it never delays the summary.
+  // Not awaited: a detached process sends each request, so it never delays the summary or the exit.
   const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
     void trackRun({ command: 'generate', hrStart })({
       plugins: config.plugins.flatMap((p) =>
@@ -283,7 +283,7 @@ export async function run({
       logTip()
     }
 
-    // `exitCode`, not `exit()`, so a telemetry request still in flight can finish within its timeout.
+    // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
     if (!succeeded) {
       process.exitCode = 1
     }

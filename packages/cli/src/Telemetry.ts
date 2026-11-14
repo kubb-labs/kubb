@@ -1,3 +1,4 @@
+import { spawn } from 'node:child_process'
 import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
@@ -148,9 +149,25 @@ export function buildOtlpPayload({
 }
 
 /**
+ * Source for the detached process that posts one payload, read from stdin, to the OTLP endpoint.
+ * It runs with `node -e` or `bun -e`, so it holds no imports.
+ */
+export const SENDER_SCRIPT = `let body = ''
+process.stdin.setEncoding('utf8').on('data', (chunk) => (body += chunk)).on('end', () => {
+  fetch(${JSON.stringify(`${OTLP_ENDPOINT}/v1/traces`)}, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Kubb-Telemetry-Version': '1', 'Kubb-Telemetry-Source': 'kubb-cli' },
+    body,
+    signal: AbortSignal.timeout(5000),
+  }).catch(() => {})
+})`
+
+/**
  * Send an OTLP payload to the Kubb endpoint. Respects `DO_NOT_TRACK` and
  * `KUBB_DISABLE_TELEMETRY`, and fails silently so telemetry never interrupts a run. No file
  * paths, OpenAPI specs, or secrets are sent.
+ *
+ * A detached process sends the request, so the CLI exits without waiting on the network.
  */
 export async function sendTelemetry(payload: ReturnType<typeof buildOtlpPayload>): Promise<void> {
   if (isDisabled()) {
@@ -158,17 +175,11 @@ export async function sendTelemetry(payload: ReturnType<typeof buildOtlpPayload>
   }
 
   try {
-    await fetch(`${OTLP_ENDPOINT}/v1/traces`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Kubb-Telemetry-Version': '1',
-        'Kubb-Telemetry-Source': 'kubb-cli',
-      },
-      body: JSON.stringify(payload),
-      // Short, since an unfinished request keeps the process alive after the run.
-      signal: AbortSignal.timeout(1_000),
-    })
+    const child = spawn(process.execPath, ['-e', SENDER_SCRIPT], { detached: true, stdio: ['pipe', 'ignore', 'ignore'], windowsHide: true })
+    child.on('error', () => {})
+    child.stdin?.on('error', () => {})
+    child.stdin?.end(JSON.stringify(payload))
+    child.unref()
   } catch (_e) {
     // Fail silently, telemetry must never break the run
   }

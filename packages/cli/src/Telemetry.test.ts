@@ -1,10 +1,16 @@
+import { spawn } from 'node:child_process'
+import { EventEmitter } from 'node:events'
 import process from 'node:process'
+import { runInNewContext } from 'node:vm'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { buildOtlpPayload, isDisabled, sendTelemetry } from './Telemetry.ts'
+import { buildOtlpPayload, isDisabled, SENDER_SCRIPT, sendTelemetry } from './Telemetry.ts'
+
+vi.mock('node:child_process', () => ({ spawn: vi.fn() }))
 
 type Run = Parameters<typeof buildOtlpPayload>[0]
 
 afterEach(() => {
+  vi.mocked(spawn).mockReset()
   vi.unstubAllEnvs()
   vi.restoreAllMocks()
 })
@@ -114,39 +120,51 @@ describe('buildOtlpPayload', () => {
 })
 
 describe('sendTelemetry', () => {
-  it('sends nothing when DO_NOT_TRACK=1', async () => {
+  it('starts no process when DO_NOT_TRACK=1', async () => {
     vi.stubEnv('DO_NOT_TRACK', '1')
-    const fetchSpy = vi.spyOn(globalThis, 'fetch')
 
     await sendTelemetry(payload({ plugins: [{ name: 'plugin-ts', options: {} }] }))
 
-    expect(fetchSpy).not.toHaveBeenCalled()
+    expect(spawn).not.toHaveBeenCalled()
   })
 
-  it('posts the OTLP payload when telemetry is enabled', async () => {
+  it('pipes the payload to a detached sender process and lets the CLI exit without it', async () => {
     vi.stubEnv('DO_NOT_TRACK', '')
     vi.stubEnv('KUBB_DISABLE_TELEMETRY', '')
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 200 }))
+    const child = Object.assign(new EventEmitter(), { stdin: Object.assign(new EventEmitter(), { end: vi.fn() }), unref: vi.fn() })
+    vi.mocked(spawn).mockReturnValue(child as never)
 
-    await sendTelemetry(payload({ plugins: [{ name: 'plugin-ts', options: { output: { path: 'types' } } }] }))
+    await sendTelemetry(payload())
 
-    expect(fetchSpy).toHaveBeenCalledOnce()
-    const [url, init] = fetchSpy.mock.calls[0]!
-    expect(url).toBe('https://otlp.kubb.dev/v1/traces')
-    expect(init?.method).toBe('POST')
-    expect(init?.headers).toMatchObject({ 'Kubb-Telemetry-Source': 'kubb-cli' })
-    const body = JSON.parse(init?.body as string)
-    expect(body).toHaveProperty('resourceSpans')
-    const span = body.resourceSpans[0].scopeSpans[0].spans[0]
-    expect(span.name).toBe('generate')
-    expect(span.status.code).toBe(1)
+    expect(spawn).toHaveBeenCalledWith(process.execPath, ['-e', SENDER_SCRIPT], expect.objectContaining({ detached: true }))
+    expect(JSON.parse(child.stdin.end.mock.calls[0]![0])).toHaveProperty('resourceSpans')
+    expect(child.unref).toHaveBeenCalledOnce()
   })
 
-  it('resolves without throwing when fetch rejects', async () => {
+  it('resolves without throwing when the process cannot start', async () => {
     vi.stubEnv('DO_NOT_TRACK', '')
     vi.stubEnv('KUBB_DISABLE_TELEMETRY', '')
-    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network error'))
+    vi.mocked(spawn).mockImplementation(() => {
+      throw new Error('spawn EAGAIN')
+    })
 
     await expect(sendTelemetry(payload({ duration: 500, filesCreated: 0, status: 'failed' }))).resolves.toBeUndefined()
+  })
+})
+
+describe('SENDER_SCRIPT', () => {
+  it('posts the stdin body to the OTLP endpoint and swallows a network error', async () => {
+    const stdin = Object.assign(new EventEmitter(), { setEncoding: () => stdin })
+    const fetch = vi.fn().mockRejectedValue(new Error('Network error'))
+
+    runInNewContext(SENDER_SCRIPT, { process: { stdin }, fetch, AbortSignal })
+    stdin.emit('data', '{"resourceSpans":')
+    stdin.emit('data', '[]}')
+    stdin.emit('end')
+
+    expect(fetch).toHaveBeenCalledWith(
+      'https://otlp.kubb.dev/v1/traces',
+      expect.objectContaining({ method: 'POST', body: '{"resourceSpans":[]}', headers: expect.objectContaining({ 'Kubb-Telemetry-Source': 'kubb-cli' }) }),
+    )
   })
 })
