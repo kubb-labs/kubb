@@ -29,6 +29,6 @@ export default defineConfig([
     format: 'esm',
     ...shared,
     outputOptions: {},
-    dts: { emitDtsOnly: true, tsconfig: '../../tsconfig.dts.json' },
+    dts: { dtsOnly: true, tsconfig: '../../tsconfig.dts.json' },
   },
 ])
