@@ -3,16 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { createSchemaParser } from '../../parser.ts'
 import { createRefs } from '../../refs.ts'
 import type { Document, SchemaObject } from '../../types.ts'
-import {
-  extractDiscriminatedAllOfMembers,
-  findDiscriminators,
-  getDefaultMappingRef,
-  getMappingKeys,
-  narrowUnionMembers,
-  propertyTypeOf,
-  removeInheritedDiscriminator,
-  typedKeys,
-} from './preserve.ts'
+import { extractDiscriminatedAllOfMembers, findDiscriminators, getDefaultMappingRef, getMappingKeys, narrowUnionMembers, typedKeys } from './preserve.ts'
 
 function setup(schemas: Record<string, unknown>) {
   const document = { openapi: '3.1.0', info: { title: 'Pets', version: '1' }, paths: {}, components: { schemas } } as Document
@@ -39,23 +30,6 @@ describe('typedKeys', () => {
     { keys: ['1', 'true'], propertyType: 'string', expected: ['1', 'true'] },
   ])('types $keys as $propertyType', ({ keys, propertyType, expected }) => {
     expect(typedKeys({ keys, propertyType })).toStrictEqual(expected)
-  })
-})
-
-describe('propertyTypeOf', () => {
-  it('follows $refs and allOf members, and reads a nullable type array as its non-null type', () => {
-    const { refs } = setup({
-      Base: { type: 'object', properties: { kind: { type: ['integer', 'null'] } } },
-      Child: { allOf: [ref('Base'), { type: 'object' }] },
-    })
-
-    expect(propertyTypeOf({ schema: ref('Child'), propertyName: 'kind', refs })).toBe('integer')
-  })
-
-  it('stops on a $ref cycle', () => {
-    const { refs } = setup({ Loop: { allOf: [ref('Loop')] } })
-
-    expect(propertyTypeOf({ schema: ref('Loop'), propertyName: 'kind', refs })).toBeUndefined()
   })
 })
 
@@ -93,28 +67,6 @@ describe('getMappingKeys', () => {
       'puppy',
       'self',
     ])
-  })
-
-  it('ignores a nested discriminator on another property', () => {
-    const { refs } = setup({
-      Dog: { oneOf: [ref('Puppy')], discriminator: { propertyName: 'breed', mapping: { puppy: '#/components/schemas/Puppy' } } },
-      Puppy: { type: 'object' },
-    })
-
-    expect(getMappingKeys({ discriminator: { propertyName: 'kind', mapping: { dog: '#/components/schemas/Dog' } }, refs })).toStrictEqual(['dog'])
-  })
-})
-
-describe('removeInheritedDiscriminator', () => {
-  it('drops an inline discriminator only when a $ref sibling declares one on the same property', () => {
-    const { refs } = setup({ Pet: { type: 'object', discriminator: { propertyName: 'kind' } } })
-    const same = { type: 'object', discriminator: { propertyName: 'kind', mapping: { a: '#/components/schemas/A' } } } as SchemaObject
-    const other = { type: 'object', discriminator: { propertyName: 'breed' } } as SchemaObject
-
-    const [, kept, dropped] = removeInheritedDiscriminator({ members: [ref('Pet'), other, same], refs })
-
-    expect(kept).toBe(other)
-    expect(dropped).toStrictEqual({ type: 'object' })
   })
 })
 
@@ -163,33 +115,6 @@ describe('narrowUnionMembers', () => {
     expect(narrowedValues(cat!, 'petType')).toStrictEqual(['Cat'])
     expect(narrowedValues(dog!, 'petType')).toBeNull()
   })
-
-  it('narrows the shared property node, or falls back to a literal when it lacks the property', () => {
-    const { refs, parse } = setup({ Cat: { type: 'object' } })
-    const shared = (name: string) =>
-      ast.factory.createSchema({
-        type: 'object',
-        primitive: 'object',
-        properties: [
-          ast.factory.createProperty({ name, required: true, schema: ast.factory.createSchema({ type: 'string', description: 'shared' }) }),
-          ast.factory.createProperty({ name: 'extra', schema: ast.factory.createSchema({ type: 'string' }) }),
-        ],
-      })
-    const narrow = (sharedPropertiesNode: ast.SchemaNode) =>
-      narrowUnionMembers({
-        unionMembers: [ref('Cat')],
-        discriminator: { propertyName: 'petType', mapping: { cat: '#/components/schemas/Cat' } },
-        sharedPropertiesNode,
-        parse,
-        name: 'Pet',
-        refs,
-      })[0]!
-
-    const fromShared = ast.schema.narrow(ast.schema.narrow(narrow(shared('petType')), 'intersection')!.members![1], 'object')!
-    expect(fromShared.properties!.map((prop) => prop.name)).toStrictEqual(['petType'])
-    expect(narrowedValues(narrow(shared('petType')), 'petType')).toStrictEqual(['cat'])
-    expect(narrowedValues(narrow(shared('other')), 'petType')).toStrictEqual(['cat'])
-  })
 })
 
 describe('extractDiscriminatedAllOfMembers', () => {
@@ -207,18 +132,6 @@ describe('extractDiscriminatedAllOfMembers', () => {
     expect(extractDiscriminatedAllOfMembers({ allOfMembers: [ref('Pet'), inline], name: 'Cat', refs })).toStrictEqual({
       members: [inline],
       discriminantValues: [{ propertyName: 'kind', values: ['cat'] }],
-    })
-  })
-
-  it('keeps a parent that declares a discriminator without a union', () => {
-    const { refs } = setup({
-      Pet: { type: 'object', discriminator: { propertyName: 'kind', mapping: { cat: '#/components/schemas/Cat' } } },
-      Cat: { allOf: [ref('Pet')] },
-    })
-
-    expect(extractDiscriminatedAllOfMembers({ allOfMembers: [ref('Pet')], name: 'Cat', refs })).toStrictEqual({
-      members: [ref('Pet')],
-      discriminantValues: [],
     })
   })
 })

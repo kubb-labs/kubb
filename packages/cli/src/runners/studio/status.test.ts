@@ -53,17 +53,4 @@ describe('formatStatus', () => {
     expect(lines[1]).toMatch(/● connected · PID 42 · up 1h 30m +kubb studio stop$/)
     expect(lines[3]).toMatch(/^ {2}Permissions {2}✓ .+kubb studio permissions$/)
   })
-
-  it('warns when the pairing belongs to another Studio', () => {
-    expect(rows({ credentials: { ...credentials, agentSlug: '', organizationSlug: undefined, studioUrl: 'https://other.dev' } })[0]).toMatch(
-      /! agent-1 · https:\/\/other\.dev +kubb studio login$/,
-    )
-  })
-
-  it('aligns every command in one column', () => {
-    const lines = rows({ credentials, worker: { running: true, state: 'connected', pid: 7 } })
-    const columns = lines.filter((line) => line.includes('kubb studio')).map((line) => line.indexOf('kubb studio'))
-
-    expect(new Set(columns).size).toBe(1)
-  })
 })

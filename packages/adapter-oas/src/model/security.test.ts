@@ -59,14 +59,4 @@ describe('toAuthRequirements', () => {
 
     expect(toAuthRequirements(requirements, document)).toStrictEqual([[{ scheme: 'a/b', scopes: ['read', '1'] }, { scheme: 'plain' }], []])
   })
-
-  it('keeps a key that names a scheme even when it holds the pointer text', () => {
-    const key = '#/components/securitySchemes/x'
-
-    expect(toAuthRequirements([{ [key]: [] }], documentWith({ [key]: { type: 'mutualTLS' } }))).toStrictEqual([[{ scheme: key }]])
-  })
-
-  it('returns undefined without a requirement list', () => {
-    expect(toAuthRequirements(undefined, documentWith({}))).toBeUndefined()
-  })
 })

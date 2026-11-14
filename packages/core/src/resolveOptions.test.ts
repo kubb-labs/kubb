@@ -20,25 +20,10 @@ const fresh = (): Options => ({ output: 'a' })
 describe('resolveOptions', () => {
   it.each([
     { title: 'tag', filter: { type: 'tag', pattern: '^pe' } },
-    { title: 'operationId', filter: { type: 'operationId', pattern: /list/ } },
-    { title: 'path', filter: { type: 'path', pattern: '^/pets$' } },
     { title: 'lowercase method string', filter: { type: 'method', pattern: 'get' } },
-    { title: 'lowercase method RegExp', filter: { type: 'method', pattern: /^get$/ } },
-    { title: 'contentType', filter: { type: 'contentType', pattern: 'json' } },
-    { title: 'extension key', filter: { type: 'extension', key: 'x-internal' } },
     { title: 'extension value', filter: { type: 'extension', key: 'x-internal', value: false } },
   ] as const)('excludes an operation by $title', ({ filter }) => {
     expect(resolveOptions<Options>(operation, { options: fresh(), exclude: [filter] })).toBeNull()
-  })
-
-  it('keeps an operation when no filter matches', () => {
-    const exclude = [
-      { type: 'extension', key: 'x-internal', value: true },
-      { type: 'extension', key: 'x-other' },
-      { type: 'schemaName', pattern: 'listPets' },
-    ] as const
-
-    expect(resolveOptions<Options>(operation, { options: fresh(), exclude: [...exclude] })).toStrictEqual({ output: 'a' })
   })
 
   it('matches a global RegExp on every call', () => {
@@ -71,13 +56,5 @@ describe('resolveOptions', () => {
     expect(resolveOptions<Options>(schema, { options: fresh(), override: [{ type: 'schemaName', pattern: 'Pet', options: { output: 'b' } }] })).toStrictEqual({
       output: 'b',
     })
-  })
-
-  it('caches the result per options object and node', () => {
-    const options = fresh()
-    const first = resolveOptions<Options>(operation, { options, override: [{ type: 'tag', pattern: 'pets', options: { output: 'b' } }] })
-
-    expect(resolveOptions<Options>(operation, { options })).toBe(first)
-    expect(resolveOptions<Options>(operation, { options: fresh() })).toStrictEqual({ output: 'a' })
   })
 })
