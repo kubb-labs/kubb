@@ -408,7 +408,7 @@ importers:
         specifier: workspace:^
         version: link:../core
       '@kubb/kit':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../kit
       '@kubb/mcp':
         specifier: workspace:*
@@ -423,7 +423,7 @@ importers:
         specifier: workspace:*
         version: link:../plugin-barrel
       '@kubb/renderer-jsx':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../renderer-jsx
       '@kubb/studio':
         specifier: workspace:*
