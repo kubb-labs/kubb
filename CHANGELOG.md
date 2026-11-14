@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.20.1 — Nov 14, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- - `kubb studio` keeps the agent key in the system keychain: macOS Keychain, Windows Credential Manager, or Secret Service on Linux.
+  - Without a keychain, such as in CI or a container, the key stays next to the token as before.
+  - A key stored by an earlier release moves to the keychain on the next token refresh. ([#4624](https://github.com/kubb-labs/kubb/pull/4624), [`468b070`](https://github.com/kubb-labs/kubb/commit/468b070739f9672960a5b457c003083b5bc94c78))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.20.0 — Nov 14, 2026
 
 ### @kubb/adapter-oas
