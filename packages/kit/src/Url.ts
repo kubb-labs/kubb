@@ -1,3 +1,5 @@
+import { camelCase } from '@internals/utils'
+
 /**
  * Sanitizes a parameter name so it is safe to use as a `path-to-regexp` capture name, without
  * routing through {@link camelCase} (which keeps a leading `$` since it is a valid JS identifier
@@ -21,6 +23,14 @@ function transformPathParam(raw: string): string {
       return capitalize ? word.charAt(0).toUpperCase() + word.slice(1) : word.charAt(0).toLowerCase() + word.slice(1)
     })
     .join('')
+}
+
+function uniqueParamName(base: string, used: Set<string>): string {
+  let name = base
+  for (let i = 2; used.has(name); i++) name = `${base}${i}`
+  used.add(name)
+
+  return name
 }
 
 /**
@@ -52,15 +62,27 @@ export class Url {
    * Url.toPath('/groups/{group-id}/{group.id}.json') // '/groups/:groupId/:groupId2.json'
    */
   static toPath(path: string): string {
-    const seen = new Map<string, number>()
+    const used = new Set<string>()
 
-    return path.replace(/\{([^}]+)\}/g, (_match, param: string) => {
-      const base = transformPathParam(param)
-      const count = (seen.get(base) ?? 0) + 1
-      seen.set(base, count)
+    return path.replace(/\{([^}]+)\}/g, (_match, param: string) => `:${uniqueParamName(transformPathParam(param), used)}`)
+  }
 
-      return count === 1 ? `:${base}` : `:${base}${count}`
-    })
+  /**
+   * Maps each `{placeholder}` name in a path to a unique camelCase identifier.
+   *
+   * @example
+   * Url.toParamNames('/groups/{group_id}/{group.id}') // Map { 'group_id' => 'groupId', 'group.id' => 'groupId2' }
+   */
+  static toParamNames(path: string): Map<string, string> {
+    const used = new Set<string>()
+    const names = new Map<string, string>()
+
+    for (const [, param] of path.matchAll(/\{([^}]+)\}/g)) {
+      const name = uniqueParamName(camelCase(param!) || transformPathParam(param!), used)
+      if (!names.has(param!)) names.set(param!, name)
+    }
+
+    return names
   }
 
   /**
