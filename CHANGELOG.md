@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.20.2 — Nov 14, 2026
+
+### kubb
+
+#### Bug Fixes
+
+- `kubb` now depends on `@kubb/kit` and `@kubb/renderer-jsx` with a caret range, like `@kubb/core`, so a plugin built against a newer patch or minor shares one copy with `kubb` instead of installing a second one. ([#4628](https://github.com/kubb-labs/kubb/pull/4628), [`9fb6ff4`](https://github.com/kubb-labs/kubb/commit/9fb6ff41e98ab792111eb237f21773cbc022fca1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.20.1 — Nov 14, 2026
 
 ### @kubb/cli
