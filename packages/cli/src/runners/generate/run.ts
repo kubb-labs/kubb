@@ -96,7 +96,7 @@ type GenerateCommandOptions = {
 const UPDATE_WAIT_MS = 1_000
 
 /** `promise`'s value, or `undefined` when it takes longer than `ms`. */
-async function withTimeout<T>({ promise, ms }: { promise: Promise<T>; ms: number }): Promise<T | undefined> {
+function withTimeout<T>({ promise, ms }: { promise: Promise<T>; ms: number }): Promise<T | undefined> {
   const timer = new AbortController()
   const timeout = delay(ms, undefined, { signal: timer.signal }).catch(() => undefined)
   return Promise.race([promise, timeout]).finally(() => timer.abort())
