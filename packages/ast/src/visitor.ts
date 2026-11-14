@@ -7,7 +7,7 @@ import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
 import type { ResponseNode } from './nodes/response.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { getEmbeddedJson } from './schema/index.ts'
+import { getEmbeddedJson } from './schema/embeddedJson.ts'
 
 /**
  * Traversal depth for AST visitor utilities.
