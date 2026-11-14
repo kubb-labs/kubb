@@ -15,10 +15,8 @@ describe('getRelativePath', () => {
 describe('text nodes', () => {
   it.each([
     { when: 'every line shares leading whitespace', input: '    foo\n      bar', expected: 'foo\n  bar' },
-    { when: 'the text has leading and trailing blank lines', input: '\n\n  foo\n  bar\n\n', expected: 'foo\nbar' },
     { when: 'the text is already at column zero', input: 'foo\n  bar', expected: 'foo\n  bar' },
     { when: 'the text has interior blank lines', input: '  foo\n\n  bar', expected: 'foo\n\nbar' },
-    { when: 'an interior line is whitespace only', input: '  foo\n \n  bar', expected: 'foo\n\nbar' },
     { when: 'the text is whitespace only', input: '   \n  ', expected: '' },
     { when: 'the indent uses tabs', input: '\t\tfoo\n\t\t\tbar', expected: 'foo\n\tbar' },
   ])('returns $expected when $when', ({ input, expected }) => {

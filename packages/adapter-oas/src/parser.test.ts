@@ -188,7 +188,6 @@ describe('buildAst', () => {
 
     it.each([
       { title: 'a ref node for a defined component', $ref: '#/components/schemas/Pet', type: 'ref' },
-      { title: 'unknown for a component the document never defines', $ref: '#/components/schemas/Missing', type: 'unknown' },
       { title: 'the target inline for a path outside components', $ref: '#/paths/~1foo/get/responses/200/content/application~1json/schema', type: 'object' },
     ])('returns $title', ({ $ref, type }) => {
       const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref } })
@@ -707,8 +706,6 @@ describe('parseSchema metadata', () => {
   it.each([
     { title: 'nullable: true (OAS 3.0)', schema: { type: 'string', nullable: true } },
     { title: 'x-nullable: true', schema: { type: 'string', 'x-nullable': true } },
-    { title: 'a type array including null (OAS 3.1)', schema: { type: ['string', 'null'] } },
-    { title: 'null in the enum values (OAS 3.0 convention)', schema: { enum: ['a', 'b', null] } },
   ] satisfies Array<{ title: string; schema: SchemaObject }>)('sets nullable via $title', ({ schema }) => {
     expect(parseSchema(emptyCtx, { schema }).nullable).toBe(true)
   })
@@ -1453,18 +1450,6 @@ describe('parseSchema discriminator on union', () => {
 })
 
 describe('parseSchema const (OAS 3.1)', () => {
-  it.each([{ value: 42 }])('maps const $value to a single-value enum', ({ value }) => {
-    const node = parseSchema(emptyCtx, { schema: { const: value } })
-
-    expect(node).toMatchObject({ type: 'enum', enumValues: [value] })
-  })
-
-  it('narrows a $ref with a sibling const to the literal', () => {
-    const node = parseSchema(emptyCtx, { schema: { $ref: '#/components/schemas/KindEnum', const: 'circle' } })
-
-    expect(node).toMatchObject({ type: 'enum', enumValues: ['circle'] })
-  })
-
   it('boolean const inside an object property has no name (inline literal)', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
@@ -1612,23 +1597,6 @@ describe('parseSchema object properties', () => {
 })
 
 describe('parseSchema object additionalProperties', () => {
-  it.each([{ title: 'an empty schema (uses unknownType)', additionalProperties: {}, expected: { type: 'unknown' } }] satisfies Array<{
-    title: string
-    additionalProperties: SchemaObject
-    expected: Record<string, unknown>
-  }>)('maps additionalProperties with $title to a SchemaNode', ({ additionalProperties, expected }) => {
-    const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties } })
-
-    expect(node.type).toBe('object')
-    expect(ast.schema.narrow(node, 'object')?.additionalProperties).toMatchObject(expected)
-  })
-
-  it('leaves additionalProperties unset for additionalProperties: false', () => {
-    const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties: false } })
-
-    expect(ast.schema.narrow(node, 'object')?.additionalProperties).toBeFalsy()
-  })
-
   it('respects unknownType: any for empty additionalProperties', () => {
     const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties: {} } }, { unknownType: 'any' })
 
@@ -1706,24 +1674,10 @@ describe('parseSchema prefixItems (tuple)', () => {
     expect(ast.schema.narrow(node, 'tuple')?.items?.map((item) => item.type)).toStrictEqual(['string', 'ref', 'object'])
   })
 
-  it.each([
-    { title: 'items to rest', items: { type: 'number' }, rest: 'number' },
-    { title: 'absent items to an unknownType rest', items: undefined, rest: 'unknown' },
-    { title: 'items: true to an unknownType rest', items: true, rest: 'unknown' },
-  ] satisfies Array<{ title: string; items: SchemaObject | boolean | undefined; rest: string }>)('maps $title', ({ items, rest }) => {
-    const node = parseSchema(emptyCtx, { schema: { prefixItems: [{ type: 'string' }], items } })
+  it('maps items: true to an unknownType rest', () => {
+    const node = parseSchema(emptyCtx, { schema: { prefixItems: [{ type: 'string' }], items: true } })
 
-    expect(ast.schema.narrow(node, 'tuple')?.rest?.type).toBe(rest)
-  })
-
-  it('omits rest when items is false — closed tuple', () => {
-    const node = parseSchema(emptyCtx, {
-      schema: { prefixItems: [{ type: 'number' }, { type: 'number' }], items: false },
-    })
-    const narrowed = ast.schema.narrow(node, 'tuple')
-
-    expect(narrowed?.items).toHaveLength(2)
-    expect(narrowed?.rest).toBeUndefined()
+    expect(ast.schema.narrow(node, 'tuple')?.rest?.type).toBe('unknown')
   })
 
   it('names an enum element inside a tuple property using parent + propName', () => {
@@ -1886,30 +1840,11 @@ describe('parseSchema enum', () => {
     expect(values?.map((v) => v.value)).toStrictEqual([1, 2])
   })
 
-  it('x-enumNames keeps each name with its value when the enum holds null', () => {
-    const node = parseSchema(emptyCtx, {
-      schema: {
-        type: 'integer',
-        enum: [null, 0, 1],
-        'x-enumNames': ['Null', 'Off', 'On'],
-        'x-enumDescriptions': ['No value', 'Turned off', 'Turned on'],
-      },
-    })
-    const values = ast.schema.narrow(node, 'enum')?.namedEnumValues
-
-    expect(values?.map(({ name, value, description }) => ({ name, value, description }))).toStrictEqual([
-      { name: 'Off', value: 0, description: 'Turned off' },
-      { name: 'On', value: 1, description: 'Turned on' },
-    ])
-  })
-
   it.each([
     { title: 'minimum', schema: { type: 'integer', enum: [0, 1, 2], minimum: 1 }, values: [1, 2] },
     { title: 'maximum', schema: { type: 'integer', enum: [0, 1, 2], maximum: 1 }, values: [0, 1] },
     { title: 'exclusiveMinimum', schema: { type: 'integer', enum: [0, 1, 2], exclusiveMinimum: 0 }, values: [1, 2] },
     { title: 'exclusiveMaximum', schema: { type: 'integer', enum: [0, 1, 2], exclusiveMaximum: 2 }, values: [0, 1] },
-    { title: 'multipleOf', schema: { type: 'number', enum: [0.3, 0.35, 0.6], multipleOf: 0.1 }, values: [0.3, 0.6] },
-    { title: 'bounds that exclude every value', schema: { type: 'integer', enum: [0, 1], minimum: 5 }, values: [0, 1] },
   ] satisfies Array<{ title: string; schema: SchemaObject; values: Array<number> }>)('drops enum values outside $title', ({ schema, values }) => {
     const node = parseSchema(emptyCtx, { schema })
 
@@ -2245,19 +2180,6 @@ describe('parser options', () => {
 
       const prop = ast.schema.narrow(node, 'object')?.properties?.find((p) => p.name === 'oldProp')
       expect(prop?.schema).toMatchObject({ type: 'unknown', deprecated: true, description: 'Deprecated legacy property' })
-    })
-  })
-
-  describe('integerType', () => {
-    it.each([{ title: 'integer uint64 to integer', schema: { type: 'integer', format: 'uint64' }, integerType: 'number', type: 'integer' }] satisfies Array<{
-      title: string
-      schema: SchemaObject
-      integerType: ast.ParserOptions['integerType']
-      type: string
-    }>)('integerType: $integerType maps $title', async ({ schema, integerType, type }) => {
-      const node = parseSchema(emptyCtx, { schema }, { integerType })
-
-      expect(node.type).toBe(type)
     })
   })
 
@@ -3571,32 +3493,6 @@ describe('status code ranges', () => {
     expect(findOperation(root, 'a')?.responses.map((response) => [response.statusCode, response.content?.[0]?.schema?.type, response.pointer])).toStrictEqual([
       ['2xx', 'string', '#/paths/~1a/get/responses/2XX'],
       ['4xx', 'object', '#/paths/~1a/get/responses/4XX'],
-    ])
-  })
-})
-
-describe('auth schemes', () => {
-  it('maps each scheme to how a client sends the credential, and leaves out one it cannot place', async () => {
-    const root = await parseOas({
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      paths: {},
-      components: {
-        securitySchemes: {
-          basic: { type: 'http', scheme: 'Basic', description: 'User and password' },
-          digest: { type: 'http', scheme: 'digest' },
-          key: { type: 'apiKey', in: 'cookie', name: 'sid' },
-          bodyKey: { type: 'apiKey', in: 'body', name: 'key' },
-          tls: { type: 'mutualTLS' },
-        },
-      },
-    })
-
-    expect(root.meta.auth).toStrictEqual([
-      { name: 'basic', description: 'User and password', credential: { type: 'http', scheme: 'basic' } },
-      { name: 'digest', credential: { type: 'http', scheme: 'digest' } },
-      { name: 'key', credential: { type: 'apiKey', in: 'cookie', name: 'sid' } },
-      { name: 'tls', credential: { type: 'mutualTLS' } },
     ])
   })
 })

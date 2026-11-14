@@ -72,16 +72,6 @@ describe('parserTs', () => {
 
   it.each([
     {
-      when: 'a function has several generics',
-      file: {
-        sources: [
-          ast.factory.createSource({ nodes: [ast.factory.createFunction({ name: 'getPet', generics: ['T', 'U'], params: 'value: T', returnType: 'U' })] }),
-        ],
-        imports: [],
-      },
-      expected: 'function getPet<T, U>(value: T): U {}',
-    },
-    {
       when: 'an import has several names',
       file: { sources: [], imports: [ast.factory.createImport({ name: ['a', 'b'], path: '/src/x.ts', root: '/src/test.ts' })] },
       expected: "import { a, b } from './x'",

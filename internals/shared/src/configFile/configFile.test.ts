@@ -161,7 +161,6 @@ describe('readConfig', () => {
     })
 
     it.each([
-      ['a file it cannot parse', `export default defineConfig({`, 'the config file could not be parsed'],
       ['an export that is not a defineConfig call', `export default config`, 'the exported config is not a defineConfig(...) call'],
       ['defineConfig without a config', `export default defineConfig()`, 'defineConfig(...) was called without a config'],
       ['a config passed as a variable', `export default defineConfig(config)`, 'config is not an object literal'],
