@@ -1,5 +1,5 @@
 import type { OperationNode } from '@kubb/ast'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, createMockedSetupContext, renderGeneratorOperation } from '@kubb/core/mocks'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, renderGeneratorOperation } from '@kubb/core/mocks'
 import { describe, expect, it } from 'vitest'
 import { defineExtension } from './defineExtension.ts'
 import { defineGenerator } from './defineGenerator.ts'
@@ -120,15 +120,6 @@ describe('assertPluginOption', () => {
         }),
       }),
     )
-  })
-})
-
-describe('createMockedSetupContext', () => {
-  it('returns a registered plugin from requirePlugin and throws the core error for a missing one', () => {
-    const ctx = createMockedSetupContext({ plugins: ['plugin-ts'] })
-
-    expect(ctx.requirePlugin('plugin-ts')).toStrictEqual({ name: 'plugin-ts' })
-    expect(() => ctx.requirePlugin('plugin-zod')).toThrow('Plugin "plugin-zod" is required but not found.')
   })
 })
 

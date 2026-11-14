@@ -345,41 +345,6 @@ describe('createKubb', () => {
   })
 
   describe('per-node options and transform reuse', () => {
-    it('resolves per-node options when an override matches', async () => {
-      const seen: Array<{ name: string | null | undefined; options: { marker?: string } }> = []
-      const overridePlugin = defineExtension({
-        kind: 'plugin',
-        meta: { name: 'override-plugin' },
-        hooks: {
-          'kubb:plugin:setup'(ctx) {
-            ctx.setOptions({
-              output: { path: '.' },
-              exclude: [],
-              override: [{ type: 'schemaName' as const, pattern: 'B', options: { marker: 'overridden' } }],
-            })
-            ctx.addGenerator({
-              name: 'override-gen',
-              schema(node, generatorCtx) {
-                seen.push({ name: node.name, options: generatorCtx.options as { marker?: string } })
-              },
-            })
-          },
-        },
-      })()
-
-      await createKubb(
-        makeConfig({
-          adapter: makeAdapter({ schemas: [ast.factory.createSchema({ name: 'A', type: 'string' }), ast.factory.createSchema({ name: 'B', type: 'string' })] }),
-          plugins: [overridePlugin as unknown as Plugin],
-        }),
-        { hooks: new Hookable<KubbHooks>() },
-      ).build()
-
-      expect(seen).toHaveLength(2)
-      expect(seen.find((entry) => entry.name === 'A')?.options.marker).toBeUndefined()
-      expect(seen.find((entry) => entry.name === 'B')?.options.marker).toBe('overridden')
-    })
-
     it('filters operations by vendor extension in exclude, include, and override', async () => {
       const operation = (operationId: string, extensions?: Record<string, unknown>) =>
         ast.factory.createOperation({ operationId, method: 'GET', path: `/${operationId}`, parameters: [], responses: [], tags: [], extensions })

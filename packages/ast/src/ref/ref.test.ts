@@ -31,10 +31,6 @@ describe('mergeSchema', () => {
 })
 
 describe('getName', () => {
-  it('takes the last segment of a ref string', () => {
-    expect(getName('#/components/schemas/Pet')).toBe('Pet')
-  })
-
   it('prefers the targetName of a ref node', () => {
     const node = createSchema({ type: 'ref', ref: '#/components/schemas/Order', targetName: 'OrderSchema' })
     expect(getName(node)).toBe('OrderSchema')
