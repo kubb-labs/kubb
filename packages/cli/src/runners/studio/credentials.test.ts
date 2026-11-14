@@ -2,7 +2,12 @@ import { mkdir, mkdtemp, readFile, rm, stat, utimes, writeFile } from 'node:fs/p
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-const keychain = vi.hoisted(() => ({ items: new Map<string, string>(), available: true, pending: undefined as Promise<string | null> | undefined }))
+const keychain = vi.hoisted(() => ({
+  items: new Map<string, string>(),
+  available: true,
+  pending: undefined as Promise<string | null> | undefined,
+  pendingSet: undefined as Promise<void> | undefined,
+}))
 
 vi.mock('@napi-rs/keyring', () => ({
   AsyncEntry: class {
@@ -12,6 +17,7 @@ vi.mock('@napi-rs/keyring', () => ({
     ) {}
     async setPassword(password: string) {
       if (!keychain.available) throw new Error("Couldn't access platform storage: AccessDenied")
+      await keychain.pendingSet
       keychain.items.set(this.account, password)
     }
     async getPassword() {
@@ -34,6 +40,7 @@ beforeEach(async () => {
   keychain.items.clear()
   keychain.available = true
   keychain.pending = undefined
+  keychain.pendingSet = undefined
   vi.stubEnv('KUBB_HOME', home)
 })
 
@@ -119,6 +126,23 @@ describe('updateCredentials', () => {
     await expect(paused).rejects.toThrow(/took over/)
     await expect(readCredentials()).resolves.toMatchObject({ token: 'token' })
     await expect(readFile(path.join(lock, 'owner'), 'utf8')).resolves.toBe('other-process')
+  })
+
+  it('drops its file write when the lock is taken over while the keychain saves the key', async () => {
+    await writeCredentials(stored)
+    let saved = () => {}
+    keychain.pendingSet = new Promise<void>((resolve) => (saved = resolve))
+    const lock = path.join(getProjectKubbHome(), 'credentials.lock')
+
+    const paused = updateCredentials((current) => current && { ...current, token: 'stale', privateKey: 'pem' })
+    await vi.waitFor(async () => expect(await readFile(path.join(lock, 'owner'), 'utf8')).toBeTruthy())
+    await rm(lock, { recursive: true })
+    await mkdir(lock)
+    await writeFile(path.join(lock, 'owner'), 'other-process')
+
+    saved()
+    await expect(paused).rejects.toThrow(/took over/)
+    await expect(readCredentials()).resolves.toMatchObject({ token: 'token' })
   })
 
   it('keeps its lock fresh while a slow keychain call holds it past the stale age', async () => {

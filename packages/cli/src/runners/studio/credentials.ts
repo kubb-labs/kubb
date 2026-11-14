@@ -96,17 +96,26 @@ export async function readCredentials(): Promise<Credentials | null> {
  * Writes the credential into the project folder, which only its owner can open. The agent key goes
  * to the system keychain instead when one accepts it, so a copy of the folder does not carry it.
  */
-export async function writeCredentials({ privateKey, ...credentials }: Credentials): Promise<void> {
-  const inKeychain =
-    privateKey !== undefined &&
-    (await keychainEntry()
-      .then(async (entry) => {
-        await entry?.setPassword(privateKey)
-        return entry !== null
-      })
-      .catch(() => false))
+export async function writeCredentials(credentials: Credentials): Promise<void> {
+  await writeCredentialFile(credentials, await storeKey(credentials.privateKey))
+}
 
-  await projectStorage().setItem(CREDENTIALS_FILENAME, inKeychain ? credentials : { ...credentials, privateKey })
+/**
+ * Saves the agent key in the keychain. Resolves `false` when there is no key or no keychain takes it,
+ * so the key has to go into the credential file.
+ */
+function storeKey(privateKey: string | undefined): Promise<boolean> {
+  if (privateKey === undefined) return Promise.resolve(false)
+  return keychainEntry()
+    .then(async (entry) => {
+      await entry?.setPassword(privateKey)
+      return entry !== null
+    })
+    .catch(() => false)
+}
+
+function writeCredentialFile({ privateKey, ...credentials }: Credentials, inKeychain: boolean): Promise<void> {
+  return projectStorage().setItem(CREDENTIALS_FILENAME, inKeychain ? credentials : { ...credentials, privateKey })
 }
 
 /**
@@ -165,7 +174,10 @@ export function updateCredentials<T extends Credentials | null | undefined>(upda
     const next = update(await readCredentials())
     if (next) {
       await assertOwner()
-      await writeCredentials(next)
+      const inKeychain = await storeKey(next.privateKey)
+      // The keychain can keep this process waiting on a prompt, so ownership is checked again right before the file write.
+      await assertOwner()
+      await writeCredentialFile(next, inKeychain)
     }
     return next
   })
