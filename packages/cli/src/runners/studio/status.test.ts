@@ -37,7 +37,7 @@ describe('formatStatus', () => {
 
     expect(lines[0]).toMatch(/^ {2}Pairing {6}✖ not paired +kubb studio login$/)
     expect(lines[1]).toMatch(/○ stopped +kubb studio start$/)
-    expect(lines[2]).toBe('  Project      petstore · ~/code/petstore')
+    expect(lines[2]).toBe(`  Project      petstore · ${path.join('~', 'code', 'petstore')}`)
     expect(lines[3]).toMatch(/not chosen yet +kubb studio connect$/)
     expect(lines.at(-1)).toBe('  Logs         /var/log/kubb.log')
   })
