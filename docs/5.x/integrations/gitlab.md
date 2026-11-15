@@ -22,27 +22,27 @@ snapshot:
   image: node:22
   script:
     - npm ci
-    - '[ -z "$KUBB_TOKEN" ] || npx kubb studio snapshot'
+    - npx kubb studio snapshot
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $KUBB_TOKEN
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $KUBB_TOKEN
 ```
 
-The `rules` run the job on merge requests and on the default branch, so a merge request has a target branch snapshot to compare with. A pipeline without the key, such as one for an unprotected branch, skips the snapshot.
+The `rules` run the job on merge requests and on the default branch, so a merge request has a target branch snapshot to compare with. Both rules also need `KUBB_TOKEN`, so a pipeline without the key, such as one for an unprotected branch or a fork, skips the job before `npm ci` runs.
 
 To post the result as a merge request note, save the `--json` output and run the script below. It updates one note per merge request and needs only Node:
 
 ```yaml [.gitlab-ci.yml]
   script:
     - npm ci
-    - '[ -z "$KUBB_TOKEN" ] || npx kubb studio snapshot --json > snapshot.json'
-    - '[ -z "$CI_MERGE_REQUEST_IID" ] || [ ! -f snapshot.json ] || [ -z "$GITLAB_API_TOKEN" ] || node scripts/kubb-note.mjs'
+    - npx kubb studio snapshot --json > snapshot.json
+    - '[ -z "$CI_MERGE_REQUEST_IID" ] || [ -z "$GITLAB_API_TOKEN" ] || node scripts/kubb-note.mjs'
 ```
 
 > [!IMPORTANT]
 > Writing a note needs a project access token with the `api` scope, stored as `GITLAB_API_TOKEN`. `CI_JOB_TOKEN` does not carry that scope.
 >
-> Masking only hides the value in job logs: any code the job runs can read it, including install scripts that `npm ci` runs. Mark `GITLAB_API_TOKEN` as **Protected** too, like `KUBB_TOKEN` ([merge request pipelines have extra conditions](https://docs.gitlab.com/ci/pipelines/merge_request_pipelines/)). The script lines above skip the snapshot and the note when a token is missing. Give the token the lowest role that can comment on merge requests, such as Reporter, and an expiry date.
+> Masking only hides the value in job logs: any code the job runs can read it, including install scripts that `npm ci` runs. Mark `GITLAB_API_TOKEN` as **Protected** too, like `KUBB_TOKEN` ([merge request pipelines have extra conditions](https://docs.gitlab.com/ci/pipelines/merge_request_pipelines/)). The `rules` skip the job without `KUBB_TOKEN`, and the last script line skips the note without `GITLAB_API_TOKEN`. Give the token the lowest role that can comment on merge requests, such as Reporter, and an expiry date.
 
 ::code-collapse{name="scripts/kubb-note.mjs"}
 
