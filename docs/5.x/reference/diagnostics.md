@@ -1,8 +1,7 @@
 ---
 layout: doc
 title: Diagnostics
-description: Reference for Kubb's diagnostic codes, the stable codes Kubb prints
-  when a build fails, with causes and fixes.
+description: Reference for every Kubb diagnostic code, with its severity, cause, and fix, plus the terminal, agent, and JSON formats Kubb reports them in.
 outline:
   - 2
   - 3
@@ -14,8 +13,9 @@ navigation:
 
 # Diagnostics
 
-When a build fails, Kubb prints a diagnostic with a stable code, the message, the location in your
-document, and a suggested fix. In a terminal, the code sits on the right with a link to its entry below. A problem that a plugin reports is listed under that plugin's name:
+Kubb reports each problem as a diagnostic: a stable code, a message, the location in your spec, and a fix. Each code links to its entry on this page.
+
+::code-group
 
 ```text [Terminal]
   ✖ Could not find a definition for #/components/schemas/Owner.     KUBB_REF_NOT_FOUND
@@ -24,279 +24,317 @@ document, and a suggested fix. In a terminal, the code sits on the right with a 
     ↳ Learn more  kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found
 ```
 
-When an AI coding agent, CI, or a pipe reads the output, Kubb prints plain labeled rows instead. The rows include the cause and the fix, so the output alone explains the problem. A problem from a plugin carries the plugin name in brackets after the code. A crash adds `caused by:` and the first `stack:` frames. The run summary follows, and the exit code is 1:
-
 ```text [Agent]
 error KUBB_REF_NOT_FOUND: Could not find a definition for #/components/schemas/Owner.
   at: petStore.yaml:336:17 (#/components/schemas/Owner)
   why: A `$ref` could not be resolved in the source document.
   fix: Add the schema under `components.schemas`, or fix the `$ref`. Run `kubb validate` to check the spec.
   docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found
-warning KUBB_INVALID_SPEC: Missing $ref pointer "#/components/schemas/Owner". Token "Owner" does not exist.
-  why: The document does not pass OpenAPI schema validation. Kubb still generates from it, but the output can be incomplete or wrong.
-  fix: Fix the spec, or run `kubb validate` to list every error. Set `validate: false` on the adapter to skip this check.
-  docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-invalid-spec
 ✗ Generation failed  202ms
 
   28 files generated
   Plugins  3 passed
-  Issues   1 error · 1 warning
+  Issues   1 error
   Target   ./src/gen
 ```
 
+::
+
+An interactive terminal gets the first format. An AI agent, CI, or a pipe gets plain labeled rows that explain the problem on their own, with the reporting plugin in brackets after the code.
+
+| Severity | Effect |
+| --- | --- |
+| Error | Fails the run. `kubb generate` exits with code 1. |
+| Warning | Reported. The run continues. |
+| Info | Advisory. Never fails the run. |
+
+## Crashes {#crashes}
+
+`KUBB_ADAPTER_FAILED`, `KUBB_PARSER_FAILED`, `KUBB_PLUGIN_FAILED`, `KUBB_INTERNAL_ERROR`, and `KUBB_UNKNOWN` mark a crash. The agent format then adds the first `stack:` frames, the terminal shows the stack with `--verbose`, and `--reporter json` adds `stack`. When the extension sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its tracker as a `report:` link: report the crash there with the stack and a spec fragment that reproduces it.
+
 ## Codes
 
-Find the code printed by Kubb below. Each entry explains the cause and the fix.
+| Code | Severity | Cause |
+| --- | --- | --- |
+| [`KUBB_ADAPTER_FAILED`](#kubb-adapter-failed) | Error | The adapter crashed while parsing |
+| [`KUBB_ADAPTER_REQUIRED`](#kubb-adapter-required) | Error | A plugin needs the OpenAPI adapter |
+| [`KUBB_BARREL_DUPLICATE_EXPORT`](#kubb-barrel-duplicate-export) | Error | Two files in one barrel export the same name |
+| [`KUBB_CLEAN_ROOT`](#kubb-clean-root) | Error | `output.clean` would wipe the project root |
+| [`KUBB_FORMAT_FAILED`](#kubb-format-failed) | Error | The formatter failed |
+| [`KUBB_GIT_INPUT_FAILED`](#kubb-git-input-failed) | Error | A git `input` is malformed or cannot be fetched |
+| [`KUBB_INCOMPATIBLE_DEPENDENCY`](#kubb-incompatible-dependency) | Error | A dependency plugin's version is out of range |
+| [`KUBB_INCOMPATIBLE_EXTENSION`](#kubb-incompatible-extension) | Error | The running Kubb or Node.js is out of range |
+| [`KUBB_INLINE_FAILED`](#kubb-inline-failed) | Error | An inline source could not be inlined |
+| [`KUBB_INPUT_NOT_FOUND`](#kubb-input-not-found) | Error | The `input` file cannot be read |
+| [`KUBB_INPUT_REQUEST_FAILED`](#kubb-input-request-failed) | Error | A URL answered 4xx or 5xx |
+| [`KUBB_INPUT_REQUIRED`](#kubb-input-required) | Error | An adapter is set, but no `input` |
+| [`KUBB_INPUT_UNREACHABLE`](#kubb-input-unreachable) | Error | A URL never answered |
+| [`KUBB_INTERNAL_ERROR`](#kubb-internal-error) | Error | A bug in Kubb |
+| [`KUBB_INVALID_DOCUMENT`](#kubb-invalid-document) | Error | The input is not an OpenAPI or Swagger document |
+| [`KUBB_INVALID_PLUGIN_OPTIONS`](#kubb-invalid-plugin-options) | Error | Plugin options or entries that cannot work |
+| [`KUBB_INVALID_SERVER_VARIABLE`](#kubb-invalid-server-variable) | Error | A server variable is not in its `enum` |
+| [`KUBB_LEGACY_INPUT`](#kubb-legacy-input) | Error | `input` uses the v4 `{ path }` or `{ data }` wrapper |
+| [`KUBB_LINT_FAILED`](#kubb-lint-failed) | Error | The linter failed |
+| [`KUBB_MISSING_DEPENDENCY`](#kubb-missing-dependency) | Error | A required dependency plugin is missing |
+| [`KUBB_NO_CONTEXT`](#kubb-no-context) | Error | A `kubb/kit` composable ran outside setup |
+| [`KUBB_PARSER_FAILED`](#kubb-parser-failed) | Error | A parser crashed while printing |
+| [`KUBB_PATH_TRAVERSAL`](#kubb-path-traversal) | Error | A path escapes the output folder |
+| [`KUBB_PLUGIN_FAILED`](#kubb-plugin-failed) | Error | A plugin crashed or reported an error |
+| [`KUBB_PLUGIN_NOT_FOUND`](#kubb-plugin-not-found) | Error | A plugin requires one that is not in the config |
+| [`KUBB_POST_GENERATE_FAILED`](#kubb-post-generate-failed) | Error | An `output.postGenerate` command failed |
+| [`KUBB_REF_NOT_FOUND`](#kubb-ref-not-found) | Error, or warning inside `x-` | A `$ref` cannot be resolved |
+| [`KUBB_UNKNOWN`](#kubb-unknown) | Error | An error without a specific code |
+| [`KUBB_ALIAS_CYCLE`](#kubb-alias-cycle) | Warning | Schemas only `$ref` each other |
+| [`KUBB_DUPLICATE_DISCRIMINATOR`](#kubb-duplicate-discriminator) | Warning | Two union members share a discriminator value |
+| [`KUBB_INVALID_SPEC`](#kubb-invalid-spec) | Warning, error in `kubb validate` | The spec fails OpenAPI validation |
+| [`KUBB_PLUGIN_WARNING`](#kubb-plugin-warning) | Warning | A plugin called `ctx.warn` |
+| [`KUBB_UNSUPPORTED_FORMAT`](#kubb-unsupported-format) | Warning | A schema `format` has no specific type |
+| [`KUBB_DEPRECATED`](#kubb-deprecated) | Info | A schema or operation is `deprecated` |
+| [`KUBB_PERFORMANCE`](#kubb-performance) | Info | A plugin's timing record |
+| [`KUBB_PLUGIN_INFO`](#kubb-plugin-info) | Info | A plugin called `ctx.info` |
+| [`KUBB_UPDATE_AVAILABLE`](#kubb-update-available) | Info | A newer Kubb is on npm |
 
 ## Errors
 
-An error fails the run with a non-zero exit code.
-
 ### KUBB_ADAPTER_FAILED: Adapter failed {#kubb-adapter-failed}
 
-The adapter threw an unexpected error while parsing the input. Errors the adapter reports on purpose, such as `KUBB_REF_NOT_FOUND`, keep their own code.
+**Cause:** The adapter crashed while parsing the input. Errors it reports on purpose, such as `KUBB_REF_NOT_FOUND`, keep their own code.
 
-Check the input and the adapter options. If it is a bug, report it to the adapter's maintainers with the stack trace. Kubb prints the stack for this code, and `--reporter json` includes it as `stack`. When the adapter sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link.
+**Fix:** Check the input and the adapter options. Report a bug to the adapter's maintainers, as in [Crashes](#crashes).
 
 ### KUBB_ADAPTER_REQUIRED: Adapter required {#kubb-adapter-required}
 
-A plugin that only works with the OpenAPI adapter runs with a different adapter, or with none. The Kubb plugins that read adapter options raise it, and so does `@kubb/plugin-redoc`.
+**Cause:** `@kubb/plugin-redoc` runs with an adapter other than the OpenAPI adapter, or with none. `defineConfig` adds the OpenAPI adapter when `adapter` is left out, so this happens only with a custom adapter or with `createKubb` from `@kubb/core`.
 
-Set `adapter: adapterOas()` in your config. `defineConfig` supplies the OpenAPI adapter when `adapter` is omitted, so the code appears only with a custom adapter or with `createKubb` from `@kubb/core`.
+**Fix:** Set `adapter: adapterOas()` in `kubb.config.ts`.
 
 ### KUBB_BARREL_DUPLICATE_EXPORT: Duplicate barrel export {#kubb-barrel-duplicate-export}
 
-Two files in the same barrel directory export the same name. The barrel keeps the first export and drops the rest, so the generated code still parses, but the run is marked failed.
+**Cause:** Two files in one barrel folder export the same name. The barrel keeps the first and drops the rest, so the code still parses, but the run fails. A type and a value may share a name.
 
-Rename the colliding declarations, change the resolver, or separate their output directories. A type and a value may share a name.
+**Fix:** Rename one declaration, change the [resolver](/docs/5.x/reference/plugin-options#resolver), or give the plugins separate output folders.
 
 ### KUBB_CLEAN_ROOT: Clean targets the project root {#kubb-clean-root}
 
-`output.clean` removes generated code before a build. Kubb stops the build instead of wiping your project when `output.path` resolves to the project root or a parent of it, which would delete `kubb.config` and every source file.
+**Cause:** `output.clean` is on and `output.path` is the project root or a parent of it, so cleaning would delete `kubb.config` and your source files.
 
-Use a generated subdirectory such as `./src/gen`. Disable `output.clean` if it contains hand-written files. Kubb rejects cleaning the project root or a parent directory.
+**Fix:** Point `output.path` at a generated folder such as `./src/gen`, or turn off `output.clean`.
 
 ### KUBB_FORMAT_FAILED: Format failed {#kubb-format-failed}
 
-The formatter pass over the generated files failed. Formatting runs after generation. The files are written, but the run is marked failed.
+**Cause:** The [`output.format`](/docs/5.x/reference/configuration#outputformat) tool failed. The files are written, but the run fails.
 
-Check that the formatter is installed and its config is valid. Run it against the output directory to inspect the error, or change `output.format`.
-
-### KUBB_INCOMPATIBLE_DEPENDENCY: Incompatible dependency {#kubb-incompatible-dependency}
-
-A plugin's `dependencies` record sets a `version` range, and the configured plugin's `meta.version` falls outside it. Kubb skips the check when the dependency has no `meta.version`.
-
-Install a version of the dependency inside the range, or a version of the dependent plugin that supports the installed dependency.
-
-### KUBB_INCOMPATIBLE_EXTENSION: Incompatible extension {#kubb-incompatible-extension}
-
-A plugin sets `meta.compatibility.kubb` or `meta.compatibility.node` to a range the running Kubb or Node.js version does not satisfy. Kubb checks this before any plugin runs.
-
-Upgrade Kubb or Node.js to a version in the range, or install a version of the plugin that supports your current Kubb and Node.js.
+**Fix:** Check that the formatter (oxfmt, Biome, or Prettier) is installed and its config is valid. Run it on the output folder to see the error.
 
 ### KUBB_GIT_INPUT_FAILED: Git input failed {#kubb-git-input-failed}
 
-A git `input` (`git+<repo>#<ref>:<path>`) is malformed, or `git` could not fetch it: git is not installed, the repository or ref does not exist, or the credentials were refused.
+**Cause:** A [git `input`](/docs/5.x/reference/configuration#input) is malformed, or `git` could not fetch it: git is missing, the repository or ref does not exist, or the credentials were refused.
 
-Write the input as `git+<repo>#<ref>:<path>`. Run `git fetch --depth 1 <repo> <ref>` yourself to see the git error, and set up a credential helper or SSH key for a private repository.
+**Fix:** Write the input as `git+<repo>#<ref>:<path>`. Run `git fetch --depth 1 <repo> <ref>` to see the git error. For a private repository, set up a credential helper or SSH key.
+
+### KUBB_INCOMPATIBLE_DEPENDENCY: Incompatible dependency {#kubb-incompatible-dependency}
+
+**Cause:** A plugin's `dependencies` record sets a `version` range, and the configured plugin's `meta.version` is outside it. A dependency without `meta.version` is not checked.
+
+**Fix:** Install a version of the dependency inside the range, or a version of the dependent plugin that supports it.
+
+### KUBB_INCOMPATIBLE_EXTENSION: Incompatible extension {#kubb-incompatible-extension}
+
+**Cause:** An extension's `meta.compatibility.kubb` or `meta.compatibility.node` range excludes the running version. Kubb checks it before any plugin runs, and `kubb add` before it installs.
+
+**Fix:** Upgrade Kubb or Node.js into the range, or install a version of the extension that supports yours.
 
 ### KUBB_INLINE_FAILED: Inline definition failed {#kubb-inline-failed}
 
-A file imports a name from a file whose sources are all inline, and Kubb could not replace that name. The name has no inline definition, its definition refers back to itself, or no parser for the file's extension supports inline sources. One diagnostic lists every such problem. The inline file is not written, so the run is marked failed.
+**Cause:** A file imports a name from a file whose sources are all inline, and the name has no inline definition, refers to itself, or has no parser that supports inlining. One diagnostic lists every case. The inline file is not written.
 
-Give every name the file imports an inline definition, register a parser with inline support for its extension, or stop marking the source as inline.
+**Fix:** Give every imported name an inline definition, register a parser with inline support for the extension, or stop marking the source as inline.
 
 ### KUBB_INPUT_NOT_FOUND: Input not found {#kubb-input-not-found}
 
-The file set as `input` (or passed as `kubb generate PATH`) could not be read. The OpenAPI adapter checks the path before parsing, so the run stops here instead of failing later with a vague read error.
+**Cause:** The `input` file, or the path passed to `kubb generate <path>`, cannot be read. A URL reports `KUBB_INPUT_REQUEST_FAILED` or `KUBB_INPUT_UNREACHABLE` instead.
 
-Check that the file exists and is readable. Use a path relative to `kubb.config.ts`, an absolute path, or a full URL for a remote spec.
+**Fix:** Check that the file exists and is readable. A relative path resolves against [`root`](/docs/5.x/reference/configuration#root).
 
 ### KUBB_INPUT_REQUEST_FAILED: Input request failed {#kubb-input-request-failed}
 
-A URL set as `input` answered with a 4xx or 5xx status instead of the OpenAPI document. The server was reached, so either the URL is wrong or the endpoint refused to serve the document.
+**Cause:** A URL `input` or `$ref` answered with a 4xx or 5xx status. The extension commands also report it for an invalid [registry](/docs/5.x/reference/registry) index.
 
-Fetch the URL with `curl` and confirm it serves the OpenAPI document. For a protected document, download it and use the local file. Check server logs for a 5xx response. This also applies to remote `$ref` requests.
+**Fix:** Open the URL to see the answer. Kubb sends no credentials, so for a 401 or 403, download the document and use the local file. A 404 means a wrong path, and a 5xx a failing server.
 
 ### KUBB_INPUT_REQUIRED: Input required {#kubb-input-required}
 
-An adapter is configured but no `input` was provided, so there is nothing to parse.
+**Cause:** An adapter is configured, but `input` is empty.
 
-Set `input` to a file path, URL, inline JSON/YAML spec, or parsed document. If merging documents, provide at least one input.
+**Fix:** Set `input` to a file path, a URL, a git input, inline JSON or YAML, or a parsed object.
 
 ### KUBB_INPUT_UNREACHABLE: Input unreachable {#kubb-input-unreachable}
 
-A URL set as `input` never answered, so the request failed before a status came back.
+**Cause:** A URL `input`, a `$ref` URL, or the registry never answered: a refused connection, an unknown host, an expired certificate, or a timeout. The message names which.
 
-Start the server and check its host and port. Fetch the URL from the machine running Kubb. Connect to any required VPN or proxy, or use a downloaded spec. The message includes the connection failure reason.
+**Fix:** Check that the host runs and is reachable from this machine, through any VPN or proxy. For a local server, start it and check the port.
 
 ### KUBB_INTERNAL_ERROR: Internal error {#kubb-internal-error}
 
-Kubb hit a state it does not expect. This is a bug in Kubb, not in your config or your spec.
+**Cause:** Kubb reached a state it does not expect. This is a bug in Kubb, not in your config or spec.
 
-Rerun with `--reporter json` or `--verbose` to get the stack. Then [open an issue](https://github.com/kubb-labs/kubb/issues) with the spec and config that trigger it.
+**Fix:** Rerun with `--reporter json` or `--verbose` to get the stack, then [open an issue](https://github.com/kubb-labs/kubb/issues) with the spec and config that trigger it.
 
 ### KUBB_INVALID_DOCUMENT: Invalid document {#kubb-invalid-document}
 
-The document resolved from `input` cannot be read as an OpenAPI or Swagger document. Its JSON or YAML has a syntax error, it declares neither `openapi` nor `swagger`, or its version cannot be upgraded to OpenAPI 3.1.
+**Cause:** The `input` has a JSON or YAML syntax error, declares no `openapi` or `swagger` version, or has a version Kubb cannot upgrade to OpenAPI 3.1. This fails even with validation off.
 
-Fix the syntax at the line the message reports, and check that `input` points at the spec and not an HTML page. Use a Swagger 2.0, OpenAPI 3.0, 3.1, or 3.2 document, and pass the document itself rather than a wrapper. Missing versions fail even when validation is disabled.
+**Fix:** Fix the syntax at the reported line, and check that `input` is the spec, not an HTML page or a wrapper object. Use Swagger 2.0 or OpenAPI 3.0, 3.1, or 3.2.
 
 ### KUBB_INVALID_PLUGIN_OPTIONS: Invalid plugin options {#kubb-invalid-plugin-options}
 
-A plugin was given options that cannot be honored together. The main case is `output.mode` resolving to `'file'` while a `group` option is also set, or, for `@kubb/plugin-fetch`/`@kubb/plugin-axios`, while `sdk.mode: 'tag'` is set. Both pair a single-file output with an option that only makes sense split across several files, so the build stops instead of producing a layout the options do not describe.
+**Cause:** The `plugins` array or a plugin's options cannot work as given. The message names the case:
 
-Single-file output cannot use `group` or `sdk.mode: 'tag'`. Remove grouping, use `sdk.mode: 'flat'`, or write to a directory. A file extension in `output.path` implies file mode unless you explicitly select directory mode.
+- File output (`output.mode: 'file'`, or an `output.path` with an extension) with a `group` option.
+- File output with `sdk.mode: 'tag'` on `@kubb/plugin-fetch`, `@kubb/plugin-axios`, or `@kubb/plugin-client`.
+- An option set to a value it does not accept.
+- A `plugins` entry that is not a plugin, such as `pluginTs` instead of `pluginTs()`.
+- The same plugin twice, or plugin `dependencies` that form a cycle.
+- An extension without `meta.name` or `name`.
+- `@kubb/plugin-faker` with a `dateParser` that cannot format the adapter's `dateType: 'date'` values.
+
+**Fix:** Change what the message names. A single file has nothing to group or split, so remove `group`, use `sdk.mode: 'flat'`, or write to a directory.
 
 ### KUBB_INVALID_SERVER_VARIABLE: Invalid server variable {#kubb-invalid-server-variable}
 
-A server variable resolves to a value that its `enum` does not allow.
+**Cause:** A server variable resolves to a value its `enum` does not allow. The value comes from the adapter's `server.variables` option or the variable's `default`.
 
-Choose a variable value allowed by its `enum`, correct the default, or update the enum to match the server.
+**Fix:** Use a value from the `enum`, or fix the `default` or the `enum` in the spec.
 
 ### KUBB_LEGACY_INPUT: Legacy input shape {#kubb-legacy-input}
 
-`input` is a `{ path }` or `{ data }` wrapper. v4 used it to point at a document, and v5 takes the value directly.
+**Cause:** `input` is a `{ path }` or `{ data }` wrapper. v4 needed it, and v5 takes the value directly.
 
-Replace `input: { path: './spec.yaml' }` with `input: './spec.yaml'`, or `input: { data: spec }` with `input: spec`.
+**Fix:** Replace `input: { path: './petStore.yaml' }` with `input: './petStore.yaml'`, and `input: { data: spec }` with `input: spec`.
 
 ### KUBB_LINT_FAILED: Lint failed {#kubb-lint-failed}
 
-The linter pass over the generated files failed. Linting runs after generation. The files are written, but the run is marked failed.
+**Cause:** The [`output.lint`](/docs/5.x/reference/configuration#outputlint) tool failed. The files are written, but the run fails.
 
-Check that the linter is installed and configured. Run it manually against the output. Adjust rules for generated files or change `output.lint`.
+**Fix:** Check that the linter (oxlint, Biome, or ESLint) is installed and its config is valid. Run it on the output folder, and relax its rules for generated files.
 
 ### KUBB_MISSING_DEPENDENCY: Missing dependency {#kubb-missing-dependency}
 
-A plugin lists another plugin in its `dependencies` record without `optional: true`, and the config does not include it. A `dependencies` array only orders plugins and never raises this code.
+**Cause:** A plugin lists another plugin in its `dependencies` record without `optional: true`, and the config does not include it. A `dependencies` array only orders plugins and never raises this code.
 
-Install the missing plugin and add it to `plugins` in `kubb.config.ts`.
+**Fix:** Install the missing plugin and add it to `plugins` in `kubb.config.ts`.
 
 ### KUBB_NO_CONTEXT: No plugin context {#kubb-no-context}
 
-A `kubb/kit` composable such as `useKubb()` or `addGenerator()` ran outside `setup` and `kubb:plugin:setup`. Composables read the context of the plugin being set up, so outside setup there is no plugin to apply them to. The message names the composable that was called.
+**Cause:** A `kubb/kit` composable such as `useKubb()` or `addGenerator()` ran outside `setup` and `kubb:plugin:setup`, so it has no plugin to apply to. The message names the composable.
 
-Call the composable inside `setup` or `kubb:plugin:setup`. Code that setup awaits also works, because the context survives an `await`. Generators and later hooks run after setup, so they cannot use composables.
+**Fix:** Call it inside `setup` or `kubb:plugin:setup`, or in code they await. Generators and later hooks run after setup and cannot use composables.
 
 ### KUBB_PARSER_FAILED: Parser failed {#kubb-parser-failed}
 
-A parser threw an unexpected error while printing a generated file.
+**Cause:** A parser crashed while printing a generated file.
 
-Check the parser options. If it is a bug, report it to the parser's maintainers with the stack trace. Kubb prints the stack for this code, and `--reporter json` includes it as `stack`. When the parser sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link.
+**Fix:** Check the parser options. Report a bug to the parser's maintainers, as in [Crashes](#crashes).
 
 ### KUBB_PATH_TRAVERSAL: Path traversal {#kubb-path-traversal}
 
-A resolved output path escaped the output directory. Kubb refuses to write outside `output.path`, so a crafted spec or a misconfigured `group.name` cannot drop files anywhere on disk.
+**Cause:** A resolved path escapes the output folder. Kubb refuses to write outside `output.path`, so a crafted spec or a wrong `group.name` cannot place files anywhere on disk.
 
-Keep generated paths within `output.path` and resolver `file.path` overrides within the output directory. Reject `..` and path separators in names from the spec or `group.name`.
+**Fix:** Keep plugin `output.path`, `group.name`, and resolver `file.path` results inside the output folder, and strip `..` and path separators from names in the spec.
 
 ### KUBB_PLUGIN_FAILED: Plugin failed {#kubb-plugin-failed}
 
-A plugin threw while generating, or reported an error through `ctx.error`. The diagnostic is attributed to the plugin and fails the run.
+**Cause:** A plugin threw, or reported an error through `ctx.error`. The diagnostic names the plugin and keeps the thrown error as its cause.
 
-Check the plugin options and the node at the `at:` pointer. If it is a bug, report it to the plugin's maintainers with the stack trace. Kubb prints the stack for this code, and `--reporter json` includes it as `stack`. When the plugin sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link. Include a spec fragment that reproduces it. The diagnostic preserves an underlying error as its cause. For structured errors, plugin authors can use [`Diagnostics.Error` or `Diagnostics.report`](/docs/5.x/reference/kit/engine#diagnostics).
+**Fix:** Check the plugin options and the node at `at:`. Report a bug to the plugin's maintainers, as in [Crashes](#crashes). Plugin authors can raise a stable code with [`Diagnostics.Error` or `Diagnostics.report`](/docs/5.x/reference/kit/engine#diagnostics).
 
 ### KUBB_PLUGIN_NOT_FOUND: Plugin not found {#kubb-plugin-not-found}
 
-A plugin requires another plugin that is not in the config.
+**Cause:** A plugin requires another plugin that is not in the config. `kubb init --plugins` also reports it for an id the registry does not list.
 
-Install the required plugin and add it to `plugins`, or remove its dependent plugin. Order does not matter. The adapter reads OpenAPI in v5, so do not add `@kubb/plugin-oas`.
+**Fix:** Add the required plugin to `plugins`, in any order, or remove the plugin that needs it. Do not add `@kubb/plugin-oas`: in v5 the adapter reads OpenAPI.
 
 ### KUBB_POST_GENERATE_FAILED: Post-generate command failed {#kubb-post-generate-failed}
 
-A post-generate command (`output.postGenerate`) exited with a non-zero status. These commands run after generation. The files are written, but the run is marked failed.
+**Cause:** An [`output.postGenerate`](/docs/5.x/reference/configuration#outputpostgenerate) command exited with a non-zero status. The files are written, but the run fails.
 
-Run the command manually from the project root. Check the binary, spelling, and configuration. These commands run after formatting and linting.
+**Fix:** Run the command from the project root to see the error, and check the binary and its spelling.
 
 ### KUBB_REF_NOT_FOUND: Reference not found {#kubb-ref-not-found}
 
-A `$ref` points at a definition that does not exist in the document, or at a file or URL Kubb cannot read.
+**Cause:** A `$ref` points at a definition that does not exist, or at a file or URL Kubb cannot read. Inside an `x-` vendor extension it is only a warning, because Kubb never reads extensions.
 
-Add the missing definition, create the missing file, or correct the `$ref`. Run `kubb validate` before generation.
+Kubb also refuses some local files: any from a URL input, any outside the project and the input's folder on a Kubb Studio agent, and all of them on a sandbox agent. A managed agent reads only files in the repository of a git input.
 
-Kubb also reports this code for a `$ref` to a local file from a URL input. A Kubb Studio agent also refuses a local file outside the project and the folder of the config's own input file. A sandbox agent refuses every local file. So does a managed agent, except files in the repository of a git input. Move the file inside the project, start your own agent with `--allow-file-refs`, or inline the schema.
-
-A `$ref` that Kubb cannot read inside an `x-` vendor extension is a warning, because Kubb never reads extensions and the output does not change.
+**Fix:** Add the missing definition, create the file, or fix the `$ref`, then run [`kubb validate`](/docs/5.x/reference/commands/validate). For a refused file, move it inside the project, start your own agent with `--allow-file-refs`, or inline the schema.
 
 ### KUBB_UNKNOWN: Unknown error {#kubb-unknown}
 
-A fallback for an error that does not yet carry a specific diagnostic code.
+**Cause:** An error without a Kubb code, such as a missing config file or a config that throws while loading. The terminal shows no docs link for it.
 
-Run `kubb generate --reporter file` for a log under `.kubb/`, or use `--verbose`. Inspect the message and stack. Report unclear failures with the message and `Environment:` block. In CLI output an unclassified error shows a generic fix and no docs URL.
+**Fix:** Read the message and the stack. Run `kubb generate --reporter file` for a log in `.kubb/`, or add `--verbose`. If it comes from a plugin or adapter, check its options. Otherwise report it with the message and the `Environment:` block.
 
 ## Warnings
 
-A warning is reported and the run continues.
-
-### KUBB_INVALID_SPEC: Invalid spec {#kubb-invalid-spec}
-
-The document does not pass OpenAPI schema validation. Kubb reports each problem and keeps generating, but the output can be incomplete or wrong. `@kubb/adapter-oas` checks this when [`validate`](/extensions/kubb-labs/adapter-oas/options#validate) is `true`, the default.
-
-Fix the reported problem in the spec. Run [`kubb validate`](/docs/5.x/reference/commands/validate) to list every error with its location. Set `validate: false` on the adapter to skip the check.
-
-`kubb validate` reports the same code as an error and exits with a non-zero code.
-
-The validator does not support OpenAPI 3.2 yet. For a 3.2 document, Kubb reports this code with the message that the document was not validated.
-
-### KUBB_PLUGIN_WARNING: Plugin warning {#kubb-plugin-warning}
-
-A plugin reported a non-fatal warning through `ctx.warn`.
-
-Read the message and adjust the input or plugin options as needed. Plugin authors can use `Diagnostics.report` for a stable code and source pointer.
-
-### KUBB_UNSUPPORTED_FORMAT: Unsupported format {#kubb-unsupported-format}
-
-A schema's `format` is not one Kubb maps to a specific type, so it falls back to the base type. Kubb reports each format once, with a count, at the first schema that uses it.
-
-Use a supported format, omit it if the base type is sufficient, or map it through a custom parser or plugin.
-
 ### KUBB_ALIAS_CYCLE: Alias cycle {#kubb-alias-cycle}
 
-Schemas that only `$ref` each other form a loop, so none of them has a shape to generate. Kubb resolves them to `unknown`.
+**Cause:** Schemas that only `$ref` each other form a loop, so none has a shape to generate. Kubb types them as `unknown`.
 
-Break the loop by giving one of the schemas a real definition, or remove the `$ref` that closes it.
+**Fix:** Give one schema a real definition, or remove the `$ref` that closes the loop.
 
 ### KUBB_DUPLICATE_DISCRIMINATOR: Duplicate discriminator value {#kubb-duplicate-discriminator}
 
-Two or more `oneOf`/`anyOf` members pin the `discriminator` property to the same value, so the value cannot pick a branch. Zod `z.discriminatedUnion` throws on the first parse of such a union.
+**Cause:** Two or more `oneOf` or `anyOf` members pin the `discriminator` property to one value, so it cannot pick a member. Zod's `z.discriminatedUnion` throws on the first parse of such a union.
 
-Give each member its own discriminator value, or drop the `discriminator` so the members are matched by shape.
+**Fix:** Give each member its own discriminator value, or drop the `discriminator` so members match by shape.
+
+### KUBB_INVALID_SPEC: Invalid spec {#kubb-invalid-spec}
+
+**Cause:** The document fails OpenAPI schema validation. Kubb reports each problem and keeps generating, but the output can be incomplete or wrong. `@kubb/adapter-oas` checks while [`validate`](/extensions/kubb-labs/adapter-oas/options#validate) is `true`, the default. [`kubb validate`](/docs/5.x/reference/commands/validate) reports the code as an error and exits with code 1. The validator does not support OpenAPI 3.2 yet, so a 3.2 document gets this code with a message that it was not validated.
+
+**Fix:** Fix each reported problem, or run `kubb validate` to list them all. Set `validate: false` on the adapter to skip the check.
+
+### KUBB_PLUGIN_WARNING: Plugin warning {#kubb-plugin-warning}
+
+**Cause:** A plugin reported a non-fatal problem through `ctx.warn`.
+
+**Fix:** Read the message and adjust the input or the plugin options. Plugin authors can add a stable code and a location with `Diagnostics.report`.
+
+### KUBB_UNSUPPORTED_FORMAT: Unsupported format {#kubb-unsupported-format}
+
+**Cause:** Kubb maps no specific type to a schema's `format`, so the schema falls back to its base type. Kubb reports each format once, with a count, at the first schema that uses it.
+
+**Fix:** Use a supported format, leave it out, or handle it in a custom parser or plugin.
 
 ## Info
 
-An info diagnostic is advisory and never fails the run.
-
 ### KUBB_DEPRECATED: Deprecated {#kubb-deprecated}
 
-A referenced schema or operation is marked `deprecated`.
+**Cause:** A schema or operation the spec uses is marked `deprecated`. Generation is unchanged.
 
-Move away from the deprecated definition when possible. Generation continues unchanged, and the notice may recur on each run.
+**Fix:** Move off the deprecated definition when you can.
 
 ### KUBB_PERFORMANCE: Performance {#kubb-performance}
 
-Records a plugin's elapsed time. Kubb collects one per plugin during a build.
+**Cause:** Kubb records one plugin's generation time, without config loading, formatting, linting, or post-generate commands. It is never printed as a problem. `--verbose` shows the timings, and the [JSON report](#machine-readable-output) lists them in `timings`.
 
-This bookkeeping code is not printed as a terminal diagnostic. Run `kubb generate --verbose` to inspect plugin timings. The reported duration sums generation time and excludes config loading, formatting, linting, and post-generate hooks.
+**Fix:** None needed.
 
 ### KUBB_PLUGIN_INFO: Plugin info {#kubb-plugin-info}
 
-A plugin reported an informational message through `ctx.info`.
+**Cause:** A plugin reported a message through `ctx.info`. It shows in the summary and the JSON report.
 
-No action is required. The plugin name and message appear in the summary and JSON report. Plugin authors can use `Diagnostics.report` for a stable code and source pointer.
+**Fix:** None needed. Plugin authors can add a stable code and a location with `Diagnostics.report`.
 
 ### KUBB_UPDATE_AVAILABLE: Update available {#kubb-update-available}
 
-A newer Kubb version is published on npm than the one running.
+**Cause:** npm has a newer Kubb than the one running. `kubb generate` asks npm at most once every 24 hours and keeps the answer in `KUBB_HOME` (default `~/.kubb`), so the notice also shows on runs that make no request. CI skips the check, detected from variables such as `CI` or `GITHUB_ACTIONS`.
 
-`kubb generate` asks npm at most once every 24 hours and keeps the answer in `KUBB_HOME` (default `~/.kubb`), so the notice also shows on runs that make no request. It skips the check in CI, detected from variables such as `CI` or `GITHUB_ACTIONS`.
-
-Update Kubb and your project plugins through your package manager.
+**Fix:** Update Kubb and your plugins with your package manager.
 
 ## Machine-readable output
 
-`kubb generate --reporter json` prints a stable report to stdout. The output is a JSON array with
-one report per config, so a single-config run still prints `[ ... ]`. CI can read diagnostics
-without scraping the terminal:
+`kubb generate --reporter json` prints a JSON array to stdout, one report per config, so a single config still prints `[ ... ]`. CI and agents can read diagnostics from it without scraping the terminal.
 
 ```json [Report]
 [
@@ -320,6 +358,7 @@ without scraping the terminal:
         "cause": "A `$ref` could not be resolved in the source document.",
         "location": { "kind": "schema", "pointer": "#/components/schemas/Pet" },
         "help": "Add the schema under components.schemas, or fix the $ref. Run `kubb validate` to check the spec.",
+        "plugin": "plugin-zod",
         "docsUrl": "https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found"
       }
     ]
@@ -327,14 +366,16 @@ without scraping the terminal:
 ]
 ```
 
-Each config emits one report. `counts` totals the `problem` diagnostics by severity. `timings` lists
-per-plugin durations slowest first. `name` is the config name, empty when unnamed.
+| Field | Holds |
+| --- | --- |
+| `name` | The config `name`, or `""` when unnamed |
+| `counts` | Problem diagnostics by severity. Timing records do not count. |
+| `timings` | Per-plugin durations, slowest first |
+| `fileChanges` | Added, modified, and deleted files and lines, when the host collected them |
+| `diagnostics[].title`, `.cause` | The catalog entry for the code, so an agent can act without opening this page |
+| `diagnostics[].help` | The diagnostic's fix, or the catalog fix |
+| `diagnostics[].plugin`, `.issues` | The plugin that reported it, and the issue tracker of a crashed extension |
+| `diagnostics[].causes`, `.stack` | The messages of wrapped errors, and the root stack for a [crash](#crashes) |
+| `diagnostics[].docsUrl` | This page's entry for the code. `KUBB_UNKNOWN` has none. |
 
-Each diagnostic carries the catalog `title` and `cause` for its code, so an agent can act on it
-without opening this page. `help` falls back to the catalog fix when the diagnostic has none.
-When the diagnostic wraps a thrown error, `causes` lists the messages of the underlying errors,
-and a crash adds the root `stack`. The crash codes are `KUBB_UNKNOWN`, `KUBB_INTERNAL_ERROR`, `KUBB_PLUGIN_FAILED`,
-`KUBB_ADAPTER_FAILED`, and `KUBB_PARSER_FAILED`.
-
-The exit code is unchanged: non-zero on any error. See [`--reporter`](/docs/5.x/reference/commands/generate#reporters)
-for the other reporters.
+The exit code stays the same: 1 on any error. See [`--reporter`](/docs/5.x/reference/commands/generate#reporters) for the other reporters.

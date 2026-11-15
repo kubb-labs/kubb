@@ -1,13 +1,13 @@
 ---
 layout: doc
 title: Storage
-description: Storage backends decide where generated files are written. Covers
-  createStorage, the Storage interface, and the built-in fsStorage and
-  memoryStorage backends.
+description: Storage backends decide where Kubb writes generated files. Covers
+  createStorage, the Storage interface, and how the built-in fsStorage and
+  memoryStorage backends differ.
 outline:
   - 2
   - 3
-order: 7
+order: 5
 navigation:
   title: Storage
   icon: i-iconoir-database
@@ -15,11 +15,23 @@ navigation:
 
 # Storage
 
-Storage backends persist generated files in the filesystem, memory, or a custom destination.
+A storage backend decides where Kubb writes generated files: to disk, to memory, or to your own destination. Set it with the config's [`storage`](/docs/5.x/reference/configuration#storage) field.
+
+## Built-in backends
+
+Both ship from `kubb/kit` and go straight into `storage`.
+
+| Backend           | `name`     | Writes                                                                                                     | `readKeys(base?)` returns                                  | `empty()` without `base` |
+| ----------------- | ---------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------ |
+| `fsStorage()`     | `'fs'`     | Each file to its path on disk, creating folders. Skips a file that already holds the same content. The default. | Paths relative to `base`, or to the working directory      | Does nothing             |
+| `memoryStorage()` | `'memory'` | A `Map` in memory, so nothing reaches disk. Suits plugin tests, CI checks, and dry runs.                   | The stored keys (absolute paths) that start with `base`    | Deletes every entry      |
+
+> [!NOTE]
+> `output.format`, `output.lint`, and `output.postGenerate` run only when the backend's `name` is `'fs'`.
 
 ## `createStorage`
 
-`createStorage` takes a builder function `(options: TOptions) => Storage` and returns a factory `(options?: TOptions) => Storage`. Call the returned factory to create a backend.
+`createStorage` takes a builder `(options: TOptions) => Storage` and returns a factory `(options?: TOptions) => Storage`. Call the factory to create a backend. This is the built-in `memoryStorage`:
 
 ```typescript [memory-storage.ts]
 import { createStorage } from 'kubb/kit'
@@ -42,8 +54,7 @@ export const memoryStorage = createStorage(() => {
       return base ? keys.filter((k) => k.startsWith(base)) : keys
     },
     async empty(base) {
-      if (!base) return store.clear()
-      for (const k of store.keys()) if (k.startsWith(base)) store.delete(k)
+      for (const k of store.keys()) if (!base || k.startsWith(base)) store.delete(k)
     },
   }
 })
@@ -51,29 +62,15 @@ export const memoryStorage = createStorage(() => {
 
 ## `Storage` interface {#storage-interface}
 
-The engine consumes this interface and exposes the backend through the build result.
+Every member is required. The build result exposes the backend as `storage`, and keys are the files' absolute paths.
 
-| Member         | Params                                                              | Returns                   | Purpose                                                                                                                        |
-| -------------- | ------------------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `name`         |                                                                     | `string`                  | Identifier for logs and diagnostics, such as `'fs'` or `'memory'`. Format, lint, and `postGenerate` run only when it is `'fs'` |
-| `readItem()`   | `key: string`                                                       | `Promise<string \| null>` | Retrieve an item's content                                                                                                     |
-| `writeItem()`  | `key: string, value: string, options?: { stored?: string \| null }` | `Promise<void>`           | Write an item. `stored` is the previous content when Kubb already read it, so a backend can skip a second read                 |
-| `removeItem()` | `key: string`                                                       | `Promise<void>`           | Delete an item                                                                                                                 |
-| `readKeys()`   | `base?: string`                                                     | `Promise<string[]>`       | List keys, optionally filtered by prefix                                                                                       |
-| `empty()`      | `base?: string`                                                     | `Promise<void>`           | Delete all items, optionally scoped by prefix                                                                                  |
+| Member         | Params                                                              | Returns                   | Does                                                                                                   |
+| -------------- | ------------------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `name`         |                                                                     | `string`                  | Names the backend in logs and diagnostics, such as `'fs'` or `'memory'`.                               |
+| `readItem()`   | `key: string`                                                       | `Promise<string \| null>` | Returns an item's content, or `null` for a missing key.                                                |
+| `writeItem()`  | `key: string, value: string, options?: { stored?: string \| null }` | `Promise<void>`           | Writes an item. `stored` is the previous content when Kubb already read it, so the backend can skip a second read. |
+| `removeItem()` | `key: string`                                                       | `Promise<void>`           | Deletes an item. Does nothing for a missing key.                                                       |
+| `readKeys()`   | `base?: string`                                                     | `Promise<string[]>`       | Lists keys, optionally under a prefix.                                                                 |
+| `empty()`      | `base?: string`                                                     | `Promise<void>`           | Deletes every item, optionally under a prefix. Without `base`, the backend decides.                    |
 
-Omitting `base` on `empty()` is implementation-defined. `memoryStorage` wipes every entry, while the filesystem-backed `fsStorage` treats a missing `base` as a no-op and deletes nothing.
-
-Every member is required. `readItem` returns `null` for a missing key. Kubb skips `writeItem` for a file whose content did not change, so do not expect one call per generated file.
-
-`readKeys()` also differs per backend. `memoryStorage` returns the stored keys, which are absolute paths. `fsStorage` returns paths relative to `base`, and lists the current working directory when `base` is omitted.
-
-## `fsStorage`
-
-`fsStorage` is the default backend. It writes each file to its path on disk and creates directories as needed.
-
-## `memoryStorage`
-
-`memoryStorage` writes nothing to disk, so it suits plugin tests, CI validation, and dry runs.
-
-Both ship from `kubb/kit` and go straight into the config's `storage` field.
+Kubb skips `writeItem` for a file whose content did not change, so do not expect one call per generated file.

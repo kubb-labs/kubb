@@ -13,7 +13,7 @@ navigation:
 
 # Your first TypeScript client from an API spec
 
-Generate TypeScript types and an Axios client for one Petstore operation. You need Node.js 22.22 or higher and npm. You'll inspect the generated operation and its types.
+Generate TypeScript types and an Axios client for one Petstore operation, then change the spec and watch the output follow. You need npm and a [supported Node.js version](/docs/5.x/how-to/installation#prerequisites).
 
 ::steps{level="2"}
 
@@ -27,6 +27,8 @@ npm pkg set type=module
 npm install -D kubb typescript @kubb/plugin-ts @kubb/plugin-axios
 npm install axios
 ```
+
+`kubb` runs the generation, the two plugins write the types and the client, and the client calls `axios` at runtime.
 
 ## Add the specification {#_2-add-the-specification}
 
@@ -100,7 +102,7 @@ This configuration writes types to `src/gen/models` and the client to `src/gen/c
 npx kubb generate
 ```
 
-Kubb reports a successful build and writes this tree. Open `src/gen/clients/getPetById.ts` and notice that `getPetById` accepts typed path parameters and returns a typed result. Its imported types live in `src/gen/models`.
+Kubb reports a successful build and writes this tree. Open `src/gen/clients/getPetById.ts`: `getPetById` takes a typed path parameter and returns a typed result, using the types in `src/gen/models`.
 
 :::file-tree
 ---
@@ -136,9 +138,7 @@ tag:
   type: string
 ```
 
-Run `npx kubb generate` again and open `src/gen/models/Pet.ts`. The `Pet` type now includes an optional `tag` field because `tag` is not listed in the schema's `required` array. The client continues to import the regenerated types.
-
-You now have a typed client and have seen how a specification change flows into its output.
+Run `npx kubb generate` again and open `src/gen/models/Pet.ts`. `Pet` now has an optional `tag` field, optional because `required` does not list it. The client imports the regenerated type without any change.
 
 ::
 
@@ -147,7 +147,7 @@ You now have a typed client and have seen how a specification change flows into 
 ::card-group
 
 :::card{title="Call generated operations" icon="i-iconoir-code" to="/extensions/kubb-labs/plugin-axios/guides/calling-operations"}
-Use the generated Axios client. [Configure its host](/extensions/kubb-labs/plugin-axios/guides/base-url) for your API.
+Use the generated Axios client. [Configure its host](/extensions/kubb-labs/plugin-axios/guides/configure-requests#set-the-base-url) for your API.
 :::
 
 :::card{title="Configure generation" icon="i-iconoir-settings" to="/docs/5.x/how-to/recipes"}

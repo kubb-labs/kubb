@@ -5,7 +5,7 @@ description: Compare Kubb with orval, HeyAPI, and openapi-typescript on speed, C
 outline:
   - 2
   - 3
-order: 3
+order: 2
 navigation:
   title: Comparison
   icon: i-iconoir-mirror
@@ -15,17 +15,17 @@ navigation:
 
 Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. We checked each cell against the project's own docs in October 2026, and the OpenAPI 3.2 row by generating from a 3.2 spec in November 2026.
 
-Kubb differs from the others in five ways:
+Where Kubb differs:
 
 - For a full build, it is the fastest and uses the least memory of the three on every [spec we measured](#speed-cpu-time-and-memory), from 0.1 MB to 29.7 MB.
 - One config generates types, clients, query hooks, Zod, MSW, Faker, Cypress tests, an MCP server, and Redoc docs. See [plugin coverage](#plugin-and-feature-coverage).
-- Its clients return a result you narrow by status code, and you choose per call whether errors throw. See [type safety](#type-safety-and-response-handling).
+- Its clients return a result you narrow by status code, and each call chooses whether errors throw. See [type safety](#type-safety-and-response-handling).
 - Its runtime follows the spec's parameter styles, encodes bodies per media type, and reads server-sent events. See [client runtime](#client-runtime).
 - [Kubb Studio](#kubb-studio) adds file review, pull request snapshots, and API skills for AI tools.
 
 ## Speed, CPU time, and memory
 
-Each tool generates types, Zod schemas, and a fetch client. Switch between one output file per generator and output split into many files, and between speed, CPU time, and memory.
+Each tool generates types, Zod schemas, and a fetch client. Use the switches to compare one file per generator with output split into many files, and speed with CPU time and memory.
 
 With one file per generator, Kubb is the fastest and uses the least memory on every spec: 1.9 to 2.3× faster than HeyAPI and 1.3 to 5.9× faster than orval. With multiple files it still leads on speed and memory, but HeyAPI and orval use less CPU time on the 1.1 MB spec, and HeyAPI also on the 10.6 MB spec.
 
@@ -100,13 +100,13 @@ See [serialization](/extensions/kubb-labs/plugin-fetch/guides/serialization) for
 
 ## Kubb Studio
 
-[Kubb Studio](https://kubb.studio) is the web IDE for Kubb. It runs the generator through an agent on your machine, and the agent never uploads your spec file. orval, HeyAPI, and openapi-typescript have no equivalent for the features below.
+[Kubb Studio](https://kubb.studio) is the web IDE for Kubb. An agent on your machine runs the generator and never uploads your spec file. orval, HeyAPI, and openapi-typescript have no equivalent for these features:
 
 - [API skills for Claude Code, Cursor, and Codex](/docs/5.x/integrations/studio#give-your-ai-tools-your-api), built from your spec, so AI tools call your generated clients instead of guessing endpoints (Pro plan).
 - One AI plugin marketplace and shared agents for the whole team.
 - [Review added, changed, and removed files](/docs/5.x/integrations/studio#review-and-save-generated-files) before you save them.
 - Edit `kubb.config.ts` from the browser.
-- [An installable snapshot for every pull request](/docs/5.x/integrations/github-actions).
+- [An installable snapshot for every pull request](/docs/5.x/integrations/ci#github-actions).
 - Try it in the browser without installing anything.
 
 To try the others without installing them, orval has a [playground](https://orval.dev/playground) and HeyAPI has a StackBlitz demo.

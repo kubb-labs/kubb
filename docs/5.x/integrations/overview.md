@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Integrate Kubb with Studio, CI, and build tools
-description: Connect Kubb to Studio, publish snapshots from CI, or run generation during a Vite, webpack, Rollup, Rolldown, Rspack, esbuild, Farm, Nuxt, or Astro build.
+description: See where Kubb runs besides the CLI, from Kubb Studio and CI snapshots to build tool plugins, openapi-import, and AI assistants, all from one kubb.config.ts.
 outline: [2, 3]
 order: 0
 navigation:
@@ -11,7 +11,20 @@ navigation:
 
 # Integrate Kubb with Studio, CI, and build tools
 
-Run Kubb from Studio, from CI, or during your build. Each integration uses your shared `kubb.config.ts`.
+Every integration runs the same `kubb.config.ts`. Pick where generation runs.
+
+```mermaid
+flowchart LR
+  config[kubb.config.ts]:::core
+  ai[AI assistants] --> cli
+  config --> cli[kubb generate]
+  config --> agent[kubb studio]
+  config --> ci[CI snapshot]
+  config --> build[Build tools]
+  config --> ts[openapi-import]
+  agent --> studio[Kubb Studio]
+  ci --> studio
+```
 
 ## Studio
 
@@ -28,84 +41,37 @@ Connect a local project to Studio and review generated files in the browser.
 ::card-group
 
 :::card{title="CI snapshots" icon="i-iconoir-git-merge" to="/docs/5.x/integrations/ci"}
-Publish installable Studio snapshots from any CI provider.
-:::
-
-:::card{title="GitHub Actions" icon="i-simple-icons-githubactions" to="/docs/5.x/integrations/github-actions"}
-Publish snapshots from GitHub Actions and review generated-file changes.
-:::
-
-:::card{title="GitLab CI" icon="i-simple-icons-gitlab" to="/docs/5.x/integrations/gitlab"}
-Publish snapshots from GitLab CI and review generated-file changes.
+Publish an installable snapshot per pull request from GitHub Actions, GitLab CI, or any provider.
 :::
 
 ::
 
 ## Build tools
 
-Kubb runs generation during your build through `unplugin-kubb`, included with `kubb`. Each integration takes your `kubb.config.ts` as a single `config` object and generates when the tool builds. Without `config`, the integration loads `kubb.config.ts` like the CLI does.
-
 ::card-group
 
-:::card{title="Vite" icon="i-simple-icons-vite" to="/docs/5.x/integrations/vite"}
-Import from `kubb/vite`.
-:::
-
-:::card{title="webpack" icon="i-simple-icons-webpack" to="/docs/5.x/integrations/webpack"}
-Import from `kubb/webpack`.
-:::
-
-:::card{title="Rollup" icon="i-simple-icons-rollupdotjs" to="/docs/5.x/integrations/rollup"}
-Import from `kubb/rollup`.
-:::
-
-:::card{title="Rolldown" icon="i-simple-icons-rolldown" to="/docs/5.x/integrations/rolldown"}
-Import from `kubb/rolldown`.
-:::
-
-:::card{title="Rspack" icon="i-iconoir-journal" to="/docs/5.x/integrations/rspack"}
-Import from `kubb/rspack`.
-:::
-
-:::card{title="esbuild" icon="i-simple-icons-esbuild" to="/docs/5.x/integrations/esbuild"}
-Import from `kubb/esbuild`.
-:::
-
-:::card{title="Farm" icon="i-iconoir-light-bulb" to="/docs/5.x/integrations/farm"}
-Import from `kubb/farm`.
-:::
-
-:::card{title="Nuxt" icon="i-simple-icons-nuxt" to="/docs/5.x/integrations/nuxt"}
-Import from `kubb/nuxt`.
-:::
-
-:::card{title="Astro" icon="i-simple-icons-astro" to="/docs/5.x/integrations/astro"}
-Import from `kubb/astro`.
+:::card{title="Build tools" icon="i-iconoir-tools" to="/docs/5.x/integrations/build-tools"}
+Generate during a Vite, webpack, Rspack, Rollup, Rolldown, esbuild, Farm, Nuxt, or Astro build, or import a spec as a module.
 :::
 
 ::
-
-Vite, Nuxt, and Astro generate during builds only. Run `kubb generate` before starting their development servers.
-
-> [!NOTE]
-> Bundler integrations apply the same defaults as `defineConfig`, and run `output.format`, `output.lint`, and `output.postGenerate` during the build. They print a summary but do not run the `json`, `file`, or `html` reporters. See [Defaults](/docs/5.x/reference/configuration#defaults).
-
-### Import a spec
-
-Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module. Kubb writes no generated files for the import. A config without `input` only serves these imports.
-
-```ts
-import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
-```
-
-Code a plugin writes to a separate file, such as a bundled client runtime, is not included. For types in `tsc` and your editor, add [`openapi-import`](/docs/5.x/integrations/openapi-import).
 
 ## TypeScript
 
 ::card-group
 
 :::card{title="openapi-import" icon="i-simple-icons-typescript" to="/docs/5.x/integrations/openapi-import"}
-Import a `*.openapi.yaml` spec in TypeScript and type-check the output of your plugins.
+Import a `*.openapi.yaml` spec in TypeScript and type-check the output of your plugins, without generated files.
+:::
+
+::
+
+## AI assistants
+
+::card-group
+
+:::card{title="AI assistants" icon="i-iconoir-sparks" to="/docs/5.x/ai"}
+Run Kubb from Claude Code, Cursor, or another assistant through the CLI or the MCP server.
 :::
 
 ::

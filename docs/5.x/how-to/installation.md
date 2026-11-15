@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Install Kubb with npm, pnpm, Yarn, or Bun
-description: Install the Kubb CLI and the plugins your output needs with npm, pnpm, Yarn, or Bun, verify the version, and create the kubb.config.ts for your API spec.
+description: Set up Kubb in an existing project with the kubb init wizard or by hand with npm, pnpm, Yarn, or Bun, verify the version, and add plugins later with kubb add.
 outline: [2, 3]
 order: 1
 navigation:
@@ -11,16 +11,44 @@ navigation:
 
 # Install Kubb with npm, pnpm, Yarn, or Bun
 
-Install Kubb in an existing project. To learn generation with a supplied specification and expected output, follow [Generate your first client](/docs/5.x/tutorials/quickstart) instead.
+Add Kubb to an existing project. To learn with a sample spec first, follow [Generate your first client](/docs/5.x/tutorials/quickstart).
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 22.22 or higher.
-- TypeScript 5 or higher if you use a TypeScript config or import generated types.
+- [Node.js](https://nodejs.org/) 22.22 or later.
+- TypeScript 5 or later to type-check the generated code.
 
-::steps{level="2"}
+## Set up with the wizard
 
-## Install Kubb and your plugins
+`kubb init` installs `kubb` and the plugins you choose, writes `kubb.config.ts`, adds a `generate` script to `package.json` when it has none, and runs the first generation. It installs with the package manager that your `packageManager` field or lockfile names, or with npm.
+
+::code-group{sync="package-manager"}
+
+```shell [pnpm]
+pnpm dlx kubb init
+```
+
+```shell [npm]
+npx kubb init
+```
+
+```shell [yarn]
+yarn dlx kubb init
+```
+
+```shell [bun]
+bunx kubb init
+```
+
+::
+
+See [`kubb init`](/docs/5.x/reference/commands/init) for its questions and for flags such as `--yes`, `--input`, and `--plugins`.
+
+## Install by hand
+
+::steps{level="3"}
+
+### Install Kubb and your plugins
 
 Each output comes from its own plugin package, so install `kubb` and only the [plugins](/extensions/kind/plugins) you need. This example adds the TypeScript plugin:
 
@@ -44,34 +72,70 @@ bun add -d kubb @kubb/plugin-ts typescript
 
 :::
 
-Install the runtime libraries your output needs too. An Axios client uses `axios`, and React Query hooks use `react` and `@tanstack/react-query`. Each plugin page lists its requirements.
+### Verify the installation
 
-## Verify the installation
+:::code-group{sync="package-manager"}
 
-```shell [Terminal]
+```shell [pnpm]
+pnpm exec kubb --version
+```
+
+```shell [npm]
 npx kubb --version
 ```
 
-Use `pnpm exec kubb`, `yarn kubb`, or `bunx kubb` with the matching package manager.
-
-## Create a config
-
-Run the [initialization wizard](/docs/5.x/reference/commands/init) to choose your specification, output directory, and plugins, or write `kubb.config.ts` yourself with one of the [stacks](/docs/5.x/how-to/recipes).
-
-```shell [Terminal]
-npx kubb init
+```shell [yarn]
+yarn kubb --version
 ```
 
-Then run `npx kubb generate`. Kubb writes the generated files to `output.path`.
+```shell [bun]
+bunx kubb --version
+```
+
+:::
+
+### Create the config
+
+Write `kubb.config.ts` in the project root with your spec as `input`, an `output.path`, and your plugins. Copy one of the [stacks](/docs/5.x/how-to/recipes#pick-a-stack), or see the [configuration reference](/docs/5.x/reference/configuration) for every option.
+
+### Generate
+
+:::code-group{sync="package-manager"}
+
+```shell [pnpm]
+pnpm exec kubb generate
+```
+
+```shell [npm]
+npx kubb generate
+```
+
+```shell [yarn]
+yarn kubb generate
+```
+
+```shell [bun]
+bunx kubb generate
+```
+
+:::
+
+Kubb writes the generated files to `output.path`.
 
 ::
 
+## Install runtime libraries
+
+> [!IMPORTANT]
+> `kubb init` and `kubb add` install Kubb packages only, not the libraries your generated code imports. An Axios client needs `axios`, and React Query hooks need `react` and `@tanstack/react-query`. Each plugin page lists its requirements.
+
 ## Add plugins later
 
-After you create the config, [`kubb add`](/docs/5.x/reference/commands/add) installs a plugin at the version the [Kubb registry](/docs/5.x/reference/registry) pins and adds it to `kubb.config.ts`:
+Once `kubb.config.ts` exists, manage extensions from the [Kubb registry](/docs/5.x/reference/registry) with these commands:
 
-```shell [Terminal]
-npx kubb add plugin-zod
-```
-
-Run [`kubb list`](/docs/5.x/reference/commands/list) to see your extensions and [`kubb update`](/docs/5.x/reference/commands/update) to move them to the pinned versions.
+| Command | What it does |
+| --- | --- |
+| [`kubb add plugin-zod`](/docs/5.x/reference/commands/extensions#add) | Installs the plugin at the version the registry pins and adds it to `kubb.config.ts` |
+| [`kubb list`](/docs/5.x/reference/commands/extensions#list) | Lists installed extensions, their versions, and available updates |
+| [`kubb update`](/docs/5.x/reference/commands/extensions#update) | Moves installed extensions to the pinned versions, regenerates, and summarizes the file changes |
+| [`kubb remove plugin-zod`](/docs/5.x/reference/commands/extensions#remove) | Removes the plugin from `kubb.config.ts` and uninstalls its package |

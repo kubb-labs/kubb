@@ -1,14 +1,17 @@
 ---
 layout: doc
 title: Ecosystem
-description: Discover projects built with Kubb, articles featuring Kubb, and community resources. See how developers use Kubb for OpenAPI code generation.
+description: Projects built with Kubb, articles and tutorials about Kubb, and the ecosystem lists that include it.
 outline: [2, 3]
-order: 1
+order: 3
+navigation:
+  title: Ecosystem
+  icon: i-iconoir-globe
 ---
 
 # Ecosystem
 
-These projects and articles come from the Kubb community.
+Projects and articles from the Kubb community.
 
 ## Production projects
 
@@ -57,4 +60,4 @@ A Medium post that combines Kubb, Axios, and the Next.js App Router.
 
 ## Community
 
-Ask questions on [Discord](https://discord.gg/shfBFeczrm). Built something with Kubb? Share it on [GitHub Discussions](https://github.com/kubb-labs/kubb/discussions) and we will add it here.
+Built something with Kubb? Share it on [GitHub Discussions](https://github.com/kubb-labs/kubb/discussions) and we will add it here. Ask questions on [Discord](https://discord.gg/shfBFeczrm).

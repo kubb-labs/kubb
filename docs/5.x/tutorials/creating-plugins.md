@@ -13,7 +13,7 @@ navigation:
 
 # Create a Kubb plugin
 
-Build a plugin that writes `listPets.ts` containing the method and path of one API operation, then test its output. You need Node.js 22.22 or higher, npm, and TypeScript knowledge.
+Build a plugin that writes the method and path of one API operation to `listPets.ts`, then test its output in memory. You need npm, a [supported Node.js version](/docs/5.x/how-to/installation#prerequisites), and some TypeScript.
 
 ::steps{level="2"}
 
@@ -28,7 +28,7 @@ npm install -D kubb typescript @types/node vitest
 mkdir src
 ```
 
-All authoring APIs come from `kubb/kit`, included with `kubb`.
+Every authoring API comes from `kubb/kit`, which ships with `kubb`.
 
 ## Add the specification {#_2-add-the-specification}
 
@@ -50,7 +50,7 @@ paths:
 
 ## Create the plugin {#_3-create-the-plugin}
 
-`defineExtension` with `kind: 'plugin'` takes the plugin's `meta` and a `setup` function. Register a generator and resolver in `setup` with the `setResolver` and `addGenerator` [composables](/docs/5.x/reference/kit/plugins#setup-context), then return the plugin's options:
+`defineExtension` with `kind: 'plugin'` takes the plugin's `meta` and a `setup` function. In `setup`, register a resolver and a generator with the `setResolver` and `addGenerator` [composables](/docs/5.x/reference/kit/extensions#setup-context), then return the plugin's options:
 
 ```typescript [src/plugin.ts]
 import { addGenerator, ast, createResolver, defineExtension, defineGenerator, setResolver } from 'kubb/kit'
@@ -86,7 +86,7 @@ export const pluginExample = defineExtension({
 })
 ```
 
-The `operation` handler writes a comment containing the operation's HTTP method and path.
+Kubb calls the `operation` handler once per operation. It returns one file whose only content is a comment with the operation's HTTP method and path. The resolver turns the `operationId` into the file name.
 
 ## Generate {#_4-generate}
 
@@ -117,7 +117,7 @@ The file contains a comment naming `GET` and `/pets`.
 
 ## Test the output {#_5-test-the-output}
 
-Run an in-process build with memory storage and a small fixture. `createKubb` from `kubb` supplies the same adapter and parser defaults as `defineConfig`.
+Run the build in the test process with memory storage and an inline spec. `createKubb` from `kubb` applies the same adapter and parser defaults as `defineConfig`.
 
 ```typescript [src/plugin.test.ts]
 import { describe, expect, it } from 'vitest'
@@ -160,6 +160,24 @@ Run the test:
 npx vitest run src/plugin.test.ts
 ```
 
-Vitest reports one passing test. The test checks the generated file in memory without writing to disk.
+Vitest reports one passing test. The file never touches the disk.
+
+::
+
+## Continue
+
+::card-group
+
+:::card{title="How plugins work" icon="i-iconoir-ev-plug" to="/docs/5.x/explanation/architecture#plugins"}
+Generators, resolvers, macros, the lifecycle, and dependencies.
+:::
+
+:::card{title="Generator reference" icon="i-iconoir-code" to="/docs/5.x/reference/kit/generators"}
+Handler signatures, `match`, and the `ctx` properties.
+:::
+
+:::card{title="Publish a plugin" icon="i-iconoir-upload" to="/docs/5.x/how-to/publish-a-plugin"}
+Ship it to npm and list it in the Kubb registry.
+:::
 
 ::

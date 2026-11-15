@@ -1,9 +1,9 @@
 ---
 layout: doc
 title: Kit API
-description: The kubb/kit reference for authoring plugins, generators,
-  resolvers, renderers, adapters, parsers, and storage backends, plus the ast
-  namespace, Diagnostics, and the engine surface.
+description: The kubb/kit reference for extension authors. Maps each part of
+  the kit (extensions, generators, resolvers, AST, renderer, storage, engine,
+  hooks) to its page, and covers the casing and text helpers.
 outline:
   - 2
   - 3
@@ -15,56 +15,72 @@ navigation:
 
 # Kit API
 
-Import authoring APIs from `kubb/kit`, included with the `kubb` package.
+`kubb/kit` holds the APIs for writing plugins, adapters, parsers, and storage backends. It ships with the `kubb` package.
 
-## Big concepts
+## Parts of the kit
 
-| Concept                                        | Entry point                                   | What it does                                                                                                |
-| ---------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| [Plugins](./kit/plugins)                       | `defineExtension` (`kind: 'plugin'`)          | The main extension point. Owns file naming, the output folder, and the lifecycle hooks.                     |
-| [Generators](./kit/generators)                 | `defineGenerator`                             | Walks the AST and emits files. A plugin registers one or more.                                              |
-| [Resolvers](./kit/resolvers)                   | `createResolver`                              | Decides file names and output paths. Other plugins read them by name.                                       |
-| [Renderers](/docs/5.x/reference/jsx#renderers) | `createRenderer`, `jsxRenderer`               | Turns the elements a generator returns into `FileNode`s.                                                    |
-| [Adapters](./kit/adapters)                     | `defineExtension` (`kind: 'adapter'`)         | Converts an input spec into the universal AST every plugin reads.                                           |
-| [Parsers](./kit/parsers)                       | `defineExtension` (`kind: 'parser'`)          | Turns a `FileNode` into the source string written to disk.                                                  |
-| [Extensions](./kit/extensions)                 | `defineExtension`, `meta`, `dependencies`     | What plugins, adapters, and parsers share: `kind`, identity, compatibility ranges, and plugin dependencies. |
-| [Storage](./kit/storage)                       | `createStorage`, `fsStorage`, `memoryStorage` | Decides where generated files land.                                                                         |
+An adapter reads the spec into the AST. Each plugin's generators walk the AST and return files, a resolver names them, and a renderer turns JSX into files. Parsers print the files, and storage writes them. The engine runs it all and fires hooks along the way.
 
-## Other parts
+```mermaid
+flowchart LR
+  spec[Spec] --> adapter[Adapter]
+  adapter --> ast[AST]:::core
+  ast --> generators[Generators]
+  resolver[Resolver] -.->|names and paths| generators
+  generators --> renderer[Renderer]
+  generators --> files[FileNode]
+  renderer --> files
+  files --> parser[Parser]
+  parser --> storage[Storage]
+```
 
-| Part                                   | Entry point                 | What it does                                                                     |
-| -------------------------------------- | --------------------------- | -------------------------------------------------------------------------------- |
-| [AST and node builders](./kit/ast)     | `ast`                       | The namespace behind `factory` builders, visitors, guards, macros, and printers. |
-| [Text](#text)                          | `text`                      | Quotes strings and indents source text for any language.                         |
-| [Engine](./kit/engine)                 | `createKubb`, `Diagnostics` | The `kubb`-package surface that runs your plugins and the errors it collects.    |
-| [Lifecycle hooks](./kit/hooks)         | `KubbHooks`                 | Every `kubb:*` hook a build fires, its payload, and when it fires.               |
-| [Extension manifest](./kit/manifest)   | `kubb-extension.json`       | The file an extension package ships for the registry, `kubb add`, and Studio.    |
-| [Extension docs](./kit/extension-docs) | `docs/`                     | The Markdown pages an extension ships for kubb.dev.                              |
+| Part                 | Entry points                                                | Page                                                               |
+| -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------ |
+| Plugins              | `defineExtension({ kind: 'plugin' })`, `addGenerator`, `setResolver` | [Extensions: plugins](/docs/5.x/reference/kit/extensions#plugins)  |
+| Adapters             | `defineExtension({ kind: 'adapter' })`                      | [Extensions: adapters](/docs/5.x/reference/kit/extensions#adapters) |
+| Parsers              | `defineExtension({ kind: 'parser' })`                       | [Extensions: parsers](/docs/5.x/reference/kit/extensions#parsers)  |
+| Generators           | `defineGenerator`                                           | [Generators](/docs/5.x/reference/kit/generators)                   |
+| Resolvers            | `createResolver`, `Resolver`                                | [Resolvers](/docs/5.x/reference/kit/resolvers)                     |
+| AST                  | `ast`, `createPrinter`, `defineMacro`                       | [AST and node builders](/docs/5.x/reference/kit/ast)               |
+| JSX renderer         | `jsxRenderer`, `createRenderer`                             | [JSX renderer](/docs/5.x/reference/jsx)                            |
+| Storage              | `createStorage`, `fsStorage`, `memoryStorage`               | [Storage](/docs/5.x/reference/kit/storage)                         |
+| Engine               | `createKubb`, `Diagnostics`                                 | [Engine](/docs/5.x/reference/kit/engine)                           |
+| Lifecycle hooks      | `KubbHooks`, `Hookable`                                     | [Lifecycle hooks](/docs/5.x/reference/kit/hooks)                   |
+| Extension manifest   | `kubb-extension.json`, `isExtensionManifest`                | [Extension manifest](/docs/5.x/reference/kit/manifest)             |
+| Extension docs       | `docs/` folder                                              | [Extension docs](/docs/5.x/reference/kit/extension-docs)           |
 
-## Casing
+`createKubb` comes from `kubb`, `jsxRenderer` from `kubb/jsx`, and everything else from `kubb/kit`.
 
-`casing` turns names from a spec into identifiers and file names. Every helper takes `{ prefix, suffix }` except `capitalize`.
+## Casing {#casing}
 
-| Helper                  | Example                                 |
-| ----------------------- | --------------------------------------- |
-| `casing.camel`          | `'get pet-by id'` gives `'getPetById'`. |
-| `casing.pascal`         | `'get pet-by id'` gives `'GetPetById'`. |
-| `casing.snake`          | `'helloWorld'` gives `'hello_world'`.   |
-| `casing.screamingSnake` | `'helloWorld'` gives `'HELLO_WORLD'`.   |
-| `casing.capitalize`     | `'getPetById'` gives `'GetPetById'`.    |
+`casing` turns names from a spec into identifiers and file names. Every helper except `capitalize` takes a second argument, `{ prefix, suffix }`, that it adds before casing.
+
+| Helper                  | Example                                    |
+| ----------------------- | ------------------------------------------ |
+| `casing.camel`          | `'get pet-by id'` gives `'getPetById'`.    |
+| `casing.pascal`         | `'get pet-by id'` gives `'GetPetById'`.    |
+| `casing.snake`          | `'helloWorld'` gives `'hello_world'`.      |
+| `casing.screamingSnake` | `'helloWorld'` gives `'HELLO_WORLD'`.      |
+| `casing.capitalize`     | `'getPetById'` gives `'GetPetById'`.       |
+
+```typescript [casing.ts]
+import { casing } from 'kubb/kit'
+
+casing.camel('tag', { prefix: 'create' }) // 'createTag'
+```
 
 `camelCase` and `pascalCase` from `kubb/kit` are deprecated. Use `casing.camel` and `casing.pascal`.
 
-## Text
+## Text {#text}
 
 `text` holds helpers that work for any output language, so a quote or line break in a spec name cannot break the output.
 
-| Helper         | Purpose                                                                                          |
-| -------------- | ------------------------------------------------------------------------------------------------ |
-| `text.quote`   | A single-quoted string literal with quotes, backslashes, and line breaks escaped.                |
-| `text.indent`  | Indent every non-empty line of `text` by `unit` (two spaces by default). Blank lines stay empty. |
-| `text.dedent`  | Strip the common leading whitespace and the blank lines around the text.                         |
-| `text.unquote` | Strip one matching pair of `"`, `'` or `` ` `` from both ends.                                   |
+| Helper                       | Returns                                                                                   |
+| ---------------------------- | ----------------------------------------------------------------------------------------- |
+| `text.quote(value)`          | A single-quoted string literal with quotes, backslashes, and line breaks escaped. `''` for `null` or `undefined`. |
+| `text.indent({ text, unit })` | `text` with every non-empty line indented by `unit`, two spaces by default. Blank lines stay empty. |
+| `text.dedent(text)`          | `text` without its common leading whitespace and the blank lines around it.               |
+| `text.unquote(text)`         | `text` without one matching pair of `"`, `'`, or `` ` `` around it.                       |
 
 ```typescript [text.ts]
 import { text } from 'kubb/kit'

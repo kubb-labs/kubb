@@ -1,8 +1,7 @@
 ---
 layout: doc
 title: kubb validate
-description: The validate command checks a specification with the configured adapter
-  without running the generation pipeline.
+description: The validate command checks a specification with the adapter in your Kubb config, or the OpenAPI adapter without one, and runs no generation.
 outline:
   - 2
   - 3
@@ -14,7 +13,7 @@ navigation:
 
 # kubb validate
 
-Run `kubb validate` to check a specification with the adapter in your Kubb config, without running generation. Use it to catch errors early in CI or before you commit a spec change. Without a config, it uses `@kubb/adapter-oas` for OpenAPI and Swagger documents.
+`kubb validate` checks a specification with the adapter in your Kubb config and runs no generator plugins. Use it in CI or before you commit a spec change.
 
 ::terminal
 ---
@@ -28,21 +27,34 @@ output:
 ---
 ::
 
-The input can also be a URL, such as `https://petstore3.swagger.io/api/v3/openapi.json`, or a file in a git repository, such as `git+https://github.com/org/api.git#main:specs/openapi.yaml`. Kubb fetches a git input into a temporary folder with `git`, validates it, and deletes the folder. See [`input`](/docs/5.x/reference/configuration#input) for the format.
+A failure shows the validation error instead. When the default OpenAPI adapter is missing, the error includes its install command.
 
-The summary shows the result and elapsed time before the input and the adapter's name. Validation runs no generator plugins and writes no generated files. A failure includes the validation error. When the default OpenAPI adapter is missing, the error includes its installation command.
+## Arguments
 
-The command discovers the project's config or accepts `--config <path>` (`-c`). Each config's adapter validates the supplied input, with local paths resolved from that config's `root`, or the current directory when `root` is omitted. A URL or git input is passed unchanged. A config without an adapter fails instead of substituting the OpenAPI adapter.
+| Argument | Required | Description |
+| --- | --- | --- |
+| `<input>` | Yes | Path, URL, or git input (`git+<repo>#<ref>:<path>`) of the spec, such as `https://petstore3.swagger.io/api/v3/openapi.json`. See [`input`](/docs/5.x/reference/configuration#input) for the format. |
+
+Kubb fetches a git input into a temporary folder with `git`, validates it, and deletes the folder.
+
+## Options
+
+| Option | Description |
+| --- | --- |
+| `--config <path>`, `-c` | Path to the Kubb config. Without it, Kubb looks for one the way [`kubb generate`](/docs/5.x/reference/commands/generate) does. |
 
 ```shell [Terminal]
 kubb validate ./schema.graphql --config ./kubb.config.ts
 ```
 
-## Arguments
+## Which adapter runs
 
-| Argument  | Required | Description                                                                           |
-| --------- | -------- | ------------------------------------------------------------------------------------- |
-| `<input>` | `true`   | Path, URL, or git input (`git+<repo>#<ref>:<path>`) of the specification to validate. |
+| Situation | Adapter |
+| --- | --- |
+| A config is found or passed | The adapter of each config entry. A local path resolves from that entry's `root`, or the current folder without one. A URL or git input is passed unchanged. |
+| A config entry has no adapter | None. The command fails instead of using the OpenAPI adapter. |
+| No config, or a found config that fails to load | `@kubb/adapter-oas`, for OpenAPI and Swagger documents. A config passed with `--config` that fails to load fails the command. |
 
-> [!TIP]
-> `kubb validate` exits with a non-zero status code when the spec is invalid. Use it as a pre-commit hook or CI step to fail the build.
+## Exit codes
+
+`kubb validate` exits with code 1 when the spec is invalid, no adapter is configured, or the adapter is missing. Use it as a pre-commit hook or CI step to fail the build.
