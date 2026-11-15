@@ -55,7 +55,7 @@ console.log(`Generated ${files.length} files`)
 ```
 
 > [!WARNING]
-> `safeBuild()` does not throw when a plugin fails. Check `Diagnostics.hasError(diagnostics)` before you use the files.
+> `safeBuild()` does not throw when the pipeline fails. Check `Diagnostics.hasError(diagnostics)` before you use the files. Setup can still reject, for example when a plugin's `dependencies` callback throws or the signal aborts, so wrap the call in `try`/`catch`.
 
 ### `Kubb` instance members
 
