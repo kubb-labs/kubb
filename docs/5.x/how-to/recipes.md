@@ -13,7 +13,7 @@ navigation:
 
 # Configure generation
 
-Each recipe is a complete `kubb.config.ts`. After [Installation](/docs/5.x/how-to/installation), replace `./petStore.yaml` with your spec, install the listed packages, and run `npx kubb generate`.
+Each recipe is a complete `kubb.config.ts`. After [Installation](/docs/5.x/how-to/installation), replace `./petStore.yaml` with your spec, install the listed packages, and run `npx kubb generate`. The `kubb` tab installs each plugin with [`kubb add`](/docs/5.x/reference/commands/add) at the version the [extension registry](/docs/5.x/reference/registry) pins.
 
 > [!WARNING]
 > With `clean: true`, Kubb removes `./src/gen` before it generates, so keep your own files elsewhere.
@@ -26,10 +26,21 @@ Each recipe is a complete `kubb.config.ts`. After [Installation](/docs/5.x/how-t
 
 Types, an Axios client, and [TanStack Query](https://tanstack.com/query) hooks for React.
 
-```shell [Terminal]
+::::code-group
+
+```shell [kubb]
+npx kubb add plugin-ts
+npx kubb add plugin-axios
+npx kubb add plugin-react-query
+npm install axios react @tanstack/react-query
+```
+
+```shell [npm]
 npm install -D kubb typescript @kubb/plugin-ts @kubb/plugin-axios @kubb/plugin-react-query
 npm install axios react @tanstack/react-query
 ```
+
+::::
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -50,10 +61,21 @@ export default defineConfig({
 
 Types, an Axios client, and [TanStack Query](https://tanstack.com/query) composables for Vue.
 
-```shell [Terminal]
+::::code-group
+
+```shell [kubb]
+npx kubb add plugin-ts
+npx kubb add plugin-axios
+npx kubb add plugin-vue-query
+npm install axios vue @tanstack/vue-query
+```
+
+```shell [npm]
 npm install -D kubb typescript @kubb/plugin-ts @kubb/plugin-axios @kubb/plugin-vue-query
 npm install axios vue @tanstack/vue-query
 ```
+
+::::
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -74,10 +96,22 @@ export default defineConfig({
 
 Runtime validation with [Zod](https://zod.dev), plus [MSW](https://mswjs.io) request handlers backed by [Faker.js](https://fakerjs.dev) mock data.
 
-```shell [Terminal]
+::::code-group
+
+```shell [kubb]
+npx kubb add plugin-ts
+npx kubb add plugin-zod
+npx kubb add plugin-faker
+npx kubb add plugin-msw
+npm install zod msw @faker-js/faker
+```
+
+```shell [npm]
 npm install -D kubb typescript @kubb/plugin-ts @kubb/plugin-zod @kubb/plugin-faker @kubb/plugin-msw
 npm install zod msw @faker-js/faker
 ```
+
+::::
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
