@@ -265,13 +265,29 @@ How `date-time`, `date`, and `time` schemas are typed.
 
 A single value applies to all three formats:
 
-| Value                | `date-time`                     | `date` and `time`             |
-| -------------------- | ------------------------------- | ----------------------------- |
-| `'string'` (default) | ISO 8601 string                 | ISO 8601 string               |
-| `false`              | Plain string, no format check   | Plain string, no format check |
-| `'stringOffset'`     | String with a timezone offset   | Same as `'string'`            |
-| `'stringLocal'`      | Local string without a timezone | Same as `'string'`            |
-| `'date'`             | JavaScript `Date`               | JavaScript `Date`             |
+::field-group
+
+:::field{name="'string'"}
+Types `date-time`, `date`, and `time` as ISO 8601 strings.
+:::
+
+:::field{name="false"}
+Types all three as plain strings, with no format check.
+:::
+
+:::field{name="'stringOffset'"}
+Types `date-time` as a string with a timezone offset. `date` and `time` are typed as with `'string'`.
+:::
+
+:::field{name="'stringLocal'"}
+Types `date-time` as a local string without a timezone. `date` and `time` are typed as with `'string'`.
+:::
+
+:::field{name="'date'"}
+Types all three as a JavaScript `Date`.
+:::
+
+::
 
 The string variants all type the value as `string`. Schema plugins such as `@kubb/plugin-zod` check the offset or local format. A `Date` needs parsing to revive it from JSON.
 
@@ -297,10 +313,17 @@ How a schema with `format: int64` or `format: uint64` is typed. Other integers, 
 | Required | `false`                |
 | Default  | `'bigint'`             |
 
-| Value                | Good for         | Watch out                                                                                                      |
-| -------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------- |
-| `'bigint'` (default) | Exact 64-bit IDs | `JSON.stringify` and `JSON.parse` cannot round-trip it. Use it only when the app handles bigint serialization. |
-| `'number'`           | Most JSON APIs   | Loses precision above `Number.MAX_SAFE_INTEGER`.                                                               |
+::field-group
+
+:::field{name="'bigint'"}
+Keeps 64-bit IDs exact. `JSON.stringify` and `JSON.parse` cannot round-trip a bigint, so use it only when the app handles bigint serialization.
+:::
+
+:::field{name="'number'"}
+Fits most JSON APIs. Loses precision above `Number.MAX_SAFE_INTEGER`.
+:::
+
+::
 
 A schema with `type: string` stays a `string` whatever its `format`, so the [ProtoJSON](https://protobuf.dev/programming-guides/json/#int64-strings) `int64` strings that gRPC-gateway sends stay strings. `@kubb/plugin-zod` checks them with a digits regex, and `@kubb/plugin-faker` mocks them as numeric strings.
 
@@ -323,11 +346,21 @@ It applies to:
 
 `additionalProperties: true` is not affected. `@kubb/plugin-ts` always types its values as `unknown`.
 
-| Value                 | Effect                                                       |
-| --------------------- | ------------------------------------------------------------ |
-| `'unknown'` (default) | Callers must narrow the value before they use it.            |
-| `'any'`               | Callers can use the value without type checks.               |
-| `'void'`              | Marks a value callers should not use, to match a legacy API. |
+::field-group
+
+:::field{name="'unknown'"}
+Callers must narrow the value before they use it.
+:::
+
+:::field{name="'any'"}
+Callers can use the value without type checks.
+:::
+
+:::field{name="'void'"}
+Marks a value callers should not use, to match a legacy API.
+:::
+
+::
 
 #### emptySchemaType
 
