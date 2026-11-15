@@ -1,5 +1,37 @@
 # Changelog
 
+## v5.20.2 — Nov 15, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Rewrite the docs these packages ship for kubb.dev to lead with tables and examples. Each overview shows a config and its generated output, the adapter options are grouped by what they change, and the barrel docs now state that types go in a separate `export type` statement and that a path outside the output root fails with `KUBB_PATH_TRAVERSAL`. ([#4634](https://github.com/kubb-labs/kubb/pull/4634), [`64e5b7d`](https://github.com/kubb-labs/kubb/commit/64e5b7d1d47b743d83c07c812e05803b4c81f59b))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- The CLI now sends its anonymous telemetry from a detached process, so `kubb generate`, `validate`, `mcp`, and `studio` exit as soon as their work is done. Before, the process waited up to a second for the request, about 350–500 ms on a typical connection. ([#4632](https://github.com/kubb-labs/kubb/pull/4632), [`8bb2c70`](https://github.com/kubb-labs/kubb/commit/8bb2c70425eaaa94a35ba168c6a71058da51b899))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Fix three JSDoc comments to match the code. `GeneratorContext.root` is the build's output directory, the same for every plugin, not the current plugin's folder. The default `group.name` for `path` groups camelCases the first path segment. `Adapter.sources` no longer claims that a watcher rebuilds from it: `kubb generate --watch` watches only `input`. ([#4634](https://github.com/kubb-labs/kubb/pull/4634), [`64e5b7d`](https://github.com/kubb-labs/kubb/commit/64e5b7d1d47b743d83c07c812e05803b4c81f59b))
+
+### kubb
+
+#### Bug Fixes
+
+- `kubb` now depends on `@kubb/kit` and `@kubb/renderer-jsx` with a caret range, like `@kubb/core`, so a plugin built against a newer patch or minor shares one copy with `kubb` instead of installing a second one. ([#4628](https://github.com/kubb-labs/kubb/pull/4628), [`9fb6ff4`](https://github.com/kubb-labs/kubb/commit/9fb6ff41e98ab792111eb237f21773cbc022fca1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.20.1 — Nov 14, 2026
 
 ### @kubb/cli
