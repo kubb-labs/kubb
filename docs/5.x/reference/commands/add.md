@@ -59,7 +59,7 @@ Before it asks, the CLI shows the required plugins, the packages it installs, an
 ◆  Add it?
 ```
 
-After the install, the summary title gives the outcome. `Plugin needs configuration` means you add the printed snippet to the config by hand. See [Extension command output](EDGE:extension-command-output).
+After the install, the summary title gives the outcome. `Plugin needs configuration` means you add the printed snippet to the config by hand. See [Extension command output](/docs/5.x/topics/extension-commands#extension-command-output).
 
 ## Required plugins {#add-required-plugins}
 
@@ -79,7 +79,7 @@ When the manifest lists `dependencies` that `kubb.config.ts` lacks, the CLI asks
 | Adapter | Changes nothing. The CLI prints the import and the `adapter` line to add by hand. |
 
 > [!WARNING]
-> When the CLI cannot edit the config, such as when `plugins` is not an array literal, it prints `Could not edit <file>: <reason>` and the snippet to add by hand, then exits with code 1. See [When kubb add cannot edit the config](EDGE:config-edits).
+> When the CLI cannot edit the config, such as when `plugins` is not an array literal, it prints `Could not edit <file>: <reason>` and the snippet to add by hand, then exits with code 1. See [When kubb add cannot edit the config](/docs/5.x/topics/extension-commands#config-edits).
 
 ## Options {#options}
 

@@ -51,7 +51,7 @@ kubb update plugin-zod plugin-ts --yes   # two extensions, no prompt
 
 ## Which extensions it updates {#update-scope}
 
-An extension gets an update when its installed version is older than the pinned one, or when `package.json` lists it but it is not installed. An update that does not support your Kubb or Node.js version is skipped with `Skipped <id>: <reason>`. See [What kubb update prints](EDGE:extension-command-output).
+An extension gets an update when its installed version is older than the pinned one, or when `package.json` lists it but it is not installed. An update that does not support your Kubb or Node.js version is skipped with `Skipped <id>: <reason>`. See [What kubb update prints](/docs/5.x/topics/extension-commands#extension-command-output).
 
 ## Options {#options}
 

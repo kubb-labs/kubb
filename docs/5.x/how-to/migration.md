@@ -35,7 +35,7 @@ Use Node.js 22.22 or later in development, CI, and Docker. Update `kubb` and you
 | `output.lint` | `'auto'` | `false` | `lint: 'auto'` |
 | Root barrel | `'named'` | `false` | `output.barrel: { type: 'named' }` |
 | Tag folder | `<tag>Controller` | `<tag>` | [`group.name`](#output-layout) |
-| React and Vue Query hooks | Generated | `hooks: false` | `hooks: true` |
+| React and Vue Query hooks | Generated | `hooks: false`, which still writes query keys and option factories | `hooks: true` |
 | Client errors | Returned | Thrown, `throwOnErrorDefault: true` | `throwOnErrorDefault: false` |
 | OpenAPI `int64` | `number` | `bigint` | `integerType: 'number'` on the adapter |
 | SWR mutation arguments | Trigger shape opt-in | Always passed through `trigger()` | No option |
@@ -206,6 +206,7 @@ See [Zod options](/extensions/kubb-labs/plugin-zod/options).
 - Move `baseURL` and validation to the client plugin, and remove `parser`.
 - Set `hooks: true` to keep the `use*` hooks.
 - Queries and mutations take grouped `*Options`.
+- Replace `*MutationKey` type imports with the runtime key helper.
 - `TData` holds only 2xx responses, and errors use `TError`.
 - The generated `enabled` guard is gone. Set TanStack Query's `enabled` or `skipToken` to defer a request.
 
@@ -227,7 +228,7 @@ SWR keys requests off `shouldFetch` instead of a parameter-presence guard. Set i
 
 ## Faker {#plugin-faker}
 
-Remove `paramsCasing` and `mapper`, and use macros or printers instead. See [Faker options](/extensions/kubb-labs/plugin-faker/options).
+Remove `paramsCasing` and `mapper`, and use macros or printers instead, so mock values stay compatible with the TypeScript output. See [Faker options](/extensions/kubb-labs/plugin-faker/options).
 
 ## MSW {#plugin-msw}
 
@@ -256,4 +257,22 @@ Run `kubb generate`, review the changed files, and type-check your app. Most err
 - Zod inferred types end in `SchemaType`.
 - Tag folders lost their `Controller` suffix.
 
-See [Rare v4 upgrade cases](EDGE:v4-upgrade-edge-cases) for less common changes.
+## Less common changes {#v4-upgrade-edge-cases}
+
+Check the rows for the plugins you use.
+
+| Area | Change |
+| --- | --- |
+| [Output layout](#output-layout) | `format: 'auto'` and `lint: 'auto'` now try the oxc tools first. |
+| [HTTP clients](#plugin-client) | Authentication follows the OpenAPI security schemes through the bundled client's `auth` resolver. |
+| [TypeScript](#plugin-ts) | Open string unions keep suggestions with `(string & {})`. Shared fields of a discriminated union move into a common intersection. |
+| [TypeScript](#plugin-ts) | JSDoc drops the format suffix from `@type`, includes the spec's examples, and adds `@type object` for objects. |
+| [Zod](#plugin-zod) | Output uses chained Zod 4 calls, functional wrappers with `mini: true`, and getters only for circular references. |
+| [React Query](#plugin-react-query) | `client` is `'axios' \| 'fetch' \| 'client'`, detected when exactly one is registered. |
+| [React Query](#plugin-react-query) | The trailing client config of queries and mutations excludes `path`, `query`, `body`, `headers`, and `url`. |
+| [React Query](#plugin-react-query) | Suspense hooks always run. |
+| [Vue Query](#plugin-vue-query) | Each parameter group accepts `MaybeRefOrGetter`, and the generated client calls unwrap it with `toValue()`. |
+| [Faker](#plugin-faker) | `createPet` keeps its name and accepts a generic `TData`, so its return value keeps the types of the override fields. |
+| [MSW](#plugin-msw) | A handler for an operation with a request body accepts an `HttpResponseResolver` typed against that body. |
+| [Cypress](#plugin-cypress) | HTTP methods are uppercase. `baseURL`, `exclude`, `include`, and `override` keep their shape. There is no validator option. |
+| [MCP](#plugin-mcp) | Handlers receive grouped `*Options` plus the MCP `ServerContext`, call the generated client operations, and read `res.data`. |

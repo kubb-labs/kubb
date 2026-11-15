@@ -40,7 +40,7 @@ kubb generate ./petStore.yaml  # this spec instead
 
 ### Watch mode
 
-`--watch` follows a local `input` file only. A URL or git input is generated once, so rerun Kubb after the remote spec changes. In an interactive terminal, press `r` to rebuild and `q` to quit. See [Watch mode](EDGE:watch-mode).
+`--watch` follows a local `input` file only. A URL or git input is generated once, so rerun Kubb after the remote spec changes. In an interactive terminal, press `r` to rebuild and `q` to quit. See [Watch mode](/docs/5.x/topics/cli-runs#watch-mode).
 
 ## Reporters
 
@@ -73,7 +73,7 @@ File changes
   Lines  +312 −47
 ```
 
-See [Read the run summary](EDGE:run-summary).
+See [Read the run summary](/docs/5.x/topics/cli-runs#run-summary).
 
 ## Exit codes
 

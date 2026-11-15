@@ -200,7 +200,7 @@ flowchart LR
 
 Checks on the pull request validate the record and the docs, and load your extension with install scripts off. A maintainer then reviews the package against [`REVIEW.md`](https://github.com/kubb-labs/registry/blob/main/REVIEW.md).
 
-After the pull request exists, editing the issue no longer runs the submission again. When a check fails or the maintainer asks for changes, publish a fixed version and reply in the pull request. See [Registry checks](EDGE:registry-checks).
+After the pull request exists, editing the issue no longer runs the submission again. When a check fails or the maintainer asks for changes, publish a fixed version and reply in the pull request. See [Registry checks](/docs/5.x/topics/extension-commands#registry-checks).
 
 After the merge, the registry lists the extension within minutes. Users install it with:
 

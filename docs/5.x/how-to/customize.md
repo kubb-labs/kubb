@@ -344,7 +344,7 @@ pluginFaker({
 `this.transform(node)` returns a string, so a handler that passes it to `ts.factory` breaks. Build the type as a string.
 
 > [!WARNING]
-> Returning a TypeScript compiler node is deprecated and goes away in the next major. See [TypeScript compiler nodes in printers](EDGE:printer-compiler-nodes).
+> Returning a TypeScript compiler node is deprecated and goes away in the next major. See [TypeScript compiler nodes in printers](/docs/5.x/topics/plugin-internals#printer-compiler-nodes).
 
 ### Zod encode and decode
 

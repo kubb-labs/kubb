@@ -60,7 +60,7 @@ type RegistryIndex = {
 }
 ```
 
-A client rejects an index whose `version` is not `1`, skips an entry whose `artifact.kind` it does not know, and ignores unknown keys. See [How the CLI reads the index](EDGE:registry-client-rules).
+A client rejects an index whose `version` is not `1`, skips an entry whose `artifact.kind` it does not know, and ignores unknown keys. See [How the CLI reads the index](/docs/5.x/topics/extension-commands#registry-client-rules).
 
 ## `GET <base>/<owner>/<slug>.json` {#detail}
 
@@ -90,7 +90,7 @@ type RegistryGuide = {
 > [!WARNING]
 > The Markdown comes from the package author. Render it as untrusted. [Extension docs](/docs/5.x/reference/kit/extension-docs) lists the file rules and the Markdown that renders.
 
-See [How the CLI reads the index](EDGE:registry-client-rules) for older registries and older package versions.
+See [How the CLI reads the index](/docs/5.x/topics/extension-commands#registry-client-rules) for older registries and older package versions.
 
 ## `RegistryEntry` {#registry-entry}
 

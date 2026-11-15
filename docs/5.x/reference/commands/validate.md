@@ -52,7 +52,7 @@ kubb validate ./schema.graphql --config ./kubb.config.ts
 | A config is found or passed | The adapter of each config entry. |
 | No config | `@kubb/adapter-oas`, for OpenAPI and Swagger documents. |
 
-See [How kubb validate picks an adapter](EDGE:config-loading).
+See [How kubb validate picks an adapter](/docs/5.x/topics/config-and-inputs#config-loading).
 
 ## Exit codes
 

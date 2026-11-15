@@ -69,7 +69,7 @@ Every member is required. Keys are the files' absolute paths, and the build resu
 | `writeItem()`  | `key: string, value: string, options?: { stored?: string \| null }` | `Promise<void>`           | Writes an item. `stored` is the previous content when Kubb already read it.                            |
 | `removeItem()` | `key: string`                                                       | `Promise<void>`           | Deletes an item. Does nothing for a missing key.                                                       |
 | `readKeys()`   | `base?: string`                                                     | `Promise<string[]>`       | Lists keys, optionally under a prefix.                                                                 |
-| `empty()`      | `base?: string`                                                     | `Promise<void>`           | Deletes every item, optionally under a prefix. Without `base`, the backend decides. See [Storage keys](EDGE:storage-keys). |
+| `empty()`      | `base?: string`                                                     | `Promise<void>`           | Deletes every item, optionally under a prefix. Without `base`, the backend decides. See [Storage keys](/docs/5.x/topics/plugin-internals#storage-keys). |
 
 > [!NOTE]
 > Kubb skips `writeItem` for a file whose content did not change, so do not expect one call per generated file.

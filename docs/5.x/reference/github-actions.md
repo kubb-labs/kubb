@@ -31,7 +31,7 @@ flowchart TD
 - Each pull request reuses one CI agent and one comment. Each branch push reuses one CI agent and writes no comment.
 - When the snapshot fails, the comment shows the error and links the workflow run, and the step fails.
 
-See [GitHub Action edge cases](EDGE:github-action-runs).
+See [GitHub Action edge cases](/docs/5.x/topics/studio-and-ci#github-action-runs).
 
 ## Inputs
 
@@ -68,7 +68,7 @@ The comment shows the package name and version, an `npm i <tarball-url>` command
 > [!TIP]
 > The base branch comparison needs a snapshot of the base branch. Run the workflow on pushes to that branch too.
 
-See [Read the snapshot comment](EDGE:github-action-runs).
+See [Read the snapshot comment](/docs/5.x/topics/studio-and-ci#github-action-runs).
 
 ## Environment variables
 

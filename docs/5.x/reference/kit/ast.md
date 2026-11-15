@@ -67,7 +67,7 @@ A `SchemaNode` is discriminated by its `type`. `ast.schema.types` lists every va
 | Family     | Types                                                                                    | Notes                                                       |
 | ---------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | Structural | `object`, `array`, `tuple`, `union`, `intersection`, `enum`, `not`                       | `object` holds `properties`.                                |
-| Scalar     | `string`, `number`, `integer`, `bigint`, `boolean`, `null`, `any`, `unknown`, `void`, `never` | `integer` prints as `number`. See [64-bit integers](EDGE:64-bit-integers) for `bigint`. |
+| Scalar     | `string`, `number`, `integer`, `bigint`, `boolean`, `null`, `any`, `unknown`, `void`, `never` | `integer` prints as `number`. See [64-bit integers](/docs/5.x/topics/64-bit-integers#64-bit-integers) for `bigint`. |
 | Special    | `ref`, `date`, `datetime`, `time`, `uuid`, `email`, `url`, `ipv4`, `ipv6`, `blob`        | `ref` points at another schema. `blob` is binary data.      |
 
 ## `ast.factory` {#factory-functions}
@@ -158,7 +158,7 @@ ast.macro.apply(operation, [macroUntagged]).tags // ['untagged']
 | `macroDiscriminatorEnum` | Replaces a discriminator property's schema with an enum of its allowed values. |
 | `macroEnumName`          | Names an inline enum schema from its parent and property name.                 |
 
-`macroSimplifyUnion`, the name `macroDedupeUnion` had before 5.16, is deprecated. See [Name collisions](EDGE:name-collisions) for a macro that renames schemas.
+`macroSimplifyUnion`, the name `macroDedupeUnion` had before 5.16, is deprecated. See [Name collisions](/docs/5.x/topics/name-collisions#name-collisions) for a macro that renames schemas.
 
 ### Macro options and callbacks
 
@@ -247,7 +247,7 @@ ast.schema.inferDiscriminator([catSchema, dogSchema]) // 'kind'
 ast.schema.getNumberBounds({ min: 0.5, exclusive: { max: 10 }, integer: true }) // { min: 1, max: 9 }
 ```
 
-See [Schema search cache](EDGE:schema-search-cache) to reuse `find` results across many schemas.
+See [Schema search cache](/docs/5.x/topics/plugin-internals#schema-search-cache) to reuse `find` results across many schemas.
 
 ## `ast.mediaType` {#ast-media-type}
 

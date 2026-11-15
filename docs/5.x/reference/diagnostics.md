@@ -226,7 +226,7 @@ A `$ref` points at a definition that does not exist, or at a file or URL Kubb ca
 
 **Fix:** Add the missing definition, create the file, or fix the `$ref`, then run [`kubb validate`](/docs/5.x/reference/commands/validate).
 
-Kubb refuses some local `$ref` files, such as any from a URL input. See [External `$ref` files](EDGE:external-refs) for the rules on Kubb Studio agents.
+Kubb refuses some local `$ref` files, such as any from a URL input. See [External `$ref` files](/docs/5.x/topics/config-and-inputs#external-refs) for the rules on Kubb Studio agents.
 
 ### KUBB_UNKNOWN {#kubb-unknown}
 

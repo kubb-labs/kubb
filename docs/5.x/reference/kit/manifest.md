@@ -173,7 +173,7 @@ Each `options` entry is one Studio form field that edits the value at `path` in 
 
 ## Validation
 
-Kubb skips an invalid manifest, and the registry review lists its problems. In your own code, `isExtensionManifest(value)` from `kubb/kit` runs the same checks as Kubb, and `manifestProblems(manifest)` lists the option problems of a well-formed manifest. See [Manifest validation](EDGE:manifest-validation) for what each reader checks.
+Kubb skips an invalid manifest, and the registry review lists its problems. In your own code, `isExtensionManifest(value)` from `kubb/kit` runs the same checks as Kubb, and `manifestProblems(manifest)` lists the option problems of a well-formed manifest. See [Manifest validation](/docs/5.x/topics/extension-manifests#manifest-validation) for what each reader checks.
 
 ## Import `compatibility` into `meta` {#import-compatibility-into-meta}
 

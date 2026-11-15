@@ -106,7 +106,7 @@ Writes no barrel for this plugin and leaves its files out of the root barrel.
 
 ::
 
-`nested: true` writes an `index.ts` in every subfolder. `namespace: true` also exports each subfolder as a named namespace, such as `PetService`. See [`@kubb/plugin-barrel` options](/extensions/kubb-labs/plugin-barrel/options) for both, and [Barrel files](EDGE:barrel-files) for the fallback to the root [`output.barrel`](/docs/5.x/reference/configuration#outputbarrel).
+`nested: true` writes an `index.ts` in every subfolder. `namespace: true` also exports each subfolder as a named namespace, such as `PetService`. See [`@kubb/plugin-barrel` options](/extensions/kubb-labs/plugin-barrel/options) for both, and [Barrel files](/extensions/kubb-labs/plugin-barrel/guides/barrel-rules) for the fallback to the root [`output.barrel`](/docs/5.x/reference/configuration#outputbarrel).
 
 ```typescript [kubb.config.ts]
 import { pluginZod } from '@kubb/plugin-zod'
@@ -183,7 +183,7 @@ Which value assigns an operation to a group.
 ::field-group
 
 :::field{name="'tag'"}
-The operation's first tag. An operation without tags goes in the `default` group. See [Group folders](EDGE:group-folders) for OpenAPI 3.2 `parent` tags.
+The operation's first tag. An operation without tags goes in the `default` group. See [Group folders](/docs/5.x/topics/config-and-inputs#group-folders) for OpenAPI 3.2 `parent` tags.
 :::
 
 :::field{name="'path'"}
@@ -233,7 +233,7 @@ Generates only the operations and schemas that match at least one entry.
 > [!WARNING]
 > A string `pattern` becomes `new RegExp(pattern)`, so it matches anywhere: `'pet'` also matches `'petType'`. Write `'^pet$'` for an exact match.
 
-Without a `schemaName` entry, `include` keeps only the schemas the included operations use. See [Filters](EDGE:filters) for schema-only filters.
+Without a `schemaName` entry, `include` keeps only the schemas the included operations use. See [Filters](/docs/5.x/topics/config-and-inputs#filters) for schema-only filters.
 
 ```typescript [Type definition]
 export type Include =
@@ -286,7 +286,7 @@ pluginTs({
 })
 ```
 
-See [Client and query plugins](EDGE:client-and-query-plugins) for how query plugins follow a client plugin's `exclude`.
+See [Client and query plugins](/docs/5.x/topics/query-plugins#client-and-query-plugins) for how query plugins follow a client plugin's `exclude`.
 
 ## override {#override}
 
@@ -322,7 +322,7 @@ pluginTs({
 })
 ```
 
-See [Client and query plugins](EDGE:client-and-query-plugins) for how query plugins follow a client plugin's `override`.
+See [Client and query plugins](/docs/5.x/topics/query-plugins#client-and-query-plugins) for how query plugins follow a client plugin's `override`.
 
 ## resolver {#resolver}
 

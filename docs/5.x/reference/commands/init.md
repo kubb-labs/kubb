@@ -27,7 +27,7 @@ npx kubb init
 
 Kubb finds the package manager the way the [extension commands](/docs/5.x/reference/commands#project-files) do. Without a `package.json`, it offers to create one.
 
-It looks for `openapi*` or `swagger*` files (`.yaml`, `.yml`, or `.json`) up to three folders deep. See [How kubb init finds a spec](EDGE:init-spec-detection).
+It looks for `openapi*` or `swagger*` files (`.yaml`, `.yml`, or `.json`) up to three folders deep. See [How kubb init finds a spec](/docs/5.x/topics/extension-commands#init-spec-detection).
 
 ### Ask three questions
 

@@ -69,7 +69,7 @@ Import `version` from `package.json` and `compatibility` [from `kubb-extension.j
 
 ### Compatibility checks
 
-Before any plugin runs, Kubb checks each extension's `meta.compatibility` against the running `@kubb/core` and Node.js. A mismatch fails with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension). See [Compatibility ranges](EDGE:compatibility-ranges) for prereleases and canary builds.
+Before any plugin runs, Kubb checks each extension's `meta.compatibility` against the running `@kubb/core` and Node.js. A mismatch fails with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension). See [Compatibility ranges](/docs/5.x/topics/extension-manifests#compatibility-ranges) for prereleases and canary builds.
 
 ## `dependencies` {#dependencies}
 
@@ -119,7 +119,7 @@ export const pluginExample = defineExtension<PluginExample>({
 })
 ```
 
-See [Array dependencies](EDGE:array-dependencies) for the older array form.
+See [Array dependencies](/docs/5.x/topics/extension-manifests#array-dependencies) for the older array form.
 
 ## Factory statics {#factory-statics}
 
@@ -130,4 +130,4 @@ pluginExample.kind // 'plugin'
 pluginExample.meta.name // 'plugin-example'
 ```
 
-The extension the factory returns gets `name` (from `meta.name`), `meta`, and the user's raw `options`. See [Hand-written extension objects](EDGE:hand-written-extensions).
+The extension the factory returns gets `name` (from `meta.name`), `meta`, and the user's raw `options`. See [Hand-written extension objects](/docs/5.x/topics/extension-manifests#hand-written-extensions).

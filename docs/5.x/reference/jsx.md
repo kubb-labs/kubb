@@ -102,7 +102,7 @@ Declares a generated file when it has both `baseName` and `path`. Without them, 
 | `meta?` | `object \| null` | Metadata on the file node, for plugins to read |
 | `banner?` | `string \| null` | Text before the source blocks |
 | `footer?` | `string \| null` | Text after the source blocks |
-| `copy?` | `string \| null` | An absolute path of a file to copy into the output. See [Copied and inline files](EDGE:inline-sources). |
+| `copy?` | `string \| null` | An absolute path of a file to copy into the output. See [Copied and inline files](/docs/5.x/topics/config-and-inputs#inline-sources). |
 | `children?` | `KubbReactNode` | The sources, imports, and exports of the file |
 
 ```tsx
@@ -127,7 +127,7 @@ A block of source text in the enclosing `File`. The children are the text.
 | `pointer?` | `string` | Where the source comes from in the input, such as `#/components/schemas/Pet` |
 | `children?` | `KubbReactNode` | The source text |
 
-See [Copied and inline files](EDGE:inline-sources) for `inline`.
+See [Copied and inline files](/docs/5.x/topics/config-and-inputs#inline-sources) for `inline`.
 
 #### `File.Import` {#file-import}
 

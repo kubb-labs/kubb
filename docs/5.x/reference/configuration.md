@@ -29,7 +29,7 @@ export default defineConfig({
 
 ## How Kubb loads a config
 
-Kubb loads the `--config` file, or else the first `kubb.config.ts` or variant, such as `.kubbrc.ts`, in the working folder or a parent. Without one, the CLI suggests `kubb init`. See [Config loading](EDGE:config-loading).
+Kubb loads the `--config` file, or else the first `kubb.config.ts` or variant, such as `.kubbrc.ts`, in the working folder or a parent. Without one, the CLI suggests `kubb init`. See [Config loading](/docs/5.x/topics/config-and-inputs#config-loading).
 
 ## Config formats
 
@@ -94,7 +94,7 @@ export default defineConfig([
 | [`root`](#root) | The config file's folder. `process.cwd()` when you call `createKubb` yourself. |
 | [`reporters`](#reporters) | `[cli, json, file, html]` |
 
-`createKubb` from `@kubb/core` applies fewer defaults, and the build tool integrations run fewer reporters. See [Config loading](EDGE:config-loading).
+`createKubb` from `@kubb/core` applies fewer defaults, and the build tool integrations run fewer reporters. See [Config loading](/docs/5.x/topics/config-and-inputs#config-loading).
 
 ## Top-level options
 
@@ -130,7 +130,7 @@ export default defineConfig({
 })
 ```
 
-See [Git input](EDGE:git-input) for commit SHAs, and [External `$ref` files](EDGE:external-refs) for how `$ref` files resolve.
+See [Git input](/docs/5.x/topics/config-and-inputs#git-input) for commit SHAs, and [External `$ref` files](/docs/5.x/topics/config-and-inputs#external-refs) for how `$ref` files resolve.
 :::
 
 ### `output`
@@ -269,7 +269,7 @@ Where generated files go. Default: `fsStorage()`, which writes to disk. `memoryS
 :::field{type="string"}
 The project root that `input` and `output.path` resolve against. Default: the config file's folder. A relative `root` resolves from that folder.
 
-See [Config loading](EDGE:config-loading) for a config in `.config/` and for `createKubb`.
+See [Config loading](/docs/5.x/topics/config-and-inputs#config-loading) for a config in `.config/` and for `createKubb`.
 :::
 
 ### `reporters`

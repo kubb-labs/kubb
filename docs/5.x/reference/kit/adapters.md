@@ -69,7 +69,7 @@ export default defineConfig({
 > [!IMPORTANT]
 > When the input is invalid, throw from `parse()` with a clear message.
 
-See [Name collisions](EDGE:name-collisions) for an adapter that renames schemas.
+See [Name collisions](/docs/5.x/topics/name-collisions#name-collisions) for an adapter that renames schemas.
 
 ## Adapter naming {#adapter-naming}
 

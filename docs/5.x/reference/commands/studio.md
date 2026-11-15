@@ -83,7 +83,7 @@ stateDiagram-v2
 
 ### Credentials
 
-The CLI keeps credentials, worker state, and the worker log in [`KUBB_HOME`](/docs/5.x/reference/commands#environment-variables), `~/.kubb` by default. `status` prints the log path. See [Studio credentials](EDGE:studio-credentials).
+The CLI keeps credentials, worker state, and the worker log in [`KUBB_HOME`](/docs/5.x/reference/commands#environment-variables), `~/.kubb` by default. `status` prints the log path. See [Studio credentials](/docs/5.x/topics/studio-and-ci#studio-credentials).
 
 ## Options
 
@@ -115,7 +115,7 @@ Each permission is off by default. The CLI asks once per project for each one yo
 | `--allow-file-refs` | Let a `$ref` in the spec read a local file outside the project. |
 | `--allow-exec` | Run the formatter, the linter, and `output.postGenerate`. |
 
-Without `--allow-read`, Studio shows the generated file paths but not their contents. See [Studio permissions and agent output](EDGE:studio-permissions).
+Without `--allow-read`, Studio shows the generated file paths but not their contents. See [Studio permissions and agent output](/docs/5.x/topics/studio-and-ci#studio-permissions).
 
 ### Snapshot
 
@@ -139,11 +139,11 @@ In CI, the CLI refuses to pair and needs stored credentials, so use `snapshot` t
 
 ## Snapshot output
 
-`--json` prints one object with `id`, `name`, `version`, `integrity`, `url`, `snapshotIdUrl`, `expiresAt`, and `agentUrl`. It adds `number` and `webUrl` when Studio sends them, and `changes` and `branchChanges` when a comparison is available. Installing a snapshot needs a separate `registry` API key. See [CI snapshots](EDGE:studio-ci-snapshots).
+`--json` prints one object with `id`, `name`, `version`, `integrity`, `url`, `snapshotIdUrl`, `expiresAt`, and `agentUrl`. It adds `number` and `webUrl` when Studio sends them, and `changes` and `branchChanges` when a comparison is available. Installing a snapshot needs a separate `registry` API key. See [CI snapshots](/docs/5.x/topics/studio-and-ci#studio-ci-snapshots).
 
 ## CI agent identity
 
-`snapshot` detects GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI. Other providers need a stable `--id`: pass it on the base branch, and pass the same value as `--base-id` on pull request runs. Passing `--id` turns off base detection, so also pass `--base-id` to get `branchChanges`. See [CI snapshots](EDGE:studio-ci-snapshots).
+`snapshot` detects GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI. Other providers need a stable `--id`: pass it on the base branch, and pass the same value as `--base-id` on pull request runs. Passing `--id` turns off base detection, so also pass `--base-id` to get `branchChanges`. See [CI snapshots](/docs/5.x/topics/studio-and-ci#studio-ci-snapshots).
 
 ## Plugins in Studio {#plugins-in-studio}
 
@@ -154,7 +154,7 @@ A third-party plugin works in Studio once it is installed and ships a manifest w
 > [!NOTE]
 > The agent imports only `@kubb/plugin-*` packages and installed packages whose manifest has `kind: "plugin"`. It refuses any other package name before it imports anything, and config edits follow the same rule.
 
-See [How the Studio agent loads plugins](EDGE:studio-agent).
+See [How the Studio agent loads plugins](/docs/5.x/topics/studio-and-ci#studio-agent).
 
 ## Exit codes
 
