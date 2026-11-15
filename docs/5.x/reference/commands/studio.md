@@ -222,7 +222,7 @@ On connect, the agent reports each extension with a valid `kubb-extension.json` 
 
 The agent calls the factory the manifest names in `export`. It refuses any other package name before importing anything, and config edits follow the same rule.
 
-Studio also lists [extension registry](/docs/5.x/reference/registry) plugins. A plugin the agent cannot run shows as not installed, with a `kubb add <id>` hint.
+Studio also lists [extension registry](/extensions) plugins. A plugin the agent cannot run shows as not installed, with a `kubb add <id>` hint.
 
 ### Studio credentials {#studio-credentials}
 

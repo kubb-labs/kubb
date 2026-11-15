@@ -184,7 +184,7 @@ Open a [submission issue](https://github.com/kubb-labs/registry/issues/new?templ
 
 In **Categories**, tick every category that fits. The first tick is the main one.
 
-Within minutes, a workflow opens a review pull request with the [record](/docs/5.x/reference/registry#records) and links it on your issue. If the workflow reports a problem instead, fix it and edit the issue to submit again. Your id is `<owner>/<slug>`, such as `acme/kubb-plugin-example`. See [Registry ids](/docs/5.x/reference/registry#registry-ids).
+Within minutes, a workflow opens a review pull request with the record and links it on your issue. If the workflow reports a problem instead, fix it and edit the issue to submit again. Your id is `<owner>/<slug>`, such as `acme/kubb-plugin-example`.
 
 ## Wait for the review {#review}
 

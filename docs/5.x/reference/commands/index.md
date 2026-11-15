@@ -10,7 +10,7 @@ navigation:
 
 # Commands
 
-The `kubb` CLI generates code from your [configuration](/docs/5.x/reference/configuration) and manages the extensions you install from the [extension registry](/docs/5.x/reference/registry).
+The `kubb` CLI generates code from your [configuration](/docs/5.x/reference/configuration) and manages the extensions you install from the [extension registry](/extensions).
 
 ```shell [Terminal]
 kubb <command> [options]
@@ -34,7 +34,7 @@ kubb <command> [options]
 
 ## Extension commands {#extension-commands}
 
-`kubb add`, `kubb update`, `kubb list`, and `kubb remove` share these rules for the extensions you install from the [extension registry](/docs/5.x/reference/registry).
+`kubb add`, `kubb update`, `kubb list`, and `kubb remove` share these rules for the extensions you install from the [extension registry](/extensions).
 
 ### Registry ids {#ids}
 
@@ -79,7 +79,7 @@ kubb <command> [options]
 | `KUBB_DEBUG` | every command | `1` or `true` turns on source maps in stack traces. Slows startup. |
 | `CI` | every command | Any value except `false` or `0` marks a CI run: plain output, no update check, and no Studio pairing. `GITHUB_ACTIONS`, `GITLAB_CI`, and other provider variables count too. |
 | `KUBB_HOME` | `generate`, `studio` | Folder for the update check and Studio credentials, worker state, and log. Default: `~/.kubb`. |
-| `KUBB_REGISTRY` | `init`, `add`, `update`, `list`, `remove` | Registry base URL, starting with `http://` or `https://`. Default: `https://kubb.dev/registry`. See [Host your own registry](/docs/5.x/reference/registry#host-your-own-registry). |
+| `KUBB_REGISTRY` | `init`, `add`, `update`, `list`, `remove` | Registry base URL, starting with `http://` or `https://`. Default: `https://kubb.dev/registry`. |
 | `KUBB_TOKEN` | `studio snapshot` | Organization CI API key, the default for `--token`. |
 | `KUBB_AGENT_MAX_GENERATIONS` | `studio` | How many recent generations the agent keeps for Studio. Default: `8`. |
 | `KUBB_AGENT_MAX_GENERATIONS_MB` | `studio` | Size cap in MB for those generations. Default: `100`. |

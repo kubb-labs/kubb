@@ -13,7 +13,7 @@ navigation:
 
 # Extension manifest
 
-`kubb-extension.json` describes your extension to the [registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent. It sits at the package root and ships on npm. Generation reads the extension's [`meta`](/docs/5.x/reference/kit/extensions#meta) instead.
+`kubb-extension.json` describes your extension to the [extension registry](/extensions), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent. It sits at the package root and ships on npm. Generation reads the extension's [`meta`](/docs/5.x/reference/kit/extensions#meta) instead.
 
 Set `$schema` to [`https://kubb.dev/schemas/kubb-extension.json`](https://kubb.dev/schemas/kubb-extension.json) for editor validation and completion.
 
@@ -88,7 +88,7 @@ One sentence on what the extension does.
 ### `category`
 
 :::field{type="string"}
-A category for filtering, such as `validation`. The registry replaces it with the reviewer's pick from [Categories](/docs/5.x/reference/registry#categories).
+A category for filtering, such as `validation`. The registry replaces it with the reviewer's pick.
 :::
 
 ### `icon`

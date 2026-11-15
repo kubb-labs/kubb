@@ -131,7 +131,7 @@ Kubb writes the generated files to `output.path`.
 
 ## Add plugins later
 
-After `kubb.config.ts` exists, manage extensions from the [extension registry](/docs/5.x/reference/registry):
+After `kubb.config.ts` exists, manage extensions from the [extension registry](/extensions):
 
 | Command | What it does |
 | --- | --- |
