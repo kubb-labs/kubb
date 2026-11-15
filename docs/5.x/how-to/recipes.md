@@ -13,7 +13,7 @@ navigation:
 
 # Configure generation
 
-Each recipe is a complete `kubb.config.ts`. After [Installation](/docs/5.x/how-to/installation), replace `./petStore.yaml` with your spec, install the listed packages, and run `npx kubb generate`. The `kubb` tab installs each plugin with [`kubb add`](/docs/5.x/reference/commands/add) at the version the [extension registry](/docs/5.x/reference/registry) pins.
+Each recipe is a complete `kubb.config.ts`. After [Installation](/docs/5.x/how-to/installation), replace `./petStore.yaml` with your spec, install the listed packages, and run `npx kubb generate`. The `kubb` tab installs each plugin with [`kubb add`](/docs/5.x/reference/commands/add) at the version the [extension registry](/docs/5.x/reference/registry) pins. `kubb add` needs an existing `kubb.config.ts`, so run [`npx kubb init`](/docs/5.x/reference/commands/init) first if you have none.
 
 > [!WARNING]
 > With `clean: true`, Kubb removes `./src/gen` before it generates, so keep your own files elsewhere.
