@@ -13,7 +13,7 @@ navigation:
 
 # Extension docs
 
-An extension ships its docs in a `docs/` folder at the package root, next to its [manifest](/docs/5.x/reference/kit/manifest). The [registry](/docs/5.x/reference/registry#detail) reads it from the pinned version's npm tarball or GitHub release, and kubb.dev renders it under `/extensions/<owner>/<slug>`.
+The `docs/` folder of your extension becomes its pages on kubb.dev, under `/extensions/<owner>/<slug>`. Put it at the package root, next to the [extension manifest](/docs/5.x/reference/kit/manifest). The [extension registry](/docs/5.x/reference/registry#detail) reads it from the pinned version's npm tarball or GitHub release.
 
 > [!IMPORTANT]
 > Add `docs` to `files` in `package.json`, so npm ships it.
@@ -30,7 +30,7 @@ The registry ignores other files and skips a file larger than 256 KiB.
 
 ## Title and description
 
-Start each file with a `#` title on its first line, with no frontmatter. The first paragraph after the title is the description, which kubb.dev also uses as the meta description.
+Start each file with a `#` title on its first line, with no frontmatter. The first paragraph after the title is the description. kubb.dev also uses it as the meta description.
 
 ## Guides
 
@@ -49,7 +49,7 @@ Write plain Markdown with absolute `https://` URLs for links and images. A code 
 | The callouts `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, and `> [!WARNING]`                         | Raw HTML                                                |
 | `::code-group`, `::field-group` with `:::field`, `::steps`, `::code-collapse`, `::tabs` with `:::tabs-item` | `<!--@include-->` lines, twoslash code fences, and any other component |
 
-Validation reports each item that does not render before a version is approved.
+Before a version is approved, validation reports each item that does not render.
 
 ## What the overview covers {#overview}
 
@@ -72,8 +72,6 @@ Use sentence case, plain language, and no em dashes. Leave out badges, a changel
 
 ### Extension docs limits {#extension-docs-limits}
 
-When the registry reads your package's `docs/` folder, it applies these limits.
-
-- The registry ignores files other than `overview.md`, `options.md`, and `guides/<id>.md`. It skips a file larger than 256 KiB and reports it.
-- Guides are sorted by file name, at most 50. A version that ships more lists the first 50.
-- For a guide, kubb.dev shows the description on the guide's card, in the guide filter, and as the meta description.
+- The registry reports each file it skips for being larger than 256 KiB.
+- A version that ships more than 50 guides lists the first 50 by file name.
+- kubb.dev shows a guide's description on its card, in the guide filter, and as the meta description.

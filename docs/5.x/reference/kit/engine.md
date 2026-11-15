@@ -13,7 +13,7 @@ navigation:
 
 # Engine
 
-Run a build from your own code with `createKubb` from the `kubb` package. For the config shape and its defaults, see [Configuration](/docs/5.x/reference/configuration).
+`createKubb` from the `kubb` package runs Kubb from your own code. [Configuration](/docs/5.x/reference/configuration) covers the config shape and its defaults.
 
 ## `createKubb` {#createkubb}
 
@@ -24,6 +24,8 @@ Run a build from your own code with `createKubb` from the `kubb` package. For th
 | `hooks`    | `Hookable<KubbHooks>` | Shares one [hook](/docs/5.x/reference/kit/hooks) emitter between builds. |
 | `signal`   | `AbortSignal`         | Stops the build at the next safe checkpoint.                      |
 | `fileRefs` | `Array<string>`       | The only folders a `$ref` may read local files from. Unset, a `$ref` reads any file. |
+
+This script builds `petStore.yaml` and exits on any error:
 
 ```typescript [build.ts]
 import { createKubb } from 'kubb'
@@ -83,7 +85,7 @@ flowchart LR
 
 ### `Kubb.generate(configs)` {#kubb-generate}
 
-The static `Kubb.generate` from `@kubb/core` builds every config of a [`defineConfig([...])` array](/docs/5.x/reference/configuration#multiple-configurations-array), as `kubb generate` does. A second argument takes `hooks` and `signal`.
+The static `Kubb.generate` from `@kubb/core` builds every config in a [`defineConfig([...])` array](/docs/5.x/reference/configuration#multiple-configurations-array), as `kubb generate` does. Pass `hooks` and `signal` as the second argument.
 
 ```typescript [build.ts]
 import { Kubb } from '@kubb/core'
@@ -94,7 +96,7 @@ for await (const { success, files, kubb } of Kubb.generate(configs)) {
 }
 ```
 
-- Configs build one at a time, and each result is yielded when its config finishes.
+- Kubb builds one config at a time and yields its result when it finishes.
 - Each result is a `GenerateResult` plus the `kubb` instance that built it.
 - A failing config does not stop the others. Its result has `success: false`. Only an aborted `signal` rejects.
 
@@ -112,7 +114,7 @@ A problem diagnostic has a `code`, a `severity` (`error`, `warning`, or `info`),
 
 ## `Diagnostics` {#diagnostics}
 
-`Diagnostics` from `kubb/kit` builds and narrows the problems a build collects. Throw a `Diagnostics.Error` instead of a bare `Error` to attach a stable code, a severity, and a location. The [diagnostics reference](/docs/5.x/reference/diagnostics) lists every code.
+`Diagnostics` from `kubb/kit` creates and narrows the problems a build collects. To give an error a stable code, a severity, and a location, throw a `Diagnostics.Error` instead of a bare `Error`. [Diagnostics](/docs/5.x/reference/diagnostics) lists every code.
 
 | Member                      | Does                                                                                                         |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------ |
@@ -127,6 +129,8 @@ A problem diagnostic has a `code`, a `severity` (`error`, `warning`, or `info`),
 | `Diagnostics.count`         | Counts errors, warnings, and infos.                                                                          |
 | `Diagnostics.explain`       | Returns a code's catalog entry: `title`, `cause`, and `fix`.                                                 |
 | `Diagnostics.docsUrl`       | Returns a code's kubb.dev URL.                                                                               |
+
+An adapter throws this error when a `$ref` has no target:
 
 ```typescript [adapter.ts]
 import { Diagnostics } from 'kubb/kit'
@@ -143,14 +147,7 @@ throw new Diagnostics.Error({
 
 ### Programmatic builds {#programmatic-builds}
 
-When you build from code instead of the CLI, these rules apply.
-
-- `input` is required whenever an adapter is set, and `defineConfig` always sets one, so a config without `input` stops with [`KUBB_INPUT_REQUIRED`](/docs/5.x/reference/diagnostics#kubb-input-required).
+- A config needs `input` whenever it has an adapter. `defineConfig` always sets one, so a config without `input` stops with [`KUBB_INPUT_REQUIRED`](/docs/5.x/reference/diagnostics#kubb-input-required).
 - Only `createKubb` from `@kubb/core` runs without an adapter, in plugin-only mode.
 - On `.generate()`, `options.processOutput` replaces the output passes.
-
-[`Kubb.generate(configs)`](#kubb-generate) builds several configs:
-
-- Configs build one after another, and each result is yielded when its config finishes, so memory holds one config at a time.
-- A failing config does not stop the others. Its result has `success: false`, and `error` holds what it threw outside its diagnostics.
-- Only an aborted `signal` rejects.
+- [`Kubb.generate(configs)`](#kubb-generate) holds one config in memory at a time. A failing config's result has `error`, with what it threw outside its diagnostics.

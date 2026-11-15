@@ -14,7 +14,7 @@ navigation:
 
 # Upgrade from v4 to v5
 
-Update the packages and the config, regenerate, then fix the imports and call sites in your app.
+Update the packages and the config, run Kubb, then fix the imports and call sites in your app.
 
 ## Before you start {#before-you-start}
 
@@ -115,7 +115,7 @@ export default defineConfig({
 
 | v4 | v5 |
 | --- | --- |
-| `transformers.name` | [`resolver.name`](/docs/5.x/how-to/customize). Its input casing can differ from v4, so check the names, or call the exported resolver for the default casing. |
+| `transformers.name` | [`resolver.name`](/docs/5.x/how-to/customize). Its input casing can differ from v4. Check the names, or call the exported resolver for the default casing. |
 | `transformers.schema` | `macros`. |
 | `mapper` | A schema macro or a `printer.nodes` override. |
 | `generators` | A custom plugin. |

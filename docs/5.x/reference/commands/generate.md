@@ -13,7 +13,7 @@ navigation:
 
 # kubb generate
 
-`kubb generate` reads your [`kubb.config.ts`](/docs/5.x/reference/configuration) and runs the code-generation pipeline. It is the default command, so `kubb` alone does the same.
+`kubb generate` turns your spec into code with the plugins in your [`kubb.config.ts`](/docs/5.x/reference/configuration). It is the default command: `kubb` alone runs it.
 
 ```shell [Terminal]
 kubb generate                  # input from the config
@@ -40,16 +40,16 @@ kubb generate ./petStore.yaml  # this spec instead
 
 ### Watch mode
 
-`--watch` follows a local `input` file only. A URL or git input is generated once, so rerun Kubb after the remote spec changes. In an interactive terminal, press `r` to rebuild and `q` to quit. See [Watch mode](#watch-mode-details).
+`--watch` watches only a local `input` file. A URL or git input generates once, so run Kubb again when the remote spec changes. In an interactive terminal, press `r` to rebuild and `q` to quit. See [Watch mode details](#watch-mode-details).
 
 ## Reporters
 
-A reporter decides how a run is shown. All four are registered by default through the config's [`reporters`](/docs/5.x/reference/configuration#reporters), and `--reporter` picks which of them run.
+A reporter decides how you see a run. The config's [`reporters`](/docs/5.x/reference/configuration#reporters) registers all four by default, and `--reporter` picks which ones run.
 
 | Reporter | Output |
 | --- | --- |
 | `cli` | The end-of-run summary in the terminal. Plain text in non-interactive terminals and AI agent sessions. |
-| `json` | A machine-readable report on stdout for CI. The run log goes to stderr. See [Diagnostics](/docs/5.x/reference/diagnostics#machine-readable-output) for the shape. |
+| `json` | A machine-readable report on stdout for CI. The run log goes to stderr. See [Machine-readable output](/docs/5.x/reference/diagnostics#machine-readable-output) for the shape. |
 | `file` | The summary, plugin timings, and problems in `.kubb/kubb[-<name>]-<timestamp>.log`. `<name>` is the config's `name`, if set. |
 | `html` | A browsable report of the generated files and diagnostics in `.kubb/kubb[-<name>]-<timestamp>/index.html`. |
 
@@ -73,7 +73,7 @@ File changes
   Lines  +312 −47
 ```
 
-See [Read the run summary](#run-summary).
+See [Run summary](#run-summary).
 
 ## Exit codes
 
@@ -86,7 +86,7 @@ See [Read the run summary](#run-summary).
 
 ### Watch mode details {#watch-mode-details}
 
-When you run `kubb generate --watch`, Kubb follows a local `input` file only. A URL or git input is generated once, so rerun Kubb after the remote spec changes. A file the input references with `$ref`, such as `schemas/Pet.yaml`, is not watched either. After you edit one, press `r` or rerun Kubb to rebuild.
+With `kubb generate --watch`, Kubb watches only a local `input` file. A URL or git input generates once, so run Kubb again when the remote spec changes. Kubb does not watch the files the input references with `$ref`, such as `schemas/Pet.yaml`. After you edit one, press `r` or run Kubb again.
 
 | Event | What happens |
 | --- | --- |

@@ -13,7 +13,7 @@ navigation:
 
 # kubb validate
 
-`kubb validate` checks a spec with the adapter in your Kubb config and generates nothing. Use it in CI or before you commit a spec change.
+`kubb validate` checks your spec with the adapter in your Kubb config and generates nothing. Run it in CI or before you commit a spec change.
 
 ::terminal
 ---
@@ -52,7 +52,7 @@ kubb validate ./schema.graphql --config ./kubb.config.ts
 | A config is found or passed | The adapter of each config entry. |
 | No config | `@kubb/adapter-oas`, for OpenAPI and Swagger documents. |
 
-See [How kubb validate picks an adapter](/docs/5.x/reference/configuration#config-loading).
+See [Config loading](/docs/5.x/reference/configuration#config-loading).
 
 ## Exit codes
 

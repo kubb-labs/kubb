@@ -14,9 +14,9 @@ navigation:
 
 # kubb remove
 
-`kubb remove` deletes a plugin or parser from `kubb.config.ts` and uninstalls its package. It shows the lines it removes and asks first.
+`kubb remove` deletes a plugin or parser from your `kubb.config.ts` and uninstalls its package. It shows the lines it removes and asks first.
 
-Ids, versions, and project files follow the [extension command rules](/docs/5.x/reference/commands#extension-commands).
+Ids, versions, and project files work as in [Extension commands](/docs/5.x/reference/commands#extension-commands).
 
 ```shell [Terminal]
 kubb remove plugin-zod                  # remove and uninstall
@@ -41,7 +41,7 @@ kubb remove plugin-zod --no-uninstall   # keep the package installed
 
 ## What it removes
 
-The command removes the call and its unused import. It leaves the generated files on disk: with [`output.clean`](/docs/5.x/reference/configuration#outputclean), the next `kubb generate` removes them.
+`kubb remove` drops the call and its unused import. It leaves the generated files on disk. With [`output.clean`](/docs/5.x/reference/configuration#outputclean), the next `kubb generate` removes them.
 
 | It refuses to remove | Because |
 | --- | --- |
@@ -49,7 +49,7 @@ The command removes the call and its unused import. It leaves the generated file
 | The last parser | A config needs at least one. |
 | An extension another plugin in the config depends on | Remove that plugin first. |
 
-Extensions that ship with `kubb`, such as `@kubb/plugin-barrel` and `@kubb/parser-md`, leave the config but stay installed. See [What kubb remove keeps installed](#command-output).
+Extensions that ship with `kubb`, such as `@kubb/plugin-barrel` and `@kubb/parser-md`, leave the config but stay installed. See [Command output](#command-output).
 
 ## Options {#options}
 
@@ -74,7 +74,7 @@ Extensions that ship with `kubb`, such as `@kubb/plugin-barrel` and `@kubb/parse
 
 ### Command output {#command-output}
 
-`kubb remove` removes the call, also one Kubb Studio switched off, and drops the unused import.
+`kubb remove` removes the call, even one Kubb Studio switched off, and drops the unused import.
 
 - It leaves the plugin's generated files on disk. With [`output.clean`](/docs/5.x/reference/configuration#outputclean), the next `kubb generate` removes them.
 - It refuses an adapter, such as `@kubb/adapter-oas`, because a config needs one. Change the adapter in the config by hand.

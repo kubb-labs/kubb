@@ -42,7 +42,7 @@ export const parserText = defineExtension({
 ```
 
 > [!WARNING]
-> A non-empty `parsers` array replaces the defaults, and an empty one keeps them. List the defaults again to keep TypeScript and Markdown output.
+> A non-empty `parsers` array replaces the defaults. An empty one keeps them. To keep TypeScript and Markdown output, list the defaults again.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -67,7 +67,7 @@ export default defineConfig({
 | `inline`   | `InlineLanguage`                                   | No       | Before barrels, for inline sources  | Lets files of this parser absorb inline sources. `parserTs` has it. See [Inline sources](/docs/5.x/reference/jsx#inline-sources). |
 | `copy`     | `(file: FileNode, source: string) => UserFileNode` | No       | For each `copy` file                | Describes a copied template as nodes, such as its imports as `ImportNode`s, for `parse` to print. Without it, Kubb copies the file as is. |
 
-See [Parser selection](#parser-selection) for duplicate extensions and files no parser handles.
+[Parser selection](#parser-selection) and [Parser fallback](#parser-fallback) cover duplicate extensions and files no parser handles.
 
 ## Parser naming {#parser-naming}
 
@@ -81,11 +81,11 @@ See [Parser selection](#parser-selection) for duplicate extensions and files no 
 
 ### Parser selection {#parser-selection}
 
-When two parsers in [`parsers`](/docs/5.x/reference/configuration#parsers) register the same file extension, Kubb uses one of them.
+When two parsers in [`parsers`](/docs/5.x/reference/configuration#parsers) register the same file extension, the last one in the array wins.
 
 > [!IMPORTANT]
-> The last parser in the `parsers` array wins. Put the one you want for that extension last.
+> Put the parser you want for that extension last.
 
 ### Parser fallback {#parser-fallback}
 
-When no parser handles a file's extension, Kubb joins its sources as they are. Add a parser for that extension to control the output.
+When no parser handles a file's extension, Kubb joins its sources as they are. To control the output, add a parser for that extension.
