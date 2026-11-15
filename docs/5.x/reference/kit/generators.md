@@ -17,7 +17,7 @@ navigation:
 
 ## `defineGenerator` {#definegenerator}
 
-A generator walks the [AST](/docs/5.x/reference/kit/ast) and returns files for one plugin. Define it with `defineGenerator`, then register it in the plugin's `setup` with [`addGenerator`](/docs/5.x/reference/kit/extensions#setup-context).
+A generator walks the [AST](/docs/5.x/reference/kit/ast) and returns files for one plugin. Define it with `defineGenerator`, then register it in the plugin's `setup` with [`addGenerator`](/docs/5.x/reference/kit/plugins#setup-context).
 
 ```typescript [my-generator.ts]
 import { ast, defineGenerator } from 'kubb/kit'

@@ -7,7 +7,7 @@ description: Reference for kubb-extension.json, the manifest a Kubb plugin,
 outline:
   - 2
   - 3
-order: 8
+order: 14
 navigation:
   title: Manifest
   icon: i-iconoir-page

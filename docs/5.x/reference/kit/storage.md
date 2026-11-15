@@ -7,7 +7,7 @@ description: Storage backends decide where Kubb writes generated files. Covers
 outline:
   - 2
   - 3
-order: 5
+order: 7
 navigation:
   title: Storage
   icon: i-iconoir-database

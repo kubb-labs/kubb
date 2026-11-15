@@ -7,7 +7,7 @@ description: Reference for the docs folder a Kubb plugin, adapter, or parser
 outline:
   - 2
   - 3
-order: 9
+order: 16
 navigation:
   title: Extension docs
   icon: i-iconoir-book

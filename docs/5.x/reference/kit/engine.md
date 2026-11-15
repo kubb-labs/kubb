@@ -7,7 +7,7 @@ description: The programmatic engine from the kubb package. Covers createKubb,
 outline:
   - 2
   - 3
-order: 6
+order: 10
 navigation:
   title: Engine
   icon: i-iconoir-cpu

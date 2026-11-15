@@ -50,7 +50,7 @@ paths:
 
 ## Create the plugin {#_3-create-the-plugin}
 
-`defineExtension` with `kind: 'plugin'` takes the plugin's `meta` and a `setup` function. In `setup`, register a resolver and a generator with the `setResolver` and `addGenerator` [composables](/docs/5.x/reference/kit/extensions#setup-context), then return the plugin's options:
+`defineExtension` with `kind: 'plugin'` takes the plugin's `meta` and a `setup` function. In `setup`, register a resolver and a generator with the `setResolver` and `addGenerator` [composables](/docs/5.x/reference/kit/plugins#setup-context), then return the plugin's options:
 
 ```typescript [src/plugin.ts]
 import { addGenerator, ast, createResolver, defineExtension, defineGenerator, setResolver } from 'kubb/kit'

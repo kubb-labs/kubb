@@ -39,7 +39,7 @@ The [first-client tutorial](/docs/5.x/tutorials/quickstart) builds this example.
 
 ## Adapters {#adapters}
 
-An adapter handles everything specific to the input format: references, nullability, discriminators, and formats. The default is the [OpenAPI adapter](/extensions/kubb-labs/adapter-oas). A [custom adapter](/docs/5.x/reference/kit/extensions#adapters) converts another format into the same AST, so every plugin works with it unchanged.
+An adapter handles everything specific to the input format: references, nullability, discriminators, and formats. The default is the [OpenAPI adapter](/extensions/kubb-labs/adapter-oas). A [custom adapter](/docs/5.x/reference/kit/adapters) converts another format into the same AST, so every plugin works with it unchanged.
 
 ::flow-diagram{preset="adapter"}
 ::
@@ -57,7 +57,7 @@ Every node has a `kind`, and schema nodes also have a `type`. `ast.node.transfor
 
 ## Plugins {#plugins}
 
-Each plugin owns one output: types, a client, hooks, validators, mocks, or your own files. [`defineExtension({ kind: 'plugin' })`](/docs/5.x/reference/kit/extensions#plugins) returns the factory you call in `kubb.config.ts`. Its `setup` runs once and registers generators, a resolver, and macros through the [setup context](/docs/5.x/reference/kit/extensions#setup-context) or composables such as `addGenerator()`.
+Each plugin owns one output: types, a client, hooks, validators, mocks, or your own files. [`defineExtension({ kind: 'plugin' })`](/docs/5.x/reference/kit/plugins) returns the factory you call in `kubb.config.ts`. Its `setup` runs once and registers generators, a resolver, and macros through the [setup context](/docs/5.x/reference/kit/plugins#setup-context) or composables such as `addGenerator()`.
 
 ::plugin-anatomy
 ::
@@ -125,7 +125,7 @@ The TypeScript parser prints a file's banner, imports, and source nodes into its
 ::flow-diagram{preset="parsers"}
 ::
 
-To write one, see [parsers in the Kit reference](/docs/5.x/reference/kit/extensions#parsers).
+To write one, see [parsers in the Kit reference](/docs/5.x/reference/kit/parsers).
 
 ## Storage {#storage}
 
@@ -156,10 +156,10 @@ flowchart TD
 
 | Extension | Example | Start with |
 | --- | --- | --- |
-| Adapter | Read a format other than OpenAPI | [Adapters](/docs/5.x/reference/kit/extensions#adapters) |
+| Adapter | Read a format other than OpenAPI | [Adapters](/docs/5.x/reference/kit/adapters) |
 | Plugin | Generate a new kind of file | [Create a plugin](/docs/5.x/tutorials/creating-plugins) |
 | Macro | Treat every `integer` as a `string` in one plugin | [Customize macros](/docs/5.x/how-to/customize#macros) |
 | Printer | Print `date` schemas as the TypeScript `Date` type | [Customize printers](/docs/5.x/how-to/customize#printers) |
 | Resolver | Move model files into a folder | [Customize resolvers](/docs/5.x/how-to/customize#resolvers) |
-| Parser | Emit a new file type | [Parsers](/docs/5.x/reference/kit/extensions#parsers) |
+| Parser | Emit a new file type | [Parsers](/docs/5.x/reference/kit/parsers) |
 | Storage | Write to a remote store | [Storage](/docs/5.x/reference/kit/storage) |

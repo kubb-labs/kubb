@@ -6,7 +6,7 @@ description: Every kubb:* hook a build fires, its payload, and when it fires.
 outline:
   - 2
   - 3
-order: 7
+order: 11
 navigation:
   title: Lifecycle hooks
   icon: i-iconoir-refresh-double
@@ -18,7 +18,7 @@ Every phase of a build fires a `kubb:*` hook on one shared, typed emitter. The `
 
 | Listener                                                          | Receives                                                  |
 | ----------------------------------------------------------------- | --------------------------------------------------------- |
-| A plugin's [`hooks`](/docs/5.x/reference/kit/extensions#plugins) map | The hooks from `kubb:setup:end` to `kubb:build:end`, including `kubb:plugin:setup` for that plugin. Kubb adds these listeners during setup and removes them when the build ends, so they miss the `lifecycle` and `generation` hooks, `kubb:setup:start`, and the output passes. |
+| A plugin's [`hooks`](/docs/5.x/reference/kit/plugins) map | The hooks from `kubb:setup:end` to `kubb:build:end`, including `kubb:plugin:setup` for that plugin. Kubb adds these listeners during setup and removes them when the build ends, so they miss the `lifecycle` and `generation` hooks, `kubb:setup:start`, and the output passes. |
 | `kubb.hooks.hook(name, handler)` from [`createKubb`](/docs/5.x/reference/kit/engine#createkubb) | Every hook except `kubb:plugin:setup`                     |
 
 ## Listening
@@ -71,7 +71,7 @@ The pipeline fires these hooks, so `.build()` and `.safeBuild()` fire them too.
 
 | Hook                           | Payload                                                               | Fires                                                                                                                                       |
 | ------------------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kubb:plugin:setup`            | [`KubbPluginSetupContext`](/docs/5.x/reference/kit/extensions#setup-context) | Once per plugin, after its `setup` and before `kubb:build:start`. Kubb calls the plugin's own handler directly.                      |
+| `kubb:plugin:setup`            | [`KubbPluginSetupContext`](/docs/5.x/reference/kit/plugins#setup-context) | Once per plugin, after its `setup` and before `kubb:build:start`. Kubb calls the plugin's own handler directly.                      |
 | `kubb:build:start`             | `{ config, adapter, meta, nodeCounts, getPlugin, files, upsertFile }` | When the AST is ready, before plugins run. Skipped when no adapter parsed input.                                                            |
 | `kubb:plugin:start`            | `{ plugin }`                                                          | Before a plugin's generators run.                                                                                                           |
 | `kubb:generate:schema`         | `(node, ctx)`                                                         | For each schema node.                                                                                                                       |

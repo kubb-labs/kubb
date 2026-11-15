@@ -128,7 +128,7 @@ A block of source text in the enclosing `File`. The children are the text.
 | `pointer?` | `string` | Where the source comes from in the input, such as `#/components/schemas/Pet` |
 | `children?` | `KubbReactNode` | The source text |
 
-`inline.expression` is the right-hand side of the declaration. A file whose sources are all inline is not written: files that import from it get the expression and the imports it needs. The parser's [`inline`](/docs/5.x/reference/kit/extensions#parsers) member decides how.
+`inline.expression` is the right-hand side of the declaration. A file whose sources are all inline is not written: files that import from it get the expression and the imports it needs. The parser's [`inline`](/docs/5.x/reference/kit/parsers) member decides how.
 
 ```tsx
 <File.Source name="AddPetStatus200" isTypeOnly isExportable inline={{ expression: 'Pet' }}>

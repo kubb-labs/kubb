@@ -23,7 +23,7 @@ Pass your `kubb.config.ts` as `config`. It must be one config object, not the ar
 
 ```typescript [webpack.config.ts]
 import kubb from 'kubb/webpack'
-import config from './kubb.config'
+import config from './kubb.config.ts'
 
 export default {
   plugins: [kubb({ config })],

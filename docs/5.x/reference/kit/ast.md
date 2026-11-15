@@ -6,7 +6,7 @@ description: The ast namespace from kubb/kit. Covers the node tree, schema
 outline:
   - 2
   - 3
-order: 4
+order: 8
 navigation:
   title: AST & node builders
   icon: i-iconoir-code-brackets

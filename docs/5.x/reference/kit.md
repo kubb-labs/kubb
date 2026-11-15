@@ -36,9 +36,9 @@ flowchart LR
 
 | Part                 | Entry points                                                | Page                                                               |
 | -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------ |
-| Plugins              | `defineExtension({ kind: 'plugin' })`, `addGenerator`, `setResolver` | [Extensions: plugins](/docs/5.x/reference/kit/extensions#plugins)  |
-| Adapters             | `defineExtension({ kind: 'adapter' })`                      | [Extensions: adapters](/docs/5.x/reference/kit/extensions#adapters) |
-| Parsers              | `defineExtension({ kind: 'parser' })`                       | [Extensions: parsers](/docs/5.x/reference/kit/extensions#parsers)  |
+| Plugins              | `defineExtension({ kind: 'plugin' })`, `addGenerator`, `setResolver` | [Extensions: plugins](/docs/5.x/reference/kit/plugins)  |
+| Adapters             | `defineExtension({ kind: 'adapter' })`                      | [Extensions: adapters](/docs/5.x/reference/kit/adapters) |
+| Parsers              | `defineExtension({ kind: 'parser' })`                       | [Extensions: parsers](/docs/5.x/reference/kit/parsers)  |
 | Generators           | `defineGenerator`                                           | [Generators](/docs/5.x/reference/kit/generators)                   |
 | Resolvers            | `createResolver`, `Resolver`                                | [Resolvers](/docs/5.x/reference/kit/resolvers)                     |
 | AST                  | `ast`, `createPrinter`, `defineMacro`                       | [AST and node builders](/docs/5.x/reference/kit/ast)               |

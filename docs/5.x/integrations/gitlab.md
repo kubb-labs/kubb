@@ -24,7 +24,7 @@ snapshot:
     - npm ci
     - npx kubb studio snapshot
   rules:
-    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 ```
 
@@ -41,6 +41,8 @@ To post the result as a merge request note, save the `--json` output and run the
 
 > [!IMPORTANT]
 > Writing a note needs a project access token with the `api` scope, stored as `GITLAB_API_TOKEN`. `CI_JOB_TOKEN` does not carry that scope.
+>
+> Masking only hides the value in job logs: any script in the pipeline can read it. Give the token the lowest role that can comment on merge requests, such as Reporter, and an expiry date, and let only trusted people change `.gitlab-ci.yml` and `scripts/`.
 
 ::code-collapse{name="scripts/kubb-note.mjs"}
 

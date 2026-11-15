@@ -16,6 +16,9 @@ The [kubb-labs/action](https://github.com/kubb-labs/action) publishes a Studio s
 
 Store `KUBB_TOKEN` as an Actions repository secret, then add this workflow:
 
+> [!NOTE]
+> GitHub does not give secrets to workflows from fork pull requests, so the action skips the snapshot on those and logs why. Pull requests from branches in the repository get a snapshot.
+
 ```yaml [.github/workflows/kubb.yml]
 name: Kubb snapshot
 

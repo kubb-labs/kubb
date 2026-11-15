@@ -33,7 +33,7 @@ export default {
 
 ## Run the build
 
-Run `rollup -c`. Kubb generates once, before the build continues, and a failed generation fails the build.
+Run `rollup -c rollup.config.ts --configPlugin typescript`. Rollup looks only for `.js`, `.mjs`, and `.cjs` config files by default, and `--configPlugin typescript` needs `@rollup/plugin-typescript` in your dev dependencies. Kubb generates once, before the build continues, and a failed generation fails the build.
 
 ::
 
