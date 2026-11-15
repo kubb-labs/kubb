@@ -36,13 +36,13 @@ To post the result as a merge request note, save the `--json` output and run the
   script:
     - npm ci
     - npx kubb studio snapshot --json > snapshot.json
-    - '[ -z "$CI_MERGE_REQUEST_IID" ] || node scripts/kubb-note.mjs'
+    - '[ -z "$CI_MERGE_REQUEST_IID" ] || [ -z "$GITLAB_API_TOKEN" ] || node scripts/kubb-note.mjs'
 ```
 
 > [!IMPORTANT]
 > Writing a note needs a project access token with the `api` scope, stored as `GITLAB_API_TOKEN`. `CI_JOB_TOKEN` does not carry that scope.
 >
-> Masking only hides the value in job logs: any script in the pipeline can read it. Give the token the lowest role that can comment on merge requests, such as Reporter, and an expiry date, and let only trusted people change `.gitlab-ci.yml` and `scripts/`.
+> Masking only hides the value in job logs: any code the job runs can read it, including install scripts that `npm ci` runs. Mark `GITLAB_API_TOKEN` as **Protected**, so only pipelines for protected branches get it ([merge request pipelines have extra conditions](https://docs.gitlab.com/ci/pipelines/merge_request_pipelines/)). The script line above skips the note when the token is missing. Give the token the lowest role that can comment on merge requests, such as Reporter, and an expiry date.
 
 ::code-collapse{name="scripts/kubb-note.mjs"}
 
