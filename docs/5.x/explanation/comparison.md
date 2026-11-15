@@ -63,7 +63,7 @@ How we measured, in November 2026:
 | [Barrel index files](/extensions/kubb-labs/plugin-barrel)        |       ✅       |       ✅       |       ✅       |       🛑       |
 
 1. openapi-typescript 7 reads 3.0 and 3.1 only. Convert Swagger 2.0 first, or use version 5.
-2. Kubb generates every OpenAPI 3.2 feature we tested: the `QUERY` method, `additionalOperations`, `querystring` parameters, `itemSchema` for server-sent events and JSON Lines, and `components/mediaTypes`. It does not validate a 3.2 document yet, because `@readme/openapi-parser` 10.0.0 rejects 3.2.
+2. Kubb generates every OpenAPI 3.2 feature we tested: the `QUERY` method, `additionalOperations`, `querystring` parameters, `itemSchema` for server-sent events and JSON Lines, and `components/mediaTypes`.
 3. orval 8.48.0 generates `QUERY` operations. It skips `additionalOperations` and `querystring` parameters, and types `itemSchema` responses and media type references as `unknown`.
 4. HeyAPI 0.99.0 and openapi-typescript 7.13.0 read a 3.2 document without an error, but skip `QUERY` and `additionalOperations` operations, drop `querystring` parameters, and type the other 3.2 features as `unknown`.
 5. openapi-typescript generates types only. Clients and hooks come from the `openapi-fetch` and `openapi-react-query` runtimes, both in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559).

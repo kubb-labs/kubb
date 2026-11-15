@@ -361,7 +361,7 @@ Each row adds what a code's entry leaves out.
 | [`KUBB_INTERNAL_ERROR`](#kubb-internal-error) | The bug is in Kubb, not in your config or spec. `--reporter json` also shows the stack. |
 | [`KUBB_INVALID_DOCUMENT`](#kubb-invalid-document) | The check runs even with validation off. A passed `input` must be the spec itself, not an HTML page or a wrapper object. |
 | [`KUBB_INVALID_PLUGIN_OPTIONS`](#kubb-invalid-plugin-options) | See [Invalid plugin options](#invalid-plugin-options). |
-| [`KUBB_INVALID_SPEC`](#kubb-invalid-spec) | [`kubb validate`](/docs/5.x/reference/commands/validate) lists every problem as an error and exits with code 1. `@kubb/adapter-oas` checks while [`validate`](/extensions/kubb-labs/adapter-oas/options#validate) is `true`, the default. The validator does not support OpenAPI 3.2 yet, so a 3.2 document gets this code with a message that it was not validated. |
+| [`KUBB_INVALID_SPEC`](#kubb-invalid-spec) | [`kubb validate`](/docs/5.x/reference/commands/validate) lists every problem as an error and exits with code 1. `@kubb/adapter-oas` checks while [`validate`](/extensions/kubb-labs/adapter-oas/options#validate) is `true`, the default. |
 | [`KUBB_NO_CONTEXT`](#kubb-no-context) | The composable has no plugin to apply to. The message names the composable. |
 | [`KUBB_PATH_TRAVERSAL`](#kubb-path-traversal) | The refusal stops a crafted spec or a wrong `group.name` from placing files elsewhere on disk. |
 | [`KUBB_PERFORMANCE`](#kubb-performance) | Kubb never prints it as a problem. The time leaves out config loading, format, lint, and post-generate. |
