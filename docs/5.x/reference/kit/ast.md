@@ -122,6 +122,7 @@ const mutations = ast.node.collect<ast.OperationNode>(root, {
 // Array<OperationNode>
 
 ast.node.kinds.schema // 'Schema'
+ast.node.getText([ast.factory.createText('const a = 1'), ast.factory.createText('const b = 2')]) // 'const a = 1\nconst b = 2'
 ```
 
 ## `ast.file` {#ast-file}
@@ -129,6 +130,15 @@ ast.node.kinds.schema // 'Schema'
 | Helper | Returns |
 | --- | --- |
 | `ast.file.inline` | `{ files, virtualPaths, problems }`, with virtual-file imports inlined |
+
+```typescript [file.ts]
+import { ast } from 'kubb/kit'
+
+// Array<FileNode>, Array<string>, Array<{ path: string, message: string }>
+const { files: inlined, virtualPaths, problems } = ast.file.inline(files, {
+  language: (file) => parsers.get(file.extname)?.inline,
+})
+```
 
 ## `ast.macro` {#macros}
 
@@ -148,6 +158,8 @@ const macroUntagged = defineMacro({
 })
 
 ast.macro.apply(operation, [macroUntagged]).tags // ['untagged']
+ast.macro.compareOrder('pre', 'post') // -2
+ast.macro.compareOrder(undefined, 'post') // -1
 ```
 
 `kubb/kit` also exports built-in macros. Call `macroDiscriminatorEnum` and `macroEnumName` with options to get the macro.
@@ -192,6 +204,7 @@ import { ast } from 'kubb/kit'
 ast.ref.getName('#/components/schemas/Pet') // 'Pet'
 ast.ref.getSchema(petRef).type // 'object'
 ast.ref.isAlias(petRef) // true
+ast.ref.mergeSchema(petRef).description // 'The owner pet', from the ref
 ```
 
 ## `ast.graph` {#ast-graph}
@@ -210,6 +223,8 @@ Use `ast.graph` to drop unused schemas or to wrap circular ones in a lazy getter
 import { ast } from 'kubb/kit'
 
 ast.graph.getRefNames(ownerSchema) // Set { 'Pet' }
+ast.graph.getImportedNames(petListSchema) // ['Pet']
+ast.graph.getUsedNames(root.operations, root.schemas) // Set { 'Pet' }
 ast.graph.getCircularNames([nodeSchema, tagSchema]) // Set { 'Node' }
 ast.graph.containsCircular(ownerSchema, { circularSchemas: new Set(['Pet']) }) // true
 ```
@@ -241,10 +256,15 @@ const dateSchema = ast.schema.find(root, {
 ```
 
 ```typescript [schema-values.ts]
+ast.schema.types.string // 'string'
 ast.schema.narrow(node, 'object')?.properties.length // number | undefined
+ast.schema.applyOptionality(nullableName, false).nullish // true
+ast.schema.findProperties({ node: petSchema, propertyName: 'id' }).map((property) => property.schema.type) // ['integer']
 ast.schema.getLiterals(petKind) // ['cat', 'dog']
 ast.schema.inferDiscriminator([catSchema, dogSchema]) // 'kind'
 ast.schema.getNumberBounds({ min: 0.5, exclusive: { max: 10 }, integer: true }) // { min: 1, max: 9 }
+ast.schema.getEmbeddedJson(jsonStringSchema)?.name // 'Pet'
+ast.schema.isString(ast.factory.createSchema({ type: 'uuid' })) // true
 ```
 
 To reuse `find` results, see [Schema search cache](#schema-search-cache).
@@ -272,6 +292,16 @@ ast.mediaType.isStream('text/event-stream') // true
 | `ast.server.get` | The server at `index`, else the first one |
 | `ast.server.groupByName` | Servers by name. The first with a name wins. |
 
+```typescript [server.ts]
+const servers = [
+  { name: 'prod', url: 'https://api.example.com' },
+  { name: 'staging', url: 'https://staging.example.com' },
+]
+
+ast.server.get({ servers, index: 5 })?.url // 'https://api.example.com', the first server
+ast.server.groupByName(servers).get('staging')?.url // 'https://staging.example.com'
+```
+
 ## `ast.auth` {#ast-auth}
 
 | Helper | Returns |
@@ -294,8 +324,15 @@ ast.auth.getRequirements({ auth: node.auth, schemes })
 | `ast.http.getBaseURL` | A server's absolute URL without variables, else `undefined` |
 | `ast.http.requestBody.getSchema` | The first request body entry's schema, or `undefined` |
 
-```typescript [base-url.ts]
+```typescript [http.ts]
 import { ast } from 'kubb/kit'
+
+if (ast.http.isOperation(node)) {
+  node.method // 'GET'
+  ast.http.groupParameters(node).query // Array<ParameterNode>
+}
+
+ast.http.requestBody.getSchema(node)?.type // 'ref'
 
 // string | undefined
 const baseURL = ast.http.getBaseURL(ast.server.get({ servers: node.servers, index: 0 }))
@@ -310,6 +347,14 @@ const baseURL = ast.http.getBaseURL(ast.server.get({ servers: node.servers, inde
 | `ast.http.responses.filterError` | The `4xx` and `5xx` responses, ranges included |
 | `ast.http.responses.getImportedNames` | The ref names the response bodies import |
 
+```typescript [responses.ts]
+// node.responses: 200 with a Pet body, 404, default
+ast.http.responses.filterSuccess(node).map((response) => response.statusCode) // ['200']
+ast.http.responses.findPrimary(node)?.statusCode // '200'
+ast.http.responses.filterError(node).map((response) => response.statusCode) // ['404']
+ast.http.responses.getImportedNames(node.responses) // ['Pet']
+```
+
 ### `ast.http.status`
 
 Each helper takes a status code, a range, or a response.
@@ -320,6 +365,15 @@ Each helper takes a status code, a range, or a response.
 | `ast.http.status.isSuccess` | Whether the code is `2xx` |
 | `ast.http.status.isError` | Whether the code is `4xx` or `5xx` |
 | `ast.http.status.toCode` | One concrete code: `200` for `2xx` and `default` |
+
+```typescript [status.ts]
+ast.http.status.getClass(201) // 2
+ast.http.status.getClass('default') // null
+ast.http.status.isSuccess('204') // true
+ast.http.status.isError('4xx') // true
+ast.http.status.toCode('2xx') // 200
+ast.http.status.toCode({ statusCode: '404' }) // 404
+```
 
 ## Printers {#printers}
 
