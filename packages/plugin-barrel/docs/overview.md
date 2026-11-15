@@ -22,7 +22,7 @@ No setup is needed. `defineConfig` adds `pluginBarrel()` to `plugins` when it is
 > [!WARNING]
 > Passing your own `output` to a plugin replaces its default `barrel: { type: 'named' }`, so the plugin falls back to the root setting.
 
-See [Barrel files](EDGE:barrel-files).
+See [Barrel rules](https://kubb.dev/extensions/kubb-labs/plugin-barrel/guides/barrel-rules#which-barrel-setting-applies).
 
 ## Example
 

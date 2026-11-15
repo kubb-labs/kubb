@@ -224,7 +224,7 @@ Suffix in the names Kubb gives inline enums: schema name, property name, and suf
 | Required | `false`  |
 | Default  | `'enum'` |
 
-See [Enums](EDGE:enums).
+See [Enums](https://kubb.dev/docs/5.x/topics/schema-shapes#enums).
 
 #### pathParamsCasing
 
@@ -252,9 +252,7 @@ await getPet({ path: { storeId, petId } })
 
 Query, header, cookie, and body names do not change.
 
-See [Name collisions](EDGE:name-collisions).
-
-See [Parameter serialization](EDGE:parameter-serialization).
+See [Name collisions](https://kubb.dev/docs/5.x/topics/name-collisions#path-parameters) for names that collide, and for `matrix` path parameters, which keep their spec names.
 
 ### Type mapping
 
@@ -304,7 +302,7 @@ adapterOas({
 })
 ```
 
-See [Dates and times](EDGE:dates-and-times).
+See [Dates and times](https://kubb.dev/docs/5.x/topics/dates-and-times#dates-and-times).
 
 #### integerType
 
@@ -330,7 +328,7 @@ Fits most JSON APIs. Loses precision above `Number.MAX_SAFE_INTEGER`.
 
 A schema with `type: string` stays a `string` whatever its `format`.
 
-See [64-bit integers](EDGE:64-bit-integers).
+See [64-bit integers](https://kubb.dev/docs/5.x/topics/64-bit-integers#64-bit-integers).
 
 #### unknownType
 
@@ -358,7 +356,7 @@ Marks a value callers should not use, to match a legacy API.
 
 ::
 
-See [Additional properties](EDGE:additional-properties).
+See [Additional properties](https://kubb.dev/docs/5.x/topics/additional-properties#additional-properties).
 
 #### emptySchemaType
 

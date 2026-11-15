@@ -50,9 +50,7 @@ src/gen
 > [!WARNING]
 > Passing your own `output` to a plugin, as in `pluginTs({ output: { path: 'types' } })`, replaces its default `{ type: 'named' }`. With the root `output.barrel` at `false`, that plugin then gets no barrels.
 
-See [Barrel files](EDGE:barrel-files).
-
-See [Name collisions](EDGE:name-collisions).
+See [Barrel rules](https://kubb.dev/extensions/kubb-labs/plugin-barrel/guides/barrel-rules#which-barrel-setting-applies) and [Name collisions](https://kubb.dev/docs/5.x/topics/name-collisions#name-collisions).
 
 ### type
 
@@ -191,4 +189,4 @@ await getPetById({ path: { petId: 123 } })
 
 For a `pet` tag, the operations land in `src/gen/client/petService/`. The example sets [`integerType: 'number'`](https://kubb.dev/extensions/kubb-labs/adapter-oas/options#integertype), so it can pass `123` as an `int64` id.
 
-See [Barrel files](EDGE:barrel-files).
+See [Namespaces for tag groups](https://kubb.dev/extensions/kubb-labs/plugin-barrel/guides/barrel-rules#namespaces-for-tag-groups).
