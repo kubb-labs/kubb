@@ -356,7 +356,7 @@ Each row adds what a code's entry leaves out.
 | [`KUBB_INCOMPATIBLE_EXTENSION`](#kubb-incompatible-extension) | Kubb checks at run time and in `kubb add`. |
 | [`KUBB_INLINE_FAILED`](#kubb-inline-failed) | The imported name has no inline definition, refers to itself, or has no parser that supports inlining. One diagnostic lists every case. |
 | [`KUBB_INPUT_NOT_FOUND`](#kubb-input-not-found) | A URL reports `KUBB_INPUT_REQUEST_FAILED` or `KUBB_INPUT_UNREACHABLE` instead. |
-| [`KUBB_INPUT_REQUEST_FAILED`](#kubb-input-request-failed) | A 404 means a wrong path, and a 5xx a failing server. The extension commands also report it for an invalid [registry](/docs/5.x/reference/registry) index. |
+| [`KUBB_INPUT_REQUEST_FAILED`](#kubb-input-request-failed) | A 404 means a wrong path, and a 5xx a failing server. The extension commands also report it for an invalid registry index. |
 | [`KUBB_INPUT_UNREACHABLE`](#kubb-input-unreachable) | The cause is a refused connection, an unknown host, an expired certificate, or a timeout. The message names which one. For a local server, check the port. |
 | [`KUBB_INTERNAL_ERROR`](#kubb-internal-error) | The bug is in Kubb, not in your config or spec. `--reporter json` also shows the stack. |
 | [`KUBB_INVALID_DOCUMENT`](#kubb-invalid-document) | The check runs even with validation off. A passed `input` must be the spec itself, not an HTML page or a wrapper object. |

@@ -13,7 +13,7 @@ navigation:
 
 # Extension docs
 
-The `docs/` folder of your extension becomes its pages on kubb.dev, under `/extensions/<owner>/<slug>`. Put it at the package root, next to the [extension manifest](/docs/5.x/reference/kit/manifest). The [extension registry](/docs/5.x/reference/registry#detail) reads it from the pinned version's npm tarball or GitHub release.
+The `docs/` folder of your extension becomes its pages on kubb.dev, under `/extensions/<owner>/<slug>`. Put it at the package root, next to the [extension manifest](/docs/5.x/reference/kit/manifest). The extension registry reads it from the pinned version's npm tarball or GitHub release.
 
 > [!IMPORTANT]
 > Add `docs` to `files` in `package.json`, so npm ships it.

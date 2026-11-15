@@ -1184,7 +1184,7 @@ Thanks to everyone who contributed to this release:
 
 #### Features
 
-- The [Kubb registry](/docs/5.x/reference/registry) is stable. [`kubb add`](/docs/5.x/reference/commands/add) installs a reviewed plugin, adapter, or parser at the version the registry pins, [`kubb update`](/docs/5.x/reference/commands/update) moves installed extensions to that version, and [`kubb list`](/docs/5.x/reference/commands/list) shows what is installed. Registry support landed across 5.8.1 to 5.8.4.
+- The [Kubb registry](/extensions) is stable. [`kubb add`](/docs/5.x/reference/commands/add) installs a reviewed plugin, adapter, or parser at the version the registry pins, [`kubb update`](/docs/5.x/reference/commands/update) moves installed extensions to that version, and [`kubb list`](/docs/5.x/reference/commands/list) shows what is installed. Registry support landed across 5.8.1 to 5.8.4.
 
 ### unplugin-kubb
 
