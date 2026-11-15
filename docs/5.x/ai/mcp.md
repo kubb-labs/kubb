@@ -13,7 +13,7 @@ navigation:
 
 # Set up the MCP server
 
-Connect your editor or agent to [`kubb mcp`](/docs/5.x/reference/commands/mcp), the Kubb [Model Context Protocol](https://modelcontextprotocol.io/) server, to validate a spec, scaffold a `kubb.config.ts`, and run generation from the chat. The [command reference](/docs/5.x/reference/commands/mcp#tools) lists the tools.
+[`kubb mcp`](/docs/5.x/reference/commands/mcp), the Kubb [Model Context Protocol](https://modelcontextprotocol.io/) server, lets your editor or agent validate a spec, scaffold a `kubb.config.ts`, and run Kubb from the chat. [Tools](/docs/5.x/reference/commands/mcp#tools) lists each tool.
 
 > [!NOTE]
 > This server runs Kubb inside your editor. To generate an MCP server from your own OpenAPI spec, use [`@kubb/plugin-mcp`](/extensions/kubb-labs/plugin-mcp) instead.
@@ -55,7 +55,7 @@ Add the entry to `claude_desktop_config.json` (on macOS in `~/Library/Applicatio
 
 :::tabs-item{label="VS Code"}
 
-VS Code (GitHub Copilot) uses a `servers` key. Add the entry to `.vscode/mcp.json`, or run `MCP: Open User Configuration` from the Command Palette for every workspace:
+VS Code (GitHub Copilot) uses a `servers` key. Add the entry to `.vscode/mcp.json`, or, for every workspace, run `MCP: Open User Configuration` from the Command Palette:
 
 ```json [.vscode/mcp.json]
 {

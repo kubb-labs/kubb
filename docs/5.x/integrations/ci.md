@@ -29,7 +29,7 @@ flowchart LR
 ## Prerequisites
 
 - A working `kubb.config.ts` on Kubb 5.6.2 or later. See [Installation](/docs/5.x/how-to/installation).
-- `tsdown` next to `kubb` in the development dependencies (`npm i -D tsdown`). Snapshots build their `dist` files with it.
+- `tsdown` next to `kubb` in the dev dependencies (`npm i -D tsdown`). Snapshots build their `dist` files with it.
 - Two Studio API keys, created under **Settings › Developers › Tokens**:
 
 | Key type | Store it as | Used for |
@@ -48,7 +48,7 @@ flowchart LR
 
 ### Other CI providers
 
-Pass a stable `--id` on the base branch, and pass that id as `--base-id` on pull request runs:
+Pass a stable `--id` on the base branch, and the same id as `--base-id` on pull request runs:
 
 ```shell [Terminal]
 kubb studio snapshot --id jenkins:api:main                              # on main
@@ -64,7 +64,7 @@ Studio has no diff view for snapshots. The GitHub Action lists the changed files
 After the runner exits, open the CI agent's editor in Studio to read its latest unexpired package, comment on source lines, or preview generated HTML. Run the pipeline again to publish new output.
 
 > [!NOTE]
-> Snapshots expire after seven days. Schedule a default-branch run if the branch can go a week without a push.
+> Snapshots expire after seven days. If the default branch can go a week without a push, schedule a run.
 
 ## Install the snapshot
 

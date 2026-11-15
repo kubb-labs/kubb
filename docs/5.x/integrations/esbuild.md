@@ -11,7 +11,7 @@ navigation:
 
 # Generate code from your API spec with esbuild
 
-`kubb/esbuild` ships with `kubb`. It generates code from your `kubb.config.ts` once, before the esbuild build continues.
+`kubb/esbuild` generates code from your `kubb.config.ts` once, before the esbuild build continues. It ships with `kubb`.
 
 ::steps{level="2"}
 
@@ -21,7 +21,7 @@ Follow [Installation](/docs/5.x/how-to/installation).
 
 ## Add Kubb to `build.ts`
 
-Pass your `kubb.config.ts` as `config`. It takes one config object, not an array or a function.
+Pass one config object from your `kubb.config.ts` as `config`, not an array or a function.
 
 ```typescript [build.ts]
 import { build } from 'esbuild'
@@ -38,8 +38,8 @@ await build({
 
 ## Run the build
 
-Run your build script, such as `node build.ts`. A failed generation fails the build.
+Run your build script, such as `node build.ts`. If Kubb fails, the build fails.
 
 ::
 
-See [How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) for defaults, reports, and watch rebuilds.
+[How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) covers defaults, reports, and watch rebuilds.

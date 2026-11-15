@@ -13,7 +13,7 @@ navigation:
 
 # How Kubb works
 
-Every Kubb run moves a spec through one pipeline. You can replace or extend each stage.
+Kubb runs your spec through one pipeline, and you can replace or extend each stage.
 
 ::architecture-pipeline
 ::
@@ -34,7 +34,7 @@ Take `GET /pet/{petId}` (`getPetById`), whose response refers to a `Pet` schema:
 2. `plugin-ts` emits the `Pet` and `GetPetById` types, and `plugin-axios` emits a `getPetById` function that imports them.
 3. A parser prints each file, and storage writes it.
 
-The [first-client tutorial](/docs/5.x/tutorials/quickstart) builds this example.
+[Generate your first client](/docs/5.x/tutorials/quickstart) builds this example.
 
 ## Adapters {#adapters}
 
@@ -50,7 +50,7 @@ The AST is the model the adapter and the plugins share, so no plugin resolves re
 ::ast-tree
 ::
 
-Every node has a `kind`, and schema nodes also have a `type`. See the [AST reference](/docs/5.x/reference/kit/ast).
+Every node has a `kind`, and schema nodes also have a `type`. See [AST and node builders](/docs/5.x/reference/kit/ast).
 
 ## Plugins {#plugins}
 
@@ -69,19 +69,19 @@ A generator turns AST nodes into files.
 | `operation` | Once per operation node |
 | `operations` | Once per plugin, with every operation node its filters keep |
 
-A handler returns `FileNode`s or elements for a [renderer](#renderers). See the [generator reference](/docs/5.x/reference/kit/generators).
+A handler returns `FileNode`s or elements for a [renderer](#renderers). See [Generators](/docs/5.x/reference/kit/generators).
 
 ### Resolvers {#resolvers}
 
-A resolver decides identifiers, file names, and paths. A plugin that builds on another reads its resolver, so the Axios client still imports the right names after you rename the types. See [Customize resolvers](/docs/5.x/how-to/customize#resolvers).
+A resolver decides identifiers, file names, and paths. A plugin that builds on another reads its resolver, so the Axios client still imports the right names after you rename the types. See [Resolvers](/docs/5.x/how-to/customize#resolvers).
 
 ### Macros and printers {#macros}
 
-A macro rewrites AST nodes before the generators see them, per plugin, so a change reaches every generator of that plugin and no other. A printer turns a schema node into code for one target, such as a TypeScript type or a Zod expression. See [Customize macros](/docs/5.x/how-to/customize#macros) and [Customize printers](/docs/5.x/how-to/customize#printers).
+A macro rewrites AST nodes before the generators see them, per plugin, so a change reaches every generator of that plugin and no other. A printer turns a schema node into code for one target, such as a TypeScript type or a Zod expression. See [Macros](/docs/5.x/how-to/customize#macros) and [Printers](/docs/5.x/how-to/customize#printers).
 
 ### Renderers {#renderers}
 
-A renderer turns the elements a generator returns into `FileNode`s. `jsxRenderer` from `kubb/jsx` renders JSX without React. Set it per generator with `renderer`. See the [JSX reference](/docs/5.x/reference/jsx#renderers).
+A renderer turns the elements a generator returns into `FileNode`s. `jsxRenderer` from `kubb/jsx` renders JSX without React. Set it per generator with `renderer`. See [JSX renderer](/docs/5.x/reference/jsx#renderers).
 
 ### Lifecycle {#lifecycle}
 
@@ -95,7 +95,7 @@ A renderer turns the elements a generator returns into `FileNode`s. `jsxRenderer
 5. After `kubb:plugins:end`, Kubb writes all files through the parsers and storage.
 6. Format, lint, and `postGenerate` run when the config sets them.
 
-The [hooks reference](/docs/5.x/reference/kit/hooks) lists every hook.
+[Lifecycle hooks](/docs/5.x/reference/kit/hooks) lists every hook.
 
 ### Dependencies and ordering {#dependencies}
 
@@ -132,7 +132,7 @@ Storage decides where files go, so the same build writes to disk from the CLI or
 
 ## Choose an extension {#choose-an-extension}
 
-Use an existing [plugin](/extensions/kind/plugins) when it generates the output you need. Otherwise, build on `kubb/kit`, which ships with `kubb`.
+If an existing [plugin](/extensions/kind/plugins) generates the output you need, use it. Otherwise, build on `kubb/kit`, which ships with `kubb`.
 
 ```mermaid
 flowchart TD
@@ -151,8 +151,8 @@ flowchart TD
 | --- | --- | --- |
 | Adapter | Read a format other than OpenAPI | [Adapters](/docs/5.x/reference/kit/adapters) |
 | Plugin | Generate a new kind of file | [Create a plugin](/docs/5.x/tutorials/creating-plugins) |
-| Macro | Treat every `integer` as a `string` in one plugin | [Customize macros](/docs/5.x/how-to/customize#macros) |
-| Printer | Print `date` schemas as the TypeScript `Date` type | [Customize printers](/docs/5.x/how-to/customize#printers) |
-| Resolver | Move model files into a folder | [Customize resolvers](/docs/5.x/how-to/customize#resolvers) |
+| Macro | Treat every `integer` as a `string` in one plugin | [Macros](/docs/5.x/how-to/customize#macros) |
+| Printer | Print `date` schemas as the TypeScript `Date` type | [Printers](/docs/5.x/how-to/customize#printers) |
+| Resolver | Move model files into a folder | [Resolvers](/docs/5.x/how-to/customize#resolvers) |
 | Parser | Emit a new file type | [Parsers](/docs/5.x/reference/kit/parsers) |
 | Storage | Write to a remote store | [Storage](/docs/5.x/reference/kit/storage) |
