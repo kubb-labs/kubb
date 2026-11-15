@@ -13,7 +13,7 @@ navigation:
 
 # Extension registry
 
-The Kubb extension registry lists reviewed plugins, adapters, and parsers, each pinned to one npm version or one GitHub release. [`kubb init`](/docs/5.x/reference/commands/init), [`kubb add`](/docs/5.x/reference/commands/extensions#add), [`kubb update`](/docs/5.x/reference/commands/extensions#update), [`kubb list`](/docs/5.x/reference/commands/extensions#list), [`kubb remove`](/docs/5.x/reference/commands/extensions#remove), Kubb Studio, and kubb.dev read it.
+The Kubb extension registry lists reviewed plugins, adapters, and parsers, each pinned to one npm version or one GitHub release. [`kubb init`](/docs/5.x/reference/commands/init), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb update`](/docs/5.x/reference/commands/update), [`kubb list`](/docs/5.x/reference/commands/list), [`kubb remove`](/docs/5.x/reference/commands/remove), Kubb Studio, and kubb.dev read it.
 
 ```mermaid
 flowchart LR

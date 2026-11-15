@@ -5,7 +5,7 @@ description: Command reference for kubb studio. Connect a project to Kubb Studio
 outline:
   - 2
   - 3
-order: 5
+order: 8
 navigation:
   title: kubb studio
   icon: i-iconoir-cube
@@ -164,7 +164,7 @@ Studio builds its plugin list and option forms from [extension manifests](/docs/
 - The packages `kubb.config.ts` imports.
 - The extensions that ship with `kubb`: `@kubb/adapter-oas`, `@kubb/parser-ts`, `@kubb/parser-md`, and `@kubb/plugin-barrel`.
 
-A third-party plugin works in Studio once it is installed and ships a manifest with `kind: "plugin"`. It needs no registry entry. Install it with your package manager, or with [`kubb add`](/docs/5.x/reference/commands/extensions#add) when the registry lists it, then reconnect.
+A third-party plugin works in Studio once it is installed and ships a manifest with `kind: "plugin"`. It needs no registry entry. Install it with your package manager, or with [`kubb add`](/docs/5.x/reference/commands/add) when the registry lists it, then reconnect.
 
 The adapter and the parsers in the config get a settings form from the `options` in their manifest. The agent sends a JSON copy of their options on connect, and Studio's edits on generate are merged over the options in `kubb.config.ts`. A `null` value unsets an option for that run, so the extension's default applies. An extension without a manifest, such as `parserTsx`, is listed without fields.
 

@@ -135,7 +135,7 @@ Once `kubb.config.ts` exists, manage extensions from the [Kubb registry](/docs/5
 
 | Command | What it does |
 | --- | --- |
-| [`kubb add plugin-zod`](/docs/5.x/reference/commands/extensions#add) | Installs the plugin at the version the registry pins and adds it to `kubb.config.ts` |
-| [`kubb list`](/docs/5.x/reference/commands/extensions#list) | Lists installed extensions, their versions, and available updates |
-| [`kubb update`](/docs/5.x/reference/commands/extensions#update) | Moves installed extensions to the pinned versions, regenerates, and summarizes the file changes |
-| [`kubb remove plugin-zod`](/docs/5.x/reference/commands/extensions#remove) | Removes the plugin from `kubb.config.ts` and uninstalls its package |
+| [`kubb add plugin-zod`](/docs/5.x/reference/commands/add) | Installs the plugin at the version the registry pins and adds it to `kubb.config.ts` |
+| [`kubb list`](/docs/5.x/reference/commands/list) | Lists installed extensions, their versions, and available updates |
+| [`kubb update`](/docs/5.x/reference/commands/update) | Moves installed extensions to the pinned versions, regenerates, and summarizes the file changes |
+| [`kubb remove plugin-zod`](/docs/5.x/reference/commands/remove) | Removes the plugin from `kubb.config.ts` and uninstalls its package |

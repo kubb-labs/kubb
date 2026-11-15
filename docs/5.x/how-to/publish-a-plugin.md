@@ -211,4 +211,4 @@ kubb add acme/kubb-plugin-example
 
 ## Release a new version
 
-Publishing a new version does not change what `kubb add` installs. Every Monday, a workflow opens a pull request that moves each pin to the latest npm version or GitHub release, and that version gets the same review. After the merge, users get it with [`kubb update`](/docs/5.x/reference/commands/extensions#update).
+Publishing a new version does not change what `kubb add` installs. Every Monday, a workflow opens a pull request that moves each pin to the latest npm version or GitHub release, and that version gets the same review. After the merge, users get it with [`kubb update`](/docs/5.x/reference/commands/update).

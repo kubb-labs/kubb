@@ -15,7 +15,7 @@ navigation:
 
 # Extension manifest
 
-`kubb-extension.json` sits at an extension package's root and ships on npm. The [registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/extensions#add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/extensions#list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent read it. Generation does not: at runtime, Kubb reads the extension's [`meta`](/docs/5.x/reference/kit/extensions#meta).
+`kubb-extension.json` sits at an extension package's root and ships on npm. The [registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent read it. Generation does not: at runtime, Kubb reads the extension's [`meta`](/docs/5.x/reference/kit/extensions#meta).
 
 Set `$schema` to [`https://kubb.dev/schemas/kubb-extension.json`](https://kubb.dev/schemas/kubb-extension.json) for validation and completion in your editor.
 

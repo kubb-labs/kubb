@@ -58,7 +58,7 @@ Kubb installs `kubb` at the version of the CLI you ran and each plugin at the ve
 | `--yes`, `-y` | `false` | Skip every prompt and the review, use the defaults above, and print one line per step. Overwrites an existing `kubb.config.ts`. |
 | `--input <path>`, `-i` | | Spec path or URL. Skips the spec question. |
 | `--output <path>`, `-o` | | Output folder. Skips the output question. |
-| `--plugins <ids>` | | Comma-separated registry ids, the same ids [`kubb add`](/docs/5.x/reference/commands/extensions#add) takes, such as `plugin-ts,plugin-zod`, or short names such as `ts,zod`. Skips the plugin question. An id that is not in the registry stops `kubb init`. |
+| `--plugins <ids>` | | Comma-separated registry ids, the same ids [`kubb add`](/docs/5.x/reference/commands/add) takes, such as `plugin-ts,plugin-zod`, or short names such as `ts,zod`. Skips the plugin question. An id that is not in the registry stops `kubb init`. |
 | `--dry-run` | `false` | Run the wizard without installing packages, writing files, or running the first generation. |
 
 Each flag skips only its own question and combines with `--yes`. Pass all three value flags to skip the questions and the review. Kubb still asks before it overwrites `kubb.config.ts` unless you pass `--yes`.

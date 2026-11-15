@@ -25,12 +25,39 @@ kubb <command> [options]
 | [`kubb init`](/docs/5.x/reference/commands/init) | Set up a config, install plugins, and run the first generation. |
 | [`kubb generate [input]`](/docs/5.x/reference/commands/generate) | Run the generation pipeline from `kubb.config.ts`. The default command. |
 | [`kubb validate <input>`](/docs/5.x/reference/commands/validate) | Check a spec with the configured adapter, without generating. |
-| [`kubb add [id]`](/docs/5.x/reference/commands/extensions#add) | Install an extension from the registry and add it to the config. |
-| [`kubb update [ids...]`](/docs/5.x/reference/commands/extensions#update) | Move installed extensions to the version the registry pins. |
-| [`kubb list`](/docs/5.x/reference/commands/extensions#list) | List installed extensions, their versions, and available updates. |
-| [`kubb remove <id>`](/docs/5.x/reference/commands/extensions#remove) | Remove a plugin or parser from the config and uninstall it. |
+| [`kubb add [id]`](/docs/5.x/reference/commands/add) | Install an extension from the registry and add it to the config. |
+| [`kubb update [ids...]`](/docs/5.x/reference/commands/update) | Move installed extensions to the version the registry pins. |
+| [`kubb list`](/docs/5.x/reference/commands/list) | List installed extensions, their versions, and available updates. |
+| [`kubb remove <id>`](/docs/5.x/reference/commands/remove) | Remove a plugin or parser from the config and uninstall it. |
 | [`kubb studio [action]`](/docs/5.x/reference/commands/studio) | Connect the project to Kubb Studio, or manage its pairing and snapshots. |
 | [`kubb mcp`](/docs/5.x/reference/commands/mcp) | Start a Model Context Protocol server for AI clients. |
+
+## Extension commands {#extension-commands}
+
+[`kubb add`](/docs/5.x/reference/commands/add), [`kubb update`](/docs/5.x/reference/commands/update), [`kubb list`](/docs/5.x/reference/commands/list), and [`kubb remove`](/docs/5.x/reference/commands/remove) manage the plugins, adapters, and parsers a project installs from the [Kubb registry](/docs/5.x/reference/registry). They share these rules.
+
+### Registry ids {#ids}
+
+An id is `<owner>/<slug>`, such as `acme/plugin-graphql`. A bare `<slug>`, such as `plugin-zod`, means `kubb-labs/<slug>`. Both parts use lowercase letters and digits joined by single hyphens. Another shape is an error.
+
+When `add` or `remove` gets an id the registry does not list, it prints `No extension named <id>` and up to three close ids as commands to run. `add` also links to [kubb.dev/extensions](https://kubb.dev/extensions).
+
+### Versions and compatibility {#versions}
+
+| Pinned to | Installs as |
+| --- | --- |
+| An npm version | `<package>@<version>` |
+| A GitHub release | `github:<owner>/<repo>#<commit>` |
+
+`add` and `update` refuse an extension that does not support the running Kubb or Node.js version. The registry comes from [`KUBB_REGISTRY`](/docs/5.x/reference/commands#environment-variables), `https://kubb.dev/registry` by default.
+
+### Project files {#project-files}
+
+| What | How the commands find it |
+| --- | --- |
+| Installed extensions | The `dependencies` and `devDependencies` of the `package.json` in the current folder. |
+| Config file | `--config`, or the first `.kubbrc` or `kubb.config` file (`.ts`, `.mts`, `.cts`, `.js`, `.mjs`, `.cjs`) in the current folder, its `.config/` and `configs/` folders, then each parent folder, the same search as `kubb generate`. With several config entries, `add` and `remove` edit the first one. |
+| Package manager | The `packageManager` field in `package.json`, then a lockfile, in the current folder. Falls back to `npm`. `npm`, `pnpm`, `yarn`, and `bun` are supported. `add` and `update` install packages as dev dependencies. |
 
 ## Global flags
 

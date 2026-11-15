@@ -5,7 +5,7 @@ description: The mcp command starts a stdio Model Context Protocol server with g
 outline:
   - 2
   - 3
-order: 6
+order: 9
 navigation:
   title: kubb mcp
   icon: i-simple-icons-modelcontextprotocol
