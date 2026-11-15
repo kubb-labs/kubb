@@ -49,7 +49,7 @@ The command removes the call and its unused import. It leaves the generated file
 | The last parser | A config needs at least one. |
 | An extension another plugin in the config depends on | Remove that plugin first. |
 
-Extensions that ship with `kubb`, such as `@kubb/plugin-barrel` and `@kubb/parser-md`, leave the config but stay installed. See [What kubb remove keeps installed](/docs/5.x/topics/extension-commands#extension-command-output).
+Extensions that ship with `kubb`, such as `@kubb/plugin-barrel` and `@kubb/parser-md`, leave the config but stay installed. See [What kubb remove keeps installed](#command-output).
 
 ## Options {#options}
 
@@ -69,3 +69,16 @@ Extensions that ship with `kubb`, such as `@kubb/plugin-barrel` and `@kubb/parse
 | --- | --- |
 | `0` | The extension is removed, is not in the project, or you canceled a prompt. |
 | `1` | The id is invalid or unknown, no config is found, the extension cannot be removed, or the uninstall fails. |
+
+## Less common cases {#less-common-cases}
+
+### Command output {#command-output}
+
+`kubb remove` removes the call, also one Kubb Studio switched off, and drops the unused import.
+
+- It leaves the plugin's generated files on disk. With [`output.clean`](/docs/5.x/reference/configuration#outputclean), the next `kubb generate` removes them.
+- It refuses an adapter, such as `@kubb/adapter-oas`, because a config needs one. Change the adapter in the config by hand.
+- `@kubb/parser-ts`, `@kubb/parser-md`, and `@kubb/plugin-barrel` ship with `kubb`. They leave the config but stay installed.
+- A package that another config entry still imports also stays installed.
+- Only plugins that run count as dependents. A plugin Studio switched off does not block the removal.
+- When the extension is not in the project, nothing changes and the exit code is 0.

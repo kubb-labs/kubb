@@ -31,4 +31,4 @@ The same map applies to the runtime templates a plugin copies into the output, s
 > [!NOTE]
 > `parserTsx` reads only its own map. Set the `.tsx` key on it, such as `parserTsx({ extension: { '.tsx': '.js' } })`.
 
-See [Import extensions](https://kubb.dev/docs/5.x/topics/config-and-inputs#import-extensions).
+A file whose extension has no key also loses its extension. A relative specifier without an extension stays unchanged.

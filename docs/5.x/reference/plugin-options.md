@@ -199,7 +199,7 @@ Which value assigns an operation to a group. Required in `group`.
 ::field-group
 
 :::field{name="'tag'"}
-The operation's first tag. An operation without tags goes in the `default` group. See [Group folders](/docs/5.x/topics/config-and-inputs#group-folders) for OpenAPI 3.2 `parent` tags.
+The operation's first tag. An operation without tags goes in the `default` group. See [Group folders](#group-folders) for OpenAPI 3.2 `parent` tags.
 :::
 
 :::field{name="'path'"}
@@ -253,7 +253,7 @@ Generates only the operations and schemas that match an entry. Default: everythi
 > [!WARNING]
 > A string `pattern` becomes `new RegExp(pattern)`, so it matches anywhere: `'pet'` also matches `'petType'`. Write `'^pet$'` for an exact match.
 
-Without a `schemaName` entry, `include` keeps only the schemas its operations use. See [Filters](/docs/5.x/topics/config-and-inputs#filters).
+Without a `schemaName` entry, `include` keeps only the schemas its operations use. See [Filters](#filters).
 
 ```typescript [Type definition]
 export type Include =
@@ -344,8 +344,6 @@ pluginTs({
 })
 ```
 
-See [Client and query plugins](/docs/5.x/topics/query-plugins#client-and-query-plugins) for how query plugins follow a client plugin's `exclude` and `override`.
-
 ## resolver {#resolver}
 
 ::field-group
@@ -410,3 +408,29 @@ pluginTs({ macros: [macroUntagged] })
 ```
 
 See [Customize macros](/docs/5.x/how-to/customize#macros) for a walkthrough, and [Macros](/docs/5.x/reference/kit/ast#macros) for callbacks and built-in macros.
+
+## Less common cases {#less-common-cases}
+
+### Filters {#filters}
+
+When an `include` or `exclude` mixes operation and `schemaName` entries, schemas follow their own rules.
+
+- Only `schemaName` entries filter schemas by name.
+- An `include` with operation entries and no `schemaName` entry keeps only the schemas those operations use, also indirectly.
+- An `include` with only `schemaName` entries generates no operations.
+
+A matching [`override`](#override) entry applies its `options` like this:
+
+- `options` takes any plugin option except `override`.
+- It merges shallowly. An object option such as `enum` replaces the plugin's value whole, so give it every field.
+- An `output` without `mode` reads it from `output.path`.
+
+### Group folders {#group-folders}
+
+With [`group`](#group-type), the resolver's `groupDir(group, value)` picks each file's folder. See [Resolvers](/docs/5.x/reference/kit/resolvers#auto-injected-resolver-defaults).
+
+| Group | Folder |
+| --- | --- |
+| A custom `group.name` | What `group.name` returns. It wins over `type`. |
+| `type: 'tag'` | The camelCased tag, inside the folders of its OpenAPI 3.2 `parent` tags, such as `animals/cats/` |
+| `type: 'path'` | The first path segment |

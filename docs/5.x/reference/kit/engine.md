@@ -138,3 +138,19 @@ throw new Diagnostics.Error({
   location: { kind: 'schema', pointer: '#/components/schemas/Pet', ref: '#/components/schemas/Pet' },
 })
 ```
+
+## Less common cases {#less-common-cases}
+
+### Programmatic builds {#programmatic-builds}
+
+When you build from code instead of the CLI, these rules apply.
+
+- `input` is required whenever an adapter is set, and `defineConfig` always sets one, so a config without `input` stops with [`KUBB_INPUT_REQUIRED`](/docs/5.x/reference/diagnostics#kubb-input-required).
+- Only `createKubb` from `@kubb/core` runs without an adapter, in plugin-only mode.
+- On `.generate()`, `options.processOutput` replaces the output passes.
+
+[`Kubb.generate(configs)`](#kubb-generate) builds several configs:
+
+- Configs build one after another, and each result is yielded when its config finishes, so memory holds one config at a time.
+- A failing config does not stop the others. Its result has `success: false`, and `error` holds what it threw outside its diagnostics.
+- Only an aborted `signal` rejects.

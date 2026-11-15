@@ -67,7 +67,7 @@ A `SchemaNode` is discriminated by its `type`. `ast.schema.types` lists every va
 | Family | Types | Notes |
 | --- | --- | --- |
 | Structural | `object`, `array`, `tuple`, `union`, `intersection`, `enum`, `not` | |
-| Scalar | `string`, `number`, `integer`, `bigint`, `boolean`, `null`, `any`, `unknown`, `void`, `never` | `integer` prints as `number`. See [64-bit integers](/docs/5.x/topics/64-bit-integers#64-bit-integers). |
+| Scalar | `string`, `number`, `integer`, `bigint`, `boolean`, `null`, `any`, `unknown`, `void`, `never` | `integer` prints as `number`. |
 | Special | `ref`, `date`, `datetime`, `time`, `uuid`, `email`, `url`, `ipv4`, `ipv6`, `blob` | `blob` is binary data |
 
 ## `ast.factory` {#factory-functions}
@@ -247,7 +247,7 @@ ast.schema.inferDiscriminator([catSchema, dogSchema]) // 'kind'
 ast.schema.getNumberBounds({ min: 0.5, exclusive: { max: 10 }, integer: true }) // { min: 1, max: 9 }
 ```
 
-To reuse `find` results, see [Schema search cache](/docs/5.x/topics/plugin-internals#schema-search-cache).
+To reuse `find` results, see [Schema search cache](#schema-search-cache).
 
 ## `ast.mediaType` {#ast-media-type}
 
@@ -356,3 +356,35 @@ Handlers use `this`, so write regular functions, not arrow functions:
 > The built-in generators collect those imports. In your own generator, call `printer.drainImports()` after printing.
 
 For why the AST exists, see [AST concepts](/docs/5.x/explanation/architecture#ast).
+
+## Less common cases {#less-common-cases}
+
+### Schema search cache {#schema-search-cache}
+
+When you call `ast.schema.find` across many schemas, reuse its answers with a `cache`.
+
+- `ast.schema.find` returns the first schema in a tree that matches.
+- Set `followRefs: true` to look through resolved refs.
+- Keep one `cache` per predicate and `followRefs` value, so later calls skip what earlier ones searched.
+
+```typescript [find-cache.ts]
+import { ast } from 'kubb/kit'
+
+const dateCache = new WeakMap<ast.SchemaNode, ast.SchemaNode | null>()
+const hasDate = (schema: ast.SchemaNode) =>
+  ast.schema.find(schema, { followRefs: true, cache: dateCache, predicate: (node) => node.type === 'date' }) !== undefined
+```
+
+### AST helper details {#ast-helper-details}
+
+When an AST helper's result surprises you, check these details.
+
+Helper names are a verb plus what they return (`getName`) or a question (`isJson`).
+
+| Helper | Detail |
+| --- | --- |
+| [`createPrinter`](#printers) | For an `overrides` map in practice, see the [custom codec example](/extensions/kubb-labs/plugin-zod/guides/customization#import-a-custom-codec). |
+| [`ast.schema.isString`](#ast-schema) | Whether a schema prints as a plain `string`, including `date` and `time` with a string representation. |
+| [`ast.graph.getImportedNames`](#ast-graph) | Pass `{ checks: true }` to include refs inside `conditionals`, `contains`, and `content`. |
+| [`ast.http.groupParameters`](#ast-http) | The parameters by location (`path`, `query`, `header`, `cookie`), keeping the first of a repeated name. |
+| [`ast.macro`](#macros) | A macro is a named transform that rewrites nodes before printing, with ordering through `enforce` and gating through `match`. |

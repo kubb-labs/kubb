@@ -69,7 +69,7 @@ Import `version` from `package.json` and `compatibility` [from `kubb-extension.j
 
 ### Compatibility checks
 
-Before any plugin runs, Kubb checks each extension's `meta.compatibility` against the running `@kubb/core` and Node.js. A mismatch fails with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension). See [Compatibility ranges](/docs/5.x/topics/extension-manifests#compatibility-ranges) for prereleases and canary builds.
+Before any plugin runs, Kubb checks each extension's `meta.compatibility` against the running `@kubb/core` and Node.js. A mismatch fails with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension). See [Compatibility ranges](#compatibility-ranges) for prereleases and canary builds.
 
 ## `dependencies` {#dependencies}
 
@@ -119,7 +119,7 @@ export const pluginExample = defineExtension<PluginExample>({
 })
 ```
 
-See [Array dependencies](/docs/5.x/topics/extension-manifests#array-dependencies) for the older array form.
+See [Array dependencies](#array-dependencies) for the older array form.
 
 ## Factory statics {#factory-statics}
 
@@ -130,4 +130,33 @@ pluginExample.kind // 'plugin'
 pluginExample.meta.name // 'plugin-example'
 ```
 
-The extension the factory returns gets `name` (from `meta.name`), `meta`, and the user's raw `options`. See [Hand-written extension objects](/docs/5.x/topics/extension-manifests#hand-written-extensions).
+The extension the factory returns gets `name` (from `meta.name`), `meta`, and the user's raw `options`. See [Hand-written extension objects](#hand-written-extensions).
+
+## Less common cases {#less-common-cases}
+
+### Compatibility ranges {#compatibility-ranges}
+
+When a run fails with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension), an extension's `meta.compatibility` does not match the running `@kubb/core` or Node.js.
+
+- Before any plugin runs, Kubb checks the `meta.compatibility` of the adapter, every parser, and every plugin.
+- `kubb add` checks it before it installs.
+- Prereleases compare like releases.
+- A canary build (`0.0.0-canary-*`) skips the `kubb` range.
+
+### Array dependencies {#array-dependencies}
+
+When a plugin declares [`dependencies`](#dependencies) as an array, such as `dependencies: ['plugin-ts']`, the array still works but only orders plugins.
+
+| Form | A missing plugin | Versions |
+| --- | --- | --- |
+| An array of plugin names | Skipped. It never raises `KUBB_MISSING_DEPENDENCY`. | Not checked |
+| A record keyed by plugin name | A missing required plugin fails the run before any plugin runs. | Out of range fails the run before any plugin runs. A dependency without `meta.version` is not checked. |
+
+Both forms set the order. Use the record form to fail early when a required plugin is missing or out of range.
+
+### Hand-written extensions {#hand-written-extensions}
+
+When you write a plugin or parser object by hand instead of calling a factory, Kubb fills in `meta` only from the deprecated `name`.
+
+- An object with only the deprecated `name` gets `meta: { name }`.
+- An object with neither `name` nor `meta` fails with [`KUBB_INVALID_PLUGIN_OPTIONS`](/docs/5.x/reference/diagnostics#kubb-invalid-plugin-options).

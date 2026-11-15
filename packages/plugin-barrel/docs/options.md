@@ -50,7 +50,7 @@ src/gen
 > [!WARNING]
 > Passing your own `output` to a plugin, as in `pluginTs({ output: { path: 'types' } })`, replaces its default `{ type: 'named' }`. With the root `output.barrel` at `false`, that plugin then gets no barrels.
 
-See [Barrel rules](https://kubb.dev/extensions/kubb-labs/plugin-barrel/guides/barrel-rules#which-barrel-setting-applies) and [Name collisions](https://kubb.dev/docs/5.x/topics/name-collisions#name-collisions).
+See [Barrel rules](https://kubb.dev/extensions/kubb-labs/plugin-barrel/guides/barrel-rules#which-barrel-setting-applies).
 
 ### type
 

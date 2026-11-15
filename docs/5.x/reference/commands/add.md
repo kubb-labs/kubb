@@ -59,7 +59,7 @@ Before it asks, the CLI shows the required plugins, the packages it installs, an
 ◆  Add it?
 ```
 
-After the install, the summary title gives the outcome. `Plugin needs configuration` means you add the printed snippet to the config by hand. See [Extension command output](/docs/5.x/topics/extension-commands#extension-command-output).
+After the install, the summary title gives the outcome. `Plugin needs configuration` means you add the printed snippet to the config by hand. See [Extension command output](#command-output).
 
 ## Required plugins {#add-required-plugins}
 
@@ -79,7 +79,7 @@ When the manifest lists `dependencies` that `kubb.config.ts` lacks, the CLI asks
 | Adapter | Changes nothing. The CLI prints the import and the `adapter` line to add by hand. |
 
 > [!WARNING]
-> When the CLI cannot edit the config, such as when `plugins` is not an array literal, it prints `Could not edit <file>: <reason>` and the snippet to add by hand, then exits with code 1. See [When kubb add cannot edit the config](/docs/5.x/topics/extension-commands#config-edits).
+> When the CLI cannot edit the config, such as when `plugins` is not an array literal, it prints `Could not edit <file>: <reason>` and the snippet to add by hand, then exits with code 1. See [When kubb add cannot edit the config](#config-edits).
 
 ## Options {#options}
 
@@ -101,3 +101,29 @@ When the manifest lists `dependencies` that `kubb.config.ts` lacks, the CLI asks
 | `1` | The id is invalid, unknown, or missing with `--yes`. |
 | `1` | The registry cannot be read, or the extension does not support your Kubb or Node.js version. |
 | `1` | No config is found for a plugin or parser, the install fails, or the config edit fails. |
+
+## Less common cases {#less-common-cases}
+
+### Command output {#command-output}
+
+After the install, the summary lists the packages, the added calls, the next step (`kubb generate`), and the extension's options page. Its title gives the outcome.
+
+| Summary title | When |
+| --- | --- |
+| `Plugin ready` | Installed and added to the config. |
+| `Plugin configured` | Added to the config with `--no-install`. |
+| `Plugin already configured` | The plugin was already in the config. |
+| `Plugin needs configuration` | Installed, but the config needs a manual change. The CLI prints the snippet. |
+| `Plugin configured; dependencies missing` | Added without the required plugins you declined. |
+
+Adapters and parsers say `Adapter` and `Parser` instead, except in `Plugin configured; dependencies missing`, which every kind uses.
+
+Without an id, `kubb add` lists the registry. An installed extension shows `installed` and cannot be picked.
+
+### Config edits {#config-edits}
+
+When `kubb add` cannot write the extension into the config, it prints a snippet. Add its import and call to the config, then run `kubb generate`.
+
+- An extension already in its array is left alone.
+- The config cannot be edited when `plugins` is not an array literal, or the export name is already imported from another module. The CLI then prints `Could not edit <file>: <reason>` and the snippet, and exits with code 1.
+- An adapter is never written, so its manual snippet does not set exit code 1.

@@ -67,3 +67,13 @@ Use sentence case, plain language, and no em dashes. Leave out badges, a changel
 
 > [!WARNING]
 > The page already shows how to install. Validation fails for an overview that contains `kubb add`, `npm install`, `npm i`, `pnpm add`, or `yarn add`.
+
+## Less common cases {#less-common-cases}
+
+### Extension docs limits {#extension-docs-limits}
+
+When the registry reads your package's `docs/` folder, it applies these limits.
+
+- The registry ignores files other than `overview.md`, `options.md`, and `guides/<id>.md`. It skips a file larger than 256 KiB and reports it.
+- Guides are sorted by file name, at most 50. A version that ships more lists the first 50.
+- For a guide, kubb.dev shows the description on the guide's card, in the guide filter, and as the meta description.

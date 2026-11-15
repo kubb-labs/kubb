@@ -81,7 +81,7 @@ The pipeline fires these hooks, so `.build()` and `.safeBuild()` fire them too.
 | `kubb:plugins:end`             | `{ config, files, upsertFile }`                                       | After every plugin, before files reach the storage. Add aggregate files, such as a barrel, here.                                            |
 | `kubb:files:processing:start`  | `{ files }`                                                           | Before the generated files are written.                                                                                                     |
 | `kubb:files:processing:update` | `{ files }`                                                           | As files are written. `files` holds progress records (`{ processed, total, percentage, file, config }`), not `FileNode`s.                  |
-| `kubb:file:processed`          | `{ file, source, stored }`                                            | After each file is printed and handed to the storage. `stored` is the previous content, or `null`. See [File hook payloads](/docs/5.x/topics/plugin-internals#file-hook-payloads). |
+| `kubb:file:processed`          | `{ file, source, stored }`                                            | After each file is printed and handed to the storage. `stored` is the previous content, or `null`. See [File hook payloads](#file-hook-payloads). |
 | `kubb:files:processing:end`    | `{ files, unchanged }`                                                | After every file is written. `unchanged` lists the paths whose content did not change.                                                      |
 | `kubb:build:end`               | `{ files, config, outputDir }`                                        | After every file is written and the adapter has settled.                                                                                    |
 
@@ -114,3 +114,23 @@ These hooks carry log messages and diagnostics, and fire at any point.
 | `kubb:diagnostic` | `{ diagnostic }`    | A coded error, warning, or info, or an update notice. See [diagnostics](/docs/5.x/reference/diagnostics). |
 
 For the lifecycle as a concept, see [Architecture](/docs/5.x/explanation/architecture#lifecycle).
+
+## Less common cases {#less-common-cases}
+
+### Hook listener scope {#hook-listener-scope}
+
+When your plugin listens through its `hooks` map, it receives the hooks from `kubb:setup:end` to `kubb:build:end`, including `kubb:plugin:setup` for that plugin.
+
+- Kubb adds these listeners during setup and removes them when the build ends.
+- They miss the `lifecycle` and `generation` hooks, `kubb:setup:start`, and the output passes.
+- `kubb:plugin:setup` fires once per plugin, after its `setup` and before `kubb:build:start`. Kubb calls the plugin's own handler directly.
+- `kubb:lifecycle:start` fires when `kubb generate` starts, before the first config. `.generate()` and the bundler plugins skip it.
+
+### File hook payloads {#file-hook-payloads}
+
+When you listen to `kubb:file:processed`, you get `{ file, source, stored }` after each file is printed and handed to the storage.
+
+| Field | Holds |
+| --- | --- |
+| `source` | The text before any output pass. |
+| `stored` | What the storage held at that path, or `null` when the path was empty or `output.clean` emptied its folder. |

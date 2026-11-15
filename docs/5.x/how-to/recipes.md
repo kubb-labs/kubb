@@ -173,7 +173,7 @@ Kubb runs `git` from the `PATH` with your credentials, so a private repository w
 
 | To | Do this |
 | --- | --- |
-| Regenerate when the local spec changes | Run `kubb generate --watch`. A URL or git input generates once. See [Watch mode](/docs/5.x/topics/cli-runs#watch-mode). |
+| Regenerate when the local spec changes | Run `kubb generate --watch`. A URL or git input generates once. See [Watch mode](/docs/5.x/reference/commands/generate#watch-mode-details). |
 | Generate from several specs in one run | Pass an array to `defineConfig`, each entry with its own plugins and output directory. Set a `name` per entry to tell them apart in the CLI output. |
 | Drive Kubb from a script | Call [`createKubb`](/docs/5.x/reference/kit/engine#createkubb) to orchestrate builds or inspect diagnostics. |
 | Fail CI on an invalid spec | Run [`kubb validate`](/docs/5.x/reference/commands/validate) before generation. |

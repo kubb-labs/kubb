@@ -74,7 +74,7 @@ const imports = resolver.imports({ node, root, output })
 | Option   | Effect                                                                                                                                                         |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name`   | Turns a referenced schema name into the imported identifier, for example `(schemaName) => \`${resolver.name(schemaName)}Type\``.                             |
-| `checks` | `true` also imports refs inside `conditionals`, `contains`, and a string's `content`. See [Ref imports in checks](/docs/5.x/topics/plugin-internals#ref-imports-in-checks). |
+| `checks` | `true` also imports refs inside `conditionals`, `contains`, and a string's `content`. See [Ref imports in checks](#ref-imports-in-checks). |
 
 ### Name reservations {#name-reservations}
 
@@ -90,8 +90,6 @@ const name = resolver.resolveName({
 })
 // 'CreateContainerBody3'
 ```
-
-See [Name collisions](/docs/5.x/topics/name-collisions#name-collisions) for key matching, `normalize`, and declarations that emit several identifiers.
 
 ### `Resolver.merge`
 
@@ -129,4 +127,12 @@ type ResolverPatch = {
 - `file.baseName` and `file.path` must return the same result for the same arguments, because `resolver.imports` keeps each import path for the rest of the build.
 - `this.default.name(name)` always applies `camelCase`. For other casing, call [`casing`](/docs/5.x/reference/kit#casing) from `kubb/kit`.
 - From a namespaced method, `this.name(name)` calls the active top-level `name`, including a user override. Inside the top-level `name` it recurses, so wrap an exported preset, such as `resolverTs.name`, instead.
-- `this.memo(key, compute)` computes each value once per build. See [Memo caches](/docs/5.x/topics/plugin-internals#memo-cache).
+- `this.memo(key, compute)` computes each value once per build. See [Memo caches](/docs/5.x/reference/kit/plugins#memo-cache).
+
+## Less common cases {#less-common-cases}
+
+### Ref imports in checks {#ref-imports-in-checks}
+
+When your plugin prints checks such as `conditionals`, `contains`, or a string's `content`, pass `checks: true` to [`resolver.imports`](#imports). It then also imports the refs inside them.
+
+Checks that cannot fail stay out: a `contains` with `min: 0` and no `max`, and `content` that is not JSON or is encoded.

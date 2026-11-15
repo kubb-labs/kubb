@@ -29,7 +29,7 @@ export default defineConfig({
 
 ## How Kubb loads a config
 
-Kubb loads the `--config` file, or else the first `kubb.config.ts` or variant, such as `.kubbrc.ts`, in the working folder or a parent. See [Config loading](/docs/5.x/topics/config-and-inputs#config-loading).
+Kubb loads the `--config` file, or else the first `kubb.config.ts` or variant, such as `.kubbrc.ts`, in the working folder or a parent. See [Config loading](#config-loading).
 
 ## Config formats
 
@@ -92,7 +92,7 @@ export default defineConfig([
 | `root` | The config file's folder, or the folder above `.config/` or `configs/` |
 | `reporters` | `[cli, json, file, html]` |
 
-When you call `createKubb` yourself, `root` defaults to `process.cwd()`. `createKubb` from `@kubb/core` applies fewer defaults, and the build tool integrations run fewer reporters. See [Config loading](/docs/5.x/topics/config-and-inputs#config-loading).
+When you call `createKubb` yourself, `root` defaults to `process.cwd()`. `createKubb` from `@kubb/core` applies fewer defaults, and the build tool integrations run fewer reporters. See [Config loading](#config-loading).
 
 ## Top-level options
 
@@ -128,7 +128,7 @@ export default defineConfig({
 })
 ```
 
-See [Git input](/docs/5.x/topics/config-and-inputs#git-input) for refs and credentials, and [External `$ref` files](/docs/5.x/topics/config-and-inputs#external-refs).
+See [Git input](#git-input) for refs and credentials, and [External `$ref` files](#external-refs).
 :::
 
 ### `output`
@@ -263,7 +263,7 @@ Where generated files go. Default: `fsStorage()`, which writes to disk. `memoryS
 ### `root`
 
 :::field{type="string"}
-The project root that `input` and `output.path` resolve against. Default: the config file's folder, or the folder above `.config/` or `configs/`. A relative `root` resolves from that folder. See [Config loading](/docs/5.x/topics/config-and-inputs#config-loading) for `createKubb`.
+The project root that `input` and `output.path` resolve against. Default: the config file's folder, or the folder above `.config/` or `configs/`. A relative `root` resolves from that folder. See [Config loading](#config-loading) for `createKubb`.
 :::
 
 ### `reporters`
@@ -276,3 +276,84 @@ The reporters a run can use. Default: the built-in `cli`, `json`, `file`, and `h
 
 ::studio-cta{source="configuration-reference"}
 ::
+
+## Less common cases {#less-common-cases}
+
+### Config loading {#config-loading}
+
+Without `--config`, `kubb generate` searches for a config file and turns its default export into one config per entry.
+
+```mermaid
+flowchart TD
+  cli[kubb generate] --> flag{--config set?}
+  flag -- yes --> load[Load that file]
+  flag -- no --> search[Search the working folder, then each parent]
+  search --> load
+  load --> form{Default export}
+  form -- function --> fn[Call it with the CLI context]
+  form -- object or array --> list[One config per entry]
+  fn --> list
+  list --> defaults[defineConfig fills defaults]:::core
+  defaults --> rootdir[Resolve root]
+  rootdir --> gen[Generate each config]
+```
+
+- In each folder, `.kubbrc.*` comes before `kubb.config.*`, and the folder before its `.config/` and `configs/` subfolders.
+- Extensions are tried in the order `.ts`, `.mts`, `.cts`, `.js`, `.mjs`, `.cjs`.
+- When nothing matches, the CLI stops and suggests `kubb init`.
+
+#### Root folder
+
+Without [`root`](#root), the root is the config file's folder, or its parent for a config in `.config/` or `configs/`.
+
+- A relative `root` resolves from that folder.
+- `createKubb` without a config file uses `process.cwd()`.
+
+#### Defaults outside the CLI
+
+Without `kubb generate`, fewer [defaults](#defaults) apply:
+
+- `createKubb` from `@kubb/core` applies only the `root`, `storage`, `output.format`, `output.lint`, and `output.defaultBanner` defaults.
+- [Build tool integrations](/docs/5.x/integrations/overview#build-tools) apply the `defineConfig` defaults, but run only the summary reporter.
+
+#### Extension commands
+
+`kubb add`, `kubb update`, `kubb list`, and `kubb remove` read `--config`, or search for a config the same way as `kubb generate`. With several config entries, `add` and `remove` edit the first one. See [Project files](/docs/5.x/reference/commands#project-files).
+
+#### kubb validate
+
+Which adapter `kubb validate` runs depends on the config it finds. See [Which adapter runs](/docs/5.x/reference/commands/validate#which-adapter-runs).
+
+| Situation | Adapter |
+| --- | --- |
+| A config is found or passed | Each entry's adapter. A local path resolves from the entry's `root`, or the current folder. |
+| A config entry has no adapter | None. The command fails. |
+| No config, or a found config that fails to load | `@kubb/adapter-oas`. A `--config` file that fails to load fails the command. |
+
+- An array config that repeats one adapter and input validates that pair once.
+- A URL or git input is passed unchanged. A git input is fetched into a temporary folder, validated, and deleted.
+
+### External `$ref` files {#external-refs}
+
+When your spec points at another file with a relative `$ref`, Kubb resolves it from the input file's folder. An object or inline input has no file, so its refs resolve from `root`. An OpenAPI 3.2 `$self` changes the base.
+
+Some runs refuse local files:
+
+| Run | Local `$ref` files it reads |
+| --- | --- |
+| A URL input | None, so a fetched spec cannot read your files |
+| A Kubb Studio agent | Only files inside the project or the input's folder |
+| A sandbox agent | None |
+| A managed agent | Only files in the repository of a git input |
+
+To fix a refused file, move it into the project, start your agent with [`--allow-file-refs`](/docs/5.x/reference/commands/studio#permissions), or inline the schema.
+
+### Git input {#git-input}
+
+For a spec in a git repository, write `input` as `git+<repo>#<ref>:<path>`.
+
+- `<ref>` is a branch, a tag, or a full commit SHA on hosts that fetch by SHA, such as GitHub and GitLab.
+- Leave out `<ref>:` to use the default branch.
+- Kubb runs a shallow `git fetch` into a temporary folder. It needs `git` on the `PATH` and uses your git credentials for a private repository.
+
+See [Read the spec from a git repository](/docs/5.x/how-to/recipes#read-the-spec-from-a-git-repository) for a config.

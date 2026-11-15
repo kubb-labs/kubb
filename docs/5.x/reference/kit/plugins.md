@@ -102,7 +102,7 @@ Methods have a composable of the same name, such as `addGenerator()`. `useKubb()
 > [!WARNING]
 > Composables work only in `setup` and `kubb:plugin:setup`. In generators and anywhere else, they throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
 
-See [Memo caches](/docs/5.x/topics/plugin-internals#memo-cache) to cache outside a build.
+See [Memo caches](#memo-cache) to cache outside a build.
 
 ## Plugin naming {#plugin-naming}
 
@@ -115,3 +115,32 @@ See [Memo caches](/docs/5.x/topics/plugin-internals#memo-cache) to cache outside
 | `PluginType` alias | `Plugin<Name>`                                     | `PluginZod`        |
 
 Type the name constant with `satisfies`: `export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']`.
+
+## Less common cases {#less-common-cases}
+
+### Memo caches {#memo-cache}
+
+When your plugin computes the same value many times, cache it with `memo`.
+
+| Call | Cache |
+| --- | --- |
+| `this.memo(key, compute)` in a resolver | Computes each value once per build. |
+| `memo(store, key, compute)` | Caches in a store you own, outside a build: a `Map`, a `WeakMap`, or `memo.create()`. |
+
+- `memo.create({ weak: true })` frees an entry with its key.
+- `memo.create({ max })` empties the store when it is full.
+- To type a `this.memo` value, register the key's `prefix:` and its value type in `Kubb.MemoRegistry`.
+
+```typescript [patterns.ts]
+import { memo } from 'kubb/kit'
+
+const patterns = memo.create<string, RegExp>({ max: 1000 })
+
+export const toRegExp = (pattern: string) => memo(patterns, pattern, () => new RegExp(pattern))
+```
+
+### Setup composables {#setup-composables}
+
+When your plugin's `setup` awaits something before it calls a composable, the composable still reads the context of the plugin whose setup is running.
+
+Outside `setup` and `kubb:plugin:setup`, including in generators, composables throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).

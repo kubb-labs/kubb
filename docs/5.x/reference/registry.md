@@ -60,7 +60,7 @@ type RegistryIndex = {
 }
 ```
 
-A client rejects an index whose `version` is not `1`, skips an entry whose `artifact.kind` it does not know, and ignores unknown keys. See [How the CLI reads the index](/docs/5.x/topics/extension-commands#registry-client-rules).
+A client rejects an index whose `version` is not `1`, skips an entry whose `artifact.kind` it does not know, and ignores unknown keys. See [How the CLI reads the index](#registry-client-rules).
 
 ## `GET <base>/<owner>/<slug>.json` {#detail}
 
@@ -90,7 +90,7 @@ type RegistryGuide = {
 > [!WARNING]
 > The Markdown comes from the package author. Render it as untrusted. [Extension docs](/docs/5.x/reference/kit/extension-docs) lists the file rules and the Markdown that renders.
 
-See [How the CLI reads the index](/docs/5.x/topics/extension-commands#registry-client-rules) for older registries and older package versions.
+See [How the CLI reads the index](#registry-client-rules) for older registries and older package versions.
 
 ## `RegistryEntry` {#registry-entry}
 
@@ -181,3 +181,35 @@ To build every document from your own records:
 
 > [!NOTE]
 > kubb.dev and Studio always read the kubb.dev registry. A private registry changes what the CLI installs, not what kubb.dev or Studio lists.
+
+## Less common cases {#less-common-cases}
+
+### Registry client rules {#registry-client-rules}
+
+When `kubb add` misses an extension, or you host your own registry, these rules decide what the CLI reads.
+
+#### Index entries
+
+A client rejects an index whose `version` is not `1`, skips entries with an unknown `artifact.kind`, and ignores unknown keys. The CLI also skips an entry when:
+
+- `manifest.compatibility` has a key other than `kubb` or `node`.
+- A `manifest.maintainers` item has a key other than `name` or `github`.
+- `id` is not a full `<owner>/<slug>`.
+- `artifact` does not pin an exact semver version.
+- `manifest` is not valid with the entry's `kind`.
+
+An official version from before manifests has none, so the index leaves it out until a version with a manifest is pinned.
+
+#### Detail documents
+
+- Read a missing `options` as `null` and a missing `guides` as `[]`, since older registries leave them out.
+- `overview` is `docs/overview.md`, else a root `OVERVIEW.md` in npm versions older than `docs/`, else the reviewer's overview, or `null`.
+- `repository` (`{ url: string }`) is the source on GitHub. An npm artifact may point at the package folder, and a GitHub artifact uses the repository root.
+
+#### Ids the registry does not list
+
+`kubb add` looks ids up in the index, never in a detail document. For an id the index does not list, `add` and `remove` print `No extension named <id>` and up to three close ids as commands to run. `add` also links to [kubb.dev/extensions](https://kubb.dev/extensions).
+
+#### Your own registry
+
+With `KUBB_REGISTRY=https://registry.example.com kubb add acme/plugin-graphql`, the CLI looks up `acme/plugin-graphql` in `https://registry.example.com/index.json`. `KUBB_REGISTRY` must start with `http://` or `https://`, and trailing slashes are removed.

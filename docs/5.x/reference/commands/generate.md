@@ -40,7 +40,7 @@ kubb generate ./petStore.yaml  # this spec instead
 
 ### Watch mode
 
-`--watch` follows a local `input` file only. A URL or git input is generated once, so rerun Kubb after the remote spec changes. In an interactive terminal, press `r` to rebuild and `q` to quit. See [Watch mode](/docs/5.x/topics/cli-runs#watch-mode).
+`--watch` follows a local `input` file only. A URL or git input is generated once, so rerun Kubb after the remote spec changes. In an interactive terminal, press `r` to rebuild and `q` to quit. See [Watch mode](#watch-mode-details).
 
 ## Reporters
 
@@ -73,7 +73,7 @@ File changes
   Lines  +312 −47
 ```
 
-See [Read the run summary](/docs/5.x/topics/cli-runs#run-summary).
+See [Read the run summary](#run-summary).
 
 ## Exit codes
 
@@ -81,3 +81,47 @@ See [Read the run summary](/docs/5.x/topics/cli-runs#run-summary).
 | --- | --- |
 | `0` | The run succeeds. |
 | `1` | The config fails to load, or any config fails to generate. One failing config does not stop the others. |
+
+## Less common cases {#less-common-cases}
+
+### Watch mode details {#watch-mode-details}
+
+When you run `kubb generate --watch`, Kubb follows a local `input` file only. A URL or git input is generated once, so rerun Kubb after the remote spec changes. A file the input references with `$ref`, such as `schemas/Pet.yaml`, is not watched either. After you edit one, press `r` or rerun Kubb to rebuild.
+
+| Event | What happens |
+| --- | --- |
+| The first build fails | Kubb keeps watching, so you can fix the input. |
+| A rebuild ends | A line shows the duration and the schemas and operations the spec gained or lost. The summary below it lists the files the rebuild added, modified, or removed. |
+| You press `r` | Kubb rebuilds. Keys work in an interactive terminal. |
+| You press `q` | Kubb quits with exit code 0. |
+| You press Ctrl+C | Kubb quits with exit code 130. |
+
+To keep `clean` off during incremental runs, pass a function to `defineConfig` and read `watch`. See [Config function](/docs/5.x/reference/configuration#config-function).
+
+#### Adapter sources
+
+When you write an adapter, its `sources` member lists the files and URLs the last `parse()` read, even unreadable ones. A watcher can rebuild when one of them changes, but `kubb generate --watch` does not read them. See [Adapters](/docs/5.x/reference/kit/adapters).
+
+### Run summary {#run-summary}
+
+When a run ends, the `cli` reporter prints a summary. It starts with the outcome and duration, then the plugin results and the output path.
+
+```text [Summary]
+✓ Generation complete  466ms
+
+  17 files generated · 54 unchanged
+  Plugins  4 passed
+  Output   ./src/gen
+
+File changes
+  14 added · 3 modified · 1 deleted
+  Lines  +312 −47
+```
+
+| Entry | What it counts |
+| --- | --- |
+| `unchanged` | Files whose content did not change, also when `output.clean` rewrites the folder. |
+| `File changes` | The output on disk compared with its content before the run. Custom storage drivers leave this section out. |
+| `Lines` | The count of each line, so moving a line inside a file is not a removal plus an addition. |
+
+With `--dry-run`, the summary shows the planned file changes. It says "planned" and "Nothing was written."

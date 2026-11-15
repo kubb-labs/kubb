@@ -37,7 +37,7 @@ kubb-labs/plugin-zod  @kubb/plugin-zod           5.4.4      5.4.4     no
 | `REGISTRY` | The version the registry pins, or `-` when the registry does not list the package. |
 | `UPDATE` | `yes` when the installed version is older than the pinned one, or unknown. Run [`kubb update`](/docs/5.x/reference/commands/update) to install it. |
 
-It lists each `package.json` dependency that ships a valid [`kubb-extension.json`](/docs/5.x/reference/kit/manifest) or that the registry lists. See [Which extensions kubb list shows](/docs/5.x/topics/extension-commands#extension-command-output).
+It lists each `package.json` dependency that ships a valid [`kubb-extension.json`](/docs/5.x/reference/kit/manifest) or that the registry lists. See [Which extensions kubb list shows](#command-output).
 
 When the registry cannot be read, it prints `Showing installed extensions only: <reason>` and lists the packages that ship a manifest.
 
@@ -47,3 +47,13 @@ When the registry cannot be read, it prints `Showing installed extensions only: 
 | --- | --- |
 | `0` | The list prints, also when the registry is unreachable or nothing is installed. |
 | `1` | `KUBB_REGISTRY` is not an `http://` or `https://` URL. |
+
+## Less common cases {#less-common-cases}
+
+### Command output {#command-output}
+
+`kubb list` shows each `package.json` package that ships a valid [`kubb-extension.json`](/docs/5.x/reference/kit/manifest) or is in the registry.
+
+- Extensions bundled with `kubb`, such as `@kubb/adapter-oas` and `@kubb/plugin-barrel`, appear only when `package.json` lists them.
+- When the registry cannot be read, it prints `Showing installed extensions only: <reason>` and lists the packages that ship a manifest.
+- When it finds nothing, it prints `No installed extensions found.`

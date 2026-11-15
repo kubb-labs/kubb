@@ -117,7 +117,7 @@ A block of source text in the enclosing `File`.
 | `pointer?` | `string` | The input location, such as `#/components/schemas/Pet` |
 | `children?` | `KubbReactNode` | The source text |
 
-See [Copied and inline files](/docs/5.x/topics/config-and-inputs#inline-sources) for `copy` and `inline`.
+See [Copied and inline files](#inline-sources) for `copy` and `inline`.
 
 #### `File.Import` {#file-import}
 
@@ -310,3 +310,23 @@ Embeds a raw JSX string, fragments included, such as a component body in a `Func
   <Jsx>{'return (\n  <>\n    <div>Hello</div>\n  </>\n)'}</Jsx>
 </Function>
 ```
+
+## Less common cases {#less-common-cases}
+
+### Inline sources {#inline-sources}
+
+When a plugin writes a `File` with `copy` or a `File.Source` with `inline`, Kubb copies or absorbs it instead of printing it.
+
+- `copy` on `File` is an absolute path to copy into the output, through the parser's `copy` hook if it has one. Its sources count for barrels but are not printed.
+- `inline.expression` on `File.Source` is the right-hand side of the declaration.
+- A file whose sources are all inline is not written. Files that import it get the expression and its imports.
+
+```tsx
+<File.Source name="AddPetStatus200" isTypeOnly isExportable inline={{ expression: 'Pet' }}>
+  {`export type AddPetStatus200 = Pet`}
+</File.Source>
+```
+
+The parser's `inline` member (`InlineLanguage`) runs before barrels. It finds names (`replaceIdentifiers`) and makes a definition safe to put where a name was (`wrap`). Only files of a parser with `inline`, such as `parserTs`, absorb inline sources.
+
+With the `kubb/jsx` [setup](#setup), `.tsx` files load `jsx-runtime` and `jsx-dev-runtime` from `kubb/jsx`.

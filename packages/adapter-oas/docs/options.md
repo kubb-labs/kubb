@@ -94,8 +94,6 @@ Also writes the discriminator literal into each child schema, so a child is narr
 
 ::
 
-See [Discriminators](https://kubb.dev/docs/5.x/topics/schema-shapes#discriminators) for the generated types.
-
 #### enums
 
 Where inline enums live. Names are the same in both modes.
@@ -165,8 +163,6 @@ Suffix of inline enum names. The `status` enum on `Pet` becomes `PetStatusEnum`,
 | Required | `false`  |
 | Default  | `'enum'` |
 
-See [Enums](https://kubb.dev/docs/5.x/topics/schema-shapes#enums).
-
 #### pathParamsCasing
 
 Renames `path` parameters and their `{placeholder}` to camelCase, so `{pet-id}`, `{pet_id}`, and `{PetId}` become `petId` in clients, MSW routes, and query keys. The HTTP request and other parameters stay the same.
@@ -191,7 +187,7 @@ await getPet({ path: { storeId, petId } })
 
 ::
 
-An operation with a `matrix` path parameter keeps all its path parameter names, because a matrix value sends the name. For names that collide, see [Name collisions](https://kubb.dev/docs/5.x/topics/name-collisions#path-parameters).
+An operation with a `matrix` path parameter keeps all its path parameter names, because a matrix value sends the name.
 
 ### Type mapping
 
@@ -229,7 +225,7 @@ Types all three as a JavaScript `Date`, which needs parsing to revive from JSON.
 
 ::
 
-To type each format on its own, pass an object. See [Dates and times](https://kubb.dev/docs/5.x/topics/dates-and-times#date-type-object).
+To type each format on its own, pass an object. `dateTime` takes every value above, `date` and `time` take `false`, `'string'`, or `'date'`, and a key you leave out is `'string'`.
 
 #### integerType
 
@@ -252,8 +248,6 @@ Fits most JSON APIs. Loses precision above `Number.MAX_SAFE_INTEGER`.
 :::
 
 ::
-
-See [64-bit integers](https://kubb.dev/docs/5.x/topics/64-bit-integers#64-bit-integers).
 
 #### unknownType
 
@@ -280,8 +274,6 @@ Marks a value callers should not use, to match a legacy API.
 :::
 
 ::
-
-See [Additional properties](https://kubb.dev/docs/5.x/topics/additional-properties#additional-properties).
 
 #### emptySchemaType
 

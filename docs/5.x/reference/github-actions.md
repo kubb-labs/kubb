@@ -31,7 +31,7 @@ flowchart TD
 - Each pull request reuses one CI agent and one comment. Each branch push reuses one CI agent and writes no comment.
 - When the snapshot fails, the comment shows the error and links the workflow run, and the step fails.
 
-See [GitHub Action edge cases](/docs/5.x/topics/studio-and-ci#github-action-runs).
+See [GitHub Action edge cases](#github-action-runs).
 
 ## Inputs
 
@@ -68,10 +68,29 @@ The comment shows the package name and version, an `npm i <tarball-url>` command
 > [!TIP]
 > The base branch comparison needs a snapshot of the base branch. Run the workflow on pushes to that branch too.
 
-See [Read the snapshot comment](/docs/5.x/topics/studio-and-ci#github-action-runs).
+See [Read the snapshot comment](#github-action-runs).
 
 ## Environment variables
 
 | Variable | Default | What it does |
 | --- | --- | --- |
 | `KUBB_STUDIO_URL` | `https://kubb.studio` | Studio URL for a self-hosted deployment |
+
+## Less common cases {#less-common-cases}
+
+### GitHub Action runs {#github-action-runs}
+
+These cases apply when the [Kubb GitHub Action](/docs/5.x/reference/github-actions) runs on a pull request.
+
+- Deleting a closed pull request's agent is best effort. On failure the action logs a warning, and Studio's idle cleanup removes the agent later.
+- When a `kubb/init-*` pull request is already open, the action stops without opening another.
+
+#### Pull request comment details
+The comment opens with the package name, version, and an `npm i <tarball-url>` command. Two sections then compare the generated files, each with a collapsed list of up to 50 files:
+
+| Section | Compares with | Without a base |
+| --- | --- | --- |
+| Changes against the base branch | The base branch's latest snapshot, from the `push` trigger. The heading links its commit. | Says to run the workflow on pushes to the base branch |
+| Changes since the previous snapshot | The pull request's previous snapshot. The heading links its commit, or shows its date. | Reports a first snapshot with its file count |
+
+It ends with links to download the package and open the editor, the expiry date, and the source commit.

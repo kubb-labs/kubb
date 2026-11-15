@@ -64,10 +64,10 @@ export default defineConfig({
 | `extNames` | `Array<FileNode['extname']> \| undefined`          | Yes      |                                     | The file extensions this parser handles. With `undefined`, `parse` never runs.                                                                |
 | `parse`    | `(file: FileNode) => string`                       | Yes      | After every plugin, once per file   | Prints the file's sources. Must be synchronous.                                                                                                 |
 | `print`    | `(...nodes: TNode[]) => string`                    | Yes      | By plugins, while they generate     | Prints compiler AST nodes, such as `ts.Node` for `parserTs`.                                                                                    |
-| `inline`   | `InlineLanguage`                                   | No       | Before barrels, for inline sources  | Lets files of this parser absorb inline sources. `parserTs` has it. See [Inline sources](/docs/5.x/topics/config-and-inputs#inline-sources). |
+| `inline`   | `InlineLanguage`                                   | No       | Before barrels, for inline sources  | Lets files of this parser absorb inline sources. `parserTs` has it. See [Inline sources](/docs/5.x/reference/jsx#inline-sources). |
 | `copy`     | `(file: FileNode, source: string) => UserFileNode` | No       | For each `copy` file                | Describes a copied template as nodes, such as its imports as `ImportNode`s, for `parse` to print. Without it, Kubb copies the file as is. |
 
-See [Parser selection](/docs/5.x/topics/config-and-inputs#parser-selection) for duplicate extensions and files no parser handles.
+See [Parser selection](#parser-selection) for duplicate extensions and files no parser handles.
 
 ## Parser naming {#parser-naming}
 
@@ -76,3 +76,16 @@ See [Parser selection](/docs/5.x/topics/config-and-inputs#parser-selection) for 
 | npm package    | `@<scope>/parser-<name>` or `kubb-parser-<name>` | `@kubb/parser-ts`            |
 | `meta.name`    | The output language or format, in lowercase      | `'typescript'`, `'markdown'` |
 | Factory export | `parser<Name>`                                   | `parserTs`, `parserMd`       |
+
+## Less common cases {#less-common-cases}
+
+### Parser selection {#parser-selection}
+
+When two parsers in [`parsers`](/docs/5.x/reference/configuration#parsers) register the same file extension, Kubb uses one of them.
+
+> [!IMPORTANT]
+> The last parser in the `parsers` array wins. Put the one you want for that extension last.
+
+### Parser fallback {#parser-fallback}
+
+When no parser handles a file's extension, Kubb joins its sources as they are. Add a parser for that extension to control the output.

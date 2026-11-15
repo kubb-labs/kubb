@@ -48,7 +48,7 @@ A terminal gets the first format. An AI agent, CI, or a pipe gets the second, wi
 | Warning | Reported. The run continues. |
 | Info | Advisory. Never fails the run. |
 
-Rarer cases per code are in [Diagnostic details](/docs/5.x/topics/cli-runs#diagnostic-details).
+Rarer cases per code are in [Diagnostic details](#diagnostic-details).
 
 ## Crashes {#crashes}
 
@@ -152,7 +152,7 @@ The `input` has a syntax error, no `openapi` or `swagger` version, or a version 
 
 A plugin's options cannot work as given, such as `group` or `sdk.mode: 'tag'` with file output. The message names the case.
 
-**Fix:** Change what the message names. See [every case](/docs/5.x/topics/cli-runs#invalid-plugin-options).
+**Fix:** Change what the message names. See [every case](#invalid-plugin-options).
 
 ### KUBB_INVALID_SERVER_VARIABLE {#kubb-invalid-server-variable}
 
@@ -280,7 +280,7 @@ A plugin reported a message through `ctx.info`, shown in the summary and JSON re
 
 ### KUBB_UPDATE_AVAILABLE {#kubb-update-available}
 
-npm has a newer Kubb than the one running. See [Update check](/docs/5.x/topics/cli-runs#update-check).
+npm has a newer Kubb than the one running. See [Update check](#update-check).
 
 **Fix:** Update Kubb and your plugins.
 
@@ -331,3 +331,57 @@ npm has a newer Kubb than the one running. See [Update check](/docs/5.x/topics/c
 | `diagnostics[].docsUrl` | This page's entry. `KUBB_UNKNOWN` has none. |
 
 Any error still exits with code 1. See [`--reporter`](/docs/5.x/reference/commands/generate#reporters) for other reporters.
+
+## Less common cases {#less-common-cases}
+
+### Update check {#update-check}
+
+When a run prints [`KUBB_UPDATE_AVAILABLE`](#kubb-update-available) without a network request, it reuses an earlier answer.
+
+- `kubb generate` asks npm at most once every 24 hours and keeps the answer in `KUBB_HOME` (default `~/.kubb`), so the notice also shows on runs that make no request.
+- CI skips the check, detected from variables such as `CI` or `GITHUB_ACTIONS`.
+
+### Diagnostic details {#diagnostic-details}
+
+When a [diagnostic](/docs/5.x/reference/diagnostics) needs more context than its entry gives, look up its code here.
+
+| Code | Detail |
+| --- | --- |
+| [`KUBB_ADAPTER_FAILED`](#kubb-adapter-failed) | Errors the adapter reports on purpose, such as `KUBB_REF_NOT_FOUND`, keep their own code. |
+| [`KUBB_ADAPTER_REQUIRED`](#kubb-adapter-required) | `defineConfig` adds the OpenAPI adapter when `adapter` is left out, so this happens only with a custom adapter or with `createKubb` from `@kubb/core`. |
+| [`KUBB_BARREL_DUPLICATE_EXPORT`](#kubb-barrel-duplicate-export) | The barrel keeps the first export and drops the rest, so the code still parses, but the run fails. A type and a value may share a name. |
+| [`KUBB_DUPLICATE_DISCRIMINATOR`](#kubb-duplicate-discriminator) | Zod's `z.discriminatedUnion` throws on the first parse of such a union. |
+| [`KUBB_FORMAT_FAILED`](#kubb-format-failed) | Check the formatter's install and config. |
+| [`KUBB_GIT_INPUT_FAILED`](#kubb-git-input-failed) | `git` is missing, the repository or ref does not exist, or the credentials were refused. For a private repository, set up a credential helper or SSH key. |
+| [`KUBB_INCOMPATIBLE_EXTENSION`](#kubb-incompatible-extension) | Kubb checks at run time and in `kubb add`. |
+| [`KUBB_INLINE_FAILED`](#kubb-inline-failed) | The imported name has no inline definition, refers to itself, or has no parser that supports inlining. One diagnostic lists every case. |
+| [`KUBB_INPUT_NOT_FOUND`](#kubb-input-not-found) | A URL reports `KUBB_INPUT_REQUEST_FAILED` or `KUBB_INPUT_UNREACHABLE` instead. |
+| [`KUBB_INPUT_REQUEST_FAILED`](#kubb-input-request-failed) | A 404 means a wrong path, and a 5xx a failing server. The extension commands also report it for an invalid [registry](/docs/5.x/reference/registry) index. |
+| [`KUBB_INPUT_UNREACHABLE`](#kubb-input-unreachable) | The causes are a refused connection, an unknown host, an expired certificate, or a timeout, and the message names which one applies. For a local server, check the port. |
+| [`KUBB_INTERNAL_ERROR`](#kubb-internal-error) | The bug is in Kubb, not in your config or spec. `--reporter json` also shows the stack. |
+| [`KUBB_INVALID_DOCUMENT`](#kubb-invalid-document) | The check runs even with validation off. A passed `input` must be the spec itself, not an HTML page or a wrapper object. |
+| [`KUBB_INVALID_PLUGIN_OPTIONS`](#kubb-invalid-plugin-options) | See [Invalid plugin options](#invalid-plugin-options). |
+| [`KUBB_INVALID_SPEC`](#kubb-invalid-spec) | [`kubb validate`](/docs/5.x/reference/commands/validate) lists every problem as an error and exits with code 1. `@kubb/adapter-oas` checks while [`validate`](/extensions/kubb-labs/adapter-oas/options#validate) is `true`, the default. The validator does not support OpenAPI 3.2 yet, so a 3.2 document gets this code with a message that it was not validated. |
+| [`KUBB_NO_CONTEXT`](#kubb-no-context) | The composable has no plugin to apply to. The message names the composable. |
+| [`KUBB_PATH_TRAVERSAL`](#kubb-path-traversal) | The refusal stops a crafted spec or a wrong `group.name` from placing files elsewhere on disk. |
+| [`KUBB_PERFORMANCE`](#kubb-performance) | It is never printed as a problem. The time leaves out config loading, format, lint, and post-generate. |
+| [`KUBB_PLUGIN_FAILED`](#kubb-plugin-failed) | The diagnostic names the plugin and keeps the thrown error as its cause. Plugin authors can raise a stable code with [`Diagnostics.Error` or `Diagnostics.report`](/docs/5.x/reference/kit/engine#diagnostics). |
+| [`KUBB_PLUGIN_NOT_FOUND`](#kubb-plugin-not-found) | `kubb init --plugins` also reports it for an id the registry does not list. |
+| [`KUBB_PLUGIN_WARNING`](#kubb-plugin-warning), [`KUBB_PLUGIN_INFO`](#kubb-plugin-info) | Plugin authors can add a stable code and a location with `Diagnostics.report`. |
+| [`KUBB_REF_NOT_FOUND`](#kubb-ref-not-found) | Inside an `x-` vendor extension it is only a warning. Kubb refuses some local `$ref` files, such as any from a URL input. See [External `$ref` files](/docs/5.x/reference/configuration#external-refs) for the rules on Kubb Studio agents. |
+| [`KUBB_UNKNOWN`](#kubb-unknown) | The terminal shows no docs link for it. `--reporter file` writes a log with the stack in `.kubb/`. |
+| [`KUBB_UNSUPPORTED_FORMAT`](#kubb-unsupported-format) | Kubb reports each format once, with a count, at the first schema that uses it. |
+
+#### Invalid plugin options {#invalid-plugin-options}
+
+When a run stops with [`KUBB_INVALID_PLUGIN_OPTIONS`](#kubb-invalid-plugin-options), the `plugins` array or a plugin's options cannot work as given. The message names the case:
+
+- `group` with file output: `output.mode: 'file'`, or an `output.path` with an extension.
+- `sdk.mode: 'tag'` with file output on `@kubb/plugin-fetch`, `@kubb/plugin-axios`, or `@kubb/plugin-client`.
+- An option value the plugin does not accept.
+- A `plugins` entry that is not a plugin, such as `pluginTs` instead of `pluginTs()`.
+- The same plugin twice, or a cycle in plugin `dependencies`.
+- An extension without `meta.name` or `name`.
+- A `@kubb/plugin-faker` `dateParser` that cannot format the adapter's `dateType: 'date'` values.
+
+Change what the message names. A single file has nothing to group or split, so remove `group`, use `sdk.mode: 'flat'`, or write to a directory.

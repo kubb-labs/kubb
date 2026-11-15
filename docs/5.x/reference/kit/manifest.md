@@ -173,7 +173,7 @@ Each `options` entry is one Studio form field that edits the value at `path` in 
 
 ## Validation
 
-Kubb skips an invalid manifest, and the registry review lists its problems. In your own code, `isExtensionManifest(value)` from `kubb/kit` runs the same checks as Kubb, and `manifestProblems(manifest)` lists the option problems of a well-formed manifest. See [Manifest validation](/docs/5.x/topics/extension-manifests#manifest-validation) for what each reader checks.
+Kubb skips an invalid manifest, and the registry review lists its problems. In your own code, `isExtensionManifest(value)` from `kubb/kit` runs the same checks as Kubb, and `manifestProblems(manifest)` lists the option problems of a well-formed manifest. See [Manifest validation](#manifest-validation) for what each reader checks.
 
 ## Import `compatibility` into `meta` {#import-compatibility-into-meta}
 
@@ -199,3 +199,35 @@ Keep `name` as a typed constant, because a JSON import widens it to `string`.
 
 > [!WARNING]
 > Named JSON imports need a bundler that inlines them, such as tsdown. With plain `tsc` and `"module": "NodeNext"`, write the ranges in `meta.compatibility` instead.
+
+## Less common cases {#less-common-cases}
+
+### Manifest validation {#manifest-validation}
+
+When Kubb skips your manifest or the registry review fails, check what each reader checks.
+
+| Reader | Checks | On failure |
+| --- | --- | --- |
+| `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio agent | The required fields and their shape, each `maintainers` and `options` entry, extension names in `dependencies` and `optionalDependencies`, `role`, `compatibility`, unique option keys, and `select` choices and defaults. | The manifest is skipped. |
+| The registry | The JSON Schema, unique option keys, `choices` on every `select`, and a `select` default that equals one of its choices. | The review pull request lists the problem, and the weekly bump keeps the previous pin. |
+
+In your own code, `isExtensionManifest(value)` from `kubb/kit` runs the same checks as Kubb. `manifestProblems(manifest)` lists the option problems of a well-formed manifest.
+
+| Field | Rule |
+| --- | --- |
+| [`name`](#name) | Kubb skips a manifest whose `name` is not shaped like an npm package name: lowercase letters, digits, `.`, `_`, `~`, and `-`, with an optional `@scope/`. |
+| [`compatibility`](#compatibility) | Any key other than `kubb` or `node` makes the manifest invalid, so a typo such as `nodejs` cannot skip a check. |
+| Option [`default`](#option-entries) | Studio does not write a value equal to it. |
+
+### Manifest readers {#manifest-readers}
+
+When you fill in a manifest field, this is what reads it.
+
+| Field | Who reads it |
+| --- | --- |
+| `kind` | Studio builds a form for every kind and lets users switch plugins on and off. |
+| `export` | `kubb add` imports it, and the Studio agent calls it. |
+| `icon` | Studio shows a generic icon when the manifest has none. |
+| `maintainers` | Each entry needs a `name` and can add a `github` username. |
+| `dependencies` | kubb.dev lists them. |
+| `optionalDependencies` | They match the runtime `dependencies` marked `optional: true` or picked from the options, such as `["plugin-faker"]` for `@kubb/plugin-msw` with `parser: 'faker'`. |

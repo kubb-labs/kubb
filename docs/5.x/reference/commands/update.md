@@ -51,7 +51,7 @@ kubb update plugin-zod plugin-ts --yes   # two extensions, no prompt
 
 ## Which extensions it updates {#update-scope}
 
-An extension gets an update when its installed version is older than the pinned one, or when `package.json` lists it but it is not installed. An update that does not support your Kubb or Node.js version is skipped with `Skipped <id>: <reason>`. See [What kubb update prints](/docs/5.x/topics/extension-commands#extension-command-output).
+An extension gets an update when its installed version is older than the pinned one, or when `package.json` lists it but it is not installed. An update that does not support your Kubb or Node.js version is skipped with `Skipped <id>: <reason>`. See [What kubb update prints](#command-output).
 
 ## Options {#options}
 
@@ -69,3 +69,16 @@ An extension gets an update when its installed version is older than the pinned 
 | --- | --- |
 | `0` | The updates are installed, nothing is outdated, or you canceled a prompt. Also when the generation after the install fails. |
 | `1` | An id is malformed (nothing updates) or not installed (the other ids still update), a named extension's update is not compatible, the registry cannot be read, or the install fails. |
+
+## Less common cases {#less-common-cases}
+
+### Command output {#command-output}
+
+After the install, `kubb update` finds the config like [`kubb generate`](/docs/5.x/reference/commands/generate) and asks whether to regenerate, since that rewrites the generated files. The summary lists installed and skipped packages and changed files.
+
+| Case | Result |
+| --- | --- |
+| An update does not support your Kubb or Node.js version | Skipped with `Skipped <id>: <reason>`. |
+| A named id matches no installed extension | `<id> is not installed, or not in the registry.` Other ids still update, and the exit code is 1. |
+| Nothing is outdated | The summary says `Already up to date`. |
+| The generation after the install fails | The summary says `Extensions updated; generation failed`, and the exit code stays 0. |

@@ -27,7 +27,7 @@ npx kubb init
 
 Kubb finds the package manager the way the [extension commands](/docs/5.x/reference/commands#project-files) do. Without a `package.json`, it offers to create one.
 
-It looks for `openapi*` or `swagger*` files (`.yaml`, `.yml`, or `.json`) up to three folders deep. See [How kubb init finds a spec](/docs/5.x/topics/extension-commands#init-spec-detection).
+It looks for `openapi*` or `swagger*` files (`.yaml`, `.yml`, or `.json`) up to three folders deep. See [How kubb init finds a spec](#init-spec-detection).
 
 ### Ask three questions
 
@@ -91,3 +91,17 @@ Kubb is set up. Run npm run generate after changing the spec.
 | `0` | Kubb is set up, or you canceled a prompt. |
 | `1` | The first generation fails. The setup stays. |
 | `1` | A plugin misses a dependency (with `--yes` or all three value flags), a `--plugins` id is not in the registry, the registry cannot be read, or the install fails. |
+
+## Less common cases {#less-common-cases}
+
+### Spec detection in kubb init {#init-spec-detection}
+
+On start, `kubb init` detects the package manager and looks for a spec.
+
+- It reads the package manager (`npm`, `pnpm`, `yarn`, or `bun`) from the `packageManager` field or a lockfile, else `npm`.
+- Without a `package.json`, it offers to create one.
+- It looks up to three folders deep for `openapi*` or `swagger*` files ending in `.yaml`, `.yml`, or `.json`.
+- It skips `node_modules`, `dist`, `build`, `coverage`, and hidden folders.
+- It shows the version and operation count of the first one.
+
+For a spec with another name or a deeper path, pass it with [`--input`](#options).

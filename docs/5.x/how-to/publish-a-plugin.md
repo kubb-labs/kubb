@@ -200,7 +200,7 @@ flowchart LR
 
 Checks on the pull request validate the record and the docs, and load your extension with install scripts off. A maintainer then reviews the package against [`REVIEW.md`](https://github.com/kubb-labs/registry/blob/main/REVIEW.md).
 
-After the pull request exists, editing the issue no longer runs the submission again. When a check fails or the maintainer asks for changes, publish a fixed version and reply in the pull request. See [Registry checks](/docs/5.x/topics/extension-commands#registry-checks).
+After the pull request exists, editing the issue no longer runs the submission again. When a check fails or the maintainer asks for changes, publish a fixed version and reply in the pull request. See [Registry checks](#registry-checks).
 
 After the merge, the registry lists the extension within minutes. Users install it with:
 
@@ -213,3 +213,11 @@ kubb add acme/kubb-plugin-example
 ## Release a new version
 
 A new version does not change what `kubb add` installs. Every Monday, a workflow opens a pull request that moves each pin to the latest npm version or GitHub release, with the same review. After the merge, users get it with [`kubb update`](/docs/5.x/reference/commands/update).
+
+## Less common cases {#less-common-cases}
+
+### Registry checks {#registry-checks}
+
+When the registry reviews a version you submit, it reads `kubb-extension.json` and `docs/` from the npm tarball or GitHub release, plus `package.json` for a GitHub release. Ship these files before you submit.
+
+See [Check the tarball](#check-the-tarball) and [Manifest validation](/docs/5.x/reference/kit/manifest#manifest-validation).
