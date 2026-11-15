@@ -23,9 +23,9 @@ on:
   pull_request:
     # `closed` deletes the pull request's Studio agent. GitHub leaves it out by default.
     types: [opened, synchronize, reopened, closed]
-  # A snapshot of main is what pull requests compare with.
+  # Each pull request compares with a snapshot of its base branch, so list every branch pull requests target.
   push:
-    branches: [main]
+    branches: [main, 'release/**']
 
 permissions:
   contents: write
