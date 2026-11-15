@@ -11,7 +11,7 @@ navigation:
 
 # Generate code from your API spec with Rolldown
 
-`kubb/rolldown` ships with `kubb`. It generates code from your `kubb.config.ts` once, before the Rolldown build continues.
+`kubb/rolldown` generates code from your `kubb.config.ts` once, before the Rolldown build continues. It ships with `kubb`.
 
 ::steps{level="2"}
 
@@ -21,7 +21,7 @@ Follow [Installation](/docs/5.x/how-to/installation).
 
 ## Add Kubb to `rolldown.config.ts`
 
-Pass your `kubb.config.ts` as `config`. It takes one config object, not an array or a function.
+Pass one config object from your `kubb.config.ts` as `config`, not an array or a function.
 
 ```typescript [rolldown.config.ts]
 import kubb from 'kubb/rolldown'
@@ -36,8 +36,8 @@ export default defineConfig({
 
 ## Run the build
 
-Run `rolldown -c`. A failed generation fails the build.
+Run `rolldown -c`. If Kubb fails, the build fails.
 
 ::
 
-See [How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) for defaults, reports, and watch rebuilds.
+[How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) covers defaults, reports, and watch rebuilds.

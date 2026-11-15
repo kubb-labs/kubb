@@ -11,10 +11,10 @@ navigation:
 
 # Generate code from your API spec with Nuxt
 
-`kubb/nuxt` ships with `kubb`. It generates code from your `kubb.config.ts` once, in the client build, which runs before the server build.
+`kubb/nuxt` generates code from your `kubb.config.ts` once, in the client build, which runs before the server build. It ships with `kubb`.
 
 > [!IMPORTANT]
-> The module works with the Vite, webpack, and Rspack builders, and skips `nuxt dev`. Run `kubb generate` before you start the development server.
+> The module works with the Vite, webpack, and Rspack builders, and skips `nuxt dev`. Run `kubb generate` before you start the dev server.
 
 ::steps{level="2"}
 
@@ -24,7 +24,7 @@ Follow [Installation](/docs/5.x/how-to/installation).
 
 ## Add Kubb to `nuxt.config.ts`
 
-Pass your `kubb.config.ts` as `config`. It takes one config object, not an array or a function.
+Pass one config object from your `kubb.config.ts` as `config`, not an array or a function.
 
 ```typescript [nuxt.config.ts]
 import config from './kubb.config'
@@ -36,8 +36,8 @@ export default defineNuxtConfig({
 
 ## Run the build
 
-Run `nuxt build`. A failed generation fails the build.
+Run `nuxt build`. If Kubb fails, the build fails.
 
 ::
 
-See [How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) for defaults, reports, and watch rebuilds.
+[How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) covers defaults, reports, and watch rebuilds.

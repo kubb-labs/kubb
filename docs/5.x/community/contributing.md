@@ -13,7 +13,7 @@ navigation:
 
 # Contributing
 
-Check the open [issues](https://github.com/kubb-labs/kubb/issues) and [pull requests](https://github.com/kubb-labs/kubb/pulls) first, and open an issue before an opinion-driven change. Each repository's `CONTRIBUTING.md` has the full rules: [kubb-labs/kubb](https://github.com/kubb-labs/kubb/blob/main/CONTRIBUTING.md) and [kubb-labs/plugins](https://github.com/kubb-labs/plugins/blob/main/CONTRIBUTING.md).
+Check the open [issues](https://github.com/kubb-labs/kubb/issues) and [pull requests](https://github.com/kubb-labs/kubb/pulls) first. Open an issue before an opinion-driven change. Each repository's `CONTRIBUTING.md` has the full rules: [kubb-labs/kubb](https://github.com/kubb-labs/kubb/blob/main/CONTRIBUTING.md) and [kubb-labs/plugins](https://github.com/kubb-labs/plugins/blob/main/CONTRIBUTING.md).
 
 ## What lives where
 
@@ -84,7 +84,7 @@ pnpm -F @kubb/core start                                          # rebuild one 
 pnpm vitest run --config ./configs/vitest.config.ts packages/core # test one package
 ```
 
-Put each test next to its source file, and list a new test file in `configs/test-registry.json` with one sentence on what it covers. In `kubb-labs/plugins`, test a folder such as `packages/plugin-ts`, and run `pnpm generate` after a plugin change.
+Put each test next to its source file. List a new test file in `configs/test-registry.json`, with one sentence on what it covers. In `kubb-labs/plugins`, test a folder such as `packages/plugin-ts`, and run `pnpm generate` after a plugin change.
 
 ### Add a changeset {#commits-and-changesets}
 
@@ -109,7 +109,7 @@ Run these before you push. CI runs them on every pull request that changes code.
 | `pnpm test:registry` | Every test file has a registry entry, and no entry points at a deleted file | Linting |
 | `pnpm format` | oxfmt formatting | autofix.ci formats the pull request |
 | `pnpm typecheck:examples` | Plugins only: the examples type-check | Typecheck |
-| `pnpm generate` | Plugins only: regenerates the examples | Update generated examples, which opens a pull request with the changes |
+| `pnpm generate` | Plugins only: generates the examples | Update generated examples, which opens a pull request with the changes |
 
 ## Write a plugin {#kubb-plugins}
 

@@ -20,7 +20,7 @@ Not here? Ask on [Discord](https://discord.gg/shfBFeczrm) or open a [GitHub issu
 ::accordion
 
 :::accordion-item{label="Is Kubb production-ready?" icon="i-iconoir-help-circle"}
-Yes. The generated code is plain TypeScript, with no runtime dependency on Kubb and no decorators. The [first-client tutorial](/docs/5.x/tutorials/quickstart) shows the output.
+Yes. The generated code is plain TypeScript, with no runtime dependency on Kubb and no decorators. [Generate your first client](/docs/5.x/tutorials/quickstart) shows the output.
 :::
 
 :::accordion-item{label="How do I turn off telemetry?" icon="i-iconoir-help-circle"}
@@ -38,7 +38,7 @@ Yes, with a build step. Kubb generates TypeScript, so import the output through 
 :::
 
 :::accordion-item{label="Can I use Kubb with GraphQL?" icon="i-iconoir-help-circle"}
-Not out of the box. The default [adapter](/docs/5.x/explanation/architecture#adapters) reads OpenAPI and Swagger, so use [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) for GraphQL. A [custom adapter](/docs/5.x/reference/kit/adapters) can read any format, but it takes real work.
+Not out of the box. The default [adapter](/docs/5.x/explanation/architecture#adapters) reads OpenAPI and Swagger, so use [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) for GraphQL. A [custom adapter](/docs/5.x/reference/kit/adapters) can read any format, but takes real work.
 :::
 
 :::accordion-item{label="Which Node.js version do I need?" icon="i-iconoir-help-circle"}
@@ -46,7 +46,7 @@ Node.js 22.22 or later. The CLI and the config file are ESM. See [Installation](
 :::
 
 :::accordion-item{label="Does Kubb run on Bun or Deno?" icon="i-iconoir-help-circle"}
-The CLI and the generated code run on Bun with no extra setup, using the Bun commands in [Installation](/docs/5.x/how-to/installation). Deno is not tested.
+On Bun, yes. The CLI and the generated code need no extra setup. Use the Bun commands in [Installation](/docs/5.x/how-to/installation). Deno is not tested.
 :::
 
 ::

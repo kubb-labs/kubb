@@ -16,7 +16,7 @@ navigation:
 
 ## `ast`
 
-`ast` from `kubb/kit` holds the whole AST surface, like `ts.factory` for TypeScript. `ast.factory` builds nodes, `ast.node` walks them, and each other group reads one subject.
+`ast` from `kubb/kit` gives you the whole AST API in one namespace, like `ts.factory` for TypeScript. `ast.factory` builds nodes, and `ast.node` walks them. Each other group reads one subject, such as refs.
 
 ```typescript [ast-namespace.ts]
 import { ast } from 'kubb/kit'
@@ -32,7 +32,7 @@ const root = ast.factory.createInput({
 
 ## Node tree {#node-tree}
 
-An adapter returns one `InputNode`. Every node has a `kind`, such as `'Schema'`, and a schema also has a `type`. A `ref` schema points at a schema in `schemas` instead of copying it.
+An adapter returns one `InputNode`. Every node has a `kind`, such as `'Schema'`. A schema also has a `type`. A `ref` schema points at a schema in `schemas` instead of copying it.
 
 ```mermaid
 flowchart TD
@@ -62,7 +62,7 @@ flowchart LR
 
 ## Schema node types
 
-A `SchemaNode` is discriminated by its `type`. `ast.schema.types` lists every value.
+You narrow a `SchemaNode` by its `type`. `ast.schema.types` lists every value.
 
 | Family | Types | Notes |
 | --- | --- | --- |
@@ -72,7 +72,7 @@ A `SchemaNode` is discriminated by its `type`. `ast.schema.types` lists every va
 
 ## `ast.factory` {#factory-functions}
 
-Factories return typed nodes with defaults filled in. Use them instead of object literals.
+`ast.factory` builds typed nodes with the defaults filled in. Use it instead of object literals.
 
 | Tree | Factories |
 | --- | --- |
@@ -92,7 +92,7 @@ ast.factory.createText('export const a = 1')
 
 ## `ast.node` {#visitors}
 
-A visitor has a callback per kind: `input`, `operation`, `schema`, `property`, `parameter`, and `response`. In a plugin, use a [macro](#macros) instead of `transform`.
+`ast.node` walks a tree with a visitor, which has a callback per kind: `input`, `operation`, `schema`, `property`, `parameter`, and `response`. In a plugin, use a [macro](#macros) instead of `transform`.
 
 | Helper | Returns |
 | --- | --- |
@@ -132,7 +132,7 @@ ast.node.kinds.schema // 'Schema'
 
 ## `ast.macro` {#macros}
 
-A macro is a named transform that rewrites nodes before printing. Define one with `defineMacro`, as [Customize](/docs/5.x/how-to/customize#macros) shows.
+A macro is a named transform that rewrites nodes before printing. Define one with `defineMacro`, as [Macros](/docs/5.x/how-to/customize#macros) shows.
 
 | Helper | Returns |
 | --- | --- |
@@ -150,7 +150,7 @@ const macroUntagged = defineMacro({
 ast.macro.apply(operation, [macroUntagged]).tags // ['untagged']
 ```
 
-`kubb/kit` also exports built-in macros. Call `macroDiscriminatorEnum` and `macroEnumName` with options first.
+`kubb/kit` also exports built-in macros. Call `macroDiscriminatorEnum` and `macroEnumName` with options to get the macro.
 
 | Macro | Purpose |
 | --- | --- |
@@ -162,7 +162,7 @@ ast.macro.apply(operation, [macroUntagged]).tags // ['untagged']
 
 ### Macro options and callbacks
 
-A macro has a [visitor's](#visitors) callbacks, a `name`, and optional `enforce` and `match`. A callback returns a replacement node, or `undefined` or `null` to keep it.
+A macro has the callbacks of an [`ast.node`](#visitors) visitor, a `name`, and optional `enforce` and `match`. Each callback returns a replacement node, or `undefined` or `null` to keep the original.
 
 ```typescript [Type definition]
 type Macro = {
@@ -196,7 +196,7 @@ ast.ref.isAlias(petRef) // true
 
 ## `ast.graph` {#ast-graph}
 
-Use these to drop unused schemas or to wrap circular ones in a lazy getter.
+Use `ast.graph` to drop unused schemas or to wrap circular ones in a lazy getter.
 
 | Helper | Returns |
 | --- | --- |
@@ -328,14 +328,14 @@ Each helper takes a status code, a range, or a response.
 | `createPrinter` | A factory from printer options to a `Printer` |
 | `defineMacro` | The same macro object, typed as a `Macro` |
 
-A printer's `overrides` map replaces single schema type handlers. The `printer.nodes` option of `@kubb/plugin-ts`, `@kubb/plugin-zod`, and `@kubb/plugin-faker` fills it. See [Customize printers](/docs/5.x/how-to/customize#printers).
+A printer's `overrides` map replaces the handlers of single schema types. The `printer.nodes` option of `@kubb/plugin-ts`, `@kubb/plugin-zod`, and `@kubb/plugin-faker` fills it, as [Printers](/docs/5.x/how-to/customize#printers) shows.
 
 > [!WARNING]
-> Pass overrides through `overrides`, not spread into `nodes`, or `this.base` cannot find the original handler.
+> Pass overrides through `overrides`. If you spread them into `nodes`, `this.base` cannot find the original handler.
 
 ### Printer handlers and context
 
-Key the map by schema `type`, such as `'string'`. Missing handlers keep the built-in ones.
+Key the map by schema `type`, such as `'string'`. A type without a handler keeps the built-in one.
 
 ```typescript [Type definition]
 type PrinterNodes = Partial<{
@@ -355,17 +355,13 @@ Handlers use `this`, so write regular functions, not arrow functions:
 > [!IMPORTANT]
 > The built-in generators collect those imports. In your own generator, call `printer.drainImports()` after printing.
 
-For why the AST exists, see [AST concepts](/docs/5.x/explanation/architecture#ast).
+[How Kubb works](/docs/5.x/explanation/architecture#ast) explains why the AST exists.
 
 ## Less common cases {#less-common-cases}
 
 ### Schema search cache {#schema-search-cache}
 
-When you call `ast.schema.find` across many schemas, reuse its answers with a `cache`.
-
-- `ast.schema.find` returns the first schema in a tree that matches.
-- Set `followRefs: true` to look through resolved refs.
-- Keep one `cache` per predicate and `followRefs` value, so later calls skip what earlier ones searched.
+When you call `ast.schema.find` across many schemas, reuse its answers with a `cache`. Keep one `cache` per predicate and `followRefs` value, so later calls skip what earlier ones searched.
 
 ```typescript [find-cache.ts]
 import { ast } from 'kubb/kit'
@@ -377,13 +373,11 @@ const hasDate = (schema: ast.SchemaNode) =>
 
 ### AST helper details {#ast-helper-details}
 
-When an AST helper's result surprises you, check these details.
-
 Helper names are a verb plus what they return (`getName`) or a question (`isJson`).
 
 | Helper | Detail |
 | --- | --- |
-| [`createPrinter`](#printers) | For an `overrides` map in practice, see the [custom codec example](/extensions/kubb-labs/plugin-zod/guides/customization#import-a-custom-codec). |
+| [`createPrinter`](#printers) | [Import a custom codec](/extensions/kubb-labs/plugin-zod/guides/customization#import-a-custom-codec) shows an `overrides` map in practice. |
 | [`ast.schema.isString`](#ast-schema) | Whether a schema prints as a plain `string`, including `date` and `time` with a string representation. |
 | [`ast.graph.getImportedNames`](#ast-graph) | Pass `{ checks: true }` to include refs inside `conditionals`, `contains`, and `content`. |
 | [`ast.http.groupParameters`](#ast-http) | The parameters by location (`path`, `query`, `header`, `cookie`), keeping the first of a repeated name. |

@@ -10,7 +10,7 @@ navigation:
 
 # Publish Kubb snapshots with GitLab CI
 
-A GitLab job runs `kubb studio snapshot` on each merge request and on each protected branch. Meet the [prerequisites](/docs/5.x/integrations/ci#prerequisites) first: Kubb 5.6.2 or later, `tsdown`, and a CI key stored as `KUBB_TOKEN`.
+A GitLab job runs `kubb studio snapshot` on each merge request and protected branch. Meet the [prerequisites](/docs/5.x/integrations/ci#prerequisites) first: Kubb 5.6.2 or later, `tsdown`, and a CI key stored as `KUBB_TOKEN`.
 
 ## Add the job
 
@@ -33,11 +33,11 @@ snapshot:
 - Both rules need `KUBB_TOKEN`, so a pipeline without the key, such as one for an unprotected branch or a fork, skips the job before `npm ci` runs.
 
 > [!IMPORTANT]
-> GitLab withholds protected variables from merge request pipelines by default. In GitLab 18.1 or later, select **Allow merge request pipelines to access protected variables and runners** under **Settings › CI/CD › Variables**. The pipeline then gets `KUBB_TOKEN` only when the source and target branches are both protected and in the same project, and the user who starts it can merge into the target branch. See [merge request pipelines](https://docs.gitlab.com/ci/pipelines/merge_request_pipelines/#control-access-to-protected-variables-and-runners).
+> By default, GitLab does not pass protected variables to merge request pipelines. In GitLab 18.1 or later, select **Allow merge request pipelines to access protected variables and runners** under **Settings › CI/CD › Variables**. The pipeline then gets `KUBB_TOKEN` only when the source and target branches are both protected and in the same project, and the user who starts it can merge into the target branch. See [merge request pipelines](https://docs.gitlab.com/ci/pipelines/merge_request_pipelines/#control-access-to-protected-variables-and-runners).
 
 ## Post the result as a merge request note
 
-Save the `--json` output and run the script below. It updates one note per merge request and needs only Node:
+Save the `--json` output and run this script. It updates one note per merge request and needs only Node:
 
 ```yaml [.gitlab-ci.yml]
   script:

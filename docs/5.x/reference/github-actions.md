@@ -11,7 +11,7 @@ navigation:
 
 # GitHub Actions
 
-`kubb-labs/action@v0` runs `kubb studio snapshot` to publish a Studio snapshot, then writes the result on the pull request. [CI snapshots](/docs/5.x/integrations/github-actions) has the workflow and the permissions it needs.
+`kubb-labs/action@v0` publishes a Studio snapshot with `kubb studio snapshot`, then writes the result on the pull request. [Publish Kubb snapshots with GitHub Actions](/docs/5.x/integrations/github-actions) has the workflow and its permissions.
 
 ## Run flow
 
@@ -31,7 +31,7 @@ flowchart TD
 - Each pull request reuses one CI agent and one comment. Each branch push reuses one CI agent and writes no comment.
 - When the snapshot fails, the comment shows the error and links the workflow run, and the step fails.
 
-See [GitHub Action edge cases](#github-action-runs).
+See [GitHub Action runs](#github-action-runs).
 
 ## Inputs
 
@@ -68,7 +68,7 @@ The comment shows the package name and version, an `npm i <tarball-url>` command
 > [!TIP]
 > The base branch comparison needs a snapshot of the base branch. Run the workflow on pushes to that branch too.
 
-See [Read the snapshot comment](#github-action-runs).
+See [Pull request comment details](#pull-request-comment-details).
 
 ## Environment variables
 
@@ -80,12 +80,13 @@ See [Read the snapshot comment](#github-action-runs).
 
 ### GitHub Action runs {#github-action-runs}
 
-These cases apply when the [Kubb GitHub Action](/docs/5.x/reference/github-actions) runs on a pull request.
+These cases apply when the action runs on a pull request.
 
-- Deleting a closed pull request's agent is best effort. On failure the action logs a warning, and Studio's idle cleanup removes the agent later.
+- Deleting a closed pull request's agent is best effort. If the delete fails, the action logs a warning. Studio's idle cleanup removes the agent later.
 - When a `kubb/init-*` pull request is already open, the action stops without opening another.
 
 #### Pull request comment details
+
 The comment opens with the package name, version, and an `npm i <tarball-url>` command. Two sections then compare the generated files, each with a collapsed list of up to 50 files:
 
 | Section | Compares with | Without a base |
@@ -93,4 +94,4 @@ The comment opens with the package name, version, and an `npm i <tarball-url>` c
 | Changes against the base branch | The base branch's latest snapshot, from the `push` trigger. The heading links its commit. | Says to run the workflow on pushes to the base branch |
 | Changes since the previous snapshot | The pull request's previous snapshot. The heading links its commit, or shows its date. | Reports a first snapshot with its file count |
 
-It ends with links to download the package and open the editor, the expiry date, and the source commit.
+The comment ends with links to download the package and open the editor, the expiry date, and the source commit.

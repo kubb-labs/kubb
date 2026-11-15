@@ -13,7 +13,7 @@ navigation:
 
 # Extension manifest
 
-`kubb-extension.json` sits at an extension package's root and ships on npm. The [registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent read it. Generation reads the extension's [`meta`](/docs/5.x/reference/kit/extensions#meta) instead.
+`kubb-extension.json` describes your extension to the [registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent. It sits at the package root and ships on npm. Generation reads the extension's [`meta`](/docs/5.x/reference/kit/extensions#meta) instead.
 
 Set `$schema` to [`https://kubb.dev/schemas/kubb-extension.json`](https://kubb.dev/schemas/kubb-extension.json) for editor validation and completion.
 
@@ -88,7 +88,7 @@ One sentence on what the extension does.
 ### `category`
 
 :::field{type="string"}
-A category for filtering, such as `validation`. The registry replaces it with the reviewer's pick from [the category list](/docs/5.x/reference/registry#categories).
+A category for filtering, such as `validation`. The registry replaces it with the reviewer's pick from [Categories](/docs/5.x/reference/registry#categories).
 :::
 
 ### `icon`
@@ -136,7 +136,7 @@ The extensions the plugin uses when present, or needs only for some option value
 ### `compatibility`
 
 :::field{type="{ kubb?: string; node?: string }"}
-Semver ranges for Kubb (`@kubb/core`) and Node.js. Any other key makes the manifest invalid. `kubb add` and `kubb update` check the ranges before they install, and Kubb checks them at runtime through `meta.compatibility`, so [import them from the manifest](#import-compatibility-into-meta).
+Semver ranges for Kubb (`@kubb/core`) and Node.js. Any other key makes the manifest invalid. `kubb add` and `kubb update` check the ranges before they install. Kubb checks them at runtime through `meta.compatibility`, so [import them from the manifest](#import-compatibility-into-meta).
 :::
 
 ### `role`
@@ -173,7 +173,7 @@ Each `options` entry is one Studio form field that edits the value at `path` in 
 
 ## Validation
 
-Kubb skips an invalid manifest, and the registry review lists its problems. In your own code, `isExtensionManifest(value)` from `kubb/kit` runs the same checks as Kubb, and `manifestProblems(manifest)` lists the option problems of a well-formed manifest. See [Manifest validation](#manifest-validation) for what each reader checks.
+Kubb skips an invalid manifest, and the registry review lists its problems. To run Kubb's checks in your own code, call `isExtensionManifest(value)` from `kubb/kit`. `manifestProblems(manifest)` lists the option problems of a well-formed manifest. [Manifest validation](#manifest-validation) lists what each reader checks.
 
 ## Import `compatibility` into `meta` {#import-compatibility-into-meta}
 
@@ -204,14 +204,14 @@ Keep `name` as a typed constant, because a JSON import widens it to `string`.
 
 ### Manifest validation {#manifest-validation}
 
-When Kubb skips your manifest or the registry review fails, check what each reader checks.
+When Kubb skips your manifest or the registry review fails, see what each reader checks.
 
 | Reader | Checks | On failure |
 | --- | --- | --- |
 | `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio agent | The required fields and their shape, each `maintainers` and `options` entry, extension names in `dependencies` and `optionalDependencies`, `role`, `compatibility`, unique option keys, and `select` choices and defaults. | The manifest is skipped. |
 | The registry | The JSON Schema, unique option keys, `choices` on every `select`, and a `select` default that equals one of its choices. | The review pull request lists the problem, and the weekly bump keeps the previous pin. |
 
-In your own code, `isExtensionManifest(value)` from `kubb/kit` runs the same checks as Kubb. `manifestProblems(manifest)` lists the option problems of a well-formed manifest.
+To run Kubb's checks in your own code, call `isExtensionManifest(value)` from `kubb/kit`. `manifestProblems(manifest)` lists the option problems of a well-formed manifest.
 
 | Field | Rule |
 | --- | --- |

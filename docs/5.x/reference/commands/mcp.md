@@ -13,7 +13,7 @@ navigation:
 
 # kubb mcp
 
-`kubb mcp` starts a [Model Context Protocol](https://modelcontextprotocol.io/) server, so an AI client can validate a spec, scaffold a `kubb.config.ts`, and run generation. It takes no options. [Set up the MCP server](/docs/5.x/ai/mcp) shows how to add it to Claude Code, Cursor, VS Code, and other clients.
+`kubb mcp` starts a [Model Context Protocol](https://modelcontextprotocol.io/) server, so your AI client can validate a spec, write a `kubb.config.ts`, and generate code. It takes no options. [Set up the MCP server](/docs/5.x/ai/mcp) shows how to add it to Claude Code, Cursor, VS Code, and other clients.
 
 > [!WARNING]
 > This feature is under active development. Use it with caution and expect breaking changes.
@@ -75,7 +75,7 @@ Path or URL of the spec.
 
 ### `init` {#init}
 
-Writes a `kubb.config.ts` with an empty `plugins` array to the working directory, and fails when one exists. It installs nothing: its reply tells the agent to run `kubb add <id> --yes` for each plugin.
+Writes a `kubb.config.ts` with an empty `plugins` array to the working directory, and fails when one exists. It installs nothing. Its reply tells the agent to run `kubb add <id> --yes` for each plugin.
 
 ::field-group
 
@@ -97,4 +97,4 @@ The server runs in the folder the client starts it in:
 - `generate` rejects a `config` path outside that folder.
 - `init` writes `kubb.config.ts` there.
 
-[Set the working directory](/docs/5.x/ai/mcp#working-directory) shows how to start the server in your project.
+When the server cannot find your config, see [Start it in your project](/docs/5.x/ai/mcp#working-directory).

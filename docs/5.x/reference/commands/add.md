@@ -14,9 +14,9 @@ navigation:
 
 # kubb add
 
-`kubb add` installs an extension at the version the registry pins. It adds a plugin or parser to `kubb.config.ts`, and prints the code to add for an adapter.
+`kubb add` installs an extension at the version the registry pins. It adds a plugin or parser to your `kubb.config.ts`. For an adapter, it prints the code you add by hand.
 
-Ids, versions, and project files follow the [extension command rules](/docs/5.x/reference/commands#extension-commands).
+Ids, versions, and project files work as in [Extension commands](/docs/5.x/reference/commands#extension-commands).
 
 ```shell [Terminal]
 kubb add                             # search the registry
@@ -39,11 +39,11 @@ flowchart LR
 
 | Argument | What it does |
 | --- | --- |
-| `[id]` | The [registry id](/docs/5.x/reference/commands#ids). Without it, you [pick from a list](#add-search). |
+| `[id]` | The [registry id](/docs/5.x/reference/commands#ids). Without it, you [pick an extension](#add-search). |
 
 ## Pick an extension {#add-search}
 
-Without an id, `kubb add` lists the registry. Type to filter on the id, display name, and description. Installed extensions cannot be picked.
+Without an id, `kubb add` lists the registry. Type to filter on the id, display name, and description. You cannot pick an installed extension.
 
 ## Preview and summary {#add-preview}
 
@@ -59,14 +59,16 @@ Before it asks, the CLI shows the required plugins, the packages it installs, an
 ◆  Add it?
 ```
 
-After the install, the summary title gives the outcome. `Plugin needs configuration` means you add the printed snippet to the config by hand. See [Extension command output](#command-output).
+After the install, the summary title gives the outcome. If it says `Plugin needs configuration`, add the printed snippet to the config by hand. See [Command output](#command-output).
 
 ## Required plugins {#add-required-plugins}
 
 When the manifest lists `dependencies` that `kubb.config.ts` lacks, the CLI asks whether to add them too:
 
-- `Yes, add both` (or `Yes, add all`) installs them and adds them next to the extension.
-- `Only <name>` adds the extension alone, and `kubb generate` fails until you add the rest.
+| Answer | Result |
+| --- | --- |
+| `Yes, add both` or `Yes, add all` | Installs them and adds them next to the extension. |
+| `Only <name>` | Adds the extension alone. `kubb generate` fails until you add the rest. |
 
 `--yes` adds them.
 
@@ -79,7 +81,7 @@ When the manifest lists `dependencies` that `kubb.config.ts` lacks, the CLI asks
 | Adapter | Changes nothing. The CLI prints the import and the `adapter` line to add by hand. |
 
 > [!WARNING]
-> When the CLI cannot edit the config, such as when `plugins` is not an array literal, it prints `Could not edit <file>: <reason>` and the snippet to add by hand, then exits with code 1. See [When kubb add cannot edit the config](#config-edits).
+> When the CLI cannot edit the config, such as when `plugins` is not an array literal, it prints `Could not edit <file>: <reason>` and the snippet to add by hand, then exits with code 1. See [Config edits](#config-edits).
 
 ## Options {#options}
 
@@ -125,5 +127,5 @@ Without an id, `kubb add` lists the registry. An installed extension shows `inst
 When `kubb add` cannot write the extension into the config, it prints a snippet. Add its import and call to the config, then run `kubb generate`.
 
 - An extension already in its array is left alone.
-- The config cannot be edited when `plugins` is not an array literal, or the export name is already imported from another module. The CLI then prints `Could not edit <file>: <reason>` and the snippet, and exits with code 1.
+- The CLI cannot edit the config when `plugins` is not an array literal, or the export name is already imported from another module. The CLI then prints `Could not edit <file>: <reason>` and the snippet, and exits with code 1.
 - An adapter is never written, so its manual snippet does not set exit code 1.

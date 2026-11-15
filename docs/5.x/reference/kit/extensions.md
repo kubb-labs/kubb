@@ -13,11 +13,11 @@ navigation:
 
 # Extensions
 
-Plugins, adapters, and parsers are extensions. `defineExtension` from `kubb/kit` takes a definition object and returns a factory. The config calls that factory with the user's options.
+`defineExtension` from `kubb/kit` defines an extension: a plugin, an adapter, or a parser. You pass it a definition object, and it returns a factory. The config calls that factory with the user's options.
 
 ## `defineExtension` {#define-extension}
 
-`kind` picks what the definition defines. The other fields follow from it:
+`kind` picks what you define. The other fields follow from it:
 
 |                    | Plugin                                                   | Adapter                                                         | Parser                                                                       |
 | ------------------ | -------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -65,15 +65,15 @@ export const pluginExample = defineExtension({
 | `docs`          | `string`                           | URL of the extension's docs page.                                                                                 |
 | `issues`        | `string`                           | Issue tracker URL. Kubb prints it as the `report:` link when the extension crashes.                               |
 
-Import `version` from `package.json` and `compatibility` [from `kubb-extension.json`](/docs/5.x/reference/kit/manifest#import-compatibility-into-meta), so each lives in one file. Named JSON imports need a bundler that inlines them, such as tsdown.
+Import `version` from `package.json` and `compatibility` from `kubb-extension.json`, so each lives in one file. [Import `compatibility` into `meta`](/docs/5.x/reference/kit/manifest#import-compatibility-into-meta) shows how. Named JSON imports need a bundler that inlines them, such as tsdown.
 
 ### Compatibility checks
 
-Before any plugin runs, Kubb checks each extension's `meta.compatibility` against the running `@kubb/core` and Node.js. A mismatch fails with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension). See [Compatibility ranges](#compatibility-ranges) for prereleases and canary builds.
+Before any plugin runs, Kubb checks each extension's `meta.compatibility` against the running `@kubb/core` and Node.js. A mismatch fails with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension). [Compatibility ranges](#compatibility-ranges) covers prereleases and canary builds.
 
 ## `dependencies` {#dependencies}
 
-Plugins only. `dependencies` lists the plugins this one builds on, keyed by `meta.name`. Kubb runs them first.
+Only plugins take `dependencies`: the plugins yours builds on, keyed by `meta.name`. Kubb runs them first.
 
 ```typescript [plugin-example.ts]
 import { defineExtension } from 'kubb/kit'
@@ -119,18 +119,18 @@ export const pluginExample = defineExtension<PluginExample>({
 })
 ```
 
-See [Array dependencies](#array-dependencies) for the older array form.
+[Array dependencies](#array-dependencies) covers the older array form.
 
 ## Factory statics {#factory-statics}
 
-Every factory carries `kind` and `meta`, so tools read them without calling it:
+Every factory carries `kind` and `meta`, so a tool can read them without calling the factory:
 
 ```typescript
 pluginExample.kind // 'plugin'
 pluginExample.meta.name // 'plugin-example'
 ```
 
-The extension the factory returns gets `name` (from `meta.name`), `meta`, and the user's raw `options`. See [Hand-written extension objects](#hand-written-extensions).
+The extension the factory returns gets `name` (from `meta.name`), `meta`, and the user's raw `options`. See [Hand-written extensions](#hand-written-extensions).
 
 ## Less common cases {#less-common-cases}
 
@@ -138,7 +138,6 @@ The extension the factory returns gets `name` (from `meta.name`), `meta`, and th
 
 When a run fails with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension), an extension's `meta.compatibility` does not match the running `@kubb/core` or Node.js.
 
-- Before any plugin runs, Kubb checks the `meta.compatibility` of the adapter, every parser, and every plugin.
 - `kubb add` checks it before it installs.
 - Prereleases compare like releases.
 - A canary build (`0.0.0-canary-*`) skips the `kubb` range.

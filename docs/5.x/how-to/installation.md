@@ -20,7 +20,7 @@ Add Kubb to an existing project. To learn with a sample spec first, follow [Gene
 
 ## Set up with the wizard
 
-`kubb init` installs `kubb` and the plugins you choose, writes `kubb.config.ts`, adds a `generate` script to `package.json` when it has none, and runs the first generation. It uses the package manager your `packageManager` field or lockfile names, or npm.
+`kubb init` installs `kubb` and the plugins you pick, writes `kubb.config.ts`, adds a `generate` script to `package.json` if it has none, and runs Kubb once. It uses the package manager in your `packageManager` field or lockfile, or npm.
 
 ::code-group{sync="package-manager"}
 
@@ -50,7 +50,7 @@ bunx kubb init
 
 ### Install Kubb and your plugins
 
-Install `kubb` and the [plugins](/extensions/kind/plugins) you need, one package per output. This example adds the TypeScript plugin:
+Install `kubb` and the [plugins](/extensions/kind/plugins) you need, one package per output. The example adds `@kubb/plugin-ts`:
 
 :::code-group{sync="package-manager"}
 
@@ -96,7 +96,7 @@ bunx kubb --version
 
 ### Create the config
 
-Write `kubb.config.ts` in the project root with your spec as `input`, an `output.path`, and your plugins. Copy a [stack](/docs/5.x/how-to/recipes#pick-a-stack), or see the [configuration reference](/docs/5.x/reference/configuration).
+Write `kubb.config.ts` in the project root with your spec as `input`, an `output.path`, and your plugins. Start from [Pick a stack](/docs/5.x/how-to/recipes#pick-a-stack), or see [Configuration](/docs/5.x/reference/configuration).
 
 ### Generate
 
@@ -127,15 +127,15 @@ Kubb writes the generated files to `output.path`.
 ## Install runtime libraries
 
 > [!IMPORTANT]
-> `kubb init` and `kubb add` install Kubb packages only, not the libraries your generated code imports. An Axios client needs `axios`, and React Query hooks need `react` and `@tanstack/react-query`. Each plugin page lists its requirements.
+> Install the libraries your generated code imports yourself. `kubb init` and `kubb add` install only Kubb packages. An Axios client needs `axios`, and React Query hooks need `react` and `@tanstack/react-query`. Each plugin page lists its requirements.
 
 ## Add plugins later
 
-After `kubb.config.ts` exists, manage extensions from the [Kubb registry](/docs/5.x/reference/registry):
+After `kubb.config.ts` exists, manage extensions from the [extension registry](/docs/5.x/reference/registry):
 
 | Command | What it does |
 | --- | --- |
 | [`kubb add plugin-zod`](/docs/5.x/reference/commands/add) | Installs the plugin at the version the registry pins and adds it to `kubb.config.ts` |
 | [`kubb list`](/docs/5.x/reference/commands/list) | Lists installed extensions, their versions, and available updates |
-| [`kubb update`](/docs/5.x/reference/commands/update) | Moves installed extensions to the pinned versions, regenerates, and summarizes the file changes |
+| [`kubb update`](/docs/5.x/reference/commands/update) | Moves installed extensions to the pinned versions, generates again, and summarizes the file changes |
 | [`kubb remove plugin-zod`](/docs/5.x/reference/commands/remove) | Removes the plugin from `kubb.config.ts` and uninstalls its package |

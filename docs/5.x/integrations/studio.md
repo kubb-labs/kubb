@@ -11,7 +11,7 @@ navigation:
 
 # Connect a project to Kubb Studio
 
-[Kubb Studio](https://kubb.studio) generates and reviews a project's clients, types, schemas, hooks, and mocks from the browser. `kubb studio` connects your project as an agent: Studio sends the job, and generation runs on your machine.
+[Kubb Studio](https://kubb.studio) lets you generate and review your project's clients, types, schemas, hooks, and mocks from the browser. `kubb studio` connects your project as an agent: Studio sends the job, and Kubb runs on your machine.
 
 ```mermaid
 sequenceDiagram
@@ -37,13 +37,13 @@ sequenceDiagram
 
 ## Connect your project
 
-Run this from the project directory:
+Run this in your project folder:
 
 ```shell [Terminal]
 kubb studio
 ```
 
-Approve the pairing code in Studio and answer the permission prompts. Keep the command running, select the agent in Studio, and generate. Each project directory pairs as its own agent.
+Approve the pairing code in Studio and answer the permission prompts. Keep the command running, select the agent in Studio, and generate. Each project folder pairs as its own agent.
 
 ## Choose permissions {#permissions}
 
@@ -66,7 +66,7 @@ Connect with both flags to view contents and diffs, then write the files to disk
 kubb studio --allow-read --allow-write
 ```
 
-- Without `--allow-write`, a generation stages its files in a temporary folder and leaves your output folder unchanged.
+- Without `--allow-write`, Kubb stages the files in a temporary folder and leaves your output folder unchanged.
 - With `--allow-read`, Studio opens your existing output before you generate, so line comments and HTML previews work at once. Each later generation compares with the previous one.
 - The agent keeps recent generations in `node_modules/.cache/kubb`. See [Environment variables](/docs/5.x/reference/commands#environment-variables) for the limits.
 
@@ -81,7 +81,7 @@ kubb studio stop                 # end the background connection
 See [Background connection](/docs/5.x/reference/commands/studio#background-connection) for worker states, logs, and restarts.
 
 > [!IMPORTANT]
-> Without a TTY, the CLI skips the permission prompts, so pass the flags the run needs. In CI it does not pair either: use [`kubb studio snapshot`](/docs/5.x/integrations/ci) with a CI API key there.
+> Without a TTY, the CLI skips the permission prompts, so pass the flags the run needs. In CI it does not pair either: use [`kubb studio snapshot`](/docs/5.x/integrations/ci) with a CI API key.
 
 ## Give your AI tools your API
 

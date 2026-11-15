@@ -14,9 +14,9 @@ navigation:
 
 # kubb list
 
-`kubb list` shows the extensions installed in the current project, the version the registry pins for each, and whether an update exists. It takes no arguments or options.
+`kubb list` shows the extensions installed in your project, the version the registry pins for each, and whether an update exists. It takes no arguments or options.
 
-Ids, versions, and project files follow the [extension command rules](/docs/5.x/reference/commands#extension-commands).
+Ids, versions, and project files work as in [Extension commands](/docs/5.x/reference/commands#extension-commands).
 
 ```shell [Terminal]
 kubb list
@@ -37,7 +37,7 @@ kubb-labs/plugin-zod  @kubb/plugin-zod           5.4.4      5.4.4     no
 | `REGISTRY` | The version the registry pins, or `-` when the registry does not list the package. |
 | `UPDATE` | `yes` when the installed version is older than the pinned one, or unknown. Run [`kubb update`](/docs/5.x/reference/commands/update) to install it. |
 
-It lists each `package.json` dependency that ships a valid [`kubb-extension.json`](/docs/5.x/reference/kit/manifest) or that the registry lists. See [Which extensions kubb list shows](#command-output).
+The list holds each `package.json` dependency that ships a valid [`kubb-extension.json`](/docs/5.x/reference/kit/manifest) or that the registry lists. See [Command output](#command-output).
 
 When the registry cannot be read, it prints `Showing installed extensions only: <reason>` and lists the packages that ship a manifest.
 

@@ -13,7 +13,7 @@ navigation:
 
 # Kit API
 
-`kubb/kit` holds the APIs for writing plugins, adapters, parsers, and storage backends. It ships with the `kubb` package.
+`kubb/kit` gives you the APIs to write plugins, adapters, parsers, and storage backends. It ships with `kubb`.
 
 ## Parts of the kit
 
@@ -47,7 +47,7 @@ flowchart LR
 | Extension manifest   | `kubb-extension.json`, `isExtensionManifest`                | [Extension manifest](/docs/5.x/reference/kit/manifest)             |
 | Extension docs       | `docs/` folder                                              | [Extension docs](/docs/5.x/reference/kit/extension-docs)           |
 
-`createKubb` comes from `kubb`, `jsxRenderer` from `kubb/jsx`, and everything else from `kubb/kit`.
+Import `createKubb` from `kubb`, `jsxRenderer` from `kubb/jsx`, and everything else from `kubb/kit`.
 
 ## Casing {#casing}
 

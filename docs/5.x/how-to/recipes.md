@@ -13,10 +13,10 @@ navigation:
 
 # Configure generation
 
-Each recipe is a complete `kubb.config.ts` for a project with [Kubb installed](/docs/5.x/how-to/installation). Replace `./petStore.yaml` with your spec, install the listed packages, and run `npx kubb generate`.
+Each recipe is a complete `kubb.config.ts`. After [Installation](/docs/5.x/how-to/installation), replace `./petStore.yaml` with your spec, install the listed packages, and run `npx kubb generate`.
 
 > [!WARNING]
-> The examples write to `./src/gen`. With `clean: true`, Kubb removes that directory before generation, so keep handwritten files elsewhere.
+> With `clean: true`, Kubb removes `./src/gen` before it generates, so keep your own files elsewhere.
 
 ## Pick a stack
 
@@ -148,7 +148,7 @@ export default defineConfig({
 ```
 
 > [!IMPORTANT]
-> Your own `output` on a plugin replaces its default, barrel included. Set `barrel` in it, or the plugin falls back to the root `output.barrel`. A plugin writes a barrel only in directory mode, which an `output.path` without a file extension implies.
+> Your own `output` on a plugin replaces its default, barrel included. Set `barrel` in it, or the plugin falls back to the root `output.barrel`. A plugin writes a barrel only in directory mode, when its `output.path` has no file extension.
 
 [`output.barrel`](/docs/5.x/reference/plugin-options#output-barrel) shows each export style and the `nested` and `namespace` fields.
 
@@ -173,7 +173,7 @@ Kubb runs `git` from the `PATH` with your credentials, so a private repository w
 
 | To | Do this |
 | --- | --- |
-| Regenerate when the local spec changes | Run `kubb generate --watch`. A URL or git input generates once. See [Watch mode](/docs/5.x/reference/commands/generate#watch-mode-details). |
+| Generate again when the local spec changes | Run `kubb generate --watch`. A URL or git input generates once. See [Watch mode details](/docs/5.x/reference/commands/generate#watch-mode-details). |
 | Generate from several specs in one run | Pass an array to `defineConfig`, each entry with its own plugins and output directory. Set a `name` per entry to tell them apart in the CLI output. |
-| Drive Kubb from a script | Call [`createKubb`](/docs/5.x/reference/kit/engine#createkubb) to orchestrate builds or inspect diagnostics. |
-| Fail CI on an invalid spec | Run [`kubb validate`](/docs/5.x/reference/commands/validate) before generation. |
+| Drive Kubb from a script | Call [`createKubb`](/docs/5.x/reference/kit/engine#createkubb) to run builds or read diagnostics. |
+| Fail CI on an invalid spec | Run [`kubb validate`](/docs/5.x/reference/commands/validate) before `kubb generate`. |

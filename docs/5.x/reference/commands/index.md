@@ -10,7 +10,7 @@ navigation:
 
 # Commands
 
-The `kubb` CLI reads your [configuration](/docs/5.x/reference/configuration), runs generation, and manages the extensions you install from the [Kubb registry](/docs/5.x/reference/registry).
+The `kubb` CLI generates code from your [configuration](/docs/5.x/reference/configuration) and manages the extensions you install from the [extension registry](/docs/5.x/reference/registry).
 
 ```shell [Terminal]
 kubb <command> [options]
@@ -34,14 +34,14 @@ kubb <command> [options]
 
 ## Extension commands {#extension-commands}
 
-`kubb add`, `kubb update`, `kubb list`, and `kubb remove` manage the extensions a project installs from the [Kubb registry](/docs/5.x/reference/registry). They share these rules.
+`kubb add`, `kubb update`, `kubb list`, and `kubb remove` share these rules for the extensions you install from the [extension registry](/docs/5.x/reference/registry).
 
 ### Registry ids {#ids}
 
 - An id is `<owner>/<slug>`, such as `acme/plugin-graphql`.
 - A bare `<slug>`, such as `plugin-zod`, means `kubb-labs/<slug>`.
 - Both parts use lowercase letters and digits joined by single hyphens. Any other shape is an error.
-- An id the registry does not list prints `No extension named <id>` and up to three close ids.
+- For an unknown id, the CLI prints `No extension named <id>` and up to three close ids.
 
 ### Versions and compatibility {#versions}
 
@@ -50,14 +50,14 @@ kubb <command> [options]
 | An npm version | `<package>@<version>` |
 | A GitHub release | `github:<owner>/<repo>#<commit>` |
 
-`add` and `update` refuse an extension that does not support the running Kubb or Node.js version.
+`add` and `update` refuse an extension that does not support your Kubb or Node.js version.
 
 ### Project files {#project-files}
 
 | What | Where the commands find it |
 | --- | --- |
 | Installed extensions | `dependencies` and `devDependencies` in the `package.json` of the current folder. |
-| Config file | `--config`, or the [same search as `kubb generate`](/docs/5.x/reference/configuration#how-kubb-loads-a-config). With several config entries, `add` and `remove` edit the first one. |
+| Config file | `--config`, or the search in [How Kubb loads a config](/docs/5.x/reference/configuration#how-kubb-loads-a-config). With several config entries, `add` and `remove` edit the first one. |
 | Package manager | The `packageManager` field in `package.json`, then a lockfile, else `npm`. Supports `npm`, `pnpm`, `yarn`, and `bun`. `add` and `update` install dev dependencies. |
 
 ## Global flags

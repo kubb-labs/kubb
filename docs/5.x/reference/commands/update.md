@@ -14,9 +14,9 @@ navigation:
 
 # kubb update
 
-`kubb update` moves installed extensions to the version the registry pins. It shows each version change, asks which updates to install, installs them, then offers to regenerate. It never changes `kubb.config.ts` and never downgrades.
+`kubb update` moves installed extensions to the version the registry pins. It shows each version change, asks which updates to install, installs them, then offers to generate again. It never changes `kubb.config.ts` and never downgrades.
 
-Ids, versions, and project files follow the [extension command rules](/docs/5.x/reference/commands#extension-commands).
+Ids, versions, and project files work as in [Extension commands](/docs/5.x/reference/commands#extension-commands).
 
 ```shell [Terminal]
 kubb update                              # check every installed extension
@@ -46,12 +46,12 @@ kubb update plugin-zod plugin-ts --yes   # two extensions, no prompt
 ```
 
 - Minor and patch updates start selected.
-- A major starts unselected, since it can break the generated code, unless you named its id.
-- After the install, it asks whether to regenerate, since that rewrites the generated files.
+- A major starts unselected unless you named its id, since it can break the generated code.
+- After the install, it asks whether to generate again, since that rewrites the generated files.
 
 ## Which extensions it updates {#update-scope}
 
-An extension gets an update when its installed version is older than the pinned one, or when `package.json` lists it but it is not installed. An update that does not support your Kubb or Node.js version is skipped with `Skipped <id>: <reason>`. See [What kubb update prints](#command-output).
+An extension gets an update when its installed version is older than the pinned one, or when `package.json` lists it but it is not installed. Kubb skips an update that does not support your Kubb or Node.js version and prints `Skipped <id>: <reason>`. See [Command output](#command-output).
 
 ## Options {#options}
 
@@ -74,7 +74,7 @@ An extension gets an update when its installed version is older than the pinned 
 
 ### Command output {#command-output}
 
-After the install, `kubb update` finds the config like [`kubb generate`](/docs/5.x/reference/commands/generate) and asks whether to regenerate, since that rewrites the generated files. The summary lists installed and skipped packages and changed files.
+After the install, `kubb update` finds the config like [`kubb generate`](/docs/5.x/reference/commands/generate) and asks whether to generate again. The summary lists installed and skipped packages and changed files.
 
 | Case | Result |
 | --- | --- |

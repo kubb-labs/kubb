@@ -13,7 +13,7 @@ navigation:
 
 # Configuration
 
-`kubb.config.ts` default-exports a `defineConfig` call that tells Kubb what to read, where to write, and which plugins to run.
+`kubb.config.ts` tells Kubb which spec to read, where to write, and which plugins to run. Its default export is a `defineConfig` call:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -29,11 +29,11 @@ export default defineConfig({
 
 ## How Kubb loads a config
 
-Kubb loads the `--config` file, or else the first `kubb.config.ts` or variant, such as `.kubbrc.ts`, in the working folder or a parent. See [Config loading](#config-loading).
+Kubb loads the `--config` file. Without one, it loads the first `kubb.config.ts` or variant, such as `.kubbrc.ts`, in the working folder or a parent. See [Config loading](#config-loading).
 
 ## Config formats
 
-`defineConfig` accepts an object, a Promise of one, an array, or a function that returns any of these.
+`defineConfig` takes an object, a Promise of one, an array, or a function that returns any of these.
 
 ### Config function
 
@@ -48,7 +48,7 @@ export default defineConfig(({ watch }) => ({
 }))
 ```
 
-The function receives the CLI context:
+The function gets the CLI context:
 
 | Field | Type | Value |
 | --- | --- | --- |
@@ -92,7 +92,7 @@ export default defineConfig([
 | `root` | The config file's folder, or the folder above `.config/` or `configs/` |
 | `reporters` | `[cli, json, file, html]` |
 
-When you call `createKubb` yourself, `root` defaults to `process.cwd()`. `createKubb` from `@kubb/core` applies fewer defaults, and the build tool integrations run fewer reporters. See [Config loading](#config-loading).
+When you call `createKubb` yourself, `root` defaults to `process.cwd()`. `createKubb` from `@kubb/core` applies fewer defaults. The build tool integrations run fewer reporters. See [Config loading](#config-loading).
 
 ## Top-level options
 
@@ -189,7 +189,7 @@ Format, lint, and `postGenerate` run only after a build without errors. A failin
 #### `output.barrel`
 
 :::field{type="{ type: 'all' | 'named' } | false"}
-The root `index.ts` at `output.path`: `{ type: 'named' }` or `{ type: 'all' }`, as on the plugin-level [`output.barrel`](/docs/5.x/reference/plugin-options#output-barrel). Default: `false`. A plugin without its own `output.barrel` inherits it. See the [Barrel files](/docs/5.x/how-to/recipes#barrel-files) recipe.
+The root `index.ts` at `output.path`: `{ type: 'named' }` or `{ type: 'all' }`, as on the plugin-level [`output.barrel`](/docs/5.x/reference/plugin-options#output-barrel). Default: `false`. A plugin without its own `output.barrel` inherits it. See [Add barrel files](/docs/5.x/how-to/recipes#barrel-files).
 :::
 
 #### `output.defaultBanner`
@@ -232,9 +232,9 @@ The plugins to run, in dependency order. Default: `[]`, with `pluginBarrel()` ap
 ### `adapter`
 
 :::field{type="Adapter"}
-Converts your input into Kubb's AST. Default: `adapterOas()`, bundled with `kubb`.
+Turns your input into Kubb's AST. Default: `adapterOas()`, bundled with `kubb`.
 
-To pass options, such as `adapterOas({ validate: false })`, install `@kubb/adapter-oas` to import it: `kubb` does not re-export it. See the [adapter options](/extensions/kubb-labs/adapter-oas/options).
+To pass options, such as `adapterOas({ validate: false })`, install and import `@kubb/adapter-oas`. `kubb` does not re-export it. See the [adapter options](/extensions/kubb-labs/adapter-oas/options).
 :::
 
 ### `parsers`
@@ -318,11 +318,11 @@ Without `kubb generate`, fewer [defaults](#defaults) apply:
 
 #### Extension commands
 
-`kubb add`, `kubb update`, `kubb list`, and `kubb remove` read `--config`, or search for a config the same way as `kubb generate`. With several config entries, `add` and `remove` edit the first one. See [Project files](/docs/5.x/reference/commands#project-files).
+`kubb add`, `kubb update`, `kubb list`, and `kubb remove` read `--config`, or search for a config as `kubb generate` does. With several config entries, `add` and `remove` edit the first one. See [Project files](/docs/5.x/reference/commands#project-files).
 
 #### kubb validate
 
-Which adapter `kubb validate` runs depends on the config it finds. See [Which adapter runs](/docs/5.x/reference/commands/validate#which-adapter-runs).
+The adapter `kubb validate` runs depends on the config it finds. See [Which adapter runs](/docs/5.x/reference/commands/validate#which-adapter-runs).
 
 | Situation | Adapter |
 | --- | --- |
@@ -354,6 +354,6 @@ For a spec in a git repository, write `input` as `git+<repo>#<ref>:<path>`.
 
 - `<ref>` is a branch, a tag, or a full commit SHA on hosts that fetch by SHA, such as GitHub and GitLab.
 - Leave out `<ref>:` to use the default branch.
-- Kubb runs a shallow `git fetch` into a temporary folder. It needs `git` on the `PATH` and uses your git credentials for a private repository.
+- Kubb runs a shallow `git fetch` into a temporary folder. It needs `git` on the `PATH`. For a private repository, it uses your git credentials.
 
 See [Read the spec from a git repository](/docs/5.x/how-to/recipes#read-the-spec-from-a-git-repository) for a config.

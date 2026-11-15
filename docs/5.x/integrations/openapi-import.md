@@ -17,7 +17,7 @@ navigation:
 import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
 ```
 
-It is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/pull/4712): `tsc` and your editor type-check the plugin output in place of the spec, and go to definition, hover, and rename jump between the types and the spec keys. Values at run time come from your bundler:
+It is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/pull/4712). `tsc` and your editor type-check the plugin output in place of the spec. Go to definition, hover, and rename jump between the types and the spec keys. Your bundler supplies the values at run time:
 
 ```mermaid
 flowchart LR

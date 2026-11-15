@@ -11,7 +11,7 @@ navigation:
 
 # Integrate Kubb with Studio, CI, and build tools
 
-Every integration runs the same `kubb.config.ts`. Pick where generation runs.
+Every integration runs the same `kubb.config.ts`. You pick where Kubb runs.
 
 ```mermaid
 flowchart LR
@@ -50,7 +50,7 @@ Run Kubb from Claude Code, Cursor, or another assistant through the CLI or the M
 
 ## Build tools {#build-tools}
 
-`unplugin-kubb` ships with `kubb` and runs your `kubb.config.ts` when your build tool starts a build. Import it from `kubb/<tool>`.
+`unplugin-kubb` runs your `kubb.config.ts` when a build starts. It ships with `kubb`, and you import it from `kubb/<tool>`.
 
 ```mermaid
 sequenceDiagram
@@ -65,7 +65,7 @@ sequenceDiagram
 ```
 
 > [!IMPORTANT]
-> Vite, Nuxt, and Astro generate during builds only, not in their development servers. Run `kubb generate` before you start a development server.
+> Vite, Nuxt, and Astro generate during builds only, not in their dev servers. Run `kubb generate` before you start a dev server.
 
 Each tool page passes your `kubb.config.ts` as `config`. Without `config`, the plugin finds `kubb.config.ts` like the CLI does and builds every config in it that has an `input`.
 
@@ -89,7 +89,7 @@ Each tool page passes your `kubb.config.ts` as `config`. Without `config`, the p
 
 ### Import a spec as a module {#import-a-spec}
 
-Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module. Kubb writes no files for it, and it works in the Vite development server too.
+Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module. Kubb writes no files for it, and it works in the Vite dev server too.
 
 ```ts [src/pets.ts]
 import { type Pet, petStatusEnum } from './petStore.openapi.yaml'

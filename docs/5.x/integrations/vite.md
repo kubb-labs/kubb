@@ -11,10 +11,10 @@ navigation:
 
 # Generate code from your API spec with Vite
 
-`kubb/vite` ships with `kubb`. It generates code from your `kubb.config.ts` once, before `vite build` continues.
+`kubb/vite` generates code from your `kubb.config.ts` once, before `vite build` continues. It ships with `kubb`.
 
 > [!IMPORTANT]
-> Vite generates on `vite build` only, not in the development server. Run `kubb generate` before `vite dev`.
+> Kubb runs on `vite build` only, not in the dev server. Run `kubb generate` before `vite dev`.
 
 ::steps{level="2"}
 
@@ -24,7 +24,7 @@ Follow [Installation](/docs/5.x/how-to/installation).
 
 ## Add Kubb to `vite.config.ts`
 
-Pass your `kubb.config.ts` as `config`. It takes one config object, not an array or a function.
+Pass one config object from your `kubb.config.ts` as `config`, not an array or a function.
 
 ```typescript [vite.config.ts]
 import kubb from 'kubb/vite'
@@ -38,8 +38,8 @@ export default defineConfig({
 
 ## Run the build
 
-Run `vite build`. A failed generation fails the build.
+Run `vite build`. If Kubb fails, the build fails.
 
 ::
 
-See [How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) for defaults, reports, and watch rebuilds.
+[How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) covers defaults, reports, and watch rebuilds.

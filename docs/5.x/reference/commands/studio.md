@@ -13,7 +13,7 @@ navigation:
 
 # kubb studio
 
-`kubb studio` connects a project to [Kubb Studio](https://kubb.studio). The CLI generates on your machine and sends progress and file paths to Studio. Grant [permissions](#permissions), such as `--allow-read` for file contents, to share more.
+`kubb studio` connects your project to [Kubb Studio](https://kubb.studio). The CLI generates on your machine and sends progress and file paths to Studio. To share more, grant [permissions](#permissions), such as `--allow-read` for file contents.
 
 ```shell [Terminal]
 kubb studio
@@ -21,7 +21,7 @@ kubb studio
 
 ## Pair the machine
 
-On the first run, the CLI pairs the machine:
+On the first run, the CLI pairs your machine:
 
 ```mermaid
 sequenceDiagram
@@ -100,7 +100,7 @@ Credentials, worker state, and the worker log live in [`KUBB_HOME`](/docs/5.x/re
 
 ### Permissions {#permissions}
 
-Each permission is off by default. The CLI asks once per project for each one you do not pass. Without a TTY it skips the questions, so pass the flags the run needs.
+Each permission is off by default. The CLI asks once per project for each one you do not pass. Outside an interactive terminal, it skips the questions, so pass the flags the run needs.
 
 | Flag | Lets Studio |
 | --- | --- |
@@ -133,7 +133,7 @@ See [Studio permissions](#studio-permissions) for what each one changes.
 `snapshot` generates like `kubb generate`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB. In CI, the CLI refuses to pair and needs stored credentials, so use `snapshot` there.
 
 > [!IMPORTANT]
-> `snapshot` builds the package's `dist` files with `tsdown`. Install it first: `npm i -D tsdown`.
+> Install `tsdown` first: `npm i -D tsdown`. `snapshot` builds the package's `dist` files with it.
 
 ## Snapshot output
 
@@ -141,7 +141,7 @@ See [Studio permissions](#studio-permissions) for what each one changes.
 
 ## CI agent identity
 
-`snapshot` detects GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI. Other providers need a stable `--id`. See [CI agent identity](#studio-ci-snapshots).
+`snapshot` detects GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI. Other providers need a stable `--id`. See [CI snapshots](#studio-ci-snapshots).
 
 ## Plugins in Studio {#plugins-in-studio}
 
@@ -222,7 +222,7 @@ On connect, the agent reports each extension with a valid `kubb-extension.json` 
 
 The agent calls the factory the manifest names in `export`. It refuses any other package name before importing anything, and config edits follow the same rule.
 
-Studio also lists [registry](/docs/5.x/reference/registry) plugins. One the agent cannot run shows as not installed, with a `kubb add <id>` hint.
+Studio also lists [extension registry](/docs/5.x/reference/registry) plugins. A plugin the agent cannot run shows as not installed, with a `kubb add <id>` hint.
 
 ### Studio credentials {#studio-credentials}
 
@@ -235,8 +235,6 @@ When you pair a machine, the CLI stores the credentials, worker state, and worke
 - `stop` waits for a running generation to clean up. An interrupted job does not run again.
 
 ### Studio permissions {#studio-permissions}
-
-These rules apply when you grant or revoke Studio permissions.
 
 - `--allow-save-input` saves the spec Studio sends and points `input` at it. Grant `--allow-config-edit` too. A pasted document goes to `openapi.yaml`, or `openapi.json` for JSON (`openapi-<entry>` for a later config entry). A URL or git file goes into `input` as is.
 - Without `--allow-read`, a session still generates and reports file paths, but Studio cannot show their contents.

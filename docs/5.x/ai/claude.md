@@ -56,7 +56,7 @@ A first run:
 
 ## Agent and skills
 
-The `kubb-expert` agent handles "add Kubb to my project": it validates the spec, picks plugins, scaffolds the config, and runs generation. Two skills load on their own:
+The `kubb-expert` agent handles "add Kubb to my project": it validates the spec, picks plugins, scaffolds the config, and runs Kubb. Two skills load on their own:
 
 | Skill | Loads when you |
 | --- | --- |

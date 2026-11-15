@@ -13,7 +13,7 @@ navigation:
 
 # Adapters
 
-An adapter turns the input spec into the [`InputNode`](/docs/5.x/reference/kit/ast#node-tree) every plugin reads. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'adapter'`. `setup` resolves the user's options, and `build` returns the adapter for them. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work as for every extension.
+An adapter turns your spec into the [`InputNode`](/docs/5.x/reference/kit/ast#node-tree) every plugin reads. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'adapter'`. `setup` resolves the user's options. `build` returns the adapter for them. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work as for every extension.
 
 > [!TIP]
 > For OpenAPI 2.0, 3.0, 3.1, and 3.2, use the official [`@kubb/adapter-oas`](/extensions/kubb-labs/adapter-oas). `defineConfig` from `kubb/config` sets it when the config has no `adapter`. Write your own only for another spec, such as AsyncAPI, GraphQL, JSON Schema, or gRPC.

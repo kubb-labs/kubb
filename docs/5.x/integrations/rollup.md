@@ -11,7 +11,7 @@ navigation:
 
 # Generate code from your API spec with Rollup
 
-`kubb/rollup` ships with `kubb`. It generates code from your `kubb.config.ts` once, before the Rollup build continues.
+`kubb/rollup` generates code from your `kubb.config.ts` once, before the Rollup build continues. It ships with `kubb`.
 
 ::steps{level="2"}
 
@@ -21,7 +21,7 @@ Follow [Installation](/docs/5.x/how-to/installation). Add `@rollup/plugin-typesc
 
 ## Add Kubb to `rollup.config.ts`
 
-Pass your `kubb.config.ts` as `config`. It takes one config object, not an array or a function.
+Pass one config object from your `kubb.config.ts` as `config`, not an array or a function.
 
 ```typescript [rollup.config.ts]
 import typescript from '@rollup/plugin-typescript'
@@ -38,8 +38,8 @@ Add `rollup.config.ts` to the `include` of `tsconfig.json`, such as `"include": 
 
 ## Run the build
 
-Run `rollup -c rollup.config.ts --configPlugin typescript`. Rollup loads only `.js`, `.mjs`, and `.cjs` config files by default, so `--configPlugin typescript` compiles the config first. A failed generation fails the build.
+Run `rollup -c rollup.config.ts --configPlugin typescript`. Rollup loads only `.js`, `.mjs`, and `.cjs` config files by default, so `--configPlugin typescript` compiles the config first. If Kubb fails, the build fails.
 
 ::
 
-See [How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) for defaults, reports, and watch rebuilds.
+[How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) covers defaults, reports, and watch rebuilds.

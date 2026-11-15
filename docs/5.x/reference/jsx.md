@@ -13,11 +13,11 @@ navigation:
 
 # JSX renderer
 
-`kubb/jsx` lets a generator describe its files as JSX instead of [`ast.factory`](/docs/5.x/reference/kit/ast#factory-functions) node builders.
+`kubb/jsx` lets you write a generator's files as JSX instead of [`ast.factory`](/docs/5.x/reference/kit/ast#factory-functions) node builders.
 
 ## Renderers {#renderers}
 
-A renderer turns what a generator returns into `FileNode`s. Set `renderer: jsxRenderer` on the generator, or leave `renderer` unset or `null` when it returns `FileNode`s from `ast.factory`.
+A renderer turns what a generator returns into `FileNode`s. Set `renderer: jsxRenderer` on the generator. Leave `renderer` unset or `null` when it returns `FileNode`s from `ast.factory`.
 
 ```mermaid
 flowchart LR
@@ -83,7 +83,7 @@ Inside a code component or `File.Source`, `<br />` adds a line break.
 
 #### `File` {#file}
 
-Declares a generated file when it has `baseName` and `path`, and renders its children inline otherwise. Text directly in a `File`, outside `File.Source`, throws.
+With `baseName` and `path`, `File` declares a generated file. Without them, it renders its children inline. Text directly in a `File`, outside `File.Source`, throws.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -117,7 +117,7 @@ A block of source text in the enclosing `File`.
 | `pointer?` | `string` | The input location, such as `#/components/schemas/Pet` |
 | `children?` | `KubbReactNode` | The source text |
 
-See [Copied and inline files](#inline-sources) for `copy` and `inline`.
+See [Inline sources](#inline-sources) for `copy` and `inline`.
 
 #### `File.Import` {#file-import}
 
@@ -160,7 +160,7 @@ An export at the top of the enclosing `File`.
 
 ### JavaScript
 
-These emit TypeScript inside a `File.Source`. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block.
+The JavaScript components emit TypeScript inside a `File.Source`. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block.
 
 #### `Const` {#const}
 
@@ -212,7 +212,7 @@ An arrow function in a `const`. It takes every `Function` prop, plus `singleLine
 
 #### `Type` {#type}
 
-A type alias, with the children as the type. `name` must start with an uppercase letter, or it throws.
+A type alias, with the children as the type. `name` must start with an uppercase letter, or `Type` throws.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -319,7 +319,7 @@ When a plugin writes a `File` with `copy` or a `File.Source` with `inline`, Kubb
 
 - `copy` on `File` is an absolute path to copy into the output, through the parser's `copy` hook if it has one. Its sources count for barrels but are not printed.
 - `inline.expression` on `File.Source` is the right-hand side of the declaration.
-- A file whose sources are all inline is not written. Files that import it get the expression and its imports.
+- Kubb does not write a file whose sources are all inline. Files that import it get the expression and its imports.
 
 ```tsx
 <File.Source name="AddPetStatus200" isTypeOnly isExportable inline={{ expression: 'Pet' }}>

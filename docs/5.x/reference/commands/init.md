@@ -13,7 +13,7 @@ navigation:
 
 # kubb init
 
-`kubb init` is a setup wizard. It asks three questions, shows the config for review, then installs Kubb, writes `kubb.config.ts`, and runs the first generation.
+`kubb init` sets up Kubb in your project. It asks three questions, shows you the config, then installs Kubb, writes `kubb.config.ts`, and runs the first generation.
 
 ```shell [Terminal]
 npx kubb init
@@ -25,9 +25,9 @@ npx kubb init
 
 ### Detect the project
 
-Kubb finds the package manager the way the [extension commands](/docs/5.x/reference/commands#project-files) do. Without a `package.json`, it offers to create one.
+Kubb finds your package manager by the rules in [Project files](/docs/5.x/reference/commands#project-files). Without a `package.json`, it offers to create one.
 
-It looks for `openapi*` or `swagger*` files (`.yaml`, `.yml`, or `.json`) up to three folders deep. See [How kubb init finds a spec](#init-spec-detection).
+It looks for `openapi*` or `swagger*` files (`.yaml`, `.yml`, or `.json`) up to three folders deep. See [Spec detection in kubb init](#init-spec-detection).
 
 ### Ask three questions
 
@@ -41,9 +41,9 @@ Kubb does not pick plugins from your framework or installed libraries.
 
 ### Review the config
 
-Kubb checks each plugin's [manifest](/docs/5.x/reference/kit/manifest). When a plugin needs another one you did not pick, such as a client plugin next to `plugin-react-query`, the wizard names it and asks again.
+Kubb checks each plugin's [extension manifest](/docs/5.x/reference/kit/manifest). When a plugin needs another one you did not pick, such as a client plugin next to `plugin-react-query`, the wizard names it and asks again.
 
-Then it shows `kubb.config.ts` and the packages to install. Pick **Change a choice** to answer again. When `kubb.config.ts` exists, the prompt asks to overwrite it.
+Then it shows you `kubb.config.ts` and the packages to install. Pick **Change a choice** to answer again. If `kubb.config.ts` exists, Kubb asks before it overwrites it.
 
 ### Install, write, and generate
 
@@ -71,7 +71,7 @@ Run with the defaults and no prompts:
 npx kubb init --yes
 ```
 
-Run with no prompts and a specific spec, output folder, and plugins:
+Set the spec, output folder, and plugins, with no prompts:
 
 ```shell [Terminal]
 npx kubb init --yes --input ./openapi.yaml --plugins ts,zod --output src/api

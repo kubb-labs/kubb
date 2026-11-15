@@ -11,7 +11,7 @@ navigation:
 
 # Publish a plugin
 
-Package a plugin, publish it, and list it in the Kubb registry, so users install it with `kubb add` and find it on [kubb.dev/extensions](/extensions) and in Kubb Studio. Adapters and parsers follow the same steps. Start from a working plugin with a test, such as the one from [Create a plugin](/docs/5.x/tutorials/creating-plugins).
+Once your plugin is in the Kubb registry, users install it with `kubb add` and find it on [kubb.dev/extensions](/extensions) and in Kubb Studio. You package it, publish it, and submit it. Adapters and parsers follow the same steps. Start from a working plugin with a test, such as the one from [Create a plugin](/docs/5.x/tutorials/creating-plugins).
 
 > [!TIP]
 > A package already on npm still needs the manifest and the `docs/` folder in a published version. Add them, publish a new version, then go to [Submit to the registry](#submit-to-the-registry).
@@ -76,7 +76,7 @@ Before you publish, check that:
 
 - `files` ships the build, the manifest, and the `docs/` folder.
 - `exports` lists `kubb-extension.json` and `package.json`, because an `exports` map hides every path it does not list.
-- `repository` points to a GitHub repository you own, or one owned by an organization you belong to.
+- `repository` points to a GitHub repository you own, or one in an organization you belong to.
 - `kubb` or `@kubb/core` is a peer dependency, not a bundled one. Keep `kubb` as a dev dependency too, to build and test locally.
 - A `preinstall`, `install`, or `postinstall` script is allowed only when the overview explains what it does.
 
@@ -130,7 +130,7 @@ Leave install commands out of the overview. The page already shows them, and val
 
 ## Check the tarball
 
-Build, list the files npm would include, and create a local tarball:
+Build, list the files npm includes, and create a local tarball:
 
 ```shell [Terminal]
 npm run build
@@ -157,7 +157,7 @@ npm publish --access public
 
 ::::tabs-item{label="GitHub release"}
 
-A package that is not on npm can install from a GitHub release. `kubb add` installs `github:<owner>/<repo>#<commit>`, so nothing builds on the user's machine. The release must meet these rules:
+If the package is not on npm, users install it from a GitHub release. `kubb add` installs `github:<owner>/<repo>#<commit>`, so nothing builds on the user's machine. The release must meet these rules:
 
 - The package sits at the repository root. A scoped name uses your GitHub owner, such as `@acme/` for `github.com/acme`.
 - `dist/` is committed. `main`, `module`, and `exports` point to committed files, and `files` lists them and `kubb-extension.json`.
@@ -184,7 +184,7 @@ Open a [submission issue](https://github.com/kubb-labs/registry/issues/new?templ
 
 In **Categories**, tick every category that fits. The first tick is the main one.
 
-Within minutes, a workflow opens a review pull request with the [record](/docs/5.x/reference/registry#records) and links it on your issue. If it reports a problem instead, fix it and edit the issue to run the submission again. Your id is `<owner>/<slug>`, such as `acme/kubb-plugin-example`. See [Registry ids](/docs/5.x/reference/registry#registry-ids).
+Within minutes, a workflow opens a review pull request with the [record](/docs/5.x/reference/registry#records) and links it on your issue. If the workflow reports a problem instead, fix it and edit the issue to submit again. Your id is `<owner>/<slug>`, such as `acme/kubb-plugin-example`. See [Registry ids](/docs/5.x/reference/registry#registry-ids).
 
 ## Wait for the review {#review}
 
@@ -200,7 +200,7 @@ flowchart LR
 
 Checks on the pull request validate the record and the docs, and load your extension with install scripts off. A maintainer then reviews the package against [`REVIEW.md`](https://github.com/kubb-labs/registry/blob/main/REVIEW.md).
 
-After the pull request exists, editing the issue no longer runs the submission again. When a check fails or the maintainer asks for changes, publish a fixed version and reply in the pull request. See [Registry checks](#registry-checks).
+After the pull request exists, editing the issue no longer submits it again. When a check fails or the maintainer asks for changes, publish a fixed version and reply in the pull request. See [Registry checks](#registry-checks).
 
 After the merge, the registry lists the extension within minutes. Users install it with:
 

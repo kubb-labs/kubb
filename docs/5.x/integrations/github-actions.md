@@ -49,6 +49,6 @@ jobs:
 | `pull-requests: write` | Post and update the snapshot comment. |
 | `contents: write` | Open an initialization pull request when the repository has no Kubb config. Also turn on **Allow GitHub Actions to create and approve pull requests** under **Settings › Actions › General**. |
 
-See the [action reference](/docs/5.x/reference/github-actions) for inputs, outputs such as `tarball-url`, and runtime behavior.
+The [GitHub Action reference](/docs/5.x/reference/github-actions) lists inputs, outputs such as `tarball-url`, and runtime behavior.
 
 To install a snapshot or read it in Studio, see [Review the snapshot](/docs/5.x/integrations/ci#review-the-snapshot) and [Install the snapshot](/docs/5.x/integrations/ci#install-the-snapshot).

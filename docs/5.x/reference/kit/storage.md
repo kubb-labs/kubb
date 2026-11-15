@@ -29,7 +29,7 @@ Both ship from `kubb/kit` and go straight into `storage`.
 
 ## `createStorage`
 
-`createStorage` takes a builder `(options: TOptions) => Storage` and returns a factory `(options?: TOptions) => Storage`. This is the built-in `memoryStorage`:
+`createStorage` turns a builder `(options: TOptions) => Storage` into a factory `(options?: TOptions) => Storage`. This is the built-in `memoryStorage`:
 
 ```typescript [memory-storage.ts]
 import { createStorage } from 'kubb/kit'
@@ -60,7 +60,7 @@ export const memoryStorage = createStorage(() => {
 
 ## `Storage` interface {#storage-interface}
 
-Every member is required. Keys are the files' absolute paths, and the build result exposes the backend as `storage`.
+Every member is required. Keys are the files' absolute paths. The build result exposes the backend as `storage`.
 
 | Member         | Params                                                              | Returns                   | Does                                                                                                   |
 | -------------- | ------------------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------ |

@@ -13,7 +13,7 @@ navigation:
 
 # Create a Kubb plugin
 
-Build a plugin that writes the method and path of one API operation to `listPets.ts`, then test its output in memory. You need npm, a [supported Node.js version](/docs/5.x/how-to/installation#prerequisites), and some TypeScript.
+Your first plugin writes the method and path of one API operation to `listPets.ts`, and a test checks its output in memory. You need npm, a Node.js version from [Prerequisites](/docs/5.x/how-to/installation#prerequisites), and some TypeScript.
 
 ::steps{level="2"}
 
@@ -30,7 +30,7 @@ mkdir src
 
 Every authoring API comes from `kubb/kit`, which ships with `kubb`.
 
-## Add the specification {#_2-add-the-specification}
+## Add the spec {#_2-add-the-specification}
 
 Create `petStore.yaml` in the project root:
 
@@ -50,7 +50,7 @@ paths:
 
 ## Create the plugin {#_3-create-the-plugin}
 
-In `setup`, register a resolver and a generator with the `setResolver` and `addGenerator` [composables](/docs/5.x/reference/kit/plugins#setup-context), then return the options:
+In `setup`, register a resolver and a generator with the [setup context](/docs/5.x/reference/kit/plugins#setup-context) composables `setResolver` and `addGenerator`, then return the options:
 
 ```typescript [src/plugin.ts]
 import { addGenerator, ast, createResolver, defineExtension, defineGenerator, setResolver } from 'kubb/kit'
@@ -86,7 +86,7 @@ export const pluginExample = defineExtension({
 })
 ```
 
-Kubb calls `operation` once per operation. It returns one file with a comment naming the HTTP method and path, and the resolver turns the `operationId` into the file name.
+Kubb calls `operation` once per operation. Each call returns one file with a comment naming the HTTP method and path. The resolver turns the `operationId` into the file name.
 
 ## Generate {#_4-generate}
 
@@ -113,7 +113,7 @@ Read the generated file:
 node -e "console.log(require('node:fs').readFileSync('src/gen/listPets.ts', 'utf8'))"
 ```
 
-The file holds a comment naming `GET` and `/pets`.
+The output is `// GET /pets`.
 
 ## Test the output {#_5-test-the-output}
 

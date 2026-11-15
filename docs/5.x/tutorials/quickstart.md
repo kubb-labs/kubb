@@ -13,7 +13,7 @@ navigation:
 
 # Your first TypeScript client from an API spec
 
-Generate TypeScript types and an Axios client for one Petstore operation, then change the spec and regenerate. You need npm and a [supported Node.js version](/docs/5.x/how-to/installation#prerequisites).
+Kubb turns a one-operation Petstore spec into TypeScript types and an Axios client. Then you change the spec and run Kubb again. You need npm and a Node.js version from [Prerequisites](/docs/5.x/how-to/installation#prerequisites).
 
 ::steps{level="2"}
 
@@ -30,7 +30,7 @@ npm install axios
 
 The generated client calls `axios` at runtime, so it is a regular dependency.
 
-## Add the specification {#_2-add-the-specification}
+## Add the spec {#_2-add-the-specification}
 
 Create `petStore.yaml` in the project root:
 
@@ -72,7 +72,7 @@ components:
 
 ## Configure generation {#_3-configure-generation}
 
-Create `kubb.config.ts` beside the specification:
+Create `kubb.config.ts` beside the spec:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -90,7 +90,7 @@ export default defineConfig({
 ```
 
 > [!WARNING]
-> Keep `src/gen` dedicated to generated files. `clean: true` removes its contents before each run.
+> `clean: true` empties `src/gen` before each run. Keep your own files elsewhere.
 
 ## Generate the client {#_4-generate-the-client}
 
@@ -98,7 +98,7 @@ export default defineConfig({
 npx kubb generate
 ```
 
-Kubb writes this tree. In `src/gen/clients/getPetById.ts`, `getPetById` takes a typed path parameter and returns a typed result.
+Kubb writes this tree. `getPetById` in `src/gen/clients/getPetById.ts` takes a typed path parameter and returns a typed result.
 
 :::file-tree
 ---
@@ -123,11 +123,11 @@ tree:
 ---
 :::
 
-The `.kubb` directory holds shared client and serialization helpers.
+`.kubb` holds shared client and serialization helpers.
 
-## Regenerate after a change {#_5-regenerate-after-a-change}
+## Change the spec {#_5-regenerate-after-a-change}
 
-Add a `tag` property to the `Pet` schema in `petStore.yaml`, next to `id` and `name`:
+Add a `tag` property to `Pet` in `petStore.yaml`, next to `id` and `name`:
 
 ```yaml [petStore.yaml]
 tag:
@@ -143,7 +143,7 @@ Run `npx kubb generate` again. `Pet` in `src/gen/models/Pet.ts` now has an optio
 ::card-group
 
 :::card{title="Call generated operations" icon="i-iconoir-code" to="/extensions/kubb-labs/plugin-axios/guides/calling-operations"}
-Use the generated Axios client. [Configure its host](/extensions/kubb-labs/plugin-axios/guides/configure-requests#set-the-base-url) for your API.
+Use the generated Axios client. [Set the base URL](/extensions/kubb-labs/plugin-axios/guides/configure-requests#set-the-base-url) for your API.
 :::
 
 :::card{title="Configure generation" icon="i-iconoir-settings" to="/docs/5.x/how-to/recipes"}
@@ -151,7 +151,7 @@ Add React or Vue hooks, validation, and mocks.
 :::
 
 :::card{title="Configuration reference" icon="i-iconoir-bookmark" to="/docs/5.x/reference/configuration"}
-Look up specification versions, options, and config formats.
+Look up spec versions, options, and config formats.
 :::
 
 ::

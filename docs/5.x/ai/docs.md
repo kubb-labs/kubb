@@ -22,7 +22,7 @@ An assistant that reads the current docs writes a `kubb.config.ts` for Kubb v5, 
 
 ## Context7 {#context7}
 
-Kubb's docs are indexed on [Context7](https://context7.com) under the library ID `/kubb-labs/kubb`.
+[Context7](https://context7.com) indexes the Kubb docs under the library ID `/kubb-labs/kubb`.
 
 ::steps{level="3"}
 
@@ -34,11 +34,11 @@ Run the setup and select your assistant:
 npx ctx7 setup
 ```
 
-It connects Context7 through MCP or installs its documentation skill, depending on your choice.
+The setup connects Context7 through MCP or installs its docs skill, as you choose.
 
 ### Ask with Context7
 
-Include `use context7` in your prompt. Add the library ID to skip library discovery:
+Include `use context7` in your prompt. Add the library ID to skip the library search:
 
 ```text [Prompt]
 Create a kubb.config.ts that generates TypeScript types, a Fetch client, and React Query hooks
