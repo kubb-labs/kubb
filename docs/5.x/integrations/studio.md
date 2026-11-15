@@ -13,19 +13,6 @@ navigation:
 
 [Kubb Studio](https://kubb.studio) lets you generate and review your project's clients, types, schemas, hooks, and mocks from the browser. `kubb studio` connects your project as an agent: Studio sends the job, and Kubb runs on your machine.
 
-```mermaid
-sequenceDiagram
-  participant A as kubb studio
-  participant S as Kubb Studio
-  A->>S: pairing code
-  S-->>A: approved
-  S->>A: generate
-  A->>A: run plugins locally
-  A-->>S: progress, file paths, hashes
-  S->>A: read a file
-  A-->>S: contents, with --allow-read
-```
-
 `kubb studio` needs Kubb 5.11.6 or later. Studio refuses older agents. Pick the agent that fits:
 
 | Agent | Runs on | Use it for |

@@ -17,7 +17,9 @@ Every integration runs the same `kubb.config.ts`. You pick where Kubb runs.
 flowchart LR
   config[kubb.config.ts]:::core
   ai[AI assistants] --> cli
+  ai --> mcp
   config --> cli[kubb generate]
+  config --> mcp[kubb mcp]
   config --> agent[kubb studio]
   config --> ci[CI snapshot]
   config --> build[Build tools]
