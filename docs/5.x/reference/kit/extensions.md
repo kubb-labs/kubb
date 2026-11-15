@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Extensions
-description: defineExtension in kubb/kit defines a plugin, an adapter, or a
-  parser. Covers meta, compatibility checks, plugin dependencies, factory
-  statics, the plugin setup context, and what each kind returns and is named.
+title: defineExtension - Plugins, adapters, and parsers
+description: defineExtension in kubb/kit defines a plugin, adapter, or parser. Covers meta, compatibility checks, plugin dependencies, and factory statics.
 outline:
   - 2
   - 3

@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Contributing
+title: Contribute to Kubb - Set up, test, and open a PR
 description: Find where Kubb code lives, set up the core or plugins repository, pass the quality gates, and open a pull request.
 outline:
   - 2

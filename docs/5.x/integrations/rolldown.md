@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Generate code from your API spec with Rolldown
+title: Rolldown plugin - Generate code from OpenAPI
 description: Add the kubb/rolldown plugin to rolldown.config.ts so every Rolldown build generates code from your API spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 9

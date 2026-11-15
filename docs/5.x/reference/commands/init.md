@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: kubb init
-description: The init command detects your spec and package manager, asks for plugins and an output folder, then installs Kubb, writes kubb.config.ts, and runs the first generation.
+title: kubb init - Set up Kubb in a project
+description: The init command detects your spec and package manager, asks for plugins and an output folder, then installs Kubb and writes kubb.config.ts.
 outline:
   - 2
   - 3

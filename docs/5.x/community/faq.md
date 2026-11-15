@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: FAQ
+title: Kubb FAQ - Production use and compatibility
 description: Answers to common questions about Kubb, covering production use, telemetry, compatibility, and generated code.
 outline:
   - 2

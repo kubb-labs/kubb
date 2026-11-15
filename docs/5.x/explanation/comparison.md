@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Kubb vs orval, HeyAPI, and openapi-typescript
-description: Compare Kubb with orval, HeyAPI, and openapi-typescript on speed, CPU time, memory, generated outputs, OpenAPI 3.2 support, type safety, client runtime, and Kubb Studio.
+description: Compare Kubb with orval, HeyAPI, and openapi-typescript on speed, memory, generated outputs, OpenAPI 3.2 support, type safety, and client runtime.
 outline:
   - 2
   - 3

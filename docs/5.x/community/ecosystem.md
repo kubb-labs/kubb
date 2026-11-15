@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Ecosystem
+title: Kubb ecosystem - Projects, articles, and tutorials
 description: Projects built with Kubb, articles and tutorials about Kubb, and the ecosystem lists that include it.
 outline: [2, 3]
 order: 3

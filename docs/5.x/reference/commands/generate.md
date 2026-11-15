@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: kubb generate
+title: kubb generate - Generate code from your API spec
 description: The generate command runs the Kubb code-generation pipeline from your kubb.config.ts, with watch mode, dry runs, and cli, json, file, and html reporters.
 outline:
   - 2

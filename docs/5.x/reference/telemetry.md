@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Telemetry
+title: Telemetry - What Kubb sends and how to opt out
 description: What anonymous usage data the Kubb CLI sends, when it sends it, the exact OTLP fields, and how to opt out with DO_NOT_TRACK or KUBB_DISABLE_TELEMETRY.
 outline:
   - 2

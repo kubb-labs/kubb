@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: How Kubb works
+title: How Kubb works - Adapters, AST, plugins, and parsers
 description: Follow an API spec through Kubb's pipeline, from adapter to AST, plugins, parsers, and storage, and see which extension point changes each stage.
 outline:
   - 2

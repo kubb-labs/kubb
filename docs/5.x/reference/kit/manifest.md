@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Extension manifest
-description: Reference for kubb-extension.json, the manifest a Kubb plugin,
-  adapter, or parser ships on npm. Covers every field, the option entries
-  Studio renders, validation, and importing compatibility into meta.
+title: kubb-extension.json - Extension manifest reference
+description: "Reference for kubb-extension.json, the manifest a Kubb plugin, adapter, or parser ships on npm: its fields, Studio option entries, and validation."
 outline:
   - 2
   - 3

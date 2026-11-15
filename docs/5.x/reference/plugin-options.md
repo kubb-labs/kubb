@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Shared plugin options
-description: The output, group, include, exclude, override, resolver, and macros options every Kubb generator plugin accepts, with their types, defaults, matching rules, and precedence.
+description: The output, group, include, exclude, override, resolver, and macros options every Kubb generator plugin accepts, with types, defaults, and precedence.
 outline:
   - 2
   - 3

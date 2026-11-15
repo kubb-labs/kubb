@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: JSX renderer
-description: Reference for kubb/jsx, backed by @kubb/renderer-jsx. The jsxRenderer, the tsconfig setup, and the props of every built-in File, TypeScript, Markdown, and Jsx component.
+title: JSX renderer - kubb/jsx component reference
+description: "Reference for kubb/jsx, backed by @kubb/renderer-jsx: the jsxRenderer, the tsconfig setup, and the props of every built-in component."
 outline:
   - 2
   - 3

@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Configuration
+title: kubb.config.ts - Configuration reference
 description: Reference for kubb.config.ts in Kubb v5. How Kubb finds and loads the config, the defaults defineConfig applies, and every top-level and output option.
 outline:
   - 2

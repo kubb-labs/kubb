@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Generate code from your API spec with Nuxt
+title: Nuxt module - Generate code from OpenAPI
 description: Add the kubb/nuxt module to nuxt.config.ts so every Nuxt build generates code from your API spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 13

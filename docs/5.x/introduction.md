@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: "Introduction to Kubb: turn your API spec into code"
-description: Kubb generates TypeScript types, Axios and Fetch clients, TanStack Query and SWR hooks, Zod schemas, Faker and MSW mocks, and more from your API spec. Regenerate to keep them in sync.
+title: Introduction - OpenAPI to TypeScript code generator
+description: Generate TypeScript types, Axios and Fetch clients, TanStack Query hooks, Zod schemas, and Faker and MSW mocks from an OpenAPI spec with Kubb.
 outline:
   - 2
   - 3
@@ -70,4 +70,4 @@ The animation follows the spec through the pipeline. The adapter turns schemas a
 
 ## Community
 
-Kubb is free and open source under the MIT license. Get help on [Discord](https://discord.gg/shfBFeczrm), report an issue on [GitHub](https://github.com/kubb-labs/kubb/issues), or read [Contributing](/docs/5.x/community/contributing).
+Kubb is free and open source under the MIT license. Get help on [Discord](https://discord.gg/shfBFeczrm), report an issue on [GitHub](https://github.com/kubb-labs/kubb/issues), or read [Contributing](/docs/5.x/community/contributing). The [FAQ](/docs/5.x/community/faq) answers common questions, and [Ecosystem](/docs/5.x/community/ecosystem) lists projects and articles built around Kubb.

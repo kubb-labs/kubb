@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Generate code from your API spec with Astro
+title: Astro integration - Generate code from OpenAPI
 description: Add the kubb/astro integration to astro.config.mjs so every Astro build generates code from your API spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 14

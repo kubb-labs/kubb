@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Publish Kubb Studio snapshots from CI
-description: Run kubb studio snapshot in GitHub Actions, GitLab CI, or any CI provider to publish an installable package of your generated code and compare it per pull request.
+description: Run kubb studio snapshot in GitHub Actions, GitLab CI, or any CI to publish an installable package of your generated code per pull request.
 outline:
   - 2
   - 3

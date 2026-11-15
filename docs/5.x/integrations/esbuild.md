@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Generate code from your API spec with esbuild
+title: esbuild plugin - Generate code from OpenAPI
 description: Add the kubb/esbuild plugin to build.ts so every esbuild build generates code from your API spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 11

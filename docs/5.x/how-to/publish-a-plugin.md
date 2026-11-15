@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Publish a plugin
-description: Package a Kubb plugin with a kubb-extension.json manifest and a docs
-  folder, publish it to npm or a GitHub release, and submit it to the Kubb
-  registry for review so users can install it with kubb add.
+title: Publish a plugin - npm and the Kubb registry
+description: Package a Kubb plugin with a kubb-extension.json manifest and docs, publish it to npm or a GitHub release, and submit it to the Kubb registry.
 outline: [2, 3]
 order: 4
 navigation:

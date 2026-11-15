@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Create a Kubb plugin
+title: Create a Kubb plugin - Write and test a generator
 description: Build a Kubb plugin that writes the method and path of one API operation to a file, then test its output in memory with createKubb and Vitest.
 outline:
   - 2

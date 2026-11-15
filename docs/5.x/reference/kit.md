@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Kit API
-description: The kubb/kit reference for extension authors. Maps each part of
-  the kit (extensions, generators, resolvers, AST, renderer, storage, engine,
-  hooks) to its page, and covers the casing and text helpers.
+title: Kit API - Build Kubb plugins, adapters, and parsers
+description: "The kubb/kit reference for extension authors: extensions, generators, resolvers, AST, renderer, storage, engine, hooks, and the casing helpers."
 outline:
   - 2
   - 3

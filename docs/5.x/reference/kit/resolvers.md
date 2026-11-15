@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Resolvers
-description: createResolver builds the Resolver that names a plugin's symbols,
-  files, and imports. Covers the built-in members, resolver.imports, name
-  reservations, Resolver.merge, and the override rules.
+title: Resolvers - Name symbols, files, and imports
+description: createResolver builds the Resolver that names a plugin's symbols, files, and imports. Covers built-in members, name reservations, and merging.
 outline:
   - 2
   - 3

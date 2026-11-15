@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Generate code from your API spec with webpack
+title: webpack plugin - Generate code from OpenAPI
 description: Add the kubb/webpack plugin to webpack.config.ts so every webpack build generates code from your API spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 7

@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Engine
-description: The programmatic engine from the kubb package. Covers createKubb,
-  the Kubb instance and how its build methods relate, Kubb.generate for config
-  arrays, BuildOutput, and the Diagnostics helpers.
+title: Engine - Run Kubb from code with createKubb
+description: "The programmatic engine in the kubb package: createKubb, the Kubb instance and its build methods, Kubb.generate, BuildOutput, and Diagnostics."
 outline:
   - 2
   - 3
@@ -11,7 +9,6 @@ order: 10
 navigation:
   title: Engine
   icon: i-iconoir-cpu
-
 ---
 
 # Engine

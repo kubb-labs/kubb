@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Your first TypeScript client from an API spec
+title: Generate TypeScript from OpenAPI in five steps
 description: Follow five steps to generate TypeScript types and a typed Axios client from a one-operation Petstore API spec, then inspect the output and regenerate it.
 outline:
   - 2
@@ -13,7 +13,7 @@ navigation:
 
 # Your first TypeScript client from an API spec
 
-Generate TypeScript types and an Axios client for one Petstore operation, then change the spec and watch the output follow. You need npm and a [supported Node.js version](/docs/5.x/how-to/installation#prerequisites).
+Generate TypeScript types and an Axios client for one Petstore operation, then change the spec and watch the output follow. The [introduction](/docs/5.x/introduction) lists everything else Kubb generates. You need npm and a [supported Node.js version](/docs/5.x/how-to/installation#prerequisites).
 
 ::steps{level="2"}
 

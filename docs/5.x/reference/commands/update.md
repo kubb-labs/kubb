@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: kubb update
+title: kubb update - Update extensions to the pinned version
 description: The update command moves installed Kubb extensions to the version
   the Kubb extension registry pins, or lists the available updates with --dry-run.
 outline:

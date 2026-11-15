@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: kubb validate
+title: kubb validate - Check an API spec
 description: The validate command checks a specification with the adapter in your Kubb config, or the OpenAPI adapter without one, and runs no generation.
 outline:
   - 2

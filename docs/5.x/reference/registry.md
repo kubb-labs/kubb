@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Extension registry
-description: Reference for the Kubb extension registry protocol at kubb.dev/registry. Its endpoints, registry ids, the RegistryEntry and detail shapes, records that pin one npm version or GitHub release, categories, and how to host your own registry.
+title: Extension registry - Kubb registry API reference
+description: "Reference for the Kubb extension registry at kubb.dev/registry: endpoints, registry ids, entry shapes, version pins, categories, and self-hosting."
 outline:
   - 2
   - 3

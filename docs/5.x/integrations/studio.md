@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Connect a project to Kubb Studio
-description: Run kubb studio to pair a local Kubb project with Kubb Studio, choose what Studio may read and write, review generated code in the browser, and keep an agent running.
+description: Pair a local Kubb project with Kubb Studio, choose what Studio may read and write, review generated code in the browser, and keep an agent running.
 outline: [2, 3]
 order: 1
 navigation:

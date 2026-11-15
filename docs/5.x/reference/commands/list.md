@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: kubb list
+title: kubb list - Show installed extensions
 description: The list command shows the installed Kubb extensions with their
   registry id, installed version, pinned registry version, and available updates.
 outline:

@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: kubb studio
+title: kubb studio - Connect a project to Kubb Studio
 description: Command reference for kubb studio. Connect a project to Kubb Studio, run it in the background, manage pairing and permissions, and publish CI snapshots.
 outline:
   - 2

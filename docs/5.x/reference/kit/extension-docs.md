@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Extension docs
-description: Reference for the docs folder a Kubb plugin, adapter, or parser
-  ships on npm. Covers the files kubb.dev renders, titles and descriptions,
-  guide ids, the Markdown that renders, and what an overview covers.
+title: Extension docs - The docs folder kubb.dev renders
+description: "Reference for the docs folder a Kubb plugin, adapter, or parser ships on npm: the files kubb.dev renders, titles, guide ids, and the Markdown."
 outline:
   - 2
   - 3
@@ -50,7 +48,7 @@ Write plain Markdown, and use absolute `https://` URLs for links and images. A c
 
 Validation reports each item that does not render before a version is approved.
 
-## Overview
+## What the overview covers {#overview}
 
 `overview.md` is the extension's page on kubb.dev. Cover these points in order, and add headings only when they help:
 

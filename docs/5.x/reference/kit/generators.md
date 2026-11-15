@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Generators
-description: defineGenerator declares a named generator that walks the AST and
-  emits files. Covers the generator fields, match, the GeneratorContext each
-  method receives, and the build-wide memo cache.
+title: Generators - Emit files with defineGenerator
+description: defineGenerator declares a generator that walks the AST and emits files. Covers its fields, match, the GeneratorContext, and the memo cache.
 outline:
   - 2
   - 3

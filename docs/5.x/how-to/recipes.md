@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Configure generation
+title: Configure generation - Common Kubb recipes
 description: Configure common Kubb stacks, formatting, linting, post-generate commands, barrel files, git inputs, watch mode, and several specs in one run.
 outline:
   - 2

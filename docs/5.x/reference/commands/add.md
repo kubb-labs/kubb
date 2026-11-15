@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: kubb add
+title: kubb add - Install an extension from the registry
 description: The add command installs a plugin, adapter, or parser from the Kubb
   extension registry at its reviewed version and adds a plugin to kubb.config.ts.
 outline:

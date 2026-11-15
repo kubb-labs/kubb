@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Upgrade from v4 to v5
+title: Migrate Kubb v4 to v5 - Config and plugin changes
 description: Upgrade a Kubb v4 project to v5 with before and after tables for
   the config, the OpenAPI adapter, shared options, and each official plugin.
 outline:

@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: kubb mcp
-description: The mcp command starts a stdio Model Context Protocol server with generate, validate, and init tools for AI clients. Reference for each tool's parameters and results.
+title: kubb mcp - Start the Kubb MCP server
+description: The mcp command starts a stdio Model Context Protocol server with generate, validate, and init tools for AI clients, with each tool's parameters.
 outline:
   - 2
   - 3

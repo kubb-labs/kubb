@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: kubb remove
+title: kubb remove - Remove a plugin or parser
 description: The remove command deletes a plugin or parser from kubb.config.ts
   and uninstalls its package.
 outline:

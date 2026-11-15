@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Lifecycle hooks
+title: Lifecycle hooks - Every kubb:* build event
 description: Every kubb:* hook a build fires, its payload, and when it fires.
   Listen with kubb.hooks.hook(name, handler) or from a plugin's hooks map.
 outline:

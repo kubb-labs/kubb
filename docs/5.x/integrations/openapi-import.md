@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Import an OpenAPI spec in TypeScript with openapi-import
+title: openapi-import - Import OpenAPI specs in TypeScript
 description: Import a .openapi.yaml spec in TypeScript with openapi-import and get the types and enums your kubb.config.ts plugins generate, without generated files.
 outline: [2, 3]
 order: 15

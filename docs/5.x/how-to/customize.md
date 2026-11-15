@@ -1,9 +1,7 @@
 ---
 layout: doc
 title: Customize generated code
-description: Change what a Kubb plugin generates without forking it. Rename
-  symbols and files with a resolver, rewrite the schema with a macro, or change
-  the code printed for one schema type with a printer.
+description: "Change what a Kubb plugin generates without forking it: rename symbols and files with a resolver, rewrite schemas with a macro, or swap a printer."
 outline: [2, 3]
 order: 3
 navigation:

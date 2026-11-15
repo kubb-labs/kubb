@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Storage
-description: Storage backends decide where Kubb writes generated files. Covers
-  createStorage, the Storage interface, and how the built-in fsStorage and
-  memoryStorage backends differ.
+title: Storage - Where Kubb writes generated files
+description: Storage backends decide where Kubb writes generated files. Covers createStorage, the Storage interface, and the fsStorage and memoryStorage backends.
 outline:
   - 2
   - 3

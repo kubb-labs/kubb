@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: GitHub Actions
+title: kubb-labs/action - GitHub Action reference
 description: Reference for kubb-labs/action. Its inputs, outputs, run flow, the Kubb version it runs, and the snapshot comment it writes on pull requests.
 outline: [2, 3]
 order: 8

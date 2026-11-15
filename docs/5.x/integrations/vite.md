@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Generate code from your API spec with Vite
+title: Vite plugin - Generate code from OpenAPI
 description: Add the kubb/vite plugin to vite.config.ts so every Vite build generates code from your API spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 6

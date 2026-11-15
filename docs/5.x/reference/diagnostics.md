@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Diagnostics
+title: Diagnostics - Kubb error codes and fixes
 description: Reference for every Kubb diagnostic code, with its severity, cause, and fix, plus the terminal, agent, and JSON formats Kubb reports them in.
 outline:
   - 2
