@@ -119,7 +119,27 @@ Where Kubb reads your spec. Required when an adapter is set, as `defineConfig` d
 
 A git input is `git+<repo>#<ref>:<path>` and needs `git` on the `PATH`.
 
-```typescript [kubb.config.ts]
+::::code-group
+
+```typescript [File path]
+import { defineConfig } from 'kubb/config'
+
+export default defineConfig({
+  input: './petStore.yaml',
+  output: { path: './src/gen' },
+})
+```
+
+```typescript [URL]
+import { defineConfig } from 'kubb/config'
+
+export default defineConfig({
+  input: 'https://petstore3.swagger.io/api/v3/openapi.json',
+  output: { path: './src/gen' },
+})
+```
+
+```typescript [Git]
 import { defineConfig } from 'kubb/config'
 
 export default defineConfig({
@@ -127,6 +147,33 @@ export default defineConfig({
   output: { path: './src/gen' },
 })
 ```
+
+```typescript [Inline YAML]
+import { defineConfig } from 'kubb/config'
+
+export default defineConfig({
+  input: `
+openapi: 3.1.0
+info:
+  title: Pet Store
+  version: 1.0.0
+paths: {}
+`,
+  output: { path: './src/gen' },
+})
+```
+
+```typescript [Object]
+import { defineConfig } from 'kubb/config'
+import spec from './petStore.json' with { type: 'json' }
+
+export default defineConfig({
+  input: spec,
+  output: { path: './src/gen' },
+})
+```
+
+::::
 
 See [Git input](#git-input) for refs and credentials, and [External `$ref` files](#external-refs).
 :::
