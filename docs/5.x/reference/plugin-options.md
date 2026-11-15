@@ -13,7 +13,7 @@ navigation:
 
 # Shared plugin options
 
-Every generator plugin accepts these options. Its own options page lists only its defaults. `@kubb/plugin-barrel` takes none and reads [`output.barrel`](#output-barrel), and `@kubb/plugin-redoc` takes only `output.path`.
+Every generator plugin takes these options to set where it writes, what it generates, and how it names files. A plugin's own options page lists only its defaults. `@kubb/plugin-barrel` takes none and reads [`output.barrel`](#output-barrel). `@kubb/plugin-redoc` takes only `output.path`.
 
 ## output {#output}
 
@@ -26,7 +26,7 @@ Where the plugin writes its files and how it exports them. Default: set by each 
 ::
 
 > [!WARNING]
-> A passed `output` replaces the plugin default whole. Repeat `barrel` in it, or the plugin falls back to the root `output.barrel`, which is `false` unless you set it.
+> An `output` you pass replaces the plugin default whole. Repeat `barrel` in it, or the plugin falls back to the root `output.barrel`, which is `false` unless you set it.
 
 ```typescript [kubb.config.ts]
 import { pluginTs } from '@kubb/plugin-ts'
@@ -127,7 +127,7 @@ pluginZod({ output: { path: 'zod', barrel: { type: 'all', nested: true } } })
 ::field-group
 
 :::field{type="string | ((meta: BannerMeta) => string)"}
-Text at the top of every generated file, such as a license header or `'use server'`. Default: the root [default banner](/docs/5.x/reference/configuration#outputdefaultbanner).
+Text at the top of every generated file, such as a license header or `'use server'`. Default: the root [`output.defaultBanner`](/docs/5.x/reference/configuration#outputdefaultbanner).
 :::
 
 ::
@@ -238,7 +238,7 @@ Generates only the operations and schemas that match an entry. Default: everythi
 
 ### How filters match
 
-`include`, [`exclude`](#exclude), and [`override`](#override) entries share one shape: a `type`, and mostly a `pattern`. Every type except `schemaName` matches operations.
+`include`, [`exclude`](#exclude), and [`override`](#override) entries share one shape: a `type`, and usually a `pattern`. Every type except `schemaName` matches operations.
 
 | `type` | Tests `pattern` against |
 | --- | --- |
@@ -291,7 +291,7 @@ flowchart LR
 ::field-group
 
 :::field{type="Array<Exclude>"}
-Skips every operation or schema that matches an entry. Entries [match like `include`](#how-filters-match), and `exclude` wins. Default: `[]`.
+Skips every operation or schema that matches an entry. Entries match as in [How filters match](#how-filters-match), and `exclude` wins. Default: `[]`.
 :::
 
 ::
@@ -313,7 +313,7 @@ pluginTs({
 ::field-group
 
 :::field{type="Array<Override>"}
-Gives matching operations or schemas other plugin options. Entries [match like `include`](#how-filters-match), top to bottom, and only the first match applies. Default: `[]`.
+Gives matching operations or schemas other plugin options. Entries match as in [How filters match](#how-filters-match), top to bottom. Only the first match applies. Default: `[]`.
 :::
 
 ::
@@ -354,7 +354,7 @@ Changes how the plugin names generated files and symbols. Members you leave out 
 
 ::
 
-Every resolver has these members, and a plugin's options page lists its own, such as `param` on `@kubb/plugin-ts`. In a method, `this` is the full resolver, so `this.default.name(name)` reuses the built-in casing.
+Every resolver has these members. A plugin's options page lists its own, such as `param` on `@kubb/plugin-ts`. In a method, `this` is the full resolver, so `this.default.name(name)` reuses the built-in casing.
 
 ```typescript [Shared members]
 type ResolverPatch = {
@@ -379,7 +379,7 @@ pluginTs({
 })
 ```
 
-See [Customize resolvers](/docs/5.x/how-to/customize#resolvers) for how a patch layers over the default.
+See [Resolvers](/docs/5.x/how-to/customize#resolvers) for how a patch layers over the default.
 
 ## macros {#macros}
 
@@ -407,7 +407,7 @@ const macroUntagged = defineMacro({
 pluginTs({ macros: [macroUntagged] })
 ```
 
-See [Customize macros](/docs/5.x/how-to/customize#macros) for a walkthrough, and [Macros](/docs/5.x/reference/kit/ast#macros) for callbacks and built-in macros.
+See [Macros](/docs/5.x/how-to/customize#macros) for a walkthrough, and [`ast.macro`](/docs/5.x/reference/kit/ast#macros) for callbacks and built-in macros.
 
 ## Less common cases {#less-common-cases}
 
@@ -422,12 +422,11 @@ When an `include` or `exclude` mixes operation and `schemaName` entries, schemas
 A matching [`override`](#override) entry applies its `options` like this:
 
 - `options` takes any plugin option except `override`.
-- It merges shallowly. An object option such as `enum` replaces the plugin's value whole, so give it every field.
 - An `output` without `mode` reads it from `output.path`.
 
 ### Group folders {#group-folders}
 
-With [`group`](#group-type), the resolver's `groupDir(group, value)` picks each file's folder. See [Resolvers](/docs/5.x/reference/kit/resolvers#auto-injected-resolver-defaults).
+With [`group`](#group-type), the resolver's `groupDir(group, value)` picks each file's folder. See [Built-in members](/docs/5.x/reference/kit/resolvers#auto-injected-resolver-defaults).
 
 | Group | Folder |
 | --- | --- |

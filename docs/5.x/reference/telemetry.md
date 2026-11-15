@@ -13,7 +13,7 @@ navigation:
 
 # Telemetry
 
-The Kubb CLI sends anonymous data about each command run: which command, which plugins and options, how long it took, and whether it succeeded.
+The Kubb CLI sends anonymous data about each run: which command, which plugins and options, how long it took, and whether it succeeded.
 
 > [!IMPORTANT]
 > Telemetry is on by default. Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` or `true` to turn it off.
@@ -89,4 +89,4 @@ Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` or `true`. Kubb then sends
 DO_NOT_TRACK=1 kubb generate
 ```
 
-`DO_NOT_TRACK` follows the [cross-tool convention](https://consoledonottrack.com/).
+`DO_NOT_TRACK` follows [Console Do Not Track](https://consoledonottrack.com/).

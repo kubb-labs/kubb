@@ -13,7 +13,7 @@ navigation:
 
 # Extension registry
 
-The Kubb extension registry lists reviewed plugins, adapters, and parsers, each pinned to one npm version or one GitHub release. The [Kubb CLI](/docs/5.x/reference/commands#extension-commands), Kubb Studio, and kubb.dev read it.
+The Kubb extension registry lists the reviewed plugins, adapters, and parsers that `kubb add` installs, each pinned to one npm version or one GitHub release. The Kubb CLI [extension commands](/docs/5.x/reference/commands#extension-commands), Kubb Studio, and kubb.dev read it.
 
 ```mermaid
 flowchart LR
@@ -60,7 +60,7 @@ type RegistryIndex = {
 }
 ```
 
-A client rejects an index whose `version` is not `1`, skips an entry whose `artifact.kind` it does not know, and ignores unknown keys. See [How the CLI reads the index](#registry-client-rules).
+A client rejects an index whose `version` is not `1`, skips an entry whose `artifact.kind` it does not know, and ignores unknown keys. See [Registry client rules](#registry-client-rules).
 
 ## `GET <base>/<owner>/<slug>.json` {#detail}
 
@@ -90,7 +90,7 @@ type RegistryGuide = {
 > [!WARNING]
 > The Markdown comes from the package author. Render it as untrusted. [Extension docs](/docs/5.x/reference/kit/extension-docs) lists the file rules and the Markdown that renders.
 
-See [How the CLI reads the index](#registry-client-rules) for older registries and older package versions.
+See [Registry client rules](#registry-client-rules) for older registries and older package versions.
 
 ## `RegistryEntry` {#registry-entry}
 
@@ -116,7 +116,7 @@ Timestamps are UTC to the second, such as `2026-10-12T20:00:00Z`. An `artifact` 
 | `npm` | `package`, `version` | `<package>@<version>` |
 | `github` | `package`, `version`, `owner`, `repo`, `tag`, `commit` | `github:<owner>/<repo>#<commit>`, never the tag |
 
-A GitHub artifact is a release of a package at the repository root. `package` is the `name` in its `package.json`, and `tag` names `version`.
+A GitHub artifact is a release of a package at the repository root. `package` is the `name` in its `package.json`. `tag` names `version`.
 
 ## Records
 
