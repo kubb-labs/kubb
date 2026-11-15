@@ -52,11 +52,11 @@ The function gets the CLI context:
 
 | Field | Type | Value |
 | --- | --- | --- |
-| `input` | `string \| undefined` | The `kubb generate <input>` argument, which overrides `config.input` |
-| `watch` | `boolean \| undefined` | `true` in watch mode |
-| `logLevel` | `'silent' \| 'info' \| 'verbose' \| undefined` | The current log level |
-| `reporters` | `Array<ReporterName> \| undefined` | The `--reporter` names, such as `['json']` |
-| `config` | `string \| undefined` | The `--config` value, or `undefined` |
+| `input` | `string \| undefined` | The [`kubb generate <input>`](/docs/5.x/reference/commands/generate#arguments) argument, which overrides [`config.input`](#input) |
+| `watch` | `boolean \| undefined` | `true` in [watch mode](/docs/5.x/reference/commands/generate#watch-mode) |
+| `logLevel` | `'silent' \| 'info' \| 'verbose' \| undefined` | The current [`--log-level`](/docs/5.x/reference/commands/generate#options) |
+| `reporters` | `Array<ReporterName> \| undefined` | The [`--reporter`](/docs/5.x/reference/commands/generate#reporters) names, such as `['json']` |
+| `config` | `string \| undefined` | The [`--config`](/docs/5.x/reference/commands/generate#options) value, or `undefined` |
 
 ### Multiple configurations (array)
 
