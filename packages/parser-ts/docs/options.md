@@ -1,22 +1,18 @@
 # Options
 
-`parserTs` and `parserTsx` accept the same single option, `extension`, which rewrites the import and export extensions the TypeScript parser emits.
+`parserTs()` and `parserTsx()` take one option, `extension`, which sets the extension on the relative imports and exports they write.
 
 ## Options overview
 
 | Option                    | Purpose                                                         | Default         |
 | ------------------------- | --------------------------------------------------------------- | --------------- |
-| [`extension`](#extension) | Rewrite the extensions emitted in `import`/`export` statements. | `{ '.ts': '' }` |
+| [`extension`](#extension) | Extension written on relative `import` and `export` specifiers. | `{ '.ts': '' }` |
 
 ## Option details
 
 ### extension
 
-Rewrites the extensions emitted in relative `import`/`export` statements. Each key is the extension of a generated file, and its value is the extension written on the relative specifiers in that file. `''` drops it, and so does a generated file whose extension has no key. Package specifiers and the on-disk filenames never change.
-
-Use `{ '.ts': '.js' }` to emit `.js` specifiers for ESM output compiled to JavaScript. Use `{ '.ts': '.ts' }` to keep `.ts` specifiers when you run the `.ts` files directly in Node.js or compile them with `rewriteRelativeImportExtensions`.
-
-The same mapping applies to runtime templates a plugin copies into the output, such as the `.kubb/` runtime files of `@kubb/plugin-fetch`. Their top-level `import` and `export … from` statements are rewritten the same way, so the whole output follows one convention.
+Maps the extension of a generated file to the extension its relative specifiers get. `''` drops the extension. Package specifiers and the file names on disk never change.
 
 |          |                          |
 | -------- | ------------------------ |
@@ -24,7 +20,15 @@ The same mapping applies to runtime templates a plugin copies into the output, s
 | Required | `false`                  |
 | Default  | `{ '.ts': '' }`          |
 
-```typescript
-parserTs({ extension: { '.ts': '.js' } }) // import './api.js' instead of './api'
-parserTs({ extension: { '.ts': '.ts' } }) // import './api.ts' instead of './api'
-```
+| Value                     | Writes              | Use it when                                                                                   |
+| ------------------------- | ------------------- | --------------------------------------------------------------------------------------------- |
+| `{ '.ts': '' }` (default) | `import './api'`    | A bundler or `moduleResolution: 'bundler'` resolves the files.                                |
+| `{ '.ts': '.js' }`        | `import './api.js'` | You compile the output to ESM JavaScript.                                                     |
+| `{ '.ts': '.ts' }`        | `import './api.ts'` | Node.js runs the `.ts` files directly, or you compile with `rewriteRelativeImportExtensions`. |
+
+The same map applies to the runtime templates a plugin copies into the output, such as the `.kubb/` files of `@kubb/plugin-fetch`.
+
+> [!NOTE]
+> `parserTsx` reads only its own map. Set the `.tsx` key on it, such as `parserTsx({ extension: { '.tsx': '.js' } })`.
+
+A file whose extension has no key also loses its extension. A relative specifier without an extension stays unchanged.

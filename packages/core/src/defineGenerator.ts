@@ -29,7 +29,8 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
    */
   config: Config
   /**
-   * Absolute path to the current plugin's output directory.
+   * Absolute path to the build's output directory: `config.output.path` resolved against `config.root`.
+   * It is the same for every plugin. A plugin's own `output.path` is relative to it.
    */
   root: string
   /**

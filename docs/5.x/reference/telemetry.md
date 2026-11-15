@@ -1,8 +1,7 @@
 ---
 layout: doc
-title: Telemetry
-description: Learn what anonymous usage data Kubb collects, how to opt out, and
-  how the data improves the tool.
+title: Telemetry - What Kubb sends and how to opt out
+description: What anonymous usage data the Kubb CLI sends, when it sends it, the exact OTLP fields, and how to opt out with DO_NOT_TRACK or KUBB_DISABLE_TELEMETRY.
 outline:
   - 2
   - 3
@@ -14,66 +13,80 @@ navigation:
 
 # Telemetry
 
-The Kubb CLI collects anonymous command, plugin, and performance data.
+The Kubb CLI sends anonymous data about each command run: which command, which plugins and options, how long it took, and whether it succeeded.
 
 > [!IMPORTANT]
-> Telemetry is enabled by default. Disable it any time with the `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` environment variable.
+> Telemetry is on by default. Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` or `true` to turn it off.
+
+## When Kubb sends it
+
+```mermaid
+sequenceDiagram
+  participant U as You
+  participant C as Kubb CLI
+  participant S as Sender process
+  participant O as otlp.kubb.dev
+  U->>C: kubb generate
+  C-->>U: Notice on stderr
+  C->>C: Run the command
+  C->>S: Start detached, pass the payload
+  C-->>U: Exit
+  S->>O: POST /v1/traces
+```
+
+A detached process sends the request, so the CLI exits without waiting. The request fails silently after 5 seconds, so an offline machine never interrupts a run.
+
+| Command | Sends one event |
+| --- | --- |
+| `kubb generate` | Per config, when that config finishes or fails |
+| `kubb validate` | When validation finishes or fails |
+| `kubb mcp` | When an MCP client connects, or when the server fails to start |
+| `kubb studio` | When the Studio command finishes or fails |
+
+Each command prints a telemetry notice to stderr when it starts. `--help`, `-h`, `--version`, `-v`, and `--json` skip it.
 
 ## What is collected
 
-Telemetry includes these fields:
+Each event is an [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) trace with one span, sent as JSON to `https://otlp.kubb.dev/v1/traces`. The span carries the command as its name, the run's start and end times, an OK or error status, and random trace and span ids.
 
-| Field            | Description                                                                             | Example                                                                   |
-| ---------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `command`        | CLI command that was run                                                                | `"generate"`, `"validate"`, `"mcp"`, `"studio"`                           |
-| `kubbVersion`    | Kubb CLI version                                                                        | `"5.0.0"`                                                                 |
-| `nodeVersion`    | Node.js major version                                                                   | `"22"`                                                                    |
-| `runtime`        | JavaScript runtime name                                                                 | `"node"`, `"bun"`, `"deno"`                                               |
-| `runtimeVersion` | Runtime major version                                                                   | `"22"`                                                                    |
-| `platform`       | Operating system                                                                        | `"linux"`, `"darwin"`, `"win32"`                                          |
-| `ci`             | Whether running in CI                                                                   | `true`                                                                    |
-| `tty`            | Whether a terminal is attached to stdin, which usually means a person typed the command | `true`                                                                    |
-| `agent`          | Name of the AI coding agent that ran the command, if any                                | `"claude"`                                                                |
-| `mcpClient`      | Name the MCP client reports when it connects (only for `mcp`)                           | `"claude-code"`, `"cursor-vscode"`                                        |
-| `plugins`        | Plugin names and the options passed to each plugin (only for `generate`)                | `[{ "name": "plugin-ts", "options": { "output": { "path": "types" } } }]` |
-| `duration`       | Command execution time in milliseconds                                                  | `1432`                                                                    |
-| `filesCreated`   | Number of files generated (only for `generate`)                                         | `47`                                                                      |
-| `status`         | Whether the command succeeded or failed                                                 | `"success"`                                                               |
+| Span attribute | Value | Example |
+| --- | --- | --- |
+| `kubb.command` | The command | `"generate"` |
+| `kubb.version` | The Kubb CLI version | `"5.0.0"` |
+| `kubb.node_version` | The Node.js major version | `"22"` |
+| `kubb.runtime` | The JavaScript runtime | `"node"`, `"bun"`, `"deno"` |
+| `kubb.runtime_version` | The runtime major version | `"22"` |
+| `kubb.platform` | The operating system | `"linux"`, `"darwin"`, `"win32"` |
+| `kubb.ci` | Whether the run is in CI | `true` |
+| `kubb.tty` | Whether stdin is a terminal, which usually means a person typed the command | `true` |
+| `kubb.agent` | The AI coding agent that ran the command, when Kubb detects one | `"claude"` |
+| `kubb.mcp_client` | The name the MCP client reports, up to 64 characters. `kubb mcp` only. | `"claude-code"` |
+| `kubb.files_created` | Files generated. `0` outside `kubb generate`. | `47` |
+| `kubb.status` | The outcome | `"success"`, `"failed"` |
+| `kubb.plugins` | The plugin names, sorted | `["plugin-ts", "plugin-zod"]` |
+| `kubb.plugin.<name>` | `true` for each plugin, such as `kubb.plugin.plugin-ts` | `true` |
+| `kubb.plugin_options` | Each plugin's `name` and its options as a JSON string | `{ "name": "plugin-ts", "options": "{\"output\":{\"path\":\"types\"}}" }` |
 
-Plugin options are sent as the JSON form of what the config passes to each plugin. Values such as `output.path`, `importPath`, `baseURL`, and a string `banner` are included. Functions are dropped.
+The resource attributes are `service.name: "kubb"`, `service.version` (the Kubb version), and `telemetry.sdk.language: "nodejs"`. The request carries the headers `Kubb-Telemetry-Version: 1` and `Kubb-Telemetry-Source: kubb-cli`.
 
-### Commands that send telemetry
-
-| Command         | Description                                                         |
-| --------------- | ------------------------------------------------------------------- |
-| `kubb generate` | Sent after code generation completes or fails                       |
-| `kubb validate` | Sent after OpenAPI validation completes or fails                    |
-| `kubb mcp`      | Sent when an MCP client connects, or when the server fails to start |
-| `kubb studio`   | Sent after a Studio command completes or fails                      |
+> [!WARNING]
+> `kubb.plugin_options` holds the JSON form of every option value your config passes to a plugin, without functions. That includes values that name your project, such as `output.path`, `importPath`, `baseURL`, or a string `banner`. It also includes a secret in a plugin option, whether `kubb.config.ts` writes it as a literal or reads it from `process.env`.
 
 ## What is not collected
 
-Kubb never sends:
-
-- OpenAPI specification contents
+- The spec contents
 - The input path, the project root, or the names of generated files
 - Source code or generated code
-- User identifiers
+- A user, machine, or project identifier
 
-Kubb does not read environment variables or credential files for telemetry. A secret reaches the payload only when a plugin option in `kubb.config.ts` holds it as a literal value.
+Kubb does not read environment variables or credential files for telemetry.
 
 ## How to opt out
 
-Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` or `true`:
+Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` or `true`. Kubb then sends nothing and prints no notice.
 
 ```shell [Terminal]
 DO_NOT_TRACK=1 kubb generate
 ```
 
 `DO_NOT_TRACK` follows the [cross-tool convention](https://consoledonottrack.com/).
-
-## Data transmission
-
-Telemetry is formatted as [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) traces. Kubb sends them to `https://otlp.kubb.dev/v1/traces` at the end of each command. The request times out after 1 second and fails silently, so an offline machine or a blocked host never interrupts a run.
-
-Unless telemetry is disabled, the CLI prints a notice about it to stderr at the start of a command. `--help`, `--version`, and `--json` skip the notice.

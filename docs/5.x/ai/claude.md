@@ -1,8 +1,7 @@
 ---
 layout: doc
 title: Set up the Claude Code plugin
-description: The Kubb Claude Code plugin adds slash commands and an agent that
-  run Kubb code generation from inside Claude Code.
+description: Install the Kubb Claude Code plugin to get /kubb slash commands, the kubb-expert agent, two skills, and the Kubb MCP server in Claude Code.
 outline:
   - 2
   - 3
@@ -14,67 +13,61 @@ navigation:
 
 # Set up the Claude Code plugin
 
-Kubb ships a [Claude Code](https://code.claude.com) plugin. It adds slash commands and an agent
-that generate code from an OpenAPI spec. The commands run the `kubb` CLI, so a build you start in
-the chat matches the one you run in a terminal.
+The Kubb plugin for [Claude Code](https://code.claude.com) adds slash commands, an agent, two skills, and the Kubb MCP server. The commands run the `kubb` CLI, so a build from the chat matches one from the terminal.
 
-## Install
+::steps{level="2"}
 
-The Kubb repository is also a plugin marketplace. Add it, then install the plugin:
+## Install the plugin
+
+Add the Kubb repository as a plugin marketplace, then install the plugin:
 
 ```shell [Terminal]
 /plugin marketplace add kubb-labs/kubb
 /plugin install kubb@kubb
 ```
 
-The commands run `npx kubb`, so install Kubb yourself, either in the project or globally:
+## Install Kubb
+
+The commands run `npx kubb`, so install Kubb in the project or globally:
 
 ```shell [Terminal]
 npm install -D kubb
 ```
 
-A `SessionStart` hook checks for `kubb` at session start and warns you if it's missing, but it
-never installs anything for you.
+A `SessionStart` hook warns you when `kubb` is missing. It never installs anything.
 
-`kubb init` installs the `@kubb/plugin-*` packages you select.
+::
 
 ## Commands
 
-The commands mirror the Kubb CLI, namespaced under `kubb:`.
-
-| Command | What it does |
+| Command | Runs |
 | --- | --- |
-| `/kubb:init [input] [output] [plugins]` | Scaffold `kubb.config.ts` and install plugins with `kubb init`. |
-| `/kubb:generate [input]` | Run `kubb generate` and report what changed. |
-| `/kubb:validate <spec>` | Validate an OpenAPI or Swagger spec with `kubb validate`. |
+| `/kubb:init [input] [output] [plugins]` | [`kubb init`](/docs/5.x/reference/commands/init) with `--yes`, to write `kubb.config.ts` and install the plugins. |
+| `/kubb:generate [input]` | [`kubb generate`](/docs/5.x/reference/commands/generate), then reports what changed. |
+| `/kubb:validate <spec>` | [`kubb validate`](/docs/5.x/reference/commands/validate) on an OpenAPI or Swagger spec. |
 
-A typical first run:
+A first run:
 
-```text [Terminal]
+```text [Claude Code]
 /kubb:validate ./petStore.yaml
 /kubb:init ./petStore.yaml ./src/gen plugin-ts,plugin-axios,plugin-zod,plugin-react-query
 /kubb:generate
 ```
 
-## Agent
+## Agent and skills
 
-The `kubb-expert` agent handles "add Kubb to my project" from start to finish. It validates the
-spec, picks plugins, scaffolds the config, and runs generation.
+The `kubb-expert` agent handles "add Kubb to my project": it validates the spec, picks plugins, scaffolds the config, and runs generation. Two skills load on their own:
 
-## Skills
-
-Two skills load on their own when the work calls for them, so you never invoke them directly.
-
-| Skill | When it loads |
+| Skill | Loads when you |
 | --- | --- |
-| `config` | Authoring a `kubb.config.ts`, picking `@kubb/plugin-*` packages, or debugging generated output. |
-| `output` | Writing app or test code that imports the generated types, clients, hooks, schemas, and mocks. |
+| `config` | Write a `kubb.config.ts`, pick `@kubb/plugin-*` packages, or debug generated output. |
+| `output` | Write app or test code that imports the generated types, clients, hooks, schemas, and mocks. |
 
-## Conversational generation
+## Generate from a conversation
 
-The plugin also registers the Kubb MCP server (`kubb mcp`). Describe what you want instead of
-typing a command. Claude then calls the server's `validate` and `generate` tools, or runs the
-matching `/kubb:` command, and both produce the same files.
+The plugin registers the Kubb MCP server (`npx kubb mcp`). Describe what you want, and Claude calls the server's [tools](/docs/5.x/reference/commands/mcp#tools) or runs the matching `/kubb:` command. Start Claude Code from your project root, so the server finds your `kubb.config.ts`.
 
-Start Claude Code from your project root, so the server finds your `kubb.config.ts`. See
-[MCP](/docs/5.x/ai/mcp) for the tools and for other clients.
+> [!NOTE]
+> When `kubb.config.ts` exports an array, the MCP [`generate`](/docs/5.x/reference/commands/mcp#generate) tool runs only its first config. The `/kubb:generate` command runs them all.
+
+[Set up the MCP server](/docs/5.x/ai/mcp) covers other clients.

@@ -1,14 +1,17 @@
 ---
 layout: doc
-title: Ecosystem
-description: Discover projects built with Kubb, articles featuring Kubb, and community resources. See how developers use Kubb for OpenAPI code generation.
+title: Kubb ecosystem - Projects, articles, and tutorials
+description: Projects built with Kubb, articles and tutorials about Kubb, and the ecosystem lists that include it.
 outline: [2, 3]
-order: 1
+order: 3
+navigation:
+  title: Ecosystem
+  icon: i-iconoir-globe
 ---
 
 # Ecosystem
 
-These projects and articles come from the Kubb community.
+Projects and articles from the Kubb community.
 
 ## Production projects
 
@@ -37,7 +40,7 @@ Generates OpenAPI SDKs with Kubb.
 ::card-group
 
 :::card{title="API Consumption with OpenAPI and Typed Code" to="https://www.rocketseat.com.br/blog/artigos/post/consumo-apis-openapi-codigo-tipado"}
-RocketSeat covers front-end API consumption with Kubb.
+RocketSeat on front-end API consumption with Kubb.
 :::
 
 :::card{title="OpenAPI to Frontend" to="https://apisyouwonthate.com/newsletter/openapi-to-frontend/"}
@@ -45,7 +48,7 @@ APIs You Won't Hate uses OpenAPI specs for frontend work.
 :::
 
 :::card{title="Securing Auth0 API Calls in Next.js" to="https://medium.com/@laxman.pokhrel.101/from-headache-to-harmony-securing-auth0-api-calls-in-next-js-54fc117bfb92"}
-A Medium post that combines Kubb, Axios, and the Next.js App Router.
+Combines Kubb, Axios, and the Next.js App Router.
 :::
 
 ::
@@ -57,4 +60,4 @@ A Medium post that combines Kubb, Axios, and the Next.js App Router.
 
 ## Community
 
-Ask questions on [Discord](https://discord.gg/shfBFeczrm). Built something with Kubb? Share it on [GitHub Discussions](https://github.com/kubb-labs/kubb/discussions) and we will add it here.
+Built something with Kubb? Share it on [GitHub Discussions](https://github.com/kubb-labs/kubb/discussions) and we will add it here.

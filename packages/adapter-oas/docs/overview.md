@@ -1,29 +1,35 @@
 # OpenAPI
 
-The OpenAPI adapter is the first step of every build. It converts your spec into Kubb's AST, and every plugin generates code from that AST, so the adapter's options apply to all of them.
+The OpenAPI adapter reads an OpenAPI 2.0, 3.0, 3.1, or 3.2 spec and converts it into the AST that every plugin generates code from.
 
-The adapter downloads a remote `input` URL and any remote `$ref`s with a plain GET request, without credentials. It also reads the local files that external `$ref`s point to, even outside the spec's folder, and never writes files.
+- It is the first step of every build, so its options apply to all plugins.
+- It downloads a remote `input` URL and any remote `$ref` with a plain GET request, without credentials.
+- It reads the local files that external `$ref`s point to, even outside the spec's folder, unless the host limits them, as a Kubb Studio agent does. See [External refs](https://kubb.dev/docs/5.x/reference/configuration#external-refs). It never writes files.
 
 ## Setup
 
-Kubb uses `adapterOas()` by default, so no setup is needed. Set `adapter` in `defineConfig` only to change its options.
+No setup is needed. `defineConfig` uses `adapterOas()` by default. Set `adapter` only to change its options.
 
 ## Options worth knowing
 
-- `validate` checks the spec before parsing and reports each problem as a warning. Turn it off to speed up a large spec. Run `kubb validate` to list every error.
-- `dateType` sets how `date-time`, `date`, and `time` schemas are typed. Choose ISO strings (the default), `date-time` strings with or without a timezone offset, or JavaScript `Date` objects. Pass an object to set each format on its own.
-- `integerType` sets how `int64` and `uint64` schemas are typed. The default `'bigint'` is exact for 64-bit IDs but does not survive `JSON.stringify`. Choose `'number'` for most JSON APIs.
-- `unknownType` sets the type for open map values and parameters without a schema. `emptySchemaType` sets the type for empty schemas (`{}`) and schemas without a `type`.
-- `discriminator: 'propagate'` writes the discriminator's literal value into each child schema, so a child is narrowed when used on its own.
-- `enums: 'root'` lifts inline enums to top-level schemas, named with `enumSuffix` (`PetStatusEnum`).
-- `server` picks the entry in the spec's `servers` array that becomes the base URL and fills in its variables. It does not change where a generated client sends requests. Use the client plugin's own `baseURL` for that.
-- `contentType` picks one media type when an operation declares several. Without it, Kubb keeps every media type the operation declares.
+| Option                                                                                           | Default          | What it does                                                                                                     |
+| ------------------------------------------------------------------------------------------------ | ---------------- | ---------------------------------------------------------------------------------------------------------------- |
+| [`validate`](https://kubb.dev/extensions/kubb-labs/adapter-oas/options#validate)                 | `true`           | Checks the spec and reports each problem as a warning. Turn it off to speed up a large spec.                     |
+| [`dateType`](https://kubb.dev/extensions/kubb-labs/adapter-oas/options#datetype)                 | `'string'`       | Types `date-time`, `date`, and `time` as strings or as `Date` objects.                                           |
+| [`integerType`](https://kubb.dev/extensions/kubb-labs/adapter-oas/options#integertype)           | `'bigint'`       | Types `int64` and `uint64` as `bigint` or `number`. Choose `'number'` for most JSON APIs.                        |
+| [`enums`](https://kubb.dev/extensions/kubb-labs/adapter-oas/options#enums)                       | `'inline'`       | `'root'` lifts inline enums to top-level schemas, such as `PetStatusEnum`.                                       |
+| [`discriminator`](https://kubb.dev/extensions/kubb-labs/adapter-oas/options#discriminator)       | `'preserve'`     | `'propagate'` writes the discriminator value into each child schema.                                             |
+| [`pathParamsCasing`](https://kubb.dev/extensions/kubb-labs/adapter-oas/options#pathparamscasing) | None             | `'camelcase'` renames path parameters, such as `{pet-id}` to `petId`.                                            |
+| [`server`](https://kubb.dev/extensions/kubb-labs/adapter-oas/options#server)                     | None             | Picks the `servers` entry that becomes the document `baseURL`. It does not change where a client sends requests. |
+| [`contentType`](https://kubb.dev/extensions/kubb-labs/adapter-oas/options#contenttype)           | Every media type | Keeps one media type when an operation declares several.                                                         |
 
-See [Options](https://kubb.dev/extensions/kubb-labs/adapter-oas/options) for every option and its default.
+Run [`kubb validate`](https://kubb.dev/docs/5.x/reference/commands/validate) to list every spec error.
 
 ## Example
 
-The config below types dates as `Date` objects and 64-bit integers as numbers.
+This config types dates as `Date` objects and 64-bit integers as numbers, so `@kubb/plugin-ts` writes this `Order` type:
+
+::code-group
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -34,8 +40,19 @@ export default defineConfig({
   input: './petStore.yaml',
   output: { path: './src/gen' },
   adapter: adapterOas({ dateType: 'date', integerType: 'number' }),
-  plugins: [
-    pluginTs(),
-  ],
+  plugins: [pluginTs()],
 })
 ```
+
+```typescript [src/gen/types/Order.ts]
+// excerpt, without JSDoc
+export type Order = {
+  id?: number // int64, `bigint` by default
+  petId?: number
+  quantity?: number // int32
+  shipDate?: Date // date-time, `string` by default
+  complete?: boolean
+}
+```
+
+::

@@ -1,10 +1,7 @@
 ---
 layout: doc
-title: Extensions
-description: defineExtension defines a plugin, an adapter, or a parser in
-  kubb/kit. Covers kind, ExtensionMeta, compatibility ranges, plugin
-  dependencies with version ranges, and the kind and meta that every extension
-  factory carries.
+title: defineExtension - Plugins, adapters, and parsers
+description: defineExtension in kubb/kit defines a plugin, adapter, or parser. Covers meta, compatibility checks, plugin dependencies, and factory statics.
 outline:
   - 2
   - 3
@@ -16,33 +13,28 @@ navigation:
 
 # Extensions
 
-Plugins, adapters, and parsers are all extensions. `defineExtension` takes a definition object with a `kind` and `meta`, and returns a factory that the config calls with the user's options. The fields on this page work the same for every kind.
+Plugins, adapters, and parsers are extensions. `defineExtension` from `kubb/kit` takes a definition object and returns a factory. The config calls that factory with the user's options.
 
 ## `defineExtension` {#define-extension}
 
-`kind` picks what the definition defines, and the other fields follow that kind:
+`kind` picks what the definition defines. The other fields follow from it:
 
-| `kind`      | Defines                                          | Other fields                                  | Reference                |
-| ----------- | ------------------------------------------------ | --------------------------------------------- | ------------------------ |
-| `'plugin'`  | A plugin that generates code from the AST.      | `setup`, `dependencies`, `enforce`, `hooks`   | [Plugins](./plugins)     |
-| `'adapter'` | An adapter that reads the input into the AST.   | `setup`, `build`                              | [Adapters](./adapters)   |
-| `'parser'`  | A parser that prints files to source text.      | `build`                                       | [Parsers](./parsers)     |
-
-```typescript [plugin-example.ts]
-import { defineExtension } from 'kubb/kit'
-
-export const pluginExample = defineExtension({
-  kind: 'plugin',
-  meta: { name: 'plugin-example' },
-})
-```
+|                    | Plugin                                                   | Adapter                                                         | Parser                                                                       |
+| ------------------ | -------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `kind`             | `'plugin'`                                               | `'adapter'`                                                     | `'parser'`                                                                   |
+| Config field       | `plugins`                                                | `adapter`                                                       | `parsers`                                                                    |
+| Definition fields  | `meta`, `setup`, `dependencies`, `enforce`, `hooks`      | `meta`, `setup`, `build`                                        | `meta`, `build`                                                              |
+| Receives           | The user's options and the [setup context](/docs/5.x/reference/kit/plugins#setup-context) | `setup` gets the user's options. `build` gets what `setup` returns. | The user's options, or `{}`                                                  |
+| Returns            | The resolved options, from `setup`                       | The document and its methods, from `build`                      | The parser methods, from `build`                                             |
+| Runs               | Once per build, after the adapter                         | First                                                           | Last, as Kubb writes each file                                               |
+| Details            | [Plugins](/docs/5.x/reference/kit/plugins)                                      | [Adapters](/docs/5.x/reference/kit/adapters)                                           | [Parsers](/docs/5.x/reference/kit/parsers)                                                          |
 
 > [!WARNING]
-> `definePlugin`, `defineParser`, and `createAdapter` are deprecated. Each takes the same definition object as `defineExtension`, without `kind`. Pass the object to `defineExtension` and add `kind: 'plugin'`, `'parser'`, or `'adapter'`.
+> `definePlugin`, `createAdapter`, and `defineParser` are deprecated. Call `defineExtension` with the same object and add `kind`.
 
 ## `meta` {#meta}
 
-`meta` holds the extension's identity and the Kubb and Node.js versions it supports. Kubb reads `name` and `compatibility` at runtime. Studio, the kubb.dev registry, and the docs read the rest.
+`meta` holds the extension's identity. Kubb reads `name` and `compatibility` at runtime. Studio, the registry, and kubb.dev read the rest.
 
 ```typescript [plugin-example.ts]
 import { defineExtension } from 'kubb/kit'
@@ -59,37 +51,29 @@ export const pluginExample = defineExtension({
 })
 ```
 
-| Property        | Type                                | Description |
-| --------------- | ----------------------------------- | ----------- |
-| `name`          | `string`                            | Unique name. The plugin's or parser's own `name` is deprecated in favor of it, and optional when `meta.name` is set. Required. |
-| `version`       | `string`                            | Package version. Plugins that depend on this one check their `version` range against it. |
-| `displayName`   | `string`                            | Human-readable name, such as `'TypeScript'`. |
-| `description`   | `string`                            | One-sentence summary of what the extension generates or does. |
-| `category`      | `string`                            | Registry category, such as `'types'` or `'client'`. |
-| `icon`          | `{ light: string; dark?: string }`  | Icon URLs, with an optional variant for dark backgrounds. |
-| `media`         | `Array<string>`                     | Screenshots or videos, as HTTPS URLs. |
-| `tags`          | `Array<string>`                     | Search keywords for the registry. |
-| `compatibility` | `{ kubb?: string; node?: string }`  | Semver ranges for `@kubb/core` and Node.js. |
-| `docs`          | `string`                            | URL of the extension's docs page. |
-| `issues`        | `string`                            | URL of the extension's issue tracker. When the extension crashes, Kubb prints it as the `report:` link, so users report the bug to you instead of to Kubb. |
+| Field           | Type                               | Description                                                                                                       |
+| --------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `name`          | `string`                           | Required. Unique name, such as `'plugin-ts'`.                                                                     |
+| `version`       | `string`                           | Package version. [Dependents](#dependencies) check their range against it.                                        |
+| `displayName`   | `string`                           | Human-readable name, such as `'TypeScript'`.                                                                      |
+| `description`   | `string`                           | One sentence on what the extension generates or does.                                                             |
+| `category`      | `string`                           | Registry category, such as `'types'` or `'client'`.                                                               |
+| `icon`          | `{ light: string; dark?: string }` | Icon URLs for light and dark backgrounds.                                                                         |
+| `media`         | `Array<string>`                    | Screenshots or videos, as HTTPS URLs.                                                                             |
+| `tags`          | `Array<string>`                    | Search keywords for the registry.                                                                                 |
+| `compatibility` | `{ kubb?: string; node?: string }` | Semver ranges for `@kubb/core` and Node.js. See [Compatibility checks](#compatibility-checks).                    |
+| `docs`          | `string`                           | URL of the extension's docs page.                                                                                 |
+| `issues`        | `string`                           | Issue tracker URL. Kubb prints it as the `report:` link when the extension crashes.                               |
 
-Read `version` from your `package.json` so it stays in sync with what you publish:
-
-```typescript
-import { version } from '../package.json'
-```
-
-A named import from JSON needs a bundler, such as tsdown, that inlines it. With plain `tsc` and `"module": "NodeNext"`, write the version in `meta` instead.
-
-A package that ships a [`kubb-extension.json`](./manifest) imports `compatibility` from it, so the ranges live in one file. See [Import `compatibility` into `meta`](./manifest#import-compatibility-into-meta).
+Import `version` from `package.json` and `compatibility` [from `kubb-extension.json`](/docs/5.x/reference/kit/manifest#import-compatibility-into-meta), so each lives in one file. Named JSON imports need a bundler that inlines them, such as tsdown.
 
 ### Compatibility checks
 
-Before any plugin runs, Kubb checks the `meta.compatibility` of the adapter and of each parser and plugin against the running `@kubb/core` and Node.js versions. A mismatch fails the run with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension), which names the extension and the version that is running. Kubb compares prerelease versions like regular ones.
+Before any plugin runs, Kubb checks each extension's `meta.compatibility` against the running `@kubb/core` and Node.js. A mismatch fails with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension). See [Compatibility ranges](#compatibility-ranges) for prereleases and canary builds.
 
 ## `dependencies` {#dependencies}
 
-A plugin's `dependencies` lists the plugins it builds on, keyed by name. They run first when the config has them. Each entry decides what happens when a plugin is missing or has the wrong version:
+Plugins only. `dependencies` lists the plugins this one builds on, keyed by `meta.name`. Kubb runs them first.
 
 ```typescript [plugin-example.ts]
 import { defineExtension } from 'kubb/kit'
@@ -104,17 +88,21 @@ export const pluginExample = defineExtension({
 })
 ```
 
-| Entry field | Type      | Description |
-| ----------- | --------- | ----------- |
-| `version`   | `string`  | Semver range the dependency's `meta.version` must satisfy. Kubb skips the check when the dependency has no `meta.version`. |
-| `optional`  | `boolean` | When `true`, a missing plugin is skipped. An installed one still has its `version` checked. |
+| Entry field | Type      | Description                                                                                                  |
+| ----------- | --------- | ------------------------------------------------------------------------------------------------------------ |
+| `version`   | `string`  | Semver range the dependency's `meta.version` must satisfy. Skipped when it has no `meta.version`.            |
+| `optional`  | `boolean` | When `true`, a missing plugin is skipped. An installed one still gets its `version` checked.                  |
 
 Kubb checks the record before any plugin runs:
 
-- A missing entry without `optional: true` fails with [`KUBB_MISSING_DEPENDENCY`](/docs/5.x/reference/diagnostics#kubb-missing-dependency).
-- A `meta.version` outside the `version` range fails with [`KUBB_INCOMPATIBLE_DEPENDENCY`](/docs/5.x/reference/diagnostics#kubb-incompatible-dependency).
+| Problem                                       | Result                                                                                                        |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| A required entry is missing from the config   | Fails with [`KUBB_MISSING_DEPENDENCY`](/docs/5.x/reference/diagnostics#kubb-missing-dependency)                |
+| An `optional: true` entry is missing          | Skipped                                                                                                       |
+| A `meta.version` is outside the entry's range | Fails with [`KUBB_INCOMPATIBLE_DEPENDENCY`](/docs/5.x/reference/diagnostics#kubb-incompatible-dependency)      |
+| The dependencies form a cycle                 | Fails with [`KUBB_INVALID_PLUGIN_OPTIONS`](/docs/5.x/reference/diagnostics#kubb-invalid-plugin-options)        |
 
-When a dependency depends on the user's options, pass a function. The function receives the options and `{ config }`, and returns the record:
+To pick dependencies from the user's options, pass a function. It receives the options and `{ config }`:
 
 ```typescript [plugin-example.ts]
 import { defineExtension, type PluginType } from 'kubb/kit'
@@ -131,16 +119,44 @@ export const pluginExample = defineExtension<PluginExample>({
 })
 ```
 
-> [!NOTE]
-> An array, such as `dependencies: ['plugin-ts']`, still works. It only orders plugins, so a missing one is skipped and versions are not checked.
+See [Array dependencies](#array-dependencies) for the older array form.
 
-## Factory statics
+## Factory statics {#factory-statics}
 
-Every factory `defineExtension` returns carries `kind` (`'plugin'`, `'adapter'`, or `'parser'`) and `meta`. Tools read an extension's metadata from them without calling the factory or knowing its options:
+Every factory carries `kind` and `meta`, so tools read them without calling it:
 
 ```typescript
 pluginExample.kind // 'plugin'
 pluginExample.meta.name // 'plugin-example'
 ```
 
-Factories from the deprecated `definePlugin`, `defineParser`, and `createAdapter` carry the same `kind` and `meta`. A hand-written plugin or parser object that sets only the deprecated `name` gets `meta: { name }` at runtime.
+The extension the factory returns gets `name` (from `meta.name`), `meta`, and the user's raw `options`. See [Hand-written extension objects](#hand-written-extensions).
+
+## Less common cases {#less-common-cases}
+
+### Compatibility ranges {#compatibility-ranges}
+
+When a run fails with [`KUBB_INCOMPATIBLE_EXTENSION`](/docs/5.x/reference/diagnostics#kubb-incompatible-extension), an extension's `meta.compatibility` does not match the running `@kubb/core` or Node.js.
+
+- Before any plugin runs, Kubb checks the `meta.compatibility` of the adapter, every parser, and every plugin.
+- `kubb add` checks it before it installs.
+- Prereleases compare like releases.
+- A canary build (`0.0.0-canary-*`) skips the `kubb` range.
+
+### Array dependencies {#array-dependencies}
+
+When a plugin declares [`dependencies`](#dependencies) as an array, such as `dependencies: ['plugin-ts']`, the array still works but only orders plugins.
+
+| Form | A missing plugin | Versions |
+| --- | --- | --- |
+| An array of plugin names | Skipped. It never raises `KUBB_MISSING_DEPENDENCY`. | Not checked |
+| A record keyed by plugin name | A missing required plugin fails the run before any plugin runs. | Out of range fails the run before any plugin runs. A dependency without `meta.version` is not checked. |
+
+Both forms set the order. Use the record form to fail early when a required plugin is missing or out of range.
+
+### Hand-written extensions {#hand-written-extensions}
+
+When you write a plugin or parser object by hand instead of calling a factory, Kubb fills in `meta` only from the deprecated `name`.
+
+- An object with only the deprecated `name` gets `meta: { name }`.
+- An object with neither `name` nor `meta` fails with [`KUBB_INVALID_PLUGIN_OPTIONS`](/docs/5.x/reference/diagnostics#kubb-invalid-plugin-options).

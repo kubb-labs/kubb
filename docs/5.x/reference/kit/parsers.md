@@ -1,10 +1,7 @@
 ---
 layout: doc
-title: Parsers
-description: defineExtension with kind parser defines a parser from one object
-  with meta and a build function. A parser converts a generated file AST into
-  the source string written to disk. Covers the Parser interface and adding
-  your own.
+title: Parsers - Print generated files as source code
+description: Define a Kubb parser with defineExtension and kind parser. It turns the AST of a generated file into the source written to disk.
 outline:
   - 2
   - 3
@@ -16,14 +13,10 @@ navigation:
 
 # Parsers
 
-A parser turns a `FileNode` into source code.
+A parser turns a `FileNode` into the source text Kubb writes. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'parser'`. `build` gets the user's options and returns the parser methods. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work as for every extension.
 
 > [!TIP]
-> For TypeScript and JavaScript output, use the built-in [`@kubb/parser-ts`](/extensions/kubb-labs/parser-ts). `defineConfig` from the `kubb` package adds it when the config sets no `parsers`. Build a custom parser only for a different language, such as Python, Kotlin, or Rust.
-
-## `defineExtension`
-
-`defineExtension` with `kind: 'parser'` takes a definition object and returns a factory. `build` receives the caller's options, or an empty object when omitted, and returns the parser methods. Declare the file extensions the parser handles with `extNames`:
+> For TypeScript and JavaScript output, use [`@kubb/parser-ts`](/extensions/kubb-labs/parser-ts). When the config sets no `parsers`, `defineConfig` adds `parserTs()`, `parserTsx()`, and `parserMd()`. Write your own only for another language, such as Python, Kotlin, or Rust.
 
 ```typescript [parserText.ts]
 import { defineExtension } from 'kubb/kit'
@@ -48,57 +41,51 @@ export const parserText = defineExtension({
 })
 ```
 
-The parser's `name` comes from `meta.name`. Kubb checks `meta.compatibility` before the build, the same way it does for plugins. See [Extensions](./extensions).
-
-Add the parser to the config. A `parsers` array replaces the default parsers, so list `parserTs()` and `parserTsx()` again to keep TypeScript output:
+> [!WARNING]
+> A non-empty `parsers` array replaces the defaults, and an empty one keeps them. List the defaults again to keep TypeScript and Markdown output.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
+import { parserMd } from '@kubb/parser-md'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { parserText } from './parserText.ts'
 
 export default defineConfig({
   input: './petStore.yaml',
   output: { path: './src/gen' },
-  parsers: [parserTs(), parserTsx(), parserText()],
+  parsers: [parserTs(), parserTsx(), parserMd(), parserText()],
 })
 ```
 
-### `defineParser` (deprecated)
+`build` returns these members:
 
-> [!WARNING]
-> `defineParser` is deprecated. Use `defineExtension` with `kind: 'parser'` instead.
+| Member     | Type                                               | Required | Called                              | Purpose                                                                                                                                         |
+| ---------- | -------------------------------------------------- | -------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `extNames` | `Array<FileNode['extname']> \| undefined`          | Yes      |                                     | The file extensions this parser handles. With `undefined`, `parse` never runs.                                                                |
+| `parse`    | `(file: FileNode) => string`                       | Yes      | After every plugin, once per file   | Prints the file's sources. Must be synchronous.                                                                                                 |
+| `print`    | `(...nodes: TNode[]) => string`                    | Yes      | By plugins, while they generate     | Prints compiler AST nodes, such as `ts.Node` for `parserTs`.                                                                                    |
+| `inline`   | `InlineLanguage`                                   | No       | Before barrels, for inline sources  | Lets files of this parser absorb inline sources. `parserTs` has it. See [Inline sources](/docs/5.x/reference/jsx#inline-sources). |
+| `copy`     | `(file: FileNode, source: string) => UserFileNode` | No       | For each `copy` file                | Describes a copied template as nodes, such as its imports as `ImportNode`s, for `parse` to print. Without it, Kubb copies the file as is. |
 
-`defineParser` takes the same definition object as `defineExtension`, without `kind`. To migrate, rename the call and add `kind: 'parser'`. See [Extensions](./extensions#define-extension).
+See [Parser selection](#parser-selection) for duplicate extensions and files no parser handles.
 
-## Parser anatomy
+## Parser naming {#parser-naming}
 
-Every parser the factory returns matches the `Parser` interface from [`kubb/kit`](/docs/5.x/reference/kit). `build` returns every field except `name`, `meta`, and `options`, which the factory fills:
+| Surface        | Pattern                                          | Example                      |
+| -------------- | ------------------------------------------------ | ---------------------------- |
+| npm package    | `@<scope>/parser-<name>` or `kubb-parser-<name>` | `@kubb/parser-ts`            |
+| `meta.name`    | The output language or format, in lowercase      | `'typescript'`, `'markdown'` |
+| Factory export | `parser<Name>`                                   | `parserTs`, `parserMd`       |
 
-| Property   | Type                                               | Required | When called                           | Purpose                                                                                                                                                                                                          |
-| ---------- | -------------------------------------------------- | -------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`     | `string`                                           | Yes      |                                       | Unique parser identifier, filled from `meta.name`. Use the output language or format, such as `'typescript'`.                                                                                                    |
-| `extNames` | `Array<FileNode['extname']> \| undefined`          | Yes      |                                       | File extensions this parser handles. Kubb registers the parser for each one. A parser with `undefined` here is registered for no extension, so `parse` is never called for it. |
-| `parse`    | `(file: FileNode) => string`                       | Yes      | After all plugins run                 | Serializes the file's sources into the final output string. Must return synchronously.                                                                                                                           |
-| `print`    | `(...nodes: TNode[]) => string`                    | Yes      | By plugins, while they generate files | Renders compiler AST nodes to source text. The node type is parser-specific, for example `ts.Node` for `parserTs`.                                                                                               |
-| `inline`   | `InlineLanguage`                                   | No       | Before barrels, for inline sources    | Finds the names in this language (`replaceIdentifiers`) and makes a definition safe to put where a name was (`wrap`). Files of this parser's extensions can then absorb inline sources. `parserTs` supports it. |
-| `copy`     | `(file: FileNode, source: string) => UserFileNode` | No       | For each `copy` file                  | Describes a copied template's raw content as nodes, for example its imports as `ImportNode`s, in the same shape `injectFile` takes. Kubb prints the result with `parse`. Omit it to write copied files verbatim. |
+## Less common cases {#less-common-cases}
+
+### Parser selection {#parser-selection}
+
+When two parsers in [`parsers`](/docs/5.x/reference/configuration#parsers) register the same file extension, Kubb uses one of them.
 
 > [!IMPORTANT]
-> If two parsers register the same extension, the last one in the `parsers` array wins. Order matters.
+> The last parser in the `parsers` array wins. Put the one you want for that extension last.
 
-When no parser matches a file's extension, Kubb writes the file's source strings joined together.
+### Parser fallback {#parser-fallback}
 
-## Parser naming convention
-
-Parsers share the layout of [plugins](/docs/5.x/explanation/extensions#plugins) and [adapters](/docs/5.x/explanation/architecture#adapters):
-
-| Surface             | Pattern                                          | Example                      |
-| ------------------- | ------------------------------------------------ | ---------------------------- |
-| npm package         | `@<scope>/parser-<name>` or `kubb-parser-<name>` | `@kubb/parser-ts`            |
-| Parser runtime name | The output language or format (lowercase)        | `'typescript'`, `'markdown'` |
-| Factory export      | `parser<Name>` (camelCase)                       | `parserTs`, `parserMd`       |
-
-Call the parser factory when registering it in `parsers`.
-
-Parsers compose by extension. `parserTs` (`.ts`, `.js`) and `parserTsx` (`.tsx`, `.jsx`) ship in the same [`@kubb/parser-ts`](/extensions/kubb-labs/parser-ts) package and register side by side.
+When no parser handles a file's extension, Kubb joins its sources as they are. Add a parser for that extension to control the output.

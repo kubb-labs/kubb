@@ -1,10 +1,9 @@
 ---
 layout: doc
-title: Publish a plugin
-description: Build a Kubb plugin as an npm package with a kubb-extension.json
-  manifest and a docs folder, publish it, and submit it to the Kubb registry.
+title: Publish a plugin - npm and the Kubb registry
+description: Package a Kubb plugin with a kubb-extension.json manifest and docs, publish it to npm or a GitHub release, and submit it to the Kubb registry.
 outline: [2, 3]
-order: 7
+order: 4
 navigation:
   title: Publish a plugin
   icon: i-iconoir-upload
@@ -12,47 +11,32 @@ navigation:
 
 # Publish a plugin
 
-Publish a plugin to npm, then list it in the Kubb registry. Users can then install it with `kubb add` and find it in Studio. Start from a working plugin with a test, such as the one from [Create a plugin](/docs/5.x/tutorials/creating-plugins). Adapters and parsers follow the same steps.
+Package a plugin, publish it, and list it in the Kubb registry, so users install it with `kubb add` and find it on [kubb.dev/extensions](/extensions) and in Kubb Studio. Adapters and parsers follow the same steps. Start from a working plugin with a test, such as the one from [Create a plugin](/docs/5.x/tutorials/creating-plugins).
 
 > [!TIP]
-> A package that is already on npm can skip to [Submit to the registry](/docs/5.x/how-to/submit-to-the-registry), which starts from an existing package.
+> A package already on npm still needs the manifest and the `docs/` folder in a published version. Add them, publish a new version, then go to [Submit to the registry](#submit-to-the-registry).
 
 ::steps{level="2"}
 
 ## Build the package
 
-Export the factory from a package entrypoint. Use a `.js` extension for the relative import so the compiled ESM works in Node:
+Export the factory from the package entry point. Give relative imports a `.js` extension so the compiled ESM works in Node:
 
 ```typescript [src/index.ts]
 export { pluginExample } from './plugin.js'
 ```
 
-Create a TypeScript build config:
+Add a TypeScript build config and these `package.json` fields. Replace the package name with an available name you own:
 
-```json [tsconfig.json]
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "strict": true,
-    "declaration": true,
-    "skipLibCheck": true,
-    "rootDir": "src",
-    "outDir": "dist"
-  },
-  "include": ["src/index.ts", "src/plugin.ts"]
-}
-```
+:::code-tree{defaultValue="package.json"}
 
-Add the following fields to your existing `package.json`, keeping the development dependencies installed earlier. Replace the package name with an available name you own before publishing:
-
-```json [package.json fields]
+```json [package.json]
 {
   "name": "kubb-plugin-example",
   "version": "1.0.0",
   "type": "module",
   "files": ["dist", "kubb-extension.json", "docs"],
+  "repository": { "type": "git", "url": "https://github.com/acme/kubb-plugin-example" },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run src/plugin.test.ts",
@@ -70,9 +54,31 @@ Add the following fields to your existing `package.json`, keeping the developmen
 }
 ```
 
-`files` ships the manifest and the docs folder you add next. The `exports` entries keep `kubb-extension.json` and `package.json` importable, because an `exports` map hides every path it does not list.
+```json [tsconfig.json]
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/index.ts", "src/plugin.ts"]
+}
+```
 
-Keep `kubb` as a development dependency so you can build and test locally. The peer dependency asks users for a compatible Kubb version.
+:::
+
+Before you publish, check that:
+
+- `files` ships the build, the manifest, and the `docs/` folder.
+- `exports` lists `kubb-extension.json` and `package.json`, because an `exports` map hides every path it does not list.
+- `repository` points to a GitHub repository you own, or one owned by an organization you belong to.
+- `kubb` or `@kubb/core` is a peer dependency, not a bundled one. Keep `kubb` as a dev dependency too, to build and test locally.
+- A `preinstall`, `install`, or `postinstall` script is allowed only when the overview explains what it does.
 
 ## Add the manifest
 
@@ -91,33 +97,40 @@ Create `kubb-extension.json` at the package root. It tells the registry, `kubb a
 }
 ```
 
-Set `name` to the plugin's `meta.name` and `export` to the factory that `src/index.ts` exports. When the plugin takes options, add an [`options`](/docs/5.x/reference/kit/manifest#options) entry for each one users should edit in Studio.
+- Set `name` to the plugin's `meta.name` and `export` to the factory that `src/index.ts` exports.
+- Give `meta.compatibility` in `src/plugin.ts` the same ranges, so Kubb checks them at runtime too. With a bundler, [import `compatibility` from the manifest](/docs/5.x/reference/kit/manifest#import-compatibility-into-meta).
 
-Give `meta.compatibility` in `src/plugin.ts` the same ranges, `{ kubb: '>=5.8.3', node: '>=22' }`, so Kubb checks them at runtime too. With a bundler, [import `compatibility` from the manifest](/docs/5.x/reference/kit/manifest#import-compatibility-into-meta) instead. [Extension manifest](/docs/5.x/reference/kit/manifest) lists every field, including `options` and `dependencies`.
+[Extension manifest](/docs/5.x/reference/kit/manifest) lists every field and the `options` Studio shows as a form.
 
 ## Write the docs {#write-the-docs}
 
-Create a `docs/` folder next to the manifest. kubb.dev renders it as the extension's page. Studio shows the manifest's `description` instead:
+Create a `docs/` folder next to the manifest. kubb.dev renders it as the extension's page:
 
 ```text [docs/]
 docs/
 ├── overview.md        required
-├── options.md         optional
+├── options.md         optional, the full option reference
 └── guides/
-    └── <id>.md        optional, one file per how-to guide
+    └── <id>.md        optional, one file per task
 ```
 
-Start each file with a `#` title and a one-paragraph description. [Extension docs](/docs/5.x/reference/kit/extension-docs) lists the naming rules and the Markdown that renders.
+Start each file with a `#` title and a one-paragraph description:
 
-In `overview.md`, say what the extension does, how it works when that is not obvious, the setup it needs, and the options and limits worth knowing. Put the full option reference in `options.md` and each task in its own guide.
+```md [docs/overview.md]
+# Example
 
-Leave out install commands, because the page already shows how to install.
+Writes a comment with the HTTP method and path of every operation.
 
-Keep a README with installation and a Kubb config example, and include a license file.
+## Setup
+
+Runs on its own and needs no other plugin.
+```
+
+Leave install commands out of the overview. The page already shows them, and validation fails on them. [Extension docs](/docs/5.x/reference/kit/extension-docs) has the rules for the overview, guide names, and Markdown. Also ship a README with installation and a Kubb config example, and a license file.
 
 ## Check the tarball
 
-Build, inspect the files npm would include, and create a local tarball:
+Build, list the files npm would include, and create a local tarball:
 
 ```shell [Terminal]
 npm run build
@@ -125,19 +138,86 @@ npm pack --dry-run
 npm pack
 ```
 
-The dry run should list the `dist/` files, `kubb-extension.json`, the `docs/` files, and `package.json`, but no fixture, tests, or generated client files. `prepack` runs the build and the test first.
+Check that the dry run lists `dist/`, `kubb-extension.json`, `docs/`, and `package.json`, with no fixtures, tests, or generated client files. `prepack` runs the build and the test first.
 
-## Publish to npm
+## Publish a version
 
-When the tarball looks right and the package name and version are correct, sign in to npm and publish:
+:::tabs
+
+::::tabs-item{label="npm"}
+
+Set a version that npm does not have yet, then sign in and publish:
 
 ```shell [Terminal]
 npm login
 npm publish --access public
 ```
 
+::::
+
+::::tabs-item{label="GitHub release"}
+
+A package that is not on npm can install from a GitHub release. `kubb add` installs `github:<owner>/<repo>#<commit>`, so nothing builds on the user's machine. The release must meet these rules:
+
+- The package sits at the repository root. A scoped name uses your GitHub owner, such as `@acme/` for `github.com/acme`.
+- `dist/` is committed. `main`, `module`, and `exports` point to committed files, and `files` lists them and `kubb-extension.json`.
+- `package.json` has no `preinstall`, `install`, `postinstall`, `prepare`, `prepack`, `prepublish`, `publish`, or `build` script, and no `workspaces`. Rename `build`, for example to `compile`, and drop `prepack`.
+- The tag equals the `package.json` version, with or without a leading `v`, such as `v1.0.0`.
+
+Commit the manifest, the docs, and the build, then create a GitHub release from that commit.
+
+::::
+
+:::
+
 ## Submit to the registry {#submit-to-the-registry}
 
-Submit the package so users can install it with `kubb add`. [Submit to the registry](/docs/5.x/how-to/submit-to-the-registry) covers the submission issue, the review, how new versions reach users, and publishing from a GitHub release instead of npm.
+Open a [submission issue](https://github.com/kubb-labs/registry/issues/new?template=submit-extension.yml) on kubb-labs/registry. In **Source**, enter one of these:
+
+| You have | Enter |
+| --- | --- |
+| An npm package (pins `latest`) | `kubb-plugin-example` |
+| A specific npm version | `kubb-plugin-example@1.0.0` |
+| An npm page | `https://www.npmjs.com/package/kubb-plugin-example` |
+| A package on npm, by its folder in a GitHub monorepo | `https://github.com/acme/kubb-plugins/tree/main/packages/example` |
+| A GitHub release, package not on npm | `https://github.com/acme/kubb-plugin-example/tree/v1.0.0` |
+
+In **Categories**, tick every category that fits. The first tick is the main one.
+
+Within minutes, a workflow opens a review pull request with the [record](/docs/5.x/reference/registry#records) and links it on your issue. If it reports a problem instead, fix it and edit the issue to run the submission again. Your id is `<owner>/<slug>`, such as `acme/kubb-plugin-example`. See [Registry ids](/docs/5.x/reference/registry#registry-ids).
+
+## Wait for the review {#review}
+
+```mermaid
+flowchart LR
+  I[Submission issue] --> P[Review pull request]
+  P --> C[Checks]
+  C --> M[Maintainer review]
+  M --> L[Listed]
+  L --> B[Weekly bump]
+  B --> C
+```
+
+Checks on the pull request validate the record and the docs, and load your extension with install scripts off. A maintainer then reviews the package against [`REVIEW.md`](https://github.com/kubb-labs/registry/blob/main/REVIEW.md).
+
+After the pull request exists, editing the issue no longer runs the submission again. When a check fails or the maintainer asks for changes, publish a fixed version and reply in the pull request. See [Registry checks](#registry-checks).
+
+After the merge, the registry lists the extension within minutes. Users install it with:
+
+```shell [Terminal]
+kubb add acme/kubb-plugin-example
+```
 
 ::
+
+## Release a new version
+
+A new version does not change what `kubb add` installs. Every Monday, a workflow opens a pull request that moves each pin to the latest npm version or GitHub release, with the same review. After the merge, users get it with [`kubb update`](/docs/5.x/reference/commands/update).
+
+## Less common cases {#less-common-cases}
+
+### Registry checks {#registry-checks}
+
+When the registry reviews a version you submit, it reads `kubb-extension.json` and `docs/` from the npm tarball or GitHub release, plus `package.json` for a GitHub release. Ship these files before you submit.
+
+See [Check the tarball](#check-the-tarball) and [Manifest validation](/docs/5.x/reference/kit/manifest#manifest-validation).

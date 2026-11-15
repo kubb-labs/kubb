@@ -1,12 +1,11 @@
 ---
 layout: doc
-title: kubb studio
-description: Command reference for connecting a project to Kubb Studio, managing
-  pairing and permissions, and publishing CI snapshots.
+title: kubb studio - Connect a project to Kubb Studio
+description: Command reference for kubb studio. Connect a project to Kubb Studio, run it in the background, manage pairing and permissions, and publish CI snapshots.
 outline:
   - 2
   - 3
-order: 5
+order: 8
 navigation:
   title: kubb studio
   icon: i-iconoir-cube
@@ -14,131 +13,235 @@ navigation:
 
 # kubb studio
 
-Run `kubb studio` to connect a project to [Kubb Studio](https://kubb.studio). The CLI runs generation on your machine and sends progress and generated file paths to Studio. Grant `--allow-read` to view generated file contents and diffs in the browser, and `--allow-read-ast` to share the parsed spec.
-
-## Usage
-
-Connect the current project. On the first run, open the pairing page and approve the code the CLI shows before it expires. The CLI copies the code to the clipboard when `pbcopy`, `xclip`, `wl-copy`, or `clip.exe` is available. It then asks which permissions to grant for this project in one list, with nothing checked.
-
-While connected, the CLI logs each job Studio runs on one line: the time, the command, who asked for it, and the result. The job's own steps and diagnostics stay in Studio. Press `b` to move the session to the background worker, the same as `kubb studio start`.
+`kubb studio` connects a project to [Kubb Studio](https://kubb.studio). The CLI generates on your machine and sends progress and file paths to Studio. Grant [permissions](#permissions), such as `--allow-read` for file contents, to share more.
 
 ```shell [Terminal]
 kubb studio
 ```
 
+## Pair the machine
+
+On the first run, the CLI pairs the machine:
+
+```mermaid
+sequenceDiagram
+  participant CLI as kubb studio
+  participant You
+  participant Studio
+  CLI->>You: Show pairing code and page
+  You->>Studio: Approve the code
+  Studio-->>CLI: Token
+  CLI->>You: Ask which permissions to grant
+  CLI->>Studio: Connect
+  Studio->>CLI: Generation jobs
+```
+
+- Approve the code before it expires. The CLI copies it to the clipboard when it can.
+- The permission list starts unchecked. The CLI remembers your answers per project folder.
+- Each job logs one line: time, command, requester, and result. Steps and diagnostics stay in Studio.
+- Press `b` to move the session to the background worker, like `kubb studio start`.
+
 ## Actions
 
-The positional argument selects the action. It defaults to `connect`.
+The first argument picks the action, `connect` by default.
 
-| Action        | Description                                                                                                                                    |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `connect`     | Hold a foreground session open and generate on request.                                                                                        |
-| `start`       | Resolve pairing and permissions, then connect this project in the background.                                                                  |
-| `stop`        | Stop the background worker and keep its pairing.                                                                                               |
-| `login`       | Pair this machine again without opening a generation session. Saved permissions reset.                                                         |
-| `logout`      | Stop the background worker and forget this project's stored token.                                                                             |
-| `status`      | Show pairing, worker state and uptime, saved permissions, and the log path, each with the command that changes it.                             |
-| `permissions` | Change this project's saved permissions in the same list `connect` shows, without pairing again.                                               |
-| `snapshot`    | Generate and pack a snapshot on this machine, upload it in one request, then exit. See [Publish snapshots from CI](/docs/5.x/integrations/ci). |
+| Action | What it does |
+| --- | --- |
+| `connect` | Holds a foreground session open and generates on request |
+| `start` | Resolves pairing and permissions, then connects in the background |
+| `stop` | Stops the background worker and keeps its pairing |
+| `login` | Pairs this machine again without a session. Saved permissions reset. |
+| `logout` | Stops the worker and forgets this project's token |
+| `status` | Shows pairing, worker state, permissions, and the log path, each with the command that changes it |
+| `permissions` | Changes saved permissions without pairing again. Needs an interactive terminal. |
+| `snapshot` | Generates, packs, and uploads a snapshot, then exits. See [Publish snapshots from CI](/docs/5.x/integrations/ci). |
 
 ## Background connection
 
-Run `start`, `status`, and `stop` from the same project directory. `start` resolves pairing and permission prompts before detaching, then returns while the worker connects.
+Run `start`, `status`, and `stop` from the same project folder. `start` asks its questions, then returns while the worker connects. `status` reports its state:
 
-`status` reports `starting`, `connected`, `reconnecting`, `authentication required`, or `stopped`. Only one worker can own a project. Stop it before using foreground `connect`.
+```mermaid
+stateDiagram-v2
+  state "authentication required" as auth
+  [*] --> starting: kubb studio start
+  starting --> connected
+  connected --> reconnecting: connection lost
+  reconnecting --> connected
+  reconnecting --> auth: token rejected
+  connected --> stopped: kubb studio stop
+  auth --> [*]
+  stopped --> [*]
+```
 
-The worker survives terminal closure and retries temporary connection failures. Restart it after a crash or reboot. If its token is rejected, run `kubb studio login`, then `kubb studio start`.
+- One worker owns a project. Stop it before a foreground `connect`.
+- The worker survives a closed terminal and retries temporary failures. Start it again after a crash or reboot.
+- When its token is rejected, run `kubb studio login`, then `kubb studio start`.
+- To change the URL or config, stop the worker and start it with the new flags.
 
-To change its URL or config, stop it and start it with the new flags. Flags can only add permissions, and `login` resets the saved ones.
+> [!WARNING]
+> Flags only add permissions. To turn one off, run `kubb studio permissions`, then restart without that `--allow-*` flag. A running connection keeps the old permissions until it restarts.
 
-To change the saved permissions, run `kubb studio permissions`. A running connection keeps the old ones until you restart it. Keep `--url` and `--config`, and leave out the `--allow-*` flag of any permission you turned off, since a flag grants it anyway.
+### Credentials
 
-The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, which defaults to `~/.kubb`. `status` prints the log path.
-
-While it is connected, the CLI renews its token once a day, so a project that stays connected is not asked to pair again. Pairing also creates a key that stays on your machine. It goes in the system keychain (macOS Keychain, Windows Credential Manager, or Secret Service on Linux), or next to the token when there is none, such as in CI or a container, or when the keychain refuses access. A project paired with an earlier release has no key and keeps working, and `kubb studio login` adds one.
-
-`stop` waits for a running generation to clean up, and `logout` stops the worker before it removes credentials. An interrupted job does not run again.
+Credentials, worker state, and the worker log live in [`KUBB_HOME`](/docs/5.x/reference/commands#environment-variables), `~/.kubb` by default. See [Studio credentials](#studio-credentials).
 
 ## Options
 
-| Option                                      | Default               | Description                                                                                                                                                                                                                                                                         |
-| ------------------------------------------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--config=<path>`, `-c <path>`              |                       | Path to a config file, such as `./kubb.staging.ts`.                                                                                                                                                                                                                                 |
-| `--url=<url>`                               | `https://kubb.studio` | URL for Kubb Studio. Plain `http://` works only for `localhost`, `127.0.0.1`, or `[::1]`.                                                                                                                                                                                           |
-| `--allow-read`                              | `false`               | Let Studio read generated file contents. Asked once per project when omitted.                                                                                                                                                                                                       |
-| `--allow-read-ast`                          | `false`               | Let Studio read the parsed spec (the Kubb AST). Asked once per project when omitted.                                                                                                                                                                                                |
-| `--allow-write`                             | `false`               | Write generated files to disk. Asked once per project when omitted.                                                                                                                                                                                                                 |
-| `--allow-config-edit`                       | `false`               | Let Studio change plugin options in `kubb.config.ts`. Asked once per project.                                                                                                                                                                                                       |
-| `--allow-install`                           | `false`               | Let Studio install extensions from the registry with `kubb add`, which also edits the config, so grant `--allow-config-edit` too. Asked once per project.                                                                                                                           |
-| `--allow-update`                            | `false`               | Let Studio update installed extensions with `kubb update`. It leaves the config alone. Asked once per project.                                                                                                                                                                      |
-| `--allow-remove`                            | `false`               | Let Studio remove extensions with `kubb remove`. Needs `--allow-config-edit` too. Asked once per project.                                                                                                                                                                           |
-| `--allow-save-input`                        | `false`               | Let Studio save the spec it sends: a pasted document goes to `openapi.yaml`, or `openapi.json` when it is JSON (`openapi-<entry>` for a later config entry), and `input` in the config points to it, a URL, or a git file. Grant `--allow-config-edit` too. Asked once per project. |
-| `--allow-file-refs`                         | `false`               | Let a `$ref` in the spec read a local file outside the project. Asked once per project.                                                                                                                                                                       |
-| `--allow-exec`                              | `false`               | Run the formatter, the linter, and `output.postGenerate`. Asked once per project.                                                                                                                                                                                                   |
-| `--no-open`                                 |                       | Do not open the approval page in a browser.                                                                                                                                                                                                                                         |
-| `--log-level=<silent\|info\|verbose>`, `-l` | `info`                | Set the verbosity.                                                                                                                                                                                                                                                                  |
-| `--token=<key>`                             |                       | `snapshot` only: organization CI API key. Defaults to `KUBB_TOKEN`.                                                                                                                                                                                                                 |
-| `--id=<id>`                                 |                       | `snapshot` only: stable identity for the CI agent. Auto-detected on GitHub Actions, GitLab CI, Bitbucket Pipelines and CircleCI.                                                                                                                                                    |
-| `--base-id=<id>`                            |                       | `snapshot` only: the `--id` of another CI agent, such as the base branch's, to also compare with. Auto-detected on GitHub pull requests and GitLab merge requests.                                                                                                                  |
-| `--name=<name>`                             |                       | `snapshot` only: package name for the tarball. Defaults to the name in the nearest `package.json` that has a name and a version.                                                                                                                                                    |
-| `--package-version=<version>`               |                       | `snapshot` only: package version for the tarball. Defaults to the version in the nearest `package.json` that has a name and a version.                                                                                                                                              |
-| `--json`                                    | `false`               | `snapshot` only: print the result as one JSON object instead of a summary.                                                                                                                                                                                                          |
+`connect`, `start`, and `login` take the connection and permission flags. `status` takes `--url` only, and `snapshot` has its own set.
 
-`snapshot` takes no `--allow-*` flag. It generates like `kubb generate`: it writes to `output.path`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB. `snapshot` builds the package's `dist` files with `tsdown`, so install it in the project with `npm i -D tsdown`.
+### Connection
 
-Without `--allow-read`, a session still generates and reports file paths, but Studio cannot display their contents. The CLI asks about permissions not supplied as flags and remembers answers per project directory. Without a TTY it skips the permission prompts, so pass the flags the run needs. In CI it also refuses to pair and needs stored credentials, so use `snapshot` there instead.
+| Flag | Alias | Default | What it does |
+| --- | --- | --- | --- |
+| `--config <path>` | `-c` | | Config file path, such as `./kubb.staging.ts` |
+| `--url <url>` | | `https://kubb.studio` | Studio URL. Plain `http://` works only for `localhost`, `127.0.0.1`, or `[::1]`. |
+| `--no-open` | | | Skips opening the approval page |
+| `--log-level <level>` | `-l` | `info` | `silent`, `info`, or `verbose` |
 
-With `--allow-read`, Studio loads the files already in `output.path` when it connects. You can browse them before generating. Select **Generate** when you want to regenerate the output.
+### Permissions {#permissions}
 
-Each action exits with code 1 when it fails.
+Each permission is off by default. The CLI asks once per project for each one you do not pass. Without a TTY it skips the questions, so pass the flags the run needs.
 
-## Environment variables
+| Flag | Lets Studio |
+| --- | --- |
+| `--allow-read` | Read generated file contents |
+| `--allow-read-ast` | Read the parsed spec (the Kubb AST) |
+| `--allow-write` | Write generated files to disk |
+| `--allow-config-edit` | Change plugin options in `kubb.config.ts` |
+| `--allow-install` | Install extensions with `kubb add`. Needs `--allow-config-edit`. |
+| `--allow-update` | Update extensions with `kubb update`, leaving the config as is |
+| `--allow-remove` | Remove extensions with `kubb remove`. Needs `--allow-config-edit`. |
+| `--allow-save-input` | Save the spec it sends and point `input` at it. Needs `--allow-config-edit`. |
+| `--allow-file-refs` | Let a `$ref` read a local file outside the project |
+| `--allow-exec` | Run the formatter, the linter, and `output.postGenerate` |
 
-| Variable                        | Description                                                                      |
-| ------------------------------- | -------------------------------------------------------------------------------- |
-| `KUBB_HOME`                     | Directory the CLI keeps its Studio state in. Defaults to `~/.kubb`.              |
-| `KUBB_TOKEN`                    | `snapshot` only: organization CI API key. Same as `--token`.                     |
-| `KUBB_AGENT_MAX_GENERATIONS`    | How many recent generations the agent keeps for Studio to read. Defaults to `8`. |
-| `KUBB_AGENT_MAX_GENERATIONS_MB` | Size cap in MB for the kept generations. Defaults to `100`.                      |
+See [Studio permissions](#studio-permissions) for what each one changes.
 
-Initial disk output has a separate retention budget with the same count and size caps as generated runs. Unchanged output reuses its retained ID across reconnects.
+### Snapshot
+
+`snapshot` takes `--config`, `--url`, `--log-level`, and these flags, but no `--allow-*` flag.
+
+| Flag | Default | What it does |
+| --- | --- | --- |
+| `--token <key>` | `KUBB_TOKEN` | Organization CI API key |
+| `--id <id>` | Detected | Stable CI agent identity |
+| `--base-id <id>` | Detected | Another CI agent's `--id` to also compare with, such as the base branch's |
+| `--name <name>` | From `package.json` | Tarball package name, from the nearest `package.json` with a name and version |
+| `--package-version <version>` | From `package.json` | Tarball package version, from the same `package.json` |
+| `--json` | `false` | Prints the result as one JSON object |
+
+`snapshot` generates like `kubb generate`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB. In CI, the CLI refuses to pair and needs stored credentials, so use `snapshot` there.
+
+> [!IMPORTANT]
+> `snapshot` builds the package's `dist` files with `tsdown`. Install it first: `npm i -D tsdown`.
 
 ## Snapshot output
 
-`--json` prints one JSON object with `id`, `name`, `version`, `integrity`, `url`, `snapshotIdUrl`, `expiresAt`, and `agentUrl`. The object includes `number` and `webUrl` when Studio sends them, and the summary then shows the snapshot number and a `View` link. It includes `changes` and `branchChanges` when comparisons are available. Installing a snapshot requires a separate `registry` API key.
-
-| JSON field      | Compared with                                                                                                                                                                                                                                                                                               |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `changes`       | The previous snapshot on the same pull request or branch.                                                                                                                                                                                                                                                   |
-| `branchChanges` | The latest snapshot of the agent named by `--base-id`, or of the base branch detected on a GitHub pull request or GitLab merge request. Its `branch` field names that agent. Its `baseFound` field distinguishes a branch with no CI agent from one with an agent that has no snapshot of this package yet. |
+`--json` prints one object with the snapshot's id, version, URLs, and comparisons. See [CI snapshots](#studio-ci-snapshots) for its fields.
 
 ## CI agent identity
 
-`snapshot` detects GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI. Other providers require a stable `--id`. Use a stable `--id` on the base branch and pass that identity as `--base-id` on pull request runs. Passing `--id` turns off base detection, so also pass `--base-id` to get `branchChanges`.
-
-### GitLab CI
-
-Every pipeline on a merge request publishes to one CI agent. A branch pipeline publishes to one agent per branch, so the default branch has one agent too. Pass `--id` to group runs your own way.
-
-A merge request pipeline compares with its target branch. The snapshot reports which generated files changed against that branch's latest snapshot in `branchChanges`, and against the merge request's previous pipeline in `changes`. The commit it records is the head of the source branch.
+`snapshot` detects GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI. Other providers need a stable `--id`. See [CI agent identity](#studio-ci-snapshots).
 
 ## Plugins in Studio {#plugins-in-studio}
 
-Studio builds its plugin list and option forms from [extension manifests](/docs/5.x/reference/kit/manifest). When Studio connects, the agent reports each extension that is installed in the project, ships a valid `kubb-extension.json`, and comes from one of these places:
+Studio builds its plugin list and option forms from [extension manifests](/docs/5.x/reference/kit/manifest). A third-party plugin works once it is installed and ships a manifest with `kind: "plugin"`, without a registry entry. Install it with your package manager or [`kubb add`](/docs/5.x/reference/commands/add), then reconnect.
 
-- The `dependencies` and `devDependencies` in the project's `package.json`.
+> [!NOTE]
+> The agent imports only `@kubb/plugin-*` packages and installed packages whose manifest has `kind: "plugin"`. It refuses any other package name before importing anything.
+
+See [Studio agent](#studio-agent) for where the agent finds extensions.
+
+## Exit codes
+
+| Code | When |
+| --- | --- |
+| `0` | The action succeeds. |
+| `1` | The action fails. |
+
+## Less common cases {#less-common-cases}
+
+### CI snapshots {#studio-ci-snapshots}
+
+In CI, `kubb studio snapshot` identifies the CI agent and compares the new snapshot with earlier ones.
+
+#### JSON output
+
+`--json` prints one object with `id`, `name`, `version`, `integrity`, `url`, `snapshotIdUrl`, `expiresAt`, and `agentUrl`.
+
+- It adds `number` and `webUrl` when Studio sends them, and the summary shows the number and a `View` link.
+- It adds `changes` and `branchChanges` when a comparison exists.
+- Installing a snapshot needs a separate `registry` API key.
+
+| Field | Compared with |
+| --- | --- |
+| `changes` | The previous snapshot on the same pull request or branch. |
+| `branchChanges` | The latest snapshot of the `--base-id` agent, or of the base branch of a GitHub pull request or GitLab merge request. `branch` names that agent. `baseFound` is `false` when that agent does not exist yet, and `true` when it has no snapshot of this package. |
+
+#### CI agent identity details
+| Option | Default | Description |
+| --- | --- | --- |
+| `--id <id>` | Detected | Stable CI agent identity. Detected on GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI. |
+| `--base-id <id>` | Detected | The `--id` of another CI agent to also compare with, such as the base branch's. Detected on GitHub pull requests and GitLab merge requests. |
+
+- Other providers need a stable `--id`. Use one on the base branch and pass it as `--base-id` on pull request runs.
+- `--id` turns off base detection, so also pass `--base-id` to get `branchChanges`.
+
+#### GitLab CI
+
+| Pipeline | CI agent | Compared with |
+| --- | --- | --- |
+| Merge request | One agent per merge request | `branchChanges`: the target branch's latest snapshot. `changes`: the merge request's previous pipeline. |
+| Branch | One agent per branch, the default branch included | `changes`: the branch's previous pipeline. |
+
+A merge request snapshot records the head commit of the source branch. Pass `--id` to group runs your own way.
+
+### Studio agent {#studio-agent}
+
+When Studio lists a plugin as not installed, check where the agent looks. Studio builds its plugin list and option forms from [extension manifests](/docs/5.x/reference/kit/manifest).
+
+On connect, the agent reports each extension with a valid `kubb-extension.json` from:
+
+- The `dependencies` and `devDependencies` in `package.json`.
 - The packages `kubb.config.ts` imports.
-- The extensions that ship with `kubb`: `@kubb/adapter-oas`, `@kubb/parser-ts`, `@kubb/parser-md`, and `@kubb/plugin-barrel`.
+- The extensions bundled with `kubb`: `@kubb/adapter-oas`, `@kubb/parser-ts`, `@kubb/parser-md`, and `@kubb/plugin-barrel`.
 
-A third-party plugin works in Studio once it is installed in the project and ships a manifest with `kind: "plugin"`. It needs no registry entry. Install it with [`kubb add`](/docs/5.x/reference/commands/add) or your package manager, then reconnect so Studio sees it.
+#### Settings forms
 
-The adapter and the parsers the config registers get a settings form the same way, from the `options` in their manifest. The agent reports them on connect with a JSON copy of their options, and the edits Studio sends on generate are merged over the options in `kubb.config.ts`. A `null` value unsets an option for that run, so the extension's default applies. An extension without a manifest, such as `parserTsx`, is listed without fields.
+- The config's adapter and parsers get a settings form from the `options` in their manifest.
+- The agent sends a JSON copy of their options on connect. On generate, Studio's edits merge over the options in `kubb.config.ts`.
+- A `null` value unsets an option for that run, so its default applies.
+- An extension without a manifest, such as `parserTsx`, is listed without fields.
 
-The agent imports a plugin package only when it is a `@kubb/plugin-*` package, or an installed package whose manifest has `kind: "plugin"`. It calls the factory the manifest names in `export`. The agent refuses any other package name before it imports anything, and config edits follow the same rule.
+#### Plugins the agent runs
 
-| Agent                           | Plugins it can run                                                                   |
-| ------------------------------- | ------------------------------------------------------------------------------------ |
-| `kubb studio` on your machine   | `@kubb/plugin-*` packages and plugins installed in the project that ship a manifest. |
-| Docker agent and hosted sandbox | Only the packages installed in their image. They install nothing at runtime.         |
+| Agent | Plugins it can run |
+| --- | --- |
+| `kubb studio` on your machine | `@kubb/plugin-*` packages, and installed packages whose manifest has `kind: "plugin"` |
+| Docker agent and hosted sandbox | Only the packages in their image, with no runtime installs |
 
-Studio also lists plugins from the [kubb.dev registry](/docs/5.x/reference/registry). A plugin that the agent cannot run shows as not installed, with a `kubb add <id>` hint to install it.
+The agent calls the factory the manifest names in `export`. It refuses any other package name before importing anything, and config edits follow the same rule.
+
+Studio also lists [registry](/docs/5.x/reference/registry) plugins. One the agent cannot run shows as not installed, with a `kubb add <id>` hint.
+
+### Studio credentials {#studio-credentials}
+
+When you pair a machine, the CLI stores the credentials, worker state, and worker log in [`KUBB_HOME`](/docs/5.x/reference/commands#environment-variables), `~/.kubb` by default. `status` prints the log path.
+
+- Approve the pairing code before it expires. The CLI copies it with `pbcopy`, `clip.exe`, `xclip`, or `wl-copy` when one is available.
+- A connected CLI renews its token daily, so it does not pair again.
+- Pairing also creates a key that never leaves your machine. It goes in the system keychain (macOS Keychain, Windows Credential Manager, or Secret Service on Linux), or next to the token when no keychain allows access, such as in CI or a container.
+- A project paired with an earlier release has no key and keeps working. `kubb studio login` adds one.
+- `stop` waits for a running generation to clean up. An interrupted job does not run again.
+
+### Studio permissions {#studio-permissions}
+
+These rules apply when you grant or revoke Studio permissions.
+
+- `--allow-save-input` saves the spec Studio sends and points `input` at it. Grant `--allow-config-edit` too. A pasted document goes to `openapi.yaml`, or `openapi.json` for JSON (`openapi-<entry>` for a later config entry). A URL or git file goes into `input` as is.
+- Without `--allow-read`, a session still generates and reports file paths, but Studio cannot show their contents.
+- With `--allow-read`, Studio loads the files already in `output.path` on connect, so you can browse them before you select **Generate**.
+- The agent keeps recent generations up to the [`KUBB_AGENT_MAX_GENERATIONS`](/docs/5.x/reference/commands#environment-variables) caps, with a separate budget for the initial output. Unchanged output keeps its ID across reconnects.
+
+> [!WARNING]
+> Flags only add permissions, and `login` resets the saved ones. To turn one off, run `kubb studio permissions`, then restart a running connection, since it keeps the old permissions. Restart with the same `--url` and `--config`, but without that permission's `--allow-*` flag, which would grant it again.

@@ -73,7 +73,8 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   document: TOptions['document'] | null
   /**
    * The files and URLs the last `parse()` read, such as the ones external `$ref`s point at, including
-   * any that could not be read. Inline data is not listed. A watcher rebuilds when one of them changes.
+   * any that could not be read. Inline data is not listed. A tool that watches files can use the list.
+   * `kubb generate --watch` does not read it.
    */
   sources?: Array<string>
   /**

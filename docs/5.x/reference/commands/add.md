@@ -1,12 +1,12 @@
 ---
 layout: doc
-title: kubb add
+title: kubb add - Install an extension from the registry
 description: The add command installs a plugin, adapter, or parser from the Kubb
   extension registry at its reviewed version and adds a plugin to kubb.config.ts.
 outline:
   - 2
   - 3
-order: 6
+order: 4
 navigation:
   title: kubb add
   icon: i-iconoir-plus-circle
@@ -14,34 +14,40 @@ navigation:
 
 # kubb add
 
-Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it lets you search the registry. The command checks that the extension supports your Kubb and Node.js versions, then shows the packages it installs and the lines it adds to the config. After you confirm, it installs the package as a dev dependency.
+`kubb add` installs an extension at the version the registry pins. It adds a plugin or parser to `kubb.config.ts`, and prints the code to add for an adapter.
 
-`kubb add` writes a plugin or parser to `kubb.config.ts`. For an adapter, it prints the code to add.
-
-When the config has no `parsers`, adding a parser also writes the defaults: `parserTs()`, `parserTsx()`, and `parserMd()`.
-
-Kubb detects the package manager (`npm`, `pnpm`, `yarn`, or `bun`) from your project.
-
-## Usage
-
-Search the registry and pick an extension:
+Ids, versions, and project files follow the [extension command rules](/docs/5.x/reference/commands#extension-commands).
 
 ```shell [Terminal]
-kubb add
+kubb add                             # search the registry
+kubb add plugin-zod                  # an official plugin by slug
+kubb add acme/plugin-graphql --yes   # a community plugin, no prompt
+kubb add plugin-zod --no-install     # edit the config only
 ```
 
-```text [Output]
-◆  Add an extension · 38 in the registry
-│  Search: mo_
-│  ● plugin-msw (MSW handlers backed by mock data)
-│  ○ plugin-faker
-│  ○ plugin-ts (installed)
-│  ↑/↓ to select • Enter: confirm • Type: to search
+```mermaid
+flowchart LR
+  A[Resolve id] --> B[Read manifest]
+  B --> C{Supported?}
+  C -- no --> X[Exit 1]
+  C -- yes --> D[Preview and confirm]
+  D --> E[Install package and required plugins]
+  E --> F[Edit kubb.config.ts]
 ```
 
-Each row is the id to pass to `kubb add`. The focused row also shows the description. Typing filters the rows on the id, display name, and description. An installed extension shows `installed` and cannot be picked.
+## Arguments
 
-Before asking, the CLI shows what it will do:
+| Argument | What it does |
+| --- | --- |
+| `[id]` | The [registry id](/docs/5.x/reference/commands#ids). Without it, you [pick from a list](#add-search). |
+
+## Pick an extension {#add-search}
+
+Without an id, `kubb add` lists the registry. Type to filter on the id, display name, and description. Installed extensions cannot be picked.
+
+## Preview and summary {#add-preview}
+
+Before it asks, the CLI shows the required plugins, the packages it installs, and the config lines it adds:
 
 ```text [Output]
 ◇  Plugin plugin-faker v5.3.2 · Generates a Faker.js mock-data factory for every schema in your…
@@ -53,103 +59,71 @@ Before asking, the CLI shows what it will do:
 ◆  Add it?
 ```
 
-After the install, the summary lists the packages, the registrations it added, and the next step:
+After the install, the summary title gives the outcome. `Plugin needs configuration` means you add the printed snippet to the config by hand. See [Extension command output](#command-output).
 
-```text [Output]
-✓ Plugin ready  4.20s
+## Required plugins {#add-required-plugins}
 
-  Packages  1 installed with pnpm
-  + pluginFaker()
+When the manifest lists `dependencies` that `kubb.config.ts` lacks, the CLI asks whether to add them too:
 
-Next     kubb generate
-Options  kubb.dev/extensions/kubb-labs/plugin-faker
-```
+- `Yes, add both` (or `Yes, add all`) installs them and adds them next to the extension.
+- `Only <name>` adds the extension alone, and `kubb generate` fails until you add the rest.
 
-With `--no-install`, the summary says `Plugin configured` and reports that installation was skipped. For a plugin already in the config, it says `Plugin already configured`. When the install succeeds but the config needs manual changes, it says `Plugin needs configuration` and the CLI prints the snippet to add. Adapters and parsers use `Adapter` and `Parser` in these titles.
+`--yes` adds them.
 
-Add an official plugin by its slug:
+## Config changes {#add-config}
 
-```shell [Terminal]
-kubb add plugin-zod
-```
+| Extension | Change |
+| --- | --- |
+| Plugin | Adds its import and a call at the end of the `plugins` array. |
+| Parser | Adds its import and a call at the end of the `parsers` array. Without `parsers`, it also writes the defaults `parserTs()`, `parserTsx()`, and `parserMd()`. |
+| Adapter | Changes nothing. The CLI prints the import and the `adapter` line to add by hand. |
 
-Add a community plugin by its full id, without the confirmation:
+> [!WARNING]
+> When the CLI cannot edit the config, such as when `plugins` is not an array literal, it prints `Could not edit <file>: <reason>` and the snippet to add by hand, then exits with code 1. See [When kubb add cannot edit the config](#config-edits).
 
-```shell [Terminal]
-kubb add acme/plugin-graphql --yes
-```
+## Options {#options}
 
-Edit the config without installing the package:
-
-```shell [Terminal]
-kubb add plugin-zod --no-install
-```
-
-### npm or GitHub
-
-An extension on npm installs as `<package>@<version>`. An extension pinned to a GitHub release installs as `github:<owner>/<repo>#<commit>`.
-
-:::code-group
-
-```shell [npm]
-npx kubb add plugin-zod
-# installs @kubb/plugin-zod@<version>
-```
-
-```shell [GitHub]
-npx kubb add acme/kubb-plugin-example
-# installs github:acme/kubb-plugin-example#<commit>
-```
-
-:::
-
-## Arguments
-
-| Argument | Required | Description |
-| -------- | -------- | ----------- |
-| `<id>`   | `false`  | Registry id as `<owner>/<slug>`, such as `kubb-labs/plugin-react-query`. A bare `<slug>` means `kubb-labs/<slug>`. Both parts use lowercase letters and digits joined by single hyphens. Without it, the CLI asks which extension to add. |
-
-## Options
-
-| Option                         | Default | Description |
-| ------------------------------ | ------- | ----------- |
-| `--config=<path>`, `-c <path>` |         | Path to the Kubb config to edit. Used for plugins and parsers. Without it, the CLI looks for the same config files as `kubb generate`, in the current directory and then in each parent directory. |
-| `--yes`, `-y`                  | `false` | Skip the confirmation. Needs an id. |
-| `--no-install`                 |         | Do not install the package. A plugin or parser is still added to the config. |
-| `--dry-run`                    | `false` | Print the packages and config lines the command would add, then stop. Nothing is installed or written. |
+| Flag | Alias | Default | What it does |
+| --- | --- | --- | --- |
+| `--config <path>` | `-c` | | Path to the Kubb config to edit. |
+| `--yes` | `-y` | `false` | Skip the confirmation and add the required plugins. Needs an id. |
+| `--no-install` | | | Edit the config only. A plugin or parser is still added. |
+| `--dry-run` | | `false` | Show what the command would install or write, then stop. |
 
 > [!TIP]
 > Pass `--yes` in scripts and CI, where no one can answer the prompt.
 
-## Required plugins
+## Exit codes {#exit-codes}
 
-When the manifest lists `dependencies` that are not in `kubb.config.ts`, the CLI asks whether to add them as well. `Yes, add both` installs and adds them next to the extension. `Only <id>` adds the extension alone, and `kubb generate` fails until you add the rest. With `--yes`, it adds them.
+| Code | When |
+| --- | --- |
+| `0` | The extension is added, or you canceled a prompt. |
+| `1` | The id is invalid, unknown, or missing with `--yes`. |
+| `1` | The registry cannot be read, or the extension does not support your Kubb or Node.js version. |
+| `1` | No config is found for a plugin or parser, the install fails, or the config edit fails. |
 
-## Unknown ids
+## Less common cases {#less-common-cases}
 
-An id the registry does not list prints `No extension named <id>`, the closest ids as `kubb add <id>` commands, and a link to [kubb.dev/extensions](https://kubb.dev/extensions).
+### Command output {#command-output}
 
-## Config changes
+After the install, the summary lists the packages, the added calls, the next step (`kubb generate`), and the extension's options page. Its title gives the outcome.
 
-For a plugin, `kubb add` adds its import and a call at the end of the `plugins` array. For a parser, it does the same in the `parsers` array. An extension already in its array is left alone.
+| Summary title | When |
+| --- | --- |
+| `Plugin ready` | Installed and added to the config. |
+| `Plugin configured` | Added to the config with `--no-install`. |
+| `Plugin already configured` | The plugin was already in the config. |
+| `Plugin needs configuration` | Installed, but the config needs a manual change. The CLI prints the snippet. |
+| `Plugin configured; dependencies missing` | Added without the required plugins you declined. |
 
-When the config cannot be edited, the CLI prints `Could not edit <file>: <reason>` and the snippet to add by hand, then exits with code 1. The edit fails when `plugins` is not an array literal, or when the export name is already imported from another module.
+Adapters and parsers say `Adapter` and `Parser` instead, except in `Plugin configured; dependencies missing`, which every kind uses.
 
-## Environment variables
+Without an id, `kubb add` lists the registry. An installed extension shows `installed` and cannot be picked.
 
-| Variable        | Default                     | Description |
-| --------------- | --------------------------- | ----------- |
-| `KUBB_REGISTRY` | `https://kubb.dev/registry` | Base URL of the registry to read. It must start with `http://` or `https://`. Trailing slashes are removed. See [Host your own registry](/docs/5.x/reference/registry#host-your-own-registry). |
+### Config edits {#config-edits}
 
-## Exit codes
+When `kubb add` cannot write the extension into the config, it prints a snippet. Add its import and call to the config, then run `kubb generate`.
 
-`kubb add` exits with code 1 in these cases:
-
-- The id is invalid, unknown, or missing with `--yes`.
-- The registry cannot be read or sends an invalid index.
-- The extension does not support the running Kubb or Node.js version.
-- No config is found for a plugin or parser.
-- The install fails.
-- A plugin or parser cannot be written to the config, so the CLI prints the snippet.
-
-It exits with code 0 when you cancel at the prompt, and for an adapter, which is never written to the config.
+- An extension already in its array is left alone.
+- The config cannot be edited when `plugins` is not an array literal, or the export name is already imported from another module. The CLI then prints `Could not edit <file>: <reason>` and the snippet, and exits with code 1.
+- An adapter is never written, so its manual snippet does not set exit code 1.

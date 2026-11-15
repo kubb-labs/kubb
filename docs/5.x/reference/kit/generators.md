@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Generators
-description: defineGenerator declares a named generator unit that walks the AST
-  and emits files. Covers the schema, operation, and operations methods and the
-  GeneratorContext passed to each.
+title: Generators - Emit files with defineGenerator
+description: defineGenerator declares a generator that walks the AST and emits files. Covers its fields, match, the GeneratorContext, and the memo cache.
 outline:
   - 2
   - 3
@@ -17,9 +15,7 @@ navigation:
 
 ## `defineGenerator` {#definegenerator}
 
-`defineGenerator` declares a named generator unit consumed by a plugin. Generators walk the [AST](/docs/5.x/explanation/architecture#ast) and emit files. Kubb calls each method for the matching node type.
-
-Each generator method returns `TElement | Array<FileNode> | void`. Returning a renderer element (for example JSX from [`kubb/jsx`](/docs/5.x/reference/jsx)) requires a `renderer` factory on the generator.
+A generator walks the [AST](/docs/5.x/reference/kit/ast) and returns files for one plugin. Define it with `defineGenerator`, then register it in the plugin's `setup` with [`addGenerator`](/docs/5.x/reference/kit/plugins#setup-context).
 
 ```typescript [my-generator.ts]
 import { ast, defineGenerator } from 'kubb/kit'
@@ -49,66 +45,76 @@ const myGenerator = defineGenerator({
 })
 ```
 
-`ctx.resolver.file` resolves the path inside the output folder, so this generator writes `operations/<operationId>.ts` there. A plugin with an `output` option passes `ctx.options.output` instead of a fixed value.
+This generator writes `operations/<operationId>.ts` inside the output folder. A plugin with an `output` option passes `ctx.options.output` instead of a fixed value.
 
-### Generator methods
+### Generator fields {#generator-methods}
 
-| Method         | Input                                   | Output                                | When to use                                                      |
-| -------------- | --------------------------------------- | ------------------------------------- | ---------------------------------------------------------------- |
-| `schema()`     | `SchemaNode` (per data schema)          | `TElement \| Array<FileNode> \| void` | Generate types, validators, factories. Called once per schema    |
-| `operation()`  | `OperationNode` (per API operation)     | `TElement \| Array<FileNode> \| void` | Generate hooks, clients, handlers. Called once per operation     |
-| `operations()` | `Array<OperationNode>` (all operations) | `TElement \| Array<FileNode> \| void` | Generate index or barrel files. Called once after all operations |
+| Field        | Type                                              | Runs                                   | Use it for                                                       |
+| ------------ | ------------------------------------------------- | -------------------------------------- | ---------------------------------------------------------------- |
+| `name`       | `string`                                          |                                        | Required. Shown in diagnostics.                                  |
+| `renderer`   | `RendererFactory \| null`                         |                                        | Needed when a method returns elements, such as JSX with [`jsxRenderer`](/docs/5.x/reference/jsx). |
+| `match`      | `(node, ctx) => boolean \| Promise<boolean>`      | Before `schema` and `operation`        | Skipping nodes. See [`match`](#match).                           |
+| `schema`     | `(node: SchemaNode, ctx) => Output`               | Once per schema                        | Types, validators, factories.                                    |
+| `operation`  | `(node: OperationNode, ctx) => Output`            | Once per operation                     | Clients, hooks, handlers.                                        |
+| `operations` | `(nodes: Array<OperationNode>, ctx) => Output`    | Once, after every operation            | Index or aggregate files.                                        |
+
+`Output` is renderer elements, `Array<FileNode>`, `null`, or `undefined`, or a promise of one of them. To write files yourself, call `ctx.upsertFile()` and return nothing.
 
 ### Scoping with `match` {#match}
 
-Add a `match(node, ctx)` predicate to skip `schema` or `operation` for nodes a generator does not apply to. A `false` result skips that node. Omitting `match` runs the generator for every node. `match` does not filter `operations()`.
+A `false` result skips `schema` or `operation` for that node. `match` never filters `operations()`.
 
 ```typescript [scoped-generator.ts]
 import { ast, defineGenerator } from 'kubb/kit'
 
 const getOnlyGenerator = defineGenerator({
   name: 'get-only-generator',
-  match(node, ctx) {
-    return node.kind === 'Operation' && ast.http.isOperation(node) && node.method.toLowerCase() === 'get'
-  },
+  match: (node) => node.kind === 'Operation' && ast.http.isOperation(node) && node.method === 'GET',
   operation(node, ctx) {
-    // node is already known to be a GET operation here
+    // node is a GET operation here
     return
   },
 })
 ```
 
-### `GeneratorContext` properties (the `ctx` argument passed to each method)
+### `GeneratorContext` {#generatorcontext}
 
-| Property              | Type                                                                      | Purpose                                                                                                                            |
-| --------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `ctx.config`          | `Config`                                                                  | Resolved Kubb configuration                                                                                                        |
-| `ctx.signal`          | `AbortSignal \| undefined`                                                | Stops generation at the next safe checkpoint when aborted                                                                          |
-| `ctx.root`            | `string`                                                                  | Absolute path to the output directory for the current plugin                                                                       |
-| `ctx.options`         | `TResolvedOptions`                                                        | Per-node resolved options (after exclude/include/override filtering)                                                               |
-| `ctx.plugin`          | `Plugin`                                                                  | The owning plugin descriptor                                                                                                       |
-| `ctx.resolver`        | `Resolver`                                                                | Resolver for the current plugin                                                                                                    |
-| `ctx.driver`          | `KubbDriver`                                                              | Plugin driver for cross-plugin access                                                                                              |
-| `ctx.hooks`           | `Hookable<KubbHooks>`                                                     | Event bus for `KubbHooks` events                                                                                                   |
-| `ctx.adapter`         | `Adapter`                                                                 | The adapter that parsed the input spec                                                                                             |
-| `ctx.meta`            | `InputMeta`                                                               | Document metadata from the adapter. Carries `title`, `version`, `baseURL`, every declared `servers` entry, and the `auth` schemes. |
-| `ctx.memo()`          | `(key: string, compute: () => T) => T`                                    | Cache that lives for the whole build and is shared by every plugin. See [Caching with `ctx.memo`](#memo)                           |
-| `ctx.addFile()`       | `(...files: FileNode[]) => Promise<void>`                                 | Add files, skipping any that already exist                                                                                         |
-| `ctx.upsertFile()`    | `(...files: FileNode[]) => Promise<void>`                                 | Add or merge files (concatenates sources and imports)                                                                              |
-| `ctx.getPlugin()`     | `(name: string) => Plugin \| undefined`                                   | Get a plugin by name                                                                                                               |
-| `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Get a plugin by name or throw a descriptive error                                                                                  |
-| `ctx.getResolver()`   | `(name: string) => Resolver`                                              | Get a resolver by plugin name                                                                                                      |
-| `ctx.info()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Emit an info message via the build event system                                                                                    |
-| `ctx.warn()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Emit a warning via the build event system. `options` sets the fix and the source pointer                                           |
-| `ctx.error()`         | `(error: string \| Error, options?: { code?, help?, location? }) => void` | Emit an error via the build event system. A `Diagnostics.Error` keeps its code, help, and location                                 |
+Each method receives `ctx` with these fields:
+
+| Field          | Type                       | Holds                                                                                                       |
+| -------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `ctx.config`   | `Config`                   | The resolved Kubb config.                                                                                   |
+| `ctx.root`     | `string`                   | Absolute path of the root output folder, the same for every plugin.                                         |
+| `ctx.options`  | `TResolvedOptions`         | The node's options after `exclude`, `include`, and `override`. In `operations()`, the plugin's options.     |
+| `ctx.plugin`   | `Plugin`                   | The current plugin.                                                                                         |
+| `ctx.resolver` | `Resolver`                 | The current plugin's [resolver](/docs/5.x/reference/kit/resolvers).                                         |
+| `ctx.adapter`  | `Adapter`                  | The adapter that parsed the input.                                                                          |
+| `ctx.meta`     | `InputMeta`                | Document metadata: `title`, `version`, `baseURL`, `servers`, and the `auth` schemes.                        |
+| `ctx.hooks`    | `Hookable<KubbHooks>`      | The build's [hook](/docs/5.x/reference/kit/hooks) emitter.                                                  |
+| `ctx.driver`   | `KubbDriver`               | The driver running the build. Prefer the helpers below.                                                     |
+| `ctx.signal`   | `AbortSignal \| undefined` | Stops generation at the next safe checkpoint.                                                               |
+
+`ctx` also has these helpers:
+
+| Helper                | Signature                                                                  | Does                                                                                     |
+| --------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `ctx.addFile()`       | `(...files: Array<FileNode>) => Promise<void>`                             | Adds files, skipping any that already exist.                                             |
+| `ctx.upsertFile()`    | `(...files: Array<FileNode>) => Promise<void>`                             | Adds files, or merges their sources and imports into an existing file.                  |
+| `ctx.getPlugin()`     | `(name: string) => Plugin \| undefined`                                    | Returns a plugin by name.                                                                |
+| `ctx.requirePlugin()` | `(name: string) => Plugin`                                                 | Returns a plugin by name, or throws.                                                     |
+| `ctx.getResolver()`   | `(name: string) => Resolver`                                               | Returns another plugin's resolver.                                                       |
+| `ctx.memo()`          | `(key: string, compute: () => T) => T`                                     | Caches a value for the whole build. See [`ctx.memo`](#memo).                             |
+| `ctx.info()`          | `(message: string, options?: { code?, help?, location? }) => void`         | Reports an `info` diagnostic for this plugin.                                            |
+| `ctx.warn()`          | `(message: string, options?: { code?, help?, location? }) => void`         | Reports a `warning`, which does not fail the build.                                      |
+| `ctx.error()`         | `(error: string \| Error, options?: { code?, help?, location? }) => void`  | Reports an `error`, which fails the build. A `Diagnostics.Error` keeps its code, help, and location. |
 
 ### Caching with `ctx.memo` {#memo}
 
-`ctx.memo(key, compute)` runs `compute` the first time a build asks for `key` and returns the stored value after that. Every plugin in the build shares the store, so name the key with care:
+`ctx.memo(key, compute)` runs `compute` once per `key` and build, then returns the stored value. Every plugin shares the store, so:
 
-- Start the key with your plugin name, such as `my-plugin:`, unless every plugin should share the value.
-- Put the node in the key when the value comes from one node: `node.operationId` for an operation, `node.name` for a schema.
-- Use `ctx.resolver.memo(key, compute)` for a value only your own plugin reads.
+- Prefix the key with your plugin name, such as `my-plugin:`, unless every plugin should share the value.
+- Put the node in the key for a value from one node: `node.operationId` or `node.name`.
+- Use `ctx.resolver.memo(key, compute)` for a value only your plugin reads.
 
 ```typescript [memo-generator.ts]
 import { ast, defineGenerator } from 'kubb/kit'
@@ -126,4 +132,5 @@ export const operationGenerator = defineGenerator({
 })
 ```
 
-The value stays in memory until the build ends, so store derived data such as names or paths rather than generated source.
+> [!WARNING]
+> The value stays in memory until the build ends. Store derived data, such as names or paths, not generated source.
