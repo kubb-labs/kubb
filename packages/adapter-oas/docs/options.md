@@ -4,25 +4,30 @@ Pass these options to `adapterOas()`. All of them are optional.
 
 ## Options overview
 
-| Option                                  | Purpose                                                      |
-| --------------------------------------- | ------------------------------------------------------------ |
-| [`validate`](#validate)                 | Validate the spec before parsing.                            |
-| [`contentType`](#contenttype)           | Preferred media type for request and response schemas.       |
-| [`server`](#server)                     | Which spec server Kubb resolves into the document `baseURL`. |
-| [`discriminator`](#discriminator)       | How `discriminator` fields are interpreted.                  |
-| [`enums`](#enums)                       | Where inline enums live.                                     |
-| [`pathParamsCasing`](#pathparamscasing) | Rename path parameters to camelCase.                         |
-| [`dateType`](#datetype)                 | How `date-time`, `date`, and `time` schemas are represented. |
-| [`integerType`](#integertype)           | How `int64` and `uint64` integers map to TypeScript.         |
-| [`unknownType`](#unknowntype)           | Type for open map values and parameters without a schema.    |
-| [`emptySchemaType`](#emptyschematype)   | Type for schemas with no type to infer.                      |
-| [`enumSuffix`](#enumsuffix)             | Suffix for derived enum names.                               |
+| Option                                  | Purpose                                                   | Default               |
+| --------------------------------------- | --------------------------------------------------------- | --------------------- |
+| **Reading the spec**                    |                                                           |                       |
+| [`validate`](#validate)                 | Validate the spec before parsing.                         | `true`                |
+| [`contentType`](#contenttype)           | Media type to keep for request and response schemas.      | Every media type      |
+| [`server`](#server)                     | Spec server that becomes the document `baseURL`.          | None                  |
+| **Schema shape**                        |                                                           |                       |
+| [`discriminator`](#discriminator)       | How `discriminator` fields are applied.                   | `'preserve'`          |
+| [`enums`](#enums)                       | Where inline enums live.                                  | `'inline'`            |
+| [`enumSuffix`](#enumsuffix)             | Suffix for derived enum names.                            | `'enum'`              |
+| [`pathParamsCasing`](#pathparamscasing) | Rename path parameters to camelCase.                      | None                  |
+| **Type mapping**                        |                                                           |                       |
+| [`dateType`](#datetype)                 | How `date-time`, `date`, and `time` schemas are typed.    | `'string'`            |
+| [`integerType`](#integertype)           | How `int64` and `uint64` integers are typed.              | `'bigint'`            |
+| [`unknownType`](#unknowntype)           | Type for open map values and parameters without a schema. | `'unknown'`           |
+| [`emptySchemaType`](#emptyschematype)   | Type for schemas with no type to infer.                   | Same as `unknownType` |
 
 ## Option details
 
-### validate
+### Reading the spec
 
-Validates the OpenAPI spec with `@readme/openapi-parser` before parsing. Each problem is reported as a [`KUBB_INVALID_SPEC`](https://kubb.dev/docs/5.x/reference/diagnostics#kubb-invalid-spec) warning, and generation continues. Set it to `false` to skip the check, which makes generation faster on a large spec. Run [`kubb validate`](https://kubb.dev/docs/5.x/reference/commands/validate) to list every error. An OpenAPI 3.2 document is not validated yet, because `@readme/openapi-parser` does not support 3.2. Kubb reports one warning that says so.
+#### validate
+
+Validates the spec with `@readme/openapi-parser` before parsing. Each problem is reported as a [`KUBB_INVALID_SPEC`](https://kubb.dev/docs/5.x/reference/diagnostics#kubb-invalid-spec) warning, and generation continues. Set it to `false` to skip the check, which speeds up a large spec. Run [`kubb validate`](https://kubb.dev/docs/5.x/reference/commands/validate) to list every error.
 
 |          |           |
 | -------- | --------- |
@@ -30,7 +35,10 @@ Validates the OpenAPI spec with `@readme/openapi-parser` before parsing. Each pr
 | Required | `false`   |
 | Default  | `true`    |
 
-### contentType
+> [!NOTE]
+> `@readme/openapi-parser` does not support OpenAPI 3.2 yet, so a 3.2 document is not validated. Kubb reports one warning that says so.
+
+#### contentType
 
 Media type to keep when an operation declares several, for both request bodies and responses. Without a value, Kubb keeps every media type the operation declares.
 
@@ -39,22 +47,29 @@ Media type to keep when an operation declares several, for both request bodies a
 | Type     | `'application/json' \| string` |
 | Required | `false`                        |
 
-### server
+#### server
 
-Selects which entry in the spec's `servers` array Kubb resolves into the document `baseURL`, filling in any `{variable}` placeholders. `server.index` points at one of the spec's servers, usually `0` for the primary one. `server.variables` supplies placeholder values, falling back to each variable's `default` from the spec. When `server` or `server.index` is omitted, `baseURL` resolves to `null`.
+Selects the entry in the spec's `servers` array that Kubb resolves into the document `baseURL`, and fills in its `{variable}` placeholders.
 
 |          |                                                          |
 | -------- | -------------------------------------------------------- |
 | Type     | `{ index?: number, variables?: Record<string, string> }` |
 | Required | `false`                                                  |
 
-The resolved `baseURL` reaches banner functions through `BannerMeta.baseURL` but does not set request URLs on its own. To change where a generated client sends requests, use that plugin's own `baseURL` option ([`@kubb/plugin-fetch`](https://kubb.dev/extensions/kubb-labs/plugin-fetch), [`@kubb/plugin-axios`](https://kubb.dev/extensions/kubb-labs/plugin-axios), [`@kubb/plugin-msw`](https://kubb.dev/extensions/kubb-labs/plugin-msw)).
+| Field       | What it does                                                                            |
+| ----------- | --------------------------------------------------------------------------------------- |
+| `index`     | Position in the spec's `servers` array, usually `0`. Without it, `baseURL` is `null`.   |
+| `variables` | Values for the placeholders. A variable you leave out uses its `default` from the spec. |
 
 With a spec server of `https://api.{env}.example.com`, `server: { index: 0, variables: { env: 'prod' } }` resolves `baseURL` to `https://api.prod.example.com`.
 
-### discriminator
+The resolved `baseURL` reaches banner functions through `BannerMeta.baseURL`, but it does not set request URLs. To change where a generated client sends requests, set the client plugin's own `baseURL`, as in [`@kubb/plugin-fetch`](https://kubb.dev/extensions/kubb-labs/plugin-fetch), [`@kubb/plugin-axios`](https://kubb.dev/extensions/kubb-labs/plugin-axios), or [`@kubb/plugin-msw`](https://kubb.dev/extensions/kubb-labs/plugin-msw).
 
-How `discriminator` fields on `oneOf`/`anyOf` schemas are interpreted.
+### Schema shape
+
+#### discriminator
+
+How `discriminator` fields on `oneOf` and `anyOf` schemas are applied.
 
 |          |                             |
 | -------- | --------------------------- |
@@ -139,7 +154,7 @@ export type Animal = Cat & {
 
 ::
 
-### enums
+#### enums
 
 Where inline enums live.
 
@@ -156,12 +171,12 @@ Keeps each enum on the property that declares it.
 :::
 
 :::field{name="'root'"}
-Lifts every inline enum to a top-level schema named after its context (for example `PetStatusEnum`) and references it wherever it appears.
+Lifts every inline enum to a top-level schema named after its context, such as `PetStatusEnum`, and references it wherever it appears.
 :::
 
 ::
 
-The names are the same in both modes. With `'root'`, the enum is a schema of its own, so a plugin that writes one file per schema gives it its own file. For an enum with values `active` and `inactive` on `Pet.status`, `@kubb/plugin-ts` writes:
+The names are the same in both modes. With `'root'`, the enum is a schema of its own, so a plugin that writes one file per schema gives it its own file. For an enum with the values `active` and `inactive` on `Pet.status`, `@kubb/plugin-ts` writes:
 
 ::code-group
 
@@ -198,7 +213,17 @@ export type Pet = {
 
 ::
 
-### pathParamsCasing
+#### enumSuffix
+
+Suffix in the names Kubb gives inline enums: schema name, property name, and suffix, in PascalCase. The `status` enum on `Pet` becomes `PetStatusEnum`, or `PetStatusType` with `enumSuffix: 'type'`. Plugins derive their own names from it, such as `petStatusEnum` and `PetStatusEnumKey` in `@kubb/plugin-ts`.
+
+|          |          |
+| -------- | -------- |
+| Type     | `string` |
+| Required | `false`  |
+| Default  | `'enum'` |
+
+#### pathParamsCasing
 
 Renames `path` parameters and their `{placeholder}` in the operation path. Omit it to keep the names from the spec.
 
@@ -208,9 +233,7 @@ Renames `path` parameters and their `{placeholder}` in the operation path. Omit 
 | Required | `false`       |
 | Default  | `undefined`   |
 
-With `'camelcase'`, `{pet-id}`, `{pet_id}`, and `{PetId}` all become `petId`, and MSW routes and query keys use the same name. Names that collide get a counter suffix, so `{group-id}` and `{group.id}` become `groupId` and `groupId2`. Path parameter names never reach the wire, so the HTTP request stays the same. The one exception is the `matrix` style, which sends the name (`;group-id=42`), so an operation with a matrix path parameter keeps its spec names. Query, header, cookie, and body names are not changed.
-
-For `GET /stores/{store-id}/pets/{pet-id}`, `@kubb/plugin-client` generates:
+With `'camelcase'`, `{pet-id}`, `{pet_id}`, and `{PetId}` all become `petId`. MSW routes and query keys use the same name. For `GET /stores/{store-id}/pets/{pet-id}`, `@kubb/plugin-client` generates:
 
 ::code-group
 
@@ -224,9 +247,15 @@ await getPet({ path: { storeId, petId } })
 
 ::
 
-### dateType
+- Names that collide get a counter suffix, so `{group-id}` and `{group.id}` become `groupId` and `groupId2`.
+- Path parameter names never reach the wire, so the HTTP request stays the same. The exception is the `matrix` style, which sends the name (`;group-id=42`), so an operation with a matrix path parameter keeps its spec names.
+- Query, header, cookie, and body names do not change.
 
-How `date-time`, `date`, and `time` schemas are represented downstream.
+### Type mapping
+
+#### dateType
+
+How `date-time`, `date`, and `time` schemas are typed.
 
 |          |                                                                                                 |
 | -------- | ----------------------------------------------------------------------------------------------- |
@@ -234,37 +263,21 @@ How `date-time`, `date`, and `time` schemas are represented downstream.
 | Required | `false`                                                                                         |
 | Default  | `'string'`                                                                                      |
 
-Pass a single value to apply it to all three formats:
+A single value applies to all three formats:
 
-::field-group
+| Value                | `date-time`                     | `date` and `time`             |
+| -------------------- | ------------------------------- | ----------------------------- |
+| `'string'` (default) | ISO 8601 string                 | ISO 8601 string               |
+| `false`              | Plain string, no format check   | Plain string, no format check |
+| `'stringOffset'`     | String with a timezone offset   | Same as `'string'`            |
+| `'stringLocal'`      | Local string without a timezone | Same as `'string'`            |
+| `'date'`             | JavaScript `Date`               | JavaScript `Date`             |
 
-:::field{name="false"}
-Represents date and time values as plain strings without format validation.
-:::
+The string variants all type the value as `string`. Schema plugins such as `@kubb/plugin-zod` check the offset or local format. A `Date` needs parsing to revive it from JSON.
 
-:::field{name="'string'"}
-Represents `date-time`, `date`, and `time` as ISO 8601 strings. The generated TypeScript type is `string`.
-:::
+Pass an object to set each format on its own. `dateTime` takes every value above, and `date` and `time` take `false`, `'string'`, or `'date'`. A key you leave out is `'string'`, whatever the other keys are.
 
-:::field{name="'stringOffset'"}
-Represents `date-time` as a string with a timezone offset. The `date` and `time` formats fall back to `'string'`.
-:::
-
-:::field{name="'stringLocal'"}
-Represents `date-time` as a local string without a timezone. The `date` and `time` formats fall back to `'string'`.
-:::
-
-:::field{name="'date'"}
-Represents date and time values as JavaScript `Date` objects. JSON values need parsing to revive them as `Date` objects.
-:::
-
-::
-
-The string variants all emit `string` at the TypeScript type level. Schema plugins such as `@kubb/plugin-zod` validate the offset or local format.
-
-Pass an object to set `dateTime`, `date`, and `time` independently. A key that is left out defaults to `'string'`, regardless of the other keys.
-
-```ts
+```typescript
 adapterOas({
   dateType: {
     dateTime: 'date', // Date object for timestamps
@@ -274,9 +287,9 @@ adapterOas({
 })
 ```
 
-### integerType
+#### integerType
 
-How a schema with `format: int64` or `format: uint64` maps to TypeScript. Other integers, such as `type: integer` without a format or with `format: int32`, always map to `number`.
+How a schema with `format: int64` or `format: uint64` is typed. Other integers, such as `type: integer` without a format or with `format: int32`, are always `number`.
 
 |          |                        |
 | -------- | ---------------------- |
@@ -284,23 +297,16 @@ How a schema with `format: int64` or `format: uint64` maps to TypeScript. Other 
 | Required | `false`                |
 | Default  | `'bigint'`             |
 
-::field-group
+| Value                | Good for         | Watch out                                                                                                      |
+| -------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| `'bigint'` (default) | Exact 64-bit IDs | `JSON.stringify` and `JSON.parse` cannot round-trip it. Use it only when the app handles bigint serialization. |
+| `'number'`           | Most JSON APIs   | Loses precision above `Number.MAX_SAFE_INTEGER`.                                                               |
 
-:::field{name="'bigint'"}
-Represents 64-bit IDs exactly, but `JSON.stringify` and `JSON.parse` cannot round-trip it. Use it only when the application handles bigint serialization itself.
-:::
+A schema with `type: string` stays a `string` whatever its `format`, so the [ProtoJSON](https://protobuf.dev/programming-guides/json/#int64-strings) `int64` strings that gRPC-gateway sends stay strings. `@kubb/plugin-zod` checks them with a digits regex, and `@kubb/plugin-faker` mocks them as numeric strings.
 
-:::field{name="'number'"}
-Fits most JSON APIs. It loses precision above `Number.MAX_SAFE_INTEGER`.
-:::
+#### unknownType
 
-::
-
-A schema with `type: string` stays a `string` whatever its `format`, so the [ProtoJSON](https://protobuf.dev/programming-guides/json/#int64-strings) `int64` strings that gRPC-gateway emits stay strings. `@kubb/plugin-zod` validates them with a digits regex, and `@kubb/plugin-faker` mocks them as numeric strings.
-
-### unknownType
-
-AST type used where the spec allows any value but gives no schema for it: the values of `additionalProperties: {}`, a `patternProperties` entry set to `true` or `{}`, the extra items of an open `prefixItems` tuple, and a parameter without a `schema`. `additionalProperties: true` is not affected, and `@kubb/plugin-ts` always types its values as `unknown`.
+Type used where the spec allows any value but gives no schema for it.
 
 |          |                                |
 | -------- | ------------------------------ |
@@ -308,41 +314,30 @@ AST type used where the spec allows any value but gives no schema for it: the va
 | Required | `false`                        |
 | Default  | `'unknown'`                    |
 
-::field-group
+It applies to:
 
-:::field{name="'unknown'"}
-Requires callers to narrow the value before using it.
-:::
+- the values of `additionalProperties: {}`
+- a `patternProperties` entry set to `true` or `{}`
+- the extra items of an open `prefixItems` tuple
+- a parameter without a `schema`
 
-:::field{name="'any'"}
-Allows callers to use the value without type checking.
-:::
+`additionalProperties: true` is not affected. `@kubb/plugin-ts` always types its values as `unknown`.
 
-:::field{name="'void'"}
-Represents a value callers should not use. Choose it when matching a legacy API that uses `void`.
-:::
+| Value                 | Effect                                                       |
+| --------------------- | ------------------------------------------------------------ |
+| `'unknown'` (default) | Callers must narrow the value before they use it.            |
+| `'any'`               | Callers can use the value without type checks.               |
+| `'void'`              | Marks a value callers should not use, to match a legacy API. |
 
-::
+#### emptySchemaType
 
-### emptySchemaType
+Type used for a schema with nothing to infer a type from: an empty schema (`{}`), a schema without a `type` such as one with only a `description`, and a response without a schema. It takes the same values as [`unknownType`](#unknowntype) and follows it when unset.
 
-AST type used for a schema with nothing to infer a type from: an empty schema (`{}`), a schema without a `type` such as one that holds only a `description`, and a response without a schema. `emptySchemaType` takes the same values as [`unknownType`](#unknowntype) and follows it when unset.
-
-|          |                                        |
-| -------- | -------------------------------------- |
-| Type     | `'any' \| 'unknown' \| 'void'`         |
-| Required | `false`                                |
-| Default  | `unknownType` (`'unknown'` by default) |
+|          |                                          |
+| -------- | ---------------------------------------- |
+| Type     | `'any' \| 'unknown' \| 'void'`           |
+| Required | `false`                                  |
+| Default  | `unknownType`, so `'unknown'` by default |
 
 > [!TIP]
-> A common pairing sets `unknownType: 'unknown'` for safety and `emptySchemaType: 'any'` so empty 204 response bodies stay easy to use.
-
-### enumSuffix
-
-Suffix for the names Kubb gives inline enums: schema name, property name, and suffix, in PascalCase. The `status` enum on `Pet` becomes `PetStatusEnum`, or `PetStatusType` with `enumSuffix: 'type'`. Plugins derive their own names from it, such as `petStatusEnum` and `PetStatusEnumKey` in `@kubb/plugin-ts`.
-
-|          |          |
-| -------- | -------- |
-| Type     | `string` |
-| Required | `false`  |
-| Default  | `'enum'` |
+> Set `unknownType: 'unknown'` for safety and `emptySchemaType: 'any'` so empty 204 response bodies stay easy to use.

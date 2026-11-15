@@ -1,18 +1,16 @@
 # Options
 
-`parserMd()` takes no options. You control its output through file metadata, such as the YAML frontmatter at the top of a generated page.
+`parserMd()` takes no options. A plugin controls each Markdown file through its metadata, such as the YAML frontmatter at the top of the page.
 
 ## Frontmatter
 
-Set `file.meta.frontmatter` inside a plugin. Any serializable object becomes a YAML block at the top of the generated page.
+Set `meta.frontmatter` on a file a plugin creates. Kubb writes any serializable object as a YAML block at the top of the page.
 
-::field-group
-
-:::field{name="meta.frontmatter" type="Record<string, unknown> | null"}
-YAML frontmatter prepended to the generated Markdown file.
-:::
-
-::
+|          |                                   |
+| -------- | --------------------------------- |
+| Field    | `file.meta.frontmatter`           |
+| Type     | `Record<string, unknown> \| null` |
+| Required | `false`                           |
 
 ::code-group
 
@@ -40,6 +38,9 @@ Endpoints generated from the OpenAPI spec.
 
 ::
 
-An empty object or `null` writes no frontmatter. A file banner, when set, goes above the frontmatter.
+- `null` or an empty object writes no frontmatter.
+- A file `banner` goes above the frontmatter, and a `footer` goes below the content.
+
+## print
 
 `parserMd().print(...parts)` joins Markdown strings with blank lines and skips empty ones. It takes strings only, so frontmatter always comes from `meta.frontmatter`.
