@@ -14,7 +14,7 @@ navigation:
 
 # Lifecycle hooks
 
-Every phase of a build fires a `kubb:*` hook on one shared emitter, typed by `KubbHooks`. Handlers can be async, and Kubb awaits each one.
+Hooks let you run code in every build phase. Each phase fires a `kubb:*` hook on one shared emitter, typed by `KubbHooks`. Handlers can be async, and Kubb awaits each one.
 
 | Listener                                                          | Receives                                                  |
 | ----------------------------------------------------------------- | --------------------------------------------------------- |
@@ -67,7 +67,7 @@ A full generation run fires the hooks in this order.
 
 ## Build pipeline
 
-The pipeline fires these hooks, so `.build()` and `.safeBuild()` fire them too.
+`.generate()`, `.build()`, and `.safeBuild()` all fire these hooks.
 
 | Hook                           | Payload                                                               | Fires                                                                                                                                       |
 | ------------------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -113,13 +113,13 @@ These hooks carry log messages and diagnostics, and fire at any point.
 | `kubb:error`      | `{ error, meta }`   | An error without a diagnostic code, so its stack survives.                                              |
 | `kubb:diagnostic` | `{ diagnostic }`    | A coded error, warning, or info, or an update notice. See [diagnostics](/docs/5.x/reference/diagnostics). |
 
-For the lifecycle as a concept, see [Architecture](/docs/5.x/explanation/architecture#lifecycle).
+[How Kubb works](/docs/5.x/explanation/architecture#lifecycle) explains the lifecycle.
 
 ## Less common cases {#less-common-cases}
 
 ### Hook listener scope {#hook-listener-scope}
 
-When your plugin listens through its `hooks` map, it receives the hooks from `kubb:setup:end` to `kubb:build:end`, including `kubb:plugin:setup` for that plugin.
+When your plugin listens through its `hooks` map, it gets the hooks from `kubb:setup:end` to `kubb:build:end`, including its own `kubb:plugin:setup`.
 
 - Kubb adds these listeners during setup and removes them when the build ends.
 - They miss the `lifecycle` and `generation` hooks, `kubb:setup:start`, and the output passes.

@@ -15,7 +15,7 @@ navigation:
 
 ## `defineGenerator` {#definegenerator}
 
-A generator walks the [AST](/docs/5.x/reference/kit/ast) and returns files for one plugin. Define it with `defineGenerator`, then register it in the plugin's `setup` with [`addGenerator`](/docs/5.x/reference/kit/plugins#setup-context).
+A generator turns [AST](/docs/5.x/reference/kit/ast) nodes into files for your plugin. Define it with `defineGenerator`, then register it in your plugin's `setup` with [`addGenerator`](/docs/5.x/reference/kit/plugins#setup-context).
 
 ```typescript [my-generator.ts]
 import { ast, defineGenerator } from 'kubb/kit'
@@ -45,7 +45,7 @@ const myGenerator = defineGenerator({
 })
 ```
 
-This generator writes `operations/<operationId>.ts` inside the output folder. A plugin with an `output` option passes `ctx.options.output` instead of a fixed value.
+This generator writes `operations/<operationId>.ts` in the output folder. When your plugin has an `output` option, pass `ctx.options.output` instead of a fixed value.
 
 ### Generator fields {#generator-methods}
 
@@ -62,7 +62,7 @@ This generator writes `operations/<operationId>.ts` inside the output folder. A 
 
 ### Scoping with `match` {#match}
 
-A `false` result skips `schema` or `operation` for that node. `match` never filters `operations()`.
+Return `false` to skip `schema` or `operation` for a node. `match` never filters `operations()`.
 
 ```typescript [scoped-generator.ts]
 import { ast, defineGenerator } from 'kubb/kit'
@@ -79,7 +79,7 @@ const getOnlyGenerator = defineGenerator({
 
 ### `GeneratorContext` {#generatorcontext}
 
-Each method receives `ctx` with these fields:
+Each method gets `ctx` with these fields:
 
 | Field          | Type                       | Holds                                                                                                       |
 | -------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------- |

@@ -102,7 +102,7 @@ Methods have a composable of the same name, such as `addGenerator()`. `useKubb()
 > [!WARNING]
 > Composables work only in `setup` and `kubb:plugin:setup`. In generators and anywhere else, they throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
 
-See [Memo caches](#memo-cache) to cache outside a build.
+To cache outside a build, see [Memo caches](#memo-cache).
 
 ## Plugin naming {#plugin-naming}
 
