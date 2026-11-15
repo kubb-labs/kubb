@@ -86,7 +86,7 @@ Each method receives `ctx`. These fields hold data:
 | Field          | Type                       | Holds                                                                                                       |
 | -------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | `ctx.config`   | `Config`                   | The resolved Kubb config.                                                                                   |
-| `ctx.root`     | `string`                   | Absolute path of the current plugin's output folder.                                                        |
+| `ctx.root`     | `string`                   | Absolute path of the root output folder, `output.path` resolved against `config.root`. It is the same for every plugin. |
 | `ctx.options`  | `TResolvedOptions`         | The options for this node, after `exclude`, `include`, and `override`. In `operations()`, the plugin's options. |
 | `ctx.plugin`   | `Plugin`                   | The current plugin.                                                                                         |
 | `ctx.resolver` | `Resolver`                 | The current plugin's [resolver](/docs/5.x/reference/kit/resolvers).                                         |

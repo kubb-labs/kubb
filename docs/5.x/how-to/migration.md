@@ -22,7 +22,7 @@ Use Node.js 22.22 or higher in development, CI, and Docker. Update `kubb` and yo
 
 | v4 package | v5 |
 | --- | --- |
-| `@kubb/plugin-oas` | Remove it. `kubb` includes the [OpenAPI adapter](#adapter-oas). |
+| `@kubb/plugin-oas` | Remove it. `kubb` includes the [OpenAPI adapter](#adapter-oas). To pass adapter options, as the v5 config below does, install `@kubb/adapter-oas` too, so the config can import `adapterOas`. |
 | `@kubb/plugin-client` with `client: 'axios'` or `'fetch'` | [`@kubb/plugin-axios` or `@kubb/plugin-fetch`](#plugin-client). |
 | `@kubb/plugin-client` with your own client module | Keep `@kubb/plugin-client`. |
 | `@kubb/plugin-solid-query`, `@kubb/plugin-svelte-query` | Remove them. There is no replacement. |

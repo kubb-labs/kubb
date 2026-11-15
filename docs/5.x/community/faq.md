@@ -34,7 +34,7 @@ Set `DO_NOT_TRACK=1` or `KUBB_DISABLE_TELEMETRY=1`. See [Telemetry](/docs/5.x/re
 ::accordion
 
 :::accordion-item{label="Does Kubb work with JavaScript projects?" icon="i-iconoir-help-circle"}
-Yes. Kubb generates TypeScript. Use the output as is in a JavaScript project, or transpile it in your build.
+Yes, with a build step. Kubb generates TypeScript, which a runtime that only runs JavaScript cannot load. Import the output through a bundler that compiles TypeScript, such as Vite or esbuild, or compile it with `tsc`.
 :::
 
 :::accordion-item{label="Can I use Kubb with GraphQL?" icon="i-iconoir-help-circle"}

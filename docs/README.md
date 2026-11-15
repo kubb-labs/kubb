@@ -12,7 +12,7 @@ Blog posts live in [kubb-labs/platform](https://github.com/kubb-labs/platform) u
 
 ## Change the docs
 
-Update the docs in the same pull request as the code they describe. A docs-only pull request needs no changeset, and CI skips it.
+Update the docs in the same pull request as the code they describe. A pull request that only changes `docs/` needs no changeset, and CI skips it. A change to a package's `docs/` folder ships in its npm tarball, so it needs a patch changeset.
 
 `5.x/changelog.md` is written by hand. In each release, add a short entry per version from the root `CHANGELOG.md`: one line per user-facing change with its PR link. Leave out internal-only changes.
 

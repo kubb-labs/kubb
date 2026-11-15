@@ -12,7 +12,7 @@
 
 ### extension
 
-Maps the extension of a generated file to the extension its relative specifiers get. `''` drops the extension, and so does a file whose extension has no key. Package specifiers and the file names on disk never change.
+Maps the extension of a generated file to the extension its relative specifiers get. `''` drops the extension, and so does a file whose extension has no key. The map only replaces an extension: a relative specifier without one stays as written. Package specifiers and the file names on disk never change.
 
 |          |                          |
 | -------- | ------------------------ |

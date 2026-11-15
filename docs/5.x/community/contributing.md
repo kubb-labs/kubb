@@ -88,7 +88,7 @@ Put each test next to its source file, and list a new test file in `configs/test
 
 ### Add a changeset {#commits-and-changesets}
 
-Run `pnpm changeset` when the change ships in a published package. Docs, CI, and test-only changes need none. Write [Conventional Commits](https://www.conventionalcommits.org/), such as `feat:` or `fix:`.
+Run `pnpm changeset` when the change ships in a published package. That includes a package's `docs/` folder, such as `packages/parser-ts/docs`, because npm ships it and kubb.dev reads it from the published version. Changes to `docs/5.x`, CI, and tests need none. Write [Conventional Commits](https://www.conventionalcommits.org/), such as `feat:` or `fix:`.
 
 ### Open a pull request {#opening-a-pull-request}
 

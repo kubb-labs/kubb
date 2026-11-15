@@ -59,7 +59,7 @@ type RegistryIndex = {
 }
 ```
 
-A client rejects an index whose `version` is not `1`, skips an entry whose `artifact.kind` it does not know, and ignores unknown keys. The CLI also skips an entry unless `id` is a full `<owner>/<slug>`, `artifact` pins an exact semver version, and `manifest` is valid with the entry's `kind`.
+A client rejects an index whose `version` is not `1`, skips an entry whose `artifact.kind` it does not know, and ignores unknown keys. The CLI makes two exceptions: it skips an entry when `manifest.compatibility` has a key other than `kubb` or `node`, or when a `manifest.maintainers` item has a key other than `name` or `github`. The CLI also skips an entry unless `id` is a full `<owner>/<slug>`, `artifact` pins an exact semver version, and `manifest` is valid with the entry's `kind`.
 
 ## `GET <base>/<owner>/<slug>.json` {#detail}
 

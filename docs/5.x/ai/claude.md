@@ -69,6 +69,6 @@ Two skills load on their own when the work calls for them:
 
 ## Generate from a conversation
 
-The plugin registers the Kubb MCP server (`npx kubb mcp`). Describe what you want instead of typing a command, and Claude calls the server's [tools](/docs/5.x/reference/commands/mcp#tools) or runs the matching `/kubb:` command. Both produce the same files.
+The plugin registers the Kubb MCP server (`npx kubb mcp`). Describe what you want instead of typing a command, and Claude calls the server's [tools](/docs/5.x/reference/commands/mcp#tools) or runs the matching `/kubb:` command. Both produce the same files, except when `kubb.config.ts` exports an array: the MCP [`generate`](/docs/5.x/reference/commands/mcp#generate) tool runs only its first config.
 
 Start Claude Code from your project root, so the server finds your `kubb.config.ts`. [Set up the MCP server](/docs/5.x/ai/mcp) covers other clients.

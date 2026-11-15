@@ -142,12 +142,15 @@ The [AST reference](/docs/5.x/reference/kit/ast#macros) lists every callback.
 ::code-group
 
 ```typescript [macroIntegerToString.ts]
-import { defineMacro } from 'kubb/kit'
+import { ast, defineMacro } from 'kubb/kit'
 
 export const macroIntegerToString = defineMacro({
   name: 'integer-to-string',
   schema(node) {
-    return node.type === 'integer' ? { ...node, type: 'string' } : undefined
+    if (node.type !== 'integer') return undefined
+    // Copy only fields a string schema has: `min`, `max`, `primitive`, and `format` mean something else on an integer.
+    const { name, title, description, nullable, optional, deprecated, readOnly, writeOnly } = node
+    return ast.factory.createSchema({ type: 'string', name, title, description, nullable, optional, deprecated, readOnly, writeOnly })
   },
 })
 ```

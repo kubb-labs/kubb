@@ -18,7 +18,7 @@ Every phase of a build fires a `kubb:*` hook on one shared, typed emitter. The `
 
 | Listener                                                          | Receives                                                  |
 | ----------------------------------------------------------------- | --------------------------------------------------------- |
-| A plugin's [`hooks`](/docs/5.x/reference/kit/extensions#plugins) map | Every hook, including `kubb:plugin:setup` for that plugin |
+| A plugin's [`hooks`](/docs/5.x/reference/kit/extensions#plugins) map | The hooks from `kubb:setup:end` to `kubb:build:end`, including `kubb:plugin:setup` for that plugin. Kubb adds these listeners during setup and removes them when the build ends, so they miss the `lifecycle` and `generation` hooks, `kubb:setup:start`, and the output passes. |
 | `kubb.hooks.hook(name, handler)` from [`createKubb`](/docs/5.x/reference/kit/engine#createkubb) | Every hook except `kubb:plugin:setup`                     |
 
 ## Listening

@@ -103,7 +103,7 @@ export default defineConfig({
 })
 ```
 
-- Put the config next to `tsconfig.json` or in a parent folder, and add `./kubb.config.ts` to `include`. The mapper reloads the config when it changes.
+- Put the config next to `tsconfig.json` or in a parent folder, and add its path, relative to `tsconfig.json`, to `include`, such as `./kubb.config.ts` or `../kubb.config.ts`. The mapper reloads the config when it changes.
 - With several configs, a spec uses the one whose `input` is that spec, or else the first config without an `input`.
 
 ## Load the spec at run time

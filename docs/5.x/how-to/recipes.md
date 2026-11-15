@@ -101,7 +101,7 @@ To call the API with the global `fetch` instead of Axios, replace `pluginAxios` 
 
 ## Format, lint, and run commands after generation
 
-Set `format` and `lint` to a tool name, or to `'auto'` to use the first one installed. [`output.postGenerate`](/docs/5.x/reference/configuration#outputpostgenerate) runs shell commands after formatting and linting. Install the tools first, such as `npm install -D @biomejs/biome oxlint`.
+Set `format` and `lint` to a tool name, or to `'auto'` to use the first one installed. [`output.postGenerate`](/docs/5.x/reference/configuration#outputpostgenerate) runs shell commands after formatting and linting. Install the tools first, such as `npm install -D @biomejs/biome oxlint`. The example runs a `typecheck` script, so add one to `package.json`, such as `"typecheck": "tsc --noEmit"`, or use a command your project already has.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -157,10 +157,12 @@ When the spec lives in another repository, such as the API's own, set `input` to
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: 'git+https://github.com/org/api.git#v2.1.0:specs/openapi.yaml',
   output: { path: './src/gen' },
+  plugins: [pluginTs()],
 })
 ```
 

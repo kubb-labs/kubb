@@ -273,7 +273,7 @@ The plugins to run. Kubb orders them by their dependencies. A plugin whose requi
 ### `adapter`
 
 :::field{type="Adapter"}
-Converts your input into Kubb's AST. Default: `adapterOas()`, bundled with `kubb`. Set it yourself to pass options, such as `adapter: adapterOas({ validate: false })` from `@kubb/adapter-oas`. See [Adapters](/docs/5.x/explanation/architecture#adapters) and the [adapter options](/extensions/kubb-labs/adapter-oas/options).
+Converts your input into Kubb's AST. Default: `adapterOas()`, bundled with `kubb`. Set it yourself to pass options, such as `adapter: adapterOas({ validate: false })`. Install `@kubb/adapter-oas` for that import: `kubb` depends on it but does not re-export it. See [Adapters](/docs/5.x/explanation/architecture#adapters) and the [adapter options](/extensions/kubb-labs/adapter-oas/options).
 :::
 
 ### `parsers`

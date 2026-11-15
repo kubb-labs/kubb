@@ -78,7 +78,7 @@ The resource attributes are `service.name: "kubb"`, `service.version` (the Kubb 
 - Source code or generated code
 - A user, machine, or project identifier
 
-Kubb does not read environment variables or credential files for telemetry. A secret reaches the payload only when a plugin option in `kubb.config.ts` holds it as a literal value.
+Kubb does not read environment variables or credential files for telemetry. It does send each plugin option value your config passes, so a value that names your project, such as `baseURL`, reaches the payload. So does a secret in a plugin option, whether `kubb.config.ts` writes it as a literal or reads it from `process.env`.
 
 ## How to opt out
 

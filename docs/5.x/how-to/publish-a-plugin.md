@@ -30,7 +30,7 @@ export { pluginExample } from './plugin.js'
 
 Add a TypeScript build config and these `package.json` fields, next to the dev dependencies you already have. Replace the package name with an available name you own:
 
-:::code-group
+:::code-tree{defaultValue="package.json"}
 
 ```json [package.json]
 {

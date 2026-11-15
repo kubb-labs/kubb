@@ -210,7 +210,7 @@ Generates only the operations and schemas that match at least one entry.
 
 A string `pattern` is compiled with `new RegExp(pattern)`, so it matches anywhere: `'pet'` also matches `'petType'`. Anchor it as `'^pet$'` for an exact match.
 
-Only `schemaName` entries filter schemas. An `include` without a `schemaName` entry keeps every schema, and an `include` with only `schemaName` entries generates no operations.
+Only `schemaName` entries filter schemas by name. An `include` with operation entries and no `schemaName` entry keeps only the schemas the included operations use, directly or through other schemas. An `include` with only `schemaName` entries generates no operations.
 
 ```typescript [Type definition]
 export type Include =

@@ -39,7 +39,7 @@ Endpoints generated from the OpenAPI spec.
 ::
 
 - `null` or an empty object writes no frontmatter.
-- A file `banner` goes above the frontmatter, and a `footer` goes below the content.
+- A file `banner` goes above the frontmatter, and a `footer` goes below the content. Tools such as Jekyll read frontmatter only at the top of the file, so leave `banner` unset on a file with frontmatter.
 
 ## print
 
