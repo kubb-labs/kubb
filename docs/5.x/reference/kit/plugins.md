@@ -1,10 +1,7 @@
 ---
 layout: doc
-title: Plugins
-description: defineExtension with kind plugin defines a Kubb plugin from one
-  object with meta, dependencies, and a setup function that returns the resolved
-  options, plus the KubbPluginSetupContext that registers generators, resolvers,
-  and macros.
+title: Plugins - Define a Kubb plugin with defineExtension
+description: "Define a Kubb plugin with defineExtension and kind plugin: meta, dependencies, setup, and the setup context that registers generators."
 outline:
   - 2
   - 3
@@ -45,7 +42,7 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ## Setup context {#setup-context}
 
-`setup` and the `kubb:plugin:setup` hook register everything through the setup context. Reach it as the context argument (`kubb` in `setup`, `ctx` in the hook), or through composables from `kubb/kit`, such as `addGenerator()`. Composables take no argument, so helpers that `setup` calls can use them too.
+`setup` and the `kubb:plugin:setup` hook register everything through the setup context. Reach it as the context argument (`kubb` in `setup`, `ctx` in the hook), or through composables from `kubb/kit`, such as `addGenerator()`. Composables take no context argument, so helpers that `setup` calls can use them too.
 
 ::code-group
 

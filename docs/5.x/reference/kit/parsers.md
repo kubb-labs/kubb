@@ -1,10 +1,7 @@
 ---
 layout: doc
-title: Parsers
-description: defineExtension with kind parser defines a parser from one object
-  with meta and a build function. A parser converts a generated file AST into
-  the source string written to disk. Covers the Parser interface and adding
-  your own.
+title: Parsers - Print generated files as source code
+description: Define a Kubb parser with defineExtension and kind parser. It turns the AST of a generated file into the source written to disk.
 outline:
   - 2
   - 3
@@ -19,7 +16,7 @@ navigation:
 > [!TIP]
 > For TypeScript and JavaScript output, use [`@kubb/parser-ts`](/extensions/kubb-labs/parser-ts). When the config sets no `parsers`, `defineConfig` adds `parserTs()`, `parserTsx()`, and `parserMd()`. Write your own only for another language, such as Python, Kotlin, or Rust.
 
-A parser turns a `FileNode` into the source text Kubb writes. `build` gets the user's options and returns the parser methods: Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'parser'`. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work the same for every extension.
+A parser turns a `FileNode` into the source text Kubb writes. `build` gets the user's options and returns the parser methods. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'parser'`. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work the same for every extension.
 
 ```typescript [parserText.ts]
 import { defineExtension } from 'kubb/kit'
@@ -44,7 +41,7 @@ export const parserText = defineExtension({
 })
 ```
 
-A `parsers` array replaces the defaults, so list them again to keep TypeScript and Markdown output:
+A non-empty `parsers` array replaces the defaults, and an empty one keeps them. List the defaults again to keep TypeScript and Markdown output:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'

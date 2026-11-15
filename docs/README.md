@@ -43,7 +43,7 @@ A folder gets its title, icon and position from a `.navigation.yml` file inside 
 - Write in active voice, present tense.
 - Keep paragraphs short, 2 to 3 sentences.
 - Explain before showing code.
-- Import `defineConfig` from `kubb/config` in every example.
+- Import `defineConfig` from `kubb/config` in every config example. An example that only defines a plugin, adapter, parser, generator, or resolver imports from `kubb/kit` instead.
 - Put each page in one Diátaxis quadrant (tutorial, how-to, reference, explanation) and link to the owner page instead of repeating its content.
 
 Pages render with Nuxt Content and Nuxt UI's Markdown components. Reuse the same elements for the same purpose:

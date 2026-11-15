@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Commands
+title: Kubb CLI commands - Flags, env vars, and exit codes
 description: Every kubb CLI command with links to its reference, plus the global flags, deprecated flags, environment variables, and exit codes all commands share.
 outline: [2, 3]
 navigation:
@@ -25,7 +25,7 @@ kubb <command> [options]
 | [`kubb init`](/docs/5.x/reference/commands/init) | Set up a config, install plugins, and run the first generation. |
 | [`kubb generate [input]`](/docs/5.x/reference/commands/generate) | Run the generation pipeline from `kubb.config.ts`. The default command. |
 | [`kubb validate <input>`](/docs/5.x/reference/commands/validate) | Check a spec with the configured adapter, without generating. |
-| [`kubb add [id]`](/docs/5.x/reference/commands/add) | Install an extension from the registry and add it to the config. |
+| [`kubb add [id]`](/docs/5.x/reference/commands/add) | Install an extension from the registry. Adds a plugin or parser to the config, and prints the code to add for an adapter. |
 | [`kubb update [ids...]`](/docs/5.x/reference/commands/update) | Move installed extensions to the version the registry pins. |
 | [`kubb list`](/docs/5.x/reference/commands/list) | List installed extensions, their versions, and available updates. |
 | [`kubb remove <id>`](/docs/5.x/reference/commands/remove) | Remove a plugin or parser from the config and uninstall it. |

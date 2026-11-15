@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Adapters
-description: defineExtension with kind adapter builds an adapter that converts
-  an input specification into the universal AST. Covers the Adapter interface,
-  the built-in OpenAPI adapter, and writing your own.
+title: Adapters - Turn a spec into the Kubb AST
+description: Build a Kubb adapter with defineExtension and kind adapter. It converts an input spec into the universal AST. Covers the Adapter interface.
 outline:
   - 2
   - 3
@@ -59,7 +57,7 @@ export default defineConfig({
 | Member     | Type                                                                                                     | Required | Purpose                                                                                                                                     |
 | ---------- | -------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `document` | `TDocument \| null`                                                                                      | Yes      | The parsed source document. `null` before `parse()`.                                                                                        |
-| `parse`    | `(source: AdapterSource, options?: { signal?: AbortSignal; fileRefs?: Array<string> }) => InputNode \| Promise<InputNode>` | Yes      | Converts the spec into the AST. With `fileRefs`, a `$ref` reads local files only inside those folders, and none when the list is empty.     |
+| `parse`    | `(source: AdapterSource, options?: { signal?: AbortSignal; fileRefs?: Array<string> }) => InputNode \| Promise<InputNode>` | Yes      | Converts the spec into the AST. Kubb passes `fileRefs` through and checks no reads: the adapter must read local `$ref` files only inside those folders, and none when the list is empty. |
 | `validate` | `(input: string, options?: { throwOnError?: boolean }) => Promise<void>`                                 | Yes      | Validates the document at a path or URL. [`kubb validate`](/docs/5.x/reference/commands/validate) passes `throwOnError: true`, so throw on invalid input. |
 | `settle`   | `() => Promise<void>`                                                                                    | No       | Waits for work `parse` left running, such as validation in a worker. Kubb awaits it before `kubb:build:end`. Must not reject.                |
 | `locate`   | `(source: string, location: DiagnosticLocation) => { start: number; end: number } \| undefined`          | No       | Places a diagnostic in the source text for a CLI code frame: zero-based UTF-16 offsets, `end` exclusive.                                    |
