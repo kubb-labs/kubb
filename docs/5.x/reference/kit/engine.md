@@ -71,7 +71,7 @@ flowchart LR
 
 | Member         | Type                                    | Description                                                                                                                                      |
 | -------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `.safeBuild()` | `() => Promise<BuildOutput>`            | The main call. Runs the pipeline and collects problems in `diagnostics` instead of throwing.                                                     |
+| `.safeBuild()` | `() => Promise<BuildOutput>`            | The main call. Runs the pipeline and collects its problems in `diagnostics` instead of throwing. Setup can still reject, for example when a plugin's `dependencies` callback throws or the signal aborts, so catch it. |
 | `.build()`     | `() => Promise<BuildOutput>`            | Runs `safeBuild()`, then throws an `AggregateError` of every error diagnostic.                                                                    |
 | `.generate()`  | `(options?) => Promise<GenerateResult>` | Runs one full generation: the `kubb:generation:*` and `kubb:setup:*` hooks, the build, and the output passes. Returns `{ success, files, diagnostics, input }` and never throws on a build error. |
 | `.setup()`     | `() => Promise<void>`                   | Sets up the driver and storage. The build methods call it when needed.                                                                          |

@@ -49,7 +49,7 @@ The command removes the call and its unused import. It leaves the generated file
 | The last parser | A config needs at least one. |
 | An extension another plugin in the config depends on | Remove that plugin first. |
 
-Extensions that ship with `kubb`, such as `@kubb/adapter-oas`, leave the config but stay installed. See [What kubb remove keeps installed](/docs/5.x/topics/extension-commands#extension-command-output).
+Extensions that ship with `kubb`, such as `@kubb/plugin-barrel` and `@kubb/parser-md`, leave the config but stay installed. See [What kubb remove keeps installed](/docs/5.x/topics/extension-commands#extension-command-output).
 
 ## Options {#options}
 

@@ -29,6 +29,7 @@ snapshot:
 ```
 
 - The second rule snapshots every protected branch, such as `main` or a release branch, so a merge request has a snapshot of its target branch to compare with.
+- Kubb names a branch snapshot after GitLab's branch slug, so `release/1.0` and `release-1.0` share one. Give protected branches names that stay distinct as slugs.
 - Both rules need `KUBB_TOKEN`, so a pipeline without the key, such as one for an unprotected branch or a fork, skips the job before `npm ci` runs.
 
 > [!IMPORTANT]

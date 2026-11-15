@@ -4,7 +4,7 @@ The OpenAPI adapter reads an OpenAPI 2.0, 3.0, 3.1, or 3.2 spec and converts it 
 
 - It is the first step of every build, so its options apply to all plugins.
 - It downloads a remote `input` URL and any remote `$ref` with a plain GET request, without credentials.
-- It reads the local files that external `$ref`s point to, even outside the spec's folder, and never writes files.
+- It reads the local files that external `$ref`s point to, even outside the spec's folder, unless the host limits them, as a Kubb Studio agent does. See [External refs](https://kubb.dev/docs/5.x/topics/config-and-inputs#external-refs). It never writes files.
 
 ## Setup
 

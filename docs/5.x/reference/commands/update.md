@@ -68,4 +68,4 @@ An extension gets an update when its installed version is older than the pinned 
 | Code | When |
 | --- | --- |
 | `0` | The updates are installed, nothing is outdated, or you canceled a prompt. Also when the generation after the install fails. |
-| `1` | An id is invalid or not installed (the other ids still update), a named extension's update is not compatible, the registry cannot be read, or the install fails. |
+| `1` | An id is malformed (nothing updates) or not installed (the other ids still update), a named extension's update is not compatible, the registry cannot be read, or the install fails. |

@@ -19,11 +19,11 @@ The Barrel plugin runs after every other plugin, so each barrel sees the final s
 
 ## When a plugin gets no barrel
 
-| Case                                                            | Result                                               |
-| --------------------------------------------------------------- | ---------------------------------------------------- |
-| `output.mode: 'file'`                                           | The root barrel re-exports the single file directly. |
-| The plugin writes to the output root, with no own `output.path` | The root barrel picks up its files.                  |
-| `output.path` resolves outside the root `output.path`           | The build fails with `KUBB_PATH_TRAVERSAL`.          |
+| Case                                                            | Result                                                                                                                               |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `output.mode: 'file'`                                           | The root barrel re-exports the single file directly.                                                                                 |
+| The plugin writes to the output root, with no own `output.path` | The root barrel picks up its files.                                                                                                  |
+| `output.path` resolves outside the root `output.path`           | With a directory barrel, the build fails with `KUBB_PATH_TRAVERSAL`. With `barrel: false` or `mode: 'file'`, Kubb does not check it. |
 
 ## What goes into a barrel
 
