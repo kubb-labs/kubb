@@ -60,7 +60,7 @@ Either works. Commit the output so CI can skip generation, or add the output fol
 :::
 
 :::accordion-item{label="Can Kubb generate during my build or in CI?" icon="i-iconoir-help-circle"}
-Yes. [Build tool plugins](/docs/5.x/integrations/build-tools) generate when Vite, webpack, or another bundler builds. [CI snapshots](/docs/5.x/integrations/ci) publish the output of each pull request as an installable package.
+Yes. [Build tool plugins](/docs/5.x/integrations/overview#build-tools) generate when Vite, webpack, or another bundler builds. [CI snapshots](/docs/5.x/integrations/ci) publish the output of each pull request as an installable package.
 :::
 
 ::

@@ -109,7 +109,7 @@ export default defineConfig([
 | [`root`](#root) | The config file's folder. `process.cwd()` when you call `createKubb` yourself. |
 | [`reporters`](#reporters) | `[cli, json, file, html]` |
 
-`createKubb` from `@kubb/core` applies only the `root`, `storage`, `output.format`, `output.lint`, and `output.defaultBanner` defaults. [Build tool integrations](/docs/5.x/integrations/build-tools) apply the same defaults as `defineConfig`, but run only the summary reporter, not `json`, `file`, or `html`.
+`createKubb` from `@kubb/core` applies only the `root`, `storage`, `output.format`, `output.lint`, and `output.defaultBanner` defaults. [Build tool integrations](/docs/5.x/integrations/overview#build-tools) apply the same defaults as `defineConfig`, but run only the summary reporter, not `json`, `file`, or `html`.
 
 `output.mode`, `output.banner`, and `output.footer` exist only on a plugin's `output`. [Shared plugin options](/docs/5.x/reference/plugin-options#output) documents them.
 

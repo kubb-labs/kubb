@@ -37,7 +37,7 @@ Check the open [issues](https://github.com/kubb-labs/kubb/issues) and [pull requ
 | `packages/cli/` | The `kubb` CLI |
 | `packages/mcp/` | MCP server |
 | `packages/studio/` | The Studio connection behind `kubb studio` |
-| `packages/unplugin-kubb/` | [Build tool integrations](/docs/5.x/integrations/build-tools) |
+| `packages/unplugin-kubb/` | [Build tool integrations](/docs/5.x/integrations/overview#build-tools) |
 | `packages/kubb/` | The main package: public APIs and `defineConfig` |
 
 ## Workflow

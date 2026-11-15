@@ -37,4 +37,4 @@ Run `rollup -c`. Kubb generates once, before the build continues, and a failed g
 
 ::
 
-[How the build runs Kubb](/docs/5.x/integrations/build-tools#how-the-build-runs-kubb) covers the defaults it applies, the reports it prints, and watch rebuilds.
+[How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) covers the defaults it applies, the reports it prints, and watch rebuilds.

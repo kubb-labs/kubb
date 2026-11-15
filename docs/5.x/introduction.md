@@ -60,7 +60,7 @@ The animation follows the spec through the pipeline. The adapter turns schemas a
 | Add Kubb to your project | [Installation](/docs/5.x/how-to/installation) |
 | Set up a stack, such as React Query with Zod | [Configure generation](/docs/5.x/how-to/recipes) |
 | Rename files or change generated code | [Resolvers](/docs/5.x/how-to/customize#resolvers), [macros](/docs/5.x/how-to/customize#macros), and [printers](/docs/5.x/how-to/customize#printers) |
-| Generate during a build or in CI | [Build tools](/docs/5.x/integrations/build-tools) and [CI](/docs/5.x/integrations/ci) |
+| Generate during a build or in CI | [Build tools](/docs/5.x/integrations/overview#build-tools) and [CI](/docs/5.x/integrations/ci) |
 | Use Kubb from a browser or an AI assistant | [Studio](/docs/5.x/integrations/studio) and [AI assistants](/docs/5.x/ai) |
 | Build a plugin | [Create a plugin](/docs/5.x/tutorials/creating-plugins) |
 | Look up an option, command, or API | [Configuration](/docs/5.x/reference/configuration), [commands](/docs/5.x/reference/commands/), and [Kit API](/docs/5.x/reference/kit) |

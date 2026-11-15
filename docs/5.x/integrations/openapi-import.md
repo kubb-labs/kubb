@@ -108,7 +108,7 @@ export default defineConfig({
 
 ## Load the spec at run time
 
-TypeScript does not emit the spec as JavaScript, so values such as `petStatusEnum` need a bundler. Add `kubb()` from any [build tool](/docs/5.x/integrations/build-tools) without a `config` option, so it reads the same `kubb.config.ts` as `tsc`:
+TypeScript does not emit the spec as JavaScript, so values such as `petStatusEnum` need a bundler. Add `kubb()` from any [build tool](/docs/5.x/integrations/overview#build-tools) without a `config` option, so it reads the same `kubb.config.ts` as `tsc`:
 
 ```ts [vite.config.ts]
 import kubb from 'kubb/vite'
