@@ -11,7 +11,7 @@ navigation:
 
 # GitHub Actions
 
-`kubb-labs/action@v0` runs `kubb studio snapshot` to publish a Studio snapshot, then writes the result on the pull request. [CI snapshots](/docs/5.x/integrations/ci#github-actions) has the workflow and the permissions it needs.
+`kubb-labs/action@v0` runs `kubb studio snapshot` to publish a Studio snapshot, then writes the result on the pull request. [CI snapshots](/docs/5.x/integrations/github-actions) has the workflow and the permissions it needs.
 
 ## Run flow
 

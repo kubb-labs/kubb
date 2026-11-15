@@ -106,7 +106,7 @@ See [serialization](/extensions/kubb-labs/plugin-fetch/guides/serialization) for
 - One AI plugin marketplace and shared agents for the whole team.
 - [Review added, changed, and removed files](/docs/5.x/integrations/studio#review-and-save-generated-files) before you save them.
 - Edit `kubb.config.ts` from the browser.
-- [An installable snapshot for every pull request](/docs/5.x/integrations/ci#github-actions).
+- [An installable snapshot for every pull request](/docs/5.x/integrations/github-actions).
 - Try it in the browser without installing anything.
 
 To try the others without installing them, orval has a [playground](https://orval.dev/playground) and HeyAPI has a StackBlitz demo.
