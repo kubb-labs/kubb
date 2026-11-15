@@ -53,4 +53,4 @@ Allocate names only for declarations the generator emits. `Resolver.merge` retur
 ### Rename a schema in an adapter or a macro {#rename-schemas}
 
 - An adapter that renames a schema, such as to break a name collision, sets `targetName` on every ref node that points at it. [`resolver.imports`](/docs/5.x/reference/kit/resolvers#imports) and `ast.ref.getName` then use the new name. See [Adapters](/docs/5.x/reference/kit/adapters).
-- A plugin that imports another plugin's output computes names from the nodes it sees. Register a rename [macro](/docs/5.x/reference/kit/ast#macros) on every plugin that touches the schema, such as through one shared `macros` array.
+- A plugin that imports another plugin's output computes names from the nodes it sees. Register a rename [macro](/docs/5.x/reference/kit/ast#macros) on every plugin that touches the schema, such as through one shared `macros` array. [Rename a schema](/docs/5.x/how-to/customize#rename-a-schema) has a working macro that renames the declaration and every ref to it.

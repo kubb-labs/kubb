@@ -14,18 +14,18 @@ navigation:
 
 # Upgrade from v4 to v5
 
-Update the packages, migrate the config, regenerate, then fix the imports and call sites in your app.
+Update the packages and the config, regenerate, then fix the imports and call sites in your app.
 
 ## Before you start {#before-you-start}
 
-Use Node.js 22.22 or later in development, CI, and Docker. Update `kubb` and your plugins to v5. Plugin package names stay the same.
+Use Node.js 22.22 or later, also in CI and Docker. Update `kubb` and your plugins to v5. Package names stay the same, except these:
 
 | v4 package | v5 |
 | --- | --- |
-| `@kubb/plugin-oas` | Remove it. `kubb` includes the [OpenAPI adapter](#adapter-oas). To pass adapter options, as the v5 config below does, install `@kubb/adapter-oas` and import `adapterOas`. |
+| `@kubb/plugin-oas` | Remove it. `kubb` includes the [OpenAPI adapter](#adapter-oas). |
 | `@kubb/plugin-client` with `client: 'axios'` or `'fetch'` | [`@kubb/plugin-axios` or `@kubb/plugin-fetch`](#plugin-client). |
-| `@kubb/plugin-client` with your own client module | Keep `@kubb/plugin-client`. |
-| `@kubb/plugin-solid-query`, `@kubb/plugin-svelte-query` | Remove them. There is no replacement. |
+| `@kubb/plugin-client` with your own client module | Keep it. |
+| `@kubb/plugin-solid-query`, `@kubb/plugin-svelte-query` | Remove them, with no replacement. |
 
 ## Defaults that changed {#defaults-that-changed}
 
@@ -76,10 +76,10 @@ export default defineConfig({
 
 | v4 | v5 |
 | --- | --- |
-| `defineConfig` from `@kubb/core` | `defineConfig` from `kubb/config`. |
-| `input: { path }` or `input: { data }` | `input` as the path, URL, spec string, or parsed object itself. The wrapper fails with `KUBB_LEGACY_INPUT`. |
+| `defineConfig` from `@kubb/core` | From `kubb/config`. |
+| `input: { path }` or `input: { data }` | The path, URL, spec string, or parsed object itself. The wrapper fails with `KUBB_LEGACY_INPUT`. |
 | `output.storage` | Top-level `storage`, with helpers from `kubb/kit`. |
-| `hooks.done` | `output.postGenerate`, an array of strings or `{ name, command }` objects. |
+| `hooks.done` | `output.postGenerate`: strings or `{ name, command }` objects. |
 | `KUBB_HOOK_FAILED` | `KUBB_POST_GENERATE_FAILED`. |
 | `output.override` | Removed. Use a storage driver to control writes. |
 | `kubb:debug` hooks, `createDebugger` | Removed. |
@@ -88,14 +88,14 @@ export default defineConfig({
 
 ### OpenAPI adapter {#adapter-oas}
 
-Remove `pluginOas()`. `defineConfig` adds `adapterOas()`, the TypeScript, TSX, and Markdown parsers, and the barrel plugin. Set `adapter` only to pass options.
+`defineConfig` adds `adapterOas()`, the TypeScript, TSX, and Markdown parsers, and the barrel plugin. To pass adapter options, install `@kubb/adapter-oas` and set `adapter`.
 
 | v4 | v5 on `adapterOas` |
 | --- | --- |
-| `dateType`, `integerType`, `unknownType`, `emptySchemaType`, `enumSuffix`, `contentType` on plugins | The same names, set once for the whole config. |
+| `dateType`, `integerType`, `unknownType`, `emptySchemaType`, `enumSuffix`, `contentType` on plugins | The same names, set once. |
 | `serverIndex`, `serverVariables` | `server: { index, variables }`. |
-| `discriminator: 'strict'` | `discriminator: 'preserve'`, the default. |
-| `discriminator: 'inherit'` | `discriminator: 'propagate'`. |
+| `discriminator: 'strict'` | `'preserve'`, the default. |
+| `discriminator: 'inherit'` | `'propagate'`. |
 | `validate` | Unchanged, `true` by default. |
 
 ### Output layout {#output-layout}
@@ -107,19 +107,19 @@ Remove `pluginOas()`. `defineConfig` adds `adapterOas()`, the TypeScript, TSX, a
 | `'propagate'` (plugin only) | `{ type: 'named', nested: true }` |
 | `false` | `false` |
 
-- Plugins still write a named barrel by default. An `output` you pass replaces that default, so repeat [`barrel`](/docs/5.x/how-to/recipes#barrel-files) in it.
-- `output.mode` follows `output.path`: an extension means one file, otherwise a directory. `group` with file mode fails with `KUBB_INVALID_PLUGIN_OPTIONS`.
+- An `output` you pass to a plugin replaces its default named barrel, so repeat `barrel` in it.
+- `output.mode` follows `output.path`: a file extension means one file, otherwise a directory. `group` with file mode fails with `KUBB_INVALID_PLUGIN_OPTIONS`.
 - Tag folders drop the `Controller` suffix, or `Requests` for Cypress and MCP. To keep it, set ``group: { type: 'tag', name: ({ group }) => `${group}Controller` }``.
 
 ## Shared plugin options {#shared-plugin-options}
 
 | v4 | v5 |
 | --- | --- |
-| `transformers.name` | `resolver.name`. Call the exported resolver to keep the default casing. |
+| `transformers.name` | [`resolver.name`](/docs/5.x/how-to/customize). Its input casing can differ from v4, so check the names, or call the exported resolver for the default casing. |
 | `transformers.schema` | `macros`. |
 | `mapper` | A schema macro or a `printer.nodes` override. |
 | `generators` | A custom plugin. |
-| `paramsType`, `pathParamsType`, `paramsCasing` | One grouped `{ body, path, query, headers }` object with the spec's names. For camelCase path params, set [`pathParamsCasing: 'camelcase'`](/extensions/kubb-labs/adapter-oas/options#pathparamscasing) on the adapter. |
+| `paramsType`, `pathParamsType`, `paramsCasing` | One `{ body, path, query, headers }` object with the spec's names. For camelCase path params, set [`pathParamsCasing: 'camelcase'`](/extensions/kubb-labs/adapter-oas/options#pathparamscasing) on the adapter. |
 
 A group with a required parameter is required, and an unused group is typed `never`. Update positional call sites:
 
@@ -139,23 +139,21 @@ useUpdatePet().mutate({ path: { petId }, body: pet })
 
 ::
 
-A resolver can receive names in a different casing than a v4 name transformer, so check the identifiers after you move one. See [Customize generated code](/docs/5.x/how-to/customize).
-
 ## HTTP clients {#plugin-client}
 
 | v4 | v5 |
 | --- | --- |
 | `pluginClient({ client: 'axios' })` | `pluginAxios()` |
 | `pluginClient({ client: 'fetch' })` | `pluginFetch()` |
-| `clientType`, `wrapper` | `sdk`: `mode: 'tag'` (default) writes a class per tag, `name` adds a root class, `mode: 'flat'` writes one class. Leave it unset for the standalone functions that query plugins use. |
+| `clientType`, `wrapper` | [`sdk`](/extensions/kubb-labs/plugin-axios/options#sdk), a class per tag by default. Leave it unset for the standalone functions query plugins use. |
 | `dataReturnType` | `returnType`, default `'full'` |
 | `parser: 'zod'` | `validator: 'zod'` |
 | `parser: 'client'` | `validator: false`, the default. |
-| `operations`, `clientType: 'staticClass'`, `bundle`, `urlType` | Removed. The Axios and Fetch plugins write their client to `.kubb/client.ts`. URL-only helpers need a custom plugin. |
-| `importPath` to your own client module | `pluginClient({ importPath })`, without `sdk` or `baseURL`, because your module owns the client. |
+| `operations`, `clientType: 'staticClass'`, `bundle`, `urlType` | Removed. The client goes to `.kubb/client.ts`. URL-only helpers need a custom plugin. |
+| `importPath` to your own client module | `pluginClient({ importPath })`, without `sdk` or `baseURL`. |
 
-- `returnType: 'full'` returns `{ status, data, error, contentType, headers, request, response }`. Read `data`, call `.unwrap()`, or set `returnType: 'data'` for the body alone.
-- Pass `throwOnError: false` on a call to inspect an error without throwing.
+- Calls return the full result object. Read `data`, call `.unwrap()`, or set `returnType: 'data'` for the body alone.
+- To inspect an error without throwing, pass `throwOnError: false` on the call.
 
 ::code-group
 
@@ -178,9 +176,7 @@ const { data: pet } = await getPet({ path: { petId: 1 } })
 | `enumKeyCasing` | `enum.keyCasing` |
 | `enumType: 'asPascalConst'` | `enum: { type: 'asConst', constCasing: 'pascalCase' }` |
 
-Generated types change too:
-
-- Request inputs are `*Options` types with `body`, `path`, `query`, and `headers`, and keep OpenAPI names such as `pet_id` and `X-Api-Key`.
+- Request input types are named `*Options` and keep spec names such as `pet_id`.
 - Enums default to a const-asserted object plus a `*Key` type union. Inline enum names are scoped to their operation.
 
 See [TypeScript options](/extensions/kubb-labs/plugin-ts/options).
@@ -194,7 +190,7 @@ Upgrade `zod` to v4.
 | `version` | Removed. v5 prints Zod 4. |
 | `typed: true` | Removed. Set `inferred: true` to export `z.infer` type aliases. |
 | Inferred alias `PetSchema` | `PetSchemaType` |
-| `wrapOutput` | A `printer.nodes` override. `this.base(node)` returns the default expression to decorate. |
+| `wrapOutput` | A `printer.nodes` override that decorates `this.base(node)`. |
 | `operations` | Removed. Its operation and path maps need a custom plugin. |
 | `listPets200Schema` | `listPetsStatus200Schema` |
 
@@ -205,34 +201,33 @@ See [Zod options](/extensions/kubb-labs/plugin-zod/options).
 - Register a client plugin: Axios, Fetch, or `@kubb/plugin-client`.
 - Move `baseURL` and validation to the client plugin, and remove `parser`.
 - Set `hooks: true` to keep the `use*` hooks.
-- Queries and mutations take grouped `*Options`.
 - Replace `*MutationKey` type imports with the runtime key helper.
 - `TData` holds only 2xx responses, and errors use `TError`.
-- The generated `enabled` guard is gone. Set TanStack Query's `enabled` or `skipToken` to defer a request.
+- To defer a request, set TanStack Query's `enabled` or `skipToken`. The generated `enabled` guard is gone.
 
 See [React Query options](/extensions/kubb-labs/plugin-react-query/options).
 
 ## Vue Query {#plugin-vue-query}
 
-Apply the [React Query](#plugin-react-query) changes. Set `hooks: true` to keep the composables. See [Vue Query options](/extensions/kubb-labs/plugin-vue-query/options).
+Apply the [React Query](#plugin-react-query) changes. See [Vue Query options](/extensions/kubb-labs/plugin-vue-query/options).
 
 ## SWR {#plugin-swr}
 
-Apply the client, parameter, and validation changes from [React Query](#plugin-react-query). Remove `mutation.paramsToTrigger`, because mutation parameters always pass through `trigger()`:
+Apply the client and validation changes from [React Query](#plugin-react-query), and remove `mutation.paramsToTrigger`:
 
 ```typescript [src/app.ts]
 useUpdatePet().trigger({ path: { petId }, body: pet })
 ```
 
-SWR keys requests off `shouldFetch` instead of a parameter-presence guard. Set it to `false` to skip a request. See [SWR options](/extensions/kubb-labs/plugin-swr/options).
+To skip a request, set `shouldFetch: false`. The parameter-presence guard is gone. See [SWR options](/extensions/kubb-labs/plugin-swr/options).
 
 ## Faker {#plugin-faker}
 
-Remove `paramsCasing` and `mapper`, and use macros or printers instead, so mock values stay compatible with the TypeScript output. See [Faker options](/extensions/kubb-labs/plugin-faker/options).
+Remove `paramsCasing` and `mapper`. Use macros or printers instead. See [Faker options](/extensions/kubb-labs/plugin-faker/options).
 
 ## MSW {#plugin-msw}
 
-`parser`, `handlers`, and `baseURL` keep their v4 behavior. Apply the [shared option](#shared-plugin-options) and [adapter `contentType`](#adapter-oas) changes. See [MSW options](/extensions/kubb-labs/plugin-msw/options).
+`parser`, `handlers`, and `baseURL` keep their v4 behavior. See [MSW options](/extensions/kubb-labs/plugin-msw/options).
 
 ## Cypress {#plugin-cypress}
 
@@ -244,35 +239,28 @@ See [Cypress options](/extensions/kubb-labs/plugin-cypress/options).
 
 ## MCP {#plugin-mcp}
 
-- Register TypeScript, Zod, and an Axios or Fetch client. `client` selects the registered client.
+- Register TypeScript, Zod, and an Axios or Fetch client, which `client` selects.
 - Move `baseURL` to that client and remove `paramsCasing`.
 
 See [MCP options](/extensions/kubb-labs/plugin-mcp/options).
 
 ## Verify the upgrade {#verify-the-upgrade}
 
-Run `kubb generate`, review the changed files, and type-check your app. Most errors come from these renames:
-
-- Response imports now use `Status<code>` names.
-- Zod inferred types end in `SchemaType`.
-- Tag folders lost their `Controller` suffix.
+Run `kubb generate`, review the changed files, and type-check your app. Most errors come from renamed imports, such as `Status<code>` response names and `SchemaType` Zod types.
 
 ## Less common changes {#v4-upgrade-edge-cases}
 
-Check the rows for the plugins you use.
+Check the rows for your plugins.
 
 | Area | Change |
 | --- | --- |
-| [Output layout](#output-layout) | `format: 'auto'` and `lint: 'auto'` now try the oxc tools first. |
-| [HTTP clients](#plugin-client) | Authentication follows the OpenAPI security schemes through the bundled client's `auth` resolver. |
-| [TypeScript](#plugin-ts) | Open string unions keep suggestions with `(string & {})`. Shared fields of a discriminated union move into a common intersection. |
-| [TypeScript](#plugin-ts) | JSDoc drops the format suffix from `@type`, includes the spec's examples, and adds `@type object` for objects. |
-| [Zod](#plugin-zod) | Output uses chained Zod 4 calls, functional wrappers with `mini: true`, and getters only for circular references. |
-| [React Query](#plugin-react-query) | `client` is `'axios' \| 'fetch' \| 'client'`, detected when exactly one is registered. |
-| [React Query](#plugin-react-query) | The trailing client config of queries and mutations excludes `path`, `query`, `body`, `headers`, and `url`. |
-| [React Query](#plugin-react-query) | Suspense hooks always run. |
-| [Vue Query](#plugin-vue-query) | Each parameter group accepts `MaybeRefOrGetter`, and the generated client calls unwrap it with `toValue()`. |
-| [Faker](#plugin-faker) | `createPet` keeps its name and accepts a generic `TData`, so its return value keeps the types of the override fields. |
-| [MSW](#plugin-msw) | A handler for an operation with a request body accepts an `HttpResponseResolver` typed against that body. |
-| [Cypress](#plugin-cypress) | HTTP methods are uppercase. `baseURL`, `exclude`, `include`, and `override` keep their shape. There is no validator option. |
-| [MCP](#plugin-mcp) | Handlers receive grouped `*Options` plus the MCP `ServerContext`, call the generated client operations, and read `res.data`. |
+| Output | `format: 'auto'` and `lint: 'auto'` try the oxc tools first. |
+| HTTP clients | The client's `auth` resolver follows the spec's security schemes. |
+| TypeScript | Open string unions keep suggestions with `(string & {})`. Shared fields of a discriminated union move into a common intersection. JSDoc drops the format suffix from `@type`, adds the spec's examples, and adds `@type object` for objects. |
+| Zod | Output uses chained Zod 4 calls, functional wrappers with `mini: true`, and getters only for circular references. |
+| React Query | `client` is `'axios' \| 'fetch' \| 'client'`, detected when exactly one is registered. The trailing client config excludes `path`, `query`, `body`, `headers`, and `url`. Suspense hooks always run. |
+| Vue Query | Parameter groups accept `MaybeRefOrGetter`, unwrapped with `toValue()`. |
+| Faker | Factories such as `createPet` keep their names and take a generic `TData`, so overrides keep their types. |
+| MSW | A handler for an operation with a body accepts an `HttpResponseResolver` typed against that body. |
+| Cypress | HTTP methods are uppercase. `baseURL`, `exclude`, `include`, and `override` keep their shape. There is no validator option. |
+| MCP | Handlers receive grouped `*Options` plus the MCP `ServerContext`, call the generated client operations, and read `res.data`. |

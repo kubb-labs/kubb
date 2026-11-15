@@ -24,7 +24,7 @@ The adapter's [`dateType`](/extensions/kubb-labs/adapter-oas/options#datetype) s
 | `@kubb/plugin-ts` | `string` | `Date` |
 | `@kubb/plugin-zod` | `z.iso.datetime()`, with `{ offset: true }` or `{ local: true }` for the offset and local values | A `Date` in response schemas, an ISO string in request schemas |
 | `@kubb/plugin-zod` with `mini: true` | `z.string()` | `z.date()`, without the conversion |
-| `@kubb/plugin-faker` | A string, formatted by [`dateParser`](#mock-dates-with-faker) | `faker.date.anytime()`. Any `dateParser` other than `'faker'` fails generation. |
+| `@kubb/plugin-faker` | A string, formatted by [`dateParser`](#mock-dates-with-faker) | `faker.date.anytime()`. A `dateParser` other than `'faker'` cannot format a `Date`, so generation fails. |
 
 - The string values all type the field as `string`. Schema plugins such as `@kubb/plugin-zod` check the offset or local format.
 - A `Date` needs parsing to revive it from JSON.
@@ -68,7 +68,7 @@ For other date types, such as `Temporal`, see [Encode custom types](/extensions/
 
 ### Mock dates with Faker {#mock-dates-with-faker}
 
-`@kubb/plugin-faker` formats string dates with the library you set in [`dateParser`](/extensions/kubb-labs/plugin-faker/options#dateparser):
+`@kubb/plugin-faker` formats string dates with the library you set in [`dateParser`](/extensions/kubb-labs/plugin-faker/options#dateparser). With `dateType: 'date'`, a `dateParser` other than `'faker'` cannot format the `Date`, so generation fails.
 
 | Format | `'faker'` (default) | Any other `dateParser` |
 | --- | --- | --- |

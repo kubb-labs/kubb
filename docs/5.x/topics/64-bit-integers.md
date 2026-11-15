@@ -46,7 +46,7 @@ A `@kubb/plugin-zod` printer handler changes one plugin only. Its `integer` hand
 
 ### int64 values sent as strings {#int64-strings}
 
-A schema with `type: string` stays a `string` whatever its `format`. The [ProtoJSON](https://protobuf.dev/programming-guides/json/#int64-strings) `int64` strings that gRPC-gateway sends stay strings too.
+A schema with `type: string` and a numeric `format`, such as `int64`, `int32`, or `double`, stays a `string`. The [ProtoJSON](https://protobuf.dev/programming-guides/json/#int64-strings) `int64` strings that gRPC-gateway sends stay strings too.
 
 - `@kubb/plugin-zod` checks them with a digits regex.
 - `@kubb/plugin-faker` mocks them as numeric strings.

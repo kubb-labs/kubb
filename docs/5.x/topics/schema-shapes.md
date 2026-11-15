@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Schema shapes - Unions, enums, cycles, and patterns
-description: See how Kubb plugins handle oneOf and anyOf unions, enum names, circular schemas, and regex patterns, and which option changes each.
+description: See how Kubb plugins handle oneOf and anyOf unions, discriminators, enum names, circular schemas, and regex patterns, and which option changes each.
 outline:
   - 2
   - 3
@@ -13,7 +13,7 @@ navigation:
 
 # Schema shapes
 
-How Kubb plugins handle unions, enums, circular schemas, and regex patterns. Read it when one of these shapes validates, names, or mocks differently than you expect.
+How Kubb plugins handle unions, discriminators, enums, circular schemas, and regex patterns. Read it when one of these shapes validates, names, or mocks differently than you expect.
 
 ## Unions and oneOf {#unions-and-one-of}
 
@@ -31,6 +31,75 @@ When a `oneOf` rejects valid data, check which call `@kubb/plugin-zod` writes. [
 
 > [!WARNING]
 > With `'xor'`, members need `required` keys that tell them apart. When every key is optional, an object matches several members and `z.xor` rejects it.
+
+## Discriminators {#discriminators}
+
+When a `oneOf` or `anyOf` has a `discriminator`, the adapter's [`discriminator`](/extensions/kubb-labs/adapter-oas/options#discriminator) option decides whether the child schemas change. With `'preserve'`, only the parent union narrows each branch. With `'propagate'`, each child also gets the discriminator literal, so `Cat` and `Dog` narrow on their own. `@kubb/plugin-ts` writes:
+
+::code-group
+
+```yaml [OpenAPI spec]
+openapi: 3.0.3
+components:
+  schemas:
+    Animal:
+      oneOf:
+        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Dog'
+      discriminator:
+        propertyName: type
+        mapping:
+          cat: '#/components/schemas/Cat'
+          dog: '#/components/schemas/Dog'
+    Cat:
+      type: object
+      properties:
+        type: { type: string }
+        indoor: { type: boolean }
+    Dog:
+      type: object
+      properties:
+        type: { type: string }
+        name: { type: string }
+```
+
+```typescript ['preserve' (default)]
+export type Cat = {
+  type?: string;
+  indoor?: boolean;
+};
+
+export type Dog = {
+  type?: string;
+  name?: string;
+};
+
+export type Animal = Cat & {
+  type: 'cat';
+} | Dog & {
+  type: 'dog';
+};
+```
+
+```typescript ['propagate']
+export type Cat = {
+  type: 'cat';
+  indoor?: boolean;
+};
+
+export type Dog = {
+  type: 'dog';
+  name?: string;
+};
+
+export type Animal = Cat & {
+  type: 'cat';
+} | Dog & {
+  type: 'dog';
+};
+```
+
+::
 
 ## Enums {#enums}
 
