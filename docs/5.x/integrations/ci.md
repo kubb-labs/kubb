@@ -13,7 +13,9 @@ navigation:
 
 # Publish Kubb Studio snapshots from CI
 
-A snapshot is an installable npm package of your generated code. `kubb studio snapshot` builds it on the CI runner, uploads it to [Studio](/docs/5.x/integrations/studio), and exits. Run it on pull or merge requests and on the default branch, so each request compares with the default branch.
+A snapshot is an installable npm package of your generated code. `kubb studio snapshot` builds it on the CI runner, uploads it to [Studio](/docs/5.x/integrations/studio), and exits.
+
+Run it on pull or merge requests and on their base branch, so each request has a snapshot to compare with.
 
 ```mermaid
 flowchart LR
@@ -46,27 +48,27 @@ flowchart LR
 
 ### Other CI providers
 
-Without automatic detection, pass a stable `--id` on the base branch, and pass that id as `--base-id` on pull request runs:
+Pass a stable `--id` on the base branch, and pass that id as `--base-id` on pull request runs:
 
 ```shell [Terminal]
 kubb studio snapshot --id jenkins:api:main                              # on main
 kubb studio snapshot --id jenkins:api:pr-12 --base-id jenkins:api:main  # on a pull request
 ```
 
-To pass the tarball URL to another step, use `kubb studio snapshot --json | jq -r '.url'`. See [CI agent identity](/docs/5.x/reference/commands/studio#ci-agent-identity) and [Snapshot output](/docs/5.x/reference/commands/studio#snapshot-output) for every field.
+To pass the tarball URL to another step, run `kubb studio snapshot --json | jq -r '.url'`. See [CI agent identity](/docs/5.x/reference/commands/studio#ci-agent-identity) and [Snapshot output](/docs/5.x/reference/commands/studio#snapshot-output) for every field.
 
 ## Review the snapshot
 
 Studio has no diff view for snapshots. The GitHub Action lists the changed files in its comment, and `--json` reports them in `changes` and `branchChanges` on any provider.
 
-Open the CI agent's editor in Studio to read its latest unexpired package, comment on source lines, or preview generated HTML, after the runner exits. Run the pipeline again to publish new output.
+After the runner exits, open the CI agent's editor in Studio to read its latest unexpired package, comment on source lines, or preview generated HTML. Run the pipeline again to publish new output.
 
 > [!NOTE]
 > Snapshots expire after seven days. Schedule a default-branch run if the branch can go a week without a push.
 
 ## Install the snapshot
 
-Add the registry key to `.npmrc`, then run the install command from the snapshot result:
+Add the registry key to `.npmrc`, then run the install command from the snapshot result. pnpm and Yarn use the same URL and `.npmrc`.
 
 ```ini [.npmrc]
 //kubb.studio/:_authToken=${KUBB_REGISTRY_TOKEN}
@@ -76,7 +78,7 @@ Add the registry key to `.npmrc`, then run the install command from the snapshot
 npm i https://kubb.studio/packages/<agent>/<package>.tgz
 ```
 
-pnpm and Yarn install the same URL with the same `.npmrc`. Yarn 1 also needs the registry for the package's scope, or the install fails with HTTP 403:
+Yarn 1 also needs the registry for the package's scope, or the install fails with HTTP 403:
 
 ```ini [.npmrc]
 @<scope>:registry=https://kubb.studio/

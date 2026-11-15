@@ -1,14 +1,16 @@
 # TypeScript
 
-The TypeScript parser writes the `.ts` and `.js` files that plugins generate. It prints each file's AST as source text with imports, exports, declarations, and JSDoc, and it rewrites relative import paths.
+The TypeScript parser prints the `.ts` and `.js` files that plugins generate, with imports, exports, declarations, and JSDoc.
 
-The package also exports `parserTsx`, which writes `.tsx` and `.jsx` files and takes the same options.
+- It rewrites relative import paths.
+- The package also exports `parserTsx` for `.tsx` and `.jsx` files, with the same options.
 
 ## Setup
 
-No setup is needed. `defineConfig` and the bundler integrations register `parserTs()`, `parserTsx()`, and `parserMd()` by default.
+No setup is needed. `defineConfig` and the bundler integrations register `parserTs()`, `parserTsx()`, and `parserMd()` by default. Set `parsers` only to change an option or to add a parser.
 
-Set `parsers` in `defineConfig` only to change an option or to add a parser. A custom `parsers` array replaces the default set, so list every parser your plugins need. A file that no parser claims is written as its source text only, without imports, exports, banner, or footer.
+> [!WARNING]
+> A custom `parsers` array replaces the default set, so list every parser your plugins need. A file that no parser claims is written as its source text only, without imports, exports, banner, or footer.
 
 ## Options worth knowing
 
@@ -16,11 +18,11 @@ Set `parsers` in `defineConfig` only to change an option or to add a parser. A c
 | -------------------------------------------------------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`extension`](https://kubb.dev/extensions/kubb-labs/parser-ts/options#extension) | `{ '.ts': '' }` | Sets the extension that relative imports and exports get. Use `{ '.ts': '.js' }` for ESM output and `{ '.ts': '.ts' }` to run `.ts` files directly in Node.js. |
 
-`parserTsx` reads its own `extension` map, so set the `.tsx` key on it as well.
+`parserTsx` reads its own `extension` map, so set the `.tsx` key on it too.
 
 ## Example
 
-The config below adds `.js` to relative imports in `.ts` and `.tsx` files and keeps every default parser registered.
+This config adds `.js` to relative imports in `.ts` and `.tsx` files and keeps every default parser.
 
 ::code-group
 

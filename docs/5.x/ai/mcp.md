@@ -13,7 +13,7 @@ navigation:
 
 # Set up the MCP server
 
-Connect your editor or agent to [`kubb mcp`](/docs/5.x/reference/commands/mcp), the Kubb [Model Context Protocol](https://modelcontextprotocol.io/) server. You can then validate a spec, scaffold a `kubb.config.ts`, and run generation from the chat. The [command reference](/docs/5.x/reference/commands/mcp#tools) lists the tools and their parameters.
+Connect your editor or agent to [`kubb mcp`](/docs/5.x/reference/commands/mcp), the Kubb [Model Context Protocol](https://modelcontextprotocol.io/) server, to validate a spec, scaffold a `kubb.config.ts`, and run generation from the chat. The [command reference](/docs/5.x/reference/commands/mcp#tools) lists the tools.
 
 > [!NOTE]
 > This server runs Kubb inside your editor. To generate an MCP server from your own OpenAPI spec, use [`@kubb/plugin-mcp`](/extensions/kubb-labs/plugin-mcp) instead.
@@ -26,13 +26,13 @@ Each client starts the server with `npx kubb mcp` over stdio.
 
 :::tabs-item{label="Claude Code"}
 
-Run this from your project root, so the server starts next to your `kubb.config.ts`:
+Run this from your project root, next to your `kubb.config.ts`:
 
 ```shell [Terminal]
 claude mcp add kubb -- npx kubb mcp
 ```
 
-Add `--scope project` to write the entry to `.mcp.json` and share it with your team. The [Kubb Claude Code plugin](/docs/5.x/ai/claude) registers the same server for you.
+Add `--scope project` to write the entry to `.mcp.json` for your team. The [Kubb Claude Code plugin](/docs/5.x/ai/claude) registers the same server.
 
 :::
 
@@ -55,7 +55,7 @@ Add the entry to `claude_desktop_config.json` (on macOS in `~/Library/Applicatio
 
 :::tabs-item{label="VS Code"}
 
-VS Code (GitHub Copilot) uses a `servers` key. Add the entry to `.vscode/mcp.json` for the workspace, or run `MCP: Open User Configuration` from the Command Palette for every workspace:
+VS Code (GitHub Copilot) uses a `servers` key. Add the entry to `.vscode/mcp.json`, or run `MCP: Open User Configuration` from the Command Palette for every workspace:
 
 ```json [.vscode/mcp.json]
 {
@@ -76,7 +76,9 @@ VS Code (GitHub Copilot) uses a `servers` key. Add the entry to `.vscode/mcp.jso
 
 The server looks for your config in the folder the client starts it in, then in each parent folder. Claude Code starts it in the folder you run `claude` from.
 
-If `generate` returns `No config file found`, the client started the server somewhere else. Clients such as Claude Code ignore a `cwd` key, so change into the project in the command instead (macOS and Linux):
+### `No config file found`
+
+The client started the server outside your project. Clients such as Claude Code ignore a `cwd` key, so change into the project in the command (macOS and Linux):
 
 ```json [claude_desktop_config.json]
 {
@@ -89,4 +91,4 @@ If `generate` returns `No config file found`, the client started the server some
 }
 ```
 
-[Working directory](/docs/5.x/reference/commands/mcp#working-directory) lists what the server reads and writes there.
+[Working directory](/docs/5.x/reference/commands/mcp#working-directory) lists what the server reads and writes.

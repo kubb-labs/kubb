@@ -17,13 +17,13 @@ Run a build from your own code with `createKubb` from the `kubb` package. For th
 
 ## `createKubb` {#createkubb}
 
-`createKubb(config, options?)` returns a `Kubb` instance. It applies the same defaults as `defineConfig`, so a config generates the same files from the CLI and from a script. `createKubb` from `@kubb/core` skips those defaults.
+`createKubb(config, options?)` returns a `Kubb` instance with the same defaults as `defineConfig`, so a config generates the same files from the CLI and from a script. `createKubb` from `@kubb/core` skips those defaults.
 
 | Option     | Type                  | Does                                                              |
 | ---------- | --------------------- | ----------------------------------------------------------------- |
 | `hooks`    | `Hookable<KubbHooks>` | Shares one [hook](/docs/5.x/reference/kit/hooks) emitter between builds. |
 | `signal`   | `AbortSignal`         | Stops the build at the next safe checkpoint.                      |
-| `fileRefs` | `Array<string>`       | The only folders a `$ref` in the input may read local files from. |
+| `fileRefs` | `Array<string>`       | The only folders a `$ref` may read local files from. Unset, a `$ref` reads any file. |
 
 ```typescript [build.ts]
 import { createKubb } from 'kubb'
@@ -71,19 +71,19 @@ flowchart LR
 
 | Member         | Type                                    | Description                                                                                                                                      |
 | -------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `.safeBuild()` | `() => Promise<BuildOutput>`            | The main call. Runs the pipeline and collects problems in `BuildOutput.diagnostics` instead of throwing.                                         |
+| `.safeBuild()` | `() => Promise<BuildOutput>`            | The main call. Runs the pipeline and collects problems in `diagnostics` instead of throwing.                                                     |
 | `.build()`     | `() => Promise<BuildOutput>`            | Runs `safeBuild()`, then throws an `AggregateError` of every error diagnostic.                                                                    |
-| `.generate()`  | `(options?) => Promise<GenerateResult>` | Runs one full generation: the `kubb:generation:*` and `kubb:setup:*` hooks, the build, and the output passes. Returns `{ success, files, diagnostics, input }` and never throws on a build error. `options.processOutput` replaces the output passes. |
+| `.generate()`  | `(options?) => Promise<GenerateResult>` | Runs one full generation: the `kubb:generation:*` and `kubb:setup:*` hooks, the build, and the output passes. Returns `{ success, files, diagnostics, input }` and never throws on a build error. |
 | `.setup()`     | `() => Promise<void>`                   | Sets up the driver and storage. The build methods call it when needed.                                                                          |
-| `.dispose()`   | `() => void`                            | Releases the driver. The next build sets up a new one. The instance also implements `Symbol.dispose`, so `using kubb = createKubb(config)` disposes it. |
-| `.hooks`       | `Hookable<KubbHooks>`                   | Read-only. The hook emitter. Call `.hook(name, handler)` before a build to listen.                                                               |
+| `.dispose()`   | `() => void`                            | Releases the driver. The next build sets up a new one. `using kubb = createKubb(config)` disposes it too.                                        |
+| `.hooks`       | `Hookable<KubbHooks>`                   | Read-only. The hook emitter. Call `.hook(name, handler)` before a build.                                                                         |
 | `.config`      | `Config`                                | Read-only. The resolved config, available right after `createKubb`.                                                                              |
-| `.storage`     | `Storage`                               | Read-only. The configured [storage](/docs/5.x/reference/kit/storage) backend. Files are stored under their absolute path.                        |
+| `.storage`     | `Storage`                               | Read-only. The [storage](/docs/5.x/reference/kit/storage) backend, keyed by absolute path.                                                        |
 | `.driver`      | driver handle                           | The plugin driver, from `setup()` until the build ends. Throws outside that window.                                                              |
 
 ### `Kubb.generate(configs)` {#kubb-generate}
 
-The static `Kubb.generate` from `@kubb/core` builds every config of a [`defineConfig([...])` array](/docs/5.x/reference/configuration#multiple-configurations-array). `kubb generate` runs it. A second argument takes `hooks` and `signal`.
+The static `Kubb.generate` from `@kubb/core` builds every config of a [`defineConfig([...])` array](/docs/5.x/reference/configuration#multiple-configurations-array), as `kubb generate` does. A second argument takes `hooks` and `signal`.
 
 ```typescript [build.ts]
 import { Kubb } from '@kubb/core'
@@ -94,21 +94,21 @@ for await (const { success, files, kubb } of Kubb.generate(configs)) {
 }
 ```
 
-- Configs build one after another, and each result is yielded when its config finishes, so memory holds one config at a time.
-- A failing config does not stop the others. Its result has `success: false`, and `error` holds what it threw outside its diagnostics. Only an aborted `signal` rejects.
+- Configs build one at a time, and each result is yielded when its config finishes.
 - Each result is a `GenerateResult` plus the `kubb` instance that built it.
+- A failing config does not stop the others. Its result has `success: false`. Only an aborted `signal` rejects.
 
 ### `BuildOutput` fields {#buildoutput-fields}
 
 | Field         | Type                | Description                                                                     |
 | ------------- | ------------------- | ------------------------------------------------------------------------------- |
-| `files`       | `Array<FileNode>`   | The generated files, with paths, names, and content.                            |
-| `storage`     | `Storage`           | The storage backend that holds the generated source.                            |
+| `files`       | `Array<FileNode>`   | The generated files.                                                            |
+| `storage`     | `Storage`           | The storage backend.                                                            |
 | `driver`      | driver handle       | The plugin driver, for introspection.                                           |
-| `diagnostics` | `Array<Diagnostic>` | Problems collected during the build, plus a `performance` diagnostic per plugin. |
+| `diagnostics` | `Array<Diagnostic>` | Problems from the build, plus a `performance` diagnostic per plugin.            |
 | `input`       | `InputNode \| null` | The parsed spec, or `null` when there was none to parse.                        |
 
-A problem diagnostic has a `code`, a `severity` (`error`, `warning`, or `info`), a `message`, and the `plugin` that produced it, plus an optional `location`, `help`, and `issues` URL. A failed plugin keeps its original error on `cause`. A `performance` diagnostic has a `duration` in milliseconds.
+A problem diagnostic has a `code`, a `severity` (`error`, `warning`, or `info`), a `message`, and the `plugin` that produced it. It can add a `location`, `help`, and an `issues` URL. A failed plugin keeps its original error on `cause`.
 
 ## `Diagnostics` {#diagnostics}
 
@@ -116,13 +116,13 @@ A problem diagnostic has a `code`, a `severity` (`error`, `warning`, or `info`),
 
 | Member                      | Does                                                                                                         |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `Diagnostics.Error`         | Error class that carries a problem diagnostic with `code`, `severity`, `message`, `location`, and `help`.    |
+| `Diagnostics.Error`         | Error class that carries a problem diagnostic.                                                               |
 | `Diagnostics.code`          | The code catalog, such as `Diagnostics.code.refNotFound`.                                                    |
-| `Diagnostics.report`        | Adds a diagnostic to the running build without throwing. Returns `false` outside a build. Use `warning` or `info` for problems that should not fail it. |
-| `Diagnostics.from`          | Turns any thrown value into a problem diagnostic. Anything that is not a `Diagnostics.Error` becomes `KUBB_UNKNOWN`. |
+| `Diagnostics.report`        | Adds a diagnostic to the running build without throwing. Returns `false` outside a build.                    |
+| `Diagnostics.from`          | Turns any thrown value into a problem diagnostic, `KUBB_UNKNOWN` unless it is a `Diagnostics.Error`.         |
 | `Diagnostics.hasError`      | `true` when any diagnostic has `severity: 'error'`.                                                          |
 | `Diagnostics.isProblem`     | Narrows to the `problem` kind.                                                                               |
-| `Diagnostics.isPerformance` | Narrows to the `performance` kind, which has a per-plugin `duration`.                                        |
+| `Diagnostics.isPerformance` | Narrows to the `performance` kind, with a per-plugin `duration` in milliseconds.                             |
 | `Diagnostics.isUpdate`      | Narrows to the `update` kind, emitted when a newer Kubb version exists.                                      |
 | `Diagnostics.count`         | Counts errors, warnings, and infos.                                                                          |
 | `Diagnostics.explain`       | Returns a code's catalog entry: `title`, `cause`, and `fix`.                                                 |

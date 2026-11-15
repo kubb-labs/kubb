@@ -13,7 +13,7 @@ navigation:
 
 # Give an assistant the Kubb docs
 
-An assistant that reads the current docs writes a `kubb.config.ts` for Kubb v5, not for an older version. Pick the option your assistant supports.
+An assistant that reads the current docs writes a `kubb.config.ts` for Kubb v5, not an older version. Pick the option your assistant supports.
 
 | Option | Works with | Context it loads |
 | --- | --- | --- |
@@ -28,13 +28,13 @@ Kubb's docs are indexed on [Context7](https://context7.com) under the library ID
 
 ### Set up Context7
 
-Run the interactive setup and select your AI assistant:
+Run the setup and select your assistant:
 
 ```shell [Terminal]
 npx ctx7 setup
 ```
 
-Depending on the option you select, it connects Context7 through MCP or installs its documentation skill.
+It connects Context7 through MCP or installs its documentation skill, depending on your choice.
 
 ### Ask with Context7
 
@@ -52,8 +52,6 @@ from ./petStore.yaml. Use Context7 library /kubb-labs/kubb.
 
 ## llms.txt {#llms-txt}
 
-kubb.dev publishes two files for language models:
-
 | File | Holds |
 | --- | --- |
 | [`https://kubb.dev/llms.txt`](https://kubb.dev/llms.txt) | A table of contents with a one-line description per page |
@@ -65,7 +63,7 @@ Use the full file for complete coverage:
 Read https://kubb.dev/llms-full.txt and answer questions about Kubb.
 ```
 
-For a small context window, use the index and let the assistant fetch pages on demand:
+For a small context window, use the index so the assistant fetches pages on demand:
 
 ```text [Prompt]
 Use https://kubb.dev/llms.txt to find relevant pages, then read them.

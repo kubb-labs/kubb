@@ -13,7 +13,7 @@ navigation:
 
 # Extension registry
 
-The Kubb extension registry lists reviewed plugins, adapters, and parsers, each pinned to one npm version or one GitHub release. [`kubb init`](/docs/5.x/reference/commands/init), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb update`](/docs/5.x/reference/commands/update), [`kubb list`](/docs/5.x/reference/commands/list), [`kubb remove`](/docs/5.x/reference/commands/remove), Kubb Studio, and kubb.dev read it.
+The Kubb extension registry lists reviewed plugins, adapters, and parsers, each pinned to one npm version or one GitHub release. The [Kubb CLI](/docs/5.x/reference/commands#extension-commands), Kubb Studio, and kubb.dev read it.
 
 ```mermaid
 flowchart LR
@@ -45,9 +45,10 @@ An id is `<owner>/<slug>`, such as `kubb-labs/plugin-zod`:
 
 - `<owner>` is the GitHub owner of the source repository, in lowercase.
 - `<slug>` is the package name without its scope, so `@kubb/plugin-zod` gives `plugin-zod`.
-- Both parts match `[a-z0-9]+(?:-[a-z0-9]+)*`: lowercase letters and digits joined by single hyphens.
+- Both parts match `[a-z0-9]+(?:-[a-z0-9]+)*`.
+- An entry owned by `kubb-labs` has `type: "official"`. Every other entry is `community`.
 
-The CLI reads a bare `<slug>` as `kubb-labs/<slug>`. An entry owned by `kubb-labs` has `type: "official"`, and every other entry is `community`.
+The CLI reads a bare `<slug>` as `kubb-labs/<slug>`.
 
 ## `GET <base>/index.json` {#index}
 
@@ -59,7 +60,7 @@ type RegistryIndex = {
 }
 ```
 
-A client rejects an index whose `version` is not `1`, skips an entry whose `artifact.kind` it does not know, and ignores unknown keys. The CLI makes two exceptions: it skips an entry when `manifest.compatibility` has a key other than `kubb` or `node`, or when a `manifest.maintainers` item has a key other than `name` or `github`. The CLI also skips an entry unless `id` is a full `<owner>/<slug>`, `artifact` pins an exact semver version, and `manifest` is valid with the entry's `kind`.
+A client rejects an index whose `version` is not `1`, skips an entry whose `artifact.kind` it does not know, and ignores unknown keys. See [How the CLI reads the index](EDGE:registry-client-rules).
 
 ## `GET <base>/<owner>/<slug>.json` {#detail}
 
@@ -82,13 +83,14 @@ type RegistryGuide = {
 
 | Field | Comes from |
 | --- | --- |
-| `overview` | `docs/overview.md`. An npm version older than `docs/` may ship a root `OVERVIEW.md` instead. Otherwise the reviewer's overview, or `null`. |
+| `overview` | `docs/overview.md`, else the reviewer's overview, or `null` |
 | `options` | `docs/options.md`, or `null` |
 | `guides` | Each `docs/guides/<id>.md`, sorted by file name, at most 50. A guide that fails a check is left out. |
 
-Read a missing `options` as `null` and a missing `guides` as `[]`, because older registries leave them out. The Markdown comes from the package author: render it as untrusted. [Extension docs](/docs/5.x/reference/kit/extension-docs) lists the file rules and the Markdown that renders.
+> [!WARNING]
+> The Markdown comes from the package author. Render it as untrusted. [Extension docs](/docs/5.x/reference/kit/extension-docs) lists the file rules and the Markdown that renders.
 
-`kubb add` never reads a detail document. It looks the id up in the index and prints `No extension named <id>` when the index does not list it.
+See [How the CLI reads the index](EDGE:registry-client-rules) for older registries and older package versions.
 
 ## `RegistryEntry` {#registry-entry}
 
@@ -100,14 +102,14 @@ Read a missing `options` as `null` and a missing `guides` as `[]`, because older
 | `kind` | `'plugin' \| 'adapter' \| 'parser'` | The extension kind. It always equals `manifest.kind`. |
 | `type` | `'official' \| 'community'` | `official` when the owner is `kubb-labs` |
 | `artifact` | `RegistryArtifact` | The approved install pin, see below |
-| `repository?` | `{ url: string }` | The source on GitHub. An npm artifact may point at the package folder, a GitHub artifact uses the repository root. |
+| `repository?` | `{ url: string }` | The source on GitHub |
 | `manifest` | `ExtensionManifest` | The pinned version's [`kubb-extension.json`](/docs/5.x/reference/kit/manifest), with the record's [categories](#categories) and `listing` applied |
 | `stats?` | `{ downloads?: number; weekly?: number; stars?: number }` | Download and star counts, when known |
 | `submittedAt` | `string` | When the extension was submitted. It never changes. |
 | `publishedAt` | `string` | When the first version was approved and listed. It never changes. |
 | `reviewedAt` | `string` | When the pinned version was approved. Every version bump moves it. |
 
-An `artifact` has one of two kinds:
+Timestamps are UTC to the second, such as `2026-10-12T20:00:00Z`. An `artifact` has one of two kinds:
 
 | `kind` | Fields | `kubb add` and `kubb update` install |
 | --- | --- | --- |
@@ -116,11 +118,9 @@ An `artifact` has one of two kinds:
 
 A GitHub artifact is a release of a package at the repository root. `package` is the `name` in its `package.json`, and `tag` names `version`.
 
-An official version released before manifests ships none, so the index leaves that extension out until a version with a manifest is pinned. Timestamps are UTC to the second, such as `2026-10-12T20:00:00Z`.
-
 ## Records
 
-The reviewed records live in [kubb-labs/registry](https://github.com/kubb-labs/registry) at `extensions/<owner>/<slug>.json`, and the build turns them into the documents above. Merging a record approves its pinned version. To add one, follow [Submit to the registry](/docs/5.x/how-to/publish-a-plugin#submit-to-the-registry).
+The reviewed records live in [kubb-labs/registry](https://github.com/kubb-labs/registry) at `extensions/<owner>/<slug>.json`. Merging a record approves its pinned version. To add one, follow [Submit to the registry](/docs/5.x/how-to/publish-a-plugin#submit-to-the-registry).
 
 ```json [extensions/kubb-labs/plugin-zod.json]
 {
@@ -166,13 +166,11 @@ The record JSON Schema is [`https://kubb.dev/schemas/registry-record.json`](http
 
 ## Host your own registry
 
-The CLI reads only `index.json`, so any static host that serves it can be a registry. Point the CLI at it with `KUBB_REGISTRY`:
+The CLI reads only `index.json`, so any static host that serves it can be a registry. Point the CLI at it with `KUBB_REGISTRY`, an `http://` or `https://` URL:
 
 ```shell [Terminal]
 KUBB_REGISTRY=https://registry.example.com kubb add acme/plugin-graphql
 ```
-
-The CLI then reads `https://registry.example.com/index.json` and looks up `acme/plugin-graphql` in it. `KUBB_REGISTRY` must start with `http://` or `https://`, and trailing slashes are removed.
 
 To build every document from your own records:
 
@@ -181,4 +179,5 @@ To build every document from your own records:
 3. Run `pnpm build`. The `dist/` folder is the whole registry, detail documents included.
 4. Serve `dist/` from any static host, following the rules in [Endpoints](#endpoints).
 
-kubb.dev and Studio always read the kubb.dev registry, so a private registry changes what the CLI installs, not what kubb.dev or Studio lists.
+> [!NOTE]
+> kubb.dev and Studio always read the kubb.dev registry. A private registry changes what the CLI installs, not what kubb.dev or Studio lists.

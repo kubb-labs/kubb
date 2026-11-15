@@ -14,11 +14,11 @@ navigation:
 
 # Lifecycle hooks
 
-Every phase of a build fires a `kubb:*` hook on one shared, typed emitter. The `KubbHooks` type holds every hook name and its payload. Handlers can be async, and Kubb awaits each one.
+Every phase of a build fires a `kubb:*` hook on one shared emitter, typed by `KubbHooks`. Handlers can be async, and Kubb awaits each one.
 
 | Listener                                                          | Receives                                                  |
 | ----------------------------------------------------------------- | --------------------------------------------------------- |
-| A plugin's [`hooks`](/docs/5.x/reference/kit/plugins) map | The hooks from `kubb:setup:end` to `kubb:build:end`, including `kubb:plugin:setup` for that plugin. Kubb adds these listeners during setup and removes them when the build ends, so they miss the `lifecycle` and `generation` hooks, `kubb:setup:start`, and the output passes. |
+| A plugin's [`hooks`](/docs/5.x/reference/kit/plugins) map | The hooks from `kubb:setup:end` to `kubb:build:end`, including its own `kubb:plugin:setup`. It misses the `lifecycle` and `generation` hooks, `kubb:setup:start`, and the output passes. |
 | `kubb.hooks.hook(name, handler)` from [`createKubb`](/docs/5.x/reference/kit/engine#createkubb) | Every hook except `kubb:plugin:setup`                     |
 
 ## Listening
@@ -57,13 +57,13 @@ A full generation run fires the hooks in this order.
 
 | Hook                      | Payload                                                           | Fires                                                                                       |
 | ------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `kubb:lifecycle:start`    | `{ version }`                                                     | When `kubb generate` starts, before the first config. `.generate()` and the bundler plugins skip it. |
+| `kubb:lifecycle:start`    | `{ version }`                                                     | When `kubb generate` starts, before the first config. CLI only.                             |
 | `kubb:generation:start`   | `{ config }`                                                      | When a run begins, before setup.                                                            |
 | `kubb:setup:start`        | none                                                              | Before the driver and storage are set up.                                                   |
 | `kubb:setup:end`          | none                                                              | After setup, before the build pipeline.                                                     |
 | `kubb:generation:end`     | `{ config, storage, status, diagnostics, filesCreated, hrStart }` | When the run finishes, after the output passes.                                             |
 | `kubb:generation:summary` | `{ duration, fileCount, failedPlugins, status }`                  | Right after `kubb:generation:end`, with the run's totals. `duration` is in milliseconds.    |
-| `kubb:lifecycle:end`      | none                                                              | When the CLI is done, after the last config.                                                |
+| `kubb:lifecycle:end`      | none                                                              | After the last config. CLI only.                                                            |
 
 ## Build pipeline
 
@@ -71,23 +71,23 @@ The pipeline fires these hooks, so `.build()` and `.safeBuild()` fire them too.
 
 | Hook                           | Payload                                                               | Fires                                                                                                                                       |
 | ------------------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kubb:plugin:setup`            | [`KubbPluginSetupContext`](/docs/5.x/reference/kit/plugins#setup-context) | Once per plugin, after its `setup` and before `kubb:build:start`. Kubb calls the plugin's own handler directly.                      |
+| `kubb:plugin:setup`            | [`KubbPluginSetupContext`](/docs/5.x/reference/kit/plugins#setup-context) | Once per plugin, after its `setup` and before `kubb:build:start`.                                                                     |
 | `kubb:build:start`             | `{ config, adapter, meta, nodeCounts, getPlugin, files, upsertFile }` | When the AST is ready, before plugins run. Skipped when no adapter parsed input.                                                            |
 | `kubb:plugin:start`            | `{ plugin }`                                                          | Before a plugin's generators run.                                                                                                           |
 | `kubb:generate:schema`         | `(node, ctx)`                                                         | For each schema node.                                                                                                                       |
 | `kubb:generate:operation`      | `(node, ctx)`                                                         | For each operation node.                                                                                                                    |
 | `kubb:generate:operations`     | `(nodes, ctx)`                                                        | Once, with every operation node.                                                                                                            |
-| `kubb:plugin:end`              | `{ plugin, duration, success, error, config, files, upsertFile }`     | After a plugin finishes, with its timing and the files so far.                                                                              |
+| `kubb:plugin:end`              | `{ plugin, duration, success, error, config, files, upsertFile }`     | After a plugin finishes.                                                                                                                    |
 | `kubb:plugins:end`             | `{ config, files, upsertFile }`                                       | After every plugin, before files reach the storage. Add aggregate files, such as a barrel, here.                                            |
 | `kubb:files:processing:start`  | `{ files }`                                                           | Before the generated files are written.                                                                                                     |
-| `kubb:files:processing:update` | `{ files }`                                                           | As files are written. Here `files` holds progress records (`{ processed, total, percentage, file, config }`), not `FileNode`s.              |
-| `kubb:file:processed`          | `{ file, source, stored }`                                            | After each file is printed and handed to the storage. `source` is the text before any output pass. `stored` is what the storage held at that path, or `null` when the path was empty or `output.clean` emptied its folder. |
-| `kubb:files:processing:end`    | `{ files, unchanged }`                                                | After every file is written. `unchanged` lists the paths that already held the same content.                                                |
+| `kubb:files:processing:update` | `{ files }`                                                           | As files are written. `files` holds progress records (`{ processed, total, percentage, file, config }`), not `FileNode`s.                  |
+| `kubb:file:processed`          | `{ file, source, stored }`                                            | After each file is printed and handed to the storage. `stored` is the previous content, or `null`. See [File hook payloads](EDGE:file-hook-payloads). |
+| `kubb:files:processing:end`    | `{ files, unchanged }`                                                | After every file is written. `unchanged` lists the paths whose content did not change.                                                      |
 | `kubb:build:end`               | `{ files, config, outputDir }`                                        | After every file is written and the adapter has settled.                                                                                    |
 
 ## Output passes
 
-These hooks fire after a build without errors, only in a full generation run with `fsStorage`. Each group fires only when the config sets `output.format`, `output.lint`, or `output.postGenerate`.
+These hooks fire after a build without errors, only from `.generate()` with `fsStorage`. Each group fires only when the config sets `output.format`, `output.lint`, or `output.postGenerate`.
 
 | Hook                 | Payload                                         | Fires                                                |
 | -------------------- | ----------------------------------------------- | ---------------------------------------------------- |
@@ -103,7 +103,7 @@ These hooks fire after a build without errors, only in a full generation run wit
 
 ## Messaging
 
-These hooks carry log messages and diagnostics, and can fire at any point.
+These hooks carry log messages and diagnostics, and fire at any point.
 
 | Hook              | Payload             | Fires for                                                                                               |
 | ----------------- | ------------------- | ------------------------------------------------------------------------------------------------------- |

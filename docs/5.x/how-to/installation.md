@@ -20,7 +20,7 @@ Add Kubb to an existing project. To learn with a sample spec first, follow [Gene
 
 ## Set up with the wizard
 
-`kubb init` installs `kubb` and the plugins you choose, writes `kubb.config.ts`, adds a `generate` script to `package.json` when it has none, and runs the first generation. It installs with the package manager that your `packageManager` field or lockfile names, or with npm.
+`kubb init` installs `kubb` and the plugins you choose, writes `kubb.config.ts`, adds a `generate` script to `package.json` when it has none, and runs the first generation. It uses the package manager your `packageManager` field or lockfile names, or npm.
 
 ::code-group{sync="package-manager"}
 
@@ -42,7 +42,7 @@ bunx kubb init
 
 ::
 
-See [`kubb init`](/docs/5.x/reference/commands/init) for its questions and for flags such as `--yes`, `--input`, and `--plugins`.
+[`kubb init`](/docs/5.x/reference/commands/init) lists its questions and flags, such as `--yes`, `--input`, and `--plugins`.
 
 ## Install by hand
 
@@ -50,7 +50,7 @@ See [`kubb init`](/docs/5.x/reference/commands/init) for its questions and for f
 
 ### Install Kubb and your plugins
 
-Each output comes from its own plugin package, so install `kubb` and only the [plugins](/extensions/kind/plugins) you need. This example adds the TypeScript plugin:
+Install `kubb` and the [plugins](/extensions/kind/plugins) you need, one package per output. This example adds the TypeScript plugin:
 
 :::code-group{sync="package-manager"}
 
@@ -96,7 +96,7 @@ bunx kubb --version
 
 ### Create the config
 
-Write `kubb.config.ts` in the project root with your spec as `input`, an `output.path`, and your plugins. Copy one of the [stacks](/docs/5.x/how-to/recipes#pick-a-stack), or see the [configuration reference](/docs/5.x/reference/configuration) for every option.
+Write `kubb.config.ts` in the project root with your spec as `input`, an `output.path`, and your plugins. Copy a [stack](/docs/5.x/how-to/recipes#pick-a-stack), or see the [configuration reference](/docs/5.x/reference/configuration).
 
 ### Generate
 
@@ -131,7 +131,7 @@ Kubb writes the generated files to `output.path`.
 
 ## Add plugins later
 
-Once `kubb.config.ts` exists, manage extensions from the [Kubb registry](/docs/5.x/reference/registry) with these commands:
+After `kubb.config.ts` exists, manage extensions from the [Kubb registry](/docs/5.x/reference/registry):
 
 | Command | What it does |
 | --- | --- |

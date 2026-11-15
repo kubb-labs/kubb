@@ -13,11 +13,11 @@ navigation:
 
 # JSX renderer
 
-`kubb/jsx` lets a generator describe its files as JSX instead of building them with the `ast.factory` node builders from [`kubb/kit`](/docs/5.x/reference/kit).
+`kubb/jsx` lets a generator describe its files as JSX instead of `ast.factory` node builders from [`kubb/kit`](/docs/5.x/reference/kit).
 
 ## Renderers {#renderers}
 
-A renderer turns what a generator returns into `FileNode`s. Set it on the generator with `renderer: jsxRenderer`. Leave `renderer` unset, or set it to `null`, when the generator returns `FileNode`s from `ast.factory` itself.
+A renderer turns what a generator returns into `FileNode`s. Set `renderer: jsxRenderer` on the generator. Leave `renderer` unset, or `null`, when the generator returns `FileNode`s from `ast.factory`.
 
 ```mermaid
 flowchart LR
@@ -27,11 +27,14 @@ flowchart LR
   parser --> out[Generated file]
 ```
 
-`jsxRenderer` does not use React. Components run once as plain functions, so hooks, suspense, and class components do not work. For another template format, build your own renderer with `createRenderer` from `kubb/kit`: it takes a factory that returns `{ render, files, [Symbol.dispose] }`.
+> [!NOTE]
+> `jsxRenderer` does not use React. Components run once as plain functions, so hooks, suspense, and class components do not work.
+
+For another template format, build a renderer with `createRenderer` from `kubb/kit`. It takes a factory that returns `{ render, files, [Symbol.dispose] }`.
 
 ## Setup
 
-Point `tsconfig.json` at the `kubb/jsx` runtime so JSX compiles against its components instead of React:
+Point `tsconfig.json` at the `kubb/jsx` runtime, so JSX compiles against its components instead of React:
 
 ```json [tsconfig.json]
 {
@@ -41,8 +44,6 @@ Point `tsconfig.json` at the `kubb/jsx` runtime so JSX compiles against its comp
   }
 }
 ```
-
-`.tsx` files then load `jsx-runtime` and `jsx-dev-runtime` from `kubb/jsx`.
 
 ## `jsxRenderer()`
 
@@ -90,11 +91,9 @@ Inside a code component or `File.Source`, `<br />` adds a line break.
 
 ### Core
 
-`File` declares a file. `File.Source`, `File.Import`, and `File.Export` attach source blocks, imports, and exports to it.
-
 #### `File` {#file}
 
-Declares a generated file. With both `baseName` and `path`, it registers a file entry. Without them, it renders its children inline. Text placed directly in a `File`, outside `File.Source`, throws an error.
+Declares a generated file when it has both `baseName` and `path`. Without them, it renders its children inline. Text directly in a `File`, outside `File.Source`, throws an error.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -103,7 +102,7 @@ Declares a generated file. With both `baseName` and `path`, it registers a file 
 | `meta?` | `object \| null` | Metadata on the file node, for plugins to read |
 | `banner?` | `string \| null` | Text before the source blocks |
 | `footer?` | `string \| null` | Text after the source blocks |
-| `copy?` | `string \| null` | An absolute path to a file to copy into the output, through the parser's `copy` hook when it has one. Sources still count for barrels but are not printed. |
+| `copy?` | `string \| null` | An absolute path of a file to copy into the output. See [Copied and inline files](EDGE:inline-sources). |
 | `children?` | `KubbReactNode` | The sources, imports, and exports of the file |
 
 ```tsx
@@ -128,13 +127,7 @@ A block of source text in the enclosing `File`. The children are the text.
 | `pointer?` | `string` | Where the source comes from in the input, such as `#/components/schemas/Pet` |
 | `children?` | `KubbReactNode` | The source text |
 
-`inline.expression` is the right-hand side of the declaration. A file whose sources are all inline is not written: files that import from it get the expression and the imports it needs. The parser's [`inline`](/docs/5.x/reference/kit/parsers) member decides how.
-
-```tsx
-<File.Source name="AddPetStatus200" isTypeOnly isExportable inline={{ expression: 'Pet' }}>
-  {`export type AddPetStatus200 = Pet`}
-</File.Source>
-```
+See [Copied and inline files](EDGE:inline-sources) for `inline`.
 
 #### `File.Import` {#file-import}
 
@@ -177,7 +170,7 @@ An export at the top of the enclosing `File`.
 
 ### JavaScript
 
-These components emit TypeScript. Put them inside a `File.Source`. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block above the declaration.
+These components emit TypeScript inside a `File.Source`. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block above the declaration.
 
 #### `Const` {#const}
 
@@ -244,7 +237,7 @@ A type alias. The children are the type. `name` must start with an uppercase let
 
 ### Markdown
 
-Each Markdown component emits its own source block, so it goes directly inside a `File`, not inside a `File.Source`. Give the file a `.md` name so `parserMd` prints it.
+Each Markdown component emits its own source block, so put it directly inside a `File`, not a `File.Source`. Give the file a `.md` name so `parserMd` prints it.
 
 ```tsx [docs.tsx]
 import { Callout, File, Frontmatter, Heading, List, Paragraph, jsxRenderer } from 'kubb/jsx'
@@ -316,7 +309,7 @@ A paragraph. Inline Markdown passes through as written.
 
 #### `Jsx` {#jsx-component}
 
-Embeds a raw JSX string, fragments included, in the generated code, such as a component body inside a `Function`. The children must be one plain string.
+Embeds a raw JSX string, fragments included, such as a component body inside a `Function`. The children must be one plain string.
 
 | Prop | Type | Description |
 | --- | --- | --- |

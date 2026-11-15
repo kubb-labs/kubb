@@ -10,14 +10,11 @@ navigation:
 
 # Publish Kubb snapshots with GitHub Actions
 
-The [kubb-labs/action](https://github.com/kubb-labs/action) publishes a Studio snapshot on each pull request and comments with the generated files that changed. Meet the [prerequisites](/docs/5.x/integrations/ci#prerequisites) first: Kubb 5.6.2 or later, `tsdown`, and a CI key stored as `KUBB_TOKEN`.
+The [kubb-labs/action](https://github.com/kubb-labs/action) publishes a Studio snapshot on each pull request. Its comment lists the generated files that changed against the base branch and the previous run. Meet the [prerequisites](/docs/5.x/integrations/ci#prerequisites) first: Kubb 5.6.2 or later, `tsdown`, and a CI key stored as `KUBB_TOKEN`.
 
 ## Add the workflow
 
 Store `KUBB_TOKEN` as an Actions repository secret, then add this workflow:
-
-> [!NOTE]
-> GitHub does not give secrets to workflows from fork pull requests, so the action skips the snapshot on those and logs why. Pull requests from branches in the repository get a snapshot.
 
 ```yaml [.github/workflows/kubb.yml]
 name: Kubb snapshot
@@ -44,11 +41,14 @@ jobs:
           token: ${{ secrets.KUBB_TOKEN }}
 ```
 
+> [!NOTE]
+> GitHub does not give secrets to workflows from fork pull requests, so the action skips the snapshot on those and logs why. Pull requests from branches in the repository get a snapshot.
+
 | Permission | Lets the action |
 | --- | --- |
 | `pull-requests: write` | Post and update the snapshot comment. |
 | `contents: write` | Open an initialization pull request when the repository has no Kubb config. Also turn on **Allow GitHub Actions to create and approve pull requests** under **Settings › Actions › General**. |
 
-The pull request comment lists the generated files that changed against the base branch and against the previous run. See the [action reference](/docs/5.x/reference/github-actions) for inputs, outputs such as `tarball-url`, and runtime behavior.
+See the [action reference](/docs/5.x/reference/github-actions) for inputs, outputs such as `tarball-url`, and runtime behavior.
 
 To install a snapshot or read it in Studio, see [Review the snapshot](/docs/5.x/integrations/ci#review-the-snapshot) and [Install the snapshot](/docs/5.x/integrations/ci#install-the-snapshot).

@@ -13,7 +13,7 @@ navigation:
 
 # How Kubb works
 
-Every Kubb run moves a spec through one pipeline. Each stage has one job, and you can replace or extend each one.
+Every Kubb run moves a spec through one pipeline. You can replace or extend each stage.
 
 ::architecture-pipeline
 ::
@@ -28,43 +28,40 @@ Every Kubb run moves a spec through one pipeline. Each stage has one job, and yo
 
 ## From one operation to generated files
 
-Take `GET /pet/{petId}` with the operation ID `getPetById` and a response that refers to a `Pet` schema:
+Take `GET /pet/{petId}` (`getPetById`), whose response refers to a `Pet` schema:
 
-1. The adapter resolves the `$ref` into one operation node and one `Pet` schema node.
-2. The AST holds the path parameter, the response, and the `Pet` fields. It names no client library.
-3. `plugin-ts` emits the `Pet` and `GetPetById` types, `plugin-axios` emits a `getPetById` function that imports them, and `plugin-zod` can emit schemas from the same nodes.
-4. A parser prints each file, and storage writes it.
+1. The adapter resolves the `$ref` into an operation node and a `Pet` schema node.
+2. `plugin-ts` emits the `Pet` and `GetPetById` types, and `plugin-axios` emits a `getPetById` function that imports them.
+3. A parser prints each file, and storage writes it.
 
 The [first-client tutorial](/docs/5.x/tutorials/quickstart) builds this example.
 
 ## Adapters {#adapters}
 
-An adapter handles everything specific to the input format: references, nullability, discriminators, and formats. The default is the [OpenAPI adapter](/extensions/kubb-labs/adapter-oas). A [custom adapter](/docs/5.x/reference/kit/adapters) converts another format into the same AST, so every plugin works with it unchanged.
+An adapter handles everything specific to the input format: references, nullability, discriminators, and formats. The default is the [OpenAPI adapter](/extensions/kubb-labs/adapter-oas). A [custom adapter](/docs/5.x/reference/kit/adapters) converts another format into the same AST, so every plugin works with it.
 
 ::flow-diagram{preset="adapter"}
 ::
 
 ## AST {#ast}
 
-The AST is the model the adapter and the plugins share. The input is normalized once, so no plugin resolves references itself, and any adapter feeds any plugin.
-
-An `InputNode` holds the reusable schemas and the operations. Operations link parameters, request bodies, and responses to schema nodes, with one `ContentNode` per content type.
+The AST is the model the adapter and the plugins share, so no plugin resolves references itself. An `InputNode` holds the reusable schemas and the operations, and operations link parameters, request bodies, and responses to schema nodes.
 
 ::ast-tree
 ::
 
-Every node has a `kind`, and schema nodes also have a `type`. `ast.node.transform` rewrites nodes and `ast.node.collect` gathers matches. Import `ast` from `kubb/kit`, and see the [AST reference](/docs/5.x/reference/kit/ast).
+Every node has a `kind`, and schema nodes also have a `type`. See the [AST reference](/docs/5.x/reference/kit/ast).
 
 ## Plugins {#plugins}
 
-Each plugin owns one output: types, a client, hooks, validators, mocks, or your own files. [`defineExtension({ kind: 'plugin' })`](/docs/5.x/reference/kit/plugins) returns the factory you call in `kubb.config.ts`. Its `setup` runs once and registers generators, a resolver, and macros through the [setup context](/docs/5.x/reference/kit/plugins#setup-context) or composables such as `addGenerator()`.
+Each plugin owns one output, such as types, a client, or your own files. [`defineExtension({ kind: 'plugin' })`](/docs/5.x/reference/kit/plugins) returns the factory you call in `kubb.config.ts`. Its `setup` runs once and registers generators, a resolver, and macros.
 
 ::plugin-anatomy
 ::
 
 ### Generators {#generators}
 
-A generator turns AST nodes into files, one task per generator.
+A generator turns AST nodes into files.
 
 | Handler | Kubb calls it |
 | --- | --- |
@@ -72,19 +69,19 @@ A generator turns AST nodes into files, one task per generator.
 | `operation` | Once per operation node |
 | `operations` | Once per plugin, with every operation node its filters keep |
 
-An optional `match` predicate skips `schema` and `operation` for nodes it rejects. It does not filter `operations`. A handler returns `FileNode`s or elements for a [renderer](#renderers). See the [generator reference](/docs/5.x/reference/kit/generators).
+A handler returns `FileNode`s or elements for a [renderer](#renderers). See the [generator reference](/docs/5.x/reference/kit/generators).
 
 ### Resolvers {#resolvers}
 
-A resolver decides identifiers, file names, and paths. A plugin that builds on another reads that plugin's resolver, so the Axios client still imports the right names when you rename the types. The `resolver` plugin option patches the defaults: see [Customize resolvers](/docs/5.x/how-to/customize#resolvers).
+A resolver decides identifiers, file names, and paths. A plugin that builds on another reads its resolver, so the Axios client still imports the right names after you rename the types. See [Customize resolvers](/docs/5.x/how-to/customize#resolvers).
 
 ### Macros and printers {#macros}
 
-A macro rewrites AST nodes before the generators see them. A printer turns a schema node into code for one target, such as a TypeScript type or a Zod expression. Macros run first and per plugin, so a macro change reaches every generator of its plugin and no other plugin. A printer change stays in one output. See [Customize macros](/docs/5.x/how-to/customize#macros) and [Customize printers](/docs/5.x/how-to/customize#printers).
+A macro rewrites AST nodes before the generators see them, per plugin, so a change reaches every generator of that plugin and no other. A printer turns a schema node into code for one target, such as a TypeScript type or a Zod expression. See [Customize macros](/docs/5.x/how-to/customize#macros) and [Customize printers](/docs/5.x/how-to/customize#printers).
 
 ### Renderers {#renderers}
 
-A generator either builds `FileNode`s with `ast.factory` or returns elements that a renderer turns into `FileNode`s. `jsxRenderer` from `kubb/jsx` renders JSX without React. Set a renderer per generator with `renderer`, or write your own for another template format. See the [JSX reference](/docs/5.x/reference/jsx#renderers).
+A renderer turns the elements a generator returns into `FileNode`s. `jsxRenderer` from `kubb/jsx` renders JSX without React. Set it per generator with `renderer`. See the [JSX reference](/docs/5.x/reference/jsx#renderers).
 
 ### Lifecycle {#lifecycle}
 
@@ -93,16 +90,16 @@ A generator either builds `FileNode`s with `ast.factory` or returns elements tha
 
 1. The adapter parses the spec.
 2. Each plugin's `setup` and `kubb:plugin:setup` run once, in [plugin order](#dependencies).
-3. Kubb walks the AST once, schemas first. Each node goes to every plugin in plugin order, through that plugin's macros and `include`, `exclude`, and `override` filters.
+3. Kubb walks the AST once, schemas first. Each node goes to every plugin, through its macros and `include`, `exclude`, and `override` filters.
 4. Each plugin's `operations` handler runs, then `kubb:plugin:end` fires.
-5. After `kubb:plugins:end`, Kubb writes all files in one pass through the parsers and storage.
+5. After `kubb:plugins:end`, Kubb writes all files through the parsers and storage.
 6. Format, lint, and `postGenerate` run when the config sets them.
 
-The [hooks reference](/docs/5.x/reference/kit/hooks) lists every hook a plugin can listen to.
+The [hooks reference](/docs/5.x/reference/kit/hooks) lists every hook.
 
 ### Dependencies and ordering {#dependencies}
 
-Kubb puts the plugins in one order before setup:
+Kubb orders the plugins before setup:
 
 ```mermaid
 flowchart LR
@@ -112,24 +109,20 @@ flowchart LR
   B -->|none| D[Fail: dependency cycle]
 ```
 
-Dependencies win over `enforce`, and ties keep their order in `plugins`. With `plugins: [pluginAxios(), pluginTs()]`, `plugin-ts` comes first because `plugin-axios` depends on it. `plugin-barrel`, which `defineConfig` adds, comes last because it sets `enforce: 'post'`, so it sees every file the others emitted and writes re-exports for them.
-
-[`dependencies`](/docs/5.x/reference/kit/extensions#dependencies) is an array of plugin names, which only sets the order, or a record keyed by plugin name, which also fails the run before any plugin runs when a required plugin is missing or out of range.
+[Dependencies](/docs/5.x/reference/kit/extensions#dependencies) win over `enforce`, and ties keep their order in `plugins`. With `plugins: [pluginAxios(), pluginTs()]`, `plugin-ts` comes first because `plugin-axios` depends on it. `plugin-barrel`, which `defineConfig` adds, sets `enforce: 'post'`, so it runs last and sees every file the others emitted.
 
 ## Parsers {#parsers}
 
-Each parser claims file extensions, and Kubb sends each `FileNode` to the parser for its extension. Without a `parsers` option, `defineConfig` adds `parserTs` (`.ts`, `.js`), `parserTsx` (`.tsx`, `.jsx`), and `parserMd` (`.md`, `.markdown`). A file no parser claims gets its sources joined as they are.
-
-The TypeScript parser prints a file's banner, imports, and source nodes into its text:
+Kubb sends each `FileNode` to the parser that claims its extension. Without a `parsers` option, `defineConfig` adds `parserTs` (`.ts`, `.js`), `parserTsx` (`.tsx`, `.jsx`), and `parserMd` (`.md`, `.markdown`). The TypeScript parser prints a file's banner, imports, and source nodes:
 
 ::flow-diagram{preset="parsers"}
 ::
 
-To write one, see [parsers in the Kit reference](/docs/5.x/reference/kit/parsers).
+To write one, see [Parsers](/docs/5.x/reference/kit/parsers).
 
 ## Storage {#storage}
 
-Storage separates generation from where the files go, so the same build writes to disk from the CLI or to memory in a test. A file whose content has not changed is not written again.
+Storage decides where files go, so the same build writes to disk from the CLI or to memory in a test. Kubb skips files whose content has not changed.
 
 | Driver | Writes to |
 | --- | --- |

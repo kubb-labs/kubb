@@ -16,7 +16,7 @@ navigation:
 
 `kubb update` moves installed extensions to the version the registry pins. It shows each version change, asks which updates to install, installs them, then offers to regenerate. It never changes `kubb.config.ts` and never downgrades.
 
-Ids, versions, and the project files it reads work the same for every extension command: see [Extension commands](/docs/5.x/reference/commands#extension-commands).
+Ids, versions, and project files follow the [extension command rules](/docs/5.x/reference/commands#extension-commands).
 
 ```shell [Terminal]
 kubb update                              # check every installed extension
@@ -24,11 +24,13 @@ kubb update --dry-run                    # list updates, install nothing
 kubb update plugin-zod plugin-ts --yes   # two extensions, no prompt
 ```
 
-| Argument | Description |
-| --- | --- |
-| `[ids...]` | The [registry ids](/docs/5.x/reference/commands#ids) to update. Without ids, every installed extension the registry lists is checked. |
+## Arguments
 
-With `--yes`, it installs every update except majors you did not name, and does not regenerate.
+| Argument | What it does |
+| --- | --- |
+| `[ids...]` | The [registry ids](/docs/5.x/reference/commands#ids) to update. Without ids, it checks every installed extension the registry lists. |
+
+## Pick the updates
 
 ```text [Output]
 ◇  Checked 3 extensions against the registry
@@ -43,31 +45,27 @@ With `--yes`, it installs every update except majors you did not name, and does 
 │  ↑/↓ to navigate • Space: select • Enter: confirm
 ```
 
-Minor and patch updates start selected. A major starts unselected, since it can break the generated code, unless you named its id.
-
-After the install, `kubb update` finds the config the way [`kubb generate`](/docs/5.x/reference/commands/generate) does and asks whether to regenerate, since that rewrites the generated files. The summary lists the installed and skipped packages and the files that changed.
+- Minor and patch updates start selected.
+- A major starts unselected, since it can break the generated code, unless you named its id.
+- After the install, it asks whether to regenerate, since that rewrites the generated files.
 
 ## Which extensions it updates {#update-scope}
 
-An extension gets an update when its installed version is older than the pinned one, or when `package.json` lists it but it is not installed.
-
-| Case | Result |
-| --- | --- |
-| An update does not support your Kubb or Node.js version | Skipped with `Skipped <id>: <reason>`. |
-| A named id matches no installed extension | `<id> is not installed, or not in the registry.` The other ids still update, and the exit code is 1. |
-| Nothing is outdated | The summary says `Already up to date`. |
-| The generation after the install fails | The summary says `Extensions updated; generation failed`. The exit code stays 0. |
+An extension gets an update when its installed version is older than the pinned one, or when `package.json` lists it but it is not installed. An update that does not support your Kubb or Node.js version is skipped with `Skipped <id>: <reason>`. See [What kubb update prints](EDGE:extension-command-output).
 
 ## Options {#options}
 
-| Option | Default | Description |
-| --- | --- | --- |
-| `--yes`, `-y` | `false` | Skip the confirmation. |
-| `--dry-run` | `false` | Show what the command would install, then stop. Nothing changes. |
+| Flag | Alias | Default | What it does |
+| --- | --- | --- | --- |
+| `--yes` | `-y` | `false` | Skip the prompts. Installs every update except majors you did not name, and does not regenerate. |
+| `--dry-run` | | `false` | List the updates, then stop. Nothing changes. |
 
 > [!TIP]
 > Pass `--yes` in scripts and CI, where no one can answer the prompt.
 
 ## Exit codes {#exit-codes}
 
-It exits with code 0 on success and when you cancel a prompt. It exits with code 1 when an id is invalid or not installed; a named extension's update is not compatible; the registry is unreadable; or the install fails.
+| Code | When |
+| --- | --- |
+| `0` | The updates are installed, nothing is outdated, or you canceled a prompt. Also when the generation after the install fails. |
+| `1` | An id is invalid or not installed (the other ids still update), a named extension's update is not compatible, the registry cannot be read, or the install fails. |

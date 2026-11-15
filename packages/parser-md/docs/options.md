@@ -1,6 +1,6 @@
 # Options
 
-`parserMd()` takes no options. A plugin controls each Markdown file through its metadata, such as the YAML frontmatter at the top of the page.
+`parserMd()` takes no options. A plugin controls each Markdown file through its metadata, such as the YAML frontmatter.
 
 ## Frontmatter
 

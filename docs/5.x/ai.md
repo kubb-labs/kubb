@@ -11,7 +11,7 @@ navigation:
 
 # AI assistants
 
-Kubb works with AI assistants in two directions. An assistant can run Kubb through the CLI or the built-in MCP server, and it can read the Kubb docs to write a correct configuration.
+An AI assistant can run Kubb through the CLI or the built-in MCP server, and read the Kubb docs to write a correct config.
 
 | Tool | What it does | Guide |
 | --- | --- | --- |

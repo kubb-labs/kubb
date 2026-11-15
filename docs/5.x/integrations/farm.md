@@ -11,15 +11,17 @@ navigation:
 
 # Generate code from your API spec with Farm
 
+`kubb/farm` ships with `kubb`. It generates code from your `kubb.config.ts` once, before `farm build` continues.
+
 ::steps{level="2"}
 
 ## Install Kubb and your plugins
 
-Follow [Installation](/docs/5.x/how-to/installation). The Farm integration ships with `kubb`, so there is nothing else to install.
+Follow [Installation](/docs/5.x/how-to/installation).
 
 ## Add Kubb to `farm.config.ts`
 
-Pass your `kubb.config.ts` as `config`. It must be one config object, not the array or function forms `defineConfig` accepts.
+Pass your `kubb.config.ts` as `config`. It takes one config object, not an array or a function.
 
 ```typescript [farm.config.ts]
 import { defineConfig } from '@farmfe/core'
@@ -33,8 +35,8 @@ export default defineConfig({
 
 ## Run the build
 
-Run `farm build`. Kubb generates once, before the build continues, and a failed generation fails the build.
+Run `farm build`. A failed generation fails the build.
 
 ::
 
-[How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) covers the defaults it applies, the reports it prints, and watch rebuilds.
+See [How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) for defaults, reports, and watch rebuilds.

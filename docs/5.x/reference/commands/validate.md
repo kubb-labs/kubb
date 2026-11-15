@@ -13,7 +13,7 @@ navigation:
 
 # kubb validate
 
-`kubb validate` checks a specification with the adapter in your Kubb config and runs no generator plugins. Use it in CI or before you commit a spec change.
+`kubb validate` checks a spec with the adapter in your Kubb config and generates nothing. Use it in CI or before you commit a spec change.
 
 ::terminal
 ---
@@ -27,21 +27,19 @@ output:
 ---
 ::
 
-A failure shows the validation error instead. When the default OpenAPI adapter is missing, the error includes its install command.
+On failure, it prints the validation error. When `@kubb/adapter-oas` is needed but missing, it prints the install command.
 
 ## Arguments
 
-| Argument | Required | Description |
+| Argument | Required | What it does |
 | --- | --- | --- |
-| `<input>` | Yes | Path, URL, or git input (`git+<repo>#<ref>:<path>`) of the spec, such as `https://petstore3.swagger.io/api/v3/openapi.json`. See [`input`](/docs/5.x/reference/configuration#input) for the format. |
-
-Kubb fetches a git input into a temporary folder with `git`, validates it, and deletes the folder.
+| `<input>` | Yes | Path, URL, or git input of the spec, such as `https://petstore3.swagger.io/api/v3/openapi.json`. See [`input`](/docs/5.x/reference/configuration#input) for the format. |
 
 ## Options
 
-| Option | Description |
-| --- | --- |
-| `--config <path>`, `-c` | Path to the Kubb config. Without it, Kubb looks for one the way [`kubb generate`](/docs/5.x/reference/commands/generate) does. |
+| Flag | Alias | Default | What it does |
+| --- | --- | --- | --- |
+| `--config <path>` | `-c` | | Path to the Kubb config. Without it, Kubb looks for one the way [`kubb generate`](/docs/5.x/reference/commands/generate) does. |
 
 ```shell [Terminal]
 kubb validate ./schema.graphql --config ./kubb.config.ts
@@ -51,10 +49,14 @@ kubb validate ./schema.graphql --config ./kubb.config.ts
 
 | Situation | Adapter |
 | --- | --- |
-| A config is found or passed | The adapter of each config entry. A local path resolves from that entry's `root`, or the current folder without one. A URL or git input is passed unchanged. |
-| A config entry has no adapter | None. The command fails instead of using the OpenAPI adapter. |
-| No config, or a found config that fails to load | `@kubb/adapter-oas`, for OpenAPI and Swagger documents. A config passed with `--config` that fails to load fails the command. |
+| A config is found or passed | The adapter of each config entry. |
+| No config | `@kubb/adapter-oas`, for OpenAPI and Swagger documents. |
+
+See [How kubb validate picks an adapter](EDGE:config-loading).
 
 ## Exit codes
 
-`kubb validate` exits with code 1 when the spec is invalid, no adapter is configured, or the adapter is missing. Use it as a pre-commit hook or CI step to fail the build.
+| Code | When |
+| --- | --- |
+| `0` | The spec is valid. |
+| `1` | The spec is invalid, a config entry has no adapter, or the adapter is not installed. |

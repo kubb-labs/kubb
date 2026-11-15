@@ -1,12 +1,15 @@
 # Markdown
 
-The Markdown parser writes the `.md` and `.markdown` files that plugins generate. It joins each file's source blocks with blank lines and, when the file sets `meta.frontmatter`, writes that object as YAML frontmatter above the content.
+The Markdown parser writes the `.md` and `.markdown` files that plugins generate, with YAML frontmatter from each file's `meta.frontmatter`.
+
+It joins each file's source blocks with blank lines and writes the frontmatter above the content.
 
 ## Setup
 
 No setup is needed. `defineConfig` and the bundler integrations register `parserMd()` by default, next to `parserTs()` and `parserTsx()`.
 
-Add it yourself only when you set a custom `parsers` array, because that array replaces the default set. List every parser your plugins need. A file that no parser claims is written as its source text only, without imports, exports, banner, or footer.
+> [!WARNING]
+> A custom `parsers` array replaces the default set, so add `parserMd()` to it yourself and list every parser your plugins need. A file that no parser claims is written as its source text only, without imports, exports, banner, or footer.
 
 ## Options worth knowing
 
@@ -20,7 +23,7 @@ The parser takes no options. A plugin controls the output per file:
 
 ## Example
 
-The config below sets a custom `parsers` array and keeps the Markdown parser in it. A plugin file with `meta.frontmatter` set then prints like this:
+This config sets a custom `parsers` array that keeps the Markdown parser. A plugin file with `meta.frontmatter` then prints like this:
 
 ::code-group
 

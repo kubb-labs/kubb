@@ -13,7 +13,7 @@ navigation:
 
 # Configure generation
 
-Each recipe below is a complete `kubb.config.ts` for a project with [Kubb installed](/docs/5.x/how-to/installation). Replace `./petStore.yaml` with your specification, install the packages listed, then run `npx kubb generate`. Each plugin page shows its own single-plugin config.
+Each recipe is a complete `kubb.config.ts` for a project with [Kubb installed](/docs/5.x/how-to/installation). Replace `./petStore.yaml` with your spec, install the listed packages, and run `npx kubb generate`.
 
 > [!WARNING]
 > The examples write to `./src/gen`. With `clean: true`, Kubb removes that directory before generation, so keep handwritten files elsewhere.
@@ -97,11 +97,12 @@ export default defineConfig({
 
 ::
 
-To call the API with the global `fetch` instead of Axios, replace `pluginAxios` with [`pluginFetch`](/extensions/kubb-labs/plugin-fetch) from `@kubb/plugin-fetch`.
+To use the global `fetch` instead of Axios, replace `pluginAxios` with [`pluginFetch`](/extensions/kubb-labs/plugin-fetch) from `@kubb/plugin-fetch`.
 
 ## Format, lint, and run commands after generation
 
-Set `format` and `lint` to a tool name, or to `'auto'` to use the first one installed. [`output.postGenerate`](/docs/5.x/reference/configuration#outputpostgenerate) runs shell commands after formatting and linting. Install the tools first, such as `npm install -D @biomejs/biome oxlint`. The example runs a `typecheck` script, so add one to `package.json`, such as `"typecheck": "tsc --noEmit"`, or use a command your project already has.
+- `format` and `lint` take a tool name, or `'auto'` for the first one installed. Install the tools first, such as `npm install -D @biomejs/biome oxlint`.
+- [`output.postGenerate`](/docs/5.x/reference/configuration#outputpostgenerate) runs shell commands after formatting and linting. The example runs a `typecheck` script, such as `"typecheck": "tsc --noEmit"` in `package.json`.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -122,7 +123,7 @@ export default defineConfig({
 
 ## Add barrel files {#barrel-files}
 
-A barrel is an `index.ts` that re-exports a folder, so consumers import from one place. `defineConfig` registers [`@kubb/plugin-barrel`](/extensions/kubb-labs/plugin-barrel) for you, and the defaults differ per level:
+A barrel is an `index.ts` that re-exports a folder. `defineConfig` registers [`@kubb/plugin-barrel`](/extensions/kubb-labs/plugin-barrel) for you, with these defaults:
 
 | Barrel | Default | Change it with |
 | --- | --- | --- |
@@ -153,7 +154,7 @@ export default defineConfig({
 
 ## Read the spec from a git repository
 
-When the spec lives in another repository, such as the API's own, set `input` to `git+<repo>#<ref>:<path>`. Pin `<ref>` to a tag or commit so every run uses the same spec:
+When the spec lives in another repository, set `input` to `git+<repo>#<ref>:<path>`. Pin `<ref>` to a tag or commit so every run uses the same spec:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -166,13 +167,13 @@ export default defineConfig({
 })
 ```
 
-Kubb runs `git` from the `PATH` with your own credentials, so a private repository works with the credential helper or SSH key you already use. In CI, give the job read access to that repository. [`input`](/docs/5.x/reference/configuration#input) has the full format.
+Kubb runs `git` from the `PATH` with your credentials, so a private repository works with your credential helper or SSH key. In CI, give the job read access to that repository. [`input`](/docs/5.x/reference/configuration#input) has the full format.
 
 ## Watch mode, several specifications, and scripts
 
 | To | Do this |
 | --- | --- |
-| Regenerate when the local spec changes | Run `kubb generate --watch`. A URL or git input generates once, so rerun Kubb after the remote spec changes. To keep `clean` off during incremental runs, pass a function to `defineConfig` and read `watch`. See [Config formats](/docs/5.x/reference/configuration#config-formats). |
-| Generate from several specs in one run | Pass an array to `defineConfig`, each entry with its own plugins and output directory. Set a `name` per entry so the CLI output tells them apart. |
+| Regenerate when the local spec changes | Run `kubb generate --watch`. A URL or git input generates once. See [Watch mode](EDGE:watch-mode). |
+| Generate from several specs in one run | Pass an array to `defineConfig`, each entry with its own plugins and output directory. Set a `name` per entry to tell them apart in the CLI output. |
 | Drive Kubb from a script | Call [`createKubb`](/docs/5.x/reference/kit/engine#createkubb) to orchestrate builds or inspect diagnostics. |
 | Fail CI on an invalid spec | Run [`kubb validate`](/docs/5.x/reference/commands/validate) before generation. |

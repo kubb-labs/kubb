@@ -17,7 +17,7 @@ navigation:
 import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
 ```
 
-It is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/pull/4712), so `tsc` and your editor type-check the plugin output in place of the spec. Go to definition, hover, and rename jump between the types and the keys in the spec. Values at run time come from your bundler:
+It is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/pull/4712): `tsc` and your editor type-check the plugin output in place of the spec, and go to definition, hover, and rename jump between the types and the spec keys. Values at run time come from your bundler:
 
 ```mermaid
 flowchart LR
@@ -79,7 +79,7 @@ node node_modules/typescript/bin/tsc --noEmit --runExternalCode
 
 :::
 
-With npm, a bare `tsc` runs TypeScript 6, so call the binary from `typescript`. VS Code only passes `--runExternalCode` in trusted workspaces.
+With npm, a bare `tsc` runs TypeScript 6, so call the binary from `typescript`. VS Code passes `--runExternalCode` only in trusted workspaces.
 
 ::
 
@@ -87,7 +87,7 @@ The [`openapi-import` README](https://github.com/kubb-labs/openapi-import#what-y
 
 ## Choose the plugins
 
-Without a `kubb.config.ts`, only `@kubb/plugin-ts` runs. Add a config to set plugin options or run other plugins, and install each plugin it imports:
+Without a `kubb.config.ts`, only `@kubb/plugin-ts` runs. To set plugin options or run other plugins, add a config and install each plugin it imports:
 
 ```shell [Terminal]
 pnpm add -D @kubb/plugin-ts
@@ -103,7 +103,7 @@ export default defineConfig({
 })
 ```
 
-- Put the config next to `tsconfig.json` or in a parent folder, and add its path, relative to `tsconfig.json`, to `include`, such as `./kubb.config.ts` or `../kubb.config.ts`. The mapper reloads the config when it changes.
+- Put the config next to `tsconfig.json` or in a parent folder, and add its relative path to `include`, such as `./kubb.config.ts` or `../kubb.config.ts`. The mapper reloads the config when it changes.
 - With several configs, a spec uses the one whose `input` is that spec, or else the first config without an `input`.
 
 ## Load the spec at run time
@@ -132,7 +132,8 @@ export async function getAvailablePet({ petId }: GetPetByIdPath): Promise<GetPet
 }
 ```
 
-A config with an `input` also writes the generated files at build time. Leave `input` out to import specs only. The bundler reads `kubb.config.ts` once, so restart it after you change the config.
+- A config with an `input` also writes the generated files at build time. Leave `input` out to import specs only.
+- The bundler reads `kubb.config.ts` once, so restart it after you change the config.
 
 ## Limits
 
@@ -140,4 +141,4 @@ A config with an `input` also writes the generated files at build time. Leave `i
 - Files that `kubb.config.ts` imports are not watched. Restart the TypeScript server after you change them.
 - A changed spec runs a full Kubb build: about 0.4 s for a 10 KB spec and 2.6 s for a 1.4 MB spec.
 
-The [README](https://github.com/kubb-labs/openapi-import#limits) lists the editor and `$ref` limits, and [`examples/pet-store`](https://github.com/kubb-labs/openapi-import/tree/main/examples/pet-store) has a working setup.
+The [README](https://github.com/kubb-labs/openapi-import#limits) lists the editor and `$ref` limits. For a working setup, see [`examples/pet-store`](https://github.com/kubb-labs/openapi-import/tree/main/examples/pet-store).

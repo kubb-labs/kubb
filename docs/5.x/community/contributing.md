@@ -13,7 +13,7 @@ navigation:
 
 # Contributing
 
-Check the open [issues](https://github.com/kubb-labs/kubb/issues) and [pull requests](https://github.com/kubb-labs/kubb/pulls) first, and open an issue before an opinion-driven change. Say hello on [Discord](https://discord.gg/4dQjA6vrWX). Each repository's `CONTRIBUTING.md` has the full rules: [kubb-labs/kubb](https://github.com/kubb-labs/kubb/blob/main/CONTRIBUTING.md) and [kubb-labs/plugins](https://github.com/kubb-labs/plugins/blob/main/CONTRIBUTING.md).
+Check the open [issues](https://github.com/kubb-labs/kubb/issues) and [pull requests](https://github.com/kubb-labs/kubb/pulls) first, and open an issue before an opinion-driven change. Each repository's `CONTRIBUTING.md` has the full rules: [kubb-labs/kubb](https://github.com/kubb-labs/kubb/blob/main/CONTRIBUTING.md) and [kubb-labs/plugins](https://github.com/kubb-labs/plugins/blob/main/CONTRIBUTING.md).
 
 ## What lives where
 
@@ -69,7 +69,7 @@ pnpm install
 pnpm build
 ```
 
-`pnpm build` compiles every package, so local packages resolve each other. Run it again after you change package source.
+`pnpm build` compiles every package so local packages resolve each other. Rerun it after you change package source.
 
 ### Create a branch {#_3-create-a-branch}
 
@@ -88,7 +88,7 @@ Put each test next to its source file, and list a new test file in `configs/test
 
 ### Add a changeset {#commits-and-changesets}
 
-Run `pnpm changeset` when the change ships in a published package. That includes a package's `docs/` folder, such as `packages/parser-ts/docs`, because npm ships it and kubb.dev reads it from the published version. Changes to `docs/5.x`, CI, and tests need none. Write [Conventional Commits](https://www.conventionalcommits.org/), such as `feat:` or `fix:`.
+Run `pnpm changeset` when the change ships in a published package, including a package's `docs/` folder, because kubb.dev reads it from the published version. Changes to `docs/5.x`, CI, and tests need none. Write [Conventional Commits](https://www.conventionalcommits.org/), such as `feat:` or `fix:`.
 
 ### Open a pull request {#opening-a-pull-request}
 
@@ -98,7 +98,7 @@ Push to your fork and open a pull request against `main`. Fill in the template, 
 
 ## Quality gates
 
-Run these before you push. CI runs the same commands on every pull request that changes code.
+Run these before you push. CI runs them on every pull request that changes code.
 
 | Command | Checks | CI job |
 | --- | --- | --- |

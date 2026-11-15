@@ -40,7 +40,7 @@ Generates OpenAPI SDKs with Kubb.
 ::card-group
 
 :::card{title="API Consumption with OpenAPI and Typed Code" to="https://www.rocketseat.com.br/blog/artigos/post/consumo-apis-openapi-codigo-tipado"}
-RocketSeat covers front-end API consumption with Kubb.
+RocketSeat on front-end API consumption with Kubb.
 :::
 
 :::card{title="OpenAPI to Frontend" to="https://apisyouwonthate.com/newsletter/openapi-to-frontend/"}
@@ -48,7 +48,7 @@ APIs You Won't Hate uses OpenAPI specs for frontend work.
 :::
 
 :::card{title="Securing Auth0 API Calls in Next.js" to="https://medium.com/@laxman.pokhrel.101/from-headache-to-harmony-securing-auth0-api-calls-in-next-js-54fc117bfb92"}
-A Medium post that combines Kubb, Axios, and the Next.js App Router.
+Combines Kubb, Axios, and the Next.js App Router.
 :::
 
 ::
@@ -60,4 +60,4 @@ A Medium post that combines Kubb, Axios, and the Next.js App Router.
 
 ## Community
 
-Built something with Kubb? Share it on [GitHub Discussions](https://github.com/kubb-labs/kubb/discussions) and we will add it here. Ask questions on [Discord](https://discord.gg/shfBFeczrm).
+Built something with Kubb? Share it on [GitHub Discussions](https://github.com/kubb-labs/kubb/discussions) and we will add it here.

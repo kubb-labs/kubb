@@ -30,11 +30,12 @@ flowchart LR
   P --> F
 ```
 
-Write an override as a regular method, not an arrow function, when it uses `this`. [Architecture](/docs/5.x/explanation/architecture) shows how the parts fit together.
+> [!TIP]
+> Write an override as a regular method, not an arrow function, when it uses `this`.
 
 ## Resolvers {#resolvers}
 
-A resolver names every symbol and file a plugin writes. Pass only the methods you want to replace to the plugin's `resolver` option. The rest keep their defaults.
+A resolver names every symbol and file a plugin writes. Pass only the methods you replace to the plugin's `resolver` option. The rest keep their defaults.
 
 | Method | Builds | Plugin |
 | --- | --- | --- |
@@ -44,7 +45,7 @@ A resolver names every symbol and file a plugin writes. Pass only the methods yo
 | `query.keyName(node)` | A query key, such as `getPetByIdQueryKey` | `@kubb/plugin-react-query`, `@kubb/plugin-vue-query` |
 | `response.status(node, statusCode)` | A response name, such as `GetPetByIdStatus200` | `@kubb/plugin-ts`, `@kubb/plugin-zod`, `@kubb/plugin-faker` |
 
-Each plugin's options page lists its own namespaces. [Resolver overrides](/docs/5.x/reference/kit/resolvers#resolver-overrides) has the signatures and the [`resolver` option](/docs/5.x/reference/plugin-options#resolver) the shared members.
+Each plugin's options page lists its own namespaces. [Resolver overrides](/docs/5.x/reference/kit/resolvers#resolver-overrides) has the signatures, and the [`resolver` option](/docs/5.x/reference/plugin-options#resolver) the shared members.
 
 ::code-group
 
@@ -124,7 +125,7 @@ pluginTs({
 ::
 
 > [!WARNING]
-> `file.path` replaces the plugin's `output.path` and `group` layout. Kubb resolves the returned path against the root `output.path`, and it must stay inside that folder. The plugin's barrel covers only its own `output.path`, so moved files get no `index.ts`.
+> `file.path` replaces the plugin's `output.path` and `group` layout. The returned path resolves against the root `output.path` and must stay inside it. Moved files get no `index.ts` barrel.
 
 ## Macros {#macros}
 
@@ -170,7 +171,7 @@ export const macroUntagged = defineMacro({
 
 ### Register a macro
 
-Pass macros through a plugin's `macros` option, or register them from your own plugin's `setup` with `kubb.addMacro` or `kubb.setMacros`. Macros run per plugin, so they never change the nodes another plugin sees.
+Pass macros through a plugin's `macros` option, or register them in your own plugin's `setup` with `kubb.addMacro` or `kubb.setMacros`. Macros run per plugin, so they never change the nodes another plugin sees.
 
 ```typescript [plugin.ts]
 import { defineExtension, defineMacro } from 'kubb/kit'
@@ -192,7 +193,7 @@ export const pluginRename = defineExtension({
 })
 ```
 
-`macroIntegerToString` and `macroDropDescriptions` together turn a `Pet` schema node into the node on the right. Hover a line to see which macro changed it.
+The diagram applies `macroIntegerToString` and `macroDropDescriptions` to a `Pet` node. Hover a line to see which macro changed it.
 
 ::flow-diagram{preset="macros"}
 ::
@@ -203,9 +204,9 @@ export const pluginRename = defineExtension({
 ### Rename a schema
 
 > [!WARNING]
-> A macro that changes only the declaration's `name` leaves every `$ref` on the old name, so imports point at a file the plugin no longer writes. Rename the declaration and set `targetName` on every ref to it in one macro, and register it on every plugin that reads the schema.
+> Renaming only the declaration leaves every `$ref` on the old name, so imports point at a file the plugin no longer writes. Rename the declaration and set `targetName` on every ref in one macro, and register it on every plugin that reads the schema.
 
-This macro does both. Pass one shared `macros` array to each plugin so their names and imports agree:
+This macro does both. Pass one shared `macros` array to each plugin:
 
 ::code-group
 
@@ -276,7 +277,7 @@ export default defineConfig({
 
 ## Printers {#printers}
 
-A printer turns schema nodes into code. `printer.nodes` replaces the handler for one schema type, such as `date` or `object`, and each handler returns code as a string. To change the schema for every output instead, use a [macro](#macros).
+`printer.nodes` replaces the handler that prints one schema type, such as `date` or `object`, and returns code as a string. To change the schema instead, use a [macro](#macros).
 
 | Plugin | A handler returns | Inside a handler |
 | --- | --- | --- |
@@ -340,8 +341,11 @@ pluginFaker({
 
 ### TypeScript handlers
 
-`this.transform(node)` returns a string, so a handler that passes it to `ts.factory` breaks. Build the type as a string. Returning a compiler node from `typescript` 5 or later, or `@typescript/typescript6`, still works with `@kubb/parser-ts` installed, but is deprecated and goes away in the next major.
+`this.transform(node)` returns a string, so a handler that passes it to `ts.factory` breaks. Build the type as a string.
+
+> [!WARNING]
+> Returning a TypeScript compiler node is deprecated and goes away in the next major. See [TypeScript compiler nodes in printers](EDGE:printer-compiler-nodes).
 
 ### Zod encode and decode
 
-`this.options.direction` is `'decode'` for response schemas and `'encode'` for request bodies and parameters. Return a different expression per direction and the plugin adds an `${name}InputSchema` variant for request bodies. Type the handlers as `PrinterZodNodes` from `@kubb/plugin-zod`, because the inline type also covers Zod Mini, which has no `direction`. See [Encode custom types](/extensions/kubb-labs/plugin-zod/guides/customization#encode-custom-types).
+`this.options.direction` is `'decode'` for response schemas and `'encode'` for request bodies and parameters. Type the handlers as `PrinterZodNodes` from `@kubb/plugin-zod` to read it. [Encode custom types](/extensions/kubb-labs/plugin-zod/guides/customization#encode-custom-types) shows a direction-aware handler.

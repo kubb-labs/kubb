@@ -31,7 +31,7 @@ The server uses the stdio transport, so the client starts it as a local process.
 
 ## Tools
 
-| Tool | Does |
+| Tool | What it does |
 | --- | --- |
 | [`generate`](#generate) | Runs the Kubb pipeline from the project's config. |
 | [`validate`](#validate) | Validates an OpenAPI or Swagger document. |
@@ -39,12 +39,12 @@ The server uses the stdio transport, so the client starts it as a local process.
 
 ### `generate` {#generate}
 
-Runs the Kubb pipeline. On success, it returns the file count and the warnings and diagnostics raised. On failure, it returns each diagnostic with its code, fix, and docs link. A config that exports an array runs its first entry.
+Runs the Kubb pipeline and returns the file count, warnings, and diagnostics. On failure, each diagnostic comes with its code, fix, and docs link. A config that exports an array runs its first entry.
 
 ::field-group
 
 :::field{name="config" type="string"}
-Path to a config file inside the [working directory](#working-directory), with a `.ts`, `.mts`, `.cts`, `.js`, `.mjs`, or `.cjs` extension. Without it, the server looks for `.kubbrc` then `kubb.config` in the working directory, its `.config/` and `configs/` folders, then each parent folder, the same search as `kubb generate`.
+Path to a `.ts`, `.mts`, `.cts`, `.js`, `.mjs`, or `.cjs` config file inside the [working directory](#working-directory). Without it, the server searches the way `kubb generate` does.
 :::
 
 :::field{name="input" type="string"}
@@ -75,7 +75,7 @@ Path or URL of the spec.
 
 ### `init` {#init}
 
-Writes a `kubb.config.ts` with an empty `plugins` array to the working directory. It does not install packages or add plugins: its reply tells the agent to run `kubb add <id> --yes` for each plugin. It fails when `kubb.config.ts` already exists.
+Writes a `kubb.config.ts` with an empty `plugins` array to the working directory, and fails when one exists. It installs nothing: its reply tells the agent to run `kubb add <id> --yes` for each plugin.
 
 ::field-group
 

@@ -29,13 +29,13 @@ flowchart TD
 ```
 
 - Each pull request reuses one CI agent and one comment. Each branch push reuses one CI agent and writes no comment.
-- Deleting the agent of a closed pull request is best effort. On failure the action logs a warning, and Studio's idle cleanup removes the agent later.
-- When a `kubb/init-*` pull request is already open, the action stops without opening another.
 - When the snapshot fails, the comment shows the error and links the workflow run, and the step fails.
+
+See [GitHub Action edge cases](EDGE:github-action-runs).
 
 ## Inputs
 
-| Input | Default | Description |
+| Input | Default | What it does |
 | --- | --- | --- |
 | `token` | | Required. The organization CI API key. The action masks it in logs and passes it to the CLI as `KUBB_TOKEN`. |
 | `github-token` | <code v-pre>${{ github.token }}</code> | Token that opens the init pull request and writes the comment. |
@@ -63,17 +63,15 @@ The action runs `node_modules/.bin/kubb` from `working-directory`, so the snapsh
 
 ## Pull request comment
 
-The comment opens with the package name and version and an `npm i <tarball-url>` command. Below that, two sections compare the generated files, each with a collapsed list of up to 50 files:
+The comment shows the package name and version, an `npm i <tarball-url>` command, and the generated file changes against the base branch and since the previous snapshot.
 
-| Section | Compares with | Without a base |
-| --- | --- | --- |
-| Changes against the base branch | The latest snapshot of the pull request's base branch, from the `push` trigger. The heading links its commit. | Says to run the workflow on pushes to the base branch |
-| Changes since the previous snapshot | The previous snapshot on the same pull request. The heading links its commit, or shows its date. | Reports a first snapshot with its file count |
+> [!TIP]
+> The base branch comparison needs a snapshot of the base branch. Run the workflow on pushes to that branch too.
 
-The comment ends with links to download the package and open the editor, the expiry date, and the commit it was built from.
+See [Read the snapshot comment](EDGE:github-action-runs).
 
 ## Environment variables
 
-| Variable | Default | Description |
+| Variable | Default | What it does |
 | --- | --- | --- |
 | `KUBB_STUDIO_URL` | `https://kubb.studio` | Studio URL for a self-hosted deployment |

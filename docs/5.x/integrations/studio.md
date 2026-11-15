@@ -26,7 +26,7 @@ sequenceDiagram
   A-->>S: contents, with --allow-read
 ```
 
-`kubb studio` needs Kubb 5.11.6 or later, because Studio refuses older agents. Pick the agent that fits:
+`kubb studio` needs Kubb 5.11.6 or later. Studio refuses older agents. Pick the agent that fits:
 
 | Agent | Runs on | Use it for |
 | --- | --- | --- |
@@ -43,11 +43,11 @@ Run this from the project directory:
 kubb studio
 ```
 
-Approve the pairing code in Studio and answer the permission prompts. Each project directory pairs as its own agent. Keep the command running, select the agent in Studio, and generate.
+Approve the pairing code in Studio and answer the permission prompts. Keep the command running, select the agent in Studio, and generate. Each project directory pairs as its own agent.
 
 ## Choose permissions {#permissions}
 
-Every permission is off by default. Without any, Studio sees file paths, progress, and a hash of each generated file, and the agent never uploads a local spec. The CLI remembers your answers per project. The flags this page uses:
+Every permission is off by default. Without any, Studio sees file paths, progress, and a hash of each generated file, and the agent never uploads a local spec. The CLI remembers your answers per project.
 
 | Flag | Lets Studio |
 | --- | --- |
@@ -60,7 +60,7 @@ See [Permissions](/docs/5.x/reference/commands/studio#permissions) for every fla
 
 ## Review and save generated files
 
-To view contents and diffs, then write the files to disk, connect with:
+Connect with both flags to view contents and diffs, then write the files to disk:
 
 ```shell [Terminal]
 kubb studio --allow-read --allow-write
@@ -85,7 +85,7 @@ See [Background connection](/docs/5.x/reference/commands/studio#background-conne
 
 ## Give your AI tools your API
 
-On the Pro plan, Studio turns an agent's OpenAPI spec into a plugin for Claude Code, Cursor, and Codex, with skills that list the API's servers, authentication, operations, and schemas. Your organization gets one marketplace, with one plugin per published agent.
+On the Pro plan, Studio turns an agent's OpenAPI spec into a plugin for Claude Code, Cursor, and Codex. Its skills list the API's servers, authentication, operations, and schemas. Your organization gets one marketplace, with one plugin per published agent.
 
 1. Connect the agent with `--allow-read-ast` and generate. Studio reads the spec of the latest successful generation.
 2. In Studio, open **Settings › your organization › AI**, select **Publish an agent**, and choose the agent.

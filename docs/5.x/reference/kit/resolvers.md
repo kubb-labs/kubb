@@ -15,7 +15,7 @@ navigation:
 
 ## `createResolver`
 
-A resolver names every symbol and file a plugin generates, and decides where imports point. `createResolver` builds one, and `pluginName` is required. Other plugins read it through `ctx.getResolver()`. Methods reach the merged resolver through `this`, so a namespaced method calls `this.name(...)` for the active casing.
+A resolver names every symbol and file a plugin generates, and decides where imports point. `createResolver` builds one, and `pluginName` is required. Other plugins read it through `ctx.getResolver()`.
 
 ```typescript [resolver.ts]
 import { createResolver } from 'kubb/kit'
@@ -45,16 +45,16 @@ export const resolver = createResolver<MyPlugin>({
 
 ### Built-in members {#auto-injected-resolver-defaults}
 
-Every resolver has these members. `name` and `file` follow your overrides, while `default` always holds Kubb's built-ins.
+Every resolver has these members. `name` and `file` follow your overrides, and `default` always holds Kubb's built-ins.
 
 | Member                          | Does                                                                                                                                           |
 | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name(name)`                    | The identifier casing. Falls back to `default.name`.                                                                                           |
-| `file(options)`                 | Builds a `FileNode`, with its base name from `file.baseName` and its path from `file.path` or `default.path`.                                  |
+| `file(options)`                 | Builds a `FileNode` from `file.baseName` and `file.path`, or `default.path`.                                                                   |
 | `imports(options)`              | One import per `$ref`. See [`resolver.imports`](#imports).                                                                                     |
-| `memo(key, compute)`            | Caches a value for the rest of the build. Wrap repeated casing in it.                                                                          |
+| `memo(key, compute)`            | Caches a value for the rest of the build.                                                                                                      |
 | `resolveName()`, `reserveNames()` | Allocate names that do not collide. See [Name reservations](#name-reservations).                                                             |
-| `groupDir(group, value)`        | The folder a `group` puts a file in: the custom `group.name`, the camelCased tag inside its `parent` tag folders, or the first path segment.   |
+| `groupDir(group, value)`        | The folder a [`group`](/docs/5.x/reference/plugin-options#group) puts a file in.                                                               |
 | `default.name`                  | Kubb's `camelCase`.                                                                                                                            |
 | `default.options`               | Applies the `exclude`, `include`, and `override` filters.                                                                                      |
 | `default.path`                  | Resolves to `output.path`. With `mode: 'directory'` it adds the base name, inside a tag or path folder when `group` is set.                    |
@@ -64,7 +64,7 @@ Every resolver has these members. `name` and `file` follow your overrides, while
 
 ### `resolver.imports` {#imports}
 
-`resolver.imports` returns one import per `$ref` in a schema tree. Each import uses the ref's `targetName` when set, else the last segment of its pointer. Names and paths go through the resolver's `name` and `file`, and `extname` defaults to `.ts`.
+`resolver.imports` returns one import per `$ref` in a schema tree. It names each import from the ref's `targetName`, or else the last segment of its pointer. Names and paths go through `name` and `file`, and `extname` defaults to `.ts`.
 
 ```typescript [imports.ts]
 const imports = resolver.imports({ node, root, output })
@@ -74,13 +74,13 @@ const imports = resolver.imports({ node, root, output })
 | Option   | Effect                                                                                                                                                         |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name`   | Turns a referenced schema name into the imported identifier, for example `(schemaName) => \`${resolver.name(schemaName)}Type\``.                             |
-| `checks` | `true` also imports refs inside `conditionals`, `contains`, and a string's `content`. Checks that cannot fail stay out: a `contains` with `min: 0` and no `max`, and `content` that is not JSON or is encoded. |
+| `checks` | `true` also imports refs inside `conditionals`, `contains`, and a string's `content`. See [Ref imports in checks](EDGE:ref-imports-in-checks). |
 
 ### Name reservations {#name-reservations}
 
-`resolver.resolveName({ key, name })` keeps the preferred name when it is free and adds `2`, `3`, and so on when it is taken. Use the same key for a declaration and its references. A key is a string or an array of string or `undefined` segments, compared in order. A string key never equals an array key.
+`resolver.resolveName({ key, name })` keeps the preferred name when it is free and adds `2`, `3`, and so on when it is taken. Use the same key for a declaration and its references.
 
-The driver reserves component names after each plugin's macros and filters run, while `resolver.name` only applies casing. Reserve other identifiers, such as enum type aliases, with `resolver.reserveNames` first.
+Kubb reserves component names itself, and `resolver.name` only applies casing. Reserve other identifiers, such as enum type aliases, with `resolver.reserveNames` first.
 
 ```typescript [reserve-names.ts]
 resolver.reserveNames(['CreateContainerBody', 'CreateContainerBody2'])
@@ -91,21 +91,11 @@ const name = resolver.resolveName({
 // 'CreateContainerBody3'
 ```
 
-Pass `normalize` when the emitted identifier differs from the raw name, which `resolveName` returns. Return several names when one declaration emits several identifiers, such as an enum's value and its type alias: the name is taken only when all are free. Keep numeric suffixes distinct.
-
-```typescript [reserve-enums.ts]
-const name = resolver.resolveName({
-  key: ['enum', owner, node.pointer],
-  name: node.name,
-  normalize: (candidate) => [resolver.name(candidate), `${candidate}Key`],
-})
-```
-
-Allocate names only for declarations the generator emits. `Resolver.merge` returns a resolver with no reservations.
+See [Name collisions](EDGE:name-collisions) for key matching, `normalize`, and declarations that emit several identifiers.
 
 ### `Resolver.merge`
 
-`Resolver.merge(base, ...patches)` returns a new resolver with the patches layered over `base` in order. A top-level `name` replaces. `file` and each namespace merge per member, so overriding `query.name` keeps the base `query.keyName`.
+`Resolver.merge(base, ...patches)` layers the patches over `base` in order and returns a new resolver. A top-level `name` replaces. `file` and each namespace merge per member, so overriding `query.name` keeps the base `query.keyName`.
 
 ```typescript [merge.ts]
 const patched = Resolver.merge(resolver, {
@@ -120,7 +110,7 @@ const patched = Resolver.merge(resolver, {
 
 ## Resolver overrides {#resolver-overrides}
 
-`name` changes identifier casing. `file.baseName` and `file.path` control files. Plugin namespaces control specific symbols. Users pass the same shape to a plugin's [`resolver` option](/docs/5.x/reference/plugin-options#resolver).
+`name` changes identifier casing, `file.baseName` and `file.path` control files, and plugin namespaces control specific symbols. Users pass the same shape to a plugin's [`resolver` option](/docs/5.x/reference/plugin-options#resolver).
 
 ```typescript [Type definition]
 type ResolverPatch = {
@@ -134,11 +124,9 @@ type ResolverPatch = {
 }
 ```
 
-Rules for overrides:
-
-- Write methods as regular functions, not arrow functions. They run with `this` bound to the full, merged resolver.
+- Write methods as regular functions, not arrow functions, so `this` is the merged resolver.
 - Kubb resolves the path `file.path` returns against the root `output.path`, and the result must stay inside it. The `output` argument is the plugin's own `output`.
 - `file.baseName` and `file.path` must return the same result for the same arguments, because `resolver.imports` keeps each import path for the rest of the build.
-- `this.default.name(name)` always applies Kubb's `camelCase`. For other casing, import `casing` from `kubb/kit` and call `casing.camel` or `casing.pascal`.
-- From a namespaced method, `this.name(name)` calls the active top-level `name`, including a user override. From the top-level `name` itself it recurses, so call an exported preset, such as `resolverTs.name`, to wrap its casing.
-- `this.memo(key, compute)` computes each value once per build. Register a key's `prefix:` and its value type in `Kubb.MemoRegistry` to type the value.
+- `this.default.name(name)` always applies `camelCase`. For other casing, call [`casing`](/docs/5.x/reference/kit#casing) from `kubb/kit`.
+- From a namespaced method, `this.name(name)` calls the active top-level `name`, including a user override. Inside the top-level `name` it recurses, so wrap an exported preset, such as `resolverTs.name`, instead.
+- `this.memo(key, compute)` computes each value once per build. See [Memo caches](EDGE:memo-cache).

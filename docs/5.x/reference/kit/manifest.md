@@ -13,9 +13,9 @@ navigation:
 
 # Extension manifest
 
-`kubb-extension.json` sits at an extension package's root and ships on npm. The [registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent read it. Generation does not: at runtime, Kubb reads the extension's [`meta`](/docs/5.x/reference/kit/extensions#meta).
+`kubb-extension.json` sits at an extension package's root and ships on npm. The [registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent read it. Generation reads the extension's [`meta`](/docs/5.x/reference/kit/extensions#meta) instead.
 
-Set `$schema` to [`https://kubb.dev/schemas/kubb-extension.json`](https://kubb.dev/schemas/kubb-extension.json) for validation and completion in your editor.
+Set `$schema` to [`https://kubb.dev/schemas/kubb-extension.json`](https://kubb.dev/schemas/kubb-extension.json) for editor validation and completion.
 
 ```json [kubb-extension.json]
 {
@@ -58,19 +58,19 @@ The JSON Schema URL. Only editors read it.
 ### `kind`
 
 :::field{type="'plugin' | 'adapter' | 'parser'" required}
-What the package extends. `kubb add` adds a `plugin` or `parser` to the config, and prints the code for an `adapter`. Studio builds a form for every kind and lets users switch plugins on and off.
+What the package extends. `kubb add` adds a `plugin` or `parser` to the config, and prints the code for an `adapter`.
 :::
 
 ### `name`
 
 :::field{type="string" required}
-The extension's `meta.name`, such as `plugin-zod`, `oas`, or `typescript`. Kubb skips a manifest whose `name` is not shaped like an npm package name: lowercase letters, digits, `.`, `_`, `~`, and `-`, with an optional `@scope/`.
+The extension's `meta.name`, such as `plugin-zod`, `oas`, or `typescript`. Kubb skips a manifest whose `name` is not shaped like an npm package name.
 :::
 
 ### `export`
 
 :::field{type="string" required}
-The factory users call in `kubb.config.ts`, such as `pluginZod`. It must be a JavaScript identifier. `kubb add` imports it, and the Studio agent calls it.
+The factory users call in `kubb.config.ts`, such as `pluginZod`. It must be a JavaScript identifier.
 :::
 
 ### `displayName`
@@ -94,7 +94,7 @@ A category for filtering, such as `validation`. The registry replaces it with th
 ### `icon`
 
 :::field{type="{ light: string; dark?: string }"}
-Icon URLs for light and dark backgrounds. Studio shows a generic icon when the manifest has none.
+Icon URLs for light and dark backgrounds.
 :::
 
 ### `media`
@@ -118,31 +118,31 @@ The documentation URL.
 ### `maintainers`
 
 :::field{type="Array<{ name: string; github?: string }>"}
-The people who maintain the extension, shown on its kubb.dev page. Each entry needs a `name` and can add a `github` username.
+The people who maintain the extension, shown on its kubb.dev page.
 :::
 
 ### `dependencies`
 
 :::field{type="Array<string>"}
-The extensions that must be in the same config, such as `["plugin-ts"]`. kubb.dev lists them, and `kubb init` checks that each one is chosen. At runtime, Kubb checks the plugin's own [`dependencies`](/docs/5.x/reference/kit/extensions#dependencies).
+The extensions that must be in the same config, such as `["plugin-ts"]`. `kubb init` checks that each one is chosen. At runtime, Kubb checks the plugin's own [`dependencies`](/docs/5.x/reference/kit/extensions#dependencies).
 :::
 
 ### `optionalDependencies`
 
 :::field{type="Array<string>"}
-The extensions the plugin uses when present, or needs only for some option values, such as `["plugin-faker"]` for `@kubb/plugin-msw` with `parser: 'faker'`. They match the runtime `dependencies` marked `optional: true` or picked from the options. `kubb init` does not require them.
+The extensions the plugin uses when present, or needs only for some option values, such as `["plugin-faker"]`. List the runtime `dependencies` marked `optional: true` or picked from the options. `kubb init` does not require them.
 :::
 
 ### `compatibility`
 
 :::field{type="{ kubb?: string; node?: string }"}
-Semver ranges for Kubb (`@kubb/core`) and Node.js. Any other key makes the manifest invalid, so a typo such as `nodejs` cannot skip a check. `kubb add` and `kubb update` check the ranges before they install. Kubb checks them at runtime through `meta.compatibility`, so [import them from the manifest](#import-compatibility-into-meta).
+Semver ranges for Kubb (`@kubb/core`) and Node.js. Any other key makes the manifest invalid. `kubb add` and `kubb update` check the ranges before they install, and Kubb checks them at runtime through `meta.compatibility`, so [import them from the manifest](#import-compatibility-into-meta).
 :::
 
 ### `role`
 
 :::field{type="'client' | 'consumer'"}
-Plugins only. `client` ships the HTTP client runtime, like `@kubb/plugin-fetch`. `consumer` calls a client but ships none, like `@kubb/plugin-react-query`. Studio and `kubb init` require a client plugin next to a consumer.
+Plugins only. `client` ships the HTTP client runtime, like `@kubb/plugin-fetch`. `consumer` calls a client but ships none, like `@kubb/plugin-react-query`. `kubb init` and Studio require a client next to a consumer.
 :::
 
 ### `options`
@@ -155,32 +155,25 @@ The form fields Kubb Studio shows for the extension. See [Option entries](#optio
 
 ## Option entries {#option-entries}
 
-Each `options` entry is one form field that edits the value at `path` in the factory's options.
+Each `options` entry is one Studio form field that edits the value at `path` in the factory's options.
 
 | Field         | Type                                                    | Required          | Description                                                                                         |
 | ------------- | ------------------------------------------------------- | ----------------- | --------------------------------------------------------------------------------------------------- |
-| `key`         | `string`                                                | Yes               | A stable UI key, unique within the manifest, such as `enumType`.                                    |
+| `key`         | `string`                                                | Yes               | A stable key, unique within the manifest, such as `enumType`.                                       |
 | `path`        | `Array<string>`                                         | Yes               | Where the value lives, such as `["enum", "type"]`. No segment may be `__proto__`, `constructor`, or `prototype`. |
 | `label`       | `string`                                                | Yes               | The field label.                                                                                    |
 | `type`        | `'select' \| 'boolean' \| 'text' \| 'number' \| 'list'` | Yes               | The field type.                                                                                     |
 | `description` | `string`                                                | No                | Help text under the field.                                                                          |
-| `default`     | any JSON value                                          | No                | The plugin's runtime default, shown when unset. Studio does not write a value equal to it.          |
-| `choices`     | `Array<{ label?: string; value: JSONValue }>`           | For `select`      | The choices, at least one. A `value` of `null` leaves the option unset. A `default` must equal one of them. |
+| `default`     | any JSON value                                          | No                | The plugin's runtime default, shown when unset.                                                     |
+| `choices`     | `Array<{ label?: string; value: JSONValue }>`           | For `select`      | At least one. A `null` value leaves the option unset. A `default` must equal one of them.           |
 | `trueValue`   | any JSON value                                          | No, for `boolean` | The value written for `true`. Defaults to `true`.                                                   |
 | `falseValue`  | any JSON value                                          | No, for `boolean` | The value written for `false`. Defaults to `false`.                                                 |
-| `item`        | any JSON value                                          | No, for `list`    | A template for each entry, where every `"$item"` string becomes the entry. Without it, entries are plain strings. |
+| `item`        | any JSON value                                          | No, for `list`    | A template for each entry, where every `"$item"` string becomes the entry. Without it, entries are strings. |
 | `itemCase`    | `'upper'`                                               | No, for `list`    | Uppercases each entry before writing it.                                                            |
 
 ## Validation
 
-Kubb and the registry check a manifest at different points:
-
-| Reader                                                                | Checks                                                                                                                                                           | On failure                                                                              |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio agent | The required fields and their shape, each `maintainers` and `options` entry, extension names in `dependencies` and `optionalDependencies`, `role`, `compatibility`, unique option keys, and `select` choices and defaults. | The manifest is skipped.                                                                |
-| The registry                                                          | The JSON Schema, unique option keys, `choices` on every `select`, and a `select` default that equals one of its choices.                                          | The review pull request lists the problem, and the weekly bump keeps the previous pin.  |
-
-In your own code, `isExtensionManifest(value)` from `kubb/kit` runs the same checks as Kubb. `manifestProblems(manifest)` lists the option problems of a well-formed manifest.
+Kubb skips an invalid manifest, and the registry review lists its problems. In your own code, `isExtensionManifest(value)` from `kubb/kit` runs the same checks as Kubb, and `manifestProblems(manifest)` lists the option problems of a well-formed manifest. See [Manifest validation](EDGE:manifest-validation) for what each reader checks.
 
 ## Import `compatibility` into `meta` {#import-compatibility-into-meta}
 
@@ -202,4 +195,7 @@ export const pluginExample = defineExtension({
 })
 ```
 
-Keep `name` as a typed constant, because a JSON import widens it to `string`. Named JSON imports need a bundler that inlines them, such as tsdown. With plain `tsc` and `"module": "NodeNext"`, write the ranges in `meta.compatibility` instead.
+Keep `name` as a typed constant, because a JSON import widens it to `string`.
+
+> [!WARNING]
+> Named JSON imports need a bundler that inlines them, such as tsdown. With plain `tsc` and `"module": "NodeNext"`, write the ranges in `meta.compatibility` instead.

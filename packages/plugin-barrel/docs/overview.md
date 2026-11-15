@@ -1,8 +1,8 @@
 # Barrel
 
-The Barrel plugin writes `index.ts` files that re-export the generated code, so you import everything from one entry point. It writes a barrel in every folder of each plugin output that has a barrel setting, plus a root barrel when you set `output.barrel` on `defineConfig`.
+The Barrel plugin writes `index.ts` files that re-export the generated code, so you import everything from one entry point.
 
-The plugin runs after every other plugin, so each barrel sees the final set of files.
+It writes a barrel in every folder of each plugin output that has a barrel setting, plus a root barrel when you set `output.barrel` on `defineConfig`.
 
 ## Setup
 
@@ -10,7 +10,7 @@ No setup is needed. `defineConfig` adds `pluginBarrel()` to `plugins` when it is
 
 ## Options worth knowing
 
-`pluginBarrel()` takes no arguments. You configure it through `output.barrel`, on `defineConfig` or on one plugin.
+`pluginBarrel()` takes no arguments. Configure it with `output.barrel`, on `defineConfig` or on one plugin.
 
 | Setting                                                                              | Default  | What it does                                                                                         |
 | ------------------------------------------------------------------------------------ | -------- | ---------------------------------------------------------------------------------------------------- |
@@ -19,15 +19,14 @@ No setup is needed. `defineConfig` adds `pluginBarrel()` to `plugins` when it is
 | [`namespace`](https://kubb.dev/extensions/kubb-labs/plugin-barrel/options#namespace) | `false`  | Plugin only. Turns on nested barrels and adds a named namespace per subfolder, such as `PetService`. |
 | `false`                                                                              |          | On a plugin, writes no barrel and leaves the plugin's files out of the root barrel.                  |
 
-Known limits:
+> [!WARNING]
+> Passing your own `output` to a plugin replaces its default `barrel: { type: 'named' }`, so the plugin falls back to the root setting.
 
-- A plugin with `output.mode: 'file'` gets no barrel of its own. The root barrel re-exports that file directly.
-- Passing your own `output` to a plugin replaces its default `barrel: { type: 'named' }`, so the plugin falls back to the root setting.
-- When two files export the same name, Kubb reports `KUBB_BARREL_DUPLICATE_EXPORT`, and a `named` barrel keeps only the first one.
+See [Barrel files](EDGE:barrel-files).
 
 ## Example
 
-The config below writes a root `src/gen/index.ts` that re-exports the generated types by name.
+This config writes a root `src/gen/index.ts` that re-exports the generated types by name.
 
 ::code-group
 

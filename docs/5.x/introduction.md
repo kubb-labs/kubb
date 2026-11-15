@@ -13,9 +13,7 @@ navigation:
 
 # Introduction to Kubb: turn your API spec into code
 
-Kubb reads an API spec and generates the code your app uses to call that API: types, clients, query hooks, validators, and mocks. When the spec changes, run Kubb again and the code follows.
-
-You pick the outputs with plugins in one `kubb.config.ts`. The generated files belong to your project. The default [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) reads OpenAPI 2.0, 3.0, 3.1, and 3.2. It does not validate a 3.2 document yet.
+Kubb turns an API spec into the code your app uses to call that API: types, clients, query hooks, validators, and mocks. You pick the outputs with plugins in one `kubb.config.ts`. When the spec changes, run Kubb again and the code follows.
 
 ## What Kubb generates
 
@@ -29,7 +27,7 @@ You pick the outputs with plugins in one `kubb.config.ts`. The generated files b
 | An MCP server for your API | [`plugin-mcp`](/extensions/kubb-labs/plugin-mcp) |
 | API documentation | [`plugin-redoc`](/extensions/kubb-labs/plugin-redoc) |
 
-Beyond plugins, you can swap the adapter, parsers, and storage, change output with resolvers, macros, and printers, run generation from a bundler or CI, and connect AI tools through [MCP](/docs/5.x/ai/mcp) or [Claude Code](/docs/5.x/ai/claude).
+The default [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) reads OpenAPI 2.0, 3.0, 3.1, and 3.2. It does not validate a 3.2 document yet.
 
 ## See it work
 
@@ -47,7 +45,7 @@ export default defineConfig({
 })
 ```
 
-The animation follows the spec through the pipeline. The adapter turns schemas and operations into AST nodes, then each plugin generates files from those nodes. [How Kubb works](/docs/5.x/explanation/architecture) explains each stage.
+The adapter turns the spec into AST nodes, and each plugin generates files from those nodes. [How Kubb works](/docs/5.x/explanation/architecture) explains each stage.
 
 ::spec-journey
 ::
@@ -70,4 +68,4 @@ The animation follows the spec through the pipeline. The adapter turns schemas a
 
 ## Community
 
-Kubb is free and open source under the MIT license. Get help on [Discord](https://discord.gg/shfBFeczrm), report an issue on [GitHub](https://github.com/kubb-labs/kubb/issues), or read [Contributing](/docs/5.x/community/contributing). The [FAQ](/docs/5.x/community/faq) answers common questions, and [Ecosystem](/docs/5.x/community/ecosystem) lists projects and articles built around Kubb.
+Kubb is free and open source under the MIT license. Ask on [Discord](https://discord.gg/shfBFeczrm), report bugs on [GitHub](https://github.com/kubb-labs/kubb/issues), or read the [FAQ](/docs/5.x/community/faq).

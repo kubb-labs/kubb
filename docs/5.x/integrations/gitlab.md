@@ -10,7 +10,7 @@ navigation:
 
 # Publish Kubb snapshots with GitLab CI
 
-A GitLab job runs `kubb studio snapshot` on each merge request and on the default branch. Meet the [prerequisites](/docs/5.x/integrations/ci#prerequisites) first: Kubb 5.6.2 or later, `tsdown`, and a CI key stored as `KUBB_TOKEN`.
+A GitLab job runs `kubb studio snapshot` on each merge request and on each protected branch. Meet the [prerequisites](/docs/5.x/integrations/ci#prerequisites) first: Kubb 5.6.2 or later, `tsdown`, and a CI key stored as `KUBB_TOKEN`.
 
 ## Add the job
 
@@ -25,12 +25,18 @@ snapshot:
     - npx kubb studio snapshot
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $KUBB_TOKEN
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $KUBB_TOKEN
+    - if: $CI_COMMIT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true" && $KUBB_TOKEN
 ```
 
-The `rules` run the job on merge requests and on the default branch, so a merge request has a target branch snapshot to compare with. Both rules also need `KUBB_TOKEN`, so a pipeline without the key, such as one for an unprotected branch or a fork, skips the job before `npm ci` runs.
+- The second rule snapshots every protected branch, such as `main` or a release branch, so a merge request has a snapshot of its target branch to compare with.
+- Both rules need `KUBB_TOKEN`, so a pipeline without the key, such as one for an unprotected branch or a fork, skips the job before `npm ci` runs.
 
-To post the result as a merge request note, save the `--json` output and run the script below. It updates one note per merge request and needs only Node:
+> [!IMPORTANT]
+> GitLab withholds protected variables from merge request pipelines by default. In GitLab 18.1 or later, select **Allow merge request pipelines to access protected variables and runners** under **Settings › CI/CD › Variables**. The pipeline then gets `KUBB_TOKEN` only when the source and target branches are both protected and in the same project, and the user who starts it can merge into the target branch. See [merge request pipelines](https://docs.gitlab.com/ci/pipelines/merge_request_pipelines/#control-access-to-protected-variables-and-runners).
+
+## Post the result as a merge request note
+
+Save the `--json` output and run the script below. It updates one note per merge request and needs only Node:
 
 ```yaml [.gitlab-ci.yml]
   script:
@@ -42,7 +48,9 @@ To post the result as a merge request note, save the `--json` output and run the
 > [!IMPORTANT]
 > Writing a note needs a project access token with the `api` scope, stored as `GITLAB_API_TOKEN`. `CI_JOB_TOKEN` does not carry that scope.
 >
-> Masking only hides the value in job logs: any code the job runs can read it, including install scripts that `npm ci` runs. Mark `GITLAB_API_TOKEN` as **Protected** too, like `KUBB_TOKEN` ([merge request pipelines have extra conditions](https://docs.gitlab.com/ci/pipelines/merge_request_pipelines/)). The `rules` skip the job without `KUBB_TOKEN`, and the last script line skips the note without `GITLAB_API_TOKEN`. Give the token the lowest role that can comment on merge requests, such as Reporter, and an expiry date.
+> Mark `GITLAB_API_TOKEN` as **Protected** too, like `KUBB_TOKEN`. Masking only hides the value in job logs: any code the job runs can read it, including install scripts that `npm ci` runs. The `rules` skip the job without `KUBB_TOKEN`, and the last script line skips the note without `GITLAB_API_TOKEN`.
+>
+> Give the token the lowest role that can comment on merge requests, such as Reporter, and an expiry date.
 
 ::code-collapse{name="scripts/kubb-note.mjs"}
 

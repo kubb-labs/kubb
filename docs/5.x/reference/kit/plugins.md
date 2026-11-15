@@ -13,7 +13,7 @@ navigation:
 
 # Plugins
 
-A plugin generates code from the AST. Its `setup` registers [generators](/docs/5.x/reference/kit/generators), a [resolver](/docs/5.x/reference/kit/resolvers), and macros. It returns the resolved options, which generators read as `ctx.options`. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'plugin'`. [`meta`](/docs/5.x/reference/kit/extensions#meta), [`dependencies`](/docs/5.x/reference/kit/extensions#dependencies), and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work the same for every extension.
+A plugin generates code from the AST. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'plugin'`. Its `setup` registers [generators](/docs/5.x/reference/kit/generators), a [resolver](/docs/5.x/reference/kit/resolvers), and macros, then returns the options generators read as `ctx.options`. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work as for every extension.
 
 ```typescript [plugin-example.ts]
 import { defineExtension, type PluginType } from 'kubb/kit'
@@ -31,18 +31,18 @@ export const pluginExample = defineExtension<PluginExample>({
 })
 ```
 
-`PluginType<TName, TOptions, TResolvedOptions, TResolver>` types the plugin: `TOptions` is what users pass, `TResolvedOptions` what `setup` returns.
+`PluginType<TName, TOptions, TResolvedOptions, TResolver>` types the plugin. `TOptions` is what users pass, and `TResolvedOptions` is what `setup` returns.
 
 | Field          | Type                                                          | Description                                                                                                        |
 | -------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `setup`        | `(options, kubb: KubbPluginSetupContext) => TResolvedOptions` | Runs once per build, before `kubb:plugin:setup`. Can be `async`.                                                   |
 | `dependencies` | [`ExtensionDependencies`](/docs/5.x/reference/kit/extensions#dependencies)                      | Plugins this one builds on.                                                                                        |
-| `enforce`      | `'pre' \| 'post'`                                             | Runs the plugin before (`'pre'`) or after (`'post'`) the others. Dependencies still run first.                     |
-| `hooks`        | `{ [hook]: handler }`                                         | Handlers for any [lifecycle hook](/docs/5.x/reference/kit/hooks). The `kubb:plugin:setup` handler runs after `setup`. |
+| `enforce`      | `'pre' \| 'post'`                                             | Runs the plugin before or after the others. Dependencies still run first.                                         |
+| `hooks`        | `{ [hook]: handler }`                                         | Handlers for any [lifecycle hook](/docs/5.x/reference/kit/hooks).                                                  |
 
 ## Setup context {#setup-context}
 
-`setup` and the `kubb:plugin:setup` hook register everything through the setup context. Reach it as the context argument (`kubb` in `setup`, `ctx` in the hook), or through composables from `kubb/kit`, such as `addGenerator()`. Composables take no context argument, so helpers that `setup` calls can use them too.
+`setup` and the `kubb:plugin:setup` hook register everything through the setup context: the `kubb` argument (`ctx` in the hook) or a composable from `kubb/kit`. Composables take no argument, so helpers that `setup` calls can use them too.
 
 ::code-group
 
@@ -84,22 +84,25 @@ export const pluginExample = defineExtension({
 
 ::
 
-| `kubb` member   | Composable        | Signature                                                 | Purpose                                                                         |
-| --------------- | ----------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `addGenerator`  | `addGenerator()`  | `(...generators: Array<Generator>) => void`               | Registers generators for this plugin.                                           |
-| `setResolver`   | `setResolver()`   | `(resolver: ResolverPatch<Resolver> \| Resolver) => void` | Sets the resolver. A patch merges over the built-in defaults.                   |
-| `addMacro`      | `addMacro()`      | `(macro: Macro) => void`                                  | Adds a macro that rewrites AST nodes before generators run.                     |
-| `setMacros`     | `setMacros()`     | `(macros: ReadonlyArray<Macro>) => void`                  | Replaces this plugin's macros.                                                  |
-| `setOptions`    | `setOptions()`    | `(options: ResolvedOptions) => void`                      | Sets the resolved options. In `setup`, return them instead.                     |
-| `injectFile`    | `injectFile()`    | `(file: UserFileNode) => void`                            | Adds a file to the output, outside generation. Set `copy` to an absolute path to copy a shipped template. |
-| `requirePlugin` | `requirePlugin()` | `(name: string) => Plugin`                                | Returns another plugin, or fails with `KUBB_PLUGIN_NOT_FOUND`.                  |
-| `memo`          | `memo()`          | `(key: string, compute: () => T) => T`                    | Returns a value computed once per build and shared by every plugin.             |
-| `config`        | `useConfig()`     | `Config`                                                  | The resolved build configuration.                                               |
-| `options`       | `useOptions()`    | `TOptions`                                                | The plugin's options as the user passed them.                                   |
+| Member          | Signature                                                 | Purpose                                                                         |
+| --------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `addGenerator`  | `(...generators: Array<Generator>) => void`               | Registers generators.                                                           |
+| `setResolver`   | `(resolver: ResolverPatch<Resolver> \| Resolver) => void` | Sets the resolver. A patch merges over the defaults.                            |
+| `addMacro`      | `(macro: Macro) => void`                                  | Adds a macro that rewrites nodes before generators run.                         |
+| `setMacros`     | `(macros: ReadonlyArray<Macro>) => void`                  | Replaces this plugin's macros.                                                  |
+| `setOptions`    | `(options: ResolvedOptions) => void`                      | Sets the resolved options. In `setup`, return them instead.                     |
+| `injectFile`    | `(file: UserFileNode) => void`                            | Adds a file outside generation. Set `copy` to an absolute path to copy a template. |
+| `requirePlugin` | `(name: string) => Plugin`                                | Returns another plugin, or fails with `KUBB_PLUGIN_NOT_FOUND`.                  |
+| `memo`          | `(key: string, compute: () => T) => T`                    | Computes a value once per build, shared by every plugin.                        |
+| `config`        | `Config`                                                  | The resolved build configuration. Composable: `useConfig()`.                    |
+| `options`       | `TOptions`                                                | The options the user passed. Composable: `useOptions()`.                        |
 
-`useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing. Composables read the context of the plugin whose setup is running, also after an `await`. Outside `setup` and `kubb:plugin:setup`, including in generators, they throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
+Methods have a composable of the same name, such as `addGenerator()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
 
-`memo(store, key, compute)` caches in a store you own, outside a build: a `Map`, a `WeakMap`, or `memo.create()`. `memo.create({ weak: true })` frees an entry with its key, and `memo.create({ max })` empties the store when it is full.
+> [!WARNING]
+> Composables work only in `setup` and `kubb:plugin:setup`. In generators and anywhere else, they throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
+
+See [Memo caches](EDGE:memo-cache) to cache outside a build.
 
 ## Plugin naming {#plugin-naming}
 

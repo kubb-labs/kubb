@@ -13,7 +13,7 @@ navigation:
 
 # kubb init
 
-`kubb init` is a setup wizard. It looks at the project, asks three questions, shows the config for review, then installs the packages, writes `kubb.config.ts`, and runs the first generation.
+`kubb init` is a setup wizard. It asks three questions, shows the config for review, then installs Kubb, writes `kubb.config.ts`, and runs the first generation.
 
 ```shell [Terminal]
 npx kubb init
@@ -25,43 +25,43 @@ npx kubb init
 
 ### Detect the project
 
-Kubb reads the package manager (`npm`, `pnpm`, `yarn`, or `bun`) from the `packageManager` field or a lockfile, else uses `npm`. Without a `package.json`, it offers to create one.
+Kubb finds the package manager the way the [extension commands](/docs/5.x/reference/commands#project-files) do. Without a `package.json`, it offers to create one.
 
-It looks for spec files named `openapi*` or `swagger*` with a `.yaml`, `.yml`, or `.json` extension, up to three folders deep, and skips `node_modules`, `dist`, `build`, `coverage`, and hidden folders. It shows the version and operation count of the first one.
+It looks for `openapi*` or `swagger*` files (`.yaml`, `.yml`, or `.json`) up to three folders deep. See [How kubb init finds a spec](EDGE:init-spec-detection).
 
 ### Ask three questions
 
 | Question | Choices | Default |
 | --- | --- | --- |
 | Which spec to read | A file it found, a URL, or another file | The first file found, else `./openapi.yaml` |
-| Which [plugins](/extensions/kind/plugins) to add | The plugins in the registry that support your Kubb and Node.js versions | `plugin-ts` |
+| Which [plugins](/extensions/kind/plugins) to add | The registry plugins that support your Kubb and Node.js versions | `plugin-ts` |
 | Output folder | Any path | `./src/gen` |
 
-The CLI does not infer plugins from your framework or installed libraries.
+Kubb does not pick plugins from your framework or installed libraries.
 
 ### Review the config
 
-Kubb first checks the [manifest](/docs/5.x/reference/kit/manifest) of each chosen plugin. When a plugin's `dependencies` are not all chosen, or a plugin with `role: "consumer"` (such as `plugin-react-query`) has no client plugin next to it, the wizard names what is missing and asks again.
+Kubb checks each plugin's [manifest](/docs/5.x/reference/kit/manifest). When a plugin needs another one you did not pick, such as a client plugin next to `plugin-react-query`, the wizard names it and asks again.
 
-Then it shows the full `kubb.config.ts` and the packages it installs. Pick **Change a choice** to answer the questions again. When `kubb.config.ts` exists, the prompt asks to overwrite it.
+Then it shows `kubb.config.ts` and the packages to install. Pick **Change a choice** to answer again. When `kubb.config.ts` exists, the prompt asks to overwrite it.
 
 ### Install, write, and generate
 
-Kubb installs `kubb` at the version of the CLI you ran and each plugin at the version the registry pins. It writes `kubb.config.ts`, adds `"generate": "kubb generate"` to the `package.json` scripts when no `generate` script exists, and runs the first generation.
+Kubb installs `kubb` at the CLI version and each plugin at its registry pin. It writes `kubb.config.ts`, adds a `"generate": "kubb generate"` script when `package.json` has none, and runs the first generation.
 
 ::
 
 ## Options
 
-| Option | Default | Description |
-| --- | --- | --- |
-| `--yes`, `-y` | `false` | Skip every prompt and the review, use the defaults above, and print one line per step. Overwrites an existing `kubb.config.ts`. |
-| `--input <path>`, `-i` | | Spec path or URL. Skips the spec question. |
-| `--output <path>`, `-o` | | Output folder. Skips the output question. |
-| `--plugins <ids>` | | Comma-separated registry ids, the same ids [`kubb add`](/docs/5.x/reference/commands/add) takes, such as `plugin-ts,plugin-zod`, or short names such as `ts,zod`. Skips the plugin question. An id that is not in the registry stops `kubb init`. |
-| `--dry-run` | `false` | Run the wizard without installing packages, writing files, or running the first generation. |
+| Flag | Alias | Default | What it does |
+| --- | --- | --- | --- |
+| `--yes` | `-y` | `false` | Skip every prompt and the review, and use the defaults. Overwrites an existing `kubb.config.ts`. |
+| `--input <path>` | `-i` | | Spec path or URL. Skips the spec question. |
+| `--output <path>` | `-o` | | Output folder. Skips the output question. |
+| `--plugins <ids>` | | | Comma-separated [registry ids](/docs/5.x/reference/commands#ids) or short names, such as `ts,zod`. Skips the plugin question. An id the registry does not list stops `kubb init`. |
+| `--dry-run` | | `false` | Run the wizard without installing packages, writing files, or generating. |
 
-Each flag skips only its own question and combines with `--yes`. Pass all three value flags to skip the questions and the review. Kubb still asks before it overwrites `kubb.config.ts` unless you pass `--yes`.
+Each value flag skips only its own question. Pass all three to also skip the review. Without `--yes`, Kubb still asks before it overwrites `kubb.config.ts`.
 
 ## Examples
 
@@ -86,10 +86,8 @@ Kubb is set up. Run npm run generate after changing the spec.
 
 ## Exit codes
 
-`kubb init` exits with code 1 when:
-
-- The first generation fails. Kubb shows the error and keeps the setup.
-- A chosen plugin misses a dependency with `--yes` or all three value flags. Kubb names what is missing.
-- A `--plugins` id is not in the registry, the registry cannot be read, or the install fails.
-
-It exits with code 0 when you cancel a prompt.
+| Code | When |
+| --- | --- |
+| `0` | Kubb is set up, or you canceled a prompt. |
+| `1` | The first generation fails. The setup stays. |
+| `1` | A plugin misses a dependency (with `--yes` or all three value flags), a `--plugins` id is not in the registry, the registry cannot be read, or the install fails. |

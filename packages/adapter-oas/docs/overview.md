@@ -1,8 +1,10 @@
 # OpenAPI
 
-The OpenAPI adapter is the first step of every build. It reads an OpenAPI 2.0, 3.0, 3.1, or 3.2 spec and converts it into Kubb's AST. Every plugin generates code from that AST, so the adapter's options apply to all of them.
+The OpenAPI adapter reads an OpenAPI 2.0, 3.0, 3.1, or 3.2 spec and converts it into the AST that every plugin generates code from.
 
-The adapter downloads a remote `input` URL and any remote `$ref` with a plain GET request, without credentials. It also reads the local files that external `$ref`s point to, even outside the spec's folder. It never writes files.
+- It is the first step of every build, so its options apply to all plugins.
+- It downloads a remote `input` URL and any remote `$ref` with a plain GET request, without credentials.
+- It reads the local files that external `$ref`s point to, even outside the spec's folder, and never writes files.
 
 ## Setup
 
@@ -25,7 +27,7 @@ Run [`kubb validate`](https://kubb.dev/docs/5.x/reference/commands/validate) to 
 
 ## Example
 
-The config below types dates as `Date` objects and 64-bit integers as numbers, so `@kubb/plugin-ts` writes this `Order` type:
+This config types dates as `Date` objects and 64-bit integers as numbers, so `@kubb/plugin-ts` writes this `Order` type:
 
 ::code-group
 

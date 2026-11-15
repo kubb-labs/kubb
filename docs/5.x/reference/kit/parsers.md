@@ -13,10 +13,10 @@ navigation:
 
 # Parsers
 
+A parser turns a `FileNode` into the source text Kubb writes. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'parser'`. `build` gets the user's options and returns the parser methods. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work as for every extension.
+
 > [!TIP]
 > For TypeScript and JavaScript output, use [`@kubb/parser-ts`](/extensions/kubb-labs/parser-ts). When the config sets no `parsers`, `defineConfig` adds `parserTs()`, `parserTsx()`, and `parserMd()`. Write your own only for another language, such as Python, Kotlin, or Rust.
-
-A parser turns a `FileNode` into the source text Kubb writes. `build` gets the user's options and returns the parser methods. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'parser'`. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work the same for every extension.
 
 ```typescript [parserText.ts]
 import { defineExtension } from 'kubb/kit'
@@ -41,7 +41,8 @@ export const parserText = defineExtension({
 })
 ```
 
-A non-empty `parsers` array replaces the defaults, and an empty one keeps them. List the defaults again to keep TypeScript and Markdown output:
+> [!WARNING]
+> A non-empty `parsers` array replaces the defaults, and an empty one keeps them. List the defaults again to keep TypeScript and Markdown output.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -63,13 +64,10 @@ export default defineConfig({
 | `extNames` | `Array<FileNode['extname']> \| undefined`          | Yes      |                                     | The file extensions this parser handles. With `undefined`, `parse` never runs.                                                                |
 | `parse`    | `(file: FileNode) => string`                       | Yes      | After every plugin, once per file   | Prints the file's sources. Must be synchronous.                                                                                                 |
 | `print`    | `(...nodes: TNode[]) => string`                    | Yes      | By plugins, while they generate     | Prints compiler AST nodes, such as `ts.Node` for `parserTs`.                                                                                    |
-| `inline`   | `InlineLanguage`                                   | No       | Before barrels, for inline sources  | Finds names (`replaceIdentifiers`) and makes a definition safe to put where a name was (`wrap`), so files of this parser can absorb inline sources. `parserTs` has it. |
-| `copy`     | `(file: FileNode, source: string) => UserFileNode` | No       | For each `copy` file                | Describes a copied template as nodes, such as its imports as `ImportNode`s, for `parse` to print. Without it, Kubb copies the file as is.        |
+| `inline`   | `InlineLanguage`                                   | No       | Before barrels, for inline sources  | Lets files of this parser absorb inline sources. `parserTs` has it. See [Inline sources](EDGE:inline-sources). |
+| `copy`     | `(file: FileNode, source: string) => UserFileNode` | No       | For each `copy` file                | Describes a copied template as nodes, such as its imports as `ImportNode`s, for `parse` to print. Without it, Kubb copies the file as is. |
 
-> [!IMPORTANT]
-> When two parsers register the same extension, the last one in the `parsers` array wins.
-
-When no parser handles a file's extension, Kubb writes its sources joined together.
+See [Parser selection](EDGE:parser-selection) for duplicate extensions and files no parser handles.
 
 ## Parser naming {#parser-naming}
 

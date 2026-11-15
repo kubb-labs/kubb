@@ -34,7 +34,7 @@ sequenceDiagram
   S->>O: POST /v1/traces
 ```
 
-A detached process sends the request, so the CLI exits without waiting. The request gives up after 5 seconds and fails silently, so an offline machine or a blocked host never interrupts a run.
+A detached process sends the request, so the CLI exits without waiting. The request fails silently after 5 seconds, so an offline machine never interrupts a run.
 
 | Command | Sends one event |
 | --- | --- |
@@ -43,11 +43,11 @@ A detached process sends the request, so the CLI exits without waiting. The requ
 | `kubb mcp` | When an MCP client connects, or when the server fails to start |
 | `kubb studio` | When the Studio command finishes or fails |
 
-The CLI prints a notice about telemetry to stderr when a command starts. `--help`, `-h`, `--version`, `-v`, and `--json` skip it, and so does turning telemetry off.
+Each command prints a telemetry notice to stderr when it starts. `--help`, `-h`, `--version`, `-v`, and `--json` skip it.
 
 ## What is collected
 
-Each event is an [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) trace with one span, sent as JSON to `https://otlp.kubb.dev/v1/traces`. The span is named after the command, its start and end times give the duration, and its status is OK or error. Its trace and span ids are random for each run.
+Each event is an [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) trace with one span, sent as JSON to `https://otlp.kubb.dev/v1/traces`. The span carries the command as its name, the run's start and end times, an OK or error status, and random trace and span ids.
 
 | Span attribute | Value | Example |
 | --- | --- | --- |
@@ -67,9 +67,10 @@ Each event is an [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sd
 | `kubb.plugin.<name>` | `true` for each plugin, such as `kubb.plugin.plugin-ts` | `true` |
 | `kubb.plugin_options` | Each plugin's `name` and its options as a JSON string | `{ "name": "plugin-ts", "options": "{\"output\":{\"path\":\"types\"}}" }` |
 
-The plugin options are the JSON form of what your config passes to each plugin, so values such as `output.path`, `importPath`, `baseURL`, and a string `banner` are included. Functions are dropped.
-
 The resource attributes are `service.name: "kubb"`, `service.version` (the Kubb version), and `telemetry.sdk.language: "nodejs"`. The request carries the headers `Kubb-Telemetry-Version: 1` and `Kubb-Telemetry-Source: kubb-cli`.
+
+> [!WARNING]
+> `kubb.plugin_options` holds the JSON form of every option value your config passes to a plugin, without functions. That includes values that name your project, such as `output.path`, `importPath`, `baseURL`, or a string `banner`. It also includes a secret in a plugin option, whether `kubb.config.ts` writes it as a literal or reads it from `process.env`.
 
 ## What is not collected
 
@@ -78,14 +79,14 @@ The resource attributes are `service.name: "kubb"`, `service.version` (the Kubb 
 - Source code or generated code
 - A user, machine, or project identifier
 
-Kubb does not read environment variables or credential files for telemetry. It does send each plugin option value your config passes, so a value that names your project, such as `baseURL`, reaches the payload. So does a secret in a plugin option, whether `kubb.config.ts` writes it as a literal or reads it from `process.env`.
+Kubb does not read environment variables or credential files for telemetry.
 
 ## How to opt out
 
-Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` or `true`:
+Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` or `true`. Kubb then sends nothing and prints no notice.
 
 ```shell [Terminal]
 DO_NOT_TRACK=1 kubb generate
 ```
 
-`DO_NOT_TRACK` follows the [cross-tool convention](https://consoledonottrack.com/). With either set, Kubb sends nothing and prints no notice.
+`DO_NOT_TRACK` follows the [cross-tool convention](https://consoledonottrack.com/).
