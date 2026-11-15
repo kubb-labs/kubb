@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Kubb vs orval, HeyAPI, and openapi-typescript
-description: Compare Kubb with orval, HeyAPI, and openapi-typescript on speed, memory, install size, generated outputs, type safety, client runtime, and Kubb Studio.
+description: Compare Kubb with orval, HeyAPI, and openapi-typescript on speed, CPU time, memory, generated outputs, OpenAPI 3.2 support, type safety, client runtime, and Kubb Studio.
 outline:
   - 2
   - 3
@@ -13,26 +13,26 @@ navigation:
 
 # Kubb vs orval, HeyAPI, and openapi-typescript
 
-Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. We checked each cell against the project's own docs in October 2026.
+Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. We checked each cell against the project's own docs in October 2026, and the OpenAPI 3.2 row by generating from a 3.2 spec in November 2026.
 
 Kubb differs from the others in five ways:
 
-- For a full build, it uses less memory than HeyAPI and orval on every [spec we measured](#speed-memory-and-install-size), and has the smallest install.
+- For a full build, it is the fastest and uses the least memory of the three on every [spec we measured](#speed-cpu-time-and-memory), from 0.1 MB to 29.7 MB.
 - One config generates types, clients, query hooks, Zod, MSW, Faker, Cypress tests, an MCP server, and Redoc docs. See [plugin coverage](#plugin-and-feature-coverage).
 - Its clients return a result you narrow by status code, and you choose per call whether errors throw. See [type safety](#type-safety-and-response-handling).
 - Its runtime follows the spec's parameter styles, encodes bodies per media type, and reads server-sent events. See [client runtime](#client-runtime).
 - [Kubb Studio](#kubb-studio) adds file review, pull request snapshots, and API skills for AI tools.
 
-## Speed, memory, and install size
+## Speed, CPU time, and memory
 
-Switch between a full build (types, Zod schemas, and a fetch client) and types only, where openapi-typescript joins.
+Each tool generates types, Zod schemas, and a fetch client. Switch between one output file per generator and output split into many files, and between speed, CPU time, and memory.
 
-In a full build, Kubb is the fastest on the three smaller specs and ties HeyAPI on Cloudflare. In types only, Kubb does not lead every spec. openapi-typescript is the fastest on the three larger specs, and orval uses the least memory on three of the four.
+With one file per generator, Kubb is the fastest and uses the least memory on every spec: 1.9 to 2.3× faster than HeyAPI and 1.3 to 5.9× faster than orval. With multiple files it still leads on speed and memory, but HeyAPI and orval use less CPU time on the 1.1 MB spec, and HeyAPI also on the 10.6 MB spec.
 
 ::tool-benchmark
 ::
 
-The numbers are the median of five runs on Node 22, Linux x64 with 4 cores, in November 2026. The runs compared kubb 5.15.3 (`@kubb/plugin-ts` 5.4.0, `@kubb/plugin-zod` 5.8.0, `@kubb/plugin-fetch` 5.11.0) with `@hey-api/openapi-ts` 0.99.0, orval 8.46.0, and openapi-typescript 7.13.0. orval has no types-only mode, so it writes models only there. Install size is `node_modules` after a clean `npm install` of each tool's packages for that output.
+The numbers are the median of five runs (three on the 10.6 MB and 29.7 MB specs) on Node 22, Linux x64 with 4 cores, in November 2026. The runs compared kubb 5.20.1 (`@kubb/plugin-ts` 5.5.3, `@kubb/plugin-zod` 5.9.3, `@kubb/plugin-fetch` 6.0.3) with `@hey-api/openapi-ts` 0.99.0 and orval 8.47.0. Each spec is a synthetic OpenAPI 3.0 document with 10 to 2,800 resources, and every tool runs with spec and runtime validation off. With multiple files, Kubb uses directory mode grouped by tag and orval uses `tags-split`. HeyAPI has no option to split its output.
 
 ## Plugin and feature coverage
 
@@ -43,25 +43,26 @@ The numbers are the median of five runs on Node 22, Linux x64 with 4 cores, in N
 | [OpenAPI 2.0 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       | 🛑<sup>1</sup> |
 | [OpenAPI 3.0 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       |       ✅       |
 | [OpenAPI 3.1 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       |       ✅       |
-| [OpenAPI 3.2 input](/extensions/kubb-labs/adapter-oas)           | 🟠<sup>2</sup> | 🛑<sup>3</sup> | 🛑<sup>3</sup> | 🛑<sup>3</sup> |
+| [OpenAPI 3.2 input](/extensions/kubb-labs/adapter-oas)           | ✅<sup>2</sup> | 🟠<sup>3</sup> | 🛑<sup>4</sup> | 🛑<sup>4</sup> |
 | [TypeScript types](/extensions/kubb-labs/plugin-ts)              |       ✅       |       ✅       |       ✅       |       ✅       |
-| [HTTP client (Axios, Fetch)](/extensions/kubb-labs/plugin-axios) |       ✅       |       ✅       |       ✅       | 🔶<sup>4</sup> |
-| [React Query hooks](/extensions/kubb-labs/plugin-react-query)    |       ✅       |       ✅       |       ✅       | 🟡<sup>4</sup> |
+| [HTTP client (Axios, Fetch)](/extensions/kubb-labs/plugin-axios) |       ✅       |       ✅       |       ✅       | 🔶<sup>5</sup> |
+| [React Query hooks](/extensions/kubb-labs/plugin-react-query)    |       ✅       |       ✅       |       ✅       | 🟡<sup>5</sup> |
 | [Vue Query composables](/extensions/kubb-labs/plugin-vue-query)  |       ✅       |       ✅       |       ✅       |       🛑       |
-| [SWR hooks](/extensions/kubb-labs/plugin-swr)                    |       ✅       |       ✅       | 🛑<sup>5</sup> |       🟡       |
+| [SWR hooks](/extensions/kubb-labs/plugin-swr)                    |       ✅       |       ✅       | 🛑<sup>6</sup> |       🟡       |
 | [Zod validation schemas](/extensions/kubb-labs/plugin-zod)       |       ✅       |       ✅       |       ✅       |       🛑       |
-| [MSW request handlers](/extensions/kubb-labs/plugin-msw)         |       ✅       |       ✅       | 🛑<sup>5</sup> |       🛑       |
-| [Faker.js mock data](/extensions/kubb-labs/plugin-faker)         |       ✅       |       ✅       | 🛑<sup>5</sup> |       🛑       |
+| [MSW request handlers](/extensions/kubb-labs/plugin-msw)         |       ✅       |       ✅       | 🛑<sup>6</sup> |       🛑       |
+| [Faker.js mock data](/extensions/kubb-labs/plugin-faker)         |       ✅       |       ✅       | 🛑<sup>6</sup> |       🛑       |
 | [Cypress E2E tests](/extensions/kubb-labs/plugin-cypress)        |       ✅       |       🛑       |       🛑       |       🛑       |
 | [MCP server](/extensions/kubb-labs/plugin-mcp)                   |       ✅       |       ✅       |       🛑       |       🛑       |
 | [Redoc API documentation](/extensions/kubb-labs/plugin-redoc)    |       ✅       |       🛑       |       🛑       |       🛑       |
 | [Barrel index files](/extensions/kubb-labs/plugin-barrel)        |       ✅       |       ✅       |       ✅       |       🛑       |
 
 1. openapi-typescript 7 reads 3.0 and 3.1 only. Convert Swagger 2.0 first, or use version 5.
-2. Kubb reads the OpenAPI 3.2 fields that code generation uses into its AST, including `itemSchema` for streamed responses, `$self` and tag `parent`. A 3.2 document is not validated until `@readme/openapi-parser` supports 3.2.
-3. orval, HeyAPI, and openapi-typescript list no OpenAPI 3.2 support in their docs. An orval [discussion](https://github.com/orval-labs/orval/discussions/3544) asks for it.
-4. openapi-typescript generates types only. Clients and hooks come from the `openapi-fetch` and `openapi-react-query` runtimes, both in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559).
-5. HeyAPI lists SWR as planned and MSW and Faker as in progress.
+2. Kubb generates every OpenAPI 3.2 feature we tested: the `QUERY` method, `additionalOperations`, `querystring` parameters, `itemSchema` for server-sent events and JSON Lines, and `components/mediaTypes`. It does not validate a 3.2 document yet, because `@readme/openapi-parser` 10.0.0 rejects 3.2.
+3. orval 8.48.0 generates `QUERY` operations. It skips `additionalOperations` and `querystring` parameters, and types `itemSchema` responses and media type references as `unknown`.
+4. HeyAPI 0.99.0 and openapi-typescript 7.13.0 read a 3.2 document without an error, but skip `QUERY` and `additionalOperations` operations, drop `querystring` parameters, and type the other 3.2 features as `unknown`.
+5. openapi-typescript generates types only. Clients and hooks come from the `openapi-fetch` and `openapi-react-query` runtimes, both in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559).
+6. HeyAPI lists SWR as planned and MSW and Faker as in progress.
 
 ## Type safety and response handling
 
