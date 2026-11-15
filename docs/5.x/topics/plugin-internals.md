@@ -91,8 +91,11 @@ const hasDate = (schema: ast.SchemaNode) =>
 
 When an AST helper's result surprises you, check these details. Source: [AST and node builders](/docs/5.x/reference/kit/ast).
 
+Helper names are a verb plus what they return (`getName`) or a question (`isJson`).
+
 | Helper | Detail |
 | --- | --- |
+| [`createPrinter`](/docs/5.x/reference/kit/ast#printers) | For an `overrides` map in practice, see the [custom codec example](/extensions/kubb-labs/plugin-zod/guides/customization#import-a-custom-codec). |
 | [`ast.schema.isString`](/docs/5.x/reference/kit/ast#ast-schema) | Whether a schema prints as a plain `string`, including `date` and `time` with a string representation. |
 | [`ast.graph.getImportedNames`](/docs/5.x/reference/kit/ast#ast-graph) | Pass `{ checks: true }` to include refs inside `conditionals`, `contains`, and `content`. |
 | [`ast.http.groupParameters`](/docs/5.x/reference/kit/ast#ast-http) | The parameters by location (`path`, `query`, `header`, `cookie`), keeping the first of a repeated name. |

@@ -62,7 +62,7 @@ export default defineConfig({
 | `validate` | `(input: string, options?: { throwOnError?: boolean }) => Promise<void>`                                 | Yes      | Validates the document at a path or URL. [`kubb validate`](/docs/5.x/reference/commands/validate) passes `throwOnError: true`, so throw on invalid input. |
 | `settle`   | `() => Promise<void>`                                                                                    | No       | Waits for work `parse` left running, such as validation in a worker. Kubb awaits it before `kubb:build:end`. Must not reject.              |
 | `locate`   | `(source: string, location: DiagnosticLocation) => { start: number; end: number } \| undefined`          | No       | Finds a diagnostic in the source text for a CLI code frame, as zero-based UTF-16 offsets with `end` exclusive.                             |
-| `sources`  | `Array<string>`                                                                                          | No       | The files and URLs the last `parse()` read. A watcher rebuilds when one changes.                                                           |
+| `sources`  | `Array<string>`                                                                                          | No       | The files and URLs the last `parse()` read, for a tool that watches them. `kubb generate --watch` watches only `input`.                 |
 
 `AdapterSource` is `{ type: 'path'; path }` or `{ type: 'data'; data; root? }`, where `root` is the folder relative `$ref`s resolve from.
 

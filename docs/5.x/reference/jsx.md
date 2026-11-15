@@ -13,11 +13,11 @@ navigation:
 
 # JSX renderer
 
-`kubb/jsx` lets a generator describe its files as JSX instead of `ast.factory` node builders from [`kubb/kit`](/docs/5.x/reference/kit).
+`kubb/jsx` lets a generator describe its files as JSX instead of [`ast.factory`](/docs/5.x/reference/kit/ast#factory-functions) node builders.
 
 ## Renderers {#renderers}
 
-A renderer turns what a generator returns into `FileNode`s. Set `renderer: jsxRenderer` on the generator. Leave `renderer` unset, or `null`, when the generator returns `FileNode`s from `ast.factory`.
+A renderer turns what a generator returns into `FileNode`s. Set `renderer: jsxRenderer` on the generator, or leave `renderer` unset or `null` when it returns `FileNode`s from `ast.factory`.
 
 ```mermaid
 flowchart LR
@@ -30,11 +30,11 @@ flowchart LR
 > [!NOTE]
 > `jsxRenderer` does not use React. Components run once as plain functions, so hooks, suspense, and class components do not work.
 
-For another template format, build a renderer with `createRenderer` from `kubb/kit`. It takes a factory that returns `{ render, files, [Symbol.dispose] }`.
+For another template format, pass `createRenderer` from `kubb/kit` a factory that returns `{ render, files, [Symbol.dispose] }`.
 
 ## Setup
 
-Point `tsconfig.json` at the `kubb/jsx` runtime, so JSX compiles against its components instead of React:
+Point `tsconfig.json` at the `kubb/jsx` runtime instead of React:
 
 ```json [tsconfig.json]
 {
@@ -47,7 +47,7 @@ Point `tsconfig.json` at the `kubb/jsx` runtime, so JSX compiles against its com
 
 ## `jsxRenderer()`
 
-`jsxRenderer()` returns a renderer. Call `render` with a JSX element, then read the `FileNode`s from `files`.
+`jsxRenderer()` returns a renderer. Call `render` with a JSX element, then read `files`.
 
 ```tsx [render.tsx]
 import { File, Function, Type, jsxRenderer } from 'kubb/jsx'
@@ -70,22 +70,12 @@ const files = renderer.files
 
 ## Built-in components
 
-| Component | Group | Emits |
-| --- | --- | --- |
-| [`File`](#file) | Core | A file entry |
-| [`File.Source`](#file-source) | Core | A source block |
-| [`File.Import`](#file-import) | Core | An import statement |
-| [`File.Export`](#file-export) | Core | An export statement |
-| [`Const`](#const) | JavaScript | A `const` declaration |
-| [`Function`](#function) | JavaScript | A function declaration |
-| [`Function.Arrow`](#function-arrow) | JavaScript | An arrow function in a `const` |
-| [`Type`](#type) | JavaScript | A type alias |
-| [`Callout`](#callout) | Markdown | A GitHub alert |
-| [`Frontmatter`](#frontmatter) | Markdown | A YAML frontmatter block |
-| [`Heading`](#heading) | Markdown | A heading |
-| [`List`](#list) | Markdown | A list |
-| [`Paragraph`](#paragraph) | Markdown | A paragraph |
-| [`Jsx`](#jsx-component) | JSX | A raw JSX string |
+| Group | Components |
+| --- | --- |
+| [Core](#core) | [`File`](#file), [`File.Source`](#file-source), [`File.Import`](#file-import), [`File.Export`](#file-export) |
+| [JavaScript](#javascript) | [`Const`](#const), [`Function`](#function), [`Function.Arrow`](#function-arrow), [`Type`](#type) |
+| [Markdown](#markdown) | [`Callout`](#callout), [`Frontmatter`](#frontmatter), [`Heading`](#heading), [`List`](#list), [`Paragraph`](#paragraph) |
+| [JSX](#jsx) | [`Jsx`](#jsx-component) |
 
 Inside a code component or `File.Source`, `<br />` adds a line break.
 
@@ -93,17 +83,17 @@ Inside a code component or `File.Source`, `<br />` adds a line break.
 
 #### `File` {#file}
 
-Declares a generated file when it has both `baseName` and `path`. Without them, it renders its children inline. Text directly in a `File`, outside `File.Source`, throws an error.
+Declares a generated file when it has `baseName` and `path`, and renders its children inline otherwise. Text directly in a `File`, outside `File.Source`, throws.
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `baseName` | `` `${string}.${string}` `` | The file name with its extension, such as `petStore.ts` |
-| `path` | `string` | The full path of the generated file |
-| `meta?` | `object \| null` | Metadata on the file node, for plugins to read |
+| `baseName` | `` `${string}.${string}` `` | The file name, such as `petStore.ts` |
+| `path` | `string` | The full output path |
+| `meta?` | `object \| null` | Metadata for plugins to read |
 | `banner?` | `string \| null` | Text before the source blocks |
 | `footer?` | `string \| null` | Text after the source blocks |
-| `copy?` | `string \| null` | An absolute path of a file to copy into the output. See [Copied and inline files](/docs/5.x/topics/config-and-inputs#inline-sources). |
-| `children?` | `KubbReactNode` | The sources, imports, and exports of the file |
+| `copy?` | `string \| null` | An absolute path of a file to copy into the output |
+| `children?` | `KubbReactNode` | The file's sources, imports, and exports |
 
 ```tsx
 <File baseName="petStore.ts" path="src/models/petStore.ts">
@@ -115,7 +105,7 @@ Declares a generated file when it has both `baseName` and `path`. Without them, 
 
 #### `File.Source` {#file-source}
 
-A block of source text in the enclosing `File`. The children are the text.
+A block of source text in the enclosing `File`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -124,10 +114,10 @@ A block of source text in the enclosing `File`. The children are the text.
 | `isIndexable?` | `boolean \| null` | Includes the source in barrels |
 | `isTypeOnly?` | `boolean \| null` | Marks a type-only export |
 | `inline?` | `{ expression: string } \| null` | Lets importing files use `expression` in place of the name |
-| `pointer?` | `string` | Where the source comes from in the input, such as `#/components/schemas/Pet` |
+| `pointer?` | `string` | The input location, such as `#/components/schemas/Pet` |
 | `children?` | `KubbReactNode` | The source text |
 
-See [Copied and inline files](/docs/5.x/topics/config-and-inputs#inline-sources) for `inline`.
+See [Copied and inline files](/docs/5.x/topics/config-and-inputs#inline-sources) for `copy` and `inline`.
 
 #### `File.Import` {#file-import}
 
@@ -135,9 +125,9 @@ An import at the top of the enclosing `File`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `name` | `string \| Array<string \| { propertyName: string; name?: string }>` | A string for a default or namespace import, an array for named imports |
+| `name` | `string \| Array<string \| { propertyName: string; name?: string }>` | A string for a default or namespace import, or an array of named imports |
 | `path` | `string` | The module to import from |
-| `root?` | `string \| null` | The file path the import resolves relative to |
+| `root?` | `string \| null` | The file path the import is relative to |
 | `isTypeOnly?` | `boolean \| null` | Emits `import type` |
 | `isNameSpace?` | `boolean \| null` | Emits `import * as name` |
 
@@ -155,7 +145,7 @@ An export at the top of the enclosing `File`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `name?` | `string \| Array<string> \| null` | The names to export. Leave it out for a wildcard export. |
+| `name?` | `string \| Array<string> \| null` | The names to export, or none for a wildcard export |
 | `path` | `string` | The module to export from |
 | `isTypeOnly?` | `boolean \| null` | Emits `export type` |
 | `asAlias?` | `boolean \| null` | Emits `export * as name` |
@@ -170,16 +160,16 @@ An export at the top of the enclosing `File`.
 
 ### JavaScript
 
-These components emit TypeScript inside a `File.Source`. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block above the declaration.
+These emit TypeScript inside a `File.Source`. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block.
 
 #### `Const` {#const}
 
-A `const` declaration. The children are the initializer.
+A `const` declaration, with the children as the initializer.
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `name` | `string` | The constant's name |
-| `type?` | `string \| null` | The type annotation after `const name:` |
+| `name` | `string` | The name |
+| `type?` | `string \| null` | The annotation after `const name:` |
 | `asConst?` | `boolean \| null` | Adds `as const` after the initializer |
 
 ```tsx
@@ -191,11 +181,11 @@ A `const` declaration. The children are the initializer.
 
 #### `Function` {#function}
 
-A function declaration. The children are the body.
+A function declaration, with the children as the body.
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `name` | `string` | The function's name |
+| `name` | `string` | The name |
 | `default?` | `boolean \| null` | Adds `default` after `export` |
 | `async?` | `boolean \| null` | Adds `async` and wraps `returnType` in `Promise<…>` |
 | `params?` | `string \| null` | The parameter list |
@@ -211,7 +201,7 @@ A function declaration. The children are the body.
 
 #### `Function.Arrow` {#function-arrow}
 
-An arrow function assigned to a `const`. It takes every `Function` prop, plus `singleLine?: boolean | null` for an expression body without braces.
+An arrow function in a `const`. It takes every `Function` prop, plus `singleLine?: boolean | null` for an expression body without braces.
 
 ```tsx
 <Function.Arrow export name="double" params="n: number" returnType="number" singleLine>
@@ -222,11 +212,11 @@ An arrow function assigned to a `const`. It takes every `Function` prop, plus `s
 
 #### `Type` {#type}
 
-A type alias. The children are the type. `name` must start with an uppercase letter, or the component throws.
+A type alias, with the children as the type. `name` must start with an uppercase letter, or it throws.
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `name` | `string` | The alias name, starting with an uppercase letter |
+| `name` | `string` | The alias name |
 
 ```tsx
 <Type export name="PetId">
@@ -237,7 +227,7 @@ A type alias. The children are the type. `name` must start with an uppercase let
 
 ### Markdown
 
-Each Markdown component emits its own source block, so put it directly inside a `File`, not a `File.Source`. Give the file a `.md` name so `parserMd` prints it.
+Each Markdown component emits its own source block, so put it directly in a `File`, not a `File.Source`. Name the file `.md` so `parserMd` prints it.
 
 ```tsx [docs.tsx]
 import { Callout, File, Frontmatter, Heading, List, Paragraph, jsxRenderer } from 'kubb/jsx'
@@ -273,7 +263,7 @@ A GitHub alert in `> [!TYPE]` syntax.
 
 #### `Frontmatter` {#frontmatter}
 
-YAML frontmatter between `---` fences. Make it the first child of the `File`. An empty `data` object prints nothing.
+YAML frontmatter between `---` fences, as the first child of the `File`. An empty `data` prints nothing.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -281,7 +271,7 @@ YAML frontmatter between `---` fences. Make it the first child of the `File`. An
 
 #### `Heading` {#heading}
 
-An ATX heading, such as `## Installation` for `<Heading level={2}>Installation</Heading>`.
+An ATX heading, such as `## Installation` for `level={2}`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -295,7 +285,7 @@ A list with one item per line.
 | Prop | Type | Description |
 | --- | --- | --- |
 | `items` | `ReadonlyArray<string>` | The items |
-| `ordered?` | `boolean \| null` | Numbers the items `1.`, `2.`, and so on. Default: a `-` bullet list. |
+| `ordered?` | `boolean \| null` | Numbers the items `1.`, `2.`, and so on. Default: a `-` list. |
 
 #### `Paragraph` {#paragraph}
 
@@ -309,7 +299,7 @@ A paragraph. Inline Markdown passes through as written.
 
 #### `Jsx` {#jsx-component}
 
-Embeds a raw JSX string, fragments included, such as a component body inside a `Function`. The children must be one plain string.
+Embeds a raw JSX string, fragments included, such as a component body in a `Function`. The children must be one plain string.
 
 | Prop | Type | Description |
 | --- | --- | --- |
