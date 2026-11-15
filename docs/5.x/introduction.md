@@ -15,6 +15,8 @@ navigation:
 
 Kubb turns an API spec into the code your app uses to call that API: types, clients, query hooks, validators, and mocks. You pick the outputs with plugins in one `kubb.config.ts`. When the spec changes, run Kubb again and the code follows.
 
+Generate [TypeScript types](/extensions/kubb-labs/plugin-ts), [Axios](/extensions/kubb-labs/plugin-axios) and [Fetch](/extensions/kubb-labs/plugin-fetch) clients, [TanStack Query hooks](/extensions/kubb-labs/plugin-react-query), [Zod schemas](/extensions/kubb-labs/plugin-zod), and [Faker](/extensions/kubb-labs/plugin-faker) and [MSW](/extensions/kubb-labs/plugin-msw) mocks from an [OpenAPI spec](/extensions/kubb-labs/adapter-oas) with Kubb.
+
 ## What Kubb generates
 
 | Output | Plugins |
@@ -27,7 +29,7 @@ Kubb turns an API spec into the code your app uses to call that API: types, clie
 | An MCP server for your API | [`plugin-mcp`](/extensions/kubb-labs/plugin-mcp) |
 | API documentation | [`plugin-redoc`](/extensions/kubb-labs/plugin-redoc) |
 
-The default [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) reads OpenAPI 2.0, 3.0, 3.1, and 3.2. It does not validate a 3.2 document yet.
+The default [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) reads OpenAPI 2.0, 3.0, 3.1, and 3.2.
 
 ## See it work
 
