@@ -34,8 +34,11 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
    */
   root: string
   /**
-   * The driver running this build. Most generators never need it. Prefer the scoped helpers
-   * on this context (`getPlugin`, `getResolver`, `upsertFile`) over reaching into the driver.
+   * The driver running this build.
+   *
+   * @deprecated Use the helpers on this context instead: `getPlugin`, `getResolver`, `memo`,
+   * `upsertFile`, and `schemas` for `driver.inputNode.schemas`. The driver is not plain data, so it
+   * blocks a port of the core to another language. It will be removed in the next major version.
    */
   driver: KubbDriver
   /**
@@ -108,6 +111,14 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
    * Derive schema indexes such as circular or enum names with `memo`.
    */
   meta: InputMeta
+  /**
+   * Every schema in the spec, in document order. Empty before the adapter has parsed the input.
+   * Derive schema indexes such as circular or enum names with `memo`.
+   *
+   * @example Names of the enum schemas
+   * `ctx.memo('enumNames:set', () => new Set(ctx.schemas.filter((schema) => schema.type === 'enum').map((schema) => schema.name)))`
+   */
+  schemas: ReadonlyArray<SchemaNode>
   /**
    * Resolved options after exclude/include/override filtering.
    */

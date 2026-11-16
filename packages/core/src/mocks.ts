@@ -133,6 +133,7 @@ function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGene
       return plugin
     },
     meta: opts.meta ?? {},
+    schemas: opts.driver.inputNode?.schemas ?? [],
     memo: opts.driver.memo.bind(opts.driver),
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
