@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://kubb.dev/schemas/config.json",
   "title": "Kubb Config data",
-  "description": "The JSON part of a resolved Config from packages/core/src/types.ts. Parsers, the adapter, storage, plugins and reporters are code, so they are left out.",
+  "description": "The JSON part of a resolved Config from packages/core/src/types.ts. Parsers, the adapter, storage and reporters are code, so they are left out. Each plugin is described by its name and options.",
   "type": "object",
   "required": ["root", "output"],
   "properties": {
@@ -36,6 +36,19 @@
           }
         },
         "defaultBanner": { "enum": ["simple", "full", false] }
+      }
+    },
+    "plugins": {
+      "description": "The plugins in run order. Options that are code, such as functions, are left out.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "description": "The plugin name, such as `plugin-ts`." },
+          "options": { "type": "object" }
+        },
+        "additionalProperties": false
       }
     }
   },
