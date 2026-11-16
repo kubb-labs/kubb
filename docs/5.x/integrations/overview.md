@@ -91,7 +91,7 @@ Each tool page passes your `kubb.config.ts` as `config`. Without `config`, the p
 
 ### Import a spec as a module {#import-a-spec}
 
-Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module. Kubb writes no files for it, and it works in the Vite dev server too.
+Import a config's `input` file, or any `*.openapi.yaml` or `*.openapi.yml` file, to get the output of every plugin in your config as one module. Kubb writes no files for it, and it works in the Vite dev server too.
 
 ```ts [src/pets.ts]
 import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
@@ -99,5 +99,6 @@ import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
 
 - The import uses the config whose `input` is that spec, or else the first config without an `input`. A config without `input` only serves imports.
 - Code a plugin writes to a separate file, such as a bundled client runtime, is not part of the module.
+- The `input` file loads whatever its name, so `./my-api.openapi.json` works when it is a config's `input`. openapi-import gives no types for a `.json` import, because TypeScript does not let a content mapper register a `.json` extension.
 
 For types in `tsc` and your editor, add [openapi-import](/docs/5.x/integrations/openapi-import).

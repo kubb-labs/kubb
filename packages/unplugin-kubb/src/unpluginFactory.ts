@@ -20,7 +20,7 @@ import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { findConfigFile, loadConfigFile } from '@internals/shared'
 import type { UnpluginFactory } from 'unplugin'
-import { generateModule, selectConfig } from './generateModule.ts'
+import { generateModule, resolveInput, selectConfig } from './generateModule.ts'
 import { stripTypes } from './stripTypes.ts'
 
 export type Options = {
@@ -54,13 +54,19 @@ export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TI
   }
 }
 
-/** Spec files an import loads as a module, the extensions `openapi-import` registers too. */
+/** Spec files an import loads as a module, the extensions `openapi-import` registers too. A config's `input` file loads whatever its name. */
 const specFilePattern = /\.openapi\.ya?ml$/
+
+/** Ends the virtual id of a JSON spec module under Vite, so its JSON plugin skips it. */
+const jsonModuleSuffix = '.kubb.js'
+
+/** The spec file behind a module id, without the virtual prefix and suffix that a JSON spec gets under Vite. */
+const toSpecFile = (id: string) => (id.startsWith('\0') && id.endsWith(jsonModuleSuffix) ? id.slice(1, -jsonModuleSuffix.length) : id)
 
 /**
  * Builds the Kubb unplugin for every unplugin bundler. `unplugin-kubb` runs the Kubb build once for
  * each config with an `input` (only during `build` under Vite), and `unplugin-kubb:import` loads an
- * imported {@link specFilePattern} file as one module. Without `config`, it loads `kubb.config.*`.
+ * imported config `input` file, or a {@link specFilePattern} file, as one module. Without `config`, it loads `kubb.config.*`.
  */
 export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (options, meta) => {
   const name = 'unplugin-kubb' as const
@@ -113,6 +119,9 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
     throw fail(firstError, failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed'))
   }
 
+  // The `input` files of every config, so an import of one loads as a spec module whatever its name.
+  let inputs = new Set<string>()
+
   // A rerun with `output.clean` loops webpack and Rspack watchers, so generate once per instance.
   let generation: Promise<void> | undefined
 
@@ -132,8 +141,27 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
     {
       name: `${name}:import`,
       enforce: 'pre',
-      loadInclude: (id) => specFilePattern.test(id),
-      async load(id) {
+      // `loadInclude` cannot wait, so the configs are read here first. A missing config fails the import that needs it, not the start.
+      async buildStart() {
+        const configs = await loadConfigs().catch(() => [])
+        inputs = new Set(configs.map((config) => resolveInput(config, process.cwd())).filter((input) => input !== undefined))
+      },
+      // Vite 7 and older run their JSON plugin on every `.json` id and ignore `moduleType`, so a JSON input gets a virtual id.
+      vite: {
+        async resolveId(source, importer) {
+          if (!source.endsWith('.json')) return null
+          const resolved = await this.resolve(source, importer, { skipSelf: true })
+          return resolved && inputs.has(resolved.id) ? `\0${resolved.id}${jsonModuleSuffix}` : null
+        },
+      },
+      loadInclude: (moduleId) => {
+        const id = toSpecFile(moduleId)
+        return inputs.has(path.resolve(id)) || specFilePattern.test(id)
+      },
+      // The loaded module is JavaScript whatever the spec extension, so esbuild must not pick a `.json` loader.
+      esbuild: { loader: 'js' },
+      async load(moduleId) {
+        const id = toSpecFile(moduleId)
         try {
           const config = selectConfig({ configs: await loadConfigs(), fileName: id, cwd: process.cwd() })
           if (!config) {
@@ -149,7 +177,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
           if (errors.length) throw fail(errors[0], `${id}: ${errors[0]!.message}`)
 
           // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
-          return stripTypes(text, `${id}.ts`)
+          // `moduleType` keeps Rolldown and Vite from parsing a `.json` spec module as JSON.
+          return { code: stripTypes(text, `${id}.ts`), moduleType: 'js' }
         } catch (error) {
           // unplugin's webpack and Rspack loader never settles when `load` throws, so report the error instead.
           if (meta.framework !== 'webpack' && meta.framework !== 'rspack') throw error
