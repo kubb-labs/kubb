@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.20.3 — Nov 16, 2026
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- An import of a config's `input` file now loads as a spec module whatever its name, so `import { Pet } from './my-api.openapi.json'` works when `input` is `./my-api.openapi.json`. Before, only `*.openapi.yaml` and `*.openapi.yml` imports loaded. Other specs still need one of those names.
+  
+  Spec modules load as JavaScript in every bundler, so esbuild, Rolldown and Vite no longer parse a `.json` spec as JSON. If your app imports its `input` file as plain JSON data, that import now returns the generated module instead. ([#4644](https://github.com/kubb-labs/kubb/pull/4644), [`c96ada1`](https://github.com/kubb-labs/kubb/commit/c96ada10b94b3d87582b67ed45e58835fa7899c3))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.20.2 — Nov 15, 2026
 
 ### @kubb/adapter-oas
