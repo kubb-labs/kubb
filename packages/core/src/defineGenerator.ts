@@ -107,7 +107,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
    * Derive schema indexes such as circular or enum names with `memo`.
    */
   meta: InputMeta
-  /** Every schema in the spec, in document order. Empty before the adapter parses the input. */
+  /** Every schema in the spec, a referenced schema before the schemas that use it. Empty before the adapter parses the input. */
   schemas: ReadonlyArray<SchemaNode>
   /**
    * Resolved options after exclude/include/override filtering.

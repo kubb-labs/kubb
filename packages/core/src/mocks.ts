@@ -126,6 +126,7 @@ function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGene
     resolver: opts.resolver,
     plugin: opts.plugin,
     driver: opts.driver,
+    getPlugin: (name: string) => opts.driver.getPlugin(name),
     getResolver: (name: string) => opts.driver.getResolver(name),
     requirePlugin: (pluginName: string) => {
       const plugin = opts.driver.getPlugin(pluginName)
