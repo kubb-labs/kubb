@@ -196,6 +196,15 @@ describe.each(bundlers)('$name', ({ build }) => {
     await expect(build({ options: { config, include: /\.openapi\.(ya?ml|json)$/ }, root, entry: importEntry })).resolves.toBeUndefined()
   })
 
+  test('loads an imported JSON spec that is the input of a config', async () => {
+    await fs.writeFile(path.join(root, 'my-api.json'), '{ "openapi": "3.0.0" }\n')
+    const importEntry = path.join(root, 'import-input.js')
+    await fs.writeFile(importEntry, "import { a_PetValue } from './my-api.json'\nexport const pets = [a_PetValue]\n")
+    const config: UserConfig = { root, input: './my-api.json', output: { path: './gen' }, adapter: schemaAdapter, plugins: [createSchemaPlugin('a')] }
+
+    await expect(build({ options: { config }, root, entry: importEntry })).resolves.toBeUndefined()
+  })
+
   test('fails an import of a spec that no config applies to', async () => {
     await fs.writeFile(path.join(root, 'pet.openapi.yaml'), 'openapi: 3.0.0\n')
     const importEntry = path.join(root, 'import-other.js')

@@ -20,7 +20,7 @@ import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { findConfigFile, loadConfigFile } from '@internals/shared'
 import type { UnpluginFactory } from 'unplugin'
-import { generateModule, selectConfig } from './generateModule.ts'
+import { generateModule, resolveInput, selectConfig } from './generateModule.ts'
 import { stripTypes } from './stripTypes.ts'
 
 export type Options = {
@@ -30,7 +30,8 @@ export type Options = {
    */
   config?: UserConfig
   /**
-   * Spec files an import loads as a module. Set it to load other names, such as JSON specs.
+   * Spec files an import loads as a module, next to the `input` file of each config, which always loads
+   * whatever its name. Set it for specs that no config names, such as JSON specs served by a config without `input`.
    * TypeScript does not let a content mapper register a `.json` extension, so `openapi-import` gives no types for them.
    *
    * @default /\.openapi\.ya?ml$/
@@ -71,7 +72,7 @@ const specFilePattern = /\.openapi\.ya?ml$/
 /**
  * Builds the Kubb unplugin for every unplugin bundler. `unplugin-kubb` runs the Kubb build once for
  * each config with an `input` (only during `build` under Vite), and `unplugin-kubb:import` loads an
- * imported spec matching `include` (default {@link specFilePattern}) as one module. Without `config`, it loads `kubb.config.*`.
+ * imported config `input` file, or a spec matching `include` (default {@link specFilePattern}), as one module. Without `config`, it loads `kubb.config.*`.
  */
 export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (options, meta) => {
   const name = 'unplugin-kubb' as const
@@ -124,6 +125,9 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
     throw fail(firstError, failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed'))
   }
 
+  // The `input` files of every config, so an import of one loads as a spec module whatever its name.
+  let inputs = new Set<string>()
+
   // A rerun with `output.clean` loops webpack and Rspack watchers, so generate once per instance.
   let generation: Promise<void> | undefined
 
@@ -143,7 +147,12 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
     {
       name: `${name}:import`,
       enforce: 'pre',
-      loadInclude: (id) => (options?.include ?? specFilePattern).test(id),
+      // `loadInclude` cannot wait, so the configs are read here first. A missing config fails the import that needs it, not the start.
+      async buildStart() {
+        const configs = await loadConfigs().catch(() => [])
+        inputs = new Set(configs.map((config) => resolveInput(config, process.cwd())).filter((input) => input !== undefined))
+      },
+      loadInclude: (id) => inputs.has(path.resolve(id)) || (options?.include ?? specFilePattern).test(id),
       // The loaded module is JavaScript whatever the spec extension, so esbuild must not pick a `.json` loader.
       esbuild: { loader: 'js' },
       async load(id) {

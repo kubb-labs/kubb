@@ -71,17 +71,17 @@ sequenceDiagram
 
 Each tool page passes your `kubb.config.ts` as `config`. Without `config`, the plugin finds `kubb.config.ts` like the CLI does and builds every config in it that has an `input`.
 
-| Tool | Import | Config file |
-| --- | --- | --- |
-| [Vite](/docs/5.x/integrations/vite) | `kubb/vite` | `vite.config.ts` |
-| [webpack](/docs/5.x/integrations/webpack) | `kubb/webpack` | `webpack.config.ts` |
-| [Rspack](/docs/5.x/integrations/rspack) | `kubb/rspack` | `rspack.config.ts` |
-| [Rollup](/docs/5.x/integrations/rollup) | `kubb/rollup` | `rollup.config.ts` |
+| Tool                                        | Import          | Config file          |
+| ------------------------------------------- | --------------- | -------------------- |
+| [Vite](/docs/5.x/integrations/vite)         | `kubb/vite`     | `vite.config.ts`     |
+| [webpack](/docs/5.x/integrations/webpack)   | `kubb/webpack`  | `webpack.config.ts`  |
+| [Rspack](/docs/5.x/integrations/rspack)     | `kubb/rspack`   | `rspack.config.ts`   |
+| [Rollup](/docs/5.x/integrations/rollup)     | `kubb/rollup`   | `rollup.config.ts`   |
 | [Rolldown](/docs/5.x/integrations/rolldown) | `kubb/rolldown` | `rolldown.config.ts` |
-| [esbuild](/docs/5.x/integrations/esbuild) | `kubb/esbuild` | `build.ts` |
-| [Farm](/docs/5.x/integrations/farm) | `kubb/farm` | `farm.config.ts` |
-| [Nuxt](/docs/5.x/integrations/nuxt) | `kubb/nuxt` | `nuxt.config.ts` |
-| [Astro](/docs/5.x/integrations/astro) | `kubb/astro` | `astro.config.mjs` |
+| [esbuild](/docs/5.x/integrations/esbuild)   | `kubb/esbuild`  | `build.ts`           |
+| [Farm](/docs/5.x/integrations/farm)         | `kubb/farm`     | `farm.config.ts`     |
+| [Nuxt](/docs/5.x/integrations/nuxt)         | `kubb/nuxt`     | `nuxt.config.ts`     |
+| [Astro](/docs/5.x/integrations/astro)       | `kubb/astro`    | `astro.config.mjs`   |
 
 ### How the build runs Kubb
 
@@ -91,7 +91,7 @@ Each tool page passes your `kubb.config.ts` as `config`. Without `config`, the p
 
 ### Import a spec as a module {#import-a-spec}
 
-Import a `*.openapi.yaml` or `*.openapi.yml` file to get the output of every plugin in your config as one module. Kubb writes no files for it, and it works in the Vite dev server too.
+Import a config's `input` file, or any `*.openapi.yaml` or `*.openapi.yml` file, to get the output of every plugin in your config as one module. Kubb writes no files for it, and it works in the Vite dev server too.
 
 ```ts [src/pets.ts]
 import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
@@ -99,6 +99,6 @@ import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
 
 - The import uses the config whose `input` is that spec, or else the first config without an `input`. A config without `input` only serves imports.
 - Code a plugin writes to a separate file, such as a bundled client runtime, is not part of the module.
-- Set `include` to load other file names, such as a JSON spec: `kubb({ config, include: /\.openapi\.(ya?ml|json)$/ })`. openapi-import gives no types for a `.json` import, because TypeScript does not let a content mapper register a `.json` extension.
+- The `input` file loads whatever its name, so `./my-api.openapi.json` works when it is a config's `input`. For specs that no config names, set `include`: `kubb({ config, include: /\.openapi\.(ya?ml|json)$/ })`. openapi-import gives no types for a `.json` import, because TypeScript does not let a content mapper register a `.json` extension.
 
 For types in `tsc` and your editor, add [openapi-import](/docs/5.x/integrations/openapi-import).
