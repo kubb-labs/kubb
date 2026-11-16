@@ -33,6 +33,12 @@ describe('the AST is plain data', () => {
     expect(JSON.parse(JSON.stringify(node))).toEqual(node)
   })
 
+  it.each(fixtures)('%s matches its golden AST', async (fixture) => {
+    const node = await adapterOas({ validate: false }).parse({ type: 'path', path: path.join(mocks, fixture) })
+
+    await expect(`${JSON.stringify(node, null, 2)}\n`).toMatchFileSnapshot(`__snapshots__/ast/${fixture.replace(/\.yaml$/, '').replaceAll('/', '-')}.json`)
+  })
+
   it('flags values JSON cannot carry', () => {
     const cyclic: Record<string, unknown> = {}
     cyclic.self = cyclic

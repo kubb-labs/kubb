@@ -1,0 +1,397 @@
+{
+  "schemas": [
+    {
+      "properties": [
+        {
+          "name": "id",
+          "schema": {
+            "primitive": "string",
+            "name": "UserId",
+            "type": "string",
+            "kind": "Schema",
+            "pointer": "#/components/schemas/User/properties/id"
+          },
+          "required": true,
+          "kind": "Property"
+        },
+        {
+          "name": "email",
+          "schema": {
+            "primitive": "string",
+            "name": "UserEmail",
+            "type": "string",
+            "kind": "Schema",
+            "pointer": "#/components/schemas/User/properties/email"
+          },
+          "required": true,
+          "kind": "Property"
+        },
+        {
+          "name": "name",
+          "schema": {
+            "primitive": "string",
+            "name": "UserName",
+            "type": "string",
+            "kind": "Schema",
+            "optional": true,
+            "pointer": "#/components/schemas/User/properties/name"
+          },
+          "required": false,
+          "kind": "Property"
+        }
+      ],
+      "primitive": "object",
+      "name": "User",
+      "type": "object",
+      "kind": "Schema",
+      "pointer": "#/components/schemas/User"
+    },
+    {
+      "properties": [
+        {
+          "name": "id",
+          "schema": {
+            "primitive": "string",
+            "name": "EmployerId",
+            "type": "string",
+            "kind": "Schema",
+            "pointer": "#/components/schemas/Employer/properties/id"
+          },
+          "required": true,
+          "kind": "Property"
+        },
+        {
+          "name": "name",
+          "schema": {
+            "primitive": "string",
+            "name": "EmployerName",
+            "type": "string",
+            "kind": "Schema",
+            "pointer": "#/components/schemas/Employer/properties/name"
+          },
+          "required": true,
+          "kind": "Property"
+        },
+        {
+          "name": "industry",
+          "schema": {
+            "primitive": "string",
+            "name": "EmployerIndustry",
+            "type": "string",
+            "kind": "Schema",
+            "optional": true,
+            "pointer": "#/components/schemas/Employer/properties/industry"
+          },
+          "required": false,
+          "kind": "Property"
+        }
+      ],
+      "primitive": "object",
+      "name": "Employer",
+      "type": "object",
+      "kind": "Schema",
+      "pointer": "#/components/schemas/Employer"
+    },
+    {
+      "properties": [
+        {
+          "name": "currentUser",
+          "schema": {
+            "name": "User",
+            "type": "ref",
+            "ref": "#/components/schemas/User",
+            "schema": {
+              "properties": [
+                {
+                  "name": "id",
+                  "schema": {
+                    "primitive": "string",
+                    "name": null,
+                    "type": "string",
+                    "kind": "Schema"
+                  },
+                  "required": true,
+                  "kind": "Property"
+                },
+                {
+                  "name": "email",
+                  "schema": {
+                    "primitive": "string",
+                    "name": null,
+                    "type": "string",
+                    "kind": "Schema"
+                  },
+                  "required": true,
+                  "kind": "Property"
+                },
+                {
+                  "name": "name",
+                  "schema": {
+                    "primitive": "string",
+                    "name": null,
+                    "type": "string",
+                    "kind": "Schema",
+                    "optional": true
+                  },
+                  "required": false,
+                  "kind": "Property"
+                }
+              ],
+              "primitive": "object",
+              "type": "object",
+              "kind": "Schema"
+            },
+            "kind": "Schema",
+            "optional": true,
+            "pointer": "#/components/schemas/AppState/properties/currentUser"
+          },
+          "required": false,
+          "kind": "Property"
+        },
+        {
+          "name": "employers",
+          "schema": {
+            "primitive": "array",
+            "name": "AppStateEmployers",
+            "type": "array",
+            "items": [
+              {
+                "name": "Employer",
+                "type": "ref",
+                "ref": "#/components/schemas/Employer",
+                "schema": {
+                  "properties": [
+                    {
+                      "name": "id",
+                      "schema": {
+                        "primitive": "string",
+                        "name": null,
+                        "type": "string",
+                        "kind": "Schema"
+                      },
+                      "required": true,
+                      "kind": "Property"
+                    },
+                    {
+                      "name": "name",
+                      "schema": {
+                        "primitive": "string",
+                        "name": null,
+                        "type": "string",
+                        "kind": "Schema"
+                      },
+                      "required": true,
+                      "kind": "Property"
+                    },
+                    {
+                      "name": "industry",
+                      "schema": {
+                        "primitive": "string",
+                        "name": null,
+                        "type": "string",
+                        "kind": "Schema",
+                        "optional": true
+                      },
+                      "required": false,
+                      "kind": "Property"
+                    }
+                  ],
+                  "primitive": "object",
+                  "type": "object",
+                  "kind": "Schema"
+                },
+                "kind": "Schema",
+                "pointer": "#/components/schemas/AppState/properties/employers/items"
+              }
+            ],
+            "kind": "Schema",
+            "optional": true,
+            "pointer": "#/components/schemas/AppState/properties/employers"
+          },
+          "required": false,
+          "kind": "Property"
+        }
+      ],
+      "primitive": "object",
+      "name": "AppState",
+      "type": "object",
+      "kind": "Schema",
+      "pointer": "#/components/schemas/AppState"
+    }
+  ],
+  "operations": [
+    {
+      "tags": [
+        "users"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "pointer": "#/paths/~1me/get/responses/200",
+          "statusCode": "200",
+          "description": "Current user",
+          "content": [
+            {
+              "contentType": "application/json",
+              "schema": {
+                "name": "User",
+                "type": "ref",
+                "ref": "#/components/schemas/User",
+                "schema": {
+                  "properties": [
+                    {
+                      "name": "id",
+                      "schema": {
+                        "primitive": "string",
+                        "name": null,
+                        "type": "string",
+                        "kind": "Schema"
+                      },
+                      "required": true,
+                      "kind": "Property"
+                    },
+                    {
+                      "name": "email",
+                      "schema": {
+                        "primitive": "string",
+                        "name": null,
+                        "type": "string",
+                        "kind": "Schema"
+                      },
+                      "required": true,
+                      "kind": "Property"
+                    },
+                    {
+                      "name": "name",
+                      "schema": {
+                        "primitive": "string",
+                        "name": null,
+                        "type": "string",
+                        "kind": "Schema",
+                        "optional": true
+                      },
+                      "required": false,
+                      "kind": "Property"
+                    }
+                  ],
+                  "primitive": "object",
+                  "type": "object",
+                  "kind": "Schema"
+                },
+                "kind": "Schema",
+                "pointer": "#/paths/~1me/get/responses/200/content/application~1json/schema"
+              },
+              "keysToOmit": null,
+              "kind": "Content"
+            }
+          ],
+          "kind": "Response"
+        }
+      ],
+      "pointer": "#/paths/~1me/get",
+      "operationId": "getMe",
+      "protocol": "http",
+      "method": "GET",
+      "path": "/me",
+      "summary": "Get current user",
+      "kind": "Operation"
+    },
+    {
+      "tags": [
+        "employers"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "pointer": "#/paths/~1employers/get/responses/200",
+          "statusCode": "200",
+          "description": "List of employers",
+          "content": [
+            {
+              "contentType": "application/json",
+              "schema": {
+                "primitive": "array",
+                "name": "GetEmployersStatus200",
+                "type": "array",
+                "items": [
+                  {
+                    "name": "Employer",
+                    "type": "ref",
+                    "ref": "#/components/schemas/Employer",
+                    "schema": {
+                      "properties": [
+                        {
+                          "name": "id",
+                          "schema": {
+                            "primitive": "string",
+                            "name": null,
+                            "type": "string",
+                            "kind": "Schema"
+                          },
+                          "required": true,
+                          "kind": "Property"
+                        },
+                        {
+                          "name": "name",
+                          "schema": {
+                            "primitive": "string",
+                            "name": null,
+                            "type": "string",
+                            "kind": "Schema"
+                          },
+                          "required": true,
+                          "kind": "Property"
+                        },
+                        {
+                          "name": "industry",
+                          "schema": {
+                            "primitive": "string",
+                            "name": null,
+                            "type": "string",
+                            "kind": "Schema",
+                            "optional": true
+                          },
+                          "required": false,
+                          "kind": "Property"
+                        }
+                      ],
+                      "primitive": "object",
+                      "type": "object",
+                      "kind": "Schema"
+                    },
+                    "kind": "Schema",
+                    "pointer": "#/paths/~1employers/get/responses/200/content/application~1json/schema/items"
+                  }
+                ],
+                "kind": "Schema",
+                "pointer": "#/paths/~1employers/get/responses/200/content/application~1json/schema"
+              },
+              "keysToOmit": null,
+              "kind": "Content"
+            }
+          ],
+          "kind": "Response"
+        }
+      ],
+      "pointer": "#/paths/~1employers/get",
+      "operationId": "getEmployers",
+      "protocol": "http",
+      "method": "GET",
+      "path": "/employers",
+      "summary": "List employers",
+      "kind": "Operation"
+    }
+  ],
+  "meta": {
+    "title": "Phantom Refs Test",
+    "description": "Reproduces phantom type imports (issue #2696) — when path operations reference external schema files directly AND components.schemas also reference the same external files, pluginTs generates phantom imports like `import type { Me } from \"./Me.ts\"` instead of the correct `import type { User } from \"./User.ts\"`.\n",
+    "version": "v1.0",
+    "baseURL": null,
+    "servers": [
+      {
+        "url": "https://api.example.com"
+      }
+    ]
+  },
+  "kind": "Input"
+}
