@@ -3,6 +3,7 @@ import process from 'node:process'
 import { createInterface } from 'node:readline'
 import { toError } from '@internals/utils'
 import { type Result, x } from 'tinyexec'
+import { host } from '../host.ts'
 import type { Hookable } from '../Hookable.ts'
 import type { KubbHooks } from '../types.ts'
 
@@ -65,7 +66,7 @@ async function settle(proc: Result, hooks: Hookable<KubbHooks>, id: string, comm
  * `success: false` instead of throwing. The failure travels on the result and `kubb:hook:end`
  * only, and the caller emits `kubb:success` or a diagnostic, so nothing is reported twice.
  */
-export async function runHook({ hooks, command, args = [], name, cwd = process.cwd(), signal }: RunHookOptions): Promise<HookResult> {
+export async function runHook({ hooks, command, args = [], name, cwd = host.cwd(), signal }: RunHookOptions): Promise<HookResult> {
   const id = randomUUID()
   await hooks.callHook('kubb:hook:start', { id, command, name, args })
 
