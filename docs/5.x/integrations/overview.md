@@ -71,17 +71,17 @@ sequenceDiagram
 
 Each tool page passes your `kubb.config.ts` as `config`. Without `config`, the plugin finds `kubb.config.ts` like the CLI does and builds every config in it that has an `input`.
 
-| Tool                                        | Import          | Config file          |
-| ------------------------------------------- | --------------- | -------------------- |
-| [Vite](/docs/5.x/integrations/vite)         | `kubb/vite`     | `vite.config.ts`     |
-| [webpack](/docs/5.x/integrations/webpack)   | `kubb/webpack`  | `webpack.config.ts`  |
-| [Rspack](/docs/5.x/integrations/rspack)     | `kubb/rspack`   | `rspack.config.ts`   |
-| [Rollup](/docs/5.x/integrations/rollup)     | `kubb/rollup`   | `rollup.config.ts`   |
+| Tool | Import | Config file |
+| --- | --- | --- |
+| [Vite](/docs/5.x/integrations/vite) | `kubb/vite` | `vite.config.ts` |
+| [webpack](/docs/5.x/integrations/webpack) | `kubb/webpack` | `webpack.config.ts` |
+| [Rspack](/docs/5.x/integrations/rspack) | `kubb/rspack` | `rspack.config.ts` |
+| [Rollup](/docs/5.x/integrations/rollup) | `kubb/rollup` | `rollup.config.ts` |
 | [Rolldown](/docs/5.x/integrations/rolldown) | `kubb/rolldown` | `rolldown.config.ts` |
-| [esbuild](/docs/5.x/integrations/esbuild)   | `kubb/esbuild`  | `build.ts`           |
-| [Farm](/docs/5.x/integrations/farm)         | `kubb/farm`     | `farm.config.ts`     |
-| [Nuxt](/docs/5.x/integrations/nuxt)         | `kubb/nuxt`     | `nuxt.config.ts`     |
-| [Astro](/docs/5.x/integrations/astro)       | `kubb/astro`    | `astro.config.mjs`   |
+| [esbuild](/docs/5.x/integrations/esbuild) | `kubb/esbuild` | `build.ts` |
+| [Farm](/docs/5.x/integrations/farm) | `kubb/farm` | `farm.config.ts` |
+| [Nuxt](/docs/5.x/integrations/nuxt) | `kubb/nuxt` | `nuxt.config.ts` |
+| [Astro](/docs/5.x/integrations/astro) | `kubb/astro` | `astro.config.mjs` |
 
 ### How the build runs Kubb
 
