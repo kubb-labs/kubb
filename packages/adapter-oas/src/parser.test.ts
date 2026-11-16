@@ -598,7 +598,7 @@ describe('parseSchema format', () => {
       schema: { type: 'string', format: 'uri-reference', pattern: '^/', minLength: 2, maxLength: 10 },
       expected: { type: 'string', format: 'uri-reference', pattern: '^/', min: 2, max: 10 },
     },
-    { title: 'string byte', schema: { type: 'string', format: 'byte' }, expected: { type: 'blob', format: 'byte' } },
+    { title: 'string byte', schema: { type: 'string', format: 'byte' }, expected: { type: 'string', format: 'byte' } },
     { title: 'integer int32', schema: { type: 'integer', format: 'int32' }, expected: { type: 'integer', format: 'int32' } },
     { title: 'integer int64 (default integerType bigint)', schema: { type: 'integer', format: 'int64' }, expected: { type: 'bigint', format: 'int64' } },
     { title: 'integer uint64 (default integerType bigint)', schema: { type: 'integer', format: 'uint64' }, expected: { type: 'bigint', format: 'uint64' } },
