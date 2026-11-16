@@ -13,7 +13,7 @@ navigation:
 
 Start with the types, then replace `openapi-fetch` and `openapi-react-query`. You can stop after any step.
 
-`openapi-fetch` and `openapi-react-query` are in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559). openapi-typescript 7.13.0 needs TypeScript 5 and fails on TypeScript 7, which Kubb supports.
+openapi-typescript gets [no more updates, security fixes included](https://github.com/openapi-ts/openapi-typescript/issues/2874), and `openapi-fetch` and `openapi-react-query` are in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559). openapi-typescript 7.13.0 also needs TypeScript 5 and fails on TypeScript 7, which Kubb supports.
 
 ## What maps to what
 
@@ -94,9 +94,12 @@ Run your type check and fix the imports it reports. `openapi-fetch` still import
 
 ## Replace openapi-fetch
 
-Install `@kubb/plugin-fetch` and add it to `plugins`. It writes one function per operation, and the app needs no client package:
+Install `@kubb/plugin-fetch`, import `pluginFetch` from it, and add it to `plugins`. It writes one function per operation, and the app needs no client package:
 
 ```typescript [kubb.config.ts]
+import { pluginFetch } from '@kubb/plugin-fetch'
+
+// ...
 plugins: [
   pluginTs({ output: { path: 'types.ts' } }),
   pluginFetch({ baseURL: 'https://petstore.swagger.io/v2', throwOnErrorDefault: false }),
@@ -139,7 +142,7 @@ Then remove `openapi-fetch`, `openapi-typescript`, and `schema.d.ts`.
 
 ## Replace openapi-react-query
 
-Add [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query) to `plugins`. It writes query keys and query options per operation:
+Install [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query) and add `pluginReactQuery()` after `pluginFetch` in `plugins`. It writes query keys and query options per operation:
 
 ```typescript
 import { useQuery } from '@tanstack/react-query'
