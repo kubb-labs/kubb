@@ -159,7 +159,7 @@ plugins: [
 ],
 ```
 
-`throwOnErrorDefault: false` keeps the `openapi-fetch` behavior: an error status resolves with `error` set instead of throwing.
+`throwOnErrorDefault: false` keeps the `openapi-fetch` behavior: an error status resolves with `error` set instead of throwing. Run `kubb generate`, then replace each call:
 
 :::code-group
 
@@ -228,7 +228,7 @@ bun add -d @kubb/plugin-react-query
 
 :::
 
-The plugin writes query and mutation options per operation. Replace each `$api.useQuery` and `$api.useMutation` call:
+The plugin writes query and mutation options per operation. Run `kubb generate`, then replace each `$api.useQuery` and `$api.useMutation` call:
 
 :::code-group
 
