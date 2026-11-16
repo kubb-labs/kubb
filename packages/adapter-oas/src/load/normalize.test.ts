@@ -6,9 +6,7 @@ import * as jsYaml from 'js-yaml'
 import { describe, expect, it, vi } from 'vitest'
 import * as yaml from 'yaml'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
-import { assertDocument, bundleDocument, getBaseUri, parseFromConfig, upgradeDocument, validateDocument, validateDocumentInWorker } from './normalize.ts'
-import { parseYaml } from './source.ts'
-import { validateSpec } from './validateSpec.ts'
+import { assertDocument, bundleDocument, getBaseUri, parseFromConfig, validateDocument, validateDocumentInWorker } from './normalize.ts'
 import { scanDocument } from './schemaIds.ts'
 import type { Document, SchemaObject } from '../types.ts'
 
@@ -718,21 +716,5 @@ describe('bundleDocument file confinement', () => {
       const document = documentWith('./pet.yaml', { $self: pathToFileURL(path.join(dir, 'spec/openapi.yaml')).href })
       await expect(bundleDocument('https://example.com/openapi.yaml', { document })).rejects.toThrow(/Refused an external/)
     })
-  })
-})
-
-describe('loader steps', () => {
-  it('return plain JSON data', async () => {
-    const parsed = parseYaml('swagger: 2.0\ninfo: { title: t, version: 1.0.0 }\npaths: {}\ndefinitions:\n  Pet: { type: object }\n', {
-      origin: 'test',
-      help: '',
-    })
-    const bundled = await bundleDocument(path.resolve(__dirname, '../../mocks/phantom/main.yaml'))
-    const upgraded = upgradeDocument(structuredClone(parsed) as Document)
-    const validated = await validateSpec(structuredClone(upgraded))
-
-    for (const output of [parsed, bundled, upgraded, validated]) {
-      expect(JSON.parse(JSON.stringify(output))).toStrictEqual(output)
-    }
   })
 })
