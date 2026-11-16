@@ -13,28 +13,26 @@ navigation:
 
 Start with the types, then replace `openapi-fetch` and `openapi-react-query`. You can stop after any step.
 
-`openapi-fetch` and `openapi-react-query` are in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559) with no future updates. Kubb generates the types, the client, and the hooks from one config. [Kubb vs openapi-typescript](/docs/5.x/explanation/comparison) compares the tools.
+`openapi-fetch` and `openapi-react-query` are in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559). openapi-typescript 7.13.0 needs TypeScript 5 and fails on TypeScript 7, which Kubb supports.
 
 ## What maps to what
 
 | openapi-typescript | Kubb |
 | --- | --- |
-| `openapi-typescript ./openapi.yaml -o ./src/schema.d.ts` | `kubb generate` with a `kubb.config.ts` |
 | `components['schemas']['Pet']` | `Pet` |
 | `paths['/pet/{petId}']['get']['parameters']['path']` | `GetPetByIdPath` |
-| `paths['/pet/{petId}']['get']['responses'][200]['content']['application/json']` | `GetPetByIdResponse` |
-| `--enum` | [`enum.type: 'enum'`](/extensions/kubb-labs/plugin-ts/options#enumtype) on `pluginTs` |
+| `paths['/pet/{petId}']['get']['responses'][200]['content']['application/json']` | `GetPetByIdStatus200Json` |
+| `--enum` | [`enum: { type: 'enum' }`](/extensions/kubb-labs/plugin-ts/options#enumtype) on `pluginTs` |
 | `client.GET('/pet/{petId}', { params: { path: { petId: 1 } } })` | `getPetById({ path: { petId: 1 } })` |
 | `createClient({ baseUrl })` | `client.setConfig({ baseURL })` |
-| `client.use({ onRequest, onResponse })` | `client.interceptors.request.use()` and `client.interceptors.response.use()` |
-| `const { data, error } = await client.GET(...)` | `throwOnErrorDefault: false` on `pluginFetch` |
-| `$api.useQuery('get', '/pet/{petId}', ...)` | [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query) |
+| `client.use({ onRequest })` | `client.interceptors.request.use()` |
+| `$api.useQuery('get', '/pet/{petId}', ...)` | `useQuery(getPetByIdQueryOptions(...))` |
 
 ::steps{level="2"}
 
-## Install Kubb
+## Generate the types
 
-Install `kubb` and `@kubb/plugin-ts`. Keep openapi-typescript installed until your code compiles against the new types.
+Install `kubb` and `@kubb/plugin-ts`:
 
 :::code-group{sync="package-manager"}
 
@@ -56,11 +54,7 @@ bun add -d kubb @kubb/plugin-ts
 
 :::
 
-## Generate the types
-
-This config writes every type into one file, `src/gen/types.ts`, like the single `schema.d.ts` openapi-typescript writes. Remove `output` from `pluginTs` to get one file per schema and operation instead.
-
-openapi-typescript types `int64` as `number`, while Kubb types it as `bigint` by default. Set `integerType: 'number'` on the adapter to keep your current types:
+This config writes every type into `src/gen/types.ts`, like the single `schema.d.ts` from openapi-typescript. `integerType: 'number'` keeps `int64` as `number`, as openapi-typescript does. Kubb's default is `bigint`.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -75,21 +69,11 @@ export default defineConfig({
 })
 ```
 
-Replace the openapi-typescript command in `package.json` with `kubb generate`:
-
-```json [package.json]
-{
-  "scripts": {
-    "generate": "kubb generate"
-  }
-}
-```
-
-Run the `generate` script, then open `src/gen/types.ts`. [`@kubb/plugin-ts` options](/extensions/kubb-labs/plugin-ts/options) change how enums, objects, and optional fields are written.
+Replace the openapi-typescript command in your `generate` script with `kubb generate`, and run it.
 
 ## Replace the type lookups
 
-openapi-typescript nests every type under `paths`, `components`, and `operations`. Kubb exports each one by name, so a lookup becomes an import:
+Kubb exports each type by name, named after the schema or the `operationId`:
 
 :::code-group
 
@@ -98,43 +82,28 @@ import type { components, paths } from './schema'
 
 type Pet = components['schemas']['Pet']
 type GetPetByIdParams = paths['/pet/{petId}']['get']['parameters']['path']
-type GetPetByIdResult = paths['/pet/{petId}']['get']['responses'][200]['content']['application/json']
 ```
 
 ```typescript [Kubb]
-import type { GetPetByIdPath, GetPetByIdResponse, Pet } from './gen/types'
+import type { GetPetByIdPath, Pet } from './gen/types'
 ```
 
 :::
 
-Each operation is named after its `operationId`. Run your type check and fix the imports it reports. Remove `openapi-typescript` and `schema.d.ts` once nothing imports them. `openapi-fetch` imports `paths` from `schema.d.ts`, so keep both until you finish the next step.
+Run your type check and fix the imports it reports. `openapi-fetch` still imports `paths`, so keep `schema.d.ts` until the next step is done.
 
 ## Replace openapi-fetch
 
-To keep `openapi-fetch` for now, skip this step and keep `openapi-typescript` for its `paths` type.
-
-Install `@kubb/plugin-fetch` and add it to the config. It writes one function per operation and copies its runtime into `src/gen/.kubb/`, so the app needs no client package:
+Install `@kubb/plugin-fetch` and add it to `plugins`. It writes one function per operation, and the app needs no client package:
 
 ```typescript [kubb.config.ts]
-import { defineConfig } from 'kubb/config'
-import { adapterOas } from '@kubb/adapter-oas'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginFetch } from '@kubb/plugin-fetch'
-
-export default defineConfig({
-  input: './openapi.yaml',
-  output: { path: './src/gen' },
-  adapter: adapterOas({ integerType: 'number' }),
-  plugins: [
-    pluginTs({ output: { path: 'types.ts' } }),
-    pluginFetch({ baseURL: 'https://petstore.swagger.io/v2', throwOnErrorDefault: false }),
-  ],
-})
+plugins: [
+  pluginTs({ output: { path: 'types.ts' } }),
+  pluginFetch({ baseURL: 'https://petstore.swagger.io/v2', throwOnErrorDefault: false }),
+],
 ```
 
-`openapi-fetch` returns `{ data, error }` and never throws on an error status. `throwOnErrorDefault: false` keeps that behavior. Leave it out to throw a `ResponseError` on every non-2xx response instead.
-
-Replace each call by path with a call to the generated function:
+`throwOnErrorDefault: false` keeps the `openapi-fetch` behavior: an error status resolves with `error` set instead of throwing.
 
 :::code-group
 
@@ -164,26 +133,21 @@ const { data, error, status } = await getPetById({ path: { petId: 1 } })
 
 :::
 
-`auth` puts the token where each security scheme in your spec says. For other shared headers, use `headers` or a request interceptor. See [Configure requests](/extensions/kubb-labs/plugin-fetch/guides/configure-requests) for the base URL and interceptors, and [Handle errors](/extensions/kubb-labs/plugin-fetch/guides/error-handling) for the result shape.
+`auth` sends the token where the spec's security scheme says, such as an `api_key` header. [Configure requests](/extensions/kubb-labs/plugin-fetch/guides/configure-requests) covers headers and interceptors.
 
 Then remove `openapi-fetch`, `openapi-typescript`, and `schema.d.ts`.
 
 ## Replace openapi-react-query
 
-Add [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query) next to `@kubb/plugin-fetch`. It writes query keys and query options per operation, which you pass to TanStack Query's `useQuery`. Then remove `openapi-react-query`.
+Add [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query) to `plugins`. It writes query keys and query options per operation:
 
-::
+```typescript
+import { useQuery } from '@tanstack/react-query'
+import { getPetByIdQueryOptions } from './gen/hooks/useGetPetById'
 
-## Next steps
+const { data } = useQuery(getPetByIdQueryOptions({ path: { petId: 1 } }))
+```
 
-::card-group
-
-:::card{title="Pick a stack" to="/docs/5.x/how-to/recipes#pick-a-stack"}
-Configs for Zod, MSW, Faker, and other plugins on top of the types.
-:::
-
-:::card{title="Customize generated code" to="/docs/5.x/how-to/customize"}
-Rename types and files to match the names your code already uses.
-:::
+Then remove `openapi-react-query`.
 
 ::
