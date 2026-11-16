@@ -2,8 +2,8 @@ import { hash } from 'node:crypto'
 import { chmodSync, mkdirSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import process from 'node:process'
 import { exists, isPathInside, read, rm, writeRaw } from '@internals/utils'
+import { host } from '../host.ts'
 
 type KubbStorageOptions = {
   /**
@@ -26,7 +26,7 @@ function ensurePrivateDir(dir: string): string {
  * `resolveKubbDir('cache') // '/home/me/.kubb/cache'`
  */
 export function resolveKubbDir(base = ''): string {
-  const dir = resolve(process.env.KUBB_HOME ?? join(homedir(), '.kubb'), base)
+  const dir = resolve(host.env().KUBB_HOME ?? join(homedir(), '.kubb'), base)
   try {
     return ensurePrivateDir(dir)
   } catch {

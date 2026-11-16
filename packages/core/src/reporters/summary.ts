@@ -1,6 +1,7 @@
 import { isAbsolute, relative } from 'node:path'
 import { styleText } from 'node:util'
 import { formatMs } from '@internals/utils'
+import { host } from '../host.ts'
 import type { Report } from './report.ts'
 
 /**
@@ -49,7 +50,7 @@ export function formatSummary(report: Report, { showTimings }: { showTimings: bo
   ].filter(Boolean)
   if (issues.length) lines.push(`  ${styleText('dim', 'Issues')}   ${issues.join(separator)}`)
 
-  const destination = relative(process.cwd(), output)
+  const destination = relative(host.cwd(), output)
   const displayPath = destination.startsWith('..') || isAbsolute(destination) ? output : `./${destination}`
   lines.push(`  ${styleText('dim', failed || dryRun ? 'Target' : 'Output')}   ${styleText(failed ? 'dim' : 'cyan', displayPath)}`)
   if (dryRun) lines.push(`  ${styleText('dim', 'Nothing was written.')}`)

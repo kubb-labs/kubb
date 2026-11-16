@@ -49,6 +49,13 @@ export default defineConfig({
       },
     },
     {
+      // KUB-287: the emit and model steps work on plain data, so a port can replace the loader alone.
+      files: ['packages/adapter-oas/src/emit/**', 'packages/adapter-oas/src/model/**'],
+      rules: {
+        'no-restricted-imports': ['error', { patterns: [{ group: ['**/load/**'], message: 'emit/ and model/ must not import from load/.' }] }],
+      },
+    },
+    {
       // Declaration files describe structural contracts (e.g. the JSX namespace) where `any`
       // is the idiomatic bound for heterogeneous component props.
       files: ['**/*.d.ts'],

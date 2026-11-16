@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
-import process from 'node:process'
 import { getElapsedMs } from '@internals/utils'
+import { host } from '../host.ts'
 import type { GenerationResult } from '../createReporter.ts'
 import { Diagnostics } from '../Diagnostics.ts'
 import type { SerializedDiagnostic } from '../formatDiagnostic.ts'
@@ -13,7 +13,7 @@ import type { Config } from '../types.ts'
 export function reportTarget(config: Config): { dir: string; name: string } {
   const name = config.name?.replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '')
   return {
-    dir: resolveKubbDir(resolve(process.cwd(), '.kubb')),
+    dir: resolveKubbDir(resolve(host.cwd(), '.kubb')),
     name: ['kubb', name, Date.now()].filter(Boolean).join('-'),
   }
 }

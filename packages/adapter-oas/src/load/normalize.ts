@@ -9,7 +9,7 @@ import { bundle } from 'api-ref-bundler'
 import { isOpenApi32 } from '../oas.ts'
 import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
-import type { ValidationErrors, WorkerResult } from './validateWorker.ts'
+import type { ValidationErrors, WorkerResult } from './validateSpec.ts'
 import { type DocumentScan, resolveSchemaIds, scanDocument } from './schemaIds.ts'
 import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
@@ -240,6 +240,11 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
     return bundleDocument(source.path, { sources, fileRefs })
   })()
 
+  return upgradeDocument(raw, { pathRefs: scans.get(raw)?.pathRefs ?? true })
+}
+
+/** Upgrades Swagger 2.0 or OpenAPI 3.0 to 3.1. `pathRefs: false` skips the `#/paths/` ref walk. */
+export function upgradeDocument(raw: Document, { pathRefs = true }: { pathRefs?: boolean } = {}): Document {
   // Unquoted `swagger: 2.0` parses as the number 2, which `upgrade` does not recognise as a version.
   if (raw && typeof raw === 'object') {
     const document = raw as Record<string, unknown>
@@ -251,7 +256,7 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
     }
   }
 
-  if (raw && typeof raw === 'object' && 'swagger' in raw && (scans.get(raw)?.pathRefs ?? true)) {
+  if (raw && typeof raw === 'object' && 'swagger' in raw && pathRefs) {
     const refs = createRefs(raw)
     inlinePathRefs(raw, (ref) => refs.resolve(ref, { report: false }))
   }
@@ -327,32 +332,25 @@ export async function validateDocument(document: Document, { throwOnError = fals
 
   // The heaviest dependency in the package, and every config importing `@kubb/adapter-oas` would
   // pay for it even with `validate` off.
-  const { compileErrors, validate } = await import('@readme/openapi-parser')
-
-  let result: Awaited<ReturnType<typeof validate>>
-  try {
-    // `validate` dereferences its input in place, so clone to keep the cached document intact.
-    result = await validate(structuredClone(document), {
-      validate: {
-        errors: { colorize: throwOnError },
-      },
-    })
-  } catch (error) {
-    if (throwOnError) throw error
-    reportInvalidSpec(getErrorMessage(error))
-    return
+  if (!throwOnError) {
+    const { validateSpec } = await import('./validateSpec.ts')
+    // `validateSpec` dereferences its input in place, so clone to keep the cached document intact.
+    return reportResult(await validateSpec(structuredClone(document)))
   }
-
+  const { compileErrors, validate } = await import('@readme/openapi-parser')
+  const result = await validate(structuredClone(document), { validate: { errors: { colorize: true } } })
   if (result.valid) return
-  if (throwOnError)
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.invalidSpec,
-      severity: 'error',
-      message: compileErrors(result),
-      help: 'Fix each problem listed in the spec, then validate again.',
-    })
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.invalidSpec,
+    severity: 'error',
+    message: compileErrors(result),
+    help: 'Fix each problem listed in the spec, then validate again.',
+  })
+}
 
-  reportValidationErrors(result)
+function reportResult(result: WorkerResult): void {
+  if ('thrown' in result) return reportInvalidSpec(result.thrown)
+  if (!result.valid) reportValidationErrors(result)
 }
 
 function reportValidationErrors({ errors, additionalErrors }: ValidationErrors): void {
@@ -391,6 +389,5 @@ export async function validateDocumentInWorker(document: Document): Promise<void
     return validateDocument(document)
   }
 
-  if ('thrown' in message) return reportInvalidSpec(message.thrown)
-  if (!message.valid) reportValidationErrors(message)
+  reportResult(message)
 }
