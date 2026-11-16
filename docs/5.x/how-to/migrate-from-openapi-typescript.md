@@ -11,7 +11,7 @@ navigation:
 
 # Move from openapi-typescript to Kubb
 
-Generate your types with Kubb first, then replace `openapi-fetch` and `openapi-react-query` when you are ready. Each step works on its own, so you can stop after the types.
+Start with the types, then replace `openapi-fetch` and `openapi-react-query`. You can stop after any step.
 
 `openapi-fetch` and `openapi-react-query` are in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559) with no future updates. Kubb generates the types, the client, and the hooks from one config. [Kubb vs openapi-typescript](/docs/5.x/explanation/comparison) compares the tools.
 
@@ -85,7 +85,7 @@ Replace the openapi-typescript command in `package.json` with `kubb generate`:
 }
 ```
 
-Run `npm run generate`, then open `src/gen/types.ts`. [`@kubb/plugin-ts` options](/extensions/kubb-labs/plugin-ts/options) change how enums, objects, and optional fields are written.
+Run the `generate` script, then open `src/gen/types.ts`. [`@kubb/plugin-ts` options](/extensions/kubb-labs/plugin-ts/options) change how enums, objects, and optional fields are written.
 
 ## Replace the type lookups
 
@@ -107,11 +107,11 @@ import type { GetPetByIdPath, GetPetByIdResponse, Pet } from './gen/types'
 
 :::
 
-Each operation is named after its `operationId`. Run your type check and fix the imports it reports, then remove `openapi-typescript` and the old `schema.d.ts`.
+Each operation is named after its `operationId`. Run your type check and fix the imports it reports. Remove `openapi-typescript` and `schema.d.ts` once nothing imports them. `openapi-fetch` imports `paths` from `schema.d.ts`, so keep both until you finish the next step.
 
 ## Replace openapi-fetch
 
-Skip this step to keep `openapi-fetch` for now. It still works with its own types.
+To keep `openapi-fetch` for now, skip this step and keep `openapi-typescript` for its `paths` type.
 
 Install `@kubb/plugin-fetch` and add it to the config. It writes one function per operation and copies its runtime into `src/gen/.kubb/`, so the app needs no client package:
 
@@ -164,7 +164,9 @@ const { data, error, status } = await getPetById({ path: { petId: 1 } })
 
 :::
 
-`auth` puts the token where each security scheme in your spec says. For other shared headers, use `headers` or a request interceptor. [Configure requests](/extensions/kubb-labs/plugin-fetch/guides/configure-requests) covers the base URL, auth, and interceptors, and [Handle errors](/extensions/kubb-labs/plugin-fetch/guides/error-handling) covers the result shape. Then remove `openapi-fetch`.
+`auth` puts the token where each security scheme in your spec says. For other shared headers, use `headers` or a request interceptor. See [Configure requests](/extensions/kubb-labs/plugin-fetch/guides/configure-requests) for the base URL and interceptors, and [Handle errors](/extensions/kubb-labs/plugin-fetch/guides/error-handling) for the result shape.
+
+Then remove `openapi-fetch`, `openapi-typescript`, and `schema.d.ts`.
 
 ## Replace openapi-react-query
 
