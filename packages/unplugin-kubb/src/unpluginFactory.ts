@@ -29,18 +29,6 @@ export type Options = {
    * `kubb.config.*` the way the Kubb CLI finds it, from the current working directory up.
    */
   config?: UserConfig
-  /**
-   * Spec files an import loads as a module, next to the `input` file of each config, which always loads
-   * whatever its name. Set it for specs that no config names, such as JSON specs served by a config without `input`.
-   * TypeScript does not let a content mapper register a `.json` extension, so `openapi-import` gives no types for them.
-   *
-   * @default /\.openapi\.ya?ml$/
-   * @example
-   * ```ts
-   * kubb({ include: /\.openapi\.(ya?ml|json)$/ })
-   * ```
-   */
-  include?: RegExp
 }
 
 /**
@@ -66,13 +54,13 @@ export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TI
   }
 }
 
-/** Spec files an import loads as a module by default, the extensions `openapi-import` registers too. */
+/** Spec files an import loads as a module, the extensions `openapi-import` registers too. A config's `input` file loads whatever its name. */
 const specFilePattern = /\.openapi\.ya?ml$/
 
 /**
  * Builds the Kubb unplugin for every unplugin bundler. `unplugin-kubb` runs the Kubb build once for
  * each config with an `input` (only during `build` under Vite), and `unplugin-kubb:import` loads an
- * imported config `input` file, or a spec matching `include` (default {@link specFilePattern}), as one module. Without `config`, it loads `kubb.config.*`.
+ * imported config `input` file, or a {@link specFilePattern} file, as one module. Without `config`, it loads `kubb.config.*`.
  */
 export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (options, meta) => {
   const name = 'unplugin-kubb' as const
@@ -152,7 +140,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
         const configs = await loadConfigs().catch(() => [])
         inputs = new Set(configs.map((config) => resolveInput(config, process.cwd())).filter((input) => input !== undefined))
       },
-      loadInclude: (id) => inputs.has(path.resolve(id)) || (options?.include ?? specFilePattern).test(id),
+      loadInclude: (id) => inputs.has(path.resolve(id)) || specFilePattern.test(id),
       // The loaded module is JavaScript whatever the spec extension, so esbuild must not pick a `.json` loader.
       esbuild: { loader: 'js' },
       async load(id) {
