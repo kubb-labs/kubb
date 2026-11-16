@@ -51,6 +51,10 @@ APIs You Won't Hate uses OpenAPI specs for frontend work.
 Combines Kubb, Axios, and the Next.js App Router.
 :::
 
+:::card{title="Orval vs Kubb vs openapi-typescript in 2026" to="https://www.pistack.xyz/posts/2026-10-01-orval-vs-kubb-vs-openapi-typescript-typescript-client-generators/"}
+Pi Stack compares TypeScript API client generators, including Kubb.
+:::
+
 ::
 
 ## Listed in
