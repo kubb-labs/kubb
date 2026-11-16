@@ -99,5 +99,6 @@ import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
 
 - The import uses the config whose `input` is that spec, or else the first config without an `input`. A config without `input` only serves imports.
 - Code a plugin writes to a separate file, such as a bundled client runtime, is not part of the module.
+- Set `include` to load other file names, such as a JSON spec: `kubb({ config, include: /\.openapi\.(ya?ml|json)$/ })`. openapi-import gives no types for a `.json` import, because TypeScript does not let a content mapper register a `.json` extension.
 
 For types in `tsc` and your editor, add [openapi-import](/docs/5.x/integrations/openapi-import).

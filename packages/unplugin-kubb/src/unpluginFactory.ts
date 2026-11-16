@@ -29,6 +29,17 @@ export type Options = {
    * `kubb.config.*` the way the Kubb CLI finds it, from the current working directory up.
    */
   config?: UserConfig
+  /**
+   * Spec files an import loads as a module. Set it to load other names, such as JSON specs.
+   * TypeScript does not let a content mapper register a `.json` extension, so `openapi-import` gives no types for them.
+   *
+   * @default /\.openapi\.ya?ml$/
+   * @example
+   * ```ts
+   * kubb({ include: /\.openapi\.(ya?ml|json)$/ })
+   * ```
+   */
+  include?: RegExp
 }
 
 /**
@@ -54,13 +65,13 @@ export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TI
   }
 }
 
-/** Spec files an import loads as a module, the extensions `openapi-import` registers too. */
+/** Spec files an import loads as a module by default, the extensions `openapi-import` registers too. */
 const specFilePattern = /\.openapi\.ya?ml$/
 
 /**
  * Builds the Kubb unplugin for every unplugin bundler. `unplugin-kubb` runs the Kubb build once for
  * each config with an `input` (only during `build` under Vite), and `unplugin-kubb:import` loads an
- * imported {@link specFilePattern} file as one module. Without `config`, it loads `kubb.config.*`.
+ * imported spec matching `include` (default {@link specFilePattern}) as one module. Without `config`, it loads `kubb.config.*`.
  */
 export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (options, meta) => {
   const name = 'unplugin-kubb' as const
@@ -132,7 +143,9 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
     {
       name: `${name}:import`,
       enforce: 'pre',
-      loadInclude: (id) => specFilePattern.test(id),
+      loadInclude: (id) => (options?.include ?? specFilePattern).test(id),
+      // The loaded module is JavaScript whatever the spec extension, so esbuild must not pick a `.json` loader.
+      esbuild: { loader: 'js' },
       async load(id) {
         try {
           const config = selectConfig({ configs: await loadConfigs(), fileName: id, cwd: process.cwd() })
@@ -149,7 +162,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
           if (errors.length) throw fail(errors[0], `${id}: ${errors[0]!.message}`)
 
           // Bundlers do not strip types from a `.yaml` module, so hand them JavaScript.
-          return stripTypes(text, `${id}.ts`)
+          // `moduleType` keeps Rolldown and Vite from parsing a `.json` spec module as JSON.
+          return { code: stripTypes(text, `${id}.ts`), moduleType: 'js' }
         } catch (error) {
           // unplugin's webpack and Rspack loader never settles when `load` throws, so report the error instead.
           if (meta.framework !== 'webpack' && meta.framework !== 'rspack') throw error
