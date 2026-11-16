@@ -81,7 +81,7 @@ export const formatMap = {
   hostname: 'string',
   'idn-hostname': 'string',
   binary: 'blob',
-  byte: 'blob',
+  byte: 'string',
   base64url: 'string',
   jwt: 'string',
   ulid: 'string',
