@@ -1,5 +1,5 @@
 ---
-'unplugin-kubb': minor
+'unplugin-kubb': patch
 ---
 
 An import of a config's `input` file now loads as a spec module whatever its name, so `import { Pet } from './my-api.openapi.json'` works when `input` is `./my-api.openapi.json`. Before, only `*.openapi.yaml` and `*.openapi.yml` imports loaded. Other specs still need one of those names.
