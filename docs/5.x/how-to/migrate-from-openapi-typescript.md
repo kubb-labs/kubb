@@ -27,34 +27,13 @@ openapi-typescript gets [no more updates, security fixes included](https://githu
 | `createClient({ baseUrl })` | `client.setConfig({ baseURL })` |
 | `client.use({ onRequest })` | `client.interceptors.request.use()` |
 | `$api.useQuery('get', '/pet/{petId}', ...)` | `useQuery(getPetByIdQueryOptions(...))` |
+| `$api.useMutation('post', '/pet')` | `useMutation(addPetMutationOptions())` |
 
 ::steps{level="2"}
 
 ## Generate the types
 
-Install `kubb` and `@kubb/plugin-ts`:
-
-:::code-group{sync="package-manager"}
-
-```shell [pnpm]
-pnpm add -D kubb @kubb/plugin-ts
-```
-
-```shell [npm]
-npm install -D kubb @kubb/plugin-ts
-```
-
-```shell [yarn]
-yarn add -D kubb @kubb/plugin-ts
-```
-
-```shell [bun]
-bun add -d kubb @kubb/plugin-ts
-```
-
-:::
-
-This config writes every type into `src/gen/types.ts`, like the single `schema.d.ts` from openapi-typescript. `integerType: 'number'` keeps `int64` as `number`, as openapi-typescript does. Kubb's default is `bigint`.
+Create this config. It writes every type into `src/gen/types.ts`, like the single `schema.d.ts` from openapi-typescript. `integerType: 'number'` keeps `int64` as `number`, as openapi-typescript does. Kubb's default is `bigint`.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -69,7 +48,55 @@ export default defineConfig({
 })
 ```
 
-Replace the openapi-typescript command in your `generate` script with `kubb generate`, and run it.
+Install the packages it imports. `kubb add` needs the config to exist, and leaves a plugin that is already in it unchanged:
+
+:::code-group{sync="package-manager"}
+
+```shell [kubb]
+npm install -D kubb
+npx kubb add adapter-oas
+npx kubb add plugin-ts
+```
+
+```shell [pnpm]
+pnpm add -D kubb @kubb/adapter-oas @kubb/plugin-ts
+```
+
+```shell [npm]
+npm install -D kubb @kubb/adapter-oas @kubb/plugin-ts
+```
+
+```shell [yarn]
+yarn add -D kubb @kubb/adapter-oas @kubb/plugin-ts
+```
+
+```shell [bun]
+bun add -d kubb @kubb/adapter-oas @kubb/plugin-ts
+```
+
+:::
+
+Add `kubb generate` to your `generate` script and run it. Keep the openapi-typescript command until the last step, because `openapi-fetch` reads `schema.d.ts`:
+
+:::code-group
+
+```json [Before]
+{
+  "scripts": {
+    "generate": "openapi-typescript ./openapi.yaml -o ./src/schema.d.ts"
+  }
+}
+```
+
+```json [During the move]
+{
+  "scripts": {
+    "generate": "openapi-typescript ./openapi.yaml -o ./src/schema.d.ts && kubb generate"
+  }
+}
+```
+
+:::
 
 ## Replace the type lookups
 
@@ -90,11 +117,37 @@ import type { GetPetByIdPath, Pet } from './gen/types'
 
 :::
 
-Run your type check and fix the imports it reports. `openapi-fetch` still imports `paths`, so keep `schema.d.ts` until the next step is done.
+Run your type check and fix the imports it reports.
 
 ## Replace openapi-fetch
 
-Install `@kubb/plugin-fetch`, import `pluginFetch` from it, and add it to `plugins`. It writes one function per operation, and the app needs no client package:
+Add `@kubb/plugin-fetch`. It writes one function per operation, and the app needs no client package:
+
+:::code-group{sync="package-manager"}
+
+```shell [kubb]
+npx kubb add plugin-fetch
+```
+
+```shell [pnpm]
+pnpm add -D @kubb/plugin-fetch
+```
+
+```shell [npm]
+npm install -D @kubb/plugin-fetch
+```
+
+```shell [yarn]
+yarn add -D @kubb/plugin-fetch
+```
+
+```shell [bun]
+bun add -d @kubb/plugin-fetch
+```
+
+:::
+
+`kubb add` adds `pluginFetch()` to `plugins`. With a package manager, add the import and the plugin yourself. Then set its options:
 
 ```typescript [kubb.config.ts]
 import { pluginFetch } from '@kubb/plugin-fetch'
@@ -129,28 +182,102 @@ const { data, error } = await client.GET('/pet/{petId}', { params: { path: { pet
 import { client } from './gen/.kubb/client'
 import { getPetById } from './gen/clients/getPetById'
 
-client.setConfig({ auth: () => token })
+client.interceptors.request.use((request) => {
+  request.headers['Authorization'] = `Bearer ${token}`
+  return request
+})
 
 const { data, error, status } = await getPetById({ path: { petId: 1 } })
 ```
 
 :::
 
-`auth` sends the token where the spec's security scheme says, such as an `api_key` header. [Configure requests](/extensions/kubb-labs/plugin-fetch/guides/configure-requests) covers headers and interceptors.
+Like the middleware, the interceptor sends the header on every request. To send it only to operations that declare a security scheme, set `auth` instead. It gets each scheme, and its return value goes where that scheme says, such as the `api_key` header, so return the right credential per scheme:
 
-Then remove `openapi-fetch`, `openapi-typescript`, and `schema.d.ts`.
+```typescript
+client.setConfig({ auth: (scheme) => (scheme.type === 'apiKey' ? apiKey : token) })
+```
+
+[Configure requests](/extensions/kubb-labs/plugin-fetch/guides/configure-requests) covers both.
 
 ## Replace openapi-react-query
 
-Install [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query) and add `pluginReactQuery()` after `pluginFetch` in `plugins`. It writes query keys and query options per operation:
+Add [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query). With a package manager, also add `pluginReactQuery()` after `pluginFetch` in `plugins`:
 
-```typescript
-import { useQuery } from '@tanstack/react-query'
+:::code-group{sync="package-manager"}
+
+```shell [kubb]
+npx kubb add plugin-react-query
+```
+
+```shell [pnpm]
+pnpm add -D @kubb/plugin-react-query
+```
+
+```shell [npm]
+npm install -D @kubb/plugin-react-query
+```
+
+```shell [yarn]
+yarn add -D @kubb/plugin-react-query
+```
+
+```shell [bun]
+bun add -d @kubb/plugin-react-query
+```
+
+:::
+
+The plugin writes query and mutation options per operation. Replace each `$api.useQuery` and `$api.useMutation` call:
+
+:::code-group
+
+```typescript [openapi-react-query]
+import createFetchClient from 'openapi-fetch'
+import createClient from 'openapi-react-query'
+import type { paths } from './schema'
+
+const $api = createClient(createFetchClient<paths>({ baseUrl: 'https://petstore.swagger.io/v2' }))
+
+const { data } = $api.useQuery('get', '/pet/{petId}', { params: { path: { petId: 1 } } })
+const { mutate } = $api.useMutation('post', '/pet')
+mutate({ body: { name: 'Rex', photoUrls: [] } })
+```
+
+```typescript [Kubb]
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { addPetMutationOptions } from './gen/hooks/useAddPet'
 import { getPetByIdQueryOptions } from './gen/hooks/useGetPetById'
 
 const { data } = useQuery(getPetByIdQueryOptions({ path: { petId: 1 } }))
+const { mutate } = useMutation(addPetMutationOptions())
+mutate({ body: { name: 'Rex', photoUrls: [] } })
 ```
 
-Then remove `openapi-react-query`.
+:::
+
+## Remove openapi-typescript
+
+Once nothing imports `schema.d.ts`, `openapi-fetch`, or `openapi-react-query`, delete `schema.d.ts` and uninstall `openapi-typescript`, `openapi-fetch`, and `openapi-react-query`. Keep only `kubb generate` in your `generate` script:
+
+:::code-group
+
+```json [During the move]
+{
+  "scripts": {
+    "generate": "openapi-typescript ./openapi.yaml -o ./src/schema.d.ts && kubb generate"
+  }
+}
+```
+
+```json [After]
+{
+  "scripts": {
+    "generate": "kubb generate"
+  }
+}
+```
+
+:::
 
 ::
