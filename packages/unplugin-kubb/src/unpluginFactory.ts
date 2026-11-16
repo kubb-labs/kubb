@@ -57,6 +57,12 @@ export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TI
 /** Spec files an import loads as a module, the extensions `openapi-import` registers too. A config's `input` file loads whatever its name. */
 const specFilePattern = /\.openapi\.ya?ml$/
 
+/** Ends the virtual id of a JSON spec module under Vite, so its JSON plugin skips it. */
+const jsonModuleSuffix = '.kubb.js'
+
+/** The spec file behind a module id, without the virtual prefix and suffix that a JSON spec gets under Vite. */
+const toSpecFile = (id: string) => (id.startsWith('\0') && id.endsWith(jsonModuleSuffix) ? id.slice(1, -jsonModuleSuffix.length) : id)
+
 /**
  * Builds the Kubb unplugin for every unplugin bundler. `unplugin-kubb` runs the Kubb build once for
  * each config with an `input` (only during `build` under Vite), and `unplugin-kubb:import` loads an
@@ -140,10 +146,22 @@ export const unpluginFactory: UnpluginFactory<Options | undefined, true> = (opti
         const configs = await loadConfigs().catch(() => [])
         inputs = new Set(configs.map((config) => resolveInput(config, process.cwd())).filter((input) => input !== undefined))
       },
-      loadInclude: (id) => inputs.has(path.resolve(id)) || specFilePattern.test(id),
+      // Vite 7 and older run their JSON plugin on every `.json` id and ignore `moduleType`, so a JSON input gets a virtual id.
+      vite: {
+        async resolveId(source, importer) {
+          if (!source.endsWith('.json')) return null
+          const resolved = await this.resolve(source, importer, { skipSelf: true })
+          return resolved && inputs.has(resolved.id) ? `\0${resolved.id}${jsonModuleSuffix}` : null
+        },
+      },
+      loadInclude: (moduleId) => {
+        const id = toSpecFile(moduleId)
+        return inputs.has(path.resolve(id)) || specFilePattern.test(id)
+      },
       // The loaded module is JavaScript whatever the spec extension, so esbuild must not pick a `.json` loader.
       esbuild: { loader: 'js' },
-      async load(id) {
+      async load(moduleId) {
+        const id = toSpecFile(moduleId)
         try {
           const config = selectConfig({ configs: await loadConfigs(), fileName: id, cwd: process.cwd() })
           if (!config) {
