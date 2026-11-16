@@ -1,5 +1,9 @@
 # @kubb/claude-plugin
 
+## 5.21.0
+
+No changes in this release.
+
 ## 5.20.3
 
 No changes in this release.

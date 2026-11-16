@@ -1,5 +1,29 @@
 # Changelog
 
+## v5.21.0 — Nov 16, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- `type: string, format: byte` is now a `string` instead of a `Blob`. OpenAPI defines `byte` as base64-encoded text, and `contentEncoding: base64` already gave a `string`. Generated types change: fields that were `Blob` are now `string`, and `plugin-zod` now emits `z.base64()` for them. ([#4651](https://github.com/kubb-labs/kubb/pull/4651), [`1784f72`](https://github.com/kubb-labs/kubb/commit/1784f727051d0e70adbce825ba2f57521f9547c5))
+
+#### Bug Fixes
+
+- Use `@scalar/openapi-upgrader` 0.4.9. ([#4646](https://github.com/kubb-labs/kubb/pull/4646), [`72f908c`](https://github.com/kubb-labs/kubb/commit/72f908ce84c4438149544f964d25206469668d81))
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- `kubb/farm` and `unplugin-kubb/farm` now work with Farm 2. The `@farmfe/core` peer range is `^1.7.0 || ^2.0.0`, so Farm 1 projects keep working. ([#4647](https://github.com/kubb-labs/kubb/pull/4647), [`a2f1a44`](https://github.com/kubb-labs/kubb/commit/a2f1a44e1c87ac3ca168d8804f99ce6faf60273a))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.20.3 — Nov 16, 2026
 
 ### unplugin-kubb
