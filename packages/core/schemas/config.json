@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kubb.dev/schemas/config.json",
+  "title": "Kubb Config data",
+  "description": "The JSON part of a resolved Config from packages/core/src/types.ts. Parsers, the adapter, storage, plugins and reporters are code, so they are left out.",
+  "type": "object",
+  "required": ["root", "output"],
+  "properties": {
+    "name": { "type": "string" },
+    "root": { "type": "string" },
+    "input": {
+      "description": "A path or URL, or an inline document.",
+      "type": ["string", "object"]
+    },
+    "output": {
+      "type": "object",
+      "description": "Plugins can add their own output options, so other keys are allowed.",
+      "required": ["path"],
+      "properties": {
+        "path": { "type": "string" },
+        "clean": { "type": "boolean" },
+        "format": { "enum": ["auto", "prettier", "biome", "oxfmt", false] },
+        "lint": { "enum": ["auto", "eslint", "biome", "oxlint", false] },
+        "postGenerate": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "required": ["command"],
+                "properties": { "name": { "type": "string" }, "command": { "type": "string" } },
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "defaultBanner": { "enum": ["simple", "full", false] }
+      }
+    }
+  },
+  "additionalProperties": false
+}

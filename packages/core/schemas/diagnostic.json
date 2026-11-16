@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kubb.dev/schemas/diagnostic.json",
+  "title": "Kubb Diagnostic",
+  "description": "A Diagnostic as plain JSON. Mirrors packages/core/src/Diagnostics.ts. The cause of a problem is left out, because an Error is not JSON.",
+  "oneOf": [{ "$ref": "#/$defs/ProblemDiagnostic" }, { "$ref": "#/$defs/PerformanceDiagnostic" }, { "$ref": "#/$defs/UpdateDiagnostic" }],
+  "$defs": {
+    "ProblemCode": {
+      "enum": [
+        "KUBB_UNKNOWN",
+        "KUBB_INPUT_NOT_FOUND",
+        "KUBB_INPUT_REQUEST_FAILED",
+        "KUBB_INPUT_UNREACHABLE",
+        "KUBB_GIT_INPUT_FAILED",
+        "KUBB_INPUT_REQUIRED",
+        "KUBB_LEGACY_INPUT",
+        "KUBB_INVALID_DOCUMENT",
+        "KUBB_INVALID_SPEC",
+        "KUBB_REF_NOT_FOUND",
+        "KUBB_INVALID_SERVER_VARIABLE",
+        "KUBB_PLUGIN_NOT_FOUND",
+        "KUBB_INCOMPATIBLE_EXTENSION",
+        "KUBB_MISSING_DEPENDENCY",
+        "KUBB_INCOMPATIBLE_DEPENDENCY",
+        "KUBB_PLUGIN_FAILED",
+        "KUBB_ADAPTER_FAILED",
+        "KUBB_PARSER_FAILED",
+        "KUBB_PLUGIN_WARNING",
+        "KUBB_PLUGIN_INFO",
+        "KUBB_NO_CONTEXT",
+        "KUBB_UNSUPPORTED_FORMAT",
+        "KUBB_ALIAS_CYCLE",
+        "KUBB_DUPLICATE_DISCRIMINATOR",
+        "KUBB_DEPRECATED",
+        "KUBB_ADAPTER_REQUIRED",
+        "KUBB_PATH_TRAVERSAL",
+        "KUBB_CLEAN_ROOT",
+        "KUBB_INVALID_PLUGIN_OPTIONS",
+        "KUBB_POST_GENERATE_FAILED",
+        "KUBB_FORMAT_FAILED",
+        "KUBB_LINT_FAILED",
+        "KUBB_BARREL_DUPLICATE_EXPORT",
+        "KUBB_INLINE_FAILED",
+        "KUBB_INTERNAL_ERROR"
+      ]
+    },
+    "DiagnosticLocation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["kind", "pointer"],
+          "properties": { "kind": { "const": "schema" }, "pointer": { "type": "string" }, "ref": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind", "pointer"],
+          "properties": { "kind": { "enum": ["operation", "document"] }, "pointer": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["kind"],
+          "properties": { "kind": { "const": "config" } },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ProblemDiagnostic": {
+      "type": "object",
+      "required": ["code", "severity", "message"],
+      "properties": {
+        "kind": { "const": "problem" },
+        "code": { "$ref": "#/$defs/ProblemCode" },
+        "severity": { "enum": ["error", "warning", "info"] },
+        "message": { "type": "string" },
+        "location": { "$ref": "#/$defs/DiagnosticLocation" },
+        "help": { "type": "string" },
+        "plugin": { "type": "string" },
+        "issues": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "PerformanceDiagnostic": {
+      "type": "object",
+      "required": ["kind", "code", "severity", "message", "plugin", "duration"],
+      "properties": {
+        "kind": { "const": "performance" },
+        "code": { "const": "KUBB_PERFORMANCE" },
+        "severity": { "const": "info" },
+        "message": { "type": "string" },
+        "plugin": { "type": "string" },
+        "duration": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "UpdateDiagnostic": {
+      "type": "object",
+      "required": ["kind", "code", "severity", "message", "currentVersion", "latestVersion"],
+      "properties": {
+        "kind": { "const": "update" },
+        "code": { "const": "KUBB_UPDATE_AVAILABLE" },
+        "severity": { "const": "info" },
+        "message": { "type": "string" },
+        "currentVersion": { "type": "string" },
+        "latestVersion": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

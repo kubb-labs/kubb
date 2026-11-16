@@ -1,0 +1,515 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kubb.dev/schemas/ast.json",
+  "title": "Kubb AST",
+  "description": "The InputNode an adapter produces, as plain JSON. Mirrors the node types in packages/ast/src/nodes. Fields that are undefined in TypeScript are absent here.",
+  "$ref": "#/$defs/InputNode",
+  "$defs": {
+    "pointer": {
+      "type": "string",
+      "description": "Where the node comes from in the input, for example an RFC 6901 JSON pointer."
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Vendor extensions (x-* keys), copied as-is."
+    },
+    "InputNode": {
+      "type": "object",
+      "required": ["kind", "schemas", "operations", "meta"],
+      "properties": {
+        "kind": { "const": "Input" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "schemas": { "type": "array", "items": { "$ref": "#/$defs/SchemaNode" } },
+        "operations": { "type": "array", "items": { "$ref": "#/$defs/OperationNode" } },
+        "meta": { "$ref": "#/$defs/InputMeta" }
+      },
+      "additionalProperties": false
+    },
+    "InputMeta": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "version": { "type": "string" },
+        "summary": { "type": "string" },
+        "termsOfService": { "type": "string" },
+        "contact": {
+          "type": "object",
+          "properties": { "name": { "type": "string" }, "url": { "type": "string" }, "email": { "type": "string" } },
+          "additionalProperties": false
+        },
+        "license": {
+          "type": "object",
+          "required": ["name"],
+          "properties": { "name": { "type": "string" }, "identifier": { "type": "string" }, "url": { "type": "string" } },
+          "additionalProperties": false
+        },
+        "externalDocs": { "$ref": "#/$defs/ExternalDocs" },
+        "baseURL": { "type": ["string", "null"] },
+        "servers": { "type": "array", "items": { "$ref": "#/$defs/InputServer" } },
+        "tags": { "type": "array", "items": { "$ref": "#/$defs/InputTag" } },
+        "auth": { "type": "array", "items": { "$ref": "#/$defs/AuthScheme" } },
+        "extensions": { "$ref": "#/$defs/extensions" }
+      },
+      "additionalProperties": false
+    },
+    "ExternalDocs": {
+      "type": "object",
+      "required": ["url"],
+      "properties": { "url": { "type": "string" }, "description": { "type": "string" } },
+      "additionalProperties": false
+    },
+    "InputServer": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {
+        "url": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "variables": { "type": "object", "additionalProperties": { "$ref": "#/$defs/InputServerVariable" } }
+      },
+      "additionalProperties": false
+    },
+    "InputServerVariable": {
+      "type": "object",
+      "properties": {
+        "default": { "type": "string" },
+        "enum": { "type": "array", "items": { "type": "string" } },
+        "description": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "InputTag": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "summary": { "type": "string" },
+        "description": { "type": "string" },
+        "parent": { "type": "string" },
+        "kind": { "type": "string" },
+        "externalDocs": { "$ref": "#/$defs/ExternalDocs" }
+      },
+      "additionalProperties": false
+    },
+    "OAuthFlow": {
+      "type": "object",
+      "properties": {
+        "authorizationUrl": { "type": "string" },
+        "deviceAuthorizationUrl": { "type": "string" },
+        "tokenUrl": { "type": "string" },
+        "refreshUrl": { "type": "string" },
+        "scopes": { "type": "object", "additionalProperties": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "AuthCredential": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "scheme"],
+          "properties": { "type": { "const": "http" }, "scheme": { "type": "string" }, "bearerFormat": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "in", "name"],
+          "properties": { "type": { "const": "apiKey" }, "in": { "enum": ["header", "query", "cookie"] }, "name": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "flows"],
+          "properties": {
+            "type": { "const": "oauth2" },
+            "flows": { "type": "object", "additionalProperties": { "$ref": "#/$defs/OAuthFlow" } },
+            "metadataUrl": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": { "type": { "const": "openIdConnect" }, "url": { "type": "string" } },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": { "type": { "const": "mutualTLS" } },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "AuthScheme": {
+      "type": "object",
+      "required": ["name", "credential"],
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "deprecated": { "type": "boolean" },
+        "credential": { "$ref": "#/$defs/AuthCredential" }
+      },
+      "additionalProperties": false
+    },
+    "AuthRequirement": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scheme"],
+        "properties": { "scheme": { "type": "string" }, "scopes": { "type": "array", "items": { "type": "string" } } },
+        "additionalProperties": false
+      }
+    },
+    "OperationNode": {
+      "type": "object",
+      "description": "An HTTP operation has protocol 'http', method and path. A generic operation has none of the three.",
+      "required": ["kind", "operationId", "tags", "parameters", "responses"],
+      "properties": {
+        "kind": { "const": "Operation" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "operationId": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "summary": { "type": "string" },
+        "description": { "type": "string" },
+        "deprecated": { "type": "boolean" },
+        "externalDocs": { "$ref": "#/$defs/ExternalDocs" },
+        "parameters": { "type": "array", "items": { "$ref": "#/$defs/ParameterNode" } },
+        "requestBody": { "$ref": "#/$defs/RequestBodyNode" },
+        "responses": { "type": "array", "items": { "$ref": "#/$defs/ResponseNode" } },
+        "extensions": { "$ref": "#/$defs/extensions" },
+        "servers": { "type": "array", "items": { "$ref": "#/$defs/InputServer" } },
+        "auth": { "type": "array", "items": { "$ref": "#/$defs/AuthRequirement" } },
+        "protocol": { "const": "http" },
+        "method": { "type": "string", "description": "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE, QUERY, or another method name." },
+        "path": { "type": "string" }
+      },
+      "dependentRequired": { "protocol": ["method", "path"], "method": ["path"], "path": ["method"] },
+      "additionalProperties": false
+    },
+    "ParameterStyle": {
+      "enum": ["matrix", "label", "form", "simple", "spaceDelimited", "pipeDelimited", "deepObject", "cookie"]
+    },
+    "ParameterNode": {
+      "type": "object",
+      "required": ["kind", "name", "in", "schema", "required"],
+      "properties": {
+        "kind": { "const": "Parameter" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "name": { "type": "string" },
+        "in": { "enum": ["path", "query", "header", "cookie", "querystring"] },
+        "schema": { "$ref": "#/$defs/SchemaNode" },
+        "required": { "type": "boolean" },
+        "style": { "$ref": "#/$defs/ParameterStyle" },
+        "explode": { "type": "boolean" },
+        "allowReserved": { "type": "boolean" },
+        "contentType": { "type": "string" },
+        "encoding": { "type": "object", "additionalProperties": { "$ref": "#/$defs/EncodingNode" } },
+        "examples": { "type": "array", "items": { "$ref": "#/$defs/ExampleNode" } },
+        "deprecated": { "type": "boolean" },
+        "allowEmptyValue": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "PropertyNode": {
+      "type": "object",
+      "required": ["kind", "name", "schema", "required"],
+      "properties": {
+        "kind": { "const": "Property" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "name": { "type": "string" },
+        "schema": { "$ref": "#/$defs/SchemaNode" },
+        "required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "RequestBodyNode": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "const": "RequestBody" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "description": { "type": "string" },
+        "required": { "type": "boolean" },
+        "content": { "type": "array", "items": { "$ref": "#/$defs/ContentNode" } }
+      },
+      "additionalProperties": false
+    },
+    "ResponseNode": {
+      "type": "object",
+      "required": ["kind", "statusCode"],
+      "properties": {
+        "kind": { "const": "Response" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "statusCode": { "type": "string", "pattern": "^([1-5][0-9][0-9]|[1-5]xx|default)$" },
+        "summary": { "type": "string" },
+        "description": { "type": "string" },
+        "content": { "type": "array", "items": { "$ref": "#/$defs/ContentNode" } },
+        "headers": { "type": "array", "items": { "$ref": "#/$defs/ParameterNode" } },
+        "links": { "type": "object", "additionalProperties": { "$ref": "#/$defs/ResponseLink" } }
+      },
+      "additionalProperties": false
+    },
+    "ResponseLink": {
+      "type": "object",
+      "properties": {
+        "operationId": { "type": "string" },
+        "operationRef": { "type": "string" },
+        "parameters": { "type": "object" },
+        "requestBody": true,
+        "description": { "type": "string" },
+        "server": { "$ref": "#/$defs/InputServer" }
+      },
+      "additionalProperties": false
+    },
+    "EncodingNode": {
+      "type": "object",
+      "properties": {
+        "contentType": { "type": "string" },
+        "style": { "$ref": "#/$defs/ParameterStyle" },
+        "explode": { "type": "boolean" },
+        "allowReserved": { "type": "boolean" },
+        "encoding": { "type": "object", "additionalProperties": { "$ref": "#/$defs/EncodingNode" } },
+        "prefixEncoding": { "type": "array", "items": { "$ref": "#/$defs/EncodingNode" } },
+        "itemEncoding": { "$ref": "#/$defs/EncodingNode" }
+      },
+      "additionalProperties": false
+    },
+    "ExampleNode": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "summary": { "type": "string" },
+        "description": { "type": "string" },
+        "value": true,
+        "serializedValue": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "ContentNode": {
+      "type": "object",
+      "required": ["kind", "contentType"],
+      "properties": {
+        "kind": { "const": "Content" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "contentType": { "type": "string" },
+        "schema": { "$ref": "#/$defs/SchemaNode" },
+        "stream": {
+          "type": "object",
+          "properties": { "schema": { "$ref": "#/$defs/SchemaNode" }, "shape": { "enum": ["event", "data"] } },
+          "additionalProperties": false
+        },
+        "keysToOmit": { "type": ["array", "null"], "items": { "type": "string" } },
+        "encoding": { "type": "object", "additionalProperties": { "$ref": "#/$defs/EncodingNode" } },
+        "examples": { "type": "array", "items": { "$ref": "#/$defs/ExampleNode" } },
+        "prefixEncoding": { "type": "array", "items": { "$ref": "#/$defs/EncodingNode" } },
+        "itemEncoding": { "$ref": "#/$defs/EncodingNode" }
+      },
+      "additionalProperties": false
+    },
+    "SchemaNode": {
+      "description": "One schema variant, picked by type.",
+      "oneOf": [
+        { "$ref": "#/$defs/ObjectSchemaNode" },
+        { "$ref": "#/$defs/ArraySchemaNode" },
+        { "$ref": "#/$defs/UnionSchemaNode" },
+        { "$ref": "#/$defs/IntersectionSchemaNode" },
+        { "$ref": "#/$defs/NotSchemaNode" },
+        { "$ref": "#/$defs/EnumSchemaNode" },
+        { "$ref": "#/$defs/RefSchemaNode" },
+        { "$ref": "#/$defs/DatetimeSchemaNode" },
+        { "$ref": "#/$defs/TemporalSchemaNode" },
+        { "$ref": "#/$defs/StringSchemaNode" },
+        { "$ref": "#/$defs/NumberSchemaNode" },
+        { "$ref": "#/$defs/UrlSchemaNode" },
+        { "$ref": "#/$defs/FormatStringSchemaNode" },
+        { "$ref": "#/$defs/ScalarSchemaNode" }
+      ]
+    },
+    "SchemaBase": {
+      "type": "object",
+      "description": "Fields every schema variant shares.",
+      "required": ["kind", "type"],
+      "properties": {
+        "kind": { "const": "Schema" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "name": { "type": ["string", "null"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "nullable": { "type": "boolean" },
+        "optional": { "type": "boolean" },
+        "nullish": { "type": "boolean" },
+        "deprecated": { "type": "boolean" },
+        "readOnly": { "type": "boolean" },
+        "writeOnly": { "type": "boolean" },
+        "default": true,
+        "examples": { "type": "array" },
+        "primitive": {
+          "enum": ["string", "number", "integer", "bigint", "boolean", "null", "any", "unknown", "void", "never", "object", "array", "date"]
+        },
+        "format": { "type": "string" },
+        "externalDocs": { "$ref": "#/$defs/ExternalDocs" },
+        "conditionals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["if"],
+            "properties": {
+              "if": { "$ref": "#/$defs/SchemaNode" },
+              "then": { "$ref": "#/$defs/SchemaNode" },
+              "else": { "$ref": "#/$defs/SchemaNode" }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "members": { "type": "array", "items": { "$ref": "#/$defs/SchemaNode" } },
+    "ObjectSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "required": ["primitive", "properties"],
+      "properties": {
+        "type": { "const": "object" },
+        "primitive": { "const": "object" },
+        "properties": { "type": "array", "items": { "$ref": "#/$defs/PropertyNode" } },
+        "additionalProperties": { "anyOf": [{ "$ref": "#/$defs/SchemaNode" }, { "type": "boolean" }] },
+        "patternProperties": { "type": "object", "additionalProperties": { "$ref": "#/$defs/SchemaNode" } },
+        "propertyNames": { "$ref": "#/$defs/SchemaNode" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "minProperties": { "type": "number" },
+        "maxProperties": { "type": "number" }
+      },
+      "unevaluatedProperties": false
+    },
+    "ArraySchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": {
+        "type": { "enum": ["array", "tuple"] },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/SchemaNode" } },
+        "rest": { "$ref": "#/$defs/SchemaNode" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "unique": { "type": "boolean" },
+        "contains": {
+          "type": "object",
+          "required": ["schema"],
+          "properties": { "schema": { "$ref": "#/$defs/SchemaNode" }, "min": { "type": "number" }, "max": { "type": "number" } },
+          "additionalProperties": false
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "UnionSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": {
+        "type": { "const": "union" },
+        "members": { "$ref": "#/$defs/members" },
+        "discriminatorPropertyName": { "type": "string" },
+        "strategy": { "enum": ["one", "any"] }
+      },
+      "unevaluatedProperties": false
+    },
+    "IntersectionSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": { "type": { "const": "intersection" }, "members": { "$ref": "#/$defs/members" } },
+      "unevaluatedProperties": false
+    },
+    "NotSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": { "type": { "const": "not" }, "members": { "$ref": "#/$defs/members" } },
+      "unevaluatedProperties": false
+    },
+    "EnumSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": {
+        "type": { "const": "enum" },
+        "enumValues": { "type": "array", "items": { "type": ["string", "number", "boolean", "null"] } },
+        "namedEnumValues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "value", "primitive"],
+            "properties": {
+              "name": { "type": "string" },
+              "value": { "type": ["string", "number", "boolean"] },
+              "primitive": { "enum": ["string", "number", "boolean"] },
+              "description": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "RefSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": {
+        "type": { "const": "ref" },
+        "ref": { "type": "string" },
+        "targetName": { "type": "string" },
+        "pattern": { "type": "string" },
+        "schema": { "anyOf": [{ "$ref": "#/$defs/SchemaNode" }, { "type": "null" }] }
+      },
+      "unevaluatedProperties": false
+    },
+    "DatetimeSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": { "type": { "const": "datetime" }, "offset": { "type": "boolean" }, "local": { "type": "boolean" } },
+      "unevaluatedProperties": false
+    },
+    "TemporalSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "required": ["representation"],
+      "properties": { "type": { "enum": ["date", "time"] }, "representation": { "enum": ["date", "string"] } },
+      "unevaluatedProperties": false
+    },
+    "StringSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": {
+        "type": { "const": "string" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "pattern": { "type": "string" },
+        "content": {
+          "type": "object",
+          "properties": { "mediaType": { "type": "string" }, "encoding": { "type": "string" }, "schema": { "$ref": "#/$defs/SchemaNode" } },
+          "additionalProperties": false
+        }
+      },
+      "unevaluatedProperties": false
+    },
+    "NumberSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": {
+        "type": { "enum": ["number", "integer", "bigint"] },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "exclusive": {
+          "type": "object",
+          "properties": { "min": { "type": "number" }, "max": { "type": "number" } },
+          "additionalProperties": false
+        },
+        "exclusiveMinimum": { "type": "number" },
+        "exclusiveMaximum": { "type": "number" },
+        "multipleOf": { "type": "number" }
+      },
+      "unevaluatedProperties": false
+    },
+    "UrlSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": { "type": { "const": "url" }, "path": { "type": "string" }, "min": { "type": "number" }, "max": { "type": "number" } },
+      "unevaluatedProperties": false
+    },
+    "FormatStringSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": { "type": { "enum": ["uuid", "email"] }, "min": { "type": "number" }, "max": { "type": "number" } },
+      "unevaluatedProperties": false
+    },
+    "ScalarSchemaNode": {
+      "allOf": [{ "$ref": "#/$defs/SchemaBase" }],
+      "properties": { "type": { "enum": ["boolean", "null", "any", "unknown", "void", "never", "blob", "ipv4", "ipv6"] } },
+      "unevaluatedProperties": false
+    }
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kubb.dev/schemas/file.json",
+  "title": "Kubb FileNode",
+  "description": "A FileNode that plugins hand to the file pipeline, as plain JSON. Mirrors packages/ast/src/nodes/file.ts and code.ts.",
+  "$ref": "#/$defs/FileNode",
+  "$defs": {
+    "pointer": { "type": "string" },
+    "flag": { "type": ["boolean", "null"] },
+    "FileNode": {
+      "type": "object",
+      "required": ["kind", "id", "name", "baseName", "path", "extname", "sources", "imports", "exports"],
+      "properties": {
+        "kind": { "const": "File" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "id": { "type": "string", "description": "SHA-256 hex digest of path." },
+        "name": { "type": "string" },
+        "baseName": { "type": "string", "pattern": "^.*\\..+$" },
+        "path": { "type": "string" },
+        "extname": { "type": "string", "pattern": "^\\..+$" },
+        "sources": { "type": "array", "items": { "$ref": "#/$defs/SourceNode" } },
+        "imports": { "type": "array", "items": { "$ref": "#/$defs/ImportNode" } },
+        "exports": { "type": "array", "items": { "$ref": "#/$defs/ExportNode" } },
+        "meta": { "type": "object", "description": "Plugin-defined metadata." },
+        "banner": { "type": ["string", "null"] },
+        "footer": { "type": ["string", "null"] },
+        "copy": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "ImportNode": {
+      "type": "object",
+      "required": ["kind", "name", "path"],
+      "properties": {
+        "kind": { "const": "Import" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "name": {
+          "anyOf": [
+            { "type": "string" },
+            {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  { "type": "string" },
+                  {
+                    "type": "object",
+                    "required": ["propertyName"],
+                    "properties": { "propertyName": { "type": "string" }, "name": { "type": "string" } },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "path": { "type": "string" },
+        "isTypeOnly": { "$ref": "#/$defs/flag" },
+        "isNameSpace": { "$ref": "#/$defs/flag" },
+        "root": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "ExportNode": {
+      "type": "object",
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": { "const": "Export" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "name": { "anyOf": [{ "type": ["string", "null"] }, { "type": "array", "items": { "type": "string" } }] },
+        "path": { "type": "string" },
+        "isTypeOnly": { "$ref": "#/$defs/flag" },
+        "asAlias": { "$ref": "#/$defs/flag" }
+      },
+      "additionalProperties": false
+    },
+    "SourceNode": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": { "const": "Source" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "name": { "type": ["string", "null"] },
+        "isTypeOnly": { "$ref": "#/$defs/flag" },
+        "isExportable": { "$ref": "#/$defs/flag" },
+        "isIndexable": { "$ref": "#/$defs/flag" },
+        "inline": {
+          "type": ["object", "null"],
+          "required": ["expression"],
+          "properties": { "expression": { "type": "string" } },
+          "additionalProperties": false
+        },
+        "nodes": { "$ref": "#/$defs/codeNodes" }
+      },
+      "additionalProperties": false
+    },
+    "codeNodes": { "type": "array", "items": { "$ref": "#/$defs/CodeNode" } },
+    "JSDocNode": {
+      "type": ["object", "null"],
+      "properties": { "comments": { "type": "array", "items": { "type": ["string", "null"] } } },
+      "additionalProperties": false
+    },
+    "CodeNode": {
+      "oneOf": [
+        { "$ref": "#/$defs/ConstNode" },
+        { "$ref": "#/$defs/TypeNode" },
+        { "$ref": "#/$defs/FunctionNode" },
+        { "$ref": "#/$defs/TextNode" },
+        { "$ref": "#/$defs/BreakNode" }
+      ]
+    },
+    "ConstNode": {
+      "type": "object",
+      "required": ["kind", "name"],
+      "properties": {
+        "kind": { "const": "Const" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "name": { "type": "string" },
+        "export": { "$ref": "#/$defs/flag" },
+        "type": { "type": ["string", "null"] },
+        "JSDoc": { "$ref": "#/$defs/JSDocNode" },
+        "asConst": { "$ref": "#/$defs/flag" },
+        "nodes": { "$ref": "#/$defs/codeNodes" }
+      },
+      "additionalProperties": false
+    },
+    "TypeNode": {
+      "type": "object",
+      "required": ["kind", "name"],
+      "properties": {
+        "kind": { "const": "Type" },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "name": { "type": "string" },
+        "export": { "$ref": "#/$defs/flag" },
+        "JSDoc": { "$ref": "#/$defs/JSDocNode" },
+        "nodes": { "$ref": "#/$defs/codeNodes" }
+      },
+      "additionalProperties": false
+    },
+    "FunctionNode": {
+      "type": "object",
+      "description": "A Function or an ArrowFunction. Only an ArrowFunction has singleLine.",
+      "required": ["kind", "name"],
+      "properties": {
+        "kind": { "enum": ["Function", "ArrowFunction"] },
+        "pointer": { "$ref": "#/$defs/pointer" },
+        "name": { "type": "string" },
+        "default": { "$ref": "#/$defs/flag" },
+        "params": { "type": ["string", "null"] },
+        "export": { "$ref": "#/$defs/flag" },
+        "async": { "$ref": "#/$defs/flag" },
+        "generics": { "anyOf": [{ "type": ["string", "null"] }, { "type": "array", "items": { "type": "string" } }] },
+        "returnType": { "type": ["string", "null"] },
+        "JSDoc": { "$ref": "#/$defs/JSDocNode" },
+        "singleLine": { "$ref": "#/$defs/flag" },
+        "nodes": { "$ref": "#/$defs/codeNodes" }
+      },
+      "additionalProperties": false
+    },
+    "TextNode": {
+      "type": "object",
+      "description": "A Text or a Jsx node: both carry raw source in value.",
+      "required": ["kind", "value"],
+      "properties": { "kind": { "enum": ["Text", "Jsx"] }, "pointer": { "$ref": "#/$defs/pointer" }, "value": { "type": "string" } },
+      "additionalProperties": false
+    },
+    "BreakNode": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": { "kind": { "const": "Break" }, "pointer": { "$ref": "#/$defs/pointer" } },
+      "additionalProperties": false
+    }
+  }
+}

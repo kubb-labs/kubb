@@ -32,6 +32,7 @@
     }
   ],
   "files": [
+    "schemas",
     "dist",
     "!/**/**.test.**",
     "!/**/__tests__/**",
@@ -52,6 +53,7 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./schemas/*": "./schemas/*",
     "./package.json": "./package.json"
   },
   "publishConfig": {
