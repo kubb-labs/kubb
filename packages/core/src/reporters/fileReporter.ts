@@ -1,7 +1,7 @@
 import { join, relative } from 'node:path'
-import process from 'node:process'
 import { stripVTControlCharacters } from 'node:util'
 import { writeRaw } from '@internals/utils'
+import { host } from '../host.ts'
 import { createReporter } from '../createReporter.ts'
 import { type Diagnostic, Diagnostics } from '../Diagnostics.ts'
 import { buildReport, reportTarget } from './report.ts'
@@ -51,6 +51,6 @@ export const fileReporter = createReporter({
     const path = join(dir, `${name}.log`)
 
     await writeRaw(path, `${content}\n`)
-    console.error(`Debug log written to ${relative(process.cwd(), path)}`)
+    console.error(`Debug log written to ${relative(host.cwd(), path)}`)
   },
 })

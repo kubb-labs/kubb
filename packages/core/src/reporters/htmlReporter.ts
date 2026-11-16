@@ -1,6 +1,7 @@
 import { join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { openInBrowser, read, writeRaw } from '@internals/utils'
+import { host } from '../host.ts'
 import { createReporter, type GenerationResult } from '../createReporter.ts'
 import { buildReport, reportTarget } from './report.ts'
 
@@ -29,7 +30,7 @@ export const htmlReporter = createReporter({
       writeRaw(join(dir, name, 'data.js'), serializeReport(result)),
     ])
     const reportPath = join(dir, name, 'index.html')
-    console.error(`HTML report written to ${relative(process.cwd(), reportPath)}`)
+    console.error(`HTML report written to ${relative(host.cwd(), reportPath)}`)
     openInBrowser(reportPath)
   },
 })

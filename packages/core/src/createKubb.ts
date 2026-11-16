@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, isPathInside } from '@internals/utils'
 import type { FileNode, InputNode } from '@kubb/ast'
+import { host } from './host.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -14,7 +15,7 @@ import { runOutputPasses, type RunOutputPassesOptions } from './output/runOutput
 function resolveConfig(userConfig: UserConfig): Config {
   return {
     ...userConfig,
-    root: userConfig.root || process.cwd(),
+    root: userConfig.root || host.cwd(),
     parsers: userConfig.parsers ?? [],
     output: {
       format: false,

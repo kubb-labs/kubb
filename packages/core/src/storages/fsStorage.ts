@@ -1,6 +1,7 @@
 import { readdir, rename } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
 import { listFiles, readIfExists, rm, write } from '@internals/utils'
+import { host } from '../host.ts'
 import { createStorage } from '../createStorage.ts'
 
 /**
@@ -43,7 +44,7 @@ export const fsStorage = createStorage(() => ({
   },
   async readKeys(base?: string) {
     // An empty list when the base directory does not exist yet.
-    return Array.fromAsync(listFiles(resolve(base ?? process.cwd()))).catch(() => [])
+    return Array.fromAsync(listFiles(resolve(base ?? host.cwd()))).catch(() => [])
   },
   async empty(base?: string) {
     if (!base) {
