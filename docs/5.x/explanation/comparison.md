@@ -15,7 +15,7 @@ navigation:
 
 Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. We checked each cell against each project's docs in October 2026, and the OpenAPI 3.2 row by generating from a 3.2 spec in November 2026.
 
-The biggest shift: in December 2025, the openapi-typescript maintainers put `openapi-fetch`, `openapi-react-query`, and `openapi-metadata` into [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559), with no future updates. openapi-typescript itself is still maintained, but it now generates types with no maintained client or query hooks to go with them.
+The biggest shift: in December 2025, the openapi-typescript maintainers put `openapi-fetch`, `openapi-react-query`, and `openapi-metadata` into [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559), with no future updates. openapi-typescript itself is still maintained, but it now generates types with no maintained client or query hooks to go with them. To switch, see [Move from openapi-typescript](/docs/5.x/how-to/migrate-from-openapi-typescript).
 
 | Where Kubb differs | Read |
 | --- | --- |
