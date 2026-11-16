@@ -182,7 +182,7 @@
     "unplugin-kubb": "workspace:*"
   },
   "devDependencies": {
-    "@farmfe/core": "^1.7.11",
+    "@farmfe/core": "^2.0.0",
     "@internals/utils": "workspace:*",
     "@nuxt/kit": "^4.6.4",
     "@nuxt/schema": "^4.6.4",

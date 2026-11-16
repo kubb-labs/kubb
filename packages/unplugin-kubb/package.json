@@ -121,7 +121,7 @@
     "yuku-parser": "^0.19.0"
   },
   "devDependencies": {
-    "@farmfe/core": "^1.7.11",
+    "@farmfe/core": "^2.0.0",
     "@internals/shared": "workspace:*",
     "@kubb/ast": "workspace:*",
     "@nuxt/kit": "^4.6.4",
@@ -134,7 +134,7 @@
     "webpack": "^5.112.2"
   },
   "peerDependencies": {
-    "@farmfe/core": "^1.7.0",
+    "@farmfe/core": "^1.7.0 || ^2.0.0",
     "@nuxt/kit": "^3.14.0 || ^4",
     "@nuxt/schema": "^3.14.0 || ^4",
     "esbuild": "*",

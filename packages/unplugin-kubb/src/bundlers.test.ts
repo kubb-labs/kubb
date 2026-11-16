@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { createCompiler, Logger, resolveConfig } from '@farmfe/core'
+import { createCompiler, resolveConfig } from '@farmfe/core'
 import { ast } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { defineExtension, memoryStorage, type Storage, type UserConfig } from '@kubb/core'
@@ -106,19 +106,16 @@ const bundlers: Array<Bundler> = [
     // Farm's `build` exits the process on failure, so drive its compiler directly.
     name: 'farm',
     async build({ options, root, entry }) {
-      const logger = new Logger()
       const config = await resolveConfig(
         {
           root,
           compilation: { input: { index: entry }, output: { path: 'dist/farm', targetEnv: 'node' }, persistentCache: false },
           plugins: [farmPlugin(options)],
         },
+        'build',
         'production',
-        logger,
-        false,
       )
-      const compiler = await createCompiler(config, logger)
-      await compiler.compile()
+      await createCompiler(config).compile()
     },
   },
 ]
