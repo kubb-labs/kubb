@@ -16,7 +16,7 @@ Add Kubb to an existing project. To learn with a sample spec first, follow [Gene
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) 22.22 or later.
-- TypeScript 5 or later to type-check the generated code.
+- TypeScript 5 or later to type-check the generated code. Kubb works with TypeScript 7, the native compiler.
 
 ## Set up with the wizard
 
