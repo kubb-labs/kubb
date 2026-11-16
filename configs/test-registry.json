@@ -27,7 +27,6 @@
   "packages/adapter-oas/src/model/security.test.ts": "Only direct test of auth scheme mapping: unplaceable schemes dropped, oauth2 flows, 3.2 scheme URI keys.",
   "packages/adapter-oas/src/model/server.test.ts": "Pins server index, variable overrides and enum error; adapter.test.ts only checks defaults.",
   "packages/adapter-oas/src/oas.test.ts": "Only coverage of $ref media entries and +json media types without a schema in getBinaryFallbackSchema.",
-  "packages/adapter-oas/src/plainData.test.ts": "Pins that the AST of every adapter fixture is plain JSON data and matches its golden file, so a core port to another language has a target (KUB-287).",
   "packages/adapter-oas/src/parser.test.ts": "Branchy parser with regression #3364; covers formats, allOf, unions, enums, streams, 3.2.",
   "packages/adapter-oas/src/promoteEnums.test.ts": "Pins top-level enum skip and name dedupe for enums root; adapter.test.ts reaches neither.",
   "packages/adapter-oas/src/refs.test.ts": "Branchy resolver: empty, external, missing refs, pointer unescape, refNotFound diagnostic, deref identity.",
