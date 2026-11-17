@@ -187,6 +187,25 @@ type Macro = {
 }
 ```
 
+## `ast.json` {#ast-json}
+
+Use `ast.json` to cache a parsed spec or to send one to another thread or process. A plain `JSON.stringify(root)` writes the whole target schema again at every ref. `ast.json.stringify` writes each target once.
+
+| Helper | Returns |
+| --- | --- |
+| `ast.json.stringify` | JSON text for an `InputNode`, with every ref target written once |
+| `ast.json.parse` | The `InputNode` from that text. Refs to one schema share one object again. |
+
+```typescript [json.ts]
+import { ast } from 'kubb/kit'
+
+const text = ast.json.stringify(root)
+
+ast.json.parse(text) // InputNode, equal to root
+```
+
+A `FileNode` holds no refs, so plain `JSON.stringify(file)` and `JSON.parse` are enough for files.
+
 ## `ast.ref` {#ast-ref}
 
 | Helper | Returns |

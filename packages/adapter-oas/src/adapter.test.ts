@@ -43,6 +43,16 @@ describe('adapterOas.parse', () => {
     expect(adapter.sources).toStrictEqual([withRef.path, path.join(mocks, 'external/pet.yaml')])
   })
 
+  it('returns a tree that ast.json writes smaller than plain JSON and reads back unchanged', async () => {
+    const input = await adapterOas({ validate: false }).parse({ type: 'path', path: path.resolve(import.meta.dirname, '../mocks/petStore.yaml') })
+
+    const text = ast.json.stringify(input)
+
+    expect(text.length).toBeLessThan(JSON.stringify(input).length)
+    // `toEqual`, since JSON drops the keys a factory leaves `undefined`.
+    expect(ast.json.parse(text)).toEqual(input)
+  })
+
   it('emits nested OpenAPI 3.1 definitions and resolves their references', async () => {
     const node = await adapterOas({ validate: false }).parse({
       type: 'data',
