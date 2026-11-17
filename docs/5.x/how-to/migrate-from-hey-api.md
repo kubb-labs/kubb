@@ -153,7 +153,7 @@ bun add -d @kubb/plugin-fetch
 
 :::
 
-`kubb add` adds `pluginFetch()` to `plugins`. With a package manager, add the import and the plugin yourself. Then set its options:
+`kubb add` adds `pluginFetch()` to `plugins`. With a package manager, add the import and the plugin yourself. Then set its options, with your API's URL as `baseURL`. The Petstore URL is an example:
 
 ```typescript [kubb.config.ts]
 import { pluginFetch } from '@kubb/plugin-fetch'
@@ -211,7 +211,7 @@ client.setConfig({ auth: (scheme) => (scheme.type === 'apiKey' ? apiKey : token)
 
 ## Replace TanStack Query
 
-Add [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query). With a package manager, also add `pluginReactQuery()` after `pluginFetch` in `plugins`:
+Add [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query). With a package manager, also import `pluginReactQuery` from `@kubb/plugin-react-query` and add `pluginReactQuery()` after `pluginFetch` in `plugins`:
 
 :::code-group{sync="package-manager"}
 
@@ -264,7 +264,7 @@ mutate({ body: { name: 'Rex', photoUrls: [] } })
 
 ## Replace the Zod schemas
 
-Add [`@kubb/plugin-zod`](/extensions/kubb-labs/plugin-zod). With a package manager, also add `pluginZod()` to `plugins`:
+Add [`@kubb/plugin-zod`](/extensions/kubb-labs/plugin-zod). With a package manager, also import `pluginZod` from `@kubb/plugin-zod` and add `pluginZod()` to `plugins`. The schemas need Zod 4, so upgrade `zod` first if the app is on Zod 3:
 
 :::code-group{sync="package-manager"}
 

@@ -24,7 +24,7 @@ The examples move an orval config with `client: 'react-query'`, `httpClient: 'fe
 | `httpClient: 'fetch'` | [`pluginFetch`](/extensions/kubb-labs/plugin-fetch) |
 | `httpClient: 'axios'` | [`pluginAxios`](/extensions/kubb-labs/plugin-axios) |
 | `output.baseUrl` | [`baseURL`](/extensions/kubb-labs/plugin-fetch/options#baseurl) on `pluginFetch` |
-| `mode: 'tags-split'` | [`group: { type: 'tag' }`](/docs/5.x/reference/plugin-options#group) on each plugin |
+| `mode: 'tags-split'` | [`group: { type: 'tag' }`](/docs/5.x/reference/plugin-options#group) on each plugin. It needs directory output, so remove `path: 'types.ts'` from `pluginTs` first |
 | A custom `mutator` | `client.setConfig()` and `client.interceptors` |
 | `getPetById(1)` | `getPetById({ path: { petId: 1 } })` |
 | `client: 'react-query'`, `useGetPetById(1)` | [`pluginReactQuery({ hooks: true })`](/extensions/kubb-labs/plugin-react-query/options#hooks), `useGetPetById({ path: { petId: 1 } })` |
@@ -152,7 +152,7 @@ bun add -d @kubb/plugin-fetch
 
 :::
 
-`kubb add` adds `pluginFetch()` to `plugins`. With a package manager, add the import and the plugin yourself. Then set its options:
+`kubb add` adds `pluginFetch()` to `plugins`. With a package manager, add the import and the plugin yourself. Then set its options, with your API's URL as `baseURL`. The Petstore URL is an example:
 
 ```typescript [kubb.config.ts]
 import { pluginFetch } from '@kubb/plugin-fetch'
@@ -200,7 +200,7 @@ client.setConfig({ auth: (scheme) => (scheme.type === 'apiKey' ? apiKey : token)
 
 ## Replace the query hooks
 
-Add [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query). With a package manager, also add `pluginReactQuery()` after `pluginFetch` in `plugins`:
+Add [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query). With a package manager, also import `pluginReactQuery` from `@kubb/plugin-react-query` and add `pluginReactQuery()` after `pluginFetch` in `plugins`:
 
 :::code-group{sync="package-manager"}
 
@@ -232,7 +232,10 @@ Set `hooks: true` to get `useGetPetById` and `useAddPet`, as orval writes them. 
 pluginReactQuery({ hooks: true }),
 ```
 
-Run `kubb generate`, then replace each hook. With orval's fetch client, a hook's `data` holds `{ data, status, headers }`. With Kubb it holds the response body:
+Run `kubb generate`, then replace each hook. Two things differ from hooks on orval's fetch client:
+
+- A hook's `data` holds the response body, not `{ data, status, headers }`.
+- An error status goes to the hook's `error` and to `onError`, whatever `throwOnErrorDefault` says. With orval it resolves as `data`, so move any `status` check on `data` there.
 
 :::code-group
 
@@ -260,7 +263,7 @@ mutate({ body: { name: 'Rex', photoUrls: [] } })
 
 ## Replace the Zod schemas
 
-Add [`@kubb/plugin-zod`](/extensions/kubb-labs/plugin-zod). With a package manager, also add `pluginZod()` to `plugins`:
+Add [`@kubb/plugin-zod`](/extensions/kubb-labs/plugin-zod). With a package manager, also import `pluginZod` from `@kubb/plugin-zod` and add `pluginZod()` to `plugins`. The schemas need Zod 4, so upgrade `zod` first if the app is on Zod 3:
 
 :::code-group{sync="package-manager"}
 
@@ -309,7 +312,7 @@ const path = getPetByIdPathSchema.parse(params)
 
 ## Replace the mocks
 
-Add [`@kubb/plugin-faker`](/extensions/kubb-labs/plugin-faker) and [`@kubb/plugin-msw`](/extensions/kubb-labs/plugin-msw):
+Add [`@kubb/plugin-faker`](/extensions/kubb-labs/plugin-faker) and [`@kubb/plugin-msw`](/extensions/kubb-labs/plugin-msw). The generated code needs MSW 3 and `@faker-js/faker` 10, so upgrade them first if the app is on older versions:
 
 :::code-group{sync="package-manager"}
 
