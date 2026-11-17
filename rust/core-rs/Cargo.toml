@@ -1,0 +1,29 @@
+[package]
+name = "core-rs"
+version = "0.1.0"
+edition = "2024"
+publish = false
+description = "Proof of concept: Kubb's load and output stages in Rust, driven by TypeScript plugins"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+mimalloc = "0.1"
+napi = "3"
+napi-derive = "3"
+rayon = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
+serde-transcode = "1"
+serde_yaml_ng = "0.10"
+text-rs = { path = "../text-rs" }
+
+[build-dependencies]
+napi-build = "2"
+
+[profile.release]
+lto = true
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

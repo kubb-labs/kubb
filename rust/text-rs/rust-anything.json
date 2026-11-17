@@ -1,0 +1,66 @@
+{
+  "schema": "rust-anything/bridge@1",
+  "root": "../..",
+  "unit": "internals/utils/src/text.ts",
+  "language": "ts",
+  "kind": "napi",
+  "crate_name": "text-rs",
+  "exports": [
+    {
+      "name": "indent",
+      "file": "internals/utils/src/text.ts",
+      "line": 6,
+      "params": [
+        {
+          "name": "arg0",
+          "ts_type": "{ text: string; unit?: string }",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "string",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "dedent",
+      "file": "internals/utils/src/text.ts",
+      "line": 17,
+      "params": [
+        {
+          "name": "text",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "string",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    },
+    {
+      "name": "unquote",
+      "file": "internals/utils/src/text.ts",
+      "line": 44,
+      "params": [
+        {
+          "name": "text",
+          "ts_type": "string",
+          "optional": false,
+          "rest": false
+        }
+      ],
+      "returns": "string",
+      "is_async": false,
+      "is_generator": false,
+      "type_params": [],
+      "uses_instanceof": false
+    }
+  ],
+  "classes": [],
+  "js_only": []
+}
