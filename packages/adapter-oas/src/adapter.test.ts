@@ -49,7 +49,6 @@ describe('adapterOas.parse', () => {
     const text = ast.json.stringify(input)
 
     expect(text.length).toBeLessThan(JSON.stringify(input).length)
-    // `toEqual`, since JSON drops the keys a factory leaves `undefined`.
     expect(ast.json.parse(text)).toEqual(input)
   })
 

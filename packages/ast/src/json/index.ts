@@ -16,16 +16,11 @@ function isRef(value: unknown): value is { schema: unknown } {
 }
 
 /**
- * Turns an `InputNode` into JSON text that `parse` reads back.
- *
- * Every schema a ref points at is written once and the ref carries its position in that list, where a plain
- * `JSON.stringify(input)` writes the whole target again at every ref. Use it to cache a parsed spec or to
- * hand one to another thread or process.
+ * Turns an `InputNode` into JSON text that `parse` reads back. Every schema a ref points at is written once,
+ * where a plain `JSON.stringify(input)` writes it again at every ref.
  *
  * @example
  * ```ts
- * const input = await adapter.parse(source)
- *
  * await writeFile('input.json', ast.json.stringify(input))
  * ```
  */
@@ -51,16 +46,8 @@ export function stringify(input: InputNode): string {
 }
 
 /**
- * Reads the text `stringify` wrote back into an `InputNode`.
- *
- * Refs that pointed at the same schema point at one shared object again, so `ast.ref.getSchema` and
- * `ast.ref.mergeSchema` behave as they do on the adapter's own output. Throws when the text comes from a
- * different format version or a ref points at a target the text does not hold.
- *
- * @example
- * ```ts
- * const input = ast.json.parse(await readFile('input.json', 'utf8'))
- * ```
+ * Reads the text `stringify` wrote back into an `InputNode`. Refs to one schema share one object again.
+ * Throws on another format version, or on a ref whose target is missing.
  */
 export function parse(text: string): InputNode {
   const refs: Array<{ schema: unknown }> = []

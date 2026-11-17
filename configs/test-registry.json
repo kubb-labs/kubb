@@ -37,6 +37,7 @@
   "packages/ast/src/defineMacro.test.ts": "Macro ordering (pre and post), match skipping and deep rewrites are branchy and public.",
   "packages/ast/src/graph/graph.test.ts": "containsCircular: nested refs to circular schemas and the excludeName self-reference skip that lazy wrappers depend on.",
   "packages/ast/src/http/http.test.ts": "Status ranges such as 2xx and default, the primary success response pick (body first, exact code over range) and the base URL rule are shared by every HTTP plugin.",
+  "packages/ast/src/json/json.test.ts": "Only check of the ast.json format: a ref target written once, refs to it sharing one object after parse, a self-referencing target, and the version and missing-target errors.",
   "packages/ast/src/mediaType/mediaType.test.ts": "One list of JSON, stream and form media types for the adapter and plugins, including the +json and +json-seq suffix branches.",
   "packages/ast/src/nodes/file.test.ts": "Regression: self-import and consolidated-output import dropping in createFile, with the comment explaining the bug.",
   "packages/ast/src/nodes/property.test.ts": "Only test of the required-omitted default in createProperty (required false, optional true); parser.test.ts always passes required.",
