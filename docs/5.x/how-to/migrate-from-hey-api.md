@@ -85,7 +85,7 @@ bun add -d kubb @kubb/adapter-oas @kubb/plugin-ts
 
 :::
 
-Add `kubb generate` to your `generate` script and run it. Keep `openapi-ts` until the last step, because the rest of the app still imports its output:
+Change your `generate` script to `kubb generate` and run it. Leave `src/client` in place until the last step, because the rest of the app still imports it:
 
 :::code-group
 
@@ -97,10 +97,10 @@ Add `kubb generate` to your `generate` script and run it. Keep `openapi-ts` unti
 }
 ```
 
-```json [During the move]
+```json [After]
 {
   "scripts": {
-    "generate": "openapi-ts && kubb generate"
+    "generate": "kubb generate"
   }
 }
 ```
@@ -319,26 +319,6 @@ pluginFetch({ validator: { request: 'zod', params: 'zod', response: 'zod' } }),
 
 ## Remove HeyAPI
 
-Once nothing imports from `src/client`, delete `src/client` and `openapi-ts.config.ts`, and uninstall `@hey-api/openapi-ts`. Keep only `kubb generate` in your `generate` script:
-
-:::code-group
-
-```json [During the move]
-{
-  "scripts": {
-    "generate": "openapi-ts && kubb generate"
-  }
-}
-```
-
-```json [After]
-{
-  "scripts": {
-    "generate": "kubb generate"
-  }
-}
-```
-
-:::
+Once nothing imports from `src/client`, delete `src/client` and `openapi-ts.config.ts`, and uninstall `@hey-api/openapi-ts`.
 
 ::

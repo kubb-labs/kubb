@@ -80,7 +80,7 @@ bun add -d kubb @kubb/adapter-oas @kubb/plugin-ts
 
 :::
 
-Add `kubb generate` to your `generate` script and run it. Keep `orval` until the last step, because the rest of the app still imports its output:
+Change your `generate` script to `kubb generate` and run it. Leave `src/api` in place until the last step, because the rest of the app still imports it:
 
 :::code-group
 
@@ -92,10 +92,10 @@ Add `kubb generate` to your `generate` script and run it. Keep `orval` until the
 }
 ```
 
-```json [During the move]
+```json [After]
 {
   "scripts": {
-    "generate": "orval && kubb generate"
+    "generate": "kubb generate"
   }
 }
 ```
@@ -384,26 +384,6 @@ const pet = createPet({ name: 'Rex' })
 
 ## Remove orval
 
-Once nothing imports from `src/api`, delete `src/api` and `orval.config.ts`, and uninstall `orval`. Keep only `kubb generate` in your `generate` script:
-
-:::code-group
-
-```json [During the move]
-{
-  "scripts": {
-    "generate": "orval && kubb generate"
-  }
-}
-```
-
-```json [After]
-{
-  "scripts": {
-    "generate": "kubb generate"
-  }
-}
-```
-
-:::
+Once nothing imports from `src/api`, delete `src/api` and `orval.config.ts`, and uninstall `orval`.
 
 ::
