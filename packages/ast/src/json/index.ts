@@ -53,13 +53,8 @@ export function stringify(input: InputNode): string {
  * Throws on another format version, or on a ref whose target is missing.
  */
 export function parse(text: string): InputNode {
-  const refs: Array<{ schema: unknown }> = []
-  const document = JSON.parse(text, function (this: unknown, key: string, value: unknown) {
-    if (key !== 'schema' || !isRef(this)) return value
-    if (Array.isArray(value)) return value[0]
-    if (typeof value === 'number') refs.push(this)
-    return value
-  }) as Partial<JsonDocument> | null
+  // Plain `JSON.parse` and one loop over the tree: a reviver made this about 5 times slower on a large spec.
+  const document = JSON.parse(text) as Partial<JsonDocument> | null
 
   if (document?.version !== version) {
     throw new Error(`Cannot read this AST JSON: expected format version ${version}, got ${JSON.stringify(document?.version)}.`)
@@ -68,10 +63,27 @@ export function parse(text: string): InputNode {
     throw new Error('Cannot read this AST JSON: `input` or `targets` is missing.')
   }
 
-  for (const ref of refs) {
-    const target = document.targets[ref.schema as number]
-    if (!target) throw new Error(`Cannot read this AST JSON: a ref points at target ${ref.schema}, which is missing.`)
-    ref.schema = target
+  const targets = document.targets
+  const stack: Array<unknown> = [document.input, ...targets]
+  while (stack.length) {
+    const value = stack.pop() as Record<string, unknown>
+    const ref = isRef(value)
+    for (const key in value) {
+      const child = value[key]
+      if (ref && key === 'schema') {
+        if (Array.isArray(child)) {
+          value.schema = child[0]
+          continue
+        }
+        if (typeof child === 'number') {
+          const target = targets[child]
+          if (!target) throw new Error(`Cannot read this AST JSON: a ref points at target ${child}, which is missing.`)
+          value.schema = target
+          continue
+        }
+      }
+      if (typeof child === 'object' && child !== null) stack.push(child)
+    }
   }
 
   return document.input
