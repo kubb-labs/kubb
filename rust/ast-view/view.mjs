@@ -225,3 +225,45 @@ export function decode({ words, numbers, stringTable, bytes, shapes, root }) {
   const make = shapes.map((keys) => new Function('v', 'o', `return {${keys.map((k, i) => `${JSON.stringify(k)}: v(o + ${i * 2})`).join(', ')}}`))
   return object(root)
 }
+
+/**
+ * Rebuilds a plain AST without a buffer, to tell apart what makes the eager decode faster:
+ * `objects` rebuilds every object through one literal constructor per key list, `strings` gives equal
+ * strings one shared instance. Shared subtrees stay shared.
+ */
+export function reshape(root, { objects, strings }) {
+  const done = new Map()
+  const canonical = new Map()
+  const makers = new Map()
+  const maker = (keys) => {
+    const id = keys.join('\0')
+    let make = makers.get(id)
+    if (!make) makers.set(id, (make = new Function('s', `return {${keys.map((k) => `${JSON.stringify(k)}: s[${JSON.stringify(k)}]`).join(', ')}}`)))
+    return make
+  }
+  const walk = (value) => {
+    if (typeof value === 'string') {
+      if (!strings) return value
+      const seen = canonical.get(value)
+      if (seen !== undefined) return seen
+      canonical.set(value, value)
+      return value
+    }
+    if (!value || typeof value !== 'object') return value
+    let out = done.get(value)
+    if (out) return out
+    if (Array.isArray(value)) {
+      out = new Array(value.length)
+      done.set(value, out)
+      for (let i = 0; i < value.length; i++) out[i] = walk(value[i])
+      return out
+    }
+    const keys = Object.keys(value)
+    const walked = {}
+    for (const key of keys) walked[key] = walk(value[key])
+    out = objects ? maker(keys)(walked) : Object.assign(value, walked)
+    done.set(value, out)
+    return out
+  }
+  return walk(root)
+}

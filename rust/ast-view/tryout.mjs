@@ -1,7 +1,7 @@
 // Runs the real plugins on a lazy buffer-backed AST and compares against plain objects.
 //
-//   node tryout.mjs parity [view|eager]   every spec: output must equal the plain build, byte for byte
-//   node tryout.mjs bench <spec> <mode>    mode: plain | view | eager; prints one JSON row (cold run + median of 7 warm runs)
+//   node tryout.mjs parity [mode]         every spec: output must equal the plain build, byte for byte
+//   node tryout.mjs bench <spec> <mode>    mode: plain | view | eager | objects | strings; prints one JSON row (cold run + median of 7 warm runs)
 //   node tryout.mjs report                 every spec and mode in a fresh process, writes results.json
 import { execFileSync } from 'node:child_process'
 import fs from 'node:fs'
@@ -9,7 +9,7 @@ import { createRequire } from 'node:module'
 import os from 'node:os'
 import path from 'node:path'
 import { performance } from 'node:perf_hooks'
-import { byteSize, decode, encode, view } from './view.mjs'
+import { byteSize, decode, encode, reshape, view } from './view.mjs'
 
 const pluginsRepo = path.resolve(process.env.KUBB_PLUGINS_REPO ?? path.join(import.meta.dirname, '../../../plugins'))
 const require = createRequire(path.join(pluginsRepo, 'tests/performance/package.json'))
@@ -32,6 +32,12 @@ function viewAdapter(t, mode) {
     const started = performance.now()
     const node = await parse(...args)
     t.parse = performance.now() - started
+    if (mode === 'objects' || mode === 'strings') {
+      const reshapeStart = performance.now()
+      const root = reshape(node, { objects: mode === 'objects', strings: mode === 'strings' })
+      t.view = performance.now() - reshapeStart
+      return root
+    }
     const encodeStart = performance.now()
     const encoded = encode(node)
     t.encode = performance.now() - encodeStart
@@ -116,7 +122,7 @@ async function bench(spec, mode) {
 function report() {
   const results = []
   for (const spec of SPECS) {
-    for (const mode of ['plain', 'view', 'eager']) {
+    for (const mode of ['plain', 'view', 'eager', 'objects', 'strings']) {
       const row = JSON.parse(execFileSync(process.execPath, [import.meta.filename, 'bench', spec, mode], { encoding: 'utf8' }).trim().split('\n').at(-1))
       results.push(row)
       console.log(JSON.stringify(row))
@@ -129,4 +135,4 @@ const [command, ...args] = process.argv.slice(2)
 if (command === 'parity') await parity()
 else if (command === 'bench') await bench(args[0], args[1])
 else if (command === 'report') report()
-else console.log('usage: node tryout.mjs parity | bench <spec> <plain|view|eager> | report')
+else console.log('usage: node tryout.mjs parity | bench <spec> <plain|view|eager|objects|strings> | report')
