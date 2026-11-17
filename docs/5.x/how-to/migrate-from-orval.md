@@ -24,7 +24,7 @@ The examples move an orval config with `client: 'react-query'`, `httpClient: 'fe
 | `httpClient: 'fetch'` | [`pluginFetch`](/extensions/kubb-labs/plugin-fetch) |
 | `httpClient: 'axios'` | [`pluginAxios`](/extensions/kubb-labs/plugin-axios) |
 | `output.baseUrl` | [`baseURL`](/extensions/kubb-labs/plugin-fetch/options#baseurl) on `pluginFetch` |
-| `mode: 'tags-split'` | [`group: { type: 'tag' }`](/docs/5.x/reference/plugin-options#group) on each plugin. It needs directory output, so remove `path: 'types.ts'` from `pluginTs` first |
+| `mode: 'tags-split'` | [`group: { type: 'tag' }`](/docs/5.x/reference/plugin-options#group) on each plugin. It needs directory output, so remove the `output` option from `pluginTs` first |
 | A custom `mutator` | `client.setConfig()` and `client.interceptors` |
 | `getPetById(1)` | `getPetById({ path: { petId: 1 } })` |
 | `client: 'react-query'`, `useGetPetById(1)` | [`pluginReactQuery({ hooks: true })`](/extensions/kubb-labs/plugin-react-query/options#hooks), `useGetPetById({ path: { petId: 1 } })` |
