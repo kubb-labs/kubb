@@ -25,6 +25,8 @@ The biggest shift: openapi-typescript is no longer maintained. In December 2025,
 | The runtime follows the spec's parameter styles, encodes bodies per media type, and reads server-sent events. | [Client runtime](#client-runtime) |
 | File review, pull request snapshots, and API skills for AI tools. | [Kubb Studio](#kubb-studio) |
 
+To switch, see [Move from orval](/docs/5.x/how-to/migrate-from-orval) and [Move from HeyAPI](/docs/5.x/how-to/migrate-from-hey-api).
+
 ## Speed, CPU time, and memory
 
 Each tool generates types, Zod schemas, and a fetch client. Switch between one file per generator or many, and between speed, CPU time, and memory.
