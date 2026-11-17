@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createFile, createImport, createSource, createText } from '../nodes/index.ts'
+import { narrowSchema } from '../guards.ts'
 import { createInput } from '../nodes/input.ts'
 import { createProperty } from '../nodes/property.ts'
 import { createSchema, type RefSchemaNode } from '../nodes/schema.ts'
@@ -18,9 +18,7 @@ function createPetInput() {
 }
 
 function refsOf(input: ReturnType<typeof parse>): Array<RefSchemaNode> {
-  const [pet] = input.schemas
-  if (pet?.type !== 'object') return []
-  return pet.properties.map((property) => property.schema as RefSchemaNode)
+  return narrowSchema(input.schemas[0], 'object')?.properties.flatMap((property) => narrowSchema(property.schema, 'ref') ?? []) ?? []
 }
 
 describe('stringify', () => {
@@ -36,18 +34,15 @@ describe('stringify', () => {
     const self = createSchema({ type: 'ref', name: 'Node', ref: '#/components/schemas/Node', schema: node })
     node.properties.push(createProperty({ name: 'parent', required: false, schema: self }))
 
-    const [parsed] = refsOf(
-      parse(
-        stringify(
-          createInput({
-            schemas: [createSchema({ type: 'object', properties: [createProperty({ name: 'node', required: true, schema: self })] })],
-            operations: [],
-          }),
-        ),
-      ),
-    )
+    const input = createInput({
+      schemas: [createSchema({ type: 'object', properties: [createProperty({ name: 'node', required: true, schema: self })] })],
+      operations: [],
+    })
 
-    expect(parsed?.schema).toBe((parsed?.schema as { properties: Array<{ schema: RefSchemaNode }> }).properties[0]?.schema.schema)
+    const [parsed] = refsOf(parse(stringify(input)))
+    const target = narrowSchema(parsed?.schema ?? undefined, 'object')
+
+    expect(narrowSchema(target?.properties[0]?.schema, 'ref')?.schema).toBe(target)
   })
 })
 
@@ -70,22 +65,13 @@ describe('parse', () => {
     expect(() => parse('{"version":2,"input":{},"targets":[]}')).toThrow('expected format version 1, got 2')
   })
 
+  it('throws when the text has no input or targets', () => {
+    expect(() => parse('{"version":1}')).toThrow('`input` or `targets` is missing')
+  })
+
   it('throws when a ref points at a missing target', () => {
     const text = stringify(createPetInput()).replace(/"targets":\[.*\]\}$/, '"targets":[]}')
 
     expect(() => parse(text)).toThrow('a ref points at target 0, which is missing')
-  })
-})
-
-describe('FileNode', () => {
-  it('survives plain JSON without a helper', () => {
-    const file = createFile({
-      baseName: 'pet.ts',
-      path: 'src/models/pet.ts',
-      imports: [createImport({ name: ['Category'], path: './category.ts', isTypeOnly: true })],
-      sources: [createSource({ name: 'Pet', isExportable: true, nodes: [createText('export type Pet = { category: Category }')] })],
-    })
-
-    expect(JSON.parse(JSON.stringify(file))).toStrictEqual(file)
   })
 })

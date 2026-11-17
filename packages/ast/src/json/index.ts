@@ -56,8 +56,11 @@ export function parse(text: string): InputNode {
     return value
   }) as Partial<JsonDocument> | null
 
-  if (document?.version !== version || !document.input || !Array.isArray(document.targets)) {
+  if (document?.version !== version) {
     throw new Error(`Cannot read this AST JSON: expected format version ${version}, got ${JSON.stringify(document?.version)}.`)
+  }
+  if (!document.input || !Array.isArray(document.targets)) {
+    throw new Error('Cannot read this AST JSON: `input` or `targets` is missing.')
   }
 
   for (const ref of refs) {
