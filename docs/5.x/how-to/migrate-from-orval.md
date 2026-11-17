@@ -58,8 +58,8 @@ Install the packages it imports. `kubb add` needs the config to exist, and leave
 
 ```shell [kubb]
 npm install -D kubb
-npx kubb add adapter-oas
-npx kubb add plugin-ts
+kubb add adapter-oas
+kubb add plugin-ts
 ```
 
 ```shell [pnpm]
@@ -131,7 +131,7 @@ Add `@kubb/plugin-fetch`. It writes one function per operation, and the app need
 :::code-group{sync="package-manager"}
 
 ```shell [kubb]
-npx kubb add plugin-fetch
+kubb add plugin-fetch
 ```
 
 ```shell [pnpm]
@@ -205,7 +205,7 @@ Add [`@kubb/plugin-react-query`](/extensions/kubb-labs/plugin-react-query). With
 :::code-group{sync="package-manager"}
 
 ```shell [kubb]
-npx kubb add plugin-react-query
+kubb add plugin-react-query
 ```
 
 ```shell [pnpm]
@@ -268,7 +268,7 @@ Add [`@kubb/plugin-zod`](/extensions/kubb-labs/plugin-zod). With a package manag
 :::code-group{sync="package-manager"}
 
 ```shell [kubb]
-npx kubb add plugin-zod
+kubb add plugin-zod
 ```
 
 ```shell [pnpm]
@@ -317,8 +317,8 @@ Add [`@kubb/plugin-faker`](/extensions/kubb-labs/plugin-faker) and [`@kubb/plugi
 :::code-group{sync="package-manager"}
 
 ```shell [kubb]
-npx kubb add plugin-faker
-npx kubb add plugin-msw
+kubb add plugin-faker
+kubb add plugin-msw
 ```
 
 ```shell [pnpm]
