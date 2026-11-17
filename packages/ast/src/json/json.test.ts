@@ -54,6 +54,16 @@ describe('parse', () => {
     expect(parse(stringify(input))).toEqual(input)
   })
 
+  it('keeps spec data that looks like a ref node', () => {
+    const examples = [
+      { kind: 'Schema', type: 'ref', schema: 0 },
+      { kind: 'Schema', type: 'ref', schema: { id: 1 } },
+    ]
+    const input = createInput({ schemas: [createSchema({ type: 'object', name: 'Pet', examples })], operations: [] })
+
+    expect(parse(stringify(input)).schemas[0]?.examples).toStrictEqual(examples)
+  })
+
   it('points refs to the same schema at one shared object', () => {
     const [first, second] = refsOf(parse(stringify(createPetInput())))
 

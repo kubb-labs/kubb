@@ -29,7 +29,10 @@ export function stringify(input: InputNode): string {
   const targets: Array<unknown> = []
 
   function replacer(this: unknown, key: string, value: unknown): unknown {
-    if (key !== 'schema' || typeof value !== 'object' || value === null || !isRef(this)) return value
+    if (key !== 'schema' || !isRef(this)) return value
+    // Spec data such as a `default` can look like a ref node. Its number is wrapped, so `parse` does not read it as a target.
+    if (typeof value === 'number') return [value]
+    if (typeof value !== 'object' || value === null) return value
     if (!ids.has(value)) {
       ids.set(value, targets.length)
       targets.push(value)
@@ -52,7 +55,9 @@ export function stringify(input: InputNode): string {
 export function parse(text: string): InputNode {
   const refs: Array<{ schema: unknown }> = []
   const document = JSON.parse(text, function (this: unknown, key: string, value: unknown) {
-    if (key === 'schema' && typeof value === 'number' && isRef(this)) refs.push(this)
+    if (key !== 'schema' || !isRef(this)) return value
+    if (Array.isArray(value)) return value[0]
+    if (typeof value === 'number') refs.push(this)
     return value
   }) as Partial<JsonDocument> | null
 
