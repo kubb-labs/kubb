@@ -15,17 +15,17 @@ async function addRun({ store, jobId, files }: { store: GenerationStore; jobId: 
 }
 
 describe('createGenerationStore', () => {
-  it('keeps the name of a ref schema but not the copy of its target', async () => {
+  it('keeps the input as ast.json text, with each ref target written once', async () => {
     const pet = ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })
     const ref = ast.factory.createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: pet })
-    const input = ast.factory.createInput({ schemas: [pet, ast.factory.createSchema({ type: 'array', name: 'Pets', items: [ref] })] })
+    const input = ast.factory.createInput({ schemas: [pet, ast.factory.createSchema({ type: 'array', name: 'Pets', items: [ref, ref] })] })
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
 
     await store.keepInput({ jobId: 'job-1', maxSetMb: 1, input })
     const kept = await store.readInput('job-1')
 
-    expect(kept?.schemas[1]).toMatchObject({ type: 'array', items: [{ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' }] })
-    expect(JSON.stringify(kept)).not.toContain('"schema":')
+    expect(JSON.parse(kept!).targets).toHaveLength(1)
+    expect(ast.json.parse(kept!)).toEqual(input)
   })
 
   it('counts a kept input toward the size limit and drops it with its job', async () => {

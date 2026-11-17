@@ -23,6 +23,7 @@ import {
   resolveCacheDir,
   resolveMeta,
 } from '@kubb/core'
+import { ast } from '@kubb/ast'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
@@ -843,7 +844,11 @@ class Agent extends RpcTarget implements AgentApi {
     if (!kept) return this.#refuse({ message: AgentMessage.NO_INPUT })
     await this.#logCommand('readInput', 'read the API input')
 
-    return { input: kept }
+    if (input.format === 'ast.json') return { json: kept }
+    // A ref target repeats at every ref, and a self-referencing one has no end, so the older format leaves it out.
+    return {
+      input: ast.node.transform(ast.json.parse(kept), { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }),
+    }
   }
 
   /**

@@ -849,8 +849,24 @@ describe('readInput', () => {
 
     const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
 
-    await expect(agent.readInput({ jobId: 'job-1' })).resolves.toStrictEqual({ input: JSON.parse(JSON.stringify(input)) })
+    await expect(agent.readInput({ jobId: 'job-1', format: 'ast.json' })).resolves.toStrictEqual({ json: ast.json.stringify(input) })
     await expect(agent.readInput({ jobId: 'job-unknown' })).rejects.toThrow(AgentMessage.GENERATION_GONE)
+  })
+
+  it('leaves ref targets out of the input for a Studio that asks for no format', async () => {
+    const pet = ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })
+    const ref = ast.factory.createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: pet })
+    const withRef = ast.factory.createInput({ schemas: [pet, ast.factory.createSchema({ type: 'array', name: 'Pets', items: [ref] })] })
+    const { agent } = await connectStudio({
+      permissions: { allowReadAst: true },
+      loadConfigs: async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse: async () => withRef }) }],
+    })
+    await run({ agent, jobId: 'job-1' })
+
+    const result = await agent.readInput({ jobId: 'job-1' })
+
+    expect(result).toMatchObject({ input: { schemas: [{ name: 'Pet' }, { items: [{ type: 'ref', name: 'Pet' }] }] } })
+    expect(JSON.stringify(result)).not.toContain('"schema":')
   })
 
   it('keeps no input for a run without allowReadAstAst, so a later grant finds none, not even an earlier run of the job', async () => {

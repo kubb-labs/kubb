@@ -8,6 +8,8 @@ import { type FilePage, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
 const MB = 1024 * 1024
+// Named apart from the `input.json` of agents before `ast.json`, which held another format.
+const INPUT_FILE = 'input.ast.json'
 const INDEX_KEY = 'studio/generations.json'
 
 /**
@@ -248,31 +250,27 @@ export function createGenerationStore({
       return generation
     },
     /**
-     * Keeps the `InputNode` of `jobId` and returns its size in bytes, or 0 when it keeps none. A ref schema loses
-     * the copy of its target, which `input.schemas` holds: with it, a large spec outgrows what `JSON.stringify` can return.
+     * Keeps the `InputNode` of `jobId` as `ast.json` text and returns its size in bytes, or 0 when it keeps none.
      */
     async keepInput({ jobId, input, maxSetMb }: { jobId: string; input: InputNode | null; maxSetMb: number }): Promise<number> {
       if (!input) return 0
       let json: string
       try {
-        json = JSON.stringify(
-          ast.node.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }),
-        )
+        json = ast.json.stringify(input)
       } catch {
         // An adapter can return what JSON cannot hold, which must not fail a finished generation.
         return 0
       }
       const bytes = Buffer.byteLength(json)
       if (bytes > maxSetMb * MB) return 0
-      await storage.writeItem(`${dirOf(jobId)}input.json`, json)
+      await storage.writeItem(`${dirOf(jobId)}${INPUT_FILE}`, json)
       return bytes
     },
     /**
-     * The input `keepInput` kept for `jobId`, or `undefined` when there is none.
+     * The `ast.json` text `keepInput` kept for `jobId`, or `undefined` when there is none.
      */
-    async readInput(jobId: string): Promise<InputNode | undefined> {
-      const stored = await storage.readItem(`${dirOf(jobId)}input.json`)
-      return stored === null ? undefined : (JSON.parse(stored) as InputNode)
+    async readInput(jobId: string): Promise<string | undefined> {
+      return (await storage.readItem(`${dirOf(jobId)}${INPUT_FILE}`)) ?? undefined
     },
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
     add,

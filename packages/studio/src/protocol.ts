@@ -301,12 +301,20 @@ export type ReadDiffResult = { hunks: Array<DiffHunk>; nextCursor: number | null
 /**
  * Asks for the Kubb AST one job parsed its spec into. A job the agent no longer keeps fails with {@link AgentMessage.GENERATION_GONE}.
  */
-export type ReadInputInput = { jobId: string }
+export type ReadInputInput = {
+  jobId: string
+  /**
+   * Set to `'ast.json'` to get the AST as `ast.json` text in `json`, with every ref target. Without it, `input`
+   * holds the AST with ref targets left out, for a Studio from before `ast.json`.
+   */
+  format?: 'ast.json'
+}
 
 /**
- * The job's `InputNode`, as JSON. A ref schema names its target, which `input.schemas` holds, without a copy.
+ * The job's `InputNode`. `json` is the `ast.json` text, which `ast.json.parse` reads. `input` is the AST without
+ * a copy of each ref target, which `input.schemas` holds.
  */
-export type ReadInputResult = { input: InputNode }
+export type ReadInputResult = { json: string } | { input: InputNode }
 
 /**
  * Why the agent refuses a request. Studio matches on these to answer with the right status.
