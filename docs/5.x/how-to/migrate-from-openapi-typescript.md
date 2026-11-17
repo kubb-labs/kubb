@@ -76,7 +76,7 @@ bun add -d kubb @kubb/adapter-oas @kubb/plugin-ts
 
 :::
 
-Add `kubb generate` to your `generate` script and run it. Keep the openapi-typescript command until the last step, because `openapi-fetch` reads `schema.d.ts`:
+Change your `generate` script to `kubb generate` and run it. Leave `schema.d.ts` in place until the last step, because `openapi-fetch` reads it:
 
 :::code-group
 
@@ -88,10 +88,10 @@ Add `kubb generate` to your `generate` script and run it. Keep the openapi-types
 }
 ```
 
-```json [During the move]
+```json [After]
 {
   "scripts": {
-    "generate": "openapi-typescript ./openapi.yaml -o ./src/schema.d.ts && kubb generate"
+    "generate": "kubb generate"
   }
 }
 ```
@@ -258,26 +258,6 @@ mutate({ body: { name: 'Rex', photoUrls: [] } })
 
 ## Remove openapi-typescript
 
-Once nothing imports `schema.d.ts`, `openapi-fetch`, or `openapi-react-query`, delete `schema.d.ts` and uninstall `openapi-typescript`, `openapi-fetch`, and `openapi-react-query`. Keep only `kubb generate` in your `generate` script:
-
-:::code-group
-
-```json [During the move]
-{
-  "scripts": {
-    "generate": "openapi-typescript ./openapi.yaml -o ./src/schema.d.ts && kubb generate"
-  }
-}
-```
-
-```json [After]
-{
-  "scripts": {
-    "generate": "kubb generate"
-  }
-}
-```
-
-:::
+Once nothing imports `schema.d.ts`, `openapi-fetch`, or `openapi-react-query`, delete `schema.d.ts` and uninstall `openapi-typescript`, `openapi-fetch`, and `openapi-react-query`.
 
 ::
