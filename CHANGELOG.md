@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.21.1 — Nov 17, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Generators can read every schema in the spec from `ctx.schemas`. `ctx.driver` is deprecated: use `ctx.schemas`, `ctx.getPlugin`, `ctx.getResolver` and `ctx.memo` instead. It will be removed in the next major version. ([#4655](https://github.com/kubb-labs/kubb/pull/4655), [`6c2f7ea`](https://github.com/kubb-labs/kubb/commit/6c2f7ea97fc9c0f9ba166046c509bc12555027e1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.21.0 — Nov 16, 2026
 
 ### @kubb/adapter-oas
