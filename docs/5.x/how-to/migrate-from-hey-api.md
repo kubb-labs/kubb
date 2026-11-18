@@ -17,7 +17,48 @@ Start with the types, then replace one HeyAPI plugin at a time: the SDK and clie
 
 The examples move a HeyAPI config that writes to `src/client` with the `@hey-api/client-fetch`, `@hey-api/typescript`, `@hey-api/sdk`, `@tanstack/react-query`, and `zod` plugins.
 
+## The config, before and after
+
+The Kubb config is the result of every step below. Each step adds one plugin to it.
+
+::code-group
+
+```typescript [openapi-ts.config.ts]
+import { defineConfig } from '@hey-api/openapi-ts'
+
+export default defineConfig({
+  input: './openapi.yaml',
+  output: 'src/client',
+  plugins: ['@hey-api/client-fetch', '@hey-api/typescript', '@hey-api/sdk', '@tanstack/react-query', 'zod'],
+})
+```
+
+```typescript [kubb.config.ts]
+import { defineConfig } from 'kubb/config'
+import { adapterOas } from '@kubb/adapter-oas'
+import { pluginFetch } from '@kubb/plugin-fetch'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+
+export default defineConfig({
+  input: './openapi.yaml',
+  output: { path: './src/gen' },
+  adapter: adapterOas({ integerType: 'number' }),
+  plugins: [
+    pluginTs({ output: { path: 'types.ts' } }),
+    pluginFetch({ baseURL: 'https://petstore3.swagger.io/api/v3', throwOnErrorDefault: false }),
+    pluginReactQuery(),
+    pluginZod(),
+  ],
+})
+```
+
+::
+
 ## What maps to what
+
+### Config options
 
 | HeyAPI | Kubb |
 | --- | --- |
@@ -28,12 +69,17 @@ The examples move a HeyAPI config that writes to `src/client` with the `@hey-api
 | `validator: true` on `@hey-api/sdk` | [`validator`](/extensions/kubb-labs/plugin-fetch/options#validator) on `pluginFetch` |
 | `@tanstack/react-query` | [`pluginReactQuery`](/extensions/kubb-labs/plugin-react-query) |
 | `zod` | [`pluginZod`](/extensions/kubb-labs/plugin-zod) |
+
+### Generated code
+
+| HeyAPI | Kubb |
+| --- | --- |
 | `GetPetByIdData` | `GetPetByIdOptions` |
 | `GetPetByIdData['path']` | `GetPetByIdPath` |
 | `GetPetByIdResponse` | `GetPetByIdStatus200Json` |
-| `getPetById({ path: { petId: 1 } })` | `getPetById({ path: { petId: 1 } })` |
+| `getPetById({ path: { petId: 1 } })` | Unchanged |
 | `client.setConfig({ baseUrl, auth })` | `client.setConfig({ baseURL, auth })` |
-| `client.interceptors.request.use()` | `client.interceptors.request.use()` |
+| `client.interceptors.request.use()` | Unchanged |
 | `getPetByIdOptions(...)` | `getPetByIdQueryOptions(...)` |
 | `addPetMutation()` | `addPetMutationOptions()` |
 | `zPet`, `zGetPetByIdPath` | `petSchema`, `getPetByIdPathSchema` |

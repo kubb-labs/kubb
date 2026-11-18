@@ -13,11 +13,34 @@ navigation:
 
 # Kubb vs orval, HeyAPI, and openapi-typescript
 
-Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. We checked each cell against each project's docs in October 2026, and the OpenAPI 3.2 row by generating from a 3.2 spec in November 2026.
+Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. This page shows where they differ.
 
-The biggest shift: openapi-typescript is no longer maintained. In December 2025, its maintainers put `openapi-fetch`, `openapi-react-query`, and `openapi-metadata` into [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559). In September 2026, openapi-typescript itself followed, with [no more updates, security fixes included](https://github.com/openapi-ts/openapi-typescript/issues/2874). To switch, see [Move from openapi-typescript](/docs/5.x/how-to/migrate-from-openapi-typescript).
+## Switch to Kubb
 
-| Where Kubb differs | Read |
+Each guide replaces one output at a time, so you can stop after any step.
+
+::card-group
+
+:::card{title="Move from orval" icon="i-iconoir-git-fork" to="/docs/5.x/how-to/migrate-from-orval"}
+Types, client, query hooks, Zod schemas, and MSW mocks.
+:::
+
+:::card{title="Move from HeyAPI" icon="i-iconoir-git-fork" to="/docs/5.x/how-to/migrate-from-hey-api"}
+Types, SDK and client, TanStack Query, and Zod schemas.
+:::
+
+:::card{title="Move from openapi-typescript" icon="i-iconoir-git-fork" to="/docs/5.x/how-to/migrate-from-openapi-typescript"}
+Types, `openapi-fetch`, and `openapi-react-query`.
+:::
+
+::
+
+> [!WARNING]
+> openapi-typescript is no longer maintained. In December 2025, its maintainers put `openapi-fetch`, `openapi-react-query`, and `openapi-metadata` into [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559). In September 2026, openapi-typescript itself followed, with [no more updates, security fixes included](https://github.com/openapi-ts/openapi-typescript/issues/2874).
+
+## Where Kubb differs
+
+| Difference | Details |
 | --- | --- |
 | Full builds are the fastest of the three and use the least memory on every spec we measured, from 0.1 MB to 29.7 MB. | [Speed, CPU time, and memory](#speed-cpu-time-and-memory) |
 | One config generates types, clients, query hooks, Zod, MSW, Faker, Cypress tests, an MCP server, and Redoc docs. | [Plugin and feature coverage](#plugin-and-feature-coverage) |
@@ -25,7 +48,7 @@ The biggest shift: openapi-typescript is no longer maintained. In December 2025,
 | The runtime follows the spec's parameter styles, encodes bodies per media type, and reads server-sent events. | [Client runtime](#client-runtime) |
 | File review, pull request snapshots, and API skills for AI tools. | [Kubb Studio](#kubb-studio) |
 
-To switch, see [Move from orval](/docs/5.x/how-to/migrate-from-orval) and [Move from HeyAPI](/docs/5.x/how-to/migrate-from-hey-api).
+We checked each cell in the tables below against each project's docs in October 2026, and the OpenAPI 3.2 row by generating from a 3.2 spec in November 2026.
 
 ## Speed, CPU time, and memory
 

@@ -66,6 +66,7 @@ The adapter turns the spec into AST nodes, and each plugin generates files from 
 | Look up an option, command, or API | [Configuration](/docs/5.x/reference/configuration), [commands](/docs/5.x/reference/commands/), and [Kit API](/docs/5.x/reference/kit) |
 | Understand the pipeline | [How Kubb works](/docs/5.x/explanation/architecture) |
 | Compare Kubb with other generators | [Comparison](/docs/5.x/explanation/comparison) |
+| Switch from another generator | Move from [orval](/docs/5.x/how-to/migrate-from-orval), [HeyAPI](/docs/5.x/how-to/migrate-from-hey-api), or [openapi-typescript](/docs/5.x/how-to/migrate-from-openapi-typescript) |
 | Upgrade from v4 | [Migration guide](/docs/5.x/how-to/migration) |
 
 ## Community
