@@ -1,5 +1,5 @@
 ---
-'@kubb/ast': minor
+'@kubb/ast': patch
 ---
 
 Add `ast.json.stringify` and `ast.json.parse` to cache a parsed spec or send it to another thread or process.
