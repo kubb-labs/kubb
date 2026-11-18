@@ -100,6 +100,10 @@
       "enum": ["client", "consumer"],
       "description": "Plugins only. 'client' provides the HTTP client runtime, 'consumer' calls one but ships none."
     },
+    "beta": {
+      "type": "boolean",
+      "description": "The extension is in beta: it works, but its options and output can still change in a minor release. kubb.dev and Kubb Studio show a Beta badge."
+    },
     "options": {
       "type": "array",
       "description": "Form fields Kubb Studio renders. Each field edits the value at `path` inside the options object passed to the factory.",
