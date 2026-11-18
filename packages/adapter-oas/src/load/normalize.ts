@@ -1,6 +1,7 @@
+import { realpath } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { escapePointerToken, getErrorMessage, toError } from '@internals/utils'
+import { escapePointerToken, getErrorMessage, isPathInside, memo, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource, Diagnostic } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -8,28 +9,21 @@ import { bundle } from 'api-ref-bundler'
 import { isOpenApi32 } from '../oas.ts'
 import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
-import type { ValidationErrors, WorkerResult } from './validateWorker.ts'
-import { resolveSchemaIds } from './schemaIds.ts'
+import type { ValidationErrors, WorkerResult } from './validateSpec.ts'
+import { type DocumentScan, resolveSchemaIds, scanDocument } from './schemaIds.ts'
 import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
+// The scan of each document returned unbundled, so a later step can skip a walk it answers.
+const scans = new WeakMap<object, DocumentScan>()
+
 /**
- * True when `node` contains a `$ref` pointing outside the current document (a relative path,
- * absolute path, or URL). An internal `#/...` fragment does not count.
- *
- * `Object.values` reads array elements and object property values alike, so the same recursion
- * walks both without a separate array branch.
+ * Rewrites `$id` and `$anchor` refs in place, then returns the scan of the result.
  */
-export function hasExternalRef(node: unknown): boolean {
-  if (!node || typeof node !== 'object') {
-    return false
-  }
-
-  const ref = (node as { $ref?: unknown }).$ref
-  if (typeof ref === 'string' && !ref.startsWith('#')) {
-    return true
-  }
-
-  return Object.values(node).some(hasExternalRef)
+function resolveTargets(document: unknown): DocumentScan {
+  const scan = scanDocument(document)
+  if (!scan.schemaIds) return scan
+  resolveSchemaIds(document)
+  return scanDocument(document)
 }
 
 /**
@@ -99,6 +93,17 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
 }
 
 /**
+ * Whether `filePath` is inside one of `folders`. Links are followed first, so a link inside a
+ * folder cannot point outside it.
+ */
+async function isInsideFolders(filePath: string, folders: Array<string>): Promise<boolean> {
+  const real = (item: string) => realpath(resolve(item)).catch(() => resolve(item))
+  const target = await real(filePath)
+  const realFolders = await Promise.all(folders.map(real))
+  return [...folders, ...realFolders].some((folder) => isPathInside(target, folder))
+}
+
+/**
  * Bundles a multi-file OpenAPI document into a single document via `api-ref-bundler`.
  *
  * External file schemas are hoisted into named `components.schemas` entries, so a property
@@ -115,6 +120,7 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
  * against the OpenAPI 3.2 `$self` when the document sets one. Every other file or URL read,
  * including one that fails, lands in `sources`. A `$ref` that cannot be read reports
  * `KUBB_REF_NOT_FOUND` at the key that holds it, as a warning when it sits inside an `x-` extension.
+ * So does any local file from a URL input, and a local file outside every `fileRefs` folder.
  *
  * @example Local file
  * `const document = await bundleDocument('./openapi.yaml')`
@@ -122,37 +128,46 @@ export function getBaseUri(pathOrUrl: string, root: unknown): string {
  * @example Remote URL
  * `const document = await bundleDocument('https://example.com/openapi.yaml')`
  */
-export async function bundleDocument(pathOrUrl: string, { document, sources = [] }: { document?: Document; sources?: Array<string> } = {}): Promise<Document> {
-  const cache = new Map<string, Promise<object | string>>()
+export async function bundleDocument(
+  pathOrUrl: string,
+  { document, sources = [], fileRefs }: { document?: Document; sources?: Array<string>; fileRefs?: Array<string> } = {},
+): Promise<Document> {
+  const cache = memo.create<string, Promise<object | string>>()
   // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
   // `https:/`, so key on the canonical href to fetch each source once and to match the input.
   const toKey = (sourcePath: string) => (urlRegExp.test(sourcePath) ? new URL(sourcePath).href : sourcePath)
+  // The folders a `$ref` may read local files from. The host names them, never the document's own
+  // `$self`, so a `$ref` cannot read a stored token elsewhere. A URL input has none.
+  const folders = urlRegExp.test(pathOrUrl) ? [] : fileRefs
+  const refused = new Set<string>()
 
   let entry = pathOrUrl
   let entryDocument: object | string | undefined = document
-  const resolver = (sourcePath: string) => {
+  const resolver = async (sourcePath: string) => {
     if (entryDocument !== undefined && toKey(sourcePath) === toKey(entry)) {
-      return Promise.resolve(entryDocument)
+      return entryDocument
     }
     const key = toKey(sourcePath)
-    const cached = cache.get(key)
-    if (cached) {
-      return cached
+    const isFileRef = key !== toKey(pathOrUrl) && !urlRegExp.test(sourcePath)
+    if (isFileRef && folders && !(await isInsideFolders(sourcePath, folders))) {
+      // api-ref-bundler drops the rejection's message, so `onError` looks the path up here.
+      refused.add(sourcePath)
+      throw new Error(`Refused ${sourcePath}`)
     }
-
-    sources.push(key)
-    const result = resolveSource(sourcePath)
-    cache.set(key, result)
-    return result
+    return memo(cache, key, () => {
+      sources.push(key)
+      return resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
+    })
   }
 
   // api-ref-bundler swallows resolver errors and leaves refs unresolved, so surface an
   // unreadable input document as a hard error before bundling.
   const root = await resolver(pathOrUrl)
   // Before bundling, so a `$ref` to a schema's `$id` URL is not fetched.
-  resolveSchemaIds(root)
+  const scan = resolveTargets(root)
 
-  if (typeof root === 'object' && root !== null && !hasExternalRef(root)) {
+  if (typeof root === 'object' && root !== null && !scan.externalRef) {
+    scans.set(root, scan)
     return root as Document
   }
   entry = getBaseUri(pathOrUrl, root)
@@ -163,11 +178,16 @@ export async function bundleDocument(pathOrUrl: string, { document, sources = []
       onError: (message, { path, state }) => {
         // Only a `$ref` in the input itself has a key in the document to point at.
         const pointer = toKey(state.baseFile) === toKey(entry) ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
+        const refusedPath = [...refused].find((sourcePath) => message.includes(sourcePath))
         const diagnostic: Diagnostic = {
           code: Diagnostics.code.refNotFound,
           severity: isExtensionPath(path) ? 'warning' : 'error',
-          message: `Could not bundle an external \`$ref\`. ${message}.`,
-          help: 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
+          message: refusedPath ? `Refused an external \`$ref\` to the local file ${refusedPath}.` : `Could not bundle an external \`$ref\`. ${message}.`,
+          help: refusedPath
+            ? folders?.length
+              ? 'This run only reads local files inside the folders its host allows, such as the project. Move the file there or inline the schema. On your own agent, `--allow-file-refs` lifts the limit.'
+              : 'This input reads no local file. Inline the schema, or serve the file from a URL.'
+            : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
         }
         if (!Diagnostics.report(diagnostic) && diagnostic.severity === 'error') {
@@ -198,7 +218,7 @@ const inlineInputName = '<inline input>'
  * const document = await parseFromConfig({ type: 'data', data: '{"openapi":"3.0.0",...}' })
  * ```
  */
-export async function parseFromConfig(source: AdapterSource, sources: Array<string> = []): Promise<Document> {
+export async function parseFromConfig(source: AdapterSource, sources: Array<string> = [], { fileRefs }: { fileRefs?: Array<string> } = {}): Promise<Document> {
   const raw = await (async (): Promise<Document> => {
     // YAML parsing also handles JSON.
     if (source.type === 'data') {
@@ -209,14 +229,22 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
               help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
             }) as Document)
           : structuredClone(source.data as Document)
-      if (source.root && hasExternalRef(data)) return bundleDocument(join(source.root, inlineInputName), { document: data, sources })
-      resolveSchemaIds(data)
+      const isObject = Boolean(data) && typeof data === 'object'
+      // `bundleDocument` returns the document as is when it has no external ref.
+      if (source.root && isObject) return bundleDocument(join(source.root, inlineInputName), { document: data, sources, fileRefs })
+      const scan = resolveTargets(data)
+      if (isObject) scans.set(data, scan)
       return data
     }
     await assertInputExists(source.path)
-    return bundleDocument(source.path, { sources })
+    return bundleDocument(source.path, { sources, fileRefs })
   })()
 
+  return upgradeDocument(raw, { pathRefs: scans.get(raw)?.pathRefs ?? true })
+}
+
+/** Upgrades Swagger 2.0 or OpenAPI 3.0 to 3.1. `pathRefs: false` skips the `#/paths/` ref walk. */
+export function upgradeDocument(raw: Document, { pathRefs = true }: { pathRefs?: boolean } = {}): Document {
   // Unquoted `swagger: 2.0` parses as the number 2, which `upgrade` does not recognise as a version.
   if (raw && typeof raw === 'object') {
     const document = raw as Record<string, unknown>
@@ -228,7 +256,7 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
     }
   }
 
-  if (raw && typeof raw === 'object' && 'swagger' in raw) {
+  if (raw && typeof raw === 'object' && 'swagger' in raw && pathRefs) {
     const refs = createRefs(raw)
     inlinePathRefs(raw, (ref) => refs.resolve(ref, { report: false }))
   }
@@ -304,32 +332,25 @@ export async function validateDocument(document: Document, { throwOnError = fals
 
   // The heaviest dependency in the package, and every config importing `@kubb/adapter-oas` would
   // pay for it even with `validate` off.
-  const { compileErrors, validate } = await import('@readme/openapi-parser')
-
-  let result: Awaited<ReturnType<typeof validate>>
-  try {
-    // `validate` dereferences its input in place, so clone to keep the cached document intact.
-    result = await validate(structuredClone(document), {
-      validate: {
-        errors: { colorize: throwOnError },
-      },
-    })
-  } catch (error) {
-    if (throwOnError) throw error
-    reportInvalidSpec(getErrorMessage(error))
-    return
+  if (!throwOnError) {
+    const { validateSpec } = await import('./validateSpec.ts')
+    // `validateSpec` dereferences its input in place, so clone to keep the cached document intact.
+    return reportResult(await validateSpec(structuredClone(document)))
   }
-
+  const { compileErrors, validate } = await import('@readme/openapi-parser')
+  const result = await validate(structuredClone(document), { validate: { errors: { colorize: true } } })
   if (result.valid) return
-  if (throwOnError)
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.invalidSpec,
-      severity: 'error',
-      message: compileErrors(result),
-      help: 'Fix each problem listed in the spec, then validate again.',
-    })
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.invalidSpec,
+    severity: 'error',
+    message: compileErrors(result),
+    help: 'Fix each problem listed in the spec, then validate again.',
+  })
+}
 
-  reportValidationErrors(result)
+function reportResult(result: WorkerResult): void {
+  if ('thrown' in result) return reportInvalidSpec(result.thrown)
+  if (!result.valid) reportValidationErrors(result)
 }
 
 function reportValidationErrors({ errors, additionalErrors }: ValidationErrors): void {
@@ -368,6 +389,5 @@ export async function validateDocumentInWorker(document: Document): Promise<void
     return validateDocument(document)
   }
 
-  if ('thrown' in message) return reportInvalidSpec(message.thrown)
-  if (!message.valid) reportValidationErrors(message)
+  reportResult(message)
 }

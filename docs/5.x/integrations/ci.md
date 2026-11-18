@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Publish Kubb Studio snapshots from CI
-description: Run kubb studio snapshot in GitHub Actions, GitLab CI, or any CI provider to publish an installable package and review generated-code changes per pull request.
+description: Run kubb studio snapshot in GitHub Actions, GitLab CI, or any CI to publish an installable package of your generated code per pull request.
 outline:
   - 2
   - 3
@@ -13,44 +13,64 @@ navigation:
 
 # Publish Kubb Studio snapshots from CI
 
-`kubb studio snapshot` generates a package on a CI runner, uploads it to [Studio](/docs/5.x/integrations/studio) in one request, and exits. Run it on pull or merge requests and on the default branch so reviewers can compare a request's output with the default branch.
+A snapshot is an installable npm package of your generated code. `kubb studio snapshot` builds it on the CI runner, uploads it to [Studio](/docs/5.x/integrations/studio), and exits.
+
+Run it on pull or merge requests and on their base branch, so each request has a snapshot to compare with.
+
+```mermaid
+flowchart LR
+  pr[Pull request] --> job[CI job]
+  job --> snap[kubb studio snapshot]:::core
+  snap -->|package| studio[Kubb Studio]
+  studio --> review[Review files]
+  studio --> install[npm install]
+```
+
+## Prerequisites
+
+- A working `kubb.config.ts` on Kubb 5.6.2 or later. See [Installation](/docs/5.x/how-to/installation).
+- `tsdown` next to `kubb` in the dev dependencies (`npm i -D tsdown`). Snapshots build their `dist` files with it.
+- Two Studio API keys, created under **Settings › Developers › Tokens**:
+
+| Key type | Store it as | Used for |
+| --- | --- | --- |
+| CI | `KUBB_TOKEN`, in a secret only trusted pipelines can read | Publishing snapshots |
+| Registry | `KUBB_REGISTRY_TOKEN`, which `.npmrc` reads | [Installing a snapshot](#install-the-snapshot) |
 
 When the config exports an [array](/docs/5.x/reference/configuration#multiple-configurations-array), the snapshot generates every entry and packs their output into the one package.
 
 ## Supported providers
 
-| Provider                      | Agent identity                                      | Guide                                                                          |
-| ----------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------ |
-| GitHub Actions                | Detected                                            | [Publish snapshots with GitHub Actions](/docs/5.x/integrations/github-actions) |
-| GitLab CI                     | Detected                                            | [Publish snapshots with GitLab CI](/docs/5.x/integrations/gitlab)              |
-| Bitbucket Pipelines, CircleCI | Detected. Pass `--base-id` to compare with a branch | Run `kubb studio snapshot` with `KUBB_TOKEN` set                               |
-| Other                         | Pass `--id` and `--base-id`                         | See below                                                                      |
+| Provider | Agent identity | Compares with the base branch | Setup |
+| --- | --- | --- | --- |
+| GitHub Actions | Detected | Detected | [GitHub Actions](/docs/5.x/integrations/github-actions) |
+| GitLab CI | Detected | Detected | [GitLab CI](/docs/5.x/integrations/gitlab) |
+| Bitbucket Pipelines, CircleCI | Detected | Pass `--base-id` | Run `kubb studio snapshot` with `KUBB_TOKEN` set |
+| Other | Pass `--id` | Pass `--base-id` | [Other providers](#other-ci-providers) |
 
-Every provider needs an organization CI API key stored as `KUBB_TOKEN`. Snapshot installation uses a separate `registry` API key. Create both in Studio under Settings › Developers › Tokens.
+### Other CI providers
 
-A snapshot builds its `dist` files with `tsdown`, which Kubb does not install by default. Add it next to `kubb` in the development dependencies with `npm i -D tsdown`.
-
-> [!NOTE]
-> Snapshots expire after seven days. Schedule a default-branch run if it can go a week without a push.
-
-## Other CI providers
-
-For a provider without automatic agent identification, use a stable `--id` on the base branch and pass it as `--base-id` on pull request runs:
+Pass a stable `--id` on the base branch, and the same id as `--base-id` on pull request runs:
 
 ```shell [Terminal]
 kubb studio snapshot --id jenkins:api:main                              # on main
 kubb studio snapshot --id jenkins:api:pr-12 --base-id jenkins:api:main  # on a pull request
 ```
 
-Use `kubb studio snapshot --json | jq -r '.url'` to pass the tarball URL to another step. See [CI agent identity](/docs/5.x/reference/commands/studio#ci-agent-identity) and [Snapshot output](/docs/5.x/reference/commands/studio#snapshot-output) for the result fields.
+To pass the tarball URL to another step, run `kubb studio snapshot --json | jq -r '.url'`. See [CI agent identity](/docs/5.x/reference/commands/studio#ci-agent-identity) and [Snapshot output](/docs/5.x/reference/commands/studio#snapshot-output) for every field.
 
-## Open the snapshot in Studio
+## Review the snapshot
 
-Open the CI agent’s editor to read its latest unexpired package, comment on source lines, or preview generated HTML. Studio reads the stored tarball after the runner exits. Run the pipeline again to publish updated output.
+Studio has no diff view for snapshots. The GitHub Action lists the changed files in its comment, and `--json` reports them in `changes` and `branchChanges` on any provider.
+
+After the runner exits, open the CI agent's editor in Studio to read its latest unexpired package, comment on source lines, or preview generated HTML. Run the pipeline again to publish new output.
+
+> [!NOTE]
+> Snapshots expire after seven days. If the default branch can go a week without a push, schedule a run.
 
 ## Install the snapshot
 
-Configure the registry API key, then run the install command from the snapshot result:
+Add the registry key to `.npmrc`, then run the install command from the snapshot result. pnpm and Yarn use the same URL and `.npmrc`.
 
 ```ini [.npmrc]
 //kubb.studio/:_authToken=${KUBB_REGISTRY_TOKEN}
@@ -60,7 +80,7 @@ Configure the registry API key, then run the install command from the snapshot r
 npm i https://kubb.studio/packages/<agent>/<package>.tgz
 ```
 
-pnpm and Yarn install the same URL with the same `.npmrc`. Yarn 1 also needs the registry for the package's scope, or the install fails with HTTP 403:
+Yarn 1 also needs the registry for the package's scope, or the install fails with HTTP 403:
 
 ```ini [.npmrc]
 @<scope>:registry=https://kubb.studio/

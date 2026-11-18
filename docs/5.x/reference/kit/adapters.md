@@ -1,9 +1,7 @@
 ---
 layout: doc
-title: Adapters
-description: defineExtension with kind adapter builds an adapter that converts
-  an input specification into the universal AST. Covers the Adapter interface,
-  the built-in OpenAPI adapter, and writing your own.
+title: Adapters - Turn a spec into the Kubb AST
+description: Build a Kubb adapter with defineExtension and kind adapter. It converts an input spec into the universal AST. Covers the Adapter interface.
 outline:
   - 2
   - 3
@@ -15,16 +13,10 @@ navigation:
 
 # Adapters
 
-An adapter converts an input specification into the shared AST.
+An adapter turns your spec into the [`InputNode`](/docs/5.x/reference/kit/ast#node-tree) every plugin reads. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'adapter'`. `setup` resolves the user's options. `build` returns the adapter for them. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work as for every extension.
 
 > [!TIP]
-> For OpenAPI 2.0, 3.0, 3.1, and 3.2, use the official [`@kubb/adapter-oas`](/extensions/kubb-labs/adapter-oas). `defineConfig` from the `kubb` package sets it when the config has no `adapter`. Write a custom adapter only for a different specification, such as AsyncAPI, GraphQL, JSON Schema, or gRPC.
-
-## `defineExtension`
-
-`defineExtension` with `kind: 'adapter'` takes a definition object and returns a factory that types the adapter's options. `setup` turns the user's options into the resolved options. `build` receives the resolved options and returns the adapter's `document`, `parse`, and `validate`. Without `setup`, the user's options are the resolved options.
-
-A minimal adapter declares a name and returns an empty [`InputNode`](/docs/5.x/explanation/architecture#ast). An empty AST emits nothing, so fill `schemas` and `operations` from the spec next.
+> For OpenAPI 2.0, 3.0, 3.1, and 3.2, use the official [`@kubb/adapter-oas`](/extensions/kubb-labs/adapter-oas). `defineConfig` from `kubb/config` sets it when the config has no `adapter`. Write your own only for another spec, such as AsyncAPI, GraphQL, JSON Schema, or gRPC.
 
 ```typescript [adapterCustom.ts]
 import { ast, defineExtension } from 'kubb/kit'
@@ -39,6 +31,7 @@ export const adapterCustom = defineExtension<AdapterCustom>({
   build: () => ({
     document: null,
     async parse(_source) {
+      // Fill schemas and operations from your spec.
       return ast.factory.createInput({ schemas: [], operations: [] })
     },
     async validate() {
@@ -47,8 +40,6 @@ export const adapterCustom = defineExtension<AdapterCustom>({
   }),
 })
 ```
-
-Pass the adapter to the config:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -62,48 +53,28 @@ export default defineConfig({
 })
 ```
 
-### `createAdapter` (deprecated)
+`build` returns these members:
 
-> [!WARNING]
-> `createAdapter` is deprecated. Use `defineExtension` with `kind: 'adapter'` instead.
+| Member     | Type                                                                                                     | Required | Purpose                                                                                                                                     |
+| ---------- | -------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `document` | `TDocument \| null`                                                                                      | Yes      | The parsed source document. `null` before `parse()`.                                                                                        |
+| `parse`    | `(source: AdapterSource, options?: { signal?: AbortSignal; fileRefs?: Array<string> }) => InputNode \| Promise<InputNode>` | Yes      | Converts the spec into the AST. `fileRefs` sets which folders a `$ref` may read local files from: unset allows any file, an empty list allows none, and a list allows only those folders. Kubb passes the list through, and the adapter enforces it. |
+| `validate` | `(input: string, options?: { throwOnError?: boolean }) => Promise<void>`                                 | Yes      | Validates the document at a path or URL. [`kubb validate`](/docs/5.x/reference/commands/validate) passes `throwOnError: true`, so throw on invalid input. |
+| `settle`   | `() => Promise<void>`                                                                                    | No       | Waits for work `parse` left running, such as validation in a worker. Kubb awaits it before `kubb:build:end`. Must not reject.              |
+| `locate`   | `(source: string, location: DiagnosticLocation) => { start: number; end: number } \| undefined`          | No       | Finds a diagnostic in the source text for a CLI code frame, as zero-based UTF-16 offsets with `end` exclusive.                             |
+| `sources`  | `Array<string>`                                                                                          | No       | The files and URLs the last `parse()` read, for a tool that watches them. `kubb generate --watch` watches only `input`.                 |
 
-`createAdapter` takes the same definition object as `defineExtension`, without `kind`. To migrate, rename the call and add `kind: 'adapter'`. See [Extensions](./extensions#define-extension).
-
-## Adapter anatomy
-
-Every adapter the factory returns matches the `Adapter` interface from [`kubb/kit`](/docs/5.x/reference/kit):
-
-| Property   | Type                                                                     | Required | Purpose                                                                                       |
-| ---------- | ------------------------------------------------------------------------ | -------- | --------------------------------------------------------------------------------------------- |
-| `name`     | `string`                                                                 | Yes      | Unique adapter identifier, filled from `meta.name`. Use the spec identifier, such as `'oas'`. |
-| `meta`     | `ExtensionMeta`                                                          | No       | The `meta` object from the definition, filled by the factory.                                 |
-| `options`  | `TOptions`                                                               | Yes      | The options the factory was called with, before `setup` applies defaults.                     |
-| `document` | `TDocument \| null`                                                      | Yes      | The raw parsed source document, for plugins that need direct access. `null` before `parse()`. |
-| `parse`    | `(source: AdapterSource, options?: { signal?: AbortSignal }) => InputNode \| Promise<InputNode>` | Yes | Convert the spec into the [universal AST](/docs/5.x/explanation/architecture#ast). |
-| `validate` | `(input: string, options?: { throwOnError?: boolean }) => Promise<void>` | Yes      | Validate the document at a path or URL without running the full pipeline.                     |
-| `settle` | `() => Promise<void>` | No | Waits for work `parse` left running, such as spec validation in a worker thread. Kubb awaits it before `kubb:build:end`. It must not reject. |
-| `locate` | `(source: string, location: DiagnosticLocation) => { start: number; end: number } \| undefined` | No | Where a diagnostic sits in the source text, for CLI code frames. |
-| `sources` | `Array<string>` | No | The files and URLs the last `parse()` read, such as the files external `$ref`s point at, including any that could not be read. A watcher rebuilds when one of them changes. |
-
-`locate` receives the local input's source text and a `DiagnosticLocation`, and returns zero-based UTF-16 offsets with an exclusive `end`, or `undefined` when it cannot place that location. Kubb formats the line, column, and frame from that range. The OpenAPI adapter resolves JSON pointers in YAML and JSON. Adapters without `locate` still show diagnostic messages and locations without code frames.
-
-[`kubb validate`](/docs/5.x/reference/commands/validate) calls the configured adapter's `validate` method with `throwOnError: true`. Validation errors must throw to fail the command.
-
-Cross-references need no adapter hook. Every plugin resolves `$ref` imports through [`resolver.imports`](/docs/5.x/reference/kit/resolvers#imports), which defaults each ref to its pointer's last segment. An adapter that renames a schema, for example to break a name collision, stamps `targetName` on every ref node pointing at it, so those imports pick up the emitted name. Refs that keep their segment name need no stamp.
+`AdapterSource` is `{ type: 'path'; path }` or `{ type: 'data'; data; root? }`, where `root` is the folder relative `$ref`s resolve from.
 
 > [!IMPORTANT]
-> Throw from `parse()` with a clear, user-facing message when the input is invalid.
+> When the input is invalid, throw from `parse()` with a clear message.
 
-## Adapter naming convention
-
-Name adapters like plugins, so [`getResolver`](./generators#definegenerator), the registry, and the docs can find them:
+## Adapter naming {#adapter-naming}
 
 | Surface                       | Pattern                                            | Example             |
 | ----------------------------- | -------------------------------------------------- | ------------------- |
 | npm package                   | `@<scope>/adapter-<name>` or `kubb-adapter-<name>` | `@kubb/adapter-oas` |
-| Adapter runtime name          | The spec identifier (lowercase)                    | `'oas'`             |
-| Factory export                | `adapter<Name>` (camelCase)                        | `adapterOas`        |
+| `meta.name`                   | The spec identifier, in lowercase                  | `'oas'`             |
+| Factory export                | `adapter<Name>`                                    | `adapterOas`        |
 | Name constant                 | `adapter<Name>Name`                                | `adapterOasName`    |
-| `AdapterFactoryOptions` alias | `Adapter<Name>` (PascalCase)                       | `AdapterOas`        |
-
-Export a `satisfies`-typed name constant so consumers can reuse the runtime name.
+| `AdapterFactoryOptions` alias | `Adapter<Name>`                                    | `AdapterOas`        |

@@ -21,6 +21,42 @@ describe('Url.toPath', () => {
     // literal `.json` suffix is preserved
     expect(Url.toPath('/groups/{group-id}/{group.id}.json')).toBe('/groups/:groupId/:groupId2.json')
   })
+
+  test('never reuses a name that already ends in a counter', () => {
+    expect(Url.toPath('/{group-id}/{group.id}/{groupId2}')).toBe('/:groupId/:groupId2/:groupId22')
+    expect(Url.toPath('/{groupId2}/{group-id}/{group.id}')).toBe('/:groupId2/:groupId/:groupId3')
+  })
+})
+
+describe('Url.toParamNames', () => {
+  test('maps each placeholder to a camelCase identifier', () => {
+    expect(Url.toParamNames('/stores/{store-id}/pets/{pet-id}')).toEqual(
+      new Map([
+        ['store-id', 'storeId'],
+        ['pet-id', 'petId'],
+      ]),
+    )
+    expect(Url.toParamNames('/groups/{group-id}/{group.id}.json')).toEqual(
+      new Map([
+        ['group-id', 'groupId'],
+        ['group.id', 'groupId2'],
+      ]),
+    )
+  })
+
+  test('camelCases names that are already identifiers', () => {
+    expect([...Url.toParamNames('/{pet_id}/{PetId2}/{$id}/{userID}').values()]).toEqual(['petId', 'petId2', 'id', 'userID'])
+  })
+
+  test('gives distinct placeholders distinct names that Url.toPath keeps as they are', () => {
+    expect([...Url.toParamNames('/{a-b}/{a-b}/{a.b}').values()]).toEqual(['aB', 'aB3'])
+    for (const path of ['/{group-id}/{group.id}/{groupId2}', '/{pet_id}/{pet-id}']) {
+      const names = Url.toParamNames(path)
+      const renamed = path.replace(/\{([^}]+)\}/g, (_match, name: string) => `{${names.get(name)}}`)
+      expect(new Set(names.values()).size).toBe(names.size)
+      expect(Url.toPath(renamed)).toBe(renamed.replace(/\{([^}]+)\}/g, ':$1'))
+    }
+  })
 })
 
 describe('Url.toGroupedTemplateString', () => {

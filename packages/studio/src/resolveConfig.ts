@@ -2,10 +2,10 @@ import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { type Adapter, type Config, Diagnostics, type ExtensionKind, type Parser, type Plugin, resolveMeta } from '@kubb/core'
+import { type Adapter, type Config, Diagnostics, type ExtensionKind, getInputKind, type Parser, type Plugin, resolveMeta } from '@kubb/core'
 import { isAllowedPlugin, isOptionValue, isOutputKey, isOutputValue, isPlainObject, isSafeKey, toExportName, toPluginName } from '@internals/shared'
 import { isPathInside, toError } from '@internals/utils'
-import type { InstalledExtensions, JSONKubbConfig } from './protocol.ts'
+import type { AgentType, InstalledExtensions, JSONKubbConfig } from './protocol.ts'
 
 /**
  * Turns the JSON config Studio sends back into live Kubb objects.
@@ -336,6 +336,32 @@ export function assertOutputPaths({
       plugin: plugin.name,
     })
   }
+}
+
+/**
+ * The folders a `$ref` may read local files from on each kind of agent. Studio may have sent the
+ * spec, so a shared agent gets none, and a managed agent only the git checkout it made itself. A
+ * project agent gets its `root` and the folder of the file `input` in its own config. `undefined`
+ * means no limit, which only `allowFileRefs` grants.
+ */
+export function resolveFileRefs({
+  agentType,
+  allowFileRefs,
+  root,
+  input,
+  checkoutDir,
+}: {
+  agentType: AgentType
+  allowFileRefs: boolean
+  root: string
+  input?: Config['input']
+  checkoutDir?: string
+}): Array<string> | undefined {
+  if (agentType === 'sandbox' || agentType === 'global') return []
+  if (agentType === 'managed') return checkoutDir ? [checkoutDir] : []
+  if (allowFileRefs) return undefined
+  const isFile = typeof input === 'string' && getInputKind(input) === 'file'
+  return isFile ? [root, path.dirname(path.resolve(root, input))] : [root]
 }
 
 /**

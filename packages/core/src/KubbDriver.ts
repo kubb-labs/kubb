@@ -22,6 +22,7 @@ import type { Hookable } from './Hookable.ts'
 type Options = {
   hooks: Hookable<KubbHooks>
   signal?: AbortSignal
+  fileRefs?: Array<string>
   /**
    * Passed to `fileManager.write` so files the output passes already normalized are left alone.
    */
@@ -132,7 +133,7 @@ export class KubbDriver {
    */
   readonly fileManager = new FileManager()
   readonly plugins = new Map<string, NormalizedPlugin>()
-  readonly #memo = new Map<string, unknown>()
+  readonly #memo = memo.create<string, unknown>()
 
   /**
    * Removers for every listener the driver added (plugin, generator) so `dispose()` can detach
@@ -275,7 +276,12 @@ export class KubbDriver {
     if (this.inputNode || !this.adapter || !this.#adapterSource) return
 
     this.options.signal?.throwIfAborted()
-    this.inputNode = await parseAdapterSource({ adapter: this.adapter, source: this.#adapterSource, signal: this.options.signal })
+    this.inputNode = await parseAdapterSource({
+      adapter: this.adapter,
+      source: this.#adapterSource,
+      signal: this.options.signal,
+      fileRefs: this.options.fileRefs,
+    })
   }
 
   /**
@@ -802,6 +808,9 @@ export class KubbDriver {
       },
       get meta(): InputMeta {
         return driver.inputNode?.meta ?? {}
+      },
+      get schemas(): ReadonlyArray<SchemaNode> {
+        return driver.inputNode?.schemas ?? []
       },
       get adapter(): Adapter {
         // Generators only read `adapter` during AST hooks, which run after the

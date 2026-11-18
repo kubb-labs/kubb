@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Shared plugin options
-description: The output, group, include, exclude, override, resolver and macros options that every Kubb generator plugin accepts, with their types, defaults and behavior.
+description: The output, group, include, exclude, override, resolver, and macros options every Kubb generator plugin accepts, with types, defaults, and precedence.
 outline:
   - 2
   - 3
@@ -13,105 +13,108 @@ navigation:
 
 # Shared plugin options
 
-Every generator plugin accepts the options on this page. A plugin's own options page lists only the default it gives each one and links here for the behavior.
-
-`@kubb/plugin-barrel` is the exception: it takes no arguments and is configured through [`output.barrel`](#output-barrel). `@kubb/plugin-redoc` accepts only `output.path`.
+Every generator plugin takes these options to set where it writes, what it generates, and how it names files. A plugin's own options page lists only its defaults. `@kubb/plugin-barrel` takes none and reads [`output.barrel`](#output-barrel). `@kubb/plugin-redoc` takes only `output.path`.
 
 ## output {#output}
 
-Where the plugin writes its files and how they are exported.
+::field-group
 
-|          |                                                                                                      |
-| -------- | ---------------------------------------------------------------------------------------------------- |
-| Type     | `Output`                                                                                             |
-| Required | `false`                                                                                              |
-| Default  | Set by each plugin, for example `{ path: 'types', barrel: { type: 'named' } }` for `@kubb/plugin-ts` |
+:::field{type="Output"}
+Where the plugin writes its files and how it exports them. Default: set by each plugin, such as `{ path: 'types', barrel: { type: 'named' } }` on `@kubb/plugin-ts`.
+:::
 
-An `output` you pass replaces the plugin default as a whole. Repeat `barrel` when you set `output` yourself, or the plugin falls back to `config.output.barrel`.
+::
+
+> [!WARNING]
+> An `output` you pass replaces the plugin default whole. Repeat `barrel` in it, or the plugin falls back to the root `output.barrel`, which is `false` unless you set it.
 
 ```typescript [kubb.config.ts]
 import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
-  output: {
-    path: 'models',
-    barrel: { type: 'named' },
-    banner: '/* eslint-disable */',
-  },
+  output: { path: 'models', barrel: { type: 'named' }, banner: '/* eslint-disable */' },
 })
 ```
 
 ### output.path {#output-path}
 
-Folder where the plugin writes its files, resolved against the global `output.path` on `defineConfig`. For a single file, give `path` a name with its extension, such as `'types.ts'`.
+::field-group
 
-|          |                             |
-| -------- | --------------------------- |
-| Type     | `string`                    |
-| Required | `true` when `output` is set |
-| Default  | Set by each plugin          |
+:::field{type="string" required}
+The plugin's folder or file, resolved inside the root `output.path`. Required in `output`. Default: set by each plugin.
+:::
+
+::
 
 ### output.mode {#output-mode}
 
-How generated code is consolidated into files.
+::field-group
 
-|          |                                                                       |
-| -------- | --------------------------------------------------------------------- |
-| Type     | `'directory' \| 'file'`                                               |
-| Required | `false`                                                               |
-| Default  | `'file'` when `output.path` has an extension, `'directory'` otherwise |
+:::field{type="'directory' | 'file'"}
+How the plugin splits its code into files. Default: `'file'` when `output.path` has an extension, `'directory'` otherwise.
+:::
+
+::
 
 ::field-group
 
 :::field{name="'directory'"}
-Writes one file per operation or schema under `output.path`. Use `group` to split those files into subfolders.
+Writes one file per operation or schema under `output.path`. Add [`group`](#group) to split them into subfolders.
 :::
 
 :::field{name="'file'"}
-Writes everything into a single file. `output.path` must include the file extension, such as `'types.ts'`.
+Writes everything into one file. `output.path` must include the extension, such as `'types.ts'`.
 :::
 
 ::
 
-Leave `mode` unset and Kubb reads it from `output.path`. Set `mode: 'directory'` only to override that inference, for example for a directory name that carries a dot such as `'clients.v2'`.
+Set `mode: 'directory'` only for a folder name with a dot, such as `'clients.v2'`.
 
-> [!IMPORTANT]
-> `group` needs directory output. Combining `group` with `mode: 'file'` stops the build with [`KUBB_INVALID_PLUGIN_OPTIONS`](/docs/5.x/reference/diagnostics#kubb-invalid-plugin-options).
+```typescript [kubb.config.ts]
+import { defineConfig } from 'kubb/config'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginAxios } from '@kubb/plugin-axios'
+
+export default defineConfig({
+  input: './petStore.yaml',
+  output: { path: './src/gen' },
+  plugins: [
+    pluginTs({ output: { path: 'types.ts' } }), // src/gen/types.ts
+    pluginAxios({ output: { path: 'clients' }, group: { type: 'tag' } }), // src/gen/clients/pet/, src/gen/clients/store/
+  ],
+})
+```
 
 ### output.barrel {#output-barrel}
 
-Controls how generated `index.ts` files re-export the plugin's output. Toggle the export style and depth to see the generated barrels.
+::field-group
+
+:::field{type="{ type: 'all' | 'named', nested?: boolean, namespace?: boolean } | false"}
+How the plugin's `index.ts` files re-export its output. Default: `{ type: 'named' }` in the plugin's default `output`.
+:::
+
+::
 
 ::barrel-tree
 ::
 
-|          |                                                                                                                  |
-| -------- | ---------------------------------------------------------------------------------------------------------------- |
-| Type     | `{ type: 'all' \| 'named', nested?: boolean, namespace?: boolean } \| false`                                     |
-| Required | `false`                                                                                                          |
-| Default  | `{ type: 'named' }` from the plugin's default `output`, `false` once you pass your own `output` without `barrel` |
-
 ::field-group
 
 :::field{name="'named'"}
-Re-exports each symbol by name. Use `{ type: 'named' }` for explicit imports and tree-shaking.
+Re-exports each symbol by name, for explicit imports and tree-shaking.
 :::
 
 :::field{name="'all'"}
-Re-exports every symbol with `export *`. Use `{ type: 'all' }` for wildcard exports.
+Re-exports every file with `export *`.
 :::
 
 :::field{name="false"}
-Skips barrel generation for this plugin and drops its files from the root barrel.
+Writes no barrel for this plugin and leaves its files out of the root barrel.
 :::
 
 ::
 
-Add `nested: true`, for example `{ type: 'named', nested: true }`, to write an `index.ts` in every subdirectory that re-exports only what sits directly inside it. The root `output.barrel` on `defineConfig` has no `nested` field.
-
-Add `namespace: true` on a plugin's barrel to expose each immediate group as a named namespace, alongside the standalone exports. This enables nested barrels. For tag-grouped fetch clients, use `group.name` to produce names such as `PetService`, then import `{ PetService }` from the client barrel. Leave fetch `sdk` unset when generating query hooks or options. See the [fetch + React Query example](/extensions/kubb-labs/plugin-barrel/options#namespace).
-
-Kubb reads the plugin's own `output.barrel` first, falls back to `config.output.barrel` on `defineConfig`, and finally to `false`. See [`@kubb/plugin-barrel` options](/extensions/kubb-labs/plugin-barrel/options) for the `type`, `nested`, and `namespace` fields in detail.
+See [`@kubb/plugin-barrel` options](/extensions/kubb-labs/plugin-barrel/options) for `nested` and `namespace`, and [Barrel rules](/extensions/kubb-labs/plugin-barrel/guides/barrel-rules) for the fallback to the root `output.barrel`.
 
 ```typescript [kubb.config.ts]
 import { pluginZod } from '@kubb/plugin-zod'
@@ -121,14 +124,22 @@ pluginZod({ output: { path: 'zod', barrel: { type: 'all', nested: true } } })
 
 ### output.banner {#output-banner}
 
-Text added to the top of every generated file, such as a license header or a `@ts-nocheck` directive.
+::field-group
 
-|          |                                            |
-| -------- | ------------------------------------------ |
-| Type     | `string \| ((meta: BannerMeta) => string)` |
-| Required | `false`                                    |
+:::field{type="string | ((meta: BannerMeta) => string)"}
+Text at the top of every generated file, such as a license header or `'use server'`. Default: the root [`output.defaultBanner`](/docs/5.x/reference/configuration#outputdefaultbanner).
+:::
 
-A string is applied to every file, barrels included. A function receives the document info (`title`, `description`, `version`, `baseURL`) and per-file context (`filePath`, `baseName`, `isBarrel`, `isAggregation`), so a directive can skip barrel files.
+::
+
+A string goes on every file, barrels included. A function runs per file and returns the banner, or `''` for none. Its `BannerMeta` holds the `InputMeta` fields, such as `title` and `version`, plus:
+
+| Field | Value |
+| --- | --- |
+| `filePath` | The file's full output path |
+| `baseName` | The file name, such as `pet.ts` |
+| `isBarrel` | `true` for an `index.ts` barrel |
+| `isAggregation` | `true` for a group `[dir]/[dir].ts` aggregation file |
 
 ```typescript [kubb.config.ts]
 import { pluginFetch } from '@kubb/plugin-fetch'
@@ -143,33 +154,31 @@ pluginFetch({
 
 ### output.footer {#output-footer}
 
-Text added to the bottom of every generated file, like `banner` but for closing comments.
+::field-group
 
-|          |                                            |
-| -------- | ------------------------------------------ |
-| Type     | `string \| ((meta: BannerMeta) => string)` |
-| Required | `false`                                    |
+:::field{type="string | ((meta: BannerMeta) => string)"}
+Text at the bottom of every generated file, with the same values as [`output.banner`](#output-banner). Default: none.
+:::
 
-Pair `banner: '/* eslint-disable */'` with `footer: '/* eslint-enable */'` to scope a lint disable to the generated file.
+::
+
+Pair `banner: '/* eslint-disable */'` with `footer: '/* eslint-enable */'` to scope a lint disable to each file.
 
 ## group {#group}
 
-Splits generated files into subfolders by the operation's tag or URL path, each under `{output.path}/{groupName}/`. Without `group`, every file lands directly in `output.path`.
+::field-group
 
-Combine tag grouping with [`output.barrel.namespace`](#output-barrel) to expose each group as a named service while retaining standalone operation imports.
+:::field{type="{ type: 'tag' | 'path', name?: (context: { group: string }) => string }"}
+Puts each operation's files in a `{output.path}/{groupName}/` subfolder, named after its tag or URL path. Default: no grouping.
+:::
 
-|          |                                                                            |
-| -------- | -------------------------------------------------------------------------- |
-| Type     | `{ type: 'tag' \| 'path', name?: (context: { group: string }) => string }` |
-| Required | `false`                                                                    |
-| Default  | No grouping                                                                |
-
-Switch the mode to see where these operations land on disk.
+::
 
 ::grouping-diagram
 ::
 
-`group` applies only to `output.mode: 'directory'`. Combining it with `output.mode: 'file'` stops the build with `KUBB_INVALID_PLUGIN_OPTIONS`.
+> [!IMPORTANT]
+> `group` needs [directory output](#output-mode), or the build stops with [`KUBB_INVALID_PLUGIN_OPTIONS`](/docs/5.x/reference/diagnostics#kubb-invalid-plugin-options).
 
 ```typescript [kubb.config.ts]
 import { pluginTs } from '@kubb/plugin-ts'
@@ -179,77 +188,78 @@ pluginTs({ group: { type: 'tag' } }) // src/gen/types/pet/, src/gen/types/store/
 
 ### group.type {#group-type}
 
-Property used to assign each operation to a group. An operation with no tag goes in the `default` group.
+::field-group
 
-|          |                            |
-| -------- | -------------------------- |
-| Type     | `'tag' \| 'path'`          |
-| Required | `true` when `group` is set |
+:::field{type="'tag' | 'path'" required}
+Which value assigns an operation to a group. Required in `group`.
+:::
+
+::
 
 ::field-group
 
 :::field{name="'tag'"}
-Uses the operation's first tag. When an OpenAPI 3.2 tag declares a `parent`, its folder sits inside the parent tag's folder, such as `animals/cats/`.
+The operation's first tag. An operation without tags goes in the `default` group. See [Group folders](#group-folders) for OpenAPI 3.2 `parent` tags.
 :::
 
 :::field{name="'path'"}
-Uses the first URL segment, such as `pet` for `/pet/{petId}`.
+The first segment of the URL path, such as `pet` for `/pet/{petId}`.
 :::
 
 ::
 
 ### group.name {#group-name}
 
-Turns the group key into the subfolder name, also used as the suffix on aggregate files. A `group.name` you pass always wins over the default.
+::field-group
 
-|          |                                                                                                             |
-| -------- | ----------------------------------------------------------------------------------------------------------- |
-| Type     | `(context: { group: string }) => string`                                                                    |
-| Required | `false`                                                                                                     |
-| Default  | `'tag'` groups camelCase the tag (`pet store` becomes `petStore`), `'path'` groups keep the raw URL segment |
+:::field{type="(context: { group: string }) => string"}
+Turns the group value into the folder name, which is also the suffix of aggregation files. Default: the value in camelCase, so `pet store` becomes `petStore`.
+:::
+
+::
 
 ```typescript [kubb.config.ts]
 import { pluginTs } from '@kubb/plugin-ts'
 
 pluginTs({
-  group: {
-    type: 'tag',
-    name: ({ group }) => `${group}Api`, // src/gen/types/petApi/
-  },
+  group: { type: 'tag', name: ({ group }) => `${group}Api` }, // src/gen/types/petApi/
 })
 ```
 
 ## include {#include}
 
-Generates only the operations and schemas that match at least one entry, and skips the rest.
+::field-group
 
-|          |                         |
-| -------- | ----------------------- |
-| Type     | `Array<Include>`        |
-| Required | `false`                 |
-| Default  | Everything is generated |
+:::field{type="Array<Include>"}
+Generates only the operations and schemas that match an entry. Default: everything.
+:::
 
-Each entry filters by `tag`, `operationId`, `path`, `method`, `contentType`, or `schemaName`, with a `pattern` that is a string or a `RegExp`. A string is compiled with `new RegExp(pattern)`, so it is not an exact match: `pattern: 'pet'` also matches `'petType'` and `'superpet'`. Anchor it (`'^pet$'`) for an exact match.
+::
 
-For `type: 'method'`, write the method in uppercase or lowercase. Kubb tests the pattern against both forms, so `'GET'`, `'get'`, `/GET/` and `/get/` all match a GET operation.
+### How filters match
 
-An `extension` entry matches operations by a vendor extension on the source operation instead of a pattern: `key` is the `x-*` key, and the optional `value` must be strictly equal. Without `value`, the key being present is enough. It does not apply to schemas.
+`include`, [`exclude`](#exclude), and [`override`](#override) entries share one shape: a `type`, and usually a `pattern`. Every type except `schemaName` matches operations.
+
+| `type` | Tests `pattern` against |
+| --- | --- |
+| `tag` | Each operation tag |
+| `operationId` | The `operationId` |
+| `path` | The full URL path, such as `/pet/{petId}` |
+| `method` | The HTTP method, ignoring case |
+| `contentType` | Each request body content type |
+| `schemaName` | The `#/components/schemas` name, for schemas |
+| `extension` | No pattern. Matches an `x-*` `key` on the operation, and `value` by strict equality when set |
+
+> [!WARNING]
+> A string `pattern` becomes `new RegExp(pattern)`, so it matches anywhere: `'pet'` also matches `'petType'`. Write `'^pet$'` for an exact match.
+
+Without a `schemaName` entry, `include` keeps only the schemas its operations use. See [Filters](#filters).
 
 ```typescript [Type definition]
 export type Include =
-  | {
-      type: 'tag' | 'operationId' | 'path' | 'contentType' | 'schemaName'
-      pattern: string | RegExp
-    }
-  | {
-      type: 'method'
-      pattern: HttpMethod | RegExp
-    }
-  | {
-      type: 'extension'
-      key: `x-${string}`
-      value?: unknown
-    }
+  | { type: 'tag' | 'operationId' | 'path' | 'contentType' | 'schemaName'; pattern: string | RegExp }
+  | { type: 'method'; pattern: HttpMethod | RegExp }
+  | { type: 'extension'; key: `x-${string}`; value?: unknown }
 ```
 
 ```typescript [kubb.config.ts]
@@ -263,19 +273,28 @@ pluginTs({
 })
 ```
 
+### Precedence
+
+```mermaid
+flowchart LR
+  node[Operation or schema] --> ex{Matches an exclude entry?}
+  ex -- yes --> skip[Skipped]
+  ex -- no --> inc{include set and no entry matches?}
+  inc -- yes --> skip
+  inc -- no --> ov{An override entry matches?}
+  ov -- yes --> merged[Plugin options + first match]:::core
+  ov -- no --> base[Plugin options]
+```
+
 ## exclude {#exclude}
 
-Skips any operation or schema that matches at least one entry, the opposite of `include`.
+::field-group
 
-|          |                  |
-| -------- | ---------------- |
-| Type     | `Array<Exclude>` |
-| Required | `false`          |
-| Default  | `[]`             |
+:::field{type="Array<Exclude>"}
+Skips every operation or schema that matches an entry. Entries match as in [How filters match](#how-filters-match), and `exclude` wins. Default: `[]`.
+:::
 
-Entries use the same fields as `include`. When both options match an item, `exclude` wins.
-
-When a client plugin (`@kubb/plugin-fetch`, `@kubb/plugin-axios`, or `@kubb/plugin-client`) excludes operations, the plugins that build on it (`@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-swr`, `@kubb/plugin-mcp`) skip those operations too, so you do not repeat the `exclude` list.
+::
 
 ```typescript [kubb.config.ts]
 import { pluginTs } from '@kubb/plugin-ts'
@@ -291,17 +310,13 @@ pluginTs({
 
 ## override {#override}
 
-Applies different plugin options to operations that match a pattern.
+::field-group
 
-|          |                   |
-| -------- | ----------------- |
-| Type     | `Array<Override>` |
-| Required | `false`           |
-| Default  | `[]`              |
+:::field{type="Array<Override>"}
+Gives matching operations or schemas other plugin options. Entries match as in [How filters match](#how-filters-match), top to bottom. Only the first match applies. Default: `[]`.
+:::
 
-Each entry takes the same fields as an `include` entry, plus an `options` object that accepts any plugin option except `override`, so rules cannot nest. Entries are checked top to bottom. The first match merges onto the plugin defaults, and later entries do not stack.
-
-The merge is shallow and `options` holds resolved values, so an object option replaces the plugin's value as a whole. An `output` without `mode` reads it from `output.path`, like the plugin's own `output`. Give any other object, such as `enum`, every field.
+::
 
 ```typescript [Type definition]
 export type Override = Include & {
@@ -309,7 +324,8 @@ export type Override = Include & {
 }
 ```
 
-When a client plugin overrides `returnType`, `output`, or `group` for an operation, the plugins that build on it (`@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-swr`, `@kubb/plugin-mcp`) follow those per-operation options.
+> [!WARNING]
+> `options` merges shallowly over the plugin options, so an object option such as `enum` replaces the plugin's value whole. Give it every field.
 
 ```typescript [kubb.config.ts]
 import { pluginTs } from '@kubb/plugin-ts'
@@ -330,27 +346,26 @@ pluginTs({
 
 ## resolver {#resolver}
 
-Overrides how the plugin names generated files and symbols. Members you omit keep the plugin's own resolver.
+::field-group
 
-|          |                                                                                                                        |
-| -------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Type     | `ResolverPatch<Resolver>`, parameterized by each plugin with its own resolver type such as `ResolverPatch<ResolverTs>` |
-| Required | `false`                                                                                                                |
+:::field{type="ResolverPatch<Resolver>"}
+Changes how the plugin names generated files and symbols. Members you leave out keep the plugin's behavior. Default: the plugin's resolver.
+:::
 
-Every resolver shares the members below. A plugin adds namespaces of its own, such as `param` and `response` on `@kubb/plugin-ts` or `query` and `mutation` on `@kubb/plugin-react-query`, listed on that plugin's options page. Inside a method `this` is the full resolver, so `this.default.name(name)` reuses the built-in casing. See [Customize names and paths](/docs/5.x/how-to/resolvers) for how a patch layers over the default.
+::
+
+Every resolver has these members. A plugin's options page lists its own, such as `param` on `@kubb/plugin-ts`. In a method, `this` is the full resolver, so `this.default.name(name)` reuses the built-in casing.
 
 ```typescript [Shared members]
 type ResolverPatch = {
-  name?(name: string): string
+  name?(name: string): string // the identifier for a name
   file?: {
-    baseName?(params: { name: string; extname: string }): string
-    path?(params: { baseName: string; output: Output }): string
+    baseName?(params: { name: string; extname: string }): string // the file name, extension included
+    path?(params: { baseName: string; output: Output }): string // the full path, which skips output.path and group
   }
-  imports?(options: ResolveImportsOptions): Array<ImportNode>
+  imports?(options: ResolveImportsOptions): Array<ImportNode> // the imports for the $ref schemas a node uses
 }
 ```
-
-`name` cases an identifier, `file.baseName` and `file.path` decide where a file lands, and `imports` builds the import statements for the `$ref` schemas a node uses.
 
 ```typescript [kubb.config.ts]
 import { pluginTs } from '@kubb/plugin-ts'
@@ -358,26 +373,25 @@ import { pluginTs } from '@kubb/plugin-ts'
 pluginTs({
   resolver: {
     name(name) {
-      // the default camelCases, so `Pet` becomes `petModel`
-      return `${this.default.name(name)}Model`
+      return `${this.default.name(name)}Model` // Pet becomes petModel
     },
   },
 })
 ```
 
+See [Resolvers](/docs/5.x/how-to/customize#resolvers) for how a patch layers over the default.
+
 ## macros {#macros}
 
-Rewrites AST nodes before they are printed, without forking the generator.
+::field-group
 
-|          |                |
-| -------- | -------------- |
-| Type     | `Array<Macro>` |
-| Required | `false`        |
-| Default  | `[]`           |
+:::field{type="Array<Macro>"}
+Rewrite AST nodes before the plugin prints them, without forking its generator. Default: `[]`.
+:::
 
-Each [macro](/docs/5.x/how-to/macros) callback, such as `schema` or `operation`, receives the node and a context object and returns a replacement or `undefined` to leave it as is. Macros run in order, so a later one sees the output of an earlier one. The client plugins (`@kubb/plugin-fetch`, `@kubb/plugin-axios`, `@kubb/plugin-client`) run their built-in macros first and yours after them.
+::
 
-The built-in macros `macroDedupeUnion`, `macroDiscriminatorEnum` and `macroEnumName` are exported from `kubb/kit`. See [Macros](/docs/5.x/reference/kit/ast#macros) for the `Macro` type and its callbacks.
+Macros run in order, each on the previous output. `@kubb/plugin-fetch`, `@kubb/plugin-axios`, and `@kubb/plugin-client` run their built-in macros first.
 
 ```typescript [kubb.config.ts]
 import { defineMacro } from 'kubb/kit'
@@ -392,3 +406,30 @@ const macroUntagged = defineMacro({
 
 pluginTs({ macros: [macroUntagged] })
 ```
+
+See [Macros](/docs/5.x/how-to/customize#macros) for a walkthrough, and [`ast.macro`](/docs/5.x/reference/kit/ast#macros) for callbacks and built-in macros.
+
+## Less common cases {#less-common-cases}
+
+### Filters {#filters}
+
+When an `include` or `exclude` mixes operation and `schemaName` entries, schemas follow their own rules.
+
+- Only `schemaName` entries filter schemas by name.
+- An `include` with operation entries and no `schemaName` entry keeps only the schemas those operations use, also indirectly.
+- An `include` with only `schemaName` entries generates no operations.
+
+A matching [`override`](#override) entry applies its `options` like this:
+
+- `options` takes any plugin option except `override`.
+- An `output` without `mode` reads it from `output.path`.
+
+### Group folders {#group-folders}
+
+With [`group`](#group-type), the resolver's `groupDir(group, value)` picks each file's folder. See [Built-in members](/docs/5.x/reference/kit/resolvers#auto-injected-resolver-defaults).
+
+| Group | Folder |
+| --- | --- |
+| A custom `group.name` | What `group.name` returns. It wins over `type`. |
+| `type: 'tag'` | The camelCased tag, inside the folders of its OpenAPI 3.2 `parent` tags, such as `animals/cats/` |
+| `type: 'path'` | The first path segment |

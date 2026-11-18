@@ -1,12 +1,12 @@
 ---
 layout: doc
-title: kubb remove
+title: kubb remove - Remove a plugin or parser
 description: The remove command deletes a plugin or parser from kubb.config.ts
   and uninstalls its package.
 outline:
   - 2
   - 3
-order: 9
+order: 7
 navigation:
   title: kubb remove
   icon: i-iconoir-trash
@@ -14,14 +14,13 @@ navigation:
 
 # kubb remove
 
-Run `kubb remove` to delete a plugin or parser from `kubb.config.ts` and uninstall its package. It shows the lines it removes and asks before it changes anything.
+`kubb remove` deletes a plugin or parser from your `kubb.config.ts` and uninstalls its package. It shows the lines it removes and asks first.
 
-## Usage
-
-Remove a plugin:
+Ids, versions, and project files work as in [Extension commands](/docs/5.x/reference/commands#extension-commands).
 
 ```shell [Terminal]
-kubb remove plugin-zod
+kubb remove plugin-zod                  # remove and uninstall
+kubb remove plugin-zod --no-uninstall   # keep the package installed
 ```
 
 ```text [Output]
@@ -32,58 +31,54 @@ kubb remove plugin-zod
 │  Uninstalls @kubb/plugin-zod
 │
 ◆  Remove it?
-│  Yes
-│
-◇  pluginZod() removed from kubb.config.ts
-
-✓ Plugin removed  3.42s
-
-  Packages  @kubb/plugin-zod uninstalled with pnpm
-
-Next     kubb generate
-```
-
-Files the plugin generated stay on disk until the next `kubb generate`.
-
-Keep the package installed:
-
-```shell [Terminal]
-kubb remove plugin-zod --no-uninstall
 ```
 
 ## Arguments
 
-| Argument | Required | Description |
-| -------- | -------- | ----------- |
-| `<id>`   | `true`   | Registry id, as `<owner>/<slug>` or a bare `<slug>` for `kubb-labs/<slug>`. |
-
-## Options
-
-| Option                | Default          | Description |
-| --------------------- | ---------------- | ----------- |
-| `--config`, `-c`      |                  | Path to the Kubb config to edit. Without it, the CLI looks for the same config files as `kubb generate`, in the current directory and then in each parent directory. |
-| `--yes`, `-y`         | `false`          | Remove without asking. |
-| `--no-uninstall`      |                  | Edit the config only and keep the package installed. |
-| `--dry-run`           | `false`          | Print the config lines and the package the command would remove, then stop. Nothing is uninstalled or written. |
+| Argument | Required | What it does |
+| --- | --- | --- |
+| `<id>` | Yes | The [registry id](/docs/5.x/reference/commands#ids). |
 
 ## What it removes
 
-`kubb remove` deletes the plugin or parser from the config, also when Kubb Studio switched it off, and drops its unused import. With several config entries, it edits the first one.
+`kubb remove` drops the call and its unused import. It leaves the generated files on disk. With [`output.clean`](/docs/5.x/reference/configuration#outputclean), the next `kubb generate` removes them.
 
-It does not remove:
+| It refuses to remove | Because |
+| --- | --- |
+| The adapter | A config needs one. Change it by hand. |
+| The last parser | A config needs at least one. |
+| An extension another plugin in the config depends on | Remove that plugin first. |
 
-- the adapter. A config needs one.
-- the last parser. A config needs at least one.
-- an extension another one depends on. Remove that one first.
+Extensions that ship with `kubb`, such as `@kubb/plugin-barrel` and `@kubb/parser-md`, leave the config but stay installed. See [Command output](#command-output).
 
-`@kubb/adapter-oas`, `@kubb/parser-ts`, `@kubb/parser-md`, and `@kubb/plugin-barrel` ship with `kubb`. They leave the config but stay installed.
+## Options {#options}
 
-## Environment variables
+| Flag | Alias | Default | What it does |
+| --- | --- | --- | --- |
+| `--config <path>` | `-c` | | Path to the Kubb config to edit. |
+| `--yes` | `-y` | `false` | Skip the confirmation. |
+| `--no-uninstall` | | | Edit the config only and keep the package installed. |
+| `--dry-run` | | `false` | Show what the command would uninstall or write, then stop. |
 
-| Variable        | Default                     | Description |
-| --------------- | --------------------------- | ----------- |
-| `KUBB_REGISTRY` | `https://kubb.dev/registry` | Base URL of the registry to read. See [Host your own registry](/docs/5.x/reference/registry#host-your-own-registry). |
+> [!TIP]
+> Pass `--yes` in scripts and CI, where no one can answer the prompt.
 
-## Exit codes
+## Exit codes {#exit-codes}
 
-`kubb remove` exits with code 1 when the id is invalid or unknown, it cannot remove the extension, or the uninstall fails. It exits with code 0 when the extension is removed, was not in the project, or you cancel.
+| Code | When |
+| --- | --- |
+| `0` | The extension is removed, is not in the project, or you canceled a prompt. |
+| `1` | The id is invalid or unknown, no config is found, the extension cannot be removed, or the uninstall fails. |
+
+## Less common cases {#less-common-cases}
+
+### Command output {#command-output}
+
+`kubb remove` removes the call, even one Kubb Studio switched off, and drops the unused import.
+
+- It leaves the plugin's generated files on disk. With [`output.clean`](/docs/5.x/reference/configuration#outputclean), the next `kubb generate` removes them.
+- It refuses an adapter, such as `@kubb/adapter-oas`, because a config needs one. Change the adapter in the config by hand.
+- `@kubb/parser-ts`, `@kubb/parser-md`, and `@kubb/plugin-barrel` ship with `kubb`. They leave the config but stay installed.
+- A package that another config entry still imports also stays installed.
+- Only plugins that run count as dependents. A plugin Studio switched off does not block the removal.
+- When the extension is not in the project, nothing changes and the exit code is 0.

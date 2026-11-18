@@ -29,12 +29,12 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
    */
   config: Config
   /**
-   * Absolute path to the current plugin's output directory.
+   * Absolute path to the build's output directory: `config.output.path` resolved against `config.root`.
+   * It is the same for every plugin. A plugin's own `output.path` is relative to it.
    */
   root: string
   /**
-   * The driver running this build. Most generators never need it. Prefer the scoped helpers
-   * on this context (`getPlugin`, `getResolver`, `upsertFile`) over reaching into the driver.
+   * @deprecated Use `schemas`, `getPlugin`, `getResolver` and `memo` instead. Removed in the next major version.
    */
   driver: KubbDriver
   /**
@@ -107,6 +107,8 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
    * Derive schema indexes such as circular or enum names with `memo`.
    */
   meta: InputMeta
+  /** Every schema in the spec, in the order the adapter returns them. Empty before the adapter parses the input. */
+  schemas: ReadonlyArray<SchemaNode>
   /**
    * Resolved options after exclude/include/override filtering.
    */

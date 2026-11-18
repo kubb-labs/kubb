@@ -10,7 +10,7 @@ import type { InputNode } from './nodes/input.ts'
 import type { OperationNode } from './nodes/operation.ts'
 import type { ParameterNode } from './nodes/parameter.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { collect, transform } from './visitor.ts'
+import { collect, findSchema, transform } from './visitor.ts'
 
 /**
  * Builds a minimal sample AST with one `Pet` schema and one `getPetById` operation.
@@ -218,5 +218,117 @@ describe('response headers', () => {
 
     expect(collect<ParameterNode>(response, { parameter: (node) => node })).toStrictEqual([header])
     expect(collect<SchemaNode>(response, { schema: (node) => (node.type === 'ref' ? node : undefined) })).toHaveLength(1)
+  })
+})
+
+describe('findSchema', () => {
+  const isString = (schema: SchemaNode) => schema.type === 'string'
+
+  // Builds a named object whose properties are refs to the given targets, wired up after creation so cycles can form.
+  function objectOf(name: string, extra: Array<SchemaNode> = []) {
+    const refs: Array<SchemaNode> = []
+    const node = createSchema({ type: 'object', name, properties: [] })
+    const link = (...targets: Array<SchemaNode>) => {
+      for (const target of targets) refs.push(createSchema({ type: 'ref', name: target.name ?? undefined, schema: target }))
+      Object.assign(node, {
+        properties: [...refs, ...extra].map((schema, index) => createProperty({ name: `p${index}`, schema, required: true })),
+      })
+    }
+    link()
+    return { node, link }
+  }
+
+  it('returns the first match and undefined without one', () => {
+    const tree = buildSampleTree()
+
+    expect(findSchema(tree, { predicate: isString })).toMatchObject({ type: 'string' })
+    expect(findSchema(tree, { predicate: (schema) => schema.type === 'boolean' })).toBeUndefined()
+  })
+
+  it('ends on a self-referencing schema', () => {
+    const tree = objectOf('Tree')
+    tree.link(tree.node)
+    const cache = new WeakMap<SchemaNode, SchemaNode | null>()
+
+    expect(findSchema(tree.node, { predicate: isString, followRefs: true })).toBeUndefined()
+    expect(findSchema(tree.node, { predicate: isString, followRefs: true, cache })).toBeUndefined()
+    expect(cache.get(tree.node)).toBeNull()
+  })
+
+  it('finds a match in mutually recursive schemas, cached or not', () => {
+    const a = objectOf('A')
+    const b = objectOf('B')
+    const c = objectOf('C')
+    const d = objectOf('D', [createSchema({ type: 'string' })])
+    // A -> B -> A and A -> C -> B: when B first returns, A still has D, which matches, left to walk.
+    b.link(a.node)
+    c.link(b.node)
+    a.link(b.node, c.node, d.node)
+    const cache = new WeakMap<SchemaNode, SchemaNode | null>()
+
+    for (const start of [a, b, c, d]) {
+      const uncached = findSchema(start.node, { predicate: isString, followRefs: true })
+      expect(uncached?.type).toBe('string')
+      expect(findSchema(start.node, { predicate: isString, followRefs: true, cache })).toBe(uncached)
+    }
+    expect(findSchema(b.node, { predicate: isString, followRefs: true, cache: new WeakMap() })).toMatchObject({ type: 'string' })
+  })
+
+  it('does not cache a no-match for a schema whose cycle is still being walked', () => {
+    const a = objectOf('A')
+    const b = objectOf('B')
+    const c = objectOf('C')
+    const d = objectOf('D', [createSchema({ type: 'string' })])
+    b.link(a.node)
+    c.link(b.node)
+    a.link(b.node, c.node, d.node)
+    const cache = new WeakMap<SchemaNode, SchemaNode | null>()
+
+    expect(findSchema(a.node, { predicate: isString, followRefs: true, cache })).toMatchObject({ type: 'string' })
+    expect(cache.get(b.node)).toBeUndefined()
+    expect(cache.get(c.node)).toBeUndefined()
+    expect(findSchema(c.node, { predicate: isString, followRefs: true, cache })).toMatchObject({ type: 'string' })
+  })
+
+  it('does not cache a no-match through a cycle that a sibling branch reaches again', () => {
+    const root = objectOf('Root')
+    const y = objectOf('Y')
+    const p = objectOf('P')
+    const z = objectOf('Z')
+    const w = objectOf('W')
+    const m = objectOf('M', [createSchema({ type: 'string' })])
+    // Y and Z sit at the same depth. W reaches P, which reaches Y, which reaches Root, which reaches M.
+    p.link(y.node)
+    y.link(p.node, root.node)
+    w.link(p.node)
+    z.link(w.node)
+    root.link(y.node, z.node, m.node)
+    const cache = new WeakMap<SchemaNode, SchemaNode | null>()
+
+    expect(findSchema(root.node, { predicate: isString, followRefs: true, cache })).toMatchObject({ type: 'string' })
+    expect(cache.get(w.node)).not.toBeNull()
+    expect(findSchema(w.node, { predicate: isString, followRefs: true, cache })).toMatchObject({ type: 'string' })
+  })
+
+  it('caches a no-match for a whole cycle once it is walked', () => {
+    const a = objectOf('A')
+    const b = objectOf('B')
+    a.link(b.node)
+    b.link(a.node)
+    const cache = new WeakMap<SchemaNode, SchemaNode | null>()
+
+    expect(findSchema(a.node, { predicate: isString, followRefs: true, cache })).toBeUndefined()
+    expect(cache.get(a.node)).toBeNull()
+    expect(cache.get(b.node)).toBeNull()
+  })
+
+  it('gives the same answer from a warm cache as without one', () => {
+    const tree = buildSampleTree()
+    const cache = new WeakMap<SchemaNode, SchemaNode | null>()
+    const options = { predicate: isString, followRefs: true }
+
+    const uncached = findSchema(tree, options)
+    expect(findSchema(tree, { ...options, cache })).toBe(uncached)
+    expect(findSchema(tree, { ...options, cache })).toBe(uncached)
   })
 })

@@ -61,6 +61,7 @@ describe('checkoutGitInput', () => {
     const checkout = await checkoutGitInput(`git+${repo}#v1:specs/openapi.yaml`)
 
     expect(await readFile(checkout.path, 'utf8')).toBe('openapi: 3.1.0\n')
+    expect(checkout.path).toBe(join(checkout.dir, 'specs/openapi.yaml'))
     await checkout.dispose()
     expect(existsSync(checkout.path)).toBe(false)
   })

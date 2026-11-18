@@ -1,21 +1,24 @@
 # Options
 
-`pluginBarrel` takes no arguments. You configure it through `output.barrel`, either on `defineConfig` to set the root barrel and the default every plugin inherits, or on a single plugin to override that plugin's barrel. The plugin-level behavior is also summarized under [`output.barrel`](https://kubb.dev/docs/5.x/reference/plugin-options#output-barrel) in the shared plugin options.
+`pluginBarrel()` takes no arguments. Configure it with `output.barrel` on `defineConfig` or on one plugin.
+
+`output.barrel` on `defineConfig` sets the root barrel and the default every plugin inherits. On a plugin, it overrides that plugin's barrels. [Shared plugin options](https://kubb.dev/docs/5.x/reference/plugin-options#output-barrel) summarize the plugin-level setting.
 
 ## Options overview
 
-| Option                                    | Purpose                                                | Default                                                                                     |
-| ----------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| [`output.barrel`](#output-barrel)         | Re-export style for the barrel files.                  | `false` on `defineConfig`, `{ type: 'named' }` in every generator plugin's default `output` |
-| ↳ [`output.barrel.type`](#type)           | Named exports or a wildcard export.                    | Required when `output.barrel` is an object                                                  |
-| ↳ [`output.barrel.nested`](#nested)       | Choose whether barrels reference subdirectory barrels. | `false`                                                                                     |
-| ↳ [`output.barrel.namespace`](#namespace) | Expose each immediate group as a named namespace.      | `false`                                                                                     |
+| Option                                             | Purpose                                                         | Default                                                         |
+| -------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------- |
+| [`output.barrel`](#outputbarrel) on `defineConfig` | Root barrel, and the value plugins inherit.                     | `false`                                                         |
+| [`output.barrel`](#outputbarrel) on a plugin       | That plugin's barrels.                                          | `{ type: 'named' }` in each generator plugin's default `output` |
+| ↳ [`output.barrel.type`](#type)                    | Named exports or a wildcard export.                             | Required when `output.barrel` is an object                      |
+| ↳ [`output.barrel.nested`](#nested)                | Re-export subfolder barrels instead of leaf files. Plugin only. | `false`                                                         |
+| ↳ [`output.barrel.namespace`](#namespace)          | Add a named namespace per subfolder. Plugin only.               | `false`                                                         |
 
 ## Option details
 
 ### output.barrel
 
-Kubb writes an `index.ts` in every directory of a plugin's output, and a root barrel when `output.barrel` is set on `defineConfig`. For two plugins that write to `models` and `clients`, with `output.barrel` set on `defineConfig`:
+Kubb writes an `index.ts` in every folder of a plugin's output, and a root barrel when `output.barrel` is set on `defineConfig`. For two plugins that write to `models` and `clients`:
 
 ```text
 src/gen
@@ -40,54 +43,60 @@ src/gen
 | Required | `false`                                                                      |
 | Default  | `false`                                                                      |
 
-The `type` field picks the export style. A plugin's `output.barrel` also accepts `nested`, so each barrel re-exports the barrels below it instead of the leaf files. Set `namespace: true` to add named group exports alongside the standalone exports. The root `output.barrel` accepts only `type` and always stays flat.
+- The root `output.barrel` accepts only `type` and is always flat.
+- A plugin without its own `output.barrel` uses the root `type`.
+- `false` on a plugin writes no barrel for it and leaves its files out of the root barrel.
 
-A plugin called without `output` uses its own default, which sets `barrel: { type: 'named' }`. If you pass your own `output` object, it replaces that default. `pluginTs({ output: { path: 'types' } })` then has no `barrel` and uses `config.output.barrel`, which is `false` unless you set it.
+> [!WARNING]
+> Passing your own `output` to a plugin, as in `pluginTs({ output: { path: 'types' } })`, replaces its default `{ type: 'named' }`. With the root `output.barrel` at `false`, that plugin then gets no barrels.
 
-Set `barrel: { type: 'named' | 'all' }` on `defineConfig` to enable barrels everywhere: a root barrel, and the default every plugin without its own `output.barrel` inherits. A plugin that sets its own `output.barrel` overrides that inherited value, including back to `false`, which also drops its files from the root barrel. A plugin with `output.mode: 'file'` gets no barrel of its own, and the root barrel re-exports that file directly.
+See [Barrel rules](https://kubb.dev/extensions/kubb-labs/plugin-barrel/guides/barrel-rules#which-barrel-setting-applies).
 
 ### type
 
-Export style for the barrel files. Required whenever `output.barrel` is set to an object.
+Export style of the barrel files.
 
-|          |                    |
-| -------- | ------------------ |
-| Type     | `'all' \| 'named'` |
-| Required | `true`             |
+|          |                                          |
+| -------- | ---------------------------------------- |
+| Type     | `'all' \| 'named'`                       |
+| Required | `true` when `output.barrel` is an object |
 
 ::field-group
 
 :::field{name="'named'"}
-Re-exports each symbol by name from the file's named exports. This style suits tree-shaking and explicit imports.
+Re-exports each symbol by name, with values and types in separate statements. It suits tree-shaking and explicit imports.
 :::
 
 :::field{name="'all'"}
-Uses `export *`, a smaller barrel that re-exports everything.
+Writes `export *` per file, a smaller barrel.
 :::
 
 ::
 
+For a plugin output with `post.ts`, `types/User.ts`, and `user.ts`:
+
 ::code-group
 
 ```typescript ['named']
-// src/gen/index.ts
-export { getUser } from './api/user'
-export { getPost, Post } from './api/post'
-export { User } from './api/types/User'
+// src/gen/api/index.ts
+export { getPost } from './post'
+export type { Post } from './post'
+export type { User } from './types/User'
+export { getUser } from './user'
 ```
 
 ```typescript ['all']
-// src/gen/index.ts
-export * from './api/user'
-export * from './api/post'
-export * from './api/types/User'
+// src/gen/api/index.ts
+export * from './post'
+export * from './types/User'
+export * from './user'
 ```
 
 ::
 
 ### nested
 
-Changes what each barrel references. A barrel is written for every directory either way. With `nested: false`, the plugin's top barrel reaches through to the leaf files. With `nested: true`, each barrel re-exports only what sits directly inside its directory, including the subdirectory barrels below it, so callers can import from any depth. This field works on a plugin's `output.barrel` only.
+Changes what each barrel references. Kubb writes a barrel in every folder either way. This field works on a plugin's `output.barrel` only.
 
 |          |           |
 | -------- | --------- |
@@ -95,25 +104,30 @@ Changes what each barrel references. A barrel is written for every directory eit
 | Required | `false`   |
 | Default  | `false`   |
 
+| Value             | The plugin's top barrel re-exports                 | Import from    |
+| ----------------- | -------------------------------------------------- | -------------- |
+| `false` (default) | Every leaf file below it                           | The top folder |
+| `true`            | Its own files and the `index.ts` of each subfolder | Any depth      |
+
 ::code-group
 
-```typescript [nested: false (default) → barrels reference leaf files]
+```typescript [nested: false]
 // src/gen/api/index.ts
-export * from './user'
 export * from './post'
 export * from './types/User'
+export * from './user'
 
 // src/gen/api/types/index.ts
 export * from './User'
 ```
 
-```typescript [nested: true → barrels reference sub-barrels]
-// src/gen/api/index.ts re-exports its files and subdirectories
-export * from './user'
+```typescript [nested: true]
+// src/gen/api/index.ts
 export * from './post'
 export * from './types/index'
+export * from './user'
 
-// src/gen/api/types/index.ts re-exports its files
+// src/gen/api/types/index.ts
 export * from './User'
 ```
 
@@ -121,7 +135,7 @@ export * from './User'
 
 ### namespace
 
-Exposes each immediate subdirectory as a named namespace, alongside its standalone exports. Editors can offer auto-imports for these namespaces when the generated files belong to the TypeScript project. This field works on a plugin's `output.barrel` only and enables nested barrels, even when `nested` is unset or `false`. The plugin needs its own `output.path`. A plugin that writes to the output root gets a warning and no namespaces.
+Exposes each immediate subfolder as a named namespace, such as `PetService`, next to its standalone exports.
 
 |          |           |
 | -------- | --------- |
@@ -129,7 +143,13 @@ Exposes each immediate subdirectory as a named namespace, alongside its standalo
 | Required | `false`   |
 | Default  | `false`   |
 
-For tag-grouped fetch clients, use `group.name` to name the service directories. Leave fetch `sdk` unset so React Query can import the standalone operation functions.
+- Works on a plugin's `output.barrel` only, and turns on nested barrels even when `nested` is unset or `false`.
+- Needs the plugin's own `output.path`. A plugin that writes to the output root gets a `KUBB_PLUGIN_WARNING` and no namespaces.
+- A namespace takes the PascalCase folder name. Name the folders with `group.name`.
+
+For tag-grouped fetch clients, leave the fetch `sdk` option unset so React Query can import the standalone operation functions:
+
+::code-group
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -153,16 +173,10 @@ export default defineConfig({
 })
 ```
 
-`integerType: 'number'` types every `int64` as a `number`, so the example can pass `petId: 123`. A `number` loses precision above `Number.MAX_SAFE_INTEGER`. Keep the default `bigint` for larger ids and pass `123n`.
-
-For a `pet` tag, the operations land in `src/gen/client/petService/`. `src/gen/client/index.ts` exports both the operations and their PascalCase namespace:
-
 ```typescript [src/gen/client/index.ts]
 export * from './petService/index'
 export * as PetService from './petService/index'
 ```
-
-Both calling styles remain available alongside the generated hooks and query options:
 
 ```typescript [src/example.ts]
 import { PetService, getPetById } from './gen/client'
@@ -171,4 +185,8 @@ await PetService.getPetById({ path: { petId: 123 } })
 await getPetById({ path: { petId: 123 } })
 ```
 
-An enabled root barrel also forwards `PetService`. Namespace names use the PascalCase directory name. Names starting with a digit get an `_` prefix, and names with no letters or digits become `_`. Conflicting exports produce a diagnostic. Change `group.name` to resolve collisions.
+::
+
+For a `pet` tag, the operations land in `src/gen/client/petService/`. The example sets [`integerType: 'number'`](https://kubb.dev/extensions/kubb-labs/adapter-oas/options#integertype), so it can pass `123` as an `int64` id.
+
+See [Namespaces for tag groups](https://kubb.dev/extensions/kubb-labs/plugin-barrel/guides/barrel-rules#namespaces-for-tag-groups).

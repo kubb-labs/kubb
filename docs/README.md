@@ -4,8 +4,7 @@ The hand-written Kubb core docs. [kubb.dev](https://kubb.dev) renders `5.x/` at 
 
 | Folder | Holds |
 | --- | --- |
-| `5.x/` | The v5 pages, one [Diátaxis](https://diataxis.fr) quadrant per folder: `tutorials/`, `how-to/`, `reference/`, and `explanation/`, plus `integrations/`, `ai/`, `community/`, and `resources/` |
-| `snippets/` | Text that several pages include with `<!--@include: ../../snippets/...-->`, a path relative to the including page |
+| `5.x/` | The v5 pages, one [Diátaxis](https://diataxis.fr) quadrant per folder: `tutorials/`, `how-to/`, `reference/`, and `explanation/`, plus `integrations/`, `ai/`, and `community/` |
 
 Docs for plugins, adapters, and parsers do not live here. Each extension ships them in its own package, in `packages/<name>/docs/` here or in [kubb-labs/plugins](https://github.com/kubb-labs/plugins). Link to an official extension as `/extensions/kubb-labs/<slug>`, such as `/extensions/kubb-labs/plugin-ts/options`. [Extension docs](5.x/reference/kit/extension-docs.md) has the full rules.
 
@@ -13,7 +12,7 @@ Blog posts live in [kubb-labs/platform](https://github.com/kubb-labs/platform) u
 
 ## Change the docs
 
-Update the docs in the same pull request as the code they describe. A docs-only pull request needs no changeset, and CI skips it.
+Update the docs in the same pull request as the code they describe. A pull request that only changes `docs/` needs no changeset, and CI skips it. A change to a package's `docs/` folder ships in its npm tarball, so it needs a patch changeset.
 
 `5.x/changelog.md` is written by hand. In each release, add a short entry per version from the root `CHANGELOG.md`: one line per user-facing change with its PR link. Leave out internal-only changes.
 
@@ -44,8 +43,8 @@ A folder gets its title, icon and position from a `.navigation.yml` file inside 
 - Write in active voice, present tense.
 - Keep paragraphs short, 2 to 3 sentences.
 - Explain before showing code.
-- Import `defineConfig` from `kubb/config` in every example.
-- Put each page in one Diátaxis quadrant (tutorial, how-to, reference, explanation) and link to the owner page instead of repeating its content. The `snippets/` folder holds text that several pages include.
+- Import `defineConfig` from `kubb/config` in every config example. An example that only defines a plugin, adapter, parser, generator, or resolver imports from `kubb/kit` instead.
+- Put each page in one Diátaxis quadrant (tutorial, how-to, reference, explanation) and link to the owner page instead of repeating its content.
 
 Pages render with Nuxt Content and Nuxt UI's Markdown components. Reuse the same elements for the same purpose:
 
@@ -77,7 +76,7 @@ Pages render with Nuxt Content and Nuxt UI's Markdown components. Reuse the same
 | Icons beside labels | `:icon{name="i-iconoir-code"}` | Keep a readable text label beside the icon. |
 | File type icons | `:code-icon{filename="kubb.config.ts"}` | Code block tabs already infer these icons from their file labels. |
 
-GitHub alerts render as callouts on kubb.dev and also work in repository-only Markdown such as READMEs and ADRs. Keep those files in GitHub-compatible syntax. MDC components belong in site pages, their included snippets, and the Studio docs in the platform repository.
+GitHub alerts render as callouts on kubb.dev and also work in repository-only Markdown such as READMEs and ADRs. Keep those files in GitHub-compatible syntax. MDC components belong in site pages and the Studio docs in the platform repository.
 
 Close a component with the same number of colons used to open it. Use one more colon for a nested component, including code groups and file trees inside steps:
 

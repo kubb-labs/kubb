@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { createCompiler, Logger, resolveConfig } from '@farmfe/core'
+import { createCompiler, resolveConfig } from '@farmfe/core'
 import { ast } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { defineExtension, memoryStorage, type Storage, type UserConfig } from '@kubb/core'
@@ -106,19 +106,16 @@ const bundlers: Array<Bundler> = [
     // Farm's `build` exits the process on failure, so drive its compiler directly.
     name: 'farm',
     async build({ options, root, entry }) {
-      const logger = new Logger()
       const config = await resolveConfig(
         {
           root,
           compilation: { input: { index: entry }, output: { path: 'dist/farm', targetEnv: 'node' }, persistentCache: false },
           plugins: [farmPlugin(options)],
         },
+        'build',
         'production',
-        logger,
-        false,
       )
-      const compiler = await createCompiler(config, logger)
-      await compiler.compile()
+      await createCompiler(config).compile()
     },
   },
 ]
@@ -183,6 +180,15 @@ describe.each(bundlers)('$name', ({ build }) => {
     // Plugin a's type is erased, so import a value from each plugin to prove both reached the module, and an enum to prove it compiles to a value.
     await fs.writeFile(importEntry, "import { a_PetKind, a_PetValue, b_Pet } from './pet.openapi.yaml'\nexport const pets = [a_PetValue, b_Pet, a_PetKind.A]\n")
     const config: UserConfig = { output: { path: './gen' }, adapter: schemaAdapter, plugins: [createSchemaPlugin('a'), createSchemaPlugin('b', 'a')] }
+
+    await expect(build({ options: { config }, root, entry: importEntry })).resolves.toBeUndefined()
+  })
+
+  test('loads an imported JSON spec that is the input of a config', async () => {
+    await fs.writeFile(path.join(root, 'my-api.json'), '{ "openapi": "3.0.0" }\n')
+    const importEntry = path.join(root, 'import-input.js')
+    await fs.writeFile(importEntry, "import { a_PetValue } from './my-api.json'\nexport const pets = [a_PetValue]\n")
+    const config: UserConfig = { root, input: './my-api.json', output: { path: './gen' }, adapter: schemaAdapter, plugins: [createSchemaPlugin('a')] }
 
     await expect(build({ options: { config }, root, entry: importEntry })).resolves.toBeUndefined()
   })

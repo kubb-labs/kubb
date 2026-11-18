@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Import an OpenAPI spec in TypeScript with openapi-import
-description: Import a .openapi.yaml spec in TypeScript with openapi-import and get the types and enums your kubb.config.ts generates, without generated files.
+title: openapi-import - Import OpenAPI specs in TypeScript
+description: Import a .openapi.yaml spec in TypeScript with openapi-import and get the types and enums your kubb.config.ts plugins generate, without generated files.
 outline: [2, 3]
 order: 15
 navigation:
@@ -17,7 +17,17 @@ navigation:
 import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
 ```
 
-`openapi-import` is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/pull/4712), so `tsc` and your editor type-check the plugin output in place of the spec. Go to definition, hover, and rename jump between the generated types and the keys in the spec.
+It is a [TypeScript content mapper](https://github.com/microsoft/typescript-go/pull/4712). `tsc` and your editor type-check the plugin output in place of the spec. Go to definition, hover, and rename jump between the types and the spec keys. Your bundler supplies the values at run time:
+
+```mermaid
+flowchart LR
+  spec[petStore.openapi.yaml] --> mapper[openapi-import]
+  spec --> plugin[unplugin-kubb]
+  config[kubb.config.ts]:::core --> mapper
+  config --> plugin
+  mapper --> types[Types in tsc and editor]
+  plugin --> values[Values at run time]
+```
 
 > [!WARNING]
 > `openapi-import` is experimental. It needs TypeScript 7.1.0-beta or later with `--runExternalCode`.
@@ -25,8 +35,6 @@ import { type Pet, petStatusEnum } from './petStore.openapi.yaml'
 ::steps{level="2"}
 
 ## Install openapi-import
-
-Install it with Kubb and the TypeScript beta:
 
 :::code-group{sync="package-manager"}
 
@@ -40,9 +48,9 @@ npm install -D kubb openapi-import typescript@beta
 
 :::
 
-## Register the extension
+## Register the content mapper {#register-the-extension}
 
-Add the content mapper to `tsconfig.json`, and name the spec `<name>.openapi.yaml`:
+Add the mapper to `tsconfig.json`, and name the spec `<name>.openapi.yaml`:
 
 ```json [tsconfig.json]
 {
@@ -71,15 +79,15 @@ node node_modules/typescript/bin/tsc --noEmit --runExternalCode
 
 :::
 
-With npm, a bare `tsc` runs TypeScript 6, so call the binary from `typescript`.
-
-VS Code only passes `--runExternalCode` in trusted workspaces.
+With npm, a bare `tsc` runs TypeScript 6, so call the binary from `typescript`. VS Code passes `--runExternalCode` only in trusted workspaces.
 
 ::
 
+The [`openapi-import` README](https://github.com/kubb-labs/openapi-import#what-you-can-import) lists which type each schema and operation becomes.
+
 ## Choose the plugins
 
-Add a `kubb.config.ts` to set plugin options or to run other plugins, and install each plugin it imports:
+Without a `kubb.config.ts`, only `@kubb/plugin-ts` runs. To set plugin options or run other plugins, add a config and install each plugin it imports:
 
 ```shell [Terminal]
 pnpm add -D @kubb/plugin-ts
@@ -95,11 +103,12 @@ export default defineConfig({
 })
 ```
 
-Add `./kubb.config.ts` to `include` in `tsconfig.json`. The mapper finds the config like the CLI does and reloads it when it changes. With several configs, a spec uses the one whose `input` matches it.
+- Put the config next to `tsconfig.json` or in a parent folder, and add its relative path to `include`, such as `./kubb.config.ts` or `../kubb.config.ts`. The mapper reloads the config when it changes.
+- With several configs, a spec uses the one whose `input` is that spec, or else the first config without an `input`.
 
 ## Load the spec at run time
 
-TypeScript does not emit the spec to JavaScript, so values such as `petStatusEnum` need a bundler. Add `kubb()` from any [build tool integration](/docs/5.x/integrations/overview#build-tools) without a `config` option, so it reads the same `kubb.config.ts` as `tsc`:
+TypeScript does not emit the spec as JavaScript, so values such as `petStatusEnum` need a bundler. Add `kubb()` from any [build tool](/docs/5.x/integrations/overview#build-tools) without a `config` option, so it reads the same `kubb.config.ts` as `tsc`:
 
 ```ts [vite.config.ts]
 import kubb from 'kubb/vite'
@@ -123,7 +132,8 @@ export async function getAvailablePet({ petId }: GetPetByIdPath): Promise<GetPet
 }
 ```
 
-A config with an `input` also writes the generated files at build time. Leave `input` out to import specs only. The bundler reads `kubb.config.ts` once, so restart it after you change the config.
+- A config with an `input` also writes the generated files at build time. Leave `input` out to import specs only.
+- The bundler reads `kubb.config.ts` once, so restart it after you change the config.
 
 ## Limits
 
@@ -131,9 +141,4 @@ A config with an `input` also writes the generated files at build time. Leave `i
 - Files that `kubb.config.ts` imports are not watched. Restart the TypeScript server after you change them.
 - A changed spec runs a full Kubb build: about 0.4 s for a 10 KB spec and 2.6 s for a 1.4 MB spec.
 
-## See also
-
-- [Build tool integrations](/docs/5.x/integrations/overview#build-tools)
-- [Vite integration](/docs/5.x/integrations/vite)
-- [Configuration reference](/docs/5.x/reference/configuration)
-- [`openapi-import` on GitHub](https://github.com/kubb-labs/openapi-import), with a working pet-store example
+The [README](https://github.com/kubb-labs/openapi-import#limits) lists the editor and `$ref` limits. For a working setup, see [`examples/pet-store`](https://github.com/kubb-labs/openapi-import/tree/main/examples/pet-store).

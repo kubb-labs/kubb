@@ -24,11 +24,58 @@ type Store<TKey, TValue> = {
  * `const refs = memo(refCache, node, () => collectRefs(node))`
  */
 export function memo<TKey, TValue>(store: Store<TKey, TValue>, key: TKey, compute: () => TValue): TValue {
-  if (store.has(key)) return store.get(key) as TValue
+  const cached = store.get(key)
+  if (cached !== undefined || store.has(key)) return cached as TValue
   const value = compute()
   store.set(key, value)
   return value
 }
+
+/**
+ * Creates a store for `memo`. With no options it is a `Map`. Each option changes one thing:
+ *
+ * - `weak` holds the keys weakly, in a `WeakMap`, so an entry goes away with its key.
+ * - `max` bounds the store: it empties itself before the entry that would pass `max`, which keeps a
+ *   cache in a long-running process from growing without end. `max: 1` keeps only the last entry.
+ *
+ * @example
+ * `const patterns = memo.create<string, RegExp>()`
+ *
+ * @example Freed with its key
+ * `const refs = memo.create<SchemaNode, Array<string>>({ weak: true })`
+ *
+ * @example Bounded
+ * `const names = memo.create<string, string>({ max: 100_000 })`
+ *
+ * @example Many values per key
+ * ```ts
+ * const filesByPlugin = memo.create<string, Array<string>>()
+ * memo(filesByPlugin, 'plugin-ts', () => []).push('models.ts')
+ * ```
+ */
+function createStore<TKey, TValue>(options?: { weak?: false; max?: undefined }): Map<TKey, TValue>
+function createStore<TKey extends WeakKey, TValue>(options: { weak: true; max?: undefined }): WeakMap<TKey, TValue>
+function createStore<TKey, TValue>(options: { max: number; weak?: false }): Store<TKey, TValue>
+function createStore<TKey, TValue>({ weak, max }: { weak?: boolean; max?: number } = {}): Store<TKey, TValue> {
+  if (weak) return new WeakMap<WeakKey, TValue>() as Store<TKey, TValue>
+  const entry = new Map<TKey, TValue>()
+  if (max === undefined) return entry
+  const set = (key: TKey, value: TValue) => {
+    if (entry.size >= max) entry.clear()
+    entry.set(key, value)
+  }
+  if (max !== 1) return { has: (key) => entry.has(key), get: (key) => entry.get(key), set }
+  // A key equal to the stored one but a different object, such as a copy of a string, replaces the
+  // stored key, so the next lookup is an identity hit instead of a full comparison.
+  const touch = (key: TKey) => {
+    if (!entry.has(key)) return false
+    set(key, entry.get(key) as TValue)
+    return true
+  }
+  return { has: touch, get: (key) => (touch(key) ? entry.get(key) : undefined), set }
+}
+
+memo.create = createStore
 
 type ParallelOptions<TItem> = {
   /**

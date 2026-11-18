@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, isPathInside } from '@internals/utils'
 import type { FileNode, InputNode } from '@kubb/ast'
+import { host } from './host.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { detectSharedSchemas, type SharedSchemas } from './detectSharedSchemas.ts'
@@ -15,7 +16,7 @@ import { runOutputPasses, type RunOutputPassesOptions } from './output/runOutput
 function resolveConfig(userConfig: UserConfig): Config {
   return {
     ...userConfig,
-    root: userConfig.root || process.cwd(),
+    root: userConfig.root || host.cwd(),
     parsers: userConfig.parsers ?? [],
     output: {
       format: false,
@@ -54,9 +55,13 @@ export type CreateKubbOptions = {
    * Stops the build at the next safe checkpoint.
    */
   signal?: AbortSignal
+  /**
+   * The only folders a `$ref` in the input may read local files from. Unset, a `$ref` reads any file.
+   */
+  fileRefs?: Array<string>
 }
 
-export type GenerateConfigsOptions = Pick<CreateKubbOptions, 'hooks' | 'signal'> & {
+export type GenerateConfigsOptions = Pick<CreateKubbOptions, 'hooks' | 'signal' | 'fileRefs'> & {
   /**
    * Index of the one config to build. It is still compared with the others, but never empties the directory they share.
    */
@@ -130,11 +135,13 @@ export class Kubb {
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
   #sharedSchemas: SharedSchemas | undefined
+  readonly #fileRefs: Array<string> | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
     this.#signal = options.signal
+    this.#fileRefs = options.fileRefs
   }
 
   /**
@@ -143,11 +150,11 @@ export class Kubb {
    */
   static async *generate(
     configs: Array<UserConfig>,
-    { hooks = new Hookable<KubbHooks>(), signal, only }: GenerateConfigsOptions = {},
+    { hooks = new Hookable<KubbHooks>(), signal, fileRefs, only }: GenerateConfigsOptions = {},
   ): AsyncGenerator<ConfigGenerateResult, void, void> {
-    const sharedByConfig = await detectSharedSchemas({ configs, hooks })
+    const sharedByConfig = await detectSharedSchemas({ configs, hooks, fileRefs })
     for (const index of only === undefined ? configs.keys() : [only]) {
-      const kubb = new Kubb(configs[index]!, { hooks, signal })
+      const kubb = new Kubb(configs[index]!, { hooks, signal, fileRefs })
       const detected = sharedByConfig[index]
       // A config built on its own must not empty the directory the others share.
       kubb.#sharedSchemas = only === undefined ? detected : detected && { ...detected, clean: false }
@@ -204,6 +211,7 @@ export class Kubb {
       signal,
       cleanPaths: dirsToClean.map(([, dir]) => dir),
       sharedSchemas: this.#sharedSchemas,
+      fileRefs: this.#fileRefs,
     })
     await driver.setup()
 

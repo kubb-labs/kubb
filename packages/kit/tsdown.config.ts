@@ -31,7 +31,7 @@ export default defineConfig([
     format: 'cjs',
     ...shared,
     outputOptions: (options, _format, { cjsDts }) => ({ ...options, keepNames: !cjsDts }),
-    dts: { emitDtsOnly: true, tsconfig: '../../tsconfig.dts.json' },
+    dts: { dtsOnly: true, tsconfig: '../../tsconfig.dts.json' },
   },
   {
     // Declarations get their own build: `keepNames` leaks an untyped `__name` helper into .d.ts files.
@@ -39,6 +39,6 @@ export default defineConfig([
     format: 'esm',
     ...shared,
     outputOptions: {},
-    dts: { emitDtsOnly: true, tsconfig: '../../tsconfig.dts.json' },
+    dts: { dtsOnly: true, tsconfig: '../../tsconfig.dts.json' },
   },
 ])

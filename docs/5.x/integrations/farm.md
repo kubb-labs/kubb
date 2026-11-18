@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Generate code from your API spec with Farm
+title: Farm plugin - Generate code from OpenAPI
 description: Add the kubb/farm plugin to farm.config.ts so every Farm build generates code from your API spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 12
@@ -11,9 +11,17 @@ navigation:
 
 # Generate code from your API spec with Farm
 
+`kubb/farm` generates code from your `kubb.config.ts` once, before `farm build` continues. It ships with `kubb`.
+
 ::steps{level="2"}
 
-<!--@include: ../../snippets/integrations/bundler-steps.md-->
+## Install Kubb and your plugins
+
+Follow [Installation](/docs/5.x/how-to/installation).
+
+## Add Kubb to `farm.config.ts`
+
+Pass one config object from your `kubb.config.ts` as `config`, not an array or a function.
 
 ```typescript [farm.config.ts]
 import { defineConfig } from '@farmfe/core'
@@ -25,4 +33,10 @@ export default defineConfig({
 })
 ```
 
-<!--@include: ../../snippets/integrations/bundler-notes.md-->
+## Run the build
+
+Run `farm build`. If Kubb fails, the build fails.
+
+::
+
+[How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) covers defaults, reports, and watch rebuilds.

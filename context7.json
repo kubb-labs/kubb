@@ -4,7 +4,7 @@
   "public_key": "pk_E3UkJR9X5FvhME9wB1sCS",
   "projectTitle": "Kubb",
   "description": "Turn your API spec into type-safe code. Point Kubb at an OpenAPI specification and it generates TypeScript types, typed Axios or Fetch clients, TanStack Query and SWR hooks, Zod schemas, Faker mocks, and MSW handlers. This repository holds the docs, the core engine, CLI, authoring kit, OpenAPI adapter, parsers and renderers.",
-  "folders": ["docs/5.x", "docs/snippets", "packages"],
+  "folders": ["docs/5.x", "packages"],
   "excludeFiles": ["AGENTS.md", "CHANGELOG.md", "changelog.md"],
   "rules": [
     "Import `defineConfig` from `kubb/config`, not from `kubb`.",

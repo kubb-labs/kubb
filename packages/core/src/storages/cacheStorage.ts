@@ -2,6 +2,7 @@ import { hash } from 'node:crypto'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { existsSync, writeRaw } from '@internals/utils'
+import { host } from '../host.ts'
 import { createStorage } from '../createStorage.ts'
 import { fsStorage } from './fsStorage.ts'
 
@@ -41,7 +42,7 @@ export function resolveCacheDir(root: string): string {
  * await cache.writeItem('output-manifest.json', JSON.stringify(entries))
  * ```
  */
-export const cacheStorage = createStorage(({ root = process.cwd() }: CacheStorageOptions) => {
+export const cacheStorage = createStorage(({ root = host.cwd() }: CacheStorageOptions) => {
   const dir = resolveCacheDir(root)
   const fs = fsStorage()
   const toPath = (key: string) => join(dir, key)

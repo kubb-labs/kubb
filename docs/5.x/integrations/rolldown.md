@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Generate code from your API spec with Rolldown
+title: Rolldown plugin - Generate code from OpenAPI
 description: Add the kubb/rolldown plugin to rolldown.config.ts so every Rolldown build generates code from your API spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 9
@@ -11,9 +11,17 @@ navigation:
 
 # Generate code from your API spec with Rolldown
 
+`kubb/rolldown` generates code from your `kubb.config.ts` once, before the Rolldown build continues. It ships with `kubb`.
+
 ::steps{level="2"}
 
-<!--@include: ../../snippets/integrations/bundler-steps.md-->
+## Install Kubb and your plugins
+
+Follow [Installation](/docs/5.x/how-to/installation).
+
+## Add Kubb to `rolldown.config.ts`
+
+Pass one config object from your `kubb.config.ts` as `config`, not an array or a function.
 
 ```typescript [rolldown.config.ts]
 import kubb from 'kubb/rolldown'
@@ -26,4 +34,10 @@ export default defineConfig({
 })
 ```
 
-<!--@include: ../../snippets/integrations/bundler-notes.md-->
+## Run the build
+
+Run `rolldown -c`. If Kubb fails, the build fails.
+
+::
+
+[How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) covers defaults, reports, and watch rebuilds.

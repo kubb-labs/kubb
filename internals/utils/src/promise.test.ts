@@ -2,8 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { inParallel, memo } from './promise.ts'
 
 describe('memo', () => {
-  it('computes once per key using a WeakMap (object keys)', () => {
-    const store = new WeakMap<{ v: number }, number>()
+  it('computes once per key with a weak store (object keys)', () => {
+    const store = memo.create<{ v: number }, number>({ weak: true })
     const a = { v: 1 }
     const b = { v: 2 }
     const compute = vi.fn((obj: { v: number }) => obj.v * 10)
@@ -14,13 +14,43 @@ describe('memo', () => {
     expect(compute).toHaveBeenCalledTimes(2)
   })
 
-  it('treats a cached null as a hit', () => {
-    const store = new Map<string, null>()
-    const compute = vi.fn(() => null)
+  it.each([null, undefined])('treats a cached %s as a hit', (cached) => {
+    const store = memo.create<string, null | undefined>()
+    const compute = vi.fn(() => cached)
 
-    memo(store, 'k', compute)
-    memo(store, 'k', compute)
+    expect(memo(store, 'k', compute)).toBe(cached)
+    expect(memo(store, 'k', compute)).toBe(cached)
     expect(compute).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps only the last entry with max 1, and hits for an equal key', () => {
+    const store = memo.create<string, number>({ max: 1 })
+    const compute = vi.fn((key: string) => key.length)
+
+    memo(store, 'aa', () => compute('aa'))
+    memo(store, ['a', 'a'].join(''), () => compute('aa'))
+    memo(store, 'bbb', () => compute('bbb'))
+    memo(store, 'aa', () => compute('aa'))
+    expect(compute.mock.calls).toStrictEqual([['aa'], ['bbb'], ['aa']])
+  })
+
+  it('empties a store before the entry that would pass max', () => {
+    const store = memo.create<string, number>({ max: 2 })
+    const compute = vi.fn(() => 1)
+
+    memo(store, 'a', compute)
+    memo(store, 'b', compute)
+    memo(store, 'a', compute)
+    expect(compute).toHaveBeenCalledTimes(2)
+
+    memo(store, 'c', compute)
+    expect(store.has('a')).toBe(false)
+    expect(store.has('c')).toBe(true)
+  })
+
+  it('rejects options that cannot combine', () => {
+    // @ts-expect-error a WeakMap has no size to bound
+    memo.create<object, number>({ weak: true, max: 2 })
   })
 })
 

@@ -1,24 +1,30 @@
 # TypeScript
 
-The TypeScript parser writes `.ts` and `.js` files. It turns each file's AST into source text with imports, exports, declarations, and JSDoc, and resolves relative import paths.
+The TypeScript parser prints the `.ts` and `.js` files that plugins generate, with imports, exports, declarations, and JSDoc.
 
-The package also exports `parserTsx`, which writes `.tsx` and `.jsx` files with the same options.
+- It rewrites relative import paths.
+- The package also exports `parserTsx` for `.tsx` and `.jsx` files, with the same options.
 
 ## Setup
 
-Kubb registers `parserTs`, `parserTsx`, and `parserMd` by default, in `defineConfig` and in the bundler integrations, so no setup is needed. Set `parsers` in `defineConfig` only to change an option or add a parser. A custom `parsers` array replaces the default set, so list every parser your plugins need. Files that no parser claims are written as their source text only, without imports, exports, banner, or footer.
+No setup is needed. `defineConfig` and the bundler integrations register `parserTs()`, `parserTsx()`, and `parserMd()` by default. Set `parsers` only to change an option or to add a parser.
+
+> [!WARNING]
+> A custom `parsers` array replaces the default set, so list every parser your plugins need. A file that no parser claims is written as its source text only, without imports, exports, banner, or footer.
 
 ## Options worth knowing
 
-- `extension` rewrites the extension of relative imports and exports. Each key is a generated file's extension, and each value is the extension its relative imports and exports get. `''` drops it. By default, imports in `.ts` files have no extension. Use `{ '.ts': '.js' }` for ESM packages. Use `{ '.ts': '.ts' }` when Node.js runs the `.ts` files directly, or when you compile with `rewriteRelativeImportExtensions`. Package imports stay unchanged.
+| Option                                                                           | Default         | What it does                                                                                                                                                   |
+| -------------------------------------------------------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`extension`](https://kubb.dev/extensions/kubb-labs/parser-ts/options#extension) | `{ '.ts': '' }` | Sets the extension that relative imports and exports get. Use `{ '.ts': '.js' }` for ESM output and `{ '.ts': '.ts' }` to run `.ts` files directly in Node.js. |
 
-`parserTsx` reads its own `extension` map, so set the `.tsx` key on it as well.
-
-See [Options](https://kubb.dev/extensions/kubb-labs/parser-ts/options) for its type and default.
+`parserTsx` reads its own `extension` map, so set the `.tsx` key on it too.
 
 ## Example
 
-The config below adds `.js` to relative imports in `.ts` and `.tsx` files and keeps every default parser registered.
+This config adds `.js` to relative imports in `.ts` and `.tsx` files and keeps every default parser.
+
+::code-group
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -34,8 +40,17 @@ export default defineConfig({
     parserTsx({ extension: { '.tsx': '.js' } }),
     parserMd(),
   ],
-  plugins: [
-    pluginTs(),
-  ],
+  plugins: [pluginTs()],
 })
 ```
+
+```typescript [src/gen/types/Pet.ts]
+import type { Category } from './Category.js'
+
+export type Pet = {
+  category?: Category
+  name: string
+}
+```
+
+::

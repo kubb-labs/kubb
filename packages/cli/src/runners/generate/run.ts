@@ -1,5 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
+import { setTimeout as delay } from 'node:timers/promises'
 import { styleText } from 'node:util'
 import { formatMs, formatters, getElapsedMs, linters } from '@internals/utils'
 import {
@@ -29,13 +30,8 @@ import { logBanner } from '../../ui/mascot.ts'
 import { createSpinner } from '../../ui/spinner.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
+import { getLatestVersion } from '../../utils/updateCheck.ts'
 import { type BuildDiff, type BuildSnapshot, diffBuilds, listenForKeys, startWatcher, trackBuild } from './utils.ts'
-
-/** NPM registry endpoint used to check for @kubb/cli updates. */
-const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
-
-/** Upper bound in milliseconds for the npm update check, so a slow registry never stalls a run. */
-const UPDATE_CHECK_TIMEOUT_MS = 3_000
 
 /** The formatter names from `Config['output'].format`, without `'auto'` (detection, not a tool) and `false` (skip). */
 type FormatterName = Exclude<NonNullable<Config['output']['format']>, 'auto' | false>
@@ -65,7 +61,7 @@ type GenerateProps = {
  * Generates the configs and returns whether every build succeeded.
  */
 export async function generate({ configs, hooks }: GenerateProps): Promise<boolean> {
-  // Not awaited: each request finishes in the background, capped by its timeout, so it never delays the summary.
+  // Not awaited: a detached process sends each request, so it never delays the summary or the exit.
   const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
     void trackRun({ command: 'generate', hrStart })({
       plugins: config.plugins.flatMap((p) =>
@@ -96,16 +92,14 @@ type GenerateCommandOptions = {
   dryRun?: boolean
 }
 
-/** The latest published version, `undefined` when the registry does not answer in time or `signal` aborts. Never rejects. */
-async function fetchLatestVersion(signal: AbortSignal): Promise<string | undefined> {
-  try {
-    const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.any([signal, AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS)]) })
-    const data = (await res.json()) as { version: string }
-    return data.version
-  } catch {
-    // Ignore network errors
-    return undefined
-  }
+/** Upper bound in milliseconds for the update check's cache read or write once generation is done. */
+const UPDATE_WAIT_MS = 1_000
+
+/** `promise`'s value, or `undefined` when it takes longer than `ms`. */
+function withTimeout<T>({ promise, ms }: { promise: Promise<T>; ms: number }): Promise<T | undefined> {
+  const timer = new AbortController()
+  const timeout = delay(ms, undefined, { signal: timer.signal }).catch(() => undefined)
+  return Promise.race([promise, timeout]).finally(() => timer.abort())
 }
 
 async function checkForUpdate({ hooks, latestVersion }: { hooks: Hookable<KubbHooks>; latestVersion: string | undefined }): Promise<void> {
@@ -188,7 +182,7 @@ async function watch({ configs, hooks, quiet }: GenerateProps & { quiet: boolean
 /**
  * Runs the full Kubb generation lifecycle for the given CLI options.
  * Loads configs, sets up the reporters (CLI `--reporter` picks which of `config.reporters` to trigger),
- * calls `generate` for each config entry, and prints an update notice when the registry answered in time.
+ * calls `generate` for each config entry, and prints an update notice when a newer version is known.
  */
 export async function run({
   input,
@@ -198,12 +192,9 @@ export async function run({
   reporters: cliReporters,
   dryRun,
 }: GenerateCommandOptions): Promise<void> {
-  // Started first and never awaited: the notice prints at the end only when the registry has answered by then.
+  // Started first: the notice prints at the end only when the stored answer or the registry is there by then.
   const updateCheck = new AbortController()
-  let latestVersion: string | undefined
-  void fetchLatestVersion(updateCheck.signal).then((value) => {
-    latestVersion = value
-  })
+  const latestVersion = getLatestVersion(updateCheck.signal)
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new Hookable<KubbHooks>()
 
@@ -218,8 +209,10 @@ export async function run({
   // The run log goes to stderr in `json` mode, so an error with no report entry is never silent and stdout stays one JSON document.
   if (json) setupReporters(hooks, { logLevel, reporters: [cliReporter], writer: createPlainWriter(console.error) })
 
-  // The config loads while the banner plays; the output still prints in order once the banner is done.
-  const banner = quiet ? undefined : logBanner(version)
+  // The config loads while the banner plays. Once it settles the banner jumps to its last frame, so
+  // the build starts right away and no frame lands between log lines.
+  const bannerCut = new AbortController()
+  const banner = quiet ? undefined : logBanner({ version, signal: bannerCut.signal })
   const loading = getConfigs({
     configPath,
     input,
@@ -227,8 +220,11 @@ export async function run({
     logLevel: logLevelKey as CLIOptions['logLevel'],
     reporters: cliReporters,
   })
-  // Handled below; this keeps a rejection during the banner from counting as unhandled.
-  loading.catch(() => undefined)
+  // A rejection is handled below; this also keeps it from counting as unhandled during the banner.
+  void loading.then(
+    () => bannerCut.abort(),
+    () => bannerCut.abort(),
+  )
   await banner
 
   if (!quiet) {
@@ -275,9 +271,9 @@ export async function run({
     // One config that fails does not stop the others.
     const succeeded = await (watchMode ? watch({ configs: runConfigs, hooks, quiet }) : generate({ configs: runConfigs, hooks }))
 
-    // A request still in flight would keep the process alive until its timeout.
+    // Aborting settles a request in flight at once; the timeout covers a cache read or write on a stalled disk.
     updateCheck.abort()
-    await checkForUpdate({ hooks, latestVersion })
+    await checkForUpdate({ hooks, latestVersion: await withTimeout({ promise: latestVersion, ms: UPDATE_WAIT_MS }) })
 
     await hooks.callHook('kubb:lifecycle:end')
 
@@ -287,7 +283,7 @@ export async function run({
       logTip()
     }
 
-    // `exitCode`, not `exit()`, so a telemetry request still in flight can finish within its timeout.
+    // `exitCode`, not `exit()`, so the payload piped to the telemetry process is flushed first.
     if (!succeeded) {
       process.exitCode = 1
     }

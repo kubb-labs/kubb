@@ -43,6 +43,14 @@ async function detect(configs: Array<Config>) {
 }
 
 describe('detectSharedSchemas', () => {
+  it('limits the specs it parses to the `fileRefs` folders of the run', async () => {
+    const configs = [makeConfig([]), makeConfig([])]
+
+    await detectSharedSchemas({ configs, hooks: new Hookable<KubbHooks>(), fileRefs: ['/project'] })
+
+    for (const config of configs) expect(config.adapter!.parse).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ fileRefs: ['/project'] }))
+  })
+
   it('shares a schema that only some configs define, and lists on each config only the shared schemas it defines', async () => {
     const name = () => ast.factory.createSchema({ type: 'string', name: 'Name' })
     const address = () => object('Address', { street: string() })

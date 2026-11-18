@@ -296,6 +296,11 @@ function isNamespace(value: unknown): value is Record<string, unknown> {
  */
 const resolverOptions: unique symbol = Symbol.for('@kubb/core/resolver/options')
 
+/** One segment of an array `resolveName` key, so a repeated key finds its name without building a string. */
+type NameNode = { name?: string; next: Map<string | undefined, NameNode> }
+
+const createNameNode = (): NameNode => ({ next: new Map() })
+
 /**
  * Builds a nested file path from a dotted name. Splits on dots that precede a letter
  * (so version numbers embedded in operationIds like `v2025.0` stay intact), camelCases
@@ -367,8 +372,12 @@ export class Resolver {
   /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
   #options: ResolverBuildOptions
-  #memo = new Map<string, unknown>()
+  #memo = memo.create<string, unknown>()
   #usedNames = new Set<string>()
+  #stringNames = memo.create<string, string>()
+  #arrayNames = createNameNode()
+  #outputDirs = memo.create<Output, Map<string, string>>({ weak: true })
+  #importPaths = memo.create<Output, Map<string, Map<string, Map<string, string>>>>({ weak: true })
   #tagParents = new Map<string, string>()
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
   // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
@@ -446,17 +455,20 @@ export class Resolver {
    * ```
    */
   resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
-    // Length-prefixed segments cannot collide whatever they contain, and this stays cheaper than `JSON.stringify`.
-    const cacheKey = typeof key === 'string' ? `s:${key}` : `a:${key.map((segment) => (segment === undefined ? 'u' : `${segment.length}:${segment}`)).join('')}`
-    const allocate = (suffix: number): string => {
-      const candidate = suffix === 1 ? name : `${name}${suffix}`
-      const normalized = normalize(candidate)
-      const names = typeof normalized === 'string' ? [normalized] : normalized
-      if (names.some((emittedName) => this.#usedNames.has(emittedName))) return allocate(suffix + 1)
-      this.reserveNames(names)
-      return candidate
-    }
-    return this.memo(`resolveName:${cacheKey}`, () => allocate(1))
+    if (typeof key === 'string') return memo(this.#stringNames, key, () => this.#allocateName({ name, normalize, suffix: 1 }))
+
+    const node = key.reduce((parent, segment) => memo(parent.next, segment, createNameNode), this.#arrayNames)
+    node.name ??= this.#allocateName({ name, normalize, suffix: 1 })
+    return node.name
+  }
+
+  #allocateName({ name, normalize, suffix }: Required<Omit<ResolveNameOptions, 'key'>> & { suffix: number }): string {
+    const candidate = suffix === 1 ? name : `${name}${suffix}`
+    const normalized = normalize(candidate)
+    const names = typeof normalized === 'string' ? [normalized] : normalized
+    if (names.some((emittedName) => this.#usedNames.has(emittedName))) return this.#allocateName({ name, normalize, suffix: suffix + 1 })
+    this.reserveNames(names)
+    return candidate
   }
 
   file(options: ResolveFileOptions): FileNode {
@@ -475,13 +487,17 @@ export class Resolver {
    * reads the same ref set instead of re-scanning it per plugin.
    */
   imports(options: ResolveImportsOptions): Array<ImportNode> {
-    const { node, root, output, group, extname = '.ts', name, checks } = options
+    const { node, root, output, extname = '.ts', name, checks } = options
     const resolveName = name ?? ((schemaName: string) => this.name(schemaName))
+    // A schema import has no `tag` or `path`, so `group` never moves it and stays out of the key.
+    const byRoot = memo(this.#importPaths, output, () => new Map<string, Map<string, Map<string, string>>>())
+    const byExtname = memo(byRoot, root, () => new Map<string, Map<string, string>>())
+    const paths = memo(byExtname, extname, () => new Map<string, string>())
 
     return ast.graph.getImportedNames(node, { checks }).map((schemaName) =>
       ast.factory.createImport({
         name: [resolveName(schemaName)],
-        path: this.#resolveFilePath({ name: schemaName, extname, root, output, group }),
+        path: memo(paths, schemaName, () => this.#resolveFilePath({ name: schemaName, extname, root, output })),
       }),
     )
   }
@@ -562,11 +578,15 @@ export class Resolver {
    * are provided.
    */
   #resolvePath({ baseName, tag, path: groupPath, root, output, group }: ResolvePathOptions): string {
+    const outputDir = memo(
+      memo(this.#outputDirs, output, () => new Map<string, string>()),
+      root,
+      () => path.resolve(root, output.path),
+    )
     if (output.mode !== 'directory') {
-      return path.resolve(root, output.path)
+      return outputDir
     }
 
-    const outputDir = path.resolve(root, output.path)
     // A file without the value its group needs (an SDK class per tag, grouped by path) is not grouped.
     const groupValue = group?.type === 'path' ? groupPath : tag
     const result = group && groupValue ? path.resolve(outputDir, this.groupDir(group, groupValue), baseName) : path.resolve(outputDir, baseName)

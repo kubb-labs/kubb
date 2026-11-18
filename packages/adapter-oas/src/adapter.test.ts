@@ -43,6 +43,15 @@ describe('adapterOas.parse', () => {
     expect(adapter.sources).toStrictEqual([withRef.path, path.join(mocks, 'external/pet.yaml')])
   })
 
+  it('returns a tree that ast.json writes smaller than plain JSON and reads back unchanged', async () => {
+    const input = await adapterOas({ validate: false }).parse({ type: 'path', path: path.resolve(import.meta.dirname, '../mocks/petStore.yaml') })
+
+    const text = ast.json.stringify(input)
+
+    expect(text.length).toBeLessThan(JSON.stringify(input).length)
+    expect(ast.json.parse(text)).toEqual(input)
+  })
+
   it('emits nested OpenAPI 3.1 definitions and resolves their references', async () => {
     const node = await adapterOas({ validate: false }).parse({
       type: 'data',
@@ -347,6 +356,76 @@ describe('adapterOas.parse', () => {
 
     expect(node.meta.servers).toEqual([{ url: 'https://api.example.com/v2' }])
     expect(node.meta.auth).toEqual([{ name: 'api_key', credential: { type: 'apiKey', in: 'header', name: 'X-API-Key' } }])
+  })
+})
+
+describe('adapterOas pathParamsCasing', () => {
+  const spec = {
+    openapi: '3.0.0',
+    info: { title: 'Pets', version: '1.0.0' },
+    paths: {
+      '/stores/{store-id}/pets/{pet-id}': {
+        parameters: [{ name: 'store-id', in: 'path', required: true, schema: { type: 'string' } }],
+        get: {
+          operationId: 'getPet',
+          parameters: [
+            { name: 'pet-id', in: 'path', required: true, schema: { type: 'string' } },
+            { name: 'page-size', in: 'query', schema: { type: 'integer' } },
+          ],
+          responses: { '200': { description: 'ok' } },
+        },
+      },
+    },
+  } as const
+
+  it('keeps the spec names by default', async () => {
+    const node = await adapterOas({ validate: false }).parse({ type: 'data', data: spec })
+
+    expect(node.operations[0]?.path).toBe('/stores/{store-id}/pets/{pet-id}')
+    expect(node.operations[0]?.parameters.map((param) => param.name)).toStrictEqual(['store-id', 'pet-id', 'page-size'])
+  })
+
+  it('camelCases path parameters and placeholders only', async () => {
+    const node = await adapterOas({ validate: false, pathParamsCasing: 'camelcase' }).parse({ type: 'data', data: spec })
+
+    expect(node.operations[0]?.path).toBe('/stores/{storeId}/pets/{petId}')
+    expect(node.operations[0]?.parameters.map((param) => param.name)).toStrictEqual(['storeId', 'petId', 'page-size'])
+  })
+
+  it('camelCases snake_case path parameters too', async () => {
+    const snakeSpec = {
+      ...spec,
+      paths: {
+        '/pets/{pet_id}': {
+          get: {
+            parameters: [{ name: 'pet_id', in: 'path', required: true, schema: { type: 'string' } }],
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+    } as const
+    const node = await adapterOas({ validate: false, pathParamsCasing: 'camelcase' }).parse({ type: 'data', data: snakeSpec })
+
+    expect(node.operations[0]?.path).toBe('/pets/{petId}')
+    expect(node.operations[0]?.parameters[0]?.name).toBe('petId')
+  })
+
+  it('keeps the spec names of an operation with a matrix path parameter, whose name is sent', async () => {
+    const matrixSpec = {
+      ...spec,
+      paths: {
+        '/groups/{group-id}': {
+          get: {
+            parameters: [{ name: 'group-id', in: 'path', required: true, style: 'matrix', schema: { type: 'string' } }],
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+    } as const
+    const node = await adapterOas({ validate: false, pathParamsCasing: 'camelcase' }).parse({ type: 'data', data: matrixSpec })
+
+    expect(node.operations[0]?.path).toBe('/groups/{group-id}')
+    expect(node.operations[0]?.parameters[0]?.name).toBe('group-id')
   })
 })
 

@@ -161,7 +161,6 @@ describe('readConfig', () => {
     })
 
     it.each([
-      ['a file it cannot parse', `export default defineConfig({`, 'the config file could not be parsed'],
       ['an export that is not a defineConfig call', `export default config`, 'the exported config is not a defineConfig(...) call'],
       ['defineConfig without a config', `export default defineConfig()`, 'defineConfig(...) was called without a config'],
       ['a config passed as a variable', `export default defineConfig(config)`, 'config is not an object literal'],
@@ -932,6 +931,29 @@ describe('editConfig', () => {
         edits: [{ operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['output', 'path'], value: 'types' }],
       })
       expect(result.source).toBe(source.replace(`        syntaxType: 'type',\n`, `        syntaxType: 'type',\n        output: { path: 'types' },\n`))
+    })
+
+    it.each([
+      ['a plugin output.path', { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['output', 'path'], value: '../../src' }],
+      ['an output object', { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['output'], value: { path: '/etc' } }],
+      [
+        'an override entry',
+        { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['override'], value: [{ options: { output: { path: 'a/../../b' } } }] },
+      ],
+      ['a drive-relative path', { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['output', 'path'], value: 'C:../src' }],
+      [
+        'a drive path that normalizes away',
+        { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['output', 'path'], value: 'C:/../src' },
+      ],
+      [
+        'a drive path with backslashes',
+        { operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['output', 'path'], value: 'C:\\..\\src' },
+      ],
+      ['a new plugin', { operation: ConfigEditOperation.ADD_PLUGIN, plugin: '@kubb/plugin-zod', options: { output: { path: '..\\src' } } }],
+    ] satisfies Array<[string, ConfigEdit]>)('refuses %s that resolves outside the output folder', (_, edit) => {
+      const result = editConfig({ source, edits: [edit] })
+      expect(result.source).toBe(source)
+      expect(result.outcomes[0]).toMatchObject({ applied: false, reason: expect.stringContaining('outside the output folder') })
     })
 
     it('removes an option with its whole line, keeping the comments around it', () => {

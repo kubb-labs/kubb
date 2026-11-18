@@ -1,12 +1,12 @@
 ---
 layout: doc
-title: kubb update
+title: kubb update - Update extensions to the pinned version
 description: The update command moves installed Kubb extensions to the version
   the Kubb extension registry pins, or lists the available updates with --dry-run.
 outline:
   - 2
   - 3
-order: 7
+order: 5
 navigation:
   title: kubb update
   icon: i-iconoir-refresh-double
@@ -14,15 +14,23 @@ navigation:
 
 # kubb update
 
-Run `kubb update` to move installed extensions to the version the [Kubb registry](/docs/5.x/reference/registry) pins. The command shows each installed extension's version change and bump, asks which updates to install, and installs them with your project's package manager. It then offers to generate from `kubb.config.ts` with the new versions and summarizes the files that changed. With `--yes`, it installs every update except majors, unless you name the extension, and does not regenerate. `kubb update` never changes `kubb.config.ts`.
+`kubb update` moves installed extensions to the version the registry pins. It shows each version change, asks which updates to install, installs them, then offers to generate again. It never changes `kubb.config.ts` and never downgrades.
 
-## Usage
-
-Update every installed extension the registry lists:
+Ids, versions, and project files work as in [Extension commands](/docs/5.x/reference/commands#extension-commands).
 
 ```shell [Terminal]
-kubb update
+kubb update                              # check every installed extension
+kubb update --dry-run                    # list updates, install nothing
+kubb update plugin-zod plugin-ts --yes   # two extensions, no prompt
 ```
+
+## Arguments
+
+| Argument | What it does |
+| --- | --- |
+| `[ids...]` | The [registry ids](/docs/5.x/reference/commands#ids) to update. Without ids, it checks every installed extension the registry lists. |
+
+## Pick the updates
 
 ```text [Output]
 ◇  Checked 3 extensions against the registry
@@ -37,70 +45,40 @@ kubb update
 │  ↑/↓ to navigate • Space: select • Enter: confirm
 ```
 
-Minor and patch updates start selected. A major starts unselected, since it can break the generated code. The hint is the version change.
+- Minor and patch updates start selected.
+- A major starts unselected unless you named its id, since it can break the generated code.
+- After the install, it asks whether to generate again, since that rewrites the generated files.
 
-After the install, `kubb update` asks whether to regenerate now, since that rewrites the generated files. `--yes` installs only. The summary starts with the outcome and duration, then lists the packages, the skipped updates, and the file changes:
+## Which extensions it updates {#update-scope}
 
-```text [Output]
-✓ Update complete  2.16s
+An extension gets an update when its installed version is older than the pinned one, or when `package.json` lists it but it is not installed. Kubb skips an update that does not support your Kubb or Node.js version and prints `Skipped <id>: <reason>`. See [Command output](#command-output).
 
-  Packages  1 installed with pnpm · 1 skipped
-  Skipped   Plugin @kubb/plugin-zod 6.0.0  run kubb update plugin-zod later
-  Files     1 added · 1 modified · 0 deleted
-```
+## Options {#options}
 
-List the updates without installing them:
+| Flag | Alias | Default | What it does |
+| --- | --- | --- | --- |
+| `--yes` | `-y` | `false` | Skip the prompts. Installs every update except majors you did not name, and does not regenerate. |
+| `--dry-run` | | `false` | List the updates, then stop. Nothing changes. |
 
-```shell [Terminal]
-kubb update --dry-run
-```
+> [!TIP]
+> Pass `--yes` in scripts and CI, where no one can answer the prompt.
 
-```text [Output]
-◇ Checked 2 extensions against the registry
-│  Extension         Current  Latest
-│  @kubb/plugin-ts   5.0.0    5.2.0   minor
-│  @kubb/plugin-zod  5.2.0    6.0.0   major · breaking
-│
-◇ Updates available  138ms
+## Exit codes {#exit-codes}
 
-Dry run: nothing was installed. Run kubb update to install them.
-```
+| Code | When |
+| --- | --- |
+| `0` | The updates are installed, nothing is outdated, or you canceled a prompt. Also when the generation after the install fails. |
+| `1` | An id is malformed (nothing updates) or not installed (the other ids still update), a named extension's update is not compatible, the registry cannot be read, or the install fails. |
 
-The preview exits with code 0 when the check succeeds, including when updates are available. It installs no packages and does not regenerate files.
+## Less common cases {#less-common-cases}
 
-Install the updates for two extensions without the prompt:
+### Command output {#command-output}
 
-```shell [Terminal]
-kubb update plugin-zod plugin-ts --yes
-```
+After the install, `kubb update` finds the config like [`kubb generate`](/docs/5.x/reference/commands/generate) and asks whether to generate again. The summary lists installed and skipped packages and changed files.
 
-## Arguments
-
-| Argument   | Required | Description |
-| ---------- | -------- | ----------- |
-| `[ids...]` | `false`  | Registry ids to update, as `<owner>/<slug>` or a bare `<slug>` for `kubb-labs/<slug>`. Without ids, every installed extension the registry lists is checked. |
-
-## Options
-
-| Option        | Default | Description |
-| ------------- | ------- | ----------- |
-| `--dry-run`   | `false` | List the available updates without installing them. |
-| `--yes`, `-y` | `false` | Install every update without asking. A major is only installed when its id is named. |
-
-## Which extensions it updates
-
-`kubb update` checks the registry extensions listed in `dependencies` or `devDependencies` of the `package.json` in the current directory. An extension gets an update when its installed version is older than the pinned one, or when it is not installed. A version newer than the pin is left alone, so `kubb update` never downgrades.
-
-An update that does not support your Kubb or Node.js version is skipped with `Skipped <id>: <reason>`. An extension pinned to a GitHub release installs as `github:<owner>/<repo>#<commit>`.
-
-An id that matches no installed extension prints `<id> is not installed, or not in the registry.` and exits with code 1. The other ids still update. When nothing is outdated, the summary says `Already up to date`. An incompatible update is reported as skipped.
-
-## Environment variables
-
-| Variable        | Default                     | Description |
-| --------------- | --------------------------- | ----------- |
-| `KUBB_REGISTRY` | `https://kubb.dev/registry` | Base URL of the registry to read. See [Host your own registry](/docs/5.x/reference/registry#host-your-own-registry). |
-
-## Exit codes
-
-`kubb update` exits with code 1 when an id is invalid or not installed, a named extension's update is incompatible, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update and when you cancel at the prompt. When the generation after the install fails, the summary says `Extensions updated; generation failed` and the exit code does not change.
+| Case | Result |
+| --- | --- |
+| An update does not support your Kubb or Node.js version | Skipped with `Skipped <id>: <reason>`. |
+| A named id matches no installed extension | `<id> is not installed, or not in the registry.` Other ids still update, and the exit code is 1. |
+| Nothing is outdated | The summary says `Already up to date`. |
+| The generation after the install fails | The summary says `Extensions updated; generation failed`, and the exit code stays 0. |

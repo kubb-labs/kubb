@@ -1,10 +1,7 @@
 ---
 layout: doc
-title: Plugins
-description: defineExtension with kind plugin defines a Kubb plugin from one
-  object with meta, dependencies, and a setup function that returns the resolved
-  options, plus the KubbPluginSetupContext that registers generators, resolvers,
-  and macros.
+title: Plugins - Define a Kubb plugin with defineExtension
+description: "Define a Kubb plugin with defineExtension and kind plugin: meta, dependencies, setup, and the setup context that registers generators."
 outline:
   - 2
   - 3
@@ -16,11 +13,7 @@ navigation:
 
 # Plugins
 
-Plugins are the main extension point in Kubb. A plugin owns its file naming, its output folder, its lifecycle hooks, and the [generators](./generators) that walk the [AST](/docs/5.x/explanation/architecture#ast) and emit `FileNode` objects.
-
-## `defineExtension`
-
-`defineExtension` with `kind: 'plugin'` takes a definition object and returns a factory. Call it with the user's options to get a `Plugin`. Kubb runs `setup` before the plugin's generators, and the value `setup` returns becomes the plugin's resolved options.
+A plugin generates code from the AST. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'plugin'`. Its `setup` registers [generators](/docs/5.x/reference/kit/generators), a [resolver](/docs/5.x/reference/kit/resolvers), and macros, then returns the options generators read as `ctx.options`. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work as for every extension.
 
 ```typescript [plugin-example.ts]
 import { defineExtension, type PluginType } from 'kubb/kit'
@@ -38,53 +31,20 @@ export const pluginExample = defineExtension<PluginExample>({
 })
 ```
 
-`PluginType<TName, TOptions, TResolvedOptions, TResolver>` types the plugin. `TOptions` is what users pass, and `TResolvedOptions` is what `setup` returns and generators read. `meta` and `dependencies` are shared with parsers and described in [Extensions](./extensions).
+`PluginType<TName, TOptions, TResolvedOptions, TResolver>` types the plugin. `TOptions` is what users pass, and `TResolvedOptions` is what `setup` returns.
 
-### Definition shape
-
-| Property       | Type                                                          | Required | Description                                                                                                                        |
-| -------------- | ------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `kind`         | `'plugin'`                                                    | Yes      | Tells `defineExtension` to define a plugin.                                                                                        |
-| `meta`         | [`ExtensionMeta`](./extensions#meta)                          | Yes      | Name, version, and compatibility. `meta.name` follows `plugin-<feature>`. The returned `Plugin` takes its `name` from `meta.name`. |
-| `setup`        | `(options, kubb: KubbPluginSetupContext) => TResolvedOptions` | No       | Main plugin logic. Receives the user's options and returns the resolved options. Can be `async`.                                   |
-| `dependencies` | [`ExtensionDependencies`](./extensions#dependencies)          | No       | Plugins this one builds on. They run first, and a missing required one fails the run.                                              |
-| `enforce`      | `'pre' \| 'post'`                                             | No       | Run this plugin before (`'pre'`) or after (`'post'`) the normal plugins. Dependency order still wins.                              |
-| `hooks`        | `{ 'kubb:plugin:setup'?: ...; ... }`                          | No       | Lifecycle handlers (see [Plugin API](/docs/5.x/explanation/extensions#plugins)). `kubb:plugin:setup` runs after `setup`.           |
-
-The `Plugin` the factory returns keeps the user's raw options in `plugin.options`.
-
-### Read `compatibility` from the manifest
-
-A published plugin ships a [`kubb-extension.json`](./manifest) with its `compatibility` ranges. Import only that field into `meta`, so Kubb checks the same ranges at runtime and a bundler leaves the rest of the manifest out of the build:
-
-```typescript [src/plugin.ts]
-import { defineExtension } from 'kubb/kit'
-import { compatibility } from '../kubb-extension.json'
-import { version } from '../package.json'
-
-export const pluginExample = defineExtension({
-  kind: 'plugin',
-  meta: { name: 'plugin-example', version, compatibility },
-})
-```
-
-Named imports from JSON need a bundler that inlines them. See [Extension manifest](./manifest#import-compatibility-into-meta).
-
-### `definePlugin` (deprecated)
-
-> [!WARNING]
-> `definePlugin` is deprecated. Use `defineExtension` with `kind: 'plugin'` instead.
-
-`definePlugin` takes the same definition object as `defineExtension`, without `kind`. To move over, rename the call and add `kind: 'plugin'`. See [Extensions](./extensions#define-extension).
+| Field          | Type                                                          | Description                                                                                                        |
+| -------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `setup`        | `(options, kubb: KubbPluginSetupContext) => TResolvedOptions` | Runs once per build, before `kubb:plugin:setup`. Can be `async`.                                                   |
+| `dependencies` | [`ExtensionDependencies`](/docs/5.x/reference/kit/extensions#dependencies)                      | Plugins this one builds on.                                                                                        |
+| `enforce`      | `'pre' \| 'post'`                                             | Runs the plugin before or after the others. Dependencies still run first.                                         |
+| `hooks`        | `{ [hook]: handler }`                                         | Handlers for any [lifecycle hook](/docs/5.x/reference/kit/hooks).                                                  |
 
 ## Setup context {#setup-context}
 
-`setup` and `kubb:plugin:setup` register generators, the resolver, macros, and options through the setup context. A plugin reaches it in one of two ways:
+`setup` and the `kubb:plugin:setup` hook register everything through the setup context: the `kubb` argument (`ctx` in the hook) or a composable from `kubb/kit`. Composables take no argument, so helpers that `setup` calls can use them too.
 
-- Through the context argument, which is `kubb` in `setup` and `ctx` in the `kubb:plugin:setup` hook.
-- Through composables from `kubb/kit`, such as `addGenerator()`. Composables take no context argument, so helper functions that `setup` calls can use them too.
-
-::::code-group
+::code-group
 
 ```typescript [kubb argument]
 import { createResolver, defineExtension, defineGenerator } from 'kubb/kit'
@@ -122,24 +82,65 @@ export const pluginExample = defineExtension({
 })
 ```
 
-::::
+::
 
-| `kubb` member   | Composable        | Signature                                                 | Purpose                                                                       |
-| --------------- | ----------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| `addGenerator`  | `addGenerator()`  | `(...generators: Array<Generator>) => void`               | Register one or more generators for this plugin                               |
-| `setResolver`   | `setResolver()`   | `(resolver: ResolverPatch<Resolver> \| Resolver) => void` | Set or partially override the file naming resolver                            |
-| `addMacro`      | `addMacro()`      | `(macro: Macro) => void`                                  | Add a macro that rewrites AST nodes before generators                         |
-| `setMacros`     | `setMacros()`     | `(macros: Array<Macro>) => void`                          | Replace this plugin's macros with a new list                                  |
-| `setOptions`    | `setOptions()`    | `(options: ResolvedOptions) => void`                      | Set the resolved options used by generators. In `setup`, return them instead. |
-| `injectFile`    | `injectFile()`    | `(file: UserFileNode) => void`                            | Inject a raw file into the build output, bypassing generation                 |
-| `requirePlugin` | `requirePlugin()` | `(name: string) => Plugin`                                | Return another plugin, or fail the run with `KUBB_PLUGIN_NOT_FOUND`           |
-| `memo`          | `memo()`          | `(key: string, compute: () => T) => T`                    | Return a value computed once per build and shared by every plugin             |
-| `config`        | `useConfig()`     | `Config`                                                  | The resolved build configuration at setup time                                |
-| `options`       | `useOptions()`    | `TOptions`                                                | The plugin's own options as passed by the user                                |
+| Member          | Signature                                                 | Purpose                                                                         |
+| --------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `addGenerator`  | `(...generators: Array<Generator>) => void`               | Registers generators.                                                           |
+| `setResolver`   | `(resolver: ResolverPatch<Resolver> \| Resolver) => void` | Sets the resolver. A patch merges over the defaults.                            |
+| `addMacro`      | `(macro: Macro) => void`                                  | Adds a macro that rewrites nodes before generators run.                         |
+| `setMacros`     | `(macros: ReadonlyArray<Macro>) => void`                  | Replaces this plugin's macros.                                                  |
+| `setOptions`    | `(options: ResolvedOptions) => void`                      | Sets the resolved options. In `setup`, return them instead.                     |
+| `injectFile`    | `(file: UserFileNode) => void`                            | Adds a file outside generation. Set `copy` to an absolute path to copy a template. |
+| `requirePlugin` | `(name: string) => Plugin`                                | Returns another plugin, or fails with `KUBB_PLUGIN_NOT_FOUND`.                  |
+| `memo`          | `(key: string, compute: () => T) => T`                    | Computes a value once per build, shared by every plugin.                        |
+| `config`        | `Config`                                                  | The resolved build configuration. Composable: `useConfig()`.                    |
+| `options`       | `TOptions`                                                | The options the user passed. Composable: `useOptions()`.                        |
 
-`useKubb()` returns the whole setup context. `tryUseKubb()` does the same, but returns `undefined` outside setup instead of throwing.
+Methods have a composable of the same name, such as `addGenerator()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
 
-Composables read the context of the plugin whose setup is running, also after an `await`. Each plugin gets its own context, so composables in one plugin's setup never reach another plugin. Outside `setup` and `kubb:plugin:setup`, they throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context). That includes generators and later hooks, which run after setup and receive their own `ctx`. Both ways can be used in the same setup.
+> [!WARNING]
+> Composables work only in `setup` and `kubb:plugin:setup`. In generators and anywhere else, they throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
 
-> [!IMPORTANT]
-> Plugin names follow the convention `plugin-<feature>`, such as `plugin-react-query` or `plugin-zod`.
+To cache outside a build, see [Memo caches](#memo-cache).
+
+## Plugin naming {#plugin-naming}
+
+| Surface            | Pattern                                            | Example            |
+| ------------------ | -------------------------------------------------- | ------------------ |
+| npm package        | `@<scope>/plugin-<name>` or `kubb-plugin-<name>`   | `@kubb/plugin-zod` |
+| `meta.name`        | `plugin-<name>`                                    | `'plugin-zod'`     |
+| Factory export     | `plugin<Name>`                                     | `pluginZod`        |
+| Name constant      | `plugin<Name>Name`                                 | `pluginZodName`    |
+| `PluginType` alias | `Plugin<Name>`                                     | `PluginZod`        |
+
+Type the name constant with `satisfies`: `export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']`.
+
+## Less common cases {#less-common-cases}
+
+### Memo caches {#memo-cache}
+
+When your plugin computes the same value many times, cache it with `memo`.
+
+| Call | Cache |
+| --- | --- |
+| `this.memo(key, compute)` in a resolver | Computes each value once per build. |
+| `memo(store, key, compute)` | Caches in a store you own, outside a build: a `Map`, a `WeakMap`, or `memo.create()`. |
+
+- `memo.create({ weak: true })` frees an entry with its key.
+- `memo.create({ max })` empties the store when it is full.
+- To type a `this.memo` value, register the key's `prefix:` and its value type in `Kubb.MemoRegistry`.
+
+```typescript [patterns.ts]
+import { memo } from 'kubb/kit'
+
+const patterns = memo.create<string, RegExp>({ max: 1000 })
+
+export const toRegExp = (pattern: string) => memo(patterns, pattern, () => new RegExp(pattern))
+```
+
+### Setup composables {#setup-composables}
+
+When your plugin's `setup` awaits something before it calls a composable, the composable still reads the context of the plugin whose setup is running.
+
+Outside `setup` and `kubb:plugin:setup`, including in generators, composables throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).

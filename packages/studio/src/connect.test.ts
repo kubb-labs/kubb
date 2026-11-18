@@ -5,7 +5,7 @@ import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { ast } from '@kubb/ast'
-import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
+import { checkoutGitInput, type Config, defineExtension, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { read } from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -16,11 +16,13 @@ import {
   AgentCloseCode,
   AgentMessage,
   type AgentConnectInfo,
+  AgentSignatureContext,
   type ConfigEdit,
   ConfigEditOperation,
   type ConfigRef,
   MAX_PAGE_LINES,
 } from './protocol.ts'
+import { generateAgentKey, getAgentPublicKey, verifyAgentSignature } from './agentKey.ts'
 import { projectConfig, root } from './testing.ts'
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
@@ -58,7 +60,12 @@ vi.mock('@kubb/core', async (importOriginal) => {
       },
     }
   }
-  return { ...core, fsStorage: () => (disk.storage ??= createDisk()), cacheStorage: () => (disk.cache ??= core.memoryStorage()) }
+  return {
+    ...core,
+    checkoutGitInput: vi.fn(core.checkoutGitInput),
+    fsStorage: () => (disk.storage ??= createDisk()),
+    cacheStorage: () => (disk.cache ??= core.memoryStorage()),
+  }
 })
 
 const studioUrl = 'https://studio.test'
@@ -75,15 +82,15 @@ beforeEach(() => {
   disk.cache = undefined
 })
 
-type Socket = { agent: AgentApi; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
+type Socket = { agent: AgentApi; token: string; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
 
 // Stands in for Studio: each socket lands in `sockets`, and a test closes it with Studio's code.
 function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
   const sockets: Array<Socket> = []
-  const openRpc: OpenRpc = ({ agent }) => {
+  const openRpc: OpenRpc = ({ agent, token }) => {
     const closed = Promise.withResolvers<{ code: number; reason: string }>()
     const ping = vi.fn().mockResolvedValue(undefined)
-    sockets.push({ agent, ping, close: (code, reason = '') => closed.resolve({ code, reason }) })
+    sockets.push({ agent, token, ping, close: (code, reason = '') => closed.resolve({ code, reason }) })
     return { studio: { ping }, closed: closed.promise, close: () => closed.resolve({ code: 1000, reason: '' }) }
   }
   const shutdown = new AbortController()
@@ -250,6 +257,22 @@ describe('the handshake', () => {
     )
   })
 
+  it('signs the challenge with the agent key, and only when it has both', async () => {
+    const privateKey = generateAgentKey()
+    const challenge = 'c2lnbi1tZS1wbGVhc2Utc3R1ZGlv'
+    const withKey = await connectStudio({ privateKey })
+
+    const { signature } = await withKey.agent.connect({ ...info, challenge })
+    expect(
+      verifyAgentSignature({ publicKey: getAgentPublicKey(privateKey), context: AgentSignatureContext.CONNECT, payload: challenge, signature: signature! }),
+    ).toBe(true)
+    expect(await withKey.agent.connect(info)).not.toHaveProperty('signature')
+    expect(await withKey.agent.connect({ ...info, challenge: 'x'.repeat(1025) })).not.toHaveProperty('signature')
+
+    const withoutKey = await connectStudio()
+    expect(await withoutKey.agent.connect({ ...info, challenge })).not.toHaveProperty('signature')
+  })
+
   it('refuses a command Studio sends before connect()', async () => {
     const { sockets } = startAgent({ permissions: { allowRead: true } })
     await vi.waitFor(() => expect(sockets).toHaveLength(1))
@@ -284,6 +307,16 @@ describe('close codes', () => {
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
     expect(disconnected).toHaveBeenCalledWith({ code: 1006, reason: 'gone' })
     expect(reconnecting).toHaveBeenCalledOnce()
+  })
+
+  it('reads the token again for every socket, so a refreshed token is the one it reconnects with', async () => {
+    let token = 'old-token'
+    const { socket, sockets } = await connectStudio({ token: () => token })
+    token = 'new-token'
+    socket.close(1006, 'gone')
+
+    await vi.waitFor(() => expect(sockets).toHaveLength(2))
+    expect(sockets.map((socket) => socket.token)).toStrictEqual(['old-token', 'new-token'])
   })
 
   it('keeps backing off while sockets close before the handshake, and resets once Studio connects', async () => {
@@ -371,7 +404,10 @@ describe('a sandbox job', () => {
     await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(/https repository URL|not a public address/)
   })
 
-  it('limits the fetch of a managed agent to public addresses, and only while it generates', async () => {
+  it.each([
+    ['a managed', { managed: true }, {}],
+    ['a sandbox', { sandbox: true }, { input: 'openapi: 3.1.0' }],
+  ])('limits the fetch of %s agent to public addresses, and only while it generates', async (_label, kind, config) => {
     const original = globalThis.fetch
     const parse = async () => {
       // What the adapter does for a URL input, or for a `$ref` inside the document.
@@ -379,9 +415,9 @@ describe('a sandbox job', () => {
       return ast.factory.createInput({ operations: [], meta: { title: 'Pets' } })
     }
     const loadConfigs = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
-    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
+    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, ...kind } })
 
-    await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow('not a public address')
+    await expect(agent.startGeneration({ jobId: 'job-1', config }).result()).rejects.toThrow('not a public address')
     expect(globalThis.fetch).toBe(original)
   })
 
@@ -394,12 +430,64 @@ describe('a sandbox job', () => {
     expect(warn).not.toHaveBeenCalled()
   })
 
-  it('reports writes and config edits off and reads on, whatever the host granted', async () => {
-    const { agent } = await connectStudio({ permissions: { allowWrite: true, allowConfigEdit: true }, connectInfo: { ...info, sandbox: true } })
+  it('reports writes and config edits off and reads on for a host-declared sandbox, whatever the host granted', async () => {
+    const { agent } = await connectStudio({
+      agentType: 'sandbox',
+      permissions: { allowWrite: true, allowConfigEdit: true },
+      connectInfo: { ...info, sandbox: true },
+    })
 
     await expect(agent.connect({ ...info, sandbox: true })).resolves.toMatchObject({
-      permissions: { allowWrite: false, allowConfigEdit: false, allowInstall: false, allowRead: true },
+      permissions: { allowWrite: false, allowConfigEdit: false, allowInstall: false, allowRead: true, allowReadAst: true },
     })
+  })
+
+  it('lets a managed agent read $ref files inside its git checkout, and nowhere else', async () => {
+    vi.mocked(checkoutGitInput).mockResolvedValueOnce({ path: '/checkout/specs/openapi.yaml', dir: '/checkout', dispose: async () => {} })
+    const parse = vi.fn(async () => ast.factory.createInput({ operations: [], meta: { title: 'Pets' } }))
+    const loadConfigs = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
+    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
+
+    await agent.startGeneration({ jobId: 'job-1', config: { input: 'git+https://example.com/api.git#main:specs/openapi.yaml' } }).result()
+    expect(parse).toHaveBeenCalledWith({ type: 'path', path: '/checkout/specs/openapi.yaml' }, expect.objectContaining({ fileRefs: ['/checkout'] }))
+  })
+
+  it('reports allowFileRefs off on a managed agent, whatever the host granted', async () => {
+    const connectInfo = { ...info, managed: true }
+    const { agent } = await connectStudio({ permissions: { allowFileRefs: true }, connectInfo })
+
+    await expect(agent.connect(connectInfo)).resolves.toMatchObject({ permissions: { allowFileRefs: false } })
+  })
+
+  it('takes permissions away but never grants reads when only Studio says sandbox', async () => {
+    const { agent } = await connectStudio({ permissions: { allowWrite: true }, connectInfo: { ...info, sandbox: true } })
+
+    await expect(agent.connect({ ...info, sandbox: true })).resolves.toMatchObject({
+      permissions: { allowWrite: false, allowRead: false, allowReadAst: false },
+    })
+  })
+
+  it('checks a managed agent out of its config git input on public addresses only', async () => {
+    const loadConfigs = async () => [{ ...projectConfig(), input: 'git+http://10.0.0.5:8080/api.git#main:openapi.yaml' }]
+    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: {} }).result()).rejects.toThrow(/https repository URL|not a public address/)
+  })
+
+  it.each([
+    ['a managed agent with local file refs off', {}, { managed: true }, {}, []],
+    ['a sandbox agent with local file refs off', { permissions: { allowFileRefs: true } }, { sandbox: true }, { input: 'openapi: 3.1.0' }, []],
+    ['a host-declared global agent with local file refs off', { agentType: 'global' as const }, {}, { input: 'openapi: 3.1.0' }, []],
+    ['a host-declared managed agent with local file refs off', { agentType: 'managed' as const, permissions: { allowFileRefs: true } }, {}, {}, []],
+    ['a project agent with local file refs inside its root', {}, {}, {}, [root]],
+    ['a project agent granted allowFileRefs with no limit', { permissions: { allowFileRefs: true } }, {}, {}, undefined],
+  ])('parses the spec of %s', async (_label, options, kind, config, expected) => {
+    const parse = vi.fn(async () => ast.factory.createInput({ operations: [], meta: { title: 'Pets' } }))
+    const loadConfigs = async () => [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
+    const { agent } = await connectStudio({ ...options, loadConfigs, connectInfo: { ...info, ...kind } })
+
+    await agent.startGeneration({ jobId: 'job-1', config }).result()
+    expect(parse).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ fileRefs: expected }))
   })
 })
 
@@ -588,7 +676,7 @@ describe('generation reports', () => {
   async function events(run: ReturnType<AgentApi['startGeneration']>) {
     const seen: Array<{ type: string; data: unknown }> = []
     const reader = (await run.events()).getReader()
-    for (;;) {
+    while (true) {
       const { done, value } = await reader.read()
       if (done) return seen
       seen.push({ type: value.type, data: value.data })
@@ -909,6 +997,19 @@ describe('saveConfig', () => {
     await expect(agent.saveConfig({ edits: [edit] })).resolves.toStrictEqual({ outcomes: [{ edit, applied: true }], changed: true })
     expect(await read(join(project, 'openapi.yaml'))).toBe('openapi: 3.1.0\n')
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.yaml',`)
+  })
+
+  it.each([
+    ['refuses a file input outside the project', '../../home/kubb/.ssh/id_rsa', false],
+    ['refuses a drive-letter input outside the project', 'C:/../../home/kubb/.ssh/id_rsa', false],
+    ['saves a file input inside the project', './specs/petstore.yaml', true],
+  ])('%s', async (_label, input, applied) => {
+    const project = await projectWithConfig()
+    const { agent } = await connectStudio({ root: project, permissions: { allowConfigEdit: true, allowSaveInput: true } })
+
+    const result = await agent.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, input }] })
+    expect(result.outcomes[0]).toMatchObject({ applied })
+    expect((await read(join(project, 'kubb.config.ts'))).includes(input)).toBe(applied)
   })
 
   it('keeps a pasted JSON spec in openapi.json', async () => {

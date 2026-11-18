@@ -9,6 +9,253 @@ outline: 2
 
 # Changelog
 
+## v5.21.0 — Nov 16, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- `type: string, format: byte` is now a `string` instead of a `Blob`. OpenAPI defines `byte` as base64-encoded text, and `contentEncoding: base64` already gave a `string`. Generated types change: fields that were `Blob` are now `string`, and `plugin-zod` now emits `z.base64()` for them. ([#4651](https://github.com/kubb-labs/kubb/pull/4651))
+
+#### Bug Fixes
+
+- Use `@scalar/openapi-upgrader` 0.4.9. ([#4646](https://github.com/kubb-labs/kubb/pull/4646))
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- `kubb/farm` and `unplugin-kubb/farm` now work with Farm 2. The `@farmfe/core` peer range is `^1.7.0 || ^2.0.0`, so Farm 1 projects keep working. ([#4647](https://github.com/kubb-labs/kubb/pull/4647))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.20.3 — Nov 16, 2026
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- An import of a config's `input` file now loads as a spec module whatever its name, so `import { Pet } from './my-api.openapi.json'` works when `input` is `./my-api.openapi.json`. Before, only `*.openapi.yaml` and `*.openapi.yml` imports loaded. Other specs still need one of those names.
+
+  Spec modules load as JavaScript in every bundler, so esbuild, Rolldown and Vite no longer parse a `.json` spec as JSON. If your app imports its `input` file as plain JSON data, that import now returns the generated module instead. ([#4644](https://github.com/kubb-labs/kubb/pull/4644))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.20.2 — Nov 15, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Rewrite the docs these packages ship for kubb.dev to lead with tables and examples. Each overview shows a config and its generated output, the adapter options are grouped by what they change, and the barrel docs now state that types go in a separate `export type` statement and that a path outside the output root fails with `KUBB_PATH_TRAVERSAL`. ([#4634](https://github.com/kubb-labs/kubb/pull/4634))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- The CLI now sends its anonymous telemetry from a detached process, so `kubb generate`, `validate`, `mcp`, and `studio` exit as soon as their work is done. Before, the process waited up to a second for the request, about 350–500 ms on a typical connection. ([#4632](https://github.com/kubb-labs/kubb/pull/4632))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Fix three JSDoc comments to match the code. `GeneratorContext.root` is the build's output directory, the same for every plugin, not the current plugin's folder. The default `group.name` for `path` groups camelCases the first path segment. `Adapter.sources` no longer claims that a watcher rebuilds from it: `kubb generate --watch` watches only `input`. ([#4634](https://github.com/kubb-labs/kubb/pull/4634))
+
+### kubb
+
+#### Bug Fixes
+
+- `kubb` now depends on `@kubb/kit` and `@kubb/renderer-jsx` with a caret range, like `@kubb/core`, so a plugin built against a newer patch or minor shares one copy with `kubb` instead of installing a second one. ([#4628](https://github.com/kubb-labs/kubb/pull/4628))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.20.1 — Nov 14, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb studio` keeps the agent key in the system keychain: macOS Keychain, Windows Credential Manager, or Secret Service on Linux. ([#4624](https://github.com/kubb-labs/kubb/pull/4624))
+- Without a keychain, such as in CI or a container, the key stays next to the token as before.
+- A key stored by an earlier release moves to the keychain on the next token refresh.
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.20.0 — Nov 14, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Add `pathParamsCasing: 'camelcase'` to `adapterOas()`. It renames path parameters and their `{placeholder}` in the operation path, so `GET /pets/{pet-id}` is called as `getPet({ path: { petId } })`. ([#4621](https://github.com/kubb-labs/kubb/pull/4621))
+
+  - `{pet-id}`, `{pet_id}`, and `{PetId}` all become `petId`, the name MSW routes and query keys then use too. Colliding names get a counter suffix (`groupId`, `groupId2`).
+  - Query, header, cookie, and body names stay as the spec writes them, and the HTTP request is unchanged.
+  - `@kubb/kit` adds `Url.toParamNames`, which maps each placeholder to a unique camelCase name.
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb studio` no longer forgets a token another process stored while its own was being rejected. ([#4622](https://github.com/kubb-labs/kubb/pull/4622))
+- Logging out waits for a running credential update.
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.19.2 — Nov 13, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- `kubb studio` keeps a connected project paired. ([#4619](https://github.com/kubb-labs/kubb/pull/4619))
+
+  - The CLI renews its token once a day while connected.
+  - Pairing creates a key that stays on the machine.
+  - `@kubb/studio` adds `refreshAgentToken` and `generateAgentKey`.
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.19.1 — Nov 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Harden the Kubb Studio agent against specs it does not control. ([#4616](https://github.com/kubb-labs/kubb/pull/4616))
+
+  - On a Studio agent, a `$ref` only reads local files inside the project and the folder of the config's own input file. A sandbox agent reads none, and a managed agent only inside the checkout of a git input. `kubb studio --allow-file-refs` lifts the project limit, and `kubb generate` is unchanged.
+  - A URL input no longer reads local files through a `$ref`.
+  - A sandbox agent only fetches a URL `$ref` from public addresses, and a managed agent only checks out a git input from them.
+  - Only the host's new `agentType` option of `connectAgent`, set to `'sandbox'` or `'global'`, lets Studio read a sandbox's output. Studio's own flag no longer does.
+  - Studio can no longer save an `input` outside the project, or an `output.path` outside the output folder.
+  - `createKubb` and an adapter's `parse` take `fileRefs`, the folders a `$ref` may read from.
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.19.0 — Nov 13, 2026
+
+### @kubb/core
+
+#### Features
+
+- `memo` now also caches in a store you own: `memo(store, key, compute)` takes a `Map` or `WeakMap` and needs no build. `memo.create()` creates a store, and `memo.create({ weak: true })` one that frees an entry with its key. ([#4612](https://github.com/kubb-labs/kubb/pull/4612))
+- `memo.create({ max })` creates a bounded store: it empties itself before the entry that would pass `max`, so a cache in a long-running process cannot grow without end. `max: 1` keeps only the last entry. ([#4614](https://github.com/kubb-labs/kubb/pull/4614))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.8 — Nov 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Read a spec faster before parsing: one walk now checks for external refs, `$id` and `$anchor` targets, and Swagger 2.0 path refs, and builds JSON pointers only when a spec has an `$id` or `$anchor`. On large specs the adapter parses about 0.2 s sooner. ([#4610](https://github.com/kubb-labs/kubb/pull/4610))
+- Locate diagnostics without parsing the spec a second time. On a 45 MB YAML spec, `kubb generate` prints the same locations about 16 s sooner and peaks about 620 MB lower. A large JSON spec peaks about 70 MB higher. ([#4594](https://github.com/kubb-labs/kubb/pull/4594))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Speed up generation on large specs: the AST walk allocates less per node, an enum's literal values are read once per node, and nested barrels compute each file's exports once. ([#4601](https://github.com/kubb-labs/kubb/pull/4601))
+- `ast.schema.find` takes an optional `cache` (a `WeakMap` you keep per predicate), so repeated searches with `followRefs` skip parts of the schema graph they already searched. ([#4600](https://github.com/kubb-labs/kubb/pull/4600))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Make `kubb generate` start the build as soon as the config loads in an interactive terminal, instead of waiting for the mascot animation to finish. A small spec now finishes about 0.8 seconds sooner, with the same final output. ([#4604](https://github.com/kubb-labs/kubb/pull/4604))
+- Make the "File changes" summary faster on a rerun with `output.clean`: hashing each line of the old output no longer copies it into an array of characters, and a regenerated file with a different length skips the SHA-1 check. The summary is the same. ([#4608](https://github.com/kubb-labs/kubb/pull/4608))
+- Make `kubb generate` faster on most runs: it asks npm for a newer version at most once every 24 hours, keeps the answer in `~/.kubb/cache`, and never asks in CI. ([#4605](https://github.com/kubb-labs/kubb/pull/4605))
+- Rerun `kubb generate` with less memory and time: the "File changes" summary no longer reads the whole output folder up front. ([#4597](https://github.com/kubb-labs/kubb/pull/4597))
+
+  - Add `stored` to `kubb:file:processed`: what the storage held at that path before the write, or `null` when there was nothing.
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Keep each schema's import path and each resolved name for the rest of the build, and look up a `memo` hit with one map read. On the 45 MB Microsoft Graph spec, `kubb generate` uses about 3% less CPU, with the same output. ([#4602](https://github.com/kubb-labs/kubb/pull/4602))
+- `kubb generate` writes and compares output files faster: it reads a stored file synchronously, skips the read for a file that is not on disk, and writes through the callback `fs` API instead of `fs/promises`. The files on disk stay the same. ([#4599](https://github.com/kubb-labs/kubb/pull/4599))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Make `text.quote` about 13 times faster, with the same output. ([#4594](https://github.com/kubb-labs/kubb/pull/4594))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.18.7 — Nov 12, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Correct the docs these packages ship for kubb.dev. The adapter's discriminator and enum examples show the real generated output, `unknownType` and `emptySchemaType` describe the schemas they cover, and `parserMd().print` is documented as joining strings. ([#4589](https://github.com/kubb-labs/kubb/pull/4589))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb add --dry-run` and `kubb remove --dry-run` now stop after the preview instead of installing packages and editing `kubb.config.ts`. A config function receives the `reporters` selected with `--reporter`, and the `kubb studio snapshot` error names the `--package-version` flag. ([#4591](https://github.com/kubb-labs/kubb/pull/4591))
+- `kubb generate --reporter json` now writes the run log to stderr. Stdout still holds only the JSON report. ([#4592](https://github.com/kubb-labs/kubb/pull/4592))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add `Kubb.generate(configs)`, which builds every config of a `defineConfig([...])` array and keeps going when one fails. `kubb generate`, `kubb update`, `unplugin-kubb` and `kubb studio snapshot` now use it. ([#4592](https://github.com/kubb-labs/kubb/pull/4592))
+- A `type: 'method'` filter now matches in either case, so the documented `pattern: 'GET'` selects operations like `'get'` does. An `override` entry's `output` gets its `mode` from `output.path`, which fixes the `No extname found` crash for `output: { path: 'admin' }`. Core now emits `kubb:generation:summary` after `kubb:generation:end`, and the `KUBB_PATH_TRAVERSAL` message for a resolver `file.path` names the output directory. ([#4591](https://github.com/kubb-labs/kubb/pull/4591))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- `kubb studio snapshot` now publishes every entry of a `defineConfig([...])` array in one package. `createSnapshot` takes `configs` in place of `config`. ([#4592](https://github.com/kubb-labs/kubb/pull/4592))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.18.6 — Nov 12, 2026
 
 ### @kubb/ast
@@ -1184,7 +1431,7 @@ Thanks to everyone who contributed to this release:
 
 #### Features
 
-- The [Kubb registry](/docs/5.x/reference/registry) is stable. [`kubb add`](/docs/5.x/reference/commands/add) installs a reviewed plugin, adapter, or parser at the version the registry pins, [`kubb update`](/docs/5.x/reference/commands/update) moves installed extensions to that version, and [`kubb list`](/docs/5.x/reference/commands/list) shows what is installed. Registry support landed across 5.8.1 to 5.8.4.
+- The [Kubb registry](/extensions) is stable. [`kubb add`](/docs/5.x/reference/commands/add) installs a reviewed plugin, adapter, or parser at the version the registry pins, [`kubb update`](/docs/5.x/reference/commands/update) moves installed extensions to that version, and [`kubb list`](/docs/5.x/reference/commands/list) shows what is installed. Registry support landed across 5.8.1 to 5.8.4.
 
 ### unplugin-kubb
 

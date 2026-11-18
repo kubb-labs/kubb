@@ -3,6 +3,9 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import { ofetch } from 'ofetch'
+import { getAgentPublicKey, getTokenRefreshPayload, signAgentPayload } from './agentKey.ts'
+import { InvalidAgentTokenError } from './connect.ts'
+import { AgentSignatureContext, type TokenRefreshProof } from './protocol.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 /**
@@ -94,6 +97,10 @@ type StartPairingOptions = {
    */
   machineId: string
   /**
+   * The agent key from `generateAgentKey`. Only its public half is sent.
+   */
+  privateKey?: string
+  /**
    * Aborting this cancels the request in flight and rejects with {@link PairingCanceledError}.
    */
   signal?: AbortSignal
@@ -102,7 +109,15 @@ type StartPairingOptions = {
 /**
  * Asks Studio for a pairing code, sending the hashed machine id with it.
  */
-export async function startPairing({ studioUrl = defaultStudioUrl, type, name, hostname, machineId, signal }: StartPairingOptions): Promise<PairingSession> {
+export async function startPairing({
+  studioUrl = defaultStudioUrl,
+  type,
+  name,
+  hostname,
+  machineId,
+  privateKey,
+  signal,
+}: StartPairingOptions): Promise<PairingSession> {
   try {
     const pairing = await ofetch<PairingSession>(secureUrl({ studioUrl, path: '/api/auth/device/code' }).href, {
       method: 'POST',
@@ -112,6 +127,7 @@ export async function startPairing({ studioUrl = defaultStudioUrl, type, name, h
         hostname,
         machine_token: hash('sha256', machineId),
         agent_kind: type === 'cli' ? undefined : type,
+        public_key: privateKey ? getAgentPublicKey(privateKey) : undefined,
       },
       signal,
     })
@@ -285,4 +301,83 @@ export async function pairAgent({ onCode, onRetry, maxAttempts = 1, ...options }
       }
     }
   }
+}
+
+const REFRESH_TIMEOUT_MS = 15_000
+
+type RefreshAgentTokenOptions = {
+  studioUrl?: string
+  token: string
+  /**
+   * The secret the machine paired with.
+   */
+  machineId: string
+  /**
+   * The stored agent key, which signs the request.
+   */
+  privateKey?: string
+  signal?: AbortSignal
+  /**
+   * How long to wait for an answer, in milliseconds.
+   *
+   * @default 15000
+   */
+  timeout?: number
+}
+
+/**
+ * Trades the agent's token for a new one. The old token stops working at once, so store the new
+ * one first. Resolves `null` when there is nothing to refresh, and rejects with
+ * {@link InvalidAgentTokenError} when the token is refused.
+ */
+export async function refreshAgentToken({
+  studioUrl = defaultStudioUrl,
+  token,
+  machineId,
+  privateKey,
+  signal,
+  timeout = REFRESH_TIMEOUT_MS,
+}: RefreshAgentTokenOptions): Promise<string | null> {
+  const deadline = AbortSignal.timeout(timeout)
+  const signedAt = Date.now()
+  const proof: TokenRefreshProof | undefined = privateKey
+    ? {
+        signed_at: signedAt,
+        signature: signAgentPayload({ privateKey, context: AgentSignatureContext.TOKEN_REFRESH, payload: getTokenRefreshPayload({ token, signedAt }) }),
+      }
+    : undefined
+  const { status, _data } = await ofetch
+    .raw<{ token?: unknown }>(secureUrl({ studioUrl, path: '/api/agent/token/refresh' }).href, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: { machine_id: machineId, ...proof },
+      signal: signal ? AbortSignal.any([signal, deadline]) : deadline,
+      ignoreResponseError: true,
+      // A second attempt would send a token the first may have retired.
+      retry: 0,
+    })
+    .catch((error: unknown) => {
+      if (deadline.aborted && !signal?.aborted)
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.inputRequestFailed,
+          severity: 'error',
+          message: `Kubb Studio did not answer the token refresh within ${timeout} ms`,
+          help: 'The token is unchanged. Try again later.',
+        })
+      throw error
+    })
+
+  if (status === 404 || status === 409) return null
+  if (status === 401) throw new InvalidAgentTokenError(studioUrl)
+  if (status < 200 || status >= 300)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.inputRequestFailed,
+      severity: 'error',
+      message: `Kubb Studio answered the token refresh with status ${status}`,
+      help: 'The token is unchanged. Try again later.',
+    })
+  if (typeof _data?.token !== 'string' || !_data.token)
+    throw new Diagnostics.Error({ code: Diagnostics.code.unknown, severity: 'error', message: 'Kubb Studio answered the token refresh without a token' })
+
+  return _data.token
 }

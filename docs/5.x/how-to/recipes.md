@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Configure generation
-description: Configure common Kubb stacks, formatting, linting, and post-generate commands.
+title: Configure generation - Common Kubb recipes
+description: Configure common Kubb stacks, formatting, linting, post-generate commands, barrel files, git inputs, watch mode, and several specs in one run.
 outline:
   - 2
   - 3
@@ -13,10 +13,10 @@ navigation:
 
 # Configure generation
 
-Use these configurations in a project with [Kubb installed](/docs/5.x/how-to/installation) and an OpenAPI specification. Replace `./petStore.yaml` with your specification path, install the packages for your stack, then run `npx kubb generate`. Each plugin page shows its single-plugin configuration. The stacks below combine several plugins.
+Each recipe is a complete `kubb.config.ts`. After [Installation](/docs/5.x/how-to/installation), replace `./petStore.yaml` with your spec, install the listed packages, and run `npx kubb generate`. The `kubb` tab installs each plugin with [`kubb add`](/docs/5.x/reference/commands/add) at the version the [extension registry](/extensions) pins. `kubb add` needs an existing `kubb.config.ts`, so run [`npx kubb init`](/docs/5.x/reference/commands/init) first if you have none.
 
 > [!WARNING]
-> The examples write to `./src/gen`. With `clean: true`, Kubb removes that directory before generation, so keep handwritten files elsewhere.
+> With `clean: true`, Kubb removes `./src/gen` before it generates, so keep your own files elsewhere.
 
 ## Pick a stack
 
@@ -26,10 +26,21 @@ Use these configurations in a project with [Kubb installed](/docs/5.x/how-to/ins
 
 Types, an Axios client, and [TanStack Query](https://tanstack.com/query) hooks for React.
 
-```shell [Terminal]
+::::code-group
+
+```shell [kubb]
+npx kubb add plugin-ts
+npx kubb add plugin-axios
+npx kubb add plugin-react-query
+npm install axios react @tanstack/react-query
+```
+
+```shell [npm]
 npm install -D kubb typescript @kubb/plugin-ts @kubb/plugin-axios @kubb/plugin-react-query
 npm install axios react @tanstack/react-query
 ```
+
+::::
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -50,10 +61,21 @@ export default defineConfig({
 
 Types, an Axios client, and [TanStack Query](https://tanstack.com/query) composables for Vue.
 
-```shell [Terminal]
+::::code-group
+
+```shell [kubb]
+npx kubb add plugin-ts
+npx kubb add plugin-axios
+npx kubb add plugin-vue-query
+npm install axios vue @tanstack/vue-query
+```
+
+```shell [npm]
 npm install -D kubb typescript @kubb/plugin-ts @kubb/plugin-axios @kubb/plugin-vue-query
 npm install axios vue @tanstack/vue-query
 ```
+
+::::
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -74,10 +96,22 @@ export default defineConfig({
 
 Runtime validation with [Zod](https://zod.dev), plus [MSW](https://mswjs.io) request handlers backed by [Faker.js](https://fakerjs.dev) mock data.
 
-```shell [Terminal]
+::::code-group
+
+```shell [kubb]
+npx kubb add plugin-ts
+npx kubb add plugin-zod
+npx kubb add plugin-faker
+npx kubb add plugin-msw
+npm install zod msw @faker-js/faker
+```
+
+```shell [npm]
 npm install -D kubb typescript @kubb/plugin-ts @kubb/plugin-zod @kubb/plugin-faker @kubb/plugin-msw
 npm install zod msw @faker-js/faker
 ```
+
+::::
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -97,11 +131,12 @@ export default defineConfig({
 
 ::
 
-To call the API with the global `fetch` instead of Axios, replace `pluginAxios` with [`pluginFetch`](/extensions/kubb-labs/plugin-fetch) from `@kubb/plugin-fetch`.
+To use the global `fetch` instead of Axios, replace `pluginAxios` with [`pluginFetch`](/extensions/kubb-labs/plugin-fetch) from `@kubb/plugin-fetch`.
 
 ## Format, lint, and run commands after generation
 
-Set `format` and `lint` to a tool name, or to `'auto'` to pick whichever tool is installed. [`output.postGenerate`](/docs/5.x/reference/configuration#outputpostgenerate) runs shell commands once the files are formatted and linted. Install the tools first, for example `npm install -D @biomejs/biome oxlint`.
+- `format` and `lint` take a tool name, or `'auto'` for the first one installed. Install the tools first, such as `npm install -D @biomejs/biome oxlint`.
+- [`output.postGenerate`](/docs/5.x/reference/configuration#outputpostgenerate) runs shell commands after formatting and linting. The example runs a `typecheck` script, such as `"typecheck": "tsc --noEmit"` in `package.json`.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -120,24 +155,59 @@ export default defineConfig({
 })
 ```
 
-## Read the spec from a git repository
+## Add barrel files {#barrel-files}
 
-Point `input` at a file in a git repository when the spec lives in another repo, such as the API's own. Write it as `git+<repo>#<ref>:<path>`, and pin `<ref>` to a tag or commit so every run generates from the same spec:
+A barrel is an `index.ts` that re-exports a folder. `defineConfig` registers [`@kubb/plugin-barrel`](/extensions/kubb-labs/plugin-barrel) for you, with these defaults:
+
+| Barrel | Default | Change it with |
+| --- | --- | --- |
+| Root, such as `src/gen/index.ts` | Off | `output.barrel` on `defineConfig` |
+| Plugin folder, such as `src/gen/types/index.ts` | `{ type: 'named' }` from the plugin's default `output` | `barrel` inside the plugin's `output`, or `false` to drop it |
+
+This config turns on the root barrel, writes `export *` barrels in every TypeScript subfolder, and leaves the Zod files out of all barrels:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+
+export default defineConfig({
+  input: './petStore.yaml',
+  output: { path: './src/gen', barrel: { type: 'named' } },
+  plugins: [
+    pluginTs({ output: { path: 'types', barrel: { type: 'all', nested: true } } }),
+    pluginZod({ output: { path: 'zod', barrel: false } }),
+  ],
+})
+```
+
+> [!IMPORTANT]
+> Your own `output` on a plugin replaces its default, barrel included. Set `barrel` in it, or the plugin falls back to the root `output.barrel`. A plugin writes a barrel only in directory mode, when its `output.path` has no file extension.
+
+[`output.barrel`](/docs/5.x/reference/plugin-options#output-barrel) shows each export style and the `nested` and `namespace` fields.
+
+## Read the spec from a git repository
+
+When the spec lives in another repository, set `input` to `git+<repo>#<ref>:<path>`. Pin `<ref>` to a tag or commit so every run uses the same spec:
+
+```typescript [kubb.config.ts]
+import { defineConfig } from 'kubb/config'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: 'git+https://github.com/org/api.git#v2.1.0:specs/openapi.yaml',
   output: { path: './src/gen' },
+  plugins: [pluginTs()],
 })
 ```
 
-Kubb needs `git` on the `PATH` and uses your own git credentials, so a private repository works with the credential helper or SSH key you already use. In CI, give the job read access to that repository. See [`input`](/docs/5.x/reference/configuration#input) for the full format.
+Kubb runs `git` from the `PATH` with your credentials, so a private repository works with your credential helper or SSH key. In CI, give the job read access to that repository. [`input`](/docs/5.x/reference/configuration#input) has the full format.
 
 ## Watch mode, several specifications, and scripts
 
-- Run `kubb generate --watch` to regenerate when the local spec file changes. A URL or git input is generated once, so rerun Kubb after the remote spec changes. Pass a function to `defineConfig` to read `watch` and keep `clean` off during incremental runs. See [Config formats](/docs/5.x/reference/configuration#config-formats).
-- Pass an array to `defineConfig` to generate from several specifications in one run, each with its own plugins and output directory. Set a `name` per entry so the CLI output tells them apart.
-- Drive Kubb from a script with [`createKubb`](/docs/5.x/reference/kit/engine#createkubb) when you orchestrate builds or inspect diagnostics.
-- Run [`kubb validate`](/docs/5.x/reference/commands/validate) before generation in CI to fail on an invalid specification.
+| To | Do this |
+| --- | --- |
+| Generate again when the local spec changes | Run `kubb generate --watch`. A URL or git input generates once. See [Watch mode details](/docs/5.x/reference/commands/generate#watch-mode-details). |
+| Generate from several specs in one run | Pass an array to `defineConfig`, each entry with its own plugins and output directory. Set a `name` per entry to tell them apart in the CLI output. |
+| Drive Kubb from a script | Call [`createKubb`](/docs/5.x/reference/kit/engine#createkubb) to run builds or read diagnostics. |
+| Fail CI on an invalid spec | Run [`kubb validate`](/docs/5.x/reference/commands/validate) before `kubb generate`. |

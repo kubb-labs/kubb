@@ -1,7 +1,19 @@
 import { hash } from 'node:crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setTimeout as delay } from 'node:timers/promises'
-import { pairAgent, PairingCanceledError, PairingDeniedError, PairingExpiredError, pollForPairingToken, startPairing, type PairingSession } from './pair.ts'
+import { generateAgentKey, getAgentPublicKey, getTokenRefreshPayload, verifyAgentSignature } from './agentKey.ts'
+import { InvalidAgentTokenError } from './connect.ts'
+import { AgentSignatureContext } from './protocol.ts'
+import {
+  pairAgent,
+  PairingCanceledError,
+  PairingDeniedError,
+  PairingExpiredError,
+  pollForPairingToken,
+  refreshAgentToken,
+  startPairing,
+  type PairingSession,
+} from './pair.ts'
 
 vi.mock('node:timers/promises', () => ({
   setTimeout: vi.fn(async () => {}),
@@ -123,6 +135,17 @@ describe('startPairing', () => {
     })
   })
 
+  it('sends the public half of the agent key, and never the key itself', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse(session))
+    const privateKey = generateAgentKey()
+
+    await startPairing({ studioUrl: 'https://studio.test', type: 'cli', name: 'my-project', hostname: 'my-host', machineId: 'secret', privateKey })
+
+    const body = String(fetchMock.mock.calls[0]![1].body)
+    expect(JSON.parse(body)).toMatchObject({ public_key: getAgentPublicKey(privateKey) })
+    expect(body).not.toContain('PRIVATE KEY')
+  })
+
   it('rejects a response without a pairing code', async () => {
     fetchMock.mockResolvedValueOnce(new Response('<html></html>', { status: 200 }))
 
@@ -171,5 +194,65 @@ describe('pairAgent', () => {
 
     await expect(promise).rejects.toBeInstanceOf(PairingDeniedError)
     expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('refreshAgentToken', () => {
+  const options = { studioUrl: 'https://studio.test', token: 'old-token', machineId: 'secret' }
+
+  it('trades the bearer token and the machine secret for a new token', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'new-token' }))
+
+    await expect(refreshAgentToken(options)).resolves.toBe('new-token')
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(String(url)).toBe('https://studio.test/api/agent/token/refresh')
+    expect(new Headers(init.headers).get('authorization')).toBe('Bearer old-token')
+    expect(JSON.parse(String(init.body))).toStrictEqual({ machine_id: 'secret' })
+  })
+
+  it('adds a signature over the time and the token when the agent holds a key', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ token: 'new-token' }))
+    const privateKey = generateAgentKey()
+
+    await refreshAgentToken({ ...options, privateKey })
+
+    const body = JSON.parse(String(fetchMock.mock.calls[0]![1].body))
+    expect(body).toStrictEqual({ machine_id: 'secret', signed_at: Date.now(), signature: expect.any(String) })
+    const payload = getTokenRefreshPayload({ token: 'old-token', signedAt: body.signed_at })
+    const publicKey = getAgentPublicKey(privateKey)
+    expect(verifyAgentSignature({ publicKey, context: AgentSignatureContext.TOKEN_REFRESH, payload, signature: body.signature })).toBe(true)
+  })
+
+  it.each([
+    ['a Studio without the route', 404],
+    ['an agent kind that does not refresh', 409],
+  ])('returns null for %s (%i), so the host keeps its token', async (_case, status) => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ statusMessage: 'nope' }, status))
+
+    await expect(refreshAgentToken(options)).resolves.toBeNull()
+  })
+
+  it('rejects with InvalidAgentTokenError when Studio refuses the token', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ statusMessage: 'Unauthorized' }, 401))
+
+    await expect(refreshAgentToken(options)).rejects.toBeInstanceOf(InvalidAgentTokenError)
+  })
+
+  it.each([
+    ['a server error', createMockResponse({}, 500), 'status 500'],
+    ['an answer without a token', createMockResponse({}), 'without a token'],
+  ])('rejects on %s', async (_case, response, message) => {
+    fetchMock.mockResolvedValueOnce(response)
+
+    await expect(refreshAgentToken(options)).rejects.toThrow(message)
+  })
+
+  it('gives up once the timeout passes', async () => {
+    vi.useRealTimers()
+    fetchMock.mockImplementationOnce(
+      (_url, init: RequestInit) => new Promise((_resolve, reject) => init.signal?.addEventListener('abort', () => reject(init.signal?.reason))),
+    )
+
+    await expect(refreshAgentToken({ ...options, timeout: 20 })).rejects.toThrow('did not answer the token refresh within 20 ms')
   })
 })

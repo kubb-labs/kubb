@@ -1,5 +1,5 @@
 import { escapePointerToken, pascalCase } from '@internals/utils'
-import { ast } from '@kubb/kit'
+import { ast, Url } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
 import { getItemSchema, getItemShape, isEventStream, isStream } from './model/mediaType.ts'
@@ -534,4 +534,17 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     ...(servers && { servers: toInputServers(servers) }),
     ...(auth && { auth }),
   })
+}
+
+/** Renames path parameters and their `{placeholder}` to the camelCase names from {@link Url.toParamNames}. */
+export function camelCasePathParams(node: ast.OperationNode): ast.OperationNode {
+  // A `matrix` value is sent as `;name=value`, so renaming would change the request.
+  if (!node.path || node.parameters.some((param) => param.in === 'path' && param.style === 'matrix')) return node
+  const names = Url.toParamNames(node.path)
+
+  return {
+    ...node,
+    path: node.path.replace(/\{([^}]+)\}/g, (_match, name: string) => `{${names.get(name) ?? name}}`),
+    parameters: node.parameters.map((param) => (param.in === 'path' && names.has(param.name) ? { ...param, name: names.get(param.name)! } : param)),
+  }
 }

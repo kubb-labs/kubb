@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: GitHub Actions
-description: Inputs, outputs, runtime selection, and snapshot comments for kubb-labs/action.
+title: kubb-labs/action - GitHub Action reference
+description: Reference for kubb-labs/action. Its inputs, outputs, run flow, the Kubb version it runs, and the snapshot comment it writes on pull requests.
 outline: [2, 3]
 order: 8
 navigation:
@@ -11,57 +11,87 @@ navigation:
 
 # GitHub Actions
 
-The `kubb-labs/action@v0` action generates and publishes a Studio snapshot. See [Publish snapshots from CI](/docs/5.x/integrations/github-actions) for a workflow.
+`kubb-labs/action@v0` publishes a Studio snapshot with `kubb studio snapshot`, then writes the result on the pull request. [Publish Kubb snapshots with GitHub Actions](/docs/5.x/integrations/github-actions) has the workflow and its permissions.
+
+## Run flow
+
+```mermaid
+flowchart TD
+  event[Workflow run] --> fork{Pull request from a fork?}
+  fork -- yes --> skip[Skip: GitHub hides secrets from forks]
+  fork -- no --> closed{Pull request closed?}
+  closed -- yes --> release[Delete its CI agent]
+  closed -- no --> cfg{Config file exists?}
+  cfg -- no --> init[Open a kubb/init-* pull request, then stop]
+  cfg -- yes --> snap[kubb studio snapshot]:::core
+  snap --> outputs[Set the outputs]
+  outputs --> comment[Write the pull request comment]
+```
+
+- Each pull request reuses one CI agent and one comment. Each branch push reuses one CI agent and writes no comment.
+- When the snapshot fails, the comment shows the error and links the workflow run, and the step fails.
+
+See [GitHub Action runs](#github-action-runs).
 
 ## Inputs
 
-| Input               | Default               | Description                                                             |
-| ------------------- | --------------------- | ----------------------------------------------------------------------- |
-| `token`             |                       | Organization CI API key. Required.                                      |
-| `github-token`      | <code v-pre>${{ github.token }}</code> | Token that opens the init pull request and writes the snapshot comment. |
-| `working-directory` | `.`                   | Directory holding the Kubb config and the package.                      |
-| `config`            | `kubb.config.ts`      | Path to the config file, relative to `working-directory`.               |
-| `package-name`      | `name` in `package.json` | Package name for the snapshot tarball.                               |
-| `package-version`   | `version` in `package.json` | Package version for the snapshot tarball.                         |
+| Input | Default | What it does |
+| --- | --- | --- |
+| `token` | | Required. The organization CI API key. The action masks it in logs and passes it to the CLI as `KUBB_TOKEN`. |
+| `github-token` | <code v-pre>${{ github.token }}</code> | Token that opens the init pull request and writes the comment. |
+| `working-directory` | `.` | Folder that holds the Kubb config and `package.json`. |
+| `config` | `kubb.config.ts` | Config file path, relative to `working-directory`. |
+| `package-name` | `name` in `package.json` | Package name of the snapshot. |
+| `package-version` | `version` in `package.json` | Package version of the snapshot, such as <code v-pre>0.0.0-pr.${{ github.event.pull_request.number }}</code>. |
 
 ## Outputs
 
-| Output            | Description                                  |
-| ----------------- | -------------------------------------------- |
-| `snapshot-id`     | ID Studio stored the snapshot under.         |
-| `package-name`    | Name of the generated package.               |
-| `package-version` | Version of the generated package.            |
-| `tarball-url`     | URL of the generated tarball.                |
-| `integrity`       | SHA-512 integrity of the tarball.            |
-| `agent-url`       | Studio URL of the CI agent that holds the snapshot. |
-| `editor-url`      | Read-only Studio editor for the published output. |
-| `files-added`, `files-changed`, `files-removed` | Number of generated files added, changed, and removed since the previous snapshot on the pull request. |
+| Output | Value |
+| --- | --- |
+| `snapshot-id` | The id Studio stores the snapshot under |
+| `package-name` | The package name |
+| `package-version` | The package version |
+| `tarball-url` | The URL of the package tarball |
+| `integrity` | The SHA-512 integrity of the tarball |
+| `agent-url` | The Studio URL of the CI agent that holds the snapshot |
+| `editor-url` | The read-only Studio editor for the output |
+| `files-added`, `files-changed`, `files-removed` | Generated files added, changed, and removed since the previous snapshot on the pull request. `0` when there is none. |
 
 ## Kubb version
 
-The action runs `kubb studio snapshot` with the Kubb version installed in the repository, so the snapshot matches the version the config and plugins are built against. A local install must be Kubb 5.6.2 or later. Without one, the action uses the latest Kubb 5 release.
+The action runs `node_modules/.bin/kubb` from `working-directory`, so the snapshot uses the Kubb version your config and plugins are built against. That install must be Kubb 5.6.2 or later. Without one, the action runs `npx` with `@kubb/cli@^5.16.0`, `@kubb/studio@^5.16.0`, and `tsdown@^0.23.1`.
 
-## Pull requests and branches
+## Pull request comment
 
-Each pull request reuses one CI agent and one comment. Each branch reuses one CI agent and gets no comment. The action also:
+The comment shows the package name and version, an `npm i <tarball-url>` command, and the generated file changes against the base branch and since the previous snapshot.
 
-- Skips pull requests from forks, because GitHub hides secrets from them.
-- Deletes the pull request's CI agent when the pull request closes.
-- Opens a `kubb/init-*` pull request and stops when the config file is missing.
+> [!TIP]
+> The base branch comparison needs a snapshot of the base branch. Run the workflow on pushes to that branch too.
 
-## What the comment shows
-
-Below the install command, the comment lists which generated files changed:
-
-| Section | Compared with |
-| --- | --- |
-| Changes against `main` | The latest snapshot of the base branch, from the `push` trigger. The heading links its commit. |
-| Changes since the previous snapshot | The previous snapshot on the same pull request. The heading links its commit, or shows its date. |
-
-A failed snapshot shows its error in the comment.
+See [Pull request comment details](#pull-request-comment-details).
 
 ## Environment variables
 
-| Variable          | Default               | Description                               |
-| ----------------- | --------------------- | ----------------------------------------- |
-| `KUBB_STUDIO_URL` | `https://kubb.studio` | Studio URL for a self-hosted deployment.  |
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `KUBB_STUDIO_URL` | `https://kubb.studio` | Studio URL for a self-hosted deployment |
+
+## Less common cases {#less-common-cases}
+
+### GitHub Action runs {#github-action-runs}
+
+These cases apply when the action runs on a pull request.
+
+- Deleting a closed pull request's agent is best effort. If the delete fails, the action logs a warning. Studio's idle cleanup removes the agent later.
+- When a `kubb/init-*` pull request is already open, the action stops without opening another.
+
+#### Pull request comment details
+
+The comment opens with the package name, version, and an `npm i <tarball-url>` command. Two sections then compare the generated files, each with a collapsed list of up to 50 files:
+
+| Section | Compares with | Without a base |
+| --- | --- | --- |
+| Changes against the base branch | The base branch's latest snapshot, from the `push` trigger. The heading links its commit. | Says to run the workflow on pushes to the base branch |
+| Changes since the previous snapshot | The pull request's previous snapshot. The heading links its commit, or shows its date. | Reports a first snapshot with its file count |
+
+The comment ends with links to download the package and open the editor, the expiry date, and the source commit.

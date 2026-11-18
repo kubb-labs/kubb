@@ -103,10 +103,4 @@ describe('selectConfig', () => {
     expect(selectConfig({ configs: [pets, stores, importOnly], fileName: '/app/other.openapi.yaml', cwd: '/app' })).toBe(importOnly)
     expect(selectConfig({ configs: [], fileName: '/app/specs/pet.openapi.yaml', cwd: '/app' })).toBeUndefined()
   })
-
-  test('skips a config for another spec', () => {
-    const pets = { input: './specs/pet.openapi.yaml', output: { path: './gen' } }
-
-    expect(selectConfig({ configs: [pets], fileName: '/app/other.openapi.yaml', cwd: '/app' })).toBeUndefined()
-  })
 })

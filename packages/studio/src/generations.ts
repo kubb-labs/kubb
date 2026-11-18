@@ -95,17 +95,19 @@ export async function generate({
   hooks,
   signal,
   allowExec,
+  fileRefs,
 }: {
   configs: Array<Config>
   only?: number
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
+  fileRefs?: Array<string>
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const config = configs[only]!
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
   // With `only`, exactly one result is yielded.
-  const result = (await Array.fromAsync(Kubb.generate(configs.with(only, { ...config, output }), { hooks, signal, only })))[0]!
+  const result = (await Array.fromAsync(Kubb.generate(configs.with(only, { ...config, output }), { hooks, signal, fileRefs, only })))[0]!
   if (result.error) throw result.error
   if (!result.success) throw generationFailure(result.diagnostics)
 

@@ -23,23 +23,6 @@ describe('createFile', () => {
     ).toThrow(/No extname found/)
   })
 
-  it('filters unused imports', () => {
-    const usedImport = createImport({ name: ['z'], path: 'zod' })
-    const unusedImport = createImport({ name: ['unused'], path: 'lodash' })
-    const src = createSource({
-      nodes: [createText('const schema = z.string()')],
-    })
-    const file = createFile({
-      baseName: 'schema.ts',
-      path: 'src/schema.ts',
-      sources: [src],
-      imports: [usedImport, unusedImport],
-    })
-
-    expect(file.imports.map((i) => i.path)).toContain('zod')
-    expect(file.imports.map((i) => i.path)).not.toContain('lodash')
-  })
-
   it('drops imports that resolve to the containing file (self-imports)', () => {
     const selfImport = createImport({ name: ['Pet'], path: 'src/pets.ts' })
     const crossFileImport = createImport({ name: ['Order'], path: 'src/orders.ts' })

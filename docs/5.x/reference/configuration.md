@@ -1,8 +1,7 @@
 ---
 layout: doc
-title: Configuration
-description: Reference for kubb.config.ts with every option, default and example
-  for the Kubb v5 UserConfig.
+title: kubb.config.ts - Configuration reference
+description: Reference for kubb.config.ts in Kubb v5. How Kubb finds and loads the config, the defaults defineConfig applies, and every top-level and output option.
 outline:
   - 2
   - 3
@@ -14,94 +13,88 @@ navigation:
 
 # Configuration
 
-`kubb.config.ts` drives a Kubb run. The file default-exports a `defineConfig` call. Pass it an object, a function that returns one, or an array of configs.
+`kubb.config.ts` tells Kubb which spec to read, where to write, and which plugins to run. Its default export is a `defineConfig` call:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   name: 'petStore',
   input: './petStore.yaml',
   output: { path: './src/gen' },
+  plugins: [pluginTs()],
 })
 ```
 
+## How Kubb loads a config
+
+Kubb loads the `--config` file. Without one, it loads the first `kubb.config.ts` or variant, such as `.kubbrc.ts`, in the working folder or a parent. See [Config loading](#config-loading).
+
 ## Config formats
 
-### Single config object
-
-Export an object as in the example above. `defineConfig` also accepts a Promise of a config.
+`defineConfig` takes an object, a Promise of one, an array, or a function that returns any of these.
 
 ### Config function
 
-Pass a function when the config depends on the run context, such as `watch` or `logLevel`:
+Pass a function when the config depends on how Kubb runs, such as watch mode:
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 
-export default defineConfig(({ watch, logLevel }) => ({
-  name: 'petStore',
+export default defineConfig(({ watch }) => ({
   input: './petStore.yaml',
   output: { path: './src/gen', clean: !watch },
 }))
 ```
 
-The function receives this context:
+The function gets the CLI context:
 
-|            | Type | Description |
-| ---------: | :--- | :---------- |
-|    `input` | `string \| undefined` | Positional input from `kubb generate <input>`. Overrides `config.input` when set. |
-|    `watch` | `boolean` | `true` in watch mode. |
-| `logLevel` | `'silent' \| 'info' \| 'verbose'` | Current log level. |
-| `reporters` | `Array<ReporterName> \| undefined` | Reporter names from `--reporter`, such as `['json']`. `undefined` without the flag. |
-|   `config` | `string \| undefined` | Value of the `--config` flag. `undefined` when the CLI finds the config file itself. |
+| Field | Type | Value |
+| --- | --- | --- |
+| `input` | `string \| undefined` | The [`kubb generate <input>`](/docs/5.x/reference/commands/generate#arguments) argument, which overrides [`config.input`](#input) |
+| `watch` | `boolean \| undefined` | `true` in [watch mode](/docs/5.x/reference/commands/generate#watch-mode) |
+| `logLevel` | `'silent' \| 'info' \| 'verbose' \| undefined` | The current [`--log-level`](/docs/5.x/reference/commands/generate#options) |
+| `reporters` | `Array<ReporterName> \| undefined` | The [`--reporter`](/docs/5.x/reference/commands/generate#reporters) names, such as `['json']` |
+| `config` | `string \| undefined` | The [`--config`](/docs/5.x/reference/commands/generate#options) value, or `undefined` |
 
 ### Multiple configurations (array)
 
-Pass an array to generate from several specs in one command:
+Pass an array to generate from several specs in one run. A config function can return an array too.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig([
-  {
-    name: 'petStore',
-    input: './petStore.yaml',
-    output: { path: './src/gen/petStore' },
-    plugins: [pluginTs()],
-  },
-  {
-    name: 'stripe',
-    input: './stripe.yaml',
-    output: { path: './src/gen/stripe' },
-    plugins: [pluginTs()],
-  },
+  { name: 'petStore', input: './petStore.yaml', output: { path: './src/gen/petStore' }, plugins: [pluginTs()] },
+  { name: 'stripe', input: './stripe.yaml', output: { path: './src/gen/stripe' }, plugins: [pluginTs()] },
 ])
 ```
 
-A config function can return an array to combine both forms. When the specs define the same schemas, set [`shared`](#shared) to generate those once.
+When the specs define the same schemas, set [`shared`](#shared) to generate those once.
 
 ## Defaults {#defaults}
 
-`defineConfig` from `kubb/config` and `createKubb` from `kubb` fill in these fields when you omit them.
+`defineConfig` from `kubb/config` and `createKubb` from `kubb` fill in these defaults for every option you leave out.
 
-| Field            | Default |
-| ---------------- | ------- |
-| `root`           | The folder of the config file. `process.cwd()` when you call `createKubb` yourself |
-| `adapter`        | `adapterOas()` from the bundled [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) |
-| `parsers`        | `[parserTs(), parserTsx(), parserMd()]` |
-| `reporters`      | `[cli, json, file, html]` |
-| `plugins`        | `pluginBarrel()` appended when not already present |
-| `storage`        | `fsStorage()` |
-| `output.barrel`  | `false`, so Kubb writes no root `index.ts`. A plugin still writes its own barrel from its default `output.barrel` |
-| `output.format`  | `false` |
-| `output.lint`    | `false` |
+| Option | Default |
+| --- | --- |
+| `input` | None. Required with an adapter. |
+| `output.path` | None. Required. |
+| `output.clean` | `false` |
+| `output.format` | `false` |
+| `output.lint` | `false` |
+| `output.barrel` | `false`, so no root `index.ts` |
 | `output.defaultBanner` | `'simple'` |
+| `plugins` | `pluginBarrel()`, appended when missing |
+| `adapter` | `adapterOas()`, the bundled [OpenAPI adapter](/extensions/kubb-labs/adapter-oas) |
+| `parsers` | `[parserTs(), parserTsx(), parserMd()]` |
+| `storage` | `fsStorage()` |
+| `root` | The config file's folder, or the folder above `.config/` or `configs/` |
+| `reporters` | `[cli, json, file, html]` |
 
-The bare `@kubb/core` engine applies only `root`, `storage`, `output.format`, `output.lint`, and `output.defaultBanner`.
-
-Bundler integrations apply the same defaults as `defineConfig`. They print the run summary but do not run the `json`, `file`, or `html` reporters. See [Build tools](/docs/5.x/integrations/overview#build-tools).
+When you call `createKubb` yourself, `root` defaults to `process.cwd()`. `createKubb` from `@kubb/core` applies fewer defaults. The build tool integrations run fewer reporters. See [Config loading](#config-loading).
 
 ## Top-level options
 
@@ -110,25 +103,45 @@ Bundler integrations apply the same defaults as `defineConfig`. They print the r
 ### `name`
 
 :::field{type="string"}
-A name for this config. The CLI prints it as the heading of the run, followed by the input, such as `petStore ./petStore.yaml`. An unnamed config shows as `kubb`.
+The run heading the CLI prints before the input, such as `petStore ./petStore.yaml`. Unnamed configs show as `kubb`.
 :::
 
 ### `input`
 
 :::field{type="string | Record<string, unknown>"}
-Where Kubb reads your spec: a local file path, a URL, a file in a git repository, inline OpenAPI content as a JSON or YAML string, or an already-parsed object. Kubb detects which one you gave it.
+Where Kubb reads your spec. Required when an adapter is set, as `defineConfig` does by default. Kubb detects the kind:
 
-`input` is required when an adapter is configured. `defineConfig` always sets one, so a config without `input` stops with `KUBB_INPUT_REQUIRED`. Only `createKubb` from `@kubb/core` runs without an `adapter`, in plugin-only mode, and takes no `input`.
+| Value | Read as |
+| --- | --- |
+| An object | A parsed spec |
+| A string starting with `{` or `[`, spanning lines, or opening with `openapi:` or `swagger:` | Inline JSON or YAML |
+| A string starting with `git+` | A file in a git repository |
+| A URL string | A remote spec |
+| Any other string | A file path, relative to [`root`](#root) |
 
-A string that starts with `{` or `[`, spans multiple lines, or opens with a YAML `openapi:` or `swagger:` key is read as inline content. A string that starts with `git+` is a git input.
+A git input is `git+<repo>#<ref>:<path>` and needs `git` on the `PATH`.
 
-Anything else is a file path or a URL. A relative path resolves against [`root`](#root), which is the folder of the config file unless you set it. Relative `$ref` files in inline content or a parsed object also resolve against `root`.
+::::code-group
 
-Write a git input as `git+<repo>#<ref>:<path>`. `<ref>` is a branch, a tag, or a full commit SHA when the host allows fetching by SHA (GitHub and GitLab do). Leave out `<ref>:` to use the default branch.
+```typescript [File path]
+import { defineConfig } from 'kubb/config'
 
-Kubb runs a shallow `git fetch` into a temporary folder, so it needs `git` on the `PATH` and works with any host. For a private repository it uses your own git credentials (credential helper or SSH key). Relative `$ref` files in the repository resolve as usual.
+export default defineConfig({
+  input: './petStore.yaml',
+  output: { path: './src/gen' },
+})
+```
 
-```typescript [kubb.config.ts]
+```typescript [URL]
+import { defineConfig } from 'kubb/config'
+
+export default defineConfig({
+  input: 'https://petstore3.swagger.io/api/v3/openapi.json',
+  output: { path: './src/gen' },
+})
+```
+
+```typescript [Git]
 import { defineConfig } from 'kubb/config'
 
 export default defineConfig({
@@ -137,94 +150,75 @@ export default defineConfig({
 })
 ```
 
-```typescript [kubb.config.ts]
+```typescript [Inline YAML]
 import { defineConfig } from 'kubb/config'
 
 export default defineConfig({
-  // a path, a URL, a git input, an inline JSON/YAML string, or a parsed object
-  input: './petStore.yaml',
+  input: `
+openapi: 3.1.0
+info:
+  title: Pet Store
+  version: 1.0.0
+paths: {}
+`,
   output: { path: './src/gen' },
 })
 ```
+
+```typescript [Object]
+import { defineConfig } from 'kubb/config'
+import spec from './petStore.json' with { type: 'json' }
+
+export default defineConfig({
+  input: spec,
+  output: { path: './src/gen' },
+})
+```
+
+::::
+
+See [Git input](#git-input) for refs and credentials, and [External `$ref` files](#external-refs).
 :::
 
 ### `output`
 
-Controls where and how files are written.
+Where and how Kubb writes files. `output.mode`, `output.banner`, and `output.footer` are [plugin options](/docs/5.x/reference/plugin-options#output) only.
 
 #### `output.path`
 
 :::field{type="string" required}
-Directory for generated files, absolute or relative to `root`.
-:::
-
-#### `output.mode`
-
-:::field{type="'file' | 'directory'"}
-How a plugin consolidates its code into files. Set it on a plugin's `output`, not on the root `output`.
-
-Default: follows the shape of `output.path`.
-
-`'file'` writes everything into a single file, so `output.path` must include the extension (`'types.ts'`). `'directory'` writes one file per operation or schema under `output.path`. Pair `'directory'` with `group` to split the output into per-tag or per-path subdirectories.
-
-You rarely need to set this. Leave it out and Kubb reads `output.path`: a path with an extension means one file, a path without one means a directory. Generator plugins ship an extensionless default such as `'types'`, so `pluginTs()` writes a directory without any configuration. `@kubb/plugin-redoc` is the exception and defaults to the single file `'docs.html'`.
-
-```typescript [kubb.config.ts]
-import { defineConfig } from 'kubb/config'
-import { pluginTs } from '@kubb/plugin-ts'
-import { pluginAxios } from '@kubb/plugin-axios'
-
-export default defineConfig({
-  input: './petstore.yaml',
-  output: { path: './src/gen' },
-  plugins: [
-    pluginTs({ output: { path: 'types.ts' } }),
-    pluginAxios({ output: { path: 'clients', mode: 'directory' }, group: { type: 'tag' } }),
-  ],
-})
-```
-
-This writes every type into `src/gen/types.ts` and one client file per operation, grouped by tag (`src/gen/clients/pet/`, `src/gen/clients/store/`).
-
-> [!TIP]
-> `group` works with the inferred directory mode, no `mode` needed. Set `mode: 'directory'` yourself only to override the inference, such as a directory name that carries a dot (`path: 'clients.v2'`). A `group` combined with file mode, explicit or inferred from an extension, stops the build with a `KUBB_INVALID_PLUGIN_OPTIONS` error, because a single file has nothing to group.
+The folder for generated files, absolute or relative to `root`. Plugin output paths resolve inside it.
 :::
 
 #### `output.clean`
 
 :::field{type="boolean"}
-Wipe `output.path` before regenerating, and the [`shared`](#shared) directory when one is set.
-
-Default: `false`.
+Remove every file in `output.path` before generating, and in the [`shared`](#shared) directory when one is set. Default: `false`.
 
 > [!WARNING]
-> Only use `clean: true` with a dedicated output folder. Kubb removes the entire directory.
+> Use `clean: true` only on a generated-code folder. Kubb stops with [`KUBB_CLEAN_ROOT`](/docs/5.x/reference/diagnostics#kubb-clean-root) when `output.path` is the project root or a parent of it.
 :::
 
 #### `output.format`
 
 :::field{type="'auto' | 'prettier' | 'biome' | 'oxfmt' | false"}
-Formatter to run on every generated file.
+The formatter for the generated files. Default: `false`.
 
-Default: `false`.
-
-`'auto'` detects the first formatter it finds ([oxfmt](https://oxc.rs) then [Biome](https://biomejs.dev) then [Prettier](https://prettier.io)). A named tool forces that one. `false` skips formatting. Kubb reads your local `.prettierrc` or `biome.json`.
+`'auto'` runs the first installed of oxfmt, Biome, and Prettier. A tool name forces that tool, which reads its own config.
 :::
 
 #### `output.lint`
 
 :::field{type="'auto' | 'eslint' | 'biome' | 'oxlint' | false"}
-Linter to run after generation.
+The linter for the generated files. Default: `false`.
 
-Default: `false`.
-
-`'auto'` detects the first linter it finds ([oxlint](https://oxc.rs) then [Biome](https://biomejs.dev) then [ESLint](https://eslint.org)). A named tool forces that one. `false` skips linting.
+`'auto'` runs the first installed of oxlint, Biome, and ESLint. A tool name forces that tool.
 :::
 
 #### `output.postGenerate`
 
 :::field{type="Array<string | { name?: string; command: string }>"}
-Commands to run after the generated files are formatted and linted, such as a type check or a custom script. Commands run from the `root` directory, in sequence. Pass a command string, or `{ name, command }` to label a step in the CLI output.
+Commands to run in order from `root` after formatting and linting, such as a type check. `{ name, command }` labels a step in the CLI output.
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -237,26 +231,20 @@ export default defineConfig({
   },
 })
 ```
+
+Format, lint, and `postGenerate` run only after a build without errors. A failing step reports [`KUBB_FORMAT_FAILED`](/docs/5.x/reference/diagnostics#kubb-format-failed), [`KUBB_LINT_FAILED`](/docs/5.x/reference/diagnostics#kubb-lint-failed), or [`KUBB_POST_GENERATE_FAILED`](/docs/5.x/reference/diagnostics#kubb-post-generate-failed).
 :::
 
 #### `output.barrel`
 
 :::field{type="{ type: 'all' | 'named' } | false"}
-Behavior of the root `index.ts` barrel file at `output.path`. A plugin inherits this value only when its own `output` sets no `barrel`.
-
-Default: `false`.
-
-`{ type: 'named' }` re-exports each symbol by name, `{ type: 'all' }` writes `export *`. See [`@kubb/plugin-barrel` options](/extensions/kubb-labs/plugin-barrel/options#outputbarrel) for the export styles and the plugin-level `nested` flag, and [Add barrel files](/docs/5.x/how-to/barrel-files) for the setup steps.
+The root `index.ts` at `output.path`: `{ type: 'named' }` or `{ type: 'all' }`, as on the plugin-level [`output.barrel`](/docs/5.x/reference/plugin-options#output-barrel). Default: `false`. A plugin without its own `output.barrel` inherits it. See [Add barrel files](/docs/5.x/how-to/recipes#barrel-files).
 :::
 
 #### `output.defaultBanner`
 
 :::field{type="'simple' | 'full' | false"}
-Auto-generated banner injected at the top of each file.
-
-Default: `'simple'`.
-
-`'simple'` adds a short "Generated by Kubb" notice. `'full'` adds the notice plus `Source`, `Title`, and `OpenAPI spec version` from the spec. `false` writes no banner.
+The notice Kubb writes at the top of each generated file. Default: `'simple'`. A plugin's [`output.banner`](/docs/5.x/reference/plugin-options#output-banner) replaces it.
 
 ::::code-group
 
@@ -282,34 +270,6 @@ Default: `'simple'`.
 ```
 
 ::::
-:::
-
-#### `output.banner`
-
-:::field{type="string | ((meta: BannerMeta) => string)"}
-Text prepended to every file a plugin generates. Set it on an individual plugin. The root `output` exposes only [`output.defaultBanner`](#outputdefaultbanner). Use it for license headers, lint-disable comments, or framework directives like `'use server'`.
-
-
-A string applies to every file the plugin generates, including barrel (`index.ts`) and group aggregation (`[dir]/[dir].ts`) re-export files. A function runs once per file and receives a `BannerMeta`, so you can vary the banner per file or return an empty string to skip it.
-
-`BannerMeta` extends the document `InputMeta` (`title`, `description`, `version`, …) with per-file context:
-
-|              |           |                                                          |
-| -----------: | :-------- | :------------------------------------------------------- |
-|   `filePath` | `string`  | Full output path of the file being generated.            |
-|   `baseName` | `string`  | File name only, for example `stocks.ts`.                 |
-|   `isBarrel` | `boolean` | `true` for `index.ts` re-export barrels.                 |
-| `isAggregation` | `boolean` | `true` for group `[dir]/[dir].ts` aggregation files. |
-
-
-> [!NOTE]
-> Barrel `index.ts` files stay banner-free by default. They get a banner only when the plugin sets `output.banner`, at which point the function runs with `isBarrel: true`.
-:::
-
-#### `output.footer`
-
-:::field{type="string | ((meta: BannerMeta) => string)"}
-Text appended to the end of every file a plugin generates. Mirror of [`output.banner`](#outputbanner), with the same `string | ((meta: BannerMeta) => string)` type.
 :::
 
 ### `shared`
@@ -356,42 +316,21 @@ When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/c
 ### `plugins`
 
 :::field{type="Array<Plugin>"}
-Array of Kubb plugins. Dependencies run first. A plugin that requires one missing from this array fails the run with `KUBB_MISSING_DEPENDENCY`.
+The plugins to run, in dependency order. Default: `[]`, with `pluginBarrel()` appended when missing. A missing required dependency fails with [`KUBB_MISSING_DEPENDENCY`](/docs/5.x/reference/diagnostics#kubb-missing-dependency). See [Shared plugin options](/docs/5.x/reference/plugin-options).
 :::
 
 ### `adapter`
 
 :::field{type="Adapter"}
-Adapter that converts your input into the universal AST, such as `adapterOas()` from [`@kubb/adapter-oas`](/extensions/kubb-labs/adapter-oas).
+Turns your input into Kubb's AST. Default: `adapterOas()`, bundled with `kubb`.
 
-See the [Adapter concept](/docs/5.x/explanation/architecture#adapters) for the full picture.
-
-Default: `adapterOas()` (included with `kubb`).
-
-Pass options to customize the adapter:
-
-```typescript [kubb.config.ts]
-import { defineConfig } from 'kubb/config'
-import { adapterOas } from '@kubb/adapter-oas'
-
-export default defineConfig({
-  input: './petStore.yaml',
-  output: { path: './src/gen' },
-  adapter: adapterOas({ validate: true }),
-})
-```
+To pass options, such as `adapterOas({ validate: false })`, install and import `@kubb/adapter-oas`. `kubb` does not re-export it. See the [adapter options](/extensions/kubb-labs/adapter-oas/options).
 :::
 
 ### `parsers`
 
 :::field{type="Array<Parser>"}
-Array of parsers that turn the in-memory file representation into source code. Each parser declares which file extensions it handles through `extNames`.
-
-See the [Parser concept](/docs/5.x/explanation/architecture#parsers) and [`@kubb/parser-ts`](/extensions/kubb-labs/parser-ts) for the built-in parsers.
-
-Default: `[parserTs(), parserTsx(), parserMd()]` (included with `kubb`).
-
-Import parsers explicitly to override the default set:
+Turn file nodes into source text, each for the extensions in its `extNames`. Default: `[parserTs(), parserTsx(), parserMd()]`, bundled with `kubb`. A list you pass replaces the default. See [`@kubb/parser-ts`](/extensions/kubb-labs/parser-ts).
 
 ```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -408,42 +347,103 @@ export default defineConfig({
 ### `storage`
 
 :::field{type="Storage"}
-Storage driver that persists generated files. `fsStorage()` writes them to the filesystem.
-
-See the [Storage concept](/docs/5.x/explanation/architecture#storage) for the built-in drivers and how to write a custom backend.
-
-Default: `fsStorage()`.
-
-
-```typescript [kubb.config.ts]
-import { defineConfig } from 'kubb/config'
-import { memoryStorage } from 'kubb/kit'
-
-export default defineConfig({
-  input: './petStore.yaml',
-  output: { path: './src/gen' },
-  storage: memoryStorage(),
-})
-```
+Where generated files go. Default: `fsStorage()`, which writes to disk. `memoryStorage()` from `kubb/kit` keeps them in memory. See [Storage](/docs/5.x/explanation/architecture#storage) for a custom backend.
 :::
 
 ### `root`
 
 :::field{type="string"}
-Project root, absolute or relative to the config file location. `input` and `output.path` resolve against it.
-
-Default: the folder of the config file. For a config in `.config/` or `configs/`, the default is the folder above. `createKubb` called without a config file uses `process.cwd()`.
+The project root that `input` and `output.path` resolve against. Default: the config file's folder, or the folder above `.config/` or `configs/`. A relative `root` resolves from that folder. See [Config loading](#config-loading) for `createKubb`.
 :::
 
 ### `reporters`
 
 :::field{type="Array<Reporter>"}
-Reporters available to the run, registered as instances. `defineConfig` registers the built-in `cli`, `json`, `file`, and `html` reporters by default. The HTML reporter runs only when you select it with [`--reporter html`](/docs/5.x/reference/commands/generate#reporters). The CLI [`--reporter`](/docs/5.x/reference/commands/generate#reporters) flag selects reporters by name and defaults to `cli`. See that page for details about each reporter.
-
-Default: `[cli, json, file, html]`.
+The reporters a run can use. Default: the built-in `cli`, `json`, `file`, and `html` reporters. The [`--reporter`](/docs/5.x/reference/commands/generate#reporters) flag picks which ones run and defaults to `cli`.
 :::
 
 ::
 
 ::studio-cta{source="configuration-reference"}
 ::
+
+## Less common cases {#less-common-cases}
+
+### Config loading {#config-loading}
+
+Without `--config`, `kubb generate` searches for a config file and turns its default export into one config per entry.
+
+```mermaid
+flowchart TD
+  cli[kubb generate] --> flag{--config set?}
+  flag -- yes --> load[Load that file]
+  flag -- no --> search[Search the working folder, then each parent]
+  search --> load
+  load --> form{Default export}
+  form -- function --> fn[Call it with the CLI context]
+  form -- object or array --> list[One config per entry]
+  fn --> list
+  list --> defaults[defineConfig fills defaults]:::core
+  defaults --> rootdir[Resolve root]
+  rootdir --> gen[Generate each config]
+```
+
+- In each folder, `.kubbrc.*` comes before `kubb.config.*`, and the folder before its `.config/` and `configs/` subfolders.
+- Extensions are tried in the order `.ts`, `.mts`, `.cts`, `.js`, `.mjs`, `.cjs`.
+- When nothing matches, the CLI stops and suggests `kubb init`.
+
+#### Root folder
+
+Without [`root`](#root), the root is the config file's folder, or its parent for a config in `.config/` or `configs/`.
+
+- A relative `root` resolves from that folder.
+- `createKubb` without a config file uses `process.cwd()`.
+
+#### Defaults outside the CLI
+
+Without `kubb generate`, fewer [defaults](#defaults) apply:
+
+- `createKubb` from `@kubb/core` applies only the `root`, `storage`, `output.format`, `output.lint`, and `output.defaultBanner` defaults.
+- [Build tool integrations](/docs/5.x/integrations/overview#build-tools) apply the `defineConfig` defaults, but run only the summary reporter.
+
+#### Extension commands
+
+`kubb add`, `kubb update`, `kubb list`, and `kubb remove` read `--config`, or search for a config as `kubb generate` does. With several config entries, `add` and `remove` edit the first one. See [Project files](/docs/5.x/reference/commands#project-files).
+
+#### kubb validate
+
+The adapter `kubb validate` runs depends on the config it finds. See [Which adapter runs](/docs/5.x/reference/commands/validate#which-adapter-runs).
+
+| Situation | Adapter |
+| --- | --- |
+| A config is found or passed | Each entry's adapter. A local path resolves from the entry's `root`, or the current folder. |
+| A config entry has no adapter | None. The command fails. |
+| No config, or a found config that fails to load | `@kubb/adapter-oas`. A `--config` file that fails to load fails the command. |
+
+- An array config that repeats one adapter and input validates that pair once.
+- A URL or git input is passed unchanged. A git input is fetched into a temporary folder, validated, and deleted.
+
+### External `$ref` files {#external-refs}
+
+When your spec points at another file with a relative `$ref`, Kubb resolves it from the input file's folder. An object or inline input has no file, so its refs resolve from `root`. An OpenAPI 3.2 `$self` changes the base.
+
+Some runs refuse local files:
+
+| Run | Local `$ref` files it reads |
+| --- | --- |
+| A URL input | None, so a fetched spec cannot read your files |
+| A Kubb Studio agent | Only files inside the project or the input's folder |
+| A sandbox agent | None |
+| A managed agent | Only files in the repository of a git input |
+
+To fix a refused file, move it into the project, start your agent with [`--allow-file-refs`](/docs/5.x/reference/commands/studio#permissions), or inline the schema.
+
+### Git input {#git-input}
+
+For a spec in a git repository, write `input` as `git+<repo>#<ref>:<path>`.
+
+- `<ref>` is a branch, a tag, or a full commit SHA on hosts that fetch by SHA, such as GitHub and GitLab.
+- Leave out `<ref>:` to use the default branch.
+- Kubb runs a shallow `git fetch` into a temporary folder. It needs `git` on the `PATH`. For a private repository, it uses your git credentials.
+
+See [Read the spec from a git repository](/docs/5.x/how-to/recipes#read-the-spec-from-a-git-repository) for a config.

@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
-import { getErrorMessage, mkdtemp, read, rm, toError } from '@internals/utils'
+import { getErrorMessage, isPathInside, mkdtemp, read, rm, toError } from '@internals/utils'
 import {
   Diagnostics,
   cacheStorage,
@@ -27,6 +27,7 @@ import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
 import { BUNDLED_PACKAGES, editConfigFile, pickOutput, readConfig, readImports } from '@internals/shared'
+import { signAgentPayload } from './agentKey.ts'
 import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
@@ -39,6 +40,8 @@ import {
   AgentMessage,
   type AgentConnectInfo,
   type AgentPermissions,
+  AgentSignatureContext,
+  type AgentType,
   type ConfigEdit,
   ConfigEditOperation,
   type ConfigEntryView,
@@ -51,6 +54,7 @@ import {
   type GenerationEvent,
   type GenerationRun,
   type InstalledExtensions,
+  MAX_CONNECT_CHALLENGE_LENGTH,
   MAX_FILES_PER_REQUEST,
   MAX_PAGE_LINES,
   type ReadDiffInput,
@@ -70,10 +74,11 @@ import {
   type UpdateExtensionsResult,
 } from './protocol.ts'
 import { withPublicFetch } from './publicFetch.ts'
-import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
+import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, resolveFileRefs, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
+const SHARED_AGENT_TYPES = new Set<AgentType>(['sandbox', 'global'])
 // Studio marks an agent offline after its liveness window, so a slower cadence would look dead.
 const MAX_HEARTBEAT_INTERVAL_MS = 60_000
 const PING_TIMEOUT_MS = 10_000
@@ -150,9 +155,13 @@ declare global {
 
 export type ConnectAgentOptions = {
   /**
-   * The agent's bearer token, from {@link pairAgent}.
+   * The agent's bearer token, from {@link pairAgent}. A function is read before every socket opens.
    */
-  token: string
+  token: string | (() => string | Promise<string>)
+  /**
+   * The agent key from `generateAgentKey`, which signs the connect challenge.
+   */
+  privateKey?: string
   studioUrl?: string
   /**
    * The config path shown in Studio, relative to `root` unless absolute.
@@ -176,6 +185,12 @@ export type ConnectAgentOptions = {
    * What Studio may do in this project. Every permission is off unless granted.
    */
   permissions?: Partial<AgentPermissions>
+  /**
+   * The kind of agent the host runs. A `'sandbox'` or `'global'` agent is shared, and lets Studio read what it generated.
+   * Studio's own `sandbox` and `managed` flags only take permissions away.
+   * @default 'user'
+   */
+  agentType?: AgentType
   /** The CLI entry `installExtension` runs `kubb add` with. Found through the project's `kubb` or `@kubb/cli` dependency when omitted. */
   kubbBin?: string
   /**
@@ -195,9 +210,10 @@ export type ConnectAgentOptions = {
   heartbeatInterval?: number
 }
 
-type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin'>> & {
+type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin' | 'privateKey'>> & {
   signal?: AbortSignal
   kubbBin?: string
+  privateKey?: string
   permissions: AgentPermissions
   configFile: string
 }
@@ -325,29 +341,39 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   get #sandbox(): boolean {
-    return this.#session.info?.sandbox === true
+    return SHARED_AGENT_TYPES.has(this.#options.agentType) || this.#session.info?.sandbox === true
   }
 
   get #managed(): boolean {
-    return this.#session.info?.managed === true
+    return this.#options.agentType === 'managed' || this.#session.info?.managed === true
   }
 
-  // A sandbox has no project to write to or edit, and Studio may always read what it generated there.
+  // The host's kind, unless Studio's flags narrow it to a sandbox or a managed agent.
+  get #agentType(): AgentType {
+    if (this.#sandbox) return 'sandbox'
+    if (this.#managed) return 'managed'
+    return this.#options.agentType
+  }
+
+  // A sandbox has no project to write to or edit. Only the host's `agentType` grants reads.
   get #permissions(): AgentPermissions {
-    const { permissions } = this.#options
-    return this.#sandbox
-      ? {
-          ...permissions,
-          allowWrite: false,
-          allowConfigEdit: false,
-          allowInstall: false,
-          allowUpdate: false,
-          allowRemove: false,
-          allowSaveInput: false,
-          allowRead: true,
-          allowReadAst: true,
-        }
-      : permissions
+    const { permissions, agentType } = this.#options
+    const sandbox = SHARED_AGENT_TYPES.has(agentType)
+    if (this.#managed) return { ...permissions, allowFileRefs: false }
+    if (!this.#sandbox) return permissions
+
+    return {
+      ...permissions,
+      allowWrite: false,
+      allowConfigEdit: false,
+      allowInstall: false,
+      allowUpdate: false,
+      allowRemove: false,
+      allowSaveInput: false,
+      allowFileRefs: false,
+      allowRead: sandbox || permissions.allowRead,
+      allowReadAst: sandbox || permissions.allowReadAst,
+    }
   }
 
   // Owned agents retain output in the project cache. Each sandbox connection has a temporary cache.
@@ -435,12 +461,19 @@ class Agent extends RpcTarget implements AgentApi {
       entries.push({ ...toEntryView(config, extensions), ...(disk && { disk }) })
     }
     this.#session.connected.resolve(info)
+    const { privateKey } = this.#options
+    const { challenge } = info
+    const signature =
+      privateKey && typeof challenge === 'string' && challenge && challenge.length <= MAX_CONNECT_CHALLENGE_LENGTH
+        ? signAgentPayload({ privateKey, context: AgentSignatureContext.CONNECT, payload: challenge })
+        : undefined
 
     return {
       versions: { kubb: kubbVersion, agent: version },
       root,
       config: { path: configPath, file, extensions: [...extensions.values()], configs: entries },
       permissions: this.#permissions,
+      ...(signature && { signature }),
     }
   }
 
@@ -557,10 +590,11 @@ class Agent extends RpcTarget implements AgentApi {
       })
     }
 
-    // A managed agent checks a git input out itself, so the fetch stays on public addresses and follows no redirect.
+    // A managed agent checks out any git input itself, the config's too, so the fetch stays on public addresses.
+    const managedInput = this.#managed ? (studioInput ?? config.input) : undefined
     const checkout =
-      this.#managed && studioInput !== undefined && getInputKind(studioInput) === 'git'
-        ? await checkoutGitInput(studioInput, signal, { publicOnly: true, authorization: input.gitAuth?.authorization }).catch((error: unknown) =>
+      typeof managedInput === 'string' && getInputKind(managedInput) === 'git'
+        ? await checkoutGitInput(managedInput, signal, { publicOnly: true, authorization: input.gitAuth?.authorization }).catch((error: unknown) =>
             this.#refuse({ message: getErrorMessage(error), code: Diagnostics.code.gitInputFailed }),
           )
         : undefined
@@ -583,9 +617,16 @@ class Agent extends RpcTarget implements AgentApi {
         hooks: this.#options.hooks,
         signal,
         allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
+        fileRefs: resolveFileRefs({
+          agentType: this.#agentType,
+          allowFileRefs: this.#permissions.allowFileRefs,
+          root: this.#options.root,
+          input: config.input,
+          checkoutDir: checkout?.dir,
+        }),
       })
-    // The adapter fetches the URL and every `$ref` in it, so a managed agent limits the fetch itself to public addresses.
-    const files = await (this.#managed ? withPublicFetch(run) : run())
+    // The adapter fetches the URL and every `$ref` in it, so a shared or hosted agent limits the fetch itself to public addresses.
+    const files = await (this.#sandbox || this.#managed ? withPublicFetch(run) : run())
       .catch(async (error: unknown) => {
         await this.#generations.drop(jobId)
         await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
@@ -674,7 +715,7 @@ class Agent extends RpcTarget implements AgentApi {
   /**
    * Readies a `set-input` edit for the config file: a document is pointed at `openapi.yaml` (`openapi.json`
    * for JSON) in the project, one file per config entry, for `saveConfig` to write once the edit applies.
-   * A managed agent refuses a file path, as in a generation.
+   * A managed agent refuses a file path, as in a generation. Every agent refuses a file path outside the project.
    */
   async #keepInput(edit: ConfigEdit): Promise<KeptEdit> {
     // A blank input goes on unchanged, so the config writer refuses it before any file is written.
@@ -685,6 +726,12 @@ class Agent extends RpcTarget implements AgentApi {
     }
     const kind = getInputKind(edit.input)
     if (this.#managed && !MANAGED_INPUT_KINDS.has(kind)) return { reason: AgentMessage.MANAGED_INPUT_KIND }
+    // The next generation reads the input file itself, and the `$ref` limit does not cover it.
+    // A `url` that is not http(s), such as `C:\spec.yaml`, is read as a file path too.
+    const isFilePath = kind === 'file' || (kind === 'url' && !/^https?:/i.test(edit.input))
+    if (isFilePath && !isPathInside(path.resolve(this.#options.root, edit.input), this.#options.root)) {
+      return { reason: 'the input is a file outside the project' }
+    }
     if (kind !== 'inline') return edit
 
     const entry = edit.config === undefined || edit.config === 0 ? '' : `-${String(edit.config).replace(/[^\w.-]/g, '-')}`
@@ -898,7 +945,9 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
 }
 
 async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
-  const { hooks, signal, heartbeatInterval, token, studioUrl, version } = options
+  const { hooks, signal, heartbeatInterval, studioUrl, version } = options
+  const token = typeof options.token === 'function' ? await options.token() : options.token
+  if (signal?.aborted) return { code: 1000, reason: '', connected: false }
   const session: Session = { connected: Promise.withResolvers(), closed: false }
   const agent = new Agent({ options, session })
   const rpc = openRpc({ url, token, instanceId, agent })
@@ -1011,6 +1060,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
     ...options,
     studioUrl: options.studioUrl ?? defaultStudioUrl,
     root,
+    agentType: options.agentType ?? 'user',
     configFile: path.resolve(root, options.configPath),
     permissions: {
       allowWrite: false,
@@ -1019,6 +1069,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
       allowUpdate: false,
       allowRemove: false,
       allowSaveInput: false,
+      allowFileRefs: false,
       allowExec: false,
       allowRead: false,
       allowReadAst: false,

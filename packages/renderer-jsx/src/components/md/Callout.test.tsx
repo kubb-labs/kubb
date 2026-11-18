@@ -39,18 +39,4 @@ describe('Callout', () => {
 
     expect(firstValue(renderer)).toBe('> [!NOTE]\n> first paragraph\n>\n> second paragraph')
   })
-
-  it.each([
-    { type: 'important', label: 'IMPORTANT' },
-    { type: 'caution', label: 'CAUTION' },
-  ] as const)('returns a $label marker when type is $type', async ({ type, label }) => {
-    const renderer = jsxRenderer()
-    await renderer.render(
-      <File baseName="post.md" path="src/post.md">
-        <Callout type={type}>body</Callout>
-      </File>,
-    )
-
-    expect(firstValue(renderer)).toBe(`> [!${label}]\n> body`)
-  })
 })

@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Commands
-description: Reference for every command and flag exposed by the kubb CLI including init, generate, validate, mcp, studio, add, update, list, and remove.
+title: Kubb CLI commands - Flags, env vars, and exit codes
+description: Every kubb CLI command with links to its reference, plus the global flags, deprecated flags, environment variables, and exit codes all commands share.
 outline: [2, 3]
 navigation:
   title: Commands
@@ -10,62 +10,80 @@ navigation:
 
 # Commands
 
-The `kubb` CLI is the main way to run Kubb. It reads your [configuration](/docs/5.x/reference/configuration) and runs the generation pipeline. It also scaffolds projects, validates specs, starts a Model Context Protocol server for AI clients, connects a project to Kubb Studio, and installs extensions from the [Kubb registry](/docs/5.x/reference/registry).
+The `kubb` CLI generates code from your [configuration](/docs/5.x/reference/configuration) and manages the extensions you install from the [extension registry](/extensions).
 
-## Usage
-
-```text [Terminal]
-USAGE:
-  kubb [COMMANDS] <OPTIONS> [<input>]
-
-COMMANDS:
-  [generate] <OPTIONS> [<input>]      Generate types, clients, hooks, and schemas from an OpenAPI specification.
-  add <OPTIONS> [<input>]             Find and install plugins, adapters, and parsers from the Kubb registry.
-  init <OPTIONS> [<input>]            Set up a config, install plugins, and run the first generation.
-  list <OPTIONS> [<input>]            List installed extensions, their versions, and available updates.
-  mcp <OPTIONS> [<input>]             Start an MCP server for code generation from an AI assistant.
-  remove <OPTIONS> [<input>]          Remove a plugin or parser from kubb.config.ts and uninstall its package.
-  studio <OPTIONS> [<input>]          Connect this project to Kubb Studio, or manage its pairing and snapshots.
-  update <OPTIONS> [<input>]          Update installed extensions, regenerate, and summarize file changes.
-  validate <OPTIONS> [<input>]        Check a specification with the configured adapter before generating.
-
-For more info, run any command with the `--help` flag:
-  kubb --help
-  kubb add --help
-  kubb init --help
-  kubb list --help
-  kubb mcp --help
-  kubb remove --help
-  kubb studio --help
-  kubb update --help
-  kubb validate --help
+```shell [Terminal]
+kubb <command> [options]
 ```
 
-Without a command, `kubb` runs `kubb generate`. After the commands, `kubb --help` lists the `generate` arguments, options, and examples, which [`kubb generate`](/docs/5.x/reference/commands/generate) documents.
+`kubb` alone runs `kubb generate`. `kubb --help` lists every command and the `generate` options.
 
-## Available commands
+## Commands
 
-| Command                       | Description                                                       |
-| ----------------------------- | ----------------------------------------------------------------- |
-| [`kubb init`](/docs/5.x/reference/commands/init) | Scaffold a new Kubb project with an interactive wizard. |
-| [`kubb generate`](/docs/5.x/reference/commands/generate) | Run the code-generation pipeline from your `kubb.config.ts`. |
-| [`kubb validate`](/docs/5.x/reference/commands/validate) | Validate a Swagger/OpenAPI document without running the pipeline. |
+| Command | What it does |
+| --- | --- |
+| [`kubb init`](/docs/5.x/reference/commands/init) | Set up a config, install plugins, and run the first generation. |
+| [`kubb generate [input]`](/docs/5.x/reference/commands/generate) | Generate code from `kubb.config.ts`. The default command. |
+| [`kubb validate <input>`](/docs/5.x/reference/commands/validate) | Check a spec without generating. |
+| [`kubb add [id]`](/docs/5.x/reference/commands/add) | Install a plugin, adapter, or parser from the registry. |
+| [`kubb update [ids...]`](/docs/5.x/reference/commands/update) | Update installed extensions to the version the registry pins. |
+| [`kubb list`](/docs/5.x/reference/commands/list) | List installed extensions and available updates. |
+| [`kubb remove <id>`](/docs/5.x/reference/commands/remove) | Remove a plugin or parser from the config and uninstall it. |
+| [`kubb studio [action]`](/docs/5.x/reference/commands/studio) | Connect the project to Kubb Studio. |
 | [`kubb mcp`](/docs/5.x/reference/commands/mcp) | Start a Model Context Protocol server for AI clients. |
-| [`kubb studio`](/docs/5.x/reference/commands/studio) | Connect the project to Kubb Studio, or manage its pairing and snapshots. |
-| [`kubb add`](/docs/5.x/reference/commands/add) | Install a plugin, adapter, or parser from the Kubb registry and add a plugin or parser to the config. |
-| [`kubb update`](/docs/5.x/reference/commands/update) | Move installed extensions to the version the Kubb registry pins. |
-| [`kubb list`](/docs/5.x/reference/commands/list) | List the installed extensions, their versions, and available updates. |
-| [`kubb remove`](/docs/5.x/reference/commands/remove) | Remove a plugin or parser from the config and uninstall its package. |
+
+## Extension commands {#extension-commands}
+
+`kubb add`, `kubb update`, `kubb list`, and `kubb remove` share these rules for the extensions you install from the [extension registry](/extensions).
+
+### Registry ids {#ids}
+
+- An id is `<owner>/<slug>`, such as `acme/plugin-graphql`.
+- A bare `<slug>`, such as `plugin-zod`, means `kubb-labs/<slug>`.
+- Both parts use lowercase letters and digits joined by single hyphens. Any other shape is an error.
+- For an unknown id, the CLI prints `No extension named <id>` and up to three close ids.
+
+### Versions and compatibility {#versions}
+
+| Pinned to | Installs as |
+| --- | --- |
+| An npm version | `<package>@<version>` |
+| A GitHub release | `github:<owner>/<repo>#<commit>` |
+
+`add` and `update` refuse an extension that does not support your Kubb or Node.js version.
+
+### Project files {#project-files}
+
+| What | Where the commands find it |
+| --- | --- |
+| Installed extensions | `dependencies` and `devDependencies` in the `package.json` of the current folder. |
+| Config file | `--config`, or the search in [How Kubb loads a config](/docs/5.x/reference/configuration#how-kubb-loads-a-config). With several config entries, `add` and `remove` edit the first one. |
+| Package manager | The `packageManager` field in `package.json`, then a lockfile, else `npm`. Supports `npm`, `pnpm`, `yarn`, and `bun`. `add` and `update` install dev dependencies. |
+
+## Global flags
+
+| Flag | Alias | Default | What it does |
+| --- | --- | --- | --- |
+| `--help` | `-h` | `false` | Print the help of a command, such as `kubb add --help`. |
+| `--version` | `-v` | `false` | Print the CLI version. |
+
+> [!NOTE]
+> The v4 camelCase flags `--logLevel`, `--dryRun`, `--allowWrite`, `--allowConfigEdit`, `--allowExec`, and `--packageVersion` still work and print a deprecation warning. Use the kebab-case form, such as `--log-level`. `kubb update --check` is now `kubb update --dry-run`.
 
 ## Environment variables
 
-The CLI reads these shared environment variables.
+| Variable | Read by | What it does |
+| --- | --- | --- |
+| `KUBB_DISABLE_TELEMETRY` | every command | `1` or `true` turns off anonymous telemetry and its notice. |
+| `DO_NOT_TRACK` | every command | Same as `KUBB_DISABLE_TELEMETRY`. |
+| `KUBB_DEBUG` | every command | `1` or `true` turns on source maps in stack traces. Slows startup. |
+| `CI` | every command | Any value except `false` or `0` marks a CI run: plain output, no update check, and no Studio pairing. `GITHUB_ACTIONS`, `GITLAB_CI`, and other provider variables count too. |
+| `KUBB_HOME` | `generate`, `studio` | Folder for the update check and Studio credentials, worker state, and log. Default: `~/.kubb`. |
+| `KUBB_REGISTRY` | `init`, `add`, `update`, `list`, `remove` | Registry base URL, starting with `http://` or `https://`. Default: `https://kubb.dev/registry`. |
+| `KUBB_TOKEN` | `studio snapshot` | Organization CI API key, the default for `--token`. |
+| `KUBB_AGENT_MAX_GENERATIONS` | `studio` | How many recent generations the agent keeps for Studio. Default: `8`. |
+| `KUBB_AGENT_MAX_GENERATIONS_MB` | `studio` | Size cap in MB for those generations. Default: `100`. |
 
-| Variable                 | Type      | Used by  | Description                                                                     |
-| ------------------------ | --------- | -------- | --------------------------------------------------------------------------------- |
-| `KUBB_DISABLE_TELEMETRY` | `boolean` | all      | Turn off anonymous usage telemetry. Set it to `1` or `true`.                    |
-| `DO_NOT_TRACK`           | `boolean` | all      | Standard opt-out convention. Set it to `1` or `true`.                           |
-| `KUBB_DEBUG`             | `boolean` | all      | Turn on source maps, so stack traces point at the original source. Set it to `1` or `true`. Off by default because it slows startup. |
-| `KUBB_HOME`              | `string`  | `studio` | Directory the CLI keeps its Studio state in. Defaults to `~/.kubb`.             |
-| `KUBB_TOKEN`             | `string`  | `studio snapshot` | Organization CI API key. Same as `--token`.                            |
-| `KUBB_REGISTRY`          | `string`  | `init`, `add`, `update`, `list`, `remove` | Base URL of the extension registry. Defaults to `https://kubb.dev/registry`. |
+## Exit codes
+
+Every command exits with `0` on success and `1` on failure. Each command page lists the cases that differ, such as a canceled prompt.

@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: kubb init
-description: The init command bootstraps a fresh Kubb project with an interactive wizard.
+title: kubb init - Set up Kubb in a project
+description: The init command detects your spec and package manager, asks for plugins and an output folder, then installs Kubb and writes kubb.config.ts.
 outline:
   - 2
   - 3
@@ -13,46 +13,55 @@ navigation:
 
 # kubb init
 
-Run `kubb init` for an interactive setup wizard. Kubb looks at your project first, asks a few questions, shows the config for review, then installs your chosen plugins, writes `kubb.config.ts`, and runs the first generation.
-
-## Usage
-
-Run the command in the directory where your Kubb project lives:
+`kubb init` sets up Kubb in your project. It asks three questions, shows you the config, then installs Kubb, writes `kubb.config.ts`, and runs the first generation.
 
 ```shell [Terminal]
 npx kubb init
 ```
 
-Before the first question, Kubb detects:
+## What the wizard does
 
-- The package manager (`bun`, `pnpm`, `npm`, or `yarn`).
-- OpenAPI and Swagger files in the repo, such as `openapi.yaml` or `api/swagger.json`, up to three folders deep. It skips `node_modules`, `dist`, `build`, `coverage`, and hidden folders, and shows the version and operation count of the first one.
+::steps{level="3"}
 
-The wizard then asks for three things:
+### Detect the project
 
-- Which spec to read: a file it found, a URL, or another file.
-- Which [plugins](/extensions/kind/plugins) to add. The list comes from the [Kubb registry](/docs/5.x/reference/registry), with `plugin-ts` selected by default. Choose the plugins you need. The CLI does not infer them from your framework or installed libraries. Plugin manifests declare which dependencies a selection requires.
-- The output folder, `./src/gen` by default.
+Kubb finds your package manager by the rules in [Project files](/docs/5.x/reference/commands#project-files). Without a `package.json`, it offers to create one.
 
-Kubb then shows the full `kubb.config.ts` and the packages it installs. Pick **Change a choice** to answer the questions again.
+It looks for `openapi*` or `swagger*` files (`.yaml`, `.yml`, or `.json`) up to three folders deep. See [Spec detection in kubb init](#init-spec-detection).
 
-After you confirm, Kubb installs the packages, writes `kubb.config.ts`, and adds `"generate": "kubb generate"` to the `package.json` scripts when there is no `generate` script yet. It never changes an existing one. Then it runs the first generation. When that run fails, Kubb shows the error, keeps the setup, and exits with code 1.
+### Ask three questions
 
-Kubb installs `kubb` at the exact version of the CLI you ran. Each plugin is added the way [`kubb add`](/docs/5.x/reference/commands/add) adds it: at the version the registry pins, and only when it supports the running Kubb and Node.js versions.
+| Question | Choices | Default |
+| --- | --- | --- |
+| Which spec to read | A file it found, a URL, or another file | The first file found, else `./openapi.yaml` |
+| Which [plugins](/extensions/kind/plugins) to add | The registry plugins that support your Kubb and Node.js versions | `plugin-ts` |
+| Output folder | Any path | `./src/gen` |
 
-Before it installs anything, Kubb checks the [manifest](/docs/5.x/reference/kit/manifest) of each chosen plugin. The check fails when a plugin's `dependencies` are not all chosen, or when a plugin with `role: "consumer"` (such as `plugin-react-query`) has no client plugin next to it. The wizard then names what is missing and asks the questions again. With `--yes` or all three value flags, `kubb init` names what is missing and exits with code 1.
+Kubb does not pick plugins from your framework or installed libraries.
+
+### Review the config
+
+Kubb checks each plugin's [extension manifest](/docs/5.x/reference/kit/manifest). When a plugin needs another one you did not pick, such as a client plugin next to `plugin-react-query`, the wizard names it and asks again.
+
+Then it shows you `kubb.config.ts` and the packages to install. Pick **Change a choice** to answer again. If `kubb.config.ts` exists, Kubb asks before it overwrites it.
+
+### Install, write, and generate
+
+Kubb installs `kubb` at the CLI version and each plugin at its registry pin. It writes `kubb.config.ts`, adds a `"generate": "kubb generate"` script when `package.json` has none, and runs the first generation.
+
+::
 
 ## Options
 
-| Option           | Default | Description                                                                                                                                                                                                                                                         |
-| ---------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--yes`, `-y`    | `false` | Skip all prompts and the review. Uses the first spec found (or `./openapi.yaml`), `plugin-ts`, and `./src/gen`, and prints one line per step.                                                                                                       |
-| `--input`, `-i`  |         | Path to the OpenAPI specification (local file or URL). Bypasses the spec path prompt.                                                                                                                                                                               |
-| `--output`, `-o` |         | Output directory for generated files. Bypasses the output directory prompt.                                                                                                                                                                                         |
-| `--plugins`      |         | Comma-separated registry ids of the plugins to add, the same ids [`kubb add`](/docs/5.x/reference/commands/add) takes, such as `plugin-ts,plugin-zod`, or short names such as `ts,zod`. Bypasses the plugin selection prompt. An id that is not in the registry stops `kubb init`. |
-| `--dry-run`      | `false` | Preview the wizard without installing packages, writing files, or running the first generation.                                                                                                                                                                  |
+| Flag | Alias | Default | What it does |
+| --- | --- | --- | --- |
+| `--yes` | `-y` | `false` | Skip every prompt and the review, and use the defaults. Overwrites an existing `kubb.config.ts`. |
+| `--input <path>` | `-i` | | Spec path or URL. Skips the spec question. |
+| `--output <path>` | `-o` | | Output folder. Skips the output question. |
+| `--plugins <ids>` | | | Comma-separated [registry ids](/docs/5.x/reference/commands#ids) or short names, such as `ts,zod`. Skips the plugin question. An id the registry does not list stops `kubb init`. |
+| `--dry-run` | | `false` | Run the wizard without installing packages, writing files, or generating. |
 
-Each flag skips only its own prompt and combines with `--yes`. Pass all three value flags to skip the choice prompts and review. If `kubb.config.ts` already exists, Kubb still asks before overwriting it unless you pass `--yes`.
+Each value flag skips only its own question. Pass all three to also skip the review. Without `--yes`, Kubb still asks before it overwrites `kubb.config.ts`.
 
 ## Examples
 
@@ -62,7 +71,7 @@ Run with the defaults and no prompts:
 npx kubb init --yes
 ```
 
-Run with no prompts and a specific spec, output directory, and plugins:
+Set the spec, output folder, and plugins, with no prompts:
 
 ```shell [Terminal]
 npx kubb init --yes --input ./openapi.yaml --plugins ts,zod --output src/api
@@ -75,4 +84,24 @@ npx kubb init --yes --input ./openapi.yaml --plugins ts,zod --output src/api
 Kubb is set up. Run npm run generate after changing the spec.
 ```
 
-Add `--dry-run` to preview what the wizard would install and write.
+## Exit codes
+
+| Code | When |
+| --- | --- |
+| `0` | Kubb is set up, or you canceled a prompt. |
+| `1` | The first generation fails. The setup stays. |
+| `1` | A plugin misses a dependency (with `--yes` or all three value flags), a `--plugins` id is not in the registry, the registry cannot be read, or the install fails. |
+
+## Less common cases {#less-common-cases}
+
+### Spec detection in kubb init {#init-spec-detection}
+
+On start, `kubb init` detects the package manager and looks for a spec.
+
+- It reads the package manager (`npm`, `pnpm`, `yarn`, or `bun`) from the `packageManager` field or a lockfile, else `npm`.
+- Without a `package.json`, it offers to create one.
+- It looks up to three folders deep for `openapi*` or `swagger*` files ending in `.yaml`, `.yml`, or `.json`.
+- It skips `node_modules`, `dist`, `build`, `coverage`, and hidden folders.
+- It shows the version and operation count of the first one.
+
+For a spec with another name or a deeper path, pass it with [`--input`](#options).

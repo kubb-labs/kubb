@@ -8,7 +8,7 @@ import { KUBB_CONFIG_FILENAME } from '@internals/shared'
 import { copyToClipboard, isCIEnvironment, openInBrowser, toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { connectAgent, defaultStudioUrl, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
+import { connectAgent, defaultStudioUrl, generateAgentKey, InvalidAgentTokenError, pairAgent, PairingCanceledError, refreshAgentToken } from '@kubb/studio'
 import { AgentPermission } from '@kubb/studio/protocol'
 import { trackRun } from '../../Telemetry.ts'
 import { plainWriter } from '../../loggers/plainWriter.ts'
@@ -18,8 +18,10 @@ import { logBlock, logStep } from '../../ui/log.ts'
 import { createSpinner } from '../../ui/spinner.ts'
 import { canUseTTY, isRichOutput } from '../../utils/env.ts'
 import { getConfigs } from '../../config.ts'
-import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, writeCredentials } from './credentials.ts'
+import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, updateCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
+
+const REFRESH_EVERY_MS = 24 * 60 * 60 * 1000
 
 export type StudioOptions = {
   /**
@@ -81,6 +83,7 @@ export type StudioValues = {
   allowUpdate?: boolean
   allowRemove?: boolean
   allowSaveInput?: boolean
+  allowFileRefs?: boolean
   allowExec?: boolean
   open?: boolean
   logLevel?: CLIOptions['logLevel']
@@ -117,12 +120,14 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
   let countdown: NodeJS.Timeout | undefined
 
   try {
+    const privateKey = generateAgentKey()
     const { token, agent } = await pairAgent({
       studioUrl,
       type: 'cli',
       name: path.basename(process.cwd()),
       hostname: hostname(),
       machineId: await getMachineId(),
+      privateKey,
       signal,
       onCode: (session) => {
         logStep(
@@ -160,16 +165,21 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
     clearInterval(countdown)
     spinner.stop(`Paired as ${agent.name}${agent.organizationSlug ? ` · org ${agent.organizationSlug}` : ''}`)
 
-    const keepsIdentity = previousCredentials?.studioUrl === studioUrl && previousCredentials.agentId === agent.id
-    const credentials: Credentials = {
+    const paired: Credentials = {
       studioUrl,
       token,
+      issuedAt: new Date().toISOString(),
+      privateKey,
       agentId: agent.id,
       agentSlug: agent.slug,
       ...(agent.organizationSlug ? { organizationSlug: agent.organizationSlug } : {}),
-      ...(keepsIdentity && previousCredentials?.projects ? { projects: previousCredentials.projects } : {}),
     }
-    await writeCredentials(credentials)
+    const credentials = await updateCredentials((stored) => {
+      // Read under the lock, so permissions saved while the pairing waited are kept.
+      const previous = stored ?? previousCredentials
+      const keepsIdentity = previous?.studioUrl === studioUrl && previous.agentId === agent.id
+      return { ...paired, ...(keepsIdentity && previous.projects ? { projects: previous.projects } : {}) }
+    })
 
     console.log(`Credentials stored in ${getCredentialsPath()}`)
 
@@ -215,6 +225,7 @@ const PERMISSIONS: ReadonlyArray<{
     title: (configPath) => `Save the spec from Studio as the input in ${configPath}`,
     hint: 'keep a pasted spec, URL, or git file',
   },
+  { key: AgentPermission.FILE_REFS, label: 'outside refs', title: () => 'Let a $ref read files outside the project', hint: 'specs that share schemas' },
   { key: AgentPermission.EXEC, label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
 ]
 
@@ -269,9 +280,10 @@ export async function resolvePermissions(
   }
 
   const answers = Object.fromEntries(pending.map(({ key }) => [key, selected.includes(key)]))
-  await writeCredentials({
-    ...credentials,
-    projects: { ...credentials.projects, [project]: { ...remembered, ...answers } },
+  // Merged into the stored record, so a token refreshed by a running connection is kept.
+  await updateCredentials((stored) => {
+    const current = stored ?? credentials
+    return { ...current, projects: { ...current.projects, [project]: { ...current.projects?.[project], ...answers } } }
   })
 
   return { ...granted, ...answers }
@@ -342,6 +354,7 @@ export async function connect(
     events.once('SIGTERM', stop)
   }
   let unwatch: (() => void) | undefined
+  let refreshTimer: NodeJS.Timeout | undefined
   try {
     if (!context.prepared) {
       const { getWorkerStatus } = await import('./background.ts')
@@ -359,6 +372,44 @@ export async function connect(
     let hinted = false
     // Set by a fresh pairing until it connects, so a token rejected right after approval fails the run instead of looping.
     let pairedAgain = false
+    let recovered = false
+
+    const warn = (message: string) => options.logLevel !== 'silent' && console.log(styleText('yellow', message))
+    // Resolves whether the token changed; a failure keeps the old one.
+    const refreshToken = async (force: boolean): Promise<boolean> => {
+      if (!force && Date.now() - Date.parse(credentials.issuedAt ?? '') < REFRESH_EVERY_MS) return false
+      const replaced = credentials.token
+      try {
+        const token = await refreshAgentToken({
+          studioUrl: options.studioUrl,
+          token: replaced,
+          machineId: await getMachineId(),
+          privateKey: credentials.privateKey,
+          signal,
+        })
+        // A pairing that finished meanwhile owns the credentials now.
+        if (!token || credentials.token !== replaced) return false
+        const refreshed = { token, issuedAt: new Date().toISOString() }
+        credentials = { ...credentials, ...refreshed }
+        // Only the token changes on disk, so permissions saved since this run read the file are kept.
+        await updateCredentials((stored) => (stored?.token === replaced ? { ...stored, ...refreshed } : undefined)).catch((error: unknown) =>
+          warn(`Could not store the refreshed token: ${toError(error).message}`),
+        )
+        return true
+      } catch (error) {
+        if (!signal.aborted && !(error instanceof InvalidAgentTokenError)) warn(`Could not refresh the agent token: ${toError(error).message}`)
+        return false
+      }
+    }
+    // The timer and a rejected token share one request: two refreshes of one token cannot both succeed.
+    let refreshing: Promise<boolean> | undefined
+    const refresh = ({ force = false } = {}): Promise<boolean> =>
+      (refreshing ??= refreshToken(force).finally(() => {
+        refreshing = undefined
+      }))
+    await refresh()
+    refreshTimer = setInterval(() => void refresh(), REFRESH_EVERY_MS)
+    refreshTimer.unref()
 
     // The background worker writes to a log file, so it gets the plain logger rather than the
     // animated one. The logger also covers the `studio:*` events and each generation run.
@@ -373,6 +424,7 @@ export async function connect(
     let background = false
     hooks.hook('studio:connected', async () => {
       pairedAgain = false
+      recovered = false
       await context.onState?.('connected')
       if (listens && !unwatch) {
         unwatch = watchKeys({
@@ -398,14 +450,16 @@ export async function connect(
     })
     hooks.hook('studio:reconnecting', () => context.onState?.('reconnecting'))
 
-    for (;;) {
+    while (true) {
       try {
         await connectAgent({
-          token: credentials.token,
+          token: () => credentials.token,
+          privateKey: credentials.privateKey,
           studioUrl: options.studioUrl,
           configPath,
           version: options.version,
           root: process.cwd(),
+          agentType: 'cli',
           permissions,
           loadConfigs: async () => (await loadConfigs(options)).configs,
           hooks,
@@ -414,8 +468,13 @@ export async function connect(
         break
       } catch (error) {
         if (!(error instanceof InvalidAgentTokenError)) throw error
+        // The answer to an earlier refresh may have been lost, so the token is traded in once more.
+        if (!recovered && !pairedAgain) {
+          recovered = true
+          if (await refresh({ force: true })) continue
+        }
         await context.onState?.('authentication required')
-        await clearCredentials()
+        await clearCredentials(credentials.token)
         if (pairedAgain) throw new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
         if (context.onState || isCIEnvironment() || !canUseTTY()) throw new Error(`${error.message} Run \`kubb studio login\` to pair again.`)
 
@@ -441,6 +500,7 @@ export async function connect(
   } catch (error) {
     if (!(error instanceof PairingCanceledError)) throw error
   } finally {
+    clearInterval(refreshTimer)
     unwatch?.()
     events.off('SIGINT', stop)
     events.off('SIGTERM', stop)

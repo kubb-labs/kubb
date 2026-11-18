@@ -1,6 +1,8 @@
-import { hash, randomBytes } from 'node:crypto'
+import { hash, randomBytes, randomUUID } from 'node:crypto'
+import { mkdir, readFile, rename, rm, stat, utimes, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
+import { setTimeout as sleep } from 'node:timers/promises'
 import { kubbStorage, resolveKubbDir } from '@kubb/core'
 
 const projectBase = (project = process.cwd()) => path.join('projects', hash('sha256', project))
@@ -35,6 +37,15 @@ export type Credentials = {
    * Bearer token for this machine. Never logged, never printed.
    */
   token: string
+  /**
+   * When `token` was issued, as an ISO date.
+   */
+  issuedAt?: string
+  /**
+   * The agent key as a PKCS #8 PEM string, absent for an agent paired without one. Kept in the
+   * system keychain where there is one, and in the credential file otherwise.
+   */
+  privateKey?: string
   agentId: string
   agentSlug: string
   /**
@@ -56,6 +67,7 @@ export type Credentials = {
       allowUpdate?: boolean
       allowRemove?: boolean
       allowSaveInput?: boolean
+      allowFileRefs?: boolean
       allowExec?: boolean
     }
   >
@@ -70,22 +82,155 @@ export async function readCredentials(): Promise<Credentials | null> {
   const stored = await projectStorage()
     .getItem<Credentials>(CREDENTIALS_FILENAME)
     .catch(() => null)
+  if (typeof stored?.token !== 'string' || stored.token === '') return null
+  if (stored.privateKey) return stored
 
-  return typeof stored?.token === 'string' && stored.token !== '' ? stored : null
+  const privateKey = await keychainEntry()
+    .then((entry) => entry?.getPassword())
+    .catch(() => null)
+
+  return privateKey ? { ...stored, privateKey } : stored
 }
 
 /**
- * Writes the credential into the project folder, which only its owner can open.
+ * Writes the credential into the project folder, which only its owner can open. The agent key goes
+ * to the system keychain instead when one accepts it, so a copy of the folder does not carry it.
  */
 export async function writeCredentials(credentials: Credentials): Promise<void> {
-  await projectStorage().setItem(CREDENTIALS_FILENAME, credentials)
+  await writeCredentialFile(credentials, await storeKey(credentials.privateKey))
 }
 
 /**
- * Forgets the stored credential. Succeeds when there was nothing to forget.
+ * Saves the agent key in the keychain. Resolves `false` when there is no key or no keychain takes it,
+ * so the key has to go into the credential file.
  */
-export async function clearCredentials(): Promise<void> {
-  await projectStorage().removeItem(CREDENTIALS_FILENAME)
+function storeKey(privateKey: string | undefined): Promise<boolean> {
+  if (privateKey === undefined) return Promise.resolve(false)
+  return keychainEntry()
+    .then(async (entry) => {
+      await entry?.setPassword(privateKey)
+      return entry !== null
+    })
+    .catch(() => false)
+}
+
+function writeCredentialFile({ privateKey, ...credentials }: Credentials, inKeychain: boolean): Promise<void> {
+  return projectStorage().setItem(CREDENTIALS_FILENAME, inKeychain ? credentials : { ...credentials, privateKey })
+}
+
+/**
+ * The keychain item for this project: macOS Keychain, Windows Credential Manager, or Secret Service
+ * on Linux. Null when the native binding is missing for this platform.
+ */
+async function keychainEntry() {
+  const keyring = await import('@napi-rs/keyring').catch(() => null)
+
+  // Without Secret Service, Linux would fall back to the kernel keyring, which a reboot empties.
+  return keyring ? new keyring.AsyncEntry('kubb-studio', getProjectKubbHome(), { linux: { store: 'secret-service' } }) : null
+}
+
+const LOCK_STALE_MS = 10_000
+const LOCK_RETRY_MS = 25
+
+/**
+ * Takes the lock and resolves `true`, or resolves `false` while another process holds it. A lock
+ * older than {@link LOCK_STALE_MS} was left by a process that died, and is cleared for the next try.
+ */
+async function tryLock(lock: string): Promise<boolean> {
+  const taken = await mkdir(lock).then(
+    () => true,
+    (error: NodeJS.ErrnoException) => {
+      if (error.code !== 'EEXIST') throw error
+      return false
+    },
+  )
+  if (taken) return true
+
+  const isStale = (dir: string) => stat(dir).then(({ mtimeMs }) => Date.now() - mtimeMs > LOCK_STALE_MS)
+  if (!(await isStale(lock).catch(() => false))) return false
+  // Moving the lock aside is atomic: one contender takes it, and the others find it gone.
+  const aside = `${lock}.${randomUUID()}`
+  if (
+    !(await rename(lock, aside).then(
+      () => true,
+      () => false,
+    ))
+  )
+    return false
+  // A contender that was slower to look may have moved a live lock, which goes back.
+  const cleared = (await isStale(aside)) ? rm(aside, { recursive: true, force: true }) : rename(aside, lock)
+  await cleared.catch(() => undefined)
+
+  return false
+}
+
+/**
+ * Applies `update` to the stored credential under a lock that every writer takes, so two processes
+ * cannot overwrite each other's change. Returning nothing leaves the file as it is. Resolves what
+ * `update` returned.
+ */
+export function updateCredentials<T extends Credentials | null | undefined>(update: (stored: Credentials | null) => T): Promise<T> {
+  return withLock(async (assertOwner) => {
+    const next = update(await readCredentials())
+    if (next) {
+      await assertOwner()
+      const inKeychain = await storeKey(next.privateKey)
+      // The keychain can keep this process waiting on a prompt, so ownership is checked again right before the file write.
+      await assertOwner()
+      await writeCredentialFile(next, inKeychain)
+    }
+    return next
+  })
+}
+
+/**
+ * Runs `run` while holding the credential lock. `assertOwner` throws once another process has taken
+ * the lock over, which happens when this one was paused past {@link LOCK_STALE_MS}, so a write made
+ * from an older read never lands on top of the newer owner's.
+ */
+async function withLock<T>(run: (assertOwner: () => Promise<void>) => Promise<T>): Promise<T> {
+  const home = getProjectKubbHome()
+  const lock = path.join(home, 'credentials.lock')
+  const ownerFile = path.join(lock, 'owner')
+  await mkdir(home, { recursive: true, mode: 0o700 })
+  while (!(await tryLock(lock))) await sleep(LOCK_RETRY_MS)
+  const owner = randomUUID()
+  await writeFile(ownerFile, owner)
+  const owns = () =>
+    readFile(ownerFile, 'utf8').then(
+      (stored) => stored === owner,
+      () => false,
+    )
+  // A keychain prompt can keep the owner waiting past LOCK_STALE_MS, so it keeps the lock fresh.
+  const renew = setInterval(() => {
+    const now = new Date()
+    void utimes(lock, now, now).catch(() => undefined)
+  }, LOCK_STALE_MS / 2)
+  renew.unref()
+  try {
+    return await run(async () => {
+      if (!(await owns())) throw new Error('Another kubb process took over the Studio credentials while this one was paused. Run the command again.')
+    })
+  } finally {
+    clearInterval(renew)
+    // shortcut: the check and the removal are two steps, so a takeover between them is still possible; use an OS file lock if that window matters.
+    if (await owns()) await rm(lock, { recursive: true, force: true }).catch(() => undefined)
+  }
+}
+
+/**
+ * Forgets the stored credential. Succeeds when there was nothing to forget. Given a `token`, a
+ * credential another process stored since, with a different token, is kept.
+ */
+export function clearCredentials(token?: string): Promise<void> {
+  return withLock(async (assertOwner) => {
+    if (token && (await readCredentials())?.token !== token) return
+    await assertOwner()
+    await projectStorage().removeItem(CREDENTIALS_FILENAME)
+    await keychainEntry()
+      .then((entry) => entry?.deletePassword())
+      .catch(() => undefined)
+  })
 }
 
 /**

@@ -1,3 +1,4 @@
+import { memo } from '@internals/utils'
 import type { PropertyNode } from '../nodes/property.ts'
 import type { SchemaNode } from '../nodes/schema.ts'
 
@@ -67,14 +68,21 @@ function walkSchema(node: SchemaNode, through: 'union' | 'intersection', visit: 
  * // ['cat', 'dog']
  * ```
  */
-export function getSchemaLiteralValues(node: SchemaNode): ReadonlyArray<string | number | boolean | null> {
-  const values = new Set<string | number | boolean | null>()
-  walkSchema(node, 'union', (current) => {
-    if (current.type !== 'enum') return
-    for (const { value } of current.namedEnumValues ?? current.enumValues?.map((value) => ({ value })) ?? []) values.add(value)
+export function getSchemaLiteralValues(node: SchemaNode): ReadonlyArray<LiteralValue> {
+  return memo(literalValues, node, () => {
+    const values = new Set<LiteralValue>()
+    walkSchema(node, 'union', (current) => {
+      if (current.type !== 'enum') return
+      for (const { value } of current.namedEnumValues ?? current.enumValues?.map((value) => ({ value })) ?? []) values.add(value)
+    })
+    return Object.freeze([...values])
   })
-  return [...values]
 }
+
+type LiteralValue = string | number | boolean | null
+
+// Printers read an enum's values each time they print it.
+const literalValues = memo.create<SchemaNode, ReadonlyArray<LiteralValue>>({ weak: true })
 
 // Names of every property an object, resolved reference, or intersection exposes.
 function collectPropertyNames(node: SchemaNode): Set<string> {

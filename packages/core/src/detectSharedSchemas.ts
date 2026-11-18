@@ -2,6 +2,7 @@ import { hash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { ast, type InputNode, type SchemaNode } from '@kubb/ast'
 import type { Hookable } from './Hookable.ts'
+import { host } from './host.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 import type { KubbHooks, UserConfig } from './types.ts'
 
@@ -59,22 +60,32 @@ function dropUnsharedRefs({ sharedBy, refsBySpec }: { sharedBy: SharedBy; refsBy
 }
 
 // `undefined` when the spec does not parse: the build parses it again and reports why it failed.
-async function parseSpec({ config, root }: Pick<GroupMember, 'config' | 'root'>): Promise<InputNode | undefined> {
+async function parseSpec({ config, root, fileRefs }: Pick<GroupMember, 'config' | 'root'> & { fileRefs?: Array<string> }): Promise<InputNode | undefined> {
   try {
-    return await parseAdapterSource({ adapter: config.adapter!, source: inputToAdapterSource({ input: config.input, root }) })
+    return await parseAdapterSource({ adapter: config.adapter!, source: inputToAdapterSource({ input: config.input, root }), fileRefs })
   } catch {
     return undefined
   }
 }
 
 // Fills `names` on the entries of one shared directory, and adds the names its configs define differently to `conflicts`.
-async function detectGroup({ group, result, conflicts }: { group: Array<GroupMember>; result: Array<SharedSchemas | undefined>; conflicts: Set<string> }) {
+async function detectGroup({
+  group,
+  result,
+  conflicts,
+  fileRefs,
+}: {
+  group: Array<GroupMember>
+  result: Array<SharedSchemas | undefined>
+  conflicts: Set<string>
+  fileRefs?: Array<string>
+}) {
   // Each schema name, with the specs that define it grouped by shape.
   const byName = new Map<string, Map<string, Set<number>>>()
   const refsBySpec: Array<Map<string, ReadonlyArray<string>>> = []
   // Sequential, since configs may share one adapter instance.
   for (const [specIndex, { config, root }] of group.entries()) {
-    const input = await parseSpec({ config, root })
+    const input = await parseSpec({ config, root, fileRefs })
     if (!input) return
 
     const refs = new Map<string, ReadonlyArray<string>>()
@@ -114,14 +125,16 @@ async function detectGroup({ group, result, conflicts }: { group: Array<GroupMem
 export async function detectSharedSchemas({
   configs,
   hooks,
+  fileRefs,
 }: {
   configs: Array<UserConfig>
   hooks: Hookable<KubbHooks>
+  fileRefs?: Array<string>
 }): Promise<Array<SharedSchemas | undefined>> {
   const groups = new Map<string, Array<GroupMember>>()
   configs.forEach((config, index) => {
     if (!config.shared || !config.adapter) return
-    const root = config.root || process.cwd()
+    const root = config.root || host.cwd()
     const key = resolve(root, config.shared.path)
     groups.set(key, [...(groups.get(key) ?? []), { config, root, index }])
   })
@@ -138,7 +151,7 @@ export async function detectSharedSchemas({
       result[index] = entry
     })
     if (group.length < 2) continue
-    await detectGroup({ group, result, conflicts })
+    await detectGroup({ group, result, conflicts, fileRefs })
   }
 
   if (conflicts.size > 0) {

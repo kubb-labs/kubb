@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Contributing
-description: Set up the Kubb repository, run the checks, and open a pull request for Kubb core or a plugin.
+title: Contribute to Kubb - Set up, test, and open a PR
+description: Find where Kubb code lives, set up the core or plugins repository, pass the quality gates, and open a pull request.
 outline:
   - 2
   - 3
@@ -13,31 +13,54 @@ navigation:
 
 # Contributing
 
-There are two places to contribute:
+Check the open [issues](https://github.com/kubb-labs/kubb/issues) and [pull requests](https://github.com/kubb-labs/kubb/pulls) first. Open an issue before an opinion-driven change. Each repository's `CONTRIBUTING.md` has the full rules: [kubb-labs/kubb](https://github.com/kubb-labs/kubb/blob/main/CONTRIBUTING.md) and [kubb-labs/plugins](https://github.com/kubb-labs/plugins/blob/main/CONTRIBUTING.md).
 
-1. [Kubb core](#kubb-core): the runtime, [AST](/docs/5.x/explanation/architecture#ast), [adapter](/docs/5.x/explanation/architecture#adapters), [parsers](/docs/5.x/explanation/architecture#parsers), the [authoring kit](/docs/5.x/reference/kit), and built-in plugins in [`kubb-labs/kubb`](https://github.com/kubb-labs/kubb).
-2. [Kubb plugins](#kubb-plugins): community and official plugins in the registry at [`kubb-labs/plugins`](https://github.com/kubb-labs/plugins).
+## What lives where
 
-First, check the open [issues](https://github.com/kubb-labs/kubb/issues) and [pull requests](https://github.com/kubb-labs/kubb/pulls) so you don't duplicate work. Say hello on [Discord](https://discord.gg/4dQjA6vrWX).
+| Repository | Holds |
+| --- | --- |
+| [kubb-labs/kubb](https://github.com/kubb-labs/kubb) | The `kubb` and `@kubb/*` core packages, and these docs in `docs/` |
+| [kubb-labs/plugins](https://github.com/kubb-labs/plugins) | The official `@kubb/plugin-*` packages, with a runnable example per plugin |
+| [kubb-labs/platform](https://github.com/kubb-labs/platform) | The kubb.dev site, its blog, and Kubb Studio |
 
-## Prerequisites
+### Kubb core {#kubb-core}
 
-- [Node.js](https://nodejs.org/en/download) 22.22 or later.
-- [pnpm](https://pnpm.io/installation) 11 or later.
-- [Git](https://git-scm.com/) and, optionally, the [GitHub CLI](https://cli.github.com/).
+| Path | Holds |
+| --- | --- |
+| `packages/core/` | Plugin runtime, build loop, `defineExtension`, `createKubb` |
+| `packages/kit/` | Authoring toolkit behind `kubb/kit` |
+| `packages/ast/` | Universal AST and visitors |
+| `packages/adapter-oas/` | OpenAPI 2.0 and 3.x adapter |
+| `packages/parser-ts/`, `parser-md/` | AST to TypeScript, TSX, and Markdown source |
+| `packages/plugin-barrel/` | Barrel file plugin |
+| `packages/renderer-jsx/` | JSX renderer |
+| `packages/cli/` | The `kubb` CLI |
+| `packages/mcp/` | MCP server |
+| `packages/studio/` | The Studio connection behind `kubb studio` |
+| `packages/unplugin-kubb/` | [Build tool integrations](/docs/5.x/integrations/overview#build-tools) |
+| `packages/kubb/` | The main package: public APIs and `defineConfig` |
 
-## Kubb core
+## Workflow
 
-The monorepo at [`kubb-labs/kubb`](https://github.com/kubb-labs/kubb) holds everything in the `kubb` and `@kubb/*` packages.
+Both repositories need Node.js 22.22 or later, pnpm 11 or later, and Git. Run `corepack enable` to get the pnpm version the repository pins.
 
 ::steps{level="3"}
 
 ### Fork and clone {#_1-fork-and-clone}
 
-```shell [Terminal]
+:::code-group
+
+```shell [kubb]
 gh repo fork kubb-labs/kubb --clone
 cd kubb
 ```
+
+```shell [plugins]
+gh repo fork kubb-labs/plugins --clone
+cd plugins
+```
+
+:::
 
 ### Install dependencies {#_2-install-dependencies}
 
@@ -46,7 +69,7 @@ pnpm install
 pnpm build
 ```
 
-`pnpm build` compiles every package. Run it once after install so local packages resolve each other, and again after you change package source.
+`pnpm build` compiles every package so local packages resolve each other. Rerun it after you change package source.
 
 ### Create a branch {#_3-create-a-branch}
 
@@ -56,108 +79,45 @@ git checkout -b feat/your-feature-name
 
 ### Iterate {#_4-iterate}
 
-Build a single package in watch mode:
-
 ```shell [Terminal]
-pnpm -F @kubb/core start
+pnpm -F @kubb/core start                                          # rebuild one package on change
+pnpm vitest run --config ./configs/vitest.config.ts packages/core # test one package
 ```
 
-Run the test suite:
+Put each test next to its source file. List a new test file in `configs/test-registry.json`, with one sentence on what it covers. In `kubb-labs/plugins`, test a folder such as `packages/plugin-ts`, and run `pnpm generate` after a plugin change.
 
-```shell [Terminal]
-pnpm test
-```
+### Add a changeset {#commits-and-changesets}
+
+Run `pnpm changeset` when the change ships in a published package, including a package's `docs/` folder, because kubb.dev reads it from the published version. Changes to `docs/5.x`, CI, and tests need none. Write [Conventional Commits](https://www.conventionalcommits.org/), such as `feat:` or `fix:`.
+
+### Open a pull request {#opening-a-pull-request}
+
+Push to your fork and open a pull request against `main`. Fill in the template, link the issue, and re-request review after each round of changes.
 
 ::
 
-### What lives where
+## Quality gates
 
-| Path                          | What lives there                                                        |
-| ----------------------------- | ----------------------------------------------------------------------- |
-| `packages/core/`              | Plugin runtime, build loop, `defineExtension`/`createKubb` API.         |
-| `packages/kit/`               | Authoring toolkit re-exported through `kubb/kit`, holding `defineExtension`, `defineGenerator`, `createRenderer`, and the `ast` node builders. |
-| `packages/ast/`               | Universal AST and visitor utilities.                                    |
-| `packages/adapter-oas/`       | OpenAPI adapter that parses an OAS 2.0/3.x spec into the AST.           |
-| `packages/parser-ts/`         | Parser that turns the AST into TypeScript and TSX source.               |
-| `packages/parser-md/`         | Parser that turns the AST into Markdown source.                         |
-| `packages/plugin-barrel/`     | Barrel file plugin (`enforce: 'post'`).                                 |
-| `packages/renderer-jsx/`      | JSX renderer used by plugins that emit components.                      |
-| `packages/cli/`               | The `kubb` CLI entry point.                                             |
-| `packages/mcp/`               | MCP server runtime.                                                     |
-| `packages/studio/`            | Connection between a project and Kubb Studio, behind `kubb studio`.     |
-| `packages/unplugin-kubb/`     | Bundler integrations (Vite, webpack, Rollup, Rolldown, Rspack, esbuild, Farm, Nuxt, Astro). |
-| `packages/kubb/`              | The main package. It re-exports the public APIs and `defineConfig`, which fills in the defaults. |
+Run these before you push. CI runs them on every pull request that changes code.
 
-### Quality gates
+| Command | Checks | CI job |
+| --- | --- | --- |
+| `pnpm build` | Every package builds | Build |
+| `pnpm typecheck` | Types in every package | Typecheck |
+| `pnpm test` | The Vitest suites | Tests |
+| `pnpm lint` | oxlint rules | Linting |
+| `pnpm test:registry` | Every test file has a registry entry, and no entry points at a deleted file | Linting |
+| `pnpm format` | oxfmt formatting | autofix.ci formats the pull request |
+| `pnpm typecheck:examples` | Plugins only: the examples type-check | Typecheck |
+| `pnpm generate` | Plugins only: generates the examples | Update generated examples, which opens a pull request with the changes |
 
-Run these locally before pushing. CI runs the same commands.
+## Write a plugin {#kubb-plugins}
 
-```shell [Terminal]
-pnpm build
-pnpm typecheck
-pnpm lint
-pnpm test
-pnpm test:registry
-```
-
-## Kubb plugins
-
-Build a community plugin in your own repository, or propose an official one in the core monorepo.
-
-### Build a community plugin
-
-1. Follow the [Create a Kubb plugin](/docs/5.x/tutorials/creating-plugins) tutorial.
-2. Use [`@kubb/plugin-axios`](https://github.com/kubb-labs/plugins/tree/main/packages/plugin-axios) as the layout to copy.
-3. Publish to npm under the `kubb-plugin-*` naming convention.
-4. Add a `kubb-extension.json` and a `docs/` folder with an `overview.md`, then submit the package to the Kubb registry. See [Publish a plugin](/docs/5.x/how-to/publish-a-plugin).
-
-### Propose an official plugin
-
-Official plugins ship under `@kubb/plugin-*`. First, [open an issue](https://github.com/kubb-labs/plugins/issues/new/choose) on the [`kubb-labs/plugins`](https://github.com/kubb-labs/plugins) repo to discuss scope and naming. Once approved, scaffold the package under `packages/plugin-<name>/`. Follow the structure of an existing plugin.
-
-## Testing
-
-Kubb uses [Vitest](https://vitest.dev/). Place each test file next to the source file it tests.
-
-```typescript [resolverExample.test.ts]
-import { describe, expect, it } from 'vitest'
-import { resolverExample } from './resolverExample.ts'
-
-describe('resolverExample', () => {
-  it('returns a default resolver name', () => {
-    const resolver = resolverExample({})
-    expect(resolver.name).toBe('default')
-  })
-})
-```
-
-To run a single package's tests, point Vitest at its folder:
-
-```shell [Terminal]
-pnpm vitest run --config ./configs/vitest.config.ts packages/core
-```
-
-List every new test file in `configs/test-registry.json` with one sentence that says what it covers. `pnpm test:registry` fails CI when a test file has no entry or an entry points at a deleted file.
-
-## Commits and changesets
-
-Follow [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `docs:`, `chore:`.
-
-Add a [changeset](https://github.com/changesets/changesets) for any change that ships in a published package:
-
-```shell [Terminal]
-pnpm changeset
-```
-
-Skip the changeset only when the change does not affect published code, such as CI, internal tests, or docs.
-
-## Opening a pull request
-
-1. Push your branch to your fork.
-2. Open a pull request against `main`.
-3. Fill in the PR template and link the related issue.
-4. Make sure CI is green and re-request review after each round of changes.
+| Kind | Where | How |
+| --- | --- | --- |
+| Community plugin | Your own repository, on npm under a name you own | [Create a Kubb plugin](/docs/5.x/tutorials/creating-plugins), then [Publish a plugin](/docs/5.x/how-to/publish-a-plugin). Copy the layout of [`plugin-axios`](https://github.com/kubb-labs/plugins/tree/main/packages/plugin-axios). |
+| Official plugin | `packages/plugin-<name>/` in kubb-labs/plugins, as `@kubb/plugin-<name>` | [Open an issue](https://github.com/kubb-labs/plugins/issues/new/choose) to agree on scope and name, then follow [Adding a plugin](https://github.com/kubb-labs/plugins/blob/main/CONTRIBUTING.md#adding-a-plugin). |
 
 ## Getting help
 
-Open an [issue](https://github.com/kubb-labs/kubb/issues) or join the [Discord](https://discord.gg/4dQjA6vrWX).
+Open an [issue](https://github.com/kubb-labs/kubb/issues) or ask on [Discord](https://discord.gg/4dQjA6vrWX).
