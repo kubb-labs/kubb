@@ -13,7 +13,7 @@ navigation:
 
 Start with the types, then replace `openapi-fetch` and `openapi-react-query`. You can stop after any step.
 
-openapi-typescript gets [no more updates, security fixes included](https://github.com/openapi-ts/openapi-typescript/issues/2874), and `openapi-fetch` and `openapi-react-query` are in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559). openapi-typescript 7.13.0 also needs TypeScript 5 and fails on TypeScript 7, which Kubb supports.
+[openapi-typescript](https://openapi-ts.dev) ([GitHub](https://github.com/openapi-ts/openapi-typescript)) gets [no more updates, security fixes included](https://github.com/openapi-ts/openapi-typescript/issues/2874), and `openapi-fetch` and `openapi-react-query` are in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559). openapi-typescript 7.13.0 also needs TypeScript 5 and fails on TypeScript 7, which Kubb supports.
 
 ## What maps to what
 

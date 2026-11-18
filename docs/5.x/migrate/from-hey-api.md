@@ -11,7 +11,7 @@ navigation:
 
 # Move from HeyAPI to Kubb
 
-Start with the types, then replace one HeyAPI plugin at a time: the SDK and client, TanStack Query, and Zod. You can stop after any step.
+Start with the types, then replace one [HeyAPI](https://heyapi.dev) ([GitHub](https://github.com/hey-api/openapi-ts)) plugin at a time: the SDK and client, TanStack Query, and Zod. You can stop after any step.
 
 `@hey-api/openapi-ts` 0.99.0 fails on TypeScript 7, which Kubb supports.
 
