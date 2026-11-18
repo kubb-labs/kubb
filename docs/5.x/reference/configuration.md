@@ -304,7 +304,7 @@ export default defineConfig({
 ### `storage`
 
 :::field{type="Storage"}
-Where generated files go. Default: `fsStorage()`, which writes to disk. `memoryStorage()` from `kubb/kit` keeps them in memory. See [Storage](/docs/5.x/architecture#storage) for a custom backend.
+Where generated files go. Default: `fsStorage()`, which writes to disk. `memoryStorage()` from `kubb/kit` keeps them in memory. See [Storage](/docs/5.x/introduction/architecture#storage) for a custom backend.
 :::
 
 ### `root`

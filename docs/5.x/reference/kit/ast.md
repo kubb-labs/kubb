@@ -428,7 +428,7 @@ Handlers use `this`, so write regular functions, not arrow functions:
 > [!IMPORTANT]
 > The built-in generators collect those imports. In your own generator, call `printer.drainImports()` after printing.
 
-[How Kubb works](/docs/5.x/architecture#ast) explains why the AST exists.
+[How Kubb works](/docs/5.x/introduction/architecture#ast) explains why the AST exists.
 
 ## Less common cases {#less-common-cases}
 

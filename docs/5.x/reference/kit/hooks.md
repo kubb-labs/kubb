@@ -113,7 +113,7 @@ These hooks carry log messages and diagnostics, and fire at any point.
 | `kubb:error`      | `{ error, meta }`   | An error without a diagnostic code, so its stack survives.                                              |
 | `kubb:diagnostic` | `{ diagnostic }`    | A coded error, warning, or info, or an update notice. See [diagnostics](/docs/5.x/reference/diagnostics). |
 
-[How Kubb works](/docs/5.x/architecture#lifecycle) explains the lifecycle.
+[How Kubb works](/docs/5.x/introduction/architecture#lifecycle) explains the lifecycle.
 
 ## Less common cases {#less-common-cases}
 

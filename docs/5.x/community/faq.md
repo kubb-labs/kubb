@@ -38,7 +38,7 @@ Yes, with a build step. Kubb generates TypeScript, so import the output through 
 :::
 
 :::accordion-item{label="Can I use Kubb with GraphQL?" icon="i-iconoir-help-circle"}
-Not out of the box. The default [adapter](/docs/5.x/architecture#adapters) reads OpenAPI and Swagger, so use [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) for GraphQL. A [custom adapter](/docs/5.x/reference/kit/adapters) can read any format, but takes real work.
+Not out of the box. The default [adapter](/docs/5.x/introduction/architecture#adapters) reads OpenAPI and Swagger, so use [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) for GraphQL. A [custom adapter](/docs/5.x/reference/kit/adapters) can read any format, but takes real work.
 :::
 
 :::accordion-item{label="Which Node.js version do I need?" icon="i-iconoir-help-circle"}
