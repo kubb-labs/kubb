@@ -6,4 +6,4 @@
 '@kubb/studio': minor
 ---
 
-Add `shared: { path }`. Schemas that several configs of a `defineConfig([...])` array define identically are written once under that path, and every other file imports them from there.
+Add `shared: { path }`. Schemas that several configs in an array define identically are generated once under that path.
