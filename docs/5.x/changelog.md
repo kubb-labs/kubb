@@ -2800,6 +2800,6 @@ Thanks to everyone who contributed to this release:
 
 Kubb v5 rebuilds code generation around adapters, a universal AST, parsers, and storage, and generates code up to 5.4x faster than v4. Config gets shorter, generated client calls change shape, and plugins move to their own repo ([kubb-labs/plugins](https://github.com/kubb-labs/plugins)).
 
-Read the [release blog post](https://kubb.dev/blog/v5) for the highlights, and the [migration guide](https://kubb.dev/docs/5.x/how-to/migration) for the full, per-package breaking-change list and upgrade steps.
+Read the [release blog post](https://kubb.dev/blog/v5) for the highlights, and the [migration guide](https://kubb.dev/docs/5.x/migrate/from-v4) for the full, per-package breaking-change list and upgrade steps.
 
 For prior releases, see [GitHub Releases](https://github.com/kubb-labs/kubb/releases).

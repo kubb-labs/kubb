@@ -13,7 +13,7 @@ navigation:
 
 # Your first TypeScript client from an API spec
 
-Kubb turns a one-operation Petstore spec into TypeScript types and an Axios client. Then you change the spec and run Kubb again. You need npm and a Node.js version from [Prerequisites](/docs/5.x/how-to/installation#prerequisites).
+Kubb turns a one-operation Petstore spec into TypeScript types and an Axios client. Then you change the spec and run Kubb again. You need npm and a Node.js version from [Prerequisites](/docs/5.x/introduction/installation#prerequisites).
 
 ::steps{level="2"}
 
