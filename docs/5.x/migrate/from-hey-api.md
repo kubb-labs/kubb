@@ -3,7 +3,7 @@ layout: doc
 title: Move from HeyAPI to Kubb
 description: Replace HeyAPI (@hey-api/openapi-ts) with Kubb. Generate the same types, then swap the SDK, TanStack Query options, and Zod schemas one step at a time.
 outline: [2, 3]
-order: 8
+order: 2
 navigation:
   title: Move from HeyAPI
   icon: i-iconoir-git-fork

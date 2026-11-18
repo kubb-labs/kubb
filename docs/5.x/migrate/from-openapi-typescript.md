@@ -3,7 +3,7 @@ layout: doc
 title: Move from openapi-typescript to Kubb
 description: Replace openapi-typescript, openapi-fetch, and openapi-react-query with Kubb. Generate the same types, then swap the client and hooks one step at a time.
 outline: [2, 3]
-order: 6
+order: 3
 navigation:
   title: Move from openapi-typescript
   icon: i-iconoir-git-fork

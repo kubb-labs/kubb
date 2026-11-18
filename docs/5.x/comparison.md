@@ -5,7 +5,7 @@ description: Compare Kubb with orval, HeyAPI, and openapi-typescript on speed, m
 outline:
   - 2
   - 3
-order: 2
+order: 1
 navigation:
   title: Comparison
   icon: i-iconoir-mirror
@@ -21,15 +21,15 @@ Each guide replaces one output at a time, so you can stop after any step.
 
 ::card-group
 
-:::card{title="Move from orval" icon="i-iconoir-git-fork" to="/docs/5.x/how-to/migrate-from-orval"}
+:::card{title="Move from orval" icon="i-iconoir-git-fork" to="/docs/5.x/migrate/from-orval"}
 Types, client, query hooks, Zod schemas, and MSW mocks.
 :::
 
-:::card{title="Move from HeyAPI" icon="i-iconoir-git-fork" to="/docs/5.x/how-to/migrate-from-hey-api"}
+:::card{title="Move from HeyAPI" icon="i-iconoir-git-fork" to="/docs/5.x/migrate/from-hey-api"}
 Types, SDK and client, TanStack Query, and Zod schemas.
 :::
 
-:::card{title="Move from openapi-typescript" icon="i-iconoir-git-fork" to="/docs/5.x/how-to/migrate-from-openapi-typescript"}
+:::card{title="Move from openapi-typescript" icon="i-iconoir-git-fork" to="/docs/5.x/migrate/from-openapi-typescript"}
 Types, `openapi-fetch`, and `openapi-react-query`.
 :::
 

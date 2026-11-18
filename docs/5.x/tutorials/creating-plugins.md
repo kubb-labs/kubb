@@ -168,7 +168,7 @@ Vitest reports one passing test. The file never touches the disk.
 
 ::card-group
 
-:::card{title="How plugins work" icon="i-iconoir-ev-plug" to="/docs/5.x/explanation/architecture#plugins"}
+:::card{title="How plugins work" icon="i-iconoir-ev-plug" to="/docs/5.x/architecture#plugins"}
 Generators, resolvers, macros, the lifecycle, and dependencies.
 :::
 

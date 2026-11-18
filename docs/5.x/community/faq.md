@@ -38,7 +38,7 @@ Yes, with a build step. Kubb generates TypeScript, so import the output through 
 :::
 
 :::accordion-item{label="Can I use Kubb with GraphQL?" icon="i-iconoir-help-circle"}
-Not out of the box. The default [adapter](/docs/5.x/explanation/architecture#adapters) reads OpenAPI and Swagger, so use [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) for GraphQL. A [custom adapter](/docs/5.x/reference/kit/adapters) can read any format, but takes real work.
+Not out of the box. The default [adapter](/docs/5.x/architecture#adapters) reads OpenAPI and Swagger, so use [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) for GraphQL. A [custom adapter](/docs/5.x/reference/kit/adapters) can read any format, but takes real work.
 :::
 
 :::accordion-item{label="Which Node.js version do I need?" icon="i-iconoir-help-circle"}
@@ -64,7 +64,7 @@ Either works. Commit the output so CI can skip generation, or add the output fol
 :::
 
 :::accordion-item{label="Can Kubb generate during my build or in CI?" icon="i-iconoir-help-circle"}
-Yes. [Build tool plugins](/docs/5.x/integrations/overview#build-tools) generate when Vite, webpack, or another bundler builds. [CI snapshots](/docs/5.x/integrations/ci) publish the output of each pull request as an installable package.
+Yes. [Build tool plugins](/docs/5.x/integrations/build-tools) generate when Vite, webpack, or another bundler builds. [CI snapshots](/docs/5.x/integrations/ci) publish the output of each pull request as an installable package.
 :::
 
 ::

@@ -3,7 +3,7 @@ layout: doc
 title: Move from orval to Kubb
 description: Replace orval with Kubb. Generate the same types, then swap the client, query hooks, Zod schemas, and MSW mocks one step at a time.
 outline: [2, 3]
-order: 7
+order: 1
 navigation:
   title: Move from orval
   icon: i-iconoir-git-fork
