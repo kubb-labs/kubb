@@ -17,7 +17,7 @@ Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typ
 
 ## Switch to Kubb
 
-Each guide replaces one output at a time, so you can stop after any step.
+Each guide replaces one output at a time.
 
 ::card-group
 

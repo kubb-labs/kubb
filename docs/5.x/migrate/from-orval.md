@@ -64,6 +64,7 @@ export default defineConfig({
   adapter: adapterOas({ integerType: 'number' }),
   plugins: [
     pluginTs({ output: { path: 'types.ts' } }),
+    // The Petstore URL is an example. Use your API's URL.
     pluginFetch({ baseURL: 'https://petstore3.swagger.io/api/v3', throwOnErrorDefault: false }),
     pluginReactQuery({ hooks: true }),
     pluginZod(),
@@ -152,7 +153,7 @@ bun add -d kubb @kubb/adapter-oas @kubb/plugin-ts
 
 :::
 
-Change your `generate` script to `kubb generate` and run it. Leave `src/api` in place until the last step, because the rest of the app still imports it:
+Change your `generate` script to `kubb generate` and run it. Leave `src/api` in place until the last step, because the rest of the app still imports it. Those files stop following the spec once orval no longer runs. If you pause before the last step, use `orval && kubb generate` as the script:
 
 :::code-group
 

@@ -47,6 +47,7 @@ export default defineConfig({
   adapter: adapterOas({ integerType: 'number' }),
   plugins: [
     pluginTs({ output: { path: 'types.ts' } }),
+    // The Petstore URL is an example. Use your API's URL.
     pluginFetch({ baseURL: 'https://petstore3.swagger.io/api/v3', throwOnErrorDefault: false }),
     pluginReactQuery(),
     pluginZod(),
@@ -79,7 +80,7 @@ export default defineConfig({
 | `GetPetByIdResponse` | `GetPetByIdStatus200Json` |
 | `getPetById({ path: { petId: 1 } })` | Unchanged |
 | `client.setConfig({ baseUrl, auth })` | `client.setConfig({ baseURL, auth })` |
-| `client.interceptors.request.use()` | Unchanged |
+| `client.interceptors.request.use()` | The same call. Set a header with `request.headers['X-Client'] = 'web'`, not `request.headers.set()` |
 | `getPetByIdOptions(...)` | `getPetByIdQueryOptions(...)` |
 | `addPetMutation()` | `addPetMutationOptions()` |
 | `zPet`, `zGetPetByIdPath` | `petSchema`, `getPetByIdPathSchema` |
@@ -131,7 +132,7 @@ bun add -d kubb @kubb/adapter-oas @kubb/plugin-ts
 
 :::
 
-Change your `generate` script to `kubb generate` and run it. Leave `src/client` in place until the last step, because the rest of the app still imports it:
+Change your `generate` script to `kubb generate` and run it. Leave `src/client` in place until the last step, because the rest of the app still imports it. Those files stop following the spec once HeyAPI no longer runs. If you pause before the last step, use `openapi-ts && kubb generate` as the script:
 
 :::code-group
 
