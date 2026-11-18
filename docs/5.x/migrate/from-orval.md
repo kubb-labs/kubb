@@ -11,7 +11,7 @@ navigation:
 
 # Move from orval to Kubb
 
-Start with the types, then replace one orval output at a time: the client, the query hooks, the Zod schemas, and the mocks. You can stop after any step.
+Start with the types, then replace one [orval](https://orval.dev) ([GitHub](https://github.com/orval-labs/orval)) output at a time: the client, the query hooks, the Zod schemas, and the mocks. You can stop after any step.
 
 The examples move an orval config with `client: 'react-query'`, `httpClient: 'fetch'`, `mock: true`, and a second `client: 'zod'` output, all written to `src/api`.
 

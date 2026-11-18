@@ -13,7 +13,7 @@ navigation:
 
 # Kubb vs orval, HeyAPI, and openapi-typescript
 
-Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. This page shows where they differ.
+Kubb, [orval](https://orval.dev) ([GitHub](https://github.com/orval-labs/orval)), [HeyAPI](https://heyapi.dev) ([GitHub](https://github.com/hey-api/openapi-ts)), and [openapi-typescript](https://openapi-ts.dev) ([GitHub](https://github.com/openapi-ts/openapi-typescript)) all generate code from OpenAPI specs. This page shows where they differ.
 
 ## Switch to Kubb
 
