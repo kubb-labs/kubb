@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 const checkout = vi.hoisted(() => ({ path: '/tmp/kubb-git/spec.yaml', dispose: vi.fn(async () => {}) }))
 vi.mock('./gitInput.ts', async (importOriginal) => ({ ...(await importOriginal<object>()), checkoutGitInput: vi.fn(async () => checkout) }))
 
-import { detectSharedSchemas, getSharedWrites } from './detectSharedSchemas.ts'
+import { detectSharedSchemas } from './detectSharedSchemas.ts'
 import { Hookable } from './Hookable.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import type { Config, KubbHooks } from './types.ts'
@@ -131,7 +131,7 @@ describe('detectSharedSchemas', () => {
 
   it('gives the configs of one shared directory the same record of written files, and another directory its own', async () => {
     const { result } = await detect([makeConfig([string()]), makeConfig([string()]), makeConfig([string()], { path: './gen/other' })])
-    const [first, second, other] = result.map((entry) => getSharedWrites(entry!))
+    const [first, second, other] = result.map((entry) => entry!.written)
 
     expect(second).toBe(first)
     expect(other).not.toBe(first)

@@ -623,8 +623,7 @@ export class Resolver {
     // A shared schema's file and every import of it move under `shared.path`. Operation files carry a `tag` or `path`, so they stay.
     // A file-mode plugin or a custom `file.path` writes outside the plugin layout, so it shares none.
     const shared = this.#options.shared
-    const isShared = output.mode === 'directory' && !this.#filePath && !tag && !groupPath && shared?.schemas.includes(name)
-    const root = isShared ? shared!.path : outputRoot
+    const root = shared && output.mode === 'directory' && !this.#filePath && !tag && !groupPath && shared.schemas.includes(name) ? shared.path : outputRoot
     const baseName = this.#baseName({ name, extname })
     return this.#filePath
       ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root)
