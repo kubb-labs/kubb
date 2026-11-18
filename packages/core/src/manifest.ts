@@ -58,6 +58,8 @@ export type ExtensionManifest = {
   compatibility?: { kubb?: string; node?: string }
   /** Plugins only: `client` ships the HTTP client runtime, `consumer` calls one but ships none. */
   role?: 'client' | 'consumer'
+  /** The extension is in beta: it works, but its options and output can still change in a minor release. */
+  beta?: boolean
   options?: Array<ExtensionManifestOption>
 }
 
@@ -191,7 +193,7 @@ export function manifestProblems({ options = [] }: ExtensionManifest): Array<str
  */
 export function isExtensionManifest(value: unknown): value is ExtensionManifest {
   if (!isObject(value)) return false
-  const { kind, name, export: exportName, displayName, description, maintainers, dependencies, optionalDependencies, compatibility, role, options } = value
+  const { kind, name, export: exportName, displayName, description, maintainers, dependencies, optionalDependencies, compatibility, role, beta, options } = value
   return (
     EXTENSION_KINDS.has(kind) &&
     isPackageName(name) &&
@@ -205,6 +207,7 @@ export function isExtensionManifest(value: unknown): value is ExtensionManifest 
     (compatibility === undefined ||
       (isObject(compatibility) && Object.entries(compatibility).every(([key, range]) => (key === 'kubb' || key === 'node') && typeof range === 'string'))) &&
     (role === undefined || role === 'client' || role === 'consumer') &&
+    (beta === undefined || typeof beta === 'boolean') &&
     (options === undefined || (Array.isArray(options) && options.every(isOption))) &&
     manifestProblems(value as ExtensionManifest).length === 0
   )

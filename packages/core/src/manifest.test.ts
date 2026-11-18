@@ -41,6 +41,10 @@ describe('isExtensionManifest', () => {
     ).toBe(true)
   })
 
+  it('accepts a beta flag', () => {
+    expect(isExtensionManifest({ ...manifest, beta: true })).toBe(true)
+  })
+
   it.each([
     ['an unknown kind', { ...manifest, kind: 'theme' }],
     ['a missing export', { ...manifest, export: undefined }],
@@ -52,6 +56,7 @@ describe('isExtensionManifest', () => {
     ['a dependency that is not an extension name', { ...manifest, dependencies: ['../plugin-ts'] }],
     ['an optional dependency that is not an extension name', { ...manifest, optionalDependencies: ['../plugin-faker'] }],
     ['an unknown role', { ...manifest, role: 'consmer' }],
+    ['a beta flag that is not a boolean', { ...manifest, beta: 'yes' }],
     ['options that are not a list', { ...manifest, options: {} }],
     ['an option without a label', { ...manifest, options: [{ ...select, label: '' }] }],
     ['an option of an unknown type', { ...manifest, options: [{ ...select, type: 'color' }] }],

@@ -145,6 +145,12 @@ Semver ranges for Kubb (`@kubb/core`) and Node.js. Any other key makes the manif
 Plugins only. `client` ships the HTTP client runtime, like `@kubb/plugin-fetch`. `consumer` calls a client but ships none, like `@kubb/plugin-react-query`. `kubb init` and Studio require a client next to a consumer.
 :::
 
+### `beta`
+
+:::field{type="boolean"}
+Set `true` while the extension is in beta: it works, but its options and output can still change in a minor release. kubb.dev and Kubb Studio show a Beta badge next to its name. Remove the field, or set `false`, once it is stable.
+:::
+
 ### `options`
 
 :::field{type="Array<ExtensionManifestOption>"}
@@ -208,7 +214,7 @@ When Kubb skips your manifest or the registry review fails, see what each reader
 
 | Reader | Checks | On failure |
 | --- | --- | --- |
-| `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio agent | The required fields and their shape, each `maintainers` and `options` entry, extension names in `dependencies` and `optionalDependencies`, `role`, `compatibility`, unique option keys, and `select` choices and defaults. | The manifest is skipped. |
+| `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio agent | The required fields and their shape, each `maintainers` and `options` entry, extension names in `dependencies` and `optionalDependencies`, `role`, `beta`, `compatibility`, unique option keys, and `select` choices and defaults. | The manifest is skipped. |
 | The registry | The JSON Schema, unique option keys, `choices` on every `select`, and a `select` default that equals one of its choices. | The review pull request lists the problem, and the weekly bump keeps the previous pin. |
 
 To run Kubb's checks in your own code, call `isExtensionManifest(value)` from `kubb/kit`. `manifestProblems(manifest)` lists the option problems of a well-formed manifest.
