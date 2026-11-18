@@ -12,7 +12,7 @@ import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
-import { getSharedWrites, type SharedSchemas } from './detectSharedSchemas.ts'
+import type { SharedSchemas } from './detectSharedSchemas.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 
 import type { Config, KubbHooks } from './types.ts'
@@ -151,7 +151,7 @@ export class KubbDriver {
     const { root, shared } = this.config
     const { sharedSchemas } = this.options
     if (!shared || !sharedSchemas) return undefined
-    return { path: resolve(root, shared.path), schemas: sharedSchemas.names, written: getSharedWrites(sharedSchemas) }
+    return { path: resolve(root, shared.path), schemas: sharedSchemas.names, written: sharedSchemas.written }
   }
 
   // Every resolver gets the shared schemas, so a plugin's own `output`, an override, or a `setResolver` cannot drop them.

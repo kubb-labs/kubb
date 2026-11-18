@@ -37,7 +37,7 @@ flowchart LR
 | CI | `KUBB_TOKEN`, in a secret only trusted pipelines can read | Publishing snapshots |
 | Registry | `KUBB_REGISTRY_TOKEN`, which `.npmrc` reads | [Installing a snapshot](#install-the-snapshot) |
 
-When the config exports an [array](/docs/5.x/reference/configuration#multiple-configurations-array), the snapshot generates every entry and packs their output into the one package.
+When the config exports an [array](/docs/5.x/reference/configuration#multiple-configurations-array), the snapshot packs every entry's output into one package.
 
 ## Supported providers
 

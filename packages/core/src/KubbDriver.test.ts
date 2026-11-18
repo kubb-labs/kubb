@@ -577,7 +577,7 @@ describe('KubbDriver generator dispatch', () => {
     ] as unknown as Array<Plugin>
     const sharedDriver = new KubbDriver(
       makeConfig({ root: '/project', adapter: inputAdapter(), plugins, output: { path: './gen/animals' }, shared: { path: './gen/common' } }),
-      { hooks: new Hookable<KubbHooks>(), sharedSchemas: { names: ['Pet'], clean: false } },
+      { hooks: new Hookable<KubbHooks>(), sharedSchemas: { names: ['Pet'], clean: false, written: new Map() } },
     )
     await sharedDriver.setup()
     await sharedDriver.run()

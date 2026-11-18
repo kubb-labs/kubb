@@ -275,9 +275,7 @@ The notice Kubb writes at the top of each generated file. Default: `'simple'`. A
 ### `shared`
 
 :::field{type="{ path: string }"}
-Schemas that several specs define, written once to a shared directory. Every other generated file imports them from there.
-
-Kubb writes each shared schema under `path`, resolved against [`root`](#root), with the same plugin layout as `output.path`. Give every config in an [array](#multiple-configurations-array) the same value:
+Directory for schemas that several configs of an [array](#multiple-configurations-array) define identically. Kubb writes each one once under `path`, resolved against [`root`](#root), and every other generated file imports it from there. Give every config the same value:
 
 ```typescript twoslash [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
@@ -302,15 +300,13 @@ export default defineConfig([
 ])
 ```
 
-When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/common/types/Name.ts` once, and `src/gen/animals/types/Animal.ts` imports it from there.
+When `animals.json` and `fruits.json` both define `Name`, Kubb writes `src/gen/common/types/Name.ts` once, and `src/gen/animals/types/Animal.ts` imports it.
 
-- Configs are compared per `path`. A schema is shared when two or more of them define it identically. When they define it differently, the largest matching group shares it, every other config keeps its own copy, and `kubb generate` warns with its name.
-- `kubb generate`, `unplugin-kubb`, Kubb Studio and `kubb studio snapshot` compare the specs. Studio builds one config at a time, so it writes the shared schemas that config defines and leaves the rest of the shared directory as it is. A sandbox or managed Studio agent shares nothing.
-- When you run builds yourself, call `Kubb.generate(configs)` from `@kubb/core` in place of one `createKubb` per config. It compares the specs, builds every config, and keeps going when one fails.
-- A plugin with `output.mode: 'file'` or a custom `file.path` shares nothing.
-- With [`output.barrel`](#outputbarrel) set, each config's barrels re-export the shared schemas it defines. The shared directory gets no barrels.
-- [`output.format`](#outputformat) and [`output.lint`](#outputlint) run over the shared directory too. When any config that uses it sets [`output.clean`](#outputclean), the first such config wipes it once per run.
-- Keep `path` outside every `output.path`, and give each config the same options for the plugins they have in common. Kubb warns when a config writes a shared file differently from the config before it, and the last one wins.
+- When configs define a schema differently, the largest matching group shares it, the others keep their own copy, and Kubb warns with its name.
+- A plugin with `output.mode: 'file'` or a custom `file.path` shares nothing. Neither does a sandbox or managed Studio agent.
+- Barrels re-export the shared schemas a config defines. The shared directory gets no barrels.
+- [`output.format`](#outputformat), [`output.lint`](#outputlint) and [`output.clean`](#outputclean) apply to the shared directory too.
+- Keep `path` outside every `output.path`, and give the configs the same plugin options. Kubb warns when two configs write a shared file differently, and the last one wins.
 :::
 
 ### `plugins`

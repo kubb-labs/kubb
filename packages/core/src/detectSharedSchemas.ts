@@ -28,20 +28,14 @@ export type SharedSchemas = {
    * sets `output.clean`, so a later config never deletes what an earlier one wrote.
    */
   clean: boolean
+  /**
+   * A digest of each file the configs of this shared directory have written under it in this run, keyed by file path,
+   * so a config that writes one differently is reported.
+   */
+  written: Map<string, string>
 }
 
 type GroupMember = { config: UserConfig; root: string; index: number }
-
-// A digest of each file a run wrote under a shared directory, keyed by file path, so a config that writes one differently is reported.
-const sharedWrites = new WeakMap<SharedSchemas, Map<string, string>>()
-
-/**
- * A digest of each file the configs sharing `entry`'s directory have written under it in this run. Empty for an entry
- * that did not come from `detectSharedSchemas`.
- */
-export function getSharedWrites(entry: SharedSchemas): Map<string, string> {
-  return sharedWrites.get(entry) ?? new Map()
-}
 
 // Each shared schema name with the indexes of the specs that share it.
 type SharedBy = Map<string, Set<number>>
@@ -113,8 +107,8 @@ async function detectGroup({
 }
 
 /**
- * Works out what the configs of a `defineConfig([...])` array share. Returns one entry per config, in order, to pass to
- * `createKubb` as `sharedSchemas`, and `undefined` for a config without `shared`. Configs are compared per shared directory. A
+ * Works out what the configs of a `defineConfig([...])` array share. Returns one entry per config, in order, that
+ * `Kubb.generate` hands to its build, and `undefined` for a config without `shared`. Configs are compared per shared directory. A
  * schema is shared by the largest group of two or more configs that define it identically, the first group on a tie. A
  * config shares it only when it also shares every schema it references. Schemas the configs define differently are
  * reported as `kubb:warn`. When any config of a shared directory sets `output.clean`, the first one empties it.
@@ -146,9 +140,7 @@ export async function detectSharedSchemas({
     const clean = group.some(({ config }) => config.output.clean)
     const written = new Map<string, string>()
     group.forEach(({ index }, i) => {
-      const entry: SharedSchemas = { names: [], clean: clean && i === 0 }
-      sharedWrites.set(entry, written)
-      result[index] = entry
+      result[index] = { names: [], clean: clean && i === 0, written }
     })
     if (group.length < 2) continue
     await detectGroup({ group, result, conflicts, fileRefs })
