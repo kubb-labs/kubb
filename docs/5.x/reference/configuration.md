@@ -304,7 +304,7 @@ export default defineConfig({
 ### `storage`
 
 :::field{type="Storage"}
-Where generated files go. Default: `fsStorage()`, which writes to disk. `memoryStorage()` from `kubb/kit` keeps them in memory. See [Storage](/docs/5.x/explanation/architecture#storage) for a custom backend.
+Where generated files go. Default: `fsStorage()`, which writes to disk. `memoryStorage()` from `kubb/kit` keeps them in memory. See [Storage](/docs/5.x/introduction/architecture#storage) for a custom backend.
 :::
 
 ### `root`
@@ -361,7 +361,7 @@ Without [`root`](#root), the root is the config file's folder, or its parent for
 Without `kubb generate`, fewer [defaults](#defaults) apply:
 
 - `createKubb` from `@kubb/core` applies only the `root`, `storage`, `output.format`, `output.lint`, and `output.defaultBanner` defaults.
-- [Build tool integrations](/docs/5.x/integrations/overview#build-tools) apply the `defineConfig` defaults, but run only the summary reporter.
+- [Build tool integrations](/docs/5.x/integrations/build-tools) apply the `defineConfig` defaults, but run only the summary reporter.
 
 #### Extension commands
 

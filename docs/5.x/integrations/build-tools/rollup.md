@@ -17,7 +17,7 @@ navigation:
 
 ## Install Kubb and your plugins
 
-Follow [Installation](/docs/5.x/how-to/installation). Add `@rollup/plugin-typescript`, `tslib`, and `typescript` to your dev dependencies, so Rollup can compile `src/index.ts` and `rollup.config.ts`.
+Follow [Installation](/docs/5.x/introduction/installation). Add `@rollup/plugin-typescript`, `tslib`, and `typescript` to your dev dependencies, so Rollup can compile `src/index.ts` and `rollup.config.ts`.
 
 ## Add Kubb to `rollup.config.ts`
 
@@ -42,4 +42,4 @@ Run `rollup -c rollup.config.ts --configPlugin typescript`. Rollup loads only `.
 
 ::
 
-[How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) covers defaults, reports, and watch rebuilds.
+[How the build runs Kubb](/docs/5.x/integrations/build-tools#how-the-build-runs-kubb) covers defaults, reports, and watch rebuilds.

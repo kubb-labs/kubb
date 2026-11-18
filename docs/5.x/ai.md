@@ -3,7 +3,7 @@ layout: doc
 title: AI assistants - Claude Code, MCP, and llms.txt
 description: Every way to use Kubb from an AI assistant, from the Claude Code plugin and the MCP server to Context7 and llms.txt documentation feeds.
 outline: [2, 3]
-order: 5
+order: 7
 navigation:
   title: AI assistants
   icon: i-iconoir-sparks

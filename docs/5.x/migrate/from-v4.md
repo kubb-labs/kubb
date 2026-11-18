@@ -6,7 +6,7 @@ description: Upgrade a Kubb v4 project to v5 with before and after tables for
 outline:
   - 2
   - 3
-order: 5
+order: 4
 navigation:
   title: Upgrade to v5
   icon: i-iconoir-transition-up
