@@ -193,7 +193,20 @@ export function manifestProblems({ options = [] }: ExtensionManifest): Array<str
  */
 export function isExtensionManifest(value: unknown): value is ExtensionManifest {
   if (!isObject(value)) return false
-  const { kind, name, export: exportName, displayName, description, maintainers, dependencies, optionalDependencies, compatibility, role, beta, options } = value
+  const {
+    kind,
+    name,
+    export: exportName,
+    displayName,
+    description,
+    maintainers,
+    dependencies,
+    optionalDependencies,
+    compatibility,
+    role,
+    beta,
+    options,
+  } = value
   return (
     EXTENSION_KINDS.has(kind) &&
     isPackageName(name) &&
