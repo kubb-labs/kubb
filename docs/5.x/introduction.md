@@ -47,7 +47,7 @@ export default defineConfig({
 })
 ```
 
-The adapter turns the spec into AST nodes, and each plugin generates files from those nodes. [How Kubb works](/docs/5.x/introduction/architecture) explains each stage.
+The adapter turns the spec into AST nodes, and each plugin generates files from those nodes. [Architecture](/docs/5.x/introduction/architecture) explains each stage.
 
 ::spec-journey
 ::
@@ -64,7 +64,7 @@ The adapter turns the spec into AST nodes, and each plugin generates files from 
 | Use Kubb from a browser or an AI assistant | [Studio](/docs/5.x/integrations/studio) and [AI assistants](/docs/5.x/ai) |
 | Build a plugin | [Create a plugin](/docs/5.x/tutorials/creating-plugins) |
 | Look up an option, command, or API | [Configuration](/docs/5.x/reference/configuration), [commands](/docs/5.x/reference/commands/), and [Kit API](/docs/5.x/reference/kit) |
-| Understand the pipeline | [How Kubb works](/docs/5.x/introduction/architecture) |
+| Understand the pipeline | [Architecture](/docs/5.x/introduction/architecture) |
 | Compare Kubb with other generators | [Comparison](/docs/5.x/introduction/comparison) |
 | Switch from another generator | Move from [orval](/docs/5.x/migrate/from-orval), [HeyAPI](/docs/5.x/migrate/from-hey-api), or [openapi-typescript](/docs/5.x/migrate/from-openapi-typescript) |
 | Upgrade from v4 | [Migration guide](/docs/5.x/migrate/from-v4) |
