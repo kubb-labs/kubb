@@ -42,15 +42,15 @@ Not out of the box. The default [adapter](/docs/5.x/introduction/architecture#ad
 :::
 
 :::accordion-item{label="Which Node.js version do I need?" icon="i-iconoir-help-circle"}
-Node.js 22.22 or later. The CLI and the config file are ESM. See [Installation](/docs/5.x/how-to/installation#prerequisites).
+Node.js 22.22 or later. The CLI and the config file are ESM. See [Installation](/docs/5.x/introduction/installation#prerequisites).
 :::
 
 :::accordion-item{label="Does Kubb work with TypeScript 7?" icon="i-iconoir-help-circle"}
-Yes. Kubb builds and type-checks with TypeScript 7, and the code it generates type-checks with `tsc` 7. Install `typescript@7` and run `tsc` as before. See [Installation](/docs/5.x/how-to/installation#prerequisites).
+Yes. Kubb builds and type-checks with TypeScript 7, and the code it generates type-checks with `tsc` 7. Install `typescript@7` and run `tsc` as before. See [Installation](/docs/5.x/introduction/installation#prerequisites).
 :::
 
 :::accordion-item{label="Does Kubb run on Bun or Deno?" icon="i-iconoir-help-circle"}
-On Bun, yes. The CLI and the generated code need no extra setup. Use the Bun commands in [Installation](/docs/5.x/how-to/installation). Deno is not tested.
+On Bun, yes. The CLI and the generated code need no extra setup. Use the Bun commands in [Installation](/docs/5.x/introduction/installation). Deno is not tested.
 :::
 
 ::

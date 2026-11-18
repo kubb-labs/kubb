@@ -5,7 +5,7 @@ description: Follow an API spec through Kubb's pipeline, from adapter to AST, pl
 outline:
   - 2
   - 3
-order: 2
+order: 3
 navigation:
   title: Architecture
   icon: i-iconoir-cube

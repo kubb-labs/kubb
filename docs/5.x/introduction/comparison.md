@@ -5,7 +5,7 @@ description: Compare Kubb with orval, HeyAPI, and openapi-typescript on speed, m
 outline:
   - 2
   - 3
-order: 1
+order: 2
 navigation:
   title: Comparison
   icon: i-iconoir-mirror

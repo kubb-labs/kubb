@@ -17,7 +17,7 @@ navigation:
 
 ## Install Kubb and your plugins
 
-Follow [Installation](/docs/5.x/how-to/installation).
+Follow [Installation](/docs/5.x/introduction/installation).
 
 ## Add Kubb to `rolldown.config.ts`
 

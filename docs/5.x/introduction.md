@@ -57,7 +57,7 @@ The adapter turns the spec into AST nodes, and each plugin generates files from 
 | You want to | Read |
 | --- | --- |
 | Learn by generating a client from a sample spec | [Generate your first client](/docs/5.x/tutorials/quickstart) |
-| Add Kubb to your project | [Installation](/docs/5.x/how-to/installation) |
+| Add Kubb to your project | [Installation](/docs/5.x/introduction/installation) |
 | Set up a stack, such as React Query with Zod | [Configure generation](/docs/5.x/how-to/recipes) |
 | Rename files or change generated code | [Resolvers](/docs/5.x/how-to/customize#resolvers), [macros](/docs/5.x/how-to/customize#macros), and [printers](/docs/5.x/how-to/customize#printers) |
 | Generate during a build or in CI | [Build tools](/docs/5.x/integrations/build-tools) and [CI](/docs/5.x/integrations/ci) |

@@ -4,7 +4,7 @@ The hand-written Kubb core docs. [kubb.dev](https://kubb.dev) renders `5.x/` at 
 
 | Folder | Holds |
 | --- | --- |
-| `5.x/` | The v5 pages, one [Diátaxis](https://diataxis.fr) quadrant each: `tutorials/`, `how-to/`, `reference/`, and `introduction/` for explanation (`architecture.md` and `comparison.md`), plus `migrate/`, `integrations/`, `ai/`, and `community/` |
+| `5.x/` | The v5 pages, one [Diátaxis](https://diataxis.fr) quadrant each: `tutorials/`, `how-to/`, `reference/`, and `introduction/` for explanation (`architecture.md` and `comparison.md`) and for `installation.md`, plus `migrate/`, `integrations/`, `ai/`, and `community/` |
 
 Docs for plugins, adapters, and parsers do not live here. Each extension ships them in its own package, in `packages/<name>/docs/` here or in [kubb-labs/plugins](https://github.com/kubb-labs/plugins). Link to an official extension as `/extensions/kubb-labs/<slug>`, such as `/extensions/kubb-labs/plugin-ts/options`. [Extension docs](5.x/reference/kit/extension-docs.md) has the full rules.
 
@@ -45,7 +45,7 @@ A folder gets its title, icon and position from a `.navigation.yml` file inside 
 - Explain before showing code.
 - Import `defineConfig` from `kubb/config` in every config example. An example that only defines a plugin, adapter, parser, generator, or resolver imports from `kubb/kit` instead.
 - Put each page in one Diátaxis quadrant (tutorial, how-to, reference, explanation) and link to the owner page instead of repeating its content.
-- A topic folder holds pages of one quadrant or names the quadrant per page: `migrate/` holds how-to guides only, and `introduction/` holds explanation pages.
+- A topic folder holds pages of one quadrant or names the quadrant per page: `migrate/` holds how-to guides only, and `introduction/` holds the explanation pages plus `installation.md`, the one how-to guide a newcomer reads first.
 
 Pages render with Nuxt Content and Nuxt UI's Markdown components. Reuse the same elements for the same purpose:
 

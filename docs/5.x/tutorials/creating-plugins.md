@@ -13,7 +13,7 @@ navigation:
 
 # Create a Kubb plugin
 
-Your first plugin writes the method and path of one API operation to `listPets.ts`, and a test checks its output in memory. You need npm, a Node.js version from [Prerequisites](/docs/5.x/how-to/installation#prerequisites), and some TypeScript.
+Your first plugin writes the method and path of one API operation to `listPets.ts`, and a test checks its output in memory. You need npm, a Node.js version from [Prerequisites](/docs/5.x/introduction/installation#prerequisites), and some TypeScript.
 
 ::steps{level="2"}
 
