@@ -4,7 +4,6 @@ import { nodeKinds } from '../constants.ts'
 import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
 import { getNodeText } from '../utils/nodeText.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
-import type { LiteralUnion } from '@internals/utils'
 import type { CodeNode } from './code.ts'
 
 declare global {
@@ -14,8 +13,8 @@ declare global {
   }
 }
 
-/** A plugin name: autocompletes the names in `Kubb.PluginRegistry`, and takes any other string. */
-type PluginName = LiteralUnion<keyof Kubb.PluginRegistry>
+/** A plugin name: autocompletes the names in `Kubb.PluginRegistry`, and `string & {}` takes any other string. */
+type PluginName = keyof Kubb.PluginRegistry | (string & {})
 
 /**
  * Supported file extensions.
