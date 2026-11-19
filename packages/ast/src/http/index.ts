@@ -36,3 +36,47 @@ export function groupParameters(node: Pick<HttpOperationNode, 'parameters'>): Pa
     return { path: group('path'), query: group('query', 'querystring'), header: group('header'), cookie: group('cookie') }
   })
 }
+
+export type RequestGroups = {
+  path: boolean
+  query: boolean
+  body: boolean
+  headers: boolean
+  cookies: boolean
+  /** `cookies` is never required: a browser sends its cookies itself. */
+  required: { path: boolean; query: boolean; headers: boolean; body: boolean }
+  /** No group holds a required member. */
+  isOptional: boolean
+  contentTypes: Array<string>
+  /** More than one body media type has a schema, so a caller must pick one. */
+  hasContentTypeChoice: boolean
+}
+
+const requestGroupsByNode = memo.create<Pick<HttpOperationNode, 'parameters' | 'requestBody'>, RequestGroups>({ weak: true })
+
+/** Which request groups are present, which hold a required member, and the body's media types. Built once per operation. */
+export function getRequestGroups(node: Pick<HttpOperationNode, 'parameters' | 'requestBody'>): RequestGroups {
+  return memo(requestGroupsByNode, node, () => {
+    const { path, query, header, cookie } = groupParameters(node)
+    const content = node.requestBody?.content ?? []
+    const body = Boolean(content[0]?.schema)
+    const required = {
+      path: path.some((param) => param.required),
+      query: query.some((param) => param.required),
+      headers: header.some((param) => param.required),
+      body: body && node.requestBody?.required === true,
+    }
+
+    return {
+      path: path.length > 0,
+      query: query.length > 0,
+      body,
+      headers: header.length > 0,
+      cookies: cookie.length > 0,
+      required,
+      isOptional: !required.path && !required.query && !required.headers && !required.body,
+      contentTypes: content.map((entry) => entry.contentType),
+      hasContentTypeChoice: content.filter((entry) => entry.schema).length > 1,
+    }
+  })
+}

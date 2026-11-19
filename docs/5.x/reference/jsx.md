@@ -72,7 +72,7 @@ const files = renderer.files
 
 | Group | Components |
 | --- | --- |
-| [Core](#core) | [`File`](#file), [`File.Source`](#file-source), [`File.Import`](#file-import), [`File.Export`](#file-export) |
+| [Core](#core) | [`File`](#file), [`File.Source`](#file-source), [`File.Import`](#file-import), [`File.Export`](#file-export), [`Schema`](#schema) |
 | [JavaScript](#javascript) | [`Const`](#const), [`Function`](#function), [`Function.Arrow`](#function-arrow), [`Type`](#type) |
 | [Markdown](#markdown) | [`Callout`](#callout), [`Frontmatter`](#frontmatter), [`Heading`](#heading), [`List`](#list), [`Paragraph`](#paragraph) |
 | [JSX](#jsx) | [`Jsx`](#jsx-component) |
@@ -105,7 +105,7 @@ With `baseName` and `path`, `File` declares a generated file. Without them, it r
 
 #### `File.Source` {#file-source}
 
-A block of source text in the enclosing `File`.
+Deprecated, removed in Kubb v6. Put a [JavaScript component](#javascript) directly in the `File` instead. A block of source text in the enclosing `File`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -164,9 +164,38 @@ An export at the top of the enclosing `File`.
 // export type * from './models/petStore'
 ```
 
+#### `Schema` {#schema}
+
+Prints `node`, adds the printer's imports, and calls `children` with the code. It renders nothing when the printer returns nothing.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `node` | `SchemaNode` | The schema to print |
+| `printer` | `Printer` | The printer, such as one built with `createPrinter` |
+| `children` | `(code: string) => KubbReactNode` | Renders the declarations for the code |
+
+```tsx
+<Schema node={node} printer={printer}>
+  {(code) => (
+    <Const export name="petSchema">
+      {code}
+    </Const>
+  )}
+</Schema>
+```
+
 ### JavaScript
 
-The JavaScript components emit TypeScript inside a `File.Source`. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block.
+The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block.
+
+A component directly in a `File` is its own source block, named after `name`. `export` puts it in barrels, unless it is also `default`. Set `inline` to let importing files use its body in place of its name.
+
+```tsx
+<File baseName="pet.ts" path="src/zod/pet.ts">
+  <Const export name="petSchema">{'z.object({ id: z.number() })'}</Const>
+  <Type export name="Pet">{'z.infer<typeof petSchema>'}</Type>
+</File>
+```
 
 #### `Const` {#const}
 

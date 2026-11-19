@@ -50,3 +50,26 @@ describe('schema.getNumberBounds', () => {
     expect(getNumberBounds({ ...node, ...options })).toStrictEqual(expected)
   })
 })
+
+describe('schema.getNumberBounds on a number node', () => {
+  it.each([
+    [
+      { type: 'integer', format: 'int32', min: 0 },
+      { min: 0, max: 2_147_483_647 },
+    ],
+    [
+      { type: 'integer', format: 'uint8', max: 1000 },
+      { min: 0, max: 255 },
+    ],
+    [{ type: 'integer', format: 'int64' }, {}],
+    [{ type: 'number', format: 'int32' }, {}],
+    [
+      { type: 'bigint', min: 1.5, multipleOf: 2 },
+      { min: 2, multipleOf: 2 },
+    ],
+    [{ type: 'bigint', multipleOf: 2 ** 60 }, {}],
+    [{ type: 'number', multipleOf: 0.5 }, { multipleOf: 0.5 }],
+  ] as const)('getNumberBounds(%o) is %o', (node, expected) => {
+    expect(getNumberBounds(node)).toStrictEqual(expected)
+  })
+})
