@@ -151,10 +151,7 @@ function createProgress(files: Array<FileNode>, config: Config, hooks: Hookable<
   }
 }
 
-/**
- * Links each source without a pointer to the node its file was generated from, and each source without a plugin to the
- * plugin that emitted it.
- */
+/** Fills in a missing `pointer` and `plugin` on each source. */
 export function withOrigin(files: ReadonlyArray<FileNode>, { pointer, plugin }: { pointer?: string; plugin?: string }): ReadonlyArray<FileNode> {
   if (!pointer && !plugin) return files
   return files.map((file) => ({
@@ -213,9 +210,7 @@ export class FileManager {
      * Pointer of the node the result was generated from, set on each source that carries none.
      */
     pointer?: string
-    /**
-     * Name of the plugin whose generator returned the result, set on each source that carries none.
-     */
+    /** Plugin whose generator returned the result, set on each source that carries none. */
     plugin?: string
   }): Promise<void> {
     if (!result) return

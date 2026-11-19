@@ -95,21 +95,14 @@ export type ResolveFileOptions = ResolverFileParams & {
 }
 
 /**
- * Options for `resolver.imports`: the schema tree to scan (`node`) and, optionally, where the generated files live
- * (`root`, `output`, `group`). Without `root` and `output`, each import names the resolver's plugin instead of a path,
- * and core fills in the path from the file the plugin emitted the name in. Pass `name` to override how a referenced
- * schema name becomes the imported identifier; it defaults to the resolver's top-level `name`.
+ * Options for `resolver.imports`: the schema tree to scan (`node`) and where the generated files live (`root`,
+ * `output`, `group`). Without `root` and `output`, each import names the resolver's plugin instead of a path. Pass
+ * `name` to override how a referenced schema name becomes the imported identifier.
  *
- * @example Paths computed from the output options
+ * @example
  * ```ts
  * resolver.imports({ node, root, output, group })
  * // → [{ kind: 'Import', name: ['pet'], path: '/src/types/pet.ts' }]
- * ```
- *
- * @example Paths filled in by core
- * ```ts
- * resolver.imports({ node })
- * // → [{ kind: 'Import', name: ['pet'], plugin: 'plugin-ts', … }]
  * ```
  */
 export type ResolveImportsOptions = {
@@ -118,7 +111,7 @@ export type ResolveImportsOptions = {
    */
   node: SchemaNode
   /**
-   * Extension of the generated files the imports point at. Ignored without `root` and `output`.
+   * Extension of the generated files the imports point at.
    *
    * @default '.ts'
    */
@@ -489,9 +482,6 @@ export class Resolver {
    * The subtree scan runs through `ast.graph.getImportedNames`, which memoizes by node identity, so a
    * schema shared across the ts, zod, and faker plugins is walked once and every plugin's resolver
    * reads the same ref set instead of re-scanning it per plugin.
-   *
-   * Without `root` and `output`, each entry names this resolver's plugin instead of a path, and core
-   * fills in the path from the file the plugin emitted the name in.
    */
   imports(options: ResolveImportsOptions): Array<ImportNode> {
     const { node, root, output, extname = '.ts', name, checks } = options

@@ -111,9 +111,8 @@ type FileImportProps = ast.UserImportNode & { key?: Key }
 /**
  * Declares an import entry for the enclosing {@link File}.
  *
- * The import is collected by the renderer and emitted at the top of the generated file. Pass `plugin` instead of
- * `path` to import a name from the file where that plugin emitted it. Core fills in the path after every generator has
- * run, so the target may be generated later than the importing file.
+ * The import is collected by the renderer and emitted at the top of the generated file. With `plugin` instead of
+ * `path`, core fills in the file where that plugin emitted the name.
  *
  * @example Named import
  * ```tsx

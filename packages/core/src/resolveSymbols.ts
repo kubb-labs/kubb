@@ -1,50 +1,24 @@
 import { ast, type FileNode, type ImportNode } from '@kubb/ast'
 
-/**
- * An import with a `plugin` that could not be given a path.
- */
+/** An import with a `plugin` that could not be given a path. */
 export type SymbolProblem = {
-  /**
-   * `notFound` when the plugin emitted the name in no file, `ambiguous` when it did in several.
-   */
+  /** `notFound` when the plugin emitted the name in no file, `ambiguous` when in several. */
   kind: 'notFound' | 'ambiguous'
-  /**
-   * Path of the importing file.
-   */
   file: string
-  /**
-   * Plugin that emitted the importing file, when one did.
-   */
+  /** Plugin that emitted the importing file, when one did. */
   importer?: string
-  /**
-   * Plugin the import names.
-   */
   plugin: string
-  /**
-   * The imported name.
-   */
   name: string
-  /**
-   * Files the plugin emitted the name in. Empty for `notFound`.
-   */
+  /** Files the plugin emitted the name in. */
   paths: Array<string>
 }
 
 type ImportItem = Extract<ImportNode['name'], Array<unknown>>[number]
 
 /**
- * Gives every import that names a `plugin` the path of the file where that plugin emitted the name, as an exportable,
- * named source. One `File.Import` with names from several files becomes one import per file. Returns only the files
- * whose imports changed, plus one problem per name the plugin emitted in no file or in several; those imports are
- * dropped.
- *
- * Runs after every generator, so a name can be imported before the file that declares it is generated.
- *
- * @example
- * ```ts
- * const { files, problems } = resolveSymbols(fileManager.files)
- * fileManager.add(...files)
- * ```
+ * Gives every import that names a `plugin` the path of the file where that plugin emitted the name as an exportable,
+ * named source, one import per file. Returns the changed files, and a problem for each name found in no file or in
+ * several, whose import is dropped.
  */
 export function resolveSymbols(files: ReadonlyArray<FileNode>): { files: Array<FileNode>; problems: Array<SymbolProblem> } {
   const importing = files.filter((file) => file.imports.some((imp) => imp.plugin))
