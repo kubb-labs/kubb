@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.22.0 — Nov 19, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add `shared: { path }`. Schemas that several configs in an array define identically are generated once under that path. ([#4352](https://github.com/kubb-labs/kubb/pull/4352), [`80434b8`](https://github.com/kubb-labs/kubb/commit/80434b8180534bbedfc7a1b1a9d28ef953c9d486))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.21.2 — Nov 18, 2026
 
 ### @kubb/ast
