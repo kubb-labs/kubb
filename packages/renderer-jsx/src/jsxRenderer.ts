@@ -48,7 +48,7 @@ function childrenOf(host: HostElement): unknown {
 type CodeTag = 'kubb-function' | 'kubb-arrow-function' | 'kubb-const' | 'kubb-type'
 type CodeHost = Extract<HostElement, { type: CodeTag }>
 type CodeFactories = {
-  [K in CodeTag]: (props: Omit<JSX.IntrinsicElements[K], 'children'> & { nodes: Array<ast.CodeNode> }) => ast.CodeNode
+  [K in CodeTag]: (props: Omit<JSX.IntrinsicElements[K], 'children' | 'inline'> & { nodes: Array<ast.CodeNode> }) => ast.CodeNode
 }
 
 const codeFactories: CodeFactories = {
@@ -63,7 +63,8 @@ function isCodeHost(host: HostElement): host is CodeHost {
 }
 
 function createCodeNode<K extends CodeTag>(type: K, props: JSX.IntrinsicElements[K]): ast.CodeNode {
-  const { children, ...rest } = props
+  // `inline` describes the source block, not the code node.
+  const { children, inline: _inline, ...rest } = props
 
   return codeFactories[type]({ ...rest, nodes: collectCodeNodes(children) })
 }
@@ -144,6 +145,26 @@ function collectFileChildren(element: unknown): FileChildren {
       if (host.type === 'kubb-import') {
         const { name, path, root, isTypeOnly, isNameSpace } = host.props
         imports.push(ast.factory.createImport({ name, path, root, isTypeOnly: !!isTypeOnly, isNameSpace: !!isNameSpace }))
+        return
+      }
+
+      // A declaration directly under a file is its own source. `export` makes it exportable and indexable.
+      if (isCodeHost(host)) {
+        const { name, export: canExport, inline } = host.props
+        // A default export cannot be re-exported by name, so barrels skip it.
+        const isDefault = 'default' in host.props && !!host.props.default
+        const node = createCodeNode(host.type, host.props)
+        sources.push(
+          ast.factory.createSource({
+            name,
+            isTypeOnly: host.type === 'kubb-type',
+            isExportable: !!canExport,
+            isIndexable: !!canExport && !isDefault,
+            // An inline declaration lends its body to importing files in place of its name.
+            ...(inline && 'nodes' in node ? { inline: { expression: ast.node.getText(node.nodes) } } : {}),
+            nodes: [node],
+          }),
+        )
         return
       }
 

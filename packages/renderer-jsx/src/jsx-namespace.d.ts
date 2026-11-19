@@ -36,15 +36,19 @@ export namespace JSX {
     ['kubb-import']: Omit<ast.ImportNode, 'kind'> & {}
     ['kubb-export']: Omit<ast.ExportNode, 'kind'> & {}
     ['kubb-function']: Omit<ast.FunctionNode, 'kind'> & {
+      inline?: boolean
       children?: KubbReactNode
     }
     ['kubb-arrow-function']: Omit<ast.ArrowFunctionNode, 'kind'> & {
+      inline?: boolean
       children?: KubbReactNode
     }
     ['kubb-const']: Omit<ast.ConstNode, 'kind'> & {
+      inline?: boolean
       children?: KubbReactNode
     }
     ['kubb-type']: Omit<ast.TypeNode, 'kind'> & {
+      inline?: boolean
       children?: KubbReactNode
     }
     br: {}
