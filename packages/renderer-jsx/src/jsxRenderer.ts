@@ -145,8 +145,8 @@ function collectFileChildren(element: unknown): FileChildren {
         const { name, path, plugin, root, isTypeOnly, isNameSpace } = host.props
         imports.push(
           ast.factory.createImport(
-            plugin && Array.isArray(name)
-              ? { name, root, plugin, isTypeOnly: !!isTypeOnly }
+            plugin
+              ? { name: name as Array<string>, root, plugin, isTypeOnly: !!isTypeOnly }
               : { name, path: path!, root, isTypeOnly: !!isTypeOnly, isNameSpace: !!isNameSpace },
           ),
         )

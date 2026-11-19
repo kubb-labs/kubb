@@ -250,6 +250,19 @@ describe('File.Import', () => {
 
     expect(renderer.files[0]?.imports[0]).toMatchObject({ kind: 'Import', name: ['Pet'], plugin: 'plugin-ts', isTypeOnly: false })
   })
+
+  it('keeps the plugin when an untyped caller passes one name as a string', async () => {
+    const renderer = jsxRenderer()
+    const props = { name: 'Pet', plugin: 'plugin-ts' } as unknown as { name: Array<string>; plugin: string }
+    await renderer.render(
+      <File baseName="client.ts" path="src/client.ts">
+        <File.Import {...props} />
+        <File.Source>{'const p: Pet = {}'}</File.Source>
+      </File>,
+    )
+
+    expect(renderer.files[0]?.imports[0]).toMatchObject({ name: ['Pet'], plugin: 'plugin-ts', path: 'kubb:plugin-ts' })
+  })
 })
 
 describe('File.Export', () => {

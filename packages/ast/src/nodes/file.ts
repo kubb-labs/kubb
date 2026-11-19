@@ -299,7 +299,10 @@ export type UserImportNode =
  * ```
  */
 export function createImport(input: UserImportNode): ImportNode {
-  return { ...input, path: input.path ?? `${SYMBOL_PATH_PREFIX}${input.plugin}`, kind: nodeKinds.import }
+  if (!input.plugin) return { ...input, path: input.path!, kind: nodeKinds.import }
+  // A plugin import is always named, also when an untyped caller passes one name as a string.
+  const name = Array.isArray(input.name) ? input.name : [input.name as string]
+  return { ...input, name, path: input.path ?? `${SYMBOL_PATH_PREFIX}${input.plugin}`, kind: nodeKinds.import }
 }
 
 /**
