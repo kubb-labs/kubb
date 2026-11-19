@@ -564,3 +564,37 @@ describe('toFilePath', () => {
     expect(toFilePath(input)).toBe(expected)
   })
 })
+
+describe('Resolver.compose', () => {
+  it('folds presets in order and merges namespaces per method', () => {
+    type NsResolver = Resolver & { ns: { a(name: string): string; b(name: string): string } }
+
+    const resolver = Resolver.compose<NsResolver>(
+      'test',
+      {
+        name(name) {
+          return name.toUpperCase()
+        },
+        ns: {
+          a(name) {
+            return `a:${this.name(name)}`
+          },
+          b() {
+            return 'old'
+          },
+        },
+      },
+      {
+        ns: {
+          b(name) {
+            return `b:${this.ns.a(name)}`
+          },
+        },
+      },
+    )
+
+    expect(resolver.pluginName).toBe('test')
+    expect(resolver.ns.a('pet')).toBe('a:PET')
+    expect(resolver.ns.b('pet')).toBe('b:a:PET')
+  })
+})

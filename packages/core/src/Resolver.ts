@@ -533,6 +533,23 @@ export class Resolver {
   }
 
   /**
+   * Builds a resolver from presets by folding them over a bare one with {@link Resolver.merge}.
+   * Namespaces and `file` merge per member, so a later preset can add `response.options` and keep
+   * the rest. Use it to share naming rules between plugins.
+   *
+   * @example Build a resolver from shared presets
+   * ```ts
+   * export const resolverZod = Resolver.compose<ResolverZod>('plugin-zod', casedPreset, operationPreset, {
+   *   response: { options(node) { return this.name(`${node.operationId} Options`) } },
+   * })
+   * ```
+   */
+  static compose<T extends Resolver>(pluginName: string, ...presets: Array<ResolverPatch<T>>): T {
+    // shortcut: the bare base is cast to the full type, so a namespace no preset fills is not a type error; upgrade when presets can be typed by the keys they fill.
+    return Resolver.merge(new Resolver({ pluginName }) as T, ...presets)
+  }
+
+  /**
    * Binds each entry of `options` onto the resolver, so `this.name`, `this.default`, and
    * `this.file` resolve there for top-level helpers and namespace methods alike. `default`
    * is skipped so it can't be shadowed.

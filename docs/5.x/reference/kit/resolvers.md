@@ -106,6 +106,31 @@ const patched = Resolver.merge(resolver, {
 > [!TIP]
 > Type a patch with `ResolverPatch<T>` to check `this` and the namespace shapes against the target resolver.
 
+### `Resolver.compose`
+
+`Resolver.compose(pluginName, ...presets)` builds a resolver from presets with `Resolver.merge`. Use it when several plugins share naming rules, such as a casing or the names of an operation's parameters.
+
+```typescript [compose.ts]
+import { casing, Resolver } from 'kubb/kit'
+
+const camelSchema = {
+  name(name: string) {
+    return casing.camel(name, { suffix: 'schema' })
+  },
+}
+
+export const resolver = Resolver.compose<MyResolver>('plugin-example', camelSchema, {
+  schema: {
+    name(node) {
+      return casing.pascal(node.name, { suffix: 'type' })
+    },
+  },
+})
+```
+
+> [!WARNING]
+> TypeScript does not check that the presets fill every namespace the plugin's resolver type declares. A test that calls each namespace catches a missing one.
+
 ## Resolver overrides {#resolver-overrides}
 
 `name` changes identifier casing, `file.baseName` and `file.path` control files, and plugin namespaces control specific symbols. Users pass the same shape to a plugin's [`resolver` option](/docs/5.x/reference/plugin-options#resolver).
