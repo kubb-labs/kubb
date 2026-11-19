@@ -164,6 +164,70 @@ describe('createKubb', () => {
     expect(inlineFailed).toEqual([expect.objectContaining({ severity: 'error', message: expect.stringMatching(/AddPetStatus404[\s\S]*AddPetStatus500/) })])
   })
 
+  test('fills in the path of an import that names a plugin, and reports a name the plugin never emitted', async () => {
+    const types = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-types' },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.injectFile(
+            ast.factory.createFile({
+              path: '/gen/types/addPet.ts',
+              baseName: 'addPet.ts',
+              sources: [
+                ast.factory.createSource({
+                  name: 'AddPetResponse',
+                  isExportable: true,
+                  isTypeOnly: true,
+                  nodes: [ast.factory.createText('export type AddPetResponse = {}')],
+                }),
+              ],
+            }),
+          )
+        },
+      },
+    })()
+    const cypress = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-requests' },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.injectFile(
+            ast.factory.createFile({
+              path: '/gen/requests/addPet.ts',
+              baseName: 'addPet.ts',
+              imports: [ast.factory.createImport({ name: ['AddPetResponse', 'AddPetError'], plugin: 'plugin-types', isTypeOnly: true })],
+              sources: [
+                ast.factory.createSource({
+                  name: 'addPet',
+                  isExportable: true,
+                  nodes: [ast.factory.createText('export function addPet(): AddPetResponse | AddPetError {}')],
+                }),
+              ],
+            }),
+          )
+        },
+      },
+    })()
+
+    // The importing plugin comes first, so the import is written before its target exists.
+    const { files, diagnostics } = await createKubb(makeConfig({ plugins: [cypress, types] as unknown as Array<Plugin> }), {
+      hooks: new Hookable<KubbHooks>(),
+    }).safeBuild()
+
+    expect(files.find(({ path }) => path === '/gen/requests/addPet.ts')?.imports).toMatchObject([
+      { name: ['AddPetResponse'], path: '/gen/types/addPet.ts', root: '/gen/requests/addPet.ts', isTypeOnly: true },
+    ])
+    const notFound = diagnostics.filter((diagnostic) => 'code' in diagnostic && diagnostic.code === Diagnostics.code.symbolNotFound)
+    expect(notFound).toEqual([
+      expect.objectContaining({
+        severity: 'error',
+        plugin: 'plugin-requests',
+        message: '/gen/requests/addPet.ts imports "AddPetError" from plugin-types, but plugin-types did not emit it.',
+      }),
+    ])
+  })
+
   test('stops mid-build when its signal aborts during parsing', async () => {
     const controller = new AbortController()
     let releaseParse: (() => void) | undefined

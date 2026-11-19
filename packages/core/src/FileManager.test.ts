@@ -408,6 +408,20 @@ describe('FileManager#dispatch', () => {
     expect(file.sources[0]?.pointer).toBeUndefined()
   })
 
+  it('links each source without a plugin to the plugin whose generator returned it', () => {
+    const fileManager = new FileManager()
+    const file = ast.factory.createFile({
+      baseName: 'pet.ts',
+      path: '/out/pet.ts',
+      sources: [ast.factory.createSource({ name: 'Pet', nodes: [] }), ast.factory.createSource({ name: 'PetStatus', plugin: 'plugin-enum', nodes: [] })],
+    })
+
+    fileManager.dispatch({ result: [file], plugin: 'plugin-ts' })
+
+    expect(fileManager.files[0]?.sources.map((source) => source.plugin)).toStrictEqual(['plugin-ts', 'plugin-enum'])
+    expect(file.sources[0]?.plugin).toBeUndefined()
+  })
+
   it('routes element results through the renderer, upserting its files', async () => {
     const fileManager = new FileManager()
     const renderer = {

@@ -126,7 +126,8 @@ An import at the top of the enclosing `File`.
 | Prop | Type | Description |
 | --- | --- | --- |
 | `name` | `string \| Array<string \| { propertyName: string; name?: string }>` | A string for a default or namespace import, or an array of named imports |
-| `path` | `string` | The module to import from |
+| `path` | `string` | The module to import from. Leave it out when you set `plugin`, which wins when both are set |
+| `plugin?` | `string` | Imports the named imports in `name` from the file where this plugin emitted them |
 | `root?` | `string \| null` | The file path the import is relative to |
 | `isTypeOnly?` | `boolean \| null` | Emits `import type` |
 | `isNameSpace?` | `boolean \| null` | Emits `import * as name` |
@@ -137,7 +138,12 @@ An import at the top of the enclosing `File`.
 
 <File.Import name="z" path="zod" isNameSpace />
 // import * as z from 'zod'
+
+<File.Import name={['Pet']} plugin="plugin-ts" isTypeOnly />
+// import type { Pet } from '../types/Pet'
 ```
+
+With `plugin`, Kubb fills in the path after every generator has run. It looks for a `File.Source` with that `name` and `isExportable` that the plugin emitted, so the target can be generated after the importing file. Your plugin does not need the other plugin's `output` or `group`. Only sources a plugin emits through a generator, `addFile`, `upsertFile`, or `injectFile` count. When the plugin emitted the name in no file, the build reports [`KUBB_SYMBOL_NOT_FOUND`](/docs/5.x/reference/diagnostics#kubb-symbol-not-found). When it emitted it in several, it reports [`KUBB_SYMBOL_AMBIGUOUS`](/docs/5.x/reference/diagnostics#kubb-symbol-ambiguous).
 
 #### `File.Export` {#file-export}
 

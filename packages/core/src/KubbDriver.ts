@@ -9,11 +9,12 @@ import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
 import { Resolver } from './Resolver.ts'
-import { FileManager } from './FileManager.ts'
+import { FileManager, withOrigin } from './FileManager.ts'
 import type { MemoKey, MemoValue } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import type { SharedSchemas } from './detectSharedSchemas.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
+import { resolveSymbols } from './resolveSymbols.ts'
 
 import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
@@ -332,7 +333,7 @@ export class KubbDriver {
           plugin.options = normalizePluginOptions({ ...plugin.options, ...opts }, plugin.name)
         },
         injectFile: (userFileNode) => {
-          this.fileManager.add(ast.factory.createFile(userFileNode))
+          this.fileManager.add(...withOrigin([ast.factory.createFile(userFileNode)], { plugin: plugin.name }))
         },
         requirePlugin: ((name: string) => this.requirePlugin(name, { requiredBy: plugin.name })) as KubbPluginSetupContext['requirePlugin'],
         memo: this.memo.bind(this),
@@ -431,6 +432,7 @@ export class KubbDriver {
 
           // Run every node through each plugin's macros and generators.
           diagnostics.push(...(await this.#runGenerators(generatorPlugins)))
+          this.#resolveSymbols()
           this.#inlineFiles(parsersMap)
 
           await hooks.callHook('kubb:plugins:end', this.#withFiles({ config }))
@@ -438,6 +440,7 @@ export class KubbDriver {
           // Write every generated file once, after post-processing (barrel etc.) has had its
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
+          this.#resolveSymbols()
           for (const cleanPath of this.options.cleanPaths ?? []) await config.storage.empty(cleanPath)
 
           await fileManager.write(fileManager.files, {
@@ -462,6 +465,34 @@ export class KubbDriver {
         }
       },
     )
+  }
+
+  /**
+   * Gives every import that names a `plugin` the path of the file where that plugin emitted the name. Runs before
+   * inlining, so an import of an exportable inline definition is then inlined like any other, and again before the
+   * write for files added in `kubb:plugins:end`.
+   */
+  #resolveSymbols(): void {
+    const { files, problems } = resolveSymbols(this.fileManager.files)
+    this.fileManager.add(...files)
+
+    // One diagnostic per code and importing plugin: `Diagnostics.dedupe` keeps one per code and plugin when there is no location.
+    const groups = Map.groupBy(problems, ({ kind, importer }) => `${kind}\u0000${importer ?? ''}`)
+    for (const group of groups.values()) {
+      const { kind, importer } = group[0]!
+      Diagnostics.report({
+        code: kind === 'notFound' ? Diagnostics.code.symbolNotFound : Diagnostics.code.symbolAmbiguous,
+        severity: 'error',
+        message: group
+          .map(({ file, plugin, name, paths }) =>
+            kind === 'notFound'
+              ? `${file} imports "${name}" from ${plugin}, but ${plugin} did not emit it.`
+              : `${file} imports "${name}" from ${plugin}, which emitted it in ${paths.length} files: ${paths.join(', ')}.`,
+          )
+          .join('\n'),
+        ...(importer ? { plugin: importer } : {}),
+      })
+    }
   }
 
   /**
@@ -705,7 +736,11 @@ export class KubbDriver {
       try {
         const ctx = { ...state.generatorContext, options: state.plugin.options }
         for (const generator of state.operationsGenerators) {
-          await this.fileManager.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
+          await this.fileManager.dispatch({
+            result: await generator.operations!(state.pluginOperations, ctx),
+            renderer: generator.renderer,
+            plugin: state.plugin.name,
+          })
         }
         await this.hooks.callHook('kubb:generate:operations', state.pluginOperations, ctx)
       } catch (caughtError) {
@@ -740,7 +775,7 @@ export class KubbDriver {
     for (const generator of generators) {
       const matches = generator.match ? await generator.match(node, ctx) : true
       if (!matches) continue
-      await this.fileManager.dispatch({ result: await generate(generator), renderer: generator.renderer, pointer: node.pointer })
+      await this.fileManager.dispatch({ result: await generate(generator), renderer: generator.renderer, pointer: node.pointer, plugin: ctx.plugin.name })
     }
   }
 
@@ -801,10 +836,10 @@ export class KubbDriver {
       memo: driver.memo.bind(driver),
       driver,
       addFile: async (...files: Array<FileNode>) => {
-        driver.fileManager.add(...files)
+        driver.fileManager.add(...withOrigin(files, { plugin: plugin.name }))
       },
       upsertFile: async (...files: Array<FileNode>) => {
-        driver.fileManager.upsert(...files)
+        driver.fileManager.upsert(...withOrigin(files, { plugin: plugin.name }))
       },
       get meta(): InputMeta {
         return driver.inputNode?.meta ?? {}

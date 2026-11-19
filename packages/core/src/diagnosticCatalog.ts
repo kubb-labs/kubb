@@ -217,6 +217,20 @@ export const diagnosticCatalog = {
     cause: 'A file imports a name from a file whose sources are all inline, and that name could not be inlined.',
     fix: 'Give every name the file imports an inline definition, register a parser with inline support for its extension, or stop marking the source as inline.',
   },
+  symbolNotFound: {
+    code: 'KUBB_SYMBOL_NOT_FOUND',
+    title: 'Symbol not found',
+    cause:
+      'A file imports a name from a plugin (`File.Import` with `plugin`), but that plugin did not emit the name in any file. Often the plugin excludes the schema or operation that declares it.',
+    fix: 'Make the two plugins generate the same schemas and operations: align their `include`, `exclude`, and `override` options. Otherwise import the name from the plugin that emits it.',
+  },
+  symbolAmbiguous: {
+    code: 'KUBB_SYMBOL_AMBIGUOUS',
+    title: 'Ambiguous symbol',
+    cause:
+      'A file imports a name from a plugin (`File.Import` with `plugin`), and that plugin emitted the name in more than one file, so Kubb cannot tell which one to import.',
+    fix: "Rename one of the declarations through the plugin's resolver, or emit the type and the value with that name in the same file.",
+  },
   internalError: {
     code: 'KUBB_INTERNAL_ERROR',
     title: 'Internal error',

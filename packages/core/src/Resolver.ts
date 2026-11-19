@@ -95,14 +95,21 @@ export type ResolveFileOptions = ResolverFileParams & {
 }
 
 /**
- * Options for `resolver.imports`: the schema tree to scan (`node`) and where the generated
- * files live (`root`, `output`, `group`). Pass `name` to override how a referenced schema
- * name becomes the imported identifier; it defaults to the resolver's top-level `name`.
+ * Options for `resolver.imports`: the schema tree to scan (`node`) and, optionally, where the generated files live
+ * (`root`, `output`, `group`). Without `root` and `output`, each import names the resolver's plugin instead of a path,
+ * and core fills in the path from the file the plugin emitted the name in. Pass `name` to override how a referenced
+ * schema name becomes the imported identifier; it defaults to the resolver's top-level `name`.
  *
- * @example
+ * @example Paths computed from the output options
  * ```ts
  * resolver.imports({ node, root, output, group })
  * // → [{ kind: 'Import', name: ['pet'], path: '/src/types/pet.ts' }]
+ * ```
+ *
+ * @example Paths filled in by core
+ * ```ts
+ * resolver.imports({ node })
+ * // → [{ kind: 'Import', name: ['pet'], plugin: 'plugin-ts', … }]
  * ```
  */
 export type ResolveImportsOptions = {
@@ -110,11 +117,8 @@ export type ResolveImportsOptions = {
    * Schema tree scanned for `$ref` occurrences. Each ref contributes one import entry.
    */
   node: SchemaNode
-  root: string
-  output: Output
-  group?: Group
   /**
-   * Extension of the generated files the imports point at.
+   * Extension of the generated files the imports point at. Ignored without `root` and `output`.
    *
    * @default '.ts'
    */
@@ -130,7 +134,7 @@ export type ResolveImportsOptions = {
    * @default false
    */
   checks?: boolean
-}
+} & ({ root: string; output: Output; group?: Group } | { root?: never; output?: never; group?: never })
 
 /**
  * The `file` field of a resolver: decides what a generated file is called and, optionally, where
@@ -485,10 +489,18 @@ export class Resolver {
    * The subtree scan runs through `ast.graph.getImportedNames`, which memoizes by node identity, so a
    * schema shared across the ts, zod, and faker plugins is walked once and every plugin's resolver
    * reads the same ref set instead of re-scanning it per plugin.
+   *
+   * Without `root` and `output`, each entry names this resolver's plugin instead of a path, and core
+   * fills in the path from the file the plugin emitted the name in.
    */
   imports(options: ResolveImportsOptions): Array<ImportNode> {
     const { node, root, output, extname = '.ts', name, checks } = options
     const resolveName = name ?? ((schemaName: string) => this.name(schemaName))
+    if (!root || !output) {
+      return ast.graph
+        .getImportedNames(node, { checks })
+        .map((schemaName) => ast.factory.createImport({ name: [resolveName(schemaName)], plugin: this.pluginName }))
+    }
     // A schema import has no `tag` or `path`, so `group` never moves it and stays out of the key.
     const byRoot = memo(this.#importPaths, output, () => new Map<string, Map<string, Map<string, string>>>())
     const byExtname = memo(byRoot, root, () => new Map<string, Map<string, string>>())

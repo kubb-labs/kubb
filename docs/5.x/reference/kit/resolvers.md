@@ -76,6 +76,13 @@ const imports = resolver.imports({ node, root, output })
 | `name`   | Turns a referenced schema name into the imported identifier, for example `(schemaName) => \`${resolver.name(schemaName)}Type\``.                             |
 | `checks` | `true` also imports refs inside `conditionals`, `contains`, and a string's `content`. See [Ref imports in checks](#ref-imports-in-checks). |
 
+Leave out `root` and `output` to let Kubb fill in the paths. Each import then names the resolver's plugin instead of a path, like [`File.Import` with `plugin`](/docs/5.x/reference/jsx#file-import), and Kubb points it at the file where the plugin emitted the name. The target may be generated after the importing file.
+
+```typescript [imports.ts]
+const imports = resolver.imports({ node })
+// → [{ kind: 'Import', name: ['pet'], plugin: 'plugin-example', … }]
+```
+
 ### Name reservations {#name-reservations}
 
 `resolver.resolveName({ key, name })` keeps the preferred name when it is free and adds `2`, `3`, and so on when it is taken. Use the same key for a declaration and its references.

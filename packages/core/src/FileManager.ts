@@ -151,10 +151,19 @@ function createProgress(files: Array<FileNode>, config: Config, hooks: Hookable<
   }
 }
 
-/** Links each source without a pointer to the node its file was generated from. */
-function withPointer(files: ReadonlyArray<FileNode>, pointer: string | undefined): ReadonlyArray<FileNode> {
-  if (!pointer) return files
-  return files.map((file) => ({ ...file, sources: file.sources.map((source) => (source.pointer ? source : { ...source, pointer })) }))
+/**
+ * Links each source without a pointer to the node its file was generated from, and each source without a plugin to the
+ * plugin that emitted it.
+ */
+export function withOrigin(files: ReadonlyArray<FileNode>, { pointer, plugin }: { pointer?: string; plugin?: string }): ReadonlyArray<FileNode> {
+  if (!pointer && !plugin) return files
+  return files.map((file) => ({
+    ...file,
+    // Keeps the source object when it already has what would be filled in.
+    sources: file.sources.map((source) =>
+      (source.pointer || !pointer) && (source.plugin || !plugin) ? source : { ...source, pointer: source.pointer ?? pointer, plugin: source.plugin ?? plugin },
+    ),
+  }))
 }
 
 /**
@@ -196,6 +205,7 @@ export class FileManager {
     result,
     renderer,
     pointer,
+    plugin,
   }: {
     result: TElement | Array<FileNode> | undefined | null
     renderer?: RendererFactory<TElement> | null
@@ -203,11 +213,15 @@ export class FileManager {
      * Pointer of the node the result was generated from, set on each source that carries none.
      */
     pointer?: string
+    /**
+     * Name of the plugin whose generator returned the result, set on each source that carries none.
+     */
+    plugin?: string
   }): Promise<void> {
     if (!result) return
 
     if (Array.isArray(result)) {
-      this.#defer(withPointer(result as Array<FileNode>, pointer))
+      this.#defer(withOrigin(result as Array<FileNode>, { pointer, plugin }))
       return
     }
 
@@ -216,7 +230,7 @@ export class FileManager {
     using instance = renderer()
     await instance.render(result)
 
-    this.#defer(withPointer(instance.files, pointer))
+    this.#defer(withOrigin(instance.files, { pointer, plugin }))
   }
 
   /** Upserts without normalizing: the raw merge waits in `#pending` until the file is read. */

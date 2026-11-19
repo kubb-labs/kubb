@@ -220,6 +220,18 @@ A `$ref` points at a missing definition, or a file or URL Kubb cannot read.
 
 **Fix:** Add the definition or file, or fix the `$ref`, then run [`kubb validate`](/docs/5.x/reference/commands/validate).
 
+### KUBB_SYMBOL_AMBIGUOUS {#kubb-symbol-ambiguous}
+
+A file imports a name from a plugin with [`File.Import`'s `plugin` prop](/docs/5.x/reference/jsx#file-import), and that plugin emitted the name in more than one file.
+
+**Fix:** Rename one of the declarations through the plugin's resolver, or emit the type and the value with that name in the same file.
+
+### KUBB_SYMBOL_NOT_FOUND {#kubb-symbol-not-found}
+
+A file imports a name from a plugin with [`File.Import`'s `plugin` prop](/docs/5.x/reference/jsx#file-import), and that plugin did not emit the name in any file.
+
+**Fix:** Align the two plugins' `include`, `exclude`, and `override` options, so both generate the schema or operation that declares the name.
+
 ### KUBB_UNKNOWN {#kubb-unknown}
 
 An error without a Kubb code, such as a missing or failing config file.
@@ -369,6 +381,7 @@ Each row adds what a code's entry leaves out.
 | [`KUBB_PLUGIN_NOT_FOUND`](#kubb-plugin-not-found) | `kubb init --plugins` also reports it for an id the registry does not list. |
 | [`KUBB_PLUGIN_WARNING`](#kubb-plugin-warning), [`KUBB_PLUGIN_INFO`](#kubb-plugin-info) | Plugin authors can add a stable code and a location with `Diagnostics.report`. |
 | [`KUBB_REF_NOT_FOUND`](#kubb-ref-not-found) | Inside an `x-` vendor extension it is only a warning. Kubb refuses some local `$ref` files, such as any from a URL input. See [External `$ref` files](/docs/5.x/reference/configuration#external-refs) for the rules on Kubb Studio agents. |
+| [`KUBB_SYMBOL_AMBIGUOUS`](#kubb-symbol-ambiguous), [`KUBB_SYMBOL_NOT_FOUND`](#kubb-symbol-not-found) | One diagnostic per code lists every import it affects, attributed to the importing plugin. Kubb drops those imports and still writes the files. |
 | [`KUBB_UNKNOWN`](#kubb-unknown) | The terminal shows no docs link for it. `--reporter file` writes a log with the stack in `.kubb/`. |
 | [`KUBB_UNSUPPORTED_FORMAT`](#kubb-unsupported-format) | Kubb reports each format once, with a count, at the first schema that uses it. |
 

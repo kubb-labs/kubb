@@ -368,6 +368,15 @@ describe('resolver.imports', () => {
     ])
   })
 
+  it('names the plugin instead of a path when root and output are left out', () => {
+    const imports = baseResolver.imports({ node: refNode })
+
+    expect(imports).toMatchObject([
+      { kind: 'Import', name: ['pet'], plugin: baseResolver.pluginName },
+      { kind: 'Import', name: ['order'], plugin: baseResolver.pluginName },
+    ])
+  })
+
   it('resolves a collision-renamed ref through targetName', () => {
     const node = ast.factory.createSchema({
       type: 'object',
