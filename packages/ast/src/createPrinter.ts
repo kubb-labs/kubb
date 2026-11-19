@@ -19,21 +19,24 @@ type PrinterHandlerContext<TOutput, TOptions extends object> = {
   /**
    * Recursively transform a nested `SchemaNode` to `TOutput` using the node-level handlers.
    * Use `this.transform` inside `nodes` handlers and inside the `print` override.
+   * The optional `options` are merged over `this.options` for that child call only.
    */
-  transform: (node: SchemaNode) => TOutput | null
+  transform: (node: SchemaNode, options?: Partial<TOptions>) => TOutput | null
   /**
    * Run the printer's built-in handler for the node, ignoring any override for its type.
    * Inside an override, `this.base(node)` returns what the printer would have emitted,
    * so the override can wrap it instead of re-implementing the handler. Nested nodes
-   * still dispatch through the overrides.
+   * still dispatch through the overrides. The optional `options` merge like `this.transform`.
    */
-  base: (node: SchemaNode) => TOutput | null
+  base: (node: SchemaNode, options?: Partial<TOptions>) => TOutput | null
   /** Declares an import the printed code needs. The generator reads it back with `printer.drainImports()`. */
   import: (node: ImportNode) => void
   /**
    * Options for this printer instance.
    */
   options: TOptions
+  /** The schema node whose handler called `this.transform`, `undefined` at the root. */
+  parent?: SchemaNode
 }
 
 /**
@@ -119,13 +122,13 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
    * Always dispatches through the `nodes` map. Never calls the `print` override.
    * Reach for it when you need the raw output (e.g. `ts.TypeNode`) without declaration wrapping.
    */
-  transform: (node: SchemaNode) => T['output'] | null
+  transform: (node: SchemaNode, options?: Partial<T['options']>) => T['output'] | null
   /**
    * Public printer. If the builder provides a root-level `print`, this calls that
    * higher-level function (which may produce full declarations).
    * Otherwise, falls back to the node-level dispatcher.
    */
-  print: (node: SchemaNode) => T['printOutput'] | null
+  print: (node: SchemaNode, options?: Partial<T['options']>) => T['printOutput'] | null
   /** Returns the imports declared with `this.import(...)` since the last call, then clears them. */
   drainImports: () => Array<ImportNode>
 }
@@ -211,30 +214,40 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
     const merged = overrides ? { ...nodes, ...overrides } : nodes
 
     const collectedImports: Array<ImportNode> = []
-
-    const dispatch =
-      (table: PrinterPartial<T['output'], T['options']>) =>
-      (node: SchemaNode): T['output'] | null => {
-        const handler = table[node.type]
-        if (!handler) return null
-
-        return (handler as (this: PrinterHandlerContext<T['output'], T['options']>, node: SchemaNode) => T['output'] | null).call(context, node)
-      }
-
-    const context: PrinterHandlerContext<T['output'], T['options']> = {
-      options: resolvedOptions,
-      import: (node: ImportNode): void => {
-        collectedImports.push(node)
-      },
-      transform: dispatch(merged),
-      base: dispatch(nodes),
+    const importNode = (node: ImportNode): void => {
+      collectedImports.push(node)
     }
+    type Context = PrinterHandlerContext<T['output'], T['options']>
+    const withOptions = (current: T['options'], extra?: Partial<T['options']>): T['options'] => (extra ? { ...current, ...extra } : current)
+
+    const dispatch = (table: PrinterPartial<T['output'], T['options']>, node: SchemaNode, options: T['options'], parent?: SchemaNode): T['output'] | null => {
+      const handler = table[node.type]
+      if (!handler) return null
+
+      return (handler as (this: Context, node: SchemaNode) => T['output'] | null).call(createContext(options, node, parent), node)
+    }
+
+    // `current` is the node whose handler gets this context, so it becomes the parent of what that handler transforms.
+    function createContext(options: T['options'], current?: SchemaNode, parent?: SchemaNode): Context {
+      const context: Context = {
+        options,
+        parent,
+        import: importNode,
+        transform: (node, extra) => dispatch(merged, node, withOptions(context.options, extra), current),
+        base: (node, extra) => dispatch(nodes, node, withOptions(context.options, extra), parent),
+      }
+      return context
+    }
+
+    const root = createContext(resolvedOptions)
 
     return {
       name,
       options: resolvedOptions,
-      transform: context.transform,
-      print: (printOverride ? printOverride.bind(context) : context.transform) as (node: SchemaNode) => T['printOutput'] | null,
+      transform: root.transform,
+      print: (printOverride
+        ? (node: SchemaNode, extra?: Partial<T['options']>) => printOverride.call(extra ? createContext(withOptions(resolvedOptions, extra)) : root, node)
+        : root.transform) as Printer<T>['print'],
       drainImports: () => collectedImports.splice(0),
     }
   }

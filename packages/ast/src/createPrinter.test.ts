@@ -131,4 +131,145 @@ describe('createPrinter', () => {
       expect(b.drainImports()).toStrictEqual([])
     })
   })
+  describe('options passed to this.transform', () => {
+    type P = PrinterFactoryOptions<'zod', { depth: number; label?: string }, string>
+
+    const node = createSchema({
+      type: 'object',
+      properties: [
+        createProperty({ name: 'a', schema: createSchema({ type: 'string' }) }),
+        createProperty({ name: 'b', schema: createSchema({ type: 'string' }) }),
+      ],
+    })
+
+    it('reach the child without leaking to siblings or the parent', () => {
+      const printer = createPrinter<P>(() => ({
+        name: 'zod',
+        options: { depth: 0 },
+        nodes: {
+          string() {
+            return `${this.options.label ?? '-'}@${this.options.depth}`
+          },
+          object(n) {
+            const [a, b] = n.properties.map((p) => p.schema)
+            return `${this.transform(a!, { depth: this.options.depth + 1, label: 'a' })} ${this.transform(b!)} ${this.options.label ?? '-'}@${this.options.depth}`
+          },
+        },
+      }))()
+
+      expect(printer.print(node)).toBe('a@1 -@0 -@0')
+      expect(printer.options).toStrictEqual({ depth: 0 })
+    })
+
+    it('are honored by this.base and seen by an override reading this.options', () => {
+      const printer = createPrinter<P>(() => ({
+        name: 'zod',
+        options: { depth: 0 },
+        nodes: {
+          string() {
+            return `base:${this.options.label}`
+          },
+          object(n) {
+            return n.properties.map((p) => this.transform(p.schema, { label: p.name })).join(' ')
+          },
+        },
+        overrides: {
+          string(n) {
+            return `${this.options.label}|${this.base(n, { label: 'x' })}`
+          },
+        },
+      }))()
+
+      expect(printer.print(node)).toBe('a|base:x b|base:x')
+    })
+
+    it('merge over this.options as the handler last set it', () => {
+      const printer = createPrinter<P>(() => ({
+        name: 'zod',
+        options: { depth: 0 },
+        nodes: {
+          string() {
+            return `${this.options.label}@${this.options.depth}`
+          },
+          object(n) {
+            this.options = { ...this.options, depth: 5 }
+            return this.transform(n.properties[0]!.schema, { label: 'a' })
+          },
+        },
+      }))()
+
+      expect(printer.print(node)).toBe('a@5')
+    })
+
+    it('are accepted by the public transform and print', () => {
+      const printer = createPrinter<P>(() => ({
+        name: 'zod',
+        options: { depth: 0 },
+        nodes: {
+          string() {
+            return `${this.options.depth}`
+          },
+        },
+        print(n) {
+          return `print:${this.transform(n)}`
+        },
+      }))()
+
+      expect(printer.transform(createSchema({ type: 'string' }), { depth: 2 })).toBe('2')
+      expect(printer.print(createSchema({ type: 'string' }), { depth: 3 })).toBe('print:3')
+      expect(printer.print(createSchema({ type: 'string' }))).toBe('print:0')
+    })
+  })
+
+  it('sets this.parent to the calling node and leaves it undefined at the root', () => {
+    type P = PrinterFactoryOptions<'zod', object, string>
+    const parents: Array<string | undefined> = []
+
+    const printer = createPrinter<P>(() => ({
+      name: 'zod',
+      options: {},
+      nodes: {
+        string() {
+          parents.push(this.parent?.type)
+          return 'z.string()'
+        },
+        array(n) {
+          parents.push(this.parent?.type)
+          return `z.array(${this.transform(n.items![0]!)})`
+        },
+      },
+      overrides: {
+        array(n) {
+          return this.base(n)
+        },
+      },
+    }))()
+
+    printer.print(createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }))
+
+    expect(parents).toStrictEqual([undefined, 'array'])
+  })
+
+  it('drains imports declared by nested handlers', () => {
+    type P = PrinterFactoryOptions<'zod', object, string>
+    const codec = createImport({ name: ['myCodec'], path: 'my-codec/zod' })
+
+    const printer = createPrinter<P>(() => ({
+      name: 'zod',
+      options: {},
+      nodes: {
+        string() {
+          this.import(codec)
+          return 'myCodec.string()'
+        },
+        array(n) {
+          return `z.array(${this.transform(n.items![0]!, {})})`
+        },
+      },
+    }))()
+
+    printer.print(createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }))
+
+    expect(printer.drainImports()).toStrictEqual([codec])
+  })
 })
