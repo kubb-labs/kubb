@@ -112,9 +112,11 @@ const patched = Resolver.merge(resolver, {
 
 ```typescript [compose.ts]
 import { casing, Resolver } from 'kubb/kit'
+import type { ResolverPatch } from 'kubb/kit'
 
-const camelSchema = {
-  name(name: string) {
+// A preset shared by several plugins types against the base `Resolver`.
+const camelSchema: ResolverPatch = {
+  name(name) {
     return casing.camel(name, { suffix: 'schema' })
   },
 }
@@ -127,6 +129,8 @@ export const resolver = Resolver.compose<MyResolver>('plugin-example', camelSche
   },
 })
 ```
+
+Type a shared preset as `ResolverPatch` to check `this` and its parameters. A preset for one plugin can use `ResolverPatch<MyResolver>` to reach that plugin's namespaces through `this`.
 
 > [!WARNING]
 > TypeScript does not check that the presets fill every namespace the plugin's resolver type declares. A test that calls each namespace catches a missing one.
