@@ -1,34 +1,12 @@
 import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingPatternNode, TypeExpression } from '../nodes/params.ts'
 import { isIndexedAccessType, isTypeLiteral } from '../nodes/params.ts'
 
-/**
- * Ordering priority for function parameters: lower = sorted earlier.
- */
 const PARAM_RANK = { required: 0, optional: 1, withDefault: 2, rest: 3 } as const
 
-/**
- * Rendering mode for {@link print}.
- *
- * | Mode          | Output example                    | Use case                       |
- * |---------------|-----------------------------------|--------------------------------|
- * | `declaration` | `id: string, config: Config = {}` | Function parameter declaration |
- * | `call`        | `id, { method, url }`             | Function call arguments        |
- */
+/** `declaration` prints `id: string, config: Config = {}`, `call` prints `id, config`. */
 export type PrintMode = 'declaration' | 'call'
 
-/**
- * Renders a {@link TypeExpression} to its TypeScript source.
- *
- * - a `string` is a type reference, returned as-is
- * - an `IndexedAccessType` becomes `objectType['indexType']`
- * - a `TypeLiteral` becomes `{ key: Type; key?: Type }`
- *
- * @example
- * ```ts
- * ast.params.renderType(ast.factory.createIndexedAccessType({ target: 'GetPetPathParams', key: 'petId' }))
- * // "GetPetPathParams['petId']"
- * ```
- */
+/** Prints a {@link TypeExpression} as TypeScript, such as `GetPetPathParams['petId']` or `{ id: string }`. */
 export function renderType(type: TypeExpression): string {
   if (typeof type === 'string') return type
   if (isIndexedAccessType(type)) return `${type.target}['${type.key}']`
@@ -36,10 +14,7 @@ export function renderType(type: TypeExpression): string {
   return renderMembers(type.members.map((member) => ({ key: member.name, type: renderType(member.type), optional: member.optional })))
 }
 
-/**
- * Renders an object-type key, quoting it as a string literal when it is not a valid
- * identifier so `{ 'content-type': string }` stays valid TypeScript.
- */
+// Quotes a key that is not an identifier, so `{ "content-type": string }` stays valid.
 function renderKey(name: string): string {
   return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name) ? name : JSON.stringify(name)
 }
@@ -61,12 +36,9 @@ function rank(param: FunctionParameterNode): number {
   return param.optional ? PARAM_RANK.optional : PARAM_RANK.required
 }
 
-/**
- * Orders a destructured group's binding elements and type members together,
- * required fields first.
- */
 type GroupMember = { name: string; propertyName?: string; type?: TypeExpression; optional?: boolean }
 
+// Sorts a group's bindings and type members together, required first.
 function sortedGroupMembers(name: ObjectBindingPatternNode, type: TypeExpression | undefined): Array<GroupMember> {
   const members = type && isTypeLiteral(type) ? type.members : []
   const memberRank = (optional?: boolean) => (optional ? PARAM_RANK.optional : PARAM_RANK.required)
@@ -80,19 +52,11 @@ function sortedGroupMembers(name: ObjectBindingPatternNode, type: TypeExpression
     .toSorted((a, b) => memberRank(a.optional) - memberRank(b.optional))
 }
 
-/**
- * Renders one binding element: the local name, prefixed with its source key when the
- * binding renames the property, as in `{ petId: id }`.
- */
 function renderBindingMember(member: GroupMember): string {
   return member.propertyName ? `${member.propertyName}: ${member.name}` : member.name
 }
 
-/**
- * Renders the type annotation of a destructured group. An inline object type is
- * rendered from the already-sorted members so its key order matches the binding;
- * a reference type is rendered as-is.
- */
+// An inline type is printed from the sorted members, so its keys match the binding order.
 function renderGroupType(type: TypeExpression | undefined, sorted: Array<GroupMember>): string | undefined {
   if (!type) return undefined
   if (!isTypeLiteral(type)) return renderType(type)
@@ -138,18 +102,10 @@ function printParameter(node: FunctionParameterNode, mode: PrintMode): string {
 }
 
 /**
- * Prints a parameter list: `declaration` for a function signature, `call` for the call arguments.
- * Parameters are sorted required, optional, defaulted, then rest; equal ranks keep their order.
+ * Prints a parameter list, sorted required, optional, defaulted, then rest.
  *
  * @example
  * ```ts
- * const params = ast.factory.createFunctionParameters({
- *   params: [
- *     ast.factory.createFunctionParameter({ name: 'config', type: 'Config', default: '{}' }),
- *     ast.factory.createFunctionParameter({ name: 'petId', type: 'string' }),
- *   ],
- * })
- *
  * ast.params.print(params, 'declaration') // "petId: string, config: Config = {}"
  * ast.params.print(params, 'call') // "petId, config"
  * ```
