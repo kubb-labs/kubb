@@ -17,10 +17,7 @@ export {
   resolveSchemaProperties as findProperties,
 } from '../utils/schemaProperties.ts'
 
-/**
- * Whether a schema prints as a plain `string`: string-like types, and `date` or `time` with a `'string'` representation.
- * @deprecated Use `ast.schema.is(node, 'string')`. Removed in Kubb v6.
- */
+/** @deprecated Use `ast.schema.is(node, 'string')`. Removed in Kubb v6. */
 export function isString(node: SchemaNode): boolean {
   return is(node, 'string')
 }
@@ -38,16 +35,7 @@ const integerFormatRanges: Record<string, [min: number, max: number]> = {
 /**
  * The tightest inclusive bounds of a number schema. An exclusive bound moves to the next point of `step` (`1` for an
  * integer), an integer bound rounds inward, and an integer bound past `Number.MAX_SAFE_INTEGER` is left out, since it
- * prints as a rounded or invalid literal.
- *
- * Pass the number node itself to apply its type and format as well: an `integer` or `bigint` node rounds as an integer,
- * an integer `format` from `int8` to `uint32` adds its range, and `multipleOf` is kept, for an integer only when it is
- * a safe integer.
- *
- * @example
- * ```ts
- * ast.schema.getNumberBounds({ type: 'integer', format: 'int32', min: 0 }) // { min: 0, max: 2147483647 }
- * ```
+ * prints as a rounded or invalid literal. A number node also applies its `int8` to `uint32` format range and `multipleOf`.
  */
 export function getNumberBounds({
   min,
@@ -90,20 +78,7 @@ export function getNumberBounds({
   }
 }
 
-/**
- * How a property may be left out or set to `null`, as one answer:
- * - `'optional'` the key may be missing
- * - `'nullable'` the key is present and the value may be `null`
- * - `'nullish'` both
- * - `'required'` neither
- *
- * A property that is not `required`, or whose schema is `optional` or `nullish`, may be missing.
- *
- * @example
- * ```ts
- * ast.schema.getOptionality(property) // 'nullish' for a non-required nullable property
- * ```
- */
+/** Whether a property may be missing (`optional`), `null` (`nullable`), both (`nullish`), or neither (`required`). */
 export function getOptionality({ required, schema }: Pick<PropertyNode, 'required' | 'schema'>): 'required' | 'optional' | 'nullable' | 'nullish' {
   const optional = !required || Boolean(schema.optional || schema.nullish)
   const nullable = Boolean(schema.nullable || schema.nullish)

@@ -35,21 +35,7 @@ export function getStreamFraming(entry: Pick<ContentEntry, 'contentType' | 'stre
 
 const formKinds: Record<string, 'form' | 'urlencoded'> = { 'multipart/form-data': 'form', 'application/x-www-form-urlencoded': 'urlencoded' }
 
-/**
- * How a client reads or sends a content entry:
- * - `'eventStream'` and `'lineStream'` for Server-Sent Events and JSON Lines
- * - `'json'` for JSON media types
- * - `'form'` and `'urlencoded'` for `multipart/form-data` and `application/x-www-form-urlencoded`
- * - `'binary'` for a `blob` schema, and for `application/octet-stream`, `application/pdf`, `image/*`, `audio/*`, `video/*`
- * - `'text'` for other `text/*`
- *
- * Gives `null` for any other media type, and for an entry without one.
- *
- * @example
- * ```ts
- * ast.mediaType.getKind({ contentType: 'image/png' }) // 'binary'
- * ```
- */
+/** How a client reads or sends a content entry, or `null` for another media type. A `blob` schema is `binary`. */
 export function getKind(entry: string | ContentEntry): 'json' | 'form' | 'urlencoded' | 'text' | 'binary' | 'eventStream' | 'lineStream' | null {
   const content = typeof entry === 'string' ? { contentType: entry } : entry
   const baseType = getBase(content)

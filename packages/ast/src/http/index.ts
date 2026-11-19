@@ -43,35 +43,18 @@ export type RequestGroups = {
   body: boolean
   headers: boolean
   cookies: boolean
-  /**
-   * Which groups hold a required member. `cookies` is never required: a browser sends its cookies itself.
-   */
+  /** `cookies` is never required: a browser sends its cookies itself. */
   required: { path: boolean; query: boolean; headers: boolean; body: boolean }
-  /**
-   * Whether the grouped request parameter can be left out, because no group holds a required member.
-   */
+  /** No group holds a required member. */
   isOptional: boolean
-  /**
-   * The request body's media types, in document order.
-   */
   contentTypes: Array<string>
-  /**
-   * Whether the body offers more than one media type with a schema, so a caller must pick one.
-   */
+  /** More than one body media type has a schema, so a caller must pick one. */
   hasContentTypeChoice: boolean
 }
 
 const requestGroupsByNode = memo.create<Pick<HttpOperationNode, 'parameters' | 'requestBody'>, RequestGroups>({ weak: true })
 
-/**
- * What a request carries: which parameter groups and body are present, which hold a required member, and the body's
- * media types. Built once per operation.
- *
- * @example
- * ```ts
- * const { path, query, body, isOptional } = ast.http.getRequestGroups(node)
- * ```
- */
+/** Which request groups are present, which hold a required member, and the body's media types. Built once per operation. */
 export function getRequestGroups(node: Pick<HttpOperationNode, 'parameters' | 'requestBody'>): RequestGroups {
   return memo(requestGroupsByNode, node, () => {
     const { path, query, header, cookie } = groupParameters(node)

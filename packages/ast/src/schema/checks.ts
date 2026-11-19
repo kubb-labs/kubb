@@ -1,9 +1,7 @@
 import type { ObjectSchemaNode, SchemaNode } from '../nodes/schema.ts'
 import { getName, mergeSchema } from '../ref/index.ts'
 
-/**
- * A check that runs on the raw input of a schema, named after its JSON Schema keyword.
- */
+/** A check that runs on a schema's raw input, named after its JSON Schema keyword. */
 export type SchemaCheck =
   | { kind: 'minProperties'; value: number }
   | { kind: 'maxProperties'; value: number }
@@ -16,19 +14,8 @@ function hasTypedAdditionalProperties(node: ObjectSchemaNode): boolean {
 }
 
 /**
- * The checks a schema needs on top of its shape, in the order validators apply them:
- * - `minProperties` and `maxProperties` for an object's property count
- * - `propertyNames` when the keys need their own check: on an object with `properties`, or a record keyed by
- *   `patternProperties` alone. A plain record already checks its keys.
- * - `patternProperties` when an object with `properties` and `additionalProperties: false` also takes keys that
- *   match a pattern, so its rest schema cannot check the keys
- * - one `conditional` per `if`/`then`/`else`, `dependentRequired` or `dependentSchemas` entry
- *
- * @example
- * ```ts
- * const checks = ast.schema.getChecks(node)
- * checks.length > 0 // the node has checks
- * ```
+ * The checks a schema runs on its raw input: property counts, a `propertyNames` check where a record does not already
+ * check its keys, pattern keys of a closed object with properties, and each conditional.
  */
 export function getChecks(node: SchemaNode): Array<SchemaCheck> {
   const checks: Array<SchemaCheck> = []
@@ -46,20 +33,11 @@ export function getChecks(node: SchemaNode): Array<SchemaCheck> {
   return checks
 }
 
-/**
- * The shape an object-like schema prints as, as {@link getObjectKind} returns it:
- * - `'properties'` fixed properties, or an empty object
- * - `'record'` no properties, with keys from `additionalProperties`, `patternProperties` or `propertyNames`
- * - `'composed'` an `allOf` of an object and plain inline objects, which merges into one object
- * - `'mixed'` fixed properties plus a typed `additionalProperties` or `patternProperties`
- */
+/** `properties`, `record` (keys from a schema), `composed` (an `allOf` that merges into one object), or `mixed` (properties plus a typed rest). */
 export type ObjectKind = 'properties' | 'record' | 'composed' | 'mixed'
 
 export type ObjectKindOptions = {
-  /**
-   * Names of the schemas in a ref cycle, from `ast.graph.getCircularNames`. A ref to one of them is not an object,
-   * since it prints as a lazy reference.
-   */
+  /** From `ast.graph.getCircularNames`. A ref to one of them gives `null`. */
   circularSchemas?: ReadonlySet<string>
 }
 
@@ -78,21 +56,8 @@ function isPlainInlineObject(node: SchemaNode): boolean {
 }
 
 /**
- * The shape an object-like schema prints as, or `null` when it does not print as a plain object.
- *
- * A resolved ref gives the kind of its target, and an unresolved ref counts as `'properties'`. A single-member union
- * gives the kind of its member. A nullable or optional node, a node with input checks other than `patternProperties`,
- * and a ref into `circularSchemas` give `null`.
- *
- * @example
- * ```ts
- * switch (ast.schema.getObjectKind(node, { circularSchemas })) {
- *   case 'properties': // z.object
- *   case 'record':     // z.record
- *   case 'composed':   // one object from an allOf
- *   case 'mixed':      // z.object with a catchall
- * }
- * ```
+ * The shape an object-like schema prints as, or `null`. Refs and single-member unions give their target's kind, and an
+ * unresolved ref counts as `properties`. A nullable or optional node, or one with input checks, gives `null`.
  */
 export function getObjectKind(node: SchemaNode, { circularSchemas }: ObjectKindOptions = {}): ObjectKind | null {
   if (node.nullable || node.optional || node.nullish) return null

@@ -2,29 +2,14 @@ import { narrowSchema } from '../guards.ts'
 import type { EnumSchemaNode, SchemaNode, SchemaType } from '../nodes/schema.ts'
 import { mergeSchema } from '../ref/index.ts'
 
-/**
- * A question {@link is} answers about a schema:
- * - `'binary'` a `blob`
- * - `'string'` prints as a plain `string`: string-like types, and `date` or `time` with a `'string'` representation
- * - `'text'` a string primitive that is not a `blob`
- * - `'scalar'` a single value with no structure: string, number, boolean, temporal, `blob` or `enum` types
- * - `'const'` an enum with exactly one value
- * - `'enumLike'` an enum, or a non-empty union of enum-like members
- * - `'untyped'` `void`, `any` or `unknown`
- */
+/** `string` prints as a plain `string`, `text` is a non-blob string primitive, `const` a one-value enum, `enumLike` an enum or union of them, `untyped` is `void`, `any` or `unknown`. */
 export type SchemaKind = 'binary' | 'string' | 'text' | 'scalar' | 'const' | 'enumLike' | 'untyped'
 
-/**
- * A link {@link is} can follow on top of the node it looks at: `'ref'` jumps to a resolved ref's target,
- * merged with the fields set on the ref, and `'array'` matches when some item matches.
- */
+/** `ref` jumps to a resolved ref's target, `array` matches when some item matches. */
 export type SchemaFollow = 'ref' | 'array'
 
 export type IsOptions = {
-  /**
-   * Links to follow. Following repeats, so `['ref', 'array']` also looks through a ref to an array of refs.
-   * @default []
-   */
+  /** Links to look through. Following repeats and stops on a ref cycle. */
   follow?: ReadonlyArray<SchemaFollow>
 }
 
@@ -60,16 +45,7 @@ const kinds: Record<SchemaKind, (node: SchemaNode, test: (child: SchemaNode) => 
   untyped: (node) => untypedTypes.has(node.type),
 }
 
-/**
- * Whether a schema is of `kind`. Looks at the node itself, unless `follow` names the links to look through.
- * A ref cycle stops the walk, and the cyclic branch does not match.
- *
- * @example
- * ```ts
- * ast.schema.is(node, 'string')
- * ast.schema.is(node, 'binary', { follow: ['ref', 'array'] }) // Blob or Blob[] behind any refs
- * ```
- */
+/** Whether a schema is of `kind`, looking at the node itself unless `follow` names links to look through. */
 export function is(node: SchemaNode, kind: 'binary'): node is Extract<SchemaNode, { type: 'blob' }>
 export function is(node: SchemaNode, kind: 'const'): node is EnumSchemaNode
 export function is(node: SchemaNode, kind: SchemaKind, options?: IsOptions): boolean
