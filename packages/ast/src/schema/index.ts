@@ -6,8 +6,6 @@ export { getEmbeddedJson } from './embeddedJson.ts'
 import type { NumberSchemaNode, SchemaNode } from '../nodes/schema.ts'
 import { is } from './is.ts'
 
-export { getChecks, getObjectKind } from './checks.ts'
-export type { ObjectKind, ObjectKindOptions, SchemaCheck } from './checks.ts'
 export { is } from './is.ts'
 export type { IsOptions, SchemaFollow, SchemaKind } from './is.ts'
 export {

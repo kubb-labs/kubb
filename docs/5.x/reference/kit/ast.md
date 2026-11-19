@@ -265,8 +265,6 @@ ast.graph.containsCircular(ownerSchema, { circularSchemas: new Set(['Pet']) }) /
 | `ast.schema.inferDiscriminator` | The property each member pins to its own literal                                                                                 |
 | `ast.schema.getEmbeddedJson`    | The schema of JSON inside a string (`contentMediaType` with `contentSchema`)                                                     |
 | `ast.schema.is`                 | Whether a schema is `binary`, `string`, `text`, `scalar`, `const`, `enumLike`, or `untyped`                                      |
-| `ast.schema.getObjectKind`      | How an object-like schema prints: `properties`, `record`, `composed`, `mixed`, or `null`                                         |
-| `ast.schema.getChecks`          | The checks a schema runs on its raw input, named after JSON Schema keywords                                                      |
 | `ast.schema.getNumberBounds`    | The tightest inclusive `{ min, max }`, exclusive bounds moved by one `step`, with a node's integer format range and `multipleOf` |
 
 ```typescript twoslash [schema.ts]
@@ -291,8 +289,6 @@ ast.schema.getNumberBounds({ min: 0.5, exclusive: { max: 10 }, integer: true }) 
 ast.schema.getEmbeddedJson(jsonStringSchema)?.name // 'Pet'
 ast.schema.is(ast.factory.createSchema({ type: 'uuid' }), 'string') // true
 ast.schema.is(uploadSchema, 'binary', { follow: ['ref', 'array'] }) // true for Blob or Blob[] behind refs
-ast.schema.getObjectKind(petSchema, { circularSchemas }) // 'properties'
-ast.schema.getChecks(boundedRecord) // [{ kind: 'minProperties', value: 1 }]
 ast.schema.getNumberBounds({ type: 'integer', format: 'int32', min: 0 }) // { min: 0, max: 2147483647 }
 ```
 
@@ -471,7 +467,6 @@ Helper names are a verb plus what they return (`getName`) or a question (`isJson
 | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [`createPrinter`](#printers)               | [Import a custom codec](/extensions/kubb-labs/plugin-zod/guides/customization#import-a-custom-codec) shows an `overrides` map in practice.                                         |
 | [`ast.schema.is`](#ast-schema)             | `follow` adds links on top of the node itself: `'ref'` jumps to a resolved ref's target, and `'array'` matches when some item matches. Following repeats and stops on a ref cycle. |
-| [`ast.schema.getObjectKind`](#ast-schema)  | A nullable or optional node, a node with input checks, and a ref into `circularSchemas` give `null`. An unresolved ref counts as `properties`.                                     |
 | [`ast.graph.getImportedNames`](#ast-graph) | Pass `{ checks: true }` to include refs inside `conditionals`, `contains`, and `content`.                                                                                          |
 | [`ast.http.groupParameters`](#ast-http)    | The parameters by location (`path`, `query`, `header`, `cookie`), keeping the first of a repeated name.                                                                            |
 | [`ast.macro`](#macros)                     | A macro is a named transform that rewrites nodes before printing, with ordering through `enforce` and gating through `match`.                                                      |
