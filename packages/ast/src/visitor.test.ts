@@ -245,13 +245,22 @@ describe('findSchema', () => {
     expect(findSchema(tree, { predicate: (schema) => schema.type === 'boolean' })).toBeUndefined()
   })
 
+  it('crosses a ref only with follow, or the deprecated followRefs', () => {
+    const target = createSchema({ type: 'string', name: 'Name' })
+    const node = createSchema({ type: 'ref', name: 'Name', schema: target })
+
+    expect(findSchema(node, { predicate: isString })).toBeUndefined()
+    expect(findSchema(node, { predicate: isString, follow: ['ref'] })).toBe(target)
+    expect(findSchema(node, { predicate: isString, followRefs: true })).toBe(target)
+  })
+
   it('ends on a self-referencing schema', () => {
     const tree = objectOf('Tree')
     tree.link(tree.node)
     const cache = new WeakMap<SchemaNode, SchemaNode | null>()
 
-    expect(findSchema(tree.node, { predicate: isString, followRefs: true })).toBeUndefined()
-    expect(findSchema(tree.node, { predicate: isString, followRefs: true, cache })).toBeUndefined()
+    expect(findSchema(tree.node, { predicate: isString, follow: ['ref'] })).toBeUndefined()
+    expect(findSchema(tree.node, { predicate: isString, follow: ['ref'], cache })).toBeUndefined()
     expect(cache.get(tree.node)).toBeNull()
   })
 
@@ -267,11 +276,11 @@ describe('findSchema', () => {
     const cache = new WeakMap<SchemaNode, SchemaNode | null>()
 
     for (const start of [a, b, c, d]) {
-      const uncached = findSchema(start.node, { predicate: isString, followRefs: true })
+      const uncached = findSchema(start.node, { predicate: isString, follow: ['ref'] })
       expect(uncached?.type).toBe('string')
-      expect(findSchema(start.node, { predicate: isString, followRefs: true, cache })).toBe(uncached)
+      expect(findSchema(start.node, { predicate: isString, follow: ['ref'], cache })).toBe(uncached)
     }
-    expect(findSchema(b.node, { predicate: isString, followRefs: true, cache: new WeakMap() })).toMatchObject({ type: 'string' })
+    expect(findSchema(b.node, { predicate: isString, follow: ['ref'], cache: new WeakMap() })).toMatchObject({ type: 'string' })
   })
 
   it('does not cache a no-match for a schema whose cycle is still being walked', () => {
@@ -284,10 +293,10 @@ describe('findSchema', () => {
     a.link(b.node, c.node, d.node)
     const cache = new WeakMap<SchemaNode, SchemaNode | null>()
 
-    expect(findSchema(a.node, { predicate: isString, followRefs: true, cache })).toMatchObject({ type: 'string' })
+    expect(findSchema(a.node, { predicate: isString, follow: ['ref'], cache })).toMatchObject({ type: 'string' })
     expect(cache.get(b.node)).toBeUndefined()
     expect(cache.get(c.node)).toBeUndefined()
-    expect(findSchema(c.node, { predicate: isString, followRefs: true, cache })).toMatchObject({ type: 'string' })
+    expect(findSchema(c.node, { predicate: isString, follow: ['ref'], cache })).toMatchObject({ type: 'string' })
   })
 
   it('does not cache a no-match through a cycle that a sibling branch reaches again', () => {
@@ -305,9 +314,9 @@ describe('findSchema', () => {
     root.link(y.node, z.node, m.node)
     const cache = new WeakMap<SchemaNode, SchemaNode | null>()
 
-    expect(findSchema(root.node, { predicate: isString, followRefs: true, cache })).toMatchObject({ type: 'string' })
+    expect(findSchema(root.node, { predicate: isString, follow: ['ref'], cache })).toMatchObject({ type: 'string' })
     expect(cache.get(w.node)).not.toBeNull()
-    expect(findSchema(w.node, { predicate: isString, followRefs: true, cache })).toMatchObject({ type: 'string' })
+    expect(findSchema(w.node, { predicate: isString, follow: ['ref'], cache })).toMatchObject({ type: 'string' })
   })
 
   it('caches a no-match for a whole cycle once it is walked', () => {
@@ -317,7 +326,7 @@ describe('findSchema', () => {
     b.link(a.node)
     const cache = new WeakMap<SchemaNode, SchemaNode | null>()
 
-    expect(findSchema(a.node, { predicate: isString, followRefs: true, cache })).toBeUndefined()
+    expect(findSchema(a.node, { predicate: isString, follow: ['ref'], cache })).toBeUndefined()
     expect(cache.get(a.node)).toBeNull()
     expect(cache.get(b.node)).toBeNull()
   })
@@ -325,7 +334,7 @@ describe('findSchema', () => {
   it('gives the same answer from a warm cache as without one', () => {
     const tree = buildSampleTree()
     const cache = new WeakMap<SchemaNode, SchemaNode | null>()
-    const options = { predicate: isString, followRefs: true }
+    const options = { predicate: isString, follow: ['ref'] as const }
 
     const uncached = findSchema(tree, options)
     expect(findSchema(tree, { ...options, cache })).toBe(uncached)

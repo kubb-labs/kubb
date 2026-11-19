@@ -14,8 +14,8 @@ export const extractRefName = ast.ref.getName
 /** @deprecated Use `ast.ref.mergeSchema`. Removed in Kubb v6. */
 export const syncSchemaRef = ast.ref.mergeSchema
 
-/** @deprecated Use `ast.schema.isString`. Removed in Kubb v6. */
-export const isStringType = ast.schema.isString
+/** @deprecated Use `ast.schema.is(node, 'string')`. Removed in Kubb v6. */
+export const isStringType = (node: ast.SchemaNode): boolean => ast.schema.is(node, 'string')
 
 /** @deprecated Use `ast.graph.containsCircular`. Removed in Kubb v6. */
 export const containsCircularRef = ast.graph.containsCircular

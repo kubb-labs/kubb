@@ -120,14 +120,14 @@ function composeMacros(macros: ReadonlyArray<Macro>): Visitor {
 /**
  * Runs a list of macros over a node tree and returns the rewritten tree. Keeps `transform`'s
  * structural sharing, so an empty or no-op macro list returns the same reference. Pass
- * `depth: 'shallow'` to rewrite the root node only.
+ * `depth: 'shallow'` to skip the children of every schema node; non-schema nodes, such as an operation's parameters and responses, are still rewritten.
  *
  * @example
  * ```ts
  * const next = applyMacros(root, [macroIntegerToString])
  * ```
  *
- * @example Apply to the root node only
+ * @example Rewrite a schema without walking its children
  * ```ts
  * const named = applyMacros(node, [macroEnumName({ parentName, propName, enumSuffix })], { depth: 'shallow' })
  * ```
