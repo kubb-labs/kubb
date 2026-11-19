@@ -8,7 +8,7 @@ import type { KubbPluginSetupContext, Plugin } from './definePlugin.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
-import { Resolver } from './Resolver.ts'
+import { defineResolver, Resolver } from './Resolver.ts'
 import { checkoutGitInput } from './gitInput.ts'
 
 vi.mock('./gitInput.ts', async (importOriginal) => ({ ...(await importOriginal<typeof import('./gitInput.ts')>()), checkoutGitInput: vi.fn() }))
@@ -589,6 +589,28 @@ describe('KubbDriver generator dispatch', () => {
     expect(file('types', 'Pet')).toBe('/project/gen/common/types/pet.ts')
     expect(file('zod', 'Pet')).toBe('/project/gen/common/zod/pet.ts')
     expect(file('types', 'Store')).toBe('/project/gen/animals/types/store.ts')
+  })
+
+  it('merges a setResolver array left to right, so a later part wins per method and keeps the other methods', async () => {
+    const plugin = {
+      name: 'parts',
+      options: {},
+      hooks: {
+        'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+          ctx.setResolver([
+            defineResolver({ name: (name: string) => `${name}Schema`, extra: { a: () => 'a', b: () => 'b' } }),
+            defineResolver({ extra: { b: () => 'B' } }),
+          ])
+        },
+      },
+    } as unknown as Plugin
+    const partsDriver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+    await partsDriver.setup()
+    await partsDriver.setupHooks()
+
+    const resolver = partsDriver.getResolver('parts') as Resolver & { extra: { a(): string; b(): string } }
+    expect(resolver.name('pet')).toBe('petSchema')
+    expect([resolver.extra.a(), resolver.extra.b()]).toStrictEqual(['a', 'B'])
   })
 
   it("skips a generator's schema and operation calls for a node its match predicate resolves false for, and still calls them when true", async () => {

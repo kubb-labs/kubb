@@ -29,7 +29,7 @@ export { defineGenerator } from './defineGenerator.ts'
 export { defineParser } from './defineParser.ts'
 export { assertPluginOption, definePlugin } from './definePlugin.ts'
 export { createResolver } from './createResolver.ts'
-export { Resolver } from './Resolver.ts'
+export { defineResolver, Resolver, toFilePath } from './Resolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
 export { checkoutGitInput } from './gitInput.ts'
 export { isPublicAddress } from './publicAddress.ts'
@@ -121,6 +121,7 @@ export type {
   ResolverFile,
   ResolverFileParams,
   ResolverFilePathParams,
+  ResolverInput,
   ResolverPatch,
   ResolverPathParams,
 } from './Resolver.ts'

@@ -564,3 +564,9 @@ describe('toFilePath', () => {
     expect(toFilePath(input)).toBe(expected)
   })
 })
+
+describe('toFilePath caseLast', () => {
+  it('cases only the file name with caseLast and keeps folders camelCase', () => {
+    expect(toFilePath('pet store.pet id', (part) => part.toUpperCase())).toBe('petStore/PET ID')
+  })
+})

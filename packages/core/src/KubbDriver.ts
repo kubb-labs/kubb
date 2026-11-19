@@ -320,7 +320,7 @@ export class KubbDriver {
           plugin.generators = [...(plugin.generators ?? []), ...generators]
         },
         setResolver: (resolver) => {
-          plugin.resolver = Resolver.merge(this.#createResolver(plugin.name), resolver)
+          plugin.resolver = Resolver.merge(this.#createResolver(plugin.name), ...(Array.isArray(resolver) ? resolver : [resolver]))
         },
         addMacro: (macro) => {
           plugin.macros = [...(plugin.macros ?? []), macro]

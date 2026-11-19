@@ -7,6 +7,10 @@ export { Url } from './Url.ts'
 export { macroDedupeUnion } from './macros/macroDedupeUnion.ts'
 export { enumPrimitive, macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
 export { macroEnumName } from './macros/macroEnumName.ts'
+export { operationKey } from './resolvers/operationKey.ts'
+export { resolverCasedFile } from './resolvers/resolverCasedFile.ts'
+export { resolverOperationParams } from './resolvers/resolverOperationParams.ts'
+export { resolverOperationResponse } from './resolvers/resolverOperationResponse.ts'
 export { mergeAdjacentObjectsLazy } from './utils/mergeAdjacentSchemas.ts'
 export { childName, enumPropName } from './utils/names.ts'
 export {
@@ -21,6 +25,7 @@ export {
   defineGenerator,
   defineParser,
   definePlugin,
+  defineResolver,
   Diagnostics,
   fsStorage,
   Hookable,
@@ -89,6 +94,7 @@ export type {
   ResolverFile,
   ResolverFileParams,
   ResolverFilePathParams,
+  ResolverInput,
   ResolverPatch,
   Storage,
 } from '@kubb/core'
