@@ -1,7 +1,7 @@
 import { narrowSchema } from '../guards.ts'
 import { getStreamFraming, isStream } from '../mediaType/index.ts'
 import type { ContentNode } from '../nodes/content.ts'
-import type { HttpOperationNode } from '../nodes/operation.ts'
+import type { HttpOperationNode, OperationNode } from '../nodes/operation.ts'
 import { createSchema, type SchemaNode } from '../nodes/schema.ts'
 import { is } from '../schema/is.ts'
 import { resolveRef as getSchema } from '../utils/refs.ts'
@@ -84,9 +84,9 @@ export function getStream(node: Pick<HttpOperationNode, 'responses'>): ResponseS
 }
 
 /** A union of refs to the success responses with a body, else every response with a body, else `null`. */
-export function getUnion(
-  node: HttpOperationNode,
-  resolver: { response: { status(node: HttpOperationNode, statusCode: ResponseNode['statusCode']): string } },
+export function getUnion<TNode extends Pick<OperationNode, 'responses'>>(
+  node: TNode,
+  resolver: { response: { status(node: TNode, statusCode: ResponseNode['statusCode']): string } },
 ): SchemaNode | null {
   const withSchema = node.responses.filter((response) => response.content?.some((entry) => entry.schema))
   const success = withSchema.filter((response) => isSuccess(response.statusCode))
