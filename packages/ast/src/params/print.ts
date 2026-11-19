@@ -24,8 +24,8 @@ function renderMembers(members: Array<{ key: string; type: string; optional?: bo
 }
 
 function groupMembers(param: FunctionParameterNode): ReadonlyArray<{ name: string; optional?: boolean }> | null {
-  if (typeof param.name === 'string') return null
-  return param.type && isTypeLiteral(param.type) ? param.type.members : []
+  if (typeof param.name === 'string' || !param.type || !isTypeLiteral(param.type)) return null
+  return param.type.members
 }
 
 function rank(param: FunctionParameterNode): number {
@@ -95,8 +95,9 @@ function printParameter(node: FunctionParameterNode, mode: PrintMode): string {
     return type ? `...${bindingName}: ${type}` : `...${bindingName}`
   }
   if (type) {
-    if (node.optional) return `${bindingName}?: ${type}`
-    return node.default ? `${bindingName}: ${type} = ${node.default}` : `${bindingName}: ${type}`
+    // A default already makes the parameter optional, and `name?: T = x` is invalid.
+    if (node.default) return `${bindingName}: ${type} = ${node.default}`
+    return node.optional ? `${bindingName}?: ${type}` : `${bindingName}: ${type}`
   }
   return node.default ? `${bindingName} = ${node.default}` : bindingName
 }

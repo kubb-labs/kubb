@@ -190,4 +190,16 @@ describe('print in call mode', () => {
     const sig = createFunctionParameters({ params: [group([{ name: 'id', propertyName: 'petId' }, { name: 'url' }])] })
     expect(printer.print(sig)).toBe('{ petId: id, url }')
   })
+
+  it('keeps a required group with a reference type before optional parameters', () => {
+    const sig = createFunctionParameters({
+      params: [createFunctionParameter({ name: 'opt', type: 'X', optional: true }), group([{ name: 'data' }], 'PetData')],
+    })
+    expect(print(sig, 'declaration')).toBe('{ data }: PetData, opt?: X')
+  })
+
+  it('keeps the default of an optional parameter', () => {
+    const sig = createFunctionParameters({ params: [createFunctionParameter({ name: 'a', type: 'X', optional: true, default: '1' })] })
+    expect(print(sig, 'declaration')).toBe('a: X = 1')
+  })
 })
