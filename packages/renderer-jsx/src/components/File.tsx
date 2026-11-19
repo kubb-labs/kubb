@@ -106,12 +106,14 @@ function FileExport(props: FileExportProps): KubbReactElement {
   return <kubb-export {...props} />
 }
 
-type FileImportProps = Omit<ast.ImportNode, 'kind'> & { key?: Key }
+type FileImportProps = ast.UserImportNode & { key?: Key }
 
 /**
  * Declares an import entry for the enclosing {@link File}.
  *
- * The import is collected by the renderer and emitted at the top of the generated file.
+ * The import is collected by the renderer and emitted at the top of the generated file. Pass `plugin` instead of
+ * `path` to import a name from the file where that plugin emitted it. Core fills in the path after every generator has
+ * run, so the target may be generated later than the importing file.
  *
  * @example Named import
  * ```tsx
@@ -129,6 +131,12 @@ type FileImportProps = Omit<ast.ImportNode, 'kind'> & { key?: Key }
  * ```tsx
  * <File.Import name="z" path="zod" isNameSpace />
  * // import * as z from 'zod'
+ * ```
+ *
+ * @example Import from wherever another plugin emitted the name
+ * ```tsx
+ * <File.Import name={['Pet']} plugin="plugin-ts" isTypeOnly />
+ * // import type { Pet } from '../types/Pet'
  * ```
  */
 function FileImport(props: FileImportProps): KubbReactElement {

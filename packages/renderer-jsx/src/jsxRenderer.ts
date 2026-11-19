@@ -142,8 +142,14 @@ function collectFileChildren(element: unknown): FileChildren {
       }
 
       if (host.type === 'kubb-import') {
-        const { name, path, root, isTypeOnly, isNameSpace } = host.props
-        imports.push(ast.factory.createImport({ name, path, root, isTypeOnly: !!isTypeOnly, isNameSpace: !!isNameSpace }))
+        const { name, path, plugin, root, isTypeOnly, isNameSpace } = host.props
+        imports.push(
+          ast.factory.createImport(
+            plugin && Array.isArray(name)
+              ? { name, root, plugin, isTypeOnly: !!isTypeOnly }
+              : { name, path: path!, root, isTypeOnly: !!isTypeOnly, isNameSpace: !!isNameSpace },
+          ),
+        )
         return
       }
 

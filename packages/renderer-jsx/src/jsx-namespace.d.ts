@@ -33,7 +33,7 @@ export namespace JSX {
     ['kubb-source']: Omit<ast.SourceNode, 'kind'> & {
       children?: KubbReactNode
     }
-    ['kubb-import']: Omit<ast.ImportNode, 'kind'> & {}
+    ['kubb-import']: ast.UserImportNode & {}
     ['kubb-export']: Omit<ast.ExportNode, 'kind'> & {}
     ['kubb-function']: Omit<ast.FunctionNode, 'kind'> & {
       children?: KubbReactNode

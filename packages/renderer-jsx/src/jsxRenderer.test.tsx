@@ -238,6 +238,18 @@ describe('File.Import', () => {
       isNameSpace: false,
     })
   })
+
+  it('names a plugin instead of a path', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="client.ts" path="src/client.ts">
+        <File.Import name={['Pet']} plugin="plugin-ts" />
+        <File.Source>{'const p: Pet = {}'}</File.Source>
+      </File>,
+    )
+
+    expect(renderer.files[0]?.imports[0]).toMatchObject({ kind: 'Import', name: ['Pet'], plugin: 'plugin-ts', isTypeOnly: false })
+  })
 })
 
 describe('File.Export', () => {
