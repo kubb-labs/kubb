@@ -1,5 +1,65 @@
 # Changelog
 
+## v5.23.0 — Nov 19, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Remove the `ast` helpers that only code-generation plugins use, so `@kubb/ast` keeps the node tree and the helpers Kubb itself needs. This is a breaking change for plugins that call them.
+  
+  - Removes `ast.auth`, `ast.server`, `ast.mediaType.getKind`, `ast.mediaType.isStream`, `ast.schema.getNumberBounds` and `ast.graph.containsCircular`.
+  - Removes everything in `ast.http` except `ast.http.isOperation`: `groupParameters`, `getRequestGroups`, `getBaseURL`, `requestBody`, `responses` and `status`.
+  - Removes the deprecated `containsCircularRef` export from `@kubb/kit`.
+  - Moves the `ParserOptions`, `DateTypeOptions`, `DateTimeTypeValue` and `DateOnlyTypeValue` types from `ast` to `@kubb/adapter-oas`.
+  
+  To upgrade, copy the helpers your plugin calls into the plugin, or import the option types from `@kubb/adapter-oas`:
+  
+  ```diff
+  - import type { ast } from 'kubb/kit'
+  - type DateType = ast.ParserOptions['dateType']
+  + import type { ParserOptions } from '@kubb/adapter-oas'
+  + type DateType = ParserOptions['dateType']
+  ``` ([#4687](https://github.com/kubb-labs/kubb/pull/4687), [`0973abd`](https://github.com/kubb-labs/kubb/commit/0973abdb5e8d6bb8c99e0176936af8d0d27657d8))
+- `@kubb/ast` now answers common questions about nodes, so plugins outside the plugins repo can use the same helpers:
+  
+  - `ast.schema.is(node, kind, { follow })` checks whether a schema is `binary`, `string`, `text`, `scalar`, `const`, `enumLike`, or `untyped`. With `follow: ['ref', 'array']`, it also looks through refs and array items.
+  - `ast.schema.getNumberBounds` now takes a number node and applies its integer format range and `multipleOf`.
+  - `ast.mediaType.getKind` classifies a content entry.
+  - `ast.http.getRequestGroups` and `ast.http.responses.getUnion` summarize a request and the union of success responses.
+  
+  `ast.schema.isString` and the `followRefs` option of `ast.schema.find` are deprecated. Use `ast.schema.is(node, 'string')` and `follow: ['ref']`. Both are removed in Kubb v6. ([#4683](https://github.com/kubb-labs/kubb/pull/4683), [`a012080`](https://github.com/kubb-labs/kubb/commit/a012080800f0b85fa33ade20157de8205bc799c8))
+- Printer handlers can pass options to one child: `this.transform(node, options)` and `this.base(node, options)` merge them over `this.options` for that call only, and leave the caller's options unchanged. `this.parent` is the schema node whose handler called `this.transform`, and `printer.transform` and `printer.print` take the same optional `options`. Imports declared by nested handlers reach `printer.drainImports()`. ([#4686](https://github.com/kubb-labs/kubb/pull/4686), [`d1549be`](https://github.com/kubb-labs/kubb/commit/d1549be63c8d09467ba742633f8cb383bba0aa05))
+- Import each `ast.*` namespace from its own path, so a package can extend a namespace and keep its types.
+  
+  - Adds `@kubb/ast/factory`, `/file`, `/graph`, `/http`, `/json`, `/macro`, `/mediaType`, `/node`, `/ref` and `/schema`, each the same as `ast.<name>`.
+  
+  ```ts
+  // http.ts: everything from ast.http, plus one local helper
+  export * from '@kubb/ast/http'
+  export { getRetryAfter } from './retryAfter.ts'
+  ``` ([#4687](https://github.com/kubb-labs/kubb/pull/4687), [`0973abd`](https://github.com/kubb-labs/kubb/commit/0973abdb5e8d6bb8c99e0176936af8d0d27657d8))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- `@kubb/core` and `@kubb/kit` now export the `PluginOptions` and `ResolvedPluginOptions` types. Plugin authors can build a plugin's `Options` and `ResolvedOptions` from them instead of repeating `output`, `group`, `exclude`, `include`, and `override`. ([#4679](https://github.com/kubb-labs/kubb/pull/4679), [`0c593ee`](https://github.com/kubb-labs/kubb/commit/0c593ee5205617c1b83b63558fef10438c1b0c21))
+
+### @kubb/renderer-jsx
+
+#### Features
+
+- `Const`, `Type`, `Function` and `Function.Arrow` directly in a `File` now register their own source block, and take `inline`, which lets importing files use the body in place of the name. A new `Schema` component prints a schema node with its imports.
+  
+  `File.Source` is deprecated and removed in Kubb v6. ([#4684](https://github.com/kubb-labs/kubb/pull/4684), [`5c048d2`](https://github.com/kubb-labs/kubb/commit/5c048d26cb61327a016d39f9f50bb5b8135cf29a))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.22.0 — Nov 19, 2026
 
 ### @kubb/core
