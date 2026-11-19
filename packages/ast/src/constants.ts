@@ -23,11 +23,6 @@ export const nodeKinds = {
   text: 'Text',
   break: 'Break',
   jsx: 'Jsx',
-  functionParameters: 'FunctionParameters',
-  functionParameter: 'FunctionParameter',
-  objectBindingPattern: 'ObjectBindingPattern',
-  typeLiteral: 'TypeLiteral',
-  indexedAccessType: 'IndexedAccessType',
 } as const
 
 /**

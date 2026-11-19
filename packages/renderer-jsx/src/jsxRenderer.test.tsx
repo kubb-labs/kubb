@@ -297,30 +297,6 @@ describe('File.Export', () => {
     expect(bare.files).toStrictEqual(wrapped.files)
   })
 
-  it('prints a params node in declaration mode', async () => {
-    const params = ast.factory.createFunctionParameters({
-      params: [
-        ast.factory.createFunctionParameter({ name: 'config', type: 'Config', default: '{}' }),
-        ast.factory.createFunctionParameter({ name: 'petId', type: 'string' }),
-      ],
-    })
-    const renderer = jsxRenderer()
-    await renderer.render(
-      <File baseName="pet.ts" path="src/pet.ts">
-        <Function export name="getPet" params={params}>
-          {'return petId'}
-        </Function>
-        <Function.Arrow export name="getPetKey" params={params} singleLine>
-          {'[petId]'}
-        </Function.Arrow>
-      </File>,
-    )
-
-    const [fn, arrow] = renderer.files[0]!.sources.map((source) => source.nodes?.[0])
-    expect(fn).toMatchObject({ kind: 'Function', params: 'petId: string, config: Config = {}' })
-    expect(arrow).toMatchObject({ kind: 'ArrowFunction', params: 'petId: string, config: Config = {}' })
-  })
-
   it('renders a Schema with the imports its printer collected', async () => {
     type P = ast.PrinterFactoryOptions<'zod', object, string>
     const collected: Array<ast.ImportNode> = []
@@ -370,58 +346,18 @@ describe('File.Export', () => {
     expect(renderer.files[0]!.sources[0]).toMatchObject({ name: 'getPet', isExportable: true, isIndexable: false })
   })
 
-  it('builds the params from Function.Params children and prints a call', async () => {
-    const renderer = jsxRenderer()
-    const params = ast.factory.createFunctionParameters({ params: [ast.factory.createFunctionParameter({ name: 'petId', type: 'string' })] })
-    await renderer.render(
-      <File baseName="pet.ts" path="src/pet.ts">
-        <Function export name="getPet">
-          <Function.Params>
-            <Function.Param name="config" type="Config" default="{}" />
-            <Function.Param name="petId" type="string" />
-          </Function.Params>
-          {'return '}
-          <Function.Call name="fetchPet" params={params} />
-        </Function>
-      </File>,
-    )
-
-    expect(renderer.files[0]!.sources[0]!.nodes?.[0]).toMatchObject({
-      kind: 'Function',
-      params: 'petId: string, config: Config = {}',
-      nodes: [
-        { kind: 'Text', value: 'return ' },
-        { kind: 'Text', value: 'fetchPet(petId)' },
-      ],
-    })
-  })
-
-  it('maps comments to the JSDoc block', async () => {
+  it('uses the body of an inline declaration as its expression', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="pet.ts" path="src/pet.ts">
-        <Const export name="pet" comments={['A pet.']}>
-          {'1'}
-        </Const>
-      </File>,
-    )
-
-    expect(renderer.files[0]!.sources[0]!.nodes?.[0]).toMatchObject({ kind: 'Const', JSDoc: { comments: ['A pet.'] } })
-  })
-
-  it('reads pointer and inline from a bare declaration', async () => {
-    const renderer = jsxRenderer()
-    await renderer.render(
-      <File baseName="pet.ts" path="src/pet.ts">
-        <Type export name="Pet" pointer="#/components/schemas/Pet" inline={{ expression: '{ id: number }' }}>
+        <Type export name="Pet" inline>
           {'{ id: number }'}
         </Type>
       </File>,
     )
 
     const [source] = renderer.files[0]!.sources
-    expect(source).toMatchObject({ name: 'Pet', pointer: '#/components/schemas/Pet', inline: { expression: '{ id: number }' }, isTypeOnly: true })
+    expect(source).toMatchObject({ name: 'Pet', inline: { expression: '{ id: number }' }, isTypeOnly: true })
     expect(source!.nodes?.[0]).not.toHaveProperty('inline')
-    expect(source!.nodes?.[0]).not.toHaveProperty('pointer')
   })
 })

@@ -6,14 +6,6 @@ export type { ContentNode, EncodingNode, ExampleNode } from './nodes/content.ts'
 export type { ExportNode, FileNode, ImportNode, SourceNode, UserFileNode } from './nodes/file.ts'
 export type { AuthCredential, AuthRequirement, AuthScheme, ExternalDocs, InputMeta, InputNode, InputServer, InputTag, OAuthFlow } from './nodes/input.ts'
 export type { GenericOperationNode, HttpMethod, HttpOperationNode, OperationNode } from './nodes/operation.ts'
-export type {
-  FunctionParameterNode,
-  FunctionParametersNode,
-  IndexedAccessTypeNode,
-  ObjectBindingPatternNode,
-  TypeExpression,
-  TypeLiteralNode,
-} from './nodes/params.ts'
 export type { ParameterLocation, ParameterNode, ParameterStyle } from './nodes/parameter.ts'
 export type { PropertyNode } from './nodes/property.ts'
 export type { RequestBodyNode } from './nodes/requestBody.ts'

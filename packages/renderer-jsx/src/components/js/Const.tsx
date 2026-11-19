@@ -1,14 +1,10 @@
 import type { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
-type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes' | 'JSDoc'> & {
+type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes'> & {
   key?: Key
-  /** @deprecated Use `comments`. Removed in Kubb v6. */
-  JSDoc?: ast.JSDocNode | null
-  /** Doc comment lines, the same as `JSDoc={{ comments }}`. */
-  comments?: Array<string | undefined>
-  /** Same as `inline` on `File.Source`. */
-  inline?: { expression: string } | null
+  /** Lets importing files use the body in place of the name. Read when the declaration sits directly in a `File`. */
+  inline?: boolean
   /**
    * Child nodes rendered as the initializer expression of the constant.
    */
@@ -33,10 +29,6 @@ type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes' | 'JSDoc'> & {
  * </Const>
  * ```
  */
-export function Const({ children, comments, JSDoc, ...props }: ConstProps): KubbReactElement {
-  return (
-    <kubb-const {...props} JSDoc={comments ? { comments } : JSDoc}>
-      {children}
-    </kubb-const>
-  )
+export function Const({ children, ...props }: ConstProps): KubbReactElement {
+  return <kubb-const {...props}>{children}</kubb-const>
 }

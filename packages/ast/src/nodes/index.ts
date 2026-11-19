@@ -3,7 +3,6 @@ import type { ContentNode } from './content.ts'
 import type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 import type { InputNode } from './input.ts'
 import type { OperationNode } from './operation.ts'
-import type { FunctionParameterNode, FunctionParametersNode, IndexedAccessTypeNode, ObjectBindingPatternNode, TypeLiteralNode } from './params.ts'
 import type { ParameterNode } from './parameter.ts'
 import type { PropertyNode } from './property.ts'
 import type { RequestBodyNode } from './requestBody.ts'
@@ -16,7 +15,6 @@ export { createExport, createFile, createImport, createSource } from './file.ts'
 export type { UserFileNode } from './file.ts'
 export { createInput } from './input.ts'
 export { createOperation } from './operation.ts'
-export { createFunctionParameter, createFunctionParameters, createIndexedAccessType, createObjectBindingPattern, createTypeLiteral } from './params.ts'
 export { createParameter } from './parameter.ts'
 export { createProperty } from './property.ts'
 export { createRequestBody } from './requestBody.ts'
@@ -60,8 +58,3 @@ export type Node =
   | TextNode
   | BreakNode
   | JsxNode
-  | FunctionParametersNode
-  | FunctionParameterNode
-  | ObjectBindingPatternNode
-  | TypeLiteralNode
-  | IndexedAccessTypeNode

@@ -180,9 +180,9 @@ Prints `node`, adds the printer's imports, and calls `children` with the code. I
 
 ### JavaScript
 
-The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `comments?: Array<string | undefined>` for a JSDoc block. `JSDoc` is deprecated.
+The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block.
 
-A component directly in a `File` is its own source block, named after `name`. `export` puts it in barrels, unless it is also `default`. It takes `pointer` and `inline` like `File.Source`.
+A component directly in a `File` is its own source block, named after `name`. `export` puts it in barrels, unless it is also `default`. Set `inline` to let importing files use its body in place of its name.
 
 ```tsx
 <File baseName="pet.ts" path="src/zod/pet.ts">
@@ -217,7 +217,7 @@ A function declaration, with the children as the body.
 | `name` | `string` | The name |
 | `default?` | `boolean \| null` | Adds `default` after `export` |
 | `async?` | `boolean \| null` | Adds `async` and wraps `returnType` in `Promise<…>` |
-| `params?` | `string \| FunctionParametersNode \| null` | The parameter list, as text or a node from [`ast.factory`](/docs/5.x/reference/kit/ast#factory-functions) |
+| `params?` | `string \| null` | The parameter list |
 | `generics?` | `string \| Array<string> \| null` | The type parameters. An array joins with commas. |
 | `returnType?` | `string \| null` | The return type after `:` |
 
@@ -227,24 +227,6 @@ A function declaration, with the children as the body.
 </Function>
 // export async function getPet<TData = Pet>(petId: string): Promise<TData> { … }
 ```
-
-A `Function.Params` child can list the parameters instead. `Function.Param` takes the input of `ast.factory.createFunctionParameter`. `Function.Call` prints a call with those parameters.
-
-```tsx
-<Function export name="getPet">
-  <Function.Params>
-    <Function.Param name="petId" type="string" />
-    <Function.Param name="config" type="Config" default="{}" />
-  </Function.Params>
-  {'return '}
-  <Function.Call name="fetchPet" params={params} />
-</Function>
-// export function getPet(petId: string, config: Config = {}) {
-//   return fetchPet(petId, config)
-// }
-```
-
-For the text, such as inside a template string, use `printParams(node, 'declaration' | 'call')`.
 
 #### `Function.Arrow` {#function-arrow}
 

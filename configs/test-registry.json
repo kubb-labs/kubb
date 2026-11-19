@@ -122,7 +122,6 @@
   "packages/plugin-barrel/src/plugin.test.ts": "Plugin lifecycle through createKubb: root and per-plugin barrels, namespaces, barrel false, path traversal.",
   "packages/plugin-barrel/src/utils.test.ts": "Barrel builder branches: collisions, nested, recursive, namespace naming, not reached by plugin.test.ts.",
   "packages/renderer-jsx/src/components/js/Type.test.tsx": "Only test of the Type component refusing a lowercase name.",
-  "packages/renderer-jsx/src/components/js/params.test.ts": "Parameter ordering (required, optional, defaulted, rest), destructured groups and both print modes shape every generated signature.",
   "packages/renderer-jsx/src/components/md/Callout.test.tsx": "Rendered output with title, blank-line and label branches not covered elsewhere.",
   "packages/renderer-jsx/src/components/md/Frontmatter.test.tsx": "Only test that renders Frontmatter; pins the YAML envelope output.",
   "packages/renderer-jsx/src/components/md/Heading.test.tsx": "Only test that renders Heading; pins the heading level output and duplicate paragraphs surviving createFile.",
