@@ -3,11 +3,15 @@ import { isJsonMimeType, isOpenApi32, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, MediaTypeObject, ReferenceObject, SchemaObject } from '../types.ts'
 
+const streamMediaTypes = new Set(['application/jsonl', 'application/x-ndjson', 'application/json-seq', 'text/event-stream'])
+
 /**
- * Returns `true` for a media type read as a stream of items: one `ast.mediaType.isStream` accepts, or any that declares `itemSchema`.
+ * Returns `true` for a media type read as a stream of items: SSE, JSON Lines, a `+json-seq` sequence, or any media type that declares `itemSchema`.
  */
 export function isStream(contentType: string, mediaType: MediaTypeObject | null): boolean {
-  return ast.mediaType.isStream(contentType) || mediaType?.itemSchema !== undefined
+  const baseType = ast.mediaType.getBase(contentType)
+  const streamed = streamMediaTypes.has(baseType) || (baseType.startsWith('application/') && baseType.endsWith('+json-seq'))
+  return streamed || mediaType?.itemSchema !== undefined
 }
 
 /**

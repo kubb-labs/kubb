@@ -3,11 +3,12 @@ import { describe, expect, it } from 'vitest'
 import { createSchemaParser } from '../../parser.ts'
 import { createRefs } from '../../refs.ts'
 import type { Document, SchemaObject } from '../../types.ts'
+import type { ParserOptions } from '../../parserOptions.ts'
 
 const document = { openapi: '3.1.0', info: { title: 'Scalars', version: '1' }, paths: {} } as Document
 const refs = createRefs(document)
 
-function parse(schema: SchemaObject, options: Partial<ast.ParserOptions> = {}): ast.SchemaNode {
+function parse(schema: SchemaObject, options: Partial<ParserOptions> = {}): ast.SchemaNode {
   return createSchemaParser({ document, refs, options })({ schema, name: 'Value' })
 }
 

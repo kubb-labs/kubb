@@ -24,6 +24,7 @@ import type {
   ResponseObject,
   SchemaObject,
 } from './types.ts'
+import type { ParserOptions } from './parserOptions.ts'
 
 /**
  * A single OpenAPI operation: its path, method, raw operation object and resolved path item.
@@ -45,7 +46,7 @@ export type OperationParseContext = {
   document: Document
   refs: Refs
   contentType?: ContentType
-  options: ast.ParserOptions
+  options: ParserOptions
   parseSchema: ParseFn
 }
 

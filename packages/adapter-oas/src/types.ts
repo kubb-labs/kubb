@@ -1,6 +1,7 @@
-import type { AdapterFactoryOptions, ast } from '@kubb/kit'
+import type { AdapterFactoryOptions } from '@kubb/kit'
 import type { JSONSchema4, JSONSchema6, JSONSchema7 } from 'json-schema'
 import type { OpenAPIV3_1 } from 'openapi-types'
+import type { ParserOptions } from './parserOptions.ts'
 
 /**
  * Media type used to pick a schema from an operation's request or response.
@@ -255,7 +256,7 @@ export type AdapterOasOptions = {
    * `{pet_id}` to `petId`). The HTTP request stays the same. Omit to keep the names from the spec.
    */
   pathParamsCasing?: 'camelcase'
-} & Partial<ast.ParserOptions>
+} & Partial<ParserOptions>
 
 /**
  * Adapter options after defaults have been applied.

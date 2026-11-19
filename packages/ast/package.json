@@ -52,6 +52,106 @@
         "default": "./dist/index.cjs"
       }
     },
+    "./factory": {
+      "import": {
+        "types": "./dist/factory.d.ts",
+        "default": "./dist/factory.js"
+      },
+      "require": {
+        "types": "./dist/factory.d.cts",
+        "default": "./dist/factory.cjs"
+      }
+    },
+    "./file": {
+      "import": {
+        "types": "./dist/file.d.ts",
+        "default": "./dist/file.js"
+      },
+      "require": {
+        "types": "./dist/file.d.cts",
+        "default": "./dist/file.cjs"
+      }
+    },
+    "./graph": {
+      "import": {
+        "types": "./dist/graph.d.ts",
+        "default": "./dist/graph.js"
+      },
+      "require": {
+        "types": "./dist/graph.d.cts",
+        "default": "./dist/graph.cjs"
+      }
+    },
+    "./http": {
+      "import": {
+        "types": "./dist/http.d.ts",
+        "default": "./dist/http.js"
+      },
+      "require": {
+        "types": "./dist/http.d.cts",
+        "default": "./dist/http.cjs"
+      }
+    },
+    "./json": {
+      "import": {
+        "types": "./dist/json.d.ts",
+        "default": "./dist/json.js"
+      },
+      "require": {
+        "types": "./dist/json.d.cts",
+        "default": "./dist/json.cjs"
+      }
+    },
+    "./macro": {
+      "import": {
+        "types": "./dist/macro.d.ts",
+        "default": "./dist/macro.js"
+      },
+      "require": {
+        "types": "./dist/macro.d.cts",
+        "default": "./dist/macro.cjs"
+      }
+    },
+    "./mediaType": {
+      "import": {
+        "types": "./dist/mediaType.d.ts",
+        "default": "./dist/mediaType.js"
+      },
+      "require": {
+        "types": "./dist/mediaType.d.cts",
+        "default": "./dist/mediaType.cjs"
+      }
+    },
+    "./node": {
+      "import": {
+        "types": "./dist/node.d.ts",
+        "default": "./dist/node.js"
+      },
+      "require": {
+        "types": "./dist/node.d.cts",
+        "default": "./dist/node.cjs"
+      }
+    },
+    "./ref": {
+      "import": {
+        "types": "./dist/ref.d.ts",
+        "default": "./dist/ref.js"
+      },
+      "require": {
+        "types": "./dist/ref.d.cts",
+        "default": "./dist/ref.cjs"
+      }
+    },
+    "./schema": {
+      "import": {
+        "types": "./dist/schema.d.ts",
+        "default": "./dist/schema.js"
+      },
+      "require": {
+        "types": "./dist/schema.d.cts",
+        "default": "./dist/schema.cjs"
+      }
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {

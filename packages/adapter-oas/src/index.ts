@@ -12,3 +12,4 @@ export type {
   SchemaObject,
 } from './types.ts'
 export type { Operation } from './operation.ts'
+export type { DateOnlyTypeValue, DateTimeTypeValue, DateTypeOptions, ParserOptions } from './parserOptions.ts'

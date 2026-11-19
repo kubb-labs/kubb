@@ -7,6 +7,7 @@ import { flattenSchema } from './emit/schemaShape.ts'
 import { isNullable } from './oas.ts'
 import type { Refs } from './refs.ts'
 import type { Document, SchemaObject } from './types.ts'
+import type { ParserOptions } from './parserOptions.ts'
 
 /**
  * Parser context holding the raw OpenAPI document and its `$ref` service.
@@ -20,7 +21,7 @@ export type OasParserContext = {
    * to the emitted name without a post-parse pass.
    */
   renames?: ReadonlyMap<string, string>
-  options?: Partial<ast.ParserOptions>
+  options?: Partial<ParserOptions>
 }
 
 /**
@@ -39,7 +40,7 @@ function hasUnevaluatedSiblings(schema: SchemaObject): boolean {
  */
 export function createSchemaParser(ctx: OasParserContext) {
   const { document, refs, renames } = ctx
-  const options: ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...ctx.options }
+  const options: ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...ctx.options }
 
   /** Converts one OpenAPI schema into a `SchemaNode`, through the first matching rule of `schemaRules`. */
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }): ast.SchemaNode {

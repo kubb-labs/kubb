@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { createSchemaParser } from '../parser.ts'
 import { createRefs } from '../refs.ts'
 import type { Document, SchemaObject } from '../types.ts'
+import type { ParserOptions } from '../parserOptions.ts'
 
 const document = {
   openapi: '3.1.0',
@@ -12,7 +13,7 @@ const document = {
 } as Document
 const refs = createRefs(document)
 
-function parse(schema: SchemaObject, options: Partial<ast.ParserOptions> = {}): ast.SchemaNode {
+function parse(schema: SchemaObject, options: Partial<ParserOptions> = {}): ast.SchemaNode {
   return createSchemaParser({ document, refs, options })({ schema, name: 'Value' })
 }
 
@@ -27,7 +28,7 @@ describe('schemaRules', () => {
     expect(parse({ type: ['integer', 'null'], format: 'int32' } as SchemaObject)).toMatchObject({ type: 'integer', nullable: true })
   })
 
-  it.each<{ title: string; schema: SchemaObject; options: Partial<ast.ParserOptions>; type: string }>([
+  it.each<{ title: string; schema: SchemaObject; options: Partial<ParserOptions>; type: string }>([
     { title: 'a plain-printing format', schema: { type: 'string', format: 'uuid', enum: ['a'] }, options: {}, type: 'union' },
     { title: 'a Date format', schema: { type: 'string', format: 'date', enum: ['2024-01-01'] }, options: { dateType: 'date' }, type: 'date' },
     { title: 'dateType false', schema: { type: 'string', format: 'date', enum: ['2024-01-01'] }, options: { dateType: false }, type: 'enum' },

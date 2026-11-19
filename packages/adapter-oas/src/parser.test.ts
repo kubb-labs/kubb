@@ -5,6 +5,7 @@ import { adapterOas } from './adapter.ts'
 import { createSchemaParser, type OasParserContext } from './parser.ts'
 import { createRefs } from './refs.ts'
 import type { AdapterOasOptions, ContentType, Document, SchemaObject } from './types.ts'
+import type { ParserOptions } from './parserOptions.ts'
 
 const emptyDocument: Document = {
   openapi: '3.0.0',
@@ -98,7 +99,7 @@ const multiResponseDocument = {
 type SchemaCase = {
   title: string
   schema: SchemaObject
-  options?: Partial<ast.ParserOptions>
+  options?: Partial<ParserOptions>
   expected: Record<string, unknown>
 }
 
@@ -106,7 +107,7 @@ type SchemaCase = {
  * Parses a single OpenAPI `SchemaObject` into a `SchemaNode`, mirroring the
  * `createSchemaParser()` helper for single-schema test cases.
  */
-function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaObject; name?: string }, options?: Partial<ast.ParserOptions>): ast.SchemaNode {
+function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaObject; name?: string }, options?: Partial<ParserOptions>): ast.SchemaNode {
   return createSchemaParser({ ...ctx, options })({ schema, name })
 }
 
@@ -2126,7 +2127,7 @@ describe('parser options', () => {
   describe('emptySchemaType', () => {
     it.each([{ title: 'void for emptySchemaType: void', options: { emptySchemaType: 'void' }, type: 'void' }] satisfies Array<{
       title: string
-      options: Partial<ast.ParserOptions> | undefined
+      options: Partial<ParserOptions> | undefined
       type: string
     }>)('returns $title for an empty schema', async ({ options, type }) => {
       expect(parseSchema(emptyCtx, { schema: {} }, options).type).toBe(type)
@@ -2218,7 +2219,7 @@ describe('parser options', () => {
         dateType: { dateTime: 'date' },
         expected: { type: 'date', representation: 'date' },
       },
-    ] satisfies Array<{ title: string; format: string; dateType: ast.ParserOptions['dateType'] | undefined; expected: Record<string, unknown> }>)(
+    ] satisfies Array<{ title: string; format: string; dateType: ParserOptions['dateType'] | undefined; expected: Record<string, unknown> }>)(
       'maps $title',
       async ({ format, dateType, expected }) => {
         const node = parseSchema(emptyCtx, { schema: { type: 'string', format } }, dateType === undefined ? undefined : { dateType })

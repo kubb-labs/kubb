@@ -1,7 +1,7 @@
-import type { ast } from '@kubb/kit'
 import { formatMap, specialCasedFormats, structuralKeys } from '../constants.ts'
 import { isReference } from '../oas.ts'
 import type { SchemaObject } from '../types.ts'
+import type { DateOnlyTypeValue, DateTimeTypeValue, ParserOptions } from '../parserOptions.ts'
 
 /**
  * Whether `format` maps to a dedicated type; `false` is what `KUBB_UNSUPPORTED_FORMAT` flags.
@@ -15,10 +15,7 @@ export function isHandledFormat(format: string): boolean {
  * `dateType` applies to every format; the object form picks `dateTime`/`date`/`time`
  * individually and defaults an omitted key to `'string'`.
  */
-export function resolveDateTypeValue(
-  dateType: ast.ParserOptions['dateType'],
-  format: 'date-time' | 'date' | 'time',
-): ast.DateTimeTypeValue | ast.DateOnlyTypeValue {
+export function resolveDateTypeValue(dateType: ParserOptions['dateType'], format: 'date-time' | 'date' | 'time'): DateTimeTypeValue | DateOnlyTypeValue {
   if (typeof dateType !== 'object' || dateType === null) {
     return dateType
   }

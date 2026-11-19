@@ -8,6 +8,7 @@ import { convertConst, convertEnum, convertFormat, convertFormattedEnum, convert
 import { convertArray, convertObject, convertTuple } from './converters/structural.ts'
 import { createNode } from './createNode.ts'
 import { isHandledFormat, resolveDateTypeValue } from './schemaShape.ts'
+import type { ParserOptions } from '../parserOptions.ts'
 
 /**
  * Recurses into a nested schema. Converters call this instead of capturing the parser closure,
@@ -26,7 +27,7 @@ export type ConvertContext = {
   defaultValue: unknown
   /** First non-`null` entry of an OAS 3.1 multi-type array, or the plain `type`. */
   type: string | undefined
-  options: ast.ParserOptions
+  options: ParserOptions
   parse: ParseFn
   document: Document
   refs: Refs
