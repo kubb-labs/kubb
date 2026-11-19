@@ -60,33 +60,42 @@ function isPlainInlineObject(node: SchemaNode): boolean {
  * unresolved ref counts as `properties`. A nullable or optional node, or one with input checks, gives `null`.
  */
 export function getObjectKind(node: SchemaNode, { circularSchemas }: ObjectKindOptions = {}): ObjectKind | null {
-  if (node.nullable || node.optional || node.nullish) return null
-  if (getChecks(node).some((check) => check.kind !== 'patternProperties')) return null
+  // The ref targets already resolved, so a ref cycle outside `circularSchemas` ends instead of recursing forever.
+  const seen = new Set<SchemaNode>()
 
-  if (node.type === 'object') {
-    const hasProperties = node.properties.length > 0
-    const hasRest = hasTypedAdditionalProperties(node) || Boolean(node.patternProperties)
-    if (!hasProperties && (hasRest || node.propertyNames)) return 'record'
-    return hasProperties && hasRest ? 'mixed' : 'properties'
+  const kindOf = (current: SchemaNode): ObjectKind | null => {
+    if (current.nullable || current.optional || current.nullish) return null
+    if (getChecks(current).some((check) => check.kind !== 'patternProperties')) return null
+
+    if (current.type === 'object') {
+      const hasProperties = current.properties.length > 0
+      const hasRest = hasTypedAdditionalProperties(current) || Boolean(current.patternProperties)
+      if (!hasProperties && (hasRest || current.propertyNames)) return 'record'
+      return hasProperties && hasRest ? 'mixed' : 'properties'
+    }
+
+    if (current.type === 'ref') {
+      const name = getName(current)
+      if (name && circularSchemas?.has(name)) return null
+      if (!current.schema) return 'properties'
+      if (seen.has(current.schema)) return null
+      seen.add(current.schema)
+      return kindOf(mergeSchema(current))
+    }
+
+    if (current.type === 'union') {
+      return current.members?.length === 1 ? kindOf(current.members[0]!) : null
+    }
+
+    if (current.type === 'intersection') {
+      const [first, ...rest] = current.members ?? []
+      if (!first || !rest.every(isPlainInlineObject)) return null
+      const base = kindOf(first)
+      return base && base !== 'record' ? 'composed' : null
+    }
+
+    return null
   }
 
-  if (node.type === 'ref') {
-    const name = getName(node)
-    if (name && circularSchemas?.has(name)) return null
-    const resolved = mergeSchema(node)
-    return resolved.type === 'ref' ? 'properties' : getObjectKind(resolved, { circularSchemas })
-  }
-
-  if (node.type === 'union') {
-    return node.members?.length === 1 ? getObjectKind(node.members[0]!, { circularSchemas }) : null
-  }
-
-  if (node.type === 'intersection') {
-    const [first, ...rest] = node.members ?? []
-    if (!first || !rest.every(isPlainInlineObject)) return null
-    const base = getObjectKind(first, { circularSchemas })
-    return base && base !== 'record' ? 'composed' : null
-  }
-
-  return null
+  return kindOf(node)
 }

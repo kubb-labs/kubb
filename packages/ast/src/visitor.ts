@@ -280,7 +280,7 @@ export function findSchema(
     followRefs?: boolean
     /**
      * Remembers the match below each schema (`null` for none), so later calls skip the parts of the graph they share.
-     * Keep one cache per `predicate` and `follow` value, for example one per build.
+     * Keep one cache per `predicate` and ref-following mode (`follow`, or the deprecated `followRefs`), for example one per build.
      * In a cyclic graph, a cached call can return a different match than the first one in depth-first order.
      */
     cache?: WeakMap<SchemaNode, SchemaNode | null>

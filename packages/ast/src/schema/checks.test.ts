@@ -55,6 +55,21 @@ describe('schema.getObjectKind', () => {
     expect(getObjectKind(node)).toBe(expected)
   })
 
+  it('follows a chain of refs to its target', () => {
+    const record = createSchema({ type: 'object', properties: [], additionalProperties: string })
+    const inner = createSchema({ type: 'ref', name: 'Inner', schema: record })
+
+    expect(getObjectKind(createSchema({ type: 'ref', name: 'Outer', schema: inner }))).toBe('record')
+    expect(getObjectKind(createSchema({ type: 'ref', name: 'Outer', schema: createSchema({ type: 'ref', name: 'Name', schema: string }) }))).toBeNull()
+  })
+
+  it('ends on a self-referencing allOf without circularSchemas', () => {
+    const node = createSchema({ type: 'intersection', name: 'Tree', members: [] })
+    Object.assign(node, { members: [createSchema({ type: 'ref', name: 'Tree', schema: node }), object] })
+
+    expect(getObjectKind(node)).toBeNull()
+  })
+
   it('gives null for a ref into a cycle', () => {
     expect(getObjectKind(createSchema({ type: 'ref', name: 'Tree', schema: object }), { circularSchemas: new Set(['Tree']) })).toBeNull()
   })
