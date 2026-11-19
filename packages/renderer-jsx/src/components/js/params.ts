@@ -17,7 +17,7 @@ export type PrintMode = 'declaration' | 'call'
 /** Prints a {@link TypeExpression} as TypeScript, such as `GetPetPathParams['petId']` or `{ id: string }`. */
 export function printParamType(type: TypeExpression): string {
   if (typeof type === 'string') return type
-  if (isIndexedAccessType(type)) return `${type.target}['${type.key.replace(/[\\']/g, '\\$&')}']`
+  if (isIndexedAccessType(type)) return `${type.target}['${type.key.replace(/[\\']/g, '\\$&').replace(/\n/g, '\\n').replace(/\r/g, '\\r')}']`
 
   return renderMembers(type.members.map((member) => ({ key: member.name, type: printParamType(member.type), optional: member.optional })))
 }
@@ -59,7 +59,7 @@ function sortedGroupMembers(name: ObjectBindingPatternNode, type: TypeExpression
 }
 
 function renderBindingMember(member: GroupMember): string {
-  return member.propertyName ? `${renderKey(member.propertyName)}: ${member.name}` : member.name
+  return member.propertyName !== undefined ? `${renderKey(member.propertyName)}: ${member.name}` : member.name
 }
 
 // An inline type is printed from the sorted members, so its keys match the binding order.

@@ -231,4 +231,14 @@ describe('print in call mode', () => {
     const sig = createFunctionParameters({ params: [group([{ name: 'id' }, { name: 'label' }], type)] })
     expect(print(sig, 'declaration')).toBe('{ id, label }: { id: number; label?: string }')
   })
+
+  it('escapes line breaks in an indexed-access key', () => {
+    expect(renderType(createIndexedAccessType({ target: 'Params', key: 'a\nb\rc' }))).toBe("Params['a\\nb\\rc']")
+  })
+
+  it('keeps an empty renamed binding key', () => {
+    const sig = createFunctionParameters({ params: [group([{ name: 'value', propertyName: '' }])] })
+    expect(print(sig, 'call')).toBe('{ "": value }')
+    expect(print(sig, 'declaration')).toBe('{ "": value }')
+  })
 })
