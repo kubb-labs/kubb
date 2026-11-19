@@ -89,6 +89,7 @@ export type {
   ResolverFile,
   ResolverFileParams,
   ResolverFilePathParams,
+  ResolverPartial,
   ResolverPatch,
   Storage,
 } from '@kubb/core'

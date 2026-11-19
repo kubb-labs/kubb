@@ -565,12 +565,12 @@ describe('toFilePath', () => {
   })
 })
 
-describe('Resolver.compose', () => {
+describe('Resolver.merge with a plain base', () => {
   it('folds presets in order and merges namespaces per method', () => {
     type NsResolver = Resolver & { ns: { a(name: string): string; b(name: string): string } }
 
-    const resolver = Resolver.compose<NsResolver>(
-      'test',
+    const resolver = Resolver.merge<NsResolver>(
+      { pluginName: 'test' },
       {
         name(name) {
           return name.toUpperCase()

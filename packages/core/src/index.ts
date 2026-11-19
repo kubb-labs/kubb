@@ -121,6 +121,7 @@ export type {
   ResolverFile,
   ResolverFileParams,
   ResolverFilePathParams,
+  ResolverPartial,
   ResolverPatch,
   ResolverPathParams,
 } from './Resolver.ts'

@@ -87,7 +87,7 @@ export const pluginExample = defineExtension({
 | Member          | Signature                                                 | Purpose                                                                         |
 | --------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | `addGenerator`  | `(...generators: Array<Generator>) => void`               | Registers generators.                                                           |
-| `setResolver`   | `(resolver: ResolverPatch<Resolver> \| Resolver) => void` | Sets the resolver. A patch merges over the defaults.                            |
+| `setResolver`   | `(resolver: ResolverPartial<Resolver> \| Resolver) => void` | Sets the resolver. A patch merges over the defaults.                            |
 | `addMacro`      | `(macro: Macro) => void`                                  | Adds a macro that rewrites nodes before generators run.                         |
 | `setMacros`     | `(macros: ReadonlyArray<Macro>) => void`                  | Replaces this plugin's macros.                                                  |
 | `setOptions`    | `(options: ResolvedOptions) => void`                      | Sets the resolved options. In `setup`, return them instead.                     |

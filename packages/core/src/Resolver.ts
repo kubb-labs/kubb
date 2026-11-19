@@ -270,19 +270,24 @@ export type ResolveNameOptions = {
 }
 
 /**
- * Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Parameterize with a
- * concrete resolver type (e.g. `ResolverPatch<ResolverTs>`) to type-check overrides and bind
- * `this` to the full resolver. Namespaces are partial, so a patch may override a single method
- * (`query.name`) and the rest keep the plugin defaults. Overriding a whole resolver is not the
- * job of this patch, that is what a custom plugin is for.
+ * Partial resolver fields accepted by `Resolver.merge` and `setResolver`, used for user overrides
+ * and for presets shared between plugins. Parameterize with a concrete resolver type (e.g.
+ * `ResolverPartial<ResolverTs>`) to type-check the fields and bind `this` to the full resolver.
+ * Namespaces are partial, so a partial may set a single method (`query.name`) and the rest keep
+ * the plugin defaults.
  */
-export type ResolverPatch<T extends Resolver = Resolver> = {
+export type ResolverPartial<T extends Resolver = Resolver> = {
   [K in keyof Omit<T, keyof Resolver>]?: T[K] extends (...args: Array<never>) => unknown ? T[K] : Partial<T[K]>
 } & {
   imports?: T['imports']
   name?: T['name']
   file?: ResolverFile
 } & ThisType<T>
+
+/**
+ * @deprecated Use {@link ResolverPartial}. Removed in v6.
+ */
+export type ResolverPatch<T extends Resolver = Resolver> = ResolverPartial<T>
 
 function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -515,8 +520,14 @@ export class Resolver {
    * ```ts
    * const resolver = Resolver.merge(defaultResolver, sharedNamingPatch, { name: (name) => name.toUpperCase() })
    * ```
+   *
+   * @example Build a resolver from shared presets
+   * ```ts
+   * export const resolverZod = Resolver.merge<ResolverZod>({ pluginName: 'plugin-zod' }, casedPreset, operationPreset)
+   * ```
    */
-  static merge<T extends Resolver>(base: T, ...overrides: Array<ResolverPatch<T> | Resolver>): T {
+  static merge<T extends Resolver>(base: T | ResolverBuildOptions, ...overrides: Array<ResolverPartial<T> | Resolver>): T {
+    // shortcut: a plain `base` is not checked against `T`, so a namespace no override fills is not a type error; upgrade when partials can be typed by the keys they fill.
     const merged = overrides.reduce<Record<string, unknown>>(
       (acc, override) => {
         const patch = resolverOptions in override ? override[resolverOptions] : override
@@ -527,26 +538,9 @@ export class Resolver {
         }
         return acc
       },
-      { ...base[resolverOptions] },
+      { ...(resolverOptions in base ? base[resolverOptions] : base) },
     )
     return new Resolver(merged as ResolverBuildOptions) as T
-  }
-
-  /**
-   * Builds a resolver from presets by folding them over a bare one with {@link Resolver.merge}.
-   * Namespaces and `file` merge per member, so a later preset can add `response.options` and keep
-   * the rest. Use it to share naming rules between plugins.
-   *
-   * @example Build a resolver from shared presets
-   * ```ts
-   * export const resolverZod = Resolver.compose<ResolverZod>('plugin-zod', casedPreset, operationPreset, {
-   *   response: { options(node) { return this.name(`${node.operationId} Options`) } },
-   * })
-   * ```
-   */
-  static compose<T extends Resolver>(pluginName: string, ...presets: Array<ResolverPatch<T>>): T {
-    // shortcut: the bare base is cast to the full type, so a namespace no preset fills is not a type error; upgrade when presets can be typed by the keys they fill.
-    return Resolver.merge(new Resolver({ pluginName }) as T, ...presets)
   }
 
   /**

@@ -104,24 +104,24 @@ const patched = Resolver.merge(resolver, {
 ```
 
 > [!TIP]
-> Type a patch with `ResolverPatch<T>` to check `this` and the namespace shapes against the target resolver.
+> Type a patch with `ResolverPartial<T>` to check `this` and the namespace shapes against the target resolver.
 
-### `Resolver.compose`
+### Shared presets
 
-`Resolver.compose(pluginName, ...presets)` builds a resolver from presets with `Resolver.merge`. Use it when several plugins share naming rules, such as a casing or the names of an operation's parameters.
+Pass `{ pluginName }` as the base of `Resolver.merge` to build a resolver from presets. Use it when several plugins share naming rules, such as a casing or the names of an operation's parameters.
 
-```typescript [compose.ts]
+```typescript [presets.ts]
 import { casing, Resolver } from 'kubb/kit'
-import type { ResolverPatch } from 'kubb/kit'
+import type { ResolverPartial } from 'kubb/kit'
 
 // A preset shared by several plugins types against the base `Resolver`.
-const camelSchema: ResolverPatch = {
+const camelSchema: ResolverPartial = {
   name(name) {
     return casing.camel(name, { suffix: 'schema' })
   },
 }
 
-export const resolver = Resolver.compose<MyResolver>('plugin-example', camelSchema, {
+export const resolver = Resolver.merge<MyResolver>({ pluginName: 'plugin-example' }, camelSchema, {
   schema: {
     name(node) {
       return casing.pascal(node.name, { suffix: 'type' })
@@ -130,17 +130,17 @@ export const resolver = Resolver.compose<MyResolver>('plugin-example', camelSche
 })
 ```
 
-Type a shared preset as `ResolverPatch` to check `this` and its parameters. A preset for one plugin can use `ResolverPatch<MyResolver>` to reach that plugin's namespaces through `this`.
+Type a shared preset as `ResolverPartial` to check `this` and its parameters. A preset for one plugin can use `ResolverPartial<MyResolver>` to reach that plugin's namespaces through `this`.
 
 > [!WARNING]
-> TypeScript does not check that the presets fill every namespace the plugin's resolver type declares. A test that calls each namespace catches a missing one.
+> With a plain base, TypeScript does not check that the presets fill every namespace the plugin's resolver type declares. A test that calls each namespace catches a missing one.
 
 ## Resolver overrides {#resolver-overrides}
 
 `name` changes identifier casing, `file.baseName` and `file.path` control files, and plugin namespaces control specific symbols. Users pass the same shape to a plugin's [`resolver` option](/docs/5.x/reference/plugin-options#resolver).
 
 ```typescript [Type definition]
-type ResolverPatch = {
+type ResolverPartial = {
   name?: (name: string) => string
   file?: {
     baseName?: (params: { name: string; extname: string }) => string

@@ -348,7 +348,7 @@ pluginTs({
 
 ::field-group
 
-:::field{type="ResolverPatch<Resolver>"}
+:::field{type="ResolverPartial<Resolver>"}
 Changes how the plugin names generated files and symbols. Members you leave out keep the plugin's behavior. Default: the plugin's resolver.
 :::
 
@@ -357,7 +357,7 @@ Changes how the plugin names generated files and symbols. Members you leave out 
 Every resolver has these members. A plugin's options page lists its own, such as `param` on `@kubb/plugin-ts`. In a method, `this` is the full resolver, so `this.default.name(name)` reuses the built-in casing.
 
 ```typescript [Shared members]
-type ResolverPatch = {
+type ResolverPartial = {
   name?(name: string): string // the identifier for a name
   file?: {
     baseName?(params: { name: string; extname: string }): string // the file name, extension included
