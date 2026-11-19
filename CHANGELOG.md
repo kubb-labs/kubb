@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.23.1 — Nov 19, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Make resolver parts reusable across plugins. `defineResolver` types a partial resolver, `setResolver` accepts a list of parts merged left to right, and `@kubb/kit` exports the shared parts `resolverOperationParams`, `resolverOperationResponse`, and `resolverCasedFile`, plus `operationKey`. `toFilePath` takes an optional `caseLast` for the file name. ([#4688](https://github.com/kubb-labs/kubb/pull/4688), [`a81d67a`](https://github.com/kubb-labs/kubb/commit/a81d67a13d7d03fe4f9243f1c20eaff891be2d05))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.23.0 — Nov 19, 2026
 
 ### @kubb/ast
