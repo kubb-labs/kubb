@@ -300,6 +300,7 @@ export type UserImportNode =
 export function createImport(input: UserImportNode): ImportNode {
   // Without a `plugin`, the input type requires a `path`.
   if (!input.plugin) return { ...input, path: input.path!, kind: nodeKinds.import }
+  if (input.isNameSpace) throw new Error(`An import from plugin "${input.plugin}" takes named imports, not a namespace.`)
   // `.flat()` also covers an untyped caller passing one name as a string.
   return { ...input, name: [input.name].flat(), path: `${SYMBOL_PATH_PREFIX}${input.plugin}`, kind: nodeKinds.import }
 }

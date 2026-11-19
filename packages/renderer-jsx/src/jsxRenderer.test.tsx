@@ -253,6 +253,10 @@ describe('File.Import', () => {
     expect(renderer.files[0]?.imports[0]).toMatchObject({ kind: 'Import', name: ['Pet'], plugin: 'plugin-ts', isTypeOnly: false })
   })
 
+  it('rejects a namespace import from a plugin', () => {
+    expect(() => ast.factory.createImport({ name: ['Pet'], plugin: 'plugin-ts', isNameSpace: true } as unknown as ast.UserImportNode)).toThrow(/named imports/)
+  })
+
   it('keeps the plugin when an untyped caller passes one name as a string', async () => {
     const renderer = jsxRenderer()
     const props = { name: 'Pet', plugin: 'plugin-ts' } as unknown as { name: Array<string>; plugin: string }
