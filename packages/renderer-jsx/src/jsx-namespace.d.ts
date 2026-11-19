@@ -35,10 +35,12 @@ export namespace JSX {
     }
     ['kubb-import']: Omit<ast.ImportNode, 'kind'> & {}
     ['kubb-export']: Omit<ast.ExportNode, 'kind'> & {}
-    ['kubb-function']: Omit<ast.FunctionNode, 'kind'> & {
+    ['kubb-function']: Omit<ast.FunctionNode, 'kind' | 'params'> & {
+      params?: string | ast.FunctionParametersNode | null
       children?: KubbReactNode
     }
-    ['kubb-arrow-function']: Omit<ast.ArrowFunctionNode, 'kind'> & {
+    ['kubb-arrow-function']: Omit<ast.ArrowFunctionNode, 'kind' | 'params'> & {
+      params?: string | ast.FunctionParametersNode | null
       children?: KubbReactNode
     }
     ['kubb-const']: Omit<ast.ConstNode, 'kind'> & {

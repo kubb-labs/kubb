@@ -72,7 +72,7 @@ const files = renderer.files
 
 | Group | Components |
 | --- | --- |
-| [Core](#core) | [`File`](#file), [`File.Source`](#file-source), [`File.Import`](#file-import), [`File.Export`](#file-export) |
+| [Core](#core) | [`File`](#file), [`File.Source`](#file-source), [`File.Import`](#file-import), [`File.Export`](#file-export), [`Schema`](#schema) |
 | [JavaScript](#javascript) | [`Const`](#const), [`Function`](#function), [`Function.Arrow`](#function-arrow), [`Type`](#type) |
 | [Markdown](#markdown) | [`Callout`](#callout), [`Frontmatter`](#frontmatter), [`Heading`](#heading), [`List`](#list), [`Paragraph`](#paragraph) |
 | [JSX](#jsx) | [`Jsx`](#jsx-component) |
@@ -83,7 +83,7 @@ Inside a code component or `File.Source`, `<br />` adds a line break.
 
 #### `File` {#file}
 
-With `baseName` and `path`, `File` declares a generated file. Without them, it renders its children inline. Text directly in a `File`, outside `File.Source`, throws.
+With `baseName` and `path`, `File` declares a generated file. Without them, it renders its children inline. Text directly in a `File`, outside `File.Source`, throws. A [JavaScript component](#javascript) directly in a `File` is its own source block.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -105,7 +105,7 @@ With `baseName` and `path`, `File` declares a generated file. Without them, it r
 
 #### `File.Source` {#file-source}
 
-A block of source text in the enclosing `File`.
+A block of source text in the enclosing `File`. A single `Const`, `Type`, `Function` or `Function.Arrow` does not need one: see [JavaScript](#javascript).
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -158,9 +158,38 @@ An export at the top of the enclosing `File`.
 // export type * from './models/petStore'
 ```
 
+#### `Schema` {#schema}
+
+Prints a schema node with a printer, adds the imports the printer collected, and calls `children` with the code. When the printer returns nothing, `Schema` renders nothing, imports included.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `node` | `SchemaNode` | The schema to print |
+| `printer` | `Printer` | The printer, such as one built with `createPrinter` |
+| `children` | `(code: string) => KubbReactNode` | Renders the declarations for the code |
+
+```tsx
+<Schema node={node} printer={printer}>
+  {(code) => (
+    <Const export name="petSchema">
+      {code}
+    </Const>
+  )}
+</Schema>
+```
+
 ### JavaScript
 
-The JavaScript components emit TypeScript inside a `File.Source`. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block.
+The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block.
+
+Put a component directly in a `File`, and it becomes its own source block named after `name`. With `export`, the block is exportable and included in barrels, and a `Type` is type-only. Wrap it in a `File.Source` only to set other values, such as `pointer` or `inline`.
+
+```tsx
+<File baseName="pet.ts" path="src/zod/pet.ts">
+  <Const export name="petSchema">{'z.object({ id: z.number() })'}</Const>
+  <Type export name="Pet">{'z.infer<typeof petSchema>'}</Type>
+</File>
+```
 
 #### `Const` {#const}
 
@@ -188,7 +217,7 @@ A function declaration, with the children as the body.
 | `name` | `string` | The name |
 | `default?` | `boolean \| null` | Adds `default` after `export` |
 | `async?` | `boolean \| null` | Adds `async` and wraps `returnType` in `Promise<…>` |
-| `params?` | `string \| null` | The parameter list |
+| `params?` | `string \| FunctionParametersNode \| null` | The parameter list, as text or as a node from [`ast.params`](/docs/5.x/reference/kit/ast#ast-params) |
 | `generics?` | `string \| Array<string> \| null` | The type parameters. An array joins with commas. |
 | `returnType?` | `string \| null` | The return type after `:` |
 

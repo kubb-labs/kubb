@@ -79,6 +79,7 @@ You narrow a `SchemaNode` by its `type`. `ast.schema.types` lists every value.
 | Input | `createInput`, `createSchema`, `createOperation`, `createParameter`, `createProperty`, `createResponse`, `createRequestBody`, `createContent` |
 | File | `createFile`, `createSource`, `createImport`, `createExport` |
 | Code nodes | `createText`, `createConst`, `createType`, `createFunction`, `createArrowFunction`, `createJsx`, `createBreak` |
+| Parameters | `createFunctionParameters`, `createFunctionParameter`, `createObjectBindingPattern`, `createTypeLiteral`, `createIndexedAccessType` |
 
 ```typescript [factory.ts]
 import { ast } from 'kubb/kit'
@@ -123,6 +124,29 @@ const mutations = ast.node.collect<ast.OperationNode>(root, {
 
 ast.node.kinds.schema // 'Schema'
 ast.node.getText([ast.factory.createText('const a = 1'), ast.factory.createText('const b = 2')]) // 'const a = 1\nconst b = 2'
+```
+
+## `ast.params` {#ast-params}
+
+`ast.params` prints a parameter list built with the parameter factories. `print(node, 'declaration')` gives the signature, and `print(node, 'call')` gives the matching call arguments. Parameters are sorted required, optional, defaulted, then rest. The `params` prop of `Function` and `Function.Arrow` also takes the node and prints it as a declaration.
+
+| Helper | Returns |
+| --- | --- |
+| `ast.params.print` | The parameter list as text, in `'declaration'` or `'call'` mode |
+| `ast.params.renderType` | A parameter type as text, such as `GetPetPathParams['petId']` |
+
+```typescript [params.ts]
+import { ast } from 'kubb/kit'
+
+const params = ast.factory.createFunctionParameters({
+  params: [
+    ast.factory.createFunctionParameter({ name: 'config', type: 'Config', default: '{}' }),
+    ast.factory.createFunctionParameter({ properties: [{ name: 'petId', type: 'string' }] }),
+  ],
+})
+
+ast.params.print(params, 'declaration') // '{ petId }: { petId: string }, config: Config = {}'
+ast.params.print(params, 'call') // '{ petId }, config'
 ```
 
 ## `ast.file` {#ast-file}

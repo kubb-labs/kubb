@@ -1,8 +1,10 @@
+import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { Const } from './components/js/Const.tsx'
 import { File } from './components/File.tsx'
 import { Function } from './components/js/Function.tsx'
 import { Type } from './components/js/Type.tsx'
+import { Schema } from './components/Schema.tsx'
 import { jsxRenderer } from './jsxRenderer.ts'
 
 describe('jsxRenderer', () => {
@@ -256,6 +258,102 @@ describe('File.Export', () => {
       path: './models/pet',
       isTypeOnly: true,
       asAlias: true,
+    })
+  })
+
+  it('registers a declaration placed directly under a file as its own source', async () => {
+    const wrapped = jsxRenderer()
+    await wrapped.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <File.Source name="petSchema" isExportable isIndexable>
+          <Const export name="petSchema">
+            {'z.object({})'}
+          </Const>
+        </File.Source>
+        <File.Source name="Pet" isExportable isIndexable isTypeOnly>
+          <Type export name="Pet">
+            {'z.infer<typeof petSchema>'}
+          </Type>
+        </File.Source>
+        <File.Source name="helper">
+          <Function name="helper">{'return 1'}</Function>
+        </File.Source>
+      </File>,
+    )
+
+    const bare = jsxRenderer()
+    await bare.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Const export name="petSchema">
+          {'z.object({})'}
+        </Const>
+        <Type export name="Pet">
+          {'z.infer<typeof petSchema>'}
+        </Type>
+        <Function name="helper">{'return 1'}</Function>
+      </File>,
+    )
+
+    expect(bare.files).toStrictEqual(wrapped.files)
+  })
+
+  it('prints a params node in declaration mode', async () => {
+    const params = ast.factory.createFunctionParameters({
+      params: [
+        ast.factory.createFunctionParameter({ name: 'config', type: 'Config', default: '{}' }),
+        ast.factory.createFunctionParameter({ name: 'petId', type: 'string' }),
+      ],
+    })
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Function export name="getPet" params={params}>
+          {'return petId'}
+        </Function>
+        <Function.Arrow export name="getPetKey" params={params} singleLine>
+          {'[petId]'}
+        </Function.Arrow>
+      </File>,
+    )
+
+    const [fn, arrow] = renderer.files[0]!.sources.map((source) => source.nodes?.[0])
+    expect(fn).toMatchObject({ kind: 'Function', params: 'petId: string, config: Config = {}' })
+    expect(arrow).toMatchObject({ kind: 'ArrowFunction', params: 'petId: string, config: Config = {}' })
+  })
+
+  it('renders a Schema with the imports its printer collected', async () => {
+    type P = ast.PrinterFactoryOptions<'zod', object, string>
+    const collected: Array<ast.ImportNode> = []
+    const print = (node: ast.SchemaNode) => {
+      if (node.type !== 'string') return null
+      collected.push(ast.factory.createImport({ name: 'z', path: 'zod', isNameSpace: true }))
+      return 'z.string()'
+    }
+    const printer: ast.Printer<P> = { name: 'zod', options: {}, transform: print, print, drainImports: () => collected.splice(0) }
+
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Schema node={ast.factory.createSchema({ type: 'string' })} printer={printer}>
+          {(code) => (
+            <Const export name="nameSchema">
+              {code}
+            </Const>
+          )}
+        </Schema>
+        <Schema node={ast.factory.createSchema({ type: 'number' })} printer={printer}>
+          {(code) => <Const name="unused">{code}</Const>}
+        </Schema>
+      </File>,
+    )
+
+    const file = renderer.files[0]!
+    expect(file.imports).toMatchObject([{ kind: 'Import', name: 'z', path: 'zod', isNameSpace: true }])
+    expect(file.sources).toHaveLength(1)
+    expect(file.sources[0]).toMatchObject({
+      name: 'nameSchema',
+      isExportable: true,
+      nodes: [{ kind: 'Const', nodes: [{ kind: 'Text', value: 'z.string()' }] }],
     })
   })
 })

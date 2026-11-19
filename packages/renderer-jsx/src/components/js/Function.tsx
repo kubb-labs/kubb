@@ -1,8 +1,13 @@
 import type { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
-type Props = Omit<ast.FunctionNode, 'kind' | 'nodes'> & {
+type Props = Omit<ast.FunctionNode, 'kind' | 'nodes' | 'params'> & {
   key?: Key
+  /**
+   * Parameter list, as a pre-rendered string or a parameter node from `ast.factory.createFunctionParameters`.
+   * A node is printed in declaration mode, sorted required, optional, then defaulted.
+   */
+  params?: string | ast.FunctionParametersNode | null
   /**
    * Child nodes rendered as the body of the function.
    */
@@ -26,8 +31,12 @@ export function Function({ children, ...props }: Props): KubbReactElement {
   return <kubb-function {...props}>{children}</kubb-function>
 }
 
-type ArrowFunctionProps = Omit<ast.ArrowFunctionNode, 'kind' | 'nodes'> & {
+type ArrowFunctionProps = Omit<ast.ArrowFunctionNode, 'kind' | 'nodes' | 'params'> & {
   key?: Key
+  /**
+   * Parameter list, as a pre-rendered string or a parameter node. See {@link Function}.
+   */
+  params?: string | ast.FunctionParametersNode | null
   /**
    * Child nodes rendered as the body of the function.
    */
