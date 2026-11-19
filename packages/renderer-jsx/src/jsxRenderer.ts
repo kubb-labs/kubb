@@ -48,7 +48,7 @@ function childrenOf(host: HostElement): unknown {
 type CodeTag = 'kubb-function' | 'kubb-arrow-function' | 'kubb-const' | 'kubb-type'
 type CodeHost = Extract<HostElement, { type: CodeTag }>
 type CodeFactories = {
-  [K in CodeTag]: (props: Omit<JSX.IntrinsicElements[K], 'children'> & { nodes: Array<ast.CodeNode> }) => ast.CodeNode
+  [K in CodeTag]: (props: Omit<JSX.IntrinsicElements[K], 'children' | 'pointer' | 'inline'> & { nodes: Array<ast.CodeNode> }) => ast.CodeNode
 }
 
 const codeFactories: CodeFactories = {
@@ -63,7 +63,8 @@ function isCodeHost(host: HostElement): host is CodeHost {
 }
 
 function createCodeNode<K extends CodeTag>(type: K, props: JSX.IntrinsicElements[K]): ast.CodeNode {
-  const { children, ...rest } = props
+  // `pointer` and `inline` describe the source block, not the code node.
+  const { children, pointer: _pointer, inline: _inline, ...rest } = props
 
   return codeFactories[type]({ ...rest, nodes: collectCodeNodes(children) })
 }
@@ -149,7 +150,7 @@ function collectFileChildren(element: unknown): FileChildren {
 
       // A declaration directly under a file is its own source: `export` makes it exportable and indexable.
       if (isCodeHost(host)) {
-        const { name, export: canExport } = host.props
+        const { name, export: canExport, pointer, inline } = host.props
         // A default export cannot be re-exported by name, so barrels skip it.
         const isDefault = 'default' in host.props && !!host.props.default
         sources.push(
@@ -158,6 +159,8 @@ function collectFileChildren(element: unknown): FileChildren {
             isTypeOnly: host.type === 'kubb-type',
             isExportable: !!canExport,
             isIndexable: !!canExport && !isDefault,
+            ...(pointer !== undefined ? { pointer } : {}),
+            ...(inline ? { inline } : {}),
             nodes: [createCodeNode(host.type, host.props)],
           }),
         )

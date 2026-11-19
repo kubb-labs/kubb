@@ -408,4 +408,20 @@ describe('File.Export', () => {
 
     expect(renderer.files[0]!.sources[0]!.nodes?.[0]).toMatchObject({ kind: 'Const', JSDoc: { comments: ['A pet.'] } })
   })
+
+  it('reads pointer and inline from a bare declaration', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Type export name="Pet" pointer="#/components/schemas/Pet" inline={{ expression: '{ id: number }' }}>
+          {'{ id: number }'}
+        </Type>
+      </File>,
+    )
+
+    const [source] = renderer.files[0]!.sources
+    expect(source).toMatchObject({ name: 'Pet', pointer: '#/components/schemas/Pet', inline: { expression: '{ id: number }' }, isTypeOnly: true })
+    expect(source!.nodes?.[0]).not.toHaveProperty('inline')
+    expect(source!.nodes?.[0]).not.toHaveProperty('pointer')
+  })
 })

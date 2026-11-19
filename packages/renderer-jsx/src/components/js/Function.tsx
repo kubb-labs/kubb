@@ -11,6 +11,8 @@ type Props = Omit<ast.FunctionNode, 'kind' | 'nodes' | 'params'> & {
   params?: Params
   /** Doc comment lines, the same as `JSDoc={{ comments }}`. */
   comments?: Array<string | undefined>
+  /** Lets importing files use `expression` in place of the name, as on `File.Source`. Read when the declaration sits directly in a `File`. */
+  inline?: { expression: string } | null
   /**
    * Child nodes rendered as the body of the function.
    */
@@ -72,6 +74,8 @@ type ArrowFunctionProps = Omit<ast.ArrowFunctionNode, 'kind' | 'nodes' | 'params
   params?: Params
   /** Doc comment lines, the same as `JSDoc={{ comments }}`. */
   comments?: Array<string | undefined>
+  /** Lets importing files use `expression` in place of the name, as on `File.Source`. Read when the declaration sits directly in a `File`. */
+  inline?: { expression: string } | null
   /**
    * Child nodes rendered as the body of the function.
    */
