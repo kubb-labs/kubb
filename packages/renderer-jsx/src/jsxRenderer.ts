@@ -143,12 +143,9 @@ function collectFileChildren(element: unknown): FileChildren {
 
       if (host.type === 'kubb-import') {
         const { name, path, plugin, root, isTypeOnly, isNameSpace } = host.props
+        // `createImport` turns a `plugin` import into a named import with a placeholder path.
         imports.push(
-          ast.factory.createImport(
-            plugin
-              ? { name: name as Array<string>, root, plugin, isTypeOnly: !!isTypeOnly }
-              : { name, path: path!, root, isTypeOnly: !!isTypeOnly, isNameSpace: !!isNameSpace },
-          ),
+          ast.factory.createImport({ name, path, root, isTypeOnly: !!isTypeOnly, isNameSpace: !!isNameSpace, ...(plugin && { plugin }) } as ast.UserImportNode),
         )
         return
       }

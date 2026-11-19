@@ -156,10 +156,7 @@ export function withOrigin(files: ReadonlyArray<FileNode>, { pointer, plugin }: 
   if (!pointer && !plugin) return files
   return files.map((file) => ({
     ...file,
-    // Keeps the source object when it already has what would be filled in.
-    sources: file.sources.map((source) =>
-      (source.pointer || !pointer) && (source.plugin || !plugin) ? source : { ...source, pointer: source.pointer ?? pointer, plugin: source.plugin ?? plugin },
-    ),
+    sources: file.sources.map((source) => ({ ...source, pointer: source.pointer ?? pointer, plugin: source.plugin ?? plugin })),
   }))
 }
 

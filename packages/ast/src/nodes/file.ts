@@ -276,7 +276,7 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
 /** Path of an import that names a `plugin`, until core fills in the real one. */
 const SYMBOL_PATH_PREFIX = 'kubb:'
 
-/** Input for {@link createImport}. A `plugin` import takes named imports only, and wins over `path`. */
+/** Input for {@link createImport}. A `plugin` import takes named imports only, and core replaces its `path`. */
 export type UserImportNode =
   | (Omit<ImportNode, 'kind' | 'plugin'> & { plugin?: null })
   | (Omit<ImportNode, 'kind' | 'path' | 'plugin' | 'name' | 'isNameSpace'> & {
@@ -298,10 +298,9 @@ export type UserImportNode =
  * ```
  */
 export function createImport(input: UserImportNode): ImportNode {
-  if (!input.plugin) return { ...input, path: input.path!, kind: nodeKinds.import }
-  // A plugin import is always named, also when an untyped caller passes one name as a string.
-  const name = Array.isArray(input.name) ? input.name : [input.name as string]
-  return { ...input, name, path: input.path ?? `${SYMBOL_PATH_PREFIX}${input.plugin}`, kind: nodeKinds.import }
+  if (input.plugin == null) return { ...input, kind: nodeKinds.import }
+  // `.flat()` also covers an untyped caller passing one name as a string.
+  return { ...input, name: [input.name].flat(), path: `${SYMBOL_PATH_PREFIX}${input.plugin}`, kind: nodeKinds.import }
 }
 
 /**
