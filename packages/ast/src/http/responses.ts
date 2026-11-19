@@ -1,5 +1,5 @@
 import { narrowSchema } from '../guards.ts'
-import { getStreamFraming, isStream } from '../mediaType/index.ts'
+import { getKind, isStream } from '../mediaType/index.ts'
 import type { ContentNode } from '../nodes/content.ts'
 import type { HttpOperationNode, OperationNode } from '../nodes/operation.ts'
 import { createSchema, type SchemaNode } from '../nodes/schema.ts'
@@ -34,8 +34,6 @@ export function findPrimary(node: Pick<HttpOperationNode, 'responses'>): Respons
 
 /** How an operation streams its success responses, as {@link getStream} returns it. */
 export type ResponseStream = {
-  /** The primary success response's framing when it streams with one content type. */
-  framing: 'events' | 'lines' | null
   /** `event` for a whole typed event, `data` for a typed payload, `line` for a JSON Lines value. */
   shape: 'event' | 'data' | 'line' | null
   /** Whether events keep `data` as text: all of them, the named ones, or none. */
@@ -46,7 +44,7 @@ export type ResponseStream = {
   hasVariant: boolean
 }
 
-const isText = (schema: SchemaNode | null | undefined) => Boolean(schema) && is(schema!, 'text', { follow: ['ref'] })
+const isText = (schema: SchemaNode | null | undefined) => !!schema && is(schema, 'text', { follow: ['ref'] })
 
 function getTextEvents(entry: ContentNode, shape: ResponseStream['shape']): ResponseStream['textEvents'] {
   if (shape === 'data') return isText(entry.stream?.schema ?? entry.schema)
@@ -70,17 +68,17 @@ function getTextEvents(entry: ContentNode, shape: ResponseStream['shape']): Resp
 export function getStream(node: Pick<HttpOperationNode, 'responses'>): ResponseStream | null {
   const entries = findPrimary(node)?.content ?? []
   const entry = entries.length === 1 ? entries[0]! : undefined
-  const framing = (entry && getStreamFraming(entry)) ?? null
-  const shape = framing === 'events' ? (entry!.stream?.shape ?? 'data') : framing === 'lines' ? 'line' : null
+  const kind = entry && getKind(entry)
+  const shape = kind === 'eventStream' ? (entry!.stream?.shape ?? 'data') : kind === 'lineStream' ? 'line' : null
   // Next to another type, a stream without a schema gets no typed variant, so it keeps the plain call.
-  const hasEventStream = entries.some((item) => getStreamFraming(item) === 'events' && (entries.length === 1 || Boolean(item.schema)))
+  const hasEventStream = entries.some((item) => getKind(item) === 'eventStream' && (entries.length === 1 || Boolean(item.schema)))
   const hasVariant = filterSuccess(node).some((response) => {
     const variants = (response.content ?? []).filter((item) => item.schema)
     return variants.length > 1 && variants.some((item) => isStream(item))
   })
   if (!shape && !hasEventStream && !hasVariant) return null
 
-  return { framing, shape, textEvents: entry ? getTextEvents(entry, shape) : false, hasEventStream, hasVariant }
+  return { shape, textEvents: entry ? getTextEvents(entry, shape) : false, hasEventStream, hasVariant }
 }
 
 /** A union of refs to the success responses with a body, else every response with a body, else `null`. */

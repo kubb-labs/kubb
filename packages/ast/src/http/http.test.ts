@@ -1,9 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 import type { ResponseNode, StatusCode } from '../nodes/response.ts'
 import type { ParameterNode } from '../nodes/parameter.ts'
-import { createContent, createRequestBody, createResponse, createSchema } from '../nodes/index.ts'
+import { createContent, createOperation, createProperty, createRequestBody, createResponse, createSchema } from '../nodes/index.ts'
+import type { SchemaNode } from '../nodes/schema.ts'
+import { getKind } from '../mediaType/index.ts'
 import type { ContentNode } from '../nodes/content.ts'
-import type { HttpOperationNode } from '../nodes/operation.ts'
+import type { HttpOperationNode, OperationNode } from '../nodes/operation.ts'
 import { getBaseURL, getRequestGroups, groupParameters, requestBody, responses, status } from './index.ts'
 
 // Like the adapter, a body-less response keeps one entry with an empty `contentType`.
@@ -167,7 +169,6 @@ describe('http.responses.getStream', () => {
 
   it('reads a JSON Lines response', () => {
     expect(responses.getStream(operation(stream('application/jsonl')))).toStrictEqual({
-      framing: 'lines',
       shape: 'line',
       textEvents: false,
       hasEventStream: false,
@@ -178,7 +179,6 @@ describe('http.responses.getStream', () => {
   it('keeps string data of an event stream as text', () => {
     const data = createSchema({ type: 'string' })
     expect(responses.getStream(operation(stream('text/event-stream', { schema: data, stream: { schema: data, shape: 'data' } })))).toMatchObject({
-      framing: 'events',
       shape: 'data',
       textEvents: true,
       hasEventStream: true,
@@ -188,7 +188,6 @@ describe('http.responses.getStream', () => {
   it('flags a stream variant next to another content type', () => {
     const schema = createSchema({ type: 'string' })
     expect(responses.getStream(operation(createContent({ contentType: 'application/json', schema }), stream('application/jsonl', { schema })))).toMatchObject({
-      framing: null,
       shape: null,
       hasVariant: true,
     })
@@ -210,5 +209,230 @@ describe('http.responses.getUnion', () => {
   it('falls back to every response with a body, or null', () => {
     expect(responses.getUnion(node(withSchema('404')), resolver)).toMatchObject({ members: [{ name: 'Status404' }] })
     expect(responses.getUnion(node(response('204')), resolver)).toBeNull()
+  })
+})
+describe('http.responses.getStream on stream responses', () => {
+  const textEvents = (node: OperationNode) => responses.getStream(node)?.textEvents ?? false
+
+  function nodeWithResponseContentType(mediaType: string): OperationNode {
+    return createOperation({
+      operationId: 'streamEvents',
+      method: 'GET',
+      path: '/events',
+      responses: [
+        createResponse({
+          statusCode: '200',
+          content: [createContent({ contentType: mediaType, schema: createSchema({ type: 'object' }), stream: {} })],
+        }),
+      ],
+    })
+  }
+
+  test('reads text/event-stream as a stream, ignoring a charset suffix', () => {
+    expect(Boolean(responses.getStream(nodeWithResponseContentType('text/event-stream'))?.shape)).toBe(true)
+    expect(Boolean(responses.getStream(nodeWithResponseContentType('text/event-stream; charset=utf-8'))?.shape)).toBe(true)
+  })
+
+  test('keeps an operation that declares another content type next to text/event-stream a normal call', () => {
+    const node = createOperation({
+      operationId: 'streamEvents',
+      method: 'GET',
+      path: '/events',
+      responses: [
+        createResponse({
+          statusCode: '200',
+          content: [
+            createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) }),
+            createContent({ contentType: 'text/event-stream', schema: createSchema({ type: 'string' }) }),
+          ],
+        }),
+      ],
+    })
+
+    expect(Boolean(responses.getStream(node)?.shape)).toBe(false)
+    expect(Boolean(responses.getStream(node)?.hasEventStream)).toBe(true)
+    expect(responses.getStream(node)?.shape ?? null).toBeNull()
+  })
+
+  test('ignores a schema-less text/event-stream next to another content type', () => {
+    const node = createOperation({
+      operationId: 'streamEvents',
+      method: 'GET',
+      path: '/events',
+      responses: [
+        createResponse({
+          statusCode: '200',
+          content: [
+            createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) }),
+            createContent({ contentType: 'text/event-stream' }),
+          ],
+        }),
+      ],
+    })
+
+    expect(Boolean(responses.getStream(node)?.hasEventStream)).toBe(false)
+  })
+
+  test('finds a stream media type next to another content type on any success response', () => {
+    const operation = (contentTypes: Array<string>, schema: SchemaNode | null = createSchema({ type: 'object' })) =>
+      createOperation({
+        operationId: 'getUpdates',
+        method: 'GET',
+        path: '/updates',
+        responses: [
+          createResponse({ statusCode: '200', description: 'no body' }),
+          createResponse({ statusCode: '202', content: contentTypes.map((contentType) => createContent({ contentType, schema: schema ?? undefined })) }),
+        ],
+      })
+
+    expect(Boolean(responses.getStream(operation(['application/json', 'application/jsonl']))?.hasVariant)).toBe(true)
+    expect(Boolean(responses.getStream(operation(['application/json', 'text/event-stream; charset=utf-8']))?.hasVariant)).toBe(true)
+    expect(Boolean(responses.getStream(operation(['application/json', 'application/geo+json-seq']))?.hasVariant)).toBe(true)
+    expect(Boolean(responses.getStream(operation(['application/json', 'application/xml']))?.hasVariant)).toBe(false)
+    // A lone stream is a stream operation, and a variant without a schema is not typed.
+    expect(Boolean(responses.getStream(operation(['application/jsonl']))?.hasVariant)).toBe(false)
+    expect(Boolean(responses.getStream(operation(['application/json', 'application/jsonl'], null))?.hasVariant)).toBe(false)
+  })
+
+  test('reads the item shape of the stream', () => {
+    const textItem = createOperation({
+      operationId: 'streamLines',
+      method: 'GET',
+      path: '/lines',
+      responses: [
+        createResponse({
+          statusCode: '200',
+          content: [createContent({ contentType: 'text/event-stream', schema: createSchema({ type: 'string' }), stream: {} })],
+        }),
+      ],
+    })
+    const member = (name: string, data: SchemaNode) =>
+      createSchema({
+        type: 'object',
+        properties: [
+          createProperty({ name: 'event', required: true, schema: createSchema({ type: 'enum', enumValues: [name] }) }),
+          createProperty({ name: 'data', schema: data }),
+        ],
+      })
+    const union = createSchema({
+      type: 'union',
+      members: [member('delta', createSchema({ type: 'object' })), member('ping', createSchema({ type: 'string' }))],
+    })
+    const typedEvents = createOperation({
+      operationId: 'streamChat',
+      method: 'POST',
+      path: '/chat',
+      responses: [
+        createResponse({
+          statusCode: '200',
+          content: [createContent({ contentType: 'text/event-stream', schema: union, stream: { schema: union, shape: 'event' } })],
+        }),
+      ],
+    })
+
+    expect(responses.getStream(textItem)?.shape ?? null).toBe('data')
+    expect(responses.getStream(typedEvents)?.shape ?? null).toBe('event')
+  })
+
+  test('keeps event data as text only when every event types it as a string', () => {
+    const sse = (schema: SchemaNode | undefined, stream: ContentNode['stream'] = {}) =>
+      createOperation({
+        operationId: 'streamEvents',
+        method: 'GET',
+        path: '/events',
+        responses: [createResponse({ statusCode: '200', content: [createContent({ contentType: 'text/event-stream', schema, stream })] })],
+      })
+    const string = createSchema({ type: 'string' })
+    const event = (data: SchemaNode) => createSchema({ type: 'object', properties: [createProperty({ name: 'data', schema: data })] })
+    const events = (...members: Array<SchemaNode>) => createSchema({ type: 'union', members: members.map(event) })
+
+    expect(textEvents(sse(string))).toBe(true)
+    expect(textEvents(sse(string, { schema: string, shape: 'data' }))).toBe(true)
+    expect(textEvents(sse(event(string), { schema: event(string), shape: 'event' }))).toBe(true)
+    expect(textEvents(sse(undefined, { schema: events(string, string), shape: 'event' }))).toBe(true)
+    // Only some events type `data` as a string: named events keep theirs as text, an unnamed one cannot be told apart.
+    const named = (name: string, data: SchemaNode) =>
+      createSchema({
+        type: 'object',
+        properties: [
+          createProperty({ name: 'event', schema: createSchema({ type: 'enum', enumValues: [name] }) }),
+          createProperty({ name: 'data', schema: data }),
+        ],
+      })
+    const mixed = createSchema({ type: 'union', members: [named('note', string), named('tick', createSchema({ type: 'object' }))] })
+    expect(textEvents(sse(undefined, { schema: mixed, shape: 'event' }))).toStrictEqual(['note'])
+    // A discriminator intersects each event with its pinned name.
+    const pinned = createSchema({ type: 'intersection', members: [event(string), named('note', string)] })
+    expect(textEvents(sse(undefined, { schema: pinned, shape: 'event' }))).toBe(true)
+    // A schema-less stream reads as a blob and keeps the JSON-parse default.
+    expect(textEvents(sse(createSchema({ type: 'blob', primitive: 'string' })))).toBe(false)
+    expect(textEvents(sse(createSchema({ type: 'object' })))).toBe(false)
+    expect(textEvents(sse(undefined, { schema: events(string, createSchema({ type: 'object' })), shape: 'event' }))).toBe(false)
+    expect(textEvents(nodeWithResponseContentType('application/json'))).toBe(false)
+  })
+
+  test.each([
+    ['application/jsonl', 'line'],
+    ['application/x-ndjson', 'line'],
+    ['application/json-seq', 'line'],
+    ['multipart/mixed', null],
+    // No stream handler in the client runtime reads this type.
+    ['application/x-jsonlines', null],
+  ])('reads %s the adapter marks as a stream as %s', (contentType, shape) => {
+    const schema = createSchema({ type: 'object' })
+    const node = createOperation({
+      operationId: 'streamLogs',
+      method: 'GET',
+      path: '/logs',
+      responses: [
+        createResponse({
+          statusCode: '200',
+          content: [createContent({ contentType: contentType, schema: schema, stream: { schema } })],
+        }),
+      ],
+    })
+
+    expect(responses.getStream(node)?.shape ?? null).toBe(shape)
+  })
+
+  test('keeps JSON and binary responses a normal call', () => {
+    expect(Boolean(responses.getStream(nodeWithResponseContentType('application/json'))?.shape)).toBe(false)
+    expect(Boolean(responses.getStream(nodeWithResponseContentType('application/json'))?.hasEventStream)).toBe(false)
+    expect(Boolean(responses.getStream(nodeWithResponseContentType('application/octet-stream'))?.shape)).toBe(false)
+  })
+
+  test('keeps a binary body next to an event stream a normal call', () => {
+    const node = nodeWithResponseContents([
+      { contentType: 'audio/mpeg', schemaType: 'blob' },
+      { contentType: 'text/event-stream; charset=utf-8', schemaType: 'object' },
+    ])
+
+    expect(Boolean(responses.getStream(node)?.shape)).toBe(false)
+    expect(Boolean(responses.getStream(node)?.hasEventStream)).toBe(true)
+  })
+})
+
+function nodeWithResponseContents(entries: Array<{ contentType: string; schemaType: 'blob' | 'object' }>): OperationNode {
+  return createOperation({
+    operationId: 'speech',
+    method: 'POST',
+    path: '/speech',
+    responses: [
+      createResponse({
+        statusCode: '200',
+        content: entries.map((entry) => createContent({ contentType: entry.contentType, schema: createSchema({ type: entry.schemaType }), stream: {} })),
+      }),
+    ],
+  })
+}
+
+describe('mediaType.getKind on stream entries', () => {
+  test.each([
+    ['text/event-stream without framing', { contentType: 'text/event-stream; charset=utf-8' }, 'eventStream'],
+    ['JSON Lines without framing', { contentType: 'application/jsonl', stream: {} }, 'lineStream'],
+    ['multipart/mixed with an item schema', { contentType: 'multipart/mixed', stream: {} }, null],
+    ['plain JSON', { contentType: 'application/json' }, 'json'],
+  ] as const)('%s', (_, entry, expected) => {
+    expect(getKind(entry)).toBe(expected)
   })
 })

@@ -1,5 +1,5 @@
 import { narrowSchema } from '../guards.ts'
-import type { EnumSchemaNode, SchemaNode, SchemaType } from '../nodes/schema.ts'
+import type { SchemaNode, SchemaType } from '../nodes/schema.ts'
 import { mergeSchema } from '../ref/index.ts'
 
 /** `string` prints as a plain `string`, `text` is a non-blob string primitive, `const` a one-value enum, `enumLike` an enum or union of them, `untyped` is `void`, `any` or `unknown`. */
@@ -46,9 +46,6 @@ const kinds: Record<SchemaKind, (node: SchemaNode, test: (child: SchemaNode) => 
 }
 
 /** Whether a schema is of `kind`, looking at the node itself unless `follow` names links to look through. */
-export function is(node: SchemaNode, kind: 'binary'): node is Extract<SchemaNode, { type: 'blob' }>
-export function is(node: SchemaNode, kind: 'const'): node is EnumSchemaNode
-export function is(node: SchemaNode, kind: SchemaKind, options?: IsOptions): boolean
 export function is(node: SchemaNode, kind: SchemaKind, { follow = [] }: IsOptions = {}): boolean {
   const followsRefs = follow.includes('ref')
   const followsArrays = follow.includes('array')

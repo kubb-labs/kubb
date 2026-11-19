@@ -4,7 +4,6 @@ export { narrowSchema as narrow } from '../guards.ts'
 export { findSchema as find } from '../visitor.ts'
 export { getEmbeddedJson } from './embeddedJson.ts'
 import type { NumberSchemaNode, SchemaNode } from '../nodes/schema.ts'
-import type { PropertyNode } from '../nodes/property.ts'
 import { is } from './is.ts'
 
 export { getChecks, getObjectKind } from './checks.ts'
@@ -76,12 +75,4 @@ export function getNumberBounds({
     ...(upper !== undefined ? { max: upper } : {}),
     ...(keepsStep ? { multipleOf } : {}),
   }
-}
-
-/** Whether a property may be missing (`optional`), `null` (`nullable`), both (`nullish`), or neither (`required`). */
-export function getOptionality({ required, schema }: Pick<PropertyNode, 'required' | 'schema'>): 'required' | 'optional' | 'nullable' | 'nullish' {
-  const optional = !required || Boolean(schema.optional || schema.nullish)
-  const nullable = Boolean(schema.nullable || schema.nullish)
-  if (optional) return nullable ? 'nullish' : 'optional'
-  return nullable ? 'nullable' : 'required'
 }

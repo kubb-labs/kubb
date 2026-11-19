@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createSchema } from '../nodes/schema.ts'
-import { isString, getEmbeddedJson, getNumberBounds, getOptionality } from './index.ts'
+import { isString, getEmbeddedJson, getNumberBounds } from './index.ts'
 
 describe('schema.getEmbeddedJson', () => {
   const inner = createSchema({ type: 'object', properties: [] })
@@ -71,18 +71,5 @@ describe('schema.getNumberBounds on a number node', () => {
     [{ type: 'number', multipleOf: 0.5 }, { multipleOf: 0.5 }],
   ] as const)('getNumberBounds(%o) is %o', (node, expected) => {
     expect(getNumberBounds(node)).toStrictEqual(expected)
-  })
-})
-
-describe('schema.getOptionality', () => {
-  it.each([
-    [true, {}, 'required'],
-    [false, {}, 'optional'],
-    [true, { nullable: true }, 'nullable'],
-    [false, { nullable: true }, 'nullish'],
-    [true, { nullish: true }, 'nullish'],
-    [true, { optional: true }, 'optional'],
-  ] as const)('required %s with %o is %s', (required, modifiers, expected) => {
-    expect(getOptionality({ required, schema: createSchema({ type: 'string', ...modifiers }) })).toBe(expected)
   })
 })
