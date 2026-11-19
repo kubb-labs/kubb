@@ -41,33 +41,20 @@ const kinds: Record<SchemaKind, (node: SchemaNode, test: (child: SchemaNode) => 
   text: (node) => node.type !== 'blob' && node.primitive === 'string',
   scalar: (node) => scalarTypes.has(node.type),
   const: (node) => node.type === 'enum' && (node.namedEnumValues ?? node.enumValues ?? []).length === 1,
-  enumLike: (node, test) => node.type === 'enum' || (node.type === 'union' && Boolean(node.members?.length) && node.members!.every(test)),
+  enumLike: (node, test) => node.type === 'enum' || (node.type === 'union' && !!node.members?.length && node.members.every(test)),
   untyped: (node) => untypedTypes.has(node.type),
 }
 
 /** Whether a schema is of `kind`, looking at the node itself unless `follow` names links to look through. */
 export function is(node: SchemaNode, kind: SchemaKind, { follow = [] }: IsOptions = {}): boolean {
-  const followsRefs = follow.includes('ref')
-  const followsArrays = follow.includes('array')
-  // The ref targets on the current path, so a cycle stops without hiding a target reached again on a sibling branch.
-  const path = new Set<SchemaNode>()
-
-  const test = (current: SchemaNode): boolean => {
-    const entered: Array<SchemaNode> = []
-    let resolved = current
-    let cyclic = false
-    while (followsRefs && resolved.type === 'ref' && resolved.schema && !cyclic) {
-      cyclic = path.has(resolved.schema)
-      if (!cyclic) {
-        path.add(resolved.schema)
-        entered.push(resolved.schema)
-        resolved = mergeSchema(resolved)
-      }
+  // `path` holds the ref targets above `current`, so a cycle stops without hiding a target a sibling branch reaches.
+  const test = (current: SchemaNode, path: ReadonlySet<SchemaNode>): boolean => {
+    if (follow.includes('ref') && current.type === 'ref' && current.schema) {
+      return !path.has(current.schema) && test(mergeSchema(current), new Set(path).add(current.schema))
     }
-    const matches = !cyclic && (kinds[kind](resolved, test) || (followsArrays && resolved.type === 'array' && (resolved.items ?? []).some(test)))
-    for (const target of entered) path.delete(target)
-    return matches
+    const child = (next: SchemaNode) => test(next, path)
+    return kinds[kind](current, child) || (follow.includes('array') && current.type === 'array' && (current.items ?? []).some(child))
   }
 
-  return test(node)
+  return test(node, new Set())
 }

@@ -61,20 +61,22 @@ function getTextEvents(entry: ContentNode, shape: ResponseStream['shape']): Resp
   if (textEvents.length === events.length) return events.length > 0
 
   const eventNames = textEvents.map((event) => propertySchemas(event, 'event').flatMap((schema) => getSchemaLiteralValues(getSchema(schema))))
-  return eventNames.length > 0 && eventNames.every((values) => values.length > 0) && [...new Set(eventNames.flat().map(String))]
+  // An event without a fixed name cannot be told apart from the others.
+  if (!eventNames.length || eventNames.some((values) => !values.length)) return false
+  return [...new Set(eventNames.flat().map(String))]
 }
 
 /** How an operation streams its success responses, or `null` when none offers a stream. */
 export function getStream(node: Pick<HttpOperationNode, 'responses'>): ResponseStream | null {
   const entries = findPrimary(node)?.content ?? []
-  const entry = entries.length === 1 ? entries[0]! : undefined
-  const kind = entry && getKind(entry)
-  const shape = kind === 'eventStream' ? (entry!.stream?.shape ?? 'data') : kind === 'lineStream' ? 'line' : null
+  const entry = entries.length === 1 ? entries[0] : undefined
+  const kind = entry ? getKind(entry) : null
+  const shape = kind === 'eventStream' ? (entry?.stream?.shape ?? 'data') : kind === 'lineStream' ? 'line' : null
   // Next to another type, a stream without a schema gets no typed variant, so it keeps the plain call.
-  const hasEventStream = entries.some((item) => getKind(item) === 'eventStream' && (entries.length === 1 || Boolean(item.schema)))
+  const hasEventStream = entries.some((item) => getKind(item) === 'eventStream' && (entries.length === 1 || !!item.schema))
   const hasVariant = filterSuccess(node).some((response) => {
     const variants = (response.content ?? []).filter((item) => item.schema)
-    return variants.length > 1 && variants.some((item) => isStream(item))
+    return variants.length > 1 && variants.some(isStream)
   })
   if (!shape && !hasEventStream && !hasVariant) return null
 
