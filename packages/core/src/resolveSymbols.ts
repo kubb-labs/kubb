@@ -17,7 +17,8 @@ export type SymbolProblem = {
 /**
  * Gives every import that names a `plugin` the path of the file where that plugin emitted the name as an exportable,
  * named source, one import per file with the names in their written order. Returns the changed files, and a problem for each name found in no file or in
- * several, whose import is dropped.
+ * several, whose import is dropped. Core runs it after the generators; a generator test can run it over the files it
+ * rendered to get the same import paths.
  */
 export function resolveSymbols(files: ReadonlyArray<FileNode>): { files: Array<FileNode>; problems: Array<SymbolProblem> } {
   const importing = files.filter((file) => file.imports.some((imp) => imp.plugin))
