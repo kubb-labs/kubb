@@ -363,7 +363,7 @@ function applyVisitor<TResult>(node: Node, visitor: Visitor | VisitorOf<unknown>
  * replacement node. Returning `undefined` keeps the original.
  *
  * The original tree is never mutated, a new tree is returned. Pass
- * `depth: 'shallow'` to skip recursion into children.
+ * `depth: 'shallow'` to skip the children of every schema node; other nodes are still walked.
  *
  * @example Prefix every operationId
  * ```ts
@@ -374,7 +374,7 @@ function applyVisitor<TResult>(node: Node, visitor: Visitor | VisitorOf<unknown>
  * })
  * ```
  *
- * @example Replace only the root node
+ * @example Rewrite the root node without walking its schemas
  * ```ts
  * const next = transform(root, {
  *   depth: 'shallow',
