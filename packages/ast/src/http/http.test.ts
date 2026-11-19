@@ -1,8 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 import type { ResponseNode, StatusCode } from '../nodes/response.ts'
 import type { ParameterNode } from '../nodes/parameter.ts'
 import { createContent, createRequestBody, createResponse, createSchema } from '../nodes/index.ts'
-import { getBaseURL, groupParameters, requestBody, responses, status } from './index.ts'
+import { getKind } from '../mediaType/index.ts'
+import type { HttpOperationNode } from '../nodes/operation.ts'
+import { getBaseURL, getRequestGroups, groupParameters, requestBody, responses, status } from './index.ts'
 
 // Like the adapter, a body-less response keeps one entry with an empty `contentType`.
 function response(statusCode: StatusCode, withBody = false): ResponseNode {
@@ -119,5 +121,66 @@ describe('http.status with a response', () => {
     expect(status.isSuccess({ statusCode: '201' })).toBe(true)
     expect(status.isError({ statusCode: '4xx' })).toBe(true)
     expect(status.toCode({ statusCode: 'default' })).toBe(200)
+  })
+})
+
+describe('http.getRequestGroups', () => {
+  const param = (name: string, location: ParameterNode['in'], required = false) =>
+    ({ kind: 'Parameter', name, in: location, required, schema: createSchema({ type: 'string' }) }) as ParameterNode
+  const schema = createSchema({ type: 'string' })
+
+  it('summarizes the groups, required members and body media types', () => {
+    const node = {
+      parameters: [param('id', 'path', true), param('q', 'query'), param('session', 'cookie', true)],
+      requestBody: createRequestBody({
+        required: true,
+        content: [createContent({ contentType: 'application/json', schema }), createContent({ contentType: 'multipart/form-data', schema })],
+      }),
+    }
+
+    expect(getRequestGroups(node)).toStrictEqual({
+      path: true,
+      query: true,
+      body: true,
+      headers: false,
+      cookies: true,
+      required: { path: true, query: false, headers: false, body: true },
+      isOptional: false,
+      contentTypes: ['application/json', 'multipart/form-data'],
+      hasContentTypeChoice: true,
+    })
+    expect(getRequestGroups(node)).toBe(getRequestGroups(node))
+  })
+
+  it('is optional when only cookies are required', () => {
+    expect(getRequestGroups({ parameters: [param('session', 'cookie', true)] }).isOptional).toBe(true)
+  })
+})
+
+describe('http.responses.getUnion', () => {
+  const resolver = { response: { status: (_: unknown, statusCode: StatusCode) => `Status${statusCode}` } }
+  const node = (...items: Array<ResponseNode>) =>
+    ({ operationId: 'x', method: 'GET', path: '/', protocol: 'http', responses: items }) as unknown as HttpOperationNode
+  const withSchema = (statusCode: StatusCode) =>
+    createResponse({ statusCode, content: [createContent({ contentType: 'application/json', schema: createSchema({ type: 'string' }) })] })
+
+  it('unions the success responses with a body', () => {
+    const union = responses.getUnion(node(withSchema('200'), response('204'), withSchema('404')), resolver)
+    expect(union).toMatchObject({ type: 'union', members: [{ type: 'ref', name: 'Status200' }] })
+  })
+
+  it('falls back to every response with a body, or null', () => {
+    expect(responses.getUnion(node(withSchema('404')), resolver)).toMatchObject({ members: [{ name: 'Status404' }] })
+    expect(responses.getUnion(node(response('204')), resolver)).toBeNull()
+  })
+})
+describe('mediaType.getKind on stream entries', () => {
+  test.each([
+    ['text/event-stream without framing', { contentType: 'text/event-stream; charset=utf-8' }, 'eventStream'],
+    ['JSON Lines without framing', { contentType: 'application/jsonl', stream: {} }, 'lineStream'],
+    ['multipart/mixed with an item schema', { contentType: 'multipart/mixed', stream: {} }, null],
+    ['plain JSON', { contentType: 'application/json' }, 'json'],
+  ] as const)('%s', (_, entry, expected) => {
+    expect(getKind(entry)).toBe(expected)
   })
 })
