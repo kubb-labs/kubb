@@ -202,4 +202,29 @@ describe('print in call mode', () => {
     const sig = createFunctionParameters({ params: [createFunctionParameter({ name: 'a', type: 'X', optional: true, default: '1' })] })
     expect(print(sig, 'declaration')).toBe('a: X = 1')
   })
+
+  it('keeps the ? of an untyped optional parameter', () => {
+    const sig = createFunctionParameters({ params: [createFunctionParameter({ name: 'raw', optional: true })] })
+    expect(print(sig, 'declaration')).toBe('raw?')
+  })
+
+  it('escapes quotes in an indexed-access key', () => {
+    expect(renderType(createIndexedAccessType({ target: 'Params', key: "owner's-id" }))).toBe("Params['owner\\'s-id']")
+  })
+
+  it('quotes a renamed binding key that is not an identifier', () => {
+    const sig = createFunctionParameters({ params: [group([{ name: 'contentType', propertyName: 'content-type' }])] })
+    expect(print(sig, 'call')).toBe('{ "content-type": contentType }')
+  })
+
+  it('pairs bindings with type members by name', () => {
+    const type = createTypeLiteral({
+      members: [
+        { name: 'label', type: 'string', optional: true },
+        { name: 'id', type: 'number' },
+      ],
+    })
+    const sig = createFunctionParameters({ params: [group([{ name: 'id' }, { name: 'label' }], type)] })
+    expect(print(sig, 'declaration')).toBe('{ id, label }: { id: number; label?: string }')
+  })
 })

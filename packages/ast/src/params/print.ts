@@ -9,7 +9,7 @@ export type PrintMode = 'declaration' | 'call'
 /** Prints a {@link TypeExpression} as TypeScript, such as `GetPetPathParams['petId']` or `{ id: string }`. */
 export function renderType(type: TypeExpression): string {
   if (typeof type === 'string') return type
-  if (isIndexedAccessType(type)) return `${type.target}['${type.key}']`
+  if (isIndexedAccessType(type)) return `${type.target}['${type.key.replace(/[\\']/g, '\\$&')}']`
 
   return renderMembers(type.members.map((member) => ({ key: member.name, type: renderType(member.type), optional: member.optional })))
 }
@@ -43,17 +43,15 @@ function sortedGroupMembers(name: ObjectBindingPatternNode, type: TypeExpression
   const members = type && isTypeLiteral(type) ? type.members : []
   const memberRank = (optional?: boolean) => (optional ? PARAM_RANK.optional : PARAM_RANK.required)
   return name.elements
-    .map((element, index) => ({
-      name: element.name,
-      propertyName: element.propertyName,
-      type: members[index]?.type,
-      optional: members[index]?.optional,
-    }))
+    .map((element, index) => {
+      const member = members.find((candidate) => candidate.name === (element.propertyName ?? element.name)) ?? members[index]
+      return { name: element.name, propertyName: element.propertyName, type: member?.type, optional: member?.optional }
+    })
     .toSorted((a, b) => memberRank(a.optional) - memberRank(b.optional))
 }
 
 function renderBindingMember(member: GroupMember): string {
-  return member.propertyName ? `${member.propertyName}: ${member.name}` : member.name
+  return member.propertyName ? `${renderKey(member.propertyName)}: ${member.name}` : member.name
 }
 
 // An inline type is printed from the sorted members, so its keys match the binding order.
@@ -99,7 +97,8 @@ function printParameter(node: FunctionParameterNode, mode: PrintMode): string {
     if (node.default) return `${bindingName}: ${type} = ${node.default}`
     return node.optional ? `${bindingName}?: ${type}` : `${bindingName}: ${type}`
   }
-  return node.default ? `${bindingName} = ${node.default}` : bindingName
+  if (node.default) return `${bindingName} = ${node.default}`
+  return node.optional ? `${bindingName}?` : bindingName
 }
 
 /**

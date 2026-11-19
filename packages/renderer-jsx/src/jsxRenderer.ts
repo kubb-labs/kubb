@@ -157,12 +157,14 @@ function collectFileChildren(element: unknown): FileChildren {
       // A declaration directly under a file is its own source: `export` makes it exportable and indexable.
       if (isCodeHost(host)) {
         const { name, export: canExport } = host.props
+        // A default export cannot be re-exported by name, so barrels skip it.
+        const isDefault = 'default' in host.props && !!host.props.default
         sources.push(
           ast.factory.createSource({
             name,
             isTypeOnly: host.type === 'kubb-type',
             isExportable: !!canExport,
-            isIndexable: !!canExport,
+            isIndexable: !!canExport && !isDefault,
             nodes: [createCodeNode(host.type, host.props)],
           }),
         )

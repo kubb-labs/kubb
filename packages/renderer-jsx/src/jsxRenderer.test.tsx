@@ -356,4 +356,17 @@ describe('File.Export', () => {
       nodes: [{ kind: 'Const', nodes: [{ kind: 'Text', value: 'z.string()' }] }],
     })
   })
+
+  it('keeps a bare default export out of barrels', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Function export default name="getPet">
+          {'return 1'}
+        </Function>
+      </File>,
+    )
+
+    expect(renderer.files[0]!.sources[0]).toMatchObject({ name: 'getPet', isExportable: true, isIndexable: false })
+  })
 })

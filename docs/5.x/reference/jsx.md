@@ -182,7 +182,7 @@ Prints a schema node with a printer, adds the imports the printer collected, and
 
 The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block.
 
-Put a component directly in a `File`, and it becomes its own source block named after `name`. With `export`, the block is exportable and included in barrels, and a `Type` is type-only. Wrap it in a `File.Source` only to set other values, such as `pointer` or `inline`.
+Put a component directly in a `File`, and it becomes its own source block named after `name`. With `export`, the block is exportable and included in barrels, unless it is also `default`. A `Type` is type-only. Wrap it in a `File.Source` only to set other values, such as `pointer` or `inline`.
 
 ```tsx
 <File baseName="pet.ts" path="src/zod/pet.ts">
