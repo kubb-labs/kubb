@@ -106,6 +106,50 @@ const patched = Resolver.merge(resolver, {
 > [!TIP]
 > Type a patch with `ResolverPatch<T>` to check `this` and the namespace shapes against the target resolver.
 
+## Reusable resolver parts {#resolver-parts}
+
+A resolver part is a partial resolver, such as one namespace or a `file` rule, that any plugin can merge in. Define one with `defineResolver`. It types `this` as the full resolver plus the part and adds no runtime behavior, like [`defineMacro`](/docs/5.x/how-to/customize#macros). Name exports `resolver<Name>`.
+
+```typescript [resolverHook.ts]
+import { defineResolver } from 'kubb/kit'
+
+export const resolverHook = defineResolver({
+  hook: {
+    optionsName(): string {
+      return this.resolveName({ key: ['hook', 'options'], name: 'HookOptions' })
+    },
+  },
+})
+```
+
+Spread parts into `createResolver`, or pass a list to `setResolver`. The list merges left to right, so a later part wins per method:
+
+```typescript [plugin.ts]
+setResolver([resolverReactQuery, resolverHook])
+```
+
+`kubb/kit` ships the parts the official plugins share:
+
+| Part | Adds |
+| --- | --- |
+| `resolverOperationParams` | `param.name`, `param.path`, `param.query`, `param.headers`, `param.cookies` |
+| `resolverOperationResponse` | `response.status`, `response.headers`, `response.body`, `response.responses`, `response.response` |
+| `resolverCasedFile(caseLast)` | `file.baseName` that nests dotted names and cases the file name with `caseLast` |
+
+```typescript [resolverTs.ts]
+import { casing, createResolver, resolverCasedFile, resolverOperationParams, resolverOperationResponse } from 'kubb/kit'
+
+export const resolverTs = createResolver<PluginTs>({
+  pluginName: 'plugin-ts',
+  name: (name) => casing.pascal(name),
+  ...resolverOperationParams,
+  ...resolverOperationResponse,
+  ...resolverCasedFile(casing.pascal),
+})
+```
+
+Every name a part builds goes through the plugin's top-level `name`, so the part follows that plugin's casing. Build your own keys with `operationKey(node, ...scope)` so two declarations of one operation never share a name.
+
 ## Resolver overrides {#resolver-overrides}
 
 `name` changes identifier casing, `file.baseName` and `file.path` control files, and plugin namespaces control specific symbols. Users pass the same shape to a plugin's [`resolver` option](/docs/5.x/reference/plugin-options#resolver).

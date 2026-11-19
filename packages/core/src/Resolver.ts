@@ -284,6 +284,35 @@ export type ResolverPatch<T extends Resolver = Resolver> = {
   file?: ResolverFile
 } & ThisType<T>
 
+/**
+ * Types a reusable resolver part: a partial resolver, such as one namespace or a `file` rule, that
+ * any plugin can merge in. `this` is typed as the full resolver plus the part, so a method reaches
+ * `this.name`, `this.resolveName`, and sibling methods. Adds no runtime behavior, like `defineMacro`.
+ * Exports follow the `resolver<Name>` convention.
+ *
+ * @example Share a namespace between plugins
+ * ```ts
+ * export const resolverHook = defineResolver({
+ *   hook: {
+ *     optionsName(): string {
+ *       return this.resolveName({ key: ['hook', 'options'], name: 'HookOptions' })
+ *     },
+ *   },
+ * })
+ *
+ * setResolver([resolverReactQuery, resolverHook])
+ * ```
+ */
+export function defineResolver<const T extends object>(part: T & ThisType<Resolver & T>): T {
+  return part
+}
+
+/**
+ * What `setResolver` and a plugin's `resolver` option accept: one resolver or patch, or a list of
+ * them merged left to right.
+ */
+export type ResolverInput<T extends Resolver = Resolver> = ResolverPatch<T> | T | ReadonlyArray<ResolverPatch<T> | T>
+
 function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -311,13 +340,18 @@ const createNameNode = (): NameNode => ({ next: new Map() })
  * an empty string). Without this a leading `/` would form, which `path.resolve` reads as an
  * absolute path, letting generated files escape the configured output directory.
  *
+ * Pass `caseLast` to case the final segment, the file name, differently from the folders.
+ *
  * @example Nested path from a dotted name
  * `toFilePath('pet.petId') // 'pet/petId'`
+ *
+ * @example PascalCase file name
+ * `toFilePath('pet.petId', pascalCase) // 'pet/PetId'`
  */
-export function toFilePath(name: string): string {
-  return name
-    .split(/\.(?=[a-zA-Z])/)
-    .map((part) => camelCase(part))
+export function toFilePath(name: string, caseLast: (part: string) => string = camelCase): string {
+  const parts = name.split(/\.(?=[a-zA-Z])/)
+  return parts
+    .map((part, index) => (index === parts.length - 1 ? caseLast(part) : camelCase(part)))
     .filter(Boolean)
     .join('/')
 }
