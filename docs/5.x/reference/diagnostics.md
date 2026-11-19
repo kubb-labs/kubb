@@ -381,7 +381,7 @@ Each row adds what a code's entry leaves out.
 | [`KUBB_PLUGIN_NOT_FOUND`](#kubb-plugin-not-found) | `kubb init --plugins` also reports it for an id the registry does not list. |
 | [`KUBB_PLUGIN_WARNING`](#kubb-plugin-warning), [`KUBB_PLUGIN_INFO`](#kubb-plugin-info) | Plugin authors can add a stable code and a location with `Diagnostics.report`. |
 | [`KUBB_REF_NOT_FOUND`](#kubb-ref-not-found) | Inside an `x-` vendor extension it is only a warning. Kubb refuses some local `$ref` files, such as any from a URL input. See [External `$ref` files](/docs/5.x/reference/configuration#external-refs) for the rules on Kubb Studio agents. |
-| [`KUBB_SYMBOL_AMBIGUOUS`](#kubb-symbol-ambiguous), [`KUBB_SYMBOL_NOT_FOUND`](#kubb-symbol-not-found) | One diagnostic per code lists every import it affects, attributed to the importing plugin. Kubb drops those imports and still writes the files. |
+| [`KUBB_SYMBOL_AMBIGUOUS`](#kubb-symbol-ambiguous), [`KUBB_SYMBOL_NOT_FOUND`](#kubb-symbol-not-found) | Kubb reports one diagnostic per code and importing plugin, listing every import it affects. Kubb drops those imports and still writes the files. |
 | [`KUBB_UNKNOWN`](#kubb-unknown) | The terminal shows no docs link for it. `--reporter file` writes a log with the stack in `.kubb/`. |
 | [`KUBB_UNSUPPORTED_FORMAT`](#kubb-unsupported-format) | Kubb reports each format once, with a count, at the first schema that uses it. |
 

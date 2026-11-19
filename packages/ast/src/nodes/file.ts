@@ -1,7 +1,7 @@
 import { hash } from 'node:crypto'
 import path from 'node:path'
 import { nodeKinds } from '../constants.ts'
-import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
+import { combineExports, combineImports, combineSources, importLocalName, withSelfAliases } from '../utils/combineFileMembers.ts'
 import { getNodeText } from '../utils/nodeText.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
 import type { CodeNode } from './code.ts'
@@ -278,7 +278,7 @@ const SYMBOL_PATH_PREFIX = 'kubb:'
 
 /** Input for {@link createImport}. A `plugin` import takes named imports only, and wins over `path`. */
 export type UserImportNode =
-  | (Omit<ImportNode, 'kind' | 'plugin'> & { plugin?: PluginName | null })
+  | (Omit<ImportNode, 'kind' | 'plugin'> & { plugin?: null })
   | (Omit<ImportNode, 'kind' | 'path' | 'plugin' | 'name' | 'isNameSpace'> & {
       path?: string
       plugin: PluginName
@@ -396,7 +396,10 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     // Consolidating output (`mode: 'file'`) can put a symbol's definition and an import of it in the
     // same file: by path when the import still targets this file, by name when consolidation moved it.
     return combinedImports.flatMap((imp) => {
-      if (imp.path === input.path) return []
+      if (imp.path === input.path) {
+        const aliased = withSelfAliases(imp)
+        return aliased ? [aliased] : []
+      }
       if (!Array.isArray(imp.name)) {
         return typeof imp.name === 'string' && localNames.has(imp.name) ? [] : [imp]
       }

@@ -153,6 +153,12 @@ describe('combineImports', () => {
     expect(result).toHaveLength(0)
   })
 
+  it('keeps only the aliased names of an import whose path equals root', () => {
+    const imp = createImport({ name: ['Pet', { propertyName: 'Pet', name: 'PetAlias' }], path: 'src/pet.ts', root: 'src/pet.ts' })
+
+    expect(combineImports([imp], [], 'Pet PetAlias')).toMatchObject([{ name: [{ propertyName: 'Pet', name: 'PetAlias' }] }])
+  })
+
   it('keeps a default import when a named import from the same path is used', () => {
     const client = createImport({ name: 'client', path: '@kubb/plugin-axios/clients/axios' })
     const types = createImport({ name: ['Client'], path: '@kubb/plugin-axios/clients/axios', isTypeOnly: true })

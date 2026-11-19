@@ -93,14 +93,25 @@ describe('resolveSymbols', () => {
     expect(files[0]?.imports[0]?.path).toBe('/gen/other/Pet.ts')
   })
 
-  it('writes no import when the name resolves to the importing file', () => {
-    // An alias hides the name from the local-name check in `createFile`, so only the path check drops it.
+  it('keeps an aliased import of the importing file, so the alias stays bound', () => {
     const shared = file('/gen/all.ts', {
       sources: [source('Pet', 'plugin-ts'), source('request', 'plugin-ts', { nodes: [ast.factory.createText('export function request(): PetAlias {}')] })],
       imports: [{ name: [{ propertyName: 'Pet', name: 'PetAlias' }], plugin: 'plugin-ts' }],
     })
 
     const { files, problems } = resolveSymbols([shared])
+    expect(problems).toStrictEqual([])
+    expect(files[0]?.imports).toMatchObject([{ name: [{ propertyName: 'Pet', name: 'PetAlias' }], path: '/gen/all.ts' }])
+  })
+
+  it('writes no import when an unaliased name resolves to the importing file', () => {
+    // The import survives `createFile` only when it names the file's own path, so build the file with it already set.
+    const shared = file('/gen/all.ts', {
+      sources: [source('Pet', 'plugin-ts'), source('request', 'plugin-ts', { nodes: [ast.factory.createText('export function request(): Pet {}')] })],
+    })
+    const withImport = { ...shared, imports: [ast.factory.createImport({ name: ['Pet'], plugin: 'plugin-ts' })] }
+
+    const { files, problems } = resolveSymbols([withImport])
     expect(problems).toStrictEqual([])
     expect(files[0]?.imports).toStrictEqual([])
   })

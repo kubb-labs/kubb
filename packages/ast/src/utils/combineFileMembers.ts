@@ -87,6 +87,15 @@ function mergeByPath<TNode extends FileMember>(result: Array<TNode>): (member: {
 }
 
 /**
+ * Returns what a file still needs from an import of itself: the aliased names, since `import { Pet as PetAlias }` binds
+ * a local name the file uses. A module may import itself, so those stay. Returns `null` when nothing is left.
+ */
+export function withSelfAliases(node: ImportNode): ImportNode | null {
+  const aliased = Array.isArray(node.name) ? node.name.filter((item) => typeof item !== 'string' && !!item.name && item.name !== item.propertyName) : []
+  return aliased.length ? { ...node, name: aliased } : null
+}
+
+/**
  * Deduplicates `SourceNode` objects by `name + isExportable + isTypeOnly`, keeping the first of each
  * key. An unnamed source only drops when the same node appears twice, so markdown can repeat a
  * paragraph or a table. Returns the deduplicated array in original order.
@@ -173,8 +182,9 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   // Deduplicates non-array imports by their exact identity
   const seen = new Set<string>()
 
-  for (const curr of sortMembers(imports)) {
-    if (curr.path === curr.root) continue
+  for (const member of sortMembers(imports)) {
+    const curr = member.path === member.root ? withSelfAliases(member) : member
+    if (!curr) continue
 
     const { name, path, isTypeOnly } = curr
 
