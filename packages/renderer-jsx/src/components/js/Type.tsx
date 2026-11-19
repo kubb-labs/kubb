@@ -5,7 +5,7 @@ type TypeProps = Omit<ast.TypeNode, 'kind' | 'nodes'> & {
   key?: Key
   /** Doc comment lines, the same as `JSDoc={{ comments }}`. */
   comments?: Array<string | undefined>
-  /** Lets importing files use `expression` in place of the name, as on `File.Source`. Read when the declaration sits directly in a `File`. */
+  /** Same as `inline` on `File.Source`. */
   inline?: { expression: string } | null
   /**
    * Child nodes rendered as the type expression on the right-hand side of the alias.

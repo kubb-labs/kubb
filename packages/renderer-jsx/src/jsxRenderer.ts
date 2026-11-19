@@ -148,7 +148,7 @@ function collectFileChildren(element: unknown): FileChildren {
         return
       }
 
-      // A declaration directly under a file is its own source: `export` makes it exportable and indexable.
+      // A declaration directly under a file is its own source. `export` makes it exportable and indexable.
       if (isCodeHost(host)) {
         const { name, export: canExport, pointer, inline } = host.props
         // A default export cannot be re-exported by name, so barrels skip it.

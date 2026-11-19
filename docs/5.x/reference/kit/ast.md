@@ -79,7 +79,7 @@ You narrow a `SchemaNode` by its `type`. `ast.schema.types` lists every value.
 | Input | `createInput`, `createSchema`, `createOperation`, `createParameter`, `createProperty`, `createResponse`, `createRequestBody`, `createContent` |
 | File | `createFile`, `createSource`, `createImport`, `createExport` |
 | Code nodes | `createText`, `createConst`, `createType`, `createFunction`, `createArrowFunction`, `createJsx`, `createBreak` |
-| Parameters | `createFunctionParameters`, `createFunctionParameter`, `createObjectBindingPattern`, `createTypeLiteral`, `createIndexedAccessType`. The nodes hold no syntax; [`Function`](/docs/5.x/reference/jsx#function) prints them. |
+| Parameters | `createFunctionParameters`, `createFunctionParameter`, `createObjectBindingPattern`, `createTypeLiteral`, `createIndexedAccessType`. [`Function`](/docs/5.x/reference/jsx#function) prints them. |
 
 ```typescript [factory.ts]
 import { ast } from 'kubb/kit'

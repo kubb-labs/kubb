@@ -34,7 +34,7 @@ export type FunctionParameterNode = BaseNode & {
   rest?: boolean
 }
 
-/** A parameter list. Holds no syntax: `Function` in `@kubb/renderer-jsx` prints it for JavaScript. */
+/** A parameter list. */
 export type FunctionParametersNode = BaseNode & {
   kind: 'FunctionParameters'
   params: ReadonlyArray<FunctionParameterNode>

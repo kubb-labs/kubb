@@ -11,7 +11,7 @@ const isIndexedAccessType = (type: TypeExpression): type is ast.IndexedAccessTyp
 
 const PARAM_RANK = { required: 0, optional: 1, withDefault: 2, rest: 3 } as const
 
-/** TypeScript parameter printing for the JavaScript components. `declaration` prints `id: string, config: Config = {}`, `call` prints `id, config`. */
+/** `declaration` prints `id: string, config: Config = {}`, `call` prints `id, config`. */
 export type PrintMode = 'declaration' | 'call'
 
 /** Prints a {@link TypeExpression} as TypeScript, such as `GetPetPathParams['petId']` or `{ id: string }`. */

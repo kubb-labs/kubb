@@ -83,7 +83,7 @@ Inside a code component or `File.Source`, `<br />` adds a line break.
 
 #### `File` {#file}
 
-With `baseName` and `path`, `File` declares a generated file. Without them, it renders its children inline. Text directly in a `File`, outside `File.Source`, throws. A [JavaScript component](#javascript) directly in a `File` is its own source block.
+With `baseName` and `path`, `File` declares a generated file. Without them, it renders its children inline. Text directly in a `File`, outside `File.Source`, throws.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -105,7 +105,7 @@ With `baseName` and `path`, `File` declares a generated file. Without them, it r
 
 #### `File.Source` {#file-source}
 
-A block of source text in the enclosing `File`. A single `Const`, `Type`, `Function` or `Function.Arrow` does not need one: see [JavaScript](#javascript).
+A block of source text in the enclosing `File`. A single declaration does not need one, see [JavaScript](#javascript).
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -160,7 +160,7 @@ An export at the top of the enclosing `File`.
 
 #### `Schema` {#schema}
 
-Prints a schema node with a printer, adds the imports the printer collected, and calls `children` with the code. When the printer returns nothing, `Schema` renders nothing, imports included.
+Prints `node`, adds the printer's imports, and calls `children` with the code. It renders nothing when the printer returns nothing.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -180,9 +180,9 @@ Prints a schema node with a printer, adds the imports the printer collected, and
 
 ### JavaScript
 
-The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `comments?: Array<string | undefined>` for a JSDoc block. `JSDoc?: { comments } | null` still works.
+The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `comments?: Array<string | undefined>` or `JSDoc` for a JSDoc block.
 
-Put a component directly in a `File`, and it becomes its own source block named after `name`. With `export`, the block is exportable and included in barrels, unless it is also `default`. A `Type` is type-only. It also takes `pointer` and `inline`, the same as `File.Source`, so a single declaration never needs a `File.Source`.
+A component directly in a `File` is its own source block, named after `name`. `export` puts it in barrels, unless it is also `default`. It takes `pointer` and `inline` like `File.Source`.
 
 ```tsx
 <File baseName="pet.ts" path="src/zod/pet.ts">
@@ -217,7 +217,7 @@ A function declaration, with the children as the body.
 | `name` | `string` | The name |
 | `default?` | `boolean \| null` | Adds `default` after `export` |
 | `async?` | `boolean \| null` | Adds `async` and wraps `returnType` in `Promise<…>` |
-| `params?` | `string \| FunctionParametersNode \| null` | The parameter list, as text or as a node from [`ast.factory`](/docs/5.x/reference/kit/ast#factory-functions). A node is sorted required, optional, defaulted, then rest. |
+| `params?` | `string \| FunctionParametersNode \| null` | The parameter list, as text or a node from [`ast.factory`](/docs/5.x/reference/kit/ast#factory-functions) |
 | `generics?` | `string \| Array<string> \| null` | The type parameters. An array joins with commas. |
 | `returnType?` | `string \| null` | The return type after `:` |
 
@@ -228,7 +228,7 @@ A function declaration, with the children as the body.
 // export async function getPet<TData = Pet>(petId: string): Promise<TData> { … }
 ```
 
-Instead of `params`, a `Function.Params` child can list the parameters. Each `Function.Param` takes the input of `ast.factory.createFunctionParameter`. `Function.Call` prints a call that passes a parameter list through.
+A `Function.Params` child can list the parameters instead. `Function.Param` takes the input of `ast.factory.createFunctionParameter`. `Function.Call` prints a call with those parameters.
 
 ```tsx
 <Function export name="getPet">
@@ -244,7 +244,7 @@ Instead of `params`, a `Function.Params` child can list the parameters. Each `Fu
 // }
 ```
 
-To print a parameter list as text, such as inside a template string, use `printParams(node, 'declaration' | 'call')` from `@kubb/renderer-jsx`.
+For the text, such as inside a template string, use `printParams(node, 'declaration' | 'call')`.
 
 #### `Function.Arrow` {#function-arrow}
 
