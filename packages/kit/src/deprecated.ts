@@ -17,9 +17,6 @@ export const syncSchemaRef = ast.ref.mergeSchema
 /** @deprecated Use `ast.schema.is(node, 'string')`. Removed in Kubb v6. */
 export const isStringType = (node: ast.SchemaNode): boolean => ast.schema.is(node, 'string')
 
-/** @deprecated Use `ast.graph.containsCircular`. Removed in Kubb v6. */
-export const containsCircularRef = ast.graph.containsCircular
-
 /**
  * The name `macroDedupeUnion` had before 5.16. Kept so a plugin built against an older `@kubb/kit` keeps running.
  *

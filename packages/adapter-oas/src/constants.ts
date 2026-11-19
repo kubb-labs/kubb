@@ -1,4 +1,5 @@
 import type { ast } from '@kubb/kit'
+import type { ParserOptions } from './parserOptions.ts'
 
 /**
  * Default parser options applied when no explicit options are provided.
@@ -9,7 +10,7 @@ export const DEFAULT_PARSER_OPTIONS = {
   unknownType: 'unknown',
   emptySchemaType: 'unknown',
   enumSuffix: 'enum',
-} as const satisfies ast.ParserOptions
+} as const satisfies ParserOptions
 
 /**
  * JSON-Pointer prefix for schemas declared under `components.schemas` in an OpenAPI document.

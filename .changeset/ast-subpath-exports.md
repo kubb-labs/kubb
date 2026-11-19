@@ -4,8 +4,7 @@
 
 Import each `ast.*` namespace from its own path, so a package can extend a namespace and keep its types.
 
-- Adds `@kubb/ast/auth`, `/factory`, `/file`, `/graph`, `/http`, `/json`, `/macro`, `/mediaType`, `/node`, `/ref`, `/schema` and `/server`, each the same as `ast.<name>`.
-- Leaves the root `@kubb/ast` export unchanged.
+- Adds `@kubb/ast/factory`, `/file`, `/graph`, `/http`, `/json`, `/macro`, `/mediaType`, `/node`, `/ref` and `/schema`, each the same as `ast.<name>`.
 
 ```ts
 // http.ts: everything from ast.http, plus one local helper

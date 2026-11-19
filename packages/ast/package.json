@@ -52,16 +52,6 @@
         "default": "./dist/index.cjs"
       }
     },
-    "./auth": {
-      "import": {
-        "types": "./dist/auth.d.ts",
-        "default": "./dist/auth.js"
-      },
-      "require": {
-        "types": "./dist/auth.d.cts",
-        "default": "./dist/auth.cjs"
-      }
-    },
     "./factory": {
       "import": {
         "types": "./dist/factory.d.ts",
@@ -160,16 +150,6 @@
       "require": {
         "types": "./dist/schema.d.cts",
         "default": "./dist/schema.cjs"
-      }
-    },
-    "./server": {
-      "import": {
-        "types": "./dist/server.d.ts",
-        "default": "./dist/server.js"
-      },
-      "require": {
-        "types": "./dist/server.d.cts",
-        "default": "./dist/server.cjs"
       }
     },
     "./package.json": "./package.json"
