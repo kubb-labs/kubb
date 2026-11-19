@@ -104,6 +104,29 @@ Methods have a composable of the same name, such as `addGenerator()`. `useKubb()
 
 To cache outside a build, see [Memo caches](#memo-cache).
 
+## Shared option types {#shared-option-types}
+
+`PluginOptions` and `ResolvedPluginOptions` type the [options every generator plugin shares](/docs/5.x/reference/plugin-options): `output`, `group`, `include`, `exclude`, and `override`. Intersect them into your own types and add the plugin's keys. The type argument is the options object an `override` entry can set.
+
+```typescript [types.ts]
+import type { PluginOptions, PluginType, ResolvedPluginOptions } from 'kubb/kit'
+
+export type Options = PluginOptions<ResolvedOptions> & {
+  prefix?: string
+}
+
+export type ResolvedOptions = ResolvedPluginOptions<ResolvedOptions> & {
+  prefix: string
+}
+
+export type PluginExample = PluginType<'plugin-example', Options, ResolvedOptions>
+```
+
+| Type                    | Keys                                                                                                |
+| ----------------------- | --------------------------------------------------------------------------------------------------- |
+| `PluginOptions`         | What users pass: optional `output`, `group`, `exclude`, `include`, and `override`.                  |
+| `ResolvedPluginOptions` | What `setup` returns: `output`, `exclude`, `include` or `undefined`, `override`, `group` or `null`. |
+
 ## Plugin naming {#plugin-naming}
 
 | Surface            | Pattern                                            | Example            |

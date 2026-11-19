@@ -297,6 +297,25 @@ export type Override<TOptions> = Filter & {
   options: Omit<Partial<TOptions>, 'override'>
 }
 
+/** Options every generator plugin accepts. `TResolvedOptions` is the options object an `override` entry can set. */
+export type PluginOptions<TResolvedOptions> = OutputOptions & {
+  /** Skip operations matching at least one entry in the list. */
+  exclude?: Array<Exclude>
+  /** Restrict generation to operations matching at least one entry in the list. */
+  include?: Array<Include>
+  /** Apply a different options object to operations matching a pattern. */
+  override?: Array<Override<TResolvedOptions>>
+}
+
+/** The `PluginOptions` keys after a plugin applies its defaults. An interface, so a plugin's `ResolvedOptions` can pass itself as `TResolvedOptions`. */
+export interface ResolvedPluginOptions<TResolvedOptions> {
+  output: Output
+  exclude: Array<Exclude>
+  include: Array<Include> | undefined
+  override: Array<Override<TResolvedOptions>>
+  group: Group | null
+}
+
 export type PluginType<
   /**
    * Unique plugin name.
