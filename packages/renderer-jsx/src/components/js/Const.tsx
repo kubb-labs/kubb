@@ -3,6 +3,8 @@ import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
 type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes'> & {
   key?: Key
+  /** Doc comment lines, the same as `JSDoc={{ comments }}`. */
+  comments?: Array<string | undefined>
   /**
    * Child nodes rendered as the initializer expression of the constant.
    */
@@ -27,6 +29,10 @@ type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes'> & {
  * </Const>
  * ```
  */
-export function Const({ children, ...props }: ConstProps): KubbReactElement {
-  return <kubb-const {...props}>{children}</kubb-const>
+export function Const({ children, comments, JSDoc, ...props }: ConstProps): KubbReactElement {
+  return (
+    <kubb-const {...props} JSDoc={comments ? { comments } : JSDoc}>
+      {children}
+    </kubb-const>
+  )
 }

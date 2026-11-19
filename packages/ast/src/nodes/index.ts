@@ -3,6 +3,7 @@ import type { ContentNode } from './content.ts'
 import type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 import type { InputNode } from './input.ts'
 import type { OperationNode } from './operation.ts'
+import type { FunctionParameterNode, FunctionParametersNode, IndexedAccessTypeNode, ObjectBindingPatternNode, TypeLiteralNode } from './params.ts'
 import type { ParameterNode } from './parameter.ts'
 import type { PropertyNode } from './property.ts'
 import type { RequestBodyNode } from './requestBody.ts'
@@ -59,3 +60,8 @@ export type Node =
   | TextNode
   | BreakNode
   | JsxNode
+  | FunctionParametersNode
+  | FunctionParameterNode
+  | ObjectBindingPatternNode
+  | TypeLiteralNode
+  | IndexedAccessTypeNode

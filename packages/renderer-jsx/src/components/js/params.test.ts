@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { createFunctionParameter, createFunctionParameters, createIndexedAccessType, createObjectBindingPattern, createTypeLiteral } from '../nodes/params.ts'
-import type { FunctionParameterNode, FunctionParametersNode, TypeExpression } from '../nodes/params.ts'
-import { print, renderType } from './print.ts'
+import { ast } from '@kubb/ast'
+import { printParams as print, printParamType as renderType } from './params.ts'
+
+const { createFunctionParameter, createFunctionParameters, createIndexedAccessType, createObjectBindingPattern, createTypeLiteral } = ast.factory
+type FunctionParameterNode = ast.FunctionParameterNode
+type FunctionParametersNode = ast.FunctionParametersNode
+type TypeExpression = ast.TypeExpression
 
 /**
  * Builds a destructured group parameter with an explicit object-binding name and

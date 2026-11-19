@@ -3,6 +3,8 @@ import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
 type TypeProps = Omit<ast.TypeNode, 'kind' | 'nodes'> & {
   key?: Key
+  /** Doc comment lines, the same as `JSDoc={{ comments }}`. */
+  comments?: Array<string | undefined>
   /**
    * Child nodes rendered as the type expression on the right-hand side of the alias.
    */
@@ -30,10 +32,14 @@ type TypeProps = Omit<ast.TypeNode, 'kind' | 'nodes'> & {
  * </Type>
  * ```
  */
-export function Type({ children, ...props }: TypeProps): KubbReactElement {
+export function Type({ children, comments, JSDoc, ...props }: TypeProps): KubbReactElement {
   if (props.name.charAt(0).toUpperCase() !== props.name.charAt(0)) {
     throw new Error('Name should start with a capital letter(see TypeScript types)')
   }
 
-  return <kubb-type {...props}>{children}</kubb-type>
+  return (
+    <kubb-type {...props} JSDoc={comments ? { comments } : JSDoc}>
+      {children}
+    </kubb-type>
+  )
 }

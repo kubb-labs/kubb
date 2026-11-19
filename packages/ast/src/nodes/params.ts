@@ -1,27 +1,30 @@
+import { nodeKinds } from '../constants.ts'
+import { type BaseNode, nodeFactory } from './base.ts'
+
 /** A parameter type: a type reference string, an inline object type, or `Target['key']`. */
 export type TypeExpression = string | TypeLiteralNode | IndexedAccessTypeNode
 
 /** An inline object type, printed as `{ key: Type; other?: Other }`. */
-export type TypeLiteralNode = {
+export type TypeLiteralNode = BaseNode & {
   kind: 'TypeLiteral'
   members: Array<{ name: string; type: TypeExpression; optional?: boolean }>
 }
 
 /** One field of a named type, printed as `target['key']`. */
-export type IndexedAccessTypeNode = {
+export type IndexedAccessTypeNode = BaseNode & {
   kind: 'IndexedAccessType'
   target: string
   key: string
 }
 
 /** A destructuring binding, printed as `{ id, name }`, or `{ petId: id }` when `propertyName` is set. */
-export type ObjectBindingPatternNode = {
+export type ObjectBindingPatternNode = BaseNode & {
   kind: 'ObjectBindingPattern'
   elements: Array<{ name: string; propertyName?: string }>
 }
 
 /** One function parameter. A destructured group pairs an {@link ObjectBindingPatternNode} name with a {@link TypeLiteralNode} type. */
-export type FunctionParameterNode = {
+export type FunctionParameterNode = BaseNode & {
   kind: 'FunctionParameter'
   name: string | ObjectBindingPatternNode
   type?: TypeExpression
@@ -31,36 +34,20 @@ export type FunctionParameterNode = {
   rest?: boolean
 }
 
-/** A parameter list. `ast.params.print` sorts it required, optional, defaulted, then rest. */
-export type FunctionParametersNode = {
+/** A parameter list. Holds no syntax: `Function` in `@kubb/renderer-jsx` prints it for JavaScript. */
+export type FunctionParametersNode = BaseNode & {
   kind: 'FunctionParameters'
   params: ReadonlyArray<FunctionParameterNode>
 }
 
-/** Narrows a {@link TypeExpression} to a {@link TypeLiteralNode}. */
-export function isTypeLiteral(type: TypeExpression): type is TypeLiteralNode {
-  return typeof type !== 'string' && type.kind === 'TypeLiteral'
-}
-
-/** Narrows a {@link TypeExpression} to an {@link IndexedAccessTypeNode}. */
-export function isIndexedAccessType(type: TypeExpression): type is IndexedAccessTypeNode {
-  return typeof type !== 'string' && type.kind === 'IndexedAccessType'
-}
-
 /** Creates a {@link TypeLiteralNode}. */
-export function createTypeLiteral(props: Omit<TypeLiteralNode, 'kind'>): TypeLiteralNode {
-  return { kind: 'TypeLiteral', ...props }
-}
+export const createTypeLiteral = nodeFactory<TypeLiteralNode>(nodeKinds.typeLiteral)
 
 /** Creates an {@link IndexedAccessTypeNode}, such as `DeletePetPathParams['petId']`. */
-export function createIndexedAccessType(props: Omit<IndexedAccessTypeNode, 'kind'>): IndexedAccessTypeNode {
-  return { kind: 'IndexedAccessType', ...props }
-}
+export const createIndexedAccessType = nodeFactory<IndexedAccessTypeNode>(nodeKinds.indexedAccessType)
 
 /** Creates an {@link ObjectBindingPatternNode}. */
-export function createObjectBindingPattern(props: Omit<ObjectBindingPatternNode, 'kind'>): ObjectBindingPatternNode {
-  return { kind: 'ObjectBindingPattern', ...props }
-}
+export const createObjectBindingPattern = nodeFactory<ObjectBindingPatternNode>(nodeKinds.objectBindingPattern)
 
 type FunctionParameterProperty = {
   name: string
@@ -84,17 +71,17 @@ type FunctionParameterInput =
 export function createFunctionParameter(input: FunctionParameterInput): FunctionParameterNode {
   if ('properties' in input) {
     return {
-      kind: 'FunctionParameter',
+      kind: nodeKinds.functionParameter,
       name: createObjectBindingPattern({ elements: input.properties.map((p) => ({ name: p.name })) }),
       type: createTypeLiteral({ members: input.properties.map((p) => ({ name: p.name, type: p.type, optional: p.optional ?? false })) }),
       optional: input.optional ?? false,
       ...(input.default !== undefined ? { default: input.default } : {}),
     }
   }
-  return { kind: 'FunctionParameter', optional: false, ...input }
+  return { kind: nodeKinds.functionParameter, optional: false, ...input }
 }
 
 /** Creates a {@link FunctionParametersNode}, empty by default. */
 export function createFunctionParameters(props: Partial<Omit<FunctionParametersNode, 'kind'>> = {}): FunctionParametersNode {
-  return { kind: 'FunctionParameters', params: [], ...props }
+  return { kind: nodeKinds.functionParameters, params: [], ...props }
 }

@@ -1,17 +1,25 @@
-import type { FunctionParameterNode, FunctionParametersNode, ObjectBindingPatternNode, TypeExpression } from '../nodes/params.ts'
-import { isIndexedAccessType, isTypeLiteral } from '../nodes/params.ts'
+import { ast } from '@kubb/ast'
+
+type FunctionParameterNode = ast.FunctionParameterNode
+type FunctionParametersNode = ast.FunctionParametersNode
+type ObjectBindingPatternNode = ast.ObjectBindingPatternNode
+type TypeExpression = ast.TypeExpression
+
+const isTypeLiteral = (type: TypeExpression): type is ast.TypeLiteralNode => typeof type !== 'string' && type.kind === ast.node.kinds.typeLiteral
+const isIndexedAccessType = (type: TypeExpression): type is ast.IndexedAccessTypeNode =>
+  typeof type !== 'string' && type.kind === ast.node.kinds.indexedAccessType
 
 const PARAM_RANK = { required: 0, optional: 1, withDefault: 2, rest: 3 } as const
 
-/** `declaration` prints `id: string, config: Config = {}`, `call` prints `id, config`. */
+/** TypeScript parameter printing for the JavaScript components. `declaration` prints `id: string, config: Config = {}`, `call` prints `id, config`. */
 export type PrintMode = 'declaration' | 'call'
 
 /** Prints a {@link TypeExpression} as TypeScript, such as `GetPetPathParams['petId']` or `{ id: string }`. */
-export function renderType(type: TypeExpression): string {
+export function printParamType(type: TypeExpression): string {
   if (typeof type === 'string') return type
   if (isIndexedAccessType(type)) return `${type.target}['${type.key.replace(/[\\']/g, '\\$&')}']`
 
-  return renderMembers(type.members.map((member) => ({ key: member.name, type: renderType(member.type), optional: member.optional })))
+  return renderMembers(type.members.map((member) => ({ key: member.name, type: printParamType(member.type), optional: member.optional })))
 }
 
 // Quotes a key that is not an identifier, so `{ "content-type": string }` stays valid.
@@ -57,11 +65,11 @@ function renderBindingMember(member: GroupMember): string {
 // An inline type is printed from the sorted members, so its keys match the binding order.
 function renderGroupType(type: TypeExpression | undefined, sorted: Array<GroupMember>): string | undefined {
   if (!type) return undefined
-  if (!isTypeLiteral(type)) return renderType(type)
+  if (!isTypeLiteral(type)) return printParamType(type)
 
   const typed = sorted.filter((member) => member.type !== undefined)
   if (!typed.length) return undefined
-  return renderMembers(typed.map((member) => ({ key: member.propertyName ?? member.name, type: renderType(member.type!), optional: member.optional })))
+  return renderMembers(typed.map((member) => ({ key: member.propertyName ?? member.name, type: printParamType(member.type!), optional: member.optional })))
 }
 
 function printParameter(node: FunctionParameterNode, mode: PrintMode): string {
@@ -87,7 +95,7 @@ function printParameter(node: FunctionParameterNode, mode: PrintMode): string {
     return node.default ? `${binding} = ${node.default}` : binding
   }
 
-  const type = node.type ? renderType(node.type) : undefined
+  const type = node.type ? printParamType(node.type) : undefined
 
   if (node.rest) {
     return type ? `...${bindingName}: ${type}` : `...${bindingName}`
@@ -106,11 +114,11 @@ function printParameter(node: FunctionParameterNode, mode: PrintMode): string {
  *
  * @example
  * ```ts
- * ast.params.print(params, 'declaration') // "petId: string, config: Config = {}"
- * ast.params.print(params, 'call') // "petId, config"
+ * printParams(params, 'declaration') // "petId: string, config: Config = {}"
+ * printParams(params, 'call') // "petId, config"
  * ```
  */
-export function print(node: FunctionParametersNode, mode: PrintMode): string {
+export function printParams(node: FunctionParametersNode, mode: PrintMode): string {
   // `toSorted` is a stable sort, so equal-rank params keep their declared order.
   return node.params
     .toSorted((a, b) => rank(a) - rank(b))

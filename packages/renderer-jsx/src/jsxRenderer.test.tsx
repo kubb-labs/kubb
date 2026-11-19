@@ -369,4 +369,43 @@ describe('File.Export', () => {
 
     expect(renderer.files[0]!.sources[0]).toMatchObject({ name: 'getPet', isExportable: true, isIndexable: false })
   })
+
+  it('builds the params from Function.Params children and prints a call', async () => {
+    const renderer = jsxRenderer()
+    const params = ast.factory.createFunctionParameters({ params: [ast.factory.createFunctionParameter({ name: 'petId', type: 'string' })] })
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Function export name="getPet">
+          <Function.Params>
+            <Function.Param name="config" type="Config" default="{}" />
+            <Function.Param name="petId" type="string" />
+          </Function.Params>
+          {'return '}
+          <Function.Call name="fetchPet" params={params} />
+        </Function>
+      </File>,
+    )
+
+    expect(renderer.files[0]!.sources[0]!.nodes?.[0]).toMatchObject({
+      kind: 'Function',
+      params: 'petId: string, config: Config = {}',
+      nodes: [
+        { kind: 'Text', value: 'return ' },
+        { kind: 'Text', value: 'fetchPet(petId)' },
+      ],
+    })
+  })
+
+  it('maps comments to the JSDoc block', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Const export name="pet" comments={['A pet.']}>
+          {'1'}
+        </Const>
+      </File>,
+    )
+
+    expect(renderer.files[0]!.sources[0]!.nodes?.[0]).toMatchObject({ kind: 'Const', JSDoc: { comments: ['A pet.'] } })
+  })
 })

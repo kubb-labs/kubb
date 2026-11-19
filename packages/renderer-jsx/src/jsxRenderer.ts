@@ -48,7 +48,7 @@ function childrenOf(host: HostElement): unknown {
 type CodeTag = 'kubb-function' | 'kubb-arrow-function' | 'kubb-const' | 'kubb-type'
 type CodeHost = Extract<HostElement, { type: CodeTag }>
 type CodeFactories = {
-  [K in CodeTag]: (props: Omit<JSX.IntrinsicElements[K], 'children' | 'params'> & { params?: string | null; nodes: Array<ast.CodeNode> }) => ast.CodeNode
+  [K in CodeTag]: (props: Omit<JSX.IntrinsicElements[K], 'children'> & { nodes: Array<ast.CodeNode> }) => ast.CodeNode
 }
 
 const codeFactories: CodeFactories = {
@@ -64,15 +64,8 @@ function isCodeHost(host: HostElement): host is CodeHost {
 
 function createCodeNode<K extends CodeTag>(type: K, props: JSX.IntrinsicElements[K]): ast.CodeNode {
   const { children, ...rest } = props
-  // TypeScript cannot correlate `codeFactories[type]` with `K`, so the factory is called through a widened type.
-  const factory = codeFactories[type] as (props: object & { params?: string | null; nodes: Array<ast.CodeNode> }) => ast.CodeNode
-  // A params node is printed here, so import pruning and inlining keep reading `params` as text.
-  const params =
-    'params' in rest && rest.params && typeof rest.params === 'object'
-      ? { params: ast.params.print(rest.params as ast.FunctionParametersNode, 'declaration') }
-      : {}
 
-  return factory({ ...rest, ...params, nodes: collectCodeNodes(children) })
+  return codeFactories[type]({ ...rest, nodes: collectCodeNodes(children) })
 }
 
 function collectCodeNodes(element: unknown): Array<ast.CodeNode> {

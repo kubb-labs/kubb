@@ -180,7 +180,7 @@ Prints a schema node with a printer, adds the imports the printer collected, and
 
 ### JavaScript
 
-The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block.
+The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `comments?: Array<string | undefined>` for a JSDoc block. `JSDoc?: { comments } | null` still works.
 
 Put a component directly in a `File`, and it becomes its own source block named after `name`. With `export`, the block is exportable and included in barrels, unless it is also `default`. A `Type` is type-only. Wrap it in a `File.Source` only to set other values, such as `pointer` or `inline`.
 
@@ -217,7 +217,7 @@ A function declaration, with the children as the body.
 | `name` | `string` | The name |
 | `default?` | `boolean \| null` | Adds `default` after `export` |
 | `async?` | `boolean \| null` | Adds `async` and wraps `returnType` in `Promise<…>` |
-| `params?` | `string \| FunctionParametersNode \| null` | The parameter list, as text or as a node from [`ast.params`](/docs/5.x/reference/kit/ast#ast-params) |
+| `params?` | `string \| FunctionParametersNode \| null` | The parameter list, as text or as a node from [`ast.factory`](/docs/5.x/reference/kit/ast#factory-functions). A node is sorted required, optional, defaulted, then rest. |
 | `generics?` | `string \| Array<string> \| null` | The type parameters. An array joins with commas. |
 | `returnType?` | `string \| null` | The return type after `:` |
 
@@ -227,6 +227,24 @@ A function declaration, with the children as the body.
 </Function>
 // export async function getPet<TData = Pet>(petId: string): Promise<TData> { … }
 ```
+
+Instead of `params`, a `Function.Params` child can list the parameters. Each `Function.Param` takes the input of `ast.factory.createFunctionParameter`. `Function.Call` prints a call that passes a parameter list through.
+
+```tsx
+<Function export name="getPet">
+  <Function.Params>
+    <Function.Param name="petId" type="string" />
+    <Function.Param name="config" type="Config" default="{}" />
+  </Function.Params>
+  {'return '}
+  <Function.Call name="fetchPet" params={params} />
+</Function>
+// export function getPet(petId: string, config: Config = {}) {
+//   return fetchPet(petId, config)
+// }
+```
+
+To print a parameter list as text, such as inside a template string, use `printParams(node, 'declaration' | 'call')` from `@kubb/renderer-jsx`.
 
 #### `Function.Arrow` {#function-arrow}
 
