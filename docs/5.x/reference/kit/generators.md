@@ -135,3 +135,40 @@ export const operationGenerator = defineGenerator({
 
 > [!WARNING]
 > The value stays in memory until the build ends. Store derived data, such as names or paths, not generated source.
+
+### File helpers: `getFile` and `getFileLocation` {#file-helpers}
+
+Two functions from `kubb/kit` read the file settings from `ctx`, so a generator does not repeat them:
+
+| Function               | Returns                                    | Use for                                                                                                           |
+| ---------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `getFileLocation(ctx)` | `{ root, output, group }`                  | The location arguments of `ctx.resolver.file()` and `ctx.resolver.imports()`. A `null` group becomes `undefined`. |
+| `getFile(ctx, file)`   | `{ baseName, path, meta, banner, footer }` | The props of a `<File>` or `ast.factory.createFile()`, with the banner and footer from `output`.                  |
+
+Both read `ctx.options`, so an `override` that changes `output` applies to the node it matches. They need a plugin whose resolved options have `output`, such as one built on `ResolvedPluginOptions`.
+
+```typescript [file-generator.ts]
+import { ast, defineGenerator, getFile, getFileLocation } from 'kubb/kit'
+import type { PluginType, ResolvedPluginOptions } from 'kubb/kit'
+
+interface ResolvedOptions extends ResolvedPluginOptions<ResolvedOptions> {}
+type MyPlugin = PluginType<'my-plugin', object, ResolvedOptions>
+
+export const fileGenerator = defineGenerator<MyPlugin>({
+  name: 'file-generator',
+  operation(node, ctx) {
+    const file = ctx.resolver.file({ name: node.operationId, extname: '.ts', ...getFileLocation(ctx) })
+
+    return [
+      ast.factory.createFile({
+        ...getFile(ctx, file),
+        sources: [
+          ast.factory.createSource({
+            nodes: [ast.factory.createText(`export const op = '${node.operationId}'`)],
+          }),
+        ],
+      }),
+    ]
+  },
+})
+```

@@ -23,6 +23,8 @@ export {
   definePlugin,
   Diagnostics,
   fsStorage,
+  getFile,
+  getFileLocation,
   Hookable,
   injectFile,
   isExtensionManifest,

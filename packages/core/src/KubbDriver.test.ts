@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
-import type { KubbPluginSetupContext, Plugin } from './definePlugin.ts'
-import type { Generator, GeneratorContext } from './defineGenerator.ts'
+import type { Group, KubbPluginSetupContext, Output, Plugin, PluginType } from './definePlugin.ts'
+import { getFile, getFileLocation, type Generator, type GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
 import { Resolver } from './Resolver.ts'
@@ -649,6 +649,78 @@ describe('KubbDriver generator dispatch', () => {
       'unmatched/op-getPet.ts',
       'unmatched/op-listPets.ts',
     ])
+  })
+})
+
+describe('getFile and getFileLocation', () => {
+  const resolver = new Resolver({ pluginName: 'plugin-test' })
+  const config = makeConfig({ root: '/project' })
+  const meta: GeneratorContext['meta'] = { title: 'Pet Store', version: '1.0.0' }
+  const output = { path: 'types', mode: 'directory' as const, banner: '// banner', footer: '// footer' }
+  const root = '/project/gen'
+
+  test('getFileLocation reads root, output and group from the context', () => {
+    const group = { type: 'tag' as const }
+
+    expect(getFileLocation({ root, options: { output, group } })).toEqual({ root, output, group })
+    expect(getFileLocation({ root, options: { output, group: null } })).toEqual({ root, output, group: undefined })
+  })
+
+  test('getFile returns the props of a hand-written file shell', () => {
+    const file = resolver.file({ name: 'pet', extname: '.ts', root, output })
+    const bannerContext = { output, config, file: { path: file.path, baseName: file.baseName } }
+
+    expect(getFile({ config, meta, resolver, options: { output } }, file)).toEqual({
+      baseName: file.baseName,
+      path: file.path,
+      meta: file.meta,
+      banner: resolver.default.banner(meta, bannerContext),
+      footer: resolver.default.footer(meta, bannerContext),
+    })
+    expect(resolver.default.banner(meta, bannerContext)).toContain('// banner')
+    expect(resolver.default.footer(meta, bannerContext)).toContain('// footer')
+  })
+
+  test('read the per-node options in schema and operation, and the plugin options in the operations batch', async () => {
+    type PluginFile = PluginType<'pluginFile', object, { output: Output; group: Group | null }>
+    const seen: Record<string, { banner: string | null; footer: string | null; path: string; group: Group | undefined }> = {}
+    const record = (key: string, ctx: GeneratorContext<PluginFile>) => {
+      const location = getFileLocation(ctx)
+      const { banner, footer } = getFile(ctx, fileNode(`${key}.ts`))
+      seen[key] = { banner, footer, path: location.output.path, group: location.group }
+      return null
+    }
+    const generator: Generator<PluginFile> = {
+      name: 'file-gen',
+      schema: (node, ctx) => record(node.name ?? 'schema', ctx),
+      operation: (node, ctx) => record(node.operationId, ctx),
+      operations: (_nodes, ctx) => record('operations', ctx),
+    }
+    const plugin: Plugin<PluginFile> = {
+      name: 'pluginFile',
+      options: {
+        output: { path: 'types', banner: '// plugin', footer: '// plugin footer' },
+        group: null,
+        override: [{ type: 'operationId', pattern: 'getPet', options: { output: { path: 'pets', banner: '// override' } } }],
+      },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator(generator)
+        },
+      },
+    }
+    const fileDriver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+    await fileDriver.setup()
+    await fileDriver.run()
+
+    const pluginLevel = { banner: '// plugin', footer: '// plugin footer', path: 'types', group: undefined }
+    expect(seen).toStrictEqual({
+      Pet: pluginLevel,
+      Store: pluginLevel,
+      getPet: { banner: '// override', footer: null, path: 'pets', group: undefined },
+      listPets: pluginLevel,
+      operations: pluginLevel,
+    })
   })
 })
 
