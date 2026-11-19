@@ -297,6 +297,55 @@ export type Override<TOptions> = Filter & {
   options: Omit<Partial<TOptions>, 'override'>
 }
 
+/**
+ * Options every generator plugin accepts: `output`, `group`, and the `exclude`, `include`, and
+ * `override` filters. `TResolvedOptions` is the options object an `override` entry can set.
+ *
+ * Intersect into a plugin's `Options` type and add the plugin's own keys.
+ *
+ * @example
+ * ```ts
+ * export type Options = PluginOptions<ResolvedOptions> & {
+ *   baseURL?: string
+ * }
+ * ```
+ */
+export type PluginOptions<TResolvedOptions> = OutputOptions & {
+  /**
+   * Skip operations matching at least one entry in the list.
+   */
+  exclude?: Array<Exclude>
+  /**
+   * Restrict generation to operations matching at least one entry in the list.
+   */
+  include?: Array<Include>
+  /**
+   * Apply a different options object to operations matching a pattern.
+   */
+  override?: Array<Override<TResolvedOptions>>
+}
+
+/**
+ * The `PluginOptions` keys after a plugin applies its defaults, as `setup` returns them.
+ *
+ * An interface, not a type alias, so a plugin's `ResolvedOptions` can pass itself as
+ * `TResolvedOptions` without a circular reference error.
+ *
+ * @example
+ * ```ts
+ * export type ResolvedOptions = ResolvedPluginOptions<ResolvedOptions> & {
+ *   baseURL: string | undefined
+ * }
+ * ```
+ */
+export interface ResolvedPluginOptions<TResolvedOptions> {
+  output: Output
+  exclude: Array<Exclude>
+  include: Array<Include> | undefined
+  override: Array<Override<TResolvedOptions>>
+  group: Group | null
+}
+
 export type PluginType<
   /**
    * Unique plugin name.
