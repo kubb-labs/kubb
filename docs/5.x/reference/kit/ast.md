@@ -431,12 +431,21 @@ type PrinterNodes = Partial<{
 
 Handlers use `this`, so write regular functions, not arrow functions:
 
-| `this` member          | Does                                                                   |
-| ---------------------- | ---------------------------------------------------------------------- |
-| `this.transform(node)` | Prints a nested schema with every handler, overrides included          |
-| `this.base(node)`      | Runs the replaced built-in handler, to wrap its output                 |
-| `this.options`         | The resolved printer options, such as `arrayType` on `@kubb/plugin-ts` |
-| `this.import(node)`    | Declares an import, as an `ast.factory.createImport()` node            |
+| `this` member                    | Does                                                                           |
+| -------------------------------- | ------------------------------------------------------------------------------ |
+| `this.transform(node, options?)` | Prints a nested schema with every handler, overrides included                  |
+| `this.base(node, options?)`      | Runs the replaced built-in handler, to wrap its output                         |
+| `this.options`                   | The resolved printer options, such as `arrayType` on `@kubb/plugin-ts`         |
+| `this.parent`                    | The schema node whose handler called `this.transform`, `undefined` at the root |
+| `this.import(node)`              | Declares an import, as an `ast.factory.createImport()` node                    |
+
+The `options` you pass to `this.transform` or `this.base` are merged over `this.options` for that child and what it prints, and leave the caller's options unchanged:
+
+```typescript
+array(node) {
+  return `z.array(${this.transform(node.items[0], { nestedInArray: true })})`
+}
+```
 
 > [!IMPORTANT]
 > The built-in generators collect those imports. In your own generator, call `printer.drainImports()` after printing.
