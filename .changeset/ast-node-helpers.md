@@ -8,6 +8,6 @@
 - `ast.schema.is(node, kind, { follow })` checks whether a schema is `binary`, `string`, `text`, `scalar`, `const`, `enumLike`, or `untyped`. With `follow: ['ref', 'array']`, it also looks through refs and array items.
 - `ast.schema.getNumberBounds` now takes a number node and applies its integer format range and `multipleOf`.
 - `ast.mediaType.getKind` classifies a content entry.
-- `ast.http.getRequestGroups`, `ast.http.responses.getStream`, and `ast.http.responses.getUnion` summarize a request, a streamed response, and the union of success responses.
+- `ast.http.getRequestGroups` and `ast.http.responses.getUnion` summarize a request and the union of success responses.
 
 `ast.schema.isString` and the `followRefs` option of `ast.schema.find` are deprecated. Use `ast.schema.is(node, 'string')` and `follow: ['ref']`. Both are removed in Kubb v6.

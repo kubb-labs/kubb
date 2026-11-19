@@ -377,7 +377,6 @@ const baseURL = ast.http.getBaseURL(ast.server.get({ servers: node.servers, inde
 | `ast.http.responses.findPrimary`      | The success response a client returns, preferring a body, then an exact code over a range |
 | `ast.http.responses.filterError`      | The `4xx` and `5xx` responses, ranges included                                            |
 | `ast.http.responses.getImportedNames` | The ref names the response bodies import                                                  |
-| `ast.http.responses.getStream`        | How the success responses stream: item shape, text events, and stream variants, or `null` |
 | `ast.http.responses.getUnion`         | A union of refs to the success responses with a body, named by your resolver, or `null`   |
 
 ```typescript [responses.ts]
@@ -386,7 +385,6 @@ ast.http.responses.filterSuccess(node).map((response) => response.statusCode) //
 ast.http.responses.findPrimary(node)?.statusCode // '200'
 ast.http.responses.filterError(node).map((response) => response.statusCode) // ['404']
 ast.http.responses.getImportedNames(node.responses) // ['Pet']
-ast.http.responses.getStream(node) // null, since no response streams
 ```
 
 ### `ast.http.status`
