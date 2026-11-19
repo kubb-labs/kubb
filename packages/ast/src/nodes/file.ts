@@ -278,7 +278,7 @@ const SYMBOL_PATH_PREFIX = 'kubb:'
 
 /** Input for {@link createImport}. A `plugin` import takes named imports only, and core replaces its `path`. */
 export type UserImportNode =
-  | (Omit<ImportNode, 'kind' | 'plugin'> & { plugin?: null })
+  | Omit<ImportNode, 'kind'>
   | (Omit<ImportNode, 'kind' | 'path' | 'plugin' | 'name' | 'isNameSpace'> & {
       path?: string
       plugin: PluginName
@@ -298,7 +298,8 @@ export type UserImportNode =
  * ```
  */
 export function createImport(input: UserImportNode): ImportNode {
-  if (input.plugin == null) return { ...input, kind: nodeKinds.import }
+  // Without a `plugin`, the input type requires a `path`.
+  if (!input.plugin) return { ...input, path: input.path!, kind: nodeKinds.import }
   // `.flat()` also covers an untyped caller passing one name as a string.
   return { ...input, name: [input.name].flat(), path: `${SYMBOL_PATH_PREFIX}${input.plugin}`, kind: nodeKinds.import }
 }

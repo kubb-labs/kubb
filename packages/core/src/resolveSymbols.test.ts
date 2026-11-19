@@ -76,6 +76,13 @@ describe('resolveSymbols', () => {
     ])
   })
 
+  it('keeps the written order of names that resolve to one file', () => {
+    const types = file('/gen/types/addPet.ts', { sources: [source('AddPetResponse', 'plugin-ts'), source('AddPetBody', 'plugin-ts')] })
+    const cypress = importer('/gen/cypress/addPet.ts', [{ name: ['AddPetResponse', 'AddPetBody'], plugin: 'plugin-ts' }])
+
+    expect(resolveSymbols([types, cypress]).files[0]?.imports.map(({ name }) => name)).toStrictEqual([['AddPetResponse', 'AddPetBody']])
+  })
+
   it('looks a renamed import up by its imported name and keeps the alias', () => {
     const types = file('/gen/types/Pet.ts', { sources: [source('Pet', 'plugin-ts')] })
     const cypress = importer('/gen/cypress/pet.ts', [{ name: [{ propertyName: 'Pet', name: 'PetType' }], plugin: 'plugin-ts' }])
