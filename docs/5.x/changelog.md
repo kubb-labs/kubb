@@ -9,6 +9,29 @@ outline: 2
 
 # Changelog
 
+## v5.22.0 — Nov 19, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add `shared: { path }`. Schemas that several configs in an array define identically are generated once under that path, and every other generated file imports them from there. ([#4352](https://github.com/kubb-labs/kubb/pull/4352))
+
+  ```ts
+  const shared = { path: './src/gen/common' }
+
+  export default defineConfig([
+    { input: './animals.json', output: { path: './src/gen/animals' }, shared, plugins: [pluginTs()] },
+    { input: './fruits.json', output: { path: './src/gen/fruits' }, shared, plugins: [pluginTs()] },
+  ])
+  ```
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.21.2 — Nov 18, 2026
 
 ### @kubb/ast
