@@ -5,8 +5,10 @@ import { printParams } from './params.ts'
 
 type Params = string | ast.FunctionParametersNode | null
 
-type Props = Omit<ast.FunctionNode, 'kind' | 'nodes' | 'params'> & {
+type Props = Omit<ast.FunctionNode, 'kind' | 'nodes' | 'params' | 'JSDoc'> & {
   key?: Key
+  /** @deprecated Use `comments`. Removed in Kubb v6. */
+  JSDoc?: ast.JSDocNode | null
   /** Parameter list, as text or a node from `ast.factory.createFunctionParameters`. A `Function.Params` child sets it too. */
   params?: Params
   /** Doc comment lines, the same as `JSDoc={{ comments }}`. */
@@ -68,8 +70,10 @@ export function Function({ children, params, comments, JSDoc, ...props }: Props)
   )
 }
 
-type ArrowFunctionProps = Omit<ast.ArrowFunctionNode, 'kind' | 'nodes' | 'params'> & {
+type ArrowFunctionProps = Omit<ast.ArrowFunctionNode, 'kind' | 'nodes' | 'params' | 'JSDoc'> & {
   key?: Key
+  /** @deprecated Use `comments`. Removed in Kubb v6. */
+  JSDoc?: ast.JSDocNode | null
   /** Parameter list, as text or a parameter node. See {@link Function}. */
   params?: Params
   /** Doc comment lines, the same as `JSDoc={{ comments }}`. */

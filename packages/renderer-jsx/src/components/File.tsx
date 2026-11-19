@@ -62,6 +62,8 @@ type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value'> & {
 /**
  * Marks a block of source text to be associated with the enclosing {@link File}.
  *
+ * @deprecated Put `Const`, `Type` or `Function` directly in `File`. They take `pointer` and `inline` too. Removed in Kubb v6.
+ *
  * Children are treated as the source string. `isExportable` marks the source as an exported declaration,
  * `isIndexable` includes the source in barrel/index generation, and `name` keys deduplication.
  *
@@ -137,4 +139,5 @@ function FileImport(props: FileImportProps): KubbReactElement {
 
 File.Export = FileExport
 File.Import = FileImport
+/** @deprecated Put `Const`, `Type` or `Function` directly in `File`. They take `pointer` and `inline` too. Removed in Kubb v6. */
 File.Source = FileSource

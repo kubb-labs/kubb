@@ -1,8 +1,10 @@
 import type { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
-type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes'> & {
+type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes' | 'JSDoc'> & {
   key?: Key
+  /** @deprecated Use `comments`. Removed in Kubb v6. */
+  JSDoc?: ast.JSDocNode | null
   /** Doc comment lines, the same as `JSDoc={{ comments }}`. */
   comments?: Array<string | undefined>
   /** Same as `inline` on `File.Source`. */

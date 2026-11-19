@@ -105,7 +105,7 @@ With `baseName` and `path`, `File` declares a generated file. Without them, it r
 
 #### `File.Source` {#file-source}
 
-A block of source text in the enclosing `File`. A single declaration does not need one, see [JavaScript](#javascript).
+Deprecated, removed in Kubb v6. Put a [JavaScript component](#javascript) directly in the `File` instead. A block of source text in the enclosing `File`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -180,7 +180,7 @@ Prints `node`, adds the printer's imports, and calls `children` with the code. I
 
 ### JavaScript
 
-The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `comments?: Array<string | undefined>` or `JSDoc` for a JSDoc block.
+The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `comments?: Array<string | undefined>` for a JSDoc block. `JSDoc` is deprecated.
 
 A component directly in a `File` is its own source block, named after `name`. `export` puts it in barrels, unless it is also `default`. It takes `pointer` and `inline` like `File.Source`.
 
