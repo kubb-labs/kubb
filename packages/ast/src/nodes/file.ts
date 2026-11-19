@@ -71,6 +71,16 @@ export type ImportNode = BaseNode & {
    * When set, the import path is resolved relative to this root.
    */
   root?: string | null
+  /**
+   * Imports `name` from the file where this plugin emitted it. Core fills in `path` after every generator has run and
+   * again before the files are written, and reports `KUBB_SYMBOL_NOT_FOUND` or `KUBB_SYMBOL_AMBIGUOUS` when the plugin
+   * emitted the name in no file or in several. Only sources a plugin emits through a generator, `addFile`, `upsertFile`
+   * or `injectFile` count as emitted.
+   *
+   * @example
+   * `'plugin-ts'`
+   */
+  plugin?: string | null
 }
 
 /**
@@ -160,6 +170,10 @@ export type SourceNode = BaseNode & {
    * Include this source in barrel/index file generation.
    */
   isIndexable?: boolean | null
+  /**
+   * Name of the plugin that emitted this source. Core sets it, so an import with the same `plugin` can find the file.
+   */
+  plugin?: string | null
   /**
    * Marks the source as a definition that importing files absorb instead of import. `expression` is
    * the declaration's right-hand side, such as `{ body: Pet }`.
@@ -257,15 +271,44 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
 }
 
 /**
+ * Prefix of the path an import gets when it names a `plugin` instead of a `path`, until core fills in the real path.
+ */
+const SYMBOL_PATH_PREFIX = 'kubb:'
+
+/**
+ * Input for {@link createImport}: an `ImportNode` without `kind`, with either a `path` or a `plugin`. An import with a
+ * `plugin` takes named imports only. With both set, `plugin` wins and core replaces `path`.
+ */
+export type UserImportNode =
+  | (Omit<ImportNode, 'kind' | 'plugin'> & { plugin?: string | null })
+  | (Omit<ImportNode, 'kind' | 'path' | 'plugin' | 'name' | 'isNameSpace'> & {
+      path?: string
+      plugin: string
+      name: Extract<ImportName, Array<unknown>>
+      isNameSpace?: never
+    })
+
+/**
  * Creates an `ImportNode` representing a language-agnostic import/dependency declaration.
+ *
+ * An import with a `plugin` and no `path` gets the placeholder path `kubb:<plugin>`, so imports from one plugin merge
+ * like imports from one file. Core replaces it with the file that plugin emitted the name in.
  *
  * @example Named import
  * ```ts
  * createImport({ name: ['useState'], path: 'react' })
  * // import { useState } from 'react'
  * ```
+ *
+ * @example Import from wherever a plugin emitted the name
+ * ```ts
+ * createImport({ name: ['Pet'], plugin: 'plugin-ts', isTypeOnly: true })
+ * // import type { Pet } from './types/Pet' once core resolves it
+ * ```
  */
-export const createImport = nodeFactory<ImportNode>(nodeKinds.import)
+export function createImport(input: UserImportNode): ImportNode {
+  return { ...input, path: input.path ?? `${SYMBOL_PATH_PREFIX}${input.plugin}`, kind: nodeKinds.import }
+}
 
 /**
  * Creates an `ExportNode` representing a language-agnostic export/public API declaration.
