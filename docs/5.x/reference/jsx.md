@@ -127,7 +127,7 @@ An import at the top of the enclosing `File`.
 | --- | --- | --- |
 | `name` | `string \| Array<string \| { propertyName: string; name?: string }>` | A string for a default or namespace import, or an array of named imports |
 | `path` | `string` | The module to import from. Leave it out when you set `plugin`, which wins when both are set |
-| `plugin?` | `string` | Imports the named imports in `name` from the file where this plugin emitted them |
+| `plugin?` | `string` | Imports the named imports in `name` from the file where this plugin emitted them. Autocompletes the names in `Kubb.PluginRegistry` |
 | `root?` | `string \| null` | The file path the import is relative to |
 | `isTypeOnly?` | `boolean \| null` | Emits `import type` |
 | `isNameSpace?` | `boolean \| null` | Emits `import * as name` |

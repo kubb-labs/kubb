@@ -4,7 +4,18 @@ import { nodeKinds } from '../constants.ts'
 import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
 import { getNodeText } from '../utils/nodeText.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
+import type { LiteralUnion } from '@internals/utils'
 import type { CodeNode } from './code.ts'
+
+declare global {
+  namespace Kubb {
+    /** Plugin names mapped to their types. `@kubb/core` declares the same interface, and plugins augment it. */
+    interface PluginRegistry {}
+  }
+}
+
+/** A plugin name: autocompletes the names in `Kubb.PluginRegistry`, and takes any other string. */
+type PluginName = LiteralUnion<keyof Kubb.PluginRegistry>
 
 /**
  * Supported file extensions.
@@ -75,7 +86,7 @@ export type ImportNode = BaseNode & {
    * Imports `name` from the file where this plugin emitted it, through a generator, `addFile`, `upsertFile` or
    * `injectFile`. Core fills in `path` before the write.
    */
-  plugin?: string | null
+  plugin?: PluginName | null
 }
 
 /**
@@ -166,7 +177,7 @@ export type SourceNode = BaseNode & {
    */
   isIndexable?: boolean | null
   /** Name of the plugin that emitted this source. Core sets it. */
-  plugin?: string | null
+  plugin?: PluginName | null
   /**
    * Marks the source as a definition that importing files absorb instead of import. `expression` is
    * the declaration's right-hand side, such as `{ body: Pet }`.
@@ -268,10 +279,10 @@ const SYMBOL_PATH_PREFIX = 'kubb:'
 
 /** Input for {@link createImport}. A `plugin` import takes named imports only, and wins over `path`. */
 export type UserImportNode =
-  | (Omit<ImportNode, 'kind' | 'plugin'> & { plugin?: string | null })
+  | (Omit<ImportNode, 'kind' | 'plugin'> & { plugin?: PluginName | null })
   | (Omit<ImportNode, 'kind' | 'path' | 'plugin' | 'name' | 'isNameSpace'> & {
       path?: string
-      plugin: string
+      plugin: PluginName
       name: Extract<ImportName, Array<unknown>>
       isNameSpace?: never
     })
