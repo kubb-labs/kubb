@@ -17,7 +17,7 @@ navigation:
 
 ## Install Kubb and your plugins
 
-Follow [Installation](/docs/5.x/how-to/installation).
+Follow [Installation](/docs/5.x/introduction/installation).
 
 ## Add Kubb to `build.ts`
 
@@ -42,4 +42,4 @@ Run your build script, such as `node build.ts`. If Kubb fails, the build fails.
 
 ::
 
-[How the build runs Kubb](/docs/5.x/integrations/overview#how-the-build-runs-kubb) covers defaults, reports, and watch rebuilds.
+[How the build runs Kubb](/docs/5.x/integrations/build-tools#how-the-build-runs-kubb) covers defaults, reports, and watch rebuilds.

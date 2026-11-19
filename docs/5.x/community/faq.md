@@ -38,19 +38,19 @@ Yes, with a build step. Kubb generates TypeScript, so import the output through 
 :::
 
 :::accordion-item{label="Can I use Kubb with GraphQL?" icon="i-iconoir-help-circle"}
-Not out of the box. The default [adapter](/docs/5.x/explanation/architecture#adapters) reads OpenAPI and Swagger, so use [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) for GraphQL. A [custom adapter](/docs/5.x/reference/kit/adapters) can read any format, but takes real work.
+Not out of the box. The default [adapter](/docs/5.x/introduction/architecture#adapters) reads OpenAPI and Swagger, so use [GraphQL Code Generator](https://the-guild.dev/graphql/codegen) for GraphQL. A [custom adapter](/docs/5.x/reference/kit/adapters) can read any format, but takes real work.
 :::
 
 :::accordion-item{label="Which Node.js version do I need?" icon="i-iconoir-help-circle"}
-Node.js 22.22 or later. The CLI and the config file are ESM. See [Installation](/docs/5.x/how-to/installation#prerequisites).
+Node.js 22.22 or later. The CLI and the config file are ESM. See [Installation](/docs/5.x/introduction/installation#prerequisites).
 :::
 
 :::accordion-item{label="Does Kubb work with TypeScript 7?" icon="i-iconoir-help-circle"}
-Yes. Kubb builds and type-checks with TypeScript 7, and the code it generates type-checks with `tsc` 7. Install `typescript@7` and run `tsc` as before. See [Installation](/docs/5.x/how-to/installation#prerequisites).
+Yes. Kubb builds and type-checks with TypeScript 7, and the code it generates type-checks with `tsc` 7. Install `typescript@7` and run `tsc` as before. See [Installation](/docs/5.x/introduction/installation#prerequisites).
 :::
 
 :::accordion-item{label="Does Kubb run on Bun or Deno?" icon="i-iconoir-help-circle"}
-On Bun, yes. The CLI and the generated code need no extra setup. Use the Bun commands in [Installation](/docs/5.x/how-to/installation). Deno is not tested.
+On Bun, yes. The CLI and the generated code need no extra setup. Use the Bun commands in [Installation](/docs/5.x/introduction/installation). Deno is not tested.
 :::
 
 ::
@@ -64,7 +64,7 @@ Either works. Commit the output so CI can skip generation, or add the output fol
 :::
 
 :::accordion-item{label="Can Kubb generate during my build or in CI?" icon="i-iconoir-help-circle"}
-Yes. [Build tool plugins](/docs/5.x/integrations/overview#build-tools) generate when Vite, webpack, or another bundler builds. [CI snapshots](/docs/5.x/integrations/ci) publish the output of each pull request as an installable package.
+Yes. [Build tool plugins](/docs/5.x/integrations/build-tools) generate when Vite, webpack, or another bundler builds. [CI snapshots](/docs/5.x/integrations/ci) publish the output of each pull request as an installable package.
 :::
 
 ::

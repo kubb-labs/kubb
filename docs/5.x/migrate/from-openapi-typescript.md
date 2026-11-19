@@ -3,7 +3,7 @@ layout: doc
 title: Move from openapi-typescript to Kubb
 description: Replace openapi-typescript, openapi-fetch, and openapi-react-query with Kubb. Generate the same types, then swap the client and hooks one step at a time.
 outline: [2, 3]
-order: 6
+order: 3
 navigation:
   title: Move from openapi-typescript
   icon: i-iconoir-git-fork
@@ -13,7 +13,7 @@ navigation:
 
 Start with the types, then replace `openapi-fetch` and `openapi-react-query`. You can stop after any step.
 
-openapi-typescript gets [no more updates, security fixes included](https://github.com/openapi-ts/openapi-typescript/issues/2874), and `openapi-fetch` and `openapi-react-query` are in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559). openapi-typescript 7.13.0 also needs TypeScript 5 and fails on TypeScript 7, which Kubb supports.
+[openapi-typescript](https://openapi-ts.dev) ([GitHub](https://github.com/openapi-ts/openapi-typescript)) gets [no more updates, security fixes included](https://github.com/openapi-ts/openapi-typescript/issues/2874), and `openapi-fetch` and `openapi-react-query` are in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559). openapi-typescript 7.13.0 also needs TypeScript 5 and fails on TypeScript 7, which Kubb supports.
 
 ## What maps to what
 
@@ -76,7 +76,7 @@ bun add -d kubb @kubb/adapter-oas @kubb/plugin-ts
 
 :::
 
-Change your `generate` script to `kubb generate` and run it. Leave `schema.d.ts` in place until the last step, because `openapi-fetch` reads it:
+Change your `generate` script to `kubb generate` and run it. Leave `schema.d.ts` in place until the last step, because `openapi-fetch` reads it. That file stops following the spec once openapi-typescript no longer runs. If you pause before the last step, run both commands in the script:
 
 :::code-group
 

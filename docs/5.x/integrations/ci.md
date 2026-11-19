@@ -28,7 +28,7 @@ flowchart LR
 
 ## Prerequisites
 
-- A working `kubb.config.ts` on Kubb 5.6.2 or later. See [Installation](/docs/5.x/how-to/installation).
+- A working `kubb.config.ts` on Kubb 5.6.2 or later. See [Installation](/docs/5.x/introduction/installation).
 - `tsdown` next to `kubb` in the dev dependencies (`npm i -D tsdown`). Snapshots build their `dist` files with it.
 - Two Studio API keys, created under **Settings › Developers › Tokens**:
 

@@ -13,19 +13,42 @@ navigation:
 
 # Kubb vs orval, HeyAPI, and openapi-typescript
 
-Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. We checked each cell against each project's docs in October 2026, and the OpenAPI 3.2 row by generating from a 3.2 spec in November 2026.
+Kubb, [orval](https://orval.dev) ([GitHub](https://github.com/orval-labs/orval)), [HeyAPI](https://heyapi.dev) ([GitHub](https://github.com/hey-api/openapi-ts)), and [openapi-typescript](https://openapi-ts.dev) ([GitHub](https://github.com/openapi-ts/openapi-typescript)) all generate code from OpenAPI specs. This page shows where they differ.
 
-The biggest shift: openapi-typescript is no longer maintained. In December 2025, its maintainers put `openapi-fetch`, `openapi-react-query`, and `openapi-metadata` into [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559). In September 2026, openapi-typescript itself followed, with [no more updates, security fixes included](https://github.com/openapi-ts/openapi-typescript/issues/2874). To switch, see [Move from openapi-typescript](/docs/5.x/how-to/migrate-from-openapi-typescript).
+## Switch to Kubb
 
-| Where Kubb differs | Read |
+Each guide replaces one output at a time.
+
+::card-group
+
+:::card{title="Move from orval" icon="i-iconoir-git-fork" to="/docs/5.x/migrate/from-orval"}
+Types, client, query hooks, Zod schemas, and MSW mocks.
+:::
+
+:::card{title="Move from HeyAPI" icon="i-iconoir-git-fork" to="/docs/5.x/migrate/from-hey-api"}
+Types, SDK and client, TanStack Query, and Zod schemas.
+:::
+
+:::card{title="Move from openapi-typescript" icon="i-iconoir-git-fork" to="/docs/5.x/migrate/from-openapi-typescript"}
+Types, `openapi-fetch`, and `openapi-react-query`.
+:::
+
+::
+
+> [!WARNING]
+> openapi-typescript is no longer maintained. In December 2025, its maintainers put `openapi-fetch`, `openapi-react-query`, and `openapi-metadata` into [maintenance mode](https://github.com/openapi-ts/openapi-typescript/discussions/2559). In September 2026, openapi-typescript itself followed, with [no more updates, security fixes included](https://github.com/openapi-ts/openapi-typescript/issues/2874).
+
+## Where Kubb differs
+
+| Difference | Details |
 | --- | --- |
 | Full builds are the fastest of the three and use the least memory on every spec we measured, from 0.1 MB to 29.7 MB. | [Speed, CPU time, and memory](#speed-cpu-time-and-memory) |
-| One config generates types, clients, query hooks, Zod, MSW, Faker, Cypress tests, an MCP server, and Redoc docs. | [Plugin and feature coverage](#plugin-and-feature-coverage) |
+| One config generates types, clients, query hooks, Zod or Valibot schemas, MSW, Faker, Cypress tests, an MCP server, and Redoc docs. | [Plugin and feature coverage](#plugin-and-feature-coverage) |
 | Clients return a result you narrow by status code, and each call picks whether errors throw. | [Type safety and response handling](#type-safety-and-response-handling) |
 | The runtime follows the spec's parameter styles, encodes bodies per media type, and reads server-sent events. | [Client runtime](#client-runtime) |
 | File review, pull request snapshots, and API skills for AI tools. | [Kubb Studio](#kubb-studio) |
 
-To switch, see [Move from orval](/docs/5.x/how-to/migrate-from-orval) and [Move from HeyAPI](/docs/5.x/how-to/migrate-from-hey-api).
+We checked each cell in the tables below against each project's docs in October 2026, and the OpenAPI 3.2 row by generating from a 3.2 spec in November 2026.
 
 ## Speed, CPU time, and memory
 
@@ -47,31 +70,35 @@ How we measured, in November 2026:
 
 ✅ built in · 🟠 partial · 🟡 community or separate package · 🔶 needs extra user code · 🛑 not supported
 
-| Feature                                                          |      Kubb      |     orval      |     HeyAPI     |   openapi-ts   |
-| ---------------------------------------------------------------- | :------------: | :------------: | :------------: | :------------: |
-| [OpenAPI 2.0 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       | 🛑<sup>1</sup> |
-| [OpenAPI 3.0 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       |       ✅       |
-| [OpenAPI 3.1 input](/extensions/kubb-labs/adapter-oas)           |       ✅       |       ✅       |       ✅       |       ✅       |
-| [OpenAPI 3.2 input](/extensions/kubb-labs/adapter-oas)           | ✅<sup>2</sup> | 🟠<sup>3</sup> | 🛑<sup>4</sup> | 🛑<sup>4</sup> |
-| [TypeScript types](/extensions/kubb-labs/plugin-ts)              |       ✅       |       ✅       |       ✅       |       ✅       |
-| [HTTP client (Axios, Fetch)](/extensions/kubb-labs/plugin-axios) |       ✅       |       ✅       |       ✅       | 🔶<sup>5</sup> |
-| [React Query hooks](/extensions/kubb-labs/plugin-react-query)    |       ✅       |       ✅       |       ✅       | 🟡<sup>5</sup> |
-| [Vue Query composables](/extensions/kubb-labs/plugin-vue-query)  |       ✅       |       ✅       |       ✅       |       🛑       |
-| [SWR hooks](/extensions/kubb-labs/plugin-swr)                    |       ✅       |       ✅       | 🛑<sup>6</sup> |       🟡       |
-| [Zod validation schemas](/extensions/kubb-labs/plugin-zod)       |       ✅       |       ✅       |       ✅       |       🛑       |
-| [MSW request handlers](/extensions/kubb-labs/plugin-msw)         |       ✅       |       ✅       | 🛑<sup>6</sup> |       🛑       |
-| [Faker.js mock data](/extensions/kubb-labs/plugin-faker)         |       ✅       |       ✅       | 🛑<sup>6</sup> |       🛑       |
-| [Cypress E2E tests](/extensions/kubb-labs/plugin-cypress)        |       ✅       |       🛑       |       🛑       |       🛑       |
-| [MCP server](/extensions/kubb-labs/plugin-mcp)                   |       ✅       |       ✅       |       🛑       |       🛑       |
-| [Redoc API documentation](/extensions/kubb-labs/plugin-redoc)    |       ✅       |       🛑       |       🛑       |       🛑       |
-| [Barrel index files](/extensions/kubb-labs/plugin-barrel)        |       ✅       |       ✅       |       ✅       |       🛑       |
+| Feature                                                            |      Kubb      |     orval      |     HeyAPI     |   openapi-ts   |
+| ------------------------------------------------------------------ | :------------: | :------------: | :------------: | :------------: |
+| [OpenAPI 2.0 input](/extensions/kubb-labs/adapter-oas)             |       ✅       |       ✅       |       ✅       | 🛑<sup>1</sup> |
+| [OpenAPI 3.0 input](/extensions/kubb-labs/adapter-oas)             |       ✅       |       ✅       |       ✅       |       ✅       |
+| [OpenAPI 3.1 input](/extensions/kubb-labs/adapter-oas)             |       ✅       |       ✅       |       ✅       |       ✅       |
+| [OpenAPI 3.2 input](/extensions/kubb-labs/adapter-oas)             | ✅<sup>2</sup> | 🟠<sup>3</sup> | 🛑<sup>4</sup> | 🛑<sup>4</sup> |
+| [TypeScript types](/extensions/kubb-labs/plugin-ts)                |       ✅       |       ✅       |       ✅       |       ✅       |
+| [HTTP client (Axios, Fetch)](/extensions/kubb-labs/plugin-axios)   |       ✅       |       ✅       |       ✅       | 🔶<sup>5</sup> |
+| [Ky HTTP client](/extensions/kubb-labs/plugin-ky)                  | ✅<sup>6</sup> | 🔶<sup>7</sup> |       ✅       |       🛑       |
+| [React Query hooks](/extensions/kubb-labs/plugin-react-query)      |       ✅       |       ✅       |       ✅       | 🟡<sup>5</sup> |
+| [Vue Query composables](/extensions/kubb-labs/plugin-vue-query)    |       ✅       |       ✅       |       ✅       |       🛑       |
+| [SWR hooks](/extensions/kubb-labs/plugin-swr)                      |       ✅       |       ✅       | 🛑<sup>8</sup> |       🟡       |
+| [Zod validation schemas](/extensions/kubb-labs/plugin-zod)         |       ✅       |       ✅       |       ✅       |       🛑       |
+| [Valibot validation schemas](/extensions/kubb-labs/plugin-valibot) | ✅<sup>6</sup> |       ✅       |       ✅       |       🛑       |
+| [MSW request handlers](/extensions/kubb-labs/plugin-msw)           |       ✅       |       ✅       | 🛑<sup>8</sup> |       🛑       |
+| [Faker.js mock data](/extensions/kubb-labs/plugin-faker)           |       ✅       |       ✅       | 🛑<sup>8</sup> |       🛑       |
+| [Cypress E2E tests](/extensions/kubb-labs/plugin-cypress)          |       ✅       |       🛑       |       🛑       |       🛑       |
+| [MCP server](/extensions/kubb-labs/plugin-mcp)                     |       ✅       |       ✅       |       🛑       |       🛑       |
+| [Redoc API documentation](/extensions/kubb-labs/plugin-redoc)      |       ✅       |       🛑       |       🛑       |       🛑       |
+| [Barrel index files](/extensions/kubb-labs/plugin-barrel)          |       ✅       |       ✅       |       ✅       |       🛑       |
 
 1. openapi-typescript 7 reads 3.0 and 3.1 only. Convert Swagger 2.0 first, or use version 5.
 2. Kubb generates every OpenAPI 3.2 feature we tested: the `QUERY` method, `additionalOperations`, `querystring` parameters, `itemSchema` for server-sent events and JSON Lines, and `components/mediaTypes`.
 3. orval 8.48.0 generates `QUERY` operations. It skips `additionalOperations` and `querystring` parameters, and types `itemSchema` responses and media type references as `unknown`.
 4. HeyAPI 0.99.0 and openapi-typescript 7.13.0 read a 3.2 document without an error, but skip `QUERY` and `additionalOperations` operations, drop `querystring` parameters, and type the other 3.2 features as `unknown`.
 5. openapi-typescript generates types only. Clients and hooks come from the `openapi-fetch` and `openapi-react-query` runtimes, all in [maintenance mode](https://github.com/openapi-ts/openapi-typescript/issues/2874).
-6. HeyAPI lists SWR as planned and MSW and Faker as in progress.
+6. `@kubb/plugin-ky` and `@kubb/plugin-valibot` are in beta.
+7. orval has no Ky client. You write a [custom client](https://orval.dev/docs/guides/custom-client) that calls Ky.
+8. HeyAPI lists SWR as planned and MSW and Faker as in progress.
 
 ## Type safety and response handling
 

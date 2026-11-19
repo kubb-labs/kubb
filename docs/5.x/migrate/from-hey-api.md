@@ -3,7 +3,7 @@ layout: doc
 title: Move from HeyAPI to Kubb
 description: Replace HeyAPI (@hey-api/openapi-ts) with Kubb. Generate the same types, then swap the SDK, TanStack Query options, and Zod schemas one step at a time.
 outline: [2, 3]
-order: 8
+order: 2
 navigation:
   title: Move from HeyAPI
   icon: i-iconoir-git-fork
@@ -11,13 +11,55 @@ navigation:
 
 # Move from HeyAPI to Kubb
 
-Start with the types, then replace one HeyAPI plugin at a time: the SDK and client, TanStack Query, and Zod. You can stop after any step.
+Start with the types, then replace one [HeyAPI](https://heyapi.dev) ([GitHub](https://github.com/hey-api/openapi-ts)) plugin at a time: the SDK and client, TanStack Query, and Zod. You can stop after any step.
 
 `@hey-api/openapi-ts` 0.99.0 fails on TypeScript 7, which Kubb supports.
 
 The examples move a HeyAPI config that writes to `src/client` with the `@hey-api/client-fetch`, `@hey-api/typescript`, `@hey-api/sdk`, `@tanstack/react-query`, and `zod` plugins.
 
+## The config, before and after
+
+The Kubb config is the result of every step below. Each step adds one plugin to it.
+
+::code-group
+
+```typescript [openapi-ts.config.ts]
+import { defineConfig } from '@hey-api/openapi-ts'
+
+export default defineConfig({
+  input: './openapi.yaml',
+  output: 'src/client',
+  plugins: ['@hey-api/client-fetch', '@hey-api/typescript', '@hey-api/sdk', '@tanstack/react-query', 'zod'],
+})
+```
+
+```typescript [kubb.config.ts]
+import { defineConfig } from 'kubb/config'
+import { adapterOas } from '@kubb/adapter-oas'
+import { pluginFetch } from '@kubb/plugin-fetch'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+
+export default defineConfig({
+  input: './openapi.yaml',
+  output: { path: './src/gen' },
+  adapter: adapterOas({ integerType: 'number' }),
+  plugins: [
+    pluginTs({ output: { path: 'types.ts' } }),
+    // The Petstore URL is an example. Use your API's URL.
+    pluginFetch({ baseURL: 'https://petstore3.swagger.io/api/v3', throwOnErrorDefault: false }),
+    pluginReactQuery(),
+    pluginZod(),
+  ],
+})
+```
+
+::
+
 ## What maps to what
+
+### Config options
 
 | HeyAPI | Kubb |
 | --- | --- |
@@ -28,12 +70,17 @@ The examples move a HeyAPI config that writes to `src/client` with the `@hey-api
 | `validator: true` on `@hey-api/sdk` | [`validator`](/extensions/kubb-labs/plugin-fetch/options#validator) on `pluginFetch` |
 | `@tanstack/react-query` | [`pluginReactQuery`](/extensions/kubb-labs/plugin-react-query) |
 | `zod` | [`pluginZod`](/extensions/kubb-labs/plugin-zod) |
+
+### Generated code
+
+| HeyAPI | Kubb |
+| --- | --- |
 | `GetPetByIdData` | `GetPetByIdOptions` |
 | `GetPetByIdData['path']` | `GetPetByIdPath` |
 | `GetPetByIdResponse` | `GetPetByIdStatus200Json` |
-| `getPetById({ path: { petId: 1 } })` | `getPetById({ path: { petId: 1 } })` |
+| `getPetById({ path: { petId: 1 } })` | Unchanged |
 | `client.setConfig({ baseUrl, auth })` | `client.setConfig({ baseURL, auth })` |
-| `client.interceptors.request.use()` | `client.interceptors.request.use()` |
+| `client.interceptors.request.use()` | The same call. Set a header with `request.headers['X-Client'] = 'web'`, not `request.headers.set()` |
 | `getPetByIdOptions(...)` | `getPetByIdQueryOptions(...)` |
 | `addPetMutation()` | `addPetMutationOptions()` |
 | `zPet`, `zGetPetByIdPath` | `petSchema`, `getPetByIdPathSchema` |
@@ -85,7 +132,7 @@ bun add -d kubb @kubb/adapter-oas @kubb/plugin-ts
 
 :::
 
-Change your `generate` script to `kubb generate` and run it. Leave `src/client` in place until the last step, because the rest of the app still imports it:
+Change your `generate` script to `kubb generate` and run it. Leave `src/client` in place until the last step, because the rest of the app still imports it. Those files stop following the spec once HeyAPI no longer runs. If you pause before the last step, use `openapi-ts && kubb generate` as the script:
 
 :::code-group
 

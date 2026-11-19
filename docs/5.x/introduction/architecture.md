@@ -1,17 +1,17 @@
 ---
 layout: doc
-title: How Kubb works - Adapters, AST, plugins, and parsers
+title: Kubb architecture - Adapters, AST, plugins, and parsers
 description: Follow an API spec through Kubb's pipeline, from adapter to AST, plugins, parsers, and storage, and see which extension point changes each stage.
 outline:
   - 2
   - 3
-order: 1
+order: 3
 navigation:
-  title: How Kubb works
+  title: Architecture
   icon: i-iconoir-cube
 ---
 
-# How Kubb works
+# Architecture
 
 Kubb runs your spec through one pipeline, and you can replace or extend each stage.
 

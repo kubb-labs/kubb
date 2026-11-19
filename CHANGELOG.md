@@ -1,5 +1,35 @@
 # Changelog
 
+## v5.21.2 — Nov 18, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Add `ast.json.stringify` and `ast.json.parse` to cache a parsed spec or send it to another thread or process.
+  
+  - `ast.json.stringify(input)` writes every schema a ref points at once. A plain `JSON.stringify(input)` writes it again at every ref, which made a 618-schema spec 76 MB instead of 10 MB.
+  - `ast.json.parse(text)` returns the `InputNode`, with refs to one schema sharing one object again.
+  
+  ```ts
+  import { ast } from 'kubb/kit'
+  
+  const text = ast.json.stringify(input)
+  const restored = ast.json.parse(text)
+  ``` ([#4663](https://github.com/kubb-labs/kubb/pull/4663), [`b7771d5`](https://github.com/kubb-labs/kubb/commit/b7771d5bda1cdd8d9cd260f738e6445123fa5690))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add `beta` to `kubb-extension.json` and `ExtensionManifest`. Set `"beta": true` while an extension is in beta. kubb.dev and Kubb Studio then show a Beta badge next to its name. ([#4671](https://github.com/kubb-labs/kubb/pull/4671), [`517823c`](https://github.com/kubb-labs/kubb/commit/517823cbaef832764bc5859f4768d5ee6099e810))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.21.1 — Nov 17, 2026
 
 ### @kubb/core

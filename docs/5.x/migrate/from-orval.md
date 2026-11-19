@@ -3,7 +3,7 @@ layout: doc
 title: Move from orval to Kubb
 description: Replace orval with Kubb. Generate the same types, then swap the client, query hooks, Zod schemas, and MSW mocks one step at a time.
 outline: [2, 3]
-order: 7
+order: 1
 navigation:
   title: Move from orval
   icon: i-iconoir-git-fork
@@ -11,27 +11,100 @@ navigation:
 
 # Move from orval to Kubb
 
-Start with the types, then replace one orval output at a time: the client, the query hooks, the Zod schemas, and the mocks. You can stop after any step.
+Start with the types, then replace one [orval](https://orval.dev) ([GitHub](https://github.com/orval-labs/orval)) output at a time: the client, the query hooks, the Zod schemas, and the mocks. You can stop after any step.
 
 The examples move an orval config with `client: 'react-query'`, `httpClient: 'fetch'`, `mock: true`, and a second `client: 'zod'` output, all written to `src/api`.
 
+## The config, before and after
+
+The Kubb config is the result of every step below. Each step adds one plugin to it.
+
+::code-group
+
+```typescript [orval.config.ts]
+import { defineConfig } from 'orval'
+
+export default defineConfig({
+  petstore: {
+    input: './openapi.yaml',
+    output: {
+      mode: 'tags-split',
+      target: './src/api',
+      schemas: './src/api/model',
+      client: 'react-query',
+      httpClient: 'fetch',
+      mock: true,
+    },
+  },
+  petstoreZod: {
+    input: './openapi.yaml',
+    output: {
+      mode: 'tags-split',
+      target: './src/api',
+      client: 'zod',
+      fileExtension: '.zod.ts',
+    },
+  },
+})
+```
+
+```typescript [kubb.config.ts]
+import { defineConfig } from 'kubb/config'
+import { adapterOas } from '@kubb/adapter-oas'
+import { pluginFaker } from '@kubb/plugin-faker'
+import { pluginFetch } from '@kubb/plugin-fetch'
+import { pluginMsw } from '@kubb/plugin-msw'
+import { pluginReactQuery } from '@kubb/plugin-react-query'
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+
+export default defineConfig({
+  input: './openapi.yaml',
+  output: { path: './src/gen' },
+  adapter: adapterOas({ integerType: 'number' }),
+  plugins: [
+    pluginTs({ output: { path: 'types.ts' } }),
+    // The Petstore URL is an example. Use your API's URL.
+    pluginFetch({ baseURL: 'https://petstore3.swagger.io/api/v3', throwOnErrorDefault: false }),
+    pluginReactQuery({ hooks: true }),
+    pluginZod(),
+    pluginFaker(),
+    pluginMsw({ baseURL: 'https://petstore3.swagger.io/api/v3', parser: 'faker', handlers: true }),
+  ],
+})
+```
+
+::
+
 ## What maps to what
+
+### Config options
 
 | orval | Kubb |
 | --- | --- |
-| `output.schemas`, `Pet` from `./api/model` | [`pluginTs`](/extensions/kubb-labs/plugin-ts), `Pet` from `./gen/types` |
-| `PetStatus` | `petStatusEnum` and `PetStatusEnumKey` |
+| `output.schemas` | [`pluginTs`](/extensions/kubb-labs/plugin-ts) |
 | `httpClient: 'fetch'` | [`pluginFetch`](/extensions/kubb-labs/plugin-fetch) |
 | `httpClient: 'axios'` | [`pluginAxios`](/extensions/kubb-labs/plugin-axios) |
 | `output.baseUrl` | [`baseURL`](/extensions/kubb-labs/plugin-fetch/options#baseurl) on `pluginFetch` |
 | `mode: 'tags-split'` | [`group: { type: 'tag' }`](/docs/5.x/reference/plugin-options#group) on each plugin. It needs directory output, so remove the `output` option from `pluginTs` first |
 | A custom `mutator` | `client.setConfig()` and `client.interceptors` |
+| `client: 'react-query'` | [`pluginReactQuery({ hooks: true })`](/extensions/kubb-labs/plugin-react-query/options#hooks) |
+| `client: 'zod'` | [`pluginZod`](/extensions/kubb-labs/plugin-zod) |
+| `mock: true` | [`pluginMsw`](/extensions/kubb-labs/plugin-msw) and [`pluginFaker`](/extensions/kubb-labs/plugin-faker) |
+
+### Generated code
+
+| orval | Kubb |
+| --- | --- |
+| `Pet` from `./api/model` | `Pet` from `./gen/types` |
+| `PetStatus` | `petStatusEnum` and `PetStatusEnumKey` |
 | `getPetById(1)` | `getPetById({ path: { petId: 1 } })` |
-| `client: 'react-query'`, `useGetPetById(1)` | [`pluginReactQuery({ hooks: true })`](/extensions/kubb-labs/plugin-react-query/options#hooks), `useGetPetById({ path: { petId: 1 } })` |
+| `useGetPetById(1)` | `useGetPetById({ path: { petId: 1 } })` |
 | `mutate({ data: pet })` | `mutate({ body: pet })` |
-| `client: 'zod'`, `GetPetByIdResponse` | [`pluginZod`](/extensions/kubb-labs/plugin-zod), `petSchema` |
-| `mock: true`, `getGetPetByIdMockHandler()`, `getPetMock()` | [`pluginMsw`](/extensions/kubb-labs/plugin-msw), `getPetByIdHandler()`, `handlers` |
-| `getGetPetByIdResponseMock()` | [`pluginFaker`](/extensions/kubb-labs/plugin-faker), `createPet()` |
+| `GetPetByIdResponse` (Zod) | `petSchema` |
+| `getGetPetByIdMockHandler()` | `getPetByIdHandler()` |
+| `getPetMock()` | `handlers` |
+| `getGetPetByIdResponseMock()` | `createPet()` |
 
 ::steps{level="2"}
 
@@ -80,7 +153,7 @@ bun add -d kubb @kubb/adapter-oas @kubb/plugin-ts
 
 :::
 
-Change your `generate` script to `kubb generate` and run it. Leave `src/api` in place until the last step, because the rest of the app still imports it:
+Change your `generate` script to `kubb generate` and run it. Leave `src/api` in place until the last step, because the rest of the app still imports it. Those files stop following the spec once orval no longer runs. If you pause before the last step, use `orval && kubb generate` as the script:
 
 :::code-group
 
