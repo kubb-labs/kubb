@@ -11,6 +11,12 @@ outline: 2
 
 ## v5.22.0 — Nov 19, 2026
 
+### @kubb/cli
+
+#### Features
+
+- Add `shared: { path }`. Schemas that several configs in an array define identically are generated once under that path, and every other generated file imports them from there. ([#4352](https://github.com/kubb-labs/kubb/pull/4352))
+
 ### @kubb/core
 
 #### Features
@@ -25,6 +31,24 @@ outline: 2
     { input: './fruits.json', output: { path: './src/gen/fruits' }, shared, plugins: [pluginTs()] },
   ])
   ```
+
+### @kubb/plugin-barrel
+
+#### Features
+
+- Add `shared: { path }`. Schemas that several configs in an array define identically are generated once under that path, and every other generated file imports them from there. ([#4352](https://github.com/kubb-labs/kubb/pull/4352))
+
+### @kubb/studio
+
+#### Features
+
+- Add `shared: { path }`. Schemas that several configs in an array define identically are generated once under that path, and every other generated file imports them from there. ([#4352](https://github.com/kubb-labs/kubb/pull/4352))
+
+### unplugin-kubb
+
+#### Features
+
+- Add `shared: { path }`. Schemas that several configs in an array define identically are generated once under that path, and every other generated file imports them from there. ([#4352](https://github.com/kubb-labs/kubb/pull/4352))
 
 ### Contributors
 
