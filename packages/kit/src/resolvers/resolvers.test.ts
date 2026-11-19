@@ -36,6 +36,14 @@ describe('resolver parts', () => {
     expect(resolver.param.query(node)).toBe('ListPetsQuery2')
   })
 
+  it('keys generic operations without a pointer by operationId, so they do not share a name', () => {
+    const resolver = createPartsResolver()
+    const listCats = ast.factory.createOperation({ operationId: 'listCats' })
+    const listDogs = ast.factory.createOperation({ operationId: 'listDogs' })
+
+    expect([resolver.param.query(listCats), resolver.param.query(listDogs)]).toStrictEqual(['ListCatsQuery', 'ListDogsQuery'])
+  })
+
   it('cases the file name and nests dotted names', () => {
     const resolver = createPartsResolver()
     const file = resolver.file({ name: 'pet.petId', extname: '.ts', root: '/src', output: { path: 'types', mode: 'directory' } })
