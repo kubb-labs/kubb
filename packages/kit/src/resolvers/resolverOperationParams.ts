@@ -2,17 +2,7 @@ import type { OperationNode, ParameterNode } from '@kubb/ast'
 import { defineResolver } from '@kubb/core'
 import { operationKey } from './operationKey.ts'
 
-/**
- * Names an operation's parameters: one name per parameter plus the grouped `Path`, `Query`,
- * `Headers`, and `Cookies` names. Every name goes through the plugin's top-level `name`, so it
- * follows that plugin's casing.
- *
- * @example
- * ```ts
- * createResolver<PluginTs>({ pluginName: 'plugin-ts', ...resolverOperationParams })
- * resolverTs.param.query(node) // 'ListPetsQuery'
- * ```
- */
+/** Names an operation's parameters (`param.*`) through the plugin's top-level `name`. */
 export const resolverOperationParams = defineResolver({
   param: {
     name(node: OperationNode, param: ParameterNode): string {
