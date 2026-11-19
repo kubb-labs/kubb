@@ -229,13 +229,14 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
 
     // `current` is the node whose handler gets this context, so it becomes the parent of what that handler transforms.
     function createContext(options: T['options'], current?: SchemaNode, parent?: SchemaNode): Context {
-      return {
+      const context: Context = {
         options,
         parent,
         import: importNode,
-        transform: (node, extra) => dispatch(merged, node, withOptions(options, extra), current),
-        base: (node, extra) => dispatch(nodes, node, withOptions(options, extra), parent),
+        transform: (node, extra) => dispatch(merged, node, withOptions(context.options, extra), current),
+        base: (node, extra) => dispatch(nodes, node, withOptions(context.options, extra), parent),
       }
+      return context
     }
 
     const root = createContext(resolvedOptions)

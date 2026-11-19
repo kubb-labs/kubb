@@ -183,6 +183,24 @@ describe('createPrinter', () => {
       expect(printer.print(node)).toBe('a|base:x b|base:x')
     })
 
+    it('merge over this.options as the handler last set it', () => {
+      const printer = createPrinter<P>(() => ({
+        name: 'zod',
+        options: { depth: 0 },
+        nodes: {
+          string() {
+            return `${this.options.label}@${this.options.depth}`
+          },
+          object(n) {
+            this.options = { ...this.options, depth: 5 }
+            return this.transform(n.properties[0]!.schema, { label: 'a' })
+          },
+        },
+      }))()
+
+      expect(printer.print(node)).toBe('a@5')
+    })
+
     it('are accepted by the public transform and print', () => {
       const printer = createPrinter<P>(() => ({
         name: 'zod',
