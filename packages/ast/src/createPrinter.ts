@@ -240,14 +240,13 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
     }
 
     const root = createContext(resolvedOptions)
-    const rootFor = (extra?: Partial<T['options']>): Context => (extra ? createContext(withOptions(resolvedOptions, extra)) : root)
 
     return {
       name,
       options: resolvedOptions,
       transform: root.transform,
       print: (printOverride
-        ? (node: SchemaNode, extra?: Partial<T['options']>) => printOverride.call(rootFor(extra), node)
+        ? (node: SchemaNode, extra?: Partial<T['options']>) => printOverride.call(extra ? createContext(withOptions(resolvedOptions, extra)) : root, node)
         : root.transform) as Printer<T>['print'],
       drainImports: () => collectedImports.splice(0),
     }

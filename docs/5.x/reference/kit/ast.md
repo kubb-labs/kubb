@@ -442,8 +442,9 @@ Handlers use `this`, so write regular functions, not arrow functions:
 The `options` you pass to `this.transform` or `this.base` are merged over `this.options` for that child and what it prints, and leave the caller's options unchanged:
 
 ```typescript
-array(node) {
-  return `z.array(${this.transform(node.items[0], { nestedInArray: true })})`
+string(node) {
+  const contentNode = ast.schema.getEmbeddedJson(node)
+  return contentNode ? this.transform(contentNode, { direction: 'decode' }) : 'z.string()'
 }
 ```
 
