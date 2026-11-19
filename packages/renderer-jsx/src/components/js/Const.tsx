@@ -3,6 +3,8 @@ import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
 type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes'> & {
   key?: Key
+  /** Lets importing files use the body in place of the name. Read when the declaration sits directly in a `File`. */
+  inline?: boolean
   /**
    * Child nodes rendered as the initializer expression of the constant.
    */

@@ -1,8 +1,10 @@
+import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { Const } from './components/js/Const.tsx'
 import { File } from './components/File.tsx'
 import { Function } from './components/js/Function.tsx'
 import { Type } from './components/js/Type.tsx'
+import { Schema } from './components/Schema.tsx'
 import { jsxRenderer } from './jsxRenderer.ts'
 
 describe('jsxRenderer', () => {
@@ -257,5 +259,105 @@ describe('File.Export', () => {
       isTypeOnly: true,
       asAlias: true,
     })
+  })
+
+  it('registers a declaration placed directly under a file as its own source', async () => {
+    const wrapped = jsxRenderer()
+    await wrapped.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <File.Source name="petSchema" isExportable isIndexable>
+          <Const export name="petSchema">
+            {'z.object({})'}
+          </Const>
+        </File.Source>
+        <File.Source name="Pet" isExportable isIndexable isTypeOnly>
+          <Type export name="Pet">
+            {'z.infer<typeof petSchema>'}
+          </Type>
+        </File.Source>
+        <File.Source name="helper">
+          <Function name="helper">{'return 1'}</Function>
+        </File.Source>
+      </File>,
+    )
+
+    const bare = jsxRenderer()
+    await bare.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Const export name="petSchema">
+          {'z.object({})'}
+        </Const>
+        <Type export name="Pet">
+          {'z.infer<typeof petSchema>'}
+        </Type>
+        <Function name="helper">{'return 1'}</Function>
+      </File>,
+    )
+
+    expect(bare.files).toStrictEqual(wrapped.files)
+  })
+
+  it('renders a Schema with the imports its printer collected', async () => {
+    type P = ast.PrinterFactoryOptions<'zod', object, string>
+    const collected: Array<ast.ImportNode> = []
+    const print = (node: ast.SchemaNode) => {
+      if (node.type !== 'string') return null
+      collected.push(ast.factory.createImport({ name: 'z', path: 'zod', isNameSpace: true }))
+      return 'z.string()'
+    }
+    const printer: ast.Printer<P> = { name: 'zod', options: {}, transform: print, print, drainImports: () => collected.splice(0) }
+
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Schema node={ast.factory.createSchema({ type: 'string' })} printer={printer}>
+          {(code) => (
+            <Const export name="nameSchema">
+              {code}
+            </Const>
+          )}
+        </Schema>
+        <Schema node={ast.factory.createSchema({ type: 'number' })} printer={printer}>
+          {(code) => <Const name="unused">{code}</Const>}
+        </Schema>
+      </File>,
+    )
+
+    const file = renderer.files[0]!
+    expect(file.imports).toMatchObject([{ kind: 'Import', name: 'z', path: 'zod', isNameSpace: true }])
+    expect(file.sources).toHaveLength(1)
+    expect(file.sources[0]).toMatchObject({
+      name: 'nameSchema',
+      isExportable: true,
+      nodes: [{ kind: 'Const', nodes: [{ kind: 'Text', value: 'z.string()' }] }],
+    })
+  })
+
+  it('keeps a bare default export out of barrels', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Function export default name="getPet">
+          {'return 1'}
+        </Function>
+      </File>,
+    )
+
+    expect(renderer.files[0]!.sources[0]).toMatchObject({ name: 'getPet', isExportable: true, isIndexable: false })
+  })
+
+  it('uses the body of an inline declaration as its expression', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Type export name="Pet" inline>
+          {'{ id: number }'}
+        </Type>
+      </File>,
+    )
+
+    const [source] = renderer.files[0]!.sources
+    expect(source).toMatchObject({ name: 'Pet', inline: { expression: '{ id: number }' }, isTypeOnly: true })
+    expect(source!.nodes?.[0]).not.toHaveProperty('inline')
   })
 })
