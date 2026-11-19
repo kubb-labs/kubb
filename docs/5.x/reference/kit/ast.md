@@ -254,14 +254,17 @@ ast.graph.containsCircular(ownerSchema, { circularSchemas: new Set(['Pet']) }) /
 | --- | --- |
 | `ast.schema.types` | Every schema `type`, such as `'string'` |
 | `ast.schema.narrow` | The schema typed as a given `type`, or `null` |
-| `ast.schema.find` | The first matching schema. `followRefs: true` searches resolved refs. |
+| `ast.schema.find` | The first matching schema. `follow: ['ref']` also searches resolved refs. |
 | `ast.schema.applyOptionality` | Marks the schema `optional` if not required, `nullish` if also nullable |
 | `ast.schema.findProperties` | The named properties on an object, resolved ref, or intersection, not a union |
 | `ast.schema.getLiterals` | The literals an enum, resolved ref, or literal union allows |
 | `ast.schema.inferDiscriminator` | The property each member pins to its own literal |
 | `ast.schema.getEmbeddedJson` | The schema of JSON inside a string (`contentMediaType` with `contentSchema`) |
-| `ast.schema.isString` | Whether a schema prints as a plain `string` |
-| `ast.schema.getNumberBounds` | The tightest inclusive `{ min, max }`, exclusive bounds moved by one `step` |
+| `ast.schema.is` | Whether a schema is `binary`, `string`, `text`, `scalar`, `const`, `enumLike`, or `untyped` |
+| `ast.schema.getObjectKind` | How an object-like schema prints: `properties`, `record`, `composed`, `mixed`, or `null` |
+| `ast.schema.getChecks` | The checks a schema runs on its raw input, named after JSON Schema keywords |
+| `ast.schema.getNumberBounds` | The tightest inclusive `{ min, max }`, exclusive bounds moved by one `step`, with a node's integer format range and `multipleOf` |
+| `ast.schema.getOptionality` | `required`, `optional`, `nullable`, or `nullish` for a property |
 
 ```typescript twoslash [schema.ts]
 import { ast } from 'kubb/kit'
@@ -269,7 +272,7 @@ import { ast } from 'kubb/kit'
 const root = ast.factory.createInput({ schemas: [], operations: [] })
 
 const dateSchema = ast.schema.find(root, {
-  followRefs: true,
+  follow: ['ref'],
   predicate: (schema) => schema.type === 'date',
 })
 ```
@@ -283,8 +286,15 @@ ast.schema.getLiterals(petKind) // ['cat', 'dog']
 ast.schema.inferDiscriminator([catSchema, dogSchema]) // 'kind'
 ast.schema.getNumberBounds({ min: 0.5, exclusive: { max: 10 }, integer: true }) // { min: 1, max: 9 }
 ast.schema.getEmbeddedJson(jsonStringSchema)?.name // 'Pet'
-ast.schema.isString(ast.factory.createSchema({ type: 'uuid' })) // true
+ast.schema.is(ast.factory.createSchema({ type: 'uuid' }), 'string') // true
+ast.schema.is(uploadSchema, 'binary', { follow: ['ref', 'array'] }) // true for Blob or Blob[] behind refs
+ast.schema.getObjectKind(petSchema, { circularSchemas }) // 'properties'
+ast.schema.getChecks(boundedRecord) // [{ kind: 'minProperties', value: 1 }]
+ast.schema.getNumberBounds({ type: 'integer', format: 'int32', min: 0 }) // { min: 0, max: 2147483647 }
+ast.schema.getOptionality(property) // 'nullish' for a non-required nullable property
 ```
+
+`ast.schema.isString` is deprecated. Use `ast.schema.is(node, 'string')`. `followRefs: true` on `find` is deprecated. Use `follow: ['ref']`. Both are removed in Kubb v6.
 
 To reuse `find` results, see [Schema search cache](#schema-search-cache).
 
@@ -297,11 +307,14 @@ Each helper takes a media type string or a content entry.
 | `ast.mediaType.getBase` | The lowercase media type without parameters |
 | `ast.mediaType.isJson` | Whether it is `application/json`, `text/json`, or `+json` |
 | `ast.mediaType.isStream` | Whether it is server-sent events, JSON Lines, or `+json-seq` |
+| `ast.mediaType.getKind` | `json`, `form`, `urlencoded`, `text`, `binary`, `eventStream`, `lineStream`, or `null` |
+| `ast.mediaType.getStreamFraming` | `'events'` for server-sent events, `'lines'` for JSON Lines, else `undefined` |
 
 ```typescript [media-type.ts]
 ast.mediaType.getBase('Application/JSON; charset=utf-8') // 'application/json'
 ast.mediaType.isJson('application/problem+json') // true
 ast.mediaType.isStream('text/event-stream') // true
+ast.mediaType.getKind('image/png') // 'binary'
 ```
 
 ## `ast.server` {#ast-server}
@@ -340,6 +353,7 @@ ast.auth.getRequirements({ auth: node.auth, schemes })
 | --- | --- |
 | `ast.http.isOperation` | Whether an operation is HTTP, narrowing it to have `method` and `path` |
 | `ast.http.groupParameters` | The parameters by location (`path`, `query`, `header`, `cookie`) |
+| `ast.http.getRequestGroups` | Which groups a request carries, which hold a required member, and the body's media types |
 | `ast.http.getBaseURL` | A server's absolute URL without variables, else `undefined` |
 | `ast.http.requestBody.getSchema` | The first request body entry's schema, or `undefined` |
 
@@ -349,6 +363,7 @@ import { ast } from 'kubb/kit'
 if (ast.http.isOperation(node)) {
   node.method // 'GET'
   ast.http.groupParameters(node).query // Array<ParameterNode>
+  ast.http.getRequestGroups(node).isOptional // true when no group holds a required member
 }
 
 ast.http.requestBody.getSchema(node)?.type // 'ref'
@@ -365,6 +380,8 @@ const baseURL = ast.http.getBaseURL(ast.server.get({ servers: node.servers, inde
 | `ast.http.responses.findPrimary` | The success response a client returns, preferring a body, then an exact code over a range |
 | `ast.http.responses.filterError` | The `4xx` and `5xx` responses, ranges included |
 | `ast.http.responses.getImportedNames` | The ref names the response bodies import |
+| `ast.http.responses.getStream` | How the success responses stream: framing, item shape, text events, and stream variants, or `null` |
+| `ast.http.responses.getUnion` | A union of refs to the success responses with a body, named by your resolver, or `null` |
 
 ```typescript [responses.ts]
 // node.responses: 200 with a Pet body, 404, default
@@ -372,6 +389,7 @@ ast.http.responses.filterSuccess(node).map((response) => response.statusCode) //
 ast.http.responses.findPrimary(node)?.statusCode // '200'
 ast.http.responses.filterError(node).map((response) => response.statusCode) // ['404']
 ast.http.responses.getImportedNames(node.responses) // ['Pet']
+ast.http.responses.getStream(node) // null, since no response streams
 ```
 
 ### `ast.http.status`
@@ -434,14 +452,14 @@ Handlers use `this`, so write regular functions, not arrow functions:
 
 ### Schema search cache {#schema-search-cache}
 
-When you call `ast.schema.find` across many schemas, reuse its answers with a `cache`. Keep one `cache` per predicate and `followRefs` value, so later calls skip what earlier ones searched.
+When you call `ast.schema.find` across many schemas, reuse its answers with a `cache`. Keep one `cache` per predicate and `follow` value, so later calls skip what earlier ones searched.
 
 ```typescript [find-cache.ts]
 import { ast } from 'kubb/kit'
 
 const dateCache = new WeakMap<ast.SchemaNode, ast.SchemaNode | null>()
 const hasDate = (schema: ast.SchemaNode) =>
-  ast.schema.find(schema, { followRefs: true, cache: dateCache, predicate: (node) => node.type === 'date' }) !== undefined
+  ast.schema.find(schema, { follow: ['ref'], cache: dateCache, predicate: (node) => node.type === 'date' }) !== undefined
 ```
 
 ### AST helper details {#ast-helper-details}
@@ -451,7 +469,8 @@ Helper names are a verb plus what they return (`getName`) or a question (`isJson
 | Helper | Detail |
 | --- | --- |
 | [`createPrinter`](#printers) | [Import a custom codec](/extensions/kubb-labs/plugin-zod/guides/customization#import-a-custom-codec) shows an `overrides` map in practice. |
-| [`ast.schema.isString`](#ast-schema) | Whether a schema prints as a plain `string`, including `date` and `time` with a string representation. |
+| [`ast.schema.is`](#ast-schema) | `follow` adds links on top of the node itself: `'ref'` jumps to a resolved ref's target, and `'array'` matches when some item matches. Following repeats and stops on a ref cycle. |
+| [`ast.schema.getObjectKind`](#ast-schema) | A nullable or optional node, a node with input checks, and a ref into `circularSchemas` give `null`. An unresolved ref counts as `properties`. |
 | [`ast.graph.getImportedNames`](#ast-graph) | Pass `{ checks: true }` to include refs inside `conditionals`, `contains`, and `content`. |
 | [`ast.http.groupParameters`](#ast-http) | The parameters by location (`path`, `query`, `header`, `cookie`), keeping the first of a repeated name. |
 | [`ast.macro`](#macros) | A macro is a named transform that rewrites nodes before printing, with ordering through `enforce` and gating through `match`. |

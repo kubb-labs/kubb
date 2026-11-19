@@ -251,7 +251,7 @@ type FindResult = { found: SchemaNode | undefined; low: number }
 const notFound: FindResult = { found: undefined, low: Number.POSITIVE_INFINITY }
 
 /**
- * Finds the first schema that matches `predicate` in depth-first order. Set `followRefs` to include resolved ref targets.
+ * Finds the first schema that matches `predicate` in depth-first order. Pass `follow: ['ref']` to include resolved ref targets.
  *
  * @example
  * ```ts
@@ -264,23 +264,33 @@ export function findSchema(
   node: Node,
   {
     predicate,
+    follow,
     followRefs = false,
     cache,
   }: {
     predicate: (schema: SchemaNode) => boolean
+    /**
+     * Links to follow on top of the walk over every child. `['ref']` also walks a resolved ref's target.
+     * @default []
+     */
+    follow?: ReadonlyArray<'ref'>
+    /**
+     * @deprecated Use `follow: ['ref']`. Removed in Kubb v6.
+     */
     followRefs?: boolean
     /**
      * Remembers the match below each schema (`null` for none), so later calls skip the parts of the graph they share.
-     * Keep one cache per `predicate` and `followRefs` value, for example one per build.
+     * Keep one cache per `predicate` and `follow` value, for example one per build.
      * In a cyclic graph, a cached call can return a different match than the first one in depth-first order.
      */
     cache?: WeakMap<SchemaNode, SchemaNode | null>
   },
 ): SchemaNode | undefined {
-  // With `followRefs`, as in Tarjan's algorithm: the visit order of a schema still being walked, or for a finished
+  const followsRefs = followRefs || (follow?.includes('ref') ?? false)
+  // When following refs, as in Tarjan's algorithm: the visit order of a schema still being walked, or for a finished
   // schema without a match the lowest visit order of an unfinished schema its subtree reached. Only a schema whose
   // subtree reached nothing visited before it has a final no-match; until then it waits in `pending`.
-  const state = followRefs ? new Map<SchemaNode, number>() : undefined
+  const state = followsRefs ? new Map<SchemaNode, number>() : undefined
   const pending: Array<SchemaNode> = []
   let order = 0
 
