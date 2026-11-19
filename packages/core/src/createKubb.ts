@@ -4,6 +4,7 @@ import type { FileNode, InputNode } from '@kubb/ast'
 import { host } from './host.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
+import { detectSharedSchemas, type SharedSchemas } from './detectSharedSchemas.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
 import { cacheStorage } from './storages/cacheStorage.ts'
@@ -58,6 +59,13 @@ export type CreateKubbOptions = {
    * The only folders a `$ref` in the input may read local files from. Unset, a `$ref` reads any file.
    */
   fileRefs?: Array<string>
+}
+
+export type GenerateConfigsOptions = Pick<CreateKubbOptions, 'hooks' | 'signal' | 'fileRefs'> & {
+  /**
+   * Index of the one config to build. It is still compared with the others, but never empties the directory they share.
+   */
+  only?: number
 }
 
 export type ConfigGenerateResult = GenerateResult & {
@@ -126,6 +134,7 @@ export class Kubb {
   #driver: KubbDriver | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
+  #sharedSchemas: SharedSchemas | undefined
   readonly #fileRefs: Array<string> | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
@@ -141,10 +150,14 @@ export class Kubb {
    */
   static async *generate(
     configs: Array<UserConfig>,
-    { hooks = new Hookable<KubbHooks>(), signal }: Pick<CreateKubbOptions, 'hooks' | 'signal'> = {},
+    { hooks = new Hookable<KubbHooks>(), signal, fileRefs, only }: GenerateConfigsOptions = {},
   ): AsyncGenerator<ConfigGenerateResult, void, void> {
-    for (const config of configs) {
-      const kubb = new Kubb(config, { hooks, signal })
+    const sharedByConfig = await detectSharedSchemas({ configs, hooks, fileRefs })
+    for (const index of only === undefined ? configs.keys() : [only]) {
+      const kubb = new Kubb(configs[index]!, { hooks, signal, fileRefs })
+      const detected = sharedByConfig[index]
+      // A config built on its own must not empty the directory the others share.
+      kubb.#sharedSchemas = only === undefined ? detected : detected && { ...detected, clean: false }
       try {
         yield { ...(await kubb.generate()), kubb }
       } catch (error) {
@@ -173,23 +186,33 @@ export class Kubb {
     const config = this.config
     const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
 
-    const cleanPath = config.output.clean ? resolve(config.root, config.output.path) : undefined
+    const dirsToClean: Array<[option: string, dir: string]> = []
+    if (config.output.clean) dirsToClean.push(['output.path', resolve(config.root, config.output.path)])
+    if (config.shared && this.#sharedSchemas?.clean) dirsToClean.push(['shared.path', resolve(config.root, config.shared.path)])
 
     // clean only removes generated code. Refuse when the output resolves to the project root or
     // an ancestor of it, otherwise the wipe would delete kubb.config and every source file.
-    if (cleanPath && isPathInside(config.root, cleanPath)) {
+    for (const [option, dir] of dirsToClean) {
+      if (!isPathInside(config.root, dir)) continue
       throw new Diagnostics.Error({
         code: Diagnostics.code.cleanRoot,
         severity: 'error',
-        message: `output.clean cannot delete "${cleanPath}" because it is the project root or a parent of it.`,
-        help: 'Point `output.path` at a subdirectory such as `./src/gen` so clean only removes generated code.',
+        message: `output.clean cannot delete "${dir}" because it is the project root or a parent of it.`,
+        help: `Point \`${option}\` at a subdirectory such as \`./src/gen\` so clean only removes generated code.`,
         location: { kind: 'config' },
       })
     }
 
-    // The driver empties `cleanPath` right before it writes the new files, so a run that fails
+    // The driver empties `cleanPaths` right before it writes the new files, so a run that fails
     // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath, fileRefs: this.#fileRefs })
+    const driver = new KubbDriver(config, {
+      hooks: this.hooks,
+      manifest,
+      signal,
+      cleanPaths: dirsToClean.map(([, dir]) => dir),
+      sharedSchemas: this.#sharedSchemas,
+      fileRefs: this.#fileRefs,
+    })
     await driver.setup()
 
     this.#driver = driver

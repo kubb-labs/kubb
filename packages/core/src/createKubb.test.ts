@@ -253,6 +253,15 @@ describe('createKubb', () => {
     ])
   })
 
+  it('output.clean raises a KUBB_CLEAN_ROOT diagnostic when shared.path is the project root', async () => {
+    const root = path.join(os.tmpdir(), 'kubb-clean-guard')
+    const shared = makeConfig({ ...config, root, output: { path: './gen', clean: true }, shared: { path: '.' } })
+
+    const [first] = await Array.fromAsync(Kubb.generate([shared, shared]))
+
+    expect(first!.diagnostics).toContainEqual(expect.objectContaining({ code: Diagnostics.code.cleanRoot, help: expect.stringContaining('`shared.path`') }))
+  })
+
   it('keeps the previous output when output.clean is set and the run fails before writing', async () => {
     const storage = memoryStorage()
     const outputFile = path.resolve('.', 'gen', 'previous.ts')

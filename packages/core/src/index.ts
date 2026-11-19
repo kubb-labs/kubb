@@ -56,7 +56,7 @@ export type {
   ProblemDiagnostic,
   UpdateDiagnostic,
 } from './Diagnostics.ts'
-export type { CreateKubbOptions, ConfigGenerateResult, GenerateOptions, GenerateResult } from './createKubb.ts'
+export type { CreateKubbOptions, GenerateConfigsOptions, ConfigGenerateResult, GenerateOptions, GenerateResult } from './createKubb.ts'
 export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { SummaryRenderer } from './reporters/summary.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'

@@ -99,6 +99,8 @@ for await (const { success, files, kubb } of Kubb.generate(configs)) {
 - Kubb builds one config at a time and yields its result when it finishes.
 - Each result is a `GenerateResult` plus the `kubb` instance that built it.
 - A failing config does not stop the others. Its result has `success: false`. Only an aborted `signal` rejects.
+- Configs with the same [`shared`](/docs/5.x/reference/configuration#shared) path are compared first, and each build writes its shared schemas there.
+- `{ only: index }` builds one config. It is still compared with the others and never empties the shared directory.
 
 ### `BuildOutput` fields {#buildoutput-fields}
 
