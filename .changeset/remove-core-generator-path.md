@@ -1,6 +1,6 @@
 ---
-'@kubb/core': major
-'@kubb/kit': major
+'@kubb/core': patch
+'@kubb/kit': patch
 '@kubb/plugin-barrel': patch
 ---
 
@@ -9,7 +9,7 @@ Remove core's generator path. `@kubb/kit` now owns resolvers, generators and mac
 Removed from `@kubb/core`:
 
 - `Resolver`, `createResolver`, `defineResolver`, `toFilePath`, `resolverOptions` and `defineGenerator`.
-- The `Generator`, `GeneratorContext`, `ResolverInput`, `ResolverLike`, `ResolverPatch` types and the other resolver option types.
+- The `Generator`, `GeneratorContext`, `ResolverInput`, `ResolverPatch` types and the other resolver option types. `@kubb/kit` exports them, and `ResolverLike` is gone: types name kit's `Resolver`.
 - The `addGenerator`, `setResolver`, `addMacro` and `setMacros` composables, and the methods of the same name on the setup context.
 - The `resolver`, `generators` and `macros` fields of `NormalizedPlugin`, and `KubbDriver.getResolver`.
 - `ctx.resolver` and `ctx.getResolver` on the visit-hook context, now `PluginVisitContext`.

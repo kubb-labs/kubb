@@ -1,8 +1,8 @@
 import type { Macro } from '@kubb/ast'
 import { Diagnostics, type KubbPluginSetupContext, type Memo, type PluginType, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
-import type { ResolverInput, ResolverLike } from './resolver/types.ts'
-import type { Generator } from './types.ts'
+import type { ResolverInput } from './resolver/types.ts'
+import type { DefaultPluginType, Generator } from './types.ts'
 
 /**
  * Memo slots kit keeps per plugin, under `<plugin>:<slot>`.
@@ -17,9 +17,9 @@ export const slot = {
 /**
  * Returns the resolver kept in memo for `pluginName`, and stores a default one the first time.
  */
-export function resolverFor(memo: Pick<Memo, 'get' | 'set'>, pluginName: string): ResolverLike {
+export function resolverFor(memo: Pick<Memo, 'get' | 'set'>, pluginName: string): Resolver {
   const key = slot.resolver(pluginName)
-  const existing = memo.get(key) as ResolverLike | undefined
+  const existing = memo.get(key) as Resolver | undefined
   if (existing) return existing
 
   const resolver = new Resolver({ pluginName, shared: memo.get('kubb:sharedSchemas') })
@@ -47,7 +47,7 @@ function kitContext(caller: string): KubbPluginSetupContext {
  * @example
  * `addGenerator(typeGenerator, enumGenerator)`
  */
-export function addGenerator<TFactory extends PluginType = PluginType, TElement = unknown>(...generators: Array<Generator<TFactory, TElement>>): void {
+export function addGenerator<TFactory extends PluginType = DefaultPluginType, TElement = unknown>(...generators: Array<Generator<TFactory, TElement>>): void {
   const ctx = kitContext('addGenerator')
   const key = slot.generators(ctx.plugin.name)
   ctx.memo.set(key, [...((ctx.memo.get(key) as Array<Generator> | undefined) ?? []), ...(generators as Array<Generator>)])
@@ -57,11 +57,11 @@ export function addGenerator<TFactory extends PluginType = PluginType, TElement 
  * Sets the resolver of the plugin being set up. Overrides merge over the default resolver, so a
  * partial patch replaces only the methods it names.
  */
-export function setResolver<TResolver extends ResolverLike = ResolverLike>(resolver: ResolverInput<TResolver>): void {
+export function setResolver<TResolver extends Resolver = Resolver>(resolver: ResolverInput<TResolver>): void {
   const ctx = kitContext('setResolver')
   const { name } = ctx.plugin
   const shared = ctx.memo.get('kubb:sharedSchemas')
-  const parts = (Array.isArray(resolver) ? resolver : [resolver]) as Array<ResolverLike>
+  const parts = (Array.isArray(resolver) ? resolver : [resolver]) as Array<Resolver>
   ctx.memo.set(slot.resolver(name), Resolver.merge(new Resolver({ pluginName: name, shared }), ...parts))
 }
 

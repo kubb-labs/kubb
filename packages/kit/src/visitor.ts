@@ -2,7 +2,7 @@ import { toError } from '@internals/utils'
 import { ast, type Macro, type OperationNode, type SchemaNode } from '@kubb/ast'
 import type { NormalizedPlugin, PluginVisitContext, PluginVisitHooks } from '@kubb/core'
 import { resolverFor, slot } from './composables.ts'
-import type { ResolverLike } from './resolver/types.ts'
+import type { Resolver } from './resolver/Resolver.ts'
 import type { Generator, GeneratorContext } from './types.ts'
 
 const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType', 'extension'])
@@ -11,7 +11,7 @@ type Resolved<TNode> = { transformedNode: TNode; options: NormalizedPlugin['opti
 
 type VisitState = {
   // The resolver is fixed for the whole walk, so reservations and generators agree on names.
-  context: Omit<GeneratorContext, 'options'> & { resolver: ResolverLike }
+  context: Omit<GeneratorContext, 'options'> & { resolver: Resolver }
   macros: Array<Macro>
   schemaGenerators: Array<Generator>
   operationGenerators: Array<Generator>
@@ -34,7 +34,7 @@ function getState(ctx: PluginVisitContext): VisitState | undefined {
 // Applies the plugin's macros, then its include, exclude and override rules. Returns null for a node the rules leave out.
 function resolveNode<TNode extends SchemaNode | OperationNode>(
   ctx: PluginVisitContext,
-  resolver: ResolverLike,
+  resolver: Resolver,
   macros: Array<Macro>,
   node: TNode,
 ): Resolved<TNode> | null {

@@ -1,8 +1,8 @@
 import type { PluginType } from '@kubb/core'
 import { Resolver } from './Resolver.ts'
-import type { ResolverBuildOptions, ResolverFile, ResolverLike } from './types.ts'
+import type { ResolverBuildOptions, ResolverFile } from './types.ts'
 
-type ResolverPlugin = PluginType<string, object, object, ResolverLike>
+type ResolverPlugin = PluginType<string, object, object, Resolver>
 
 /** The plugin-specific resolver fields handed to `createResolver`. */
 type ResolverOptions<T extends ResolverPlugin> = Omit<T['resolver'], keyof Resolver> & {

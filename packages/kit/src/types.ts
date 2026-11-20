@@ -1,13 +1,16 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { PluginName, PluginType, PluginVisitContext, RendererFactory, ResolvePluginOptions } from '@kubb/core'
-import type { ResolverLike } from './resolver/types.ts'
+import type { Resolver } from './resolver/Resolver.ts'
 
-// A plugin type that names no resolver gets the default resolver shape.
-type ResolverOf<T> = unknown extends T ? ResolverLike : T
+// A plugin type that names no resolver gets the default resolver.
+type ResolverOf<T> = unknown extends T ? Resolver : T
+
+/** The plugin type generators default to: any plugin with kit's default `Resolver`. */
+export type DefaultPluginType = PluginType<string, object, object, Resolver>
 
 /** Context passed to a generator's `schema`, `operation` and `operations` methods: core's visit context plus the plugin's resolver and its resolved options. */
-export type GeneratorContext<TOptions extends PluginType = PluginType> = PluginVisitContext<TOptions> & {
+export type GeneratorContext<TOptions extends PluginType = DefaultPluginType> = PluginVisitContext<TOptions> & {
   /** Get a resolver by plugin name, typed via `Kubb.PluginRegistry` when registered. */
   getResolver<TName extends PluginName>(name: TName): ResolverOf<ResolvePluginOptions<TName>['resolver']>
   /**
@@ -16,7 +19,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = PluginV
    * @example Resolve an output file
    * `ctx.resolver.file({ name: 'pet', extname: '.ts', root, output })`
    */
-  resolver: ResolverOf<TOptions['resolver']>
+  resolver: TOptions['resolver']
   /** Resolved options after exclude/include/override filtering. */
   options: TOptions['resolvedOptions']
 }
@@ -46,7 +49,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = PluginV
  * })
  * ```
  */
-export type Generator<TOptions extends PluginType = PluginType, TElement = unknown> = {
+export type Generator<TOptions extends PluginType = DefaultPluginType, TElement = unknown> = {
   /** Used in diagnostic messages and debug output. */
   name: string
   /** Renderer factory for generators that return elements, such as `jsxRenderer` from `@kubb/renderer-jsx`. Leave it unset or `null` for generators that return files. */

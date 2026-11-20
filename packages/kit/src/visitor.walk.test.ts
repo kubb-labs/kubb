@@ -5,7 +5,6 @@ import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { addGenerator, addMacro, resolverFor, setResolver } from './composables.ts'
 import { defineExtension } from './defineExtension.ts'
 import { defineResolver, Resolver } from './resolver/Resolver.ts'
-import type { ResolverLike } from './resolver/types.ts'
 import type { Generator, GeneratorContext } from './types.ts'
 
 // Runs each plain test plugin through kit's `defineExtension`, so it gets kit's visitor.
@@ -527,7 +526,7 @@ describe('KubbDriver generator dispatch', () => {
 })
 
 test('keeps one resolver for the walk when a visit hook replaces it in memo', async () => {
-  const seen: Array<ResolverLike> = []
+  const seen: Array<Resolver> = []
   const plugin: Plugin = {
     name: 'swap',
     hooks: {

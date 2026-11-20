@@ -137,13 +137,13 @@ export type ResolverFile = {
    * `extname`. Defaults to `toFilePath(name)` with `extname` appended. Reaches sibling resolver
    * helpers through `this`.
    */
-  baseName?(this: ResolverLike, params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
+  baseName?(this: Resolver, params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
   /**
    * Returns the file's complete path, resolved against the project `root`. Bypasses `output.path`
    * and `group`, so the resolver owns the layout. The returned path may not escape `root`. Reaches
    * sibling resolver helpers through `this`.
    */
-  path?(this: ResolverLike, params: ResolverFilePathParams): string
+  path?(this: Resolver, params: ResolverFilePathParams): string
 }
 
 /**
@@ -205,9 +205,6 @@ export type ResolveNameOptions = {
   normalize?: (name: string) => string | ReadonlyArray<string>
 }
 
-/** The public shape of a resolver. Types name this instead of the class, so a resolver from another copy of `@kubb/kit` fits them too. */
-export type ResolverLike = Pick<Resolver, keyof Resolver>
-
 /**
  * Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Parameterize with a
  * concrete resolver type (e.g. `ResolverPatch<ResolverTs>`) to type-check overrides and bind
@@ -215,7 +212,7 @@ export type ResolverLike = Pick<Resolver, keyof Resolver>
  * (`query.name`) and the rest keep the plugin defaults. Overriding a whole resolver is not the
  * job of this patch, that is what a custom plugin is for.
  */
-export type ResolverPatch<T extends ResolverLike = ResolverLike> = {
+export type ResolverPatch<T extends Resolver = Resolver> = {
   [K in keyof Omit<T, keyof Resolver>]?: T[K] extends (...args: Array<never>) => unknown ? T[K] : Partial<T[K]>
 } & {
   imports?: T['imports']
@@ -224,7 +221,7 @@ export type ResolverPatch<T extends ResolverLike = ResolverLike> = {
 } & ThisType<T>
 
 /** One resolver or patch, or a list of them merged left to right. */
-export type ResolverInput<T extends ResolverLike = ResolverLike> = ResolverPatch<T> | T | ReadonlyArray<ResolverPatch<T> | T>
+export type ResolverInput<T extends Resolver = Resolver> = ResolverPatch<T> | T | ReadonlyArray<ResolverPatch<T> | T>
 
 /**
  * Shared brand for reaching a resolver's build options. `Resolver.merge` reads this instead of

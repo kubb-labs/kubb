@@ -57,7 +57,6 @@ export type {
   ResolverFileParams,
   ResolverFilePathParams,
   ResolverInput,
-  ResolverLike,
   ResolverPatch,
   ResolverPathParams,
 } from './resolver/types.ts'
