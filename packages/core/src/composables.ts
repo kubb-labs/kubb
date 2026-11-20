@@ -67,7 +67,7 @@ export function setResolver<TResolver extends Resolver = Resolver>(resolver: Res
 }
 
 /**
- * Adds a macro to the plugin being set up. Macros run in the order they are added.
+ * Adds a macro to the plugin being set up. Macros with the same `enforce` run in the order they are added. `enforce: 'pre'` macros run first and `enforce: 'post'` macros run last.
  */
 export function addMacro(macro: Macro): void {
   requireContext('addMacro').addMacro(macro)
