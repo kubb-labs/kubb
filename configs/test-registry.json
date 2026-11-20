@@ -94,6 +94,7 @@
   "packages/core/src/manifest.test.ts": "Registry and manifest validators at a trust boundary, with many reject branches.",
   "packages/core/src/output/runHook.test.ts": "Real child processes: exit codes, ENOENT, abort grace and node_modules/.bin lookup for postGenerate hooks.",
   "packages/core/src/output/runOutputPasses.test.ts": "Golden path for format and postGenerate passes, including a real oxfmt run.",
+  "packages/core/src/memo.test.ts": "Only type test of MemoValue: full-key slots and their :rest win over the prefix lookup, and memo.set rejects a wrong value type.",
   "packages/core/src/outputManifest.test.ts": "Up-to-date decisions are branchy; pins multi-config and corrupted-cache regressions.",
   "packages/core/src/publicAddress.test.ts": "Security range table; gitInput and studio publicFetch tests only hit loopback, 10.x and 169.254.",
   "packages/core/src/reporters/htmlReporter.test.ts": "Only test of the HTML report output and its escaping of spec data into data.js.",
