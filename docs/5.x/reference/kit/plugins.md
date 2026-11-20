@@ -42,29 +42,9 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ## Setup context {#setup-context}
 
-`setup` and the `kubb:plugin:setup` hook register everything through the setup context: the `kubb` argument (`ctx` in the hook) or a composable from `kubb/kit`. Composables take no argument, so helpers that `setup` calls can use them too.
+`setup` and the `kubb:plugin:setup` hook register generators, the resolver, and macros with composables from `kubb/kit`. Composables take no argument, so helpers that `setup` calls can use them too.
 
-::code-group
-
-```typescript [kubb argument]
-import { createResolver, defineExtension, defineGenerator } from 'kubb/kit'
-
-const resolver = createResolver({ pluginName: 'plugin-example' })
-const generator = defineGenerator({ name: 'example', operation: () => [] })
-
-export const pluginExample = defineExtension({
-  kind: 'plugin',
-  meta: { name: 'plugin-example' },
-  setup(options, kubb) {
-    kubb.requirePlugin('plugin-ts')
-    kubb.setResolver(resolver)
-    kubb.addGenerator(generator)
-    return options
-  },
-})
-```
-
-```typescript [Composables]
+```typescript [plugin.ts]
 import { addGenerator, createResolver, defineExtension, defineGenerator, requirePlugin, setResolver } from 'kubb/kit'
 
 const resolver = createResolver({ pluginName: 'plugin-example' })
@@ -82,7 +62,8 @@ export const pluginExample = defineExtension({
 })
 ```
 
-::
+> [!WARNING]
+> `kubb.addGenerator`, `kubb.setResolver`, `kubb.addMacro`, and `kubb.setMacros` on the setup context (`ctx` in the hook) are deprecated and will be removed in the next major version. Call the composables of the same name instead.
 
 | Member          | Signature                                                 | Purpose                                                                         |
 | --------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------- |
