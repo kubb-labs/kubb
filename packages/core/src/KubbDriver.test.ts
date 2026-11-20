@@ -777,6 +777,38 @@ describe('KubbDriver visit hooks', () => {
     })
   })
 
+  it('keeps one resolver for the walk when a visit hook replaces it in memo', async () => {
+    const seen: Array<Resolver> = []
+    const plugin: Plugin = {
+      name: 'swap',
+      hooks: {
+        'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+          ctx.addGenerator({
+            name: 'swap-gen',
+            schema(_node: SchemaNode, ctx: GeneratorContext) {
+              seen.push(ctx.resolver)
+              return []
+            },
+          })
+        },
+        'kubb:plugin:visit:start'(ctx) {
+          seen.push(ctx.resolver)
+          ctx.memo.set('swap:resolver', new Resolver({ pluginName: 'swap' }))
+        },
+        'kubb:plugin:visit:schema'(_node, ctx) {
+          seen.push(ctx.resolver)
+        },
+      },
+    }
+    const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+    await driver.setup()
+
+    await driver.run()
+
+    expect(seen).toHaveLength(5)
+    expect(new Set(seen).size).toBe(1)
+  })
+
   it('reads a resolver from memo before plugin.resolver', async () => {
     const fromMemo = new Resolver({ pluginName: 'visitA' })
     const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [visitPlugin('visitA', [])] }))

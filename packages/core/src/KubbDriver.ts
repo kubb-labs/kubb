@@ -593,13 +593,13 @@ export class KubbDriver {
     // Freeze each plugin's per-run state once so the node-outer walk stays cheap. A plugin's
     // `error` drops it from every remaining node without touching the others.
     const states = entries.map(({ plugin, context, hrStart }) => {
+      // The resolver is fixed for the whole walk, so visit hooks, reservations and generators agree on names.
       const generatorContext = { ...context, resolver: this.getResolver(plugin.name) }
       const { exclude, include, override } = plugin.options
       const generators = plugin.generators ?? []
       return {
         plugin,
         hrStart,
-        context,
         hooks: plugin.hooks ?? {},
         generatorContext,
         exclude,
@@ -660,7 +660,7 @@ export class KubbDriver {
 
     for (const state of states) {
       try {
-        await state.hooks['kubb:plugin:visit:start']?.(state.context)
+        await state.hooks['kubb:plugin:visit:start']?.(state.generatorContext)
       } catch (caughtError) {
         state.error = toError(caughtError)
       }
@@ -674,7 +674,7 @@ export class KubbDriver {
       for (const state of states) {
         if (state.error) continue
         try {
-          await state.hooks['kubb:plugin:visit:schema']?.(node, state.context)
+          await state.hooks['kubb:plugin:visit:schema']?.(node, state.generatorContext)
           const resolved = state.schemaGenerators.length ? state.schemas.get(node) : undefined
           if (resolved instanceof Error) throw resolved
           if (!resolved) continue
@@ -703,7 +703,7 @@ export class KubbDriver {
       for (const state of states) {
         if (state.error) continue
         try {
-          await state.hooks['kubb:plugin:visit:operation']?.(node, state.context)
+          await state.hooks['kubb:plugin:visit:operation']?.(node, state.generatorContext)
           if (!state.operationGenerators.length && !state.operationsGenerators.length) continue
           const resolved = resolveForPlugin(state, node)
           if (!resolved) continue
@@ -746,7 +746,7 @@ export class KubbDriver {
     for (const state of states) {
       if (state.error) continue
       try {
-        await state.hooks['kubb:plugin:visit:end']?.(state.context)
+        await state.hooks['kubb:plugin:visit:end']?.(state.generatorContext)
       } catch (caughtError) {
         state.error = toError(caughtError)
       }
