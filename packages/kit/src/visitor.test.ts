@@ -1,20 +1,12 @@
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
-import {
-  type Config,
-  defineExtension as coreDefineExtension,
-  type GeneratorContext,
-  Hookable,
-  KubbDriver,
-  type KubbHooks,
-  memoryStorage,
-  type Plugin,
-} from '@kubb/core'
+import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { addGenerator, addMacro, setResolver } from './composables.ts'
 import { defineExtension } from './defineExtension.ts'
 import { createResolver } from './resolver/createResolver.ts'
 import { Resolver } from './resolver/Resolver.ts'
+import type { GeneratorContext } from './types.ts'
 
 const ref = (name: string) => ast.factory.createSchema({ type: 'ref', name, ref: `#/components/schemas/${name}` })
 

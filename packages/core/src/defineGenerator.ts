@@ -18,6 +18,8 @@ import type { FileManager } from './FileManager.ts'
  * The driver sets `adapter` on the context before it runs a generator, so methods can read it
  * without a null check. `ctx.options` carries the per-node options after exclude/include/override
  * filtering for `schema` and `operation`, or the plugin-level options for `operations`.
+ *
+ * @deprecated Use `GeneratorContext` from `@kubb/kit`. Removed in the next major version.
  */
 export type GeneratorContext<TOptions extends PluginType = PluginType> = {
   /**
@@ -153,6 +155,8 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
  *   },
  * })
  * ```
+ *
+ * @deprecated Use `Generator` from `@kubb/kit`. Removed in the next major version.
  */
 export type Generator<TOptions extends PluginType = PluginType, TElement = unknown> = {
   /**

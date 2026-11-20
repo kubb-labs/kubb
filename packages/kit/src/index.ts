@@ -42,6 +42,7 @@ export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
 export { defineExtension } from './defineExtension.ts'
 export { memo } from './memo.ts'
 export type { ScopedMemo } from './memo.ts'
+export type { Generator, GeneratorContext, ResolverInput } from './types.ts'
 export type {
   Adapter,
   AdapterDefinition,
@@ -60,8 +61,6 @@ export type {
   ExtensionManifest,
   ExtensionManifestOption,
   ExtensionMeta,
-  Generator,
-  GeneratorContext,
   Group,
   Include,
   KubbHooks,
@@ -91,7 +90,6 @@ export type {
   ResolverFile,
   ResolverFileParams,
   ResolverFilePathParams,
-  ResolverInput,
   ResolverPatch,
   Storage,
 } from '@kubb/core'

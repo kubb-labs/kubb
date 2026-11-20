@@ -1,7 +1,8 @@
 import { toError } from '@internals/utils'
 import { ast, type Macro, type OperationNode, type SchemaNode } from '@kubb/ast'
-import type { Generator, GeneratorContext, NormalizedPlugin, PluginVisitContext, PluginVisitHooks } from '@kubb/core'
+import type { NormalizedPlugin, PluginVisitContext, PluginVisitHooks } from '@kubb/core'
 import { slot } from './composables.ts'
+import type { Generator, GeneratorContext } from './types.ts'
 
 const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType', 'extension'])
 

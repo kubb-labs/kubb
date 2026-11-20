@@ -1,6 +1,7 @@
 import type { Macro } from '@kubb/ast'
-import { type Generator, type KubbPluginSetupContext, type PluginType, type ResolverInput, type ResolverLike, useKubb } from '@kubb/core'
+import { type KubbPluginSetupContext, type PluginType, type ResolverLike, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
+import type { Generator, ResolverInput } from './types.ts'
 
 /**
  * Memo slots kit keeps per plugin, under `<plugin>:<slot>`.

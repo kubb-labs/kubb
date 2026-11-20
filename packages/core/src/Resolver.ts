@@ -299,7 +299,11 @@ export function defineResolver<const T extends object>(part: T & ThisType<Resolv
   return part
 }
 
-/** One resolver or patch, or a list of them merged left to right. */
+/**
+ * One resolver or patch, or a list of them merged left to right.
+ *
+ * @deprecated Use `ResolverInput` from `@kubb/kit`. Removed in the next major version.
+ */
 export type ResolverInput<T extends ResolverLike = ResolverLike> = ResolverPatch<T> | T | ReadonlyArray<ResolverPatch<T> | T>
 
 function isNamespace(value: unknown): value is Record<string, unknown> {
