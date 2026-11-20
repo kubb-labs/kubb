@@ -15,6 +15,7 @@ describe('MemoValue', () => {
     expectTypeOf<MemoValue<'plugin-memo-core:cyclic:Pet'>>().toEqualTypeOf<Set<string>>()
     expectTypeOf<MemoValue<'name:Pet'>>().toEqualTypeOf<string>()
     expectTypeOf<MemoValue<'unknown:Pet'>>().toEqualTypeOf<unknown>()
+    expectTypeOf<MemoValue<'plugin-memo-core:cyclic' | 'name:Pet'>>().toEqualTypeOf<Set<string> | string>()
   })
 
   it('types get and set by the slot', () => {

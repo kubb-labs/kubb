@@ -8,14 +8,17 @@ type FullKeyValue<TKey extends string> = {
   [TFull in FullKey]: TKey extends TFull | `${TFull}:${string}` ? Kubb.MemoRegistry[TFull] : never
 }[FullKey]
 
-// A full-key slot such as 'plugin-zod:printer' wins over a prefix-only one such as 'name'.
-export type MemoValue<TKey extends string> = [FullKeyValue<TKey>] extends [never]
-  ? TKey extends `${infer TPrefix}:${string}`
-    ? TPrefix extends keyof Kubb.MemoRegistry
-      ? Kubb.MemoRegistry[TPrefix]
+// A full-key slot such as 'plugin-zod:printer' wins over a prefix-only one such as 'name'. The outer
+// conditional distributes over a key union, so each member picks its own lookup.
+export type MemoValue<TKey extends string> = TKey extends string
+  ? [FullKeyValue<TKey>] extends [never]
+    ? TKey extends `${infer TPrefix}:${string}`
+      ? TPrefix extends keyof Kubb.MemoRegistry
+        ? Kubb.MemoRegistry[TPrefix]
+        : unknown
       : unknown
-    : unknown
-  : FullKeyValue<TKey>
+    : FullKeyValue<TKey>
+  : never
 
 /**
  * The build memo. Call it to compute a value once, or use `get`, `set` and `has` to read and
