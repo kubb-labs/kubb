@@ -104,6 +104,7 @@
   "packages/core/src/storages/kubbStorage.test.ts": "0700 mode, KUBB_HOME, key traversal rejection and unstorage file-format compatibility.",
   "packages/kit/src/Url.test.ts": "Path param sanitizing for path-to-regexp with commented regressions (hyphen, $, duplicate names).",
   "packages/kit/src/macros/macroDedupeUnion.test.ts": "Union hashing with pointer, Date, default and resolved-schema branches; several cases read as regressions.",
+  "packages/kit/src/memo.test.ts": "Only test of memo.scope: the name: prefix on every key, and type checks that reject unknown slots, wrong value types and other plugins' slots.",
   "packages/kit/src/macros/macroDiscriminatorEnum.test.ts": "enumName and number-primitive branches are not asserted by adapter-oas parser.test.ts, which only covers readOnly.",
   "packages/kit/src/resolvers/resolvers.test.ts": "Only test of the shared resolver parts: collision suffixes, cased nested file paths, and a patch that replaces one method of a part.",
   "packages/kit/src/text.test.ts": "code literals every generator prints with: quote and line-break escaping, reserved words, key quoting and nested literals.",
