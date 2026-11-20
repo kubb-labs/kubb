@@ -356,9 +356,16 @@ export type KubbPluginSetupContext<TFactory extends PluginType = PluginType> = {
    *
    * @example
    * ```ts
-   * import { addGenerator } from '@kubb/kit'
+   * import { addGenerator, defineExtension } from '@kubb/kit'
    *
-   * addGenerator(schemaGenerator, operationGenerator)
+   * export const pluginExample = defineExtension({
+   *   kind: 'plugin',
+   *   meta: { name: 'plugin-example' },
+   *   setup(options) {
+   *     addGenerator(schemaGenerator, operationGenerator)
+   *     return options
+   *   },
+   * })
    * ```
    */
   addGenerator<TElement = unknown>(...generators: Array<Generator<TFactory, TElement>>): void

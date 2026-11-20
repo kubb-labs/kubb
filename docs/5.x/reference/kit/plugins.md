@@ -42,7 +42,7 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ## Setup context {#setup-context}
 
-`setup` and the `kubb:plugin:setup` hook register generators, the resolver, and macros with composables from `kubb/kit`. Composables take no argument, so helpers that `setup` calls can use them too.
+`setup` and the `kubb:plugin:setup` hook register generators, the resolver, and macros with composables from `kubb/kit`. Composables find the plugin being set up on their own, with no context argument, so helpers that `setup` calls can use them too.
 
 ```typescript [plugin.ts]
 import { addGenerator, createResolver, defineExtension, defineGenerator, requirePlugin, setResolver } from 'kubb/kit'
