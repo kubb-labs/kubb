@@ -124,6 +124,19 @@ When your plugin listens through its `hooks` map, it gets the hooks from `kubb:s
 - Kubb adds these listeners during setup and removes them when the build ends.
 - They miss the `lifecycle` and `generation` hooks, `kubb:setup:start`, and the output passes.
 - `kubb:plugin:setup` fires once per plugin, after its `setup` and before `kubb:build:start`. Kubb calls the plugin's own handler directly.
+
+### Visit hooks {#visit-hooks}
+
+A plugin's `hooks` map can also hold four visit hooks. Kubb calls them for that plugin only, while it walks the input, and they never reach `kubb.hooks`.
+
+| Hook                          | Payload       | Fires                                                |
+| ----------------------------- | ------------- | ---------------------------------------------------- |
+| `kubb:plugin:visit:start`     | `(ctx)`       | Once, before the first schema.                       |
+| `kubb:plugin:visit:schema`    | `(node, ctx)` | For each schema node, before the operations.         |
+| `kubb:plugin:visit:operation` | `(node, ctx)` | For each operation node.                             |
+| `kubb:plugin:visit:end`       | `(ctx)`       | Once, after the last operation.                      |
+
+`ctx` is the generator context without per-node `options`. Each node reaches every plugin in plugin order before the walk moves on. When a visit hook throws, Kubb stops that plugin, reports `KUBB_PLUGIN_FAILED` with the node it failed on, and runs the other plugins to the end.
 - `kubb:lifecycle:start` fires when `kubb generate` starts, before the first config. `.generate()` and the bundler plugins skip it.
 
 ### File hook payloads {#file-hook-payloads}

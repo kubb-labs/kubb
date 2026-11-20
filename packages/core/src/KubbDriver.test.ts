@@ -690,3 +690,100 @@ describe('KubbDriver fileRefs', () => {
     expect(parse).toHaveBeenCalledWith({ type: 'path', path: '/checkout/specs/openapi.yaml' }, expect.objectContaining({ fileRefs: expected }))
   })
 })
+
+describe('KubbDriver visit hooks', () => {
+  function visitPlugin(name: string, log: Array<string>, fail?: string): Plugin {
+    return {
+      name,
+      hooks: {
+        'kubb:plugin:visit:start'(ctx) {
+          log.push(`${ctx.plugin.name}:start`)
+        },
+        'kubb:plugin:visit:schema'(node) {
+          if (node.name === fail) throw new Error(`boom on ${fail}`)
+          log.push(`${name}:schema:${node.name}`)
+        },
+        'kubb:plugin:visit:operation'(node) {
+          log.push(`${name}:operation:${node.operationId}`)
+        },
+        'kubb:plugin:visit:end'() {
+          log.push(`${name}:end`)
+        },
+      },
+    }
+  }
+
+  it('walks schemas before operations, node-outer in plugin order, next to a legacy generator plugin', async () => {
+    const log: Array<string> = []
+    const rec: Recorder = { schema: [], operation: [], operations: [], pairs: [] }
+    const legacy: Plugin = {
+      name: 'legacy',
+      hooks: {
+        'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+          ctx.addGenerator({
+            ...recordingGenerator('legacy', rec),
+            schema(node: SchemaNode) {
+              log.push(`legacy:schema:${node.name}`)
+              return []
+            },
+          })
+        },
+      },
+    }
+    const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [visitPlugin('visitA', log), legacy, visitPlugin('visitB', log)] }))
+    await driver.setup()
+
+    await driver.run()
+
+    expect(log).toStrictEqual([
+      'visitA:start',
+      'visitB:start',
+      'visitA:schema:Pet',
+      'legacy:schema:Pet',
+      'visitB:schema:Pet',
+      'visitA:schema:Store',
+      'legacy:schema:Store',
+      'visitB:schema:Store',
+      'visitA:operation:getPet',
+      'visitB:operation:getPet',
+      'visitA:operation:listPets',
+      'visitB:operation:listPets',
+      'visitA:end',
+      'visitB:end',
+    ])
+    expect(rec.operation.map((entry) => entry.id)).toStrictEqual(['getPet', 'listPets'])
+  })
+
+  it('stops a failing visit plugin with its crash site, and every plugin still ends with a timing', async () => {
+    const log: Array<string> = []
+    const ended: Array<string> = []
+    const hooks = new Hookable<KubbHooks>()
+    hooks.hook('kubb:plugin:end', ({ plugin }) => {
+      ended.push(plugin.name)
+    })
+    const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [visitPlugin('boom', log, 'Store'), visitPlugin('after', log)] }), hooks)
+    await driver.setup()
+
+    const { diagnostics } = await driver.run()
+
+    expect(log.filter((entry) => entry.startsWith('boom:'))).toStrictEqual(['boom:start', 'boom:schema:Pet'])
+    expect(log.filter((entry) => entry.startsWith('after:'))).toHaveLength(6)
+    expect(ended).toStrictEqual(['boom', 'after'])
+    expect(diagnostics.filter((diagnostic) => diagnostic.kind === 'performance')).toHaveLength(2)
+    expect(diagnostics.find((diagnostic) => diagnostic.severity === 'error')).toMatchObject({
+      code: 'KUBB_PLUGIN_FAILED',
+      message: 'While generating schema "Store": boom on Store',
+      location: { kind: 'schema', pointer: '#/components/schemas/Store' },
+    })
+  })
+
+  it('reads a resolver from memo before plugin.resolver', async () => {
+    const fromMemo = new Resolver({ pluginName: 'visitA' })
+    const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [visitPlugin('visitA', [])] }))
+    await driver.setup()
+
+    expect(driver.getResolver('visitA')).not.toBe(fromMemo)
+    driver.memo.set('visitA:resolver', fromMemo)
+    expect(driver.getResolver('visitA')).toBe(fromMemo)
+  })
+})
