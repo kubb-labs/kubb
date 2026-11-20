@@ -33,7 +33,6 @@ export {
   isExtensionManifest,
   kubbContext,
   manifestProblems,
-  memo,
   memoryStorage,
   requirePlugin,
   Resolver,
@@ -45,6 +44,8 @@ export {
   useKubb,
   useOptions,
 } from '@kubb/core'
+export { memo } from './memo.ts'
+export type { ScopedMemo } from './memo.ts'
 export type {
   Adapter,
   AdapterDefinition,
