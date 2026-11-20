@@ -13,6 +13,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it } from 'vitest'
 import { addGenerator, addMacro, setResolver } from './composables.ts'
 import { defineExtension } from './defineExtension.ts'
+import { createResolver } from './resolver/createResolver.ts'
 
 function adapter() {
   const schemas: Array<SchemaNode> = [
@@ -104,6 +105,21 @@ describe('generatorVisitor', () => {
 
     expect(driver.plugins.get('plugin-example')?.generators).toBeUndefined()
     expect(driver.getResolver('plugin-example').name('Pet')).toBe('ApiPet')
+  })
+
+  it("accepts a resolver from kit's createResolver on the core path", async () => {
+    const plugin = coreDefineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-core' },
+      setup(options) {
+        setResolver(createResolver({ pluginName: 'plugin-core', name: (name: string) => `Kit${name}` }))
+        return options
+      },
+    })()
+
+    const { driver } = await build([plugin])
+
+    expect(driver.getResolver('plugin-core').name('Pet')).toBe('KitPet')
   })
 
   it('runs a plugin visit hook after the kit visitor', async () => {

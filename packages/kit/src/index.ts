@@ -17,12 +17,9 @@ export {
   assertPluginOption,
   createAdapter,
   createRenderer,
-  createResolver,
   createStorage,
-  defineGenerator,
   defineParser,
   definePlugin,
-  defineResolver,
   Diagnostics,
   fsStorage,
   Hookable,
@@ -32,7 +29,6 @@ export {
   manifestProblems,
   memoryStorage,
   requirePlugin,
-  Resolver,
   setOptions,
   tryUseKubb,
   useConfig,
@@ -40,6 +36,9 @@ export {
   useOptions,
 } from '@kubb/core'
 export { addGenerator, addMacro, setMacros, setResolver } from './composables.ts'
+export { defineGenerator } from './defineGenerator.ts'
+export { createResolver } from './resolver/createResolver.ts'
+export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
 export { defineExtension } from './defineExtension.ts'
 export { memo } from './memo.ts'
 export type { ScopedMemo } from './memo.ts'

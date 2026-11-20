@@ -1,5 +1,5 @@
 import type { OperationNode, StatusCode } from '@kubb/ast'
-import { defineResolver } from '@kubb/core'
+import { defineResolver } from '../resolver/Resolver.ts'
 import { operationKey } from './operationKey.ts'
 
 /** Names an operation's responses (`response.*`) through the plugin's top-level `name`. */

@@ -29,7 +29,7 @@ export { defineGenerator } from './defineGenerator.ts'
 export { defineParser } from './defineParser.ts'
 export { assertPluginOption, definePlugin } from './definePlugin.ts'
 export { createResolver } from './createResolver.ts'
-export { defineResolver, Resolver, toFilePath } from './Resolver.ts'
+export { defineResolver, Resolver, resolverOptions, toFilePath } from './Resolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
 export { checkoutGitInput } from './gitInput.ts'
 export { isPublicAddress } from './publicAddress.ts'
@@ -84,7 +84,7 @@ export type {
   RegistryGuide,
   RegistryIndex,
 } from './manifest.ts'
-export type { Memo } from './memo.ts'
+export type { Memo, MemoKey, MemoValue } from './memo.ts'
 export type { Parser, ParserDefinition, ParserFactory } from './defineParser.ts'
 export type {
   Exclude,
@@ -119,11 +119,13 @@ export type {
   ResolveNameOptions,
   ResolveOptionsContext,
   ResolvePathOptions,
+  ResolverBuildOptions,
   ResolverDefault,
   ResolverFile,
   ResolverFileParams,
   ResolverFilePathParams,
   ResolverInput,
+  ResolverLike,
   ResolverPatch,
   ResolverPathParams,
 } from './Resolver.ts'

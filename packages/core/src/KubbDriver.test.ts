@@ -8,7 +8,7 @@ import type { KubbPluginSetupContext, Plugin } from './definePlugin.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
-import { defineResolver, Resolver } from './Resolver.ts'
+import { defineResolver, Resolver, type ResolverLike } from './Resolver.ts'
 import { checkoutGitInput } from './gitInput.ts'
 
 vi.mock('./gitInput.ts', async (importOriginal) => ({ ...(await importOriginal<typeof import('./gitInput.ts')>()), checkoutGitInput: vi.fn() }))
@@ -778,7 +778,7 @@ describe('KubbDriver visit hooks', () => {
   })
 
   it('keeps one resolver for the walk when a visit hook replaces it in memo', async () => {
-    const seen: Array<Resolver> = []
+    const seen: Array<ResolverLike> = []
     const plugin: Plugin = {
       name: 'swap',
       hooks: {

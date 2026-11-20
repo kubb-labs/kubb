@@ -5,7 +5,7 @@ import type { Generator } from './defineGenerator.ts'
 import type { KubbPluginSetupContext, NormalizedPlugin, PluginType, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Memo, MemoKey, MemoValue } from './memo.ts'
-import type { Resolver, ResolverInput } from './Resolver.ts'
+import type { ResolverInput, ResolverLike } from './Resolver.ts'
 import type { Config } from './types.ts'
 
 const kubbContextKey = Symbol.for('kubb.context')
@@ -62,7 +62,7 @@ export function addGenerator<TFactory extends PluginType = PluginType, TElement 
 /**
  * Sets the resolver of the plugin being set up.
  */
-export function setResolver<TResolver extends Resolver = Resolver>(resolver: ResolverInput<TResolver>): void {
+export function setResolver<TResolver extends ResolverLike = ResolverLike>(resolver: ResolverInput<TResolver>): void {
   requireContext('setResolver').setResolver(resolver)
 }
 

@@ -8,7 +8,7 @@ import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, 
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
-import { Resolver } from './Resolver.ts'
+import { Resolver, type ResolverLike } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { createMemo, type Memo } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
@@ -807,8 +807,8 @@ export class KubbDriver {
 
   /** Reads memo `<name>:resolver`, then `plugin.resolver`, falling back to a fresh default for a name that is not a registered plugin. */
   getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
-  getResolver(pluginName: string): Resolver {
-    return (this.memo.get(`${pluginName}:resolver`) as Resolver | undefined) ?? this.plugins.get(pluginName)?.resolver ?? this.#createResolver(pluginName)
+  getResolver(pluginName: string): ResolverLike {
+    return (this.memo.get(`${pluginName}:resolver`) as ResolverLike | undefined) ?? this.plugins.get(pluginName)?.resolver ?? this.#createResolver(pluginName)
   }
 
   getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {

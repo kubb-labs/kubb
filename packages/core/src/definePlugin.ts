@@ -4,7 +4,7 @@ import type { Enforce, HttpMethod, Macro, OperationNode, SchemaNode, UserFileNod
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import { defineExtension } from './defineExtension.ts'
 import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
-import type { BannerMeta, Resolver, ResolverInput } from './Resolver.ts'
+import type { BannerMeta, ResolverInput, ResolverLike } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Memo } from './memo.ts'
 import type { Config, FilesContext, KubbHooks } from './types.ts'
@@ -333,7 +333,7 @@ export type PluginType<
    * Resolver that encapsulates naming and path-resolution helpers.
    * Define with `createResolver` and export alongside the plugin.
    */
-  TResolver extends Resolver = Resolver,
+  TResolver extends ResolverLike = ResolverLike,
 > = {
   name: TName
   options: TOptions

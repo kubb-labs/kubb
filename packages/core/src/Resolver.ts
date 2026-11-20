@@ -161,13 +161,13 @@ export type ResolverFile = {
    * `extname`. Defaults to `toFilePath(name)` with `extname` appended. Reaches sibling resolver
    * helpers through `this`.
    */
-  baseName?(this: Resolver, params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
+  baseName?(this: ResolverLike, params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
   /**
    * Returns the file's complete path, resolved against the project `root`. Bypasses `output.path`
    * and `group`, so the resolver owns the layout. The returned path may not escape `root`. Reaches
    * sibling resolver helpers through `this`.
    */
-  path?(this: Resolver, params: ResolverFilePathParams): string
+  path?(this: ResolverLike, params: ResolverFilePathParams): string
 }
 
 /**
@@ -276,7 +276,12 @@ export type ResolveNameOptions = {
  * (`query.name`) and the rest keep the plugin defaults. Overriding a whole resolver is not the
  * job of this patch, that is what a custom plugin is for.
  */
-export type ResolverPatch<T extends Resolver = Resolver> = {
+/**
+ * The public shape of a resolver. Core's types name this instead of the class, so `@kubb/kit`'s copy of `Resolver` fits them too.
+ */
+export type ResolverLike = Pick<Resolver, keyof Resolver>
+
+export type ResolverPatch<T extends ResolverLike = ResolverLike> = {
   [K in keyof Omit<T, keyof Resolver>]?: T[K] extends (...args: Array<never>) => unknown ? T[K] : Partial<T[K]>
 } & {
   imports?: T['imports']
@@ -288,12 +293,12 @@ export type ResolverPatch<T extends Resolver = Resolver> = {
  * Types a reusable resolver part, such as one namespace or a `file` rule, with `this` as the full resolver.
  * Adds no runtime behavior, like `defineMacro`. Exports follow the `resolver<Name>` convention.
  */
-export function defineResolver<const T extends object>(part: T & ThisType<Resolver & T>): T {
+export function defineResolver<const T extends object>(part: T & ThisType<ResolverLike & T>): T {
   return part
 }
 
 /** One resolver or patch, or a list of them merged left to right. */
-export type ResolverInput<T extends Resolver = Resolver> = ResolverPatch<T> | T | ReadonlyArray<ResolverPatch<T> | T>
+export type ResolverInput<T extends ResolverLike = ResolverLike> = ResolverPatch<T> | T | ReadonlyArray<ResolverPatch<T> | T>
 
 function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -305,7 +310,7 @@ function isNamespace(value: unknown): value is Record<string, unknown> {
  * copy of `@kubb/core`. `Symbol.for` resolves to one key across those copies, so the options stay
  * reachable and a `file` override is never dropped.
  */
-const resolverOptions: unique symbol = Symbol.for('@kubb/core/resolver/options')
+export const resolverOptions: unique symbol = Symbol.for('@kubb/core/resolver/options')
 
 /** One segment of an array `resolveName` key, so a repeated key finds its name without building a string. */
 type NameNode = { name?: string; next: Map<string | undefined, NameNode> }
@@ -529,7 +534,7 @@ export class Resolver {
    * const resolver = Resolver.merge(defaultResolver, sharedNamingPatch, { name: (name) => name.toUpperCase() })
    * ```
    */
-  static merge<T extends Resolver>(base: T, ...overrides: Array<ResolverPatch<T> | Resolver>): T {
+  static merge<T extends Resolver>(base: T, ...overrides: Array<ResolverPatch<T> | ResolverLike>): T {
     const merged = overrides.reduce<Record<string, unknown>>(
       (acc, override) => {
         const patch = resolverOptions in override ? override[resolverOptions] : override

@@ -1,5 +1,5 @@
 import type { FileNode } from '@kubb/ast'
-import { defineResolver, toFilePath } from '@kubb/core'
+import { defineResolver, toFilePath } from '../resolver/Resolver.ts'
 
 /** A `file.baseName` rule that nests dotted names and cases the file name with `caseLast`. */
 export function resolverCasedFile(caseLast: (part: string) => string) {

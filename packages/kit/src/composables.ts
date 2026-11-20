@@ -1,5 +1,6 @@
 import type { Macro } from '@kubb/ast'
-import { type Generator, type KubbPluginSetupContext, type PluginType, Resolver, type ResolverInput, useKubb } from '@kubb/core'
+import { type Generator, type KubbPluginSetupContext, type PluginType, type ResolverInput, type ResolverLike, useKubb } from '@kubb/core'
+import { Resolver } from './resolver/Resolver.ts'
 
 /**
  * Memo slots kit keeps per plugin, under `<plugin>:<slot>`.
@@ -38,13 +39,13 @@ export function addGenerator<TFactory extends PluginType = PluginType, TElement 
  * Sets the resolver of the plugin being set up. Overrides merge over the default resolver, so a
  * partial patch replaces only the methods it names.
  */
-export function setResolver<TResolver extends Resolver = Resolver>(resolver: ResolverInput<TResolver>): void {
+export function setResolver<TResolver extends ResolverLike = ResolverLike>(resolver: ResolverInput<TResolver>): void {
   const ctx = kitContext()
   if (!ctx) return useKubb().setResolver(resolver as ResolverInput)
 
   const { name } = ctx.plugin
   const shared = ctx.memo.get('kubb:sharedSchemas')
-  const parts = (Array.isArray(resolver) ? resolver : [resolver]) as Array<Resolver>
+  const parts = (Array.isArray(resolver) ? resolver : [resolver]) as Array<ResolverLike>
   ctx.memo.set(slot.resolver(name), Resolver.merge(new Resolver({ pluginName: name, shared }), ...parts))
 }
 
