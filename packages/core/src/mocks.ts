@@ -1,12 +1,12 @@
 import path, { resolve } from 'node:path'
-import { camelCase, memo } from '@internals/utils'
+import { camelCase } from '@internals/utils'
 import type { FileNode, InputMeta, Macro, OperationNode, SchemaNode } from '@kubb/ast'
 import { ast } from '@kubb/ast'
 import { expect, vi } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
 import { Hookable } from './Hookable.ts'
-import type { Memo } from './memo.ts'
+import { createMemo } from './memo.ts'
 import { type KubbDriver, pluginNotFoundError } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
@@ -18,7 +18,6 @@ import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginType } fro
  */
 export function createMockedPluginDriver(options: { name?: string; plugin?: NormalizedPlugin; config?: Config } = {}): KubbDriver {
   const fileManager = new FileManager()
-  const memoStore = memo.create<string, unknown>()
 
   return {
     config: options?.config ?? {
@@ -31,7 +30,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
       return options?.plugin
     },
     getResolver: (_pluginName: string) => options?.plugin?.resolver,
-    memo: ((key: string, compute: () => unknown) => memo(memoStore, key, compute)) as Memo,
+    memo: createMemo(),
     fileManager,
   } as unknown as KubbDriver
 }
@@ -42,7 +41,6 @@ export function createMockedSetupContext<TFactory extends PluginType = PluginTyp
   options = {} as TFactory['options'],
 }: { plugins?: Array<string>; options?: TFactory['options'] } = {}): KubbPluginSetupContext<TFactory> {
   const registered = plugins.map((name) => ({ name }) as unknown as Plugin)
-  const memoStore = memo.create<string, unknown>()
 
   return {
     config: { plugins: registered } as unknown as Config,
@@ -58,7 +56,8 @@ export function createMockedSetupContext<TFactory extends PluginType = PluginTyp
       if (!plugin) throw pluginNotFoundError({ pluginName })
       return plugin
     }) as KubbPluginSetupContext<TFactory>['requirePlugin'],
-    memo: ((key: string, compute: () => unknown) => memo(memoStore, key, compute)) as Memo,
+    memo: createMemo(),
+    plugin: { name: 'plugin-mock', meta: { name: 'plugin-mock' } },
   }
 }
 
@@ -135,7 +134,7 @@ function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGene
     },
     meta: opts.meta ?? {},
     schemas: opts.driver.inputNode?.schemas ?? [],
-    memo: opts.driver.memo.bind(opts.driver),
+    memo: opts.driver.memo,
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
     hooks: opts.driver.hooks ?? new Hookable<KubbHooks>(),

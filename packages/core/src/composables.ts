@@ -105,7 +105,12 @@ export function injectFile(file: UserFileNode): void {
 export const memo: Memo & typeof storeMemo = Object.assign(
   (...args: [string, () => unknown] | Parameters<typeof storeMemo>) =>
     args.length === 3 ? storeMemo(...args) : (requireContext('memo').memo as (key: string, compute: () => unknown) => unknown)(...args),
-  { create: storeMemo.create },
+  {
+    create: storeMemo.create,
+    get: (key: string) => requireContext('memo').memo.get(key),
+    set: (key: string, value: unknown) => requireContext('memo').memo.set(key, value as never),
+    has: (key: string) => requireContext('memo').memo.has(key),
+  },
 ) as Memo & typeof storeMemo
 
 /**

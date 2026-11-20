@@ -403,6 +403,10 @@ export type KubbPluginSetupContext<TFactory extends PluginType = PluginType> = {
    */
   memo: Memo
   /**
+   * The name and meta of the plugin being set up.
+   */
+  plugin: Pick<NormalizedPlugin, 'name' | 'meta'>
+  /**
    * The resolved build configuration at setup time.
    */
   config: Config

@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { getElapsedMs, memo, toError } from '@internals/utils'
+import { getElapsedMs, toError } from '@internals/utils'
 import { ast, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
@@ -10,7 +10,7 @@ import { checkCompatibility, checkDependencies, resolveMeta } from './defineExte
 import { kubbContext } from './composables.ts'
 import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
-import type { MemoKey, MemoValue } from './memo.ts'
+import { createMemo, type Memo } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import type { SharedSchemas } from './detectSharedSchemas.ts'
 import { inputToAdapterSource, parseAdapterSource } from './input.ts'
@@ -133,7 +133,8 @@ export class KubbDriver {
    */
   readonly fileManager = new FileManager()
   readonly plugins = new Map<string, NormalizedPlugin>()
-  readonly #memo = memo.create<string, unknown>()
+  readonly #memo = new Map<string, unknown>()
+  readonly memo: Memo = createMemo(this.#memo)
 
   /**
    * Removers for every listener the driver added (plugin, generator) so `dispose()` can detach
@@ -315,6 +316,7 @@ export class KubbDriver {
 
       const ctx: KubbPluginSetupContext = {
         config: this.config,
+        plugin: { name: plugin.name, meta: plugin.meta },
         options: plugin.options ?? {},
         addGenerator: (...generators) => {
           plugin.generators = [...(plugin.generators ?? []), ...generators]
@@ -335,7 +337,7 @@ export class KubbDriver {
           this.fileManager.add(ast.factory.createFile(userFileNode))
         },
         requirePlugin: ((name: string) => this.requirePlugin(name, { requiredBy: plugin.name })) as KubbPluginSetupContext['requirePlugin'],
-        memo: this.memo.bind(this),
+        memo: this.memo,
       }
 
       try {
@@ -772,10 +774,6 @@ export class KubbDriver {
     return this.plugins.get(pluginName)?.resolver ?? this.#createResolver(pluginName)
   }
 
-  memo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {
-    return memo(this.#memo, key, compute) as TValue
-  }
-
   getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
     const driver = this
 
@@ -798,7 +796,7 @@ export class KubbDriver {
       // Close over the owning plugin so a missing dependency error names who required it.
       requirePlugin: ((name: string) => driver.requirePlugin(name, { requiredBy: plugin.name })) as GeneratorContext<TOptions>['requirePlugin'],
       getResolver: driver.getResolver.bind(driver),
-      memo: driver.memo.bind(driver),
+      memo: driver.memo,
       driver,
       addFile: async (...files: Array<FileNode>) => {
         driver.fileManager.add(...files)
