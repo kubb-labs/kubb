@@ -105,6 +105,8 @@ export type {
   PluginOptions,
   PluginType,
   PluginName,
+  PluginVisitContext,
+  PluginVisitHooks,
   ResolvedPluginOptions,
   ResolvePluginOptions,
 } from './definePlugin.ts'

@@ -54,6 +54,12 @@ type ResolvedNode<TNode extends SchemaNode | OperationNode> = {
 /** `include` filter types that select operations, and so prune the schemas they do not reach. */
 const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType', 'extension'])
 
+const VISIT_HOOKS = ['kubb:plugin:visit:start', 'kubb:plugin:visit:schema', 'kubb:plugin:visit:operation', 'kubb:plugin:visit:end'] as const
+
+function hasVisitHooks(plugin: NormalizedPlugin): boolean {
+  return VISIT_HOOKS.some((name) => plugin.hooks?.[name])
+}
+
 /**
  * The options bag a `NormalizedPlugin` starts with before a plugin refines it: a directory output
  * at the plugin root and empty filter lists.
@@ -298,7 +304,14 @@ export class KubbDriver {
 
     if (!hooks) return
 
-    const { 'kubb:plugin:setup': _setup, ...configHooks } = hooks
+    const {
+      'kubb:plugin:setup': _setup,
+      'kubb:plugin:visit:start': _start,
+      'kubb:plugin:visit:schema': _schema,
+      'kubb:plugin:visit:operation': _operation,
+      'kubb:plugin:visit:end': _end,
+      ...configHooks
+    } = hooks
 
     this.#unhooks.push(this.hooks.addHooks(configHooks))
   }
@@ -385,6 +398,8 @@ export class KubbDriver {
           await this.#parseInput()
           // Emit `kubb:plugin:setup` so plugins can register macros via `addMacro`/`setMacros`.
           await this.setupHooks()
+          // Kit's resolver reads the shared-schema data from memo instead of from the driver.
+          this.memo.set('kubb:sharedSchemas', this.#shared)
 
           // Normalize each plugin's options once setup hooks have run, so the generate loop always
           // sees a filled-in bag whether or not the plugin called `setOptions`.
@@ -423,7 +438,7 @@ export class KubbDriver {
               continue
             }
 
-            if ((plugin.generators?.length ?? 0) > 0) {
+            if ((plugin.generators?.length ?? 0) > 0 || hasVisitHooks(plugin)) {
               generatorPlugins.push({ plugin, context, hrStart })
               continue
             }
@@ -578,12 +593,14 @@ export class KubbDriver {
     // Freeze each plugin's per-run state once so the node-outer walk stays cheap. A plugin's
     // `error` drops it from every remaining node without touching the others.
     const states = entries.map(({ plugin, context, hrStart }) => {
+      // The resolver is fixed for the whole walk, so visit hooks, reservations and generators agree on names.
       const generatorContext = { ...context, resolver: this.getResolver(plugin.name) }
       const { exclude, include, override } = plugin.options
       const generators = plugin.generators ?? []
       return {
         plugin,
         hrStart,
+        hooks: plugin.hooks ?? {},
         generatorContext,
         exclude,
         include,
@@ -641,15 +658,24 @@ export class KubbDriver {
       }
     }
 
+    for (const state of states) {
+      try {
+        await state.hooks['kubb:plugin:visit:start']?.(state.generatorContext)
+      } catch (caughtError) {
+        state.error = toError(caughtError)
+      }
+    }
+
     // Schemas before operations, in adapter order, so file output stays deterministic. For each
     // node the plugins fan out in dependency order. A caught error drops that
     // plugin from the rest of the walk but not the others, so its remaining nodes are skipped
     // rather than retried. Generators run directly; `kubb:generate:*` still fires for observers.
     for (const node of schemas) {
       for (const state of states) {
-        if (state.error || !state.schemaGenerators.length) continue
+        if (state.error) continue
         try {
-          const resolved = state.schemas.get(node)
+          await state.hooks['kubb:plugin:visit:schema']?.(node, state.generatorContext)
+          const resolved = state.schemaGenerators.length ? state.schemas.get(node) : undefined
           if (resolved instanceof Error) throw resolved
           if (!resolved) continue
 
@@ -675,8 +701,10 @@ export class KubbDriver {
     // only an `operations` generator still collects its filtered nodes here.
     for (const node of operations) {
       for (const state of states) {
-        if (state.error || (!state.operationGenerators.length && !state.operationsGenerators.length)) continue
+        if (state.error) continue
         try {
+          await state.hooks['kubb:plugin:visit:operation']?.(node, state.generatorContext)
+          if (!state.operationGenerators.length && !state.operationsGenerators.length) continue
           const resolved = resolveForPlugin(state, node)
           if (!resolved) continue
 
@@ -710,6 +738,15 @@ export class KubbDriver {
           await this.fileManager.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
         }
         await this.hooks.callHook('kubb:generate:operations', state.pluginOperations, ctx)
+      } catch (caughtError) {
+        state.error = toError(caughtError)
+      }
+    }
+
+    for (const state of states) {
+      if (state.error) continue
+      try {
+        await state.hooks['kubb:plugin:visit:end']?.(state.generatorContext)
       } catch (caughtError) {
         state.error = toError(caughtError)
       }
@@ -768,10 +805,10 @@ export class KubbDriver {
     this.dispose()
   }
 
-  /** Reads `plugin.resolver`, falling back to a fresh default for a name that is not a registered plugin. */
+  /** Reads memo `<name>:resolver`, then `plugin.resolver`, falling back to a fresh default for a name that is not a registered plugin. */
   getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
   getResolver(pluginName: string): Resolver {
-    return this.plugins.get(pluginName)?.resolver ?? this.#createResolver(pluginName)
+    return (this.memo.get(`${pluginName}:resolver`) as Resolver | undefined) ?? this.plugins.get(pluginName)?.resolver ?? this.#createResolver(pluginName)
   }
 
   getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {

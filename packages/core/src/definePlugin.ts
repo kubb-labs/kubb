@@ -1,7 +1,7 @@
 import path from 'node:path'
 import type { LiteralUnion } from '@internals/utils'
-import type { Enforce, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
-import type { Generator } from './defineGenerator.ts'
+import type { Enforce, HttpMethod, Macro, OperationNode, SchemaNode, UserFileNode } from '@kubb/ast'
+import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import { defineExtension } from './defineExtension.ts'
 import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
 import type { BannerMeta, Resolver, ResolverInput } from './Resolver.ts'
@@ -417,6 +417,22 @@ export type KubbPluginSetupContext<TFactory extends PluginType = PluginType> = {
 }
 
 /**
+ * Context of the `kubb:plugin:visit:*` hooks: the generator context without per-node `options`.
+ */
+export type PluginVisitContext<TFactory extends PluginType = PluginType> = Omit<GeneratorContext<TFactory>, 'options'>
+
+/**
+ * Hooks the driver calls for one plugin while it walks the input: `start`, then every schema, then
+ * every operation, then `end`. They never reach the shared hooks bus.
+ */
+export type PluginVisitHooks<TFactory extends PluginType = PluginType> = {
+  'kubb:plugin:visit:start'?(ctx: PluginVisitContext<TFactory>): void | Promise<void>
+  'kubb:plugin:visit:schema'?(node: SchemaNode, ctx: PluginVisitContext<TFactory>): void | Promise<void>
+  'kubb:plugin:visit:operation'?(node: OperationNode, ctx: PluginVisitContext<TFactory>): void | Promise<void>
+  'kubb:plugin:visit:end'?(ctx: PluginVisitContext<TFactory>): void | Promise<void>
+}
+
+/**
  * A plugin object produced by `defineExtension`. Its lifecycle handlers live under a single
  * `hooks` property rather than flat methods.
  */
@@ -448,7 +464,7 @@ export type Plugin<TFactory extends PluginType = PluginType> = ExtensionNamed & 
     [K in keyof KubbHooks as K extends 'kubb:plugin:setup' ? never : K]?: (...args: KubbHooks[K]) => void | Promise<void>
   } & {
     'kubb:plugin:setup'?(ctx: KubbPluginSetupContext<TFactory>): void | Promise<void>
-  }
+  } & PluginVisitHooks<TFactory>
   /**
    * Runs before `kubb:plugin:setup`. Takes the user's options and returns the resolved options.
    */

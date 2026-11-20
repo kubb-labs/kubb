@@ -126,6 +126,19 @@ When your plugin listens through its `hooks` map, it gets the hooks from `kubb:s
 - `kubb:plugin:setup` fires once per plugin, after its `setup` and before `kubb:build:start`. Kubb calls the plugin's own handler directly.
 - `kubb:lifecycle:start` fires when `kubb generate` starts, before the first config. `.generate()` and the bundler plugins skip it.
 
+### Visit hooks {#visit-hooks}
+
+A plugin's `hooks` map can also hold four visit hooks. Kubb calls them for that plugin only, while it walks the input, and they never reach `kubb.hooks`.
+
+| Hook                          | Payload       | Fires                                                |
+| ----------------------------- | ------------- | ---------------------------------------------------- |
+| `kubb:plugin:visit:start`     | `(ctx)`       | Once, before the first schema.                       |
+| `kubb:plugin:visit:schema`    | `(node, ctx)` | For each schema node, before the operations.         |
+| `kubb:plugin:visit:operation` | `(node, ctx)` | For each operation node.                             |
+| `kubb:plugin:visit:end`       | `(ctx)`       | Once, after the last operation.                      |
+
+`ctx` is the generator context without per-node `options`. Its `resolver` is fixed when the walk starts, the same one the plugin's generators get, so a resolver a hook stores in memo during the walk does not change it. Each node reaches every plugin in plugin order before the walk moves on. When a visit hook throws, Kubb stops that plugin, reports `KUBB_PLUGIN_FAILED` with the node it failed on, and runs the other plugins to the end.
+
 ### File hook payloads {#file-hook-payloads}
 
 When you listen to `kubb:file:processed`, you get `{ file, source, stored }` after each file is printed and handed to the storage.
