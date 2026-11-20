@@ -42,29 +42,9 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ## Setup context {#setup-context}
 
-`setup` and the `kubb:plugin:setup` hook register everything through the setup context: the `kubb` argument (`ctx` in the hook) or a composable from `kubb/kit`. Composables take no argument, so helpers that `setup` calls can use them too.
+`setup` and the `kubb:plugin:setup` hook register resolvers, generators and macros with the composables from `kubb/kit`: `setResolver`, `addGenerator`, `addMacro` and `setMacros`. Composables take no argument, so helpers that `setup` calls can use them too.
 
-::code-group
-
-```typescript [kubb argument]
-import { createResolver, defineExtension, defineGenerator } from 'kubb/kit'
-
-const resolver = createResolver({ pluginName: 'plugin-example' })
-const generator = defineGenerator({ name: 'example', operation: () => [] })
-
-export const pluginExample = defineExtension({
-  kind: 'plugin',
-  meta: { name: 'plugin-example' },
-  setup(options, kubb) {
-    kubb.requirePlugin('plugin-ts')
-    kubb.setResolver(resolver)
-    kubb.addGenerator(generator)
-    return options
-  },
-})
-```
-
-```typescript [Composables]
+```typescript
 import { addGenerator, createResolver, defineExtension, defineGenerator, requirePlugin, setResolver } from 'kubb/kit'
 
 const resolver = createResolver({ pluginName: 'plugin-example' })
@@ -82,14 +62,13 @@ export const pluginExample = defineExtension({
 })
 ```
 
-::
+> [!WARNING]
+> `kubb.addGenerator`, `kubb.setResolver`, `kubb.addMacro` and `kubb.setMacros` on the setup context are deprecated. Call the composable of the same name instead.
+
+The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds these members:
 
 | Member          | Signature                                                 | Purpose                                                                         |
 | --------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `addGenerator`  | `(...generators: Array<Generator>) => void`               | Registers generators.                                                           |
-| `setResolver`   | `(resolver: ResolverPatch<Resolver> \| Resolver) => void` | Sets the resolver. A patch merges over the defaults.                            |
-| `addMacro`      | `(macro: Macro) => void`                                  | Adds a macro that rewrites nodes before generators run.                         |
-| `setMacros`     | `(macros: ReadonlyArray<Macro>) => void`                  | Replaces this plugin's macros.                                                  |
 | `setOptions`    | `(options: ResolvedOptions) => void`                      | Sets the resolved options. In `setup`, return them instead.                     |
 | `injectFile`    | `(file: UserFileNode) => void`                            | Adds a file outside generation. Set `copy` to an absolute path to copy a template. |
 | `requirePlugin` | `(name: string) => Plugin`                                | Returns another plugin, or fails with `KUBB_PLUGIN_NOT_FOUND`.                  |
@@ -97,7 +76,7 @@ export const pluginExample = defineExtension({
 | `config`        | `Config`                                                  | The resolved build configuration. Composable: `useConfig()`.                    |
 | `options`       | `TOptions`                                                | The options the user passed. Composable: `useOptions()`.                        |
 
-Methods have a composable of the same name, such as `addGenerator()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
+Methods have a composable of the same name, such as `requirePlugin()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
 
 > [!WARNING]
 > Composables work only in `setup` and `kubb:plugin:setup`. In generators and anywhere else, they throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).

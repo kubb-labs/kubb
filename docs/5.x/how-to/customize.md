@@ -173,10 +173,10 @@ export const macroUntagged = defineMacro({
 
 ### Register a macro
 
-Pass macros through a plugin's `macros` option, or register them in your own plugin's `setup` with `kubb.addMacro` or `kubb.setMacros`. Macros run per plugin, so they never change the nodes another plugin sees.
+Pass macros through a plugin's `macros` option, or register them in your own plugin's `setup` with the `addMacro` or `setMacros` composable. Macros run per plugin, so they never change the nodes another plugin sees.
 
 ```typescript [plugin.ts]
-import { defineExtension, defineMacro } from 'kubb/kit'
+import { addMacro, defineExtension, defineMacro } from 'kubb/kit'
 
 const macroDropDescriptions = defineMacro({
   name: 'drop-descriptions',
@@ -188,8 +188,8 @@ const macroDropDescriptions = defineMacro({
 export const pluginRename = defineExtension({
   kind: 'plugin',
   meta: { name: 'plugin-rename' },
-  setup(options, kubb) {
-    kubb.addMacro(macroDropDescriptions)
+  setup(options) {
+    addMacro(macroDropDescriptions)
     return options
   },
 })

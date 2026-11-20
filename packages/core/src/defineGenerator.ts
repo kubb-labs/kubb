@@ -129,7 +129,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
  * Return `Array<FileNode>` directly, or call `ctx.upsertFile()` manually and return `null` to
  * bypass rendering.
  *
- * @note Generators are consumed by plugins and registered via `ctx.addGenerator()` in `kubb:plugin:setup`.
+ * @note Generators are consumed by plugins and registered with the `addGenerator()` composable in `setup` or `kubb:plugin:setup`.
  *
  * @example
  * ```ts
@@ -211,7 +211,7 @@ export type Generator<TOptions extends PluginType = PluginType, TElement = unkno
 
 /**
  * Defines a generator: a unit of work that runs during the plugin's AST walk
- * and produces files. Plugins register generators via `ctx.addGenerator()`
+ * and produces files. Plugins register generators with the `addGenerator()` composable
  * inside `kubb:plugin:setup`.
  *
  * The returned object is the input as-is, but with `this` types preserved so
