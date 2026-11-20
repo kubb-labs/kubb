@@ -1,3 +1,4 @@
+import { toError } from '@internals/utils'
 import { ast, type Macro, type OperationNode, type SchemaNode } from '@kubb/ast'
 import type { Generator, GeneratorContext, NormalizedPlugin, PluginVisitContext, PluginVisitHooks } from '@kubb/core'
 import { slot } from './composables.ts'
@@ -27,8 +28,8 @@ function getState(ctx: PluginVisitContext): VisitState | undefined {
 }
 
 // Applies the plugin's macros, then its include, exclude and override rules. Returns null for a node the rules leave out.
-function resolveNode<TNode extends SchemaNode | OperationNode>(ctx: PluginVisitContext, state: VisitState, node: TNode): Resolved<TNode> | null {
-  const transformedNode = ast.macro.apply(node, state.macros)
+function resolveNode<TNode extends SchemaNode | OperationNode>(ctx: PluginVisitContext, macros: Array<Macro>, node: TNode): Resolved<TNode> | null {
+  const transformedNode = ast.macro.apply(node, macros)
   const options = pluginOptions(ctx)
   const { exclude, include, override } = options
   if (!exclude?.length && !include?.length && !override?.length) return { transformedNode, options }
@@ -79,14 +80,14 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       const { include } = pluginOptions(ctx)
       let allowed: Set<string> | null = null
       if (include?.some(({ type }) => OPERATION_FILTER_TYPES.has(type)) && !include.some(({ type }) => type === 'schemaName')) {
-        const operations = (ctx.driver.inputNode?.operations ?? []).filter((operation) => resolveNode(ctx, { ...state, macros: [] }, operation) !== null)
+        const operations = (ctx.driver.inputNode?.operations ?? []).filter((operation) => resolveNode(ctx, [], operation) !== null)
         allowed = ast.graph.getUsedNames(operations, ctx.schemas)
       }
 
       // Reserve names before generation, with the same macros and filters, so later collisions get suffixes.
       for (const node of ctx.schemas) {
         try {
-          const resolved = resolveNode(ctx, state, node)
+          const resolved = resolveNode(ctx, state.macros, node)
           if (!resolved) continue
           const schemaName = resolved.transformedNode.name
           if (allowed && schemaName && !allowed.has(schemaName)) continue
@@ -94,7 +95,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
           if (schemaName) ctx.resolver.reserveNames([ctx.resolver.name(schemaName)])
         } catch (caughtError) {
           // Reported at this node's turn, so the output of earlier schemas stays.
-          state.schemas.set(node, caughtError instanceof Error ? caughtError : new Error(String(caughtError)))
+          state.schemas.set(node, toError(caughtError))
           break
         }
       }
@@ -113,7 +114,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
     async 'kubb:plugin:visit:operation'(node, ctx) {
       const state = getState(ctx)
       if (!state || (!state.operationGenerators.length && !state.operationsGenerators.length)) return
-      const resolved = resolveNode(ctx, state, node)
+      const resolved = resolveNode(ctx, state.macros, node)
       if (!resolved) return
 
       state.operations.push(resolved.transformedNode)

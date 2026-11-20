@@ -2,8 +2,9 @@ import { defineExtension as coreDefineExtension, type PluginDefinition, type Plu
 import { slot } from './composables.ts'
 import { generatorVisitor } from './visitor.ts'
 
-type VisitHookName = keyof PluginVisitHooks
 type AnyHook = (...args: Array<never>) => unknown
+
+const define = coreDefineExtension as (definition: unknown) => unknown
 
 /**
  * Core's `defineExtension`. For `kind: 'plugin'` it also keeps the plugin's generators, resolver
@@ -11,11 +12,11 @@ type AnyHook = (...args: Array<never>) => unknown
  * defines itself.
  */
 export const defineExtension = ((definition: { kind: string } & Partial<PluginDefinition>) => {
-  if (definition.kind !== 'plugin') return (coreDefineExtension as (definition: unknown) => unknown)(definition)
+  if (definition.kind !== 'plugin') return define(definition)
 
   const visitor = generatorVisitor()
   const hooks: Record<string, unknown> = { ...definition.hooks }
-  for (const name of Object.keys(visitor) as Array<VisitHookName>) {
+  for (const name of Object.keys(visitor) as Array<keyof PluginVisitHooks>) {
     const own = definition.hooks?.[name] as AnyHook | undefined
     const kit = visitor[name] as AnyHook
     hooks[name] = own
@@ -26,7 +27,7 @@ export const defineExtension = ((definition: { kind: string } & Partial<PluginDe
       : kit
   }
 
-  return (coreDefineExtension as (definition: unknown) => unknown)({
+  return define({
     ...definition,
     hooks,
     setup(options: object, kubb: Parameters<NonNullable<PluginDefinition['setup']>>[1]) {

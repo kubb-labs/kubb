@@ -41,7 +41,6 @@ export {
 } from '@kubb/core'
 export { addGenerator, addMacro, setMacros, setResolver } from './composables.ts'
 export { defineExtension } from './defineExtension.ts'
-export { generatorVisitor } from './visitor.ts'
 export { memo } from './memo.ts'
 export type { ScopedMemo } from './memo.ts'
 export type {
