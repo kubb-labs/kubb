@@ -555,22 +555,19 @@ export class KubbDriver {
       }
     }
 
-    for (const [kind, nodes] of [
-      ['kubb:plugin:visit:schema', schemas],
-      ['kubb:plugin:visit:operation', operations],
-    ] as const) {
-      for (const node of nodes) {
-        for (const state of states) {
-          if (state.error) continue
-          try {
-            await (state.hooks[kind] as ((node: SchemaNode | OperationNode, ctx: PluginVisitContext) => unknown) | undefined)?.(node, state.context)
-          } catch (caughtError) {
-            state.error = toError(caughtError)
-            state.crashSite = getCrashSite(node)
-          }
+    const visit = async (node: SchemaNode | OperationNode, call: (state: (typeof states)[number]) => unknown) => {
+      for (const state of states) {
+        if (state.error) continue
+        try {
+          await call(state)
+        } catch (caughtError) {
+          state.error = toError(caughtError)
+          state.crashSite = getCrashSite(node)
         }
       }
     }
+    for (const node of schemas) await visit(node, (state) => state.hooks['kubb:plugin:visit:schema']?.(node, state.context))
+    for (const node of operations) await visit(node, (state) => state.hooks['kubb:plugin:visit:operation']?.(node, state.context))
 
     for (const state of states) {
       if (state.error) continue
