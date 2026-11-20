@@ -13,12 +13,7 @@ export type DefaultPluginType = PluginType<string, object, object, Resolver>
 export type GeneratorContext<TOptions extends PluginType = DefaultPluginType> = PluginVisitContext<TOptions> & {
   /** Get a resolver by plugin name, typed via `Kubb.PluginRegistry` when registered. */
   getResolver<TName extends PluginName>(name: TName): ResolverOf<ResolvePluginOptions<TName>['resolver']>
-  /**
-   * The current plugin's resolver: a `setResolver` registration, or the default resolver.
-   *
-   * @example Resolve an output file
-   * `ctx.resolver.file({ name: 'pet', extname: '.ts', root, output })`
-   */
+  /** The current plugin's resolver: a `setResolver` registration, or the default resolver. */
   resolver: TOptions['resolver']
   /** Resolved options after exclude/include/override filtering. */
   options: TOptions['resolvedOptions']
@@ -54,12 +49,7 @@ export type Generator<TOptions extends PluginType = DefaultPluginType, TElement 
   name: string
   /** Renderer factory for generators that return elements, such as `jsxRenderer` from `@kubb/renderer-jsx`. Leave it unset or `null` for generators that return files. */
   renderer?: RendererFactory<TElement> | null
-  /**
-   * Checked before `schema` or `operation` runs for a node. Returning `false` skips that node. It does not gate `operations`.
-   *
-   * @example Only match GET operations
-   * `match: (node) => ast.http.isOperation(node) && node.method.toLowerCase() === 'get'`
-   */
+  /** Checked before `schema` or `operation` runs for a node. Returning `false` skips that node. It does not gate `operations`. */
   match?: (node: SchemaNode | OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<boolean>
   /** Called for each schema node in the AST walk, with the per-node options in `ctx.options`. */
   schema?: (node: SchemaNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | undefined | null>

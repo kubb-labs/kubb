@@ -47,7 +47,7 @@ function inputAdapter() {
   return createMockedAdapter({ parse: async () => ast.factory.createInput({ schemas, operations }) })
 }
 
-test.each([false])('reserves component names only for schema-generating plugins (%s)', async (generatesSchemas) => {
+test.each([false, true])('reserves component names only for schema-generating plugins (%s)', async (generatesSchemas) => {
   const names: Array<string> = []
   const base = new Resolver({ pluginName: 'names', name: (name) => `Api${name}` })
   const plugin: Plugin = {

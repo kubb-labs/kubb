@@ -3,11 +3,7 @@ import type { Config, Group, Output } from '@kubb/core'
 import type { ResolveOptionsContext } from './resolveOptions.ts'
 import type { Resolver } from './Resolver.ts'
 
-/**
- * The built-in resolution machinery exposed on every resolver as `resolver.default`.
- * Plugins delegate to it via `this.default.*` and set their own conventions through
- * the top-level `name` and `file` entries.
- */
+/** The built-in resolution machinery exposed on every resolver as `resolver.default`. */
 export type ResolverDefault = {
   /** Built-in camelCase casing for a generated identifier. */
   name(name: string): string
@@ -23,16 +19,7 @@ export type ResolverPathParams = Omit<ResolverFileParams, 'name' | 'extname'> & 
   baseName: FileNode['baseName']
 }
 
-/**
- * Options for `resolver.default.path`: the name request (`baseName`, `tag`, `path`) plus where the
- * output goes (`root`, `output`, `group`).
- *
- * @example
- * ```ts
- * resolver.default.path({ baseName: 'petTypes.ts', tag: 'pets', root: '/src', output: { path: 'types' }, group: { type: 'tag' } })
- * // → '/src/types/pets/petTypes.ts'
- * ```
- */
+/** Options for `resolver.default.path`: the name request (`baseName`, `tag`, `path`) plus where the output goes (`root`, `output`, `group`). */
 export type ResolvePathOptions = ResolverPathParams & {
   /** Absolute directory the plugin's `output.path` is resolved against. Generators pass `ctx.root`, the config's output directory. */
   root: string
@@ -42,11 +29,7 @@ export type ResolvePathOptions = ResolverPathParams & {
   group?: Group
 }
 
-/**
- * The file request for `resolver.file` and `resolver.default.file`: the `name` and `extname` plus
- * the optional `tag`/`path` that grouping keys off. An operation file always passes `tag` or `path`,
- * since a file without either whose name matches a shared schema moves to `shared.path`.
- */
+/** The file request for `resolver.file` and `resolver.default.file`: the `name` and `extname` plus the optional `tag`/`path` that grouping keys off. */
 export type ResolverFileParams = {
   name: string
   extname: FileNode['extname']
@@ -56,55 +39,25 @@ export type ResolverFileParams = {
   path?: string
 }
 
-/**
- * Options for `resolver.file` and `resolver.default.file`: the file request (`name`, `extname`,
- * `tag`, `path`) plus where the output goes (`root`, `output`, `group`).
- *
- * @example
- * ```ts
- * resolver.default.file({ name: 'listPets', extname: '.ts', tag: 'pets', root: '/src', output: { path: 'types' }, group: { type: 'tag' } })
- * // → { baseName: 'listPets.ts', path: '/src/types/pets/listPets.ts', ... }
- * ```
- */
+/** Options for `resolver.file` and `resolver.default.file`: the file request (`name`, `extname`, `tag`, `path`) plus where the output goes (`root`, `output`, `group`). */
 export type ResolveFileOptions = ResolverFileParams & {
   root: string
   output: Output
   group?: Group
 }
 
-/**
- * Options for `resolver.imports`: the schema tree to scan (`node`) and where the generated
- * files live (`root`, `output`, `group`). Pass `name` to override how a referenced schema
- * name becomes the imported identifier; it defaults to the resolver's top-level `name`.
- *
- * @example
- * ```ts
- * resolver.imports({ node, root, output, group })
- * // → [{ kind: 'Import', name: ['pet'], path: '/src/types/pet.ts' }]
- * ```
- */
+/** Options for `resolver.imports`: the schema tree to scan (`node`) and where the generated files live (`root`, `output`, `group`). */
 export type ResolveImportsOptions = {
   /** Schema tree scanned for `$ref` occurrences. Each ref contributes one import entry. */
   node: SchemaNode
   root: string
   output: Output
   group?: Group
-  /**
-   * Extension of the generated files the imports point at.
-   *
-   * @default '.ts'
-   */
+  /** Extension of the generated files the imports point at. @default '.ts' */
   extname?: FileNode['extname']
-  /**
-   * Overrides how a referenced schema name becomes the imported identifier, for example to
-   * point enum refs at a suffixed type name. Defaults to the resolver's top-level `name`.
-   */
+  /** Overrides how a referenced schema name becomes the imported identifier, for example to point enum refs at a suffixed type name. */
   name?: (schemaName: string) => string
-  /**
-   * Also import the refs inside `conditionals`, `contains` and a string's `content`, for a plugin that prints those checks.
-   *
-   * @default false
-   */
+  /** Also import the refs inside `conditionals`, `contains` and a string's `content`, for a plugin that prints those checks. @default false */
   checks?: boolean
 }
 
@@ -132,36 +85,19 @@ export type ResolveImportsOptions = {
  * ```
  */
 export type ResolverFile = {
-  /**
-   * Builds the file's complete base name, extension included, from the identifier and the target
-   * `extname`. Defaults to `toFilePath(name)` with `extname` appended. Reaches sibling resolver
-   * helpers through `this`.
-   */
+  /** Builds the file's complete base name, extension included, from the identifier and the target `extname`. */
   baseName?(this: Resolver, params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
-  /**
-   * Returns the file's complete path, resolved against the project `root`. Bypasses `output.path`
-   * and `group`, so the resolver owns the layout. The returned path may not escape `root`. Reaches
-   * sibling resolver helpers through `this`.
-   */
+  /** Returns the file's complete path, resolved against the project `root`. It bypasses `output.path` and `group`, and may not escape `root`. */
   path?(this: Resolver, params: ResolverFilePathParams): string
 }
 
-/**
- * The argument to a resolver's `file.path`: the resolved `baseName` (what `file.baseName` produced,
- * with the extension already appended) and the active `output`. `tag`, `path`, and `group` are
- * omitted because `file.path` owns the whole path and bypasses grouping, and `root` because the
- * returned path is resolved against it.
- */
+/** The argument to a resolver's `file.path`: the resolved `baseName` (what `file.baseName` produced, with the extension already appended) and the active `output`. */
 export type ResolverFilePathParams = {
   baseName: FileNode['baseName']
   output: Output
 }
 
-/**
- * Per-file context describing the file a banner/footer is being resolved for, so a
- * `banner`/`footer` function can branch on the file kind (e.g. skip a `'use server'`
- * directive on re-export files).
- */
+/** Per-file context describing the file a banner/footer is being resolved for, so a `banner`/`footer` function can branch on the file kind (e.g. skip a `'use server'` directive on re-export files). */
 export type ResolveBannerFile = {
   /** Full output path of the file being generated. */
   path: string
@@ -173,11 +109,7 @@ export type ResolveBannerFile = {
   isAggregation?: boolean
 }
 
-/**
- * Context passed to `resolver.default.banner` and `resolver.default.footer`.
- * `output` is optional since not every plugin configures a banner/footer, and `config`
- * carries the global Kubb config used to derive the default Kubb banner.
- */
+/** Context passed to `resolver.default.banner` and `resolver.default.footer`. */
 export type ResolveBannerContext = {
   output?: Pick<Output, 'banner' | 'footer'>
   config: Config
@@ -197,21 +129,11 @@ export type ResolverBuildOptions = {
 export type ResolveNameOptions = {
   key: string | ReadonlyArray<string | undefined>
   name: string
-  /**
-   * Compares emitted identifiers while returning raw names. Keep numeric suffixes distinct.
-   * Return several names when one declaration emits more than one identifier, such as an enum's
-   * value and its type alias: the raw name is only taken when all of them are free.
-   */
+  /** Compares emitted identifiers while returning raw names. Return several names when one declaration emits more than one identifier. */
   normalize?: (name: string) => string | ReadonlyArray<string>
 }
 
-/**
- * Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Parameterize with a
- * concrete resolver type (e.g. `ResolverPatch<ResolverTs>`) to type-check overrides and bind
- * `this` to the full resolver. Namespaces are partial, so a patch may override a single method
- * (`query.name`) and the rest keep the plugin defaults. Overriding a whole resolver is not the
- * job of this patch, that is what a custom plugin is for.
- */
+/** Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Namespaces are partial, so a patch can replace one method and keep the rest. */
 export type ResolverPatch<T extends Resolver = Resolver> = {
   [K in keyof Omit<T, keyof Resolver>]?: T[K] extends (...args: Array<never>) => unknown ? T[K] : Partial<T[K]>
 } & {
@@ -223,10 +145,5 @@ export type ResolverPatch<T extends Resolver = Resolver> = {
 /** One resolver or patch, or a list of them merged left to right. */
 export type ResolverInput<T extends Resolver = Resolver> = ResolverPatch<T> | T | ReadonlyArray<ResolverPatch<T> | T>
 
-/**
- * Shared brand for reaching a resolver's build options. `Resolver.merge` reads this instead of
- * relying on `instanceof`, which fails when a CommonJS config and the ESM CLI each load their own
- * copy of `@kubb/kit`. `Symbol.for` resolves to one key across those copies, so the options stay
- * reachable and a `file` override is never dropped.
- */
+/** Brand for a resolver's build options. `Symbol.for` gives one key across copies of `@kubb/kit`, so `Resolver.merge` needs no `instanceof`. */
 export const resolverOptions: unique symbol = Symbol.for('@kubb/core/resolver/options')
