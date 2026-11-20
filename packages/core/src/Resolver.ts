@@ -270,17 +270,17 @@ export type ResolveNameOptions = {
 }
 
 /**
+ * The public shape of a resolver. Core's types name this instead of the class, so `@kubb/kit`'s copy of `Resolver` fits them too.
+ */
+export type ResolverLike = Pick<Resolver, keyof Resolver>
+
+/**
  * Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Parameterize with a
  * concrete resolver type (e.g. `ResolverPatch<ResolverTs>`) to type-check overrides and bind
  * `this` to the full resolver. Namespaces are partial, so a patch may override a single method
  * (`query.name`) and the rest keep the plugin defaults. Overriding a whole resolver is not the
  * job of this patch, that is what a custom plugin is for.
  */
-/**
- * The public shape of a resolver. Core's types name this instead of the class, so `@kubb/kit`'s copy of `Resolver` fits them too.
- */
-export type ResolverLike = Pick<Resolver, keyof Resolver>
-
 export type ResolverPatch<T extends ResolverLike = ResolverLike> = {
   [K in keyof Omit<T, keyof Resolver>]?: T[K] extends (...args: Array<never>) => unknown ? T[K] : Partial<T[K]>
 } & {

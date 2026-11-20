@@ -276,7 +276,7 @@ export class Resolver {
     })
   }
 
-  /** Missing fields default to empty/`false` so the `BannerMeta` shape stays stable even when a caller (e.g. */
+  /** Missing fields default to empty or `false` so the `BannerMeta` shape stays stable, even when a caller such as the barrel plugin has no document metadata. */
   static #buildBannerMeta(meta: InputMeta | undefined, file: ResolveBannerFile | undefined): BannerMeta {
     return {
       title: meta?.title,
