@@ -27,7 +27,7 @@ export type Memo = (<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: 
   has(key: MemoKey): boolean
 }
 
-export function createMemo(store: Map<string, unknown> = new Map()): Memo {
+export function createMemo(store: Map<string, unknown>): Memo {
   return Object.assign((key: string, compute: () => unknown) => storeMemo(store, key, compute), {
     get: (key: string) => store.get(key),
     set: (key: string, value: unknown) => {

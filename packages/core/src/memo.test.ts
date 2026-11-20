@@ -18,7 +18,7 @@ describe('MemoValue', () => {
   })
 
   it('types get and set by the slot', () => {
-    const memo = createMemo()
+    const memo = createMemo(new Map())
 
     expectTypeOf(memo.get('plugin-memo-core:cyclic')).toEqualTypeOf<Set<string> | undefined>()
     // @ts-expect-error wrong value type for the slot

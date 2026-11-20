@@ -30,7 +30,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
       return options?.plugin
     },
     getResolver: (_pluginName: string) => options?.plugin?.resolver,
-    memo: createMemo(),
+    memo: createMemo(new Map()),
     fileManager,
   } as unknown as KubbDriver
 }
@@ -56,7 +56,7 @@ export function createMockedSetupContext<TFactory extends PluginType = PluginTyp
       if (!plugin) throw pluginNotFoundError({ pluginName })
       return plugin
     }) as KubbPluginSetupContext<TFactory>['requirePlugin'],
-    memo: createMemo(),
+    memo: createMemo(new Map()),
     plugin: { name: 'plugin-mock', meta: { name: 'plugin-mock' } },
   }
 }

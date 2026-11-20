@@ -4,7 +4,7 @@ import type { Macro, UserFileNode } from '@kubb/ast'
 import type { Generator } from './defineGenerator.ts'
 import type { KubbPluginSetupContext, NormalizedPlugin, PluginType, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
-import type { Memo } from './memo.ts'
+import type { Memo, MemoKey, MemoValue } from './memo.ts'
 import type { Resolver, ResolverInput } from './Resolver.ts'
 import type { Config } from './types.ts'
 
@@ -107,9 +107,9 @@ export const memo: Memo & typeof storeMemo = Object.assign(
     args.length === 3 ? storeMemo(...args) : (requireContext('memo').memo as (key: string, compute: () => unknown) => unknown)(...args),
   {
     create: storeMemo.create,
-    get: (key: string) => requireContext('memo').memo.get(key),
-    set: (key: string, value: unknown) => requireContext('memo').memo.set(key, value as never),
-    has: (key: string) => requireContext('memo').memo.has(key),
+    get: (key: MemoKey) => requireContext('memo').memo.get(key),
+    set: <TKey extends MemoKey>(key: TKey, value: MemoValue<TKey>) => requireContext('memo').memo.set(key, value),
+    has: (key: MemoKey) => requireContext('memo').memo.has(key),
   },
 ) as Memo & typeof storeMemo
 
