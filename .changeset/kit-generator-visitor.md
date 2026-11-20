@@ -8,3 +8,5 @@
 Plugins defined with kit's `defineExtension` keep their resolver, generators and macros in the build memo. Kit runs them through the plugin visit hooks, with the same output as core's generator path. A plugin defined with core's `defineExtension` keeps the core path.
 
 The generator context gains `ctx.operations` and `ctx.dispatch()`. The driver stores the shared-schema data in memo before setup, typed as `kubb:sharedSchemas` in `Kubb.MemoRegistry`.
+
+In `@kubb/core`, `Resolver`, `createResolver`, `defineResolver`, `toFilePath` and `defineGenerator` are deprecated in favor of the same names from `@kubb/kit`, and so are the `resolver`, `macros` and `generators` fields of `NormalizedPlugin`. A plugin that still runs generators through core's path gets one `KUBB_PLUGIN_WARNING` per build that points to kit's `defineExtension`. Everything keeps working until the next major version.

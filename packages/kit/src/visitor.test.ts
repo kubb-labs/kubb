@@ -82,6 +82,8 @@ describe('generatorVisitor', () => {
     const kit = await build([examplePlugin(defineExtension, kitLog)])
 
     expect(kit.diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toStrictEqual([])
+    expect(kit.diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_PLUGIN_WARNING')).toStrictEqual([])
+    expect(core.diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_PLUGIN_WARNING')).toHaveLength(1)
     expect(kitLog).toStrictEqual(coreLog)
     expect(kit.files).toStrictEqual(core.files)
     expect(kitLog).toStrictEqual(['schema:ApiPet:macro', 'schema:ApiStore:macro', 'schema:ApiUnused:macro', 'operation:getPet', 'operations:getPet,getStore'])

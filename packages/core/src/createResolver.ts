@@ -55,6 +55,8 @@ type ResolverOptions<T extends PluginType> = Omit<T['resolver'], keyof Resolver>
  *   },
  * })
  * ```
+ *
+ * @deprecated Use `createResolver` from `@kubb/kit`. Removed in the next major version.
  */
 export function createResolver<T extends PluginType>(options: ResolverOptions<T>): T['resolver'] {
   return new Resolver(options as unknown as ResolverBuildOptions) as T['resolver']

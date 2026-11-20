@@ -244,6 +244,8 @@ export type Generator<TOptions extends PluginType = PluginType, TElement = unkno
  *   },
  * })
  * ```
+ *
+ * @deprecated Use `defineGenerator` from `@kubb/kit`. Removed in the next major version.
  */
 export function defineGenerator<TOptions extends PluginType = PluginType, TElement = unknown>(
   generator: Generator<TOptions, TElement>,

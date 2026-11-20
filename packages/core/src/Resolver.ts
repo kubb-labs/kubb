@@ -292,6 +292,8 @@ export type ResolverPatch<T extends ResolverLike = ResolverLike> = {
 /**
  * Types a reusable resolver part, such as one namespace or a `file` rule, with `this` as the full resolver.
  * Adds no runtime behavior, like `defineMacro`. Exports follow the `resolver<Name>` convention.
+ *
+ * @deprecated Use `defineResolver` from `@kubb/kit`. Removed in the next major version.
  */
 export function defineResolver<const T extends object>(part: T & ThisType<ResolverLike & T>): T {
   return part
@@ -331,6 +333,8 @@ const createNameNode = (): NameNode => ({ next: new Map() })
  *
  * @example Nested path from a dotted name
  * `toFilePath('pet.petId') // 'pet/petId'`
+ *
+ * @deprecated Use `toFilePath` from `@kubb/kit`. Removed in the next major version.
  */
 export function toFilePath(name: string, caseLast: (part: string) => string = camelCase): string {
   const parts = name.split(/\.(?=[a-zA-Z])/)
@@ -384,6 +388,8 @@ function toBaseName({ name, extname }: Pick<ResolverFileParams, 'name' | 'extnam
  *   }
  * }
  * ```
+ *
+ * @deprecated Use `Resolver` from `@kubb/kit`. Removed in the next major version.
  */
 export class Resolver {
   readonly pluginName: string

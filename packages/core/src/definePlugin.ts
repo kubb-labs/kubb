@@ -500,8 +500,11 @@ export type NormalizedPlugin<TOptions extends PluginType = PluginType> = Plugin<
     exclude: Array<Exclude>
     override: Array<Override<TOptions['resolvedOptions']>>
   }
+  /** @deprecated Read it with `getResolver(name)`. A plugin defined with `defineExtension` from `@kubb/kit` keeps its resolver in memo. Removed in the next major version. */
   resolver: TOptions['resolver']
+  /** @deprecated A plugin defined with `defineExtension` from `@kubb/kit` keeps its macros in memo. Removed in the next major version. */
   macros?: Array<Macro>
+  /** @deprecated A plugin defined with `defineExtension` from `@kubb/kit` keeps its generators in memo. Removed in the next major version. */
   generators?: Array<Generator>
 }
 

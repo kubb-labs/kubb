@@ -809,6 +809,18 @@ describe('KubbDriver visit hooks', () => {
     expect(new Set(seen).size).toBe(1)
   })
 
+  it('warns once for a plugin on the deprecated generator path and not for a visit-hook plugin', async () => {
+    const rec: Recorder = { schema: [], operation: [], operations: [], pairs: [] }
+    const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [makePlugin('legacy', rec), visitPlugin('visitA', [])] }))
+    await driver.setup()
+
+    const { diagnostics } = await driver.run()
+
+    const warnings = diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_PLUGIN_WARNING')
+    expect(warnings).toHaveLength(1)
+    expect(warnings[0]).toMatchObject({ plugin: 'legacy', message: 'Plugin "legacy" runs its generators through core\'s deprecated generator path.' })
+  })
+
   it('reads a resolver from memo before plugin.resolver', async () => {
     const fromMemo = new Resolver({ pluginName: 'visitA' })
     const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [visitPlugin('visitA', [])] }))

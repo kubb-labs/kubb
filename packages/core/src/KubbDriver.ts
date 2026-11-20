@@ -438,6 +438,16 @@ export class KubbDriver {
               continue
             }
 
+            if (plugin.generators?.length) {
+              Diagnostics.report({
+                code: Diagnostics.code.pluginWarning,
+                severity: 'warning',
+                plugin: plugin.name,
+                message: `Plugin "${plugin.name}" runs its generators through core's deprecated generator path.`,
+                help: 'Define the plugin with `defineExtension` from `kubb/kit`. The core path is removed in the next major version.',
+              })
+            }
+
             if ((plugin.generators?.length ?? 0) > 0 || hasVisitHooks(plugin)) {
               generatorPlugins.push({ plugin, context, hrStart })
               continue
