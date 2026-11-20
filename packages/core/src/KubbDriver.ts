@@ -805,7 +805,7 @@ export class KubbDriver {
     this.dispose()
   }
 
-  /** Reads `plugin.resolver`, falling back to a fresh default for a name that is not a registered plugin. */
+  /** Reads memo `<name>:resolver`, then `plugin.resolver`, falling back to a fresh default for a name that is not a registered plugin. */
   getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
   getResolver(pluginName: string): Resolver {
     return (this.memo.get(`${pluginName}:resolver`) as Resolver | undefined) ?? this.plugins.get(pluginName)?.resolver ?? this.#createResolver(pluginName)
