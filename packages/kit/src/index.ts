@@ -19,7 +19,6 @@ export {
   createRenderer,
   createStorage,
   defineParser,
-  definePlugin,
   Diagnostics,
   fsStorage,
   Hookable,
@@ -39,7 +38,7 @@ export { addGenerator, addMacro, setMacros, setResolver } from './composables.ts
 export { defineGenerator } from './defineGenerator.ts'
 export { createResolver } from './resolver/createResolver.ts'
 export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
-export { defineExtension } from './defineExtension.ts'
+export { defineExtension, definePlugin } from './defineExtension.ts'
 export { memo } from './memo.ts'
 export type { ScopedMemo } from './memo.ts'
 export type { Generator, GeneratorContext } from './types.ts'

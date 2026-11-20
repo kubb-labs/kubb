@@ -22,4 +22,4 @@ To migrate a plugin:
 2. Replace `ctx.addGenerator(...)`, `ctx.setResolver(...)`, `ctx.addMacro(...)` and `ctx.setMacros(...)` with the composables `addGenerator(...)`, `setResolver(...)`, `addMacro(...)` and `setMacros(...)`.
 3. Read another plugin's resolver with `ctx.getResolver(name)` in a generator. A generator's `ctx.resolver` and `ctx.options` work as before.
 
-The composables report `KUBB_NO_CONTEXT` for a plugin defined with `defineExtension` from `@kubb/core`. `@kubb/plugin-barrel` now builds the banner and footer of a barrel with kit's default resolver.
+The composables report `KUBB_NO_CONTEXT` for a plugin defined with `defineExtension` or `definePlugin` from `@kubb/core`. `@kubb/kit` exports its own deprecated `definePlugin`, which runs kit's visitor. `@kubb/plugin-barrel` builds a barrel's banner and footer with the plugin's resolver from the build memo.

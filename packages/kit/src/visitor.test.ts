@@ -3,7 +3,7 @@ import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriv
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { addGenerator, addMacro, resolverFor, setResolver, slot } from './composables.ts'
-import { defineExtension } from './defineExtension.ts'
+import { defineExtension, definePlugin } from './defineExtension.ts'
 import { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext } from './types.ts'
 
@@ -103,6 +103,27 @@ describe('generatorVisitor', () => {
 
     expect(driver.memo.get(slot.generators('plugin-example'))).toHaveLength(1)
     expect(resolverFor(driver.memo, 'plugin-example').name('Pet')).toBe('ApiPet')
+  })
+
+  it("runs generators of a plugin defined with kit's definePlugin", async () => {
+    const log: Array<string> = []
+    const plugin = definePlugin({
+      meta: { name: 'plugin-define' },
+      setup(options) {
+        addGenerator({
+          name: 'define',
+          schema(node: SchemaNode) {
+            log.push(node.name ?? '')
+            return []
+          },
+        })
+        return options
+      },
+    })()
+
+    await build([plugin])
+
+    expect(log).toStrictEqual(['Pet', 'Store', 'Unused'])
   })
 
   it('rejects kit composables in a plugin defined with core defineExtension', async () => {

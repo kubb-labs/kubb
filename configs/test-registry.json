@@ -78,7 +78,7 @@
   "packages/core/src/Diagnostics.test.ts": "Diagnostics.from is a branchy cause-chain resolver; the formatted output is what users read in the CLI.",
   "packages/core/src/FileManager.test.ts": "Merge, sort, copy, manifest skip and write pool are branchy; pins the formatter-reflow rebuild bug.",
   "packages/core/src/Hookable.test.ts": "Only test of callHook error wrapping with its cause and of removeAllHooks.",
-  "packages/core/src/KubbDriver.test.ts": "Plugin ordering, generator dispatch, macros, match filtering and crash attribution: the plugin lifecycle golden path.",
+  "packages/core/src/KubbDriver.test.ts": "Plugin ordering, visit-hook walk order and crash attribution: the plugin lifecycle golden path.",
   "packages/core/src/composables.test.ts": "Public composables API for plugin authors; pins context scoping after await and the shared-module-copy bug.",
   "packages/core/src/createKubb.test.ts": "build and generate golden path; pins clean-root guard, formatter mtime and abort regressions.",
   "packages/core/src/createStorage.test.ts": "Storage contract across memory and fs drivers; readKeys and empty-under-base are not tested elsewhere.",

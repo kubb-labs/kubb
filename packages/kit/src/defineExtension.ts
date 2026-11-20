@@ -1,4 +1,4 @@
-import { defineExtension as coreDefineExtension, type PluginDefinition, type PluginVisitHooks } from '@kubb/core'
+import { defineExtension as coreDefineExtension, type PluginDefinition, type PluginFactory, type PluginType, type PluginVisitHooks } from '@kubb/core'
 import { slot } from './composables.ts'
 import { generatorVisitor } from './visitor.ts'
 
@@ -36,3 +36,12 @@ export const defineExtension = ((definition: { kind: string } & Partial<PluginDe
     },
   })
 }) as typeof coreDefineExtension
+
+/**
+ * Defines a plugin through kit's `defineExtension`, so it runs kit's visitor.
+ *
+ * @deprecated Use `defineExtension` with `kind: 'plugin'` instead.
+ */
+export function definePlugin<TFactory extends PluginType = PluginType>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory> {
+  return defineExtension({ kind: 'plugin', ...definition })
+}
