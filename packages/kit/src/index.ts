@@ -14,14 +14,11 @@ export { resolverOperationResponse } from './resolvers/resolverOperationResponse
 export { mergeAdjacentObjectsLazy } from './utils/mergeAdjacentSchemas.ts'
 export { childName, enumPropName } from './utils/names.ts'
 export {
-  addGenerator,
-  addMacro,
   assertPluginOption,
   createAdapter,
   createRenderer,
   createResolver,
   createStorage,
-  defineExtension,
   defineGenerator,
   defineParser,
   definePlugin,
@@ -36,14 +33,15 @@ export {
   memoryStorage,
   requirePlugin,
   Resolver,
-  setMacros,
   setOptions,
-  setResolver,
   tryUseKubb,
   useConfig,
   useKubb,
   useOptions,
 } from '@kubb/core'
+export { addGenerator, addMacro, setMacros, setResolver } from './composables.ts'
+export { defineExtension } from './defineExtension.ts'
+export { generatorVisitor } from './visitor.ts'
 export { memo } from './memo.ts'
 export type { ScopedMemo } from './memo.ts'
 export type {

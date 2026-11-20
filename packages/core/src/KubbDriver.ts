@@ -397,9 +397,9 @@ export class KubbDriver {
           // Parse the adapter source into `this.inputNode`.
           await this.#parseInput()
           // Emit `kubb:plugin:setup` so plugins can register macros via `addMacro`/`setMacros`.
-          await this.setupHooks()
-          // Kit's resolver reads the shared-schema data from memo instead of from the driver.
+          // Kit's resolver reads the shared-schema data from memo, so it has to be there before setup.
           this.memo.set('kubb:sharedSchemas', this.#shared)
+          await this.setupHooks()
 
           // Normalize each plugin's options once setup hooks have run, so the generate loop always
           // sees a filled-in bag whether or not the plugin called `setOptions`.

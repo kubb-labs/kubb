@@ -109,6 +109,7 @@
   "packages/kit/src/macros/macroDiscriminatorEnum.test.ts": "enumName and number-primitive branches are not asserted by adapter-oas parser.test.ts, which only covers readOnly.",
   "packages/kit/src/resolvers/resolvers.test.ts": "Only test of the shared resolver parts: collision suffixes, cased nested file paths, and a patch that replaces one method of a part.",
   "packages/kit/src/text.test.ts": "code literals every generator prints with: quote and line-break escaping, reserved words, key quoting and nested literals.",
+  "packages/kit/src/visitor.test.ts": "Only check that kit's defineExtension and memo-backed composables give the same calls and files as the core generator path, with macros, a resolver patch, match, the operations batch and operation-include pruning.",
   "packages/kit/src/utils/mergeAdjacentSchemas.test.ts": "Merge boundary at a named object; adapter-oas composition.test.ts does not cover merging.",
   "packages/kit/src/utils/names.test.ts": "childName and enumPropName build every nested schema and enum name; the empty-part and no-parent branches have no other test.",
   "packages/kubb/src/defineConfig.test.ts": "Golden path: config defaults for parsers, reporters, barrel plugin and every config shape, plus types.",

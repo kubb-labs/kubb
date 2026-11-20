@@ -77,6 +77,8 @@ The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds the
 | `config`        | `Config`                                                  | The resolved build configuration. Composable: `useConfig()`.                    |
 | `options`       | `TOptions`                                                | The options the user passed. Composable: `useOptions()`.                        |
 
+When you define the plugin with `defineExtension` from `kubb/kit`, the composables `setResolver`, `addGenerator`, `addMacro` and `setMacros` keep the plugin's resolver, generators and macros in the build memo, and kit runs them through the plugin's [visit hooks](/docs/5.x/reference/kit/hooks#visit-hooks). The output is the same as before.
+
 Methods have a composable of the same name, such as `requirePlugin()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
 
 > [!WARNING]
