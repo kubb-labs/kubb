@@ -2,7 +2,7 @@ import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { addGenerator, addMacro, resolverFor, setResolver, slot } from './composables.ts'
+import { addGenerator, addMacro, getResolver, resolverFor, setResolver, slot } from './composables.ts'
 import { defineExtension, definePlugin } from './defineExtension.ts'
 import { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext } from './types.ts'
@@ -103,6 +103,8 @@ describe('generatorVisitor', () => {
 
     expect(driver.memo.get(slot.generators('plugin-example'))).toHaveLength(1)
     expect(resolverFor(driver.memo, 'plugin-example').name('Pet')).toBe('ApiPet')
+    expect(getResolver({ memo: driver.memo }, 'plugin-example').name('Pet')).toBe('ApiPet')
+    expect(getResolver({ memo: driver.memo }, 'plugin-missing').name('Pet')).toBe('pet')
   })
 
   it("runs generators of a plugin defined with kit's definePlugin", async () => {

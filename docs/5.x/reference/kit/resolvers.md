@@ -15,7 +15,7 @@ navigation:
 
 ## `createResolver`
 
-A resolver names every symbol and file your plugin generates, and decides where imports point. Build one with `createResolver`, which requires `pluginName`. Other plugins read it through `ctx.getResolver()`.
+A resolver names every symbol and file your plugin generates, and decides where imports point. Build one with `createResolver`, which requires `pluginName`. Other plugins read it through `ctx.getResolver()` in a generator, or `getResolver({ memo }, name)` from `kubb/kit` in a hook that has the build memo. Without a stored resolver, `getResolver` returns the default one for that plugin.
 
 ```typescript [resolver.ts]
 import { createResolver } from 'kubb/kit'

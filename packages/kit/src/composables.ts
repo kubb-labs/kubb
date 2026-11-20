@@ -15,15 +15,22 @@ export const slot = {
 } as const
 
 /**
- * Returns the resolver kept in memo for `pluginName`, and stores a default one the first time.
+ * Returns the resolver a plugin keeps in memo, or a default resolver for that plugin.
+ *
+ * @example
+ * `getResolver({ memo }, 'plugin-ts').file({ name: 'pet', extname: '.ts', root, output })`
+ */
+export function getResolver(ctx: { memo: Pick<Memo, 'get'> }, pluginName: string): Resolver {
+  const stored = ctx.memo.get(slot.resolver(pluginName)) as Resolver | undefined
+  return stored ?? new Resolver({ pluginName, shared: ctx.memo.get('kubb:sharedSchemas') })
+}
+
+/**
+ * Like `getResolver`, but stores the default resolver, so the walk keeps one resolver per plugin.
  */
 export function resolverFor(memo: Pick<Memo, 'get' | 'set'>, pluginName: string): Resolver {
-  const key = slot.resolver(pluginName)
-  const existing = memo.get(key) as Resolver | undefined
-  if (existing) return existing
-
-  const resolver = new Resolver({ pluginName, shared: memo.get('kubb:sharedSchemas') })
-  memo.set(key, resolver)
+  const resolver = getResolver({ memo }, pluginName)
+  memo.set(slot.resolver(pluginName), resolver)
   return resolver
 }
 
