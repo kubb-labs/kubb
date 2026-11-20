@@ -155,6 +155,56 @@ describe('KubbDriver#setupHooks with composables', () => {
     driver.memo('test:names', compute)
     expect(compute).toHaveBeenCalledTimes(2)
   })
+
+  it('get, set and has read and replace a value in the build memo', async () => {
+    const seen: Array<unknown> = []
+    const plugin: Plugin = {
+      name: 'plugin-memo',
+      hooks: {
+        'kubb:plugin:setup'() {
+          seen.push(memo.get('test:value'), memo.has('test:value'))
+          memo.set('test:value', 'first')
+          memo.set('test:value', 'second')
+          seen.push(
+            memo.get('test:value'),
+            memo.has('test:value'),
+            memo('test:value', () => 'computed'),
+          )
+        },
+      },
+    }
+
+    const driver = new KubbDriver(makeConfig({ plugins: [plugin] }), { hooks: new Hookable<KubbHooks>() })
+    await driver.setup()
+    await driver.setupHooks()
+
+    expect(seen).toEqual([undefined, false, 'second', true, 'second'])
+
+    driver.dispose()
+    expect(driver.memo.has('test:value')).toBe(false)
+  })
+})
+
+describe('useKubb().plugin', () => {
+  it('names the plugin being set up, also after an await in setup', async () => {
+    const names: Array<string> = []
+    const makePlugin = (name: string): Plugin => ({
+      name,
+      hooks: {},
+      async setup(options) {
+        names.push(useKubb().plugin.name)
+        await delay(1)
+        names.push(useKubb().plugin.name)
+        return options
+      },
+    })
+
+    const driver = new KubbDriver(makeConfig({ plugins: [makePlugin('plugin-a'), makePlugin('plugin-b')] }), { hooks: new Hookable<KubbHooks>() })
+    await driver.setup()
+    await driver.setupHooks()
+
+    expect(names).toEqual(['plugin-a', 'plugin-a', 'plugin-b', 'plugin-b'])
+  })
 })
 
 describe('kubbContext', () => {

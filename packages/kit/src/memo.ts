@@ -26,5 +26,5 @@ function scope<TName extends string>(ctx: { memo: Memo }, name: TName): ScopedMe
  */
 export const memo: typeof coreMemo & { scope: typeof scope } = Object.assign(
   (...args: Parameters<typeof coreMemo>) => (coreMemo as (...args: Array<unknown>) => unknown)(...args),
-  { create: coreMemo.create, scope },
+  { create: coreMemo.create, get: coreMemo.get, set: coreMemo.set, has: coreMemo.has, scope },
 ) as typeof coreMemo & { scope: typeof scope }

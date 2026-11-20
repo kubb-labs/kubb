@@ -72,7 +72,8 @@ The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds the
 | `setOptions`    | `(options: ResolvedOptions) => void`                      | Sets the resolved options. In `setup`, return them instead.                     |
 | `injectFile`    | `(file: UserFileNode) => void`                            | Adds a file outside generation. Set `copy` to an absolute path to copy a template. |
 | `requirePlugin` | `(name: string) => Plugin`                                | Returns another plugin, or fails with `KUBB_PLUGIN_NOT_FOUND`.                  |
-| `memo`          | `(key: string, compute: () => T) => T`                    | Computes a value once per build, shared by every plugin.                        |
+| `memo`          | `(key: string, compute: () => T) => T`                    | Computes a value once per build, shared by every plugin. `memo.get(key)`, `memo.set(key, value)` and `memo.has(key)` read and replace a value directly. |
+| `plugin`        | `{ name: string, meta: ExtensionMeta }`                   | The name and meta of the plugin being set up. |
 | `config`        | `Config`                                                  | The resolved build configuration. Composable: `useConfig()`.                    |
 | `options`       | `TOptions`                                                | The options the user passed. Composable: `useOptions()`.                        |
 
