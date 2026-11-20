@@ -847,6 +847,10 @@ export class KubbDriver {
       get schemas(): ReadonlyArray<SchemaNode> {
         return driver.inputNode?.schemas ?? []
       },
+      get operations(): ReadonlyArray<OperationNode> {
+        return driver.inputNode?.operations ?? []
+      },
+      dispatch: (options) => driver.fileManager.dispatch(options),
       get adapter(): Adapter {
         // Generators only read `adapter` during AST hooks, which run after the
         // adapter is set, so it is guaranteed defined at read time.

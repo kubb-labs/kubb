@@ -43,7 +43,7 @@ export function setResolver<TResolver extends Resolver = Resolver>(resolver: Res
   if (!ctx) return useKubb().setResolver(resolver as ResolverInput)
 
   const { name } = ctx.plugin
-  const shared = ctx.memo.get('kubb:sharedSchemas') as { path: string; schemas: Array<string> } | undefined
+  const shared = ctx.memo.get('kubb:sharedSchemas')
   const parts = (Array.isArray(resolver) ? resolver : [resolver]) as Array<Resolver>
   ctx.memo.set(slot.resolver(name), Resolver.merge(new Resolver({ pluginName: name, shared }), ...parts))
 }

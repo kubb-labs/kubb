@@ -376,6 +376,10 @@ declare global {
     interface MemoRegistry {
       name: string
       resolveName: string
+      /**
+       * The absolute `shared.path` and the shared schemas this build defines, set by the driver before setup.
+       */
+      'kubb:sharedSchemas': { path: string; schemas: Array<string>; written: Map<string, string> } | undefined
     }
 
     /**

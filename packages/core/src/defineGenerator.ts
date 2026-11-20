@@ -10,6 +10,7 @@ import type { Plugin, PluginType, PluginName, ResolvePluginOptions } from './def
 import type { Memo } from './memo.ts'
 import type { Config } from './types.ts'
 import type { Hookable } from './Hookable.ts'
+import type { FileManager } from './FileManager.ts'
 
 /**
  * Context passed to a generator's `schema`, `operation`, and `operations` methods.
@@ -109,6 +110,13 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
   meta: InputMeta
   /** Every schema in the spec, in the order the adapter returns them. Empty before the adapter parses the input. */
   schemas: ReadonlyArray<SchemaNode>
+  /** Every operation in the spec, in the order the adapter returns them. Empty before the adapter parses the input. */
+  operations: ReadonlyArray<OperationNode>
+  /**
+   * Adds a generator result to the build: files as they are, or elements through `renderer`. A
+   * `pointer` is set on each source that carries none.
+   */
+  dispatch: FileManager['dispatch']
   /**
    * Resolved options after exclude/include/override filtering.
    */

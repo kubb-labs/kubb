@@ -47,8 +47,7 @@ async function dispatch(
   for (const generator of generators) {
     const matches = generator.match ? await generator.match(node, ctx) : true
     if (!matches) continue
-    // shortcut: renderer output needs the driver's file manager, until core offers a dispatch primitive on ctx.
-    await ctx.driver.fileManager.dispatch({ result: await generate(generator), renderer: generator.renderer, pointer: node.pointer })
+    await ctx.dispatch({ result: await generate(generator), renderer: generator.renderer, pointer: node.pointer })
   }
 }
 
@@ -80,7 +79,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       const { include } = pluginOptions(ctx)
       let allowed: Set<string> | null = null
       if (include?.some(({ type }) => OPERATION_FILTER_TYPES.has(type)) && !include.some(({ type }) => type === 'schemaName')) {
-        const operations = (ctx.driver.inputNode?.operations ?? []).filter((operation) => resolveNode(ctx, [], operation) !== null)
+        const operations = ctx.operations.filter((operation) => resolveNode(ctx, [], operation) !== null)
         allowed = ast.graph.getUsedNames(operations, ctx.schemas)
       }
 
@@ -131,7 +130,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
 
       const generatorContext = { ...ctx, options: pluginOptions(ctx) }
       for (const generator of state.operationsGenerators) {
-        await ctx.driver.fileManager.dispatch({ result: await generator.operations!(state.operations, generatorContext), renderer: generator.renderer })
+        await ctx.dispatch({ result: await generator.operations!(state.operations, generatorContext), renderer: generator.renderer })
       }
       await ctx.hooks.callHook('kubb:generate:operations', state.operations, generatorContext)
     },
