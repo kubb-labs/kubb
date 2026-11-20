@@ -50,7 +50,7 @@ export function tryUseKubb<TFactory extends PluginType = PluginType>(): KubbPlug
 }
 
 /**
- * Registers generators on the plugin being set up, like `ctx.addGenerator`.
+ * Registers generators on the plugin being set up.
  *
  * @example
  * `addGenerator(typeGenerator, enumGenerator)`
@@ -60,21 +60,21 @@ export function addGenerator<TFactory extends PluginType = PluginType, TElement 
 }
 
 /**
- * Sets the resolver of the plugin being set up, like `ctx.setResolver`.
+ * Sets the resolver of the plugin being set up.
  */
 export function setResolver<TResolver extends Resolver = Resolver>(resolver: ResolverInput<TResolver>): void {
   requireContext('setResolver').setResolver(resolver)
 }
 
 /**
- * Adds a macro to the plugin being set up, like `ctx.addMacro`.
+ * Adds a macro to the plugin being set up. Macros run in the order they are added.
  */
 export function addMacro(macro: Macro): void {
   requireContext('addMacro').addMacro(macro)
 }
 
 /**
- * Replaces the macros of the plugin being set up, like `ctx.setMacros`.
+ * Replaces the macros of the plugin being set up.
  */
 export function setMacros(macros: ReadonlyArray<Macro>): void {
   requireContext('setMacros').setMacros(macros)

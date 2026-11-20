@@ -358,6 +358,8 @@ export type KubbPluginSetupContext<TFactory extends PluginType = PluginType> = {
    * ctx.addGenerator(schemaGenerator, operationGenerator)
    * ctx.addGenerator(...selectedGenerators)
    * ```
+   *
+   * @deprecated Call `addGenerator` from `@kubb/kit` instead.
    */
   addGenerator<TElement = unknown>(...generators: Array<Generator<TFactory, TElement>>): void
   /**
@@ -365,15 +367,21 @@ export type KubbPluginSetupContext<TFactory extends PluginType = PluginType> = {
    * The resolver controls file naming and path resolution. Overrides merge over the built-in
    * defaults, so a partial `core` or a single namespace method replaces only what it names.
    * Pass an array to merge several parts in order; a later part wins per method.
+   *
+   * @deprecated Call `setResolver` from `@kubb/kit` instead.
    */
   setResolver(resolver: ResolverInput<TFactory['resolver']>): void
   /**
    * Add a macro that rewrites AST nodes before they reach generators. Macros run in the order they
    * are added, after any macros from earlier `addMacro` calls.
+   *
+   * @deprecated Call `addMacro` from `@kubb/kit` instead.
    */
   addMacro(macro: Macro): void
   /**
    * Replace this plugin's macros with `macros`.
+   *
+   * @deprecated Call `setMacros` from `@kubb/kit` instead.
    */
   setMacros(macros: ReadonlyArray<Macro>): void
   /**
