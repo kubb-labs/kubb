@@ -1,7 +1,8 @@
 import type { Macro } from '@kubb/ast'
-import { type KubbPluginSetupContext, type PluginType, type ResolverLike, useKubb } from '@kubb/core'
+import { Diagnostics, type KubbPluginSetupContext, type Memo, type PluginType, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
-import type { Generator, ResolverInput } from './types.ts'
+import type { ResolverInput, ResolverLike } from './resolver/types.ts'
+import type { Generator } from './types.ts'
 
 /**
  * Memo slots kit keeps per plugin, under `<plugin>:<slot>`.
@@ -14,12 +15,30 @@ export const slot = {
 } as const
 
 /**
- * Returns the setup context when the plugin was defined with kit's `defineExtension`, so its
- * concepts live in memo. Any other plugin keeps the core path.
+ * Returns the resolver kept in memo for `pluginName`, and stores a default one the first time.
  */
-function kitContext(): KubbPluginSetupContext | undefined {
+export function resolverFor(memo: Pick<Memo, 'get' | 'set'>, pluginName: string): ResolverLike {
+  const key = slot.resolver(pluginName)
+  const existing = memo.get(key) as ResolverLike | undefined
+  if (existing) return existing
+
+  const resolver = new Resolver({ pluginName, shared: memo.get('kubb:sharedSchemas') })
+  memo.set(key, resolver)
+  return resolver
+}
+
+// Returns the setup context of a plugin defined with kit's `defineExtension`, the only kind that runs kit's visitor.
+function kitContext(caller: string): KubbPluginSetupContext {
   const ctx = useKubb()
-  return ctx.memo.get(slot.kit(ctx.plugin.name)) ? ctx : undefined
+  if (ctx.memo.get(slot.kit(ctx.plugin.name))) return ctx
+
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.noContext,
+    severity: 'error',
+    plugin: ctx.plugin.name,
+    message: `\`${caller}()\` was called for plugin "${ctx.plugin.name}", which is not defined with \`defineExtension\` from \`@kubb/kit\`.`,
+    help: 'Import `defineExtension` from `@kubb/kit` instead of `@kubb/core`.',
+  })
 }
 
 /**
@@ -29,9 +48,7 @@ function kitContext(): KubbPluginSetupContext | undefined {
  * `addGenerator(typeGenerator, enumGenerator)`
  */
 export function addGenerator<TFactory extends PluginType = PluginType, TElement = unknown>(...generators: Array<Generator<TFactory, TElement>>): void {
-  const ctx = kitContext()
-  if (!ctx) return useKubb<TFactory>().addGenerator(...generators)
-
+  const ctx = kitContext('addGenerator')
   const key = slot.generators(ctx.plugin.name)
   ctx.memo.set(key, [...((ctx.memo.get(key) as Array<Generator> | undefined) ?? []), ...(generators as Array<Generator>)])
 }
@@ -41,9 +58,7 @@ export function addGenerator<TFactory extends PluginType = PluginType, TElement 
  * partial patch replaces only the methods it names.
  */
 export function setResolver<TResolver extends ResolverLike = ResolverLike>(resolver: ResolverInput<TResolver>): void {
-  const ctx = kitContext()
-  if (!ctx) return useKubb().setResolver(resolver as ResolverInput)
-
+  const ctx = kitContext('setResolver')
   const { name } = ctx.plugin
   const shared = ctx.memo.get('kubb:sharedSchemas')
   const parts = (Array.isArray(resolver) ? resolver : [resolver]) as Array<ResolverLike>
@@ -55,9 +70,7 @@ export function setResolver<TResolver extends ResolverLike = ResolverLike>(resol
  * are added. `enforce: 'pre'` macros run first and `enforce: 'post'` macros run last.
  */
 export function addMacro(macro: Macro): void {
-  const ctx = kitContext()
-  if (!ctx) return useKubb().addMacro(macro)
-
+  const ctx = kitContext('addMacro')
   const key = slot.macros(ctx.plugin.name)
   ctx.memo.set(key, [...((ctx.memo.get(key) as Array<Macro> | undefined) ?? []), macro])
 }
@@ -66,8 +79,6 @@ export function addMacro(macro: Macro): void {
  * Replaces the macros of the plugin being set up.
  */
 export function setMacros(macros: ReadonlyArray<Macro>): void {
-  const ctx = kitContext()
-  if (!ctx) return useKubb().setMacros(macros)
-
+  const ctx = kitContext('setMacros')
   ctx.memo.set(slot.macros(ctx.plugin.name), [...macros])
 }

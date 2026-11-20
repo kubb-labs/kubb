@@ -1,19 +1,5 @@
 export { createAdapter } from './createAdapter.ts'
-export {
-  addGenerator,
-  addMacro,
-  injectFile,
-  kubbContext,
-  memo,
-  requirePlugin,
-  setMacros,
-  setOptions,
-  setResolver,
-  tryUseKubb,
-  useConfig,
-  useKubb,
-  useOptions,
-} from './composables.ts'
+export { injectFile, kubbContext, memo, requirePlugin, setOptions, tryUseKubb, useConfig, useKubb, useOptions } from './composables.ts'
 export { Diagnostics } from './Diagnostics.ts'
 export type { DiagnosticFormatOptions, SerializedDiagnostic } from './formatDiagnostic.ts'
 export { camelCase, pascalCase } from '@internals/utils'
@@ -25,11 +11,8 @@ export { jsonReporter } from './reporters/jsonReporter.ts'
 export { htmlReporter } from './reporters/htmlReporter.ts'
 export { createRenderer } from './createRenderer.ts'
 export { createStorage } from './createStorage.ts'
-export { defineGenerator } from './defineGenerator.ts'
 export { defineParser } from './defineParser.ts'
 export { assertPluginOption, definePlugin } from './definePlugin.ts'
-export { createResolver } from './createResolver.ts'
-export { defineResolver, Resolver, resolverOptions, toFilePath } from './Resolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
 export { checkoutGitInput } from './gitInput.ts'
 export { isPublicAddress } from './publicAddress.ts'
@@ -61,7 +44,6 @@ export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserRep
 export type { SummaryRenderer } from './reporters/summary.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 export type { Storage } from './createStorage.ts'
-export type { Generator, GeneratorContext } from './defineGenerator.ts'
 export type { InputKind } from './input.ts'
 export type {
   ExtensionDependencies,
@@ -109,24 +91,6 @@ export type {
   PluginVisitHooks,
   ResolvedPluginOptions,
   ResolvePluginOptions,
-} from './definePlugin.ts'
-export type {
   BannerMeta,
-  ResolveBannerContext,
-  ResolveBannerFile,
-  ResolveFileOptions,
-  ResolveImportsOptions,
-  ResolveNameOptions,
-  ResolveOptionsContext,
-  ResolvePathOptions,
-  ResolverBuildOptions,
-  ResolverDefault,
-  ResolverFile,
-  ResolverFileParams,
-  ResolverFilePathParams,
-  ResolverInput,
-  ResolverLike,
-  ResolverPatch,
-  ResolverPathParams,
-} from './Resolver.ts'
+} from './definePlugin.ts'
 export * from './types.ts'

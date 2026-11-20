@@ -1,6 +1,7 @@
 import { ast } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { addGenerator, defineExtension, type Output, type Plugin } from '@kubb/core'
+import type { Output, Plugin } from '@kubb/core'
+import { addGenerator, defineExtension } from '@kubb/kit'
 
 /**
  * A plugin that writes `<prefix>_<schema>` per schema into a file per schema, and, with
@@ -16,7 +17,7 @@ export function createSchemaPlugin(prefix: string, importFrom?: string): Plugin 
         ctx.setOptions({ output: (ctx.options as { output?: { path: string } }).output ?? { path: prefix } })
         addGenerator({
           name: `${prefix}-generator`,
-          schema(node, { resolver, root, options, driver }) {
+          schema(node, { resolver, root, options, driver, getResolver }) {
             const file = resolver.file({ name: node.name ?? 'unknown', extname: '.ts', root, output: (options as { output: Output }).output })
             const source = importFrom
               ? `export const ${prefix}_${node.name}: ${importFrom}_${node.name} = { id: 1 }`
@@ -32,7 +33,8 @@ export function createSchemaPlugin(prefix: string, importFrom?: string): Plugin 
                   ? [
                       ast.factory.createImport({
                         name: [`${importFrom}_${node.name}`],
-                        path: imported.resolver.file({ name: node.name ?? 'unknown', extname: '.ts', root, output: imported.options.output }).path,
+                        path: getResolver(`plugin-${importFrom}`).file({ name: node.name ?? 'unknown', extname: '.ts', root, output: imported.options.output })
+                          .path,
                         root: file.path,
                         isTypeOnly: true,
                       }),

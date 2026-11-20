@@ -37,7 +37,6 @@ function makePlugin({
     hooks: {
       'kubb:plugin:setup'(ctx) {
         ctx.setOptions({ output: { path: outputPath, ...output } })
-        ctx.setResolver({})
         ctx.injectFile(makeFile(filePath, exportName, meta))
       },
     },

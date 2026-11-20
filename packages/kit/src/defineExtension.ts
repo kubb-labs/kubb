@@ -1,5 +1,5 @@
 import { defineExtension as coreDefineExtension, type PluginDefinition, type PluginVisitHooks } from '@kubb/core'
-import { addGenerator, addMacro, setMacros, setResolver, slot } from './composables.ts'
+import { slot } from './composables.ts'
 import { generatorVisitor } from './visitor.ts'
 
 type AnyHook = (...args: Array<never>) => unknown
@@ -32,8 +32,6 @@ export const defineExtension = ((definition: { kind: string } & Partial<PluginDe
     hooks,
     setup(options: object, kubb: Parameters<NonNullable<PluginDefinition['setup']>>[1]) {
       kubb.memo.set(slot.kit(kubb.plugin.name), true)
-      // `kubb:plugin:setup` gets this same context, so its registrations land in memo too.
-      Object.assign(kubb, { addGenerator, setResolver, addMacro, setMacros })
       return definition.setup ? definition.setup(options, kubb) : options
     },
   })

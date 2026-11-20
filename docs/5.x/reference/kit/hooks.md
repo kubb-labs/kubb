@@ -137,7 +137,7 @@ A plugin's `hooks` map can also hold four visit hooks. Kubb calls them for that 
 | `kubb:plugin:visit:operation` | `(node, ctx)` | For each operation node.                             |
 | `kubb:plugin:visit:end`       | `(ctx)`       | Once, after the last operation.                      |
 
-`ctx` is the generator context without per-node `options`. Its `resolver` is fixed when the walk starts, the same one the plugin's generators get, so a resolver a hook stores in memo during the walk does not change it. Each node reaches every plugin in plugin order before the walk moves on. When a visit hook throws, Kubb stops that plugin, reports `KUBB_PLUGIN_FAILED` with the node it failed on, and runs the other plugins to the end.
+`ctx` is the generator context without `resolver`, `getResolver` and per-node `options`, which only generators get. A plugin defined with `defineExtension` from `kubb/kit` runs its generators before its own visit hooks, with a resolver fixed when the walk starts. Each node reaches every plugin in plugin order before the walk moves on. When a visit hook throws, Kubb stops that plugin, reports `KUBB_PLUGIN_FAILED` with the node it failed on, and runs the other plugins to the end.
 
 ### File hook payloads {#file-hook-payloads}
 

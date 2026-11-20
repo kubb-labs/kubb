@@ -1,15 +1,8 @@
 import path from 'node:path'
 import { camelCase, memo } from '@internals/utils'
 import { ast, type FileNode, type ImportNode, type InputMeta } from '@kubb/ast'
+import { type BannerMeta, type Config, Diagnostics, getInputKind, type Group, type MemoKey, type MemoValue, type Output } from '@kubb/core'
 import {
-  type BannerMeta,
-  type Config,
-  Diagnostics,
-  getInputKind,
-  type Group,
-  type MemoKey,
-  type MemoValue,
-  type Output,
   type ResolveBannerContext,
   type ResolveBannerFile,
   type ResolveFileOptions,
@@ -23,7 +16,7 @@ import {
   type ResolverLike,
   type ResolverPatch,
   resolverOptions,
-} from '@kubb/core'
+} from './types.ts'
 import { resolveOptions } from './resolveOptions.ts'
 
 /** Types a reusable resolver part, such as one namespace or a `file` rule, with `this` as the full resolver. */

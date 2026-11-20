@@ -124,6 +124,7 @@
     "@farmfe/core": "^2.0.0",
     "@internals/shared": "workspace:*",
     "@kubb/ast": "workspace:*",
+    "@kubb/kit": "workspace:*",
     "@nuxt/kit": "^4.6.4",
     "@nuxt/schema": "^4.6.4",
     "@rspack/core": "^2.3.2",

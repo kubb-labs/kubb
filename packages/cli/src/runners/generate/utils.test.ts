@@ -4,7 +4,7 @@ import { EventEmitter } from 'node:events'
 import { join, relative } from 'node:path'
 import { stripVTControlCharacters } from 'node:util'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
-import { type GeneratorContext, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
+import { Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { diffBuilds, diffFile, diffOutput, fingerprintFile, listenForKeys, readOutputFiles, readOutputFingerprints, startWatcher, trackBuild } from './utils.ts'
 
@@ -51,7 +51,7 @@ describe('startWatcher', () => {
 })
 
 describe('trackBuild and diffBuilds', () => {
-  const ctx = {} as GeneratorContext
+  const ctx = {} as KubbHooks['kubb:generate:schema'][1]
 
   async function build(hooks: Hookable<KubbHooks>, { schemas, operations }: { schemas: Array<string>; operations: Array<string> }) {
     for (const name of schemas) await hooks.callHook('kubb:generate:schema', { name } as SchemaNode, ctx)
