@@ -1,5 +1,5 @@
 import type { Macro } from '@kubb/ast'
-import { type KubbPluginSetupContext, type PluginType, type ResolverLike, useKubb } from '@kubb/core'
+import { type KubbPluginSetupContext, type Memo, type PluginType, type ResolverLike, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
 import type { Generator, ResolverInput } from './types.ts'
 
@@ -12,6 +12,17 @@ export const slot = {
   resolver: (name: string) => `${name}:resolver`,
   macros: (name: string) => `${name}:macros`,
 } as const
+
+/**
+ * Returns the resolver a plugin keeps in memo, or a default resolver for that plugin.
+ *
+ * @example
+ * `getResolver({ memo }, 'plugin-ts').file({ name: 'pet', extname: '.ts', root, output })`
+ */
+export function getResolver(ctx: { memo: Pick<Memo, 'get'> }, pluginName: string): ResolverLike {
+  const stored = ctx.memo.get(slot.resolver(pluginName)) as ResolverLike | undefined
+  return stored ?? new Resolver({ pluginName, shared: ctx.memo.get('kubb:sharedSchemas') })
+}
 
 /**
  * Returns the setup context when the plugin was defined with kit's `defineExtension`, so its

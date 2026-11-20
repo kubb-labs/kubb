@@ -2,7 +2,7 @@ import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { addGenerator, addMacro, setResolver } from './composables.ts'
+import { addGenerator, addMacro, getResolver, setResolver } from './composables.ts'
 import { defineExtension } from './defineExtension.ts'
 import { createResolver } from './resolver/createResolver.ts'
 import { Resolver } from './resolver/Resolver.ts'
@@ -113,6 +113,8 @@ describe('generatorVisitor', () => {
 
     expect(driver.plugins.get('plugin-example')?.generators).toBeUndefined()
     expect(driver.getResolver('plugin-example').name('Pet')).toBe('ApiPet')
+    expect(getResolver({ memo: driver.memo }, 'plugin-example').name('Pet')).toBe('ApiPet')
+    expect(getResolver({ memo: driver.memo }, 'plugin-missing').name('Pet')).toBe('pet')
   })
 
   it("accepts a resolver from kit's createResolver on the core path", async () => {
