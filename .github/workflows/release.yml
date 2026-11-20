@@ -71,6 +71,8 @@ jobs:
           canary_version="0.0.0-canary-$(date -u +%Y%m%d%H%M%S)"
           echo "Canary version: ${canary_version}"
           pnpm -r exec pnpm version "${canary_version}" --no-git-tag-version --allow-same-version --no-git-checks
+          # Kit's core peer has a fixed stable floor that a canary core cannot meet, so pair canaries exactly.
+          (cd packages/kit && npm pkg set 'peerDependencies.@kubb/core=workspace:*')
           pnpm run build
           pnpm exec changeset publish --tag canary
 
