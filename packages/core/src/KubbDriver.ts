@@ -407,6 +407,8 @@ export class KubbDriver {
             this.options.signal?.throwIfAborted()
             plugin.options = normalizePluginOptions(plugin.options, plugin.name)
             plugin.resolver.setTags(this.inputNode?.meta.tags)
+            // A kit plugin keeps its resolver in memo, which `getResolver` returns first.
+            this.getResolver(plugin.name).setTags(this.inputNode?.meta.tags)
           }
 
           if (this.adapter && this.inputNode) {

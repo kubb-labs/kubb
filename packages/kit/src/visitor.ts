@@ -71,7 +71,6 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
         operations: [],
       }
       ctx.memo.set(stateKey(name), state)
-      ctx.resolver.setTags(ctx.meta.tags)
 
       if (!state.schemaGenerators.length) return
 

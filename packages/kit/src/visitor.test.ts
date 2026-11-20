@@ -10,32 +10,46 @@ import {
   type Plugin,
 } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { addGenerator, addMacro, setResolver } from './composables.ts'
 import { defineExtension } from './defineExtension.ts'
 import { createResolver } from './resolver/createResolver.ts'
+import { Resolver } from './resolver/Resolver.ts'
 
-function adapter() {
+const ref = (name: string) => ast.factory.createSchema({ type: 'ref', name, ref: `#/components/schemas/${name}` })
+
+function adapter(meta?: { tags: Array<{ name: string; parent: string }> }) {
   const schemas: Array<SchemaNode> = [
-    ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [], pointer: '#/components/schemas/Pet' }),
+    ast.factory.createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [ast.factory.createProperty({ name: 'store', required: false, schema: ref('Store') })],
+      pointer: '#/components/schemas/Pet',
+    }),
     ast.factory.createSchema({ type: 'object', name: 'Store', properties: [], pointer: '#/components/schemas/Store' }),
     ast.factory.createSchema({ type: 'object', name: 'Unused', properties: [], pointer: '#/components/schemas/Unused' }),
   ]
   const operations: Array<OperationNode> = [
-    ast.factory.createOperation({ operationId: 'getPet', method: 'GET', path: '/pet', tags: ['pet'] }),
+    ast.factory.createOperation({
+      operationId: 'getPet',
+      method: 'GET',
+      path: '/pet',
+      tags: ['pet'],
+      parameters: [ast.factory.createParameter({ name: 'pet', in: 'query', required: false, schema: ref('Pet') })],
+    }),
     ast.factory.createOperation({ operationId: 'getStore', method: 'GET', path: '/store', tags: ['store'] }),
   ]
-  return createMockedAdapter({ parse: async () => ast.factory.createInput({ schemas, operations }) })
+  return createMockedAdapter({ parse: async () => ast.factory.createInput({ schemas, operations, meta: meta ?? {} }) })
 }
 
-async function build(plugins: Array<Plugin>) {
+async function build(plugins: Array<Plugin>, meta?: Parameters<typeof adapter>[0]) {
   const config: Config = {
     root: '.',
     input: './petStore.yaml',
     output: { path: './gen' },
     parsers: [],
     reporters: [],
-    adapter: adapter(),
+    adapter: adapter(meta),
     plugins,
     storage: memoryStorage(),
   }
@@ -99,7 +113,7 @@ describe('generatorVisitor', () => {
 
     expect(kitLog).toStrictEqual(coreLog)
     expect(kit.files).toStrictEqual(core.files)
-    expect(kitLog).toStrictEqual(['operation:getPet', 'operations:getPet'])
+    expect(kitLog).toStrictEqual(['schema:ApiPet:macro', 'schema:ApiStore:macro', 'operation:getPet', 'operations:getPet'])
   })
 
   it('keeps generators and the resolver in memo on the kit path', async () => {
@@ -149,5 +163,50 @@ describe('generatorVisitor', () => {
     await build([plugin])
 
     expect(log.slice(0, 2)).toStrictEqual(['generator:Pet', 'hook:Pet'])
+  })
+
+  it('routes setup-context registrations to memo on the kit path', async () => {
+    const log: Array<string> = []
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-ctx' },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addMacro({ name: 'suffix', schema: (node: SchemaNode) => ({ ...node, description: 'macro' }) })
+          ctx.addGenerator({
+            name: 'ctx',
+            schema(node: SchemaNode) {
+              log.push(`${node.name}:${node.description}`)
+              return []
+            },
+          })
+        },
+      },
+    })()
+
+    const { driver, diagnostics } = await build([plugin])
+
+    expect(driver.plugins.get('plugin-ctx')?.generators).toBeUndefined()
+    expect(diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_PLUGIN_WARNING')).toStrictEqual([])
+    expect(log).toStrictEqual(['Pet:macro', 'Store:macro', 'Unused:macro'])
+  })
+
+  it('tags the memo resolver of a plugin without generators', async () => {
+    const setTags = vi.spyOn(Resolver.prototype, 'setTags')
+    const tags = [{ name: 'pet', parent: 'animals' }]
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-tags' },
+      setup(options) {
+        setResolver({ name: (name: string) => name })
+        return options
+      },
+    })()
+
+    const { driver } = await build([plugin], { tags })
+
+    expect(setTags.mock.contexts).toContain(driver.getResolver('plugin-tags'))
+    expect(setTags).toHaveBeenCalledWith(tags)
+    setTags.mockRestore()
   })
 })
