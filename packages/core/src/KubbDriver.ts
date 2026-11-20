@@ -400,8 +400,6 @@ export class KubbDriver {
           // Kit's resolver reads the shared-schema data from memo, so it has to be there before setup.
           this.memo.set('kubb:sharedSchemas', this.#shared)
           await this.setupHooks()
-          // Kit's resolver reads the shared-schema data from memo instead of from the driver.
-          this.memo.set('kubb:sharedSchemas', this.#shared)
 
           // Normalize each plugin's options once setup hooks have run, so the generate loop always
           // sees a filled-in bag whether or not the plugin called `setOptions`.
