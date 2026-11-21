@@ -1,4 +1,4 @@
-import { toError } from '@internals/utils'
+import { memo, toError } from '@internals/utils'
 import { ast, type Macro, type OperationNode, type SchemaNode } from '@kubb/ast'
 import type { NormalizedPlugin, PluginVisitContext, PluginVisitHooks } from '@kubb/core'
 import { resolverFor, slot } from './composables.ts'
@@ -50,15 +50,12 @@ function resolveNode<TNode extends SchemaNode | OperationNode>(
   return resolved === null ? null : { transformedNode, options: resolved }
 }
 
-// Adds the plugin's printer to a generator context.
 function withPrinter(state: VisitState, ctx: Omit<GeneratorContext, 'printer'>): GeneratorContext {
   const generatorContext: GeneratorContext = { ...ctx, printer: undefined }
   const { printerFactory, printers } = state
   if (!printerFactory) return generatorContext
 
-  const key = ctx.options as object
-  if (!printers.has(key)) printers.set(key, printerFactory(generatorContext))
-  generatorContext.printer = printers.get(key)
+  generatorContext.printer = memo(printers, ctx.options as object, () => printerFactory(generatorContext))
   return generatorContext
 }
 
