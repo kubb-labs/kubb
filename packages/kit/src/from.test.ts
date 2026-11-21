@@ -130,15 +130,15 @@ describe('from', () => {
     expect(types.import(adminOperation, 'UsersHeaders').import).toBeNull()
   })
 
-  it("follows the file name and suffix the target's resolver writes with", () => {
+  it("follows the target's file name, without the Operation suffix when it has no schema generator", () => {
     const hooks = new Resolver({
       pluginName: 'plugin-hooks',
       file: {
-        suffix: false,
         name: (node, exportName) => (exportName?.includes('Suspense') ? `${(node as ast.OperationNode).operationId}Suspense` : undefined),
       },
     })
     const base = createContext()
+    base.memo.set(slot.generators('plugin-hooks'), [{ name: 'hooks', operation: () => null }])
     const ctx = {
       ...base,
       getResolver: (name: string) => (name === 'plugin-hooks' ? hooks : base.getResolver(name as never)),

@@ -1,7 +1,8 @@
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { Diagnostics, type Filter, type Group, type KubbContext, type Output, type Override, type PluginName, useKubb } from '@kubb/core'
 import type { Resolver } from './resolver/Resolver.ts'
-import type { PrinterContext } from './types.ts'
+import { slot } from './composables.ts'
+import type { Generator, PrinterContext } from './types.ts'
 
 export type FileContext = Pick<
   PrinterContext,
@@ -28,7 +29,7 @@ export type FileOptions = {
   /**
    * Adds `Operation` to an operation's name while its file matches a schema file. Set to `false` to keep the name as is.
    *
-   * @default the resolver's `file.suffix`, else `true`
+   * @default `true` when the plugin has a schema generator or no generators
    */
   suffix?: boolean
 }
@@ -105,6 +106,12 @@ function operationFile(
   return withSuffix(first, `${name}Operation`)
 }
 
+// A plugin without schema generators writes no schema file for an operation file to clash with.
+function writesSchemaFiles(ctx: FileContext, pluginName: string): boolean {
+  const generators = ctx.memo.get(slot.generators(pluginName)) as Array<Generator> | undefined
+  return !generators?.length || generators.some((generator) => generator.schema)
+}
+
 export function locateFile(
   ctx: FileContext,
   node: SchemaNode | OperationNode,
@@ -113,8 +120,8 @@ export function locateFile(
 ): { resolver: Resolver; location: Location; file: FileNode } {
   const { extname = '.ts' } = options
   const { resolver, location } = toLocation(ctx, node, options.plugin, pluginOptions)
-  const suffix = options.suffix ?? resolver.fileNaming.suffix
-  const name = options.name ?? resolver.fileNaming.name(node, options.exportName) ?? (node.kind === 'Operation' ? node.operationId : node.name)
+  const suffix = options.suffix ?? writesSchemaFiles(ctx, options.plugin ?? ctx.plugin.name)
+  const name = options.name ?? resolver.fileName(node, options.exportName) ?? (node.kind === 'Operation' ? node.operationId : node.name)
   if (!name) {
     throw new Diagnostics.Error({
       code: Diagnostics.code.pluginFailed,

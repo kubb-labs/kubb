@@ -2,6 +2,7 @@ import { ast } from '@kubb/ast'
 import { type Config, Diagnostics, type Memo, withContext } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { file, type FileContext, resolveFile } from './file.ts'
+import { slot } from './composables.ts'
 import { Resolver } from './resolver/Resolver.ts'
 
 function createMemo(): Memo {
@@ -38,6 +39,7 @@ function createContext(overrides: Partial<FileContext> = {}): FileContext {
     memo: createMemo(),
     schemas: [point],
     root: '/root/src/gen',
+    plugin: { name: 'plugin-zod' },
     resolver: new Resolver({ pluginName: 'plugin-zod' }),
     options: { output: { path: 'zod', mode: 'directory' }, group: undefined },
     getResolver: (name: string) => resolvers[name]!,
@@ -62,6 +64,13 @@ describe('file', () => {
   it('adds an Operation suffix when an operation would land on a schema file', () => {
     expect(resolveFile(createContext(), pointOperation).baseName).toBe('pointOperation.ts')
     expect(resolveFile(createContext(), listPets).baseName).toBe('listPets.ts')
+  })
+
+  it('keeps the operation name for a plugin without schema generators, by its plugin name rather than its resolver name', () => {
+    const ctx = createContext({ plugin: { name: 'plugin-fetch' } as FileContext['plugin'], resolver: new Resolver({ pluginName: 'plugin-client' }) })
+    ctx.memo.set(slot.generators('plugin-fetch'), [{ name: 'client', operation: () => null }])
+
+    expect(resolveFile(ctx, pointOperation).baseName).toBe('point.ts')
   })
 
   it('keeps the operation name with suffix: false', () => {

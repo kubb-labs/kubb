@@ -49,7 +49,7 @@ export type From<T extends Resolver = Resolver> = {
 // No `source` reads the current plugin, whose resolver type is not known statically.
 type SourceResolver<TSource> = [TSource] extends [never] ? Resolver : ResolverFor<TSource>
 
-const skipped = new Set(['pluginName', 'default', 'isTypeOnly', 'fileNaming'])
+const skipped = new Set(['pluginName', 'default', 'isTypeOnly', 'fileName'])
 
 function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -74,7 +74,7 @@ function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | nu
  * - an operation node: the plugin's file for that operation
  * - a schema node, `{ name }` or a schema name: the plugin's file for that schema, when the document has that schema
  *
- * The plugin's resolver decides the file's name and `Operation` suffix through `file.name` and `file.suffix`, so callers pass only the node.
+ * The plugin's resolver decides the file's name through `file.name`, so callers pass only the node.
  * A node the plugin's `include` or `exclude` rules leave out gets no import.
  *
  * @example

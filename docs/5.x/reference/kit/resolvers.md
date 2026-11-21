@@ -153,14 +153,13 @@ Every name a part builds goes through the plugin's top-level `name`, so the part
 
 ## Resolver overrides {#resolver-overrides}
 
-`name` changes identifier casing, `file.name`, `file.suffix`, `file.baseName` and `file.path` control files, and plugin namespaces control specific symbols. Users pass the same shape to a plugin's [`resolver` option](/docs/5.x/reference/plugin-options#resolver).
+`name` changes identifier casing, `file.name`, `file.baseName` and `file.path` control files, and plugin namespaces control specific symbols. Users pass the same shape to a plugin's [`resolver` option](/docs/5.x/reference/plugin-options#resolver).
 
 ```typescript [Type definition]
 type ResolverPatch = {
   name?: (name: string) => string
   file?: {
     name?: (node: SchemaNode | OperationNode, exportName?: string) => string | undefined
-    suffix?: boolean
     baseName?: (params: { name: string; extname: string }) => string
     path?: (params: { baseName: string; output: Output }) => string
   }
@@ -171,8 +170,8 @@ type ResolverPatch = {
 
 - Write methods as regular functions, not arrow functions, so `this` is the merged resolver.
 - `file.name` names a node's file before casing. Return `undefined` to keep the default, the `operationId` or the schema `name`. When another plugin imports from this plugin with [`from`](/docs/5.x/reference/kit/generators#from), `exportName` is the name it imports, so a plugin that writes several files per node can say which one holds it.
-- `file.suffix: false` stops the `Operation` suffix on an operation file that would match a schema file. Set it on a plugin that writes only operation files.
-- `file()` and `from()` both read `file.name` and `file.suffix`, so the files a plugin writes and the imports other plugins point at stay the same.
+- When an operation file would land on a schema file, kit adds `Operation` to its name, but only for a plugin with a schema generator. A plugin that writes only operation files keeps its names.
+- `file()` and `from()` both read `file.name`, so the files a plugin writes and the imports other plugins point at stay the same.
 - Kubb resolves the path `file.path` returns against the root `output.path`, and the result must stay inside it. The `output` argument is the plugin's own `output`.
 - `file.baseName` and `file.path` must return the same result for the same arguments, because `resolver.imports` keeps each import path for the rest of the build.
 - `this.default.name(name)` always applies `camelCase`. For other casing, call [`casing`](/docs/5.x/reference/kit#casing) from `kubb/kit`.
