@@ -24,7 +24,14 @@ const listPets = ast.factory.createOperation({ operationId: 'listPets', method: 
 
 function createContext(overrides: Partial<FileContext> = {}): FileContext {
   const resolvers: Record<string, Resolver> = { 'plugin-ts': new Resolver({ pluginName: 'plugin-ts' }) }
-  const plugins: Record<string, unknown> = { 'plugin-ts': { options: { output: { path: 'types', mode: 'directory' } } } }
+  const plugins: Record<string, unknown> = {
+    'plugin-ts': {
+      options: {
+        output: { path: 'types', mode: 'directory' },
+        override: [{ type: 'tag', pattern: 'geo', options: { output: { path: 'geo', mode: 'directory' } } }],
+      },
+    },
+  }
   return {
     config,
     meta: { title: 'Pet Store', version: '1.0.0' },
@@ -34,7 +41,10 @@ function createContext(overrides: Partial<FileContext> = {}): FileContext {
     resolver: new Resolver({ pluginName: 'plugin-zod' }),
     options: { output: { path: 'zod', mode: 'directory' }, group: undefined },
     getResolver: (name: string) => resolvers[name]!,
-    getPlugin: (name: string) => plugins[name],
+    requirePlugin: (name: string) => {
+      if (!plugins[name]) throw new Error(`Plugin "${name}" not found`)
+      return plugins[name]
+    },
     ...overrides,
   } as unknown as FileContext
 }
@@ -64,6 +74,31 @@ describe('file', () => {
     const target = resolveFile(createContext(), listPets, { plugin: 'plugin-ts' })
 
     expect(target.path).toBe('/root/src/gen/types/listPets.ts')
+  })
+
+  it("applies the other plugin's override for the node", () => {
+    const getArea = ast.factory.createOperation({ operationId: 'getArea', method: 'GET', path: '/area', tags: ['geo'] })
+
+    expect(resolveFile(createContext(), getArea, { plugin: 'plugin-ts' }).path).toBe('/root/src/gen/geo/getArea.ts')
+  })
+
+  it('throws when the other plugin is missing', () => {
+    expect(() => resolveFile(createContext(), listPets, { plugin: 'plugin-faker' })).toThrow('plugin-faker')
+  })
+
+  it('resolves operations with the same name into their own tag folders', () => {
+    const ctx = createContext({ options: { output: { path: 'zod', mode: 'directory' }, group: { type: 'tag' } } } as Partial<FileContext>)
+    const listStores = ast.factory.createOperation({ operationId: 'listStores', method: 'GET', path: '/stores', tags: ['stores'] })
+
+    expect(resolveFile(ctx, listPets, { name: 'index' }).path).not.toBe(resolveFile(ctx, listStores, { name: 'index' }).path)
+  })
+
+  it('checks schema files in the location of each call', () => {
+    const ctx = createContext()
+    const shapePoint = ast.factory.createOperation({ operationId: 'point', method: 'GET', path: '/shapes/point', tags: ['shapes'] })
+    resolveFile(ctx, pointOperation, { plugin: 'plugin-ts' })
+
+    expect(resolveFile(ctx, shapePoint, { plugin: 'plugin-ts' }).path).toBe('/root/src/gen/types/pointOperation.ts')
   })
 
   it('uses the plugin output banner and footer', () => {

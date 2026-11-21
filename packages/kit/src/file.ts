@@ -1,10 +1,10 @@
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
-import { Diagnostics, type Group, type KubbContext, type Output, type PluginName, useKubb } from '@kubb/core'
+import { Diagnostics, type Filter, type Group, type KubbContext, type Output, type Override, type PluginName, useKubb } from '@kubb/core'
 import type { Resolver } from './resolver/Resolver.ts'
 import type { PrinterContext } from './types.ts'
 
 /** What `file` reads from a generator or printer factory context. */
-export type FileContext = Pick<PrinterContext, 'config' | 'meta' | 'memo' | 'schemas' | 'root' | 'resolver' | 'options' | 'getResolver' | 'getPlugin'>
+export type FileContext = Pick<PrinterContext, 'config' | 'meta' | 'memo' | 'schemas' | 'root' | 'resolver' | 'options' | 'getResolver' | 'requirePlugin'>
 
 export type FileOptions = {
   /** Name before the resolver casts it. @default the schema's `name`, or the operation's `operationId` */
@@ -23,43 +23,51 @@ export type FileTarget = Pick<FileNode, 'baseName' | 'path' | 'meta'> & {
 
 type Location = { root: string; output: Output; group: Group | undefined }
 
-type LocationOptions = { output?: Output; group?: Group | null }
-
-function toLocation(ctx: FileContext, plugin: PluginName | undefined): { resolver: Resolver; location: Location } {
-  const own = ctx.options as LocationOptions
-  const output = own.output as Output
-  if (!plugin) return { resolver: ctx.resolver, location: { root: ctx.root, output, group: own.group ?? undefined } }
-
-  const target = ctx.getPlugin(plugin)?.options as LocationOptions | undefined
-  return { resolver: ctx.getResolver(plugin), location: { root: ctx.root, output: target?.output ?? output, group: target?.group ?? undefined } }
+type LocationOptions = {
+  output: Output
+  group?: Group | null
+  exclude?: Array<Filter>
+  include?: Array<Filter>
+  override?: Array<Override<LocationOptions>>
 }
 
-/** An operation's file, cached per plugin, with an `Operation` suffix while it matches a schema file, ignoring case. */
+function toLocation(ctx: FileContext, node: SchemaNode | OperationNode, plugin: PluginName | undefined): { resolver: Resolver; location: Location } {
+  if (!plugin) {
+    const own = ctx.options as LocationOptions
+    return { resolver: ctx.resolver, location: { root: ctx.root, output: own.output, group: own.group ?? undefined } }
+  }
+
+  const resolver = ctx.getResolver(plugin)
+  const base = ctx.requirePlugin(plugin).options as LocationOptions
+  // The target plugin's generators see its options after its override rules, so its files follow them too.
+  const options = resolver.default.options(node, { options: base, exclude: base.exclude, include: base.include, override: base.override }) ?? base
+  return { resolver, location: { root: ctx.root, output: options.output, group: options.group ?? undefined } }
+}
+
+/** An operation's file, with an `Operation` suffix while it matches a schema file in the same location, ignoring case. */
 function operationFile(ctx: FileContext, node: OperationNode, resolver: Resolver, location: Location, name: string, extname: FileNode['extname']): FileNode {
   const entry = (fileName: string) => ({ name: fileName, extname, tag: node.tags[0] ?? 'default', path: node.path, ...location })
+  const { output, group } = location
+  const schemaPaths = ctx.memo(
+    `${resolver.pluginName}:file:schemaPaths:${extname}:${output.mode ?? ''}:${output.path}:${group?.type ?? ''}`,
+    () => new Set(ctx.schemas.flatMap((schema) => (schema.name ? [resolver.file({ name: schema.name, extname, ...location }).path.toLowerCase()] : []))),
+  )
+  let file = resolver.file(entry(name))
 
-  return ctx.memo(`${resolver.pluginName}:file:operation:${extname}:${name}`, () => {
-    const schemaPaths = ctx.memo(
-      `${resolver.pluginName}:file:schemaPaths:${extname}`,
-      () => new Set(ctx.schemas.flatMap((schema) => (schema.name ? [resolver.file({ name: schema.name, extname, ...location }).path.toLowerCase()] : []))),
-    )
-    let file = resolver.file(entry(name))
+  for (let next = `${name}Operation`; schemaPaths.has(file.path.toLowerCase()); next += 'Operation') {
+    const candidate = resolver.file(entry(next))
+    // A single-file output holds every declaration on purpose, so a new name changes nothing.
+    if (candidate.path === file.path) break
+    file = candidate
+  }
 
-    for (let next = `${name}Operation`; schemaPaths.has(file.path.toLowerCase()); next += 'Operation') {
-      const candidate = resolver.file(entry(next))
-      // A single-file output holds every declaration on purpose, so a new name changes nothing.
-      if (candidate.path === file.path) break
-      file = candidate
-    }
-
-    return file
-  })
+  return file
 }
 
 /** `file` for an explicit context. Generators get it as `ctx.file`. */
 export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, options: FileOptions = {}): FileTarget {
   const { extname = '.ts' } = options
-  const { resolver, location } = toLocation(ctx, options.plugin)
+  const { resolver, location } = toLocation(ctx, node, options.plugin)
   const name = options.name ?? (node.kind === 'Operation' ? node.operationId : node.name)
   if (!name) throw new Error('file() needs a named schema or a `name` option.')
 
