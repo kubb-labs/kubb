@@ -67,10 +67,7 @@ function build(strings: ReadonlyArray<string>, values: ReadonlyArray<CodeValue>)
  * A template tag that returns the text and the imports of the names in its holes.
  *
  * @example
- * ```ts
- * const source = code`satisfies z.ZodType<${ref('plugin-ts').name('Pet')}>`
- * source.text // 'satisfies z.ZodType<Pet>'
- * ```
+ * `code\`satisfies z.ZodType<${ref('plugin-ts').name('Pet')}>\`.text // 'satisfies z.ZodType<Pet>'`
  */
 export function code(strings: TemplateStringsArray, ...values: Array<CodeValue>): Code {
   return build(strings, values)

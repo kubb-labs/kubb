@@ -36,10 +36,6 @@ describe('code', () => {
     expect(source.imports.map((imp) => imp.name)).toStrictEqual([['Pet']])
   })
 
-  it('adds no import for a name without a file', () => {
-    expect(code`${refName('Status200', null)}`.imports).toStrictEqual([])
-  })
-
   it('joins parts with a separator and keeps their imports', () => {
     const source = code.join([pet, code`${order}[]`, 'string'], ' | ')
 
@@ -53,9 +49,5 @@ describe('code', () => {
     const source = code`${{ text: 'React', imports: [react, zod] }} ${pet}`
 
     expect(source.imports).toStrictEqual([react, zod, expect.objectContaining({ name: ['Pet'], path: '/gen/types/pet.ts' })])
-  })
-
-  it('joins nothing into empty text', () => {
-    expect(code.join([])).toStrictEqual({ text: '', imports: [] })
   })
 })

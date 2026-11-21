@@ -32,9 +32,6 @@ type RefMember<T> = T extends (...args: infer A) => infer R
  */
 export type Ref<T extends Resolver = Resolver> = RefMember<Omit<T, keyof Resolver>> & {
   name(name: string): RefName
-  /**
-   * `false` when the plugin's `include` or `exclude` rules leave `node` out, so it emits nothing to import.
-   */
   has(node: SchemaNode | OperationNode): boolean
 }
 

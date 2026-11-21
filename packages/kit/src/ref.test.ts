@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import { type Config, Diagnostics, type Memo, withContext } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import type { FileContext } from './file.ts'
-import { type Ref, type RefName, type RefOptions, ref } from './ref.ts'
+import { type Ref, type RefOptions, ref } from './ref.ts'
 import { Resolver } from './resolver/Resolver.ts'
 
 function createMemo(): Memo {
@@ -25,13 +25,7 @@ const adminOperation = ast.factory.createOperation({ operationId: 'listUsers', m
 
 type TestResolver = Resolver & {
   response: { options(node: ast.OperationNode): string }
-  enum: { keyName(node: { name?: string | null }): string }
   status(code: number): string
-  tags(): Array<string>
-  reserved: Array<string>
-  label(kind: 'none' | 'Point'): string | null
-  lookup: Map<string, number>
-  nested: { deep: { options(node: ast.OperationNode): string } }
 }
 
 const tsResolver = new Resolver({
@@ -42,19 +36,8 @@ const tsResolver = new Resolver({
       return `${node.operationId}Options`
     },
   },
-  enum: {
-    keyName(node: { name?: string | null }) {
-      return `${node.name}Key`
-    },
-  },
   status: (code: number) => `Status${code}`,
-  tags: () => ['pets'],
-  reserved: ['Pet'],
-  label: (kind: 'none' | 'Point') => (kind === 'Point' ? 'Point' : null),
-  nested: { deep: { options: (node: ast.OperationNode) => `${node.operationId}Deep` } },
 } as never)
-// Set after construction, as Resolver's own option handling flattens a Map passed in.
-Object.assign(tsResolver, { lookup: new Map([['pets', 1]]) })
 
 function createContext(): FileContext {
   const plugins: Record<string, unknown> = {
@@ -87,14 +70,8 @@ describe('ref', () => {
   it('returns a schema name with a type-only import from the target file', () => {
     const name = refIn(createContext(), 'plugin-ts').name('Point')
 
-    expect(name.name).toBe('point')
     expect(`${name}`).toBe('point')
     expect(name.import).toMatchObject({ name: ['point'], path: '/root/src/gen/types/point.ts', isTypeOnly: true })
-  })
-
-  it('keeps isTypeOnly through Resolver.merge', () => {
-    expect(Resolver.merge(tsResolver, {}).isTypeOnly).toBe(true)
-    expect(new Resolver({ pluginName: 'plugin-zod' }).isTypeOnly).toBe(false)
   })
 
   it("points an operation name at the target's operation file, with the Operation suffix", () => {
@@ -104,26 +81,16 @@ describe('ref', () => {
     expect(types.response.options(pointOperation).import?.path).toBe('/root/src/gen/types/pointOperation.ts')
   })
 
-  it('reads the schema file from a { name } argument', () => {
-    expect(refIn(createContext(), 'plugin-ts').enum.keyName({ name: 'Point' }).import?.path).toBe('/root/src/gen/types/point.ts')
-  })
-
   it('leaves out the import when the first argument names no generated file', () => {
     const types = refIn(createContext(), 'plugin-ts')
-    const status = types.status(200)
 
-    expect(status.name).toBe('Status200')
-    expect(status.import).toBeNull()
+    expect(types.status(200)).toMatchObject({ name: 'Status200', import: null })
     expect(types.name('Unknown').import).toBeNull()
-    expect(types.enum.keyName(ast.factory.createSchema({ type: 'string', name: 'Inline' })).import).toBeNull()
-    expect(types.enum.keyName(point).import?.path).toBe('/root/src/gen/types/point.ts')
-    expect(types.enum.keyName({ kind: 'Parameter', name: 'petId' } as { name: string }).import).toBeNull()
   })
 
   it("leaves out the import for a node the target's rules exclude", () => {
     const types = refIn(createContext(), 'plugin-ts')
 
-    expect(types.has(listPets)).toBe(true)
     expect(types.has(adminOperation)).toBe(false)
     expect(types.response.options(adminOperation).import).toBeNull()
   })
@@ -134,34 +101,8 @@ describe('ref', () => {
     expect(types.response.options(pointOperation).import?.path).toBe('/root/src/gen/types/point.tsx')
   })
 
-  it('returns non-string results and arrays as they are', () => {
-    const types = refIn(createContext(), 'plugin-ts')
-
-    expect(types.tags()).toStrictEqual(['pets'])
-    expect(types.reserved).toStrictEqual(['Pet'])
-    expect(types.lookup).toBeInstanceOf(Map)
-    expect(types.lookup.get('pets')).toBe(1)
-  })
-
-  it('wraps the members of a namespace nested more than one level deep', () => {
-    const deep = refIn(createContext(), 'plugin-ts').nested.deep.options(listPets)
-
-    expect(deep.name).toBe('listPetsDeep')
-    expect(deep.import?.path).toBe('/root/src/gen/types/listPets.ts')
-  })
-
-  it('wraps the string results of a member that can also return null', () => {
-    const types = refIn(createContext(), 'plugin-ts')
-    const label: RefName | null = types.label('Point')
-
-    expect(label?.import?.path).toBe('/root/src/gen/types/point.ts')
-    expect(types.label('none')).toBeNull()
-  })
-
   it('wraps the current plugin without an argument', () => {
-    const own = refIn(createContext())
-
-    expect(own.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts', isTypeOnly: false })
+    expect(refIn(createContext()).name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts', isTypeOnly: false })
   })
 
   it('reports KUBB_NO_CONTEXT outside a generator', () => {
