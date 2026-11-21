@@ -65,6 +65,7 @@ export class Resolver {
   readonly pluginName: string
   /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
+  readonly isTypeOnly: boolean
   #options: ResolverBuildOptions
   #memo = memo.create<string, unknown>()
   #usedNames = new Set<string>()
@@ -82,6 +83,7 @@ export class Resolver {
 
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
+    this.isTypeOnly = options.isTypeOnly ?? false
     this.#options = options
     this.#baseName = options.file?.baseName ? options.file.baseName.bind(this) : toBaseName
     this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
@@ -184,7 +186,7 @@ export class Resolver {
     for (const [key, value] of Object.entries(options)) {
       // `file` drives file naming through `#baseName`, not a top-level method, so it must not be
       // assigned here (it would shadow the `file` method with a plain `{ name }` object).
-      if (key === 'pluginName' || key === 'default' || key === 'file' || key === 'shared' || value === undefined) continue
+      if (key === 'pluginName' || key === 'default' || key === 'file' || key === 'shared' || key === 'isTypeOnly' || value === undefined) continue
       root[key] = isNamespace(value) ? Object.fromEntries(Object.entries(value).map(([method, member]) => [method, bind(member)])) : bind(value)
     }
   }

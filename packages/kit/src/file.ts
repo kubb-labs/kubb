@@ -3,7 +3,10 @@ import { Diagnostics, type Filter, type Group, type KubbContext, type Output, ty
 import type { Resolver } from './resolver/Resolver.ts'
 import type { PrinterContext } from './types.ts'
 
-export type FileContext = Pick<PrinterContext, 'config' | 'meta' | 'memo' | 'schemas' | 'root' | 'resolver' | 'options' | 'getResolver' | 'requirePlugin'>
+export type FileContext = Pick<
+  PrinterContext,
+  'config' | 'meta' | 'memo' | 'schemas' | 'root' | 'resolver' | 'options' | 'getResolver' | 'requirePlugin' | 'plugin'
+>
 
 export type FileOptions = {
   /**
@@ -48,17 +51,29 @@ type LocationOptions = {
   override?: Array<Override<LocationOptions>>
 }
 
+/**
+ * A plugin's options for `node` after its `include`, `exclude` and `override` rules, or `null` when the rules leave `node` out.
+ */
+export function pluginOptionsFor(
+  ctx: FileContext,
+  node: SchemaNode | OperationNode,
+  plugin: PluginName,
+): { resolver: Resolver; base: LocationOptions; options: LocationOptions | null } {
+  const resolver = ctx.getResolver(plugin)
+  const base = ctx.requirePlugin(plugin).options as LocationOptions
+  return { resolver, base, options: resolver.default.options(node, { options: base, exclude: base.exclude, include: base.include, override: base.override }) }
+}
+
 function toLocation(ctx: FileContext, node: SchemaNode | OperationNode, plugin: PluginName | undefined): { resolver: Resolver; location: Location } {
   if (!plugin) {
     const own = ctx.options as LocationOptions
     return { resolver: ctx.resolver, location: { root: ctx.root, output: own.output, group: own.group ?? undefined } }
   }
 
-  const resolver = ctx.getResolver(plugin)
-  const base = ctx.requirePlugin(plugin).options as LocationOptions
   // The target plugin's generators see its options after its override rules, so its files follow them too.
-  const options = resolver.default.options(node, { options: base, exclude: base.exclude, include: base.include, override: base.override }) ?? base
-  return { resolver, location: { root: ctx.root, output: options.output, group: options.group ?? undefined } }
+  const { resolver, base, options } = pluginOptionsFor(ctx, node, plugin)
+  const { output, group } = options ?? base
+  return { resolver, location: { root: ctx.root, output, group: group ?? undefined } }
 }
 
 /**
@@ -91,10 +106,11 @@ function operationFile(
   return withSuffix(first, `${name}Operation`)
 }
 
-/**
- * `file` for an explicit context. Generators get it as `ctx.file`.
- */
-export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, options: FileOptions = {}): FileTarget {
+export function locateFile(
+  ctx: FileContext,
+  node: SchemaNode | OperationNode,
+  options: FileOptions = {},
+): { resolver: Resolver; location: Location; file: FileNode } {
   const { extname = '.ts', suffix = true } = options
   const { resolver, location } = toLocation(ctx, node, options.plugin)
   const name = options.name ?? (node.kind === 'Operation' ? node.operationId : node.name)
@@ -108,8 +124,16 @@ export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, 
     })
   }
 
-  const resolved =
+  const file =
     node.kind === 'Operation' ? operationFile(ctx, node, resolver, location, { name, extname, suffix }) : resolver.file({ name, extname, ...location })
+  return { resolver, location, file }
+}
+
+/**
+ * `file` for an explicit context. Generators get it as `ctx.file`.
+ */
+export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, options: FileOptions = {}): FileTarget {
+  const { resolver, location, file: resolved } = locateFile(ctx, node, options)
   const fileContext = { output: location.output, config: ctx.config, file: { path: resolved.path, baseName: resolved.baseName } }
 
   return {
@@ -129,15 +153,18 @@ export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, 
  * `<File {...file(node)}>…</File>`
  */
 export function file(node: SchemaNode | OperationNode, options?: FileOptions): FileTarget {
+  return resolveFile(useFileContext('file', 'Call `file()` inside a generator method, or use `ctx.file()` there.'), node, options)
+}
+
+export function useFileContext(name: string, help: string): FileContext {
   const ctx = useKubb<KubbContext>()
-  if (!('resolver' in ctx)) {
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.noContext,
-      severity: 'error',
-      plugin: ctx.plugin.name,
-      message: '`file()` runs only in a generator or a printer factory.',
-      help: 'Call `file()` inside a generator method, or use `ctx.file()` there.',
-    })
-  }
-  return resolveFile(ctx as unknown as FileContext, node, options)
+  if ('resolver' in ctx) return ctx as unknown as FileContext
+
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.noContext,
+    severity: 'error',
+    plugin: ctx.plugin.name,
+    message: `\`${name}()\` runs only in a generator or a printer factory.`,
+    help,
+  })
 }

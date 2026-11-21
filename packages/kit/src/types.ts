@@ -27,7 +27,7 @@ export type PluginType<
 }
 
 // A plugin type that names no resolver, such as one typed with core's `PluginType`, gets the default resolver.
-type ResolverOf<T> = T extends { resolver: infer TResolver } ? (unknown extends TResolver ? Resolver : TResolver) : Resolver
+export type ResolverOf<T> = T extends { resolver: infer TResolver } ? (unknown extends TResolver ? Resolver : TResolver) : Resolver
 
 /** Context a printer factory receives: core's visit context plus the plugin's resolver and its resolved options. */
 export type PrinterContext<TOptions extends PluginType = PluginType> = PluginVisitContext<TOptions> & {

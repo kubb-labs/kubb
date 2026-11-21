@@ -141,6 +141,47 @@ export const zodGenerator = defineGenerator({
 })
 ```
 
+### Importing names with `ref` and `code` {#ref}
+
+`ref(plugin?)` wraps another plugin's resolver, read from the current generator context. Each name member returns the name plus the import from that plugin's file. Without `plugin`, it wraps the current plugin's resolver.
+
+The first argument of a name member picks the file:
+
+- An operation node points at the plugin's file for that operation, with the same `Operation` suffix as `file`.
+- A schema node, `{ name }` or a schema name points at the plugin's file for that schema.
+- Any other argument gives the name without an import.
+
+The import is `import type` when the target resolver sets `isTypeOnly`, as `plugin-ts` does. `ref(plugin).has(node)` is `false` when that plugin's `include` or `exclude` rules leave `node` out, so there is nothing to import.
+
+`code` is a template tag that returns `{ text, imports }`. Its holes take names from `ref`, other `code` results, strings and numbers. `null`, `undefined` and `false` print nothing. The imports are grouped per path, in the order of first use. `code.join(parts, separator)` joins several parts and keeps their imports.
+
+The import paths are absolute. Pass the file you write as `root`, so each path becomes relative to it:
+
+```tsx [zodGenerator.tsx]
+import { code, defineGenerator, file, ref } from 'kubb/kit'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
+
+export const zodGenerator = defineGenerator({
+  name: 'zod',
+  renderer: jsxRenderer,
+  schema(node) {
+    if (!node.name) return null
+    const target = file(node)
+    const types = ref('plugin-ts')
+    const source = code`export const petSchema = z.object({}) satisfies z.ZodType<${types.name(node.name)}>`
+
+    return (
+      <File {...target}>
+        {source.imports.map((imp) => (
+          <File.Import key={imp.path} root={target.path} name={imp.name} path={imp.path} isTypeOnly={imp.isTypeOnly} />
+        ))}
+        <File.Source>{source.text}</File.Source>
+      </File>
+    )
+  },
+})
+```
+
 ### Caching with `memo` {#memo}
 
 `memo(key, compute)` runs `compute` once per `key` and build, then returns the stored value. It is a composable, so it reads the current context. `ctx.memo(key, compute)` and `this.memo(key, compute)` do the same. Every plugin shares the store, so:
