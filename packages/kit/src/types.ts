@@ -1,7 +1,7 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { PluginType as CorePluginType, PluginName, PluginVisitContext, RendererFactory, ResolvePluginOptions } from '@kubb/core'
-import type { FileOptions, FileSource, FileTarget } from './file.ts'
+import type { FileOptions, FileTarget } from './file.ts'
 import type { Resolver } from './resolver/Resolver.ts'
 
 /**
@@ -52,7 +52,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
   /**
    * The `<File>` props for the file `node` is written to. See the `file` composable.
    */
-  file(node: FileSource, options?: FileOptions): FileTarget
+  file(node: SchemaNode | OperationNode, options?: FileOptions): FileTarget
 }
 
 /**

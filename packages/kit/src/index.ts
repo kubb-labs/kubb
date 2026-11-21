@@ -39,7 +39,7 @@ export {
 export { addGenerator, addMacro, getResolver, provide, setMacros, setPrinter, setResolver } from './composables.ts'
 export { defineGenerator } from './defineGenerator.ts'
 export { file } from './file.ts'
-export type { FileOptions, FileSource, FileTarget, NamedFile } from './file.ts'
+export type { FileOptions, FileTarget } from './file.ts'
 export { code } from './code.ts'
 export type { Code, CodeValue } from './code.ts'
 export { from } from './from.ts'
