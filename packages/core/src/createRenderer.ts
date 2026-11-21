@@ -39,7 +39,7 @@ export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
  *
  * A renderer can target output formats beyond JSX, for instance a Handlebars
  * renderer or one that writes binary files. Plugins and generators pick the
- * renderer to use via the `renderer` field on `defineGenerator`.
+ * renderer to use via the `renderer` field on `defineGenerator` from `@kubb/kit`.
  *
  * @example A minimal renderer that wraps a custom runtime
  * ```ts

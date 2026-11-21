@@ -1,15 +1,8 @@
 import path from 'node:path'
 import { camelCase, memo } from '@internals/utils'
 import { ast, type FileNode, type ImportNode, type InputMeta } from '@kubb/ast'
+import { type BannerMeta, type Config, Diagnostics, getInputKind, type Group, type MemoKey, type MemoValue, type Output } from '@kubb/core'
 import {
-  type BannerMeta,
-  type Config,
-  Diagnostics,
-  getInputKind,
-  type Group,
-  type MemoKey,
-  type MemoValue,
-  type Output,
   type ResolveBannerContext,
   type ResolveBannerFile,
   type ResolveFileOptions,
@@ -20,14 +13,13 @@ import {
   type ResolverDefault,
   type ResolverFileParams,
   type ResolverFilePathParams,
-  type ResolverLike,
   type ResolverPatch,
   resolverOptions,
-} from '@kubb/core'
+} from './types.ts'
 import { resolveOptions } from './resolveOptions.ts'
 
 /** Types a reusable resolver part, such as one namespace or a `file` rule, with `this` as the full resolver. */
-export function defineResolver<const T extends object>(part: T & ThisType<ResolverLike & T>): T {
+export function defineResolver<const T extends object>(part: T & ThisType<Resolver & T>): T {
   return part
 }
 
@@ -168,7 +160,7 @@ export class Resolver {
   }
 
   /** Folds each `override` over `base`, left to right, and returns a new resolver with helpers re-bound. */
-  static merge<T extends Resolver>(base: T, ...overrides: Array<ResolverPatch<T> | ResolverLike>): T {
+  static merge<T extends Resolver>(base: T, ...overrides: Array<ResolverPatch<T> | Resolver>): T {
     const merged = overrides.reduce<Record<string, unknown>>(
       (acc, override) => {
         const patch = resolverOptions in override ? override[resolverOptions] : override

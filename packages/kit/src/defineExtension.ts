@@ -1,5 +1,5 @@
-import { defineExtension as coreDefineExtension, type PluginDefinition, type PluginVisitHooks } from '@kubb/core'
-import { addGenerator, addMacro, setMacros, setResolver, slot } from './composables.ts'
+import { defineExtension as coreDefineExtension, type PluginDefinition, type PluginFactory, type PluginType, type PluginVisitHooks } from '@kubb/core'
+import { slot } from './composables.ts'
 import { generatorVisitor } from './visitor.ts'
 
 type AnyHook = (...args: Array<never>) => unknown
@@ -32,9 +32,16 @@ export const defineExtension = ((definition: { kind: string } & Partial<PluginDe
     hooks,
     setup(options: object, kubb: Parameters<NonNullable<PluginDefinition['setup']>>[1]) {
       kubb.memo.set(slot.kit(kubb.plugin.name), true)
-      // `kubb:plugin:setup` gets this same context, so its registrations land in memo too.
-      Object.assign(kubb, { addGenerator, setResolver, addMacro, setMacros })
       return definition.setup ? definition.setup(options, kubb) : options
     },
   })
 }) as typeof coreDefineExtension
+
+/**
+ * Defines a plugin through kit's `defineExtension`, so it runs kit's visitor.
+ *
+ * @deprecated Use `defineExtension` with `kind: 'plugin'` instead.
+ */
+export function definePlugin<TFactory extends PluginType = PluginType>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory> {
+  return defineExtension({ kind: 'plugin', ...definition })
+}

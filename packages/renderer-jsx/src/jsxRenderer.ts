@@ -205,7 +205,7 @@ function createFileNode(props: JSX.IntrinsicElements['kubb-file']): ast.FileNode
  *
  * @example Wire up a JSX generator
  * ```tsx
- * import { defineGenerator } from '@kubb/core'
+ * import { defineGenerator } from '@kubb/kit'
  * import { jsxRenderer } from '@kubb/renderer-jsx'
  *
  * export const myGenerator = defineGenerator<PluginTs>({

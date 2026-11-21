@@ -19,7 +19,6 @@ export {
   createRenderer,
   createStorage,
   defineParser,
-  definePlugin,
   Diagnostics,
   fsStorage,
   Hookable,
@@ -39,10 +38,27 @@ export { addGenerator, addMacro, getResolver, setMacros, setResolver } from './c
 export { defineGenerator } from './defineGenerator.ts'
 export { createResolver } from './resolver/createResolver.ts'
 export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
-export { defineExtension } from './defineExtension.ts'
+export { defineExtension, definePlugin } from './defineExtension.ts'
 export { memo } from './memo.ts'
 export type { ScopedMemo } from './memo.ts'
-export type { Generator, GeneratorContext, ResolverInput } from './types.ts'
+export type { Generator, GeneratorContext } from './types.ts'
+export type { ResolveOptionsContext } from './resolver/resolveOptions.ts'
+export type {
+  ResolveBannerContext,
+  ResolveBannerFile,
+  ResolveFileOptions,
+  ResolveImportsOptions,
+  ResolveNameOptions,
+  ResolvePathOptions,
+  ResolverBuildOptions,
+  ResolverDefault,
+  ResolverFile,
+  ResolverFileParams,
+  ResolverFilePathParams,
+  ResolverInput,
+  ResolverPatch,
+  ResolverPathParams,
+} from './resolver/types.ts'
 export type {
   Adapter,
   AdapterDefinition,
@@ -80,16 +96,10 @@ export type {
   PluginFactory,
   PluginOptions,
   PluginType,
+  PluginVisitContext,
+  PluginVisitHooks,
   Renderer,
   RendererFactory,
-  ResolveFileOptions,
-  ResolveImportsOptions,
-  ResolveNameOptions,
-  ResolvePathOptions,
   ResolvedPluginOptions,
-  ResolverFile,
-  ResolverFileParams,
-  ResolverFilePathParams,
-  ResolverPatch,
   Storage,
 } from '@kubb/core'

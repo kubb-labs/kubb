@@ -1,10 +1,9 @@
 import type { PossiblePromise } from '@internals/utils'
-import type { FileNode, InputMeta, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputMeta, InputNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import type { Reporter, ReporterName } from './createReporter.ts'
 import type { Storage } from './createStorage.ts'
 import type { Diagnostic, ProblemDiagnostic, UpdateDiagnostic } from './Diagnostics.ts'
-import type { GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type {
   ExtractRegistryKey,
@@ -430,9 +429,6 @@ declare global {
       'kubb:build:start': [ctx: KubbBuildStartContext]
       'kubb:plugins:end': [ctx: KubbPluginsEndContext]
       'kubb:build:end': [ctx: KubbBuildEndContext]
-      'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
-      'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
-      'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
     }
   }
 }

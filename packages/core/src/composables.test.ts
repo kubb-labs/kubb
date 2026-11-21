@@ -1,23 +1,7 @@
 import { setTimeout as delay } from 'node:timers/promises'
-import type { Macro } from '@kubb/ast'
 import { createMockedAdapter, createMockedSetupContext } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import {
-  addGenerator,
-  addMacro,
-  injectFile,
-  kubbContext,
-  memo,
-  setMacros,
-  setOptions,
-  setResolver,
-  tryUseKubb,
-  useConfig,
-  useKubb,
-  useOptions,
-  requirePlugin,
-} from './composables.ts'
-import type { Generator } from './defineGenerator.ts'
+import { injectFile, kubbContext, memo, setOptions, tryUseKubb, useConfig, useKubb, useOptions, requirePlugin } from './composables.ts'
 import type { Plugin } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
@@ -39,18 +23,12 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
   }
 }
 
-const generator: Generator = { name: 'gen', schema: vi.fn() }
-const macro: Macro = { name: 'macro' }
 const file = { path: '/gen/raw.ts', baseName: 'raw.ts' } as const
 
 describe('composables', () => {
   it('throw KUBB_NO_CONTEXT outside setup', () => {
     const calls: Array<[string, () => unknown]> = [
       ['useKubb', () => useKubb()],
-      ['addGenerator', () => addGenerator(generator)],
-      ['setResolver', () => setResolver({})],
-      ['addMacro', () => addMacro(macro)],
-      ['setMacros', () => setMacros([macro])],
       ['injectFile', () => injectFile(file)],
       ['useOptions', () => useOptions()],
       ['setOptions', () => setOptions({})],
@@ -74,16 +52,11 @@ describe('composables', () => {
 
   it('delegate to the context method of the same name', () => {
     const ctx = createMockedSetupContext({ plugins: ['plugin-ts'], options: { label: 'user' } })
-    const resolver = { name: (name: string) => name }
 
     kubbContext.run(ctx, () => {
       expect(useKubb()).toBe(ctx)
       expect(tryUseKubb()).toBe(ctx)
 
-      addGenerator(generator, generator)
-      setResolver(resolver)
-      addMacro(macro)
-      setMacros([macro])
       injectFile(file)
       setOptions({ label: 'resolved' })
 
@@ -97,10 +70,6 @@ describe('composables', () => {
       expect(() => requirePlugin('plugin-missing')).toThrow('Plugin "plugin-missing" is required but not found.')
     })
 
-    expect(ctx.addGenerator).toHaveBeenCalledWith(generator, generator)
-    expect(ctx.setResolver).toHaveBeenCalledWith(resolver)
-    expect(ctx.addMacro).toHaveBeenCalledWith(macro)
-    expect(ctx.setMacros).toHaveBeenCalledWith([macro])
     expect(ctx.injectFile).toHaveBeenCalledWith(file)
     expect(ctx.setOptions).toHaveBeenCalledWith({ label: 'resolved' })
   })
@@ -117,7 +86,7 @@ describe('KubbDriver#setupHooks with composables', () => {
         async 'kubb:plugin:setup'() {
           await delay(wait)
           seen.push({ plugin: name, options: useKubb().options })
-          addGenerator({ name: `${name}-gen`, schema: vi.fn() })
+          setOptions({ label: `${name}-resolved` })
         },
       },
     })
@@ -130,8 +99,8 @@ describe('KubbDriver#setupHooks with composables', () => {
       { plugin: 'first', options: { label: 'first' } },
       { plugin: 'second', options: { label: 'second' } },
     ])
-    expect(driver.plugins.get('first')?.generators?.map((gen) => gen.name)).toStrictEqual(['first-gen'])
-    expect(driver.plugins.get('second')?.generators?.map((gen) => gen.name)).toStrictEqual(['second-gen'])
+    expect(driver.plugins.get('first')?.options).toMatchObject({ label: 'first-resolved' })
+    expect(driver.plugins.get('second')?.options).toMatchObject({ label: 'second-resolved' })
     expect(tryUseKubb()).toBeUndefined()
   })
 

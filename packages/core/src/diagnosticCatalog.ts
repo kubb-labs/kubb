@@ -133,8 +133,8 @@ export const diagnosticCatalog = {
     code: 'KUBB_NO_CONTEXT',
     title: 'No plugin context',
     cause:
-      'A `kubb/kit` composable such as `useKubb()` or `addGenerator()` ran outside the `setup` and `kubb:plugin:setup` of a plugin, so there is no plugin to apply it to.',
-    fix: 'Call the composable inside `setup` or `kubb:plugin:setup`, including in code that setup awaits.',
+      'A `kubb/kit` composable such as `useKubb()` or `addGenerator()` ran outside the `setup` and `kubb:plugin:setup` of a plugin, or `addGenerator()`, `setResolver()`, `addMacro()` or `setMacros()` ran for a plugin not defined with `defineExtension` from `kubb/kit`.',
+    fix: 'Call the composable inside `setup` or `kubb:plugin:setup`, including in code that setup awaits, and define the plugin with `defineExtension` from `kubb/kit`.',
   },
   unsupportedFormat: {
     code: 'KUBB_UNSUPPORTED_FORMAT',

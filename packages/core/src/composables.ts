@@ -1,11 +1,9 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { memo as storeMemo } from '@internals/utils'
-import type { Macro, UserFileNode } from '@kubb/ast'
-import type { Generator } from './defineGenerator.ts'
+import type { UserFileNode } from '@kubb/ast'
 import type { KubbPluginSetupContext, NormalizedPlugin, PluginType, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Memo, MemoKey, MemoValue } from './memo.ts'
-import type { ResolverInput, ResolverLike } from './Resolver.ts'
 import type { Config } from './types.ts'
 
 const kubbContextKey = Symbol.for('kubb.context')
@@ -47,37 +45,6 @@ export function useKubb<TFactory extends PluginType = PluginType>(): KubbPluginS
  */
 export function tryUseKubb<TFactory extends PluginType = PluginType>(): KubbPluginSetupContext<TFactory> | undefined {
   return kubbContext.getStore() as KubbPluginSetupContext<TFactory> | undefined
-}
-
-/**
- * Registers generators on the plugin being set up.
- *
- * @example
- * `addGenerator(typeGenerator, enumGenerator)`
- */
-export function addGenerator<TFactory extends PluginType = PluginType, TElement = unknown>(...generators: Array<Generator<TFactory, TElement>>): void {
-  requireContext('addGenerator').addGenerator(...generators)
-}
-
-/**
- * Sets the resolver of the plugin being set up.
- */
-export function setResolver<TResolver extends ResolverLike = ResolverLike>(resolver: ResolverInput<TResolver>): void {
-  requireContext('setResolver').setResolver(resolver)
-}
-
-/**
- * Adds a macro to the plugin being set up. Macros with the same `enforce` run in the order they are added. `enforce: 'pre'` macros run first and `enforce: 'post'` macros run last.
- */
-export function addMacro(macro: Macro): void {
-  requireContext('addMacro').addMacro(macro)
-}
-
-/**
- * Replaces the macros of the plugin being set up.
- */
-export function setMacros(macros: ReadonlyArray<Macro>): void {
-  requireContext('setMacros').setMacros(macros)
 }
 
 /**

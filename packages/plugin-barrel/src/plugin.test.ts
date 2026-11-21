@@ -37,7 +37,6 @@ function makePlugin({
     hooks: {
       'kubb:plugin:setup'(ctx) {
         ctx.setOptions({ output: { path: outputPath, ...output } })
-        ctx.setResolver({})
         ctx.injectFile(makeFile(filePath, exportName, meta))
       },
     },
@@ -235,7 +234,7 @@ describe('pluginBarrel', () => {
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.setOptions({ output: { path: 'types', mode: 'directory', banner: '// header' } })
-          ctx.memo.set('plugin-kit:resolver', { setTags: () => {}, default: { banner: () => '// from memo', footer: () => null } })
+          ctx.memo.set('plugin-kit:resolver', { default: { banner: () => '// from memo', footer: () => null } })
           ctx.injectFile(makeFile('/workspace/src/gen/types/pet.ts', 'Pet', { pluginName: 'plugin-kit' }))
         },
       },

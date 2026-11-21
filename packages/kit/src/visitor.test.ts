@@ -2,9 +2,8 @@ import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { addGenerator, addMacro, getResolver, setResolver } from './composables.ts'
-import { defineExtension } from './defineExtension.ts'
-import { createResolver } from './resolver/createResolver.ts'
+import { addGenerator, addMacro, getResolver, resolverFor, setResolver, slot } from './composables.ts'
+import { defineExtension, definePlugin } from './defineExtension.ts'
 import { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext } from './types.ts'
 
@@ -51,8 +50,8 @@ async function build(plugins: Array<Plugin>, meta?: Parameters<typeof adapter>[0
   return { driver, diagnostics, files: driver.fileManager.files.map((file) => file.path).sort() }
 }
 
-function examplePlugin(define: typeof coreDefineExtension, log: Array<string>, include?: Array<{ type: 'tag'; pattern: string }>) {
-  return define({
+function examplePlugin(log: Array<string>, include?: Array<{ type: 'tag'; pattern: string }>) {
+  return defineExtension({
     kind: 'plugin',
     meta: { name: 'plugin-example' },
     setup(options) {
@@ -80,56 +79,70 @@ function examplePlugin(define: typeof coreDefineExtension, log: Array<string>, i
 }
 
 describe('generatorVisitor', () => {
-  it('produces the same files and calls as the core path', async () => {
-    const coreLog: Array<string> = []
-    const kitLog: Array<string> = []
+  it('runs macros, the resolver, match and every generator kind', async () => {
+    const log: Array<string> = []
 
-    const core = await build([examplePlugin(coreDefineExtension, coreLog)])
-    const kit = await build([examplePlugin(defineExtension, kitLog)])
+    const { diagnostics, files } = await build([examplePlugin(log)])
 
-    expect(kit.diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toStrictEqual([])
-    expect(kit.diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_PLUGIN_WARNING')).toStrictEqual([])
-    expect(core.diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_PLUGIN_WARNING')).toHaveLength(1)
-    expect(kitLog).toStrictEqual(coreLog)
-    expect(kit.files).toStrictEqual(core.files)
-    expect(kitLog).toStrictEqual(['schema:ApiPet:macro', 'schema:ApiStore:macro', 'schema:ApiUnused:macro', 'operation:getPet', 'operations:getPet,getStore'])
+    expect(diagnostics.filter((diagnostic) => diagnostic.severity !== 'info')).toStrictEqual([])
+    expect(log).toStrictEqual(['schema:ApiPet:macro', 'schema:ApiStore:macro', 'schema:ApiUnused:macro', 'operation:getPet', 'operations:getPet,getStore'])
+    expect(files).toStrictEqual(['gen/ApiPet.ts', 'gen/ApiStore.ts', 'gen/ApiUnused.ts'])
   })
 
-  it('filters operations and prunes schemas like the core path', async () => {
-    const coreLog: Array<string> = []
-    const kitLog: Array<string> = []
-    const include = [{ type: 'tag' as const, pattern: 'pet' }]
+  it('filters operations and prunes the schemas they do not reach', async () => {
+    const log: Array<string> = []
 
-    const core = await build([examplePlugin(coreDefineExtension, coreLog, include)])
-    const kit = await build([examplePlugin(defineExtension, kitLog, include)])
+    const { files } = await build([examplePlugin(log, [{ type: 'tag', pattern: 'pet' }])])
 
-    expect(kitLog).toStrictEqual(coreLog)
-    expect(kit.files).toStrictEqual(core.files)
-    expect(kitLog).toStrictEqual(['schema:ApiPet:macro', 'schema:ApiStore:macro', 'operation:getPet', 'operations:getPet'])
+    expect(log).toStrictEqual(['schema:ApiPet:macro', 'schema:ApiStore:macro', 'operation:getPet', 'operations:getPet'])
+    expect(files).toStrictEqual(['gen/ApiPet.ts', 'gen/ApiStore.ts'])
   })
 
-  it('keeps generators and the resolver in memo on the kit path', async () => {
-    const { driver } = await build([examplePlugin(defineExtension, [])])
+  it('keeps generators and the resolver in memo', async () => {
+    const { driver } = await build([examplePlugin([])])
 
-    expect(driver.plugins.get('plugin-example')?.generators).toBeUndefined()
-    expect(driver.getResolver('plugin-example').name('Pet')).toBe('ApiPet')
+    expect(driver.memo.get(slot.generators('plugin-example'))).toHaveLength(1)
+    expect(resolverFor(driver.memo, 'plugin-example').name('Pet')).toBe('ApiPet')
     expect(getResolver({ memo: driver.memo }, 'plugin-example').name('Pet')).toBe('ApiPet')
     expect(getResolver({ memo: driver.memo }, 'plugin-missing').name('Pet')).toBe('pet')
   })
 
-  it("accepts a resolver from kit's createResolver on the core path", async () => {
-    const plugin = coreDefineExtension({
-      kind: 'plugin',
-      meta: { name: 'plugin-core' },
+  it("runs generators of a plugin defined with kit's definePlugin", async () => {
+    const log: Array<string> = []
+    const plugin = definePlugin({
+      meta: { name: 'plugin-define' },
       setup(options) {
-        setResolver(createResolver({ pluginName: 'plugin-core', name: (name: string) => `Kit${name}` }))
+        addGenerator({
+          name: 'define',
+          schema(node: SchemaNode) {
+            log.push(node.name ?? '')
+            return []
+          },
+        })
         return options
       },
     })()
 
-    const { driver } = await build([plugin])
+    await build([plugin])
 
-    expect(driver.getResolver('plugin-core').name('Pet')).toBe('KitPet')
+    expect(log).toStrictEqual(['Pet', 'Store', 'Unused'])
+  })
+
+  it('rejects kit composables in a plugin defined with core defineExtension', async () => {
+    const plugin = coreDefineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-core' },
+      setup(options) {
+        addGenerator({ name: 'core', schema: () => null })
+        return options
+      },
+    })()
+
+    const { diagnostics } = await build([plugin])
+
+    expect(diagnostics).toContainEqual(
+      expect.objectContaining({ severity: 'error', message: expect.stringContaining('`addGenerator()` was called for plugin "plugin-core"') }),
+    )
   })
 
   it('runs a plugin visit hook after the kit visitor', async () => {
@@ -159,32 +172,6 @@ describe('generatorVisitor', () => {
     expect(log.slice(0, 2)).toStrictEqual(['generator:Pet', 'hook:Pet'])
   })
 
-  it('routes setup-context registrations to memo on the kit path', async () => {
-    const log: Array<string> = []
-    const plugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'plugin-ctx' },
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addMacro({ name: 'suffix', schema: (node: SchemaNode) => ({ ...node, description: 'macro' }) })
-          ctx.addGenerator({
-            name: 'ctx',
-            schema(node: SchemaNode) {
-              log.push(`${node.name}:${node.description}`)
-              return []
-            },
-          })
-        },
-      },
-    })()
-
-    const { driver, diagnostics } = await build([plugin])
-
-    expect(driver.plugins.get('plugin-ctx')?.generators).toBeUndefined()
-    expect(diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_PLUGIN_WARNING')).toStrictEqual([])
-    expect(log).toStrictEqual(['Pet:macro', 'Store:macro', 'Unused:macro'])
-  })
-
   it('tags the memo resolver of a plugin without generators', async () => {
     const setTags = vi.spyOn(Resolver.prototype, 'setTags')
     const tags = [{ name: 'pet', parent: 'animals' }]
@@ -199,7 +186,7 @@ describe('generatorVisitor', () => {
 
     const { driver } = await build([plugin], { tags })
 
-    expect(setTags.mock.contexts).toContain(driver.getResolver('plugin-tags'))
+    expect(setTags.mock.contexts).toContain(resolverFor(driver.memo, 'plugin-tags'))
     expect(setTags).toHaveBeenCalledWith(tags)
     setTags.mockRestore()
   })

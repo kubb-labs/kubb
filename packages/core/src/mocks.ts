@@ -1,16 +1,14 @@
-import path, { resolve } from 'node:path'
+import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import type { FileNode, InputMeta, Macro, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode } from '@kubb/ast'
 import { ast } from '@kubb/ast'
 import { expect, vi } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
-import { Hookable } from './Hookable.ts'
 import { createMemo } from './memo.ts'
 import { type KubbDriver, pluginNotFoundError } from './KubbDriver.ts'
-import type { Config, KubbHooks } from './types.ts'
+import type { Config } from './types.ts'
 import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
-import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginType } from './definePlugin.ts'
 
 /**
@@ -29,7 +27,6 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
     getPlugin(_pluginName: string): NormalizedPlugin | undefined {
       return options?.plugin
     },
-    getResolver: (_pluginName: string) => options?.plugin?.resolver,
     memo: createMemo(new Map()),
     fileManager,
   } as unknown as KubbDriver
@@ -45,10 +42,6 @@ export function createMockedSetupContext<TFactory extends PluginType = PluginTyp
   return {
     config: { plugins: registered } as unknown as Config,
     options,
-    addGenerator: vi.fn(),
-    setResolver: vi.fn(),
-    addMacro: vi.fn(),
-    setMacros: vi.fn(),
     setOptions: vi.fn(),
     injectFile: vi.fn(),
     requirePlugin: vi.fn((pluginName: string) => {
@@ -91,137 +84,14 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
 export function createMockedPlugin<TOptions extends PluginType = PluginType>(params: {
   name: TOptions['name']
   options: TOptions['resolvedOptions']
-  resolver?: TOptions['resolver']
-  macros?: Array<Macro>
   dependencies?: Array<string>
 }): NormalizedPlugin<TOptions> {
   return {
     name: params.name,
     options: params.options,
-    resolver: params.resolver,
-    macros: params.macros,
     dependencies: params.dependencies,
     hooks: {},
   } as unknown as NormalizedPlugin<TOptions>
-}
-
-type RenderGeneratorOptions<TOptions extends PluginType> = {
-  config: Config
-  adapter: Adapter
-  meta?: InputMeta
-  driver: KubbDriver
-  plugin: NormalizedPlugin<TOptions>
-  options: TOptions['resolvedOptions']
-  resolver: TOptions['resolver']
-}
-
-function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGeneratorOptions<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
-  const root = resolve(opts.config.root, opts.config.output.path)
-
-  return {
-    config: opts.config,
-    root,
-    adapter: opts.adapter,
-    resolver: opts.resolver,
-    plugin: opts.plugin,
-    driver: opts.driver,
-    getPlugin: (name: string) => opts.driver.getPlugin(name),
-    getResolver: (name: string) => opts.driver.getResolver(name),
-    requirePlugin: (pluginName: string) => {
-      const plugin = opts.driver.getPlugin(pluginName)
-      if (!plugin) throw pluginNotFoundError({ pluginName, requiredBy: opts.plugin.name })
-      return plugin
-    },
-    meta: opts.meta ?? {},
-    schemas: opts.driver.inputNode?.schemas ?? [],
-    operations: opts.driver.inputNode?.operations ?? [],
-    dispatch: opts.driver.fileManager.dispatch.bind(opts.driver.fileManager),
-    memo: opts.driver.memo,
-    addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
-    upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
-    hooks: opts.driver.hooks ?? new Hookable<KubbHooks>(),
-    warn: (msg: string) => console.warn(msg),
-    error: (msg: string) => console.error(msg),
-    info: (msg: string) => console.info(msg),
-  } as unknown as Omit<GeneratorContext<TOptions>, 'options'>
-}
-
-async function renderNode<TOptions extends PluginType, TNode extends SchemaNode | OperationNode>({
-  generator,
-  node,
-  opts,
-  generate,
-}: {
-  generator: Generator<TOptions>
-  node: TNode
-  opts: RenderGeneratorOptions<TOptions>
-  generate: (node: TNode, ctx: GeneratorContext<TOptions>) => ReturnType<NonNullable<Generator<TOptions>['schema']>>
-}): Promise<void> {
-  const ctx = { ...createMockedPluginContext(opts), options: opts.options }
-  const transformedNode = opts.plugin.macros?.length ? ast.macro.apply(node, opts.plugin.macros) : node
-  const matches = generator.match ? await generator.match(transformedNode, ctx) : true
-  if (!matches) return
-  await opts.driver.fileManager.dispatch({ result: await generate(transformedNode, ctx), renderer: generator.renderer })
-}
-
-/**
- * Renders a generator's `schema` method in a test context.
- *
- * @example
- * ```ts
- * await renderGeneratorSchema(typeGenerator, node, { config, adapter, driver, plugin, options, resolver })
- * await matchFiles(driver.fileManager.files)
- * ```
- */
-export async function renderGeneratorSchema<TOptions extends PluginType>(
-  generator: Generator<TOptions>,
-  node: SchemaNode,
-  opts: RenderGeneratorOptions<TOptions>,
-): Promise<void> {
-  if (!generator.schema) return
-  await renderNode({ generator, node, opts, generate: (transformedNode, ctx) => generator.schema!(transformedNode, ctx) })
-}
-
-/**
- * Renders a generator's `operation` method in a test context.
- *
- * @example
- * ```ts
- * await renderGeneratorOperation(typeGenerator, node, { config, adapter, driver, plugin, options, resolver })
- * await matchFiles(driver.fileManager.files)
- * ```
- */
-export async function renderGeneratorOperation<TOptions extends PluginType>(
-  generator: Generator<TOptions>,
-  node: OperationNode,
-  opts: RenderGeneratorOptions<TOptions>,
-): Promise<void> {
-  if (!generator.operation) return
-  await renderNode({ generator, node, opts, generate: (transformedNode, ctx) => generator.operation!(transformedNode, ctx) })
-}
-
-/**
- * Renders a generator's `operations` method in a test context.
- *
- * @example
- * ```ts
- * await renderGeneratorOperations(classClientGenerator, nodes, { config, adapter, driver, plugin, options, resolver })
- * await matchFiles(driver.fileManager.files)
- * ```
- */
-export async function renderGeneratorOperations<TOptions extends PluginType>(
-  generator: Generator<TOptions>,
-  nodes: Array<OperationNode>,
-  opts: RenderGeneratorOptions<TOptions>,
-): Promise<void> {
-  if (!generator.operations) return
-  const context = createMockedPluginContext(opts)
-  const transformedNodes = opts.plugin.macros?.length ? nodes.map((n) => ast.macro.apply(n, opts.plugin.macros!)) : nodes
-  const result = await generator.operations(transformedNodes, {
-    ...context,
-    options: opts.options,
-  })
-  await opts.driver.fileManager.dispatch({ result, renderer: generator.renderer })
 }
 
 type MatchFilesOptions = {
@@ -243,11 +113,9 @@ type MatchFilesOptions = {
 
 /**
  * Renders the driver's collected `FileNode`s to source and asserts each against a file snapshot.
- * Pair it with the `renderGenerator*` helpers to snapshot a generator's output.
  *
  * @example
  * ```ts
- * await renderGeneratorSchema(typeGenerator, node, { config, adapter, driver, plugin, options, resolver })
  * await matchFiles(driver.fileManager.files, { parsers, format })
  * ```
  */
