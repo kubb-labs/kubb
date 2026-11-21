@@ -34,7 +34,7 @@ export {
   useKubb,
   useOptions,
 } from '@kubb/core'
-export { addGenerator, addMacro, getResolver, setMacros, setPrinter, setResolver, useMemo } from './composables.ts'
+export { addGenerator, addMacro, getResolver, setMacros, setPrinter, setResolver } from './composables.ts'
 export { defineGenerator } from './defineGenerator.ts'
 export { createResolver } from './resolver/createResolver.ts'
 export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
