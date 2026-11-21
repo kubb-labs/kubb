@@ -1,19 +1,9 @@
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
-import {
-  type Config,
-  defineExtension as coreDefineExtension,
-  Hookable,
-  KubbDriver,
-  type KubbHooks,
-  type KubbPluginSetupContext,
-  memoryStorage,
-  type Plugin,
-  useKubb,
-} from '@kubb/core'
+import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin, useKubb } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { addGenerator, addMacro, getResolver, setPrinter, setResolver, slot } from './composables.ts'
-import { defineExtension, definePlugin } from './defineExtension.ts'
+import { defineExtension, definePlugin, type KitSetupContext } from './defineExtension.ts'
 import { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext, PrinterContext } from './types.ts'
 
@@ -145,12 +135,12 @@ describe('generatorVisitor', () => {
         return options
       },
     })({})
-    const ctx = { plugin: { name: 'plugin-mocked' }, memo: { set: vi.fn() }, addGenerator: spy } as unknown as KubbPluginSetupContext
+    const ctx = { plugin: { name: 'plugin-mocked' }, memo: { set: vi.fn() }, addGenerator: spy } as unknown as KitSetupContext
 
     plugin.setup?.call(ctx, {}, ctx)
 
     expect(spy).toHaveBeenCalledOnce()
-    expect(typeof (ctx as unknown as { setResolver: unknown }).setResolver).toBe('function')
+    expect(ctx.setResolver).toBeTypeOf('function')
   })
 
   it('runs macros, the resolver, match and every generator kind', async () => {
