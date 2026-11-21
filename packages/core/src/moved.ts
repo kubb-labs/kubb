@@ -6,49 +6,38 @@ function movedToKit(name: string): never {
     code: Diagnostics.code.movedToKit,
     severity: 'error',
     message: `\`${name}\` moved from @kubb/core to @kubb/kit.`,
-    help: `Import it from \`kubb/kit\`, and keep every @kubb package on one version. See ${Diagnostics.docsUrl('KUBB_MOVED_TO_KIT')}`,
+    help: 'Import it from `kubb/kit`, and keep every @kubb package on one version.',
   })
 }
 
-/** @deprecated Moved to `kubb/kit`. Removed in v6. */
-export function addGenerator(..._args: Array<unknown>): never {
-  return movedToKit('addGenerator')
-}
+const stub =
+  (name: string) =>
+  (..._args: Array<unknown>): never =>
+    movedToKit(name)
 
 /** @deprecated Moved to `kubb/kit`. Removed in v6. */
-export function setResolver(..._args: Array<unknown>): never {
-  return movedToKit('setResolver')
-}
+export const addGenerator = stub('addGenerator')
 
 /** @deprecated Moved to `kubb/kit`. Removed in v6. */
-export function setMacros(..._args: Array<unknown>): never {
-  return movedToKit('setMacros')
-}
+export const setResolver = stub('setResolver')
 
 /** @deprecated Moved to `kubb/kit`. Removed in v6. */
-export function addMacro(..._args: Array<unknown>): never {
-  return movedToKit('addMacro')
-}
+export const setMacros = stub('setMacros')
 
 /** @deprecated Moved to `kubb/kit`. Removed in v6. */
-export function createResolver(..._args: Array<unknown>): never {
-  return movedToKit('createResolver')
-}
+export const addMacro = stub('addMacro')
 
 /** @deprecated Moved to `kubb/kit`. Removed in v6. */
-export function defineResolver(..._args: Array<unknown>): never {
-  return movedToKit('defineResolver')
-}
+export const createResolver = stub('createResolver')
 
 /** @deprecated Moved to `kubb/kit`. Removed in v6. */
-export function defineGenerator(..._args: Array<unknown>): never {
-  return movedToKit('defineGenerator')
-}
+export const defineResolver = stub('defineResolver')
 
 /** @deprecated Moved to `kubb/kit`. Removed in v6. */
-export function toFilePath(..._args: Array<unknown>): never {
-  return movedToKit('toFilePath')
-}
+export const defineGenerator = stub('defineGenerator')
+
+/** @deprecated Moved to `kubb/kit`. Removed in v6. */
+export const toFilePath = stub('toFilePath')
 
 /** @deprecated Moved to `kubb/kit`. Removed in v6. */
 export class Resolver {

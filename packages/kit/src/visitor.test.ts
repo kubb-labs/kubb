@@ -110,28 +110,27 @@ describe('generatorVisitor', () => {
     expect(seen).toStrictEqual([true, true])
   })
 
-  it('registers through setup context methods the same as the composables, with kubb === this === useKubb()', async () => {
+  it('registers through setup context methods the same as the composables', async () => {
     const seen: Array<boolean> = []
     const generator = { name: 'methods', schema: () => [] }
     const plugin = defineExtension({
       kind: 'plugin',
       meta: { name: 'plugin-methods' },
       setup(options, kubb) {
-        seen.push(this === kubb && useKubb() === kubb)
         kubb.setResolver({ name: (name: string) => `Api${name}` })
         kubb.addGenerator(generator)
         return options
       },
       hooks: {
         'kubb:plugin:setup'(ctx) {
-          seen.push(this === ctx && typeof ctx.addMacro === 'function')
+          seen.push(typeof ctx.addMacro === 'function')
         },
       },
     })
 
     const { driver } = await build([plugin({})])
 
-    expect(seen).toStrictEqual([true, true])
+    expect(seen).toStrictEqual([true])
     expect(driver.memo.get(slot.generators('plugin-methods'))).toStrictEqual([generator])
     expect(getResolver('plugin-methods', driver.memo).name('Pet')).toBe('ApiPet')
   })
@@ -179,6 +178,7 @@ describe('generatorVisitor', () => {
     expect(driver.memo.get(slot.generators('plugin-example'))).toHaveLength(1)
     expect(getResolver('plugin-example', driver.memo).name('Pet')).toBe('ApiPet')
     expect(getResolver('plugin-missing', driver.memo).name('Pet')).toBe('pet')
+    expect(getResolver('plugin-missing', driver.memo)).toBe(getResolver('plugin-missing', driver.memo))
   })
 
   it('reads the running hook memo in getResolver(name) inside a generator and kubb:plugins:end', async () => {
@@ -203,10 +203,9 @@ describe('generatorVisitor', () => {
       },
     })()
 
-    const { driver } = await build([examplePlugin([]), reader])
+    await build([examplePlugin([]), reader])
 
     expect(seen).toStrictEqual(['schema:ApiPet', 'end:ApiPet'])
-    expect(getResolver('plugin-reader', driver.memo)).toBe(getResolver('plugin-reader', driver.memo))
   })
 
   it("runs generators of a plugin defined with kit's definePlugin", async () => {

@@ -2,7 +2,7 @@ import type { Macro } from '@kubb/ast'
 import { Diagnostics, type KubbContext, type KubbPluginSetupContext, type Memo, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
 import type { ResolverInput } from './resolver/types.ts'
-import type { DefaultPluginType, Generator, PluginType, PrinterFactory } from './types.ts'
+import type { Generator, PluginType, PrinterFactory } from './types.ts'
 
 /**
  * Memo slots kit keeps per plugin, under `<plugin>:<slot>`.
@@ -62,7 +62,7 @@ function kitContext(caller: string): KubbPluginSetupContext {
  * @example
  * `addGenerator(typeGenerator, enumGenerator)`
  */
-export function addGenerator<TFactory extends PluginType = DefaultPluginType, TElement = unknown>(...generators: Array<Generator<TFactory, TElement>>): void {
+export function addGenerator<TFactory extends PluginType = PluginType, TElement = unknown>(...generators: Array<Generator<TFactory, TElement>>): void {
   const ctx = kitContext('addGenerator')
   const key = slot.generators(ctx.plugin.name)
   ctx.memo.set(key, [...((ctx.memo.get(key) as Array<Generator> | undefined) ?? []), ...(generators as Array<Generator>)])
@@ -105,7 +105,7 @@ export function setMacros(macros: ReadonlyArray<Macro>): void {
  * @example
  * `setPrinter((ctx) => printerTs({ optionalType: ctx.options.optionalType, resolver: ctx.resolver }))`
  */
-export function setPrinter<TFactory extends PluginType = DefaultPluginType>(factory: PrinterFactory<TFactory>): void {
+export function setPrinter<TFactory extends PluginType = PluginType>(factory: PrinterFactory<TFactory>): void {
   const ctx = kitContext('setPrinter')
   ctx.memo.set(slot.printer(ctx.plugin.name), factory)
 }

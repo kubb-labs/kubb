@@ -37,7 +37,7 @@ A plugin has one visit context per build. Its bus hooks and its visit hooks get 
 
 ## Composables {#composables}
 
-Use composables for plugin-level concepts in `setup`, and read `ctx` for the rest. Composables that only make sense while a plugin is set up stay setup-only.
+Use composables for plugin-level concepts in `setup`, and read `ctx` for the rest.
 
 | Composable                                                                  | Works in                                                                                 |
 | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -69,21 +69,7 @@ export const pluginExample = defineExtension({
 
 ### Setup methods {#setup-methods}
 
-In a plugin defined with `defineExtension` from `kubb/kit`, the setup context also has kit's setup composables as methods. `kubb.addGenerator(...)` and `addGenerator(...)` register the same. The context is typed as `KitSetupContext`.
-
-```typescript [plugin.ts]
-import { defineExtension } from 'kubb/kit'
-
-export const pluginExample = defineExtension({
-  kind: 'plugin',
-  meta: { name: 'plugin-example' },
-  setup(options, kubb) {
-    kubb.setResolver(resolver)
-    kubb.addGenerator(generator)
-    return options
-  },
-})
-```
+In a plugin defined with `defineExtension` from `kubb/kit`, the setup context also has the setup composables as methods. See [Setup context](/docs/5.x/reference/kit/plugins#setup-context).
 
 ## `withContext` {#withcontext}
 
@@ -112,7 +98,3 @@ import { withContext } from 'kubb/kit'
 
 const files = await withContext(ctx, (ctx) => typeGenerator.schema?.call(ctx, node, ctx))
 ```
-
-## Helpers moved to kit {#moved-to-kit}
-
-`@kubb/core` keeps no resolver, generator, printer or macro logic. It still exports the old names as deprecated stubs that throw [`KUBB_MOVED_TO_KIT`](/docs/5.x/reference/diagnostics#kubb-moved-to-kit): `addGenerator`, `setResolver`, `setMacros`, `addMacro`, `createResolver`, `defineResolver`, `defineGenerator`, `toFilePath` and `Resolver`. Import them from `kubb/kit`. The stubs go away in v6.
