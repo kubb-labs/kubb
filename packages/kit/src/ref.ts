@@ -27,12 +27,10 @@ type RefMember<T> = T extends (...args: infer A) => infer R
     ? { [K in keyof T]: RefMember<T[K]> }
     : T
 
-type RefMembers<T> = { [K in keyof T]: RefMember<T[K]> }
-
 /**
  * A plugin's resolver whose name members return a `RefName` instead of a string.
  */
-export type Ref<T extends Resolver = Resolver> = RefMembers<Omit<T, keyof Resolver>> & {
+export type Ref<T extends Resolver = Resolver> = RefMember<Omit<T, keyof Resolver>> & {
   name(name: string): RefName
   /**
    * `false` when the plugin's `include` or `exclude` rules leave `node` out, so it emits nothing to import.
@@ -68,37 +66,28 @@ function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | nu
  * `ref('plugin-ts').name('Pet') // { name: 'Pet', import: { name: ['Pet'], path, isTypeOnly: true } }`
  */
 export function ref<TName extends PluginName>(plugin?: TName, options: RefOptions = {}): Ref<ResolverOf<ResolvePluginOptions<TName>>> {
-  const ctx = useFileContext('ref', 'Call `ref()` inside a generator method or a printer factory.')
+  const ctx = useFileContext('ref')
   const pluginName = plugin ?? (ctx.plugin.name as PluginName)
   const resolver = ctx.getResolver(pluginName) as Resolver & Record<string, unknown>
   const toRefName = (name: string, arg: unknown): RefName => {
     const node = toNode(ctx, arg)
-    if (!node || !pluginOptionsFor(ctx, node, pluginName).options) return { name, import: null, toString: () => name }
+    if (!node || !pluginOptionsFor(ctx, node, pluginName)) return { name, import: null, toString: () => name }
     const { path } = locateFile(ctx, node, { ...options, plugin: pluginName }).file
     return { name, import: ast.factory.createImport({ name: [name], path, isTypeOnly: resolver.isTypeOnly }), toString: () => name }
   }
-  const wrap =
-    (fn: (...args: Array<unknown>) => unknown, self: object) =>
-    (...args: Array<unknown>) => {
-      const result = fn.apply(self, args)
+  const wrapValue = (value: unknown, self: object): unknown => {
+    if (isNamespace(value)) return Object.fromEntries(Object.entries(value).map(([key, member]) => [key, wrapValue(member, value)]))
+    if (typeof value !== 'function') return value
+    return (...args: Array<unknown>) => {
+      const result = value.apply(self, args)
       return typeof result === 'string' ? toRefName(result, args[0]) : result
     }
-  const members = Object.entries(resolver)
-    .filter(([key]) => !skipped.has(key))
-    .map(([key, value]) => {
-      if (typeof value === 'function') return [key, wrap(value as (...args: Array<unknown>) => unknown, resolver)]
-      if (!isNamespace(value)) return [key, value]
-      const namespace = Object.entries(value).map(([method, member]) => [
-        method,
-        typeof member === 'function' ? wrap(member as (...args: Array<unknown>) => unknown, value) : member,
-      ])
-      return [key, Object.fromEntries(namespace)]
-    })
+  }
 
   const wrapped: Record<string, unknown> = {
-    ...Object.fromEntries(members),
+    ...Object.fromEntries(Object.entries(resolver).flatMap(([key, value]) => (skipped.has(key) ? [] : [[key, wrapValue(value, resolver)]]))),
     name: (name: string) => toRefName(resolver.name(name), name),
-    has: (node: SchemaNode | OperationNode) => pluginOptionsFor(ctx, node, pluginName).options !== null,
+    has: (node: SchemaNode | OperationNode) => pluginOptionsFor(ctx, node, pluginName) !== null,
   }
   return wrapped as Ref<ResolverOf<ResolvePluginOptions<TName>>>
 }
