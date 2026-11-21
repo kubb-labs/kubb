@@ -5,7 +5,6 @@ import {
   Hookable,
   KubbDriver,
   type KubbHooks,
-  type KubbPluginSetupContext,
   memoryStorage,
   type Plugin,
   useKubb,
@@ -94,15 +93,20 @@ describe('generatorVisitor', () => {
     const plugin = defineExtension({
       kind: 'plugin',
       meta: { name: 'plugin-this' },
-      setup(this: KubbPluginSetupContext, options, ctx) {
+      setup(options, ctx) {
         seen.push(this === ctx && useKubb() === ctx)
         return options
+      },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          seen.push(this === ctx && useKubb() === ctx)
+        },
       },
     })
 
     await build([plugin({})])
 
-    expect(seen).toStrictEqual([true])
+    expect(seen).toStrictEqual([true, true])
   })
 
   it('runs macros, the resolver, match and every generator kind', async () => {
