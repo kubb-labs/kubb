@@ -290,6 +290,26 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
   )
 }
 
+const scalarTypes = new Set(['string', 'number', 'integer', 'boolean'])
+
+/**
+ * Copies the parent's scalar `type` and `format` onto inline members that declare no `type`, since
+ * JSON Schema applies those siblings to every member. For example `type: 'integer', anyOf: [{ minimum: 10 }]`
+ * keeps each member an integer.
+ */
+function inheritSiblingType(members: Array<unknown>, { schema, type }: Pick<ConvertContext, 'schema' | 'type'>): Array<unknown> {
+  if (!type || !scalarTypes.has(type)) return members
+  if (Array.isArray(schema.type) && schema.type.filter((t) => t !== 'null').length > 1) return members
+
+  return members.map((member) => {
+    if (!member || typeof member !== 'object' || isReference(member) || (member as SchemaObject).type !== undefined) {
+      return member
+    }
+    const obj = member as SchemaObject
+    return { type, ...(schema.format !== undefined && obj.format === undefined && { format: schema.format }), ...obj }
+  })
+}
+
 /**
  * Converts a `oneOf` / `anyOf` schema into a `UnionSchemaNode`.
  */
@@ -306,7 +326,7 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
     defaultRef && !declaredMembers.some((member) => isReference(member) && member.$ref === defaultRef)
       ? [...declaredMembers, { $ref: defaultRef }]
       : declaredMembers
-  const unionMembers = resolveUnionMembers(allMembers, schema.properties ?? {})
+  const unionMembers = resolveUnionMembers(inheritSiblingType(allMembers, context), schema.properties ?? {})
   const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
   const explicitDiscriminatorPropertyName = discriminator?.propertyName
   const { oneOf: _o, anyOf: _a, discriminator: _d, ...memberBaseSchema } = schema

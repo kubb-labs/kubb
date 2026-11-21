@@ -1042,6 +1042,29 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(ast.schema.narrow(node, 'union')?.members).toHaveLength(3)
   })
 
+  it('keeps a sibling binary type and format on members that only add a media type', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'string', format: 'binary', anyOf: [{ contentMediaType: 'image/png' }, { contentMediaType: 'image/jpeg' }] },
+    })
+
+    expect(ast.schema.narrow(node, 'union')?.members).toMatchObject([{ type: 'blob', format: 'binary' }])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('keeps a sibling integer type on %s members that only add bounds', (keyword) => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'integer', [keyword]: [{ minimum: 10 }, { maximum: 0 }] } })
+
+    expect(ast.schema.narrow(node, 'union')?.members).toMatchObject([
+      { type: 'integer', min: 10 },
+      { type: 'integer', max: 0 },
+    ])
+  })
+
+  it('leaves members that declare their own type untouched', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'string', anyOf: [{ type: 'number' }, { format: 'uuid' }] } })
+
+    expect(ast.schema.narrow(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(['number', 'uuid'])
+  })
+
   it.each([
     { keyword: 'oneOf', propertyName: 'petType' },
     { keyword: 'anyOf', propertyName: 'kind' },
