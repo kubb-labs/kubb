@@ -35,7 +35,6 @@ type TestResolver = Resolver & {
 
 const tsResolver = new Resolver({
   pluginName: 'plugin-ts',
-  isTypeOnly: true,
   response: {
     options(node: ast.OperationNode) {
       return `${node.operationId}Options`
@@ -82,11 +81,11 @@ function provideIn(ctx: FileContext, plugin: string, factory: () => Resolver, pr
 }
 
 describe('from', () => {
-  it('returns a schema name with a type-only import from the target file', () => {
+  it('returns a schema name with its import from the target file', () => {
     const name = fromIn(createContext(), 'plugin-ts').resolver.name('Point')
 
     expect(`${name}`).toBe('point')
-    expect(name.import).toMatchObject({ name: ['point'], path: '/root/src/gen/types/point.ts', isTypeOnly: true })
+    expect(name.import).toMatchObject({ name: ['point'], path: '/root/src/gen/types/point.ts' })
   })
 
   it("points an operation name at the target's operation file, with the Operation suffix", () => {
@@ -125,7 +124,6 @@ describe('from', () => {
     expect(types.import(listPets, 'ListPetsHeaders').import).toMatchObject({
       name: ['ListPetsHeaders'],
       path: '/root/src/gen/types/listPets.ts',
-      isTypeOnly: true,
     })
     expect(types.import(adminOperation, 'UsersHeaders').import).toBeNull()
   })
@@ -152,19 +150,19 @@ describe('from', () => {
   })
 
   it('wraps the current plugin without an argument', () => {
-    expect(fromIn(createContext()).resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts', isTypeOnly: false })
+    expect(fromIn(createContext()).resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts' })
   })
 
   it('reads a provided name from the provider with the highest priority', () => {
     const ctx = createContext()
-    const zodTypes = new Resolver({ pluginName: 'plugin-zod', isTypeOnly: true })
+    const zodTypes = new Resolver({ pluginName: 'plugin-zod' })
     provideIn(ctx, 'plugin-zod', () => zodTypes, -1)
     provideIn(ctx, 'plugin-ts', () => tsResolver)
 
-    expect(fromIn(ctx, 'types').resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/types/point.ts', isTypeOnly: true })
+    expect(fromIn(ctx, 'types').resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/types/point.ts' })
 
     provideIn(ctx, 'plugin-zod', () => zodTypes, 1)
-    expect(fromIn(ctx, 'types').resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts', isTypeOnly: true })
+    expect(fromIn(ctx, 'types').resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts' })
     expect(getResolver('types', ctx.memo)).toBe(zodTypes)
   })
 

@@ -7,7 +7,6 @@ type ResolverOptions<T extends PluginType> = Omit<T['resolver'], keyof Resolver>
   pluginName: T['name']
   name?: T['resolver']['name']
   file?: ResolverFile
-  isTypeOnly?: boolean
 } & ThisType<T['resolver']>
 
 /** Defines a plugin resolver, the object that decides what every generated symbol and file path is called. */

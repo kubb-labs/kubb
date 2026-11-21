@@ -49,7 +49,7 @@ export type From<T extends Resolver = Resolver> = {
 // No `source` reads the current plugin, whose resolver type is not known statically.
 type SourceResolver<TSource> = [TSource] extends [never] ? Resolver : ResolverFor<TSource>
 
-const skipped = new Set(['pluginName', 'default', 'isTypeOnly', 'fileName'])
+const skipped = new Set(['pluginName', 'default', 'fileName'])
 
 function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -78,7 +78,7 @@ function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | nu
  * A node the plugin's `include` or `exclude` rules leave out gets no import.
  *
  * @example
- * `from('plugin-ts').resolver.name('Pet') // { name: 'Pet', import: { name: ['Pet'], path, isTypeOnly: true } }`
+ * `from('plugin-ts').resolver.name('Pet') // { name: 'Pet', import: { name: ['Pet'], path } }`
  */
 export function from<TSource extends PluginName | ProvideName = never>(source?: TSource): From<SourceResolver<TSource>> {
   const ctx = useFileContext('from')
@@ -89,7 +89,7 @@ export function from<TSource extends PluginName | ProvideName = never>(source?: 
     const nodeOptions = node && pluginOptionsFor(ctx, node, pluginName)
     if (!node || !nodeOptions) return { name, import: null, toString: () => name }
     const { path } = locateFile(ctx, node, { plugin: pluginName, exportName: name }, nodeOptions).file
-    return { name, import: ast.factory.createImport({ name: [name], path, isTypeOnly: resolver.isTypeOnly }), toString: () => name }
+    return { name, import: ast.factory.createImport({ name: [name], path }), toString: () => name }
   }
   const wrapValue = (value: unknown, self: object): unknown => {
     if (isPlainObject(value)) return Object.fromEntries(Object.entries(value).map(([key, member]) => [key, wrapValue(member, value)]))

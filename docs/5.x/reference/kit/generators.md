@@ -151,7 +151,7 @@ The method's first argument picks the file to import from:
 - A schema node, `{ name }` or a schema name points at the plugin's file for that schema. The name must belong to a schema in the document.
 - Any other argument gives the name without an import.
 
-A node that the plugin's `include` or `exclude` rules leave out also gives no import, and `from(plugin).has(node)` returns `false` for it. The import is `import type` when the target resolver sets `isTypeOnly`, as `plugin-ts` does. The target resolver's [`file.name`](/docs/5.x/reference/kit/resolvers#resolver-overrides) decides its file, so you pass only the node.
+A node that the plugin's `include` or `exclude` rules leave out also gives no import, and `from(plugin).has(node)` returns `false` for it. Imports are value imports. Pass `isTypeOnly` on the `<File.Import>` where you use the names only as types. The target resolver's [`file.name`](/docs/5.x/reference/kit/resolvers#resolver-overrides) decides its file, so you pass only the node.
 
 For a name that no resolver method returns, such as one built by a shared helper, use `from(plugin).import(node, name)`. It imports `name` from the plugin's file for `node`.
 
@@ -176,7 +176,7 @@ export const zodGenerator = defineGenerator({
       <File {...target}>
         <File.Import name={['z']} path="zod" />
         {source.imports.map((imp) => (
-          <File.Import key={`${imp.path}:${imp.isTypeOnly}`} root={target.path} name={imp.name} path={imp.path} isTypeOnly={imp.isTypeOnly} />
+          <File.Import key={imp.path} root={target.path} name={imp.name} path={imp.path} isTypeOnly />
         ))}
         <File.Source>{source.text}</File.Source>
       </File>
