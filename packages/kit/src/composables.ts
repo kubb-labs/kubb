@@ -1,5 +1,5 @@
 import type { Macro } from '@kubb/ast'
-import { Diagnostics, type KubbPluginSetupContext, type Memo, useKubb } from '@kubb/core'
+import { Diagnostics, type KubbContext, type KubbPluginSetupContext, type Memo, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
 import type { ResolverInput } from './resolver/types.ts'
 import type { DefaultPluginType, Generator, PluginType, PrinterFactory } from './types.ts'
@@ -34,7 +34,17 @@ export function getResolver(pluginName: string, memo: Memo = useKubb().memo): Re
 
 // Returns the setup context of a plugin defined with kit's `defineExtension`, the only kind that runs kit's visitor.
 function kitContext(caller: string): KubbPluginSetupContext {
-  const ctx = useKubb()
+  const ctx = useKubb<KubbContext>()
+  // A setup context is the only one with `setOptions`.
+  if (!('setOptions' in ctx)) {
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.noContext,
+      severity: 'error',
+      plugin: ctx.plugin.name,
+      message: `\`${caller}()\` runs only in \`setup\` or \`kubb:plugin:setup\`.`,
+      help: `Call \`${caller}()\` inside \`setup\` or \`kubb:plugin:setup\`, including in code that setup awaits.`,
+    })
+  }
   if (ctx.memo.get(slot.kit(ctx.plugin.name))) return ctx
 
   throw new Diagnostics.Error({
