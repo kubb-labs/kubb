@@ -309,7 +309,7 @@ describe('createPrinter', () => {
           seen.push(this === ctx)
           return 'z.string()'
         },
-        array: (node, ctx) => `z.array(${ctx.transform(node.items![0]!)})`,
+        array: (node, ctx) => `z.array(${ctx!.transform(node.items![0]!)})`,
       },
       print(node, ctx) {
         seen.push(this === ctx)

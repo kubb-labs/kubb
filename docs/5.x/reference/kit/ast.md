@@ -337,11 +337,11 @@ Key the map by schema `type`, such as `'string'`. A type without a handler keeps
 
 ```typescript [Type definition]
 type PrinterNodes = Partial<{
-  [K in SchemaType]: (this: Context, node: SchemaNodeByType[K], ctx: Context) => Output | null
+  [K in SchemaType]: (this: Context, node: SchemaNodeByType[K], ctx?: Context) => Output | null
 }>
 ```
 
-A handler gets the context as `this` and as its second argument, so an arrow function can read it as `ctx`, such as `array: (node, ctx) => ctx.transform(node.items[0])`. The root `print` override gets the root context the same way.
+A handler gets the context as `this` and as its second argument, so an arrow function can read it as `ctx`, such as `array: (node, ctx) => ctx!.transform(node.items[0])`. The second argument is typed as optional, and its `options` as `object`, so handler types written for `this` alone keep compiling. Read typed options from `this.options`. The root `print` override gets the root context the same way.
 
 | `this` member                    | Does                                                                           |
 | -------------------------------- | ------------------------------------------------------------------------------ |

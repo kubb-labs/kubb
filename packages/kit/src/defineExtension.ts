@@ -71,8 +71,14 @@ export const defineExtension = ((definition: { kind: string } & Partial<KitPlugi
     hooks,
     setup(options: object, kubb: KubbPluginSetupContext) {
       kubb.memo.set(slot.kit(kubb.plugin.name), true)
-      // `kubb:plugin:setup` gets this same object, so it sees the methods too.
-      const ctx: KitSetupContext = Object.assign(kubb, { addGenerator, setResolver, addMacro, setMacros, setPrinter })
+      // `kubb:plugin:setup` gets this same object, so it sees the methods too. A context that already
+      // has a method, such as a test mock with spies, keeps its own.
+      const ctx = kubb as KitSetupContext
+      ctx.addGenerator ??= addGenerator
+      ctx.setResolver ??= setResolver
+      ctx.addMacro ??= addMacro
+      ctx.setMacros ??= setMacros
+      ctx.setPrinter ??= setPrinter
       return definition.setup ? definition.setup.call(ctx, options, ctx) : options
     },
   })

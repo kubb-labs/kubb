@@ -131,6 +131,24 @@ describe('generatorVisitor', () => {
     expect(getResolver('plugin-methods', driver.memo).name('Pet')).toBe('ApiPet')
   })
 
+  it('keeps setup context methods the context already has', () => {
+    const spy = vi.fn()
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-mocked' },
+      setup(options, kubb) {
+        kubb.addGenerator({ name: 'mocked', schema: () => [] })
+        return options
+      },
+    })({})
+    const ctx = { plugin: { name: 'plugin-mocked' }, memo: { set: vi.fn() }, addGenerator: spy } as unknown as KubbPluginSetupContext
+
+    plugin.setup?.call(ctx, {}, ctx)
+
+    expect(spy).toHaveBeenCalledOnce()
+    expect(typeof (ctx as unknown as { setResolver: unknown }).setResolver).toBe('function')
+  })
+
   it('runs macros, the resolver, match and every generator kind', async () => {
     const log: Array<string> = []
 

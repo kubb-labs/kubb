@@ -41,17 +41,20 @@ type PrinterHandlerContext<TOutput, TOptions extends object> = {
 
 /**
  * Handler for one schema node type. The handler context is `this` and the second argument,
- * so an arrow function can read it as `ctx`.
+ * so an arrow function can read it as `ctx`. The second argument is typed as optional, so an
+ * arrow function asserts it with `ctx!`.
  *
  * @example
  * ```ts
- * const handler: PrinterHandler<string, {}, 'array'> = (node, ctx) => `Array<${ctx.transform(node.items[0]!)}>`
+ * const handler: PrinterHandler<string, {}, 'array'> = (node, ctx) => `Array<${ctx!.transform(node.items[0]!)}>`
  * ```
  */
 type PrinterHandler<TOutput, TOptions extends object, T extends SchemaType = SchemaType> = (
   this: PrinterHandlerContext<TOutput, TOptions>,
   node: SchemaNodeByType[T],
-  ctx: PrinterHandlerContext<TOutput, TOptions>,
+  // Optional and without the options type, so one-argument handler types stay assignable and
+  // a union of printer tables keeps its contextual `this`. Use `this.options` for typed options.
+  ctx?: PrinterHandlerContext<TOutput, object>,
 ) => TOutput | null
 
 /**
