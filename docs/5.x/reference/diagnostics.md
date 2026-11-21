@@ -180,9 +180,9 @@ A plugin lists another in `dependencies` without `optional: true`, and the confi
 
 ### KUBB_NO_CONTEXT {#kubb-no-context}
 
-A `kubb/kit` composable such as `useKubb()` ran outside `setup` and `kubb:plugin:setup`. `addGenerator()`, `setResolver()`, `addMacro()` and `setMacros()` also report it for a plugin defined with `defineExtension` from `@kubb/core`. `setOptions()`, `useOptions()` and `injectFile()` report it in any hook other than `setup` and `kubb:plugin:setup`.
+A `kubb/kit` composable such as `useKubb()` ran outside a plugin hook: `setup`, `kubb:plugin:setup`, a hook in the plugin's `hooks` map or a visit hook. `addGenerator()`, `setResolver()`, `addMacro()` and `setMacros()` also report it for a plugin defined with `defineExtension` from `@kubb/core`. `setOptions()`, `useOptions()` and `injectFile()` report it in any hook other than `setup` and `kubb:plugin:setup`.
 
-**Fix:** Call it inside `setup` or `kubb:plugin:setup`, or in code they await. Generators and later hooks cannot use composables. Define the plugin with `defineExtension` from `kubb/kit`.
+**Fix:** Call it inside a plugin hook, or in code the hook awaits. Define the plugin with `defineExtension` from `kubb/kit`.
 
 ### KUBB_PARSER_FAILED {#kubb-parser-failed}
 

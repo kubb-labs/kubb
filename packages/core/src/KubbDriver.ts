@@ -568,7 +568,7 @@ export class KubbDriver {
 
     for (const state of states) {
       try {
-        await state.hooks['kubb:plugin:visit:start']?.(state.context)
+        await withContext(state.context, (ctx) => state.hooks['kubb:plugin:visit:start']?.call(ctx, ctx))
       } catch (caughtError) {
         state.error = toError(caughtError)
       }
@@ -585,13 +585,14 @@ export class KubbDriver {
         }
       }
     }
-    for (const node of schemas) await visit(node, (state) => state.hooks['kubb:plugin:visit:schema']?.(node, state.context))
-    for (const node of operations) await visit(node, (state) => state.hooks['kubb:plugin:visit:operation']?.(node, state.context))
+    for (const node of schemas) await visit(node, (state) => withContext(state.context, (ctx) => state.hooks['kubb:plugin:visit:schema']?.call(ctx, node, ctx)))
+    for (const node of operations)
+      await visit(node, (state) => withContext(state.context, (ctx) => state.hooks['kubb:plugin:visit:operation']?.call(ctx, node, ctx)))
 
     for (const state of states) {
       if (state.error) continue
       try {
-        await state.hooks['kubb:plugin:visit:end']?.(state.context)
+        await withContext(state.context, (ctx) => state.hooks['kubb:plugin:visit:end']?.call(ctx, ctx))
       } catch (caughtError) {
         state.error = toError(caughtError)
       }
