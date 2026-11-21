@@ -1,5 +1,6 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
 import type { Macro } from '@kubb/ast'
-import { Diagnostics, type KubbPluginSetupContext, type Memo, type PluginType, useKubb } from '@kubb/core'
+import { Diagnostics, type KubbPluginSetupContext, type Memo, type MemoKey, type MemoValue, type PluginType, tryUseKubb, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
 import type { ResolverInput } from './resolver/types.ts'
 import type { DefaultPluginType, Generator, PrinterFactory } from './types.ts'
@@ -101,4 +102,26 @@ export function setMacros(macros: ReadonlyArray<Macro>): void {
 export function setPrinter<TFactory extends PluginType = DefaultPluginType>(factory: PrinterFactory<TFactory>): void {
   const ctx = kitContext('setPrinter')
   ctx.memo.set(slot.printer(ctx.plugin.name), factory)
+}
+
+const walkMemoKey = Symbol.for('kubb.kit.walkMemo')
+type WalkMemoHost = typeof globalThis & { [walkMemoKey]?: AsyncLocalStorage<Memo> }
+
+/**
+ * Holds the build memo while kit's visitor runs a plugin's printer factory, generators and their rendering.
+ * It lives on `globalThis`, like core's setup context, so the ESM and CommonJS builds of kit share one.
+ */
+export const walkMemo: AsyncLocalStorage<Memo> = ((globalThis as WalkMemoHost)[walkMemoKey] ??= new AsyncLocalStorage<Memo>())
+
+/**
+ * Computes a value once per build and returns it on every later call with the same key. Works in `setup`, in a
+ * `setPrinter` factory, and in generators and the printers they render. Outside a build it computes the value on
+ * every call, so a printer used on its own still works.
+ *
+ * @example
+ * `const cache = useMemo('plugin-zod:directionalNodes', () => new WeakMap())`
+ */
+export function useMemo<TKey extends MemoKey, TValue extends MemoValue<TKey>>(key: TKey, compute: () => TValue): TValue {
+  const memo = walkMemo.getStore() ?? tryUseKubb()?.memo
+  return memo ? memo(key, compute) : compute()
 }

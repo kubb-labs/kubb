@@ -159,6 +159,7 @@ When your plugin computes the same value many times, cache it with `memo`.
 | --- | --- |
 | `this.memo(key, compute)` in a resolver | Computes each value once per build. |
 | `memo(store, key, compute)` | Caches in a store you own, outside a build: a `Map`, a `WeakMap`, or `memo.create()`. |
+| `useMemo(key, compute)` | Computes each value once per build, with no `ctx`. Works in `setup`, in a `setPrinter` factory, and in generators and the printers they render. Outside a build, it computes on every call. |
 
 - `memo.create({ weak: true })` frees an entry with its key.
 - `memo.create({ max })` empties the store when it is full.

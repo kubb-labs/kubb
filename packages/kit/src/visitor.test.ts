@@ -2,7 +2,7 @@ import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { addGenerator, addMacro, getResolver, resolverFor, setPrinter, setResolver, slot } from './composables.ts'
+import { addGenerator, addMacro, getResolver, resolverFor, setPrinter, setResolver, slot, useMemo } from './composables.ts'
 import { defineExtension, definePlugin } from './defineExtension.ts'
 import { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext } from './types.ts'
@@ -244,5 +244,29 @@ describe('generatorVisitor', () => {
     await build([plugin])
 
     expect(printers).toStrictEqual([undefined, undefined, undefined])
+  })
+
+  it('shares a useMemo value across the nodes of one build and recomputes it outside a build', async () => {
+    const values: Array<object> = []
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-use-memo' },
+      setup(options) {
+        addGenerator({
+          name: 'use-memo',
+          schema() {
+            values.push(useMemo('plugin-use-memo:cache', () => ({})))
+            return null
+          },
+        })
+        return options
+      },
+    })()
+
+    await build([plugin])
+
+    expect(values).toHaveLength(3)
+    expect(new Set(values).size).toBe(1)
+    expect(useMemo('plugin-use-memo:cache', () => ({}))).not.toBe(values[0])
   })
 })
