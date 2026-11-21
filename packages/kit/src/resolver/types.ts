@@ -139,6 +139,12 @@ export type ResolveNameOptions = {
   name: string
   /** Compares emitted identifiers while returning raw names. Return several names when one declaration emits more than one identifier. */
   normalize?: (name: string) => string | ReadonlyArray<string>
+  /**
+   * `'file'` dedupes file names apart from identifiers, so a file and the hook it holds can share a name.
+   *
+   * @default 'name'
+   */
+  scope?: 'name' | 'file'
 }
 
 /** Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Namespaces are partial, so a patch can replace one method and keep the rest. */

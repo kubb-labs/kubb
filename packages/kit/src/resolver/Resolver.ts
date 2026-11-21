@@ -73,6 +73,7 @@ export class Resolver {
   #usedNames = new Set<string>()
   #stringNames = memo.create<string, string>()
   #arrayNames = createNameNode()
+  #fileNames = { used: new Set<string>(), strings: memo.create<string, string>(), arrays: createNameNode() }
   #outputDirs = memo.create<Output, Map<string, string>>({ weak: true })
   #importPaths = memo.create<Output, Map<string, Map<string, Map<string, string>>>>({ weak: true })
   #tagParents = new Map<string, string>()
@@ -127,20 +128,21 @@ export class Resolver {
   }
 
   /** Returns the same name for repeated declaration keys. */
-  resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
-    if (typeof key === 'string') return memo(this.#stringNames, key, () => this.#allocateName({ name, normalize, suffix: 1 }))
+  resolveName({ key, name, normalize = (name: string) => name, scope = 'name' }: ResolveNameOptions): string {
+    const store = scope === 'file' ? this.#fileNames : { used: this.#usedNames, strings: this.#stringNames, arrays: this.#arrayNames }
+    if (typeof key === 'string') return memo(store.strings, key, () => this.#allocateName({ name, normalize, used: store.used, suffix: 1 }))
 
-    const node = key.reduce((parent, segment) => memo(parent.next, segment, createNameNode), this.#arrayNames)
-    node.name ??= this.#allocateName({ name, normalize, suffix: 1 })
+    const node = key.reduce((parent, segment) => memo(parent.next, segment, createNameNode), store.arrays)
+    node.name ??= this.#allocateName({ name, normalize, used: store.used, suffix: 1 })
     return node.name
   }
 
-  #allocateName({ name, normalize, suffix }: Required<Omit<ResolveNameOptions, 'key'>> & { suffix: number }): string {
+  #allocateName({ name, normalize, used, suffix }: Required<Pick<ResolveNameOptions, 'name' | 'normalize'>> & { used: Set<string>; suffix: number }): string {
     const candidate = suffix === 1 ? name : `${name}${suffix}`
     const normalized = normalize(candidate)
     const names = typeof normalized === 'string' ? [normalized] : normalized
-    if (names.some((emittedName) => this.#usedNames.has(emittedName))) return this.#allocateName({ name, normalize, suffix: suffix + 1 })
-    this.reserveNames(names)
+    if (names.some((emittedName) => used.has(emittedName))) return this.#allocateName({ name, normalize, used, suffix: suffix + 1 })
+    for (const emittedName of names) used.add(emittedName)
     return candidate
   }
 
