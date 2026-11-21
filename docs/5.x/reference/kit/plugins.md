@@ -92,7 +92,7 @@ await withContext(ctx, async function () {
 ```
 
 > [!WARNING]
-> Composables work in `setup`, `kubb:plugin:setup` and the [hooks in your `hooks` map](/docs/5.x/reference/kit/hooks#hook-listener-scope), where `useKubb()` returns your plugin's visit context. In generators and anywhere else, they throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
+> `useKubb()`, `useConfig()` and `memo()` work in `setup`, `kubb:plugin:setup` and the [hooks in your `hooks` map](/docs/5.x/reference/kit/hooks#hook-listener-scope), where `useKubb()` returns your plugin's visit context. `setOptions()`, `useOptions()` and `injectFile()` work only in `setup` and `kubb:plugin:setup`. Anywhere else, composables throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
 
 To cache outside a build, see [Memo caches](#memo-cache).
 
