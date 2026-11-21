@@ -44,6 +44,16 @@ export type FileTarget = Pick<FileNode, 'baseName' | 'path' | 'meta'> & {
 
 type Location = { root: string; output: Output; group: Group | undefined }
 
+/**
+ * A file that no single node owns, such as a file that lists every operation. `tag` and `path` place it in a `group` folder.
+ */
+export type NamedFile = { name: string; tag?: string; path?: string }
+
+/** What `file()` locates: a schema node, an operation node, or a named file. */
+export type FileSource = SchemaNode | OperationNode | NamedFile
+
+const isNode = (source: FileSource): source is SchemaNode | OperationNode => 'kind' in source
+
 type LocationOptions = {
   output: Output
   group?: Group | null
@@ -62,7 +72,7 @@ export function pluginOptionsFor(ctx: FileContext, node: SchemaNode | OperationN
 
 function toLocation(
   ctx: FileContext,
-  node: SchemaNode | OperationNode,
+  node: FileSource,
   plugin: PluginName | undefined,
   pluginOptions?: LocationOptions,
 ): { resolver: Resolver; location: Location } {
@@ -72,7 +82,8 @@ function toLocation(
   }
 
   // The target plugin's generators see its options after its override rules, so its files follow them too.
-  const { output, group } = pluginOptions ?? pluginOptionsFor(ctx, node, plugin) ?? (ctx.requirePlugin(plugin).options as LocationOptions)
+  const base = ctx.requirePlugin(plugin).options as LocationOptions
+  const { output, group } = pluginOptions ?? (isNode(node) ? pluginOptionsFor(ctx, node, plugin) : null) ?? base
   return { resolver: ctx.getResolver(plugin), location: { root: ctx.root, output, group: group ?? undefined } }
 }
 
@@ -114,12 +125,15 @@ function writesSchemaFiles(ctx: FileContext, pluginName: string): boolean {
 
 export function locateFile(
   ctx: FileContext,
-  node: SchemaNode | OperationNode,
+  node: FileSource,
   options: FileOptions & { exportName?: string } = {},
   pluginOptions?: LocationOptions,
 ): { resolver: Resolver; location: Location; file: FileNode } {
   const { extname = '.ts' } = options
   const { resolver, location } = toLocation(ctx, node, options.plugin, pluginOptions)
+  if (!isNode(node)) {
+    return { resolver, location, file: resolver.file({ name: options.name ?? node.name, extname, tag: node.tag, path: node.path, ...location }) }
+  }
   const suffix = options.suffix ?? writesSchemaFiles(ctx, options.plugin ?? ctx.plugin.name)
   const name = options.name ?? resolver.fileName(node, options.exportName) ?? (node.kind === 'Operation' ? node.operationId : node.name)
   if (!name) {
@@ -140,7 +154,7 @@ export function locateFile(
 /**
  * `file` for an explicit context. Generators get it as `ctx.file`.
  */
-export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, options: FileOptions = {}): FileTarget {
+export function resolveFile(ctx: FileContext, node: FileSource, options: FileOptions = {}): FileTarget {
   const { resolver, location, file: resolved } = locateFile(ctx, node, options)
   const fileContext = { output: location.output, config: ctx.config, file: { path: resolved.path, baseName: resolved.baseName } }
 
@@ -157,10 +171,13 @@ export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, 
  * The `<File>` props for the file the current generator writes `node` to, with the banner and footer from the plugin's `output`.
  * The same as `ctx.file(node)` and `this.file(node)`.
  *
+ * Pass `{ name }` for a file that no single node owns, such as an index of every operation.
+ *
  * @example
  * `<File {...file(node)}>…</File>`
+ * `<File {...file({ name: 'handlers' })}>…</File>`
  */
-export function file(node: SchemaNode | OperationNode, options?: FileOptions): FileTarget {
+export function file(node: FileSource, options?: FileOptions): FileTarget {
   return resolveFile(useFileContext('file'), node, options)
 }
 

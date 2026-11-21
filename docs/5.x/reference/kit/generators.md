@@ -118,7 +118,8 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 `file(node, options?)` returns the `<File>` props for the file a generator writes: `baseName`, `path`, `meta`, and the `banner` and `footer` from the plugin's `output`. Spread it onto `<File>`. It is a composable, so it reads the current generator context. `ctx.file(node)` and `this.file(node)` do the same.
 
 - A schema's file is named after `node.name`, and an operation's file after `node.operationId`. Pass `name` to choose another name.
-- An operation file that would land on a component schema's file, ignoring case, gets an `Operation` suffix: operation `point` goes to `pointOperation.ts`, next to schema `point.ts`. The declarations keep their names. Pass `suffix: false` to keep the plain name, for files that never share a folder with schema files.
+- An operation file that would land on a component schema's file, ignoring case, gets an `Operation` suffix: operation `point` goes to `pointOperation.ts`, next to schema `point.ts`. The declarations keep their names. Kit adds it only when the plugin has a schema generator. Pass `suffix` to decide per call.
+- Pass `{ name }` instead of a node for a file that no single node owns, such as a list of every operation: `file({ name: 'handlers' })`. Add `tag` or `path` to put it in its [`group`](/docs/5.x/reference/plugin-options#group) folder.
 - Pass `plugin` to get another plugin's file, such as the types to import. `file` then uses that plugin's resolver, `output` and `group`, after its `include`, `exclude` and `override` rules. A missing plugin reports `KUBB_PLUGIN_NOT_FOUND`.
 - Outside a generator or a printer factory, `file()` reports `KUBB_NO_CONTEXT`.
 
