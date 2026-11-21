@@ -30,12 +30,20 @@ export function compareMacroOrder(a?: Enforce, b?: Enforce): number {
 }
 
 /**
+ * The {@link Visitor} callbacks with `this` typed as the {@link VisitorContext}. A macro callback gets
+ * the context both as `this` and as its second argument.
+ */
+type MacroCallbacks = {
+  [K in VisitorKey]?: (this: VisitorContext, ...args: Parameters<NonNullable<Visitor[K]>>) => ReturnType<NonNullable<Visitor[K]>>
+}
+
+/**
  * A named, composable transform over the Kubb AST. It carries the same per-kind callbacks as a
  * {@link Visitor} (`schema`, `operation`, …), plus a `name`, an optional `enforce` order, and an
- * optional `match` predicate. Macros run on the shared AST, so the same macro works across every
+ * optional `match` predicate. Each callback gets the visitor context as `this` and as its second argument. Macros run on the shared AST, so the same macro works across every
  * adapter and output target. Exports follow the `macro<Name>` convention, mirroring plugins (`pluginTs`).
  */
-export type Macro = Visitor & {
+export type Macro = MacroCallbacks & {
   /**
    * Macro identifier used to tell macros apart, for example `'dedupe-union'`.
    */
@@ -70,7 +78,7 @@ export function defineMacro(macro: Macro): Macro {
   return macro
 }
 
-type MacroCallback = (node: Node, context: VisitorContext) => Node | null | undefined
+type MacroCallback = (this: VisitorContext, node: Node, context: VisitorContext) => Node | null | undefined
 
 type ChainProps = {
   macros: ReadonlyArray<Macro>
@@ -92,7 +100,7 @@ function chain({ macros, key, node, context }: ChainProps): Node | undefined {
     if (!callback) continue
     if (macro.match && !macro.match(current)) continue
 
-    const next = callback(current, context)
+    const next = callback.call(context, current, context)
     if (next != null) current = next
   }
 

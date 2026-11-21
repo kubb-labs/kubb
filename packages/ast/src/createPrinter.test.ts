@@ -296,4 +296,28 @@ describe('createPrinter', () => {
     expect(printer.print(createSchema({ type: 'string' }))).toBe('z.string()')
     expect(builds).toBe(1)
   })
+
+  it('passes the handler context as this and as the second argument', () => {
+    type P = PrinterFactoryOptions<'zod', object, string>
+    const seen: Array<boolean> = []
+
+    const printer = createPrinter<P>(() => ({
+      name: 'zod',
+      options: {},
+      nodes: {
+        string(_node, ctx) {
+          seen.push(this === ctx)
+          return 'z.string()'
+        },
+        array: (node, ctx) => `z.array(${ctx.transform(node.items![0]!)})`,
+      },
+      print(node, ctx) {
+        seen.push(this === ctx)
+        return ctx.transform(node)
+      },
+    }))()
+
+    expect(printer.print(createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }))).toBe('z.array(z.string())')
+    expect(seen).toEqual([true, true])
+  })
 })
