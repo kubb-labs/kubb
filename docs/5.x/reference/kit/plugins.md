@@ -96,15 +96,7 @@ Methods have a composable of the same name, such as `requirePlugin()`. `useKubb(
 
 The setup context is also `this` in `setup` and `kubb:plugin:setup`, so `this`, `ctx` and `useKubb()` are the same object. `setOptions()`, `useOptions()` and `injectFile()` run only in setup, and throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context) anywhere else.
 
-To run your own code with a context, call `withContext(ctx, fn)`. It runs `fn` with `ctx` as its `this`, its argument and the value `useKubb()` returns, also after an `await` in `fn`:
-
-```typescript
-import { useKubb, withContext } from 'kubb/kit'
-
-await withContext(ctx, async function () {
-  console.log(this === useKubb()) // true
-})
-```
+To run your own code with a context, see [`withContext`](/docs/5.x/reference/kit/context#withcontext).
 
 > [!WARNING]
 > `useKubb()`, `useConfig()` and `memo()` work in `setup`, `kubb:plugin:setup`, the [hooks in your `hooks` map](/docs/5.x/reference/kit/hooks#hook-listener-scope) with [visit hooks](/docs/5.x/reference/kit/hooks#visit-hooks), and [generators](/docs/5.x/reference/kit/generators#generatorcontext). `useKubb()` returns the context of the hook that runs. `setOptions()`, `useOptions()` and `injectFile()` work only in `setup` and `kubb:plugin:setup`. Anywhere else, composables throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
@@ -203,4 +195,4 @@ export const toRegExp = (pattern: string) => memo(patterns, pattern, () => new R
 
 When your plugin's `setup` awaits something before it calls a composable, the composable still reads the context of the plugin whose setup is running.
 
-Outside `setup` and `kubb:plugin:setup`, including in generators, composables throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
+[Context](/docs/5.x/reference/kit/context#composables) lists which composables work in which hook.
