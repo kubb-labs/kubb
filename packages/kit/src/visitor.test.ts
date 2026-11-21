@@ -100,6 +100,31 @@ describe('generatorVisitor', () => {
     expect(seen).toStrictEqual([true, true])
   })
 
+  it('registers through setup context methods the same as the composables', async () => {
+    const seen: Array<boolean> = []
+    const generator = { name: 'methods', schema: () => [] }
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-methods' },
+      setup(options, kubb) {
+        kubb.setResolver({ name: (name: string) => `Api${name}` })
+        kubb.addGenerator(generator)
+        return options
+      },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          seen.push(typeof ctx.addMacro === 'function')
+        },
+      },
+    })
+
+    const { driver } = await build([plugin({})])
+
+    expect(seen).toStrictEqual([true])
+    expect(driver.memo.get(slot.generators('plugin-methods'))).toStrictEqual([generator])
+    expect(getResolver('plugin-methods', driver.memo).name('Pet')).toBe('ApiPet')
+  })
+
   it('runs macros, the resolver, match and every generator kind', async () => {
     const log: Array<string> = []
 

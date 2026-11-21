@@ -41,6 +41,7 @@ export { defineGenerator } from './defineGenerator.ts'
 export { createResolver } from './resolver/createResolver.ts'
 export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
 export { defineExtension, definePlugin } from './defineExtension.ts'
+export type { KitSetupContext } from './defineExtension.ts'
 export type { Generator, GeneratorContext, PluginType, PrinterContext, PrinterFactory } from './types.ts'
 export type { ResolveOptionsContext } from './resolver/resolveOptions.ts'
 export type {
