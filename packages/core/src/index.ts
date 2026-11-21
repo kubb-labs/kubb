@@ -1,5 +1,6 @@
 export { createAdapter } from './createAdapter.ts'
-export { injectFile, kubbContext, memo, requirePlugin, setOptions, tryUseKubb, useConfig, useKubb, useOptions } from './composables.ts'
+export { injectFile, kubbContext, memo, requirePlugin, setOptions, tryUseKubb, useConfig, useKubb, useOptions, withContext } from './composables.ts'
+export type { KubbContext } from './composables.ts'
 export { Diagnostics } from './Diagnostics.ts'
 export type { DiagnosticFormatOptions, SerializedDiagnostic } from './formatDiagnostic.ts'
 export { camelCase, pascalCase } from '@internals/utils'

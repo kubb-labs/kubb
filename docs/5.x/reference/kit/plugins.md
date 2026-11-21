@@ -79,6 +79,18 @@ The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds the
 
 Methods have a composable of the same name, such as `requirePlugin()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
 
+The setup context is also `this` in `setup` and `kubb:plugin:setup`, so `this`, `ctx` and `useKubb()` are the same object. `setOptions()`, `useOptions()` and `injectFile()` run only in setup, and throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context) anywhere else.
+
+To run your own code with a context, call `withContext(ctx, fn)`. It runs `fn` with `ctx` as its `this`, its argument and the value `useKubb()` returns, also after an `await` in `fn`:
+
+```typescript
+import { useKubb, withContext } from 'kubb/kit'
+
+await withContext(ctx, async function () {
+  console.log(this === useKubb()) // true
+})
+```
+
 > [!WARNING]
 > Composables work only in `setup` and `kubb:plugin:setup`. In generators and anywhere else, they throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
 

@@ -1,26 +1,42 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { memo as storeMemo } from '@internals/utils'
 import type { UserFileNode } from '@kubb/ast'
-import type { KubbPluginSetupContext, NormalizedPlugin, PluginType, PluginName, ResolvePluginOptions } from './definePlugin.ts'
+import type { KubbPluginSetupContext, NormalizedPlugin, PluginType, PluginName, PluginVisitContext, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Memo, MemoKey, MemoValue } from './memo.ts'
 import type { Config } from './types.ts'
 
 const kubbContextKey = Symbol.for('kubb.context')
 
-type KubbContextHost = typeof globalThis & { [kubbContextKey]?: AsyncLocalStorage<KubbPluginSetupContext> }
+/**
+ * A context the `kubbContext` store can hold: the setup context in `setup` and `kubb:plugin:setup`,
+ * or the plugin visit context in the other hooks.
+ */
+export type KubbContext = KubbPluginSetupContext | PluginVisitContext
+
+type KubbContextHost = typeof globalThis & { [kubbContextKey]?: AsyncLocalStorage<KubbContext> }
 
 const host = globalThis as KubbContextHost
 
 /**
- * Holds the setup context of the plugin whose `setup` or `kubb:plugin:setup` is running. `KubbDriver` sets it for each plugin.
+ * Holds the context of the plugin hook that is running. {@link withContext} sets it.
  *
  * The store lives on `globalThis`, so the ESM and CommonJS builds of `@kubb/core` share one. A plugin that a
  * CommonJS config loads would otherwise read an empty store and fail with `KUBB_NO_CONTEXT`.
  */
-export const kubbContext: AsyncLocalStorage<KubbPluginSetupContext> = (host[kubbContextKey] ??= new AsyncLocalStorage<KubbPluginSetupContext>())
+export const kubbContext: AsyncLocalStorage<KubbContext> = (host[kubbContextKey] ??= new AsyncLocalStorage<KubbContext>())
 
-function requireContext(caller: string): KubbPluginSetupContext {
+/**
+ * Runs `fn` with `ctx` as its `this`, its argument and the store `useKubb()` reads, also after an `await` in `fn`.
+ *
+ * @example
+ * `await withContext(ctx, async function () { await plugin.setup.call(this, this.options, this) })`
+ */
+export function withContext<TContext extends object, TResult>(ctx: TContext, fn: (this: TContext, ctx: TContext) => TResult): TResult {
+  return kubbContext.run(ctx as unknown as KubbContext, () => fn.call(ctx, ctx))
+}
+
+function requireContext(caller: string): KubbContext {
   const ctx = kubbContext.getStore()
   if (ctx) return ctx
 
@@ -32,26 +48,43 @@ function requireContext(caller: string): KubbPluginSetupContext {
   })
 }
 
-/**
- * Returns the context of the plugin whose `kubb:plugin:setup` is running. It stays available after an `await`.
- * Throws `KUBB_NO_CONTEXT` outside setup.
- */
-export function useKubb<TFactory extends PluginType = PluginType>(): KubbPluginSetupContext<TFactory> {
-  return requireContext('useKubb') as KubbPluginSetupContext<TFactory>
+// A setup context is the only one with `setOptions`.
+function requireSetupContext(caller: string): KubbPluginSetupContext {
+  const ctx = requireContext(caller)
+  if ('setOptions' in ctx) return ctx
+
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.noContext,
+    severity: 'error',
+    plugin: ctx.plugin.name,
+    message: `\`${caller}()\` runs only in \`setup\` or \`kubb:plugin:setup\`.`,
+    help: `Call \`${caller}()\` inside \`setup\` or \`kubb:plugin:setup\`, including in code that setup awaits.`,
+  })
 }
 
 /**
- * Returns the same context as {@link useKubb}, or `undefined` outside `setup` and `kubb:plugin:setup`.
+ * Returns the context of the running hook, the same object as its `this` and `ctx`, for every hook core
+ * runs through `withContext`. It stays available after an `await`. Throws `KUBB_NO_CONTEXT` when no
+ * context is set.
+ *
+ * Pass the context type to read hook-specific fields, such as `useKubb<PluginVisitContext>()`.
  */
-export function tryUseKubb<TFactory extends PluginType = PluginType>(): KubbPluginSetupContext<TFactory> | undefined {
-  return kubbContext.getStore() as KubbPluginSetupContext<TFactory> | undefined
+export function useKubb<TContext extends KubbContext = KubbPluginSetupContext>(): TContext {
+  return requireContext('useKubb') as TContext
 }
 
 /**
- * Adds a raw file to the build output, like `ctx.injectFile`.
+ * Returns the same context as {@link useKubb}, or `undefined` outside a plugin hook.
+ */
+export function tryUseKubb<TContext extends KubbContext = KubbPluginSetupContext>(): TContext | undefined {
+  return kubbContext.getStore() as TContext | undefined
+}
+
+/**
+ * Adds a raw file to the build output, like `ctx.injectFile`. Runs only in `setup` and `kubb:plugin:setup`.
  */
 export function injectFile(file: UserFileNode): void {
-  requireContext('injectFile').injectFile(file)
+  requireSetupContext('injectFile').injectFile(file)
 }
 
 /**
@@ -81,17 +114,17 @@ export const memo: Memo & typeof storeMemo = Object.assign(
 ) as Memo & typeof storeMemo
 
 /**
- * Returns the options the user passed to the plugin being set up, like `ctx.options`.
+ * Returns the options the user passed to the plugin being set up, like `ctx.options`. Runs only in `setup` and `kubb:plugin:setup`.
  */
 export function useOptions<TFactory extends PluginType = PluginType>(): TFactory['options'] {
-  return requireContext('useOptions').options as TFactory['options']
+  return requireSetupContext('useOptions').options as TFactory['options']
 }
 
 /**
- * Sets the resolved options of the plugin being set up, like `ctx.setOptions`.
+ * Sets the resolved options of the plugin being set up, like `ctx.setOptions`. Runs only in `setup` and `kubb:plugin:setup`.
  */
 export function setOptions<TFactory extends PluginType = PluginType>(options: TFactory['resolvedOptions']): void {
-  requireContext('setOptions').setOptions(options)
+  requireSetupContext('setOptions').setOptions(options)
 }
 
 /**
