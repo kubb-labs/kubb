@@ -81,19 +81,20 @@ const getOnlyGenerator = defineGenerator({
 
 Each method gets `ctx` with these fields:
 
-| Field          | Type                        | Holds                                                                                                                       |
-| -------------- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `ctx.config`   | `Config`                    | The resolved Kubb config.                                                                                                   |
-| `ctx.root`     | `string`                    | Absolute path of the root output folder, the same for every plugin.                                                         |
-| `ctx.options`  | `TResolvedOptions`          | The node's options after `exclude`, `include`, and `override`. In `operations()`, the plugin's options.                     |
-| `ctx.plugin`   | `Plugin`                    | The current plugin.                                                                                                         |
-| `ctx.resolver` | `Resolver`                  | The current plugin's [resolver](/docs/5.x/reference/kit/resolvers).                                                         |
-| `ctx.adapter`  | `Adapter`                   | The adapter that parsed the input.                                                                                          |
-| `ctx.meta`     | `InputMeta`                 | Document metadata: `title`, `version`, `baseURL`, `servers`, and the `auth` schemes.                                        |
-| `ctx.schemas`  | `ReadonlyArray<SchemaNode>` | Every schema in the spec, in adapter order. The OpenAPI adapter puts a referenced schema first, except in reference cycles. |
-| `ctx.hooks`    | `Hookable<KubbHooks>`       | The build's [hook](/docs/5.x/reference/kit/hooks) emitter.                                                                  |
-| `ctx.driver`   | `KubbDriver`                | Deprecated. Use `ctx.schemas` and the helpers below.                                                                        |
-| `ctx.signal`   | `AbortSignal \| undefined`  | Stops generation at the next safe checkpoint.                                                                               |
+| Field            | Type                           | Holds                                                                                                                       |
+| ---------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `ctx.config`     | `Config`                       | The resolved Kubb config.                                                                                                   |
+| `ctx.root`       | `string`                       | Absolute path of the root output folder, the same for every plugin.                                                         |
+| `ctx.options`    | `TResolvedOptions`             | The node's options after `exclude`, `include`, and `override`. In `operations()`, the plugin's options.                     |
+| `ctx.plugin`     | `Plugin`                       | The current plugin.                                                                                                         |
+| `ctx.resolver`   | `Resolver`                     | The current plugin's [resolver](/docs/5.x/reference/kit/resolvers).                                                         |
+| `ctx.adapter`    | `Adapter`                      | The adapter that parsed the input.                                                                                          |
+| `ctx.meta`       | `InputMeta`                    | Document metadata: `title`, `version`, `baseURL`, `servers`, and the `auth` schemes.                                        |
+| `ctx.schemas`    | `ReadonlyArray<SchemaNode>`    | Every schema in the spec, in adapter order. The OpenAPI adapter puts a referenced schema first, except in reference cycles. |
+| `ctx.operations` | `ReadonlyArray<OperationNode>` | Every operation in the spec, in adapter order.                                                                              |
+| `ctx.hooks`      | `Hookable<KubbHooks>`          | The build's [hook](/docs/5.x/reference/kit/hooks) emitter.                                                                  |
+| `ctx.driver`     | `KubbDriver`                   | Deprecated. Use `ctx.schemas`, `ctx.operations` and the helpers below.                                                      |
+| `ctx.signal`     | `AbortSignal \| undefined`     | Stops generation at the next safe checkpoint.                                                                               |
 
 `ctx` also has these helpers:
 
@@ -101,6 +102,7 @@ Each method gets `ctx` with these fields:
 | --------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `ctx.addFile()`       | `(...files: Array<FileNode>) => Promise<void>`                            | Adds files, skipping any that already exist.                                                         |
 | `ctx.upsertFile()`    | `(...files: Array<FileNode>) => Promise<void>`                            | Adds files, or merges their sources and imports into an existing file.                               |
+| `ctx.dispatch()`      | `({ result, renderer?, pointer? }) => Promise<void>`                      | Adds a generator result: files as they are, or elements through `renderer`.                          |
 | `ctx.getPlugin()`     | `(name: string) => Plugin \| undefined`                                   | Returns a plugin by name.                                                                            |
 | `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Returns a plugin by name, or throws.                                                                 |
 | `ctx.getResolver()`   | `(name: string) => Resolver`                                              | Returns another plugin's resolver.                                                                   |

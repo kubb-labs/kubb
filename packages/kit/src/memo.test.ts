@@ -1,4 +1,5 @@
-import type { GeneratorContext, KubbPluginSetupContext, Memo } from '@kubb/core'
+import type { KubbPluginSetupContext, Memo } from '@kubb/core'
+import type { GeneratorContext } from './types.ts'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { memo } from './memo.ts'
 

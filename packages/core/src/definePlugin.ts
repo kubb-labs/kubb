@@ -1,10 +1,13 @@
 import path from 'node:path'
 import type { LiteralUnion } from '@internals/utils'
-import type { Enforce, HttpMethod, Macro, OperationNode, SchemaNode, UserFileNode } from '@kubb/ast'
-import type { Generator, GeneratorContext } from './defineGenerator.ts'
+import type { Enforce, FileNode, HttpMethod, InputMeta, OperationNode, SchemaNode, UserFileNode } from '@kubb/ast'
+import type { Adapter } from './createAdapter.ts'
+import type { ProblemDiagnostic } from './Diagnostics.ts'
+import type { FileManager } from './FileManager.ts'
+import type { Hookable } from './Hookable.ts'
+import type { KubbDriver } from './KubbDriver.ts'
 import { defineExtension } from './defineExtension.ts'
 import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
-import type { BannerMeta, Resolver, ResolverInput } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Memo } from './memo.ts'
 import type { Config, FilesContext, KubbHooks } from './types.ts'
@@ -23,6 +26,31 @@ export type PluginName = LiteralUnion<keyof Kubb.PluginRegistry>
  * maps to its exact factory options, any other string falls back to the generic options.
  */
 export type ResolvePluginOptions<TName> = TName extends keyof Kubb.PluginRegistry ? Kubb.PluginRegistry[TName] : PluginType
+
+/**
+ * Document metadata extended with per-file context, passed to a `banner`/`footer` function.
+ *
+ * @example Skip a directive on re-export files
+ * `banner: (meta) => (meta.isBarrel || meta.isAggregation) ? '' : "'use server'"`
+ */
+export type BannerMeta = InputMeta & {
+  /**
+   * Full output path of the file being generated.
+   */
+  filePath: string
+  /**
+   * File name only, e.g. `'stocks.ts'`.
+   */
+  baseName: string
+  /**
+   * `true` for `index.ts` re-export barrels.
+   */
+  isBarrel: boolean
+  /**
+   * `true` for group `[dir]/[dir].ts` aggregation files.
+   */
+  isAggregation: boolean
+}
 
 /**
  * How a plugin consolidates its generated code into files.
@@ -331,9 +359,9 @@ export type PluginType<
   TResolvedOptions extends object = TOptions,
   /**
    * Resolver that encapsulates naming and path-resolution helpers.
-   * Define with `createResolver` and export alongside the plugin.
+   * Define with `createResolver` from `@kubb/kit` and export alongside the plugin.
    */
-  TResolver extends Resolver = Resolver,
+  TResolver = unknown,
 > = {
   name: TName
   options: TOptions
@@ -342,48 +370,9 @@ export type PluginType<
 }
 
 /**
- * Context passed to a plugin's `kubb:plugin:setup` handler, where it registers generators and
- * sets its resolver, transformer, and options.
+ * Context passed to a plugin's `setup` and `kubb:plugin:setup` handlers, where it sets its options.
  */
 export type KubbPluginSetupContext<TFactory extends PluginType = PluginType> = {
-  /**
-   * Register one or more generators dynamically. Generators fire during the AST walk
-   * (schema/operation/operations) just like generators declared statically on `createPlugin`.
-   *
-   * Pass generators as separate arguments. Spread an existing list to register it in one call.
-   *
-   * @example
-   * ```ts
-   * ctx.addGenerator(myGenerator)
-   * ctx.addGenerator(schemaGenerator, operationGenerator)
-   * ctx.addGenerator(...selectedGenerators)
-   * ```
-   *
-   * @deprecated Call `addGenerator` from `@kubb/kit` instead.
-   */
-  addGenerator<TElement = unknown>(...generators: Array<Generator<TFactory, TElement>>): void
-  /**
-   * Set or override the resolver for this plugin.
-   * The resolver controls file naming and path resolution. Overrides merge over the built-in
-   * defaults, so a partial `core` or a single namespace method replaces only what it names.
-   * Pass an array to merge several parts in order; a later part wins per method.
-   *
-   * @deprecated Call `setResolver` from `@kubb/kit` instead.
-   */
-  setResolver(resolver: ResolverInput<TFactory['resolver']>): void
-  /**
-   * Add a macro that rewrites AST nodes before they reach generators. Macros run in the order they
-   * are added, after any macros from earlier `addMacro` calls.
-   *
-   * @deprecated Call `addMacro` from `@kubb/kit` instead.
-   */
-  addMacro(macro: Macro): void
-  /**
-   * Replace this plugin's macros with `macros`.
-   *
-   * @deprecated Call `setMacros` from `@kubb/kit` instead.
-   */
-  setMacros(macros: ReadonlyArray<Macro>): void
   /**
    * Set resolved options merged into the normalized plugin's `options`.
    * Call this in `kubb:plugin:setup` to provide options generators need.
@@ -417,9 +406,77 @@ export type KubbPluginSetupContext<TFactory extends PluginType = PluginType> = {
 }
 
 /**
- * Context of the `kubb:plugin:visit:*` hooks: the generator context without per-node `options`.
+ * Context the driver passes to a plugin's visit hooks for the whole walk. `@kubb/kit` adds the
+ * resolver and per-node options on top of it for generators.
+ *
+ * The driver sets `adapter` before the walk, so hooks can read it without a null check.
  */
-export type PluginVisitContext<TFactory extends PluginType = PluginType> = Omit<GeneratorContext<TFactory>, 'options'>
+export type PluginVisitContext<TOptions extends PluginType = PluginType> = {
+  /** Stops cooperative generation work at the next safe checkpoint. */
+  signal?: AbortSignal
+  /** The resolved Kubb config for this build, including `root`, `input`, `output`, and the full plugin list. */
+  config: Config
+  /**
+   * Absolute path to the build's output directory: `config.output.path` resolved against `config.root`.
+   * It is the same for every plugin. A plugin's own `output.path` is relative to it.
+   */
+  root: string
+  /**
+   * @deprecated Use `schemas`, `getPlugin` and `memo` instead. Removed in the next major version.
+   */
+  driver: KubbDriver
+  /** Get a plugin by name, typed via `Kubb.PluginRegistry` when registered. */
+  getPlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>> | undefined
+  /** Get a plugin by name, throws an error if not found. */
+  requirePlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>>
+  /** Add files only if they don't exist. */
+  addFile: (...file: Array<FileNode>) => Promise<void>
+  /** Merge sources into the same output file. */
+  upsertFile: (...file: Array<FileNode>) => Promise<void>
+  /** The build's hook bus. Emit or listen to any `KubbHooks` hook, for example to react to `kubb:build:end` from inside a generator. */
+  hooks: Hookable<KubbHooks>
+  /** The current plugin instance. */
+  plugin: Plugin<TOptions> & { name: string; meta: ExtensionMeta }
+  /**
+   * Report a warning. Collected as a `warning` diagnostic attributed to the current
+   * plugin. It surfaces in the run summary but does not fail the build. Pass `options` to set
+   * the `code`, the `help` text, or the source `location`.
+   *
+   * @example
+   * `ctx.warn('Enum has no values', { help: 'Add values to the enum.', location: { kind: 'schema', pointer: '#/components/schemas/Status' } })`
+   */
+  warn: (message: string, options?: Partial<Pick<ProblemDiagnostic, 'code' | 'help' | 'location'>>) => void
+  /**
+   * Report an error. Collected as an `error` diagnostic attributed to the current
+   * plugin, which fails the build. A `Diagnostics.Error` keeps its own code, help, and location.
+   * Pass `options` to set them for a plain message or error.
+   */
+  error: (error: string | Error, options?: Partial<Pick<ProblemDiagnostic, 'code' | 'help' | 'location'>>) => void
+  /**
+   * Report an informational message. Collected as an `info` diagnostic attributed to
+   * the current plugin. Pass `options` to set the `code`, the `help` text, or the source `location`.
+   */
+  info: (message: string, options?: Partial<Pick<ProblemDiagnostic, 'code' | 'help' | 'location'>>) => void
+  /** The configured adapter instance. */
+  adapter: Adapter
+  /**
+   * Document metadata from the adapter: title, version, base URL, servers, and security schemes.
+   * Derive schema indexes such as circular or enum names with `memo`.
+   */
+  meta: InputMeta
+  /** Every schema in the spec, in the order the adapter returns them. Empty before the adapter parses the input. */
+  schemas: ReadonlyArray<SchemaNode>
+  /** Every operation in the spec, in the order the adapter returns them. Empty before the adapter parses the input. */
+  operations: ReadonlyArray<OperationNode>
+  /** Adds a generator result to the build: files as they are, or elements through `renderer`. A `pointer` is set on each source that carries none. */
+  dispatch: FileManager['dispatch']
+  /**
+   * Cache for the whole build, shared by every plugin, where `resolver.memo` is one plugin. Prefix a
+   * key with the plugin name unless every plugin wants the same value, and name the node for
+   * node-derived work, such as `plugin-ts:imports:${node.operationId}`.
+   */
+  memo: Memo
+}
 
 /**
  * Hooks the driver calls for one plugin while it walks the input: `start`, then every schema, then
@@ -500,9 +557,6 @@ export type NormalizedPlugin<TOptions extends PluginType = PluginType> = Plugin<
     exclude: Array<Exclude>
     override: Array<Override<TOptions['resolvedOptions']>>
   }
-  resolver: TOptions['resolver']
-  macros?: Array<Macro>
-  generators?: Array<Generator>
 }
 
 export type KubbPluginStartContext = {

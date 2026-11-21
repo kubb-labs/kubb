@@ -96,6 +96,7 @@
     "@internals/shared": "workspace:*",
     "@internals/utils": "workspace:*",
     "@kubb/adapter-oas": "workspace:*",
+    "@kubb/kit": "workspace:*",
     "tsdown": "catalog:"
   },
   "peerDependencies": {

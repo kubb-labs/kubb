@@ -1,5 +1,6 @@
 import { ast } from '@kubb/ast'
-import { type Config, type GeneratorContext, type KubbPluginSetupContext, memoryStorage, type Plugin } from '@kubb/core'
+import { type Config, memoryStorage, type Plugin } from '@kubb/core'
+import { addGenerator, defineExtension, type GeneratorContext } from '@kubb/kit'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it } from 'vitest'
 import { createGenerationStore, generate, hashOf, type GenerationStore, type SourceFiles } from './generations.ts'
@@ -114,23 +115,22 @@ describe('createGenerationStore', () => {
 describe('generate', () => {
   // Records where the build places each schema file.
   function makeConfig(name: string, placed: Array<string>): Config {
-    const types: Plugin = {
-      name: 'types',
-      options: { output: { path: 'types' } },
-      hooks: {
-        'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
-          ctx.addGenerator({
-            name: 'types',
-            schema(node: ast.SchemaNode, gctx: GeneratorContext) {
-              placed.push(
-                gctx.getResolver('types').file({ name: node.name!, extname: '.ts', root: gctx.root, output: { path: 'types', mode: 'directory' } }).path,
-              )
-              return null
-            },
-          })
-        },
+    const types = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'types' },
+      setup(options) {
+        addGenerator({
+          name: 'types',
+          schema(node: ast.SchemaNode, gctx: GeneratorContext) {
+            placed.push(
+              gctx.getResolver('types').file({ name: node.name!, extname: '.ts', root: gctx.root, output: { path: 'types', mode: 'directory' } }).path,
+            )
+            return null
+          },
+        })
+        return options
       },
-    } as unknown as Plugin
+    })({ output: { path: 'types' } }) as unknown as Plugin
     const schemas = [ast.factory.createSchema({ type: 'string', name: 'Name' }), ast.factory.createSchema({ type: 'string', name })]
 
     return {

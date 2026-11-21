@@ -1,12 +1,8 @@
 import { memo } from '@internals/utils'
 import { ast, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
-import type { Filter, Override } from './definePlugin.ts'
+import type { Filter, Override } from '@kubb/core'
 
-/**
- * Filters and overrides applied to an operation or schema's options.
- *
- * @internal
- */
+/** Filters and overrides applied to an operation or schema's options. */
 export type ResolveOptionsContext<TOptions> = {
   options: TOptions
   exclude?: Array<Filter>
@@ -71,9 +67,7 @@ function computeOptions<TOptions>(node: Node, { options, exclude = [], include, 
   return options
 }
 
-/**
- * Returns `null` for filtered nodes. Caches merged options per options object and node.
- */
+/** Returns `null` for filtered nodes. */
 export function resolveOptions<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null {
   const { options } = context
   // Primitive options cannot be WeakMap keys.

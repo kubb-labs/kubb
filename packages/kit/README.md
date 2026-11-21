@@ -41,13 +41,13 @@ npm install kubb
 ## Usage
 
 ```typescript
-import { ast, defineExtension, defineGenerator } from 'kubb/kit'
+import { addGenerator, ast, defineExtension, defineGenerator } from 'kubb/kit'
 
 export const pluginExample = defineExtension({
   kind: 'plugin',
   meta: { name: 'plugin-example' },
-  setup(_options, kubb) {
-    kubb.addGenerator(
+  setup() {
+    addGenerator(
       defineGenerator({
         name: 'example',
         schema(node) {

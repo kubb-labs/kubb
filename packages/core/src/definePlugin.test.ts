@@ -1,71 +1,6 @@
-import type { OperationNode } from '@kubb/ast'
-import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, renderGeneratorOperation } from '@kubb/core/mocks'
 import { describe, expect, it } from 'vitest'
-import { defineExtension } from './defineExtension.ts'
-import { defineGenerator } from './defineGenerator.ts'
 import { assertPluginOption, normalizeOutput } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
-import type { Resolver } from './Resolver.ts'
-import { KubbDriver } from './KubbDriver.ts'
-import type { Config, KubbHooks } from './types.ts'
-import { memoryStorage } from './storages/memoryStorage.ts'
-import { Hookable } from './Hookable.ts'
-
-function makeConfig(overrides: Partial<Config> = {}): Config {
-  return {
-    root: '.',
-    input: './petStore.yaml',
-    output: { path: './gen' },
-    parsers: [],
-    reporters: [],
-    adapter: createMockedAdapter(),
-    plugins: [],
-    storage: memoryStorage(),
-    ...overrides,
-  }
-}
-
-/**
- * A driver with its setup hooks already run, so `kubb:plugin:setup` side effects can be observed
- * without a full build.
- */
-async function setupDriver(plugins: Config['plugins'], hooks = new Hookable<KubbHooks>()): Promise<KubbDriver> {
-  const driver = new KubbDriver(makeConfig({ plugins }), { hooks })
-  await driver.setup()
-  await driver.setupHooks()
-  return driver
-}
-
-describe('kubb:plugin:setup context', () => {
-  it('setResolver() merges partial overrides with the defaults, on getResolver() and plugin.resolver alike', async () => {
-    const hookPlugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'hook-plugin' },
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.setResolver({
-            name() {
-              return 'CustomName'
-            },
-          })
-        },
-      },
-    })()
-
-    const driver = await setupDriver([hookPlugin])
-
-    const resolver = driver.getResolver('hook-plugin')
-    expect(resolver.name('any value')).toBe('CustomName')
-    expect(
-      resolver.default.path({
-        baseName: 'pets.ts',
-        root: '/tmp/root',
-        output: { path: 'gen', mode: 'directory' },
-      }),
-    ).toBe('/tmp/root/gen/pets.ts')
-    expect(driver.plugins.get('hook-plugin')?.resolver?.name('any value')).toBe('CustomName')
-  })
-})
 
 describe('normalizeOutput', () => {
   // Mode is inferred from the path extension unless set, and a group always means a directory.
@@ -120,35 +55,5 @@ describe('assertPluginOption', () => {
         }),
       }),
     )
-  })
-})
-
-describe('renderGeneratorOperation', () => {
-  it('gives the generator a requirePlugin that finds the driver plugin and fails for a missing one', async () => {
-    const plugin = createMockedPlugin({ name: 'plugin-faker', options: {} })
-    const driver = createMockedPluginDriver({ plugin })
-    const found: Array<unknown> = []
-    const generator = defineGenerator({
-      name: 'probe',
-      operation(_node, ctx) {
-        found.push(ctx.requirePlugin('plugin-ts'))
-        return null
-      },
-    })
-    const render = () =>
-      renderGeneratorOperation(generator, {} as OperationNode, {
-        config: driver.config,
-        adapter: createMockedAdapter(),
-        driver,
-        plugin,
-        options: {},
-        resolver: {} as Resolver,
-      })
-
-    await render()
-    expect(found).toStrictEqual([plugin])
-
-    driver.getPlugin = () => undefined
-    await expect(render()).rejects.toThrow('Plugin "plugin-ts" is required by "plugin-faker" but not found.')
   })
 })

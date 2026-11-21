@@ -14,18 +14,11 @@ export { resolverOperationResponse } from './resolvers/resolverOperationResponse
 export { mergeAdjacentObjectsLazy } from './utils/mergeAdjacentSchemas.ts'
 export { childName, enumPropName } from './utils/names.ts'
 export {
-  addGenerator,
-  addMacro,
   assertPluginOption,
   createAdapter,
   createRenderer,
-  createResolver,
   createStorage,
-  defineExtension,
-  defineGenerator,
   defineParser,
-  definePlugin,
-  defineResolver,
   Diagnostics,
   fsStorage,
   Hookable,
@@ -35,17 +28,37 @@ export {
   manifestProblems,
   memoryStorage,
   requirePlugin,
-  Resolver,
-  setMacros,
   setOptions,
-  setResolver,
   tryUseKubb,
   useConfig,
   useKubb,
   useOptions,
 } from '@kubb/core'
+export { addGenerator, addMacro, getResolver, setMacros, setResolver } from './composables.ts'
+export { defineGenerator } from './defineGenerator.ts'
+export { createResolver } from './resolver/createResolver.ts'
+export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
+export { defineExtension, definePlugin } from './defineExtension.ts'
 export { memo } from './memo.ts'
 export type { ScopedMemo } from './memo.ts'
+export type { Generator, GeneratorContext } from './types.ts'
+export type { ResolveOptionsContext } from './resolver/resolveOptions.ts'
+export type {
+  ResolveBannerContext,
+  ResolveBannerFile,
+  ResolveFileOptions,
+  ResolveImportsOptions,
+  ResolveNameOptions,
+  ResolvePathOptions,
+  ResolverBuildOptions,
+  ResolverDefault,
+  ResolverFile,
+  ResolverFileParams,
+  ResolverFilePathParams,
+  ResolverInput,
+  ResolverPatch,
+  ResolverPathParams,
+} from './resolver/types.ts'
 export type {
   Adapter,
   AdapterDefinition,
@@ -64,8 +77,6 @@ export type {
   ExtensionManifest,
   ExtensionManifestOption,
   ExtensionMeta,
-  Generator,
-  GeneratorContext,
   Group,
   Include,
   KubbHooks,
@@ -85,17 +96,10 @@ export type {
   PluginFactory,
   PluginOptions,
   PluginType,
+  PluginVisitContext,
+  PluginVisitHooks,
   Renderer,
   RendererFactory,
-  ResolveFileOptions,
-  ResolveImportsOptions,
-  ResolveNameOptions,
-  ResolvePathOptions,
   ResolvedPluginOptions,
-  ResolverFile,
-  ResolverFileParams,
-  ResolverFilePathParams,
-  ResolverInput,
-  ResolverPatch,
   Storage,
 } from '@kubb/core'

@@ -1,5 +1,6 @@
 import { ast } from '@kubb/ast'
-import { createResolver, Resolver } from '@kubb/core'
+import { createResolver } from '../resolver/createResolver.ts'
+import { Resolver } from '../resolver/Resolver.ts'
 import { describe, expect, it } from 'vitest'
 import { casing } from '../index.ts'
 import { resolverCasedFile } from './resolverCasedFile.ts'

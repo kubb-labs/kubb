@@ -1,4 +1,4 @@
-import { ast } from '@kubb/kit'
+import { ast, defineExtension as kitDefineExtension } from '@kubb/kit'
 import { createKubb, defineExtension, Diagnostics, memoryStorage } from '@kubb/core'
 import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
@@ -37,7 +37,6 @@ function makePlugin({
     hooks: {
       'kubb:plugin:setup'(ctx) {
         ctx.setOptions({ output: { path: outputPath, ...output } })
-        ctx.setResolver({})
         ctx.injectFile(makeFile(filePath, exportName, meta))
       },
     },
@@ -208,6 +207,41 @@ describe('pluginBarrel', () => {
 
     expect(barrel?.banner).toBe(banner)
     expect(barrel?.footer).toBe(footer)
+  })
+
+  it("sets the barrel banner and footer for a plugin defined with kit's defineExtension", async () => {
+    const kitPlugin = kitDefineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-kit' },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.setOptions({ output: { path: 'types', mode: 'directory', banner: '// header', footer: '// footer' } })
+          ctx.injectFile(makeFile('/workspace/src/gen/types/pet.ts', 'Pet', { pluginName: 'plugin-kit' }))
+        },
+      },
+    })()
+    const { files } = await build({ plugins: [kitPlugin] })
+    const barrel = files.find((file) => file.path === '/workspace/src/gen/types/index.ts')
+
+    expect(barrel?.banner).toBe('// header')
+    expect(barrel?.footer).toBe('// footer')
+  })
+
+  it("uses the plugin's resolver from the build memo for the barrel banner", async () => {
+    const kitPlugin = kitDefineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-kit' },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.setOptions({ output: { path: 'types', mode: 'directory', banner: '// header' } })
+          ctx.memo.set('plugin-kit:resolver', { default: { banner: () => '// from memo', footer: () => null } })
+          ctx.injectFile(makeFile('/workspace/src/gen/types/pet.ts', 'Pet', { pluginName: 'plugin-kit' }))
+        },
+      },
+    })()
+    const { files } = await build({ plugins: [kitPlugin] })
+
+    expect(files.find((file) => file.path === '/workspace/src/gen/types/index.ts')?.banner).toBe('// from memo')
   })
 
   it("skips the per-plugin barrel for output.mode 'file' and re-exports the single file from the root barrel", async () => {

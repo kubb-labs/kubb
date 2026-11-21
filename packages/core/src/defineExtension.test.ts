@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { version } from '../package.json'
-import { addGenerator, useKubb } from './composables.ts'
+import { memo, useKubb } from './composables.ts'
 import { createAdapter } from './createAdapter.ts'
 import type { AdapterFactoryOptions } from './createAdapter.ts'
 import { checkCompatibility, checkDependencies, defineExtension, resolveMeta } from './defineExtension.ts'
@@ -165,20 +165,19 @@ describe('defineExtension plugin', () => {
   })
 
   it('runs composables inside setup, also after an await', async () => {
-    const generator = { name: 'gen', schema: vi.fn() }
     const plugin = defineExtension<ObjectPlugin>({
       kind: 'plugin',
       meta: { name: 'plugin-object' },
       async setup(options) {
         await Promise.resolve()
-        addGenerator(generator)
+        memo.set('plugin-object:ready', true)
         return { tag: useKubb<ObjectPlugin>().options.tag ?? options.tag ?? 'all' }
       },
     })({ tag: 'pets' })
 
     const driver = await setupDriver([plugin])
 
-    expect(driver.plugins.get('plugin-object')?.generators).toStrictEqual([generator])
+    expect(driver.memo.get('plugin-object:ready')).toBe(true)
     expect(driver.plugins.get('plugin-object')?.options).toMatchObject({ tag: 'pets' })
   })
 

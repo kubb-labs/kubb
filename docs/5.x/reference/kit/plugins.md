@@ -63,7 +63,7 @@ export const pluginExample = defineExtension({
 ```
 
 > [!WARNING]
-> `kubb.addGenerator`, `kubb.setResolver`, `kubb.addMacro` and `kubb.setMacros` on the setup context are deprecated. Call the composable of the same name instead.
+> The composables work only in a plugin defined with `defineExtension` from `kubb/kit`. The setup context no longer has `addGenerator`, `setResolver`, `addMacro` or `setMacros`.
 
 The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds these members:
 
