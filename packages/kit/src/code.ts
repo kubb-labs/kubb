@@ -38,7 +38,7 @@ function isNamed(node: ImportNode): node is ImportNode & { name: Array<string> }
 
 function build(strings: ReadonlyArray<string>, values: ReadonlyArray<CodeValue>): Code {
   const imports: Array<ImportNode> = []
-  // Named imports from one path merge into the first; default, alias and namespace imports keep their shape.
+  // Named imports from one path merge into the first. Default, alias and namespace imports keep their shape.
   const add = (node: ImportNode) => {
     const index = isNamed(node) ? imports.findIndex((imp) => isNamed(imp) && imp.path === node.path && !imp.isTypeOnly === !node.isTypeOnly) : -1
     const first = imports[index] as (ImportNode & { name: Array<string> }) | undefined
