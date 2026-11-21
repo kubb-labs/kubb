@@ -35,7 +35,7 @@ declare global {
     interface PluginRegistry {
       'plugin-types-test': PluginType<'plugin-types-test', object, object, TypesResolver>
     }
-    interface CapabilityRegistry {
+    interface ProvideRegistry {
       'types-test': TypesResolver
     }
   }
@@ -54,12 +54,12 @@ describe('from', () => {
     expectTypeOf<FromTypes['lookup']>().toEqualTypeOf<Map<string, string>>()
   })
 
-  it('types a capability by its provider and no source as a plain resolver', () => {
+  it('types a provided name by its provider and no source as a plain resolver', () => {
     expectTypeOf<ReturnType<typeof from<'types-test'>>['resolver']>().toEqualTypeOf<FromTypes>()
     expectTypeOf<ReturnType<typeof from<never>>['resolver']['name']>().toEqualTypeOf<(name: string) => RefName>()
   })
 
-  it('takes only a factory of the capability type in provide', () => {
+  it('takes only a factory of the provided type in provide', () => {
     expectTypeOf<Parameters<typeof provide<'types-test'>>[1]>().toEqualTypeOf<() => TypesResolver>()
   })
 })

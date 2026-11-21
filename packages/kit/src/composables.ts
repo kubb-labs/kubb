@@ -2,7 +2,7 @@ import type { Macro } from '@kubb/ast'
 import { Diagnostics, type KubbContext, type KubbPluginSetupContext, type Memo, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
 import type { ResolverInput } from './resolver/types.ts'
-import type { CapabilityName, Generator, PluginType, PrinterFactory } from './types.ts'
+import type { ProvideName, Generator, PluginType, PrinterFactory } from './types.ts'
 
 /**
  * Memo slots kit keeps per plugin, under `<plugin>:<slot>`.
@@ -13,20 +13,20 @@ export const slot = {
   resolver: (name: string) => `${name}:resolver`,
   macros: (name: string) => `${name}:macros`,
   printer: (name: string) => `${name}:printer`,
-  capability: (name: string) => `kit:capabilities:v1:${name}`,
+  provided: (name: string) => `kit:provide:v1:${name}`,
 } as const
 
 export type Provided = { priority: number; factory: () => Resolver }
 
 /**
- * Returns the resolver a plugin keeps in memo, or for a capability name such as `'types'`, the resolver of its provider. Without one, it stores and returns a default resolver for
+ * Returns the resolver a plugin keeps in memo, or for a provided name such as `'types'`, the resolver of its provider. Without one, it stores and returns a default resolver for
  * that plugin, so the build keeps one resolver per plugin. Reads the memo of the running hook unless you pass one.
  *
  * @example
  * `getResolver('plugin-ts').file({ name: 'pet', extname: '.ts', root, output })`
  */
 export function getResolver(pluginName: string, memo: Memo = useKubb().memo): Resolver {
-  const provided = memo.get(slot.capability(pluginName)) as Provided | undefined
+  const provided = memo.get(slot.provided(pluginName)) as Provided | undefined
   if (provided) return provided.factory()
   const key = slot.resolver(pluginName)
   const stored = memo.get(key) as Resolver | undefined
@@ -104,12 +104,12 @@ export function setMacros(macros: ReadonlyArray<Macro>): void {
 }
 
 /**
- * Provides a resolver under a capability name, so `from(name)` reads it without naming this plugin.
+ * Provides a resolver under a shared name, so `from(name)` reads it without naming this plugin.
  * The provider with the highest `priority` wins. On a tie, the first one stays. Kit calls `factory` when a generator asks.
  */
-export function provide<TName extends CapabilityName>(name: TName, factory: () => Kubb.CapabilityRegistry[TName], options: { priority?: number } = {}): void {
+export function provide<TName extends ProvideName>(name: TName, factory: () => Kubb.ProvideRegistry[TName], options: { priority?: number } = {}): void {
   const ctx = kitContext('provide')
-  const key = slot.capability(name)
+  const key = slot.provided(name)
   const priority = options.priority ?? 0
   const current = ctx.memo.get(key) as Provided | undefined
   if (!current || priority > current.priority) ctx.memo.set(key, { priority, factory: factory as () => Resolver })

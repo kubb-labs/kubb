@@ -171,9 +171,9 @@ Type the name constant with `satisfies`: `export const pluginZodName = 'plugin-z
 ## Less common cases {#less-common-cases}
 
 
-### Capabilities {#provide}
+### Provide {#provide}
 
-`provide(name, factory, { priority })` offers a resolver under a capability name, such as `'types'`. A generator then reads it with [`from(name)`](/docs/5.x/reference/kit/generators#from), without naming the plugin that provides it. When several plugins provide the same name, the one with the highest `priority` wins, and on a tie the first one stays. `priority` defaults to `0`. Kit calls `factory` when a generator asks for the capability, so it can call `getResolver`. `getResolver(name)` with a capability name returns the provider's resolver as it is, for code that needs plain names instead of names with imports.
+`provide(name, factory, { priority })` offers a resolver under a shared name, such as `'types'`. A generator then reads it with [`from(name)`](/docs/5.x/reference/kit/generators#from), without naming the plugin that provides it. When several plugins provide the same name, the one with the highest `priority` wins, and on a tie the first one stays. `priority` defaults to `0`. Kit calls `factory` when a generator asks for the name, so it can call `getResolver`. `getResolver(name)` with a provided name returns the provider's resolver as it is, for code that needs plain names instead of names with imports.
 
 ```typescript
 import { defineExtension, getResolver, provide } from 'kubb/kit'
@@ -188,12 +188,12 @@ export const pluginTypes = defineExtension({
 })
 ```
 
-Add each capability to `Kubb.CapabilityRegistry`, so `from(name)` is typed:
+Add each name to `Kubb.ProvideRegistry`, so `from(name)` is typed:
 
 ```typescript
 declare global {
   namespace Kubb {
-    interface CapabilityRegistry {
+    interface ProvideRegistry {
       types: ResolverTypes
     }
   }

@@ -155,7 +155,7 @@ describe('from', () => {
     expect(fromIn(createContext()).resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts', isTypeOnly: false })
   })
 
-  it('reads a capability from the provider with the highest priority', () => {
+  it('reads a provided name from the provider with the highest priority', () => {
     const ctx = createContext()
     const zodTypes = new Resolver({ pluginName: 'plugin-zod', isTypeOnly: true })
     provideIn(ctx, 'plugin-zod', () => zodTypes, -1)

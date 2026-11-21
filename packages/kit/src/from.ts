@@ -3,7 +3,7 @@ import type { PluginName } from '@kubb/core'
 import { type FileContext, locateFile, pluginOptionsFor, useFileContext } from './file.ts'
 import type { Resolver } from './resolver/Resolver.ts'
 import { type Provided, slot } from './composables.ts'
-import type { CapabilityName, ResolverFor } from './types.ts'
+import type { ProvideName, ResolverFor } from './types.ts'
 
 /**
  * A name from a plugin's resolver, with the import that brings it into scope. It prints as the name, so it works in a template string too.
@@ -70,7 +70,7 @@ function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | nu
 
 /**
  * Another plugin's resolver, read from the current generator context, whose name members return the name plus the import from that plugin's file.
- * `source` is a plugin name, or a capability name such as `'types'` that reads whichever plugin `provide()`s it. Without `source`, it wraps the current plugin's resolver. The first argument of a name member picks the file:
+ * `source` is a plugin name, or a provided name such as `'types'` that reads whichever plugin `provide()`s it. Without `source`, it wraps the current plugin's resolver. The first argument of a name member picks the file:
  * - an operation node: the plugin's file for that operation
  * - a schema node, `{ name }` or a schema name: the plugin's file for that schema, when the document has that schema
  *
@@ -80,9 +80,9 @@ function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | nu
  * @example
  * `from('plugin-ts').resolver.name('Pet') // { name: 'Pet', import: { name: ['Pet'], path, isTypeOnly: true } }`
  */
-export function from<TSource extends PluginName | CapabilityName = never>(source?: TSource): From<SourceResolver<TSource>> {
+export function from<TSource extends PluginName | ProvideName = never>(source?: TSource): From<SourceResolver<TSource>> {
   const ctx = useFileContext('from')
-  const provided = source === undefined ? undefined : (ctx.memo.get(slot.capability(source)) as Provided | undefined)
+  const provided = source === undefined ? undefined : (ctx.memo.get(slot.provided(source)) as Provided | undefined)
   const resolver = (provided ? provided.factory() : ctx.getResolver((source ?? ctx.plugin.name) as PluginName)) as Resolver & Record<string, unknown>
   const pluginName = (provided ? resolver.pluginName : (source ?? ctx.plugin.name)) as PluginName
   const toRefName = (name: string, node: SchemaNode | OperationNode | null): RefName => {
