@@ -133,8 +133,8 @@ export const diagnosticCatalog = {
     code: 'KUBB_NO_CONTEXT',
     title: 'No plugin context',
     cause:
-      'A composable such as `useKubb()` ran outside a plugin hook, or a setup-only composable such as `setOptions()` ran in a hook other than `setup` and `kubb:plugin:setup`.',
-    fix: 'Call the composable inside a plugin hook, including in code that the hook awaits. Call setup-only composables in `setup` or `kubb:plugin:setup`.',
+      'A composable such as `useKubb()` ran outside a plugin hook, a setup-only composable such as `setOptions()` ran in a hook other than `setup` and `kubb:plugin:setup`, or a composable from a plugin framework ran for a plugin that framework did not define.',
+    fix: 'Call the composable inside a plugin hook, including in code that the hook awaits. Call setup-only composables in `setup` or `kubb:plugin:setup`. If the message names a `defineExtension`, define the plugin with that one.',
   },
   movedToKit: {
     code: 'KUBB_MOVED_TO_KIT',
