@@ -26,6 +26,10 @@ const adminOperation = ast.factory.createOperation({ operationId: 'listUsers', m
 type TestResolver = Resolver & {
   response: { options(node: ast.OperationNode): string }
   status(code: number): string
+  tags(): Array<string>
+  reserved: Array<string>
+  lookup: Map<string, number>
+  nested: { deep: { options(node: ast.OperationNode): string } }
 }
 
 const tsResolver = new Resolver({
@@ -37,7 +41,12 @@ const tsResolver = new Resolver({
     },
   },
   status: (code: number) => `Status${code}`,
+  tags: () => ['pets'],
+  reserved: ['Pet'],
+  nested: { deep: { options: (node: ast.OperationNode) => `${node.operationId}Deep` } },
 } as never)
+// Set after construction, as Resolver's own option handling flattens a Map passed in.
+Object.assign(tsResolver, { lookup: new Map([['pets', 1]]) })
 
 function createContext(): FileContext {
   const plugins: Record<string, unknown> = {
@@ -93,6 +102,15 @@ describe('from', () => {
 
     expect(types.has(adminOperation)).toBe(false)
     expect(types.resolver.response.options(adminOperation).import).toBeNull()
+  })
+
+  it('wraps nested namespaces and returns non-string results, arrays and Maps as they are', () => {
+    const { resolver: types } = fromIn(createContext(), 'plugin-ts')
+
+    expect(types.nested.deep.options(listPets)).toMatchObject({ name: 'listPetsDeep', import: { path: '/root/src/gen/types/listPets.ts' } })
+    expect(types.tags()).toStrictEqual(['pets'])
+    expect(types.reserved).toStrictEqual(['Pet'])
+    expect(types.lookup.get('pets')).toBe(1)
   })
 
   it('takes the extname and suffix the target writes with', () => {
