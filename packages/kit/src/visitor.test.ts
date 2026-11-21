@@ -1,5 +1,15 @@
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin } from '@kubb/core'
+import {
+  type Config,
+  defineExtension as coreDefineExtension,
+  Hookable,
+  KubbDriver,
+  type KubbHooks,
+  type KubbPluginSetupContext,
+  memoryStorage,
+  type Plugin,
+  useKubb,
+} from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { addGenerator, addMacro, getResolver, resolverFor, setPrinter, setResolver, slot } from './composables.ts'
@@ -79,6 +89,22 @@ function examplePlugin(log: Array<string>, include?: Array<{ type: 'tag'; patter
 }
 
 describe('generatorVisitor', () => {
+  it('passes the setup context as this, ctx and useKubb() to a kit plugin setup', async () => {
+    const seen: Array<boolean> = []
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-this' },
+      setup(this: KubbPluginSetupContext, options, ctx) {
+        seen.push(this === ctx && useKubb() === ctx)
+        return options
+      },
+    })
+
+    await build([plugin({})])
+
+    expect(seen).toStrictEqual([true])
+  })
+
   it('runs macros, the resolver, match and every generator kind', async () => {
     const log: Array<string> = []
 

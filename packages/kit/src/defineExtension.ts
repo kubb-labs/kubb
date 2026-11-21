@@ -1,4 +1,11 @@
-import { defineExtension as coreDefineExtension, type PluginDefinition, type PluginFactory, type PluginType, type PluginVisitHooks } from '@kubb/core'
+import {
+  defineExtension as coreDefineExtension,
+  type KubbPluginSetupContext,
+  type PluginDefinition,
+  type PluginFactory,
+  type PluginType,
+  type PluginVisitHooks,
+} from '@kubb/core'
 import { slot } from './composables.ts'
 import { generatorVisitor } from './visitor.ts'
 
@@ -30,9 +37,9 @@ export const defineExtension = ((definition: { kind: string } & Partial<PluginDe
   return define({
     ...definition,
     hooks,
-    setup(options: object, kubb: Parameters<NonNullable<PluginDefinition['setup']>>[1]) {
+    setup(this: KubbPluginSetupContext, options: object, kubb: KubbPluginSetupContext) {
       kubb.memo.set(slot.kit(kubb.plugin.name), true)
-      return definition.setup ? definition.setup(options, kubb) : options
+      return definition.setup ? definition.setup.call(this, options, kubb) : options
     },
   })
 }) as typeof coreDefineExtension
