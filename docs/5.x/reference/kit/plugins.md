@@ -203,4 +203,4 @@ export const toRegExp = (pattern: string) => memo(patterns, pattern, () => new R
 
 When your plugin's `setup` awaits something before it calls a composable, the composable still reads the context of the plugin whose setup is running.
 
-Outside `setup` and `kubb:plugin:setup`, including in generators, composables throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
+[Context](/docs/5.x/reference/kit/context#composables) lists which composables work in which hook.
