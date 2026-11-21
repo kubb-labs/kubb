@@ -3,24 +3,39 @@ import { Diagnostics, type Filter, type Group, type KubbContext, type Output, ty
 import type { Resolver } from './resolver/Resolver.ts'
 import type { PrinterContext } from './types.ts'
 
-/** What `file` reads from a generator or printer factory context. */
+/**
+ * What `file` reads from a generator or printer factory context.
+ */
 export type FileContext = Pick<PrinterContext, 'config' | 'meta' | 'memo' | 'schemas' | 'root' | 'resolver' | 'options' | 'getResolver' | 'requirePlugin'>
 
 export type FileOptions = {
-  /** Name before the resolver casts it. @default the schema's `name`, or the operation's `operationId` */
+  /**
+   * The name before the resolver applies its casing.
+   *
+   * @default the schema's `name`, or the operation's `operationId`
+   */
   name?: string
-  /** Another plugin whose resolver, `output` and `group` to use, such as `'plugin-ts'` for its types. */
+  /**
+   * Another plugin whose resolver, `output` and `group` to use, such as `'plugin-ts'` for its types.
+   */
   plugin?: PluginName
-  /** @default '.ts' */
+  /**
+   * The file extension.
+   *
+   * @default '.ts'
+   */
   extname?: FileNode['extname']
   /**
    * Adds `Operation` to an operation's name while its file matches a schema file. Set to `false` to keep the name as is.
+   *
    * @default true
    */
   suffix?: boolean
 }
 
-/** The `<File>` props for one generated file: its location plus the banner and footer from the resolver. */
+/**
+ * The `<File>` props for one generated file: its location plus the banner and footer from the resolver.
+ */
 export type FileTarget = Pick<FileNode, 'baseName' | 'path' | 'meta'> & {
   banner: string | null
   footer: string | null
@@ -49,7 +64,9 @@ function toLocation(ctx: FileContext, node: SchemaNode | OperationNode, plugin: 
   return { resolver, location: { root: ctx.root, output: options.output, group: options.group ?? undefined } }
 }
 
-/** An operation's file, with an `Operation` suffix while it matches a schema file in the same location, ignoring case. */
+/**
+ * An operation's file, with an `Operation` suffix while it matches a schema file in the same location, ignoring case.
+ */
 function operationFile(
   ctx: FileContext,
   node: OperationNode,
@@ -77,7 +94,9 @@ function operationFile(
   return file
 }
 
-/** `file` for an explicit context. Generators get it as `ctx.file`. */
+/**
+ * `file` for an explicit context. Generators get it as `ctx.file`.
+ */
 export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, options: FileOptions = {}): FileTarget {
   const { extname = '.ts', suffix = true } = options
   const { resolver, location } = toLocation(ctx, node, options.plugin)

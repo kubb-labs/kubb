@@ -46,7 +46,9 @@ export type PrinterFactory<TOptions extends PluginType = PluginType> = (ctx: Pri
 export type GeneratorContext<TOptions extends PluginType = PluginType> = PrinterContext<TOptions> & {
   /** The printer from the plugin's `setPrinter` factory, or `undefined` without one. */
   printer: Exclude<TOptions['printer'], undefined>
-  /** The `<File>` props for the file `node` is written to. See the `file` composable. */
+  /**
+   * The `<File>` props for the file `node` is written to. See the `file` composable.
+   */
   file(node: SchemaNode | OperationNode, options?: FileOptions): FileTarget
 }
 

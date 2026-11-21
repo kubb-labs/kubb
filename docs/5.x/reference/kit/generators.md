@@ -115,7 +115,7 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 
 ### Naming files with `file` {#file}
 
-`file(node, options?)` returns the `<File>` props for the file a generator writes: `baseName`, `path`, `meta`, and the `banner` and `footer` from the plugin's `output`. Spread it onto `<File>`. It is a composable, so it reads the current generator context; `ctx.file(node)` and `this.file(node)` do the same.
+`file(node, options?)` returns the `<File>` props for the file a generator writes: `baseName`, `path`, `meta`, and the `banner` and `footer` from the plugin's `output`. Spread it onto `<File>`. It is a composable, so it reads the current generator context. `ctx.file(node)` and `this.file(node)` do the same.
 
 - A schema's file is named after `node.name`, and an operation's file after `node.operationId`. Pass `name` to choose another name.
 - An operation file that would land on a component schema's file, ignoring case, gets an `Operation` suffix: operation `point` goes to `pointOperation.ts`, next to schema `point.ts`. The declarations keep their names. Pass `suffix: false` to keep the plain name, for files that never share a folder with schema files.
@@ -143,7 +143,7 @@ export const zodGenerator = defineGenerator({
 
 ### Caching with `memo` {#memo}
 
-`memo(key, compute)` runs `compute` once per `key` and build, then returns the stored value. It is a composable, so it reads the current context; `ctx.memo(key, compute)` and `this.memo(key, compute)` do the same. Every plugin shares the store, so:
+`memo(key, compute)` runs `compute` once per `key` and build, then returns the stored value. It is a composable, so it reads the current context. `ctx.memo(key, compute)` and `this.memo(key, compute)` do the same. Every plugin shares the store, so:
 
 - Prefix the key with your plugin name, such as `my-plugin:`, unless every plugin should share the value.
 - Put the node in the key for a value from one node: `node.operationId` or `node.name`.
