@@ -40,7 +40,7 @@ type MacroCallbacks = {
 /**
  * A named, composable transform over the Kubb AST. It carries the same per-kind callbacks as a
  * {@link Visitor} (`schema`, `operation`, …), plus a `name`, an optional `enforce` order, and an
- * optional `match` predicate. Each callback gets the visitor context as `this` and as its second argument. Macros run on the shared AST, so the same macro works across every
+ * optional `match` predicate. Macros run on the shared AST, so the same macro works across every
  * adapter and output target. Exports follow the `macro<Name>` convention, mirroring plugins (`pluginTs`).
  */
 export type Macro = MacroCallbacks & {
