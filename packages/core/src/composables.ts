@@ -63,8 +63,9 @@ function requireSetupContext(caller: string): KubbPluginSetupContext {
 }
 
 /**
- * Returns the context of the plugin hook that is running, the same object as its `this` and `ctx`.
- * It stays available after an `await`. Throws `KUBB_NO_CONTEXT` outside a plugin hook.
+ * Returns the context of the running hook, the same object as its `this` and `ctx`, for every hook core
+ * runs through `withContext`. It stays available after an `await`. Throws `KUBB_NO_CONTEXT` when no
+ * context is set.
  *
  * Pass the context type to read hook-specific fields, such as `useKubb<PluginVisitContext>()`.
  */
