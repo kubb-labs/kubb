@@ -143,9 +143,9 @@ export const zodGenerator = defineGenerator({
 
 ### Importing names with `ref` and `code` {#ref}
 
-`ref(plugin?)` wraps another plugin's resolver, read from the current generator context. Each name member returns the name plus the import from that plugin's file. Without `plugin`, it wraps the current plugin's resolver.
+`ref(plugin?)` wraps another plugin's resolver, read from the current generator context. Each resolver method that returns a name now returns the name plus its import from that plugin's file. Without `plugin`, it wraps the current plugin's resolver.
 
-The first argument of a name member picks the file:
+The method's first argument picks the file to import from:
 
 - An operation node points at the plugin's file for that operation, with the same `Operation` suffix as `file`.
 - A schema node, `{ name }` or a schema name points at the plugin's file for that schema. The name must belong to a schema in the document.
@@ -153,7 +153,7 @@ The first argument of a name member picks the file:
 
 A node that the plugin's `include` or `exclude` rules leave out also gives no import, and `ref(plugin).has(node)` returns `false` for it. The import is `import type` when the target resolver sets `isTypeOnly`, as `plugin-ts` does. Pass `ref(plugin, { extname, suffix })` when the plugin writes its files with another extension or with `suffix: false`.
 
-`code` is a template tag that returns `{ text, imports }`. Its holes take names from `ref`, other `code` results, strings and numbers. `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean. The imports are grouped per path, in the order of first use. `code.join(parts, separator)` joins several parts and keeps their imports.
+`code` is a template tag that returns `{ text, imports }`. Its placeholders (`${…}`) take names from `ref`, other `code` results, strings and numbers. `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean. The imports are grouped per path, in the order of first use. `code.join(parts, separator)` joins several parts and keeps their imports.
 
 The import paths are absolute. Pass the file you write as `root`, so each path becomes relative to it:
 
