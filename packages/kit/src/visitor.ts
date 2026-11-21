@@ -1,7 +1,7 @@
 import { memo, toError } from '@internals/utils'
 import { ast, type Macro, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type NormalizedPlugin, type PluginVisitContext, type PluginVisitHooks, withContext } from '@kubb/core'
-import { resolverFor, slot } from './composables.ts'
+import { getResolver, slot } from './composables.ts'
 import type { Resolver } from './resolver/Resolver.ts'
 import type { Generator, GeneratorContext, PrinterContext, PrinterFactory } from './types.ts'
 
@@ -85,14 +85,13 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
   return {
     'kubb:plugin:visit:start'(ctx) {
       const { name } = ctx.plugin
-      const resolver = resolverFor(ctx.memo, name)
+      const resolver = getResolver(name, ctx.memo)
       resolver.setTags(ctx.meta.tags)
       const generators = (ctx.memo.get(slot.generators(name)) as Array<Generator> | undefined) ?? []
       if (!generators.length) return
 
-      const getResolver = ((pluginName: string) => resolverFor(ctx.memo, pluginName)) as VisitState['context']['getResolver']
       const state: VisitState = {
-        context: { ...ctx, resolver, getResolver },
+        context: { ...ctx, resolver, getResolver: ((pluginName: string) => getResolver(pluginName, ctx.memo)) as VisitState['context']['getResolver'] },
         macros: (ctx.memo.get(slot.macros(name)) as Array<Macro> | undefined) ?? [],
         schemaGenerators: generators.filter((generator) => generator.schema),
         operationGenerators: generators.filter((generator) => generator.operation),

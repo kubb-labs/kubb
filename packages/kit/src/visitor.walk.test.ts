@@ -2,7 +2,7 @@ import { ast, type FileNode, type OperationNode, type SchemaNode } from '@kubb/a
 import { type Config, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin, type PluginVisitContext, useKubb } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
-import { addGenerator, addMacro, resolverFor, setResolver } from './composables.ts'
+import { addGenerator, addMacro, getResolver, setResolver } from './composables.ts'
 import { defineExtension } from './defineExtension.ts'
 import { defineResolver, Resolver } from './resolver/Resolver.ts'
 import type { Generator, GeneratorContext } from './types.ts'
@@ -462,7 +462,7 @@ describe('KubbDriver generator dispatch', () => {
     await sharedDriver.run()
 
     const file = (pluginName: string, name: string) =>
-      resolverFor(sharedDriver.memo, pluginName).file({
+      getResolver(pluginName, sharedDriver.memo).file({
         name,
         extname: '.ts',
         root: '/project/gen/animals',
@@ -490,7 +490,7 @@ describe('KubbDriver generator dispatch', () => {
     await partsDriver.setup()
     await partsDriver.setupHooks()
 
-    const resolver = resolverFor(partsDriver.memo, 'parts') as unknown as Resolver & { extra: { a(): string; b(): string } }
+    const resolver = getResolver('parts', partsDriver.memo) as unknown as Resolver & { extra: { a(): string; b(): string } }
     expect(resolver.name('pet')).toBe('petSchema')
     expect([resolver.extra.a(), resolver.extra.b()]).toStrictEqual(['a', 'B'])
   })
@@ -582,5 +582,5 @@ test('keeps one resolver for the walk when a visit hook replaces it in memo', as
 
   expect(seen).toHaveLength(2)
   expect(new Set(seen).size).toBe(1)
-  expect(seen[0]).not.toBe(resolverFor(driver.memo, 'swap'))
+  expect(seen[0]).not.toBe(getResolver('swap', driver.memo))
 })

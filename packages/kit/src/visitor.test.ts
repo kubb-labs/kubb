@@ -12,7 +12,7 @@ import {
 } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { addGenerator, addMacro, getResolver, resolverFor, setPrinter, setResolver, slot } from './composables.ts'
+import { addGenerator, addMacro, getResolver, setPrinter, setResolver, slot } from './composables.ts'
 import { defineExtension, definePlugin } from './defineExtension.ts'
 import { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext, PrinterContext } from './types.ts'
@@ -128,9 +128,36 @@ describe('generatorVisitor', () => {
     const { driver } = await build([examplePlugin([])])
 
     expect(driver.memo.get(slot.generators('plugin-example'))).toHaveLength(1)
-    expect(resolverFor(driver.memo, 'plugin-example').name('Pet')).toBe('ApiPet')
-    expect(getResolver({ memo: driver.memo }, 'plugin-example').name('Pet')).toBe('ApiPet')
-    expect(getResolver({ memo: driver.memo }, 'plugin-missing').name('Pet')).toBe('pet')
+    expect(getResolver('plugin-example', driver.memo).name('Pet')).toBe('ApiPet')
+    expect(getResolver('plugin-missing', driver.memo).name('Pet')).toBe('pet')
+  })
+
+  it('reads the running hook memo in getResolver(name) inside a generator and kubb:plugins:end', async () => {
+    const seen: Array<string> = []
+    const reader = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-reader' },
+      hooks: {
+        'kubb:plugins:end'() {
+          seen.push(`end:${getResolver('plugin-example').name('Pet')}`)
+        },
+      },
+      setup(options) {
+        addGenerator({
+          name: 'reader',
+          schema(node) {
+            if (node.name === 'Pet') seen.push(`schema:${getResolver('plugin-example').name('Pet')}`)
+            return null
+          },
+        })
+        return options
+      },
+    })()
+
+    const { driver } = await build([examplePlugin([]), reader])
+
+    expect(seen).toStrictEqual(['schema:ApiPet', 'end:ApiPet'])
+    expect(getResolver('plugin-reader', driver.memo)).toBe(getResolver('plugin-reader', driver.memo))
   })
 
   it("runs generators of a plugin defined with kit's definePlugin", async () => {
@@ -212,7 +239,7 @@ describe('generatorVisitor', () => {
 
     const { driver } = await build([plugin], { tags })
 
-    expect(setTags.mock.contexts).toContain(resolverFor(driver.memo, 'plugin-tags'))
+    expect(setTags.mock.contexts).toContain(getResolver('plugin-tags', driver.memo))
     expect(setTags).toHaveBeenCalledWith(tags)
     setTags.mockRestore()
   })
