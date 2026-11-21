@@ -1,4 +1,7 @@
+import type { OperationNode } from '@kubb/ast'
 import { describe, expectTypeOf, it } from 'vitest'
+import type { provide } from './composables.ts'
+import type { from, RefName } from './from.ts'
 import type { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext, PluginType } from './types.ts'
 
@@ -18,5 +21,45 @@ describe('PluginType', () => {
 
     expectTypeOf<GeneratorContext<Plugin>['resolver']>().toEqualTypeOf<MyResolver>()
     expectTypeOf<GeneratorContext<Plugin>['printer']>().toEqualTypeOf<MyPrinter>()
+  })
+})
+
+type TypesResolver = Resolver & {
+  response: { options(node: OperationNode): string; label(): string | null }
+  tags(): Array<string>
+  lookup: Map<string, string>
+}
+
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-types-test': PluginType<'plugin-types-test', object, object, TypesResolver>
+    }
+    interface CapabilityRegistry {
+      'types-test': TypesResolver
+    }
+  }
+}
+
+describe('from', () => {
+  type FromTypes = ReturnType<typeof from<'plugin-types-test'>>['resolver']
+
+  it('returns a RefName for each string a resolver member returns', () => {
+    expectTypeOf<ReturnType<FromTypes['response']['options']>>().toEqualTypeOf<RefName>()
+    expectTypeOf<ReturnType<FromTypes['response']['label']>>().toEqualTypeOf<RefName | null>()
+  })
+
+  it('keeps arrays, Maps and other results as they are', () => {
+    expectTypeOf<ReturnType<FromTypes['tags']>>().toEqualTypeOf<Array<string>>()
+    expectTypeOf<FromTypes['lookup']>().toEqualTypeOf<Map<string, string>>()
+  })
+
+  it('types a capability by its provider and no source as a plain resolver', () => {
+    expectTypeOf<ReturnType<typeof from<'types-test'>>['resolver']>().toEqualTypeOf<FromTypes>()
+    expectTypeOf<ReturnType<typeof from<never>>['resolver']['name']>().toEqualTypeOf<(name: string) => RefName>()
+  })
+
+  it('takes only a factory of the capability type in provide', () => {
+    expectTypeOf<Parameters<typeof provide<'types-test'>>[1]>().toEqualTypeOf<() => TypesResolver>()
   })
 })

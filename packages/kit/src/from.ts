@@ -20,13 +20,16 @@ export type RefName = {
 // Each string a member can return comes back as a `RefName`. Other results, such as `null`, keep their type.
 type RefResult<R> = R extends string ? RefName : R
 
+// Only plain objects are wrapped, so arrays, Maps, Sets and class instances keep their type, as at runtime.
 type RefMember<T> = T extends (...args: infer A) => infer R
   ? [Extract<R, string>] extends [never]
     ? T
     : (...args: A) => RefResult<R>
-  : T extends object
-    ? { [K in keyof T]: RefMember<T[K]> }
-    : T
+  : T extends ReadonlyArray<unknown> | ReadonlyMap<unknown, unknown> | ReadonlySet<unknown> | Date | RegExp
+    ? T
+    : T extends object
+      ? { [K in keyof T]: RefMember<T[K]> }
+      : T
 
 /**
  * A plugin's resolver whose name members return a `RefName` instead of a string.
@@ -50,7 +53,12 @@ export type From<T extends Resolver = Resolver> = {
 
 export type FromOptions = Pick<FileOptions, 'extname' | 'suffix'>
 
-type SourceResolver<TSource> = TSource extends CapabilityName ? Kubb.CapabilityRegistry[TSource] : ResolverOf<ResolvePluginOptions<TSource & PluginName>>
+// No `source` reads the current plugin, whose resolver type is not known statically.
+type SourceResolver<TSource> = [TSource] extends [never]
+  ? Resolver
+  : TSource extends CapabilityName
+    ? Extract<Kubb.CapabilityRegistry[TSource], Resolver>
+    : ResolverOf<ResolvePluginOptions<TSource>>
 
 const skipped = new Set(['pluginName', 'default', 'isTypeOnly'])
 
@@ -82,7 +90,7 @@ function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | nu
  * @example
  * `from('plugin-ts').resolver.name('Pet') // { name: 'Pet', import: { name: ['Pet'], path, isTypeOnly: true } }`
  */
-export function from<TSource extends PluginName | CapabilityName>(source?: TSource, options: FromOptions = {}): From<SourceResolver<TSource>> {
+export function from<TSource extends PluginName | CapabilityName = never>(source?: TSource, options: FromOptions = {}): From<SourceResolver<TSource>> {
   const ctx = useFileContext('from')
   const provided = source === undefined ? undefined : (ctx.memo.get(slot.capability(source)) as Provided | undefined)
   const resolver = (provided ? provided.factory() : ctx.getResolver((source ?? ctx.plugin.name) as PluginName)) as Resolver & Record<string, unknown>
