@@ -129,13 +129,7 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
    * Otherwise, falls back to the node-level dispatcher.
    */
   print: (node: SchemaNode, options?: Partial<T['options']>) => T['printOutput'] | null
-  /**
-   * Returns this printer with `extra` merged over its options. It shares the handlers and the import
-   * list, so building the printer once and calling `with` per node skips the builder.
-   *
-   * @example
-   * `printer.with({ keysToOmit: ['id'] }).print(node)`
-   */
+  /** Returns this printer with `extra` merged over its options, sharing its handlers and imports, such as `printer.with({ keysToOmit: ['id'] })`. */
   with: (extra: Partial<T['options']>) => Printer<T>
   /** Returns the imports declared with `this.import(...)` since the last call, then clears them. */
   drainImports: () => Array<ImportNode>
