@@ -1,0 +1,18 @@
+{
+  "name": "e2e-published",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Runs the published Kubb plugins against this repo's packed @kubb/core and @kubb/kit",
+  "type": "module",
+  "scripts": {
+    "generate": "kubb generate --config kubb.config.js"
+  },
+  "dependencies": {
+    "@kubb/adapter-oas": "5.23.1",
+    "@kubb/plugin-ts": "5.6.0",
+    "@kubb/plugin-zod": "5.11.0",
+    "kubb": "5.23.1",
+    "typescript": "5.9.3",
+    "zod": "4.1.12"
+  }
+}

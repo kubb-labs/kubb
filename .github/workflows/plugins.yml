@@ -1,0 +1,118 @@
+name: Plugins
+
+# Checks that kubb-labs/plugins keeps working against this repo's @kubb/ast, @kubb/core and @kubb/kit:
+# from source on its main branch, and as the published plugins with the packed packages.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'packages/ast/**'
+      - 'packages/core/**'
+      - 'packages/kit/**'
+      - 'internals/**'
+      - 'e2e/published/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/plugins.yml'
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  KUBB_DISABLE_TELEMETRY: 1
+
+jobs:
+  plugins-source:
+    name: Plugins from source
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - &setup
+        name: Setup Tools
+        uses: kubb-labs/config/.github/setup@e217b27ded147201622363f5bb58872f620d413c # main
+
+      - &build
+        name: Build ast, core and kit
+        run: pnpm turbo run build --filter=@kubb/ast --filter=@kubb/core --filter=@kubb/kit
+
+      - name: Check out kubb-labs/plugins
+        run: git clone --depth 1 https://github.com/kubb-labs/plugins ../plugins
+
+      # The plugins repo keeps its pnpm overrides in pnpm-workspace.yaml.
+      - name: Link ast, core and kit into the plugins workspace
+        working-directory: ../plugins
+        run: |
+          cat >> pnpm-workspace.yaml <<EOF
+
+          overrides:
+            '@kubb/ast': link:${GITHUB_WORKSPACE}/packages/ast
+            '@kubb/core': link:${GITHUB_WORKSPACE}/packages/core
+            '@kubb/kit': link:${GITHUB_WORKSPACE}/packages/kit
+          EOF
+          pnpm install --no-frozen-lockfile
+
+      # Typecheck reads the sibling plugins' dist, so build first, like the plugins repo's own CI.
+      - name: Build plugins
+        working-directory: ../plugins
+        run: pnpm build --concurrency=3
+
+      - name: Typecheck and test plugins
+        working-directory: ../plugins
+        run: pnpm typecheck && pnpm test
+
+  published-plugins:
+    name: Published plugins
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - *setup
+
+      - *build
+
+      - name: Pack ast, core and kit
+        run: |
+          mkdir -p "$RUNNER_TEMP/packed"
+          for name in ast core kit; do
+            pnpm --filter "@kubb/$name" pack --pack-destination "$RUNNER_TEMP/packed"
+            mv "$RUNNER_TEMP"/packed/kubb-"$name"-*.tgz "$RUNNER_TEMP/packed/$name.tgz"
+          done
+
+      - name: Published kit 5.23.1 with the new core fails with KUBB_MOVED_TO_KIT
+        working-directory: e2e/published
+        run: |
+          cat >> pnpm-workspace.yaml <<EOF
+          overrides:
+            '@kubb/ast': file:${RUNNER_TEMP}/packed/ast.tgz
+            '@kubb/core': file:${RUNNER_TEMP}/packed/core.tgz
+            '@kubb/kit': 5.23.1
+          EOF
+          pnpm install --no-frozen-lockfile
+          if pnpm generate > generate.log 2>&1; then
+            cat generate.log
+            echo "::error::kubb generate passed with @kubb/kit 5.23.1 and the new @kubb/core"
+            exit 1
+          fi
+          cat generate.log
+          grep -q KUBB_MOVED_TO_KIT generate.log
+
+      - name: The new kit generates the 5.23.1 baseline
+        working-directory: e2e/published
+        run: |
+          sed -i "s#'@kubb/kit': 5.23.1#'@kubb/kit': file:${RUNNER_TEMP}/packed/kit.tgz#" pnpm-workspace.yaml
+          pnpm install --no-frozen-lockfile
+          pnpm generate
+          diff -r baseline gen
