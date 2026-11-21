@@ -1,4 +1,4 @@
-import type { FileNode, InputMeta, Node, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputMeta, Node, OperationNode, SchemaNode } from '@kubb/ast'
 import type { Config, Group, Output } from '@kubb/core'
 import type { ResolveOptionsContext } from './resolveOptions.ts'
 import type { Resolver } from './Resolver.ts'
@@ -85,6 +85,10 @@ export type ResolveImportsOptions = {
  * ```
  */
 export type ResolverFile = {
+  /** A node's file name before casing. `exportName` is the name being imported, for a plugin with several files per node. `undefined` keeps the default. */
+  name?(this: Resolver, node: SchemaNode | OperationNode, exportName?: string): string | undefined
+  /** `false` keeps an operation file's name when it matches a schema file. Defaults to `true`, which adds `Operation`. */
+  suffix?: boolean
   /** Builds the file's complete base name, extension included, from the identifier and the target `extname`. */
   baseName?(this: Resolver, params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
   /** Returns the file's complete path, resolved against the project `root`. It bypasses `output.path` and `group`, and may not escape `root`. */

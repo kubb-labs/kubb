@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, memo } from '@internals/utils'
-import { ast, type FileNode, type ImportNode, type InputMeta } from '@kubb/ast'
+import { ast, type FileNode, type ImportNode, type InputMeta, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type BannerMeta, type Config, Diagnostics, getInputKind, type Group, type MemoKey, type MemoValue, type Output } from '@kubb/core'
 import {
   type ResolveBannerContext,
@@ -66,6 +66,8 @@ export class Resolver {
   /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
   readonly isTypeOnly: boolean
+  /** How this plugin names a node's file, from `options.file.name` and `options.file.suffix`, so readers in other plugins find the same file. */
+  readonly fileNaming: { suffix: boolean; name(node: SchemaNode | OperationNode, exportName?: string): string | undefined }
   #options: ResolverBuildOptions
   #memo = memo.create<string, unknown>()
   #usedNames = new Set<string>()
@@ -87,6 +89,8 @@ export class Resolver {
     this.#options = options
     this.#baseName = options.file?.baseName ? options.file.baseName.bind(this) : toBaseName
     this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
+    const fileName = options.file?.name
+    this.fileNaming = { suffix: options.file?.suffix ?? true, name: (node, exportName) => fileName?.call(this, node, exportName) }
     this.default = {
       name: camelCase,
       options: resolveOptions,

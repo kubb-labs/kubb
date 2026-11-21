@@ -103,7 +103,7 @@
   "packages/kit/src/Url.test.ts": "Path param sanitizing for path-to-regexp with commented regressions (hyphen, $, duplicate names).",
   "packages/kit/src/code.test.ts": "Pins how code groups imports per path and type-only flag in first-use order, and how code.join keeps the imports of every part.",
   "packages/kit/src/file.test.ts": "Pins the Operation suffix for an operation file that lands on a schema file, the single-file exception, and another plugin's output for plugin.",
-  "packages/kit/src/from.test.ts": "Pins which file from() imports a resolver name from, for an operation and a schema name, with the Operation suffix, the target filters and the extname and suffix options.",
+  "packages/kit/src/from.test.ts": "Pins which file from() imports a resolver name from, for an operation and a schema name, with the Operation suffix, the target filters, the target resolver's file.name and file.suffix, and capabilities.",
   "packages/kit/src/macros/macroDedupeUnion.test.ts": "Union hashing with pointer, Date, default and resolved-schema branches; several cases read as regressions.",
   "packages/kit/src/macros/macroDiscriminatorEnum.test.ts": "enumName and number-primitive branches are not asserted by adapter-oas parser.test.ts, which only covers readOnly.",
   "packages/kit/src/resolver/Resolver.memo.test.ts": "Only test that Resolver.memo, a separate map from KubbDriver.memo, keeps different keys apart.",

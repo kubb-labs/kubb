@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import { type Config, Diagnostics, type Memo, withContext } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import type { FileContext } from './file.ts'
-import { type From, type FromOptions, type FromResolver, from } from './from.ts'
+import { type From, type FromResolver, from } from './from.ts'
 import { getResolver, provide, slot } from './composables.ts'
 import { Resolver } from './resolver/Resolver.ts'
 
@@ -72,8 +72,8 @@ function createContext(): FileContext {
   } as unknown as FileContext
 }
 
-function fromIn(ctx: FileContext, plugin?: string, options?: FromOptions): Omit<From, 'resolver'> & { resolver: FromResolver<TestResolver> } {
-  return withContext(ctx as never, () => from(plugin, options)) as never
+function fromIn(ctx: FileContext, plugin?: string): Omit<From, 'resolver'> & { resolver: FromResolver<TestResolver> } {
+  return withContext(ctx as never, () => from(plugin)) as never
 }
 
 function provideIn(ctx: FileContext, plugin: string, factory: () => Resolver, priority?: number) {
@@ -119,22 +119,36 @@ describe('from', () => {
     expect(types.lookup.get('pets')).toBe(1)
   })
 
-  it('imports any name from the target file for a node, named by the name option', () => {
+  it('imports any name from the target file for a node', () => {
     const types = fromIn(createContext(), 'plugin-ts')
 
-    expect(types.file(listPets).name('ListPetsHeaders').import).toMatchObject({
+    expect(types.import(listPets, 'ListPetsHeaders').import).toMatchObject({
       name: ['ListPetsHeaders'],
       path: '/root/src/gen/types/listPets.ts',
       isTypeOnly: true,
     })
-    expect(types.file(listPets, { name: 'usePets' }).name('PetsOptions').import?.path).toBe('/root/src/gen/types/usePets.ts')
-    expect(types.file(adminOperation).name('UsersHeaders').import).toBeNull()
+    expect(types.import(adminOperation, 'UsersHeaders').import).toBeNull()
   })
 
-  it('takes the extname and suffix the target writes with', () => {
-    const { resolver: types } = fromIn(createContext(), 'plugin-ts', { extname: '.tsx', suffix: false })
+  it("follows the file name and suffix the target's resolver writes with", () => {
+    const hooks = new Resolver({
+      pluginName: 'plugin-hooks',
+      file: {
+        suffix: false,
+        name: (node, exportName) => (exportName?.includes('Suspense') ? `${(node as ast.OperationNode).operationId}Suspense` : undefined),
+      },
+    })
+    const base = createContext()
+    const ctx = {
+      ...base,
+      getResolver: (name: string) => (name === 'plugin-hooks' ? hooks : base.getResolver(name as never)),
+      requirePlugin: (name: string) =>
+        name === 'plugin-hooks' ? { options: { output: { path: 'hooks', mode: 'directory' } } } : base.requirePlugin(name as never),
+    } as unknown as FileContext
+    const own = fromIn(ctx, 'plugin-hooks')
 
-    expect(types.response.options(pointOperation).import?.path).toBe('/root/src/gen/types/point.tsx')
+    expect(own.import(pointOperation, 'pointOptions').import?.path).toBe('/root/src/gen/hooks/point.ts')
+    expect(own.import(pointOperation, 'pointSuspenseOptions').import?.path).toBe('/root/src/gen/hooks/pointSuspense.ts')
   })
 
   it('wraps the current plugin without an argument', () => {

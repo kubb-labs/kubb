@@ -12,7 +12,7 @@ export type FileOptions = {
   /**
    * The name before the resolver applies its casing.
    *
-   * @default the schema's `name`, or the operation's `operationId`
+   * @default the resolver's `file.name`, else the schema's `name` or the operation's `operationId`
    */
   name?: string
   /**
@@ -28,7 +28,7 @@ export type FileOptions = {
   /**
    * Adds `Operation` to an operation's name while its file matches a schema file. Set to `false` to keep the name as is.
    *
-   * @default true
+   * @default the resolver's `file.suffix`, else `true`
    */
   suffix?: boolean
 }
@@ -108,12 +108,13 @@ function operationFile(
 export function locateFile(
   ctx: FileContext,
   node: SchemaNode | OperationNode,
-  options: FileOptions = {},
+  options: FileOptions & { exportName?: string } = {},
   pluginOptions?: LocationOptions,
 ): { resolver: Resolver; location: Location; file: FileNode } {
-  const { extname = '.ts', suffix = true } = options
+  const { extname = '.ts' } = options
   const { resolver, location } = toLocation(ctx, node, options.plugin, pluginOptions)
-  const name = options.name ?? (node.kind === 'Operation' ? node.operationId : node.name)
+  const suffix = options.suffix ?? resolver.fileNaming.suffix
+  const name = options.name ?? resolver.fileNaming.name(node, options.exportName) ?? (node.kind === 'Operation' ? node.operationId : node.name)
   if (!name) {
     throw new Diagnostics.Error({
       code: Diagnostics.code.pluginFailed,

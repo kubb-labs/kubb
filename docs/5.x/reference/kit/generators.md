@@ -151,9 +151,9 @@ The method's first argument picks the file to import from:
 - A schema node, `{ name }` or a schema name points at the plugin's file for that schema. The name must belong to a schema in the document.
 - Any other argument gives the name without an import.
 
-A node that the plugin's `include` or `exclude` rules leave out also gives no import, and `from(plugin).has(node)` returns `false` for it. The import is `import type` when the target resolver sets `isTypeOnly`, as `plugin-ts` does. Pass `from(plugin, { extname, suffix })` when the plugin writes its files with another extension or with `suffix: false`.
+A node that the plugin's `include` or `exclude` rules leave out also gives no import, and `from(plugin).has(node)` returns `false` for it. The import is `import type` when the target resolver sets `isTypeOnly`, as `plugin-ts` does. The target resolver's [`file.name` and `file.suffix`](/docs/5.x/reference/kit/resolvers#resolver-overrides) decide its file, so you pass only the node.
 
-For a name that no resolver method returns, such as one built by a shared helper, use `from(plugin).file(node).name(name)`. It imports `name` from the plugin's file for `node`. Pass `file(node, { name })` when that file is named after something other than the node.
+For a name that no resolver method returns, such as one built by a shared helper, use `from(plugin).import(node, name)`. It imports `name` from the plugin's file for `node`.
 
 `code` is a template tag that returns `{ text, imports }`. Its placeholders (`${…}`) take names from `from`, other `code` results, strings and numbers. `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean. The imports are grouped per path, in the order of first use. `code.join(parts, separator)` joins several parts and keeps their imports.
 
