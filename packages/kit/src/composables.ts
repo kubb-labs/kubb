@@ -19,13 +19,15 @@ export const slot = {
 export type Provided = { priority: number; factory: () => Resolver }
 
 /**
- * Returns the resolver a plugin keeps in memo. Without one, it stores and returns a default resolver for
+ * Returns the resolver a plugin keeps in memo, or for a capability name such as `'types'`, the resolver of its provider. Without one, it stores and returns a default resolver for
  * that plugin, so the build keeps one resolver per plugin. Reads the memo of the running hook unless you pass one.
  *
  * @example
  * `getResolver('plugin-ts').file({ name: 'pet', extname: '.ts', root, output })`
  */
 export function getResolver(pluginName: string, memo: Memo = useKubb().memo): Resolver {
+  const provided = memo.get(slot.capability(pluginName)) as Provided | undefined
+  if (provided) return provided.factory()
   const key = slot.resolver(pluginName)
   const stored = memo.get(key) as Resolver | undefined
   if (stored) return stored

@@ -1,9 +1,9 @@
 import { ast, type ImportNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import type { PluginName, ResolvePluginOptions } from '@kubb/core'
+import type { PluginName } from '@kubb/core'
 import { type FileContext, type FileOptions, locateFile, pluginOptionsFor, useFileContext } from './file.ts'
 import type { Resolver } from './resolver/Resolver.ts'
 import { type Provided, slot } from './composables.ts'
-import type { CapabilityName, ResolverOf } from './types.ts'
+import type { CapabilityName, ResolverFor } from './types.ts'
 
 /**
  * A name from a plugin's resolver, with the import that brings it into scope. It prints as the name, so it works in a template string too.
@@ -54,11 +54,7 @@ export type From<T extends Resolver = Resolver> = {
 export type FromOptions = Pick<FileOptions, 'extname' | 'suffix'>
 
 // No `source` reads the current plugin, whose resolver type is not known statically.
-type SourceResolver<TSource> = [TSource] extends [never]
-  ? Resolver
-  : TSource extends CapabilityName
-    ? Extract<Kubb.CapabilityRegistry[TSource], Resolver>
-    : ResolverOf<ResolvePluginOptions<TSource>>
+type SourceResolver<TSource> = [TSource] extends [never] ? Resolver : ResolverFor<TSource>
 
 const skipped = new Set(['pluginName', 'default', 'isTypeOnly'])
 

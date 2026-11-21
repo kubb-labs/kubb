@@ -3,7 +3,7 @@ import { type Config, Diagnostics, type Memo, withContext } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import type { FileContext } from './file.ts'
 import { type From, type FromOptions, type FromResolver, from } from './from.ts'
-import { provide, slot } from './composables.ts'
+import { getResolver, provide, slot } from './composables.ts'
 import { Resolver } from './resolver/Resolver.ts'
 
 function createMemo(): Memo {
@@ -151,6 +151,7 @@ describe('from', () => {
 
     provideIn(ctx, 'plugin-zod', () => zodTypes, 1)
     expect(fromIn(ctx, 'types').resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts', isTypeOnly: true })
+    expect(getResolver('types', ctx.memo)).toBe(zodTypes)
   })
 
   it('reports KUBB_NO_CONTEXT outside a generator', () => {

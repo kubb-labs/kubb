@@ -29,10 +29,13 @@ export type PluginType<
 // A plugin type that names no resolver, such as one typed with core's `PluginType`, gets the default resolver.
 export type ResolverOf<T> = T extends { resolver: infer TResolver } ? (unknown extends TResolver ? Resolver : TResolver) : Resolver
 
+/** The resolver a plugin name or a capability name reads. */
+export type ResolverFor<TName> = TName extends CapabilityName ? Extract<Kubb.CapabilityRegistry[TName], Resolver> : ResolverOf<ResolvePluginOptions<TName>>
+
 /** Context a printer factory receives: core's visit context plus the plugin's resolver and its resolved options. */
 export type PrinterContext<TOptions extends PluginType = PluginType> = PluginVisitContext<TOptions> & {
-  /** Get a resolver by plugin name, typed via `Kubb.PluginRegistry` when registered. */
-  getResolver<TName extends PluginName>(name: TName): ResolverOf<ResolvePluginOptions<TName>>
+  /** Get a resolver by plugin name or capability name, typed via `Kubb.PluginRegistry` and `Kubb.CapabilityRegistry`. */
+  getResolver<TName extends PluginName | CapabilityName>(name: TName): ResolverFor<TName>
   /** The current plugin's resolver: a `setResolver` registration, or the default resolver. */
   resolver: TOptions['resolver']
   /** Resolved options after exclude/include/override filtering. */
