@@ -1,6 +1,7 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { PluginType as CorePluginType, PluginName, PluginVisitContext, RendererFactory, ResolvePluginOptions } from '@kubb/core'
+import type { FileOptions, FileTarget } from './file.ts'
 import type { Resolver } from './resolver/Resolver.ts'
 
 /**
@@ -45,6 +46,10 @@ export type PrinterFactory<TOptions extends PluginType = PluginType> = (ctx: Pri
 export type GeneratorContext<TOptions extends PluginType = PluginType> = PrinterContext<TOptions> & {
   /** The printer from the plugin's `setPrinter` factory, or `undefined` without one. */
   printer: Exclude<TOptions['printer'], undefined>
+  /**
+   * The `<File>` props for the file `node` is written to. See the `file` composable.
+   */
+  file(node: SchemaNode | OperationNode, options?: FileOptions): FileTarget
 }
 
 /**

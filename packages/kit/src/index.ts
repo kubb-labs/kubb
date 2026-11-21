@@ -38,6 +38,8 @@ export {
 } from '@kubb/core'
 export { addGenerator, addMacro, getResolver, setMacros, setPrinter, setResolver } from './composables.ts'
 export { defineGenerator } from './defineGenerator.ts'
+export { file } from './file.ts'
+export type { FileOptions, FileTarget } from './file.ts'
 export { createResolver } from './resolver/createResolver.ts'
 export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
 export { defineExtension, definePlugin } from './defineExtension.ts'

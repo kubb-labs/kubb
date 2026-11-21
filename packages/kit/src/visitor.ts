@@ -2,6 +2,7 @@ import { memo, toError } from '@internals/utils'
 import { ast, type Macro, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type NormalizedPlugin, type PluginVisitContext, type PluginVisitHooks, withContext } from '@kubb/core'
 import { getResolver, slot } from './composables.ts'
+import { resolveFile } from './file.ts'
 import type { Resolver } from './resolver/Resolver.ts'
 import type { Generator, GeneratorContext, PrinterContext, PrinterFactory } from './types.ts'
 
@@ -56,7 +57,7 @@ function run<TArgs extends Array<unknown>, TResult>(ctx: object, fn: (...args: T
 }
 
 function withPrinter(state: VisitState, ctx: PrinterContext): GeneratorContext {
-  const generatorContext: GeneratorContext = { ...ctx, printer: undefined }
+  const generatorContext: GeneratorContext = { ...ctx, printer: undefined, file: (node, options) => resolveFile(generatorContext, node, options) }
   const { printerFactory, printers } = state
   if (!printerFactory) return generatorContext
 
