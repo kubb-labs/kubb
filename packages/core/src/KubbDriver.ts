@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { getElapsedMs, toError } from '@internals/utils'
+import { getElapsedMs, memo as storeMemo, toError } from '@internals/utils'
 import { ast, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { PluginVisitContext } from './definePlugin.ts'
@@ -132,9 +132,6 @@ export class KubbDriver {
   readonly plugins = new Map<string, NormalizedPlugin>()
   readonly #memo = new Map<string, unknown>()
   readonly memo: Memo = createMemo(this.#memo)
-  /**
-   * One visit context per plugin, shared by its bus hooks and the walk.
-   */
   readonly #contexts = new Map<NormalizedPlugin, PluginVisitContext>()
 
   /**
@@ -634,12 +631,8 @@ export class KubbDriver {
    * Returns the plugin's visit context, created once per plugin and shared by its bus hooks and the walk.
    */
   getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): PluginVisitContext<TOptions> {
-    let ctx = this.#contexts.get(plugin as NormalizedPlugin)
-    if (!ctx) {
-      ctx = this.#createContext(plugin as NormalizedPlugin)
-      this.#contexts.set(plugin as NormalizedPlugin, ctx)
-    }
-    return ctx as unknown as PluginVisitContext<TOptions>
+    const key = plugin as NormalizedPlugin
+    return storeMemo(this.#contexts, key, () => this.#createContext(key)) as unknown as PluginVisitContext<TOptions>
   }
 
   #createContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): PluginVisitContext<TOptions> {

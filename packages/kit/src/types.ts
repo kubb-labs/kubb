@@ -91,7 +91,7 @@ export type Generator<TOptions extends PluginType = DefaultPluginType, TElement 
   operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | undefined | null>
   /** Called once after all operations have been walked, with the plugin-level options in `ctx.options`. */
   operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | undefined | null>
-  // `this` is the generator context. ThisType types it without a `this` parameter, so a direct `generator.schema(node, ctx)` call still compiles.
+  // ThisType instead of a `this` parameter, so a direct `generator.schema(node, ctx)` call still compiles.
 } & ThisType<GeneratorContext<TOptions>>
 
 declare global {
