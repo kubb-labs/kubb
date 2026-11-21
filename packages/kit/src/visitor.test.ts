@@ -5,6 +5,7 @@ import {
   Hookable,
   KubbDriver,
   type KubbHooks,
+  type KubbPluginSetupContext,
   memoryStorage,
   type Plugin,
   useKubb,
