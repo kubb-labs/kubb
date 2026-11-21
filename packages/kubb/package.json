@@ -171,8 +171,8 @@
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/cli": "workspace:*",
-    "@kubb/core": "workspace:^",
-    "@kubb/kit": "workspace:^",
+    "@kubb/core": "workspace:*",
+    "@kubb/kit": "workspace:*",
     "@kubb/mcp": "workspace:*",
     "@kubb/parser-md": "workspace:*",
     "@kubb/parser-ts": "workspace:*",

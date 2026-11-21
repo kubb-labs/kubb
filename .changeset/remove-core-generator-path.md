@@ -16,6 +16,8 @@ Removed from `@kubb/core`:
 - The `kubb:generate:schema`, `kubb:generate:operation` and `kubb:generate:operations` hook types, which `@kubb/kit` now declares and fires.
 - `renderGeneratorSchema`, `renderGeneratorOperation` and `renderGeneratorOperations` from `@kubb/core/mocks`.
 
+`addGenerator`, `setResolver`, `setMacros`, `addMacro`, `Resolver`, `createResolver`, `defineResolver`, `defineGenerator` and `toFilePath` stay in `@kubb/core` as deprecated stubs until v6. `@kubb/kit` 5.23.1 still imports them from core, so each one throws `KUBB_MOVED_TO_KIT` when called, with a link to the fix, instead of failing on a missing export.
+
 To migrate a plugin:
 
 1. Import `defineExtension`, `defineGenerator`, `createResolver` and the composables from `kubb/kit` instead of `@kubb/core`.
