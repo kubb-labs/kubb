@@ -41,7 +41,7 @@ export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
 export { defineExtension, definePlugin } from './defineExtension.ts'
 export { memo } from './memo.ts'
 export type { ScopedMemo } from './memo.ts'
-export type { Generator, GeneratorContext } from './types.ts'
+export type { Generator, GeneratorContext, PrinterContext, PrinterFactory } from './types.ts'
 export type { ResolveOptionsContext } from './resolver/resolveOptions.ts'
 export type {
   ResolveBannerContext,

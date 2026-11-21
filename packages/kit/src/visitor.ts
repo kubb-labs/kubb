@@ -3,7 +3,7 @@ import { ast, type Macro, type OperationNode, type SchemaNode } from '@kubb/ast'
 import type { NormalizedPlugin, PluginVisitContext, PluginVisitHooks } from '@kubb/core'
 import { resolverFor, slot } from './composables.ts'
 import type { Resolver } from './resolver/Resolver.ts'
-import type { Generator, GeneratorContext } from './types.ts'
+import type { Generator, GeneratorContext, PrinterContext, PrinterFactory } from './types.ts'
 
 const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType', 'extension'])
 
@@ -11,14 +11,14 @@ type Resolved<TNode> = { transformedNode: TNode; options: NormalizedPlugin['opti
 
 type VisitState = {
   // The resolver is fixed for the whole walk, so reservations and generators agree on names.
-  context: Omit<GeneratorContext, 'options' | 'printer'> & { resolver: Resolver }
+  context: Omit<PrinterContext, 'options'> & { resolver: Resolver }
   macros: Array<Macro>
   schemaGenerators: Array<Generator>
   operationGenerators: Array<Generator>
   operationsGenerators: Array<Generator>
   schemas: Map<SchemaNode, Resolved<SchemaNode> | Error>
   operations: Array<OperationNode>
-  printerFactory: ((ctx: GeneratorContext) => unknown) | undefined
+  printerFactory: PrinterFactory | undefined
   // Override merges are stable objects, so one printer per base options and per matching override.
   printers: WeakMap<object, unknown>
 }
@@ -50,12 +50,12 @@ function resolveNode<TNode extends SchemaNode | OperationNode>(
   return resolved === null ? null : { transformedNode, options: resolved }
 }
 
-function withPrinter(state: VisitState, ctx: Omit<GeneratorContext, 'printer'>): GeneratorContext {
+function withPrinter(state: VisitState, ctx: PrinterContext): GeneratorContext {
   const generatorContext: GeneratorContext = { ...ctx, printer: undefined }
   const { printerFactory, printers } = state
   if (!printerFactory) return generatorContext
 
-  generatorContext.printer = memo(printers, ctx.options as object, () => printerFactory(generatorContext))
+  generatorContext.printer = memo(printers, ctx.options as object, () => printerFactory(ctx))
   return generatorContext
 }
 
