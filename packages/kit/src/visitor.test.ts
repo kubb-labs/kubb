@@ -171,6 +171,29 @@ describe('generatorVisitor', () => {
     )
   })
 
+  it('rejects a setup-only kit composable inside a generator', async () => {
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-late' },
+      setup(options) {
+        addGenerator({
+          name: 'late',
+          schema() {
+            addGenerator({ name: 'nested', schema: () => null })
+            return null
+          },
+        })
+        return options
+      },
+    })()
+
+    const { diagnostics } = await build([plugin])
+
+    expect(diagnostics).toContainEqual(
+      expect.objectContaining({ severity: 'error', message: expect.stringContaining('`addGenerator()` runs only in `setup` or `kubb:plugin:setup`') }),
+    )
+  })
+
   it('runs a plugin visit hook after the kit visitor', async () => {
     const log: Array<string> = []
     const plugin = defineExtension({
