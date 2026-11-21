@@ -64,6 +64,10 @@ describe('file', () => {
     expect(resolveFile(createContext(), listPets).baseName).toBe('listPets.ts')
   })
 
+  it('keeps the operation name with suffix: false', () => {
+    expect(resolveFile(createContext(), pointOperation, { suffix: false }).baseName).toBe('point.ts')
+  })
+
   it('keeps the operation path in a single-file output', () => {
     const ctx = createContext({ options: { output: { path: 'zod.ts', mode: 'single' } } } as Partial<FileContext>)
 
@@ -116,7 +120,9 @@ describe('file', () => {
   })
 
   it('throws for a schema without a name', () => {
-    expect(() => resolveFile(createContext(), ast.factory.createSchema({ type: 'string' }))).toThrow('named schema')
+    expect(() => resolveFile(createContext(), ast.factory.createSchema({ type: 'string' }))).toThrow(
+      expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.pluginFailed }) }),
+    )
   })
 
   it('reads the current context as a composable', () => {
