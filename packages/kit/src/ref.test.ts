@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import { type Config, Diagnostics, type Memo, withContext } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import type { FileContext } from './file.ts'
-import { type Ref, type RefOptions, ref } from './ref.ts'
+import { type Ref, type RefName, type RefOptions, ref } from './ref.ts'
 import { Resolver } from './resolver/Resolver.ts'
 
 function createMemo(): Memo {
@@ -29,6 +29,7 @@ type TestResolver = Resolver & {
   status(code: number): string
   tags(): Array<string>
   reserved: Array<string>
+  label(kind: 'none' | 'Point'): string | null
 }
 
 const tsResolver = new Resolver({
@@ -47,6 +48,7 @@ const tsResolver = new Resolver({
   status: (code: number) => `Status${code}`,
   tags: () => ['pets'],
   reserved: ['Pet'],
+  label: (kind: 'none' | 'Point') => (kind === 'Point' ? 'Point' : null),
 } as never)
 
 function createContext(): FileContext {
@@ -130,6 +132,14 @@ describe('ref', () => {
 
     expect(types.tags()).toStrictEqual(['pets'])
     expect(types.reserved).toStrictEqual(['Pet'])
+  })
+
+  it('wraps the string results of a member that can also return null', () => {
+    const types = refIn(createContext(), 'plugin-ts')
+    const label: RefName | null = types.label('Point')
+
+    expect(label?.import?.path).toBe('/root/src/gen/types/point.ts')
+    expect(types.label('none')).toBeNull()
   })
 
   it('wraps the current plugin without an argument', () => {

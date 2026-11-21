@@ -16,13 +16,16 @@ export type RefName = {
   toString(): string
 }
 
-type RefMember<T> = T extends (...args: infer A) => string
-  ? (...args: A) => RefName
-  : T extends (...args: never) => unknown
+// Each string a member can return comes back as a `RefName`. Other results, such as `null`, keep their type.
+type RefResult<R> = R extends string ? RefName : R
+
+type RefMember<T> = T extends (...args: infer A) => infer R
+  ? [Extract<R, string>] extends [never]
     ? T
-    : T extends object
-      ? { [K in keyof T]: RefMember<T[K]> }
-      : T
+    : (...args: A) => RefResult<R>
+  : T extends object
+    ? { [K in keyof T]: RefMember<T[K]> }
+    : T
 
 type RefMembers<T> = { [K in keyof T]: RefMember<T[K]> }
 

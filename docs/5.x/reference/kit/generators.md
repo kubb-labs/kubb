@@ -172,6 +172,7 @@ export const zodGenerator = defineGenerator({
 
     return (
       <File {...target}>
+        <File.Import name={['z']} path="zod" />
         {source.imports.map((imp) => (
           <File.Import key={`${imp.path}:${imp.isTypeOnly}`} root={target.path} name={imp.name} path={imp.path} isTypeOnly={imp.isTypeOnly} />
         ))}
