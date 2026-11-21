@@ -1,5 +1,5 @@
 import { ast, type FileNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { type Config, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin } from '@kubb/core'
+import { type Config, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin, type PluginVisitContext, useKubb } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { addGenerator, addMacro, resolverFor, setResolver } from './composables.ts'
@@ -216,6 +216,37 @@ function makePlugin(name: string, rec: Recorder): Plugin {
     },
   }
 }
+
+test('runs every visit hook of a kit plugin with this === ctx === useKubb()', async () => {
+  const seen: Array<string> = []
+  const check = (hook: string, self: unknown, ctx: PluginVisitContext) => {
+    if (self === ctx && ctx === useKubb<PluginVisitContext>()) seen.push(hook)
+  }
+  const plugin: Plugin = {
+    name: 'a',
+    hooks: {
+      'kubb:plugin:visit:start'(ctx) {
+        check('start', this, ctx)
+      },
+      'kubb:plugin:visit:schema'(_node, ctx) {
+        check('schema', this, ctx)
+      },
+      'kubb:plugin:visit:operation'(_node, ctx) {
+        check('operation', this, ctx)
+      },
+      'kubb:plugin:visit:end'(ctx) {
+        check('end', this, ctx)
+      },
+    },
+  }
+  const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+  await driver.setup()
+
+  const { diagnostics } = await driver.run()
+
+  expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toStrictEqual([])
+  expect(seen).toStrictEqual(['start', 'schema', 'schema', 'operation', 'operation', 'end'])
+})
 
 describe('KubbDriver generator dispatch', () => {
   let rec: Recorder

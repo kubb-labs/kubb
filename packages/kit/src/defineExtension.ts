@@ -27,9 +27,9 @@ export const defineExtension = ((definition: { kind: string } & Partial<PluginDe
     const own = definition.hooks?.[name] as AnyHook | undefined
     const kit = visitor[name] as AnyHook
     hooks[name] = own
-      ? async (...args: Array<never>) => {
-          await kit(...args)
-          await own(...args)
+      ? async function (this: unknown, ...args: Array<never>) {
+          await kit.apply(this, args)
+          await own.apply(this, args)
         }
       : kit
   }

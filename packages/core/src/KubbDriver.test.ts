@@ -368,4 +368,35 @@ describe('KubbDriver bus hooks', () => {
     expect(contexts).toHaveLength(2)
     expect(contexts[0]).toBe(contexts[1])
   })
+
+  it('runs every visit hook with this === ctx === useKubb()', async () => {
+    const seen: Array<string> = []
+    const check = (hook: string, self: unknown, ctx: PluginVisitContext) => {
+      if (self === ctx && ctx === useKubb<PluginVisitContext>()) seen.push(hook)
+    }
+    const plugin: Plugin = {
+      name: 'a',
+      hooks: {
+        'kubb:plugin:visit:start'(ctx) {
+          check('start', this, ctx)
+        },
+        'kubb:plugin:visit:schema'(_node, ctx) {
+          check('schema', this, ctx)
+        },
+        'kubb:plugin:visit:operation'(_node, ctx) {
+          check('operation', this, ctx)
+        },
+        'kubb:plugin:visit:end'(ctx) {
+          check('end', this, ctx)
+        },
+      },
+    }
+    const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+    await driver.setup()
+
+    const { diagnostics } = await driver.run()
+
+    expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toStrictEqual([])
+    expect(seen).toStrictEqual(['start', 'schema', 'schema', 'operation', 'operation', 'end'])
+  })
 })

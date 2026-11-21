@@ -483,13 +483,14 @@ export type PluginVisitContext<TOptions extends PluginType = PluginType> = {
 
 /**
  * Hooks the driver calls for one plugin while it walks the input: `start`, then every schema, then
- * every operation, then `end`. They never reach the shared hooks bus.
+ * every operation, then `end`. They never reach the shared hooks bus. Each runs through `withContext`, so
+ * `this`, `ctx` and `useKubb()` are the same plugin visit context.
  */
 export type PluginVisitHooks<TFactory extends PluginType = PluginType> = {
-  'kubb:plugin:visit:start'?(ctx: PluginVisitContext<TFactory>): void | Promise<void>
-  'kubb:plugin:visit:schema'?(node: SchemaNode, ctx: PluginVisitContext<TFactory>): void | Promise<void>
-  'kubb:plugin:visit:operation'?(node: OperationNode, ctx: PluginVisitContext<TFactory>): void | Promise<void>
-  'kubb:plugin:visit:end'?(ctx: PluginVisitContext<TFactory>): void | Promise<void>
+  'kubb:plugin:visit:start'?(this: PluginVisitContext<TFactory>, ctx: PluginVisitContext<TFactory>): void | Promise<void>
+  'kubb:plugin:visit:schema'?(this: PluginVisitContext<TFactory>, node: SchemaNode, ctx: PluginVisitContext<TFactory>): void | Promise<void>
+  'kubb:plugin:visit:operation'?(this: PluginVisitContext<TFactory>, node: OperationNode, ctx: PluginVisitContext<TFactory>): void | Promise<void>
+  'kubb:plugin:visit:end'?(this: PluginVisitContext<TFactory>, ctx: PluginVisitContext<TFactory>): void | Promise<void>
 }
 
 /**
