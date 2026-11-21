@@ -30,6 +30,8 @@ type TestResolver = Resolver & {
   tags(): Array<string>
   reserved: Array<string>
   label(kind: 'none' | 'Point'): string | null
+  lookup: Map<string, number>
+  nested: { deep: { options(node: ast.OperationNode): string } }
 }
 
 const tsResolver = new Resolver({
@@ -49,7 +51,10 @@ const tsResolver = new Resolver({
   tags: () => ['pets'],
   reserved: ['Pet'],
   label: (kind: 'none' | 'Point') => (kind === 'Point' ? 'Point' : null),
+  nested: { deep: { options: (node: ast.OperationNode) => `${node.operationId}Deep` } },
 } as never)
+// Set after construction, as Resolver's own option handling flattens a Map passed in.
+Object.assign(tsResolver, { lookup: new Map([['pets', 1]]) })
 
 function createContext(): FileContext {
   const plugins: Record<string, unknown> = {
@@ -134,6 +139,15 @@ describe('ref', () => {
 
     expect(types.tags()).toStrictEqual(['pets'])
     expect(types.reserved).toStrictEqual(['Pet'])
+    expect(types.lookup).toBeInstanceOf(Map)
+    expect(types.lookup.get('pets')).toBe(1)
+  })
+
+  it('wraps the members of a namespace nested more than one level deep', () => {
+    const deep = refIn(createContext(), 'plugin-ts').nested.deep.options(listPets)
+
+    expect(deep.name).toBe('listPetsDeep')
+    expect(deep.import?.path).toBe('/root/src/gen/types/listPets.ts')
   })
 
   it('wraps the string results of a member that can also return null', () => {

@@ -59,14 +59,19 @@ export function pluginOptionsFor(ctx: FileContext, node: SchemaNode | OperationN
   return ctx.getResolver(plugin).default.options(node, { options: base, exclude: base.exclude, include: base.include, override: base.override })
 }
 
-function toLocation(ctx: FileContext, node: SchemaNode | OperationNode, plugin: PluginName | undefined): { resolver: Resolver; location: Location } {
+function toLocation(
+  ctx: FileContext,
+  node: SchemaNode | OperationNode,
+  plugin: PluginName | undefined,
+  pluginOptions?: LocationOptions,
+): { resolver: Resolver; location: Location } {
   if (!plugin) {
     const own = ctx.options as LocationOptions
     return { resolver: ctx.resolver, location: { root: ctx.root, output: own.output, group: own.group ?? undefined } }
   }
 
   // The target plugin's generators see its options after its override rules, so its files follow them too.
-  const { output, group } = pluginOptionsFor(ctx, node, plugin) ?? (ctx.requirePlugin(plugin).options as LocationOptions)
+  const { output, group } = pluginOptions ?? pluginOptionsFor(ctx, node, plugin) ?? (ctx.requirePlugin(plugin).options as LocationOptions)
   return { resolver: ctx.getResolver(plugin), location: { root: ctx.root, output, group: group ?? undefined } }
 }
 
@@ -104,9 +109,10 @@ export function locateFile(
   ctx: FileContext,
   node: SchemaNode | OperationNode,
   options: FileOptions = {},
+  pluginOptions?: LocationOptions,
 ): { resolver: Resolver; location: Location; file: FileNode } {
   const { extname = '.ts', suffix = true } = options
-  const { resolver, location } = toLocation(ctx, node, options.plugin)
+  const { resolver, location } = toLocation(ctx, node, options.plugin, pluginOptions)
   const name = options.name ?? (node.kind === 'Operation' ? node.operationId : node.name)
   if (!name) {
     throw new Diagnostics.Error({

@@ -46,6 +46,11 @@ function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+// Resolver namespaces are plain objects. A Map, Set or class instance stays as it is.
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && Object.getPrototypeOf(value) === Object.prototype
+}
+
 function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | null {
   const schemas = ctx.memo('kit:ref:schemas', () => new Map(ctx.schemas.flatMap((schema) => (schema.name ? [[schema.name, schema] as const] : []))))
   if (typeof arg === 'string') return schemas.get(arg) ?? null
@@ -71,12 +76,13 @@ export function ref<TName extends PluginName>(plugin?: TName, options: RefOption
   const resolver = ctx.getResolver(pluginName) as Resolver & Record<string, unknown>
   const toRefName = (name: string, arg: unknown): RefName => {
     const node = toNode(ctx, arg)
-    if (!node || !pluginOptionsFor(ctx, node, pluginName)) return { name, import: null, toString: () => name }
-    const { path } = locateFile(ctx, node, { ...options, plugin: pluginName }).file
+    const nodeOptions = node && pluginOptionsFor(ctx, node, pluginName)
+    if (!node || !nodeOptions) return { name, import: null, toString: () => name }
+    const { path } = locateFile(ctx, node, { ...options, plugin: pluginName }, nodeOptions).file
     return { name, import: ast.factory.createImport({ name: [name], path, isTypeOnly: resolver.isTypeOnly }), toString: () => name }
   }
   const wrapValue = (value: unknown, self: object): unknown => {
-    if (isNamespace(value)) return Object.fromEntries(Object.entries(value).map(([key, member]) => [key, wrapValue(member, value)]))
+    if (isPlainObject(value)) return Object.fromEntries(Object.entries(value).map(([key, member]) => [key, wrapValue(member, value)]))
     if (typeof value !== 'function') return value
     return (...args: Array<unknown>) => {
       const result = value.apply(self, args)

@@ -40,7 +40,9 @@ function build(strings: ReadonlyArray<string>, values: ReadonlyArray<CodeValue>)
   const imports: Array<ImportNode> = []
   // Named imports from one path merge into the first. Default, alias and namespace imports keep their shape.
   const add = (node: ImportNode) => {
-    const index = isNamed(node) ? imports.findIndex((imp) => isNamed(imp) && imp.path === node.path && !imp.isTypeOnly === !node.isTypeOnly) : -1
+    const index = isNamed(node)
+      ? imports.findIndex((imp) => isNamed(imp) && imp.path === node.path && Boolean(imp.isTypeOnly) === Boolean(node.isTypeOnly))
+      : -1
     const first = imports[index] as (ImportNode & { name: Array<string> }) | undefined
     if (!first) return void imports.push(node)
     imports[index] = ast.factory.createImport({
