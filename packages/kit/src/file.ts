@@ -3,9 +3,6 @@ import { Diagnostics, type Filter, type Group, type KubbContext, type Output, ty
 import type { Resolver } from './resolver/Resolver.ts'
 import type { PrinterContext } from './types.ts'
 
-/**
- * What `file` reads from a generator or printer factory context.
- */
 export type FileContext = Pick<PrinterContext, 'config' | 'meta' | 'memo' | 'schemas' | 'root' | 'resolver' | 'options' | 'getResolver' | 'requirePlugin'>
 
 export type FileOptions = {
@@ -133,7 +130,6 @@ export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, 
  */
 export function file(node: SchemaNode | OperationNode, options?: FileOptions): FileTarget {
   const ctx = useKubb<KubbContext>()
-  // Generator and printer factory contexts are the ones with a resolver.
   if (!('resolver' in ctx)) {
     throw new Diagnostics.Error({
       code: Diagnostics.code.noContext,
