@@ -89,11 +89,13 @@ To cache outside a build, see [Memo caches](#memo-cache).
 `setPrinter(factory)` registers the printer your generators use. Kit calls the factory with the generator context once per build, and once more for each `override` that matches a node. Generators get the result as `ctx.printer`, and pass per-node options with `printer.with(...)`.
 
 ```typescript
-import { addGenerator, createPrinter, defineExtension, defineGenerator, setPrinter } from 'kubb/kit'
+import { addGenerator, createPrinter, defineExtension, defineGenerator, type PluginType, setPrinter } from 'kubb/kit'
 
 const printerExample = createPrinter((options: { name?: string }) => ({ name: 'example', options, nodes: { string: () => 'string' } }))
 
-const generator = defineGenerator({
+type PluginExample = PluginType<'plugin-example', object, object, unknown, ReturnType<typeof printerExample>>
+
+const generator = defineGenerator<PluginExample>({
   name: 'example',
   schema(node, ctx) {
     ctx.info(`${node.name}: ${ctx.printer.with({ name: node.name }).print(node)}`)
@@ -101,11 +103,11 @@ const generator = defineGenerator({
   },
 })
 
-export const pluginExample = defineExtension({
+export const pluginExample = defineExtension<PluginExample>({
   kind: 'plugin',
   meta: { name: 'plugin-example' },
   setup(options) {
-    setPrinter(() => printerExample())
+    setPrinter<PluginExample>(() => printerExample())
     addGenerator(generator)
     return options
   },
