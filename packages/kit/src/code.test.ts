@@ -47,6 +47,14 @@ describe('code', () => {
     expect(source.imports.map((imp) => imp.name)).toStrictEqual([['Pet'], ['Order']])
   })
 
+  it('keeps default and namespace imports as they are', () => {
+    const react = ast.factory.createImport({ name: 'React', path: 'react' })
+    const zod = ast.factory.createImport({ name: 'z', path: 'zod', isNameSpace: true })
+    const source = code`${{ text: 'React', imports: [react, zod] }} ${pet}`
+
+    expect(source.imports).toStrictEqual([react, zod, expect.objectContaining({ name: ['Pet'], path: '/gen/types/pet.ts' })])
+  })
+
   it('joins nothing into empty text', () => {
     expect(code.join([])).toStrictEqual({ text: '', imports: [] })
   })

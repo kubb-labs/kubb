@@ -13,7 +13,7 @@ export type Code = {
 }
 
 /**
- * A value `code` accepts in a hole. `null`, `undefined` and `false` print nothing, so `${cond && name}` works.
+ * A value `code` accepts in a hole. `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean.
  */
 export type CodeValue = Code | RefName | string | number | boolean | null | undefined
 
@@ -32,13 +32,23 @@ function toText(value: CodeValue): string {
   return String(value)
 }
 
+type ImportGroup = { path: string; isTypeOnly: boolean; names: Set<string> }
+
+function isNamed(node: ImportNode): node is ImportNode & { name: Array<string> } {
+  return Array.isArray(node.name) && node.name.every((item) => typeof item === 'string') && !node.isNameSpace
+}
+
 function build(strings: ReadonlyArray<string>, values: ReadonlyArray<CodeValue>): Code {
-  const groups = new Map<string, { path: string; isTypeOnly: boolean; names: Set<string> }>()
-  const add = ({ name, path, isTypeOnly }: ImportNode) => {
-    const key = `${path}\u0000${Boolean(isTypeOnly)}`
-    const group = groups.get(key) ?? { path, isTypeOnly: Boolean(isTypeOnly), names: new Set<string>() }
+  const groups = new Map<string, ImportGroup>()
+  // Default, alias and namespace imports keep their shape, in their place among the groups.
+  const ordered: Array<ImportGroup | ImportNode> = []
+  const add = (node: ImportNode) => {
+    if (!isNamed(node)) return void ordered.push(node)
+    const key = `${node.path}\u0000${Boolean(node.isTypeOnly)}`
+    const group = groups.get(key) ?? { path: node.path, isTypeOnly: Boolean(node.isTypeOnly), names: new Set<string>() }
+    if (!groups.has(key)) ordered.push(group)
     groups.set(key, group)
-    for (const item of Array.isArray(name) ? name : [name]) if (typeof item === 'string') group.names.add(item)
+    node.name.forEach((item) => group.names.add(item))
   }
 
   for (const value of values) {
@@ -48,7 +58,9 @@ function build(strings: ReadonlyArray<string>, values: ReadonlyArray<CodeValue>)
 
   return {
     text: strings.reduce((text, part, index) => text + toText(values[index - 1]) + part),
-    imports: [...groups.values()].map(({ path, isTypeOnly, names }) => ast.factory.createImport({ name: [...names], path, isTypeOnly })),
+    imports: ordered.map((entry) =>
+      'names' in entry ? ast.factory.createImport({ name: [...entry.names], path: entry.path, isTypeOnly: entry.isTypeOnly }) : entry,
+    ),
   }
 }
 

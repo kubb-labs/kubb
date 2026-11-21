@@ -148,12 +148,12 @@ export const zodGenerator = defineGenerator({
 The first argument of a name member picks the file:
 
 - An operation node points at the plugin's file for that operation, with the same `Operation` suffix as `file`.
-- A schema node, `{ name }` or a schema name points at the plugin's file for that schema.
+- A schema node, `{ name }` or a schema name points at the plugin's file for that schema. The name must belong to a schema in the document.
 - Any other argument gives the name without an import.
 
-The import is `import type` when the target resolver sets `isTypeOnly`, as `plugin-ts` does. `ref(plugin).has(node)` is `false` when that plugin's `include` or `exclude` rules leave `node` out, so there is nothing to import.
+A node that the plugin's `include` or `exclude` rules leave out also gives no import, and `ref(plugin).has(node)` returns `false` for it. The import is `import type` when the target resolver sets `isTypeOnly`, as `plugin-ts` does. Pass `ref(plugin, { extname, suffix })` when the plugin writes its files with another extension or with `suffix: false`.
 
-`code` is a template tag that returns `{ text, imports }`. Its holes take names from `ref`, other `code` results, strings and numbers. `null`, `undefined` and `false` print nothing. The imports are grouped per path, in the order of first use. `code.join(parts, separator)` joins several parts and keeps their imports.
+`code` is a template tag that returns `{ text, imports }`. Its holes take names from `ref`, other `code` results, strings and numbers. `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean. The imports are grouped per path, in the order of first use. `code.join(parts, separator)` joins several parts and keeps their imports.
 
 The import paths are absolute. Pass the file you write as `root`, so each path becomes relative to it:
 
@@ -173,7 +173,7 @@ export const zodGenerator = defineGenerator({
     return (
       <File {...target}>
         {source.imports.map((imp) => (
-          <File.Import key={imp.path} root={target.path} name={imp.name} path={imp.path} isTypeOnly={imp.isTypeOnly} />
+          <File.Import key={`${imp.path}:${imp.isTypeOnly}`} root={target.path} name={imp.name} path={imp.path} isTypeOnly={imp.isTypeOnly} />
         ))}
         <File.Source>{source.text}</File.Source>
       </File>
