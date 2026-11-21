@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import { type Config, Diagnostics, type Memo, withContext } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import type { FileContext } from './file.ts'
-import { type Ref, type RefOptions, ref } from './ref.ts'
+import { type FromOptions, type FromResolver, from } from './from.ts'
 import { Resolver } from './resolver/Resolver.ts'
 
 function createMemo(): Memo {
@@ -62,51 +62,51 @@ function createContext(): FileContext {
   } as unknown as FileContext
 }
 
-function refIn(ctx: FileContext, plugin?: string, options?: RefOptions): Ref<TestResolver> {
-  return withContext(ctx as never, () => ref(plugin, options)) as unknown as Ref<TestResolver>
+function fromIn(ctx: FileContext, plugin?: string, options?: FromOptions): { resolver: FromResolver<TestResolver>; has: (node: ast.OperationNode) => boolean } {
+  return withContext(ctx as never, () => from(plugin, options)) as never
 }
 
-describe('ref', () => {
+describe('from', () => {
   it('returns a schema name with a type-only import from the target file', () => {
-    const name = refIn(createContext(), 'plugin-ts').name('Point')
+    const name = fromIn(createContext(), 'plugin-ts').resolver.name('Point')
 
     expect(`${name}`).toBe('point')
     expect(name.import).toMatchObject({ name: ['point'], path: '/root/src/gen/types/point.ts', isTypeOnly: true })
   })
 
   it("points an operation name at the target's operation file, with the Operation suffix", () => {
-    const types = refIn(createContext(), 'plugin-ts')
+    const { resolver: types } = fromIn(createContext(), 'plugin-ts')
 
     expect(types.response.options(listPets).import?.path).toBe('/root/src/gen/types/listPets.ts')
     expect(types.response.options(pointOperation).import?.path).toBe('/root/src/gen/types/pointOperation.ts')
   })
 
   it('leaves out the import when the first argument names no generated file', () => {
-    const types = refIn(createContext(), 'plugin-ts')
+    const { resolver: types } = fromIn(createContext(), 'plugin-ts')
 
     expect(types.status(200)).toMatchObject({ name: 'Status200', import: null })
     expect(types.name('Unknown').import).toBeNull()
   })
 
   it("leaves out the import for a node the target's rules exclude", () => {
-    const types = refIn(createContext(), 'plugin-ts')
+    const types = fromIn(createContext(), 'plugin-ts')
 
     expect(types.has(adminOperation)).toBe(false)
-    expect(types.response.options(adminOperation).import).toBeNull()
+    expect(types.resolver.response.options(adminOperation).import).toBeNull()
   })
 
   it('takes the extname and suffix the target writes with', () => {
-    const types = refIn(createContext(), 'plugin-ts', { extname: '.tsx', suffix: false })
+    const { resolver: types } = fromIn(createContext(), 'plugin-ts', { extname: '.tsx', suffix: false })
 
     expect(types.response.options(pointOperation).import?.path).toBe('/root/src/gen/types/point.tsx')
   })
 
   it('wraps the current plugin without an argument', () => {
-    expect(refIn(createContext()).name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts', isTypeOnly: false })
+    expect(fromIn(createContext()).resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts', isTypeOnly: false })
   })
 
   it('reports KUBB_NO_CONTEXT outside a generator', () => {
-    const call = () => withContext({ plugin: { name: 'plugin-zod' } } as never, () => ref('plugin-ts'))
+    const call = () => withContext({ plugin: { name: 'plugin-zod' } } as never, () => from('plugin-ts'))
 
     expect(call).toThrow(expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.noContext }) }))
   })

@@ -55,7 +55,7 @@ Every resolver has these members. `name` and `file` follow your overrides, and `
 | `memo(key, compute)`            | Caches a value for the rest of the build.                                                                                                      |
 | `resolveName()`, `reserveNames()` | Allocate names that do not collide. See [Name reservations](#name-reservations).                                                             |
 | `groupDir(group, value)`        | The folder a [`group`](/docs/5.x/reference/plugin-options#group) puts a file in.                                                               |
-| `isTypeOnly`                    | Set `isTypeOnly: true` in `createResolver` when the plugin emits only types. [`ref`](/docs/5.x/reference/kit/generators#ref) then imports its names with `import type`. |
+| `isTypeOnly`                    | Set `isTypeOnly: true` in `createResolver` when the plugin emits only types. [`from`](/docs/5.x/reference/kit/generators#from) then imports its names with `import type`. |
 | `default.name`                  | Kubb's `camelCase`.                                                                                                                            |
 | `default.options`               | Applies the `exclude`, `include`, and `override` filters.                                                                                      |
 | `default.path`                  | Resolves to `output.path`. With `mode: 'directory'` it adds the base name, inside a tag or path folder when `group` is set.                    |

@@ -122,7 +122,7 @@ export type ResolverBuildOptions = {
   name?: (name: string) => string
   file?: ResolverFile
   /**
-   * Imports this resolver's names with `import type`, as `ref()` and `code` emit them.
+   * Imports this resolver's names with `import type`, as `from()` and `code` emit them.
    */
   isTypeOnly?: boolean
   /** The absolute `shared.path` and the shared schemas this build defines, set by the driver so `file` and `imports` place them under it. */

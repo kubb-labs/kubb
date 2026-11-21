@@ -30,12 +30,17 @@ type RefMember<T> = T extends (...args: infer A) => infer R
 /**
  * A plugin's resolver whose name members return a `RefName` instead of a string.
  */
-export type Ref<T extends Resolver = Resolver> = RefMember<Omit<T, keyof Resolver>> & {
+export type FromResolver<T extends Resolver = Resolver> = RefMember<Omit<T, keyof Resolver>> & {
   name(name: string): RefName
+}
+
+export type From<T extends Resolver = Resolver> = {
+  resolver: FromResolver<T>
+  /** `false` when the plugin's `include` or `exclude` rules leave `node` out. */
   has(node: SchemaNode | OperationNode): boolean
 }
 
-export type RefOptions = Pick<FileOptions, 'extname' | 'suffix'>
+export type FromOptions = Pick<FileOptions, 'extname' | 'suffix'>
 
 const skipped = new Set(['pluginName', 'default', 'isTypeOnly'])
 
@@ -49,7 +54,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | null {
-  const schemas = ctx.memo('kit:ref:schemas', () => new Map(ctx.schemas.flatMap((schema) => (schema.name ? [[schema.name, schema] as const] : []))))
+  const schemas = ctx.memo('kit:from:schemas', () => new Map(ctx.schemas.flatMap((schema) => (schema.name ? [[schema.name, schema] as const] : []))))
   if (typeof arg === 'string') return schemas.get(arg) ?? null
   if (!isNamespace(arg)) return null
   if (arg.kind === 'Operation') return arg as unknown as OperationNode
@@ -65,10 +70,10 @@ function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | nu
  * A node the plugin's `include` or `exclude` rules leave out gets no import. Pass `extname` and `suffix` when the plugin writes its files with other values.
  *
  * @example
- * `ref('plugin-ts').name('Pet') // { name: 'Pet', import: { name: ['Pet'], path, isTypeOnly: true } }`
+ * `from('plugin-ts').resolver.name('Pet') // { name: 'Pet', import: { name: ['Pet'], path, isTypeOnly: true } }`
  */
-export function ref<TName extends PluginName>(plugin?: TName, options: RefOptions = {}): Ref<ResolverOf<ResolvePluginOptions<TName>>> {
-  const ctx = useFileContext('ref')
+export function from<TName extends PluginName>(plugin?: TName, options: FromOptions = {}): From<ResolverOf<ResolvePluginOptions<TName>>> {
+  const ctx = useFileContext('from')
   const pluginName = plugin ?? (ctx.plugin.name as PluginName)
   const resolver = ctx.getResolver(pluginName) as Resolver & Record<string, unknown>
   const toRefName = (name: string, arg: unknown): RefName => {
@@ -90,7 +95,9 @@ export function ref<TName extends PluginName>(plugin?: TName, options: RefOption
   const wrapped: Record<string, unknown> = {
     ...Object.fromEntries(Object.entries(resolver).flatMap(([key, value]) => (skipped.has(key) ? [] : [[key, wrapValue(value, resolver)]]))),
     name: (name: string) => toRefName(resolver.name(name), name),
-    has: (node: SchemaNode | OperationNode) => pluginOptionsFor(ctx, node, pluginName) !== null,
   }
-  return wrapped as Ref<ResolverOf<ResolvePluginOptions<TName>>>
+  return {
+    resolver: wrapped as FromResolver<ResolverOf<ResolvePluginOptions<TName>>>,
+    has: (node) => pluginOptionsFor(ctx, node, pluginName) !== null,
+  }
 }

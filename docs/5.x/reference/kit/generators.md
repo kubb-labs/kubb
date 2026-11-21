@@ -141,9 +141,9 @@ export const zodGenerator = defineGenerator({
 })
 ```
 
-### Importing names with `ref` and `code` {#ref}
+### Importing names with `from` and `code` {#from}
 
-`ref(plugin?)` wraps another plugin's resolver, read from the current generator context. Each resolver method that returns a name returns the name plus its import from that plugin's file. Without `plugin`, it wraps the current plugin's resolver.
+`from(plugin?)` reads another plugin from the current generator context. Without `plugin`, it reads the current plugin. `from(plugin).resolver` wraps that plugin's resolver: each method that returns a name returns the name plus its import from that plugin's file.
 
 The method's first argument picks the file to import from:
 
@@ -151,14 +151,14 @@ The method's first argument picks the file to import from:
 - A schema node, `{ name }` or a schema name points at the plugin's file for that schema. The name must belong to a schema in the document.
 - Any other argument gives the name without an import.
 
-A node that the plugin's `include` or `exclude` rules leave out also gives no import, and `ref(plugin).has(node)` returns `false` for it. The import is `import type` when the target resolver sets `isTypeOnly`, as `plugin-ts` does. Pass `ref(plugin, { extname, suffix })` when the plugin writes its files with another extension or with `suffix: false`.
+A node that the plugin's `include` or `exclude` rules leave out also gives no import, and `from(plugin).has(node)` returns `false` for it. The import is `import type` when the target resolver sets `isTypeOnly`, as `plugin-ts` does. Pass `from(plugin, { extname, suffix })` when the plugin writes its files with another extension or with `suffix: false`.
 
-`code` is a template tag that returns `{ text, imports }`. Its placeholders (`${…}`) take names from `ref`, other `code` results, strings and numbers. `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean. The imports are grouped per path, in the order of first use. `code.join(parts, separator)` joins several parts and keeps their imports.
+`code` is a template tag that returns `{ text, imports }`. Its placeholders (`${…}`) take names from `from`, other `code` results, strings and numbers. `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean. The imports are grouped per path, in the order of first use. `code.join(parts, separator)` joins several parts and keeps their imports.
 
 The import paths are absolute. Pass the file you write as `root`, so each path becomes relative to it:
 
 ```tsx [zodGenerator.tsx]
-import { code, defineGenerator, file, ref } from 'kubb/kit'
+import { code, defineGenerator, file, from } from 'kubb/kit'
 import { File, jsxRenderer } from '@kubb/renderer-jsx'
 
 export const zodGenerator = defineGenerator({
@@ -167,7 +167,7 @@ export const zodGenerator = defineGenerator({
   schema(node) {
     if (!node.name) return null
     const target = file(node)
-    const types = ref('plugin-ts')
+    const types = from('plugin-ts').resolver
     const source = code`export const petSchema = z.object({}) satisfies z.ZodType<${types.name(node.name)}>`
 
     return (

@@ -1,7 +1,7 @@
 import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { code } from './code.ts'
-import type { RefName } from './ref.ts'
+import type { RefName } from './from.ts'
 
 function refName(name: string, path: string | null, isTypeOnly = false): RefName {
   return { name, import: path ? ast.factory.createImport({ name: [name], path, isTypeOnly }) : null, toString: () => name }

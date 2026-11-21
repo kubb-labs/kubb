@@ -1,5 +1,5 @@
 import { ast, type ImportNode } from '@kubb/ast'
-import type { RefName } from './ref.ts'
+import type { RefName } from './from.ts'
 
 /**
  * Generated text plus the imports its names need, grouped per path in the order of first use.
@@ -67,7 +67,7 @@ function build(strings: ReadonlyArray<string>, values: ReadonlyArray<CodeValue>)
  * A template tag that returns the text and the imports of the names in its holes.
  *
  * @example
- * `code\`satisfies z.ZodType<${ref('plugin-ts').name('Pet')}>\`.text // 'satisfies z.ZodType<Pet>'`
+ * `code\`satisfies z.ZodType<${from('plugin-ts').resolver.name('Pet')}>\`.text // 'satisfies z.ZodType<Pet>'`
  */
 export function code(strings: TemplateStringsArray, ...values: Array<CodeValue>): Code {
   return build(strings, values)
