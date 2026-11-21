@@ -23,6 +23,7 @@ export { createOutputManifest, type OutputManifest } from './outputManifest.ts'
 export { fsStorage } from './storages/fsStorage.ts'
 export { kubbStorage, resolveKubbDir } from './storages/kubbStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
+export { addGenerator, addMacro, createResolver, defineGenerator, defineResolver, Resolver, setMacros, setResolver, toFilePath } from './moved.ts'
 
 export { Hookable } from './Hookable.ts'
 export { runHook, type HookResult, type RunHookOptions } from './output/runHook.ts'

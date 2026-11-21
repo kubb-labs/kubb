@@ -414,10 +414,10 @@ importers:
         specifier: workspace:*
         version: link:../cli
       '@kubb/core':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../core
       '@kubb/kit':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../kit
       '@kubb/mcp':
         specifier: workspace:*

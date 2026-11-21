@@ -6,7 +6,7 @@
 
 Remove core's generator path. `@kubb/kit` now owns resolvers, generators and macros, and `@kubb/core` only walks the input through each plugin's visit hooks.
 
-Removed from `@kubb/core`:
+Moved out of `@kubb/core`:
 
 - `Resolver`, `createResolver`, `defineResolver`, `toFilePath`, `resolverOptions` and `defineGenerator`.
 - The `Generator`, `GeneratorContext`, `ResolverInput`, `ResolverPatch` types and the other resolver option types. `@kubb/kit` exports them, and `ResolverLike` is gone: types name kit's `Resolver`.
@@ -15,6 +15,8 @@ Removed from `@kubb/core`:
 - `ctx.resolver` and `ctx.getResolver` on the visit-hook context, now `PluginVisitContext`.
 - The `kubb:generate:schema`, `kubb:generate:operation` and `kubb:generate:operations` hook types, which `@kubb/kit` now declares and fires.
 - `renderGeneratorSchema`, `renderGeneratorOperation` and `renderGeneratorOperations` from `@kubb/core/mocks`.
+
+Of these, `addGenerator`, `setResolver`, `setMacros`, `addMacro`, `Resolver`, `createResolver`, `defineResolver`, `defineGenerator` and `toFilePath` stay exported from `@kubb/core` as throwing stubs until v6. `@kubb/kit` 5.23.1 still imports them from core, so each one throws `KUBB_MOVED_TO_KIT` when called, with a link to the fix, instead of failing on a missing export.
 
 To migrate a plugin:
 

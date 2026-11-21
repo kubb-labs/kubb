@@ -178,6 +178,12 @@ A plugin lists another in `dependencies` without `optional: true`, and the confi
 
 **Fix:** Install that plugin and add it to `plugins`.
 
+### KUBB_MOVED_TO_KIT {#kubb-moved-to-kit}
+
+Code called a resolver, generator or macro helper from `@kubb/core`: `addGenerator`, `setResolver`, `setMacros`, `addMacro`, `Resolver`, `createResolver`, `defineResolver`, `defineGenerator` or `toFilePath`. These moved to `@kubb/kit`. `@kubb/kit` 5.23.1 still imports them from core, so it reports this error when it loads next to a newer `@kubb/core`.
+
+**Fix:** Import the helper from `kubb/kit`. If a plugin triggers it, run `pnpm update "@kubb/*"` so every @kubb package is on one version.
+
 ### KUBB_NO_CONTEXT {#kubb-no-context}
 
 A `kubb/kit` composable such as `useKubb()` ran outside a plugin hook: `setup`, `kubb:plugin:setup`, a hook in the plugin's `hooks` map or a visit hook. `addGenerator()`, `setResolver()`, `addMacro()` and `setMacros()` also report it for a plugin defined with `defineExtension` from `@kubb/core`. `setOptions()`, `useOptions()` and `injectFile()` report it in any hook other than `setup` and `kubb:plugin:setup`.

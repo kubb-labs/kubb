@@ -136,6 +136,13 @@ export const diagnosticCatalog = {
       'A composable such as `useKubb()` ran outside a plugin hook, a setup-only composable such as `setOptions()` ran in a hook other than `setup` and `kubb:plugin:setup`, or a composable from a plugin framework ran for a plugin that framework did not define.',
     fix: 'Call the composable inside a plugin hook, including in code that the hook awaits. Call setup-only composables in `setup` or `kubb:plugin:setup`. If the message names a `defineExtension` to import, define the plugin with it.',
   },
+  movedToKit: {
+    code: 'KUBB_MOVED_TO_KIT',
+    title: 'API moved to kubb/kit',
+    cause:
+      'Code called a resolver, generator or macro helper, such as `defineResolver` or `addGenerator`, from `@kubb/core`. These moved to `@kubb/kit`, and `@kubb/kit` 5.23.1 still imports them from core.',
+    fix: 'Import the helper from `kubb/kit`. If a plugin triggers it, run `pnpm update "@kubb/*"` so every @kubb package is on one version.',
+  },
   unsupportedFormat: {
     code: 'KUBB_UNSUPPORTED_FORMAT',
     title: 'Unsupported format',
