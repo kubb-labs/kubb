@@ -62,8 +62,22 @@ export const pluginExample = defineExtension({
 })
 ```
 
+The setup context has the same five as methods, so you can also write `kubb.setResolver(...)`. Both styles register the same, and `kubb` is typed as `KitSetupContext`:
+
+```typescript
+export const pluginExample = defineExtension({
+  kind: 'plugin',
+  meta: { name: 'plugin-example' },
+  setup(options, kubb) {
+    kubb.setResolver(resolver)
+    kubb.addGenerator(generator)
+    return options
+  },
+})
+```
+
 > [!WARNING]
-> The composables work only in a plugin defined with `defineExtension` from `kubb/kit`. The setup context no longer has `addGenerator`, `setResolver`, `addMacro` or `setMacros`.
+> The composables and the methods work only in a plugin defined with `defineExtension` from `kubb/kit`.
 
 The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds these members:
 
@@ -76,6 +90,7 @@ The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds the
 | `plugin`        | `{ name: string, meta: ExtensionMeta }`                   | The name and meta of the plugin being set up. |
 | `config`        | `Config`                                                  | The resolved build configuration. Composable: `useConfig()`.                    |
 | `options`       | `TOptions`                                                | The options the user passed. Composable: `useOptions()`.                        |
+| `addGenerator`, `setResolver`, `addMacro`, `setMacros`, `setPrinter` | Same as the composables | Kit's setup composables, as methods. |
 
 Methods have a composable of the same name, such as `requirePlugin()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
 
