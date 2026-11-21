@@ -178,7 +178,7 @@ ast.macro.compareOrder(undefined, 'post') // -1
 
 ### Macro options and callbacks
 
-A macro has the callbacks of an [`ast.node`](#visitors) visitor, a `name`, and optional `enforce` and `match`. Each callback returns a replacement node, or `undefined` or `null` to keep the original.
+A macro has the callbacks of an [`ast.node`](#visitors) visitor, a `name`, and optional `enforce` and `match`. Each callback gets the visitor context, with the node's `parent`, as `this` and as its second argument. It returns a replacement node, or `undefined` or `null` to keep the original.
 
 ```typescript [Type definition]
 type Macro = {
@@ -337,11 +337,11 @@ Key the map by schema `type`, such as `'string'`. A type without a handler keeps
 
 ```typescript [Type definition]
 type PrinterNodes = Partial<{
-  [K in SchemaType]: (this: Context, node: SchemaNodeByType[K]) => Output | null
+  [K in SchemaType]: (this: Context, node: SchemaNodeByType[K], ctx: Context) => Output | null
 }>
 ```
 
-Handlers use `this`, so write regular functions, not arrow functions:
+A handler gets the context as `this` and as its second argument, so an arrow function can read it as `ctx`, such as `array: (node, ctx) => ctx.transform(node.items[0])`. The root `print` override gets the root context the same way.
 
 | `this` member                    | Does                                                                           |
 | -------------------------------- | ------------------------------------------------------------------------------ |

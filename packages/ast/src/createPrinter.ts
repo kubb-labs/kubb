@@ -2,7 +2,7 @@ import type { ImportNode } from './nodes/file.ts'
 import type { SchemaNode, SchemaNodeByType, SchemaType } from './nodes/schema.ts'
 
 /**
- * Runtime context passed as `this` to printer handlers.
+ * Runtime context passed to printer handlers, both as `this` and as the second argument.
  *
  * `this.transform` dispatches to node-level handlers from `nodes`.
  *
@@ -40,20 +40,18 @@ type PrinterHandlerContext<TOutput, TOptions extends object> = {
 }
 
 /**
- * Handler for one schema node type.
- *
- * Use a regular function (not an arrow function) if you need `this`.
+ * Handler for one schema node type. The handler context is `this` and the second argument,
+ * so an arrow function can read it as `ctx`.
  *
  * @example
  * ```ts
- * const handler: PrinterHandler<string, {}, 'string'> = function () {
- *   return 'string'
- * }
+ * const handler: PrinterHandler<string, {}, 'array'> = (node, ctx) => `Array<${ctx.transform(node.items[0]!)}>`
  * ```
  */
 type PrinterHandler<TOutput, TOptions extends object, T extends SchemaType = SchemaType> = (
   this: PrinterHandlerContext<TOutput, TOptions>,
   node: SchemaNodeByType[T],
+  ctx: PrinterHandlerContext<TOutput, TOptions>,
 ) => TOutput | null
 
 /**
@@ -165,9 +163,13 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
   /**
    * Optional root-level print override. When provided, becomes the public `printer.print`.
    * Use `this.transform(node)` inside this function to dispatch to the node-level handlers (`nodes`),
-   * not the override itself, so recursion is safe.
+   * not the override itself, so recursion is safe. The root context is also the second argument.
    */
-  print?: (this: PrinterHandlerContext<T['output'], T['options']>, node: SchemaNode) => T['printOutput'] | null
+  print?: (
+    this: PrinterHandlerContext<T['output'], T['options']>,
+    node: SchemaNode,
+    ctx: PrinterHandlerContext<T['output'], T['options']>,
+  ) => T['printOutput'] | null
 }
 /**
  * Creates a schema printer: a function that takes a `SchemaNode` and emits
@@ -226,7 +228,8 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
       const handler = table[node.type]
       if (!handler) return null
 
-      return (handler as (this: Context, node: SchemaNode) => T['output'] | null).call(createContext(options, node, parent), node)
+      const context = createContext(options, node, parent)
+      return (handler as (this: Context, node: SchemaNode, ctx: Context) => T['output'] | null).call(context, node, context)
     }
 
     // `current` is the node whose handler gets this context, so it becomes the parent of what that handler transforms.
@@ -249,7 +252,7 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
         name,
         options,
         transform: (node) => root.transform(node),
-        print: (printOverride ? (node: SchemaNode) => printOverride.call(root, node) : (node: SchemaNode) => root.transform(node)) as Printer<T>['print'],
+        print: (printOverride ? (node: SchemaNode) => printOverride.call(root, node, root) : (node: SchemaNode) => root.transform(node)) as Printer<T>['print'],
         with: (extra) => toPrinter(withOptions(options, extra)),
         drainImports,
       }

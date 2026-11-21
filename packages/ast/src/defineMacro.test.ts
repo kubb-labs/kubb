@@ -32,6 +32,24 @@ describe('applyMacros', () => {
     expect(applyMacros(root, [macro])).toBe(root)
   })
 
+  it('passes the visitor context as this and as the second argument', () => {
+    const child = createSchema({ type: 'string' })
+    const root = createSchema({ type: 'object', properties: [createProperty({ name: 'id', schema: child })] })
+    const seen: Array<boolean> = []
+
+    applyMacros(root, [
+      defineMacro({
+        name: 'context',
+        schema(_node, context) {
+          seen.push(this === context)
+          return undefined
+        },
+      }),
+    ])
+
+    expect(seen).toStrictEqual([true, true])
+  })
+
   it('keeps the same reference when no macro changes anything', () => {
     const root = createSchema({ type: 'object', properties: [createProperty({ name: 'id', schema: createSchema({ type: 'string' }) })] })
 

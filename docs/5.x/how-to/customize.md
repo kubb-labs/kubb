@@ -31,7 +31,7 @@ flowchart LR
 ```
 
 > [!TIP]
-> When an override uses `this`, write it as a regular method, not an arrow function.
+> An override gets its context as `this` and as its second argument. In an arrow function, read it from the second argument, such as `(node, ctx) => ctx.base(node)`.
 
 ## Resolvers {#resolvers}
 
