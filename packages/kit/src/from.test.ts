@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import { type Config, Diagnostics, type Memo, withContext } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import type { FileContext } from './file.ts'
-import { type FromOptions, type FromResolver, from } from './from.ts'
+import { type From, type FromOptions, type FromResolver, from } from './from.ts'
 import { Resolver } from './resolver/Resolver.ts'
 
 function createMemo(): Memo {
@@ -71,7 +71,7 @@ function createContext(): FileContext {
   } as unknown as FileContext
 }
 
-function fromIn(ctx: FileContext, plugin?: string, options?: FromOptions): { resolver: FromResolver<TestResolver>; has: (node: ast.OperationNode) => boolean } {
+function fromIn(ctx: FileContext, plugin?: string, options?: FromOptions): Omit<From, 'resolver'> & { resolver: FromResolver<TestResolver> } {
   return withContext(ctx as never, () => from(plugin, options)) as never
 }
 
@@ -111,6 +111,18 @@ describe('from', () => {
     expect(types.tags()).toStrictEqual(['pets'])
     expect(types.reserved).toStrictEqual(['Pet'])
     expect(types.lookup.get('pets')).toBe(1)
+  })
+
+  it('imports any name from the target file for a node, named by the name option', () => {
+    const types = fromIn(createContext(), 'plugin-ts')
+
+    expect(types.file(listPets).name('ListPetsHeaders').import).toMatchObject({
+      name: ['ListPetsHeaders'],
+      path: '/root/src/gen/types/listPets.ts',
+      isTypeOnly: true,
+    })
+    expect(types.file(listPets, { name: 'usePets' }).name('PetsOptions').import?.path).toBe('/root/src/gen/types/usePets.ts')
+    expect(types.file(adminOperation).name('UsersHeaders').import).toBeNull()
   })
 
   it('takes the extname and suffix the target writes with', () => {

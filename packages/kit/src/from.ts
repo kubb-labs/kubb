@@ -34,10 +34,19 @@ export type FromResolver<T extends Resolver = Resolver> = RefMember<Omit<T, keyo
   name(name: string): RefName
 }
 
+/**
+ * One of a plugin's files. `name(name)` returns `name` with the import from that file.
+ */
+export type FromFile = {
+  name(name: string): RefName
+}
+
 export type From<T extends Resolver = Resolver> = {
   resolver: FromResolver<T>
   /** `false` when the plugin's `include` or `exclude` rules leave `node` out. */
   has(node: SchemaNode | OperationNode): boolean
+  /** The plugin's file for `node`, for names that no resolver member returns. */
+  file(node: SchemaNode | OperationNode, options?: Pick<FileOptions, 'name'>): FromFile
 }
 
 export type FromOptions = Pick<FileOptions, 'extname' | 'suffix'>
@@ -76,11 +85,10 @@ export function from<TName extends PluginName>(plugin?: TName, options: FromOpti
   const ctx = useFileContext('from')
   const pluginName = plugin ?? (ctx.plugin.name as PluginName)
   const resolver = ctx.getResolver(pluginName) as Resolver & Record<string, unknown>
-  const toRefName = (name: string, arg: unknown): RefName => {
-    const node = toNode(ctx, arg)
+  const toRefName = (name: string, node: SchemaNode | OperationNode | null, fileOptions: Pick<FileOptions, 'name'> = {}): RefName => {
     const nodeOptions = node && pluginOptionsFor(ctx, node, pluginName)
     if (!node || !nodeOptions) return { name, import: null, toString: () => name }
-    const { path } = locateFile(ctx, node, { ...options, plugin: pluginName }, nodeOptions).file
+    const { path } = locateFile(ctx, node, { ...options, ...fileOptions, plugin: pluginName }, nodeOptions).file
     return { name, import: ast.factory.createImport({ name: [name], path, isTypeOnly: resolver.isTypeOnly }), toString: () => name }
   }
   const wrapValue = (value: unknown, self: object): unknown => {
@@ -88,16 +96,17 @@ export function from<TName extends PluginName>(plugin?: TName, options: FromOpti
     if (typeof value !== 'function') return value
     return (...args: Array<unknown>) => {
       const result = value.apply(self, args)
-      return typeof result === 'string' ? toRefName(result, args[0]) : result
+      return typeof result === 'string' ? toRefName(result, toNode(ctx, args[0])) : result
     }
   }
 
   const wrapped: Record<string, unknown> = {
     ...Object.fromEntries(Object.entries(resolver).flatMap(([key, value]) => (skipped.has(key) ? [] : [[key, wrapValue(value, resolver)]]))),
-    name: (name: string) => toRefName(resolver.name(name), name),
+    name: (name: string) => toRefName(resolver.name(name), toNode(ctx, name)),
   }
   return {
     resolver: wrapped as FromResolver<ResolverOf<ResolvePluginOptions<TName>>>,
     has: (node) => pluginOptionsFor(ctx, node, pluginName) !== null,
+    file: (node, fileOptions) => ({ name: (name) => toRefName(name, node, fileOptions) }),
   }
 }
