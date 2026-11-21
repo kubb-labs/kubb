@@ -108,6 +108,7 @@
   "packages/kit/src/resolver/resolveOptions.test.ts": "Branchy include, exclude and override matching for every plugin: method case, global RegExp, extensions, schema-only filters.",
   "packages/kit/src/resolvers/resolvers.test.ts": "Only test of the shared resolver parts: collision suffixes, cased nested file paths, and a patch that replaces one method of a part.",
   "packages/kit/src/text.test.ts": "code literals every generator prints with: quote and line-break escaping, reserved words, key quoting and nested literals.",
+  "packages/kit/src/types.test.ts": "Pins kit PluginType: resolver defaults to Resolver, and the 4th/5th args type ctx.resolver and ctx.printer that plugins and kubb-labs/plugins#1549 rely on.",
   "packages/kit/src/utils/mergeAdjacentSchemas.test.ts": "Merge boundary at a named object; adapter-oas composition.test.ts does not cover merging.",
   "packages/kit/src/utils/names.test.ts": "childName and enumPropName build every nested schema and enum name; the empty-part and no-parent branches have no other test.",
   "packages/kit/src/visitor.options.test.ts": "Include, exclude, override and macro handling in kit's visitor: extension and method filters, override output mode, one transformed node per operation.",

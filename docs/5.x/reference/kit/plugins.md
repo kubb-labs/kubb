@@ -31,7 +31,7 @@ export const pluginExample = defineExtension<PluginExample>({
 })
 ```
 
-`PluginType<TName, TOptions, TResolvedOptions, TResolver, TPrinter>` types the plugin. `TOptions` is what users pass, and `TResolvedOptions` is what `setup` returns. `TPrinter` types `ctx.printer`.
+`PluginType<TName, TOptions, TResolvedOptions, TResolver, TPrinter>` from `kubb/kit` types the plugin. `TOptions` is what users pass, and `TResolvedOptions` is what `setup` returns. `TResolver` types `ctx.resolver` and defaults to `Resolver`. `TPrinter` types `ctx.printer`. Core's `PluginType` from `@kubb/core` takes only the first three.
 
 | Field          | Type                                                          | Description                                                                                                        |
 | -------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -101,11 +101,11 @@ To cache outside a build, see [Memo caches](#memo-cache).
 `setPrinter(factory)` registers the printer your generators use. Kit calls the factory with the printer context, as its argument, `this` and `useKubb()`, once per build, and once more for each `override` that matches a node. Generators get the result as `ctx.printer`, and pass per-node options with `printer.with(...)`. Type a factory you export with `PrinterFactory<PluginType>`, so its `ctx` (a `PrinterContext`) is inferred.
 
 ```typescript
-import { addGenerator, createPrinter, defineExtension, defineGenerator, type PluginType, setPrinter } from 'kubb/kit'
+import { addGenerator, createPrinter, defineExtension, defineGenerator, type PluginType, type Resolver, setPrinter } from 'kubb/kit'
 
 const printerExample = createPrinter((options: { name?: string }) => ({ name: 'example', options, nodes: { string: () => 'string' } }))
 
-type PluginExample = PluginType<'plugin-example', object, object, unknown, ReturnType<typeof printerExample>>
+type PluginExample = PluginType<'plugin-example', object, object, Resolver, ReturnType<typeof printerExample>>
 
 const generator = defineGenerator<PluginExample>({
   name: 'example',

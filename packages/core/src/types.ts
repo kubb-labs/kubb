@@ -88,8 +88,8 @@ export type Config<TInput = Input> = {
    * Use `@kubb/adapter-oas` for OpenAPI/Swagger or `@kubb/adapter-asyncapi` for other formats.
    *
    * When omitted, Kubb runs in plugin-only mode: `kubb:plugin:setup` fires and files
-   * injected via `injectFile` are written, but no AST walk occurs and generator hooks
-   * (`kubb:generate:schema`, `kubb:generate:operation`) are never emitted.
+   * injected via `injectFile` are written, but no AST walk occurs and plugin visit hooks
+   * never run.
    *
    * @example
    * ```ts
@@ -473,7 +473,7 @@ export type KubbBuildStartContext = FilesContext & {
   adapter: Adapter
   /**
    * Metadata about the parsed document (title, version, base URL, circular schema names, enum names).
-   * To observe individual schemas and operations use the `kubb:generate:schema` / `kubb:generate:operation` hooks.
+   * To observe individual schemas and operations, use a plugin's visit hooks.
    */
   meta: InputMeta | undefined
   /**

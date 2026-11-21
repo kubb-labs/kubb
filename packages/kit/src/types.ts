@@ -1,18 +1,37 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
-import type { PluginName, PluginType, PluginVisitContext, RendererFactory, ResolvePluginOptions } from '@kubb/core'
+import type { PluginType as CorePluginType, PluginName, PluginVisitContext, RendererFactory, ResolvePluginOptions } from '@kubb/core'
 import type { Resolver } from './resolver/Resolver.ts'
 
-// A plugin type that names no resolver gets the default resolver.
-type ResolverOf<T> = unknown extends T ? Resolver : T
+/**
+ * Core's plugin type plus the resolver and printer that kit's generators receive.
+ *
+ * @example
+ * `export type PluginTs = PluginType<'plugin-ts', Options, ResolvedOptions, ResolverTs, PrinterTs>`
+ */
+export type PluginType<
+  /** Unique plugin name. */
+  TName extends string = string,
+  /** User-facing plugin options. */
+  TOptions extends object = object,
+  /** Plugin options after defaults are applied. */
+  TResolvedOptions extends object = TOptions,
+  /** Resolver that generators receive as `ctx.resolver`, registered with `setResolver`. Define it with `createResolver`. */
+  TResolver = Resolver,
+  /** Printer that generators receive as `ctx.printer`, registered with `setPrinter`. */
+  TPrinter = unknown,
+> = CorePluginType<TName, TOptions, TResolvedOptions> & {
+  resolver: TResolver
+  printer?: TPrinter
+}
 
-/** The plugin type generators default to: any plugin with kit's default `Resolver`. */
-export type DefaultPluginType = PluginType<string, object, object, Resolver>
+// A plugin type that names no resolver, such as one typed with core's `PluginType`, gets the default resolver.
+type ResolverOf<T> = T extends { resolver: infer TResolver } ? (unknown extends TResolver ? Resolver : TResolver) : Resolver
 
 /** Context a printer factory receives: core's visit context plus the plugin's resolver and its resolved options. */
-export type PrinterContext<TOptions extends PluginType = DefaultPluginType> = PluginVisitContext<TOptions> & {
+export type PrinterContext<TOptions extends PluginType = PluginType> = PluginVisitContext<TOptions> & {
   /** Get a resolver by plugin name, typed via `Kubb.PluginRegistry` when registered. */
-  getResolver<TName extends PluginName>(name: TName): ResolverOf<ResolvePluginOptions<TName>['resolver']>
+  getResolver<TName extends PluginName>(name: TName): ResolverOf<ResolvePluginOptions<TName>>
   /** The current plugin's resolver: a `setResolver` registration, or the default resolver. */
   resolver: TOptions['resolver']
   /** Resolved options after exclude/include/override filtering. */
@@ -20,10 +39,10 @@ export type PrinterContext<TOptions extends PluginType = DefaultPluginType> = Pl
 }
 
 /** Builds the plugin's printer from a `PrinterContext`, which is also its `this` and `useKubb()`. Register it with `setPrinter`. */
-export type PrinterFactory<TOptions extends PluginType = DefaultPluginType> = (ctx: PrinterContext<TOptions>) => Exclude<TOptions['printer'], undefined>
+export type PrinterFactory<TOptions extends PluginType = PluginType> = (ctx: PrinterContext<TOptions>) => Exclude<TOptions['printer'], undefined>
 
 /** Context passed to a generator's `schema`, `operation` and `operations` methods: the printer context plus the built printer. */
-export type GeneratorContext<TOptions extends PluginType = DefaultPluginType> = PrinterContext<TOptions> & {
+export type GeneratorContext<TOptions extends PluginType = PluginType> = PrinterContext<TOptions> & {
   /** The printer from the plugin's `setPrinter` factory, or `undefined` without one. */
   printer: Exclude<TOptions['printer'], undefined>
 }
@@ -56,7 +75,7 @@ export type GeneratorContext<TOptions extends PluginType = DefaultPluginType> = 
  * })
  * ```
  */
-export type Generator<TOptions extends PluginType = DefaultPluginType, TElement = unknown> = {
+export type Generator<TOptions extends PluginType = PluginType, TElement = unknown> = {
   /** Used in diagnostic messages and debug output. */
   name: string
   /** Renderer factory for generators that return elements, such as `jsxRenderer` from `@kubb/renderer-jsx`. Leave it unset or `null` for generators that return files. */
@@ -74,9 +93,16 @@ export type Generator<TOptions extends PluginType = DefaultPluginType, TElement 
 
 declare global {
   namespace Kubb {
+    /**
+     * Events kit fires on the shared hooks bus while a plugin defined with its `defineExtension` walks the input.
+     * They fire only when the config has an adapter, since without one no walk occurs. Each fires only for a plugin with generators of its kind.
+     */
     interface KubbHooksRegistry {
+      /** Fires for each schema node the plugin keeps, after its `schema` generators ran. */
       'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
+      /** Fires for each operation node the plugin keeps, after its `operation` generators ran. */
       'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
+      /** Fires once after the walk, after the `operations` generators ran with every kept operation. */
       'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
     }
   }
