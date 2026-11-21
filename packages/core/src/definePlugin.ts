@@ -526,9 +526,17 @@ export type Plugin<TFactory extends PluginType = PluginType> = ExtensionNamed & 
 /**
  * The object passed to `defineExtension` with `kind: 'plugin'`.
  */
-export type PluginDefinition<TFactory extends PluginType = PluginType> = Pick<Plugin<TFactory>, 'dependencies' | 'enforce' | 'setup'> & {
+export type PluginDefinition<TFactory extends PluginType = PluginType> = Pick<Plugin<TFactory>, 'dependencies' | 'enforce'> & {
   meta: ExtensionMeta<TFactory['name']>
-  hooks?: Plugin<TFactory>['hooks']
+  // `this` is declared here, not on `Plugin`, so code that calls `plugin.setup(options, ctx)` directly still type-checks.
+  hooks?: Omit<Plugin<TFactory>['hooks'], 'kubb:plugin:setup'> & {
+    'kubb:plugin:setup'?(this: KubbPluginSetupContext<TFactory>, ctx: KubbPluginSetupContext<TFactory>): void | Promise<void>
+  }
+  setup?(
+    this: KubbPluginSetupContext<TFactory>,
+    options: TFactory['options'],
+    kubb: KubbPluginSetupContext<TFactory>,
+  ): TFactory['resolvedOptions'] | Promise<TFactory['resolvedOptions']>
 }
 
 /**
