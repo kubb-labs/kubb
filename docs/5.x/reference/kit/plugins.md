@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Plugins - Define a Kubb plugin with defineExtension
-description: "Define a Kubb plugin with defineExtension and kind plugin: meta, dependencies, setup, and the setup context that registers generators."
+description: 'Define a Kubb plugin with defineExtension and kind plugin: meta, dependencies, setup, and the setup context that registers generators.'
 outline:
   - 2
   - 3
@@ -33,12 +33,12 @@ export const pluginExample = defineExtension<PluginExample>({
 
 `PluginType<TName, TOptions, TResolvedOptions, TResolver, TPrinter>` from `kubb/kit` types the plugin. `TOptions` is what users pass, and `TResolvedOptions` is what `setup` returns. `TResolver` types `ctx.resolver` and defaults to `Resolver`. `TPrinter` types `ctx.printer`. Core's `PluginType` from `@kubb/core` takes only the first three.
 
-| Field          | Type                                                          | Description                                                                                                        |
-| -------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `setup`        | `(options, kubb: KubbPluginSetupContext) => TResolvedOptions` | Runs once per build, before `kubb:plugin:setup`. Can be `async`.                                                   |
-| `dependencies` | [`ExtensionDependencies`](/docs/5.x/reference/kit/extensions#dependencies)                      | Plugins this one builds on.                                                                                        |
-| `enforce`      | `'pre' \| 'post'`                                             | Runs the plugin before or after the others. Dependencies still run first.                                         |
-| `hooks`        | `{ [hook]: handler }`                                         | Handlers for any [lifecycle hook](/docs/5.x/reference/kit/hooks).                                                  |
+| Field          | Type                                                                       | Description                                                               |
+| -------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `setup`        | `(options, kubb: KitSetupContext) => TResolvedOptions`                     | Runs once per build, before `kubb:plugin:setup`. Can be `async`.          |
+| `dependencies` | [`ExtensionDependencies`](/docs/5.x/reference/kit/extensions#dependencies) | Plugins this one builds on.                                               |
+| `enforce`      | `'pre' \| 'post'`                                                          | Runs the plugin before or after the others. Dependencies still run first. |
+| `hooks`        | `{ [hook]: handler }`                                                      | Handlers for any [lifecycle hook](/docs/5.x/reference/kit/hooks).         |
 
 ## Setup context {#setup-context}
 
@@ -81,16 +81,16 @@ export const pluginExample = defineExtension({
 
 The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds these members:
 
-| Member          | Signature                                                 | Purpose                                                                         |
-| --------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `setOptions`    | `(options: ResolvedOptions) => void`                      | Sets the resolved options. In `setup`, return them instead.                     |
-| `injectFile`    | `(file: UserFileNode) => void`                            | Adds a file outside generation. Set `copy` to an absolute path to copy a template. |
-| `requirePlugin` | `(name: string) => Plugin`                                | Returns another plugin, or fails with `KUBB_PLUGIN_NOT_FOUND`.                  |
-| `memo`          | `(key: string, compute: () => T) => T`                    | Computes a value once per build, shared by every plugin. `memo.get(key)`, `memo.set(key, value)` and `memo.has(key)` read and replace a value directly. |
-| `plugin`        | `{ name: string, meta: ExtensionMeta }`                   | The name and meta of the plugin being set up. |
-| `config`        | `Config`                                                  | The resolved build configuration. Composable: `useConfig()`.                    |
-| `options`       | `TOptions`                                                | The options the user passed. Composable: `useOptions()`.                        |
-| `addGenerator`, `setResolver`, `addMacro`, `setMacros`, `setPrinter` | Same as the composables | Kit's setup composables, as methods. |
+| Member                                                               | Signature                               | Purpose                                                                                                                                                 |
+| -------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `setOptions`                                                         | `(options: ResolvedOptions) => void`    | Sets the resolved options. In `setup`, return them instead.                                                                                             |
+| `injectFile`                                                         | `(file: UserFileNode) => void`          | Adds a file outside generation. Set `copy` to an absolute path to copy a template.                                                                      |
+| `requirePlugin`                                                      | `(name: string) => Plugin`              | Returns another plugin, or fails with `KUBB_PLUGIN_NOT_FOUND`.                                                                                          |
+| `memo`                                                               | `(key: string, compute: () => T) => T`  | Computes a value once per build, shared by every plugin. `memo.get(key)`, `memo.set(key, value)` and `memo.has(key)` read and replace a value directly. |
+| `plugin`                                                             | `{ name: string, meta: ExtensionMeta }` | The name and meta of the plugin being set up.                                                                                                           |
+| `config`                                                             | `Config`                                | The resolved build configuration. Composable: `useConfig()`.                                                                                            |
+| `options`                                                            | `TOptions`                              | The options the user passed. Composable: `useOptions()`.                                                                                                |
+| `addGenerator`, `setResolver`, `addMacro`, `setMacros`, `setPrinter` | Same as the composables                 | Kit's setup composables, as methods.                                                                                                                    |
 
 Methods have a composable of the same name, such as `requirePlugin()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
 
@@ -166,13 +166,13 @@ export type PluginExample = PluginType<'plugin-example', Options, ResolvedOption
 
 ## Plugin naming {#plugin-naming}
 
-| Surface            | Pattern                                            | Example            |
-| ------------------ | -------------------------------------------------- | ------------------ |
-| npm package        | `@<scope>/plugin-<name>` or `kubb-plugin-<name>`   | `@kubb/plugin-zod` |
-| `meta.name`        | `plugin-<name>`                                    | `'plugin-zod'`     |
-| Factory export     | `plugin<Name>`                                     | `pluginZod`        |
-| Name constant      | `plugin<Name>Name`                                 | `pluginZodName`    |
-| `PluginType` alias | `Plugin<Name>`                                     | `PluginZod`        |
+| Surface            | Pattern                                          | Example            |
+| ------------------ | ------------------------------------------------ | ------------------ |
+| npm package        | `@<scope>/plugin-<name>` or `kubb-plugin-<name>` | `@kubb/plugin-zod` |
+| `meta.name`        | `plugin-<name>`                                  | `'plugin-zod'`     |
+| Factory export     | `plugin<Name>`                                   | `pluginZod`        |
+| Name constant      | `plugin<Name>Name`                               | `pluginZodName`    |
+| `PluginType` alias | `Plugin<Name>`                                   | `PluginZod`        |
 
 Type the name constant with `satisfies`: `export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']`.
 
@@ -182,10 +182,10 @@ Type the name constant with `satisfies`: `export const pluginZodName = 'plugin-z
 
 When your plugin computes the same value many times, cache it with `memo`.
 
-| Call | Cache |
-| --- | --- |
-| `this.memo(key, compute)` in a resolver | Computes each value once per build. |
-| `memo(store, key, compute)` | Caches in a store you own, outside a build: a `Map`, a `WeakMap`, or `memo.create()`. |
+| Call                                    | Cache                                                                                 |
+| --------------------------------------- | ------------------------------------------------------------------------------------- |
+| `this.memo(key, compute)` in a resolver | Computes each value once per build.                                                   |
+| `memo(store, key, compute)`             | Caches in a store you own, outside a build: a `Map`, a `WeakMap`, or `memo.create()`. |
 
 - `memo.create({ weak: true })` frees an entry with its key.
 - `memo.create({ max })` empties the store when it is full.
