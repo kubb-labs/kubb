@@ -50,8 +50,14 @@ function matchesSchema(node: SchemaNode, filter: Filter): boolean | null {
 // One object per base options and matched override, so a caller can key a cache on it, such as kit's printer.
 function applyOverride<TOptions>(options: TOptions, match: Override<TOptions> | undefined): TOptions {
   if (!match) return options
-  const cache = memo(mergedCaches, options as object, () => new WeakMap<object, unknown>())
-  return memo(cache, match, () => ({ ...options, ...match.options })) as TOptions
+  const merge = () => ({ ...options, ...match.options })
+  // Primitive options cannot be WeakMap keys.
+  if (typeof options !== 'object' || options === null) return merge() as TOptions
+  return memo(
+    memo(mergedCaches, options, () => new WeakMap<object, unknown>()),
+    match,
+    merge,
+  ) as TOptions
 }
 
 function computeOptions<TOptions>(node: Node, { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>): TOptions | null {

@@ -68,4 +68,10 @@ describe('resolveOptions', () => {
     expect(resolveOptions<Options>(other, { options, override: [...override] })).toBe(first)
     expect(resolveOptions<Options>(schema, { options, override: [...override] })).toBe(options)
   })
+
+  it('merges an override over options that are not an object', () => {
+    const override = [{ type: 'tag', pattern: 'pets', options: { output: 'b' } }] as const
+
+    expect(resolveOptions<Options | undefined>(operation, { options: undefined, override: [...override] })).toStrictEqual({ output: 'b' })
+  })
 })
