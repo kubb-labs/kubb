@@ -31,7 +31,7 @@ flowchart LR
 ```
 
 > [!TIP]
-> An override gets its context as `this` and as its second argument. In an arrow function, read it from the second argument, such as `(node, ctx) => ctx.base(node)`.
+> An override gets its context as `this` and as its second argument. In an arrow function, read it from the second argument, such as `(node, ctx) => ctx!.base(node)`. The second argument is typed as optional, so assert it with `!`.
 
 ## Resolvers {#resolvers}
 

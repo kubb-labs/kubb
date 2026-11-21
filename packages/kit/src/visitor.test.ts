@@ -3,7 +3,7 @@ import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriv
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { addGenerator, addMacro, getResolver, setPrinter, setResolver, slot } from './composables.ts'
-import { defineExtension, definePlugin } from './defineExtension.ts'
+import { defineExtension, definePlugin, type KitSetupContext } from './defineExtension.ts'
 import { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext, PrinterContext } from './types.ts'
 
@@ -123,6 +123,24 @@ describe('generatorVisitor', () => {
     expect(seen).toStrictEqual([true])
     expect(driver.memo.get(slot.generators('plugin-methods'))).toStrictEqual([generator])
     expect(getResolver('plugin-methods', driver.memo).name('Pet')).toBe('ApiPet')
+  })
+
+  it('keeps setup context methods the context already has', () => {
+    const spy = vi.fn()
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-mocked' },
+      setup(options, kubb) {
+        kubb.addGenerator({ name: 'mocked', schema: () => [] })
+        return options
+      },
+    })({})
+    const ctx = { plugin: { name: 'plugin-mocked' }, memo: { set: vi.fn() }, addGenerator: spy } as unknown as KitSetupContext
+
+    plugin.setup?.call(ctx, {}, ctx)
+
+    expect(spy).toHaveBeenCalledOnce()
+    expect(ctx.setResolver).toBeTypeOf('function')
   })
 
   it('runs macros, the resolver, match and every generator kind', async () => {
