@@ -33,6 +33,7 @@ export {
   useConfig,
   useKubb,
   useOptions,
+  withContext,
 } from '@kubb/core'
 export { addGenerator, addMacro, getResolver, setMacros, setPrinter, setResolver } from './composables.ts'
 export { defineGenerator } from './defineGenerator.ts'

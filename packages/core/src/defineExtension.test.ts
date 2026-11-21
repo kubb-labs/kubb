@@ -9,7 +9,7 @@ import { checkCompatibility, checkDependencies, defineExtension, resolveMeta } f
 import { defineParser } from './defineParser.ts'
 import type { Parser } from './defineParser.ts'
 import { definePlugin } from './definePlugin.ts'
-import type { PluginType } from './definePlugin.ts'
+import type { KubbPluginSetupContext, PluginType } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -171,7 +171,7 @@ describe('defineExtension plugin', () => {
       async setup(options) {
         await Promise.resolve()
         memo.set('plugin-object:ready', true)
-        return { tag: useKubb<ObjectPlugin>().options.tag ?? options.tag ?? 'all' }
+        return { tag: useKubb<KubbPluginSetupContext<ObjectPlugin>>().options.tag ?? options.tag ?? 'all' }
       },
     })({ tag: 'pets' })
 

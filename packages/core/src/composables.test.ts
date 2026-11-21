@@ -1,8 +1,8 @@
 import { setTimeout as delay } from 'node:timers/promises'
 import { createMockedAdapter, createMockedSetupContext } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { injectFile, kubbContext, memo, setOptions, tryUseKubb, useConfig, useKubb, useOptions, requirePlugin } from './composables.ts'
-import type { Plugin } from './definePlugin.ts'
+import { injectFile, kubbContext, memo, setOptions, tryUseKubb, useConfig, useKubb, useOptions, requirePlugin, withContext } from './composables.ts'
+import type { KubbPluginSetupContext, Plugin, PluginVisitContext } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -46,6 +46,28 @@ describe('composables', () => {
     }
   })
 
+  it('setup-only composables throw KUBB_NO_CONTEXT in a hook other than setup', () => {
+    const ctx = { plugin: { name: 'plugin-ts' }, config: makeConfig() } as unknown as PluginVisitContext
+    const calls: Array<[string, () => unknown]> = [
+      ['injectFile', () => injectFile(file)],
+      ['useOptions', () => useOptions()],
+      ['setOptions', () => setOptions({})],
+    ]
+
+    withContext(ctx, () => {
+      expect(useKubb()).toBe(ctx)
+      expect(useConfig()).toBe(ctx.config)
+      for (const [name, call] of calls) {
+        expect(call, name).toThrow(
+          expect.objectContaining({
+            message: `\`${name}()\` runs only in \`setup\` or \`kubb:plugin:setup\`.`,
+            diagnostic: expect.objectContaining({ code: Diagnostics.code.noContext, plugin: 'plugin-ts' }),
+          }),
+        )
+      }
+    })
+  })
+
   it('tryUseKubb returns undefined outside setup', () => {
     expect(tryUseKubb()).toBeUndefined()
   })
@@ -75,7 +97,47 @@ describe('composables', () => {
   })
 })
 
+describe('withContext', () => {
+  it('runs fn with ctx as this, as its argument and as the useKubb() store, also after an await', async () => {
+    const ctx = createMockedSetupContext()
+
+    const result = await withContext(ctx, async function (arg) {
+      expect(this).toBe(ctx)
+      expect(arg).toBe(ctx)
+      expect(useKubb()).toBe(ctx)
+      await delay(1)
+      expect(useKubb()).toBe(ctx)
+      return 'done'
+    })
+
+    expect(result).toBe('done')
+    expect(tryUseKubb()).toBeUndefined()
+  })
+})
+
 describe('KubbDriver#setupHooks with composables', () => {
+  it('passes the same context as this, ctx and useKubb() to setup and kubb:plugin:setup', async () => {
+    const seen: Array<boolean> = []
+    const plugin: Plugin = {
+      name: 'plugin-this',
+      setup(this: KubbPluginSetupContext, options, ctx) {
+        seen.push(this === ctx && useKubb() === ctx)
+        return options
+      },
+      hooks: {
+        'kubb:plugin:setup'(this: KubbPluginSetupContext, ctx) {
+          seen.push(this === ctx && useKubb() === ctx)
+        },
+      },
+    }
+
+    const driver = new KubbDriver(makeConfig({ plugins: [plugin] }), { hooks: new Hookable<KubbHooks>() })
+    await driver.setup()
+    await driver.setupHooks()
+
+    expect(seen).toStrictEqual([true, true])
+  })
+
   it('scopes each plugin setup to its own context, also after an await', async () => {
     const seen: Array<{ plugin: string; options: unknown }> = []
 

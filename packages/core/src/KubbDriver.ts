@@ -7,7 +7,7 @@ import type { Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, Output, PluginType } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
-import { kubbContext } from './composables.ts'
+import { withContext } from './composables.ts'
 import { FileManager } from './FileManager.ts'
 import { createMemo, type Memo } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
@@ -326,12 +326,12 @@ export class KubbDriver {
       }
 
       try {
-        // Composables such as `setOptions()` read `ctx` from `kubbContext`, also after an `await` in setup.
-        await kubbContext.run(ctx, async () => {
+        // `this`, `ctx` and composables such as `setOptions()` read the same context, also after an `await` in setup.
+        await withContext(ctx, async () => {
           if (plugin.setup) {
-            plugin.options = normalizePluginOptions(await plugin.setup(ctx.options, ctx), plugin.name)
+            plugin.options = normalizePluginOptions(await plugin.setup.call(ctx, ctx.options, ctx), plugin.name)
           }
-          await setupHook?.(ctx)
+          await setupHook?.call(ctx, ctx)
         })
       } catch (caughtError) {
         // Attributed to the plugin, so the run summary counts it as a failed plugin.
