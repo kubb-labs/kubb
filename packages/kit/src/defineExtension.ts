@@ -7,7 +7,7 @@ import {
   type PluginType,
   type PluginVisitHooks,
 } from '@kubb/core'
-import { addGenerator, addMacro, setMacros, setPrinter, setResolver, slot } from './composables.ts'
+import { addGenerator, addMacro, provide, setMacros, setPrinter, setResolver, slot } from './composables.ts'
 import { generatorVisitor } from './visitor.ts'
 
 type AnyHook = (...args: Array<never>) => unknown
@@ -24,6 +24,7 @@ export type KitSetupContext<TFactory extends PluginType = PluginType> = KubbPlug
   addMacro: typeof addMacro
   setMacros: typeof setMacros
   setPrinter: typeof setPrinter
+  provide: typeof provide
 }
 
 /**
@@ -79,6 +80,7 @@ export const defineExtension = ((definition: { kind: string } & Partial<KitPlugi
       ctx.addMacro ??= addMacro
       ctx.setMacros ??= setMacros
       ctx.setPrinter ??= setPrinter
+      ctx.provide ??= provide
       return definition.setup ? definition.setup.call(ctx, options, ctx) : options
     },
   })

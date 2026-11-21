@@ -2,7 +2,8 @@ import { ast, type ImportNode, type OperationNode, type SchemaNode } from '@kubb
 import type { PluginName, ResolvePluginOptions } from '@kubb/core'
 import { type FileContext, type FileOptions, locateFile, pluginOptionsFor, useFileContext } from './file.ts'
 import type { Resolver } from './resolver/Resolver.ts'
-import type { ResolverOf } from './types.ts'
+import { type Provided, slot } from './composables.ts'
+import type { CapabilityName, ResolverOf } from './types.ts'
 
 /**
  * A name from a plugin's resolver, with the import that brings it into scope. It prints as the name, so it works in a template string too.
@@ -34,9 +35,7 @@ export type FromResolver<T extends Resolver = Resolver> = RefMember<Omit<T, keyo
   name(name: string): RefName
 }
 
-/**
- * One of a plugin's files. `name(name)` returns `name` with the import from that file.
- */
+/** One of a plugin's files. `name(name)` returns `name` with the import from that file. */
 export type FromFile = {
   name(name: string): RefName
 }
@@ -50,6 +49,8 @@ export type From<T extends Resolver = Resolver> = {
 }
 
 export type FromOptions = Pick<FileOptions, 'extname' | 'suffix'>
+
+type SourceResolver<TSource> = TSource extends CapabilityName ? Kubb.CapabilityRegistry[TSource] : ResolverOf<ResolvePluginOptions<TSource & PluginName>>
 
 const skipped = new Set(['pluginName', 'default', 'isTypeOnly'])
 
@@ -72,7 +73,7 @@ function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | nu
 
 /**
  * Another plugin's resolver, read from the current generator context, whose name members return the name plus the import from that plugin's file.
- * Without `plugin`, it wraps the current plugin's resolver. The first argument of a name member picks the file:
+ * `source` is a plugin name, or a capability name such as `'types'` that reads whichever plugin `provide()`s it. Without `source`, it wraps the current plugin's resolver. The first argument of a name member picks the file:
  * - an operation node: the plugin's file for that operation
  * - a schema node, `{ name }` or a schema name: the plugin's file for that schema, when the document has that schema
  *
@@ -81,10 +82,11 @@ function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | nu
  * @example
  * `from('plugin-ts').resolver.name('Pet') // { name: 'Pet', import: { name: ['Pet'], path, isTypeOnly: true } }`
  */
-export function from<TName extends PluginName>(plugin?: TName, options: FromOptions = {}): From<ResolverOf<ResolvePluginOptions<TName>>> {
+export function from<TSource extends PluginName | CapabilityName>(source?: TSource, options: FromOptions = {}): From<SourceResolver<TSource>> {
   const ctx = useFileContext('from')
-  const pluginName = plugin ?? (ctx.plugin.name as PluginName)
-  const resolver = ctx.getResolver(pluginName) as Resolver & Record<string, unknown>
+  const provided = source === undefined ? undefined : (ctx.memo.get(slot.capability(source)) as Provided | undefined)
+  const resolver = (provided ? provided.factory() : ctx.getResolver((source ?? ctx.plugin.name) as PluginName)) as Resolver & Record<string, unknown>
+  const pluginName = (provided ? resolver.pluginName : (source ?? ctx.plugin.name)) as PluginName
   const toRefName = (name: string, node: SchemaNode | OperationNode | null, fileOptions: Pick<FileOptions, 'name'> = {}): RefName => {
     const nodeOptions = node && pluginOptionsFor(ctx, node, pluginName)
     if (!node || !nodeOptions) return { name, import: null, toString: () => name }
@@ -105,7 +107,7 @@ export function from<TName extends PluginName>(plugin?: TName, options: FromOpti
     name: (name: string) => toRefName(resolver.name(name), toNode(ctx, name)),
   }
   return {
-    resolver: wrapped as FromResolver<ResolverOf<ResolvePluginOptions<TName>>>,
+    resolver: wrapped as FromResolver<SourceResolver<TSource>>,
     has: (node) => pluginOptionsFor(ctx, node, pluginName) !== null,
     file: (node, fileOptions) => ({ name: (name) => toRefName(name, node, fileOptions) }),
   }

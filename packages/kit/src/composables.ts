@@ -2,7 +2,7 @@ import type { Macro } from '@kubb/ast'
 import { Diagnostics, type KubbContext, type KubbPluginSetupContext, type Memo, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
 import type { ResolverInput } from './resolver/types.ts'
-import type { Generator, PluginType, PrinterFactory } from './types.ts'
+import type { CapabilityName, Generator, PluginType, PrinterFactory } from './types.ts'
 
 /**
  * Memo slots kit keeps per plugin, under `<plugin>:<slot>`.
@@ -13,7 +13,10 @@ export const slot = {
   resolver: (name: string) => `${name}:resolver`,
   macros: (name: string) => `${name}:macros`,
   printer: (name: string) => `${name}:printer`,
+  capability: (name: string) => `kit:capabilities:v1:${name}`,
 } as const
+
+export type Provided = { priority: number; factory: () => Resolver }
 
 /**
  * Returns the resolver a plugin keeps in memo. Without one, it stores and returns a default resolver for
@@ -96,6 +99,18 @@ export function addMacro(macro: Macro): void {
 export function setMacros(macros: ReadonlyArray<Macro>): void {
   const ctx = kitContext('setMacros')
   ctx.memo.set(slot.macros(ctx.plugin.name), [...macros])
+}
+
+/**
+ * Provides a resolver under a capability name, so `from(name)` reads it without naming this plugin.
+ * The provider with the highest `priority` wins. On a tie, the first one stays. Kit calls `factory` when a generator asks.
+ */
+export function provide<TName extends CapabilityName>(name: TName, factory: () => Kubb.CapabilityRegistry[TName], options: { priority?: number } = {}): void {
+  const ctx = kitContext('provide')
+  const key = slot.capability(name)
+  const priority = options.priority ?? 0
+  const current = ctx.memo.get(key) as Provided | undefined
+  if (!current || priority > current.priority) ctx.memo.set(key, { priority, factory: factory as () => Resolver })
 }
 
 /**

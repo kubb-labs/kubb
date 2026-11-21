@@ -96,8 +96,13 @@ export type Generator<TOptions extends PluginType = PluginType, TElement = unkno
   // ThisType instead of a `this` parameter, so a direct `generator.schema(node, ctx)` call still compiles.
 } & ThisType<GeneratorContext<TOptions>>
 
+/** A name in `Kubb.CapabilityRegistry`, such as `'types'`. */
+export type CapabilityName = keyof Kubb.CapabilityRegistry
+
 declare global {
   namespace Kubb {
+    /** Resolvers a plugin can `provide()` under a name, such as `types: ResolverTs`, for `from(name)` to read. */
+    interface CapabilityRegistry {}
     /**
      * Events kit fires on the shared hooks bus while a plugin defined with its `defineExtension` walks the input.
      * They fire only when the config has an adapter, since without one no walk occurs. Each fires only for a plugin with generators of its kind.

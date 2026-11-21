@@ -3,6 +3,7 @@ import { type Config, Diagnostics, type Memo, withContext } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import type { FileContext } from './file.ts'
 import { type From, type FromOptions, type FromResolver, from } from './from.ts'
+import { provide, slot } from './composables.ts'
 import { Resolver } from './resolver/Resolver.ts'
 
 function createMemo(): Memo {
@@ -75,6 +76,11 @@ function fromIn(ctx: FileContext, plugin?: string, options?: FromOptions): Omit<
   return withContext(ctx as never, () => from(plugin, options)) as never
 }
 
+function provideIn(ctx: FileContext, plugin: string, factory: () => Resolver, priority?: number) {
+  ctx.memo.set(slot.kit(plugin), true)
+  withContext({ plugin: { name: plugin }, memo: ctx.memo, setOptions() {} } as never, () => provide('types' as never, factory as never, { priority }))
+}
+
 describe('from', () => {
   it('returns a schema name with a type-only import from the target file', () => {
     const name = fromIn(createContext(), 'plugin-ts').resolver.name('Point')
@@ -133,6 +139,18 @@ describe('from', () => {
 
   it('wraps the current plugin without an argument', () => {
     expect(fromIn(createContext()).resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts', isTypeOnly: false })
+  })
+
+  it('reads a capability from the provider with the highest priority', () => {
+    const ctx = createContext()
+    const zodTypes = new Resolver({ pluginName: 'plugin-zod', isTypeOnly: true })
+    provideIn(ctx, 'plugin-zod', () => zodTypes, -1)
+    provideIn(ctx, 'plugin-ts', () => tsResolver)
+
+    expect(fromIn(ctx, 'types').resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/types/point.ts', isTypeOnly: true })
+
+    provideIn(ctx, 'plugin-zod', () => zodTypes, 1)
+    expect(fromIn(ctx, 'types').resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts', isTypeOnly: true })
   })
 
   it('reports KUBB_NO_CONTEXT outside a generator', () => {

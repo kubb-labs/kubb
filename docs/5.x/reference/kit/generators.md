@@ -143,7 +143,7 @@ export const zodGenerator = defineGenerator({
 
 ### Importing names with `from` and `code` {#from}
 
-`from(plugin?)` reads another plugin from the current generator context. Without `plugin`, it reads the current plugin. `from(plugin).resolver` wraps that plugin's resolver: each method that returns a name returns the name plus its import from that plugin's file.
+`from(source?)` reads another plugin from the current generator context. `source` is a plugin name, or a capability name such as `'types'` that reads whichever plugin [`provide`](/docs/5.x/reference/kit/plugins#provide)s it. Without `source`, it reads the current plugin. `from(plugin).resolver` wraps that plugin's resolver: each method that returns a name returns the name plus its import from that plugin's file.
 
 The method's first argument picks the file to import from:
 

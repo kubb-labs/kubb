@@ -42,7 +42,7 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ## Setup context {#setup-context}
 
-`setup` and the `kubb:plugin:setup` hook register resolvers, generators, macros and printers with the composables from `kubb/kit`: `setResolver`, `addGenerator`, `addMacro`, `setMacros` and `setPrinter`. Composables take no context argument, so helpers that `setup` calls can use them too.
+`setup` and the `kubb:plugin:setup` hook register resolvers, generators, macros and printers with the composables from `kubb/kit`: `setResolver`, `addGenerator`, `addMacro`, `setMacros`, `setPrinter` and `provide`. Composables take no context argument, so helpers that `setup` calls can use them too.
 
 ```typescript
 import { addGenerator, createResolver, defineExtension, defineGenerator, requirePlugin, setResolver } from 'kubb/kit'
@@ -90,7 +90,7 @@ The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds the
 | `plugin`        | `{ name: string, meta: ExtensionMeta }`                   | The name and meta of the plugin being set up. |
 | `config`        | `Config`                                                  | The resolved build configuration. Composable: `useConfig()`.                    |
 | `options`       | `TOptions`                                                | The options the user passed. Composable: `useOptions()`.                        |
-| `addGenerator`, `setResolver`, `addMacro`, `setMacros`, `setPrinter` | Same as the composables | Kit's setup composables, as methods. |
+| `addGenerator`, `setResolver`, `addMacro`, `setMacros`, `setPrinter`, `provide` | Same as the composables | Kit's setup composables, as methods. |
 
 Methods have a composable of the same name, such as `requirePlugin()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
 
@@ -169,6 +169,36 @@ export type PluginExample = PluginType<'plugin-example', Options, ResolvedOption
 Type the name constant with `satisfies`: `export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']`.
 
 ## Less common cases {#less-common-cases}
+
+
+### Capabilities {#provide}
+
+`provide(name, factory, { priority })` offers a resolver under a capability name, such as `'types'`. A generator then reads it with [`from(name)`](/docs/5.x/reference/kit/generators#from), without naming the plugin that provides it. When several plugins provide the same name, the one with the highest `priority` wins, and on a tie the first one stays. `priority` defaults to `0`. Kit calls `factory` when a generator asks for the capability, so it can call `getResolver`.
+
+```typescript
+import { defineExtension, getResolver, provide } from 'kubb/kit'
+
+export const pluginTypes = defineExtension({
+  kind: 'plugin',
+  name: 'plugin-types',
+  setup(options) {
+    provide('types', () => getResolver('plugin-types'))
+    return options
+  },
+})
+```
+
+Add each capability to `Kubb.CapabilityRegistry`, so `from(name)` is typed:
+
+```typescript
+declare global {
+  namespace Kubb {
+    interface CapabilityRegistry {
+      types: ResolverTypes
+    }
+  }
+}
+```
 
 ### Memo caches {#memo-cache}
 
