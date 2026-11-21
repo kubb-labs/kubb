@@ -9,14 +9,23 @@ type ResolverOf<T> = unknown extends T ? Resolver : T
 /** The plugin type generators default to: any plugin with kit's default `Resolver`. */
 export type DefaultPluginType = PluginType<string, object, object, Resolver>
 
-/** Context passed to a generator's `schema`, `operation` and `operations` methods: core's visit context plus the plugin's resolver and its resolved options. */
-export type GeneratorContext<TOptions extends PluginType = DefaultPluginType> = PluginVisitContext<TOptions> & {
+/** Context a printer factory receives: core's visit context plus the plugin's resolver and its resolved options. */
+export type PrinterContext<TOptions extends PluginType = DefaultPluginType> = PluginVisitContext<TOptions> & {
   /** Get a resolver by plugin name, typed via `Kubb.PluginRegistry` when registered. */
   getResolver<TName extends PluginName>(name: TName): ResolverOf<ResolvePluginOptions<TName>['resolver']>
   /** The current plugin's resolver: a `setResolver` registration, or the default resolver. */
   resolver: TOptions['resolver']
   /** Resolved options after exclude/include/override filtering. */
   options: TOptions['resolvedOptions']
+}
+
+/** Builds the plugin's printer from a `PrinterContext`. Register it with `setPrinter`. */
+export type PrinterFactory<TOptions extends PluginType = DefaultPluginType> = (ctx: PrinterContext<TOptions>) => Exclude<TOptions['printer'], undefined>
+
+/** Context passed to a generator's `schema`, `operation` and `operations` methods: the printer context plus the built printer. */
+export type GeneratorContext<TOptions extends PluginType = DefaultPluginType> = PrinterContext<TOptions> & {
+  /** The printer from the plugin's `setPrinter` factory, or `undefined` without one. */
+  printer: Exclude<TOptions['printer'], undefined>
 }
 
 /**

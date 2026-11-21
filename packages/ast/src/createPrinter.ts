@@ -122,13 +122,15 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
    * Always dispatches through the `nodes` map. Never calls the `print` override.
    * Reach for it when you need the raw output (e.g. `ts.TypeNode`) without declaration wrapping.
    */
-  transform: (node: SchemaNode, options?: Partial<T['options']>) => T['output'] | null
+  transform: (node: SchemaNode) => T['output'] | null
   /**
    * Public printer. If the builder provides a root-level `print`, this calls that
    * higher-level function (which may produce full declarations).
    * Otherwise, falls back to the node-level dispatcher.
    */
-  print: (node: SchemaNode, options?: Partial<T['options']>) => T['printOutput'] | null
+  print: (node: SchemaNode) => T['printOutput'] | null
+  /** Returns this printer with `extra` merged over its options, sharing its handlers and imports, such as `printer.with({ keysToOmit: ['id'] })`. */
+  with: (extra: Partial<T['options']>) => Printer<T>
   /** Returns the imports declared with `this.import(...)` since the last call, then clears them. */
   drainImports: () => Array<ImportNode>
 }
@@ -239,16 +241,20 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
       return context
     }
 
-    const root = createContext(resolvedOptions)
+    const drainImports = () => collectedImports.splice(0)
 
-    return {
-      name,
-      options: resolvedOptions,
-      transform: root.transform,
-      print: (printOverride
-        ? (node: SchemaNode, extra?: Partial<T['options']>) => printOverride.call(extra ? createContext(withOptions(resolvedOptions, extra)) : root, node)
-        : root.transform) as Printer<T>['print'],
-      drainImports: () => collectedImports.splice(0),
+    const toPrinter = (options: T['options']): Printer<T> => {
+      const root = createContext(options)
+      return {
+        name,
+        options,
+        transform: (node) => root.transform(node),
+        print: (printOverride ? (node: SchemaNode) => printOverride.call(root, node) : (node: SchemaNode) => root.transform(node)) as Printer<T>['print'],
+        with: (extra) => toPrinter(withOptions(options, extra)),
+        drainImports,
+      }
     }
+
+    return toPrinter(resolvedOptions)
   }
 }

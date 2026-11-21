@@ -1,9 +1,9 @@
-import { toError } from '@internals/utils'
+import { memo, toError } from '@internals/utils'
 import { ast, type Macro, type OperationNode, type SchemaNode } from '@kubb/ast'
 import type { NormalizedPlugin, PluginVisitContext, PluginVisitHooks } from '@kubb/core'
 import { resolverFor, slot } from './composables.ts'
 import type { Resolver } from './resolver/Resolver.ts'
-import type { Generator, GeneratorContext } from './types.ts'
+import type { Generator, GeneratorContext, PrinterContext, PrinterFactory } from './types.ts'
 
 const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType', 'extension'])
 
@@ -11,13 +11,16 @@ type Resolved<TNode> = { transformedNode: TNode; options: NormalizedPlugin['opti
 
 type VisitState = {
   // The resolver is fixed for the whole walk, so reservations and generators agree on names.
-  context: Omit<GeneratorContext, 'options'> & { resolver: Resolver }
+  context: Omit<PrinterContext, 'options'> & { resolver: Resolver }
   macros: Array<Macro>
   schemaGenerators: Array<Generator>
   operationGenerators: Array<Generator>
   operationsGenerators: Array<Generator>
   schemas: Map<SchemaNode, Resolved<SchemaNode> | Error>
   operations: Array<OperationNode>
+  printerFactory: PrinterFactory | undefined
+  // Override merges are stable objects, so one printer per base options and per matching override.
+  printers: WeakMap<object, unknown>
 }
 
 const stateKey = (name: string) => `${name}:visit`
@@ -45,6 +48,15 @@ function resolveNode<TNode extends SchemaNode | OperationNode>(
 
   const resolved = resolver.default.options<NormalizedPlugin['options']>(transformedNode, { options, exclude, include, override })
   return resolved === null ? null : { transformedNode, options: resolved }
+}
+
+function withPrinter(state: VisitState, ctx: PrinterContext): GeneratorContext {
+  const generatorContext: GeneratorContext = { ...ctx, printer: undefined }
+  const { printerFactory, printers } = state
+  if (!printerFactory) return generatorContext
+
+  generatorContext.printer = memo(printers, ctx.options as object, () => printerFactory(ctx))
+  return generatorContext
 }
 
 async function dispatch(
@@ -82,6 +94,8 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
         operationsGenerators: generators.filter((generator) => generator.operations),
         schemas: new Map(),
         operations: [],
+        printerFactory: ctx.memo.get(slot.printer(name)) as VisitState['printerFactory'],
+        printers: new WeakMap(),
       }
       ctx.memo.set(stateKey(name), state)
 
@@ -118,7 +132,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       if (!state || !resolved) return
 
       const { transformedNode, options } = resolved
-      const generatorContext = { ...state.context, options }
+      const generatorContext = withPrinter(state, { ...state.context, options })
       await dispatch(state.schemaGenerators, transformedNode, generatorContext, (generator) => generator.schema!(transformedNode, generatorContext))
       await ctx.hooks.callHook('kubb:generate:schema', transformedNode, generatorContext)
     },
@@ -132,7 +146,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       if (!state.operationGenerators.length) return
 
       const { transformedNode, options } = resolved
-      const generatorContext = { ...state.context, options }
+      const generatorContext = withPrinter(state, { ...state.context, options })
       await dispatch(state.operationGenerators, transformedNode, generatorContext, (generator) => generator.operation!(transformedNode, generatorContext))
       await ctx.hooks.callHook('kubb:generate:operation', transformedNode, generatorContext)
     },
@@ -140,7 +154,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       const state = getState(ctx)
       if (!state?.operationsGenerators.length) return
 
-      const generatorContext = { ...state.context, options: pluginOptions(ctx) }
+      const generatorContext = withPrinter(state, { ...state.context, options: pluginOptions(ctx) })
       for (const generator of state.operationsGenerators) {
         await ctx.dispatch({ result: await generator.operations!(state.operations, generatorContext), renderer: generator.renderer })
       }

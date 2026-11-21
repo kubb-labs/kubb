@@ -201,7 +201,7 @@ describe('createPrinter', () => {
       expect(printer.print(node)).toBe('a@5')
     })
 
-    it('are accepted by the public transform and print', () => {
+    it('reach the public transform and print through with()', () => {
       const printer = createPrinter<P>(() => ({
         name: 'zod',
         options: { depth: 0 },
@@ -215,8 +215,8 @@ describe('createPrinter', () => {
         },
       }))()
 
-      expect(printer.transform(createSchema({ type: 'string' }), { depth: 2 })).toBe('2')
-      expect(printer.print(createSchema({ type: 'string' }), { depth: 3 })).toBe('print:3')
+      expect(printer.with({ depth: 2 }).transform(createSchema({ type: 'string' }))).toBe('2')
+      expect(printer.with({ depth: 3 }).print(createSchema({ type: 'string' }))).toBe('print:3')
       expect(printer.print(createSchema({ type: 'string' }))).toBe('print:0')
     })
   })
@@ -271,5 +271,29 @@ describe('createPrinter', () => {
     printer.print(createSchema({ type: 'array', items: [createSchema({ type: 'string' })] }))
 
     expect(printer.drainImports()).toStrictEqual([codec])
+  })
+
+  it('merges options with with() without rerunning the builder', () => {
+    type P = PrinterFactoryOptions<'zod', { prefix?: string }, string>
+    let builds = 0
+    const printer = createPrinter<P>((options) => {
+      builds++
+      return {
+        name: 'zod',
+        options,
+        nodes: {
+          string() {
+            return `${this.options.prefix}.string()`
+          },
+        },
+      }
+    })({ prefix: 'z' })
+
+    const bound = printer.with({ prefix: 'v' })
+
+    expect(bound.options).toStrictEqual({ prefix: 'v' })
+    expect(bound.print(createSchema({ type: 'string' }))).toBe('v.string()')
+    expect(printer.print(createSchema({ type: 'string' }))).toBe('z.string()')
+    expect(builds).toBe(1)
   })
 })
