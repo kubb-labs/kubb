@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
-import type { Plugin } from './definePlugin.ts'
+import type { Plugin, PluginVisitContext } from './definePlugin.ts'
+import { memo, useKubb } from './composables.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
 import { checkoutGitInput } from './gitInput.ts'
@@ -276,5 +277,95 @@ describe('KubbDriver visit hooks', () => {
       message: 'While generating schema "Store": boom on Store',
       location: { kind: 'schema', pointer: '#/components/schemas/Store' },
     })
+  })
+})
+
+describe('KubbDriver bus hooks', () => {
+  it('gives each listener of a driver-fired event its own plugin context as this and useKubb()', async () => {
+    const seen: Array<{ name: string; same: boolean }> = []
+    const listener = (name: string): Plugin => ({
+      name,
+      hooks: {
+        'kubb:build:start'(this: PluginVisitContext) {
+          seen.push({ name: useKubb<PluginVisitContext>().plugin.name, same: this === useKubb<PluginVisitContext>() })
+        },
+      },
+    })
+    const driver = makeDriver(makeConfig({ plugins: [listener('a'), listener('b')] }))
+    await driver.setup()
+
+    await driver.run()
+
+    expect(seen).toStrictEqual([
+      { name: 'a', same: true },
+      { name: 'b', same: true },
+    ])
+  })
+
+  it('runs memo() inside kubb:plugins:end', async () => {
+    const values: Array<number> = []
+    const plugin = (name: string): Plugin => ({
+      name,
+      hooks: {
+        'kubb:plugins:end'() {
+          values.push(memo('test:shared', () => values.length + 1))
+        },
+      },
+    })
+    const driver = makeDriver(makeConfig({ plugins: [plugin('a'), plugin('b')] }))
+    await driver.setup()
+
+    const { diagnostics } = await driver.run()
+
+    expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toStrictEqual([])
+    expect(values).toStrictEqual([1, 1])
+  })
+
+  it('keeps the emitting hook context for an event fired inside a hook', async () => {
+    const seen: Array<string> = []
+    const emitter: Plugin = {
+      name: 'emitter',
+      hooks: {
+        async 'kubb:build:start'() {
+          await useKubb<PluginVisitContext>().hooks.callHook('kubb:info', { message: 'hi' })
+        },
+      },
+    }
+    const listener: Plugin = {
+      name: 'listener',
+      hooks: {
+        'kubb:info'() {
+          seen.push(useKubb<PluginVisitContext>().plugin.name)
+        },
+      },
+    }
+    const driver = makeDriver(makeConfig({ plugins: [emitter, listener] }))
+    await driver.setup()
+
+    await driver.run()
+
+    expect(seen).toStrictEqual(['emitter'])
+  })
+
+  it('shares one visit context between bus hooks and the walk', async () => {
+    const contexts: Array<unknown> = []
+    const plugin: Plugin = {
+      name: 'a',
+      hooks: {
+        'kubb:build:start'() {
+          contexts.push(useKubb())
+        },
+        'kubb:plugin:visit:start'(ctx) {
+          contexts.push(ctx)
+        },
+      },
+    }
+    const driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
+    await driver.setup()
+
+    await driver.run()
+
+    expect(contexts).toHaveLength(2)
+    expect(contexts[0]).toBe(contexts[1])
   })
 })

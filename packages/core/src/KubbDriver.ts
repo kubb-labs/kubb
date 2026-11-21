@@ -7,7 +7,7 @@ import type { Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, Output, PluginType } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
-import { withContext } from './composables.ts'
+import { kubbContext, withContext } from './composables.ts'
 import { FileManager } from './FileManager.ts'
 import { createMemo, type Memo } from './memo.ts'
 import type { OutputManifest } from './outputManifest.ts'
@@ -132,6 +132,10 @@ export class KubbDriver {
   readonly plugins = new Map<string, NormalizedPlugin>()
   readonly #memo = new Map<string, unknown>()
   readonly memo: Memo = createMemo(this.#memo)
+  /**
+   * One visit context per plugin, shared by its bus hooks and the walk.
+   */
+  readonly #contexts = new Map<NormalizedPlugin, PluginVisitContext>()
 
   /**
    * Removers for every listener the driver added (plugin, generator) so `dispose()` can detach
@@ -282,6 +286,9 @@ export class KubbDriver {
    * `dispose`. `kubb:plugin:setup` is skipped here; `setupHooks` invokes it directly with a
    * plugin-scoped context.
    *
+   * Each listener runs through `withContext`: an event fired inside a hook keeps that hook's context,
+   * an event the driver fires gets the plugin's own visit context.
+   *
    * @internal
    */
   #registerPlugin(plugin: NormalizedPlugin): void {
@@ -298,7 +305,19 @@ export class KubbDriver {
       ...configHooks
     } = hooks
 
-    this.#unhooks.push(this.hooks.addHooks(configHooks))
+    const ctx = this.getContext(plugin)
+    const wrapped = Object.fromEntries(
+      Object.entries(configHooks).map(([name, hook]) => [
+        name,
+        hook &&
+          ((...args: Array<unknown>) => {
+            const current = kubbContext.getStore() ?? ctx
+            return withContext(current, () => (hook as (...args: Array<unknown>) => unknown).apply(current, args))
+          }),
+      ]),
+    ) as typeof configHooks
+
+    this.#unhooks.push(this.hooks.addHooks(wrapped))
   }
 
   /**
@@ -603,13 +622,26 @@ export class KubbDriver {
     this.inputNode = null
     this.#adapterSource = null
     this.#memo.clear()
+    this.#contexts.clear()
   }
 
   [Symbol.dispose](): void {
     this.dispose()
   }
 
+  /**
+   * Returns the plugin's visit context, created once per plugin and shared by its bus hooks and the walk.
+   */
   getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): PluginVisitContext<TOptions> {
+    let ctx = this.#contexts.get(plugin as NormalizedPlugin)
+    if (!ctx) {
+      ctx = this.#createContext(plugin as NormalizedPlugin)
+      this.#contexts.set(plugin as NormalizedPlugin, ctx)
+    }
+    return ctx as unknown as PluginVisitContext<TOptions>
+  }
+
+  #createContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): PluginVisitContext<TOptions> {
     const driver = this
 
     // Collect into the active build only. The host renders each collected diagnostic once after the
