@@ -1,3 +1,0 @@
-# Makes this fixture its own workspace root, outside the repo's workspace.
-# CI appends `overrides:` for @kubb/ast, @kubb/core and @kubb/kit.
-packages: []

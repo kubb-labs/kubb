@@ -230,4 +230,3 @@ jobs:
           exclude: |
             **/mocks/**
             **/__snapshots__/**
-            e2e/published/baseline/**
