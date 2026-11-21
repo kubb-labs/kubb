@@ -21,7 +21,7 @@ function withBarrelBannerFooter({ file, plugin, config }: { file: ast.FileNode; 
   const hasFooter = output?.footer !== undefined
   if (!memo || (!hasBanner && !hasFooter)) return file
 
-  const resolver = getResolver({ memo }, plugin.name)
+  const resolver = getResolver(plugin.name, memo)
 
   const context = { output, config, file: { path: file.path, baseName: file.baseName, isBarrel: true } }
   return {

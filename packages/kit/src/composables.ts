@@ -16,22 +16,19 @@ export const slot = {
 } as const
 
 /**
- * Returns the resolver a plugin keeps in memo, or a default resolver for that plugin.
+ * Returns the resolver a plugin keeps in memo. Without one, it stores and returns a default resolver for
+ * that plugin, so the build keeps one resolver per plugin. Reads the memo of the running hook unless you pass one.
  *
  * @example
- * `getResolver({ memo }, 'plugin-ts').file({ name: 'pet', extname: '.ts', root, output })`
+ * `getResolver('plugin-ts').file({ name: 'pet', extname: '.ts', root, output })`
  */
-export function getResolver(ctx: { memo: Pick<Memo, 'get'> }, pluginName: string): Resolver {
-  const stored = ctx.memo.get(slot.resolver(pluginName)) as Resolver | undefined
-  return stored ?? new Resolver({ pluginName, shared: ctx.memo.get('kubb:sharedSchemas') })
-}
+export function getResolver(pluginName: string, memo: Memo = useKubb().memo): Resolver {
+  const key = slot.resolver(pluginName)
+  const stored = memo.get(key) as Resolver | undefined
+  if (stored) return stored
 
-/**
- * Like `getResolver`, but stores the default resolver, so the walk keeps one resolver per plugin.
- */
-export function resolverFor(memo: Pick<Memo, 'get' | 'set'>, pluginName: string): Resolver {
-  const resolver = getResolver({ memo }, pluginName)
-  memo.set(slot.resolver(pluginName), resolver)
+  const resolver = new Resolver({ pluginName, shared: memo.get('kubb:sharedSchemas') })
+  memo.set(key, resolver)
   return resolver
 }
 
