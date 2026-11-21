@@ -143,7 +143,7 @@ export const zodGenerator = defineGenerator({
 
 ### Importing names with `ref` and `code` {#ref}
 
-`ref(plugin?)` wraps another plugin's resolver, read from the current generator context. Each resolver method that returns a name now returns the name plus its import from that plugin's file. Without `plugin`, it wraps the current plugin's resolver.
+`ref(plugin?)` wraps another plugin's resolver, read from the current generator context. Each resolver method that returns a name returns the name plus its import from that plugin's file. Without `plugin`, it wraps the current plugin's resolver.
 
 The method's first argument picks the file to import from:
 
