@@ -110,6 +110,8 @@ describe('ref', () => {
     expect(status.name).toBe('Status200')
     expect(status.import).toBeNull()
     expect(types.name('Unknown').import).toBeNull()
+    expect(types.enum.keyName(ast.factory.createSchema({ type: 'string', name: 'Inline' })).import).toBeNull()
+    expect(types.enum.keyName(point).import?.path).toBe('/root/src/gen/types/point.ts')
     expect(types.enum.keyName({ kind: 'Parameter', name: 'petId' } as { name: string }).import).toBeNull()
   })
 

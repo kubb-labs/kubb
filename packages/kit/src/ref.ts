@@ -52,8 +52,8 @@ function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | nu
   const schemas = ctx.memo('kit:ref:schemas', () => new Map(ctx.schemas.flatMap((schema) => (schema.name ? [[schema.name, schema] as const] : []))))
   if (typeof arg === 'string') return schemas.get(arg) ?? null
   if (!isNamespace(arg)) return null
-  if (arg.kind === 'Operation' || (arg.kind === 'Schema' && arg.name)) return arg as unknown as SchemaNode | OperationNode
-  return arg.kind === undefined && typeof arg.name === 'string' ? (schemas.get(arg.name) ?? null) : null
+  if (arg.kind === 'Operation') return arg as unknown as OperationNode
+  return (arg.kind === undefined || arg.kind === 'Schema') && typeof arg.name === 'string' ? (schemas.get(arg.name) ?? null) : null
 }
 
 /**
