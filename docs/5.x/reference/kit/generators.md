@@ -108,7 +108,7 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 | `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Returns a plugin by name, or throws.                                                                 |
 | `ctx.getResolver()`   | `(name: string) => Resolver`                                              | Returns another plugin's resolver.                                                                   |
 | `ctx.file()`          | `(node, options?) => FileTarget`                                          | Returns the `<File>` props for a node's file. See [`file`](#file).                                   |
-| `ctx.memo()`          | `(key: string, compute: () => T) => T`                                    | Caches a value for the whole build. See [`ctx.memo`](#memo).                                         |
+| `ctx.memo()`          | `(key: string, compute: () => T) => T`                                    | Caches a value for the whole build. See [`memo`](#memo).                                             |
 | `ctx.info()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Reports an `info` diagnostic for this plugin.                                                        |
 | `ctx.warn()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Reports a `warning`, which does not fail the build.                                                  |
 | `ctx.error()`         | `(error: string \| Error, options?: { code?, help?, location? }) => void` | Reports an `error`, which fails the build. A `Diagnostics.Error` keeps its code, help, and location. |
@@ -141,22 +141,22 @@ export const zodGenerator = defineGenerator({
 })
 ```
 
-### Caching with `ctx.memo` {#memo}
+### Caching with `memo` {#memo}
 
-`ctx.memo(key, compute)` runs `compute` once per `key` and build, then returns the stored value. Every plugin shares the store, so:
+`memo(key, compute)` runs `compute` once per `key` and build, then returns the stored value. It is a composable, so it reads the current context; `ctx.memo(key, compute)` and `this.memo(key, compute)` do the same. Every plugin shares the store, so:
 
 - Prefix the key with your plugin name, such as `my-plugin:`, unless every plugin should share the value.
 - Put the node in the key for a value from one node: `node.operationId` or `node.name`.
 - Use `ctx.resolver.memo(key, compute)` for a value only your plugin reads.
 
 ```typescript [memo-generator.ts]
-import { ast, defineGenerator } from 'kubb/kit'
+import { ast, defineGenerator, memo } from 'kubb/kit'
 
 export const operationGenerator = defineGenerator({
   name: 'operation-generator',
-  operation(node, ctx) {
+  operation(node) {
     // One entry per operation. Other generators that ask for the same key reuse it.
-    const schemas = ctx.memo(`my-plugin:schemas:${node.operationId}`, () =>
+    const schemas = memo(`my-plugin:schemas:${node.operationId}`, () =>
       ast.node.collect<ast.SchemaNode>(node, { depth: 'shallow', schema: (schema) => schema }),
     )
 
