@@ -75,23 +75,23 @@ function operationFile(
   { name, extname, suffix }: { name: string; extname: FileNode['extname']; suffix: boolean },
 ): FileNode {
   const entry = (fileName: string) => ({ name: fileName, extname, tag: node.tags[0] ?? 'default', path: node.path, ...location })
-  let file = resolver.file(entry(name))
-  if (!suffix) return file
+  const first = resolver.file(entry(name))
+  if (!suffix) return first
 
   const { output, group } = location
   const schemaPaths = ctx.memo(
     `${resolver.pluginName}:file:schemaPaths:${extname}:${output.mode ?? ''}:${output.path}:${group?.type ?? ''}`,
     () => new Set(ctx.schemas.flatMap((schema) => (schema.name ? [resolver.file({ name: schema.name, extname, ...location }).path.toLowerCase()] : []))),
   )
-
-  for (let next = `${name}Operation`; schemaPaths.has(file.path.toLowerCase()); next += 'Operation') {
-    const candidate = resolver.file(entry(next))
+  const withSuffix = (file: FileNode, nextName: string): FileNode => {
+    if (!schemaPaths.has(file.path.toLowerCase())) return file
+    const candidate = resolver.file(entry(nextName))
     // A single-file output holds every declaration on purpose, so a new name changes nothing.
-    if (candidate.path === file.path) break
-    file = candidate
+    if (candidate.path === file.path) return file
+    return withSuffix(candidate, `${nextName}Operation`)
   }
 
-  return file
+  return withSuffix(first, `${name}Operation`)
 }
 
 /**
