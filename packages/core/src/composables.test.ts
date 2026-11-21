@@ -26,7 +26,7 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
 const file = { path: '/gen/raw.ts', baseName: 'raw.ts' } as const
 
 describe('composables', () => {
-  it('throw KUBB_NO_CONTEXT outside setup', () => {
+  it('throw KUBB_NO_CONTEXT outside a plugin hook', () => {
     const calls: Array<[string, () => unknown]> = [
       ['useKubb', () => useKubb()],
       ['injectFile', () => injectFile(file)],
@@ -39,7 +39,7 @@ describe('composables', () => {
     for (const [name, call] of calls) {
       expect(call, name).toThrow(
         expect.objectContaining({
-          message: `\`${name}()\` was called outside a plugin setup.`,
+          message: `\`${name}()\` ran outside a plugin hook.`,
           diagnostic: expect.objectContaining({ code: Diagnostics.code.noContext }),
         }),
       )

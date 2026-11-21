@@ -1,5 +1,4 @@
-import type { PluginType } from '@kubb/core'
-import type { DefaultPluginType, Generator } from './types.ts'
+import type { DefaultPluginType, Generator, PluginType } from './types.ts'
 
 /**
  * Types a generator for a plugin. Register it in `setup` with `addGenerator`.

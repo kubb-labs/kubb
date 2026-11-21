@@ -43,8 +43,8 @@ function requireContext(caller: string): KubbContext {
   throw new Diagnostics.Error({
     code: Diagnostics.code.noContext,
     severity: 'error',
-    message: `\`${caller}()\` was called outside a plugin setup.`,
-    help: `Call \`${caller}()\` inside \`setup\` or \`kubb:plugin:setup\`, including in code that setup awaits.`,
+    message: `\`${caller}()\` ran outside a plugin hook.`,
+    help: `Call \`${caller}()\` inside a plugin hook, including in code that the hook awaits.`,
   })
 }
 

@@ -85,6 +85,8 @@ A full generation run fires the hooks in this order.
 | `kubb:files:processing:end`    | `{ files, unchanged }`                                                | After every file is written. `unchanged` lists the paths whose content did not change.                                                      |
 | `kubb:build:end`               | `{ files, config, outputDir }`                                        | After every file is written and the adapter has settled.                                                                                    |
 
+Kit fires the `kubb:generate:*` hooks, not core: only plugins defined with `defineExtension` from `kubb/kit` emit them, and only when an adapter parsed input.
+
 ## Output passes
 
 These hooks fire after a build without errors, only from `.generate()` with `fsStorage`. Each group fires only when the config sets `output.format`, `output.lint`, or `output.postGenerate`.
