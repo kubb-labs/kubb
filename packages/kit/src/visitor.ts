@@ -50,7 +50,7 @@ function resolveNode<TNode extends SchemaNode | OperationNode>(
   return resolved === null ? null : { transformedNode, options: resolved }
 }
 
-// Runs a generator method or the printer factory with `ctx` as `this`, as its context argument and as `useKubb()`.
+// Runs a generator method with `ctx` as `this`, as its context argument and as `useKubb()`.
 function run<TArgs extends Array<unknown>, TResult>(ctx: object, fn: (...args: TArgs) => TResult, ...args: TArgs): TResult {
   return withContext(ctx, () => fn.apply(ctx, args))
 }
@@ -60,7 +60,7 @@ function withPrinter(state: VisitState, ctx: PrinterContext): GeneratorContext {
   const { printerFactory, printers } = state
   if (!printerFactory) return generatorContext
 
-  generatorContext.printer = memo(printers, ctx.options as object, () => run(ctx, printerFactory, ctx))
+  generatorContext.printer = memo(printers, ctx.options as object, () => withContext(ctx, printerFactory))
   return generatorContext
 }
 

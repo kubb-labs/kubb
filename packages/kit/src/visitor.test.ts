@@ -125,6 +125,7 @@ describe('generatorVisitor', () => {
     expect(driver.memo.get(slot.generators('plugin-example'))).toHaveLength(1)
     expect(getResolver('plugin-example', driver.memo).name('Pet')).toBe('ApiPet')
     expect(getResolver('plugin-missing', driver.memo).name('Pet')).toBe('pet')
+    expect(getResolver('plugin-missing', driver.memo)).toBe(getResolver('plugin-missing', driver.memo))
   })
 
   it('reads the running hook memo in getResolver(name) inside a generator and kubb:plugins:end', async () => {
@@ -149,10 +150,9 @@ describe('generatorVisitor', () => {
       },
     })()
 
-    const { driver } = await build([examplePlugin([]), reader])
+    await build([examplePlugin([]), reader])
 
     expect(seen).toStrictEqual(['schema:ApiPet', 'end:ApiPet'])
-    expect(getResolver('plugin-reader', driver.memo)).toBe(getResolver('plugin-reader', driver.memo))
   })
 
   it("runs generators of a plugin defined with kit's definePlugin", async () => {
