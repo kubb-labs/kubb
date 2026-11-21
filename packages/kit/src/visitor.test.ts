@@ -2,7 +2,7 @@ import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { addGenerator, addMacro, getResolver, resolverFor, setResolver, slot } from './composables.ts'
+import { addGenerator, addMacro, getResolver, resolverFor, setPrinter, setResolver, slot } from './composables.ts'
 import { defineExtension, definePlugin } from './defineExtension.ts'
 import { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext } from './types.ts'
@@ -189,5 +189,60 @@ describe('generatorVisitor', () => {
     expect(setTags.mock.contexts).toContain(resolverFor(driver.memo, 'plugin-tags'))
     expect(setTags).toHaveBeenCalledWith(tags)
     setTags.mockRestore()
+  })
+
+  it('builds ctx.printer once per build and once per matching override', async () => {
+    const built: Array<unknown> = []
+    const seen: Array<[string, unknown]> = []
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-printer' },
+      setup(options) {
+        setPrinter((ctx) => {
+          const printer = { label: (ctx.options as { label?: string }).label }
+          built.push(printer)
+          return printer
+        })
+        addGenerator({
+          name: 'printer',
+          schema(node: SchemaNode, ctx: GeneratorContext) {
+            seen.push([node.name ?? '', ctx.printer])
+            return null
+          },
+        })
+        return { ...options, override: [{ type: 'schemaName', pattern: '^Pet$', options: { label: 'pet' } }] }
+      },
+    })()
+
+    await build([plugin])
+
+    expect(built).toStrictEqual([{ label: 'pet' }, { label: undefined }])
+    expect(seen.map(([name, printer]) => [name, built.indexOf(printer)])).toStrictEqual([
+      ['Pet', 0],
+      ['Store', 1],
+      ['Unused', 1],
+    ])
+  })
+
+  it('leaves ctx.printer undefined without setPrinter', async () => {
+    const printers: Array<unknown> = []
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-no-printer' },
+      setup(options) {
+        addGenerator({
+          name: 'no-printer',
+          schema(_node: SchemaNode, ctx: GeneratorContext) {
+            printers.push(ctx.printer)
+            return null
+          },
+        })
+        return options
+      },
+    })()
+
+    await build([plugin])
+
+    expect(printers).toStrictEqual([undefined, undefined, undefined])
   })
 })

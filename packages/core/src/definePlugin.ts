@@ -362,11 +362,16 @@ export type PluginType<
    * Define with `createResolver` from `@kubb/kit` and export alongside the plugin.
    */
   TResolver = unknown,
+  /**
+   * Printer that generators receive as `ctx.printer`. Register its factory with `setPrinter` from `@kubb/kit`.
+   */
+  TPrinter = unknown,
 > = {
   name: TName
   options: TOptions
   resolvedOptions: TResolvedOptions
   resolver: TResolver
+  printer?: TPrinter
 }
 
 /**

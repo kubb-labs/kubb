@@ -57,4 +57,15 @@ describe('resolveOptions', () => {
       output: 'b',
     })
   })
+
+  it('returns one merged object per base options and override', () => {
+    const options = fresh()
+    const override = [{ type: 'tag', pattern: 'pets', options: { output: 'b' } }] as const
+    const other = ast.factory.createOperation({ operationId: 'other', method: 'GET', path: '/other', tags: ['pets'] })
+
+    const first = resolveOptions<Options>(operation, { options, override: [...override] })
+
+    expect(resolveOptions<Options>(other, { options, override: [...override] })).toBe(first)
+    expect(resolveOptions<Options>(schema, { options, override: [...override] })).toBe(options)
+  })
 })

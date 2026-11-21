@@ -17,6 +17,11 @@ export type GeneratorContext<TOptions extends PluginType = DefaultPluginType> = 
   resolver: TOptions['resolver']
   /** Resolved options after exclude/include/override filtering. */
   options: TOptions['resolvedOptions']
+  /**
+   * The current plugin's printer, built by its `setPrinter` factory once per build and once per matching
+   * `override`. `undefined` when the plugin sets no printer. Pass per-node options with `printer.with(...)`.
+   */
+  printer: Exclude<TOptions['printer'], undefined>
 }
 
 /**

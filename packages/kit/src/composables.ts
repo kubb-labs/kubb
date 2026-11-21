@@ -2,7 +2,7 @@ import type { Macro } from '@kubb/ast'
 import { Diagnostics, type KubbPluginSetupContext, type Memo, type PluginType, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
 import type { ResolverInput } from './resolver/types.ts'
-import type { DefaultPluginType, Generator } from './types.ts'
+import type { DefaultPluginType, Generator, GeneratorContext } from './types.ts'
 
 /**
  * Memo slots kit keeps per plugin, under `<plugin>:<slot>`.
@@ -12,6 +12,7 @@ export const slot = {
   generators: (name: string) => `${name}:generators`,
   resolver: (name: string) => `${name}:resolver`,
   macros: (name: string) => `${name}:macros`,
+  printer: (name: string) => `${name}:printer`,
 } as const
 
 /**
@@ -88,4 +89,18 @@ export function addMacro(macro: Macro): void {
 export function setMacros(macros: ReadonlyArray<Macro>): void {
   const ctx = kitContext('setMacros')
   ctx.memo.set(slot.macros(ctx.plugin.name), [...macros])
+}
+
+/**
+ * Sets the printer factory of the plugin being set up. Kit calls it with the generator context, once
+ * per build and once per matching `override`, and hands the result to generators as `ctx.printer`.
+ *
+ * @example
+ * `setPrinter((ctx) => printerTs({ optionalType: ctx.options.optionalType, resolver: ctx.resolver }))`
+ */
+export function setPrinter<TFactory extends PluginType = DefaultPluginType>(
+  factory: (ctx: GeneratorContext<TFactory>) => Exclude<TFactory['printer'], undefined>,
+): void {
+  const ctx = kitContext('setPrinter')
+  ctx.memo.set(slot.printer(ctx.plugin.name), factory)
 }

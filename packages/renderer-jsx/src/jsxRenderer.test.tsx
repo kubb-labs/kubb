@@ -305,7 +305,7 @@ describe('File.Export', () => {
       collected.push(ast.factory.createImport({ name: 'z', path: 'zod', isNameSpace: true }))
       return 'z.string()'
     }
-    const printer: ast.Printer<P> = { name: 'zod', options: {}, transform: print, print, drainImports: () => collected.splice(0) }
+    const printer: ast.Printer<P> = { name: 'zod', options: {}, transform: print, print, with: () => printer, drainImports: () => collected.splice(0) }
 
     const renderer = jsxRenderer()
     await renderer.render(

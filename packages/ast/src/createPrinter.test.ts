@@ -272,4 +272,28 @@ describe('createPrinter', () => {
 
     expect(printer.drainImports()).toStrictEqual([codec])
   })
+
+  it('merges options with with() without rerunning the builder', () => {
+    type P = PrinterFactoryOptions<'zod', { prefix?: string }, string>
+    let builds = 0
+    const printer = createPrinter<P>((options) => {
+      builds++
+      return {
+        name: 'zod',
+        options,
+        nodes: {
+          string() {
+            return `${this.options.prefix}.string()`
+          },
+        },
+      }
+    })({ prefix: 'z' })
+
+    const bound = printer.with({ prefix: 'v' })
+
+    expect(bound.options).toStrictEqual({ prefix: 'v' })
+    expect(bound.print(createSchema({ type: 'string' }))).toBe('v.string()')
+    expect(printer.print(createSchema({ type: 'string' }))).toBe('z.string()')
+    expect(builds).toBe(1)
+  })
 })

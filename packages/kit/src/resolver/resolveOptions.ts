@@ -13,6 +13,7 @@ export type ResolveOptionsContext<TOptions> = {
 const patterns = memo.create<string, RegExp>()
 const methodPatterns = memo.create<string, RegExp>()
 const nodeCaches = memo.create<object, WeakMap<Node, unknown>>({ weak: true })
+const mergedCaches = memo.create<object, WeakMap<object, unknown>>({ weak: true })
 
 function testPattern(value: string, pattern: string | RegExp): boolean {
   if (typeof pattern === 'string') return memo(patterns, pattern, () => new RegExp(pattern)).test(value)
@@ -46,12 +47,22 @@ function matchesSchema(node: SchemaNode, filter: Filter): boolean | null {
   return null
 }
 
+// One object per base options and matched override, so a caller can key a cache on it, such as kit's printer.
+function applyOverride<TOptions>(options: TOptions, match: Override<TOptions> | undefined): TOptions {
+  if (!match) return options
+  const cache = memo(mergedCaches, options as object, () => new WeakMap<object, unknown>())
+  return memo(cache, match, () => ({ ...options, ...match.options })) as TOptions
+}
+
 function computeOptions<TOptions>(node: Node, { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>): TOptions | null {
   if (node.kind === ast.node.kinds.operation) {
     if (exclude.some((filter) => matchesOperation(node, filter))) return null
     if (include && !include.some((filter) => matchesOperation(node, filter))) return null
 
-    return { ...options, ...override.find((filter) => matchesOperation(node, filter))?.options }
+    return applyOverride(
+      options,
+      override.find((filter) => matchesOperation(node, filter)),
+    )
   }
 
   if (node.kind === ast.node.kinds.schema) {
@@ -61,7 +72,10 @@ function computeOptions<TOptions>(node: Node, { options, exclude = [], include, 
       if (applicable.length > 0 && !applicable.includes(true)) return null
     }
 
-    return { ...options, ...override.find((filter) => matchesSchema(node, filter) === true)?.options }
+    return applyOverride(
+      options,
+      override.find((filter) => matchesSchema(node, filter) === true),
+    )
   }
 
   return options

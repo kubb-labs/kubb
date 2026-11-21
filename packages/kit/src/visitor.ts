@@ -11,13 +11,16 @@ type Resolved<TNode> = { transformedNode: TNode; options: NormalizedPlugin['opti
 
 type VisitState = {
   // The resolver is fixed for the whole walk, so reservations and generators agree on names.
-  context: Omit<GeneratorContext, 'options'> & { resolver: Resolver }
+  context: Omit<GeneratorContext, 'options' | 'printer'> & { resolver: Resolver }
   macros: Array<Macro>
   schemaGenerators: Array<Generator>
   operationGenerators: Array<Generator>
   operationsGenerators: Array<Generator>
   schemas: Map<SchemaNode, Resolved<SchemaNode> | Error>
   operations: Array<OperationNode>
+  printerFactory: ((ctx: GeneratorContext) => unknown) | undefined
+  // Override merges are stable objects, so one printer per base options and per matching override.
+  printers: WeakMap<object, unknown>
 }
 
 const stateKey = (name: string) => `${name}:visit`
@@ -45,6 +48,18 @@ function resolveNode<TNode extends SchemaNode | OperationNode>(
 
   const resolved = resolver.default.options<NormalizedPlugin['options']>(transformedNode, { options, exclude, include, override })
   return resolved === null ? null : { transformedNode, options: resolved }
+}
+
+// Adds the plugin's printer to a generator context.
+function withPrinter(state: VisitState, ctx: Omit<GeneratorContext, 'printer'>): GeneratorContext {
+  const generatorContext: GeneratorContext = { ...ctx, printer: undefined }
+  const { printerFactory, printers } = state
+  if (!printerFactory) return generatorContext
+
+  const key = ctx.options as object
+  if (!printers.has(key)) printers.set(key, printerFactory(generatorContext))
+  generatorContext.printer = printers.get(key)
+  return generatorContext
 }
 
 async function dispatch(
@@ -82,6 +97,8 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
         operationsGenerators: generators.filter((generator) => generator.operations),
         schemas: new Map(),
         operations: [],
+        printerFactory: ctx.memo.get(slot.printer(name)) as VisitState['printerFactory'],
+        printers: new WeakMap(),
       }
       ctx.memo.set(stateKey(name), state)
 
@@ -118,7 +135,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       if (!state || !resolved) return
 
       const { transformedNode, options } = resolved
-      const generatorContext = { ...state.context, options }
+      const generatorContext = withPrinter(state, { ...state.context, options })
       await dispatch(state.schemaGenerators, transformedNode, generatorContext, (generator) => generator.schema!(transformedNode, generatorContext))
       await ctx.hooks.callHook('kubb:generate:schema', transformedNode, generatorContext)
     },
@@ -132,7 +149,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       if (!state.operationGenerators.length) return
 
       const { transformedNode, options } = resolved
-      const generatorContext = { ...state.context, options }
+      const generatorContext = withPrinter(state, { ...state.context, options })
       await dispatch(state.operationGenerators, transformedNode, generatorContext, (generator) => generator.operation!(transformedNode, generatorContext))
       await ctx.hooks.callHook('kubb:generate:operation', transformedNode, generatorContext)
     },
@@ -140,7 +157,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       const state = getState(ctx)
       if (!state?.operationsGenerators.length) return
 
-      const generatorContext = { ...state.context, options: pluginOptions(ctx) }
+      const generatorContext = withPrinter(state, { ...state.context, options: pluginOptions(ctx) })
       for (const generator of state.operationsGenerators) {
         await ctx.dispatch({ result: await generator.operations!(state.operations, generatorContext), renderer: generator.renderer })
       }

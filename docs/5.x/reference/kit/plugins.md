@@ -31,7 +31,7 @@ export const pluginExample = defineExtension<PluginExample>({
 })
 ```
 
-`PluginType<TName, TOptions, TResolvedOptions, TResolver>` types the plugin. `TOptions` is what users pass, and `TResolvedOptions` is what `setup` returns.
+`PluginType<TName, TOptions, TResolvedOptions, TResolver, TPrinter>` types the plugin. `TOptions` is what users pass, and `TResolvedOptions` is what `setup` returns. `TPrinter` types `ctx.printer`.
 
 | Field          | Type                                                          | Description                                                                                                        |
 | -------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -42,7 +42,7 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ## Setup context {#setup-context}
 
-`setup` and the `kubb:plugin:setup` hook register resolvers, generators and macros with the composables from `kubb/kit`: `setResolver`, `addGenerator`, `addMacro` and `setMacros`. Composables take no context argument, so helpers that `setup` calls can use them too.
+`setup` and the `kubb:plugin:setup` hook register resolvers, generators, macros and printers with the composables from `kubb/kit`: `setResolver`, `addGenerator`, `addMacro`, `setMacros` and `setPrinter`. Composables take no context argument, so helpers that `setup` calls can use them too.
 
 ```typescript
 import { addGenerator, createResolver, defineExtension, defineGenerator, requirePlugin, setResolver } from 'kubb/kit'
@@ -83,6 +83,34 @@ Methods have a composable of the same name, such as `requirePlugin()`. `useKubb(
 > Composables work only in `setup` and `kubb:plugin:setup`. In generators and anywhere else, they throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
 
 To cache outside a build, see [Memo caches](#memo-cache).
+
+### Printer {#printer}
+
+`setPrinter(factory)` registers the printer your generators use. Kit calls the factory with the generator context once per build, and once more for each `override` that matches a node. Generators get the result as `ctx.printer`, and pass per-node options with `printer.with(...)`.
+
+```typescript
+import { addGenerator, createPrinter, defineExtension, defineGenerator, setPrinter } from 'kubb/kit'
+
+const printerExample = createPrinter((options: { name?: string }) => ({ name: 'example', options, nodes: { string: () => 'string' } }))
+
+const generator = defineGenerator({
+  name: 'example',
+  schema(node, ctx) {
+    ctx.info(`${node.name}: ${ctx.printer.with({ name: node.name }).print(node)}`)
+    return null
+  },
+})
+
+export const pluginExample = defineExtension({
+  kind: 'plugin',
+  meta: { name: 'plugin-example' },
+  setup(options) {
+    setPrinter(() => printerExample())
+    addGenerator(generator)
+    return options
+  },
+})
+```
 
 ## Shared option types {#shared-option-types}
 
