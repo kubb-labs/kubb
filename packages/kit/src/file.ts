@@ -1,0 +1,98 @@
+import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
+import { Diagnostics, type Group, type KubbContext, type Output, type PluginName, useKubb } from '@kubb/core'
+import type { Resolver } from './resolver/Resolver.ts'
+import type { PrinterContext } from './types.ts'
+
+/** What `file` reads from a generator or printer factory context. */
+export type FileContext = Pick<PrinterContext, 'config' | 'meta' | 'memo' | 'schemas' | 'root' | 'resolver' | 'options' | 'getResolver' | 'getPlugin'>
+
+export type FileOptions = {
+  /** Name before the resolver casts it. @default the schema's `name`, or the operation's `operationId` */
+  name?: string
+  /** Another plugin whose resolver, `output` and `group` to use, such as `'plugin-ts'` for its types. */
+  plugin?: PluginName
+  /** @default '.ts' */
+  extname?: FileNode['extname']
+}
+
+/** The `<File>` props for one generated file: its location plus the banner and footer from the resolver. */
+export type FileTarget = Pick<FileNode, 'baseName' | 'path' | 'meta'> & {
+  banner: string | null
+  footer: string | null
+}
+
+type Location = { root: string; output: Output; group: Group | undefined }
+
+type LocationOptions = { output?: Output; group?: Group | null }
+
+function toLocation(ctx: FileContext, plugin: PluginName | undefined): { resolver: Resolver; location: Location } {
+  const own = ctx.options as LocationOptions
+  const output = own.output as Output
+  if (!plugin) return { resolver: ctx.resolver, location: { root: ctx.root, output, group: own.group ?? undefined } }
+
+  const target = ctx.getPlugin(plugin)?.options as LocationOptions | undefined
+  return { resolver: ctx.getResolver(plugin), location: { root: ctx.root, output: target?.output ?? output, group: target?.group ?? undefined } }
+}
+
+/** An operation's file, cached per plugin, with an `Operation` suffix while it matches a schema file, ignoring case. */
+function operationFile(ctx: FileContext, node: OperationNode, resolver: Resolver, location: Location, name: string, extname: FileNode['extname']): FileNode {
+  const entry = (fileName: string) => ({ name: fileName, extname, tag: node.tags[0] ?? 'default', path: node.path, ...location })
+
+  return ctx.memo(`${resolver.pluginName}:file:operation:${extname}:${name}`, () => {
+    const schemaPaths = ctx.memo(
+      `${resolver.pluginName}:file:schemaPaths:${extname}`,
+      () => new Set(ctx.schemas.flatMap((schema) => (schema.name ? [resolver.file({ name: schema.name, extname, ...location }).path.toLowerCase()] : []))),
+    )
+    let file = resolver.file(entry(name))
+
+    for (let next = `${name}Operation`; schemaPaths.has(file.path.toLowerCase()); next += 'Operation') {
+      const candidate = resolver.file(entry(next))
+      // A single-file output holds every declaration on purpose, so a new name changes nothing.
+      if (candidate.path === file.path) break
+      file = candidate
+    }
+
+    return file
+  })
+}
+
+/** `file` for an explicit context. Generators get it as `ctx.file`. */
+export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, options: FileOptions = {}): FileTarget {
+  const { extname = '.ts' } = options
+  const { resolver, location } = toLocation(ctx, options.plugin)
+  const name = options.name ?? (node.kind === 'Operation' ? node.operationId : node.name)
+  if (!name) throw new Error('file() needs a named schema or a `name` option.')
+
+  const resolved = node.kind === 'Operation' ? operationFile(ctx, node, resolver, location, name, extname) : resolver.file({ name, extname, ...location })
+  const banner = { output: location.output, config: ctx.config, file: { path: resolved.path, baseName: resolved.baseName } }
+
+  return {
+    baseName: resolved.baseName,
+    path: resolved.path,
+    meta: resolved.meta,
+    banner: resolver.default.banner(ctx.meta, banner),
+    footer: resolver.default.footer(ctx.meta, banner),
+  }
+}
+
+/**
+ * The `<File>` props for the file the current generator writes `node` to, with the banner and footer from the plugin's `output`.
+ * The same as `ctx.file(node)` and `this.file(node)`.
+ *
+ * @example
+ * `<File {...file(node)}>…</File>`
+ */
+export function file(node: SchemaNode | OperationNode, options?: FileOptions): FileTarget {
+  const ctx = useKubb<KubbContext>()
+  // Generator and printer factory contexts are the ones with a resolver.
+  if (!('resolver' in ctx)) {
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.noContext,
+      severity: 'error',
+      plugin: ctx.plugin.name,
+      message: '`file()` runs only in a generator or a printer factory.',
+      help: 'Call `file()` inside a generator method, or use `ctx.file()` there.',
+    })
+  }
+  return resolveFile(ctx as unknown as FileContext, node, options)
+}

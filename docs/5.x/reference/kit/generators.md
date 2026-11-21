@@ -107,10 +107,39 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 | `ctx.getPlugin()`     | `(name: string) => Plugin \| undefined`                                   | Returns a plugin by name.                                                                            |
 | `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Returns a plugin by name, or throws.                                                                 |
 | `ctx.getResolver()`   | `(name: string) => Resolver`                                              | Returns another plugin's resolver.                                                                   |
+| `ctx.file()`          | `(node, options?) => FileTarget`                                          | Returns the `<File>` props for a node's file. See [`file`](#file).                                   |
 | `ctx.memo()`          | `(key: string, compute: () => T) => T`                                    | Caches a value for the whole build. See [`ctx.memo`](#memo).                                         |
 | `ctx.info()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Reports an `info` diagnostic for this plugin.                                                        |
 | `ctx.warn()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Reports a `warning`, which does not fail the build.                                                  |
 | `ctx.error()`         | `(error: string \| Error, options?: { code?, help?, location? }) => void` | Reports an `error`, which fails the build. A `Diagnostics.Error` keeps its code, help, and location. |
+
+### Naming files with `file` {#file}
+
+`file(node, options?)` returns the `<File>` props for the file a generator writes: `baseName`, `path`, `meta`, and the `banner` and `footer` from the plugin's `output`. Spread it onto `<File>`. It is a composable, so it reads the current generator context; `ctx.file(node)` and `this.file(node)` do the same.
+
+- A schema's file is named after `node.name`, and an operation's file after `node.operationId`. Pass `name` to choose another name.
+- An operation file that would land on a component schema's file, ignoring case, gets an `Operation` suffix: operation `point` goes to `pointOperation.ts`, next to schema `point.ts`. The declarations keep their names.
+- Pass `plugin` to get another plugin's file, such as the types to import. `file` then uses that plugin's resolver, `output` and `group`.
+- Outside a generator or a printer factory, `file()` reports `KUBB_NO_CONTEXT`.
+
+```tsx [zodGenerator.tsx]
+import { defineGenerator, file } from 'kubb/kit'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
+
+export const zodGenerator = defineGenerator({
+  name: 'zod',
+  renderer: jsxRenderer,
+  operation(node) {
+    const types = file(node, { plugin: 'plugin-ts' })
+
+    return (
+      <File {...file(node)}>
+        <File.Import name={['Pet']} path={types.path} isTypeOnly />
+      </File>
+    )
+  },
+})
+```
 
 ### Caching with `ctx.memo` {#memo}
 

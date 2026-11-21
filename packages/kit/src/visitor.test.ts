@@ -4,6 +4,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { addGenerator, addMacro, getResolver, setPrinter, setResolver, slot } from './composables.ts'
 import { defineExtension, definePlugin, type KitSetupContext } from './defineExtension.ts'
+import { file } from './file.ts'
 import { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext, PrinterContext } from './types.ts'
 
@@ -397,6 +398,33 @@ describe('generatorVisitor', () => {
       'operations',
       'visit:end',
     ])
+  })
+
+  it('gives generators the same file through ctx.file, this.file and the file composable', async () => {
+    const paths: Array<Array<string>> = []
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-file' },
+      setup(options) {
+        addGenerator({
+          name: 'file',
+          schema(this: GeneratorContext, node: SchemaNode, ctx: GeneratorContext) {
+            paths.push([ctx.file(node).path, this.file(node).path, file(node).path])
+            return null
+          },
+        })
+        return options
+      },
+    })({ output: { path: 'models', mode: 'directory' } })
+
+    await build([plugin])
+
+    expect(paths).toHaveLength(3)
+    for (const [fromCtx, fromThis, fromComposable] of paths) {
+      expect(fromThis).toBe(fromCtx)
+      expect(fromComposable).toBe(fromCtx)
+      expect(fromCtx).toContain('models')
+    }
   })
 
   it('leaves ctx.printer undefined without setPrinter', async () => {
