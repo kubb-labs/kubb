@@ -1,6 +1,6 @@
 import { memo, toError } from '@internals/utils'
 import { ast, type Macro, type OperationNode, type SchemaNode } from '@kubb/ast'
-import type { NormalizedPlugin, PluginVisitContext, PluginVisitHooks } from '@kubb/core'
+import { type NormalizedPlugin, type PluginVisitContext, type PluginVisitHooks, withContext } from '@kubb/core'
 import { resolverFor, slot } from './composables.ts'
 import type { Resolver } from './resolver/Resolver.ts'
 import type { Generator, GeneratorContext, PrinterContext, PrinterFactory } from './types.ts'
@@ -50,12 +50,17 @@ function resolveNode<TNode extends SchemaNode | OperationNode>(
   return resolved === null ? null : { transformedNode, options: resolved }
 }
 
+// Runs a generator method with `ctx` as `this`, as its context argument and as `useKubb()`.
+function run<TArgs extends Array<unknown>, TResult>(ctx: object, fn: (...args: TArgs) => TResult, ...args: TArgs): TResult {
+  return withContext(ctx, () => fn.apply(ctx, args))
+}
+
 function withPrinter(state: VisitState, ctx: PrinterContext): GeneratorContext {
   const generatorContext: GeneratorContext = { ...ctx, printer: undefined }
   const { printerFactory, printers } = state
   if (!printerFactory) return generatorContext
 
-  generatorContext.printer = memo(printers, ctx.options as object, () => printerFactory(ctx))
+  generatorContext.printer = memo(printers, ctx.options as object, () => withContext(ctx, printerFactory))
   return generatorContext
 }
 
@@ -66,7 +71,7 @@ async function dispatch(
   generate: (generator: Generator) => ReturnType<NonNullable<Generator['schema']>>,
 ): Promise<void> {
   for (const generator of generators) {
-    const matches = generator.match ? await generator.match(node, ctx) : true
+    const matches = generator.match ? await run(ctx, generator.match, node, ctx) : true
     if (!matches) continue
     await ctx.dispatch({ result: await generate(generator), renderer: generator.renderer, pointer: node.pointer })
   }
@@ -133,8 +138,10 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
 
       const { transformedNode, options } = resolved
       const generatorContext = withPrinter(state, { ...state.context, options })
-      await dispatch(state.schemaGenerators, transformedNode, generatorContext, (generator) => generator.schema!(transformedNode, generatorContext))
-      await ctx.hooks.callHook('kubb:generate:schema', transformedNode, generatorContext)
+      await dispatch(state.schemaGenerators, transformedNode, generatorContext, (generator) =>
+        run(generatorContext, generator.schema!, transformedNode, generatorContext),
+      )
+      await withContext(generatorContext, () => ctx.hooks.callHook('kubb:generate:schema', transformedNode, generatorContext))
     },
     async 'kubb:plugin:visit:operation'(node, ctx) {
       const state = getState(ctx)
@@ -147,8 +154,10 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
 
       const { transformedNode, options } = resolved
       const generatorContext = withPrinter(state, { ...state.context, options })
-      await dispatch(state.operationGenerators, transformedNode, generatorContext, (generator) => generator.operation!(transformedNode, generatorContext))
-      await ctx.hooks.callHook('kubb:generate:operation', transformedNode, generatorContext)
+      await dispatch(state.operationGenerators, transformedNode, generatorContext, (generator) =>
+        run(generatorContext, generator.operation!, transformedNode, generatorContext),
+      )
+      await withContext(generatorContext, () => ctx.hooks.callHook('kubb:generate:operation', transformedNode, generatorContext))
     },
     async 'kubb:plugin:visit:end'(ctx) {
       const state = getState(ctx)
@@ -156,9 +165,9 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
 
       const generatorContext = withPrinter(state, { ...state.context, options: pluginOptions(ctx) })
       for (const generator of state.operationsGenerators) {
-        await ctx.dispatch({ result: await generator.operations!(state.operations, generatorContext), renderer: generator.renderer })
+        await ctx.dispatch({ result: await run(generatorContext, generator.operations!, state.operations, generatorContext), renderer: generator.renderer })
       }
-      await ctx.hooks.callHook('kubb:generate:operations', state.operations, generatorContext)
+      await withContext(generatorContext, () => ctx.hooks.callHook('kubb:generate:operations', state.operations, generatorContext))
     },
   }
 }

@@ -79,7 +79,7 @@ const getOnlyGenerator = defineGenerator({
 
 ### `GeneratorContext` {#generatorcontext}
 
-Each method gets `ctx` with these fields:
+Each method, `match` included, gets `ctx` with these fields. Kit runs each one through [`withContext`](/docs/5.x/reference/kit/plugins), so `this`, `ctx` and `useKubb()` are the same generator context, and composables such as `useConfig()` and `memo()` work there. Setup-only composables such as `addGenerator` report `KUBB_NO_CONTEXT`.
 
 | Field            | Type                           | Holds                                                                                                                       |
 | ---------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |

@@ -124,7 +124,7 @@ When your plugin listens through its `hooks` map, it gets the hooks from `kubb:s
 - Kubb adds these listeners during setup and removes them when the build ends.
 - They miss the `lifecycle` and `generation` hooks, `kubb:setup:start`, and the output passes.
 - `kubb:plugin:setup` fires once per plugin, after its `setup` and before `kubb:build:start`. Kubb calls the plugin's own handler directly.
-- Each listener runs with a context as `this`, the same object `useKubb()` returns. For a hook Kubb fires, such as `kubb:build:start` or `kubb:plugins:end`, that is the plugin's own visit context, the `ctx` its visit hooks get. For a hook fired inside another hook, it is the context of the hook that fired it.
+- Each listener runs with a context as `this`, the same object `useKubb()` returns. For a hook Kubb fires, such as `kubb:build:start` or `kubb:plugins:end`, that is the plugin's own visit context, the `ctx` its visit hooks get. For a hook fired inside another hook, it is the context of the hook that fired it. The `kubb:generate:*` hooks run with the generator context, so `this` is the `ctx` argument.
 - `kubb:lifecycle:start` fires when `kubb generate` starts, before the first config. `.generate()` and the bundler plugins skip it.
 
 ### Visit hooks {#visit-hooks}

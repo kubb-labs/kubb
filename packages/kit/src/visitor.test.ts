@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { addGenerator, addMacro, getResolver, resolverFor, setPrinter, setResolver, slot } from './composables.ts'
 import { defineExtension, definePlugin } from './defineExtension.ts'
 import { Resolver } from './resolver/Resolver.ts'
-import type { GeneratorContext } from './types.ts'
+import type { GeneratorContext, PrinterContext } from './types.ts'
 
 const ref = (name: string) => ast.factory.createSchema({ type: 'ref', name, ref: `#/components/schemas/${name}` })
 
@@ -166,6 +166,29 @@ describe('generatorVisitor', () => {
     )
   })
 
+  it('rejects a setup-only kit composable inside a generator', async () => {
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-late' },
+      setup(options) {
+        addGenerator({
+          name: 'late',
+          schema() {
+            addGenerator({ name: 'nested', schema: () => null })
+            return null
+          },
+        })
+        return options
+      },
+    })()
+
+    const { diagnostics } = await build([plugin])
+
+    expect(diagnostics).toContainEqual(
+      expect.objectContaining({ severity: 'error', message: expect.stringContaining('`addGenerator()` runs only in `setup` or `kubb:plugin:setup`') }),
+    )
+  })
+
   it('runs a plugin visit hook after the kit visitor', async () => {
     const log: Array<string> = []
     const plugin = defineExtension({
@@ -242,6 +265,67 @@ describe('generatorVisitor', () => {
       ['Pet', 0],
       ['Store', 1],
       ['Unused', 1],
+    ])
+  })
+
+  it('runs generators, the printer factory, kubb:generate:* listeners and own visit hooks with this === ctx === useKubb()', async () => {
+    const seen: Array<string> = []
+    const check = (label: string, self: unknown, ctx: unknown) => {
+      if (self === ctx && useKubb() === ctx) seen.push(label)
+    }
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-context' },
+      hooks: {
+        'kubb:generate:schema'(_node, ctx) {
+          if (ctx.plugin.name === 'plugin-context') check('generate:schema', this, ctx)
+        },
+        'kubb:plugin:visit:end'(ctx) {
+          check('visit:end', this, ctx)
+        },
+      },
+      setup(options) {
+        setPrinter(function (this: PrinterContext, ctx) {
+          check('printer', this, ctx)
+          return {}
+        })
+        addGenerator({
+          name: 'context',
+          match(node, ctx) {
+            if (('name' in node && node.name === 'Pet') || ('operationId' in node && node.operationId === 'getPet')) check('match', this, ctx)
+            return true
+          },
+          schema(node, ctx) {
+            if (node.name === 'Pet') check('schema', this, ctx)
+            return null
+          },
+          operation(node, ctx) {
+            if (node.operationId === 'getPet') check('operation', this, ctx)
+            return null
+          },
+          operations(_nodes, ctx) {
+            check('operations', this, ctx)
+            return null
+          },
+        })
+        return options
+      },
+    })()
+
+    const { diagnostics } = await build([plugin])
+
+    expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toStrictEqual([])
+    expect(seen).toStrictEqual([
+      'printer',
+      'match',
+      'schema',
+      'generate:schema',
+      'generate:schema',
+      'generate:schema',
+      'match',
+      'operation',
+      'operations',
+      'visit:end',
     ])
   })
 

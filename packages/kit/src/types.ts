@@ -19,7 +19,7 @@ export type PrinterContext<TOptions extends PluginType = DefaultPluginType> = Pl
   options: TOptions['resolvedOptions']
 }
 
-/** Builds the plugin's printer from a `PrinterContext`. Register it with `setPrinter`. */
+/** Builds the plugin's printer from a `PrinterContext`, which is also its `this` and `useKubb()`. Register it with `setPrinter`. */
 export type PrinterFactory<TOptions extends PluginType = DefaultPluginType> = (ctx: PrinterContext<TOptions>) => Exclude<TOptions['printer'], undefined>
 
 /** Context passed to a generator's `schema`, `operation` and `operations` methods: the printer context plus the built printer. */
@@ -35,6 +35,9 @@ export type GeneratorContext<TOptions extends PluginType = DefaultPluginType> = 
  * once after every operation node is walked. JSX-based generators require a `renderer` factory.
  * Return `Array<FileNode>` directly, or call `ctx.upsertFile()` manually and return `null` to
  * bypass rendering.
+ *
+ * `match`, `schema`, `operation` and `operations` run with the generator context as `this`, as `ctx`
+ * and as `useKubb()`, so composables such as `useConfig()` work in them.
  *
  * @note Generators are consumed by plugins and registered with the `addGenerator()` composable in `setup` or `kubb:plugin:setup`.
  *
@@ -66,7 +69,8 @@ export type Generator<TOptions extends PluginType = DefaultPluginType, TElement 
   operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | undefined | null>
   /** Called once after all operations have been walked, with the plugin-level options in `ctx.options`. */
   operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | undefined | null>
-}
+  // ThisType instead of a `this` parameter, so a direct `generator.schema(node, ctx)` call still compiles.
+} & ThisType<GeneratorContext<TOptions>>
 
 declare global {
   namespace Kubb {
