@@ -26,6 +26,7 @@ export {
   isExtensionManifest,
   kubbContext,
   manifestProblems,
+  memo,
   memoryStorage,
   requirePlugin,
   setOptions,
@@ -40,8 +41,6 @@ export { defineGenerator } from './defineGenerator.ts'
 export { createResolver } from './resolver/createResolver.ts'
 export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
 export { defineExtension, definePlugin } from './defineExtension.ts'
-export { memo } from './memo.ts'
-export type { ScopedMemo } from './memo.ts'
 export type { Generator, GeneratorContext, PrinterContext, PrinterFactory } from './types.ts'
 export type { ResolveOptionsContext } from './resolver/resolveOptions.ts'
 export type {

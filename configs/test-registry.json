@@ -102,7 +102,6 @@
   "packages/kit/src/Url.test.ts": "Path param sanitizing for path-to-regexp with commented regressions (hyphen, $, duplicate names).",
   "packages/kit/src/macros/macroDedupeUnion.test.ts": "Union hashing with pointer, Date, default and resolved-schema branches; several cases read as regressions.",
   "packages/kit/src/macros/macroDiscriminatorEnum.test.ts": "enumName and number-primitive branches are not asserted by adapter-oas parser.test.ts, which only covers readOnly.",
-  "packages/kit/src/memo.test.ts": "Only test of memo.scope: the name: prefix on every key, and type checks that reject unknown slots, wrong value types and other plugins' slots.",
   "packages/kit/src/resolver/Resolver.memo.test.ts": "Only test that Resolver.memo, a separate map from KubbDriver.memo, keeps different keys apart.",
   "packages/kit/src/resolver/Resolver.names.test.ts": "Name allocation has many key-serialization and suffix branches a golden path would not reach.",
   "packages/kit/src/resolver/createResolver.test.ts": "Resolver merge, this binding, grouping paths and traversal guards are branchy and security relevant.",

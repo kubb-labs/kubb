@@ -176,23 +176,6 @@ When your plugin computes the same value many times, cache it with `memo`.
 - `memo.create({ max })` empties the store when it is full.
 - To type a `this.memo` value, register the key's `prefix:` and its value type in `Kubb.MemoRegistry`.
 
-To keep a plugin's keys apart from other plugins' keys, call `memo.scope(ctx, name)` with the plugin's name constant. It returns a memo that puts `name:` in front of every key. Register each slot with its full key in `Kubb.MemoRegistry`. The scoped memo offers only the slots that start with `name:`, and a slot can carry a `:rest` such as `printer:mini`.
-
-```typescript [generator.ts]
-import { memo } from 'kubb/kit'
-
-declare global {
-  namespace Kubb {
-    interface MemoRegistry {
-      'plugin-example:cyclic': Set<string>
-    }
-  }
-}
-
-const exampleMemo = memo.scope(ctx, pluginExampleName)
-const cyclic = exampleMemo('cyclic', () => new Set()) // key plugin-example:cyclic, typed Set<string>
-```
-
 ```typescript [patterns.ts]
 import { memo } from 'kubb/kit'
 
