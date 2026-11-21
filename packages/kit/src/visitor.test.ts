@@ -1,14 +1,5 @@
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
-import {
-  type Config,
-  defineExtension as coreDefineExtension,
-  Hookable,
-  KubbDriver,
-  type KubbHooks,
-  memoryStorage,
-  type Plugin,
-  useKubb,
-} from '@kubb/core'
+import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin, useKubb } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { addGenerator, addMacro, getResolver, setPrinter, setResolver, slot } from './composables.ts'
