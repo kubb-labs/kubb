@@ -4,8 +4,8 @@ import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 type Props = Omit<ast.FunctionNode, 'kind' | 'nodes'> & {
   key?: Key
   /**
-   * Lets importing files use the body in place of the name. Read when the declaration sits directly in a `File`, and only when every
-   * source in that file is inline.
+   * Lets importing files use the body in place of the name. Read when the declaration sits directly in a `File` that sets `inline`,
+   * or, without it, when every source in that file is inline.
    *
    * @deprecated Set `inline` on the `File`. Removed in Kubb v6.
    */
@@ -36,8 +36,8 @@ export function Function({ children, ...props }: Props): KubbReactElement {
 type ArrowFunctionProps = Omit<ast.ArrowFunctionNode, 'kind' | 'nodes'> & {
   key?: Key
   /**
-   * Lets importing files use the body in place of the name. Read when the declaration sits directly in a `File`, and only when every
-   * source in that file is inline.
+   * Lets importing files use the body in place of the name. Read when the declaration sits directly in a `File` that sets `inline`,
+   * or, without it, when every source in that file is inline.
    *
    * @deprecated Set `inline` on the `File`. Removed in Kubb v6.
    */
