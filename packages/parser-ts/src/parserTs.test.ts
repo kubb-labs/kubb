@@ -88,7 +88,7 @@ describe('parserTs', () => {
     const file = ast.factory.createFile({
       baseName: 'test.ts',
       path: '/src/nested/test.ts',
-      sources: [ast.factory.createSource({ name: 'schema', isExportable: true, nodes: [ast.factory.createText('export const schema = myCodec.uint64()')] })],
+      sources: [ast.factory.createSource({ name: 'schema', isExport: true, nodes: [ast.factory.createText('export const schema = myCodec.uint64()')] })],
       imports: [ast.factory.createImport({ name: ['myCodec'], path })],
       exports: [],
     })

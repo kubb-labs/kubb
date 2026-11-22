@@ -101,14 +101,17 @@ function getLeafNames(sourceFile: ast.FileNode): LeafNames {
   const { sources } = sourceFile
   return memo(leafNamesCache, sourceFile, () => ({
     hasSources: sources.length > 0,
-    hasIndexable: sources.some((source) => source.isIndexable),
+    hasIndexable: sources.some(isExported),
     valueNames: indexableNames(sources, false),
     typeNames: indexableNames(sources, true),
   }))
 }
 
+// `isIndexable` is the deprecated spelling of `isExport`.
+const isExported = (source: ast.SourceNode): boolean => !!(source.isExport ?? source.isIndexable)
+
 function indexableNames(sources: ReadonlyArray<ast.SourceNode>, isTypeOnly: boolean): Array<string> {
-  const names = sources.flatMap((source) => (source.isIndexable && source.name && Boolean(source.isTypeOnly) === isTypeOnly ? [source.name] : []))
+  const names = sources.flatMap((source) => (isExported(source) && source.name && Boolean(source.isTypeOnly) === isTypeOnly ? [source.name] : []))
   return [...new Set(names)].sort()
 }
 

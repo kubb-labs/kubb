@@ -121,14 +121,14 @@ function collectFileChildren(element: unknown): FileChildren {
     },
     (host) => {
       if (host.type === 'kubb-source') {
-        const { name, pointer, isTypeOnly, isExportable, isIndexable, inline, children } = host.props
+        const { name, pointer, isTypeOnly, isExport, isIndexable, inline, children } = host.props
         sources.push(
           ast.factory.createSource({
             name: name?.toString(),
             ...(pointer !== undefined ? { pointer } : {}),
             isTypeOnly: !!isTypeOnly,
-            isExportable: !!isExportable,
-            isIndexable: !!isIndexable,
+            // The deprecated `File.Source` lists a source in barrels through `isIndexable`.
+            isExport: !!(isExport ?? isIndexable),
             ...(inline ? { inline } : {}),
             nodes: collectCodeNodes(children),
           }),
@@ -148,7 +148,7 @@ function collectFileChildren(element: unknown): FileChildren {
         return
       }
 
-      // A declaration directly under a file is its own source. `export` makes it exportable and indexable.
+      // A declaration directly under a file is its own source. `export` lists it in barrels.
       if (isCodeHost(host)) {
         const { name, export: canExport, inline } = host.props
         // A default export cannot be re-exported by name, so barrels skip it.
@@ -158,8 +158,7 @@ function collectFileChildren(element: unknown): FileChildren {
           ast.factory.createSource({
             name,
             isTypeOnly: host.type === 'kubb-type',
-            isExportable: !!canExport,
-            isIndexable: !!canExport && !isDefault,
+            isExport: !!canExport && !isDefault,
             // An inline declaration lends its body to importing files in place of its name.
             ...(inline && 'nodes' in node ? { inline: { expression: ast.node.getText(node.nodes) } } : {}),
             nodes: [node],

@@ -63,9 +63,9 @@ describe('jsxRenderer', () => {
     )
 
     const [type, key, seed] = renderer.files[0]!.sources
-    expect(type).toMatchObject({ name: 'Pet', pointer: '#/components/schemas/Pet', isExportable: true, isIndexable: true, isTypeOnly: true })
-    expect(key).toMatchObject({ name: 'petKey', isExportable: false, isIndexable: false, isTypeOnly: false })
-    expect(seed).toMatchObject({ name: 'seed', isExportable: false, isIndexable: false, isTypeOnly: false })
+    expect(type).toMatchObject({ name: 'Pet', pointer: '#/components/schemas/Pet', isExport: true, isTypeOnly: true })
+    expect(key).toMatchObject({ name: 'petKey', isExport: false, isTypeOnly: false })
+    expect(seed).toMatchObject({ name: 'seed', isExport: false, isTypeOnly: false })
     expect(ast.node.getText(seed!.nodes)).toBe('faker.seed(1)')
   })
 
@@ -216,8 +216,7 @@ describe('File.Source', () => {
       kind: 'Source',
       name: 'Pet',
       isTypeOnly: true,
-      isExportable: true,
-      isIndexable: true,
+      isExport: true,
       nodes: [{ kind: 'Text', value: 'export type Pet = { id: number }' }],
     })
   })
@@ -349,7 +348,7 @@ describe('File.Export', () => {
     expect(file.sources).toHaveLength(1)
     expect(file.sources[0]).toMatchObject({
       name: 'nameSchema',
-      isExportable: true,
+      isExport: true,
       nodes: [{ kind: 'Const', nodes: [{ kind: 'Text', value: 'z.string()' }] }],
     })
   })
@@ -364,7 +363,7 @@ describe('File.Export', () => {
       </File>,
     )
 
-    expect(renderer.files[0]!.sources[0]).toMatchObject({ name: 'getPet', isExportable: true, isIndexable: false })
+    expect(renderer.files[0]!.sources[0]).toMatchObject({ name: 'getPet', isExport: false })
   })
 
   it('uses the body of an inline declaration as its expression', async () => {
