@@ -1,4 +1,4 @@
-import { camelCase } from '@internals/utils'
+import { camelCase } from '@kubb/core'
 
 /**
  * Sanitizes a parameter name so it is safe to use as a `path-to-regexp` capture name, without

@@ -1,6 +1,6 @@
 import { extname, posix } from 'node:path'
-import { ast, Diagnostics } from '@kubb/kit'
-import { memo, pascalCase, toPosixPath } from '@internals/utils'
+import { ast, casing, Diagnostics } from '@kubb/kit'
+import { memo, toPosixPath } from '@internals/utils'
 import type { BarrelType } from './types.ts'
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx'])
@@ -167,7 +167,7 @@ function walkNested(node: DirectoryNode, ctx: WalkContext): Array<ast.FileNode> 
 
     const modulePath = toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`)
     const exports = [ast.factory.createExport({ path: modulePath })]
-    const name = pascalCase(posix.basename(child.path))
+    const name = casing.pascal(posix.basename(child.path))
     if (ctx.namespace) exports.push(ast.factory.createExport({ path: modulePath, name: /^[A-Za-z]/.test(name) ? name : `_${name}`, asAlias: true }))
     return { barrels, exports }
   })
