@@ -70,7 +70,7 @@ const files = renderer.files
 
 | Group | Components |
 | --- | --- |
-| [Core](#core) | [`File`](#file), [`Code`](#code), [`Raw`](#raw), [`File.Import`](#file-import), [`File.Export`](#file-export), [`Schema`](#schema) |
+| [Core](#core) | [`File`](#file), [`Code`](#code), [`Raw`](#raw), [`Origin`](#origin), [`File.Import`](#file-import), [`File.Export`](#file-export), [`Schema`](#schema) |
 | [JavaScript](#javascript) | [`Const`](#const), [`Function`](#function), [`Function.Arrow`](#function-arrow), [`Type`](#type) |
 | [Markdown](#markdown) | [`Callout`](#callout), [`Frontmatter`](#frontmatter), [`Heading`](#heading), [`List`](#list), [`Paragraph`](#paragraph) |
 | [JSX](#jsx) | [`Jsx`](#jsx-component) |
@@ -122,12 +122,11 @@ A printed declaration in the enclosing `File`, such as a type from a printer or 
 | `export?` | `boolean` | Lists the declaration in barrels. The text still needs its own `export`. |
 | `default?` | `boolean` | Marks the declaration as the default export, which barrels skip |
 | `type?` | `boolean` | Marks a type-only declaration |
-| `pointer?` | `string` | The input location, such as `#/components/schemas/Pet` |
 | `children?` | `KubbReactNode` | The printed declaration |
 
 ```tsx
 <File baseName="pet.ts" path="src/gen/pet.ts">
-  <Code name="Pet" export type pointer={node.pointer}>
+  <Code name="Pet" export type>
     {printer.print(node)}
   </Code>
 </File>
@@ -146,6 +145,30 @@ Text in the enclosing `File` that declares nothing, such as a statement like `fa
 <File baseName="pet.ts" path="src/gen/pet.ts">
   <File.Import name={['faker']} path="@faker-js/faker" />
   <Raw name="faker-seed">{'faker.seed(1)'}</Raw>
+</File>
+```
+
+#### `Origin` {#origin}
+
+Records where the sources inside it come from in the input, so tools can link generated code back to it. openapi-import uses this for go to definition. It works for every source block, in any language, and inside or around a `File`.
+
+You only need it when one generator writes code for several parts of the input. Without it, a source gets the location of the node being generated. An inner `Origin` wins over an outer one.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `pointer?` | `string` | The input location, in the form the adapter reads, such as `#/paths/~1pets/get/responses/200` |
+| `children?` | `KubbReactNode` | The sources it applies to |
+
+```tsx
+<File baseName="getPets.ts" path="src/gen/getPets.ts">
+  <Code name="GetPetsResponses" export type>
+    {printer.print(responses)}
+  </Code>
+  <Origin pointer={response.pointer}>
+    <Code name="GetPetsStatus200" export type>
+      {printer.print(response.schema)}
+    </Code>
+  </Origin>
 </File>
 ```
 

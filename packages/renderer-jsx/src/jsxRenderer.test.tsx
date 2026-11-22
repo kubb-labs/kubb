@@ -7,6 +7,7 @@ import { Type } from './components/js/Type.tsx'
 import { Schema } from './components/Schema.tsx'
 import { Code } from './components/Code.tsx'
 import { Raw } from './components/Raw.tsx'
+import { Origin } from './components/Origin.tsx'
 import { jsxRenderer } from './jsxRenderer.ts'
 
 describe('jsxRenderer', () => {
@@ -54,7 +55,7 @@ describe('jsxRenderer', () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="pet.ts" path="src/pet.ts">
-        <Code name="Pet" export type pointer="#/components/schemas/Pet">
+        <Code name="Pet" export type>
           {'export type Pet = { id: number }'}
         </Code>
         <Code name="petKey">{'const petKey = {}'}</Code>
@@ -63,10 +64,32 @@ describe('jsxRenderer', () => {
     )
 
     const [type, key, seed] = renderer.files[0]!.sources
-    expect(type).toMatchObject({ name: 'Pet', pointer: '#/components/schemas/Pet', export: true, isTypeOnly: true })
+    expect(type).toMatchObject({ name: 'Pet', export: true, isTypeOnly: true })
     expect(key).toMatchObject({ name: 'petKey', export: false, isTypeOnly: false })
     expect(seed).toMatchObject({ name: 'seed', export: false, isTypeOnly: false })
     expect(ast.node.getText(seed!.nodes)).toBe('faker.seed(1)')
+  })
+
+  it('gives the sources inside an Origin its pointer, with the innermost Origin winning', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <Origin pointer="#/paths/~1pets/get">
+        <File baseName="getPets.ts" path="src/getPets.ts">
+          <Code name="GetPetsResponses">{'export type GetPetsResponses = {}'}</Code>
+          <Origin pointer="#/paths/~1pets/get/responses/200">
+            <Code name="GetPetsStatus200">{'export type GetPetsStatus200 = {}'}</Code>
+            <Raw name="note">{'// 200'}</Raw>
+          </Origin>
+        </File>
+      </Origin>,
+    )
+
+    const pointers = Object.fromEntries(renderer.files[0]!.sources.map((source) => [source.name, source.pointer]))
+    expect(pointers).toStrictEqual({
+      GetPetsResponses: '#/paths/~1pets/get',
+      GetPetsStatus200: '#/paths/~1pets/get/responses/200',
+      note: '#/paths/~1pets/get/responses/200',
+    })
   })
 
   it('maps Function, Function.Arrow, and Const props onto code nodes', async () => {

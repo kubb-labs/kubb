@@ -30,7 +30,10 @@ export namespace JSX {
       id?: string | null
       children?: KubbReactNode
     }
-    ['kubb-code']: Pick<ast.SourceNode, 'name' | 'pointer' | 'export' | 'default' | 'isTypeOnly' | 'inline'> & {
+    ['kubb-origin']: Pick<ast.SourceNode, 'pointer'> & {
+      children?: KubbReactNode
+    }
+    ['kubb-code']: Pick<ast.SourceNode, 'name' | 'export' | 'default' | 'isTypeOnly' | 'inline'> & {
       children?: KubbReactNode
     }
     ['kubb-raw']: Pick<ast.SourceNode, 'name'> & {

@@ -66,9 +66,11 @@ type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value' | 'nodes'> & {
  */
 function FileSource({ children, name, pointer, export: isExport, default: isDefault, isIndexable, isTypeOnly, inline }: FileSourceProps): KubbReactElement {
   return (
-    <kubb-code name={name} pointer={pointer} export={isExport ?? isIndexable} default={isDefault} isTypeOnly={isTypeOnly} inline={inline}>
-      {children}
-    </kubb-code>
+    <kubb-origin pointer={pointer}>
+      <kubb-code name={name} export={isExport ?? isIndexable} default={isDefault} isTypeOnly={isTypeOnly} inline={inline}>
+        {children}
+      </kubb-code>
+    </kubb-origin>
   )
 }
 

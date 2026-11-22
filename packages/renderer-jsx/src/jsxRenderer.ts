@@ -105,6 +105,12 @@ function collectCodeNodes(element: unknown): Array<ast.CodeNode> {
   return nodes
 }
 
+/** Gives each source without a pointer the one of the enclosing `Origin`, so the innermost `Origin` wins. */
+function withOrigin(sources: Array<ast.SourceNode>, pointer: string | undefined): Array<ast.SourceNode> {
+  if (!pointer) return sources
+  return sources.map((source) => (source.pointer ? source : { ...source, pointer }))
+}
+
 type FileChildren = { sources: Array<ast.SourceNode>; exports: Array<ast.ExportNode>; imports: Array<ast.ImportNode> }
 
 function collectFileChildren(element: unknown): FileChildren {
@@ -121,11 +127,10 @@ function collectFileChildren(element: unknown): FileChildren {
     },
     (host) => {
       if (host.type === 'kubb-code') {
-        const { name, pointer, isTypeOnly, export: isExport, default: isDefault, inline, children } = host.props
+        const { name, isTypeOnly, export: isExport, default: isDefault, inline, children } = host.props
         sources.push(
           ast.factory.createSource({
             name: name?.toString(),
-            ...(pointer !== undefined ? { pointer } : {}),
             isTypeOnly: !!isTypeOnly,
             export: !!isExport,
             ...(isDefault ? { default: true } : {}),
@@ -174,7 +179,7 @@ function collectFileChildren(element: unknown): FileChildren {
       }
 
       const nested = collectFileChildren(childrenOf(host))
-      sources.push(...nested.sources)
+      sources.push(...(host.type === 'kubb-origin' ? withOrigin(nested.sources, host.props.pointer) : nested.sources))
       exports.push(...nested.exports)
       imports.push(...nested.imports)
     },
@@ -238,7 +243,11 @@ export const jsxRenderer = () => {
           files.push(createFileNode(host.props))
           return
         }
+        const start = files.length
         collectFiles(childrenOf(host))
+        if (host.type === 'kubb-origin') {
+          for (let i = start; i < files.length; i++) files[i] = { ...files[i]!, sources: withOrigin(files[i]!.sources, host.props.pointer) }
+        }
       },
     )
   }
