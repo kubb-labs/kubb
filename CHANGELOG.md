@@ -1,5 +1,29 @@
 # Changelog
 
+## v5.23.4 — Nov 22, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Describe imports and exports with language-agnostic `names`, each a type or a value through its `space`.
+  
+  - Deprecates `name`, `isTypeOnly`, `isNameSpace` and `asAlias` until v6. They still print the same output.
+  
+  ```diff
+  - <File.Import name={['Pet']} path="./models" isTypeOnly />
+  + <File.Import names={[{ name: 'Pet', space: 'type' }]} path="./models" />
+  ``` ([#4732](https://github.com/kubb-labs/kubb/pull/4732), [`b2b1507`](https://github.com/kubb-labs/kubb/commit/b2b15078a4876ea3d81265efcdca17e3e4a6ca59))
+- Keep vendor extensions (`x-*` keys) as `extensions` on schema, parameter, request body, response and content nodes, and a binary schema's `contentMediaType` and `contentEncoding` on its `blob` node as `content`.
+  
+  - Adds `BlobSchemaNode` for `blob` nodes. `ScalarSchemaType` still includes `blob`, but `ScalarSchemaNode` no longer does: type a blob node as `BlobSchemaNode` instead. ([#4734](https://github.com/kubb-labs/kubb/pull/4734), [`f2843c7`](https://github.com/kubb-labs/kubb/commit/f2843c7af4d0cb582c6e4e66883761228094a8a0))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.23.3 — Nov 22, 2026
 
 ### @kubb/adapter-oas
