@@ -1,5 +1,5 @@
 import type { ast } from '@kubb/ast'
-import { parse, TokenKind } from 'yuku-parser'
+import { parse, TokenKind } from 'yuku'
 
 // A name followed by `:` or `?:` right after one of these is a key or parameter name (`{ Name: x }`, `(Name: x)`).
 const keyStarts = new Set<number>([TokenKind.LeftBrace, TokenKind.Comma, TokenKind.Semicolon, TokenKind.LeftParen])

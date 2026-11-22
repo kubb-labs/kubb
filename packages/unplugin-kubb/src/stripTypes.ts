@@ -1,5 +1,4 @@
-import { generate } from 'yuku-codegen'
-import { type Expression, type ObjectProperty, type TSEnumDeclaration, type VariableDeclaration, parse } from 'yuku-parser'
+import { type Expression, type ObjectProperty, parse, print, type TSEnumDeclaration, type VariableDeclaration } from 'yuku'
 
 /**
  * Node types this module reads from the yuku AST.
@@ -94,5 +93,5 @@ export function stripTypes(source: string, fileName: string): string {
     return statement
   })
 
-  return generate(program, { strip: true }).code
+  return print(program, { strip: true }).code
 }

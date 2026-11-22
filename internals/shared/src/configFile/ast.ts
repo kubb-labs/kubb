@@ -1,5 +1,5 @@
 import { getErrorMessage } from '@internals/utils'
-import { type Comment, type Expression, type Program, parse } from 'yuku-parser'
+import { type Comment, type Expression, type Program, parse } from 'yuku'
 
 export type {
   ArrayExpression,
@@ -15,7 +15,7 @@ export type {
   RestElement,
   SpreadElement,
   VariableDeclaration,
-} from 'yuku-parser'
+} from 'yuku'
 
 /** Node types the config editor reads from the yuku AST. */
 export const nodeTypes = {
@@ -50,7 +50,7 @@ export const unaryOperators = { minus: '-', plus: '+' } as const
 const diagnosticSeverities = { error: 'error' } as const
 
 /** A parsed file: its statements and every comment in it, or why it could not be parsed. */
-type ParsedSource = { program: Program; comments: Array<Comment> } | { reason: string }
+type ParsedSource = { program: Program; comments: ReadonlyArray<Comment> } | { reason: string }
 
 /**
  * Parses `source` as a TypeScript module. Never throws: a syntax error, or a native parser that

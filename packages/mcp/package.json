@@ -77,7 +77,7 @@
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/core": "workspace:^",
     "@tmcp/adapter-valibot": "^0.1.7",
-    "@tmcp/transport-stdio": "^0.5.1",
+    "@tmcp/transport-stdio": "^0.5.2",
     "jiti": "^2.7.0",
     "tmcp": "^1.20.1",
     "valibot": "^1.5.0"

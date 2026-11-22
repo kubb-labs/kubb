@@ -52,7 +52,7 @@ const moduleKinds = { esm: 'esm', cjs: 'cjs' } as const
 type ModuleKind = ValueOf<typeof moduleKinds>
 
 type EditResult = { source: string } | { reason: string }
-type ParsedConfig = { program: Program; comments: Array<Comment>; configs: Array<ObjectExpression>; kind: ModuleKind }
+type ParsedConfig = { program: Program; comments: ReadonlyArray<Comment>; configs: Array<ObjectExpression>; kind: ModuleKind }
 type ValueNode = Expression | SpreadElement | null | undefined
 type Import = { from: string; exported: string }
 type FactoryCall = { importName: string; exportName: string; packageName: string; call: CallExpression }
@@ -323,7 +323,7 @@ function startsLine(source: string, offset: number): boolean {
 }
 
 /** The `disable-plugin` blocks in this config, read from marker comments since the call is no longer a node. */
-function findDisabled(source: string, comments: Array<Comment>, config: ObjectExpression): Array<DisabledBlock> {
+function findDisabled(source: string, comments: ReadonlyArray<Comment>, config: ObjectExpression): Array<DisabledBlock> {
   const lines = source.split('\n')
 
   return comments.flatMap((comment) => {
@@ -768,7 +768,7 @@ function disablePluginInConfig({
   return disablePlugin(split, reparsed.program, reparsedConfig, edit.plugin)
 }
 
-function enablePlugin(source: string, comments: Array<Comment>, config: ObjectExpression, plugin: string): EditResult {
+function enablePlugin(source: string, comments: ReadonlyArray<Comment>, config: ObjectExpression, plugin: string): EditResult {
   const block = findDisabled(source, comments, config).find((entry) => entry.packageName === plugin)
   if (!block) return { reason: `${plugin} is not disabled` }
 
