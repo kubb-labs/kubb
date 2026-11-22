@@ -1,5 +1,6 @@
 import path from 'node:path'
-import { camelCase, memo } from '@internals/utils'
+import { memo } from '@internals/utils'
+import { camelCase } from '@kubb/core'
 import { ast, type FileNode, type ImportNode, type InputMeta, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type BannerMeta, type Config, Diagnostics, getInputKind, type Group, type MemoKey, type MemoValue, type Output } from '@kubb/core'
 import {
