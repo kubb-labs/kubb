@@ -42,6 +42,8 @@ describe('schemaRules', () => {
       extensions: { 'x-minimum': '0.5' },
     })
     expect(parse({ type: 'string' }).extensions).toBeUndefined()
+    expect(parse({ type: 'null', 'x-a': 1 } as SchemaObject).extensions).toEqual({ 'x-a': 1 })
+    expect(parse({ allOf: [{ type: 'string', 'x-a': 1 }], 'x-b': 2 } as SchemaObject).extensions).toEqual({ 'x-a': 1, 'x-b': 2 })
   })
 
   it('keeps contentMediaType on a blob node', () => {
