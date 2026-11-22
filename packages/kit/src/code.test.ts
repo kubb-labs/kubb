@@ -18,13 +18,13 @@ describe('code', () => {
     expect(source.text).toBe('Pet: a1')
   })
 
-  it('groups imports per path and type-only flag in the order of first use', () => {
-    const source = code`${petSchema} satisfies ${pet} | ${order} | ${pet} ${refName('PetStatus', '/gen/types/pet.ts', true)}`
+  it('keeps each import in the order of use, for createFile to merge', () => {
+    const source = code`${petSchema} satisfies ${pet} | ${order} ${null}`
 
-    expect(source.imports.map(({ name, path, isTypeOnly }) => ({ name, path, isTypeOnly }))).toStrictEqual([
-      { name: ['petSchema'], path: '/gen/zod/pet.ts', isTypeOnly: false },
-      { name: ['Pet', 'PetStatus'], path: '/gen/types/pet.ts', isTypeOnly: true },
-      { name: ['Order'], path: '/gen/types/order.ts', isTypeOnly: true },
+    expect(source.imports.map(({ name, path }) => ({ name, path }))).toStrictEqual([
+      { name: ['petSchema'], path: '/gen/zod/pet.ts' },
+      { name: ['Pet'], path: '/gen/types/pet.ts' },
+      { name: ['Order'], path: '/gen/types/order.ts' },
     ])
   })
 

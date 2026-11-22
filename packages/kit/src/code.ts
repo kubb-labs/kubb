@@ -1,8 +1,8 @@
-import { ast, type ImportNode } from '@kubb/ast'
+import type { ImportNode } from '@kubb/ast'
 import type { RefName } from './from.ts'
 
 /**
- * Generated text plus the imports its names need, grouped per path in the order of first use.
+ * Generated text plus the imports its names need, in the order of use.
  */
 export type Code = {
   readonly text: string
@@ -32,34 +32,11 @@ function toText(value: CodeValue): string {
   return String(value)
 }
 
-function isNamed(node: ImportNode): node is ImportNode & { name: Array<string> } {
-  return Array.isArray(node.name) && node.name.every((item) => typeof item === 'string') && !node.isNameSpace
-}
-
 function build(strings: ReadonlyArray<string>, values: ReadonlyArray<CodeValue>): Code {
-  const imports: Array<ImportNode> = []
-  // Named imports from one path merge into the first. Default, alias and namespace imports keep their shape.
-  const add = (node: ImportNode) => {
-    const index = isNamed(node)
-      ? imports.findIndex((imp) => isNamed(imp) && imp.path === node.path && Boolean(imp.isTypeOnly) === Boolean(node.isTypeOnly))
-      : -1
-    const first = imports[index] as (ImportNode & { name: Array<string> }) | undefined
-    if (!first) return void imports.push(node)
-    imports[index] = ast.factory.createImport({
-      name: [...new Set([...first.name, ...(node.name as Array<string>)])],
-      path: node.path,
-      isTypeOnly: node.isTypeOnly,
-    })
-  }
-
-  for (const value of values) {
-    if (isCode(value)) value.imports.forEach(add)
-    if (isRefName(value) && value.import) add(value.import)
-  }
-
   return {
     text: strings.reduce((text, part, index) => text + toText(values[index - 1]) + part),
-    imports,
+    // `createFile` merges and sorts imports per path, so they are kept as they are, in the order of use.
+    imports: values.flatMap((value) => (isCode(value) ? value.imports : isRefName(value) && value.import ? [value.import] : [])),
   }
 }
 
