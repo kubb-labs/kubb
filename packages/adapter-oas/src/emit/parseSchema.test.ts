@@ -35,4 +35,23 @@ describe('schemaRules', () => {
   ])('routes an enum with $title', ({ schema, options, type }) => {
     expect(parse(schema, options)).toMatchObject({ type })
   })
+
+  it('keeps vendor extensions on schema nodes', () => {
+    expect(parse({ type: 'string', format: 'decimal', 'x-minimum': '0.5' } as SchemaObject)).toMatchObject({
+      type: 'string',
+      extensions: { 'x-minimum': '0.5' },
+    })
+    expect(parse({ type: 'string' }).extensions).toBeUndefined()
+  })
+
+  it('keeps contentMediaType on a blob node', () => {
+    expect(parse({ type: 'string', format: 'binary', contentMediaType: 'application/pdf' } as SchemaObject)).toMatchObject({
+      type: 'blob',
+      content: { mediaType: 'application/pdf' },
+    })
+    expect(parse({ contentMediaType: 'application/octet-stream' } as SchemaObject)).toMatchObject({
+      type: 'blob',
+      content: { mediaType: 'application/octet-stream' },
+    })
+  })
 })

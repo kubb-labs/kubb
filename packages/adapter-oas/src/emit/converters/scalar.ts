@@ -151,6 +151,7 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
   }
 
   const specialType = formatMap[schema.format as keyof typeof formatMap]
+  if (specialType === 'blob') return convertBlob(context)
   if (specialType === 'string') {
     // A numeric schema keeps its type, such as `type: integer, format: duration` in seconds.
     if (type === 'integer' || type === 'number') return convertNumeric(context, type)
@@ -269,6 +270,13 @@ export function convertString(context: ConvertContext): ast.SchemaNode {
     pattern: schema.pattern,
     ...getStringContent(context),
   })
+}
+
+/**
+ * Converts a binary schema into a `BlobSchemaNode`, keeping `contentMediaType` and `contentEncoding`.
+ */
+export function convertBlob(context: ConvertContext): ast.SchemaNode {
+  return createNode(context, { type: 'blob', primitive: 'string', ...getStringContent(context) })
 }
 
 /**

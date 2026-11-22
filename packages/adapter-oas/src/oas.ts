@@ -44,7 +44,7 @@ export function getExternalDocs(source: unknown): ast.ExternalDocs | undefined {
 /**
  * Returns the `x-*` keys of `source` as-is, or `undefined` when there are none.
  */
-export function pickExtensions(source: Record<string, unknown>): Record<string, unknown> | undefined {
+export function pickExtensions(source: object): Record<string, unknown> | undefined {
   const entries = Object.entries(source).filter(([key]) => key.startsWith('x-'))
   return entries.length > 0 ? Object.fromEntries(entries) : undefined
 }

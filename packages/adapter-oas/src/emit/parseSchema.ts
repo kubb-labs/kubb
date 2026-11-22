@@ -4,7 +4,16 @@ import { isBinary, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, SchemaObject } from '../types.ts'
 import { convertAllOf, convertMultiType, convertNot, convertRef, convertUnion } from './converters/composition.ts'
-import { convertConst, convertEnum, convertFormat, convertFormattedEnum, convertNumeric, convertString, createNullNode } from './converters/scalar.ts'
+import {
+  convertBlob,
+  convertConst,
+  convertEnum,
+  convertFormat,
+  convertFormattedEnum,
+  convertNumeric,
+  convertString,
+  createNullNode,
+} from './converters/scalar.ts'
 import { convertArray, convertObject, convertTuple } from './converters/structural.ts'
 import { createNode } from './createNode.ts'
 import { isHandledFormat, resolveDateTypeValue } from './schemaShape.ts'
@@ -95,7 +104,7 @@ export const schemaRules: Array<SchemaRule> = [
     convert: convertFormattedEnum,
   },
   { match: matchesFormat, convert: convertFormat },
-  { match: ({ schema }) => isBinary(schema), convert: (ctx) => createNode(ctx, { type: 'blob', primitive: 'string' }) },
+  { match: ({ schema }) => isBinary(schema), convert: convertBlob },
   {
     match: ({ schema, type }) => !type && !schema.enum?.length && (schema.contentMediaType !== undefined || schema.contentSchema !== undefined),
     convert: convertString,
