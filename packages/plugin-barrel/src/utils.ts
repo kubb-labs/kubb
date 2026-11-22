@@ -92,7 +92,7 @@ function makeBarrel(dirPath: string, exports: Array<ast.ExportNode>, ctx: WalkCo
 
 type LeafStrategy = (path: string, sourceFile: ast.FileNode | undefined) => Array<ast.ExportNode>
 
-type LeafNames = { hasSources: boolean; hasIndexable: boolean; valueNames: Array<string>; typeNames: Array<string> }
+type LeafNames = { hasSources: boolean; hasExported: boolean; valueNames: Array<string>; typeNames: Array<string> }
 
 // A nested barrel asks for the same file's names once per ancestor folder; only the relative path differs.
 const leafNamesCache = memo.create<ast.FileNode, LeafNames>({ weak: true })
@@ -101,26 +101,26 @@ function getLeafNames(sourceFile: ast.FileNode): LeafNames {
   const { sources } = sourceFile
   return memo(leafNamesCache, sourceFile, () => ({
     hasSources: sources.length > 0,
-    hasIndexable: sources.some(isExported),
-    valueNames: indexableNames(sources, false),
-    typeNames: indexableNames(sources, true),
+    hasExported: sources.some(isExported),
+    valueNames: exportedNames(sources, false),
+    typeNames: exportedNames(sources, true),
   }))
 }
 
 // `isIndexable` is the deprecated spelling of `export`. A default export can't be re-exported by name.
 const isExported = (source: ast.SourceNode): boolean => !source.default && !!(source.export ?? source.isIndexable)
 
-function indexableNames(sources: ReadonlyArray<ast.SourceNode>, isTypeOnly: boolean): Array<string> {
+function exportedNames(sources: ReadonlyArray<ast.SourceNode>, isTypeOnly: boolean): Array<string> {
   const names = sources.flatMap((source) => (isExported(source) && source.name && Boolean(source.isTypeOnly) === isTypeOnly ? [source.name] : []))
   return [...new Set(names)].sort()
 }
 
 /**
- * Re-exports the whole module, unless it has sources and none of them is indexable.
+ * Re-exports the whole module, unless it has sources and none of them is exported.
  */
 const allStrategy: LeafStrategy = (path, sourceFile) => {
   const names = sourceFile && getLeafNames(sourceFile)
-  return names?.hasSources && !names.hasIndexable ? [] : [ast.factory.createExport({ path })]
+  return names?.hasSources && !names.hasExported ? [] : [ast.factory.createExport({ path })]
 }
 
 /**

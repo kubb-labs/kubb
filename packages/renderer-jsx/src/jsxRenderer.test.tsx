@@ -73,15 +73,15 @@ describe('jsxRenderer', () => {
   it('gives the sources inside an Origin its pointer, with the innermost Origin winning', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
-      <Origin pointer="#/paths/~1pets/get">
-        <File baseName="getPets.ts" path="src/getPets.ts">
+      <File baseName="getPets.ts" path="src/getPets.ts">
+        <Origin pointer="#/paths/~1pets/get">
           <Code name="GetPetsResponses">{'export type GetPetsResponses = {}'}</Code>
           <Origin pointer="#/paths/~1pets/get/responses/200">
             <Code name="GetPetsStatus200">{'export type GetPetsStatus200 = {}'}</Code>
             <Raw name="note">{'// 200'}</Raw>
           </Origin>
-        </File>
-      </Origin>,
+        </Origin>
+      </File>,
     )
 
     const pointers = Object.fromEntries(renderer.files[0]!.sources.map((source) => [source.name, source.pointer]))

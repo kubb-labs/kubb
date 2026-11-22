@@ -267,7 +267,6 @@ export class FileManager {
     return resolved
   }
 
-  /** The stored file at `path`, or `undefined` when there is none. */
   get(path: string): FileNode | undefined {
     this.#flush()
     return this.#cache.get(path)

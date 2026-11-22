@@ -149,7 +149,7 @@ Text in the enclosing `File` that declares nothing, such as a statement like `fa
 
 #### `Origin` {#origin}
 
-Records where the sources inside it come from in the input, so tools can link generated code back to it. openapi-import uses this for go to definition. It works for every source block, in any language, and inside or around a `File`.
+Records where the sources inside it come from in the input, so tools can link generated code back to it. openapi-import uses this for go to definition. It works for every source block in a `File`, in any language.
 
 You only need it when one generator writes code for several parts of the input. Without it, a source gets the location of the node being generated. An inner `Origin` wins over an outer one.
 

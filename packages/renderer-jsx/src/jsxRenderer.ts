@@ -105,7 +105,9 @@ function collectCodeNodes(element: unknown): Array<ast.CodeNode> {
   return nodes
 }
 
-/** Gives each source without a pointer the one of the enclosing `Origin`, so the innermost `Origin` wins. */
+/**
+ * Gives each source without a pointer the one of the enclosing `Origin`, so the innermost `Origin` wins.
+ */
 function withOrigin(sources: Array<ast.SourceNode>, pointer: string | undefined): Array<ast.SourceNode> {
   if (!pointer) return sources
   return sources.map((source) => (source.pointer ? source : { ...source, pointer }))
@@ -243,11 +245,7 @@ export const jsxRenderer = () => {
           files.push(createFileNode(host.props))
           return
         }
-        const start = files.length
         collectFiles(childrenOf(host))
-        if (host.type === 'kubb-origin') {
-          for (let i = start; i < files.length; i++) files[i] = { ...files[i]!, sources: withOrigin(files[i]!.sources, host.props.pointer) }
-        }
       },
     )
   }
