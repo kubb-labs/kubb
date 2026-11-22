@@ -49,12 +49,12 @@ const renderer = jsxRenderer()
 
 await renderer.render(
   <File baseName="petStore.ts" path="src/gen/petStore.ts">
-    <File.Source>
-      <Type name="Pet">{'{ id: number; name: string }'}</Type>
-      <Function name="getPet" async>
-        {"return fetch('/pets')"}
-      </Function>
-    </File.Source>
+    <Type export name="Pet">
+      {'{ id: number; name: string }'}
+    </Type>
+    <Function export name="getPet" async>
+      {"return fetch('/pets')"}
+    </Function>
   </File>,
 )
 

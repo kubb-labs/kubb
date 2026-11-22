@@ -1,5 +1,6 @@
 import type { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../types.ts'
+import { Source } from './Source.tsx'
 
 type BasePropsWithBaseName = Pick<ast.FileNode, 'baseName' | 'path'>
 
@@ -37,9 +38,9 @@ type Props<TMeta extends object> = BaseProps &
  * @example Basic file with a source block
  * ```tsx
  * <File baseName="petStore.ts" path="src/models/petStore.ts">
- *   <File.Source name="Pet" isExportable isIndexable>
+ *   <Source name="Pet" isExportable isIndexable>
  *     {`export type Pet = { id: number; name: string }`}
- *   </File.Source>
+ *   </Source>
  * </File>
  * ```
  */
@@ -49,40 +50,6 @@ export function File<TMeta extends object = object>({ children, ...props }: Prop
   }
 
   return <kubb-file {...props}>{children}</kubb-file>
-}
-
-type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value'> & {
-  key?: Key
-  /**
-   * Child nodes rendered as the source content of this block.
-   */
-  children?: KubbReactNode
-}
-
-/**
- * Marks a block of source text to be associated with the enclosing {@link File}.
- *
- * @deprecated Put `Const`, `Type` or `Function` directly in `File`. They take `inline` too. Removed in Kubb v6.
- *
- * Children are treated as the source string. `isExportable` marks the source as an exported declaration,
- * `isIndexable` includes the source in barrel/index generation, and `name` keys deduplication.
- *
- * @example Exportable, indexable source block
- * ```tsx
- * <File.Source name="Pet" isExportable isIndexable>
- *   {`export type Pet = { id: number; name: string }`}
- * </File.Source>
- * ```
- *
- * @example Type-only source block
- * ```tsx
- * <File.Source name="PetId" isTypeOnly isExportable>
- *   {`export type PetId = string`}
- * </File.Source>
- * ```
- */
-function FileSource({ children, ...props }: FileSourceProps): KubbReactElement {
-  return <kubb-source {...props}>{children}</kubb-source>
 }
 
 type FileExportProps = Omit<ast.ExportNode, 'kind'> & { key?: Key }
@@ -139,5 +106,5 @@ function FileImport(props: FileImportProps): KubbReactElement {
 
 File.Export = FileExport
 File.Import = FileImport
-/** @deprecated Put `Const`, `Type` or `Function` directly in `File`. They take `inline` too. Removed in Kubb v6. */
-File.Source = FileSource
+/** @deprecated Use `Source`, or put `Const`, `Type` or `Function` directly in `File`. Removed in Kubb v6. */
+File.Source = Source
