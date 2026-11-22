@@ -28,13 +28,24 @@ export function importLocalName(item: ImportNameItem): string {
 }
 
 /**
+ * Relative specifiers by `root`, then `path`. `createFile` sorts a file's imports again on every
+ * merge, and the path math dominated that sort on large specs. Two levels keep the existing strings
+ * as keys, so lookups reuse their hashes instead of hashing a new joined key each time.
+ */
+const specifierCache = memo.create<string, Map<string, string>>({ max: 10_000 })
+
+/**
  * Returns the specifier a member is written with: POSIX and relative to the importing file when it
  * has a `root`, like `getRelativePath` in parser-ts. Sorting on it keeps the order the same on every OS.
  */
 function specifier(node: FileMember): string {
-  if (!node.root) return node.path
-  const relative = path.relative(path.dirname(node.root), node.path).replaceAll('\\', '/')
-  return relative.startsWith('../') ? relative : `./${relative}`
+  const { root, path: target } = node
+  if (!root) return target
+  const byPath = memo(specifierCache, root, () => new Map<string, string>())
+  return memo(byPath, target, () => {
+    const relative = path.relative(path.dirname(root), target).replaceAll('\\', '/')
+    return relative.startsWith('../') ? relative : `./${relative}`
+  })
 }
 
 /**

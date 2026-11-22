@@ -126,6 +126,18 @@ describe('combineImports', () => {
     expect(combineImports([scoped, sibling, parent], [], 'fetch helper Pet').map((i) => i.path)).toStrictEqual([parent.path, sibling.path, scoped.path])
   })
 
+  it('sorts the same paths by each importing file, not by the first one seen', () => {
+    const helper = '/project/src/hooks/helper.ts'
+    const pet = '/project/src/types/Pet.ts'
+    const sortFrom = (root: string) =>
+      combineImports([createImport({ name: ['helper'], path: helper, root }), createImport({ name: ['Pet'], path: pet, root })], [], 'helper Pet').map(
+        (i) => i.path,
+      )
+
+    expect(sortFrom('/project/src/hooks/usePet.ts')).toStrictEqual([pet, helper])
+    expect(sortFrom('/project/src/types/Order.ts')).toStrictEqual([helper, pet])
+  })
+
   it('keeps value and type-only imports from the same path separate', () => {
     const value = createImport({
       name: ['Pet'],
