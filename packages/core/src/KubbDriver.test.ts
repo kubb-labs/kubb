@@ -400,3 +400,19 @@ describe('KubbDriver bus hooks', () => {
     expect(seen).toStrictEqual(['start', 'schema', 'schema', 'operation', 'operation', 'end'])
   })
 })
+
+describe('KubbDriver#getResolver', () => {
+  it('returns the resolver stored in memo, which published plugins read through ctx.driver', () => {
+    const driver = makeDriver(makeConfig())
+    const resolver = { pluginName: 'plugin-ts' }
+    driver.memo.set('plugin-ts:resolver', resolver)
+
+    expect(driver.getResolver('plugin-ts')).toBe(resolver)
+  })
+
+  it('throws KUBB_MOVED_TO_KIT when no resolver is stored', () => {
+    expect(() => makeDriver(makeConfig()).getResolver('missing')).toThrow(
+      expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.movedToKit }) }),
+    )
+  })
+})

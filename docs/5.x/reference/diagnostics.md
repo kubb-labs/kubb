@@ -180,9 +180,9 @@ A plugin lists another in `dependencies` without `optional: true`, and the confi
 
 ### KUBB_MOVED_TO_KIT {#kubb-moved-to-kit}
 
-Code called a resolver, generator or macro helper from `@kubb/core`: `addGenerator`, `setResolver`, `setMacros`, `addMacro`, `Resolver`, `createResolver`, `defineResolver`, `defineGenerator` or `toFilePath`. These moved to `@kubb/kit`. `@kubb/kit` 5.23.1 still imports them from core, so it reports this error when it loads next to a newer `@kubb/core`.
+Code called a resolver, generator or macro helper from `@kubb/core`: `addGenerator`, `setResolver`, `setMacros`, `addMacro`, `Resolver`, `createResolver`, `defineResolver`, `defineGenerator` or `toFilePath`. These moved to `@kubb/kit`. `@kubb/kit` 5.23.1 still imports them from core, so it reports this error when it loads next to a newer `@kubb/core`. The deprecated `ctx.driver.getResolver(name)` also reports it when the plugin has no resolver set with `setResolver`.
 
-**Fix:** Import the helper from `kubb/kit`. If a plugin triggers it, run `pnpm update "@kubb/*"` so every @kubb package is on one version.
+**Fix:** Import the helper from `kubb/kit`, and call `ctx.getResolver(name)` instead of `ctx.driver.getResolver(name)`. If a plugin triggers it, run `pnpm update "@kubb/*"` so every @kubb package is on one version.
 
 ### KUBB_NO_CONTEXT {#kubb-no-context}
 
