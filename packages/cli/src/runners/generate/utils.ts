@@ -131,10 +131,11 @@ function splitLines(text: string): Array<string> {
   return text ? text.split('\n') : []
 }
 
-// A loop, not a spread into an array of characters: this runs over every line of the old output on each clean run.
+// An index loop over UTF-16 code units: this runs over every line of the old output on each clean run, and `for…of`
+// with `codePointAt` takes about twice as long. Both sides of a diff are hashed in the same run, so code units suffice.
 function hashLine(line: string): number {
   let hash = 0x811c9dc5
-  for (const char of line) hash = Math.imul(hash ^ char.codePointAt(0)!, 0x01000193)
+  for (let i = 0; i < line.length; i++) hash = Math.imul(hash ^ line.charCodeAt(i), 0x01000193)
   return hash
 }
 
