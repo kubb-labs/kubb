@@ -46,7 +46,6 @@
   "packages/ast/src/utils/inline.test.ts": "Inline-source resolver: nested replacement, aliases, cycles and missing-name problems; drives rendered output.",
   "packages/ast/src/utils/moduleNames.test.ts": "Every deprecated import and export form must convert to the same names, and a deprecated field changed after creation must win, or old plugins print different imports.",
   "packages/ast/src/utils/refs.test.ts": "refName decodes ~1, ~0 and percent escapes; isBareRef has many modifier branches.",
-  "packages/ast/src/utils/resolveSpaces.test.ts": "The declaration lookup decides import type versus import for names without a space, including names declared as both a type and a value, and the unresolved fallback.",
   "packages/ast/src/utils/schemaGraph.test.ts": "Cycle detection and reachable-schema collection are graph logic a golden-path test would not pinpoint.",
   "packages/ast/src/utils/schemaProperties.test.ts": "Union and circular-ref edges of resolveSchemaProperties and literal value collection, plus a commented discriminator regression.",
   "packages/ast/src/visitor.test.ts": "Core traversal: structural sharing, shared node visited once, depth and parent context.",

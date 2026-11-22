@@ -9,10 +9,6 @@ export function getNames(node: ImportNode | ExportNode): Array<ModuleName> {
   return node.kind === 'Import' ? fromDeprecatedImport(node) : fromDeprecatedExport(node)
 }
 
-/**
- * Returns whether a declaration exists only at compile time (`type`) or also at runtime (`value`). Without
- * `space` or the deprecated `isTypeOnly`, a source whose first node is a `Type` is a type.
- */
 export function getSpace(source: SourceNode): Space {
   if (source.space) return source.space
   if (source.isTypeOnly != null) return source.isTypeOnly ? 'type' : 'value'

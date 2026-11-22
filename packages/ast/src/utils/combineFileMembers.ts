@@ -18,23 +18,27 @@ const INDEX_ABOVE_IMPORTS = 128
 
 type Form = 'named' | 'default' | '*'
 
-type Statement = { path: string; root?: string | null; form: Form; space?: Space | null; names: Array<ModuleName> }
+type Statement = { path: string; root?: string | null; form: Form; space: Space; names: Array<ModuleName> }
 
 const importForm = (item: ModuleName): Form => (item.alias && (item.name === '*' || item.name === 'default') ? item.name : 'named')
 const exportForm = (item: ModuleName): Form => (item.name === '*' ? '*' : 'named')
 const label = (item: ModuleName): string => (item.alias ? `${item.name} as ${item.alias}` : item.name)
 
-// Named members of one path and space merge into one statement. A default or whole-module name is a statement of its own.
 function statementKey({ path, form, space, names }: Statement): string {
-  return form === 'named' ? `${path}\0named\0${space ?? ''}` : `${path}\0${form}\0${names[0]?.alias ?? ''}\0${space ?? ''}`
+  return form === 'named' ? `${path}\0named\0${space}` : `${path}\0${form}\0${names[0]?.alias ?? ''}\0${space}`
 }
 
-// One statement per form and space. A name without a space stays apart until `ast.file.resolveSpaces` fills it in.
 function toStatements(nodes: ReadonlyArray<ImportNode | ExportNode>, formOf: (item: ModuleName) => Form): Array<Statement> {
   return nodes.flatMap((node) => {
     const statements = new Map<string, Statement>()
     for (const item of getNames(node)) {
-      const statement: Statement = { path: node.path, root: node.kind === 'Import' ? node.root : undefined, form: formOf(item), space: item.space, names: [] }
+      const statement: Statement = {
+        path: node.path,
+        root: node.kind === 'Import' ? node.root : undefined,
+        form: formOf(item),
+        space: item.space ?? 'value',
+        names: [],
+      }
       const key = statementKey({ ...statement, names: [item] })
       const existing = statements.get(key) ?? statement
       statements.set(key, existing)
@@ -67,7 +71,7 @@ function specifier(node: { path: string; root?: string | null }): string {
 
 function sortKey(statement: Statement): string {
   const form = statement.form === 'named' ? '1' : '0'
-  const space = statement.space === 'type' ? '0' : statement.space === 'value' ? '1' : '2'
+  const space = statement.space === 'type' ? '0' : '1'
   return `${form}:${space}:${specifier(statement)}:${statement.names.map(label).toSorted().join('\0')}`
 }
 

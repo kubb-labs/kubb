@@ -183,7 +183,7 @@ An import at the top of the enclosing `File`.
 | `path` | `string` | The module to import from |
 | `root?` | `string \| null` | The file path the import is relative to |
 
-Each name prints as `type` when its `space` is `'type'`. A name without `space` takes the space of the declaration it points to in the generated files. A name from a package needs `space`, because Kubb cannot read the package. Without it, the name prints as a value and the build warns.
+Each name prints as `type` when its `space` is `'type'`. A name without `space` is a value.
 
 ```tsx
 <File.Import names={[{ name: 'useState', space: 'value' }]} path="react" />
@@ -195,8 +195,8 @@ Each name prints as `type` when its `space` is `'type'`. A name without `space` 
 <File.Import names={[{ name: 'default', alias: 'useSWR', space: 'value' }]} path="swr" />
 // import useSWR from 'swr'
 
-<File.Import names={[{ name: 'Pet' }]} root={target.path} path={types.path} />
-// import type { Pet } from './models/Pet', when Pet is declared as a type
+<File.Import names={[{ name: 'Pet', space: 'type' }]} root={target.path} path={types.path} />
+// import type { Pet } from './models/Pet'
 ```
 
 #### `File.Export` {#file-export}
@@ -208,11 +208,11 @@ An export at the top of the enclosing `File`.
 | `names` | `Array<{ name: string; alias?: string; space?: 'type' \| 'value' }>` | The names to export. `{ name: '*' }` exports everything, and an `alias` on it exports the module under one name. |
 | `path` | `string` | The module to export from |
 
-A name without `space` takes the space of the declaration it points to.
+A name without `space` is a value.
 
 ```tsx
-<File.Export names={[{ name: 'Pet' }]} path="./models/petStore" />
-// export type { Pet } from './models/petStore', when Pet is declared as a type
+<File.Export names={[{ name: 'Pet', space: 'type' }]} path="./models/petStore" />
+// export type { Pet } from './models/petStore'
 
 <File.Export names={[{ name: '*', space: 'value' }]} path="./models/petStore" />
 // export * from './models/petStore'

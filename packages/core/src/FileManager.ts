@@ -339,7 +339,6 @@ export class FileManager {
     const unchanged: Array<string> = []
     // Shared files this build generates differently from the config that wrote them first.
     const mismatched: Array<string> = []
-    const unresolved: Array<string> = []
     const progress = hooks && config ? createProgress(files, config, hooks) : undefined
 
     await inParallel({
@@ -347,10 +346,7 @@ export class FileManager {
       limit: FILE_CONCURRENCY,
       run: async (file, index) => {
         signal?.throwIfAborted()
-        // Every file is stored by now, so a name without a space takes the space of the declaration it points to.
-        const resolved = ast.file.resolveSpaces(file, (path) => this.get(path))
-        unresolved.push(...resolved.unresolved.map((name) => `${name} in ${file.path}`))
-        const source = await this.parse(resolved.file, { parsers })
+        const source = await this.parse(file, { parsers })
         if (source) {
           if (shared && isPathInside(file.path, shared.path)) {
             // A digest, so a run does not hold every shared file's source until its last config has built.
@@ -368,13 +364,6 @@ export class FileManager {
     })
 
     await hooks?.callHook('kubb:files:processing:end', { files, unchanged })
-
-    if (unresolved.length > 0) {
-      await hooks?.callHook('kubb:warn', {
-        message: `Imports and exports with no known type or value, printed as values: ${unresolved.slice(0, 3).join(', ')}${unresolved.length > 3 ? ', ...' : ''}.`,
-        info: 'Set `space` on these names. A name from a package always needs it, because Kubb cannot read its declarations.',
-      })
-    }
 
     if (mismatched.length > 0) {
       await hooks?.callHook('kubb:warn', {

@@ -21,9 +21,6 @@ export type Space = 'type' | 'value'
 
 /**
  * One name an import or export brings across, as in the ECMAScript `ImportEntry` record.
- *
- * @example
- * `{ name: 'fakerEN', alias: 'faker' }`, `{ name: 'default', alias: 'useSWR' }`, `{ name: '*', alias: 'z' }`
  */
 export type ModuleName = {
   /**
@@ -35,7 +32,8 @@ export type ModuleName = {
    */
   alias?: string | null
   /**
-   * Type or value. When unset, the declaration it points to decides before the file is printed.
+   * Type or value.
+   * @default 'value'
    */
   space?: Space | null
 }

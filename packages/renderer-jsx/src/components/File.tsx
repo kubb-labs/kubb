@@ -90,7 +90,7 @@ type FileExportProps = ast.ExportInput & { key?: Key }
  * Declares an export entry for the enclosing {@link File}.
  *
  * The export is collected by the renderer and emitted at the top of the generated file. A name without a
- * `space` takes the space of the declaration it points to.
+ * `space` is a value.
  *
  * @example Named export
  * ```tsx
@@ -114,18 +114,12 @@ type FileImportProps = ast.ImportInput & { key?: Key }
  * Declares an import entry for the enclosing {@link File}.
  *
  * The import is collected by the renderer and emitted at the top of the generated file. A name without a
- * `space` takes the space of the declaration it points to. A name from a package needs one set.
+ * `space` is a value.
  *
  * @example Named import
  * ```tsx
  * <File.Import names={[{ name: 'useState', space: 'value' }]} path="react" />
  * // import { useState } from 'react'
- * ```
- *
- * @example Generated type, space from its declaration
- * ```tsx
- * <File.Import names={[{ name: 'Pet' }]} root={file.path} path={petFile.path} />
- * // import type { Pet } from './models/Pet'
  * ```
  *
  * @example Namespace import

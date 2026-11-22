@@ -6,7 +6,7 @@
 '@kubb/plugin-barrel': patch
 ---
 
-Describe imports and exports with language-agnostic `names`, where a name without a `space` takes the space of the declaration it points to.
+Describe imports and exports with language-agnostic `names`, each a type or a value through its `space`.
 
 - Deprecates `name`, `isTypeOnly`, `isNameSpace` and `asAlias` until v6. They still print the same output.
 
