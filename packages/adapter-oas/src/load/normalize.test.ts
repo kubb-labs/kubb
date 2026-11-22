@@ -107,6 +107,28 @@ describe('parseFromConfig', () => {
     expect(response.content['application/json']!.schema.properties?.second).toStrictEqual({ type: 'string' })
   })
 
+  it('moves a $ref into a nullable allOf to its anyOf arm and keeps example data as is', async () => {
+    const doc = await parseFromConfig({
+      type: 'data',
+      data: {
+        openapi: '3.0.3',
+        info: { title: 't', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            Base: { type: 'object', properties: { id: { type: 'string' } } },
+            Pet: { nullable: true, allOf: [{ $ref: '#/components/schemas/Base' }], example: { nullable: true } },
+            Owner: { type: 'object', properties: { pet: { $ref: '#/components/schemas/Pet/allOf/0' } } },
+          },
+        },
+      } as Document,
+    })
+    const schemas = doc.components!.schemas!
+
+    expect(schemas.Pet).toStrictEqual({ anyOf: [{ $ref: '#/components/schemas/Base' }, { type: 'null' }], examples: [{ nullable: true }] })
+    expect((schemas.Owner as SchemaObject).properties?.pet).toStrictEqual({ $ref: '#/components/schemas/Pet/anyOf/0' })
+  })
+
   it('parses inline JSON and YAML without the slower `yaml` parser', async () => {
     const parse = vi.mocked(yaml.parse)
     parse.mockClear()

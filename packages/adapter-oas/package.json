@@ -74,13 +74,13 @@
     "@kubb/core": "workspace:^",
     "@kubb/kit": "workspace:*",
     "@readme/openapi-parser": "^10.0.0",
-    "@scalar/openapi-upgrader": "^0.5.0",
     "api-ref-bundler": "0.5.1",
     "js-yaml": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
+    "@scalar/openapi-upgrader": "0.5.1",
     "@types/json-schema": "^7.0.15",
     "openapi-types": "^12.1.3"
   },

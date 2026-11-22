@@ -27,5 +27,7 @@ minimumReleaseAge: 2880 # 48 hours, matches CI's SAFE_CHAIN_MINIMUM_PACKAGE_AGE_
 minimumReleaseAgeExclude:
   - "@kubb/*"
   - "kubb"
+patchedDependencies:
+  '@scalar/openapi-upgrader@0.5.1': patches/@scalar__openapi-upgrader@0.5.1.patch
 pmOnFail: warn
 resolutionMode: highest

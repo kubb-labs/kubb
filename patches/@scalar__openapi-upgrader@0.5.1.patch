@@ -1,0 +1,52 @@
+diff --git a/dist/3.0-to-3.1/upgrade-from-three-to-three-one.js b/dist/3.0-to-3.1/upgrade-from-three-to-three-one.js
+index 4361dc094f57a74202253183e18ae8c1c3b133ad..d815bdbe5edee9be1871851aac9b167432579de7 100644
+--- a/dist/3.0-to-3.1/upgrade-from-three-to-three-one.js
++++ b/dist/3.0-to-3.1/upgrade-from-three-to-three-one.js
+@@ -4,6 +4,29 @@ import { isObject } from '@scalar/helpers/object/is-object';
+ import { isSchemaPath } from '@scalar/helpers/openapi/is-schema-path';
+ import { isInsideDataValue, isNamedOpenApiMap, isNamedSchemaMap, isOpenApiObjectName, } from '../helpers/is-inside-data-value.js';
+ import { traverse } from '../helpers/traverse.js';
++/**
++ * Visits every object node bottom-up, in the same order as `traverse`, without copying the document.
++ * Kubb patch: the two passes that only collect references used `traverse`, which copied every object
++ * and was a third of the upgrade time on large documents.
++ */
++function walk(content, visit, path = []) {
++    for (const key of Object.keys(content)) {
++        const value = content[key];
++        if (Array.isArray(value)) {
++            for (let index = 0; index < value.length; index++) {
++                const item = value[index];
++                if (typeof item === 'object' && item !== null && !Array.isArray(item)) {
++                    walk(item, visit, [...path, key, String(index)]);
++                }
++            }
++        }
++        else if (value !== null && typeof value === 'object') {
++            walk(value, visit, [...path, key]);
++        }
++    }
++    visit(content, path);
++}
++
+ // Keywords that only describe a schema. An arm made of these and `nullable` constrains nothing else.
+ const ANNOTATION_KEYWORDS = new Set([
+     'title',
+@@ -74,7 +97,7 @@ const getBundleContext = (content) => {
+     const fragments = new Map();
+     const bundle = { preserved, fragments };
+     const references = [];
+-    traverse(content, (node, path = []) => {
++    walk(content, (node, path = []) => {
+         if (path[0] === 'x-ext' && preserved.has(path[1] ?? '')) {
+             return node;
+         }
+@@ -181,7 +204,7 @@ export function upgradeFromThreeToThreeOne(originalContent) {
+     const isPreservedResource = (path) => path?.[0] === 'x-ext' && bundle.preserved.has(path[1] ?? '');
+     const compositions = new Map();
+     // Record moves in the original tree before applying them, including nested compositions.
+-    traverse(content, (node, path = []) => {
++    walk(content, (node, path = []) => {
+         const schemaPath = getResourcePath(path, bundle);
+         const composition = getNullableComposition(node);
+         if (!isPreservedResource(path) &&
