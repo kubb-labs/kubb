@@ -147,7 +147,7 @@ function bodyOf(source: SourceNode | undefined): string | undefined {
 function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode> {
   if (imp.names) {
     const names = getNames(imp).filter((item) => used.has(item.alias ?? item.name))
-    return names.length > 0 ? [createImport({ path: imp.path, ...(imp.root != null ? { root: imp.root } : {}), names })] : []
+    return names.length > 0 ? [createImport({ path: imp.path, root: imp.root, names })] : []
   }
   if (!Array.isArray(imp.name)) return used.has(imp.name) ? [imp] : []
   const name = imp.name.filter((item) => used.has(importLocalName(item)))

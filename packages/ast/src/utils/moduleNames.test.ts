@@ -55,9 +55,10 @@ describe('createImport and createExport from names', () => {
     expect([exp.name, exp.isTypeOnly, exp.asAlias]).toStrictEqual([['Pet'], true, false])
   })
 
-  it('let a deprecated isTypeOnly passed next to names mark every name as a type', () => {
-    expect(createImport({ names: [{ name: 'Pet' }], path: './pet', isTypeOnly: true }).names).toStrictEqual([{ name: 'Pet', space: 'type' }])
-    expect(createExport({ names: [{ name: '*' }], path: './pet', isTypeOnly: true }).names).toStrictEqual([{ name: '*', space: 'type' }])
+  it('let a deprecated isTypeOnly spread onto a wildcard export mark it as a type', () => {
+    const exp = createExport({ names: [{ name: '*', space: 'value' }], path: './pet' })
+
+    expect(createExport({ ...exp, isTypeOnly: true }).names).toStrictEqual([{ name: '*', space: 'type' }])
   })
 
   it('let spread deprecated fields that describe another import win over names', () => {

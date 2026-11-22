@@ -336,10 +336,9 @@ export type ExportInput = Omit<ExportNode, 'kind'>
  */
 export function createImport(input: ImportInput): ImportNode {
   if (input.names) {
-    // Without a deprecated `name`, a deprecated `isTypeOnly` only marks every name as a type.
-    const names = input.name === undefined && input.isTypeOnly ? input.names.map((item) => ({ ...item, space: 'type' as const })) : input.names
-    const fields = importFields(names)
-    if (input.name === undefined || matchesFields({ ...input, name: input.name }, fields)) return { ...input, ...fields, names, kind: nodeKinds.import }
+    const fields = importFields(input.names)
+    if (input.name === undefined || matchesFields({ ...input, name: input.name }, fields))
+      return { ...input, ...fields, names: input.names, kind: nodeKinds.import }
   }
   const { names: _names, ...rest } = input
   return { ...rest, name: rest.name ?? [], kind: nodeKinds.import }
@@ -454,7 +453,7 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
       if (imp.names) {
         const kept = imp.names.filter((item) => !localNames.has(item.alias ?? item.name))
         if (!kept.length) return []
-        return [kept.length === imp.names.length ? imp : createImport({ ...imp, name: undefined, isTypeOnly: undefined, isNameSpace: undefined, names: kept })]
+        return [kept.length === imp.names.length ? imp : createImport({ path: imp.path, root: imp.root, names: kept })]
       }
       if (!Array.isArray(imp.name)) {
         return typeof imp.name === 'string' && localNames.has(imp.name) ? [] : [imp]

@@ -36,8 +36,8 @@ const isOpen = (node: ImportNode | ExportNode): boolean => !!node.names && getNa
 
 /**
  * Fills in the space of each import and export name that has none, from the declaration it points to: the
- * source with that name in the file `getFile` returns for the import or export path. Only reads the files,
- * so it costs a lookup per name. Returns the same file when every name already has a space.
+ * source with that name in the file `getFile` returns for the import or export path. Returns the same file
+ * when every name already has a space.
  *
  * @example
  * ```ts
@@ -59,11 +59,11 @@ export function resolveSpaces(file: FileNode, getFile: (path: string) => FileNod
   // A relative export path is written without the extension of the file it points to.
   const exportTarget = (node: ExportNode): FileNode | undefined => {
     const base = path.resolve(path.dirname(file.path), node.path)
-    return getFile(base) ?? getFile(`${base}${file.extname}`) ?? getFile(path.join(base, `index${file.extname}`))
+    return getFile(base) ?? getFile(`${base}${file.extname}`)
   }
 
   const imports = file.imports.map((node) =>
-    isOpen(node) ? createImport({ path: node.path, ...(node.root != null ? { root: node.root } : {}), names: settle(node, getFile(node.path)) }) : node,
+    isOpen(node) ? createImport({ path: node.path, root: node.root, names: settle(node, getFile(node.path)) }) : node,
   )
   const exports = file.exports.map((node) => (isOpen(node) ? createExport({ path: node.path, names: settle(node, exportTarget(node)) }) : node))
 
