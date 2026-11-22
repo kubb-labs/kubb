@@ -1,5 +1,133 @@
 # Changelog
 
+## v5.23.2 — Nov 22, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Printer handlers and the root `print` override get their context as the second argument, so they can be arrow functions.
+  
+  - `this` and the second argument are the same object, such as `array: (node, ctx) => ctx!.transform(node.items[0])`.
+  - Read typed options from `this.options`. The second argument types `options` as `object`.
+  - Macro callbacks get their visitor context as `this`.
+  - One-argument handlers keep working. ([#4708](https://github.com/kubb-labs/kubb/pull/4708), [`a36be81`](https://github.com/kubb-labs/kubb/commit/a36be81ef499bfcece17fc3aaa4d7d9260a4b65c))
+- Add `setPrinter` to `@kubb/kit`, so a plugin registers its printer in `setup` and generators read it as `ctx.printer`.
+  
+  - Kit builds the printer once per build and once per matching `override`.
+  - `printer.with(extra)` returns the printer with `extra` merged over its options.
+  - `PluginType` takes the printer type as its fifth parameter.
+  
+  `printer.print(node)` and `printer.transform(node)` no longer take options:
+  
+  ```diff
+  - printer.print(node, { optionalType })
+  + printer.with({ optionalType }).print(node)
+  ``` ([#4701](https://github.com/kubb-labs/kubb/pull/4701), [`eb9c9d9`](https://github.com/kubb-labs/kubb/commit/eb9c9d9cc843e1ddd0c1d5100bebc2d330a346f8))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- `PluginType` from `@kubb/core` takes only the name, options and resolved options. Import it from `@kubb/kit` to also pass the resolver and printer.
+  
+  ```diff
+  - import type { PluginType } from '@kubb/core'
+  + import type { PluginType } from '@kubb/kit'
+  
+    type PluginTs = PluginType<'plugin-ts', Options, ResolvedOptions, ResolverTs>
+  ``` ([#4713](https://github.com/kubb-labs/kubb/pull/4713), [`263c90f`](https://github.com/kubb-labs/kubb/commit/263c90f326c57856e0fe3b42661a1a1af50d80f9))
+- Add `memo.get(key)`, `memo.set(key, value)` and `memo.has(key)`, so a stored value can be read or replaced.
+  
+  - The setup context gains `plugin`, so `useKubb().plugin.name` works in `setup`. ([#4696](https://github.com/kubb-labs/kubb/pull/4696), [`266052e`](https://github.com/kubb-labs/kubb/commit/266052edccab9dcf9ac135c7a6d38f75080e74f8))
+- Add `withContext(ctx, fn)`, which runs `fn` with `ctx` as its `this`, its argument and the value of `useKubb()`.
+  
+  - `setup` and `kubb:plugin:setup` run through it, and `defineExtension` types `this` there with no annotation.
+  - `useKubb()` and `tryUseKubb()` take the context type as their type argument, such as `useKubb<KubbPluginSetupContext<MyPlugin>>()`.
+  - `setOptions()`, `useOptions()` and `injectFile()` report `KUBB_NO_CONTEXT` outside setup. ([#4705](https://github.com/kubb-labs/kubb/pull/4705), [`12c1eaf`](https://github.com/kubb-labs/kubb/commit/12c1eafdae2337eb0be5371e69033e25807248d4))
+- Document the `addMacro` order: `pre` macros run first, `post` macros last, and macros with the same `enforce` run in the order they are added. ([#4694](https://github.com/kubb-labs/kubb/pull/4694), [`a30adf0`](https://github.com/kubb-labs/kubb/commit/a30adf081c5cb4462180cf5135649201e61e9058))
+- Run every hook in a plugin's `hooks` map with the plugin's visit context, so composables such as `memo()` work in hooks like `kubb:build:start` and `kubb:plugins:end`.
+  
+  - `this` and `useKubb()` return that context.
+  - A hook fired inside another hook keeps the outer hook's context. ([#4706](https://github.com/kubb-labs/kubb/pull/4706), [`c0d6746`](https://github.com/kubb-labs/kubb/commit/c0d6746f73cf09481f6cfb6382cf58e4bf100376))
+- Add the plugin visit hooks `kubb:plugin:visit:start`, `kubb:plugin:visit:schema`, `kubb:plugin:visit:operation` and `kubb:plugin:visit:end`, which run for one plugin while Kubb walks the input.
+  
+  - They never reach the shared hooks bus.
+  - The shared-schema data is in the build memo under `kubb:sharedSchemas`. ([#4697](https://github.com/kubb-labs/kubb/pull/4697), [`2d77280`](https://github.com/kubb-labs/kubb/commit/2d77280f351404dbc7e340ef04058b282bb585ad))
+- Keep `KubbDriver.getResolver` as a deprecated method until v6, so published plugins that call `ctx.driver.getResolver(name)` keep working. It returns the resolver the plugin set with kit's `setResolver`, and throws `KUBB_MOVED_TO_KIT` when there is none. Use `ctx.getResolver(name)` in a generator, or `getResolver(name)` from `kubb/kit` in any other hook, such as a visit hook. ([#4723](https://github.com/kubb-labs/kubb/pull/4723), [`82583e2`](https://github.com/kubb-labs/kubb/commit/82583e2554ce85b15da6d77f32e5889467a74bd8))
+- Move resolvers, generators and macros from `@kubb/core` to `@kubb/kit`. Core now only walks the input through each plugin's visit hooks.
+  
+  - Moved to `@kubb/kit`: `Resolver`, `createResolver`, `defineResolver`, `toFilePath`, `defineGenerator`, the `addGenerator`, `setResolver`, `addMacro` and `setMacros` composables, and the `Generator`, `GeneratorContext` and resolver types.
+  - Removed from core: `ResolverLike`, the `resolver`, `generators` and `macros` fields of `NormalizedPlugin`, `ctx.resolver` and `ctx.getResolver` on visit hooks, and the `renderGenerator*` mocks.
+  - The moved functions stay in `@kubb/core` until v6 as stubs that throw `KUBB_MOVED_TO_KIT` with a link to the fix.
+  - Kit's composables need a plugin defined with kit's `defineExtension`, and report `KUBB_NO_CONTEXT` otherwise.
+  
+  To upgrade a plugin, import from `kubb/kit` instead of `@kubb/core`:
+  
+  ```diff
+  - import { createResolver, defineExtension, defineGenerator } from '@kubb/core'
+  + import { createResolver, defineExtension, defineGenerator } from 'kubb/kit'
+  ``` ([#4698](https://github.com/kubb-labs/kubb/pull/4698), [`7efaee4`](https://github.com/kubb-labs/kubb/commit/7efaee46524f4fdde945ee79e6f834aa3a0115e6))
+- Run the plugin visit hooks with the plugin's visit context, so `this`, `ctx` and `useKubb()` are the same object and composables such as `memo()` work there. ([#4707](https://github.com/kubb-labs/kubb/pull/4707), [`7e39af2`](https://github.com/kubb-labs/kubb/commit/7e39af27171f28f40a2753f12d94c15a87073b3f))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Add `getResolver(name, memo?)` to `@kubb/kit`, which returns a plugin's resolver from the build memo in any hook.
+  
+  - Without a stored resolver, it stores and returns the default one for that plugin.
+  - `@kubb/plugin-barrel` uses it, so a plugin defined with kit's `defineExtension` gets its own resolver in barrel banners and footers. ([#4698](https://github.com/kubb-labs/kubb/pull/4698), [`7efaee4`](https://github.com/kubb-labs/kubb/commit/7efaee46524f4fdde945ee79e6f834aa3a0115e6))
+- Add the `file(node, options?)` composable, also `ctx.file(node)`, which returns the `<File>` props for the file a generator writes.
+  
+  - Returns `baseName`, `path`, `meta`, and the `banner` and `footer` from the plugin's `output`.
+  - Adds an `Operation` suffix when an operation file would land on a schema file of a plugin with a schema generator.
+  - Pass `plugin` to get another plugin's file. A missing plugin reports `KUBB_PLUGIN_NOT_FOUND`. ([#4718](https://github.com/kubb-labs/kubb/pull/4718), [`cefe625`](https://github.com/kubb-labs/kubb/commit/cefe625816d4c4fe8310a83c8cf1627b99d27063))
+- Add `from`, `provide` and `code`, so a generator imports another plugin's names without looking up its files.
+  
+  - `from(source?)`, also `ctx.from(source)`, wraps a plugin's resolver so each name it returns comes with its import. `from(source).ref(node, name)` imports any other name.
+  - `provide(name, factory, { priority })` offers a resolver under a shared name such as `'types'`, typed in `Kubb.ProvideRegistry`. The highest priority wins.
+  - `code` is a template tag that returns the text and the imports of the names in it. `code.join(parts, separator)` joins parts.
+  - A resolver's `file.name(node)` names the files it writes, and `resolveName({ scope: 'file' })` dedupes them apart from identifiers.
+  - `getResolver(name)` is typed by plugin or provided name.
+  
+  ```tsx
+  const types = ctx.from('plugin-ts').resolver
+  const source = code`export const petSchema = z.object({}) satisfies z.ZodType<${types.name('Pet')}>`
+  ``` ([#4719](https://github.com/kubb-labs/kubb/pull/4719), [`c8a79ae`](https://github.com/kubb-labs/kubb/commit/c8a79ae011d2fb63a76691083572696d21166c59))
+- Run generators and the printer factory with the generator context, so composables such as `useConfig()` work in `match`, `schema`, `operation`, `operations` and `setPrinter`.
+  
+  - `this`, `ctx` and `useKubb()` are the same object. `this` used to be the generator.
+  - The `kubb:generate:*` listeners get the generator context as `this`.
+  - `addGenerator`, `setResolver`, `addMacro`, `setMacros` and `setPrinter` report `KUBB_NO_CONTEXT` outside `setup` and `kubb:plugin:setup`. ([#4709](https://github.com/kubb-labs/kubb/pull/4709), [`366f604`](https://github.com/kubb-labs/kubb/commit/366f6042552db609bac54f425ac1da424dddc210))
+- Add `addGenerator`, `setResolver`, `addMacro`, `setMacros` and `setPrinter` as methods on kit's setup context, next to the composables.
+  
+  - `setup(options, kubb) { kubb.addGenerator(generator) }` works, with `kubb` typed as `KitSetupContext`.
+  - A setup context that already has one of these methods, such as a test mock, keeps its own. ([#4714](https://github.com/kubb-labs/kubb/pull/4714), [`71b2085`](https://github.com/kubb-labs/kubb/commit/71b20858b3219041205b7a29a726538a746b1335))
+- Keep `this` in the visit hooks of a plugin defined with kit's `defineExtension`, so `this`, `ctx` and `useKubb()` are the same context, as in a plugin defined with core. ([#4707](https://github.com/kubb-labs/kubb/pull/4707), [`7e39af2`](https://github.com/kubb-labs/kubb/commit/7e39af27171f28f40a2753f12d94c15a87073b3f))
+- `@kubb/kit` owns `Resolver`, `createResolver`, `defineResolver`, `toFilePath` and `defineGenerator`, and runs a plugin's generators through the plugin visit hooks.
+  
+  - Plugins defined with kit's `defineExtension` keep their resolver, generators and macros in the build memo.
+  - The generator context gains `ctx.operations` and `ctx.dispatch()`. ([#4698](https://github.com/kubb-labs/kubb/pull/4698), [`7efaee4`](https://github.com/kubb-labs/kubb/commit/7efaee46524f4fdde945ee79e6f834aa3a0115e6))
+
+### @kubb/plugin-barrel
+
+#### Bug Fixes
+
+- Barrel banners and footers read the plugin's resolver from the running `kubb:plugins:end` hook, not from a memo kept since `setup`. ([#4711](https://github.com/kubb-labs/kubb/pull/4711), [`1c33135`](https://github.com/kubb-labs/kubb/commit/1c331354b839c50951b9f798ced521c4b549f272))
+
+### kubb
+
+#### Bug Fixes
+
+- Depend on exact `@kubb/core` and `@kubb/kit` versions, so upgrading `kubb` moves both together. ([#4715](https://github.com/kubb-labs/kubb/pull/4715), [`34cefc4`](https://github.com/kubb-labs/kubb/commit/34cefc4fbfdd3f31120ad4ec3e40d74810d15a0d))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.23.1 — Nov 19, 2026
 
 ### @kubb/core
