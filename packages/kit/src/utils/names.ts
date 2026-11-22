@@ -1,4 +1,4 @@
-import { pascalCase } from '@internals/utils'
+import { pascalCase } from '@kubb/core'
 
 /**
  * Builds a PascalCase child schema name by joining a parent name and property name.

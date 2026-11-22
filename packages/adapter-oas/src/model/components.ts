@@ -1,4 +1,5 @@
-import { escapePointerToken, memo, pascalCase } from '@internals/utils'
+import { escapePointerToken, memo } from '@internals/utils'
+import { pascalCase } from '@kubb/core'
 import { SCHEMA_REF_PREFIX } from '../constants.ts'
 import { isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'

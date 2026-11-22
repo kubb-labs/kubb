@@ -1,4 +1,5 @@
-import { escapePointerToken, pascalCase } from '@internals/utils'
+import { escapePointerToken } from '@internals/utils'
+import { pascalCase } from '@kubb/core'
 import { ast, Url } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
