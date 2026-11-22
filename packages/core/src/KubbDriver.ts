@@ -711,6 +711,23 @@ export class KubbDriver {
 
     throw pluginNotFoundError({ pluginName, requiredBy: context?.requiredBy })
   }
+
+  /**
+   * Returns the resolver a plugin stored with kit's `setResolver`. Published plugins still call it through `ctx.driver`.
+   *
+   * @deprecated Use `ctx.getResolver(pluginName)` in a generator, or `getResolver(pluginName)` from `kubb/kit` in any other hook. Removed in v6.
+   */
+  getResolver(pluginName: string): unknown {
+    const key = `${pluginName}:resolver`
+    if (this.memo.has(key)) return this.memo.get(key)
+
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.movedToKit,
+      severity: 'error',
+      message: `\`driver.getResolver\` moved to @kubb/kit, and plugin "${pluginName}" has no resolver set with \`setResolver\`.`,
+      help: `Call \`ctx.getResolver('${pluginName}')\` in a generator, or \`getResolver('${pluginName}')\` from \`kubb/kit\` in any other hook.`,
+    })
+  }
 }
 
 /** The `KUBB_PLUGIN_NOT_FOUND` error `requirePlugin` throws, naming the plugin that needed it. */
