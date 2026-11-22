@@ -135,11 +135,12 @@ function isInlineFile(file: FileNode): boolean {
   return !!file.inline || (file.sources.length > 0 && file.sources.every((source) => source.inline))
 }
 
-// The right-hand side of a `Const`, `Type` or `Function` declaration. Printed text such as `Code` has none.
+// The right-hand side of a `Const` or `Type`. A function body is not an expression, and printed text such as `Code` has none.
 function bodyOf(source: SourceNode | undefined): string | undefined {
   if (source?.inline) return source.inline.expression
   const node = source?.nodes?.length === 1 ? source.nodes[0] : undefined
-  return (node && 'nodes' in node && getNodeText(node.nodes)) || undefined
+  if (node?.kind !== nodeKinds.const && node?.kind !== nodeKinds.type) return undefined
+  return getNodeText(node.nodes) || undefined
 }
 
 function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode> {

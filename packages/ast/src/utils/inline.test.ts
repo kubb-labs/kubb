@@ -75,13 +75,16 @@ describe('inlineFiles', () => {
     expect(code(files[0])).toEqual(['const options: ({ body: Pet }) = client()'])
   })
 
-  it('reports a declaration in an inline file that has no body', () => {
+  it.each([
+    { kind: 'a Type with no body', node: createType({ name: 'AddPetOptions', export: true, nodes: [] }) },
+    { kind: 'a Function', node: createFunction({ name: 'AddPetOptions', export: true, nodes: [createText('return 1')] }) },
+  ])('reports $kind in an inline file, which has no body to use in place of its name', ({ node }) => {
     const file = createFile({
       baseName: 'AddPet.ts',
       path: '/gen/models/pet/AddPet.ts',
       inline: true,
       imports: [],
-      sources: [createSource({ name: 'AddPetOptions', nodes: [createType({ name: 'AddPetOptions', export: true, nodes: [] })] })],
+      sources: [createSource({ name: 'AddPetOptions', nodes: [node] })],
     })
 
     expect(inlineFiles([file, clientFile('const options: AddPetOptions = client()')]).problems).toEqual([

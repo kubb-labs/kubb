@@ -426,7 +426,7 @@ Embeds a raw JSX string, fragments included, such as a component body in a `Func
 When a plugin writes a `File` with `copy` or `inline`, Kubb copies or absorbs it instead of printing it.
 
 - `copy` is an absolute path to copy into the output, through the parser's `copy` hook if it has one. Its sources count for barrels but are not printed.
-- `inline` means Kubb never writes the file. Each file that imports a name from it gets that declaration's body, from a `Const`, `Type` or `Function`, together with the imports the body needs.
+- `inline` means Kubb never writes the file. Each file that imports a name from it gets that declaration's body, from a `Const` or `Type`, together with the imports the body needs. Importing a `Function` or printed `Code` text from an inline file reports a problem, because neither has a body that works in place of the name.
 
 ```tsx
 <File baseName="AddPet.ts" path="src/gen/models/AddPet.ts" inline>
