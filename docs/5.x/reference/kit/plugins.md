@@ -172,7 +172,12 @@ Type the name constant with `satisfies`: `export const pluginZodName = 'plugin-z
 
 ### Provide {#provide}
 
-`provide(name, factory, { priority })` offers a resolver under a shared name, such as `'types'`. A generator then reads it with [`from(name)`](/docs/5.x/reference/kit/generators#from), without naming the plugin that provides it. When several plugins provide the same name, the one with the highest `priority` wins, and on a tie the first one stays. `priority` defaults to `0`. Kit calls `factory` once, when a generator first asks for the name, so it can call `getResolver`. A name that a plugin in the config uses is refused, since it would replace that plugin's resolver. `getResolver(name)` with a provided name returns the provider's resolver as it is, for code that needs plain names instead of names with imports.
+`provide(name, factory, { priority })` offers a resolver under a shared name, such as `'types'`. A generator reads it with [`from(name)`](/docs/5.x/reference/kit/generators#from), without naming the plugin behind it.
+
+- The provider with the highest `priority` wins. On a tie, the first one stays. `priority` defaults to `0`.
+- Kit calls `factory` once, the first time a generator asks for the name, so `factory` can call `getResolver`.
+- A name that a plugin in the config already uses is refused, since it would replace that plugin's resolver.
+- `getResolver(name)` returns the provider's resolver as it is, for code that needs plain names without imports.
 
 ```typescript
 import { defineExtension, getResolver, provide, type PluginType } from 'kubb/kit'

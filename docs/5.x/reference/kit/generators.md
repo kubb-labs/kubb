@@ -108,6 +108,7 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 | `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Returns a plugin by name, or throws.                                                                 |
 | `ctx.getResolver()`   | `(name: string) => Resolver`                                              | Returns another plugin's resolver.                                                                   |
 | `ctx.file()`          | `(node, options?) => FileTarget`                                          | Returns the `<File>` props for a node's file. See [`file`](#file).                                   |
+| `ctx.from()`          | `(source?) => From`                                                       | Returns a plugin's resolver whose names carry their imports. See [`from`](#from).                    |
 | `ctx.memo()`          | `(key: string, compute: () => T) => T`                                    | Caches a value for the whole build. See [`memo`](#memo).                                             |
 | `ctx.info()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Reports an `info` diagnostic for this plugin.                                                        |
 | `ctx.warn()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Reports a `warning`, which does not fail the build.                                                  |
@@ -143,21 +144,41 @@ export const zodGenerator = defineGenerator({
 
 ### Importing names with `from` and `code` {#from}
 
-`from(source?)` reads another plugin from the current generator context. `source` is a plugin name, or a provided name such as `'types'` that reads the plugin that registers it with [`provide`](/docs/5.x/reference/kit/plugins#provide). Without `source`, it reads the current plugin, and `ctx.from()` is typed with that plugin's resolver. A `source` that no plugin provides and no plugin in the config has fails with `KUBB_PLUGIN_NOT_FOUND`. Generators also get it as `ctx.from(source)` and `this.from(source)`, with the same result. `from(plugin).resolver` wraps that plugin's resolver: each method that returns a name returns the name plus its import from that plugin's file.
+`from(source?)` wraps a plugin's resolver, so each name it returns comes with its import from that plugin's file. Call it as `from(source)`, `ctx.from(source)` or `this.from(source)`.
 
-The method's first argument picks the file to import from:
+`source` is one of:
 
-- An operation node points at the plugin's file for that operation, with the same `Operation` suffix as `file`.
-- A schema node, `{ name }` or a schema name points at the plugin's file for that schema. The name must belong to a schema in the document.
-- Any other argument gives the name without an import, and so does a result that is not an identifier, such as a description.
+- A plugin name, such as `'plugin-ts'`.
+- A name a plugin offers with [`provide`](/docs/5.x/reference/kit/plugins#provide), such as `'types'`.
+- Nothing, for the current plugin. `ctx.from()` is then typed with that plugin's resolver.
 
-A node that the plugin's `include` or `exclude` rules leave out also gives no import. Imports are value imports. Pass `isTypeOnly` on the `<File.Import>` where you use the names only as types. The target resolver's [`file.name`](/docs/5.x/reference/kit/resolvers#resolver-overrides) decides its file, so you pass only the node.
+Any other `source` fails with `KUBB_PLUGIN_NOT_FOUND`.
 
-For a name that no resolver method returns, such as one built by a shared helper, use `from(plugin).ref(node, name)`. It imports `name` from the plugin's file for `node`.
+| Member | Returns |
+| --- | --- |
+| `from(source).resolver` | The plugin's resolver. Each method that returns a name returns a `RefName`, `{ name, import }`, which prints as the name. |
+| `from(source).ref(node, name)` | `name` with the import from the plugin's file for `node`. Use it for a name no resolver method returns, such as one from a shared helper. |
 
-`code` is a template tag that returns `{ text, imports }`. Its placeholders (`${…}`) take names from `from`, other `code` results, strings and numbers. `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean. The imports come in the order of use, and `<File>` merges the ones that share a path. `code.join(parts, separator)` joins several parts and keeps their imports.
+The first argument of a resolver method picks the file to import from:
 
-The import paths are absolute. Pass the file you write as `root`, so each path becomes relative to it:
+- An operation node: the plugin's file for that operation, with the same `Operation` suffix as `file`.
+- A schema node, `{ name }` or a schema name: the plugin's file for that schema. The schema must be in the document.
+- Anything else, such as a status code: no import.
+
+A name also gets no import when the result is not an identifier, such as a description, or when the plugin's `include` or `exclude` rules leave the node out.
+
+You pass only the node. The target resolver's [`file.name`](/docs/5.x/reference/kit/resolvers#resolver-overrides) decides the file.
+
+Imports are value imports. Add `isTypeOnly` on the `<File.Import>` where you use the names only as types.
+
+`code` is a template tag that returns `{ text, imports }`:
+
+- Its placeholders (`${…}`) take names from `from`, other `code` results, strings and numbers.
+- `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean.
+- `code.join(parts, separator)` joins several parts and keeps their imports.
+- The imports come in the order of use. `<File>` merges the ones that share a path.
+
+Import paths are absolute. Pass the file you write as `root`, so each path becomes relative to it:
 
 ```tsx [zodGenerator.tsx]
 import { code, defineGenerator, file, from } from 'kubb/kit'

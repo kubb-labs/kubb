@@ -168,9 +168,10 @@ type ResolverPatch = {
 ```
 
 - Write methods as regular functions, not arrow functions, so `this` is the merged resolver.
-- `file.name` names a node's file before casing. Return `undefined` to keep the default, the `operationId` or the schema `name`. When another plugin imports from this plugin with [`from`](/docs/5.x/reference/kit/generators#from), `exportName` is the name it imports, so a plugin that writes several files per node can say which one holds it.
-- When an operation file would land on a schema file, kit adds `Operation` to its name, but only for a plugin with a schema generator. A plugin that writes only operation files keeps its names.
-- `file()` and `from()` both read `file.name`, so the files a plugin writes and the imports other plugins point at stay the same.
+- `file.name` names a node's file before casing. Return `undefined` to keep the default: the `operationId` or the schema `name`.
+- `exportName` is the name another plugin imports with [`from`](/docs/5.x/reference/kit/generators#from). A plugin that writes several files per node uses it to say which file holds that name.
+- `file()` and `from()` both read `file.name`, so the files a plugin writes match the imports other plugins point at.
+- Kit adds `Operation` to an operation file that would land on a schema file, but only for a plugin with a schema generator.
 - Kubb resolves the path `file.path` returns against the root `output.path`, and the result must stay inside it. The `output` argument is the plugin's own `output`.
 - `file.baseName` and `file.path` must return the same result for the same arguments, because `resolver.imports` keeps each import path for the rest of the build.
 - `this.default.name(name)` always applies `camelCase`. For other casing, call [`casing`](/docs/5.x/reference/kit#casing) from `kubb/kit`.
