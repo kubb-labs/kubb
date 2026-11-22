@@ -715,7 +715,7 @@ export class KubbDriver {
   /**
    * Returns the resolver a plugin stored with kit's `setResolver`. Published plugins still call it through `ctx.driver`.
    *
-   * @deprecated Use `ctx.getResolver(pluginName)` from `kubb/kit` instead. Removed in v6.
+   * @deprecated Use `ctx.getResolver(pluginName)` in a generator, or `getResolver(pluginName)` from `kubb/kit` in any other hook. Removed in v6.
    */
   getResolver(pluginName: string): unknown {
     const key = `${pluginName}:resolver`
@@ -724,8 +724,8 @@ export class KubbDriver {
     throw new Diagnostics.Error({
       code: Diagnostics.code.movedToKit,
       severity: 'error',
-      message: `\`driver.getResolver\` moved to \`ctx.getResolver\` in @kubb/kit, and plugin "${pluginName}" has no resolver set with \`setResolver\`.`,
-      help: `Call \`ctx.getResolver('${pluginName}')\` in a generator from \`kubb/kit\`.`,
+      message: `\`driver.getResolver\` moved to @kubb/kit, and plugin "${pluginName}" has no resolver set with \`setResolver\`.`,
+      help: `Call \`ctx.getResolver('${pluginName}')\` in a generator, or \`getResolver('${pluginName}')\` from \`kubb/kit\` in any other hook.`,
     })
   }
 }
