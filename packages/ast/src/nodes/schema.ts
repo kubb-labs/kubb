@@ -96,9 +96,7 @@ type SchemaNodeBase = BaseNode & {
    */
   format?: string
   externalDocs?: ExternalDocs
-  /**
-   * Vendor extensions (`x-*` keys) from the source schema, copied as-is. Absent when the source has none.
-   */
+  /** Vendor extensions (`x-*` keys) from the source schema, copied as-is. */
   extensions?: Record<string, unknown>
   /**
    * `if`/`then`/`else`, `dependentRequired` and `dependentSchemas`. A required `unknown` property in `if` means "key is present".
@@ -529,22 +527,10 @@ export type ScalarSchemaNode = SchemaNodeBase & {
   type: ScalarSchemaType
 }
 
-/**
- * Binary data schema node, such as a `format: binary` string.
- *
- * @example
- * ```ts
- * const blobSchema: BlobSchemaNode = { kind: 'Schema', type: 'blob', content: { mediaType: 'application/pdf' } }
- * ```
- */
+/** Binary data schema node, such as a `format: binary` string. */
 export type BlobSchemaNode = SchemaNodeBase & {
-  /**
-   * Schema type discriminator.
-   */
   type: 'blob'
-  /**
-   * The media type and encoding of the bytes, from `contentMediaType` and `contentEncoding`.
-   */
+  /** The media type and encoding of the bytes, from `contentMediaType` and `contentEncoding`. */
   content?: StringSchemaNode['content']
 }
 

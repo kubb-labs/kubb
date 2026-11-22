@@ -272,9 +272,7 @@ export function convertString(context: ConvertContext): ast.SchemaNode {
   })
 }
 
-/**
- * Converts a binary schema into a `BlobSchemaNode`, keeping `contentMediaType` and `contentEncoding`.
- */
+/** Converts a binary schema into a `BlobSchemaNode`, keeping `contentMediaType` and `contentEncoding`. */
 export function convertBlob(context: ConvertContext): ast.SchemaNode {
   return createNode(context, { type: 'blob', primitive: 'string', ...getStringContent(context) })
 }
