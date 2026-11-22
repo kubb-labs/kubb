@@ -273,6 +273,33 @@ describe('adapterOas.parse', () => {
     expect(node.operations[1]?.extensions).toBeUndefined()
   })
 
+  it('carries x-* vendor extensions on parameters, request bodies, responses and their content', async () => {
+    const adapter = adapterOas({ validate: false })
+    const node = await adapter.parse({
+      type: 'data',
+      data: {
+        ...minimalSpec,
+        paths: {
+          '/pets': {
+            post: {
+              operationId: 'createPet',
+              parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' }, 'x-param': 1 }],
+              requestBody: { 'x-body': 2, content: { 'application/json': { schema: { type: 'object' }, 'x-media': 3 } } },
+              responses: { '200': { description: 'ok', 'x-response': 4, content: { 'application/json': { schema: { type: 'object' } } } } },
+            },
+          },
+        },
+      },
+    })
+    const [operation] = node.operations
+
+    expect(operation?.parameters[0]?.extensions).toEqual({ 'x-param': 1 })
+    expect(operation?.requestBody?.extensions).toEqual({ 'x-body': 2 })
+    expect(operation?.requestBody?.content?.[0]?.extensions).toEqual({ 'x-media': 3 })
+    expect(operation?.responses[0]?.extensions).toEqual({ 'x-response': 4 })
+    expect(operation?.responses[0]?.content?.[0]?.extensions).toBeUndefined()
+  })
+
   it('lists servers with variable defaults filled in and resolves a referenced security scheme', async () => {
     const adapter = adapterOas({ validate: false })
     const node = await adapter.parse({

@@ -67,7 +67,7 @@ You narrow a `SchemaNode` by its `type`. `ast.schema.types` lists every value.
 | Scalar     | `string`, `number`, `integer`, `bigint`, `boolean`, `null`, `any`, `unknown`, `void`, `never` | `integer` prints as `number`. |
 | Special    | `ref`, `date`, `datetime`, `time`, `uuid`, `email`, `url`, `ipv4`, `ipv6`, `blob`             | `blob` is binary data         |
 
-Every schema node keeps the source schema's vendor extensions (`x-*` keys) in `extensions`. A `blob` node keeps `contentMediaType` and `contentEncoding` in `content`.
+Schema, parameter, request body, response and content nodes keep the source object's vendor extensions (`x-*` keys) in `extensions`, as input and operation nodes do. A `blob` node keeps `contentMediaType` and `contentEncoding` in `content`.
 
 ## `ast.factory` {#factory-functions}
 

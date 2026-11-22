@@ -37,6 +37,8 @@ export type RequestBodyNode = BaseNode & {
    * `application/json` and `multipart/form-data`).
    */
   content?: Array<ContentNode>
+  /** Vendor extensions (`x-*` keys) from the source request body, copied as-is. */
+  extensions?: Record<string, unknown>
 }
 
 /**

@@ -72,6 +72,8 @@ export type ResponseNode = BaseNode & {
    */
   headers?: Array<ParameterNode>
   links?: Record<string, ResponseLink>
+  /** Vendor extensions (`x-*` keys) from the source response, copied as-is. */
+  extensions?: Record<string, unknown>
 }
 
 /**
