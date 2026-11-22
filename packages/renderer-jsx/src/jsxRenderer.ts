@@ -120,19 +120,24 @@ function collectFileChildren(element: unknown): FileChildren {
       }
     },
     (host) => {
-      if (host.type === 'kubb-source') {
-        const { name, pointer, isTypeOnly, isExport, isIndexable, inline, children } = host.props
+      if (host.type === 'kubb-code') {
+        const { name, pointer, isTypeOnly, isExport, inline, children } = host.props
         sources.push(
           ast.factory.createSource({
             name: name?.toString(),
             ...(pointer !== undefined ? { pointer } : {}),
             isTypeOnly: !!isTypeOnly,
-            // The deprecated `File.Source` lists a source in barrels through `isIndexable`.
-            isExport: !!(isExport ?? isIndexable),
+            isExport: !!isExport,
             ...(inline ? { inline } : {}),
             nodes: collectCodeNodes(children),
           }),
         )
+        return
+      }
+
+      if (host.type === 'kubb-raw') {
+        const { name, children } = host.props
+        sources.push(ast.factory.createSource({ name: name?.toString(), isTypeOnly: false, isExport: false, nodes: collectCodeNodes(children) }))
         return
       }
 

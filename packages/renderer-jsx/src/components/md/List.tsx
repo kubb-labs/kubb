@@ -34,5 +34,5 @@ type Props = {
  */
 export function List({ ordered, items }: Props): KubbReactElement {
   const body = items.map((item, index) => `${ordered ? `${index + 1}.` : '-'} ${item}`).join('\n')
-  return <kubb-source>{body}</kubb-source>
+  return <kubb-raw>{body}</kubb-raw>
 }

@@ -52,5 +52,5 @@ export function Callout({ type, title, children }: Props): KubbReactElement {
     .split('\n')
     .map((line) => (line.length > 0 ? `> ${line}` : '>'))
     .join('\n')
-  return <kubb-source>{`${header}\n${quoted}`}</kubb-source>
+  return <kubb-raw>{`${header}\n${quoted}`}</kubb-raw>
 }

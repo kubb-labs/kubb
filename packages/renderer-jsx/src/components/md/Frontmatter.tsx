@@ -31,5 +31,5 @@ type Props = {
  */
 export function Frontmatter({ data }: Props): KubbReactElement {
   const envelope = Object.keys(data).length === 0 ? '' : `---\n${stringify(data).trimEnd()}\n---`
-  return <kubb-source>{envelope}</kubb-source>
+  return <kubb-raw>{envelope}</kubb-raw>
 }

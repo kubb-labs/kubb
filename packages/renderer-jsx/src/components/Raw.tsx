@@ -9,5 +9,5 @@ type Props = {
 
 /** Text in a `File` that declares nothing, such as a statement, JSON or markdown. Barrels leave it out. */
 export function Raw({ children, name }: Props): KubbReactElement {
-  return <kubb-source name={name}>{children}</kubb-source>
+  return <kubb-raw name={name}>{children}</kubb-raw>
 }

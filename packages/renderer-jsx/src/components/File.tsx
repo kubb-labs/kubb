@@ -64,8 +64,12 @@ type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value' | 'nodes'> & {
  *
  * @deprecated Use `Code` or `Raw`, or put `Const`, `Type` or `Function` directly in `File`. Removed in Kubb v6.
  */
-function FileSource({ children, ...props }: FileSourceProps): KubbReactElement {
-  return <kubb-source {...props}>{children}</kubb-source>
+function FileSource({ children, name, pointer, isExport, isIndexable, isTypeOnly, inline }: FileSourceProps): KubbReactElement {
+  return (
+    <kubb-code name={name} pointer={pointer} isExport={isExport ?? isIndexable} isTypeOnly={isTypeOnly} inline={inline}>
+      {children}
+    </kubb-code>
+  )
 }
 
 type FileExportProps = Omit<ast.ExportNode, 'kind'> & { key?: Key }

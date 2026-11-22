@@ -11,3 +11,5 @@ Add `Code` and `Raw`, for the source blocks that `Const`, `Type` and `Function` 
 - <File.Source name="Pet" isExportable isIndexable isTypeOnly>{printed}</File.Source>
 + <Code name="Pet" export type>{printed}</Code>
 ```
+
+The `kubb-source` host element is replaced by `kubb-code` for `Code` and `File.Source`, and `kubb-raw` for `Raw` and the markdown components.
