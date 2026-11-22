@@ -2,6 +2,7 @@ import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { PluginType as CorePluginType, PluginName, PluginVisitContext, RendererFactory, ResolvePluginOptions } from '@kubb/core'
 import type { FileOptions, FileTarget } from './file.ts'
+import type { From, SourceResolver } from './from.ts'
 import type { Resolver } from './resolver/Resolver.ts'
 
 /**
@@ -27,12 +28,21 @@ export type PluginType<
 }
 
 // A plugin type that names no resolver, such as one typed with core's `PluginType`, gets the default resolver.
-type ResolverOf<T> = T extends { resolver: infer TResolver } ? (unknown extends TResolver ? Resolver : TResolver) : Resolver
+export type ResolverOf<T> = T extends { resolver: infer TResolver } ? (unknown extends TResolver ? Resolver : TResolver) : Resolver
+
+/**
+
+ * The resolver a plugin name or a provided name reads.
+
+ */
+export type ResolverFor<TName> = TName extends ProvideName ? Extract<Kubb.ProvideRegistry[TName], Resolver> : ResolverOf<ResolvePluginOptions<TName>>
 
 /** Context a printer factory receives: core's visit context plus the plugin's resolver and its resolved options. */
 export type PrinterContext<TOptions extends PluginType = PluginType> = PluginVisitContext<TOptions> & {
-  /** Get a resolver by plugin name, typed via `Kubb.PluginRegistry` when registered. */
-  getResolver<TName extends PluginName>(name: TName): ResolverOf<ResolvePluginOptions<TName>>
+  /**
+   * Get a resolver by plugin name or provided name, typed via `Kubb.PluginRegistry` and `Kubb.ProvideRegistry`.
+   */
+  getResolver<TName extends PluginName | ProvideName>(name: TName): ResolverFor<TName>
   /** The current plugin's resolver: a `setResolver` registration, or the default resolver. */
   resolver: TOptions['resolver']
   /** Resolved options after exclude/include/override filtering. */
@@ -50,6 +60,10 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
    * The `<File>` props for the file `node` is written to. See the `file` composable.
    */
   file(node: SchemaNode | OperationNode, options?: FileOptions): FileTarget
+  /**
+   * Another plugin's resolver, with each name's import. See the `from` composable.
+   */
+  from<TSource extends PluginName | ProvideName = never>(source?: TSource): From<SourceResolver<TSource, Extract<TOptions['resolver'], Resolver>>>
 }
 
 /**
@@ -96,8 +110,19 @@ export type Generator<TOptions extends PluginType = PluginType, TElement = unkno
   // ThisType instead of a `this` parameter, so a direct `generator.schema(node, ctx)` call still compiles.
 } & ThisType<GeneratorContext<TOptions>>
 
+/**
+
+ * A name in `Kubb.ProvideRegistry`, such as `'types'`.
+
+ */
+export type ProvideName = keyof Kubb.ProvideRegistry
+
 declare global {
   namespace Kubb {
+    /**
+     * Resolvers a plugin can `provide()` under a name, such as `types: ResolverTs`, for `from(name)` to read.
+     */
+    interface ProvideRegistry {}
     /**
      * Events kit fires on the shared hooks bus while a plugin defined with its `defineExtension` walks the input.
      * They fire only when the config has an adapter, since without one no walk occurs. Each fires only for a plugin with generators of its kind.

@@ -27,6 +27,15 @@ describe('resolver name reservations', () => {
     expect(resolver.resolveName({ key: first, name: 'Pet' })).toBe('Pet')
   })
 
+  test('dedupes file names apart from identifiers', () => {
+    const resolver = new Resolver({ pluginName: 'hooks' })
+
+    expect(resolver.resolveName({ key: ['query', 'a'], name: 'usePetList' })).toBe('usePetList')
+    expect(resolver.resolveName({ key: ['file', 'a'], name: 'usePetList', scope: 'file' })).toBe('usePetList')
+    expect(resolver.resolveName({ key: ['file', 'b'], name: 'usePetList', scope: 'file' })).toBe('usePetList2')
+    expect(resolver.resolveName({ key: ['file', 'a'], name: 'usePetList', scope: 'file' })).toBe('usePetList')
+  })
+
   test('skips occupied suffixes and returns the same name for repeated references', () => {
     const resolver = new Resolver({ pluginName: 'types' })
     resolver.reserveNames(['CreateContainerBody', 'CreateContainerBody2'])

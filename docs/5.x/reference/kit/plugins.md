@@ -42,7 +42,7 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ## Setup context {#setup-context}
 
-`setup` and the `kubb:plugin:setup` hook register resolvers, generators, macros and printers with the composables from `kubb/kit`: `setResolver`, `addGenerator`, `addMacro`, `setMacros` and `setPrinter`. Composables take no context argument, so helpers that `setup` calls can use them too.
+`setup` and the `kubb:plugin:setup` hook register resolvers, generators, macros and printers with the composables from `kubb/kit`: `setResolver`, `addGenerator`, `addMacro`, `setMacros`, `setPrinter` and `provide`. Composables take no context argument, so helpers that `setup` calls can use them too.
 
 ```typescript
 import { addGenerator, createResolver, defineExtension, defineGenerator, requirePlugin, setResolver } from 'kubb/kit'
@@ -62,7 +62,7 @@ export const pluginExample = defineExtension({
 })
 ```
 
-The setup context has the same five as methods, so you can also write `kubb.setResolver(...)`. Both styles register the same, and `kubb` is typed as `KitSetupContext`:
+The setup context has the same composables as methods, so you can also write `kubb.setResolver(...)`. Both styles register the same, and `kubb` is typed as `KitSetupContext`:
 
 ```typescript
 export const pluginExample = defineExtension({
@@ -90,7 +90,7 @@ The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds the
 | `plugin`        | `{ name: string, meta: ExtensionMeta }`                   | The name and meta of the plugin being set up. |
 | `config`        | `Config`                                                  | The resolved build configuration. Composable: `useConfig()`.                    |
 | `options`       | `TOptions`                                                | The options the user passed. Composable: `useOptions()`.                        |
-| `addGenerator`, `setResolver`, `addMacro`, `setMacros`, `setPrinter` | Same as the composables | Kit's setup composables, as methods. |
+| `addGenerator`, `setResolver`, `addMacro`, `setMacros`, `setPrinter`, `provide` | Same as the composables | Kit's setup composables, as methods. |
 
 Methods have a composable of the same name, such as `requirePlugin()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
 
@@ -169,6 +169,45 @@ export type PluginExample = PluginType<'plugin-example', Options, ResolvedOption
 Type the name constant with `satisfies`: `export const pluginZodName = 'plugin-zod' satisfies PluginZod['name']`.
 
 ## Less common cases {#less-common-cases}
+
+### Provide {#provide}
+
+`provide(name, factory, { priority })` offers a resolver under a shared name, such as `'types'`. A generator reads it with [`from(name)`](/docs/5.x/reference/kit/generators#from), without naming the plugin behind it.
+
+- The provider with the highest `priority` wins. On a tie, the first one stays. `priority` defaults to `0`.
+- Kit calls `factory` once, the first time a generator asks for the name, so `factory` can call `getResolver`.
+- A name that a plugin in the config already uses is refused, since it would replace that plugin's resolver.
+- `getResolver(name)` returns the provider's resolver as it is, for code that needs plain names without imports.
+
+```typescript
+import { defineExtension, getResolver, provide, type PluginType } from 'kubb/kit'
+
+type PluginTypes = PluginType<'plugin-types', object, object, ResolverTypes>
+
+export const pluginTypes = defineExtension<PluginTypes>({
+  kind: 'plugin',
+  meta: { name: 'plugin-types' },
+  setup(options) {
+    provide('types', () => getResolver('plugin-types'))
+    return options
+  },
+})
+```
+
+Add the plugin to `Kubb.PluginRegistry` and each provided name to `Kubb.ProvideRegistry`, so `getResolver` and `from(name)` are typed:
+
+```typescript
+declare global {
+  namespace Kubb {
+    interface PluginRegistry {
+      'plugin-types': PluginTypes
+    }
+    interface ProvideRegistry {
+      types: ResolverTypes
+    }
+  }
+}
+```
 
 ### Memo caches {#memo-cache}
 

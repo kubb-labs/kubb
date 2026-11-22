@@ -1,4 +1,4 @@
-import type { FileNode, InputMeta, Node, SchemaNode } from '@kubb/ast'
+import type { FileNode, InputMeta, Node, OperationNode, SchemaNode } from '@kubb/ast'
 import type { Config, Group, Output } from '@kubb/core'
 import type { ResolveOptionsContext } from './resolveOptions.ts'
 import type { Resolver } from './Resolver.ts'
@@ -85,6 +85,10 @@ export type ResolveImportsOptions = {
  * ```
  */
 export type ResolverFile = {
+  /**
+   * A node's file name before casing. `exportName` is the name being imported, for a plugin with several files per node. `undefined` keeps the default.
+   */
+  name?(this: Resolver, node: SchemaNode | OperationNode, exportName?: string): string | undefined
   /** Builds the file's complete base name, extension included, from the identifier and the target `extname`. */
   baseName?(this: Resolver, params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
   /** Returns the file's complete path, resolved against the project `root`. It bypasses `output.path` and `group`, and may not escape `root`. */
@@ -131,6 +135,12 @@ export type ResolveNameOptions = {
   name: string
   /** Compares emitted identifiers while returning raw names. Return several names when one declaration emits more than one identifier. */
   normalize?: (name: string) => string | ReadonlyArray<string>
+  /**
+   * `'file'` dedupes file names apart from identifiers, so a file and the hook it holds can share a name.
+   *
+   * @default 'name'
+   */
+  scope?: 'name' | 'file'
 }
 
 /** Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Namespaces are partial, so a patch can replace one method and keep the rest. */

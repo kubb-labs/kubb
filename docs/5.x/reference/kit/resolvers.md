@@ -152,12 +152,13 @@ Every name a part builds goes through the plugin's top-level `name`, so the part
 
 ## Resolver overrides {#resolver-overrides}
 
-`name` changes identifier casing, `file.baseName` and `file.path` control files, and plugin namespaces control specific symbols. Users pass the same shape to a plugin's [`resolver` option](/docs/5.x/reference/plugin-options#resolver).
+`name` changes identifier casing, `file.name`, `file.baseName` and `file.path` control files, and plugin namespaces control specific symbols. Users pass the same shape to a plugin's [`resolver` option](/docs/5.x/reference/plugin-options#resolver).
 
 ```typescript [Type definition]
 type ResolverPatch = {
   name?: (name: string) => string
   file?: {
+    name?: (node: SchemaNode | OperationNode, exportName?: string) => string | undefined
     baseName?: (params: { name: string; extname: string }) => string
     path?: (params: { baseName: string; output: Output }) => string
   }
@@ -167,6 +168,10 @@ type ResolverPatch = {
 ```
 
 - Write methods as regular functions, not arrow functions, so `this` is the merged resolver.
+- `file.name` names a node's file before casing. Return `undefined` to keep the default: the `operationId` or the schema `name`.
+- `exportName` is the name another plugin imports with [`from`](/docs/5.x/reference/kit/generators#from). A plugin that writes several files per node uses it to say which file holds that name.
+- `file()` and `from()` both read `file.name`, so the files a plugin writes match the imports other plugins point at.
+- Kit adds `Operation` to an operation file that would land on a schema file, but only for a plugin with a schema generator.
 - Kubb resolves the path `file.path` returns against the root `output.path`, and the result must stay inside it. The `output` argument is the plugin's own `output`.
 - `file.baseName` and `file.path` must return the same result for the same arguments, because `resolver.imports` keeps each import path for the rest of the build.
 - `this.default.name(name)` always applies `camelCase`. For other casing, call [`casing`](/docs/5.x/reference/kit#casing) from `kubb/kit`.

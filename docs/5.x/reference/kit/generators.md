@@ -108,6 +108,7 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 | `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Returns a plugin by name, or throws.                                                                 |
 | `ctx.getResolver()`   | `(name: string) => Resolver`                                              | Returns another plugin's resolver.                                                                   |
 | `ctx.file()`          | `(node, options?) => FileTarget`                                          | Returns the `<File>` props for a node's file. See [`file`](#file).                                   |
+| `ctx.from()`          | `(source?) => From`                                                       | Returns a plugin's resolver whose names carry their imports. See [`from`](#from).                    |
 | `ctx.memo()`          | `(key: string, compute: () => T) => T`                                    | Caches a value for the whole build. See [`memo`](#memo).                                             |
 | `ctx.info()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Reports an `info` diagnostic for this plugin.                                                        |
 | `ctx.warn()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Reports a `warning`, which does not fail the build.                                                  |
@@ -118,7 +119,7 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 `file(node, options?)` returns the `<File>` props for the file a generator writes: `baseName`, `path`, `meta`, and the `banner` and `footer` from the plugin's `output`. Spread it onto `<File>`. It is a composable, so it reads the current generator context. `ctx.file(node)` and `this.file(node)` do the same.
 
 - A schema's file is named after `node.name`, and an operation's file after `node.operationId`. Pass `name` to choose another name.
-- An operation file that would land on a component schema's file, ignoring case, gets an `Operation` suffix: operation `point` goes to `pointOperation.ts`, next to schema `point.ts`. The declarations keep their names. Pass `suffix: false` to keep the plain name, for files that never share a folder with schema files.
+- An operation file that would land on a component schema's file, ignoring case, gets an `Operation` suffix: operation `point` goes to `pointOperation.ts`, next to schema `point.ts`. The declarations keep their names. Kit adds it only when the plugin has a schema generator, so a plugin that writes only operation files keeps the plain name.
 - Pass `plugin` to get another plugin's file, such as the types to import. `file` then uses that plugin's resolver, `output` and `group`, after its `include`, `exclude` and `override` rules. A missing plugin reports `KUBB_PLUGIN_NOT_FOUND`.
 - Outside a generator or a printer factory, `file()` reports `KUBB_NO_CONTEXT`.
 
@@ -135,6 +136,70 @@ export const zodGenerator = defineGenerator({
     return (
       <File {...file(node)}>
         <File.Import name={['Pet']} path={types.path} isTypeOnly />
+      </File>
+    )
+  },
+})
+```
+
+### Importing names with `from` and `code` {#from}
+
+`from(source?)` wraps a plugin's resolver, so each name it returns comes with its import from that plugin's file. Call it as `from(source)`, `ctx.from(source)` or `this.from(source)`.
+
+`source` is one of:
+
+- A plugin name, such as `'plugin-ts'`.
+- A name a plugin offers with [`provide`](/docs/5.x/reference/kit/plugins#provide), such as `'types'`.
+- Nothing, for the current plugin. `ctx.from()` is then typed with that plugin's resolver.
+
+Any other `source` fails with `KUBB_PLUGIN_NOT_FOUND`.
+
+| Member | Returns |
+| --- | --- |
+| `from(source).resolver` | The plugin's resolver. Each method that returns a name returns a `RefName`, `{ name, import }`, which prints as the name. |
+| `from(source).ref(node, name)` | `name` with the import from the plugin's file for `node`. Use it for a name no resolver method returns, such as one from a shared helper. |
+
+The first argument of a resolver method picks the file to import from:
+
+- An operation node: the plugin's file for that operation, with the same `Operation` suffix as `file`.
+- A schema node, `{ name }` or a schema name: the plugin's file for that schema. The schema must be in the document.
+- Anything else, such as a status code: no import.
+
+A name also gets no import when the result is not an identifier, such as a description, or when the plugin's `include` or `exclude` rules leave the node out.
+
+You pass only the node. The target resolver's [`file.name`](/docs/5.x/reference/kit/resolvers#resolver-overrides) decides the file.
+
+Imports are value imports. Add `isTypeOnly` on the `<File.Import>` where you use the names only as types.
+
+`code` is a template tag that returns `{ text, imports }`:
+
+- Its placeholders (`${…}`) take names from `from`, other `code` results, strings and numbers.
+- `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean.
+- `code.join(parts, separator)` joins several parts and keeps their imports.
+- The imports come in the order of use. `<File>` merges the ones that share a path.
+
+Import paths are absolute. Pass the file you write as `root`, so each path becomes relative to it:
+
+```tsx [zodGenerator.tsx]
+import { code, defineGenerator, file, from } from 'kubb/kit'
+import { File, jsxRenderer } from '@kubb/renderer-jsx'
+
+export const zodGenerator = defineGenerator({
+  name: 'zod',
+  renderer: jsxRenderer,
+  schema(node) {
+    if (!node.name) return null
+    const target = file(node)
+    const types = from('plugin-ts').resolver
+    const source = code`export const ${node.name}Schema = z.object({}) satisfies z.ZodType<${types.name(node.name)}>`
+
+    return (
+      <File {...target}>
+        <File.Import name={['z']} path="zod" />
+        {source.imports.map((imp) => (
+          <File.Import key={imp.path} {...imp} root={target.path} isTypeOnly />
+        ))}
+        <File.Source>{source.text}</File.Source>
       </File>
     )
   },

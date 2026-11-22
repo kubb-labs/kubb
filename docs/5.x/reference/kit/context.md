@@ -47,7 +47,7 @@ Use composables for plugin-level concepts in `setup`, and read `ctx` for the res
 | `memo(store, key, fn)`                                                      | Anywhere. It caches in the store you pass and needs no hook.                             |
 | `getResolver(name)`                                                         | Any hook. Pass a memo as the second argument, `getResolver(name, memo)`, outside a hook. |
 | `setOptions()`, `useOptions()`, `injectFile()`                              | `setup` and `kubb:plugin:setup`. Elsewhere they throw `KUBB_NO_CONTEXT`.                 |
-| `addGenerator()`, `setResolver()`, `addMacro()`, `setMacros()`, `setPrinter()` | `setup` and `kubb:plugin:setup` of a plugin defined with `defineExtension` from `kubb/kit`. |
+| `addGenerator()`, `setResolver()`, `addMacro()`, `setMacros()`, `setPrinter()`, `provide()` | `setup` and `kubb:plugin:setup` of a plugin defined with `defineExtension` from `kubb/kit`. |
 
 Outside every hook, a composable that needs a context throws [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
 

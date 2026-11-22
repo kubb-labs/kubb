@@ -1,15 +1,19 @@
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { Diagnostics, type Filter, type Group, type KubbContext, type Output, type Override, type PluginName, useKubb } from '@kubb/core'
 import type { Resolver } from './resolver/Resolver.ts'
-import type { PrinterContext } from './types.ts'
+import { slot } from './composables.ts'
+import type { Generator, PrinterContext } from './types.ts'
 
-export type FileContext = Pick<PrinterContext, 'config' | 'meta' | 'memo' | 'schemas' | 'root' | 'resolver' | 'options' | 'getResolver' | 'requirePlugin'>
+export type FileContext = Pick<
+  PrinterContext,
+  'config' | 'meta' | 'memo' | 'schemas' | 'root' | 'resolver' | 'options' | 'getResolver' | 'requirePlugin' | 'plugin'
+>
 
 export type FileOptions = {
   /**
    * The name before the resolver applies its casing.
    *
-   * @default the schema's `name`, or the operation's `operationId`
+   * @default the resolver's `file.name`, else the schema's `name` or the operation's `operationId`
    */
   name?: string
   /**
@@ -22,12 +26,6 @@ export type FileOptions = {
    * @default '.ts'
    */
   extname?: FileNode['extname']
-  /**
-   * Adds `Operation` to an operation's name while its file matches a schema file. Set to `false` to keep the name as is.
-   *
-   * @default true
-   */
-  suffix?: boolean
 }
 
 /**
@@ -48,17 +46,43 @@ type LocationOptions = {
   override?: Array<Override<LocationOptions>>
 }
 
-function toLocation(ctx: FileContext, node: SchemaNode | OperationNode, plugin: PluginName | undefined): { resolver: Resolver; location: Location } {
+/**
+ * A plugin's options for `node` after its `include`, `exclude` and `override` rules, or `null` when the rules leave `node` out.
+ */
+export function resolvePluginOptions({
+  ctx,
+  node,
+  plugin,
+}: {
+  ctx: FileContext
+  node: SchemaNode | OperationNode
+  plugin: PluginName
+}): LocationOptions | null {
+  const base = ctx.requirePlugin(plugin).options as LocationOptions
+  return ctx.getResolver(plugin).default.options(node, { options: base, exclude: base.exclude, include: base.include, override: base.override })
+}
+
+function toLocation({
+  ctx,
+  node,
+  plugin,
+  pluginOptions,
+  resolver,
+}: {
+  ctx: FileContext
+  node: SchemaNode | OperationNode
+  plugin: PluginName | undefined
+  pluginOptions?: LocationOptions | null
+  resolver?: Resolver
+}): { resolver: Resolver; location: Location } {
   if (!plugin) {
     const own = ctx.options as LocationOptions
     return { resolver: ctx.resolver, location: { root: ctx.root, output: own.output, group: own.group ?? undefined } }
   }
 
-  const resolver = ctx.getResolver(plugin)
-  const base = ctx.requirePlugin(plugin).options as LocationOptions
   // The target plugin's generators see its options after its override rules, so its files follow them too.
-  const options = resolver.default.options(node, { options: base, exclude: base.exclude, include: base.include, override: base.override }) ?? base
-  return { resolver, location: { root: ctx.root, output: options.output, group: options.group ?? undefined } }
+  const { output, group } = pluginOptions ?? resolvePluginOptions({ ctx, node, plugin }) ?? (ctx.requirePlugin(plugin).options as LocationOptions)
+  return { resolver: resolver ?? ctx.getResolver(plugin), location: { root: ctx.root, output, group: group ?? undefined } }
 }
 
 /**
@@ -91,13 +115,39 @@ function operationFile(
   return withSuffix(first, `${name}Operation`)
 }
 
+// A plugin without schema generators writes no schema file for an operation file to clash with.
+function writesSchemaFiles(ctx: FileContext, pluginName: string): boolean {
+  const generators = ctx.memo.get(slot.generators(pluginName)) as Array<Generator> | undefined
+  return !generators?.length || generators.some((generator) => generator.schema)
+}
+
 /**
- * `file` for an explicit context. Generators get it as `ctx.file`.
+ * The file a plugin writes `node` to, with the resolver and location it comes from. `exportName` is the name being imported,
+ * which the resolver's `file.name` reads for a plugin that writes several files per node.
  */
-export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, options: FileOptions = {}): FileTarget {
-  const { extname = '.ts', suffix = true } = options
-  const { resolver, location } = toLocation(ctx, node, options.plugin)
-  const name = options.name ?? (node.kind === 'Operation' ? node.operationId : node.name)
+export function resolveLocation({
+  ctx,
+  node,
+  options = {},
+  pluginOptions,
+  resolver: targetResolver,
+}: {
+  ctx: FileContext
+  node: SchemaNode | OperationNode
+  options?: FileOptions & { exportName?: string }
+  /**
+   * The target plugin's options for `node`, when the caller already has them.
+   */
+  pluginOptions?: LocationOptions | null
+  /**
+   * The resolver that names the file, such as a provided one, instead of the target plugin's own.
+   */
+  resolver?: Resolver
+}): { resolver: Resolver; location: Location; file: FileNode } {
+  const { extname = '.ts' } = options
+  const { resolver, location } = toLocation({ ctx, node, plugin: options.plugin, pluginOptions, resolver: targetResolver })
+  const suffix = writesSchemaFiles(ctx, options.plugin ?? ctx.plugin.name)
+  const name = options.name ?? resolver.fileName(node, options.exportName) ?? (node.kind === 'Operation' ? node.operationId : node.name)
   if (!name) {
     throw new Diagnostics.Error({
       code: Diagnostics.code.pluginFailed,
@@ -108,8 +158,16 @@ export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, 
     })
   }
 
-  const resolved =
+  const file =
     node.kind === 'Operation' ? operationFile(ctx, node, resolver, location, { name, extname, suffix }) : resolver.file({ name, extname, ...location })
+  return { resolver, location, file }
+}
+
+/**
+ * `file` for an explicit context. Generators get it as `ctx.file`.
+ */
+export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, options: FileOptions = {}): FileTarget {
+  const { resolver, location, file: resolved } = resolveLocation({ ctx, node, options })
   const fileContext = { output: location.output, config: ctx.config, file: { path: resolved.path, baseName: resolved.baseName } }
 
   return {
@@ -129,15 +187,21 @@ export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, 
  * `<File {...file(node)}>…</File>`
  */
 export function file(node: SchemaNode | OperationNode, options?: FileOptions): FileTarget {
+  return resolveFile(useFileContext('file'), node, options)
+}
+
+/**
+ * The current generator or printer context, or a `KUBB_NO_CONTEXT` error that names the calling composable.
+ */
+export function useFileContext(name: string): FileContext {
   const ctx = useKubb<KubbContext>()
-  if (!('resolver' in ctx)) {
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.noContext,
-      severity: 'error',
-      plugin: ctx.plugin.name,
-      message: '`file()` runs only in a generator or a printer factory.',
-      help: 'Call `file()` inside a generator method, or use `ctx.file()` there.',
-    })
-  }
-  return resolveFile(ctx as unknown as FileContext, node, options)
+  if ('resolver' in ctx) return ctx as unknown as FileContext
+
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.noContext,
+    severity: 'error',
+    plugin: ctx.plugin.name,
+    message: `\`${name}()\` runs only in a generator or a printer factory.`,
+    help: `Call \`${name}()\` inside a generator method or a printer factory.`,
+  })
 }

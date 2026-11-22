@@ -2,4 +2,7 @@
 '@kubb/core': patch
 ---
 
-Run every hook in a plugin's `hooks` map through `withContext`. A hook Kubb fires, such as `kubb:build:start` or `kubb:plugins:end`, gets the plugin's own visit context as `this` and from `useKubb()`, so composables such as `memo()` work there. A hook fired inside another hook keeps that hook's context. The walk reuses the same visit context.
+Run every hook in a plugin's `hooks` map with the plugin's visit context, so composables such as `memo()` work in hooks like `kubb:build:start` and `kubb:plugins:end`.
+
+- `this` and `useKubb()` return that context.
+- A hook fired inside another hook keeps the outer hook's context.

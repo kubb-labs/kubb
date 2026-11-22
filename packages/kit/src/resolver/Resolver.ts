@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { camelCase, memo } from '@internals/utils'
-import { ast, type FileNode, type ImportNode, type InputMeta } from '@kubb/ast'
+import { ast, type FileNode, type ImportNode, type InputMeta, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type BannerMeta, type Config, Diagnostics, getInputKind, type Group, type MemoKey, type MemoValue, type Output } from '@kubb/core'
 import {
   type ResolveBannerContext,
@@ -23,7 +23,10 @@ export function defineResolver<const T extends object>(part: T & ThisType<Resolv
   return part
 }
 
-function isNamespace(value: unknown): value is Record<string, unknown> {
+/**
+ * Whether `value` is an object that is not an array, such as a resolver namespace or a node.
+ */
+export function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
@@ -65,11 +68,16 @@ export class Resolver {
   readonly pluginName: string
   /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
+  /**
+   * How this plugin names a node's file, from `options.file.name`, so readers in other plugins find the same file.
+   */
+  readonly fileName: (node: SchemaNode | OperationNode, exportName?: string) => string | undefined
   #options: ResolverBuildOptions
   #memo = memo.create<string, unknown>()
   #usedNames = new Set<string>()
   #stringNames = memo.create<string, string>()
   #arrayNames = createNameNode()
+  #fileNames = { used: new Set<string>(), strings: memo.create<string, string>(), arrays: createNameNode() }
   #outputDirs = memo.create<Output, Map<string, string>>({ weak: true })
   #importPaths = memo.create<Output, Map<string, Map<string, Map<string, string>>>>({ weak: true })
   #tagParents = new Map<string, string>()
@@ -85,6 +93,8 @@ export class Resolver {
     this.#options = options
     this.#baseName = options.file?.baseName ? options.file.baseName.bind(this) : toBaseName
     this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
+    const fileName = options.file?.name
+    this.fileName = (node, exportName) => fileName?.call(this, node, exportName)
     this.default = {
       name: camelCase,
       options: resolveOptions,
@@ -121,20 +131,21 @@ export class Resolver {
   }
 
   /** Returns the same name for repeated declaration keys. */
-  resolveName({ key, name, normalize = (name: string) => name }: ResolveNameOptions): string {
-    if (typeof key === 'string') return memo(this.#stringNames, key, () => this.#allocateName({ name, normalize, suffix: 1 }))
+  resolveName({ key, name, normalize = (name: string) => name, scope = 'name' }: ResolveNameOptions): string {
+    const store = scope === 'file' ? this.#fileNames : { used: this.#usedNames, strings: this.#stringNames, arrays: this.#arrayNames }
+    if (typeof key === 'string') return memo(store.strings, key, () => this.#allocateName({ name, normalize, used: store.used, suffix: 1 }))
 
-    const node = key.reduce((parent, segment) => memo(parent.next, segment, createNameNode), this.#arrayNames)
-    node.name ??= this.#allocateName({ name, normalize, suffix: 1 })
+    const node = key.reduce((parent, segment) => memo(parent.next, segment, createNameNode), store.arrays)
+    node.name ??= this.#allocateName({ name, normalize, used: store.used, suffix: 1 })
     return node.name
   }
 
-  #allocateName({ name, normalize, suffix }: Required<Omit<ResolveNameOptions, 'key'>> & { suffix: number }): string {
+  #allocateName({ name, normalize, used, suffix }: Required<Pick<ResolveNameOptions, 'name' | 'normalize'>> & { used: Set<string>; suffix: number }): string {
     const candidate = suffix === 1 ? name : `${name}${suffix}`
     const normalized = normalize(candidate)
     const names = typeof normalized === 'string' ? [normalized] : normalized
-    if (names.some((emittedName) => this.#usedNames.has(emittedName))) return this.#allocateName({ name, normalize, suffix: suffix + 1 })
-    this.reserveNames(names)
+    if (names.some((emittedName) => used.has(emittedName))) return this.#allocateName({ name, normalize, used, suffix: suffix + 1 })
+    for (const emittedName of names) used.add(emittedName)
     return candidate
   }
 

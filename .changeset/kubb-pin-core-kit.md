@@ -2,4 +2,4 @@
 'kubb': patch
 ---
 
-Depend on the exact `@kubb/core` and `@kubb/kit` versions, so upgrading `kubb` moves both together.
+Depend on exact `@kubb/core` and `@kubb/kit` versions, so upgrading `kubb` moves both together.
