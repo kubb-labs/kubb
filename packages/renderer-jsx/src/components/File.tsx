@@ -62,7 +62,7 @@ type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value' | 'nodes'> & {
 /**
  * A block of source text in the enclosing {@link File}.
  *
- * @deprecated Use `Code`, `Raw` or `Inline`, or put `Const`, `Type` or `Function` directly in `File`. Removed in Kubb v6.
+ * @deprecated Use `Code` or `Raw`, or put `Const`, `Type` or `Function` directly in `File`. Removed in Kubb v6.
  */
 function FileSource({ children, ...props }: FileSourceProps): KubbReactElement {
   return <kubb-source {...props}>{children}</kubb-source>
@@ -122,5 +122,5 @@ function FileImport(props: FileImportProps): KubbReactElement {
 
 File.Export = FileExport
 File.Import = FileImport
-/** @deprecated Use `Code`, `Raw` or `Inline`, or put `Const`, `Type` or `Function` directly in `File`. Removed in Kubb v6. */
+/** @deprecated Use `Code` or `Raw`, or put `Const`, `Type` or `Function` directly in `File`. Removed in Kubb v6. */
 File.Source = FileSource

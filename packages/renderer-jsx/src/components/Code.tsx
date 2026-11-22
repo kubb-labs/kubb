@@ -7,13 +7,9 @@ type Props = {
    */
   name: string
   /**
-   * Marks the declaration as exported, which also lists it in barrels. The text still needs its own `export`.
+   * Lists the declaration in barrels. The text still needs its own `export`.
    */
   export?: boolean
-  /**
-   * Lists the declaration in barrels, or leaves it out. Defaults to `export`.
-   */
-  index?: boolean
   /**
    * Marks a type-only declaration, which barrels re-export with `export type`.
    */
@@ -39,9 +35,9 @@ type Props = {
  * </Code>
  * ```
  */
-export function Code({ children, name, export: canExport, index, type, pointer }: Props): KubbReactElement {
+export function Code({ children, name, export: canExport, type, pointer }: Props): KubbReactElement {
   return (
-    <kubb-source name={name} pointer={pointer} isExportable={!!canExport} isIndexable={index ?? !!canExport} isTypeOnly={!!type}>
+    <kubb-source name={name} pointer={pointer} isExportable={!!canExport} isIndexable={!!canExport} isTypeOnly={!!type}>
       {children}
     </kubb-source>
   )

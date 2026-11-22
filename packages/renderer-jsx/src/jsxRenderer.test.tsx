@@ -6,7 +6,6 @@ import { Function } from './components/js/Function.tsx'
 import { Type } from './components/js/Type.tsx'
 import { Schema } from './components/Schema.tsx'
 import { Code } from './components/Code.tsx'
-import { Inline } from './components/Inline.tsx'
 import { Raw } from './components/Raw.tsx'
 import { jsxRenderer } from './jsxRenderer.ts'
 
@@ -51,29 +50,23 @@ describe('jsxRenderer', () => {
     expect(client?.sources[1]?.nodes?.[0]?.kind).toBe('Function')
   })
 
-  it('maps Code, Raw and Inline onto source blocks with their barrel flags', async () => {
+  it('maps Code and Raw onto source blocks with their barrel flags', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="pet.ts" path="src/pet.ts">
         <Code name="Pet" export type pointer="#/components/schemas/Pet">
           {'export type Pet = { id: number }'}
         </Code>
-        <Code name="PetKey" export index={false}>
-          {'export const PetKey = {}'}
-        </Code>
+        <Code name="petKey">{'const petKey = {}'}</Code>
         <Raw name="seed">{'faker.seed(1)'}</Raw>
-        <Inline name="AddPetStatus200" expression="Pet" export type>
-          {'export type AddPetStatus200 = Pet'}
-        </Inline>
       </File>,
     )
 
-    const [type, key, seed, inline] = renderer.files[0]!.sources
+    const [type, key, seed] = renderer.files[0]!.sources
     expect(type).toMatchObject({ name: 'Pet', pointer: '#/components/schemas/Pet', isExportable: true, isIndexable: true, isTypeOnly: true })
-    expect(key).toMatchObject({ name: 'PetKey', isExportable: true, isIndexable: false, isTypeOnly: false })
+    expect(key).toMatchObject({ name: 'petKey', isExportable: false, isIndexable: false, isTypeOnly: false })
     expect(seed).toMatchObject({ name: 'seed', isExportable: false, isIndexable: false, isTypeOnly: false })
     expect(ast.node.getText(seed!.nodes)).toBe('faker.seed(1)')
-    expect(inline).toMatchObject({ name: 'AddPetStatus200', isExportable: true, isTypeOnly: true, inline: { expression: 'Pet' } })
   })
 
   it('maps Function, Function.Arrow, and Const props onto code nodes', async () => {
