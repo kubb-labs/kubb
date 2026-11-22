@@ -41,8 +41,14 @@ type WalkContext = {
   leafExports: (dirPath: string, leafPath: string) => Array<ast.ExportNode>
 }
 
+// `export * from`, which carries no names of its own.
+function isWildcard(item: ast.ExportNode): boolean {
+  const [first, ...rest] = ast.file.getNames(item)
+  return !rest.length && first?.name === '*' && !first.alias
+}
+
 function getExportNames({ item, dirPath, ctx }: { item: ast.ExportNode; dirPath: string; ctx: WalkContext }): Array<string> {
-  if (item.name != null) return [item.name].flat()
+  if (!isWildcard(item)) return ast.file.getNames(item).map((name) => name.alias ?? name.name)
 
   const itemPath = posix.join(dirPath, item.path)
   const barrel = ctx.barrelFiles.get(itemPath)
@@ -81,7 +87,7 @@ function makeBarrel(dirPath: string, exports: Array<ast.ExportNode>, ctx: WalkCo
       return false
     })
 
-    if (item.name == null) return [item]
+    if (isWildcard(item)) return [item]
     const kept = ast.file.getNames(item).filter((name) => uniqueNames.includes(name.alias ?? name.name))
     return kept.length > 0 ? [ast.factory.createExport({ path: item.path, names: kept })] : []
   })

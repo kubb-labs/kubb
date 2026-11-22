@@ -1,8 +1,8 @@
 import { hash } from 'node:crypto'
 import path from 'node:path'
 import { nodeKinds } from '../constants.ts'
-import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
-import { exportFields, importFields } from '../utils/moduleNames.ts'
+import { combineExports, combineImports, combineSources } from '../utils/combineFileMembers.ts'
+import { getNames, toDeprecatedExport, toDeprecatedImport } from '../utils/moduleNames.ts'
 import { getNodeText } from '../utils/nodeText.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
 import type { CodeNode } from './code.ts'
@@ -318,7 +318,7 @@ export type ExportInput = Omit<ExportNode, 'kind'>
  * ```
  */
 export function createImport(input: ImportInput): ImportNode {
-  if (input.names) return { ...input, ...importFields(input.names), names: input.names, kind: nodeKinds.import }
+  if (input.names) return { ...input, ...toDeprecatedImport(input.names), names: input.names, kind: nodeKinds.import }
   return { ...input, name: input.name ?? [], kind: nodeKinds.import }
 }
 
@@ -333,7 +333,7 @@ export function createImport(input: ImportInput): ImportNode {
  * ```
  */
 export function createExport(input: ExportInput): ExportNode {
-  if (input.names) return { ...input, ...exportFields(input.names), names: input.names, kind: nodeKinds.export }
+  if (input.names) return { ...input, ...toDeprecatedExport(input.names), names: input.names, kind: nodeKinds.export }
   return { ...input, kind: nodeKinds.export }
 }
 
@@ -419,19 +419,10 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     // same file: by path when the import still targets this file, by name when consolidation moved it.
     return combinedImports.flatMap((imp) => {
       if (imp.path === input.path) return []
-      // An import whose space is still open keeps its `names`, so they must change with it.
-      if (imp.names) {
-        const kept = imp.names.filter((item) => !localNames.has(item.alias ?? item.name))
-        if (!kept.length) return []
-        return [kept.length === imp.names.length ? imp : createImport({ path: imp.path, root: imp.root, names: kept })]
-      }
-      if (!Array.isArray(imp.name)) {
-        return typeof imp.name === 'string' && localNames.has(imp.name) ? [] : [imp]
-      }
-      const kept = imp.name.filter((item) => !localNames.has(importLocalName(item)))
-
+      const names = getNames(imp)
+      const kept = names.filter((item) => !localNames.has(item.alias ?? item.name))
       if (!kept.length) return []
-      return [kept.length === imp.name.length ? imp : { ...imp, name: kept }]
+      return [kept.length === names.length ? imp : createImport({ path: imp.path, ...(imp.root != null ? { root: imp.root } : {}), names: kept })]
     })
   })()
 

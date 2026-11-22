@@ -149,20 +149,35 @@ describe('printSource', () => {
 
 describe('printImport', () => {
   it.each([
-    { when: 'name is a list', node: { name: ['z'], path: './zod.ts' }, expected: "import { z } from './zod.ts'" },
+    { when: 'names are named members', node: { names: [{ name: 'z' }], path: './zod.ts' }, expected: "import { z } from './zod.ts'" },
     {
       when: 'a name is aliased',
-      node: { name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' },
+      node: { names: [{ name: 'fakerDE', alias: 'faker' }], path: '@faker-js/faker' },
       expected: "import { fakerDE as faker } from '@faker-js/faker'",
     },
     {
-      when: 'name is a string',
-      node: { name: 'client', path: '@kubb/plugin-axios/clients/axios' },
+      when: 'the name is the default export',
+      node: { names: [{ name: 'default', alias: 'client' }], path: '@kubb/plugin-axios/clients/axios' },
       expected: "import client from '@kubb/plugin-axios/clients/axios'",
     },
-    { when: 'isNameSpace is set', node: { name: 'z', path: 'zod', isNameSpace: true }, expected: "import * as z from 'zod'" },
-    { when: 'isTypeOnly is set', node: { name: ['Pet'], path: './Pet.ts', isTypeOnly: true }, expected: "import type { Pet } from './Pet.ts'" },
-    { when: 'the path contains a quote', node: { name: ['z'], path: "./o'clock.ts" }, expected: "import { z } from './o\\'clock.ts'" },
+    { when: 'the name is the whole module', node: { names: [{ name: '*', alias: 'z' }], path: 'zod' }, expected: "import * as z from 'zod'" },
+    {
+      when: 'every name is a type',
+      node: { names: [{ name: 'Pet', space: 'type' as const }], path: './Pet.ts' },
+      expected: "import type { Pet } from './Pet.ts'",
+    },
+    {
+      when: 'types and values mix',
+      node: {
+        names: [
+          { name: 'Pet', space: 'type' as const },
+          { name: 'petSchema', space: 'value' as const },
+        ],
+        path: './Pet.ts',
+      },
+      expected: "import { type Pet, petSchema } from './Pet.ts'",
+    },
+    { when: 'the path contains a quote', node: { names: [{ name: 'z' }], path: "./o'clock.ts" }, expected: "import { z } from './o\\'clock.ts'" },
   ])('returns $expected when $when', ({ node, expected }) => {
     expect(printImport(node)).toBe(expected)
   })
@@ -170,16 +185,23 @@ describe('printImport', () => {
 
 describe('printExport', () => {
   it.each([
-    { when: 'name is a list', node: { name: ['Pet', 'Order'], path: './models.ts' }, expected: "export { Pet, Order } from './models.ts'" },
-    { when: 'name is absent', node: { path: './utils.ts' }, expected: "export * from './utils.ts'" },
-    { when: 'asAlias is set', node: { name: 'utils', path: './utils.ts', asAlias: true }, expected: "export * as utils from './utils.ts'" },
+    {
+      when: 'names are named members',
+      node: { names: [{ name: 'Pet' }, { name: 'Order' }], path: './models.ts' },
+      expected: "export { Pet, Order } from './models.ts'",
+    },
+    { when: 'the name is *', node: { names: [{ name: '*' }], path: './utils.ts' }, expected: "export * from './utils.ts'" },
+    { when: '* has an alias', node: { names: [{ name: '*', alias: 'utils' }], path: './utils.ts' }, expected: "export * as utils from './utils.ts'" },
     {
       when: 'the alias starts with a digit',
-      node: { name: '1default', path: './default.ts', asAlias: true },
+      node: { names: [{ name: '*', alias: '1default' }], path: './default.ts' },
       expected: "export * as _default from './default.ts'",
     },
-    { when: 'isTypeOnly is set', node: { name: ['Pet'], path: './Pet.ts', isTypeOnly: true }, expected: "export type { Pet } from './Pet.ts'" },
-    { when: 'name is a string', node: { name: 'Pet', path: './Pet.ts' }, expected: "export { Pet } from './Pet.ts'" },
+    {
+      when: 'every name is a type',
+      node: { names: [{ name: 'Pet', space: 'type' as const }], path: './Pet.ts' },
+      expected: "export type { Pet } from './Pet.ts'",
+    },
     {
       when: 'a named export has an alias',
       node: {

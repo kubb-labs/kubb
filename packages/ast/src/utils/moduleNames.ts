@@ -1,9 +1,56 @@
 import type { ExportNode, ImportNode, ModuleName, SourceNode, Space } from '../nodes/file.ts'
 
-type ImportFields = Pick<ImportNode, 'name' | 'isTypeOnly' | 'isNameSpace'>
-type ExportFields = Pick<ExportNode, 'name' | 'isTypeOnly' | 'asAlias'>
+/**
+ * Returns the names an import or export brings across. A node built with the deprecated fields gets them from
+ * those, each with an explicit `space`, so it prints exactly as before.
+ *
+ * @example
+ * ```ts
+ * getNames(createImport({ names: [{ name: '*', alias: 'z', space: 'value' }], path: 'zod' }))
+ * // [{ name: '*', alias: 'z', space: 'value' }]
+ * ```
+ */
+export function getNames(node: ImportNode | ExportNode): Array<ModuleName> {
+  if (node.names) return node.names
+  return node.kind === 'Import' ? fromDeprecatedImport(node) : fromDeprecatedExport(node)
+}
 
-export function importFields(names: ReadonlyArray<ModuleName>): ImportFields {
+/**
+ * Returns whether a declaration exists only at compile time (`type`) or also at runtime (`value`). Without
+ * `space` or the deprecated `isTypeOnly`, a source whose first node is a `Type` is a type.
+ */
+export function getSpace(source: SourceNode): Space {
+  if (source.space) return source.space
+  if (source.isTypeOnly != null) return source.isTypeOnly ? 'type' : 'value'
+  return source.nodes?.[0]?.kind === 'Type' ? 'type' : 'value'
+}
+
+type DeprecatedImport = Pick<ImportNode, 'name' | 'isTypeOnly' | 'isNameSpace'>
+type DeprecatedExport = Pick<ExportNode, 'name' | 'isTypeOnly' | 'asAlias'>
+
+/**
+ * @deprecated Converts a node built with `name`, `isTypeOnly` and `isNameSpace` to `names`. Removed in Kubb v6.
+ */
+export function fromDeprecatedImport({ name, isTypeOnly, isNameSpace }: DeprecatedImport): Array<ModuleName> {
+  const space: Space = isTypeOnly ? 'type' : 'value'
+  if (!Array.isArray(name)) return [{ name: isNameSpace ? '*' : 'default', alias: name, space }]
+  return name.map((item) => (typeof item === 'string' ? { name: item, space } : { name: item.propertyName, ...(item.name ? { alias: item.name } : {}), space }))
+}
+
+/**
+ * @deprecated Converts a node built with `name`, `isTypeOnly` and `asAlias` to `names`. Removed in Kubb v6.
+ */
+export function fromDeprecatedExport({ name, isTypeOnly, asAlias }: DeprecatedExport): Array<ModuleName> {
+  const space: Space = isTypeOnly ? 'type' : 'value'
+  if (name == null) return [{ name: '*', space }]
+  if (!Array.isArray(name)) return [asAlias ? { name: '*', alias: name, space } : { name, space }]
+  return name.map((item) => ({ name: item, space }))
+}
+
+/**
+ * @deprecated The old import fields for `names`, for code that still reads them. Removed in Kubb v6.
+ */
+export function toDeprecatedImport(names: ReadonlyArray<ModuleName>): DeprecatedImport {
   const isTypeOnly = names.length > 0 && names.every((item) => item.space === 'type')
   const [first] = names
   if (names.length === 1 && first?.alias && (first.name === '*' || first.name === 'default')) {
@@ -13,56 +60,13 @@ export function importFields(names: ReadonlyArray<ModuleName>): ImportFields {
 }
 
 /**
- * The deprecated export fields for `names`. A named export's alias has no deprecated form, so it stands in for the name.
+ * @deprecated The old export fields for `names`; an alias stands in for its name. Removed in Kubb v6.
  */
-export function exportFields(names: ReadonlyArray<ModuleName>): ExportFields {
+export function toDeprecatedExport(names: ReadonlyArray<ModuleName>): DeprecatedExport {
   const isTypeOnly = names.length > 0 && names.every((item) => item.space === 'type')
   const [first] = names
   if (names.length === 1 && first?.name === '*') {
     return first.alias ? { name: first.alias, isTypeOnly, asAlias: true } : { isTypeOnly, asAlias: false }
   }
   return { name: names.map((item) => item.alias ?? item.name), isTypeOnly, asAlias: false }
-}
-
-/**
- * Returns the names an import or export brings across. Nodes built with the deprecated fields get names with
- * an explicit `space`, so they print exactly as before.
- *
- * @example
- * ```ts
- * getNames(createImport({ name: 'z', path: 'zod', isNameSpace: true }))
- * // [{ name: '*', alias: 'z', space: 'value' }]
- * ```
- */
-export function getNames(node: ImportNode | ExportNode): Array<ModuleName> {
-  if (node.kind === 'Import') {
-    if (node.names) return node.names
-    const space: Space = node.isTypeOnly ? 'type' : 'value'
-    if (!Array.isArray(node.name)) return [{ name: node.isNameSpace ? '*' : 'default', alias: node.name, space }]
-    return node.name.map((item) =>
-      typeof item === 'string' ? { name: item, space } : { name: item.propertyName, ...(item.name ? { alias: item.name } : {}), space },
-    )
-  }
-
-  if (node.names) return node.names
-  const space: Space = node.isTypeOnly ? 'type' : 'value'
-  if (node.name == null) return [{ name: '*', space }]
-  if (!Array.isArray(node.name)) return [node.asAlias ? { name: '*', alias: node.name, space } : { name: node.name, space }]
-  return node.name.map((name) => ({ name, space }))
-}
-
-/**
- * Returns whether a declaration exists only at compile time (`type`) or also at runtime (`value`). Without
- * `space` or the deprecated `isTypeOnly`, a source whose first node is a `Type` is a type.
- *
- * @example
- * ```ts
- * getSpace(createSource({ name: 'Pet', nodes: [createType({ name: 'Pet', export: true })] }))
- * // 'type'
- * ```
- */
-export function getSpace(source: SourceNode): Space {
-  if (source.space) return source.space
-  if (source.isTypeOnly != null) return source.isTypeOnly ? 'type' : 'value'
-  return source.nodes?.[0]?.kind === 'Type' ? 'type' : 'value'
 }

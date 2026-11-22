@@ -72,12 +72,14 @@ export const parserTs = defineExtension<ParserTsOptions, object, string | TsNode
 
         const importLines = file.imports.map((item) =>
           printImport({
-            ...item,
+            names: ast.file.getNames(item),
             path: resolveOutputPath(item.root ? getRelativePath(item.root, item.path) : item.path, extname, Boolean(item.root)),
           }),
         )
 
-        const exportLines = file.exports.map((item) => printExport({ ...item, path: resolveOutputPath(item.path, extname, item.path.startsWith('.')) }))
+        const exportLines = file.exports.map((item) =>
+          printExport({ names: ast.file.getNames(item), path: resolveOutputPath(item.path, extname, item.path.startsWith('.')) }),
+        )
 
         const importExportBlock = [...importLines, ...exportLines].join('\n')
 

@@ -6,8 +6,8 @@
  */
 import path from 'node:path'
 import { memo } from '@internals/utils'
-import type { ExportNode, ImportNode, ModuleName, SourceNode } from '../nodes/file.ts'
-import { exportFields, getNames, getSpace, importFields } from './moduleNames.ts'
+import type { ExportNode, ImportNode, ModuleName, SourceNode, Space } from '../nodes/file.ts'
+import { getNames, getSpace, toDeprecatedExport, toDeprecatedImport } from './moduleNames.ts'
 
 const IDENTIFIER_RUN = /[\w$]+/g
 
@@ -16,93 +16,32 @@ const IDENTIFIER_RUN = /[\w$]+/g
  */
 const INDEX_ABOVE_IMPORTS = 128
 
-type ImportNameItem = string | { propertyName: string; name?: string }
+// What one statement brings across: named members, the default export, or the whole module.
+type Form = 'named' | 'default' | '*'
 
-type FileMember = { name?: string | Array<unknown> | null; isTypeOnly?: boolean | null; path: string; root?: string | null }
+type Statement = { path: string; root?: string | null; form: Form; space?: Space | null; names: Array<ModuleName> }
 
-/**
- * Returns the local binding an import name item introduces: the alias when there is one, else the
- * imported name.
- */
-export function importLocalName(item: ImportNameItem): string {
-  return typeof item === 'string' ? item : (item.name ?? item.propertyName)
+const importForm = (item: ModuleName): Form => (item.alias && (item.name === '*' || item.name === 'default') ? item.name : 'named')
+const exportForm = (item: ModuleName): Form => (item.name === '*' ? '*' : 'named')
+const label = (item: ModuleName): string => (item.alias ? `${item.name} as ${item.alias}` : item.name)
+
+// Named members of one path and space merge into one statement. A default or whole-module name is a statement of its own.
+function statementKey({ path, form, space, names }: Statement): string {
+  return form === 'named' ? `${path}\0named\0${space ?? ''}` : `${path}\0${form}\0${names[0]?.alias ?? ''}\0${space ?? ''}`
 }
 
-const hasSpace = (item: ModuleName): boolean => !!item.space
-
-// Splits an import built from `names` into the deprecated-field imports that print the same statements, or
-// returns `undefined` while a space is open, since only the declaration it points to can tell.
-function splitImport(node: ImportNode): Array<ImportNode> | undefined {
-  const names = getNames(node)
-  if (!names.every(hasSpace)) return undefined
-
-  const base = { kind: node.kind, path: node.path, ...(node.root != null ? { root: node.root } : {}) }
-  const split: Array<ImportNode> = []
-  const named = new Map<boolean, Array<ImportNameItem>>()
-  for (const item of names) {
-    const isTypeOnly = item.space === 'type'
-    if (item.alias && (item.name === '*' || item.name === 'default')) {
-      split.push({ ...base, name: item.alias, isTypeOnly, isNameSpace: item.name === '*' })
-      continue
-    }
-    const list = named.get(isTypeOnly) ?? []
-    named.set(isTypeOnly, list)
-    list.push(item.alias ? { propertyName: item.name, name: item.alias } : item.name)
-  }
-  for (const [isTypeOnly, name] of named) split.push({ ...base, name, isTypeOnly })
-  return split
-}
-
-// Like `splitImport`, and also `undefined` for an alias on a named export, which only `names` can hold.
-function splitExport(node: ExportNode): Array<ExportNode> | undefined {
-  const names = getNames(node)
-  if (!names.every(hasSpace) || names.some((item) => item.alias && item.name !== '*')) return undefined
-
-  const split: Array<ExportNode> = []
-  const named = new Map<boolean, Array<string>>()
-  for (const item of names) {
-    const isTypeOnly = item.space === 'type'
-    if (item.name === '*') {
-      split.push({ kind: node.kind, path: node.path, isTypeOnly, ...(item.alias ? { name: item.alias, asAlias: true } : {}) })
-      continue
-    }
-    const list = named.get(isTypeOnly) ?? []
-    named.set(isTypeOnly, list)
-    list.push(item.name)
-  }
-  for (const [isTypeOnly, name] of named) split.push({ kind: node.kind, path: node.path, name, isTypeOnly })
-  return split
-}
-
-function partition<TNode>(nodes: Array<TNode>, split: (node: TNode) => Array<TNode> | undefined): { known: Array<TNode>; open: Array<TNode> } {
-  const known: Array<TNode> = []
-  const open: Array<TNode> = []
-  for (const node of nodes) {
-    // Nodes built with the deprecated fields need no split, which keeps this path free of allocations.
-    if (!(node as { names?: unknown }).names) {
-      known.push(node)
-      continue
-    }
-    const parts = split(node)
-    if (parts) known.push(...parts)
-    else open.push(node)
-  }
-  return { known, open }
-}
-
-// Keeps each name with an open space once per path and local or exported name, until `ast.file.resolveSpaces` settles it.
-function keepOpen<TNode extends ImportNode | ExportNode>(nodes: Array<TNode>, keep: (item: ModuleName, node: TNode) => boolean = () => true): Array<TNode> {
-  const seen = new Set<string>()
+// One statement per form and space. A name without a space stays apart until `ast.file.resolveSpaces` fills it in.
+function toStatements(nodes: ReadonlyArray<ImportNode | ExportNode>, formOf: (item: ModuleName) => Form): Array<Statement> {
   return nodes.flatMap((node) => {
-    const names = getNames(node).filter((item) => {
-      const key = `${node.path}\0${node.kind === 'Import' ? (node.root ?? '') : ''}\0${item.alias ?? item.name}`
-      if (seen.has(key) || !keep(item, node)) return false
-      seen.add(key)
-      return true
-    })
-    if (!names.length) return []
-    const fields = node.kind === 'Import' ? importFields(names) : exportFields(names)
-    return [{ ...node, ...fields, names }]
+    const statements = new Map<string, Statement>()
+    for (const item of getNames(node)) {
+      const statement: Statement = { path: node.path, root: node.kind === 'Import' ? node.root : undefined, form: formOf(item), space: item.space, names: [] }
+      const key = statementKey({ ...statement, names: [item] })
+      const existing = statements.get(key) ?? statement
+      statements.set(key, existing)
+      existing.names.push(item)
+    }
+    return [...statements.values()]
   })
 }
 
@@ -117,7 +56,7 @@ const specifierCache = memo.create<string, Map<string, string>>({ max: 10_000 })
  * Returns the specifier a member is written with: POSIX and relative to the importing file when it
  * has a `root`, like `getRelativePath` in parser-ts. Sorting on it keeps the order the same on every OS.
  */
-function specifier(node: FileMember): string {
+function specifier(node: { path: string; root?: string | null }): string {
   const { root, path: target } = node
   if (!root) return target
   const byPath = memo(specifierCache, root, () => new Map<string, string>())
@@ -127,53 +66,31 @@ function specifier(node: FileMember): string {
   })
 }
 
-/**
- * Computes a multi-level sort key for exports and imports:
- * non-array names first (wildcards/namespace aliases). Type-only before value. Alphabetical specifier. Unnamed before named.
- */
-function sortKey(node: FileMember): string {
-  const isArray = Array.isArray(node.name) ? '1' : '0'
-  const typeOnly = node.isTypeOnly ? '0' : '1'
-  const hasName = node.name != null ? '1' : '0'
-  const name = Array.isArray(node.name) ? node.name.toSorted().join('\0') : (node.name ?? '')
-  return `${isArray}:${typeOnly}:${specifier(node)}:${hasName}:${name}`
+// Default and whole-module statements first, then type, value, open space, then specifier and names.
+function sortKey(statement: Statement): string {
+  const form = statement.form === 'named' ? '1' : '0'
+  const space = statement.space === 'type' ? '0' : statement.space === 'value' ? '1' : '2'
+  return `${form}:${space}:${specifier(statement)}:${statement.names.map(label).toSorted().join('\0')}`
 }
 
-/**
- * Sorts members by {@link sortKey}. Keys are computed once per node, not per comparison.
- */
-function sortMembers<TNode extends FileMember>(nodes: Array<TNode>): Array<TNode> {
-  return nodes
-    .map((node) => ({ node, key: sortKey(node) }))
-    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
-    .map(({ node }) => node)
-}
+// Sorts statements, then merges each path and space in that order, once per bound name.
+function mergeStatements(statements: Array<Statement>, keep: (item: ModuleName, statement: Statement) => boolean = () => true): Array<Statement> {
+  const merged = new Map<string, { statement: Statement; seen: Set<string> }>()
+  const sorted = statements.map((statement) => ({ statement, key: sortKey(statement) })).sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
 
-/**
- * Returns a collector for array-named members. A member whose path and `isTypeOnly` were already
- * seen folds its names into that entry, otherwise it joins `result` as a new entry.
- */
-function mergeByPath<TNode extends FileMember>(result: Array<TNode>): (member: { node: TNode; names: Array<unknown> }) => void {
-  // Append new names instead of rebuilding the list, which went quadratic on a shared path.
-  const byPath = new Map<string, { names: Array<unknown>; seen: Set<unknown> }>()
-
-  return ({ node, names }) => {
-    const key = `${node.path}:${node.isTypeOnly ?? false}`
-    const existing = byPath.get(key)
-
-    if (existing) {
-      for (const name of names) {
-        if (existing.seen.has(name)) continue
-        existing.seen.add(name)
-        existing.names.push(name)
-      }
-      return
+  for (const { statement } of sorted) {
+    const key = statementKey(statement)
+    const entry = merged.get(key) ?? { statement: { ...statement, names: [] }, seen: new Set<string>() }
+    merged.set(key, entry)
+    for (const item of statement.names) {
+      const id = item.alias ?? item.name
+      if (entry.seen.has(id) || !keep(item, statement)) continue
+      entry.seen.add(id)
+      entry.statement.names.push(item)
     }
-
-    const item = { ...node, name: [...names] }
-    result.push(item)
-    byPath.set(key, { names: item.name, seen: new Set(names) })
   }
+
+  return [...merged.values()].map(({ statement }) => statement).filter((statement) => statement.names.length > 0)
 }
 
 /**
@@ -192,46 +109,21 @@ export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
 }
 
 /**
- * Deduplicates and merges `ExportNode` objects by path and type.
- *
- * Named exports with the same path and `isTypeOnly` flag have their names merged into a single export.
- * Non-array exports are deduplicated by exact identity. Returns a sorted, deduplicated array.
+ * Deduplicates and merges `ExportNode` objects: one export per path, form and space. Returns a sorted array.
  */
 export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
-  const { known, open } = partition(exports, splitExport)
-  const result: Array<ExportNode> = []
-  const merge = mergeByPath(result)
-  // Deduplicates non-array exports by their exact identity
-  const seen = new Set<string>()
-
-  for (const curr of sortMembers(known)) {
-    const { name, path, isTypeOnly, asAlias } = curr
-
-    if (Array.isArray(name)) {
-      if (name.length) merge({ node: curr, names: [...new Set(name)] })
-      continue
-    }
-
-    const key = `${path}:${name ?? ''}:${isTypeOnly ?? false}:${asAlias ?? ''}`
-    if (!seen.has(key)) {
-      result.push(curr)
-      seen.add(key)
-    }
-  }
-
-  return [...result, ...keepOpen(open)]
+  return mergeStatements(toStatements(exports, exportForm)).map(({ path, names }) => ({ kind: 'Export', path, ...toDeprecatedExport(names), names }))
 }
 
 /**
  * Deduplicates and merges `ImportNode` objects, filtering out unused imports.
  *
- * Retains imports that are referenced in `source` or re-exported. Imports with the same path and
- * `isTypeOnly` flag have their names merged. Returns a sorted, deduplicated, filtered array.
+ * Retains imports that are referenced in `source` or re-exported. One import per path, form and space. Returns
+ * a sorted, deduplicated, filtered array.
  */
 export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
-  const { known, open } = partition(imports, splitImport)
   // Build a lookup of all exported names to retain imports that are re-exported
-  const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
+  const exportedNames = new Set(exports.flatMap((node) => getNames(node).map((item) => item.alias ?? item.name)))
   // `createFile` re-runs on every merge into a file, so scanning the source once per import name
   // costs a heavily merged file that scan again for every fragment it already holds. Indexing pays
   // for itself there, and costs more than it saves on the small files the default output produces.
@@ -241,54 +133,24 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   // substring test stays behind it.
   const isUsed = (importName: string): boolean => !source || identifiers?.has(importName) || source.includes(importName) || exportedNames.has(importName)
 
-  // Memoize object import names so the same logical (propertyName, name) pair always
-  // reuses the same object reference. Set-based deduplication then works correctly.
-  const importNameMemo = memo.create<string, ImportNameItem>()
-  const canonicalizeName = (n: ImportNameItem): ImportNameItem => {
-    if (typeof n === 'string') return n
-    const key = `${n.propertyName}:${n.name ?? ''}`
-    return memo(importNameMemo, key, () => n)
-  }
+  const statements = toStatements(
+    imports.filter((node) => node.path !== node.root),
+    importForm,
+  )
 
   // Paths that keep at least one used named import. A default import from such a path is retained
   // even when its binding can't be found in `source` e.g. a generated `client` default import
   // alongside `import type { Client } from <same path>`, where merged grouped output omits the body.
-  const pathsWithUsedNamedImport = new Set<string>()
-  for (const node of known) {
-    if (Array.isArray(node.name) && node.name.some((item) => isUsed(importLocalName(item)))) {
-      pathsWithUsedNamedImport.add(node.path)
-    }
-  }
-  for (const node of open) {
-    if (getNames(node).some((item) => item.name !== 'default' && item.name !== '*' && isUsed(item.alias ?? item.name))) pathsWithUsedNamedImport.add(node.path)
-  }
+  const pathsWithUsedNamedImport = new Set(
+    statements.filter(({ form, names }) => form === 'named' && names.some((item) => isUsed(item.alias ?? item.name))).map(({ path }) => path),
+  )
+  const keep = (item: ModuleName, { form, path }: Statement) => isUsed(item.alias ?? item.name) || (form !== 'named' && pathsWithUsedNamedImport.has(path))
 
-  const result: Array<ImportNode> = []
-  const merge = mergeByPath(result)
-  // Deduplicates non-array imports by their exact identity
-  const seen = new Set<string>()
-
-  for (const curr of sortMembers(known)) {
-    if (curr.path === curr.root) continue
-
-    const { name, path, isTypeOnly } = curr
-
-    if (Array.isArray(name)) {
-      const names = [...new Set(name.map(canonicalizeName))].filter((item) => isUsed(importLocalName(item)))
-      if (names.length) merge({ node: curr, names })
-      continue
-    }
-
-    if (!isUsed(name) && !pathsWithUsedNamedImport.has(path)) continue
-
-    const key = `${path}:${name}:${isTypeOnly ?? false}`
-    if (!seen.has(key)) {
-      result.push(curr)
-      seen.add(key)
-    }
-  }
-
-  const openImports = open.filter((node) => node.path !== node.root)
-  const kept = (item: ModuleName, node: ImportNode) => isUsed(item.alias ?? item.name) || (item.name === 'default' && pathsWithUsedNamedImport.has(node.path))
-  return [...result, ...keepOpen(openImports, kept)]
+  return mergeStatements(statements, keep).map(({ path, root, names }) => ({
+    kind: 'Import',
+    path,
+    ...(root != null ? { root } : {}),
+    ...toDeprecatedImport(names),
+    names,
+  }))
 }
