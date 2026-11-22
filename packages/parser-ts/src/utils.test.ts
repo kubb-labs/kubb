@@ -191,6 +191,22 @@ describe('printExport', () => {
       },
       expected: "export { type Pet as Animal, petSchema } from './Pet.ts'",
     },
+    {
+      when: 'names mix a namespace alias with an aliased name',
+      node: {
+        names: [
+          { name: '*', alias: 'models', space: 'value' as const },
+          { name: 'Pet', alias: 'Animal', space: 'type' as const },
+        ],
+        path: './Pet.ts',
+      },
+      expected: "export * as models from './Pet.ts'\nexport type { Pet as Animal } from './Pet.ts'",
+    },
+    {
+      when: 'a type name sits next to a name without a space',
+      node: { names: [{ name: 'Pet', space: 'type' as const }, { name: 'petSchema' }], path: './Pet.ts' },
+      expected: "export { type Pet, petSchema } from './Pet.ts'",
+    },
   ])('returns $expected when $when', ({ node, expected }) => {
     expect(printExport(node)).toBe(expected)
   })

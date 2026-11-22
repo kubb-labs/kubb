@@ -434,10 +434,16 @@ export function printExport({
   const typePrefix = isTypeOnly ? 'type ' : ''
   const from = quoteModulePath(path)
 
-  // Only `names` holds an alias on a named export. With mixed spaces, each type name gets its own `type`.
-  if (names?.some((item) => item.alias && item.name !== '*')) {
-    const specifiers = names.map((item) => `${!isTypeOnly && item.space === 'type' ? 'type ' : ''}${item.alias ? `${item.name} as ${item.alias}` : item.name}`)
-    return `export ${typePrefix}{ ${specifiers.join(', ')} } from ${from}`
+  // Only `names` holds an alias or a type next to other names. Each wildcard is its own statement, and with mixed
+  // spaces each type name gets its own `type`.
+  if (names?.some((item) => item.name !== '*' && (item.alias || item.space === 'type'))) {
+    const stars = names
+      .filter((item) => item.name === '*')
+      .map((item) => printExport({ path, name: item.alias, asAlias: !!item.alias, isTypeOnly: item.space === 'type' }))
+    const named = names.filter((item) => item.name !== '*')
+    const allTypes = named.every((item) => item.space === 'type')
+    const specifiers = named.map((item) => `${!allTypes && item.space === 'type' ? 'type ' : ''}${item.alias ? `${item.name} as ${item.alias}` : item.name}`)
+    return [...stars, `export ${allTypes ? 'type ' : ''}{ ${specifiers.join(', ')} } from ${from}`].join('\n')
   }
 
   if (Array.isArray(name)) {

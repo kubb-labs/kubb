@@ -90,14 +90,17 @@ function partition<TNode>(nodes: Array<TNode>, split: (node: TNode) => Array<TNo
   return { known, open }
 }
 
-// Keeps nodes with an open space once per path and names, until `ast.file.resolveSpaces` settles them.
-function keepOpen<TNode extends ImportNode | ExportNode>(nodes: Array<TNode>, keep: (item: ModuleName) => boolean = () => true): Array<TNode> {
+// Keeps each name with an open space once per path and local or exported name, until `ast.file.resolveSpaces` settles it.
+function keepOpen<TNode extends ImportNode | ExportNode>(nodes: Array<TNode>, keep: (item: ModuleName, node: TNode) => boolean = () => true): Array<TNode> {
   const seen = new Set<string>()
   return nodes.flatMap((node) => {
-    const names = getNames(node).filter(keep)
-    const key = `${node.path}\0${node.kind === 'Import' ? (node.root ?? '') : ''}\0${JSON.stringify(names)}`
-    if (!names.length || seen.has(key)) return []
-    seen.add(key)
+    const names = getNames(node).filter((item) => {
+      const key = `${node.path}\0${node.kind === 'Import' ? (node.root ?? '') : ''}\0${item.alias ?? item.name}`
+      if (seen.has(key) || !keep(item, node)) return false
+      seen.add(key)
+      return true
+    })
+    if (!names.length) return []
     const fields = node.kind === 'Import' ? importFields(names) : exportFields(names)
     return [{ ...node, ...fields, names }]
   })
@@ -232,7 +235,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   // `createFile` re-runs on every merge into a file, so scanning the source once per import name
   // costs a heavily merged file that scan again for every fragment it already holds. Indexing pays
   // for itself there, and costs more than it saves on the small files the default output produces.
-  const identifiers = source && known.length > INDEX_ABOVE_IMPORTS ? new Set(source.match(IDENTIFIER_RUN)) : null
+  const identifiers = source && imports.length > INDEX_ABOVE_IMPORTS ? new Set(source.match(IDENTIFIER_RUN)) : null
 
   // A name in the index is used. One that is not still might be, inside a longer identifier, so the
   // substring test stays behind it.
@@ -255,6 +258,9 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
     if (Array.isArray(node.name) && node.name.some((item) => isUsed(importLocalName(item)))) {
       pathsWithUsedNamedImport.add(node.path)
     }
+  }
+  for (const node of open) {
+    if (getNames(node).some((item) => item.name !== 'default' && item.name !== '*' && isUsed(item.alias ?? item.name))) pathsWithUsedNamedImport.add(node.path)
   }
 
   const result: Array<ImportNode> = []
@@ -283,5 +289,6 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   }
 
   const openImports = open.filter((node) => node.path !== node.root)
-  return [...result, ...keepOpen(openImports, (item) => isUsed(item.alias ?? item.name))]
+  const kept = (item: ModuleName, node: ImportNode) => isUsed(item.alias ?? item.name) || (item.name === 'default' && pathsWithUsedNamedImport.has(node.path))
+  return [...result, ...keepOpen(openImports, kept)]
 }

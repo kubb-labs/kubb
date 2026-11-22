@@ -98,6 +98,20 @@ describe('combining names and deprecated fields', () => {
     expect(combineImports([open, open], [], 'Pet').map((imp) => imp.names)).toStrictEqual([[{ name: 'Pet' }]])
   })
 
+  it('keeps an open name once per path and alias', () => {
+    const a = createExport({ names: [{ name: 'Pet', alias: 'Animal' }], path: './pet' })
+    const b = createExport({ names: [{ name: 'Dog', alias: 'Animal' }], path: './pet' })
+
+    expect(combineExports([a, b]).flatMap((exp) => exp.names)).toStrictEqual([{ name: 'Pet', alias: 'Animal' }])
+  })
+
+  it('keeps a default import when an open named import from the same path is used', () => {
+    const client = createImport({ name: 'client', path: './client' })
+    const open = createImport({ names: [{ name: 'Client' }], path: './client' })
+
+    expect(combineImports([client, open], [], 'type Wrapped = Client').map((imp) => imp.name)).toStrictEqual(['client', ['Client']])
+  })
+
   it('keeps an aliased named export in names, since the deprecated fields cannot hold it', () => {
     const aliased = createExport({ names: [{ name: 'Pet', alias: 'Animal', space: 'type' }], path: './pet' })
 
