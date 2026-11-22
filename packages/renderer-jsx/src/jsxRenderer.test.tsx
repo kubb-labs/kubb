@@ -55,8 +55,8 @@ describe('jsxRenderer', () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="pet.ts" path="src/pet.ts">
-        <Code name="Pet" export type>
-          {'export type Pet = { id: number }'}
+        <Code name="petSchema" export>
+          {'export const petSchema = z.object({})'}
         </Code>
         <Code name="petKey">{'const petKey = {}'}</Code>
         <Raw name="seed">{'faker.seed(1)'}</Raw>
@@ -64,7 +64,7 @@ describe('jsxRenderer', () => {
     )
 
     const [type, key, seed] = renderer.files[0]!.sources
-    expect(type).toMatchObject({ name: 'Pet', export: true, isTypeOnly: true })
+    expect(type).toMatchObject({ name: 'petSchema', export: true, isTypeOnly: false })
     expect(key).toMatchObject({ name: 'petKey', export: false, isTypeOnly: false })
     expect(seed).toMatchObject({ name: 'seed', export: false, isTypeOnly: false })
     expect(ast.node.getText(seed!.nodes)).toBe('faker.seed(1)')

@@ -25,6 +25,14 @@ type TypeProps = Omit<ast.TypeNode, 'kind' | 'nodes'> & {
  * // export type PetId = string | number
  * ```
  *
+ * @example Interface
+ * ```tsx
+ * <Type export name="Pet" syntax="interface">
+ *   {`{ id: number; name: string }`}
+ * </Type>
+ * // export interface Pet { id: number; name: string }
+ * ```
+ *
  * @example Type alias with JSDoc
  * ```tsx
  * <Type export name="Pet" JSDoc={{ comments: ['@description A pet in the store.'] }}>

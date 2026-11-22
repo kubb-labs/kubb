@@ -37,8 +37,8 @@ type Props<TMeta extends object> = BaseProps &
  * @example Basic file with a source block
  * ```tsx
  * <File baseName="petStore.ts" path="src/models/petStore.ts">
- *   <Code name="Pet" export type>
- *     {`export type Pet = { id: number; name: string }`}
+ *   <Code name="petSchema" export>
+ *     {`export const petSchema = z.object({ id: z.number() })`}
  *   </Code>
  * </File>
  * ```

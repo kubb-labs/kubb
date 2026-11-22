@@ -106,27 +106,26 @@ With `baseName` and `path`, `File` declares a generated file. Without them, it r
 
 ```tsx
 <File baseName="petStore.ts" path="src/models/petStore.ts">
-  <Code name="Pet" export type>
-    {`export type Pet = { id: number; name: string }`}
-  </Code>
+  <Type export name="Pet">
+    {`{ id: number; name: string }`}
+  </Type>
 </File>
 ```
 
 #### `Code` {#code}
 
-A printed declaration in the enclosing `File`, such as a type from a printer or a class built as text. For a declaration written in JSX, put a [JavaScript component](#javascript) directly in the `File`.
+A printed declaration in the enclosing `File`, such as a schema from a printer or a class built as text. It works for any language. For a declaration written in JSX, or a TypeScript type, put a [JavaScript component](#javascript) directly in the `File`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
 | `name` | `string` | The declared name, for barrels and deduplication |
 | `export?` | `boolean` | Lists the declaration in barrels. The text still needs its own `export`. |
 | `default?` | `boolean` | Marks the declaration as the default export, which barrels skip |
-| `type?` | `boolean` | Marks a type-only declaration |
 | `children?` | `KubbReactNode` | The printed declaration |
 
 ```tsx
 <File baseName="pet.ts" path="src/gen/pet.ts">
-  <Code name="Pet" export type>
+  <Code name="petSchema" export>
     {printer.print(node)}
   </Code>
 </File>
@@ -161,13 +160,13 @@ You only need it when one generator writes code for several parts of the input. 
 
 ```tsx
 <File baseName="getPets.ts" path="src/gen/getPets.ts">
-  <Code name="GetPetsResponses" export type>
+  <Type export name="GetPetsResponses">
     {printer.print(responses)}
-  </Code>
+  </Type>
   <Origin pointer={response.pointer}>
-    <Code name="GetPetsStatus200" export type>
+    <Type export name="GetPetsStatus200">
       {printer.print(response.schema)}
-    </Code>
+    </Type>
   </Origin>
 </File>
 ```
@@ -178,7 +177,10 @@ Deprecated, removed in Kubb v6. Replace it by what it wraps: `Code` for a printe
 
 ```diff
 - <File.Source name="Pet" isExportable isIndexable isTypeOnly>{printed}</File.Source>
-+ <Code name="Pet" export type>{printed}</Code>
++ <Type export name="Pet">{printedBody}</Type>
+
+- <File.Source name="petSchema" isExportable isIndexable>{printed}</File.Source>
++ <Code name="petSchema" export>{printed}</Code>
 
 - <File.Source name="faker-seed">{'faker.seed(1)'}</File.Source>
 + <Raw name="faker-seed">{'faker.seed(1)'}</Raw>
@@ -311,17 +313,23 @@ An arrow function in a `const`. It takes every `Function` prop, plus `singleLine
 
 #### `Type` {#type}
 
-A type alias, with the children as the type. `name` must start with an uppercase letter, or `Type` throws.
+A type alias or an interface, with the children as the type. `name` must start with an uppercase letter, or `Type` throws. Barrels re-export it with `export type`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
 | `name` | `string` | The alias name |
+| `syntax?` | `'type' \| 'interface'` | `'interface'` declares `interface Name { … }`, so the children must be an object type. Defaults to `'type'`. |
 
 ```tsx
 <Type export name="PetId">
   {`string | number`}
 </Type>
 // export type PetId = string | number
+
+<Type export name="Pet" syntax="interface">
+  {`{ id: number }`}
+</Type>
+// export interface Pet { id: number }
 ```
 
 ### Markdown

@@ -83,6 +83,11 @@ export type TypeNode = BaseNode & {
    */
   export?: boolean | null
   /**
+   * `'interface'` declares `interface Name { … }`, which needs an object type as the body.
+   * @default 'type'
+   */
+  syntax?: 'type' | 'interface' | null
+  /**
    * JSDoc documentation metadata.
    */
   JSDoc?: JSDocNode | null

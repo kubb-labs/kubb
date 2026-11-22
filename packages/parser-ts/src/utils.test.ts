@@ -66,6 +66,15 @@ describe('Const nodes', () => {
   })
 })
 
+describe('Type nodes', () => {
+  it.each([
+    { syntax: undefined, expected: 'export type Pet = { id: number }' },
+    { syntax: 'interface' as const, expected: 'export interface Pet { id: number }' },
+  ])('returns `$expected` for syntax $syntax', ({ syntax, expected }) => {
+    expect(print(ast.factory.createType({ name: 'Pet', export: true, syntax, nodes: [ast.factory.createText('{ id: number }')] }))).toBe(expected)
+  })
+})
+
 describe('Function nodes', () => {
   it.each([
     { when: 'generics is an array', node: { generics: ['T'], params: 'value: T', returnType: 'T' }, expected: 'function getPet<T>(value: T): T {}' },
