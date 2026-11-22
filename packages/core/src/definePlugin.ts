@@ -427,10 +427,7 @@ export type PluginVisitContext<TOptions extends PluginType = PluginType> = {
   addFile: (...file: Array<FileNode>) => Promise<void>
   /** Merge sources into the same output file. */
   upsertFile: (...file: Array<FileNode>) => Promise<void>
-  /**
-   * The file at `path` as the build holds it right now, or `undefined` when no plugin has added it yet. Use it to read what an
-   * earlier plugin wrote, with the path from `ctx.file(node, { plugin })`.
-   */
+  /** The file at `path` as the build holds it now, such as one an earlier plugin wrote. */
   getFile: (path: string) => FileNode | undefined
   /** The build's hook bus. Emit or listen to any `KubbHooks` hook, for example to react to `kubb:build:end` from inside a generator. */
   hooks: Hookable<KubbHooks>
