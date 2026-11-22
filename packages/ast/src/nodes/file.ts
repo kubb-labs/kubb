@@ -171,6 +171,8 @@ export type SourceNode = BaseNode & {
   /**
    * Marks the source as a definition that importing files absorb instead of import. `expression` is
    * the declaration's right-hand side, such as `{ body: Pet }`.
+   *
+   * @deprecated Set `inline` on the file. Removed in Kubb v6.
    */
   inline?: { expression: string } | null
   /**
@@ -262,6 +264,10 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
    * treats the file the same as a rendered one.
    */
   copy?: string | null
+  /**
+   * Marks a file that is never written. Each file that imports from it gets the body of each imported declaration, such as `{ body: Pet }`, in place of its name.
+   */
+  inline?: boolean | null
 }
 
 /**

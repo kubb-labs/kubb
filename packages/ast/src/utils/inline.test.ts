@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createFunction, createText } from '../nodes/code.ts'
+import { createFunction, createText, createType } from '../nodes/code.ts'
 import { createFile, createImport, createSource } from '../nodes/file.ts'
 import type { FileNode } from '../nodes/file.ts'
 import { type InlineLanguage, inlineFiles as inlineFilesWith } from './inline.ts'
@@ -55,6 +55,24 @@ function code(file: FileNode | undefined) {
 describe('inlineFiles', () => {
   it('returns nothing when no file is virtual', () => {
     expect(inlineFiles([clientFile('client()')])).toEqual({ files: [], virtualPaths: [], problems: [] })
+  })
+
+  it('takes each body from the declarations of a file marked inline', () => {
+    const file = createFile({
+      baseName: 'AddPet.ts',
+      path: '/gen/models/pet/AddPet.ts',
+      inline: true,
+      imports: [],
+      sources: [
+        createSource({ name: 'AddPetOptions', nodes: [createType({ name: 'AddPetOptions', export: true, nodes: [createText('{ body: AddPetStatus200 }')] })] }),
+        createSource({ name: 'AddPetStatus200', nodes: [createType({ name: 'AddPetStatus200', export: true, nodes: [createText('Pet')] })] }),
+      ],
+    })
+    const { files, virtualPaths, problems } = inlineFiles([file, clientFile('const options: AddPetOptions = client()')])
+
+    expect(virtualPaths).toEqual(['/gen/models/pet/AddPet.ts'])
+    expect(problems).toEqual([])
+    expect(code(files[0])).toEqual(['const options: ({ body: Pet }) = client()'])
   })
 
   it('replaces imported names with their definitions, nested ones too', () => {
