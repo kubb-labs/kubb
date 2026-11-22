@@ -1,6 +1,6 @@
 import { ast, macroDedupeUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
-import { getExternalDocs, isDiscriminator, isReference } from '../../oas.ts'
+import { getExternalDocs, isDiscriminator, isReference, pickExtensions } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
@@ -148,6 +148,7 @@ export function convertRef({ schema, name, nullable, defaultValue, document, par
       default: defaultValue ?? resolvedSchema.default,
       name: name ?? resolvedSchema.name,
       nullable: nullable ?? resolvedSchema.nullable,
+      extensions: pickExtensions({ ...resolvedSchema.extensions, ...schema }),
     })
   }
 
@@ -223,6 +224,7 @@ export function convertAllOf({ schema: original, name, nullable, defaultValue, p
       examples: extractExamples(schema) ?? memberNode.examples,
       pattern: schema.pattern ?? ('pattern' in memberNode ? memberNode.pattern : undefined),
       format: schema.format ?? memberNode.format,
+      extensions: pickExtensions({ ...memberNode.extensions, ...schema }),
       externalDocs: getExternalDocs(schema.externalDocs) ?? memberNode.externalDocs,
     } as ast.DistributiveOmit<ast.SchemaNode, 'kind'>)
   }
@@ -372,7 +374,8 @@ export function convertMultiType({ schema, name, nullable, defaultValue, parse }
     {
       type: ast.schema.types.union,
       members: nonNullTypes.map((t) => {
-        const raw = { ...schema, type: t }
+        // The union node keeps the `x-*` keys, so members do not repeat them.
+        const raw = { ...Object.fromEntries(Object.entries(schema).filter(([key]) => !key.startsWith('x-'))), type: t }
         const memberSchema = raw as SchemaObject
         return parse({ schema: memberSchema, name })
       }),

@@ -27,7 +27,7 @@ export type PrimitiveSchemaType =
 export type SchemaType = keyof SchemaNodeByType
 
 /**
- * Scalar schema types without extra object/array/ref structure or constraints.
+ * Scalar schema types without extra object/array/ref structure or constraints. `blob` stays for compatibility, but a blob node is a `BlobSchemaNode`.
  */
 export type ScalarSchemaType = 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'never' | 'blob' | 'ipv4' | 'ipv6'
 
@@ -96,6 +96,8 @@ type SchemaNodeBase = BaseNode & {
    */
   format?: string
   externalDocs?: ExternalDocs
+  /** Vendor extensions (`x-*` keys) from the source schema, copied as-is. */
+  extensions?: Record<string, unknown>
   /**
    * `if`/`then`/`else`, `dependentRequired` and `dependentSchemas`. A required `unknown` property in `if` means "key is present".
    * Visitors do not walk it.
@@ -522,7 +524,14 @@ export type ScalarSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: ScalarSchemaType
+  type: Exclude<ScalarSchemaType, 'blob'>
+}
+
+/** Binary data schema node, such as a `format: binary` string. */
+export type BlobSchemaNode = SchemaNodeBase & {
+  type: 'blob'
+  /** The media type and encoding of the bytes, from `contentMediaType` and `contentEncoding`. */
+  content?: StringSchemaNode['content']
 }
 
 /**
@@ -607,7 +616,7 @@ export type SchemaNodeByType = {
   url: UrlSchemaNode
   ipv4: ScalarSchemaNode
   ipv6: ScalarSchemaNode
-  blob: ScalarSchemaNode
+  blob: BlobSchemaNode
 }
 
 /**
@@ -629,6 +638,7 @@ export type SchemaNode =
   | UrlSchemaNode
   | FormatStringSchemaNode
   | ScalarSchemaNode
+  | BlobSchemaNode
 
 type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
 type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>

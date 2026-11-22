@@ -377,6 +377,7 @@ function parseParameter({
     ...getExamples(mediaType ?? param, refs),
     ...(param.deprecated && { deprecated: true }),
     ...(param.allowEmptyValue && { allowEmptyValue: true }),
+    extensions: pickExtensions(param),
   })
 }
 
@@ -397,6 +398,7 @@ function spreadQuerystring(param: ast.ParameterNode): Array<ast.ParameterNode> {
       ...(style !== undefined && { style }),
       ...(explode !== undefined && { explode }),
       ...(allowReserved !== undefined && { allowReserved }),
+      ...(param.extensions && { extensions: param.extensions }),
     })
   })
 }
@@ -433,6 +435,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
         ...(mediaType && getEncodingFields(mediaType)),
         ...(mediaType && getExamples(mediaType, refs)),
         ...getStreamField({ contentType: ct, mediaType, refs, document, node }),
+        extensions: pickExtensions(mediaType),
       }),
     ]
   })
@@ -444,6 +447,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
           description: body?.description,
           required: bodyRequired || undefined,
           content: content.length > 0 ? content : undefined,
+          extensions: pickExtensions(body),
         }
       : undefined
 
@@ -469,6 +473,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
         ...(mediaType && getEncodingFields(mediaType)),
         ...(mediaType && getExamples(mediaType, refs)),
         ...(ct ? getStreamField({ contentType: ct, mediaType, refs, document, node }) : {}),
+        extensions: pickExtensions(mediaType),
       }
     }
 
@@ -503,6 +508,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
       content: responseContent,
       ...(headers.length && { headers }),
       ...(links && { links }),
+      extensions: pickExtensions(response),
     })
   })
 

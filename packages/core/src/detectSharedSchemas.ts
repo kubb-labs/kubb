@@ -7,10 +7,11 @@ import { inputToAdapterSource, parseAdapterSource } from './input.ts'
 import type { KubbHooks, UserConfig } from './types.ts'
 
 // Skips the target a ref embeds, so recursive schemas serialize and only the ref itself is compared. Hashed, so
-// comparing many large specs holds one digest per schema, not its JSON.
+// comparing many large specs holds one digest per schema, not its JSON. Vendor extensions are skipped too: a shared file
+// they change is still reported through `written`.
 function toShape(node: SchemaNode): string {
   const json = JSON.stringify(node, function (key, value) {
-    return key === 'schema' && this.type === 'ref' ? undefined : value
+    return (key === 'schema' && this.type === 'ref') || (key === 'extensions' && this.kind === 'Schema') ? undefined : value
   })
   return hash('sha256', json)
 }

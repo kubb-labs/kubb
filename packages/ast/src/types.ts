@@ -11,6 +11,7 @@ export type { RequestBodyNode } from './nodes/requestBody.ts'
 export type { ResponseLink, ResponseNode, StatusCode } from './nodes/response.ts'
 export type {
   ArraySchemaNode,
+  BlobSchemaNode,
   DateSchemaNode,
   DatetimeSchemaNode,
   EnumSchemaNode,

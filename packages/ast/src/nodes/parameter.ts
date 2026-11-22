@@ -74,6 +74,8 @@ export type ParameterNode = BaseNode & {
   examples?: Array<ExampleNode>
   deprecated?: boolean
   allowEmptyValue?: boolean
+  /** Vendor extensions (`x-*` keys) from the source parameter, copied as-is. */
+  extensions?: Record<string, unknown>
 }
 
 type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>

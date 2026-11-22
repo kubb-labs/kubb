@@ -1,5 +1,6 @@
 import { ast } from '@kubb/kit'
 import { enumDescriptionKeys, enumExtensionKeys, formatMap, numericFormats } from '../../constants.ts'
+import { pickExtensions } from '../../oas.ts'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
@@ -93,6 +94,7 @@ export function createNullNode(schema: SchemaObject, name: string | null | undef
     deprecated: schema.deprecated,
     nullable,
     format: schema.format,
+    extensions: pickExtensions(schema),
   })
 }
 
@@ -151,6 +153,7 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
   }
 
   const specialType = formatMap[schema.format as keyof typeof formatMap]
+  if (specialType === 'blob') return convertBlob(context)
   if (specialType === 'string') {
     // A numeric schema keeps its type, such as `type: integer, format: duration` in seconds.
     if (type === 'integer' || type === 'number') return convertNumeric(context, type)
@@ -164,7 +167,7 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
 
   return createNode(context, {
     primitive: specialPrimitive,
-    type: specialType as ast.ScalarSchemaType,
+    type: specialType as Exclude<ast.ScalarSchemaType, 'blob'>,
     ...(hasLength ? { min: schema.minLength, max: schema.maxLength } : {}),
     ...(isNumeric ? getNumericConstraints(schema) : {}),
   })
@@ -269,6 +272,11 @@ export function convertString(context: ConvertContext): ast.SchemaNode {
     pattern: schema.pattern,
     ...getStringContent(context),
   })
+}
+
+/** Converts a binary schema into a `BlobSchemaNode`, keeping `contentMediaType` and `contentEncoding`. */
+export function convertBlob(context: ConvertContext): ast.SchemaNode {
+  return createNode(context, { type: 'blob', primitive: 'string', ...getStringContent(context) })
 }
 
 /**

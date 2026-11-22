@@ -97,6 +97,8 @@ export type ContentNode = BaseNode & {
    * Serialization of every part after `prefixEncoding`, for a body sent as an array of parts such as `multipart/mixed`.
    */
   itemEncoding?: EncodingNode
+  /** Vendor extensions (`x-*` keys) from the source media type, copied as-is. */
+  extensions?: Record<string, unknown>
 }
 
 /**
