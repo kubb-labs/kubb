@@ -26,12 +26,6 @@ export type FileOptions = {
    * @default '.ts'
    */
   extname?: FileNode['extname']
-  /**
-   * Adds `Operation` to an operation's name while its file matches a schema file. Set to `false` to keep the name as is.
-   *
-   * @default `true` when the plugin has a schema generator or no generators
-   */
-  suffix?: boolean
 }
 
 /**
@@ -131,7 +125,7 @@ export function locateFile({
 }): { resolver: Resolver; location: Location; file: FileNode } {
   const { extname = '.ts' } = options
   const { resolver, location } = toLocation({ ctx, node, plugin: options.plugin, pluginOptions })
-  const suffix = options.suffix ?? writesSchemaFiles(ctx, options.plugin ?? ctx.plugin.name)
+  const suffix = writesSchemaFiles(ctx, options.plugin ?? ctx.plugin.name)
   const name = options.name ?? resolver.fileName(node, options.exportName) ?? (node.kind === 'Operation' ? node.operationId : node.name)
   if (!name) {
     throw new Diagnostics.Error({

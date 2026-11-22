@@ -73,10 +73,6 @@ describe('file', () => {
     expect(resolveFile(ctx, pointOperation).baseName).toBe('point.ts')
   })
 
-  it('keeps the operation name with suffix: false', () => {
-    expect(resolveFile(createContext(), pointOperation, { suffix: false }).baseName).toBe('point.ts')
-  })
-
   it('keeps the operation path in a single-file output', () => {
     const ctx = createContext({ options: { output: { path: 'zod.ts', mode: 'single' } } } as Partial<FileContext>)
 
