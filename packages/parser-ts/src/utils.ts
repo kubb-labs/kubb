@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { dirname, extname as getExtname, isAbsolute, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ast } from '@kubb/ast'
-import { type ImportSpecifier, type ModuleExportName, parse, type ProgramStatement } from 'yuku-parser'
+import { type ImportSpecifier, type ModuleExportName, parse, type ProgramStatement } from 'yuku'
 
 /**
  * A TypeScript compiler node, typed structurally so `@kubb/parser-ts` does not depend on `@typescript/typescript6`.
