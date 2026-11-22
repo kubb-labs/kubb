@@ -75,6 +75,23 @@ describe('inlineFiles', () => {
     expect(code(files[0])).toEqual(['const options: ({ body: Pet }) = client()'])
   })
 
+  it('reports a declaration in an inline file that has no body', () => {
+    const file = createFile({
+      baseName: 'AddPet.ts',
+      path: '/gen/models/pet/AddPet.ts',
+      inline: true,
+      imports: [],
+      sources: [createSource({ name: 'AddPetOptions', nodes: [createType({ name: 'AddPetOptions', export: true, nodes: [] })] })],
+    })
+
+    expect(inlineFiles([file, clientFile('const options: AddPetOptions = client()')]).problems).toEqual([
+      {
+        path: '/gen/clients/addPet.ts',
+        message: '"AddPetOptions" is imported from "/gen/models/pet/AddPet.ts", which never writes it and has no inline definition for it.',
+      },
+    ])
+  })
+
   it('replaces imported names with their definitions, nested ones too', () => {
     const { files, virtualPaths, problems } = inlineFiles([
       operationFile,

@@ -139,7 +139,7 @@ function isInlineFile(file: FileNode): boolean {
 function bodyOf(source: SourceNode | undefined): string | undefined {
   if (source?.inline) return source.inline.expression
   const node = source?.nodes?.length === 1 ? source.nodes[0] : undefined
-  return node && 'nodes' in node ? getNodeText(node.nodes) : undefined
+  return (node && 'nodes' in node && getNodeText(node.nodes)) || undefined
 }
 
 function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode> {
