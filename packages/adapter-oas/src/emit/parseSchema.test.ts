@@ -45,6 +45,10 @@ describe('schemaRules', () => {
     expect(parse({ type: 'string' }).extensions).toBeUndefined()
     expect(parse({ type: 'null', 'x-a': 1 } as SchemaObject).extensions).toEqual({ 'x-a': 1 })
     expect(parse({ allOf: [{ type: 'string', 'x-a': 1 }], 'x-b': 2 } as SchemaObject).extensions).toEqual({ 'x-a': 1, 'x-b': 2 })
+    expect(parse({ allOf: [{ items: { type: 'string' }, 'x-a': 1, 'x-s': 'member' }], 'x-s': 'outer' } as SchemaObject).extensions).toEqual({
+      'x-a': 1,
+      'x-s': 'outer',
+    })
     expect(parse({ $ref: '#/$defs/Name', 'x-shared': 'ref' } as SchemaObject).extensions).toEqual({ 'x-target': 1, 'x-shared': 'ref' })
   })
 
