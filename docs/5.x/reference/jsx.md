@@ -102,6 +102,7 @@ With `baseName` and `path`, `File` declares a generated file. Without them, it r
 | `banner?` | `string \| null` | Text before the source blocks |
 | `footer?` | `string \| null` | Text after the source blocks |
 | `copy?` | `string \| null` | An absolute path of a file to copy into the output |
+| `inline?` | `boolean \| null` | Never writes the file. Files that import from it get each declaration's body in place of its name. |
 | `children?` | `KubbReactNode` | The file's sources, imports, and exports |
 
 ```tsx
@@ -254,7 +255,7 @@ Prints `node`, adds the printer's imports, and calls `children` with the code. I
 
 The JavaScript components emit TypeScript. Each takes `export?: boolean | null` to add `export`, and `JSDoc?: { comments?: Array<string | undefined> } | null` for a JSDoc block.
 
-A component directly in a `File` is its own source block, named after `name`. `export` puts it in barrels, unless it is also `default`. Set `inline` to let importing files use its body in place of its name.
+A component directly in a `File` is its own source block, named after `name`. `export` puts it in barrels, unless it is also `default`. In an [`inline` file](#inline-sources), importing files use its body in place of its name.
 
 ```tsx
 <File baseName="pet.ts" path="src/zod/pet.ts">
@@ -422,17 +423,20 @@ Embeds a raw JSX string, fragments included, such as a component body in a `Func
 
 ### Inline sources {#inline-sources}
 
-When a plugin writes a `File` with `copy` or a declaration with `inline`, Kubb copies or absorbs it instead of printing it.
+When a plugin writes a `File` with `copy` or `inline`, Kubb copies or absorbs it instead of printing it.
 
-- `copy` on `File` is an absolute path to copy into the output, through the parser's `copy` hook if it has one. Its sources count for barrels but are not printed.
-- An `inline` `Const`, `Type` or `Function` lends its body to importing files in place of its name.
-- Kubb does not write a file whose sources are all inline. Files that import it get the expression and its imports.
+- `copy` is an absolute path to copy into the output, through the parser's `copy` hook if it has one. Its sources count for barrels but are not printed.
+- `inline` means Kubb never writes the file. Each file that imports a name from it gets that declaration's body, from a `Const` or `Type`, together with the imports the body needs. Importing a `Function` or printed `Code` text from an inline file reports a problem, because neither has a body that works in place of the name.
 
 ```tsx
-<Type export name="AddPetStatus200" inline>
-  {'Pet'}
-</Type>
+<File baseName="AddPet.ts" path="src/gen/models/AddPet.ts" inline>
+  <Type export name="AddPetStatus200">
+    {'Pet'}
+  </Type>
+</File>
 ```
+
+`inline` on `Const`, `Type` and `Function` is deprecated and removed in Kubb v6. Set it on the `File`.
 
 The parser's `inline` member (`InlineLanguage`) runs before barrels. It finds names (`replaceIdentifiers`) and makes a definition safe to put where a name was (`wrap`). Only files of a parser with `inline`, such as `parserTs`, absorb inline sources.
 

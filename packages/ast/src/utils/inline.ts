@@ -1,9 +1,9 @@
 import { nodeKinds } from '../constants.ts'
 import type { CodeNode } from '../nodes/code.ts'
 import { createFile } from '../nodes/file.ts'
-import type { FileNode, ImportNode } from '../nodes/file.ts'
+import type { FileNode, ImportNode, SourceNode } from '../nodes/file.ts'
 import { importLocalName } from './combineFileMembers.ts'
-import { CODE_NODE_TEXT_FIELDS } from './nodeText.ts'
+import { CODE_NODE_TEXT_FIELDS, getNodeText } from './nodeText.ts'
 
 type InlineFilesResult = {
   /**
@@ -44,13 +44,11 @@ type InlineFilesOptions = {
 }
 
 /**
- * Replaces every name a file imports from a virtual file (one whose sources are all inline, so it is never written) with that name's
- * `inline.expression`, until no inline names are left. The definitions' own imports move to the importing file.
+ * Replaces every name a file imports from a virtual file (one marked `inline`, so it is never written) with the body of that name's
+ * declaration, until no inline names are left. The definitions' own imports move to the importing file.
  */
 export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: InlineFilesOptions): InlineFilesResult {
-  const virtualFiles = new Map(
-    files.filter((file) => file.sources.length > 0 && file.sources.every((source) => source.inline)).map((file) => [file.path, file]),
-  )
+  const virtualFiles = new Map(files.filter(isInlineFile).map((file) => [file.path, file]))
   const result: InlineFilesResult = { files: [], virtualPaths: [...virtualFiles.keys()], problems: [] }
   if (virtualFiles.size === 0) return result
 
@@ -66,15 +64,15 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     }
 
     const file = virtualFiles.get(path)!
-    const inline = file.sources.find((source) => source.name === name)?.inline
-    if (!inline) {
+    const expression = bodyOf(file.sources.find((source) => source.name === name))
+    if (expression === undefined) {
       result.problems.push({ path: from, message: `"${name}" is imported from "${path}", which never writes it and has no inline definition for it.` })
       return undefined
     }
 
     definitions.set(key, null)
     const imports: Array<ImportNode> = []
-    const { text, used } = replaceNames(inline.expression, file, lang, imports)
+    const { text, used } = replaceNames(expression, file, lang, imports)
     imports.push(...file.imports.flatMap((imp) => (virtualFiles.has(imp.path) ? [] : pickNames(imp, used))))
 
     const definition = { expression: text, imports }
@@ -130,6 +128,19 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
   }
 
   return result
+}
+
+// A file of only deprecated per-source `inline` counts as inline too.
+function isInlineFile(file: FileNode): boolean {
+  return !!file.inline || (file.sources.length > 0 && file.sources.every((source) => source.inline))
+}
+
+// The right-hand side of a `Const` or `Type`. A function body is not an expression, and printed text such as `Code` has none.
+function bodyOf(source: SourceNode | undefined): string | undefined {
+  if (source?.inline) return source.inline.expression
+  const node = source?.nodes?.length === 1 ? source.nodes[0] : undefined
+  if (node?.kind !== nodeKinds.const && node?.kind !== nodeKinds.type) return undefined
+  return getNodeText(node.nodes) || undefined
 }
 
 function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode> {

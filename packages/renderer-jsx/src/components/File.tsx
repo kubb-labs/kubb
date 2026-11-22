@@ -15,7 +15,7 @@ type BasePropsWithoutBaseName = {
 type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
 type Props<TMeta extends object> = BaseProps &
-  Pick<ast.UserFileNode<TMeta>, 'banner' | 'footer' | 'copy'> & {
+  Pick<ast.UserFileNode<TMeta>, 'banner' | 'footer' | 'copy' | 'inline'> & {
     key?: Key
     /**
      * Arbitrary metadata attached to the file node for plugins to read.

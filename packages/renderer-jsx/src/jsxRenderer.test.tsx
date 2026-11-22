@@ -257,6 +257,7 @@ describe('File copy', () => {
       banner: undefined,
       footer: undefined,
       copy: '/abs/templates/client.ts',
+      inline: undefined,
       sources: [],
       exports: [],
       imports: [],
@@ -387,6 +388,19 @@ describe('File.Export', () => {
     )
 
     expect(renderer.files[0]!.sources[0]).toMatchObject({ name: 'getPet', export: true, default: true })
+  })
+
+  it('marks a File set as inline', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts" inline>
+        <Type export name="Pet">
+          {'{ id: number }'}
+        </Type>
+      </File>,
+    )
+
+    expect(renderer.files[0]).toMatchObject({ inline: true })
   })
 
   it('uses the body of an inline declaration as its expression', async () => {

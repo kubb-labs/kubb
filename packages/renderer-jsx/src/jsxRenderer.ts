@@ -200,6 +200,7 @@ function createFileNode(props: JSX.IntrinsicElements['kubb-file']): ast.FileNode
     footer: props.footer,
     banner: props.banner,
     copy: props.copy,
+    inline: props.inline,
     sources,
     exports,
     imports,

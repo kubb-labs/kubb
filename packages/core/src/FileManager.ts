@@ -91,6 +91,7 @@ function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNod
     footer: b.footer,
     // A verbatim-copy file cannot be merged with rendered content; the incoming `copy` wins.
     copy: b.copy ?? a.copy,
+    inline: b.inline ?? a.inline,
     sources: [...a.sources, ...b.sources],
     imports: [...a.imports, ...b.imports],
     exports: [...a.exports, ...b.exports],
@@ -237,6 +238,7 @@ export class FileManager {
       existing.banner = file.banner
       existing.footer = file.footer
       existing.copy = file.copy ?? existing.copy
+      existing.inline = file.inline ?? existing.inline
       existing.sources.push(...file.sources)
       existing.imports.push(...file.imports)
       existing.exports.push(...file.exports)
