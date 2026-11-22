@@ -120,16 +120,16 @@
     "yuku": "^0.28.1"
   },
   "devDependencies": {
-    "@farmfe/core": "^2.0.0",
+    "@farmfe/core": "^2.0.1",
     "@internals/shared": "workspace:*",
     "@kubb/ast": "workspace:*",
     "@kubb/kit": "workspace:*",
     "@nuxt/kit": "^4.6.4",
     "@nuxt/schema": "^4.6.4",
-    "@rspack/core": "^2.3.2",
+    "@rspack/core": "^2.3.3",
     "esbuild": "^0.28.2",
-    "rolldown": "^1.3.2",
-    "rollup": "^4.68.4",
+    "rolldown": "^1.3.3",
+    "rollup": "^4.68.7",
     "vite": "^8.3.8",
     "webpack": "^5.112.2"
   },
