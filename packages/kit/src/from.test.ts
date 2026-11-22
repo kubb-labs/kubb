@@ -25,7 +25,7 @@ const pointOperation = ast.factory.createOperation({ operationId: 'point', metho
 const adminOperation = ast.factory.createOperation({ operationId: 'listUsers', method: 'GET', path: '/users', tags: ['admin'] })
 
 type TestResolver = Resolver & {
-  response: { options(node: ast.OperationNode): string }
+  response: { options(node: ast.OperationNode): string; description(node: ast.OperationNode): string }
   status(code: number): string
   tags(): Array<string>
   reserved: Array<string>
@@ -39,6 +39,7 @@ const tsResolver = new Resolver({
     options(node: ast.OperationNode) {
       return `${node.operationId}Options`
     },
+    description: (node: ast.OperationNode) => `Lists ${node.operationId}.`,
   },
   status: (code: number) => `Status${code}`,
   tags: () => ['pets'],
@@ -75,9 +76,10 @@ function fromIn(ctx: FileContext, plugin?: string): Omit<From, 'resolver'> & { r
   return withContext(ctx as never, () => from(plugin)) as never
 }
 
-function provideIn(ctx: FileContext, plugin: string, factory: () => Resolver, priority?: number) {
+function provideIn(ctx: FileContext, plugin: string, factory: () => Resolver, { priority, name = 'types' }: { priority?: number; name?: string } = {}) {
   ctx.memo.set(slot.kit(plugin), true)
-  withContext({ plugin: { name: plugin }, memo: ctx.memo, setOptions() {} } as never, () => provide('types' as never, factory as never, { priority }))
+  const config = { plugins: [{ name: 'plugin-ts' }, { name: 'plugin-zod' }] }
+  withContext({ plugin: { name: plugin }, memo: ctx.memo, config, setOptions() {} } as never, () => provide(name as never, factory as never, { priority }))
 }
 
 describe('from', () => {
@@ -100,13 +102,13 @@ describe('from', () => {
 
     expect(types.status(200)).toMatchObject({ name: 'Status200', import: null })
     expect(types.name('Unknown').import).toBeNull()
+    expect(types.response.description(listPets)).toMatchObject({ name: 'Lists listPets.', import: null })
   })
 
   it("leaves out the import for a node the target's rules exclude", () => {
-    const types = fromIn(createContext(), 'plugin-ts')
+    const { resolver: types } = fromIn(createContext(), 'plugin-ts')
 
-    expect(types.has(adminOperation)).toBe(false)
-    expect(types.resolver.response.options(adminOperation).import).toBeNull()
+    expect(types.response.options(adminOperation).import).toBeNull()
   })
 
   it('wraps nested namespaces and returns non-string results, arrays and Maps as they are', () => {
@@ -121,11 +123,11 @@ describe('from', () => {
   it('imports any name from the target file for a node', () => {
     const types = fromIn(createContext(), 'plugin-ts')
 
-    expect(types.import(listPets, 'ListPetsHeaders').import).toMatchObject({
+    expect(types.ref(listPets, 'ListPetsHeaders').import).toMatchObject({
       name: ['ListPetsHeaders'],
       path: '/root/src/gen/types/listPets.ts',
     })
-    expect(types.import(adminOperation, 'UsersHeaders').import).toBeNull()
+    expect(types.ref(adminOperation, 'UsersHeaders').import).toBeNull()
   })
 
   it("follows the target's file name, without the Operation suffix when it has no schema generator", () => {
@@ -145,8 +147,8 @@ describe('from', () => {
     } as unknown as FileContext
     const own = fromIn(ctx, 'plugin-hooks')
 
-    expect(own.import(pointOperation, 'pointOptions').import?.path).toBe('/root/src/gen/hooks/point.ts')
-    expect(own.import(pointOperation, 'pointSuspenseOptions').import?.path).toBe('/root/src/gen/hooks/pointSuspense.ts')
+    expect(own.ref(pointOperation, 'pointOptions').import?.path).toBe('/root/src/gen/hooks/point.ts')
+    expect(own.ref(pointOperation, 'pointSuspenseOptions').import?.path).toBe('/root/src/gen/hooks/pointSuspense.ts')
   })
 
   it('wraps the current plugin without an argument', () => {
@@ -156,14 +158,38 @@ describe('from', () => {
   it('reads a provided name from the provider with the highest priority', () => {
     const ctx = createContext()
     const zodTypes = new Resolver({ pluginName: 'plugin-zod' })
-    provideIn(ctx, 'plugin-zod', () => zodTypes, -1)
+    provideIn(ctx, 'plugin-zod', () => zodTypes, { priority: -1 })
     provideIn(ctx, 'plugin-ts', () => tsResolver)
 
     expect(fromIn(ctx, 'types').resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/types/point.ts' })
 
-    provideIn(ctx, 'plugin-zod', () => zodTypes, 1)
+    provideIn(ctx, 'plugin-zod', () => zodTypes, { priority: 1 })
     expect(fromIn(ctx, 'types').resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/point.ts' })
     expect(getResolver('types', ctx.memo)).toBe(zodTypes)
+  })
+
+  it('builds a provided resolver once and names its files with it', () => {
+    const ctx = createContext()
+    let calls = 0
+    const zodTypes = new Resolver({ pluginName: 'plugin-zod', file: { name: () => 'types' } } as never)
+    provideIn(ctx, 'plugin-zod', () => {
+      calls++
+      return zodTypes
+    })
+
+    expect(fromIn(ctx, 'types').resolver.name('Point').import).toMatchObject({ path: '/root/src/gen/zod/types.ts' })
+    expect(getResolver('types', ctx.memo)).toBe(getResolver('types', ctx.memo))
+    expect(calls).toBe(1)
+  })
+
+  it('fails for a source that no plugin provides and no plugin in the config has', () => {
+    expect(() => fromIn(createContext(), 'types')).toThrow('Plugin "types" not found')
+  })
+
+  it('rejects a provided name that a plugin in the config uses', () => {
+    const provideTs = () => provideIn(createContext(), 'plugin-zod', () => tsResolver, { name: 'plugin-ts' })
+
+    expect(provideTs).toThrow(expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.pluginFailed }) }))
   })
 
   it('reports KUBB_NO_CONTEXT outside a generator', () => {

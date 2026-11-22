@@ -49,7 +49,15 @@ type LocationOptions = {
 /**
  * A plugin's options for `node` after its `include`, `exclude` and `override` rules, or `null` when the rules leave `node` out.
  */
-export function pluginOptionsFor({ ctx, node, plugin }: { ctx: FileContext; node: SchemaNode | OperationNode; plugin: PluginName }): LocationOptions | null {
+export function resolvePluginOptions({
+  ctx,
+  node,
+  plugin,
+}: {
+  ctx: FileContext
+  node: SchemaNode | OperationNode
+  plugin: PluginName
+}): LocationOptions | null {
   const base = ctx.requirePlugin(plugin).options as LocationOptions
   return ctx.getResolver(plugin).default.options(node, { options: base, exclude: base.exclude, include: base.include, override: base.override })
 }
@@ -59,11 +67,13 @@ function toLocation({
   node,
   plugin,
   pluginOptions,
+  resolver,
 }: {
   ctx: FileContext
   node: SchemaNode | OperationNode
   plugin: PluginName | undefined
   pluginOptions?: LocationOptions | null
+  resolver?: Resolver
 }): { resolver: Resolver; location: Location } {
   if (!plugin) {
     const own = ctx.options as LocationOptions
@@ -71,8 +81,8 @@ function toLocation({
   }
 
   // The target plugin's generators see its options after its override rules, so its files follow them too.
-  const { output, group } = pluginOptions ?? pluginOptionsFor({ ctx, node, plugin }) ?? (ctx.requirePlugin(plugin).options as LocationOptions)
-  return { resolver: ctx.getResolver(plugin), location: { root: ctx.root, output, group: group ?? undefined } }
+  const { output, group } = pluginOptions ?? resolvePluginOptions({ ctx, node, plugin }) ?? (ctx.requirePlugin(plugin).options as LocationOptions)
+  return { resolver: resolver ?? ctx.getResolver(plugin), location: { root: ctx.root, output, group: group ?? undefined } }
 }
 
 /**
@@ -111,20 +121,27 @@ function writesSchemaFiles(ctx: FileContext, pluginName: string): boolean {
   return !generators?.length || generators.some((generator) => generator.schema)
 }
 
-export function locateFile({
+/**
+ * The file a plugin writes `node` to, with the resolver and location it comes from. `exportName` is the name being imported,
+ * which the resolver's `file.name` reads for a plugin that writes several files per node.
+ */
+export function resolveLocation({
   ctx,
   node,
   options = {},
   pluginOptions,
+  resolver: targetResolver,
 }: {
   ctx: FileContext
   node: SchemaNode | OperationNode
   options?: FileOptions & { exportName?: string }
   /** The target plugin's options for `node`, when the caller already has them. */
   pluginOptions?: LocationOptions | null
+  /** The resolver that names the file, such as a provided one, instead of the target plugin's own. */
+  resolver?: Resolver
 }): { resolver: Resolver; location: Location; file: FileNode } {
   const { extname = '.ts' } = options
-  const { resolver, location } = toLocation({ ctx, node, plugin: options.plugin, pluginOptions })
+  const { resolver, location } = toLocation({ ctx, node, plugin: options.plugin, pluginOptions, resolver: targetResolver })
   const suffix = writesSchemaFiles(ctx, options.plugin ?? ctx.plugin.name)
   const name = options.name ?? resolver.fileName(node, options.exportName) ?? (node.kind === 'Operation' ? node.operationId : node.name)
   if (!name) {
@@ -146,7 +163,7 @@ export function locateFile({
  * `file` for an explicit context. Generators get it as `ctx.file`.
  */
 export function resolveFile(ctx: FileContext, node: SchemaNode | OperationNode, options: FileOptions = {}): FileTarget {
-  const { resolver, location, file: resolved } = locateFile({ ctx, node, options })
+  const { resolver, location, file: resolved } = resolveLocation({ ctx, node, options })
   const fileContext = { output: location.output, config: ctx.config, file: { path: resolved.path, baseName: resolved.baseName } }
 
   return {

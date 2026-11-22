@@ -23,7 +23,7 @@ export function defineResolver<const T extends object>(part: T & ThisType<Resolv
   return part
 }
 
-function isNamespace(value: unknown): value is Record<string, unknown> {
+export function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 

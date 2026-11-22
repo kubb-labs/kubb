@@ -1,6 +1,6 @@
 import type { OperationNode } from '@kubb/ast'
 import { describe, expectTypeOf, it } from 'vitest'
-import type { provide } from './composables.ts'
+import type { getResolver, provide } from './composables.ts'
 import type { from, RefName } from './from.ts'
 import type { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext, PluginType } from './types.ts'
@@ -30,6 +30,7 @@ type TypesResolver = Resolver & {
   lookup: Map<string, string>
 }
 
+// Test-only names. They join the registries for the whole typecheck program.
 declare global {
   namespace Kubb {
     interface PluginRegistry {
@@ -57,6 +58,15 @@ describe('from', () => {
   it('types a provided name by its provider and no source as a plain resolver', () => {
     expectTypeOf<ReturnType<typeof from<'types-test'>>['resolver']>().toEqualTypeOf<FromTypes>()
     expectTypeOf<ReturnType<typeof from<never>>['resolver']['name']>().toEqualTypeOf<(name: string) => RefName>()
+  })
+
+  it("types ctx.from() without a source as the current plugin's resolver", () => {
+    const ctx = {} as GeneratorContext<Kubb.PluginRegistry['plugin-types-test']>
+    expectTypeOf<ReturnType<typeof ctx.from<never>>['resolver']>().toEqualTypeOf<FromTypes>()
+  })
+
+  it('types getResolver by the plugin or provided name', () => {
+    expectTypeOf<ReturnType<typeof getResolver<'types-test'>>>().toEqualTypeOf<TypesResolver>()
   })
 
   it('takes only a factory of the provided type in provide', () => {

@@ -55,7 +55,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
    */
   file(node: SchemaNode | OperationNode, options?: FileOptions): FileTarget
   /** Another plugin's resolver, with each name's import. See the `from` composable. */
-  from<TSource extends PluginName | ProvideName = never>(source?: TSource): From<SourceResolver<TSource>>
+  from<TSource extends PluginName | ProvideName = never>(source?: TSource): From<SourceResolver<TSource, Extract<TOptions['resolver'], Resolver>>>
 }
 
 /**
