@@ -94,7 +94,6 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 | `ctx.schemas`    | `ReadonlyArray<SchemaNode>`    | Every schema in the spec, in adapter order. The OpenAPI adapter puts a referenced schema first, except in reference cycles. |
 | `ctx.operations` | `ReadonlyArray<OperationNode>` | Every operation in the spec, in adapter order.                                                                              |
 | `ctx.hooks`      | `Hookable<KubbHooks>`          | The build's [hook](/docs/5.x/reference/kit/hooks) emitter.                                                                  |
-| `ctx.driver`     | `KubbDriver`                   | Deprecated. Use `ctx.schemas`, `ctx.operations` and the helpers below.                                                      |
 | `ctx.signal`     | `AbortSignal \| undefined`     | Stops generation at the next safe checkpoint.                                                                               |
 
 `ctx` also has these helpers:
@@ -170,7 +169,7 @@ A name also gets no import when the result is not an identifier, such as a descr
 
 You pass only the node. The target resolver's [`file.name`](/docs/5.x/reference/kit/resolvers#resolver-overrides) decides the file.
 
-Imports are value imports. Add `isTypeOnly` on the `<File.Import>` where you use the names only as types.
+Imports are value imports. Set `space: 'type'` on the names you use only as types.
 
 `code` is a template tag that returns `{ text, imports }`:
 
@@ -182,7 +181,7 @@ Imports are value imports. Add `isTypeOnly` on the `<File.Import>` where you use
 Import paths are absolute. Pass the file you write as `root`, so each path becomes relative to it:
 
 ```tsx [zodGenerator.tsx]
-import { code, defineGenerator, file, from } from 'kubb/kit'
+import { ast, code, defineGenerator, file, from } from 'kubb/kit'
 import { Code, File, jsxRenderer } from '@kubb/renderer-jsx'
 
 export const zodGenerator = defineGenerator({
@@ -198,7 +197,12 @@ export const zodGenerator = defineGenerator({
       <File {...target}>
         <File.Import names={[{ name: 'z', space: 'value' }]} path="zod" />
         {source.imports.map((imp) => (
-          <File.Import key={imp.path} {...imp} root={target.path} isTypeOnly />
+          <File.Import
+            key={imp.path}
+            names={ast.file.getNames(imp).map((item) => ({ ...item, space: 'type' }))}
+            path={imp.path}
+            root={target.path}
+          />
         ))}
         <Code name={`${node.name}Schema`} export>
           {source.text}

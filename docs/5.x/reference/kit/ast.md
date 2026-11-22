@@ -27,9 +27,6 @@ const root = ast.factory.createInput({
 })
 ```
 
-> [!WARNING]
-> Old top-level names, such as `ast.narrowSchema` or `ast.transform`, are deprecated aliases until Kubb v6. Their JSDoc names the replacement.
-
 ## Node tree {#node-tree}
 
 An adapter returns one `InputNode`. Every node has a `kind`, such as `'Schema'`. A schema also has a `type`. A `ref` schema points at a schema in `schemas` instead of copying it.
@@ -174,8 +171,6 @@ ast.macro.compareOrder(undefined, 'post') // -1
 | `macroDiscriminatorEnum` | Turns a discriminator property into an enum of its values |
 | `macroEnumName`          | Names an inline enum from its parent and property         |
 
-`macroSimplifyUnion`, the pre-5.16 name of `macroDedupeUnion`, is deprecated.
-
 ### Macro options and callbacks
 
 A macro has the callbacks of an [`ast.node`](#visitors) visitor, a `name`, and optional `enforce` and `match`. Each callback gets the visitor context, with the node's `parent`, as `this` and as its second argument. It returns a replacement node, or `undefined` or `null` to keep the original.
@@ -286,8 +281,6 @@ ast.schema.getEmbeddedJson(jsonStringSchema)?.name // 'Pet'
 ast.schema.is(ast.factory.createSchema({ type: 'uuid' }), 'string') // true
 ast.schema.is(uploadSchema, 'binary', { follow: ['ref', 'array'] }) // true for Blob or Blob[] behind refs
 ```
-
-`ast.schema.isString` is deprecated. Use `ast.schema.is(node, 'string')`. `followRefs: true` on `find` is deprecated. Use `follow: ['ref']`. Both are removed in Kubb v6.
 
 To reuse `find` results, see [Schema search cache](#schema-search-cache).
 

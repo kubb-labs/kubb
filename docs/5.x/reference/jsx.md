@@ -173,26 +173,6 @@ You only need it when one generator writes code for several parts of the input. 
 </File>
 ```
 
-#### `File.Source` {#file-source}
-
-Deprecated, removed in Kubb v6. Replace it by what it wraps: `Code` for a printed declaration, `Raw` for anything else, or the JSX component itself when it wraps `Const`, `Type` or `Function`.
-
-```diff
-- <File.Source name="Pet" isExportable isIndexable isTypeOnly>{printed}</File.Source>
-+ <Type export name="Pet">{printedBody}</Type>
-
-- <File.Source name="petSchema" isExportable isIndexable>{printed}</File.Source>
-+ <Code name="petSchema" export>{printed}</Code>
-
-- <File.Source name="faker-seed">{'faker.seed(1)'}</File.Source>
-+ <Raw name="faker-seed">{'faker.seed(1)'}</Raw>
-
-- <File.Source name="getPet" isExportable isIndexable>
--   <Function export name="getPet">{body}</Function>
-- </File.Source>
-+ <Function export name="getPet">{body}</Function>
-```
-
 #### `File.Import` {#file-import}
 
 An import at the top of the enclosing `File`.
@@ -219,22 +199,6 @@ Each name prints as `type` when its `space` is `'type'`. A name without `space` 
 // import type { Pet } from './models/Pet', when Pet is declared as a type
 ```
 
-`name`, `isTypeOnly` and `isNameSpace` are deprecated and removed in Kubb v6. They still work and print the same as before. With `names` set, they are ignored.
-
-```diff
-- <File.Import name={['Pet']} path="./models" isTypeOnly />
-+ <File.Import names={[{ name: 'Pet', space: 'type' }]} path="./models" />
-
-- <File.Import name="z" path="zod" isNameSpace />
-+ <File.Import names={[{ name: '*', alias: 'z', space: 'value' }]} path="zod" />
-
-- <File.Import name="useSWR" path="swr" />
-+ <File.Import names={[{ name: 'default', alias: 'useSWR', space: 'value' }]} path="swr" />
-
-- <File.Import name={[{ propertyName: 'fakerEN', name: 'faker' }]} path="@faker-js/faker" />
-+ <File.Import names={[{ name: 'fakerEN', alias: 'faker', space: 'value' }]} path="@faker-js/faker" />
-```
-
 #### `File.Export` {#file-export}
 
 An export at the top of the enclosing `File`.
@@ -256,8 +220,6 @@ A name without `space` takes the space of the declaration it points to.
 <File.Export names={[{ name: '*', alias: 'models', space: 'value' }]} path="./models" />
 // export * as models from './models'
 ```
-
-`name`, `isTypeOnly` and `asAlias` are deprecated and removed in Kubb v6. They still work and print the same as before.
 
 #### `Schema` {#schema}
 
@@ -463,8 +425,6 @@ When a plugin writes a `File` with `copy` or `inline`, Kubb copies or absorbs it
   </Type>
 </File>
 ```
-
-`inline` on `Const`, `Type` and `Function` is deprecated and removed in Kubb v6. Set it on the `File`.
 
 The parser's `inline` member (`InlineLanguage`) runs before barrels. It finds names (`replaceIdentifiers`) and makes a definition safe to put where a name was (`wrap`). Only files of a parser with `inline`, such as `parserTs`, absorb inline sources.
 

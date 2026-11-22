@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Kubb CLI commands - Flags, env vars, and exit codes
-description: Every kubb CLI command with links to its reference, plus the global flags, deprecated flags, environment variables, and exit codes all commands share.
+description: Every kubb CLI command with links to its reference, plus the global flags, environment variables, and exit codes all commands share.
 outline: [2, 3]
 navigation:
   title: Commands
@@ -66,9 +66,6 @@ kubb <command> [options]
 | --- | --- | --- | --- |
 | `--help` | `-h` | `false` | Print the help of a command, such as `kubb add --help`. |
 | `--version` | `-v` | `false` | Print the CLI version. |
-
-> [!NOTE]
-> The v4 camelCase flags `--logLevel`, `--dryRun`, `--allowWrite`, `--allowConfigEdit`, `--allowExec`, and `--packageVersion` still work and print a deprecation warning. Use the kebab-case form, such as `--log-level`. `kubb update --check` is now `kubb update --dry-run`.
 
 ## Environment variables
 

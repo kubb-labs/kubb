@@ -68,9 +68,6 @@ import { casing } from 'kubb/kit'
 casing.camel('tag', { prefix: 'create' }) // 'createTag'
 ```
 
-> [!WARNING]
-> `camelCase` and `pascalCase` from `kubb/kit` are deprecated. Use `casing.camel` and `casing.pascal`.
-
 ## Text {#text}
 
 `text` escapes and formats strings for any output language, so a quote or line break in a spec name cannot break the output.
