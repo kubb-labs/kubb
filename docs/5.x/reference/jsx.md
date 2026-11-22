@@ -122,6 +122,7 @@ A printed declaration in the enclosing `File`, such as a schema from a printer o
 | `name` | `string` | The declared name, for barrels and deduplication |
 | `export?` | `boolean` | Lists the declaration in barrels. The text still needs its own `export`. |
 | `default?` | `boolean` | Marks the declaration as the default export, which barrels skip |
+| `space?` | `'type' \| 'value'` | Whether the declaration is a type or a value. Defaults to `'value'`. Imports and barrels of a `'type'` print `type`. |
 | `children?` | `KubbReactNode` | The printed declaration |
 
 ```tsx
@@ -143,7 +144,7 @@ Text in the enclosing `File` that declares nothing, such as a statement like `fa
 
 ```tsx
 <File baseName="pet.ts" path="src/gen/pet.ts">
-  <File.Import name={['faker']} path="@faker-js/faker" />
+  <File.Import names={[{ name: 'faker', space: 'value' }]} path="@faker-js/faker" />
   <Raw name="faker-seed">{'faker.seed(1)'}</Raw>
 </File>
 ```
@@ -198,18 +199,40 @@ An import at the top of the enclosing `File`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `name` | `string \| Array<string \| { propertyName: string; name?: string }>` | A string for a default or namespace import, or an array of named imports |
+| `names` | `Array<{ name: string; alias?: string; space?: 'type' \| 'value' }>` | The names to import. `name` is the name in the other module, `'default'` for its default export or `'*'` for the whole module. `alias` is the local name. |
 | `path` | `string` | The module to import from |
 | `root?` | `string \| null` | The file path the import is relative to |
-| `isTypeOnly?` | `boolean \| null` | Emits `import type` |
-| `isNameSpace?` | `boolean \| null` | Emits `import * as name` |
+
+Each name prints as `type` when its `space` is `'type'`. A name without `space` takes the one of the declaration it points to in the generated files. A name from a package needs `space`, because Kubb cannot read the package. Without it, the name prints as a value and the build warns.
 
 ```tsx
-<File.Import name={['useState']} path="react" />
+<File.Import names={[{ name: 'useState', space: 'value' }]} path="react" />
 // import { useState } from 'react'
 
-<File.Import name="z" path="zod" isNameSpace />
+<File.Import names={[{ name: '*', alias: 'z', space: 'value' }]} path="zod" />
 // import * as z from 'zod'
+
+<File.Import names={[{ name: 'default', alias: 'useSWR', space: 'value' }]} path="swr" />
+// import useSWR from 'swr'
+
+<File.Import names={[{ name: 'Pet' }]} root={target.path} path={types.path} />
+// import type { Pet } from './models/Pet', when Pet is declared as a type
+```
+
+`name`, `isTypeOnly` and `isNameSpace` are deprecated and removed in Kubb v6. They still work and print the same as before. A deprecated prop set next to `names`, such as `isTypeOnly` on a spread import, wins.
+
+```diff
+- <File.Import name={['Pet']} path="./models" isTypeOnly />
++ <File.Import names={[{ name: 'Pet', space: 'type' }]} path="./models" />
+
+- <File.Import name="z" path="zod" isNameSpace />
++ <File.Import names={[{ name: '*', alias: 'z', space: 'value' }]} path="zod" />
+
+- <File.Import name="useSWR" path="swr" />
++ <File.Import names={[{ name: 'default', alias: 'useSWR', space: 'value' }]} path="swr" />
+
+- <File.Import name={[{ propertyName: 'fakerEN', name: 'faker' }]} path="@faker-js/faker" />
++ <File.Import names={[{ name: 'fakerEN', alias: 'faker', space: 'value' }]} path="@faker-js/faker" />
 ```
 
 #### `File.Export` {#file-export}
@@ -218,18 +241,23 @@ An export at the top of the enclosing `File`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `name?` | `string \| Array<string> \| null` | The names to export, or none for a wildcard export |
+| `names` | `Array<{ name: string; alias?: string; space?: 'type' \| 'value' }>` | The names to export. `{ name: '*' }` exports everything, and an `alias` on it exports the module under one name. |
 | `path` | `string` | The module to export from |
-| `isTypeOnly?` | `boolean \| null` | Emits `export type` |
-| `asAlias?` | `boolean \| null` | Emits `export * as name` |
+
+A name without `space` takes the one of the declaration it points to.
 
 ```tsx
-<File.Export name={['Pet']} path="./models/petStore" />
-// export { Pet } from './models/petStore'
+<File.Export names={[{ name: 'Pet' }]} path="./models/petStore" />
+// export type { Pet } from './models/petStore', when Pet is declared as a type
 
-<File.Export path="./models/petStore" isTypeOnly />
-// export type * from './models/petStore'
+<File.Export names={[{ name: '*', space: 'value' }]} path="./models/petStore" />
+// export * from './models/petStore'
+
+<File.Export names={[{ name: '*', alias: 'models', space: 'value' }]} path="./models" />
+// export * as models from './models'
 ```
+
+`name`, `isTypeOnly` and `asAlias` are deprecated and removed in Kubb v6. They still work and print the same as before.
 
 #### `Schema` {#schema}
 

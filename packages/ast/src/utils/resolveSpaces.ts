@@ -1,0 +1,71 @@
+import path from 'node:path'
+import { memo } from '@internals/utils'
+import { createExport, createFile, createImport } from '../nodes/file.ts'
+import type { ExportNode, FileNode, ImportNode, ModuleName, Space } from '../nodes/file.ts'
+import { getNames, getSpace } from './moduleNames.ts'
+
+type ResolveSpacesResult = {
+  /**
+   * The file with a space on every import and export name, or the same file when none was missing.
+   */
+  file: FileNode
+  /**
+   * Names whose declaration was not found, such as `QueryClient from @tanstack/react-query`. They print as values.
+   */
+  unresolved: Array<string>
+}
+
+// The space of each declared name in a file. A name declared as both a type and a value, such as an
+// `asConst` enum, is a value: a value import of it is always valid.
+const spacesCache = memo.create<FileNode, Map<string, Space>>({ weak: true })
+
+function declaredSpaces(file: FileNode): Map<string, Space> {
+  return memo(spacesCache, file, () => {
+    const spaces = new Map<string, Space>()
+    for (const source of file.sources) {
+      const space = getSpace(source)
+      for (const name of [source.name, source.default ? 'default' : undefined]) {
+        if (name && spaces.get(name) !== 'value') spaces.set(name, space)
+      }
+    }
+    return spaces
+  })
+}
+
+const isOpen = (node: ImportNode | ExportNode): boolean => !!node.names && getNames(node).some((item) => !item.space)
+
+/**
+ * Fills in the space of each import and export name that has none, from the declaration it points to: the
+ * source with that name in the file `getFile` returns for the import or export path. Only reads the files,
+ * so it costs a lookup per name. Returns the same file when every name already has a space.
+ *
+ * @example
+ * ```ts
+ * const { file: resolved, unresolved } = resolveSpaces(file, (path) => files.get(path))
+ * ```
+ */
+export function resolveSpaces(file: FileNode, getFile: (path: string) => FileNode | undefined): ResolveSpacesResult {
+  if (!file.imports.some(isOpen) && !file.exports.some(isOpen)) return { file, unresolved: [] }
+
+  const unresolved: Array<string> = []
+  const settle = (node: ImportNode | ExportNode, target: FileNode | undefined): Array<ModuleName> =>
+    getNames(node).map((item) => {
+      if (item.space) return item
+      const space = item.name === '*' ? 'value' : target && declaredSpaces(target).get(item.name)
+      if (!space) unresolved.push(`${item.name} from ${node.path}`)
+      return { ...item, space: space || 'value' }
+    })
+
+  // A relative export path is written without the extension of the file it points to.
+  const exportTarget = (node: ExportNode): FileNode | undefined => {
+    const base = path.resolve(path.dirname(file.path), node.path)
+    return getFile(base) ?? getFile(`${base}${file.extname}`) ?? getFile(path.join(base, `index${file.extname}`))
+  }
+
+  const imports = file.imports.map((node) =>
+    isOpen(node) ? createImport({ path: node.path, ...(node.root != null ? { root: node.root } : {}), names: settle(node, getFile(node.path)) }) : node,
+  )
+  const exports = file.exports.map((node) => (isOpen(node) ? createExport({ path: node.path, names: settle(node, exportTarget(node)) }) : node))
+
+  return { file: createFile({ ...file, imports, exports }), unresolved }
+}

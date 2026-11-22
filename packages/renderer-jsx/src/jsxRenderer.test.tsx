@@ -284,6 +284,44 @@ describe('File.Import', () => {
       isNameSpace: false,
     })
   })
+
+  it('keeps names and fills in the deprecated fields', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="client.ts" path="src/client.ts">
+        <File.Import names={[{ name: '*', alias: 'z', space: 'value' }]} path="zod" />
+      </File>,
+    )
+
+    expect(renderer.files[0]?.imports[0]).toMatchObject({ names: [{ name: '*', alias: 'z', space: 'value' }], name: 'z', isNameSpace: true, isTypeOnly: false })
+  })
+
+  it('lets isTypeOnly win over the names of a spread import, as plugins write it', async () => {
+    const imp = ast.factory.createImport({ names: [{ name: 'RequestConfig', space: 'value' }], path: './client' })
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="client.ts" path="src/client.ts">
+        <File.Import {...imp} root="/src/client.ts" isTypeOnly />
+      </File>,
+    )
+
+    expect(ast.file.getNames(renderer.files[0]!.imports[0]!)).toStrictEqual([{ name: 'RequestConfig', space: 'type' }])
+  })
+})
+
+describe('Code', () => {
+  it('passes space to the source', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Code name="Pet" export space="type">
+          {'export type Pet = { id: number }'}
+        </Code>
+      </File>,
+    )
+
+    expect(ast.file.getSpace(renderer.files[0]!.sources[0]!)).toBe('type')
+  })
 })
 
 describe('File.Export', () => {

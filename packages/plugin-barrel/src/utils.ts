@@ -82,7 +82,8 @@ function makeBarrel(dirPath: string, exports: Array<ast.ExportNode>, ctx: WalkCo
     })
 
     if (item.name == null) return [item]
-    return uniqueNames.length > 0 ? [ast.factory.createExport({ ...item, name: Array.isArray(item.name) ? uniqueNames : uniqueNames[0] })] : []
+    const kept = ast.file.getNames(item).filter((name) => uniqueNames.includes(name.alias ?? name.name))
+    return kept.length > 0 ? [ast.factory.createExport({ path: item.path, names: kept })] : []
   })
 
   const file = ast.factory.createFile({ baseName: 'index.ts', path: `${dirPath}${BARREL_SUFFIX}`, exports: uniqueExports })
@@ -102,25 +103,31 @@ function getLeafNames(sourceFile: ast.FileNode): LeafNames {
   return memo(leafNamesCache, sourceFile, () => ({
     hasSources: sources.length > 0,
     hasExported: sources.some(isExported),
-    valueNames: exportedNames(sources, false),
-    typeNames: exportedNames(sources, true),
+    valueNames: exportedNames(sources, 'value'),
+    typeNames: exportedNames(sources, 'type'),
   }))
 }
 
 // `isIndexable` is the deprecated spelling of `export`. A default export can't be re-exported by name.
 const isExported = (source: ast.SourceNode): boolean => !source.default && !!(source.export ?? source.isIndexable)
 
-function exportedNames(sources: ReadonlyArray<ast.SourceNode>, isTypeOnly: boolean): Array<string> {
-  const names = sources.flatMap((source) => (isExported(source) && source.name && Boolean(source.isTypeOnly) === isTypeOnly ? [source.name] : []))
+function exportedNames(sources: ReadonlyArray<ast.SourceNode>, space: ast.Space): Array<string> {
+  const names = sources.flatMap((source) => (isExported(source) && source.name && ast.file.getSpace(source) === space ? [source.name] : []))
   return [...new Set(names)].sort()
 }
+
+// `export * from`, which passes on every name the module exports.
+const everything = (path: string): ast.ExportNode => ast.factory.createExport({ names: [{ name: '*', space: 'value' }], path })
+
+const namedExport = (names: Array<string>, space: ast.Space, path: string): ast.ExportNode =>
+  ast.factory.createExport({ names: names.map((name) => ({ name, space })), path })
 
 /**
  * Re-exports the whole module, unless it has sources and none of them is exported.
  */
 const allStrategy: LeafStrategy = (path, sourceFile) => {
   const names = sourceFile && getLeafNames(sourceFile)
-  return names?.hasSources && !names.hasExported ? [] : [ast.factory.createExport({ path })]
+  return names?.hasSources && !names.hasExported ? [] : [everything(path)]
 }
 
 /**
@@ -128,13 +135,10 @@ const allStrategy: LeafStrategy = (path, sourceFile) => {
  */
 const namedStrategy: LeafStrategy = (path, sourceFile) => {
   const names = sourceFile && getLeafNames(sourceFile)
-  if (!names?.hasSources) return [ast.factory.createExport({ path })]
+  if (!names?.hasSources) return [everything(path)]
 
   const { valueNames, typeNames } = names
-  return [
-    ...(valueNames.length > 0 ? [ast.factory.createExport({ name: valueNames, path })] : []),
-    ...(typeNames.length > 0 ? [ast.factory.createExport({ name: typeNames, path, isTypeOnly: true })] : []),
-  ]
+  return [...(valueNames.length > 0 ? [namedExport(valueNames, 'value', path)] : []), ...(typeNames.length > 0 ? [namedExport(typeNames, 'type', path)] : [])]
 }
 
 type FlatWalk = { barrels: Array<ast.FileNode>; leaves: Array<string> }
@@ -169,9 +173,10 @@ function walkNested(node: DirectoryNode, ctx: WalkContext): Array<ast.FileNode> 
     if (barrels.length === 0) return { barrels, exports: [] }
 
     const modulePath = toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`)
-    const exports = [ast.factory.createExport({ path: modulePath })]
+    const exports = [everything(modulePath)]
     const name = casing.pascal(posix.basename(child.path))
-    if (ctx.namespace) exports.push(ast.factory.createExport({ path: modulePath, name: /^[A-Za-z]/.test(name) ? name : `_${name}`, asAlias: true }))
+    const alias = /^[A-Za-z]/.test(name) ? name : `_${name}`
+    if (ctx.namespace) exports.push(ast.factory.createExport({ names: [{ name: '*', alias, space: 'value' }], path: modulePath }))
     return { barrels, exports }
   })
   const barrels = results.flatMap((result) => result.barrels)

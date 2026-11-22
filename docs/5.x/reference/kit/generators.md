@@ -136,7 +136,7 @@ export const zodGenerator = defineGenerator({
 
     return (
       <File {...file(node)}>
-        <File.Import name={['Pet']} path={types.path} isTypeOnly />
+        <File.Import names={[{ name: 'Pet' }]} path={types.path} />
       </File>
     )
   },
@@ -196,7 +196,7 @@ export const zodGenerator = defineGenerator({
 
     return (
       <File {...target}>
-        <File.Import name={['z']} path="zod" />
+        <File.Import names={[{ name: 'z', space: 'value' }]} path="zod" />
         {source.imports.map((imp) => (
           <File.Import key={imp.path} {...imp} root={target.path} isTypeOnly />
         ))}

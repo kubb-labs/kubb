@@ -129,10 +129,11 @@ function collectFileChildren(element: unknown): FileChildren {
     },
     (host) => {
       if (host.type === 'kubb-code') {
-        const { name, isTypeOnly, export: isExport, default: isDefault, inline, children } = host.props
+        const { name, space, isTypeOnly, export: isExport, default: isDefault, inline, children } = host.props
         sources.push(
           ast.factory.createSource({
             name: name?.toString(),
+            ...(space ? { space } : {}),
             isTypeOnly: !!isTypeOnly,
             export: !!isExport,
             ...(isDefault ? { default: true } : {}),
@@ -150,14 +151,24 @@ function collectFileChildren(element: unknown): FileChildren {
       }
 
       if (host.type === 'kubb-export') {
-        const { name, path, isTypeOnly, asAlias } = host.props
-        exports.push(ast.factory.createExport({ name, path, isTypeOnly: !!isTypeOnly, asAlias: !!asAlias }))
+        const { names, name, path, isTypeOnly, asAlias } = host.props
+        // With `names`, the deprecated props pass as given, so the factory can tell a set one from a missing one.
+        exports.push(
+          names
+            ? ast.factory.createExport({ names, name, path, isTypeOnly, asAlias })
+            : ast.factory.createExport({ name, path, isTypeOnly: !!isTypeOnly, asAlias: !!asAlias }),
+        )
         return
       }
 
       if (host.type === 'kubb-import') {
-        const { name, path, root, isTypeOnly, isNameSpace } = host.props
-        imports.push(ast.factory.createImport({ name, path, root, isTypeOnly: !!isTypeOnly, isNameSpace: !!isNameSpace }))
+        const { names, name, path, root, isTypeOnly, isNameSpace } = host.props
+        // With `names`, the deprecated props pass as given, so the factory can tell a set one from a missing one.
+        imports.push(
+          names
+            ? ast.factory.createImport({ names, name, path, root, isTypeOnly, isNameSpace })
+            : ast.factory.createImport({ name, path, root, isTypeOnly: !!isTypeOnly, isNameSpace: !!isNameSpace }),
+        )
         return
       }
 

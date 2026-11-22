@@ -197,6 +197,44 @@ describe('FileManager', () => {
       },
     )
 
+    it('gives a name without a space the one of its declaration, and warns about names it cannot find', async () => {
+      const storage = memoryStorage()
+      const hooks = new Hookable<KubbHooks>()
+      const warnings: Array<string> = []
+      hooks.hook('kubb:warn', ({ message }) => void warnings.push(message))
+      const parser = {
+        name: 'ts',
+        type: 'parser' as const,
+        extNames: ['.ts' as const],
+        install: vi.fn(),
+        parse: (file: FileNode) => file.imports.flatMap((imp) => ast.file.getNames(imp).map((item) => `${item.name}:${item.space}`)).join(' '),
+        print: vi.fn().mockReturnValue(''),
+      }
+      const manager = new FileManager()
+      const pet = ast.factory.createFile({
+        baseName: 'pet.ts',
+        path: '/gen/pet.ts',
+        sources: [ast.factory.createSource({ name: 'Pet', export: true, nodes: [ast.factory.createType({ name: 'Pet', export: true })] })],
+      })
+      const client = ast.factory.createFile({
+        baseName: 'client.ts',
+        path: '/gen/client.ts',
+        sources: [ast.factory.createSource({ nodes: [ast.factory.createText('let pet: Pet, client: QueryClient')] })],
+        imports: [
+          ast.factory.createImport({ names: [{ name: 'Pet' }], root: '/gen/client.ts', path: '/gen/pet.ts' }),
+          ast.factory.createImport({ names: [{ name: 'QueryClient' }], path: '@tanstack/react-query' }),
+        ],
+      })
+      manager.add(pet, client)
+
+      await manager.write(manager.files, { storage, hooks, parsers: new Map([['.ts' as const, parser]]) })
+
+      expect(await storage.readItem('/gen/client.ts')).toBe('Pet:type QueryClient:value')
+      expect(warnings).toStrictEqual([
+        'Imports and exports with no known type or value, printed as values: QueryClient from @tanstack/react-query in /gen/client.ts.',
+      ])
+    })
+
     it('writes files under the cleaned directory without reading them back', async () => {
       const storage = memoryStorage()
       const readItem = vi.spyOn(storage, 'readItem')

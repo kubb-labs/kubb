@@ -424,9 +424,21 @@ export function printImport({
 /**
  * Renders an `export … from` declaration (named, `* as name`, or wildcard, each optionally `type`-only). `path` is used verbatim, so resolve it first.
  */
-export function printExport({ path, name, isTypeOnly = false, asAlias = false }: Pick<ast.ExportNode, 'name' | 'path' | 'isTypeOnly' | 'asAlias'>): string {
+export function printExport({
+  path,
+  names,
+  name,
+  isTypeOnly = false,
+  asAlias = false,
+}: Pick<ast.ExportNode, 'names' | 'name' | 'path' | 'isTypeOnly' | 'asAlias'>): string {
   const typePrefix = isTypeOnly ? 'type ' : ''
   const from = quoteModulePath(path)
+
+  // Only `names` holds an alias on a named export; with mixed spaces each type name gets its own `type`.
+  if (names?.some((item) => item.alias && item.name !== '*')) {
+    const specifiers = names.map((item) => `${!isTypeOnly && item.space === 'type' ? 'type ' : ''}${item.alias ? `${item.name} as ${item.alias}` : item.name}`)
+    return `export ${typePrefix}{ ${specifiers.join(', ')} } from ${from}`
+  }
 
   if (Array.isArray(name)) {
     return `export ${typePrefix}{ ${name.join(', ')} } from ${from}`

@@ -2,6 +2,7 @@ import { hash } from 'node:crypto'
 import path from 'node:path'
 import { nodeKinds } from '../constants.ts'
 import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
+import { exportFields, importFields, matchesFields } from '../utils/moduleNames.ts'
 import { getNodeText } from '../utils/nodeText.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
 import type { CodeNode } from './code.ts'
@@ -14,38 +15,72 @@ type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
 type ImportName = string | Array<string | { propertyName: string; name?: string }>
 
 /**
+ * Whether a declaration exists only at compile time (`'type'`) or also at runtime (`'value'`).
+ */
+export type Space = 'type' | 'value'
+
+/**
+ * One name an import or export brings across, in any language. Follows the ECMAScript `ImportEntry` record.
+ *
+ * @example Named import with an alias (TypeScript: `import { fakerEN as faker }`)
+ * `{ name: 'fakerEN', alias: 'faker' }`
+ *
+ * @example Default import (TypeScript: `import useSWR from 'swr'`)
+ * `{ name: 'default', alias: 'useSWR' }`
+ *
+ * @example Whole module (TypeScript: `import * as z from 'zod'`)
+ * `{ name: '*', alias: 'z' }`
+ */
+export type ModuleName = {
+  /**
+   * Name in the other module. `'default'` is its default export and `'*'` the whole module.
+   */
+  name: string
+  /**
+   * Local name for an import, or the exported name for an export.
+   */
+  alias?: string | null
+  /**
+   * Whether the name is a type or a value. When it is not set, the space of the declaration it points to is
+   * used before the file is printed.
+   */
+  space?: Space | null
+}
+
+/**
  * Represents a language-agnostic import/dependency declaration.
  *
  * @example Named import (TypeScript: `import { useState } from 'react'`)
  * ```ts
- * createImport({ name: ['useState'], path: 'react' })
+ * createImport({ names: [{ name: 'useState' }], path: 'react' })
  * ```
  *
  * @example Default import (TypeScript: `import React from 'react'`)
  * ```ts
- * createImport({ name: 'React', path: 'react' })
+ * createImport({ names: [{ name: 'default', alias: 'React' }], path: 'react' })
  * ```
  *
  * @example Type-only import (TypeScript: `import type { FC } from 'react'`)
  * ```ts
- * createImport({ name: ['FC'], path: 'react', isTypeOnly: true })
+ * createImport({ names: [{ name: 'FC', space: 'type' }], path: 'react' })
  * ```
  *
  * @example Namespace import (TypeScript: `import * as React from 'react'`)
  * ```ts
- * createImport({ name: 'React', path: 'react', isNameSpace: true })
+ * createImport({ names: [{ name: '*', alias: 'React' }], path: 'react' })
  * ```
  */
 export type ImportNode = BaseNode & {
   kind: 'Import'
   /**
+   * The names the import brings in. Read them with `ast.file.getNames`, which also covers nodes built with
+   * the deprecated fields.
+   */
+  names?: Array<ModuleName> | null
+  /**
    * Import name(s) to be used.
    *
-   * @example Named imports
-   * `['useState']`
-   *
-   * @example Default import
-   * `'React'`
+   * @deprecated Use `names`. Removed in Kubb v6.
    */
   name: ImportName
   /**
@@ -57,14 +92,14 @@ export type ImportNode = BaseNode & {
   path: string
   /**
    * Add a type-only import prefix.
-   * - `true` generates `import type { Type } from './path'`
-   * - `false` generates `import { Type } from './path'`
+   *
+   * @deprecated Set `space: 'type'` on each name. Removed in Kubb v6.
    */
   isTypeOnly?: boolean | null
   /**
    * Import the entire module as a namespace.
-   * - `true` generates `import * as Name from './path'`
-   * - `false` generates a standard import
+   *
+   * @deprecated Use `{ name: '*', alias }` in `names`. Removed in Kubb v6.
    */
   isNameSpace?: boolean | null
   /**
@@ -78,34 +113,35 @@ export type ImportNode = BaseNode & {
  *
  * @example Named export (TypeScript: `export { Pets } from './Pets'`)
  * ```ts
- * createExport({ name: ['Pets'], path: './Pets' })
+ * createExport({ names: [{ name: 'Pets' }], path: './Pets' })
  * ```
  *
  * @example Type-only export (TypeScript: `export type { Pet } from './Pet'`)
  * ```ts
- * createExport({ name: ['Pet'], path: './Pet', isTypeOnly: true })
+ * createExport({ names: [{ name: 'Pet', space: 'type' }], path: './Pet' })
  * ```
  *
  * @example Wildcard export (TypeScript: `export * from './utils'`)
  * ```ts
- * createExport({ path: './utils' })
+ * createExport({ names: [{ name: '*' }], path: './utils' })
  * ```
  *
  * @example Namespace alias (TypeScript: `export * as utils from './utils'`)
  * ```ts
- * createExport({ name: 'utils', path: './utils', asAlias: true })
+ * createExport({ names: [{ name: '*', alias: 'utils' }], path: './utils' })
  * ```
  */
 export type ExportNode = BaseNode & {
   kind: 'Export'
   /**
+   * The names the export passes on. Read them with `ast.file.getNames`, which also covers nodes built with
+   * the deprecated fields.
+   */
+  names?: Array<ModuleName> | null
+  /**
    * Export name(s) to be used. When omitted, generates a wildcard export.
    *
-   * @example Named exports
-   * `['useState']`
-   *
-   * @example Single export
-   * `'React'`
+   * @deprecated Use `names`. Removed in Kubb v6.
    */
   name?: string | Array<string> | null
   /**
@@ -117,14 +153,14 @@ export type ExportNode = BaseNode & {
   path: string
   /**
    * Add a type-only export prefix.
-   * - `true` generates `export type { Type } from './path'`
-   * - `false` generates `export { Type } from './path'`
+   *
+   * @deprecated Set `space: 'type'` on each name. Removed in Kubb v6.
    */
   isTypeOnly?: boolean | null
   /**
    * Export as an aliased namespace.
-   * - `true` generates `export * as aliasName from './path'`
-   * - `false` generates a standard export
+   *
+   * @deprecated Use `{ name: '*', alias }` in `names`. Removed in Kubb v6.
    */
   asAlias?: boolean | null
 }
@@ -149,7 +185,14 @@ export type SourceNode = BaseNode & {
    */
   name?: string | null
   /**
+   * Whether the declaration is a type or a value. When it is not set, a source whose first node is a `Type`
+   * is a type. Read it with `ast.file.getSpace`.
+   */
+  space?: Space | null
+  /**
    * Mark this source as a type-only export.
+   *
+   * @deprecated Use `space: 'type'`. Removed in Kubb v6.
    */
   isTypeOnly?: boolean | null
   /**
@@ -271,26 +314,59 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
 }
 
 /**
- * Creates an `ImportNode` representing a language-agnostic import/dependency declaration.
+ * Input for {@link createImport}: `names`, or the deprecated `name` with `isTypeOnly` and `isNameSpace`.
+ */
+export type ImportInput = Omit<ImportNode, 'kind' | 'name'> & { name?: ImportName }
+
+/**
+ * Input for {@link createExport}: `names`, or the deprecated `name` with `isTypeOnly` and `asAlias`.
+ */
+export type ExportInput = Omit<ExportNode, 'kind'>
+
+/**
+ * Creates an `ImportNode` representing a language-agnostic import/dependency declaration. A node built
+ * from `names` also carries the deprecated fields, so code that still reads them keeps working. When both
+ * are passed and the deprecated fields describe a different import, those win.
  *
  * @example Named import
  * ```ts
- * createImport({ name: ['useState'], path: 'react' })
+ * createImport({ names: [{ name: 'useState' }], path: 'react' })
  * // import { useState } from 'react'
  * ```
  */
-export const createImport = nodeFactory<ImportNode>(nodeKinds.import)
+export function createImport(input: ImportInput): ImportNode {
+  if (input.names) {
+    // Without a deprecated `name`, a deprecated `isTypeOnly` only marks every name as a type.
+    const names = input.name === undefined && input.isTypeOnly ? input.names.map((item) => ({ ...item, space: 'type' as const })) : input.names
+    const fields = importFields(names)
+    if (input.name === undefined || matchesFields({ ...input, name: input.name }, fields)) return { ...input, ...fields, names, kind: nodeKinds.import }
+  }
+  const { names: _names, ...rest } = input
+  return { ...rest, name: rest.name ?? [], kind: nodeKinds.import }
+}
 
 /**
- * Creates an `ExportNode` representing a language-agnostic export/public API declaration.
+ * Creates an `ExportNode` representing a language-agnostic export/public API declaration. A node built
+ * from `names` also carries the deprecated fields, so code that still reads them keeps working. When both
+ * are passed and the deprecated fields describe a different export, those win.
  *
  * @example Named export
  * ```ts
- * createExport({ name: ['Pet'], path: './Pet' })
+ * createExport({ names: [{ name: 'Pet' }], path: './Pet' })
  * // export { Pet } from './Pet'
  * ```
  */
-export const createExport = nodeFactory<ExportNode>(nodeKinds.export)
+export function createExport(input: ExportInput): ExportNode {
+  if (input.names) {
+    // Without a deprecated `name` or `asAlias`, a deprecated `isTypeOnly` only marks every name as a type.
+    const onlyFlag = input.name === undefined && !input.asAlias
+    const names = onlyFlag && input.isTypeOnly ? input.names.map((item) => ({ ...item, space: 'type' as const })) : input.names
+    const fields = exportFields(names)
+    if (onlyFlag || matchesFields(input, fields)) return { ...input, ...fields, names, kind: nodeKinds.export }
+  }
+  const { names: _names, ...rest } = input
+  return { ...rest, kind: nodeKinds.export }
+}
 
 /**
  * Creates a `SourceNode` representing a fragment of source code within a file.
@@ -374,6 +450,12 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     // same file: by path when the import still targets this file, by name when consolidation moved it.
     return combinedImports.flatMap((imp) => {
       if (imp.path === input.path) return []
+      // An import whose space is still open keeps its `names`, so they must change with it.
+      if (imp.names) {
+        const kept = imp.names.filter((item) => !localNames.has(item.alias ?? item.name))
+        if (!kept.length) return []
+        return [kept.length === imp.names.length ? imp : createImport({ ...imp, name: undefined, isTypeOnly: undefined, isNameSpace: undefined, names: kept })]
+      }
       if (!Array.isArray(imp.name)) {
         return typeof imp.name === 'string' && localNames.has(imp.name) ? [] : [imp]
       }

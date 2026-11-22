@@ -64,32 +64,43 @@ type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value' | 'nodes'> & {
  *
  * @deprecated Use `Code` or `Raw`, or put `Const`, `Type` or `Function` directly in `File`. Removed in Kubb v6.
  */
-function FileSource({ children, name, pointer, export: isExport, default: isDefault, isIndexable, isTypeOnly, inline }: FileSourceProps): KubbReactElement {
+function FileSource({
+  children,
+  name,
+  pointer,
+  export: isExport,
+  default: isDefault,
+  isIndexable,
+  space,
+  isTypeOnly,
+  inline,
+}: FileSourceProps): KubbReactElement {
   return (
     <kubb-origin pointer={pointer}>
-      <kubb-code name={name} export={isExport ?? isIndexable} default={isDefault} isTypeOnly={isTypeOnly} inline={inline}>
+      <kubb-code name={name} export={isExport ?? isIndexable} default={isDefault} space={space} isTypeOnly={isTypeOnly} inline={inline}>
         {children}
       </kubb-code>
     </kubb-origin>
   )
 }
 
-type FileExportProps = Omit<ast.ExportNode, 'kind'> & { key?: Key }
+type FileExportProps = ast.ExportInput & { key?: Key }
 
 /**
  * Declares an export entry for the enclosing {@link File}.
  *
- * The export is collected by the renderer and emitted at the top of the generated file.
+ * The export is collected by the renderer and emitted at the top of the generated file. A name without a
+ * `space` takes the one of the declaration it points to.
  *
  * @example Named export
  * ```tsx
- * <File.Export name={['Pet']} path="./models/petStore" />
+ * <File.Export names={[{ name: 'Pet' }]} path="./models/petStore" />
  * // export { Pet } from './models/petStore'
  * ```
  *
  * @example Type-only wildcard export
  * ```tsx
- * <File.Export path="./models/petStore" isTypeOnly />
+ * <File.Export names={[{ name: '*', space: 'type' }]} path="./models/petStore" />
  * // export type * from './models/petStore'
  * ```
  */
@@ -97,28 +108,29 @@ function FileExport(props: FileExportProps): KubbReactElement {
   return <kubb-export {...props} />
 }
 
-type FileImportProps = Omit<ast.ImportNode, 'kind'> & { key?: Key }
+type FileImportProps = ast.ImportInput & { key?: Key }
 
 /**
  * Declares an import entry for the enclosing {@link File}.
  *
- * The import is collected by the renderer and emitted at the top of the generated file.
+ * The import is collected by the renderer and emitted at the top of the generated file. A name without a
+ * `space` takes the one of the declaration it points to; a name from a package needs one set.
  *
  * @example Named import
  * ```tsx
- * <File.Import name={['useState']} path="react" />
+ * <File.Import names={[{ name: 'useState', space: 'value' }]} path="react" />
  * // import { useState } from 'react'
  * ```
  *
- * @example Type-only import
+ * @example Generated type, space from its declaration
  * ```tsx
- * <File.Import name={['Pet']} path="./models" isTypeOnly />
- * // import type { Pet } from './models'
+ * <File.Import names={[{ name: 'Pet' }]} root={file.path} path={petFile.path} />
+ * // import type { Pet } from './models/Pet'
  * ```
  *
  * @example Namespace import
  * ```tsx
- * <File.Import name="z" path="zod" isNameSpace />
+ * <File.Import names={[{ name: '*', alias: 'z', space: 'value' }]} path="zod" />
  * // import * as z from 'zod'
  * ```
  */

@@ -27,6 +27,7 @@ export function Schema<TOutput>({ node, printer, children }: Props<TOutput>): Ku
       {imports.map((imp) => (
         <File.Import
           key={[imp.path, imp.name].join('-')}
+          names={imp.names}
           name={imp.name}
           path={imp.path}
           root={imp.root}

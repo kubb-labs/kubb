@@ -182,12 +182,12 @@ export const pluginBarrel = defineExtension({
         getBarrelFiles({ index, targetPath: target, barrelType, nested, namespace, recursive: true, reportedCollisions }).forEach((file) => {
           upsertFile(withBarrelBannerFooter({ file, plugin, config }))
           if (file.path !== `${toPosixPath(target)}/index.ts`) return
-          file.exports
-            .filter((item) => item.asAlias)
-            .forEach((item) => {
-              const itemPath = `./${toPosixPath(path.relative(outputPath, path.resolve(target, item.path)))}`
-              namespaceExports.set(`${itemPath}\0${item.name}`, ast.factory.createExport({ ...item, path: itemPath }))
-            })
+          file.exports.forEach((item) => {
+            const alias = ast.file.getNames(item).find((name) => name.name === '*' && name.alias)?.alias
+            if (!alias) return
+            const itemPath = `./${toPosixPath(path.relative(outputPath, path.resolve(target, item.path)))}`
+            namespaceExports.set(`${itemPath}\0${alias}`, ast.factory.createExport({ names: [{ name: '*', alias, space: 'value' }], path: itemPath }))
+          })
         })
       })
       pendingBarrels.length = 0

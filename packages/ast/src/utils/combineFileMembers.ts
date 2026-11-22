@@ -6,7 +6,8 @@
  */
 import path from 'node:path'
 import { memo } from '@internals/utils'
-import type { ExportNode, ImportNode, SourceNode } from '../nodes/file.ts'
+import type { ExportNode, ImportNode, ModuleName, SourceNode } from '../nodes/file.ts'
+import { exportFields, getNames, getSpace, importFields } from './moduleNames.ts'
 
 const IDENTIFIER_RUN = /[\w$]+/g
 
@@ -25,6 +26,101 @@ type FileMember = { name?: string | Array<unknown> | null; isTypeOnly?: boolean 
  */
 export function importLocalName(item: ImportNameItem): string {
   return typeof item === 'string' ? item : (item.name ?? item.propertyName)
+}
+
+const hasSpace = (item: ModuleName): boolean => !!item.space
+
+// Drops `names` from a node whose deprecated fields were changed after it was built, so those fields are its only description.
+function withoutNames<TNode extends { names?: unknown }>(node: TNode): Omit<TNode, 'names'> {
+  const { names: _names, ...rest } = node
+  return rest
+}
+
+/**
+ * Splits an import built from `names` into the deprecated-field imports that print the same statements:
+ * one per default or whole-module name, and one named import per space. Returns `undefined` while a name
+ * has no space yet, since only the declaration it points to can tell.
+ */
+function splitImport(node: ImportNode): Array<ImportNode> | undefined {
+  const names = getNames(node)
+  if (names !== node.names) return [withoutNames(node) as ImportNode]
+  if (!names.every(hasSpace)) return undefined
+
+  const base = { kind: node.kind, path: node.path, ...(node.root != null ? { root: node.root } : {}) }
+  const split: Array<ImportNode> = []
+  const named = new Map<boolean, Array<ImportNameItem>>()
+  for (const item of names) {
+    const isTypeOnly = item.space === 'type'
+    if (item.alias && (item.name === '*' || item.name === 'default')) {
+      split.push({ ...base, name: item.alias, isTypeOnly, isNameSpace: item.name === '*' })
+      continue
+    }
+    const list = named.get(isTypeOnly) ?? []
+    named.set(isTypeOnly, list)
+    list.push(item.alias ? { propertyName: item.name, name: item.alias } : item.name)
+  }
+  for (const [isTypeOnly, name] of named) split.push({ ...base, name, isTypeOnly })
+  return split
+}
+
+/**
+ * Splits an export built from `names` into the deprecated-field exports that print the same statements.
+ * Returns `undefined` while a name has no space yet, or when a named export has an alias, which only `names` can hold.
+ */
+function splitExport(node: ExportNode): Array<ExportNode> | undefined {
+  const names = getNames(node)
+  if (names !== node.names) return [withoutNames(node) as ExportNode]
+  if (!names.every(hasSpace) || names.some((item) => item.alias && item.name !== '*')) return undefined
+
+  const split: Array<ExportNode> = []
+  const named = new Map<boolean, Array<string>>()
+  for (const item of names) {
+    const isTypeOnly = item.space === 'type'
+    if (item.name === '*') {
+      split.push({ kind: node.kind, path: node.path, isTypeOnly, ...(item.alias ? { name: item.alias, asAlias: true } : {}) })
+      continue
+    }
+    const list = named.get(isTypeOnly) ?? []
+    named.set(isTypeOnly, list)
+    list.push(item.name)
+  }
+  for (const [isTypeOnly, name] of named) split.push({ kind: node.kind, path: node.path, name, isTypeOnly })
+  return split
+}
+
+/**
+ * Splits `nodes` into deprecated-field nodes whose space is known, and the nodes whose space is still open.
+ */
+function partition<TNode>(nodes: Array<TNode>, split: (node: TNode) => Array<TNode> | undefined): { known: Array<TNode>; open: Array<TNode> } {
+  const known: Array<TNode> = []
+  const open: Array<TNode> = []
+  for (const node of nodes) {
+    // Nodes built with the deprecated fields need no split, which keeps this path free of allocations.
+    if (!(node as { names?: unknown }).names) {
+      known.push(node)
+      continue
+    }
+    const parts = split(node)
+    if (parts) known.push(...parts)
+    else open.push(node)
+  }
+  return { known, open }
+}
+
+/**
+ * Keeps imports or exports whose space is still open as they are, once per path and names, until
+ * `ast.file.resolveSpaces` settles them and the file is combined again.
+ */
+function keepOpen<TNode extends ImportNode | ExportNode>(nodes: Array<TNode>, keep: (item: ModuleName) => boolean = () => true): Array<TNode> {
+  const seen = new Set<string>()
+  return nodes.flatMap((node) => {
+    const names = getNames(node).filter(keep)
+    const key = `${node.path}\0${node.kind === 'Import' ? (node.root ?? '') : ''}\0${JSON.stringify(names)}`
+    if (!names.length || seen.has(key)) return []
+    seen.add(key)
+    const fields = node.kind === 'Import' ? importFields(names) : exportFields(names)
+    return [{ ...node, ...fields, names }]
+  })
 }
 
 /**
@@ -98,14 +194,14 @@ function mergeByPath<TNode extends FileMember>(result: Array<TNode>): (member: {
 }
 
 /**
- * Deduplicates `SourceNode` objects by `name + export + isTypeOnly`, keeping the first of each
+ * Deduplicates `SourceNode` objects by `name + export + space`, keeping the first of each
  * key. An unnamed source only drops when the same node appears twice, so markdown can repeat a
  * paragraph or a table. Returns the deduplicated array in original order.
  */
 export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
   const seen = new Set<SourceNode | string>()
   return sources.filter((source) => {
-    const key = source.name != null ? `${source.name}:${source.export ?? source.isExportable ?? false}:${source.isTypeOnly ?? false}` : source
+    const key = source.name != null ? `${source.name}:${source.export ?? source.isExportable ?? false}:${getSpace(source)}` : source
     if (seen.has(key)) return false
     seen.add(key)
     return true
@@ -119,12 +215,13 @@ export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
  * Non-array exports are deduplicated by exact identity. Returns a sorted, deduplicated array.
  */
 export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
+  const { known, open } = partition(exports, splitExport)
   const result: Array<ExportNode> = []
   const merge = mergeByPath(result)
   // Deduplicates non-array exports by their exact identity
   const seen = new Set<string>()
 
-  for (const curr of sortMembers(exports)) {
+  for (const curr of sortMembers(known)) {
     const { name, path, isTypeOnly, asAlias } = curr
 
     if (Array.isArray(name)) {
@@ -139,7 +236,7 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
     }
   }
 
-  return result
+  return [...result, ...keepOpen(open)]
 }
 
 /**
@@ -149,12 +246,13 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
  * `isTypeOnly` flag have their names merged. Returns a sorted, deduplicated, filtered array.
  */
 export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
+  const { known, open } = partition(imports, splitImport)
   // Build a lookup of all exported names to retain imports that are re-exported
   const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
   // `createFile` re-runs on every merge into a file, so scanning the source once per import name
   // costs a heavily merged file that scan again for every fragment it already holds. Indexing pays
   // for itself there, and costs more than it saves on the small files the default output produces.
-  const identifiers = source && imports.length > INDEX_ABOVE_IMPORTS ? new Set(source.match(IDENTIFIER_RUN)) : null
+  const identifiers = source && known.length > INDEX_ABOVE_IMPORTS ? new Set(source.match(IDENTIFIER_RUN)) : null
 
   // A name in the index is used. One that is not still might be, inside a longer identifier, so the
   // substring test stays behind it.
@@ -173,7 +271,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   // even when its binding can't be found in `source` e.g. a generated `client` default import
   // alongside `import type { Client } from <same path>`, where merged grouped output omits the body.
   const pathsWithUsedNamedImport = new Set<string>()
-  for (const node of imports) {
+  for (const node of known) {
     if (Array.isArray(node.name) && node.name.some((item) => isUsed(importLocalName(item)))) {
       pathsWithUsedNamedImport.add(node.path)
     }
@@ -184,7 +282,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   // Deduplicates non-array imports by their exact identity
   const seen = new Set<string>()
 
-  for (const curr of sortMembers(imports)) {
+  for (const curr of sortMembers(known)) {
     if (curr.path === curr.root) continue
 
     const { name, path, isTypeOnly } = curr
@@ -204,5 +302,6 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
     }
   }
 
-  return result
+  const openImports = open.filter((node) => node.path !== node.root)
+  return [...result, ...keepOpen(openImports, (item) => isUsed(item.alias ?? item.name))]
 }

@@ -180,6 +180,17 @@ describe('printExport', () => {
     },
     { when: 'isTypeOnly is set', node: { name: ['Pet'], path: './Pet.ts', isTypeOnly: true }, expected: "export type { Pet } from './Pet.ts'" },
     { when: 'name is a string', node: { name: 'Pet', path: './Pet.ts' }, expected: "export { Pet } from './Pet.ts'" },
+    {
+      when: 'a named export has an alias',
+      node: {
+        names: [
+          { name: 'Pet', alias: 'Animal', space: 'type' as const },
+          { name: 'petSchema', space: 'value' as const },
+        ],
+        path: './Pet.ts',
+      },
+      expected: "export { type Pet as Animal, petSchema } from './Pet.ts'",
+    },
   ])('returns $expected when $when', ({ node, expected }) => {
     expect(printExport(node)).toBe(expected)
   })
