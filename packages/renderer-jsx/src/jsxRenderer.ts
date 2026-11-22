@@ -116,7 +116,7 @@ function collectFileChildren(element: unknown): FileChildren {
     element,
     (text) => {
       if (text.trim()) {
-        throw new Error(`[jsx] '${text}' should be part of a <Source> component when using the <File/> component`)
+        throw new Error(`[jsx] '${text}' should be part of a <Code> or <Raw> component when using the <File/> component`)
       }
     },
     (host) => {

@@ -66,7 +66,9 @@ const files = renderer.files
 | Component       | Description                                                                 |
 | --------------- | --------------------------------------------------------------------------- |
 | `<File>`        | Declares a generated output file with its path and optional imports/exports |
-| `<File.Source>` | The source content block inside a `<File>`                                  |
+| `<Code>`        | A printed declaration inside a `<File>`, with `name`, `export` and `type`   |
+| `<Raw>`         | Text inside a `<File>` that declares nothing, such as a statement or JSON   |
+| `<Inline>`      | A printed declaration that importing files absorb                           |
 | `<Function>`    | Generates a TypeScript function declaration                                 |
 | `<Type>`        | Generates a TypeScript type alias                                           |
 | `<Const>`       | Generates a `const` variable declaration                                    |

@@ -70,18 +70,18 @@ const files = renderer.files
 
 | Group | Components |
 | --- | --- |
-| [Core](#core) | [`File`](#file), [`Source`](#source), [`File.Import`](#file-import), [`File.Export`](#file-export), [`Schema`](#schema) |
+| [Core](#core) | [`File`](#file), [`Code`](#code), [`Raw`](#raw), [`Inline`](#inline), [`File.Import`](#file-import), [`File.Export`](#file-export), [`Schema`](#schema) |
 | [JavaScript](#javascript) | [`Const`](#const), [`Function`](#function), [`Function.Arrow`](#function-arrow), [`Type`](#type) |
 | [Markdown](#markdown) | [`Callout`](#callout), [`Frontmatter`](#frontmatter), [`Heading`](#heading), [`List`](#list), [`Paragraph`](#paragraph) |
 | [JSX](#jsx) | [`Jsx`](#jsx-component) |
 
-Inside a code component or `Source`, `<br />` adds a line break.
+Inside a code component, `Code`, `Raw` or `Inline`, `<br />` adds a line break.
 
 ### Core
 
 #### `File` {#file}
 
-With `baseName` and `path`, `File` declares a generated file. Without them, it renders its children inline. Text directly in a `File`, outside `Source`, throws.
+With `baseName` and `path`, `File` declares a generated file. Without them, it renders its children inline. Text directly in a `File`, outside `Code`, `Raw` or `Inline`, throws.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -95,27 +95,48 @@ With `baseName` and `path`, `File` declares a generated file. Without them, it r
 
 ```tsx
 <File baseName="petStore.ts" path="src/models/petStore.ts">
-  <Source name="Pet" isExportable isIndexable>
+  <Code name="Pet" export type>
     {`export type Pet = { id: number; name: string }`}
-  </Source>
+  </Code>
 </File>
 ```
 
-#### `Source` {#source}
+#### `Code` {#code}
 
-A block of code in the enclosing `File` that no [JavaScript component](#javascript) covers: text from a printer, a statement such as `faker.seed(1)`, or a file that is not TypeScript, such as JSON. For a declaration written in JSX, put the JavaScript component directly in the `File`. `File.Source` is the deprecated name, removed in Kubb v6.
+A printed declaration in the enclosing `File`, such as a type from a printer or a class built as text. For a declaration written in JSX, put a [JavaScript component](#javascript) directly in the `File`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `name?` | `string \| null` | Names the source for deduplication and barrels |
-| `isExportable?` | `boolean \| null` | Marks an exported declaration. The text still needs its own `export`. |
-| `isIndexable?` | `boolean \| null` | Includes the source in barrels |
-| `isTypeOnly?` | `boolean \| null` | Marks a type-only export |
-| `inline?` | `{ expression: string } \| null` | Lets importing files use `expression` in place of the name |
+| `name` | `string` | The declared name, for barrels and deduplication |
+| `export?` | `boolean` | Marks the declaration as exported and lists it in barrels. The text still needs its own `export`. |
+| `index?` | `boolean` | Lists the declaration in barrels, or leaves it out. Defaults to `export`. |
+| `type?` | `boolean` | Marks a type-only declaration |
 | `pointer?` | `string` | The input location, such as `#/components/schemas/Pet` |
-| `children?` | `KubbReactNode` | The source text, or JSX |
+| `children?` | `KubbReactNode` | The printed declaration |
 
-See [Inline sources](#inline-sources) for `copy` and `inline`.
+#### `Raw` {#raw}
+
+Text in the enclosing `File` that declares nothing, such as a statement like `faker.seed(1)`, JSON, or markdown. Barrels leave it out.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `name?` | `string` | Keys deduplication, so a block several generators add to one file is written once |
+| `children?` | `KubbReactNode` | The text, written as is |
+
+#### `Inline` {#inline}
+
+A printed declaration that importing files absorb. See [Inline sources](#inline-sources).
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `name` | `string` | The declared name, which importing files replace |
+| `expression` | `string` | The right-hand side of the declaration, written in place of `name` |
+| `export?` | `boolean` | Marks the declaration as exported and lists it in barrels |
+| `type?` | `boolean` | Marks a type-only declaration |
+| `pointer?` | `string` | The input location |
+| `children?` | `KubbReactNode` | The printed declaration |
+
+`File.Source` is deprecated and removed in Kubb v6. Use `Code`, `Raw` or `Inline`.
 
 #### `File.Import` {#file-import}
 
@@ -254,7 +275,7 @@ A type alias, with the children as the type. `name` must start with an uppercase
 
 ### Markdown
 
-Each Markdown component emits its own source block, so put it directly in a `File`, not a `Source`. Name the file `.md` so `parserMd` prints it.
+Each Markdown component emits its own source block, so put it directly in a `File`, not in `Code` or `Raw`. Name the file `.md` so `parserMd` prints it.
 
 ```tsx [docs.tsx]
 import { Callout, File, Frontmatter, Heading, List, Paragraph, jsxRenderer } from 'kubb/jsx'
@@ -342,16 +363,16 @@ Embeds a raw JSX string, fragments included, such as a component body in a `Func
 
 ### Inline sources {#inline-sources}
 
-When a plugin writes a `File` with `copy` or a `Source` with `inline`, Kubb copies or absorbs it instead of printing it.
+When a plugin writes a `File` with `copy` or an `Inline`, Kubb copies or absorbs it instead of printing it.
 
 - `copy` on `File` is an absolute path to copy into the output, through the parser's `copy` hook if it has one. Its sources count for barrels but are not printed.
-- `inline.expression` on `Source` is the right-hand side of the declaration.
+- `expression` on `Inline` is the right-hand side of the declaration.
 - Kubb does not write a file whose sources are all inline. Files that import it get the expression and its imports.
 
 ```tsx
-<Source name="AddPetStatus200" isTypeOnly isExportable inline={{ expression: 'Pet' }}>
+<Inline name="AddPetStatus200" expression="Pet" export type>
   {`export type AddPetStatus200 = Pet`}
-</Source>
+</Inline>
 ```
 
 The parser's `inline` member (`InlineLanguage`) runs before barrels. It finds names (`replaceIdentifiers`) and makes a definition safe to put where a name was (`wrap`). Only files of a parser with `inline`, such as `parserTs`, absorb inline sources.

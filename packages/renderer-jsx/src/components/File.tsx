@@ -1,6 +1,5 @@
 import type { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../types.ts'
-import { Source } from './Source.tsx'
 
 type BasePropsWithBaseName = Pick<ast.FileNode, 'baseName' | 'path'>
 
@@ -38,9 +37,9 @@ type Props<TMeta extends object> = BaseProps &
  * @example Basic file with a source block
  * ```tsx
  * <File baseName="petStore.ts" path="src/models/petStore.ts">
- *   <Source name="Pet" isExportable isIndexable>
+ *   <Code name="Pet" export type>
  *     {`export type Pet = { id: number; name: string }`}
- *   </Source>
+ *   </Code>
  * </File>
  * ```
  */
@@ -50,6 +49,23 @@ export function File<TMeta extends object = object>({ children, ...props }: Prop
   }
 
   return <kubb-file {...props}>{children}</kubb-file>
+}
+
+type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value' | 'nodes'> & {
+  key?: Key
+  /**
+   * Child nodes rendered as the source content of this block.
+   */
+  children?: KubbReactNode
+}
+
+/**
+ * A block of source text in the enclosing {@link File}.
+ *
+ * @deprecated Use `Code`, `Raw` or `Inline`, or put `Const`, `Type` or `Function` directly in `File`. Removed in Kubb v6.
+ */
+function FileSource({ children, ...props }: FileSourceProps): KubbReactElement {
+  return <kubb-source {...props}>{children}</kubb-source>
 }
 
 type FileExportProps = Omit<ast.ExportNode, 'kind'> & { key?: Key }
@@ -106,5 +122,5 @@ function FileImport(props: FileImportProps): KubbReactElement {
 
 File.Export = FileExport
 File.Import = FileImport
-/** @deprecated Use `Source`, or put `Const`, `Type` or `Function` directly in `File`. Removed in Kubb v6. */
-File.Source = Source
+/** @deprecated Use `Code`, `Raw` or `Inline`, or put `Const`, `Type` or `Function` directly in `File`. Removed in Kubb v6. */
+File.Source = FileSource

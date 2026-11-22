@@ -5,7 +5,9 @@ import { File } from './components/File.tsx'
 import { Function } from './components/js/Function.tsx'
 import { Type } from './components/js/Type.tsx'
 import { Schema } from './components/Schema.tsx'
-import { Source } from './components/Source.tsx'
+import { Code } from './components/Code.tsx'
+import { Inline } from './components/Inline.tsx'
+import { Raw } from './components/Raw.tsx'
 import { jsxRenderer } from './jsxRenderer.ts'
 
 describe('jsxRenderer', () => {
@@ -49,22 +51,29 @@ describe('jsxRenderer', () => {
     expect(client?.sources[1]?.nodes?.[0]?.kind).toBe('Function')
   })
 
-  it('collects a Source block with its name, pointer and barrel flags, as File.Source did', async () => {
+  it('maps Code, Raw and Inline onto source blocks with their barrel flags', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="pet.ts" path="src/pet.ts">
-        <Source name="Pet" pointer="#/components/schemas/Pet" isExportable isIndexable isTypeOnly>
+        <Code name="Pet" export type pointer="#/components/schemas/Pet">
           {'export type Pet = { id: number }'}
-        </Source>
-        <Source name="seed">{'faker.seed(1)'}</Source>
+        </Code>
+        <Code name="PetKey" export index={false}>
+          {'export const PetKey = {}'}
+        </Code>
+        <Raw name="seed">{'faker.seed(1)'}</Raw>
+        <Inline name="AddPetStatus200" expression="Pet" export type>
+          {'export type AddPetStatus200 = Pet'}
+        </Inline>
       </File>,
     )
 
-    const [type, seed] = renderer.files[0]!.sources
+    const [type, key, seed, inline] = renderer.files[0]!.sources
     expect(type).toMatchObject({ name: 'Pet', pointer: '#/components/schemas/Pet', isExportable: true, isIndexable: true, isTypeOnly: true })
+    expect(key).toMatchObject({ name: 'PetKey', isExportable: true, isIndexable: false, isTypeOnly: false })
     expect(seed).toMatchObject({ name: 'seed', isExportable: false, isIndexable: false, isTypeOnly: false })
     expect(ast.node.getText(seed!.nodes)).toBe('faker.seed(1)')
-    expect(File.Source).toBe(Source)
+    expect(inline).toMatchObject({ name: 'AddPetStatus200', isExportable: true, isTypeOnly: true, inline: { expression: 'Pet' } })
   })
 
   it('maps Function, Function.Arrow, and Const props onto code nodes', async () => {
@@ -173,7 +182,7 @@ describe('jsxRenderer', () => {
           {'stray text'}
         </File>,
       ),
-    ).rejects.toThrow("[jsx] 'stray text' should be part of a <Source> component when using the <File/> component")
+    ).rejects.toThrow("[jsx] 'stray text' should be part of a <Code> or <Raw> component when using the <File/> component")
   })
 
   it('renders nested files inline when File has no baseName', async () => {
