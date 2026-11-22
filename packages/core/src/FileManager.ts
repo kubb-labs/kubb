@@ -339,7 +339,6 @@ export class FileManager {
     const unchanged: Array<string> = []
     // Shared files this build generates differently from the config that wrote them first.
     const mismatched: Array<string> = []
-    // Import and export names whose declaration was not found, so they print as values.
     const unresolved: Array<string> = []
     const progress = hooks && config ? createProgress(files, config, hooks) : undefined
 

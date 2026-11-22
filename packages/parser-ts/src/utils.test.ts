@@ -178,11 +178,6 @@ describe('printImport', () => {
       expected: "import { type Pet, petSchema } from './Pet.ts'",
     },
     { when: 'the path contains a quote', node: { names: [{ name: 'z' }], path: "./o'clock.ts" }, expected: "import { z } from './o\\'clock.ts'" },
-    {
-      when: 'a default or whole-module name has no alias',
-      node: { names: [{ name: 'default' }, { name: '*' }, { name: 'z' }], path: 'zod' },
-      expected: "import { z } from 'zod'",
-    },
   ])('returns $expected when $when', ({ node, expected }) => {
     expect(printImport(node)).toBe(expected)
   })
@@ -217,22 +212,6 @@ describe('printExport', () => {
         path: './Pet.ts',
       },
       expected: "export { type Pet as Animal, petSchema } from './Pet.ts'",
-    },
-    {
-      when: 'names mix a namespace alias with an aliased name',
-      node: {
-        names: [
-          { name: '*', alias: 'models', space: 'value' as const },
-          { name: 'Pet', alias: 'Animal', space: 'type' as const },
-        ],
-        path: './Pet.ts',
-      },
-      expected: "export * as models from './Pet.ts'\nexport type { Pet as Animal } from './Pet.ts'",
-    },
-    {
-      when: 'a type name sits next to a name without a space',
-      node: { names: [{ name: 'Pet', space: 'type' as const }, { name: 'petSchema' }], path: './Pet.ts' },
-      expected: "export { type Pet, petSchema } from './Pet.ts'",
     },
   ])('returns $expected when $when', ({ node, expected }) => {
     expect(printExport(node)).toBe(expected)

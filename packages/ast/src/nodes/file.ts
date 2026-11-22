@@ -308,13 +308,15 @@ export type ImportInput = Omit<ImportNode, 'kind' | 'name'> & { name?: ImportNam
 export type ExportInput = Omit<ExportNode, 'kind'>
 
 // A spread node carries the deprecated fields derived from its `names`, so only a value that differs is an override.
-function overrideSpace(names: Array<ModuleName>, isTypeOnly: boolean | null | undefined, derived: boolean | null | undefined): Array<ModuleName> {
-  if (isTypeOnly == null || isTypeOnly === derived) return names
-  const space = isTypeOnly ? 'type' : 'value'
+type Override<TValue> = { value: TValue | null | undefined; derived: TValue | null | undefined }
+
+function overrideSpace(names: Array<ModuleName>, { value, derived }: Override<boolean>): Array<ModuleName> {
+  if (value == null || value === derived) return names
+  const space = value ? 'type' : 'value'
   return names.map((item) => ({ ...item, space }))
 }
 
-const isNameOverride = (name: unknown, derived: unknown): boolean => name !== undefined && JSON.stringify(name) !== JSON.stringify(derived)
+const isOverride = ({ value, derived }: Override<unknown>): boolean => value !== undefined && JSON.stringify(value) !== JSON.stringify(derived)
 
 /**
  * Creates an `ImportNode`. A node built from `names` also gets the deprecated fields. A deprecated `name` or
@@ -329,8 +331,8 @@ const isNameOverride = (name: unknown, derived: unknown): boolean => name !== un
 export function createImport(input: ImportInput): ImportNode {
   if (!input.names) return { ...input, name: input.name ?? [], kind: nodeKinds.import }
   const derived = toDeprecatedImport(input.names)
-  if (isNameOverride(input.name, derived.name)) return { ...input, names: undefined, name: input.name ?? [], kind: nodeKinds.import }
-  const names = overrideSpace(input.names, input.isTypeOnly, derived.isTypeOnly)
+  if (isOverride({ value: input.name, derived: derived.name })) return { ...input, names: null, name: input.name ?? [], kind: nodeKinds.import }
+  const names = overrideSpace(input.names, { value: input.isTypeOnly, derived: derived.isTypeOnly })
   return { ...input, ...toDeprecatedImport(names), names, kind: nodeKinds.import }
 }
 
@@ -347,8 +349,8 @@ export function createImport(input: ImportInput): ImportNode {
 export function createExport(input: ExportInput): ExportNode {
   if (!input.names) return { ...input, kind: nodeKinds.export }
   const derived = toDeprecatedExport(input.names)
-  if (isNameOverride(input.name, derived.name)) return { ...input, names: undefined, kind: nodeKinds.export }
-  const names = overrideSpace(input.names, input.isTypeOnly, derived.isTypeOnly)
+  if (isOverride({ value: input.name, derived: derived.name })) return { ...input, names: null, kind: nodeKinds.export }
+  const names = overrideSpace(input.names, { value: input.isTypeOnly, derived: derived.isTypeOnly })
   return { ...input, ...toDeprecatedExport(names), names, kind: nodeKinds.export }
 }
 

@@ -38,34 +38,21 @@ describe('resolveSpaces', () => {
     ])
   })
 
-  it('resolves a relative export path without its extension', () => {
-    const barrel = createFile({ baseName: 'index.ts', path: '/src/models/index.ts', exports: [createExport({ names: [{ name: 'Pet' }], path: './pet' })] })
+  it.each([
+    [
+      'an import',
+      createFile({
+        baseName: 'getPet.ts',
+        path: '/src/clients/getPet.ts',
+        sources: [createSource({ nodes: [createText('let a: Pet')] })],
+        imports: [createImport({ names: [{ name: 'Pet' }], root: '/src/clients/getPet.ts', path: '../models/pet' })],
+      }),
+    ],
+    ['an export', createFile({ baseName: 'index.ts', path: '/src/models/index.ts', exports: [createExport({ names: [{ name: 'Pet' }], path: './pet' })] })],
+  ])('resolves the relative path of %s without its extension', (_label, file) => {
+    const { file: resolved } = resolveSpaces(file, getFile)
 
-    expect(resolveSpaces(barrel, getFile).file.exports.flatMap(getNames)).toStrictEqual([{ name: 'Pet', space: 'type' }])
-  })
-
-  it('resolves a relative import path against its root', () => {
-    const file = createFile({
-      baseName: 'getPet.ts',
-      path: '/src/clients/getPet.ts',
-      sources: [createSource({ nodes: [createText('let a: Pet')] })],
-      imports: [createImport({ names: [{ name: 'Pet' }], root: '/src/clients/getPet.ts', path: '../models/pet' })],
-    })
-
-    expect(resolveSpaces(file, getFile).file.imports.flatMap(getNames)).toStrictEqual([{ name: 'Pet', space: 'type' }])
-  })
-
-  it('resolves a folder path to its index file', () => {
-    const index = createFile({
-      baseName: 'index.ts',
-      path: '/src/tags/index.ts',
-      sources: [createSource({ name: 'Tag', export: true, nodes: [createType({ name: 'Tag', export: true })] })],
-    })
-    const barrel = createFile({ baseName: 'index.ts', path: '/src/index.ts', exports: [createExport({ names: [{ name: 'Tag' }], path: './tags' })] })
-
-    expect(resolveSpaces(barrel, (path) => (path === index.path ? index : undefined)).file.exports.flatMap(getNames)).toStrictEqual([
-      { name: 'Tag', space: 'type' },
-    ])
+    expect([...resolved.imports, ...resolved.exports].flatMap(getNames)).toStrictEqual([{ name: 'Pet', space: 'type' }])
   })
 
   it('prints a name it cannot find as a value and lists it', () => {

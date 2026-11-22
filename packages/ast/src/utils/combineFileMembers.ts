@@ -16,7 +16,6 @@ const IDENTIFIER_RUN = /[\w$]+/g
  */
 const INDEX_ABOVE_IMPORTS = 128
 
-// What one statement brings across: named members, the default export, or the whole module.
 type Form = 'named' | 'default' | '*'
 
 type Statement = { path: string; root?: string | null; form: Form; space?: Space | null; names: Array<ModuleName> }
@@ -66,14 +65,12 @@ function specifier(node: { path: string; root?: string | null }): string {
   })
 }
 
-// Default and whole-module statements first, then type, value, open space, then specifier and names.
 function sortKey(statement: Statement): string {
   const form = statement.form === 'named' ? '1' : '0'
   const space = statement.space === 'type' ? '0' : statement.space === 'value' ? '1' : '2'
   return `${form}:${space}:${specifier(statement)}:${statement.names.map(label).toSorted().join('\0')}`
 }
 
-// Sorts statements, then merges each path and space in that order, once per bound name.
 function mergeStatements(statements: Array<Statement>, keep: (item: ModuleName, statement: Statement) => boolean = () => true): Array<Statement> {
   const merged = new Map<string, { statement: Statement; seen: Set<string> }>()
   const sorted = statements.map((statement) => ({ statement, key: sortKey(statement) })).sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
@@ -92,11 +89,11 @@ function mergeStatements(statements: Array<Statement>, keep: (item: ModuleName, 
 
   const result = [...merged.values()].map(({ statement }) => statement)
   // A name kept as a value also serves its type uses, so a type statement from the same path must not bind it again.
-  const bound = (path: string, item: ModuleName) => `${path}\0${item.alias ?? item.name}`
-  const values = new Set(result.filter(({ space }) => space === 'value').flatMap(({ path, names }) => names.map((item) => bound(path, item))))
+  const bound = ({ path, item }: { path: string; item: ModuleName }) => `${path}\0${item.alias ?? item.name}`
+  const values = new Set(result.filter(({ space }) => space === 'value').flatMap(({ path, names }) => names.map((item) => bound({ path, item }))))
   return result
     .map((statement) =>
-      statement.space === 'type' ? { ...statement, names: statement.names.filter((item) => !values.has(bound(statement.path, item))) } : statement,
+      statement.space === 'type' ? { ...statement, names: statement.names.filter((item) => !values.has(bound({ path: statement.path, item }))) } : statement,
     )
     .filter((statement) => statement.names.length > 0)
 }

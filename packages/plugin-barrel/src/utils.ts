@@ -122,7 +122,6 @@ function exportedNames(sources: ReadonlyArray<ast.SourceNode>, space: ast.Space)
   return [...new Set(names)].sort()
 }
 
-// `export * from`, which passes on every name the module exports.
 const everything = (path: string): ast.ExportNode => ast.factory.createExport({ names: [{ name: '*', space: 'value' }], path })
 
 const namedExport = (names: Array<string>, space: ast.Space, path: string): ast.ExportNode =>

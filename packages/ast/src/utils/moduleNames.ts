@@ -3,12 +3,6 @@ import type { ExportNode, ImportNode, ModuleName, SourceNode, Space } from '../n
 /**
  * Returns the names an import or export brings across. A node built with the deprecated fields gets them from
  * those, each with an explicit `space`, so it prints exactly as before.
- *
- * @example
- * ```ts
- * getNames(createImport({ names: [{ name: '*', alias: 'z', space: 'value' }], path: 'zod' }))
- * // [{ name: '*', alias: 'z', space: 'value' }]
- * ```
  */
 export function getNames(node: ImportNode | ExportNode): Array<ModuleName> {
   if (node.names) return node.names
