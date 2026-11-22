@@ -122,6 +122,7 @@ A printed declaration in the enclosing `File`, such as a schema from a printer o
 | `name` | `string` | The declared name, for barrels and deduplication |
 | `export?` | `boolean` | Lists the declaration in barrels. The text still needs its own `export`. |
 | `default?` | `boolean` | Marks the declaration as the default export, which barrels skip |
+| `space?` | `'type' \| 'value'` | Whether the declaration is a type or a value. Defaults to `'value'`. Imports and barrels of a `'type'` print `type`. |
 | `children?` | `KubbReactNode` | The printed declaration |
 
 ```tsx
@@ -143,7 +144,7 @@ Text in the enclosing `File` that declares nothing, such as a statement like `fa
 
 ```tsx
 <File baseName="pet.ts" path="src/gen/pet.ts">
-  <File.Import name={['faker']} path="@faker-js/faker" />
+  <File.Import names={[{ name: 'faker', space: 'value' }]} path="@faker-js/faker" />
   <Raw name="faker-seed">{'faker.seed(1)'}</Raw>
 </File>
 ```
@@ -172,44 +173,30 @@ You only need it when one generator writes code for several parts of the input. 
 </File>
 ```
 
-#### `File.Source` {#file-source}
-
-Deprecated, removed in Kubb v6. Replace it by what it wraps: `Code` for a printed declaration, `Raw` for anything else, or the JSX component itself when it wraps `Const`, `Type` or `Function`.
-
-```diff
-- <File.Source name="Pet" isExportable isIndexable isTypeOnly>{printed}</File.Source>
-+ <Type export name="Pet">{printedBody}</Type>
-
-- <File.Source name="petSchema" isExportable isIndexable>{printed}</File.Source>
-+ <Code name="petSchema" export>{printed}</Code>
-
-- <File.Source name="faker-seed">{'faker.seed(1)'}</File.Source>
-+ <Raw name="faker-seed">{'faker.seed(1)'}</Raw>
-
-- <File.Source name="getPet" isExportable isIndexable>
--   <Function export name="getPet">{body}</Function>
-- </File.Source>
-+ <Function export name="getPet">{body}</Function>
-```
-
 #### `File.Import` {#file-import}
 
 An import at the top of the enclosing `File`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `name` | `string \| Array<string \| { propertyName: string; name?: string }>` | A string for a default or namespace import, or an array of named imports |
+| `names` | `Array<{ name: string; alias?: string; space?: 'type' \| 'value' }>` | The names to import. `name` is the name in the other module, `'default'` for its default export or `'*'` for the whole module. `alias` is the local name. |
 | `path` | `string` | The module to import from |
 | `root?` | `string \| null` | The file path the import is relative to |
-| `isTypeOnly?` | `boolean \| null` | Emits `import type` |
-| `isNameSpace?` | `boolean \| null` | Emits `import * as name` |
+
+Each name prints as `type` when its `space` is `'type'`. A name without `space` is a value.
 
 ```tsx
-<File.Import name={['useState']} path="react" />
+<File.Import names={[{ name: 'useState', space: 'value' }]} path="react" />
 // import { useState } from 'react'
 
-<File.Import name="z" path="zod" isNameSpace />
+<File.Import names={[{ name: '*', alias: 'z', space: 'value' }]} path="zod" />
 // import * as z from 'zod'
+
+<File.Import names={[{ name: 'default', alias: 'useSWR', space: 'value' }]} path="swr" />
+// import useSWR from 'swr'
+
+<File.Import names={[{ name: 'Pet', space: 'type' }]} root={target.path} path={types.path} />
+// import type { Pet } from './models/Pet'
 ```
 
 #### `File.Export` {#file-export}
@@ -218,17 +205,20 @@ An export at the top of the enclosing `File`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `name?` | `string \| Array<string> \| null` | The names to export, or none for a wildcard export |
+| `names` | `Array<{ name: string; alias?: string; space?: 'type' \| 'value' }>` | The names to export. `{ name: '*' }` exports everything, and an `alias` on it exports the module under one name. |
 | `path` | `string` | The module to export from |
-| `isTypeOnly?` | `boolean \| null` | Emits `export type` |
-| `asAlias?` | `boolean \| null` | Emits `export * as name` |
+
+A name without `space` is a value.
 
 ```tsx
-<File.Export name={['Pet']} path="./models/petStore" />
-// export { Pet } from './models/petStore'
+<File.Export names={[{ name: 'Pet', space: 'type' }]} path="./models/petStore" />
+// export type { Pet } from './models/petStore'
 
-<File.Export path="./models/petStore" isTypeOnly />
-// export type * from './models/petStore'
+<File.Export names={[{ name: '*', space: 'value' }]} path="./models/petStore" />
+// export * from './models/petStore'
+
+<File.Export names={[{ name: '*', alias: 'models', space: 'value' }]} path="./models" />
+// export * as models from './models'
 ```
 
 #### `Schema` {#schema}
@@ -435,8 +425,6 @@ When a plugin writes a `File` with `copy` or `inline`, Kubb copies or absorbs it
   </Type>
 </File>
 ```
-
-`inline` on `Const`, `Type` and `Function` is deprecated and removed in Kubb v6. Set it on the `File`.
 
 The parser's `inline` member (`InlineLanguage`) runs before barrels. It finds names (`replaceIdentifiers`) and makes a definition safe to put where a name was (`wrap`). Only files of a parser with `inline`, such as `parserTs`, absorb inline sources.
 

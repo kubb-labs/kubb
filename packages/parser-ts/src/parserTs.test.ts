@@ -70,6 +70,50 @@ describe('parserTs', () => {
     )
   })
 
+  it('prints imports and exports built from names the same as ones built with the deprecated fields', async () => {
+    const make = (imports: Array<ast.ImportNode>, exports: Array<ast.ExportNode>) =>
+      parserTs().parse(
+        ast.factory.createFile({
+          baseName: 'index.ts',
+          path: '/src/index.ts',
+          sources: [ast.factory.createSource({ nodes: [ast.factory.createText('Pet petSchema z faker useSWR')] })],
+          imports,
+          exports,
+        }),
+      )
+    const deprecated = await make(
+      [
+        ast.factory.createImport({ name: ['Pet'], path: '/src/pet.ts', root: '/src/index.ts', isTypeOnly: true }),
+        ast.factory.createImport({ name: ['petSchema'], path: '/src/pet.ts', root: '/src/index.ts' }),
+        ast.factory.createImport({ name: 'z', path: 'zod', isNameSpace: true }),
+        ast.factory.createImport({ name: 'useSWR', path: 'swr' }),
+        ast.factory.createImport({ name: [{ propertyName: 'fakerEN', name: 'faker' }], path: '@faker-js/faker' }),
+      ],
+      [ast.factory.createExport({ path: './models.ts' }), ast.factory.createExport({ name: 'utils', path: './utils.ts', asAlias: true })],
+    )
+    const names = await make(
+      [
+        ast.factory.createImport({
+          names: [
+            { name: 'Pet', space: 'type' },
+            { name: 'petSchema', space: 'value' },
+          ],
+          path: '/src/pet.ts',
+          root: '/src/index.ts',
+        }),
+        ast.factory.createImport({ names: [{ name: '*', alias: 'z', space: 'value' }], path: 'zod' }),
+        ast.factory.createImport({ names: [{ name: 'default', alias: 'useSWR', space: 'value' }], path: 'swr' }),
+        ast.factory.createImport({ names: [{ name: 'fakerEN', alias: 'faker', space: 'value' }], path: '@faker-js/faker' }),
+      ],
+      [
+        ast.factory.createExport({ names: [{ name: '*', space: 'value' }], path: './models.ts' }),
+        ast.factory.createExport({ names: [{ name: '*', alias: 'utils', space: 'value' }], path: './utils.ts' }),
+      ],
+    )
+
+    expect(names).toBe(deprecated)
+  })
+
   it.each([
     {
       when: 'an import has several names',

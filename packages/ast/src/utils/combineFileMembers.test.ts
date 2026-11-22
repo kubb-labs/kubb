@@ -35,12 +35,12 @@ describe('combineExports', () => {
     const order = createExport({ name: ['Order'], path: './models' })
     const result = combineExports([pet, pet, order])
 
-    expect(result).toStrictEqual([{ kind: 'Export', name: ['Order', 'Pet'], path: './models' }])
+    expect(result).toMatchObject([{ kind: 'Export', name: ['Order', 'Pet'], path: './models' }])
   })
 
   it('keeps type-only and value exports from the same path separate', () => {
     const value = createExport({
-      name: ['Pet'],
+      name: ['petSchema'],
       path: './Pet',
       isTypeOnly: false,
     })
@@ -84,7 +84,7 @@ describe('combineImports', () => {
     { label: 'a named import', imp: createImport({ name: ['z'], path: 'zod' }) },
     { label: 'a namespace import', imp: createImport({ name: 'z', path: 'zod' }) },
   ])('keeps $label when its local name appears in the source', ({ imp }) => {
-    expect(combineImports([imp], [], 'const schema = z.string()')).toStrictEqual([imp])
+    expect(combineImports([imp], [], 'const schema = z.string()')).toMatchObject([{ name: imp.name, path: imp.path }])
   })
 
   it.each([{ label: 'an aliased named import', imp: createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' }) }])(
@@ -101,6 +101,22 @@ describe('combineImports', () => {
     expect(combineImports([imp], [exp], 'const x = 1')).toHaveLength(1)
   })
 
+  it('drops a type import of a name the same path already imports as a value', () => {
+    const asType = createImport({ names: [{ name: 'PetStatus', space: 'type' }], path: './models' })
+    const asValue = createImport({
+      names: [
+        { name: 'PetStatus', space: 'value' },
+        { name: 'Pet', space: 'type' },
+      ],
+      path: './models',
+    })
+
+    expect(combineImports([asType, asValue], [], 'PetStatus Pet').map((imp) => imp.names)).toStrictEqual([
+      [{ name: 'Pet', space: 'type' }],
+      [{ name: 'PetStatus', space: 'value' }],
+    ])
+  })
+
   it('keeps every import when there is no source to check against', () => {
     expect(combineImports([createImport({ name: ['unused'], path: 'lodash' })], [], '')).toHaveLength(1)
   })
@@ -111,7 +127,7 @@ describe('combineImports', () => {
     const aliased = createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })
     const result = combineImports([pet, pet, order, aliased, aliased], [], 'Pet Order faker')
 
-    expect(result).toStrictEqual([
+    expect(result).toMatchObject([
       { kind: 'Import', name: ['Order', 'Pet'], path: './models' },
       { kind: 'Import', name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' },
     ])
@@ -140,7 +156,7 @@ describe('combineImports', () => {
 
   it('keeps value and type-only imports from the same path separate', () => {
     const value = createImport({
-      name: ['Pet'],
+      name: ['petSchema'],
       path: './models',
       isTypeOnly: false,
     })
@@ -149,7 +165,7 @@ describe('combineImports', () => {
       path: './models',
       isTypeOnly: true,
     })
-    const result = combineImports([value, typeOnly], [], 'Pet')
+    const result = combineImports([value, typeOnly], [], 'Pet petSchema')
 
     expect(result).toHaveLength(2)
   })
@@ -171,8 +187,7 @@ describe('combineImports', () => {
     // The merged grouped source omits the function body, so `client` is absent, but `Client` is referenced.
     const result = combineImports([client, types], [], 'type Options = Client')
 
-    expect(result).toContainEqual(client)
-    expect(result).toContainEqual(types)
+    expect(result).toMatchObject([{ name: 'client' }, { name: ['Client'], isTypeOnly: true }])
   })
 
   it('still drops a default import when no named import from the same path is used', () => {

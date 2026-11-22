@@ -1,8 +1,8 @@
 import { nodeKinds } from '../constants.ts'
 import type { CodeNode } from '../nodes/code.ts'
-import { createFile } from '../nodes/file.ts'
+import { createFile, createImport } from '../nodes/file.ts'
 import type { FileNode, ImportNode, SourceNode } from '../nodes/file.ts'
-import { importLocalName } from './combineFileMembers.ts'
+import { getNames } from './moduleNames.ts'
 import { CODE_NODE_TEXT_FIELDS, getNodeText } from './nodeText.ts'
 
 type InlineFilesResult = {
@@ -102,8 +102,8 @@ export function inlineFiles(files: ReadonlyArray<FileNode>, { language }: Inline
     if (virtualFiles.has(file.path) && file.sources.some((source) => source.name === local)) return { path: file.path, name: local }
 
     for (const imp of file.imports) {
-      const item = virtualFiles.has(imp.path) && [imp.name].flat().find((item) => importLocalName(item) === local)
-      if (item) return { path: imp.path, name: typeof item === 'string' ? item : item.propertyName }
+      const item = virtualFiles.has(imp.path) && getNames(imp).find((item) => (item.alias ?? item.name) === local)
+      if (item) return { path: imp.path, name: item.name }
     }
 
     return undefined
@@ -144,9 +144,8 @@ function bodyOf(source: SourceNode | undefined): string | undefined {
 }
 
 function pickNames(imp: ImportNode, used: ReadonlySet<string>): Array<ImportNode> {
-  if (!Array.isArray(imp.name)) return used.has(imp.name) ? [imp] : []
-  const name = imp.name.filter((item) => used.has(importLocalName(item)))
-  return name.length > 0 ? [{ ...imp, name }] : []
+  const names = getNames(imp).filter((item) => used.has(item.alias ?? item.name))
+  return names.length > 0 ? [createImport({ path: imp.path, ...(imp.root != null ? { root: imp.root } : {}), names })] : []
 }
 
 // Rewrites the string fields `getNodeText` reads; JSDoc stays as written.

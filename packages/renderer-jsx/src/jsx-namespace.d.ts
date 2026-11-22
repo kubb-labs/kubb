@@ -33,14 +33,14 @@ export namespace JSX {
     ['kubb-origin']: Pick<ast.SourceNode, 'pointer'> & {
       children?: KubbReactNode
     }
-    ['kubb-code']: Pick<ast.SourceNode, 'name' | 'export' | 'default' | 'isTypeOnly' | 'inline'> & {
+    ['kubb-code']: Pick<ast.SourceNode, 'name' | 'export' | 'default' | 'space' | 'isTypeOnly' | 'inline'> & {
       children?: KubbReactNode
     }
     ['kubb-raw']: Pick<ast.SourceNode, 'name'> & {
       children?: KubbReactNode
     }
-    ['kubb-import']: Omit<ast.ImportNode, 'kind'> & {}
-    ['kubb-export']: Omit<ast.ExportNode, 'kind'> & {}
+    ['kubb-import']: ast.ImportInput & {}
+    ['kubb-export']: ast.ExportInput & {}
     ['kubb-function']: Omit<ast.FunctionNode, 'kind'> & {
       inline?: boolean
       children?: KubbReactNode

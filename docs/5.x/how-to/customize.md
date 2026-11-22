@@ -345,18 +345,6 @@ pluginFaker({
 
 `this.transform(node)` returns a string, so a handler that passes it to `ts.factory` breaks. Build the type as a string.
 
-> [!WARNING]
-> Returning a TypeScript compiler node is deprecated and goes away in the next major. See [Printer compiler nodes](#printer-compiler-nodes).
-
 ### Zod encode and decode
 
 `this.options.direction` is `'decode'` for response schemas and `'encode'` for request bodies and parameters. Type the handlers as `PrinterZodNodes` from `@kubb/plugin-zod` to read it. [Encode custom types](/extensions/kubb-labs/plugin-zod/guides/customization#encode-custom-types) shows a direction-aware handler.
-
-## Less common cases {#less-common-cases}
-
-### Printer compiler nodes {#printer-compiler-nodes}
-
-A TypeScript printer handler that passes `this.transform(node)` to `ts.factory` breaks, because `this.transform(node)` returns a string. Build the type as a string instead.
-
-> [!WARNING]
-> Returning a compiler node from `typescript` 5 or later, or `@typescript/typescript6`, still works with `@kubb/parser-ts` installed. It is deprecated and goes away in the next major.

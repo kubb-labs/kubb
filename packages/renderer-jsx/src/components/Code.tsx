@@ -1,3 +1,4 @@
+import type { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
 type Props = {
@@ -11,15 +12,20 @@ type Props = {
    * Marks an exported declaration as the default export, which barrels skip.
    */
   default?: boolean
+  /**
+   * Whether the declaration is a type or a value. Imports and barrels of a type print `type`.
+   * @default 'value'
+   */
+  space?: ast.Space
   children?: KubbReactNode
 }
 
 /**
  * A printed declaration in a `File`, in any language. For a declaration written in JSX, or a TypeScript type, use `Const`, `Type` or `Function`.
  */
-export function Code({ children, name, export: canExport, default: isDefault }: Props): KubbReactElement {
+export function Code({ children, name, export: canExport, default: isDefault, space }: Props): KubbReactElement {
   return (
-    <kubb-code name={name} export={!!canExport} default={isDefault}>
+    <kubb-code name={name} export={!!canExport} default={isDefault} space={space}>
       {children}
     </kubb-code>
   )

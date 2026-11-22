@@ -284,6 +284,32 @@ describe('File.Import', () => {
       isNameSpace: false,
     })
   })
+
+  it('keeps names and fills in the deprecated fields', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="client.ts" path="src/client.ts">
+        <File.Import names={[{ name: '*', alias: 'z', space: 'value' }]} path="zod" />
+      </File>,
+    )
+
+    expect(renderer.files[0]?.imports[0]).toMatchObject({ names: [{ name: '*', alias: 'z', space: 'value' }], name: 'z', isNameSpace: true, isTypeOnly: false })
+  })
+})
+
+describe('Code', () => {
+  it('passes space to the source', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Code name="Pet" export space="type">
+          {'export type Pet = { id: number }'}
+        </Code>
+      </File>,
+    )
+
+    expect(ast.file.getSpace(renderer.files[0]!.sources[0]!)).toBe('type')
+  })
 })
 
 describe('File.Export', () => {

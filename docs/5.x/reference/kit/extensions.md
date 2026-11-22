@@ -29,9 +29,6 @@ navigation:
 | Runs               | Once per build, after the adapter                         | First                                                           | Last, as Kubb writes each file                                               |
 | Details            | [Plugins](/docs/5.x/reference/kit/plugins)                                      | [Adapters](/docs/5.x/reference/kit/adapters)                                           | [Parsers](/docs/5.x/reference/kit/parsers)                                                          |
 
-> [!WARNING]
-> `definePlugin`, `createAdapter`, and `defineParser` are deprecated. Call `defineExtension` with the same object and add `kind`.
-
 ## `meta` {#meta}
 
 `meta` holds the extension's identity. Kubb reads `name` and `compatibility` at runtime. Studio, the registry, and kubb.dev read the rest.
@@ -155,7 +152,6 @@ Both forms set the order. Use the record form to fail early when a required plug
 
 ### Hand-written extensions {#hand-written-extensions}
 
-When you write a plugin or parser object by hand instead of calling a factory, Kubb fills in `meta` only from the deprecated `name`.
+When you write a plugin or parser object by hand instead of calling a factory, give it `meta`.
 
-- An object with only the deprecated `name` gets `meta: { name }`.
-- An object with neither `name` nor `meta` fails with [`KUBB_INVALID_PLUGIN_OPTIONS`](/docs/5.x/reference/diagnostics#kubb-invalid-plugin-options).
+- An object without `meta` fails with [`KUBB_INVALID_PLUGIN_OPTIONS`](/docs/5.x/reference/diagnostics#kubb-invalid-plugin-options).

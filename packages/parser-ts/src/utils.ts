@@ -131,12 +131,12 @@ function nameOf(node: ModuleExportName): string {
 }
 
 /**
- * Converts an import specifier into an `ImportNode` name, keeping the quotes of a string-literal name (`{ 'a-b' as ab }`).
+ * Converts an import specifier into a module name, keeping the quotes of a string-literal name (`{ 'a-b' as ab }`).
  */
-function toImportName({ imported, local }: ImportSpecifier): string | { propertyName: string; name: string } {
-  if (imported.type === nodeTypes.identifier && imported.name === local.name) return local.name
+function toModuleName({ imported, local }: ImportSpecifier): ast.ModuleName {
+  if (imported.type === nodeTypes.identifier && imported.name === local.name) return { name: local.name }
 
-  return { propertyName: imported.type === nodeTypes.literal ? quoteModulePath(imported.value) : imported.name, name: local.name }
+  return { name: imported.type === nodeTypes.literal ? quoteModulePath(imported.value) : imported.name, alias: local.name }
 }
 
 /**
@@ -147,21 +147,14 @@ function toImportNodes(statement: ProgramStatement, filePath: string): Array<ast
 
   const specifier = statement.source.value
   const target = specifier.startsWith('.') ? { path: resolve(dirname(filePath), specifier), root: filePath } : { path: specifier }
-  const isTypeOnly = statement.importKind === declarationKinds.type
-  const nodes: Array<ast.ImportNode> = []
-  const named = statement.specifiers.filter((element) => element.type === nodeTypes.importSpecifier)
+  const space: ast.Space = statement.importKind === declarationKinds.type ? 'type' : 'value'
+  const names = statement.specifiers.map((element): ast.ModuleName => {
+    if (element.type === nodeTypes.importDefaultSpecifier) return { name: 'default', alias: element.local.name, space }
+    if (element.type === nodeTypes.importNamespaceSpecifier) return { name: '*', alias: element.local.name, space }
+    return { ...toModuleName(element), space: element.importKind === declarationKinds.type ? 'type' : space }
+  })
 
-  for (const element of statement.specifiers) {
-    if (element.type === nodeTypes.importDefaultSpecifier) nodes.push(ast.factory.createImport({ name: element.local.name, ...target, isTypeOnly }))
-    if (element.type === nodeTypes.importNamespaceSpecifier)
-      nodes.push(ast.factory.createImport({ name: element.local.name, ...target, isTypeOnly, isNameSpace: true }))
-  }
-  const values = named.filter((element) => element.importKind !== declarationKinds.type)
-  const types = named.filter((element) => element.importKind === declarationKinds.type)
-  if (values.length) nodes.push(ast.factory.createImport({ name: values.map(toImportName), ...target, isTypeOnly }))
-  if (types.length) nodes.push(ast.factory.createImport({ name: types.map(toImportName), ...target, isTypeOnly: true }))
-
-  return nodes
+  return [ast.factory.createImport({ ...target, names })]
 }
 
 /**
@@ -172,14 +165,10 @@ function toExportNodes(statement: ProgramStatement): Array<ast.ExportNode> {
   if (!statement.source || statement.attributes.length) return []
 
   const path = statement.source.value
-  const isTypeOnly = statement.exportKind === declarationKinds.type
+  const space: ast.Space = statement.exportKind === declarationKinds.type ? 'type' : 'value'
 
   if (statement.type === nodeTypes.exportAllDeclaration) {
-    return [
-      statement.exported
-        ? ast.factory.createExport({ name: nameOf(statement.exported), path, isTypeOnly, asAlias: true })
-        : ast.factory.createExport({ path, isTypeOnly }),
-    ]
+    return [ast.factory.createExport({ path, names: [{ name: '*', ...(statement.exported ? { alias: nameOf(statement.exported) } : {}), space }] })]
   }
   if (
     statement.specifiers.some(
@@ -189,7 +178,7 @@ function toExportNodes(statement: ProgramStatement): Array<ast.ExportNode> {
   )
     return []
 
-  return [ast.factory.createExport({ name: statement.specifiers.map((element) => nameOf(element.local)), path, isTypeOnly })]
+  return [ast.factory.createExport({ path, names: statement.specifiers.map((element) => ({ name: nameOf(element.local), space })) })]
 }
 
 /**
@@ -394,53 +383,46 @@ function quoteModulePath(path: string): string {
   return `'${path.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
 }
 
-/**
- * Renders an `import` declaration (default, `* as`, or named with `{ a as b }`, each optionally `type`-only). `path` is used verbatim, so resolve it first.
- */
-export function printImport({
-  name,
-  path,
-  isTypeOnly = false,
-  isNameSpace = false,
-}: Pick<ast.ImportNode, 'name' | 'path' | 'isTypeOnly' | 'isNameSpace'>): string {
-  const typePrefix = isTypeOnly ? 'type ' : ''
-  const from = quoteModulePath(path)
-
-  if (!Array.isArray(name)) {
-    if (isNameSpace) return `import ${typePrefix}* as ${name} from ${from}`
-    return `import ${typePrefix}${name} from ${from}`
-  }
-
-  const specifiers = name.map((item) => {
-    if (typeof item === 'object') {
-      return item.name ? `${item.propertyName} as ${item.name}` : item.propertyName
-    }
-    return item
-  })
-
-  return `import ${typePrefix}{ ${specifiers.join(', ')} } from ${from}`
+// `{ a, b as c }`, with `type` before the braces when every name is a type, else before each type name.
+function printNamed(names: ReadonlyArray<ast.ModuleName>): string {
+  const allTypes = names.every((item) => item.space === 'type')
+  const specifiers = names.map((item) => `${!allTypes && item.space === 'type' ? 'type ' : ''}${item.alias ? `${item.name} as ${item.alias}` : item.name}`)
+  return `${allTypes ? 'type ' : ''}{ ${specifiers.join(', ')} }`
 }
 
 /**
- * Renders an `export … from` declaration (named, `* as name`, or wildcard, each optionally `type`-only). `path` is used verbatim, so resolve it first.
+ * Renders the `import` declarations for `names`: one per default or `* as` name, and one for the named members.
+ * `path` is used verbatim, so resolve it first.
  */
-export function printExport({ path, name, isTypeOnly = false, asAlias = false }: Pick<ast.ExportNode, 'name' | 'path' | 'isTypeOnly' | 'asAlias'>): string {
-  const typePrefix = isTypeOnly ? 'type ' : ''
+export function printImport({ names, path }: { names: ReadonlyArray<ast.ModuleName>; path: string }): string {
   const from = quoteModulePath(path)
-
-  if (Array.isArray(name)) {
-    return `export ${typePrefix}{ ${name.join(', ')} } from ${from}`
+  const lines: Array<string> = []
+  const named: Array<ast.ModuleName> = []
+  for (const item of names) {
+    const type = item.space === 'type' ? 'type ' : ''
+    if (item.alias && item.name === '*') lines.push(`import ${type}* as ${item.alias} from ${from}`)
+    else if (item.alias && item.name === 'default') lines.push(`import ${type}${item.alias} from ${from}`)
+    // Without a local name, a default or whole-module import binds nothing, and `{ default }` does not parse.
+    else if (item.name !== '*' && item.name !== 'default') named.push(item)
   }
+  if (named.length) lines.push(`import ${printNamed(named)} from ${from}`)
+  return lines.join('\n')
+}
 
-  if (asAlias && name) {
-    // An identifier cannot start with a digit, so swap the digit for `_`
-    const parsedName = /^\d/.test(name) ? `_${name.slice(1)}` : name
-    return `export ${typePrefix}* as ${parsedName} from ${from}`
-  }
-
-  if (name) {
-    return `export ${typePrefix}{ ${name} } from ${from}`
-  }
-
-  return `export ${typePrefix}* from ${from}`
+/**
+ * Renders the `export … from` declarations for `names`: one per `*` name, as `export *` or `export * as`, and one
+ * for the named members. `path` is used verbatim, so resolve it first.
+ */
+export function printExport({ names, path }: { names: ReadonlyArray<ast.ModuleName>; path: string }): string {
+  const from = quoteModulePath(path)
+  const lines = names
+    .filter((item) => item.name === '*')
+    .map((item) => {
+      // An identifier cannot start with a digit, so swap the digit for `_`
+      const alias = item.alias && (/^\d/.test(item.alias) ? `_${item.alias.slice(1)}` : item.alias)
+      return `export ${item.space === 'type' ? 'type ' : ''}* ${alias ? `as ${alias} ` : ''}from ${from}`
+    })
+  const named = names.filter((item) => item.name !== '*')
+  if (named.length) lines.push(`export ${printNamed(named)} from ${from}`)
+  return lines.join('\n')
 }
