@@ -257,6 +257,7 @@ describe('File copy', () => {
       banner: undefined,
       footer: undefined,
       copy: '/abs/templates/client.ts',
+      inline: undefined,
       sources: [],
       exports: [],
       imports: [],
