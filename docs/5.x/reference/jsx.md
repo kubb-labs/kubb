@@ -77,6 +77,17 @@ const files = renderer.files
 
 Inside a code component, `Code` or `Raw`, `<br />` adds a line break.
 
+### Choose a component {#choose-a-component}
+
+Everything inside a `File` is an import, an export, or a source block. Pick the source block by what the content is:
+
+| The content is | Use | Barrels list it |
+| --- | --- | --- |
+| A declaration you write in JSX | [`Const`](#const), [`Type`](#type) or [`Function`](#function) with `export` | Yes, when exported |
+| A declaration a printer or a template already printed | [`Code`](#code) with `export` | Yes, when exported |
+| Text that declares nothing, such as a statement or JSON | [`Raw`](#raw) | No |
+| Markdown | A [Markdown component](#markdown) | No |
+
 ### Core
 
 #### `File` {#file}
@@ -113,6 +124,14 @@ A printed declaration in the enclosing `File`, such as a type from a printer or 
 | `pointer?` | `string` | The input location, such as `#/components/schemas/Pet` |
 | `children?` | `KubbReactNode` | The printed declaration |
 
+```tsx
+<File baseName="pet.ts" path="src/gen/pet.ts">
+  <Code name="Pet" export type pointer={node.pointer}>
+    {printer.print(node)}
+  </Code>
+</File>
+```
+
 #### `Raw` {#raw}
 
 Text in the enclosing `File` that declares nothing, such as a statement like `faker.seed(1)`, JSON, or markdown. Barrels leave it out.
@@ -122,7 +141,29 @@ Text in the enclosing `File` that declares nothing, such as a statement like `fa
 | `name?` | `string` | Keys deduplication, so a block several generators add to one file is written once |
 | `children?` | `KubbReactNode` | The text, written as is |
 
-`File.Source` is deprecated and removed in Kubb v6. Use `Code` or `Raw`.
+```tsx
+<File baseName="pet.ts" path="src/gen/pet.ts">
+  <File.Import name={['faker']} path="@faker-js/faker" />
+  <Raw name="faker-seed">{'faker.seed(1)'}</Raw>
+</File>
+```
+
+#### `File.Source` {#file-source}
+
+Deprecated, removed in Kubb v6. Replace it by what it wraps: `Code` for a printed declaration, `Raw` for anything else, or the JSX component itself when it wraps `Const`, `Type` or `Function`.
+
+```diff
+- <File.Source name="Pet" isExportable isIndexable isTypeOnly>{printed}</File.Source>
++ <Code name="Pet" export type>{printed}</Code>
+
+- <File.Source name="faker-seed">{'faker.seed(1)'}</File.Source>
++ <Raw name="faker-seed">{'faker.seed(1)'}</Raw>
+
+- <File.Source name="getPet" isExportable isIndexable>
+-   <Function export name="getPet">{body}</Function>
+- </File.Source>
++ <Function export name="getPet">{body}</Function>
+```
 
 #### `File.Import` {#file-import}
 

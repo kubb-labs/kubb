@@ -183,7 +183,7 @@ Import paths are absolute. Pass the file you write as `root`, so each path becom
 
 ```tsx [zodGenerator.tsx]
 import { code, defineGenerator, file, from } from 'kubb/kit'
-import { File, jsxRenderer, Raw } from '@kubb/renderer-jsx'
+import { Code, File, jsxRenderer } from '@kubb/renderer-jsx'
 
 export const zodGenerator = defineGenerator({
   name: 'zod',
@@ -200,7 +200,9 @@ export const zodGenerator = defineGenerator({
         {source.imports.map((imp) => (
           <File.Import key={imp.path} {...imp} root={target.path} isTypeOnly />
         ))}
-        <Raw>{source.text}</Raw>
+        <Code name={`${node.name}Schema`} export>
+          {source.text}
+        </Code>
       </File>
     )
   },
