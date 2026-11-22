@@ -47,7 +47,7 @@ export type From<T extends Resolver = Resolver> = {
 }
 
 // No `source` reads the current plugin, whose resolver type is not known statically.
-type SourceResolver<TSource> = [TSource] extends [never] ? Resolver : ResolverFor<TSource>
+export type SourceResolver<TSource> = [TSource] extends [never] ? Resolver : ResolverFor<TSource>
 
 const skipped = new Set(['pluginName', 'default', 'fileName'])
 
@@ -81,7 +81,13 @@ function toNode(ctx: FileContext, arg: unknown): SchemaNode | OperationNode | nu
  * `from('plugin-ts').resolver.name('Pet') // { name: 'Pet', import: { name: ['Pet'], path } }`
  */
 export function from<TSource extends PluginName | ProvideName = never>(source?: TSource): From<SourceResolver<TSource>> {
-  const ctx = useFileContext('from')
+  return resolveFrom(useFileContext('from'), source)
+}
+
+/**
+ * `from` for an explicit context. Generators get it as `ctx.from`.
+ */
+export function resolveFrom<TSource extends PluginName | ProvideName = never>(ctx: FileContext, source?: TSource): From<SourceResolver<TSource>> {
   const provided = source === undefined ? undefined : (ctx.memo.get(slot.provided(source)) as Provided | undefined)
   const resolver = (provided ? provided.factory() : ctx.getResolver((source ?? ctx.plugin.name) as PluginName)) as Resolver & Record<string, unknown>
   const pluginName = (provided ? resolver.pluginName : (source ?? ctx.plugin.name)) as PluginName

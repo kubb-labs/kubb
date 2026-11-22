@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { addGenerator, addMacro, getResolver, setPrinter, setResolver, slot } from './composables.ts'
 import { defineExtension, definePlugin, type KitSetupContext } from './defineExtension.ts'
 import { file } from './file.ts'
+import { from } from './from.ts'
 import { Resolver } from './resolver/Resolver.ts'
 import type { GeneratorContext, PrinterContext } from './types.ts'
 
@@ -400,8 +401,9 @@ describe('generatorVisitor', () => {
     ])
   })
 
-  it('gives generators the same file through ctx.file, this.file and the file composable', async () => {
+  it('gives generators the same file and from through ctx, this and the composables', async () => {
     const paths: Array<Array<string>> = []
+    const imports: Array<Array<string | undefined>> = []
     const plugin = defineExtension({
       kind: 'plugin',
       meta: { name: 'plugin-file' },
@@ -410,6 +412,7 @@ describe('generatorVisitor', () => {
           name: 'file',
           schema(this: GeneratorContext, node: SchemaNode, ctx: GeneratorContext) {
             paths.push([ctx.file(node).path, this.file(node).path, file(node).path])
+            imports.push([ctx.from().resolver.name(node.name!).import?.path, from().resolver.name(node.name!).import?.path])
             return null
           },
         })
@@ -424,6 +427,11 @@ describe('generatorVisitor', () => {
       expect(fromThis).toBe(fromCtx)
       expect(fromComposable).toBe(fromCtx)
       expect(fromCtx).toContain('models')
+    }
+    expect(imports).toHaveLength(3)
+    for (const [fromCtx, fromComposable] of imports) {
+      expect(fromCtx).toContain('models')
+      expect(fromComposable).toBe(fromCtx)
     }
   })
 
