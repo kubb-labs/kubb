@@ -48,7 +48,7 @@ describe('createFile', () => {
     // resolves to the per-schema path, so the strings differ and the path filter cannot match.
     const selfNamedImport = createImport({ name: ['Pet'], path: 'src/models/Pet.ts' })
     const mixedImport = createImport({ name: ['Pet', 'Order'], path: 'src/models/Order.ts' })
-    const petSource = createSource({ name: 'Pet', nodes: [createText('export type Pet = { order: Order }')], isExportable: true })
+    const petSource = createSource({ name: 'Pet', nodes: [createText('export type Pet = { order: Order }')], export: true })
     const file = createFile({
       baseName: 'pet.ts',
       path: 'src/models/pet.ts',

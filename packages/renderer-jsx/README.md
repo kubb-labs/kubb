@@ -49,12 +49,12 @@ const renderer = jsxRenderer()
 
 await renderer.render(
   <File baseName="petStore.ts" path="src/gen/petStore.ts">
-    <File.Source>
-      <Type name="Pet">{'{ id: number; name: string }'}</Type>
-      <Function name="getPet" async>
-        {"return fetch('/pets')"}
-      </Function>
-    </File.Source>
+    <Type export name="Pet">
+      {'{ id: number; name: string }'}
+    </Type>
+    <Function export name="getPet" async>
+      {"return fetch('/pets')"}
+    </Function>
   </File>,
 )
 
@@ -66,7 +66,9 @@ const files = renderer.files
 | Component       | Description                                                                 |
 | --------------- | --------------------------------------------------------------------------- |
 | `<File>`        | Declares a generated output file with its path and optional imports/exports |
-| `<File.Source>` | The source content block inside a `<File>`                                  |
+| `<Code>`        | A printed declaration inside a `<File>`, with `name`, `export` and `type`   |
+| `<Raw>`         | Text inside a `<File>` that declares nothing, such as a statement or JSON   |
+| `<Origin>`      | Sets the input location of the sources inside it, such as a JSON pointer    |
 | `<Function>`    | Generates a TypeScript function declaration                                 |
 | `<Type>`        | Generates a TypeScript type alias                                           |
 | `<Const>`       | Generates a `const` variable declaration                                    |

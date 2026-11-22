@@ -134,7 +134,7 @@ export type ExportNode = BaseNode & {
  *
  * @example Named exportable source
  * ```ts
- * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true, isIndexable: true })
+ * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], export: true })
  * ```
  *
  * @example Inline unnamed code block
@@ -153,11 +153,19 @@ export type SourceNode = BaseNode & {
    */
   isTypeOnly?: boolean | null
   /**
-   * Mark this source as an exported declaration. The source text carries its own `export` keyword.
+   * Mark this source as an exported declaration, which barrels list. The source text carries its own `export` keyword.
+   */
+  export?: boolean | null
+  /**
+   * Mark this exported source as the module's default export. Barrels skip it, since they can't re-export it by name.
+   */
+  default?: boolean | null
+  /**
+   * @deprecated Use `export`. Removed in Kubb v6.
    */
   isExportable?: boolean | null
   /**
-   * Include this source in barrel/index file generation.
+   * @deprecated Use `export`. Removed in Kubb v6.
    */
   isIndexable?: boolean | null
   /**
@@ -183,7 +191,7 @@ export type SourceNode = BaseNode & {
  * const file = createFile({
  *   baseName: 'petStore.ts',
  *   path: 'src/models/petStore.ts',
- *   sources: [createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })],
+ *   sources: [createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], export: true })],
  *   imports: [createImport({ name: ['z'], path: 'zod' })],
  *   exports: [createExport({ name: ['Pet'], path: './petStore' })],
  * })
@@ -250,7 +258,7 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
    *
    * Use to emit a real source file shipped inside a package (a template) into the generated
    * folder. When set, `copy` provides the file content and any `sources` nodes are ignored for
-   * output; `sources` may still carry `name`/`isExportable`/`isIndexable` so barrel generation
+   * output; `sources` may still carry `name`/`export` so barrel generation
    * treats the file the same as a rendered one.
    */
   copy?: string | null
@@ -283,7 +291,7 @@ export const createExport = nodeFactory<ExportNode>(nodeKinds.export)
  *
  * @example
  * ```ts
- * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })
+ * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], export: true })
  * ```
  */
 export const createSource = nodeFactory<SourceNode>(nodeKinds.source)

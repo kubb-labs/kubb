@@ -105,6 +105,14 @@ function collectCodeNodes(element: unknown): Array<ast.CodeNode> {
   return nodes
 }
 
+/**
+ * Gives each source without a pointer the one of the enclosing `Origin`, so the innermost `Origin` wins.
+ */
+function withOrigin(sources: Array<ast.SourceNode>, pointer: string | undefined): Array<ast.SourceNode> {
+  if (!pointer) return sources
+  return sources.map((source) => (source.pointer ? source : { ...source, pointer }))
+}
+
 type FileChildren = { sources: Array<ast.SourceNode>; exports: Array<ast.ExportNode>; imports: Array<ast.ImportNode> }
 
 function collectFileChildren(element: unknown): FileChildren {
@@ -116,23 +124,28 @@ function collectFileChildren(element: unknown): FileChildren {
     element,
     (text) => {
       if (text.trim()) {
-        throw new Error(`[jsx] '${text}' should be part of <File.Source> component when using the <File/> component`)
+        throw new Error(`[jsx] '${text}' should be part of a <Code> or <Raw> component when using the <File/> component`)
       }
     },
     (host) => {
-      if (host.type === 'kubb-source') {
-        const { name, pointer, isTypeOnly, isExportable, isIndexable, inline, children } = host.props
+      if (host.type === 'kubb-code') {
+        const { name, isTypeOnly, export: isExport, default: isDefault, inline, children } = host.props
         sources.push(
           ast.factory.createSource({
             name: name?.toString(),
-            ...(pointer !== undefined ? { pointer } : {}),
             isTypeOnly: !!isTypeOnly,
-            isExportable: !!isExportable,
-            isIndexable: !!isIndexable,
+            export: !!isExport,
+            ...(isDefault ? { default: true } : {}),
             ...(inline ? { inline } : {}),
             nodes: collectCodeNodes(children),
           }),
         )
+        return
+      }
+
+      if (host.type === 'kubb-raw') {
+        const { name, children } = host.props
+        sources.push(ast.factory.createSource({ name: name?.toString(), isTypeOnly: false, export: false, nodes: collectCodeNodes(children) }))
         return
       }
 
@@ -148,18 +161,17 @@ function collectFileChildren(element: unknown): FileChildren {
         return
       }
 
-      // A declaration directly under a file is its own source. `export` makes it exportable and indexable.
+      // A declaration directly under a file is its own source. `export` lists it in barrels.
       if (isCodeHost(host)) {
         const { name, export: canExport, inline } = host.props
-        // A default export cannot be re-exported by name, so barrels skip it.
         const isDefault = 'default' in host.props && !!host.props.default
         const node = createCodeNode(host.type, host.props)
         sources.push(
           ast.factory.createSource({
             name,
             isTypeOnly: host.type === 'kubb-type',
-            isExportable: !!canExport,
-            isIndexable: !!canExport && !isDefault,
+            export: !!canExport,
+            ...(isDefault ? { default: true } : {}),
             // An inline declaration lends its body to importing files in place of its name.
             ...(inline && 'nodes' in node ? { inline: { expression: ast.node.getText(node.nodes) } } : {}),
             nodes: [node],
@@ -169,7 +181,7 @@ function collectFileChildren(element: unknown): FileChildren {
       }
 
       const nested = collectFileChildren(childrenOf(host))
-      sources.push(...nested.sources)
+      sources.push(...(host.type === 'kubb-origin' ? withOrigin(nested.sources, host.props.pointer) : nested.sources))
       exports.push(...nested.exports)
       imports.push(...nested.imports)
     },

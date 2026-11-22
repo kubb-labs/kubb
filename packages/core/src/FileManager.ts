@@ -267,6 +267,11 @@ export class FileManager {
     return resolved
   }
 
+  get(path: string): FileNode | undefined {
+    this.#flush()
+    return this.#cache.get(path)
+  }
+
   /**
    * Removes the files at `paths`, so they are neither listed nor written.
    */

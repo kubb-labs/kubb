@@ -28,5 +28,5 @@ type Props = {
  * ```
  */
 export function Heading({ level, children }: Props): KubbReactElement {
-  return <kubb-source>{`${'#'.repeat(level)} ${children}`}</kubb-source>
+  return <kubb-raw>{`${'#'.repeat(level)} ${children}`}</kubb-raw>
 }

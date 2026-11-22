@@ -83,6 +83,14 @@ export type TypeNode = BaseNode & {
    */
   export?: boolean | null
   /**
+   * How the declaration is written.
+   * - `'type'` declares `type Name = …`
+   * - `'interface'` declares `interface Name { … }`, so the body must be an object type
+   *
+   * @default 'type'
+   */
+  syntax?: 'type' | 'interface' | null
+  /**
    * JSDoc documentation metadata.
    */
   JSDoc?: JSDocNode | null

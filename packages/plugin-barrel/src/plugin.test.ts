@@ -9,7 +9,7 @@ function makeFile(filePath: string, name: string, meta?: Record<string, unknown>
     path: filePath,
     baseName: filePath.split('/').pop() as `${string}.${string}`,
     meta,
-    sources: [ast.factory.createSource({ name, isIndexable: true, nodes: [ast.factory.createText(`export const ${name} = null`)] })],
+    sources: [ast.factory.createSource({ name, export: true, nodes: [ast.factory.createText(`export const ${name} = null`)] })],
     imports: [],
     exports: [],
   })

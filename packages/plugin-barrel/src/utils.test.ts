@@ -9,9 +9,7 @@ function makeFile(filePath: string, names: Array<string> = [], isTypeOnly = fals
   return ast.factory.createFile({
     path: filePath,
     baseName: filePath.split('/').pop() as `${string}.${string}`,
-    sources: names.map((name) =>
-      ast.factory.createSource({ name, isIndexable: true, isTypeOnly, nodes: [ast.factory.createText(`export const ${name} = null`)] }),
-    ),
+    sources: names.map((name) => ast.factory.createSource({ name, export: true, isTypeOnly, nodes: [ast.factory.createText(`export const ${name} = null`)] })),
     imports: [],
     exports: [],
   })
@@ -37,6 +35,22 @@ describe('getBarrelFiles', () => {
 
     expect(barrels).toHaveLength(1)
     expect(barrels[0]!.exports[0]?.name).toStrictEqual(['Pet', 'createPet'])
+  })
+
+  it('leaves a default export out of a named barrel', () => {
+    const file = makeFile(`${ROOT}/pet.ts`, ['Pet', 'getPet'])
+    file.sources[1] = { ...file.sources[1]!, default: true }
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files: [file] }), barrelType: 'named' })]
+
+    expect(barrels[0]!.exports[0]?.name).toStrictEqual(['Pet'])
+  })
+
+  it('still lists a source marked with the deprecated isIndexable', () => {
+    const file = makeFile(`${ROOT}/pet.ts`, ['Pet'])
+    file.sources[0] = { ...file.sources[0]!, export: undefined, isIndexable: true }
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files: [file] }), barrelType: 'named' })]
+
+    expect(barrels[0]!.exports[0]?.name).toStrictEqual(['Pet'])
   })
 
   const collisions: Array<CollisionRow> = [
@@ -176,7 +190,7 @@ describe('getBarrelFiles', () => {
 
   it('namespaces only immediate groups and skips directories with no indexable exports', () => {
     const hidden = makeFile(`${ROOT}/hidden/internal.ts`, ['internal'])
-    hidden.sources[0]!.isIndexable = false
+    hidden.sources[0]!.export = false
     const files = [hidden, makeFile(`${ROOT}/PetService/admin/getPet.ts`, ['getPet'])]
     const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'named', namespace: true })]
 

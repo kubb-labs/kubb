@@ -103,6 +103,7 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 | --------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `ctx.addFile()`       | `(...files: Array<FileNode>) => Promise<void>`                            | Adds files, skipping any that already exist.                                                         |
 | `ctx.upsertFile()`    | `(...files: Array<FileNode>) => Promise<void>`                            | Adds files, or merges their sources and imports into an existing file.                               |
+| `ctx.getFile()`       | `(path: string) => FileNode \| undefined`                                 | Returns the file at `path` as the build holds it now, such as one an earlier plugin wrote.           |
 | `ctx.dispatch()`      | `({ result, renderer?, pointer? }) => Promise<void>`                      | Adds a generator result: files as they are, or elements through `renderer`.                          |
 | `ctx.getPlugin()`     | `(name: string) => Plugin \| undefined`                                   | Returns a plugin by name.                                                                            |
 | `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Returns a plugin by name, or throws.                                                                 |
@@ -182,7 +183,7 @@ Import paths are absolute. Pass the file you write as `root`, so each path becom
 
 ```tsx [zodGenerator.tsx]
 import { code, defineGenerator, file, from } from 'kubb/kit'
-import { File, jsxRenderer } from '@kubb/renderer-jsx'
+import { Code, File, jsxRenderer } from '@kubb/renderer-jsx'
 
 export const zodGenerator = defineGenerator({
   name: 'zod',
@@ -199,7 +200,9 @@ export const zodGenerator = defineGenerator({
         {source.imports.map((imp) => (
           <File.Import key={imp.path} {...imp} root={target.path} isTypeOnly />
         ))}
-        <File.Source>{source.text}</File.Source>
+        <Code name={`${node.name}Schema`} export>
+          {source.text}
+        </Code>
       </File>
     )
   },

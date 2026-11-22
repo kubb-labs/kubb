@@ -174,6 +174,15 @@ describe('PluginVisitContext diagnostics', () => {
     ])
   })
 
+  it('reads a file another plugin added after the context was created through ctx.getFile', async () => {
+    const ctx = context()
+    const file = ast.factory.createFile({ path: '/gen/pet.ts', baseName: 'pet.ts', sources: [], imports: [], exports: [] })
+
+    expect(ctx.getFile('/gen/pet.ts')).toBeUndefined()
+    await ctx.upsertFile(file)
+    expect(ctx.getFile('/gen/pet.ts')).toMatchObject({ path: '/gen/pet.ts', baseName: 'pet.ts' })
+  })
+
   it.each([['ctx.requirePlugin', () => context().requirePlugin('missing'), /Plugin "missing" is required by "pluginA" but not found/]])(
     'throws with the caller in the message when %s misses',
     (_name, requirePlugin, message) => {

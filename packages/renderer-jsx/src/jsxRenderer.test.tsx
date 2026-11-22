@@ -5,6 +5,9 @@ import { File } from './components/File.tsx'
 import { Function } from './components/js/Function.tsx'
 import { Type } from './components/js/Type.tsx'
 import { Schema } from './components/Schema.tsx'
+import { Code } from './components/Code.tsx'
+import { Raw } from './components/Raw.tsx'
+import { Origin } from './components/Origin.tsx'
 import { jsxRenderer } from './jsxRenderer.ts'
 
 describe('jsxRenderer', () => {
@@ -46,6 +49,47 @@ describe('jsxRenderer', () => {
     const client = renderer.files.find((f) => f.baseName === 'client.ts')
     expect(client?.sources[0]?.nodes?.[0]?.kind).toBe('Const')
     expect(client?.sources[1]?.nodes?.[0]?.kind).toBe('Function')
+  })
+
+  it('maps Code and Raw onto source blocks with their barrel flags', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Code name="petSchema" export>
+          {'export const petSchema = z.object({})'}
+        </Code>
+        <Code name="petKey">{'const petKey = {}'}</Code>
+        <Raw name="seed">{'faker.seed(1)'}</Raw>
+      </File>,
+    )
+
+    const [type, key, seed] = renderer.files[0]!.sources
+    expect(type).toMatchObject({ name: 'petSchema', export: true, isTypeOnly: false })
+    expect(key).toMatchObject({ name: 'petKey', export: false, isTypeOnly: false })
+    expect(seed).toMatchObject({ name: 'seed', export: false, isTypeOnly: false })
+    expect(ast.node.getText(seed!.nodes)).toBe('faker.seed(1)')
+  })
+
+  it('gives the sources inside an Origin its pointer, with the innermost Origin winning', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="getPets.ts" path="src/getPets.ts">
+        <Origin pointer="#/paths/~1pets/get">
+          <Code name="GetPetsResponses">{'export type GetPetsResponses = {}'}</Code>
+          <Origin pointer="#/paths/~1pets/get/responses/200">
+            <Code name="GetPetsStatus200">{'export type GetPetsStatus200 = {}'}</Code>
+            <Raw name="note">{'// 200'}</Raw>
+          </Origin>
+        </Origin>
+      </File>,
+    )
+
+    const pointers = Object.fromEntries(renderer.files[0]!.sources.map((source) => [source.name, source.pointer]))
+    expect(pointers).toStrictEqual({
+      GetPetsResponses: '#/paths/~1pets/get',
+      GetPetsStatus200: '#/paths/~1pets/get/responses/200',
+      note: '#/paths/~1pets/get/responses/200',
+    })
   })
 
   it('maps Function, Function.Arrow, and Const props onto code nodes', async () => {
@@ -154,7 +198,7 @@ describe('jsxRenderer', () => {
           {'stray text'}
         </File>,
       ),
-    ).rejects.toThrow("[jsx] 'stray text' should be part of <File.Source> component when using the <File/> component")
+    ).rejects.toThrow("[jsx] 'stray text' should be part of a <Code> or <Raw> component when using the <File/> component")
   })
 
   it('renders nested files inline when File has no baseName', async () => {
@@ -195,8 +239,7 @@ describe('File.Source', () => {
       kind: 'Source',
       name: 'Pet',
       isTypeOnly: true,
-      isExportable: true,
-      isIndexable: true,
+      export: true,
       nodes: [{ kind: 'Text', value: 'export type Pet = { id: number }' }],
     })
   })
@@ -328,12 +371,12 @@ describe('File.Export', () => {
     expect(file.sources).toHaveLength(1)
     expect(file.sources[0]).toMatchObject({
       name: 'nameSchema',
-      isExportable: true,
+      export: true,
       nodes: [{ kind: 'Const', nodes: [{ kind: 'Text', value: 'z.string()' }] }],
     })
   })
 
-  it('keeps a bare default export out of barrels', async () => {
+  it('marks a bare default export with export and default', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="pet.ts" path="src/pet.ts">
@@ -343,7 +386,7 @@ describe('File.Export', () => {
       </File>,
     )
 
-    expect(renderer.files[0]!.sources[0]).toMatchObject({ name: 'getPet', isExportable: true, isIndexable: false })
+    expect(renderer.files[0]!.sources[0]).toMatchObject({ name: 'getPet', export: true, default: true })
   })
 
   it('uses the body of an inline declaration as its expression', async () => {

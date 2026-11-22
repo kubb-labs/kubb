@@ -321,12 +321,13 @@ function printConst(node: ast.ConstNode): string {
 }
 
 /**
- * Converts a {@link ast.TypeNode} to a `type` alias, mirroring the `Type` component from `@kubb/renderer-jsx`.
+ * Converts a {@link ast.TypeNode} to a `type` alias or an `interface`, mirroring the `Type` component from `@kubb/renderer-jsx`.
  */
 function printType(node: ast.TypeNode): string {
-  const { name, export: canExport, JSDoc, nodes } = node
+  const { name, export: canExport, syntax, JSDoc, nodes } = node
+  const body = printNodes({ nodes, separator: '\n' })
 
-  const declaration = `${canExport ? 'export ' : ''}type ${name} = ${printNodes({ nodes, separator: '\n' })}`
+  const declaration = `${canExport ? 'export ' : ''}${syntax === 'interface' ? `interface ${name} ${body}` : `type ${name} = ${body}`}`
 
   return withJSDoc({ jsDoc: JSDoc, declaration })
 }

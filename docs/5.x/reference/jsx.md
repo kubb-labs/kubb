@@ -56,12 +56,10 @@ const renderer = jsxRenderer()
 
 await renderer.render(
   <File baseName="petStore.ts" path="src/gen/petStore.ts">
-    <File.Source>
-      <Type name="Pet">{'{ id: number; name: string }'}</Type>
-      <Function name="getPet" async>
-        {"return fetch('/pets')"}
-      </Function>
-    </File.Source>
+    <Type export name="Pet">{'{ id: number; name: string }'}</Type>
+    <Function export name="getPet" async>
+      {"return fetch('/pets')"}
+    </Function>
   </File>,
 )
 
@@ -72,18 +70,29 @@ const files = renderer.files
 
 | Group | Components |
 | --- | --- |
-| [Core](#core) | [`File`](#file), [`File.Source`](#file-source), [`File.Import`](#file-import), [`File.Export`](#file-export), [`Schema`](#schema) |
+| [Core](#core) | [`File`](#file), [`Code`](#code), [`Raw`](#raw), [`Origin`](#origin), [`File.Import`](#file-import), [`File.Export`](#file-export), [`Schema`](#schema) |
 | [JavaScript](#javascript) | [`Const`](#const), [`Function`](#function), [`Function.Arrow`](#function-arrow), [`Type`](#type) |
 | [Markdown](#markdown) | [`Callout`](#callout), [`Frontmatter`](#frontmatter), [`Heading`](#heading), [`List`](#list), [`Paragraph`](#paragraph) |
 | [JSX](#jsx) | [`Jsx`](#jsx-component) |
 
-Inside a code component or `File.Source`, `<br />` adds a line break.
+Inside a code component, `Code` or `Raw`, `<br />` adds a line break.
+
+### Choose a component {#choose-a-component}
+
+Everything inside a `File` is an import, an export, or a source block. Pick the source block by what the content is:
+
+| The content is | Use | Barrels list it |
+| --- | --- | --- |
+| A declaration you write in JSX | [`Const`](#const), [`Type`](#type) or [`Function`](#function) with `export` | Yes, when exported |
+| A declaration a printer or a template already printed | [`Code`](#code) with `export` | Yes, when exported |
+| Text that declares nothing, such as a statement or JSON | [`Raw`](#raw) | No |
+| Markdown | A [Markdown component](#markdown) | No |
 
 ### Core
 
 #### `File` {#file}
 
-With `baseName` and `path`, `File` declares a generated file. Without them, it renders its children inline. Text directly in a `File`, outside `File.Source`, throws.
+With `baseName` and `path`, `File` declares a generated file. Without them, it renders its children inline. Text directly in a `File`, outside `Code` or `Raw`, throws.
 
 | Prop | Type | Description |
 | --- | --- | --- |
@@ -97,27 +106,90 @@ With `baseName` and `path`, `File` declares a generated file. Without them, it r
 
 ```tsx
 <File baseName="petStore.ts" path="src/models/petStore.ts">
-  <File.Source name="Pet" isExportable isIndexable>
-    {`export type Pet = { id: number; name: string }`}
-  </File.Source>
+  <Type export name="Pet">
+    {`{ id: number; name: string }`}
+  </Type>
+</File>
+```
+
+#### `Code` {#code}
+
+A printed declaration in the enclosing `File`, such as a schema from a printer or a class built as text. It works for any language. For a declaration written in JSX, or a TypeScript type, put a [JavaScript component](#javascript) directly in the `File`.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `name` | `string` | The declared name, for barrels and deduplication |
+| `export?` | `boolean` | Lists the declaration in barrels. The text still needs its own `export`. |
+| `default?` | `boolean` | Marks the declaration as the default export, which barrels skip |
+| `children?` | `KubbReactNode` | The printed declaration |
+
+```tsx
+<File baseName="pet.ts" path="src/gen/pet.ts">
+  <Code name="petSchema" export>
+    {printer.print(node)}
+  </Code>
+</File>
+```
+
+#### `Raw` {#raw}
+
+Text in the enclosing `File` that declares nothing, such as a statement like `faker.seed(1)`, JSON, or markdown. Barrels leave it out.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `name?` | `string` | Keys deduplication, so a block several generators add to one file is written once |
+| `children?` | `KubbReactNode` | The text, written as is |
+
+```tsx
+<File baseName="pet.ts" path="src/gen/pet.ts">
+  <File.Import name={['faker']} path="@faker-js/faker" />
+  <Raw name="faker-seed">{'faker.seed(1)'}</Raw>
+</File>
+```
+
+#### `Origin` {#origin}
+
+Records where the sources inside it come from in the input, so tools can link generated code back to it. openapi-import uses this for go to definition. It works for every source block in a `File`, in any language.
+
+You only need it when one generator writes code for several parts of the input. Without it, a source gets the location of the node being generated. An inner `Origin` wins over an outer one.
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `pointer?` | `string` | The input location, in the form the adapter reads, such as `#/paths/~1pets/get/responses/200` |
+| `children?` | `KubbReactNode` | The sources it applies to |
+
+```tsx
+<File baseName="getPets.ts" path="src/gen/getPets.ts">
+  <Type export name="GetPetsResponses">
+    {printer.print(responses)}
+  </Type>
+  <Origin pointer={response.pointer}>
+    <Type export name="GetPetsStatus200">
+      {printer.print(response.schema)}
+    </Type>
+  </Origin>
 </File>
 ```
 
 #### `File.Source` {#file-source}
 
-Deprecated, removed in Kubb v6. Put a [JavaScript component](#javascript) directly in the `File` instead. A block of source text in the enclosing `File`.
+Deprecated, removed in Kubb v6. Replace it by what it wraps: `Code` for a printed declaration, `Raw` for anything else, or the JSX component itself when it wraps `Const`, `Type` or `Function`.
 
-| Prop | Type | Description |
-| --- | --- | --- |
-| `name?` | `string \| null` | Names the source for deduplication and barrels |
-| `isExportable?` | `boolean \| null` | Marks an exported declaration. The text still needs its own `export`. |
-| `isIndexable?` | `boolean \| null` | Includes the source in barrels |
-| `isTypeOnly?` | `boolean \| null` | Marks a type-only export |
-| `inline?` | `{ expression: string } \| null` | Lets importing files use `expression` in place of the name |
-| `pointer?` | `string` | The input location, such as `#/components/schemas/Pet` |
-| `children?` | `KubbReactNode` | The source text |
+```diff
+- <File.Source name="Pet" isExportable isIndexable isTypeOnly>{printed}</File.Source>
++ <Type export name="Pet">{printedBody}</Type>
 
-See [Inline sources](#inline-sources) for `copy` and `inline`.
+- <File.Source name="petSchema" isExportable isIndexable>{printed}</File.Source>
++ <Code name="petSchema" export>{printed}</Code>
+
+- <File.Source name="faker-seed">{'faker.seed(1)'}</File.Source>
++ <Raw name="faker-seed">{'faker.seed(1)'}</Raw>
+
+- <File.Source name="getPet" isExportable isIndexable>
+-   <Function export name="getPet">{body}</Function>
+- </File.Source>
++ <Function export name="getPet">{body}</Function>
+```
 
 #### `File.Import` {#file-import}
 
@@ -241,22 +313,28 @@ An arrow function in a `const`. It takes every `Function` prop, plus `singleLine
 
 #### `Type` {#type}
 
-A type alias, with the children as the type. `name` must start with an uppercase letter, or `Type` throws.
+A type alias or an interface, with the children as the type. `name` must start with an uppercase letter, or `Type` throws. Barrels re-export it with `export type`.
 
 | Prop | Type | Description |
 | --- | --- | --- |
 | `name` | `string` | The alias name |
+| `syntax?` | `'type' \| 'interface'` | `'interface'` declares `interface Name { … }`, so the children must be an object type. Defaults to `'type'`. |
 
 ```tsx
 <Type export name="PetId">
   {`string | number`}
 </Type>
 // export type PetId = string | number
+
+<Type export name="Pet" syntax="interface">
+  {`{ id: number }`}
+</Type>
+// export interface Pet { id: number }
 ```
 
 ### Markdown
 
-Each Markdown component emits its own source block, so put it directly in a `File`, not a `File.Source`. Name the file `.md` so `parserMd` prints it.
+Each Markdown component emits its own source block, so put it directly in a `File`, not in `Code` or `Raw`. Name the file `.md` so `parserMd` prints it.
 
 ```tsx [docs.tsx]
 import { Callout, File, Frontmatter, Heading, List, Paragraph, jsxRenderer } from 'kubb/jsx'
@@ -344,16 +422,16 @@ Embeds a raw JSX string, fragments included, such as a component body in a `Func
 
 ### Inline sources {#inline-sources}
 
-When a plugin writes a `File` with `copy` or a `File.Source` with `inline`, Kubb copies or absorbs it instead of printing it.
+When a plugin writes a `File` with `copy` or a declaration with `inline`, Kubb copies or absorbs it instead of printing it.
 
 - `copy` on `File` is an absolute path to copy into the output, through the parser's `copy` hook if it has one. Its sources count for barrels but are not printed.
-- `inline.expression` on `File.Source` is the right-hand side of the declaration.
+- An `inline` `Const`, `Type` or `Function` lends its body to importing files in place of its name.
 - Kubb does not write a file whose sources are all inline. Files that import it get the expression and its imports.
 
 ```tsx
-<File.Source name="AddPetStatus200" isTypeOnly isExportable inline={{ expression: 'Pet' }}>
-  {`export type AddPetStatus200 = Pet`}
-</File.Source>
+<Type export name="AddPetStatus200" inline>
+  {'Pet'}
+</Type>
 ```
 
 The parser's `inline` member (`InlineLanguage`) runs before barrels. It finds names (`replaceIdentifiers`) and makes a definition safe to put where a name was (`wrap`). Only files of a parser with `inline`, such as `parserTs`, absorb inline sources.
