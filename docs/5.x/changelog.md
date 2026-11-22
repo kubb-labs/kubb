@@ -9,6 +9,85 @@ outline: 2
 
 # Changelog
 
+## v5.23.2 — Nov 22, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Printer handlers and the root `print` override get their context as the second argument, so they can be arrow functions. ([#4708](https://github.com/kubb-labs/kubb/pull/4708))
+- `printer.print(node)` and `printer.transform(node)` no longer take options. Use `printer.with(options).print(node)`. ([#4701](https://github.com/kubb-labs/kubb/pull/4701))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Move resolvers, generators and macros to `@kubb/kit`. The old `@kubb/core` exports stay until v6 as stubs that throw `KUBB_MOVED_TO_KIT`. ([#4698](https://github.com/kubb-labs/kubb/pull/4698))
+
+  ```diff
+  - import { createResolver, defineExtension, defineGenerator } from '@kubb/core'
+  + import { createResolver, defineExtension, defineGenerator } from 'kubb/kit'
+  ```
+
+- `PluginType` from `@kubb/core` takes only the name, options and resolved options. Import it from `@kubb/kit` to also pass the resolver and printer. ([#4713](https://github.com/kubb-labs/kubb/pull/4713))
+- Keep `KubbDriver.getResolver` as a deprecated method until v6, so published plugins that call `ctx.driver.getResolver(name)` keep working. ([#4723](https://github.com/kubb-labs/kubb/pull/4723))
+- Add `memo.get`, `memo.set` and `memo.has`. ([#4696](https://github.com/kubb-labs/kubb/pull/4696))
+- Add `withContext(ctx, fn)`. Plugin hooks, visit hooks and `setup` run with the plugin context, so composables such as `memo()` and `useKubb()` work there. ([#4705](https://github.com/kubb-labs/kubb/pull/4705)) ([#4706](https://github.com/kubb-labs/kubb/pull/4706)) ([#4707](https://github.com/kubb-labs/kubb/pull/4707))
+- Add the plugin visit hooks `kubb:plugin:visit:start`, `:schema`, `:operation` and `:end`. ([#4697](https://github.com/kubb-labs/kubb/pull/4697))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Add `setPrinter`, so a plugin registers its printer once and generators read it as `ctx.printer`. ([#4701](https://github.com/kubb-labs/kubb/pull/4701))
+- Add `getResolver(name)`, the `file()` composable and `ctx.file(node)`. ([#4698](https://github.com/kubb-labs/kubb/pull/4698)) ([#4718](https://github.com/kubb-labs/kubb/pull/4718))
+- Add `from`, `provide` and `code`, so a generator imports another plugin's names without looking up its files. ([#4719](https://github.com/kubb-labs/kubb/pull/4719))
+- Generators and the printer factory run with the generator context, so `this`, `ctx` and `useKubb()` are the same object. ([#4709](https://github.com/kubb-labs/kubb/pull/4709))
+- Add `addGenerator`, `setResolver`, `addMacro`, `setMacros` and `setPrinter` as methods on the setup context. ([#4714](https://github.com/kubb-labs/kubb/pull/4714))
+
+### @kubb/plugin-barrel
+
+#### Bug Fixes
+
+- Read the plugin's resolver from the running `kubb:plugins:end` hook. ([#4711](https://github.com/kubb-labs/kubb/pull/4711))
+
+### kubb
+
+#### Bug Fixes
+
+- Depend on exact `@kubb/core` and `@kubb/kit` versions, so upgrading `kubb` moves both together. ([#4715](https://github.com/kubb-labs/kubb/pull/4715))
+
+## v5.23.1 — Nov 19, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Make resolver parts reusable across plugins with `defineResolver` and a list of parts in `setResolver`. ([#4688](https://github.com/kubb-labs/kubb/pull/4688))
+
+## v5.23.0 — Nov 19, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Remove the `ast` helpers that only code-generation plugins use, such as `ast.auth`, `ast.server` and most of `ast.http`. This is a breaking change for plugins that call them. ([#4687](https://github.com/kubb-labs/kubb/pull/4687))
+- Add `ast.schema.is(node, kind, { follow })` and related node helpers. `ast.schema.isString` is deprecated. ([#4683](https://github.com/kubb-labs/kubb/pull/4683))
+- Printer handlers can pass options to one child with `this.transform(node, options)`. ([#4686](https://github.com/kubb-labs/kubb/pull/4686))
+- Import each `ast.*` namespace from its own path, such as `@kubb/ast/http`. ([#4687](https://github.com/kubb-labs/kubb/pull/4687))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Export the `PluginOptions` and `ResolvedPluginOptions` types. ([#4679](https://github.com/kubb-labs/kubb/pull/4679))
+
+### @kubb/renderer-jsx
+
+#### Features
+
+- `Const`, `Type` and `Function` in a `File` register their own source block. Add a `Schema` component. `File.Source` is deprecated. ([#4684](https://github.com/kubb-labs/kubb/pull/4684))
+
 ## v5.22.0 — Nov 19, 2026
 
 ### @kubb/cli
