@@ -62,7 +62,7 @@ export const pluginExample = defineExtension({
 })
 ```
 
-The setup context has the same five as methods, so you can also write `kubb.setResolver(...)`. Both styles register the same, and `kubb` is typed as `KitSetupContext`:
+The setup context has the same composables as methods, so you can also write `kubb.setResolver(...)`. Both styles register the same, and `kubb` is typed as `KitSetupContext`:
 
 ```typescript
 export const pluginExample = defineExtension({
@@ -170,17 +170,18 @@ Type the name constant with `satisfies`: `export const pluginZodName = 'plugin-z
 
 ## Less common cases {#less-common-cases}
 
-
 ### Provide {#provide}
 
-`provide(name, factory, { priority })` offers a resolver under a shared name, such as `'types'`. A generator then reads it with [`from(name)`](/docs/5.x/reference/kit/generators#from), without naming the plugin that provides it. When several plugins provide the same name, the one with the highest `priority` wins, and on a tie the first one stays. `priority` defaults to `0`. Kit calls `factory` when a generator asks for the name, so it can call `getResolver`. `getResolver(name)` with a provided name returns the provider's resolver as it is, for code that needs plain names instead of names with imports.
+`provide(name, factory, { priority })` offers a resolver under a shared name, such as `'types'`. A generator then reads it with [`from(name)`](/docs/5.x/reference/kit/generators#from), without naming the plugin that provides it. When several plugins provide the same name, the one with the highest `priority` wins, and on a tie the first one stays. `priority` defaults to `0`. Kit calls `factory` once, when a generator first asks for the name, so it can call `getResolver`. A name that a plugin in the config uses is refused, since it would replace that plugin's resolver. `getResolver(name)` with a provided name returns the provider's resolver as it is, for code that needs plain names instead of names with imports.
 
 ```typescript
-import { defineExtension, getResolver, provide } from 'kubb/kit'
+import { defineExtension, getResolver, provide, type PluginType } from 'kubb/kit'
 
-export const pluginTypes = defineExtension({
+type PluginTypes = PluginType<'plugin-types', object, object, ResolverTypes>
+
+export const pluginTypes = defineExtension<PluginTypes>({
   kind: 'plugin',
-  name: 'plugin-types',
+  meta: { name: 'plugin-types' },
   setup(options) {
     provide('types', () => getResolver('plugin-types'))
     return options
@@ -188,11 +189,14 @@ export const pluginTypes = defineExtension({
 })
 ```
 
-Add each name to `Kubb.ProvideRegistry`, so `from(name)` is typed:
+Add the plugin to `Kubb.PluginRegistry` and each provided name to `Kubb.ProvideRegistry`, so `getResolver` and `from(name)` are typed:
 
 ```typescript
 declare global {
   namespace Kubb {
+    interface PluginRegistry {
+      'plugin-types': PluginTypes
+    }
     interface ProvideRegistry {
       types: ResolverTypes
     }

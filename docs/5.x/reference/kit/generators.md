@@ -143,19 +143,19 @@ export const zodGenerator = defineGenerator({
 
 ### Importing names with `from` and `code` {#from}
 
-`from(source?)` reads another plugin from the current generator context. `source` is a plugin name, or a provided name such as `'types'` that reads whichever plugin [`provide`](/docs/5.x/reference/kit/plugins#provide)s it. Without `source`, it reads the current plugin. Generators also get it as `ctx.from(source)` and `this.from(source)`, with the same result. `from(plugin).resolver` wraps that plugin's resolver: each method that returns a name returns the name plus its import from that plugin's file.
+`from(source?)` reads another plugin from the current generator context. `source` is a plugin name, or a provided name such as `'types'` that reads the plugin that registers it with [`provide`](/docs/5.x/reference/kit/plugins#provide). Without `source`, it reads the current plugin, and `ctx.from()` is typed with that plugin's resolver. A `source` that no plugin provides and no plugin in the config has fails with `KUBB_PLUGIN_NOT_FOUND`. Generators also get it as `ctx.from(source)` and `this.from(source)`, with the same result. `from(plugin).resolver` wraps that plugin's resolver: each method that returns a name returns the name plus its import from that plugin's file.
 
 The method's first argument picks the file to import from:
 
 - An operation node points at the plugin's file for that operation, with the same `Operation` suffix as `file`.
 - A schema node, `{ name }` or a schema name points at the plugin's file for that schema. The name must belong to a schema in the document.
-- Any other argument gives the name without an import.
+- Any other argument gives the name without an import, and so does a result that is not an identifier, such as a description.
 
-A node that the plugin's `include` or `exclude` rules leave out also gives no import, and `from(plugin).has(node)` returns `false` for it. Imports are value imports. Pass `isTypeOnly` on the `<File.Import>` where you use the names only as types. The target resolver's [`file.name`](/docs/5.x/reference/kit/resolvers#resolver-overrides) decides its file, so you pass only the node.
+A node that the plugin's `include` or `exclude` rules leave out also gives no import. Imports are value imports. Pass `isTypeOnly` on the `<File.Import>` where you use the names only as types. The target resolver's [`file.name`](/docs/5.x/reference/kit/resolvers#resolver-overrides) decides its file, so you pass only the node.
 
-For a name that no resolver method returns, such as one built by a shared helper, use `from(plugin).import(node, name)`. It imports `name` from the plugin's file for `node`.
+For a name that no resolver method returns, such as one built by a shared helper, use `from(plugin).ref(node, name)`. It imports `name` from the plugin's file for `node`.
 
-`code` is a template tag that returns `{ text, imports }`. Its placeholders (`${…}`) take names from `from`, other `code` results, strings and numbers. `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean. The imports are grouped per path, in the order of first use. `code.join(parts, separator)` joins several parts and keeps their imports.
+`code` is a template tag that returns `{ text, imports }`. Its placeholders (`${…}`) take names from `from`, other `code` results, strings and numbers. `null`, `undefined` and `false` print nothing, so `${cond && name}` works when `cond` is a boolean. The imports come in the order of use, and `<File>` merges the ones that share a path. `code.join(parts, separator)` joins several parts and keeps their imports.
 
 The import paths are absolute. Pass the file you write as `root`, so each path becomes relative to it:
 
@@ -170,13 +170,13 @@ export const zodGenerator = defineGenerator({
     if (!node.name) return null
     const target = file(node)
     const types = from('plugin-ts').resolver
-    const source = code`export const petSchema = z.object({}) satisfies z.ZodType<${types.name(node.name)}>`
+    const source = code`export const ${node.name}Schema = z.object({}) satisfies z.ZodType<${types.name(node.name)}>`
 
     return (
       <File {...target}>
         <File.Import name={['z']} path="zod" />
         {source.imports.map((imp) => (
-          <File.Import key={imp.path} root={target.path} name={imp.name} path={imp.path} isTypeOnly />
+          <File.Import key={imp.path} {...imp} root={target.path} isTypeOnly />
         ))}
         <File.Source>{source.text}</File.Source>
       </File>
