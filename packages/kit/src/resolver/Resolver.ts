@@ -23,6 +23,9 @@ export function defineResolver<const T extends object>(part: T & ThisType<Resolv
   return part
 }
 
+/**
+ * Whether `value` is an object that is not an array, such as a resolver namespace or a node.
+ */
 export function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -65,7 +68,9 @@ export class Resolver {
   readonly pluginName: string
   /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
-  /** How this plugin names a node's file, from `options.file.name`, so readers in other plugins find the same file. */
+  /**
+   * How this plugin names a node's file, from `options.file.name`, so readers in other plugins find the same file.
+   */
   readonly fileName: (node: SchemaNode | OperationNode, exportName?: string) => string | undefined
   #options: ResolverBuildOptions
   #memo = memo.create<string, unknown>()

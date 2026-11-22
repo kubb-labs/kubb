@@ -38,13 +38,20 @@ export type FromResolver<T extends Resolver = Resolver> = RefMember<Omit<T, keyo
   name(name: string): RefName
 }
 
+/**
+ * What `from(source)` returns: the wrapped resolver, and `ref` for names that no resolver member returns.
+ */
 export type From<T extends Resolver = Resolver> = {
   resolver: FromResolver<T>
-  /** `name` with the import from the plugin's file for `node`, for a name that no resolver member returns. */
+  /**
+   * `name` with the import from the plugin's file for `node`, for a name that no resolver member returns.
+   */
   ref(node: SchemaNode | OperationNode, name: string): RefName
 }
 
-// No `source` reads the current plugin. `ctx.from` passes its resolver type as `TCurrent`; the `from` composable cannot know it.
+/**
+ * The resolver type `from(source)` wraps. Without `source`, it is `TCurrent`: `ctx.from` passes the current plugin's resolver, and the `from` composable cannot know it.
+ */
 export type SourceResolver<TSource, TCurrent extends Resolver = Resolver> = [TSource] extends [never] ? TCurrent : ResolverFor<TSource>
 
 const skipped = new Set(['pluginName', 'default', 'fileName'])

@@ -85,7 +85,9 @@ export type ResolveImportsOptions = {
  * ```
  */
 export type ResolverFile = {
-  /** A node's file name before casing. `exportName` is the name being imported, for a plugin with several files per node. `undefined` keeps the default. */
+  /**
+   * A node's file name before casing. `exportName` is the name being imported, for a plugin with several files per node. `undefined` keeps the default.
+   */
   name?(this: Resolver, node: SchemaNode | OperationNode, exportName?: string): string | undefined
   /** Builds the file's complete base name, extension included, from the identifier and the target `extname`. */
   baseName?(this: Resolver, params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']

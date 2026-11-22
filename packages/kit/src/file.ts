@@ -135,9 +135,13 @@ export function resolveLocation({
   ctx: FileContext
   node: SchemaNode | OperationNode
   options?: FileOptions & { exportName?: string }
-  /** The target plugin's options for `node`, when the caller already has them. */
+  /**
+   * The target plugin's options for `node`, when the caller already has them.
+   */
   pluginOptions?: LocationOptions | null
-  /** The resolver that names the file, such as a provided one, instead of the target plugin's own. */
+  /**
+   * The resolver that names the file, such as a provided one, instead of the target plugin's own.
+   */
   resolver?: Resolver
 }): { resolver: Resolver; location: Location; file: FileNode } {
   const { extname = '.ts' } = options
@@ -186,6 +190,9 @@ export function file(node: SchemaNode | OperationNode, options?: FileOptions): F
   return resolveFile(useFileContext('file'), node, options)
 }
 
+/**
+ * The current generator or printer context, or a `KUBB_NO_CONTEXT` error that names the calling composable.
+ */
 export function useFileContext(name: string): FileContext {
   const ctx = useKubb<KubbContext>()
   if ('resolver' in ctx) return ctx as unknown as FileContext
