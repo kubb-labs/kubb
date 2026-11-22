@@ -167,7 +167,7 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
 
   return createNode(context, {
     primitive: specialPrimitive,
-    type: specialType as ast.ScalarSchemaType,
+    type: specialType as Exclude<ast.ScalarSchemaType, 'blob'>,
     ...(hasLength ? { min: schema.minLength, max: schema.maxLength } : {}),
     ...(isNumeric ? getNumericConstraints(schema) : {}),
   })

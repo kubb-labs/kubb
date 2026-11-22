@@ -398,6 +398,7 @@ function spreadQuerystring(param: ast.ParameterNode): Array<ast.ParameterNode> {
       ...(style !== undefined && { style }),
       ...(explode !== undefined && { explode }),
       ...(allowReserved !== undefined && { allowReserved }),
+      ...(param.extensions && { extensions: param.extensions }),
     })
   })
 }

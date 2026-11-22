@@ -27,9 +27,9 @@ export type PrimitiveSchemaType =
 export type SchemaType = keyof SchemaNodeByType
 
 /**
- * Scalar schema types without extra object/array/ref structure or constraints.
+ * Scalar schema types without extra object/array/ref structure or constraints. `blob` stays for compatibility, but a blob node is a `BlobSchemaNode`.
  */
-export type ScalarSchemaType = 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'never' | 'ipv4' | 'ipv6'
+export type ScalarSchemaType = 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'never' | 'blob' | 'ipv4' | 'ipv6'
 
 /**
  * Fields shared by all schema nodes.
@@ -524,7 +524,7 @@ export type ScalarSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
-  type: ScalarSchemaType
+  type: Exclude<ScalarSchemaType, 'blob'>
 }
 
 /** Binary data schema node, such as a `format: binary` string. */

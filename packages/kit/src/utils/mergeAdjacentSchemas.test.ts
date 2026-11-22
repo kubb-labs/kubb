@@ -24,6 +24,15 @@ function summarize(nodes: Array<SchemaNode>) {
 }
 
 describe('mergeAdjacentObjects', () => {
+  it('merges the extensions of merged members', () => {
+    const [merged] = mergeAdjacentObjects([
+      { ...makeObject(['a']), extensions: { 'x-a': 1 } },
+      { ...makeObject(['b']), extensions: { 'x-b': 2 } },
+    ])
+    expect(merged?.extensions).toStrictEqual({ 'x-a': 1, 'x-b': 2 })
+    expect(mergeAdjacentObjects([makeObject(['a']), makeObject(['b'])])[0]?.extensions).toBeUndefined()
+  })
+
   it('does not merge across a named object', () => {
     const result = mergeAdjacentObjects([makeObject(['a']), makeObject(['b'], 'Named'), makeObject(['c'])])
     expect(summarize(result)).toStrictEqual([

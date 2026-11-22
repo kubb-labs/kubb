@@ -374,7 +374,8 @@ export function convertMultiType({ schema, name, nullable, defaultValue, parse }
     {
       type: ast.schema.types.union,
       members: nonNullTypes.map((t) => {
-        const raw = { ...schema, type: t }
+        // The union node keeps the `x-*` keys, so members do not repeat them.
+        const raw = { ...Object.fromEntries(Object.entries(schema).filter(([key]) => !key.startsWith('x-'))), type: t }
         const memberSchema = raw as SchemaObject
         return parse({ schema: memberSchema, name })
       }),

@@ -5,7 +5,7 @@ import { defineMacro } from '../authoring.ts'
 import type { SchemaNode } from '@kubb/ast'
 
 /**
- * Drops members that repeat an earlier one, ignoring the source `pointer` so equal schemas from
+ * Drops members that repeat an earlier one, ignoring the source `pointer` and vendor `extensions` so equal schemas from
  * different places in the spec still match.
  */
 function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
@@ -25,7 +25,7 @@ function dedupeMembers(members: Array<SchemaNode>): Array<SchemaNode> {
       const entries = Array.isArray(value)
         ? value.map(key)
         : Object.entries(value)
-            .filter(([name, child]) => name !== 'pointer' && child !== undefined && !(skipsSchema && name === 'schema'))
+            .filter(([name, child]) => name !== 'pointer' && name !== 'extensions' && child !== undefined && !(skipsSchema && name === 'schema'))
             .map(([name, child]) => [name, key(child)])
       return hash('sha256', JSON.stringify([Array.isArray(value), entries]))
     })

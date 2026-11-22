@@ -22,6 +22,7 @@ export function* mergeAdjacentObjectsLazy(members: Iterable<SchemaNode>): Genera
         acc = ast.factory.createSchema({
           ...accObject,
           properties: [...(accObject.properties ?? []), ...(objectMember.properties ?? [])],
+          ...((accObject.extensions || objectMember.extensions) && { extensions: { ...accObject.extensions, ...objectMember.extensions } }),
         })
         continue
       }

@@ -313,6 +313,7 @@ describe('buildAst', () => {
                 {
                   name: 'q',
                   in: 'querystring',
+                  'x-group': 'search',
                   content: {
                     'application/x-www-form-urlencoded': {
                       schema: { type: 'object', properties: { tags: { type: 'array', items: { type: 'string' } } } },
@@ -329,7 +330,14 @@ describe('buildAst', () => {
       const op = findOperation(await parseOas(oas), 'search')
 
       expect(op?.parameters).toHaveLength(1)
-      expect(op?.parameters[0]).toMatchObject({ name: 'tags', in: 'query', style: 'form', explode: false, required: false })
+      expect(op?.parameters[0]).toMatchObject({
+        name: 'tags',
+        in: 'query',
+        style: 'form',
+        explode: false,
+        required: false,
+        extensions: { 'x-group': 'search' },
+      })
     })
 
     it('keeps a JSON querystring parameter whole', async () => {
