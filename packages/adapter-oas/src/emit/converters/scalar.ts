@@ -1,7 +1,7 @@
 import { ast } from '@kubb/kit'
 import { enumDescriptionKeys, enumExtensionKeys, formatMap, numericFormats } from '../../constants.ts'
-import type { SchemaObject } from '../../types.ts'
 import { pickExtensions } from '../../oas.ts'
+import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 import { resolveDateTypeValue } from '../schemaShape.ts'
