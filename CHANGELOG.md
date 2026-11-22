@@ -1,5 +1,77 @@
 # Changelog
 
+## v5.23.3 — Nov 22, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Convert schema and operation names through the one cache in `@kubb/core`, so a name is converted once per run instead of once per package. ([#4726](https://github.com/kubb-labs/kubb/pull/4726), [`89b969d`](https://github.com/kubb-labs/kubb/commit/89b969d0b62954e1e094f6438177b3718ff8dc02))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Speed up import merging on large specs by caching each import's relative path, with no change to the generated output. ([#4729](https://github.com/kubb-labs/kubb/pull/4729), [`c114090`](https://github.com/kubb-labs/kubb/commit/c114090f22ca9d3f55d5189b753e4e6daa4d618b))
+- `SourceNode` takes the same props as `Code` and `Function`: `export` and `default`. Barrels list every source with `export`, except a `default` one. `Code` also takes `default`. `isExportable` and `isIndexable` are deprecated, and barrels still read `isIndexable` until Kubb v6.
+  
+  ```diff
+  - createSource({ name: 'Pet', isExportable: true, isIndexable: true, nodes })
+  + createSource({ name: 'Pet', export: true, nodes })
+  ``` ([#4725](https://github.com/kubb-labs/kubb/pull/4725), [`8a2b2e4`](https://github.com/kubb-labs/kubb/commit/8a2b2e4ce7e8b35299f3d270ee4ceca6a333d49f))
+- `inline` moves to the file. `<File inline>` marks a file that is never written, and each file that imports from it gets the body of each `Const` or `Type` it imports. A `Function`, or printed `Code` text, has no such body, so importing one reports a problem. Only the deprecated `<Function inline>` still supplies its stored body. `inline` on `Const`, `Type` and `Function`, and `SourceNode.inline`, are deprecated until Kubb v6.
+  
+  ```diff
+  - <File baseName="AddPet.ts" path={path}>
+  -   <Type export name="AddPetStatus200" inline>{'Pet'}</Type>
+  - </File>
+  + <File baseName="AddPet.ts" path={path} inline>
+  +   <Type export name="AddPetStatus200">{'Pet'}</Type>
+  + </File>
+  ``` ([#4728](https://github.com/kubb-labs/kubb/pull/4728), [`2156bab`](https://github.com/kubb-labs/kubb/commit/2156bab653c9f56a67006f0c937abbf959db937b))
+- `Type` and `TypeNode` take `syntax: 'interface'`, which prints `interface Name { … }` in place of `type Name = …`.
+  
+  ```tsx
+  <Type export name="Pet" syntax="interface">{'{ id: number }'}</Type>
+  // export interface Pet { id: number }
+  ``` ([#4725](https://github.com/kubb-labs/kubb/pull/4725), [`8a2b2e4`](https://github.com/kubb-labs/kubb/commit/8a2b2e4ce7e8b35299f3d270ee4ceca6a333d49f))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Use `yuku` 0.28 instead of the deprecated `yuku-parser` and `yuku-codegen`. Parsing is about twice as fast. ([#4731](https://github.com/kubb-labs/kubb/pull/4731), [`222a7b5`](https://github.com/kubb-labs/kubb/commit/222a7b5f642df2a4d7cb4de7624e6cd140ddc0c2))
+- Hash the previous output for the "File changes" summary in about half the time. ([#4726](https://github.com/kubb-labs/kubb/pull/4726), [`89b969d`](https://github.com/kubb-labs/kubb/commit/89b969d0b62954e1e094f6438177b3718ff8dc02))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add `ctx.getFile(path)` to the plugin context, which returns a file as the build holds it now, such as one an earlier plugin wrote. Use it in place of `ctx.driver.fileManager.files`. ([#4725](https://github.com/kubb-labs/kubb/pull/4725), [`8a2b2e4`](https://github.com/kubb-labs/kubb/commit/8a2b2e4ce7e8b35299f3d270ee4ceca6a333d49f))
+
+### @kubb/renderer-jsx
+
+#### Bug Fixes
+
+- Add `Code` and `Raw`, for the source blocks that `Const`, `Type` and `Function` cannot express. `File.Source` is deprecated in their favor.
+  
+  - `Code` is a printed declaration in any language, with `name`, `export` and `default`. `export` lists it in barrels. A TypeScript type goes in `Type`, which now takes `syntax: 'interface'` too.
+  - `Origin` sets the input location of the sources inside it, for code that comes from a different part of the input than the node being generated.
+  - `Raw` is text that declares nothing, such as `faker.seed(1)`, JSON or markdown. Its optional `name` only dedupes it.
+  
+  ```diff
+  - <File.Source name="Pet" isExportable isIndexable isTypeOnly>{printed}</File.Source>
+  + <Type export name="Pet">{printedBody}</Type>
+  ```
+  
+  The `kubb-source` host element is replaced by `kubb-code` for `Code` and `File.Source`, and `kubb-raw` for `Raw` and the markdown components. `kubb-origin` carries the pointer that `Origin` and `File.Source` set. ([#4725](https://github.com/kubb-labs/kubb/pull/4725), [`8a2b2e4`](https://github.com/kubb-labs/kubb/commit/8a2b2e4ce7e8b35299f3d270ee4ceca6a333d49f))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.23.2 — Nov 22, 2026
 
 ### @kubb/ast
