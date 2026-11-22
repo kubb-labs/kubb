@@ -268,6 +268,14 @@ export class FileManager {
   }
 
   /**
+   * The stored file at `path`, or `undefined` when there is none.
+   */
+  get(path: string): FileNode | undefined {
+    this.#flush()
+    return this.#cache.get(path)
+  }
+
+  /**
    * Removes the files at `paths`, so they are neither listed nor written.
    */
   delete(...paths: Array<string>): void {

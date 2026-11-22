@@ -664,6 +664,7 @@ export class KubbDriver {
       upsertFile: async (...files: Array<FileNode>) => {
         driver.fileManager.upsert(...files)
       },
+      getFile: (path: string) => driver.fileManager.get(path),
       get meta(): InputMeta {
         return driver.inputNode?.meta ?? {}
       },

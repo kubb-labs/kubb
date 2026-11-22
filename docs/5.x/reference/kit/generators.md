@@ -103,6 +103,7 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 | --------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `ctx.addFile()`       | `(...files: Array<FileNode>) => Promise<void>`                            | Adds files, skipping any that already exist.                                                         |
 | `ctx.upsertFile()`    | `(...files: Array<FileNode>) => Promise<void>`                            | Adds files, or merges their sources and imports into an existing file.                               |
+| `ctx.getFile()`       | `(path: string) => FileNode \| undefined`                                 | Returns the file at `path` as the build holds it now, such as one an earlier plugin wrote.           |
 | `ctx.dispatch()`      | `({ result, renderer?, pointer? }) => Promise<void>`                      | Adds a generator result: files as they are, or elements through `renderer`.                          |
 | `ctx.getPlugin()`     | `(name: string) => Plugin \| undefined`                                   | Returns a plugin by name.                                                                            |
 | `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Returns a plugin by name, or throws.                                                                 |
