@@ -63,9 +63,9 @@ describe('jsxRenderer', () => {
     )
 
     const [type, key, seed] = renderer.files[0]!.sources
-    expect(type).toMatchObject({ name: 'Pet', pointer: '#/components/schemas/Pet', isExport: true, isTypeOnly: true })
-    expect(key).toMatchObject({ name: 'petKey', isExport: false, isTypeOnly: false })
-    expect(seed).toMatchObject({ name: 'seed', isExport: false, isTypeOnly: false })
+    expect(type).toMatchObject({ name: 'Pet', pointer: '#/components/schemas/Pet', export: true, isTypeOnly: true })
+    expect(key).toMatchObject({ name: 'petKey', export: false, isTypeOnly: false })
+    expect(seed).toMatchObject({ name: 'seed', export: false, isTypeOnly: false })
     expect(ast.node.getText(seed!.nodes)).toBe('faker.seed(1)')
   })
 
@@ -216,7 +216,7 @@ describe('File.Source', () => {
       kind: 'Source',
       name: 'Pet',
       isTypeOnly: true,
-      isExport: true,
+      export: true,
       nodes: [{ kind: 'Text', value: 'export type Pet = { id: number }' }],
     })
   })
@@ -348,12 +348,12 @@ describe('File.Export', () => {
     expect(file.sources).toHaveLength(1)
     expect(file.sources[0]).toMatchObject({
       name: 'nameSchema',
-      isExport: true,
+      export: true,
       nodes: [{ kind: 'Const', nodes: [{ kind: 'Text', value: 'z.string()' }] }],
     })
   })
 
-  it('keeps a bare default export out of barrels', async () => {
+  it('marks a bare default export with export and default', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="pet.ts" path="src/pet.ts">
@@ -363,7 +363,7 @@ describe('File.Export', () => {
       </File>,
     )
 
-    expect(renderer.files[0]!.sources[0]).toMatchObject({ name: 'getPet', isExport: false })
+    expect(renderer.files[0]!.sources[0]).toMatchObject({ name: 'getPet', export: true, default: true })
   })
 
   it('uses the body of an inline declaration as its expression', async () => {

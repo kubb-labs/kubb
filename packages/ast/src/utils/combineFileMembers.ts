@@ -87,14 +87,14 @@ function mergeByPath<TNode extends FileMember>(result: Array<TNode>): (member: {
 }
 
 /**
- * Deduplicates `SourceNode` objects by `name + isExport + isTypeOnly`, keeping the first of each
+ * Deduplicates `SourceNode` objects by `name + export + isTypeOnly`, keeping the first of each
  * key. An unnamed source only drops when the same node appears twice, so markdown can repeat a
  * paragraph or a table. Returns the deduplicated array in original order.
  */
 export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
   const seen = new Set<SourceNode | string>()
   return sources.filter((source) => {
-    const key = source.name != null ? `${source.name}:${source.isExport ?? source.isExportable ?? false}:${source.isTypeOnly ?? false}` : source
+    const key = source.name != null ? `${source.name}:${source.export ?? source.isExportable ?? false}:${source.isTypeOnly ?? false}` : source
     if (seen.has(key)) return false
     seen.add(key)
     return true

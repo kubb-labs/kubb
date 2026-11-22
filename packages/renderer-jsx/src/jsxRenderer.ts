@@ -121,13 +121,14 @@ function collectFileChildren(element: unknown): FileChildren {
     },
     (host) => {
       if (host.type === 'kubb-code') {
-        const { name, pointer, isTypeOnly, isExport, inline, children } = host.props
+        const { name, pointer, isTypeOnly, export: isExport, default: isDefault, inline, children } = host.props
         sources.push(
           ast.factory.createSource({
             name: name?.toString(),
             ...(pointer !== undefined ? { pointer } : {}),
             isTypeOnly: !!isTypeOnly,
-            isExport: !!isExport,
+            export: !!isExport,
+            ...(isDefault ? { default: true } : {}),
             ...(inline ? { inline } : {}),
             nodes: collectCodeNodes(children),
           }),
@@ -137,7 +138,7 @@ function collectFileChildren(element: unknown): FileChildren {
 
       if (host.type === 'kubb-raw') {
         const { name, children } = host.props
-        sources.push(ast.factory.createSource({ name: name?.toString(), isTypeOnly: false, isExport: false, nodes: collectCodeNodes(children) }))
+        sources.push(ast.factory.createSource({ name: name?.toString(), isTypeOnly: false, export: false, nodes: collectCodeNodes(children) }))
         return
       }
 
@@ -156,14 +157,14 @@ function collectFileChildren(element: unknown): FileChildren {
       // A declaration directly under a file is its own source. `export` lists it in barrels.
       if (isCodeHost(host)) {
         const { name, export: canExport, inline } = host.props
-        // A default export cannot be re-exported by name, so barrels skip it.
         const isDefault = 'default' in host.props && !!host.props.default
         const node = createCodeNode(host.type, host.props)
         sources.push(
           ast.factory.createSource({
             name,
             isTypeOnly: host.type === 'kubb-type',
-            isExport: !!canExport && !isDefault,
+            export: !!canExport,
+            ...(isDefault ? { default: true } : {}),
             // An inline declaration lends its body to importing files in place of its name.
             ...(inline && 'nodes' in node ? { inline: { expression: ast.node.getText(node.nodes) } } : {}),
             nodes: [node],

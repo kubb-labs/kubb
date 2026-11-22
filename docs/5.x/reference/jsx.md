@@ -120,6 +120,7 @@ A printed declaration in the enclosing `File`, such as a type from a printer or 
 | --- | --- | --- |
 | `name` | `string` | The declared name, for barrels and deduplication |
 | `export?` | `boolean` | Lists the declaration in barrels. The text still needs its own `export`. |
+| `default?` | `boolean` | Marks the declaration as the default export, which barrels skip |
 | `type?` | `boolean` | Marks a type-only declaration |
 | `pointer?` | `string` | The input location, such as `#/components/schemas/Pet` |
 | `children?` | `KubbReactNode` | The printed declaration |
