@@ -2,4 +2,7 @@
 '@kubb/core': patch
 ---
 
-Add plugin visit hooks: `kubb:plugin:visit:start`, `kubb:plugin:visit:schema`, `kubb:plugin:visit:operation` and `kubb:plugin:visit:end`. Kubb calls them for one plugin while it walks the input, and they never reach the shared hooks bus. The build memo holds the shared-schema data under `kubb:sharedSchemas`.
+Add the plugin visit hooks `kubb:plugin:visit:start`, `kubb:plugin:visit:schema`, `kubb:plugin:visit:operation` and `kubb:plugin:visit:end`, which run for one plugin while Kubb walks the input.
+
+- They never reach the shared hooks bus.
+- The shared-schema data is in the build memo under `kubb:sharedSchemas`.

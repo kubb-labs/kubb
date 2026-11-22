@@ -2,4 +2,4 @@
 '@kubb/core': patch
 ---
 
-Clarify the `addMacro` JSDoc: macros with the same `enforce` run in the order they are added, `pre` macros run first, and `post` macros run last.
+Document the `addMacro` order: `pre` macros run first, `post` macros last, and macros with the same `enforce` run in the order they are added.

@@ -2,4 +2,7 @@
 '@kubb/kit': patch
 ---
 
-Add `addGenerator`, `setResolver`, `addMacro`, `setMacros` and `setPrinter` as methods on the setup context of a plugin defined with kit's `defineExtension`, so `setup(options, kubb) { kubb.addGenerator(generator) }` works next to the composables. `kubb` is typed as the new exported `KitSetupContext`. A setup context that already has one of these methods, such as a test mock with spies, keeps its own.
+Add `addGenerator`, `setResolver`, `addMacro`, `setMacros` and `setPrinter` as methods on kit's setup context, next to the composables.
+
+- `setup(options, kubb) { kubb.addGenerator(generator) }` works, with `kubb` typed as `KitSetupContext`.
+- A setup context that already has one of these methods, such as a test mock, keeps its own.
