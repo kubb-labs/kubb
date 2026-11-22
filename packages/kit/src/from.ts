@@ -86,9 +86,9 @@ export function from<TSource extends PluginName | ProvideName = never>(source?: 
   const resolver = (provided ? provided.factory() : ctx.getResolver((source ?? ctx.plugin.name) as PluginName)) as Resolver & Record<string, unknown>
   const pluginName = (provided ? resolver.pluginName : (source ?? ctx.plugin.name)) as PluginName
   const toRefName = (name: string, node: SchemaNode | OperationNode | null): RefName => {
-    const nodeOptions = node && pluginOptionsFor(ctx, node, pluginName)
+    const nodeOptions = node && pluginOptionsFor({ ctx, node, plugin: pluginName })
     if (!node || !nodeOptions) return { name, import: null, toString: () => name }
-    const { path } = locateFile(ctx, node, { plugin: pluginName, exportName: name }, nodeOptions).file
+    const { path } = locateFile({ ctx, node, options: { plugin: pluginName, exportName: name }, pluginOptions: nodeOptions }).file
     return { name, import: ast.factory.createImport({ name: [name], path }), toString: () => name }
   }
   const wrapValue = (value: unknown, self: object): unknown => {
@@ -106,7 +106,7 @@ export function from<TSource extends PluginName | ProvideName = never>(source?: 
   }
   return {
     resolver: wrapped as FromResolver<SourceResolver<TSource>>,
-    has: (node) => pluginOptionsFor(ctx, node, pluginName) !== null,
+    has: (node) => pluginOptionsFor({ ctx, node, plugin: pluginName }) !== null,
     import: (node, name) => toRefName(name, node),
   }
 }
