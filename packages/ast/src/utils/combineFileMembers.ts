@@ -36,11 +36,8 @@ function withoutNames<TNode extends { names?: unknown }>(node: TNode): Omit<TNod
   return rest
 }
 
-/**
- * Splits an import built from `names` into the deprecated-field imports that print the same statements:
- * one per default or whole-module name, and one named import per space. Returns `undefined` while a name
- * has no space yet, since only the declaration it points to can tell.
- */
+// Splits an import built from `names` into the deprecated-field imports that print the same statements, or
+// returns `undefined` while a space is open, since only the declaration it points to can tell.
 function splitImport(node: ImportNode): Array<ImportNode> | undefined {
   const names = getNames(node)
   if (names !== node.names) return [withoutNames(node) as ImportNode]
@@ -63,10 +60,7 @@ function splitImport(node: ImportNode): Array<ImportNode> | undefined {
   return split
 }
 
-/**
- * Splits an export built from `names` into the deprecated-field exports that print the same statements.
- * Returns `undefined` while a name has no space yet, or when a named export has an alias, which only `names` can hold.
- */
+// Like `splitImport`, and also `undefined` for an alias on a named export, which only `names` can hold.
 function splitExport(node: ExportNode): Array<ExportNode> | undefined {
   const names = getNames(node)
   if (names !== node.names) return [withoutNames(node) as ExportNode]
@@ -88,9 +82,6 @@ function splitExport(node: ExportNode): Array<ExportNode> | undefined {
   return split
 }
 
-/**
- * Splits `nodes` into deprecated-field nodes whose space is known, and the nodes whose space is still open.
- */
 function partition<TNode>(nodes: Array<TNode>, split: (node: TNode) => Array<TNode> | undefined): { known: Array<TNode>; open: Array<TNode> } {
   const known: Array<TNode> = []
   const open: Array<TNode> = []
@@ -107,10 +98,7 @@ function partition<TNode>(nodes: Array<TNode>, split: (node: TNode) => Array<TNo
   return { known, open }
 }
 
-/**
- * Keeps imports or exports whose space is still open as they are, once per path and names, until
- * `ast.file.resolveSpaces` settles them and the file is combined again.
- */
+// Keeps nodes with an open space once per path and names, until `ast.file.resolveSpaces` settles them.
 function keepOpen<TNode extends ImportNode | ExportNode>(nodes: Array<TNode>, keep: (item: ModuleName) => boolean = () => true): Array<TNode> {
   const seen = new Set<string>()
   return nodes.flatMap((node) => {

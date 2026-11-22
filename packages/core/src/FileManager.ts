@@ -348,7 +348,7 @@ export class FileManager {
       limit: FILE_CONCURRENCY,
       run: async (file, index) => {
         signal?.throwIfAborted()
-        // Every file is stored by now, so a name without a space takes the one of the declaration it points to.
+        // Every file is stored by now, so a name without a space takes the space of the declaration it points to.
         const resolved = ast.file.resolveSpaces(file, (path) => this.get(path))
         unresolved.push(...resolved.unresolved.map((name) => `${name} in ${file.path}`))
         const source = await this.parse(resolved.file, { parsers })

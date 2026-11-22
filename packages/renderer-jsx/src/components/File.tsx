@@ -90,7 +90,7 @@ type FileExportProps = ast.ExportInput & { key?: Key }
  * Declares an export entry for the enclosing {@link File}.
  *
  * The export is collected by the renderer and emitted at the top of the generated file. A name without a
- * `space` takes the one of the declaration it points to.
+ * `space` takes the space of the declaration it points to.
  *
  * @example Named export
  * ```tsx
@@ -114,7 +114,7 @@ type FileImportProps = ast.ImportInput & { key?: Key }
  * Declares an import entry for the enclosing {@link File}.
  *
  * The import is collected by the renderer and emitted at the top of the generated file. A name without a
- * `space` takes the one of the declaration it points to; a name from a package needs one set.
+ * `space` takes the space of the declaration it points to. A name from a package needs one set.
  *
  * @example Named import
  * ```tsx

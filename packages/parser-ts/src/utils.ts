@@ -434,7 +434,7 @@ export function printExport({
   const typePrefix = isTypeOnly ? 'type ' : ''
   const from = quoteModulePath(path)
 
-  // Only `names` holds an alias on a named export; with mixed spaces each type name gets its own `type`.
+  // Only `names` holds an alias on a named export. With mixed spaces, each type name gets its own `type`.
   if (names?.some((item) => item.alias && item.name !== '*')) {
     const specifiers = names.map((item) => `${!isTypeOnly && item.space === 'type' ? 'type ' : ''}${item.alias ? `${item.name} as ${item.alias}` : item.name}`)
     return `export ${typePrefix}{ ${specifiers.join(', ')} } from ${from}`

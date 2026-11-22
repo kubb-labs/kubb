@@ -1,16 +1,8 @@
-/**
- * Converts between the language-agnostic `names` of an import or export and the deprecated
- * TypeScript-shaped fields (`name`, `isTypeOnly`, `isNameSpace`, `asAlias`), and reads the space of a
- * declaration. Both shapes stay readable until the deprecated fields are removed in Kubb v6.
- */
 import type { ExportNode, ImportNode, ModuleName, SourceNode, Space } from '../nodes/file.ts'
 
 type ImportFields = Pick<ImportNode, 'name' | 'isTypeOnly' | 'isNameSpace'>
 type ExportFields = Pick<ExportNode, 'name' | 'isTypeOnly' | 'asAlias'>
 
-/**
- * The deprecated import fields that describe the same import as `names`.
- */
 export function importFields(names: ReadonlyArray<ModuleName>): ImportFields {
   const isTypeOnly = names.length > 0 && names.every((item) => item.space === 'type')
   const [first] = names
@@ -21,8 +13,7 @@ export function importFields(names: ReadonlyArray<ModuleName>): ImportFields {
 }
 
 /**
- * The deprecated export fields that describe the same export as `names`. An alias on a named export has no
- * deprecated form, so the exported name stands in for it.
+ * The deprecated export fields for `names`. A named export's alias has no deprecated form, so it stands in for the name.
  */
 export function exportFields(names: ReadonlyArray<ModuleName>): ExportFields {
   const isTypeOnly = names.length > 0 && names.every((item) => item.space === 'type')
@@ -35,7 +26,7 @@ export function exportFields(names: ReadonlyArray<ModuleName>): ExportFields {
 
 /**
  * Whether `node`'s deprecated fields still describe its `names`. They stop doing so when code copies a node
- * and changes only a deprecated field, such as `{ ...imp, isTypeOnly: true }`; that change then wins.
+ * and changes only a deprecated field, such as `{ ...imp, isTypeOnly: true }`. That change then wins.
  */
 export function matchesFields(node: ImportFields | ExportFields, fields: ImportFields | ExportFields): boolean {
   return (

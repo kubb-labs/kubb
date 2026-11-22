@@ -5,9 +5,6 @@ import type { ExportNode, FileNode, ImportNode, ModuleName, Space } from '../nod
 import { getNames, getSpace } from './moduleNames.ts'
 
 type ResolveSpacesResult = {
-  /**
-   * The file with a space on every import and export name, or the same file when none was missing.
-   */
   file: FileNode
   /**
    * Names whose declaration was not found, such as `QueryClient from @tanstack/react-query`. They print as values.
@@ -15,8 +12,7 @@ type ResolveSpacesResult = {
   unresolved: Array<string>
 }
 
-// The space of each declared name in a file. A name declared as both a type and a value, such as an
-// `asConst` enum, is a value: a value import of it is always valid.
+// A name declared as both a type and a value, such as an `asConst` enum, is a value: a value import of it is always valid.
 const spacesCache = memo.create<FileNode, Map<string, Space>>({ weak: true })
 
 function declaredSpaces(file: FileNode): Map<string, Space> {
@@ -35,9 +31,8 @@ function declaredSpaces(file: FileNode): Map<string, Space> {
 const isOpen = (node: ImportNode | ExportNode): boolean => !!node.names && getNames(node).some((item) => !item.space)
 
 /**
- * Fills in the space of each import and export name that has none, from the declaration it points to: the
- * source with that name in the file `getFile` returns for the import or export path. Returns the same file
- * when every name already has a space.
+ * Fills in each missing `space` from the source with that name in the file `getFile` returns for the import or
+ * export path. Returns the same file when no space is missing.
  *
  * @example
  * ```ts

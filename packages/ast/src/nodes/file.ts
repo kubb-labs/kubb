@@ -20,20 +20,14 @@ type ImportName = string | Array<string | { propertyName: string; name?: string 
 export type Space = 'type' | 'value'
 
 /**
- * One name an import or export brings across, in any language. Follows the ECMAScript `ImportEntry` record.
+ * One name an import or export brings across, as in the ECMAScript `ImportEntry` record.
  *
- * @example Named import with an alias (TypeScript: `import { fakerEN as faker }`)
- * `{ name: 'fakerEN', alias: 'faker' }`
- *
- * @example Default import (TypeScript: `import useSWR from 'swr'`)
- * `{ name: 'default', alias: 'useSWR' }`
- *
- * @example Whole module (TypeScript: `import * as z from 'zod'`)
- * `{ name: '*', alias: 'z' }`
+ * @example
+ * `{ name: 'fakerEN', alias: 'faker' }`, `{ name: 'default', alias: 'useSWR' }`, `{ name: '*', alias: 'z' }`
  */
 export type ModuleName = {
   /**
-   * Name in the other module. `'default'` is its default export and `'*'` the whole module.
+   * Name in the other module: `'default'` for its default export, `'*'` for the whole module.
    */
   name: string
   /**
@@ -41,8 +35,7 @@ export type ModuleName = {
    */
   alias?: string | null
   /**
-   * Whether the name is a type or a value. When it is not set, the space of the declaration it points to is
-   * used before the file is printed.
+   * Type or value. When unset, the declaration it points to decides before the file is printed.
    */
   space?: Space | null
 }
@@ -73,8 +66,7 @@ export type ModuleName = {
 export type ImportNode = BaseNode & {
   kind: 'Import'
   /**
-   * The names the import brings in. Read them with `ast.file.getNames`, which also covers nodes built with
-   * the deprecated fields.
+   * The names the import brings in. `ast.file.getNames` also reads the deprecated fields.
    */
   names?: Array<ModuleName> | null
   /**
@@ -134,8 +126,7 @@ export type ImportNode = BaseNode & {
 export type ExportNode = BaseNode & {
   kind: 'Export'
   /**
-   * The names the export passes on. Read them with `ast.file.getNames`, which also covers nodes built with
-   * the deprecated fields.
+   * The names the export passes on. `ast.file.getNames` also reads the deprecated fields.
    */
   names?: Array<ModuleName> | null
   /**
@@ -185,8 +176,7 @@ export type SourceNode = BaseNode & {
    */
   name?: string | null
   /**
-   * Whether the declaration is a type or a value. When it is not set, a source whose first node is a `Type`
-   * is a type. Read it with `ast.file.getSpace`.
+   * Type or value. When unset, a source whose first node is a `Type` is a type.
    */
   space?: Space | null
   /**
@@ -313,20 +303,13 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
   inline?: boolean | null
 }
 
-/**
- * Input for {@link createImport}: `names`, or the deprecated `name` with `isTypeOnly` and `isNameSpace`.
- */
 export type ImportInput = Omit<ImportNode, 'kind' | 'name'> & { name?: ImportName }
 
-/**
- * Input for {@link createExport}: `names`, or the deprecated `name` with `isTypeOnly` and `asAlias`.
- */
 export type ExportInput = Omit<ExportNode, 'kind'>
 
 /**
- * Creates an `ImportNode` representing a language-agnostic import/dependency declaration. A node built
- * from `names` also carries the deprecated fields, so code that still reads them keeps working. When both
- * are passed and the deprecated fields describe a different import, those win.
+ * Creates an `ImportNode`. A node built from `names` also gets the deprecated fields. When both are passed
+ * and differ, the deprecated fields win.
  *
  * @example Named import
  * ```ts
@@ -345,9 +328,8 @@ export function createImport(input: ImportInput): ImportNode {
 }
 
 /**
- * Creates an `ExportNode` representing a language-agnostic export/public API declaration. A node built
- * from `names` also carries the deprecated fields, so code that still reads them keeps working. When both
- * are passed and the deprecated fields describe a different export, those win.
+ * Creates an `ExportNode`. A node built from `names` also gets the deprecated fields. When both are passed
+ * and differ, the deprecated fields win.
  *
  * @example Named export
  * ```ts

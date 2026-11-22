@@ -13,8 +13,7 @@ type Props = {
    */
   default?: boolean
   /**
-   * Whether the declaration is a type or a value. Imports and barrels of this name print `type` for a type.
-   *
+   * Whether the declaration is a type or a value. Imports and barrels of a type print `type`.
    * @default 'value'
    */
   space?: ast.Space

@@ -203,7 +203,7 @@ An import at the top of the enclosing `File`.
 | `path` | `string` | The module to import from |
 | `root?` | `string \| null` | The file path the import is relative to |
 
-Each name prints as `type` when its `space` is `'type'`. A name without `space` takes the one of the declaration it points to in the generated files. A name from a package needs `space`, because Kubb cannot read the package. Without it, the name prints as a value and the build warns.
+Each name prints as `type` when its `space` is `'type'`. A name without `space` takes the space of the declaration it points to in the generated files. A name from a package needs `space`, because Kubb cannot read the package. Without it, the name prints as a value and the build warns.
 
 ```tsx
 <File.Import names={[{ name: 'useState', space: 'value' }]} path="react" />
@@ -244,7 +244,7 @@ An export at the top of the enclosing `File`.
 | `names` | `Array<{ name: string; alias?: string; space?: 'type' \| 'value' }>` | The names to export. `{ name: '*' }` exports everything, and an `alias` on it exports the module under one name. |
 | `path` | `string` | The module to export from |
 
-A name without `space` takes the one of the declaration it points to.
+A name without `space` takes the space of the declaration it points to.
 
 ```tsx
 <File.Export names={[{ name: 'Pet' }]} path="./models/petStore" />

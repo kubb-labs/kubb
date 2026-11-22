@@ -197,7 +197,7 @@ describe('FileManager', () => {
       },
     )
 
-    it('gives a name without a space the one of its declaration, and warns about names it cannot find', async () => {
+    it('gives a name without a space the space of its declaration, and warns about names it cannot find', async () => {
       const storage = memoryStorage()
       const hooks = new Hookable<KubbHooks>()
       const warnings: Array<string> = []
