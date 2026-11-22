@@ -49,10 +49,25 @@ describe('createImport and createExport from names', () => {
     expect([exp.name, exp.isTypeOnly, exp.asAlias]).toStrictEqual([['Pet'], true, false])
   })
 
-  it('let names win over deprecated fields passed with them', () => {
-    const imp = createImport({ names: [{ name: 'Pet', space: 'value' }], path: './pet', isTypeOnly: true })
+  it('applies a deprecated field that differs from the one names gives', () => {
+    const imp = createImport({ names: [{ name: 'Pet', space: 'value' }], path: './pet' })
+    const exp = createExport({ names: [{ name: '*', space: 'type' }], path: './pet' })
 
-    expect([imp.names, imp.isTypeOnly]).toStrictEqual([[{ name: 'Pet', space: 'value' }], false])
+    expect(createImport({ ...imp, isTypeOnly: true }).names).toStrictEqual([{ name: 'Pet', space: 'type' }])
+    expect(createExport({ ...exp, isTypeOnly: false }).names).toStrictEqual([{ name: '*', space: 'value' }])
+    expect(getNames(createImport({ ...imp, name: ['Animal'] }))).toStrictEqual([{ name: 'Animal', space: 'value' }])
+  })
+
+  it('keeps per-name spaces when a spread node passes its own deprecated fields back', () => {
+    const imp = createImport({
+      names: [
+        { name: 'Pet', space: 'type' },
+        { name: 'petSchema', space: 'value' },
+      ],
+      path: './pet',
+    })
+
+    expect(createImport({ ...imp }).names).toStrictEqual(imp.names)
   })
 })
 

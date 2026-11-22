@@ -40,7 +40,7 @@ describe('combineExports', () => {
 
   it('keeps type-only and value exports from the same path separate', () => {
     const value = createExport({
-      name: ['Pet'],
+      name: ['petSchema'],
       path: './Pet',
       isTypeOnly: false,
     })
@@ -101,6 +101,22 @@ describe('combineImports', () => {
     expect(combineImports([imp], [exp], 'const x = 1')).toHaveLength(1)
   })
 
+  it('drops a type import of a name the same path already imports as a value', () => {
+    const asType = createImport({ names: [{ name: 'PetStatus', space: 'type' }], path: './models' })
+    const asValue = createImport({
+      names: [
+        { name: 'PetStatus', space: 'value' },
+        { name: 'Pet', space: 'type' },
+      ],
+      path: './models',
+    })
+
+    expect(combineImports([asType, asValue], [], 'PetStatus Pet').map((imp) => imp.names)).toStrictEqual([
+      [{ name: 'Pet', space: 'type' }],
+      [{ name: 'PetStatus', space: 'value' }],
+    ])
+  })
+
   it('keeps every import when there is no source to check against', () => {
     expect(combineImports([createImport({ name: ['unused'], path: 'lodash' })], [], '')).toHaveLength(1)
   })
@@ -140,7 +156,7 @@ describe('combineImports', () => {
 
   it('keeps value and type-only imports from the same path separate', () => {
     const value = createImport({
-      name: ['Pet'],
+      name: ['petSchema'],
       path: './models',
       isTypeOnly: false,
     })
@@ -149,7 +165,7 @@ describe('combineImports', () => {
       path: './models',
       isTypeOnly: true,
     })
-    const result = combineImports([value, typeOnly], [], 'Pet')
+    const result = combineImports([value, typeOnly], [], 'Pet petSchema')
 
     expect(result).toHaveLength(2)
   })

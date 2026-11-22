@@ -307,9 +307,18 @@ export type ImportInput = Omit<ImportNode, 'kind' | 'name'> & { name?: ImportNam
 
 export type ExportInput = Omit<ExportNode, 'kind'>
 
+// A spread node carries the deprecated fields derived from its `names`, so only a value that differs is an override.
+function overrideSpace(names: Array<ModuleName>, isTypeOnly: boolean | null | undefined, derived: boolean | null | undefined): Array<ModuleName> {
+  if (isTypeOnly == null || isTypeOnly === derived) return names
+  const space = isTypeOnly ? 'type' : 'value'
+  return names.map((item) => ({ ...item, space }))
+}
+
+const isNameOverride = (name: unknown, derived: unknown): boolean => name !== undefined && JSON.stringify(name) !== JSON.stringify(derived)
+
 /**
- * Creates an `ImportNode`. A node built from `names` also gets the deprecated fields, and `names` wins over
- * any deprecated field passed with it.
+ * Creates an `ImportNode`. A node built from `names` also gets the deprecated fields. A deprecated `name` or
+ * `isTypeOnly` that differs from the one `names` gives overrides it, so `{ ...imp, isTypeOnly: true }` still works.
  *
  * @example Named import
  * ```ts
@@ -318,13 +327,16 @@ export type ExportInput = Omit<ExportNode, 'kind'>
  * ```
  */
 export function createImport(input: ImportInput): ImportNode {
-  if (input.names) return { ...input, ...toDeprecatedImport(input.names), names: input.names, kind: nodeKinds.import }
-  return { ...input, name: input.name ?? [], kind: nodeKinds.import }
+  if (!input.names) return { ...input, name: input.name ?? [], kind: nodeKinds.import }
+  const derived = toDeprecatedImport(input.names)
+  if (isNameOverride(input.name, derived.name)) return { ...input, names: undefined, name: input.name ?? [], kind: nodeKinds.import }
+  const names = overrideSpace(input.names, input.isTypeOnly, derived.isTypeOnly)
+  return { ...input, ...toDeprecatedImport(names), names, kind: nodeKinds.import }
 }
 
 /**
- * Creates an `ExportNode`. A node built from `names` also gets the deprecated fields, and `names` wins over
- * any deprecated field passed with it.
+ * Creates an `ExportNode`. A node built from `names` also gets the deprecated fields. A deprecated `name` or
+ * `isTypeOnly` that differs from the one `names` gives overrides it.
  *
  * @example Named export
  * ```ts
@@ -333,8 +345,11 @@ export function createImport(input: ImportInput): ImportNode {
  * ```
  */
 export function createExport(input: ExportInput): ExportNode {
-  if (input.names) return { ...input, ...toDeprecatedExport(input.names), names: input.names, kind: nodeKinds.export }
-  return { ...input, kind: nodeKinds.export }
+  if (!input.names) return { ...input, kind: nodeKinds.export }
+  const derived = toDeprecatedExport(input.names)
+  if (isNameOverride(input.name, derived.name)) return { ...input, names: undefined, kind: nodeKinds.export }
+  const names = overrideSpace(input.names, input.isTypeOnly, derived.isTypeOnly)
+  return { ...input, ...toDeprecatedExport(names), names, kind: nodeKinds.export }
 }
 
 /**

@@ -51,16 +51,15 @@ export function resolveSpaces(file: FileNode, getFile: (path: string) => FileNod
       return { ...item, space: space || 'value' }
     })
 
-  // A relative export path is written without the extension of the file it points to.
-  const exportTarget = (node: ExportNode): FileNode | undefined => {
-    const base = path.resolve(path.dirname(file.path), node.path)
-    return getFile(base) ?? getFile(`${base}${file.extname}`)
+  // A relative path is written without the extension of the file it points to, and a folder stands for its index file.
+  const target = (node: ImportNode | ExportNode): FileNode | undefined => {
+    const from = node.kind === 'Import' && node.root ? node.root : file.path
+    const base = path.resolve(path.dirname(from), node.path)
+    return getFile(node.path) ?? getFile(base) ?? getFile(`${base}${file.extname}`) ?? getFile(path.join(base, `index${file.extname}`))
   }
 
-  const imports = file.imports.map((node) =>
-    isOpen(node) ? createImport({ path: node.path, root: node.root, names: settle(node, getFile(node.path)) }) : node,
-  )
-  const exports = file.exports.map((node) => (isOpen(node) ? createExport({ path: node.path, names: settle(node, exportTarget(node)) }) : node))
+  const imports = file.imports.map((node) => (isOpen(node) ? createImport({ path: node.path, root: node.root, names: settle(node, target(node)) }) : node))
+  const exports = file.exports.map((node) => (isOpen(node) ? createExport({ path: node.path, names: settle(node, target(node)) }) : node))
 
   return { file: createFile({ ...file, imports, exports }), unresolved }
 }

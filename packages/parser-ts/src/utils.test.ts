@@ -178,6 +178,11 @@ describe('printImport', () => {
       expected: "import { type Pet, petSchema } from './Pet.ts'",
     },
     { when: 'the path contains a quote', node: { names: [{ name: 'z' }], path: "./o'clock.ts" }, expected: "import { z } from './o\\'clock.ts'" },
+    {
+      when: 'a default or whole-module name has no alias',
+      node: { names: [{ name: 'default' }, { name: '*' }, { name: 'z' }], path: 'zod' },
+      expected: "import { z } from 'zod'",
+    },
   ])('returns $expected when $when', ({ node, expected }) => {
     expect(printImport(node)).toBe(expected)
   })

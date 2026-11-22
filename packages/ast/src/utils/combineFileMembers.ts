@@ -90,7 +90,15 @@ function mergeStatements(statements: Array<Statement>, keep: (item: ModuleName, 
     }
   }
 
-  return [...merged.values()].map(({ statement }) => statement).filter((statement) => statement.names.length > 0)
+  const result = [...merged.values()].map(({ statement }) => statement)
+  // A name kept as a value also serves its type uses, so a type statement from the same path must not bind it again.
+  const bound = (path: string, item: ModuleName) => `${path}\0${item.alias ?? item.name}`
+  const values = new Set(result.filter(({ space }) => space === 'value').flatMap(({ path, names }) => names.map((item) => bound(path, item))))
+  return result
+    .map((statement) =>
+      statement.space === 'type' ? { ...statement, names: statement.names.filter((item) => !values.has(bound(statement.path, item))) } : statement,
+    )
+    .filter((statement) => statement.names.length > 0)
 }
 
 /**

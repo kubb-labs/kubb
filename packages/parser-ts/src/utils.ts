@@ -402,7 +402,8 @@ export function printImport({ names, path }: { names: ReadonlyArray<ast.ModuleNa
     const type = item.space === 'type' ? 'type ' : ''
     if (item.alias && item.name === '*') lines.push(`import ${type}* as ${item.alias} from ${from}`)
     else if (item.alias && item.name === 'default') lines.push(`import ${type}${item.alias} from ${from}`)
-    else named.push(item)
+    // Without a local name, a default or whole-module import binds nothing, and `{ default }` does not parse.
+    else if (item.name !== '*' && item.name !== 'default') named.push(item)
   }
   if (named.length) lines.push(`import ${printNamed(named)} from ${from}`)
   return lines.join('\n')
