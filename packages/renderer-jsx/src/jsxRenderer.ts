@@ -152,21 +152,15 @@ function collectFileChildren(element: unknown): FileChildren {
 
       if (host.type === 'kubb-export') {
         const { names, name, path, isTypeOnly, asAlias } = host.props
-        // With `names`, the deprecated props pass as given, so the factory can tell a set one from a missing one.
-        exports.push(
-          names
-            ? ast.factory.createExport({ names, name, path, isTypeOnly, asAlias })
-            : ast.factory.createExport({ name, path, isTypeOnly: !!isTypeOnly, asAlias: !!asAlias }),
-        )
+        exports.push(names ? ast.factory.createExport({ names, path }) : ast.factory.createExport({ name, path, isTypeOnly: !!isTypeOnly, asAlias: !!asAlias }))
         return
       }
 
       if (host.type === 'kubb-import') {
         const { names, name, path, root, isTypeOnly, isNameSpace } = host.props
-        // With `names`, the deprecated props pass as given, so the factory can tell a set one from a missing one.
         imports.push(
           names
-            ? ast.factory.createImport({ names, name, path, root, isTypeOnly, isNameSpace })
+            ? ast.factory.createImport({ names, path, root })
             : ast.factory.createImport({ name, path, root, isTypeOnly: !!isTypeOnly, isNameSpace: !!isNameSpace }),
         )
         return

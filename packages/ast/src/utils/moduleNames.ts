@@ -25,19 +25,6 @@ export function exportFields(names: ReadonlyArray<ModuleName>): ExportFields {
 }
 
 /**
- * Whether `node`'s deprecated fields still describe its `names`. They stop doing so when code copies a node
- * and changes only a deprecated field, such as `{ ...imp, isTypeOnly: true }`. That change then wins.
- */
-export function matchesFields(node: ImportFields | ExportFields, fields: ImportFields | ExportFields): boolean {
-  return (
-    JSON.stringify(node.name ?? null) === JSON.stringify(fields.name ?? null) &&
-    !!node.isTypeOnly === !!fields.isTypeOnly &&
-    !!('isNameSpace' in node && node.isNameSpace) === !!('isNameSpace' in fields && fields.isNameSpace) &&
-    !!('asAlias' in node && node.asAlias) === !!('asAlias' in fields && fields.asAlias)
-  )
-}
-
-/**
  * Returns the names an import or export brings across. Nodes built with the deprecated fields get names with
  * an explicit `space`, so they print exactly as before.
  *
@@ -49,7 +36,7 @@ export function matchesFields(node: ImportFields | ExportFields, fields: ImportF
  */
 export function getNames(node: ImportNode | ExportNode): Array<ModuleName> {
   if (node.kind === 'Import') {
-    if (node.names && matchesFields(node, importFields(node.names))) return node.names
+    if (node.names) return node.names
     const space: Space = node.isTypeOnly ? 'type' : 'value'
     if (!Array.isArray(node.name)) return [{ name: node.isNameSpace ? '*' : 'default', alias: node.name, space }]
     return node.name.map((item) =>
@@ -57,7 +44,7 @@ export function getNames(node: ImportNode | ExportNode): Array<ModuleName> {
     )
   }
 
-  if (node.names && matchesFields(node, exportFields(node.names))) return node.names
+  if (node.names) return node.names
   const space: Space = node.isTypeOnly ? 'type' : 'value'
   if (node.name == null) return [{ name: '*', space }]
   if (!Array.isArray(node.name)) return [node.asAlias ? { name: '*', alias: node.name, space } : { name: node.name, space }]

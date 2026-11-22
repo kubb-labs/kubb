@@ -30,17 +30,10 @@ export function importLocalName(item: ImportNameItem): string {
 
 const hasSpace = (item: ModuleName): boolean => !!item.space
 
-// Drops `names` from a node whose deprecated fields were changed after it was built, so those fields are its only description.
-function withoutNames<TNode extends { names?: unknown }>(node: TNode): Omit<TNode, 'names'> {
-  const { names: _names, ...rest } = node
-  return rest
-}
-
 // Splits an import built from `names` into the deprecated-field imports that print the same statements, or
 // returns `undefined` while a space is open, since only the declaration it points to can tell.
 function splitImport(node: ImportNode): Array<ImportNode> | undefined {
   const names = getNames(node)
-  if (names !== node.names) return [withoutNames(node) as ImportNode]
   if (!names.every(hasSpace)) return undefined
 
   const base = { kind: node.kind, path: node.path, ...(node.root != null ? { root: node.root } : {}) }
@@ -63,7 +56,6 @@ function splitImport(node: ImportNode): Array<ImportNode> | undefined {
 // Like `splitImport`, and also `undefined` for an alias on a named export, which only `names` can hold.
 function splitExport(node: ExportNode): Array<ExportNode> | undefined {
   const names = getNames(node)
-  if (names !== node.names) return [withoutNames(node) as ExportNode]
   if (!names.every(hasSpace) || names.some((item) => item.alias && item.name !== '*')) return undefined
 
   const split: Array<ExportNode> = []

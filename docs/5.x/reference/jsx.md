@@ -219,7 +219,7 @@ Each name prints as `type` when its `space` is `'type'`. A name without `space` 
 // import type { Pet } from './models/Pet', when Pet is declared as a type
 ```
 
-`name`, `isTypeOnly` and `isNameSpace` are deprecated and removed in Kubb v6. They still work and print the same as before. A deprecated prop set next to `names`, such as `isTypeOnly` on a spread import, wins.
+`name`, `isTypeOnly` and `isNameSpace` are deprecated and removed in Kubb v6. They still work and print the same as before. With `names` set, they are ignored.
 
 ```diff
 - <File.Import name={['Pet']} path="./models" isTypeOnly />

@@ -38,12 +38,6 @@ describe('getNames', () => {
 
     expect(getNames(createImport({ names, path: './pet' }))).toBe(names)
   })
-
-  it('lets a deprecated field changed after the node was built win', () => {
-    const imp = createImport({ names: [{ name: 'Pet', space: 'value' }], path: './pet' })
-
-    expect(getNames({ ...imp, isTypeOnly: true })).toStrictEqual([{ name: 'Pet', space: 'type' }])
-  })
 })
 
 describe('createImport and createExport from names', () => {
@@ -55,18 +49,10 @@ describe('createImport and createExport from names', () => {
     expect([exp.name, exp.isTypeOnly, exp.asAlias]).toStrictEqual([['Pet'], true, false])
   })
 
-  it('let a deprecated isTypeOnly spread onto a wildcard export mark it as a type', () => {
-    const exp = createExport({ names: [{ name: '*', space: 'value' }], path: './pet' })
+  it('let names win over deprecated fields passed with them', () => {
+    const imp = createImport({ names: [{ name: 'Pet', space: 'value' }], path: './pet', isTypeOnly: true })
 
-    expect(createExport({ ...exp, isTypeOnly: true }).names).toStrictEqual([{ name: '*', space: 'type' }])
-  })
-
-  it('let spread deprecated fields that describe another import win over names', () => {
-    const imp = createImport({ names: [{ name: 'Pet', space: 'value' }], path: './pet' })
-    const overridden = createImport({ ...imp, isTypeOnly: true })
-
-    expect(overridden.names).toBeUndefined()
-    expect(getNames(overridden)).toStrictEqual([{ name: 'Pet', space: 'type' }])
+    expect([imp.names, imp.isTypeOnly]).toStrictEqual([[{ name: 'Pet', space: 'value' }], false])
   })
 })
 

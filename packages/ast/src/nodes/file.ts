@@ -2,7 +2,7 @@ import { hash } from 'node:crypto'
 import path from 'node:path'
 import { nodeKinds } from '../constants.ts'
 import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
-import { exportFields, importFields, matchesFields } from '../utils/moduleNames.ts'
+import { exportFields, importFields } from '../utils/moduleNames.ts'
 import { getNodeText } from '../utils/nodeText.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
 import type { CodeNode } from './code.ts'
@@ -308,8 +308,8 @@ export type ImportInput = Omit<ImportNode, 'kind' | 'name'> & { name?: ImportNam
 export type ExportInput = Omit<ExportNode, 'kind'>
 
 /**
- * Creates an `ImportNode`. A node built from `names` also gets the deprecated fields. When both are passed
- * and differ, the deprecated fields win.
+ * Creates an `ImportNode`. A node built from `names` also gets the deprecated fields, and `names` wins over
+ * any deprecated field passed with it.
  *
  * @example Named import
  * ```ts
@@ -318,18 +318,13 @@ export type ExportInput = Omit<ExportNode, 'kind'>
  * ```
  */
 export function createImport(input: ImportInput): ImportNode {
-  if (input.names) {
-    const fields = importFields(input.names)
-    if (input.name === undefined || matchesFields({ ...input, name: input.name }, fields))
-      return { ...input, ...fields, names: input.names, kind: nodeKinds.import }
-  }
-  const { names: _names, ...rest } = input
-  return { ...rest, name: rest.name ?? [], kind: nodeKinds.import }
+  if (input.names) return { ...input, ...importFields(input.names), names: input.names, kind: nodeKinds.import }
+  return { ...input, name: input.name ?? [], kind: nodeKinds.import }
 }
 
 /**
- * Creates an `ExportNode`. A node built from `names` also gets the deprecated fields. When both are passed
- * and differ, the deprecated fields win.
+ * Creates an `ExportNode`. A node built from `names` also gets the deprecated fields, and `names` wins over
+ * any deprecated field passed with it.
  *
  * @example Named export
  * ```ts
@@ -338,15 +333,8 @@ export function createImport(input: ImportInput): ImportNode {
  * ```
  */
 export function createExport(input: ExportInput): ExportNode {
-  if (input.names) {
-    // Without a deprecated `name` or `asAlias`, a deprecated `isTypeOnly` only marks every name as a type.
-    const onlyFlag = input.name === undefined && !input.asAlias
-    const names = onlyFlag && input.isTypeOnly ? input.names.map((item) => ({ ...item, space: 'type' as const })) : input.names
-    const fields = exportFields(names)
-    if (onlyFlag || matchesFields(input, fields)) return { ...input, ...fields, names, kind: nodeKinds.export }
-  }
-  const { names: _names, ...rest } = input
-  return { ...rest, kind: nodeKinds.export }
+  if (input.names) return { ...input, ...exportFields(input.names), names: input.names, kind: nodeKinds.export }
+  return { ...input, kind: nodeKinds.export }
 }
 
 /**
