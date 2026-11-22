@@ -107,15 +107,11 @@ export function setMacros(macros: ReadonlyArray<Macro>): void {
  * Provides a resolver under a shared name, so `from(name)` reads it without naming this plugin.
  * The provider with the highest `priority` wins. On a tie, the first one stays. Kit calls `factory` when a generator asks.
  */
-export function provide<TName extends ProvideName>({
-  name,
-  factory,
-  priority = 0,
-}: {
-  name: TName
-  factory: () => Kubb.ProvideRegistry[TName]
-  priority?: number
-}): void {
+export function provide<TName extends ProvideName>(
+  name: TName,
+  factory: () => Kubb.ProvideRegistry[TName],
+  { priority = 0 }: { priority?: number } = {},
+): void {
   const ctx = kitContext('provide')
   const key = slot.provided(name)
   const current = ctx.memo.get(key) as Provided | undefined

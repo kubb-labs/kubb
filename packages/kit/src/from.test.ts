@@ -77,9 +77,7 @@ function fromIn(ctx: FileContext, plugin?: string): Omit<From, 'resolver'> & { r
 
 function provideIn(ctx: FileContext, plugin: string, factory: () => Resolver, priority?: number) {
   ctx.memo.set(slot.kit(plugin), true)
-  withContext({ plugin: { name: plugin }, memo: ctx.memo, setOptions() {} } as never, () =>
-    provide({ name: 'types' as never, factory: factory as never, priority }),
-  )
+  withContext({ plugin: { name: plugin }, memo: ctx.memo, setOptions() {} } as never, () => provide('types' as never, factory as never, { priority }))
 }
 
 describe('from', () => {

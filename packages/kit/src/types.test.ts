@@ -60,6 +60,6 @@ describe('from', () => {
   })
 
   it('takes only a factory of the provided type in provide', () => {
-    expectTypeOf<Parameters<typeof provide<'types-test'>>[0]['factory']>().toEqualTypeOf<() => TypesResolver>()
+    expectTypeOf<Parameters<typeof provide<'types-test'>>[1]>().toEqualTypeOf<() => TypesResolver>()
   })
 })
