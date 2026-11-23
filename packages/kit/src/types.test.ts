@@ -3,7 +3,8 @@ import { describe, expectTypeOf, it } from 'vitest'
 import type { getResolver, provide } from './composables.ts'
 import type { from, RefName } from './from.ts'
 import type { Resolver } from './resolver/Resolver.ts'
-import type { GeneratorContext, PluginType } from './types.ts'
+import type { defineTemplate } from './defineTemplate.ts'
+import type { GeneratorContext, PluginType, Template, TemplateNode } from './types.ts'
 
 type Options = { output?: string }
 type MyResolver = Resolver & { custom(): string }
@@ -71,5 +72,22 @@ describe('from', () => {
 
   it('takes only a factory of the provided type in provide', () => {
     expectTypeOf<Parameters<typeof provide<'types-test'>>[1]>().toEqualTypeOf<() => TypesResolver>()
+  })
+})
+
+describe('Template', () => {
+  it('types the node render gets from kind', () => {
+    expectTypeOf<Parameters<Extract<Template, { kind: 'Schema' }>['render']>[0]>().toEqualTypeOf<TemplateNode['Schema']>()
+    expectTypeOf<Parameters<Extract<Template, { kind: 'Operations' }>['render']>[0]>().toEqualTypeOf<Array<OperationNode>>()
+  })
+
+  it('rejects a render that reads a field its kind does not have', () => {
+    const check = (define: typeof defineTemplate) =>
+      define({
+        kind: 'Operation',
+        // @ts-expect-error an operation node has no `type`
+        render: (node) => (node.type ? null : null),
+      })
+    expectTypeOf(check).toBeFunction()
   })
 })

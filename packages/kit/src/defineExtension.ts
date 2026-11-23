@@ -8,7 +8,7 @@ import {
   type PluginType,
   type PluginVisitHooks,
 } from '@kubb/core'
-import { addGenerator, addMacro, provide, setMacros, setPrinter, setResolver, slot } from './composables.ts'
+import { addGenerator, addMacro, addTemplate, provide, setMacros, setPrinter, setResolver, slot } from './composables.ts'
 import { generatorVisitor } from './visitor.ts'
 
 type AnyHook = (...args: Array<never>) => unknown
@@ -20,6 +20,7 @@ const define = coreDefineExtension as (definition: unknown) => unknown
  * setup composables as methods. `kubb.addGenerator(...)` and `addGenerator(...)` register the same.
  */
 export type KitSetupContext<TFactory extends PluginType = PluginType> = KubbPluginSetupContext<TFactory> & {
+  addTemplate: typeof addTemplate
   addGenerator: typeof addGenerator
   setResolver: typeof setResolver
   addMacro: typeof addMacro
@@ -76,6 +77,7 @@ export const defineExtension = ((definition: { kind: string } & Partial<KitPlugi
       // `kubb:plugin:setup` gets this same object, so it sees the methods too. A context that already
       // has a method, such as a test mock with spies, keeps its own.
       const ctx = kubb as KitSetupContext
+      ctx.addTemplate ??= addTemplate
       ctx.addGenerator ??= addGenerator
       ctx.setResolver ??= setResolver
       ctx.addMacro ??= addMacro

@@ -138,7 +138,7 @@ describe('from', () => {
       },
     })
     const base = createContext()
-    base.memo.set(slot.generators('plugin-hooks'), [{ name: 'hooks', operation: () => null }])
+    base.memo.set(slot.templates('plugin-hooks'), [{ name: 'hooks', kind: 'Operation', render: () => null }])
     const ctx = {
       ...base,
       getResolver: (name: string) => (name === 'plugin-hooks' ? hooks : base.getResolver(name as never)),

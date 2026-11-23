@@ -67,6 +67,38 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
 }
 
 /**
+ * The node kind a template writes files for: each kept schema, each kept operation, or the list of
+ * kept operations once after the walk.
+ */
+export type TemplateKind = 'Schema' | 'Operation' | 'Operations'
+
+/**
+ * The node a template's `render` gets for each {@link TemplateKind}.
+ */
+export type TemplateNode = { Schema: SchemaNode; Operation: OperationNode; Operations: Array<OperationNode> }
+
+/**
+ * The context a template's `render` gets as its second argument, as `this` and as `useKubb()`.
+ */
+export type TemplateContext<TOptions extends PluginType = PluginType> = GeneratorContext<TOptions>
+
+/**
+ * What `render` returns: renderer elements such as JSX, a `FileNode`, `Array<FileNode>`, or `null` to skip the node.
+ */
+export type TemplateResult<TElement = unknown> = PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
+
+/**
+ * Writes the files for one node kind. `kind` types the node `render` gets. Define one with
+ * `defineTemplate` and register it with `addTemplate`.
+ */
+export type Template<TOptions extends PluginType = PluginType, TElement = unknown> = {
+  [K in TemplateKind]: {
+    kind: K
+    render(node: TemplateNode[K], ctx: TemplateContext<TOptions>): TemplateResult<TElement>
+  } & ThisType<TemplateContext<TOptions>>
+}[TemplateKind]
+
+/**
  * Declares a named generator unit that walks the AST and emits files.
  *
  * `schema` runs for each schema node and `operation` for each operation node. `operations` runs
@@ -91,6 +123,8 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
  *   },
  * })
  * ```
+ *
+ * @deprecated Use {@link Template} with `defineTemplate` and `addTemplate`. Kit runs each generator as one template per handler.
  */
 export type Generator<TOptions extends PluginType = PluginType, TElement = unknown> = {
   /** Used in diagnostic messages and debug output. */

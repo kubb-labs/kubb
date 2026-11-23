@@ -3,23 +3,22 @@ import { ast, type Macro, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type NormalizedPlugin, type PluginVisitContext, type PluginVisitHooks, withContext } from '@kubb/core'
 import { jsxRenderer } from '@kubb/renderer-jsx'
 import { isKubbElement } from '@kubb/renderer-jsx/jsx-runtime'
-import { getResolver, slot } from './composables.ts'
+import { getResolver, type RegisteredTemplate, slot } from './composables.ts'
 import { resolveFile } from './file.ts'
 import { resolveFrom } from './from.ts'
 import type { Resolver } from './resolver/Resolver.ts'
-import type { Generator, GeneratorContext, PrinterContext, PrinterFactory } from './types.ts'
+import type { GeneratorContext, PrinterContext, PrinterFactory, TemplateKind } from './types.ts'
 
 const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType', 'extension'])
 
 type Resolved<TNode> = { transformedNode: TNode; options: NormalizedPlugin['options'] }
 
 type VisitState = {
-  // The resolver is fixed for the whole walk, so reservations and generators agree on names.
+  // The resolver is fixed for the whole walk, so reservations and templates agree on names.
   context: Omit<PrinterContext, 'options'> & { resolver: Resolver }
   macros: Array<Macro>
-  schemaGenerators: Array<Generator>
-  operationGenerators: Array<Generator>
-  operationsGenerators: Array<Generator>
+  // One list per kind, so the walk skips the work for a kind no template writes.
+  templates: Record<TemplateKind, Array<RegisteredTemplate>>
   schemas: Map<SchemaNode, Resolved<SchemaNode> | Error>
   operations: Array<OperationNode>
   printerFactory: PrinterFactory | undefined
@@ -60,7 +59,7 @@ function resolveNode<TNode extends SchemaNode | OperationNode>(
   return resolved === null ? null : { transformedNode, options: resolved }
 }
 
-// Runs a generator method with `ctx` as `this`, as its context argument and as `useKubb()`.
+// Runs a template's `render` with `ctx` as `this`, as its context argument and as `useKubb()`.
 function run<TArgs extends Array<unknown>, TResult>(ctx: object, fn: (...args: TArgs) => TResult, ...args: TArgs): TResult {
   return withContext(ctx, () => fn.apply(ctx, args))
 }
@@ -79,32 +78,27 @@ function withPrinter(state: VisitState, ctx: PrinterContext): GeneratorContext {
   return generatorContext
 }
 
-// An unset `renderer` renders JSX elements with `jsxRenderer`. `null` keeps a generator on files only.
-async function dispatchResult(ctx: GeneratorContext, generator: Generator, result: unknown, pointer?: string): Promise<void> {
-  const renderer = generator.renderer !== undefined ? generator.renderer : isKubbElement(result) ? jsxRenderer : null
-  if (result && !Array.isArray(result) && (result as { kind?: unknown }).kind !== ast.node.kinds.file && !renderer) {
-    ctx.warn(`Generator "${generator.name}" returned a value without a renderer to write it, so it wrote nothing.`, {
-      help: 'Return a `FileNode` or `Array<FileNode>`, or return JSX and leave `renderer` unset.',
-    })
-  }
-  await ctx.dispatch({ result, renderer, pointer })
-}
-
-async function dispatch(
-  generators: Array<Generator>,
-  node: SchemaNode | OperationNode,
+// An unset `renderer` renders JSX elements with `jsxRenderer`. `null` keeps a template on files only.
+async function render(
+  templates: Array<RegisteredTemplate>,
+  node: Parameters<RegisteredTemplate['render']>[0],
   ctx: GeneratorContext,
-  generate: (generator: Generator) => ReturnType<NonNullable<Generator['schema']>>,
+  pointer?: string,
 ): Promise<void> {
-  for (const generator of generators) {
-    const matches = generator.match ? await run(ctx, generator.match, node, ctx) : true
-    if (!matches) continue
-    await dispatchResult(ctx, generator, await generate(generator), node.pointer)
+  for (const template of templates) {
+    const result = await run(ctx, template.render, node, ctx)
+    const renderer = template.renderer !== undefined ? template.renderer : isKubbElement(result) ? jsxRenderer : null
+    if (result && !Array.isArray(result) && (result as { kind?: unknown }).kind !== ast.node.kinds.file && !renderer) {
+      ctx.warn(`"${template.name}" returned a value without a renderer to write it, so it wrote nothing.`, {
+        help: 'Return a `FileNode` or `Array<FileNode>`, or return JSX and leave `renderer` unset.',
+      })
+    }
+    await ctx.dispatch({ result, renderer, pointer })
   }
 }
 
 /**
- * Visit hooks that run a plugin's generators, macros and filters from memo. Kit's `defineExtension`
+ * Visit hooks that run a plugin's templates, macros and filters from memo. Kit's `defineExtension`
  * adds them to every plugin.
  */
 export function generatorVisitor(): Required<PluginVisitHooks> {
@@ -113,15 +107,14 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       const { name } = ctx.plugin
       const resolver = getResolver(name, ctx.memo)
       resolver.setTags(ctx.meta.tags)
-      const generators = (ctx.memo.get(slot.generators(name)) as Array<Generator> | undefined) ?? []
-      if (!generators.length) return
+      const templates = (ctx.memo.get(slot.templates(name)) as Array<RegisteredTemplate> | undefined) ?? []
+      if (!templates.length) return
+      const ofKind = (kind: TemplateKind) => templates.filter((template) => template.kind === kind)
 
       const state: VisitState = {
         context: { ...ctx, resolver, getResolver: ((pluginName: string) => getResolver(pluginName, ctx.memo)) as VisitState['context']['getResolver'] },
         macros: withUserMacros(ctx.memo.get(slot.macros(name)) as Array<Macro> | undefined, ctx.memo.get(slot.userMacros(name)) as Array<Macro> | undefined),
-        schemaGenerators: generators.filter((generator) => generator.schema),
-        operationGenerators: generators.filter((generator) => generator.operation),
-        operationsGenerators: generators.filter((generator) => generator.operations),
+        templates: { Schema: ofKind('Schema'), Operation: ofKind('Operation'), Operations: ofKind('Operations') },
         schemas: new Map(),
         operations: [],
         printerFactory: ctx.memo.get(slot.printer(name)) as VisitState['printerFactory'],
@@ -129,7 +122,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       }
       ctx.memo.set(stateKey(name), state)
 
-      if (!state.schemaGenerators.length) return
+      if (!state.templates.Schema.length) return
 
       // An operation-based include without a schemaName include keeps only the schemas those operations use.
       const { include } = pluginOptions(ctx)
@@ -163,35 +156,29 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
 
       const { transformedNode, options } = resolved
       const generatorContext = withPrinter(state, { ...state.context, options })
-      await dispatch(state.schemaGenerators, transformedNode, generatorContext, (generator) =>
-        run(generatorContext, generator.schema!, transformedNode, generatorContext),
-      )
+      await render(state.templates.Schema, transformedNode, generatorContext, transformedNode.pointer)
       await withContext(generatorContext, () => ctx.hooks.callHook('kubb:generate:schema', transformedNode, generatorContext))
     },
     async 'kubb:plugin:visit:operation'(node, ctx) {
       const state = getState(ctx)
-      if (!state || (!state.operationGenerators.length && !state.operationsGenerators.length)) return
+      if (!state || (!state.templates.Operation.length && !state.templates.Operations.length)) return
       const resolved = resolveNode(ctx, state.context.resolver, state.macros, node)
       if (!resolved) return
 
       state.operations.push(resolved.transformedNode)
-      if (!state.operationGenerators.length) return
+      if (!state.templates.Operation.length) return
 
       const { transformedNode, options } = resolved
       const generatorContext = withPrinter(state, { ...state.context, options })
-      await dispatch(state.operationGenerators, transformedNode, generatorContext, (generator) =>
-        run(generatorContext, generator.operation!, transformedNode, generatorContext),
-      )
+      await render(state.templates.Operation, transformedNode, generatorContext, transformedNode.pointer)
       await withContext(generatorContext, () => ctx.hooks.callHook('kubb:generate:operation', transformedNode, generatorContext))
     },
     async 'kubb:plugin:visit:end'(ctx) {
       const state = getState(ctx)
-      if (!state?.operationsGenerators.length) return
+      if (!state?.templates.Operations.length) return
 
       const generatorContext = withPrinter(state, { ...state.context, options: pluginOptions(ctx) })
-      for (const generator of state.operationsGenerators) {
-        await dispatchResult(generatorContext, generator, await run(generatorContext, generator.operations!, state.operations, generatorContext))
-      }
+      await render(state.templates.Operations, state.operations, generatorContext)
       await withContext(generatorContext, () => ctx.hooks.callHook('kubb:generate:operations', state.operations, generatorContext))
     },
   }

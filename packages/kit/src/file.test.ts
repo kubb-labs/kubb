@@ -68,7 +68,7 @@ describe('file', () => {
 
   it('keeps the operation name for a plugin without schema generators, by its plugin name rather than its resolver name', () => {
     const ctx = createContext({ plugin: { name: 'plugin-fetch' } as FileContext['plugin'], resolver: new Resolver({ pluginName: 'plugin-client' }) })
-    ctx.memo.set(slot.generators('plugin-fetch'), [{ name: 'client', operation: () => null }])
+    ctx.memo.set(slot.templates('plugin-fetch'), [{ name: 'client', kind: 'Operation', render: () => null }])
 
     expect(resolveFile(ctx, pointOperation).baseName).toBe('point.ts')
   })

@@ -4,7 +4,8 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { Code, File } from '@kubb/renderer-jsx'
 import { jsx } from '@kubb/renderer-jsx/jsx-runtime'
-import { addGenerator, addMacro, getResolver, setMacros, setPrinter, setResolver, slot } from './composables.ts'
+import { addGenerator, addMacro, addTemplate, getResolver, setMacros, setPrinter, setResolver, slot } from './composables.ts'
+import { defineTemplate } from './defineTemplate.ts'
 import { defineExtension, definePlugin, type KitSetupContext } from './defineExtension.ts'
 import { file } from './file.ts'
 import { from } from './from.ts'
@@ -125,7 +126,9 @@ describe('generatorVisitor', () => {
     const { driver } = await build([plugin({})])
 
     expect(seen).toStrictEqual([true])
-    expect(driver.memo.get(slot.generators('plugin-methods'))).toStrictEqual([generator])
+    expect(
+      (driver.memo.get(slot.templates('plugin-methods')) as Array<{ name: string; kind: string }>).map(({ name, kind }) => `${name}:${kind}`),
+    ).toStrictEqual(['methods:Schema'])
     expect(getResolver('plugin-methods', driver.memo).name('Pet')).toBe('ApiPet')
   })
 
@@ -166,10 +169,10 @@ describe('generatorVisitor', () => {
     expect(files).toStrictEqual(['gen/ApiPet.ts', 'gen/ApiStore.ts'])
   })
 
-  it('keeps generators and the resolver in memo', async () => {
+  it('keeps one template per generator handler and the resolver in memo', async () => {
     const { driver } = await build([examplePlugin([])])
 
-    expect(driver.memo.get(slot.generators('plugin-example'))).toHaveLength(1)
+    expect(driver.memo.get(slot.templates('plugin-example'))).toHaveLength(3)
     expect(getResolver('plugin-example', driver.memo).name('Pet')).toBe('ApiPet')
     expect(getResolver('plugin-missing', driver.memo).name('Pet')).toBe('pet')
     expect(getResolver('plugin-missing', driver.memo)).toBe(getResolver('plugin-missing', driver.memo))
@@ -498,6 +501,51 @@ describe('generatorVisitor', () => {
     expect(seen).toStrictEqual(['ApiStore:1:import'])
   })
 
+  describe('templates', () => {
+    it('writes JSX and AST files from templates, after the generators registered before them', async () => {
+      const log: Array<string> = []
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'plugin-templates' },
+        setup(options) {
+          addGenerator({ name: 'legacy', schema: (node: SchemaNode) => (log.push(`generator:${node.name}`), null) })
+          addTemplate(
+            defineTemplate({
+              kind: 'Schema',
+              render(node) {
+                log.push(`schema:${node.name}`)
+                return jsx(File, {
+                  baseName: `${node.name}.ts`,
+                  path: `gen/${node.name}.ts`,
+                  children: jsx(Code, { name: node.name ?? '', children: `export type ${node.name} = {}` }),
+                })
+              },
+            }),
+          )
+          addTemplate(
+            defineTemplate({
+              kind: 'Operation',
+              render: (node) => ast.factory.createFile({ baseName: `${node.operationId}.ts`, path: `gen/${node.operationId}.ts`, sources: [] }),
+            }),
+          )
+          addTemplate(
+            defineTemplate({
+              kind: 'Operations',
+              render: (nodes) => [ast.factory.createFile({ baseName: 'index.ts', path: 'gen/index.ts', sources: [] })].filter(() => nodes.length === 2),
+            }),
+          )
+          return options
+        },
+      })()
+
+      const { files, diagnostics } = await build([plugin])
+
+      expect(diagnostics.filter((diagnostic) => diagnostic.severity !== 'info')).toStrictEqual([])
+      expect(log.slice(0, 2)).toStrictEqual(['generator:Pet', 'schema:Pet'])
+      expect(files).toStrictEqual(['gen/Pet.ts', 'gen/Store.ts', 'gen/Unused.ts', 'gen/getPet.ts', 'gen/getStore.ts', 'gen/index.ts'])
+    })
+  })
+
   describe('user macros', () => {
     const userMacro = { name: 'user', schema: (node: SchemaNode) => ({ ...node, description: `${node.description ?? ''}user` }) }
     const ownMacro = { name: 'own', schema: (node: SchemaNode) => ({ ...node, description: `${node.description ?? ''}own+` }) }
@@ -596,7 +644,7 @@ describe('generatorVisitor', () => {
 
       expect(files).toStrictEqual([])
       expect(diagnostics).toContainEqual(
-        expect.objectContaining({ severity: 'warning', message: expect.stringContaining('Generator "jsx" returned a value without a renderer') }),
+        expect.objectContaining({ severity: 'warning', message: expect.stringContaining('"jsx" returned a value without a renderer') }),
       )
     })
   })
