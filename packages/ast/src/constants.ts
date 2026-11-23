@@ -6,6 +6,7 @@ import type { SchemaType } from './nodes/schema.ts'
 export const nodeKinds = {
   input: 'Input',
   operation: 'Operation',
+  operations: 'Operations',
   schema: 'Schema',
   property: 'Property',
   parameter: 'Parameter',

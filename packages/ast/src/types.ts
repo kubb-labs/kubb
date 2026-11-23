@@ -4,7 +4,7 @@ export type { ArrowFunctionNode, BreakNode, CodeNode, ConstNode, FunctionNode, J
 export type { ContentNode, EncodingNode, ExampleNode } from './nodes/content.ts'
 export type { ExportInput, ExportNode, FileNode, ImportInput, ImportNode, ModuleName, SourceNode, Space, UserFileNode } from './nodes/file.ts'
 export type { AuthCredential, AuthRequirement, AuthScheme, ExternalDocs, InputMeta, InputNode, InputServer, InputTag, OAuthFlow } from './nodes/input.ts'
-export type { GenericOperationNode, HttpMethod, HttpOperationNode, OperationNode } from './nodes/operation.ts'
+export type { GenericOperationNode, HttpMethod, HttpOperationNode, OperationNode, OperationsNode } from './nodes/operation.ts'
 export type { ParameterLocation, ParameterNode, ParameterStyle } from './nodes/parameter.ts'
 export type { PropertyNode } from './nodes/property.ts'
 export type { RequestBodyNode } from './nodes/requestBody.ts'

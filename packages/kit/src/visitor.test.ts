@@ -572,7 +572,8 @@ describe('generatorVisitor', () => {
           addTemplate(
             defineTemplate({
               kind: 'Operations',
-              render: (nodes) => [ast.factory.createFile({ baseName: 'index.ts', path: 'gen/index.ts', sources: [] })].filter(() => nodes.length === 2),
+              render: (node) =>
+                [ast.factory.createFile({ baseName: 'index.ts', path: 'gen/index.ts', sources: [] })].filter(() => node.operations.length === 2),
             }),
           )
           return options

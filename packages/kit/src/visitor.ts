@@ -167,7 +167,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
       if (!state?.templates.Operations.length) return
 
       const generatorContext = withPrinter(state, { ...state.context, options: pluginOptions(ctx) })
-      await render(state.templates.Operations, state.operations, generatorContext)
+      await render(state.templates.Operations, ast.factory.createOperations({ operations: state.operations }), generatorContext)
       await withContext(generatorContext, () => ctx.hooks.callHook('kubb:generate:operations', state.operations, generatorContext))
     },
   }

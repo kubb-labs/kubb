@@ -48,9 +48,11 @@ export const pluginZod = defineExtension({
 | --- | --- | --- | --- |
 | `'Schema'` | A `SchemaNode` | Once per schema the plugin keeps | Types, validators, factories |
 | `'Operation'` | An `OperationNode` | Once per operation the plugin keeps | Clients, hooks, handlers |
-| `'Operations'` | `Array<OperationNode>` | Once, after every operation | Index or aggregate files |
+| `'Operations'` | An `OperationsNode`, with the kept operations in `operations` | Once, after every operation | Index or aggregate files |
 
 `kind` types the node, so `render` needs no annotation. Type the context with the plugin: `defineTemplate<PluginZod>({ … })`.
+
+Each kind is a node kind, so `kind: ast.node.kinds.operations` works the same as `kind: 'Operations'`.
 
 `Output` is JSX, a `FileNode`, `Array<FileNode>`, `null`, or `undefined`, or a promise of one of them. A `FileNode` is stored as it is. To write files yourself, call `ctx.upsertFile()` and return nothing.
 

@@ -75,7 +75,7 @@ Schema, parameter, request body, response and content nodes keep the source obje
 
 | Tree       | Factories                                                                                                                                     |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Input      | `createInput`, `createSchema`, `createOperation`, `createParameter`, `createProperty`, `createResponse`, `createRequestBody`, `createContent` |
+| Input      | `createInput`, `createSchema`, `createOperation`, `createOperations`, `createParameter`, `createProperty`, `createResponse`, `createRequestBody`, `createContent` |
 | File       | `createFile`, `createSource`, `createImport`, `createExport`                                                                                  |
 | Code nodes | `createText`, `createConst`, `createType`, `createFunction`, `createArrowFunction`, `createJsx`, `createBreak`                                |
 

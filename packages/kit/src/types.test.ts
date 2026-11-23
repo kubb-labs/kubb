@@ -1,4 +1,4 @@
-import type { OperationNode } from '@kubb/ast'
+import type { OperationNode, OperationsNode } from '@kubb/ast'
 import { describe, expectTypeOf, it } from 'vitest'
 import type { getResolver, provide } from './composables.ts'
 import type { from, RefName } from './from.ts'
@@ -78,7 +78,7 @@ describe('from', () => {
 describe('Template', () => {
   it('types the node render gets from kind', () => {
     expectTypeOf<Parameters<Extract<Template, { kind: 'Schema' }>['render']>[0]>().toEqualTypeOf<TemplateNode['Schema']>()
-    expectTypeOf<Parameters<Extract<Template, { kind: 'Operations' }>['render']>[0]>().toEqualTypeOf<Array<OperationNode>>()
+    expectTypeOf<Parameters<Extract<Template, { kind: 'Operations' }>['render']>[0]>().toEqualTypeOf<OperationsNode>()
   })
 
   it("keeps the kind, so a template can call another template's render", () => {

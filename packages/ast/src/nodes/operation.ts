@@ -162,3 +162,24 @@ export function createOperation(props: OperationInput): OperationNode {
 
   return node as OperationNode
 }
+
+/**
+ * The operations a plugin keeps, as one node. A template with `kind: 'Operations'` gets it once, after every operation.
+ */
+export type OperationsNode = BaseNode & {
+  kind: 'Operations'
+  operations: Array<OperationNode>
+}
+
+/**
+ * Creates an `OperationsNode` for a list of operations.
+ *
+ * @example
+ * ```ts
+ * const node = createOperations({ operations: [listPets, getPetById] })
+ * // { kind: 'Operations', operations: [...] }
+ * ```
+ */
+export function createOperations({ operations }: { operations: Array<OperationNode> }): OperationsNode {
+  return { kind: nodeKinds.operations, operations }
+}

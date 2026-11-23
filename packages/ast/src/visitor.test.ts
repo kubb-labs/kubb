@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createContent } from './nodes/content.ts'
 import { createInput } from './nodes/input.ts'
-import { createOperation } from './nodes/operation.ts'
+import { createOperation, createOperations } from './nodes/operation.ts'
 import { createParameter } from './nodes/parameter.ts'
 import { createProperty } from './nodes/property.ts'
 import { createResponse } from './nodes/response.ts'
@@ -102,6 +102,19 @@ describe('transform', () => {
     const map = renamed.schemas[0]
     expect(map?.type === 'object' ? map.patternProperties?.['^x-']?.name : undefined).toBe('Renamed')
     expect(untouched).toBe(root)
+  })
+
+  it('walks the operations of an OperationsNode', () => {
+    const root = createOperations({ operations: [createOperation({ operationId: 'listPets' }), createOperation({ operationId: 'getPet' })] })
+
+    const renamed = transform(root, {
+      operation(n): OperationNode {
+        return { ...n, operationId: `${n.operationId}V2` }
+      },
+    })
+
+    expect(renamed.operations.map((n) => n.operationId)).toEqual(['listPetsV2', 'getPetV2'])
+    expect(transform(root, { operation: (n) => n })).toBe(root)
   })
 
   it('visits parameter schemas but not property schemas when depth: shallow', () => {

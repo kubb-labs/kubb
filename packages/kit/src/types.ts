@@ -1,5 +1,5 @@
 import type { PossiblePromise } from '@internals/utils'
-import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
+import type { FileNode, OperationNode, OperationsNode, SchemaNode } from '@kubb/ast'
 import type { PluginType as CorePluginType, PluginName, PluginVisitContext, RendererFactory, ResolvePluginOptions } from '@kubb/core'
 import type { FileOptions, FileTarget } from './file.ts'
 import type { From, SourceResolver } from './from.ts'
@@ -70,7 +70,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
 export type TemplateKind = 'Schema' | 'Operation' | 'Operations'
 
 /** The node a template's `render` gets for each {@link TemplateKind}. */
-export type TemplateNode = { Schema: SchemaNode; Operation: OperationNode; Operations: Array<OperationNode> }
+export type TemplateNode = { Schema: SchemaNode; Operation: OperationNode; Operations: OperationsNode }
 
 /** The context `render` gets as its second argument, as `this` and as `useKubb()`. */
 export type TemplateContext<TOptions extends PluginType = PluginType> = GeneratorContext<TOptions>
