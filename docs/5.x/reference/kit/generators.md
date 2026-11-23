@@ -13,6 +13,47 @@ navigation:
 
 # Generators
 
+## `defineTemplate` {#definetemplate}
+
+A template writes your plugin's files for each node of one kind. Define it with `defineTemplate`, then register it in your plugin's `setup` with `addTemplate`.
+
+```tsx [zodSchema.tsx]
+import { addTemplate, defineExtension, defineTemplate } from 'kubb/kit'
+import { File } from '@kubb/renderer-jsx'
+
+export const zodSchema = defineTemplate({
+  kind: 'Schema',
+  render(node, ctx) {
+    if (!node.name) return null
+    return <File {...ctx.file(node)}>…</File>
+  },
+})
+
+export const pluginZod = defineExtension({
+  kind: 'plugin',
+  meta: { name: 'plugin-zod' },
+  setup(options) {
+    addTemplate(zodSchema)
+    return options
+  },
+})
+```
+
+| `kind` | `render` gets | Runs |
+| --- | --- | --- |
+| `'Schema'` | A `SchemaNode` | Once per schema the plugin keeps |
+| `'Operation'` | An `OperationNode` | Once per operation the plugin keeps |
+| `'Operations'` | `Array<OperationNode>` | Once, after every operation |
+
+`kind` types the node, so `render` needs no annotation. Type the context with the plugin: `defineTemplate<PluginZod>({ … })`. `render` gets the same context as a generator method, as its second argument, as `this` and as `useKubb()`.
+
+- `render` returns JSX, a `FileNode`, `Array<FileNode>`, or `null` to skip the node. Kit renders JSX with `jsxRenderer`. Pass another renderer with `addTemplate(template, { renderer })`.
+- Templates of one kind run in the order you add them.
+- A template is a plain value. Import another plugin's template and pass it to `addTemplate`, or call its `render` from your own template.
+
+> [!NOTE]
+> `defineGenerator` and `addGenerator` are deprecated. Kit runs each generator as one template per method, so existing generators keep working.
+
 ## `defineGenerator` {#definegenerator}
 
 A generator turns [AST](/docs/5.x/reference/kit/ast) nodes into files for your plugin. Define it with `defineGenerator`, then register it in your plugin's `setup` with [`addGenerator`](/docs/5.x/reference/kit/plugins#setup-context).

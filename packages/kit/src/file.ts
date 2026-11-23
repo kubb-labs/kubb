@@ -1,8 +1,8 @@
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { Diagnostics, type Filter, type Group, type KubbContext, type Output, type Override, type PluginName, useKubb } from '@kubb/core'
 import type { Resolver } from './resolver/Resolver.ts'
-import { slot } from './composables.ts'
-import type { Generator, PrinterContext } from './types.ts'
+import { type RegisteredTemplate, slot } from './composables.ts'
+import type { PrinterContext } from './types.ts'
 
 export type FileContext = Pick<
   PrinterContext,
@@ -115,10 +115,10 @@ function operationFile(
   return withSuffix(first, `${name}Operation`)
 }
 
-// A plugin without schema generators writes no schema file for an operation file to clash with.
+// A plugin without schema templates writes no schema file for an operation file to clash with.
 function writesSchemaFiles(ctx: FileContext, pluginName: string): boolean {
-  const generators = ctx.memo.get(slot.generators(pluginName)) as Array<Generator> | undefined
-  return !generators?.length || generators.some((generator) => generator.schema)
+  const templates = ctx.memo.get(slot.templates(pluginName)) as Array<RegisteredTemplate> | undefined
+  return !templates?.length || templates.some((template) => template.kind === 'Schema')
 }
 
 /**

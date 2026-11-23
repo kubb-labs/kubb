@@ -42,7 +42,7 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ## Setup context {#setup-context}
 
-`setup` and the `kubb:plugin:setup` hook register resolvers, generators, macros and printers with the composables from `kubb/kit`: `setResolver`, `addGenerator`, `addMacro`, `setPrinter` and `provide`. Composables take no context argument, so helpers that `setup` calls can use them too. Kit applies the user's `macros` option after the macros `addMacro` registers. `setMacros` still works but is deprecated.
+`setup` and the `kubb:plugin:setup` hook register resolvers, generators, macros and printers with the composables from `kubb/kit`: `setResolver`, `addTemplate`, `addMacro`, `setPrinter` and `provide`. `addGenerator` still works but is deprecated. Composables take no context argument, so helpers that `setup` calls can use them too. Kit applies the user's `macros` option after the macros `addMacro` registers. `setMacros` still works but is deprecated.
 
 ```typescript
 import { addGenerator, createResolver, defineExtension, defineGenerator, requirePlugin, setResolver } from 'kubb/kit'
@@ -90,7 +90,7 @@ The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds the
 | `plugin`        | `{ name: string, meta: ExtensionMeta }`                   | The name and meta of the plugin being set up. |
 | `config`        | `Config`                                                  | The resolved build configuration. Composable: `useConfig()`.                    |
 | `options`       | `TOptions`                                                | The options the user passed. Composable: `useOptions()`.                        |
-| `addGenerator`, `setResolver`, `addMacro`, `setMacros`, `setPrinter`, `provide` | Same as the composables | Kit's setup composables, as methods. |
+| `addTemplate`, `addGenerator`, `setResolver`, `addMacro`, `setMacros`, `setPrinter`, `provide` | Same as the composables | Kit's setup composables, as methods. |
 
 Methods have a composable of the same name, such as `requirePlugin()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
 

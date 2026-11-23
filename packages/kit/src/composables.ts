@@ -1,15 +1,26 @@
-import type { Macro } from '@kubb/ast'
-import { Diagnostics, type KubbContext, type KubbPluginSetupContext, type Memo, type PluginName, useKubb } from '@kubb/core'
+import type { Macro, OperationNode, SchemaNode } from '@kubb/ast'
+import { Diagnostics, type KubbContext, type KubbPluginSetupContext, type Memo, type PluginName, type RendererFactory, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
 import type { ResolverInput } from './resolver/types.ts'
-import type { Generator, PluginType, PrinterFactory, ProvideName, ResolverFor } from './types.ts'
+import type {
+  Generator,
+  GeneratorContext,
+  PluginType,
+  PrinterFactory,
+  ProvideName,
+  ResolverFor,
+  Template,
+  TemplateKind,
+  TemplateNode,
+  TemplateResult,
+} from './types.ts'
 
 /**
  * Memo slots kit keeps per plugin, under `<plugin>:<slot>`, plus `provided` for a shared name, under `kit:provide:<name>`.
  */
 export const slot = {
   kit: (name: string) => `${name}:kit`,
-  generators: (name: string) => `${name}:generators`,
+  templates: (name: string) => `${name}:templates`,
   resolver: (name: string) => `${name}:resolver`,
   macros: (name: string) => `${name}:macros`,
   userMacros: (name: string) => `${name}:macros:user`,
@@ -70,16 +81,59 @@ function kitContext(caller: string): KubbPluginSetupContext {
   })
 }
 
+/** A template as kit stores it, with the name diagnostics show. */
+export type RegisteredTemplate = {
+  name: string
+  kind: TemplateKind
+  render: (node: TemplateNode[TemplateKind], ctx: GeneratorContext) => TemplateResult
+  renderer?: RendererFactory | null
+}
+
+function addTemplates(name: string, memo: Memo, templates: Array<RegisteredTemplate>): void {
+  const key = slot.templates(name)
+  memo.set(key, [...((memo.get(key) as Array<RegisteredTemplate> | undefined) ?? []), ...templates])
+}
+
+/** Registers a template on the plugin being set up. Pass `renderer` for elements other than JSX. */
+export function addTemplate<TFactory extends PluginType = PluginType, TElement = unknown>(
+  template: Template<TFactory, TElement>,
+  options: { renderer?: RendererFactory<TElement> | null } = {},
+): void {
+  const ctx = kitContext('addTemplate')
+  addTemplates(ctx.plugin.name, ctx.memo, [
+    {
+      name: `${ctx.plugin.name} ${template.kind} template`,
+      kind: template.kind,
+      render: template.render as RegisteredTemplate['render'],
+      renderer: options.renderer as RendererFactory | null | undefined,
+    },
+  ])
+}
+
+// One template per handler. `match` gates `schema` and `operation`, not `operations`, as it did for generators.
+function fromGenerator(generator: Generator): Array<RegisteredTemplate> {
+  const { name, renderer, match, schema, operation, operations } = generator
+  const matched =
+    (handler: (node: never, ctx: GeneratorContext) => TemplateResult) =>
+    async (node: SchemaNode | OperationNode, ctx: GeneratorContext): Promise<unknown> =>
+      !match || (await match.call(ctx, node, ctx)) ? handler.call(ctx, node as never, ctx) : null
+  const templates: Array<RegisteredTemplate> = []
+  if (schema) templates.push({ name, renderer, kind: 'Schema', render: matched(schema) as RegisteredTemplate['render'] })
+  if (operation) templates.push({ name, renderer, kind: 'Operation', render: matched(operation) as RegisteredTemplate['render'] })
+  if (operations) templates.push({ name, renderer, kind: 'Operations', render: (nodes, ctx) => operations.call(ctx, nodes as Array<OperationNode>, ctx) })
+  return templates
+}
+
 /**
  * Registers generators on the plugin being set up.
+ * @deprecated Use `defineTemplate` and `addTemplate`.
  *
  * @example
  * `addGenerator(typeGenerator, enumGenerator)`
  */
 export function addGenerator<TFactory extends PluginType = PluginType, TElement = unknown>(...generators: Array<Generator<TFactory, TElement>>): void {
   const ctx = kitContext('addGenerator')
-  const key = slot.generators(ctx.plugin.name)
-  ctx.memo.set(key, [...((ctx.memo.get(key) as Array<Generator> | undefined) ?? []), ...(generators as Array<Generator>)])
+  addTemplates(ctx.plugin.name, ctx.memo, (generators as Array<Generator>).flatMap(fromGenerator))
 }
 
 /**

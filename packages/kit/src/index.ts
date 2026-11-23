@@ -36,8 +36,9 @@ export {
   useOptions,
   withContext,
 } from '@kubb/core'
-export { addGenerator, addMacro, getResolver, provide, setMacros, setPrinter, setResolver } from './composables.ts'
+export { addGenerator, addMacro, addTemplate, getResolver, provide, setMacros, setPrinter, setResolver } from './composables.ts'
 export { defineGenerator } from './defineGenerator.ts'
+export { defineTemplate } from './defineTemplate.ts'
 export { file } from './file.ts'
 export type { FileOptions, FileTarget } from './file.ts'
 export { code } from './code.ts'
@@ -48,7 +49,7 @@ export { createResolver } from './resolver/createResolver.ts'
 export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
 export { defineExtension, definePlugin } from './defineExtension.ts'
 export type { KitSetupContext } from './defineExtension.ts'
-export type { ProvideName, Generator, GeneratorContext, PluginType, PrinterContext, PrinterFactory } from './types.ts'
+export type { ProvideName, Generator, GeneratorContext, PluginType, PrinterContext, PrinterFactory, Template, TemplateContext, TemplateKind } from './types.ts'
 export type { ResolveOptionsContext } from './resolver/resolveOptions.ts'
 export type {
   ResolveBannerContext,

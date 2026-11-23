@@ -2,6 +2,7 @@ import type { Generator, PluginType } from './types.ts'
 
 /**
  * Types a generator for a plugin. Register it in `setup` with `addGenerator`.
+ * @deprecated Use `defineTemplate`.
  */
 export function defineGenerator<TOptions extends PluginType = PluginType, TElement = unknown>(
   generator: Generator<TOptions, TElement>,
