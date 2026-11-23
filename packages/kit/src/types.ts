@@ -66,31 +66,19 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
   from<TSource extends PluginName | ProvideName = never>(source?: TSource): From<SourceResolver<TSource, Extract<TOptions['resolver'], Resolver>>>
 }
 
-/**
- * The node kind a template writes files for: each kept schema, each kept operation, or the list of
- * kept operations once after the walk.
- */
+/** The node kind a template writes files for: each schema, each operation, or all operations once. */
 export type TemplateKind = 'Schema' | 'Operation' | 'Operations'
 
-/**
- * The node a template's `render` gets for each {@link TemplateKind}.
- */
+/** The node a template's `render` gets for each {@link TemplateKind}. */
 export type TemplateNode = { Schema: SchemaNode; Operation: OperationNode; Operations: Array<OperationNode> }
 
-/**
- * The context a template's `render` gets as its second argument, as `this` and as `useKubb()`.
- */
+/** The context `render` gets as its second argument, as `this` and as `useKubb()`. */
 export type TemplateContext<TOptions extends PluginType = PluginType> = GeneratorContext<TOptions>
 
-/**
- * What `render` returns: renderer elements such as JSX, a `FileNode`, `Array<FileNode>`, or `null` to skip the node.
- */
+/** Renderer elements such as JSX, a `FileNode`, `Array<FileNode>`, or `null` to skip the node. */
 export type TemplateResult<TElement = unknown> = PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
 
-/**
- * Writes the files for one node kind. `kind` types the node `render` gets. Define one with
- * `defineTemplate` and register it with `addTemplate`.
- */
+/** Writes the files for one node kind. `kind` types the node `render` gets. */
 export type Template<TOptions extends PluginType = PluginType, TElement = unknown> = {
   [K in TemplateKind]: {
     kind: K
@@ -123,8 +111,7 @@ export type Template<TOptions extends PluginType = PluginType, TElement = unknow
  *   },
  * })
  * ```
- *
- * @deprecated Use {@link Template} with `defineTemplate` and `addTemplate`. Kit runs each generator as one template per handler.
+ * @deprecated Use {@link Template} with `defineTemplate` and `addTemplate`.
  */
 export type Generator<TOptions extends PluginType = PluginType, TElement = unknown> = {
   /** Used in diagnostic messages and debug output. */

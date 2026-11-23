@@ -81,10 +81,7 @@ function kitContext(caller: string): KubbPluginSetupContext {
   })
 }
 
-/**
- * A template as kit stores it: the name diagnostics show and the renderer for its elements, which is
- * `jsxRenderer` when unset.
- */
+/** A template as kit stores it, with the name diagnostics show. */
 export type RegisteredTemplate = {
   name: string
   kind: TemplateKind
@@ -97,13 +94,7 @@ function addTemplates(name: string, memo: Memo, templates: Array<RegisteredTempl
   memo.set(key, [...((memo.get(key) as Array<RegisteredTemplate> | undefined) ?? []), ...templates])
 }
 
-/**
- * Registers a template on the plugin being set up. Templates of one kind run in the order they are
- * added. Pass `renderer` for elements other than JSX.
- *
- * @example
- * `addTemplate(zodSchema)`
- */
+/** Registers a template on the plugin being set up. Pass `renderer` for elements other than JSX. */
 export function addTemplate<TFactory extends PluginType = PluginType, TElement = unknown>(
   template: Template<TFactory, TElement>,
   options: { renderer?: RendererFactory<TElement> | null } = {},
@@ -129,8 +120,7 @@ function fromGenerator(generator: Generator): Array<RegisteredTemplate> {
 }
 
 /**
- * Registers generators on the plugin being set up. Each runs as one template per handler.
- *
+ * Registers generators on the plugin being set up.
  * @deprecated Use `defineTemplate` and `addTemplate`.
  *
  * @example
