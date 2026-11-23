@@ -165,7 +165,7 @@ export class Resolver {
 
     return ast.graph.getImportedNames(node, { checks }).map((schemaName) =>
       ast.factory.createImport({
-        name: [resolveName(schemaName)],
+        names: [{ name: resolveName(schemaName), space: 'value' }],
         path: memo(paths, schemaName, () => this.#resolveFilePath({ name: schemaName, extname, root, output })),
       }),
     )

@@ -101,7 +101,7 @@ export function resolveFrom<TSource extends PluginName | ProvideName = never>(ct
     const nodeOptions = node && resolvePluginOptions({ ctx, node, plugin: pluginName })
     if (!node || !nodeOptions) return { name, import: null, toString: () => name }
     const { path } = resolveLocation({ ctx, node, options: { plugin: pluginName, exportName: name }, pluginOptions: nodeOptions, resolver }).file
-    return { name, import: ast.factory.createImport({ name: [name], path }), toString: () => name }
+    return { name, import: ast.factory.createImport({ names: [{ name, space: 'value' }], path }), toString: () => name }
   }
   const wrapValue = (value: unknown, self: object): unknown => {
     if (isPlainObject(value)) return Object.fromEntries(Object.entries(value).map(([key, member]) => [key, wrapValue(member, value)]))

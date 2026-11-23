@@ -403,6 +403,28 @@ describe('File.Export', () => {
     })
   })
 
+  it('keeps a deprecated isTypeOnly a printer sets over an import built with names', async () => {
+    type P = ast.PrinterFactoryOptions<'zod', object, string>
+    const pet = ast.factory.createImport({ names: [{ name: 'Pet' }], path: './Pet.ts' })
+    const collected: Array<ast.ImportNode> = []
+    const print = () => {
+      collected.push({ ...pet, isTypeOnly: true })
+      return 'z.custom<Pet>()'
+    }
+    const printer: ast.Printer<P> = { name: 'zod', options: {}, transform: print, print, with: () => printer, drainImports: () => collected.splice(0) }
+
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Schema node={ast.factory.createSchema({ type: 'string' })} printer={printer}>
+          {(code) => <Const name="petSchema">{code}</Const>}
+        </Schema>
+      </File>,
+    )
+
+    expect(renderer.files[0]!.imports).toMatchObject([{ names: [{ name: 'Pet', space: 'type' }], path: './Pet.ts' }])
+  })
+
   it('marks a bare default export with export and default', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
