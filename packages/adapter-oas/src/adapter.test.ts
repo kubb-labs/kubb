@@ -269,6 +269,14 @@ describe('adapterOas.parse', () => {
     expect(node.meta.servers?.[node.meta.serverIndex ?? -1]?.url).toBe('https://prod.example.com')
   })
 
+  it('picks the same server as baseURL for a negative or fractional index', async () => {
+    const servers = [{ url: '/v1' }, { url: '/v2' }]
+    for (const index of [-1, -0.5, 1.5]) {
+      const node = await adapterOas({ validate: false, server: { index } }).parse({ type: 'data', data: { ...minimalSpec, servers } })
+      expect(node.meta.servers?.[node.meta.serverIndex ?? -1]?.url).toBe(node.meta.baseURL)
+    }
+  })
+
   it('leaves serverIndex out when the configured server has no url', async () => {
     const adapter = adapterOas({ validate: false, server: { index: 0 } })
     const node = await adapter.parse({ type: 'data', data: { ...minimalSpec, servers: [{ description: 'no url' }, { url: '/v1' }] } as typeof minimalSpec })

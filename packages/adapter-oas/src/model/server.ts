@@ -71,7 +71,9 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
  */
 export function toInputServerIndex(servers: Array<ServerObject>, index: number | undefined): number | undefined {
   if (index === undefined || !servers.at(index)?.url) return undefined
-  const position = index < 0 ? servers.length + index : index
+  // `.at()` truncates first, so a fractional index has to as well.
+  const whole = Math.trunc(index)
+  const position = whole < 0 ? servers.length + whole : whole
   return servers.slice(0, position).filter((entry) => entry.url).length
 }
 
