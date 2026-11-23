@@ -52,6 +52,8 @@ export const pluginZod = defineExtension({
 
 `kind` types the node, so `render` needs no annotation. Type the context with the plugin: `defineTemplate<PluginZod>({ … })`.
 
+`templateKinds` from `kubb/kit` holds the three kinds, so `kind: templateKinds.schema` works the same as `kind: 'Schema'`.
+
 `Output` is JSX, a `FileNode`, `Array<FileNode>`, `null`, or `undefined`, or a promise of one of them. A `FileNode` is stored as it is. To write files yourself, call `ctx.upsertFile()` and return nothing.
 
 - Kit renders JSX with [`jsxRenderer`](/docs/5.x/reference/jsx). Pass another renderer with `addTemplate(template, { renderer })`.

@@ -3,6 +3,7 @@ import { describe, expectTypeOf, it } from 'vitest'
 import type { getResolver, provide } from './composables.ts'
 import type { from, RefName } from './from.ts'
 import type { Resolver } from './resolver/Resolver.ts'
+import { templateKinds } from './defineTemplate.ts'
 import type { defineTemplate } from './defineTemplate.ts'
 import type { GeneratorContext, PluginType, Template, TemplateNode } from './types.ts'
 
@@ -87,6 +88,12 @@ describe('Template', () => {
       return define({ kind: 'Schema', render: (node, ctx) => schema.render(node, ctx) })
     }
     expectTypeOf<ReturnType<typeof check>['kind']>().toEqualTypeOf<'Schema'>()
+  })
+
+  it('narrows the node from a templateKinds value as from its string', () => {
+    const check = (define: typeof defineTemplate) => define({ kind: templateKinds.operation, render: (node) => (node.operationId ? null : null) })
+    expectTypeOf<ReturnType<typeof check>['kind']>().toEqualTypeOf<'Operation'>()
+    expectTypeOf(templateKinds).toEqualTypeOf<{ readonly schema: 'Schema'; readonly operation: 'Operation'; readonly operations: 'Operations' }>()
   })
 
   it('rejects a render that reads a field its kind does not have', () => {

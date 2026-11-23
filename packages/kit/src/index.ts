@@ -38,7 +38,7 @@ export {
 } from '@kubb/core'
 export { addGenerator, addMacro, addTemplate, getResolver, provide, setMacros, setPrinter, setResolver } from './composables.ts'
 export { defineGenerator } from './defineGenerator.ts'
-export { defineTemplate } from './defineTemplate.ts'
+export { defineTemplate, templateKinds } from './defineTemplate.ts'
 export { file } from './file.ts'
 export type { FileOptions, FileTarget } from './file.ts'
 export { code } from './code.ts'

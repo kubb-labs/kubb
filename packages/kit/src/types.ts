@@ -1,6 +1,7 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import type { PluginType as CorePluginType, PluginName, PluginVisitContext, RendererFactory, ResolvePluginOptions } from '@kubb/core'
+import type { templateKinds } from './defineTemplate.ts'
 import type { FileOptions, FileTarget } from './file.ts'
 import type { From, SourceResolver } from './from.ts'
 import type { Resolver } from './resolver/Resolver.ts'
@@ -67,7 +68,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
 }
 
 /** The node kind a template writes files for: each schema, each operation, or all operations once. */
-export type TemplateKind = 'Schema' | 'Operation' | 'Operations'
+export type TemplateKind = (typeof templateKinds)[keyof typeof templateKinds]
 
 /** The node a template's `render` gets for each {@link TemplateKind}. */
 export type TemplateNode = { Schema: SchemaNode; Operation: OperationNode; Operations: Array<OperationNode> }
