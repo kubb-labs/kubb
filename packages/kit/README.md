@@ -24,7 +24,7 @@
 
 ### Authoring toolkit for Kubb plugins
 
-`@kubb/kit` gathers the helpers you call when you author a plugin, generator, adapter, resolver, parser, or renderer: `defineExtension`, `defineGenerator`, `createResolver`, `createRenderer`, the `ast` namespace and `factory` node builders, and the option and hook types that go with them. It sits next to the `kubb` package, which is where end users configure and run builds. `kubb/kit` re-exports this package, so most consumers reach it through `kubb/kit` rather than installing `@kubb/kit` directly.
+`@kubb/kit` gathers the helpers you call when you author a plugin, template, adapter, resolver, parser, or renderer: `defineExtension`, `defineTemplate`, `createResolver`, `createRenderer`, the `ast` namespace and `factory` node builders, and the option and hook types that go with them. It sits next to the `kubb` package, which is where end users configure and run builds. `kubb/kit` re-exports this package, so most consumers reach it through `kubb/kit` rather than installing `@kubb/kit` directly.
 
 ## Installation
 
@@ -41,16 +41,16 @@ npm install kubb
 ## Usage
 
 ```typescript
-import { addGenerator, ast, defineExtension, defineGenerator } from 'kubb/kit'
+import { addTemplate, ast, defineExtension, defineTemplate } from 'kubb/kit'
 
 export const pluginExample = defineExtension({
   kind: 'plugin',
   meta: { name: 'plugin-example' },
   setup() {
-    addGenerator(
-      defineGenerator({
-        name: 'example',
-        schema(node) {
+    addTemplate(
+      defineTemplate({
+        kind: 'Schema',
+        render(node) {
           return [
             ast.factory.createFile({
               path: `${node.name}.ts`,
@@ -70,15 +70,15 @@ export const pluginExample = defineExtension({
 
 ## What is in the box
 
-`defineExtension` wraps a plugin, an adapter, or a parser into the shape the build engine expects. Set `kind` to `'plugin'`, `'adapter'`, or `'parser'`. `definePlugin`, `defineParser`, and `createAdapter` still work but are deprecated in favor of it. `defineGenerator` and `createResolver` wrap a generator or a resolver. `createRenderer` and `createStorage` are the matching factories for a custom output renderer or storage backend.
+`defineExtension` wraps a plugin, an adapter, or a parser into the shape the build engine expects. Set `kind` to `'plugin'`, `'adapter'`, or `'parser'`. `definePlugin`, `defineParser`, and `createAdapter` still work but are deprecated in favor of it. `defineTemplate` and `createResolver` wrap a template or a resolver. `createRenderer` and `createStorage` are the matching factories for a custom output renderer or storage backend.
 
-`ast` and `factory` are the node builders a generator calls to construct the file, schema, and operation nodes it returns. `Diagnostics` is the structured error a plugin throws to report a problem with a location and a fix suggestion, and `memoryStorage` and `fsStorage` are the built-in storage backends, useful in tests and custom configs.
+`ast` and `factory` are the node builders a template calls to construct the file, schema, and operation nodes it returns. `Diagnostics` is the structured error a plugin throws to report a problem with a location and a fix suggestion, and `memoryStorage` and `fsStorage` are the built-in storage backends, useful in tests and custom configs.
 
-`macroDedupeUnion`, `macroDiscriminatorEnum`, `macroEnumName`, and `macroRenameSchema` are the built-in macro presets, ready to pass to `ast.macro.apply` or a plugin's `setMacros`. Build a custom macro with `ast.defineMacro` instead.
+`macroDedupeUnion`, `macroDiscriminatorEnum`, `macroEnumName`, and `macroRenameSchema` are the built-in macro presets, ready to pass to `ast.macro.apply` or a plugin's `addMacro`. Build a custom macro with `ast.defineMacro` instead.
 
-`childName`, `enumPropName`, and `mergeAdjacentObjectsLazy` are schema-name helpers a generator or macro calls while shaping output. Ref and graph helpers live on `ast.ref` and `ast.graph`, such as `ast.ref.getName`, `ast.graph.getCircularNames`, and `ast.graph.getUsedNames`.
+`childName`, `enumPropName`, and `mergeAdjacentObjectsLazy` are schema-name helpers a template or macro calls while shaping output. Ref and graph helpers live on `ast.ref` and `ast.graph`, such as `ast.ref.getName`, `ast.graph.getCircularNames`, and `ast.graph.getUsedNames`.
 
-Rounding out the package are the option and hook types every plugin, generator, adapter, resolver, and renderer author references, among them `PluginType`, `GeneratorContext`, `ResolveFileOptions`, `AdapterFactoryOptions`, `RendererFactory`, and `KubbHooks`.
+Rounding out the package are the option and hook types every plugin, template, adapter, resolver, and renderer author references, among them `PluginType`, `TemplateContext`, `ResolveFileOptions`, `AdapterFactoryOptions`, `RendererFactory`, and `KubbHooks`.
 
 ## Why a separate package from `@kubb/core`
 

@@ -22,7 +22,7 @@ Kubb runs your spec through one pipeline, and you can replace or extend each sta
 | --- | --- | --- |
 | [Adapter](#adapters) | Reads the spec and resolves its references | An `InputNode` |
 | [AST](#ast) | Describes schemas and operations without naming a spec format or a library | Schema and operation nodes |
-| [Plugins](#plugins) | Run generators that decide which files and declarations to emit | `FileNode`s |
+| [Plugins](#plugins) | Run templates that decide which files and declarations to emit | `FileNode`s |
 | [Parsers](#parsers) | Turn each file's nodes into source text | Source code |
 | [Storage](#storage) | Writes the files | Files on disk or in memory |
 
@@ -54,22 +54,22 @@ Every node has a `kind`, and schema nodes also have a `type`. See [AST and node 
 
 ## Plugins {#plugins}
 
-Each plugin owns one output, such as types, a client, or your own files. [`defineExtension({ kind: 'plugin' })`](/docs/5.x/reference/kit/plugins) returns the factory you call in `kubb.config.ts`. Its `setup` runs once and registers generators, a resolver, and macros.
+Each plugin owns one output, such as types, a client, or your own files. [`defineExtension({ kind: 'plugin' })`](/docs/5.x/reference/kit/plugins) returns the factory you call in `kubb.config.ts`. Its `setup` runs once and registers templates, a resolver, and macros.
 
 ::plugin-anatomy
 ::
 
-### Generators {#generators}
+### Templates {#templates}
 
-A generator turns AST nodes into files.
+A template turns AST nodes of one kind into files.
 
-| Handler | Kubb calls it |
+| `kind` | Kubb calls `render` |
 | --- | --- |
-| `schema` | Once per schema node |
-| `operation` | Once per operation node |
-| `operations` | Once per plugin, with every operation node its filters keep |
+| `Schema` | Once per schema node |
+| `Operation` | Once per operation node |
+| `Operations` | Once per plugin, with every operation node its filters keep |
 
-A handler returns `FileNode`s or elements for a [renderer](#renderers). See [Generators](/docs/5.x/reference/kit/generators).
+`render` returns JSX for a [renderer](#renderers), or `FileNode`s. See [Templates](/docs/5.x/reference/kit/templates).
 
 ### Resolvers {#resolvers}
 
@@ -77,11 +77,11 @@ A resolver decides identifiers, file names, and paths. A plugin that builds on a
 
 ### Macros and printers {#macros}
 
-A macro rewrites AST nodes before the generators see them, per plugin, so a change reaches every generator of that plugin and no other. A printer turns a schema node into code for one target, such as a TypeScript type or a Zod expression. See [Macros](/docs/5.x/how-to/customize#macros) and [Printers](/docs/5.x/how-to/customize#printers).
+A macro rewrites AST nodes before the templates see them, per plugin, so a change reaches every template of that plugin and no other. A printer turns a schema node into code for one target, such as a TypeScript type or a Zod expression. See [Macros](/docs/5.x/how-to/customize#macros) and [Printers](/docs/5.x/how-to/customize#printers).
 
 ### Renderers {#renderers}
 
-A renderer turns the elements a generator returns into `FileNode`s. `jsxRenderer` from `kubb/jsx` renders JSX without React. Set it per generator with `renderer`. See [JSX renderer](/docs/5.x/reference/jsx#renderers).
+A renderer turns the elements a template returns into `FileNode`s. `jsxRenderer` from `kubb/jsx` renders JSX without React, and kit uses it unless you pass another with `addTemplate(template, { renderer })`. See [JSX renderer](/docs/5.x/reference/jsx#renderers).
 
 ### Lifecycle {#lifecycle}
 
@@ -138,7 +138,7 @@ If an existing [plugin](/extensions/kind/plugins) generates the output you need,
 flowchart TD
   Q{What do you need to change?}
   Q -->|The input format| A[Adapter]
-  Q -->|Add a new output| P[Plugin with generators]
+  Q -->|Add a new output| P[Plugin with templates]
   Q -->|An existing output| O{Which part?}
   O -->|What a schema means| M[Macro]
   O -->|Code for one schema type| PR[Printer]

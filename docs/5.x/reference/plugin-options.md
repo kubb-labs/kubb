@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Shared plugin options
-description: The output, group, include, exclude, override, resolver, and macros options every Kubb generator plugin accepts, with types, defaults, and precedence.
+description: The output, group, include, exclude, override, resolver, and macros options every Kubb plugin that writes files accepts, with types, defaults, and precedence.
 outline:
   - 2
   - 3
@@ -13,7 +13,7 @@ navigation:
 
 # Shared plugin options
 
-Every generator plugin takes these options to set where it writes, what it generates, and how it names files. A plugin's own options page lists only its defaults. `@kubb/plugin-barrel` takes none and reads [`output.barrel`](#output-barrel). `@kubb/plugin-redoc` takes only `output.path`.
+Every plugin that writes files takes these options to set where it writes, what it generates, and how it names files. A plugin's own options page lists only its defaults. `@kubb/plugin-barrel` takes none and reads [`output.barrel`](#output-barrel). `@kubb/plugin-redoc` takes only `output.path`.
 
 ## output {#output}
 
@@ -386,7 +386,7 @@ See [Resolvers](/docs/5.x/how-to/customize#resolvers) for how a patch layers ove
 ::field-group
 
 :::field{type="Array<Macro>"}
-Rewrite AST nodes before the plugin prints them, without forking its generator. Default: `[]`.
+Rewrite AST nodes before the plugin prints them, without forking its templates. Default: `[]`.
 :::
 
 ::

@@ -182,11 +182,11 @@ A plugin lists another in `dependencies` without `optional: true`, and the confi
 
 Code called a resolver, generator or macro helper from `@kubb/core`: `addGenerator`, `setResolver`, `setMacros`, `addMacro`, `Resolver`, `createResolver`, `defineResolver`, `defineGenerator` or `toFilePath`. These moved to `@kubb/kit`. `@kubb/kit` 5.23.1 still imports them from core, so it reports this error when it loads next to a newer `@kubb/core`. The deprecated `ctx.driver.getResolver(name)` also reports it when the plugin has no resolver set with `setResolver`.
 
-**Fix:** Import the helper from `kubb/kit`, and replace `ctx.driver.getResolver(name)` with `ctx.getResolver(name)` in a generator, or with `getResolver(name)` from `kubb/kit` in any other hook, such as a visit hook. If a plugin triggers it, run `pnpm update "@kubb/*"` so every @kubb package is on one version.
+**Fix:** Import the helper from `kubb/kit`, and replace `ctx.driver.getResolver(name)` with `ctx.getResolver(name)` in a template, or with `getResolver(name)` from `kubb/kit` in any other hook, such as a visit hook. If a plugin triggers it, run `pnpm update "@kubb/*"` so every @kubb package is on one version.
 
 ### KUBB_NO_CONTEXT {#kubb-no-context}
 
-A `kubb/kit` composable such as `useKubb()` ran outside a plugin hook: `setup`, `kubb:plugin:setup`, a hook in the plugin's `hooks` map or a visit hook. `addGenerator()`, `setResolver()`, `addMacro()` and `setMacros()` also report it for a plugin defined with `defineExtension` from `@kubb/core`. `setOptions()`, `useOptions()` and `injectFile()` report it in any hook other than `setup` and `kubb:plugin:setup`.
+A `kubb/kit` composable such as `useKubb()` ran outside a plugin hook: `setup`, `kubb:plugin:setup`, a hook in the plugin's `hooks` map or a visit hook. `addTemplate()`, `setResolver()`, `addMacro()` and `setMacros()` also report it for a plugin defined with `defineExtension` from `@kubb/core`. `setOptions()`, `useOptions()` and `injectFile()` report it in any hook other than `setup` and `kubb:plugin:setup`.
 
 **Fix:** Call it inside a plugin hook, or in code the hook awaits. Define the plugin with `defineExtension` from `kubb/kit`.
 

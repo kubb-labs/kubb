@@ -25,15 +25,15 @@ The context depends on where your code runs. Printer handlers and macro callback
 | Events Kubb fires: `kubb:build:start`, `kubb:plugin:start`, `kubb:plugin:end`, `kubb:plugins:end`, `kubb:build:end` | The plugin's own visit context                      | The plugin's own visit context         |
 | Events fired inside a hook, with `ctx.hooks.callHook(...)`                                                  | The context of the hook that fired the event        | The context of the hook that fired it  |
 | Visit hooks: `kubb:plugin:visit:start`, `:schema`, `:operation`, `:end`                                     | The plugin's visit context                          | The plugin's visit context             |
-| Generator `match`, `schema`, `operation`, `operations`, the printer factory and the `kubb:generate:*` events | The generator context                               | The generator context                  |
-| [Printer handlers](/docs/5.x/reference/kit/ast#printer-handlers-and-context)                                | The printer context, with `transform` and `base`    | The generator context                  |
+| Template `render`, the printer factory and the `kubb:generate:*` events                                     | The template context                                | The template context                   |
+| [Printer handlers](/docs/5.x/reference/kit/ast#printer-handlers-and-context)                                | The printer context, with `transform` and `base`    | The template context                   |
 | [Macro callbacks](/docs/5.x/reference/kit/ast#macro-options-and-callbacks)                                  | The walk context, with the node's `parent`          | The visit context of the running hook  |
 
 A plugin has one visit context per build. Its bus hooks and its visit hooks get the same object, so a value you set on it in `kubb:build:start` is there in `kubb:plugin:visit:schema`.
 
 - The [setup context](/docs/5.x/reference/kit/plugins#setup-context) holds `options`, `setOptions`, `injectFile` and the members every context has.
 - The visit context holds `config`, `plugin`, `memo`, `hooks`, `requirePlugin`, `upsertFile` and the other [visit hook](/docs/5.x/reference/kit/hooks#visit-hooks) members.
-- The [generator context](/docs/5.x/reference/kit/generators#generatorcontext) is the visit context plus `resolver`, `getResolver(name)`, per-node `options` and `printer`.
+- The [template context](/docs/5.x/reference/kit/templates#templatecontext) is the visit context plus `resolver`, `getResolver(name)`, per-node `options` and `printer`.
 
 ## Composables {#composables}
 
@@ -47,7 +47,7 @@ Use composables for plugin-level concepts in `setup`, and read `ctx` for the res
 | `memo(store, key, fn)`                                                      | Anywhere. It caches in the store you pass and needs no hook.                             |
 | `getResolver(name)`                                                         | Any hook. Pass a memo as the second argument, `getResolver(name, memo)`, outside a hook. |
 | `setOptions()`, `useOptions()`, `injectFile()`                              | `setup` and `kubb:plugin:setup`. Elsewhere they throw `KUBB_NO_CONTEXT`.                 |
-| `addGenerator()`, `setResolver()`, `addMacro()`, `setMacros()`, `setPrinter()`, `provide()` | `setup` and `kubb:plugin:setup` of a plugin defined with `defineExtension` from `kubb/kit`. |
+| `addTemplate()`, `setResolver()`, `addMacro()`, `setMacros()`, `setPrinter()`, `provide()`  | `setup` and `kubb:plugin:setup` of a plugin defined with `defineExtension` from `kubb/kit`. |
 
 Outside every hook, a composable that needs a context throws [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
 
@@ -91,10 +91,10 @@ await withContext(ctx, async function () {
 
 ### In tests {#in-tests}
 
-A plugin test can call a generator or hook through `withContext` instead of `kubbContext.run`. It also sets `this`, so code that reads `this` or `useKubb()` sees your test context:
+A plugin test can call a template or hook through `withContext` instead of `kubbContext.run`. It also sets `this`, so code that reads `this` or `useKubb()` sees your test context:
 
-```typescript [generator.test.ts]
+```typescript [template.test.ts]
 import { withContext } from 'kubb/kit'
 
-const files = await withContext(ctx, (ctx) => typeGenerator.schema?.call(ctx, node, ctx))
+const files = await withContext(ctx, (ctx) => typeSchema.render.call(ctx, node, ctx))
 ```

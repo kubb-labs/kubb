@@ -73,7 +73,7 @@ A full generation run fires the hooks in this order.
 | ------------------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `kubb:plugin:setup`            | [`KubbPluginSetupContext`](/docs/5.x/reference/kit/plugins#setup-context) | Once per plugin, after its `setup` and before `kubb:build:start`.                                                                     |
 | `kubb:build:start`             | `{ config, adapter, meta, nodeCounts, getPlugin, files, upsertFile }` | When the AST is ready, before plugins run. Skipped when no adapter parsed input.                                                            |
-| `kubb:plugin:start`            | `{ plugin }`                                                          | Before a plugin's generators run.                                                                                                           |
+| `kubb:plugin:start`            | `{ plugin }`                                                          | Before a plugin's templates run.                                                                                                            |
 | `kubb:generate:schema`         | `(node, ctx)`                                                         | For each schema node.                                                                                                                       |
 | `kubb:generate:operation`      | `(node, ctx)`                                                         | For each operation node.                                                                                                                    |
 | `kubb:generate:operations`     | `(nodes, ctx)`                                                        | Once, with every operation node.                                                                                                            |
@@ -126,7 +126,7 @@ When your plugin listens through its `hooks` map, it gets the hooks from `kubb:s
 - Kubb adds these listeners during setup and removes them when the build ends.
 - They miss the `lifecycle` and `generation` hooks, `kubb:setup:start`, and the output passes.
 - `kubb:plugin:setup` fires once per plugin, after its `setup` and before `kubb:build:start`. Kubb calls the plugin's own handler directly.
-- Each listener runs with a context as `this`, the same object `useKubb()` returns. For a hook Kubb fires, such as `kubb:build:start` or `kubb:plugins:end`, that is the plugin's own visit context, the `ctx` its visit hooks get. For a hook fired inside another hook, it is the context of the hook that fired it. The `kubb:generate:*` hooks run with the generator context, so `this` is the `ctx` argument.
+- Each listener runs with a context as `this`, the same object `useKubb()` returns. For a hook Kubb fires, such as `kubb:build:start` or `kubb:plugins:end`, that is the plugin's own visit context, the `ctx` its visit hooks get. For a hook fired inside another hook, it is the context of the hook that fired it. The `kubb:generate:*` hooks run with the template context, so `this` is the `ctx` argument.
 - `kubb:lifecycle:start` fires when `kubb generate` starts, before the first config. `.generate()` and the bundler plugins skip it.
 
 ### Visit hooks {#visit-hooks}
@@ -140,7 +140,7 @@ A plugin's `hooks` map can also hold four visit hooks. Kubb calls them for that 
 | `kubb:plugin:visit:operation` | `(node, ctx)` | For each operation node.                             |
 | `kubb:plugin:visit:end`       | `(ctx)`       | Once, after the last operation.                      |
 
-`ctx` is the generator context without `resolver`, `getResolver` and per-node `options`, which only generators get. `this`, `ctx` and `useKubb()` are the same object, the one the plugin's other hooks get, and composables such as `memo()` work there. A plugin defined with `defineExtension` from `kubb/kit` runs its generators before its own visit hooks, with a resolver fixed when the walk starts. Each node reaches every plugin in plugin order before the walk moves on. When a visit hook throws, Kubb stops that plugin, reports `KUBB_PLUGIN_FAILED`, and runs the other plugins to the end. For the schema and operation hooks, the diagnostic names the node it failed on.
+`ctx` is the template context without `resolver`, `getResolver` and per-node `options`, which only templates get. `this`, `ctx` and `useKubb()` are the same object, the one the plugin's other hooks get, and composables such as `memo()` work there. A plugin defined with `defineExtension` from `kubb/kit` runs its templates before its own visit hooks, with a resolver fixed when the walk starts. Each node reaches every plugin in plugin order before the walk moves on. When a visit hook throws, Kubb stops that plugin, reports `KUBB_PLUGIN_FAILED`, and runs the other plugins to the end. For the schema and operation hooks, the diagnostic names the node it failed on.
 
 ### File hook payloads {#file-hook-payloads}
 

@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Plugins - Define a Kubb plugin with defineExtension
-description: "Define a Kubb plugin with defineExtension and kind plugin: meta, dependencies, setup, and the setup context that registers generators."
+description: "Define a Kubb plugin with defineExtension and kind plugin: meta, dependencies, setup, and the setup context that registers templates."
 outline:
   - 2
   - 3
@@ -13,7 +13,7 @@ navigation:
 
 # Plugins
 
-A plugin generates code from the AST. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'plugin'`. Its `setup` registers [generators](/docs/5.x/reference/kit/generators), a [resolver](/docs/5.x/reference/kit/resolvers), and macros, then returns the options generators read as `ctx.options`. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work as for every extension.
+A plugin generates code from the AST. Define one with [`defineExtension`](/docs/5.x/reference/kit/extensions#define-extension) and `kind: 'plugin'`. Its `setup` registers [templates](/docs/5.x/reference/kit/templates), a [resolver](/docs/5.x/reference/kit/resolvers), and macros, then returns the options templates read as `ctx.options`. [`meta`](/docs/5.x/reference/kit/extensions#meta) and the [factory statics](/docs/5.x/reference/kit/extensions#factory-statics) work as for every extension.
 
 ```typescript [plugin-example.ts]
 import { defineExtension, type PluginType } from 'kubb/kit'
@@ -25,7 +25,7 @@ export const pluginExample = defineExtension<PluginExample>({
   meta: { name: 'plugin-example', version: '1.0.0' },
   dependencies: { 'plugin-ts': {} },
   setup(options, kubb) {
-    // Register resolvers, generators, and macros on `kubb`.
+    // Register resolvers, templates, and macros on `kubb`.
     return { prefix: options.prefix ?? '' }
   },
 })
@@ -42,13 +42,13 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ## Setup context {#setup-context}
 
-`setup` and the `kubb:plugin:setup` hook register resolvers, generators, macros and printers with the composables from `kubb/kit`: `setResolver`, `addTemplate`, `addMacro`, `setPrinter` and `provide`. `addGenerator` still works but is deprecated. Composables take no context argument, so helpers that `setup` calls can use them too. `setMacros` still works but is deprecated. It replaces the macros registered so far, while `addMacro` adds to them, so pass the user's `macros` option to `addMacro(...macros)`.
+`setup` and the `kubb:plugin:setup` hook register resolvers, templates, macros and printers with the composables from `kubb/kit`: `setResolver`, `addTemplate`, `addMacro`, `setPrinter` and `provide`. Composables take no context argument, so helpers that `setup` calls can use them too. `setMacros` still works but is deprecated. It replaces the macros registered so far, while `addMacro` adds to them, so pass the user's `macros` option to `addMacro(...macros)`.
 
 ```typescript
-import { addGenerator, createResolver, defineExtension, defineGenerator, requirePlugin, setResolver } from 'kubb/kit'
+import { addTemplate, createResolver, defineExtension, defineTemplate, requirePlugin, setResolver } from 'kubb/kit'
 
 const resolver = createResolver({ pluginName: 'plugin-example' })
-const generator = defineGenerator({ name: 'example', operation: () => [] })
+const template = defineTemplate({ kind: 'Operation', render: () => [] })
 
 export const pluginExample = defineExtension({
   kind: 'plugin',
@@ -56,7 +56,7 @@ export const pluginExample = defineExtension({
   setup(options) {
     requirePlugin('plugin-ts')
     setResolver(resolver)
-    addGenerator(generator)
+    addTemplate(template)
     return options
   },
 })
@@ -70,7 +70,7 @@ export const pluginExample = defineExtension({
   meta: { name: 'plugin-example' },
   setup(options, kubb) {
     kubb.setResolver(resolver)
-    kubb.addGenerator(generator)
+    kubb.addTemplate(template)
     return options
   },
 })
@@ -90,7 +90,7 @@ The setup context, the `kubb` argument of `setup` (`ctx` in the hook), holds the
 | `plugin`        | `{ name: string, meta: ExtensionMeta }`                   | The name and meta of the plugin being set up. |
 | `config`        | `Config`                                                  | The resolved build configuration. Composable: `useConfig()`.                    |
 | `options`       | `TOptions`                                                | The options the user passed. Composable: `useOptions()`.                        |
-| `addTemplate`, `addGenerator`, `setResolver`, `addMacro`, `setMacros`, `setPrinter`, `provide` | Same as the composables | Kit's setup composables, as methods. |
+| `addTemplate`, `setResolver`, `addMacro`, `setMacros`, `setPrinter`, `provide` | Same as the composables | Kit's setup composables, as methods. |
 
 Methods have a composable of the same name, such as `requirePlugin()`. `useKubb()` returns the whole context, and `tryUseKubb()` returns `undefined` outside setup instead of throwing.
 
@@ -99,24 +99,24 @@ The setup context is also `this` in `setup` and `kubb:plugin:setup`, so `this`, 
 To run your own code with a context, see [`withContext`](/docs/5.x/reference/kit/context#withcontext).
 
 > [!WARNING]
-> `useKubb()`, `useConfig()` and `memo()` work in `setup`, `kubb:plugin:setup`, the [hooks in your `hooks` map](/docs/5.x/reference/kit/hooks#hook-listener-scope) with [visit hooks](/docs/5.x/reference/kit/hooks#visit-hooks), and [generators](/docs/5.x/reference/kit/generators#generatorcontext). `useKubb()` returns the context of the hook that runs. `setOptions()`, `useOptions()` and `injectFile()` work only in `setup` and `kubb:plugin:setup`. Anywhere else, composables throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
+> `useKubb()`, `useConfig()` and `memo()` work in `setup`, `kubb:plugin:setup`, the [hooks in your `hooks` map](/docs/5.x/reference/kit/hooks#hook-listener-scope) with [visit hooks](/docs/5.x/reference/kit/hooks#visit-hooks), and [templates](/docs/5.x/reference/kit/templates#templatecontext). `useKubb()` returns the context of the hook that runs. `setOptions()`, `useOptions()` and `injectFile()` work only in `setup` and `kubb:plugin:setup`. Anywhere else, composables throw [`KUBB_NO_CONTEXT`](/docs/5.x/reference/diagnostics#kubb-no-context).
 
 To cache outside a build, see [Memo caches](#memo-cache).
 
 ### Printer {#printer}
 
-`setPrinter(factory)` registers the printer your generators use. Kit calls the factory with the printer context, as its argument, `this` and `useKubb()`, once per build, and once more for each `override` that matches a node. Generators get the result as `ctx.printer`, and pass per-node options with `printer.with(...)`. Type a factory you export with `PrinterFactory<PluginType>`, so its `ctx` (a `PrinterContext`) is inferred.
+`setPrinter(factory)` registers the printer your templates use. Kit calls the factory with the printer context, as its argument, `this` and `useKubb()`, once per build, and once more for each `override` that matches a node. Templates get the result as `ctx.printer`, and pass per-node options with `printer.with(...)`. Type a factory you export with `PrinterFactory<PluginType>`, so its `ctx` (a `PrinterContext`) is inferred.
 
 ```typescript
-import { addGenerator, createPrinter, defineExtension, defineGenerator, type PluginType, type Resolver, setPrinter } from 'kubb/kit'
+import { addTemplate, createPrinter, defineExtension, defineTemplate, type PluginType, type Resolver, setPrinter } from 'kubb/kit'
 
 const printerExample = createPrinter((options: { name?: string }) => ({ name: 'example', options, nodes: { string: () => 'string' } }))
 
 type PluginExample = PluginType<'plugin-example', object, object, Resolver, ReturnType<typeof printerExample>>
 
-const generator = defineGenerator<PluginExample>({
-  name: 'example',
-  schema(node, ctx) {
+const template = defineTemplate<PluginExample>({
+  kind: 'Schema',
+  render(node, ctx) {
     ctx.info(`${node.name}: ${ctx.printer.with({ name: node.name }).print(node)}`)
     return null
   },
@@ -127,7 +127,7 @@ export const pluginExample = defineExtension<PluginExample>({
   meta: { name: 'plugin-example' },
   setup(options) {
     setPrinter<PluginExample>(() => printerExample())
-    addGenerator(generator)
+    addTemplate(template)
     return options
   },
 })
@@ -135,7 +135,7 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ## Shared option types {#shared-option-types}
 
-`PluginOptions` and `ResolvedPluginOptions` type the [options every generator plugin shares](/docs/5.x/reference/plugin-options): `output`, `group`, `include`, `exclude`, and `override`. Intersect them into your own types and add the plugin's keys. The type argument is the options object an `override` entry can set.
+`PluginOptions` and `ResolvedPluginOptions` type the [options every plugin shares](/docs/5.x/reference/plugin-options): `output`, `group`, `include`, `exclude`, and `override`. Intersect them into your own types and add the plugin's keys. The type argument is the options object an `override` entry can set.
 
 ```typescript [types.ts]
 import type { PluginOptions, PluginType, ResolvedPluginOptions } from 'kubb/kit'
@@ -172,10 +172,10 @@ Type the name constant with `satisfies`: `export const pluginZodName = 'plugin-z
 
 ### Provide {#provide}
 
-`provide(name, factory, { priority })` offers a resolver under a shared name, such as `'types'`. A generator reads it with [`from(name)`](/docs/5.x/reference/kit/generators#from), without naming the plugin behind it.
+`provide(name, factory, { priority })` offers a resolver under a shared name, such as `'types'`. A template reads it with [`from(name)`](/docs/5.x/reference/kit/templates#from), without naming the plugin behind it.
 
 - The provider with the highest `priority` wins. On a tie, the first one stays. `priority` defaults to `0`.
-- Kit calls `factory` once, the first time a generator asks for the name, so `factory` can call `getResolver`.
+- Kit calls `factory` once, the first time a template asks for the name, so `factory` can call `getResolver`.
 - A name that a plugin in the config already uses is refused, since it would replace that plugin's resolver.
 - `getResolver(name)` returns the provider's resolver as it is, for code that needs plain names without imports.
 

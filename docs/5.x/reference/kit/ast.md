@@ -47,7 +47,7 @@ flowchart TD
   content --> schema
 ```
 
-A generator returns `FileNode`s, a second tree:
+A template returns `FileNode`s, a second tree:
 
 ```mermaid
 flowchart LR
@@ -355,7 +355,7 @@ string(node) {
 }
 ```
 
-A handler that runs during a build, from a generator that calls the printer, can call [`from()`](/docs/5.x/reference/kit/generators#from) for another plugin's names and their imports. So a printer needs no `resolver` in its options:
+A handler that runs during a build, from a template that calls the printer, can call [`from()`](/docs/5.x/reference/kit/templates#from) for another plugin's names and their imports. So a printer needs no `resolver` in its options:
 
 ```typescript
 ref(node) {
@@ -366,7 +366,7 @@ ref(node) {
 `from()` reports `KUBB_NO_CONTEXT` when the printer runs outside a build, such as in a test that calls it directly. Run that call inside `withContext` with a mocked context.
 
 > [!IMPORTANT]
-> The built-in generators collect those imports. In your own generator, call `printer.drainImports()` after printing.
+> The built-in templates collect those imports. In your own template, call `printer.drainImports()` after printing.
 
 [Architecture](/docs/5.x/introduction/architecture#ast) explains why the AST exists.
 

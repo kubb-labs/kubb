@@ -26,7 +26,7 @@
 
 Core engine for Kubb's plugin-based code generation system. Provides the plugin driver, file manager, `defineConfig`, `defineExtension`, `defineMiddleware`, and the build orchestration layer used by every Kubb plugin.
 
-> **Note:** `@kubb/core` is an internal library. Install the [`kubb`](https://npmx.dev/package/kubb) meta-package instead and author plugins, generators, resolvers, parsers, and adapters through its `kubb/kit` subpath, which re-exports the authoring surface of this package.
+> **Note:** `@kubb/core` is an internal library. Install the [`kubb`](https://npmx.dev/package/kubb) meta-package instead and author plugins, templates, resolvers, parsers, and adapters through its `kubb/kit` subpath, which re-exports the authoring surface of this package.
 
 ## Installation
 
@@ -42,7 +42,7 @@ npm install @kubb/core
 
 `createKubb` accepts an `AbortSignal`. The engine checks it before setup, while it parses input and
 normalizes plugins, and before each generated-file write. Plugin authors receive the same signal in
-their generator context when they need to stop their own asynchronous work.
+their template context when they need to stop their own asynchronous work.
 
 ## Supporting Kubb
 

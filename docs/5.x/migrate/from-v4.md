@@ -118,7 +118,7 @@ export default defineConfig({
 | `transformers.name` | [`resolver.name`](/docs/5.x/how-to/customize). Its input casing can differ from v4. Check the names, or call the exported resolver for the default casing. |
 | `transformers.schema` | `macros`. |
 | `mapper` | A schema macro or a `printer.nodes` override. |
-| `generators` | A custom plugin. |
+| `generators` | A custom plugin with [templates](/docs/5.x/reference/kit/templates). |
 | `paramsType`, `pathParamsType`, `paramsCasing` | One `{ body, path, query, headers }` object with the spec's names. For camelCase path params, set [`pathParamsCasing: 'camelcase'`](/extensions/kubb-labs/adapter-oas/options#pathparamscasing) on the adapter. |
 
 A group with a required parameter is required, and an unused group is typed `never`. Update positional call sites:

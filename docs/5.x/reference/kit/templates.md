@@ -1,21 +1,19 @@
 ---
 layout: doc
-title: Generators - Emit files with defineGenerator
-description: defineGenerator declares a generator that walks the AST and emits files. Covers its fields, match, the GeneratorContext, and the memo cache.
+title: Templates - Write files with defineTemplate
+description: defineTemplate declares a template that writes a plugin's files for each schema or operation. Covers its kinds, the TemplateContext, file, from, code, and the memo cache.
 outline:
   - 2
   - 3
 order: 2
 navigation:
-  title: Generators
+  title: Templates
   icon: i-iconoir-code-brackets
 ---
 
-# Generators
+# Templates
 
-## `defineTemplate` {#definetemplate}
-
-A template writes your plugin's files for each node of one kind. Define it with `defineTemplate`, then register it in your plugin's `setup` with `addTemplate`.
+A template writes your plugin's files for each node of one kind. Define it with `defineTemplate`, then register it in your plugin's `setup` with [`addTemplate`](/docs/5.x/reference/kit/plugins#setup-context).
 
 ```tsx [zodSchema.tsx]
 import { addTemplate, defineExtension, defineTemplate } from 'kubb/kit'
@@ -39,31 +37,54 @@ export const pluginZod = defineExtension({
 })
 ```
 
-| `kind` | `render` gets | Runs |
+## `defineTemplate` {#definetemplate}
+
+| Field | Type | Does |
 | --- | --- | --- |
-| `'Schema'` | A `SchemaNode` | Once per schema the plugin keeps |
-| `'Operation'` | An `OperationNode` | Once per operation the plugin keeps |
-| `'Operations'` | `Array<OperationNode>` | Once, after every operation |
+| `kind` | `'Schema' \| 'Operation' \| 'Operations'` | Required. Picks the nodes `render` gets. |
+| `render` | `(node, ctx) => Output` | Required. Returns the files for one node, or for every operation with `'Operations'`. |
 
-`kind` types the node, so `render` needs no annotation. Type the context with the plugin: `defineTemplate<PluginZod>({ … })`. `render` gets the same context as a generator method, as its second argument, as `this` and as `useKubb()`.
+| `kind` | `render` gets | Runs | Use it for |
+| --- | --- | --- | --- |
+| `'Schema'` | A `SchemaNode` | Once per schema the plugin keeps | Types, validators, factories |
+| `'Operation'` | An `OperationNode` | Once per operation the plugin keeps | Clients, hooks, handlers |
+| `'Operations'` | `Array<OperationNode>` | Once, after every operation | Index or aggregate files |
 
-- `render` returns JSX, a `FileNode`, `Array<FileNode>`, or `null` to skip the node. Kit renders JSX with `jsxRenderer`. Pass another renderer with `addTemplate(template, { renderer })`.
+`kind` types the node, so `render` needs no annotation. Type the context with the plugin: `defineTemplate<PluginZod>({ … })`.
+
+`Output` is JSX, a `FileNode`, `Array<FileNode>`, `null`, or `undefined`, or a promise of one of them. A `FileNode` is stored as it is. To write files yourself, call `ctx.upsertFile()` and return nothing.
+
+- Kit renders JSX with [`jsxRenderer`](/docs/5.x/reference/jsx). Pass another renderer with `addTemplate(template, { renderer })`.
 - Templates of one kind run in the order you add them.
 - A template is a plain value. Import another plugin's template and pass it to `addTemplate`, or call its `render` from your own template.
 
-> [!NOTE]
-> `defineGenerator` and `addGenerator` are deprecated. Kit runs each generator as one template per method, so existing generators keep working.
+### Skipping nodes {#skipping-nodes}
 
-## `defineGenerator` {#definegenerator}
+Return `null` from `render` to write nothing for a node. Check the node first:
 
-A generator turns [AST](/docs/5.x/reference/kit/ast) nodes into files for your plugin. Define it with `defineGenerator`, then register it in your plugin's `setup` with [`addGenerator`](/docs/5.x/reference/kit/plugins#setup-context).
+```typescript [getOperation.ts]
+import { ast, defineTemplate } from 'kubb/kit'
 
-```typescript [my-generator.ts]
-import { ast, defineGenerator } from 'kubb/kit'
+export const getOperation = defineTemplate({
+  kind: 'Operation',
+  render(node, ctx) {
+    if (!ast.http.isOperation(node) || node.method !== 'GET') return null
+    // node is a GET operation here
+    return null
+  },
+})
+```
 
-const myGenerator = defineGenerator({
-  name: 'my-generator',
-  operation(node, ctx) {
+### Writing `FileNode`s {#filenodes}
+
+A template can return `FileNode`s from [`ast.factory`](/docs/5.x/reference/kit/ast#factory-functions) instead of JSX:
+
+```typescript [operationFile.ts]
+import { ast, defineTemplate } from 'kubb/kit'
+
+export const operationFile = defineTemplate({
+  kind: 'Operation',
+  render(node, ctx) {
     const file = ctx.resolver.file({
       name: node.operationId,
       extname: '.ts',
@@ -86,41 +107,11 @@ const myGenerator = defineGenerator({
 })
 ```
 
-This generator writes `operations/<operationId>.ts` in the output folder. When your plugin has an `output` option, pass `ctx.options.output` instead of a fixed value.
+This template writes `operations/<operationId>.ts` in the output folder. When your plugin has an `output` option, pass `ctx.options.output` instead of a fixed value.
 
-### Generator fields {#generator-methods}
+### `TemplateContext` {#templatecontext}
 
-| Field        | Type                                           | Runs                            | Use it for                                                                                        |
-| ------------ | ---------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `name`       | `string`                                       |                                 | Required. Shown in diagnostics.                                                                   |
-| `renderer`   | `RendererFactory \| null`                      |                                 | Unset renders JSX with [`jsxRenderer`](/docs/5.x/reference/jsx). Set it for another renderer, or `null` to skip rendering. |
-| `match`      | `(node, ctx) => boolean \| Promise<boolean>`   | Before `schema` and `operation` | Skipping nodes. See [`match`](#match).                                                            |
-| `schema`     | `(node: SchemaNode, ctx) => Output`            | Once per schema                 | Types, validators, factories.                                                                     |
-| `operation`  | `(node: OperationNode, ctx) => Output`         | Once per operation              | Clients, hooks, handlers.                                                                         |
-| `operations` | `(nodes: Array<OperationNode>, ctx) => Output` | Once, after every operation     | Index or aggregate files.                                                                         |
-
-`Output` is renderer elements, a `FileNode`, `Array<FileNode>`, `null`, or `undefined`, or a promise of one of them. A `FileNode` is stored as it is, even when `renderer` is set. To write files yourself, call `ctx.upsertFile()` and return nothing.
-
-### Scoping with `match` {#match}
-
-Return `false` to skip `schema` or `operation` for a node. `match` never filters `operations()`.
-
-```typescript [scoped-generator.ts]
-import { ast, defineGenerator } from 'kubb/kit'
-
-const getOnlyGenerator = defineGenerator({
-  name: 'get-only-generator',
-  match: (node) => node.kind === 'Operation' && ast.http.isOperation(node) && node.method === 'GET',
-  operation(node, ctx) {
-    // node is a GET operation here
-    return
-  },
-})
-```
-
-### `GeneratorContext` {#generatorcontext}
-
-Each method, `match` included, gets `ctx` with these fields. Kit runs each one through [`withContext`](/docs/5.x/reference/kit/plugins), so `this`, `ctx` and `useKubb()` are the same generator context, and composables such as `useConfig()` and `memo()` work there. Setup-only composables such as `addGenerator` report `KUBB_NO_CONTEXT`.
+`render` gets `ctx` with these fields. Kit runs it through [`withContext`](/docs/5.x/reference/kit/plugins), so `this`, `ctx` and `useKubb()` are the same template context, and composables such as `useConfig()` and `memo()` work there. Setup-only composables such as `addTemplate` report `KUBB_NO_CONTEXT`.
 
 | Field            | Type                           | Holds                                                                                                                       |
 | ---------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
@@ -144,7 +135,7 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 | `ctx.addFile()`       | `(...files: Array<FileNode>) => Promise<void>`                            | Adds files, skipping any that already exist.                                                         |
 | `ctx.upsertFile()`    | `(...files: Array<FileNode>) => Promise<void>`                            | Adds files, or merges their sources and imports into an existing file.                               |
 | `ctx.getFile()`       | `(path: string) => FileNode \| undefined`                                 | Returns the file at `path` as the build holds it now, such as one an earlier plugin wrote.           |
-| `ctx.dispatch()`      | `({ result, renderer?, pointer? }) => Promise<void>`                      | Adds a generator result: files as they are, or elements through `renderer`.                          |
+| `ctx.dispatch()`      | `({ result, renderer?, pointer? }) => Promise<void>`                      | Adds a template result: files as they are, or elements through `renderer`.                           |
 | `ctx.getPlugin()`     | `(name: string) => Plugin \| undefined`                                   | Returns a plugin by name.                                                                            |
 | `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Returns a plugin by name, or throws.                                                                 |
 | `ctx.getResolver()`   | `(name: string) => Resolver`                                              | Returns another plugin's resolver.                                                                   |
@@ -157,20 +148,20 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 
 ### Naming files with `file` {#file}
 
-`file(node, options?)` returns the `<File>` props for the file a generator writes: `baseName`, `path`, `meta`, and the `banner` and `footer` from the plugin's `output`. Spread it onto `<File>`. It is a composable, so it reads the current generator context. `ctx.file(node)` and `this.file(node)` do the same.
+`file(node, options?)` returns the `<File>` props for the file a template writes: `baseName`, `path`, `meta`, and the `banner` and `footer` from the plugin's `output`. Spread it onto `<File>`. It is a composable, so it reads the current template context. `ctx.file(node)` and `this.file(node)` do the same.
 
 - A schema's file is named after `node.name`, and an operation's file after `node.operationId`. Pass `name` to choose another name.
-- An operation file that would land on a component schema's file, ignoring case, gets an `Operation` suffix: operation `point` goes to `pointOperation.ts`, next to schema `point.ts`. The declarations keep their names. Kit adds it only when the plugin has a schema generator, so a plugin that writes only operation files keeps the plain name.
+- An operation file that would land on a component schema's file, ignoring case, gets an `Operation` suffix: operation `point` goes to `pointOperation.ts`, next to schema `point.ts`. The declarations keep their names. Kit adds it only when the plugin has a `Schema` template, so a plugin that writes only operation files keeps the plain name.
 - Pass `plugin` to get another plugin's file, such as the types to import. `file` then uses that plugin's resolver, `output` and `group`, after its `include`, `exclude` and `override` rules. A missing plugin reports `KUBB_PLUGIN_NOT_FOUND`.
-- Outside a generator or a printer factory, `file()` reports `KUBB_NO_CONTEXT`.
+- Outside a template or a printer factory, `file()` reports `KUBB_NO_CONTEXT`.
 
-```tsx [zodGenerator.tsx]
-import { defineGenerator, file } from 'kubb/kit'
+```tsx [zodOperation.tsx]
+import { defineTemplate, file } from 'kubb/kit'
 import { File } from '@kubb/renderer-jsx'
 
-export const zodGenerator = defineGenerator({
-  name: 'zod',
-  operation(node) {
+export const zodOperation = defineTemplate({
+  kind: 'Operation',
+  render(node) {
     const types = file(node, { plugin: 'plugin-ts' })
 
     return (
@@ -220,13 +211,13 @@ Imports are value imports. Set `space: 'type'` on the names you use only as type
 
 Import paths are absolute. Pass the file you write as `root`, so each path becomes relative to it:
 
-```tsx [zodGenerator.tsx]
-import { ast, code, defineGenerator, file, from } from 'kubb/kit'
+```tsx [zodSchema.tsx]
+import { ast, code, defineTemplate, file, from } from 'kubb/kit'
 import { Code, File } from '@kubb/renderer-jsx'
 
-export const zodGenerator = defineGenerator({
-  name: 'zod',
-  schema(node) {
+export const zodSchema = defineTemplate({
+  kind: 'Schema',
+  render(node) {
     if (!node.name) return null
     const target = file(node)
     const types = from('plugin-ts').resolver
@@ -260,13 +251,13 @@ export const zodGenerator = defineGenerator({
 - Put the node in the key for a value from one node: `node.operationId` or `node.name`.
 - Use `ctx.resolver.memo(key, compute)` for a value only your plugin reads.
 
-```typescript [memo-generator.ts]
-import { ast, defineGenerator, memo } from 'kubb/kit'
+```typescript [memoOperation.ts]
+import { ast, defineTemplate, memo } from 'kubb/kit'
 
-export const operationGenerator = defineGenerator({
-  name: 'operation-generator',
-  operation(node) {
-    // One entry per operation. Other generators that ask for the same key reuse it.
+export const memoOperation = defineTemplate({
+  kind: 'Operation',
+  render(node) {
+    // One entry per operation. Other templates that ask for the same key reuse it.
     const schemas = memo(`my-plugin:schemas:${node.operationId}`, () =>
       ast.node.collect<ast.SchemaNode>(node, { depth: 'shallow', schema: (schema) => schema }),
     )
