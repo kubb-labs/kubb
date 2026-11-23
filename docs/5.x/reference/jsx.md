@@ -304,7 +304,7 @@ An arrow function in a `const`. It takes every `Function` prop, plus `singleLine
 
 #### `Type` {#type}
 
-A type alias or an interface, with the children as the type. `name` must start with an uppercase letter, or `Type` throws. Barrels re-export it with `export type`.
+A type alias or an interface, with the children as the type. Barrels re-export it with `export type`.
 
 | Prop | Type | Description |
 | --- | --- | --- |

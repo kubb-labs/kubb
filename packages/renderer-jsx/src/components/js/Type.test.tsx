@@ -4,17 +4,18 @@ import { File } from '../File.tsx'
 import { Type } from './Type.tsx'
 
 describe('Type', () => {
-  it('throws when name does not start with an uppercase letter', () => {
+  it('keeps a name that starts with a lowercase letter', async () => {
     const renderer = jsxRenderer()
-    const renderPromise = renderer.render(
+    await renderer.render(
       <File baseName="types.ts" path="src/types.ts">
-        <File.Source name="petId" isExportable>
-          <Type export name="petId">
+        <File.Source name="pet_owner" isExportable>
+          <Type export name="pet_owner">
             {'string'}
           </Type>
         </File.Source>
       </File>,
     )
-    return expect(renderPromise).rejects.toThrow('Name should start with a capital letter')
+
+    expect(renderer.files[0]?.sources[0]?.nodes?.[0]).toMatchObject({ kind: 'Type', name: 'pet_owner' })
   })
 })
