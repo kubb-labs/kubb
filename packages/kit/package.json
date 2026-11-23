@@ -69,7 +69,8 @@
   },
   "dependencies": {
     "@kubb/ast": "workspace:^",
-    "@kubb/core": "workspace:^"
+    "@kubb/core": "workspace:^",
+    "@kubb/renderer-jsx": "workspace:^"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*"

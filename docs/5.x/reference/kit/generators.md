@@ -52,7 +52,7 @@ This generator writes `operations/<operationId>.ts` in the output folder. When y
 | Field        | Type                                           | Runs                            | Use it for                                                                                        |
 | ------------ | ---------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `name`       | `string`                                       |                                 | Required. Shown in diagnostics.                                                                   |
-| `renderer`   | `RendererFactory \| null`                      |                                 | Needed when a method returns elements, such as JSX with [`jsxRenderer`](/docs/5.x/reference/jsx). |
+| `renderer`   | `RendererFactory \| null`                      |                                 | Unset renders JSX with [`jsxRenderer`](/docs/5.x/reference/jsx). Set it for another renderer, or `null` to skip rendering. |
 | `match`      | `(node, ctx) => boolean \| Promise<boolean>`   | Before `schema` and `operation` | Skipping nodes. See [`match`](#match).                                                            |
 | `schema`     | `(node: SchemaNode, ctx) => Output`            | Once per schema                 | Types, validators, factories.                                                                     |
 | `operation`  | `(node: OperationNode, ctx) => Output`         | Once per operation              | Clients, hooks, handlers.                                                                         |
@@ -125,11 +125,10 @@ Each method, `match` included, gets `ctx` with these fields. Kit runs each one t
 
 ```tsx [zodGenerator.tsx]
 import { defineGenerator, file } from 'kubb/kit'
-import { File, jsxRenderer } from '@kubb/renderer-jsx'
+import { File } from '@kubb/renderer-jsx'
 
 export const zodGenerator = defineGenerator({
   name: 'zod',
-  renderer: jsxRenderer,
   operation(node) {
     const types = file(node, { plugin: 'plugin-ts' })
 
@@ -182,11 +181,10 @@ Import paths are absolute. Pass the file you write as `root`, so each path becom
 
 ```tsx [zodGenerator.tsx]
 import { ast, code, defineGenerator, file, from } from 'kubb/kit'
-import { Code, File, jsxRenderer } from '@kubb/renderer-jsx'
+import { Code, File } from '@kubb/renderer-jsx'
 
 export const zodGenerator = defineGenerator({
   name: 'zod',
-  renderer: jsxRenderer,
   schema(node) {
     if (!node.name) return null
     const target = file(node)

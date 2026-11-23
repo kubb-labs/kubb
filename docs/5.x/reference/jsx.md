@@ -17,7 +17,7 @@ navigation:
 
 ## Renderers {#renderers}
 
-A renderer turns what a generator returns into `FileNode`s. Set `renderer: jsxRenderer` on the generator. Leave `renderer` unset or `null` when it returns `FileNode`s from `ast.factory`.
+A renderer turns what a generator returns into `FileNode`s. Kit renders JSX with `jsxRenderer` when the generator sets no `renderer`, so a JSX generator needs no `renderer` line. A generator that returns `FileNode`s from `ast.factory` needs no renderer either. Set `renderer` only for another renderer, or set it to `null` to skip rendering.
 
 ```mermaid
 flowchart LR
