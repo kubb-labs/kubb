@@ -408,6 +408,18 @@ describe('FileManager#dispatch', () => {
     expect(file.sources[0]?.pointer).toBeUndefined()
   })
 
+  it('stores a single file node as it is, without calling the renderer', async () => {
+    const fileManager = new FileManager()
+    const renderer = vi.fn()
+    const file = ast.factory.createFile({ baseName: 'pet.ts', path: '/out/pet.ts', sources: [ast.factory.createSource({ name: 'Pet', nodes: [] })] })
+
+    await fileManager.dispatch({ result: file, renderer: renderer as never, pointer: '#/components/schemas/Pet' })
+
+    expect(renderer).not.toHaveBeenCalled()
+    expect(fileManager.files.map((f) => f.path)).toStrictEqual(['/out/pet.ts'])
+    expect(fileManager.files[0]?.sources[0]?.pointer).toBe('#/components/schemas/Pet')
+  })
+
   it('routes element results through the renderer, upserting its files', async () => {
     const fileManager = new FileManager()
     const renderer = {

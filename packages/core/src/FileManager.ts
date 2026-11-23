@@ -192,13 +192,13 @@ export class FileManager {
     return this.#store(files, true)
   }
 
-  /** Stores a generator result: a file array is upserted as is, an element renders through `renderer` first, falsy is a no-op. */
+  /** Stores a generator result: a file or a file array is upserted as is, an element renders through `renderer` first, falsy is a no-op. */
   async dispatch<TElement = unknown>({
     result,
     renderer,
     pointer,
   }: {
-    result: TElement | Array<FileNode> | undefined | null
+    result: TElement | FileNode | Array<FileNode> | undefined | null
     renderer?: RendererFactory<TElement> | null
     /**
      * Pointer of the node the result was generated from, set on each source that carries none.
@@ -212,10 +212,15 @@ export class FileManager {
       return
     }
 
+    if ((result as { kind?: unknown }).kind === ast.node.kinds.file) {
+      this.#defer(withPointer([result as FileNode], pointer))
+      return
+    }
+
     if (!renderer) return
 
     using instance = renderer()
-    await instance.render(result)
+    await instance.render(result as TElement)
 
     this.#defer(withPointer(instance.files, pointer))
   }

@@ -466,7 +466,7 @@ export type PluginVisitContext<TOptions extends PluginType = PluginType> = {
   schemas: ReadonlyArray<SchemaNode>
   /** Every operation in the spec, in the order the adapter returns them. Empty before the adapter parses the input. */
   operations: ReadonlyArray<OperationNode>
-  /** Adds a generator result to the build: files as they are, or elements through `renderer`. A `pointer` is set on each source that carries none. */
+  /** Adds a generator result to the build: a file or files as they are, or elements through `renderer`. A `pointer` is set on each source that carries none. */
   dispatch: FileManager['dispatch']
   /**
    * Cache for the whole build, shared by every plugin, where `resolver.memo` is one plugin. Prefix a

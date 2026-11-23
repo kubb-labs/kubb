@@ -58,7 +58,7 @@ This generator writes `operations/<operationId>.ts` in the output folder. When y
 | `operation`  | `(node: OperationNode, ctx) => Output`         | Once per operation              | Clients, hooks, handlers.                                                                         |
 | `operations` | `(nodes: Array<OperationNode>, ctx) => Output` | Once, after every operation     | Index or aggregate files.                                                                         |
 
-`Output` is renderer elements, `Array<FileNode>`, `null`, or `undefined`, or a promise of one of them. To write files yourself, call `ctx.upsertFile()` and return nothing.
+`Output` is renderer elements, a `FileNode`, `Array<FileNode>`, `null`, or `undefined`, or a promise of one of them. A `FileNode` is stored as it is, even when `renderer` is set. To write files yourself, call `ctx.upsertFile()` and return nothing.
 
 ### Scoping with `match` {#match}
 
