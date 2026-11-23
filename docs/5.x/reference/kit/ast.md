@@ -359,7 +359,9 @@ A handler that runs during a build, from a template that calls the printer, can 
 
 ```typescript
 ref(node) {
-  return from('plugin-ts').resolver.name(ast.ref.getName(node) ?? '').name
+  const type = from('plugin-ts').resolver.name(ast.ref.getName(node) ?? '')
+  if (type.import) this.import(type.import)
+  return type.name
 }
 ```
 
