@@ -25,7 +25,8 @@ export function Schema<TOutput>({ node, printer, children }: Props<TOutput>): Ku
   return (
     <>
       {imports.map((imp) => {
-        const names = ast.file.getNames(imp)
+        // `createImport` applies a deprecated `name` or `isTypeOnly` a printer set over `names`.
+        const names = ast.file.getNames(ast.factory.createImport(imp))
         return <File.Import key={[imp.path, ...names.map((item) => item.alias ?? item.name)].join('-')} names={names} path={imp.path} root={imp.root} />
       })}
       {children(output)}
