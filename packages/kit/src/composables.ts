@@ -105,6 +105,8 @@ export function addMacro(...macros: Array<Macro>): void {
 
 /**
  * Replaces the macros of the plugin being set up.
+ *
+ * @deprecated Use `addMacro(...macros)`, and pass the user's `macros` option to it yourself.
  */
 export function setMacros(macros: ReadonlyArray<Macro>): void {
   const ctx = kitContext('setMacros')
