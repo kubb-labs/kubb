@@ -17,7 +17,7 @@ const define = coreDefineExtension as (definition: unknown) => unknown
 
 /**
  * The setup context of a plugin defined with kit's `defineExtension`: core's setup context plus kit's
- * setup composables as methods. `kubb.addGenerator(...)` and `addGenerator(...)` register the same.
+ * setup composables as methods. `kubb.addTemplate(...)` and `addTemplate(...)` register the same.
  */
 export type KitSetupContext<TFactory extends PluginType = PluginType> = KubbPluginSetupContext<TFactory> & {
   addTemplate: typeof addTemplate

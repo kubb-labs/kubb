@@ -49,20 +49,7 @@ export { createResolver } from './resolver/createResolver.ts'
 export { defineResolver, Resolver, toFilePath } from './resolver/Resolver.ts'
 export { defineExtension, definePlugin } from './defineExtension.ts'
 export type { KitSetupContext } from './defineExtension.ts'
-export type {
-  ProvideName,
-  Generator,
-  GeneratorContext,
-  PluginType,
-  PrinterContext,
-  PrinterFactory,
-  Template,
-  TemplateContext,
-  TemplateKind,
-  TemplateNode,
-  TemplateOf,
-  TemplateResult,
-} from './types.ts'
+export type { ProvideName, Generator, GeneratorContext, PluginType, PrinterContext, PrinterFactory, Template, TemplateContext, TemplateKind } from './types.ts'
 export type { ResolveOptionsContext } from './resolver/resolveOptions.ts'
 export type {
   ResolveBannerContext,

@@ -7,7 +7,7 @@ import { getResolver, type RegisteredTemplate, slot } from './composables.ts'
 import { resolveFile } from './file.ts'
 import { resolveFrom } from './from.ts'
 import type { Resolver } from './resolver/Resolver.ts'
-import type { GeneratorContext, PrinterContext, PrinterFactory, TemplateKind } from './types.ts'
+import type { GeneratorContext, PrinterContext, PrinterFactory, TemplateKind, TemplateNode } from './types.ts'
 
 const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType', 'extension'])
 
@@ -79,12 +79,7 @@ function withPrinter(state: VisitState, ctx: PrinterContext): GeneratorContext {
 }
 
 // An unset `renderer` renders JSX elements with `jsxRenderer`. `null` keeps a template on files only.
-async function render(
-  templates: Array<RegisteredTemplate>,
-  node: Parameters<RegisteredTemplate['render']>[0],
-  ctx: GeneratorContext,
-  pointer?: string,
-): Promise<void> {
+async function render(templates: Array<RegisteredTemplate>, node: TemplateNode[TemplateKind], ctx: GeneratorContext, pointer?: string): Promise<void> {
   for (const template of templates) {
     const result = await run(ctx, template.render, node, ctx)
     const renderer = template.renderer !== undefined ? template.renderer : isKubbElement(result) ? jsxRenderer : null

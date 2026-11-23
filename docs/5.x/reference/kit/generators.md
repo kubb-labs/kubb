@@ -48,7 +48,7 @@ export const pluginZod = defineExtension({
 `kind` types the node, so `render` needs no annotation. Type the context with the plugin: `defineTemplate<PluginZod>({ … })`. `render` gets the same context as a generator method, as its second argument, as `this` and as `useKubb()`.
 
 - `render` returns JSX, a `FileNode`, `Array<FileNode>`, or `null` to skip the node. Kit renders JSX with `jsxRenderer`. Pass another renderer with `addTemplate(template, { renderer })`.
-- Templates of one kind run in the order you add them. Kit prepares only the kinds a plugin has templates for.
+- Templates of one kind run in the order you add them.
 - A template is a plain value. Import another plugin's template and pass it to `addTemplate`, or call its `render` from your own template.
 
 > [!NOTE]

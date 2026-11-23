@@ -114,8 +114,8 @@ function fromGenerator(generator: Generator): Array<RegisteredTemplate> {
   const { name, renderer, match, schema, operation, operations } = generator
   const matched =
     (handler: (node: never, ctx: GeneratorContext) => TemplateResult) =>
-    async (node: TemplateNode[TemplateKind], ctx: GeneratorContext): Promise<unknown> =>
-      !match || (await match.call(ctx, node as SchemaNode, ctx)) ? handler.call(ctx, node as never, ctx) : null
+    async (node: SchemaNode | OperationNode, ctx: GeneratorContext): Promise<unknown> =>
+      !match || (await match.call(ctx, node, ctx)) ? handler.call(ctx, node as never, ctx) : null
   const templates: Array<RegisteredTemplate> = []
   if (schema) templates.push({ name, renderer, kind: 'Schema', render: matched(schema) as RegisteredTemplate['render'] })
   if (operation) templates.push({ name, renderer, kind: 'Operation', render: matched(operation) as RegisteredTemplate['render'] })
