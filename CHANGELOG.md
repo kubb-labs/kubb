@@ -1,5 +1,61 @@
 # Changelog
 
+## v5.23.5 — Nov 23, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Write a single `FileNode` that a generator returns, so an AST generator no longer has to wrap one file in a list.
+  
+  ```diff
+   schema(node, ctx) {
+  -  return [ast.factory.createFile({ ...ctx.file(node), sources })]
+  +  return ast.factory.createFile({ ...ctx.file(node), sources })
+   },
+  ``` ([#4737](https://github.com/kubb-labs/kubb/pull/4737), [`043a34c`](https://github.com/kubb-labs/kubb/commit/043a34cc628ee732877334ead87169f06541008f))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Accept several macros in one `addMacro(...macros)` call, and deprecate `setMacros`. A plugin passes its own `macros` option to `addMacro`.
+  
+  ```diff
+   setup(options) {
+  -  setMacros([...defaultMacros, ...(options.macros ?? [])])
+  +  addMacro(...defaultMacros, ...(options.macros ?? []))
+     return options
+   },
+  ``` ([#4742](https://github.com/kubb-labs/kubb/pull/4742), [`4a48bc3`](https://github.com/kubb-labs/kubb/commit/4a48bc31d6ddd36e2f3c8380d101b01bf394264b))
+- Render JSX with `jsxRenderer` when a generator sets no `renderer`, so JSX generators no longer need the `renderer` line.
+  
+  - Keeps an explicit `renderer`, and `renderer: null` still skips rendering.
+  - Warns when a generator returns something no renderer can write. Before, it wrote nothing without a word.
+  
+  ```diff
+   defineGenerator({
+     name: 'zod',
+  -  renderer: jsxRenderer,
+     schema(node, ctx) { … },
+   })
+  ``` ([#4736](https://github.com/kubb-labs/kubb/pull/4736), [`c204780`](https://github.com/kubb-labs/kubb/commit/c204780a26cadfbac3946d938c87498e12ee5897))
+- Add `defineTemplate` and `addTemplate`, so a plugin writes its files with one plain value per node kind: `'Schema'`, `'Operation'` or `'Operations'`.
+  
+  - Types the node `render` gets from `kind`, and renders JSX with `jsxRenderer` unless `addTemplate(template, { renderer })` names another.
+  - Deprecates `defineGenerator`, `addGenerator` and the `Generator` type. Kit runs each generator as one template per method, so existing generators keep working.
+  
+  ```diff
+  -addGenerator(defineGenerator({ name: 'zod', schema(node, ctx) { … } }))
+  +addTemplate(defineTemplate({ kind: 'Schema', render(node, ctx) { … } }))
+  ``` ([#4741](https://github.com/kubb-labs/kubb/pull/4741), [`27e15cb`](https://github.com/kubb-labs/kubb/commit/27e15cb024632bbff624e88825cb7a046971a408))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.23.4 — Nov 22, 2026
 
 ### @kubb/ast
