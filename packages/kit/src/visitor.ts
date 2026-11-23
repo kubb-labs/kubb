@@ -38,6 +38,11 @@ function getState(ctx: PluginVisitContext): VisitState | undefined {
   return ctx.memo.get(stateKey(ctx.plugin.name)) as VisitState | undefined
 }
 
+// The user's macros run after the plugin's own. A plugin that still passes them to `setMacros` gets each one once.
+function withUserMacros(macros: Array<Macro> = [], userMacros: Array<Macro> = []): Array<Macro> {
+  return [...macros, ...userMacros.filter((macro) => !macros.includes(macro))]
+}
+
 // Applies the plugin's macros, then its include, exclude and override rules. Returns null for a node the rules leave out.
 function resolveNode<TNode extends SchemaNode | OperationNode>(
   ctx: PluginVisitContext,
@@ -112,7 +117,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
 
       const state: VisitState = {
         context: { ...ctx, resolver, getResolver: ((pluginName: string) => getResolver(pluginName, ctx.memo)) as VisitState['context']['getResolver'] },
-        macros: (ctx.memo.get(slot.macros(name)) as Array<Macro> | undefined) ?? [],
+        macros: withUserMacros(ctx.memo.get(slot.macros(name)) as Array<Macro> | undefined, ctx.memo.get(slot.userMacros(name)) as Array<Macro> | undefined),
         schemaGenerators: generators.filter((generator) => generator.schema),
         operationGenerators: generators.filter((generator) => generator.operation),
         operationsGenerators: generators.filter((generator) => generator.operations),
