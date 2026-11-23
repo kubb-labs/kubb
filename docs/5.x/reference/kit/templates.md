@@ -122,7 +122,7 @@ This template writes `operations/<operationId>.ts` in the output folder. When yo
 | `ctx.resolver`   | `Resolver`                     | The current plugin's [resolver](/docs/5.x/reference/kit/resolvers).                                                         |
 | `ctx.printer`    | `Printer \| undefined`         | The printer from the plugin's [`setPrinter`](/docs/5.x/reference/kit/plugins#printer) factory, or `undefined` without one.  |
 | `ctx.adapter`    | `Adapter`                      | The adapter that parsed the input.                                                                                          |
-| `ctx.meta`       | `InputMeta`                    | Document metadata: `title`, `version`, `baseURL`, `servers`, and the `auth` schemes.                                        |
+| `ctx.meta`       | `InputMeta`                    | Document metadata: `title`, `version`, `baseURL`, `serverIndex`, `servers`, and the `auth` schemes.                         |
 | `ctx.schemas`    | `ReadonlyArray<SchemaNode>`    | Every schema in the spec, in adapter order. The OpenAPI adapter puts a referenced schema first, except in reference cycles. |
 | `ctx.operations` | `ReadonlyArray<OperationNode>` | Every operation in the spec, in adapter order.                                                                              |
 | `ctx.hooks`      | `Hookable<KubbHooks>`          | The build's [hook](/docs/5.x/reference/kit/hooks) emitter.                                                                  |

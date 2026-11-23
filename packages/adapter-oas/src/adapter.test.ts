@@ -249,6 +249,14 @@ describe('adapterOas.parse', () => {
       servers: [],
     })
     expect(node.meta.auth).toBeUndefined()
+    expect(node.meta).not.toHaveProperty('serverIndex')
+  })
+
+  it('keeps the configured server index in meta', async () => {
+    const adapter = adapterOas({ validate: false, server: { index: 1 } })
+    const node = await adapter.parse({ type: 'data', data: minimalSpec })
+
+    expect(node.meta.serverIndex).toBe(1)
   })
 
   it('carries x-* vendor extensions on the operation and the document root', async () => {
