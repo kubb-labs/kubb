@@ -25,7 +25,8 @@ The context depends on where your code runs. Printer handlers and macro callback
 | Events Kubb fires: `kubb:build:start`, `kubb:plugin:start`, `kubb:plugin:end`, `kubb:plugins:end`, `kubb:build:end` | The plugin's own visit context                      | The plugin's own visit context         |
 | Events fired inside a hook, with `ctx.hooks.callHook(...)`                                                  | The context of the hook that fired the event        | The context of the hook that fired it  |
 | Visit hooks: `kubb:plugin:visit:start`, `:schema`, `:operation`, `:end`                                     | The plugin's visit context                          | The plugin's visit context             |
-| Template `render`, the printer factory and the `kubb:generate:*` events                                     | The template context                                | The template context                   |
+| Template `render` and the `kubb:generate:*` events                                                          | The template context                                | The template context                   |
+| The printer factory                                                                                         | The printer context                                 | The printer context                    |
 | [Printer handlers](/docs/5.x/reference/kit/ast#printer-handlers-and-context)                                | The printer context, with `transform` and `base`    | The template context                   |
 | [Macro callbacks](/docs/5.x/reference/kit/ast#macro-options-and-callbacks)                                  | The walk context, with the node's `parent`          | The visit context of the running hook  |
 
