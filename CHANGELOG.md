@@ -1,5 +1,52 @@
 # Changelog
 
+## v5.24.0 — Nov 23, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Update `@scalar/openapi-upgrader` to 0.5.1. ([#4751](https://github.com/kubb-labs/kubb/pull/4751), [`652ba89`](https://github.com/kubb-labs/kubb/commit/652ba89682a8d8e9ea943bbf3bc6748d82921d35))
+
+### @kubb/ast
+
+#### Features
+
+- Add `OperationsNode`, a node that holds a list of operations: `kind: 'Operations'` and `operations`. Build one with `ast.factory.createOperations({ operations })`, and match it with `ast.node.kinds.operations`. A walk over it visits each operation.
+  
+  A template with `kind: 'Operations'` now gets an `OperationsNode` instead of `Array<OperationNode>`. Read `node.operations` where the template read the array. Every template kind is now a node kind, so `kind: ast.node.kinds.operations` works too. A generator's `operations()` method still gets the array. ([#4748](https://github.com/kubb-labs/kubb/pull/4748), [`ab3dcc4`](https://github.com/kubb-labs/kubb/commit/ab3dcc4a7a7aa7d4f730b11d4233e08f3e4031c8))
+
+#### Bug Fixes
+
+- Add `serverIndex` to `InputMeta`. `adapterOas` sets it to the configured `server.index`, so a plugin can pick an operation's or a path's own server without reading the adapter's options. ([#4749](https://github.com/kubb-labs/kubb/pull/4749), [`41f2997`](https://github.com/kubb-labs/kubb/commit/41f29973cd9bc41cd1d7cb30a6f0421d6c677944))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- The READMEs describe templates instead of generators. The `@kubb/kit` example registers a `defineTemplate` with `addTemplate`. ([#4746](https://github.com/kubb-labs/kubb/pull/4746), [`005d15b`](https://github.com/kubb-labs/kubb/commit/005d15be1837b5f00dbc51c0fa21cfc2137a9427))
+- Build imports with `names` instead of the deprecated `name`. `ctx.from`, `from()` and `resolver.imports()` return `ImportNode`s with `names`, and `<Schema>` passes the printer's imports to `File.Import` as `names`. The deprecated fields are still set, so code that reads `name` keeps working, and the generated output does not change. ([#4744](https://github.com/kubb-labs/kubb/pull/4744), [`53f32e7`](https://github.com/kubb-labs/kubb/commit/53f32e798475fcdfe7f48cdec96fd689426de872))
+
+### @kubb/renderer-jsx
+
+#### Bug Fixes
+
+- `Type` accepts a name that starts with a lowercase letter, such as `pet_owner` from a resolver that keeps the spec's schema keys. It threw `Name should start with a capital letter` before. ([#4752](https://github.com/kubb-labs/kubb/pull/4752), [`58cafe5`](https://github.com/kubb-labs/kubb/commit/58cafe5833119f7d49d74119c79f8c346b03a785))
+
+### kubb
+
+#### Bug Fixes
+
+- Publish internal `@kubb/*` dependencies with exact versions, so every package from one release resolves to that release. A lockfile refresh no longer mixes `kubb@5.20.1` with a newer `@kubb/core` or `@kubb/ast` and fails with `KUBB_ADAPTER_FAILED`. Releases before this one keep their `^` ranges and can still mix versions, so upgrade, or keep a lockfile where every `@kubb/*` package comes from one release.
+  
+  `@kubb/kit`, `@kubb/parser-ts` and `@kubb/renderer-jsx` now list `@kubb/core` and `@kubb/ast` as peer dependencies with `^` and their own version, such as `^5.24.0`. A plugin that pulls in a newer one of these reuses the project's `@kubb/core` and `@kubb/ast` instead of installing a second copy. When the project's copy is older than that release, pnpm reports an unmet peer and npm fails with `ERESOLVE`, instead of the plugin crashing at runtime on an API the older core lacks. `kubb` installs `@kubb/ast` with the same exact version as `@kubb/core`. ([#4753](https://github.com/kubb-labs/kubb/pull/4753), [`6f7b031`](https://github.com/kubb-labs/kubb/commit/6f7b03173ae57b580f851771eba60cc73fff7e7c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.23.5 — Nov 23, 2026
 
 ### @kubb/core
