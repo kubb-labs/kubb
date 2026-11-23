@@ -101,7 +101,11 @@ export function addTemplate<TFactory extends PluginType = PluginType, TElement =
 ): void {
   const ctx = kitContext('addTemplate')
   addTemplates(ctx.plugin.name, ctx.memo, [
-    { ...(template as RegisteredTemplate), name: ctx.plugin.name, renderer: options.renderer as RendererFactory | null | undefined },
+    {
+      ...(template as RegisteredTemplate),
+      name: `${ctx.plugin.name} ${template.kind} template`,
+      renderer: options.renderer as RendererFactory | null | undefined,
+    },
   ])
 }
 

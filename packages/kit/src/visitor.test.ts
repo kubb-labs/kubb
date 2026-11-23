@@ -502,6 +502,26 @@ describe('generatorVisitor', () => {
   })
 
   describe('templates', () => {
+    it('names the plugin and kind when a template returns something no renderer can write', async () => {
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'plugin-label' },
+        setup(options) {
+          addTemplate(defineTemplate({ kind: 'Schema', render: () => jsx(File, { baseName: 'x.ts', path: 'gen/x.ts' }) }), { renderer: null })
+          return options
+        },
+      })()
+
+      const { diagnostics } = await build([plugin])
+
+      expect(diagnostics).toContainEqual(
+        expect.objectContaining({
+          severity: 'warning',
+          message: expect.stringContaining('"plugin-label Schema template" returned a value without a renderer'),
+        }),
+      )
+    })
+
     it('writes JSX and AST files from templates, after the generators registered before them', async () => {
       const log: Array<string> = []
       const plugin = defineExtension({
