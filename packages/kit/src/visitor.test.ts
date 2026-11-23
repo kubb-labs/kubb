@@ -522,6 +522,27 @@ describe('generatorVisitor', () => {
       )
     })
 
+    it('runs a template whose render is a class method', async () => {
+      class PetTemplate {
+        readonly kind = 'Schema' as const
+        render(node: SchemaNode) {
+          return node.name === 'Pet' ? ast.factory.createFile({ baseName: 'Pet.ts', path: 'gen/Pet.ts', sources: [] }) : null
+        }
+      }
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'plugin-class-template' },
+        setup(options) {
+          addTemplate(new PetTemplate())
+          return options
+        },
+      })()
+
+      const { files } = await build([plugin])
+
+      expect(files).toStrictEqual(['gen/Pet.ts'])
+    })
+
     it('writes JSX and AST files from templates, after the generators registered before them', async () => {
       const log: Array<string> = []
       const plugin = defineExtension({
