@@ -4,7 +4,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { Code, File } from '@kubb/renderer-jsx'
 import { jsx } from '@kubb/renderer-jsx/jsx-runtime'
-import { addGenerator, addMacro, getResolver, setMacros, setPrinter, setResolver, slot } from './composables.ts'
+import { addGenerator, addMacro, getResolver, setPrinter, setResolver, slot } from './composables.ts'
 import { defineExtension, definePlugin, type KitSetupContext } from './defineExtension.ts'
 import { file } from './file.ts'
 import { from } from './from.ts'
@@ -496,49 +496,6 @@ describe('generatorVisitor', () => {
 
     expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toStrictEqual([])
     expect(seen).toStrictEqual(['ApiStore:1:import'])
-  })
-
-  describe('user macros', () => {
-    const userMacro = { name: 'user', schema: (node: SchemaNode) => ({ ...node, description: `${node.description ?? ''}user` }) }
-    const ownMacro = { name: 'own', schema: (node: SchemaNode) => ({ ...node, description: `${node.description ?? ''}own+` }) }
-
-    function macroPlugin(setMacrosList?: Array<typeof userMacro>) {
-      return defineExtension({
-        kind: 'plugin',
-        meta: { name: 'plugin-macros' },
-        setup(options: { macros?: Array<typeof userMacro> }) {
-          addMacro(ownMacro)
-          if (setMacrosList) setMacros(setMacrosList)
-          addGenerator({
-            name: 'log',
-            schema(node: SchemaNode, ctx: GeneratorContext) {
-              ctx.info(`${node.name}:${node.description}`)
-              return null
-            },
-          })
-          return options
-        },
-      })({ macros: [userMacro] })
-    }
-
-    const described = (diagnostics: Array<{ message?: string }>) =>
-      diagnostics.flatMap((diagnostic) => (diagnostic.message?.startsWith('Pet:') ? [diagnostic.message] : []))
-
-    it("applies the user's macros option after the plugin's own macros", async () => {
-      const { diagnostics } = await build([macroPlugin()])
-
-      expect(described(diagnostics)).toStrictEqual(['Pet:own+user'])
-    })
-
-    it.each([
-      ['after its own macro', [ownMacro, userMacro]],
-      ['before its own macro', [userMacro, ownMacro]],
-      ['as a copy', [{ ...userMacro }, ownMacro]],
-    ])('applies a user macro once and last when the plugin passes it to setMacros %s', async (_name, list) => {
-      const { diagnostics } = await build([macroPlugin(list)])
-
-      expect(described(diagnostics)).toStrictEqual(['Pet:own+user'])
-    })
   })
 
   describe('renderer', () => {

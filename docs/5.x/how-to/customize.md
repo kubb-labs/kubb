@@ -173,7 +173,7 @@ export const macroUntagged = defineMacro({
 
 ### Register a macro
 
-Pass macros through a plugin's `macros` option, or register them in your own plugin's `setup` with the `addMacro` composable. Kit runs a plugin's own macros first and the user's `macros` option after them, so your plugin needs no code for the option. Macros run per plugin, so they never change the nodes another plugin sees.
+Pass macros through a plugin's `macros` option, or register them in your own plugin's `setup` with the `addMacro` or `setMacros` composable. Macros run per plugin, so they never change the nodes another plugin sees.
 
 ```typescript [plugin.ts]
 import { addMacro, defineExtension, defineMacro } from 'kubb/kit'
