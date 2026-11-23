@@ -99,8 +99,13 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:^",
     "yaml": "catalog:"
+  },
+  "devDependencies": {
+    "@kubb/ast": "workspace:*"
+  },
+  "peerDependencies": {
+    "@kubb/ast": "workspace:^"
   },
   "engines": {
     "node": ">=22.22"

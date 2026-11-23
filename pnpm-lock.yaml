@@ -280,8 +280,11 @@ importers:
 
   packages/adapter-oas:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../core
       '@kubb/kit':
         specifier: workspace:*
@@ -330,7 +333,7 @@ importers:
         specifier: ^0.37.3
         version: 0.37.3
       '@kubb/core':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../core
       '@kubb/mcp':
         specifier: workspace:*
@@ -376,7 +379,7 @@ importers:
   packages/core:
     dependencies:
       '@kubb/ast':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../ast
       tinyexec:
         specifier: 'catalog:'
@@ -394,25 +397,28 @@ importers:
 
   packages/kit:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:^
-        version: link:../ast
-      '@kubb/core':
-        specifier: workspace:^
-        version: link:../core
       '@kubb/renderer-jsx':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../renderer-jsx
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/kubb:
     dependencies:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/cli':
         specifier: workspace:*
         version: link:../cli
@@ -435,7 +441,7 @@ importers:
         specifier: workspace:*
         version: link:../plugin-barrel
       '@kubb/renderer-jsx':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../renderer-jsx
       '@kubb/studio':
         specifier: workspace:*
@@ -481,7 +487,7 @@ importers:
         specifier: workspace:*
         version: link:../adapter-oas
       '@kubb/core':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../core
       '@tmcp/adapter-valibot':
         specifier: ^0.1.7
@@ -512,10 +518,10 @@ importers:
   packages/parser-md:
     dependencies:
       '@kubb/ast':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../ast
       '@kubb/core':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../core
       yaml:
         specifier: 'catalog:'
@@ -523,12 +529,6 @@ importers:
 
   packages/parser-ts:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:^
-        version: link:../ast
-      '@kubb/core':
-        specifier: workspace:^
-        version: link:../core
       yuku:
         specifier: ^0.28.1
         version: 0.28.1
@@ -536,9 +536,21 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/plugin-barrel:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
       '@kubb/kit':
         specifier: workspace:*
         version: link:../kit
@@ -549,20 +561,21 @@ importers:
 
   packages/renderer-jsx:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:^
-        version: link:../ast
       yaml:
         specifier: 'catalog:'
         version: 2.9.1
+    devDependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
 
   packages/studio:
     dependencies:
       '@kubb/ast':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../ast
       '@kubb/core':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../core
       capnweb:
         specifier: ^0.12.0
@@ -601,8 +614,11 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../core
       '@kubb/parser-md':
         specifier: workspace:*
@@ -629,9 +645,6 @@ importers:
       '@internals/shared':
         specifier: workspace:*
         version: link:../../internals/shared
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@kubb/kit':
         specifier: workspace:*
         version: link:../kit
@@ -5300,8 +5313,8 @@ snapshots:
     optionalDependencies:
       ajv: 8.20.0
 
-  ajv-formats@3.0.1:
-    dependencies:
+  ajv-formats@3.0.1(ajv@8.20.0):
+    optionalDependencies:
       ajv: 8.20.0
 
   ajv-keywords@5.1.0(ajv@8.20.0):
@@ -6094,7 +6107,7 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
       ajv: 8.20.0
-      ajv-formats: 3.0.1
+      ajv-formats: 3.0.1(ajv@8.20.0)
       ajv-keywords: 5.1.0(ajv@8.20.0)
     optionalDependencies:
       webpack: 5.113.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.32)
