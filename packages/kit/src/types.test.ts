@@ -81,6 +81,14 @@ describe('Template', () => {
     expectTypeOf<Parameters<Extract<Template, { kind: 'Operations' }>['render']>[0]>().toEqualTypeOf<Array<OperationNode>>()
   })
 
+  it("keeps the kind, so a template can call another template's render", () => {
+    const check = (define: typeof defineTemplate) => {
+      const schema = define({ kind: 'Schema', render: () => null })
+      return define({ kind: 'Schema', render: (node, ctx) => schema.render(node, ctx) })
+    }
+    expectTypeOf<ReturnType<typeof check>['kind']>().toEqualTypeOf<'Schema'>()
+  })
+
   it('rejects a render that reads a field its kind does not have', () => {
     const check = (define: typeof defineTemplate) =>
       define({

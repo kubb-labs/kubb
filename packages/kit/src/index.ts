@@ -60,6 +60,7 @@ export type {
   TemplateContext,
   TemplateKind,
   TemplateNode,
+  TemplateOf,
   TemplateResult,
 } from './types.ts'
 export type { ResolveOptionsContext } from './resolver/resolveOptions.ts'

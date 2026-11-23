@@ -80,11 +80,14 @@ export type TemplateResult<TElement = unknown> = PossiblePromise<TElement | File
 
 /** Writes the files for one node kind. `kind` types the node `render` gets. */
 export type Template<TOptions extends PluginType = PluginType, TElement = unknown> = {
-  [K in TemplateKind]: {
-    kind: K
-    render(node: TemplateNode[K], ctx: TemplateContext<TOptions>): TemplateResult<TElement>
-  } & ThisType<TemplateContext<TOptions>>
+  [K in TemplateKind]: TemplateOf<K, TOptions, TElement>
 }[TemplateKind]
+
+/** A {@link Template} of one kind. */
+export type TemplateOf<TKind extends TemplateKind, TOptions extends PluginType = PluginType, TElement = unknown> = {
+  kind: TKind
+  render(node: TemplateNode[TKind], ctx: TemplateContext<TOptions>): TemplateResult<TElement>
+} & ThisType<TemplateContext<TOptions>>
 
 /**
  * Declares a named generator unit that walks the AST and emits files.
