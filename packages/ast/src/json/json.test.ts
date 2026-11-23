@@ -14,7 +14,7 @@ function createPetInput() {
     properties: [createProperty({ name: 'category', required: true, schema: ref() }), createProperty({ name: 'previous', required: false, schema: ref() })],
   })
 
-  return createInput({ schemas: [pet], operations: [], meta: { title: 'Pets' } })
+  return createInput({ schemas: [pet], operations: [], meta: { title: 'Pets', serverIndex: 1 } })
 }
 
 function refsOf(input: ReturnType<typeof parse>): Array<RefSchemaNode> {
@@ -52,6 +52,7 @@ describe('parse', () => {
 
     // `toEqual`, since JSON drops the keys a factory leaves `undefined`.
     expect(parse(stringify(input))).toEqual(input)
+    expect(parse(stringify(input)).meta.serverIndex).toBe(1)
   })
 
   it('keeps spec data that looks like a ref node', () => {

@@ -106,8 +106,8 @@ export type InputMeta = {
    */
   baseURL?: string | null
   /**
-   * The `servers` index the adapter picked the base URL with. A plugin uses it to pick an operation's or a path's own
-   * server at the same position. Absent when the adapter was given no index.
+   * Position in `servers` of the server the adapter took `baseURL` from. A plugin uses it to pick an operation's or a
+   * path's own server at the same position. Absent when the adapter was given no index, or that server has no URL.
    */
   serverIndex?: number
   servers?: Array<InputServer>

@@ -254,9 +254,27 @@ describe('adapterOas.parse', () => {
 
   it('keeps the configured server index in meta', async () => {
     const adapter = adapterOas({ validate: false, server: { index: 1 } })
-    const node = await adapter.parse({ type: 'data', data: minimalSpec })
+    const node = await adapter.parse({ type: 'data', data: { ...minimalSpec, servers: [{ url: '/v1' }, { url: '/v2' }] } })
 
     expect(node.meta.serverIndex).toBe(1)
+    expect(node.meta.baseURL).toBe('/v2')
+  })
+
+  it('points serverIndex at the base URL server when an entry before it has no url', async () => {
+    const adapter = adapterOas({ validate: false, server: { index: 1 } })
+    const servers = [{ description: 'no url' }, { url: 'https://prod.example.com' }, { url: 'https://staging.example.com' }]
+    const node = await adapter.parse({ type: 'data', data: { ...minimalSpec, servers } as typeof minimalSpec })
+
+    expect(node.meta.baseURL).toBe('https://prod.example.com')
+    expect(node.meta.servers?.[node.meta.serverIndex ?? -1]?.url).toBe('https://prod.example.com')
+  })
+
+  it('leaves serverIndex out when the configured server has no url', async () => {
+    const adapter = adapterOas({ validate: false, server: { index: 0 } })
+    const node = await adapter.parse({ type: 'data', data: { ...minimalSpec, servers: [{ description: 'no url' }, { url: '/v1' }] } as typeof minimalSpec })
+
+    expect(node.meta).not.toHaveProperty('serverIndex')
+    expect(node.meta.baseURL).toBeNull()
   })
 
   it('carries x-* vendor extensions on the operation and the document root', async () => {

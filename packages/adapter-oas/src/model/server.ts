@@ -65,6 +65,16 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
 /**
  * Maps OpenAPI servers to `InputServer` entries: drops entries without a `url` and fills `{variable}` defaults.
  */
+/**
+ * The position of `servers[index]` among the entries {@link toInputServers} keeps, which drops entries without a `url`.
+ * `undefined` when `index` is unset or points at an entry without a `url`.
+ */
+export function toInputServerIndex(servers: Array<ServerObject>, index: number | undefined): number | undefined {
+  if (index === undefined || !servers.at(index)?.url) return undefined
+  const position = index < 0 ? servers.length + index : index
+  return servers.slice(0, position).filter((entry) => entry.url).length
+}
+
 export function toInputServers(servers: Array<ServerObject>): Array<ast.InputServer> {
   return servers
     .filter((entry) => entry.url)
