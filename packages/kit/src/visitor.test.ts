@@ -485,6 +485,30 @@ describe('generatorVisitor', () => {
       expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'warning')).toStrictEqual([])
     })
 
+    it('writes a single FileNode without a renderer or a warning', async () => {
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'plugin-ast' },
+        setup(options) {
+          addGenerator({
+            name: 'ast',
+            schema: (node: SchemaNode) =>
+              ast.factory.createFile({
+                baseName: `${node.name}.ts`,
+                path: `gen/${node.name}.ts`,
+                sources: [ast.factory.createSource({ name: node.name, nodes: [ast.factory.createText(`export type ${node.name} = {}`)] })],
+              }),
+          })
+          return options
+        },
+      })()
+
+      const { files, diagnostics } = await build([plugin])
+
+      expect(files).toStrictEqual(['gen/Pet.ts', 'gen/Store.ts', 'gen/Unused.ts'])
+      expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'warning')).toStrictEqual([])
+    })
+
     it('writes nothing and warns for JSX from a generator with renderer: null', async () => {
       const { files, diagnostics } = await build([rendererPlugin(null)])
 

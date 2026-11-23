@@ -71,7 +71,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
  *
  * `schema` runs for each schema node and `operation` for each operation node. `operations` runs
  * once after every operation node is walked. JSX elements render with `jsxRenderer` unless `renderer` says otherwise.
- * Return `Array<FileNode>` directly, or call `ctx.upsertFile()` manually and return `null` to
+ * Return a `FileNode` or `Array<FileNode>` directly, or call `ctx.upsertFile()` manually and return `null` to
  * bypass rendering.
  *
  * `match`, `schema`, `operation` and `operations` run with the generator context as `this`, as `ctx`
@@ -100,11 +100,11 @@ export type Generator<TOptions extends PluginType = PluginType, TElement = unkno
   /** Checked before `schema` or `operation` runs for a node. Returning `false` skips that node. It does not gate `operations`. */
   match?: (node: SchemaNode | OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<boolean>
   /** Called for each schema node in the AST walk, with the per-node options in `ctx.options`. */
-  schema?: (node: SchemaNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | undefined | null>
+  schema?: (node: SchemaNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
   /** Called for each operation node in the AST walk, with the per-node options in `ctx.options`. */
-  operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | undefined | null>
+  operation?: (node: OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
   /** Called once after all operations have been walked, with the plugin-level options in `ctx.options`. */
-  operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | Array<FileNode> | undefined | null>
+  operations?: (nodes: Array<OperationNode>, ctx: GeneratorContext<TOptions>) => PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
   // ThisType instead of a `this` parameter, so a direct `generator.schema(node, ctx)` call still compiles.
 } & ThisType<GeneratorContext<TOptions>>
 

@@ -76,9 +76,9 @@ function withPrinter(state: VisitState, ctx: PrinterContext): GeneratorContext {
 // An unset `renderer` renders JSX elements with `jsxRenderer`. `null` keeps a generator on files only.
 async function dispatchResult(ctx: GeneratorContext, generator: Generator, result: unknown, pointer?: string): Promise<void> {
   const renderer = generator.renderer !== undefined ? generator.renderer : isKubbElement(result) ? jsxRenderer : null
-  if (result && !Array.isArray(result) && !renderer) {
+  if (result && !Array.isArray(result) && (result as { kind?: unknown }).kind !== ast.node.kinds.file && !renderer) {
     ctx.warn(`Generator "${generator.name}" returned a value without a renderer to write it, so it wrote nothing.`, {
-      help: 'Return `Array<FileNode>`, or return JSX and leave `renderer` unset.',
+      help: 'Return a `FileNode` or `Array<FileNode>`, or return JSX and leave `renderer` unset.',
     })
   }
   await ctx.dispatch({ result, renderer, pointer })
