@@ -131,7 +131,7 @@
     "rolldown": "^1.3.3",
     "rollup": "^4.68.7",
     "vite": "^8.3.8",
-    "webpack": "^5.112.2"
+    "webpack": "^5.113.0"
   },
   "peerDependencies": {
     "@farmfe/core": "^1.7.0 || ^2.0.0",
