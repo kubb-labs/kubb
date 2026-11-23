@@ -461,15 +461,15 @@ describe('generatorVisitor', () => {
 
   describe('user macros', () => {
     const userMacro = { name: 'user', schema: (node: SchemaNode) => ({ ...node, description: `${node.description ?? ''}user` }) }
+    const ownMacro = { name: 'own', schema: (node: SchemaNode) => ({ ...node, description: `${node.description ?? ''}own+` }) }
 
-    function macroPlugin(register?: 'setMacros') {
+    function macroPlugin(setMacrosList?: Array<typeof userMacro>) {
       return defineExtension({
         kind: 'plugin',
         meta: { name: 'plugin-macros' },
         setup(options: { macros?: Array<typeof userMacro> }) {
-          addMacro({ name: 'own', schema: (node: SchemaNode) => ({ ...node, description: 'own+' }) })
-          if (register === 'setMacros')
-            setMacros([{ name: 'own', schema: (node: SchemaNode) => ({ ...node, description: 'own+' }) }, ...(options.macros ?? [])])
+          addMacro(ownMacro)
+          if (setMacrosList) setMacros(setMacrosList)
           addGenerator({
             name: 'log',
             schema(node: SchemaNode, ctx: GeneratorContext) {
@@ -491,8 +491,12 @@ describe('generatorVisitor', () => {
       expect(described(diagnostics)).toStrictEqual(['Pet:own+user'])
     })
 
-    it('applies a user macro once when the plugin also passes it to setMacros', async () => {
-      const { diagnostics } = await build([macroPlugin('setMacros')])
+    it.each([
+      ['after its own macro', [ownMacro, userMacro]],
+      ['before its own macro', [userMacro, ownMacro]],
+      ['as a copy', [{ ...userMacro }, ownMacro]],
+    ])('applies a user macro once and last when the plugin passes it to setMacros %s', async (_name, list) => {
+      const { diagnostics } = await build([macroPlugin(list)])
 
       expect(described(diagnostics)).toStrictEqual(['Pet:own+user'])
     })

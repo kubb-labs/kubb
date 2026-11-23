@@ -38,9 +38,10 @@ function getState(ctx: PluginVisitContext): VisitState | undefined {
   return ctx.memo.get(stateKey(ctx.plugin.name)) as VisitState | undefined
 }
 
-// The user's macros run after the plugin's own. A plugin that still passes them to `setMacros` gets each one once.
+// The user's macros run after the plugin's own. A plugin macro with a user macro's name, such as one a plugin still passes to `setMacros`, is dropped, so it runs once, in the user's place.
 function withUserMacros(macros: Array<Macro> = [], userMacros: Array<Macro> = []): Array<Macro> {
-  return [...macros, ...userMacros.filter((macro) => !macros.includes(macro))]
+  const names = new Set(userMacros.map((macro) => macro.name))
+  return [...macros.filter((macro) => !names.has(macro.name)), ...userMacros]
 }
 
 // Applies the plugin's macros, then its include, exclude and override rules. Returns null for a node the rules leave out.
