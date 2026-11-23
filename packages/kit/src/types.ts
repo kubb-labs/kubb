@@ -66,6 +66,29 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
   from<TSource extends PluginName | ProvideName = never>(source?: TSource): From<SourceResolver<TSource, Extract<TOptions['resolver'], Resolver>>>
 }
 
+/** The node kind a template writes files for: each schema, each operation, or all operations once. */
+export type TemplateKind = 'Schema' | 'Operation' | 'Operations'
+
+/** The node a template's `render` gets for each {@link TemplateKind}. */
+export type TemplateNode = { Schema: SchemaNode; Operation: OperationNode; Operations: Array<OperationNode> }
+
+/** The context `render` gets as its second argument, as `this` and as `useKubb()`. */
+export type TemplateContext<TOptions extends PluginType = PluginType> = GeneratorContext<TOptions>
+
+/** Renderer elements such as JSX, a `FileNode`, `Array<FileNode>`, or `null` to skip the node. */
+export type TemplateResult<TElement = unknown> = PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>
+
+/** Writes the files for one node kind. `kind` types the node `render` gets. */
+export type Template<TOptions extends PluginType = PluginType, TElement = unknown> = {
+  [K in TemplateKind]: TemplateOf<K, TOptions, TElement>
+}[TemplateKind]
+
+/** A {@link Template} of one kind. */
+export type TemplateOf<TKind extends TemplateKind, TOptions extends PluginType = PluginType, TElement = unknown> = {
+  kind: TKind
+  render(node: TemplateNode[TKind], ctx: TemplateContext<TOptions>): TemplateResult<TElement>
+} & ThisType<TemplateContext<TOptions>>
+
 /**
  * Declares a named generator unit that walks the AST and emits files.
  *
@@ -91,6 +114,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
  *   },
  * })
  * ```
+ * @deprecated Use {@link Template} with `defineTemplate` and `addTemplate`.
  */
 export type Generator<TOptions extends PluginType = PluginType, TElement = unknown> = {
   /** Used in diagnostic messages and debug output. */
