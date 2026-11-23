@@ -23,6 +23,7 @@ export type VisitorDepth = 'shallow' | 'deep'
  */
 const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   Input: ['schemas', 'operations'],
+  Operations: ['operations'],
   Operation: ['parameters', 'requestBody', 'responses'],
   RequestBody: ['content'],
   Content: ['schema', 'stream'],

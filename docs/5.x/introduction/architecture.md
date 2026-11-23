@@ -67,7 +67,7 @@ A template turns AST nodes of one kind into files.
 | --- | --- |
 | `Schema` | Once per schema node |
 | `Operation` | Once per operation node |
-| `Operations` | Once per plugin, with every operation node its filters keep |
+| `Operations` | Once per plugin, with an `OperationsNode` that holds every operation its filters keep |
 
 `render` returns JSX for a [renderer](#renderers), or `FileNode`s. See [Templates](/docs/5.x/reference/kit/templates).
 

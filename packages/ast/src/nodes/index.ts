@@ -2,7 +2,7 @@ import type { ArrowFunctionNode, BreakNode, ConstNode, FunctionNode, JsxNode, Te
 import type { ContentNode } from './content.ts'
 import type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 import type { InputNode } from './input.ts'
-import type { OperationNode } from './operation.ts'
+import type { OperationNode, OperationsNode } from './operation.ts'
 import type { ParameterNode } from './parameter.ts'
 import type { PropertyNode } from './property.ts'
 import type { RequestBodyNode } from './requestBody.ts'
@@ -14,7 +14,7 @@ export { createContent } from './content.ts'
 export { createExport, createFile, createImport, createSource } from './file.ts'
 export type { ExportInput, ImportInput, ModuleName, Space, UserFileNode } from './file.ts'
 export { createInput } from './input.ts'
-export { createOperation } from './operation.ts'
+export { createOperation, createOperations } from './operation.ts'
 export { createParameter } from './parameter.ts'
 export { createProperty } from './property.ts'
 export { createRequestBody } from './requestBody.ts'
@@ -41,6 +41,7 @@ export { createSchema } from './schema.ts'
 export type Node =
   | InputNode
   | OperationNode
+  | OperationsNode
   | SchemaNode
   | PropertyNode
   | ParameterNode

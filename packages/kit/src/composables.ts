@@ -1,4 +1,4 @@
-import type { Macro, OperationNode, SchemaNode } from '@kubb/ast'
+import type { Macro, OperationNode, OperationsNode, SchemaNode } from '@kubb/ast'
 import { Diagnostics, type KubbContext, type KubbPluginSetupContext, type Memo, type PluginName, type RendererFactory, useKubb } from '@kubb/core'
 import { Resolver } from './resolver/Resolver.ts'
 import type { ResolverInput } from './resolver/types.ts'
@@ -119,7 +119,7 @@ function fromGenerator(generator: Generator): Array<RegisteredTemplate> {
   const templates: Array<RegisteredTemplate> = []
   if (schema) templates.push({ name, renderer, kind: 'Schema', render: matched(schema) as RegisteredTemplate['render'] })
   if (operation) templates.push({ name, renderer, kind: 'Operation', render: matched(operation) as RegisteredTemplate['render'] })
-  if (operations) templates.push({ name, renderer, kind: 'Operations', render: (nodes, ctx) => operations.call(ctx, nodes as Array<OperationNode>, ctx) })
+  if (operations) templates.push({ name, renderer, kind: 'Operations', render: (node, ctx) => operations.call(ctx, (node as OperationsNode).operations, ctx) })
   return templates
 }
 
