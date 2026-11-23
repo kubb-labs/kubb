@@ -400,6 +400,9 @@ importers:
       '@kubb/core':
         specifier: workspace:^
         version: link:../core
+      '@kubb/renderer-jsx':
+        specifier: workspace:^
+        version: link:../renderer-jsx
     devDependencies:
       '@internals/utils':
         specifier: workspace:*

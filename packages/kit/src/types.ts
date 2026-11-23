@@ -70,7 +70,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
  * Declares a named generator unit that walks the AST and emits files.
  *
  * `schema` runs for each schema node and `operation` for each operation node. `operations` runs
- * once after every operation node is walked. JSX-based generators require a `renderer` factory.
+ * once after every operation node is walked. JSX elements render with `jsxRenderer` unless `renderer` says otherwise.
  * Return `Array<FileNode>` directly, or call `ctx.upsertFile()` manually and return `null` to
  * bypass rendering.
  *
@@ -82,11 +82,9 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
  * @example
  * ```ts
  * import { defineGenerator } from '@kubb/kit'
- * import { jsxRenderer } from '@kubb/renderer-jsx'
  *
  * export const typeGenerator = defineGenerator({
  *   name: 'typescript',
- *   renderer: jsxRenderer,
  *   schema(node, ctx) {
  *     const { adapter, resolver, root, options } = ctx
  *     return <File ...><Type node={node} resolver={resolver} /></File>
@@ -97,7 +95,7 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = Printer
 export type Generator<TOptions extends PluginType = PluginType, TElement = unknown> = {
   /** Used in diagnostic messages and debug output. */
   name: string
-  /** Renderer factory for generators that return elements, such as `jsxRenderer` from `@kubb/renderer-jsx`. Leave it unset or `null` for generators that return files. */
+  /** Renderer factory for the elements the generator returns. Leave it unset to render JSX with `jsxRenderer`, or set `null` for a generator that only returns files. */
   renderer?: RendererFactory<TElement> | null
   /** Checked before `schema` or `operation` runs for a node. Returning `false` skips that node. It does not gate `operations`. */
   match?: (node: SchemaNode | OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<boolean>

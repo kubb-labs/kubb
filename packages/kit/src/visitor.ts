@@ -1,6 +1,8 @@
 import { memo, toError } from '@internals/utils'
 import { ast, type Macro, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type NormalizedPlugin, type PluginVisitContext, type PluginVisitHooks, withContext } from '@kubb/core'
+import { jsxRenderer } from '@kubb/renderer-jsx'
+import { isKubbElement } from '@kubb/renderer-jsx/jsx-runtime'
 import { getResolver, slot } from './composables.ts'
 import { resolveFile } from './file.ts'
 import { resolveFrom } from './from.ts'
@@ -71,6 +73,17 @@ function withPrinter(state: VisitState, ctx: PrinterContext): GeneratorContext {
   return generatorContext
 }
 
+// An unset `renderer` renders JSX elements with `jsxRenderer`. `null` keeps a generator on files only.
+async function dispatchResult(ctx: GeneratorContext, generator: Generator, result: unknown, pointer?: string): Promise<void> {
+  const renderer = generator.renderer !== undefined ? generator.renderer : isKubbElement(result) ? jsxRenderer : null
+  if (result && !Array.isArray(result) && !renderer) {
+    ctx.warn(`Generator "${generator.name}" returned a value without a renderer to write it, so it wrote nothing.`, {
+      help: 'Return `Array<FileNode>`, or return JSX and leave `renderer` unset.',
+    })
+  }
+  await ctx.dispatch({ result, renderer, pointer })
+}
+
 async function dispatch(
   generators: Array<Generator>,
   node: SchemaNode | OperationNode,
@@ -80,7 +93,7 @@ async function dispatch(
   for (const generator of generators) {
     const matches = generator.match ? await run(ctx, generator.match, node, ctx) : true
     if (!matches) continue
-    await ctx.dispatch({ result: await generate(generator), renderer: generator.renderer, pointer: node.pointer })
+    await dispatchResult(ctx, generator, await generate(generator), node.pointer)
   }
 }
 
@@ -171,7 +184,7 @@ export function generatorVisitor(): Required<PluginVisitHooks> {
 
       const generatorContext = withPrinter(state, { ...state.context, options: pluginOptions(ctx) })
       for (const generator of state.operationsGenerators) {
-        await ctx.dispatch({ result: await run(generatorContext, generator.operations!, state.operations, generatorContext), renderer: generator.renderer })
+        await dispatchResult(generatorContext, generator, await run(generatorContext, generator.operations!, state.operations, generatorContext))
       }
       await withContext(generatorContext, () => ctx.hooks.callHook('kubb:generate:operations', state.operations, generatorContext))
     },

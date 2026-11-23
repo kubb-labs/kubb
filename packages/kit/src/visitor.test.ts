@@ -2,6 +2,8 @@ import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin, useKubb } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
+import { Code, File } from '@kubb/renderer-jsx'
+import { jsx } from '@kubb/renderer-jsx/jsx-runtime'
 import { addGenerator, addMacro, getResolver, setPrinter, setResolver, slot } from './composables.ts'
 import { defineExtension, definePlugin, type KitSetupContext } from './defineExtension.ts'
 import { file } from './file.ts'
@@ -455,5 +457,41 @@ describe('generatorVisitor', () => {
     await build([plugin])
 
     expect(printers).toStrictEqual([undefined, undefined, undefined])
+  })
+
+  describe('renderer', () => {
+    const schemaFile = (node: SchemaNode) =>
+      jsx(File, {
+        baseName: `${node.name}.ts`,
+        path: `gen/${node.name}.ts`,
+        children: jsx(Code, { name: node.name ?? '', children: `export type ${node.name} = {}` }),
+      })
+
+    function rendererPlugin(renderer?: null) {
+      return defineExtension({
+        kind: 'plugin',
+        meta: { name: 'plugin-renderer' },
+        setup(options) {
+          addGenerator({ name: 'jsx', ...(renderer === null ? { renderer } : {}), schema: schemaFile })
+          return options
+        },
+      })()
+    }
+
+    it('renders JSX with jsxRenderer when the generator sets no renderer', async () => {
+      const { files, diagnostics } = await build([rendererPlugin()])
+
+      expect(files).toStrictEqual(['gen/Pet.ts', 'gen/Store.ts', 'gen/Unused.ts'])
+      expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'warning')).toStrictEqual([])
+    })
+
+    it('writes nothing and warns for JSX from a generator with renderer: null', async () => {
+      const { files, diagnostics } = await build([rendererPlugin(null)])
+
+      expect(files).toStrictEqual([])
+      expect(diagnostics).toContainEqual(
+        expect.objectContaining({ severity: 'warning', message: expect.stringContaining('Generator "jsx" returned a value without a renderer') }),
+      )
+    })
   })
 })
