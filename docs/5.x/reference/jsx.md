@@ -13,15 +13,15 @@ navigation:
 
 # JSX renderer
 
-`kubb/jsx` lets you write a generator's files as JSX instead of [`ast.factory`](/docs/5.x/reference/kit/ast#factory-functions) node builders.
+`kubb/jsx` lets you write a template's files as JSX instead of [`ast.factory`](/docs/5.x/reference/kit/ast#factory-functions) node builders.
 
 ## Renderers {#renderers}
 
-A renderer turns what a generator returns into `FileNode`s. Kit renders JSX with `jsxRenderer` when the generator sets no `renderer`, so a JSX generator needs no `renderer` line. A generator that returns `FileNode`s from `ast.factory` needs no renderer either. Set `renderer` only for another renderer, or set it to `null` to skip rendering.
+A renderer turns what a template returns into `FileNode`s. Kit renders JSX with `jsxRenderer` unless you pass another renderer, so `addTemplate(template)` is enough for a JSX template. A template that returns `FileNode`s from `ast.factory` needs no renderer either. Pass `addTemplate(template, { renderer })` only for another renderer, or `renderer: null` to skip rendering.
 
 ```mermaid
 flowchart LR
-  gen[Generator returns JSX] --> renderer[jsxRenderer]:::core
+  gen[Template returns JSX] --> renderer[jsxRenderer]:::core
   renderer --> nodes[FileNode list]
   nodes --> parser[Parser, such as parserTs]
   parser --> out[Generated file]
@@ -139,7 +139,7 @@ Text in the enclosing `File` that declares nothing, such as a statement like `fa
 
 | Prop | Type | Description |
 | --- | --- | --- |
-| `name?` | `string` | Keys deduplication, so a block several generators add to one file is written once |
+| `name?` | `string` | Keys deduplication, so a block several templates add to one file is written once |
 | `children?` | `KubbReactNode` | The text, written as is |
 
 ```tsx
@@ -153,7 +153,7 @@ Text in the enclosing `File` that declares nothing, such as a statement like `fa
 
 Records where the sources inside it come from in the input, so tools can link generated code back to it. openapi-import uses this for go to definition. It works for every source block in a `File`, in any language.
 
-You only need it when one generator writes code for several parts of the input. Without it, a source gets the location of the node being generated. An inner `Origin` wins over an outer one.
+You only need it when one template writes code for several parts of the input. Without it, a source gets the location of the node being generated. An inner `Origin` wins over an outer one.
 
 | Prop | Type | Description |
 | --- | --- | --- |

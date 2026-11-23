@@ -34,7 +34,7 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 | `ast.factory` (via `@kubb/ast`) | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue                          |
 | `kubb/kit`                      | Re-exports the `ast` and `factory` namespaces, the way most Kubb code reaches the AST without a direct dependency |
 
-`@kubb/ast` is an internal library. Inside the Kubb ecosystem the whole surface travels on the `ast` namespace from `kubb/kit`, so plugins and generators reach it there instead of depending on this package directly. The examples below import from `@kubb/ast` for clarity; through `kubb/kit` the same calls read as `ast.node.transform`, `ast.factory.createSchema`, and so on.
+`@kubb/ast` is an internal library. Inside the Kubb ecosystem the whole surface travels on the `ast` namespace from `kubb/kit`, so plugins and templates reach it there instead of depending on this package directly. The examples below import from `@kubb/ast` for clarity; through `kubb/kit` the same calls read as `ast.node.transform`, `ast.factory.createSchema`, and so on.
 
 ## Node tree
 

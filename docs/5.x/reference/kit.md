@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Kit API - Build Kubb plugins, adapters, and parsers
-description: "The kubb/kit reference for extension authors: extensions, generators, resolvers, AST, renderer, storage, engine, hooks, and the casing helpers."
+description: "The kubb/kit reference for extension authors: extensions, templates, resolvers, AST, renderer, storage, engine, hooks, and the casing helpers."
 outline:
   - 2
   - 3
@@ -17,16 +17,16 @@ navigation:
 
 ## Parts of the kit
 
-An adapter reads the spec into the AST. Generators turn the AST into files, and a resolver names them. Parsers print the files, and storage writes them.
+An adapter reads the spec into the AST. Templates turn the AST into files, and a resolver names them. Parsers print the files, and storage writes them.
 
 ```mermaid
 flowchart LR
   spec[Spec] --> adapter[Adapter]
   adapter --> ast[AST]:::core
-  ast --> generators[Generators]
-  resolver[Resolver] -.->|names and paths| generators
-  generators --> renderer[Renderer]
-  generators --> files[FileNode]
+  ast --> templates[Templates]
+  resolver[Resolver] -.->|names and paths| templates
+  templates --> renderer[Renderer]
+  templates --> files[FileNode]
   renderer --> files
   files --> parser[Parser]
   parser --> storage[Storage]
@@ -34,10 +34,10 @@ flowchart LR
 
 | Part                 | Entry points                                                | Page                                                               |
 | -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------ |
-| Plugins              | `defineExtension({ kind: 'plugin' })`, `addGenerator`, `setResolver` | [Plugins](/docs/5.x/reference/kit/plugins)                |
+| Plugins              | `defineExtension({ kind: 'plugin' })`, `addTemplate`, `setResolver` | [Plugins](/docs/5.x/reference/kit/plugins)                 |
 | Adapters             | `defineExtension({ kind: 'adapter' })`                      | [Adapters](/docs/5.x/reference/kit/adapters)                       |
 | Parsers              | `defineExtension({ kind: 'parser' })`                       | [Parsers](/docs/5.x/reference/kit/parsers)                         |
-| Generators           | `defineGenerator`                                           | [Generators](/docs/5.x/reference/kit/generators)                   |
+| Templates            | `defineTemplate`                                            | [Templates](/docs/5.x/reference/kit/templates)                     |
 | Resolvers            | `createResolver`, `Resolver`                                | [Resolvers](/docs/5.x/reference/kit/resolvers)                     |
 | AST                  | `ast`, `createPrinter`, `defineMacro`                       | [AST and node builders](/docs/5.x/reference/kit/ast)               |
 | JSX renderer         | `jsxRenderer`, `createRenderer`                             | [JSX renderer](/docs/5.x/reference/jsx)                            |

@@ -23,7 +23,7 @@ Macros run before the resolver, so when a macro changes a name, the generated na
 
 ```mermaid
 flowchart LR
-  A[AST] --> M[Macros] --> G[Generator]
+  A[AST] --> M[Macros] --> G[Template]
   G --> R[Resolver: names and paths]
   G --> P[Printer: code per schema type]
   R --> F[Files]
@@ -129,7 +129,7 @@ pluginTs({
 
 ## Macros {#macros}
 
-A macro rewrites schema or operation nodes before any generator runs. Define one with `defineMacro` from `kubb/kit`:
+A macro rewrites schema or operation nodes before any template runs. Define one with `defineMacro` from `kubb/kit`:
 
 | Field | What it does |
 | --- | --- |

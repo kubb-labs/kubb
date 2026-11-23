@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Create a Kubb plugin - Write and test a generator
+title: Create a Kubb plugin - Write and test a template
 description: Build a Kubb plugin that writes the method and path of one API operation to a file, then test its output in memory with createKubb and Vitest.
 outline:
   - 2
@@ -50,16 +50,16 @@ paths:
 
 ## Create the plugin {#_3-create-the-plugin}
 
-In `setup`, register a resolver and a generator with the [setup context](/docs/5.x/reference/kit/plugins#setup-context) composables `setResolver` and `addGenerator`, then return the options:
+In `setup`, register a resolver and a template with the [setup context](/docs/5.x/reference/kit/plugins#setup-context) composables `setResolver` and `addTemplate`, then return the options:
 
 ```typescript [src/plugin.ts]
-import { addGenerator, ast, createResolver, defineExtension, defineGenerator, setResolver } from 'kubb/kit'
+import { addTemplate, ast, createResolver, defineExtension, defineTemplate, setResolver } from 'kubb/kit'
 
 const resolver = createResolver({ pluginName: 'plugin-example' })
 
-const operationsGenerator = defineGenerator({
-  name: 'operation-comments',
-  operation(node, ctx) {
+const operationComment = defineTemplate({
+  kind: 'Operation',
+  render(node, ctx) {
     const name = ctx.resolver.name(node.operationId)
     return [
       ast.factory.createFile({
@@ -80,13 +80,13 @@ export const pluginExample = defineExtension({
   meta: { name: 'plugin-example', version: '1.0.0' },
   setup(options) {
     setResolver(resolver)
-    addGenerator(operationsGenerator)
+    addTemplate(operationComment)
     return options
   },
 })
 ```
 
-Kubb calls `operation` once per operation. Each call returns one file with a comment naming the HTTP method and path. The resolver turns the `operationId` into the file name.
+Kubb calls `render` once per operation. Each call returns one file with a comment naming the HTTP method and path. The resolver turns the `operationId` into the file name.
 
 ## Generate {#_4-generate}
 
@@ -169,11 +169,11 @@ Vitest reports one passing test. The file never touches the disk.
 ::card-group
 
 :::card{title="How plugins work" icon="i-iconoir-ev-plug" to="/docs/5.x/introduction/architecture#plugins"}
-Generators, resolvers, macros, the lifecycle, and dependencies.
+Templates, resolvers, macros, the lifecycle, and dependencies.
 :::
 
-:::card{title="Generator reference" icon="i-iconoir-code" to="/docs/5.x/reference/kit/generators"}
-Handler signatures, `match`, and the `ctx` properties.
+:::card{title="Template reference" icon="i-iconoir-code" to="/docs/5.x/reference/kit/templates"}
+Template kinds, `render`, and the `ctx` properties.
 :::
 
 :::card{title="Publish a plugin" icon="i-iconoir-upload" to="/docs/5.x/how-to/publish-a-plugin"}
