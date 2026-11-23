@@ -19,9 +19,6 @@ type TypeProps = Omit<ast.TypeNode, 'kind' | 'nodes'> & {
 /**
  * Generates a TypeScript type alias declaration.
  *
- * Throws if `name` does not start with an uppercase letter. TypeScript type aliases
- * should follow PascalCase naming conventions.
- *
  * @example Simple exported type alias
  * ```tsx
  * <Type export name="PetId">
@@ -38,9 +35,5 @@ type TypeProps = Omit<ast.TypeNode, 'kind' | 'nodes'> & {
  * ```
  */
 export function Type({ children, ...props }: TypeProps): KubbReactElement {
-  if (props.name.charAt(0).toUpperCase() !== props.name.charAt(0)) {
-    throw new Error('Name should start with a capital letter(see TypeScript types)')
-  }
-
   return <kubb-type {...props}>{children}</kubb-type>
 }
