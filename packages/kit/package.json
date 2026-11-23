@@ -76,8 +76,8 @@
     "@kubb/core": "workspace:*"
   },
   "peerDependencies": {
-    "@kubb/ast": "workspace:^5.0.0",
-    "@kubb/core": "workspace:^5.0.0"
+    "@kubb/ast": "workspace:^",
+    "@kubb/core": "workspace:^"
   },
   "engines": {
     "node": ">=22.22"
