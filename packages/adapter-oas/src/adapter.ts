@@ -183,6 +183,7 @@ export const adapterOas = defineExtension<AdapterOas>({
               : undefined,
           externalDocs: getExternalDocs(document.externalDocs),
           baseURL: resolveBaseUrl({ document, server }),
+          ...(server?.index !== undefined && { serverIndex: server.index }),
           servers: toInputServers(document.servers ?? []),
           ...(document.tags?.length && { tags: toInputTags(document.tags) }),
           ...(authSchemes.length && { auth: authSchemes }),

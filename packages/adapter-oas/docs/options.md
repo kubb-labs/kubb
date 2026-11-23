@@ -58,7 +58,7 @@ Picks the `servers` entry that becomes the document `baseURL`, and fills in its 
 | Required | `false`                                                  |
 | Default  | None, so `baseURL` is `null`                             |
 
-- `index`: position in the `servers` array, usually `0`.
+- `index`: position in the `servers` array, usually `0`. Plugins read it as `meta.serverIndex` to pick the same position in an operation's or a path's own `servers`. `meta.servers` and those lists leave out entries without a `url`, so the position shifts when such an entry comes before the selected one.
 - `variables`: placeholder values. A variable you leave out uses its spec `default`.
 
 ```typescript

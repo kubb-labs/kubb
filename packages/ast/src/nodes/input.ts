@@ -105,6 +105,12 @@ export type InputMeta = {
    * Resolved base URL from the first matching server entry in the source document.
    */
   baseURL?: string | null
+  /**
+   * The server index the adapter was configured with. A plugin uses it to pick the server at the same position in an
+   * operation's or a path's own `servers`. It counts the source document's entries, including any without a URL.
+   * Absent when the adapter was given no index.
+   */
+  serverIndex?: number
   servers?: Array<InputServer>
   tags?: Array<InputTag>
   auth?: Array<AuthScheme>
