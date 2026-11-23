@@ -1,4 +1,4 @@
-import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
+import { ast, createPrinter, type OperationNode, type PrinterFactoryOptions, type SchemaNode } from '@kubb/ast'
 import { type Config, defineExtension as coreDefineExtension, Hookable, KubbDriver, type KubbHooks, memoryStorage, type Plugin, useKubb } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
@@ -457,6 +457,45 @@ describe('generatorVisitor', () => {
     await build([plugin])
 
     expect(printers).toStrictEqual([undefined, undefined, undefined])
+  })
+
+  it('gives printer handlers from() and passes transform options to the whole subtree', async () => {
+    const seen: Array<string> = []
+    const printer = createPrinter<PrinterFactoryOptions<'subtree', { depth: number }, string>>((options) => ({
+      name: 'subtree',
+      options,
+      nodes: {
+        object(node, ctx) {
+          return node.properties.map((property) => ctx!.transform(property.schema, { depth: this.options.depth + 1 })).join(',')
+        },
+        ref(node) {
+          const ref = from().resolver.name(node.name ?? '')
+          seen.push(`${ref.name}:${this.options.depth}:${ref.import ? 'import' : 'none'}`)
+          return ref.name
+        },
+      },
+    }))
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-subtree' },
+      setup(options) {
+        setResolver({ name: (name: string) => `Api${name}` })
+        setPrinter(() => printer({ depth: 0 }))
+        addGenerator({
+          name: 'print',
+          schema(node: SchemaNode, ctx: GeneratorContext) {
+            if (node.name === 'Pet') (ctx.printer as ReturnType<typeof printer>).print(node)
+            return null
+          },
+        })
+        return options
+      },
+    })()
+
+    const { diagnostics } = await build([plugin])
+
+    expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'error')).toStrictEqual([])
+    expect(seen).toStrictEqual(['ApiStore:1:import'])
   })
 
   describe('user macros', () => {
