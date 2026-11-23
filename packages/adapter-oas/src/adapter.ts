@@ -9,7 +9,7 @@ import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
 import { assertDocument, parseFromConfig, validateDocument, validateDocumentInWorker } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
 import { toAuthSchemes } from './model/security.ts'
-import { resolveBaseUrl, toInputServerIndex, toInputServers } from './model/server.ts'
+import { resolveBaseUrl, toInputServers } from './model/server.ts'
 import { toInputTags } from './model/tag.ts'
 import { getExternalDocs, pickExtensions, pickStrings } from './oas.ts'
 import { camelCasePathParams, getOperations, parseOperation } from './operation.ts'
@@ -167,7 +167,6 @@ export const adapterOas = defineExtension<AdapterOas>({
 
       const authSchemes = toAuthSchemes(document.components?.securitySchemes, refs)
 
-      const serverIndex = toInputServerIndex(document.servers ?? [], server?.index)
       return ast.factory.createInput({
         schemas: schemaNodes,
         operations,
@@ -184,7 +183,7 @@ export const adapterOas = defineExtension<AdapterOas>({
               : undefined,
           externalDocs: getExternalDocs(document.externalDocs),
           baseURL: resolveBaseUrl({ document, server }),
-          ...(serverIndex !== undefined && { serverIndex }),
+          ...(server?.index !== undefined && { serverIndex: server.index }),
           servers: toInputServers(document.servers ?? []),
           ...(document.tags?.length && { tags: toInputTags(document.tags) }),
           ...(authSchemes.length && { auth: authSchemes }),
