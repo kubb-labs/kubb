@@ -1,4 +1,3 @@
-import type { Macro } from '@kubb/ast'
 import {
   defineExtension as coreDefineExtension,
   type KubbPluginSetupContext,
@@ -84,8 +83,6 @@ export const defineExtension = ((definition: { kind: string } & Partial<KitPlugi
       ctx.setMacros ??= setMacros
       ctx.setPrinter ??= setPrinter
       ctx.provide ??= provide
-      const { macros } = options as { macros?: Array<Macro> }
-      if (macros?.length) kubb.memo.set(slot.userMacros(kubb.plugin.name), macros)
       return definition.setup ? definition.setup.call(ctx, options, ctx) : options
     },
   })

@@ -23,7 +23,6 @@ export const slot = {
   templates: (name: string) => `${name}:templates`,
   resolver: (name: string) => `${name}:resolver`,
   macros: (name: string) => `${name}:macros`,
-  userMacros: (name: string) => `${name}:macros:user`,
   printer: (name: string) => `${name}:printer`,
   provided: (name: string) => `kit:provide:${name}`,
 } as const
@@ -150,8 +149,7 @@ export function setResolver<TResolver extends Resolver = Resolver>(resolver: Res
 
 /**
  * Adds macros to the plugin being set up. Macros with the same `enforce` run in the order they
- * are added. `enforce: 'pre'` macros run first and `enforce: 'post'` macros run last. The user's
- * `macros` option runs after them, without a call.
+ * are added. `enforce: 'pre'` macros run first and `enforce: 'post'` macros run last.
  */
 export function addMacro(...macros: Array<Macro>): void {
   const ctx = kitContext('addMacro')
@@ -162,7 +160,7 @@ export function addMacro(...macros: Array<Macro>): void {
 /**
  * Replaces the macros of the plugin being set up.
  *
- * @deprecated Kit applies the user's `macros` option itself. Register the plugin's own macros with `addMacro`.
+ * @deprecated Use `addMacro(...macros)`, and pass the user's `macros` option to it yourself. `addMacro` adds to the macros registered so far, where `setMacros` replaces them.
  */
 export function setMacros(macros: ReadonlyArray<Macro>): void {
   const ctx = kitContext('setMacros')
