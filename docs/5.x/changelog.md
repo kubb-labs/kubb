@@ -9,6 +9,86 @@ outline: 2
 
 # Changelog
 
+## v5.23.5 — Nov 23, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- A generator can return a single `FileNode`, so an AST generator no longer has to wrap one file in a list. ([#4737](https://github.com/kubb-labs/kubb/pull/4737))
+
+  ```diff
+   schema(node, ctx) {
+  -  return [ast.factory.createFile({ ...ctx.file(node), sources })]
+  +  return ast.factory.createFile({ ...ctx.file(node), sources })
+   },
+  ```
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Add `defineTemplate` and `addTemplate`, so a plugin writes its files with one value per node kind: `'Schema'`, `'Operation'` or `'Operations'`. `defineGenerator`, `addGenerator` and the `Generator` type are deprecated, and existing generators keep working. ([#4741](https://github.com/kubb-labs/kubb/pull/4741))
+
+  ```diff
+  - addGenerator(defineGenerator({ name: 'zod', schema(node, ctx) { … } }))
+  + addTemplate(defineTemplate({ kind: 'Schema', render(node, ctx) { … } }))
+  ```
+
+- `addMacro(...macros)` takes several macros in one call. `setMacros` is deprecated. ([#4742](https://github.com/kubb-labs/kubb/pull/4742))
+- Render JSX with `jsxRenderer` when a generator sets no `renderer`. A generator that returns something no renderer can write now logs a warning. ([#4736](https://github.com/kubb-labs/kubb/pull/4736))
+
+## v5.23.4 — Nov 22, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Describe imports and exports with `names`, each a type or a value through its `space`. `name`, `isTypeOnly`, `isNameSpace` and `asAlias` are deprecated until v6. ([#4732](https://github.com/kubb-labs/kubb/pull/4732))
+
+  ```diff
+  - <File.Import name={['Pet']} path="./models" isTypeOnly />
+  + <File.Import names={[{ name: 'Pet', space: 'type' }]} path="./models" />
+  ```
+
+- Keep vendor extensions (`x-*` keys) as `extensions` on schema, parameter, request body, response and content nodes. A binary schema becomes a `BlobSchemaNode` that keeps its `contentMediaType` and `contentEncoding` as `content`. ([#4734](https://github.com/kubb-labs/kubb/pull/4734))
+
+## v5.23.3 — Nov 22, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Convert schema and operation names once per run, through the cache in `@kubb/core`. ([#4726](https://github.com/kubb-labs/kubb/pull/4726))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- `SourceNode` takes `export` and `default`, like `Code` and `Function`. `isExportable` and `isIndexable` are deprecated. ([#4725](https://github.com/kubb-labs/kubb/pull/4725))
+- `inline` moves to the file: `<File inline>` marks a file that is never written, and each file that imports from it gets the body it imports. `inline` on `Const`, `Type` and `Function` is deprecated until v6. ([#4728](https://github.com/kubb-labs/kubb/pull/4728))
+- `Type` and `TypeNode` take `syntax: 'interface'`. ([#4725](https://github.com/kubb-labs/kubb/pull/4725))
+- Speed up import merging on large specs. ([#4729](https://github.com/kubb-labs/kubb/pull/4729))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Use `yuku` 0.28 instead of the deprecated `yuku-parser` and `yuku-codegen`. Parsing is about twice as fast. ([#4731](https://github.com/kubb-labs/kubb/pull/4731))
+- Hash the previous output for the "File changes" summary in about half the time. ([#4726](https://github.com/kubb-labs/kubb/pull/4726))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add `ctx.getFile(path)`, which returns a file as the build holds it now. Use it in place of `ctx.driver.fileManager.files`. ([#4725](https://github.com/kubb-labs/kubb/pull/4725))
+
+### @kubb/renderer-jsx
+
+#### Bug Fixes
+
+- Add `Code`, `Raw` and `Origin` for source blocks that `Const`, `Type` and `Function` cannot express. `File.Source` is deprecated. ([#4725](https://github.com/kubb-labs/kubb/pull/4725))
+
 ## v5.23.2 — Nov 22, 2026
 
 ### @kubb/ast
