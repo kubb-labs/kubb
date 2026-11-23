@@ -69,12 +69,16 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:^",
-    "@kubb/core": "workspace:^",
     "yuku": "^0.28.1"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*"
+    "@internals/utils": "workspace:*",
+    "@kubb/ast": "workspace:*",
+    "@kubb/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@kubb/ast": "workspace:^5.0.0",
+    "@kubb/core": "workspace:^5.0.0"
   },
   "engines": {
     "node": ">=22.22"

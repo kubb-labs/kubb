@@ -70,6 +70,8 @@ jobs:
         run: |
           canary_version="0.0.0-canary-$(date -u +%Y%m%d%H%M%S)"
           echo "Canary version: ${canary_version}"
+          # A 0.0.0-canary core does not satisfy the ^5.0.0 peer, so canaries peer on their own release.
+          sed -i 's/"workspace:\^5\.0\.0"/"workspace:*"/' packages/*/package.json
           pnpm -r exec pnpm version "${canary_version}" --no-git-tag-version --allow-same-version --no-git-checks
           pnpm run build
           pnpm exec changeset publish --tag canary

@@ -71,6 +71,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@kubb/ast": "workspace:*",
+    "@kubb/core": "workspace:*",
     "@kubb/kit": "workspace:*"
   },
   "devDependencies": {
