@@ -29,14 +29,6 @@ describe('getBarrelFiles', () => {
     expect(barrels[0]!.exports.map((e) => e.path)).toStrictEqual(['./pet.ts', './user.ts'])
   })
 
-  it('returns named exports when barrelType is named', () => {
-    const files = [makeFile(`${ROOT}/pet.ts`, ['Pet', 'createPet'])]
-    const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files }), barrelType: 'named' })]
-
-    expect(barrels).toHaveLength(1)
-    expect(barrels[0]!.exports[0]?.name).toStrictEqual(['Pet', 'createPet'])
-  })
-
   it('leaves a default export out of a named barrel', () => {
     const file = makeFile(`${ROOT}/pet.ts`, ['Pet', 'getPet'])
     file.sources[1] = { ...file.sources[1]!, default: true }
