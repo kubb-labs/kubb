@@ -5,5 +5,5 @@
     "jsxImportSource": "@kubb/renderer-jsx",
     "types": ["vitest/globals", "bun-types", "../../globals.d.ts"]
   },
-  "include": ["src/**/*", "./shims.d.ts", "./package.json", "./tsdown.config.ts", "./vitest.config.ts"]
+  "include": ["src/**/*", "./shims.d.ts", "./package.json", "./tsdown.config.ts"]
 }
