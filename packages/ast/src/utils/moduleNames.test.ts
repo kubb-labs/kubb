@@ -67,6 +67,13 @@ describe('createImport', () => {
     expect([next.names, next.name]).toStrictEqual([null, ['Tag']])
   })
 
+  it('treats a name array changed in place as an override', () => {
+    const imp = createImport({ names: [{ name: 'Pet', space: 'value' }], path: './pet' })
+    ;(imp.name as Array<string>).push('Tag')
+
+    expect([createImport({ ...imp }).names, createImport({ ...imp }).name]).toStrictEqual([null, ['Pet', 'Tag']])
+  })
+
   it('applies a changed isTypeOnly together with new names', () => {
     const imp = createImport({ names: [{ name: 'Pet', space: 'value' }], path: './pet' })
 
@@ -86,6 +93,13 @@ describe('createExport', () => {
     const exp = createExport({ names: [{ name: 'Pet' }], path: './pet' })
 
     expect(createExport({ ...exp, name: ['Tag'] }).names).toBeNull()
+  })
+
+  it('drops the stale name when a spread export becomes a wildcard export', () => {
+    const exp = createExport({ names: [{ name: 'Pet' }], path: './pet' })
+    const next = createExport({ ...exp, names: [{ name: '*' }] })
+
+    expect([next.names, next.name]).toStrictEqual([[{ name: '*' }], undefined])
   })
 })
 
