@@ -110,7 +110,7 @@ describe('buildOtlpPayload', () => {
     expect(
       toOptionShape({
         baseURL: 'https://api.internal.example',
-        headers: { Authorization: process.env.SECRET ?? 'Bearer token' },
+        headers: { Authorization: 'Bearer token' },
         apiKey: 'abc123',
         banner: '/* generated */',
         output: { path: './src/gen', clean: true },
