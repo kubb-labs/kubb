@@ -448,7 +448,7 @@ To fix a refused file, move it into the project, start your agent with [`--allow
 
 A Kubb Studio agent also refuses a `$ref` URL on a host that is not public, such as `localhost`, a private network address, or a cloud metadata address, and a `$ref` URL that redirects. `--allow-file-refs` lifts this limit too.
 
-Every request for a URL input or a `$ref` URL stops after 30 seconds.
+Every request for a URL input or a `$ref` URL stops after 30 seconds. On a Kubb Studio agent, the host check before a `$ref` request has its own 30-second limit.
 
 ### Git input {#git-input}
 

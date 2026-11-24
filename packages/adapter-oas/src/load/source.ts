@@ -32,6 +32,8 @@ export async function isPrivateHost(url: URL, { signal }: { signal?: AbortSignal
   if (isIP(host)) return !isPublicAddress(host)
   // `dns.lookup` takes no signal, so the race settles a lookup that stalls.
   const deadline = withTimeout(signal)
+  // An abort that already happened fires no event, so check it before waiting.
+  deadline.throwIfAborted()
   const stopped = new Promise<never>((_, reject) => deadline.addEventListener('abort', () => reject(deadline.reason), { once: true }))
   const addresses = await Promise.race([lookup(host, { all: true }), stopped]).catch(() => [])
   signal?.throwIfAborted()
