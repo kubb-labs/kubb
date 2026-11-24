@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createText } from './code.ts'
-import { createFile } from './createFile.ts'
-import { createImport, createSource } from './file.ts'
+import { createFile, createImport, createSource } from './file.ts'
 
 describe('createFile', () => {
   it('creates a File node with a non-empty id', () => {
