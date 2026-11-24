@@ -1125,6 +1125,44 @@ describe('saveConfig', () => {
     expect(await read(join(project, 'openapi.yaml'))).toBe('openapi: 3.0.0\n')
   })
 
+  it('reports a failed spec write on its own edit and keeps the config off the missing file', async () => {
+    const project = await mkdtemp(join(tmpdir(), 'kubb-save-input-'))
+    cleanups.push(() => rm(project, { recursive: true, force: true }))
+    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig([{ input: './a.yaml', plugins: [] }, { input: './b.yaml', plugins: [] }])\n`)
+    // A directory in the way makes the second spec's write fail.
+    await mkdir(join(project, 'openapi-1.yaml'))
+    const { agent } = await connectStudio({
+      root: project,
+      permissions: { allowConfigEdit: true, allowSaveInput: true },
+      connectInfo: { ...info, managed: true },
+    })
+    const edits: Array<ConfigEdit> = [
+      { operation: ConfigEditOperation.SET_INPUT, input: 'openapi: 3.1.0\n' },
+      { operation: ConfigEditOperation.SET_INPUT, config: 1, input: 'openapi: 3.0.0\n' },
+    ]
+
+    await expect(agent.saveConfig({ edits })).resolves.toStrictEqual({
+      outcomes: [
+        { edit: edits[0], applied: true },
+        { edit: edits[1], applied: false, reason: expect.stringContaining('EISDIR') },
+      ],
+      changed: true,
+    })
+    const config = await read(join(project, 'kubb.config.ts'))
+    expect([config.includes(`input: './openapi.yaml'`), config.includes(`input: './b.yaml'`)]).toStrictEqual([true, true])
+  })
+
+  it('strips escape sequences from the name of the Studio user and caps its length', async () => {
+    const { hooks, heard } = withHooks()
+    const command = heard('studio:command')
+    const project = await projectWithConfig()
+    const { agent } = await connectStudio({ hooks, root: project, permissions: { allowConfigEdit: true } })
+
+    await agent.saveConfig({ edits: [], requestedBy: `\u001b[2J\u001b]0;pwned\u0007Eve\r${'x'.repeat(100)}` })
+
+    expect(command).toHaveBeenCalledWith(expect.objectContaining({ command: 'saveConfig', requestedBy: `Eve${'x'.repeat(61)}` }))
+  })
+
   it('refuses a blank spec without writing a file', async () => {
     const project = await projectWithConfig()
     const { agent } = await connectStudio({

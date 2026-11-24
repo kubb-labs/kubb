@@ -256,3 +256,20 @@ describe('refreshAgentToken', () => {
     await expect(refreshAgentToken({ ...options, timeout: 20 })).rejects.toThrow('did not answer the token refresh within 20 ms')
   })
 })
+
+describe('redirects', () => {
+  it('refuses a redirect on the pairing requests and the token refresh, which carry secrets', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse(session))
+      .mockResolvedValueOnce(createMockResponse({ token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }))
+      .mockResolvedValueOnce(createMockResponse({ token: 'new-token' }))
+
+    await startPairing({ studioUrl: 'https://studio.test', type: 'cli', name: 'my-project', hostname: 'my-host', machineId: 'secret' })
+    const poll = pollForPairingToken({ studioUrl: 'https://studio.test', session })
+    await vi.runAllTimersAsync()
+    await poll
+    await refreshAgentToken({ studioUrl: 'https://studio.test', token: 'old-token', machineId: 'secret' })
+
+    expect(fetchMock.mock.calls.map(([, init]) => init.redirect)).toStrictEqual(['error', 'error', 'error'])
+  })
+})
