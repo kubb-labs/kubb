@@ -1,11 +1,21 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["tsconfig.json", "tsconfig.dts.json", "globals.d.ts"],
-  "globalEnv": ["NODE_ENV"],
+  "globalDependencies": [
+    "tsconfig.json",
+    "tsconfig.dts.json",
+    "globals.d.ts"
+  ],
+  "globalEnv": [
+    "NODE_ENV"
+  ],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**"],
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
@@ -18,12 +28,16 @@
       ]
     },
     "start": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "cache": false,
       "persistent": true
     },
     "typecheck": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "cache": false
     }
   }
