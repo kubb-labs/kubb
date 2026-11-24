@@ -72,7 +72,7 @@ export type TemplateKind = 'Schema' | 'Operation' | 'Operations'
 /** The node a template's `render` gets for each {@link TemplateKind}. */
 export type TemplateNode = { Schema: SchemaNode; Operation: OperationNode; Operations: OperationsNode }
 
-/** @deprecated Use {@link TemplateContext}. */
+/** @deprecated Use {@link TemplateContext}. Removed in Kubb v6. */
 export type GeneratorContext<TOptions extends PluginType = PluginType> = TemplateContext<TOptions>
 
 /** Renderer elements such as JSX, a `FileNode`, `Array<FileNode>`, or `null` to skip the node. */
