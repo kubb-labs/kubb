@@ -129,7 +129,7 @@ export async function startPairing({
         agent_kind: type === 'cli' ? undefined : type,
         public_key: privateKey ? getAgentPublicKey(privateKey) : undefined,
       },
-      // A redirect would forward the machine token, and the token refresh the bearer token, to wherever it points.
+      // A redirect would send this machine's pairing request, and later its tokens, to wherever it points.
       redirect: 'error',
       signal,
     })

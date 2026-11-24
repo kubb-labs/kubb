@@ -218,9 +218,9 @@ function createFileNode(props: JSX.IntrinsicElements['kubb-file']): ast.FileNode
 /**
  * Factory for a renderer that walks the JSX tree in a single recursive pass,
  * with no React reconciler or scheduler. Kit renders a template's JSX with it by default;
- * pass it as `renderer` to `addTemplate` to set it explicitly. Kubb core calls the factory once per render cycle and stays
- * generic, with no hard dependency on `@kubb/renderer-jsx`. Every component must be a pure
- * function. Hooks, suspense and class components are not supported.
+ * pass it as `renderer` to `addTemplate` to set it explicitly. Kubb core calls the factory
+ * once per render cycle and stays generic, with no hard dependency on `@kubb/renderer-jsx`.
+ * Every component must be a pure function. Hooks, suspense and class components are not supported.
  *
  * @example Wire up a JSX template
  * ```tsx

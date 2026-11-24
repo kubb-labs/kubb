@@ -614,7 +614,7 @@ class Agent extends RpcTarget implements AgentApi {
         assertOutputPaths({ plugins: merged ?? [], diskPlugins: config.plugins, root, outputPath: config.output.path })
         return merged
       }),
-      mergeAdapter(config.adapter, patch?.adapter, extensions, this.#options.root),
+      mergeAdapter({ diskAdapter: config.adapter, studioOptions: patch?.adapter, extensions, root: this.#options.root }),
       mergeParsers({ diskParsers: config.parsers, studioParsers: patch?.parsers, extensions, root: this.#options.root }),
     ]).catch(async (error: unknown) => {
       // Thrown before core runs, so nothing else reports it to the host.

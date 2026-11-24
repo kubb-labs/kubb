@@ -152,11 +152,11 @@ async function loadFactory({
 export async function resolvePlugins({
   plugins,
   extensions = new Map(),
-  root = process.cwd(),
+  root,
 }: {
   plugins: NonNullable<JSONKubbConfig['plugins']>
   extensions?: InstalledExtensions
-  root?: string
+  root: string
 }): Promise<Array<Plugin>> {
   return Promise.all(
     plugins.map(async ({ name, options }) => {
@@ -279,7 +279,7 @@ export async function mergePlugins({
   diskPlugins: Array<Plugin> | undefined
   studioPlugins: JSONKubbConfig['plugins'] | undefined
   extensions?: InstalledExtensions
-  root?: string
+  root: string
 }): Promise<Array<Plugin> | undefined> {
   const pluginNameOf = (packageName: string) => extensions.get(packageName)?.manifest.name ?? toPluginName(packageName)
   // Matched on the package's base name rather than by instantiating first. Every Kubb plugin
@@ -447,12 +447,17 @@ export function mergeOutput({ output, studio }: { output: Config['output']; stud
 /**
  * Merges Studio-provided adapter option overrides into the disk config's adapter, see {@link rebuildExtension}.
  */
-export async function mergeAdapter(
-  diskAdapter: Adapter | undefined,
-  studioOptions: object | undefined,
-  extensions: InstalledExtensions = new Map(),
-  root = process.cwd(),
-) {
+export async function mergeAdapter({
+  diskAdapter,
+  studioOptions,
+  extensions = new Map(),
+  root,
+}: {
+  diskAdapter: Adapter | undefined
+  studioOptions: object | undefined
+  extensions?: InstalledExtensions
+  root: string
+}) {
   if (!diskAdapter) return diskAdapter
 
   return rebuildExtension({ disk: diskAdapter, studioOptions, kind: 'adapter', extensions, root })
@@ -466,12 +471,12 @@ export async function mergeParsers({
   diskParsers,
   studioParsers,
   extensions = new Map(),
-  root = process.cwd(),
+  root,
 }: {
   diskParsers: Array<Parser>
   studioParsers: JSONKubbConfig['parsers'] | undefined
   extensions?: InstalledExtensions
-  root?: string
+  root: string
 }): Promise<Array<Parser>> {
   if (!studioParsers?.length) return diskParsers
 
