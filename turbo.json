@@ -1,42 +1,29 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [
-    "tsconfig.json",
-    "tsconfig.dts.json",
-    "globals.d.ts"
-  ],
-  "globalEnv": [
-    "NODE_ENV"
-  ],
+  "globalDependencies": ["tsconfig.json", "tsconfig.dts.json", "globals.d.ts"],
+  "globalEnv": ["NODE_ENV"],
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**"
-      ],
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"],
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
         "src/**/*.vue",
         "src/**/*.html",
         "tsdown.config.ts",
+        "$TURBO_ROOT$/configs/tsdown.ts",
         "package.json",
         "tsconfig.json"
       ]
     },
     "start": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },
     "typecheck": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "cache": false
     }
   }
