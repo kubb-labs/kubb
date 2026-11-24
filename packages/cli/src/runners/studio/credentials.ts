@@ -248,3 +248,19 @@ export async function getMachineId(): Promise<string> {
 
   return secret
 }
+
+/**
+ * Replaces every secret in `text` with `[redacted]`.
+ * `util.inspect` escapes a PEM key's line endings and splits it into `+`-joined lines, so the escaped
+ * form and each long line of a secret are replaced too.
+ */
+export function redactSecrets(text: string, secrets: ReadonlyArray<string | undefined>): string {
+  let redacted = text
+  for (const secret of secrets) {
+    if (!secret) continue
+    for (const piece of [secret, JSON.stringify(secret).slice(1, -1), ...secret.split(/\r?\n/).filter((part) => part.length >= 16)]) {
+      redacted = redacted.replaceAll(piece, '[redacted]')
+    }
+  }
+  return redacted
+}

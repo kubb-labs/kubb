@@ -10,7 +10,7 @@ const ID = new RegExp(`^${SLUG}(\\/${SLUG})?$`)
 
 // The message ends up in console and CI logs, so a password in the URL must not.
 function withoutCredentials(value: string): string {
-  if (!URL.canParse(value)) return value
+  if (!URL.canParse(value)) return '<not a URL>'
   const url = new URL(value)
   url.username = ''
   url.password = ''

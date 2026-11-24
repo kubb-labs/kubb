@@ -27,6 +27,8 @@ describe('registryUrl', () => {
     }
     process.env.KUBB_REGISTRY = 'http://user:secret@registry.example.com'
     expect(() => registryUrl()).toThrow('got "http://registry.example.com/"')
+    process.env.KUBB_REGISTRY = 'http://user:secret@registry.example.com:bad'
+    expect(() => registryUrl()).toThrow('got "<not a URL>"')
   })
 })
 

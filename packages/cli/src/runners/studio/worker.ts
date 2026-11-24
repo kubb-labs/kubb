@@ -1,7 +1,7 @@
 import { appendFileSync, statSync, writeFileSync } from 'node:fs'
 import { format } from 'node:util'
 import { getWorkerLogPath, serveWorker, type WorkerLaunch } from './background.ts'
-import type { Credentials } from './credentials.ts'
+import { type Credentials, redactSecrets } from './credentials.ts'
 import { connect } from './run.ts'
 
 process.title = 'Kubb'
@@ -9,12 +9,8 @@ process.title = 'Kubb'
 const logPath = getWorkerLogPath()
 let credentials: Partial<Credentials> = {}
 function log(...args: Array<unknown>) {
-  let line = `${new Date().toISOString()} ${format(...args)}\n`
   // Read on every line: a refresh or a new pairing replaces the token and key.
-  for (const secret of [process.env.KUBB_TOKEN, credentials.token, credentials.privateKey]) {
-    // An inspected object prints the PEM key with its line endings escaped, so redact that form too.
-    if (secret) line = line.replaceAll(secret, '[redacted]').replaceAll(JSON.stringify(secret).slice(1, -1), '[redacted]')
-  }
+  const line = redactSecrets(`${new Date().toISOString()} ${format(...args)}\n`, [process.env.KUBB_TOKEN, credentials.token, credentials.privateKey])
   try {
     // Keep the log under 1 MiB; discard older output when it fills.
     const size = (() => {
