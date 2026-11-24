@@ -366,6 +366,30 @@ describe('heartbeat', () => {
     await vi.advanceTimersByTimeAsync(1)
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
   })
+
+  it('closes a socket Studio never calls connect() on, then reconnects', async () => {
+    vi.useFakeTimers()
+    const { sockets } = startAgent()
+
+    await vi.advanceTimersByTimeAsync(29_999)
+    expect(sockets).toHaveLength(1)
+
+    await vi.advanceTimersByTimeAsync(1)
+    await vi.waitFor(() => expect(sockets).toHaveLength(2))
+  })
+
+  it('keeps a socket open while connect() is still loading the config', async () => {
+    vi.useFakeTimers()
+    const loaded = Promise.withResolvers<Array<Config>>()
+    const { sockets } = startAgent({ loadConfigs: () => loaded.promise })
+    await vi.advanceTimersByTimeAsync(0)
+    const connecting = sockets[0]!.agent.connect(info)
+
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(sockets).toHaveLength(1)
+    loaded.resolve([projectConfig()])
+    await connecting
+  })
 })
 
 describe('a sandbox job', () => {

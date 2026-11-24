@@ -79,6 +79,8 @@ const SHARED_AGENT_TYPES = new Set<AgentType>(['sandbox', 'global'])
 // Studio marks an agent offline after its liveness window, so a slower cadence would look dead.
 const MAX_HEARTBEAT_INTERVAL_MS = 60_000
 const PING_TIMEOUT_MS = 10_000
+// How long Studio has to call connect() once the socket is opened.
+const CONNECT_TIMEOUT_MS = 30_000
 const OPEN_TIMEOUT_MS = 5_000
 const MAX_RETRY_DELAY_MS = 30_000
 const DISK_SNAPSHOT_MAX_FILES = 10_000
@@ -876,7 +878,8 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
   const agent = new Agent({ options, session })
   const rpc = openRpc({ url, token, instanceId, agent })
   signal?.addEventListener('abort', rpc.close, { once: true })
-  let timer: ReturnType<typeof setTimeout> | undefined
+  // Cleared by the heartbeat once Studio calls connect(), which can take a while to load the config.
+  let timer: ReturnType<typeof setTimeout> | undefined = setTimeout(() => !session.info && rpc.close(), CONNECT_TIMEOUT_MS)
 
   // Races each ping against a deadline, so a half-open socket can't hang it forever.
   const heartbeat = async (): Promise<void> => {
@@ -896,6 +899,7 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
 
   void session.connected.promise.then(
     async (info) => {
+      clearTimeout(timer)
       await emit(hooks, 'studio:connected', { ...info, url: studioUrl, versions: { studio: info.studioVersion, kubb: kubbVersion, agent: version } })
       if (!session.closed) timer = setTimeout(heartbeat, heartbeatInterval)
     },
