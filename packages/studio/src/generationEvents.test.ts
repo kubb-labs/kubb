@@ -32,6 +32,24 @@ describe('Generation event stream', () => {
     expect(event?.data).toStrictEqual([{ message: 'broken', stack: expect.stringContaining('broken') }])
   })
 
+  it.each([
+    { debug: false, stack: undefined },
+    { debug: true, stack: expect.stringContaining('broken') },
+  ])('sends diagnostic and hook error stacks only when debug is $debug', async ({ debug, stack }) => {
+    const hooks = new Hookable<KubbHooks>()
+    const generation = createGenerationStream(hooks, 'job-1', { debug })
+
+    await hooks.callHook('kubb:diagnostic', {
+      diagnostic: { code: 'KUBB_UNKNOWN', severity: 'error', message: 'broken', cause: new Error('broken') },
+    } as unknown as KubbHooks['kubb:diagnostic'][0])
+    await hooks.callHook('kubb:hook:end', { id: 'h1', command: 'echo', success: false, error: new Error('broken') } as unknown as KubbHooks['kubb:hook:end'][0])
+    await generation.close()
+
+    const events = await Array.fromAsync(generation.stream)
+    expect(events.find((event) => event.type === 'kubb:diagnostic')?.data).toMatchObject([{ stack }])
+    expect(events.find((event) => event.type === 'kubb:hook:end')?.data).toMatchObject([{ error: { stack } }])
+  })
+
   it('keeps errors when progress fills the event queue', async () => {
     const hooks = new Hookable<KubbHooks>()
     const generation = createGenerationStream(hooks, 'job-1')
