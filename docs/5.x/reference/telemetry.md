@@ -36,12 +36,12 @@ sequenceDiagram
 
 A detached process sends the request, so the CLI exits without waiting. The request fails silently after 5 seconds, so an offline machine never interrupts a run.
 
-| Command         | Sends one event                                                |
-| --------------- | -------------------------------------------------------------- |
-| `kubb generate` | Per config, when that config finishes or fails                 |
-| `kubb validate` | When validation finishes or fails                              |
-| `kubb mcp`      | When an MCP client connects, or when the server fails to start |
-| `kubb studio`   | When the Studio command finishes or fails                      |
+| Command | Sends one event |
+| --- | --- |
+| `kubb generate` | Per config, when that config finishes or fails |
+| `kubb validate` | When validation finishes or fails |
+| `kubb mcp` | When an MCP client connects, or when the server fails to start |
+| `kubb studio` | When the Studio command finishes or fails |
 
 Each command prints a telemetry notice to stderr when it starts. `--help`, `-h`, `--version`, `-v`, and `--json` skip it.
 
@@ -49,23 +49,23 @@ Each command prints a telemetry notice to stderr when it starts. `--help`, `-h`,
 
 Each event is an [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/) trace with one span, sent as JSON to `https://otlp.kubb.dev/v1/traces`. The span carries the command as its name, the run's start and end times, an OK or error status, and random trace and span ids.
 
-| Span attribute         | Value                                                                       | Example                                                                                   |
-| ---------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `kubb.command`         | The command                                                                 | `"generate"`                                                                              |
-| `kubb.version`         | The Kubb CLI version                                                        | `"5.0.0"`                                                                                 |
-| `kubb.node_version`    | The Node.js major version                                                   | `"22"`                                                                                    |
-| `kubb.runtime`         | The JavaScript runtime                                                      | `"node"`, `"bun"`, `"deno"`                                                               |
-| `kubb.runtime_version` | The runtime major version                                                   | `"22"`                                                                                    |
-| `kubb.platform`        | The operating system                                                        | `"linux"`, `"darwin"`, `"win32"`                                                          |
-| `kubb.ci`              | Whether the run is in CI                                                    | `true`                                                                                    |
-| `kubb.tty`             | Whether stdin is a terminal, which usually means a person typed the command | `true`                                                                                    |
-| `kubb.agent`           | The AI coding agent that ran the command, when Kubb detects one             | `"claude"`                                                                                |
-| `kubb.mcp_client`      | The name the MCP client reports, up to 64 characters. `kubb mcp` only.      | `"claude-code"`                                                                           |
-| `kubb.files_created`   | Files generated. `0` outside `kubb generate`.                               | `47`                                                                                      |
-| `kubb.status`          | The outcome                                                                 | `"success"`, `"failed"`                                                                   |
-| `kubb.plugins`         | The plugin names, sorted                                                    | `["plugin-ts", "plugin-zod"]`                                                             |
-| `kubb.plugin.<name>`   | `true` for each plugin, such as `kubb.plugin.plugin-ts`                     | `true`                                                                                    |
-| `kubb.plugin_options`  | Each plugin's `name` and the shape of its options as a JSON string          | `{ "name": "plugin-ts", "options": "{\"output\":{\"path\":\"string\",\"clean\":true}}" }` |
+| Span attribute | Value | Example |
+| --- | --- | --- |
+| `kubb.command` | The command | `"generate"` |
+| `kubb.version` | The Kubb CLI version | `"5.0.0"` |
+| `kubb.node_version` | The Node.js major version | `"22"` |
+| `kubb.runtime` | The JavaScript runtime | `"node"`, `"bun"`, `"deno"` |
+| `kubb.runtime_version` | The runtime major version | `"22"` |
+| `kubb.platform` | The operating system | `"linux"`, `"darwin"`, `"win32"` |
+| `kubb.ci` | Whether the run is in CI | `true` |
+| `kubb.tty` | Whether stdin is a terminal, which usually means a person typed the command | `true` |
+| `kubb.agent` | The AI coding agent that ran the command, when Kubb detects one | `"claude"` |
+| `kubb.mcp_client` | The name the MCP client reports, up to 64 characters. `kubb mcp` only. | `"claude-code"` |
+| `kubb.files_created` | Files generated. `0` outside `kubb generate`. | `47` |
+| `kubb.status` | The outcome | `"success"`, `"failed"` |
+| `kubb.plugins` | The plugin names, sorted | `["plugin-ts", "plugin-zod"]` |
+| `kubb.plugin.<name>` | `true` for each plugin, such as `kubb.plugin.plugin-ts` | `true` |
+| `kubb.plugin_options` | Each plugin's `name` and the shape of its options as a JSON string | `{ "name": "plugin-ts", "options": "{\"output\":{\"path\":\"string\",\"clean\":true}}" }` |
 
 The resource attributes are `service.name: "kubb"`, `service.version` (the Kubb version), and `telemetry.sdk.language: "nodejs"`. The request carries the headers `Kubb-Telemetry-Version: 1` and `Kubb-Telemetry-Source: kubb-cli`.
 
