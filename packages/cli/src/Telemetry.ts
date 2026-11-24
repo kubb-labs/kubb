@@ -21,7 +21,7 @@ export type TelemetryPlugin = {
    */
   name: string
   /**
-   * Anonymized snapshot of the plugin options. Values are included but cannot be traced back to a user.
+   * The plugin options as the user passed them. Only their shape is sent, see {@link toOptionShape}.
    */
   options: Record<string, unknown>
 }
@@ -51,6 +51,23 @@ export function isDisabled(): boolean {
 /** Tracks one command run for the running CLI version; returns the reporter the command calls once it knows how it ended. */
 export function trackRun({ command, hrStart }: { command: TelemetryCommand; hrStart: [number, number] }): (result: RunResult) => Promise<void> {
   return (result) => sendTelemetry(buildOtlpPayload({ command, duration: Math.round(getElapsedMs(hrStart)), ...result }))
+}
+
+/**
+ * The shape of a plugin's options: booleans and numbers keep their value, and every other value
+ * becomes its type name. Strings such as `output.path`, `baseURL`, a banner, or a secret read from
+ * `process.env` never leave the machine, and a cycle or `BigInt` cannot make `JSON.stringify` throw.
+ *
+ * @example
+ * toOptionShape({ output: { path: './gen', clean: true }, enumType: 'asConst' })
+ * // { output: { path: 'string', clean: true }, enumType: 'string' }
+ */
+export function toOptionShape(value: unknown, depth = 0): unknown {
+  if (value === undefined || value === null || typeof value === 'boolean' || typeof value === 'number') return value
+  if (Array.isArray(value)) return 'array'
+  // The depth cap ends a cyclic or deeply nested object without tracking what was visited.
+  if (typeof value !== 'object' || depth >= 4) return typeof value
+  return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, toOptionShape(item, depth + 1)]))
 }
 
 /**
@@ -106,10 +123,7 @@ export function buildOtlpPayload({
                 {
                   key: 'options',
                   value: {
-                    stringValue: JSON.stringify({
-                      ...p.options,
-                      usedEnumNames: undefined,
-                    }),
+                    stringValue: JSON.stringify(toOptionShape({ ...p.options, usedEnumNames: undefined })),
                   },
                 },
               ],

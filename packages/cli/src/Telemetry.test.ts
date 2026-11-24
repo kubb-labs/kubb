@@ -4,7 +4,7 @@ import process from 'node:process'
 import { runInNewContext } from 'node:vm'
 import { Diagnostics } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { buildOtlpPayload, isDisabled, SENDER_SCRIPT, sendTelemetry } from './Telemetry.ts'
+import { buildOtlpPayload, isDisabled, SENDER_SCRIPT, sendTelemetry, toOptionShape } from './Telemetry.ts'
 
 vi.mock('node:child_process', () => ({ spawn: vi.fn() }))
 
@@ -82,7 +82,7 @@ describe('buildOtlpPayload', () => {
     ])
   })
 
-  it('strips usedEnumNames from the plugin options snapshot without touching the options', () => {
+  it('sends only the shape of the plugin options, without string values or usedEnumNames', () => {
     const plugins = [{ name: 'plugin-ts', options: { output: { path: 'types' }, enumType: 'asConst', usedEnumNames: ['Pet'] } }]
     const span = getSpan({ plugins })
 
@@ -93,7 +93,7 @@ describe('buildOtlpPayload', () => {
             kvlistValue: {
               values: [
                 { key: 'name', value: { stringValue: 'plugin-ts' } },
-                { key: 'options', value: { stringValue: '{"output":{"path":"types"},"enumType":"asConst"}' } },
+                { key: 'options', value: { stringValue: '{"output":{"path":"string"},"enumType":"string"}' } },
               ],
             },
           },
@@ -101,6 +101,35 @@ describe('buildOtlpPayload', () => {
       },
     })
     expect(plugins[0]!.options.usedEnumNames).toStrictEqual(['Pet'])
+  })
+
+  it('keeps booleans and numbers, and replaces secrets, paths, functions, BigInt and cycles with their type', () => {
+    const cyclic: Record<string, unknown> = { name: 'loop' }
+    cyclic.self = cyclic
+
+    expect(
+      toOptionShape({
+        baseURL: 'https://api.internal.example',
+        headers: { Authorization: process.env.SECRET ?? 'Bearer token' },
+        output: { path: './src/gen', clean: true },
+        paramsCasing: 'camelcase',
+        retries: 3,
+        include: [{ type: 'tag', pattern: 'pets' }],
+        transform: () => 'x',
+        big: 1n,
+        cyclic,
+      }),
+    ).toStrictEqual({
+      baseURL: 'string',
+      headers: { Authorization: 'string' },
+      output: { path: 'string', clean: true },
+      paramsCasing: 'string',
+      retries: 3,
+      include: 'array',
+      transform: 'function',
+      big: 'bigint',
+      cyclic: { name: 'string', self: { name: 'string', self: { name: 'string', self: 'object' } } },
+    })
   })
 
   it('sends each problem diagnostic as a grouped span event without its message', () => {
