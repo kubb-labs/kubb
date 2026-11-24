@@ -10,10 +10,8 @@ import * as v from 'valibot'
 import { formatDiagnostics } from '../utils.ts'
 
 /**
- * The path with every symlink resolved, so a link inside the working directory cannot point a
- * checked path elsewhere. A path that does not exist yet resolves through its nearest existing parent.
- * Returns `undefined`, so the check fails closed, for a dangling symlink or any error other than a
- * missing path.
+ * The path with every symlink resolved. A path that does not exist yet resolves through its nearest existing parent.
+ * Returns `undefined`, so the check fails closed, for a dangling symlink or any error other than a missing path.
  */
 async function realPath(target: string): Promise<string | undefined> {
   const missing: Array<string> = []
