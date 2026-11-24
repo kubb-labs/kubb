@@ -1031,6 +1031,34 @@ describe('parseSchema allOf', () => {
 })
 
 describe('parseSchema oneOf / anyOf', () => {
+  it('keeps a sibling binary type on members that only add a media type', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'string', format: 'binary', anyOf: [{ contentMediaType: 'image/png' }, { contentMediaType: 'image/jpeg' }] },
+    })
+
+    expect(ast.schema.narrow(node, 'union')?.members).toMatchObject([
+      { type: 'blob', content: { mediaType: 'image/png' } },
+      { type: 'blob', content: { mediaType: 'image/jpeg' } },
+    ])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('keeps a sibling integer type on %s members that only add bounds', (keyword) => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'integer', [keyword]: [{ minimum: 10 }, { maximum: 0 }] } })
+
+    expect(ast.schema.narrow(node, 'union')?.members).toMatchObject([
+      { type: 'integer', min: 10 },
+      { type: 'integer', max: 0 },
+    ])
+  })
+
+  it('keeps the own type of a member and skips multi-type parents', () => {
+    const own = parseSchema(emptyCtx, { schema: { type: 'string', anyOf: [{ type: 'number' }, { format: 'uuid' }] } })
+    const multi = parseSchema(emptyCtx, { schema: { type: ['string', 'number'], anyOf: [{ minimum: 1 }, { minLength: 1 }] } })
+
+    expect(ast.schema.narrow(own, 'union')?.members?.map((member) => member.type)).toStrictEqual(['number', 'uuid'])
+    expect(ast.schema.narrow(multi, 'union')?.members?.map((member) => member.type)).toStrictEqual(['number', 'string'])
+  })
+
   it.each([{ keyword: 'oneOf', strategy: 'one' }] as const)('maps $keyword to a union node with strategy $strategy', ({ keyword, strategy }) => {
     const node = parseSchema(emptyCtx, { schema: { [keyword]: [{ type: 'string' }, { type: 'number' }] } })
 
