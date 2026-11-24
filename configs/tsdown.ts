@@ -2,29 +2,13 @@ import type { UserConfig } from 'tsdown'
 
 type Entry = UserConfig['entry']
 
-type Options = {
-  /**
-   * Entries of the ESM JavaScript build.
-   */
-  entry?: Entry
-  /**
-   * Entries that also ship as CommonJS, when that is fewer than `entry`.
-   */
-  cjsEntry?: Entry
-  /**
-   * Entries that get declarations, when that is fewer than `entry`.
-   */
-  dtsEntry?: Entry
-  /**
-   * Replaces the default, which keeps `@kubb/*` external and bundles `@internals/*`.
-   */
-  deps?: UserConfig['deps']
-}
+type Options = { entry?: Entry; cjsEntry?: Entry; dtsEntry?: Entry; deps?: UserConfig['deps'] }
 
 const dts = { dtsOnly: true, tsconfig: '../../tsconfig.dts.json' }
 
 /**
  * The builds every package has: the ESM JavaScript, then the CJS JavaScript with the declarations of both formats.
+ * `cjsEntry` and `dtsEntry` narrow `entry` for those builds. `deps` replaces the default, which keeps `@kubb/*` external and bundles `@internals/*`.
  * `keepNames` stays off the declaration passes: it leaks an untyped `__name` helper into .d.ts/.d.cts files.
  */
 export function packageBuilds({
