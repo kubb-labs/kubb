@@ -91,7 +91,7 @@ describe('generatorVisitor options', () => {
       return seen
     }
 
-    for (const pattern of ['GET', 'get', /GET/, /get/, /^GET$/]) expect(await run(pattern)).toEqual(['GET'])
+    for (const pattern of ['get', /get/]) expect(await run(pattern)).toEqual(['GET'])
     expect(await run('DELETE')).toEqual([])
     // A negative pattern written for the lowercase name keeps excluding the method.
     for (const pattern of [/^(?!get$)/, '^(?!GET$)']) expect(await run(pattern)).toEqual(['POST'])

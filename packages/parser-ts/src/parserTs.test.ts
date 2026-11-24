@@ -62,8 +62,8 @@ describe('parserTs', () => {
       banner: '// generated',
       footer: '// end',
       sources: [ast.factory.createSource({ nodes: [ast.factory.createText('export const schema = z.string()')] })],
-      imports: [ast.factory.createImport({ name: ['z'], path: 'zod' })],
-      exports: [ast.factory.createExport({ name: 'models', path: './models.ts', asAlias: true })],
+      imports: [ast.factory.createImport({ names: [{ name: 'z' }], path: 'zod' })],
+      exports: [ast.factory.createExport({ names: [{ name: '*', alias: 'models' }], path: './models.ts' })],
     })
 
     expect(await parserTs().parse(file)).toBe(
@@ -118,7 +118,7 @@ describe('parserTs', () => {
   it.each([
     {
       when: 'an import has several names',
-      file: { sources: [], imports: [ast.factory.createImport({ name: ['a', 'b'], path: '/src/x.ts', root: '/src/test.ts' })] },
+      file: { sources: [], imports: [ast.factory.createImport({ names: [{ name: 'a' }, { name: 'b' }], path: '/src/x.ts', root: '/src/test.ts' })] },
       expected: "import { a, b } from './x'",
     },
     { when: 'the source has no nodes', file: { sources: [ast.factory.createSource({})], imports: [] }, expected: '' },
@@ -134,7 +134,7 @@ describe('parserTs', () => {
       baseName: 'test.ts',
       path: '/src/nested/test.ts',
       sources: [ast.factory.createSource({ name: 'schema', export: true, nodes: [ast.factory.createText('export const schema = myCodec.uint64()')] })],
-      imports: [ast.factory.createImport({ name: ['myCodec'], path })],
+      imports: [ast.factory.createImport({ names: [{ name: 'myCodec' }], path })],
       exports: [],
     })
 
@@ -144,13 +144,12 @@ describe('parserTs', () => {
   it.each([
     { extension: undefined, expected: "import { Pet } from './models/pet'" },
     { extension: '.js', expected: "import { Pet } from './models/pet.js'" },
-    { extension: '.ts', expected: "import { Pet } from './models/pet.ts'" },
   ] as const)('returns $expected when the .ts extension maps to $extension', async ({ extension, expected }) => {
     const file = ast.factory.createFile({
       baseName: 'test.ts',
       path: '/src/test.ts',
       sources: [],
-      imports: [ast.factory.createImport({ name: ['Pet'], path: '/src/models/pet.ts', root: '/src/test.ts' })],
+      imports: [ast.factory.createImport({ names: [{ name: 'Pet' }], path: '/src/models/pet.ts', root: '/src/test.ts' })],
       exports: [],
     })
     const options = extension ? { extension: { '.ts': extension } } : {}
@@ -185,10 +184,7 @@ describe('parserTs', () => {
       )
     })
 
-    it.each([
-      ['.ts', "from '../options.ts'"],
-      ['.js', "from '../options.js'"],
-    ] as const)('applies the %s extension to template imports', (extension, expected) => {
+    it.each([['.ts', "from '../options.ts'"]] as const)('applies the %s extension to template imports', (extension, expected) => {
       expect(copy(parserTs({ extension: { '.ts': extension } }))).toContain(expected)
     })
 

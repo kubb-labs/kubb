@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { readConfig } from './configFile/configFile.ts'
+import { readConfig } from './editor/configFile.ts'
 import { generateConfigFile } from './init.ts'
 
 describe('generateConfigFile', () => {

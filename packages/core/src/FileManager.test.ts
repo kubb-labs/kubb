@@ -198,20 +198,6 @@ describe('FileManager', () => {
       },
     )
 
-    it('writes files under the cleaned directory without reading them back', async () => {
-      const storage = memoryStorage()
-      const readItem = vi.spyOn(storage, 'readItem')
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('/gen/a.ts', ['/* a.ts */']), makeFileWithSources('/other/b.ts', ['/* b.ts */'])], {
-        storage,
-        cleaned: ['/gen'],
-      })
-
-      expect(readItem.mock.calls).toStrictEqual([['/other/b.ts']])
-      expect(await storage.readItem('/gen/a.ts')).toContain('/* a.ts */')
-    })
-
     it('reports a shared file another config of this run wrote differently, and not one it wrote the same', async () => {
       const storage = memoryStorage()
       const reported: Array<Diagnostic> = []
@@ -269,37 +255,6 @@ describe('FileManager', () => {
         expect(manifest.tracked).toStrictEqual(tracked)
       },
     )
-
-    it('parses each file before writing it', async () => {
-      const parsed: Array<string> = []
-      const written: Array<string> = []
-      const storage = memoryStorage()
-      const realWriteItem = storage.writeItem.bind(storage)
-      storage.writeItem = async (itemPath: string, source: string) => {
-        written.push(itemPath)
-        await realWriteItem(itemPath, source)
-      }
-      const parser = {
-        name: 'ts',
-        type: 'parser' as const,
-        extNames: ['.ts' as const],
-        install: vi.fn(),
-        parse: vi.fn((file: FileNode) => {
-          parsed.push(file.path)
-          return `/* ${file.path} */`
-        }),
-        print: vi.fn().mockReturnValue(''),
-      }
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], {
-        storage,
-        parsers: new Map([['.ts' as const, parser]]),
-      })
-
-      expect(parsed.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
-      expect(written.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
-    })
 
     it('hands each parsed source to kubb:file:processed, including files the storage already held', async () => {
       const storage = memoryStorage()

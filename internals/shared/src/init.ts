@@ -1,4 +1,4 @@
-import { printValue, quotes } from './configFile/text.ts'
+import { printValue, quotes } from './editor/text.ts'
 
 /** The `kubb.config.ts` `kubb init` writes before `kubb add` puts each plugin in. */
 export function generateConfigFile({ inputPath, outputPath }: { inputPath: string; outputPath: string }): string {

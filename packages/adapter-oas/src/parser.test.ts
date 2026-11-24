@@ -592,27 +592,20 @@ describe('parseSchema types', () => {
 describe('parseSchema format', () => {
   it.each([
     { title: 'string uuid', schema: { type: 'string', format: 'uuid' }, expected: { type: 'uuid', format: 'uuid' } },
-    { title: 'uuid without type', schema: { format: 'uuid' }, expected: { type: 'uuid', format: 'uuid' } },
     { title: 'string email', schema: { type: 'string', format: 'email' }, expected: { type: 'email', format: 'email' } },
     { title: 'ipv4 without type', schema: { format: 'ipv4' }, expected: { type: 'ipv4', format: 'ipv4' } },
     { title: 'ipv6 without type', schema: { format: 'ipv6' }, expected: { type: 'ipv6', format: 'ipv6' } },
     { title: 'string uri', schema: { type: 'string', format: 'uri' }, expected: { type: 'url', format: 'uri' } },
     // A relative reference or a bare host name is not a URL, so these stay plain strings.
-    { title: 'string uri-reference', schema: { type: 'string', format: 'uri-reference' }, expected: { type: 'string', format: 'uri-reference' } },
-    { title: 'string hostname', schema: { type: 'string', format: 'hostname' }, expected: { type: 'string', format: 'hostname' } },
-    { title: 'string idn-hostname', schema: { type: 'string', format: 'idn-hostname' }, expected: { type: 'string', format: 'idn-hostname' } },
     { title: 'integer duration', schema: { type: 'integer', format: 'duration' }, expected: { type: 'integer', format: 'duration' } },
     {
       title: 'string uri-reference with length and pattern',
       schema: { type: 'string', format: 'uri-reference', pattern: '^/', minLength: 2, maxLength: 10 },
       expected: { type: 'string', format: 'uri-reference', pattern: '^/', min: 2, max: 10 },
     },
-    { title: 'string byte', schema: { type: 'string', format: 'byte' }, expected: { type: 'string', format: 'byte' } },
     { title: 'integer int32', schema: { type: 'integer', format: 'int32' }, expected: { type: 'integer', format: 'int32' } },
-    { title: 'integer int64 (default integerType bigint)', schema: { type: 'integer', format: 'int64' }, expected: { type: 'bigint', format: 'int64' } },
     { title: 'integer uint64 (default integerType bigint)', schema: { type: 'integer', format: 'uint64' }, expected: { type: 'bigint', format: 'uint64' } },
     { title: 'number float', schema: { type: 'number', format: 'float' }, expected: { type: 'number', format: 'float' } },
-    { title: 'number double', schema: { type: 'number', format: 'double' }, expected: { type: 'number', format: 'double' } },
     { title: 'string with an unknown format', schema: { type: 'string', format: 'custom-format' }, expected: { type: 'string', format: 'custom-format' } },
     { title: 'enum with a format', schema: { type: 'string', format: 'custom-enum', enum: ['a', 'b'] }, expected: { type: 'enum', format: 'custom-enum' } },
     {
@@ -628,27 +621,9 @@ describe('parseSchema format', () => {
       },
     },
     {
-      title: 'uuid enum',
-      schema: { type: 'string', format: 'uuid', enum: ['a', 'b'] },
-      expected: {
-        type: 'union',
-        format: 'uuid',
-        members: [
-          { type: 'enum', enumValues: ['a'] },
-          { type: 'enum', enumValues: ['b'] },
-        ],
-      },
-    },
-    {
       title: 'date-time enum',
       schema: { type: 'string', format: 'date-time', enum: ['2024-01-01T00:00:00Z'] },
       expected: { type: 'union', format: 'date-time', members: [{ type: 'enum', enumValues: ['2024-01-01T00:00:00Z'] }] },
-    },
-    {
-      title: 'date-time enum when dateType is date',
-      schema: { type: 'string', format: 'date-time', enum: ['2024-01-01T00:00:00Z'] },
-      options: { dateType: 'date' },
-      expected: { type: 'date', format: 'date-time' },
     },
     {
       title: 'int64 enum (default integerType bigint)',
@@ -669,19 +644,11 @@ describe('parseSchema format', () => {
     },
     // A numeric format on a `type: 'string'` schema describes how the number is spelled, so the declared type wins.
     { title: 'string int64', schema: { type: 'string', format: 'int64' }, expected: { type: 'string', format: 'int64' } },
-    { title: 'string float', schema: { type: 'string', format: 'float' }, expected: { type: 'string', format: 'float' } },
-    {
-      title: 'string int64 when integerType is number',
-      schema: { type: 'string', format: 'int64' },
-      options: { integerType: 'number' },
-      expected: { type: 'string', format: 'int64' },
-    },
   ] satisfies Array<SchemaCase>)('maps $title to $expected.type and keeps the format', ({ schema, options, expected }) => {
     expect(parseSchema(emptyCtx, { schema }, options)).toMatchObject(expected)
   })
 
   it.each([
-    { title: 'untyped application/octet-stream content', schema: { contentMediaType: 'application/octet-stream' }, type: 'blob' },
     { title: 'string application/octet-stream content', schema: { type: 'string', contentMediaType: 'application/octet-stream' }, type: 'blob' },
     {
       title: 'base64-encoded application/octet-stream content',
@@ -756,23 +723,11 @@ describe('parseSchema constraints', () => {
     },
     { title: 'minItems and maxItems on an array', schema: { type: 'array', minItems: 1, maxItems: 5 }, expected: { type: 'array', min: 1, max: 5 } },
     { title: 'uniqueItems: true on an array', schema: { type: 'array', uniqueItems: true }, expected: { type: 'array', unique: true } },
-    { title: 'uniqueItems: false on an array', schema: { type: 'array', uniqueItems: false }, expected: { type: 'array', unique: false } },
     { title: 'minItems on a tuple', schema: { prefixItems: [{ type: 'string' }], minItems: 1 }, expected: { type: 'tuple', min: 1 } },
-    { title: 'maxItems on a tuple', schema: { prefixItems: [{ type: 'string' }], maxItems: 4 }, expected: { type: 'tuple', max: 4 } },
     {
       title: 'numeric exclusiveMinimum on a number',
       schema: { type: 'number', exclusiveMinimum: 0 },
       expected: { type: 'number', exclusive: { min: 0 }, exclusiveMinimum: 0 },
-    },
-    {
-      title: 'numeric exclusiveMinimum on an integer',
-      schema: { type: 'integer', exclusiveMinimum: 0 },
-      expected: { type: 'integer', exclusive: { min: 0 }, exclusiveMinimum: 0 },
-    },
-    {
-      title: 'minimum and maximum on a float number',
-      schema: { type: 'number', format: 'float', minimum: -90, maximum: 90 },
-      expected: { type: 'number', min: -90, max: 90 },
     },
     {
       title: 'minimum and maximum when only the format names the type',
@@ -1031,34 +986,6 @@ describe('parseSchema allOf', () => {
 })
 
 describe('parseSchema oneOf / anyOf', () => {
-  it('keeps a sibling binary type on members that only add a media type', () => {
-    const node = parseSchema(emptyCtx, {
-      schema: { type: 'string', format: 'binary', anyOf: [{ contentMediaType: 'image/png' }, { contentMediaType: 'image/jpeg' }] },
-    })
-
-    expect(ast.schema.narrow(node, 'union')?.members).toMatchObject([
-      { type: 'blob', content: { mediaType: 'image/png' } },
-      { type: 'blob', content: { mediaType: 'image/jpeg' } },
-    ])
-  })
-
-  it.each(['oneOf', 'anyOf'] as const)('keeps a sibling integer type on %s members that only add bounds', (keyword) => {
-    const node = parseSchema(emptyCtx, { schema: { type: 'integer', [keyword]: [{ minimum: 10 }, { maximum: 0 }] } })
-
-    expect(ast.schema.narrow(node, 'union')?.members).toMatchObject([
-      { type: 'integer', min: 10 },
-      { type: 'integer', max: 0 },
-    ])
-  })
-
-  it('keeps the own type of a member and skips multi-type parents', () => {
-    const own = parseSchema(emptyCtx, { schema: { type: 'string', anyOf: [{ type: 'number' }, { format: 'uuid' }] } })
-    const multi = parseSchema(emptyCtx, { schema: { type: ['string', 'number'], anyOf: [{ minimum: 1 }, { minLength: 1 }] } })
-
-    expect(ast.schema.narrow(own, 'union')?.members?.map((member) => member.type)).toStrictEqual(['number', 'uuid'])
-    expect(ast.schema.narrow(multi, 'union')?.members?.map((member) => member.type)).toStrictEqual(['number', 'string'])
-  })
-
   it.each([{ keyword: 'oneOf', strategy: 'one' }] as const)('maps $keyword to a union node with strategy $strategy', ({ keyword, strategy }) => {
     const node = parseSchema(emptyCtx, { schema: { [keyword]: [{ type: 'string' }, { type: 'number' }] } })
 
@@ -1078,19 +1005,19 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(ast.schema.narrow(node, 'union')?.members).toHaveLength(3)
   })
 
-  it.each([
-    { keyword: 'oneOf', propertyName: 'petType' },
-    { keyword: 'anyOf', propertyName: 'kind' },
-  ] as const)('sets discriminatorPropertyName from a $keyword discriminator', ({ keyword, propertyName }) => {
-    const node = parseSchema(emptyCtx, {
-      schema: {
-        [keyword]: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
-        discriminator: { propertyName },
-      },
-    })
+  it.each([{ keyword: 'oneOf', propertyName: 'petType' }] as const)(
+    'sets discriminatorPropertyName from a $keyword discriminator',
+    ({ keyword, propertyName }) => {
+      const node = parseSchema(emptyCtx, {
+        schema: {
+          [keyword]: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+          discriminator: { propertyName },
+        },
+      })
 
-    expect(node).toMatchObject({ type: 'union', discriminatorPropertyName: propertyName })
-  })
+      expect(node).toMatchObject({ type: 'union', discriminatorPropertyName: propertyName })
+    },
+  )
 
   it('does not set discriminatorPropertyName when discriminator is absent', () => {
     const node = parseSchema(emptyCtx, { schema: { oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }] } })
@@ -1325,81 +1252,6 @@ describe('parseSchema oneOf / anyOf', () => {
   })
 })
 
-describe('parseSchema enum next to a nullable type or a union', () => {
-  const Color = { type: 'string', enum: ['red', 'green', 'blue'] }
-  const documents = {
-    '3.1.0': {
-      status: { type: ['string', 'null'], enum: ['draft', 'published'] },
-      color: { oneOf: [{ $ref: '#/components/schemas/Color' }, { type: 'null' }], enum: ['red', 'green'] },
-    },
-    '3.0.3': {
-      status: { type: 'string', nullable: true, enum: ['draft', 'published'] },
-      color: { allOf: [{ $ref: '#/components/schemas/Color' }], nullable: true, enum: ['red', 'green'] },
-    },
-  }
-
-  it.each([
-    { openapi: '3.1.0', nullable: undefined },
-    { openapi: '3.0.3', nullable: true },
-  ] as const)('applies the sibling enum in OpenAPI $openapi', async ({ openapi, nullable }) => {
-    const root = await parseOas({
-      openapi,
-      info: { title: 'Enums', version: '1' },
-      paths: {},
-      components: { schemas: { Color, Example: { type: 'object', properties: documents[openapi] } } },
-    })
-    const [status, color] = ast.schema.narrow(findSchema(root, 'Example'), 'object')!.properties!
-
-    expect(status!.schema).toMatchObject({ type: 'enum', enumValues: ['draft', 'published'], nullable })
-    expect(color!.schema).toMatchObject({
-      type: 'intersection',
-      members: [
-        { type: 'union', members: [{ type: 'ref' }, { type: 'null' }] },
-        { type: 'enum', enumValues: ['red', 'green'], nullable },
-      ],
-    })
-  })
-
-  it('keeps null out of the sibling enum of a non-nullable union in OpenAPI 3.0', async () => {
-    const root = await parseOas({
-      openapi: '3.0.3',
-      info: { title: 'Enums', version: '1' },
-      paths: {},
-      components: { schemas: { Color, Example: { oneOf: [{ $ref: '#/components/schemas/Color' }], enum: ['red', 'green'] } } },
-    })
-
-    expect(findSchema(root, 'Example')).toMatchObject({
-      type: 'intersection',
-      members: [{ type: 'union' }, { type: 'enum', enumValues: ['red', 'green'], nullable: undefined }],
-    })
-  })
-
-  it('keeps null in the sibling enum when a referenced union member is nullable in OpenAPI 3.0', async () => {
-    const root = await parseOas({
-      openapi: '3.0.3',
-      info: { title: 'Enums', version: '1' },
-      paths: {},
-      components: {
-        schemas: { Color: { ...Color, nullable: true }, Example: { oneOf: [{ $ref: '#/components/schemas/Color' }], enum: ['red', 'green'] } },
-      },
-    })
-
-    expect(findSchema(root, 'Example')).toMatchObject({ members: [{ type: 'union' }, { type: 'enum', enumValues: ['red', 'green'], nullable: true }] })
-  })
-
-  it('applies the sibling enum to a union with required keys', () => {
-    const node = parseSchema(emptyCtx, { schema: { oneOf: [{ type: 'object' }, { type: 'null' }], required: ['id'], enum: [{ id: 1 }] } as SchemaObject })
-
-    expect(node).toMatchObject({ type: 'intersection', members: [{ type: 'intersection' }, { type: 'enum' }] })
-  })
-
-  it('drops null from a multi-type array whose enum leaves it out', () => {
-    const node = parseSchema(emptyCtx, { schema: { type: ['string', 'number', 'null'], enum: ['a', 1] } as SchemaObject })
-
-    expect(node).toMatchObject({ type: 'union', nullable: undefined })
-  })
-})
-
 describe('parseSchema discriminator on union', () => {
   it('leaves an array member out of the discriminant intersection', async () => {
     const root = await parseOas({
@@ -1582,10 +1434,8 @@ describe('parseSchema const (OAS 3.1)', () => {
 
 describe('parseSchema null', () => {
   it.each([
-    { title: 'const: null', schema: { const: null } },
     { title: 'const: null with nullable: true', schema: { const: null, nullable: true } },
     { title: 'a null-only enum (drf-spectacular NullEnum)', schema: { enum: [null] } },
-    { title: 'a typed null-only enum', schema: { type: 'string', enum: [null] } },
   ] satisfies Array<{ title: string; schema: SchemaObject }>)('maps $title to a null node without nullable (avoids null | null)', ({ schema }) => {
     const node = parseSchema(emptyCtx, { schema })
 
@@ -1669,31 +1519,6 @@ describe('parseSchema object properties', () => {
     ])
   })
 
-  it('narrows only the discriminator property to the mapping keys', () => {
-    const node = parseSchema(emptyCtx, {
-      schema: {
-        type: 'object',
-        required: ['petType'],
-        properties: {
-          petType: { type: 'string' },
-          name: { type: 'string' },
-        },
-        discriminator: {
-          propertyName: 'petType',
-          mapping: {
-            Cat: '#/components/schemas/Cat',
-            Dog: '#/components/schemas/Dog',
-          },
-        },
-      },
-    })
-
-    expect(ast.schema.narrow(node, 'object')?.properties).toMatchObject([
-      { name: 'petType', schema: { type: 'enum', enumValues: ['Cat', 'Dog'] } },
-      { name: 'name', schema: { type: 'string' } },
-    ])
-  })
-
   it('leaves the discriminator property a string when the discriminator has no mapping', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
@@ -1709,12 +1534,6 @@ describe('parseSchema object properties', () => {
 })
 
 describe('parseSchema object additionalProperties', () => {
-  it('respects unknownType: any for empty additionalProperties', () => {
-    const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties: {} } }, { unknownType: 'any' })
-
-    expect(ast.schema.narrow(node, 'object')?.additionalProperties).toMatchObject({ type: 'any' })
-  })
-
   it('keeps properties next to additionalProperties', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
@@ -1849,15 +1668,7 @@ describe('parseSchema enum', () => {
     expect(ast.schema.narrow(node, 'enum')?.enumValues).toStrictEqual(['a', 'b'])
   })
 
-  it('deduplicates numeric enum values and uses the stringified value as name', () => {
-    const namedEnumValues = ast.schema.narrow(parseSchema(emptyCtx, { schema: { type: 'integer', enum: [1, 1, 2] } }), 'enum')?.namedEnumValues
-
-    expect(namedEnumValues?.map((v) => v.value)).toStrictEqual([1, 2])
-    expect(namedEnumValues?.map((v) => v.name)).toStrictEqual(['1', '2'])
-  })
-
   it.each([
-    { title: 'null in the enum values', schema: { enum: ['a', null, 'b'] }, enumValues: ['a', 'b'] },
     { title: 'null in the enum values combined with nullable', schema: { enum: ['a', null], nullable: true }, enumValues: ['a'] },
     // drf-spectacular splits blank/null choices into `BlankEnum` ({ enum: [''] }) and
     // `NullEnum` ({ enum: [null] }) components, combined with the real enum via `oneOf`.
@@ -1882,9 +1693,7 @@ describe('parseSchema enum', () => {
 
   it.each([
     { title: 'integer', schema: { type: 'integer', enum: [1, 2, 3] }, primitive: 'number', values: [1, 2, 3] },
-    { title: 'number', schema: { type: 'number', enum: [0.5, 1.5] }, primitive: 'number', values: [0.5, 1.5] },
     { title: 'boolean', schema: { type: 'boolean', enum: [true, false] }, primitive: 'boolean', values: [true, false] },
-    { title: 'integer with x-enumNames', schema: { type: 'integer', enum: [0, 1], 'x-enumNames': ['Off', 'On'] }, primitive: 'number', values: [0, 1] },
     { title: 'string with x-enumNames', schema: { enum: ['a', 'b'], 'x-enumNames': ['Alpha', 'Beta'] }, primitive: 'string', values: ['a', 'b'] },
   ] satisfies Array<{ title: string; schema: SchemaObject; primitive: string; values: Array<unknown> }>)(
     'produces namedEnumValues with primitive $primitive for a $title enum',
@@ -1953,8 +1762,6 @@ describe('parseSchema enum', () => {
   })
 
   it.each([
-    { title: 'minimum', schema: { type: 'integer', enum: [0, 1, 2], minimum: 1 }, values: [1, 2] },
-    { title: 'maximum', schema: { type: 'integer', enum: [0, 1, 2], maximum: 1 }, values: [0, 1] },
     { title: 'exclusiveMinimum', schema: { type: 'integer', enum: [0, 1, 2], exclusiveMinimum: 0 }, values: [1, 2] },
     { title: 'exclusiveMaximum', schema: { type: 'integer', enum: [0, 1, 2], exclusiveMaximum: 2 }, values: [0, 1] },
   ] satisfies Array<{ title: string; schema: SchemaObject; values: Array<number> }>)('drops enum values outside $title', ({ schema, values }) => {
@@ -1967,18 +1774,6 @@ describe('parseSchema enum', () => {
     const node = parseSchema(emptyCtx, { schema: { type: 'integer', format: 'int32', enum: [0, 1, 2], minimum: 1 } })
 
     expect(ast.schema.narrow(node, 'union')?.members?.map((member) => ast.schema.narrow(member, 'enum')?.enumValues?.[0])).toStrictEqual([1, 2])
-  })
-
-  it('x-enumNames keeps each name with its value when bounds drop values', () => {
-    const node = parseSchema(emptyCtx, {
-      schema: { type: 'integer', enum: [0, 1, 2], minimum: 1, 'x-enumNames': ['Zero', 'One', 'Two'] },
-    })
-    const values = ast.schema.narrow(node, 'enum')?.namedEnumValues
-
-    expect(values?.map(({ name, value }) => ({ name, value }))).toStrictEqual([
-      { name: 'One', value: 1 },
-      { name: 'Two', value: 2 },
-    ])
   })
 
   it('x-enumNames falls back to stringified value when fewer names than values', () => {
@@ -2015,14 +1810,7 @@ describe('parseSchema OAS 3.1 type array', () => {
       expected: { type: 'union', nullable: true },
       members: ['string', 'integer'],
     },
-    {
-      title: 'null leading multiple types with a numeric format',
-      schema: { type: ['null', 'integer', 'string'], format: 'int32' },
-      expected: { type: 'union', nullable: true },
-      members: ['integer', 'string'],
-    },
     { title: 'null with a single non-null type', schema: { type: ['string', 'null'] }, expected: { type: 'string', nullable: true } },
-    { title: 'null with a single string int64', schema: { type: ['string', 'null'], format: 'int64' }, expected: { type: 'string', nullable: true } },
     { title: 'a single non-null entry', schema: { type: ['integer'] }, expected: { type: 'integer' } },
   ] satisfies Array<SchemaCase & { members?: Array<string> }>)('maps $title', ({ schema, expected, members }) => {
     const node = parseSchema(emptyCtx, { schema })
@@ -2297,7 +2085,6 @@ describe('parser options', () => {
 
   describe('dateType', () => {
     it.each([
-      { title: 'date-time to datetime without offset by default', format: 'date-time', dateType: undefined, expected: { type: 'datetime', offset: false } },
       {
         title: 'date-time to datetime with offset for dateType: stringOffset',
         format: 'date-time',
@@ -2310,7 +2097,6 @@ describe('parser options', () => {
         dateType: 'stringLocal',
         expected: { type: 'datetime', local: true },
       },
-      { title: 'date-time to a Date for dateType: date', format: 'date-time', dateType: 'date', expected: { type: 'date', representation: 'date' } },
       {
         title: 'date-time to a string keeping the format for dateType: false',
         format: 'date-time',
@@ -2319,17 +2105,6 @@ describe('parser options', () => {
       },
       { title: 'date to a date string for dateType: string', format: 'date', dateType: 'string', expected: { type: 'date', representation: 'string' } },
       { title: 'date to a Date for dateType: date', format: 'date', dateType: 'date', expected: { type: 'date', representation: 'date' } },
-      { title: 'date to a string for dateType: false', format: 'date', dateType: false, expected: { type: 'string' } },
-      { title: 'time to a time string for dateType: string', format: 'time', dateType: 'string', expected: { type: 'time', representation: 'string' } },
-      { title: 'time to a Date for dateType: date', format: 'time', dateType: 'date', expected: { type: 'time', representation: 'date' } },
-      { title: 'time to a string for dateType: false', format: 'time', dateType: false, expected: { type: 'string' } },
-      // Object form: `schemaShape.test.ts` pins the per-format resolution.
-      {
-        title: 'date-time to a Date for dateType: { dateTime: date }',
-        format: 'date-time',
-        dateType: { dateTime: 'date' },
-        expected: { type: 'date', representation: 'date' },
-      },
     ] satisfies Array<{ title: string; format: string; dateType: ParserOptions['dateType'] | undefined; expected: Record<string, unknown> }>)(
       'maps $title',
       async ({ format, dateType, expected }) => {

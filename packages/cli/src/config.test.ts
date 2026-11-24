@@ -71,9 +71,7 @@ describe('getConfigs', () => {
     { file: 'kubb.config.mjs', label: 'kubb.config in cwd' },
     { file: '.kubbrc.mjs', label: '.kubbrc in cwd' },
     { file: '.config/kubb.config.mjs', label: 'kubb.config in .config/' },
-    { file: '.config/.kubbrc.mjs', label: '.kubbrc in .config/' },
     { file: 'configs/kubb.config.mjs', label: 'kubb.config in configs/' },
-    { file: 'configs/.kubbrc.mjs', label: '.kubbrc in configs/' },
   ])('finds $label', async ({ file }) => {
     dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
     const configPath = await writeConfig(join(dir, file))

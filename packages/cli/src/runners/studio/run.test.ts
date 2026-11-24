@@ -12,7 +12,8 @@ import * as config from '../../config.ts'
 import * as credentialsStore from './credentials.ts'
 import type { Credentials } from './credentials.ts'
 import * as background from './background.ts'
-import { connect, login, resolvePermissions, runStudio, type StudioOptions } from './run.ts'
+import { resolvePermissions } from './permissions.ts'
+import { connect, login, runStudio, type StudioOptions } from './run.ts'
 
 vi.mock('@clack/prompts', () => ({
   multiselect: vi.fn(),

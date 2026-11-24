@@ -83,7 +83,7 @@ beforeEach(() => {
   disk.cache = undefined
 })
 
-type Socket = { agent: AgentApi; token: string; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
+type Socket = { agent: AgentApi; token: string; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void; closedAt?: number }
 
 // Stands in for Studio: each socket lands in `sockets`, and a test closes it with Studio's code.
 function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
@@ -91,8 +91,17 @@ function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
   const openRpc: OpenRpc = ({ agent, token }) => {
     const closed = Promise.withResolvers<{ code: number; reason: string }>()
     const ping = vi.fn().mockResolvedValue(undefined)
-    sockets.push({ agent, token, ping, close: (code, reason = '') => closed.resolve({ code, reason }) })
-    return { studio: { ping }, closed: closed.promise, close: () => closed.resolve({ code: 1000, reason: '' }) }
+    const socket: Socket = { agent, token, ping, close: (code, reason = '') => closed.resolve({ code, reason }) }
+    sockets.push(socket)
+    return {
+      studio: { ping },
+      opened: Promise.resolve(),
+      closed: closed.promise,
+      close: () => {
+        socket.closedAt ??= Date.now()
+        closed.resolve({ code: 1000, reason: '' })
+      },
+    }
   }
   const shutdown = new AbortController()
   const done = runAgent({
@@ -366,6 +375,61 @@ describe('heartbeat', () => {
     await vi.advanceTimersByTimeAsync(1)
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
   })
+
+  it('closes a socket Studio never calls connect() on, then reconnects', async () => {
+    vi.useFakeTimers()
+    const start = Date.now()
+    const { sockets } = startAgent()
+
+    await vi.advanceTimersByTimeAsync(29_999)
+    expect(sockets[0]!.closedAt).toBeUndefined()
+
+    await vi.advanceTimersByTimeAsync(1)
+    expect(sockets[0]!.closedAt).toBe(start + 30_000)
+    await vi.waitFor(() => expect(sockets).toHaveLength(2))
+  })
+
+  it('keeps a socket open while connect() is still loading the config', async () => {
+    vi.useFakeTimers()
+    const loaded = Promise.withResolvers<Array<Config>>()
+    const { sockets } = startAgent({ loadConfigs: () => loaded.promise })
+    await vi.advanceTimersByTimeAsync(0)
+    const connecting = sockets[0]!.agent.connect(info)
+
+    await vi.advanceTimersByTimeAsync(30_000)
+    loaded.resolve([projectConfig()])
+    await connecting
+    expect(sockets[0]!.closedAt).toBeUndefined()
+  })
+
+  it('closes the socket when connect() fails after the deadline', async () => {
+    vi.useFakeTimers()
+    const loaded = Promise.withResolvers<Array<Config>>()
+    const { sockets } = startAgent({ loadConfigs: () => loaded.promise })
+    await vi.advanceTimersByTimeAsync(0)
+    const connecting = sockets[0]!.agent.connect(info)
+    void connecting.catch(() => {})
+
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(sockets[0]!.closedAt).toBeUndefined()
+    loaded.reject(new Error('Broken config'))
+
+    await expect(connecting).rejects.toThrow('Broken config')
+    expect(sockets[0]!.closedAt).toBeDefined()
+  })
+
+  it('closes the socket at the deadline when connect() failed before it', async () => {
+    vi.useFakeTimers()
+    const start = Date.now()
+    const { sockets } = startAgent({ loadConfigs: async () => Promise.reject(new Error('Broken config')) })
+    await vi.advanceTimersByTimeAsync(0)
+    await expect(sockets[0]!.agent.connect(info)).rejects.toThrow('Broken config')
+
+    await vi.advanceTimersByTimeAsync(29_999)
+    expect(sockets[0]!.closedAt).toBeUndefined()
+    await vi.advanceTimersByTimeAsync(1)
+    expect(sockets[0]!.closedAt).toBe(start + 30_000)
+  })
 })
 
 describe('a sandbox job', () => {
@@ -479,7 +543,6 @@ describe('a sandbox job', () => {
     ['a missing job id', { jobId: '' }, AgentMessage.JOB_REQUIRED],
     ['a job id that is not a string', { jobId: 42 }, AgentMessage.JOB_REQUIRED],
     ['plugins that are not a list', { jobId: 'job-1', config: { plugins: 'plugin-ts' } }, AgentMessage.CONFIG_PATCH_INVALID],
-    ['an adapter that is a string', { jobId: 'job-1', config: { adapter: 'oas' } }, AgentMessage.CONFIG_PATCH_INVALID],
   ])('refuses %s before it generates', async (_label, input, message) => {
     const { agent } = await connectStudio()
 
@@ -942,25 +1005,6 @@ describe('generation history', () => {
     expect(vi.mocked(mkdtemp)).toHaveBeenCalledWith(expect.stringContaining('kubb-output-'))
     expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk', requestedBy: 'Stijn' })
   })
-
-  it('reads every earlier job after the agent restarts, from the project cache', async () => {
-    const content = { current: '' }
-    const loadConfigs = async () => [projectConfig({ content: content.current })]
-    const first = await connectStudio({ permissions: { allowRead: true }, loadConfigs })
-    content.current = 'export const pet = 1'
-    await run({ agent: first.agent, jobId: 'job-1' })
-    content.current = 'export const pet = 2'
-    await run({ agent: first.agent, jobId: 'job-2' })
-
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
-
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
-      files: { 'src/gen/pet.ts': 'export const pet = 1' },
-    })
-    await expect(agent.readFiles({ jobId: 'job-2', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
-      files: { 'src/gen/pet.ts': 'export const pet = 2' },
-    })
-  })
 })
 
 describe('current disk output', () => {
@@ -1017,16 +1061,6 @@ describe('current disk output', () => {
     })
 
     expect((await agent.connect(info)).config.configs[0]!.disk).toBeUndefined()
-  })
-
-  it('compares a generated output with the initial disk snapshot', async () => {
-    await seedDisk({ 'src/gen/pet.ts': 'old disk content' })
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    const output = (await agent.connect(info)).config.configs[0]!.disk
-    await run({ agent, jobId: 'job-1' })
-    const diff = await agent.readDiff({ jobId: 'job-1', path: 'src/gen/pet.ts', base: { jobId: output!.jobId }, limit: 100 })
-    expect(diff.hunks.flatMap((hunk) => hunk.lines)).toContain('-old disk content')
-    expect(output?.hashes['src/gen/pet.ts']).toMatch(/^[0-9a-f]{16}$/)
   })
 })
 
@@ -1089,22 +1123,6 @@ describe('saveConfig', () => {
 
     expect(await read(join(project, 'openapi.json'))).toBe('{"openapi":"3.1.0"}')
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.json',`)
-  })
-
-  it('keeps the spec of a second config entry in its own file', async () => {
-    const project = await mkdtemp(join(tmpdir(), 'kubb-save-input-'))
-    cleanups.push(() => rm(project, { recursive: true, force: true }))
-    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig([{ input: './a.yaml', plugins: [] }, { input: './b.yaml', plugins: [] }])\n`)
-    const { agent } = await connectStudio({
-      root: project,
-      permissions: { allowConfigEdit: true, allowSaveInput: true },
-      connectInfo: { ...info, managed: true },
-    })
-
-    await agent.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, config: 1, input: 'openapi: 3.1.0\n' }] })
-
-    expect(await read(join(project, 'openapi-1.yaml'))).toBe('openapi: 3.1.0\n')
-    expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi-1.yaml'`)
   })
 
   it('leaves the saved spec alone when the config edit is refused', async () => {

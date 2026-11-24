@@ -4,6 +4,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { kubbStorage, resolveKubbDir } from '@kubb/core'
+import type { AgentPermission } from '@kubb/studio/protocol'
 
 const projectBase = (project = process.cwd()) => path.join('projects', hash('sha256', project))
 
@@ -56,21 +57,7 @@ export type Credentials = {
    * Permissions the user has already granted, keyed by absolute project path, so the CLI asks
    * once per project instead of on every run.
    */
-  projects?: Record<
-    string,
-    {
-      allowRead?: boolean
-      allowReadAst?: boolean
-      allowWrite?: boolean
-      allowConfigEdit?: boolean
-      allowInstall?: boolean
-      allowUpdate?: boolean
-      allowRemove?: boolean
-      allowSaveInput?: boolean
-      allowFileRefs?: boolean
-      allowExec?: boolean
-    }
-  >
+  projects?: Record<string, Partial<Record<AgentPermission, boolean>>>
 }
 
 /**

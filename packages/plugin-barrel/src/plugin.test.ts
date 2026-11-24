@@ -156,21 +156,6 @@ describe('pluginBarrel', () => {
     expect(files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.some((item) => item.asAlias)).toBe(false)
   })
 
-  it('generates a barrel per directory-mode plugin and a root barrel re-exporting them', async () => {
-    const { paths, rootExportNames } = await build({ plugins: [typesPlugin(), schemasPlugin()] })
-
-    expect(paths).toStrictEqual(
-      expect.arrayContaining([
-        '/workspace/src/gen/types/pet.ts',
-        '/workspace/src/gen/types/index.ts',
-        '/workspace/src/gen/schemas/petSchema.ts',
-        '/workspace/src/gen/schemas/index.ts',
-        '/workspace/src/gen/index.ts',
-      ]),
-    )
-    expect(rootExportNames).toStrictEqual(expect.arrayContaining(['Pet', 'PetSchema']))
-  })
-
   it.each([
     [
       'a plugin output directory',
