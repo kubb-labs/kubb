@@ -355,7 +355,13 @@ export function createImport(input: ImportInput): ImportNode {
   if (isOverride({ value: own.name, derived: derived.name })) return { ...withoutDerived(input), names: null, name: own.name ?? [], kind: nodeKinds.import }
   const names = overrideSpace(input.names, { value: own.isTypeOnly, derived: derived.isTypeOnly })
   const fields = toDeprecatedImport(names)
-  const node: ImportNode & WithDerived = { ...input, ...fields, names, [DERIVED]: { name: JSON.stringify(fields.name), isTypeOnly: fields.isTypeOnly }, kind: nodeKinds.import }
+  const node: ImportNode & WithDerived = {
+    ...input,
+    ...fields,
+    names,
+    [DERIVED]: { name: JSON.stringify(fields.name), isTypeOnly: fields.isTypeOnly },
+    kind: nodeKinds.import,
+  }
   return node
 }
 
@@ -377,7 +383,14 @@ export function createExport(input: ExportInput): ExportNode {
   if (isOverride({ value: own.name, derived: derived.name })) return { ...withoutDerived(input), name: own.name, names: null, kind: nodeKinds.export }
   const names = overrideSpace(input.names, { value: own.isTypeOnly, derived: derived.isTypeOnly })
   const fields = toDeprecatedExport(names)
-  const node: ExportNode & WithDerived = { ...input, ...fields, name: fields.name, names, [DERIVED]: { name: JSON.stringify(fields.name), isTypeOnly: fields.isTypeOnly }, kind: nodeKinds.export }
+  const node: ExportNode & WithDerived = {
+    ...input,
+    ...fields,
+    name: fields.name,
+    names,
+    [DERIVED]: { name: JSON.stringify(fields.name), isTypeOnly: fields.isTypeOnly },
+    kind: nodeKinds.export,
+  }
   return node
 }
 
