@@ -3,6 +3,8 @@
   "globalDependencies": [
     "tsconfig.json",
     "tsconfig.dts.json",
+    "configs/base.json",
+    "configs/bundler.json",
     "globals.d.ts"
   ],
   "globalEnv": [
