@@ -13,3 +13,4 @@ export { detectTool, formatters, linters, tokenize, FORMATTER_PREFERENCE, LINTER
 export { formatMs, getElapsedMs } from './time.ts'
 export { runtime } from './runtime.ts'
 export { dedent, indent, unquote } from './text.ts'
+export { isSecureUrl } from './url.ts'

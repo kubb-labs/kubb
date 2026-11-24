@@ -3,7 +3,7 @@ import { defineExtension } from '@kubb/core'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
 import { inlineTs } from './inline.ts'
-import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath, splitModuleDeclarations, type TsNode } from './utils.ts'
+import { print, printExport, printImport, printSource, resolveOutputPath, splitModuleDeclarations, type TsNode } from './utils.ts'
 
 const DEFAULT_EXTENSION: Record<ast.FileNode['extname'], ast.FileNode['extname'] | ''> = { '.ts': '' }
 
@@ -73,7 +73,7 @@ export const parserTs = defineExtension<ParserTsOptions, object, string | TsNode
         const importLines = file.imports.map((item) =>
           printImport({
             names: ast.file.getNames(item),
-            path: resolveOutputPath(item.root ? getRelativePath(item.root, item.path) : item.path, extname, Boolean(item.root)),
+            path: resolveOutputPath(item.root ? ast.file.getRelativePath(item.root, item.path) : item.path, extname, Boolean(item.root)),
           }),
         )
 

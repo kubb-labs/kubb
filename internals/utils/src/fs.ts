@@ -1,6 +1,6 @@
 import { existsSync, readFile, readFileSync, writeFile } from 'node:fs'
 import { access, glob as globNode, mkdir } from 'node:fs/promises'
-import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { runtime } from './runtime.ts'
 
 export { existsSync } from 'node:fs'
@@ -217,5 +217,6 @@ export function isPathInside(path: string, parent: string): boolean {
 
   const rel = relative(resolvedParent, resolvedPath)
 
-  return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel)
+  // A child named `..cache` stays inside; only a `..` segment leaves.
+  return rel !== '' && rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel)
 }

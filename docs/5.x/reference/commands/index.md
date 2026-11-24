@@ -76,7 +76,7 @@ kubb <command> [options]
 | `KUBB_DEBUG` | every command | `1` or `true` turns on source maps in stack traces. Slows startup. |
 | `CI` | every command | Any value except `false` or `0` marks a CI run: plain output, no update check, and no Studio pairing. `GITHUB_ACTIONS`, `GITLAB_CI`, and other provider variables count too. |
 | `KUBB_HOME` | `generate`, `studio` | Folder for the update check and Studio credentials, worker state, and log. Default: `~/.kubb`. |
-| `KUBB_REGISTRY` | `init`, `add`, `update`, `list`, `remove` | Registry base URL, starting with `http://` or `https://`. Default: `https://kubb.dev/registry`. |
+| `KUBB_REGISTRY` | `init`, `add`, `update`, `list`, `remove` | Registry base URL. Use `https://`, or `http://` only for `localhost`, `127.0.0.1` or `[::1]`. Default: `https://kubb.dev/registry`. |
 | `KUBB_TOKEN` | `studio snapshot` | Organization CI API key, the default for `--token`. |
 | `KUBB_AGENT_MAX_GENERATIONS` | `studio` | How many recent generations the agent keeps for Studio. Default: `8`. |
 | `KUBB_AGENT_MAX_GENERATIONS_MB` | `studio` | Size cap in MB for those generations. Default: `100`. |

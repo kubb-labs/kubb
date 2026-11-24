@@ -187,6 +187,12 @@ export const diagnosticCatalog = {
     cause: 'A resolved output path escaped the output directory, which can stem from a path traversal in the spec or a misconfigured `group.name`.',
     fix: 'Keep generated paths within the output directory. Review the `group.name` function and the names coming from the spec.',
   },
+  outsideOutput: {
+    code: 'KUBB_OUTSIDE_OUTPUT',
+    title: 'File outside the output folder',
+    cause: 'A plugin wrote a file outside `output.path` and `shared.path`. Kubb still writes it, but `output.clean` never removes it.',
+    fix: 'Check the plugin `output.path` and the `group.name` function, and keep every generated path inside `output.path`.',
+  },
   cleanRoot: {
     code: 'KUBB_CLEAN_ROOT',
     title: 'Clean targets the project root',

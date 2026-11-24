@@ -1,6 +1,7 @@
 import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { parserTs } from './parserTs.ts'
+import { parserTsx } from './parserTsx.ts'
 
 describe('parserTs', () => {
   it('returns the declarations separated by blank lines when a source has several nodes', async () => {
@@ -238,5 +239,14 @@ describe('parserTs', () => {
 
       expect(copy(parserTs(), source)).toBe([header, "import { api } from './api'", 'api()'].join('\n\n'))
     })
+  })
+})
+
+describe('parserTsx', () => {
+  it('carries the version and compatibility of parserTs, so the compatibility check covers it', () => {
+    const { version, compatibility } = parserTs().meta ?? {}
+
+    expect(parserTsx().meta).toMatchObject({ name: 'tsx', version, compatibility })
+    expect(version).toEqual(expect.any(String))
   })
 })

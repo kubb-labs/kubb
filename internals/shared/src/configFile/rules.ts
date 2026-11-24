@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { type ExtensionKind, isPackageName } from '@kubb/core'
-import { camelCase } from '@internals/utils'
+import { camelCase, formatters, linters } from '@internals/utils'
 import { extensionKinds, type InstalledExtensions, type OptionValue } from './types.ts'
 
 /** `@kubb/plugin-ts` becomes `plugin-ts`, the `name` Kubb plugin factories use. */
@@ -55,8 +55,8 @@ export function isOptionValue(value: unknown): value is OptionValue {
 /** The root `output` members Studio may set, with the values each takes. */
 const OUTPUT_VALUES: Record<string, (value: unknown) => boolean> = {
   barrel: (value) => value === false || (isPlainObject(value) && Object.keys(value).length === 1 && (value.type === 'named' || value.type === 'all')),
-  format: (value) => value === false || ['auto', 'prettier', 'biome', 'oxfmt'].includes(value as string),
-  lint: (value) => value === false || ['auto', 'eslint', 'biome', 'oxlint'].includes(value as string),
+  format: (value) => value === false || value === 'auto' || (typeof value === 'string' && Object.hasOwn(formatters, value)),
+  lint: (value) => value === false || value === 'auto' || (typeof value === 'string' && Object.hasOwn(linters, value)),
   clean: (value) => typeof value === 'boolean',
   defaultBanner: (value) => value === false || value === 'simple' || value === 'full',
 }
