@@ -6,7 +6,8 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
-import { getErrorMessage, isPathInside, mkdtemp, read, rm, toError } from '@internals/utils'
+import { stripVTControlCharacters } from 'node:util'
+import { getErrorMessage, isPathInside, mkdtemp, read, rm, toError, writeRaw } from '@internals/utils'
 import {
   Diagnostics,
   cacheStorage,
@@ -26,7 +27,7 @@ import {
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
-import { BUNDLED_PACKAGES, editConfigFile, pickOutput, readConfig, readImports } from '@internals/shared'
+import { BUNDLED_PACKAGES, editConfig, pickOutput, readConfig, readImports } from '@internals/shared'
 import { signAgentPayload } from './agentKey.ts'
 import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
@@ -95,6 +96,7 @@ const PING_TIMEOUT_MS = 10_000
 const OPEN_TIMEOUT_MS = 5_000
 const MAX_RETRY_DELAY_MS = 30_000
 const DISK_SNAPSHOT_MAX_FILES = 10_000
+const MAX_REQUESTED_BY_LENGTH = 64
 // Sandboxes keep temporary output sets with a short lifetime.
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
 // What Studio may send a managed agent as its spec. Not `file` or `object`: a path would read the container's disk.
@@ -434,7 +436,14 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string, requestedBy?: string, failed?: boolean): Promise<void> {
-    return emit(this.#options.hooks, 'studio:command', { command, info, requestedBy, failed })
+    // Another member's display name is printed in this terminal, so it must not carry escape sequences.
+    const name =
+      typeof requestedBy === 'string'
+        ? stripVTControlCharacters(requestedBy)
+            .replace(/\p{Cc}/gu, '')
+            .slice(0, MAX_REQUESTED_BY_LENGTH)
+        : undefined
+    return emit(this.#options.hooks, 'studio:command', { command, info, requestedBy: name, failed })
   }
 
   // Not cached: the user can edit the file between two Studio actions.
@@ -601,12 +610,12 @@ class Agent extends RpcTarget implements AgentApi {
     const config = pickConfig(configs, patch?.config)
     if (!config) return this.#refuse({ message: AgentMessage.CONFIG_ENTRY_NOT_FOUND })
     const [plugins, adapter, parsers] = await Promise.all([
-      mergePlugins({ diskPlugins: config.plugins, studioPlugins: patch?.plugins, extensions }).then((merged) => {
+      mergePlugins({ diskPlugins: config.plugins, studioPlugins: patch?.plugins, extensions, root: this.#options.root }).then((merged) => {
         assertOutputPaths({ plugins: merged ?? [], diskPlugins: config.plugins, root, outputPath: config.output.path })
         return merged
       }),
-      mergeAdapter(config.adapter, patch?.adapter, extensions),
-      mergeParsers({ diskParsers: config.parsers, studioParsers: patch?.parsers, extensions }),
+      mergeAdapter(config.adapter, patch?.adapter, extensions, this.#options.root),
+      mergeParsers({ diskParsers: config.parsers, studioParsers: patch?.parsers, extensions, root: this.#options.root }),
     ]).catch(async (error: unknown) => {
       // Thrown before core runs, so nothing else reports it to the host.
       await emit(this.#options.hooks, 'kubb:error', { error: toError(error) })
@@ -713,23 +722,34 @@ class Agent extends RpcTarget implements AgentApi {
     try {
       const kept: Array<KeptEdit> = []
       for (const edit of edits) kept.push(await this.#keepInput(edit))
-      const written = await editConfigFile({
-        filePath: configFile,
-        edits: kept.flatMap((edit) => ('reason' in edit ? [] : [edit])),
-        extensions: await this.#installedExtensions(),
-      })
-      let next = 0
-      // Back in the order Studio sent them, each naming the edit as sent rather than the document's file.
-      const outcomes = kept.map((edit, index) =>
-        'reason' in edit ? { edit: edits[index]!, applied: false, reason: edit.reason } : { ...written.outcomes[next++]!, edit: edits[index]! },
-      )
-      // A document is written only once its config edit applied, in edit order, so the last edit for a file wins.
+      const [source, extensions] = await Promise.all([read(configFile), this.#installedExtensions()])
+      const applyEdits = (failed: Map<number, string>) => {
+        const result = editConfig({ source, edits: kept.flatMap((item, index) => ('reason' in item || failed.has(index) ? [] : [item])), extensions })
+        let next = 0
+        // Back in the order Studio sent them, each naming the edit as sent rather than the document's file.
+        const outcomes = kept.map((item, index): SaveResult['outcomes'][number] => {
+          const reason = 'reason' in item ? item.reason : failed.get(index)
+          return reason !== undefined ? { edit: edits[index]!, applied: false, reason } : { ...result.outcomes[next++]!, edit: edits[index]! }
+        })
+        return { ...result, outcomes }
+      }
+      let written = applyEdits(new Map())
+      // Documents go first, in edit order so the last edit for a file wins, and only for an edit that applies.
+      const failed = new Map<number, string>()
       let wroteDocument = false
       for (const [index, edit] of kept.entries()) {
-        if (!('document' in edit) || !edit.document || !outcomes[index]!.applied) continue
-        await writeFile(path.join(this.#options.root, edit.document.fileName), edit.document.text, 'utf-8')
-        wroteDocument = true
+        if (!('document' in edit) || !edit.document || !written.outcomes[index]!.applied) continue
+        try {
+          await writeFile(path.join(this.#options.root, edit.document.fileName), edit.document.text, 'utf-8')
+          wroteDocument = true
+        } catch (error) {
+          failed.set(index, getErrorMessage(error))
+        }
       }
+      // An edit whose document failed is left out, so the config never points at a missing file.
+      if (failed.size) written = applyEdits(failed)
+      if (written.changed) await writeRaw(configFile, written.source)
+      const { outcomes } = written
       const changed = written.changed || wroteDocument
       const applied = outcomes.filter((outcome) => outcome.applied).length
       await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`, input.requestedBy)

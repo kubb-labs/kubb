@@ -21,13 +21,13 @@ import type { AgentType, InstalledExtensions, JSONKubbConfig } from './protocol.
  *
  * `import()` resolves from this file, so a linked or globally installed Studio (`pnpm link`,
  * `npm i -g`) only sees its own `node_modules` and misses the plugins installed next to the user's
- * config. The retry resolves from `process.cwd()` instead.
+ * config. The retry resolves from the project `root` instead, where the extensions are found.
  */
-async function importFromProject(packageName: string): Promise<Record<string, unknown>> {
+async function importFromProject(packageName: string, root: string): Promise<Record<string, unknown>> {
   try {
     return await import(packageName)
   } catch {
-    const requireModule = createRequire(pathToFileURL(`${process.cwd()}/`))
+    const requireModule = createRequire(pathToFileURL(`${root}/`))
     // `requireModule.resolve` picks the package's `require` condition, so prefer the ESM build sitting
     // next to it. Loading the CJS copy would pull in a second `@kubb/core` instance.
     const resolved = requireModule.resolve(packageName)
@@ -92,15 +92,17 @@ async function loadFactory({
   packageName,
   extensions,
   kind = 'plugin',
+  root,
 }: {
   packageName: string
   extensions: InstalledExtensions
   kind?: ExtensionKind
+  root: string
 }): Promise<(options: unknown) => unknown> {
   const label = { plugin: 'Plugin', adapter: 'Adapter', parser: 'Parser' }[kind]
   let mod: Record<string, unknown>
   try {
-    mod = await importFromProject(packageName)
+    mod = await importFromProject(packageName, root)
   } catch (cause) {
     throw new Diagnostics.Error({
       code: kind === 'plugin' ? Diagnostics.code.pluginNotFound : Diagnostics.code.unknown,
@@ -150,9 +152,11 @@ async function loadFactory({
 export async function resolvePlugins({
   plugins,
   extensions = new Map(),
+  root = process.cwd(),
 }: {
   plugins: NonNullable<JSONKubbConfig['plugins']>
   extensions?: InstalledExtensions
+  root?: string
 }): Promise<Array<Plugin>> {
   return Promise.all(
     plugins.map(async ({ name, options }) => {
@@ -163,7 +167,7 @@ export async function resolvePlugins({
           message: `Plugin "${name}" is not an installed Kubb plugin. Studio loads @kubb/plugin-* packages and installed packages that ship a kubb-extension.json with kind "plugin".`,
         })
       }
-      const factory = await loadFactory({ packageName: name, extensions })
+      const factory = await loadFactory({ packageName: name, extensions, root })
       // Through the same filter as merged options, so a key such as `__proto__` never reaches the factory.
       return factory(mergeOptions({}, (options as Record<string, unknown>) ?? {})) as Plugin
     }),
@@ -270,10 +274,12 @@ export async function mergePlugins({
   diskPlugins,
   studioPlugins,
   extensions = new Map(),
+  root,
 }: {
   diskPlugins: Array<Plugin> | undefined
   studioPlugins: JSONKubbConfig['plugins'] | undefined
   extensions?: InstalledExtensions
+  root?: string
 }): Promise<Array<Plugin> | undefined> {
   const pluginNameOf = (packageName: string) => extensions.get(packageName)?.manifest.name ?? toPluginName(packageName)
   // Matched on the package's base name rather than by instantiating first. Every Kubb plugin
@@ -286,7 +292,7 @@ export async function mergePlugins({
   if (!activeDiskPlugins && !activeStudioPlugins?.length) return undefined
   if (!activeStudioPlugins?.length) return activeDiskPlugins
 
-  if (!activeDiskPlugins) return resolvePlugins({ plugins: activeStudioPlugins, extensions })
+  if (!activeDiskPlugins) return resolvePlugins({ plugins: activeStudioPlugins, extensions, root })
 
   const studioEntryByName = new Map(activeStudioPlugins.map((entry) => [pluginNameOf(entry.name), entry] as const))
   const diskNames = new Set(activeDiskPlugins.map((plugin) => plugin.name))
@@ -306,7 +312,7 @@ export async function mergePlugins({
       // A plugin defined in the user's project has no package to re-instantiate it from. Studio
       // echoing its options back unchanged is fine, any real change can only be made on disk.
       const unchanged = JSON.stringify(toJSONOptions(options)) === JSON.stringify(toJSONOptions(diskOptions))
-      const [resolved] = await resolvePlugins({ plugins: [{ name: studioEntry.name, options }], extensions }).catch((cause: unknown) => {
+      const [resolved] = await resolvePlugins({ plugins: [{ name: studioEntry.name, options }], extensions, root }).catch((cause: unknown) => {
         if (unchanged) return [diskPlugin]
         throw new Diagnostics.Error({
           code: Diagnostics.code.pluginNotFound,
@@ -322,7 +328,7 @@ export async function mergePlugins({
 
   const studioOnly = activeStudioPlugins.filter((entry) => !diskNames.has(pluginNameOf(entry.name)))
 
-  return [...merged, ...(await resolvePlugins({ plugins: studioOnly, extensions }))]
+  return [...merged, ...(await resolvePlugins({ plugins: studioOnly, extensions, root }))]
 }
 
 /**
@@ -406,18 +412,20 @@ async function rebuildExtension<T extends Adapter | Parser>({
   studioOptions,
   kind,
   extensions,
+  root,
 }: {
   disk: T
   studioOptions: object | undefined
   kind: ExtensionKind
   extensions: InstalledExtensions
+  root: string
 }): Promise<T> {
   if (!studioOptions || !Object.keys(studioOptions).length) return disk
 
   const { name } = resolveMeta(disk)
   const installed = [...extensions.values()].find(({ manifest }) => manifest.kind === kind && manifest.name === name)
   const packageName = installed?.package ?? `@kubb/${kind}-${name}`
-  const factory = await loadFactory({ packageName, extensions, kind }).catch((cause: unknown) => {
+  const factory = await loadFactory({ packageName, extensions, kind, root }).catch((cause: unknown) => {
     throw new Diagnostics.Error({
       code: kind === 'plugin' ? Diagnostics.code.pluginNotFound : Diagnostics.code.unknown,
       severity: 'error',
@@ -439,10 +447,15 @@ export function mergeOutput({ output, studio }: { output: Config['output']; stud
 /**
  * Merges Studio-provided adapter option overrides into the disk config's adapter, see {@link rebuildExtension}.
  */
-export async function mergeAdapter(diskAdapter: Adapter | undefined, studioOptions: object | undefined, extensions: InstalledExtensions = new Map()) {
+export async function mergeAdapter(
+  diskAdapter: Adapter | undefined,
+  studioOptions: object | undefined,
+  extensions: InstalledExtensions = new Map(),
+  root = process.cwd(),
+) {
   if (!diskAdapter) return diskAdapter
 
-  return rebuildExtension({ disk: diskAdapter, studioOptions, kind: 'adapter', extensions })
+  return rebuildExtension({ disk: diskAdapter, studioOptions, kind: 'adapter', extensions, root })
 }
 
 /**
@@ -453,10 +466,12 @@ export async function mergeParsers({
   diskParsers,
   studioParsers,
   extensions = new Map(),
+  root = process.cwd(),
 }: {
   diskParsers: Array<Parser>
   studioParsers: JSONKubbConfig['parsers'] | undefined
   extensions?: InstalledExtensions
+  root?: string
 }): Promise<Array<Parser>> {
   if (!studioParsers?.length) return diskParsers
 
@@ -469,6 +484,7 @@ export async function mergeParsers({
         studioOptions: studioOptions.get(toStudioName({ name: resolveMeta(parser).name, extensions, kind: 'parser' })),
         kind: 'parser',
         extensions,
+        root,
       }),
     ),
   )

@@ -1,3 +1,6 @@
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { type Adapter, Diagnostics, type ExtensionManifest, type Parser, type Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionEntry, JSONKubbConfig } from './protocol.ts'
@@ -203,6 +206,21 @@ describe('resolvePlugins', () => {
     })
 
     expect(plugin).toStrictEqual({ name: 'plugin-x', options: { mode: 'a' } })
+  })
+
+  it('falls back to resolving the plugin from the project root', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'kubb-root-'))
+    const dir = path.join(root, 'node_modules', '@acme', 'kubb-plugin-y')
+    await mkdir(dir, { recursive: true })
+    await writeFile(path.join(dir, 'package.json'), JSON.stringify({ name: '@acme/kubb-plugin-y', type: 'module', main: 'index.js' }))
+    await writeFile(path.join(dir, 'index.js'), "export const pluginY = (options) => ({ name: 'plugin-y', options })")
+    const extensions = new Map([['@acme/kubb-plugin-y', extension('@acme/kubb-plugin-y', { kind: 'plugin', name: 'plugin-y', export: 'pluginY' })]])
+
+    try {
+      await expect(resolvePlugins({ plugins: [{ name: '@acme/kubb-plugin-y' }], extensions, root })).resolves.toStrictEqual([{ name: 'plugin-y', options: {} }])
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
   })
 
   it('drops unsafe keys from the options of a plugin only Studio names', async () => {
