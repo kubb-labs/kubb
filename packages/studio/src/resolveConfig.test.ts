@@ -1,7 +1,17 @@
 import { type Adapter, Diagnostics, type ExtensionManifest, type Parser, type Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionEntry, JSONKubbConfig } from './protocol.ts'
-import { assertOutputPaths, mergeOptions, mergeOutput, mergeParsers, mergePlugins, resolveFileRefs, resolvePlugins, toJSONOptions } from './resolveConfig.ts'
+import {
+  assertOutputPaths,
+  isStudioConfigPatch,
+  mergeOptions,
+  mergeOutput,
+  mergeParsers,
+  mergePlugins,
+  resolveFileRefs,
+  resolvePlugins,
+  toJSONOptions,
+} from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -112,6 +122,13 @@ describe('mergeOptions', () => {
     })
   })
 
+  it('drops unsafe keys at any depth from a value the disk does not have', () => {
+    const merged = mergeOptions({}, JSON.parse('{"group":{"__proto__":{"polluted":true},"type":"tag"},"exclude":[{"constructor":1,"type":"tag"}]}'))
+
+    expect(merged).toStrictEqual({ group: { type: 'tag' }, exclude: [{ type: 'tag' }] })
+    expect(Object.getPrototypeOf(merged.group)).toBe(Object.prototype)
+  })
+
   it('unsets a disk value when studio sends null, so the factory default applies', () => {
     expect(mergeOptions({ emptySchemaType: 'any', unknownType: 'void' }, { emptySchemaType: null })).toStrictEqual({ unknownType: 'void' })
   })
@@ -132,6 +149,31 @@ describe('mergeOptions', () => {
       exclude: disk.exclude,
       group: { type: 'path', name },
     })
+  })
+})
+
+describe('isStudioConfigPatch', () => {
+  it.each([
+    ['an empty object', {}],
+    [
+      'named plugins, parsers and an adapter object',
+      { plugins: [{ name: '@kubb/plugin-ts', options: {}, disabled: false }], parsers: [{ name: 'ts' }], adapter: {} },
+    ],
+  ])('accepts %s', (_label, patch) => {
+    expect(isStudioConfigPatch(patch)).toBe(true)
+  })
+
+  it.each([
+    ['a string', 'plugins'],
+    ['an array', []],
+    ['plugins that are not a list', { plugins: 'plugin-ts' }],
+    ['a plugin without a name', { plugins: [{ options: {} }] }],
+    ['plugin options that are not an object', { plugins: [{ name: '@kubb/plugin-ts', options: 'x' }] }],
+    ['parsers that are not a list', { parsers: {} }],
+    ['an adapter that is a string', { adapter: 'oas' }],
+    ['an input that is not a string', { input: { path: './spec.yaml' } }],
+  ])('refuses %s', (_label, patch) => {
+    expect(isStudioConfigPatch(patch)).toBe(false)
   })
 })
 
@@ -161,6 +203,15 @@ describe('resolvePlugins', () => {
     })
 
     expect(plugin).toStrictEqual({ name: 'plugin-x', options: { mode: 'a' } })
+  })
+
+  it('drops unsafe keys from the options of a plugin only Studio names', async () => {
+    const [plugin] = await resolvePlugins({
+      plugins: [{ name: '@kubb/plugin-ts', options: JSON.parse('{"__proto__":{"polluted":true},"enumType":"asConst"}') }],
+    })
+
+    expect(plugin).toStrictEqual({ name: 'plugin-ts', options: { enumType: 'asConst' } })
+    expect(Object.getPrototypeOf((plugin as { options: object }).options)).toBe(Object.prototype)
   })
 })
 

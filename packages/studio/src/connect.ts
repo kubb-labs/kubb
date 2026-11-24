@@ -74,7 +74,17 @@ import {
   type UpdateExtensionsResult,
 } from './protocol.ts'
 import { withPublicFetch } from './publicFetch.ts'
-import { assertOutputPaths, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, resolveFileRefs, toJSONOptions, toStudioName } from './resolveConfig.ts'
+import {
+  assertOutputPaths,
+  isStudioConfigPatch,
+  mergeAdapter,
+  mergeOutput,
+  mergeParsers,
+  mergePlugins,
+  resolveFileRefs,
+  toJSONOptions,
+  toStudioName,
+} from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -89,6 +99,11 @@ const DISK_SNAPSHOT_MAX_FILES = 10_000
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
 // What Studio may send a managed agent as its spec. Not `file` or `object`: a path would read the container's disk.
 const MANAGED_INPUT_KINDS = new Set<InputKind>(['inline', 'url', 'git'])
+
+/** Whether the adapter reads `input` from disk: a file, or a `url` that is not http(s), such as `C:\spec.yaml`. */
+function isFileInput(input: string, kind = getInputKind(input)): boolean {
+  return kind === 'file' || (kind === 'url' && !/^https?:/i.test(input))
+}
 
 /**
  * Studio closed with {@link AgentCloseCode.UNAUTHORIZED}. Hosts forget the token and pair again.
@@ -187,7 +202,8 @@ export type ConnectAgentOptions = {
   permissions?: Partial<AgentPermissions>
   /**
    * The kind of agent the host runs. A `'sandbox'` or `'global'` agent is shared, and lets Studio read what it generated.
-   * Studio's own `sandbox` and `managed` flags only take permissions away.
+   * Studio's `sandbox` flag only takes permissions away. Its `managed` flag also lets Studio send the spec to
+   * generate from, as a URL or a git file as well as content, which this agent then fetches or checks out.
    * @default 'user'
    */
   agentType?: AgentType
@@ -227,7 +243,8 @@ type Session = {
   info?: AgentConnectInfo
   connected: PromiseWithResolvers<AgentConnectInfo>
   closed: boolean
-  active?: { jobId: string; abort: () => void; settled: Promise<void> }
+  // `info` is the connect info the generation started with, so a `connect()` during it cannot change its mode.
+  active?: { jobId: string; info?: AgentConnectInfo; abort: () => void; settled: Promise<void> }
   install?: { abort: () => void; settled: Promise<void> }
   saving?: boolean
 }
@@ -340,12 +357,16 @@ class Agent extends RpcTarget implements AgentApi {
     this.#session = session
   }
 
+  get #info(): AgentConnectInfo | undefined {
+    return this.#session.active?.info ?? this.#session.info
+  }
+
   get #sandbox(): boolean {
-    return SHARED_AGENT_TYPES.has(this.#options.agentType) || this.#session.info?.sandbox === true
+    return SHARED_AGENT_TYPES.has(this.#options.agentType) || this.#info?.sandbox === true
   }
 
   get #managed(): boolean {
-    return this.#options.agentType === 'managed' || this.#session.info?.managed === true
+    return this.#options.agentType === 'managed' || this.#info?.managed === true
   }
 
   // The host's kind, unless Studio's flags narrow it to a sandbox or a managed agent.
@@ -516,11 +537,19 @@ class Agent extends RpcTarget implements AgentApi {
     this.#assertConnected()
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#session.closed) throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Connection is closed' })
+    // The job id becomes a key for the kept output, so a malformed one is refused before any work.
+    if (typeof input?.jobId !== 'string' || !input.jobId) return this.#refuse({ message: AgentMessage.JOB_REQUIRED })
+    if (input.config !== undefined && !isStudioConfigPatch(input.config)) return this.#refuse({ message: AgentMessage.CONFIG_PATCH_INVALID })
     if (this.#session.active) return this.#refuse({ message: AgentMessage.GENERATION_IN_PROGRESS })
     if (this.#session.install) return this.#refuse({ message: AgentMessage.INSTALL_IN_PROGRESS })
     if (this.#session.saving) return this.#refuse({ message: AgentMessage.SAVE_IN_PROGRESS })
     const settled = Promise.withResolvers<void>()
-    this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
+    this.#session.active = {
+      jobId: input.jobId,
+      info: this.#session.info,
+      abort: () => controller.abort(new Error('Generation canceled')),
+      settled: settled.promise,
+    }
     let root = this.#options.root
     let outputRoot: string | undefined
 
@@ -561,7 +590,7 @@ class Agent extends RpcTarget implements AgentApi {
       return this.#refuse({ message: AgentMessage.SANDBOX_INPUT_ONLY })
     }
     // Studio may point a managed agent at a URL or a git file, and it falls back to its config's input without one. A file path would read the container's disk.
-    if (this.#managed && studioInput !== undefined && !MANAGED_INPUT_KINDS.has(getInputKind(studioInput))) {
+    if (this.#managed && studioInput !== undefined && (!MANAGED_INPUT_KINDS.has(getInputKind(studioInput)) || isFileInput(studioInput))) {
       return this.#refuse({ message: AgentMessage.MANAGED_INPUT_KIND })
     }
 
@@ -725,10 +754,9 @@ class Agent extends RpcTarget implements AgentApi {
       return { reason: 'the agent was not granted permission to save the input' }
     }
     const kind = getInputKind(edit.input)
-    if (this.#managed && !MANAGED_INPUT_KINDS.has(kind)) return { reason: AgentMessage.MANAGED_INPUT_KIND }
+    const isFilePath = isFileInput(edit.input, kind)
+    if (this.#managed && (!MANAGED_INPUT_KINDS.has(kind) || isFilePath)) return { reason: AgentMessage.MANAGED_INPUT_KIND }
     // The next generation reads the input file itself, and the `$ref` limit does not cover it.
-    // A `url` that is not http(s), such as `C:\spec.yaml`, is read as a file path too.
-    const isFilePath = kind === 'file' || (kind === 'url' && !/^https?:/i.test(edit.input))
     if (isFilePath && !isPathInside(path.resolve(this.#options.root, edit.input), this.#options.root)) {
       return { reason: 'the input is a file outside the project' }
     }

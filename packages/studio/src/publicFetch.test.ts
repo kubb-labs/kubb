@@ -72,4 +72,20 @@ describe('withPublicFetch', () => {
     ).rejects.toThrow('boom')
     expect(globalThis.fetch).toBe(original)
   })
+
+  it('keeps the public fetch until the last of two overlapping runs ends, then restores the original', async () => {
+    const original = globalThis.fetch
+    const first = Promise.withResolvers<void>()
+    const second = Promise.withResolvers<void>()
+    const firstRun = withPublicFetch(() => first.promise)
+    const secondRun = withPublicFetch(() => second.promise)
+
+    first.resolve()
+    await firstRun
+    expect(globalThis.fetch).not.toBe(original)
+
+    second.resolve()
+    await secondRun
+    expect(globalThis.fetch).toBe(original)
+  })
 })

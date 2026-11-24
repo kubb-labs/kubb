@@ -25,8 +25,9 @@ export {
 export type JSONKubbConfig = {
   /**
    * Plugins with their serialized options. `name` is the package name (e.g. `@kubb/plugin-ts`)
-   * and `options` is an opaque blob the agent forwards unchanged to the plugin factory. An entry
-   * with `disabled: true` is dropped even when the disk config's `plugins` array still lists it.
+   * and `options` is an opaque blob the agent forwards to the plugin factory, without unsafe keys
+   * such as `__proto__`. An entry with `disabled: true` is dropped even when the disk config's
+   * `plugins` array still lists it.
    */
   plugins?: Array<{
     name: string
@@ -319,6 +320,7 @@ export const AgentMessage = {
   MANAGED_INPUT_KIND: 'A managed agent generates from the OpenAPI document content, a URL, or a git file that Studio sends, not from a file path',
   CONFIG_ENTRY_NOT_FOUND: 'The config file has no entry at that position or with that name',
   JOB_REQUIRED: 'The request must name a job',
+  CONFIG_PATCH_INVALID: 'The config from Studio must be an object, with plugins and parsers as lists of named entries and the adapter as an object',
   FILE_REQUEST_INVALID: 'The request must name an output set and carry paths',
   TOO_MANY_FILES: 'Too many paths were requested at once',
   INVALID_PAGE: 'The requested file page is invalid',
@@ -354,7 +356,8 @@ export type AgentType = 'user' | 'cli' | 'ci' | 'sandbox' | 'global' | 'managed'
 
 /**
  * What Studio knows about the agent on the other end of a socket. Studio passes it with every
- * {@link AgentApi.connect} call. Its `sandbox` flag can only take permissions away. The host decides the rest.
+ * {@link AgentApi.connect} call. Its `sandbox` flag can only take permissions away. Its `managed` flag also lets
+ * Studio send the spec, as content, a URL or a git file, which the agent fetches or checks out. The host decides the rest.
  */
 export type AgentConnectInfo = {
   /**

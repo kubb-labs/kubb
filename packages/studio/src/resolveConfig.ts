@@ -164,9 +164,30 @@ export async function resolvePlugins({
         })
       }
       const factory = await loadFactory({ packageName: name, extensions })
-      return factory(options ?? {}) as Plugin
+      // Through the same filter as merged options, so a key such as `__proto__` never reaches the factory.
+      return factory(mergeOptions({}, (options as Record<string, unknown>) ?? {})) as Plugin
     }),
   )
+}
+
+const isNamedEntry = (entry: unknown): boolean =>
+  isPlainObject(entry) &&
+  typeof entry.name === 'string' &&
+  (entry.options === undefined || isPlainObject(entry.options)) &&
+  (entry.disabled === undefined || typeof entry.disabled === 'boolean')
+
+/**
+ * Whether the config Studio sends has the shape the agent merges: an object whose `plugins` and
+ * `parsers` are lists of `{ name, options?, disabled? }`, whose `adapter` is an object, and whose
+ * `input` is a string. It arrives over the socket, so the shape is checked before anything reads it.
+ */
+export function isStudioConfigPatch(patch: unknown): patch is JSONKubbConfig {
+  if (!isPlainObject(patch)) return false
+  const { plugins, parsers, adapter, input } = patch
+  if (plugins !== undefined && !(Array.isArray(plugins) && plugins.every(isNamedEntry))) return false
+  if (parsers !== undefined && !(Array.isArray(parsers) && parsers.every(isNamedEntry))) return false
+  if (adapter !== undefined && !isPlainObject(adapter)) return false
+  return input === undefined || typeof input === 'string'
 }
 
 /**
@@ -188,6 +209,13 @@ export function toJSONOptions(options: unknown): Record<string, unknown> {
   } catch {
     return {}
   }
+}
+
+// Studio's value can nest an unsafe key such as `__proto__` at any depth, inside objects or arrays.
+function withoutUnsafeKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutUnsafeKeys)
+  if (!isPlainObject(value)) return value
+  return Object.fromEntries(Object.entries(value).flatMap(([key, entry]) => (isSafeKey(key) ? [[key, withoutUnsafeKeys(entry)]] : [])))
 }
 
 /**
@@ -222,7 +250,7 @@ export function mergeOptions(disk: Record<string, unknown>, studio: Record<strin
     }
     if (current !== undefined && !isOptionValue(current)) continue
 
-    merged[key] = value
+    merged[key] = withoutUnsafeKeys(value)
   }
 
   return merged
