@@ -1359,6 +1359,18 @@ describe('parseSchema enum next to a nullable type or a union', () => {
       ],
     })
   })
+
+  it('applies the sibling enum to a union with required keys', () => {
+    const node = parseSchema(emptyCtx, { schema: { oneOf: [{ type: 'object' }, { type: 'null' }], required: ['id'], enum: [{ id: 1 }] } as SchemaObject })
+
+    expect(node).toMatchObject({ type: 'intersection', members: [{ type: 'intersection' }, { type: 'enum' }] })
+  })
+
+  it('drops null from a multi-type array whose enum leaves it out', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: ['string', 'number', 'null'], enum: ['a', 1] } as SchemaObject })
+
+    expect(node).toMatchObject({ type: 'union', nullable: undefined })
+  })
 })
 
 describe('parseSchema discriminator on union', () => {
