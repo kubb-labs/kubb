@@ -9,6 +9,143 @@ outline: 2
 
 # Changelog
 
+## v5.25.1 — Nov 24, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- On a Kubb Studio agent, a `$ref` URL on a non-public host, such as `localhost` or `169.254.169.254`, is refused, and a `$ref` URL that redirects fails. `kubb studio --allow-file-refs` lifts this limit, and `kubb generate` is unchanged. ([#4766](https://github.com/kubb-labs/kubb/pull/4766))
+- A request for a URL input or a `$ref` URL stops after 30 seconds, and canceling a build stops its requests. An error while converting a referenced schema is thrown instead of producing an empty ref. ([#4766](https://github.com/kubb-labs/kubb/pull/4766))
+- An `operationId` that is already taken gets a `_2`, `_3`, … suffix and a `KUBB_DUPLICATE_OPERATION_ID` warning. Before, `/a-b` and `/a/b` both became `get_a-b` and overwrote each other. ([#4771](https://github.com/kubb-labs/kubb/pull/4771))
+- A `$ref` with a malformed `%` escape, or one that names an inherited property such as `constructor`, reports `KUBB_REF_NOT_FOUND` instead of crashing or resolving to a function. `validate()` takes `fileRefs`, like `parse()`. ([#4774](https://github.com/kubb-labs/kubb/pull/4774))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- `createImport({ ...imp, names })` and `createExport({ ...exp, names })` keep the new `names` instead of the spread `name`. ([#4765](https://github.com/kubb-labs/kubb/pull/4765))
+- Add `ast.file.isExported(source)`, which reads `export` and the deprecated `isIndexable` and `isExportable`, so barrels and `combineSources` treat them the same. ([#4771](https://github.com/kubb-labs/kubb/pull/4771))
+- Add `ast.file.getRelativePath`, the relative import specifier `@kubb/parser-ts` also uses. ([#4778](https://github.com/kubb-labs/kubb/pull/4778))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Telemetry sends only the shape of each plugin's options. Booleans, numbers and enum-like strings keep their value, and every other value is sent as its type name. ([#4764](https://github.com/kubb-labs/kubb/pull/4764))
+- `kubb init` and the MCP `init` tool escape the paths they write into `kubb.config.ts`, so a `'` no longer breaks the file and a Windows path keeps its backslashes. ([#4762](https://github.com/kubb-labs/kubb/pull/4762))
+- The background Studio worker redacts refreshed tokens and the agent's private key in its log. `KUBB_REGISTRY` must be an `https://` URL, or `http://` on `localhost`, and a rejected URL is printed without its credentials. ([#4778](https://github.com/kubb-labs/kubb/pull/4778), [#4779](https://github.com/kubb-labs/kubb/pull/4779))
+- `kubb init` and `kubb studio` print the full diagnostic of a failure, including its fix. ([#4774](https://github.com/kubb-labs/kubb/pull/4774))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- The MCP `generate` tool refuses an `output` path outside the working directory, and an `input` path outside it unless it is an `http:` or `https:` URL. The MCP `validate` tool applies the same limits to `$ref`. ([#4768](https://github.com/kubb-labs/kubb/pull/4768), [#4774](https://github.com/kubb-labs/kubb/pull/4774))
+- An error in a plugin's `kubb:build:start`, `kubb:plugins:end`, `kubb:build:end` or `kubb:plugin:end` hook names that plugin instead of reporting `KUBB_UNKNOWN`. An invalid `input` no longer leaves plugin listeners for the next config, and `kubb.setup()` before `kubb.generate()` no longer runs hooks twice. ([#4768](https://github.com/kubb-labs/kubb/pull/4768))
+- New warnings: `KUBB_SHARED_FILE_MISMATCH`, `KUBB_OUTPUT_PASSES_SKIPPED` when `output.format`, `output.lint` or `output.postGenerate` is set on a storage other than `fs`, and `KUBB_OUTSIDE_OUTPUT` for a file written outside `output.path`. `diagnostics.ignore` can hide each one. ([#4774](https://github.com/kubb-labs/kubb/pull/4774), [#4778](https://github.com/kubb-labs/kubb/pull/4778))
+- Every `@deprecated` note says "Removed in Kubb v6." The [deprecations page](/docs/5.x/reference/deprecations) lists them with their replacements. ([#4776](https://github.com/kubb-labs/kubb/pull/4776))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- An operation file checks the schema files of its own `output` and `group`, so a different `group.name` no longer reuses another call's schema paths. ([#4776](https://github.com/kubb-labs/kubb/pull/4776))
+- `kubb.addGenerator` and `kubb.setMacros` are marked `@deprecated`. `TemplateContext` is the main type, and `GeneratorContext` is a deprecated alias. ([#4775](https://github.com/kubb-labs/kubb/pull/4775))
+
+### @kubb/parser-md
+
+#### Bug Fixes
+
+- `@kubb/core` and `@kubb/ast` are peer dependencies, so a project no longer installs a second copy of `@kubb/core`. ([#4775](https://github.com/kubb-labs/kubb/pull/4775))
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- A namespace alias that starts with a digit gets a `_` prefix, so `1pets` prints as `_1pets` instead of `_pets`. ([#4771](https://github.com/kubb-labs/kubb/pull/4771))
+- `parserTsx` has a `version` and `compatibility`, so Kubb checks it supports the running version. ([#4778](https://github.com/kubb-labs/kubb/pull/4778))
+
+### @kubb/renderer-jsx
+
+#### Bug Fixes
+
+- `Code` and `File.Source` leave `isTypeOnly` unset when it is not given, so a `Type` child makes the source type-only. `File.Source` reads `isExportable` as `export`. ([#4771](https://github.com/kubb-labs/kubb/pull/4771))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- A generation keeps the sandbox or managed mode it started with, even when Studio connects again during the run. The config Studio sends is validated first, and keys such as `__proto__` are dropped from plugin options. ([#4770](https://github.com/kubb-labs/kubb/pull/4770), [#4771](https://github.com/kubb-labs/kubb/pull/4771))
+- The agent closes a socket when Studio does not call `connect()` within 30 seconds, then reconnects. ([#4777](https://github.com/kubb-labs/kubb/pull/4777))
+- The agent resolves plugins, adapters and parsers from the project root, writes a pasted spec before the config, and no longer follows redirects on pairing and token refresh. Error stacks are sent only with `debug: true`. ([#4775](https://github.com/kubb-labs/kubb/pull/4775), [#4778](https://github.com/kubb-labs/kubb/pull/4778))
+
+## v5.25.0 — Nov 24, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add `diagnostics.ignore` to hide warning and info diagnostics by code. Errors are never hidden. ([#4759](https://github.com/kubb-labs/kubb/pull/4759))
+
+  ```ts
+  export default defineConfig({
+    diagnostics: { ignore: ['KUBB_UNSUPPORTED_FORMAT'] },
+  })
+  ```
+
+## v5.24.1 — Nov 24, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- In OpenAPI 3.1, an `enum` next to a nullable `type` or a `oneOf`/`anyOf` limits the generated type to the listed values. Swagger 2.0 and OpenAPI 3.0 keep allowing `null` for `nullable: true`. ([#4758](https://github.com/kubb-labs/kubb/pull/4758))
+- A sibling `type` and `format` apply to `oneOf` and `anyOf` members that have no `type` of their own. ([#4757](https://github.com/kubb-labs/kubb/pull/4757))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Anonymous telemetry includes each diagnostic's code, severity, plugin and count. The message is never sent. ([#4754](https://github.com/kubb-labs/kubb/pull/4754))
+
+## v5.24.0 — Nov 23, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Add `OperationsNode` (`kind: 'Operations'`), built with `ast.factory.createOperations({ operations })`. A template with `kind: 'Operations'` gets this node instead of an array, and a generator's `operations()` still gets the array. ([#4748](https://github.com/kubb-labs/kubb/pull/4748))
+
+  ```diff
+   render(node, ctx) {
+  -  node.map((operation) => …)
+  +  node.operations.map((operation) => …)
+   },
+  ```
+
+#### Bug Fixes
+
+- Add `serverIndex` to `InputMeta`, so a plugin can pick an operation's own server without reading the adapter's options. ([#4749](https://github.com/kubb-labs/kubb/pull/4749))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- `ctx.from`, `from()` and `resolver.imports()` return imports with `names`. The deprecated fields are still set, and the output does not change. ([#4744](https://github.com/kubb-labs/kubb/pull/4744))
+
+### @kubb/renderer-jsx
+
+#### Bug Fixes
+
+- `Type` accepts a name that starts with a lowercase letter, such as `pet_owner`. ([#4752](https://github.com/kubb-labs/kubb/pull/4752))
+
+### kubb
+
+#### Bug Fixes
+
+- Publish internal `@kubb/*` dependencies with exact versions, so a lockfile refresh no longer mixes releases and fails with `KUBB_ADAPTER_FAILED`. `@kubb/kit`, `@kubb/parser-ts` and `@kubb/renderer-jsx` list `@kubb/core` and `@kubb/ast` as peer dependencies. ([#4753](https://github.com/kubb-labs/kubb/pull/4753))
+
 ## v5.23.5 — Nov 23, 2026
 
 ### @kubb/core
