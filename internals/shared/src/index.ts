@@ -3,17 +3,7 @@ export { BUNDLED_PACKAGES, CONFIG_EXTENSIONS, KUBB_CONFIG_FILENAME, KUBB_PACKAGE
 export { generateConfigFile } from './init.ts'
 export { loadModule } from './loader.ts'
 export { editConfig, editConfigFile, readConfig, readImports } from './editor/configFile.ts'
-export {
-  isAllowedPlugin,
-  isOptionValue,
-  isOutputKey,
-  isOutputValue,
-  isPlainObject,
-  isSafeKey,
-  pickOutput,
-  toExportName,
-  toPluginName,
-} from './editor/rules.ts'
+export { isAllowedPlugin, isOptionValue, isOutputKey, isOutputValue, isPlainObject, isSafeKey, pickOutput, toExportName, toPluginName } from './editor/rules.ts'
 export {
   ConfigEditOperation,
   extensionKinds,
