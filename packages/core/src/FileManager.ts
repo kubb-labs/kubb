@@ -379,8 +379,9 @@ export class FileManager {
       Diagnostics.report({
         code: Diagnostics.code.outsideOutput,
         severity: 'warning',
-        message: `Files written outside output.path: ${outside.slice(0, 3).join(', ')}${outside.length > 3 ? ', ...' : ''}.`,
+        message: `Files written outside output.path and shared.path: ${outside.slice(0, 3).join(', ')}${outside.length > 3 ? ', ...' : ''}.`,
         help: 'Keep every generated path inside `output.path` or `shared.path`.',
+        location: { kind: 'config' },
       })
     }
 
