@@ -9,6 +9,76 @@ outline: 2
 
 # Changelog
 
+## v5.25.1 — Nov 24, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- A duplicate `operationId` gets a `_2`, `_3`, … suffix and a `KUBB_DUPLICATE_OPERATION_ID` warning, instead of one operation overwriting the other. ([#4771](https://github.com/kubb-labs/kubb/pull/4771))
+- A malformed `$ref`, such as `#/components/schemas/100%`, reports `KUBB_REF_NOT_FOUND` instead of crashing. URL inputs and `$ref` URLs time out after 30 seconds. ([#4766](https://github.com/kubb-labs/kubb/pull/4766), [#4774](https://github.com/kubb-labs/kubb/pull/4774))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb init` escapes the paths it writes into `kubb.config.ts`, so a `'` or a Windows path no longer breaks the file. ([#4762](https://github.com/kubb-labs/kubb/pull/4762))
+- Telemetry sends only the shape of plugin options, never paths, URLs or secrets. ([#4764](https://github.com/kubb-labs/kubb/pull/4764))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- New warnings `KUBB_SHARED_FILE_MISMATCH`, `KUBB_OUTPUT_PASSES_SKIPPED` and `KUBB_OUTSIDE_OUTPUT`, each hidable with `diagnostics.ignore`. ([#4774](https://github.com/kubb-labs/kubb/pull/4774), [#4778](https://github.com/kubb-labs/kubb/pull/4778))
+- An error in a plugin's build hook names that plugin instead of `KUBB_UNKNOWN`. ([#4768](https://github.com/kubb-labs/kubb/pull/4768))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Harden what a Studio agent accepts from Studio and keep tokens and error stacks out of its logs. ([#4770](https://github.com/kubb-labs/kubb/pull/4770), [#4778](https://github.com/kubb-labs/kubb/pull/4778))
+
+## v5.25.0 — Nov 24, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add `diagnostics.ignore` to hide warnings and info diagnostics by code. ([#4759](https://github.com/kubb-labs/kubb/pull/4759))
+
+  ```ts
+  export default defineConfig({
+    diagnostics: { ignore: ['KUBB_UNSUPPORTED_FORMAT'] },
+  })
+  ```
+
+## v5.24.1 — Nov 24, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- In OpenAPI 3.1, an `enum` next to a nullable `type` or a `oneOf`/`anyOf` limits the type to the listed values. ([#4758](https://github.com/kubb-labs/kubb/pull/4758))
+
+## v5.24.0 — Nov 23, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Add `OperationsNode`. A template with `kind: 'Operations'` gets this node instead of an array. ([#4748](https://github.com/kubb-labs/kubb/pull/4748))
+
+  ```diff
+  - node.map((operation) => …)
+  + node.operations.map((operation) => …)
+  ```
+
+### kubb
+
+#### Bug Fixes
+
+- Publish internal `@kubb/*` dependencies with exact versions, so a lockfile refresh no longer mixes releases and fails with `KUBB_ADAPTER_FAILED`. ([#4753](https://github.com/kubb-labs/kubb/pull/4753))
+
 ## v5.23.5 — Nov 23, 2026
 
 ### @kubb/core
