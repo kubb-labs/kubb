@@ -42,7 +42,6 @@ import {
   type ConfigEdit,
   ConfigEditOperation,
   type ConfigEntryView,
-  type ConfigFileView,
   type ConfigRef,
   type ConnectMessagePayload,
   type DiskOutput,
@@ -50,7 +49,6 @@ import {
   type GenerateResult,
   type GenerationEvent,
   type GenerationRun,
-  type InstalledExtensions,
   MAX_CONNECT_CHALLENGE_LENGTH,
   MAX_FILES_PER_REQUEST,
   MAX_PAGE_LINES,
@@ -393,20 +391,15 @@ class Agent extends RpcTarget implements AgentApi {
     return emit(this.#options.hooks, 'studio:command', { command, info, requestedBy, failed })
   }
 
-  async #readConfigFileView(source: Promise<string>): Promise<ConfigFileView | undefined> {
-    if (!this.#permissions.allowConfigEdit) return undefined
-    return readConfigFileView({ source, configFile: this.#options.configFile, warn: (warning) => this.#warn(warning) })
-  }
-
-  #installedExtensions(source = read(this.#options.configFile)): Promise<InstalledExtensions> {
-    return readInstalledExtensions({ root: this.#options.root, source })
-  }
-
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
     this.#session.info = info
     const { configPath, root, version, loadConfigs, configFile } = this.#options
     const source = read(configFile)
-    const [configs, file, extensions] = await Promise.all([loadConfigs(), this.#readConfigFileView(source), this.#installedExtensions(source)])
+    const [configs, file, extensions] = await Promise.all([
+      loadConfigs(),
+      this.#permissions.allowConfigEdit ? readConfigFileView({ source, configFile, warn: (warning) => this.#warn(warning) }) : undefined,
+      readInstalledExtensions({ root, source }),
+    ])
     // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
     // Studio could call, running the user's config code in this process.
     const entries: Array<ConfigEntryView> = []
@@ -535,7 +528,10 @@ class Agent extends RpcTarget implements AgentApi {
       return this.#refuse({ message: AgentMessage.MANAGED_INPUT_KIND })
     }
 
-    const [configs, extensions] = await Promise.all([this.#options.loadConfigs(), this.#installedExtensions()])
+    const [configs, extensions] = await Promise.all([
+      this.#options.loadConfigs(),
+      readInstalledExtensions({ root: this.#options.root, source: read(this.#options.configFile) }),
+    ])
     const config = pickConfig(configs, patch?.config)
     if (!config) return this.#refuse({ message: AgentMessage.CONFIG_ENTRY_NOT_FOUND })
     const [plugins, adapter, parsers] = await Promise.all([
@@ -654,7 +650,7 @@ class Agent extends RpcTarget implements AgentApi {
       const written = await editConfigFile({
         filePath: configFile,
         edits: kept.flatMap((edit) => ('reason' in edit ? [] : [edit])),
-        extensions: await this.#installedExtensions(),
+        extensions: await readInstalledExtensions({ root: this.#options.root, source: read(configFile) }),
       })
       let next = 0
       // Back in the order Studio sent them, each naming the edit as sent rather than the document's file.
@@ -879,7 +875,9 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
   const rpc = openRpc({ url, token, instanceId, agent })
   signal?.addEventListener('abort', rpc.close, { once: true })
   // Cleared by the heartbeat once Studio calls connect(), which can take a while to load the config.
-  let timer: ReturnType<typeof setTimeout> | undefined = setTimeout(() => !session.info && rpc.close(), CONNECT_TIMEOUT_MS)
+  let timer: ReturnType<typeof setTimeout> | undefined = setTimeout(() => {
+    if (!session.info) rpc.close()
+  }, CONNECT_TIMEOUT_MS)
 
   // Races each ping against a deadline, so a half-open socket can't hang it forever.
   const heartbeat = async (): Promise<void> => {

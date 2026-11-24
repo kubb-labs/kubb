@@ -3,7 +3,7 @@ import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
 import { KUBB_CONFIG_FILENAME } from '@internals/shared'
 import { isCIEnvironment } from '@internals/utils'
-import type { AgentPermission } from '@kubb/studio/protocol'
+import { AgentPermission } from '@kubb/studio/protocol'
 import { toPermissionFlag } from '../../ui/text.ts'
 import { canUseTTY } from '../../utils/env.ts'
 import { type Credentials, updateCredentials } from './credentials.ts'
@@ -23,20 +23,20 @@ const PERMISSION_PROMPTS: Record<
     hint: string
   }
 > = {
-  allowRead: { label: 'read source', title: () => 'Read generated files', hint: 'show code in the browser' },
-  allowReadAst: { label: 'read spec', title: () => 'Read the parsed spec', hint: 'browse schemas and operations' },
-  allowWrite: { label: 'write files', title: () => 'Write files to disk', hint: 'generate from the browser' },
-  allowConfigEdit: { label: 'edit config', title: (configPath) => `Change ${configPath}`, hint: 'edit plugin options' },
-  allowInstall: { label: 'add plugins', title: () => 'Install extensions from the registry', hint: 'kubb add from the browser' },
-  allowUpdate: { label: 'update plugins', title: () => 'Update installed extensions', hint: 'kubb update from the browser' },
-  allowRemove: { label: 'remove plugins', title: () => 'Remove extensions', hint: 'kubb remove from the browser' },
-  allowSaveInput: {
+  [AgentPermission.READ]: { label: 'read source', title: () => 'Read generated files', hint: 'show code in the browser' },
+  [AgentPermission.READ_AST]: { label: 'read spec', title: () => 'Read the parsed spec', hint: 'browse schemas and operations' },
+  [AgentPermission.WRITE]: { label: 'write files', title: () => 'Write files to disk', hint: 'generate from the browser' },
+  [AgentPermission.CONFIG_EDIT]: { label: 'edit config', title: (configPath) => `Change ${configPath}`, hint: 'edit plugin options' },
+  [AgentPermission.INSTALL]: { label: 'add plugins', title: () => 'Install extensions from the registry', hint: 'kubb add from the browser' },
+  [AgentPermission.UPDATE]: { label: 'update plugins', title: () => 'Update installed extensions', hint: 'kubb update from the browser' },
+  [AgentPermission.REMOVE]: { label: 'remove plugins', title: () => 'Remove extensions', hint: 'kubb remove from the browser' },
+  [AgentPermission.SAVE_INPUT]: {
     label: 'save input',
     title: (configPath) => `Save the spec from Studio as the input in ${configPath}`,
     hint: 'keep a pasted spec, URL, or git file',
   },
-  allowFileRefs: { label: 'outside refs', title: () => 'Let a $ref read files outside the project', hint: 'specs that share schemas' },
-  allowExec: { label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
+  [AgentPermission.FILE_REFS]: { label: 'outside refs', title: () => 'Let a $ref read files outside the project', hint: 'specs that share schemas' },
+  [AgentPermission.EXEC]: { label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
 }
 
 const PERMISSIONS = Object.entries(PERMISSION_PROMPTS).map(([key, prompt]) => ({ key: key as AgentPermission, ...prompt }))
