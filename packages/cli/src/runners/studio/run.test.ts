@@ -404,12 +404,15 @@ describe('connect', () => {
     using project = stubProject({ stored: { ...credentials, ...issued } })
     vi.mocked(refreshAgentToken).mockResolvedValueOnce('refreshed-token')
     const calls = mockConnection()
+    const onCredentials = vi.fn()
 
-    await connect(options)
+    await connect(options, { onCredentials })
 
     expect(refreshAgentToken).toHaveBeenCalledWith(expect.objectContaining({ studioUrl: options.studioUrl, token: 'token', machineId: 'machine-secret' }))
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token', issuedAt: expect.any(String) }))
     expect(calls.map(({ token }) => token)).toStrictEqual(['refreshed-token'])
+    // The background worker redacts the token it is handed here.
+    expect(onCredentials).toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token' }))
   })
 
   it('does not store a refreshed token over credentials another pairing replaced', async () => {

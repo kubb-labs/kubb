@@ -343,6 +343,7 @@ export async function connect(
     prepared?: PreparedConnection
     signal?: AbortSignal
     onState?: (state: WorkerState) => void | Promise<void>
+    onCredentials?: (credentials: Credentials) => void
   } = {},
 ): Promise<void> {
   const shutdown = new AbortController()
@@ -391,6 +392,7 @@ export async function connect(
         if (!token || credentials.token !== replaced) return false
         const refreshed = { token, issuedAt: new Date().toISOString() }
         credentials = { ...credentials, ...refreshed }
+        context.onCredentials?.(credentials)
         // Only the token changes on disk, so permissions saved since this run read the file are kept.
         await updateCredentials((stored) => (stored?.token === replaced ? { ...stored, ...refreshed } : undefined)).catch((error: unknown) =>
           warn(`Could not store the refreshed token: ${toError(error).message}`),
@@ -483,6 +485,7 @@ export async function connect(
         unwatch = undefined
         console.log(styleText('yellow', `${error.message} Pairing again...`))
         credentials = await login(options, { signal, previousCredentials: credentials })
+        context.onCredentials?.(credentials)
         pairedAgain = true
         permissions = await resolvePermissions(options, credentials, configPath)
       }
