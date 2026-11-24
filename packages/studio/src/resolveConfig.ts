@@ -211,6 +211,13 @@ export function toJSONOptions(options: unknown): Record<string, unknown> {
   }
 }
 
+// Studio's value can nest an unsafe key such as `__proto__` at any depth, inside objects or arrays.
+function withoutUnsafeKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutUnsafeKeys)
+  if (!isPlainObject(value)) return value
+  return Object.fromEntries(Object.entries(value).flatMap(([key, entry]) => (isSafeKey(key) ? [[key, withoutUnsafeKeys(entry)]] : [])))
+}
+
 /**
  * Deep-merges Studio's options over the disk options, with Studio taking priority, except where the
  * disk value cannot survive JSON. Studio only ever saw a lossy copy of such a value, so the disk
@@ -243,7 +250,7 @@ export function mergeOptions(disk: Record<string, unknown>, studio: Record<strin
     }
     if (current !== undefined && !isOptionValue(current)) continue
 
-    merged[key] = value
+    merged[key] = withoutUnsafeKeys(value)
   }
 
   return merged

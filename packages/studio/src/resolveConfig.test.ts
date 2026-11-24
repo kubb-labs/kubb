@@ -122,6 +122,13 @@ describe('mergeOptions', () => {
     })
   })
 
+  it('drops unsafe keys at any depth from a value the disk does not have', () => {
+    const merged = mergeOptions({}, JSON.parse('{"group":{"__proto__":{"polluted":true},"type":"tag"},"exclude":[{"constructor":1,"type":"tag"}]}'))
+
+    expect(merged).toStrictEqual({ group: { type: 'tag' }, exclude: [{ type: 'tag' }] })
+    expect(Object.getPrototypeOf(merged.group)).toBe(Object.prototype)
+  })
+
   it('unsets a disk value when studio sends null, so the factory default applies', () => {
     expect(mergeOptions({ emptySchemaType: 'any', unknownType: 'void' }, { emptySchemaType: null })).toStrictEqual({ unknownType: 'void' })
   })
