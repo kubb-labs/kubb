@@ -1,0 +1,34 @@
+{
+  "$schema": "./node_modules/fallow/schema.json",
+  "rules": {
+    // Off by default: an exported signature that uses a type its file does not export.
+    "private-type-leaks": "warn",
+    // A pull request that adds an import cycle fails.
+    "circular-dependencies": "error"
+  },
+  // Changesets loads this by path from .changeset/config.json.
+  "entry": ["internals/changelog/index.mjs"],
+  // Published packages: other repositories import their exports and class members.
+  "publicPackages": ["@kubb/*", "kubb", "unplugin-kubb"],
+  // Made-up package names that tests pass to the config resolver.
+  "ignoreDependencies": ["@acme/*"],
+  // The HTML reporter's build writes these next to index.html.
+  "ignoreUnresolvedImports": ["./data.js", "./ui.iife.js"],
+  "ignoreExports": [
+    // The plugin is exported by name and as the default on purpose.
+    { "file": "packages/unplugin-kubb/src/index.ts", "exports": ["unplugin", "default"] },
+    // Renamed helpers, re-exported under their old names.
+    { "file": "packages/ast/src/deprecated.ts", "exports": ["*"] },
+    // Each CLI command and runner file exports the same name by convention.
+    { "file": "packages/cli/src/commands/**", "exports": ["command"] },
+    { "file": "packages/cli/src/runners/*/run.ts", "exports": ["run", "command"] }
+  ],
+  "workspaces": {
+    "settings": {
+      // The kubb package installs the parsers for its users and imports neither.
+      "packages/kubb": { "ignoreDependencies": ["@kubb/parser-md", "@kubb/parser-ts"] },
+      // Tests stub these with vi.mock, so they are never installed here.
+      "packages/studio": { "ignoreDependencies": ["@kubb/plugin-react-query", "@kubb/plugin-ts", "@kubb/plugin-zod"] }
+    }
+  }
+}
