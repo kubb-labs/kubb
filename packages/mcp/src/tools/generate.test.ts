@@ -1,4 +1,5 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { adapterOas } from '@kubb/adapter-oas'
 import { afterAll, describe, expect, it } from 'vitest'
@@ -74,6 +75,33 @@ describe('generate tool', () => {
     await writeFile(configPath, `export default { ...globalThis.__kubbMcpTestConfig, root: '../..' }\n`)
 
     const { isError, text } = await run({ config: configPath, output: 'gen' })
+
+    expect(isError).toBe(true)
+    expect(text).toContain('Invalid output path')
+  })
+
+  it('refuses an output that a symlink inside the working directory points outside it', async () => {
+    const outside = await mkdtemp(join(tmpdir(), 'kubb-mcp-outside-'))
+    await symlink(outside, join(dir, 'linked'), 'dir')
+    const configPath = join(dir, 'kubb.symlink.config.ts')
+    await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
+
+    try {
+      const { isError, text } = await run({ config: configPath, output: 'linked/gen' })
+
+      expect(isError).toBe(true)
+      expect(text).toContain('Invalid output path')
+    } finally {
+      await rm(outside, { recursive: true, force: true })
+    }
+  })
+
+  it('refuses an output through a dangling symlink inside the working directory', async () => {
+    await symlink(join(tmpdir(), 'kubb-mcp-missing-target'), join(dir, 'dangling'), 'dir')
+    const configPath = join(dir, 'kubb.dangling.config.ts')
+    await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
+
+    const { isError, text } = await run({ config: configPath, output: 'dangling/gen' })
 
     expect(isError).toBe(true)
     expect(text).toContain('Invalid output path')
