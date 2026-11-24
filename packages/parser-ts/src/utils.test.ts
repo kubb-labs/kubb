@@ -194,8 +194,8 @@ describe('printExport', () => {
     { when: '* has an alias', node: { names: [{ name: '*', alias: 'utils' }], path: './utils.ts' }, expected: "export * as utils from './utils.ts'" },
     {
       when: 'the alias starts with a digit',
-      node: { names: [{ name: '*', alias: '1default' }], path: './default.ts' },
-      expected: "export * as _default from './default.ts'",
+      node: { names: [{ name: '*', alias: '1pets' }], path: './1pets.ts' },
+      expected: "export * as _1pets from './1pets.ts'",
     },
     {
       when: 'every name is a type',

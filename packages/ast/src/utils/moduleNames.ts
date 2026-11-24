@@ -9,6 +9,13 @@ export function getNames(node: ImportNode | ExportNode): Array<ModuleName> {
   return node.kind === 'Import' ? fromDeprecatedImport(node) : fromDeprecatedExport(node)
 }
 
+/**
+ * Returns `true` when a source is an exported declaration. Reads the deprecated `isIndexable` and `isExportable`, in that order, when `export` is unset.
+ */
+export function isExported(source: Pick<SourceNode, 'export' | 'isIndexable' | 'isExportable'>): boolean {
+  return !!(source.export ?? source.isIndexable ?? source.isExportable)
+}
+
 export function getSpace(source: SourceNode): Space {
   if (source.space) return source.space
   if (source.isTypeOnly != null) return source.isTypeOnly ? 'type' : 'value'

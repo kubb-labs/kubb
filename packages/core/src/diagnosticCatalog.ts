@@ -162,6 +162,13 @@ export const diagnosticCatalog = {
       'Two or more `oneOf`/`anyOf` members pin the `discriminator` property to the same value, so the value cannot pick a branch. Zod `z.discriminatedUnion` throws on the first parse of such a union.',
     fix: 'Give each member its own discriminator value, or drop the `discriminator` so the members are matched by shape.',
   },
+  duplicateOperationId: {
+    code: 'KUBB_DUPLICATE_OPERATION_ID',
+    title: 'Duplicate operationId',
+    cause:
+      'Two operations share an `operationId`, declared or generated from the method and path. A generated id replaces each `/` and `-` in the path with `-`, so `/a-b` and `/a/b` get the same one. Kubb adds a `_2`, `_3`, … suffix to each later one.',
+    fix: 'Give each operation its own `operationId`.',
+  },
   deprecated: {
     code: 'KUBB_DEPRECATED',
     title: 'Deprecated',

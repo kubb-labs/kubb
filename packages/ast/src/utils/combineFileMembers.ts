@@ -7,7 +7,7 @@
 import path from 'node:path'
 import { memo } from '@internals/utils'
 import { createExport, createImport, type ExportNode, type ImportNode, type ModuleName, type SourceNode, type Space } from '../nodes/file.ts'
-import { getNames, getSpace } from './moduleNames.ts'
+import { getNames, getSpace, isExported } from './moduleNames.ts'
 
 const IDENTIFIER_RUN = /[\w$]+/g
 
@@ -110,7 +110,7 @@ function mergeStatements(statements: Array<Statement>, keep: (item: ModuleName, 
 export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
   const seen = new Set<SourceNode | string>()
   return sources.filter((source) => {
-    const key = source.name != null ? `${source.name}:${source.export ?? source.isExportable ?? false}:${getSpace(source)}` : source
+    const key = source.name != null ? `${source.name}:${isExported(source)}:${getSpace(source)}` : source
     if (seen.has(key)) return false
     seen.add(key)
     return true

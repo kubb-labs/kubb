@@ -1,6 +1,6 @@
 import { escapePointerToken } from '@internals/utils'
 import { pascalCase } from '@kubb/core'
-import { ast, Url } from '@kubb/kit'
+import { ast, Diagnostics, Url } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
 import { getItemSchema, getItemShape, isEventStream, isStream } from './model/mediaType.ts'
@@ -327,7 +327,48 @@ export function getOperations(document: Document, refs: Refs): Array<Operation> 
     }
   }
 
-  return operations
+  return withUniqueOperationIds(operations)
+}
+
+// Names come from `pascalCase(operationId)`, so `getPets_2` and `getPets2` would clash too.
+function suffixed(id: string, taken: Set<string>, counts: Map<string, number>): string {
+  const count = (counts.get(id) ?? 1) + 1
+  counts.set(id, count)
+  const candidate = `${id}_${count}`
+  return taken.has(pascalCase(candidate)) ? suffixed(id, taken, counts) : candidate
+}
+
+// Two operations with one id would share every generated name and file.
+function withUniqueOperationIds(operations: Array<Operation>): Array<Operation> {
+  // Declared ids are reserved first, so a suffix never takes an id a later operation declares.
+  const taken = new Set(
+    operations.flatMap(({ schema }) => (typeof schema.operationId === 'string' && schema.operationId ? [pascalCase(schema.operationId)] : [])),
+  )
+  const claimed = new Set<string>()
+  const counts = new Map<string, number>()
+
+  return operations.map((operation) => {
+    const operationId = getOperationId(operation)
+    const name = pascalCase(operationId)
+    if (!claimed.has(name)) {
+      claimed.add(name)
+      taken.add(name)
+      return operation
+    }
+
+    const unique = suffixed(operationId, taken, counts)
+    taken.add(pascalCase(unique))
+    claimed.add(pascalCase(unique))
+    Diagnostics.report({
+      code: Diagnostics.code.duplicateOperationId,
+      severity: 'warning',
+      message: `operationId "${operationId}" of ${operation.method.toUpperCase()} ${operation.path} is already used, so it is renamed to "${unique}".`,
+      help: 'Give each operation its own `operationId`.',
+      location: { kind: 'operation', pointer: getOperationPointer(operation) },
+    })
+
+    return { ...operation, schema: { ...operation.schema, operationId: unique } }
+  })
 }
 
 /** Property names whose schema has a truthy `readOnly` or `writeOnly` flag; `$ref` entries are skipped. */

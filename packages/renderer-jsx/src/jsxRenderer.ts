@@ -134,7 +134,8 @@ function collectFileChildren(element: unknown): FileChildren {
           ast.factory.createSource({
             name: name?.toString(),
             ...(space ? { space } : {}),
-            isTypeOnly: !!isTypeOnly,
+            // Left unset when not given, so `getSpace` infers the space from the nodes.
+            ...(isTypeOnly != null ? { isTypeOnly } : {}),
             export: !!isExport,
             ...(isDefault ? { default: true } : {}),
             ...(inline ? { inline } : {}),
@@ -174,7 +175,7 @@ function collectFileChildren(element: unknown): FileChildren {
         sources.push(
           ast.factory.createSource({
             name,
-            isTypeOnly: host.type === 'kubb-type',
+            ...(host.type === 'kubb-type' ? { isTypeOnly: true } : {}),
             export: !!canExport,
             ...(isDefault ? { default: true } : {}),
             // An inline declaration lends its body to importing files in place of its name.

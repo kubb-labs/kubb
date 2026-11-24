@@ -114,8 +114,8 @@ function getLeafNames(sourceFile: ast.FileNode): LeafNames {
   }))
 }
 
-// `isIndexable` is the deprecated spelling of `export`. A default export can't be re-exported by name.
-const isExported = (source: ast.SourceNode): boolean => !source.default && !!(source.export ?? source.isIndexable)
+// A default export can't be re-exported by name.
+const isExported = (source: ast.SourceNode): boolean => !source.default && ast.file.isExported(source)
 
 function exportedNames(sources: ReadonlyArray<ast.SourceNode>, space: ast.Space): Array<string> {
   const names = sources.flatMap((source) => (isExported(source) && source.name && ast.file.getSpace(source) === space ? [source.name] : []))
