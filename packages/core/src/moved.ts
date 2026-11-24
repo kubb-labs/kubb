@@ -15,31 +15,31 @@ const stub =
   (..._args: Array<unknown>): never =>
     movedToKit(name)
 
-/** @deprecated Moved to `kubb/kit`. Removed in v6. */
+/** @deprecated Moved to `kubb/kit`. Removed in Kubb v6. */
 export const addGenerator = stub('addGenerator')
 
-/** @deprecated Moved to `kubb/kit`. Removed in v6. */
+/** @deprecated Moved to `kubb/kit`. Removed in Kubb v6. */
 export const setResolver = stub('setResolver')
 
-/** @deprecated Moved to `kubb/kit`. Removed in v6. */
+/** @deprecated Moved to `kubb/kit`. Removed in Kubb v6. */
 export const setMacros = stub('setMacros')
 
-/** @deprecated Moved to `kubb/kit`. Removed in v6. */
+/** @deprecated Moved to `kubb/kit`. Removed in Kubb v6. */
 export const addMacro = stub('addMacro')
 
-/** @deprecated Moved to `kubb/kit`. Removed in v6. */
+/** @deprecated Moved to `kubb/kit`. Removed in Kubb v6. */
 export const createResolver = stub('createResolver')
 
-/** @deprecated Moved to `kubb/kit`. Removed in v6. */
+/** @deprecated Moved to `kubb/kit`. Removed in Kubb v6. */
 export const defineResolver = stub('defineResolver')
 
-/** @deprecated Moved to `kubb/kit`. Removed in v6. */
+/** @deprecated Moved to `kubb/kit`. Removed in Kubb v6. */
 export const defineGenerator = stub('defineGenerator')
 
-/** @deprecated Moved to `kubb/kit`. Removed in v6. */
+/** @deprecated Moved to `kubb/kit`. Removed in Kubb v6. */
 export const toFilePath = stub('toFilePath')
 
-/** @deprecated Moved to `kubb/kit`. Removed in v6. */
+/** @deprecated Moved to `kubb/kit`. Removed in Kubb v6. */
 export class Resolver {
   constructor(..._args: Array<unknown>) {
     movedToKit('Resolver')

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createConst, createType } from '../nodes/code.ts'
 import { createExport, createImport, createSource } from '../nodes/file.ts'
-import type { ImportNode } from '../nodes/file.ts'
+import type { ImportInput, ImportNode, ModuleName } from '../nodes/file.ts'
 import { combineExports, combineImports } from './combineFileMembers.ts'
 import { getNames, getSpace } from './moduleNames.ts'
 
@@ -73,6 +73,43 @@ describe('createImport', () => {
     const next = createImport({ ...imp })
 
     expect([next.names, next.name]).toStrictEqual([null, ['Pet', 'Tag']])
+  })
+
+  // A printer's import is a plain object, not a spread node, and the JSX `Schema` component reads it through `getNames`.
+  it.each<[string, ImportInput, Array<ModuleName>]>([
+    [
+      'keeps names when name matches them',
+      { names: [{ name: 'Pet', space: 'type' }], name: ['Pet'], isTypeOnly: true, path: './pet' },
+      [{ name: 'Pet', space: 'type' }],
+    ],
+    [
+      'keeps an aliased default import when name is its alias',
+      { names: [{ name: 'default', alias: 'useSWR', space: 'value' }], name: 'useSWR', path: 'swr' },
+      [{ name: 'default', alias: 'useSWR', space: 'value' }],
+    ],
+    ['lets a different name replace names', { names: [{ name: 'Pet', space: 'value' }], name: ['Tag'], path: './pet' }, [{ name: 'Tag', space: 'value' }]],
+    [
+      'turns type names into values with isTypeOnly false',
+      { names: [{ name: 'Pet', space: 'type' }], isTypeOnly: false, path: './pet' },
+      [{ name: 'Pet', space: 'value' }],
+    ],
+    [
+      'keeps each space with isTypeOnly null',
+      {
+        names: [
+          { name: 'Pet', space: 'type' },
+          { name: 'pet', space: 'value' },
+        ],
+        isTypeOnly: null,
+        path: './pet',
+      },
+      [
+        { name: 'Pet', space: 'type' },
+        { name: 'pet', space: 'value' },
+      ],
+    ],
+  ])('%s on a plain import', (_label, input, names) => {
+    expect(getNames(createImport(input))).toStrictEqual(names)
   })
 
   it('applies a changed isTypeOnly together with new names', () => {

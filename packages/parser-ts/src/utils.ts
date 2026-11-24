@@ -8,7 +8,7 @@ import { type ImportSpecifier, type ModuleExportName, parse, type ProgramStateme
 /**
  * A TypeScript compiler node, typed structurally so `@kubb/parser-ts` does not depend on `@typescript/typescript6`.
  *
- * @deprecated Pass printed strings to `print` instead. Support for compiler nodes is removed in the next major.
+ * @deprecated Pass printed strings to `print` instead. Removed in Kubb v6.
  */
 export type TsNode = { readonly kind: number }
 

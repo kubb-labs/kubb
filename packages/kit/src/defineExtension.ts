@@ -20,9 +20,11 @@ const define = coreDefineExtension as (definition: unknown) => unknown
  */
 export type KitSetupContext<TFactory extends PluginType = PluginType> = KubbPluginSetupContext<TFactory> & {
   addTemplate: typeof addTemplate
+  /** @deprecated Use `defineTemplate` and `addTemplate`. Removed in Kubb v6. */
   addGenerator: typeof addGenerator
   setResolver: typeof setResolver
   addMacro: typeof addMacro
+  /** @deprecated Use `addMacro(...macros)`, and pass the user's `macros` option to it yourself. Removed in Kubb v6. */
   setMacros: typeof setMacros
   setPrinter: typeof setPrinter
   provide: typeof provide
@@ -91,7 +93,7 @@ export const defineExtension = ((definition: { kind: string } & Partial<KitPlugi
 /**
  * Defines a plugin through kit's `defineExtension`, so it runs kit's visitor.
  *
- * @deprecated Use `defineExtension` with `kind: 'plugin'` instead.
+ * @deprecated Use `defineExtension` with `kind: 'plugin'` instead. Removed in Kubb v6.
  */
 export function definePlugin<TFactory extends PluginType = PluginType>(definition: KitPluginDefinition<TFactory>): PluginFactory<TFactory> {
   return defineExtension({ kind: 'plugin', ...definition })

@@ -133,7 +133,7 @@ export type AdapterFactory<T extends AdapterFactoryOptions = AdapterFactoryOptio
  * Adapters must return an `InputNode` from `parse`. That node is what every
  * plugin in the build consumes.
  *
- * @deprecated Use `defineExtension` with `kind: 'adapter'` instead.
+ * @deprecated Use `defineExtension` with `kind: 'adapter'` instead. Removed in Kubb v6.
  */
 export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(definition: AdapterDefinition<T>): AdapterFactory<T> {
   return defineExtension({ kind: 'adapter', ...definition })
