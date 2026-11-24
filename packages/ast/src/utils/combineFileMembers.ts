@@ -6,8 +6,8 @@
  */
 import path from 'node:path'
 import { memo } from '@internals/utils'
-import type { ExportNode, ImportNode, ModuleName, SourceNode, Space } from '../nodes/file.ts'
-import { getNames, getSpace, toDeprecatedExport, toDeprecatedImport } from './moduleNames.ts'
+import { createExport, createImport, type ExportNode, type ImportNode, type ModuleName, type SourceNode, type Space } from '../nodes/file.ts'
+import { getNames, getSpace } from './moduleNames.ts'
 
 const IDENTIFIER_RUN = /[\w$]+/g
 
@@ -121,7 +121,8 @@ export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
  * Deduplicates and merges `ExportNode` objects: one export per path, form and space. Returns a sorted array.
  */
 export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
-  return mergeStatements(toStatements(exports, exportForm)).map(({ path, names }) => ({ kind: 'Export', path, ...toDeprecatedExport(names), names }))
+  // Built through `createExport`, so a later `{ ...exp, names }` keeps the new names.
+  return mergeStatements(toStatements(exports, exportForm)).map(({ path, names }) => createExport({ path, names }))
 }
 
 /**
@@ -155,11 +156,5 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   )
   const keep = (item: ModuleName, { form, path }: Statement) => isUsed(item.alias ?? item.name) || (form !== 'named' && pathsWithUsedNamedImport.has(path))
 
-  return mergeStatements(statements, keep).map(({ path, root, names }) => ({
-    kind: 'Import',
-    path,
-    ...(root != null ? { root } : {}),
-    ...toDeprecatedImport(names),
-    names,
-  }))
+  return mergeStatements(statements, keep).map(({ path, root, names }) => createImport({ path, ...(root != null ? { root } : {}), names }))
 }

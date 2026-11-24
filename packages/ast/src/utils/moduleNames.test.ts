@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createConst, createType } from '../nodes/code.ts'
 import { createExport, createImport, createSource } from '../nodes/file.ts'
 import type { ImportNode } from '../nodes/file.ts'
-import { combineImports } from './combineFileMembers.ts'
+import { combineExports, combineImports } from './combineFileMembers.ts'
 import { getNames, getSpace } from './moduleNames.ts'
 
 describe('getNames', () => {
@@ -94,6 +94,14 @@ describe('createExport', () => {
     const exp = createExport({ names: [{ name: 'Pet' }], path: './pet' })
 
     expect(createExport({ ...exp, name: ['Tag'] }).names).toBeNull()
+  })
+
+  it('uses new names on a spread of a combined import or export', () => {
+    const [imp] = combineImports([createImport({ names: [{ name: 'Pet' }], path: './pet' })], [])
+    const [exp] = combineExports([createExport({ names: [{ name: 'Pet' }], path: './pet' })])
+
+    expect(createImport({ ...imp!, names: [{ name: 'Tag' }] }).names).toStrictEqual([{ name: 'Tag' }])
+    expect(createExport({ ...exp!, names: [{ name: 'Tag' }] }).names).toStrictEqual([{ name: 'Tag' }])
   })
 
   it('drops the stale name when a spread export becomes a wildcard export', () => {
