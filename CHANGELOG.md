@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.25.0 — Nov 24, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add `diagnostics.ignore` to the config, to hide warning and info diagnostics by code. Errors are never hidden.
+  
+  ```ts
+  export default defineConfig({
+    diagnostics: { ignore: ['KUBB_UNSUPPORTED_FORMAT'] },
+  })
+  ``` ([#4759](https://github.com/kubb-labs/kubb/pull/4759), [`e6a8df1`](https://github.com/kubb-labs/kubb/commit/e6a8df1276f79eebb0d09ad1e7b436a55a2b5098))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.24.1 — Nov 24, 2026
 
 ### @kubb/adapter-oas
