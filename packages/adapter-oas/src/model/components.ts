@@ -29,7 +29,7 @@ type SchemaWithMetadata = {
   nested?: boolean
 }
 
-type GetSchemasResult = {
+export type GetSchemasResult = {
   schemas: Record<string, SchemaObject>
   /**
    * The JSON pointer each key in `schemas` was read from.

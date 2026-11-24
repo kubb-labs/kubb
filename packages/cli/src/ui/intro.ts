@@ -39,7 +39,7 @@ export function logTip(): void {
   console.log(`${styleText('magenta', '✦')}${formatTip(tip)}`)
 }
 
-type IntroOptions = {
+export type IntroOptions = {
   title?: string
   /**
    * Printed under the title, for a command that has a caveat to lead with.

@@ -10,8 +10,8 @@ const BARREL_SUFFIX = `/index.ts`
  * A file (no `children`) or directory in the tree barrels are computed from. `path` is absolute and
  * POSIX-normalized, and a directory's `children` are keyed by entry name.
  */
-type TreeNode = { path: string; children?: undefined } | DirectoryNode
-type DirectoryNode = { path: string; children: Map<string, TreeNode> }
+export type TreeNode = { path: string; children?: undefined } | DirectoryNode
+export type DirectoryNode = { path: string; children: Map<string, TreeNode> }
 
 /** A directory's children in name order, the way a directory listing sorts them. Every barrel of a build walks the same tree. */
 function sortedChildren(node: DirectoryNode): ReadonlyArray<TreeNode> {
@@ -195,7 +195,7 @@ function walkNested(node: DirectoryNode, ctx: WalkContext): Array<ast.FileNode> 
  * Build it once with {@link buildBarrelIndex} and derive every barrel (per-plugin and root) from
  * it via {@link getBarrelFiles}, instead of re-scanning the full file set once per barrel.
  */
-type BarrelIndex = {
+export type BarrelIndex = {
   tree: DirectoryNode
   sourceFiles: ReadonlyMap<string, ast.FileNode>
 }
@@ -256,7 +256,7 @@ function findDirectory(tree: DirectoryNode, targetPath: string): DirectoryNode |
   return node?.children ? node : undefined
 }
 
-type GetBarrelFilesParams = {
+export type GetBarrelFilesParams = {
   /**
    * Index built once via {@link buildBarrelIndex} for the shared output root.
    */

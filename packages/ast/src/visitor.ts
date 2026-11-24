@@ -37,7 +37,7 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
  * Schema fields that hold checks rather than shape: the `conditionals` entries, `contains` and a string's `content`.
  * `transform` and `collect` skip them, and `visitChildNodes` walks them with `checks: true`.
  */
-export const schemaCheckKeys = ['conditionals', 'contains', 'content'] as const
+const schemaCheckKeys = ['conditionals', 'contains', 'content'] as const
 
 /** Visitor callback names in traversal order, the keys of {@link Visitor}. */
 export const visitorKeys = ['input', 'operation', 'schema', 'property', 'parameter', 'response'] as const
@@ -123,11 +123,11 @@ export type Visitor = {
  * }
  * ```
  */
-type VisitorOf<TResult> = {
+export type VisitorOf<TResult> = {
   [K in keyof Visitor]?: (node: Parameters<NonNullable<Visitor[K]>>[0], context: Parameters<NonNullable<Visitor[K]>>[1]) => TResult | null | undefined
 }
 
-type TraversalOptions = {
+export type TraversalOptions = {
   /**
    * Traversal depth.
    * @default 'deep'
@@ -153,7 +153,7 @@ type TraversalOptions = {
  * const options: TransformOptions = { depth: 'shallow', schema: (node) => node }
  * ```
  */
-type TransformOptions = Visitor & TraversalOptions
+export type TransformOptions = Visitor & TraversalOptions
 
 /**
  * Options for `collect`.
@@ -163,7 +163,7 @@ type TransformOptions = Visitor & TraversalOptions
  * const options: CollectOptions<string> = { depth: 'shallow', schema: () => undefined }
  * ```
  */
-type CollectOptions<T> = VisitorOf<T> & TraversalOptions
+export type CollectOptions<T> = VisitorOf<T> & TraversalOptions
 
 /**
  * Returns `true` when `value` is an AST node (an object carrying a `kind`).

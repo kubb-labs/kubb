@@ -9,7 +9,7 @@ import { getConfigs } from '../../config.ts'
 import { pluralize } from '../../ui/text.ts'
 import { logCommandSummary } from '../../ui/summary.ts'
 
-type ValidateOptions = {
+export type ValidateOptions = {
   /**
    * Path, URL, or git input (`git+<repo>#<ref>:<path>`) of the specification to validate.
    */

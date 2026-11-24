@@ -18,10 +18,10 @@ export type RefName = {
 }
 
 // Each string a member can return comes back as a `RefName`. Other results, such as `null`, keep their type.
-type RefResult<R> = R extends string ? RefName : R
+export type RefResult<R> = R extends string ? RefName : R
 
 // Only plain objects are wrapped, so arrays, Maps, Sets and class instances keep their type, as at runtime.
-type RefMember<T> = T extends (...args: infer A) => infer R
+export type RefMember<T> = T extends (...args: infer A) => infer R
   ? [Extract<R, string>] extends [never]
     ? T
     : (...args: A) => RefResult<R>

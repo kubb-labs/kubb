@@ -9,7 +9,7 @@
  */
 export type PossiblePromise<T> = Promise<T> | T
 
-type Store<TKey, TValue> = {
+export type Store<TKey, TValue> = {
   has(key: TKey): boolean
   get(key: TKey): TValue | undefined
   set(key: TKey, value: TValue): unknown
@@ -77,7 +77,7 @@ function createStore<TKey, TValue>({ weak, max }: { weak?: boolean; max?: number
 
 memo.create = createStore
 
-type ParallelOptions<TItem> = {
+export type ParallelOptions<TItem> = {
   /**
    * Items to work through, handed out in order.
    */

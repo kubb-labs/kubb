@@ -8,7 +8,8 @@ export const command = studioCommand({
   args: connectCommand.args,
   async action(options) {
     const { startWorker } = await import('../../runners/studio/background.ts')
-    await startWorker(options)
+    const { prepareConnection } = await import('../../runners/studio/run.ts')
+    await startWorker(options, () => prepareConnection(options))
   },
 })
 

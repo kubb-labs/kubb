@@ -77,7 +77,7 @@ export type StudioValues = {
   logLevel?: CLIOptions['logLevel']
 } & Partial<Record<AgentPermission, boolean>>
 
-type LoginOptions = {
+export type LoginOptions = {
   /**
    * Aborting this cancels an in-flight pairing request or poll and rejects with
    * {@link PairingCanceledError}. Wired to `kubb studio`'s shutdown signal, so Ctrl+C during
@@ -182,7 +182,7 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
 }
 
 /** Time left on a pairing code as `m:ss`, never below `0:00`. */
-export function formatCountdown(ms: number): string {
+function formatCountdown(ms: number): string {
   const seconds = Math.max(0, Math.ceil(ms / 1000))
 
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
@@ -365,7 +365,7 @@ export async function connect(
     unwatch?.()
     if (background) {
       const { startWorker } = await import('./background.ts')
-      await startWorker(options)
+      await startWorker(options, () => prepareConnection(options))
       if (options.logLevel !== 'silent') logOutro('Running in the background · kubb studio stop')
       return
     }
@@ -384,7 +384,7 @@ export async function connect(
  * Listens for single keys on a TTY stdin. Raw mode turns Ctrl+C into a key instead of SIGINT, so it
  * is handled here too. Returns the function that restores the terminal, safe to call twice.
  */
-export function watchKeys({ onBackground, onStop }: { onBackground: () => void; onStop: () => void }): () => void {
+function watchKeys({ onBackground, onStop }: { onBackground: () => void; onStop: () => void }): () => void {
   const stdin = process.stdin
   const onData = (data: Buffer) => {
     const key = data.toString()

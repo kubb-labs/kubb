@@ -1,6 +1,6 @@
 import type { KubbReactElement, KubbReactNode } from '../types.ts'
 
-type Props = {
+export type OriginProps = {
   /**
    * The input location, in the form the adapter reads, such as `#/components/schemas/Pet`.
    */
@@ -11,6 +11,6 @@ type Props = {
 /**
  * Sets the input location of every source inside it. An inner `Origin` wins.
  */
-export function Origin({ pointer, children }: Props): KubbReactElement {
+export function Origin({ pointer, children }: OriginProps): KubbReactElement {
   return <kubb-origin pointer={pointer}>{children}</kubb-origin>
 }

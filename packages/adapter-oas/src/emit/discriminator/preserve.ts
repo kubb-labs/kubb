@@ -5,7 +5,7 @@ import type { Refs } from '../../refs.ts'
 import type { DiscriminatorObject, ReferenceObject, SchemaObject } from '../../types.ts'
 import type { ParseFn } from '../parseSchema.ts'
 
-type DiscriminatorValue = string | number | boolean
+export type DiscriminatorValue = string | number | boolean
 
 /**
  * Turns string mapping keys into the discriminator property's type when they parse cleanly.

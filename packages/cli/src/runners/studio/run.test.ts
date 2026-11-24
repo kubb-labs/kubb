@@ -527,6 +527,6 @@ describe('connect', () => {
 
     await connect(options)
 
-    expect(startWorker).toHaveBeenCalledWith(options)
+    expect(startWorker).toHaveBeenCalledWith(options, expect.any(Function))
   })
 })

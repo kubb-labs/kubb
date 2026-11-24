@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import type { KubbReactElement, KubbReactNode } from '../types.ts'
 import { File } from './File.tsx'
 
-type Props<TOutput> = {
+export type SchemaProps<TOutput> = {
   node: ast.SchemaNode
   printer: Pick<ast.Printer, 'drainImports'> & { print: (node: ast.SchemaNode) => TOutput | null }
   children: (output: NonNullable<TOutput>) => KubbReactNode
@@ -16,7 +16,7 @@ type Props<TOutput> = {
  * <Schema node={node} printer={printer}>{(code) => <Const export name="petSchema">{code}</Const>}</Schema>
  * ```
  */
-export function Schema<TOutput>({ node, printer, children }: Props<TOutput>): KubbReactElement | null {
+export function Schema<TOutput>({ node, printer, children }: SchemaProps<TOutput>): KubbReactElement | null {
   const output = printer.print(node)
   const imports = printer.drainImports()
 

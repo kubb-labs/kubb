@@ -30,13 +30,13 @@ const DISABLED_MARKER_PATTERN = /^kubb:disabled (.+)\s+(\d+)$/
 const identifiers = { defineConfig: 'defineConfig', require: 'require', module: 'module', exports: 'exports' } as const
 
 export const moduleKinds = { esm: 'esm', cjs: 'cjs' } as const
-type ModuleKind = ValueOf<typeof moduleKinds>
+export type ModuleKind = ValueOf<typeof moduleKinds>
 
 export type ParsedConfig = { program: Program; comments: ReadonlyArray<Comment>; configs: Array<ObjectExpression>; kind: ModuleKind }
-type ValueNode = Expression | SpreadElement | null | undefined
-type Import = { from: string; exported: string }
+export type ValueNode = Expression | SpreadElement | null | undefined
+export type Import = { from: string; exported: string }
 export type FactoryCall = { importName: string; exportName: string; packageName: string; call: CallExpression }
-type DisabledBlock = { packageName: string; line: number; end: number; code: Array<string> }
+export type DisabledBlock = { packageName: string; line: number; end: number; code: Array<string> }
 
 // Finding the config
 

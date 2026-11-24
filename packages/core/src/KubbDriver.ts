@@ -18,7 +18,7 @@ import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { Hookable } from './Hookable.ts'
 
-type Options = {
+export type Options = {
   hooks: Hookable<KubbHooks>
   signal?: AbortSignal
   fileRefs?: Array<string>
@@ -37,7 +37,7 @@ type Options = {
   sharedSchemas?: SharedSchemas
 }
 
-type RequirePluginContext = {
+export type RequirePluginContext = {
   /**
    * Name of the plugin that declared the dependency, included in the error so users can
    * trace which plugin needs the missing one.

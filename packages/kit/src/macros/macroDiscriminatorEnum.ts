@@ -1,7 +1,7 @@
 import { ast } from '@kubb/ast'
 import { defineMacro } from '../authoring.ts'
 
-type Props = {
+export type MacroDiscriminatorEnumProps = {
   propertyName: string
   values: Array<string | number | boolean>
   enumName?: string
@@ -10,7 +10,7 @@ type Props = {
 /**
  * Picks the enum primitive from the type of the first value.
  */
-export function enumPrimitive(values: Props['values']): 'string' | 'number' | 'boolean' {
+export function enumPrimitive(values: MacroDiscriminatorEnumProps['values']): 'string' | 'number' | 'boolean' {
   return typeof values[0] === 'number' ? 'number' : typeof values[0] === 'boolean' ? 'boolean' : 'string'
 }
 
@@ -25,7 +25,7 @@ export function enumPrimitive(values: Props['values']): 'string' | 'number' | 'b
  * const next = applyMacros(objectSchema, [macro], { depth: 'shallow' })
  * ```
  */
-export function macroDiscriminatorEnum({ propertyName, values, enumName }: Props) {
+export function macroDiscriminatorEnum({ propertyName, values, enumName }: MacroDiscriminatorEnumProps) {
   return defineMacro({
     name: 'discriminator-enum',
     schema(node) {

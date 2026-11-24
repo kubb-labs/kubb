@@ -14,11 +14,11 @@ import type { Config, KubbFileProcessingUpdate, KubbHooks } from './types.ts'
 /** Files kept in flight at once, writing the output and reading it back for the manifest. */
 export const FILE_CONCURRENCY = 50
 
-type ParseOptions = {
+export type ParseOptions = {
   parsers?: Map<FileNode['extname'], Parser>
 }
 
-type WriteOptions = ParseOptions & {
+export type WriteOptions = ParseOptions & {
   storage: Storage
   signal?: AbortSignal
   /**

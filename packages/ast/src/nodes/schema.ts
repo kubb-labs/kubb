@@ -34,7 +34,7 @@ export type ScalarSchemaType = 'boolean' | 'null' | 'any' | 'unknown' | 'void' |
 /**
  * Fields shared by all schema nodes.
  */
-type SchemaNodeBase = BaseNode & {
+export type SchemaNodeBase = BaseNode & {
   /**
    * Node kind.
    */
@@ -221,7 +221,7 @@ export type ArraySchemaNode = SchemaNodeBase & {
 /**
  * Shared shape for union and intersection schemas.
  */
-type CompositeSchemaNodeBase = SchemaNodeBase & {
+export type CompositeSchemaNodeBase = SchemaNodeBase & {
   /**
    * Member schemas.
    */
@@ -285,7 +285,7 @@ export type NotSchemaNode = CompositeSchemaNodeBase & {
 /**
  * One named enum item.
  */
-type EnumValueNode = {
+export type EnumValueNode = {
   /**
    * Enum item name.
    */
@@ -407,7 +407,7 @@ export type DatetimeSchemaNode = SchemaNodeBase & {
 /**
  * Shared base for `date` and `time` schemas.
  */
-type TemporalSchemaNodeBase<T extends 'date' | 'time'> = SchemaNodeBase & {
+export type TemporalSchemaNodeBase<T extends 'date' | 'time'> = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
@@ -570,7 +570,7 @@ export type UrlSchemaNode = SchemaNodeBase & {
  * const uuidSchema: FormatStringSchemaNode = { kind: 'Schema', type: 'uuid', min: 36, max: 36 }
  * ```
  */
-type FormatStringSchemaNode = SchemaNodeBase & {
+export type FormatStringSchemaNode = SchemaNodeBase & {
   /**
    * Schema type discriminator.
    */
@@ -640,9 +640,9 @@ export type SchemaNode =
   | ScalarSchemaNode
   | BlobSchemaNode
 
-type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
-type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
-type CreateSchemaOutput<T extends CreateSchemaInput> = SchemaNodeByType[T['type']] & { kind: 'Schema' }
+export type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
+export type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
+export type CreateSchemaOutput<T extends CreateSchemaInput> = SchemaNodeByType[T['type']] & { kind: 'Schema' }
 
 /**
  * Maps schema `type` to its underlying `primitive`.

@@ -1,10 +1,11 @@
 import type { ValueOf } from '@internals/utils'
+import { version } from '../package.json'
 /**
  * Every diagnostic code with its docs entry: a short title, what triggers it, and how to resolve
  * it. The source of truth for {@link diagnosticCode}, and the kubb.dev `/reference/diagnostics`
  * sections mirror it.
  */
-export const diagnosticCatalog = {
+const diagnosticCatalog = {
   unknown: {
     code: 'KUBB_UNKNOWN',
     title: 'Unknown error',
@@ -282,3 +283,21 @@ export const diagnosticCode = Object.fromEntries(Object.entries(diagnosticCatalo
  * Union of the stable {@link diagnosticCode} values.
  */
 export type DiagnosticCode = ValueOf<typeof diagnosticCode>
+
+/**
+ * Docs major version, derived from the package version so the link tracks the published major.
+ */
+const docsMajor = version.split('.')[0] ?? '5'
+
+const docsByCode = new Map<DiagnosticCode, ValueOf<typeof diagnosticCatalog>>(Object.values(diagnosticCatalog).map((doc) => [doc.code, doc]))
+
+/** The kubb.dev docs URL for a diagnostic code. Backs `Diagnostics.docsUrl`. */
+export function docsUrl(code: string): string {
+  const slug = code.toLowerCase().replaceAll('_', '-')
+  return `https://kubb.dev/docs/${docsMajor}.x/reference/diagnostics#${slug}`
+}
+
+/** The catalog entry for a code. Backs `Diagnostics.explain`. */
+export function explain(code: DiagnosticCode): ValueOf<typeof diagnosticCatalog> {
+  return docsByCode.get(code)!
+}

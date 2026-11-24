@@ -79,7 +79,7 @@ export function getSchemaLiteralValues(node: SchemaNode): ReadonlyArray<LiteralV
   })
 }
 
-type LiteralValue = string | number | boolean | null
+export type LiteralValue = string | number | boolean | null
 
 // Printers read an enum's values each time they print it.
 const literalValues = memo.create<SchemaNode, ReadonlyArray<LiteralValue>>({ weak: true })

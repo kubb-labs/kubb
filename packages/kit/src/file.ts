@@ -36,9 +36,9 @@ export type FileTarget = Pick<FileNode, 'baseName' | 'path' | 'meta'> & {
   footer: string | null
 }
 
-type Location = { root: string; output: Output; group: Group | undefined }
+export type Location = { root: string; output: Output; group: Group | undefined }
 
-type LocationOptions = {
+export type LocationOptions = {
   output: Output
   group?: Group | null
   exclude?: Array<Filter>

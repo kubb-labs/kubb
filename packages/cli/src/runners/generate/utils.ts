@@ -17,11 +17,11 @@ const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 const WATCHER_DEBOUNCE_MS = 250
 
 /** `14:02:11  petStore.yaml changed`, the line a watcher prints when its input changes. */
-export function formatChange({ target, removed = false, now = new Date() }: { target: string; removed?: boolean; now?: Date }): string {
+function formatChange({ target, removed = false, now = new Date() }: { target: string; removed?: boolean; now?: Date }): string {
   return `${styleText('dim', now.toTimeString().slice(0, 8))}  ${styleText('bold', target)} ${removed ? 'removed' : 'changed'}`
 }
 
-type WatcherLog = {
+export type WatcherLog = {
   info: (message: string) => void
   error: (message: string) => void
 }
@@ -98,7 +98,7 @@ export function trackBuild(hooks: Hookable<KubbHooks>): { take(): BuildSnapshot 
   }
 }
 
-type NameChange = { added: number; removed: number }
+export type NameChange = { added: number; removed: number }
 
 /**
  * How a rebuild differs from the build before it: the spec's added and removed schemas and operations.
@@ -309,9 +309,9 @@ export async function diffOutput({
   return { files, unchanged }
 }
 
-type KeyInput = Pick<NodeJS.ReadStream, 'isTTY' | 'setRawMode' | 'resume' | 'pause' | 'setEncoding' | 'on'>
+export type KeyInput = Pick<NodeJS.ReadStream, 'isTTY' | 'setRawMode' | 'resume' | 'pause' | 'setEncoding' | 'on'>
 
-type KeyOptions = {
+export type KeyOptions = {
   rebuild: () => void
   /**
    * Ends the process with this exit code: `0` for `q`, `130` for ctrl+c, which raw mode turns into a key.

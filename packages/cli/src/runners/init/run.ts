@@ -41,7 +41,7 @@ function unwrap<T>(value: T): Exclude<T, symbol> {
   return value as Exclude<T, symbol>
 }
 
-type InitOptions = {
+export type InitOptions = {
   /**
    * When `true`, skips all interactive prompts and uses the detected or default values.
    */

@@ -10,9 +10,9 @@ import type { CodeNode } from './code.ts'
 /**
  * Supported file extensions.
  */
-type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
+export type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
 
-type ImportName = string | Array<string | { propertyName: string; name?: string }>
+export type ImportName = string | Array<string | { propertyName: string; name?: string }>
 
 /**
  * Whether a declaration exists only at compile time (`'type'`) or also at runtime (`'value'`).

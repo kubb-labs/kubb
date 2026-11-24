@@ -230,3 +230,29 @@ jobs:
           exclude: |
             **/mocks/**
             **/__snapshots__/**
+
+  fallow:
+    name: Fallow
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    if: github.actor != 'github-actions[bot]' && github.event_name == 'pull_request'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - *setup
+
+      # Fails the job when the pull request adds a finding. Older findings do not fail it.
+      - name: Audit changed code
+        uses: fallow-rs/fallow@003cc8af2be876b8b8d48cfe2b6b44a36ec95402 # v3.48.0
+        with:
+          command: audit
+          comment: true
+          # Fork pull requests get a read-only token, so they keep the line annotations instead.
+          review-comments: ${{ github.event.pull_request.head.repo.full_name == github.repository }}

@@ -1,7 +1,7 @@
 import type { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
-type Props = Omit<ast.FunctionNode, 'kind' | 'nodes'> & {
+export type FunctionProps = Omit<ast.FunctionNode, 'kind' | 'nodes'> & {
   key?: Key
   /**
    * Lets importing files use the body in place of the name. Read when the declaration sits directly in a `File` that sets `inline`,
@@ -29,7 +29,7 @@ type Props = Omit<ast.FunctionNode, 'kind' | 'nodes'> & {
  * // }
  * ```
  */
-export function Function({ children, ...props }: Props): KubbReactElement {
+export function Function({ children, ...props }: FunctionProps): KubbReactElement {
   return <kubb-function {...props}>{children}</kubb-function>
 }
 

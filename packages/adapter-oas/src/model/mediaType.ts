@@ -63,7 +63,7 @@ function mergeSchemas(base: Pick<SchemaObject, 'properties' | 'required'>, extra
  * - Shared `properties` merge into each inline `oneOf`/`anyOf` member.
  * - A JSON `data` string becomes its `contentSchema`.
  */
-export function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs): SchemaObject | ReferenceObject {
+function toEventSchema(schema: SchemaObject | ReferenceObject, refs: Refs): SchemaObject | ReferenceObject {
   if (isReference(schema)) {
     const siblings = Object.fromEntries(Object.entries(schema).filter(([key]) => !REF_ANNOTATIONS.has(key)))
     const resolved = Object.keys(siblings).length ? refs.resolve<SchemaObject>(schema.$ref, { report: false }) : null

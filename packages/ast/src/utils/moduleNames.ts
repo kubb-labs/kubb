@@ -22,13 +22,13 @@ export function getSpace(source: SourceNode): Space {
   return source.nodes?.[0]?.kind === 'Type' ? 'type' : 'value'
 }
 
-type DeprecatedImport = Pick<ImportNode, 'name' | 'isTypeOnly' | 'isNameSpace'>
-type DeprecatedExport = Pick<ExportNode, 'name' | 'isTypeOnly' | 'asAlias'>
+export type DeprecatedImport = Pick<ImportNode, 'name' | 'isTypeOnly' | 'isNameSpace'>
+export type DeprecatedExport = Pick<ExportNode, 'name' | 'isTypeOnly' | 'asAlias'>
 
 /**
  * @deprecated Converts a node built with `name`, `isTypeOnly` and `isNameSpace` to `names`. Removed in Kubb v6.
  */
-export function fromDeprecatedImport({ name, isTypeOnly, isNameSpace }: DeprecatedImport): Array<ModuleName> {
+function fromDeprecatedImport({ name, isTypeOnly, isNameSpace }: DeprecatedImport): Array<ModuleName> {
   const space: Space = isTypeOnly ? 'type' : 'value'
   if (!Array.isArray(name)) return [{ name: isNameSpace ? '*' : 'default', alias: name, space }]
   return name.map((item) => (typeof item === 'string' ? { name: item, space } : { name: item.propertyName, ...(item.name ? { alias: item.name } : {}), space }))
@@ -37,7 +37,7 @@ export function fromDeprecatedImport({ name, isTypeOnly, isNameSpace }: Deprecat
 /**
  * @deprecated Converts a node built with `name`, `isTypeOnly` and `asAlias` to `names`. Removed in Kubb v6.
  */
-export function fromDeprecatedExport({ name, isTypeOnly, asAlias }: DeprecatedExport): Array<ModuleName> {
+function fromDeprecatedExport({ name, isTypeOnly, asAlias }: DeprecatedExport): Array<ModuleName> {
   const space: Space = isTypeOnly ? 'type' : 'value'
   if (name == null) return [{ name: '*', space }]
   if (!Array.isArray(name)) return [asAlias ? { name: '*', alias: name, space } : { name, space }]

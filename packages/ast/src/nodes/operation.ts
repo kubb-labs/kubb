@@ -15,7 +15,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 
 /**
  * Fields shared by every operation, regardless of transport.
  */
-type OperationNodeBase = BaseNode & {
+export type OperationNodeBase = BaseNode & {
   /**
    * Node kind.
    */
@@ -115,7 +115,7 @@ export type GenericOperationNode = OperationNodeBase & {
  */
 export type OperationNode = HttpOperationNode | GenericOperationNode
 
-type OperationInput = {
+export type OperationInput = {
   operationId: string
   method?: HttpOperationNode['method']
   path?: HttpOperationNode['path']

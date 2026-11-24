@@ -1,4 +1,4 @@
-type MediaTypeInput = string | { contentType: string }
+export type MediaTypeInput = string | { contentType: string }
 
 const jsonMediaTypes = new Set(['application/json', 'text/json'])
 

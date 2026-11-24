@@ -25,7 +25,7 @@ export function relativeStoragePath({ root, filePath }: { root: string; filePath
 /**
  * A set as kept in the store.
  */
-type KeptSet = {
+export type KeptSet = {
   /**
    * The paths a read is checked against. Empty when the set was too large to keep its content.
    */
@@ -34,7 +34,7 @@ type KeptSet = {
   bytes: number
 }
 
-type KeptGeneration = {
+export type KeptGeneration = {
   jobId: string
   initial?: boolean
   /** When the store took it, in epoch milliseconds. Absent on an index written before it existed. */

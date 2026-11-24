@@ -2,7 +2,7 @@ import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
 import { logOutro } from './intro.ts'
 
-type SummaryStatus = 'success' | 'failed' | 'warning' | 'planned' | 'canceled'
+export type SummaryStatus = 'success' | 'failed' | 'warning' | 'planned' | 'canceled'
 
 export function createSummary(hrStart: [number, number]): (title: string, status: SummaryStatus, lines: ReadonlyArray<string>) => void {
   return (title, status, lines) => logCommandSummary({ title, status, hrStart, block: true, lines })

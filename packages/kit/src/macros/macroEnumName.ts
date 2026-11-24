@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import { defineMacro } from '../authoring.ts'
 import { enumPropName } from '../utils/names.ts'
 
-type Props = {
+export type MacroEnumNameProps = {
   parentName: string | null | undefined
   propName: string
   enumSuffix: string
@@ -18,7 +18,7 @@ type Props = {
  * const named = applyMacros(propSchema, [macro], { depth: 'shallow' })
  * ```
  */
-export function macroEnumName({ parentName, propName, enumSuffix }: Props) {
+export function macroEnumName({ parentName, propName, enumSuffix }: MacroEnumNameProps) {
   return defineMacro({
     name: 'enum-name',
     schema(node) {

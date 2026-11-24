@@ -78,7 +78,7 @@ export type ParameterNode = BaseNode & {
   extensions?: Record<string, unknown>
 }
 
-type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>
+export type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>
 
 /**
  * Creates a `ParameterNode`. `required` defaults to `false`, and the schema's

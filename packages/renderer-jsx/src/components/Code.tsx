@@ -1,7 +1,7 @@
 import type { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
-type Props = {
+export type CodeProps = {
   key?: Key
   name: string
   /**
@@ -23,7 +23,7 @@ type Props = {
 /**
  * A printed declaration in a `File`, in any language. For a declaration written in JSX, or a TypeScript type, use `Const`, `Type` or `Function`.
  */
-export function Code({ children, name, export: canExport, default: isDefault, space }: Props): KubbReactElement {
+export function Code({ children, name, export: canExport, default: isDefault, space }: CodeProps): KubbReactElement {
   return (
     <kubb-code name={name} export={!!canExport} default={isDefault} space={space}>
       {children}

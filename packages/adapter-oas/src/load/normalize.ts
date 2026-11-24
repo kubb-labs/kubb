@@ -265,7 +265,7 @@ export async function parseFromConfig(
 }
 
 /** Upgrades Swagger 2.0 or OpenAPI 3.0 to 3.1. `pathRefs: false` skips the `#/paths/` ref walk. */
-export function upgradeDocument(raw: Document, { pathRefs = true }: { pathRefs?: boolean } = {}): Document {
+function upgradeDocument(raw: Document, { pathRefs = true }: { pathRefs?: boolean } = {}): Document {
   // Unquoted `swagger: 2.0` parses as the number 2, which `upgrade` does not recognise as a version.
   if (raw && typeof raw === 'object') {
     const document = raw as Record<string, unknown>

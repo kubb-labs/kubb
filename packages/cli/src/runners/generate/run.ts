@@ -52,7 +52,7 @@ function toRunConfig({ config, input, dryRun }: { config: Config; input?: string
   }
 }
 
-type GenerateProps = {
+export type GenerateProps = {
   configs: Array<Config>
   hooks: Hookable<KubbHooks>
 }
@@ -84,7 +84,7 @@ export async function generate({ configs, hooks }: GenerateProps): Promise<boole
   return succeeded
 }
 
-type GenerateCommandOptions = {
+export type GenerateCommandOptions = {
   input?: string
   configPath?: string
   logLevel: string

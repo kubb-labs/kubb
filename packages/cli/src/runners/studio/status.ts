@@ -6,7 +6,7 @@ import type { Credentials } from './credentials.ts'
 import { formatPermissionRows } from './permissions.ts'
 import type { WorkerState } from './run.ts'
 
-type StatusInput = {
+export type StatusInput = {
   studioUrl: string
   credentials: Credentials | null
   worker: { running: boolean; state: WorkerState; pid?: number; startedAt?: number }
