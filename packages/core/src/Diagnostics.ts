@@ -445,8 +445,9 @@ export class Diagnostics {
     const seen = new Set<string>()
     return diagnostics.filter((diagnostic) => {
       if (!isProblem(diagnostic)) return true
-      const pointer = diagnostic.location && 'pointer' in diagnostic.location ? diagnostic.location.pointer : ''
-      const key = `${diagnostic.code}\0${pointer}\0${diagnostic.plugin ?? ''}${pointer ? '' : `\0${diagnostic.message}`}`
+      const pointer = diagnostic.location && 'pointer' in diagnostic.location ? diagnostic.location.pointer : undefined
+      // `''` is the root pointer, so presence, not truthiness, decides whether the message joins the key.
+      const key = `${diagnostic.code}\0${pointer ?? ''}\0${diagnostic.plugin ?? ''}${pointer === undefined ? `\0${diagnostic.message}` : ''}`
       if (seen.has(key)) return false
       seen.add(key)
       return true

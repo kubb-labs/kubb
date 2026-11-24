@@ -279,6 +279,13 @@ describe('Diagnostics.dedupe', () => {
 
     expect(result.map((diagnostic) => diagnostic.message)).toStrictEqual(['first warning', 'second warning'])
   })
+
+  it('treats the empty root pointer as a location, so messages there still collapse', () => {
+    const loc = { kind: 'schema', pointer: '' } as const
+    const result = Diagnostics.dedupe([problem({ location: loc, plugin: 'a', message: 'one' }), problem({ location: loc, plugin: 'a', message: 'two' })])
+
+    expect(result).toHaveLength(1)
+  })
 })
 
 describe('Diagnostics.scope / Diagnostics.report', () => {
