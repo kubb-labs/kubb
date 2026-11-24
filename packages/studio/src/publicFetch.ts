@@ -79,8 +79,7 @@ export function createPublicFetch(blocked?: net.BlockList): typeof fetch {
   return publicFetch as typeof fetch
 }
 
-let users = 0
-let original: typeof fetch | undefined
+let swap: { original: typeof fetch; users: number } | undefined
 
 /**
  * Runs `run` with the global `fetch` limited to public addresses, then puts the original back.
@@ -91,16 +90,14 @@ let original: typeof fetch | undefined
  * pass a `fetch` down to the adapter instead if a host runs unrelated requests next to a job.
  */
 export async function withPublicFetch<T>(run: () => Promise<T>): Promise<T> {
-  if (users++ === 0) {
-    original = globalThis.fetch
-    globalThis.fetch = createPublicFetch()
-  }
+  const current = (swap ??= { original: globalThis.fetch, users: 0 })
+  if (current.users++ === 0) globalThis.fetch = createPublicFetch()
   try {
     return await run()
   } finally {
-    if (--users === 0) {
-      globalThis.fetch = original!
-      original = undefined
+    if (--current.users === 0) {
+      globalThis.fetch = current.original
+      swap = undefined
     }
   }
 }

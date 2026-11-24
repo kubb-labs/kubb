@@ -25,8 +25,9 @@ export {
 export type JSONKubbConfig = {
   /**
    * Plugins with their serialized options. `name` is the package name (e.g. `@kubb/plugin-ts`)
-   * and `options` is an opaque blob the agent forwards unchanged to the plugin factory. An entry
-   * with `disabled: true` is dropped even when the disk config's `plugins` array still lists it.
+   * and `options` is an opaque blob the agent forwards to the plugin factory, without unsafe keys
+   * such as `__proto__`. An entry with `disabled: true` is dropped even when the disk config's
+   * `plugins` array still lists it.
    */
   plugins?: Array<{
     name: string

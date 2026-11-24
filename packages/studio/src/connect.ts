@@ -101,8 +101,7 @@ const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
 const MANAGED_INPUT_KINDS = new Set<InputKind>(['inline', 'url', 'git'])
 
 /** Whether the adapter reads `input` from disk: a file, or a `url` that is not http(s), such as `C:\spec.yaml`. */
-function isFileInput(input: string): boolean {
-  const kind = getInputKind(input)
+function isFileInput(input: string, kind = getInputKind(input)): boolean {
   return kind === 'file' || (kind === 'url' && !/^https?:/i.test(input))
 }
 
@@ -755,7 +754,7 @@ class Agent extends RpcTarget implements AgentApi {
       return { reason: 'the agent was not granted permission to save the input' }
     }
     const kind = getInputKind(edit.input)
-    const isFilePath = isFileInput(edit.input)
+    const isFilePath = isFileInput(edit.input, kind)
     if (this.#managed && (!MANAGED_INPUT_KINDS.has(kind) || isFilePath)) return { reason: AgentMessage.MANAGED_INPUT_KIND }
     // The next generation reads the input file itself, and the `$ref` limit does not cover it.
     if (isFilePath && !isPathInside(path.resolve(this.#options.root, edit.input), this.#options.root)) {
