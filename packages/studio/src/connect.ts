@@ -308,8 +308,8 @@ function isValidPage({ cursor, limit }: Pick<ReadFilesInput, 'cursor' | 'limit'>
 function stagingStorage({ root, directory }: { root: string; directory: string }): Storage {
   const storage = fsStorage()
   const target = (key: string) => {
+    if (!isPathInside(path.resolve(root, key), root)) throw new Error('Output path escapes the project root')
     const relative = path.relative(root, path.resolve(root, key))
-    if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) throw new Error('Output path escapes the project root')
     return path.join(directory, relative)
   }
   return {
