@@ -3,6 +3,8 @@
   "globalDependencies": [
     "tsconfig.json",
     "tsconfig.dts.json",
+    "configs/base.json",
+    "configs/bundler.json",
     "globals.d.ts"
   ],
   "globalEnv": [
@@ -22,6 +24,7 @@
         "src/**/*.vue",
         "src/**/*.html",
         "tsdown.config.ts",
+        "$TURBO_ROOT$/configs/tsdown.ts",
         "package.json",
         "tsconfig.json"
       ]
