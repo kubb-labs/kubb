@@ -87,7 +87,14 @@ export function createRefs(document: Document) {
     if (resolvingRefs.has(refPath)) return null
 
     return memo(resolvedNodeCache, refPath, () => {
-      const referenced = resolveOrNull(refPath)
+      let referenced: SchemaObject | null
+      try {
+        referenced = resolve<SchemaObject>(refPath)
+      } catch (error) {
+        // A missing ref outside a build is `null`; any other error is a real failure.
+        if (Diagnostics.isError(error) && error.diagnostic.code === Diagnostics.code.refNotFound) return null
+        throw error
+      }
       if (!referenced) return null
       resolvingRefs.add(refPath)
       try {
@@ -96,16 +103,6 @@ export function createRefs(document: Document) {
         resolvingRefs.delete(refPath)
       }
     })
-  }
-
-  /** {@link resolve}, but a missing ref outside a build is `null` instead of a thrown `refNotFound`. */
-  function resolveOrNull(refPath: string): SchemaObject | null {
-    try {
-      return resolve<SchemaObject>(refPath)
-    } catch (error) {
-      if (Diagnostics.isError(error) && error.diagnostic.code === Diagnostics.code.refNotFound) return null
-      throw error
-    }
   }
 
   /**

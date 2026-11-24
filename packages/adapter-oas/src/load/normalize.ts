@@ -145,6 +145,15 @@ export async function bundleDocument(
   // A host that limits local files also runs documents it does not trust, so their URLs stay public.
   const publicOnly = fileRefs !== undefined
   const refused = new Set<string>()
+  const refusedHelp = (refusedPath: string): string => {
+    if (urlRegExp.test(refusedPath)) {
+      return 'This run only fetches `$ref` URLs on public hosts. Inline the schema, or serve it from a public URL. On your own agent, `--allow-file-refs` lifts the limit.'
+    }
+    if (folders?.length) {
+      return 'This run only reads local files inside the folders its host allows, such as the project. Move the file there or inline the schema. On your own agent, `--allow-file-refs` lifts the limit.'
+    }
+    return 'This input reads no local file. Inline the schema, or serve the file from a URL.'
+  }
 
   let entry = pathOrUrl
   let entryDocument: object | string | undefined = document
@@ -155,9 +164,9 @@ export async function bundleDocument(
     const key = toKey(sourcePath)
     const isRef = key !== toKey(pathOrUrl)
     const isUrl = urlRegExp.test(sourcePath)
-    const isRefused =
-      isRef && (isUrl ? publicOnly && (await isPrivateHost(new URL(sourcePath))) : folders !== undefined && !(await isInsideFolders(sourcePath, folders)))
-    if (isRefused) {
+    const refusedUrl = isRef && isUrl && publicOnly && (await isPrivateHost(new URL(sourcePath)))
+    const refusedFile = isRef && !isUrl && folders !== undefined && !(await isInsideFolders(sourcePath, folders))
+    if (refusedUrl || refusedFile) {
       // api-ref-bundler drops the rejection's message, so `onError` looks the path up here.
       refused.add(sourcePath)
       throw new Error(`Refused ${sourcePath}`)
@@ -195,13 +204,7 @@ export async function bundleDocument(
           message: refusedPath
             ? `Refused an external \`$ref\` to ${urlRegExp.test(refusedPath) ? 'a host that is not public' : 'the local file'} ${refusedPath}.`
             : `Could not bundle an external \`$ref\`. ${message}.`,
-          help: refusedPath
-            ? urlRegExp.test(refusedPath)
-              ? 'This run only fetches `$ref` URLs on public hosts. Inline the schema, or serve it from a public URL. On your own agent, `--allow-file-refs` lifts the limit.'
-              : folders?.length
-                ? 'This run only reads local files inside the folders its host allows, such as the project. Move the file there or inline the schema. On your own agent, `--allow-file-refs` lifts the limit.'
-                : 'This input reads no local file. Inline the schema, or serve the file from a URL.'
-            : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
+          help: refusedPath ? refusedHelp(refusedPath) : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
         }
         if (!Diagnostics.report(diagnostic) && diagnostic.severity === 'error') {
