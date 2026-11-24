@@ -13,7 +13,7 @@ navigation:
 
 # Telemetry
 
-The Kubb CLI sends anonymous data about each run: which command, which plugins and options, how long it took, and whether it succeeded.
+The Kubb CLI sends anonymous data about each run: which command, which plugins and the shape of their options, how long it took, and whether it succeeded.
 
 > [!IMPORTANT]
 > Telemetry is on by default. Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` or `true` to turn it off.
@@ -65,12 +65,12 @@ Each event is an [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sd
 | `kubb.status` | The outcome | `"success"`, `"failed"` |
 | `kubb.plugins` | The plugin names, sorted | `["plugin-ts", "plugin-zod"]` |
 | `kubb.plugin.<name>` | `true` for each plugin, such as `kubb.plugin.plugin-ts` | `true` |
-| `kubb.plugin_options` | Each plugin's `name` and its options as a JSON string | `{ "name": "plugin-ts", "options": "{\"output\":{\"path\":\"types\"}}" }` |
+| `kubb.plugin_options` | Each plugin's `name` and the shape of its options as a JSON string | `{ "name": "plugin-ts", "options": "{\"output\":{\"path\":\"string\",\"clean\":true},\"enumType\":\"asConst\"}" }` |
 
 The resource attributes are `service.name: "kubb"`, `service.version` (the Kubb version), and `telemetry.sdk.language: "nodejs"`. The request carries the headers `Kubb-Telemetry-Version: 1` and `Kubb-Telemetry-Source: kubb-cli`.
 
 > [!WARNING]
-> `kubb.plugin_options` holds the JSON form of every option value your config passes to a plugin, without functions. That includes values that name your project, such as `output.path`, `importPath`, `baseURL`, or a string `banner`. It also includes a secret in a plugin option, whether `kubb.config.ts` writes it as a literal or reads it from `process.env`.
+> `kubb.plugin_options` holds the shape of the options, not their values. Booleans, numbers and enum-like strings keep their value. An enum-like string is one word of letters and digits, up to 32 characters, such as `asConst` or `camelcase`. Every other value becomes its type name: a string such as `output.path`, `baseURL` or a `banner` is sent as `"string"`, an array as `"array"`, and a function as `"function"`. A string under a key that names a secret, such as `token`, `password` or `apiKey`, is always sent as `"string"`. Object keys are sent as written, so an option object keyed by file paths or other names sends those keys. Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` to send nothing.
 
 ## What is not collected
 
@@ -78,6 +78,8 @@ The resource attributes are `service.name: "kubb"`, `service.version` (the Kubb 
 - The input path, the project root, or the names of generated files
 - Source code or generated code
 - A user, machine, or project identifier
+
+The one exception is an object key in `kubb.plugin_options`, which is sent as written. See the warning above.
 
 Kubb does not read environment variables or credential files for telemetry.
 
