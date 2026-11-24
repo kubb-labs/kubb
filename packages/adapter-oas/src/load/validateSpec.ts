@@ -1,4 +1,5 @@
 import { validate } from '@readme/openapi-parser'
+import type { APIDocument } from '@readme/openapi-parser'
 import type { Document } from '../types.ts'
 
 export type ValidationErrors = { errors: Array<{ message: string }>; additionalErrors: number }
@@ -8,7 +9,7 @@ export type WorkerResult = { valid: true } | ({ valid: false } & ValidationError
 /** Checks `document` with `@readme/openapi-parser`. It dereferences `document` in place, so pass a copy. */
 export async function validateSpec(document: Document): Promise<WorkerResult> {
   try {
-    const result = await validate(document, { validate: { errors: { colorize: false } } })
+    const result = await validate(document as APIDocument, { validate: { errors: { colorize: false } } })
     return result.valid
       ? { valid: true }
       : { valid: false, errors: result.errors.map(({ message }) => ({ message })), additionalErrors: result.additionalErrors }

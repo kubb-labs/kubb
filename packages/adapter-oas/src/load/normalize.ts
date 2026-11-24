@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { escapePointerToken, getErrorMessage, isPathInside, memo, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource, Diagnostic } from '@kubb/kit'
+import type { APIDocument } from '@readme/openapi-parser'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
 import { isOpenApi32, markLegacyDocument } from '../oas.ts'
@@ -362,7 +363,7 @@ export async function validateDocument(document: Document, { throwOnError = fals
     return reportResult(await validateSpec(structuredClone(document)))
   }
   const { compileErrors, validate } = await import('@readme/openapi-parser')
-  const result = await validate(structuredClone(document), { validate: { errors: { colorize: true } } })
+  const result = await validate(structuredClone(document) as APIDocument, { validate: { errors: { colorize: true } } })
   if (result.valid) return
   throw new Diagnostics.Error({
     code: Diagnostics.code.invalidSpec,
