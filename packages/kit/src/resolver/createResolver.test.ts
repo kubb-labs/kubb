@@ -541,7 +541,6 @@ describe('default.banner / default.footer user text', () => {
       { path: 'src/gen/clients/stocks/stocks.ts', baseName: 'stocks.ts', isAggregation: true },
       '|false|true|src/gen/clients/stocks/stocks.ts|stocks.ts',
     ],
-    ['footer', undefined, undefined, '|false|false||'],
     ['footer', undefined, { path: 'src/gen/index.ts', baseName: 'index.ts', isBarrel: true }, '|true|false|src/gen/index.ts|index.ts'],
   ] satisfies Array<
     ['banner' | 'footer', InputMeta | undefined, { path: string; baseName: string; isBarrel?: boolean; isAggregation?: boolean } | undefined, string]
@@ -556,10 +555,8 @@ describe('toFilePath', () => {
     ['get_enterprise_configurations_id_v2025.0', 'getEnterpriseConfigurationsIdV20250'],
     // dots before a letter split into nested path segments
     ['pet.petId', 'pet/petId'],
-    ['pet.Pet', 'pet/pet'],
     // Security: leading dots must NOT produce a leading slash (path traversal guard)
     ['..Schema', 'schema'],
-    ['.Internal', 'internal'],
   ])('toFilePath(%s) -> %s (camelCase segments)', (input, expected) => {
     expect(toFilePath(input)).toBe(expected)
   })

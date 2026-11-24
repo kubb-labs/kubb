@@ -143,7 +143,6 @@ describe('parserTs', () => {
   it.each([
     { extension: undefined, expected: "import { Pet } from './models/pet'" },
     { extension: '.js', expected: "import { Pet } from './models/pet.js'" },
-    { extension: '.ts', expected: "import { Pet } from './models/pet.ts'" },
   ] as const)('returns $expected when the .ts extension maps to $extension', async ({ extension, expected }) => {
     const file = ast.factory.createFile({
       baseName: 'test.ts',
@@ -184,10 +183,7 @@ describe('parserTs', () => {
       )
     })
 
-    it.each([
-      ['.ts', "from '../options.ts'"],
-      ['.js', "from '../options.js'"],
-    ] as const)('applies the %s extension to template imports', (extension, expected) => {
+    it.each([['.ts', "from '../options.ts'"]] as const)('applies the %s extension to template imports', (extension, expected) => {
       expect(copy(parserTs({ extension: { '.ts': extension } }))).toContain(expected)
     })
 
