@@ -1,3 +1,4 @@
+import { realpath } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { CONFIG_EXTENSIONS, findConfigFile, loadConfigFile } from '@internals/shared'
@@ -7,6 +8,27 @@ import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as v from 'valibot'
 import { formatDiagnostics } from '../utils.ts'
+
+/**
+ * The path with every symlink resolved, so a link inside the working directory cannot point a
+ * checked path elsewhere. A path that does not exist yet resolves through its nearest existing parent.
+ */
+async function realPath(target: string): Promise<string> {
+  const missing: Array<string> = []
+  for (let current = target; ; current = path.dirname(current)) {
+    try {
+      return path.join(await realpath(current), ...missing)
+    } catch {
+      if (path.dirname(current) === current) return target
+      missing.unshift(path.basename(current))
+    }
+  }
+}
+
+/** Whether `target`, after resolving symlinks, stays inside `base`. */
+async function isRealPathInside(target: string, base: string): Promise<boolean> {
+  return isPathInside(await realPath(target), await realPath(base))
+}
 
 const generateSchema = v.object({
   config: v.optional(
@@ -63,7 +85,7 @@ export const generateTool = defineTool(
           return tool.error(`Invalid config file extension "${ext}". Allowed: ${CONFIG_EXTENSIONS.join(', ')}`)
         }
         file = path.resolve(base, configPath)
-        if (!isPathInside(file, base)) {
+        if (!(await isRealPathInside(file, base))) {
           return tool.error('Invalid config file path: must be within the current working directory')
         }
       } else {
@@ -92,10 +114,10 @@ export const generateTool = defineTool(
       // The AI client also supplies these, and `output.clean` empties the output folder, so both stay inside the working directory too.
       // Core resolves them against `config.root`, which the loader already made absolute, so the check does as well.
       const root = userConfig.root ?? base
-      if (output && !isPathInside(path.resolve(root, output), base)) {
+      if (output && !(await isRealPathInside(path.resolve(root, output), base))) {
         return tool.error('Invalid output path: must be within the current working directory')
       }
-      if (input && !/^https?:\/\//i.test(input) && !isPathInside(path.resolve(root, input), base)) {
+      if (input && !/^https?:\/\//i.test(input) && !(await isRealPathInside(path.resolve(root, input), base))) {
         return tool.error('Invalid input path: must be a URL or within the current working directory')
       }
 
