@@ -5,6 +5,7 @@
  * schema content.
  */
 import path from 'node:path'
+import process from 'node:process'
 import { memo } from '@internals/utils'
 import { createExport, createImport, type ExportNode, type ImportNode, type ModuleName, type SourceNode, type Space } from '../nodes/file.ts'
 import { getNames, getSpace, isExported } from './moduleNames.ts'
@@ -56,17 +57,29 @@ function toStatements(nodes: ReadonlyArray<ImportNode | ExportNode>, formOf: (it
 const specifierCache = memo.create<string, Map<string, string>>({ max: 10_000 })
 
 /**
- * Returns the specifier a member is written with: POSIX and relative to the importing file when it
- * has a `root`, like `getRelativePath` in parser-ts. Sorting on it keeps the order the same on every OS.
+ * Module specifier that imports `filePath` from the file at `root`: POSIX, relative to that file's directory, `./`-prefixed unless it climbs with `../`.
+ *
+ * @example
+ * ```ts
+ * getRelativePath('/root/src/models/pet.ts', '/root/lib/client.ts') // '../../lib/client.ts'
+ * ```
  */
-function specifier(node: { path: string; root?: string | null }): string {
-  const { root, path: target } = node
-  if (!root) return target
-  const byPath = memo(specifierCache, root, () => new Map<string, string>())
-  return memo(byPath, target, () => {
-    const relative = path.relative(path.dirname(root), target).replaceAll('\\', '/')
+export function getRelativePath(root: string, filePath: string): string {
+  // A relative input resolves against the working directory, so that directory is part of its key.
+  const rootKey = path.isAbsolute(root) && path.isAbsolute(filePath) ? root : `${process.cwd()}\u0000${root}`
+  const byPath = memo(specifierCache, rootKey, () => new Map<string, string>())
+  return memo(byPath, filePath, () => {
+    const relative = path.relative(path.dirname(root), filePath).replaceAll('\\', '/')
     return relative.startsWith('../') ? relative : `./${relative}`
   })
+}
+
+/**
+ * Returns the specifier a member is written with: relative to the importing file when it has a
+ * `root`. Sorting on it keeps the order the same on every OS.
+ */
+function specifier(node: { path: string; root?: string | null }): string {
+  return node.root ? getRelativePath(node.root, node.path) : node.path
 }
 
 function sortKey(statement: Statement): string {
