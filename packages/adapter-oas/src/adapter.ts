@@ -219,7 +219,7 @@ export const adapterOas = defineExtension<AdapterOas>({
         const read: Array<string> = []
         sources = read
         const promise = (async () => {
-          const document = await parseFromConfig(source, read, { fileRefs })
+          const document = await parseFromConfig(source, read, { fileRefs, signal })
           signal?.throwIfAborted()
           assertDocument(document)
           if (validate) pendingValidations.push(validateDocumentInWorker(document))

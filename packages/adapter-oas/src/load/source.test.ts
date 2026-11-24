@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Diagnostics } from '@kubb/kit'
-import { assertInputExists, resolveSource } from './source.ts'
+import { assertInputExists, isPrivateHost, parseYaml, resolveSource } from './source.ts'
 
 function codeOf(error: unknown): string | undefined {
   return Diagnostics.isError(error) ? error.diagnostic.code : undefined
@@ -64,6 +64,87 @@ describe('resolveSource', () => {
     const error = await resolveSource('https://specs.example.com/openapi.yaml?rev=1').catch((caught: unknown) => caught)
 
     expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.invalidDocument)
+  })
+})
+
+describe('resolveSource requests', () => {
+  const url = 'https://specs.example.com/openapi.json'
+  const ok = () => new Response('{"openapi":"3.1.0"}', { status: 200 })
+
+  it('passes a signal that a canceled build aborts, and follows redirects by default', async () => {
+    using fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => ok())
+    const controller = new AbortController()
+
+    await resolveSource(url, { signal: controller.signal })
+    const init = fetchSpy.mock.calls[0]?.[1]
+    controller.abort()
+
+    expect(init?.redirect).toBe('follow')
+    expect(init?.signal?.aborted).toBe(true)
+  })
+
+  it('makes a redirect fail for a public-only request', async () => {
+    using fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => ok())
+
+    await resolveSource(url, { publicOnly: true })
+
+    expect(fetchSpy.mock.calls[0]?.[1]?.redirect).toBe('error')
+  })
+
+  it('rethrows the cancel reason instead of reporting the host as unreachable', async () => {
+    const controller = new AbortController()
+    const reason = new Error('canceled')
+    using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
+      controller.abort(reason)
+      throw new DOMException('aborted', 'AbortError')
+    })
+
+    await expect(resolveSource(url, { signal: controller.signal })).rejects.toBe(reason)
+  })
+})
+
+describe('isPrivateHost', () => {
+  it.each(['http://127.0.0.1:8080/x.yaml', 'http://[::1]/x.yaml', 'http://169.254.169.254/latest', 'http://10.0.0.7/x.yaml', 'http://localhost/x.yaml'])(
+    'treats %s as not public',
+    async (url) => {
+      await expect(isPrivateHost(new URL(url))).resolves.toBe(true)
+    },
+  )
+
+  it('treats a public IP literal as public', async () => {
+    await expect(isPrivateHost(new URL('https://93.184.216.34/x.yaml'))).resolves.toBe(false)
+  })
+})
+
+describe('parseYaml aliases', () => {
+  const options = { origin: 'spec.yaml', help: 'help', json: false }
+
+  it('reports a YAML alias inside its own anchor as an invalid document, not a stack overflow', () => {
+    const error = (() => {
+      try {
+        return parseYaml("openapi: '3.1.0'\nx-loop: &a [*a]\n", options)
+      } catch (caught) {
+        return caught
+      }
+    })()
+
+    expect(codeOf(error)).toBe(Diagnostics.code.invalidDocument)
+    expect(Diagnostics.isError(error) && error.diagnostic.message).toContain('contains itself')
+  })
+
+  it('refuses aliases that expand exponentially, without walking the expansion', () => {
+    let data = 'a0: &a0 [x, x]\n'
+    for (let level = 1; level <= 30; level++) data += `a${level}: &a${level} [*a${level - 1}, *a${level - 1}]\n`
+    const start = performance.now()
+
+    expect(() => parseYaml(data, options)).toThrow(/expand/)
+    expect(performance.now() - start).toBeLessThan(1000)
+  })
+
+  it('keeps a document that reuses an anchor a few times', () => {
+    const data = "openapi: '3.1.0'\nx-shared: &shared { type: string }\na: *shared\nb: *shared\n"
+
+    expect(parseYaml(data, options)).toStrictEqual({ openapi: '3.1.0', 'x-shared': { type: 'string' }, a: { type: 'string' }, b: { type: 'string' } })
   })
 })
 

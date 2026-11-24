@@ -1,10 +1,37 @@
+import { lookup } from 'node:dns/promises'
+import { isIP } from 'node:net'
 import { exists, getErrorMessage, read, toError } from '@internals/utils'
+import { isPublicAddress } from '@kubb/core'
 import { Diagnostics } from '@kubb/kit'
-import { CORE_SCHEMA, constructFromEvents, parseEvents } from 'js-yaml'
+import { CORE_SCHEMA, constructFromEvents, EVENT_ID, parseEvents } from 'js-yaml'
 import { parse } from 'yaml'
 import { rememberEvents } from '../sourceLocator.ts'
 
 export const urlRegExp = /^https?:\/+/i
+
+/** How long one request for a document or a `$ref` may take before Kubb gives up on it. */
+const FETCH_TIMEOUT_MS = 30_000
+
+/**
+ * Options for reading a source. `signal` cancels the request. `publicOnly` makes a redirect fail,
+ * so a public URL cannot forward the request to a private host.
+ */
+export type ReadOptions = { signal?: AbortSignal; publicOnly?: boolean }
+
+/**
+ * Whether `url` names a host that is loopback, private, link-local, or another address that is not
+ * public. A host that does not resolve counts as public, so the request reports the real failure.
+ *
+ * shortcut: the name is resolved again when `fetch` connects, so a host that changes its answer in
+ * between can still reach a private address. Upgrade to a pinned lookup, like `@kubb/studio`'s
+ * `publicFetch`, if a sandbox needs that guarantee.
+ */
+export async function isPrivateHost(url: URL): Promise<boolean> {
+  const host = url.hostname.replace(/^\[|\]$/g, '')
+  if (isIP(host)) return !isPublicAddress(host)
+  const addresses = await lookup(host, { all: true }).catch(() => [])
+  return addresses.some(({ address }) => !isPublicAddress(address))
+}
 
 /**
  * Node reports every connection failure as `TypeError: fetch failed` and keeps the useful part
@@ -36,14 +63,18 @@ function helpForStatus(status: number): string {
   return 'Open the URL in a browser or with `curl` to see what the server returns, then point `input` at a URL that serves the OpenAPI document.'
 }
 
-async function fetchSource(url: URL): Promise<Response> {
+async function fetchSource(url: URL, { signal, publicOnly }: ReadOptions): Promise<Response> {
+  const timeout = AbortSignal.timeout(FETCH_TIMEOUT_MS)
   try {
-    return await fetch(url)
+    return await fetch(url, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout, redirect: publicOnly ? 'error' : 'follow' })
   } catch (error) {
+    // A canceled build stops here; only a timeout or a network failure is the server's problem.
+    if (signal?.aborted) throw signal.reason
+    const reason = timeout.aborted ? `no answer within ${FETCH_TIMEOUT_MS / 1000} seconds` : describeFetchFailure(error)
     throw new Diagnostics.Error({
       code: Diagnostics.code.inputUnreachable,
       severity: 'error',
-      message: `Cannot reach ${url.href}: ${describeFetchFailure(error)}`,
+      message: `Cannot reach ${url.href}: ${reason}`,
       help: 'Check that the host is running and reachable from this machine. For a local server, start it and confirm the port matches the one in `input`.',
       location: { kind: 'config' },
       cause: error instanceof Error ? error : undefined,
@@ -51,12 +82,12 @@ async function fetchSource(url: URL): Promise<Response> {
   }
 }
 
-async function readSource(sourcePath: string): Promise<string> {
+async function readSource(sourcePath: string, options: ReadOptions): Promise<string> {
   if (urlRegExp.test(sourcePath)) {
     // api-ref-bundler joins relative refs with posix normalization, collapsing `https://` to
     // `https:/`. The WHATWG URL parser restores the double slash.
     const url = new URL(sourcePath)
-    const response = await fetchSource(url)
+    const response = await fetchSource(url, options)
 
     if (!response.ok) {
       const status = response.statusText ? `${response.status} ${response.statusText}` : String(response.status)
@@ -80,8 +111,8 @@ async function readSource(sourcePath: string): Promise<string> {
  * Reads and parses one source file or URL referenced during bundling: YAML/JSON is parsed into an
  * object, Markdown is returned as-is (bundled inline rather than dereferenced).
  */
-export async function resolveSource(sourcePath: string, { remember }: { remember?: boolean } = {}): Promise<object | string> {
-  const data = await readSource(sourcePath)
+export async function resolveSource(sourcePath: string, { remember, ...options }: { remember?: boolean } & ReadOptions = {}): Promise<object | string> {
+  const data = await readSource(sourcePath, options)
 
   if (sourcePath.toLowerCase().endsWith('.md')) {
     return data
@@ -122,18 +153,25 @@ export function parseYaml(
       // Not JSON, so YAML parses it below.
     }
   }
+  let parsed: { document: object; aliases: boolean; events: ReturnType<typeof parseEvents> } | undefined
   try {
     const events = parseEvents(data, {})
     const documents = constructFromEvents(events, { source: data, schema: CORE_SCHEMA })
     if (documents.length === 1 && documents[0] !== undefined) {
-      if (remember) rememberEvents({ source: data, events })
-      return documents[0] as object
+      parsed = { document: documents[0] as object, aliases: events.some((event) => event.type === EVENT_ID.ALIAS), events }
     }
   } catch {
     // `yaml` parses it again below to report the error with its line and column.
   }
+  if (parsed) {
+    // Only an alias can repeat a node, so a document without one needs no walk.
+    if (parsed.aliases) assertDocumentTree(parsed.document, { origin })
+    if (remember) rememberEvents({ source: data, events: parsed.events })
+    return parsed.document
+  }
+  let document: object
   try {
-    return parse(data) as object
+    document = parse(data) as object
   } catch (error) {
     throw new Diagnostics.Error({
       code: Diagnostics.code.invalidDocument,
@@ -143,6 +181,50 @@ export function parseYaml(
       location: { kind: 'config' },
       cause: toError(error),
     })
+  }
+  assertDocumentTree(document, { origin })
+  return document
+}
+
+// A YAML alias reuses a node, so a few lines can expand into millions of nodes. A real spec that
+// reuses anchors stays far below this many expanded nodes per distinct node.
+const MAX_EXPANSION = 100
+const MIN_EXPANDED_NODES = 100_000
+
+function invalidAliases(origin: string, problem: string): InstanceType<typeof Diagnostics.Error> {
+  return new Diagnostics.Error({
+    code: Diagnostics.code.invalidDocument,
+    severity: 'error',
+    message: `Cannot read ${origin}: ${problem}.`,
+    help: 'Replace the YAML alias (`*name`) with a copy of the node, or use a `$ref` to share a schema.',
+    location: { kind: 'config' },
+  })
+}
+
+/**
+ * Throws `KUBB_INVALID_DOCUMENT` when a parsed document is not a tree. A YAML alias inside its own
+ * anchor makes a cycle, which every later walk would follow forever. Aliases of aliases can expand
+ * the document exponentially, which `expansion` (the default) refuses. One walk visits each
+ * distinct node once.
+ */
+export function assertDocumentTree(document: unknown, { origin, expansion = true }: { origin: string; expansion?: boolean }): void {
+  const sizes = new Map<object, number>()
+  const open = new Set<object>()
+  const countNodes = (node: unknown): number => {
+    if (!node || typeof node !== 'object') return 1
+    const known = sizes.get(node)
+    if (known !== undefined) return known
+    if (open.has(node)) throw invalidAliases(origin, 'a node contains itself, through a YAML alias inside its own anchor')
+    open.add(node)
+    let total = 1
+    for (const value of Object.values(node)) total += countNodes(value)
+    open.delete(node)
+    sizes.set(node, total)
+    return total
+  }
+  const expanded = countNodes(document)
+  if (expansion && expanded > MIN_EXPANDED_NODES && expanded > sizes.size * MAX_EXPANSION) {
+    throw invalidAliases(origin, `its YAML aliases expand ${sizes.size} distinct nodes into more than ${MIN_EXPANDED_NODES} nodes`)
   }
 }
 
