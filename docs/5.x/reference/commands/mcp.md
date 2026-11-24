@@ -63,7 +63,7 @@ Passed to a config that exports a function. Default: `info`.
 
 ### `validate` {#validate}
 
-Validates an OpenAPI or Swagger document with the bundled OpenAPI adapter. It does not read the config.
+Validates an OpenAPI or Swagger document with the bundled OpenAPI adapter. It does not read the config. A `$ref` may read local files only inside the [working directory](#working-directory), and fetch URLs only on public hosts.
 
 ::field-group
 

@@ -80,6 +80,13 @@ describe('refs.resolve', () => {
     expect(input.operations.map((operation) => operation.path)).toStrictEqual(['/pets', '/alias'])
   })
 
+  it.each(['#/components/schemas/100%', '#/components/schemas/constructor'])('treats %s as an unresolved ref', ($ref) => {
+    const refs = createRefs(buildDocument({}))
+
+    expect(refs.resolve($ref, { report: false })).toBeNull()
+    expect(() => refs.resolve($ref)).toThrow(`Could not find a definition for ${$ref}.`)
+  })
+
   it('throws when the pointer cannot be resolved outside a build scope', async () => {
     const document = buildDocument({}, { '/pets': { get: { responses: { '200': { $ref: '#/components/responses/Missing' } } } } })
 

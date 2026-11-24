@@ -569,7 +569,7 @@ export async function runStudio(
     await report({ status: 'success' })
   } catch (error) {
     await report({ status: 'failed' })
-    console.error(toError(error).message)
+    console.error(Diagnostics.format(Diagnostics.from(error)).join('\n'))
     process.exitCode = 1
   }
 }

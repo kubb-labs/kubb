@@ -5,14 +5,14 @@ import { stripVTControlCharacters } from 'node:util'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as utils from '@internals/utils'
-import type { Config } from '@kubb/core'
+import { type Config, Diagnostics } from '@kubb/core'
 import { type ConnectAgentOptions, connectAgent, InvalidAgentTokenError, PairingCanceledError, pairAgent, refreshAgentToken } from '@kubb/studio'
 import * as env from '../../utils/env.ts'
 import * as config from '../../config.ts'
 import * as credentialsStore from './credentials.ts'
 import type { Credentials } from './credentials.ts'
 import * as background from './background.ts'
-import { connect, login, resolvePermissions, type StudioOptions } from './run.ts'
+import { connect, login, resolvePermissions, runStudio, type StudioOptions } from './run.ts'
 
 vi.mock('@clack/prompts', () => ({
   multiselect: vi.fn(),
@@ -133,6 +133,20 @@ function mockPairing(agentId: string = credentials.agentId, organizationSlug?: s
     return { token: 'new-token', agent: { id: agentId, slug: 'slug', name: 'demo', organizationSlug } }
   })
 }
+
+describe('runStudio', () => {
+  it('prints the help of a failure and sets the exit code', async () => {
+    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '1')
+    const printed = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const failure = new Diagnostics.Error({ code: Diagnostics.code.unknown, severity: 'error', message: 'Studio is down.', help: 'Try again later.' })
+
+    await runStudio({ logLevel: 'silent' }, async () => Promise.reject(failure), { json: true })
+
+    expect(printed.mock.calls.join('\n')).toContain('fix: Try again later.')
+    expect(process.exitCode).toBe(1)
+    process.exitCode = undefined
+  })
+})
 
 describe('login', () => {
   it('pairs this machine as a cli agent and stores the approved token', async () => {
