@@ -82,7 +82,7 @@ describe('buildOtlpPayload', () => {
     ])
   })
 
-  it('sends only the shape of the plugin options, without string values or usedEnumNames', () => {
+  it('sends the shape of the plugin options with enum-like values, without usedEnumNames', () => {
     const plugins = [{ name: 'plugin-ts', options: { output: { path: 'types' }, enumType: 'asConst', usedEnumNames: ['Pet'] } }]
     const span = getSpan({ plugins })
 
@@ -93,7 +93,7 @@ describe('buildOtlpPayload', () => {
             kvlistValue: {
               values: [
                 { key: 'name', value: { stringValue: 'plugin-ts' } },
-                { key: 'options', value: { stringValue: '{"output":{"path":"string"},"enumType":"string"}' } },
+                { key: 'options', value: { stringValue: '{"output":{"path":"types"},"enumType":"asConst"}' } },
               ],
             },
           },
@@ -103,7 +103,7 @@ describe('buildOtlpPayload', () => {
     expect(plugins[0]!.options.usedEnumNames).toStrictEqual(['Pet'])
   })
 
-  it('keeps booleans and numbers, and replaces secrets, paths, functions, BigInt and cycles with their type', () => {
+  it('keeps booleans, numbers and enum-like strings, and replaces secrets, paths, URLs, functions, BigInt and cycles with their type', () => {
     const cyclic: Record<string, unknown> = { name: 'loop' }
     cyclic.self = cyclic
 
@@ -111,6 +111,8 @@ describe('buildOtlpPayload', () => {
       toOptionShape({
         baseURL: 'https://api.internal.example',
         headers: { Authorization: process.env.SECRET ?? 'Bearer token' },
+        apiKey: 'abc123',
+        banner: '/* generated */',
         output: { path: './src/gen', clean: true },
         paramsCasing: 'camelcase',
         retries: 3,
@@ -122,13 +124,15 @@ describe('buildOtlpPayload', () => {
     ).toStrictEqual({
       baseURL: 'string',
       headers: { Authorization: 'string' },
+      apiKey: 'string',
+      banner: 'string',
       output: { path: 'string', clean: true },
-      paramsCasing: 'string',
+      paramsCasing: 'camelcase',
       retries: 3,
       include: 'array',
       transform: 'function',
       big: 'bigint',
-      cyclic: { name: 'string', self: { name: 'string', self: { name: 'string', self: 'object' } } },
+      cyclic: { name: 'loop', self: { name: 'loop', self: { name: 'loop', self: 'object' } } },
     })
   })
 

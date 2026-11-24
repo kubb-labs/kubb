@@ -53,21 +53,26 @@ export function trackRun({ command, hrStart }: { command: TelemetryCommand; hrSt
   return (result) => sendTelemetry(buildOtlpPayload({ command, duration: Math.round(getElapsedMs(hrStart)), ...result }))
 }
 
+// An enum-like option value: one word of letters and digits, such as `asConst`, `camelcase` or `zod`.
+const ENUM_VALUE = /^[A-Za-z][A-Za-z0-9]{0,31}$/
+const SECRET_KEY = /token|secret|password|passwd|auth|credential|api_?key/i
+
 /**
- * The shape of a plugin's options: booleans and numbers keep their value, and every other value
- * becomes its type name. Strings such as `output.path`, `baseURL`, a banner, or a secret read from
- * `process.env` never leave the machine, and a cycle or `BigInt` cannot make `JSON.stringify` throw.
+ * The shape of a plugin's options. Booleans, numbers and enum-like strings such as `'asConst'` keep
+ * their value. Every other value becomes its type name, so a path, a URL, a banner, or a value under
+ * a key such as `token` never leaves the machine. A cycle or `BigInt` cannot make `JSON.stringify` throw.
  *
  * @example
  * toOptionShape({ output: { path: './gen', clean: true }, enumType: 'asConst' })
- * // { output: { path: 'string', clean: true }, enumType: 'string' }
+ * // { output: { path: 'string', clean: true }, enumType: 'asConst' }
  */
-export function toOptionShape(value: unknown, depth = 0): unknown {
+export function toOptionShape(value: unknown, depth = 0, key = ''): unknown {
   if (value === undefined || value === null || typeof value === 'boolean' || typeof value === 'number') return value
+  if (typeof value === 'string') return ENUM_VALUE.test(value) && !SECRET_KEY.test(key) ? value : 'string'
   if (Array.isArray(value)) return 'array'
   // The depth cap ends a cyclic or deeply nested object without tracking what was visited.
   if (typeof value !== 'object' || depth >= 4) return typeof value
-  return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, toOptionShape(item, depth + 1)]))
+  return Object.fromEntries(Object.entries(value).map(([name, item]) => [name, toOptionShape(item, depth + 1, name)]))
 }
 
 /**

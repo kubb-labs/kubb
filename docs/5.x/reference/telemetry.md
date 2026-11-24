@@ -65,12 +65,12 @@ Each event is an [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sd
 | `kubb.status` | The outcome | `"success"`, `"failed"` |
 | `kubb.plugins` | The plugin names, sorted | `["plugin-ts", "plugin-zod"]` |
 | `kubb.plugin.<name>` | `true` for each plugin, such as `kubb.plugin.plugin-ts` | `true` |
-| `kubb.plugin_options` | Each plugin's `name` and the shape of its options as a JSON string | `{ "name": "plugin-ts", "options": "{\"output\":{\"path\":\"string\",\"clean\":true}}" }` |
+| `kubb.plugin_options` | Each plugin's `name` and the shape of its options as a JSON string | `{ "name": "plugin-ts", "options": "{\"output\":{\"path\":\"string\",\"clean\":true},\"enumType\":\"asConst\"}" }` |
 
 The resource attributes are `service.name: "kubb"`, `service.version` (the Kubb version), and `telemetry.sdk.language: "nodejs"`. The request carries the headers `Kubb-Telemetry-Version: 1` and `Kubb-Telemetry-Source: kubb-cli`.
 
 > [!WARNING]
-> `kubb.plugin_options` holds the shape of the options, not their values. Booleans and numbers keep their value. Every other value becomes its type name: a string such as `output.path`, `baseURL`, a `banner`, or a secret read from `process.env` is sent as `"string"`, an array as `"array"`, and a function as `"function"`. Object keys are sent as written, so an option object keyed by file paths or other names sends those keys. Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` to send nothing.
+> `kubb.plugin_options` holds the shape of the options, not their values. Booleans, numbers and enum-like strings keep their value. An enum-like string is one word of letters and digits, up to 32 characters, such as `asConst` or `camelcase`. Every other value becomes its type name: a string such as `output.path`, `baseURL` or a `banner` is sent as `"string"`, an array as `"array"`, and a function as `"function"`. A string under a key that names a secret, such as `token`, `password` or `apiKey`, is always sent as `"string"`. Object keys are sent as written, so an option object keyed by file paths or other names sends those keys. Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` to send nothing.
 
 ## What is not collected
 
