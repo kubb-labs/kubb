@@ -358,6 +358,18 @@ The project root that `input` and `output.path` resolve against. Default: the co
 The reporters a run can use. Default: the built-in `cli`, `json`, `file`, and `html` reporters. The [`--reporter`](/docs/5.x/reference/commands/generate#reporters) flag picks which ones run and defaults to `cli`.
 :::
 
+### `diagnostics`
+
+:::field{type="{ ignore?: Array<string> }"}
+Diagnostic codes to hide. `ignore` drops warnings and info with a listed code from the terminal, the reports, and `safeBuild().diagnostics`. Errors still show and still fail the run. See [Diagnostics](/docs/5.x/reference/diagnostics) for the codes.
+
+```ts [kubb.config.ts]
+export default defineConfig({
+  diagnostics: { ignore: ['KUBB_UNSUPPORTED_FORMAT'] },
+})
+```
+:::
+
 ::
 
 ::studio-cta{source="configuration-reference"}

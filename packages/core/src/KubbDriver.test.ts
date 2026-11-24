@@ -287,6 +287,25 @@ describe('KubbDriver visit hooks', () => {
       location: { kind: 'schema', pointer: '#/components/schemas/Store' },
     })
   })
+
+  it('drops warnings whose code diagnostics.ignore lists, but keeps errors', async () => {
+    const reporter: Plugin = {
+      name: 'reporter',
+      hooks: {
+        'kubb:plugin:setup'() {
+          Diagnostics.report({ code: Diagnostics.code.unsupportedFormat, severity: 'warning', message: 'decimal' })
+          Diagnostics.report({ code: Diagnostics.code.unsupportedFormat, severity: 'error', message: 'kept' })
+          Diagnostics.report({ code: Diagnostics.code.deprecated, severity: 'warning', message: 'other' })
+        },
+      },
+    }
+    const driver = makeDriver(makeConfig({ plugins: [reporter], diagnostics: { ignore: ['KUBB_UNSUPPORTED_FORMAT'] } }))
+    await driver.setup()
+
+    const { diagnostics } = await driver.run()
+
+    expect(diagnostics.filter(Diagnostics.isProblem).map((diagnostic) => diagnostic.message)).toStrictEqual(['kept', 'other'])
+  })
 })
 
 describe('KubbDriver bus hooks', () => {
