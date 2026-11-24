@@ -110,6 +110,19 @@ describe('file', () => {
     expect(resolveFile(ctx, shapePoint, { plugin: 'plugin-ts' }).path).toBe('/root/src/gen/types/pointOperation.ts')
   })
 
+  it('checks schema files per group, not only per group type', () => {
+    const resolver = new Resolver({ pluginName: 'plugin-zod' })
+    const baseFile = resolver.file.bind(resolver)
+    // A resolver that groups schema files too, so the group name moves them.
+    resolver.file = (options) => baseFile({ ...options, tag: options.tag ?? 'shared' })
+    const output = { path: 'zod', mode: 'directory' } as const
+    const memo = createMemo()
+    const inGroup = (name: string) => createContext({ memo, resolver, options: { output, group: { type: 'tag', name: () => name } } } as Partial<FileContext>)
+    resolveFile(inGroup('a'), pointOperation)
+
+    expect(resolveFile(inGroup('b'), pointOperation).baseName).toBe('pointOperation.ts')
+  })
+
   it('uses the plugin output banner and footer', () => {
     const ctx = createContext({
       options: { output: { path: 'zod', mode: 'directory', banner: '// banner', footer: (meta: { title?: string }) => `// ${meta.title}` } },
