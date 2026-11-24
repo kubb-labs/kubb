@@ -1,5 +1,101 @@
 # Changelog
 
+## v5.25.1 — Nov 24, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Guard specs that a sandboxed host does not trust, and requests that would hang the loader.
+  
+  - On a Kubb Studio agent, a `$ref` URL on a host that is not public, such as `localhost`, a private network address, or `169.254.169.254`, is refused before Kubb requests it, and a `$ref` URL that redirects fails. Kubb resolves the host again when it connects, so a host that changes its DNS answer in between can still reach a private address. `kubb studio --allow-file-refs` lifts this limit, and `kubb generate` is unchanged.
+  - A request for a URL input or a `$ref` URL stops after 30 seconds, and so does the host check before it, and canceling a build now stops its requests.
+  - An error while converting a referenced schema is thrown instead of turning the schema into an empty ref. ([#4766](https://github.com/kubb-labs/kubb/pull/4766), [`7f01453`](https://github.com/kubb-labs/kubb/commit/7f0145385aa981f8667173e5c97149aceae98d0a))
+- Read deprecated source flags the same way everywhere, and keep generated names apart.
+  
+  - `@kubb/adapter-oas`: an operation whose `operationId` is already taken, declared or generated from the path, gets a `_2`, `_3`, … suffix and a `KUBB_DUPLICATE_OPERATION_ID` warning. Ids that give the same generated name, such as `get-pets` and `getPets`, count as taken, and a suffix never takes an id another operation declares. Before, `/a-b` and `/a/b` both became `get_a-b` and overwrote each other. In a 2.0 or 3.0 document, a sibling `enum` on a union adds `null` only when the schema or one of its members, including a `$ref` member, is nullable.
+  - `@kubb/ast`: `ast.file.isExported(source)` reads `export`, then the deprecated `isIndexable` and `isExportable`. `combineSources` uses it, so a source marked `isIndexable` dedupes against the same source marked `export`.
+  - `@kubb/core`: add the `KUBB_DUPLICATE_OPERATION_ID` diagnostic code.
+  - `@kubb/parser-ts`: a namespace alias that starts with a digit gets a `_` prefix and keeps the digit, so `1pets` prints as `_1pets` instead of `_pets`.
+  - `@kubb/plugin-barrel`: a source marked only with the deprecated `isExportable` is listed in barrels, like one marked `export`.
+  - `@kubb/renderer-jsx`: `Code` and `File.Source` leave `isTypeOnly` unset when it is not given, so a `Type` child makes the source type-only. `File.Source` reads `isExportable` as `export`. ([#4771](https://github.com/kubb-labs/kubb/pull/4771), [`49ea965`](https://github.com/kubb-labs/kubb/commit/49ea965960aeab9c74a3b39763b5bab88fd7b289))
+- Fix `$ref` lookups, a cached spec, and how warnings and errors surface.
+  
+  - `@kubb/adapter-oas`: A `$ref` with a malformed `%` escape, such as `#/components/schemas/100%`, or one that names an inherited property, such as `constructor`, now reports `KUBB_REF_NOT_FOUND`. Before, the first crashed the parse and the second resolved to a JavaScript function. `validate()` takes `fileRefs`, as `parse()` does. A cached parse also restores `adapter.document`, not only `adapter.sources`.
+  - `@kubb/core`: When one file fails to write, Kubb starts no further file. The shared-file mismatch warning is now `KUBB_SHARED_FILE_MISMATCH`, so it shows in `diagnostics` and `diagnostics.ignore` can hide it. When `output.format`, `output.lint`, or `output.postGenerate` is set but the storage is not named `fs`, Kubb warns with `KUBB_OUTPUT_PASSES_SKIPPED` instead of skipping them silently.
+  - `@kubb/mcp`: The `validate` tool lets a `$ref` read local files only inside the working directory, and fetch URLs only on public hosts.
+  - `@kubb/cli`: `kubb init` and `kubb studio` print the full diagnostic of a failure, including its fix, instead of the message alone. ([#4774](https://github.com/kubb-labs/kubb/pull/4774), [`84fdb1f`](https://github.com/kubb-labs/kubb/commit/84fdb1f8df9005b3a91080986763954d84129b1b))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Use the new `names` when an import or export node is spread into `createImport` or `createExport`, as in `createImport({ ...imp, names })`. Before, the deprecated `name` the spread copied over counted as an override, so the new `names` were dropped. ([#4765](https://github.com/kubb-labs/kubb/pull/4765), [`54e84e8`](https://github.com/kubb-labs/kubb/commit/54e84e8966799a14fc9b4571fc3d4b513b0b475f))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Send only the shape of each plugin's options in telemetry. Booleans, numbers and enum-like strings such as `asConst` keep their value, and every other value is sent as its type name, so path, URL, banner and secret values in plugin options no longer leave the machine. Object keys are still sent as written. ([#4764](https://github.com/kubb-labs/kubb/pull/4764), [`a699505`](https://github.com/kubb-labs/kubb/commit/a699505ffef55c2bab9fc2001f2db9578bd0460f))
+- Escape the input and output paths that `kubb init` and the MCP `init` tool write into `kubb.config.ts`. A path with a `'` no longer breaks the file or injects code, and a Windows path such as `C:\new\gen` keeps its backslashes. ([#4762](https://github.com/kubb-labs/kubb/pull/4762), [`fdbe62e`](https://github.com/kubb-labs/kubb/commit/fdbe62e468f1ad1c788cc9891c7012b24d82cc16))
+- Keep secrets and stacks out of logs and Studio, and check paths more carefully.
+  
+  - `@kubb/cli`: The background Studio worker now redacts a token from a later refresh and the agent key in its log. `KUBB_REGISTRY` must be an `https://` URL, or an `http://` URL on `localhost`, `127.0.0.1` or `[::1]`. `--log-level verbose` sends error stacks to Studio.
+  - `@kubb/studio`: Generation events no longer send error stacks to Studio unless `connectAgent` gets `debug: true`. An output folder whose name starts with two dots, such as `..cache`, now counts as inside the project.
+  - `@kubb/core`: A generated file outside `output.path` and `shared.path` reports the `KUBB_OUTSIDE_OUTPUT` warning. Kubb still writes the file.
+  - `@kubb/parser-ts`: `parserTsx` now has a `version` and `compatibility`, so Kubb checks that it supports the running Kubb version.
+  - `@kubb/ast`: Adds `ast.file.getRelativePath`, the relative import specifier that `@kubb/parser-ts` now also uses.
+  - `@kubb/plugin-barrel`: A folder named like `..cache` inside the output no longer fails with `KUBB_PATH_TRAVERSAL`. ([#4778](https://github.com/kubb-labs/kubb/pull/4778), [`6885b7c`](https://github.com/kubb-labs/kubb/commit/6885b7c5a47f0e877bed765524722f8808f3198b))
+- The background Studio worker also redacts the agent's private key when a log line prints it inside an object, where its newlines appear escaped. A rejected `KUBB_REGISTRY` URL is printed without its username and password. ([#4779](https://github.com/kubb-labs/kubb/pull/4779), [`105e158`](https://github.com/kubb-labs/kubb/commit/105e158389be900e64c39279b4d847378395dc56))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Fix error reporting and listener leaks in the build, and limit what an AI client and a server URL can reach.
+  
+  - The MCP `generate` tool refuses an `output` path outside the working directory, and an `input` path outside it unless the input is an `http:` or `https:` URL. The check follows symlinks and resolves paths from the config's `root`, as generation does. Before, a client could make `output.clean` empty a folder elsewhere on the machine.
+  - A plugin that reports two different warnings without a location now shows both. Before, only the first one survived.
+  - An error thrown in a plugin's `kubb:build:start`, `kubb:plugins:end`, `kubb:build:end` or `kubb:plugin:end` hook names that plugin and counts it as failed, instead of reporting `KUBB_UNKNOWN`.
+  - An invalid `input` no longer leaves plugin listeners behind. Before, the next config in a `defineConfig([...])` array also ran the previous config's hooks.
+  - Calling `kubb.setup()` before `kubb.generate()` no longer runs each plugin hook twice.
+  - Opening a link in the browser accepts only `http:` and `https:` URLs and local report paths. On Windows it no longer goes through `cmd`, so a `&` in a URL cannot start another command. ([#4768](https://github.com/kubb-labs/kubb/pull/4768), [`bf33929`](https://github.com/kubb-labs/kubb/commit/bf339291f4eb598728dc881e29a57a0d91937b00))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Fix the operation file suffix for plugins whose groups differ only by `group.name`, and give every deprecation the same removal target.
+  
+  - `@kubb/kit`: an operation file checks the schema files of its own `output` and `group`, so a `group.name` that differs from an earlier call no longer reuses that call's schema paths.
+  - `@kubb/core`: every `@deprecated` note now says "Removed in Kubb v6." The [deprecations page](https://kubb.dev/docs/5.x/reference/deprecations) lists them with their replacements.
+  - `@kubb/parser-ts`: the `TsNode` deprecation now says "Removed in Kubb v6." ([#4776](https://github.com/kubb-labs/kubb/pull/4776), [`9c6bcdc`](https://github.com/kubb-labs/kubb/commit/9c6bcdc740b1ed4ff8c3d61c8602139d3fb3068d))
+- Mark deprecated kit names, and harden how a Studio agent saves the config and talks to Studio.
+  
+  - `@kubb/kit`: `kubb.addGenerator` and `kubb.setMacros` on the setup context are marked `@deprecated`, so editors strike them through. `TemplateContext` is now the main type, and `GeneratorContext` is a deprecated alias of it.
+  - `@kubb/parser-md`: `@kubb/core` and `@kubb/ast` are peer dependencies, as in `@kubb/parser-ts`, so a project no longer installs a second copy of `@kubb/core`.
+  - `@kubb/studio`: A Studio agent resolves plugins, adapters, and parsers from the project root, where it finds the extensions, instead of the working directory. Saving the config writes a pasted spec before the config, and a spec that fails to write fails only its own edit, so the config never points at a missing file. The Studio user's name in the agent log has escape sequences removed and is capped at 64 characters. Pairing and token refresh requests no longer follow a redirect. ([#4775](https://github.com/kubb-labs/kubb/pull/4775), [`b8b2f21`](https://github.com/kubb-labs/kubb/commit/b8b2f217c050b584fb444076e75806370de899dd))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- The Studio agent now closes a socket when Kubb Studio does not call `connect()` within 30 seconds of the socket opening, and then reconnects. A `connect()` that fails, for example on a config that does not load, also closes the socket once those 30 seconds have passed. Before, a socket that opened but never finished the handshake waited forever. ([#4777](https://github.com/kubb-labs/kubb/pull/4777), [`ddd66f5`](https://github.com/kubb-labs/kubb/commit/ddd66f5da25cea14587bceb99d34960242b1958d))
+- Harden what a Kubb Studio agent accepts from Studio.
+  
+  - A generation keeps the sandbox or managed mode it started with, so a `connect()` from Studio during the run can no longer switch off the public-only fetch or widen what the run reads.
+  - A generation with a missing or non-string job id is refused before any work, instead of writing output and failing at the end.
+  - The config Studio sends is checked first: `plugins` and `parsers` must be lists of named entries, `adapter` an object, and `input` a string. Plugin options from Studio lose keys such as `__proto__` at every depth, including for a plugin only Studio names.
+  - A managed agent refuses a `url` input that is not `http:` or `https:`, such as `C:\spec.yaml`, which the adapter would read from disk.
+  - Two generations that overlap in one process no longer leave the public-only `fetch` installed after both finish. ([#4770](https://github.com/kubb-labs/kubb/pull/4770), [`6bae42c`](https://github.com/kubb-labs/kubb/commit/6bae42c28af82c39404982d50da9fd07c5f118bc))
+- When Studio connects again during a generation, the reply and later commands now use the new mode. Only the running generation keeps the mode it started with. ([#4771](https://github.com/kubb-labs/kubb/pull/4771), [`49ea965`](https://github.com/kubb-labs/kubb/commit/49ea965960aeab9c74a3b39763b5bab88fd7b289))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.25.0 — Nov 24, 2026
 
 ### @kubb/core
