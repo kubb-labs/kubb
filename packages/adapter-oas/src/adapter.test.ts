@@ -223,7 +223,12 @@ describe('adapterOas.parse', () => {
     const spec = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
-      paths: { '/a-b': { get: ok }, '/a/b': { get: ok }, '/pets': { get: { operationId: 'getPets', ...ok }, post: { operationId: 'getPets', ...ok } } },
+      paths: {
+        '/a-b': { get: ok },
+        '/a/b': { get: ok },
+        '/pets/2': { get: { operationId: 'getPets_2', ...ok } },
+        '/pets': { get: { operationId: 'getPets', ...ok }, post: { operationId: 'getPets', ...ok } },
+      },
     }
     const reported: Array<Diagnostic> = []
 
@@ -232,7 +237,7 @@ describe('adapterOas.parse', () => {
       () => adapterOas({ validate: false }).parse({ type: 'data', data: spec }),
     )
 
-    expect(node.operations.map((operation) => operation.operationId)).toEqual(['get_a-b', 'get_a-b_2', 'getPets', 'getPets_2'])
+    expect(node.operations.map((operation) => operation.operationId)).toEqual(['get_a-b', 'get_a-b_2', 'getPets_2', 'getPets', 'getPets_2_2'])
     expect(reported.filter((diagnostic) => diagnostic.code === 'KUBB_DUPLICATE_OPERATION_ID')).toMatchObject([
       { severity: 'warning', location: { kind: 'operation', pointer: '#/paths/~1a~1b/get' } },
       { severity: 'warning', location: { kind: 'operation', pointer: '#/paths/~1pets/post' } },

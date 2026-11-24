@@ -293,7 +293,7 @@ function mediaTypePointer(content: ContentMap, contentType: string, fallback: st
  */
 export function getOperations(document: Document, refs: Refs): Array<Operation> {
   const operations: Array<Operation> = []
-  const seenIds = new Set<string>()
+  const seenIds = new Map<string, number>()
   const paths = document.paths
   if (!paths) {
     return operations
@@ -332,11 +332,16 @@ export function getOperations(document: Document, refs: Refs): Array<Operation> 
 }
 
 // Two operations with one id would share every generated name and file.
-function withUniqueOperationId(operation: Operation, seen: Set<string>): Operation {
+// The second `getPets` becomes `getPets_2`; if that name is taken too, it becomes `getPets_2_2`.
+function uniqueId(id: string, seen: Map<string, number>): string {
+  const count = (seen.get(id) ?? 0) + 1
+  seen.set(id, count)
+  return count === 1 ? id : uniqueId(`${id}_${count}`, seen)
+}
+
+function withUniqueOperationId(operation: Operation, seen: Map<string, number>): Operation {
   const operationId = getOperationId(operation)
-  let unique = operationId
-  for (let suffix = 2; seen.has(unique); suffix++) unique = `${operationId}_${suffix}`
-  seen.add(unique)
+  const unique = uniqueId(operationId, seen)
   if (unique === operationId) return operation
 
   Diagnostics.report({
