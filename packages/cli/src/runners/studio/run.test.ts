@@ -411,7 +411,6 @@ describe('connect', () => {
     expect(refreshAgentToken).toHaveBeenCalledWith(expect.objectContaining({ studioUrl: options.studioUrl, token: 'token', machineId: 'machine-secret' }))
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token', issuedAt: expect.any(String) }))
     expect(calls.map(({ token }) => token)).toStrictEqual(['refreshed-token'])
-    // The background worker redacts the token it is handed here.
     expect(onCredentials).toHaveBeenCalledWith(expect.objectContaining({ token: 'refreshed-token' }))
   })
 

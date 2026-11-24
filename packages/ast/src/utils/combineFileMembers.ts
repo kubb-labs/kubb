@@ -74,10 +74,7 @@ export function getRelativePath(root: string, filePath: string): string {
   })
 }
 
-/**
- * Returns the specifier a member is written with: relative to the importing file when it has a
- * `root`. Sorting on it keeps the order the same on every OS.
- */
+/** The specifier a member is written with, so sorting on it gives the same order on every OS. */
 function specifier(node: { path: string; root?: string | null }): string {
   return node.root ? getRelativePath(node.root, node.path) : node.path
 }
