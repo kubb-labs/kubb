@@ -12,7 +12,8 @@ function log(...args: Array<unknown>) {
   let line = `${new Date().toISOString()} ${format(...args)}\n`
   // Read on every line: a refresh or a new pairing replaces the token and key.
   for (const secret of [process.env.KUBB_TOKEN, credentials.token, credentials.privateKey]) {
-    if (secret) line = line.replaceAll(secret, '[redacted]')
+    // An inspected object prints the PEM key with its newlines escaped, so redact that form too.
+    if (secret) line = line.replaceAll(secret, '[redacted]').replaceAll(secret.replaceAll('\n', '\\n'), '[redacted]')
   }
   try {
     // Keep the log under 1 MiB; discard older output when it fills.
