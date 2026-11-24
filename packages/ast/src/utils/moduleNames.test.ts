@@ -70,8 +70,9 @@ describe('createImport', () => {
   it('treats a name array changed in place as an override', () => {
     const imp = createImport({ names: [{ name: 'Pet', space: 'value' }], path: './pet' })
     ;(imp.name as Array<string>).push('Tag')
+    const next = createImport({ ...imp })
 
-    expect([createImport({ ...imp }).names, createImport({ ...imp }).name]).toStrictEqual([null, ['Pet', 'Tag']])
+    expect([next.names, next.name]).toStrictEqual([null, ['Pet', 'Tag']])
   })
 
   it('applies a changed isTypeOnly together with new names', () => {
