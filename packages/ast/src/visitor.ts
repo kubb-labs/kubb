@@ -37,7 +37,7 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
  * Schema fields that hold checks rather than shape: the `conditionals` entries, `contains` and a string's `content`.
  * `transform` and `collect` skip them, and `visitChildNodes` walks them with `checks: true`.
  */
-export const schemaCheckKeys = ['conditionals', 'contains', 'content'] as const
+const schemaCheckKeys = ['conditionals', 'contains', 'content'] as const
 
 /** Visitor callback names in traversal order, the keys of {@link Visitor}. */
 export const visitorKeys = ['input', 'operation', 'schema', 'property', 'parameter', 'response'] as const

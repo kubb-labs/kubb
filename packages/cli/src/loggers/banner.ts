@@ -51,7 +51,7 @@ export const wakeUp: ReadonlyArray<readonly [Expression, number]> = [
  * The kid in the orange hoodie from the Kubb logo, one letter per pixel and `.` for none. Each
  * 2 × 2 block becomes one terminal cell, so a block holds at most two colors.
  */
-export function pixels(expression: Expression): Array<string> {
+function pixels(expression: Expression): Array<string> {
   const [top, bottom] = eyes[expression]
 
   // prettier-ignore

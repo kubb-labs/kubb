@@ -61,7 +61,7 @@ function slugify(value: string): string {
 /**
  * Returns the operation's JSON pointer, under `additionalOperations` for an OpenAPI 3.2 method outside the fixed fields.
  */
-export function getOperationPointer({ path, method }: Pick<Operation, 'path' | 'method'>): string {
+function getOperationPointer({ path, method }: Pick<Operation, 'path' | 'method'>): string {
   const pathPointer = `#/paths/${escapePointerToken(path)}`
 
   return SUPPORTED_METHODS.has(method.toLowerCase())
@@ -72,7 +72,7 @@ export function getOperationPointer({ path, method }: Pick<Operation, 'path' | '
 /**
  * Returns the operation's `operationId`, falling back to `<method>_<slugified-path>` when absent.
  */
-export function getOperationId({ path, method, schema }: Operation): string {
+function getOperationId({ path, method, schema }: Operation): string {
   const { operationId } = schema
   if (typeof operationId === 'string' && operationId.length > 0) {
     return operationId
@@ -84,7 +84,7 @@ export function getOperationId({ path, method, schema }: Operation): string {
 /**
  * Returns the declared response status codes, skipping `x-` extensions and non-object entries.
  */
-export function getResponseStatusCodes({ schema }: Operation): Array<string> {
+function getResponseStatusCodes({ schema }: Operation): Array<string> {
   const responses = schema.responses as Record<string, unknown> | undefined
   if (!responses || isReference(responses)) {
     return []
@@ -96,7 +96,7 @@ export function getResponseStatusCodes({ schema }: Operation): Array<string> {
 /**
  * Returns the response object for a status code, resolving a `$ref` through `refs`. `null` when absent.
  */
-export function getResponseByStatusCode({ operation, refs, statusCode }: OperationContext & { statusCode: string | number }): ResponseObject | null {
+function getResponseByStatusCode({ operation, refs, statusCode }: OperationContext & { statusCode: string | number }): ResponseObject | null {
   const responses = operation.schema.responses as Record<string, ResponseObject | ReferenceObject> | undefined
   if (!responses || isReference(responses)) {
     return null
@@ -109,12 +109,12 @@ export function getResponseByStatusCode({ operation, refs, statusCode }: Operati
  * Resolves the operation's request body, dereferencing a `$ref` through `refs`. Returns `null`
  * when the operation has no request body or it cannot be resolved.
  */
-export function getRequestBody({ operation, refs }: OperationContext): RequestBodyObject | null {
+function getRequestBody({ operation, refs }: OperationContext): RequestBodyObject | null {
   return refs.deref<RequestBodyObject>(operation.schema.requestBody)
 }
 
 /** Merges path-level and operation-level parameters; operation-level wins per `in:name`. */
-export function getParameters({ operation, refs }: OperationContext): Array<{ param: ParameterObject; pointer: string }> {
+function getParameters({ operation, refs }: OperationContext): Array<{ param: ParameterObject; pointer: string }> {
   // Each parameter keeps the pointer of the entry that declares it, on the path item or the operation.
   const resolveParams = (params: Array<unknown>, pointer: string) =>
     params.flatMap((entry, index) => {
@@ -205,7 +205,7 @@ type ContentMap = Record<string, MediaTypeObject | ReferenceObject> | undefined
 /**
  * Returns the media type entry for `contentType`, resolving a `$ref` into `components.mediaTypes`. `null` when absent.
  */
-export function getMediaType({ content, contentType, refs }: { content: ContentMap; contentType: string | undefined; refs: Refs }): MediaTypeObject | null {
+function getMediaType({ content, contentType, refs }: { content: ContentMap; contentType: string | undefined; refs: Refs }): MediaTypeObject | null {
   return contentType ? refs.deref<MediaTypeObject>(content?.[contentType]) : null
 }
 
@@ -213,7 +213,7 @@ export function getMediaType({ content, contentType, refs }: { content: ContentM
  * Returns the schema for one media type of a `content` map, with the binary fallback for an emptied non-JSON
  * entry. For a stream this is the item schema, so `schema: string` next to `itemSchema` types one item.
  */
-export function getBodySchema({
+function getBodySchema({
   content,
   contentType,
   refs,

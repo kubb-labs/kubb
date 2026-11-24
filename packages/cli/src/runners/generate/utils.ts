@@ -17,7 +17,7 @@ const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 const WATCHER_DEBOUNCE_MS = 250
 
 /** `14:02:11  petStore.yaml changed`, the line a watcher prints when its input changes. */
-export function formatChange({ target, removed = false, now = new Date() }: { target: string; removed?: boolean; now?: Date }): string {
+function formatChange({ target, removed = false, now = new Date() }: { target: string; removed?: boolean; now?: Date }): string {
   return `${styleText('dim', now.toTimeString().slice(0, 8))}  ${styleText('bold', target)} ${removed ? 'removed' : 'changed'}`
 }
 
