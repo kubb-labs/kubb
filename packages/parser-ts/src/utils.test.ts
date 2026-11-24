@@ -1,14 +1,22 @@
 import { ast } from '@kubb/ast'
 import { describe, expect, it, vi } from 'vitest'
-import { getRelativePath, print as printFragments, printExport, printImport, printSource } from './utils.ts'
+import { print as printFragments, printExport, printImport, printSource } from './utils.ts'
 
 function print(...nodes: Array<ast.CodeNode>): string {
   return printSource(ast.factory.createSource({ nodes }))
 }
 
-describe('getRelativePath', () => {
+describe('ast.file.getRelativePath', () => {
   it('returns a ../ path when the target sits outside the importing file directory', () => {
-    expect(getRelativePath('/root/src/models/pet.ts', '/root/lib/client.ts')).toBe('../../lib/client.ts')
+    expect(ast.file.getRelativePath('/root/src/models/pet.ts', '/root/lib/client.ts')).toBe('../../lib/client.ts')
+  })
+
+  it('prefixes a sibling with ./ and keys a relative input on the working directory', () => {
+    expect(ast.file.getRelativePath('/root/src/pet.ts', '/root/src/models/tag.ts')).toBe('./models/tag.ts')
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue('/a')
+    expect(ast.file.getRelativePath('src/pet.ts', '/a/lib/client.ts')).toBe('../lib/client.ts')
+    _cwd.mockReturnValue('/b')
+    expect(ast.file.getRelativePath('src/pet.ts', '/a/lib/client.ts')).toBe('../../a/lib/client.ts')
   })
 })
 

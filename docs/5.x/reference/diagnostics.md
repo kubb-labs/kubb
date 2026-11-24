@@ -266,6 +266,12 @@ The spec fails OpenAPI schema validation, so the output can be incomplete or wro
 
 **Fix:** Run the tools yourself after the build, or remove the options. A custom storage that writes `output.path` to disk can set `name: 'fs'`.
 
+### KUBB_OUTSIDE_OUTPUT {#kubb-outside-output}
+
+A plugin wrote a file outside `output.path` and `shared.path`. Kubb still writes it, but `output.clean` never removes it.
+
+**Fix:** Check the plugin's `output.path` and its `group.name` function, so every generated path stays inside `output.path`.
+
 ### KUBB_PLUGIN_WARNING {#kubb-plugin-warning}
 
 A plugin reported a non-fatal problem through `ctx.warn`.

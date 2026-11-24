@@ -14,6 +14,7 @@ const isDiscardable = (type: GenerationEventType) => type === 'kubb:files:proces
 export function createGenerationStream(
   hooks: Hookable<KubbHooks>,
   jobId: string,
+  { debug = false }: { debug?: boolean } = {},
 ): { stream: ReadableStream<GenerationEvent>; close: () => Promise<void>; fail: (error?: unknown) => void } {
   const unhooks: Array<() => void> = []
   let root = ''
@@ -51,6 +52,8 @@ export function createGenerationStream(
     controller.enqueue(event)
   }
 
+  // Stacks hold local paths and source lines, which a shared agent must not hand to Studio.
+  const stackOf = (error: Error | undefined) => (debug ? error?.stack : undefined)
   const projections: Projections = {
     'kubb:plugin:start': ({ plugin }) => [{ plugin: { name: plugin.name } }],
     'kubb:plugin:end': ({ plugin, duration, success }) => [{ plugin: { name: plugin.name }, duration, success }],
@@ -73,7 +76,7 @@ export function createGenerationStream(
     'kubb:info': ({ message, info }) => [{ message: stripVTControlCharacters(message), info }],
     'kubb:success': ({ message, info }) => [{ message: stripVTControlCharacters(message), info }],
     'kubb:warn': ({ message, info }) => [{ message: stripVTControlCharacters(message), info }],
-    'kubb:error': ({ error }) => [{ message: error.message, stack: error.stack }],
+    'kubb:error': ({ error }) => [{ message: error.message, stack: stackOf(error) }],
     'kubb:diagnostic': ({ diagnostic }) => [
       {
         code: diagnostic.code,
@@ -82,7 +85,7 @@ export function createGenerationStream(
         location: 'location' in diagnostic ? diagnostic.location : undefined,
         help: 'help' in diagnostic ? diagnostic.help : undefined,
         plugin: 'plugin' in diagnostic ? diagnostic.plugin : undefined,
-        stack: 'cause' in diagnostic ? diagnostic.cause?.stack : undefined,
+        stack: 'cause' in diagnostic ? stackOf(diagnostic.cause) : undefined,
       },
     ],
     'kubb:generation:start': ({ config }) => [{ name: config.name, plugins: config.plugins.length }],
@@ -99,7 +102,7 @@ export function createGenerationStream(
     'kubb:hook:start': ({ id, command, args }) => [{ id, command, args: args ? [...args] : undefined }],
     'kubb:hook:line': ({ id, line }) => [{ id, line }],
     'kubb:hook:end': ({ id, command, args, success, error }) => [
-      { id, command, args: args ? [...args] : undefined, success, error: error ? { message: error.message, stack: error.stack } : undefined },
+      { id, command, args: args ? [...args] : undefined, success, error: error ? { message: error.message, stack: stackOf(error) } : undefined },
     ],
   }
 

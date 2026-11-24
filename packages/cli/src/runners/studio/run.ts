@@ -242,6 +242,7 @@ export async function connect(
     prepared?: PreparedConnection
     signal?: AbortSignal
     onState?: (state: WorkerState) => void | Promise<void>
+    onCredentials?: (credentials: Credentials) => void
   } = {},
 ): Promise<void> {
   const shutdown = new AbortController()
@@ -281,6 +282,7 @@ export async function connect(
         get: () => credentials,
         set: (next) => {
           credentials = next
+          context.onCredentials?.(credentials)
         },
       },
     })
@@ -330,6 +332,7 @@ export async function connect(
           root: process.cwd(),
           agentType: 'cli',
           permissions,
+          debug: options.logLevel === 'verbose',
           loadConfigs: async () => (await loadConfigs(options)).configs,
           hooks,
           signal,
@@ -352,6 +355,7 @@ export async function connect(
         unwatch = undefined
         console.log(styleText('yellow', `${error.message} Pairing again...`))
         credentials = await login(options, { signal, previousCredentials: credentials })
+        context.onCredentials?.(credentials)
         pairedAgain = true
         permissions = await resolvePermissions(options, credentials, configPath)
       }

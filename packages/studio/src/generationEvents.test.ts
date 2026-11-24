@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { createGenerationStream } from './generationEvents.ts'
 
 describe('Generation event stream', () => {
-  it('serializes an error for a waiting reader and skips core hooks outside the public catalog', async () => {
+  it('serializes an error without its stack for a waiting reader and skips core hooks outside the public catalog', async () => {
     const hooks = new Hookable<KubbHooks>()
     const generation = createGenerationStream(hooks, 'job-1')
     const reader = generation.stream.getReader()
@@ -16,9 +16,20 @@ describe('Generation event stream', () => {
 
     await expect(reading).resolves.toStrictEqual({
       done: false,
-      value: { version: 1, jobId: 'job-1', type: 'kubb:error', data: [{ message: 'broken', stack: expect.any(String) }], timestamp: expect.any(Number) },
+      value: { version: 1, jobId: 'job-1', type: 'kubb:error', data: [{ message: 'broken', stack: undefined }], timestamp: expect.any(Number) },
     })
     await expect(reader.read()).resolves.toStrictEqual({ done: true, value: undefined })
+  })
+
+  it('sends error stacks only in debug mode', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const generation = createGenerationStream(hooks, 'job-1', { debug: true })
+
+    await hooks.callHook('kubb:error', { error: new Error('broken') })
+    await generation.close()
+
+    const [event] = await Array.fromAsync(generation.stream)
+    expect(event?.data).toStrictEqual([{ message: 'broken', stack: expect.stringContaining('broken') }])
   })
 
   it('keeps errors when progress fills the event queue', async () => {

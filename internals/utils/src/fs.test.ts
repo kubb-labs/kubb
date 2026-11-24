@@ -95,4 +95,9 @@ describe('isPathInside', () => {
     expect(isPathInside('./src/gen', '.')).toBe(true)
     expect(isPathInside('.', './src/gen')).toBe(false)
   })
+
+  it('keeps a child whose name starts with two dots inside', () => {
+    expect(isPathInside('/repo/gen/..cache', '/repo/gen')).toBe(true)
+    expect(isPathInside('/repo/gen/../x', '/repo/gen')).toBe(false)
+  })
 })

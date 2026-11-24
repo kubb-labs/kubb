@@ -2,8 +2,11 @@ import { ast } from '@kubb/ast'
 import { type Config, memoryStorage, type Plugin } from '@kubb/core'
 import { addGenerator, defineExtension, type GeneratorContext } from '@kubb/kit'
 import { createMockedAdapter } from '@kubb/core/mocks'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { createGenerationStore, generate, hashOf, type GenerationStore, type SourceFiles } from './generations.ts'
+import { createGenerationStore, generate, hashOf, listDisk, type GenerationStore, type SourceFiles } from './generations.ts'
 
 function sourceFiles(files: Record<string, string>): SourceFiles {
   const storage = memoryStorage()
@@ -156,5 +159,21 @@ describe('generate', () => {
 
     expect(placed).toStrictEqual(['/project/gen/common/types/name.ts', '/project/gen/Animal/types/animal.ts'])
     expect(await animals.storage.readItem('/project/gen/common/types/fruit.ts')).toBe('kept')
+  })
+})
+
+describe('listDisk', () => {
+  it('lists an output folder named with two leading dots, and nothing outside the root', async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'kubb-list-disk-'))
+    try {
+      await mkdir(path.join(root, '..cache'))
+      await writeFile(path.join(root, '..cache', 'pet.ts'), 'export {}')
+
+      expect((await listDisk({ root, outputPath: '..cache', maxFiles: 10 }))?.paths).toStrictEqual(new Set(['..cache/pet.ts']))
+      expect(await listDisk({ root, outputPath: '..', maxFiles: 10 })).toBeUndefined()
+      expect(await listDisk({ root, outputPath: '.', maxFiles: 10 })).toBeUndefined()
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
   })
 })

@@ -216,6 +216,11 @@ export type ConnectAgentOptions = {
    * @default 30000
    */
   heartbeatInterval?: number
+  /**
+   * Sends error stacks with generation events. Leave it off for shared agents, since stacks show local paths.
+   * @default false
+   */
+  debug?: boolean
 }
 
 type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin' | 'privateKey'>> & {
@@ -259,8 +264,8 @@ function isValidPage({ cursor, limit }: Pick<ReadFilesInput, 'cursor' | 'limit'>
 function stagingStorage({ root, directory }: { root: string; directory: string }): Storage {
   const storage = fsStorage()
   const target = (key: string) => {
+    if (!isPathInside(path.resolve(root, key), root)) throw new Error('Output path escapes the project root')
     const relative = path.relative(root, path.resolve(root, key))
-    if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) throw new Error('Output path escapes the project root')
     return path.join(directory, relative)
   }
   return {
@@ -456,7 +461,7 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   startGeneration(input: GenerateInput): GenerationRun {
-    const stream = createGenerationStream(this.#options.hooks, input.jobId)
+    const stream = createGenerationStream(this.#options.hooks, input.jobId, { debug: this.#options.debug })
     const controller = new AbortController()
     const result = this.#runGeneration(input, controller).then(
       (value) => stream.close().then(() => value),
@@ -1016,6 +1021,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
     hooks: options.hooks ?? new Hookable<KubbHooks>(),
     maxRetryDelay: options.maxRetryDelay ?? MAX_RETRY_DELAY_MS,
     heartbeatInterval: Math.min(options.heartbeatInterval ?? HEARTBEAT_INTERVAL_MS, MAX_HEARTBEAT_INTERVAL_MS),
+    debug: options.debug ?? false,
   }
   const { studioUrl, hooks, signal, maxRetryDelay } = resolved
   const url = secureUrl({ studioUrl, path: AGENT_SOCKET_PATH, socket: true })

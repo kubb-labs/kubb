@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto'
-import { isAbsolute, relative, resolve, sep } from 'node:path'
+import { isAbsolute, relative, resolve } from 'node:path'
 import process from 'node:process'
-import { inParallel } from '@internals/utils'
+import { inParallel, isPathInside } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
 import { type Config, type Diagnostic, Diagnostics, fsStorage, type Hookable, Kubb, type KubbHooks, type Storage } from '@kubb/core'
 import { type FilePage, type ReadFilesResult } from './protocol.ts'
@@ -127,8 +127,7 @@ export async function generate({
  */
 export async function listDisk({ root, outputPath, maxFiles }: { root: string; outputPath: string; maxFiles: number }): Promise<SourceFiles | undefined> {
   const outputDir = resolve(root, outputPath)
-  const fromRoot = relative(resolve(root), outputDir)
-  if (!fromRoot || fromRoot.startsWith('..') || fromRoot.startsWith(sep)) return undefined
+  if (outputDir === resolve(root) || !isPathInside(outputDir, root)) return undefined
 
   const storage = fsStorage()
   const keys = await storage.readKeys(outputDir)

@@ -46,7 +46,7 @@ When the registry cannot be read, it prints `Showing installed extensions only: 
 | Code | When |
 | --- | --- |
 | `0` | The list prints, also when the registry is unreachable or nothing is installed. |
-| `1` | `KUBB_REGISTRY` is not an `http://` or `https://` URL. |
+| `1` | `KUBB_REGISTRY` is not an `https://` URL, or an `http://` URL on a loopback host. |
 
 ## Less common cases {#less-common-cases}
 
