@@ -69,8 +69,8 @@ Each event is an [OpenTelemetry OTLP](https://opentelemetry.io/docs/languages/sd
 
 The resource attributes are `service.name: "kubb"`, `service.version` (the Kubb version), and `telemetry.sdk.language: "nodejs"`. The request carries the headers `Kubb-Telemetry-Version: 1` and `Kubb-Telemetry-Source: kubb-cli`.
 
-> [!NOTE]
-> `kubb.plugin_options` holds the shape of the options, not their values. Booleans and numbers keep their value. Every other value becomes its type name: a string such as `output.path`, `baseURL`, a `banner`, or a secret read from `process.env` is sent as `"string"`, an array as `"array"`, and a function as `"function"`. Object keys are sent as they are.
+> [!WARNING]
+> `kubb.plugin_options` holds the shape of the options, not their values. Booleans and numbers keep their value. Every other value becomes its type name: a string such as `output.path`, `baseURL`, a `banner`, or a secret read from `process.env` is sent as `"string"`, an array as `"array"`, and a function as `"function"`. Object keys are sent as written, so an option object keyed by file paths or other names sends those keys. Set `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY` to `1` to send nothing.
 
 ## What is not collected
 
@@ -78,6 +78,8 @@ The resource attributes are `service.name: "kubb"`, `service.version` (the Kubb 
 - The input path, the project root, or the names of generated files
 - Source code or generated code
 - A user, machine, or project identifier
+
+The one exception is an object key in `kubb.plugin_options`, which is sent as written. See the warning above.
 
 Kubb does not read environment variables or credential files for telemetry.
 
