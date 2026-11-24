@@ -62,13 +62,14 @@ type GenerateProps = {
  */
 export async function generate({ configs, hooks }: GenerateProps): Promise<boolean> {
   // Not awaited: a detached process sends each request, so it never delays the summary or the exit.
-  const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
+  const untrack = hooks.hook('kubb:generation:end', ({ config, filesCreated = 0, status = 'success', hrStart = process.hrtime(), diagnostics }) => {
     void trackRun({ command: 'generate', hrStart })({
       plugins: config.plugins.flatMap((p) =>
         p && typeof p === 'object' ? [{ name: p.meta?.name ?? p.name ?? '', options: (p.options ?? {}) as Record<string, unknown> }] : [],
       ),
       filesCreated,
       status,
+      diagnostics,
     })
   })
   let succeeded = true

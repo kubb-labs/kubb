@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
+import { type Diagnostic, Diagnostics } from '@kubb/core'
 import { getElapsedMs, isCIEnvironment, runtime } from '@internals/utils'
 import { getAgentProfile } from 'gunshi/agent'
 import { version } from '../package.json'
@@ -34,6 +35,10 @@ type RunResult = {
    * Name the MCP client sends in its `initialize` request, e.g. `'claude-code'`. Only set for `kubb mcp`.
    */
   mcpClient?: string
+  /**
+   * Diagnostics the run collected. Only the code, severity, and plugin of each problem leave the machine.
+   */
+  diagnostics?: Array<Diagnostic>
 }
 
 /**
@@ -61,6 +66,7 @@ export function buildOtlpPayload({
   plugins = [],
   filesCreated = 0,
   mcpClient,
+  diagnostics = [],
 }: RunResult & { command: TelemetryCommand; duration: number }) {
   const traceId = randomBytes(16).toString('hex')
   const spanId = randomBytes(8).toString('hex')
@@ -114,6 +120,26 @@ export function buildOtlpPayload({
     },
   ]
 
+  // Messages can hold file paths or schema names, so each problem is reduced to its code, severity, and plugin.
+  // Grouping by those keeps the payload small when a large spec repeats the same warning.
+  const problems = new Map<string, { code: string; severity: string; plugin?: string; count: number }>()
+  for (const diagnostic of diagnostics.filter(Diagnostics.isProblem)) {
+    const key = `${diagnostic.code}\0${diagnostic.severity}\0${diagnostic.plugin ?? ''}`
+    const entry = problems.get(key) ?? { code: diagnostic.code, severity: diagnostic.severity, plugin: diagnostic.plugin, count: 0 }
+    entry.count++
+    problems.set(key, entry)
+  }
+  const events = [...problems.values()].map(({ code, severity, plugin, count }) => ({
+    name: 'kubb.diagnostic',
+    timeUnixNano: String(endTimeNs),
+    attributes: [
+      { key: 'kubb.diagnostic.code', value: { stringValue: code } },
+      { key: 'kubb.diagnostic.severity', value: { stringValue: severity } },
+      ...(plugin ? [{ key: 'kubb.diagnostic.plugin', value: { stringValue: plugin } }] : []),
+      { key: 'kubb.diagnostic.count', value: { intValue: count } },
+    ],
+  }))
+
   return {
     resourceSpans: [
       {
@@ -136,6 +162,7 @@ export function buildOtlpPayload({
                 startTimeUnixNano: String(startTimeNs),
                 endTimeUnixNano: String(endTimeNs),
                 attributes,
+                events,
                 status: {
                   code: status === 'success' ? 1 : 2,
                 },

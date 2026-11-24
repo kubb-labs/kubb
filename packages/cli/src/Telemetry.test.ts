@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process'
 import { EventEmitter } from 'node:events'
 import process from 'node:process'
 import { runInNewContext } from 'node:vm'
+import { Diagnostics } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { buildOtlpPayload, isDisabled, SENDER_SCRIPT, sendTelemetry } from './Telemetry.ts'
 
@@ -100,6 +101,33 @@ describe('buildOtlpPayload', () => {
       },
     })
     expect(plugins[0]!.options.usedEnumNames).toStrictEqual(['Pet'])
+  })
+
+  it('sends each problem diagnostic as a grouped span event without its message', () => {
+    const span = getSpan({
+      status: 'failed',
+      diagnostics: [
+        { code: Diagnostics.code.refNotFound, severity: 'warning', message: '/home/me/spec.yaml#/Pet', plugin: 'plugin-ts' },
+        { code: Diagnostics.code.refNotFound, severity: 'warning', message: '/home/me/spec.yaml#/Order', plugin: 'plugin-ts' },
+        { code: Diagnostics.code.internalError, severity: 'error', message: 'boom' },
+        Diagnostics.performance({ plugin: 'plugin-ts', duration: 10 }),
+      ],
+    })
+
+    expect(span.events.map((event) => event.attributes)).toStrictEqual([
+      [
+        { key: 'kubb.diagnostic.code', value: { stringValue: 'KUBB_REF_NOT_FOUND' } },
+        { key: 'kubb.diagnostic.severity', value: { stringValue: 'warning' } },
+        { key: 'kubb.diagnostic.plugin', value: { stringValue: 'plugin-ts' } },
+        { key: 'kubb.diagnostic.count', value: { intValue: 2 } },
+      ],
+      [
+        { key: 'kubb.diagnostic.code', value: { stringValue: 'KUBB_INTERNAL_ERROR' } },
+        { key: 'kubb.diagnostic.severity', value: { stringValue: 'error' } },
+        { key: 'kubb.diagnostic.count', value: { intValue: 1 } },
+      ],
+    ])
+    expect(JSON.stringify(span)).not.toContain('/home/me')
   })
 
   it('builds a valid OTLP trace payload with status code 2 for a failed run', () => {
