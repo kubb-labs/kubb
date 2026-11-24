@@ -94,7 +94,7 @@ Output folder written to the config. Default: `./src/gen`.
 The server runs in the folder the client starts it in:
 
 - `generate` looks for the config there, then in each parent folder.
-- `generate` rejects a `config` or `output` path outside that folder, and an `input` path outside it unless `input` is an `http:` or `https:` URL.
+- `generate` rejects a `config` or `output` path outside that folder, and an `input` path outside it unless `input` is an `http:` or `https:` URL. The check follows symlinks, and resolves `output` and `input` from the config's `root`.
 - `init` writes `kubb.config.ts` there.
 
 When the server cannot find your config, see [Start it in your project](/docs/5.x/ai/mcp#working-directory).
