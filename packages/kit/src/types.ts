@@ -114,7 +114,7 @@ export type TemplateOf<TKind extends TemplateKind, TOptions extends PluginType =
  *   },
  * })
  * ```
- * @deprecated Use {@link Template} with `defineTemplate` and `addTemplate`.
+ * @deprecated Use {@link Template} with `defineTemplate` and `addTemplate`. Removed in Kubb v6.
  */
 export type Generator<TOptions extends PluginType = PluginType, TElement = unknown> = {
   /** Used in diagnostic messages and debug output. */

@@ -67,7 +67,7 @@ export type ParserFactory<TOptions extends object = object, TMeta extends object
  * Defines a parser from one object and returns a factory that takes the user's options.
  * Register the result in the `parsers` array on `defineConfig`.
  *
- * @deprecated Use `defineExtension` with `kind: 'parser'` instead.
+ * @deprecated Use `defineExtension` with `kind: 'parser'` instead. Removed in Kubb v6.
  */
 export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
   definition: ParserDefinition<TOptions, TMeta, TNode>,

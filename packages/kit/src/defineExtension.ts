@@ -91,7 +91,7 @@ export const defineExtension = ((definition: { kind: string } & Partial<KitPlugi
 /**
  * Defines a plugin through kit's `defineExtension`, so it runs kit's visitor.
  *
- * @deprecated Use `defineExtension` with `kind: 'plugin'` instead.
+ * @deprecated Use `defineExtension` with `kind: 'plugin'` instead. Removed in Kubb v6.
  */
 export function definePlugin<TFactory extends PluginType = PluginType>(definition: KitPluginDefinition<TFactory>): PluginFactory<TFactory> {
   return defineExtension({ kind: 'plugin', ...definition })

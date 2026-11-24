@@ -1,3 +1,4 @@
+import { memo } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { Diagnostics, type Filter, type Group, type KubbContext, type Output, type Override, type PluginName, useKubb } from '@kubb/core'
 import type { Resolver } from './resolver/Resolver.ts'
@@ -100,8 +101,12 @@ function operationFile(
   if (!suffix) return first
 
   const { output, group } = location
-  const schemaPaths = ctx.memo(
-    `${resolver.pluginName}:file:schemaPaths:${extname}:${output.mode ?? ''}:${output.path}:${group?.type ?? ''}`,
+  const byOutput = ctx.memo(`${resolver.pluginName}:file:schemaPaths:${extname}`, () =>
+    memo.create<Output, Map<Group | undefined, Set<string>>>({ weak: true }),
+  )
+  const schemaPaths = memo(
+    memo(byOutput, output, () => new Map()),
+    group,
     () => new Set(ctx.schemas.flatMap((schema) => (schema.name ? [resolver.file({ name: schema.name, extname, ...location }).path.toLowerCase()] : []))),
   )
   const withSuffix = (file: FileNode, nextName: string): FileNode => {
