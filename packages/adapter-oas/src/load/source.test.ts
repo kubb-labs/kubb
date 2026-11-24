@@ -91,6 +91,17 @@ describe('resolveSource requests', () => {
     expect(fetchSpy.mock.calls[0]?.[1]?.redirect).toBe('error')
   })
 
+  it('reports a body that fails after the headers as an unreachable input', async () => {
+    const body = new ReadableStream({
+      start(controller) {
+        controller.error(new DOMException('The operation was aborted due to timeout', 'TimeoutError'))
+      },
+    })
+    using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(body, { status: 200 }))
+
+    expect(codeOf(await resolveSource(url).catch((caught: unknown) => caught))).toBe(Diagnostics.code.inputUnreachable)
+  })
+
   it('rethrows the cancel reason instead of reporting the host as unreachable', async () => {
     const controller = new AbortController()
     const reason = new Error('canceled')
@@ -113,6 +124,16 @@ describe('isPrivateHost', () => {
 
   it('treats a public IP literal as public', async () => {
     await expect(isPrivateHost(new URL('https://93.184.216.34/x.yaml'))).resolves.toBe(false)
+  })
+
+  it('treats a host that does not resolve as not public', async () => {
+    await expect(isPrivateHost(new URL('https://kubb-test.invalid/x.yaml'))).resolves.toBe(true)
+  })
+
+  it('rethrows the cancel reason of a canceled lookup', async () => {
+    const reason = new Error('canceled')
+
+    await expect(isPrivateHost(new URL('https://kubb-test.invalid/x.yaml'), { signal: AbortSignal.abort(reason) })).rejects.toBe(reason)
   })
 })
 
@@ -139,6 +160,13 @@ describe('parseYaml aliases', () => {
 
     expect(() => parseYaml(data, options)).toThrow(/expand/)
     expect(performance.now() - start).toBeLessThan(1000)
+  })
+
+  it('keeps a large document that has a single alias', () => {
+    const values = Array.from({ length: 120_000 }, (_, index) => `v${index}`).join(', ')
+    const data = `openapi: '3.1.0'\nx-enum: [${values}]\nx-shared: &shared { type: string }\na: *shared\n`
+
+    expect(() => parseYaml(data, options)).not.toThrow()
   })
 
   it('keeps a document that reuses an anchor a few times', () => {

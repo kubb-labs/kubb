@@ -164,7 +164,7 @@ export async function bundleDocument(
     const key = toKey(sourcePath)
     const isRef = key !== toKey(pathOrUrl)
     const isUrl = urlRegExp.test(sourcePath)
-    const refusedUrl = isRef && isUrl && publicOnly && (await isPrivateHost(new URL(sourcePath)))
+    const refusedUrl = isRef && isUrl && publicOnly && (await isPrivateHost(new URL(sourcePath), { signal }))
     const refusedFile = isRef && !isUrl && folders !== undefined && !(await isInsideFolders(sourcePath, folders))
     if (refusedUrl || refusedFile) {
       // api-ref-bundler drops the rejection's message, so `onError` looks the path up here.

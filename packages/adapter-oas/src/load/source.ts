@@ -20,17 +20,27 @@ type ReadOptions = { signal?: AbortSignal; publicOnly?: boolean }
 
 /**
  * Whether `url` names a host that is loopback, private, link-local, or another address that is not
- * public. A host that does not resolve counts as public, so the request reports the real failure.
+ * public. A host that does not resolve, or not within the request timeout, counts as not public,
+ * because the check cannot prove it public. `signal` cancels the lookup.
  *
  * shortcut: the name is resolved again when `fetch` connects, so a host that changes its answer in
  * between can still reach a private address. Upgrade to a pinned lookup, like `@kubb/studio`'s
  * `publicFetch`, if a sandbox needs that guarantee.
  */
-export async function isPrivateHost(url: URL): Promise<boolean> {
+export async function isPrivateHost(url: URL, { signal }: { signal?: AbortSignal } = {}): Promise<boolean> {
   const host = url.hostname.replace(/^\[|\]$/g, '')
   if (isIP(host)) return !isPublicAddress(host)
-  const addresses = await lookup(host, { all: true }).catch(() => [])
-  return addresses.some(({ address }) => !isPublicAddress(address))
+  // `dns.lookup` takes no signal, so the race settles a lookup that stalls.
+  const deadline = withTimeout(signal)
+  const stopped = new Promise<never>((_, reject) => deadline.addEventListener('abort', () => reject(deadline.reason), { once: true }))
+  const addresses = await Promise.race([lookup(host, { all: true }), stopped]).catch(() => [])
+  signal?.throwIfAborted()
+  return addresses.length === 0 || addresses.some(({ address }) => !isPublicAddress(address))
+}
+
+function withTimeout(signal: AbortSignal | undefined): AbortSignal {
+  const timeout = AbortSignal.timeout(FETCH_TIMEOUT_MS)
+  return signal ? AbortSignal.any([signal, timeout]) : timeout
 }
 
 /**
@@ -63,14 +73,16 @@ function helpForStatus(status: number): string {
   return 'Open the URL in a browser or with `curl` to see what the server returns, then point `input` at a URL that serves the OpenAPI document.'
 }
 
-async function fetchSource(url: URL, { signal, publicOnly }: ReadOptions): Promise<Response> {
-  const timeout = AbortSignal.timeout(FETCH_TIMEOUT_MS)
+async function fetchSource(url: URL, { signal, publicOnly }: ReadOptions): Promise<{ response: Response; body: string }> {
+  const deadline = withTimeout(signal)
   try {
-    return await fetch(url, { signal: signal ? AbortSignal.any([signal, timeout]) : timeout, redirect: publicOnly ? 'error' : 'follow' })
+    const response = await fetch(url, { signal: deadline, redirect: publicOnly ? 'error' : 'follow' })
+    // The body is read here too, so a server that stalls after its headers also hits the timeout.
+    return { response, body: response.ok ? await response.text() : '' }
   } catch (error) {
     // A canceled build stops here; only a timeout or a network failure is the server's problem.
     if (signal?.aborted) throw signal.reason
-    const reason = timeout.aborted ? `no answer within ${FETCH_TIMEOUT_MS / 1000} seconds` : describeFetchFailure(error)
+    const reason = deadline.aborted ? `no answer within ${FETCH_TIMEOUT_MS / 1000} seconds` : describeFetchFailure(error)
     throw new Diagnostics.Error({
       code: Diagnostics.code.inputUnreachable,
       severity: 'error',
@@ -87,7 +99,7 @@ async function readSource(sourcePath: string, options: ReadOptions): Promise<str
     // api-ref-bundler joins relative refs with posix normalization, collapsing `https://` to
     // `https:/`. The WHATWG URL parser restores the double slash.
     const url = new URL(sourcePath)
-    const response = await fetchSource(url, options)
+    const { response, body } = await fetchSource(url, options)
 
     if (!response.ok) {
       const status = response.statusText ? `${response.status} ${response.statusText}` : String(response.status)
@@ -101,7 +113,7 @@ async function readSource(sourcePath: string, options: ReadOptions): Promise<str
       })
     }
 
-    return response.text()
+    return body
   }
 
   return read(sourcePath)
@@ -210,12 +222,18 @@ function invalidAliases(origin: string, problem: string): InstanceType<typeof Di
 export function assertDocumentTree(document: unknown, { origin, expansion = true }: { origin: string; expansion?: boolean }): void {
   const sizes = new Map<object, number>()
   const open = new Set<object>()
+  // Scalars count in both totals, so a large enum next to one alias is not mistaken for a bomb.
+  let distinct = 0
   const countNodes = (node: unknown): number => {
-    if (!node || typeof node !== 'object') return 1
+    if (!node || typeof node !== 'object') {
+      distinct++
+      return 1
+    }
     const known = sizes.get(node)
     if (known !== undefined) return known
     if (open.has(node)) throw invalidAliases(origin, 'a node contains itself, through a YAML alias inside its own anchor')
     open.add(node)
+    distinct++
     let total = 1
     for (const value of Object.values(node)) total += countNodes(value)
     open.delete(node)
@@ -223,8 +241,8 @@ export function assertDocumentTree(document: unknown, { origin, expansion = true
     return total
   }
   const expanded = countNodes(document)
-  if (expansion && expanded > MIN_EXPANDED_NODES && expanded > sizes.size * MAX_EXPANSION) {
-    throw invalidAliases(origin, `its YAML aliases expand ${sizes.size} distinct nodes into more than ${MIN_EXPANDED_NODES} nodes`)
+  if (expansion && expanded > MIN_EXPANDED_NODES && expanded > distinct * MAX_EXPANSION) {
+    throw invalidAliases(origin, `its YAML aliases expand ${distinct} distinct nodes into more than ${MIN_EXPANDED_NODES} nodes`)
   }
 }
 
