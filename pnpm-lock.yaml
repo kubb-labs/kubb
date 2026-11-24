@@ -517,15 +517,16 @@ importers:
 
   packages/parser-md:
     dependencies:
+      yaml:
+        specifier: 'catalog:'
+        version: 2.9.1
+    devDependencies:
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      yaml:
-        specifier: 'catalog:'
-        version: 2.9.1
 
   packages/parser-ts:
     dependencies:
