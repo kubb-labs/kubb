@@ -6,7 +6,7 @@ import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource, Diagnostic } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
-import { isOpenApi32 } from '../oas.ts'
+import { isOpenApi32, markLegacyDocument } from '../oas.ts'
 import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
 import type { ValidationErrors, WorkerResult } from './validateSpec.ts'
@@ -262,10 +262,13 @@ export function upgradeDocument(raw: Document, { pathRefs = true }: { pathRefs?:
   }
 
   // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.
+  const declared = raw && typeof raw === 'object' ? ((raw as { openapi?: unknown }).openapi ?? (raw as { swagger?: unknown }).swagger) : undefined
+  const legacy = declared !== undefined && /^(2|3\.0)(\.|$)/.test(String(declared))
   try {
-    return upgrade(raw, '3.1') as Document
+    const document = upgrade(raw, '3.1') as Document
+    if (legacy) markLegacyDocument(document)
+    return document
   } catch (error) {
-    const declared = raw && typeof raw === 'object' ? ((raw as { openapi?: unknown }).openapi ?? (raw as { swagger?: unknown }).swagger) : undefined
     throw new Diagnostics.Error({
       code: Diagnostics.code.invalidDocument,
       severity: 'error',

@@ -22,7 +22,7 @@ describe('object', () => {
     const node = parse({
       type: 'object',
       required: ['id'],
-      properties: { id: { type: 'integer' }, status: { type: ['string', 'null'], enum: ['on', 'off'] } },
+      properties: { id: { type: 'integer' }, status: { type: ['string', 'null'], enum: ['on', 'off', null] } },
     } as SchemaObject)
 
     expect(ast.schema.narrow(node, 'object')?.properties).toMatchObject([

@@ -1,6 +1,6 @@
 import { ast, macroDedupeUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
-import { getExternalDocs, isDiscriminator, isReference, pickExtensions } from '../../oas.ts'
+import { getExternalDocs, isDiscriminator, isLegacyDocument, isReference, pickExtensions } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
@@ -315,6 +315,13 @@ function inheritScalarType(members: Array<unknown>, { schema, type }: Pick<Conve
  * Converts a `oneOf` / `anyOf` schema into a `UnionSchemaNode`.
  */
 export function convertUnion(context: ConvertContext): ast.SchemaNode {
+  if (context.schema.enum?.length) {
+    const { enum: values, ...union } = context.schema
+    // A sibling `enum` restricts the union too. Documents upgraded from 3.0 keep `null` allowed, as `nullable: true` did there.
+    const enumSchema: SchemaObject = { type: union.type, enum: isLegacyDocument(context.document) ? [...values, null] : values }
+    const members = [convertUnion({ ...context, schema: union }), context.parse({ schema: enumSchema })]
+    return createNode(context, { type: ast.schema.types.intersection, members })
+  }
   const annotatedEnum = convertAnnotatedEnum(context)
   if (annotatedEnum) return annotatedEnum
   const { schema, name, nullable, defaultValue, parse, refs } = context
@@ -387,9 +394,8 @@ export function convertMultiType({ schema, name, nullable, defaultValue, parse }
   const types = schema.type as Array<string>
   const nonNullTypes = types.filter((t) => t !== 'null')
 
-  const arrayNullable = types.includes('null') || nullable || undefined
   return createNode(
-    { schema, name, nullable: arrayNullable, defaultValue },
+    { schema, name, nullable, defaultValue },
     {
       type: ast.schema.types.union,
       members: nonNullTypes.map((t) => {

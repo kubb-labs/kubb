@@ -49,13 +49,13 @@ function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | 
 /**
  * Converts an object-like schema into an `ObjectSchemaNode`.
  */
-export function convertObject({ schema, name, nullable, defaultValue, options, parse, refs }: ConvertContext): ast.SchemaNode {
+export function convertObject({ schema, name, nullable, defaultValue, options, parse, refs, document }: ConvertContext): ast.SchemaNode {
   const requiredNames = Array.isArray(schema.required) ? new Set(schema.required) : undefined
   const properties: Array<ast.PropertyNode> = schema.properties
     ? Object.entries(schema.properties).map(([propName, propSchema]) => {
         const required = requiredNames ? requiredNames.has(propName) : !!schema.required
         const resolvedPropSchema = propSchema as SchemaObject
-        const propNullable = isNullable(resolvedPropSchema)
+        const propNullable = isNullable(resolvedPropSchema, document)
 
         const resolvedChildName = childName(name, propName)
         const propNode = parse({ schema: resolvedPropSchema, name: resolvedChildName })
