@@ -52,8 +52,8 @@ export type PrinterContext<TOptions extends PluginType = PluginType> = PluginVis
 /** Builds the plugin's printer from a `PrinterContext`, which is also its `this` and `useKubb()`. Register it with `setPrinter`. */
 export type PrinterFactory<TOptions extends PluginType = PluginType> = (ctx: PrinterContext<TOptions>) => Exclude<TOptions['printer'], undefined>
 
-/** Context passed to a generator's `schema`, `operation` and `operations` methods: the printer context plus the built printer. */
-export type GeneratorContext<TOptions extends PluginType = PluginType> = PrinterContext<TOptions> & {
+/** The context `render` gets as its second argument, as `this` and as `useKubb()`: the printer context plus the built printer. */
+export type TemplateContext<TOptions extends PluginType = PluginType> = PrinterContext<TOptions> & {
   /** The printer from the plugin's `setPrinter` factory, or `undefined` without one. */
   printer: Exclude<TOptions['printer'], undefined>
   /**
@@ -72,8 +72,8 @@ export type TemplateKind = 'Schema' | 'Operation' | 'Operations'
 /** The node a template's `render` gets for each {@link TemplateKind}. */
 export type TemplateNode = { Schema: SchemaNode; Operation: OperationNode; Operations: OperationsNode }
 
-/** The context `render` gets as its second argument, as `this` and as `useKubb()`. */
-export type TemplateContext<TOptions extends PluginType = PluginType> = GeneratorContext<TOptions>
+/** @deprecated Use {@link TemplateContext}. */
+export type GeneratorContext<TOptions extends PluginType = PluginType> = TemplateContext<TOptions>
 
 /** Renderer elements such as JSX, a `FileNode`, `Array<FileNode>`, or `null` to skip the node. */
 export type TemplateResult<TElement = unknown> = PossiblePromise<TElement | FileNode | Array<FileNode> | undefined | null>

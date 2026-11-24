@@ -217,27 +217,25 @@ function createFileNode(props: JSX.IntrinsicElements['kubb-file']): ast.FileNode
 
 /**
  * Factory for a renderer that walks the JSX tree in a single recursive pass,
- * with no React reconciler or scheduler. Pass it as the `renderer` property on
- * `defineGenerator`. Kubb core calls the factory once per render cycle and stays
+ * with no React reconciler or scheduler. Kit renders a template's JSX with it by default;
+ * pass it as `renderer` to `addTemplate` to set it explicitly. Kubb core calls the factory once per render cycle and stays
  * generic, with no hard dependency on `@kubb/renderer-jsx`. Every component must be a pure
  * function. Hooks, suspense and class components are not supported.
  *
- * @example Wire up a JSX generator
+ * @example Wire up a JSX template
  * ```tsx
- * import { defineGenerator } from '@kubb/kit'
- * import { jsxRenderer } from '@kubb/renderer-jsx'
+ * import { addTemplate, defineTemplate } from '@kubb/kit'
+ * import { File, jsxRenderer } from '@kubb/renderer-jsx'
  *
- * export const myGenerator = defineGenerator<PluginTs>({
- *   name: 'types',
- *   renderer: jsxRenderer,
- *   schema(node, ctx) {
- *     return (
- *       <File baseName="output.ts" path={`${ctx.root}/output.ts`}>
- *         <Type node={node} resolver={ctx.resolver} />
- *       </File>
- *     )
+ * export const typesTemplate = defineTemplate<PluginTs>({
+ *   kind: 'Schema',
+ *   render(node, ctx) {
+ *     return <File {...ctx.file(node)}>…</File>
  *   },
  * })
+ *
+ * // In the plugin's `setup`:
+ * addTemplate(typesTemplate, { renderer: jsxRenderer })
  * ```
  */
 export const jsxRenderer = () => {

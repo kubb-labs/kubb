@@ -28,18 +28,18 @@ export type Renderer<TElement = unknown> = {
 /**
  * A factory function that produces a fresh {@link Renderer} per render cycle.
  *
- * Generators use this to declare which renderer handles their output.
+ * Templates use this to declare which renderer handles their output.
  */
 export type RendererFactory<TElement = unknown> = () => Renderer<TElement>
 
 /**
- * Defines a renderer factory. Renderers turn the generator's return value
+ * Defines a renderer factory. Renderers turn a template's return value
  * (JSX, a template string, a tree of any shape) into `FileNode`s that get
  * written to disk.
  *
  * A renderer can target output formats beyond JSX, for instance a Handlebars
- * renderer or one that writes binary files. Plugins and generators pick the
- * renderer to use via the `renderer` field on `defineGenerator` from `@kubb/kit`.
+ * renderer or one that writes binary files. Plugins and templates pick the
+ * renderer to use via the `renderer` option of `addTemplate` from `@kubb/kit`.
  *
  * @example A minimal renderer that wraps a custom runtime
  * ```ts
