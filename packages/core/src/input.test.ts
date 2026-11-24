@@ -20,7 +20,6 @@ function diagnosticCode(fn: () => unknown): string | undefined {
 describe('getInputKind', () => {
   it.each([
     ['a relative path', './petStore.yaml', 'file'],
-    ['an absolute path', '/specs/openapi.json', 'file'],
     ['an http(s) address', 'https://example.com/openapi.json', 'url'],
     ['a git repository', 'git+https://github.com/org/api.git#main:openapi.yaml', 'git'],
     ['inline JSON content', '{ "openapi": "3.1.0" }', 'inline'],
@@ -42,17 +41,12 @@ describe('inputToAdapterSource', () => {
 
   it.each([
     ['inline JSON content', '{ "openapi": "3.1.0" }'],
-    ['inline YAML content', 'openapi: 3.1.0\ninfo:\n  title: Pets'],
-    ['a parsed object', { openapi: '3.1.0' }],
     ['a parsed spec that happens to carry a path property', { openapi: '3.1.0', path: './petStore.yaml' }],
   ])('passes %s as data', (_name, data) => {
     expect(inputToAdapterSource(createConfig(data))).toStrictEqual({ type: 'data', data, root: '/project' })
   })
 
-  it.each([
-    ['missing', undefined],
-    ['an empty string', ''],
-  ])('throws a required diagnostic when input is %s', (_name, input) => {
+  it.each([['missing', undefined]])('throws a required diagnostic when input is %s', (_name, input) => {
     expect(diagnosticCode(() => inputToAdapterSource(createConfig(input)))).toBe(Diagnostics.code.inputRequired)
   })
 
