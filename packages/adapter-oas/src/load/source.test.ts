@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Diagnostics } from '@kubb/kit'
-import { assertInputExists, resolveSource } from './source.ts'
+import { assertInputExists, isPrivateHost, resolveSource } from './source.ts'
 
 function codeOf(error: unknown): string | undefined {
   return Diagnostics.isError(error) ? error.diagnostic.code : undefined
@@ -64,6 +64,76 @@ describe('resolveSource', () => {
     const error = await resolveSource('https://specs.example.com/openapi.yaml?rev=1').catch((caught: unknown) => caught)
 
     expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.invalidDocument)
+  })
+})
+
+describe('resolveSource requests', () => {
+  const url = 'https://specs.example.com/openapi.json'
+  const ok = () => new Response('{"openapi":"3.1.0"}', { status: 200 })
+
+  it('passes a signal that a canceled build aborts, and follows redirects by default', async () => {
+    using fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => ok())
+    const controller = new AbortController()
+
+    await resolveSource(url, { signal: controller.signal })
+    const init = fetchSpy.mock.calls[0]?.[1]
+    controller.abort()
+
+    expect(init?.redirect).toBe('follow')
+    expect(init?.signal?.aborted).toBe(true)
+  })
+
+  it('makes a redirect fail for a public-only request', async () => {
+    using fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => ok())
+
+    await resolveSource(url, { publicOnly: true })
+
+    expect(fetchSpy.mock.calls[0]?.[1]?.redirect).toBe('error')
+  })
+
+  it('reports a body that fails after the headers as an unreachable input', async () => {
+    const body = new ReadableStream({
+      start(controller) {
+        controller.error(new DOMException('The operation was aborted due to timeout', 'TimeoutError'))
+      },
+    })
+    using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(body, { status: 200 }))
+
+    expect(codeOf(await resolveSource(url).catch((caught: unknown) => caught))).toBe(Diagnostics.code.inputUnreachable)
+  })
+
+  it('rethrows the cancel reason instead of reporting the host as unreachable', async () => {
+    const controller = new AbortController()
+    const reason = new Error('canceled')
+    using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
+      controller.abort(reason)
+      throw new DOMException('aborted', 'AbortError')
+    })
+
+    await expect(resolveSource(url, { signal: controller.signal })).rejects.toBe(reason)
+  })
+})
+
+describe('isPrivateHost', () => {
+  it.each(['http://127.0.0.1:8080/x.yaml', 'http://[::1]/x.yaml', 'http://169.254.169.254/latest', 'http://10.0.0.7/x.yaml', 'http://localhost/x.yaml'])(
+    'treats %s as not public',
+    async (url) => {
+      await expect(isPrivateHost(new URL(url))).resolves.toBe(true)
+    },
+  )
+
+  it('treats a public IP literal as public', async () => {
+    await expect(isPrivateHost(new URL('https://93.184.216.34/x.yaml'))).resolves.toBe(false)
+  })
+
+  it('treats a host that does not resolve as not public', async () => {
+    await expect(isPrivateHost(new URL('https://kubb-test.invalid/x.yaml'))).resolves.toBe(true)
+  })
+
+  it('rethrows the cancel reason of a canceled lookup', async () => {
+    const reason = new Error('canceled')
+
+    await expect(isPrivateHost(new URL('https://kubb-test.invalid/x.yaml'), { signal: AbortSignal.abort(reason) })).rejects.toBe(reason)
   })
 })
 

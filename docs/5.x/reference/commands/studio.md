@@ -112,7 +112,7 @@ Each permission is off by default. The CLI asks once per project for each one yo
 | `--allow-update` | Update extensions with `kubb update`, leaving the config as is |
 | `--allow-remove` | Remove extensions with `kubb remove`. Needs `--allow-config-edit`. |
 | `--allow-save-input` | Save the spec it sends and point `input` at it. Needs `--allow-config-edit`. |
-| `--allow-file-refs` | Let a `$ref` read a local file outside the project |
+| `--allow-file-refs` | Let a `$ref` read a local file outside the project, or a URL on a host that is not public |
 | `--allow-exec` | Run the formatter, the linter, and `output.postGenerate` |
 
 See [Studio permissions](#studio-permissions) for what each one changes.

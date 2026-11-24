@@ -11,7 +11,7 @@ import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
 import type { ValidationErrors, WorkerResult } from './validateSpec.ts'
 import { type DocumentScan, resolveSchemaIds, scanDocument } from './schemaIds.ts'
-import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
+import { assertInputExists, isPrivateHost, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
 // The scan of each document returned unbundled, so a later step can skip a walk it answers.
 const scans = new WeakMap<object, DocumentScan>()
@@ -121,6 +121,9 @@ async function isInsideFolders(filePath: string, folders: Array<string>): Promis
  * including one that fails, lands in `sources`. A `$ref` that cannot be read reports
  * `KUBB_REF_NOT_FOUND` at the key that holds it, as a warning when it sits inside an `x-` extension.
  * So does any local file from a URL input, and a local file outside every `fileRefs` folder.
+ * With `fileRefs` set, a `$ref` URL on a host that is not public is refused too, and a redirect
+ * fails, so a document sent to a sandboxed host cannot make it request internal addresses.
+ * `signal` cancels every request.
  *
  * @example Local file
  * `const document = await bundleDocument('./openapi.yaml')`
@@ -130,7 +133,7 @@ async function isInsideFolders(filePath: string, folders: Array<string>): Promis
  */
 export async function bundleDocument(
   pathOrUrl: string,
-  { document, sources = [], fileRefs }: { document?: Document; sources?: Array<string>; fileRefs?: Array<string> } = {},
+  { document, sources = [], fileRefs, signal }: { document?: Document; sources?: Array<string>; fileRefs?: Array<string>; signal?: AbortSignal } = {},
 ): Promise<Document> {
   const cache = memo.create<string, Promise<object | string>>()
   // api-ref-bundler refers to the same URL as both `https://` and the posix-normalized
@@ -139,7 +142,18 @@ export async function bundleDocument(
   // The folders a `$ref` may read local files from. The host names them, never the document's own
   // `$self`, so a `$ref` cannot read a stored token elsewhere. A URL input has none.
   const folders = urlRegExp.test(pathOrUrl) ? [] : fileRefs
+  // A host that limits local files also runs documents it does not trust, so their URLs stay public.
+  const publicOnly = fileRefs !== undefined
   const refused = new Set<string>()
+  const refusedHelp = (refusedPath: string): string => {
+    if (urlRegExp.test(refusedPath)) {
+      return 'This run only fetches `$ref` URLs on public hosts. Inline the schema, or serve it from a public URL. On your own agent, `--allow-file-refs` lifts the limit.'
+    }
+    if (folders?.length) {
+      return 'This run only reads local files inside the folders its host allows, such as the project. Move the file there or inline the schema. On your own agent, `--allow-file-refs` lifts the limit.'
+    }
+    return 'This input reads no local file. Inline the schema, or serve the file from a URL.'
+  }
 
   let entry = pathOrUrl
   let entryDocument: object | string | undefined = document
@@ -148,15 +162,18 @@ export async function bundleDocument(
       return entryDocument
     }
     const key = toKey(sourcePath)
-    const isFileRef = key !== toKey(pathOrUrl) && !urlRegExp.test(sourcePath)
-    if (isFileRef && folders && !(await isInsideFolders(sourcePath, folders))) {
+    const isRef = key !== toKey(pathOrUrl)
+    const isUrl = urlRegExp.test(sourcePath)
+    const refusedUrl = isRef && isUrl && publicOnly && (await isPrivateHost(new URL(sourcePath), { signal }))
+    const refusedFile = isRef && !isUrl && folders !== undefined && !(await isInsideFolders(sourcePath, folders))
+    if (refusedUrl || refusedFile) {
       // api-ref-bundler drops the rejection's message, so `onError` looks the path up here.
       refused.add(sourcePath)
       throw new Error(`Refused ${sourcePath}`)
     }
     return memo(cache, key, () => {
       sources.push(key)
-      return resolveSource(sourcePath, { remember: key === toKey(pathOrUrl) })
+      return resolveSource(sourcePath, { remember: !isRef, signal, publicOnly: publicOnly && isRef })
     })
   }
 
@@ -176,18 +193,18 @@ export async function bundleDocument(
   return (await bundle(entry, resolver, {
     hooks: {
       onError: (message, { path, state }) => {
+        // api-ref-bundler also swallows a canceled request, so stop here instead of reporting it as a missing ref.
+        signal?.throwIfAborted()
         // Only a `$ref` in the input itself has a key in the document to point at.
         const pointer = toKey(state.baseFile) === toKey(entry) ? `#/${path.map((token) => escapePointerToken(String(token))).join('/')}` : undefined
         const refusedPath = [...refused].find((sourcePath) => message.includes(sourcePath))
         const diagnostic: Diagnostic = {
           code: Diagnostics.code.refNotFound,
           severity: isExtensionPath(path) ? 'warning' : 'error',
-          message: refusedPath ? `Refused an external \`$ref\` to the local file ${refusedPath}.` : `Could not bundle an external \`$ref\`. ${message}.`,
-          help: refusedPath
-            ? folders?.length
-              ? 'This run only reads local files inside the folders its host allows, such as the project. Move the file there or inline the schema. On your own agent, `--allow-file-refs` lifts the limit.'
-              : 'This input reads no local file. Inline the schema, or serve the file from a URL.'
-            : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
+          message: refusedPath
+            ? `Refused an external \`$ref\` to ${urlRegExp.test(refusedPath) ? 'a host that is not public' : 'the local file'} ${refusedPath}.`
+            : `Could not bundle an external \`$ref\`. ${message}.`,
+          help: refusedPath ? refusedHelp(refusedPath) : 'Check that the file or URL the `$ref` points at exists and is readable, or fix the `$ref`.',
           ...(pointer && { location: { kind: 'schema', pointer } }),
         }
         if (!Diagnostics.report(diagnostic) && diagnostic.severity === 'error') {
@@ -218,7 +235,11 @@ const inlineInputName = '<inline input>'
  * const document = await parseFromConfig({ type: 'data', data: '{"openapi":"3.0.0",...}' })
  * ```
  */
-export async function parseFromConfig(source: AdapterSource, sources: Array<string> = [], { fileRefs }: { fileRefs?: Array<string> } = {}): Promise<Document> {
+export async function parseFromConfig(
+  source: AdapterSource,
+  sources: Array<string> = [],
+  { fileRefs, signal }: { fileRefs?: Array<string>; signal?: AbortSignal } = {},
+): Promise<Document> {
   const raw = await (async (): Promise<Document> => {
     // YAML parsing also handles JSON.
     if (source.type === 'data') {
@@ -231,13 +252,13 @@ export async function parseFromConfig(source: AdapterSource, sources: Array<stri
           : structuredClone(source.data as Document)
       const isObject = Boolean(data) && typeof data === 'object'
       // `bundleDocument` returns the document as is when it has no external ref.
-      if (source.root && isObject) return bundleDocument(join(source.root, inlineInputName), { document: data, sources, fileRefs })
+      if (source.root && isObject) return bundleDocument(join(source.root, inlineInputName), { document: data, sources, fileRefs, signal })
       const scan = resolveTargets(data)
       if (isObject) scans.set(data, scan)
       return data
     }
     await assertInputExists(source.path)
-    return bundleDocument(source.path, { sources, fileRefs })
+    return bundleDocument(source.path, { sources, fileRefs, signal })
   })()
 
   return upgradeDocument(raw, { pathRefs: scans.get(raw)?.pathRefs ?? true })

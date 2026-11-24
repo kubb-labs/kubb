@@ -2,6 +2,7 @@ import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import type { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
+import { createRefs } from './refs.ts'
 import type { Document, SchemaObject } from './types.ts'
 
 const petSchema: SchemaObject = { type: 'object', properties: { name: { type: 'string' } } }
@@ -103,5 +104,36 @@ describe('refs.derefKeepingRef', () => {
     const input = await adapterOas({ validate: false }).parse({ type: 'data', data: document })
 
     expect(input.operations[0]?.requestBody?.content?.[0]?.schema).toMatchObject({ type: 'ref', ref: $ref, ...expected })
+  })
+})
+
+describe('refs.resolveNode', () => {
+  const ref = '#/components/schemas/Pet'
+  const node = { type: 'string' } as ast.SchemaNode
+
+  it('throws an error from the converter instead of returning null', () => {
+    const refs = createRefs(buildDocument({}))
+
+    expect(() =>
+      refs.resolveNode(ref, () => {
+        throw new TypeError('converter bug')
+      }),
+    ).toThrow('converter bug')
+  })
+
+  it('ends the cycle guard when the converter throws, so the next call parses the ref', () => {
+    const refs = createRefs(buildDocument({}))
+    const parse = (): ast.SchemaNode => {
+      throw new TypeError('converter bug')
+    }
+
+    expect(() => refs.resolveNode(ref, parse)).toThrow()
+    expect(refs.resolveNode(ref, () => node)).toBe(node)
+  })
+
+  it('returns null for a missing ref outside a build', () => {
+    const refs = createRefs(buildDocument({}))
+
+    expect(refs.resolveNode('#/components/schemas/Missing', () => node)).toBeNull()
   })
 })

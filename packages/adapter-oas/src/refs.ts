@@ -80,24 +80,28 @@ export function createRefs(document: Document) {
   /**
    * Resolves a `$ref` to its parsed node via `parse`, guarding against cycles and memoizing per
    * instance. Returns `null` when the ref is currently being resolved (a cycle) or cannot be
-   * resolved (e.g. a minimal document in a unit test).
+   * resolved (e.g. a minimal document in a unit test). An error from `parse` is thrown, so a bug
+   * in a converter is not mistaken for a missing ref.
    */
   function resolveNode(refPath: string, parse: ParseFn): ast.SchemaNode | null {
     if (resolvingRefs.has(refPath)) return null
 
     return memo(resolvedNodeCache, refPath, () => {
-      let resolved: ast.SchemaNode | null = null
+      let referenced: SchemaObject | null
       try {
-        const referenced = resolve<SchemaObject>(refPath)
-        if (referenced) {
-          resolvingRefs.add(refPath)
-          resolved = parse({ schema: referenced })
-          resolvingRefs.delete(refPath)
-        }
-      } catch {
-        // Ref cannot be resolved in this document (e.g. unit tests with minimal documents).
+        referenced = resolve<SchemaObject>(refPath)
+      } catch (error) {
+        // A missing ref outside a build is `null`; any other error is a real failure.
+        if (Diagnostics.isError(error) && error.diagnostic.code === Diagnostics.code.refNotFound) return null
+        throw error
       }
-      return resolved
+      if (!referenced) return null
+      resolvingRefs.add(refPath)
+      try {
+        return parse({ schema: referenced })
+      } finally {
+        resolvingRefs.delete(refPath)
+      }
     })
   }
 
