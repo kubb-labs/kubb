@@ -457,11 +457,11 @@ export class KubbDriver {
           await this.adapter?.settle?.()
           await hooks.callHook('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
 
-          return { diagnostics: Diagnostics.dedupe(diagnostics) }
+          return { diagnostics: Diagnostics.dedupe(this.#withoutIgnored(diagnostics)) }
         } catch (caughtError) {
           await this.adapter?.settle?.()
           diagnostics.push(Diagnostics.from(caughtError))
-          return { diagnostics: Diagnostics.dedupe(diagnostics) }
+          return { diagnostics: Diagnostics.dedupe(this.#withoutIgnored(diagnostics)) }
         }
       },
     )
@@ -633,6 +633,13 @@ export class KubbDriver {
   getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): PluginVisitContext<TOptions> {
     const key = plugin as NormalizedPlugin
     return storeMemo(this.#contexts, key, () => this.#createContext(key)) as unknown as PluginVisitContext<TOptions>
+  }
+
+  /** Drops the non-error problems whose code `config.diagnostics.ignore` lists. */
+  #withoutIgnored(diagnostics: Array<Diagnostic>): Array<Diagnostic> {
+    const ignore = new Set<string>(this.config.diagnostics?.ignore)
+    if (!ignore.size) return diagnostics
+    return diagnostics.filter((diagnostic) => !Diagnostics.isProblem(diagnostic) || diagnostic.severity === 'error' || !ignore.has(diagnostic.code))
   }
 
   #createContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): PluginVisitContext<TOptions> {

@@ -3,7 +3,7 @@ import type { FileNode, InputMeta, InputNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import type { Reporter, ReporterName } from './createReporter.ts'
 import type { Storage } from './createStorage.ts'
-import type { Diagnostic, ProblemDiagnostic, UpdateDiagnostic } from './Diagnostics.ts'
+import type { Diagnostic, ProblemCode, ProblemDiagnostic, UpdateDiagnostic } from './Diagnostics.ts'
 import type { Parser } from './defineParser.ts'
 import type {
   ExtractRegistryKey,
@@ -253,6 +253,21 @@ export type Config<TInput = Input> = {
    * ```
    */
   reporters: Array<Reporter>
+  /**
+   * Controls which diagnostics the build reports.
+   */
+  diagnostics?: {
+    /**
+     * Warning and info codes to drop from the CLI output, reports, and `safeBuild().diagnostics`.
+     * Errors are never dropped, so a failing build still fails.
+     *
+     * @example
+     * ```ts
+     * diagnostics: { ignore: ['KUBB_UNSUPPORTED_FORMAT'] }
+     * ```
+     */
+    ignore?: Array<ProblemCode>
+  }
 }
 
 /**

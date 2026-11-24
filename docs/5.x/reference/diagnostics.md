@@ -48,6 +48,8 @@ A terminal gets the first format. An AI agent, CI, or a pipe gets the second, wi
 | Warning | Reported. The run continues. |
 | Info | Advisory. Never fails the run. |
 
+To hide a warning or info code, list it in [`diagnostics.ignore`](/docs/5.x/reference/configuration#diagnostics). Errors cannot be hidden.
+
 [Diagnostic details](#diagnostic-details) covers rarer cases per code.
 
 ## Crashes {#crashes}
@@ -262,7 +264,7 @@ A plugin reported a non-fatal problem through `ctx.warn`.
 
 Kubb has no type for a schema's `format`, so it uses the base type.
 
-**Fix:** Use a supported format, drop it, or handle it in a custom parser or plugin.
+**Fix:** Use a supported format, drop it, or handle it in a custom parser or plugin. When a plugin already handles the format, add the code to [`diagnostics.ignore`](/docs/5.x/reference/configuration#diagnostics).
 
 ## Info
 
