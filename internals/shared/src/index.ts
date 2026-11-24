@@ -2,7 +2,7 @@ export { configFileCandidates, findConfigFile, loadConfigFile } from './config.t
 export { BUNDLED_PACKAGES, CONFIG_EXTENSIONS, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME, initDefaults } from './constants.ts'
 export { generateConfigFile } from './init.ts'
 export { loadModule } from './loader.ts'
-export { editConfig, editConfigFile, readConfig, readImports } from './configFile/configFile.ts'
+export { editConfig, editConfigFile, readConfig, readImports } from './editor/configFile.ts'
 export {
   isAllowedPlugin,
   isOptionValue,
@@ -13,7 +13,7 @@ export {
   pickOutput,
   toExportName,
   toPluginName,
-} from './configFile/rules.ts'
+} from './editor/rules.ts'
 export {
   ConfigEditOperation,
   extensionKinds,
@@ -27,4 +27,4 @@ export {
   type OptionsView,
   type OptionValue,
   type PluginView,
-} from './configFile/types.ts'
+} from './editor/types.ts'

@@ -944,6 +944,8 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
   void session.connected.promise.then(
     async (info) => {
       clearTimeout(timer)
+      // Connected, so a later failed connect() is Studio's retry, not a missed deadline.
+      session.closeIfFailed = undefined
       await emit(hooks, 'studio:connected', { ...info, url: studioUrl, versions: { studio: info.studioVersion, kubb: kubbVersion, agent: version } })
       if (!session.closed) timer = setTimeout(heartbeat, heartbeatInterval)
     },
