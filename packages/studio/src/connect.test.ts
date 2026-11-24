@@ -20,6 +20,7 @@ import {
   type ConfigEdit,
   ConfigEditOperation,
   type ConfigRef,
+  type GenerateInput,
   MAX_PAGE_LINES,
 } from './protocol.ts'
 import { generateAgentKey, getAgentPublicKey, verifyAgentSignature } from './agentKey.ts'
@@ -419,6 +420,50 @@ describe('a sandbox job', () => {
 
     await expect(agent.startGeneration({ jobId: 'job-1', config }).result()).rejects.toThrow('not a public address')
     expect(globalThis.fetch).toBe(original)
+  })
+
+  it('keeps the mode a generation started with when Studio connects again during it', async () => {
+    const original = globalThis.fetch
+    let publicOnly: boolean | undefined
+    const parse = async () => {
+      publicOnly = globalThis.fetch !== original
+      return ast.factory.createInput({ operations: [], meta: { title: 'Pets' } })
+    }
+    const gate = Promise.withResolvers<void>()
+    let calls = 0
+    // The second call is the generation's own; the gate holds it while Studio connects again.
+    const loadConfigs = async () => {
+      if (++calls === 2) await gate.promise
+      return [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
+    }
+    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
+
+    const run = agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+    await vi.waitFor(() => expect(calls).toBe(2))
+    await agent.connect({ ...info, managed: false })
+    gate.resolve()
+    await run
+
+    expect(publicOnly).toBe(true)
+  })
+
+  it('refuses a managed input that names a file through a non-http URL', async () => {
+    const { agent } = await connectStudio({ connectInfo: { ...info, managed: true } })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { input: 'C:\\specs\\openapi.yaml' } }).result()).rejects.toThrow(
+      AgentMessage.MANAGED_INPUT_KIND,
+    )
+  })
+
+  it.each([
+    ['a missing job id', { jobId: '' }, AgentMessage.JOB_REQUIRED],
+    ['a job id that is not a string', { jobId: 42 }, AgentMessage.JOB_REQUIRED],
+    ['plugins that are not a list', { jobId: 'job-1', config: { plugins: 'plugin-ts' } }, AgentMessage.CONFIG_PATCH_INVALID],
+    ['an adapter that is a string', { jobId: 'job-1', config: { adapter: 'oas' } }, AgentMessage.CONFIG_PATCH_INVALID],
+  ])('refuses %s before it generates', async (_label, input, message) => {
+    const { agent } = await connectStudio()
+
+    await expect(agent.startGeneration({ config: {}, ...input } as unknown as GenerateInput).result()).rejects.toThrow(message)
   })
 
   it('generates a managed agent from the spec Studio sends instead of warning that it is ignored', async () => {
