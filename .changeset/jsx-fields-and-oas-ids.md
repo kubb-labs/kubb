@@ -14,4 +14,4 @@ Read deprecated source flags the same way everywhere, and keep generated names a
 - `@kubb/core`: add the `KUBB_DUPLICATE_OPERATION_ID` diagnostic code.
 - `@kubb/parser-ts`: a namespace alias that starts with a digit gets a `_` prefix and keeps the digit, so `1pets` prints as `_1pets` instead of `_pets`.
 - `@kubb/plugin-barrel`: a source marked only with the deprecated `isExportable` is listed in barrels, like one marked `export`.
-- `@kubb/renderer-jsx`: `<File>` is marked `inline` when every declaration in it sets the deprecated `inline`. `Code` and `File.Source` leave `isTypeOnly` unset when it is not given, so a `Type` child makes the source type-only. `File.Source` reads `isExportable` as `export`.
+- `@kubb/renderer-jsx`: `Code` and `File.Source` leave `isTypeOnly` unset when it is not given, so a `Type` child makes the source type-only. `File.Source` reads `isExportable` as `export`.

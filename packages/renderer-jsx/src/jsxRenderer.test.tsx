@@ -493,23 +493,4 @@ describe('File.Export', () => {
     expect(source).toMatchObject({ name: 'Pet', inline: { expression: '{ id: number }' }, isTypeOnly: true })
     expect(source!.nodes?.[0]).not.toHaveProperty('inline')
   })
-
-  it.each([
-    { when: 'every declaration is inline', inline: true },
-    { when: 'one declaration is not inline', inline: undefined },
-  ])('sets inline on the File when $when', async ({ inline }) => {
-    const renderer = jsxRenderer()
-    await renderer.render(
-      <File baseName="pet.ts" path="src/pet.ts">
-        <Type export name="Pet" inline>
-          {'{ id: number }'}
-        </Type>
-        <Type export name="Tag" inline={inline}>
-          {'string'}
-        </Type>
-      </File>,
-    )
-
-    expect(renderer.files[0]!.inline).toBe(inline)
-  })
 })
