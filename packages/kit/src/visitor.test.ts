@@ -107,13 +107,13 @@ describe('generatorVisitor', () => {
 
   it('registers through setup context methods the same as the composables', async () => {
     const seen: Array<boolean> = []
-    const generator = { name: 'methods', schema: () => [] }
+    const template = defineTemplate({ kind: 'Schema', render: () => [] })
     const plugin = defineExtension({
       kind: 'plugin',
       meta: { name: 'plugin-methods' },
       setup(options, kubb) {
         kubb.setResolver({ name: (name: string) => `Api${name}` })
-        kubb.addGenerator(generator)
+        kubb.addTemplate(template)
         return options
       },
       hooks: {
@@ -128,7 +128,7 @@ describe('generatorVisitor', () => {
     expect(seen).toStrictEqual([true])
     expect(
       (driver.memo.get(slot.templates('plugin-methods')) as Array<{ name: string; kind: string }>).map(({ name, kind }) => `${name}:${kind}`),
-    ).toStrictEqual(['methods:Schema'])
+    ).toStrictEqual(['plugin-methods Schema template:Schema'])
     expect(getResolver('plugin-methods', driver.memo).name('Pet')).toBe('ApiPet')
   })
 
@@ -138,11 +138,11 @@ describe('generatorVisitor', () => {
       kind: 'plugin',
       meta: { name: 'plugin-mocked' },
       setup(options, kubb) {
-        kubb.addGenerator({ name: 'mocked', schema: () => [] })
+        kubb.addTemplate(defineTemplate({ kind: 'Schema', render: () => [] }))
         return options
       },
     })({})
-    const ctx = { plugin: { name: 'plugin-mocked' }, memo: { set: vi.fn() }, addGenerator: spy } as unknown as KitSetupContext
+    const ctx = { plugin: { name: 'plugin-mocked' }, memo: { set: vi.fn() }, addTemplate: spy } as unknown as KitSetupContext
 
     plugin.setup?.call(ctx, {}, ctx)
 
@@ -189,13 +189,15 @@ describe('generatorVisitor', () => {
         },
       },
       setup(options) {
-        addGenerator({
-          name: 'reader',
-          schema(node) {
-            if (node.name === 'Pet') seen.push(`schema:${getResolver('plugin-example').name('Pet')}`)
-            return null
-          },
-        })
+        addTemplate(
+          defineTemplate({
+            kind: 'Schema',
+            render(node) {
+              if (node.name === 'Pet') seen.push(`schema:${getResolver('plugin-example').name('Pet')}`)
+              return null
+            },
+          }),
+        )
         return options
       },
     })()
@@ -205,18 +207,20 @@ describe('generatorVisitor', () => {
     expect(seen).toStrictEqual(['schema:ApiPet', 'end:ApiPet'])
   })
 
-  it("runs generators of a plugin defined with kit's definePlugin", async () => {
+  it("runs templates of a plugin defined with kit's definePlugin", async () => {
     const log: Array<string> = []
     const plugin = definePlugin({
       meta: { name: 'plugin-define' },
       setup(options) {
-        addGenerator({
-          name: 'define',
-          schema(node: SchemaNode) {
-            log.push(node.name ?? '')
-            return []
-          },
-        })
+        addTemplate(
+          defineTemplate({
+            kind: 'Schema',
+            render(node) {
+              log.push(node.name ?? '')
+              return []
+            },
+          }),
+        )
         return options
       },
     })()
@@ -231,7 +235,7 @@ describe('generatorVisitor', () => {
       kind: 'plugin',
       meta: { name: 'plugin-core' },
       setup(options) {
-        addGenerator({ name: 'core', schema: () => null })
+        addTemplate(defineTemplate({ kind: 'Schema', render: () => null }))
         return options
       },
     })()
@@ -239,22 +243,24 @@ describe('generatorVisitor', () => {
     const { diagnostics } = await build([plugin])
 
     expect(diagnostics).toContainEqual(
-      expect.objectContaining({ severity: 'error', message: expect.stringContaining('`addGenerator()` was called for plugin "plugin-core"') }),
+      expect.objectContaining({ severity: 'error', message: expect.stringContaining('`addTemplate()` was called for plugin "plugin-core"') }),
     )
   })
 
-  it('rejects a setup-only kit composable inside a generator', async () => {
+  it('rejects a setup-only kit composable inside a template', async () => {
     const plugin = defineExtension({
       kind: 'plugin',
       meta: { name: 'plugin-late' },
       setup(options) {
-        addGenerator({
-          name: 'late',
-          schema() {
-            addGenerator({ name: 'nested', schema: () => null })
-            return null
-          },
-        })
+        addTemplate(
+          defineTemplate({
+            kind: 'Schema',
+            render() {
+              addTemplate(defineTemplate({ kind: 'Schema', render: () => null }))
+              return null
+            },
+          }),
+        )
         return options
       },
     })()
@@ -262,7 +268,7 @@ describe('generatorVisitor', () => {
     const { diagnostics } = await build([plugin])
 
     expect(diagnostics).toContainEqual(
-      expect.objectContaining({ severity: 'error', message: expect.stringContaining('`addGenerator()` runs only in `setup` or `kubb:plugin:setup`') }),
+      expect.objectContaining({ severity: 'error', message: expect.stringContaining('`addTemplate()` runs only in `setup` or `kubb:plugin:setup`') }),
     )
   })
 
@@ -272,13 +278,15 @@ describe('generatorVisitor', () => {
       kind: 'plugin',
       meta: { name: 'plugin-own' },
       setup(options) {
-        addGenerator({
-          name: 'own',
-          schema(node: SchemaNode) {
-            log.push(`generator:${node.name}`)
-            return []
-          },
-        })
+        addTemplate(
+          defineTemplate({
+            kind: 'Schema',
+            render(node) {
+              log.push(`template:${node.name}`)
+              return []
+            },
+          }),
+        )
         return options
       },
       hooks: {
@@ -290,7 +298,7 @@ describe('generatorVisitor', () => {
 
     await build([plugin])
 
-    expect(log.slice(0, 2)).toStrictEqual(['generator:Pet', 'hook:Pet'])
+    expect(log.slice(0, 2)).toStrictEqual(['template:Pet', 'hook:Pet'])
   })
 
   it('tags the memo resolver of a plugin without generators', async () => {
@@ -324,13 +332,15 @@ describe('generatorVisitor', () => {
           built.push(printer)
           return printer
         })
-        addGenerator({
-          name: 'printer',
-          schema(node: SchemaNode, ctx: GeneratorContext) {
-            seen.push([node.name ?? '', ctx.printer])
-            return null
-          },
-        })
+        addTemplate(
+          defineTemplate({
+            kind: 'Schema',
+            render(node, ctx) {
+              seen.push([node.name ?? '', ctx.printer])
+              return null
+            },
+          }),
+        )
         return { ...options, override: [{ type: 'schemaName', pattern: '^Pet$', options: { label: 'pet' } }] }
       },
     })()
@@ -406,21 +416,23 @@ describe('generatorVisitor', () => {
     ])
   })
 
-  it('gives generators the same file and from through ctx, this and the composables', async () => {
+  it('gives templates the same file and from through ctx, this and the composables', async () => {
     const paths: Array<Array<string>> = []
     const imports: Array<Array<string | undefined>> = []
     const plugin = defineExtension({
       kind: 'plugin',
       meta: { name: 'plugin-file' },
       setup(options) {
-        addGenerator({
-          name: 'file',
-          schema(this: GeneratorContext, node: SchemaNode, ctx: GeneratorContext) {
-            paths.push([ctx.file(node).path, this.file(node).path, file(node).path])
-            imports.push([ctx.from().resolver.name(node.name!).import?.path, from().resolver.name(node.name!).import?.path])
-            return null
-          },
-        })
+        addTemplate(
+          defineTemplate({
+            kind: 'Schema',
+            render(node, ctx) {
+              paths.push([ctx.file(node).path, this.file(node).path, file(node).path])
+              imports.push([ctx.from().resolver.name(node.name!).import?.path, from().resolver.name(node.name!).import?.path])
+              return null
+            },
+          }),
+        )
         return options
       },
     })({ output: { path: 'models', mode: 'directory' } })
@@ -446,13 +458,15 @@ describe('generatorVisitor', () => {
       kind: 'plugin',
       meta: { name: 'plugin-no-printer' },
       setup(options) {
-        addGenerator({
-          name: 'no-printer',
-          schema(_node: SchemaNode, ctx: GeneratorContext) {
-            printers.push(ctx.printer)
-            return null
-          },
-        })
+        addTemplate(
+          defineTemplate({
+            kind: 'Schema',
+            render(_node, ctx) {
+              printers.push(ctx.printer)
+              return null
+            },
+          }),
+        )
         return options
       },
     })()
@@ -484,13 +498,15 @@ describe('generatorVisitor', () => {
       setup(options) {
         setResolver({ name: (name: string) => `Api${name}` })
         setPrinter(() => printer({ depth: 0 }))
-        addGenerator({
-          name: 'print',
-          schema(node: SchemaNode, ctx: GeneratorContext) {
-            if (node.name === 'Pet') (ctx.printer as ReturnType<typeof printer>).print(node)
-            return null
-          },
-        })
+        addTemplate(
+          defineTemplate({
+            kind: 'Schema',
+            render(node, ctx) {
+              if (node.name === 'Pet') (ctx.printer as ReturnType<typeof printer>).print(node)
+              return null
+            },
+          }),
+        )
         return options
       },
     })()
@@ -596,19 +612,17 @@ describe('generatorVisitor', () => {
         children: jsx(Code, { name: node.name ?? '', children: `export type ${node.name} = {}` }),
       })
 
-    function rendererPlugin(renderer?: null) {
-      return defineExtension({
+    it('renders JSX with jsxRenderer when the template sets no renderer', async () => {
+      const plugin = defineExtension({
         kind: 'plugin',
         meta: { name: 'plugin-renderer' },
         setup(options) {
-          addGenerator({ name: 'jsx', ...(renderer === null ? { renderer } : {}), schema: schemaFile })
+          addTemplate(defineTemplate({ kind: 'Schema', render: schemaFile }))
           return options
         },
       })()
-    }
 
-    it('renders JSX with jsxRenderer when the generator sets no renderer', async () => {
-      const { files, diagnostics } = await build([rendererPlugin()])
+      const { files, diagnostics } = await build([plugin])
 
       expect(files).toStrictEqual(['gen/Pet.ts', 'gen/Store.ts', 'gen/Unused.ts'])
       expect(diagnostics.filter((diagnostic) => diagnostic.severity === 'warning')).toStrictEqual([])
@@ -619,15 +633,17 @@ describe('generatorVisitor', () => {
         kind: 'plugin',
         meta: { name: 'plugin-ast' },
         setup(options) {
-          addGenerator({
-            name: 'ast',
-            schema: (node: SchemaNode) =>
-              ast.factory.createFile({
-                baseName: `${node.name}.ts`,
-                path: `gen/${node.name}.ts`,
-                sources: [ast.factory.createSource({ name: node.name, nodes: [ast.factory.createText(`export type ${node.name} = {}`)] })],
-              }),
-          })
+          addTemplate(
+            defineTemplate({
+              kind: 'Schema',
+              render: (node) =>
+                ast.factory.createFile({
+                  baseName: `${node.name}.ts`,
+                  path: `gen/${node.name}.ts`,
+                  sources: [ast.factory.createSource({ name: node.name, nodes: [ast.factory.createText(`export type ${node.name} = {}`)] })],
+                }),
+            }),
+          )
           return options
         },
       })()
@@ -639,7 +655,16 @@ describe('generatorVisitor', () => {
     })
 
     it('writes nothing and warns for JSX from a generator with renderer: null', async () => {
-      const { files, diagnostics } = await build([rendererPlugin(null)])
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'plugin-renderer' },
+        setup(options) {
+          addGenerator({ name: 'jsx', renderer: null, schema: schemaFile })
+          return options
+        },
+      })()
+
+      const { files, diagnostics } = await build([plugin])
 
       expect(files).toStrictEqual([])
       expect(diagnostics).toContainEqual(

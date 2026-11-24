@@ -61,8 +61,8 @@ describe('parserTs', () => {
       banner: '// generated',
       footer: '// end',
       sources: [ast.factory.createSource({ nodes: [ast.factory.createText('export const schema = z.string()')] })],
-      imports: [ast.factory.createImport({ name: ['z'], path: 'zod' })],
-      exports: [ast.factory.createExport({ name: 'models', path: './models.ts', asAlias: true })],
+      imports: [ast.factory.createImport({ names: [{ name: 'z' }], path: 'zod' })],
+      exports: [ast.factory.createExport({ names: [{ name: '*', alias: 'models' }], path: './models.ts' })],
     })
 
     expect(await parserTs().parse(file)).toBe(
@@ -117,7 +117,7 @@ describe('parserTs', () => {
   it.each([
     {
       when: 'an import has several names',
-      file: { sources: [], imports: [ast.factory.createImport({ name: ['a', 'b'], path: '/src/x.ts', root: '/src/test.ts' })] },
+      file: { sources: [], imports: [ast.factory.createImport({ names: [{ name: 'a' }, { name: 'b' }], path: '/src/x.ts', root: '/src/test.ts' })] },
       expected: "import { a, b } from './x'",
     },
     { when: 'the source has no nodes', file: { sources: [ast.factory.createSource({})], imports: [] }, expected: '' },
@@ -133,7 +133,7 @@ describe('parserTs', () => {
       baseName: 'test.ts',
       path: '/src/nested/test.ts',
       sources: [ast.factory.createSource({ name: 'schema', export: true, nodes: [ast.factory.createText('export const schema = myCodec.uint64()')] })],
-      imports: [ast.factory.createImport({ name: ['myCodec'], path })],
+      imports: [ast.factory.createImport({ names: [{ name: 'myCodec' }], path })],
       exports: [],
     })
 
@@ -149,7 +149,7 @@ describe('parserTs', () => {
       baseName: 'test.ts',
       path: '/src/test.ts',
       sources: [],
-      imports: [ast.factory.createImport({ name: ['Pet'], path: '/src/models/pet.ts', root: '/src/test.ts' })],
+      imports: [ast.factory.createImport({ names: [{ name: 'Pet' }], path: '/src/models/pet.ts', root: '/src/test.ts' })],
       exports: [],
     })
     const options = extension ? { extension: { '.ts': extension } } : {}
