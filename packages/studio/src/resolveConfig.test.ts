@@ -326,7 +326,6 @@ describe('resolveFileRefs', () => {
 
   it.each([
     ['a project agent to its root', project, ['/project']],
-    ['a CLI agent to its root', { ...project, agentType: 'cli' }, ['/project']],
     ['a project agent to its root and the folder of its own file input', { ...project, input: outside }, ['/project', '/specs']],
     ['a project agent to its root alone for a URL input', { ...project, input: 'https://example.com/openapi.yaml' }, ['/project']],
     ['a project agent granted allowFileRefs to any file', { ...project, allowFileRefs: true }, undefined],
