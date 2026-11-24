@@ -204,13 +204,14 @@ export class KubbDriver {
       checkDependencies({ name: plugin.name, dependencies: plugin.dependencies, plugins: byName })
     }
 
+    // Resolved before any listener is added, so an invalid input cannot leave listeners on the shared hooks.
+    if (this.config.adapter) {
+      this.#adapterSource = inputToAdapterSource(this.config)
+    }
+
     for (const plugin of normalized) {
       this.#registerPlugin(plugin)
       this.plugins.set(plugin.name, plugin)
-    }
-
-    if (this.config.adapter) {
-      this.#adapterSource = inputToAdapterSource(this.config)
     }
   }
 
@@ -284,7 +285,8 @@ export class KubbDriver {
    * plugin-scoped context.
    *
    * Each listener runs through `withContext`: an event fired inside a hook keeps that hook's context,
-   * an event the driver fires gets the plugin's own visit context.
+   * an event the driver fires gets the plugin's own visit context. A listener that throws is
+   * attributed to its plugin, so the run counts it as that plugin's failure.
    *
    * @internal
    */
@@ -303,13 +305,21 @@ export class KubbDriver {
     } = hooks
 
     const ctx = this.getContext(plugin)
+    const attribute = (error: unknown): never => {
+      throw new Diagnostics.Error(Diagnostics.fromExtension(error, { kind: 'plugin', extension: plugin }))
+    }
     const wrapped = Object.fromEntries(
       Object.entries(configHooks).map(([name, hook]) => [
         name,
         hook &&
           ((...args: Array<unknown>) => {
             const current = kubbContext.getStore() ?? ctx
-            return withContext(current, () => (hook as (...args: Array<unknown>) => unknown).apply(current, args))
+            try {
+              const result = withContext(current, () => (hook as (...args: Array<unknown>) => unknown).apply(current, args))
+              return result instanceof Promise ? result.catch(attribute) : result
+            } catch (error) {
+              return attribute(error)
+            }
           }),
       ]),
     ) as typeof configHooks
@@ -477,7 +487,7 @@ export class KubbDriver {
 
     this.fileManager.add(...files)
     this.fileManager.delete(...virtualPaths)
-    // One diagnostic for all problems: `Diagnostics.dedupe` keeps one per code when there is no location.
+    // One diagnostic lists every problem, so the summary shows them together.
     if (problems.length > 0) {
       Diagnostics.report({
         code: Diagnostics.code.inlineFailed,

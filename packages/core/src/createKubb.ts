@@ -183,6 +183,8 @@ export class Kubb {
   async setup(): Promise<void> {
     const signal = this.#signal
     signal?.throwIfAborted()
+    // A second setup replaces the driver, so the old one's plugin listeners must go first.
+    this.dispose()
     const config = this.config
     const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
 

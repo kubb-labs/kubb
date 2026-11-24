@@ -269,6 +269,16 @@ describe('Diagnostics.dedupe', () => {
     // one per (a) and (b), plus both performance records
     expect(result).toHaveLength(4)
   })
+
+  it('keeps distinct location-less problems from one plugin, and drops an exact repeat', () => {
+    const result = Diagnostics.dedupe([
+      problem({ plugin: 'a', message: 'first warning' }),
+      problem({ plugin: 'a', message: 'second warning' }),
+      problem({ plugin: 'a', message: 'first warning' }),
+    ])
+
+    expect(result.map((diagnostic) => diagnostic.message)).toStrictEqual(['first warning', 'second warning'])
+  })
 })
 
 describe('Diagnostics.scope / Diagnostics.report', () => {
