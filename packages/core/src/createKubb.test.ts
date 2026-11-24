@@ -296,6 +296,46 @@ describe('createKubb', () => {
     expect(Diagnostics.hasError(diagnostics)).toBe(true)
   })
 
+  it('names the plugin whose kubb:plugins:end hook threw, instead of an unknown error', async () => {
+    const throwing = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-barrel-like' },
+      hooks: {
+        'kubb:plugins:end'() {
+          throw new Error('barrel crashed')
+        },
+      },
+    })()
+
+    const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [throwing] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
+
+    expect(diagnostics.filter(Diagnostics.isProblem)).toStrictEqual([
+      expect.objectContaining({ code: Diagnostics.code.pluginFailed, plugin: 'plugin-barrel-like', message: expect.stringContaining('barrel crashed') }),
+    ])
+  })
+
+  it('leaves no plugin listener behind when setup fails on an invalid input', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const onBuildEnd = vi.fn()
+    const listener = defineExtension({ kind: 'plugin', meta: { name: 'plugin-listener' }, hooks: { 'kubb:build:end': onBuildEnd } })()
+
+    await expect(createKubb(makeConfig({ ...config, input: undefined as unknown as string, plugins: [listener] }), { hooks }).setup()).rejects.toThrow()
+    await hooks.callHook('kubb:build:end', {} as never)
+
+    expect(onBuildEnd).not.toHaveBeenCalled()
+  })
+
+  it('runs each plugin listener once when setup is called before generate', async () => {
+    const onPluginsEnd = vi.fn()
+    const listener = defineExtension({ kind: 'plugin', meta: { name: 'plugin-listener' }, hooks: { 'kubb:plugins:end': onPluginsEnd } })()
+    const kubb = createKubb(makeConfig({ ...config, plugins: [listener] }), { hooks: new Hookable<KubbHooks>() })
+
+    await kubb.setup()
+    await kubb.generate()
+
+    expect(onPluginsEnd).toHaveBeenCalledTimes(1)
+  })
+
   // Plugins generate sequentially, so `plugin:end` fires in declaration order; storage is written once at the end.
   it.each([[60, 2]])('writes all %i generated files in one batch after plugin:end fired for each of %i plugins', async (schemaCount, pluginCount) => {
     const hooks = new Hookable<KubbHooks>()

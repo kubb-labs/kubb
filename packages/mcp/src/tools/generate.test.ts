@@ -55,6 +55,40 @@ describe('generate tool', () => {
     expect(text).toContain('KUBB_INPUT_NOT_FOUND')
   })
 
+  it.each([
+    ['an output outside the working directory', { output: '../../outside-gen' }, 'Invalid output path'],
+    ['an absolute output outside the working directory', { output: '/tmp/kubb-outside-gen' }, 'Invalid output path'],
+    ['an input file outside the working directory', { input: '../../secrets/spec.yaml' }, 'Invalid input path'],
+  ])('refuses %s before generating', async (_label, args, message) => {
+    const configPath = join(dir, 'kubb.paths.config.ts')
+    await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
+
+    const { isError, text } = await run({ config: configPath, ...args })
+
+    expect(isError).toBe(true)
+    expect(text).toContain(message)
+  })
+
+  it('resolves the output against the config root, as core does', async () => {
+    const configPath = join(dir, 'kubb.root.config.ts')
+    await writeFile(configPath, `export default { ...globalThis.__kubbMcpTestConfig, root: '../..' }\n`)
+
+    const { isError, text } = await run({ config: configPath, output: 'gen' })
+
+    expect(isError).toBe(true)
+    expect(text).toContain('Invalid output path')
+  })
+
+  it('accepts a URL input and an output inside the working directory', async () => {
+    const configPath = join(dir, 'kubb.url.config.ts')
+    await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
+
+    const { text } = await run({ config: configPath, input: 'http://127.0.0.1:1/openapi.yaml', output: join(dir, 'gen') })
+
+    expect(text).not.toContain('Invalid input path')
+    expect(text).not.toContain('Invalid output path')
+  })
+
   it('keeps the code and the config path when the config fails to load', async () => {
     const configPath = join(dir, 'kubb.broken.config.ts')
     await writeFile(configPath, `throw new Error('boom')\n`)

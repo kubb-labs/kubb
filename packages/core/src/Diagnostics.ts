@@ -437,15 +437,17 @@ export class Diagnostics {
 
   /**
    * Drops duplicate `problem` diagnostics that share a code, location pointer, and
-   * plugin, so the same issue reported across several passes is shown once. Non-problem
-   * diagnostics are always kept.
+   * plugin, so the same issue reported across several passes is shown once. A problem
+   * without a pointer is a duplicate only when its message matches too, so distinct
+   * location-less warnings all survive. Non-problem diagnostics are always kept.
    */
   static dedupe(diagnostics: ReadonlyArray<Diagnostic>): Array<Diagnostic> {
     const seen = new Set<string>()
     return diagnostics.filter((diagnostic) => {
       if (!isProblem(diagnostic)) return true
-      const pointer = diagnostic.location && 'pointer' in diagnostic.location ? diagnostic.location.pointer : ''
-      const key = `${diagnostic.code} ${pointer} ${diagnostic.plugin ?? ''}`
+      const pointer = diagnostic.location && 'pointer' in diagnostic.location ? diagnostic.location.pointer : undefined
+      // `''` is the root pointer, so presence, not truthiness, decides whether the message joins the key.
+      const key = `${diagnostic.code}\0${pointer ?? ''}\0${diagnostic.plugin ?? ''}${pointer === undefined ? `\0${diagnostic.message}` : ''}`
       if (seen.has(key)) return false
       seen.add(key)
       return true

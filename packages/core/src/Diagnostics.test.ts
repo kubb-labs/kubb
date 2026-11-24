@@ -269,6 +269,23 @@ describe('Diagnostics.dedupe', () => {
     // one per (a) and (b), plus both performance records
     expect(result).toHaveLength(4)
   })
+
+  it('keeps distinct location-less problems from one plugin, and drops an exact repeat', () => {
+    const result = Diagnostics.dedupe([
+      problem({ plugin: 'a', message: 'first warning' }),
+      problem({ plugin: 'a', message: 'second warning' }),
+      problem({ plugin: 'a', message: 'first warning' }),
+    ])
+
+    expect(result.map((diagnostic) => diagnostic.message)).toStrictEqual(['first warning', 'second warning'])
+  })
+
+  it('treats the empty root pointer as a location, so messages there still collapse', () => {
+    const loc = { kind: 'schema', pointer: '' } as const
+    const result = Diagnostics.dedupe([problem({ location: loc, plugin: 'a', message: 'one' }), problem({ location: loc, plugin: 'a', message: 'two' })])
+
+    expect(result).toHaveLength(1)
+  })
 })
 
 describe('Diagnostics.scope / Diagnostics.report', () => {

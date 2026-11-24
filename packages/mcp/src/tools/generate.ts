@@ -89,6 +89,16 @@ export const generateTool = defineTool(
         return failure(`Failed to load config ${file}`, [Diagnostics.from(error)])
       }
 
+      // The AI client also supplies these, and `output.clean` empties the output folder, so both stay inside the working directory too.
+      // Core resolves them against `config.root`, which the loader already made absolute, so the check does as well.
+      const root = userConfig.root ?? base
+      if (output && !isPathInside(path.resolve(root, output), base)) {
+        return tool.error('Invalid output path: must be within the current working directory')
+      }
+      if (input && !/^https?:\/\//i.test(input) && !isPathInside(path.resolve(root, input), base)) {
+        return tool.error('Invalid input path: must be a URL or within the current working directory')
+      }
+
       const config: Config = {
         ...userConfig,
         input: input ?? userConfig.input,
