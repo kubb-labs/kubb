@@ -1,7 +1,7 @@
 import type { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
-type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes'> & {
+export type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes'> & {
   key?: Key
   /**
    * Lets importing files use the body in place of the name. Read when the declaration sits directly in a `File` that sets `inline`,

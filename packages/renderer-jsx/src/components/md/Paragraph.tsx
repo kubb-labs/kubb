@@ -1,6 +1,6 @@
 import type { Key, KubbReactElement } from '../../types.ts'
 
-type Props = {
+export type ParagraphProps = {
   key?: Key
   /**
    * Paragraph text. Inline markdown (links, emphasis, code spans) is passed
@@ -21,6 +21,6 @@ type Props = {
  * <Paragraph>{'A pet object with `id` and `name` fields.'}</Paragraph>
  * ```
  */
-export function Paragraph({ children }: Props): KubbReactElement {
+export function Paragraph({ children }: ParagraphProps): KubbReactElement {
   return <kubb-raw>{children}</kubb-raw>
 }

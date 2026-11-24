@@ -1,6 +1,6 @@
 import type { Key, KubbReactElement } from '../../types.ts'
 
-type Props = {
+export type ListProps = {
   key?: Key
   /**
    * When `true`, emits a numbered list (`1. …`). When `false` or omitted,
@@ -32,7 +32,7 @@ type Props = {
  * // 2. Second
  * ```
  */
-export function List({ ordered, items }: Props): KubbReactElement {
+export function List({ ordered, items }: ListProps): KubbReactElement {
   const body = items.map((item, index) => `${ordered ? `${index + 1}.` : '-'} ${item}`).join('\n')
   return <kubb-raw>{body}</kubb-raw>
 }

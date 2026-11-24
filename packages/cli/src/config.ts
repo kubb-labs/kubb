@@ -4,7 +4,7 @@ import { CONFIG_EXTENSIONS, findConfigFile, loadConfigFile } from '@internals/sh
 import { type CLIOptions, type Config, Diagnostics } from '@kubb/core'
 import { toError } from '@internals/utils'
 
-type GetConfigsOptions = {
+export type GetConfigsOptions = {
   /** Explicit path to the Kubb config file. When omitted, the loader searches up from `process.cwd()`. */
   configPath?: string
   /** OpenAPI input path or URL that overrides `config.input` for this run. */
@@ -17,7 +17,7 @@ type GetConfigsOptions = {
   reporters?: CLIOptions['reporters']
 }
 
-type GetConfigsResult = {
+export type GetConfigsResult = {
   /** Absolute path to the resolved config file. */
   configPath: string
   /** Resolved and normalized Kubb configs, each guaranteed to have a `plugins` array. */

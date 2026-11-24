@@ -1,6 +1,6 @@
 import { memo } from './promise.ts'
 
-type Options = {
+export type Options = {
   /** Text prepended before casing is applied. */
   prefix?: string
   /** Text appended before casing is applied. */

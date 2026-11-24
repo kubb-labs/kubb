@@ -4,7 +4,7 @@ import { memo, toError } from '@internals/utils'
  * A function that can be registered as a hook listener, synchronous or async. Any return value is
  * allowed and ignored, so handlers that return a result for their own callers still register.
  */
-type AsyncListener<TArgs extends Array<unknown>> = (...args: TArgs) => unknown
+export type AsyncListener<TArgs extends Array<unknown>> = (...args: TArgs) => unknown
 
 /**
  * Typed hook emitter that awaits all async listeners before resolving.

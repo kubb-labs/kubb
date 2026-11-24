@@ -15,7 +15,7 @@ import type { SchemaNode, SchemaNodeByType, SchemaType } from './nodes/schema.ts
  * }
  * ```
  */
-type PrinterHandlerContext<TOutput, TOptions extends object> = {
+export type PrinterHandlerContext<TOutput, TOptions extends object> = {
   /**
    * Recursively transform a nested `SchemaNode` to `TOutput` using the node-level handlers.
    * Use `this.transform` inside `nodes` handlers and inside the `print` override.
@@ -49,7 +49,7 @@ type PrinterHandlerContext<TOutput, TOptions extends object> = {
  * const handler: PrinterHandler<string, {}, 'array'> = (node, ctx) => `Array<${ctx!.transform(node.items[0]!)}>`
  * ```
  */
-type PrinterHandler<TOutput, TOptions extends object, T extends SchemaType = SchemaType> = (
+export type PrinterHandler<TOutput, TOptions extends object, T extends SchemaType = SchemaType> = (
   this: PrinterHandlerContext<TOutput, TOptions>,
   node: SchemaNodeByType[T],
   // Optional and without the options type, so one-argument handler types stay assignable and
@@ -150,7 +150,7 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
  * const build = (options: {}) => ({ name: 'x' as const, options, nodes: {} })
  * ```
  */
-type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) => {
+export type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) => {
   name: T['name']
   /**
    * Options to store on the printer.

@@ -2,8 +2,8 @@ import type { PossiblePromise } from '@internals/utils'
 import type { CLIOptions, UserConfig } from '@kubb/core'
 import { applyDefaults } from 'unplugin-kubb'
 
-type ConfigResult<TInput> = UserConfig<TInput> | Array<UserConfig<TInput>>
-type ConfigFunction<TInput, TResult extends ConfigResult<TInput>> = (cli: CLIOptions) => PossiblePromise<TResult>
+export type ConfigResult<TInput> = UserConfig<TInput> | Array<UserConfig<TInput>>
+export type ConfigFunction<TInput, TResult extends ConfigResult<TInput>> = (cli: CLIOptions) => PossiblePromise<TResult>
 
 function normalizeConfig<TInput>(config: ConfigResult<TInput>): ConfigResult<TInput> {
   if (Array.isArray(config)) {

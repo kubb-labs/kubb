@@ -21,7 +21,7 @@ export function reportTarget(config: Config): { dir: string; name: string } {
 /**
  * One plugin's elapsed time, derived from a `performance` diagnostic.
  */
-type ReportTiming = {
+export type ReportTiming = {
   plugin: string
   durationMs: number
 }

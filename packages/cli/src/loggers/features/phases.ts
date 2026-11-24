@@ -12,7 +12,7 @@ export type Phases = ReturnType<typeof createPhases>
  * One output phase while its step owns the line. A phase buffers what it is told, because a spinner
  * redraws over anything written under it, and prints the lot once it knows its own result.
  */
-type Phase = StartPhaseOptions & {
+export type Phase = StartPhaseOptions & {
   failed: boolean
   hrStart: [number, number]
   lines: Array<string>
@@ -22,7 +22,7 @@ type Phase = StartPhaseOptions & {
   output: Array<string>
 }
 
-type StartPhaseOptions = {
+export type StartPhaseOptions = {
   /**
    * Shown while the phase runs.
    */

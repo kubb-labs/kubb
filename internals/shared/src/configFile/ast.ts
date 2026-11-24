@@ -50,7 +50,7 @@ export const unaryOperators = { minus: '-', plus: '+' } as const
 const diagnosticSeverities = { error: 'error' } as const
 
 /** A parsed file: its statements and every comment in it, or why it could not be parsed. */
-type ParsedSource = { program: Program; comments: ReadonlyArray<Comment> } | { reason: string }
+export type ParsedSource = { program: Program; comments: ReadonlyArray<Comment> } | { reason: string }
 
 /**
  * Parses `source` as a TypeScript module. Never throws: a syntax error, or a native parser that

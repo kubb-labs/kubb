@@ -6,7 +6,7 @@ import { host } from '../host.ts'
 import { createStorage } from '../createStorage.ts'
 import { fsStorage } from './fsStorage.ts'
 
-type CacheStorageOptions = {
+export type CacheStorageOptions = {
   /**
    * Project root the cache directory is derived from.
    *

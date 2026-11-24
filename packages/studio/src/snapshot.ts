@@ -14,8 +14,8 @@ const UPLOAD_TIMEOUT_MS = 120_000
 // Plugins whose output a snapshot carries without depending on the plugin package.
 const BUNDLED_DEPENDENCIES = ['@kubb/plugin-barrel']
 
-type SnapshotFiles = Record<string, string>
-type SnapshotPackage = { name: string; version: string; peerDependencies: Record<string, string> }
+export type SnapshotFiles = Record<string, string>
+export type SnapshotPackage = { name: string; version: string; peerDependencies: Record<string, string> }
 
 /**
  * Maps a generated file to its path in the package, from its `src`/`dist` segment on, without `..` parts that could escape it.
@@ -155,7 +155,7 @@ export async function createSnapshotPackage({ files, packageInfo }: { files: Sna
   }
 }
 
-type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'peerDependencies'> & {
+export type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'peerDependencies'> & {
   studioUrl?: string
   /**
    * Organization CI API key, sent as `x-api-key`.

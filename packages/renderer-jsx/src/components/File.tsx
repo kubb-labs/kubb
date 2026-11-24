@@ -1,9 +1,9 @@
 import { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
-type BasePropsWithBaseName = Pick<ast.FileNode, 'baseName' | 'path'>
+export type BasePropsWithBaseName = Pick<ast.FileNode, 'baseName' | 'path'>
 
-type BasePropsWithoutBaseName = {
+export type BasePropsWithoutBaseName = {
   baseName?: never
   /**
    * Fully qualified path to the generated file.
@@ -12,9 +12,9 @@ type BasePropsWithoutBaseName = {
   path?: string | null
 }
 
-type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
+export type BaseProps = BasePropsWithBaseName | BasePropsWithoutBaseName
 
-type Props<TMeta extends object> = BaseProps &
+export type FileProps<TMeta extends object> = BaseProps &
   Pick<ast.UserFileNode<TMeta>, 'banner' | 'footer' | 'copy' | 'inline'> & {
     key?: Key
     /**
@@ -43,7 +43,7 @@ type Props<TMeta extends object> = BaseProps &
  * </File>
  * ```
  */
-export function File<TMeta extends object = object>({ children, ...props }: Props<TMeta>): KubbReactElement {
+export function File<TMeta extends object = object>({ children, ...props }: FileProps<TMeta>): KubbReactElement {
   if (!props.baseName || !props.path) {
     return <>{children}</>
   }

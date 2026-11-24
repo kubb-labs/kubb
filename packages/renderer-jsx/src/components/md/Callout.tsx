@@ -8,9 +8,9 @@ const CALLOUT_LABEL = {
   caution: 'CAUTION',
 } as const
 
-type CalloutType = keyof typeof CALLOUT_LABEL
+export type CalloutType = keyof typeof CALLOUT_LABEL
 
-type Props = {
+export type CalloutProps = {
   key?: Key
   /**
    * Callout kind. Maps to the uppercase label inside the `> [!TYPE]` marker.
@@ -44,7 +44,7 @@ type Props = {
  * // > Breaking change in v6.
  * ```
  */
-export function Callout({ type, title, children }: Props): KubbReactElement {
+export function Callout({ type, title, children }: CalloutProps): KubbReactElement {
   const label = CALLOUT_LABEL[type]
   const header = title ? `> [!${label}] ${title}` : `> [!${label}]`
   const quoted = children

@@ -89,7 +89,7 @@ export type StudioValues = {
   logLevel?: CLIOptions['logLevel']
 }
 
-type LoginOptions = {
+export type LoginOptions = {
   /**
    * Aborting this cancels an in-flight pairing request or poll and rejects with
    * {@link PairingCanceledError}. Wired to `kubb studio`'s shutdown signal, so Ctrl+C during

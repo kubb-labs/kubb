@@ -10,7 +10,7 @@ import { version } from '../package.json'
 /** OpenTelemetry ingestion endpoint for anonymous usage telemetry. */
 const OTLP_ENDPOINT = 'https://otlp.kubb.dev' as const
 
-type TelemetryCommand = 'generate' | 'mcp' | 'studio' | 'validate'
+export type TelemetryCommand = 'generate' | 'mcp' | 'studio' | 'validate'
 
 /**
  * Anonymous plugin name and options snapshot sent with each telemetry event.
@@ -27,7 +27,7 @@ export type TelemetryPlugin = {
 }
 
 /** How a command run ended, as the command reports it to the function {@link trackRun} returned. */
-type RunResult = {
+export type RunResult = {
   status: 'success' | 'failed'
   plugins?: Array<TelemetryPlugin>
   filesCreated?: number

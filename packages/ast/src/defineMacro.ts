@@ -33,7 +33,7 @@ export function compareMacroOrder(a?: Enforce, b?: Enforce): number {
  * The {@link Visitor} callbacks with `this` typed as the {@link VisitorContext}. A macro callback gets
  * the context both as `this` and as its second argument.
  */
-type MacroCallbacks = {
+export type MacroCallbacks = {
   [K in VisitorKey]?: (this: VisitorContext, ...args: Parameters<NonNullable<Visitor[K]>>) => ReturnType<NonNullable<Visitor[K]>>
 }
 

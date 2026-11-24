@@ -21,7 +21,7 @@ export type PairingSession = {
   interval: number
 }
 
-type PairingResult = {
+export type PairingResult = {
   /**
    * Bearer token for this machine. Write credentials with mode 0600 and never log the value.
    */
@@ -50,7 +50,7 @@ type PairingResult = {
  * What this machine registers as. Any member may approve `cli` (`kubb studio`); only an admin may
  * approve `user` and `sandbox` (the Docker image). A `ci` agent never pairs.
  */
-type PairingAgentType = 'cli' | 'user' | 'sandbox'
+export type PairingAgentType = 'cli' | 'user' | 'sandbox'
 
 /** Labels, not secrets: a person approving the code in the browser is what authorizes a pairing. */
 const CLIENT_IDS = { cli: 'kubb-cli', agent: 'kubb-agent' } as const
@@ -83,7 +83,7 @@ export class PairingDeniedError extends Error {
   }
 }
 
-type StartPairingOptions = {
+export type StartPairingOptions = {
   studioUrl?: string
   type: PairingAgentType
   /**
@@ -149,7 +149,7 @@ export async function startPairing({
   }
 }
 
-type PollOptions = {
+export type PollOptions = {
   studioUrl?: string
   session: PairingSession
   /**
@@ -273,7 +273,7 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
   throw new PairingExpiredError()
 }
 
-type PairAgentOptions = StartPairingOptions & {
+export type PairAgentOptions = StartPairingOptions & {
   /** Shows the code to whoever approves it. Called again for each fresh code. */
   onCode: (session: PairingSession, attempt: number) => void | Promise<void>
   /** Called when a poll could not reach Studio. Polling carries on. */
@@ -305,7 +305,7 @@ export async function pairAgent({ onCode, onRetry, maxAttempts = 1, ...options }
 
 const REFRESH_TIMEOUT_MS = 15_000
 
-type RefreshAgentTokenOptions = {
+export type RefreshAgentTokenOptions = {
   studioUrl?: string
   token: string
   /**

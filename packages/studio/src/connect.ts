@@ -237,7 +237,7 @@ type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin' |
   configFile: string
 }
 
-type Rpc = { studio: StudioApi; closed: Promise<{ code: number; reason: string }>; close: () => void }
+export type Rpc = { studio: StudioApi; closed: Promise<{ code: number; reason: string }>; close: () => void }
 
 // Tests swap in an in-process pair.
 export type OpenRpc = (input: { url: URL; token: string; instanceId: string; agent: AgentApi }) => Rpc

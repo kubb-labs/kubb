@@ -204,7 +204,7 @@ export function assertPluginOption({
  * `tag` matches any of an operation's OpenAPI `tags`, `operationId` its id, `path` its full URL path,
  * `contentType` a request body content type, and `schemaName` a `#/components/schemas` name.
  */
-type ByPattern<T extends 'tag' | 'operationId' | 'path' | 'schemaName' | 'contentType'> = {
+export type ByPattern<T extends 'tag' | 'operationId' | 'path' | 'schemaName' | 'contentType'> = {
   /**
    * Field to match: `'tag'`, `'operationId'`, `'path'`, `'schemaName'`, or `'contentType'`.
    */
@@ -218,19 +218,19 @@ type ByPattern<T extends 'tag' | 'operationId' | 'path' | 'schemaName' | 'conten
 /**
  * Filter by OpenAPI `tags`.
  */
-type ByTag = ByPattern<'tag'>
+export type ByTag = ByPattern<'tag'>
 
 /**
  * Filter by OpenAPI `operationId`.
  */
-type ByOperationId = ByPattern<'operationId'>
+export type ByOperationId = ByPattern<'operationId'>
 
 /**
  * Filter by OpenAPI `path` (URL endpoint), matched against the full path.
  */
-type ByPath = ByPattern<'path'>
+export type ByPath = ByPattern<'path'>
 
-type ByMethod = {
+export type ByMethod = {
   /**
    * Filter by HTTP method: `'GET'`, `'POST'`, `'PUT'`, `'PATCH'`, `'DELETE'`, `'HEAD'`, `'OPTIONS'`, `'TRACE'`, `'QUERY'`.
    */
@@ -246,14 +246,14 @@ type ByMethod = {
 /**
  * Filter by schema component name in `#/components/schemas`.
  */
-type BySchemaName = ByPattern<'schemaName'>
+export type BySchemaName = ByPattern<'schemaName'>
 
 /**
  * Filter by request content type, such as `'application/json'`.
  */
-type ByContentType = ByPattern<'contentType'>
+export type ByContentType = ByPattern<'contentType'>
 
-type ByExtension = {
+export type ByExtension = {
   /** Filter operations by a vendor extension (`x-*` key) on the source operation. Does not apply to schemas. */
   type: 'extension'
   /** Extension key, including the `x-` prefix. */

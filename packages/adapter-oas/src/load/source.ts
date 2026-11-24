@@ -16,7 +16,7 @@ const FETCH_TIMEOUT_MS = 30_000
  * Options for reading a source. `signal` cancels the request. `publicOnly` makes a redirect fail,
  * so a public URL cannot forward the request to a private host.
  */
-type ReadOptions = { signal?: AbortSignal; publicOnly?: boolean }
+export type ReadOptions = { signal?: AbortSignal; publicOnly?: boolean }
 
 /**
  * Whether `url` names a host that is loopback, private, link-local, or another address that is not

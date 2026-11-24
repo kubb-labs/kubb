@@ -22,8 +22,8 @@ export function getSpace(source: SourceNode): Space {
   return source.nodes?.[0]?.kind === 'Type' ? 'type' : 'value'
 }
 
-type DeprecatedImport = Pick<ImportNode, 'name' | 'isTypeOnly' | 'isNameSpace'>
-type DeprecatedExport = Pick<ExportNode, 'name' | 'isTypeOnly' | 'asAlias'>
+export type DeprecatedImport = Pick<ImportNode, 'name' | 'isTypeOnly' | 'isNameSpace'>
+export type DeprecatedExport = Pick<ExportNode, 'name' | 'isTypeOnly' | 'asAlias'>
 
 /**
  * @deprecated Converts a node built with `name`, `isTypeOnly` and `isNameSpace` to `names`. Removed in Kubb v6.

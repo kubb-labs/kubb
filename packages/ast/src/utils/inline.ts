@@ -6,7 +6,7 @@ import type { FileNode, ImportNode, SourceNode } from '../nodes/file.ts'
 import { getNames } from './moduleNames.ts'
 import { CODE_NODE_TEXT_FIELDS, getNodeText } from './nodeText.ts'
 
-type InlineFilesResult = {
+export type InlineFilesResult = {
   /**
    * Files that imported an inline name, rewritten to hold its definition.
    */
@@ -37,7 +37,7 @@ export type InlineLanguage = {
   wrap(expression: string): string
 }
 
-type InlineFilesOptions = {
+export type InlineFilesOptions = {
   /**
    * The inline support for a file's language, or `undefined` when it has none.
    */

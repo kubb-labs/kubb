@@ -69,7 +69,7 @@ export async function readIfExists(path: string): Promise<string | null> {
   }
 }
 
-type WriteOptions = {
+export type WriteOptions = {
   /**
    * Previously read content, or `null` when the file does not exist.
    * Omitting this value reads the file before writing.

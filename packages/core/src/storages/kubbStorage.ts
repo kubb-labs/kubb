@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path'
 import { exists, isPathInside, read, rm, writeRaw } from '@internals/utils'
 import { host } from '../host.ts'
 
-type KubbStorageOptions = {
+export type KubbStorageOptions = {
   /**
    * Folder inside the Kubb home, or an absolute path such as `<cwd>/.kubb`.
    */

@@ -7,13 +7,13 @@ import type { ConvertContext } from './parseSchema.ts'
  * The `schema`/`name`/`nullable`/`defaultValue` slice of a context, the only part
  * {@link createNode} needs to fill in a node's shared base fields.
  */
-type NodeBaseContext = Pick<ConvertContext, 'schema' | 'name' | 'nullable' | 'defaultValue'>
+export type NodeBaseContext = Pick<ConvertContext, 'schema' | 'name' | 'nullable' | 'defaultValue'>
 
 /**
  * Input shape accepted by `ast.factory.createSchema`, recovered from its own signature so
  * {@link createNode} stays in sync with the AST layer without redeclaring the union.
  */
-type CreateSchemaProps = Parameters<typeof ast.factory.createSchema>[0]
+export type CreateSchemaProps = Parameters<typeof ast.factory.createSchema>[0]
 
 /**
  * Builds a schema node from a converter's base context plus its type-specific fields. Every

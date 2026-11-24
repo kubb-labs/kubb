@@ -5,7 +5,7 @@ import type { InputServer } from './input.ts'
 import type { ParameterNode } from './parameter.ts'
 import type { SchemaNode } from './schema.ts'
 
-type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+export type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 /**
  * Response status code literal used by operations.
@@ -88,7 +88,7 @@ export type ResponseLink = {
   server?: InputServer
 }
 
-type ResponseInput = Pick<ResponseNode, 'statusCode'> &
+export type ResponseInput = Pick<ResponseNode, 'statusCode'> &
   Partial<Omit<ResponseNode, 'kind' | 'statusCode' | 'content'>> & {
     content?: Array<ContentNode>
     schema?: SchemaNode

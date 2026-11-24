@@ -1,7 +1,7 @@
 import { stringify } from 'yaml'
 import type { Key, KubbReactElement } from '../../types.ts'
 
-type Props = {
+export type FrontmatterProps = {
   key?: Key
   /**
    * Plain object serialized as YAML between `---` fences.
@@ -29,7 +29,7 @@ type Props = {
  * </File>
  * ```
  */
-export function Frontmatter({ data }: Props): KubbReactElement {
+export function Frontmatter({ data }: FrontmatterProps): KubbReactElement {
   const envelope = Object.keys(data).length === 0 ? '' : `---\n${stringify(data).trimEnd()}\n---`
   return <kubb-raw>{envelope}</kubb-raw>
 }

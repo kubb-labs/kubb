@@ -3,7 +3,7 @@ import type { PluginType } from '../types.ts'
 import type { ResolverBuildOptions, ResolverFile } from './types.ts'
 
 /** The plugin-specific resolver fields handed to `createResolver`. */
-type ResolverOptions<T extends PluginType> = Omit<T['resolver'], keyof Resolver> & {
+export type ResolverOptions<T extends PluginType> = Omit<T['resolver'], keyof Resolver> & {
   pluginName: T['name']
   name?: T['resolver']['name']
   file?: ResolverFile

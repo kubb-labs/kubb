@@ -9,7 +9,7 @@ import { x } from 'tinyexec'
 import { getProjectKubbHome } from './credentials.ts'
 import type { PreparedConnection, StudioOptions, WorkerState } from './run.ts'
 
-export type WorkerRecord = {
+type WorkerRecord = {
   id: string
   pid: number
   port: number

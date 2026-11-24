@@ -42,7 +42,7 @@ export type KitPluginDefinition<TFactory extends PluginType = PluginType> = Omit
   ): TFactory['resolvedOptions'] | Promise<TFactory['resolvedOptions']>
 }
 
-type KitDefineExtension = (<TFactory extends PluginType = PluginType>(
+export type KitDefineExtension = (<TFactory extends PluginType = PluginType>(
   definition: { kind: 'plugin' } & KitPluginDefinition<TFactory>,
 ) => PluginFactory<TFactory>) &
   typeof coreDefineExtension

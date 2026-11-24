@@ -2,9 +2,9 @@ import { type LiteralUnion, memo as storeMemo } from '@internals/utils'
 
 export type MemoKey = LiteralUnion<`${keyof Kubb.MemoRegistry & string}:${string}`>
 
-type FullKey = keyof Kubb.MemoRegistry & `${string}:${string}`
+export type FullKey = keyof Kubb.MemoRegistry & `${string}:${string}`
 
-type FullKeyValue<TKey extends string> = {
+export type FullKeyValue<TKey extends string> = {
   [TFull in FullKey]: TKey extends TFull | `${TFull}:${string}` ? Kubb.MemoRegistry[TFull] : never
 }[FullKey]
 

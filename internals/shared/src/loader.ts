@@ -19,7 +19,7 @@ const JAVASCRIPT_EXTENSION = /\.[cm]?jsx?$/
 /**
  * Per-call options for {@link loadModule}.
  */
-type LoadModuleOptions = {
+export type LoadModuleOptions = {
   /**
    * Return the module's default export instead of the full namespace.
    */

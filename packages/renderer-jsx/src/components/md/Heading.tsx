@@ -1,8 +1,8 @@
 import type { Key, KubbReactElement } from '../../types.ts'
 
-type Level = 1 | 2 | 3 | 4 | 5 | 6
+export type Level = 1 | 2 | 3 | 4 | 5 | 6
 
-type Props = {
+export type HeadingProps = {
   key?: Key
   /**
    * Heading depth, `1` through `6`. Matches the number of `#` characters
@@ -27,6 +27,6 @@ type Props = {
  * // ## Installation
  * ```
  */
-export function Heading({ level, children }: Props): KubbReactElement {
+export function Heading({ level, children }: HeadingProps): KubbReactElement {
   return <kubb-raw>{`${'#'.repeat(level)} ${children}`}</kubb-raw>
 }
