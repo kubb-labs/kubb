@@ -316,9 +316,31 @@ function overrideSpace(names: Array<ModuleName>, { value, derived }: Override<bo
 
 const isOverride = ({ value, derived }: Override<unknown>): boolean => value !== undefined && JSON.stringify(value) !== JSON.stringify(derived)
 
+// Object spread copies symbol keys, so `{ ...imp, names }` carries the fields `imp` derived and they can be told apart from an override.
+const DERIVED = Symbol.for('kubb.ast.derived')
+// `name` is stored as JSON, so changing the node's `name` array in place still counts as an override.
+type Derived = { name: string | undefined; isTypeOnly?: boolean | null }
+type WithDerived = { [DERIVED]?: Derived }
+
+/** The deprecated fields the caller set: a value equal to the one the spread node derived is dropped, so `names` decides it. */
+function ownFields<TName>(input: { name?: TName; isTypeOnly?: boolean | null } & WithDerived): { name?: TName; isTypeOnly?: boolean | null } {
+  const snapshot = input[DERIVED]
+  if (!snapshot) return { name: input.name, isTypeOnly: input.isTypeOnly }
+  return {
+    name: JSON.stringify(input.name) === snapshot.name ? undefined : input.name,
+    isTypeOnly: input.isTypeOnly === snapshot.isTypeOnly ? undefined : input.isTypeOnly,
+  }
+}
+
+function withoutDerived<T extends object>(input: T): T {
+  const { [DERIVED]: _, ...rest } = input as T & WithDerived
+  return rest as T
+}
+
 /**
  * Creates an `ImportNode`. A node built from `names` also gets the deprecated fields. A deprecated `name` or
  * `isTypeOnly` that differs from the one `names` gives overrides it, so `{ ...imp, isTypeOnly: true }` still works.
+ * Fields a spread copies over unchanged are not overrides, so `{ ...imp, names }` uses the new `names`.
  *
  * @example Named import
  * ```ts
@@ -327,16 +349,26 @@ const isOverride = ({ value, derived }: Override<unknown>): boolean => value !==
  * ```
  */
 export function createImport(input: ImportInput): ImportNode {
-  if (!input.names) return { ...input, name: input.name ?? [], kind: nodeKinds.import }
+  if (!input.names) return { ...withoutDerived(input), name: input.name ?? [], kind: nodeKinds.import }
+  const own = ownFields(input)
   const derived = toDeprecatedImport(input.names)
-  if (isOverride({ value: input.name, derived: derived.name })) return { ...input, names: null, name: input.name ?? [], kind: nodeKinds.import }
-  const names = overrideSpace(input.names, { value: input.isTypeOnly, derived: derived.isTypeOnly })
-  return { ...input, ...toDeprecatedImport(names), names, kind: nodeKinds.import }
+  if (isOverride({ value: own.name, derived: derived.name })) return { ...withoutDerived(input), names: null, name: own.name ?? [], kind: nodeKinds.import }
+  const names = overrideSpace(input.names, { value: own.isTypeOnly, derived: derived.isTypeOnly })
+  const fields = toDeprecatedImport(names)
+  const node: ImportNode & WithDerived = {
+    ...input,
+    ...fields,
+    names,
+    [DERIVED]: { name: JSON.stringify(fields.name), isTypeOnly: fields.isTypeOnly },
+    kind: nodeKinds.import,
+  }
+  return node
 }
 
 /**
  * Creates an `ExportNode`. A node built from `names` also gets the deprecated fields. A deprecated `name` or
- * `isTypeOnly` that differs from the one `names` gives overrides it.
+ * `isTypeOnly` that differs from the one `names` gives overrides it. Fields a spread copies over unchanged are not
+ * overrides, so `{ ...exp, names }` uses the new `names`.
  *
  * @example Named export
  * ```ts
@@ -345,11 +377,21 @@ export function createImport(input: ImportInput): ImportNode {
  * ```
  */
 export function createExport(input: ExportInput): ExportNode {
-  if (!input.names) return { ...input, kind: nodeKinds.export }
+  if (!input.names) return { ...withoutDerived(input), kind: nodeKinds.export }
+  const own = ownFields(input)
   const derived = toDeprecatedExport(input.names)
-  if (isOverride({ value: input.name, derived: derived.name })) return { ...input, names: null, kind: nodeKinds.export }
-  const names = overrideSpace(input.names, { value: input.isTypeOnly, derived: derived.isTypeOnly })
-  return { ...input, ...toDeprecatedExport(names), names, kind: nodeKinds.export }
+  if (isOverride({ value: own.name, derived: derived.name })) return { ...withoutDerived(input), name: own.name, names: null, kind: nodeKinds.export }
+  const names = overrideSpace(input.names, { value: own.isTypeOnly, derived: derived.isTypeOnly })
+  const fields = toDeprecatedExport(names)
+  const node: ExportNode & WithDerived = {
+    ...input,
+    ...fields,
+    name: fields.name,
+    names,
+    [DERIVED]: { name: JSON.stringify(fields.name), isTypeOnly: fields.isTypeOnly },
+    kind: nodeKinds.export,
+  }
+  return node
 }
 
 /**

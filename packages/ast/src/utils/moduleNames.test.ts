@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createConst, createType } from '../nodes/code.ts'
 import { createExport, createImport, createSource } from '../nodes/file.ts'
 import type { ImportNode } from '../nodes/file.ts'
-import { combineImports } from './combineFileMembers.ts'
+import { combineExports, combineImports } from './combineFileMembers.ts'
 import { getNames, getSpace } from './moduleNames.ts'
 
 describe('getNames', () => {
@@ -41,6 +41,74 @@ describe('createImport', () => {
     })
 
     expect(createImport({ ...imp }).names).toStrictEqual(imp.names)
+  })
+
+  it('uses new names passed on a spread import instead of the stale deprecated fields', () => {
+    const imp = createImport({ names: [{ name: 'Pet', space: 'type' }], path: './pet' })
+    const next = createImport({
+      ...imp,
+      names: [
+        { name: 'Pet', space: 'type' },
+        { name: 'petSchema', space: 'value' },
+      ],
+    })
+
+    expect(next.names).toStrictEqual([
+      { name: 'Pet', space: 'type' },
+      { name: 'petSchema', space: 'value' },
+    ])
+    expect([next.name, next.isTypeOnly]).toStrictEqual([['Pet', 'petSchema'], false])
+  })
+
+  it('still lets a spread import override names with a deprecated name', () => {
+    const imp = createImport({ names: [{ name: 'Pet', space: 'value' }], path: './pet' })
+    const next = createImport({ ...imp, name: ['Tag'] })
+
+    expect([next.names, next.name]).toStrictEqual([null, ['Tag']])
+  })
+
+  it('treats a name array changed in place as an override', () => {
+    const imp = createImport({ names: [{ name: 'Pet', space: 'value' }], path: './pet' })
+    ;(imp.name as Array<string>).push('Tag')
+    const next = createImport({ ...imp })
+
+    expect([next.names, next.name]).toStrictEqual([null, ['Pet', 'Tag']])
+  })
+
+  it('applies a changed isTypeOnly together with new names', () => {
+    const imp = createImport({ names: [{ name: 'Pet', space: 'value' }], path: './pet' })
+
+    expect(createImport({ ...imp, names: [{ name: 'Tag', space: 'value' }], isTypeOnly: true }).names).toStrictEqual([{ name: 'Tag', space: 'type' }])
+  })
+})
+
+describe('createExport', () => {
+  it('uses new names passed on a spread export instead of the stale deprecated fields', () => {
+    const exp = createExport({ names: [{ name: 'Pet' }], path: './pet' })
+    const next = createExport({ ...exp, names: [{ name: 'Tag' }] })
+
+    expect([next.names, next.name]).toStrictEqual([[{ name: 'Tag' }], ['Tag']])
+  })
+
+  it('still lets a spread export override names with a deprecated name', () => {
+    const exp = createExport({ names: [{ name: 'Pet' }], path: './pet' })
+
+    expect(createExport({ ...exp, name: ['Tag'] }).names).toBeNull()
+  })
+
+  it('uses new names on a spread of a combined import or export', () => {
+    const [imp] = combineImports([createImport({ names: [{ name: 'Pet' }], path: './pet' })], [])
+    const [exp] = combineExports([createExport({ names: [{ name: 'Pet' }], path: './pet' })])
+
+    expect(createImport({ ...imp!, names: [{ name: 'Tag' }] }).names).toStrictEqual([{ name: 'Tag' }])
+    expect(createExport({ ...exp!, names: [{ name: 'Tag' }] }).names).toStrictEqual([{ name: 'Tag' }])
+  })
+
+  it('drops the stale name when a spread export becomes a wildcard export', () => {
+    const exp = createExport({ names: [{ name: 'Pet' }], path: './pet' })
+    const next = createExport({ ...exp, names: [{ name: '*' }] })
+
+    expect([next.names, next.name]).toStrictEqual([[{ name: '*' }], undefined])
   })
 })
 
