@@ -51,7 +51,10 @@ export function hasOutputPasses({ output, storage }: Pick<Config, 'output' | 'st
  */
 async function reportSkippedPasses({ config, hooks }: { config: Config; hooks: Hookable<KubbHooks> }): Promise<Array<Diagnostic>> {
   const { format, lint, postGenerate } = config.output
-  const skipped = [format && 'output.format', lint && 'output.lint', postGenerate?.length && 'output.postGenerate'].filter(Boolean)
+  const skipped: Array<string> = []
+  if (format) skipped.push('output.format')
+  if (lint) skipped.push('output.lint')
+  if (postGenerate?.length) skipped.push('output.postGenerate')
   const code = Diagnostics.code.outputPassesSkipped
   if (skipped.length === 0 || config.diagnostics?.ignore?.includes(code)) return []
   const diagnostic: Diagnostic = {

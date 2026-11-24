@@ -225,7 +225,8 @@ export const adapterOas = defineExtension<AdapterOas>({
           signal?.throwIfAborted()
           assertDocument(document)
           if (validate) pendingValidations.push(validateDocumentInWorker(document))
-          parsedDocument = entry.document = document
+          entry.document = document
+          parsedDocument = document
 
           const refs = createRefs(document)
           const { schemas, renames, pointers } = getSchemas(document, { contentType }, refs)
