@@ -6,7 +6,7 @@ import { ast, type FileNode } from '@kubb/ast'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
-import type { KubbHooks } from './types.ts'
+import type { Config, KubbHooks } from './types.ts'
 import { FileManager } from './FileManager.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
@@ -234,6 +234,21 @@ describe('FileManager', () => {
       expect(reported).toMatchObject([
         { code: 'KUBB_SHARED_FILE_MISMATCH', severity: 'warning', message: 'Shared files that differ from what another config wrote: /common/pet.ts.' },
       ])
+    })
+
+    it('warns about a file written outside output.path and shared.path, and still writes it', async () => {
+      const storage = memoryStorage()
+      const diagnostics: Array<Diagnostic> = []
+      const config = { root: '/repo', output: { path: './gen' }, shared: { path: './common' } } as Config
+      const files = ['/repo/gen/pet.ts', '/repo/common/name.ts', '/repo/src/user.ts'].map((file) => makeFileWithSources(file, ['/* a */']))
+
+      await Diagnostics.scope(
+        (diagnostic) => diagnostics.push(diagnostic),
+        () => new FileManager().write(files, { storage, config }),
+      )
+
+      expect(diagnostics).toStrictEqual([expect.objectContaining({ code: 'KUBB_OUTSIDE_OUTPUT', severity: 'warning', message: expect.stringContaining('/repo/src/user.ts.') })])
+      expect(await storage.readItem('/repo/src/user.ts')).toContain('/* a */')
     })
 
     // A written file is tracked so the commit re-reads it; a skipped file's record already stands.
