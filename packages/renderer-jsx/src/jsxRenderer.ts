@@ -134,7 +134,8 @@ function collectFileChildren(element: unknown): FileChildren {
           ast.factory.createSource({
             name: name?.toString(),
             ...(space ? { space } : {}),
-            isTypeOnly: !!isTypeOnly,
+            // Left unset when not given, so `getSpace` infers the space from the nodes.
+            ...(isTypeOnly != null ? { isTypeOnly } : {}),
             export: !!isExport,
             ...(isDefault ? { default: true } : {}),
             ...(inline ? { inline } : {}),
@@ -174,7 +175,7 @@ function collectFileChildren(element: unknown): FileChildren {
         sources.push(
           ast.factory.createSource({
             name,
-            isTypeOnly: host.type === 'kubb-type',
+            ...(host.type === 'kubb-type' ? { isTypeOnly: true } : {}),
             export: !!canExport,
             ...(isDefault ? { default: true } : {}),
             // An inline declaration lends its body to importing files in place of its name.
@@ -197,6 +198,8 @@ function collectFileChildren(element: unknown): FileChildren {
 
 function createFileNode(props: JSX.IntrinsicElements['kubb-file']): ast.FileNode {
   const { sources, exports, imports } = collectFileChildren(props.children)
+  // A file of only deprecated per-declaration `inline` sources is inline too.
+  const inline = props.inline ?? (sources.length > 0 && sources.every((source) => source.inline) ? true : undefined)
   // Not `ast.factory.createFile`: it prunes imports, which must wait until `FileManager` merged same-path fragments.
   const file: ast.UserFileNode = {
     baseName: props.baseName,
@@ -205,7 +208,7 @@ function createFileNode(props: JSX.IntrinsicElements['kubb-file']): ast.FileNode
     footer: props.footer,
     banner: props.banner,
     copy: props.copy,
-    inline: props.inline,
+    inline,
     sources,
     exports,
     imports,

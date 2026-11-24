@@ -27,6 +27,13 @@ describe('combineSources', () => {
 
     expect(combineSources([a, b])).toHaveLength(2)
   })
+
+  it('reads the deprecated isIndexable as export', () => {
+    const a = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], export: true })
+    const b = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], isIndexable: true })
+
+    expect(combineSources([a, b])).toHaveLength(1)
+  })
 })
 
 describe('combineExports', () => {

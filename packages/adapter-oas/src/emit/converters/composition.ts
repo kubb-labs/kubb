@@ -1,6 +1,6 @@
 import { ast, macroDedupeUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
-import { getExternalDocs, isDiscriminator, isLegacyDocument, isReference, pickExtensions } from '../../oas.ts'
+import { getExternalDocs, isDiscriminator, isLegacyDocument, isNullable, isReference, pickExtensions } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
@@ -317,8 +317,10 @@ function inheritScalarType(members: Array<unknown>, { schema, type }: Pick<Conve
 export function convertUnion(context: ConvertContext): ast.SchemaNode {
   if (context.schema.enum?.length) {
     const { enum: values, ...union } = context.schema
-    // A sibling `enum` restricts the union too. Documents upgraded from 3.0 keep `null` allowed, as `nullable: true` did there.
-    const enumSchema: SchemaObject = { type: union.type, enum: isLegacyDocument(context.document) ? [...values, null] : values }
+    // A sibling `enum` restricts the union too. A 3.0 `nullable: true`, which the upgrade turns into a `null` member, keeps `null` allowed.
+    const nullable =
+      context.nullable || [...(union.oneOf ?? []), ...(union.anyOf ?? [])].some((member) => !isReference(member) && isNullable(member as SchemaObject))
+    const enumSchema: SchemaObject = { type: union.type, enum: nullable && isLegacyDocument(context.document) ? [...values, null] : values }
     const members = [convertUnion({ ...context, schema: union }), context.parse({ schema: enumSchema })]
     return createNode(context, { type: ast.schema.types.intersection, members })
   }

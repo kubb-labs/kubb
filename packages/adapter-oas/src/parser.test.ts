@@ -1360,6 +1360,20 @@ describe('parseSchema enum next to a nullable type or a union', () => {
     })
   })
 
+  it('keeps null out of the sibling enum of a non-nullable union in OpenAPI 3.0', async () => {
+    const root = await parseOas({
+      openapi: '3.0.3',
+      info: { title: 'Enums', version: '1' },
+      paths: {},
+      components: { schemas: { Color, Example: { oneOf: [{ $ref: '#/components/schemas/Color' }], enum: ['red', 'green'] } } },
+    })
+
+    expect(findSchema(root, 'Example')).toMatchObject({
+      type: 'intersection',
+      members: [{ type: 'union' }, { type: 'enum', enumValues: ['red', 'green'], nullable: undefined }],
+    })
+  })
+
   it('applies the sibling enum to a union with required keys', () => {
     const node = parseSchema(emptyCtx, { schema: { oneOf: [{ type: 'object' }, { type: 'null' }], required: ['id'], enum: [{ id: 1 }] } as SchemaObject })
 

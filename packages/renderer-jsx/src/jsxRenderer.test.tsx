@@ -64,8 +64,8 @@ describe('jsxRenderer', () => {
     )
 
     const [type, key, seed] = renderer.files[0]!.sources
-    expect(type).toMatchObject({ name: 'petSchema', export: true, isTypeOnly: false })
-    expect(key).toMatchObject({ name: 'petKey', export: false, isTypeOnly: false })
+    expect(type).toMatchObject({ name: 'petSchema', export: true })
+    expect(key).toMatchObject({ name: 'petKey', export: false })
     expect(seed).toMatchObject({ name: 'seed', export: false, isTypeOnly: false })
     expect(ast.node.getText(seed!.nodes)).toBe('faker.seed(1)')
   })
@@ -243,6 +243,19 @@ describe('File.Source', () => {
       nodes: [{ kind: 'Text', value: 'export type Pet = { id: number }' }],
     })
   })
+
+  it('reads the deprecated isExportable as export', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="client.ts" path="src/client.ts">
+        <File.Source name="BASE_URL" isExportable>
+          {'export const BASE_URL = ""'}
+        </File.Source>
+      </File>,
+    )
+
+    expect(renderer.files[0]?.sources[0]).toMatchObject({ export: true })
+  })
 })
 
 describe('File copy', () => {
@@ -304,6 +317,21 @@ describe('Code', () => {
       <File baseName="pet.ts" path="src/pet.ts">
         <Code name="Pet" export space="type">
           {'export type Pet = { id: number }'}
+        </Code>
+      </File>,
+    )
+
+    expect(ast.file.getSpace(renderer.files[0]!.sources[0]!)).toBe('type')
+  })
+
+  it('infers the space from a Type child when neither space nor isTypeOnly is set', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Code name="Pet" export>
+          <Type export name="Pet">
+            {'{ id: number }'}
+          </Type>
         </Code>
       </File>,
     )
@@ -464,5 +492,24 @@ describe('File.Export', () => {
     const [source] = renderer.files[0]!.sources
     expect(source).toMatchObject({ name: 'Pet', inline: { expression: '{ id: number }' }, isTypeOnly: true })
     expect(source!.nodes?.[0]).not.toHaveProperty('inline')
+  })
+
+  it.each([
+    { when: 'every declaration is inline', inline: true },
+    { when: 'one declaration is not inline', inline: undefined },
+  ])('sets inline on the File when $when', async ({ inline }) => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="pet.ts" path="src/pet.ts">
+        <Type export name="Pet" inline>
+          {'{ id: number }'}
+        </Type>
+        <Type export name="Tag" inline={inline}>
+          {'string'}
+        </Type>
+      </File>,
+    )
+
+    expect(renderer.files[0]!.inline).toBe(inline)
   })
 })

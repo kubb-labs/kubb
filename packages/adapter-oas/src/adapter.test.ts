@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { ast } from '@kubb/kit'
+import { ast, type Diagnostic, Diagnostics } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
 
@@ -216,6 +216,27 @@ describe('adapterOas.parse', () => {
     expect(node.operations).toHaveLength(1)
     expect(node.operations[0]).toMatchObject({ operationId: 'searchPets', method: 'QUERY', path: '/pets/search' })
     expect(node.operations[0]?.requestBody?.content?.[0]?.schema).toBeDefined()
+  })
+
+  it('renames a duplicate operationId with a suffix and warns', async () => {
+    const ok = { responses: { '200': { description: 'ok' } } }
+    const spec = {
+      openapi: '3.0.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: { '/a-b': { get: ok }, '/a/b': { get: ok }, '/pets': { get: { operationId: 'getPets', ...ok }, post: { operationId: 'getPets', ...ok } } },
+    }
+    const reported: Array<Diagnostic> = []
+
+    const node = await Diagnostics.scope(
+      (diagnostic) => reported.push(diagnostic),
+      () => adapterOas({ validate: false }).parse({ type: 'data', data: spec }),
+    )
+
+    expect(node.operations.map((operation) => operation.operationId)).toEqual(['get_a-b', 'get_a-b_2', 'getPets', 'getPets_2'])
+    expect(reported.filter((diagnostic) => diagnostic.code === 'KUBB_DUPLICATE_OPERATION_ID')).toMatchObject([
+      { severity: 'warning', location: { kind: 'operation', pointer: '#/paths/~1a~1b/get' } },
+      { severity: 'warning', location: { kind: 'operation', pointer: '#/paths/~1pets/post' } },
+    ])
   })
 
   it('parses each source when one adapter instance is reused across configs', async () => {

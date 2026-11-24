@@ -418,8 +418,8 @@ export function printExport({ names, path }: { names: ReadonlyArray<ast.ModuleNa
   const lines = names
     .filter((item) => item.name === '*')
     .map((item) => {
-      // An identifier cannot start with a digit, so swap the digit for `_`
-      const alias = item.alias && (/^\d/.test(item.alias) ? `_${item.alias.slice(1)}` : item.alias)
+      // An identifier cannot start with a digit, so prefix `_` and keep the digit
+      const alias = item.alias && (/^\d/.test(item.alias) ? `_${item.alias}` : item.alias)
       return `export ${item.space === 'type' ? 'type ' : ''}* ${alias ? `as ${alias} ` : ''}from ${from}`
     })
   const named = names.filter((item) => item.name !== '*')

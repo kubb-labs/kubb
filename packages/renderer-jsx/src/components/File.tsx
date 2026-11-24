@@ -1,4 +1,4 @@
-import type { ast } from '@kubb/ast'
+import { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
 type BasePropsWithBaseName = Pick<ast.FileNode, 'baseName' | 'path'>
@@ -71,13 +71,21 @@ function FileSource({
   export: isExport,
   default: isDefault,
   isIndexable,
+  isExportable,
   space,
   isTypeOnly,
   inline,
 }: FileSourceProps): KubbReactElement {
   return (
     <kubb-origin pointer={pointer}>
-      <kubb-code name={name} export={isExport ?? isIndexable} default={isDefault} space={space} isTypeOnly={isTypeOnly} inline={inline}>
+      <kubb-code
+        name={name}
+        export={ast.file.isExported({ export: isExport, isIndexable, isExportable })}
+        default={isDefault}
+        space={space}
+        isTypeOnly={isTypeOnly}
+        inline={inline}
+      >
         {children}
       </kubb-code>
     </kubb-origin>

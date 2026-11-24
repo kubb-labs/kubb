@@ -1,6 +1,6 @@
 import { escapePointerToken } from '@internals/utils'
 import { pascalCase } from '@kubb/core'
-import { ast, Url } from '@kubb/kit'
+import { ast, Diagnostics, Url } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
 import { getItemSchema, getItemShape, isEventStream, isStream } from './model/mediaType.ts'
@@ -327,7 +327,30 @@ export function getOperations(document: Document, refs: Refs): Array<Operation> 
     }
   }
 
-  return operations
+  return withUniqueOperationIds(operations)
+}
+
+// Two operations with one id would share every generated name and file.
+function withUniqueOperationIds(operations: Array<Operation>): Array<Operation> {
+  const seen = new Set<string>()
+
+  return operations.map((operation) => {
+    const operationId = getOperationId(operation)
+    let unique = operationId
+    for (let suffix = 2; seen.has(unique); suffix++) unique = `${operationId}_${suffix}`
+    seen.add(unique)
+    if (unique === operationId) return operation
+
+    Diagnostics.report({
+      code: Diagnostics.code.duplicateOperationId,
+      severity: 'warning',
+      message: `operationId "${operationId}" of ${operation.method.toUpperCase()} ${operation.path} is already used, so it is renamed to "${unique}".`,
+      help: 'Give each operation its own `operationId`.',
+      location: { kind: 'operation', pointer: getOperationPointer(operation) },
+    })
+
+    return { ...operation, schema: { ...operation.schema, operationId: unique } }
+  })
 }
 
 /** Property names whose schema has a truthy `readOnly` or `writeOnly` flag; `$ref` entries are skipped. */

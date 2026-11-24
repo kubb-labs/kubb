@@ -45,9 +45,9 @@ describe('getBarrelFiles', () => {
     expect(barrels[0]!.exports[0]?.name).toStrictEqual(['Pet'])
   })
 
-  it('still lists a source marked with the deprecated isIndexable', () => {
+  it.each(['isIndexable', 'isExportable'] as const)('still lists a source marked with the deprecated %s', (flag) => {
     const file = makeFile(`${ROOT}/pet.ts`, ['Pet'])
-    file.sources[0] = { ...file.sources[0]!, export: undefined, isIndexable: true }
+    file.sources[0] = { ...file.sources[0]!, export: undefined, [flag]: true }
     const barrels = [...getBarrelFiles({ index: buildBarrelIndex({ outputPath: ROOT, files: [file] }), barrelType: 'named' })]
 
     expect(barrels[0]!.exports[0]?.name).toStrictEqual(['Pet'])
