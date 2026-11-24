@@ -3,7 +3,7 @@ import { isIP } from 'node:net'
 import { exists, getErrorMessage, read, toError } from '@internals/utils'
 import { isPublicAddress } from '@kubb/core'
 import { Diagnostics } from '@kubb/kit'
-import { CORE_SCHEMA, constructFromEvents, EVENT_ID, parseEvents } from 'js-yaml'
+import { CORE_SCHEMA, constructFromEvents, parseEvents } from 'js-yaml'
 import { parse } from 'yaml'
 import { rememberEvents } from '../sourceLocator.ts'
 
@@ -165,25 +165,18 @@ export function parseYaml(
       // Not JSON, so YAML parses it below.
     }
   }
-  let parsed: { document: object; aliases: boolean; events: ReturnType<typeof parseEvents> } | undefined
   try {
     const events = parseEvents(data, {})
     const documents = constructFromEvents(events, { source: data, schema: CORE_SCHEMA })
     if (documents.length === 1 && documents[0] !== undefined) {
-      parsed = { document: documents[0] as object, aliases: events.some((event) => event.type === EVENT_ID.ALIAS), events }
+      if (remember) rememberEvents({ source: data, events })
+      return documents[0] as object
     }
   } catch {
     // `yaml` parses it again below to report the error with its line and column.
   }
-  if (parsed) {
-    // Only an alias can repeat a node, so a document without one needs no walk.
-    if (parsed.aliases) assertDocumentTree(parsed.document, { origin })
-    if (remember) rememberEvents({ source: data, events: parsed.events })
-    return parsed.document
-  }
-  let document: object
   try {
-    document = parse(data) as object
+    return parse(data) as object
   } catch (error) {
     throw new Diagnostics.Error({
       code: Diagnostics.code.invalidDocument,
@@ -193,56 +186,6 @@ export function parseYaml(
       location: { kind: 'config' },
       cause: toError(error),
     })
-  }
-  assertDocumentTree(document, { origin })
-  return document
-}
-
-// A YAML alias reuses a node, so a few lines can expand into millions of nodes. A real spec that
-// reuses anchors stays far below this many expanded nodes per distinct node.
-const MAX_EXPANSION = 100
-const MIN_EXPANDED_NODES = 100_000
-
-function invalidAliases(origin: string, problem: string): InstanceType<typeof Diagnostics.Error> {
-  return new Diagnostics.Error({
-    code: Diagnostics.code.invalidDocument,
-    severity: 'error',
-    message: `Cannot read ${origin}: ${problem}.`,
-    help: 'Replace the YAML alias (`*name`) with a copy of the node, or use a `$ref` to share a schema.',
-    location: { kind: 'config' },
-  })
-}
-
-/**
- * Throws `KUBB_INVALID_DOCUMENT` when a parsed document is not a tree. A YAML alias inside its own
- * anchor makes a cycle, which every later walk would follow forever. Aliases of aliases can expand
- * the document exponentially, which `expansion` (the default) refuses. One walk visits each
- * distinct node once.
- */
-export function assertDocumentTree(document: unknown, { origin, expansion = true }: { origin: string; expansion?: boolean }): void {
-  const sizes = new Map<object, number>()
-  const open = new Set<object>()
-  // Scalars count in both totals, so a large enum next to one alias is not mistaken for a bomb.
-  let distinct = 0
-  const countNodes = (node: unknown): number => {
-    if (!node || typeof node !== 'object') {
-      distinct++
-      return 1
-    }
-    const known = sizes.get(node)
-    if (known !== undefined) return known
-    if (open.has(node)) throw invalidAliases(origin, 'a node contains itself, through a YAML alias inside its own anchor')
-    open.add(node)
-    distinct++
-    let total = 1
-    for (const value of Object.values(node)) total += countNodes(value)
-    open.delete(node)
-    sizes.set(node, total)
-    return total
-  }
-  const expanded = countNodes(document)
-  if (expansion && expanded > MIN_EXPANDED_NODES && expanded > distinct * MAX_EXPANSION) {
-    throw invalidAliases(origin, `its YAML aliases expand ${distinct} distinct nodes into more than ${MIN_EXPANDED_NODES} nodes`)
   }
 }
 

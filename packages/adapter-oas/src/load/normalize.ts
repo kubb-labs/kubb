@@ -11,7 +11,7 @@ import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
 import type { ValidationErrors, WorkerResult } from './validateSpec.ts'
 import { type DocumentScan, resolveSchemaIds, scanDocument } from './schemaIds.ts'
-import { assertDocumentTree, assertInputExists, isPrivateHost, parseYaml, resolveSource, urlRegExp } from './source.ts'
+import { assertInputExists, isPrivateHost, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
 // The scan of each document returned unbundled, so a later step can skip a walk it answers.
 const scans = new WeakMap<object, DocumentScan>()
@@ -250,8 +250,6 @@ export async function parseFromConfig(
               help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
             }) as Document)
           : structuredClone(source.data as Document)
-      // `structuredClone` keeps a cycle, and every later walk would follow it forever.
-      if (typeof source.data !== 'string') assertDocumentTree(data, { origin: 'the `input` object', expansion: false })
       const isObject = Boolean(data) && typeof data === 'object'
       // `bundleDocument` returns the document as is when it has no external ref.
       if (source.root && isObject) return bundleDocument(join(source.root, inlineInputName), { document: data, sources, fileRefs, signal })

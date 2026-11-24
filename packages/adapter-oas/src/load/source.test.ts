@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Diagnostics } from '@kubb/kit'
-import { assertInputExists, isPrivateHost, parseYaml, resolveSource } from './source.ts'
+import { assertInputExists, isPrivateHost, resolveSource } from './source.ts'
 
 function codeOf(error: unknown): string | undefined {
   return Diagnostics.isError(error) ? error.diagnostic.code : undefined
@@ -134,45 +134,6 @@ describe('isPrivateHost', () => {
     const reason = new Error('canceled')
 
     await expect(isPrivateHost(new URL('https://kubb-test.invalid/x.yaml'), { signal: AbortSignal.abort(reason) })).rejects.toBe(reason)
-  })
-})
-
-describe('parseYaml aliases', () => {
-  const options = { origin: 'spec.yaml', help: 'help', json: false }
-
-  it('reports a YAML alias inside its own anchor as an invalid document, not a stack overflow', () => {
-    const error = (() => {
-      try {
-        return parseYaml("openapi: '3.1.0'\nx-loop: &a [*a]\n", options)
-      } catch (caught) {
-        return caught
-      }
-    })()
-
-    expect(codeOf(error)).toBe(Diagnostics.code.invalidDocument)
-    expect(Diagnostics.isError(error) && error.diagnostic.message).toContain('contains itself')
-  })
-
-  it('refuses aliases that expand exponentially, without walking the expansion', () => {
-    let data = 'a0: &a0 [x, x]\n'
-    for (let level = 1; level <= 30; level++) data += `a${level}: &a${level} [*a${level - 1}, *a${level - 1}]\n`
-    const start = performance.now()
-
-    expect(() => parseYaml(data, options)).toThrow(/expand/)
-    expect(performance.now() - start).toBeLessThan(1000)
-  })
-
-  it('keeps a large document that has a single alias', () => {
-    const values = Array.from({ length: 120_000 }, (_, index) => `v${index}`).join(', ')
-    const data = `openapi: '3.1.0'\nx-enum: [${values}]\nx-shared: &shared { type: string }\na: *shared\n`
-
-    expect(() => parseYaml(data, options)).not.toThrow()
-  })
-
-  it('keeps a document that reuses an anchor a few times', () => {
-    const data = "openapi: '3.1.0'\nx-shared: &shared { type: string }\na: *shared\nb: *shared\n"
-
-    expect(parseYaml(data, options)).toStrictEqual({ openapi: '3.1.0', 'x-shared': { type: 'string' }, a: { type: 'string' }, b: { type: 'string' } })
   })
 })
 

@@ -751,14 +751,3 @@ describe('remote refs on a host that limits files', () => {
     expect(fetchSpy.mock.calls[0]?.[1]?.redirect).toBe('error')
   })
 })
-
-describe('parseFromConfig with a cyclic input object', () => {
-  it('reports an invalid document instead of overflowing the stack', async () => {
-    const data: Record<string, unknown> = { openapi: '3.1.0', info: { title: 'T', version: '1' }, paths: {} }
-    data['x-self'] = data
-
-    const error = await parseFromConfig({ type: 'data', data }).catch((caught: unknown) => caught)
-
-    expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.invalidDocument)
-  })
-})
