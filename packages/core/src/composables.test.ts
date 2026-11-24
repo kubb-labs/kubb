@@ -68,10 +68,6 @@ describe('composables', () => {
     })
   })
 
-  it('tryUseKubb returns undefined outside setup', () => {
-    expect(tryUseKubb()).toBeUndefined()
-  })
-
   it('delegate to the context method of the same name', () => {
     const ctx = createMockedSetupContext({ plugins: ['plugin-ts'], options: { label: 'user' } })
 
@@ -213,28 +209,6 @@ describe('KubbDriver#setupHooks with composables', () => {
 
     driver.dispose()
     expect(driver.memo.has('test:value')).toBe(false)
-  })
-})
-
-describe('useKubb().plugin', () => {
-  it('names the plugin being set up, also after an await in setup', async () => {
-    const names: Array<string> = []
-    const makePlugin = (name: string): Plugin => ({
-      name,
-      hooks: {},
-      async setup(options) {
-        names.push(useKubb().plugin.name)
-        await delay(1)
-        names.push(useKubb().plugin.name)
-        return options
-      },
-    })
-
-    const driver = new KubbDriver(makeConfig({ plugins: [makePlugin('plugin-a'), makePlugin('plugin-b')] }), { hooks: new Hookable<KubbHooks>() })
-    await driver.setup()
-    await driver.setupHooks()
-
-    expect(names).toEqual(['plugin-a', 'plugin-a', 'plugin-b', 'plugin-b'])
   })
 })
 

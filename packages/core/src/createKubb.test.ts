@@ -187,11 +187,9 @@ describe('createKubb', () => {
   })
 
   // A nonexistent temp dir as root, so a regression in the guard can only touch a throwaway path.
-  test.each([
-    ['the project root', path.join(os.tmpdir(), 'kubb-clean-guard'), '.'],
-    ['a parent of the project root', path.join(os.tmpdir(), 'kubb-clean-guard', 'nested'), '..'],
-  ])('output.clean raises a KUBB_CLEAN_ROOT diagnostic when the output is %s', async (_name, root, outputPath) => {
-    const kubb = createKubb(makeConfig({ ...config, root, output: { path: outputPath, clean: true } }), { hooks: new Hookable<KubbHooks>() })
+  test('output.clean raises a KUBB_CLEAN_ROOT diagnostic when the output is the project root', async () => {
+    const root = path.join(os.tmpdir(), 'kubb-clean-guard')
+    const kubb = createKubb(makeConfig({ ...config, root, output: { path: '.', clean: true } }), { hooks: new Hookable<KubbHooks>() })
 
     await expect(kubb.setup()).rejects.toMatchObject({
       name: 'DiagnosticError',

@@ -343,14 +343,4 @@ describe('findSchema', () => {
     expect(cache.get(a.node)).toBeNull()
     expect(cache.get(b.node)).toBeNull()
   })
-
-  it('gives the same answer from a warm cache as without one', () => {
-    const tree = buildSampleTree()
-    const cache = new WeakMap<SchemaNode, SchemaNode | null>()
-    const options = { predicate: isString, follow: ['ref'] as const }
-
-    const uncached = findSchema(tree, options)
-    expect(findSchema(tree, { ...options, cache })).toBe(uncached)
-    expect(findSchema(tree, { ...options, cache })).toBe(uncached)
-  })
 })

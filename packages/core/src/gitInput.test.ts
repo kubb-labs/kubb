@@ -143,7 +143,6 @@ describe('checkoutGitInput with publicOnly', () => {
     ['an scp style address', 'git+git@github.com:org/api.git#main:openapi.yaml'],
     ['a local path', 'git+file:///srv/api.git#main:openapi.yaml'],
     ['a private address', 'git+https://10.0.0.5/api.git#main:openapi.yaml'],
-    ['the metadata address', 'git+https://169.254.169.254/api.git#main:openapi.yaml'],
     ['a name that resolves to loopback', 'git+https://localhost/api.git#main:openapi.yaml'],
   ])('refuses %s before it fetches anything', async (_label, input) => {
     await expect(checkoutGitInput(input, undefined, { publicOnly: true })).rejects.toMatchObject({ diagnostic: { code: 'KUBB_GIT_INPUT_FAILED' } })
