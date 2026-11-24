@@ -219,6 +219,19 @@ export const diagnosticCatalog = {
     cause: 'The linter pass over the generated files failed.',
     fix: 'Check the linter (oxlint, biome, or eslint) is installed and its config is valid, then run it manually on the output.',
   },
+  sharedFileMismatch: {
+    code: 'KUBB_SHARED_FILE_MISMATCH',
+    title: 'Shared file mismatch',
+    cause: 'Configs that use the same `shared.path` generated different content for the same shared file, so the last config to write it wins.',
+    fix: 'Give the configs that use the same `shared.path` the same plugin options and banner.',
+  },
+  outputPassesSkipped: {
+    code: 'KUBB_OUTPUT_PASSES_SKIPPED',
+    title: 'Output passes skipped',
+    cause:
+      '`output.format`, `output.lint`, or `output.postGenerate` is set, but the `storage` is not named `fs`, so Kubb cannot tell that the files are on disk. It skips those passes and the output manifest.',
+    fix: "Run the tools yourself after the build, or remove the options. A custom storage that writes `output.path` to disk can set `name: 'fs'`.",
+  },
   barrelDuplicateExport: {
     code: 'KUBB_BARREL_DUPLICATE_EXPORT',
     title: 'Duplicate barrel export',

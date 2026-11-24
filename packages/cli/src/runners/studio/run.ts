@@ -3,7 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
-import { copyToClipboard, isCIEnvironment, openInBrowser, toError } from '@internals/utils'
+import { copyToClipboard, isCIEnvironment, openInBrowser } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { connectAgent, defaultStudioUrl, generateAgentKey, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
@@ -438,7 +438,7 @@ export async function runStudio(
     await report({ status: 'success' })
   } catch (error) {
     await report({ status: 'failed' })
-    console.error(toError(error).message)
+    console.error(Diagnostics.format(Diagnostics.from(error)).join('\n'))
     process.exitCode = 1
   }
 }

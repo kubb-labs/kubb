@@ -89,6 +89,25 @@ describe('inParallel', () => {
     expect(order).toStrictEqual([1, 1, 20])
   })
 
+  it('starts no new item after the first failure', async () => {
+    const started: Array<number> = []
+
+    await expect(
+      inParallel({
+        items: [0, 1, 2, 3, 4],
+        limit: 2,
+        run: async (item) => {
+          started.push(item)
+          await new Promise((done) => setTimeout(done, item === 0 ? 1 : 10))
+          if (item === 0) throw new Error('write failed')
+        },
+      }),
+    ).rejects.toThrow('write failed')
+    await new Promise((done) => setTimeout(done, 30))
+
+    expect(started).toStrictEqual([0, 1])
+  })
+
   it('does nothing for an empty list', async () => {
     const run = vi.fn()
 

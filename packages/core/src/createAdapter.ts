@@ -90,9 +90,9 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    */
   parse: (source: AdapterSource, options?: { signal?: AbortSignal; fileRefs?: Array<string> }) => PossiblePromise<InputNode>
   /**
-   * Validate the document at the given path or URL.
+   * Validate the document at the given path or URL. `fileRefs` limits the local files a `$ref` may read, as in `parse`.
    */
-  validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
+  validate: (input: string, options?: { throwOnError?: boolean; fileRefs?: Array<string> }) => Promise<void>
   /**
    * Waits for work `parse` left running alongside generation, such as spec validation in a worker thread.
    * Kubb awaits it before `kubb:build:end`, inside the build's diagnostics scope. Must not reject.
