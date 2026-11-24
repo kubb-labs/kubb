@@ -263,7 +263,6 @@ export function upgradeDocument(raw: Document, { pathRefs = true }: { pathRefs?:
 
   // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.
   const declared = raw && typeof raw === 'object' ? ((raw as { openapi?: unknown }).openapi ?? (raw as { swagger?: unknown }).swagger) : undefined
-  // Swagger 2.0 and OpenAPI 3.0 read `nullable: true` as also allowing `null` outside `enum`.
   const legacy = declared !== undefined && /^(2|3\.0)(\.|$)/.test(String(declared))
   try {
     const document = upgrade(raw, '3.1') as Document
