@@ -7,7 +7,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { Diagnostics } from '@kubb/core'
 import { x } from 'tinyexec'
 import { getProjectKubbHome } from './credentials.ts'
-import { prepareConnection, type PreparedConnection, type StudioOptions, type WorkerState } from './run.ts'
+import type { PreparedConnection, StudioOptions, WorkerState } from './run.ts'
 
 export type WorkerRecord = {
   id: string
@@ -214,13 +214,14 @@ export async function serveWorker(shutdown: AbortController) {
 
 export type WorkerLaunch = { options: StudioOptions; prepared: PreparedConnection }
 
-export async function startWorker(options: StudioOptions): Promise<void> {
+// The caller passes `prepare`, so this file does not import `run.ts`, which loads it lazily.
+export async function startWorker(options: StudioOptions, prepare: () => Promise<PreparedConnection>): Promise<void> {
   const current = await getWorkerStatus()
   if (current.running) {
     console.log(`Already running (${current.state}, PID ${current.pid}).`)
     return
   }
-  const prepared = await prepareConnection(options)
+  const prepared = await prepare()
   const entry = path.join(path.dirname(createRequire(import.meta.url).resolve('@kubb/cli/package.json')), 'dist', 'studioWorker.js')
   const child = x(process.execPath, [...process.execArgv, entry], {
     nodeOptions: { cwd: process.cwd(), detached: true, stdio: ['ignore', 'ignore', 'ignore', 'ipc'] },

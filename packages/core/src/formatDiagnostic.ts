@@ -1,12 +1,15 @@
 import { stripVTControlCharacters, styleText } from 'node:util'
 import { getErrorChain } from '@internals/utils'
-import { type DiagnosticCode, diagnosticCode } from './diagnosticCatalog.ts'
-import { type Diagnostic, type DiagnosticLocation, Diagnostics, type DiagnosticSeverity, type ProblemDiagnostic } from './Diagnostics.ts'
+import { type DiagnosticCode, diagnosticCode, docsUrl, explain } from './diagnosticCatalog.ts'
+import type { Diagnostic, DiagnosticLocation, DiagnosticSeverity, ProblemDiagnostic } from './Diagnostics.ts'
+
+// Same test as `Diagnostics.isProblem`, kept here so this file imports only types from `Diagnostics.ts`.
+const isProblem = (diagnostic: Diagnostic): diagnostic is ProblemDiagnostic => (diagnostic.kind ?? 'problem') === 'problem'
 
 /** A problem's `help`, or the catalog fix. `info` gets none: its catalog fix says no action is needed. */
 function getHelp(problem: ProblemDiagnostic): string | undefined {
   if (problem.help || problem.severity === 'info') return problem.help
-  return Diagnostics.explain(problem.code).fix
+  return explain(problem.code).fix
 }
 
 /** The `cause` chain's messages, outermost first, minus those `message` already contains. */
@@ -114,8 +117,8 @@ export type SerializedDiagnostic = {
  * `stack`. Absent optional fields are omitted.
  */
 export function serialize(diagnostic: Diagnostic): SerializedDiagnostic {
-  const problem = Diagnostics.isProblem(diagnostic) ? diagnostic : undefined
-  const doc = problem ? Diagnostics.explain(problem.code) : undefined
+  const problem = isProblem(diagnostic) ? diagnostic : undefined
+  const doc = problem ? explain(problem.code) : undefined
   const help = problem ? getHelp(problem) : undefined
   const causes = problem ? getCauses(problem) : []
   const stack = problem && crashCodes.has(problem.code) ? getErrorChain(problem.cause).at(-1)?.stack : undefined
@@ -130,7 +133,7 @@ export function serialize(diagnostic: Diagnostic): SerializedDiagnostic {
     ...(problem?.issues ? { issues: problem.issues } : {}),
     ...(causes.length ? { causes } : {}),
     ...(stack ? { stack } : {}),
-    ...(diagnostic.code === diagnosticCode.unknown ? {} : { docsUrl: Diagnostics.docsUrl(diagnostic.code) }),
+    ...(diagnostic.code === diagnosticCode.unknown ? {} : { docsUrl: docsUrl(diagnostic.code) }),
   }
 }
 
@@ -143,7 +146,7 @@ export function serialize(diagnostic: Diagnostic): SerializedDiagnostic {
  */
 export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = false, width = 0, position }: DiagnosticFormatOptions = {}): Array<string> {
   const { code, severity, message } = diagnostic
-  const problem = Diagnostics.isProblem(diagnostic) ? diagnostic : undefined
+  const problem = isProblem(diagnostic) ? diagnostic : undefined
   const human = audience === 'human'
   const paint: typeof styleText = human ? styleText : (_format, text) => text
 
@@ -166,11 +169,11 @@ export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = f
       if (value) details.push(`  ${label}: ${value}`)
     }
     row('at', at && pointer ? `${at} (${pointer})` : pointer)
-    if (problem && severity !== 'info') row('why', Diagnostics.explain(problem.code).cause)
+    if (problem && severity !== 'info') row('why', explain(problem.code).cause)
     row('fix', help)
     for (const cause of causes) row('caused by', cause)
     if (frames?.length) details.push('  stack:', ...frames)
-    if (code !== diagnosticCode.unknown) row('docs', Diagnostics.docsUrl(code))
+    if (code !== diagnosticCode.unknown) row('docs', docsUrl(code))
     row('report', problem?.issues)
 
     return [`${severity} ${code}${problem?.plugin ? ` [${problem.plugin}]` : ''}: ${firstLine}`, ...details]
@@ -200,7 +203,7 @@ export function format(diagnostic: Diagnostic, { audience = 'agent', verbose = f
   const details = [...frame, ...rows.flatMap(([name, value]) => (value ? [`  ${label(name)} ${value}`, ...(name === 'at' ? codeFrame : [])] : []))]
   if (frames?.length) details.push(`  ${paint('dim', 'stack')}`, ...frames)
   if (code !== diagnosticCode.unknown) {
-    details.push(`  ${paint('dim', '↳ Learn more')}  ${paint('cyan', Diagnostics.docsUrl(code).replace(/^https:\/\//, ''))}`)
+    details.push(`  ${paint('dim', '↳ Learn more')}  ${paint('cyan', docsUrl(code).replace(/^https:\/\//, ''))}`)
   }
 
   return [...headline, ...details]

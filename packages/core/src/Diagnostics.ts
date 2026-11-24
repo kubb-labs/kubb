@@ -1,16 +1,10 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { getErrorChain, getErrorMessage, toError } from '@internals/utils'
-import { version } from '../package.json'
-import { type DiagnosticCode, diagnosticCatalog, diagnosticCode } from './diagnosticCatalog.ts'
+import { type DiagnosticCode, diagnosticCode, docsUrl, explain } from './diagnosticCatalog.ts'
 import { crashCodes, format, serialize } from './formatDiagnostic.ts'
 import type { ExtensionKind, ExtensionNamed } from './defineExtension.ts'
 import type { KubbHooks } from './types.ts'
 import type { Hookable } from './Hookable.ts'
-
-/**
- * Docs major version, derived from the package version so the link tracks the published major.
- */
-const docsMajor = version.split('.')[0] ?? '5'
 
 /**
  * How serious a diagnostic is. `error` fails the build, `warning` and `info`
@@ -206,8 +200,6 @@ const failedCode = {
   adapter: diagnosticCode.adapterFailed,
   parser: diagnosticCode.parserFailed,
 } as const satisfies Record<ExtensionKind, ProblemCode>
-
-const docsByCode = new Map<DiagnosticCode, DiagnosticDoc>(Object.values(diagnosticCatalog).map((doc) => [doc.code, doc]))
 
 const reporterKey = Symbol.for('kubb.diagnostics.reporter')
 
@@ -459,8 +451,7 @@ export class Diagnostics {
    * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found`.
    */
   static docsUrl(code: string): string {
-    const slug = code.toLowerCase().replaceAll('_', '-')
-    return `https://kubb.dev/docs/${docsMajor}.x/reference/diagnostics#${slug}`
+    return docsUrl(code)
   }
 
   /**
@@ -468,7 +459,7 @@ export class Diagnostics {
    * `/reference/diagnostics#<slug>` section.
    */
   static explain(code: DiagnosticCode): DiagnosticDoc {
-    return docsByCode.get(code)!
+    return explain(code)
   }
 
   /**

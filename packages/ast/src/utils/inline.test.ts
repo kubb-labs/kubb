@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createFunction, createText, createType } from '../nodes/code.ts'
-import { createFile, createImport, createSource } from '../nodes/file.ts'
+import { createFile } from '../nodes/createFile.ts'
+import { createImport, createSource } from '../nodes/file.ts'
 import type { FileNode } from '../nodes/file.ts'
 import { type InlineLanguage, inlineFiles as inlineFilesWith } from './inline.ts'
 

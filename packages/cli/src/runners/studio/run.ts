@@ -492,7 +492,7 @@ export async function connect(
     unwatch?.()
     if (background) {
       const { startWorker } = await import('./background.ts')
-      await startWorker(options)
+      await startWorker(options, () => prepareConnection(options))
       if (options.logLevel !== 'silent') logOutro('Running in the background · kubb studio stop')
       return
     }

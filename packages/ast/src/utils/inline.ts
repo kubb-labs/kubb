@@ -1,6 +1,7 @@
 import { nodeKinds } from '../constants.ts'
 import type { CodeNode } from '../nodes/code.ts'
-import { createFile, createImport } from '../nodes/file.ts'
+import { createFile } from '../nodes/createFile.ts'
+import { createImport } from '../nodes/file.ts'
 import type { FileNode, ImportNode, SourceNode } from '../nodes/file.ts'
 import { getNames } from './moduleNames.ts'
 import { CODE_NODE_TEXT_FIELDS, getNodeText } from './nodeText.ts'
