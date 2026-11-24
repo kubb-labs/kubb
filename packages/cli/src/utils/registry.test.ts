@@ -25,6 +25,8 @@ describe('registryUrl', () => {
       process.env.KUBB_REGISTRY = url
       expect(() => registryUrl()).toThrow('must be an https URL')
     }
+    process.env.KUBB_REGISTRY = 'http://user:secret@registry.example.com'
+    expect(() => registryUrl()).toThrow('got "http://registry.example.com/"')
   })
 })
 

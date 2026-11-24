@@ -8,6 +8,15 @@ const DEFAULT_REGISTRY = 'https://kubb.dev/registry'
 const SLUG = '[a-z0-9]+(?:-[a-z0-9]+)*'
 const ID = new RegExp(`^${SLUG}(\\/${SLUG})?$`)
 
+// The message ends up in console and CI logs, so a password in the URL must not.
+function withoutCredentials(value: string): string {
+  if (!URL.canParse(value)) return value
+  const url = new URL(value)
+  url.username = ''
+  url.password = ''
+  return url.href
+}
+
 /** The registry base URL: `KUBB_REGISTRY`, or kubb.dev. */
 export function registryUrl(): string {
   const url = process.env.KUBB_REGISTRY || DEFAULT_REGISTRY
@@ -16,7 +25,7 @@ export function registryUrl(): string {
     throw new Diagnostics.Error({
       code: Diagnostics.code.unknown,
       severity: 'error',
-      message: `KUBB_REGISTRY must be an https URL, or http on localhost, got "${url}".`,
+      message: `KUBB_REGISTRY must be an https URL, or http on localhost, got "${withoutCredentials(url)}".`,
       help: 'Set `KUBB_REGISTRY` to an https URL, or unset it to use https://kubb.dev/registry.',
     })
   return url.replace(/\/+$/, '')
