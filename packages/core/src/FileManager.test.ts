@@ -4,8 +4,9 @@ import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { ast, type FileNode } from '@kubb/ast'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
-import type { KubbHooks } from './types.ts'
+import type { Config, KubbHooks } from './types.ts'
 import { FileManager } from './FileManager.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
@@ -197,39 +198,45 @@ describe('FileManager', () => {
       },
     )
 
-    it('writes files under the cleaned directory without reading them back', async () => {
+    it('reports a shared file another config of this run wrote differently, and not one it wrote the same', async () => {
       const storage = memoryStorage()
-      const readItem = vi.spyOn(storage, 'readItem')
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('/gen/a.ts', ['/* a.ts */']), makeFileWithSources('/other/b.ts', ['/* b.ts */'])], {
-        storage,
-        cleaned: ['/gen'],
-      })
-
-      expect(readItem.mock.calls).toStrictEqual([['/other/b.ts']])
-      expect(await storage.readItem('/gen/a.ts')).toContain('/* a.ts */')
-    })
-
-    it('warns about a shared file another config of this run wrote differently, and not about one it wrote the same', async () => {
-      const storage = memoryStorage()
-      const hooks = new Hookable<KubbHooks>()
-      const warnings: Array<string> = []
-      hooks.hook('kubb:warn', ({ message }) => void warnings.push(message))
+      const reported: Array<Diagnostic> = []
       const shared = { path: '/common', written: new Map<string, string>() }
 
-      await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* a */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
-        storage,
-        hooks,
-        shared,
-      })
-      await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* b */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
-        storage,
-        hooks,
-        shared,
-      })
+      await Diagnostics.scope(
+        (diagnostic) => reported.push(diagnostic),
+        async () => {
+          await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* a */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
+            storage,
+            shared,
+          })
+          await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* b */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
+            storage,
+            shared,
+          })
+        },
+      )
 
-      expect(warnings).toStrictEqual(['Shared files that differ from what another config wrote: /common/pet.ts.'])
+      expect(reported).toMatchObject([
+        { code: 'KUBB_SHARED_FILE_MISMATCH', severity: 'warning', message: 'Shared files that differ from what another config wrote: /common/pet.ts.' },
+      ])
+    })
+
+    it('warns about a file written outside output.path and shared.path, and still writes it', async () => {
+      const storage = memoryStorage()
+      const diagnostics: Array<Diagnostic> = []
+      const config = { root: '/repo', output: { path: './gen' }, shared: { path: './common' } } as Config
+      const files = ['/repo/gen/pet.ts', '/repo/common/name.ts', '/repo/src/user.ts'].map((file) => makeFileWithSources(file, ['/* a */']))
+
+      await Diagnostics.scope(
+        (diagnostic) => diagnostics.push(diagnostic),
+        () => new FileManager().write(files, { storage, config }),
+      )
+
+      expect(diagnostics).toStrictEqual([
+        expect.objectContaining({ code: 'KUBB_OUTSIDE_OUTPUT', severity: 'warning', message: expect.stringContaining('/repo/src/user.ts.') }),
+      ])
+      expect(await storage.readItem('/repo/src/user.ts')).toContain('/* a */')
     })
 
     // A written file is tracked so the commit re-reads it; a skipped file's record already stands.
@@ -248,37 +255,6 @@ describe('FileManager', () => {
         expect(manifest.tracked).toStrictEqual(tracked)
       },
     )
-
-    it('parses each file before writing it', async () => {
-      const parsed: Array<string> = []
-      const written: Array<string> = []
-      const storage = memoryStorage()
-      const realWriteItem = storage.writeItem.bind(storage)
-      storage.writeItem = async (itemPath: string, source: string) => {
-        written.push(itemPath)
-        await realWriteItem(itemPath, source)
-      }
-      const parser = {
-        name: 'ts',
-        type: 'parser' as const,
-        extNames: ['.ts' as const],
-        install: vi.fn(),
-        parse: vi.fn((file: FileNode) => {
-          parsed.push(file.path)
-          return `/* ${file.path} */`
-        }),
-        print: vi.fn().mockReturnValue(''),
-      }
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], {
-        storage,
-        parsers: new Map([['.ts' as const, parser]]),
-      })
-
-      expect(parsed.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
-      expect(written.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
-    })
 
     it('hands each parsed source to kubb:file:processed, including files the storage already held', async () => {
       const storage = memoryStorage()

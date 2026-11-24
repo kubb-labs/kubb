@@ -37,7 +37,7 @@ export type Operation = {
   pathItem: PathItemObject
 }
 
-type OperationContext = {
+export type OperationContext = {
   operation: Operation
   refs: Refs
 }
@@ -72,7 +72,7 @@ function getOperationPointer({ path, method }: Pick<Operation, 'path' | 'method'
 /**
  * Returns the operation's `operationId`, falling back to `<method>_<slugified-path>` when absent.
  */
-function getOperationId({ path, method, schema }: Operation): string {
+export function getOperationId({ path, method, schema }: Operation): string {
   const { operationId } = schema
   if (typeof operationId === 'string' && operationId.length > 0) {
     return operationId
@@ -114,7 +114,7 @@ function getRequestBody({ operation, refs }: OperationContext): RequestBodyObjec
 }
 
 /** Merges path-level and operation-level parameters; operation-level wins per `in:name`. */
-function getParameters({ operation, refs }: OperationContext): Array<{ param: ParameterObject; pointer: string }> {
+export function getParameters({ operation, refs }: OperationContext): Array<{ param: ParameterObject; pointer: string }> {
   // Each parameter keeps the pointer of the entry that declares it, on the path item or the operation.
   const resolveParams = (params: Array<unknown>, pointer: string) =>
     params.flatMap((entry, index) => {

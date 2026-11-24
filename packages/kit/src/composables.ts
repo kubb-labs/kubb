@@ -125,7 +125,7 @@ function fromGenerator(generator: Generator): Array<RegisteredTemplate> {
 
 /**
  * Registers generators on the plugin being set up.
- * @deprecated Use `defineTemplate` and `addTemplate`.
+ * @deprecated Use `defineTemplate` and `addTemplate`. Removed in Kubb v6.
  *
  * @example
  * `addGenerator(typeGenerator, enumGenerator)`
@@ -160,7 +160,7 @@ export function addMacro(...macros: Array<Macro>): void {
 /**
  * Replaces the macros of the plugin being set up.
  *
- * @deprecated Use `addMacro(...macros)`, and pass the user's `macros` option to it yourself. `addMacro` adds to the macros registered so far, where `setMacros` replaces them.
+ * @deprecated Use `addMacro(...macros)`, and pass the user's `macros` option to it yourself. `addMacro` adds to the macros registered so far, where `setMacros` replaces them. Removed in Kubb v6.
  */
 export function setMacros(macros: ReadonlyArray<Macro>): void {
   const ctx = kitContext('setMacros')

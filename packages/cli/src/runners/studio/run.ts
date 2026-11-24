@@ -1,14 +1,12 @@
 import { hostname } from 'node:os'
-import { toPermissionFlag } from '../../ui/text.ts'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
-import { KUBB_CONFIG_FILENAME } from '@internals/shared'
-import { copyToClipboard, isCIEnvironment, openInBrowser, toError } from '@internals/utils'
+import { copyToClipboard, isCIEnvironment, openInBrowser } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { connectAgent, defaultStudioUrl, generateAgentKey, InvalidAgentTokenError, pairAgent, PairingCanceledError, refreshAgentToken } from '@kubb/studio'
+import { connectAgent, defaultStudioUrl, generateAgentKey, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
 import { AgentPermission } from '@kubb/studio/protocol'
 import { trackRun } from '../../Telemetry.ts'
 import { plainWriter } from '../../loggers/plainWriter.ts'
@@ -19,9 +17,9 @@ import { createSpinner } from '../../ui/spinner.ts'
 import { canUseTTY, isRichOutput } from '../../utils/env.ts'
 import { getConfigs } from '../../config.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, updateCredentials } from './credentials.ts'
+import { formatPermissionSummary, resolvePermissions } from './permissions.ts'
+import { startTokenRefresher, type TokenRefresher } from './tokenRefresher.ts'
 import { version } from '../../../package.json'
-
-const REFRESH_EVERY_MS = 24 * 60 * 60 * 1000
 
 export type StudioOptions = {
   /**
@@ -75,19 +73,9 @@ export type SnapshotOptions = Pick<StudioOptions, 'configPath' | 'studioUrl' | '
 export type StudioValues = {
   config?: string
   url?: string
-  allowRead?: boolean
-  allowReadAst?: boolean
-  allowWrite?: boolean
-  allowConfigEdit?: boolean
-  allowInstall?: boolean
-  allowUpdate?: boolean
-  allowRemove?: boolean
-  allowSaveInput?: boolean
-  allowFileRefs?: boolean
-  allowExec?: boolean
   open?: boolean
   logLevel?: CLIOptions['logLevel']
-}
+} & Partial<Record<AgentPermission, boolean>>
 
 export type LoginOptions = {
   /**
@@ -201,95 +189,6 @@ function formatCountdown(ms: number): string {
 }
 
 /**
- * What each permission is asked as, in the order the list shows them.
- */
-const PERMISSIONS: ReadonlyArray<{
-  key: AgentPermission
-  /**
-   * Short label for status output and the connect summary.
-   */
-  label: string
-  title: (configPath: string) => string
-  hint: string
-}> = [
-  { key: AgentPermission.READ, label: 'read source', title: () => 'Read generated files', hint: 'show code in the browser' },
-  { key: AgentPermission.READ_AST, label: 'read spec', title: () => 'Read the parsed spec', hint: 'browse schemas and operations' },
-  { key: AgentPermission.WRITE, label: 'write files', title: () => 'Write files to disk', hint: 'generate from the browser' },
-  { key: AgentPermission.CONFIG_EDIT, label: 'edit config', title: (configPath) => `Change ${configPath}`, hint: 'edit plugin options' },
-  { key: AgentPermission.INSTALL, label: 'add plugins', title: () => 'Install extensions from the registry', hint: 'kubb add from the browser' },
-  { key: AgentPermission.UPDATE, label: 'update plugins', title: () => 'Update installed extensions', hint: 'kubb update from the browser' },
-  { key: AgentPermission.REMOVE, label: 'remove plugins', title: () => 'Remove extensions', hint: 'kubb remove from the browser' },
-  {
-    key: AgentPermission.SAVE_INPUT,
-    label: 'save input',
-    title: (configPath) => `Save the spec from Studio as the input in ${configPath}`,
-    hint: 'keep a pasted spec, URL, or git file',
-  },
-  { key: AgentPermission.FILE_REFS, label: 'outside refs', title: () => 'Let a $ref read files outside the project', hint: 'specs that share schemas' },
-  { key: AgentPermission.EXEC, label: 'run tools', title: () => 'Run the formatter, linter, and postGenerate', hint: 'after each generation' },
-]
-
-/**
- * Two permissions per row, each marked granted or not, with the flags that grant the missing ones
- * after the last row. For `kubb studio status`.
- */
-export function formatPermissionRows(granted: Partial<Record<AgentPermission, boolean>>): Array<string> {
-  const width = Math.max(...PERMISSIONS.map(({ label }) => label.length))
-  const cells = PERMISSIONS.map(({ key, label }) => `${granted[key] ? styleText('green', '✓') : styleText('red', '✖')} ${label.padEnd(width)}`)
-  const rows = Array.from({ length: Math.ceil(cells.length / 2) }, (_, index) => cells.slice(index * 2, index * 2 + 2).join('  '))
-  const flags = PERMISSIONS.filter(({ key }) => !granted[key])
-    .map(({ key }) => toPermissionFlag(key))
-    .join(' ')
-
-  return flags ? [...rows.slice(0, -1), `${rows.at(-1)}   ${styleText('dim', flags)}`] : rows
-}
-
-/**
- * Resolves Studio permissions for the current project.
- * Flags win, saved answers are reused, and the rest are asked in one list whose answers are stored
- * in `~/.kubb/credentials.json`.
- */
-export async function resolvePermissions(
-  options: StudioOptions,
-  credentials: Credentials,
-  configPath: string = KUBB_CONFIG_FILENAME,
-  { edit = false }: { edit?: boolean } = {},
-): Promise<Record<AgentPermission, boolean>> {
-  const project = process.cwd()
-  const remembered = credentials.projects?.[project]
-  const granted = Object.fromEntries(PERMISSIONS.map(({ key }) => [key, options.permission[key] || remembered?.[key] === true])) as Record<
-    AgentPermission,
-    boolean
-  >
-  // `edit` asks again for every permission no flag grants, with the saved ones checked.
-  const pending = PERMISSIONS.filter(({ key }) => !options.permission[key] && (edit || typeof remembered?.[key] !== 'boolean'))
-
-  if (!pending.length || isCIEnvironment() || !canUseTTY()) return granted
-
-  prompts.updateSettings({ withGuide: true })
-  const selected = await prompts.multiselect({
-    message: 'What may Kubb Studio do in this project?',
-    options: pending.map(({ key, title, hint }) => ({ value: key, label: title(configPath), hint })),
-    ...(edit ? { initialValues: pending.filter(({ key }) => remembered?.[key] === true).map(({ key }) => key) } : {}),
-    required: false,
-  })
-  // A canceled list grants nothing and saves nothing, so the next run asks again.
-  if (prompts.isCancel(selected)) {
-    if (edit) throw new Error('Canceled. Permissions are unchanged.')
-    return granted
-  }
-
-  const answers = Object.fromEntries(pending.map(({ key }) => [key, selected.includes(key)]))
-  // Merged into the stored record, so a token refreshed by a running connection is kept.
-  await updateCredentials((stored) => {
-    const current = stored ?? credentials
-    return { ...current, projects: { ...current.projects, [project]: { ...current.projects?.[project], ...answers } } }
-  })
-
-  return { ...granted, ...answers }
-}
-
-/**
  * Loads the project's Kubb config the same way `kubb generate` does, one entry per `defineConfig(...)` entry.
  */
 export async function loadConfigs(options: Pick<StudioOptions, 'configPath' | 'logLevel'>): Promise<{ configPath: string; configs: Array<Config> }> {
@@ -343,6 +242,7 @@ export async function connect(
     prepared?: PreparedConnection
     signal?: AbortSignal
     onState?: (state: WorkerState) => void | Promise<void>
+    onCredentials?: (credentials: Credentials) => void
   } = {},
 ): Promise<void> {
   const shutdown = new AbortController()
@@ -354,7 +254,7 @@ export async function connect(
     events.once('SIGTERM', stop)
   }
   let unwatch: (() => void) | undefined
-  let refreshTimer: NodeJS.Timeout | undefined
+  let refresher: TokenRefresher | undefined
   try {
     if (!context.prepared) {
       const { getWorkerStatus } = await import('./background.ts')
@@ -374,42 +274,18 @@ export async function connect(
     let pairedAgain = false
     let recovered = false
 
-    const warn = (message: string) => options.logLevel !== 'silent' && console.log(styleText('yellow', message))
-    // Resolves whether the token changed; a failure keeps the old one.
-    const refreshToken = async (force: boolean): Promise<boolean> => {
-      if (!force && Date.now() - Date.parse(credentials.issuedAt ?? '') < REFRESH_EVERY_MS) return false
-      const replaced = credentials.token
-      try {
-        const token = await refreshAgentToken({
-          studioUrl: options.studioUrl,
-          token: replaced,
-          machineId: await getMachineId(),
-          privateKey: credentials.privateKey,
-          signal,
-        })
-        // A pairing that finished meanwhile owns the credentials now.
-        if (!token || credentials.token !== replaced) return false
-        const refreshed = { token, issuedAt: new Date().toISOString() }
-        credentials = { ...credentials, ...refreshed }
-        // Only the token changes on disk, so permissions saved since this run read the file are kept.
-        await updateCredentials((stored) => (stored?.token === replaced ? { ...stored, ...refreshed } : undefined)).catch((error: unknown) =>
-          warn(`Could not store the refreshed token: ${toError(error).message}`),
-        )
-        return true
-      } catch (error) {
-        if (!signal.aborted && !(error instanceof InvalidAgentTokenError)) warn(`Could not refresh the agent token: ${toError(error).message}`)
-        return false
-      }
-    }
-    // The timer and a rejected token share one request: two refreshes of one token cannot both succeed.
-    let refreshing: Promise<boolean> | undefined
-    const refresh = ({ force = false } = {}): Promise<boolean> =>
-      (refreshing ??= refreshToken(force).finally(() => {
-        refreshing = undefined
-      }))
-    await refresh()
-    refreshTimer = setInterval(() => void refresh(), REFRESH_EVERY_MS)
-    refreshTimer.unref()
+    refresher = await startTokenRefresher({
+      studioUrl: options.studioUrl,
+      signal,
+      warn: (message) => options.logLevel !== 'silent' && console.log(styleText('yellow', message)),
+      credentials: {
+        get: () => credentials,
+        set: (next) => {
+          credentials = next
+          context.onCredentials?.(credentials)
+        },
+      },
+    })
 
     // The background worker writes to a log file, so it gets the plain logger rather than the
     // animated one. The logger also covers the `studio:*` events and each generation run.
@@ -438,12 +314,7 @@ export async function connect(
       if (hinted || context.onState || options.logLevel === 'silent') return
       hinted = true
       logBlock([
-        `${styleText('dim', 'Project')}  ${path.basename(process.cwd())}   ${styleText(
-          'dim',
-          PERMISSIONS.filter(({ key }) => permissions[key])
-            .map(({ label }) => label)
-            .join(' · ') || 'no permissions',
-        )}`,
+        `${styleText('dim', 'Project')}  ${path.basename(process.cwd())}   ${styleText('dim', formatPermissionSummary(permissions))}`,
         styleText('dim', listens ? 'Press b to keep running in the background, Ctrl+C to disconnect' : 'Press Ctrl+C to disconnect'),
       ])
       logTip()
@@ -461,6 +332,7 @@ export async function connect(
           root: process.cwd(),
           agentType: 'cli',
           permissions,
+          debug: options.logLevel === 'verbose',
           loadConfigs: async () => (await loadConfigs(options)).configs,
           hooks,
           signal,
@@ -471,7 +343,7 @@ export async function connect(
         // The answer to an earlier refresh may have been lost, so the token is traded in once more.
         if (!recovered && !pairedAgain) {
           recovered = true
-          if (await refresh({ force: true })) continue
+          if (await refresher.refresh({ force: true })) continue
         }
         await context.onState?.('authentication required')
         await clearCredentials(credentials.token)
@@ -483,6 +355,7 @@ export async function connect(
         unwatch = undefined
         console.log(styleText('yellow', `${error.message} Pairing again...`))
         credentials = await login(options, { signal, previousCredentials: credentials })
+        context.onCredentials?.(credentials)
         pairedAgain = true
         permissions = await resolvePermissions(options, credentials, configPath)
       }
@@ -500,7 +373,7 @@ export async function connect(
   } catch (error) {
     if (!(error instanceof PairingCanceledError)) throw error
   } finally {
-    clearInterval(refreshTimer)
+    refresher?.stop()
     unwatch?.()
     events.off('SIGINT', stop)
     events.off('SIGTERM', stop)
@@ -569,7 +442,7 @@ export async function runStudio(
     await report({ status: 'success' })
   } catch (error) {
     await report({ status: 'failed' })
-    console.error(toError(error).message)
+    console.error(Diagnostics.format(Diagnostics.from(error)).join('\n'))
     process.exitCode = 1
   }
 }

@@ -1,23 +1,32 @@
 import process from 'node:process'
-import { getErrorMessage, toError } from '@internals/utils'
+import { getErrorMessage, isSecureUrl, toError } from '@internals/utils'
 import { checkCompatibility, Diagnostics, type ExtensionManifest, isRegistryEntry, type RegistryArtifact, type RegistryEntry } from '@kubb/core'
 import { difference, isLessThan, isValid } from 'verkit'
-import { isHttpUrl } from '../ui/text.ts'
 
 const DEFAULT_REGISTRY = 'https://kubb.dev/registry'
 
 const SLUG = '[a-z0-9]+(?:-[a-z0-9]+)*'
 const ID = new RegExp(`^${SLUG}(\\/${SLUG})?$`)
 
+// The message ends up in console and CI logs, so a password in the URL must not.
+function withoutCredentials(value: string): string {
+  if (!URL.canParse(value)) return '<not a URL>'
+  const url = new URL(value)
+  url.username = ''
+  url.password = ''
+  return url.href
+}
+
 /** The registry base URL: `KUBB_REGISTRY`, or kubb.dev. */
 export function registryUrl(): string {
   const url = process.env.KUBB_REGISTRY || DEFAULT_REGISTRY
-  if (!isHttpUrl(url))
+  // The registry decides which packages get installed, so plain http is allowed only to this machine.
+  if (!URL.canParse(url) || !isSecureUrl(new URL(url)))
     throw new Diagnostics.Error({
       code: Diagnostics.code.unknown,
       severity: 'error',
-      message: `KUBB_REGISTRY must be an http(s) URL, got "${url}".`,
-      help: 'Set `KUBB_REGISTRY` to an http(s) URL, or unset it to use https://kubb.dev/registry.',
+      message: `KUBB_REGISTRY must be an https URL, or http on localhost, got "${withoutCredentials(url)}".`,
+      help: 'Set `KUBB_REGISTRY` to an https URL, or unset it to use https://kubb.dev/registry.',
     })
   return url.replace(/\/+$/, '')
 }

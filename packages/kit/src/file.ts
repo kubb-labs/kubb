@@ -100,10 +100,17 @@ function operationFile(
   if (!suffix) return first
 
   const { output, group } = location
-  const schemaPaths = ctx.memo(
-    `${resolver.pluginName}:file:schemaPaths:${extname}:${output.mode ?? ''}:${output.path}:${group?.type ?? ''}`,
-    () => new Set(ctx.schemas.flatMap((schema) => (schema.name ? [resolver.file({ name: schema.name, extname, ...location }).path.toLowerCase()] : []))),
-  )
+  const byOutput = ctx.memo(`${resolver.pluginName}:file:schemaPaths:${extname}`, () => new WeakMap<Output, Map<Group | undefined, Set<string>>>())
+  let byGroup = byOutput.get(output)
+  if (!byGroup) {
+    byGroup = new Map()
+    byOutput.set(output, byGroup)
+  }
+  let schemaPaths = byGroup.get(group)
+  if (!schemaPaths) {
+    schemaPaths = new Set(ctx.schemas.flatMap((schema) => (schema.name ? [resolver.file({ name: schema.name, extname, ...location }).path.toLowerCase()] : [])))
+    byGroup.set(group, schemaPaths)
+  }
   const withSuffix = (file: FileNode, nextName: string): FileNode => {
     if (!schemaPaths.has(file.path.toLowerCase())) return file
     const candidate = resolver.file(entry(nextName))

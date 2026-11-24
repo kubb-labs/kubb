@@ -1,17 +1,16 @@
 import { appendFileSync, statSync, writeFileSync } from 'node:fs'
 import { format } from 'node:util'
 import { getWorkerLogPath, serveWorker, type WorkerLaunch } from './background.ts'
+import { type Credentials, redactSecrets } from './credentials.ts'
 import { connect } from './run.ts'
 
 process.title = 'Kubb'
 
 const logPath = getWorkerLogPath()
-const tokens = [process.env.KUBB_TOKEN]
+let credentials: Partial<Credentials> = {}
 function log(...args: Array<unknown>) {
-  let line = `${new Date().toISOString()} ${format(...args)}\n`
-  for (const token of tokens) {
-    if (token) line = line.replaceAll(token, '[redacted]')
-  }
+  // Read on every line: a refresh or a new pairing replaces the token and key.
+  const line = redactSecrets(`${new Date().toISOString()} ${format(...args)}\n`, [process.env.KUBB_TOKEN, credentials.token, credentials.privateKey])
   try {
     // Keep the log under 1 MiB; discard older output when it fills.
     const size = (() => {
@@ -35,7 +34,7 @@ events.once('SIGINT', stop)
 events.once('SIGTERM', stop)
 
 const launch = await new Promise<WorkerLaunch>((resolve) => process.once('message', (message) => resolve(message as WorkerLaunch)))
-tokens.push(launch.prepared.credentials.token)
+credentials = launch.prepared.credentials
 const control = await serveWorker(shutdown).catch((error: unknown) => {
   log(error)
   process.exit(1)
@@ -48,6 +47,9 @@ if (!('existing' in control)) {
     await connect(launch.options, {
       prepared: launch.prepared,
       signal: shutdown.signal,
+      onCredentials: (next) => {
+        credentials = next
+      },
       onState: async (state) => {
         log(state)
         await control.state(state)

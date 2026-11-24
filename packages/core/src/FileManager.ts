@@ -1,5 +1,6 @@
 import { hash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import { inParallel, isPathInside, matchesStored, toError } from '@internals/utils'
 import { ast, type CodeNode, type FileNode } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
@@ -345,6 +346,8 @@ export class FileManager {
     // Shared files this build generates differently from the config that wrote them first.
     const mismatched: Array<string> = []
     const progress = hooks && config ? createProgress(files, config, hooks) : undefined
+    const roots = config ? [resolve(config.root, config.output.path), ...(config.shared ? [resolve(config.root, config.shared.path)] : [])] : []
+    const outside: Array<string> = []
 
     await inParallel({
       items: files,
@@ -360,6 +363,7 @@ export class FileManager {
             if (first === undefined) shared.written.set(file.path, digest)
             if (first !== undefined && first !== digest) mismatched.push(file.path)
           }
+          if (roots.length > 0 && !roots.some((root) => isPathInside(file.path, root))) outside.push(file.path)
           const { written, stored } = await writeChanged({ storage, manifest, file, source, signal, cleaned })
           if (!written) unchanged.push(file.path)
           await hooks?.callHook('kubb:file:processed', { file, source, stored })
@@ -370,10 +374,24 @@ export class FileManager {
 
     await hooks?.callHook('kubb:files:processing:end', { files, unchanged })
 
+    // A warning, not a refusal: plugins that write next to the output folder keep working.
+    if (outside.length > 0) {
+      Diagnostics.report({
+        code: Diagnostics.code.outsideOutput,
+        severity: 'warning',
+        message: `Files written outside output.path and shared.path: ${outside.slice(0, 3).join(', ')}${outside.length > 3 ? ', ...' : ''}.`,
+        help: 'Keep every generated path inside `output.path` or `shared.path`.',
+        location: { kind: 'config' },
+      })
+    }
+
     if (mismatched.length > 0) {
-      await hooks?.callHook('kubb:warn', {
+      Diagnostics.report({
+        code: Diagnostics.code.sharedFileMismatch,
+        severity: 'warning',
         message: `Shared files that differ from what another config wrote: ${mismatched.slice(0, 3).join(', ')}${mismatched.length > 3 ? ', ...' : ''}.`,
-        info: 'The last config to write wins. Give the configs that use the same `shared.path` the same plugin options and banner.',
+        help: 'The last config to write wins. Give the configs that use the same `shared.path` the same plugin options and banner.',
+        location: { kind: 'config' },
       })
     }
   }

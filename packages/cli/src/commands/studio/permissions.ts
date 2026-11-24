@@ -10,7 +10,7 @@ export const command = studioCommand({
   args: {},
   async action(options) {
     const { readCredentials } = await import('../../runners/studio/credentials.ts')
-    const { resolvePermissions } = await import('../../runners/studio/run.ts')
+    const { resolvePermissions } = await import('../../runners/studio/permissions.ts')
     const { canUseTTY } = await import('../../utils/env.ts')
 
     const credentials = await readCredentials()

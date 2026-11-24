@@ -46,6 +46,27 @@ export function hasOutputPasses({ output, storage }: Pick<Config, 'output' | 'st
   return writesOutputDirectory(storage) && Boolean(output.format || output.lint || output.postGenerate?.length)
 }
 
+/**
+ * Warns when output passes are configured but skipped because the storage does not write `output.path`.
+ */
+async function reportSkippedPasses({ config, hooks }: { config: Config; hooks: Hookable<KubbHooks> }): Promise<Array<Diagnostic>> {
+  const { format, lint, postGenerate } = config.output
+  const skipped: Array<string> = []
+  if (format) skipped.push('output.format')
+  if (lint) skipped.push('output.lint')
+  if (postGenerate?.length) skipped.push('output.postGenerate')
+  const code = Diagnostics.code.outputPassesSkipped
+  if (skipped.length === 0 || config.diagnostics?.ignore?.includes(code)) return []
+  const diagnostic: Diagnostic = {
+    code,
+    severity: 'warning',
+    message: `Skipped ${skipped.join(', ')} because storage "${config.storage.name}" is not "fs".`,
+    location: { kind: 'config' },
+  }
+  await Diagnostics.emit(hooks, diagnostic)
+  return [diagnostic]
+}
+
 export type CreateKubbOptions = {
   /**
    * Receives Kubb lifecycle hooks for the run.
@@ -205,8 +226,8 @@ export class Kubb {
       })
     }
 
-    // The driver empties `cleanPaths` right before it writes the new files, so a run that fails
-    // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
+    // The driver empties `cleanPaths` after the plugins run, right before it writes. A parse or plugin setup
+    // failure leaves the previous output in place; a plugin error while generating still empties and writes.
     const driver = new KubbDriver(config, {
       hooks: this.hooks,
       manifest,
@@ -304,7 +325,7 @@ export class Kubb {
     const processOutput = options.processOutput ?? runOutputPasses
     const outputDiagnostics = writesOutputDirectory(config.storage)
       ? await processOutput({ config, outputPath: resolve(config.root, config.output.path), hooks, signal })
-      : []
+      : await reportSkippedPasses({ config, hooks })
 
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
     const failed = Diagnostics.hasError(outputDiagnostics)

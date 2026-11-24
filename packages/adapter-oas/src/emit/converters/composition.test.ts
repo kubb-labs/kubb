@@ -1,6 +1,24 @@
 import { ast } from '@kubb/kit'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 import { adapterOas } from '../../adapter.ts'
+import { createSchemaParser, type OasParserContext } from '../../parser.ts'
+import { createRefs } from '../../refs.ts'
+import type { Document, SchemaObject } from '../../types.ts'
+
+const emptyDocument = { openapi: '3.0.0', info: { title: '', version: '' }, paths: {} } as Document
+const emptyCtx: OasParserContext = { document: emptyDocument, refs: createRefs(emptyDocument) }
+
+function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaObject; name?: string }): ast.SchemaNode {
+  return createSchemaParser(ctx)({ schema, name })
+}
+
+async function parseOas(data: unknown): Promise<ast.InputNode> {
+  return adapterOas({ validate: false }).parse({ type: 'data', data })
+}
+
+function findSchema(root: ast.InputNode, name: string): ast.SchemaNode | undefined {
+  return root.schemas.find((schema) => schema.name === name)
+}
 
 describe.each(['oneOf', 'anyOf'] as const)('%s parent required properties', (keyword) => {
   test.each(['any'] as const)('keeps undeclared required keys unconstrained with emptySchemaType=%s', async (emptySchemaType) => {
@@ -109,5 +127,111 @@ describe.each(['oneOf', 'anyOf'] as const)('%s parent required properties', (key
       { type: ast.schema.types.object, properties: [{ name: 'value', schema: { type: ast.schema.types.string } }] },
       { type: ast.schema.types.object, properties: [{ name: 'value', schema: { type: ast.schema.types.number } }] },
     ])
+  })
+})
+
+describe('sibling type on oneOf / anyOf members', () => {
+  it('keeps a sibling binary type on members that only add a media type', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'string', format: 'binary', anyOf: [{ contentMediaType: 'image/png' }, { contentMediaType: 'image/jpeg' }] },
+    })
+
+    expect(ast.schema.narrow(node, 'union')?.members).toMatchObject([
+      { type: 'blob', content: { mediaType: 'image/png' } },
+      { type: 'blob', content: { mediaType: 'image/jpeg' } },
+    ])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('keeps a sibling integer type on %s members that only add bounds', (keyword) => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'integer', [keyword]: [{ minimum: 10 }, { maximum: 0 }] } })
+
+    expect(ast.schema.narrow(node, 'union')?.members).toMatchObject([
+      { type: 'integer', min: 10 },
+      { type: 'integer', max: 0 },
+    ])
+  })
+
+  it('keeps the own type of a member and skips multi-type parents', () => {
+    const own = parseSchema(emptyCtx, { schema: { type: 'string', anyOf: [{ type: 'number' }, { format: 'uuid' }] } })
+    const multi = parseSchema(emptyCtx, { schema: { type: ['string', 'number'], anyOf: [{ minimum: 1 }, { minLength: 1 }] } })
+
+    expect(ast.schema.narrow(own, 'union')?.members?.map((member) => member.type)).toStrictEqual(['number', 'uuid'])
+    expect(ast.schema.narrow(multi, 'union')?.members?.map((member) => member.type)).toStrictEqual(['number', 'string'])
+  })
+})
+
+describe('parseSchema enum next to a nullable type or a union', () => {
+  const Color = { type: 'string', enum: ['red', 'green', 'blue'] }
+  const documents = {
+    '3.1.0': {
+      status: { type: ['string', 'null'], enum: ['draft', 'published'] },
+      color: { oneOf: [{ $ref: '#/components/schemas/Color' }, { type: 'null' }], enum: ['red', 'green'] },
+    },
+    '3.0.3': {
+      status: { type: 'string', nullable: true, enum: ['draft', 'published'] },
+      color: { allOf: [{ $ref: '#/components/schemas/Color' }], nullable: true, enum: ['red', 'green'] },
+    },
+  }
+
+  it.each([
+    { openapi: '3.1.0', nullable: undefined },
+    { openapi: '3.0.3', nullable: true },
+  ] as const)('applies the sibling enum in OpenAPI $openapi', async ({ openapi, nullable }) => {
+    const root = await parseOas({
+      openapi,
+      info: { title: 'Enums', version: '1' },
+      paths: {},
+      components: { schemas: { Color, Example: { type: 'object', properties: documents[openapi] } } },
+    })
+    const [status, color] = ast.schema.narrow(findSchema(root, 'Example'), 'object')!.properties!
+
+    expect(status!.schema).toMatchObject({ type: 'enum', enumValues: ['draft', 'published'], nullable })
+    expect(color!.schema).toMatchObject({
+      type: 'intersection',
+      members: [
+        { type: 'union', members: [{ type: 'ref' }, { type: 'null' }] },
+        { type: 'enum', enumValues: ['red', 'green'], nullable },
+      ],
+    })
+  })
+
+  it('keeps null out of the sibling enum of a non-nullable union in OpenAPI 3.0', async () => {
+    const root = await parseOas({
+      openapi: '3.0.3',
+      info: { title: 'Enums', version: '1' },
+      paths: {},
+      components: { schemas: { Color, Example: { oneOf: [{ $ref: '#/components/schemas/Color' }], enum: ['red', 'green'] } } },
+    })
+
+    expect(findSchema(root, 'Example')).toMatchObject({
+      type: 'intersection',
+      members: [{ type: 'union' }, { type: 'enum', enumValues: ['red', 'green'], nullable: undefined }],
+    })
+  })
+
+  it('keeps null in the sibling enum when a referenced union member is nullable in OpenAPI 3.0', async () => {
+    const root = await parseOas({
+      openapi: '3.0.3',
+      info: { title: 'Enums', version: '1' },
+      paths: {},
+      components: {
+        schemas: { Color: { ...Color, nullable: true }, Example: { oneOf: [{ $ref: '#/components/schemas/Color' }], enum: ['red', 'green'] } },
+      },
+    })
+
+    expect(findSchema(root, 'Example')).toMatchObject({ members: [{ type: 'union' }, { type: 'enum', enumValues: ['red', 'green'], nullable: true }] })
+  })
+
+  it('applies the sibling enum to a union with required keys', () => {
+    const node = parseSchema(emptyCtx, { schema: { oneOf: [{ type: 'object' }, { type: 'null' }], required: ['id'], enum: [{ id: 1 }] } as SchemaObject })
+
+    expect(node).toMatchObject({ type: 'intersection', members: [{ type: 'intersection' }, { type: 'enum' }] })
+  })
+
+  it('drops null from a multi-type array whose enum leaves it out', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: ['string', 'number', 'null'], enum: ['a', 1] } as SchemaObject })
+
+    expect(node).toMatchObject({ type: 'union', nullable: undefined })
+    expect(ast.schema.narrow(node, ast.schema.types.union)!.members).not.toContainEqual(expect.objectContaining({ type: 'null' }))
   })
 })

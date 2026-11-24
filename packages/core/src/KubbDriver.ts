@@ -733,7 +733,7 @@ export class KubbDriver {
   /**
    * Returns the resolver a plugin stored with kit's `setResolver`. Published plugins still call it through `ctx.driver`.
    *
-   * @deprecated Use `ctx.getResolver(pluginName)` in a generator, or `getResolver(pluginName)` from `kubb/kit` in any other hook. Removed in v6.
+   * @deprecated Use `ctx.getResolver(pluginName)` in a generator, or `getResolver(pluginName)` from `kubb/kit` in any other hook. Removed in Kubb v6.
    */
   getResolver(pluginName: string): unknown {
     const key = `${pluginName}:resolver`

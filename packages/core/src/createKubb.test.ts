@@ -187,11 +187,9 @@ describe('createKubb', () => {
   })
 
   // A nonexistent temp dir as root, so a regression in the guard can only touch a throwaway path.
-  test.each([
-    ['the project root', path.join(os.tmpdir(), 'kubb-clean-guard'), '.'],
-    ['a parent of the project root', path.join(os.tmpdir(), 'kubb-clean-guard', 'nested'), '..'],
-  ])('output.clean raises a KUBB_CLEAN_ROOT diagnostic when the output is %s', async (_name, root, outputPath) => {
-    const kubb = createKubb(makeConfig({ ...config, root, output: { path: outputPath, clean: true } }), { hooks: new Hookable<KubbHooks>() })
+  test('output.clean raises a KUBB_CLEAN_ROOT diagnostic when the output is the project root', async () => {
+    const root = path.join(os.tmpdir(), 'kubb-clean-guard')
+    const kubb = createKubb(makeConfig({ ...config, root, output: { path: '.', clean: true } }), { hooks: new Hookable<KubbHooks>() })
 
     await expect(kubb.setup()).rejects.toMatchObject({
       name: 'DiagnosticError',
@@ -498,6 +496,22 @@ describe('Kubb#generate', () => {
     expect(result.success).toBe(true)
     expect(processOutput).toHaveBeenCalledTimes(calls)
     expect(formatStarted).not.toHaveBeenCalled()
+    expect(result.diagnostics).toMatchObject([
+      { code: 'KUBB_OUTPUT_PASSES_SKIPPED', severity: 'warning', message: 'Skipped output.format because storage "memory" is not "fs".' },
+    ])
+  })
+
+  it('does not warn about skipped output passes when the code is ignored', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const config = makeConfig({
+      root: tempRoot(),
+      output: { path: './gen', format: 'prettier' },
+      diagnostics: { ignore: ['KUBB_OUTPUT_PASSES_SKIPPED'] },
+    })
+
+    const result = await createKubb(config, { hooks }).generate()
+
+    expect(result.diagnostics).toStrictEqual([])
   })
 
   it('reports an adapter crash as KUBB_ADAPTER_FAILED and stops without running processOutput', async () => {

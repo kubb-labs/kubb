@@ -129,6 +129,8 @@ export async function startPairing({
         agent_kind: type === 'cli' ? undefined : type,
         public_key: privateKey ? getAgentPublicKey(privateKey) : undefined,
       },
+      // A redirect would send this machine's pairing request, and later its tokens, to wherever it points.
+      redirect: 'error',
       signal,
     })
     if (typeof pairing?.device_code !== 'string')
@@ -212,6 +214,7 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
       const { status, _data } = await ofetch.raw<PollResponse>(secureUrl({ studioUrl, path: '/api/agent/token' }).href, {
         method: 'POST',
         body: { device_code: session.device_code },
+        redirect: 'error',
         signal,
         ignoreResponseError: true,
       })
@@ -351,6 +354,7 @@ export async function refreshAgentToken({
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body: { machine_id: machineId, ...proof },
+      redirect: 'error',
       signal: signal ? AbortSignal.any([signal, deadline]) : deadline,
       ignoreResponseError: true,
       // A second attempt would send a token the first may have retired.

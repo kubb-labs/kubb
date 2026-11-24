@@ -416,7 +416,7 @@ export type PluginVisitContext<TOptions extends PluginType = PluginType> = {
    */
   root: string
   /**
-   * @deprecated Use `schemas`, `getPlugin` and `memo` instead. Removed in the next major version.
+   * @deprecated Use `schemas`, `getPlugin` and `memo` instead. Removed in Kubb v6.
    */
   driver: KubbDriver
   /** Get a plugin by name, typed via `Kubb.PluginRegistry` when registered. */
@@ -581,7 +581,7 @@ export type KubbPluginEndContext = FilesContext & {
 /**
  * Defines a plugin from one object and returns a factory that takes the user's options.
  *
- * @deprecated Use `defineExtension` with `kind: 'plugin'` instead.
+ * @deprecated Use `defineExtension` with `kind: 'plugin'` instead. Removed in Kubb v6.
  */
 export function definePlugin<TFactory extends PluginType = PluginType>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory> {
   return defineExtension({ kind: 'plugin', ...definition })

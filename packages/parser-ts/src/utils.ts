@@ -1,6 +1,6 @@
-import { dedent, indent, memo } from '@internals/utils'
+import { dedent, indent } from '@internals/utils'
 import { createRequire } from 'node:module'
-import { dirname, extname as getExtname, isAbsolute, relative, resolve } from 'node:path'
+import { dirname, extname as getExtname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ast } from '@kubb/ast'
 import { type ImportSpecifier, type ModuleExportName, parse, type ProgramStatement } from 'yuku'
@@ -8,7 +8,7 @@ import { type ImportSpecifier, type ModuleExportName, parse, type ProgramStateme
 /**
  * A TypeScript compiler node, typed structurally so `@kubb/parser-ts` does not depend on `@typescript/typescript6`.
  *
- * @deprecated Pass printed strings to `print` instead. Support for compiler nodes is removed in the next major.
+ * @deprecated Pass printed strings to `print` instead. Removed in Kubb v6.
  */
 export type TsNode = { readonly kind: number }
 
@@ -80,21 +80,6 @@ function loadCompiler(): Compiler {
 
   return compiler
 }
-
-/**
- * Module specifier that imports `filePath` from the file at `root`: POSIX, relative to that file's directory, `./`-prefixed unless it climbs with `../`.
- */
-export function getRelativePath(root: string, filePath: string): string {
-  // A relative input resolves against the working directory, so that directory is part of its key.
-  const key = isAbsolute(root) && isAbsolute(filePath) ? `${root}\u0000${filePath}` : `${process.cwd()}\u0000${root}\u0000${filePath}`
-  return memo(relativePaths, key, () => {
-    const slashed = relative(dirname(root), filePath).replaceAll('\\', '/')
-    return slashed.startsWith('../') ? slashed : `./${slashed}`
-  })
-}
-
-// The limit bounds what a long-running host keeps across builds into fresh roots; one build stays well under it.
-const relativePaths = memo.create<string, string>({ max: 100_000 })
 
 /**
  * Swaps the extension of a relative import/export path for `extname`. Package specifiers and extension-less paths stay as-is.

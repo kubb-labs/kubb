@@ -1,14 +1,10 @@
+import { isSecureUrl } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 
 /**
  * Hosted Kubb Studio URL, used when a host passes none.
  */
 export const defaultStudioUrl = 'https://kubb.studio'
-
-// `URL` keeps IPv6 brackets, so `::1` is `[::1]`.
-function isLoopbackHost(hostname: string): boolean {
-  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]'
-}
 
 /**
  * Appends `path` to the Studio URL and refuses plaintext to anything but this machine, so a token
@@ -22,7 +18,7 @@ function isLoopbackHost(hostname: string): boolean {
 export function secureUrl({ studioUrl, path, socket = false }: { studioUrl: string; path: string; socket?: boolean }): URL {
   const url = new URL(`${studioUrl.replace(/\/+$/, '')}${path}`)
 
-  if (url.protocol !== 'https:' && !(url.protocol === 'http:' && isLoopbackHost(url.hostname))) {
+  if (!isSecureUrl(url)) {
     throw new Diagnostics.Error({
       code: Diagnostics.code.unknown,
       severity: 'error',

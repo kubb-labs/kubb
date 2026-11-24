@@ -17,12 +17,18 @@ describe('toRegistryId', () => {
 })
 
 describe('registryUrl', () => {
-  it('uses KUBB_REGISTRY without its trailing slash, and refuses anything but http(s)', () => {
+  it('uses KUBB_REGISTRY without its trailing slash, and refuses anything but https or http on localhost', () => {
     expect(registryUrl()).toBe('https://kubb.dev/registry')
     process.env.KUBB_REGISTRY = 'http://localhost:4000/registry/'
     expect(registryUrl()).toBe('http://localhost:4000/registry')
-    process.env.KUBB_REGISTRY = 'file:///etc'
-    expect(() => registryUrl()).toThrow('must be an http(s) URL')
+    for (const url of ['file:///etc', 'http://registry.example.com', 'not a url']) {
+      process.env.KUBB_REGISTRY = url
+      expect(() => registryUrl()).toThrow('must be an https URL')
+    }
+    process.env.KUBB_REGISTRY = 'http://user:secret@registry.example.com'
+    expect(() => registryUrl()).toThrow('got "http://registry.example.com/"')
+    process.env.KUBB_REGISTRY = 'http://user:secret@registry.example.com:bad'
+    expect(() => registryUrl()).toThrow('got "<not a URL>"')
   })
 })
 

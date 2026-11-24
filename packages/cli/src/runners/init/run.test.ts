@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import type { DryRunExtension } from '@gunshi/plugin-dryrun'
 import * as clack from '@clack/prompts'
+import { Diagnostics } from '@kubb/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { registryEntry, registryIndex, stubFetch } from '../../utils/registryFixture.ts'
 import { installPackages } from './utils.ts'
@@ -88,6 +89,18 @@ describe('kubb init', () => {
     expect(output.at(-1)).toBe('Kubb is set up, but the first run failed. Fix the error, then run npm run generate.')
     expect(vi.mocked(clack.select)).not.toHaveBeenCalled()
     expect(process.exitCode).toBe(1)
+  })
+
+  it('prints the help of a failure during setup', async () => {
+    vi.mocked(installPackages).mockRejectedValueOnce(
+      new Diagnostics.Error({ code: Diagnostics.code.missingDependency, severity: 'error', message: 'npm is missing.', help: 'Install npm.' }),
+    )
+    vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+    await run({ yes: true, input: './openapi.yaml', plugins: 'ts', output: 'src/api', dryRun: off })
+
+    expect(output.join('\n')).toContain('fix: Install npm.')
+    expect(process.exit).toHaveBeenCalledWith(1)
   })
 
   it('uses the found spec and writes nothing in a dry run', async () => {

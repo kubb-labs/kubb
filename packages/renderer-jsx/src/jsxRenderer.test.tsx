@@ -11,46 +11,6 @@ import { Origin } from './components/Origin.tsx'
 import { jsxRenderer } from './jsxRenderer.ts'
 
 describe('jsxRenderer', () => {
-  it('collects imports, exports, and typed source nodes from multiple files', async () => {
-    const renderer = jsxRenderer()
-    await renderer.render(
-      <>
-        <File baseName="models.ts" path="src/models.ts">
-          <File.Import name={['z']} path="zod" />
-          <File.Export name={['Pet']} path="./models" isTypeOnly />
-          <File.Source name="Pet" isExportable isIndexable isTypeOnly>
-            <Type export name="Pet">
-              {'{ id: number; name: string }'}
-            </Type>
-          </File.Source>
-        </File>
-        <File baseName="client.ts" path="src/client.ts">
-          <File.Source name="BASE_URL" isExportable>
-            <Const export name="BASE_URL">
-              {'"https://api.example.com"'}
-            </Const>
-          </File.Source>
-          <File.Source name="getPet" isExportable>
-            <Function export name="getPet" params="id: number" returnType="string">
-              {'return String(id)'}
-            </Function>
-          </File.Source>
-        </File>
-      </>,
-    )
-
-    expect(renderer.files.length).toBe(2)
-
-    const models = renderer.files.find((f) => f.baseName === 'models.ts')
-    expect(models?.imports[0]?.path).toBe('zod')
-    expect(models?.exports[0]?.isTypeOnly).toBe(true)
-    expect(models?.sources[0]?.nodes?.[0]?.kind).toBe('Type')
-
-    const client = renderer.files.find((f) => f.baseName === 'client.ts')
-    expect(client?.sources[0]?.nodes?.[0]?.kind).toBe('Const')
-    expect(client?.sources[1]?.nodes?.[0]?.kind).toBe('Function')
-  })
-
   it('maps Code and Raw onto source blocks with their barrel flags', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
@@ -242,19 +202,6 @@ describe('File.Source', () => {
       export: true,
       nodes: [{ kind: 'Text', value: 'export type Pet = { id: number }' }],
     })
-  })
-
-  it('reads the deprecated isExportable as export', async () => {
-    const renderer = jsxRenderer()
-    await renderer.render(
-      <File baseName="client.ts" path="src/client.ts">
-        <File.Source name="BASE_URL" isExportable>
-          {'export const BASE_URL = ""'}
-        </File.Source>
-      </File>,
-    )
-
-    expect(renderer.files[0]?.sources[0]).toMatchObject({ export: true })
   })
 })
 

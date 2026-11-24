@@ -4,6 +4,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { kubbStorage, resolveKubbDir } from '@kubb/core'
+import type { AgentPermission } from '@kubb/studio/protocol'
 
 const projectBase = (project = process.cwd()) => path.join('projects', hash('sha256', project))
 
@@ -56,21 +57,7 @@ export type Credentials = {
    * Permissions the user has already granted, keyed by absolute project path, so the CLI asks
    * once per project instead of on every run.
    */
-  projects?: Record<
-    string,
-    {
-      allowRead?: boolean
-      allowReadAst?: boolean
-      allowWrite?: boolean
-      allowConfigEdit?: boolean
-      allowInstall?: boolean
-      allowUpdate?: boolean
-      allowRemove?: boolean
-      allowSaveInput?: boolean
-      allowFileRefs?: boolean
-      allowExec?: boolean
-    }
-  >
+  projects?: Record<string, Partial<Record<AgentPermission, boolean>>>
 }
 
 /**
@@ -247,4 +234,20 @@ export async function getMachineId(): Promise<string> {
   await storage.setItem('machine-secret', secret)
 
   return secret
+}
+
+/**
+ * Replaces every secret in `text` with `[redacted]`.
+ * `util.inspect` escapes a PEM key's line endings and splits it into `+`-joined lines, so the escaped
+ * form and each long line of a secret are replaced too.
+ */
+export function redactSecrets(text: string, secrets: ReadonlyArray<string | undefined>): string {
+  let redacted = text
+  for (const secret of secrets) {
+    if (!secret) continue
+    for (const piece of [secret, JSON.stringify(secret).slice(1, -1), ...secret.split(/\r?\n/).filter((part) => part.length >= 16)]) {
+      redacted = redacted.replaceAll(piece, '[redacted]')
+    }
+  }
+  return redacted
 }

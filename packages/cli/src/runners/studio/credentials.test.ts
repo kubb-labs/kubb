@@ -1,6 +1,7 @@
 import { mkdir, mkdtemp, readFile, rm, stat, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { format } from 'node:util'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const keychain = vi.hoisted(() => ({
   items: new Map<string, string>(),
@@ -31,7 +32,16 @@ vi.mock('@napi-rs/keyring', () => ({
   },
 }))
 
-import { clearCredentials, getCredentialsPath, getMachineId, getProjectKubbHome, readCredentials, updateCredentials, writeCredentials } from './credentials.ts'
+import {
+  clearCredentials,
+  getCredentialsPath,
+  getMachineId,
+  getProjectKubbHome,
+  readCredentials,
+  redactSecrets,
+  updateCredentials,
+  writeCredentials,
+} from './credentials.ts'
 
 let home: string
 
@@ -188,5 +198,19 @@ describe('updateCredentials', () => {
     ])
 
     await expect(readCredentials()).resolves.toMatchObject({ token: 'refreshed', projects: { '/project': { allowWrite: false } } })
+  })
+})
+
+describe('redactSecrets', () => {
+  const body = 'MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7'
+
+  it.each(['\n', '\r\n'])('hides a private key with %j line endings, printed raw or inside an inspected object', (newline) => {
+    const key = ['-----BEGIN PRIVATE KEY-----', body, [...body].reverse().join(''), '-----END PRIVATE KEY-----'].join(newline)
+    const text = `${key} ${format({ nested: { privateKey: key } })} token-abc`
+
+    const redacted = redactSecrets(text, [undefined, key])
+
+    expect(redacted).not.toContain(body)
+    expect(redacted).toContain('token-abc')
   })
 })

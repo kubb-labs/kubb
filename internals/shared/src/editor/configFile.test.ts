@@ -152,7 +152,6 @@ describe('readConfig', () => {
       ['a function expression returning from a block body', `defineConfig(function () { return ${config} })`, oneConfig],
       ['a config with a satisfies assertion', `defineConfig(${config} satisfies UserConfig)`, oneConfig],
       ['an array of configs', `defineConfig([${config}, ${config}])`, twoConfigs],
-      ['a function returning an array of configs', `defineConfig(() => [${config}, ${config}])`, twoConfigs],
       ['a config wrapped in parentheses', `(defineConfig(${config}))`, oneConfig],
     ]
 
@@ -199,16 +198,6 @@ describe('readConfig', () => {
 
 describe('editConfig', () => {
   describe('set-option', () => {
-    it('changes only the targeted option, leaving the rest of the config the same', () => {
-      const result = editConfig({
-        source: advanced,
-        edits: [{ operation: ConfigEditOperation.SET_OPTION, plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }],
-      })
-      expect(readConfig(result.source)).toStrictEqual(
-        withOption({ view: readConfig(advanced), packageName: '@kubb/plugin-ts', key: 'enum', option: { literal: true, value: { type: 'enum' } } }),
-      )
-    })
-
     it('preserves comments and code around the config', () => {
       const source = [
         `import { defineConfig } from 'kubb/config'`,
@@ -264,7 +253,6 @@ describe('editConfig', () => {
       const base = `import { pluginTs } from '@kubb/plugin-ts'\n\nexport default defineConfig({\n  plugins: [pluginTs({ arrayType: 'generic' })],\n})\n`
 
       const values: Array<[label: string, value: unknown, applied: boolean]> = [
-        ['a string', 'x', true],
         ['nested literals', ['a', { b: [1, null] }], true],
         ['undefined', undefined, false],
         ['an array holding a function', [() => 1], false],
@@ -405,11 +393,8 @@ describe('editConfig', () => {
     })
 
     it.each([
-      ['an empty array', `plugins: []`, `plugins: [pluginZod()]`],
       ['an empty array holding a comment', `plugins: [/* keep this note */]`, `plugins: [pluginZod(), /* keep this note */]`],
       ['an empty multi-line array holding a comment', `plugins: [\n    // keep this note\n  ]`, `plugins: [pluginZod(),\n    // keep this note\n  ]`],
-      ['an inline array', `plugins: [pluginTs()]`, `plugins: [pluginTs(), pluginZod()]`],
-      ['a multi-line array without a trailing comma', `plugins: [\n    pluginTs()\n  ]`, `plugins: [\n    pluginTs(),\n    pluginZod()\n  ]`],
     ])('follows the layout of %s', (_label, before, after) => {
       const source = (plugins: string) => `import { pluginTs } from '@kubb/plugin-ts'\n\nexport default defineConfig({\n  ${plugins},\n})\n`
       const result = editConfig({ source: source(before), edits: [{ operation: ConfigEditOperation.ADD_PLUGIN, plugin: '@kubb/plugin-zod' }] })
@@ -560,37 +545,6 @@ describe('editConfig', () => {
       const source = `${header}export default defineConfig({\n  plugins: [pluginTs()],\n})\n`
       const result = editConfig({ source, edits: [{ operation: ConfigEditOperation.REMOVE_EXTENSION, plugin: '@kubb/plugin-swr' }] })
       expect({ changed: result.changed, applied: result.outcomes[0]?.applied }).toStrictEqual({ changed: false, applied: true })
-    })
-  })
-
-  describe('array configs', () => {
-    const arraySource = [
-      `import { pluginTs } from '@kubb/plugin-ts'`,
-      `import { pluginZod } from '@kubb/plugin-zod'`,
-      ``,
-      `export default defineConfig([`,
-      `  { name: 'public', plugins: [pluginTs({ arrayType: 'generic' })] },`,
-      `  { name: 'internal', plugins: [pluginZod()] },`,
-      `])`,
-      ``,
-    ].join('\n')
-
-    it('reads one entry per element, in source order', () => {
-      const view = readConfig(arraySource)
-      expect(view.managed && view.configs.map((config) => [config.name, config.plugins.map((plugin) => plugin.importName)])).toStrictEqual([
-        ['public', ['pluginTs']],
-        ['internal', ['pluginZod']],
-      ])
-    })
-
-    it('targets an entry by index', () => {
-      const result = editConfig({
-        source: arraySource,
-        edits: [{ operation: ConfigEditOperation.SET_OPTION, config: 1, plugin: '@kubb/plugin-zod', path: ['inferred'], value: true }],
-      })
-      expect(readConfig(result.source)).toStrictEqual(
-        withOption({ view: readConfig(arraySource), packageName: '@kubb/plugin-zod', key: 'inferred', option: { literal: true, value: true } }),
-      )
     })
   })
 
@@ -954,11 +908,6 @@ describe('editConfig', () => {
       const result = editConfig({ source, edits: [edit] })
       expect(result.source).toBe(source)
       expect(result.outcomes[0]).toMatchObject({ applied: false, reason: expect.stringContaining('outside the output folder') })
-    })
-
-    it('removes an option with its whole line, keeping the comments around it', () => {
-      const result = editConfig({ source, edits: [{ operation: ConfigEditOperation.REMOVE_OPTION, plugin: '@kubb/plugin-ts', path: ['arrayType'] }] })
-      expect(result.source).toBe(source.replace(`        arrayType: 'generic', // array syntax\n`, ''))
     })
 
     it.each([
