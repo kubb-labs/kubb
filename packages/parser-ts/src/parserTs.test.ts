@@ -244,7 +244,7 @@ describe('parserTs', () => {
 
 describe('parserTsx', () => {
   it('carries the version and compatibility of parserTs, so the compatibility check covers it', () => {
-    const { version, compatibility } = parserTs().meta
+    const { version, compatibility } = parserTs().meta ?? {}
 
     expect(parserTsx().meta).toMatchObject({ name: 'tsx', version, compatibility })
     expect(version).toEqual(expect.any(String))

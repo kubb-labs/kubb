@@ -247,7 +247,9 @@ describe('FileManager', () => {
         () => new FileManager().write(files, { storage, config }),
       )
 
-      expect(diagnostics).toStrictEqual([expect.objectContaining({ code: 'KUBB_OUTSIDE_OUTPUT', severity: 'warning', message: expect.stringContaining('/repo/src/user.ts.') })])
+      expect(diagnostics).toStrictEqual([
+        expect.objectContaining({ code: 'KUBB_OUTSIDE_OUTPUT', severity: 'warning', message: expect.stringContaining('/repo/src/user.ts.') }),
+      ])
       expect(await storage.readItem('/repo/src/user.ts')).toContain('/* a */')
     })
 
