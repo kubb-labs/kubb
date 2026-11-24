@@ -250,7 +250,7 @@ Schemas that only `$ref` each other form a loop, so Kubb types them as `unknown`
 
 ### KUBB_DUPLICATE_OPERATION_ID {#kubb-duplicate-operation-id}
 
-Two operations share an `operationId`, so Kubb adds a `_2`, `_3`, … suffix to each later one. A generated id can collide too: `/a-b` and `/a/b` both get `get_a-b`.
+Two operations share an `operationId`, so Kubb adds a `_2`, `_3`, … suffix to each later one. A generated id can collide too: `/a-b` and `/a/b` both get `get_a-b`. Ids that give the same generated name, such as `get-pets` and `getPets`, also count as the same. A suffix never takes an id that another operation declares.
 
 **Fix:** Give each operation its own `operationId`.
 

@@ -5,7 +5,7 @@ import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { ast } from '@kubb/ast'
-import { checkoutGitInput, type Config, defineExtension, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
+import { cacheStorage, checkoutGitInput, type Config, defineExtension, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { read } from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -65,7 +65,7 @@ vi.mock('@kubb/core', async (importOriginal) => {
     ...core,
     checkoutGitInput: vi.fn(core.checkoutGitInput),
     fsStorage: () => (disk.storage ??= createDisk()),
-    cacheStorage: () => (disk.cache ??= core.memoryStorage()),
+    cacheStorage: vi.fn(() => (disk.cache ??= core.memoryStorage())),
   }
 })
 
@@ -447,6 +447,24 @@ describe('a sandbox job', () => {
     expect(publicOnly).toBe(true)
     // The reply and later commands use the new mode.
     expect(reply.permissions.allowFileRefs).toBe(true)
+  })
+
+  it('keeps a sandbox generation in the sandbox cache when Studio connects again during it', async () => {
+    const gate = Promise.withResolvers<void>()
+    let calls = 0
+    const loadConfigs = async () => {
+      if (++calls === 2) await gate.promise
+      return [projectConfig()]
+    }
+    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, sandbox: true } })
+
+    const run = agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
+    await vi.waitFor(() => expect(calls).toBe(2))
+    await agent.connect({ ...info, sandbox: false })
+    gate.resolve()
+    await run
+
+    expect(vi.mocked(cacheStorage)).toHaveBeenLastCalledWith({ root: expect.stringContaining(join(tmpdir(), 'kubb-studio-')) })
   })
 
   it('refuses a managed input that names a file through a non-http URL', async () => {

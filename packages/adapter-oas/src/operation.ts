@@ -293,7 +293,6 @@ function mediaTypePointer(content: ContentMap, contentType: string, fallback: st
  */
 export function getOperations(document: Document, refs: Refs): Array<Operation> {
   const operations: Array<Operation> = []
-  const seenIds = new Map<string, number>()
   const paths = document.paths
   if (!paths) {
     return operations
@@ -318,41 +317,58 @@ export function getOperations(document: Document, refs: Refs): Array<Operation> 
       if (!schema || typeof schema !== 'object') {
         continue
       }
-      operations.push(withUniqueOperationId({ path, method, schema: schema as OperationObject, pathItem }, seenIds))
+      operations.push({ path, method, schema: schema as OperationObject, pathItem })
     }
     for (const [method, schema] of Object.entries(pathItem.additionalOperations ?? {})) {
       // The spec forbids a fixed method here; such an entry would also take the fixed operation's pointer.
       if (schema && typeof schema === 'object' && !SUPPORTED_METHODS.has(method.toLowerCase())) {
-        operations.push(withUniqueOperationId({ path, method, schema, pathItem }, seenIds))
+        operations.push({ path, method, schema, pathItem })
       }
     }
   }
 
-  return operations
+  return withUniqueOperationIds(operations)
+}
+
+// Names come from `pascalCase(operationId)`, so `getPets_2` and `getPets2` would clash too.
+function suffixed(id: string, taken: Set<string>, counts: Map<string, number>): string {
+  const count = (counts.get(id) ?? 1) + 1
+  counts.set(id, count)
+  const candidate = `${id}_${count}`
+  return taken.has(pascalCase(candidate)) ? suffixed(id, taken, counts) : candidate
 }
 
 // Two operations with one id would share every generated name and file.
-// The second `getPets` becomes `getPets_2`; if that name is taken too, it becomes `getPets_2_2`.
-function uniqueId(id: string, seen: Map<string, number>): string {
-  const count = (seen.get(id) ?? 0) + 1
-  seen.set(id, count)
-  return count === 1 ? id : uniqueId(`${id}_${count}`, seen)
-}
+function withUniqueOperationIds(operations: Array<Operation>): Array<Operation> {
+  // Declared ids are reserved first, so a suffix never takes an id a later operation declares.
+  const taken = new Set(
+    operations.flatMap(({ schema }) => (typeof schema.operationId === 'string' && schema.operationId ? [pascalCase(schema.operationId)] : [])),
+  )
+  const claimed = new Set<string>()
+  const counts = new Map<string, number>()
 
-function withUniqueOperationId(operation: Operation, seen: Map<string, number>): Operation {
-  const operationId = getOperationId(operation)
-  const unique = uniqueId(operationId, seen)
-  if (unique === operationId) return operation
+  return operations.map((operation) => {
+    const operationId = getOperationId(operation)
+    const name = pascalCase(operationId)
+    if (!claimed.has(name)) {
+      claimed.add(name)
+      taken.add(name)
+      return operation
+    }
 
-  Diagnostics.report({
-    code: Diagnostics.code.duplicateOperationId,
-    severity: 'warning',
-    message: `operationId "${operationId}" of ${operation.method.toUpperCase()} ${operation.path} is already used, so it is renamed to "${unique}".`,
-    help: 'Give each operation its own `operationId`.',
-    location: { kind: 'operation', pointer: getOperationPointer(operation) },
+    const unique = suffixed(operationId, taken, counts)
+    taken.add(pascalCase(unique))
+    claimed.add(pascalCase(unique))
+    Diagnostics.report({
+      code: Diagnostics.code.duplicateOperationId,
+      severity: 'warning',
+      message: `operationId "${operationId}" of ${operation.method.toUpperCase()} ${operation.path} is already used, so it is renamed to "${unique}".`,
+      help: 'Give each operation its own `operationId`.',
+      location: { kind: 'operation', pointer: getOperationPointer(operation) },
+    })
+
+    return { ...operation, schema: { ...operation.schema, operationId: unique } }
   })
-
-  return { ...operation, schema: { ...operation.schema, operationId: unique } }
 }
 
 /** Property names whose schema has a truthy `readOnly` or `writeOnly` flag; `$ref` entries are skipped. */

@@ -106,7 +106,7 @@ function isFileInput(input: string, kind = getInputKind(input)): boolean {
 }
 
 // The mode a generation runs in, read once when it starts.
-type GenerationMode = { sandbox: boolean; managed: boolean; agentType: AgentType; permissions: AgentPermissions }
+type GenerationMode = { sandbox: boolean; managed: boolean; agentType: AgentType; permissions: AgentPermissions; generations: GenerationStore }
 
 /**
  * Studio closed with {@link AgentCloseCode.UNAUTHORIZED}. Hosts forget the token and pair again.
@@ -543,7 +543,13 @@ class Agent extends RpcTarget implements AgentApi {
     if (this.#session.saving) return this.#refuse({ message: AgentMessage.SAVE_IN_PROGRESS })
     const settled = Promise.withResolvers<void>()
     // Read once, so a `connect()` during the run cannot change its mode.
-    const mode: GenerationMode = { sandbox: this.#sandbox, managed: this.#managed, agentType: this.#agentType, permissions: this.#permissions }
+    const mode: GenerationMode = {
+      sandbox: this.#sandbox,
+      managed: this.#managed,
+      agentType: this.#agentType,
+      permissions: this.#permissions,
+      generations: this.#generations,
+    }
     this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
     let root = this.#options.root
     let outputRoot: string | undefined
@@ -654,19 +660,19 @@ class Agent extends RpcTarget implements AgentApi {
     // The adapter fetches the URL and every `$ref` in it, so a shared or hosted agent limits the fetch itself to public addresses.
     const files = await (mode.sandbox || mode.managed ? withPublicFetch(run) : run())
       .catch(async (error: unknown) => {
-        await this.#generations.drop(jobId)
+        await mode.generations.drop(jobId)
         await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
         throw error
       })
       .finally(() => checkout?.dispose())
 
-    const output = await this.#generations.keep({ jobId, files, maxSetMb: this.#limits.maxMb })
+    const output = await mode.generations.keep({ jobId, files, maxSetMb: this.#limits.maxMb })
     // Only `readInput` reads it, which needs `allowReadAst`.
-    const inputBytes = await this.#generations.keepInput({ jobId, input: mode.permissions.allowReadAst ? files.input : null, maxSetMb: this.#limits.maxMb })
+    const inputBytes = await mode.generations.keepInput({ jobId, input: mode.permissions.allowReadAst ? files.input : null, maxSetMb: this.#limits.maxMb })
     if (!output.paths.length && Object.keys(output.hashes).length) {
       await this.#warn({ message: 'Kept only the hashes of this generation: its output is too large to keep' })
     }
-    await this.#generations.add({ jobId, output, inputBytes })
+    await mode.generations.add({ jobId, output, inputBytes })
     await this.#logCommand(
       'generate',
       `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${mode.permissions.allowWrite ? 'written to disk' : 'staged on disk'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,

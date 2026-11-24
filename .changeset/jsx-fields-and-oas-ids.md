@@ -9,7 +9,7 @@
 
 Read deprecated source flags the same way everywhere, and keep generated names apart.
 
-- `@kubb/adapter-oas`: an operation whose `operationId` is already taken, declared or generated from the path, gets a `_2`, `_3`, … suffix and a `KUBB_DUPLICATE_OPERATION_ID` warning. Before, `/a-b` and `/a/b` both became `get_a-b` and overwrote each other. In a 2.0 or 3.0 document, a sibling `enum` on a union adds `null` only when the schema is nullable.
+- `@kubb/adapter-oas`: an operation whose `operationId` is already taken, declared or generated from the path, gets a `_2`, `_3`, … suffix and a `KUBB_DUPLICATE_OPERATION_ID` warning. Ids that give the same generated name, such as `get-pets` and `getPets`, count as taken, and a suffix never takes an id another operation declares. Before, `/a-b` and `/a/b` both became `get_a-b` and overwrote each other. In a 2.0 or 3.0 document, a sibling `enum` on a union adds `null` only when the schema or one of its members, including a `$ref` member, is nullable.
 - `@kubb/ast`: `ast.file.isExported(source)` reads `export`, then the deprecated `isIndexable` and `isExportable`. `combineSources` uses it, so a source marked `isIndexable` dedupes against the same source marked `export`.
 - `@kubb/core`: add the `KUBB_DUPLICATE_OPERATION_ID` diagnostic code.
 - `@kubb/parser-ts`: a namespace alias that starts with a digit gets a `_` prefix and keeps the digit, so `1pets` prints as `_1pets` instead of `_pets`.
