@@ -1,4 +1,4 @@
-import { realpath } from 'node:fs/promises'
+import { lstat, realpath } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { CONFIG_EXTENSIONS, findConfigFile, loadConfigFile } from '@internals/shared'
@@ -12,14 +12,23 @@ import { formatDiagnostics } from '../utils.ts'
 /**
  * The path with every symlink resolved, so a link inside the working directory cannot point a
  * checked path elsewhere. A path that does not exist yet resolves through its nearest existing parent.
+ * Returns `undefined`, so the check fails closed, for a dangling symlink or any error other than a
+ * missing path.
  */
-async function realPath(target: string): Promise<string> {
+async function realPath(target: string): Promise<string | undefined> {
   const missing: Array<string> = []
   for (let current = target; ; current = path.dirname(current)) {
     try {
       return path.join(await realpath(current), ...missing)
-    } catch {
-      if (path.dirname(current) === current) return target
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return undefined
+      // `realpath` also reports ENOENT for a symlink whose target is gone; that link could later point anywhere.
+      const isDanglingLink = await lstat(current).then(
+        (stats) => stats.isSymbolicLink(),
+        () => false,
+      )
+      if (isDanglingLink) return undefined
+      if (path.dirname(current) === current) return undefined
       missing.unshift(path.basename(current))
     }
   }
@@ -27,7 +36,8 @@ async function realPath(target: string): Promise<string> {
 
 /** Whether `target`, after resolving symlinks, stays inside `base`. */
 async function isRealPathInside(target: string, base: string): Promise<boolean> {
-  return isPathInside(await realPath(target), await realPath(base))
+  const [real, realBase] = await Promise.all([realPath(target), realPath(base)])
+  return real !== undefined && realBase !== undefined && isPathInside(real, realBase)
 }
 
 const generateSchema = v.object({

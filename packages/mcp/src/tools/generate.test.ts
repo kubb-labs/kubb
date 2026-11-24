@@ -96,6 +96,17 @@ describe('generate tool', () => {
     }
   })
 
+  it('refuses an output through a dangling symlink inside the working directory', async () => {
+    await symlink(join(tmpdir(), 'kubb-mcp-missing-target'), join(dir, 'dangling'), 'dir')
+    const configPath = join(dir, 'kubb.dangling.config.ts')
+    await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
+
+    const { isError, text } = await run({ config: configPath, output: 'dangling/gen' })
+
+    expect(isError).toBe(true)
+    expect(text).toContain('Invalid output path')
+  })
+
   it('accepts a URL input and an output inside the working directory', async () => {
     const configPath = join(dir, 'kubb.url.config.ts')
     await writeFile(configPath, `export default globalThis.__kubbMcpTestConfig\n`)
