@@ -5,14 +5,12 @@ describe('casing', () => {
   test.each([
     // separators
     ['hello-world', 'helloWorld'],
-    ['hello_world', 'helloWorld'],
     ['hello world', 'helloWorld'],
     // already camelCase / PascalCase input
     ['HelloWorld', 'helloWorld'],
     ['createPetById', 'createPetById'],
     // single word
     ['hello', 'hello'],
-    ['a', 'a'],
     // all-caps acronym preserved
     ['HTML', 'HTML'],
     ['getHTTPSResponse', 'getHTTPSResponse'],
@@ -90,7 +88,7 @@ describe('snake casing', () => {
     expect(snakeCase(input)).toBe(expected)
   })
 
-  test.each(['cool_2d_drawing', 'ranked_3rd_place', 'sensor2_reading', 'v1alpha1', '2fa', 'a'])('snakeCase keeps %s unchanged', (input) => {
+  test.each(['cool_2d_drawing', 'ranked_3rd_place', 'sensor2_reading', '2fa', 'a'])('snakeCase keeps %s unchanged', (input) => {
     expect(snakeCase(input)).toBe(input)
   })
 

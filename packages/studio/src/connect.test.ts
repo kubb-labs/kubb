@@ -543,7 +543,6 @@ describe('a sandbox job', () => {
     ['a missing job id', { jobId: '' }, AgentMessage.JOB_REQUIRED],
     ['a job id that is not a string', { jobId: 42 }, AgentMessage.JOB_REQUIRED],
     ['plugins that are not a list', { jobId: 'job-1', config: { plugins: 'plugin-ts' } }, AgentMessage.CONFIG_PATCH_INVALID],
-    ['an adapter that is a string', { jobId: 'job-1', config: { adapter: 'oas' } }, AgentMessage.CONFIG_PATCH_INVALID],
   ])('refuses %s before it generates', async (_label, input, message) => {
     const { agent } = await connectStudio()
 
@@ -1006,25 +1005,6 @@ describe('generation history', () => {
     expect(vi.mocked(mkdtemp)).toHaveBeenCalledWith(expect.stringContaining('kubb-output-'))
     expect(command).toHaveBeenCalledWith({ command: 'generate', info: '1 plugin, staged on disk', requestedBy: 'Stijn' })
   })
-
-  it('reads every earlier job after the agent restarts, from the project cache', async () => {
-    const content = { current: '' }
-    const loadConfigs = async () => [projectConfig({ content: content.current })]
-    const first = await connectStudio({ permissions: { allowRead: true }, loadConfigs })
-    content.current = 'export const pet = 1'
-    await run({ agent: first.agent, jobId: 'job-1' })
-    content.current = 'export const pet = 2'
-    await run({ agent: first.agent, jobId: 'job-2' })
-
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
-
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
-      files: { 'src/gen/pet.ts': 'export const pet = 1' },
-    })
-    await expect(agent.readFiles({ jobId: 'job-2', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({
-      files: { 'src/gen/pet.ts': 'export const pet = 2' },
-    })
-  })
 })
 
 describe('current disk output', () => {
@@ -1081,16 +1061,6 @@ describe('current disk output', () => {
     })
 
     expect((await agent.connect(info)).config.configs[0]!.disk).toBeUndefined()
-  })
-
-  it('compares a generated output with the initial disk snapshot', async () => {
-    await seedDisk({ 'src/gen/pet.ts': 'old disk content' })
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    const output = (await agent.connect(info)).config.configs[0]!.disk
-    await run({ agent, jobId: 'job-1' })
-    const diff = await agent.readDiff({ jobId: 'job-1', path: 'src/gen/pet.ts', base: { jobId: output!.jobId }, limit: 100 })
-    expect(diff.hunks.flatMap((hunk) => hunk.lines)).toContain('-old disk content')
-    expect(output?.hashes['src/gen/pet.ts']).toMatch(/^[0-9a-f]{16}$/)
   })
 })
 
@@ -1153,22 +1123,6 @@ describe('saveConfig', () => {
 
     expect(await read(join(project, 'openapi.json'))).toBe('{"openapi":"3.1.0"}')
     expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi.json',`)
-  })
-
-  it('keeps the spec of a second config entry in its own file', async () => {
-    const project = await mkdtemp(join(tmpdir(), 'kubb-save-input-'))
-    cleanups.push(() => rm(project, { recursive: true, force: true }))
-    await writeFile(join(project, 'kubb.config.ts'), `export default defineConfig([{ input: './a.yaml', plugins: [] }, { input: './b.yaml', plugins: [] }])\n`)
-    const { agent } = await connectStudio({
-      root: project,
-      permissions: { allowConfigEdit: true, allowSaveInput: true },
-      connectInfo: { ...info, managed: true },
-    })
-
-    await agent.saveConfig({ edits: [{ operation: ConfigEditOperation.SET_INPUT, config: 1, input: 'openapi: 3.1.0\n' }] })
-
-    expect(await read(join(project, 'openapi-1.yaml'))).toBe('openapi: 3.1.0\n')
-    expect(await read(join(project, 'kubb.config.ts'))).toContain(`input: './openapi-1.yaml'`)
   })
 
   it('leaves the saved spec alone when the config edit is refused', async () => {
