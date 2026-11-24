@@ -1,5 +1,30 @@
 # Changelog
 
+## v5.24.1 — Nov 24, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Apply an `enum` next to a nullable `type` or a `oneOf`/`anyOf` in OpenAPI 3.1 documents, so the generated type only allows the listed values.
+  
+  - `type: ['string', 'null']` with an `enum` that leaves out `null` is no longer nullable.
+  - A `oneOf` or `anyOf` with a sibling `enum` becomes an intersection with that enum, so `(Color | null) & ('red' | 'green')` replaces `Color | null`.
+  - Swagger 2.0 and OpenAPI 3.0 documents keep allowing `null` for `nullable: true`, even when the `enum` does not list it. ([#4758](https://github.com/kubb-labs/kubb/pull/4758), [`85775b0`](https://github.com/kubb-labs/kubb/commit/85775b0aeb0e0bb64fc7ff16eac84db6f1a85257))
+- Apply a scalar sibling `type` and `format` to `oneOf` and `anyOf` members that have no `type` of their own. `type: integer` with `anyOf: [{ minimum: 10 }, { maximum: 0 }]` now gives integer members, and `type: string, format: binary` with `contentMediaType` members now gives `Blob` members. ([#4757](https://github.com/kubb-labs/kubb/pull/4757), [`895e9fd`](https://github.com/kubb-labs/kubb/commit/895e9fd59925a38bfd58b98ee401dcb291dbca1e))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb generate` now adds the diagnostics a run collects to its anonymous telemetry. Each problem sends only its code, severity, plugin, and a count. The message is never sent, so no file paths or schema names leave your machine. ([#4754](https://github.com/kubb-labs/kubb/pull/4754), [`09fea9d`](https://github.com/kubb-labs/kubb/commit/09fea9d301a69d0449a97086ace5c4f4714a83b7))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.24.0 — Nov 23, 2026
 
 ### @kubb/adapter-oas
