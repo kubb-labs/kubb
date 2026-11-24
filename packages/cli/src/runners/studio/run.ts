@@ -463,6 +463,7 @@ export async function connect(
           root: process.cwd(),
           agentType: 'cli',
           permissions,
+          debug: options.logLevel === 'verbose',
           loadConfigs: async () => (await loadConfigs(options)).configs,
           hooks,
           signal,
