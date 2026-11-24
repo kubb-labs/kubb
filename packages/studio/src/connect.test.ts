@@ -83,7 +83,7 @@ beforeEach(() => {
   disk.cache = undefined
 })
 
-type Socket = { agent: AgentApi; token: string; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
+type Socket = { agent: AgentApi; token: string; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void; closedAt?: number }
 
 // Stands in for Studio: each socket lands in `sockets`, and a test closes it with Studio's code.
 function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
@@ -91,8 +91,17 @@ function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
   const openRpc: OpenRpc = ({ agent, token }) => {
     const closed = Promise.withResolvers<{ code: number; reason: string }>()
     const ping = vi.fn().mockResolvedValue(undefined)
-    sockets.push({ agent, token, ping, close: (code, reason = '') => closed.resolve({ code, reason }) })
-    return { studio: { ping }, closed: closed.promise, close: () => closed.resolve({ code: 1000, reason: '' }) }
+    const socket: Socket = { agent, token, ping, close: (code, reason = '') => closed.resolve({ code, reason }) }
+    sockets.push(socket)
+    return {
+      studio: { ping },
+      opened: Promise.resolve(),
+      closed: closed.promise,
+      close: () => {
+        socket.closedAt ??= Date.now()
+        closed.resolve({ code: 1000, reason: '' })
+      },
+    }
   }
   const shutdown = new AbortController()
   const done = runAgent({
@@ -369,12 +378,14 @@ describe('heartbeat', () => {
 
   it('closes a socket Studio never calls connect() on, then reconnects', async () => {
     vi.useFakeTimers()
+    const start = Date.now()
     const { sockets } = startAgent()
 
     await vi.advanceTimersByTimeAsync(29_999)
-    expect(sockets).toHaveLength(1)
+    expect(sockets[0]!.closedAt).toBeUndefined()
 
     await vi.advanceTimersByTimeAsync(1)
+    expect(sockets[0]!.closedAt).toBe(start + 30_000)
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
   })
 
@@ -386,9 +397,38 @@ describe('heartbeat', () => {
     const connecting = sockets[0]!.agent.connect(info)
 
     await vi.advanceTimersByTimeAsync(30_000)
-    expect(sockets).toHaveLength(1)
     loaded.resolve([projectConfig()])
     await connecting
+    expect(sockets[0]!.closedAt).toBeUndefined()
+  })
+
+  it('closes the socket when connect() fails after the deadline', async () => {
+    vi.useFakeTimers()
+    const loaded = Promise.withResolvers<Array<Config>>()
+    const { sockets } = startAgent({ loadConfigs: () => loaded.promise })
+    await vi.advanceTimersByTimeAsync(0)
+    const connecting = sockets[0]!.agent.connect(info)
+    void connecting.catch(() => {})
+
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(sockets[0]!.closedAt).toBeUndefined()
+    loaded.reject(new Error('Broken config'))
+
+    await expect(connecting).rejects.toThrow('Broken config')
+    expect(sockets[0]!.closedAt).toBeDefined()
+  })
+
+  it('closes the socket at the deadline when connect() failed before it', async () => {
+    vi.useFakeTimers()
+    const start = Date.now()
+    const { sockets } = startAgent({ loadConfigs: async () => Promise.reject(new Error('Broken config')) })
+    await vi.advanceTimersByTimeAsync(0)
+    await expect(sockets[0]!.agent.connect(info)).rejects.toThrow('Broken config')
+
+    await vi.advanceTimersByTimeAsync(29_999)
+    expect(sockets[0]!.closedAt).toBeUndefined()
+    await vi.advanceTimersByTimeAsync(1)
+    expect(sockets[0]!.closedAt).toBe(start + 30_000)
   })
 })
 

@@ -13,7 +13,12 @@ function startAgent(root: string) {
   const closed = Promise.withResolvers<{ code: number; reason: string }>()
   const openRpc: OpenRpc = ({ agent }) => {
     ready.resolve(agent)
-    return { studio: { ping: vi.fn().mockResolvedValue(undefined) }, closed: closed.promise, close: () => closed.resolve({ code: 1000, reason: '' }) }
+    return {
+      studio: { ping: vi.fn().mockResolvedValue(undefined) },
+      opened: Promise.resolve(),
+      closed: closed.promise,
+      close: () => closed.resolve({ code: 1000, reason: '' }),
+    }
   }
   const done = runAgent({
     options: {

@@ -226,7 +226,7 @@ type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal' | 'kubbBin' |
   configFile: string
 }
 
-type Rpc = { studio: StudioApi; closed: Promise<{ code: number; reason: string }>; close: () => void }
+type Rpc = { studio: StudioApi; opened: Promise<void>; closed: Promise<{ code: number; reason: string }>; close: () => void }
 
 // Tests swap in an in-process pair.
 export type OpenRpc = (input: { url: URL; token: string; instanceId: string; agent: AgentApi }) => Rpc
@@ -234,6 +234,8 @@ export type OpenRpc = (input: { url: URL; token: string; instanceId: string; age
 type Session = {
   info?: AgentConnectInfo
   connected: PromiseWithResolvers<AgentConnectInfo>
+  // Set once the connect deadline passed during a pending connect(), which closes the socket if it fails.
+  closeIfFailed?: () => void
   closed: boolean
   active?: { jobId: string; abort: () => void; settled: Promise<void> }
   install?: { abort: () => void; settled: Promise<void> }
@@ -400,7 +402,15 @@ class Agent extends RpcTarget implements AgentApi {
     return emit(this.#options.hooks, 'studio:command', { command, info, requestedBy: name, failed })
   }
 
-  async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
+  connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
+    return this.#connect(info).catch((error: unknown) => {
+      this.#session.info = undefined
+      this.#session.closeIfFailed?.()
+      throw error
+    })
+  }
+
+  async #connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
     this.#session.info = info
     const { configPath, root, version, loadConfigs, configFile } = this.#options
     const source = read(configFile)
@@ -864,7 +874,16 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
   const NodeWebSocket = WebSocket as unknown as new (url: URL, init: { headers: Record<string, string> }) => WebSocket
   const socket = new NodeWebSocket(url, { headers: { Authorization: `Bearer ${token}`, [AGENT_INSTANCE_HEADER]: instanceId } })
   const timer = setTimeout(() => socket.close(3008, 'Connection timeout'), OPEN_TIMEOUT_MS)
-  socket.addEventListener('open', () => clearTimeout(timer), { once: true })
+  const opened = new Promise<void>((resolve) => {
+    socket.addEventListener(
+      'open',
+      () => {
+        clearTimeout(timer)
+        resolve()
+      },
+      { once: true },
+    )
+  })
 
   const closed = new Promise<Awaited<Rpc['closed']>>((resolve) => {
     socket.addEventListener('close', ({ code, reason }) => resolve({ code, reason }), { once: true })
@@ -879,6 +898,7 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
 
   return {
     studio,
+    opened,
     closed,
     close: () => {
       studio[Symbol.dispose]()
@@ -896,9 +916,14 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
   const rpc = openRpc({ url, token, instanceId, agent })
   signal?.addEventListener('abort', rpc.close, { once: true })
   // Cleared by the heartbeat once Studio calls connect(), which can take a while to load the config.
-  let timer: ReturnType<typeof setTimeout> | undefined = setTimeout(() => {
-    if (!session.info) rpc.close()
-  }, CONNECT_TIMEOUT_MS)
+  let timer: ReturnType<typeof setTimeout> | undefined
+  void rpc.opened.then(() => {
+    if (session.closed || session.info) return
+    timer = setTimeout(() => {
+      if (session.info) session.closeIfFailed = rpc.close
+      else rpc.close()
+    }, CONNECT_TIMEOUT_MS)
+  })
 
   // Races each ping against a deadline, so a half-open socket can't hang it forever.
   const heartbeat = async (): Promise<void> => {

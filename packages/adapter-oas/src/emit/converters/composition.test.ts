@@ -232,5 +232,6 @@ describe('parseSchema enum next to a nullable type or a union', () => {
     const node = parseSchema(emptyCtx, { schema: { type: ['string', 'number', 'null'], enum: ['a', 1] } as SchemaObject })
 
     expect(node).toMatchObject({ type: 'union', nullable: undefined })
+    expect(ast.schema.narrow(node, ast.schema.types.union)!.members).not.toContainEqual(expect.objectContaining({ type: 'null' }))
   })
 })
