@@ -347,9 +347,7 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
     logOutro(`${styleText('green', '✓ Kubb is set up')}\n   ${styleText('dim', 'Next')}  ${generateCommand({ packageManager, script, watch: true })}`)
   } catch (error) {
     logError(styleText('red', 'An error occurred during initialization'))
-    if (error instanceof Error) {
-      logError(error.message)
-    }
+    logError(Diagnostics.format(Diagnostics.from(error)).join('\n'))
     process.exit(1)
   }
 }

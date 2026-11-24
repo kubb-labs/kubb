@@ -4,6 +4,7 @@ import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { ast, type FileNode } from '@kubb/ast'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
 import type { KubbHooks } from './types.ts'
 import { FileManager } from './FileManager.ts'
@@ -211,25 +212,28 @@ describe('FileManager', () => {
       expect(await storage.readItem('/gen/a.ts')).toContain('/* a.ts */')
     })
 
-    it('warns about a shared file another config of this run wrote differently, and not about one it wrote the same', async () => {
+    it('reports a shared file another config of this run wrote differently, and not one it wrote the same', async () => {
       const storage = memoryStorage()
-      const hooks = new Hookable<KubbHooks>()
-      const warnings: Array<string> = []
-      hooks.hook('kubb:warn', ({ message }) => void warnings.push(message))
+      const reported: Array<Diagnostic> = []
       const shared = { path: '/common', written: new Map<string, string>() }
 
-      await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* a */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
-        storage,
-        hooks,
-        shared,
-      })
-      await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* b */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
-        storage,
-        hooks,
-        shared,
-      })
+      await Diagnostics.scope(
+        (diagnostic) => reported.push(diagnostic),
+        async () => {
+          await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* a */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
+            storage,
+            shared,
+          })
+          await new FileManager().write([makeFileWithSources('/common/pet.ts', ['/* b */']), makeFileWithSources('/common/name.ts', ['/* a */'])], {
+            storage,
+            shared,
+          })
+        },
+      )
 
-      expect(warnings).toStrictEqual(['Shared files that differ from what another config wrote: /common/pet.ts.'])
+      expect(reported).toMatchObject([
+        { code: 'KUBB_SHARED_FILE_MISMATCH', severity: 'warning', message: 'Shared files that differ from what another config wrote: /common/pet.ts.' },
+      ])
     })
 
     // A written file is tracked so the commit re-reads it; a skipped file's record already stands.

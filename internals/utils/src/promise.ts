@@ -94,7 +94,8 @@ type ParallelOptions<TItem> = {
 
 /**
  * Runs `run` over every item with at most `limit` in flight. Workers share one iterator, so each
- * takes the next item the moment it frees up instead of waiting for a batch to drain.
+ * takes the next item the moment it frees up instead of waiting for a batch to drain. The first
+ * rejection rejects the call, and the other workers start no new item after it.
  *
  * @example
  * ```ts
@@ -103,9 +104,16 @@ type ParallelOptions<TItem> = {
  */
 export async function inParallel<TItem>({ items, limit, run }: ParallelOptions<TItem>): Promise<void> {
   const queue = items.entries()
+  let failed = false
 
   const worker = async (): Promise<void> => {
-    for (const [index, item] of queue) await run(item, index)
+    for (const [index, item] of queue) {
+      if (failed) return
+      await run(item, index).catch((error: unknown) => {
+        failed = true
+        throw error
+      })
+    }
   }
 
   await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => worker()))

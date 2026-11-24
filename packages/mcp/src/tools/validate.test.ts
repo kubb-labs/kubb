@@ -36,6 +36,19 @@ describe('validate tool', () => {
     expect(text).toContain('Validation successful')
   })
 
+  it('refuses a $ref to a local file outside the working directory', async () => {
+    await writeFile(join(dir, 'secret.json'), JSON.stringify({ type: 'string' }))
+    const spec = JSON.parse(validSpec)
+    spec.components.schemas.Secret = { $ref: './secret.json' }
+    const path = join(dir, 'with-ref.json')
+    await writeFile(path, JSON.stringify(spec))
+
+    const { isError, text } = await run(path)
+
+    expect(isError).toBe(true)
+    expect(text).toContain('KUBB_REF_NOT_FOUND')
+  })
+
   it('returns a coded diagnostic for a missing spec file', async () => {
     const { isError, text } = await run(join(dir, 'does-not-exist.yaml'))
 

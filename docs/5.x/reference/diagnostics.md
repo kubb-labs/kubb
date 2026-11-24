@@ -260,11 +260,23 @@ The spec fails OpenAPI schema validation, so the output can be incomplete or wro
 
 **Fix:** Run [`kubb validate`](/docs/5.x/reference/commands/validate) to list every problem, or set [`validate: false`](/extensions/kubb-labs/adapter-oas/options#validate) on the adapter to skip the check.
 
+### KUBB_OUTPUT_PASSES_SKIPPED {#kubb-output-passes-skipped}
+
+`output.format`, `output.lint`, or `output.postGenerate` is set, but the `storage` is not named `fs`, so Kubb cannot tell that the files are on disk. It skips those passes and the output manifest.
+
+**Fix:** Run the tools yourself after the build, or remove the options. A custom storage that writes `output.path` to disk can set `name: 'fs'`.
+
 ### KUBB_PLUGIN_WARNING {#kubb-plugin-warning}
 
 A plugin reported a non-fatal problem through `ctx.warn`.
 
 **Fix:** Read the message and adjust the input or the plugin options.
+
+### KUBB_SHARED_FILE_MISMATCH {#kubb-shared-file-mismatch}
+
+Configs that use the same `shared.path` generated different content for the same shared file, so the last config to write it wins.
+
+**Fix:** Give the configs that use the same `shared.path` the same plugin options and banner.
 
 ### KUBB_UNSUPPORTED_FORMAT {#kubb-unsupported-format}
 

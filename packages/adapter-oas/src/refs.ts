@@ -41,11 +41,20 @@ export function createRefs(document: Document) {
     }
 
     // Split before decoding so an encoded `%2F` stays inside its token, then unescape `~1` and `~0` (RFC 6901).
-    const current = pointer
-      .split('/')
-      .filter(Boolean)
-      .map((token) => unescapePointerToken(globalThis.decodeURIComponent(token)))
-      .reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], document as unknown)
+    let current: unknown
+    try {
+      current = pointer
+        .split('/')
+        .filter(Boolean)
+        .map((token) => unescapePointerToken(globalThis.decodeURIComponent(token)))
+        .reduce(
+          (obj: unknown, key: string) => (obj != null && Object.hasOwn(obj, key) ? (obj as Record<string, unknown>)[key] : undefined),
+          document as unknown,
+        )
+    } catch {
+      // A malformed `%` escape cannot name a node, so it reports as an unresolved ref.
+      current = undefined
+    }
 
     if (current) {
       pointerCache.set(pointer, current)

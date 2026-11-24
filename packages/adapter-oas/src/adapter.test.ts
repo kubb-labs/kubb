@@ -30,17 +30,19 @@ const minimalSpec = {
 } as const
 
 describe('adapterOas.parse', () => {
-  it('restores the sources of a cached parse', async () => {
+  it('restores the sources and document of a cached parse', async () => {
     const mocks = path.resolve(import.meta.dirname, '../mocks')
     const withRef = { type: 'path', path: path.join(mocks, 'withExternalFileRef.yaml') } as const
     const petStore = { type: 'path', path: path.join(mocks, 'petStore.yaml') } as const
     const adapter = adapterOas({ validate: false })
 
     await adapter.parse(withRef)
+    const withRefDocument = adapter.document
     await adapter.parse(petStore)
     await adapter.parse(withRef)
 
     expect(adapter.sources).toStrictEqual([withRef.path, path.join(mocks, 'external/pet.yaml')])
+    expect(adapter.document).toBe(withRefDocument)
   })
 
   it('returns a tree that ast.json writes smaller than plain JSON and reads back unchanged', async () => {

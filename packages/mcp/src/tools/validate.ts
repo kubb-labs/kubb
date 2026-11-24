@@ -1,3 +1,4 @@
+import process from 'node:process'
 import { adapterOas } from '@kubb/adapter-oas'
 import { Diagnostics } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
@@ -17,7 +18,8 @@ export const validateTool = defineTool(
   },
   async ({ input }) => {
     try {
-      await adapterOas().validate(input, { throwOnError: true })
+      // The AI client supplies the spec, so a `$ref` may only read files inside the working directory.
+      await adapterOas().validate(input, { throwOnError: true, fileRefs: [process.cwd()] })
       return tool.text(`Validation successful: ${input}`)
     } catch (err) {
       const diagnostic = Diagnostics.from(err)

@@ -371,9 +371,12 @@ export class FileManager {
     await hooks?.callHook('kubb:files:processing:end', { files, unchanged })
 
     if (mismatched.length > 0) {
-      await hooks?.callHook('kubb:warn', {
+      Diagnostics.report({
+        code: Diagnostics.code.sharedFileMismatch,
+        severity: 'warning',
         message: `Shared files that differ from what another config wrote: ${mismatched.slice(0, 3).join(', ')}${mismatched.length > 3 ? ', ...' : ''}.`,
-        info: 'The last config to write wins. Give the configs that use the same `shared.path` the same plugin options and banner.',
+        help: 'The last config to write wins. Give the configs that use the same `shared.path` the same plugin options and banner.',
+        location: { kind: 'config' },
       })
     }
   }
