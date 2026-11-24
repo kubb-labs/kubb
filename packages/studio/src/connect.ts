@@ -105,6 +105,9 @@ function isFileInput(input: string, kind = getInputKind(input)): boolean {
   return kind === 'file' || (kind === 'url' && !/^https?:/i.test(input))
 }
 
+// The mode a generation runs in, read once when it starts.
+type GenerationMode = { sandbox: boolean; managed: boolean; agentType: AgentType; permissions: AgentPermissions }
+
 /**
  * Studio closed with {@link AgentCloseCode.UNAUTHORIZED}. Hosts forget the token and pair again.
  */
@@ -243,8 +246,7 @@ type Session = {
   info?: AgentConnectInfo
   connected: PromiseWithResolvers<AgentConnectInfo>
   closed: boolean
-  // `info` is the connect info the generation started with, so a `connect()` during it cannot change its mode.
-  active?: { jobId: string; info?: AgentConnectInfo; abort: () => void; settled: Promise<void> }
+  active?: { jobId: string; abort: () => void; settled: Promise<void> }
   install?: { abort: () => void; settled: Promise<void> }
   saving?: boolean
 }
@@ -357,16 +359,12 @@ class Agent extends RpcTarget implements AgentApi {
     this.#session = session
   }
 
-  get #info(): AgentConnectInfo | undefined {
-    return this.#session.active?.info ?? this.#session.info
-  }
-
   get #sandbox(): boolean {
-    return SHARED_AGENT_TYPES.has(this.#options.agentType) || this.#info?.sandbox === true
+    return SHARED_AGENT_TYPES.has(this.#options.agentType) || this.#session.info?.sandbox === true
   }
 
   get #managed(): boolean {
-    return this.#options.agentType === 'managed' || this.#info?.managed === true
+    return this.#options.agentType === 'managed' || this.#session.info?.managed === true
   }
 
   // The host's kind, unless Studio's flags narrow it to a sandbox or a managed agent.
@@ -544,20 +542,17 @@ class Agent extends RpcTarget implements AgentApi {
     if (this.#session.install) return this.#refuse({ message: AgentMessage.INSTALL_IN_PROGRESS })
     if (this.#session.saving) return this.#refuse({ message: AgentMessage.SAVE_IN_PROGRESS })
     const settled = Promise.withResolvers<void>()
-    this.#session.active = {
-      jobId: input.jobId,
-      info: this.#session.info,
-      abort: () => controller.abort(new Error('Generation canceled')),
-      settled: settled.promise,
-    }
+    // Read once, so a `connect()` during the run cannot change its mode.
+    const mode: GenerationMode = { sandbox: this.#sandbox, managed: this.#managed, agentType: this.#agentType, permissions: this.#permissions }
+    this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
     let root = this.#options.root
     let outputRoot: string | undefined
 
     try {
       // Kubb keys its manifest cache by root, so sandbox tenants sharing one root would read each other's.
-      if (this.#sandbox) root = await mkdtemp(path.join(tmpdir(), 'kubb-job-'))
-      if (!this.#sandbox && !this.#permissions.allowWrite) outputRoot = await mkdtemp(path.join(tmpdir(), 'kubb-output-'))
-      return await this.#generate({ input, root, outputRoot, signal: controller.signal })
+      if (mode.sandbox) root = await mkdtemp(path.join(tmpdir(), 'kubb-job-'))
+      if (!mode.sandbox && !mode.permissions.allowWrite) outputRoot = await mkdtemp(path.join(tmpdir(), 'kubb-output-'))
+      return await this.#generate({ input, mode, root, outputRoot, signal: controller.signal })
     } finally {
       if (root !== this.#options.root) {
         await Promise.all([rm(root, { recursive: true, force: true }), rm(resolveCacheDir(root), { recursive: true, force: true })]).catch(() => {})
@@ -573,11 +568,13 @@ class Agent extends RpcTarget implements AgentApi {
    */
   async #generate({
     input,
+    mode,
     root,
     outputRoot,
     signal,
   }: {
     input: GenerateInput
+    mode: GenerationMode
     root: string
     outputRoot?: string
     signal: AbortSignal
@@ -585,12 +582,12 @@ class Agent extends RpcTarget implements AgentApi {
     const { jobId, config: patch } = input
     // A sandbox has no spec on disk, so it only ever generates from the content Studio sends. A path
     // or URL would make it read host files or fetch internal addresses on behalf of any tenant.
-    const studioInput = this.#sandbox || this.#managed ? patch?.input : undefined
-    if (this.#sandbox && (typeof studioInput !== 'string' || !studioInput.trim() || getInputKind(studioInput) !== 'inline')) {
+    const studioInput = mode.sandbox || mode.managed ? patch?.input : undefined
+    if (mode.sandbox && (typeof studioInput !== 'string' || !studioInput.trim() || getInputKind(studioInput) !== 'inline')) {
       return this.#refuse({ message: AgentMessage.SANDBOX_INPUT_ONLY })
     }
     // Studio may point a managed agent at a URL or a git file, and it falls back to its config's input without one. A file path would read the container's disk.
-    if (this.#managed && studioInput !== undefined && (!MANAGED_INPUT_KINDS.has(getInputKind(studioInput)) || isFileInput(studioInput))) {
+    if (mode.managed && studioInput !== undefined && (!MANAGED_INPUT_KINDS.has(getInputKind(studioInput)) || isFileInput(studioInput))) {
       return this.#refuse({ message: AgentMessage.MANAGED_INPUT_KIND })
     }
 
@@ -612,7 +609,7 @@ class Agent extends RpcTarget implements AgentApi {
 
     const activePlugins = plugins ?? config.plugins
 
-    if (patch?.input && !this.#sandbox && !this.#managed) {
+    if (patch?.input && !mode.sandbox && !mode.managed) {
       // A `kubb:warn` rather than `studio:warn`, so the generation's event stream carries it to Studio too.
       await emit(this.#options.hooks, 'kubb:warn', {
         message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox or managed agent',
@@ -620,7 +617,7 @@ class Agent extends RpcTarget implements AgentApi {
     }
 
     // A managed agent checks out any git input itself, the config's too, so the fetch stays on public addresses.
-    const managedInput = this.#managed ? (studioInput ?? config.input) : undefined
+    const managedInput = mode.managed ? (studioInput ?? config.input) : undefined
     const checkout =
       typeof managedInput === 'string' && getInputKind(managedInput) === 'git'
         ? await checkoutGitInput(managedInput, signal, { publicOnly: true, authorization: input.gitAuth?.authorization }).catch((error: unknown) =>
@@ -638,24 +635,24 @@ class Agent extends RpcTarget implements AgentApi {
       parsers,
     }
     // Sharing parses the other entries' specs, which a sandbox or managed agent must not read from its own disk.
-    const buildConfigs = this.#sandbox || this.#managed ? [buildConfig] : configs.map((entry) => (entry === config ? buildConfig : { ...entry, root }))
+    const buildConfigs = mode.sandbox || mode.managed ? [buildConfig] : configs.map((entry) => (entry === config ? buildConfig : { ...entry, root }))
     const run = () =>
       generate({
         configs: buildConfigs,
         only: buildConfigs.indexOf(buildConfig),
         hooks: this.#options.hooks,
         signal,
-        allowExec: this.#permissions.allowWrite && this.#permissions.allowExec,
+        allowExec: mode.permissions.allowWrite && mode.permissions.allowExec,
         fileRefs: resolveFileRefs({
-          agentType: this.#agentType,
-          allowFileRefs: this.#permissions.allowFileRefs,
+          agentType: mode.agentType,
+          allowFileRefs: mode.permissions.allowFileRefs,
           root: this.#options.root,
           input: config.input,
           checkoutDir: checkout?.dir,
         }),
       })
     // The adapter fetches the URL and every `$ref` in it, so a shared or hosted agent limits the fetch itself to public addresses.
-    const files = await (this.#sandbox || this.#managed ? withPublicFetch(run) : run())
+    const files = await (mode.sandbox || mode.managed ? withPublicFetch(run) : run())
       .catch(async (error: unknown) => {
         await this.#generations.drop(jobId)
         await this.#logCommand('generate', getErrorMessage(error), input.requestedBy, true)
@@ -665,14 +662,14 @@ class Agent extends RpcTarget implements AgentApi {
 
     const output = await this.#generations.keep({ jobId, files, maxSetMb: this.#limits.maxMb })
     // Only `readInput` reads it, which needs `allowReadAst`.
-    const inputBytes = await this.#generations.keepInput({ jobId, input: this.#permissions.allowReadAst ? files.input : null, maxSetMb: this.#limits.maxMb })
+    const inputBytes = await this.#generations.keepInput({ jobId, input: mode.permissions.allowReadAst ? files.input : null, maxSetMb: this.#limits.maxMb })
     if (!output.paths.length && Object.keys(output.hashes).length) {
       await this.#warn({ message: 'Kept only the hashes of this generation: its output is too large to keep' })
     }
     await this.#generations.add({ jobId, output, inputBytes })
     await this.#logCommand(
       'generate',
-      `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'staged on disk'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
+      `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${mode.permissions.allowWrite ? 'written to disk' : 'staged on disk'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
       input.requestedBy,
     )
 

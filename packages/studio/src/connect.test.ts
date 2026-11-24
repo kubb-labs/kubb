@@ -436,15 +436,17 @@ describe('a sandbox job', () => {
       if (++calls === 2) await gate.promise
       return [{ ...projectConfig(), adapter: createMockedAdapter({ parse }) }]
     }
-    const { agent } = await connectStudio({ loadConfigs, connectInfo: { ...info, managed: true } })
+    const { agent } = await connectStudio({ loadConfigs, permissions: { allowFileRefs: true }, connectInfo: { ...info, managed: true } })
 
     const run = agent.startGeneration({ jobId: 'job-1', config: {} }).result()
     await vi.waitFor(() => expect(calls).toBe(2))
-    await agent.connect({ ...info, managed: false })
+    const reply = await agent.connect({ ...info, managed: false })
     gate.resolve()
     await run
 
     expect(publicOnly).toBe(true)
+    // The reply and later commands use the new mode.
+    expect(reply.permissions.allowFileRefs).toBe(true)
   })
 
   it('refuses a managed input that names a file through a non-http URL', async () => {
