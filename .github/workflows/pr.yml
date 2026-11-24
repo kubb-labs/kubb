@@ -254,4 +254,5 @@ jobs:
         with:
           command: audit
           comment: true
-          review-comments: true
+          # Fork pull requests get a read-only token, so they keep the line annotations instead.
+          review-comments: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
