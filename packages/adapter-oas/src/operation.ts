@@ -293,6 +293,7 @@ function mediaTypePointer(content: ContentMap, contentType: string, fallback: st
  */
 export function getOperations(document: Document, refs: Refs): Array<Operation> {
   const operations: Array<Operation> = []
+  const seenIds = new Set<string>()
   const paths = document.paths
   if (!paths) {
     return operations
@@ -317,40 +318,36 @@ export function getOperations(document: Document, refs: Refs): Array<Operation> 
       if (!schema || typeof schema !== 'object') {
         continue
       }
-      operations.push({ path, method, schema: schema as OperationObject, pathItem })
+      operations.push(withUniqueOperationId({ path, method, schema: schema as OperationObject, pathItem }, seenIds))
     }
     for (const [method, schema] of Object.entries(pathItem.additionalOperations ?? {})) {
       // The spec forbids a fixed method here; such an entry would also take the fixed operation's pointer.
       if (schema && typeof schema === 'object' && !SUPPORTED_METHODS.has(method.toLowerCase())) {
-        operations.push({ path, method, schema, pathItem })
+        operations.push(withUniqueOperationId({ path, method, schema, pathItem }, seenIds))
       }
     }
   }
 
-  return withUniqueOperationIds(operations)
+  return operations
 }
 
 // Two operations with one id would share every generated name and file.
-function withUniqueOperationIds(operations: Array<Operation>): Array<Operation> {
-  const seen = new Set<string>()
+function withUniqueOperationId(operation: Operation, seen: Set<string>): Operation {
+  const operationId = getOperationId(operation)
+  let unique = operationId
+  for (let suffix = 2; seen.has(unique); suffix++) unique = `${operationId}_${suffix}`
+  seen.add(unique)
+  if (unique === operationId) return operation
 
-  return operations.map((operation) => {
-    const operationId = getOperationId(operation)
-    let unique = operationId
-    for (let suffix = 2; seen.has(unique); suffix++) unique = `${operationId}_${suffix}`
-    seen.add(unique)
-    if (unique === operationId) return operation
-
-    Diagnostics.report({
-      code: Diagnostics.code.duplicateOperationId,
-      severity: 'warning',
-      message: `operationId "${operationId}" of ${operation.method.toUpperCase()} ${operation.path} is already used, so it is renamed to "${unique}".`,
-      help: 'Give each operation its own `operationId`.',
-      location: { kind: 'operation', pointer: getOperationPointer(operation) },
-    })
-
-    return { ...operation, schema: { ...operation.schema, operationId: unique } }
+  Diagnostics.report({
+    code: Diagnostics.code.duplicateOperationId,
+    severity: 'warning',
+    message: `operationId "${operationId}" of ${operation.method.toUpperCase()} ${operation.path} is already used, so it is renamed to "${unique}".`,
+    help: 'Give each operation its own `operationId`.',
+    location: { kind: 'operation', pointer: getOperationPointer(operation) },
   })
+
+  return { ...operation, schema: { ...operation.schema, operationId: unique } }
 }
 
 /** Property names whose schema has a truthy `readOnly` or `writeOnly` flag; `$ref` entries are skipped. */
