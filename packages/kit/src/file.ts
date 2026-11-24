@@ -1,4 +1,3 @@
-import { memo } from '@internals/utils'
 import type { FileNode, OperationNode, SchemaNode } from '@kubb/ast'
 import { Diagnostics, type Filter, type Group, type KubbContext, type Output, type Override, type PluginName, useKubb } from '@kubb/core'
 import type { Resolver } from './resolver/Resolver.ts'
@@ -101,14 +100,17 @@ function operationFile(
   if (!suffix) return first
 
   const { output, group } = location
-  const byOutput = ctx.memo(`${resolver.pluginName}:file:schemaPaths:${extname}`, () =>
-    memo.create<Output, Map<Group | undefined, Set<string>>>({ weak: true }),
-  )
-  const schemaPaths = memo(
-    memo(byOutput, output, () => new Map()),
-    group,
-    () => new Set(ctx.schemas.flatMap((schema) => (schema.name ? [resolver.file({ name: schema.name, extname, ...location }).path.toLowerCase()] : []))),
-  )
+  const byOutput = ctx.memo(`${resolver.pluginName}:file:schemaPaths:${extname}`, () => new WeakMap<Output, Map<Group | undefined, Set<string>>>())
+  let byGroup = byOutput.get(output)
+  if (!byGroup) {
+    byGroup = new Map()
+    byOutput.set(output, byGroup)
+  }
+  let schemaPaths = byGroup.get(group)
+  if (!schemaPaths) {
+    schemaPaths = new Set(ctx.schemas.flatMap((schema) => (schema.name ? [resolver.file({ name: schema.name, extname, ...location }).path.toLowerCase()] : [])))
+    byGroup.set(group, schemaPaths)
+  }
   const withSuffix = (file: FileNode, nextName: string): FileNode => {
     if (!schemaPaths.has(file.path.toLowerCase())) return file
     const candidate = resolver.file(entry(nextName))

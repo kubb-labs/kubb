@@ -22,7 +22,7 @@ Kubb v6 removes every API on this page. Each one still works in v5. Move to the 
 | `defineParser` | `defineExtension` with `kind: 'parser'` |
 | `createAdapter` | `defineExtension` with `kind: 'adapter'` |
 | `ctx.driver` in plugin hooks | `schemas`, `getPlugin` and `memo` |
-| `driver.getResolver(pluginName)` | `ctx.getResolver(pluginName)` in a generator, or `getResolver(pluginName)` from `kubb/kit` |
+| `driver.getResolver(pluginName)` | `ctx.getResolver(pluginName)` in a template, or `getResolver(pluginName)` from `kubb/kit` |
 | `addGenerator`, `setResolver`, `setMacros`, `addMacro`, `createResolver`, `defineResolver`, `defineGenerator`, `toFilePath`, `Resolver` from `@kubb/core` | The same names from `kubb/kit` |
 
 ## @kubb/kit {#kubb-kit}
