@@ -56,7 +56,7 @@ describe('generate tool', () => {
   })
 
   it.each([
-    ['an output outside the working directory', { output: '../outside-gen' }, 'Invalid output path'],
+    ['an output outside the working directory', { output: '../../outside-gen' }, 'Invalid output path'],
     ['an absolute output outside the working directory', { output: '/tmp/kubb-outside-gen' }, 'Invalid output path'],
     ['an input file outside the working directory', { input: '../../secrets/spec.yaml' }, 'Invalid input path'],
   ])('refuses %s before generating', async (_label, args, message) => {
@@ -67,6 +67,16 @@ describe('generate tool', () => {
 
     expect(isError).toBe(true)
     expect(text).toContain(message)
+  })
+
+  it('resolves the output against the config root, as core does', async () => {
+    const configPath = join(dir, 'kubb.root.config.ts')
+    await writeFile(configPath, `export default { ...globalThis.__kubbMcpTestConfig, root: '../..' }\n`)
+
+    const { isError, text } = await run({ config: configPath, output: 'gen' })
+
+    expect(isError).toBe(true)
+    expect(text).toContain('Invalid output path')
   })
 
   it('accepts a URL input and an output inside the working directory', async () => {
