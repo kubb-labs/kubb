@@ -1,7 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { existsSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
-import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -19,16 +17,15 @@ import {
   type KubbHooks,
   type ProblemCode,
   type Storage,
-  readInstalledPackages,
   resolveCacheDir,
-  resolveMeta,
 } from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
-import { x } from 'tinyexec'
 import { version as kubbVersion } from '../package.json'
-import { BUNDLED_PACKAGES, editConfigFile, pickOutput, readConfig, readImports } from '@internals/shared'
+import { editConfigFile } from '@internals/shared'
+import { readConfigFileView, toEntryView } from './configView.ts'
 import { signAgentPayload } from './agentKey.ts'
 import { diffHunks, pageHunks } from './diff.ts'
+import { type ExtensionCommandContext, installExtension, readInstalledExtensions, removeExtension, runKubb, updateExtensions } from './extensions.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
 import {
@@ -74,17 +71,7 @@ import {
   type UpdateExtensionsResult,
 } from './protocol.ts'
 import { withPublicFetch } from './publicFetch.ts'
-import {
-  assertOutputPaths,
-  isStudioConfigPatch,
-  mergeAdapter,
-  mergeOutput,
-  mergeParsers,
-  mergePlugins,
-  resolveFileRefs,
-  toJSONOptions,
-  toStudioName,
-} from './resolveConfig.ts'
+import { assertOutputPaths, isStudioConfigPatch, mergeAdapter, mergeOutput, mergeParsers, mergePlugins, resolveFileRefs } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -251,39 +238,6 @@ type Session = {
   saving?: boolean
 }
 
-const INSTALL_TIMEOUT_MS = 5 * 60_000
-/** How many trailing lines of a failed `kubb add` the reason keeps. */
-const INSTALL_OUTPUT_LINES = 20
-/** `owner/slug` or `slug`, as `kubb add` takes it. Checked before it becomes an argument. */
-const REGISTRY_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)?$/
-
-/** The CLI the project depends on, so `kubb add` installs next to what the config imports. */
-function findKubbBin(root: string): string | undefined {
-  const requireModule = createRequire(path.resolve(root, 'package.json'))
-  const names = ['kubb', '@kubb/cli']
-  // Nearest directory first, so a nested project does not pick up an ancestor's CLI.
-  return (requireModule.resolve.paths('kubb') ?? [])
-    .flatMap((dir) => names.map((name) => path.join(dir, name, 'bin', 'kubb.js')))
-    .find((bin) => existsSync(bin))
-}
-
-/** Runs a `kubb` command without a shell, and keeps the end of its output for the failure reason. */
-async function runKubb({ bin, args, cwd, signal }: { bin: string; args: Array<string>; cwd: string; signal: AbortSignal }) {
-  try {
-    const { stdout, stderr, exitCode } = await x(process.execPath, [bin, ...args], {
-      signal,
-      timeout: INSTALL_TIMEOUT_MS,
-      throwOnError: false,
-      nodeOptions: { cwd, env: { ...process.env, NO_COLOR: '1', FORCE_COLOR: '0' } },
-    })
-    const output = `${stdout}\n${stderr}`.trim().split('\n').slice(-INSTALL_OUTPUT_LINES).join('\n')
-    return { failed: exitCode !== 0, output: output || `kubb ${args[0]} exited with ${exitCode ?? 'a signal'}` }
-  } catch (error) {
-    // tinyexec still throws when the timeout hits or the process cannot start.
-    return { failed: true, output: `kubb ${args[0]} did not run: ${getErrorMessage(error)}` }
-  }
-}
-
 // A throwing host listener must not break the connection.
 function emit<TName extends keyof KubbHooks & string>(hooks: Hookable<KubbHooks>, name: TName, ...args: KubbHooks[TName]): Promise<void> {
   return Promise.resolve(hooks.callHook(name, ...args)).catch(() => {})
@@ -437,31 +391,13 @@ class Agent extends RpcTarget implements AgentApi {
     return emit(this.#options.hooks, 'studio:command', { command, info, requestedBy, failed })
   }
 
-  // Not cached: the user can edit the file between two Studio actions.
   async #readConfigFileView(source: Promise<string>): Promise<ConfigFileView | undefined> {
     if (!this.#permissions.allowConfigEdit) return undefined
-
-    try {
-      return readConfig(await source)
-    } catch (error) {
-      await this.#warn({ message: `Could not read ${this.#options.configFile}: ${getErrorMessage(error)}` })
-      return undefined
-    }
+    return readConfigFileView({ source, configFile: this.#options.configFile, warn: (warning) => this.#warn(warning) })
   }
 
-  // Not cached either: the user can install a plugin while the agent runs. Keeps each project
-  // dependency, config import and built-in that resolves and ships a valid `kubb-extension.json`.
-  async #installedExtensions(source = read(this.#options.configFile)): Promise<InstalledExtensions> {
-    const imports = await source.then(readImports, () => [])
-    const installed = await readInstalledPackages({ root: this.#options.root, packages: [...imports, ...BUNDLED_PACKAGES], resolveFrom: ['kubb'] })
-
-    return new Map(
-      installed.flatMap(({ package: name, version, manifest }) =>
-        version !== undefined && manifest
-          ? [[name, { package: name, version, manifest, ...(BUNDLED_PACKAGES.includes(name) ? { bundled: true as const } : {}) }] as const]
-          : [],
-      ),
-    )
+  #installedExtensions(source = read(this.#options.configFile)): Promise<InstalledExtensions> {
+    return readInstalledExtensions({ root: this.#options.root, source })
   }
 
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
@@ -770,76 +706,33 @@ class Agent extends RpcTarget implements AgentApi {
     return { ...edit, input: `./${fileName}`, document: { fileName, text: edit.input } }
   }
 
-  /**
-   * Installs a registry extension into the project with `kubb add <id> --yes`, which also adds a
-   * plugin to `kubb.config.ts`. Studio calls `connect()` again afterwards to see the result.
-   */
   async installExtension(input: InstallExtensionInput): Promise<InstallExtensionResult> {
     this.#assertConnected()
-    const { root, configFile, kubbBin = findKubbBin(root) } = this.#options
-    const refuse = async (reason: string, permission?: AgentPermission): Promise<InstallExtensionResult> => {
-      await this.#warn({ message: `Ignored install: ${reason}`, permission })
-      return { installed: false, reason }
-    }
-
-    if (typeof input?.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
-    if (!this.#permissions.allowInstall) return refuse('installing extensions was not granted', AgentPermission.INSTALL)
-    if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
-    const busy = this.#busy()
-    if (busy) return refuse(busy)
-    if (!kubbBin) return refuse('kubb is not installed in the project')
-
-    const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['add', input.id, '--yes', '--config', configFile] })
-    await this.#logCommand('installExtension', `${failed ? 'failed to install' : 'installed'} ${input.id}`, input.requestedBy, failed)
-    return failed ? { installed: false, reason: output } : { installed: true }
+    return installExtension(input, this.#extensionContext())
   }
 
-  /**
-   * Moves installed extensions to the registry's version with `kubb update [ids] --yes`, which
-   * installs packages and leaves `kubb.config.ts` alone. Studio calls `connect()` again afterwards.
-   */
   async updateExtensions(input: UpdateExtensionsInput): Promise<UpdateExtensionsResult> {
     this.#assertConnected()
-    const { root, kubbBin = findKubbBin(root) } = this.#options
-    const refuse = async (reason: string, permission?: AgentPermission): Promise<UpdateExtensionsResult> => {
-      await this.#warn({ message: `Ignored update: ${reason}`, permission })
-      return { updated: false, reason }
-    }
-
-    const ids = input?.ids ?? []
-    if (!Array.isArray(ids) || !ids.every((id) => typeof id === 'string' && REGISTRY_ID.test(id))) return refuse('the message carried an invalid registry id')
-    if (!this.#permissions.allowUpdate) return refuse('updating extensions was not granted', AgentPermission.UPDATE)
-    const busy = this.#busy()
-    if (busy) return refuse(busy)
-    if (!kubbBin) return refuse('kubb is not installed in the project')
-
-    const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['update', ...ids, '--yes'] })
-    await this.#logCommand('updateExtensions', `${failed ? 'failed to update' : 'updated'} ${ids.join(', ') || 'all extensions'}`, input?.requestedBy, failed)
-    return failed ? { updated: false, reason: output } : { updated: true }
+    return updateExtensions(input, this.#extensionContext())
   }
 
-  /**
-   * Removes an extension with `kubb remove <id> --yes`, which deletes it from `kubb.config.ts` and
-   * uninstalls its package. Studio calls `connect()` again afterwards.
-   */
   async removeExtension(input: RemoveExtensionInput): Promise<RemoveExtensionResult> {
     this.#assertConnected()
-    const { root, configFile, kubbBin = findKubbBin(root) } = this.#options
-    const refuse = async (reason: string, permission?: AgentPermission): Promise<RemoveExtensionResult> => {
-      await this.#warn({ message: `Ignored remove: ${reason}`, permission })
-      return { removed: false, reason }
+    return removeExtension(input, this.#extensionContext())
+  }
+
+  #extensionContext(): ExtensionCommandContext {
+    const { root, configFile, kubbBin } = this.#options
+    return {
+      root,
+      configFile,
+      kubbBin,
+      permissions: this.#permissions,
+      busy: () => this.#busy(),
+      warn: (warning) => this.#warn(warning),
+      logCommand: (...args) => this.#logCommand(...args),
+      runKubb: (args) => this.#runKubb(args),
     }
-
-    if (typeof input?.id !== 'string' || !REGISTRY_ID.test(input.id)) return refuse('the message carried no registry id')
-    if (!this.#permissions.allowRemove) return refuse('removing extensions was not granted', AgentPermission.REMOVE)
-    if (!this.#permissions.allowConfigEdit) return refuse('editing kubb.config.ts was not granted', AgentPermission.CONFIG_EDIT)
-    const busy = this.#busy()
-    if (busy) return refuse(busy)
-    if (!kubbBin) return refuse('kubb is not installed in the project')
-
-    const { failed, output } = await this.#runKubb({ bin: kubbBin, args: ['remove', input.id, '--yes', '--config', configFile] })
-    await this.#logCommand('removeExtension', `${failed ? 'failed to remove' : 'removed'} ${input.id}`, input.requestedBy, failed)
-    return failed ? { removed: false, reason: output } : { removed: true }
   }
 
   /** Why a command that touches the project cannot start right now. */
@@ -1046,42 +939,6 @@ function isJson(text: string): boolean {
     return true
   } catch {
     return false
-  }
-}
-
-/** The input path or URL Studio may show: no inline document, and no credentials from a URL. */
-function reportedInput(input: Config['input']): string | undefined {
-  if (typeof input !== 'string') return undefined
-  const kind = getInputKind(input)
-  if (kind === 'inline') return undefined
-  // The scp-style git form (`git+git@host:org/repo.git`) is no URL and carries no password.
-  if ((kind !== 'url' && kind !== 'git') || !URL.canParse(input)) return input
-  const url = new URL(input)
-  url.username = ''
-  url.password = ''
-  return url.href
-}
-
-/** A JSON copy of one resolved entry, each extension named by the package its manifest is in. */
-function toEntryView(config: Config, extensions: InstalledExtensions): ConfigEntryView {
-  const input = reportedInput(config.input)
-  return {
-    ...(config.name !== undefined && { name: config.name }),
-    ...(input !== undefined && { input }),
-    output: config.output.path,
-    outputOptions: toJSONOptions(pickOutput(config.output)),
-    plugins: config.plugins.map((plugin) => ({
-      name: toStudioName({ name: resolveMeta(plugin).name, extensions }),
-      options: toJSONOptions(plugin.options),
-    })),
-    adapter: config.adapter && {
-      name: toStudioName({ name: resolveMeta(config.adapter).name, extensions, kind: 'adapter' }),
-      options: toJSONOptions(config.adapter.options),
-    },
-    parsers: config.parsers.map((parser) => ({
-      name: toStudioName({ name: resolveMeta(parser).name, extensions, kind: 'parser' }),
-      options: toJSONOptions(parser.options),
-    })),
   }
 }
 

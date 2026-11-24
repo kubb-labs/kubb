@@ -3,7 +3,8 @@ import path from 'node:path'
 import { stripVTControlCharacters, styleText } from 'node:util'
 import { isPathInside } from '@internals/utils'
 import type { Credentials } from './credentials.ts'
-import { formatPermissionRows, type WorkerState } from './run.ts'
+import { formatPermissionRows } from './permissions.ts'
+import type { WorkerState } from './run.ts'
 
 type StatusInput = {
   studioUrl: string
