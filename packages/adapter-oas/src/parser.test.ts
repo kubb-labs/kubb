@@ -1297,6 +1297,42 @@ describe('parseSchema oneOf / anyOf', () => {
   })
 })
 
+describe('parseSchema enum next to a nullable type or a union', () => {
+  const Color = { type: 'string', enum: ['red', 'green', 'blue'] }
+  const documents = {
+    '3.1.0': {
+      status: { type: ['string', 'null'], enum: ['draft', 'published'] },
+      color: { oneOf: [{ $ref: '#/components/schemas/Color' }, { type: 'null' }], enum: ['red', 'green'] },
+    },
+    '3.0.3': {
+      status: { type: 'string', nullable: true, enum: ['draft', 'published'] },
+      color: { allOf: [{ $ref: '#/components/schemas/Color' }], nullable: true, enum: ['red', 'green'] },
+    },
+  }
+
+  it.each([
+    { openapi: '3.1.0', nullable: undefined },
+    { openapi: '3.0.3', nullable: true },
+  ] as const)('applies the sibling enum in OpenAPI $openapi', async ({ openapi, nullable }) => {
+    const root = await parseOas({
+      openapi,
+      info: { title: 'Enums', version: '1' },
+      paths: {},
+      components: { schemas: { Color, Example: { type: 'object', properties: documents[openapi] } } },
+    })
+    const [status, color] = ast.schema.narrow(findSchema(root, 'Example'), 'object')!.properties!
+
+    expect(status!.schema).toMatchObject({ type: 'enum', enumValues: ['draft', 'published'], nullable })
+    expect(color!.schema).toMatchObject({
+      type: 'intersection',
+      members: [
+        { type: 'union', members: [{ type: 'ref' }, { type: 'null' }] },
+        { type: 'enum', enumValues: ['red', 'green'], nullable },
+      ],
+    })
+  })
+})
+
 describe('parseSchema discriminator on union', () => {
   it('leaves an array member out of the discriminant intersection', async () => {
     const root = await parseOas({

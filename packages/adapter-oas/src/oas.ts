@@ -1,21 +1,40 @@
 import type { ast } from '@kubb/kit'
 import type { DiscriminatorObject, Document, ReferenceObject, SchemaObject } from './types.ts'
 
+// Documents upgraded from Swagger 2.0 or OpenAPI 3.0, where `nullable: true` was read as also allowing `null` outside `enum`.
+const legacyDocuments = new WeakSet<Document>()
+
+/**
+ * Marks a document upgraded from Swagger 2.0 or OpenAPI 3.0, so its enums keep the loose `nullable` reading.
+ */
+export function markLegacyDocument(document: Document): void {
+  legacyDocuments.add(document)
+}
+
+/**
+ * Returns `true` for a document upgraded from Swagger 2.0 or OpenAPI 3.0.
+ */
+export function isLegacyDocument(document: Document | undefined): boolean {
+  return !!document && legacyDocuments.has(document)
+}
+
 /**
  * Returns `true` when a schema should be treated as nullable.
  *
  * Recognizes all nullable signals across OAS versions: `nullable: true` (OAS 3.0),
  * `x-nullable: true` (vendor extension), `type: 'null'`, and `type: ['null', ...]` (OAS 3.1).
+ * From OpenAPI 3.1 a sibling `enum` also applies, so `type: ['string', 'null']` with an `enum`
+ * that leaves out `null` is not nullable. Documents upgraded from 3.0 keep the loose reading.
  */
-export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): boolean {
+export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }, document?: Document): boolean {
   const explicitNullable = schema?.nullable ?? schema?.['x-nullable']
   if (explicitNullable === true) return true
 
   const schemaType = schema?.type
-  if (schemaType === 'null') return true
-  if (Array.isArray(schemaType)) return schemaType.includes('null')
+  const typeAllowsNull = schemaType === 'null' || (Array.isArray(schemaType) && schemaType.includes('null'))
+  if (typeAllowsNull && Array.isArray(schema?.enum) && !schema.enum.includes(null)) return isLegacyDocument(document)
 
-  return false
+  return typeAllowsNull
 }
 
 /**

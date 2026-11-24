@@ -60,7 +60,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       return parseSchema({ schema: open, name })
     }
 
-    const nullable = isNullable(schema) || undefined
+    const nullable = isNullable(schema, document) || undefined
     const defaultValue = schema.default === null && nullable ? undefined : schema.default
     const type = Array.isArray(schema.type) ? (schema.type.find((t) => t !== 'null') ?? schema.type[0]) : schema.type
 

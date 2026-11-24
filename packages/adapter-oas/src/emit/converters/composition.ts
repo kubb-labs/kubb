@@ -1,6 +1,6 @@
 import { ast, macroDedupeUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
-import { getExternalDocs, isDiscriminator, isReference, pickExtensions } from '../../oas.ts'
+import { getExternalDocs, isDiscriminator, isLegacyDocument, isReference, pickExtensions } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
@@ -348,14 +348,23 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
   }
 
   const members = unionMembers.map((s) => parse({ schema: s as SchemaObject, name }))
-  const unionNode = createNode(ctx, {
-    type: ast.schema.types.union,
-    strategy,
-    members,
-    discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.schema.inferDiscriminator(members),
-  })
+  const unionNode = ast.macro.apply(
+    createNode(ctx, {
+      type: ast.schema.types.union,
+      strategy,
+      members,
+      discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.schema.inferDiscriminator(members),
+    }),
+    [macroDedupeUnion],
+    { depth: 'shallow' },
+  )
+  if (!schema.enum?.length) return unionNode
 
-  return ast.macro.apply(unionNode, [macroDedupeUnion], { depth: 'shallow' })
+  // A sibling `enum` restricts the union too. Documents upgraded from 3.0 keep `null` allowed, as `nullable: true` did there.
+  const enumValues = isLegacyDocument(context.document) ? [...schema.enum, null] : schema.enum
+  const enumSchema: SchemaObject = { type: schema.type, enum: enumValues }
+  const enumNode = parse({ schema: enumSchema })
+  return createNode(ctx, { type: ast.schema.types.intersection, members: [unionNode, enumNode] })
 }
 
 /**
