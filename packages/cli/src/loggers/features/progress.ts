@@ -6,22 +6,18 @@ import type { WriterProgress } from '../types.ts'
 import type { LoggerContext } from './context.ts'
 import type { Spinner } from './spinner.ts'
 
-export type FileProgressOptions = { ctx: LoggerContext; spinner: Spinner }
-
-export type FileProgressState = {
-  progress: WriterProgress | null
-  totalFiles: number
-  processedFiles: number
-  /** Whether this run keeps its files in memory, as a `kubb studio` run without `--allow-write` does. */
-  inMemory: boolean
-}
-
 /** The progress bar over the file writes, and the counts the summary line shows. */
-export class FileProgress {
-  readonly state: FileProgressState = { progress: null, totalFiles: 0, processedFiles: 0, inMemory: false }
+export class Progress {
+  readonly state: {
+    progress: WriterProgress | null
+    totalFiles: number
+    processedFiles: number
+    /** Whether this run keeps its files in memory, as a `kubb studio` run without `--allow-write` does. */
+    inMemory: boolean
+  } = { progress: null, totalFiles: 0, processedFiles: 0, inMemory: false }
   readonly #ctx: LoggerContext
 
-  constructor({ ctx, spinner }: FileProgressOptions) {
+  constructor({ ctx, spinner }: { ctx: LoggerContext; spinner: Spinner }) {
     this.#ctx = ctx
     const { writer, silent, human, logLevel, text, onRun } = ctx
     const { state } = this
@@ -73,6 +69,6 @@ export class FileProgress {
   }
 }
 
-export function createFileProgress(options: FileProgressOptions): FileProgress {
-  return new FileProgress(options)
+export function createProgress(options: ConstructorParameters<typeof Progress>[0]): Progress {
+  return new Progress(options)
 }

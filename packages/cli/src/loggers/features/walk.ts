@@ -4,10 +4,8 @@ import { formatMs, getElapsedMs } from '@internals/utils'
 import { formatBar, formatMsWithColor } from '../banner.ts'
 import { pluralize } from '../../ui/text.ts'
 import type { LoggerContext } from './context.ts'
-import type { FileProgress } from './fileProgress.ts'
+import type { Progress } from './progress.ts'
 import type { Spinner } from './spinner.ts'
-
-export type NodeWalkOptions = { ctx: LoggerContext; spinner: Spinner; progress: FileProgress }
 
 /** Milliseconds between redraws of the live generation block, about clack's spinner frame rate. */
 const WALK_REDRAW_MS = 80
@@ -30,13 +28,13 @@ function createState() {
 /**
  * The node walk the plugins share: the live generation block, and the plugin results printed once the walk ends.
  */
-export class NodeWalk {
+export class Walk {
   readonly state = createState()
   readonly #ctx: LoggerContext
   readonly #spinner: Spinner
-  readonly #progress: FileProgress
+  readonly #progress: Progress
 
-  constructor({ ctx, spinner, progress }: NodeWalkOptions) {
+  constructor({ ctx, spinner, progress }: { ctx: LoggerContext; spinner: Spinner; progress: Progress }) {
     this.#ctx = ctx
     this.#spinner = spinner
     this.#progress = progress
@@ -130,6 +128,6 @@ export class NodeWalk {
   }
 }
 
-export function createNodeWalk(options: NodeWalkOptions): NodeWalk {
-  return new NodeWalk(options)
+export function createWalk(options: ConstructorParameters<typeof Walk>[0]): Walk {
+  return new Walk(options)
 }

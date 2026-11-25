@@ -129,15 +129,13 @@ export async function stopWorker(): Promise<void> {
 // Hash the project directory to choose its loopback port; fail on collisions.
 const controlPort = () => 20_000 + (Number.parseInt(hash('sha256', getProjectKubbHome()).slice(0, 8), 16) % 30_000)
 
-type WorkerServerOptions = { shutdown: AbortController }
-
 class WorkerServer {
   readonly #record: WorkerRecord = { id: randomBytes(16).toString('hex'), pid: process.pid, port: 0, state: 'starting', startedAt: Date.now() }
   readonly #shutdown: AbortController
   readonly #server: Server
   #saving = Promise.resolve()
 
-  constructor({ shutdown }: WorkerServerOptions) {
+  constructor({ shutdown }: { shutdown: AbortController }) {
     this.#shutdown = shutdown
     this.#server = createServer((socket) => this.#accept(socket))
   }

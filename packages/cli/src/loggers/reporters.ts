@@ -49,26 +49,6 @@ function tallyCheck({ files, unchanged }: { files: NonNullable<GenerationResult[
   return tally
 }
 
-export type ReportersOptions = {
-  /** Output verbosity. Use the `logLevel` constants exported from `@kubb/core`. */
-  logLevel: number
-  reporters: ReadonlyArray<Reporter>
-  /** Overrides the terminal-based pick, e.g. the plain writer for `kubb studio snapshot`. */
-  writer?: LoggerWriter
-  /**
-   * Labels the memory-backed generation as a preview rather than a completed write.
-   */
-  dryRun?: boolean
-  /**
-   * Hands `fileChanges` to every reporter, not only `cli`.
-   */
-  fileChanges?: boolean
-  /**
-   * Compares the generated files with the output on disk for `--check`, at every log level and for every reporter.
-   */
-  outputCheck?: Pick<OutputCheck, 'compare' | 'original'>
-}
-
 async function tallyLive({
   live,
   paths,
@@ -85,20 +65,44 @@ async function tallyLive({
   return tally
 }
 
-type ReporterSessionOptions = ReportersOptions & { context: Hookable<KubbHooks> }
-
-class ReporterSession {
+class Session {
   readonly #selected: Array<Reporter>
   readonly #ctx: ReporterContext
   readonly #pluginFiles: Map<string, Array<string>> | undefined
   readonly #seen = new Set<string>()
   readonly #trackChanges: boolean
   readonly #dryRun: boolean
-  readonly #outputCheck: ReportersOptions['outputCheck']
+  readonly #outputCheck: ConstructorParameters<typeof Session>[0]['outputCheck']
   // Configs generate one at a time, so the last write before `kubb:generation:end` is this config's.
   #run: GenerationRun | undefined
 
-  constructor({ context, logLevel, reporters, writer = defaultWriter(), dryRun = false, fileChanges = false, outputCheck }: ReporterSessionOptions) {
+  constructor({
+    context,
+    logLevel,
+    reporters,
+    writer = defaultWriter(),
+    dryRun = false,
+    fileChanges = false,
+    outputCheck,
+  }: {
+    /** Output verbosity. Use the `logLevel` constants exported from `@kubb/core`. */
+    logLevel: number
+    reporters: ReadonlyArray<Reporter>
+    /** Overrides the terminal-based pick, e.g. the plain writer for `kubb studio snapshot`. */
+    writer?: LoggerWriter
+    /**
+     * Labels the memory-backed generation as a preview rather than a completed write.
+     */
+    dryRun?: boolean
+    /**
+     * Hands `fileChanges` to every reporter, not only `cli`.
+     */
+    fileChanges?: boolean
+    /**
+     * Compares the generated files with the output on disk for `--check`, at every log level and for every reporter.
+     */
+    outputCheck?: Pick<OutputCheck, 'compare' | 'original'>
+  } & { context: Hookable<KubbHooks> }) {
     const hasJson = reporters.some((reporter) => reporter.name === 'json')
     this.#selected = reporters.flatMap((reporter) => {
       if (reporter.name !== 'cli') return [reporter]
@@ -239,8 +243,8 @@ class ReporterSession {
 }
 
 /** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
-function installReporters(context: Hookable<KubbHooks>, options: ReportersOptions): void {
-  new ReporterSession({ ...options, context })
+function installReporters(context: Hookable<KubbHooks>, options: Omit<ConstructorParameters<typeof Session>[0], 'context'>): void {
+  new Session({ ...options, context })
 }
 
 export default installReporters

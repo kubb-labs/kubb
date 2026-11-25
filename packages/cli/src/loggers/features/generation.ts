@@ -2,29 +2,20 @@ import { styleText } from 'node:util'
 import type { SummaryRenderer } from '@kubb/core'
 import type { LogStatus } from '../types.ts'
 import { getInputPath, type LoggerContext } from './context.ts'
-import type { OutputPhases } from './outputPhases.ts'
-import type { DiagnosticPrinter } from './diagnosticPrinter.ts'
-import type { FileProgress } from './fileProgress.ts'
+import type { Phases } from './phases.ts'
+import type { Printer } from './printer.ts'
+import type { Progress } from './progress.ts'
 import type { Spinner } from './spinner.ts'
-import type { NodeWalk } from './nodeWalk.ts'
-
-export type GenerationOptions = {
-  ctx: LoggerContext
-  spinner: Spinner
-  progress: FileProgress
-  walk: NodeWalk
-  phases: OutputPhases
-  problems: DiagnosticPrinter
-}
+import type { Walk } from './walk.ts'
 
 /**
  * One config's run: the group it opens, the state every feature resets at its start, and the
  * closing line, which the lifecycle end draws too for a run that threw before its summary.
  */
 class Generation {
-  readonly #options: GenerationOptions
+  readonly #options: ConstructorParameters<typeof Generation>[0]
 
-  constructor(options: GenerationOptions) {
+  constructor(options: { ctx: LoggerContext; spinner: Spinner; progress: Progress; walk: Walk; phases: Phases; problems: Printer }) {
     this.#options = options
     const { ctx, spinner, progress, walk, problems } = options
     const { writer, silent, text, hooks, onRun } = ctx
@@ -104,6 +95,6 @@ class Generation {
   }
 }
 
-export function createGeneration(options: GenerationOptions): { renderSummary: SummaryRenderer } {
+export function createGeneration(options: ConstructorParameters<typeof Generation>[0]): { renderSummary: SummaryRenderer } {
   return new Generation(options)
 }

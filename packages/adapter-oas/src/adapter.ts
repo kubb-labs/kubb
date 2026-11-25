@@ -1,5 +1,5 @@
 import { defineExtension } from '@kubb/core'
-import type { Adapter } from '@kubb/core'
+import type { Adapter as KubbAdapter } from '@kubb/core'
 import { ast, Diagnostics } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
@@ -51,11 +51,11 @@ type PromotedEnums = ReturnType<typeof collectInlineEnums>
 
 type AuthSchemes = ReturnType<typeof toAuthSchemes>
 
-type ParseOptions = NonNullable<Parameters<Adapter<AdapterOas>['parse']>[1]>
+type ParseOptions = NonNullable<Parameters<KubbAdapter<AdapterOas>['parse']>[1]>
 
-type ValidateOptions = Parameters<Adapter<AdapterOas>['validate']>[1]
+type ValidateOptions = Parameters<KubbAdapter<AdapterOas>['validate']>[1]
 
-class OasAdapter {
+class Adapter {
   readonly locate = locate
   readonly #settings: AdapterSettings
   readonly #parserOptions: ParserOptions
@@ -305,5 +305,5 @@ export const adapterOas = defineExtension<AdapterOas>({
     enumSuffix = DEFAULT_PARSER_OPTIONS.enumSuffix,
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
   }) => ({ validate, contentType, server, discriminator, enums, pathParamsCasing, dateType, integerType, unknownType, emptySchemaType, enumSuffix }),
-  build: (options) => new OasAdapter(options),
+  build: (options) => new Adapter(options),
 })
