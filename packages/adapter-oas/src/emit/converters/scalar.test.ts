@@ -9,7 +9,7 @@ const document = { openapi: '3.1.0', info: { title: 'Scalars', version: '1' }, p
 const refs = createRefs(document)
 
 function parse(schema: SchemaObject, options: Partial<ParserOptions> = {}): ast.SchemaNode {
-  return createSchemaParser({ document, refs, options })({ schema, name: 'Value' })
+  return createSchemaParser({ document, refs, options }).parse({ schema, name: 'Value' })
 }
 
 describe('const', () => {

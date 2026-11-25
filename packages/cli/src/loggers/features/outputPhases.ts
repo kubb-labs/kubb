@@ -75,16 +75,16 @@ function printFailedOutput(result: KubbHooks['kubb:hook:end'][0]): void {
   if (result.stderr) console.error(result.stderr)
 }
 
-export type PhasesOptions = { ctx: LoggerContext; spinner: Spinner }
+export type OutputPhasesOptions = { ctx: LoggerContext; spinner: Spinner }
 
 /** The format, lint and post-generate phases, and the hooks and messages they buffer while their step owns the line. */
-export class Phases {
+export class OutputPhases {
   readonly #ctx: LoggerContext
   readonly #spinner: Spinner
   #phase: Phase | null = null
   #hooks = new Map<string, { hrStart: [number, number]; lines: Array<string> }>()
 
-  constructor({ ctx, spinner }: PhasesOptions) {
+  constructor({ ctx, spinner }: OutputPhasesOptions) {
     this.#ctx = ctx
     this.#spinner = spinner
     const { writer, silent, logLevel, text, line, onRun } = ctx
@@ -235,6 +235,6 @@ export class Phases {
   }
 }
 
-export function createPhases(options: PhasesOptions): Phases {
-  return new Phases(options)
+export function createOutputPhases(options: OutputPhasesOptions): OutputPhases {
+  return new OutputPhases(options)
 }

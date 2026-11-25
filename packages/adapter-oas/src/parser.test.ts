@@ -108,7 +108,7 @@ type SchemaCase = {
  * `createSchemaParser()` helper for single-schema test cases.
  */
 function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaObject; name?: string }, options?: Partial<ParserOptions>): ast.SchemaNode {
-  return createSchemaParser({ ...ctx, options })({ schema, name })
+  return createSchemaParser({ ...ctx, options }).parse({ schema, name })
 }
 
 /**

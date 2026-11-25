@@ -239,11 +239,11 @@ class ReporterSession {
 }
 
 /** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
-function setupReporters(context: Hookable<KubbHooks>, options: ReportersOptions): void {
+function installReporters(context: Hookable<KubbHooks>, options: ReportersOptions): void {
   new ReporterSession({ ...options, context })
 }
 
-export default setupReporters
+export default installReporters
 
 /** Picks the reporters whose `name` is in `names`, in the given order (the CLI maps `--reporter` to this); duplicates and unknown names are skipped. */
 export function selectReporters(reporters: ReadonlyArray<Reporter>, names: ReadonlyArray<string>): Array<Reporter> {

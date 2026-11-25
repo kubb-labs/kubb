@@ -7,7 +7,7 @@ import { createSnapshot } from '@kubb/studio'
 import type { BranchSnapshotChanges, PublishedSnapshot, SnapshotChanges } from '@kubb/studio/protocol'
 import { pluralize } from '../../ui/text.ts'
 import { createPlainWriter } from '../../loggers/plainWriter.ts'
-import setupReporters from '../../loggers/reporters.ts'
+import installReporters from '../../loggers/reporters.ts'
 import { type CiContext, detectCi } from './ci.ts'
 import { loadConfigs, runStudio, type SnapshotOptions } from './run.ts'
 import type { command } from '../../commands/studio/snapshot.ts'
@@ -160,7 +160,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
   const write = options.json ? (line: string) => console.error(line) : (line: string) => console.log(line)
   const hooks = new Hookable<KubbHooks>()
   // The steps below are the CI log; the run's own per-file output only shows when asked for with --log-level verbose.
-  setupReporters(hooks, { logLevel: logLevel > logLevelMap.info ? logLevel : logLevelMap.silent, reporters: [cliReporter], writer: createPlainWriter(write) })
+  installReporters(hooks, { logLevel: logLevel > logLevelMap.info ? logLevel : logLevelMap.silent, reporters: [cliReporter], writer: createPlainWriter(write) })
   const step = (message: string) => {
     if (logLevel > logLevelMap.silent) {
       write(message)

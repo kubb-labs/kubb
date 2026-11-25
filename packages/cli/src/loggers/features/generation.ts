@@ -2,13 +2,20 @@ import { styleText } from 'node:util'
 import type { SummaryRenderer } from '@kubb/core'
 import type { LogStatus } from '../types.ts'
 import { getInputPath, type LoggerContext } from './context.ts'
-import type { Phases } from './phases.ts'
-import type { Problems } from './problems.ts'
-import type { Progress } from './progress.ts'
+import type { OutputPhases } from './outputPhases.ts'
+import type { DiagnosticPrinter } from './diagnosticPrinter.ts'
+import type { FileProgress } from './fileProgress.ts'
 import type { Spinner } from './spinner.ts'
-import type { Walk } from './walk.ts'
+import type { NodeWalk } from './nodeWalk.ts'
 
-export type GenerationOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress; walk: Walk; phases: Phases; problems: Problems }
+export type GenerationOptions = {
+  ctx: LoggerContext
+  spinner: Spinner
+  progress: FileProgress
+  walk: NodeWalk
+  phases: OutputPhases
+  problems: DiagnosticPrinter
+}
 
 /**
  * One config's run: the group it opens, the state every feature resets at its start, and the

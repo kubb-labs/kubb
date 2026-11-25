@@ -7,13 +7,13 @@ import { Diagnostics, getInputKind, logLevel as logLevelMap } from '@kubb/core'
 import { pluralize } from '../../ui/text.ts'
 import { locateInSpec } from '../specFrame.ts'
 import { getInputPath, type LoggerContext } from './context.ts'
-import type { Phases } from './phases.ts'
-import type { Progress } from './progress.ts'
+import type { OutputPhases } from './outputPhases.ts'
+import type { FileProgress } from './fileProgress.ts'
 import type { Spinner } from './spinner.ts'
 
-export type ProblemsOptions = { ctx: LoggerContext; spinner: Spinner; progress: Progress; phases: Phases }
+export type DiagnosticPrinterOptions = { ctx: LoggerContext; spinner: Spinner; progress: FileProgress; phases: OutputPhases }
 
-export type ProblemsState = {
+export type DiagnosticPrinterState = {
   /** Problems held back so the human view can print them grouped by plugin once the build ends. */
   problems: Array<ProblemDiagnostic>
   /** The finished config's diagnostics, for the closing verdict. */
@@ -23,12 +23,12 @@ export type ProblemsState = {
 }
 
 /** Warnings, errors and diagnostics: printed as they come, or held back and grouped by plugin once a human's build ends. */
-export class Problems {
-  readonly state: ProblemsState = { problems: [], diagnostics: [], spec: undefined }
+export class DiagnosticPrinter {
+  readonly state: DiagnosticPrinterState = { problems: [], diagnostics: [], spec: undefined }
   readonly #ctx: LoggerContext
   readonly #formatOptions: DiagnosticFormatOptions
 
-  constructor({ ctx, spinner, progress, phases }: ProblemsOptions) {
+  constructor({ ctx, spinner, progress, phases }: DiagnosticPrinterOptions) {
     this.#ctx = ctx
     const { writer, silent, human, logLevel, text, line, hooks } = ctx
     const { audience } = writer
@@ -185,6 +185,6 @@ export class Problems {
   }
 }
 
-export function createProblems(options: ProblemsOptions): Problems {
-  return new Problems(options)
+export function createDiagnosticPrinter(options: DiagnosticPrinterOptions): DiagnosticPrinter {
+  return new DiagnosticPrinter(options)
 }

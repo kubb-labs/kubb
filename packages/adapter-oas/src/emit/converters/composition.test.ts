@@ -9,7 +9,7 @@ const emptyDocument = { openapi: '3.0.0', info: { title: '', version: '' }, path
 const emptyCtx: OasParserContext = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
 function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaObject; name?: string }): ast.SchemaNode {
-  return createSchemaParser(ctx)({ schema, name })
+  return createSchemaParser(ctx).parse({ schema, name })
 }
 
 async function parseOas(data: unknown): Promise<ast.InputNode> {

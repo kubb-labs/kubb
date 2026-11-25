@@ -167,10 +167,10 @@ export class SchemaParser {
 }
 
 /**
- * Creates the schema converter bound to one OpenAPI document and returns its `parse` function.
+ * Creates the schema converter bound to one OpenAPI document.
  *
  * @internal
  */
-export function createSchemaParser(ctx: OasParserContext): ParseFn {
-  return new SchemaParser(ctx).parse
+export function createSchemaParser(ctx: OasParserContext): SchemaParser {
+  return new SchemaParser(ctx)
 }

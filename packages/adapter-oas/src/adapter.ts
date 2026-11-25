@@ -115,7 +115,7 @@ class OasAdapter {
 
       const refs = createRefs(document)
       const { schemas, renames, pointers } = getSchemas(document, { contentType: this.#settings.contentType }, refs)
-      const parseSchema = createSchemaParser({ document, refs, renames, options: this.#parserOptions })
+      const parseSchema = createSchemaParser({ document, refs, renames, options: this.#parserOptions }).parse
 
       return groupUnsupportedFormats(() => this.#parseInput({ document, refs, schemas, pointers, parseSchema }))
     })()

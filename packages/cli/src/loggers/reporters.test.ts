@@ -21,7 +21,7 @@ import { createMockedPlugin } from '@kubb/core/mocks'
 import { getAgentProfile } from 'gunshi/agent'
 import { describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
-import setupReporters from './reporters.ts'
+import installReporters from './reporters.ts'
 import { createPlainWriter } from './plainWriter.ts'
 
 vi.mock('gunshi/agent', () => ({ getAgentProfile: vi.fn(() => ({ isAgent: false })) }))
@@ -70,7 +70,7 @@ async function summarize({
   const config = createKubb({ root, input: './openapi.yaml', output: { path: output, clean }, storage }).config
   const hooks = new Hookable<KubbHooks>()
   const lines: Array<string> = []
-  setupReporters(hooks, { logLevel: logLevel.info, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
+  installReporters(hooks, { logLevel: logLevel.info, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
   await hooks.callHook('kubb:generation:start', { config })
   await hooks.callHook('kubb:plugins:end', { config, files: [], upsertFile: () => {} })
   if (clean) await storage.empty(output)
@@ -79,7 +79,7 @@ async function summarize({
   return stripVTControlCharacters(lines.join('\n'))
 }
 
-describe('setupReporters', () => {
+describe('installReporters', () => {
   it('attributes each file to its first plugin for every reporter and resets between configs', async () => {
     const hooks = new Hookable<KubbHooks>()
     const results: Array<{ name: string; files: GenerationResult['pluginFiles'] }> = []
@@ -96,7 +96,7 @@ describe('setupReporters', () => {
         },
       }),
     )
-    setupReporters(hooks, { logLevel: logLevel.info, reporters })
+    installReporters(hooks, { logLevel: logLevel.info, reporters })
     const file = ast.factory.createFile({ path: '/gen/shared.ts', baseName: 'shared.ts' })
     for (const name of ['one', 'two']) {
       const kubb = createKubb({ name, root: '/tmp', input: './spec.yaml', output: { path: './gen' }, storage: memoryStorage() })
@@ -144,7 +144,7 @@ describe('setupReporters', () => {
       const hooks = new Hookable<KubbHooks>()
       const lines: Array<string> = []
       const reports: Array<GenerationResult> = []
-      setupReporters(hooks, {
+      installReporters(hooks, {
         logLevel: logLevel.info,
         reporters: [cliReporter, createReporter({ name: 'custom', report: (result) => void reports.push(result) })],
         dryRun,
@@ -227,7 +227,7 @@ describe('setupReporters', () => {
   ])('names each written file in plain output only at the verbose level (log level %s)', async (level, named) => {
     const hooks = new Hookable<KubbHooks>()
     const lines: Array<string> = []
-    setupReporters(hooks, { logLevel: level, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
+    installReporters(hooks, { logLevel: level, reporters: [cliReporter], writer: createPlainWriter((line) => lines.push(line)) })
     const config = createKubb({ root: '/tmp', input: './spec.yaml', output: { path: './gen' }, storage: memoryStorage() }).config
     const files = (['a.ts', 'b.ts'] as const).map((name) => ast.factory.createFile({ path: `/tmp/gen/${name}`, baseName: name }))
     await hooks.callHook('kubb:generation:start', { config })
@@ -246,7 +246,7 @@ describe('setupReporters', () => {
   it('lets json own stdout without installing the live logger when json is selected', async () => {
     const context = new Hookable<KubbHooks>()
 
-    setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
+    installReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
 
     expect(context.listenerCount('kubb:hook:line')).toBe(0)
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
@@ -260,7 +260,7 @@ describe('setupReporters', () => {
       return true
     })
 
-    setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
+    installReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
 
     await context.callHook('kubb:generation:end', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
@@ -315,7 +315,7 @@ describe('setupReporters', () => {
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(stripVTControlCharacters(String(line))))
 
-    setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
+    installReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
     await context.callHook('kubb:generation:start', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [] } as unknown as Config,
     })
@@ -346,7 +346,7 @@ describe('studio session events', () => {
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((line) => void lines.push(String(line)))
 
-    setupReporters(context, { logLevel: level, reporters: [cliReporter] })
+    installReporters(context, { logLevel: level, reporters: [cliReporter] })
     await emit(context)
 
     return lines
