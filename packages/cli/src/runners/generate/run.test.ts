@@ -379,7 +379,6 @@ describe('check', () => {
     const target = project(options)
     await bootstrap({ configs: [target.config] })
     rmSync(resolveCacheDir(target.root), { recursive: true, force: true })
-    // Keyed from the root, so the lock file is the same on every machine.
     expect(Object.keys(JSON.parse(readFileSync(join(target.root, 'kubb.lock'), 'utf8')).files)).toContain('src/gen/pet.ts')
     // The formatter ran: the stored bytes are not the ones the plugin produced.
     expect(readFileSync(target.file('pet.ts'), 'utf8')).toContain('name: "cat"')

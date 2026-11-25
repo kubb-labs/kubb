@@ -5,14 +5,10 @@ import type { Storage } from './createStorage.ts'
 import { FILE_CONCURRENCY } from './FileManager.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 
-/**
- * Bumped when the stored shape changes, so an older lock file is discarded instead of misread.
- */
+/** Bumped when the stored shape changes, so an older lock file is discarded instead of misread. */
 const LOCKFILE_VERSION = 1
 
-/**
- * Name of the lock file, written next to `kubb.config.ts` in the project root and meant to be committed.
- */
+/** Name of the lock file, written to the project root and meant to be committed. */
 export const LOCKFILE_NAME = 'kubb.lock'
 
 /**
@@ -42,9 +38,7 @@ type Lockfile = {
  * checkout can answer the same question without running the formatter.
  */
 export type OutputManifest = {
-  /**
-   * `false` when no `kubb.lock` could be read, so nothing a formatter changed can be recognized.
-   */
+  /** `false` when no `kubb.lock` could be read, so nothing a formatter changed can be recognized. */
   readonly exists: boolean
   /**
    * `true` when `source` is known to come out of the output passes as exactly the content stored,
@@ -110,7 +104,6 @@ export async function createOutputManifest({ storage, root, lock = fsStorage() }
   const lockPath = resolve(root, LOCKFILE_NAME)
   const loaded = await loadEntries({ lock, lockPath })
   const entries = loaded ?? {}
-  // Keyed by the path from `root`, so the lock file reads the same on every machine.
   const toLockKey = (key: string): string => toPosixPath(relative(root, resolve(root, key)))
   const tracked = new Map<string, { source: string; trimmed: string }>()
 
@@ -130,7 +123,6 @@ export async function createOutputManifest({ storage, root, lock = fsStorage() }
         const next: Record<string, OutputManifestEntry> = {}
         const written = new Set([...tracked.keys()].map(toLockKey))
 
-        // An earlier entry holds only while its file still is the output it recorded.
         await inParallel({
           items: Object.entries(entries).filter(([key]) => !written.has(key)),
           limit: FILE_CONCURRENCY,
