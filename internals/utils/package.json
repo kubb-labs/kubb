@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "diff": "^9.0.0",
     "tinyexec": "catalog:"
   },
   "engines": {
