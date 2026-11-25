@@ -28,22 +28,17 @@ function makeFile(filePath: string, sourceValue?: string, extra?: Partial<Parame
   })
 }
 
-function stubLockfile({ upToDate }: { upToDate: boolean }): Lockfile & { tracked: Array<string> } {
+function stubLockfile({ upToDate }: { upToDate: boolean }): Pick<Lockfile, 'isUpToDate' | 'track'> & { tracked: Array<string> } {
   const tracked: Array<string> = []
 
   return {
     tracked,
-    exists: true,
-    allFilesUpToDate: upToDate,
-    inputs: () => undefined,
-    matchesOutput: async () => upToDate,
     isUpToDate() {
       return upToDate
     },
     track({ key }) {
       tracked.push(key)
     },
-    async write() {},
   }
 }
 

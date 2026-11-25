@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { createLockfile } from './lockfile.ts'
+import { createLockfile, Lockfile } from './lockfile.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
@@ -191,6 +191,18 @@ describe('createLockfile', () => {
 
     expect(existsSync(lock)).toBe(false)
     expect(JSON.parse((await staged.readItem(lock)) as string)).toMatchObject({ files: { 'gen/a.ts': expect.anything() } })
+  })
+
+  it('can be built from an object that was read elsewhere', () => {
+    const lockfile = new Lockfile({
+      storage,
+      root: '/project',
+      object: { files: { 'gen/a.ts': { source: 'x', output: 'y' } }, inputs: { api: { hash: 'a', sources: [] } } },
+    })
+
+    expect(lockfile.exists).toBe(true)
+    expect(lockfile.inputs('api')).toStrictEqual({ hash: 'a', sources: [] })
+    expect(new Lockfile({ storage, root: '/project', object: null }).exists).toBe(false)
   })
 
   it('skips a file that disappeared before the write', async () => {

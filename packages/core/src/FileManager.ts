@@ -25,7 +25,7 @@ export type WriteOptions = ParseOptions & {
    * Consulted before each write so a file the output passes already normalized is recognized as
    * unchanged. Omitted when no formatter, linter, or `postGenerate` step is configured.
    */
-  lockfile?: Lockfile
+  lockfile?: Pick<Lockfile, 'isUpToDate' | 'track'>
   /**
    * Directories the storage emptied right before this write. Files under them cannot exist yet, so they
    * are written without reading the previous value back.
