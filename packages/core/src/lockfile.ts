@@ -1,6 +1,7 @@
 import { hash } from 'node:crypto'
 import { relative, resolve } from 'node:path'
 import { inParallel, readIfExists, toPosixPath } from '@internals/utils'
+import { parse, stringify } from 'yaml'
 import type { Storage } from './createStorage.ts'
 import { FILE_CONCURRENCY } from './FileManager.ts'
 import type { LockfileInputs } from './lockfileInputs.ts'
@@ -9,7 +10,7 @@ import type { LockfileInputs } from './lockfileInputs.ts'
 const LOCKFILE_VERSION = 1
 
 /** Name of the lockfile, written to the project root and meant to be committed. */
-export const LOCKFILE_NAME = 'kubb.lock'
+export const LOCKFILE_NAME = 'kubb-lock.yaml'
 
 /** How one generated file looked on either side of the output passes. */
 export type LockfileEntry = {
@@ -19,7 +20,7 @@ export type LockfileEntry = {
   output: string
 }
 
-/** What `kubb.lock` holds. */
+/** What `kubb-lock.yaml` holds. */
 export type LockfileObject = {
   lockfileVersion: number
   /** What each config last generated from, keyed by the config's name. */
@@ -45,7 +46,8 @@ async function readLockfile(lockfilePath: string): Promise<Pick<LockfileObject, 
     const stored = await readIfExists(lockfilePath)
     if (stored === null) return null
 
-    const data = JSON.parse(stored) as LockfileObject
+    const data = parse(stored) as LockfileObject | null
+    if (typeof data !== 'object' || data === null) return null
     if (data.lockfileVersion !== LOCKFILE_VERSION) return null
     if (typeof data.files !== 'object' || data.files === null || Array.isArray(data.files)) return null
 
@@ -60,7 +62,7 @@ async function readLockfile(lockfilePath: string): Promise<Pick<LockfileObject, 
 /**
  * Remembers what the output passes did to each generated file, so a later run can tell "the
  * formatter already turned this exact source into what is stored" apart from a real change.
- * The record lives in `kubb.lock`, so a fresh checkout can tell without running the formatter.
+ * The record lives in `kubb-lock.yaml`, so a fresh checkout can tell without running the formatter.
  *
  * @example
  * ```ts
@@ -69,7 +71,7 @@ async function readLockfile(lockfilePath: string): Promise<Pick<LockfileObject, 
  * ```
  */
 export class Lockfile {
-  /** `false` when no `kubb.lock` could be read, so nothing a formatter changed can be recognized. */
+  /** `false` when no `kubb-lock.yaml` could be read, so nothing a formatter changed can be recognized. */
   readonly exists: boolean
   readonly #storage: Storage
   readonly #root: string
@@ -78,7 +80,7 @@ export class Lockfile {
   readonly #added = new Map<string, string>()
   readonly #matched = new Set<string>()
 
-  /** `object` is what `kubb.lock` held, or `null` when it could not be read. `storage` holds the generated files. */
+  /** `object` is what `kubb-lock.yaml` held, or `null` when it could not be read. `storage` holds the generated files. */
   constructor({ storage, root, object }: { storage: Storage; root: string; object: Pick<LockfileObject, 'files' | 'inputs'> | null }) {
     this.exists = object !== null
     this.#storage = storage
@@ -134,7 +136,7 @@ export class Lockfile {
   }
 
   /**
-   * Writes `kubb.lock` with one entry for each file generated this run. An entry from an earlier run
+   * Writes `kubb-lock.yaml` with one entry for each file generated this run. An entry from an earlier run
    * stays while its file still holds the recorded output. `inputs` records what the config called
    * `name` generated from, and drops that record when it is `null`.
    */
@@ -177,7 +179,8 @@ export class Lockfile {
       else if (options) delete inputs[options.name]
       const object: LockfileObject = { lockfileVersion: LOCKFILE_VERSION, ...(Object.keys(inputs).length > 0 && { inputs }), files }
       // Through the storage, so a run that stages its files stages the lockfile with them.
-      await storage.writeItem(resolve(root, LOCKFILE_NAME), JSON.stringify(object, null, 2))
+      // `lineWidth: 0` keeps each value on one line, whatever the length of a path.
+      await storage.writeItem(resolve(root, LOCKFILE_NAME), stringify(object, { lineWidth: 0 }))
     } catch {
       /* the record is an optimization, so a storage failure here must not fail a finished build */
     }
@@ -185,7 +188,7 @@ export class Lockfile {
 }
 
 /**
- * Reads `kubb.lock` from `root` into a {@link Lockfile}, which starts empty when the file is
+ * Reads `kubb-lock.yaml` from `root` into a {@link Lockfile}, which starts empty when the file is
  * missing, unreadable, or from another version. `storage` holds the generated files.
  *
  * @example

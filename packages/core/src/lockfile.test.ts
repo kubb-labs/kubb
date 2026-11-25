@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
+import { parse } from 'yaml'
 import { createLockfile, Lockfile } from './lockfile.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
@@ -23,9 +24,9 @@ describe('createLockfile', () => {
     const root = mkdtempSync(join(tmpdir(), 'kubb-lock-'))
     roots.push(root)
     const file = (name: string) => join(root, 'gen', name)
-    const lock = join(root, 'kubb.lock')
+    const lock = join(root, 'kubb-lock.yaml')
 
-    return { root, file, lock, readLock: () => JSON.parse(readFileSync(lock, 'utf8')) as unknown }
+    return { root, file, lock, readLock: () => parse(readFileSync(lock, 'utf8')) as unknown }
   }
 
   /** A project whose lockfile recorded `a.ts` and its formatted output, with the lockfile the next run would load. */
@@ -60,7 +61,7 @@ describe('createLockfile', () => {
     lockfile.add({ key: file('a.ts'), source: 'const a = 1' })
     await lockfile.write()
 
-    const stored = JSON.parse(readFileSync(lock, 'utf8')) as { lockfileVersion: number; files: Record<string, { source: string; output: string }> }
+    const stored = parse(readFileSync(lock, 'utf8')) as { lockfileVersion: number; files: Record<string, { source: string; output: string }> }
 
     expect(stored.lockfileVersion).toBe(1)
     expect(Object.keys(stored.files)).toStrictEqual(['gen/a.ts', 'gen/b.ts'])
@@ -190,7 +191,7 @@ describe('createLockfile', () => {
     await lockfile.write()
 
     expect(existsSync(lock)).toBe(false)
-    expect(JSON.parse((await staged.readItem(lock)) as string)).toMatchObject({ files: { 'gen/a.ts': expect.anything() } })
+    expect(parse((await staged.readItem(lock)) as string)).toMatchObject({ files: { 'gen/a.ts': expect.anything() } })
   })
 
   it('can be built from an object that was read elsewhere', () => {

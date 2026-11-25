@@ -7,7 +7,7 @@ import { version as kubbVersion } from '../package.json'
 import { readInstalledPackages } from './installedPackages.ts'
 import type { Config } from './types.ts'
 
-/** What a build read, as `kubb.lock` records it: one hash, plus the source files to hash again on the next run. */
+/** What a build read, as `kubb-lock.yaml` records it: one hash, plus the source files to hash again on the next run. */
 export type LockfileInputs = { hash: string; sources: Array<string> }
 
 /** Per-run and per-machine members of a config, which say nothing about what it generates. */

@@ -191,7 +191,7 @@ export class Kubb {
 
   /**
    * Whether a build of `userConfig` would leave the output as it is: its inputs match what
-   * `kubb.lock` recorded, and every generated file still holds its recorded output. `false`
+   * `kubb-lock.yaml` recorded, and every generated file still holds its recorded output. `false`
    * whenever that cannot be told, such as for a URL input.
    *
    * @example

@@ -54,7 +54,7 @@ async function addDeletedFiles({
 /**
  * One `kubb generate --check` run. Each config generates into memory and no formatter or linter runs.
  *
- * A generated file is up to date when the file on disk holds the same text, or when `kubb.lock`
+ * A generated file is up to date when the file on disk holds the same text, or when `kubb-lock.yaml`
  * records that this exact source came out of the output passes as the text on disk. `kubb generate`
  * writes that record, so the check gives the same answer on a fresh checkout.
  *
@@ -80,7 +80,7 @@ export class OutputCheck {
     return this.#changed
   }
 
-  /** `true` once a config that formats or lints its output has no `kubb.lock` to compare with. */
+  /** `true` once a config that formats or lints its output has no `kubb-lock.yaml` to compare with. */
   get missingLockfile(): boolean {
     return this.#missingLockfile
   }

@@ -94,7 +94,7 @@ export type GenerateCommandOptions = {
   reporters?: Array<ReporterName>
   dryRun?: boolean
   /**
-   * Generates in memory and compares the result with `output.path` through `kubb.lock`. Nothing is written.
+   * Generates in memory and compares the result with `output.path` through `kubb-lock.yaml`. Nothing is written.
    * The run exits with 1 when the output is out of date and with 2 when it fails.
    */
   check?: boolean
@@ -103,7 +103,7 @@ export type GenerateCommandOptions = {
    */
   diff?: boolean
   /**
-   * Generates even when `kubb.lock` says the output is up to date.
+   * Generates even when `kubb-lock.yaml` says the output is up to date.
    */
   force?: boolean
 }

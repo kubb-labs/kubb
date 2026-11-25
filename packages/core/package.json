@@ -73,7 +73,8 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "tinyexec": "catalog:",
-    "verkit": "^0.5.0"
+    "verkit": "^0.5.0",
+    "yaml": "catalog:"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",

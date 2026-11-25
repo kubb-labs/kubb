@@ -161,7 +161,7 @@ When you commit the generated files, [`kubb generate --check`](/docs/5.x/referen
 
 When the job exits with code 1, run `npx kubb generate` and commit the result. Code 2 means the config or the generation failed. See [Exit codes](/docs/5.x/reference/commands/generate#exit-codes).
 
-Commit [`kubb.lock`](/docs/5.x/reference/commands/generate#kubb-lock) next to the generated files. The check reads it to recognize formatted output, so the job needs no formatter or linter.
+Commit [`kubb-lock.yaml`](/docs/5.x/reference/commands/generate#kubb-lock) next to the generated files. The check reads it to recognize formatted output, so the job needs no formatter or linter.
 
 ::code-group
 
