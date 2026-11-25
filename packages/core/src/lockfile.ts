@@ -47,11 +47,25 @@ function toLockfile(data: unknown): Pick<LockfileObject, 'files' | 'inputs'> | n
   return { files: pick({ record: data.files, isValid: isEntry }), inputs: pick({ record: data.inputs, isValid: isInputs }) }
 }
 
-async function readLockfile(lockfilePath: string): Promise<Pick<LockfileObject, 'files' | 'inputs'> | null> {
-  try {
-    const stored = await readIfExists(lockfilePath)
+// The text last parsed or written per path. Parsing YAML costs far more than reading the file, and one run loads the lockfile for the up-to-date check and again for each config.
+const parsedLockfiles = new Map<string, { text: string; object: Pick<LockfileObject, 'files' | 'inputs'> | null }>()
 
-    return stored === null ? null : toLockfile(parse(stored))
+function parseLockfile({ path, text }: { path: string; text: string }): Pick<LockfileObject, 'files' | 'inputs'> | null {
+  const cached = parsedLockfiles.get(path)
+  if (cached?.text === text) return cached.object
+
+  // Kubb writes the file itself, so the checks for duplicate keys and for the YAML spec are left out for speed.
+  const object = toLockfile(parse(text, { uniqueKeys: false, strict: false, prettyErrors: false }))
+  parsedLockfiles.set(path, { text, object })
+
+  return object
+}
+
+async function readLockfile(path: string): Promise<Pick<LockfileObject, 'files' | 'inputs'> | null> {
+  try {
+    const text = await readIfExists(path)
+
+    return text === null ? null : parseLockfile({ path, text })
   } catch {
     return null
   }
@@ -187,7 +201,10 @@ export class Lockfile {
       const object: LockfileObject = { lockfileVersion: LOCKFILE_VERSION, ...(Object.keys(inputs).length > 0 && { inputs }), files }
       // Through the storage, so a run that stages its files stages the lockfile with them.
       // `lineWidth: 0` keeps each value on one line, whatever the length of a path.
-      await this.#storage.writeItem(resolve(this.#root, LOCKFILE_NAME), stringify(object, { lineWidth: 0 }))
+      const path = resolve(this.#root, LOCKFILE_NAME)
+      const text = stringify(object, { lineWidth: 0 })
+      await this.#storage.writeItem(path, text)
+      parsedLockfiles.set(path, { text, object: { files, inputs } })
     } catch {
       /* the record is an optimization, so a storage failure here must not fail a finished build */
     }
