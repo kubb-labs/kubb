@@ -410,7 +410,7 @@ describe('createKubb', () => {
 
 type ProjectBuild = {
   source?: string
-  processOutput?: () => Promise<Array<Diagnostic>>
+  processOutput?: (context: { config: Config }) => Promise<Array<Diagnostic>>
 }
 
 describe('Kubb#generate', () => {
@@ -587,6 +587,23 @@ describe('Kubb#generate', () => {
     expect(writeItem).not.toHaveBeenCalledWith(project.filePath, expect.anything())
     expect(project.mtime()).toBe(afterFirst)
     expect(project.read()).toBe(formatted)
+  })
+
+  it('turns the formatter and linter off for a rebuild that left every file as it was', async () => {
+    const project = createProject()
+    const formatted = 'export const hello = "world";\n'
+    const formats: Array<Config['output']['format']> = []
+    const processOutput: ProjectBuild['processOutput'] = async ({ config }) => {
+      formats.push(config.output.format)
+      fs.writeFileSync(project.filePath, formatted, { encoding: 'utf-8' })
+      return []
+    }
+
+    await project.generate({ processOutput })
+    await project.generate({ processOutput })
+    await project.generate({ processOutput, source: `export const hello = 'there'` })
+
+    expect(formats).toStrictEqual(['oxfmt', false, 'oxfmt'])
   })
 
   it('rewrites the output when the generated source actually changed', async () => {

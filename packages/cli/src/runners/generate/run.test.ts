@@ -29,13 +29,14 @@ type BootstrapOptions = {
   configs?: Array<Config>
   check?: boolean
   diff?: boolean
+  force?: boolean
 }
 
 /**
  * Runs the command with no configs to generate, so only the bootstrap Configuration group renders.
  * Non-rich, so the group is plain text an assertion can read.
  */
-async function bootstrap({ fail = false, reporters, configs = [], check, diff }: BootstrapOptions = {}) {
+async function bootstrap({ fail = false, reporters, configs = [], check, diff, force }: BootstrapOptions = {}) {
   const lines: Array<string> = []
   // What reached stdout alone, since `json` keeps it for the report.
   const stdout: Array<string> = []
@@ -59,7 +60,7 @@ async function bootstrap({ fail = false, reporters, configs = [], check, diff }:
         : Promise.resolve({ configs, configPath: `${process.cwd()}/kubb.config.ts` }),
     )
 
-  await run({ logLevel: 'info', watch: false, reporters, check, diff }).catch((error: Error) => void lines.push(error.message))
+  await run({ logLevel: 'info', watch: false, reporters, check, diff, force }).catch((error: Error) => void lines.push(error.message))
   // A failed build sets `exitCode` instead of calling `exit()`, so telemetry can finish; record it the same way.
   if (process.exitCode) lines.push(`exit ${process.exitCode}`)
   process.exitCode = undefined
@@ -443,6 +444,61 @@ describe('check', () => {
 
     expect(lines.some((line) => line.includes('No kubb.lock found. Run `kubb generate` and commit kubb.lock'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
+  })
+
+  describe('reuse', () => {
+    const upToDate = (lines: Array<string>) =>
+      lines.some((line) => line.includes('Up to date: the config, the spec, and the installed packages match kubb.lock'))
+
+    /** A generated project that reads its spec from a file. Each run loads its config anew, as the CLI does. */
+    async function fromSpecFile() {
+      const target = project()
+      const spec = join(target.root, 'openapi.json')
+      writeFileSync(spec, JSON.stringify(target.config.input))
+      const config = (output: Partial<Config['output']> = {}) =>
+        ({ ...target.config, input: spec, adapter: adapterOas(), plugins: [writesFiles()], output: { ...target.config.output, ...output } }) as Config
+      await bootstrap({ configs: [config()] })
+
+      return { ...target, config, spec }
+    }
+
+    it('skips the build when the config, the spec and the output match kubb.lock', async () => {
+      const { config, snapshot } = await fromSpecFile()
+      const before = snapshot()
+
+      const lines = await bootstrap({ configs: [config()] })
+
+      expect(upToDate(lines)).toBe(true)
+      expect(snapshot()).toStrictEqual(before)
+    })
+
+    it.each([
+      ['--force is passed', () => ({ force: true })],
+      [
+        'the spec changed',
+        ({ spec }: { spec: string }) => void writeFileSync(spec, JSON.stringify({ openapi: '3.0.3', info: { title: 'pets', version: '2' }, paths: {} })),
+      ],
+      ['a generated file was edited', ({ file }: { file: (name: string) => string }) => void writeFileSync(file('pet.ts'), 'export const pet = 1\n')],
+      ['another reporter needs the results', () => ({ reporters: ['cli', 'json'] as Array<'cli' | 'json'> })],
+    ])('generates again when %s', async (_name, change) => {
+      const target = await fromSpecFile()
+      const options = change(target) ?? {}
+      // The `json` reporter prints its report to stdout.
+      using _stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
+
+      const lines = await bootstrap({ configs: [target.config()], ...options })
+
+      expect(upToDate(lines)).toBe(false)
+      expect(readFileSync(target.file('pet.ts'), 'utf8')).toContain('name: "cat"')
+    })
+
+    it('generates again when a config option changed', async () => {
+      const { config } = await fromSpecFile()
+
+      const lines = await bootstrap({ configs: [config({ defaultBanner: false })] })
+
+      expect(upToDate(lines)).toBe(false)
+    })
   })
 
   it('prints a hunk for the edited file with --diff', async () => {

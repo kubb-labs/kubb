@@ -3,6 +3,7 @@ import { relative, resolve } from 'node:path'
 import { inParallel, readIfExists, toPosixPath, writeRaw } from '@internals/utils'
 import type { Storage } from './createStorage.ts'
 import { FILE_CONCURRENCY } from './FileManager.ts'
+import type { InputFingerprint } from './inputFingerprint.ts'
 
 /** Bumped when the stored shape changes, so an older lock file is discarded instead of misread. */
 const LOCKFILE_VERSION = 1
@@ -26,6 +27,10 @@ type OutputManifestEntry = {
 
 type Lockfile = {
   lockfileVersion: number
+  /**
+   * What each config last generated from, keyed by the config's name.
+   */
+  inputs?: Record<string, InputFingerprint>
   files: Record<string, OutputManifestEntry>
 }
 
@@ -49,11 +54,25 @@ export type OutputManifest = {
    */
   track(options: { key: string; source: string }): void
   /**
+   * `true` when every tracked file was up to date, so the output passes have nothing new to run over.
+   */
+  readonly settled: boolean
+  /**
+   * What the config called `name` last generated from, when the lock file recorded it.
+   */
+  inputs(name: string): InputFingerprint | undefined
+  /**
+   * Whether every file in the lock file still holds its recorded output. With `cleanDir`, that
+   * folder must also hold no file the lock file does not list.
+   */
+  matchesDisk(options?: { cleanDir?: string }): Promise<boolean>
+  /**
    * Re-reads the files generated this run and writes `kubb.lock` with one entry for each. An entry
    * from an earlier run stays while its file still holds the recorded output, so a run that
-   * generates a different set of files keeps what another config recorded.
+   * generates a different set of files keeps what another config recorded. `inputs` records what
+   * the config called `name` generated from, and drops that record when it is `null`.
    */
-  commit(): Promise<void>
+  commit(options?: { name: string; inputs: InputFingerprint | null }): Promise<void>
 }
 
 /** Line endings are normalized, so a checkout that converts them still matches the lock file. */
@@ -65,7 +84,7 @@ const isEntry = (value: unknown): value is OutputManifestEntry =>
   typeof (value as OutputManifestEntry).source === 'string' &&
   typeof (value as OutputManifestEntry).output === 'string'
 
-async function loadEntries(lockPath: string): Promise<Record<string, OutputManifestEntry> | null> {
+async function loadLockfile(lockPath: string): Promise<Pick<Lockfile, 'files' | 'inputs'> | null> {
   try {
     const stored = await readIfExists(lockPath)
     if (stored === null) return null
@@ -74,7 +93,9 @@ async function loadEntries(lockPath: string): Promise<Record<string, OutputManif
     if (data.lockfileVersion !== LOCKFILE_VERSION) return null
     if (typeof data.files !== 'object' || data.files === null || Array.isArray(data.files)) return null
 
-    return Object.fromEntries(Object.entries(data.files).filter(([, entry]) => isEntry(entry)))
+    const inputs = typeof data.inputs === 'object' && data.inputs !== null ? data.inputs : {}
+
+    return { files: Object.fromEntries(Object.entries(data.files).filter(([, entry]) => isEntry(entry))), inputs }
   } catch {
     return null
   }
@@ -91,8 +112,9 @@ async function loadEntries(lockPath: string): Promise<Record<string, OutputManif
  */
 export async function createOutputManifest({ storage, root }: { storage: Storage; root: string }): Promise<OutputManifest> {
   const lockPath = resolve(root, LOCKFILE_NAME)
-  const loaded = await loadEntries(lockPath)
-  const entries = loaded ?? {}
+  const loaded = await loadLockfile(lockPath)
+  const entries = loaded?.files ?? {}
+  const settledKeys = new Set<string>()
   const toLockKey = (key: string): string => toPosixPath(relative(root, resolve(root, key)))
   const tracked = new Map<string, string>()
 
@@ -100,14 +122,34 @@ export async function createOutputManifest({ storage, root }: { storage: Storage
     exists: loaded !== null,
     isUpToDate({ key, source, disk }) {
       const entry = entries[toLockKey(key)]
-      if (!entry) return false
+      if (!entry || entry.source !== digest(source) || entry.output !== digest(disk)) return false
+      settledKeys.add(key)
 
-      return entry.source === digest(source) && entry.output === digest(disk)
+      return true
+    },
+    get settled() {
+      return [...tracked.keys()].every((key) => settledKeys.has(key))
+    },
+    inputs: (name) => loaded?.inputs?.[name],
+    async matchesDisk({ cleanDir } = {}) {
+      const stale = new Set<string>()
+      await inParallel({
+        items: Object.entries(entries),
+        limit: FILE_CONCURRENCY,
+        run: async ([key, entry]) => {
+          const stored = await storage.readItem(resolve(root, key))
+          if (stored === null || digest(stored) !== entry.output) stale.add(key)
+        },
+      })
+      if (stale.size) return false
+      if (!cleanDir) return true
+
+      return (await storage.readKeys(cleanDir)).every((name) => Object.hasOwn(entries, toLockKey(resolve(cleanDir, name))))
     },
     track({ key, source }) {
       tracked.set(key, digest(source))
     },
-    async commit() {
+    async commit(options) {
       try {
         const next: Record<string, OutputManifestEntry> = {}
         const written = new Set([...tracked.keys()].map(toLockKey))
@@ -136,7 +178,11 @@ export async function createOutputManifest({ storage, root }: { storage: Storage
             .sort()
             .map((key) => [key, next[key]!]),
         )
-        const content = `${JSON.stringify({ lockfileVersion: LOCKFILE_VERSION, files } satisfies Lockfile, null, 2)}\n`
+        const inputs = { ...loaded?.inputs }
+        if (options?.inputs) inputs[options.name] = options.inputs
+        else if (options) delete inputs[options.name]
+        const lockfile: Lockfile = { lockfileVersion: LOCKFILE_VERSION, ...(Object.keys(inputs).length > 0 && { inputs }), files }
+        const content = `${JSON.stringify(lockfile, null, 2)}\n`
         if (content !== (await readIfExists(lockPath))) await writeRaw(lockPath, content)
       } catch {
         /* the record is an optimization, so a storage failure here must not fail a finished build */

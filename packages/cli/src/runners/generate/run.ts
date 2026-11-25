@@ -101,6 +101,10 @@ export type GenerateCommandOptions = {
    * Prints a unified diff for each file `check` finds out of date. Needs `check`.
    */
   diff?: boolean
+  /**
+   * Generates even when `kubb.lock` says the output is up to date.
+   */
+  force?: boolean
 }
 
 /** Upper bound in milliseconds for the update check's cache read or write once generation is done. */
@@ -280,6 +284,7 @@ export async function run({
   dryRun,
   check,
   diff,
+  force,
 }: GenerateCommandOptions): Promise<void> {
   const { outputCheck, failureExitCode } = startOutputCheck({ check, diff, watch: watchMode })
 
@@ -358,8 +363,12 @@ export async function run({
 
   try {
     const runConfigs = toRunConfigs({ configs, input, dryRun, outputCheck })
+    // Only the `cli` reporter can do without the results of a build. The others report on each config.
+    const mayReuse = !force && !watchMode && !dryRun && !outputCheck && requestedNames.every((name) => name === 'cli')
+    const upToDate = mayReuse && (await Promise.all(runConfigs.map((config) => Kubb.isFresh(config)))).every(Boolean)
+    if (upToDate && !quiet) logStep(`Up to date: the config, the spec, and the installed packages match ${LOCKFILE_NAME}. Use --force to generate anyway.`)
     // One config that fails does not stop the others.
-    const succeeded = await (watchMode ? watch({ configs: runConfigs, hooks, quiet }) : generate({ configs: runConfigs, hooks }))
+    const succeeded = upToDate || (await (watchMode ? watch({ configs: runConfigs, hooks, quiet }) : generate({ configs: runConfigs, hooks })))
 
     // Aborting settles a request in flight at once; the timeout covers a cache read or write on a stalled disk.
     updateCheck.abort()

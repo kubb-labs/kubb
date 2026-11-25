@@ -117,6 +117,48 @@ describe('createOutputManifest', () => {
     expect(manifest.isUpToDate({ key: file('a.ts'), source: 'const a = 1', disk: formatted })).toBe(false)
   })
 
+  it('keeps the inputs of each config, and drops a record that cannot be made', async () => {
+    const { root, readLock } = project()
+    const first = await createOutputManifest({ storage, root })
+    await first.commit({ name: 'api', inputs: { hash: 'a', sources: ['openapi.yaml'] } })
+    const second = await createOutputManifest({ storage, root })
+    await second.commit({ name: 'admin', inputs: { hash: 'b', sources: [] } })
+
+    expect((await createOutputManifest({ storage, root })).inputs('api')).toStrictEqual({ hash: 'a', sources: ['openapi.yaml'] })
+
+    const third = await createOutputManifest({ storage, root })
+    await third.commit({ name: 'api', inputs: null })
+
+    expect(readLock()).toStrictEqual({ lockfileVersion: 1, inputs: { admin: { hash: 'b', sources: [] } }, files: {} })
+  })
+
+  it.each([
+    ['every file holds its recorded output', () => {}, true],
+    ['a file was edited', ({ file }: { file: (name: string) => string }) => writeFileSync(file('a.ts'), 'const a = 999\n'), false],
+    [
+      'the cleaned folder holds a file the lock file does not list',
+      ({ file }: { file: (name: string) => string }) => writeFileSync(file('extra.ts'), ''),
+      false,
+    ],
+  ])('matches the disk when %s: %s', async (_name, change, expected) => {
+    const target = await recorded()
+    change(target)
+
+    expect(await target.manifest.matchesDisk({ cleanDir: join(target.root, 'gen') })).toBe(expected)
+  })
+
+  it('is settled only while every tracked file was up to date', async () => {
+    const { manifest, file } = await recorded()
+    manifest.track({ key: file('a.ts'), source: 'const a = 1' })
+    manifest.isUpToDate({ key: file('a.ts'), source: 'const a = 1', disk: formatted })
+
+    expect(manifest.settled).toBe(true)
+
+    manifest.track({ key: file('b.ts'), source: 'const b = 2' })
+
+    expect(manifest.settled).toBe(false)
+  })
+
   it('skips a file that disappeared before the commit', async () => {
     const { root, file, readLock } = project()
     const manifest = await createOutputManifest({ storage, root })

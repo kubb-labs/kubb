@@ -79,6 +79,11 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
       description: 'Print a diff for each out-of-date file. Implies --check',
       default: false,
     },
+    force: {
+      type: 'boolean',
+      description: 'Generate even when kubb.lock says the output is up to date',
+      default: false,
+    },
     verbose: {
       type: 'boolean',
       description: 'Override logLevel to verbose',
@@ -112,6 +117,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
       // `--diff` alone is a check that also prints the diffs.
       check: values.check || values.diff,
       diff: values.diff,
+      force: values.force,
     })
   },
 })

@@ -34,6 +34,9 @@ function stubManifest({ upToDate }: { upToDate: boolean }): OutputManifest & { t
   return {
     tracked,
     exists: true,
+    settled: upToDate,
+    inputs: () => undefined,
+    matchesDisk: async () => upToDate,
     isUpToDate() {
       return upToDate
     },

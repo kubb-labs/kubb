@@ -129,7 +129,9 @@ async function writeChanged({
   const stored = cleaned?.some((dir) => isPathInside(file.path, dir)) ? null : await storage.readItem(file.path)
   // Every generated file goes into the lock file, also one this run leaves as it is.
   manifest?.track({ key: file.path, source })
-  if (stored !== null && (matchesStored({ stored, source }) || manifest?.isUpToDate({ key: file.path, source, disk: stored }))) {
+  // Asked for every stored file, so the manifest knows when the whole output is already settled.
+  const upToDate = stored !== null && manifest?.isUpToDate({ key: file.path, source, disk: stored })
+  if (stored !== null && (upToDate || matchesStored({ stored, source }))) {
     return { written: false, stored }
   }
   signal?.throwIfAborted()

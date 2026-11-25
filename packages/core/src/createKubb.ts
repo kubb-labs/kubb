@@ -5,6 +5,7 @@ import { host } from './host.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { detectSharedSchemas, type SharedSchemas } from './detectSharedSchemas.ts'
+import { describeConfig, fingerprintInputs } from './inputFingerprint.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -36,6 +37,9 @@ function resolveConfig(userConfig: UserConfig): Config {
 function writesOutputDirectory(storage: Storage): boolean {
   return storage.name === 'fs'
 }
+
+/** The key of a config's inputs in the lock file. */
+const lockName = (config: Pick<Config, 'name'>): string => config.name ?? 'default'
 
 /**
  * Whether anything runs over the output directory after the files are written. Only then can the
@@ -166,6 +170,32 @@ export class Kubb {
   }
 
   /**
+   * Whether a build of `userConfig` would leave the output as it is: the config, the installed
+   * packages and the source files match what `kubb.lock` recorded, and every generated file still
+   * holds its recorded output. `false` whenever that cannot be told, such as for a URL input.
+   *
+   * @example
+   * ```ts
+   * if (!(await Kubb.isFresh(config))) await createKubb(config).generate()
+   * ```
+   */
+  static async isFresh(userConfig: UserConfig): Promise<boolean> {
+    const config = resolveConfig(userConfig)
+    // `postGenerate` commands can do anything, so a run that skips them is not the same run.
+    if (!writesOutputDirectory(config.storage) || config.output.postGenerate?.length) return false
+
+    const manifest = await createOutputManifest({ storage: config.storage, root: config.root })
+    const recorded = manifest.inputs(lockName(config))
+    const configText = recorded && describeConfig(config)
+    if (!recorded || !configText) return false
+
+    const current = await fingerprintInputs({ root: config.root, configText, sources: recorded.sources })
+    if (current?.hash !== recorded.hash) return false
+
+    return manifest.matchesDisk({ cleanDir: config.output.clean ? resolve(config.root, config.output.path) : undefined })
+  }
+
+  /**
    * Generates every config of a `defineConfig([...])` array in order and yields each result as its config finishes, so
    * memory holds one config at a time. A config that fails does not stop the others. Only an aborted `signal` rejects.
    */
@@ -293,6 +323,8 @@ export class Kubb {
     const hrStart = process.hrtime()
 
     await hooks.callHook('kubb:generation:start', { config })
+    // Read before the build, so it equals what `isFresh` reads on the next run.
+    const configText = writesOutputDirectory(config.storage) ? describeConfig(config) : null
 
     // A setup failure, such as an invalid plugin entry, becomes a diagnostic like any build
     // problem, so reporters still get a failed `kubb:generation:end` for this config.
@@ -323,8 +355,10 @@ export class Kubb {
     }
 
     const processOutput = options.processOutput ?? runOutputPasses
+    // Every file already is what the formatter and linter made of it, so they have nothing to do.
+    const passesConfig = this.#manifest?.settled ? { ...config, output: { ...config.output, format: false as const, lint: false as const } } : config
     const outputDiagnostics = writesOutputDirectory(config.storage)
-      ? await processOutput({ config, outputPath: resolve(config.root, config.output.path), hooks, signal })
+      ? await processOutput({ config: passesConfig, outputPath: resolve(config.root, config.output.path), hooks, signal })
       : await reportSkippedPasses({ config, hooks })
 
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
@@ -333,7 +367,10 @@ export class Kubb {
     // The formatter and linter have had their turn, so what sits on disk now is what the next run
     // has to recognize as unchanged. Only record it when they finished: a pass that failed halfway
     // leaves files Kubb has to stay free to regenerate.
-    if (!failed) await this.#manifest?.commit()
+    if (!failed && this.#manifest) {
+      const inputs = configText && (await fingerprintInputs({ root: config.root, configText, sources: config.adapter?.sources ?? [] }))
+      await this.#manifest.commit({ name: lockName(config), inputs: inputs || null })
+    }
 
     await this.#end({
       config,
